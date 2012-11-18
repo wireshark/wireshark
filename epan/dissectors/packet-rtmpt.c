@@ -141,61 +141,6 @@ static dissector_handle_t rtmpt_http_handle;
 
 static gboolean rtmpt_desegment = TRUE;
 
-static int proto_amf = -1;
-
-static int hf_amf_version = -1;
-static int hf_amf_header_count = -1;
-static int hf_amf_header_name = -1;
-static int hf_amf_header_must_understand = -1;
-static int hf_amf_header_length = -1;
-static int hf_amf_header_value_type = -1;
-static int hf_amf_message_count = -1;
-static int hf_amf_message_target_uri = -1;
-static int hf_amf_message_response_uri = -1;
-static int hf_amf_message_length = -1;
-
-static int hf_amf_amf0_type = -1;
-static int hf_amf_amf3_type = -1;
-static int hf_amf_number = -1;
-static int hf_amf_integer = -1;
-static int hf_amf_boolean = -1;
-static int hf_amf_stringlength = -1;
-static int hf_amf_string = -1;
-static int hf_amf_string_reference = -1;
-static int hf_amf_object_reference = -1;
-static int hf_amf_date = -1;
-static int hf_amf_longstringlength = -1;
-static int hf_amf_longstring = -1;
-static int hf_amf_xml_doc = -1;
-static int hf_amf_xmllength = -1;
-static int hf_amf_xml = -1;
-static int hf_amf_int64 = -1;
-static int hf_amf_bytearraylength = -1;
-static int hf_amf_bytearray = -1;
-
-static int hf_amf_object = -1;
-static int hf_amf_traitcount = -1;
-static int hf_amf_classnamelength = -1;
-static int hf_amf_classname = -1;
-static int hf_amf_membernamelength = -1;
-static int hf_amf_membername = -1;
-static int hf_amf_trait_reference = -1;
-static int hf_amf_ecmaarray = -1;
-static int hf_amf_strictarray = -1;
-static int hf_amf_array = -1;
-static int hf_amf_arraylength = -1;
-static int hf_amf_arraydenselength = -1;
-
-static gint ett_amf = -1;
-static gint ett_amf_headers = -1;
-static gint ett_amf_messages = -1;
-static gint ett_amf_value = -1;
-static gint ett_amf_property = -1;
-static gint ett_amf_string = -1;
-static gint ett_amf_array_element = -1;
-static gint ett_amf_traits = -1;
-static gint ett_amf_trait_member = -1;
-
 #define RTMP_PORT                     1935
 
 #define RTMPT_MAGIC                   0x03
@@ -244,42 +189,6 @@ static gint ett_amf_trait_member = -1;
 #define RTMPT_UCM_PING_REQUEST        0x06
 #define RTMPT_UCM_PING_RESPONSE       0x07
 
-/* AMF0 type markers */
-#define RTMPT_AMF0_NUMBER              0x00
-#define RTMPT_AMF0_BOOLEAN             0x01
-#define RTMPT_AMF0_STRING              0x02
-#define RTMPT_AMF0_OBJECT              0x03
-#define RTMPT_AMF0_MOVIECLIP           0x04
-#define RTMPT_AMF0_NULL                0x05
-#define RTMPT_AMF0_UNDEFINED           0x06
-#define RTMPT_AMF0_REFERENCE           0x07
-#define RTMPT_AMF0_ECMA_ARRAY          0x08
-#define RTMPT_AMF0_END_OF_OBJECT       0x09
-#define RTMPT_AMF0_STRICT_ARRAY        0x0A
-#define RTMPT_AMF0_DATE                0x0B
-#define RTMPT_AMF0_LONG_STRING         0x0C
-#define RTMPT_AMF0_UNSUPPORTED         0x0D
-#define RTMPT_AMF0_RECORDSET           0x0E
-#define RTMPT_AMF0_XML                 0x0F
-#define RTMPT_AMF0_TYPED_OBJECT        0x10
-#define RTMPT_AMF0_AMF3_MARKER         0x11
-#define RTMPT_AMF0_INT64               0x22
-
-/* AMF3 type markers */
-#define RTMPT_AMF3_UNDEFINED           0x00
-#define RTMPT_AMF3_NULL                0x01
-#define RTMPT_AMF3_FALSE               0x02
-#define RTMPT_AMF3_TRUE                0x03
-#define RTMPT_AMF3_INTEGER             0x04
-#define RTMPT_AMF3_DOUBLE              0x05
-#define RTMPT_AMF3_STRING              0x06
-#define RTMPT_AMF3_XML_DOC             0x07
-#define RTMPT_AMF3_DATE                0x08
-#define RTMPT_AMF3_ARRAY               0x09
-#define RTMPT_AMF3_OBJECT              0x0A
-#define RTMPT_AMF3_XML                 0x0B
-#define RTMPT_AMF3_BYTEARRAY           0x0C
-
 #define RTMPT_TEXT_RTMP_HEADER        "RTMP Header"
 #define RTMPT_TEXT_RTMP_BODY          "RTMP Body"
 
@@ -326,46 +235,6 @@ static const value_string rtmpt_ucm_vals[] = {
         { RTMPT_UCM_STREAM_ISRECORDED,      "Stream Is Recorded" },
         { RTMPT_UCM_PING_REQUEST,           "Ping Request" },
         { RTMPT_UCM_PING_RESPONSE,          "Ping Response" },
-        { 0, NULL }
-};
-
-static const value_string rtmpt_amf0_type_vals[] = {
-        { RTMPT_AMF0_NUMBER,                "Number" },
-        { RTMPT_AMF0_BOOLEAN,               "Boolean" },
-        { RTMPT_AMF0_STRING,                "String" },
-        { RTMPT_AMF0_OBJECT,                "Object" },
-        { RTMPT_AMF0_MOVIECLIP,             "Movie clip" },
-        { RTMPT_AMF0_NULL,                  "Null" },
-        { RTMPT_AMF0_UNDEFINED,             "Undefined" },
-        { RTMPT_AMF0_REFERENCE,             "Reference" },
-        { RTMPT_AMF0_ECMA_ARRAY,            "ECMA array" },
-        { RTMPT_AMF0_END_OF_OBJECT,         "End of object" },
-        { RTMPT_AMF0_STRICT_ARRAY,          "Strict array" },
-        { RTMPT_AMF0_DATE,                  "Date" },
-        { RTMPT_AMF0_LONG_STRING,           "Long string" },
-        { RTMPT_AMF0_UNSUPPORTED,           "Unsupported" },
-        { RTMPT_AMF0_RECORDSET,             "Record set" },
-        { RTMPT_AMF0_XML,                   "XML" },
-        { RTMPT_AMF0_TYPED_OBJECT,          "Typed object" },
-        { RTMPT_AMF0_AMF3_MARKER,           "Switch to AMF3" },
-        { RTMPT_AMF0_INT64,                 "Int64" },
-        { 0, NULL }
-};
-
-static const value_string rtmpt_amf3_type_vals[] = {
-        { RTMPT_AMF3_UNDEFINED,             "Undefined" },
-        { RTMPT_AMF3_NULL,                  "Null" },
-        { RTMPT_AMF3_FALSE,                 "False" },
-        { RTMPT_AMF3_TRUE,                  "True" },
-        { RTMPT_AMF3_INTEGER,               "Integer" },
-        { RTMPT_AMF3_DOUBLE,                "Double" },
-        { RTMPT_AMF3_STRING,                "String" },
-        { RTMPT_AMF3_XML_DOC,               "XML document" },
-        { RTMPT_AMF3_DATE,                  "Date" },
-        { RTMPT_AMF3_ARRAY,                 "Array" },
-        { RTMPT_AMF3_OBJECT,                "Object" },
-        { RTMPT_AMF3_XML,                   "XML" },
-        { RTMPT_AMF3_BYTEARRAY,             "ByteArray" },
         { 0, NULL }
 };
 
@@ -429,6 +298,137 @@ static const value_string rtmpt_video_codecs[] = {
         { 5,                                "On2 VP6+alpha" },
         { 6,                                "Screen video version 2" },
         { 7,                                "H.264" },
+        { 0, NULL }
+};
+
+static int proto_amf = -1;
+
+static int hf_amf_version = -1;
+static int hf_amf_header_count = -1;
+static int hf_amf_header_name = -1;
+static int hf_amf_header_must_understand = -1;
+static int hf_amf_header_length = -1;
+static int hf_amf_header_value_type = -1;
+static int hf_amf_message_count = -1;
+static int hf_amf_message_target_uri = -1;
+static int hf_amf_message_response_uri = -1;
+static int hf_amf_message_length = -1;
+
+static int hf_amf_amf0_type = -1;
+static int hf_amf_amf3_type = -1;
+static int hf_amf_number = -1;
+static int hf_amf_integer = -1;
+static int hf_amf_boolean = -1;
+static int hf_amf_stringlength = -1;
+static int hf_amf_string = -1;
+static int hf_amf_string_reference = -1;
+static int hf_amf_object_reference = -1;
+static int hf_amf_date = -1;
+static int hf_amf_longstringlength = -1;
+static int hf_amf_longstring = -1;
+static int hf_amf_xml_doc = -1;
+static int hf_amf_xmllength = -1;
+static int hf_amf_xml = -1;
+static int hf_amf_int64 = -1;
+static int hf_amf_bytearraylength = -1;
+static int hf_amf_bytearray = -1;
+
+static int hf_amf_object = -1;
+static int hf_amf_traitcount = -1;
+static int hf_amf_classnamelength = -1;
+static int hf_amf_classname = -1;
+static int hf_amf_membernamelength = -1;
+static int hf_amf_membername = -1;
+static int hf_amf_trait_reference = -1;
+static int hf_amf_ecmaarray = -1;
+static int hf_amf_strictarray = -1;
+static int hf_amf_array = -1;
+static int hf_amf_arraylength = -1;
+static int hf_amf_arraydenselength = -1;
+
+static gint ett_amf = -1;
+static gint ett_amf_headers = -1;
+static gint ett_amf_messages = -1;
+static gint ett_amf_value = -1;
+static gint ett_amf_property = -1;
+static gint ett_amf_string = -1;
+static gint ett_amf_array_element = -1;
+static gint ett_amf_traits = -1;
+static gint ett_amf_trait_member = -1;
+
+/* AMF0 type markers */
+#define AMF0_NUMBER              0x00
+#define AMF0_BOOLEAN             0x01
+#define AMF0_STRING              0x02
+#define AMF0_OBJECT              0x03
+#define AMF0_MOVIECLIP           0x04
+#define AMF0_NULL                0x05
+#define AMF0_UNDEFINED           0x06
+#define AMF0_REFERENCE           0x07
+#define AMF0_ECMA_ARRAY          0x08
+#define AMF0_END_OF_OBJECT       0x09
+#define AMF0_STRICT_ARRAY        0x0A
+#define AMF0_DATE                0x0B
+#define AMF0_LONG_STRING         0x0C
+#define AMF0_UNSUPPORTED         0x0D
+#define AMF0_RECORDSET           0x0E
+#define AMF0_XML                 0x0F
+#define AMF0_TYPED_OBJECT        0x10
+#define AMF0_AMF3_MARKER         0x11
+#define AMF0_INT64               0x22
+
+/* AMF3 type markers */
+#define AMF3_UNDEFINED           0x00
+#define AMF3_NULL                0x01
+#define AMF3_FALSE               0x02
+#define AMF3_TRUE                0x03
+#define AMF3_INTEGER             0x04
+#define AMF3_DOUBLE              0x05
+#define AMF3_STRING              0x06
+#define AMF3_XML_DOC             0x07
+#define AMF3_DATE                0x08
+#define AMF3_ARRAY               0x09
+#define AMF3_OBJECT              0x0A
+#define AMF3_XML                 0x0B
+#define AMF3_BYTEARRAY           0x0C
+
+static const value_string amf0_type_vals[] = {
+        { AMF0_NUMBER,                "Number" },
+        { AMF0_BOOLEAN,               "Boolean" },
+        { AMF0_STRING,                "String" },
+        { AMF0_OBJECT,                "Object" },
+        { AMF0_MOVIECLIP,             "Movie clip" },
+        { AMF0_NULL,                  "Null" },
+        { AMF0_UNDEFINED,             "Undefined" },
+        { AMF0_REFERENCE,             "Reference" },
+        { AMF0_ECMA_ARRAY,            "ECMA array" },
+        { AMF0_END_OF_OBJECT,         "End of object" },
+        { AMF0_STRICT_ARRAY,          "Strict array" },
+        { AMF0_DATE,                  "Date" },
+        { AMF0_LONG_STRING,           "Long string" },
+        { AMF0_UNSUPPORTED,           "Unsupported" },
+        { AMF0_RECORDSET,             "Record set" },
+        { AMF0_XML,                   "XML" },
+        { AMF0_TYPED_OBJECT,          "Typed object" },
+        { AMF0_AMF3_MARKER,           "Switch to AMF3" },
+        { AMF0_INT64,                 "Int64" },
+        { 0, NULL }
+};
+
+static const value_string amf3_type_vals[] = {
+        { AMF3_UNDEFINED,             "Undefined" },
+        { AMF3_NULL,                  "Null" },
+        { AMF3_FALSE,                 "False" },
+        { AMF3_TRUE,                  "True" },
+        { AMF3_INTEGER,               "Integer" },
+        { AMF3_DOUBLE,                "Double" },
+        { AMF3_STRING,                "String" },
+        { AMF3_XML_DOC,               "XML document" },
+        { AMF3_DATE,                  "Date" },
+        { AMF3_ARRAY,                 "Array" },
+        { AMF3_OBJECT,                "Object" },
+        { AMF3_XML,                   "XML" },
+        { AMF3_BYTEARRAY,             "ByteArray" },
         { 0, NULL }
 };
 
@@ -567,44 +567,44 @@ rtmpt_get_amf_length(tvbuff_t *tvb, gint offset)
                 if (remain-rv<1) return remain;
                 iObjType = tvb_get_guint8(tvb, offset+rv);
 
-                if (depth>0 && itemlen==2 && iObjType==RTMPT_AMF0_END_OF_OBJECT) {
+                if (depth>0 && itemlen==2 && iObjType==AMF0_END_OF_OBJECT) {
                         rv++;
                         depth--;
                         continue;
                 }
 
                 switch (iObjType) {
-                case RTMPT_AMF0_NUMBER:
+                case AMF0_NUMBER:
                         itemlen = 9;
                         break;
-                case RTMPT_AMF0_BOOLEAN:
+                case AMF0_BOOLEAN:
                         itemlen = 2;
                         break;
-                case RTMPT_AMF0_STRING:
+                case AMF0_STRING:
                         if (remain-rv<3) return remain;
                         itemlen = tvb_get_ntohs(tvb, offset+rv+1) + 3;
                         break;
-                case RTMPT_AMF0_NULL:
-                case RTMPT_AMF0_UNDEFINED:
-                case RTMPT_AMF0_UNSUPPORTED:
+                case AMF0_NULL:
+                case AMF0_UNDEFINED:
+                case AMF0_UNSUPPORTED:
                         itemlen= 1;
                         break;
-                case RTMPT_AMF0_DATE:
+                case AMF0_DATE:
                         itemlen = 11;
                         break;
-                case RTMPT_AMF0_LONG_STRING:
-                case RTMPT_AMF0_XML:
+                case AMF0_LONG_STRING:
+                case AMF0_XML:
                         if (remain-rv<5) return remain;
                         itemlen = tvb_get_ntohl(tvb, offset+rv+1) + 5;
                         break;
-                case RTMPT_AMF0_INT64:
+                case AMF0_INT64:
                         itemlen = 9;
                         break;
-                case RTMPT_AMF0_OBJECT:
+                case AMF0_OBJECT:
                         itemlen = 1;
                         depth++;
                         break;
-                case RTMPT_AMF0_ECMA_ARRAY:
+                case AMF0_ECMA_ARRAY:
                         itemlen = 5;
                         depth++;
                         break;
@@ -637,14 +637,14 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
         if (remain>0 && param==0) {
                 guint8 iObjType = tvb_get_guint8(tvb, offset);
 
-                if (!prop && iObjType==RTMPT_AMF0_STRING && remain>=3) {
+                if (!prop && iObjType==AMF0_STRING && remain>=3) {
                         iStringLength = tvb_get_ntohs(tvb, offset+1);
                         if (remain>=iStringLength+3) {
                                 return tvb_get_ephemeral_string(tvb, offset+3, iStringLength);
                         }
                 }
 
-                if (prop && iObjType==RTMPT_AMF0_OBJECT) {
+                if (prop && iObjType==AMF0_OBJECT) {
                         offset++;
                         remain--;
 
@@ -653,7 +653,7 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
                                 if (remain<2+iPropLength+3) break;
 
                                 if (tvb_strneql(tvb, offset+2, prop, strlen(prop))==0) {
-                                        if (tvb_get_guint8(tvb, offset+2+iPropLength)!=RTMPT_AMF0_STRING) break;
+                                        if (tvb_get_guint8(tvb, offset+2+iPropLength)!=AMF0_STRING) break;
 
                                         iStringLength = tvb_get_ntohs(tvb, offset+2+iPropLength+1);
                                         if (remain<2+iPropLength+3+iStringLength) break;
@@ -684,7 +684,7 @@ rtmpt_get_amf_txid(tvbuff_t *tvb, gint offset)
         }
         if (remain>=9) {
                 guint8 iObjType = tvb_get_guint8(tvb, offset);
-                if (iObjType==RTMPT_AMF0_NUMBER) {
+                if (iObjType==AMF0_NUMBER) {
                         return (guint32)tvb_get_ntohieee_double(tvb, offset+1);
                 }
         }
@@ -868,7 +868,7 @@ dissect_amf0_property_list(tvbuff_t *tvb, gint offset, proto_tree *tree, guint *
                 /* UTF-8: property name */
                 iStringLength = tvb_get_ntohs(tvb, offset);
                 if (iStringLength == 0 &&
-                    tvb_get_guint8(tvb, offset + 2) == RTMPT_AMF0_END_OF_OBJECT)
+                    tvb_get_guint8(tvb, offset + 2) == AMF0_END_OF_OBJECT)
                         break;
                 count++;
                 iStringValue = tvb_get_ephemeral_string(tvb, offset + 2, iStringLength);
@@ -920,10 +920,10 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
         iObjType = tvb_get_guint8(tvb, offset);
         if (parent_ti != NULL)
                 proto_item_append_text(parent_ti, " %s",
-                                       val_to_str_const(iObjType, rtmpt_amf0_type_vals, "Unknown"));
+                                       val_to_str_const(iObjType, amf0_type_vals, "Unknown"));
         switch (iObjType) {
 
-        case RTMPT_AMF0_OBJECT:
+        case AMF0_OBJECT:
                 /*
                  * For object types, make the top-level protocol tree
                  * item a field for that type.
@@ -931,7 +931,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 ti = proto_tree_add_item(tree, hf_amf_object, tvb, offset, -1, ENC_NA);
                 break;
 
-        case RTMPT_AMF0_ECMA_ARRAY:
+        case AMF0_ECMA_ARRAY:
                 /*
                  * For ECMA array types, make the top-level protocol tree
                  * item a field for that type.
@@ -939,7 +939,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 ti = proto_tree_add_item(tree, hf_amf_ecmaarray, tvb, offset, -1, ENC_NA);
                 break;
 
-        case RTMPT_AMF0_STRICT_ARRAY:
+        case AMF0_STRICT_ARRAY:
                 /*
                  * For strict array types, make the top-level protocol tree
                  * item a field for that type.
@@ -953,7 +953,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                  * field for that type will be used for the value.
                  */
                 ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                                         val_to_str_const(iObjType, rtmpt_amf0_type_vals, "Unknown"));
+                                         val_to_str_const(iObjType, amf0_type_vals, "Unknown"));
                 break;
         }
 
@@ -962,7 +962,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
         iValueOffset++;
 
         switch (iObjType) {
-        case RTMPT_AMF0_NUMBER:
+        case AMF0_NUMBER:
                 iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
                 proto_tree_add_double(val_tree, hf_amf_number, tvb, iValueOffset, 8, iDoubleValue);
                 iValueOffset += 8;
@@ -970,7 +970,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 if (parent_ti != NULL)
                         proto_item_append_text(parent_ti, " %." STRINGIFY(DBL_DIG) "g", iDoubleValue);
                 break;
-        case RTMPT_AMF0_BOOLEAN:
+        case AMF0_BOOLEAN:
                 iBooleanValue = tvb_get_guint8(tvb, iValueOffset);
                 proto_tree_add_boolean(val_tree, hf_amf_boolean, tvb, iValueOffset, 1, iBooleanValue);
                 iValueOffset += 1;
@@ -978,7 +978,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 if (parent_ti != NULL)
                         proto_item_append_text(parent_ti, iBooleanValue ? " true" : " false");
                 break;
-        case RTMPT_AMF0_STRING:
+        case AMF0_STRING:
                 iStringLength = tvb_get_ntohs(tvb, iValueOffset);
                 proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
                 iValueOffset += 2;
@@ -990,20 +990,20 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 if (parent_ti != NULL)
                         proto_item_append_text(parent_ti, " '%s'", iStringValue);
                 break;
-        case RTMPT_AMF0_OBJECT:
+        case AMF0_OBJECT:
                 iValueOffset = dissect_amf0_property_list(tvb, iValueOffset, val_tree, &count, amf3_encoding);
                 proto_item_append_text(ti, " (%u items)", count);
                 break;
-        case RTMPT_AMF0_NULL:
-        case RTMPT_AMF0_UNDEFINED:
+        case AMF0_NULL:
+        case AMF0_UNDEFINED:
                 break;
-        case RTMPT_AMF0_REFERENCE:
+        case AMF0_REFERENCE:
                 iIntegerValue = tvb_get_ntohs(tvb, iValueOffset);
                 proto_tree_add_uint(val_tree, hf_amf_object_reference, tvb, iValueOffset, 2, iIntegerValue);
                 iValueOffset += 2;
                 proto_item_append_text(ti, " %d", iIntegerValue);
                 break;
-        case RTMPT_AMF0_ECMA_ARRAY:
+        case AMF0_ECMA_ARRAY:
                 /*
                  * Counted list type, with end marker. The count appears to be
                  * more of a hint than a rule, and is sometimes sent as 0 or
@@ -1021,11 +1021,11 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 iValueOffset = dissect_amf0_property_list(tvb, iValueOffset, val_tree, &count, amf3_encoding);
                 proto_item_append_text(ti, " (%u items)", count);
                 break;
-        case RTMPT_AMF0_END_OF_OBJECT:
+        case AMF0_END_OF_OBJECT:
                 proto_tree_add_text(tree, tvb, iValueOffset, 3, "End Of Object Marker");
                 iValueOffset += 3;
                 break;
-        case RTMPT_AMF0_STRICT_ARRAY:
+        case AMF0_STRICT_ARRAY:
                 /*
                  * Counted list type, without end marker. Number of values
                  * is determined by count, values are assumed to form a
@@ -1039,7 +1039,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                         iValueOffset = dissect_amf0_value_type(tvb, iValueOffset, val_tree, amf3_encoding, NULL);
                 proto_item_append_text(ti, " (%u items)", iArrayLength);
                 break;
-        case RTMPT_AMF0_DATE:
+        case AMF0_DATE:
                 iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
                 t.secs = (time_t)(iDoubleValue/1000);
                 t.nsecs = (int)((iDoubleValue - 1000*(double)t.secs) * 1000000);
@@ -1051,22 +1051,22 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 /* time-zone */
                 iValueOffset += 2;
                 break;
-        case RTMPT_AMF0_LONG_STRING:
-        case RTMPT_AMF0_XML: /* same representation */
+        case AMF0_LONG_STRING:
+        case AMF0_XML: /* same representation */
                 iStringLength = tvb_get_ntohl(tvb, iValueOffset);
                 proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
                 iValueOffset += 4;
                 iStringValue = tvb_get_ephemeral_string_enc(tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                 if (iStringLength != 0)
-                        proto_tree_add_string(val_tree, (iObjType==RTMPT_AMF0_XML) ? hf_amf_xml_doc : hf_amf_longstring, tvb, iValueOffset, iStringLength, iStringValue);
+                        proto_tree_add_string(val_tree, (iObjType==AMF0_XML) ? hf_amf_xml_doc : hf_amf_longstring, tvb, iValueOffset, iStringLength, iStringValue);
                 iValueOffset += iStringLength;
                 proto_item_append_text(ti, " '%s'", iStringValue);
                 if (parent_ti != NULL)
                         proto_item_append_text(parent_ti, " '%s'", iStringValue);
                 break;
-        case RTMPT_AMF0_UNSUPPORTED:
+        case AMF0_UNSUPPORTED:
                 break;
-        case RTMPT_AMF0_TYPED_OBJECT:
+        case AMF0_TYPED_OBJECT:
                 /* class-name */
                 iStringLength = tvb_get_ntohs(tvb, iValueOffset);
                 proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
@@ -1076,10 +1076,10 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 iValueOffset += iStringLength;
                 iValueOffset = dissect_amf0_property_list(tvb, iValueOffset, val_tree, &count, amf3_encoding);
                 break;
-        case RTMPT_AMF0_AMF3_MARKER:
+        case AMF0_AMF3_MARKER:
                 *amf3_encoding = TRUE;
                 break;
-        case RTMPT_AMF0_INT64:
+        case AMF0_INT64:
                 iInteger64Value = tvb_get_ntoh64(tvb, iValueOffset);
                 proto_tree_add_int64(val_tree, hf_amf_int64, tvb, iValueOffset, 8, iInteger64Value);
                 iValueOffset += 8;
@@ -1169,10 +1169,10 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
         iObjType = tvb_get_guint8(tvb, offset);
         if (parent_ti != NULL)
                 proto_item_append_text(parent_ti, " %s",
-                                       val_to_str_const(iObjType, rtmpt_amf3_type_vals, "Unknown"));
+                                       val_to_str_const(iObjType, amf3_type_vals, "Unknown"));
         switch (iObjType) {
 
-        case RTMPT_AMF3_ARRAY:
+        case AMF3_ARRAY:
                 /*
                  * For array types, make the top-level protocol tree
                  * item a field for that type.
@@ -1180,7 +1180,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                 ti = proto_tree_add_item(tree, hf_amf_array, tvb, offset, -1, ENC_NA);
                 break;
 
-        case RTMPT_AMF3_OBJECT:
+        case AMF3_OBJECT:
                 /*
                  * For object types, make the top-level protocol tree
                  * item a field for that type.
@@ -1194,7 +1194,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                  * field for that type will be used for the value.
                  */
                 ti = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                                         val_to_str_const(iObjType, rtmpt_amf3_type_vals, "Unknown"));
+                                         val_to_str_const(iObjType, amf3_type_vals, "Unknown"));
                 break;
         }
 
@@ -1203,18 +1203,18 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
         iValueOffset++;
 
         switch (iObjType) {
-        case RTMPT_AMF3_UNDEFINED:
-        case RTMPT_AMF3_NULL:
+        case AMF3_UNDEFINED:
+        case AMF3_NULL:
                 break;
-        case RTMPT_AMF3_FALSE:
+        case AMF3_FALSE:
                 proto_tree_add_boolean(val_tree, hf_amf_boolean, tvb, 0, 0, FALSE);
                 proto_item_append_text(ti, " false");
                 break;
-        case RTMPT_AMF3_TRUE:
+        case AMF3_TRUE:
                 proto_tree_add_boolean(val_tree, hf_amf_boolean, tvb, 0, 0, TRUE);
                 proto_item_append_text(ti, " true");
                 break;
-        case RTMPT_AMF3_INTEGER:
+        case AMF3_INTEGER:
                 /* XXX - signed or unsigned? */
                 iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
                 proto_tree_add_uint(val_tree, hf_amf_integer, tvb, iValueOffset, iValueLength, iIntegerValue);
@@ -1223,7 +1223,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                         proto_item_append_text(parent_ti, " %u", iIntegerValue);
                 iValueOffset += iValueLength;
                 break;
-        case RTMPT_AMF3_DOUBLE:
+        case AMF3_DOUBLE:
                 iDoubleValue = tvb_get_ntohieee_double(tvb, iValueOffset);
                 proto_tree_add_double(val_tree, hf_amf_number, tvb, iValueOffset, 8, iDoubleValue);
                 iValueOffset += 8;
@@ -1231,7 +1231,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                 if (parent_ti != NULL)
                         proto_item_append_text(parent_ti, " %." STRINGIFY(DBL_DIG) "g", iDoubleValue);
                 break;
-        case RTMPT_AMF3_STRING:
+        case AMF3_STRING:
                 iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
                 if (iIntegerValue & 0x00000001) {
                         /* the upper 28 bits of the integer value is a string length */
@@ -1254,7 +1254,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                 proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
                 }
                 break;
-        case RTMPT_AMF3_DATE:
+        case AMF3_DATE:
                 iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
                 if (iIntegerValue & 0x00000001) {
                         /*
@@ -1282,7 +1282,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                 proto_item_append_text(parent_ti, " object reference %u", iIntegerValue >> 1);
                 }
                 break;
-        case RTMPT_AMF3_ARRAY:
+        case AMF3_ARRAY:
                 iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
                 if (iIntegerValue & 0x00000001) {
                         /*
@@ -1332,7 +1332,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                 /* Fetch the value */
                                 iObjType = tvb_get_guint8(tvb, offset);
                                 proto_item_append_text(subval_ti, "%s",
-                                                       val_to_str_const(iObjType, rtmpt_amf3_type_vals, "Unknown"));
+                                                       val_to_str_const(iObjType, amf3_type_vals, "Unknown"));
 
                                 iValueOffset = dissect_amf3_value_type(tvb, iValueOffset, subval_tree, subval_ti);
                         }
@@ -1352,7 +1352,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                 proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
                 }
                 break;
-        case RTMPT_AMF3_OBJECT:
+        case AMF3_OBJECT:
                 iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
                 if (iIntegerValue & 0x00000001) {
                         if (iIntegerValue & 0x00000002) {
@@ -1482,7 +1482,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                 proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
                 }
                 break;
-        case RTMPT_AMF3_XML:
+        case AMF3_XML:
                 iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
                 if (iIntegerValue & 0x00000001) {
                         /*
@@ -1502,7 +1502,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, proto_item
                                 proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
                 }
                 break;
-        case RTMPT_AMF3_BYTEARRAY:
+        case AMF3_BYTEARRAY:
                 iIntegerValue = amf_get_u29(tvb, iValueOffset, &iValueLength);
                 if (iIntegerValue & 0x00000001) {
                         /*
@@ -1547,7 +1547,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                 /* Looks like for the AMF3 variants we get a 0 byte here,
                  * followed by AMF0 encoding - I've never seen actual AMF3
                  * encoding used, which is completely different. I speculate
-                 * that if the byte is RTMPT_AMF0_AMF3_MARKER then the rest
+                 * that if the byte is AMF0_AMF3_MARKER then the rest
                  * will be in AMF3. For now, assume AMF0 only. */
                 offset++;
         }
@@ -2746,12 +2746,12 @@ proto_register_amf(void)
 
 /* AMF basic types */
                 { &hf_amf_amf0_type,
-                  { "AMF0 type", "amf.amf0.type", FT_UINT8, BASE_HEX,
-                    VALS(rtmpt_amf0_type_vals), 0x0, "AMF0 type", HFILL }},
+                  { "AMF0 type", "amf.amf0_type", FT_UINT8, BASE_HEX,
+                    VALS(amf0_type_vals), 0x0, NULL, HFILL }},
 
                 { &hf_amf_amf3_type,
-                  { "AMF3 type", "amf.amf3.type", FT_UINT8, BASE_HEX,
-                    VALS(rtmpt_amf3_type_vals), 0x0, "AMF3 type", HFILL }},
+                  { "AMF3 type", "amf.amf3_type", FT_UINT8, BASE_HEX,
+                    VALS(amf3_type_vals), 0x0, NULL, HFILL }},
 
                 { &hf_amf_number,
                   { "Number", "amf.number", FT_DOUBLE, BASE_NONE,
