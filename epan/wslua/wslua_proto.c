@@ -623,6 +623,10 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
         WSLUA_ARG_ERROR(ProtoField_new,TYPE,"invalid ftypes");
     }
 
+    if (!f->abbr || !f->abbr[0]) {
+        WSLUA_ARG_ERROR(ProtoField_new,ABBR,"Missing abbrev");
+    }
+
     if (proto_check_field_name(f->abbr)) {
         g_free(f->name);
         g_free(f->abbr);
