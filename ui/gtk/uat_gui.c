@@ -229,7 +229,7 @@ static guint8* unhexbytes(const char* si, guint len, guint* len_p, const char** 
 	unsigned i;
 
 	if (len % 2) {
-		*err = "Uneven number of chars hex string";
+		*err = ep_strdup_printf("Uneven number of chars hex string %u \n'%s'",len, si);
 		return NULL;
 	}
 
