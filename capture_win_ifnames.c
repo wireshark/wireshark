@@ -23,9 +23,7 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #ifdef _WIN32
 
@@ -56,7 +54,7 @@
 gboolean IsWindowsVistaOrLater()
 {
     OSVERSIONINFO osvi;
-    
+
     SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
@@ -70,20 +68,20 @@ gboolean IsWindowsVistaOrLater()
 * returned using g_log() before the interface list.
 * Below is a generic logging function that can be easily ripped out or configured to
 * redirect to g_log() if the behaviour changes in the future.
-*/ 
+*/
 static void ifnames_log(const gchar *log_domain, GLogLevelFlags log_level, const gchar *format, ...)
 {
     char buf[16384];
     va_list args;
-    
+
     if(log_level!=G_LOG_LEVEL_ERROR){
-        return;    
+        return;
     }
 
     va_start(args, format);
     vsnprintf(buf, 16383, format, args);
     va_end(args);
-    
+
     fprintf(stderr,"%s\r\n",buf);
 
 }
@@ -97,19 +95,19 @@ static int GetInterfaceFriendlyNameFromDeviceGuid(__in GUID *guid, __out char **
     HRESULT status;
     WCHAR wName[NDIS_IF_MAX_STRING_SIZE + 1];
     HRESULT hr;
-    gboolean fallbackToUnpublishedApi=TRUE;    
-    gboolean haveInterfaceFriendlyName=FALSE;    
+    gboolean fallbackToUnpublishedApi=TRUE;
+    gboolean haveInterfaceFriendlyName=FALSE;
 
     /* check we have a parameter */
     if(Name==NULL){
         return -1;
     }
-    
+
     /* Load the ip helper api DLL */
     hIPHlpApi = LoadLibrary(TEXT("iphlpapi.dll"));
     if (hIPHlpApi == NULL) {
         /* Load failed - DLL should always be available in XP+*/
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, 
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
             "Failed to load iphlpapi.dll library for interface name lookups, errorcode=0x%08x\n", GetLastError());
         return -1;
     }
@@ -139,36 +137,36 @@ static int GetInterfaceFriendlyNameFromDeviceGuid(__in GUID *guid, __out char **
                     /* guid->luid success */
                     hr = Proc_ConvertInterfaceLuidToAlias(&InterfaceLuid, wName, NDIS_IF_MAX_STRING_SIZE+1);
 
-                    if(hr==NO_ERROR){       
+                    if(hr==NO_ERROR){
                         /* luid->friendly name success */
                         haveInterfaceFriendlyName=TRUE; /* success */
-                        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, 
+                        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                             "converted interface guid to friendly name.");
                     }else{
                         /* luid->friendly name failed */
                         fallbackToUnpublishedApi=FALSE;
-                        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, 
+                        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE,
                             "ConvertInterfaceLuidToAlias failed to convert interface luid to a friendly name, LastErrorCode=0x%08x.", GetLastError());
                     }
                 }else{
                     fallbackToUnpublishedApi=FALSE;
-                    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, 
+                    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE,
                         "ConvertInterfaceGuidToLuid failed to convert interface guid to a luid, LastErrorCode=0x%08x.", GetLastError());
                 }
 
             }else{
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, 
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
                     "Failed to find address of ConvertInterfaceLuidToAlias in iphlpapi.dll, LastErrorCode=0x%08x.", GetLastError());
             }
         }else{
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, 
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
                 "Failed to find address of ConvertInterfaceGuidToLuid in iphlpapi.dll, LastErrorCode=0x%08x.", GetLastError());
         }
     }
 
 
     if(fallbackToUnpublishedApi && !haveInterfaceFriendlyName){
-        /* Didn't manage to get the friendly name using published api functions 
+        /* Didn't manage to get the friendly name using published api functions
         * (most likely cause wireshark is running on Windows XP/Server 2003)
         * Retry using nhGetInterfaceNameFromGuid (an older unpublished API function) */
         typedef HRESULT (WINAPI *ProcAddr_nhGINFG) (__in GUID *InterfaceGuid, __out PCWSTR InterfaceAlias, __inout DWORD *LengthAddress, wchar_t *a4, wchar_t *a5);
@@ -179,33 +177,33 @@ static int GetInterfaceFriendlyNameFromDeviceGuid(__in GUID *guid, __out char **
             wchar_t *p4=NULL, *p5=NULL;
             DWORD NameSize;
 
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, 
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                 "Unpublished NhGetInterfaceNameFromGuid function located in iphlpapi.dll, looking up friendly name from guid");
 
-            /* testing of nhGetInterfaceNameFromGuid indicates the unpublished API function expects the 3rd parameter 
-            * to be the available space in bytes (as compared to wchar's) available in the second parameter buffer 
+            /* testing of nhGetInterfaceNameFromGuid indicates the unpublished API function expects the 3rd parameter
+            * to be the available space in bytes (as compared to wchar's) available in the second parameter buffer
             * to receive the friendly name (in unicode format) including the space for the nul termination.*/
-            NameSize = sizeof(wName); 
+            NameSize = sizeof(wName);
 
             /* do the guid->friendlyname lookup */
-            status = Proc_nhGetInterfaceNameFromGuid(guid, wName, &NameSize, p4, p5);    
+            status = Proc_nhGetInterfaceNameFromGuid(guid, wName, &NameSize, p4, p5);
 
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, 
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                 "nhGetInterfaceNameFromGuidProc status =%d, p4=%d, p5=%d, namesize=%d\n", status, (int)p4, (int)p5, NameSize);
             if(status==0){
                 haveInterfaceFriendlyName=TRUE; /* success */
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, 
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                     "Converted interface guid to friendly name.");
             }
-            
+
         }else{
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, 
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
                 "Failed to locate unpublished NhGetInterfaceNameFromGuid function located in iphlpapi.dll, "
                 "for looking up interface friendly name, LastErrorCode=0x%08x.", GetLastError());
         }
-        
+
     }
-        
+
     /* we have finished with iphlpapi.dll - release it */
     FreeLibrary(hIPHlpApi);
 
@@ -219,14 +217,14 @@ static int GetInterfaceFriendlyNameFromDeviceGuid(__in GUID *guid, __out char **
         int size = WideCharToMultiByte(CP_UTF8, 0, wName, -1, NULL, 0, NULL, NULL);
         char *name = (char *) g_malloc(size);
         if (name == NULL){
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, 
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
                 "Failed to allocate memory to convert format of interface friendly name, LastErrorCode=0x%08x.", GetLastError());
             return -1;
         }
         size=WideCharToMultiByte(CP_UTF8, 0, wName, -1, name, size, NULL, NULL);
         if(size==0){
             /* bytes written == 0, indicating some form of error*/
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, 
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
                 "Error converting format of interface friendly name, LastErrorCode=0x%08x.", GetLastError());
             g_free(name);
             return -1;
@@ -240,12 +238,12 @@ static int GetInterfaceFriendlyNameFromDeviceGuid(__in GUID *guid, __out char **
 
 
 /**********************************************************************************/
-/* returns the interface friendly name for a device name, if it is unable to 
+/* returns the interface friendly name for a device name, if it is unable to
 * resolve the name, "" is returned */
 void get_windows_interface_friendlyname(/* IN */ char *interface_devicename, /* OUT */char **interface_friendlyname)
 {
     const char* guid_text;
-    GUID guid;  
+    GUID guid;
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "test, 1,2,3");
 
@@ -254,13 +252,13 @@ void get_windows_interface_friendlyname(/* IN */ char *interface_devicename, /* 
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "open_raw_pipe sdfsd");
         fflush(stderr);
         fflush(stdout);
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, 
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
             "invalid interface_friendlyname parameter to get_windows_interface_friendlyname() function.");
         return;
     }
     /* start on the basis we know nothing */
     *interface_friendlyname=NULL;
-    
+
     /* Extract the guid text from the interface device name */
     if(strncmp("\\Device\\NPF_", interface_devicename, 12)==0){
         guid_text=interface_devicename+12; /* skip over the '\Device\NPF_' prefix, assume the rest is the guid text */
@@ -277,17 +275,17 @@ void get_windows_interface_friendlyname(/* IN */ char *interface_devicename, /* 
         size=MultiByteToWideChar(CP_ACP, 0, guid_text, -1, wGuidText, size);
         if(size!=39){
             /* guid text to unicode conversion failed */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, 
-                "Failed the extract guid from interface devicename, unicode convert result=%d, guid input ='%s', LastErrorCode=0x%08x.", 
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
+                "Failed the extract guid from interface devicename, unicode convert result=%d, guid input ='%s', LastErrorCode=0x%08x.",
                 size, guid_text, GetLastError());
             return;
         }
         /* Part 2: unicode guid text to GUID structure */
         hr = CLSIDFromString(wGuidText, (LPCLSID)&guid);
-        if (hr != S_OK){                                                        
+        if (hr != S_OK){
             /* guid text to unicode conversion failed */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, 
-                "Failed to convert interface devicename guid to GUID structure, convert result=0x%08x, guid input ='%s', LastErrorCode=0x%08x.", 
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
+                "Failed to convert interface devicename guid to GUID structure, convert result=0x%08x, guid input ='%s', LastErrorCode=0x%08x.",
                 hr, guid_text, GetLastError());
             return;
         }
@@ -297,8 +295,8 @@ void get_windows_interface_friendlyname(/* IN */ char *interface_devicename, /* 
     {
         int r=GetInterfaceFriendlyNameFromDeviceGuid(&guid, interface_friendlyname);
         if(r!=NO_ERROR){
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR, 
-                "Failed to retrieve interface friendly name associated with interface '%s', LastErrorCode=0x%08x.", 
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
+                "Failed to retrieve interface friendly name associated with interface '%s', LastErrorCode=0x%08x.",
                 interface_devicename, GetLastError());
             *interface_friendlyname=NULL; /* failed to get friendly name, ensure the ultimate result is NULL */
             return;
@@ -306,14 +304,14 @@ void get_windows_interface_friendlyname(/* IN */ char *interface_devicename, /* 
     }
 
     /* success */
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, 
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE,
         "\nInterface %s => '%s'\n\n\n", interface_devicename, *interface_friendlyname);
 
     return;
 }
 
 #undef g_log
- 
+
 /**************************************************************************************/
 #endif
 
