@@ -52,7 +52,7 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 .c.obj::
 	$(CC) $(CFLAGS) -Fd.\ -c $<
 
-PLATFORM_SRC = capture-wpcap.c capture_wpcap_packet.c
+PLATFORM_SRC = capture-wpcap.c capture_wpcap_packet.c capture_win_ifnames.c
 
 WTAP_PLUGIN_SOURCES = \
        epan/plugins.c \
@@ -974,8 +974,11 @@ clean_setup:
     rm -r -f gnutls-2.8.5-*-win??ws
     rm -r -f gnutls-2.10.3-*-win??ws
     rm -r -f gnutls-2.12.18-*-win??ws
+!IF "$(GTK_NAME)" == "gtk2"
     rm -r -f gtk2
+!ELSE
     rm -r -f gtk3
+!ENDIF
     rm -r -f gtk+
     rm -r -f gtk-wimp
     rm -r -f kfw-2.5
