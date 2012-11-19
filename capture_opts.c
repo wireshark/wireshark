@@ -468,7 +468,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
         return 2;
     }
 
-    
+
     /*
      * If the argument is a number, treat it as an index into the list
      * of adapters, as printed by "tshark -D".
@@ -509,19 +509,19 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
         /* try and do an exact match (case insensitive) */
         GList       *if_entry;
         gboolean matched;
-        
+
         matched=FALSE;
         for (if_entry = g_list_first(if_list); if_entry != NULL;
-             if_entry = g_list_next(if_entry)) 
+             if_entry = g_list_next(if_entry))
         {
-            if_info = (if_info_t *)if_entry->data;        
+            if_info = (if_info_t *)if_entry->data;
             /* exact name check */
             if(g_ascii_strcasecmp(if_info->name, optarg_str_p)==0){
                 /* exact match on the interface name, use that for displaying etc */
                 interface_opts.name = g_strdup(if_info->name);
 
                 if(if_info->friendly_name!=NULL){
-                    /* if we know a friendly_name, use that for console_display_name, as 
+                    /* if we know a friendly_name, use that for console_display_name, as
                     * it is the basis for the auto generated temp filename */
                     interface_opts.console_display_name = g_strdup(if_info->friendly_name);
                 }else{
@@ -530,7 +530,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
                 matched=TRUE;
                 break;
             }
-            
+
             /* exact friendlyname check */
             if(if_info->friendly_name!=NULL && g_ascii_strcasecmp(if_info->friendly_name, optarg_str_p)==0){
                 /* exact match - use the friendly name for display */
@@ -544,12 +544,12 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
         /* didn't find, attempt a case insensitive prefix match of the friendly name*/
         if(!matched){
             int prefix_length;
-            prefix_length=strlen(optarg_str_p);
+            prefix_length=(int)strlen(optarg_str_p);
             for (if_entry = g_list_first(if_list); if_entry != NULL;
-                 if_entry = g_list_next(if_entry)) 
+                 if_entry = g_list_next(if_entry))
             {
                 if_info = (if_info_t *)if_entry->data;
-        
+
                 if(if_info->friendly_name!=NULL && g_ascii_strncasecmp(if_info->friendly_name, optarg_str_p, prefix_length)==0){
                     /* prefix match - use the friendly name for display */
                     interface_opts.name = g_strdup(if_info->name);
@@ -563,10 +563,10 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             cmdarg_err("Failed to match interface '%s'", optarg_str_p);
             return 1;
         }
-            
+
     }
     free_interface_list(if_list);
-    
+
     /*  We don't set iface_descr here because doing so requires
      *  capture_ui_utils.c which requires epan/prefs.c which is
      *  probably a bit too much dependency for here...
