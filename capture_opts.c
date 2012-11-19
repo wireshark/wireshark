@@ -543,8 +543,8 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
 
         /* didn't find, attempt a case insensitive prefix match of the friendly name*/
         if(!matched){
-            int prefix_length;
-            prefix_length=(int)strlen(optarg_str_p);
+            size_t prefix_length;
+            prefix_length=strlen(optarg_str_p);
             for (if_entry = g_list_first(if_list); if_entry != NULL;
                  if_entry = g_list_next(if_entry))
             {
