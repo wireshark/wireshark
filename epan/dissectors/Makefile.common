@@ -807,6 +807,7 @@ DISSECTOR_SRC = \
 	packet-mpls-echo.c	\
 	packet-mpls-pm.c	\
 	packet-mpls-psc.c	\
+	packet-mplstp-oam.c	\
 	packet-mpls-y1711.c	\
 	packet-mpls.c		\
 	packet-mq-pcf.c		\

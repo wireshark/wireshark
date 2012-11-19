@@ -578,25 +578,41 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    As per RFC 6428 : http://tools.ietf.org/html/rfc6428
    sections - 3.5.1, 3.5.2, 3.5.3 */
 void
-dissect_bfd_mep (tvbuff_t *tvb, proto_tree *tree)
+dissect_bfd_mep (tvbuff_t *tvb, proto_tree *tree, const int hfindex)
 {
-    proto_item *ti;
-    proto_tree *bfd_tree;
-    gint        offset;
-    gint        mep_type;
-    gint        mep_len;
-    gint        mep_agi_len;
+    proto_item *ti = NULL;
+    proto_tree *bfd_tree = NULL;
+    gint        offset = 0;
+    gint        mep_type = 0;
+    gint        mep_len = 0;
+    gint        mep_agi_len = 0;
 
     if (!tree)
         return;
 
     /* Fetch the BFD control message length and move the offset
        to point to the data portion after the control message */
-    offset   = tvb_get_guint8(tvb, 3);
-    mep_type = tvb_get_ntohs (tvb, offset);
-    mep_len  = tvb_get_ntohs (tvb, (offset + 2));
-    ti       = proto_tree_add_protocol_format (tree, proto_bfd, tvb, offset, (mep_len + 4),
-                                         "MPLS-TP SOURCE MEP-ID TLV");
+
+    /* The parameter hfindex is used for determining the tree under which MEP-ID TLV 
+       has to be determined. Since according to RFC 6428, MEP-ID TLV can be used by any 
+       OAM function, if hfindex is 0, as per this function the MEP-TLV is a part of 
+       BFD-CV payload. If a non-zero hfindex comes, then tht TLV info will be displayed 
+       under a particular protocol-tree. */
+    if (!hfindex)
+      {
+        offset = tvb_get_guint8(tvb, 3);
+        mep_type = tvb_get_ntohs (tvb, offset);
+        mep_len  = tvb_get_ntohs (tvb, (offset + 2));
+        ti       = proto_tree_add_protocol_format (tree, proto_bfd, tvb, offset, (mep_len + 4),
+                                                   "MPLS-TP SOURCE MEP-ID TLV");
+      }
+    else
+      {
+        mep_type = tvb_get_ntohs (tvb, offset);
+        mep_len  = tvb_get_ntohs (tvb, (offset + 2));
+        ti       = proto_tree_add_protocol_format (tree, hfindex, tvb, offset, (mep_len + 4),
+                                                   "MPLS-TP SOURCE MEP-ID TLV");
+      }
 
     switch (mep_type) {
         case TLV_TYPE_MPLSTP_SECTION_MEP:
