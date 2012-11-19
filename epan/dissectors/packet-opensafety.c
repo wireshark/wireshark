@@ -413,6 +413,13 @@ static gboolean global_mbtcp_big_endian = FALSE;
 static guint global_network_udp_port = UDP_PORT_OPENSAFETY;
 static guint global_network_udp_port_sercosiii = UDP_PORT_SIII;
 
+static gboolean global_enable_plk = TRUE;
+static gboolean global_enable_udp = TRUE;
+static gboolean global_enable_genudp = TRUE;
+static gboolean global_enable_siii = TRUE;
+static gboolean global_enable_pnio = FALSE;
+static gboolean global_enable_mbtcp = TRUE;
+
 static gboolean bDissector_Called_Once_Before = FALSE;
 /* Using local_scm_udid as read variable for global_scm_udid, to
  * enable automatic detection of scm udid */
@@ -1532,6 +1539,9 @@ dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *
     gboolean        result     = FALSE;
     guint8          firstByte;
 
+    if ( ! global_enable_plk )
+    	return result;
+
     /* We will call the epl dissector by using call_dissector(). The epl dissector will then call
      * the heuristic openSAFETY dissector again. By setting this information, we prevent a dissector
      * loop */
@@ -1560,6 +1570,9 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
 {
     gboolean        result     = FALSE;
     guint8          firstByte;
+
+    if ( ! global_enable_siii )
+    	return result;
 
     if ( pinfo->ipproto == IPPROTO_UDP )
     {
@@ -1593,6 +1606,9 @@ dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
 {
     gboolean        result     = FALSE;
 
+    if ( ! global_enable_pnio )
+    	return result;
+
     /* We will call the pn_io dissector by using call_dissector(). The epl dissector will then call
      * the heuristic openSAFETY dissector again. By setting this information, we prevent a dissector
      * loop */
@@ -1610,6 +1626,9 @@ dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
 static gboolean
 dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree, void *data _U_ )
 {
+	if ( ! global_enable_mbtcp )
+		return FALSE;
+
     /* When Modbus/TCP get's dissected, openSAFETY would be sorted as a child protocol. Although,
      * this behaviour is technically correct, it differs from other implemented IEM protocol handlers.
      * Therefore, the openSAFETY frame get's put one up, if the parent is not NULL */
@@ -1623,6 +1642,9 @@ dissect_opensafety_udpdata(tvbuff_t *message_tvb , packet_info *pinfo , proto_tr
 	gboolean       result   = FALSE;
 	static guint32 frameNum = 0;
 	static guint32 frameIdx = 0;
+
+	if ( ! global_enable_udp )
+		return result;
 
 	/* An openSAFETY frame has at least OSS_MINIMUM_LENGTH bytes */
 	if ( tvb_length ( message_tvb ) < OSS_MINIMUM_LENGTH )
@@ -1895,6 +1917,25 @@ proto_register_opensafety(void)
                 "Big Endian Word Coding (Modbus/TCP only)",
                 "Modbus/TCP words can be transcoded either big- or little endian. Default will be little endian",
                 &global_mbtcp_big_endian);
+
+    prefs_register_bool_preference(opensafety_module, "enable_plk",
+    		"Enable heuristic dissection for Ethernet POWERLINK", "Enable heuristic dissection for Ethernet POWERLINK",
+    		&global_enable_plk);
+    prefs_register_bool_preference(opensafety_module, "enable_udp",
+    		"Enable heuristic dissection for openSAFETY over UDP encoded traffic", "Enable heuristic dissection for openSAFETY over UDP encoded traffic",
+    		&global_enable_udp);
+    prefs_register_bool_preference(opensafety_module, "enable_genudp",
+    		"Enable heuristic dissection for generic UDP encoded traffic", "Enable heuristic dissection for generic UDP encoded traffic",
+    		&global_enable_genudp);
+    prefs_register_bool_preference(opensafety_module, "enable_siii",
+    		"Enable heuristic dissection for SercosIII", "Enable heuristic dissection for SercosIII",
+    		&global_enable_siii);
+    prefs_register_bool_preference(opensafety_module, "enable_pnio",
+    		"Enable heuristic dissection for Profinet IO", "Enable heuristic dissection for Profinet IO",
+    		&global_enable_pnio);
+    prefs_register_bool_preference(opensafety_module, "enable_mbtcp",
+    		"Enable heuristic dissection for Modbus/TCP", "Enable heuristic dissection for Modbus/TCP",
+    		&global_enable_mbtcp);
 
     /* Registering default and ModBus/TCP dissector */
     new_register_dissector("opensafety_udpdata", dissect_opensafety_udpdata, proto_opensafety );
