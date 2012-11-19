@@ -134,7 +134,7 @@ clopts_step_invalid_interface() {
 	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
 		test_step_failed "exit status: $RETURNVALUE"
 	else
-		grep -i 'Failed to match interface' ./testout.txt > /dev/null
+		grep -i 'There are no interfaces on which a capture can be done' ./testout.txt > /dev/null
 		if [ $? -eq 0 ]; then
 			test_step_output_print ./testout.txt
 			test_step_ok
