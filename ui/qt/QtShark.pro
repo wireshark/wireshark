@@ -169,6 +169,7 @@ SOURCES_WS_C = \
 
 unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
 win32:SOURCES_WS_C += \
+    ../../capture_win_ifnames.c \
     ../../capture-wpcap.c \
     ../../capture_wpcap_packet.c \
     ../../ui/win32/console_win32.c \
