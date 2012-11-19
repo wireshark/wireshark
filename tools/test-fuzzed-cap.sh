@@ -94,4 +94,10 @@ export MallocBadFreeAbort=1
 # Call abort() on dissector bugs to make it easier to get a stack trace
 export WIRESHARK_ABORT_ON_DISSECTOR_BUG=
 
-$BIN_DIR/tshark -nVxr $1 > /dev/null
+if $BIN_DIR/tshark -nVxr $1 > /dev/null
+then
+	echo
+	echo "* * Trying again without building tree * *"
+	echo
+	$BIN_DIR/tshark -nr $1 > /dev/null
+fi
