@@ -93,6 +93,7 @@ scan_local_interfaces(void)
             }
         }
     }
+
     /* Scan through the list and build a list of strings to display. */
     if_list = capture_interface_list(&err, NULL);
     count = 0;
@@ -106,7 +107,7 @@ scan_local_interfaces(void)
         device.name = g_strdup(if_info->name);
         if (if_info->friendly_name != NULL) {
             device.friendly_name = g_strdup(if_info->friendly_name);
-        }else{
+        } else {
             device.friendly_name = NULL;
         }
         device.hidden = FALSE;
@@ -131,11 +132,12 @@ scan_local_interfaces(void)
 #ifdef _WIN32
                 /* on windows, if known only show the interface friendly name - don't show the device guid */
                 if_string = g_strdup_printf("%s", if_info->friendly_name);
-#else            
+#else
                 if_string = g_strdup_printf("%s: %s", if_info->friendly_name, if_info->name);
-#endif                
+#endif
             } else if (if_info->description != NULL) {
-                /* We have a device description from libpcap - use it. */               if_string = g_strdup_printf("%s: %s", if_info->description, if_info->name);
+                /* We have a device description from libpcap - use it. */
+                if_string = g_strdup_printf("%s: %s", if_info->description, if_info->name);
             } else {
                 /* No. */
                 if_string = g_strdup(if_info->name);
