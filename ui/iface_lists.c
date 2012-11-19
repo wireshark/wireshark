@@ -104,6 +104,11 @@ scan_local_interfaces(void)
             continue;
         }
         device.name = g_strdup(if_info->name);
+        if (if_info->friendly_name != NULL) {
+            device.friendly_name = g_strdup(if_info->friendly_name);
+        }else{
+            device.friendly_name = NULL;
+        }
         device.hidden = FALSE;
         device.locked = FALSE;
         temp = g_malloc0(sizeof(if_info_t));
@@ -121,9 +126,16 @@ scan_local_interfaces(void)
         } else {
             /* No, we don't have a user-supplied description; did we get
             one from the OS or libpcap? */
-            if (if_info->description != NULL) {
-                /* Yes - use it. */
-                if_string = g_strdup_printf("%s: %s", if_info->description, if_info->name);
+            if (if_info->friendly_name != NULL) {
+                /* We have a friendly name from the OS, use it */
+#ifdef _WIN32
+                /* on windows, if known only show the interface friendly name - don't show the device guid */
+                if_string = g_strdup_printf("%s", if_info->friendly_name);
+#else            
+                if_string = g_strdup_printf("%s: %s", if_info->friendly_name, if_info->name);
+#endif                
+            } else if (if_info->description != NULL) {
+                /* We have a device description from libpcap - use it. */               if_string = g_strdup_printf("%s: %s", if_info->description, if_info->name);
             } else {
                 /* No. */
                 if_string = g_strdup(if_info->name);

@@ -592,7 +592,7 @@ endif()
 
 if(WIN32)
 	set(PLATFORM_SRC
-		capture-wpcap.c capture_wpcap_packet.c
+		capture-wpcap.c capture_wpcap_packet.c capture_win_ifnames.c
 	)
 endif()
 

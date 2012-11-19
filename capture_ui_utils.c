@@ -180,7 +180,10 @@ get_interface_descriptive_name(const char *if_name)
       do {
         if_info = if_entry->data;
         if (strcmp(if_info->name, if_name) == 0) {
-          if (if_info->description != NULL) {
+          if (if_info->friendly_name!= NULL) {
+              /* use the friendly name */
+              descr = g_strdup(if_info->friendly_name);
+          }else if (if_info->description != NULL) {
             /* Return a copy of that - when we free the interface
                list, that'll also free up the strings to which
                it refers. */

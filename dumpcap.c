@@ -1275,6 +1275,11 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
 }
 
 #define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
+/*
+ * Output a machine readable list of the interfaces 
+ * This list is retrieved by the sync_interface_list_open() function
+ * The actual output of this function can be viewed with the command "dumpcap -D -Z none" 
+ */
 static void
 print_machine_readable_interfaces(GList *if_list)
 {
@@ -1306,6 +1311,11 @@ print_machine_readable_interfaces(GList *if_list)
             printf("\t%s\t", if_info->description);
         else
             printf("\t\t");
+            
+        if (if_info->friendly_name != NULL)
+            printf("%s\t", if_info->friendly_name);
+        else
+            printf("\t");            
 
         for(addr = g_slist_nth(if_info->addrs, 0); addr != NULL;
                     addr = g_slist_next(addr)) {
@@ -3211,15 +3221,27 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
             prefix = g_strdup_printf("wireshark_%d_interfaces", global_capture_opts.ifaces->len);
         } else {
             gchar *basename;
+            basename = g_path_get_basename(g_array_index(global_capture_opts.ifaces, interface_options, 0).console_display_name);
 #ifdef _WIN32
-            GString *iface;
-            iface = isolate_uuid(g_array_index(global_capture_opts.ifaces, interface_options, 0).name);
-            basename = g_path_get_basename(iface->str);
-            g_string_free(iface, TRUE);
-#else
-            basename = g_path_get_basename(g_array_index(global_capture_opts.ifaces, interface_options, 0).name);
+            /* use the generic portion of the interface guid to form the basis of the filename */
+            if(strncmp("NPF_{", basename, 5)==0)
+            {
+                /* we have a windows guid style device name, extract the guid digits as the basis of the filename */
+                GString *iface;
+                iface = isolate_uuid(basename);
+                g_free(basename);
+                basename = g_strdup(iface->str);
+                g_string_free(iface, TRUE);
+            }
 #endif
-            prefix = g_strconcat("wireshark_", basename, NULL);
+            /* generate the temp file name prefix...
+             * It would be nice if we could specify a pcapng/pcap filename suffix, 
+             * create_tempfile() however currently uses mkstemp() which doesn't allow this - one day perhaps*/
+            if (capture_opts->use_pcapng) {
+                prefix = g_strconcat("wireshark_pcapng_", basename, NULL);
+            }else{
+                prefix = g_strconcat("wireshark_pcap_", basename, NULL);
+            }
             g_free(basename);
         }
         *save_file_fd = create_tempfile(&tmpname, prefix);
@@ -3815,7 +3837,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 report_capture_error(errmsg, please_report);
             }
         }
-        report_packet_drops(received, dropped, interface_opts.name);
+        report_packet_drops(received, dropped, interface_opts.console_display_name);
     }
 
     /* close the input file (pcap or capture pipe) */
@@ -4657,7 +4679,6 @@ main(int argc, char *argv[])
     }
 
     /* Let the user know what interfaces were chosen. */
-    /* get_interface_descriptive_name() is not available! */
     if (capture_child) {
         for (j = 0; j < global_capture_opts.ifaces->len; j++) {
             interface_options interface_opts;
@@ -4669,10 +4690,11 @@ main(int argc, char *argv[])
     } else {
         str = g_string_new("");
 #ifdef _WIN32
-        if (global_capture_opts.ifaces->len < 2) {
+        if (global_capture_opts.ifaces->len < 2)
 #else
-        if (global_capture_opts.ifaces->len < 4) {
+        if (global_capture_opts.ifaces->len < 4) 
 #endif
+        {
             for (j = 0; j < global_capture_opts.ifaces->len; j++) {
                 interface_options interface_opts;
 
@@ -4685,8 +4707,8 @@ main(int argc, char *argv[])
                     if (j == global_capture_opts.ifaces->len - 1) {
                         g_string_append_printf(str, "and ");
                     }
-                }
-                g_string_append_printf(str, "%s", interface_opts.name);
+                }                
+                g_string_append_printf(str, "'%s'", interface_opts.console_display_name);
             }
         } else {
             g_string_append_printf(str, "%u interfaces", global_capture_opts.ifaces->len);
@@ -4743,6 +4765,9 @@ main(int argc, char *argv[])
 
     /* We're supposed to do a capture.  Process the ring buffer arguments. */
     capture_opts_trim_ring_num_files(&global_capture_opts);
+
+    /* flush stderr prior to starting the main capture loop */
+    fflush(stderr);
 
     /* Now start the capture. */
 
@@ -4956,7 +4981,7 @@ report_packet_drops(guint32 received, guint32 drops, gchar *name)
         pipe_write_block(2, SP_DROPS, tmp);
     } else {
         fprintf(stderr,
-            "Packets received/dropped on interface %s: %u/%u (%.1f%%)\n",
+            "Packets received/dropped on interface '%s': %u/%u (%.1f%%)\n",
             name, received, drops,
             received ? 100.0 * received / (received + drops) : 0.0);
         /* stderr could be line buffered */

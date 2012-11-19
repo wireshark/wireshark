@@ -52,6 +52,10 @@
 #include <netinet/in.h>
 #endif
 
+#ifdef _WIN32
+#include "capture_win_ifnames.h" /* windows friendly interface names */
+#endif
+
 if_info_t *
 if_info_new(char *name, char *description)
 {
@@ -63,6 +67,13 @@ if_info_new(char *name, char *description)
 		if_info->description = NULL;
 	else
 		if_info->description = g_strdup(description);
+
+#ifdef _WIN32
+    get_windows_interface_friendlyname(name, &if_info->friendly_name);
+#else
+    if_info->friendly_name = NULL;
+#endif    
+
 	if_info->addrs = NULL;
 	if_info->loopback = FALSE;
 	return if_info;

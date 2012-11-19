@@ -58,6 +58,8 @@
 #include <Ntddndis.h>
 #endif
 
+#include "capture_win_ifnames.h"
+
 #include "../capture_wpcap_packet.h"
 
 /* packet32.h requires sockaddr_storage
@@ -1777,6 +1779,7 @@ capture_if_details_task_offload(GtkWidget *table, GtkWidget *main_vb, guint *row
 
 static int
 capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADAPTER adapter, gchar *iface) {
+    gchar           *interface_friendlyname;
     gchar           string_buff[DETAILS_STR_MAX];
     const gchar     *manuf_name;
     unsigned int    uint_value;
@@ -1796,7 +1799,14 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     /* general */
     add_string_to_table(table, row, "Characteristics", "");
 
-    /* Vendor description */
+    /* OS friendly name - look it up from iface ("\Device\NPF_{11111111-2222-3333-4444-555555555555}") */
+    get_windows_interface_friendlyname(/* IN */ iface, /* OUT */&interface_friendlyname);
+    if(interface_friendlyname!=NULL){
+        add_string_to_table(table, row, "OS Friendly name", interface_friendlyname);
+        g_free(interface_friendlyname);
+    }
+
+   /* Vendor description */
     length = sizeof(values);
     if (wpcap_packet_request(adapter, OID_GEN_VENDOR_DESCRIPTION, FALSE /* !set */, values, &length)) {
         g_snprintf(string_buff, DETAILS_STR_MAX, "%s", values);
@@ -1816,7 +1826,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     } else {
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
     }
-    add_string_to_table(table, row, "Friendly name", string_buff);
+    add_string_to_table(table, row, "NDIS Friendly name", string_buff);
 
     /* Interface */
     add_string_to_table(table, row, "Interface", iface);

@@ -50,6 +50,10 @@
 #include "capture-pcap-util.h"
 #include <wsutil/file_util.h>
 
+#ifdef _WIN32
+#include "capture_win_ifnames.h" /* windows friendly interface names */
+#endif
+
 static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe);
 
 
@@ -142,6 +146,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
         g_log(log_domain, log_level, "Interface name[%02d]  : %s", i, interface_opts.name ? interface_opts.name : "(unspecified)");
         g_log(log_domain, log_level, "Interface Descr[%02d] : %s", i, interface_opts.descr ? interface_opts.descr : "(unspecified)");
+		g_log(log_domain, log_level, "Con display name[%02d]: %s", i, interface_opts.console_display_name ? interface_opts.console_display_name : "(unspecified)");
         g_log(log_domain, log_level, "Capture filter[%02d]  : %s", i, interface_opts.cfilter ? interface_opts.cfilter : "(unspecified)");
         g_log(log_domain, log_level, "Snap length[%02d] (%u) : %d", i, interface_opts.has_snaplen, interface_opts.snaplen);
         g_log(log_domain, log_level, "Link Type[%02d]       : %d", i, interface_opts.linktype);
@@ -445,7 +450,25 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     gchar       *err_str;
     interface_options interface_opts;
 
+    /* retrieve the interface list to compare the option specfied against */
+    if_list = capture_interface_list(&err, &err_str);
+    if (if_list == NULL) {
+        switch (err) {
 
+        case CANT_GET_INTERFACE_LIST:
+        case DONT_HAVE_PCAP:
+            cmdarg_err("%s", err_str);
+            g_free(err_str);
+            break;
+
+        case NO_INTERFACES_FOUND:
+            cmdarg_err("There are no interfaces on which a capture can be done");
+            break;
+        }
+        return 2;
+    }
+
+    
     /*
      * If the argument is a number, treat it as an index into the list
      * of adapters, as printed by "tshark -D".
@@ -469,36 +492,85 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             cmdarg_err("There is no interface with that adapter index");
             return 1;
         }
-        if_list = capture_interface_list(&err, &err_str);
-        if (if_list == NULL) {
-            switch (err) {
-
-            case CANT_GET_INTERFACE_LIST:
-            case DONT_HAVE_PCAP:
-                cmdarg_err("%s", err_str);
-                g_free(err_str);
-                break;
-
-            case NO_INTERFACES_FOUND:
-                cmdarg_err("There are no interfaces on which a capture can be done");
-                break;
-            }
-            return 2;
-        }
         if_info = (if_info_t *)g_list_nth_data(if_list, adapter_index - 1);
         if (if_info == NULL) {
             cmdarg_err("There is no interface with that adapter index");
             return 1;
         }
         interface_opts.name = g_strdup(if_info->name);
-        /*  We don't set iface_descr here because doing so requires
-         *  capture_ui_utils.c which requires epan/prefs.c which is
-         *  probably a bit too much dependency for here...
-         */
-        free_interface_list(if_list);
+        if(if_info->friendly_name!=NULL){
+            /* we know the friendlyname, so display that instead of the interface name/guid */
+            interface_opts.console_display_name = g_strdup(if_info->friendly_name);
+        }else{
+            /* fallback to the interface name */
+            interface_opts.console_display_name = g_strdup(if_info->name);
+        }
     } else {
-        interface_opts.name = g_strdup(optarg_str_p);
+        /* try and do an exact match (case insensitive) */
+        GList       *if_entry;
+        gboolean matched;
+        
+        matched=FALSE;
+        for (if_entry = g_list_first(if_list); if_entry != NULL;
+             if_entry = g_list_next(if_entry)) 
+        {
+            if_info = (if_info_t *)if_entry->data;        
+            /* exact name check */
+            if(g_ascii_strcasecmp(if_info->name, optarg_str_p)==0){
+                /* exact match on the interface name, use that for displaying etc */
+                interface_opts.name = g_strdup(if_info->name);
+
+                if(if_info->friendly_name!=NULL){
+                    /* if we know a friendly_name, use that for console_display_name, as 
+                    * it is the basis for the auto generated temp filename */
+                    interface_opts.console_display_name = g_strdup(if_info->friendly_name);
+                }else{
+                    interface_opts.console_display_name = g_strdup(if_info->name);
+                }
+                matched=TRUE;
+                break;
+            }
+            
+            /* exact friendlyname check */
+            if(if_info->friendly_name!=NULL && g_ascii_strcasecmp(if_info->friendly_name, optarg_str_p)==0){
+                /* exact match - use the friendly name for display */
+                interface_opts.name = g_strdup(if_info->name);
+                interface_opts.console_display_name = g_strdup(if_info->friendly_name);
+                matched=TRUE;
+                break;
+            }
+        }
+
+        /* didn't find, attempt a case insensitive prefix match of the friendly name*/
+        if(!matched){
+            int prefix_length;
+            prefix_length=strlen(optarg_str_p);
+            for (if_entry = g_list_first(if_list); if_entry != NULL;
+                 if_entry = g_list_next(if_entry)) 
+            {
+                if_info = (if_info_t *)if_entry->data;
+        
+                if(if_info->friendly_name!=NULL && g_ascii_strncasecmp(if_info->friendly_name, optarg_str_p, prefix_length)==0){
+                    /* prefix match - use the friendly name for display */
+                    interface_opts.name = g_strdup(if_info->name);
+                    interface_opts.console_display_name = g_strdup(if_info->friendly_name);
+                    matched=TRUE;
+                    break;
+                }
+            }
+        }
+        if (!matched) {
+            cmdarg_err("Failed to match interface '%s'", optarg_str_p);
+            return 1;
+        }
+            
     }
+    free_interface_list(if_list);
+    
+    /*  We don't set iface_descr here because doing so requires
+     *  capture_ui_utils.c which requires epan/prefs.c which is
+     *  probably a bit too much dependency for here...
+     */
     interface_opts.descr = g_strdup(capture_opts->default_options.descr);
     interface_opts.cfilter = g_strdup(capture_opts->default_options.cfilter);
     interface_opts.snaplen = capture_opts->default_options.snaplen;
@@ -772,9 +844,14 @@ capture_opts_print_interfaces(GList *if_list)
         if_info = (if_info_t *)if_entry->data;
         fprintf_stderr("%d. %s", i++, if_info->name);
 
-        /* Print the description if it exists */
-        if (if_info->description != NULL)
-            fprintf_stderr(" (%s)", if_info->description);
+        /* print the interface friendly name if known, if not fall back to vendor description */
+        if (if_info->friendly_name != NULL){
+            fprintf_stderr(" (%s)", if_info->friendly_name);
+        }else{
+            /* Print the description if it exists */
+            if (if_info->description != NULL)
+                fprintf_stderr(" (%s)", if_info->description);
+        }
         fprintf_stderr("\n");
     }
 }
@@ -823,82 +900,29 @@ void capture_opts_trim_ring_num_files(capture_options *capture_opts)
 
 gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capture_device)
 {
-    GList       *if_list;
-    if_info_t   *if_info;
-    int         err;
-    gchar       *err_str;
-    interface_options interface_opts;
-
+    int status;
 
     /* Did the user specify an interface to use? */
-    if (capture_opts->num_selected == 0 && capture_opts->ifaces->len == 0) {
-        /* No - is a default specified in the preferences file? */
-        if (capture_device != NULL) {
-            /* Yes - use it. */
-            interface_opts.name = g_strdup(capture_device);
-            /*  We don't set iface_descr here because doing so requires
-             *  capture_ui_utils.c which requires epan/prefs.c which is
-             *  probably a bit too much dependency for here...
-             */
-        } else {
-            /* No - pick the first one from the list of interfaces. */
-            if_list = capture_interface_list(&err, &err_str);
-            if (if_list == NULL) {
-                switch (err) {
-
-                case CANT_GET_INTERFACE_LIST:
-                case DONT_HAVE_PCAP:
-                    cmdarg_err("%s", err_str);
-                    g_free(err_str);
-                    break;
-
-                case NO_INTERFACES_FOUND:
-                    cmdarg_err("There are no interfaces on which a capture can be done");
-                    break;
-                }
-                return FALSE;
-            }
-            if_info = (if_info_t *)if_list->data;	/* first interface */
-            interface_opts.name = g_strdup(if_info->name);
-            /*  We don't set iface_descr here because doing so requires
-             *  capture_ui_utils.c which requires epan/prefs.c which is
-             *  probably a bit too much dependency for here...
-             */
-            free_interface_list(if_list);
-        }
-        if (capture_opts->default_options.descr) {
-            interface_opts.descr = g_strdup(capture_opts->default_options.descr);
-        } else {
-            interface_opts.descr = NULL;
-        }
-        interface_opts.cfilter = g_strdup(capture_opts->default_options.cfilter);
-        interface_opts.snaplen = capture_opts->default_options.snaplen;
-        interface_opts.has_snaplen = capture_opts->default_options.has_snaplen;
-        interface_opts.linktype = capture_opts->default_options.linktype;
-        interface_opts.promisc_mode = capture_opts->default_options.promisc_mode;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        interface_opts.buffer_size = capture_opts->default_options.buffer_size;
-#endif
-        interface_opts.monitor_mode = capture_opts->default_options.monitor_mode;
-#ifdef HAVE_PCAP_REMOTE
-        interface_opts.src_type = capture_opts->default_options.src_type;
-        interface_opts.remote_host = g_strdup(capture_opts->default_options.remote_host);
-        interface_opts.remote_port = g_strdup(capture_opts->default_options.remote_port);
-        interface_opts.auth_type = capture_opts->default_options.auth_type;
-        interface_opts.auth_username = g_strdup(capture_opts->default_options.auth_username);
-        interface_opts.auth_password = g_strdup(capture_opts->default_options.auth_password);
-        interface_opts.datatx_udp = capture_opts->default_options.datatx_udp;
-        interface_opts.nocap_rpcap = capture_opts->default_options.nocap_rpcap;
-        interface_opts.nocap_local = capture_opts->default_options.nocap_local;
-#endif
-#ifdef HAVE_PCAP_SETSAMPLING
-        interface_opts.sampling_method = capture_opts->default_options.sampling_method;
-        interface_opts.sampling_param  = capture_opts->default_options.sampling_param;
-#endif
-        g_array_append_val(capture_opts->ifaces, interface_opts);
+    if (capture_opts->num_selected != 0 || capture_opts->ifaces->len != 0) {
+        /* yes they did, exit immediately nothing further to do here */
+        return TRUE;
     }
 
-    return TRUE;
+    /* No - is a default specified in the preferences file? */
+    if (capture_device != NULL) {
+        /* Yes - use it. */
+        status=capture_opts_add_iface_opt(capture_opts, capture_device);
+        if(status==0){
+            return TRUE; /* interface found */
+        }
+        return FALSE; /* some kind of error finding interface */
+    }
+    /* No default in preferences file, just pick the first interface from the list of interfaces. */
+    status=capture_opts_add_iface_opt(capture_opts, "1");
+    if(status==0){
+        return TRUE; /* success */
+    }
+    return FALSE; /* some kind of error finding the first interface */
 }
 
 
@@ -979,6 +1003,9 @@ collect_ifaces(capture_options *capture_opts)
     interface_opts = g_array_index(capture_opts->ifaces, interface_options, i - 1);
     g_free(interface_opts.name);
     g_free(interface_opts.descr);
+    if(interface_opts.console_display_name!=NULL){
+        g_free(interface_opts.console_display_name);
+    }
     g_free(interface_opts.cfilter);
 #ifdef HAVE_PCAP_REMOTE
     if (interface_opts.src_type == CAPTURE_IFREMOTE) {
@@ -997,6 +1024,7 @@ collect_ifaces(capture_options *capture_opts)
     if (!device.hidden && device.selected) {
       interface_opts.name = g_strdup(device.name);
       interface_opts.descr = g_strdup(device.display_name);
+      interface_opts.console_display_name = g_strdup(device.name);
       interface_opts.linktype = device.active_dlt;
       interface_opts.cfilter = g_strdup(device.cfilter);
       interface_opts.snaplen = device.snaplen;

@@ -676,15 +676,9 @@ capture_if_refresh_if_list(void)
   if_lb = gtk_label_new("");
   gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 0, 1, row, row+1);
 
-#ifndef _WIN32
-  /*
-   * On Windows, device names are generally not meaningful - NT 5
-   * uses long blobs with GUIDs in them, for example - so we don't
-   * bother showing them.
-   */
   if_lb = gtk_label_new("Device");
   gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 1, 4, row, row+1);
-#endif
+
   if_lb = gtk_label_new("Description");
   gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 4, 5, row, row+1);
 
@@ -692,7 +686,7 @@ capture_if_refresh_if_list(void)
   gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 5, 6, row, row+1);
 
   if_lb = gtk_label_new("Packets");
-  gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 6, 7, row, row+1);
+  gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 6, 7, row, row+1);                            
 
   if_lb = gtk_label_new(" Packets/s ");
   gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 7, 8, row, row+1);
@@ -727,12 +721,20 @@ capture_if_refresh_if_list(void)
     icon = capture_get_if_icon(&(device));
     gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 1, 2, row, row+1);
 
-      /* device name */
+     /* device name */
+#ifdef _WIN32
+  /*
+   * On Windows, device names are generally not meaningful - NT 5
+   * uses long blobs with GUIDs in them, for example - so instead we use
+   * the display name which should match that shown in ncpa.cpl
+   */
+    data.device_lb = gtk_label_new(device.display_name);
+#else
     data.device_lb = gtk_label_new(device.name);
-#ifndef _WIN32
+#endif
     gtk_misc_set_alignment(GTK_MISC(data.device_lb), 0.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(if_tb), data.device_lb, 2, 4, row, row+1);
-#endif
+
     g_string_append(if_tool_str, "Device: ");
     g_string_append(if_tool_str, device.name);
     g_string_append(if_tool_str, "\n");
@@ -805,8 +807,12 @@ capture_if_refresh_if_list(void)
     row++;
     if (row <= 20) {
         /* Lets add up 20 rows of interfaces, otherwise the window may become too high */
+#ifdef _WIN32        
+      gtk_widget_get_preferred_size(GTK_WIDGET(data.details_bt), &requisition, NULL);
+#else
       gtk_widget_get_preferred_size(GTK_WIDGET(data.choose_bt), &requisition, NULL);
-      height += requisition.height;
+#endif      
+      height += requisition.height;        
     }
   }
 
@@ -816,7 +822,13 @@ capture_if_refresh_if_list(void)
 
   if (cap_if_w) {
     gtk_window_get_size(GTK_WINDOW(cap_if_w), &curr_width, &curr_height);
+#ifndef _WIN32
     if (curr_height < height)
+        /* On windows, resetting the size regardless works around what appears to be a windows gtk bug
+         * with multiple nic's where the resulting dialog box is much smaller than it should be. 
+         * note: the actual height calculation is not correct on Windows with varying 
+         * number of interfaces but fine at this point in time. */
+#endif
        gtk_window_resize(GTK_WINDOW(cap_if_w), curr_width, height);
   }
   else

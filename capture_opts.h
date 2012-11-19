@@ -114,6 +114,7 @@ typedef struct remote_options_tag {
 typedef struct interface_tag {
     gchar *name;
     gchar *display_name;
+    gchar *friendly_name;
     guint type;
     gchar *addresses;
     gint no_addresses;
@@ -147,8 +148,9 @@ typedef struct link_row_tag {
 } link_row;
 
 typedef struct interface_options_tag {
-    gchar *name;
+    gchar *name; /* the name of the interface provided to winpcap/libpcap to specify the interface */
     gchar *descr;
+    gchar *console_display_name; /* the name displayed in the console, also the basis for autonamed pcap filenames */
     gchar *cfilter;
     gboolean has_snaplen;
     int snaplen;

@@ -2191,12 +2191,13 @@ capture(void)
               g_string_append_printf(str, "and ");
           }
       }
-      g_string_append_printf(str, "%s", interface_opts.descr);
+      g_string_append_printf(str, "'%s'", interface_opts.descr);
     }
   } else {
     g_string_append_printf(str, "%u interfaces", global_capture_opts.ifaces->len);
   }
   fprintf(stderr, "Capturing on %s\n", str->str);
+  fflush(stderr);
   g_string_free(str, TRUE);
 
   ret = sync_pipe_start(&global_capture_opts);

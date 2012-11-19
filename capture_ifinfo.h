@@ -35,7 +35,8 @@ extern "C" {
  */
 typedef struct {
 	char	*name;          /* e.g. "eth0" */
-	char	*description;   /* from OS, e.g. "Local Area Connection" or NULL */
+    char    *description;   /* vendor description from libpcap, e.g. "Realtek PCIe GBE Family Controller" or NULL */
+    char    *friendly_name; /* from OS, e.g. "Local Area Connection" */
 	GSList  *addrs;         /* containing address values of if_addr_t */
 	gboolean loopback;      /* TRUE if loopback, FALSE otherwise */
 } if_info_t;
