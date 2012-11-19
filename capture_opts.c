@@ -465,7 +465,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             cmdarg_err("There are no interfaces on which a capture can be done");
             break;
         }
-        return 2;
+        return 1;
     }
 
 
