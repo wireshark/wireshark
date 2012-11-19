@@ -1009,7 +1009,7 @@ de_bssgp_pdu_in_error(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     curr_offset = offset;
 
     /* octet 3-? Erroneous BSSGP PDU */
-     proto_tree_add_item(tree, hf_bssgp_msg_type, tvb, 0, 1, ENC_BIG_ENDIAN);
+     proto_tree_add_item(tree, hf_bssgp_msg_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
      curr_offset++;
 
      proto_tree_add_text(tree, tvb, curr_offset, len-1, "PDU Data");
@@ -3703,12 +3703,10 @@ de_bssgp_ran_inf_error_rim_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_APP_ID, BSSGP_PDU_TYPE, DE_BSSGP_RIM_APP_ID, NULL);
     /* RIM Cause Cause/11.3.8 M TLV 3 */
     ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, " - RIM");
-    /* RIM Sequence Number RIM Sequence Number /11.3.62 M TLV 6 */
-    ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_RIM_SEQUENCE_NUMBER, BSSGP_PDU_TYPE, DE_BSSGP_RIM_SEQ_NO, NULL);
     /* RIM Protocol Version Number RIM Protocol Version Number/11.3.67 O TLV 3 */
     ELEM_IN_ELEM_OPT_TELV(BSSGP_IEI_RIM_PROTOCOL_VERSION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_PROTO_VER_NO, NULL);
     /* PDU in Error PDU in Error/11.3.24 M TLV 3-? */
-    ELEM_IN_ELEM_OPT_TELV(0x15, BSSGP_PDU_TYPE, DE_BSSGP_PDU_IN_ERROR , NULL);
+    ELEM_IN_ELEM_MAND_TELV(0x15, BSSGP_PDU_TYPE, DE_BSSGP_PDU_IN_ERROR , NULL);
     /* SON Transfer Application Identity (note 1) SON Transfer Application Identity/11.3.108 C TLV 3-m */
     ELEM_IN_ELEM_OPT_TELV(0x84, BSSGP_PDU_TYPE, DE_BSSGP_SON_TRANSFER_APP_ID, NULL);
 
