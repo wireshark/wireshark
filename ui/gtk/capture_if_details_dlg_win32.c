@@ -1806,7 +1806,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
         g_free(interface_friendlyname);
     }
 
-   /* Vendor description */
+    /* Vendor description */
     length = sizeof(values);
     if (wpcap_packet_request(adapter, OID_GEN_VENDOR_DESCRIPTION, FALSE /* !set */, values, &length)) {
         g_snprintf(string_buff, DETAILS_STR_MAX, "%s", values);
@@ -1816,7 +1816,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     }
     add_string_to_table(table, row, "Vendor description", string_buff);
 
-    /* Friendly name */
+    /* NDIS's "Friendly name" */
     length = sizeof(wvalues);
     if (wpcap_packet_request(adapter, OID_GEN_FRIENDLY_NAME, FALSE /* !set */, (char *)wvalues, &length)) {
         utf8value = g_utf16_to_utf8(wvalues, -1, NULL, NULL, NULL);
@@ -1854,8 +1854,6 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
         g_snprintf(string_buff, DETAILS_STR_MAX, "-");
     }
     add_string_to_table(table, row, "Link speed", string_buff);
-
-
 
     uint_array_size = sizeof(uint_array);
     if (wpcap_packet_request(adapter, OID_GEN_MEDIA_SUPPORTED, FALSE /* !set */, (char *) uint_array, &uint_array_size)) {
