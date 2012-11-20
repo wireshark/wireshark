@@ -50,10 +50,6 @@
 #include "capture-pcap-util.h"
 #include <wsutil/file_util.h>
 
-#ifdef _WIN32
-#include "capture_win_ifnames.h" /* windows friendly interface names */
-#endif
-
 static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe);
 
 
@@ -145,8 +141,8 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
 
         interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
         g_log(log_domain, log_level, "Interface name[%02d]  : %s", i, interface_opts.name ? interface_opts.name : "(unspecified)");
-        g_log(log_domain, log_level, "Interface Descr[%02d] : %s", i, interface_opts.descr ? interface_opts.descr : "(unspecified)");
-		g_log(log_domain, log_level, "Con display name[%02d]: %s", i, interface_opts.console_display_name ? interface_opts.console_display_name : "(unspecified)");
+        g_log(log_domain, log_level, "Interface description[%02d] : %s", i, interface_opts.descr ? interface_opts.descr : "(unspecified)");
+        g_log(log_domain, log_level, "Console display name[%02d]: %s", i, interface_opts.console_display_name ? interface_opts.console_display_name : "(unspecified)");
         g_log(log_domain, log_level, "Capture filter[%02d]  : %s", i, interface_opts.cfilter ? interface_opts.cfilter : "(unspecified)");
         g_log(log_domain, log_level, "Snap length[%02d] (%u) : %d", i, interface_opts.has_snaplen, interface_opts.snaplen);
         g_log(log_domain, log_level, "Link Type[%02d]       : %d", i, interface_opts.linktype);
@@ -498,51 +494,61 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             return 1;
         }
         interface_opts.name = g_strdup(if_info->name);
-        if(if_info->friendly_name!=NULL){
-            /* we know the friendlyname, so display that instead of the interface name/guid */
+        if (if_info->friendly_name != NULL) {
+            /*
+             * We have a friendly name for the interface, so display that
+             * instead of the interface name/guid.
+             *
+             * XXX - on UN*X, the interface name is not quite so ugly,
+             * and might be more familiar to users; display them both?
+             */
             interface_opts.console_display_name = g_strdup(if_info->friendly_name);
-        }else{
+        } else {
             /* fallback to the interface name */
             interface_opts.console_display_name = g_strdup(if_info->name);
         }
     } else {
         /* try and do an exact match (case insensitive) */
-        GList       *if_entry;
+        GList   *if_entry;
         gboolean matched;
 
-        matched=FALSE;
+        matched = FALSE;
         for (if_entry = g_list_first(if_list); if_entry != NULL;
              if_entry = g_list_next(if_entry))
         {
             if_info = (if_info_t *)if_entry->data;
             /* exact name check */
-            if(g_ascii_strcasecmp(if_info->name, optarg_str_p)==0){
+            if (g_ascii_strcasecmp(if_info->name, optarg_str_p) == 0) {
                 /* exact match on the interface name, use that for displaying etc */
                 interface_opts.name = g_strdup(if_info->name);
 
-                if(if_info->friendly_name!=NULL){
-                    /* if we know a friendly_name, use that for console_display_name, as
-                    * it is the basis for the auto generated temp filename */
+                if (if_info->friendly_name != NULL) {
+                    /*
+                     * If we have a friendly name, use that for the
+                     * console display name, as it is the basis for
+                     * the auto generated temp filename.
+                     */
                     interface_opts.console_display_name = g_strdup(if_info->friendly_name);
-                }else{
+                } else {
                     interface_opts.console_display_name = g_strdup(if_info->name);
                 }
-                matched=TRUE;
+                matched = TRUE;
                 break;
             }
 
-            /* exact friendlyname check */
-            if(if_info->friendly_name!=NULL && g_ascii_strcasecmp(if_info->friendly_name, optarg_str_p)==0){
+            /* exact friendly name check */
+            if (if_info->friendly_name != NULL &&
+                g_ascii_strcasecmp(if_info->friendly_name, optarg_str_p) == 0) {
                 /* exact match - use the friendly name for display */
                 interface_opts.name = g_strdup(if_info->name);
                 interface_opts.console_display_name = g_strdup(if_info->friendly_name);
-                matched=TRUE;
+                matched = TRUE;
                 break;
             }
         }
 
         /* didn't find, attempt a case insensitive prefix match of the friendly name*/
-        if(!matched){
+        if (!matched) {
             size_t prefix_length;
             prefix_length=strlen(optarg_str_p);
             for (if_entry = g_list_first(if_list); if_entry != NULL;
@@ -550,11 +556,12 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             {
                 if_info = (if_info_t *)if_entry->data;
 
-                if(if_info->friendly_name!=NULL && g_ascii_strncasecmp(if_info->friendly_name, optarg_str_p, prefix_length)==0){
+                if (if_info->friendly_name != NULL &&
+                    g_ascii_strncasecmp(if_info->friendly_name, optarg_str_p, prefix_length) == 0) {
                     /* prefix match - use the friendly name for display */
                     interface_opts.name = g_strdup(if_info->name);
                     interface_opts.console_display_name = g_strdup(if_info->friendly_name);
-                    matched=TRUE;
+                    matched = TRUE;
                     break;
                 }
             }
@@ -911,24 +918,22 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
     /* No - is a default specified in the preferences file? */
     if (capture_device != NULL) {
         /* Yes - use it. */
-        status=capture_opts_add_iface_opt(capture_opts, capture_device);
-        if(status==0){
+        status = capture_opts_add_iface_opt(capture_opts, capture_device);
+        if (status == 0)
             return TRUE; /* interface found */
-        }
         return FALSE; /* some kind of error finding interface */
     }
     /* No default in preferences file, just pick the first interface from the list of interfaces. */
-    status=capture_opts_add_iface_opt(capture_opts, "1");
-    if(status==0){
+    status = capture_opts_add_iface_opt(capture_opts, "1");
+    if (status == 0)
         return TRUE; /* success */
-    }
     return FALSE; /* some kind of error finding the first interface */
 }
 
 
 
 #ifndef S_IFIFO
-#define S_IFIFO	_S_IFIFO
+#define S_IFIFO _S_IFIFO
 #endif
 #ifndef S_ISFIFO
 #define S_ISFIFO(mode)  (((mode) & S_IFMT) == S_IFIFO)
@@ -1003,9 +1008,8 @@ collect_ifaces(capture_options *capture_opts)
     interface_opts = g_array_index(capture_opts->ifaces, interface_options, i - 1);
     g_free(interface_opts.name);
     g_free(interface_opts.descr);
-    if(interface_opts.console_display_name!=NULL){
+    if (interface_opts.console_display_name != NULL)
         g_free(interface_opts.console_display_name);
-    }
     g_free(interface_opts.cfilter);
 #ifdef HAVE_PCAP_REMOTE
     if (interface_opts.src_type == CAPTURE_IFREMOTE) {
