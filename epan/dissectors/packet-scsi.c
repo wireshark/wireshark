@@ -4278,10 +4278,6 @@ dissect_scsi_fix_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
     proto_item *hidden_item;
     guint8      flags;
 
-    flags = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(sns_tree, tvb, offset, 1, "Valid: %u",
-                        (flags & 0x80) >> 7);
-    proto_tree_add_item(sns_tree, hf_scsi_sns_errtype, tvb, offset, 1, ENC_BIG_ENDIAN);
     flags = tvb_get_guint8(tvb, offset+2);
     proto_tree_add_text(sns_tree, tvb, offset+2, 1,
                         "Filemark: %u, EOM: %u, ILI: %u",
@@ -4305,6 +4301,38 @@ dissect_scsi_fix_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
                         tvb_bytes_to_str(tvb, offset+15, 3));
 }
 
+static void
+dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
+{
+    proto_tree_add_item(sns_tree, hf_scsi_snskey, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sns_tree, hf_scsi_ascascq, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+}
+
+static void
+dissect_scsi_sense(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
+{
+    guint8 sense_type;
+    guint8 flags;
+
+    flags = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(sns_tree, tvb, offset, 1, "Valid: %u",
+                        (flags & 0x80) >> 7);
+    proto_tree_add_item(sns_tree, hf_scsi_sns_errtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    sense_type = tvb_get_guint8(tvb, offset) & 0x7f;
+
+    switch (sense_type) {
+    case 0x70:
+    case 0x71:
+        dissect_scsi_fix_snsinfo(tvb, sns_tree, offset);
+	break;
+    case 0x72:
+    case 0x73:
+        dissect_scsi_descriptor_snsinfo(tvb, sns_tree, offset);
+	break;
+    }
+}
+
 void
 dissect_spc_requestsense(tvbuff_t * tvb, packet_info *pinfo _U_, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
@@ -4317,9 +4345,9 @@ dissect_spc_requestsense(tvbuff_t * tvb, packet_info *pinfo _U_, proto_tree *tre
         proto_tree_add_item(tree, hf_scsi_alloclen, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
                                ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
+    } else if (!isreq) {
+        dissect_scsi_sense(tvb, tree, offset);
     }
-    else if (!isreq)
-        dissect_scsi_fix_snsinfo(tvb, tree, offset);
 }
 
 void
@@ -4530,7 +4558,7 @@ dissect_scsi_snsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_set_fence(pinfo->cinfo, COL_INFO);
     }
 
-    dissect_scsi_fix_snsinfo(tvb, sns_tree, offset);
+    dissect_scsi_sense(tvb, sns_tree, offset);
 
     pinfo->current_proto = old_proto;
 }
