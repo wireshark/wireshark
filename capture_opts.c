@@ -449,27 +449,6 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_options interface_opts;
 
     /*
-     * Retrieve the interface list against which to compare the specified
-     * option.
-     */
-    if_list = capture_interface_list(&err, &err_str);
-    if (if_list == NULL) {
-        switch (err) {
-
-        case CANT_GET_INTERFACE_LIST:
-        case DONT_HAVE_PCAP:
-            cmdarg_err("%s", err_str);
-            g_free(err_str);
-            break;
-
-        case NO_INTERFACES_FOUND:
-            cmdarg_err("There are no interfaces on which a capture can be done");
-            break;
-        }
-        return 2;
-    }
-
-    /*
      * If the argument is a number, treat it as an index into the list
      * of adapters, as printed by "tshark -D".
      *
@@ -492,6 +471,22 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             cmdarg_err("There is no interface with that adapter index");
             return 1;
         }
+        if_list = capture_interface_list(&err, &err_str);
+        if (if_list == NULL) {
+            switch (err) {
+
+            case CANT_GET_INTERFACE_LIST:
+            case DONT_HAVE_PCAP:
+                cmdarg_err("%s", err_str);
+                g_free(err_str);
+                break;
+
+            case NO_INTERFACES_FOUND:
+                cmdarg_err("There are no interfaces on which a capture can be done");
+                break;
+            }
+            return 2;
+        }
         if_info = (if_info_t *)g_list_nth_data(if_list, adapter_index - 1);
         if (if_info == NULL) {
             cmdarg_err("There is no interface with that adapter index");
@@ -511,78 +506,96 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             /* fallback to the interface name */
             interface_opts.console_display_name = g_strdup(if_info->name);
         }
+        free_interface_list(if_list);
     } else {
-        /* try and do an exact match (case insensitive) */
-        GList   *if_entry;
-        gboolean matched;
+        /*
+         * Retrieve the interface list so that we can search for the
+         * specified option amongst both the interface names and the
+         * friendly names and so that we find the friendly name even
+         * if an interface name was specified.
+         *
+         * If we can't get the list, just use the specified option as
+         * the interface name, so that the user can try specifying an
+         * interface explicitly for testing purposes.
+         */
+        if_list = capture_interface_list(&err, &err_str);
+        if (if_list != NULL) {
+            /* try and do an exact match (case insensitive) */
+            GList   *if_entry;
+            gboolean matched;
 
-        matched = FALSE;
-        for (if_entry = g_list_first(if_list); if_entry != NULL;
-             if_entry = g_list_next(if_entry))
-        {
-            if_info = (if_info_t *)if_entry->data;
-            /* exact name check */
-            if (g_ascii_strcasecmp(if_info->name, optarg_str_p) == 0) {
-                /* exact match on the interface name, use that for displaying etc */
-                interface_opts.name = g_strdup(if_info->name);
-
-                if (if_info->friendly_name != NULL) {
-                    /*
-                     * If we have a friendly name, use that for the
-                     * console display name, as it is the basis for
-                     * the auto generated temp filename.
-                     */
-                    interface_opts.console_display_name = g_strdup(if_info->friendly_name);
-                } else {
-                    interface_opts.console_display_name = g_strdup(if_info->name);
-                }
-                matched = TRUE;
-                break;
-            }
-
-            /* exact friendly name check */
-            if (if_info->friendly_name != NULL &&
-                g_ascii_strcasecmp(if_info->friendly_name, optarg_str_p) == 0) {
-                /* exact match - use the friendly name for display */
-                interface_opts.name = g_strdup(if_info->name);
-                interface_opts.console_display_name = g_strdup(if_info->friendly_name);
-                matched = TRUE;
-                break;
-            }
-        }
-
-        /* didn't find, attempt a case insensitive prefix match of the friendly name*/
-        if (!matched) {
-            size_t prefix_length;
-            prefix_length=strlen(optarg_str_p);
+            matched = FALSE;
             for (if_entry = g_list_first(if_list); if_entry != NULL;
                  if_entry = g_list_next(if_entry))
             {
                 if_info = (if_info_t *)if_entry->data;
+                /* exact name check */
+                if (g_ascii_strcasecmp(if_info->name, optarg_str_p) == 0) {
+                    /* exact match on the interface name, use that for displaying etc */
+                    interface_opts.name = g_strdup(if_info->name);
 
+                    if (if_info->friendly_name != NULL) {
+                        /*
+                         * If we have a friendly name, use that for the
+                         * console display name, as it is the basis for
+                         * the auto generated temp filename.
+                         */
+                        interface_opts.console_display_name = g_strdup(if_info->friendly_name);
+                    } else {
+                        interface_opts.console_display_name = g_strdup(if_info->name);
+                    }
+                    matched = TRUE;
+                    break;
+                }
+
+                /* exact friendly name check */
                 if (if_info->friendly_name != NULL &&
-                    g_ascii_strncasecmp(if_info->friendly_name, optarg_str_p, prefix_length) == 0) {
-                    /* prefix match - use the friendly name for display */
+                    g_ascii_strcasecmp(if_info->friendly_name, optarg_str_p) == 0) {
+                    /* exact match - use the friendly name for display */
                     interface_opts.name = g_strdup(if_info->name);
                     interface_opts.console_display_name = g_strdup(if_info->friendly_name);
                     matched = TRUE;
                     break;
                 }
             }
-        }
-        if (!matched) {
-            /*
-             * We didn't find the interface in the list; just use
-             * the specified name, so that, for example, if an
-             * interface doesn't show up in the list for some
-             * reason, the user can try specifying it explicitly
-             * for testing purposes.
-             */
+
+            /* didn't find, attempt a case insensitive prefix match of the friendly name*/
+            if (!matched) {
+                size_t prefix_length;
+
+                prefix_length = strlen(optarg_str_p);
+                for (if_entry = g_list_first(if_list); if_entry != NULL;
+                     if_entry = g_list_next(if_entry))
+                {
+                    if_info = (if_info_t *)if_entry->data;
+
+                    if (if_info->friendly_name != NULL &&
+                        g_ascii_strncasecmp(if_info->friendly_name, optarg_str_p, prefix_length) == 0) {
+                        /* prefix match - use the friendly name for display */
+                        interface_opts.name = g_strdup(if_info->name);
+                        interface_opts.console_display_name = g_strdup(if_info->friendly_name);
+                        matched = TRUE;
+                        break;
+                    }
+                }
+            }
+            if (!matched) {
+                /*
+                 * We didn't find the interface in the list; just use
+                 * the specified name, so that, for example, if an
+                 * interface doesn't show up in the list for some
+                 * reason, the user can try specifying it explicitly
+                 * for testing purposes.
+                 */
+                interface_opts.name = g_strdup(optarg_str_p);
+                interface_opts.console_display_name = g_strdup(optarg_str_p);
+            }
+            free_interface_list(if_list);
+        } else {
             interface_opts.name = g_strdup(optarg_str_p);
             interface_opts.console_display_name = g_strdup(optarg_str_p);
         }
     }
-    free_interface_list(if_list);
 
     /*  We don't set iface_descr here because doing so requires
      *  capture_ui_utils.c which requires epan/prefs.c which is
