@@ -4673,9 +4673,10 @@ main(int argc, char *argv[])
      * "-L", "-d", and capturing act on a particular interface, so we have to
      * have an interface; if none was specified, pick a default.
      */
-    if (capture_opts_trim_iface(&global_capture_opts, NULL) == FALSE) {
+    status = capture_opts_trim_iface(&global_capture_opts, NULL);
+    if (status != 0) {
         /* cmdarg_err() already called .... */
-        exit_main(1);
+        exit_main(status);
     }
 
     /* Let the user know what interfaces were chosen. */

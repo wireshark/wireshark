@@ -446,7 +446,10 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     gchar       *err_str;
     interface_options interface_opts;
 
-    /* retrieve the interface list to compare the option specfied against */
+    /*
+     * Retrieve the interface list against which to compare the specified
+     * option.
+     */
     if_list = capture_interface_list(&err, &err_str);
     if (if_list == NULL) {
         switch (err) {
@@ -461,9 +464,8 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             cmdarg_err("There are no interfaces on which a capture can be done");
             break;
         }
-        return 1;
+        return 2;
     }
-
 
     /*
      * If the argument is a number, treat it as an index into the list
@@ -905,32 +907,26 @@ void capture_opts_trim_ring_num_files(capture_options *capture_opts)
 }
 
 
-gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capture_device)
+int
+capture_opts_trim_iface(capture_options *capture_opts, const char *capture_device)
 {
     int status;
 
     /* Did the user specify an interface to use? */
     if (capture_opts->num_selected != 0 || capture_opts->ifaces->len != 0) {
-        /* yes they did, exit immediately nothing further to do here */
-        return TRUE;
+        /* yes they did, return immediately - nothing further to do here */
+        return 0;
     }
 
     /* No - is a default specified in the preferences file? */
     if (capture_device != NULL) {
         /* Yes - use it. */
         status = capture_opts_add_iface_opt(capture_opts, capture_device);
-        if (status == 0)
-            return TRUE; /* interface found */
-        return FALSE; /* some kind of error finding interface */
+        return status;
     }
     /* No default in preferences file, just pick the first interface from the list of interfaces. */
-    status = capture_opts_add_iface_opt(capture_opts, "1");
-    if (status == 0)
-        return TRUE; /* success */
-    return FALSE; /* some kind of error finding the first interface */
+    return capture_opts_add_iface_opt(capture_opts, "1");
 }
-
-
 
 #ifndef S_IFIFO
 #define S_IFIFO _S_IFIFO

@@ -1871,10 +1871,10 @@ main(int argc, char *argv[])
        do we have support for live captures? */
 #ifdef HAVE_LIBPCAP
     /* trim the interface name and exit if that failed */
-    if (!capture_opts_trim_iface(&global_capture_opts,
-        ((prefs_p->capture_device) && (*prefs_p->capture_device != '\0')) ? get_if_name(prefs_p->capture_device) : NULL)) {
-        return 2;
-    }
+    exit_status = capture_opts_trim_iface(&global_capture_opts,
+        ((prefs_p->capture_device) && (*prefs_p->capture_device != '\0')) ? get_if_name(prefs_p->capture_device) : NULL);
+    if (exit_status != 0)
+        return exit_status;
 
     /* if requested, list the link layer types and exit */
     if (list_link_layer_types) {

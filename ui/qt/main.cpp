@@ -1010,9 +1010,10 @@ int main(int argc, char *argv[])
 
 //  if (start_capture || list_link_layer_types) {
 //    /* Did the user specify an interface to use? */
-//    if (!capture_opts_trim_iface(&global_capture_opts,
-//        (prefs_p->capture_device) ? get_if_name(prefs_p->capture_device) : NULL)) {
-//        exit(2);
+//    status = capture_opts_trim_iface(&global_capture_opts,
+//        (prefs_p->capture_device) ? get_if_name(prefs_p->capture_device) : NULL);
+//    if (status != 0) {
+//      exit(status);
 //    }
 //  }
 

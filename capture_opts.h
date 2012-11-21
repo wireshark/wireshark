@@ -264,7 +264,7 @@ extern void
 capture_opts_trim_ring_num_files(capture_options *capture_opts);
 
 /* trim the interface entry */
-extern gboolean
+extern int
 capture_opts_trim_iface(capture_options *capture_opts, const char *capture_device);
 
 extern void
