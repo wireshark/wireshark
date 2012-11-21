@@ -102,7 +102,7 @@ clopts_step_dumpcap_invalid_capfilter() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Infos"
+			test_step_failed "Unexpected error message"
 		fi
 	fi
 }
@@ -120,7 +120,7 @@ clopts_step_dumpcap_invalid_interfaces() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Infos"
+			test_step_failed "Unexpected error message"
 		fi
 	fi
 }
@@ -138,7 +138,7 @@ clopts_step_dumpcap_invalid_interfaces_index() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Infos"
+			test_step_failed "Unexpected error message"
 		fi
 	fi
 }
@@ -221,7 +221,7 @@ clopts_step_tshark_invalid_capfilter() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Infos"
+			test_step_failed "Unexpected error message"
 		fi
 	fi
 }
@@ -239,7 +239,7 @@ clopts_step_tshark_invalid_interfaces() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Infos"
+			test_step_failed "Unexpected error message"
 		fi
 	fi
 }
@@ -257,7 +257,7 @@ clopts_step_tshark_invalid_interfaces_index() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Infos"
+			test_step_failed "Unexpected error message"
 		fi
 	fi
 }
@@ -285,16 +285,16 @@ clopts_suite_basic() {
 	test_step_add "Exit status for none existing files must be 2" clopts_step_nonexisting_file
 }
 
-clopts_suite_tshark_capture_options() {
-	test_step_add  "Invalid capture filter -f" clopts_step_tshark_invalid_capfilter
-	test_step_add  "Invalid capture interface -i" clopts_step_tshark_invalid_interfaces
-	test_step_add  "Invalid capture interface index 0" clopts_step_tshark_invalid_interfaces_index
+clopts_suite_dumpcap_capture_options() {
+	test_step_add  "Invalid dumpcap capture filter -f" clopts_step_dumpcap_invalid_capfilter
+	test_step_add  "Invalid dumpcap capture interface -i" clopts_step_dumpcap_invalid_interfaces
+	test_step_add  "Invalid dumpcap capture interface index 0" clopts_step_dumpcap_invalid_interfaces_index
 }
 
-clopts_suite_dumpcap_capture_options() {
-	test_step_add  "Invalid capture filter -f" clopts_step_dumpcap_invalid_capfilter
-	test_step_add  "Invalid capture interface -i" clopts_step_dumpcap_invalid_interfaces
-	test_step_add  "Invalid capture interface index 0" clopts_step_dumpcap_invalid_interfaces_index
+clopts_suite_tshark_capture_options() {
+	test_step_add  "Invalid TShark capture filter -f" clopts_step_tshark_invalid_capfilter
+	test_step_add  "Invalid TShark capture interface -i" clopts_step_tshark_invalid_interfaces
+	test_step_add  "Invalid TShark capture interface index 0" clopts_step_tshark_invalid_interfaces_index
 }
 
 clopts_post_step() {
