@@ -301,12 +301,12 @@
 #define CC_KEY_EVEN 0x0
 #define CC_KEY_ODD  0x1
 
-#define CC_STATUS_OK            0x0
-#define CC_STATUS_NO_CC_SUPPORT 0x1
-#define CC_STATUS_HOST_BUSY     0x2
-#define CC_STATUS_AUTH_FAILED   0x3
-#define CC_STATUS_CICAM_BUSY    0x4
-#define CC_STATUS_REC_MODE_ERR  0x5
+#define CC_STATUS_OK                    0x0
+#define CC_STATUS_NO_CC_SUPPORT         0x1
+#define CC_STATUS_HOST_BUSY             0x2
+#define CC_STATUS_AUTH_FAILED_OR_NO_SRM 0x3
+#define CC_STATUS_CICAM_BUSY            0x4
+#define CC_STATUS_REC_MODE_ERR          0x5
 
 #define CC_SAC_AUTH_AES128_XCBC_MAC 0x0
 #define CC_SAC_ENC_AES128_CBC       0x0
@@ -1337,12 +1337,12 @@ static const value_string dvbci_cc_key_register[] = {
     { 0, NULL }
 };
 static const value_string dvbci_cc_status[] = {
-    { CC_STATUS_OK,            "Ok" },
-    { CC_STATUS_NO_CC_SUPPORT, "No CC support" },
-    { CC_STATUS_HOST_BUSY,     "Host busy" },
-    { CC_STATUS_AUTH_FAILED,   "Authentication failed" },
-    { CC_STATUS_CICAM_BUSY,    "CICAM busy" },
-    { CC_STATUS_REC_MODE_ERR,  "Recording mode error" },
+    { CC_STATUS_OK,                    "Ok" },
+    { CC_STATUS_NO_CC_SUPPORT,         "No CC support" },
+    { CC_STATUS_HOST_BUSY,             "Host busy" },
+    { CC_STATUS_AUTH_FAILED_OR_NO_SRM, "Authentication failed / SRM not required" },
+    { CC_STATUS_CICAM_BUSY,            "CICAM busy" },
+    { CC_STATUS_REC_MODE_ERR,          "Recording mode error" },
     { 0, NULL }
 };
 static const value_string dvbci_cc_sac_auth[] = {
