@@ -2492,7 +2492,7 @@ proto_register_ipv6(void)
                                 FT_BOOLEAN, 16, TFS(&tfs_yes_no), IP6F_MORE_FRAG,
                                 "More Fragments", HFILL }},
     { &hf_ipv6_frag_id,
-      { "Identification",        "ipv6.framgent.id",
+      { "Identification",        "ipv6.fragment.id",
                                 FT_UINT32, BASE_HEX, NULL, 0x0,
                                 "Fragment Identification", HFILL }},
     { &hf_ipv6_fragment_overlap,
