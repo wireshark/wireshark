@@ -3170,14 +3170,15 @@ de_bssgp_reliable_inter_rat_ho_inf(tvbuff_t *tvb, proto_tree *tree, packet_info 
 static guint16
 de_bssgp_son_transfer_app_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset _U_, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	tvbuff_t *next_tvb;
+    tvbuff_t *next_tvb;
+
     /* SON Transfer Application Identity: This field is encoded as the SON Transfer Application Identity IE
      * as defined in 3GPP TS 36.413
      */
     if(len > 0){
         next_tvb = tvb_new_subset(tvb, offset, len, len);
-		dissect_s1ap_SONtransferApplicationIdentity_PDU(tvb, gpinfo, tree, NULL);
-	}
+        dissect_s1ap_SONtransferApplicationIdentity_PDU(tvb, gpinfo, tree, NULL);
+    }
 
     return(len);
 }
