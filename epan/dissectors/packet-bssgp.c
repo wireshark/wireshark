@@ -885,14 +885,12 @@ de_bssgp_flush_action(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  */
 
 static guint16
-de_bssgp_llc_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_llc_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *next_tvb=NULL;
     guint32 curr_offset;
 
     curr_offset = offset;
-
-
 
     if(len > 0){
         next_tvb = tvb_new_subset_remaining(tvb, curr_offset);
