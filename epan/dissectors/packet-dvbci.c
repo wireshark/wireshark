@@ -83,7 +83,9 @@
 #define READY_H   0x09
 #define READY_L   0x0A
 
-/* Card Information Structure */
+/* Card Information Structure (CIS) */
+
+/* tuples */
 #define CISTPL_NO_LINK       0x14
 #define CISTPL_VERS_1        0x15
 #define CISTPL_CONFIG        0x1A
@@ -92,6 +94,15 @@
 #define CISTPL_DEVICE_OA     0x1D
 #define CISTPL_MANFID        0x20
 #define CISTPL_END           0xFF
+/* subtuple */
+#define CCSTPL_CIF           0xC0
+/* interface types */
+#define TPCE_IF_TYPE_MEM     0
+#define TPCE_IF_TYPE_IO_MEM  1
+#define TPCE_IF_TYPE_CUST0   4
+#define TPCE_IF_TYPE_CUST1   5
+#define TPCE_IF_TYPE_CUST2   6
+#define TPCE_IF_TYPE_CUST3   7
 
 /* link layer */
 #define ML_MORE 0x80
@@ -777,6 +788,7 @@ static gint ett_dvbci = -1;
 static gint ett_dvbci_hdr = -1;
 static gint ett_dvbci_cis = -1;
 static gint ett_dvbci_cis_tpl = -1;
+static gint ett_dvbci_cis_subtpl = -1;
 static gint ett_dvbci_link = -1;
 static gint ett_dvbci_link_frag = -1;
 static gint ett_dvbci_link_frags = -1;
@@ -809,6 +821,24 @@ static int hf_dvbci_cis_tpll_v1_info_manuf = -1;
 static int hf_dvbci_cis_tpll_v1_info_name = -1;
 static int hf_dvbci_cis_tpll_v1_info_additional = -1;
 static int hf_dvbci_cis_tpll_v1_end = -1;
+static int hf_dvbci_cis_tpcc_rfsz = -1;
+static int hf_dvbci_cis_tpcc_rmsz = -1;
+static int hf_dvbci_cis_tpcc_rasz = -1;
+static int hf_dvbci_cis_tpcc_last = -1;
+static int hf_dvbci_cis_tpcc_radr = -1;
+static int hf_dvbci_cis_tpcc_rmsk = -1;
+static int hf_dvbci_cis_st_code = -1;
+static int hf_dvbci_cis_st_len = -1;
+static int hf_dvbci_cis_stci_ifn_size = -1;
+static int hf_dvbci_cis_stci_ifn = -1;
+static int hf_dvbci_cis_stci_str = -1;
+static int hf_dvbci_cis_tpce_indx_intface = -1;
+static int hf_dvbci_cis_tpce_indx_default = -1;
+static int hf_dvbci_cis_tpce_indx_cnf_entry = -1;
+static int hf_dvbci_cis_tpce_if_type = -1;
+static int hf_dvbci_cis_tpce_fs_mem_space = -1;
+static int hf_dvbci_cis_tpce_fs_irq = -1;
+static int hf_dvbci_cis_tpce_fs_io = -1;
 static int hf_dvbci_cis_tplmid_manf = -1;
 static int hf_dvbci_cis_tplmid_card = -1;
 static int hf_dvbci_buf_size = -1;
@@ -1085,6 +1115,19 @@ static const value_string dvbci_cis_tpl_code[] = {
     { CISTPL_DEVICE_OA, "Device information for Attribute Memory" },
     { CISTPL_MANFID, "Manufacturer indentification string" },
     { CISTPL_END, "End of chain" },
+    { 0, NULL }
+};
+static const value_string dvbci_cis_subtpl_code[] = {
+    { CCSTPL_CIF, "Custom interface subtuple" },
+    { 0, NULL }
+};
+static const value_string dvbci_cis_tpce_if_type[] = {
+    { TPCE_IF_TYPE_MEM,    "Memory" },
+    { TPCE_IF_TYPE_IO_MEM, "I/O and Memory" },
+    { TPCE_IF_TYPE_CUST0,  "Custom Interface 0" },
+    { TPCE_IF_TYPE_CUST1,  "Custom Interface 1" },
+    { TPCE_IF_TYPE_CUST2,  "Custom Interface 2" },
+    { TPCE_IF_TYPE_CUST3,  "Custom Interface 3" },
     { 0, NULL }
 };
 static const value_string dvbci_ml[] = {
@@ -4387,7 +4430,119 @@ dissect_dvbci_cis_payload_tpll_v1(tvbuff_t *data_tvb,
     return offset;
 }
 
+static gint
+dissect_dvbci_cis_payload_config(tvbuff_t *data_tvb,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint         offset = 0;
+    /* these are the actual sizes, the CIS stores rmsz-1 and rasz-1 */
+    guint8       rfsz, rmsz, rasz;
+    guint8       st_code, st_len;
+    const gchar *st_code_str;
+    proto_item  *st_item = NULL;
+    proto_tree  *st_tree = NULL;
+    guint8       stci_ifn_size;   /* actual size, see comment above */
 
+    rfsz = (tvb_get_guint8(data_tvb, offset)&0xC0) >> 6;
+    proto_tree_add_item(tree, hf_dvbci_cis_tpcc_rfsz,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    rmsz = ((tvb_get_guint8(data_tvb, offset)&0x3C) >> 2) + 1;
+    proto_tree_add_item(tree, hf_dvbci_cis_tpcc_rmsz,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    rasz = (tvb_get_guint8(data_tvb, offset)&0x03) + 1;
+    proto_tree_add_item(tree, hf_dvbci_cis_tpcc_rasz,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dvbci_cis_tpcc_last,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dvbci_cis_tpcc_radr,
+            data_tvb, offset, rasz, ENC_LITTLE_ENDIAN);
+    offset += rasz;
+    proto_tree_add_item(tree, hf_dvbci_cis_tpcc_rmsk,
+            data_tvb, offset, rmsz, ENC_NA);
+    offset += rmsz;
+    offset += rfsz; /* skip reserved bytes */
+
+    while (tvb_reported_length_remaining(data_tvb, offset) > 0) {
+        st_code = tvb_get_guint8(data_tvb, offset);
+        st_code_str = val_to_str_const(st_code, dvbci_cis_subtpl_code, "unknown");
+        st_item = proto_tree_add_text(tree, data_tvb, offset, -1,
+                "Subtuple: %s (0x%x)", st_code_str, st_code);
+        st_tree = proto_item_add_subtree(st_item, ett_dvbci_cis_subtpl);
+        proto_tree_add_item(st_tree, hf_dvbci_cis_st_code,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        st_len = tvb_get_guint8(data_tvb, offset);
+        proto_item_set_len(st_item, 2+st_len); /* tag, len byte, body */
+        proto_tree_add_item(st_tree, hf_dvbci_cis_st_len,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        if (st_code == CCSTPL_CIF) {
+            stci_ifn_size = ((tvb_get_guint8(data_tvb, offset) & 0xC0)>>6)+1;
+            proto_tree_add_item(st_tree, hf_dvbci_cis_stci_ifn_size,
+                    data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            /* don't increment offset,
+               size and actual value's LSB share the same byte */
+            proto_tree_add_item(st_tree, hf_dvbci_cis_stci_ifn,
+                    data_tvb, offset, stci_ifn_size, ENC_LITTLE_ENDIAN);
+            offset += stci_ifn_size;
+            /* the stci_str field could consist of multiple strings,
+               this case is not supported for now */
+            proto_tree_add_item(st_tree, hf_dvbci_cis_stci_str,
+                    data_tvb, offset, st_len-stci_ifn_size, ENC_ASCII|ENC_NA);
+            offset += st_len-stci_ifn_size;
+        }
+        else {
+            /* skip unknown subtuple's content */
+            offset += st_len;
+        } 
+    }
+
+    return offset;
+}
+
+
+static gint
+dissect_dvbci_cis_payload_cftable_entry(tvbuff_t *data_tvb,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint offset = 0;
+    gboolean intface_flag;
+
+    intface_flag = ((tvb_get_guint8(data_tvb, offset) & 0x80) == 0x80);
+    /* tpce_indx byte */
+    proto_tree_add_item(tree, hf_dvbci_cis_tpce_indx_intface,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_dvbci_cis_tpce_indx_default,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_dvbci_cis_tpce_indx_cnf_entry,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    if (intface_flag) {
+        /* tpce_if byte */
+        proto_tree_add_item(tree, hf_dvbci_cis_tpce_if_type,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        /* XXX parse other components of tpce_if */
+        offset++;
+    }
+
+    /* tpce_fs byte: this is present in any case */
+    proto_tree_add_item(tree, hf_dvbci_cis_tpce_fs_mem_space,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_dvbci_cis_tpce_fs_irq,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_dvbci_cis_tpce_fs_io,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    /* XXX parse other components of tpce_fs */
+    offset++;
+
+    return offset;
+}
+ 
 static void
 dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree)
@@ -4429,11 +4584,19 @@ dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
+        tpl_data_tvb = tvb_new_subset(tvb, offset, len_field, len_field);
         switch (tpl_code) {
             case CISTPL_VERS_1:
-                tpl_data_tvb =
-                    tvb_new_subset(tvb, offset, len_field, len_field);
                 dissect_dvbci_cis_payload_tpll_v1(
+                        tpl_data_tvb, pinfo, tpl_tree);
+                offset += len_field;
+                break;
+            case CISTPL_CONFIG:
+                dissect_dvbci_cis_payload_config(tpl_data_tvb, pinfo, tpl_tree);
+                offset += len_field;
+                break;
+            case CISTPL_CFTABLE_ENTRY:
+                dissect_dvbci_cis_payload_cftable_entry(
                         tpl_data_tvb, pinfo, tpl_tree);
                 offset += len_field;
                 break;
@@ -4581,6 +4744,7 @@ proto_register_dvbci(void)
         &ett_dvbci_hdr,
         &ett_dvbci_cis,
         &ett_dvbci_cis_tpl,
+        &ett_dvbci_cis_subtpl,
         &ett_dvbci_link,
         &ett_dvbci_link_frag,
         &ett_dvbci_link_frags,
@@ -4652,6 +4816,78 @@ proto_register_dvbci(void)
         { &hf_dvbci_cis_tpll_v1_end,
           { "End of chain", "dvb-ci.cis.tpll_v1_end",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpcc_rfsz,
+          { "Size of reserved area", "dvb-ci.cis.tpcc_rfsz",
+            FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpcc_rmsz,
+          { "Size of TPCC_RMSK field - 1", "dvb-ci.cis.tpcc_rmsz",
+            FT_UINT8, BASE_HEX, NULL, 0x3C, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpcc_rasz,
+          { "Size of TPCC_RADR - 1", "dvb-ci.cis.tpcc_rasz",
+            FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpcc_last,
+          { "Index of the last cftable entry", "dvb-ci.cis.tpcc_last",
+            FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpcc_radr,
+          { "COR base address", "dvb-ci.cis.tpcc_radr",
+            FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpcc_rmsk,
+          { "Configuration register presence mask", "dvb-ci.cis.tpcc_rmsk",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_st_code,
+          { "Subtuple tag", "dvb-ci.cis.st_code",
+            FT_UINT8, BASE_HEX, VALS(dvbci_cis_subtpl_code), 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_st_len,
+          { "Subtuple length", "dvb-ci.cis.st_len",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_stci_ifn_size,
+          { "Size of interface ID number - 1", "dvb-ci.cis.stci_ifn_size",
+            FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_stci_ifn,
+          { "Interface ID number", "dvb-ci.cis.stci_ifn",
+            FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_stci_str,
+          { "Interface description strings", "dvb-ci.cis.stci_str",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpce_indx_intface,
+          { "Intface", "dvb-ci.cis.tpce_indx.intface",
+            FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpce_indx_default,
+          { "Default", "dvb-ci.cis.tpce_indx.default",
+            FT_UINT8, BASE_HEX, NULL, 0x40, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpce_indx_cnf_entry,
+          { "Configuration entry number", "dvb-ci.cis.tpce_indx.cnf_entry",
+            FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpce_if_type,
+          { "Interface type", "dvb-ci.cis.tpce_if.type", FT_UINT8, BASE_HEX,
+              VALS(dvbci_cis_tpce_if_type), 0x0F, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpce_fs_mem_space,
+          { "Mem space", "dvb-ci.cis.tpce_fs.mem_space",
+            FT_UINT8, BASE_HEX, NULL, 0x60, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpce_fs_irq,
+          { "IRQ", "dvb-ci.cis.tpce_fs.irq",
+            FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_tpce_fs_io,
+          { "IO Space", "dvb-ci.cis.tpce_fs.io",
+            FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL }
         },
         { &hf_dvbci_cis_tplmid_manf,
           { "PC Card manufacturer code", "dvb-ci.cis.tplmid_manf",
