@@ -297,9 +297,7 @@ void get_windows_interface_friendlyname(/* IN */ char *interface_devicename, /* 
     {
         int r=GetInterfaceFriendlyNameFromDeviceGuid(&guid, interface_friendlyname);
         if(r!=NO_ERROR){
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
-                "Failed to retrieve interface friendly name associated with interface '%s', LastErrorCode=0x%08x.",
-                interface_devicename, GetLastError());
+            /* A message has been logged by GetInterfaceFriendlyNameFromDeviceGuid() */
             *interface_friendlyname=NULL; /* failed to get friendly name, ensure the ultimate result is NULL */
             return;
         }
