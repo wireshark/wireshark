@@ -4934,7 +4934,7 @@ proto_register_dvbci(void)
             FT_UINT8, BASE_HEX, VALS(dvbci_hc_status), 0, NULL, HFILL }
         },
         { &hf_dvbci_hc_release_reply,
-          { "Status field", "dvb-ci.hc.release_reply",
+          { "Release reply", "dvb-ci.hc.release_reply",
             FT_UINT8, BASE_HEX, VALS(dvbci_hc_release_reply), 0, NULL, HFILL }
         },
         { &hf_dvbci_resp_intv,
