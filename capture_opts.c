@@ -24,6 +24,8 @@
 
 #include "config.h"
 
+#include <stdio.h>
+
 #ifdef HAVE_LIBPCAP
 
 #include <string.h>
@@ -569,10 +571,16 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             }
         }
         if (!matched) {
-            cmdarg_err("Failed to match interface '%s'", optarg_str_p);
-            return 1;
+            /*
+             * We didn't find the interface in the list; just use
+             * the specified name, so that, for example, if an
+             * interface doesn't show up in the list for some
+             * reason, the user can try specifying it explicitly
+             * for testing purposes.
+             */
+            interface_opts.name = g_strdup(optarg_str_p);
+            interface_opts.console_display_name = g_strdup(optarg_str_p);
         }
-
     }
     free_interface_list(if_list);
 
