@@ -4941,7 +4941,7 @@ report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg)
              */
             interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
             cmdarg_err(
-              "Invalid capture filter: \"%s\" for interface %s!\n"
+              "Invalid capture filter \"%s\" for interface %s!\n"
               "\n"
               "That string isn't a valid capture filter (%s).\n"
               "See the User's Guide for a description of the capture filter syntax.",
