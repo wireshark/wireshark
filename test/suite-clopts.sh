@@ -29,7 +29,7 @@ EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
 # generic: check against a specific exit status with a single char option
-# $1 command: tshark
+# $1 command: tshark or dumpcap
 # $2 option: a
 # $3 expected exit status: 0
 test_single_char_options()
@@ -45,6 +45,105 @@ test_single_char_options()
 	rm ./testout.txt
 }
 
+# dumpcap
+
+# Only with remote capture: A:ru
+# Only with WinPcap: m:
+# Only with WinPcap or 1.0.0-or-later libpcap: B:
+# Only with 1.0.0-or-later libpcap: I
+# Only with libpcap/WinPcap with bpf_image(): d
+
+# check exit status of all invalid single char dumpcap options (must be 1)
+clopts_suite_dumpcap_invalid_chars() {
+	for index in C E F G H J K N O Q R T U V W X Y e j l o x z
+	do
+	  test_step_add "Invalid dumpcap parameter -$index, exit status must be $EXIT_COMMAND_LINE" "test_single_char_options $DUMPCAP $index $EXIT_COMMAND_LINE"
+	done
+}
+
+# check exit status of all valid single char dumpcap options being (must be 0)
+# tests only those options that cause dumpcap to do something other than
+# capture
+clopts_suite_dumpcap_valid_chars() {
+	for index in h v 
+	do
+	  test_step_add "Valid dumpcap parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $DUMPCAP $index $EXIT_OK"
+	done
+}
+
+# special case: interface-specific opts should work under Windows and fail as
+# a regular user on other systems.
+clopts_suite_dumpcap_interface_chars() {
+	for index in D L
+	do
+          if [ "$SKIP_CAPTURE" -eq 0 ] ; then
+	    test_step_add "Valid dumpcap parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $DUMPCAP $index $EXIT_OK"
+          else
+	    test_step_add "Invalid permissions for dumpcap parameter -$index, exit status must be $EXIT_ERROR" "test_single_char_options $DUMPCAP $index $EXIT_ERROR"
+          fi
+        done
+}
+
+# check exit status and grep output string of an invalid capture filter
+clopts_step_dumpcap_invalid_capfilter() {
+        if [ "$WS_SYSTEM" != "Windows" ] ; then
+                test_step_skipped
+                return
+        fi
+
+	$DUMPCAP -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
+		test_step_failed "exit status: $RETURNVALUE"
+	else
+		grep -i 'Invalid capture filter "jkghg" for interface' ./testout.txt > /dev/null
+		if [ $? -eq 0 ]; then
+			test_step_output_print ./testout.txt
+			test_step_ok
+		else
+			test_step_output_print ./testout.txt
+			test_step_failed "Infos"
+		fi
+	fi
+}
+
+# check exit status and grep output string of an invalid interface
+clopts_step_dumpcap_invalid_interfaces() {
+	$DUMPCAP -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
+		test_step_failed "exit status: $RETURNVALUE"
+	else
+		grep -i 'The capture session could not be initiated (No such device exists).' ./testout.txt > /dev/null
+		if [ $? -eq 0 ]; then
+			test_step_output_print ./testout.txt
+			test_step_ok
+		else
+			test_step_output_print ./testout.txt
+			test_step_failed "Infos"
+		fi
+	fi
+}
+
+# check exit status and grep output string of an invalid interface index
+# (valid interface indexes start with 1)
+clopts_step_dumpcap_invalid_interfaces_index() {
+	$DUMPCAP -i 0 -w './testout.pcap' > ./testout.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
+		test_step_failed "exit status: $RETURNVALUE"
+	else
+		grep -i 'There is no interface with that adapter index' ./testout.txt > /dev/null
+		if [ $? -eq 0 ]; then
+			test_step_ok
+		else
+			test_step_output_print ./testout.txt
+			test_step_failed "Infos"
+		fi
+	fi
+}
+
+# TShark
 
 # check exit status when reading an existing file
 clopts_step_existing_file() {
@@ -72,7 +171,7 @@ clopts_step_nonexisting_file() {
 }
 
 
-# check exit status of all single char option being invalid
+# check exit status of all invalid single char TShark options (must be 1)
 clopts_suite_tshark_invalid_chars() {
 	for index in A B C E F H J K M N O Q R T U W X Y Z a b c d e f g i j k m o r s t u w y z
 	do
@@ -81,8 +180,8 @@ clopts_suite_tshark_invalid_chars() {
 }
 
 
-# check exit status of all single char option being valid
-clopts_suite_valid_chars() {
+# check exit status of all valid single char TShark options being (must be 0)
+clopts_suite_tshark_valid_chars() {
 	for index in G h v
 	do
 	  test_step_add "Valid TShark parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $TSHARK $index $EXIT_OK"
@@ -91,7 +190,7 @@ clopts_suite_valid_chars() {
 
 # special case: interface-specific opts should work under Windows and fail as
 # a regular user on other systems.
-clopts_suite_interface_chars() {
+clopts_suite_tshark_interface_chars() {
 	for index in D L
 	do
           if [ "$SKIP_CAPTURE" -eq 0 ] ; then
@@ -105,7 +204,7 @@ clopts_suite_interface_chars() {
 # S V l n p q x
 
 # check exit status and grep output string of an invalid capture filter
-clopts_step_invalid_capfilter() {
+clopts_step_tshark_invalid_capfilter() {
         if [ "$WS_SYSTEM" != "Windows" ] ; then
                 test_step_skipped
                 return
@@ -128,7 +227,7 @@ clopts_step_invalid_capfilter() {
 }
 
 # check exit status and grep output string of an invalid interface
-clopts_step_invalid_interface() {
+clopts_step_tshark_invalid_interfaces() {
 	$TSHARK -i invalid_interface -w './testout.pcap' > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
@@ -147,7 +246,7 @@ clopts_step_invalid_interface() {
 
 # check exit status and grep output string of an invalid interface index
 # (valid interface indexes start with 1)
-clopts_step_invalid_interface_index() {
+clopts_step_tshark_invalid_interfaces_index() {
 	$TSHARK -i 0 -w './testout.pcap' > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
@@ -186,10 +285,16 @@ clopts_suite_basic() {
 	test_step_add "Exit status for none existing files must be 2" clopts_step_nonexisting_file
 }
 
-clopts_suite_capture_options() {
-	test_step_add  "Invalid capture filter -f" clopts_step_invalid_capfilter
-	test_step_add  "Invalid capture interface -i" clopts_step_invalid_interface
-	test_step_add  "Invalid capture interface index 0" clopts_step_invalid_interface_index
+clopts_suite_tshark_capture_options() {
+	test_step_add  "Invalid capture filter -f" clopts_step_tshark_invalid_capfilter
+	test_step_add  "Invalid capture interface -i" clopts_step_tshark_invalid_interfaces
+	test_step_add  "Invalid capture interface index 0" clopts_step_tshark_invalid_interfaces_index
+}
+
+clopts_suite_dumpcap_capture_options() {
+	test_step_add  "Invalid capture filter -f" clopts_step_dumpcap_invalid_capfilter
+	test_step_add  "Invalid capture interface -i" clopts_step_dumpcap_invalid_interfaces
+	test_step_add  "Invalid capture interface index 0" clopts_step_dumpcap_invalid_interfaces_index
 }
 
 clopts_post_step() {
@@ -199,10 +304,14 @@ clopts_post_step() {
 clopt_suite() {
 	test_step_set_post clopts_post_step
 	test_suite_add "Basic tests" clopts_suite_basic
+	test_suite_add "Invalid dumpcap single char options" clopts_suite_dumpcap_invalid_chars
+	test_suite_add "Valid dumpcap single char options" clopts_suite_dumpcap_valid_chars
+	test_suite_add "Interface-specific dumpcap single char options" clopts_suite_dumpcap_interface_chars
+	test_suite_add "Capture filter/interface options tests" clopts_suite_dumpcap_capture_options
 	test_suite_add "Invalid TShark single char options" clopts_suite_tshark_invalid_chars
-	test_suite_add "Valid TShark single char options" clopts_suite_valid_chars
-	test_suite_add "Interface-specific TShark single char options" clopts_suite_interface_chars
-	test_suite_add "Capture filter/interface options tests" clopts_suite_capture_options
+	test_suite_add "Valid TShark single char options" clopts_suite_tshark_valid_chars
+	test_suite_add "Interface-specific TShark single char options" clopts_suite_tshark_interface_chars
+	test_suite_add "Capture filter/interface options tests" clopts_suite_tshark_capture_options
 	test_step_add  "Valid name resolution options -N (1s)" clopts_step_valid_name_resolving
 	#test_remark_add "Undocumented command line option: G"
 	#test_remark_add "Options currently unchecked: S, V, l, n, p, q and x"
