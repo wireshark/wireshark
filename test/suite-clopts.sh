@@ -102,7 +102,7 @@ clopts_step_dumpcap_invalid_capfilter() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Unexpected error message"
+			test_step_failed "Error message wasn't what we expected"
 		fi
 	fi
 }
@@ -120,7 +120,7 @@ clopts_step_dumpcap_invalid_interfaces() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Unexpected error message"
+			test_step_failed "Error message wasn't what we expected"
 		fi
 	fi
 }
@@ -138,7 +138,7 @@ clopts_step_dumpcap_invalid_interfaces_index() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Unexpected error message"
+			test_step_failed "Error message wasn't what we expected"
 		fi
 	fi
 }
@@ -221,7 +221,7 @@ clopts_step_tshark_invalid_capfilter() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Unexpected error message"
+			test_step_failed "Error message wasn't what we expected"
 		fi
 	fi
 }
@@ -239,7 +239,7 @@ clopts_step_tshark_invalid_interfaces() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Unexpected error message"
+			test_step_failed "Error message wasn't what we expected"
 		fi
 	fi
 }
@@ -257,7 +257,7 @@ clopts_step_tshark_invalid_interfaces_index() {
 			test_step_ok
 		else
 			test_step_output_print ./testout.txt
-			test_step_failed "Unexpected error message"
+			test_step_failed "Error message wasn't what we expected"
 		fi
 	fi
 }
