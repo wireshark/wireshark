@@ -1835,6 +1835,7 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
     int         hf_cert_index;
     guint8      emi;
     guint16     prog_num;
+    guint8      status;
 
 
     offset_start = offset;
@@ -1898,6 +1899,9 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
         case CC_ID_REC_START_STATUS:
         case CC_ID_MODE_CHG_STATUS:
         case CC_ID_REC_STOP_STATUS:
+            status = tvb_get_guint8(tvb, offset);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Status: %s",
+                    val_to_str_const(status, dvbci_cc_status, "unknown"));
             proto_tree_add_item(cc_item_tree, hf_dvbci_cc_status_field,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
