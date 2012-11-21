@@ -114,11 +114,7 @@ clopts_step_dumpcap_invalid_interfaces() {
 	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
 		test_step_failed "exit status: $RETURNVALUE"
 	else
-		if [ "$WS_SYSTEM" = "Windows" ] ; then
-			grep -i 'The capture session could not be initiated (Error opening adapter: The system cannot find the device specified. (20)).' ./testout.txt > /dev/null
-		else
-			grep -i "The capture session could not be initiated (You don't have permission to capture on that device)." ./testout.txt > /dev/null
-		fi
+		grep -i 'The capture session could not be initiated' ./testout.txt > /dev/null
 		if [ $? -eq 0 ]; then
 			test_step_output_print ./testout.txt
 			test_step_ok
@@ -237,11 +233,7 @@ clopts_step_tshark_invalid_interfaces() {
 	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
 		test_step_failed "exit status: $RETURNVALUE"
 	else
-		if [ "$WS_SYSTEM" = "Windows" ] ; then
-			grep -i 'The capture session could not be initiated (Error opening adapter: The system cannot find the device specified. (20)).' ./testout.txt > /dev/null
-		else
-			grep -i "The capture session could not be initiated (You don't have permission to capture on that device)." ./testout.txt > /dev/null
-		fi
+		grep -i 'The capture session could not be initiated' ./testout.txt > /dev/null
 		if [ $? -eq 0 ]; then
 			test_step_output_print ./testout.txt
 			test_step_ok
