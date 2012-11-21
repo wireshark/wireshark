@@ -3172,10 +3172,14 @@ de_bssgp_reliable_inter_rat_ho_inf(tvbuff_t *tvb, proto_tree *tree, packet_info 
 static guint16
 de_bssgp_son_transfer_app_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset _U_, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
+	tvbuff_t *next_tvb;
     /* SON Transfer Application Identity: This field is encoded as the SON Transfer Application Identity IE
      * as defined in 3GPP TS 36.413
      */
-    dissect_s1ap_SONtransferApplicationIdentity_PDU(tvb, gpinfo, tree, NULL);
+    if(len > 0){
+        next_tvb = tvb_new_subset(tvb, offset, len, len);
+		dissect_s1ap_SONtransferApplicationIdentity_PDU(tvb, gpinfo, tree, NULL);
+	}
 
     return(len);
 }
@@ -3327,7 +3331,7 @@ const value_string bssgp_elem_strings[] = {
     { 0x00, "MBMS Response" },                                      /* 11.3.74  MBMS Response */
     { 0x00, "MBMS Routing Area List" },                             /* 11.3.75  MBMS Routing Area List */
     { 0x00, "MBMS Session Information" },                           /* 11.3.76  MBMS Session Information */
- /* ELEM_MAND_TELV(GSM_A_PDU_TYPE_GM, DE_TMGI,  */                  /* 11.3.77  TMGI (Temporary Mobile Group Identity) */
+    { 0x00, "TMGI" },                                               /* 11.3.77  TMGI (Temporary Mobile Group Identity) */
     { 0x00, "MBMS Stop Cause" },                                    /* 11.3.78  MBMS Stop Cause */
     { 0x00, "Source BSS to Target BSS Transparent Container" },     /* 11.3.79  Source BSS to Target BSS Transparent Container */
     { 0x00, "Target BSS to Source BSS Transparent Container" },     /* 11.3.80  Target BSS to Source BSS Transparent Container */
@@ -3361,7 +3365,7 @@ const value_string bssgp_elem_strings[] = {
     { 0x00, "Subscriber Profile ID for RAT/Frequency priority" },   /* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
     { 0x00, "Request for Inter-RAT Handover Info" },                /* 11.3.106 Request for Inter-RAT Handover Info */
     { 0x00, "Reliable Inter-RAT Handover Info" },                   /* 11.3.107 Reliable Inter-RAT Handover Info */
-    { 0x00, "Reliable Inter-RAT Handover Info" },                   /* 11.3.108 SON Transfer Application Identity */
+    { 0x00, "Son transfer application identity" },                  /* 11.3.108 SON Transfer Application Identity */
     { 0x00, "CSG Identifier" },                                     /* 11.3.109 CSG Identifier */
 /* 11.3.110 Tracking Area Code */
 
@@ -3445,8 +3449,8 @@ typedef enum
     DE_BSSGP_MBMS_RESPONSE,                                     /* 11.3.74  MBMS Response */
     DE_BSSGP_MBMS_RA_LIST,                                      /* 11.3.75  MBMS Routing Area List */
     DE_BSSGP_MBMS_SESSION_INF,                                  /* 11.3.76  MBMS Session Information */
-
     DE_BSSGP_TMGI,                                              /* 11.3.77  TMGI (Temporary Mobile Group Identity) GSM_A_PDU_TYPE_GM, DE_TMGI*/
+
     DE_BSSGP_MBMS_STOP_CAUSE,                                   /* 11.3.78  MBMS Stop Cause */
     DE_BSSGP_SOURCE_BSS_TO_TARGET_BSS_TRANSP_CONT,              /* 11.3.79  Source BSS to Target BSS Transparent Container */
     DE_BSSGP_TARGET_BSS_TO_SOURCE_BSS_TRANSP_CONT,              /* 11.3.80  Target BSS to Source BSS Transparent Container */
@@ -3581,8 +3585,8 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     de_bssgp_enb_id,                                            /* 11.3.103     eNB Identifier */
     de_bssgp_e_utran_inter_rat_ho_info,                         /* 11.3.104 E-UTRAN Inter RAT Handover Info */
     de_bssgp_sub_prof_id_f_rat_freq_prio,                       /* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
-    de_bssgp_reliable_inter_rat_ho_inf,                         /* 11.3.107 Reliable Inter-RAT Handover Info */
     de_bssgp_req_for_inter_rat_ho_inf,                          /* 11.3.106 Request for Inter-RAT Handover Info */
+    de_bssgp_reliable_inter_rat_ho_inf,                         /* 11.3.107 Reliable Inter-RAT Handover Info */
     de_bssgp_son_transfer_app_id,                               /* 11.3.108 SON Transfer Application Identity */
     de_bssgp_csg_id,                                            /* 11.3.109 CSG Identifier */
 
