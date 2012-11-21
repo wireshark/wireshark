@@ -3018,8 +3018,6 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             enc_flag = tvb_get_guint8(tvb, offset) & 0x1;
             proto_tree_add_item(
                     tree, hf_dvbci_sac_payload_enc, tvb, offset, 1, ENC_BIG_ENDIAN);
-            if (enc_flag)
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "encrypted");
             offset++;
             enc_cip = (tvb_get_guint8(tvb, offset)&0xE0) >> 5;
             proto_tree_add_item(
