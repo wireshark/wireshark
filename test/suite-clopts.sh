@@ -153,7 +153,7 @@ clopts_step_invalid_interface_index() {
 	if [ ! $RETURNVALUE -eq $EXIT_COMMAND_LINE ]; then
 		test_step_failed "exit status: $RETURNVALUE"
 	else
-		grep -i 'there is no interface with that adapter index' ./testout.txt > /dev/null
+		grep -i 'There is no interface with that adapter index' ./testout.txt > /dev/null
 		if [ $? -eq 0 ]; then
 			test_step_ok
 		else
