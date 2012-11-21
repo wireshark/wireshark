@@ -3177,7 +3177,7 @@ de_bssgp_son_transfer_app_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
      */
     if(len > 0){
         next_tvb = tvb_new_subset(tvb, offset, len, len);
-        dissect_s1ap_SONtransferApplicationIdentity_PDU(tvb, gpinfo, tree, NULL);
+        dissect_s1ap_SONtransferApplicationIdentity_PDU(next_tvb, gpinfo, tree, NULL);
     }
 
     return(len);
