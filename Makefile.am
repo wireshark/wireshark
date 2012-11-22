@@ -585,8 +585,8 @@ EXTRA_DIST = \
 	adns_dll.rc		\
 	autogen.sh		\
 	capinfos.c		\
-    capture_win_ifnames.c        \
-    capture_win_ifnames.h        \
+	capture_win_ifnames.c	\
+	capture_win_ifnames.h	\
 	capture-wpcap.c		\
 	capture-wpcap.h		\
 	capture_wpcap_packet.c  \
