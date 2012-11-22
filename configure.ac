@@ -604,7 +604,6 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([no])])
 case "$host_os" in
 
 darwin*)
-	ac_applicationservices_frameworks="-framework ApplicationServices"
 	AC_DEFINE(HAVE_OS_X_FRAMEWORKS, 1, [Define to 1 if you have OS X frameworks])
 	APPLICATIONSERVICES_FRAMEWORKS="-framework ApplicationServices"
 	COREFOUNDATION_FRAMEWORKS="-framework CoreFoundation"
