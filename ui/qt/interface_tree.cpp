@@ -137,7 +137,7 @@ void InterfaceTree::getInterfaceList()
             QTreeWidgetItem *ti = new QTreeWidgetItem();
             // XXX Using if_info->name is amazingly ugly under Windows but it's needed for
             // statistics updates
-//            ti->setText(0, QString().fromUtf8(if_info->description ? if_info->description : if_info->name));
+//            ti->setText(0, QString().fromUtf8(if_info->vendor_description ? if_info->vendor_description : if_info->name));
             ti->setText(0, QString().fromUtf8(if_info->name));
             points = new QList<int>();
             v.setValue(points);
