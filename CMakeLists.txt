@@ -521,6 +521,8 @@ if(APPLE)
 #TODO verify that APPLE implies HAVE_OS_X_FRAMEWORKS
 	set(HAVE_OS_X_FRAMEWORKS 1)
 	FIND_LIBRARY (APPLE_CORE_SERVICES_LIBRARY CoreServices)
+	FIND_LIBRARY (APPLE_CORE_FOUNDATION_LIBRARY CoreFoundation)
+	FIND_LIBRARY (APPLE_SYSTEM_CONFIGURATION_LIBRARY SystemConfiguration)
 	FIND_LIBRARY (APPLE_COCOA_LIBRARY Cocoa)
 endif()
 
@@ -611,6 +613,7 @@ set(WIRESHARK_COMMON_SRC
 	${PLATFORM_SRC}
 	capture-pcap-util.c
 	cfile.c
+	cfutils.c
 	clopts_common.c
 	disabled_protos.c
 	frame_data_sequence.c
@@ -759,6 +762,7 @@ if(BUILD_wireshark AND GTK_FOUND)
 		${PORTAUDIO_LIBRARIES}
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_SERVICES_LIBRARY}
+		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${APPLE_COCOA_LIBRARY}
 		${NL_LIBRARIES}
 	)
@@ -780,7 +784,8 @@ if(BUILD_qtshark AND QT_FOUND)
 		codecs
 		${PORTAUDIO_LIBRARIES}
 		${LIBEPAN_LIBS}
-		${APPLE_CORE_SERVICES_LIBRARY}
+		${APPLE_CORE_FOUNDATION_LIBRARY}
+		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${APPLE_COCOA_LIBRARY}
 		${NL_LIBRARIES}
 	)
@@ -800,11 +805,13 @@ register_tap_files(tshark-tap-register.c
 if(BUILD_tshark)
 	set(tshark_LIBS
 		${LIBEPAN_LIBS}
-		${APPLE_COCOA_LIBRARY}
+		${APPLE_CORE_FOUNDATION_LIBRARY}
+		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(tshark_FILES
 		capture_opts.c
 		capture_sync.c
+		cfutils.c
 		tempfile.c
 		tshark-tap-register.c
 		tshark.c
@@ -823,7 +830,8 @@ endif()
 if(BUILD_rawshark AND PCAP_FOUND)
 	set(rawshark_LIBS
 		${LIBEPAN_LIBS}
-		${APPLE_COCOA_LIBRARY}
+		${APPLE_CORE_FOUNDATION_LIBRARY}
+		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(rawshark_FILES
 	        ${WIRESHARK_COMMON_SRC}
@@ -976,7 +984,8 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		${GLIB2_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
 		${ZLIB_LIBRARIES}
-		${APPLE_COCOA_LIBRARY}
+		${APPLE_CORE_FOUNDATION_LIBRARY}
+		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${NL_LIBRARIES}
 	)
 	set(dumpcap_FILES
@@ -984,6 +993,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		capture_opts.c
 		capture-pcap-util.c
 		capture_stop_conditions.c
+		cfutils.c
 		clopts_common.c
 		conditions.c
 		dumpcap.c
