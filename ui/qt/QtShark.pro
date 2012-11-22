@@ -144,6 +144,7 @@ SOURCES_WS_C = \
     ../../capture_sync.c  \
     ../../capture_ui_utils.c \
     ../../cfile.c \
+    ../../cfutils.c \
     ../../clopts_common.c \
     ../../color_filters.c \
     ../../disabled_protos.c       \
@@ -167,7 +168,7 @@ SOURCES_WS_C = \
     ../../u3.c \
     ../../version_info.c
 
-unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
+unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c ../../capture_unix_ifnames.c
 win32:SOURCES_WS_C += \
     ../../capture_win_ifnames.c \
     ../../capture-wpcap.c \
@@ -231,7 +232,9 @@ unix:DEFINES += _U_=\"__attribute__((unused))\"
 
 macx:QMAKE_LFLAGS += \
     -framework CoreServices \
-    -framework ApplicationServices -framework CoreFoundation -framework CoreServices
+    -framework ApplicationServices \
+    -framework CoreFoundation \
+    -framework SystemConfiguration
 
 unix:LIBS += -L../../lib -Wl,-rpath ../../lib -lwireshark -lwiretap -lwsutil -lui \
     -lpcap
@@ -398,6 +401,8 @@ SOURCES += \
     color_utils.cpp \
     display_filter_combo.cpp \
     display_filter_edit.cpp \
+    export_dissection_dialog.cpp \
+    export_object_dialog.cpp \
     file_set_dialog.cpp \
     import_text_dialog.cpp \
     interface_tree.cpp \
@@ -408,20 +413,18 @@ SOURCES += \
     main_window.cpp \
     main_window_slots.cpp \
     monospace_font.cpp \
+    packet_format_group_box.cpp \
     packet_list.cpp \
     packet_list_model.cpp \
     packet_list_record.cpp \
     packet_range_group_box.cpp \
+    print_dialog.cpp \
     progress_bar.cpp \
     proto_tree.cpp \
     qt_ui_utils.cpp \
     recent_file_status.cpp \
     simple_dialog_qt.cpp \
     sparkline_delegate.cpp \
+    splash_overlay.cpp \
     syntax_line_edit.cpp \
-    wireshark_application.cpp \
-    export_dissection_dialog.cpp \
-    packet_format_group_box.cpp \
-    export_object_dialog.cpp \
-    print_dialog.cpp \
-    splash_overlay.cpp
+    wireshark_application.cpp
