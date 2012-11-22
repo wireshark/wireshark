@@ -35,6 +35,7 @@
 #include "capture_ifinfo.h"
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
+#include "capture_win_ifnames.h"
 #include "capture-wpcap.h"
 
 #include <wsutil/file_util.h>
@@ -826,7 +827,7 @@ get_interface_list(int *err, char **err_str)
 				i++;
 				get_windows_interface_friendlyname(ascii_name, &friendly_name);
 				il = g_list_append(il,
-				    if_info_new(ascii_name, friendly_name, ascii_desc, false));
+				    if_info_new(ascii_name, friendly_name, ascii_desc, FALSE));
 				g_free(friendly_name);
 			}
 		} else {
