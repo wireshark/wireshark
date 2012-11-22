@@ -479,7 +479,7 @@ sctp_crc32c(const unsigned char* buf, unsigned int len)
 
 typedef struct _sctp_half_assoc_t sctp_half_assoc_t;
 
-static void dissect_parameter(tvbuff_t *, packet_info *, proto_tree *, proto_item *, gboolean);
+static void dissect_parameter(tvbuff_t *, packet_info *, proto_tree *, proto_item *, gboolean, gboolean);
 
 static void dissect_parameters(tvbuff_t *, packet_info *, proto_tree *, proto_item *, gboolean);
 
@@ -657,7 +657,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
                                       t->ack.framenum);
       PROTO_ITEM_SET_GENERATED(pi);
       expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN,
-                             "This TSN was acked prior to this retransmission (reneged ack?)");
+                             "This TSN was acked prior to this retransmission (reneged ack?).");
     }
   } else if (t->retransmit) {
     struct _retransmit_t **r;
@@ -680,7 +680,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 
     if (t->retransmit_count > 2)
       expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN,
-                             "This TSN was retransmitted more than 2 times");
+                             "This TSN was retransmitted more than 2 times.");
 
     pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmitted_count);
 
@@ -1001,7 +1001,7 @@ static void
 dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   /* FIXME: Does it contain one or more parameters? */
-  dissect_parameter(tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET), pinfo, parameter_tree, NULL, FALSE);
+  dissect_parameter(tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET), pinfo, parameter_tree, NULL, FALSE, FALSE);
 }
 
 #define COOKIE_PRESERVATIVE_PARAMETER_INCR_LENGTH 4
@@ -1299,7 +1299,7 @@ dissect_add_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
                                 MIN(address_length, tvb_length_remaining(parameter_tvb, ADDRESS_PARAMETER_OFFSET)),
                                 MIN(address_length, tvb_reported_length_remaining(parameter_tvb, ADDRESS_PARAMETER_OFFSET)));
   proto_item_append_text(parameter_item, " (Address: ");
-  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, FALSE);
+  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, FALSE, FALSE);
   proto_item_append_text(parameter_item, ", correlation ID: %u)", tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET));
 }
 
@@ -1316,7 +1316,7 @@ dissect_del_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
                                 MIN(address_length, tvb_length_remaining(parameter_tvb, ADDRESS_PARAMETER_OFFSET)),
                                 MIN(address_length, tvb_reported_length_remaining(parameter_tvb, ADDRESS_PARAMETER_OFFSET)));
   proto_item_append_text(parameter_item, " (Address: ");
-  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, FALSE);
+  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, FALSE, FALSE);
   proto_item_append_text(parameter_item, ", correlation ID: %u)", tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET));
 }
 
@@ -1349,7 +1349,7 @@ dissect_set_primary_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
                                    MIN(address_length, tvb_length_remaining(parameter_tvb, ADDRESS_PARAMETER_OFFSET)),
                                    MIN(address_length, tvb_reported_length_remaining(parameter_tvb, ADDRESS_PARAMETER_OFFSET)));
   proto_item_append_text(parameter_item, " (Address: ");
-  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, FALSE);
+  dissect_parameter(address_tvb, pinfo, parameter_tree, parameter_item, FALSE, FALSE);
   proto_item_append_text(parameter_item, ", correlation ID: %u)", tvb_get_ntohl(parameter_tvb, CORRELATION_ID_OFFSET));
 }
 
@@ -1456,7 +1456,10 @@ static const true_false_string sctp_parameter_bit_2_value = {
 };
 
 static void
-dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk_tree, proto_item *additional_item, gboolean dissecting_init_init_ack_chunk)
+dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
+                  proto_tree *chunk_tree, proto_item *additional_item,
+                  gboolean dissecting_init_init_ack_chunk,
+                  gboolean final_parameter)
 {
   guint16 type, length, padding_length, reported_length;
   proto_item *parameter_item, *type_item;
@@ -1469,10 +1472,10 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
 
   parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_reported_length(parameter_tvb), "%s parameter", val_to_str_const(type, parameter_identifier_values, "Unknown"));
   parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
-  if (reported_length % 4)
+  if (final_parameter && (padding_length > 0)) {
     expert_add_info_format(pinfo, parameter_item, PI_MALFORMED, PI_ERROR,
-                           "Parameter length is not padded to a multiple of 4 bytes (length=%d)", reported_length);
-
+                           "The padding of this final parameter should be the padding of the chunk.");
+  }
   if (!(chunk_tree || (dissecting_init_init_ack_chunk && (type == IPV4ADDRESS_PARAMETER_ID || type == IPV6ADDRESS_PARAMETER_ID))))
     return;
 
@@ -1575,8 +1578,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
     break;
   }
 
-  if (padding_length > 0)
+  if (padding_length > 0) {
     proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_NA);
+  }
 }
 
 static void
@@ -1584,9 +1588,11 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
 {
   gint offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
+  gboolean final_parameter;
 
   offset = 0;
-  while((remaining_length = tvb_reported_length_remaining(parameters_tvb, offset))) {
+  remaining_length = tvb_reported_length_remaining(parameters_tvb, offset);
+  while (remaining_length > 0) {
     if ((offset > 0) && additional_item)
       proto_item_append_text(additional_item, " ");
 
@@ -1600,11 +1606,15 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
 
     /* create a tvb for the parameter including the padding bytes */
     parameter_tvb  = tvb_new_subset(parameters_tvb, offset, MIN(total_length, tvb_length_remaining(parameters_tvb, offset)), total_length);
-
-    dissect_parameter(parameter_tvb, pinfo, tree, additional_item, dissecting_init_init_ack_chunk);
-
     /* get rid of the handled parameter */
     offset += total_length;
+    remaining_length = tvb_reported_length_remaining(parameters_tvb, offset);
+    if (remaining_length > 0) {
+      final_parameter = FALSE;
+    } else {
+      final_parameter = TRUE;
+    }
+    dissect_parameter(parameter_tvb, pinfo, tree, additional_item, dissecting_init_init_ack_chunk, final_parameter);
   }
 }
 
@@ -1685,7 +1695,7 @@ dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, prot
                                     MIN(parameter_length, tvb_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)),
                                     MIN(parameter_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
   proto_item_append_text(cause_item, " (Address: ");
-  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, FALSE);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, FALSE, FALSE);
   proto_item_append_text(cause_item, ")");
 }
 
@@ -1788,7 +1798,7 @@ dissect_delete_last_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto
                                      MIN(cause_info_length, tvb_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)),
                                      MIN(cause_info_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
   proto_item_append_text(cause_item, " (Last address: ");
-  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, FALSE);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, FALSE, FALSE);
   proto_item_append_text(cause_item, ")");
 }
 
@@ -1802,7 +1812,7 @@ dissect_resource_outage_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tre
   parameter_tvb     = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET,
                                      MIN(cause_info_length, tvb_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)),
                                      MIN(cause_info_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
-  dissect_parameter(parameter_tvb, pinfo, cause_tree, NULL, FALSE);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree, NULL, FALSE, FALSE);
 }
 
 static void
@@ -1816,7 +1826,7 @@ dissect_delete_source_address_cause(tvbuff_t *cause_tvb, packet_info *pinfo, pro
                                      MIN(cause_info_length, tvb_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)),
                                      MIN(cause_info_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
   proto_item_append_text(cause_item, " (Deleted address: ");
-  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, FALSE);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree, cause_item, FALSE, FALSE);
   proto_item_append_text(cause_item, ")");
 }
 
@@ -1830,7 +1840,7 @@ dissect_request_refused_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tre
   parameter_tvb     = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET,
                                      MIN(cause_info_length, tvb_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)),
                                      MIN(cause_info_length, tvb_reported_length_remaining(cause_tvb, CAUSE_INFO_OFFSET)));
-  dissect_parameter(parameter_tvb, pinfo, cause_tree, NULL, FALSE);
+  dissect_parameter(parameter_tvb, pinfo, cause_tree, NULL, FALSE, FALSE);
 }
 
 static void
@@ -3022,10 +3032,10 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
 
     /* Check validity */
     if (start > end) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block");
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block.");
     }
     if (last_end > start) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order");
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order.");
     }
     last_end = end;
   }
@@ -3040,7 +3050,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
      *  number: it could be tuned.
      */
     if (tsns_gap_acked > 100)
-      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this SACK");
+      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this SACK.");
 
   }
 
@@ -3157,10 +3167,10 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
 
     /* Check validity */
     if (start > end) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block");
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block.");
     }
     if (last_end > start) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order");
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order.");
     }
     last_end = end;
   }
@@ -3175,7 +3185,7 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
      *  number: it could be tuned.
      */
     if (tsns_gap_acked > 100)
-      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this NR-SACK");
+      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this NR-SACK.");
 
   }
 
@@ -3214,10 +3224,10 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
 
     /* Check validity */
     if (start > end) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block");
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block.");
     }
     if (last_end > start) {
-       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order");
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order.");
     }
     last_end = end;
   }
@@ -3232,7 +3242,7 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
      *  number: it could be tuned.
      */
     if (tsns_nr_gap_acked > 100)
-      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "More than 100 TSNs were nr-gap-acknowledged in this NR-SACK");
+      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "More than 100 TSNs were nr-gap-acknowledged in this NR-SACK.");
   }
 
   /* handle the duplicate TSNs */
@@ -3265,7 +3275,7 @@ dissect_heartbeat_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *
                                     MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_length_remaining(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET)),
                                     MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_reported_length_remaining(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET)));
     /* FIXME: Parameters or parameter? */
-    dissect_parameter(parameter_tvb, pinfo, chunk_tree, NULL, FALSE);
+    dissect_parameter(parameter_tvb, pinfo, chunk_tree, NULL, FALSE, TRUE);
   }
 }
 
@@ -3280,7 +3290,7 @@ dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_in
                                     MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_length_remaining(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET)),
                                     MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_reported_length_remaining(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET)));
     /* FIXME: Parameters or parameter? */
-    dissect_parameter(parameter_tvb, pinfo, chunk_tree, NULL, FALSE);
+    dissect_parameter(parameter_tvb, pinfo, chunk_tree, NULL, FALSE, TRUE);
   }
 }
 
@@ -3441,12 +3451,10 @@ dissect_re_config_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *
 {
   tvbuff_t *parameters_tvb;
 
-  if (chunk_tree) {
-    parameters_tvb = tvb_new_subset(chunk_tvb, RE_CONFIG_PARAMETERS_OFFSET,
-                                    MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_length_remaining(chunk_tvb, RE_CONFIG_PARAMETERS_OFFSET)),
-                                    MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_reported_length_remaining(chunk_tvb, RE_CONFIG_PARAMETERS_OFFSET)));
-    dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, FALSE);
-  }
+  parameters_tvb = tvb_new_subset(chunk_tvb, RE_CONFIG_PARAMETERS_OFFSET,
+                                  MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_length_remaining(chunk_tvb, RE_CONFIG_PARAMETERS_OFFSET)),
+                                  MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_reported_length_remaining(chunk_tvb, RE_CONFIG_PARAMETERS_OFFSET)));
+  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, FALSE);
 }
 
 #define SHARED_KEY_ID_LENGTH 2
@@ -3484,12 +3492,12 @@ dissect_asconf_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pin
   }
   if (chunk_tree) {
     proto_tree_add_item(chunk_tree, hf_asconf_seq_nr, chunk_tvb, SEQUENCE_NUMBER_OFFSET, SCTP_SEQUENCE_NUMBER_LENGTH, ENC_BIG_ENDIAN);
-    chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH;
-    parameters_tvb = tvb_new_subset(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET,
-                                    MIN(chunk_length, tvb_length_remaining(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET)),
-                                    MIN(chunk_length, tvb_reported_length_remaining(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET)));
-    dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, FALSE);
   }
+  chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH;
+  parameters_tvb = tvb_new_subset(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET,
+                                  MIN(chunk_length, tvb_length_remaining(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET)),
+                                  MIN(chunk_length, tvb_reported_length_remaining(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET)));
+  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, FALSE);
 }
 
 #define ASCONF_ACK_CHUNK_PARAMETERS_OFFSET (SEQUENCE_NUMBER_OFFSET + SCTP_SEQUENCE_NUMBER_LENGTH)
@@ -3507,12 +3515,12 @@ dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info 
   }
   if (chunk_tree) {
     proto_tree_add_item(chunk_tree, hf_asconf_ack_seq_nr, chunk_tvb, SEQUENCE_NUMBER_OFFSET, SCTP_SEQUENCE_NUMBER_LENGTH, ENC_BIG_ENDIAN);
-    chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH;
-    parameters_tvb = tvb_new_subset(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET,
-                                    MIN(chunk_length, tvb_length_remaining(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET)),
-                                    MIN(chunk_length, tvb_reported_length_remaining(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET)));
-    dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, FALSE);
   }
+  chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH;
+  parameters_tvb = tvb_new_subset(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET,
+                                  MIN(chunk_length, tvb_length_remaining(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET)),
+                                  MIN(chunk_length, tvb_reported_length_remaining(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET)));
+  dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, FALSE);
 }
 
 #define PKTDROP_CHUNK_BANDWIDTH_LENGTH      4
@@ -3642,7 +3650,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
   if (reported_length % 4)
     expert_add_info_format(pinfo, chunk_item, PI_MALFORMED, PI_ERROR,
-                           "Chunk length is not padded to a multiple of 4 bytes (length=%d)", reported_length);
+                           "Chunk length is not padded to a multiple of 4 bytes (length=%d).", reported_length);
 
   if (tree) {
     /* then insert the chunk header components into the protocol tree */
@@ -3672,7 +3680,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   length_item = proto_tree_add_uint(chunk_tree, hf_chunk_length, chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH, length);
   if (length > reported_length) {
     expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR,
-                           "Chunk length (%d) is longer than remaining data (%d) in the packet",
+                           "Chunk length (%d) is longer than remaining data (%d) in the packet.",
                            length, reported_length);
     /* We'll almost certainly throw an exception shortly... */
   }
@@ -3916,7 +3924,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
                                           "Checksum: 0x%08x [incorrect Adler32, should be 0x%08x]",
                                           checksum, calculated_adler32);
-        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum");
+        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum.");
       }
       hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
       PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -3929,7 +3937,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
                                           "Checksum: 0x%08x [incorrect CRC32C, should be 0x%08x]",
                                           checksum, calculated_crc32c);
-        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum");
+        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum.");
       }
       hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
       PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -3948,7 +3956,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
                                           "Checksum: 0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
                                           checksum, calculated_adler32, calculated_crc32c);
-        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum");
+        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum.");
       }
       hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
       PROTO_ITEM_SET_HIDDEN(hidden_item);
