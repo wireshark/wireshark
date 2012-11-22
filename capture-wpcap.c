@@ -722,6 +722,7 @@ get_interface_list(int *err, char **err_str)
 	char ascii_desc[MAX_WIN_IF_NAME_LEN + 1];
 	int i, j;
 	char errbuf[PCAP_ERRBUF_SIZE];
+	char *friendly_name;
 
 	if (!has_wpcap) {
 		/*
@@ -819,12 +820,14 @@ get_interface_list(int *err, char **err_str)
 				j = 0;
 				while (names[i] != 0) {
 					if (j < MAX_WIN_IF_NAME_LEN)
-					ascii_name[j++] = (char) names[i++];
+						ascii_name[j++] = (char) names[i++];
 				}
 				ascii_name[j] = '\0';
 				i++;
+				get_windows_interface_friendlyname(ascii_name, &friendly_name);
 				il = g_list_append(il,
-				    if_info_new(ascii_name, ascii_desc));
+				    if_info_new(ascii_name, friendly_name, ascii_desc, false));
+				g_free(friendly_name);
 			}
 		} else {
 			/*
@@ -843,8 +846,10 @@ get_interface_list(int *err, char **err_str)
 				 * interface name, and "desc" points to
 				 * that interface's description.
 				 */
+				get_windows_interface_friendlyname(&win95names[i], &friendly_name);
 				il = g_list_append(il,
-				    if_info_new(&win95names[i], desc));
+				    if_info_new(&win95names[i], friendly_name, desc, FALSE));
+				g_free(friendly_name);
 
 				/*
 				 * Skip to the next description.
