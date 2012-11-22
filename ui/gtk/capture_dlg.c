@@ -1225,9 +1225,9 @@ insert_new_rows(GList *list)
     } else {
       /* No, we don't have a user-supplied description; did we get
          one from the OS or libpcap? */
-      if (if_info->description != NULL) {
+      if (if_info->vendor_description != NULL) {
         /* Yes - use it. */
-        if_string = g_strdup_printf("%s: %s", if_info->description, if_info->name);
+        if_string = g_strdup_printf("%s: %s", if_info->vendor_description, if_info->name);
       } else {
         /* No. */
         if_string = g_strdup(if_info->name);
