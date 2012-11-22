@@ -169,7 +169,7 @@ get_interface_list_findalldevs_ex(const char *source,
 		 * and the friendly name isn't returned by WinPcap.
 		 * Fetch it ourselves.
 		 */
-		get_windows_interface_friendly_name(dev->name, &friendly_name);
+		get_windows_interface_friendlyname(dev->name, &friendly_name);
 		if_info = if_info_new(dev->name, friendly_name,
 		    dev->description, loopback);
 #else
@@ -241,7 +241,7 @@ get_interface_list_findalldevs(int *err, char **err_str)
 		 * and the friendly name isn't returned by WinPcap.
 		 * Fetch it ourselves.
 		 */
-		get_windows_interface_friendly_name(dev->name, &friendly_name);
+		get_windows_interface_friendlyname(dev->name, &friendly_name);
 		if_info = if_info_new(dev->name, friendly_name,
 		    dev->description, loopback);
 #else
