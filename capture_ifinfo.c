@@ -69,7 +69,8 @@ static void append_remote_list(GList *iflist)
         if_info = (if_info_t *)rlist->data;
         temp = g_malloc0(sizeof(if_info_t));
         temp->name = g_strdup(if_info->name);
-        temp->description = g_strdup(if_info->description);
+        temp->friendly_name = g_strdup(if_info->friendly_name);
+        temp->vendor_description = g_strdup(if_info->vendor_description);
         for (list = g_slist_nth(if_info->addrs, 0); list != NULL; list = g_slist_next(list)) {
             temp_addr = g_malloc0(sizeof(if_addr_t));
             if_addr = (if_addr_t *)list->data;
@@ -315,7 +316,8 @@ void add_interface_to_remote_list(if_info_t *if_info)
 
     if_info_t *temp = g_malloc0(sizeof(if_info_t));
     temp->name = g_strdup(if_info->name);
-    temp->description = g_strdup(if_info->description);
+    temp->friendly_name = g_strdup(if_info->friendly_name);
+    temp->vendor_description = g_strdup(if_info->vendor_description);
     for (list = g_slist_nth(if_info->addrs, 0); list != NULL; list = g_slist_next(list)) {
         temp_addr = g_malloc0(sizeof(if_addr_t));
         if_addr = (if_addr_t *)list->data;
