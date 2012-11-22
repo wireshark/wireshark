@@ -70,10 +70,6 @@ static int hf_pn_ptcp_flags = -1;
 static int hf_pn_ptcp_currentutcoffset = -1;
 
 static int hf_pn_ptcp_master_priority1 = -1;
-static int hf_pn_ptcp_master_priority_level = -1;
-static int hf_pn_ptcp_master_priority1_res = -1;
-static int hf_pn_ptcp_master_priority1_act =-1;
-
 static int hf_pn_ptcp_master_priority2 = -1;
 static int hf_pn_ptcp_clock_class = -1;
 static int hf_pn_ptcp_clock_accuracy = -1;
@@ -124,32 +120,8 @@ static const value_string pn_ptcp_oui_vals[] = {
 };
 
 static const value_string pn_ptcp_master_prio1_vals[] = {
-	{ 0x00, "Sync slave" },
-	{ 0x01, "Primary master" },
-	{ 0x02, "Secondary master" },
-	{ 0x03, "Reserved" },
-	{ 0x04, "Reserved" },
-	{ 0x05, "Reserved" },
-	{ 0x06, "Reserved" },
-	{ 0x07, "Reserved" },
-	{ 0, NULL }
-};
-
-static const value_string pn_ptcp_master_prio1_levels[] = {
-	{ 0x00, "Level 0 (highest)" },
-	{ 0x01, "Level 1" },
-	{ 0x02, "Level 2" },
-	{ 0x03, "Level 3" },
-	{ 0x04, "Level 4" },
-	{ 0x05, "Level 5" },
-	{ 0x06, "Level 6" },
-	{ 0x07, "Level 7 (lowest)" },
-	{ 0, NULL }
-};
-
-static const value_string pn_ptcp_master_prio1_vals_active[] = {
-	{ 0x00, "inactive" },
-	{ 0x01, "active" },
+	{ 0x01, "Primary sync. master" },
+	{ 0x02, "Secondary sync. master" },
 	{ 0, NULL }
 };
 
@@ -307,15 +279,8 @@ dissect_PNPTCP_Master(tvbuff_t *tvb, int offset,
     gint16 ClockVariance;
 
 
-    /* MasterPriority1 is a bit field */
-    /* Bit 0 – 2: PTCP_MasterPriority1.Priority */
-    dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_ptcp_master_priority1, &MasterPriority1);
-    /* Bit 3 – 5: PTCP_MasterPriority1.Level */
-    dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_ptcp_master_priority_level, &MasterPriority1);
-    /* Bit 6: PTCP_MasterPriority1.Reserved */
-    dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_ptcp_master_priority1_res, &MasterPriority1);
-    /* Bit 7: PTCP_MasterPriority1.Active */
-    offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_ptcp_master_priority1_act, &MasterPriority1);
+    /* MasterPriority1 */
+    offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_ptcp_master_priority1, &MasterPriority1);
 
     /* MasterPriority2 */
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_ptcp_master_priority2, &MasterPriority2);
@@ -333,26 +298,14 @@ dissect_PNPTCP_Master(tvbuff_t *tvb, int offset,
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Prio1=\"%s\"",
-        val_to_str(MasterPriority1 & 0x7, pn_ptcp_master_prio1_vals, "(Reserved: 0x%x)"));
+        val_to_str(MasterPriority1, pn_ptcp_master_prio1_short_vals, "(Reserved: 0x%x)"));
 
-    if((MasterPriority1 & 0x80) == 0){
-        proto_item_append_text(item, ": Prio1=\"%s\", Prio2=%s, Clock: Class=\"%s\", Accuracy=%s, Variance=%d",
-            val_to_str(MasterPriority1 & 0x7, pn_ptcp_master_prio1_vals, "(Reserved: 0x%x)"), 
-            val_to_str(MasterPriority2, pn_ptcp_master_prio2_vals, "(Reserved: 0x%x)"), 
-            val_to_str(ClockClass, pn_ptcp_clock_class_vals, "(Reserved: 0x%x)"), 
-            val_to_str(ClockAccuracy, pn_ptcp_clock_accuracy_vals, "(Reserved: 0x%x)"), 
-            ClockVariance);
-    }
-    else{
-        col_append_fstr(pinfo->cinfo, COL_INFO, " active");
-        proto_item_append_text(item, ": Prio1=\"%s\" is active, Prio2=%s, Clock: Class=\"%s\", Accuracy=%s, Variance=%d",
-            val_to_str(MasterPriority1 & 0x7, pn_ptcp_master_prio1_vals, "(Reserved: 0x%x)"), 
-            val_to_str(MasterPriority2, pn_ptcp_master_prio2_vals, "(Reserved: 0x%x)"), 
-            val_to_str(ClockClass, pn_ptcp_clock_class_vals, "(Reserved: 0x%x)"), 
-            val_to_str(ClockAccuracy, pn_ptcp_clock_accuracy_vals, "(Reserved: 0x%x)"), 
-            ClockVariance);
-    }
-
+	proto_item_append_text(item, ": Prio1=\"%s\", Prio2=%s, Clock: Class=\"%s\", Accuracy=%s, Variance=%d",
+        val_to_str(MasterPriority1, pn_ptcp_master_prio1_short_vals, "(Reserved: 0x%x)"), 
+        val_to_str(MasterPriority2, pn_ptcp_master_prio2_vals, "(Reserved: 0x%x)"), 
+        val_to_str(ClockClass, pn_ptcp_clock_class_vals, "(Reserved: 0x%x)"), 
+        val_to_str(ClockAccuracy, pn_ptcp_clock_accuracy_vals, "(Reserved: 0x%x)"), 
+        ClockVariance);
 
     return offset;
 }
@@ -927,13 +880,7 @@ proto_register_pn_ptcp (void)
         { "CurrentUTCOffset", "pn_ptcp.currentutcoffset", FT_UINT16, BASE_DEC, 0x0, 0x0, NULL, HFILL }},
 
 	{ &hf_pn_ptcp_master_priority1,
-        { "MasterPriority1.Priority", "pn_ptcp.master_priority1_prio", FT_UINT8, BASE_HEX, VALS(pn_ptcp_master_prio1_vals), 0x07, NULL, HFILL }},
-	{ &hf_pn_ptcp_master_priority_level,
-        { "MasterPriority1.Level", "pn_ptcp.master_priority1_level", FT_UINT8, BASE_HEX, VALS(pn_ptcp_master_prio1_levels), 0x38, NULL, HFILL }},
-	{ &hf_pn_ptcp_master_priority1_res,
-        { "MasterPriority1.Reserved", "pn_ptcp.master_priority1_res", FT_UINT8, BASE_HEX, 0x0, 0x40, NULL, HFILL }},
-	{ &hf_pn_ptcp_master_priority1_act,
-        { "MasterPriority1.Active", "pn_ptcp.master_priority1_act", FT_UINT8, BASE_HEX, VALS(pn_ptcp_master_prio1_vals_active), 0x80, NULL, HFILL }},
+        { "MasterPriority1", "pn_ptcp.master_priority1", FT_UINT8, BASE_DEC, VALS(pn_ptcp_master_prio1_vals), 0x0, NULL, HFILL }},
 	{ &hf_pn_ptcp_master_priority2,
         { "MasterPriority2", "pn_ptcp.master_priority2", FT_UINT8, BASE_DEC, VALS(pn_ptcp_master_prio2_vals), 0x0, NULL, HFILL }},
 	{ &hf_pn_ptcp_clock_class,
