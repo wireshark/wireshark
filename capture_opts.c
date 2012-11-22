@@ -874,13 +874,13 @@ capture_opts_print_interfaces(GList *if_list)
         if_info = (if_info_t *)if_entry->data;
         fprintf_stderr("%d. %s", i++, if_info->name);
 
-        /* print the interface friendly name if known, if not fall back to vendor description */
+        /* Print the interface friendly name, if it exists;
+          if not fall back to vendor description, if it exists. */
         if (if_info->friendly_name != NULL){
             fprintf_stderr(" (%s)", if_info->friendly_name);
-        }else{
-            /* Print the description if it exists */
-            if (if_info->description != NULL)
-                fprintf_stderr(" (%s)", if_info->description);
+        } else {
+            if (if_info->vendor_description != NULL)
+                fprintf_stderr(" (%s)", if_info->vendor_description);
         }
         fprintf_stderr("\n");
     }

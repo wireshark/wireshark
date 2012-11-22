@@ -1353,9 +1353,9 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	/* set device name text */
 	text[0] = g_strdup(if_info->name);
 
-	/* set OS description */
-	if (if_info->description != NULL)
-		text[1] = g_strdup(if_info->description);
+	/* set vendor description */
+	if (if_info->vendor_description != NULL)
+		text[1] = g_strdup(if_info->vendor_description);
 	else
 		text[1] = g_strdup("");
 

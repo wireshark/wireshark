@@ -25,7 +25,8 @@
 #ifndef __PCAP_UTIL_INT_H__
 #define __PCAP_UTIL_INT_H__
 
-extern if_info_t *if_info_new(char *name, char *description);
+extern if_info_t *if_info_new(const char *name, const char *friendly_name,
+    const char *vendor_description, gboolean loopback);
 extern void if_info_add_address(if_info_t *if_info, struct sockaddr *addr);
 #ifdef HAVE_PCAP_FINDALLDEVS
 #ifdef HAVE_PCAP_REMOTE

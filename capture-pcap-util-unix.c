@@ -119,6 +119,7 @@ get_interface_list(int *err, char **err_str)
 	char *buf;
 	if_info_t *if_info;
 	char errbuf[PCAP_ERRBUF_SIZE];
+	gboolean loopback;
 
 	if (sock < 0) {
 		*err = CANT_GET_INTERFACE_LIST;
@@ -234,14 +235,14 @@ get_interface_list(int *err, char **err_str)
 		 * don't want a loopback interface to be the default capture
 		 * device unless there are no non-loopback devices.
 		 */
-		if_info = if_info_new(ifr->ifr_name, NULL);
+		loopback = ((ifrflags.ifr_flags & IFF_LOOPBACK) ||
+		    strncmp(ifr->ifr_name, "lo", 2) == 0);
+		if_info = if_info_new(ifr->ifr_name, loopback ? "Loopback" : NULL,
+		    NULL, loopback);
 		if_info_add_address(if_info, &ifr->ifr_addr);
-		if ((ifrflags.ifr_flags & IFF_LOOPBACK) ||
-		    strncmp(ifr->ifr_name, "lo", 2) == 0) {
-			if_info->loopback = TRUE;
+		if (loopback)
 			il = g_list_append(il, if_info);
-		} else {
-			if_info->loopback = FALSE;
+		else {
 			il = g_list_insert(il, if_info, nonloopback_pos);
 			/*
 			 * Insert the next non-loopback interface after this
@@ -274,7 +275,8 @@ get_interface_list(int *err, char **err_str)
 		 * It worked; we can use the "any" device.
 		 */
 		if_info = if_info_new("any",
-		    "Pseudo-device that captures on all interfaces");
+		    "Pseudo-device that captures on all interfaces",
+		    NULL, FALSE);
 		il = g_list_insert(il, if_info, -1);
 		pcap_close(pch);
 	}

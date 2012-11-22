@@ -745,16 +745,16 @@ capture_if_refresh_if_list(void)
       data.descr_lb = gtk_label_new(user_descr);
       g_free (user_descr);
     } else {
-      if (device.if_info.description)
-        data.descr_lb = gtk_label_new(device.if_info.description);
+      if (device.if_info.vendor_description)
+        data.descr_lb = gtk_label_new(device.if_info.vendor_description);
       else
         data.descr_lb = gtk_label_new("");
     }
     gtk_misc_set_alignment(GTK_MISC(data.descr_lb), 0.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(if_tb), data.descr_lb, 4, 5, row, row+1);
-    if (device.if_info.description) {
+    if (device.if_info.vendor_description) {
       g_string_append(if_tool_str, "Description: ");
-      g_string_append(if_tool_str, device.if_info.description);
+      g_string_append(if_tool_str, device.if_info.vendor_description);
       g_string_append(if_tool_str, "\n");
     }
 

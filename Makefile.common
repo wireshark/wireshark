@@ -48,6 +48,7 @@ WIRESHARK_COMMON_SRC =	\
 	$(PLATFORM_SRC)		\
 	capture-pcap-util.c	\
 	cfile.c			\
+	cfutils.c		\
 	clopts_common.c		\
 	disabled_protos.c	\
 	frame_data_sequence.c	\
@@ -65,7 +66,9 @@ WIRESHARK_COMMON_INCLUDES =	\
 	svnversion.h		\
 	capture-pcap-util.h	\
 	capture-pcap-util-int.h	\
+	capture_unix_ifnames.h	\
 	cfile.h			\
+	cfutils.h		\
 	clopts_common.h		\
 	cmdarg_err.h		\
 	console_io.h		\
@@ -196,6 +199,7 @@ dumpcap_SOURCES =	\
 	capture_opts.c \
 	capture-pcap-util.c	\
 	capture_stop_conditions.c	\
+	cfutils.c	\
 	clopts_common.c	\
 	conditions.c	\
 	dumpcap.c	\

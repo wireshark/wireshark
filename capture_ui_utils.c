@@ -180,14 +180,18 @@ get_interface_descriptive_name(const char *if_name)
       do {
         if_info = if_entry->data;
         if (strcmp(if_info->name, if_name) == 0) {
-          if (if_info->friendly_name!= NULL) {
-              /* use the friendly name */
+          if (if_info->friendly_name != NULL) {
+              /* We have a "friendly name"; return a copy of that
+                 as the description - when we free the interface
+                 list, that'll also free up the strings to which
+                 it refers. */
               descr = g_strdup(if_info->friendly_name);
-          }else if (if_info->description != NULL) {
-            /* Return a copy of that - when we free the interface
-               list, that'll also free up the strings to which
-               it refers. */
-            descr = g_strdup(if_info->description);
+          } else if (if_info->vendor_description != NULL) {
+            /* We have no "friendly name", but we have a vendor
+               description; return a copy of that - when we free
+               the interface list, that'll also free up the strings
+               to which it refers. */
+            descr = g_strdup(if_info->vendor_description);
           }
           break;
         }
@@ -243,9 +247,9 @@ build_capture_combo_name(GList *if_list, gchar *if_name)
     /* No, we don't have a user-supplied description; did we get
      one from the OS or libpcap? */
     if_info = search_info(if_list, if_name);
-    if (if_info != NULL && if_info->description != NULL) {
+    if (if_info != NULL && if_info->vendor_description != NULL) {
       /* Yes - use it. */
-      if_string = g_strdup_printf("%s: %s", if_info->description,
+      if_string = g_strdup_printf("%s: %s", if_info->vendor_description,
                                   if_info->name);
     } else {
       /* No. */
@@ -287,9 +291,10 @@ build_capture_combo_list(GList *if_list, gboolean do_hide)
         } else {
           /* No, we don't have a user-supplied description; did we get
              one from the OS or libpcap? */
-          if (if_info->description != NULL) {
+          if (if_info->vendor_description != NULL) {
             /* Yes - use it. */
-            if_string = g_strdup_printf("%s: %s", if_info->description,
+            if_string = g_strdup_printf("%s: %s",
+                                        if_info->vendor_description,
                                         if_info->name);
           } else {
             /* No. */

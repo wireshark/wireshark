@@ -43,16 +43,16 @@ capture_options global_capture_opts;
 
 /*
  * Used when sorting an interface list into alphabetical order by
- * their descriptions.
+ * their friendly names.
  */
 gint
 if_list_comparator_alph(const void *first_arg, const void *second_arg)
 {
     const if_info_t *first = first_arg, *second = second_arg;
 
-    if (first != NULL && first->description != NULL &&
-        second != NULL && second->description != NULL) {
-        return g_ascii_strcasecmp(first->description, second->description);
+    if (first != NULL && first->friendly_name != NULL &&
+        second != NULL && second->friendly_name != NULL) {
+        return g_ascii_strcasecmp(first->friendly_name, second->friendly_name);
     } else {
         return 0;
     }
@@ -114,7 +114,8 @@ scan_local_interfaces(void)
         device.locked = FALSE;
         temp = g_malloc0(sizeof(if_info_t));
         temp->name = g_strdup(if_info->name);
-        temp->description = g_strdup(if_info->description);
+        temp->friendly_name = g_strdup(if_info->friendly_name);
+        temp->vendor_description = g_strdup(if_info->vendor_description);
         temp->loopback = if_info->loopback;
         /* Is this interface hidden and, if so, should we include it anyway? */
 
@@ -130,30 +131,35 @@ scan_local_interfaces(void)
             if (if_info->friendly_name != NULL) {
                 /* We have a friendly name from the OS, use it */
 #ifdef _WIN32
-                /* on windows, if known only show the interface friendly name - don't show the device guid */
+                /*
+                 * On Windows, if we have a friendly name, just show it,
+                 * don't show the name, as that's a string made out of
+                 * the device GUID, and not at all friendly.
+                 */
                 if_string = g_strdup_printf("%s", if_info->friendly_name);
 #else
+		/*
+		 * On UN*X, if we have a friendly name, show it along
+		 * with the interface name; the interface name is short
+		 * and somewhat friendly, and many UN*X users are used
+		 * to interface names, so we should show it.
+		 */
                 if_string = g_strdup_printf("%s: %s", if_info->friendly_name, if_info->name);
 #endif
-            } else if (if_info->description != NULL) {
+            } else if (if_info->vendor_description != NULL) {
                 /* We have a device description from libpcap - use it. */
-                if_string = g_strdup_printf("%s: %s", if_info->description, if_info->name);
+                if_string = g_strdup_printf("%s: %s", if_info->vendor_description, if_info->name);
             } else {
                 /* No. */
                 if_string = g_strdup(if_info->name);
             }
         }
-        if (if_info->loopback) {
-            device.display_name = g_strdup_printf("%s (loopback)", if_string);
-        } else {
-            device.display_name = g_strdup(if_string);
-        }
-        g_free(if_string);
+        device.display_name = if_string;
         device.selected = FALSE;
         if (prefs_is_capture_device_hidden(if_info->name)) {
             device.hidden = TRUE;
         }
-        device.type = get_interface_type(if_info->name, if_info->description);
+        device.type = get_interface_type(if_info->name, if_info->vendor_description);
         monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
         caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL);
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
@@ -313,7 +319,8 @@ scan_local_interfaces(void)
             device.local        = TRUE;
             device.locked       = FALSE;
             device.if_info.name = g_strdup(interface_opts.name);
-            device.if_info.description = g_strdup(interface_opts.descr);
+            device.if_info.friendly_name = NULL;
+            device.if_info.vendor_description = g_strdup(interface_opts.descr);
             device.if_info.addrs = NULL;
             device.if_info.loopback = FALSE;
 

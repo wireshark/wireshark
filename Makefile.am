@@ -271,7 +271,9 @@ wimaxasncp_DATA = \
 	wimaxasncp/dictionary.xml \
 	wimaxasncp/dictionary.dtd
 
-PLATFORM_SRC = capture-pcap-util-unix.c
+PLATFORM_SRC = \
+	capture-pcap-util-unix.c \
+	capture_unix_ifnames.c
 
 if HAVE_PLUGINS
 -include plugins/Custom.make
@@ -347,6 +349,7 @@ wireshark_LDADD = \
 	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
 	@APPLICATIONSERVICES_FRAMEWORKS@	\
+	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@PY_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
@@ -381,6 +384,7 @@ tshark_LDADD = \
 	@C_ARES_LIBS@			\
 	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
+	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@PY_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
@@ -409,6 +413,7 @@ rawshark_LDADD = \
 	@C_ARES_LIBS@			\
 	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
+	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@PY_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
@@ -496,6 +501,7 @@ dumpcap_LDADD = \
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
+	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBCAP_LIBS@
 dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS)

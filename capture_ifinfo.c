@@ -159,7 +159,7 @@ capture_interface_list(int *err, char **err_str)
         if_info = g_malloc0(sizeof(if_info_t));
         if_info->name = g_strdup(name);
         if (strlen(if_parts[1]) > 0)
-            if_info->description = g_strdup(if_parts[1]);
+            if_info->vendor_description = g_strdup(if_parts[1]);
         if (strlen(if_parts[2]) > 0)
             if_info->friendly_name = g_strdup(if_parts[2]);
         addr_parts = g_strsplit(if_parts[3], ",", 0);

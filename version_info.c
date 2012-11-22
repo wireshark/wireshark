@@ -51,6 +51,7 @@
 
 #ifdef HAVE_OS_X_FRAMEWORKS
 #include <CoreFoundation/CoreFoundation.h>
+#include "cfutils.h"
 #endif
 
 #ifdef HAVE_LIBCAP
@@ -190,8 +191,6 @@ static char *
 get_string_from_dictionary(CFPropertyListRef dict, CFStringRef key)
 {
 	CFStringRef cfstring;
-	CFIndex string_len;
-	char *string;
 
 	cfstring = CFDictionaryGetValue(dict, key);
 	if (cfstring == NULL)
@@ -200,15 +199,7 @@ get_string_from_dictionary(CFPropertyListRef dict, CFStringRef key)
 		/* It isn't a string.  Punt. */
 		return NULL;
 	}
-	string_len = CFStringGetMaximumSizeForEncoding(CFStringGetLength(cfstring),
-	    kCFStringEncodingUTF8);
-	string = g_malloc(string_len + 1);
-	if (!CFStringGetCString(cfstring, string, string_len + 1,
-	    kCFStringEncodingUTF8)) {
-		g_free(string);
-		return NULL;
-	}
-	return string;
+	return CFString_to_C_string(cfstring);
 }
 
 /*

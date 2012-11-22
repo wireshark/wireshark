@@ -1307,11 +1307,12 @@ print_machine_readable_interfaces(GList *if_list)
          * separated.
          */
         /* XXX - Make sure our description doesn't contain a tab */
-        if (if_info->description != NULL)
-            printf("\t%s\t", if_info->description);
+        if (if_info->vendor_description != NULL)
+            printf("\t%s\t", if_info->vendor_description);
         else
             printf("\t\t");
             
+        /* XXX - Make sure our friendly name doesn't contain a tab */
         if (if_info->friendly_name != NULL)
             printf("%s\t", if_info->friendly_name);
         else
