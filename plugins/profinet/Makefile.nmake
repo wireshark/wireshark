@@ -42,8 +42,8 @@ $(PLUGIN_NAME).rc : moduleinfo.nmake
 	-e s/@MSVC_VARIANT@/$(MSVC_VARIANT)/ \
 	< plugin.rc.in > $@
 
-$(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLUGIN_WITH) $(RESOURCE)
-	link -dll /out:$(PLUGIN_NAME).dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+$(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLUGIN_WITH) ..\..\wsutil\libwsutil.lib  $(RESOURCE)
+	link -dll /out:$(PLUGIN_NAME).dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) ..\..\wsutil\libwsutil.lib \
 	$(GLIB_LIBS) $(RESOURCE)
 
 #

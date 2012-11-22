@@ -49,6 +49,7 @@ static int hf_pn_mrp_transition = -1;
 static int hf_pn_mrp_time_stamp = -1;
 static int hf_pn_mrp_blocked = -1;
 static int hf_pn_mrp_manufacturer_oui = -1;
+static int hf_pn_manufacturer_data = -1;
 static int hf_pn_mrp_domain_uuid = -1;
 static int hf_pn_mrp_oui = -1;
 
@@ -85,6 +86,15 @@ static const value_string pn_mrp_port_role_vals[] = {
 
     { 0, NULL }
 };
+static const value_string pn_mrp_role_vals[] = {
+    { 0x0000, "Media redundancy disabled" },
+    { 0x0001, "Media redundancy client" },
+    { 0x0002, "Media redundancy manager" },
+    { 0x0003, "Media redundancy manager (auto)" },
+    /*0x0004 - 0xFFFF Reserved */
+
+    { 0, NULL }
+};
 
 static const value_string pn_mrp_ring_state_vals[] = {
 	{ 0x0000, "Ring open" },
@@ -100,6 +110,26 @@ static const value_string pn_mrp_prio_vals[] = {
 
     { 0, NULL }
 };
+/* routine disecting an uint16 and returning that item as well */
+/* dissect a 16 bit unsigned integer */
+int
+dissect_pn_uint16_ret_item(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                       proto_tree *tree, int hfindex, guint16 *pdata, proto_item ** new_item)
+{
+    guint16 data;
+    proto_item  *item;
+
+    data = tvb_get_ntohs (tvb, offset);
+
+    if (tree) {
+        item = proto_tree_add_uint(tree, hfindex, tvb, offset, 2, data);
+    }
+    if (pdata)
+        *pdata = data;
+    if(new_item)
+        *new_item = item;
+    return offset + 2;
+}
 
 
 
@@ -124,7 +154,7 @@ dissect_PNMRP_Common(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-
+#if 0
 static int
 dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
@@ -155,7 +185,7 @@ dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset,
 
     return offset;
 }
-
+#endif
 
 static int
 dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
@@ -165,6 +195,7 @@ dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
     guint16 port_role;
     guint16 interval;
     guint16 blocked;
+    proto_item *sub_item;
 
     /* MRP_SA */
     offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_mrp_sa, mac);
@@ -173,10 +204,24 @@ dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_port_role, &port_role);
 
     /* MRP_Interval */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_interval, &interval);
-
-    /* MRP_Blocked */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_blocked, &blocked);
+    offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, tree, hf_pn_mrp_interval, &interval, &sub_item);
+    if(tree)
+    {
+        proto_item_append_text(sub_item,"Interval for next topology change event (in ms)");
+        if(interval <0x07D1)
+            proto_item_append_text(sub_item,"Mandatory");
+        else
+            proto_item_append_text(sub_item,"Optional");
+        /* MRP_Blocked */
+        offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, tree, hf_pn_mrp_blocked, &blocked, &sub_item);
+        if (blocked == 0)
+            proto_item_append_text(sub_item,"The MRC is not able to receive and forward frames to port in state blocked");
+        else
+            if (blocked == 1)
+                proto_item_append_text(sub_item,"The MRC is able to receive and forward frames to port in state blocked");
+            else
+                proto_item_append_text(sub_item,"Reserved");
+    }
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
@@ -188,6 +233,28 @@ dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+static char * mrp_Prio2msg(guint16 prio)
+{
+
+if (prio == 0x0000)
+    return(" Highest priority redundancy manager");
+if ((prio >= 0x1000) && (prio <= 0x7000))
+    return(" High priorities");
+if (prio == 0x8000)
+    return(" Default priority for redundancy manager");
+if ((prio >= 0x8001) && (prio <= 0x8FFF))
+    return(" Low priorities for redundancy manager");
+if ((prio >= 0x9000) && (prio <= 0x9FFF))
+    return(" High priorities for redundancy manager (auto)");
+if (prio == 0xA000)
+    return(" Default priority for redundancy manager (auto)");
+if ((prio >= 0xA001) && (prio <= 0xF000))
+    return(" Low priorities for redundancy manager (auto)");
+if (prio ==0xFFFF)
+    return(" Lowest priority for redundancy manager (auto)");
+
+    return(" Reserved");
+}
 
 static int
 dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
@@ -198,11 +265,14 @@ dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
     guint16 port_role;
     guint16 ring_state;
     guint16 transition;
-    guint16 time_stamp;
+    guint32 time_stamp;
+    proto_item *sub_item;
 
 
     /* MRP_Prio */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_prio, &prio);
+    offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, tree, hf_pn_mrp_prio, &prio, &sub_item);
+    if(tree)
+        proto_item_append_text(sub_item, mrp_Prio2msg(prio));
 
     /* MRP_SA */
     offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_mrp_sa, mac);
@@ -217,14 +287,14 @@ dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_transition, &transition);
 
     /* MRP_TimeStamp */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_time_stamp, &time_stamp);
+    offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_mrp_time_stamp, &time_stamp);
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     col_append_str(pinfo->cinfo, COL_INFO, "Test");
-
-    proto_item_append_text(item, "Test");
+    if(tree)
+        proto_item_append_text(item, "Test");
 
     return offset;
 }
@@ -237,25 +307,49 @@ dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset,
     guint16 prio;
     guint8 mac[6];
     guint16 interval;
+    proto_item *sub_item;
 
 
     /* MRP_Prio */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_prio, &prio);
+    offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, tree, hf_pn_mrp_prio, &prio, &sub_item);
+    if(tree)
+        proto_item_append_text(sub_item, mrp_Prio2msg(prio));
 
     /* MRP_SA */
     offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_mrp_sa, mac);
 
     /* MRP_Interval */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_interval, &interval);
-
+    offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, tree, hf_pn_mrp_interval, &interval, &sub_item);
+    if(tree)
+    {
+        proto_item_append_text(sub_item," Interval for next topology change event (in ms) ");
+        if(interval <0x07D1)
+            proto_item_append_text(sub_item,"Mandatory");
+        else
+            proto_item_append_text(sub_item,"Optional");
+    }
     /* Padding */
     /*offset = dissect_pn_align4(tvb, offset, pinfo, tree);*/
 
     col_append_str(pinfo->cinfo, COL_INFO, "TopologyChange");
-
-    proto_item_append_text(item, "TopologyChange");
+    if(tree)
+        proto_item_append_text(item, "TopologyChange");
 
     return offset;
+}
+
+/* "dissect" Manufacture DATA */
+static int
+dissect_pn_ManuData(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                    proto_tree *tree, guint32 length)
+{
+    proto_item *item;
+
+
+    item = proto_tree_add_string_format(tree, hf_pn_manufacturer_data, tvb, offset, length, "data",
+        "MRP_ManufacturerData: %d bytes", length);
+
+    return offset + length;
 }
 
 
@@ -274,13 +368,13 @@ dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
 	{
 	case OUI_SIEMENS:
         proto_item_append_text(item, "Option(SIEMENS)");
-        /* Padding */
+        /* No Padding !
         if (offset % 4) {
             length -= 4 - (offset % 4);
             offset = dissect_pn_align4(tvb, offset, pinfo, tree);
-        }
+        }  */
         if(length != 0) {
-            offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
+            offset = dissect_pn_ManuData(tvb, offset, pinfo, tree, length);
         }
         col_append_str(pinfo->cinfo, COL_INFO, "Option(Siemens)");
 		break;
@@ -290,8 +384,6 @@ dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
 
         col_append_str(pinfo->cinfo, COL_INFO, "Option");
     }
-
-    offset += length;
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
@@ -349,10 +441,8 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             offset = dissect_PNMRP_TopologyChange(new_tvb, offset, pinfo, tree, item);
             break;
         case(0x04):
+        case(0x05): /* dissection of up and down is identical! */
             offset = dissect_PNMRP_LinkDown(new_tvb, offset, pinfo, tree, item);
-            break;
-        case(0x05):
-            offset = dissect_PNMRP_LinkUp(new_tvb, offset, pinfo, tree, item);
             break;
         case(0x7f):
             offset = dissect_PNMRP_Option(new_tvb, offset, pinfo, tree, item, length);
@@ -398,35 +488,37 @@ proto_register_pn_mrp (void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_pn_mrp_type,
-		{ "Type", "pn_mrp.type", FT_UINT8, BASE_HEX, VALS(pn_mrp_block_type_vals), 0x0, NULL, HFILL }},
+		{ "MRP_TLVHeader.Type", "pn_mrp.type", FT_UINT8, BASE_HEX, VALS(pn_mrp_block_type_vals), 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_length,
-		{ "Length", "pn_mrp.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ "MRP_TLVHeader.Length", "pn_mrp.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_version,
-		{ "Version", "pn_mrp.version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ "MRP_Version", "pn_mrp.version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_sequence_id,
-		{ "SequenceID", "pn_mrp.sequence_id", FT_UINT16, BASE_HEX, NULL, 0x0, "Unique sequence number to each outstanding service request", HFILL }},
+		{ "MRP_SequenceID", "pn_mrp.sequence_id", FT_UINT16, BASE_HEX, NULL, 0x0, "Unique sequence number to each outstanding service request", HFILL }},
 	{ &hf_pn_mrp_sa,
-        { "SA", "pn_mrp.sa", FT_ETHER, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
+        { "MRP_SA", "pn_mrp.sa", FT_ETHER, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_prio,
-		{ "Prio", "pn_mrp.prio", FT_UINT16, BASE_HEX, VALS(pn_mrp_prio_vals), 0x0, NULL, HFILL }},
+		{ "MRP_Prio", "pn_mrp.prio", FT_UINT16, BASE_HEX, 0, 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_port_role,
-		{ "PortRole", "pn_mrp.port_role", FT_UINT16, BASE_HEX, VALS(pn_mrp_port_role_vals), 0x0, NULL, HFILL }},
+		{ "MRP_PortRole", "pn_mrp.port_role", FT_UINT16, BASE_HEX, VALS(pn_mrp_port_role_vals), 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_ring_state,
-		{ "RingState", "pn_mrp.ring_state", FT_UINT16, BASE_HEX, VALS(pn_mrp_ring_state_vals), 0x0, NULL, HFILL }},
+		{ "MRP_RingState", "pn_mrp.ring_state", FT_UINT16, BASE_HEX, VALS(pn_mrp_ring_state_vals), 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_interval,
-		{ "Interval", "pn_mrp.interval", FT_UINT16, BASE_DEC, NULL, 0x0, "Interval for next topology change event (in ms)", HFILL }},
+		{ "MRP_Interval", "pn_mrp.interval", FT_UINT16, BASE_DEC, NULL, 0x0, "Interval for next topology change event (in ms)", HFILL }},
 	{ &hf_pn_mrp_transition,
-		{ "Transition", "pn_mrp.transition", FT_UINT16, BASE_HEX, NULL, 0x0, "Number of transitions between media redundancy lost and ok states", HFILL }},
+		{ "MRP_Transition", "pn_mrp.transition", FT_UINT16, BASE_HEX, NULL, 0x0, "Number of transitions between media redundancy lost and ok states", HFILL }},
 	{ &hf_pn_mrp_time_stamp,
-		{ "TimeStamp", "pn_mrp.time_stamp", FT_UINT16, BASE_HEX, NULL, 0x0, "Actual counter value of 1ms counter", HFILL }},
+		{ "MRP_TimeStamp [ms]", "pn_mrp.time_stamp", FT_UINT32, BASE_HEX, NULL, 0x0, "Actual counter value of 1ms counter", HFILL }},
 	{ &hf_pn_mrp_blocked,
-		{ "Blocked", "pn_mrp.blocked", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-	{ &hf_pn_mrp_manufacturer_oui,
-		{ "ManufacturerOUI", "pn_mrp.manufacturer_oui", FT_UINT24, BASE_HEX, VALS(pn_mrp_oui_vals), 0x0, NULL, HFILL }},
+		{ "MRP_Blocked", "pn_mrp.blocked", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+//	{ &hf_pn_mrp_manufacturer_oui,
+//		{ "MRP_ManufacturerOUI", "pn_mrp.manufacturer_oui", FT_UINT24, BASE_HEX, VALS(pn_mrp_oui_vals), 0x0, NULL, HFILL }},
+        { &hf_pn_manufacturer_data,
+        { "MRP_ManufacturerData", "pn_mrp.ManufacturerData", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_domain_uuid,
-		{ "DomainUUID", "pn_mrp.domain_uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ "MRP_DomainUUID", "pn_mrp.domain_uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_oui,
-		{ "Organizationally Unique Identifier",	"pn_mrp.oui", FT_UINT24, BASE_HEX,
+		{ "MRP_ManufacturerOUIr",	"pn_mrp.oui", FT_UINT24, BASE_HEX,
 	   	VALS(pn_mrp_oui_vals), 0x0, NULL, HFILL }},
     };
 

@@ -35,6 +35,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/reassemble.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
@@ -43,10 +44,13 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/crc16-tvb.h>
 
+#include <wsutil/crc16.h>
+#include <wsutil/crc16-plain.h>
 #include "packet-pn.h"
 
 /* Define the pn-rt proto */
 static int proto_pn_rt     = -1;
+static gboolean pnio_desegment = TRUE;
 
 /* Define many header fields for pn-rt */
 static int hf_pn_rt_frame_id = -1;
@@ -63,6 +67,8 @@ static int hf_pn_rt_data_status_redundancy = -1;
 static int hf_pn_rt_data_status_primary = -1;
 
 static int hf_pn_rt_sf_crc16 = -1;
+static int hf_pn_rt_sf_crc16_ok = -1;
+static int hf_pn_rt_sf_crc16_null = -1;
 static int hf_pn_rt_sf = -1;
 static int hf_pn_rt_sf_position = -1;
 static int hf_pn_rt_sf_position_control = -1;
@@ -111,8 +117,8 @@ static const value_string pn_rt_ds_redundancy[] = {
 };
 
 static const value_string pn_rt_frag_status_error[] = {
-    { 0x00, "No error" },
-    { 0x01, "An error occured, all earlier fragments shall be dropped" },
+    { 0x00, "reserved" },
+    { 0x01, "reserved: invalid should be zero" },
     { 0, NULL }
 };
 
@@ -121,8 +127,6 @@ static const value_string pn_rt_frag_status_more_follows[] = {
     { 0x01, "More fragments follow" },
     { 0, NULL }
 };
-
-
 
 static void
 dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 u8DataStatus)
@@ -150,20 +154,51 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 u8DataSta
 }
 
 
-static gboolean IsDFP_Frame(tvbuff_t *tvb)
+static gboolean IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint16 u16SFCRC16;
 	guint8  u8SFPosition;
 	guint8  u8SFDataLength   = 255;
+    guint8  u8SFCycleCounter = 0;
+    guint8  u8SFDataStatus;
 	int offset = 0;
 	guint32 u32SubStart;
 	guint16 crc;
     gint tvb_len =0;
+    unsigned char  virtualFramebuffer[16];
+    guint16 u16FrameID;
+
+    /* the sub tvb will NOT contain the frame_id here! */
+    u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
+
+    /* try to bild a temporaray buffer for generating this CRC */
+    memcpy(&virtualFramebuffer[0], pinfo->dst.data,6);
+    memcpy(&virtualFramebuffer[6], pinfo->src.data,6);
+    virtualFramebuffer[12] = 0x88;
+    virtualFramebuffer[13] = 0x92;
+    virtualFramebuffer[15] = (unsigned char) (u16FrameID &0xff);
+    virtualFramebuffer[14] = (unsigned char) (u16FrameID>>8);
+    crc = crc16_plain_init();
+    crc = crc16_plain_update(crc, &virtualFramebuffer[0], 16);
+    crc = crc16_plain_finalize(crc);
+    /* can check this CRC only by having built a temporary data buffer out of the pinfo data */
+    u16SFCRC16 = tvb_get_letohs(tvb, offset);
+    if(u16SFCRC16 != 0) /* no crc! */
+    {
+        if(u16SFCRC16 != crc)
+        {
+            proto_item_append_text(tree, ", no packed frame: SFCRC16 is 0x%x should be 0x%x", u16SFCRC16, crc);
+            return(FALSE);
+        }
+    }
+    /* end of first CRC check */
 
     offset += 2;    /*Skip first crc because data is no more available */
     tvb_len = tvb_length(tvb);
     if(offset + 4 > tvb_len)
         return FALSE;
+    if(tvb_get_letohs(tvb, offset) == 0)
+        return FALSE;   /* no valid DFP frame */
     while(1) {
         u32SubStart = offset;
 
@@ -177,7 +212,9 @@ static gboolean IsDFP_Frame(tvbuff_t *tvb)
             break;
         }
 
+        u8SFCycleCounter = tvb_get_guint8(tvb, offset);
         offset += 1;
+        u8SFDataStatus = tvb_get_guint8(tvb, offset);
 
         offset += 1;
 
@@ -224,12 +261,15 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
     /* possible FrameID ranges for DFP */
-    if((u16FrameID < 0x100) || (u16FrameID > 0x0fff))
+    if((u16FrameID < 0x100) || (u16FrameID > 0x0FFF))
         return (FALSE);
-    if (IsDFP_Frame(tvb)) {
+    if (IsDFP_Frame(tvb, pinfo, tree)) {
         /* can't check this CRC, as the checked data bytes are not available */
         u16SFCRC16 = tvb_get_letohs(tvb, offset);
-        proto_tree_add_uint(tree, hf_pn_rt_sf_crc16, tvb, offset, 2, u16SFCRC16);
+        if(u16SFCRC16 != 0)
+            proto_tree_add_uint(tree, hf_pn_rt_sf_crc16_ok, tvb, offset, 2, u16SFCRC16);
+        else
+            proto_tree_add_uint(tree, hf_pn_rt_sf_crc16_null, tvb, offset, 2, u16SFCRC16);
         offset += 2;
 
         while(1) {
@@ -293,7 +333,38 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return FALSE;
 
 }
+static void
+dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+/* for reasemble processing we need some inits.. */
+/* Register PNIO defrag table init routine.      */
+
+static GHashTable *pdu_frag_table  = NULL;
+static GHashTable *reasembled_frag_table = NULL;
+
+static dissector_handle_t data_handle;
+static dissector_table_t ethertype_subdissector_table;
+
+static guint32 start_frag_OR_ID[16];
+
+
+static void
+pnio_defragment_init(void)
+{
+    guint32 i;
+    if( reasembled_frag_table != NULL ) {
+        g_hash_table_destroy( reasembled_frag_table );
+        reasembled_frag_table = NULL;
+    }
+
+    for (i=0; i < 16;i++)    /* init  the reasemble help array */
+        start_frag_OR_ID[i] = 0;
+    fragment_table_init(&pdu_frag_table);
+    if (reasembled_frag_table == NULL)
+    {
+        reasembled_frag_table =  g_hash_table_new(NULL, NULL);
+    }
+}
 
 /* possibly dissect a FRAG_PDU related PN-RT packet */
 static gboolean
@@ -301,6 +372,10 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void *data _U_)
 {
     guint16 u16FrameID;
+    guint32       u32FrameKey = 0;
+    guint32       u32FragID   = 0;
+    guint16       pdu_length  = 0;
+    guint32       u32ReasembleID =0xfedc;
     int offset = 0;
     proto_item *sub_item;
     proto_tree *sub_tree;
@@ -308,6 +383,10 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *status_item;
     proto_tree *status_tree;
     guint8  u8FragStatus;
+    gboolean      bMoreFollows;
+    guint8        uFragNumber;
+    fragment_data *pdu_frag;
+    tvbuff_t      *pdu_tvb = NULL;
 
 
     /* the sub tvb will NOT contain the frame_id here! */
@@ -330,23 +409,64 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_uint(status_tree, hf_pn_rt_frag_status_error, tvb, offset, 1, u8FragStatus);
         proto_tree_add_uint(status_tree, hf_pn_rt_frag_status_fragment_number, tvb, offset, 1, u8FragStatus);
         offset += 1;
-        proto_item_append_text(status_item, ": Number: %u, %s, %s",
-            u8FragStatus & 0x3F,
-            val_to_str( (u8FragStatus & 0x80) >> 7, pn_rt_frag_status_more_follows, "Unknown"),
-            val_to_str( (u8FragStatus & 0x40) >> 6, pn_rt_frag_status_error, "Unknown"));
+        uFragNumber = u8FragStatus & 0x3F; /* bits 0 to 5 */
+        bMoreFollows = (u8FragStatus & 0x80) != 0; 
+        proto_item_append_text(status_item, ": Number: %u, %s",
+            uFragNumber,
+            val_to_str( (u8FragStatus & 0x80) >> 7, pn_rt_frag_status_more_follows, "Unknown"));
 
+        proto_tree_add_string_format(sub_tree, hf_pn_rt_frag_data, tvb, offset, tvb_length(tvb) - offset, "data", 
+            "Fragment Length: %d bytes", tvb_length(tvb) - offset);
+        col_append_fstr(pinfo->cinfo, COL_INFO," Fragment Length: %d bytes", tvb_length(tvb) - offset);
 
-		proto_tree_add_string_format(sub_tree, hf_pn_rt_frag_data, tvb, offset, tvb_length(tvb) - offset, "data", 
-            "FragData: %d bytes", tvb_length(tvb) - offset);
+        dissect_pn_user_data_bytes(tvb, offset, pinfo, sub_tree, tvb_length(tvb) - offset, FRAG_DATA);
+        if((guint)(tvb_length(tvb) - offset) < (guint)(u8FragDataLength *8)){
+            proto_item_append_text(status_item, ": FragDataLength out of Framerange -> discarding!");
+            return (TRUE);
+        }
+        /* defragmentation starts here */
+        if(pnio_desegment)
+        {
+            u32FragID =  (u16FrameID & 0xf);
+            if(uFragNumber == 0)
+            { /* this is the first "new" fragment, so set up a new key Id */
+                u32FrameKey = (pinfo->fd->num << 2) | u32FragID;
+                /* store it in the array */
+                start_frag_OR_ID[u32FragID] = u32FrameKey;
+            }
+            u32ReasembleID = start_frag_OR_ID[u32FragID];
+            /*                                                                                       use frame data instead of "pnio fraglen" which sets 8 octet steps */
+            pdu_frag = fragment_add_seq(tvb, offset, pinfo, u32ReasembleID, pdu_frag_table, uFragNumber, (tvb_length(tvb) - offset)/*u8FragDataLength*8*/, bMoreFollows);
 
-        /* note: the actual defragmentation implementation is still missing here */
-        dissect_pn_undecoded(tvb, offset, pinfo, sub_tree, tvb_length(tvb) - offset);
-
-        return TRUE;
+            if(pdu_frag && !bMoreFollows) /* PDU is complete! and last fragment */
+            {   /* store this frag as the completed frag in hash table */
+                g_hash_table_insert(reasembled_frag_table,GUINT_TO_POINTER(pinfo->fd->num),pdu_frag);
+                start_frag_OR_ID[u32FragID] = 0; /* reset the starting frame counter */
+            }
+            if(!bMoreFollows) /* last fragment */
+            {
+                pdu_frag = g_hash_table_lookup(reasembled_frag_table,GUINT_TO_POINTER(pinfo->fd->num));
+                if(pdu_frag)    /* found a matching frag dissect it */
+                {
+                    guint16 type;
+                    pdu_length = pdu_frag->len;
+                    /* create the new tvb for defraged frame */
+                    pdu_tvb = tvb_new_child_real_data(tvb, pdu_frag->data, pdu_length, pdu_length);
+                    /* add the defragmented data to the data source list */
+                    add_new_data_source(pinfo, pdu_tvb, "Reassembled Profinet Frame");
+                    /* PDU is complete: look for the Ethertype and give it to the appropriate dissection routine */
+                    type = tvb_get_ntohs(pdu_tvb, 0);
+                    pdu_tvb = tvb_new_subset_remaining(pdu_tvb, 2);
+                    if (!dissector_try_uint(ethertype_subdissector_table, type, pdu_tvb, pinfo, tree))
+                        call_dissector(data_handle, pdu_tvb, pinfo, tree);
+                }
+            }
+            return TRUE;
+        }
+        else
+            return TRUE;
     }
-
     return FALSE;
-
 }
 
 
@@ -443,7 +563,6 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pszProtSummary  = "Real-Time";
         pszProtComment  = "0x0082-0x00FF: Reserved ID";
         bCyclic         = FALSE;
-
     } else if (u16FrameID <= 0x6FF) {
         pszProtShort    = "PN-RTC3";
         pszProtAddInfo  = "RTC3, ";
@@ -463,22 +582,22 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pszProtComment	= "0x1000-0x7FFF: Reserved ID";
         bCyclic         = FALSE;
     } else if (u16FrameID <= 0xBBFF){
-        pszProtShort    = "PN-RTC2";
-        pszProtAddInfo  = "RTC2, ";
+        pszProtShort    = "PN-RTC1";
+        pszProtAddInfo  = "RTC1, ";
         pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0x8000-0xBBFF: Real-Time(class=2): non redundant, normal";
+        pszProtComment  = "0x8000-0xBBFF: Real-Time(class=1 unicast): non redundant, normal";
         bCyclic         = TRUE;
     } else if (u16FrameID <= 0xBFFF){
-        pszProtShort    = "PN-RTC2";
-        pszProtAddInfo  = "RTC2, ";
+        pszProtShort    = "PN-RTC1";
+        pszProtAddInfo  = "RTC1, ";
         pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0xBC00-0xBFFF: Real-Time(class=2 multicast): non redundant, normal";
+        pszProtComment  = "0xBC00-0xBFFF: Real-Time(class=1 multicast): non redundant, normal";
         bCyclic         = TRUE;
     } else if (u16FrameID <= 0xF7FF){
         pszProtShort    = "PN-RTC1/UDP";
         pszProtAddInfo  = "RTC1/UDP, ";
         pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0xC000-0xF7FF: Real-Time(class=1/UDP): Cyclic";
+        pszProtComment  = "0xC000-0xF7FF: Real-Time(class=1/UDP unicast): Cyclic";
         bCyclic         = TRUE;
     } else if (u16FrameID <= 0xFBFF){
         pszProtShort    = "PN-RTC1/UDP";
@@ -573,8 +692,8 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         bCyclic         = FALSE;
     } else if (u16FrameID <= 0xFF8F){
         pszProtShort    = "PN-RT";
-        pszProtAddInfo  = "Fragmentation, ";
-        pszProtSummary  = "Real-Time";
+        pszProtAddInfo  = "";
+        pszProtSummary  = "Fragmentation";
         pszProtComment  = "0xFF80-0xFF8F: Fragmentation";
         bCyclic         = FALSE;
     } else {
@@ -638,7 +757,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               pdu_len - 4, 2, u16CycleCounter, "CycleCounter: %u", u16CycleCounter);
 
             /* add data status subtree */
-            dissect_DataStatus(tvb, pdu_len - 2, tree, u8DataStatus);
+            dissect_DataStatus(tvb, pdu_len - 2, pn_rt_tree, u8DataStatus);
 
             /* add transfer status */
             if (u8TransferStatus) {
@@ -705,6 +824,10 @@ proto_register_pn_rt(void)
         "SubFrame", "pn_rt.sf", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_rt_sf_crc16, {
         "SFCRC16", "pn_rt.sf.crc16", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_rt_sf_crc16_ok, {
+        "SFCRC16 checked [ok]", "pn_rt.sf.crc16_ok", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_rt_sf_crc16_null, {
+        "SFCRC16 not checked but ok ", "pn_rt.sf.crc16_null", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_rt_sf_position, {
         "Position", "pn_rt.sf.position", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
     { &hf_pn_rt_sf_position_control, {
@@ -714,7 +837,7 @@ proto_register_pn_rt(void)
     { &hf_pn_rt_sf_cycle_counter, {
         "CycleCounter", "pn_rt.sf.cycle_counter", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_rt_frag, {
-        "PROFINET Real-Time Fragment", "pn_rt.frag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        "PROFINET Fragment", "pn_rt.frag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_rt_frag_data_length, {
         "FragDataLength", "pn_rt.frag_data_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_rt_frag_status, {
@@ -722,11 +845,11 @@ proto_register_pn_rt(void)
     { &hf_pn_rt_frag_status_more_follows, {
         "MoreFollows", "pn_rt.frag_status.more_follows", FT_UINT8, BASE_HEX, VALS(pn_rt_frag_status_more_follows), 0x80, NULL, HFILL }},
     { &hf_pn_rt_frag_status_error, {
-        "Error", "pn_rt.frag_status.error", FT_UINT8, BASE_HEX, VALS(pn_rt_frag_status_error), 0x40, NULL, HFILL }},
+        "Reserved", "pn_rt.frag_status.error", FT_UINT8, BASE_HEX, VALS(pn_rt_frag_status_error), 0x40, NULL, HFILL }},
     { &hf_pn_rt_frag_status_fragment_number, {
         "FragmentNumber (zero based)", "pn_rt.frag_status.fragment_number", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
     { &hf_pn_rt_frag_data, {
-        "FragData", "pn_rt.frag_data", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        "FragData", "pn_rt.frag_data", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_pn_rt,
@@ -752,10 +875,16 @@ proto_register_pn_rt(void)
         "Whether the PN-RT summary line should be shown in the protocol tree",
         &pn_rt_summary_in_tree);
 
+  prefs_register_bool_preference(pn_rt_module, "desegment",
+        "reassemble PNIO Fragments",
+		"Reassemble PNIO Fragments and get them decoded",
+		&pnio_desegment);
+
   /* register heuristics anchor for payload dissectors */
   register_heur_dissector_list("pn_rt", &heur_subdissector_list);
 
   init_pn (proto_pn_rt);
+  register_init_routine(pnio_defragment_init);
 }
 
 
@@ -772,5 +901,8 @@ proto_reg_handoff_pn_rt(void)
 
   heur_dissector_add("pn_rt", dissect_CSF_SDU_heur, proto_pn_rt);
   heur_dissector_add("pn_rt", dissect_FRAG_PDU_heur, proto_pn_rt);
+  data_handle = find_dissector("data");
+
+  ethertype_subdissector_table = find_dissector_table("ethertype");
 }
 
