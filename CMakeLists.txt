@@ -518,12 +518,14 @@ if(UNIX)
 endif()
 
 if(APPLE)
-#TODO verify that APPLE implies HAVE_OS_X_FRAMEWORKS
+	#
+	# We assume that APPLE means OS X so that we have the OS X
+	# frameworks.
+	#
 	set(HAVE_OS_X_FRAMEWORKS 1)
-	FIND_LIBRARY (APPLE_CORE_SERVICES_LIBRARY CoreServices)
+	FIND_LIBRARY (APPLE_APPLICATION_SERVICES_LIBRARY ApplicationServices)
 	FIND_LIBRARY (APPLE_CORE_FOUNDATION_LIBRARY CoreFoundation)
 	FIND_LIBRARY (APPLE_SYSTEM_CONFIGURATION_LIBRARY SystemConfiguration)
-	FIND_LIBRARY (APPLE_COCOA_LIBRARY Cocoa)
 endif()
 
 if(WIN32)
@@ -761,9 +763,9 @@ if(BUILD_wireshark AND GTK_FOUND)
 		codecs
 		${PORTAUDIO_LIBRARIES}
 		${LIBEPAN_LIBS}
+		${APPLE_APPLICATION_SERVICES_LIBRARY}
 		${APPLE_CORE_SERVICES_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
-		${APPLE_COCOA_LIBRARY}
 		${NL_LIBRARIES}
 	)
 	# qtshark and wireshark share wireshark_FILES
@@ -784,9 +786,9 @@ if(BUILD_qtshark AND QT_FOUND)
 		codecs
 		${PORTAUDIO_LIBRARIES}
 		${LIBEPAN_LIBS}
+		${APPLE_APPLICATION_SERVICES_LIBRARY}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
-		${APPLE_COCOA_LIBRARY}
 		${NL_LIBRARIES}
 	)
 	# qtshark and wireshark share wireshark_FILES
@@ -811,7 +813,6 @@ if(BUILD_tshark)
 	set(tshark_FILES
 		capture_opts.c
 		capture_sync.c
-		cfutils.c
 		tempfile.c
 		tshark-tap-register.c
 		tshark.c
@@ -942,7 +943,6 @@ if(BUILD_capinfos)
 		wsutil
 		${ZLIB_LIBRARIES}
 		${GCRYPT_LIBRARIES}
-		${APPLE_COCOA_LIBRARY}
 	)
 	set(capinfos_FILES
 		capinfos.c
