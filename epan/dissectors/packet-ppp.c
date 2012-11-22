@@ -4456,7 +4456,7 @@ static const value_string iphc_crtp_cs_flags[] = {
 static void
 dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *fh_tree = NULL, *info_tree = NULL;
+    proto_tree *fh_tree = NULL, *info_tree;
     proto_item *ti = NULL;
     guint     ip_hdr_len, flags;
     guint     length;
@@ -4494,62 +4494,57 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* calculate length of IP header, assume IPv4 */
     ip_hdr_len = (tvb_get_guint8(tvb, 0) & 0x0f) * 4;
 
-    if (tree) {
-        /* calculate total hdr length, assume UDP */
-        hdr_len = ip_hdr_len + 8;
+    /* calculate total hdr length, assume UDP */
+    hdr_len = ip_hdr_len + 8;
 
-        if (ip_version != 4) {
-            proto_tree_add_text(fh_tree, tvb, 3, -1,
-                "IP version is %u: the only supported version is 4",
-                ip_version);
-            return;
-        }
-
-        if (next_protocol != IP_PROTO_UDP) {
-            proto_tree_add_text(fh_tree, tvb, 3, -1,
-                "Next protocol is %s (%u): the only supported protocol is UDP",
-                ipprotostr(next_protocol), next_protocol);
-            return;
-        }
-
-        /* context id and sequence fields */
-        switch (flags) {
-        case IPHC_CRTP_FH_CID8:
-            offset_cid = 3;
-            offset_seq = ip_hdr_len + 5;
-            proto_tree_add_item(fh_tree, hf_iphc_crtp_cid8, tvb, offset_cid, 1,
-                ENC_BIG_ENDIAN);
-            proto_tree_add_item(fh_tree, hf_iphc_crtp_seq, tvb, offset_seq, 1,
-                ENC_BIG_ENDIAN);
-            break;
-
-        case IPHC_CRTP_FH_CID16:
-            offset_seq = 3;
-            offset_cid = ip_hdr_len + 4;
-            proto_tree_add_item(fh_tree, hf_iphc_crtp_seq, tvb, offset_seq, 1,
-                ENC_BIG_ENDIAN);
-            proto_tree_add_item(fh_tree, hf_iphc_crtp_cid16, tvb, offset_cid,
-                2, ENC_BIG_ENDIAN);
-            break;
-
-        default:
-            /* TODO? */
-            break;
-        }
-
-        /* information field */
-        tvb_ensure_bytes_exist (tvb, 0, hdr_len);
-        ti = proto_tree_add_text(fh_tree, tvb, 0,length,"Information Field");
-        info_tree = proto_item_add_subtree(ti,ett_iphc_crtp_info);
+    if (ip_version != 4) {
+        proto_tree_add_text(fh_tree, tvb, 3, -1,
+                            "IP version is %u: the only supported version is 4",
+                            ip_version);
+        return;
     }
+
+    if (next_protocol != IP_PROTO_UDP) {
+        proto_tree_add_text(fh_tree, tvb, 3, -1,
+                            "Next protocol is %s (%u): the only supported protocol is UDP",
+                            ipprotostr(next_protocol), next_protocol);
+        return;
+    }
+
+    /* context id and sequence fields */
+    switch (flags) {
+    case IPHC_CRTP_FH_CID8:
+        offset_cid = 3;
+        offset_seq = ip_hdr_len + 5;
+        proto_tree_add_item(fh_tree, hf_iphc_crtp_cid8, tvb, offset_cid, 1,
+                            ENC_BIG_ENDIAN);
+        proto_tree_add_item(fh_tree, hf_iphc_crtp_seq, tvb, offset_seq, 1,
+                            ENC_BIG_ENDIAN);
+        break;
+
+    case IPHC_CRTP_FH_CID16:
+        offset_seq = 3;
+        offset_cid = ip_hdr_len + 4;
+        proto_tree_add_item(fh_tree, hf_iphc_crtp_seq, tvb, offset_seq, 1,
+                            ENC_BIG_ENDIAN);
+        proto_tree_add_item(fh_tree, hf_iphc_crtp_cid16, tvb, offset_cid,
+                            2, ENC_BIG_ENDIAN);
+        break;
+
+    default:
+        /* TODO? */
+        break;
+    }
+
+    /* information field */
+    ti = proto_tree_add_text(fh_tree, tvb, 0, length, "Information Field");
+    info_tree = proto_item_add_subtree(ti,ett_iphc_crtp_info);
+
+    /* XXX: 1: May trap above; 2: really only need to check for ip_hdr_len+6 ?? */
+    tvb_ensure_bytes_exist (tvb, 0, hdr_len);  /* ip_hdr_len + 8 */
 
     /* allocate a copy of the IP packet */
     ip_packet = tvb_memdup(tvb, 0, length);
-    /*
-     * make sure that we will be able to write the write the length information
-     * to the copy at least
-     */
-    tvb_ensure_bytes_exist (tvb, ip_hdr_len, 5);
 
     /* restore the proper values to the IP and UDP length fields */
     ip_packet[2] = length >> 8;
