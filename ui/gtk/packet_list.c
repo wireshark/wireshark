@@ -100,6 +100,7 @@ static void show_cell_data_func(GtkTreeViewColumn *col,
 				gpointer data);
 static gint row_number_from_iter(GtkTreeIter *iter);
 static void scroll_to_current(void);
+static gboolean query_packet_list_tooltip_cb(GtkWidget *widget, gint x, gint y, gboolean keyboard_tip, GtkTooltip *tooltip, gpointer data _U_);
 
 void packet_list_set_sel_browse(gboolean val, gboolean force_set);
 
@@ -747,6 +748,9 @@ create_view_and_model(void)
 	g_signal_connect(packetlist->view, "button_press_event", G_CALLBACK(popup_menu_handler),
 				   g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
 	column_changed_handler_id = g_signal_connect(packetlist->view, "columns-changed", G_CALLBACK(column_dnd_changed_cb), NULL);
+	g_object_set(packetlist->view, "has-tooltip", TRUE, NULL);
+	g_signal_connect(packetlist->view, "query-tooltip",
+			G_CALLBACK(query_packet_list_tooltip_cb), NULL);
 	g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, packetlist);
 
 	/*		g_object_unref(packetlist); */ /* Destroy automatically with view for now */ /* XXX - Messes up freezing & thawing */
@@ -1783,4 +1787,47 @@ packet_list_colorize_packets(void)
 {
 	packet_list_reset_colorized(packetlist);
 	gtk_widget_queue_draw (packetlist->view);
+}
+
+static gboolean
+query_packet_list_tooltip_cb(GtkWidget *widget, gint x, gint y, gboolean keyboard_tip, GtkTooltip *tooltip, gpointer data _U_)
+{
+	GtkTreeIter iter;
+	GtkTreeView *tree_view = GTK_TREE_VIEW(widget);
+	GtkTreeModel *model = gtk_tree_view_get_model(tree_view);
+	GtkTreePath *path = NULL;
+	GtkTreeViewColumn *column;
+	gint col, num_cols;
+	frame_data *fdata;
+	GtkCellRenderer* renderer=NULL;
+	GList *renderer_list;
+	gboolean result = FALSE;
+
+	if (!gtk_tree_view_get_tooltip_context(tree_view, &x, &y, keyboard_tip, &model, &path, &iter))
+		return result;
+
+	if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view), x, y, NULL, &column, NULL, NULL)) {
+		num_cols = g_list_length(prefs.col_list);
+
+		for (col = 0; col < num_cols; col++) {
+			if (gtk_tree_view_get_column(tree_view, col) == column)
+				break;
+		}
+
+		fdata = packet_list_get_record(model, &iter);
+		if (fdata->opt_comment != NULL) {
+			gtk_tooltip_set_markup (tooltip, fdata->opt_comment);
+			renderer_list = gtk_cell_layout_get_cells(GTK_CELL_LAYOUT(column));
+			/* get the first renderer */
+			if (g_list_first(renderer_list)) {
+				renderer = (GtkCellRenderer*)g_list_nth_data(renderer_list, 0);
+				gtk_tree_view_set_tooltip_cell (tree_view, tooltip, path, column, renderer);
+			}
+			g_list_free(renderer_list);
+			result = TRUE;
+		}
+	}
+	gtk_tree_path_free(path);
+
+	return result;
 }
