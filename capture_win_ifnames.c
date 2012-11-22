@@ -251,9 +251,6 @@ void get_windows_interface_friendlyname(/* IN */ char *interface_devicename, /* 
 
     /* ensure we can return a result */
     if(interface_friendlyname==NULL){
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "open_raw_pipe sdfsd");
-        fflush(stderr);
-        fflush(stdout);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
             "invalid interface_friendlyname parameter to get_windows_interface_friendlyname() function.");
         return;
@@ -268,27 +265,39 @@ void get_windows_interface_friendlyname(/* IN */ char *interface_devicename, /* 
         guid_text=interface_devicename;
     }
 
-    /*** Convert the guid text the GUID structure */
+    /*** Convert the GUID text to a GUID structure */
     {
-        /* Part 1: guid_text to unicode, dynamically allocating sufficent memory for conversion*/
+        /* Part 1: (presumed) ASCII guid_text to UTF-16 */
         WCHAR wGuidText[39];
         HRESULT hr;
         int size=39; /* a guid should always been 38 unicode characters in length (+1 for null termination) */
         size=MultiByteToWideChar(CP_ACP, 0, guid_text, -1, wGuidText, size);
         if(size!=39){
-            /* guid text to unicode conversion failed */
+            /*
+             * GUID text to UTF-16 conversion failed.
+             * XXX - is this assuming the GUID text is in the local
+             * code page?  If so, the error might just indicate that
+             * it's not in the local code page; should we assume it's
+             * UTF-8?  If so, what if it's not *valid* UTF-8? Should
+             * we just silently return "no friendly name" if this
+             * fails?
+             */
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
                 "Failed the extract guid from interface devicename, unicode convert result=%d, guid input ='%s', LastErrorCode=0x%08x.",
                 size, guid_text, GetLastError());
             return;
         }
-        /* Part 2: unicode guid text to GUID structure */
+        /* Part 2: UTF-16 GUID text to GUID structure */
         hr = CLSIDFromString(wGuidText, (LPCLSID)&guid);
         if (hr != S_OK){
-            /* guid text to unicode conversion failed */
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_ERROR,
-                "Failed to convert interface devicename guid to GUID structure, convert result=0x%08x, guid input ='%s', LastErrorCode=0x%08x.",
-                hr, guid_text, GetLastError());
+            /*
+             * GUID text to CLSID conversion failed; this probably
+             * means that there isn't a GUID in the name, in which
+             * case we can't get a friendly name for that name.
+             *
+             * Don't complain - this isn't an error; not all
+             * interface names correspond to interfaces with GUIDs.
+             */
             return;
         }
     }
