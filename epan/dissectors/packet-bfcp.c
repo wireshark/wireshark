@@ -40,7 +40,9 @@ static int proto_bfcp = -1;
 static gboolean  bfcp_enable_heuristic_dissection = FALSE;
 
 
-static int hf_bfcp_transaction_initiator = -1;
+static int hf_bfcp_version = -1;
+static int hf_bfcp_hdr_r_bit = -1;
+static int hf_bfcp_hdr_f_bit = -1;
 static int hf_bfcp_primitive = -1;
 static int hf_bfcp_payload_length = -1;
 static int hf_bfcp_conference_id = -1;
@@ -423,9 +425,27 @@ static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 		ti = proto_tree_add_item(tree, proto_bfcp, tvb, 0, -1, ENC_NA);
 		bfcp_tree = proto_item_add_subtree(ti, ett_bfcp);
+/*
+  The following is the format of the common header.
 
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Ver |R|F| Res |  Primitive    |        Payload Length         |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                         Conference ID                         |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |         Transaction ID        |            User ID            |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Fragment Offset (if F is set) | Fragment Length (if F is set) |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+*/
 		/* Add items to BFCP tree */
-		proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_initiator, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(bfcp_tree, hf_bfcp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(bfcp_tree, hf_bfcp_hdr_r_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(bfcp_tree, hf_bfcp_hdr_f_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		proto_tree_add_item(bfcp_tree, hf_bfcp_primitive, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
@@ -455,9 +475,21 @@ void proto_register_bfcp(void)
 
 	static hf_register_info hf[] = {
 		{
-			&hf_bfcp_transaction_initiator,
-			{ "Transaction Initiator", "bfcp.transaction_initiator",
+			&hf_bfcp_version,
+			{ "Version(ver)", "bfcp.ver",
+			  FT_UINT8, BASE_DEC, NULL, 0xe0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_hdr_r_bit,
+			{ "Transaction Responder (R)", "bfcp.hdr_r_bit",
 			  FT_BOOLEAN, 8, NULL, 0x10,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_hdr_f_bit,
+			{ "Fragmentation (F)", "bfcp.hdr_f_bit",
+			  FT_BOOLEAN, 8, NULL, 0x08,
 			  NULL, HFILL }
 		},
 		{
