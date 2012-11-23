@@ -30,8 +30,6 @@
 #ifdef _WIN32
 
 #include <windows.h>
-#include <objbase.h> /* for CLSIDFromString() to convert guid text to a GUID */
-#include <tchar.h>
 #include <winsock2.h>
 #include <iphlpapi.h>
 #include <stdio.h>
@@ -43,14 +41,19 @@
 
 #include <ntddndis.h>
 
+#ifndef NDIS_IF_MAX_STRING_SIZE
+#define NDIS_IF_MAX_STRING_SIZE IF_MAX_STRING_SIZE   /* =256 in <ifdef.h> */
+#endif
+
+#ifndef NETIO_STATUS
+#define NETIO_STATUS DWORD
+#endif
+
 #include "log.h"
 
 #include "capture_ifinfo.h"
 #include "capture_win_ifnames.h"
 #include "wsutil/file_util.h"
-
-/* Link with ole32.lib - provides CLSIDFromString() to convert guid text to a GUID */
-#pragma comment(lib, "ole32.lib")
 
 /**********************************************************************************/
 gboolean IsWindowsVistaOrLater()
