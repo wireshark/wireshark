@@ -1276,7 +1276,23 @@ dissect_gtpv2_tgt_rnc_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 
 }
 
-/* 6.9 Target Global Cell ID */
+/* 
+ * 3GPP TS 29.280
+ * 6.9 Target Global Cell ID
+ * The encoding of this IE is defined in 3GPP TS 29.002
+ *  GlobalCellId ::= OCTET STRING (SIZE (5..7))
+ * 	-- Refers to Cell Global Identification defined in TS 3GPP TS 23.003 [17].
+ * 	-- The internal structure is defined as follows:
+ * 	-- octet 1 bits 4321	Mobile Country Code 1st digit
+ * 	--         bits 8765	Mobile Country Code 2nd digit
+ * 	-- octet 2 bits 4321	Mobile Country Code 3rd digit
+ * 	--         bits 8765	Mobile Network Code 3rd digit
+ * 	--			or filler (1111) for 2 digit MNCs
+ * 	-- octet 3 bits 4321	Mobile Network Code 1st digit
+ * 	--         bits 8765	Mobile Network Code 2nd digit
+ * 	-- octets 4 and 5	Location Area Code according to TS 3GPP TS 24.008 [35]
+ * 	-- octets 6 and 7	Cell Identity (CI) according to TS 3GPP TS 24.008 [35]
+ */
 static void
 dissect_gtpv2_tgt_global_cell_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
@@ -1312,8 +1328,9 @@ dissect_gtpv2_tgt_global_cell_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, TRUE);
 
     proto_tree_add_item(subtree, hf_gtpv2_lac, tvb, curr_offset+3, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_gtpv2_tgt_g_cell_id, tvb, curr_offset+5, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_gtpv2_tgt_g_cell_id, tvb, curr_offset+5, 2, ENC_BIG_ENDIAN);
 
+	proto_item_append_text(item, "%x-%x-%u-%u",mcc,mnc,lac,tgt_cell_id);
     /* no length check possible */
 
 }
@@ -1328,6 +1345,8 @@ dissect_gtpv2_teid_c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     offset= offset+4;
     if(length>4)
         proto_tree_add_text(tree, tvb, offset, length-4, "Spare: %s",tvb_bytes_to_str(tvb, offset, length-4));
+
+	proto_item_append_text(item, "%u", tvb_get_ntohl(tvb,offset-4));
 }
 
 /* 6.11 Sv Flags */
@@ -4896,7 +4915,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_REC_REST_CNT, dissect_gtpv2_recovery},                          /* 3, Recovery (Restart Counter) 8.5 */
                                                                            /* 4-50 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
     /*Start SRVCC Messages 3GPP TS 29.280 */
-    {GTPV2_IE_STN_SR, dissect_gtpv2_stn_sr},                               /* 51 51 STN-SR */
+    {GTPV2_IE_STN_SR, dissect_gtpv2_stn_sr},                               /* 51 STN-SR */
     {GTPV2_IE_SRC_TGT_TRANS_CON, dissect_gtpv2_src_tgt_trans_con},         /* 52 Source to Target Transparent Container */
     {GTPV2_IE_TGT_SRC_TRANS_CON , dissect_gtpv2_tgt_src_trans_con},        /* 53 Target to Source Transparent Container */
     {GTPV2_IE_MM_CON_EUTRAN_SRVCC, dissect_gtpv2_mm_con_eutran_srvcc},     /* 54 MM Context for E-UTRAN SRVCC */
@@ -5367,7 +5386,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_tgt_g_cell_id,
           {"Cell ID", "gtpv2.tgt_g_cell_id",
-           FT_UINT8, BASE_DEC, NULL, 0x0,
+           FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_gtpv2_teid_c,
