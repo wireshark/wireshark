@@ -23,14 +23,12 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#if 0 /* XXX: including config.h causes compilation errors; TBD: why */
 #include "config.h"
-#endif
 
 #ifdef _WIN32
 
-#include <windows.h>
 #include <winsock2.h>
+#include <windows.h>
 #include <iphlpapi.h>
 #include <stdio.h>
 #include <stdlib.h>
