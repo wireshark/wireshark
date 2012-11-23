@@ -858,7 +858,6 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 							info->min_tsn2 = tsnumber;
 						if (tsnumber > info->max_tsn2)
 							info->max_tsn2 = tsnumber;
-						info->n_sack_chunks_ep2++;
 						length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET);
 						if (sack->first_tsn == 0)
 							sack->first_tsn = tsnumber;
