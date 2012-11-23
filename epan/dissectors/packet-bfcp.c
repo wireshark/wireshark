@@ -2,6 +2,9 @@
  * Routines for Binary Floor Control Protocol(BFCP) dissection
  * Copyright 2012, Nitinkumar Yemul <nitinkumaryemul@gmail.com>
  *
+ * Updated with attribute dissection
+ * Copyright 2012, Anders Broman <anders.broman@ericsson.com>
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -22,7 +25,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * BFCP Message structure is defined in RFC 4582.
+ * BFCP Message structure is defined in RFC 4582bis
  */
 #include "config.h"
 
@@ -45,11 +48,27 @@ static int hf_bfcp_transaction_id = -1;
 static int hf_bfcp_user_id = -1;
 static int hf_bfcp_payload = -1;
 static int hf_bfcp_attribute_types = -1;
+static int hf_bfcp_attribute_types_m_bit = -1;
 static int hf_bfcp_attribute_length = -1;
+static int hf_bfcp_beneficiary_id = -1;
+static int hf_bfcp_floor_id = -1;
+static int hf_bfcp_floor_request_id = -1;
+static int hf_bfcp_priority = -1;
 static int hf_bfcp_request_status = -1;
+static int hf_bfcp_queue_pos = -1;
+static int hf_bfcp_error_code = -1;
+static int hf_bfcp_error_info_text = -1;
+static int hf_bfcp_part_prov_info_text = -1;
+static int hf_bfcp_status_info_text = -1;
+static int hf_bfcp_supp_attr = -1;
+static int hf_bfcp_supp_prim = -1;
+static int hf_bfcp_user_disp_name = -1;
+static int hf_bfcp_user_uri = -1;
+static int hf_bfcp_req_by_id = -1;
 
 /* Initialize subtree pointers */
 static gint ett_bfcp = -1;
+static gint ett_bfcp_attr = -1;
 
 /* Initialize BFCP primitives */
 static const value_string map_bfcp_primitive[] = {
@@ -110,6 +129,26 @@ static const value_string map_bfcp_request_status[] = {
 	{ 0,  NULL},
 };
 
+/* 5.2.6.  ERROR-CODE */
+static const value_string bfcp_error_code_valuse[] = {
+	{ 1,  "Conference does not Exist"},
+	{ 2,  "User does not Exist"},
+	{ 3,  "Unknown Primitive"},
+	{ 4,  "Unknown Mandatory Attribute"},
+	{ 5,  "Unauthorized Operation"},
+	{ 6,  "Invalid Floor ID"},
+	{ 7,  "Floor Request ID Does Not Exist"},
+	{ 8,  "You have Already Reached the Maximum Number of Ongoing Floor Requests for this Floor"},
+	{ 9,  "Use TLS"},
+	{ 10,  "Unable to Parse Message"},
+	{ 11,  "Use DTLS"},
+	{ 12,  "Unsupported Version"},
+	{ 13,  "Incorrect Message Length"},
+	{ 14,  "Generic Error"},
+
+	{ 0,  NULL},
+};
+
 /*Define offset for fields in BFCP packet */
 #define BFCP_OFFSET_TRANSACTION_INITIATOR  0
 #define BFCP_OFFSET_PRIMITIVE              1
@@ -119,15 +158,237 @@ static const value_string map_bfcp_request_status[] = {
 #define BFCP_OFFSET_USER_ID               10
 #define BFCP_OFFSET_PAYLOAD               12
 
+static int
+dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bfcp_payload_length)
+{
+	proto_item *ti, *item;
+	proto_tree  *bfcp_attr_tree = NULL;
+	gint        attr_start_offset;
+	gint        length;
+	guint8      attribute_type;
+	gint        read_attr = 0;
+    guint8      first_byte, pad_len;
+
+	while ((tvb_reported_length_remaining(tvb, offset) >= 2) &&
+			((bfcp_payload_length - read_attr) >= 2))
+	{
+
+		attr_start_offset = offset;
+		first_byte = tvb_get_guint8(tvb, offset);
+
+		/* Padding so continue to next attribute */
+		if (first_byte == 0){
+			read_attr++;
+			continue;
+		}
+
+		ti = proto_tree_add_item(tree, hf_bfcp_attribute_types, tvb, offset, 1, ENC_BIG_ENDIAN);
+		bfcp_attr_tree = proto_item_add_subtree(ti, ett_bfcp_attr);
+		proto_tree_add_item(bfcp_attr_tree, hf_bfcp_attribute_types_m_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+		attribute_type = (first_byte & 0xFE) >> 1;
+		offset++;
+
+	/*   Length: This 8-bit field contains the length of the attribute in
+	 *   octets, excluding any padding defined for specific attributes.  The
+	 *   length of attributes that are not grouped includes the Type, 'M' bit,
+	 *   and Length fields.  The Length in grouped attributes is the length of
+	 *   the grouped attribute itself (including Type, 'M' bit, and Length
+	 *   fields) plus the total length (including padding) of all the included
+	 *   attributes.
+	 */
+
+		item = proto_tree_add_item(bfcp_attr_tree, hf_bfcp_attribute_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+		length = tvb_get_guint8(tvb, offset);
+		offset++;
+
+		switch(attribute_type){
+		case 1: /* Beneficiary ID */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_beneficiary_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			break;
+		case 2: /* FLOOR-ID */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_floor_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			break;
+		case 3: /* FLOOR-REQUEST-ID */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_floor_request_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			break;
+		case 4: /* PRIORITY */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			break;
+		case 5: /* REQUEST-STATUS */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_request_status, tvb, offset,1, ENC_BIG_ENDIAN);
+			offset++;
+			/* Queue Position */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_queue_pos, tvb, offset,1, ENC_BIG_ENDIAN);
+			offset++;
+			break;
+		case 6: /* ERROR-CODE */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset++;
+			if(length>3){
+				/* We have Error Specific Details */
+				proto_tree_add_text(bfcp_attr_tree, tvb, offset, length-3, "Error Specific Details");
+			}
+			offset = offset + length-3;
+			pad_len = length & 0x03;
+			if(pad_len != 0){
+				pad_len = 4 - pad_len;
+				proto_tree_add_text(bfcp_attr_tree, tvb, offset, pad_len, "Padding");
+			}
+			offset = offset + pad_len;
+			break;
+		case 7: /* ERROR-INFO */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_error_info_text, tvb, offset, length-3, ENC_BIG_ENDIAN);
+			offset = offset + length-3;
+			pad_len = length & 0x03;
+			if(pad_len != 0){
+				pad_len = 4 - pad_len;
+				proto_tree_add_text(bfcp_attr_tree, tvb, offset, pad_len, "Padding");
+			}
+			offset = offset + pad_len;
+			break;
+		case 8: /* PARTICIPANT-PROVIDED-INFO */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_part_prov_info_text, tvb, offset, length-3, ENC_BIG_ENDIAN);
+			offset = offset + length-3;
+			pad_len = length & 0x03;
+			if(pad_len != 0){
+				pad_len = 4 - pad_len;
+				proto_tree_add_text(bfcp_attr_tree, tvb, offset, pad_len, "Padding");
+			}
+			offset = offset + pad_len;
+			break;
+		case 9: /* STATUS-INFO */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_status_info_text, tvb, offset, length-3, ENC_BIG_ENDIAN);
+			offset = offset + length-3;
+			pad_len = length & 0x03;
+			if(pad_len != 0){
+				pad_len = 4 - pad_len;
+				proto_tree_add_text(bfcp_attr_tree, tvb, offset, pad_len, "Padding");
+			}
+			offset = offset + pad_len;
+			break;
+		case 10: /* SUPPORTED-ATTRIBUTES */
+
+			while(offset < (attr_start_offset+length)){
+				proto_tree_add_item(bfcp_attr_tree, hf_bfcp_supp_attr, tvb, offset, 1, ENC_BIG_ENDIAN);
+				offset+=1;
+			}
+			pad_len = length & 0x03;
+			if(pad_len != 0){
+				pad_len = 4 - pad_len;
+				proto_tree_add_text(bfcp_attr_tree, tvb, offset, pad_len, "Padding");
+			}
+			offset = offset + pad_len;
+			break;
+		case 11: /* SUPPORTED-PRIMITIVES */
+
+			while(offset < (attr_start_offset+length)){
+				proto_tree_add_item(bfcp_attr_tree, hf_bfcp_supp_prim, tvb, offset, 1, ENC_BIG_ENDIAN);
+				offset+=1;
+			}
+			pad_len = length & 0x03;
+			if(pad_len != 0){
+				pad_len = 4 - pad_len;
+				proto_tree_add_text(bfcp_attr_tree, tvb, offset, pad_len, "Padding");
+			}
+			offset = offset + pad_len;
+			break;
+		case 12: /* USER-DISPLAY-NAME */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_user_disp_name, tvb, offset, length-3, ENC_BIG_ENDIAN);
+			offset = offset + length-3;
+			pad_len = length & 0x03;
+			if(pad_len != 0){
+				pad_len = 4 - pad_len;
+				proto_tree_add_text(bfcp_attr_tree, tvb, offset, pad_len, "Padding");
+			}
+			offset = offset + pad_len;
+			break;
+		case 13: /* USER-URI */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_user_uri, tvb, offset, length-3, ENC_BIG_ENDIAN);
+			offset = offset + length-3;
+			pad_len = length & 0x03;
+			if(pad_len != 0){
+				pad_len = 4 - pad_len;
+				proto_tree_add_text(bfcp_attr_tree, tvb, offset, pad_len, "Padding");
+			}
+			offset = offset + pad_len;
+			break;
+		case 14: /* BENEFICIARY-INFORMATION */
+			/*    The BENEFICIARY-INFORMATION attribute is a grouped attribute that
+			 *   consists of a header, which is referred to as BENEFICIARY-
+			 *   INFORMATION-HEADER, followed by a sequence of attributes.
+			 */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_beneficiary_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			offset = dissect_bfcp_attributes(tvb, pinfo, bfcp_attr_tree, offset, length -4);
+			break;
+		case 15: /* FLOOR-REQUEST-INFORMATION */
+			/*    The FLOOR-REQUEST-INFORMATION attribute is a grouped attribute that
+			 *   consists of a header, which is referred to as FLOOR-REQUEST-
+			 *   INFORMATION-HEADER, followed by a sequence of attributes.
+			 */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_floor_request_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			offset = dissect_bfcp_attributes(tvb, pinfo, bfcp_attr_tree, offset, length -4);
+			break;
+		case 16: /*  REQUESTED-BY-INFORMATION */
+			/*    The  REQUESTED-BY-INFORMATION attribute is a grouped attribute that
+			 *   consists of a header, which is referred to as FLOOR-REQUEST-STATUS-
+			 *   -HEADER, followed by a sequence of attributes.
+			 */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_req_by_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			offset = dissect_bfcp_attributes(tvb, pinfo, bfcp_attr_tree, offset, length -4);
+			break;
+		case 17: /*  FLOOR-REQUEST-STATUS */
+			/*    The  FLOOR-REQUEST-STATUS attribute is a grouped attribute that
+			 *   consists of a header, which is referred to as OVERALL-REQUEST-STATUS-
+			 *   -HEADER, followed by a sequence of attributes.
+			 */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_floor_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			offset = dissect_bfcp_attributes(tvb, pinfo, bfcp_attr_tree, offset, length -4);
+			break;
+		case 18: /* OVERALL-REQUEST-STATUS */
+			/*    The OVERALL-REQUEST-STATUS attribute is a grouped attribute that
+			 *   consists of a header, which is referred to as FLOOR-REQUEST-
+			 *   INFORMATION-HEADER, followed by a sequence of attributes.
+			 */
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_floor_request_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			offset = dissect_bfcp_attributes(tvb, pinfo, bfcp_attr_tree, offset, length -4);
+			break;
+
+		default:
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_payload, tvb, offset, length-2, ENC_NA);
+			offset = offset + length - 2; 
+			break;
+		}
+		if (length < (offset - attr_start_offset)){
+			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+							"Attribute length is too small (%d bytes)", length);
+			break;
+		}
+		read_attr = read_attr + length;
+	}
+
+	return offset;
+}
+
+
 /* Code to actually dissect BFCP packets */
 static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint8       first_byte;
+	int          offset = 0;
 	guint8       primitive;
 	const gchar *str;
 	gint         bfcp_payload_length;
-	gint         read_attr = 0;
 	proto_tree  *bfcp_tree = NULL;
+    guint8      first_byte;
 
 
 	/* Size of smallest BFCP packet: 12 octets */
@@ -159,74 +420,30 @@ static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	if (tree) {
 		proto_item	*ti;
+
 		ti = proto_tree_add_item(tree, proto_bfcp, tvb, 0, -1, ENC_NA);
 		bfcp_tree = proto_item_add_subtree(ti, ett_bfcp);
 
 		/* Add items to BFCP tree */
-		proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_initiator, tvb,
-				    BFCP_OFFSET_TRANSACTION_INITIATOR, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_primitive, tvb,
-				    BFCP_OFFSET_PRIMITIVE, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_payload_length, tvb,
-				    BFCP_OFFSET_PAYLOAD_LENGTH, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_conference_id, tvb,
-				    BFCP_OFFSET_CONFERENCE_ID, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_id, tvb,
-				    BFCP_OFFSET_TRANSACTION_ID, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_user_id, tvb,
-				    BFCP_OFFSET_USER_ID, 2, ENC_BIG_ENDIAN);
-	}
+		proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_initiator, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+		proto_tree_add_item(bfcp_tree, hf_bfcp_primitive, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+		proto_tree_add_item(bfcp_tree, hf_bfcp_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+		proto_tree_add_item(bfcp_tree, hf_bfcp_conference_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset+=4;
+		proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+		proto_tree_add_item(bfcp_tree, hf_bfcp_user_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
 
-	bfcp_payload_length = tvb_get_ntohs(tvb,
-					    BFCP_OFFSET_PAYLOAD_LENGTH) * 4;
+		bfcp_payload_length = tvb_get_ntohs(tvb,
+							BFCP_OFFSET_PAYLOAD_LENGTH) * 4;
 
-	while ((tvb_reported_length_remaining(tvb, BFCP_OFFSET_PAYLOAD + read_attr) >= 2) &&
-	       ((bfcp_payload_length - read_attr) >= 2))
-	{
-		proto_item *ti;
-		gint        read = 0;
-		gint        length;
-		guint8      attribute_type;
+		offset = dissect_bfcp_attributes(tvb, pinfo, bfcp_tree, offset, bfcp_payload_length);
 
-		first_byte = tvb_get_guint8(tvb, BFCP_OFFSET_PAYLOAD + read_attr);
-
-		/* Padding so continue to next attribute */
-		if (first_byte == 0)
-		{
-			read_attr++;
-			continue;
-		}
-
-		proto_tree_add_item(bfcp_tree, hf_bfcp_attribute_types, tvb,
-				    BFCP_OFFSET_PAYLOAD + read_attr,1, ENC_BIG_ENDIAN);
-		attribute_type = (first_byte & 0xFE) >> 1;
-		read++;
-
-		ti = proto_tree_add_item(bfcp_tree, hf_bfcp_attribute_length, tvb,
-					 BFCP_OFFSET_PAYLOAD + read_attr + read,1, ENC_BIG_ENDIAN);
-		length = tvb_get_guint8(tvb, BFCP_OFFSET_PAYLOAD  + read_attr + read);
-		read++;
-
-		/* If RequestStatus then show what type of status it is... */
-		if (attribute_type == 5)
-		{
-			proto_tree_add_item(bfcp_tree, hf_bfcp_request_status, tvb,
-					    BFCP_OFFSET_PAYLOAD + read_attr + read,1, ENC_BIG_ENDIAN);
-			read++;
-		}
-		if (length >= read)
-		{
-			proto_tree_add_item(bfcp_tree, hf_bfcp_payload, tvb,
-					    BFCP_OFFSET_PAYLOAD + read_attr + read, length-read, ENC_NA);
-		}
-		else
-		{
-			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-					       "Attribute length is too small (%d bytes)", length);
-			break;
-		}
-		read_attr = read_attr + length;
-	}
+	} /* if(tree) */
 	return TRUE;
 }
 
@@ -240,77 +457,158 @@ void proto_register_bfcp(void)
 		{
 			&hf_bfcp_transaction_initiator,
 			{ "Transaction Initiator", "bfcp.transaction_initiator",
-			  FT_BOOLEAN, 8,
-			  NULL, 0x10,
+			  FT_BOOLEAN, 8, NULL, 0x10,
 			  NULL, HFILL }
 		},
 		{
 			&hf_bfcp_primitive,
 			{ "Primitive", "bfcp.primitive",
-			  FT_UINT8, BASE_DEC,
-			  VALS(map_bfcp_primitive), 0x0,
+			  FT_UINT8, BASE_DEC, VALS(map_bfcp_primitive), 0x0,
 			  NULL, HFILL }
 		},
 		{
 			&hf_bfcp_payload_length,
 			{ "Payload Length", "bfcp.payload_length",
-			  FT_UINT16, BASE_DEC,
-			  NULL, 0x0,
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{
 			&hf_bfcp_conference_id,
 			{ "Conference ID", "bfcp.conference_id",
-			  FT_UINT32, BASE_DEC,
-			  NULL, 0x0,
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{
 			&hf_bfcp_transaction_id,
 			{ "Transaction ID", "bfcp.transaction_id",
-			  FT_UINT16, BASE_DEC,
-			  NULL, 0x0,
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{
 			&hf_bfcp_user_id,
 			{ "User ID", "bfcp.user_id",
-			  FT_UINT16, BASE_DEC,
-			  NULL, 0x0,
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{
 			&hf_bfcp_payload,
 			{ "Payload", "bfcp.payload",
-			  FT_BYTES, BASE_NONE,
-			  NULL, 0x0, NULL,
+			  FT_BYTES, BASE_NONE, NULL, 0x0, NULL,
 			  HFILL }
 		},
 		{
 			&hf_bfcp_attribute_types,
 			{ "Attribute Type", "bfcp.attribute_type",
-			  FT_UINT8, BASE_DEC,
-			  VALS(map_bfcp_attribute_types), 0xFE,
+			  FT_UINT8, BASE_DEC, VALS(map_bfcp_attribute_types), 0xFE,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_attribute_types_m_bit,
+			{ "Mandatory bit(M)", "bfcp.attribute_types_m_bit",
+			  FT_BOOLEAN, 8, NULL, 0x01,
 			  NULL, HFILL }
 		},
 		{
 			&hf_bfcp_attribute_length,
 			{ "Attribute Length", "bfcp.attribute_length",
-			  FT_UINT16, BASE_DEC,
-			  NULL, 0x0,
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_beneficiary_id,
+			{ "BENEFICIARY-ID", "bfcp.beneficiary_id",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_floor_id,
+			{ "FLOOR-ID", "bfcp.floor_id",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_floor_request_id,
+			{ "FLOOR-REQUEST-ID", "bfcp.floorrequest_id",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_priority,
+			{ "FLOOR-REQUEST-ID", "bfcp.priority",
+			  FT_UINT16, BASE_DEC, NULL, 0xe000,
 			  NULL, HFILL }
 		},
 		{
 			&hf_bfcp_request_status,
 			{ "Request Status", "bfcp.request_status",
-			  FT_UINT8, BASE_DEC,
-			  VALS(map_bfcp_request_status), 0x0,
+			  FT_UINT8, BASE_DEC, VALS(map_bfcp_request_status), 0x0,
 			  NULL, HFILL }
-		}
+		},
+		{
+			&hf_bfcp_queue_pos,
+			{ "Queue Position ", "bfcp.queue_pos",
+			  FT_UINT8, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_error_code,
+			{ "Error Code", "bfcp.error_code",
+			  FT_UINT8, BASE_DEC, VALS(bfcp_error_code_valuse), 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_error_info_text,
+			{ "Text", "bfcp.error_info_text",
+			  FT_STRING, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_part_prov_info_text,
+			{ "Text", "bfcp.part_prov_info_text",
+			  FT_STRING, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_status_info_text,
+			{ "Text", "bfcp.status_info_text",
+			  FT_STRING, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_supp_attr,
+			{ "Supported Attribute", "bfcp.supp_attr",
+			  FT_UINT8, BASE_DEC, VALS(map_bfcp_attribute_types), 0xFE,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_supp_prim,
+			{ "Supported Primitive", "bfcp.supp_primitive",
+			  FT_UINT8, BASE_DEC, VALS(map_bfcp_primitive), 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_user_disp_name,
+			{ "Name", "bfcp.user_disp_name",
+			  FT_STRING, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_user_uri,
+			{ "URI", "bfcp.user_uri",
+			  FT_STRING, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_req_by_id,
+			{ "Requested-by ID", "bfcp.req_by_i",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
 	};
 
 	static gint *ett[] = {
-		&ett_bfcp
+		&ett_bfcp,
+		&ett_bfcp_attr,
 	};
 
 	/* Register protocol name and description */
