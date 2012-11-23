@@ -767,7 +767,7 @@ WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
         case 7:
         case 8: {
             UInt64 num = g_malloc(sizeof(guint64));
-            *num = tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
+            *num = tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset);
             pushUInt64(L,num);
             WSLUA_RETURN(1);
         }
@@ -894,7 +894,7 @@ WSLUA_METHOD TvbRange_le_int64(lua_State* L) {
         case 7:
         case 8: {
             Int64 num = g_malloc(sizeof(gint64));
-            *num = (gint64)tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
+            *num = (gint64)tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset);
             pushInt64(L,num);
             WSLUA_RETURN(1);
         }
