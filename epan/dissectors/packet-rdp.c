@@ -24,6 +24,10 @@
  *
  */
 
+/*
+ * See: "[MS -RDPBCGR] Remote Desktop Protocol: Basic Connectivity and Graphics Remoting"
+ */
+
 #include "config.h"
 
 #include <glib.h>
@@ -43,14 +47,13 @@
 static guint global_rdp_tcp_port = 3389;
 static dissector_handle_t tpkt_handle;
 
-static void prefs_register_rdp(void); /* forward declaration for use in preferences registration */
+static void prefs_register_rdp(void);
 
-/* Initialize the protocol and registered fields */
 static int proto_rdp = -1;
 
-/* Initialize the subtree pointers */
 static int ett_rdp = -1;
 static int ett_rdp_SendData = -1;
+
 static int ett_rdp_ClientData = -1;
 static int ett_rdp_clientCoreData = -1;
 static int ett_rdp_clientSecurityData = -1;
@@ -94,9 +97,11 @@ static int hf_rdp_serverCoreData = -1;
 static int hf_rdp_serverSecurityData = -1;
 static int hf_rdp_serverNetworkData = -1;
 static int hf_rdp_serverUnknownData = -1;
+
 static int hf_rdp_securityExchangePDU = -1;
 static int hf_rdp_clientInfoPDU = -1;
 static int hf_rdp_validClientLicenseData = -1;
+
 static int hf_rdp_headerType = -1;
 static int hf_rdp_headerLength = -1;
 static int hf_rdp_versionMajor = -1;
@@ -122,8 +127,13 @@ static int hf_rdp_clientDigProductId = -1;
 static int hf_rdp_connectionType = -1;
 static int hf_rdp_pad1octet = -1;
 static int hf_rdp_serverSelectedProtocol = -1;
+
 static int hf_rdp_encryptionMethods = -1;
 static int hf_rdp_extEncryptionMethods = -1;
+static int hf_rdp_cluster_flags = -1;
+static int hf_rdp_redirectedSessionId = -1;
+
+
 static int hf_rdp_encryptionMethod = -1;
 static int hf_rdp_encryptionLevel  = -1;
 static int hf_rdp_serverRandomLen  = -1;
@@ -306,6 +316,8 @@ static int hf_rdp_StandardBias = -1;
 static int hf_rdp_DaylightName = -1;
 static int hf_rdp_DaylightDate = -1;
 static int hf_rdp_DaylightBias = -1;
+
+static int hf_rdp_unused = -1;
 
 #define CS_CORE     0xC001
 #define CS_SECURITY 0xC002
@@ -496,7 +508,6 @@ static int hf_rdp_DaylightBias = -1;
 #define MAX_CHANNELS                         31
 
 typedef struct rdp_conv_info_t {
-  struct rdp_conv_info_t *next;
   guint32 staticChannelId;
   guint32 encryptionMethod;
   guint32 encryptionLevel;
@@ -504,8 +515,6 @@ typedef struct rdp_conv_info_t {
   guint8  maxChannels;
   value_string channels[MAX_CHANNELS+1]; /* we may need to hold more information later */
 } rdp_conv_info_t;
-
-static rdp_conv_info_t *rdp_conv_info_items;
 
 #define RDP_FI_NONE          0x00
 #define RDP_FI_OPTIONAL      0x01
@@ -515,11 +524,11 @@ static rdp_conv_info_t *rdp_conv_info_items;
 #define RDP_FI_SUBTREE       0x10
 
 typedef struct rdp_field_info_t {
-  int     field;
-  guint32 fixedLength;
+  int      field;
+  gint32   fixedLength;
   guint32 *variableLength;
-  int     offsetOrTree;
-  guint32 flags;
+  int      offsetOrTree;
+  guint32  flags;
   struct rdp_field_info_t *subfields;
 } rdp_field_info_t;
 
@@ -792,49 +801,44 @@ static const value_string rdp_wMonth_vals[] = {
 
 
 static int
-dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rdp_field_info_t *fields)
+dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rdp_field_info_t *fields, int totlen)
 {
   rdp_field_info_t *c;
-  int               base_offset = offset;
-  gint              length;
-  guint16           len         = 0;
+  gint              len;
   char             *string;
+  int               base_offset = offset;
 
-  length = tvb_length_remaining(tvb, offset);
-  if (length<0)
-    return -1;
-
-  for (c = fields; (c->field != -1) && ((offset - base_offset) < length); c++) {
-
+  while (((c = fields++)->field) != -1) {
     if ((c->fixedLength == 0) && (c->variableLength)) {
       len = *(c->variableLength);
     } else {
-
       len = c->fixedLength;
 
-      if ((c->variableLength) && ( c->fixedLength <= 4)) {
-
-        if (c->fixedLength == 1)
-          *(c->variableLength) = (guint16)tvb_get_guint8(tvb, offset);
-        else if (c->fixedLength == 2)
+      if ((c->variableLength) && (c->fixedLength <= 4)) {
+        switch (c->fixedLength) {
+        case 1:
+          *(c->variableLength) = tvb_get_guint8(tvb, offset);
+          break;
+        case 2:
           *(c->variableLength) = tvb_get_letohs(tvb, offset);
-        else if (c->fixedLength == 4)
+          break;
+        case 4:
           *(c->variableLength) = tvb_get_letohl(tvb, offset);
+          break;
+        default:
+          REPORT_DISSECTOR_BUG("Invalid length");
+        }
 
-        *(c->variableLength) += c->offsetOrTree;
+        *(c->variableLength) += c->offsetOrTree; /* XXX: ??? */
       }
     }
 
-    if(len) {
+    if (len) {
       proto_item *pi;
-      if(c->field != -1) {
-        if(c->flags & RDP_FI_STRING)
-          pi = proto_tree_add_item(tree, c->field, tvb, offset, len, ENC_ASCII|ENC_NA);
-        else
-          pi = proto_tree_add_item(tree, c->field, tvb, offset, len, ENC_LITTLE_ENDIAN);
-      }
+      if (c->flags & RDP_FI_STRING)
+        pi = proto_tree_add_item(tree, c->field, tvb, offset, len, ENC_ASCII|ENC_NA);
       else
-        REPORT_DISSECTOR_BUG("Error!!!!!\n");
+        pi = proto_tree_add_item(tree, c->field, tvb, offset, len, ENC_LITTLE_ENDIAN);
 
       if (c->flags & RDP_FI_UNICODE) {
         string = tvb_get_ephemeral_unicode_string(tvb, offset, len, ENC_LITTLE_ENDIAN);
@@ -846,15 +850,19 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
         if (c->offsetOrTree != -1)
           next_tree = proto_item_add_subtree(pi, c->offsetOrTree);
         else
-          REPORT_DISSECTOR_BUG("Tree Error!!\n");
+          REPORT_DISSECTOR_BUG("Tree Error!!");
 
         if (c->subfields)
-          dissect_rdp_fields(tvb, offset, pinfo, next_tree, c->subfields);
+          dissect_rdp_fields(tvb, offset, pinfo, next_tree, c->subfields, 0);
       }
 
       if (!(c->flags & RDP_FI_NOINCOFFSET))
         offset += len;
     }
+
+    if ((totlen > 0) && ((offset-base_offset) >= totlen))
+      break;  /* we're done: skip optional fields */
+              /* XXX: err if > totlen ??          */
   }
 
   return offset;
@@ -864,12 +872,11 @@ static int
 dissect_rdp_nyi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *info)
 {
   rdp_field_info_t nyi_fields[] = {
-    {hf_rdp_notYetImplemented,      2, NULL, 0, 0, NULL },
+    {hf_rdp_notYetImplemented,      -1, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
-  nyi_fields[0].fixedLength = tvb_length_remaining(tvb, offset);
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, nyi_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, nyi_fields, 0);
 
   if ((tree != NULL) && (info != NULL))
     proto_item_append_text(tree->last_child, " (%s)", info);
@@ -881,12 +888,11 @@ static int
 dissect_rdp_encrypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *info)
 {
   rdp_field_info_t enc_fields[] = {
-    {hf_rdp_encrypted,      2, NULL, 0, 0, NULL },
+    {hf_rdp_encrypted,      -1, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
-  enc_fields[0].fixedLength = tvb_length_remaining(tvb, offset);
-  offset = dissect_rdp_fields(tvb, offset,pinfo, tree, enc_fields);
+  offset = dissect_rdp_fields(tvb, offset,pinfo, tree, enc_fields, 0);
 
   if ((tree != NULL) && (info != NULL))
     proto_item_append_text(tree->last_child, " (%s)", info);
@@ -898,7 +904,7 @@ dissect_rdp_encrypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
 
 static int
-dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 length, rdp_conv_info_t *rdp_info)
+dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint length, rdp_conv_info_t *rdp_info)
 {
   proto_tree *next_tree;
   proto_item *pi;
@@ -937,27 +943,27 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
   pi        = proto_tree_add_item(tree, hf_rdp_clientNetworkData, tvb, offset, length, ENC_NA);
   next_tree = proto_item_add_subtree(pi, ett_rdp_clientNetworkData);
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, net_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, net_fields, 0);
 
   if (channelCount > 0) {
-    guint16 i;
+    guint i;
     pi        = proto_tree_add_item(next_tree, hf_rdp_channelDefArray, tvb, offset, channelCount * 12, ENC_NA);
     next_tree = proto_item_add_subtree(pi, ett_rdp_channelDefArray);
 
     if (rdp_info)
       rdp_info->maxChannels = MIN(channelCount, MAX_CHANNELS);
 
-    for(i = 0; i < MIN(channelCount, MAX_CHANNELS); i++) {
+    for (i = 0; i < MIN(channelCount, MAX_CHANNELS); i++) {
       if (rdp_info) {
         rdp_info->channels[i].value = -1; /* unset */
         rdp_info->channels[i].strptr = tvb_get_ephemeral_string(tvb, offset, 8);
       }
-      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields);
+      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields, 0);
     }
 
     if (rdp_info) {
       /* value_strings are normally terminated with a {0, NULL} entry */
-      rdp_info->channels[i].value = 0;
+      rdp_info->channels[i].value  = 0;
       rdp_info->channels[i].strptr = NULL;
     }
   }
@@ -987,7 +993,7 @@ dissect_rdp_basicSecurityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, p
     FI_TERMINATOR
   };
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, flags_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, flags_fields, 0);
 
   if (flags_ptr)
     *flags_ptr = flags;
@@ -1027,7 +1033,7 @@ dissect_rdp_securityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
     }
 
     if (fields)
-      offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields);
+      offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields, 0);
   }
   return offset;
 }
@@ -1057,14 +1063,12 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
   rdp_field_info_t channelPDU_fields[] =   {
     FI_SUBTREE(hf_rdp_channelPDUHeader, 8, ett_rdp_channelPDUHeader, channel_fields),
-    FI_FIXEDLEN(hf_rdp_virtualChannelData, 0),
+    FI_FIXEDLEN(hf_rdp_virtualChannelData, -1),
     FI_TERMINATOR
   };
 
   /* length is the uncompressed length, and the PDU may be compressed */
-  channelPDU_fields[1].fixedLength = tvb_length_remaining(tvb, offset) - 8;
-
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, channelPDU_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, channelPDU_fields, 0);
 
   return offset;
 }
@@ -1134,7 +1138,7 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
   rdp_field_info_t *fields;
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, share_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, share_fields, 0);
 
   if (pduType2 != PDUTYPE2_CONTROL)
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_const(pduType2, rdp_pduType2_vals, "Unknown"));
@@ -1198,7 +1202,7 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
   }
 
   if (fields) {
-    offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields);
+    offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields, 0);
   }
 
   if (pduType2 == PDUTYPE2_CONTROL)
@@ -1209,11 +1213,8 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 static int
 dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 numberCapabilities) {
-  guint16 i;
-  guint16 length;
+  guint   i;
   guint32 lengthCapability;
-  int     base_offset = offset;
-  int     ret;
 
   rdp_field_info_t cs_fields[] = {
     {hf_rdp_capabilitySetType, 2, NULL, 0, 0, NULL },
@@ -1227,13 +1228,8 @@ dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
     FI_TERMINATOR
   };
 
-  length = tvb_length_remaining(tvb, offset);
-
-  for(i = 0; (i < numberCapabilities) && (offset - base_offset < length); i++) {
-   ret = dissect_rdp_fields(tvb, offset, pinfo, tree, set_fields);
-   if (ret<=0)
-     break;
-   offset += ret;
+  for (i = 0; i < numberCapabilities; i++) {
+    offset = dissect_rdp_fields(tvb, offset, pinfo, tree, set_fields, 0);
   }
 
   return offset;
@@ -1259,11 +1255,11 @@ dissect_rdp_demandActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
     FI_TERMINATOR
   };
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields, 0);
 
   offset = dissect_rdp_capabilitySets(tvb, offset, pinfo, tree, numberCapabilities);
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, final_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, final_fields, 0);
 
   return offset;
 }
@@ -1285,7 +1281,7 @@ dissect_rdp_confirmActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
     FI_TERMINATOR
   };
 
-  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields, 0);
 
   offset = dissect_rdp_capabilitySets(tvb, offset, pinfo, tree, numberCapabilities);
 
@@ -1302,7 +1298,7 @@ dissect_rdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  item = proto_tree_add_item(parent_tree, proto_rdp, tvb, 0, tvb_length(tvb), ENC_NA);
+  item = proto_tree_add_item(parent_tree, proto_rdp, tvb, 0, -1, ENC_NA);
   tree = proto_item_add_subtree(item, ett_rdp);
 
   return tree;
@@ -1313,41 +1309,39 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item      *pi;
   int              offset       = 0;
   guint32          flags        = 0;
-  guint16          length       = 0;
   guint32          cbDomain, cbUserName, cbPassword, cbAlternateShell, cbWorkingDir,
                    cbClientAddress, cbClientDir, cbAutoReconnectLen, wBlobLen, pduType;
   guint32          bMsgType;
   guint32          encryptedLen = 0;
-  int              base_offset  = 0;
   conversation_t  *conversation;
   rdp_conv_info_t *rdp_info;
 
   rdp_field_info_t secFlags_fields[] = {
     {hf_rdp_flagsPkt,           2, &flags, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsEncrypt,       2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsResetSeqno,    2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsIgnoreSeqno,   2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsLicenseEncrypt,2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsSecureChecksum,2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
-    {hf_rdp_flagsFlagsHiValid,  2, NULL, 0, RDP_FI_NOINCOFFSET, NULL },
+    {hf_rdp_flagsEncrypt,       2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
+    {hf_rdp_flagsResetSeqno,    2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
+    {hf_rdp_flagsIgnoreSeqno,   2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
+    {hf_rdp_flagsLicenseEncrypt,2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
+    {hf_rdp_flagsSecureChecksum,2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
+    {hf_rdp_flagsFlagsHiValid,  2, NULL  , 0, RDP_FI_NOINCOFFSET, NULL },
     FI_TERMINATOR
   };
 
   rdp_field_info_t se_fields[] = {
     FI_SUBTREE(hf_rdp_flags, 2, ett_rdp_flags, secFlags_fields),
     FI_FIXEDLEN(hf_rdp_flagsHi, 2),
-    {hf_rdp_length,             4, &encryptedLen, 0, 0, NULL },
+    {hf_rdp_length,                4, &encryptedLen, 0, 0, NULL },
     {hf_rdp_encryptedClientRandom, 0, &encryptedLen, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t systime_fields [] = {
-    FI_FIXEDLEN(hf_rdp_wYear, 2),
-    FI_FIXEDLEN(hf_rdp_wMonth, 2),
-    FI_FIXEDLEN(hf_rdp_wDayOfWeek, 2),
-    FI_FIXEDLEN(hf_rdp_wDay, 2),
-    FI_FIXEDLEN(hf_rdp_wHour, 2),
-    FI_FIXEDLEN(hf_rdp_wMinute, 2),
-    FI_FIXEDLEN(hf_rdp_wSecond, 2),
+    FI_FIXEDLEN(hf_rdp_wYear        , 2),
+    FI_FIXEDLEN(hf_rdp_wMonth       , 2),
+    FI_FIXEDLEN(hf_rdp_wDayOfWeek   , 2),
+    FI_FIXEDLEN(hf_rdp_wDay         , 2),
+    FI_FIXEDLEN(hf_rdp_wHour        , 2),
+    FI_FIXEDLEN(hf_rdp_wMinute      , 2),
+    FI_FIXEDLEN(hf_rdp_wSecond      , 2),
     FI_FIXEDLEN(hf_rdp_wMilliseconds, 2),
     FI_TERMINATOR,
   };
@@ -1418,18 +1412,17 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     FI_TERMINATOR
   };
 
-  length = tvb_length_remaining(tvb, offset);
   tree = dissect_rdp(tvb, pinfo, tree);
 
-  pi   = proto_tree_add_item(tree, hf_rdp_SendData, tvb, offset, length, ENC_NA);
+  pi   = proto_tree_add_item(tree, hf_rdp_SendData, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(pi, ett_rdp_SendData);
 
   conversation = find_or_create_conversation(pinfo);
   rdp_info = conversation_get_proto_data(conversation, proto_rdp);
 
   if (rdp_info &&
-     ((rdp_info->licenseAgreed == 0) ||
-      (pinfo->fd->num <= rdp_info->licenseAgreed))) {
+      ((rdp_info->licenseAgreed == 0) ||
+       (pinfo->fd->num <= rdp_info->licenseAgreed))) {
     /* licensing stage hasn't been completed */
     proto_tree *next_tree;
 
@@ -1437,17 +1430,17 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     switch(flags & SEC_PKT_MASK) {
     case SEC_EXCHANGE_PKT:
-      pi        = proto_tree_add_item(tree, hf_rdp_securityExchangePDU, tvb, offset, length, ENC_NA);
+      pi        = proto_tree_add_item(tree, hf_rdp_securityExchangePDU, tvb, offset, -1, ENC_NA);
       next_tree = proto_item_add_subtree(pi, ett_rdp_securityExchangePDU);
 
       col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "SecurityExchange");
 
-      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, se_fields);
+      /*offset=*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, se_fields, 0);
 
       break;
 
     case SEC_INFO_PKT:
-      pi        = proto_tree_add_item(tree, hf_rdp_clientInfoPDU, tvb, offset, length, ENC_NA);
+      pi        = proto_tree_add_item(tree, hf_rdp_clientInfoPDU, tvb, offset, -1, ENC_NA);
       next_tree = proto_item_add_subtree(pi, ett_rdp_clientInfoPDU);
 
       col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ClientInfo");
@@ -1456,20 +1449,21 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       if (!(flags & SEC_ENCRYPT)) {
 
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ue_fields);
+        /*offset =*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, ue_fields, 0);
       } else {
 
-        offset = dissect_rdp_encrypted(tvb, offset, pinfo, next_tree, NULL);
+        /*offset =*/ dissect_rdp_encrypted(tvb, offset, pinfo, next_tree, NULL);
       }
       break;
+
     case SEC_LICENSE_PKT:
-      pi        = proto_tree_add_item(tree, hf_rdp_validClientLicenseData, tvb, offset, length, ENC_NA);
+      pi        = proto_tree_add_item(tree, hf_rdp_validClientLicenseData, tvb, offset, -1, ENC_NA);
       next_tree = proto_item_add_subtree(pi, ett_rdp_validClientLicenseData);
 
       offset = dissect_rdp_securityHeader(tvb, offset, pinfo, next_tree, rdp_info, TRUE, NULL);
       if (!(flags & SEC_ENCRYPT)) {
 
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, msg_fields);
+        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, msg_fields, 0);
 
         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_const(bMsgType, rdp_bMsgType_vals, "Unknown"));
 
@@ -1482,10 +1476,10 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         case NEW_LICENSE_REQUEST:
         case PLATFORM_CHALLENGE_RESPONSE:
           /* RDPELE Not supported */
-          offset = dissect_rdp_nyi(tvb, offset, pinfo, next_tree, "RDPELE not implemented");
+          /*offset =*/ dissect_rdp_nyi(tvb, offset, pinfo, next_tree, "RDPELE not implemented");
           break;
         case ERROR_ALERT:
-          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, error_fields);
+          /*offset =*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, error_fields, 0);
           rdp_info->licenseAgreed = pinfo->fd->num;
           break;
         default:
@@ -1493,15 +1487,17 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
           break;
         }
       } else {
-        offset = dissect_rdp_encrypted(tvb, offset, pinfo, next_tree, NULL);
+        /*offset =*/ dissect_rdp_encrypted(tvb, offset, pinfo, next_tree, NULL);
 
         /* XXX: we assume the license is agreed in this exchange */
         rdp_info->licenseAgreed = pinfo->fd->num;
       }
       break;
+
     case SEC_REDIRECTION_PKT:
       /* NotYetImplemented */
       break;
+
     default:
       break;
     }
@@ -1515,10 +1511,10 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     if (!(flags & SEC_ENCRYPT)) {
       proto_tree *next_tree;
-      pi        = proto_tree_add_item(tree, hf_rdp_shareControlHeader, tvb, offset, length, ENC_NA);
+      pi        = proto_tree_add_item(tree, hf_rdp_shareControlHeader, tvb, offset, -1, ENC_NA);
       next_tree = proto_item_add_subtree(pi, ett_rdp_shareControlHeader);
 
-      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ctrl_fields);
+      offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ctrl_fields, 0);
 
       pduType &= PDUTYPE_TYPE_MASK; /* mask out just the type */
 
@@ -1527,15 +1523,15 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       switch(pduType) {
       case PDUTYPE_DEMANDACTIVEPDU:
-        offset = dissect_rdp_demandActivePDU(tvb, offset, pinfo, next_tree);
+        /*offset =*/ dissect_rdp_demandActivePDU(tvb, offset, pinfo, next_tree);
         break;
       case PDUTYPE_CONFIRMACTIVEPDU:
-        offset = dissect_rdp_confirmActivePDU(tvb, offset, pinfo, next_tree);
+        /*offset =*/ dissect_rdp_confirmActivePDU(tvb, offset, pinfo, next_tree);
         break;
       case PDUTYPE_DEACTIVATEALLPDU:
         break;
       case PDUTYPE_DATAPDU:
-        offset = dissect_rdp_shareDataHeader(tvb, offset, pinfo, next_tree);
+        /*offset =*/ dissect_rdp_shareDataHeader(tvb, offset, pinfo, next_tree);
         break;
       case PDUTYPE_SERVER_REDIR_PKT:
         break;
@@ -1544,13 +1540,11 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       }
     } else {
 
-      offset = dissect_rdp_encrypted(tvb, offset, pinfo, tree, NULL);
+      /*offset =*/ dissect_rdp_encrypted(tvb, offset, pinfo, tree, NULL);
     }
 
     /* we may get multiple control headers in a single frame */
     col_set_fence(pinfo->cinfo, COL_INFO);
-
-    offset = base_offset + length;
 
     return;
   } /* (rdp_info && (t124_get_last_channelId() == rdp_info->staticChannelId)) */
@@ -1561,9 +1555,9 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   offset = dissect_rdp_securityHeader(tvb, offset, pinfo, tree, rdp_info, FALSE, &flags);
 
   if (!(flags & SEC_ENCRYPT))
-    offset = dissect_rdp_channelPDU(tvb, offset, pinfo, tree);
+    /*offset =*/ dissect_rdp_channelPDU(tvb, offset, pinfo, tree);
   else
-    offset = dissect_rdp_encrypted(tvb, offset, pinfo, tree, "Channel PDU");
+    /*offset =*/ dissect_rdp_encrypted(tvb, offset, pinfo, tree, "Channel PDU");
 }
 
 static void
@@ -1572,7 +1566,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item      *pi;
   proto_tree      *next_tree;
   guint16          type;
-  guint16          length;
+  guint            length;
   conversation_t  *conversation;
   rdp_conv_info_t *rdp_info;
 
@@ -1597,6 +1591,11 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {hf_rdp_keyboardSubType,        4, NULL, 0, 0, NULL },
     {hf_rdp_keyboardFunctionKey,    4, NULL, 0, 0, NULL },
     {hf_rdp_imeFileName,           64, NULL, 0, 0, NULL },
+    /* The following fields are *optional*.                   */
+    /*  I.E., a sequence of one or more of the trailing       */
+    /*  fields at the end of the Data Block need not be       */
+    /*  present. The length from the header field determines  */
+    /*  the actual number of fields which are present.        */
     {hf_rdp_postBeta2ColorDepth,    2, NULL, 0, 0, NULL },
     {hf_rdp_clientProductId,        2, NULL, 0, 0, NULL },
     {hf_rdp_serialNumber,           4, NULL, 0, 0, NULL },
@@ -1619,25 +1618,19 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   rdp_field_info_t cluster_fields[] = {
     {hf_rdp_headerType,             2, NULL, 0, 0, NULL },
     {hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
-    /* just consume the bytes for now */
-    {hf_rdp_serverSelectedProtocol, 4, NULL, 0, 0, NULL },
-    {hf_rdp_serverSelectedProtocol, 4, NULL, 0, 0, NULL },
+    {hf_rdp_cluster_flags,          4, NULL, 0, 0, NULL },
+    {hf_rdp_redirectedSessionId,    4, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
 
-  /* OK - we try and dissect as many of the data blocks as we can
-     As soon as we find one we don't recognise, we have to give up parsing
-     the rest of the data block. */
-
   tree = dissect_rdp(tvb, pinfo, tree);
-  length = tvb_length_remaining(tvb, offset);
 
   conversation = find_or_create_conversation(pinfo);
 
   rdp_info = conversation_get_proto_data(conversation, proto_rdp);
 
   if (rdp_info == NULL) {
-    rdp_info = g_malloc0(sizeof(rdp_conv_info_t));
+    rdp_info = se_alloc0(sizeof(rdp_conv_info_t));
     rdp_info->staticChannelId  = -1;
     rdp_info->encryptionMethod = 0;
     rdp_info->encryptionLevel  = 0;
@@ -1645,19 +1638,22 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     rdp_info->maxChannels      = 0;
 
     conversation_add_proto_data(conversation, proto_rdp, rdp_info);
-
-    rdp_info->next      = rdp_conv_info_items;
-    rdp_conv_info_items = rdp_info;
   }
 
   col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ClientData");
 
-  pi   = proto_tree_add_item(tree, hf_rdp_ClientData, tvb, offset, length, ENC_NA);
+  pi   = proto_tree_add_item(tree, hf_rdp_ClientData, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(pi, ett_rdp_ClientData);
 
-  while (tvb_length_remaining(tvb, offset) > 0) {
+  /* Advance through the data blocks using the length from the header for each block.
+   *  ToDo: Expert if actual amount dissected (based upon field array) is not equal to length ??
+   *  Note: If length is less than the header size (4 bytes) offset is advanced by 4 bytes
+   *        to ensure that dissection eventually terminates.
+   */
 
-    type = tvb_get_letohs(tvb, offset);
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
+
+    type   = tvb_get_letohs(tvb, offset);
     length = tvb_get_letohs(tvb, offset+2);
 
 #if 0
@@ -1665,79 +1661,38 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
            offset, type, length, tvb_length_remaining(tvb, offset));
 #endif
 
-    if (length == 0)
-      return;
-
     switch(type) {
     case CS_CORE:
-
-      if (tvb_length_remaining(tvb, offset) >= length) {
-
-        pi        = proto_tree_add_item(tree, hf_rdp_clientCoreData, tvb, offset, length, ENC_NA);
-        next_tree = proto_item_add_subtree(pi, ett_rdp_clientCoreData);
-
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, core_fields);
-
-      } else {
-        /* block not big enough */
-        return;
-      }
+      pi        = proto_tree_add_item(tree, hf_rdp_clientCoreData, tvb, offset, length, ENC_NA);
+      next_tree = proto_item_add_subtree(pi, ett_rdp_clientCoreData);
+      /*offset    =*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, core_fields, length);
       break;
+
     case CS_SECURITY:
-      if (tvb_length_remaining(tvb, offset) >= length) {
-
-        pi        = proto_tree_add_item(tree, hf_rdp_clientSecurityData, tvb, offset, length, ENC_NA);
-        next_tree = proto_item_add_subtree(pi, ett_rdp_clientSecurityData);
-
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, security_fields);
-
-      } else {
-        /* not enough data */
-        return;
-      }
-
+      pi        = proto_tree_add_item(tree, hf_rdp_clientSecurityData, tvb, offset, length, ENC_NA);
+      next_tree = proto_item_add_subtree(pi, ett_rdp_clientSecurityData);
+      /*offset    =*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, security_fields, 0);
       break;
+
     case CS_NET:
-      if (tvb_length_remaining(tvb, offset) >= length) {
-
-        offset = dissect_rdp_clientNetworkData(tvb, offset, pinfo, tree,
-                                               length, rdp_info);
-
-      } else {
-        /* not enough data */
-        return;
-      }
-
+      /*offset    =*/ dissect_rdp_clientNetworkData(tvb, offset, pinfo, tree, length, rdp_info);
       break;
+
     case CS_CLUSTER:
-      if (tvb_length_remaining(tvb, offset) >= length) {
+      pi        = proto_tree_add_item(tree, hf_rdp_clientClusterData, tvb, offset, length, ENC_NA);
+      next_tree = proto_item_add_subtree(pi, ett_rdp_clientClusterData);
+      /*offset    =*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, cluster_fields, 0);
 
-        pi        = proto_tree_add_item(tree, hf_rdp_clientClusterData, tvb, offset, length, ENC_NA);
-        next_tree = proto_item_add_subtree(pi, ett_rdp_clientClusterData);
-
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, cluster_fields);
-
-      } else {
-        /* not enough data */
-        return;
-      }
       break;
-      default:
-        if (tvb_length_remaining(tvb, offset) >= length) {
 
-          pi        = proto_tree_add_item(tree, hf_rdp_clientUnknownData, tvb, offset, length, ENC_NA);
-          next_tree = proto_item_add_subtree(pi, ett_rdp_clientUnknownData);
-
-          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, header_fields);
-
-        } else {
-          return;
-        }
-      break;
+    default: /* unknown */
+        pi        = proto_tree_add_item(tree, hf_rdp_clientUnknownData, tvb, offset, length, ENC_NA);
+        next_tree = proto_item_add_subtree(pi, ett_rdp_clientUnknownData);
+        /*offset    =*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, header_fields, 0);
+        break;
     }
-
+    offset += MAX(4, length);   /* Use length from header, but advance at least 4 bytes */
   }
-
 }
 
 static void
@@ -1746,53 +1701,63 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item      *pi;
   proto_tree      *next_tree;
   guint16          type;
-  guint16          length;
+  guint            length;
   guint32          serverRandomLen  = 0;
   guint32          serverCertLen    = 0;
   guint32          encryptionMethod = 0;
   guint32          encryptionLevel  = 0;
   guint32          channelCount     = 0;
   guint32          channelId        = 0;
-  guint16          i                = 0;
+  guint            i;
   conversation_t  *conversation;
   rdp_conv_info_t *rdp_info;
 
   rdp_field_info_t header_fields[] = {
-    {hf_rdp_headerType,             2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
+    {hf_rdp_headerType,               2, NULL, 0, 0, NULL },
+    {hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t sc_fields[] = {
-    {hf_rdp_headerType,             2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
-    {hf_rdp_versionMajor,           2, NULL, 0, 0, NULL },
-    {hf_rdp_versionMinor,           2, NULL, 0, 0, NULL },
+    {hf_rdp_headerType,               2, NULL, 0, 0, NULL },
+    {hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
+    {hf_rdp_versionMajor,             2, NULL, 0, 0, NULL },
+    {hf_rdp_versionMinor,             2, NULL, 0, 0, NULL },
+    /* The following fields are *optional*.                   */
+    /*  I.E., a sequence of one or more of the trailing       */
+    /*  fields at the end of the Data Block need not be       */
+    /*  present. The length from the header field determines  */
+    /*  the actual number of fields which are present.        */
     {hf_rdp_clientRequestedProtocols, 4, NULL, 0, 0, NULL },
+    {hf_rdp_earlyCapabilityFlags,     2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t ss_fields[] = {
-    {hf_rdp_headerType,             2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
-    {hf_rdp_encryptionMethod,       4, &encryptionMethod, 0, 0, NULL },
-    {hf_rdp_encryptionLevel,        4, &encryptionLevel, 0, 0, NULL },
+    {hf_rdp_headerType,               2, NULL, 0, 0, NULL },
+    {hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
+    {hf_rdp_encryptionMethod,         4, &encryptionMethod, 0, 0, NULL },
+    {hf_rdp_encryptionLevel,          4, &encryptionLevel,  0, 0, NULL },
     FI_TERMINATOR
   };
+  rdp_field_info_t ss_encryption_len_unused_fields[] = {
+    {hf_rdp_unused,                   4, NULL,  0, 0, NULL },
+    {hf_rdp_unused,                   4, NULL,  0, 0, NULL },
+  };
   rdp_field_info_t encryption_fields[] = {
-    {hf_rdp_serverRandomLen,        4, &serverRandomLen, 0, 0, NULL },
-    {hf_rdp_serverCertLen,          4, &serverCertLen, 0, 0, NULL },
-    {hf_rdp_serverRandom,           0, &serverRandomLen, 0, 0, NULL },
-    {hf_rdp_serverCertificate,      0, &serverCertLen, 0, 0, NULL },
+    {hf_rdp_serverRandomLen,          4, &serverRandomLen,  0, 0, NULL },
+    {hf_rdp_serverCertLen,            4, &serverCertLen,    0, 0, NULL },
+    {hf_rdp_serverRandom,             0, &serverRandomLen,  0, 0, NULL },
+    {hf_rdp_serverCertificate,        0, &serverCertLen,    0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t sn_fields[] = {
-    {hf_rdp_headerType,             2, NULL, 0, 0, NULL },
-    {hf_rdp_headerLength,           2, NULL, 0, 0, NULL },
-    {hf_rdp_MCSChannelId,           2, &channelId, 0, 0, NULL },
-    {hf_rdp_channelCount,           2, &channelCount, 0, 0, NULL },
+    {hf_rdp_headerType,               2, NULL, 0, 0, NULL },
+    {hf_rdp_headerLength,             2, NULL, 0, 0, NULL },
+    {hf_rdp_MCSChannelId,             2, &channelId, 0, 0, NULL },
+    {hf_rdp_channelCount,             2, &channelCount, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t array_fields[] = {
-    {hf_rdp_channelIdArray, (channelCount * 2), NULL, 0, 0, NULL },
+      {hf_rdp_channelIdArray, 0 /*(channelCount * 2)*/, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
   rdp_field_info_t channel_fields[] = {
@@ -1804,19 +1769,14 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     FI_TERMINATOR
   };
 
-  /* OK - we try and dissect as many of the data blocks as we can
-     As soon as we find one we don't recognise, we have to give up parsing
-     the rest of the data block. */
-
   tree   = dissect_rdp(tvb, pinfo, tree);
-  length = tvb_length_remaining(tvb, offset);
 
   conversation = find_or_create_conversation(pinfo);
 
   rdp_info = conversation_get_proto_data(conversation, proto_rdp);
 
   if (rdp_info == NULL) {
-    rdp_info = g_malloc0(sizeof(rdp_conv_info_t));
+    rdp_info = se_alloc0(sizeof(rdp_conv_info_t));
     rdp_info->staticChannelId  = -1;
     rdp_info->encryptionMethod = 0;
     rdp_info->encryptionLevel  = 0;
@@ -1824,16 +1784,18 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     rdp_info->maxChannels      = 0;
 
     conversation_add_proto_data(conversation, proto_rdp, rdp_info);
-
-    rdp_info->next      = rdp_conv_info_items;
-    rdp_conv_info_items = rdp_info;
   }
 
   col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ServerData");
 
-  pi   = proto_tree_add_item(tree, hf_rdp_ServerData, tvb, offset, length, ENC_NA);
+  pi   = proto_tree_add_item(tree, hf_rdp_ServerData, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(pi, ett_rdp_ServerData);
 
+  /* Advance through the data blocks using the length from the header for each block.
+   *  ToDo: Expert if actual amount dissected (based upon field array) is not equal to length ??
+   *  Note: If length is less than the header size (4 bytes) offset is advanced by 4 bytes
+   *        to ensure that dissection eventually terminates.
+   */
   while (tvb_length_remaining(tvb, offset) > 0) {
 
     type   = tvb_get_letohs(tvb, offset);
@@ -1842,108 +1804,75 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     /*    printf("offset=%d, type=%x, length=%d, remaining=%d\n",
           offset, type, length, tvb_length_remaining(tvb, offset)); */
 
-    if (length == 0)
-      return;
-
     switch(type) {
     case SC_CORE:
-
-      if (tvb_length_remaining(tvb, offset) >= length) {
-
-        pi        = proto_tree_add_item(tree, hf_rdp_serverCoreData, tvb, offset, length, ENC_NA);
-        next_tree = proto_item_add_subtree(pi, ett_rdp_serverCoreData);
-
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, sc_fields);
-
-      } else {
-        /* block not big enough */
-        return;
-      }
+      pi        = proto_tree_add_item(tree, hf_rdp_serverCoreData, tvb, offset, length, ENC_NA);
+      next_tree = proto_item_add_subtree(pi, ett_rdp_serverCoreData);
+      /*offset    =*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, sc_fields, length);
       break;
-    case SC_SECURITY:
-      if (tvb_length_remaining(tvb, offset) >= length) {
 
-        pi        = proto_tree_add_item(tree, hf_rdp_serverSecurityData, tvb, offset, length, ENC_NA);
-        next_tree = proto_item_add_subtree(pi, ett_rdp_serverSecurityData);
+    case SC_SECURITY: {
+      gint lcl_offset;
+      pi         = proto_tree_add_item(tree, hf_rdp_serverSecurityData, tvb, offset, length, ENC_NA);
+      next_tree  = proto_item_add_subtree(pi, ett_rdp_serverSecurityData);
 
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ss_fields);
+      lcl_offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ss_fields, 0);
 
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "Encryption: %s (%s)",
-                            val_to_str_const(encryptionMethod, rdp_encryptionMethod_vals, "Unknown"),
-                            val_to_str_const(encryptionLevel, rdp_encryptionLevel_vals, "Unknown"));
+      col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "Encryption: %s (%s)",
+                          val_to_str_const(encryptionMethod, rdp_encryptionMethod_vals, "Unknown"),
+                          val_to_str_const(encryptionLevel, rdp_encryptionLevel_vals, "Unknown"));
 
-        if ((encryptionLevel != 0) || (encryptionMethod != 0)) {
-
-          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, encryption_fields);
-        }
-
-        rdp_info->encryptionMethod = encryptionMethod;
-        rdp_info->encryptionLevel = encryptionLevel;
-
+      if ((encryptionLevel != 0) || (encryptionMethod != 0)) {
+        /*lcl_offset =*/ dissect_rdp_fields(tvb, lcl_offset, pinfo, next_tree, encryption_fields, 0);
       } else {
-        /* not enough data */
-        return;
+        /*lcl_offset =*/ dissect_rdp_fields(tvb, lcl_offset, pinfo, next_tree, ss_encryption_len_unused_fields, 0);
       }
 
-      break;
-    case SC_NET:
-      if (tvb_length_remaining(tvb, offset) >= length) {
-
-        pi        = proto_tree_add_item(tree, hf_rdp_serverNetworkData, tvb, offset, length, ENC_NA);
-        next_tree = proto_item_add_subtree(pi, ett_rdp_serverNetworkData);
-
-        offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, sn_fields);
-
-        rdp_info->staticChannelId = channelId;
-        register_t124_sd_dissector(pinfo, channelId, dissect_rdp_SendData, proto_rdp);
-        if (channelCount > 0) {
-          proto_tree *old_tree;
-
-          array_fields[0].fixedLength = channelCount * 2;
-          dissect_rdp_fields(tvb, offset, pinfo, next_tree, array_fields);
-
-          old_tree = next_tree; /* XXX: save not actually req'd ? */
-          if (next_tree)
-            next_tree = proto_item_add_subtree(next_tree->last_child, ett_rdp_channelIdArray);
-          for(i = 0; i < channelCount; i++) {
-            offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, channel_fields);
-            if (i < MAX_CHANNELS)
-              rdp_info->channels[i].value = channelId;
-
-            /* register SendData on this for now */
-            register_t124_sd_dissector(pinfo, channelId, dissect_rdp_SendData, proto_rdp);
-          }
-          if (channelCount % 2)
-            offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, pad_fields);
-          next_tree = old_tree;
-        }
-
-      } else {
-        /* not enough data */
-        return;
-      }
-
-      break;
-      default:
-        if (tvb_length_remaining(tvb, offset) >= length) {
-
-          pi        = proto_tree_add_item(tree, hf_rdp_serverUnknownData, tvb, offset, length, ENC_NA);
-          next_tree = proto_item_add_subtree(pi, ett_rdp_serverUnknownData);
-
-          offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, header_fields);
-
-        } else {
-          return;
-        }
+      rdp_info->encryptionMethod = encryptionMethod;
+      rdp_info->encryptionLevel  = encryptionLevel;
       break;
     }
 
+    case SC_NET: {
+      gint lcl_offset;
+      pi        = proto_tree_add_item(tree, hf_rdp_serverNetworkData, tvb, offset, length, ENC_NA);
+      next_tree = proto_item_add_subtree(pi, ett_rdp_serverNetworkData);
+
+      lcl_offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, sn_fields, 0);
+
+      rdp_info->staticChannelId = channelId;
+      register_t124_sd_dissector(pinfo, channelId, dissect_rdp_SendData, proto_rdp);
+
+      if (channelCount > 0) {
+        array_fields[0].fixedLength = channelCount * 2;
+        dissect_rdp_fields(tvb, lcl_offset, pinfo, next_tree, array_fields, 0);
+
+        if (next_tree)
+          next_tree = proto_item_add_subtree(next_tree->last_child, ett_rdp_channelIdArray);
+        for (i = 0; i < channelCount; i++) {
+          lcl_offset = dissect_rdp_fields(tvb, lcl_offset, pinfo, next_tree, channel_fields, 0);
+          if (i < MAX_CHANNELS)
+            rdp_info->channels[i].value = channelId;
+
+          /* register SendData on this for now */
+          register_t124_sd_dissector(pinfo, channelId, dissect_rdp_SendData, proto_rdp);
+        }
+        if (channelCount % 2)
+          /*lcl_offset =*/ dissect_rdp_fields(tvb, lcl_offset, pinfo, next_tree, pad_fields, 0);
+      }
+      break;
+    }
+
+    default:  /* unknown */
+      pi        = proto_tree_add_item(tree, hf_rdp_serverUnknownData, tvb, offset, length, ENC_NA);
+      next_tree = proto_item_add_subtree(pi, ett_rdp_serverUnknownData);
+
+      /*offset =*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, header_fields, 0);
+      break;
+    }
+    offset += MAX(4, length);   /* Use length from header, but advance at least 4 bytes */
   }
-
 }
-
-
-
 
 /*--- proto_register_rdp -------------------------------------------*/
 void
@@ -2118,6 +2047,14 @@ proto_register_rdp(void) {
     { &hf_rdp_extEncryptionMethods,
       { "extEncryptionMethods", "rdp.extEncryptionMethods",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rdp_cluster_flags,    /* ToDo: Display flags in detail */
+      { "clusterFlags", "rdp.clusterFlags",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rdp_redirectedSessionId,
+      { "redirectedSessionId", "rdp.redirectedSessionId",
+        FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_rdp_encryptionMethod,
       { "encryptionMethod", "rdp.encryptionMethod",
@@ -2757,8 +2694,10 @@ proto_register_rdp(void) {
       { "DaylightDate", "rdp.Date.Daylight",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
-
+    { &hf_rdp_unused,
+      { "Unused", "rdp.unused",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
   };
 
   /* List of subtrees */
