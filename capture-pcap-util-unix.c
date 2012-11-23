@@ -237,8 +237,7 @@ get_interface_list(int *err, char **err_str)
 		 */
 		loopback = ((ifrflags.ifr_flags & IFF_LOOPBACK) ||
 		    strncmp(ifr->ifr_name, "lo", 2) == 0);
-		if_info = if_info_new(ifr->ifr_name, loopback ? "Loopback" : NULL,
-		    NULL, loopback);
+		if_info = if_info_new(ifr->ifr_name, NULL, loopback);
 		if_info_add_address(if_info, &ifr->ifr_addr);
 		if (loopback)
 			il = g_list_append(il, if_info);
@@ -275,8 +274,7 @@ get_interface_list(int *err, char **err_str)
 		 * It worked; we can use the "any" device.
 		 */
 		if_info = if_info_new("any",
-		    "Pseudo-device that captures on all interfaces",
-		    NULL, FALSE);
+		    "Pseudo-device that captures on all interfaces", FALSE);
 		il = g_list_insert(il, if_info, -1);
 		pcap_close(pch);
 	}

@@ -59,21 +59,42 @@
 #endif
 
 if_info_t *
-if_info_new(const char *name, const char *friendly_name,
-    const char *vendor_description, gboolean loopback)
+if_info_new(const char *name, const char *description, gboolean loopback)
 {
 	if_info_t *if_info;
 
 	if_info = (if_info_t *)g_malloc(sizeof (if_info_t));
 	if_info->name = g_strdup(name);
-	if (friendly_name == NULL)
-		if_info->friendly_name = NULL;
-	else
-		if_info->friendly_name = g_strdup(friendly_name);
-	if (vendor_description == NULL)
-		if_info->vendor_description = NULL;
-	else
-		if_info->vendor_description = g_strdup(vendor_description);
+#ifdef _WIN32
+	/*
+	 * On Windows, the "description" is a vendor description,
+	 * and the friendly name isn't returned by WinPcap.
+	 * Fetch it ourselves.
+	 */
+	get_windows_interface_friendlyname(name, &if_info->friendly_name);
+	if_info->vendor_description = g_strdup(description);
+#else
+	/*
+	 * On UN*X, if there is a description, it's a friendly
+	 * name, and there is no vendor description.
+	 * If there's no description, fetch a friendly name
+	 * if we can; if that fails, then, for a loopback
+	 * interface, give it the friendly name "Loopback".
+	 */
+	if_info->friendly_name = g_strdup(description);
+	if (if_info->friendly_name == NULL) {
+		if_info->friendly_name = get_unix_interface_friendly_name(name);
+		if (if_info->friendly_name == NULL) {
+			/*
+			 * If this is a loopback interface, give it a
+			 * "friendly name" of "Loopback".
+			 */
+			if (loopback)
+				if_info->friendly_name = g_strdup("Loopback");
+		}
+	}
+	if_info->vendor_description = NULL;
+#endif
 	if_info->loopback = loopback;
 	if_info->addrs = NULL;
 	return if_info;
@@ -139,8 +160,6 @@ get_interface_list_findalldevs_ex(const char *source,
 	pcap_if_t *alldevs, *dev;
 	if_info_t *if_info;
 	char errbuf[PCAP_ERRBUF_SIZE];
-	gboolean loopback;
-	char *friendly_name;
 
         if (pcap_findalldevs_ex((char *)source, auth, &alldevs, errbuf) == -1) {
 		*err = CANT_GET_INTERFACE_LIST;
@@ -160,41 +179,8 @@ get_interface_list_findalldevs_ex(const char *source,
 	}
 
 	for (dev = alldevs; dev != NULL; dev = dev->next) {
-		/* Loopback flag */
-		loopback = (dev->flags & PCAP_IF_LOOPBACK) ? TRUE : FALSE;
-
-#ifdef _WIN32
-		/*
-		 * On Windows, the "description" is a vendor description,
-		 * and the friendly name isn't returned by WinPcap.
-		 * Fetch it ourselves.
-		 */
-		get_windows_interface_friendlyname(dev->name, &friendly_name);
-		if_info = if_info_new(dev->name, friendly_name,
-		    dev->description, loopback);
-#else
-		/*
-		 * On UN*X, if there is a description, it's a friendly
-		 * name, and there is no vendor description.
-		 * If there's no description, fetch a friendly name
-		 * if we can; if that fails, then, for a loopback
-		 * interface, give it the friendly name "Loopback".
-		 */
-		friendly_name = dev->description;
-		if (friendly_name == NULL) {
-			friendly_name = get_unix_interface_friendly_name(dev->name);
-			if (friendly_name == NULL) {
-				/*
-				 * If this is a loopback interface, give it a
-				 * "friendly name" of "Loopback".
-				 */
-				if (loopback)
-					friendly_name = g_strdup("Loopback");
-			}
-		}
-		if_info = if_info_new(dev->name, friendly_name, NULL, loopback);
-#endif
-		g_free(friendly_name);
+		if_info = if_info_new(dev->name, dev->description,
+		    (dev->flags & PCAP_IF_LOOPBACK) ? TRUE : FALSE);
 		il = g_list_append(il, if_info);
 		if_info_ip(if_info, dev);
 	}
@@ -211,8 +197,6 @@ get_interface_list_findalldevs(int *err, char **err_str)
 	pcap_if_t *alldevs, *dev;
 	if_info_t *if_info;
 	char errbuf[PCAP_ERRBUF_SIZE];
-	gboolean loopback;
-	char *friendly_name;
 
 	if (pcap_findalldevs(&alldevs, errbuf) == -1) {
 		*err = CANT_GET_INTERFACE_LIST;
@@ -232,41 +216,8 @@ get_interface_list_findalldevs(int *err, char **err_str)
 	}
 
 	for (dev = alldevs; dev != NULL; dev = dev->next) {
-		/* Loopback flag */
-		loopback = (dev->flags & PCAP_IF_LOOPBACK) ? TRUE : FALSE;
-
-#ifdef _WIN32
-		/*
-		 * On Windows, the "description" is a vendor description,
-		 * and the friendly name isn't returned by WinPcap.
-		 * Fetch it ourselves.
-		 */
-		get_windows_interface_friendlyname(dev->name, &friendly_name);
-		if_info = if_info_new(dev->name, friendly_name,
-		    dev->description, loopback);
-#else
-		/*
-		 * On UN*X, if there is a description, it's a friendly
-		 * name, and there is no vendor description.
-		 * If there's no description, fetch a friendly name
-		 * if we can; if that fails, then, for a loopback
-		 * interface, give it the friendly name "Loopback".
-		 */
-		friendly_name = dev->description;
-		if (friendly_name == NULL) {
-			friendly_name = get_unix_interface_friendly_name(dev->name);
-			if (friendly_name == NULL) {
-				/*
-				 * If this is a loopback interface, give it a
-				 * "friendly name" of "Loopback".
-				 */
-				if (loopback)
-					friendly_name = g_strdup("Loopback");
-			}
-		}
-		if_info = if_info_new(dev->name, friendly_name, NULL, loopback);
-#endif
-		g_free(friendly_name);
+		if_info = if_info_new(dev->name, dev->description,
+		    (dev->flags & PCAP_IF_LOOPBACK) ? TRUE : FALSE);
 		il = g_list_append(il, if_info);
 		if_info_ip(if_info, dev);
 	}
