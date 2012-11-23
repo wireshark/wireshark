@@ -578,7 +578,7 @@ void proto_register_bfcp(void)
 		},
 		{
 			&hf_bfcp_queue_pos,
-			{ "Queue Position ", "bfcp.queue_pos",
+			{ "Queue Position", "bfcp.queue_pos",
 			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		},
