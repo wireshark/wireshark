@@ -101,6 +101,9 @@ The currently available allocators are:
  - glib (wmem_allocator_glib.h)
         A simple allocator that g_allocs requested memory and tracks each
         allocation via a linked list.
+ - block (wmem_allocator_block.h)
+        A simple block allocator that grabs large chunks of memory at a time
+        (10 MB currently) and serves allocations out of those chunks.
 
 3.2 Creating a Pool
 
