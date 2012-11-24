@@ -229,7 +229,7 @@ static gboolean get4hexdigits(const char *p, WORD *w)
 /* returns the interface friendly name for a device name, if it is unable to
 * resolve the name, "" is returned */
 char *
-get_windows_interface_friendly_name(/* IN */ char *interface_devicename)
+get_windows_interface_friendly_name(/* IN */ const char *interface_devicename)
 {
     const char* guid_text;
     GUID guid;
