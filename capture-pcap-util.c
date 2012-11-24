@@ -104,7 +104,7 @@ if_info_new(const char *name, const char *description, gboolean loopback)
 		 * description.
 		 */
 		if_info->friendly_name = g_strdup(description);
-		if_info->description = NULL;
+		if_info->vendor_description = NULL;
 	}
 #else
 	/*
