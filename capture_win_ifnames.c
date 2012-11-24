@@ -236,13 +236,6 @@ get_windows_interface_friendly_name(/* IN */ const char *interface_devicename)
     int i;
     int digit1, digit2;
 
-    /* ensure we can return a result */
-    if(interface_friendlyname==NULL){
-        return NULL;
-    }
-    /* start on the basis we know nothing */
-    interface_friendlyname=NULL;
-
     /* Extract the guid text from the interface device name */
     if(strncmp("\\Device\\NPF_", interface_devicename, 12)==0){
         guid_text=interface_devicename+12; /* skip over the '\Device\NPF_' prefix, assume the rest is the guid text */
