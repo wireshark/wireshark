@@ -1349,6 +1349,7 @@ set(FTYPE_FILES
 set(WMEM_FILES
 	wmem/wmem_core.c
 	wmem/wmem_allocator_glib.c
+	wmem/wmem_allocator_block.c
 	wmem/wmem_scopes.c
 	wmem/wmem_slab.c
 	wmem/wmem_stack.c

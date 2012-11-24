@@ -27,6 +27,7 @@
 
 #include "wmem_scopes.h"
 #include "wmem_allocator_glib.h"
+#include "wmem_allocator_block.h"
 
 /* One of the supposed benefits of wmem over the old emem was going to be that
  * the scoping of the various memory pools would be obvious, since they would
@@ -151,7 +152,7 @@ wmem_init_scopes(void)
     g_assert(in_file_scope   == FALSE);
 
     epan_scope   = wmem_create_glib_allocator();
-    packet_scope = wmem_create_glib_allocator();
+    packet_scope = wmem_create_block_allocator();
     file_scope   = wmem_create_glib_allocator();
 }
 
