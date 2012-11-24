@@ -23,6 +23,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <stdlib.h>
+
 #include <glib.h>
 
 #include "wmem_scopes.h"
@@ -151,7 +153,13 @@ wmem_init_scopes(void)
     g_assert(in_packet_scope == FALSE);
     g_assert(in_file_scope   == FALSE);
 
-    packet_scope = wmem_create_block_allocator();
+    if (getenv("WIRESHARK_DEBUG_WMEM_PACKET_NO_CHUNKS")) {
+        packet_scope = wmem_create_glib_allocator();
+    }
+    else {
+        packet_scope = wmem_create_block_allocator();
+    }
+
     file_scope   = wmem_create_glib_allocator();
     epan_scope   = wmem_create_glib_allocator();
 }

@@ -74,6 +74,7 @@ fi
 
 export WIRESHARK_DEBUG_EP_NO_CHUNKS=
 export WIRESHARK_DEBUG_SE_NO_CHUNKS=
+export WIRESHARK_DEBUG_WMEM_PACKET_NO_CHUNKS=
 export G_SLICE=always-malloc # or debug-blocks
 
 libtool --mode=execute valgrind $LEAK_CHECK $TRACK_ORIGINS $BIN_DIR/$COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
