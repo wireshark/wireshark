@@ -381,40 +381,18 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	return offset;
 }
 
-
 /* Code to actually dissect BFCP packets */
-static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static void
+dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int          offset = 0;
 	guint8       primitive;
 	const gchar *str;
 	gint         bfcp_payload_length;
 	proto_tree  *bfcp_tree = NULL;
-    guint8      first_byte;
-
-
-	/* Size of smallest BFCP packet: 12 octets */
-	if (tvb_length(tvb) < 12)
-		return FALSE;
-
-	/* Check version and reserved bits in first byte */
-	first_byte = tvb_get_guint8(tvb, 0);
-
-	/* If first_byte of bfcp_packet is a combination of the
-	 * version and the I bit. The value must be either 0x20 or 0x30
-	 * if the bit is set, otherwise it is not BFCP.
-	 */
-	if ((first_byte != 0x20) && (first_byte != 0x30))
-		return FALSE;
 
 	primitive = tvb_get_guint8(tvb, 1);
-
-	if ((primitive < 1) || (primitive > 18))
-		return FALSE;
-
 	str = match_strval(primitive, map_bfcp_primitive);
-	if (NULL == str)
-		return FALSE;
 
 	/* Make entries in Protocol column and Info column on summary display*/
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFCP");
@@ -464,6 +442,40 @@ static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		offset = dissect_bfcp_attributes(tvb, pinfo, bfcp_tree, offset, bfcp_payload_length);
 
 	} /* if(tree) */
+}
+
+static gboolean 
+dissect_bfcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	guint8       primitive;
+    guint8      first_byte;
+	const gchar *str;
+
+
+	/* Size of smallest BFCP packet: 12 octets */
+	if (tvb_length(tvb) < 12)
+		return FALSE;
+
+	/* Check version and reserved bits in first byte */
+	first_byte = tvb_get_guint8(tvb, 0);
+
+	/* If first_byte of bfcp_packet is a combination of the
+	 * version and the I bit. The value must be either 0x20 or 0x30
+	 * if the bit is set, otherwise it is not BFCP.
+	 */
+	if ((first_byte != 0x20) && (first_byte != 0x30))
+		return FALSE;
+
+	primitive = tvb_get_guint8(tvb, 1);
+
+	if ((primitive < 1) || (primitive > 18))
+		return FALSE;
+
+	str = match_strval(primitive, map_bfcp_primitive);
+	if (NULL == str)
+		return FALSE;
+
+	dissect_bfcp(tvb, pinfo, tree);
 	return TRUE;
 }
 
@@ -647,6 +659,8 @@ void proto_register_bfcp(void)
 	proto_bfcp = proto_register_protocol("Binary Floor Control Protocol",
 				"BFCP", "bfcp");
 
+	register_dissector("bfcp", dissect_bfcp, proto_bfcp);
+
 	bfcp_module = prefs_register_protocol(proto_bfcp,
 				proto_reg_handoff_bfcp);
 
@@ -672,17 +686,17 @@ void proto_reg_handoff_bfcp(void)
 	{
 		dissector_handle_t bfcp_handle;
 
-		heur_dissector_add("tcp", dissect_bfcp, proto_bfcp);
-		heur_dissector_add("udp", dissect_bfcp, proto_bfcp);
-		bfcp_handle = new_create_dissector_handle(dissect_bfcp, proto_bfcp);
+		heur_dissector_add("tcp", dissect_bfcp_heur, proto_bfcp);
+		heur_dissector_add("udp", dissect_bfcp_heur, proto_bfcp);
+		bfcp_handle = create_dissector_handle(dissect_bfcp, proto_bfcp);
 		dissector_add_handle("tcp.port", bfcp_handle);
 		dissector_add_handle("udp.port", bfcp_handle);
 		prefs_initialized = TRUE;
 	}
 
-	heur_dissector_set_enabled("tcp", dissect_bfcp, proto_bfcp,
+	heur_dissector_set_enabled("tcp", dissect_bfcp_heur, proto_bfcp,
 				   bfcp_enable_heuristic_dissection);
 
-	heur_dissector_set_enabled("udp", dissect_bfcp, proto_bfcp,
+	heur_dissector_set_enabled("udp", dissect_bfcp_heur, proto_bfcp,
 				   bfcp_enable_heuristic_dissection);
 }
