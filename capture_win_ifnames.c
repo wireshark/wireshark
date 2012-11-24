@@ -53,6 +53,151 @@
 #include "capture_win_ifnames.h"
 #include "wsutil/file_util.h"
 
+static int gethexdigit(const char *p)
+{
+    if(*p >= '0' && *p <= '9'){
+        return *p - '0';
+    }else if(*p >= 'A' && *p <= 'F'){
+        return *p - 'A' + 0xA;
+    }else if(*p >= 'a' && *p <= 'f'){
+        return *p - 'a' + 0xa;
+    }else{
+        return -1; /* Not a hex digit */
+    }
+}
+
+static gboolean get8hexdigits(const char *p, DWORD *d)
+{
+    int digit;
+    DWORD val;
+    int i;
+
+    val = 0;
+    for(i = 0; i < 8; i++){
+        digit = gethexdigit(p++);
+        if(digit == -1){
+            return FALSE; /* Not a hex digit */
+        }
+        val = (val << 4) | digit;
+    }
+    *d = val;
+    return TRUE;
+}
+
+static gboolean get4hexdigits(const char *p, WORD *w)
+{
+    int digit;
+    WORD val;
+    int i;
+
+    val = 0;
+    for(i = 0; i < 4; i++){
+        digit = gethexdigit(p++);
+        if(digit == -1){
+            return FALSE; /* Not a hex digit */
+        }
+        val = (val << 4) | digit;
+    }
+    *w = val;
+    return TRUE;
+}
+
+/*
+ * If a string is a GUID in {}, fill in a GUID structure with the GUID
+ * value and return TRUE; otherwise, if the string is not a valid GUID
+ * in {}, return FALSE.
+ */
+gboolean
+parse_as_guid(const char *guid_text, GUID *guid)
+{
+    int i;
+    int digit1, digit2;
+
+    if(*guid_text != '{'){
+        return FALSE; /* Nope, not enclosed in {} */
+    }
+    guid_text++;
+    /* There must be 8 hex digits; if so, they go into guid->Data1 */
+    if(!get8hexdigits(guid_text, &guid->Data1)){
+        return FALSE; /* nope, not 8 hex digits */
+    }
+    guid_text += 8;
+    /* Now there must be a hyphen */
+    if(*guid_text != '-'){
+        return FALSE; /* Nope */
+    }
+    guid_text++;
+    /* There must be 4 hex digits; if so, they go into guid->Data2 */
+    if(!get4hexdigits(guid_text, &guid->Data2)){
+        return FALSE; /* nope, not 4 hex digits */
+    }
+    guid_text += 4;
+    /* Now there must be a hyphen */
+    if(*guid_text != '-'){
+        return FALSE; /* Nope */
+    }
+    guid_text++;
+    /* There must be 4 hex digits; if so, they go into guid->Data3 */
+    if(!get4hexdigits(guid_text, &guid->Data3)){
+        return FALSE; /* nope, not 4 hex digits */
+    }
+    guid_text += 4;
+    /* Now there must be a hyphen */
+    if(*guid_text != '-'){
+        return FALSE; /* Nope */
+    }
+    guid_text++;
+    /*
+     * There must be 4 hex digits; if so, they go into the first 2 bytes
+     * of guid->Data4.
+     */
+    for(i = 0; i < 2; i++){
+        digit1 = gethexdigit(guid_text);
+        if(digit1 == -1){
+            return FALSE; /* Not a hex digit */
+        }
+        guid_text++;
+        digit2 = gethexdigit(guid_text);
+        if(digit2 == -1){
+            return FALSE; /* Not a hex digit */
+        }
+        guid_text++;
+        guid->Data4[i] = (digit1 << 4)|(digit2);
+    }
+    /* Now there must be a hyphen */
+    if(*guid_text != '-'){
+        return FALSE; /* Nope */
+    }
+    guid_text++;
+    /*
+     * There must be 12 hex digits; if so,t hey go into the next 6 bytes
+     * of guid->Data4.
+     */
+    for(i = 0; i < 6; i++){
+        digit1 = gethexdigit(guid_text);
+        if(digit1 == -1){
+            return FALSE; /* Not a hex digit */
+        }
+        guid_text++;
+        digit2 = gethexdigit(guid_text);
+        if(digit2 == -1){
+            return FALSE; /* Not a hex digit */
+        }
+        guid_text++;
+        guid->Data4[i+2] = (digit1 << 4)|(digit2);
+    }
+    /* Now there must be a closing } */
+    if(*guid_text != '}'){
+        return FALSE; /* Nope */
+    }
+    guid_text++;
+    /* And that must be the end of the string */
+    if(*guid_text != '\0'){
+        return FALSE; /* Nope */
+    }
+    return TRUE;
+}
+
 /**********************************************************************************/
 gboolean IsWindowsVistaOrLater()
 {
@@ -68,9 +213,9 @@ gboolean IsWindowsVistaOrLater()
 }
 
 /**********************************************************************************/
-/* Get the Connection Name for the given GUID */
-static char *
-GetInterfaceFriendlyNameFromDeviceGuid(__in GUID *guid)
+/* Get the friendly name for the given GUID */
+char *
+get_interface_friendly_name_from_device_guid(__in GUID *guid)
 {
     HMODULE hIPHlpApi;
     HRESULT status;
@@ -161,7 +306,8 @@ GetInterfaceFriendlyNameFromDeviceGuid(__in GUID *guid)
         return NULL;
     }
 
-    /* Get the required buffer size, and then convert the string */
+    /* Get the required buffer size, and then convert the string
+    * from UTF-16 to UTF-8. */
     size=WideCharToMultiByte(CP_UTF8, 0, wName, -1, NULL, 0, NULL, NULL);
     name=(char *) g_malloc(size);
     if (name == NULL){
@@ -176,65 +322,18 @@ GetInterfaceFriendlyNameFromDeviceGuid(__in GUID *guid)
     return name;
 }
 
-static int gethexdigit(const char *p)
-{
-    if(*p >= '0' && *p <= '9'){
-        return *p - '0';
-    }else if(*p >= 'A' && *p <= 'F'){
-        return *p - 'A' + 0xA;
-    }else if(*p >= 'a' && *p <= 'f'){
-        return *p - 'a' + 0xa;
-    }else{
-        return -1; /* Not a hex digit */
-    }
-}
-
-static gboolean get8hexdigits(const char *p, DWORD *d)
-{
-    int digit;
-    DWORD val;
-    int i;
-
-    val = 0;
-    for(i = 0; i < 8; i++){
-        digit = gethexdigit(p++);
-        if(digit == -1){
-            return FALSE; /* Not a hex digit */
-        }
-        val = (val << 4) | digit;
-    }
-    *d = val;
-    return TRUE;
-}
-
-static gboolean get4hexdigits(const char *p, WORD *w)
-{
-    int digit;
-    WORD val;
-    int i;
-
-    val = 0;
-    for(i = 0; i < 4; i++){
-        digit = gethexdigit(p++);
-        if(digit == -1){
-            return FALSE; /* Not a hex digit */
-        }
-        val = (val << 4) | digit;
-    }
-    *w = val;
-    return TRUE;
-}
-
-/**********************************************************************************/
-/* returns the interface friendly name for a device name, if it is unable to
-* resolve the name, "" is returned */
+/*
+ * Given an interface name, try to extract the GUID from it and parse it.
+ * If that fails, return NULL; if that succeeds, attempt to get the
+ * friendly name for the interface in question.  If that fails, return
+ * NULL, otherwise return the friendly name, allocated with g_malloc()
+ * (so that it must be freed with g_free()).
+ */
 char *
-get_windows_interface_friendly_name(/* IN */ const char *interface_devicename)
+get_windows_interface_friendly_name(const char *interface_devicename)
 {
     const char* guid_text;
     GUID guid;
-    int i;
-    int digit1, digit2;
 
     /* Extract the guid text from the interface device name */
     if(strncmp("\\Device\\NPF_", interface_devicename, 12)==0){
@@ -243,95 +342,12 @@ get_windows_interface_friendly_name(/* IN */ const char *interface_devicename)
         guid_text=interface_devicename;
     }
 
-    /*
-     * If what follows is a GUID in {}, then convert it to a GUID structure
-     * and use that to look up the interface to get its friendly name.
-     */
-    if(*guid_text != '{'){
-        return NULL; /* Nope, not enclosed in {} */
-    }
-    guid_text++;
-    /* There must be 8 hex digits; if so, they go into guid.Data1 */
-    if(!get8hexdigits(guid_text, &guid.Data1)){
-        return NULL; /* nope, not 8 hex digits */
-    }
-    guid_text += 8;
-    /* Now there must be a hyphen */
-    if(*guid_text != '-'){
-        return NULL; /* Nope */
-    }
-    guid_text++;
-    /* There must be 4 hex digits; if so, they go into guid.Data2 */
-    if(!get4hexdigits(guid_text, &guid.Data2)){
-        return NULL; /* nope, not 4 hex digits */
-    }
-    guid_text += 4;
-    /* Now there must be a hyphen */
-    if(*guid_text != '-'){
-        return NULL; /* Nope */
-    }
-    guid_text++;
-    /* There must be 4 hex digits; if so, they go into guid.Data3 */
-    if(!get4hexdigits(guid_text, &guid.Data3)){
-        return NULL; /* nope, not 4 hex digits */
-    }
-    guid_text += 4;
-    /* Now there must be a hyphen */
-    if(*guid_text != '-'){
-        return NULL; /* Nope */
-    }
-    guid_text++;
-    /*
-     * There must be 4 hex digits; if so, they go into the first 2 bytes
-     * of guid.Data4.
-     */
-    for(i = 0; i < 2; i++){
-        digit1 = gethexdigit(guid_text);
-        if(digit1 == -1){
-            return NULL; /* Not a hex digit */
-        }
-        guid_text++;
-        digit2 = gethexdigit(guid_text);
-        if(digit2 == -1){
-            return NULL; /* Not a hex digit */
-        }
-        guid_text++;
-        guid.Data4[i] = (digit1 << 4)|(digit2);
-    }
-    /* Now there must be a hyphen */
-    if(*guid_text != '-'){
-        return NULL; /* Nope */
-    }
-    guid_text++;
-    /*
-     * There must be 12 hex digits; if so,t hey go into the next 6 bytes
-     * of guid.Data4.
-     */
-    for(i = 0; i < 6; i++){
-        digit1 = gethexdigit(guid_text);
-        if(digit1 == -1){
-            return NULL; /* Not a hex digit */
-        }
-        guid_text++;
-        digit2 = gethexdigit(guid_text);
-        if(digit2 == -1){
-            return NULL; /* Not a hex digit */
-        }
-        guid_text++;
-        guid.Data4[i+2] = (digit1 << 4)|(digit2);
-    }
-    /* Now there must be a closing } */
-    if(*guid_text != '}'){
-        return NULL; /* Nope */
-    }
-    guid_text++;
-    /* And that must be the end of the string */
-    if(*guid_text != '\0'){
-        return NULL; /* Nope */
+    if (!parse_as_guid(guid_text, &guid)){
+        return NULL; /* not a GUID, so no friendly name */
     }
 
     /* guid okay, get the interface friendly name associated with the guid */
-    return GetInterfaceFriendlyNameFromDeviceGuid(&guid);
+    return get_interface_friendly_name_from_device_guid(&guid);
 }
 
 /**************************************************************************************/

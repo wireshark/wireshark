@@ -62,6 +62,10 @@ if_info_t *
 if_info_new(const char *name, const char *description, gboolean loopback)
 {
 	if_info_t *if_info;
+#ifdef _WIN32
+	const char *guid_text;
+	GUID guid;
+#endif
 
 	if_info = (if_info_t *)g_malloc(sizeof (if_info_t));
 	if_info->name = g_strdup(name);
@@ -71,8 +75,37 @@ if_info_new(const char *name, const char *description, gboolean loopback)
 	 * and the friendly name isn't returned by WinPcap.
 	 * Fetch it ourselves.
 	 */
-	if_info->friendly_name = get_windows_interface_friendly_name(name);
-	if_info->vendor_description = g_strdup(description);
+
+	/*
+	 * Skip over the "\Device\NPF_" prefix in the device name,
+	 * if present.
+	 */
+	if (strncmp("\\Device\\NPF_", name, 12) == 0)
+		guid_text = name + 12;
+	else
+		guid_text = name;
+
+	/* Now try to parse what remains as a GUID. */
+	if (parse_as_guid(guid_text, &guid)) {
+		/*
+		 * Success. Try to get a friendly name using the GUID.
+		 * As this is a regular interface, the description is a
+		 * vendor description.
+		 */
+		if_info->friendly_name = get_interface_friendly_name_from_device_guid(&guid);
+		if_info->vendor_description = g_strdup(description);
+	} else {
+		/*
+		 * This is probably not a regular interface; we only
+		 * support NT 5 (W2K) and later, so all regular interfaces
+		 * should have GUIDs at the end of the name.  Therefore,
+		 * the description, if supplied, is a friendly name
+		 * provided by WinPcap, and there is no vendor
+		 * description.
+		 */
+		if_info->friendly_name = g_strdup(description);
+		if_info->description = NULL;
+	}
 #else
 	/*
 	 * On UN*X, if there is a description, it's a friendly
