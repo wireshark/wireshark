@@ -1779,7 +1779,7 @@ capture_if_details_task_offload(GtkWidget *table, GtkWidget *main_vb, guint *row
 
 static int
 capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADAPTER adapter, gchar *iface) {
-    gchar           *interface_friendlyname;
+    gchar           *interface_friendly_name;
     gchar           string_buff[DETAILS_STR_MAX];
     const gchar     *manuf_name;
     unsigned int    uint_value;
@@ -1800,10 +1800,10 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     add_string_to_table(table, row, "Characteristics", "");
 
     /* OS friendly name - look it up from iface ("\Device\NPF_{11111111-2222-3333-4444-555555555555}") */
-    get_windows_interface_friendlyname(/* IN */ iface, /* OUT */&interface_friendlyname);
-    if(interface_friendlyname!=NULL){
-        add_string_to_table(table, row, "OS Friendly name", interface_friendlyname);
-        g_free(interface_friendlyname);
+    interface_friendly_name = get_windows_interface_friendly_name(/* IN */ iface);
+    if(interface_friendly_name!=NULL){
+        add_string_to_table(table, row, "OS Friendly name", interface_friendly_name);
+        g_free(interface_friendly_name);
     }
 
     /* Vendor description */

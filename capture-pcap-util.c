@@ -71,7 +71,7 @@ if_info_new(const char *name, const char *description, gboolean loopback)
 	 * and the friendly name isn't returned by WinPcap.
 	 * Fetch it ourselves.
 	 */
-	get_windows_interface_friendlyname(name, &if_info->friendly_name);
+	if_info->friendly_name = get_windows_interface_friendly_name(name);
 	if_info->vendor_description = g_strdup(description);
 #else
 	/*

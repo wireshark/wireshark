@@ -26,6 +26,6 @@
 #ifndef CAPTURE_WIN_IFNAMES_H
 #define CAPTURE_WIN_IFNAMES_H
 
-void get_windows_interface_friendlyname(/* IN */ const char *interface_devicename, /* OUT */char **interface_friendlyname);
+char *get_windows_interface_friendly_name(/* IN */ char *interface_devicename);
 
 #endif
