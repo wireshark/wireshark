@@ -736,6 +736,8 @@ static void create_drawing_area (struct graph *g)
 	GtkWidget *hbox;
 #endif
 	debug(DBS_FENTRY) puts ("create_drawing_area()");
+
+	/* Set title of window with file + conversation details */
 	display_name = cf_get_display_name(&cfile);
 	g_snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d -> %s:%d",
 			refnum,
@@ -2159,9 +2161,10 @@ static void graph_title_pixmap_draw (struct graph *g)
 #else
 	cr = gdk_cairo_create (g->title_pixmap);
 #endif
-	cairo_set_source_rgb (cr, 1, 1, 1);
+	cairo_set_source_rgb (cr, 1, 1, 1);  /* set fill color */
 	cairo_rectangle (cr, 0, 0,  g->x_axis->p.width, g->wp.y);
 	cairo_fill (cr);
+	cairo_set_source_rgb (cr, 0, 0, 0); /* set text color */
 
 	for (i=0; g->title[i]; i++) {
 		gint w, h;
@@ -2273,7 +2276,7 @@ static void graph_pixmap_draw (struct graph *g)
 	GdkColor *color_to_set = NULL;
 	gboolean line_stroked = TRUE;
 
-	debug(DBS_FENTRY) puts ("graph_display()");
+	debug(DBS_FENTRY) puts ("graph_pixmap_draw()");
 	not_disp = 1 ^ g->displayed;
 
 #if GTK_CHECK_VERSION(2,22,0)
