@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-11-14
+# 2012-11-20
 # 
 # Experts
 # 
@@ -14278,7 +14278,10 @@ nmc-disc	10810/udp	# Nuance Mobile Care Discovery [Gordon_Waddell]              
 # 10811-10859           Unassigned
 helix	10860/tcp	# Helix Client/Server          [Matthew_Strange][Larry_Atkin_2]                   [Matthew_Strange][Larry_Atkin_2]                          2009-03-06
 helix	10860/udp	# Helix Client/Server          [Matthew_Strange][Larry_Atkin_2]                   [Matthew_Strange][Larry_Atkin_2]                          2009-03-06
-# 10861-10989           Unassigned
+# 10861-10879           Unassigned
+bveapi	10880/tcp	# BVEssentials HTTP API        [Tri_Tech_Computers_Ltd]                           [James_Emerton]                                           2012-11-19
+bveapi	10880/udp	# BVEssentials HTTP API        [Tri_Tech_Computers_Ltd]                           [James_Emerton]                                           2012-11-19
+# 10881-10989           Unassigned
 rmiaux	10990/tcp	# Auxiliary RMI Port           [Eugen_Bacic_2]                                    [Eugen_Bacic_2]
 rmiaux	10990/udp	# Auxiliary RMI Port           [Eugen_Bacic_2]                                    [Eugen_Bacic_2]
 # 10991-10999           Unassigned
@@ -15976,6 +15979,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # boxraysrvr                     tcp    Boxray Devices Host Server   [Caprice_Productions]                              [Lance_Drake]                                             2012-07-05                                                                               Defined TXT keys: none
 # bri                                   RFID Reader Basic Reader     [Thaddeus_Ternes]                                  [Thaddeus_Ternes]                                                                                                                                  Defined TXT keys: None
 # Interface
+# bridgeprotocol                 tcp    JSON RPC Bridge Protocol     [Michel_Stam_2]                                    [Michel_Stam_2]                                           2012-11-20                                                                               Defined TXT keys: path, version
 # bsqdea                                Backup Simplicity            [Qdea]                                             [Qdea]                                                                                                                                             Defined TXT keys: None
 # caldav                         tcp    Calendaring Extensions to    [IESG]                                             [IETF_Chair]                                              2012-02-17                [draft-daboo-srv-caldav]                                       This is an extension of the http service. Defined TXT keys:
 # WebDAV (CalDAV) - non-TLS                                                                                                                                                                                                          path=<context path>
@@ -16524,6 +16528,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Server
 # p2pchat                        udp    Peer-to-Peer Chat (Sample    [Roger_Pantos]                                     [Roger_Pantos]                                                                                                                                     Defined TXT keys: None
 # Java Bonjour application)
+# p2pstorage-sec                 tcp    DataBOND p2p storage         [Dell]                                             [Jessica_Zhang]                                           2012-11-19                                                                               Defined TXT keys: txtvers, machineid, status
 # pairandshare                   tcp    Pair & Share data protocol   [Intel]                                            [Joshua_Boelter]                                          2011-10-18                                                                               Defined TXT keys: Proprietary
 # panoply                        tcp    Panoply multimedia composite [Natarajan_Balasundar]                             [Natarajan_Balasundar]                                                                                                                             Defined TXT keys: None
 # transfer protocol
@@ -18127,6 +18132,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Dean_Webb]                                               Dean Webb                                       mailto:dean.webb&ascend.com
 # [DEIF_AS]                                                                           DEIF A/S              mailto:aes&deif.com                                           2012-10-15
 # [Delcio_Prizon]                                           Delcio Prizon                                   mailto:dprizon&smar.com.br
+# [Dell]                                                                              Dell                  mailto:jessica_z&dell.com                                     2012-11-19
 # [Delphix_Corp]                                                                      Delphix Corp          mailto:peng.dai&delphix.com                                   2012-11-01
 # [Denis_Ducharme]                                          Denis Ducharme                                  mailto:dducharme&softek.com
 # [Denis_Leclerc]                                           Denis Leclerc                                   mailto:DLeclerc&banyan.com
@@ -18876,6 +18882,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [James_David_Fisher]                                      James David Fisher                              mailto:jfisher1&avaya.com
 # [James_E_Housley]                                         James E. Housley                                mailto:jim&thehousleys.net
 # [James_E_King_III]                                        James E. King, III                              mailto:James_E_K&dell.com                                     2010-06-24
+# [James_Emerton]                                           James Emerton             Tri Tech Computers    mailto:james&tri-tech.com                                     2012-11-19
+# Ltd.
 # [James_Falkner]                                           James Falkner                                   mailto:james.falkner&sun.com
 # [James_Figgins]                                           James Figgins                                   mailto:james.figgins&durodata.co.uk                           2006-07
 # [James_Gettys]                                            James Gettys                                    mailto:jg&w3.org
@@ -19045,6 +19053,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jesse_Ursery]                                            Jesse Ursery                                    mailto:jesse.ursery&ametek.com                                2010-11-22
 # [Jesse_W_Towner]                                          Jesse W. Towner                                 mailto:jwtowner&dsmedialabs.com
 # [Jessica_Yan]                                             Jessica Yan                                     mailto:jessica.yan2&t-mobile.com                              2008-02-19
+# [Jessica_Zhang]                                           Jessica Zhang             Dell                  mailto:jessica_z&dell.com                                     2012-11-19
 # [Jesus_David_Rodrigue]                                    Jesus David Rodriguez                           mailto:jesusdavid&magaya.com                                  2003-02
 # [Jesus_De_Meyer]                                          Jesus De Meyer                                  mailto:jesus&edot-studios.com
 # [Jesus_Ortiz]                                             Jesus Ortiz                                     mailto:jesus_ortiz&emotion.com
@@ -19988,6 +19997,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Michel_Bourget]                                          Michel Bourget                                  mailto:michel&sgi.com                                         2009-01-06
 # [Michel_Stam]                                             Michel Stam               HaloteC Instruments   mailto:michel.stam&halotec.com                                2012-02-07
 # B.V.
+# [Michel_Stam_2]                                           Michel Stam                                     mailto:michel.iana&reverze.net                                2012-11-20
 # [Micromat]                                                Micromat                                        mailto:support&micromat.com
 # [Microsoft_Corporation]                                                             Microsoft Corporation mailto:pratshar&microsoft.com                                 2011-08-04
 # [Microsoft_Corporation_2]                                                           Microsoft Corporation mailto:stdsreq&microsoft.com                                  2012-03-15
@@ -21492,6 +21502,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Development Team
 # [Trevor_Bell]                                             Trevor Bell                                     mailto:Trevor&iguana.iosoftware.com
 # [Trevor_Perkes]                                           Trevor Perkes                                   mailto:trevor.perkes&landesk.com                              2010-02-01
+# [Tri_Tech_Computers_Ltd]                                                            Tri Tech Computers    mailto:admins&tri-tech.com                                    2012-11-19
+# Ltd.
 # [Tristan_Richardson]                                      Tristan Richardson                              mailto:iana&realvnc.com                                       2006-03
 # [Tristan_Seifert]                                         Tristan Seifert                                 mailto:admin&247server.net                                    2011-01-31
 # [Tristan_Seifert_2]                                       Tristan Seifert           Squee! Application    mailto:tristan&squee.co                                       2011-07-19
