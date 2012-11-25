@@ -2278,6 +2278,9 @@ static void graph_pixmap_draw (struct graph *g)
 	cairo_rectangle (cr, 0, 0, g->wp.width, g->wp.height);
 	cairo_fill (cr);
 
+	/* Want line width 1 for all elements */
+	cairo_set_line_width (cr, 1.0);
+
 	for (list=g->elists; list; list=list->next)
 		for (e=list->elements; e->type != ELMT_NONE; e++) {
 			switch (e->type) {
