@@ -311,7 +311,6 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     int buffer_size;    /*Number of bytes in buffer that can be processed*/
     int frame_offset;   /*To handle the case of > 1 bundle in an Ethernet Frame*/
-    proto_tree *conv_proto_tree = NULL;
 
     buffer_size = tvb_reported_length(tvb);
     frame_offset = 0;
@@ -430,6 +429,7 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         else {  /*Else this is not a Data Segment*/
 
+            proto_tree *conv_proto_tree = NULL;
             proto_item *conv_item;
             proto_tree *conv_tree;
             proto_item *ci;

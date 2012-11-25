@@ -1,6 +1,7 @@
 /* packet-dvb-s2-bb.c
  * Routines for DVB Dynamic Mode Adaption dissection
- *  refer to http://satlabs.org/pdf/sl_561_Mode_Adaptation_Input_and_Output_Interfaces_for_DVB-S2_Equipment_v1.3.pdf
+ *  refer to
+ *    http://satlabs.org/pdf/sl_561_Mode_Adaptation_Input_and_Output_Interfaces_for_DVB-S2_Equipment_v1.3.pdf
  *
  * Standards:
  *  ETSI EN 302 307 - Digital Video Broadcasting (DVB) - Framing Structure
@@ -39,9 +40,9 @@
 #define BIT_IS_SET(var, bit) ((var) & (1 << (bit)))
 #define BIT_IS_CLEAR(var, bit) !BIT_IS_SET(var, bit)
 
-#define DVB_S2_MODEADAPT_MINSIZE	(DVB_S2_MODEADAPT_OUTSIZE  + DVB_S2_BB_OFFS_CRC + 1)
-#define DVB_S2_MODEADAPT_INSIZE		2
-#define DVB_S2_MODEADAPT_OUTSIZE	4
+#define DVB_S2_MODEADAPT_MINSIZE        (DVB_S2_MODEADAPT_OUTSIZE  + DVB_S2_BB_OFFS_CRC + 1)
+#define DVB_S2_MODEADAPT_INSIZE         2
+#define DVB_S2_MODEADAPT_OUTSIZE        4
 
 /* CRC table crc-8, poly=0xD5 */
 static guint8 crc8_table[256] = {
@@ -125,12 +126,12 @@ static gint ett_dvb_s2_gse_hdr = -1;
 /* *** DVB-S2 Modeadaption Header *** */
 
 /* first byte */
-#define DVB_S2_MODEADAPT_OFFS_SYNCBYTE		0
-#define DVB_S2_MODEADAPT_SYNCBYTE		0xB8
+#define DVB_S2_MODEADAPT_OFFS_SYNCBYTE          0
+#define DVB_S2_MODEADAPT_SYNCBYTE               0xB8
 
 /* second byte */
 #define DVB_S2_MODEADAPT_OFFS_ACMBYTE         1
-#define DVB_S2_MODEADAPT_MODCODS_MASK	0x1F
+#define DVB_S2_MODEADAPT_MODCODS_MASK   0x1F
 static const value_string modeadapt_modcods[] = {
     { 0, "DUMMY PLFRAME"},
     { 1, "QPSK 1/4"},
@@ -168,13 +169,13 @@ static const value_string modeadapt_modcods[] = {
 };
 static value_string_ext modeadapt_modcods_ext = VALUE_STRING_EXT_INIT(modeadapt_modcods);
 
-#define DVB_S2_MODEADAPT_PILOTS_MASK	0x20
+#define DVB_S2_MODEADAPT_PILOTS_MASK    0x20
 static const true_false_string tfs_modeadapt_pilots = {
     "pilots on",
     "pilots off"
 };
 
-#define DVB_S2_MODEADAPT_FECFRAME_MASK		0x40
+#define DVB_S2_MODEADAPT_FECFRAME_MASK          0x40
 static const true_false_string tfs_modeadapt_fecframe = {
     "short",
     "normal"
@@ -444,14 +445,14 @@ static const value_string modeadapt_esno[] = {
 static value_string_ext modeadapt_esno_ext = VALUE_STRING_EXT_INIT(modeadapt_esno);
 
 /* fourth byte */
-#define DVB_S2_MODEADAPT_OFFS_FNO	           3
+#define DVB_S2_MODEADAPT_OFFS_FNO                  3
 
 /* *** DVB-S2 Base-Band Frame *** */
 
 #define DVB_S2_BB_HEADER_LEN    10
 
-#define DVB_S2_BB_OFFS_MATYPE1		0
-#define DVB_S2_BB_GS_MASK		0xC0
+#define DVB_S2_BB_OFFS_MATYPE1          0
+#define DVB_S2_BB_GS_MASK               0xC0
 static const value_string bb_gs[] = {
     {0, "Generic Packetized (GSE)"},
     {1, "Generic continuous (GSE)"},
@@ -460,32 +461,32 @@ static const value_string bb_gs[] = {
     {0, NULL}
 };
 
-#define DVB_S2_BB_MIS_POS	   5
-#define DVB_S2_BB_MIS_MASK	0x20
+#define DVB_S2_BB_MIS_POS          5
+#define DVB_S2_BB_MIS_MASK      0x20
 static const true_false_string tfs_bb_mis = {
     "single (SIS)",
     "multiple (MIS)"
 };
 
-#define DVB_S2_BB_ACM_MASK	0x10
+#define DVB_S2_BB_ACM_MASK      0x10
 static const true_false_string tfs_bb_acm = {
     "constant (CCM)",
     "adaptive (ACM)"
 };
 
-#define DVB_S2_BB_ISSYI_MASK	0x08
+#define DVB_S2_BB_ISSYI_MASK    0x08
 static const true_false_string tfs_bb_issyi = {
     "active",
     "not-active"
 };
 
-#define DVB_S2_BB_NPD_MASK	0x04
+#define DVB_S2_BB_NPD_MASK      0x04
 static const true_false_string tfs_bb_npd = {
     "active",
     "not-active"
 };
 
-#define DVB_S2_BB_RO_MASK	0x03
+#define DVB_S2_BB_RO_MASK       0x03
 static const value_string bb_ro[] = {
     {0, "0,35"},
     {1, "0,25"},
@@ -494,30 +495,30 @@ static const value_string bb_ro[] = {
     {0, NULL}
 };
 
-#define DVB_S2_BB_OFFS_MATYPE2		1
-#define DVB_S2_BB_OFFS_UPL		2
-#define DVB_S2_BB_OFFS_DFL		4
-#define DVB_S2_BB_OFFS_SYNC		6
-#define DVB_S2_BB_OFFS_SYNCD		7
-#define DVB_S2_BB_OFFS_CRC		9
+#define DVB_S2_BB_OFFS_MATYPE2          1
+#define DVB_S2_BB_OFFS_UPL              2
+#define DVB_S2_BB_OFFS_DFL              4
+#define DVB_S2_BB_OFFS_SYNC             6
+#define DVB_S2_BB_OFFS_SYNCD            7
+#define DVB_S2_BB_OFFS_CRC              9
 
 /* *** DVB-S2 GSE Frame *** */
 
-#define DVB_S2_GSE_MINSIZE		2
+#define DVB_S2_GSE_MINSIZE              2
 
-#define DVB_S2_GSE_OFFS_HDR		0
-#define DVB_S2_GSE_HDR_START_MASK	0x8000
-#define DVB_S2_GSE_HDR_START_POS	15
-#define DVB_S2_GSE_HDR_STOP_MASK	0x4000
-#define DVB_S2_GSE_HDR_STOP_POS		14
+#define DVB_S2_GSE_OFFS_HDR             0
+#define DVB_S2_GSE_HDR_START_MASK       0x8000
+#define DVB_S2_GSE_HDR_START_POS        15
+#define DVB_S2_GSE_HDR_STOP_MASK        0x4000
+#define DVB_S2_GSE_HDR_STOP_POS         14
 static const true_false_string tfs_gse_ss = {
     "enabled",
     "disabled"
 };
 
-#define DVB_S2_GSE_HDR_LABELTYPE_MASK	0x3000
-#define DVB_S2_GSE_HDR_LABELTYPE_POS1	13
-#define DVB_S2_GSE_HDR_LABELTYPE_POS2	12
+#define DVB_S2_GSE_HDR_LABELTYPE_MASK   0x3000
+#define DVB_S2_GSE_HDR_LABELTYPE_POS1   13
+#define DVB_S2_GSE_HDR_LABELTYPE_POS2   12
 static const value_string gse_labletype[] = {
     {0, "6 byte"},
     {1, "3 byte"},
@@ -526,9 +527,9 @@ static const value_string gse_labletype[] = {
     {0, NULL}
 };
 
-#define DVB_S2_GSE_HDR_LENGTH_MASK	0x0FFF
+#define DVB_S2_GSE_HDR_LENGTH_MASK      0x0FFF
 
-static const range_string gse_proto[] = {
+static const range_string gse_proto_str[] = {
     {0x0000        , 0x00FF        , "not implemented"},
     {0x0100        , 0x05FF        , "not implemented"},
     {0x0600        , 0x07FF        , "not implemented"},
@@ -539,12 +540,12 @@ static const range_string gse_proto[] = {
     {0             , 0             , NULL             }
 };
 
-#define DVB_S2_GSE_CRC32_LEN		4
+#define DVB_S2_GSE_CRC32_LEN            4
 
 /* *** helper functions *** */
 gboolean check_crc8(tvbuff_t *p, guint8 len, guint8 offset, guint8 received_fcs)
 {
-    int i;
+    int    i;
     guint8 crc = 0, tmp;
 
     for (i = 0; i < len; i++) {
@@ -560,14 +561,14 @@ gboolean check_crc8(tvbuff_t *p, guint8 len, guint8 offset, guint8 received_fcs)
 /* *** Code to actually dissect the packets *** */
 static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, packet_info *pinfo)
 {
-    int     new_off = 0;
-    int     frag_len;
-    guint16 gse_hdr, data_len, gse_proto = 0;
+    int         new_off                      = 0;
+    int         frag_len;
+    guint16     gse_hdr, data_len, gse_proto = 0;
 
     proto_item *ti, *tf;
     proto_tree *dvb_s2_gse_tree, *dvb_s2_gse_hdr_tree;
 
-    tvbuff_t *next_tvb;
+    tvbuff_t   *next_tvb;
 
     col_append_str(pinfo->cinfo, COL_INFO, "GSE");
 
@@ -616,7 +617,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
 
             if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_LABELTYPE_POS1) && BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_LABELTYPE_POS2)) {
                 /* 6 byte label */
-                if(BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS))
+                if (BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS))
                     col_append_str(pinfo->cinfo, COL_INFO, "6 ");
 
                 proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_label6, tvb, cur_off + new_off, 6, ENC_NA);
@@ -625,7 +626,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
             } else if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_LABELTYPE_POS1) &&
                        BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_LABELTYPE_POS2)) {
                 /* 3 byte label */
-                if(BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS))
+                if (BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS))
                     col_append_str(pinfo->cinfo, COL_INFO, "3 ");
 
                 proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_label3, tvb, cur_off + new_off, 3, ENC_NA);
@@ -633,7 +634,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
                 new_off += 3;
             } else {
                 /* 0 byte label */
-                if(BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS))
+                if (BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS))
                     col_append_str(pinfo->cinfo, COL_INFO, "0 ");
             }
             if (gse_proto < 0x0600) {
@@ -653,7 +654,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
 
         next_tvb = tvb_new_subset_remaining(tvb, cur_off + new_off);
 
-        if(dvb_s2_full_dissection)
+        if (dvb_s2_full_dissection)
         {
             switch (gse_proto) {
             case ETHERTYPE_IP:
@@ -696,7 +697,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
 
 static gboolean test_dvb_s2_crc(tvbuff_t *tvb, guint offset) {
 
-    guint8  input8;
+    guint8 input8;
 
     /* only check BB Header and return */
     if (tvb_length(tvb) < (offset + DVB_S2_BB_HEADER_LEN))
@@ -718,10 +719,10 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
     proto_item *ti, *tf;
     proto_tree *dvb_s2_bb_tree, *dvb_s2_bb_matype1_tree;
 
-    guint8  input8;
-    guint16 input16, bb_data_len = 0;
+    guint8      input8;
+    guint16     input16, bb_data_len = 0;
 
-    int sub_dissected = 0, flag_is_ms = 0, new_off = 0;
+    int         sub_dissected        = 0, flag_is_ms = 0, new_off = 0;
 
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "BB ");
     col_append_str(pinfo->cinfo, COL_INFO, "Baseband ");
@@ -810,13 +811,13 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
 
 static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int cur_off = 0, dvb_s2_modeadapt_len = -1;
+    int         cur_off = 0, dvb_s2_modeadapt_len = -1;
 
     proto_item *ti, *tf;
     proto_tree *dvb_s2_modeadapt_tree;
     proto_tree *dvb_s2_modeadapt_acm_tree;
 
-    guint8 byte;
+    guint8      byte;
 
     /* Check that there's enough data */
     if (tvb_length(tvb) < 1)
@@ -1027,7 +1028,7 @@ void proto_register_dvb_s2_modeadapt(void)
         },
         {&hf_dvb_s2_gse_proto, {
                 "Protocol", "dvb-s2_gse.proto",
-                FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(gse_proto), 0x0,
+                FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(gse_proto_str), 0x0,
                 "Protocol Type", HFILL}
         },
         {&hf_dvb_s2_gse_label6, {
@@ -1093,16 +1094,16 @@ void proto_register_dvb_s2_modeadapt(void)
         "Enable DVB-S2 dissector", &dvb_s2_enable);
 
     prefs_register_bool_preference(dvb_s2_modeadapt_module, "full_decode",
-	"Enable dissection of GSE data",
-	"Check this to enable full protocol dissection of data above GSE Layer",
-	&dvb_s2_full_dissection);
+        "Enable dissection of GSE data",
+        "Check this to enable full protocol dissection of data above GSE Layer",
+        &dvb_s2_full_dissection);
 }
 
 void proto_reg_handoff_dvb_s2_modeadapt(void)
 {
     static gboolean prefs_initialized = FALSE;
 
-    if(!prefs_initialized) {
+    if (!prefs_initialized) {
         heur_dissector_add("udp", dissect_dvb_s2_modeadapt, proto_dvb_s2_modeadapt);
         ip_handle   = find_dissector("ip");
         ipv6_handle = find_dissector("ipv6");
