@@ -98,7 +98,7 @@ typedef struct _BytesViewClass
 static void bytes_view_set_scroll_adjustments(BytesView *, GtkAdjustment *, GtkAdjustment *);
 static void bytes_view_adjustment_set(BytesView *);
 
-static void 
+static void
 bytes_view_init(BytesView *bv)
 {
 	bv->context = NULL;
@@ -142,7 +142,7 @@ bytes_view_destroy(BytesView *bv)
 }
 
 #if GTK_CHECK_VERSION(3, 0, 0)
-static void 
+static void
 bytes_view_destroy_widget(GtkWidget *widget)
 {
 	bytes_view_destroy(BYTES_VIEW(widget));
@@ -188,7 +188,7 @@ bytes_view_ensure_layout(BytesView *bv)
 	}
 }
 
-static void 
+static void
 bytes_view_realize(GtkWidget *widget)
 {
 	BytesView *bv;
@@ -243,7 +243,7 @@ bytes_view_realize(GtkWidget *widget)
 	bytes_view_ensure_layout(bv);
 }
 
-static void 
+static void
 bytes_view_unrealize(GtkWidget *widget)
 {
 	BytesView *bv = BYTES_VIEW(widget);
@@ -279,7 +279,7 @@ bytes_view_ensure_hadj(BytesView *bv)
 	return bv->hadj;
 }
 
-static gboolean 
+static gboolean
 bytes_view_scroll(GtkWidget *widget, GdkEventScroll *event)
 {
 	BytesView *bv = BYTES_VIEW(widget);
@@ -305,7 +305,7 @@ bytes_view_scroll(GtkWidget *widget, GdkEventScroll *event)
 	return FALSE;
 }
 
-static void 
+static void
 bytes_view_allocate(GtkWidget *widget, GtkAllocation *allocation)
 {
 	gtk_widget_set_allocation(widget, allocation);
@@ -333,7 +333,7 @@ bytes_view_get_preferred_height(GtkWidget *widget _U_, gint *minimum, gint *natu
 
 #else
 
-static void 
+static void
 bytes_view_size_request(GtkWidget *widget _U_, GtkRequisition *requisition)
 {
 	requisition->width = 200;
@@ -542,7 +542,7 @@ bytes_view_flush_pos(BytesView *bv, void *data, int x, int search_x, const char 
 	if (x <= search_x && x + line_width > search_x) {
 		int off_x = search_x - x;
 		int pos_run;
-		
+
 		if ((pos_run = _pango_runs_find_index(line_runs, off_x, str)) != -1)
 			*pos_x = (-*pos_x) + pos_run;
 
@@ -561,7 +561,7 @@ bytes_view_render_state(BytesView *bv, int state)
 	g_assert(state == GTK_STATE_NORMAL || state == GTK_STATE_SELECTED);
 
 	if (bv->bold_highlight) {
-		pango_font_description_set_weight(bv->font, 
+		pango_font_description_set_weight(bv->font,
 				(state == GTK_STATE_SELECTED) ? PANGO_WEIGHT_BOLD : PANGO_WEIGHT_NORMAL);
 		bv->state = GTK_STATE_NORMAL;
 	} else
@@ -612,7 +612,7 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 
 	/* Print the hex bit */
 	for (byten = 0, off = org_off; byten < bv->per_line; byten++) {
-		gboolean byte_highlighted = 
+		gboolean byte_highlighted =
 			(off >= bv->start[0] && off < bv->end[0]) ||
 			(off >= bv->start[1] && off < bv->end[1]);
 		int state_cur = (off < len && byte_highlighted) ?
@@ -688,7 +688,7 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 
 	/* Print the ASCII bit */
 	for (byten = 0, off = org_off; byten < bv->per_line; byten++) {
-		gboolean byte_highlighted = 
+		gboolean byte_highlighted =
 			(off >= bv->start[0] && off < bv->end[0]) ||
 			(off >= bv->start[1] && off < bv->end[1]);
 		int state_cur = (off < len && byte_highlighted) ?
@@ -721,7 +721,7 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 		}
 
 		if (off < len) {
-			c = (bv->encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) ? 
+			c = (bv->encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) ?
 				EBCDIC_to_ASCII1(pd[off]) :
 				pd[off];
 
@@ -878,7 +878,7 @@ bytes_view_draw(GtkWidget *widget, cairo_t *cr)
 
 #else
 
-static gboolean 
+static gboolean
 bytes_view_expose(GtkWidget *widget, GdkEventExpose *event)
 {
 	BytesView *bv = BYTES_VIEW(widget);
@@ -930,7 +930,7 @@ _gtk_adjustment_configure(GtkAdjustment *adj,
 #endif
 
 
-static void 
+static void
 bytes_view_adjustment_set(BytesView *bv)
 {
 	GtkAllocation allocation;
@@ -988,7 +988,7 @@ bytes_view_adjustment_set(BytesView *bv)
 	}
 }
 
-static gint 
+static gint
 bytes_view_adjustment_timeout(BytesView *bv)
 {
 	bv->adj_tag = 0;
@@ -996,7 +996,7 @@ bytes_view_adjustment_timeout(BytesView *bv)
 	return 0;
 }
 
-static void 
+static void
 bytes_view_adjustment_changed(GtkAdjustment *adj, BytesView *bv)
 {
 	/*  delay rendering when scrolling (10ms) */
@@ -1154,7 +1154,7 @@ bv_VOID__OBJECT_OBJECT(GClosure *closure, GValue *return_value _U_, guint n_para
 
 #endif
 
-static void 
+static void
 bytes_view_class_init(BytesViewClass *klass)
 {
 #if !GTK_CHECK_VERSION(3, 0, 0)
@@ -1210,7 +1210,7 @@ bytes_view_class_init(BytesViewClass *klass)
 #else
 	klass->set_scroll_adjustments = bytes_view_set_scroll_adjustments;
 
-	widget_class->set_scroll_adjustments_signal = 
+	widget_class->set_scroll_adjustments_signal =
 		g_signal_new(g_intern_static_string("set-scroll-adjustments"),
 			G_OBJECT_CLASS_TYPE(object_class),
 			G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
@@ -1223,12 +1223,12 @@ bytes_view_class_init(BytesViewClass *klass)
 #endif
 }
 
-GType 
+GType
 bytes_view_get_type(void)
 {
-	static GType bytes_view_type = 0;
-	
-	if (!bytes_view_type) {
+	static GType bytes_view_gtype = 0;
+
+	if (!bytes_view_gtype) {
 		static const GTypeInfo bytes_view_info = {
 			sizeof (BytesViewClass),
 			NULL, /* base_init */
@@ -1250,25 +1250,25 @@ bytes_view_get_type(void)
 		};
 #endif
 
-		bytes_view_type = g_type_register_static(GTK_TYPE_WIDGET,
-							"BytesView",
-							&bytes_view_info,
-							(GTypeFlags)0);	
+		bytes_view_gtype = g_type_register_static(GTK_TYPE_WIDGET,
+							  "BytesView",
+							  &bytes_view_info,
+							  (GTypeFlags)0);
 
 #if GTK_CHECK_VERSION(3, 0, 0)
-		g_type_add_interface_static(bytes_view_type,
-						GTK_TYPE_SCROLLABLE,
-						&scrollable_info);
+		g_type_add_interface_static(bytes_view_gtype,
+					    GTK_TYPE_SCROLLABLE,
+					    &scrollable_info);
 #endif
 	}
-	return bytes_view_type;
+	return bytes_view_gtype;
 }
 
-int 
+int
 bytes_view_byte_from_xy(BytesView *bv, int x, int y)
 {
 	/* hex_pos_byte array generated with hex_view_get_byte(0, 0, 0...70) */
-	static const int hex_pos_byte[70] = { 
+	static const int hex_pos_byte[70] = {
 		-1, -1,
 		0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3,
 		4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7,
@@ -1326,7 +1326,7 @@ bytes_view_byte_from_xy(BytesView *bv, int x, int y)
 	return off_y + off_x;
 }
 
-void 
+void
 bytes_view_scroll_to_byte(BytesView *bv, int byte)
 {
 	int line;
@@ -1368,7 +1368,7 @@ bytes_view_set_font(BytesView *bv, PangoFontDescription *font)
 	}
 }
 
-void 
+void
 bytes_view_set_data(BytesView *bv, const guint8 *data, int len)
 {
 	g_free(bv->pd);
@@ -1396,7 +1396,7 @@ bytes_view_set_data(BytesView *bv, const guint8 *data, int len)
 	bytes_view_adjustment_set(bv);
 }
 
-void 
+void
 bytes_view_set_encoding(BytesView *bv, int enc)
 {
 	g_assert(enc == PACKET_CHAR_ENC_CHAR_ASCII || enc == PACKET_CHAR_ENC_CHAR_EBCDIC);
@@ -1404,7 +1404,7 @@ bytes_view_set_encoding(BytesView *bv, int enc)
 	bv->encoding = enc;
 }
 
-void 
+void
 bytes_view_set_format(BytesView *bv, int format)
 {
 	g_assert(format == BYTES_HEX || format == BYTES_BITS);
@@ -1428,21 +1428,21 @@ bytes_view_set_highlight_style(BytesView *bv, gboolean inverse)
 	bv->bold_highlight = !inverse;
 }
 
-void 
+void
 bytes_view_set_highlight(BytesView *bv, int start, int end, guint32 mask _U_, int maskle _U_)
 {
 	bv->start[0] = start;
 	bv->end[0] = end;
 }
 
-void 
+void
 bytes_view_set_highlight_appendix(BytesView *bv, int start, int end)
 {
 	bv->start[1] = start;
 	bv->end[1] = end;
 }
 
-void 
+void
 bytes_view_refresh(BytesView *bv)
 {
 	/* bytes_view_render_full(bv); */

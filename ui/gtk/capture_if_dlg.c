@@ -98,36 +98,36 @@
  * already a "Capture Interfaces" window up, we just pop up the existing
  * one, rather than creating a new one.
  */
-static GtkWidget *cap_if_w;
+static GtkWidget       *cap_if_w;
 
-static guint     timer_id;
+static guint            timer_id;
 
-static GtkWidget *close_bt, *stop_bt, *capture_bt, *options_bt;
+static GtkWidget       *close_bt, *stop_bt, *capture_bt, *options_bt;
 
-static GArray    *if_array;
+static GArray          *if_array;
 
-static if_stat_cache_t   *sc;
-static GtkWidget *cap_if_top_vb, *cap_if_sw;
+static if_stat_cache_t *sc;
+static GtkWidget       *cap_if_top_vb, *cap_if_sw;
 
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.
  */
-#define	CAP_READ_TIMEOUT	250
+#define CAP_READ_TIMEOUT 250
 
 
 /* the "runtime" data of one interface */
 typedef struct if_dlg_data_s {
-    gchar       *device;
-    GtkWidget   *device_lb;
-    GtkWidget   *descr_lb;
-    GtkWidget   *ip_lb;
-    GtkWidget   *curr_lb;
-    GtkWidget   *last_lb;
-    GtkWidget   *choose_bt;
+    gchar     *device;
+    GtkWidget *device_lb;
+    GtkWidget *descr_lb;
+    GtkWidget *ip_lb;
+    GtkWidget *curr_lb;
+    GtkWidget *last_lb;
+    GtkWidget *choose_bt;
 #ifdef _WIN32
-    GtkWidget   *details_bt;
+    GtkWidget *details_bt;
 #endif
-    gboolean    hidden;
+    gboolean   hidden;
 } if_dlg_data_t;
 
 static gboolean gbl_capture_in_progress = FALSE;
@@ -138,7 +138,7 @@ add_interface(void)
 {
   if_dlg_data_t data;
 
-  data.device_lb = NULL;
+  data.device_lb  = NULL;
   data.descr_lb   = NULL;
   data.ip_lb      = NULL;
   data.curr_lb    = NULL;
@@ -156,8 +156,8 @@ add_interface(void)
 void
 update_selected_interface(gchar *name)
 {
-  guint i;
-  interface_t device;
+  guint         i;
+  interface_t   device;
   if_dlg_data_t data;
 
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
@@ -174,7 +174,7 @@ static void
 store_selected(GtkWidget *choose_bt, gpointer name)
 {
   interface_t device;
-  guint i;
+  guint       i;
 
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
@@ -208,10 +208,10 @@ store_selected(GtkWidget *choose_bt, gpointer name)
 
 /* start capture button was pressed */
 static void
-capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data _U_)
+capture_do_cb(GtkWidget *capture_bt_arg _U_, gpointer if_data _U_)
 {
   if_dlg_data_t data;
-  guint ifs;
+  guint         ifs;
 
   for (ifs = 0; ifs < if_array->len; ifs++) {
     data = g_array_index(if_array, if_dlg_data_t, ifs);
@@ -267,14 +267,14 @@ capture_details_cb(GtkWidget *details_bt _U_, gpointer name)
 
 /* update a single interface */
 static void
-update_if(gchar *name, if_stat_cache_t *sc)
+update_if(gchar *name, if_stat_cache_t *sc_p)
 {
-  struct pcap_stat stats;
-  gchar *str;
-  guint diff, ifs, data_ifs;
-  interface_t  device;
-  if_dlg_data_t data;
-  gboolean  found = FALSE;
+  struct pcap_stat  stats;
+  gchar            *str;
+  guint             diff, ifs, data_ifs;
+  interface_t       device;
+  if_dlg_data_t     data;
+  gboolean          found = FALSE;
 
 
   /*
@@ -288,7 +288,7 @@ update_if(gchar *name, if_stat_cache_t *sc)
   device.last_packets = 0;
   data.curr_lb = NULL;
   data.last_lb = NULL;
-  if (sc) {
+  if (sc_p) {
     for (ifs = 0, data_ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
       device = g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
       if (device.type != IF_PIPE) {
@@ -300,7 +300,7 @@ update_if(gchar *name, if_stat_cache_t *sc)
       }
     }
     if (found) {
-      if (capture_stats(sc, name, &stats)) {
+      if (capture_stats(sc_p, name, &stats)) {
         if ((int)(stats.ps_recv - device.last_packets) < 0) {
           diff = 0;
         } else {
@@ -333,9 +333,9 @@ update_if(gchar *name, if_stat_cache_t *sc)
 static gboolean
 update_all(gpointer data)
 {
-  interface_t device;
-  guint ifs;
-  if_stat_cache_t *sc = data;
+  interface_t      device;
+  guint            ifs;
+  if_stat_cache_t *sc_p = data;
 
   if (!cap_if_w) {
     return FALSE;
@@ -343,7 +343,7 @@ update_all(gpointer data)
 
   for (ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
-    update_if(device.name, sc);
+    update_if(device.name, sc_p);
   }
 
   return TRUE;
@@ -432,9 +432,9 @@ GtkWidget * capture_get_if_icon(interface_t *device)
 static int
 get_ip_addr_count(GSList *addr_list)
 {
-  GSList *curr_addr;
+  GSList    *curr_addr;
   if_addr_t *addr;
-  int count;
+  int        count;
 
   count = 0;
   for (curr_addr = addr_list; curr_addr != NULL;
@@ -458,8 +458,8 @@ get_ip_addr_count(GSList *addr_list)
 static const gchar *
 set_ip_addr_label(GSList *addr_list, GtkWidget *ip_lb, guint selected_ip_addr)
 {
-  GSList *curr_addr;
-  if_addr_t *addr;
+  GSList      *curr_addr;
+  if_addr_t   *addr;
   const gchar *addr_str = NULL;
 
   curr_addr = g_slist_nth(addr_list, selected_ip_addr);
@@ -513,11 +513,11 @@ ip_label_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data _U_)
 static gboolean
 ip_label_press_cb(GtkWidget *widget, GdkEvent *event _U_, gpointer data)
 {
-  GtkWidget *ip_lb = (GtkWidget *)g_object_get_data(G_OBJECT(widget), CAPTURE_IF_IP_ADDR_LABEL);
-  GSList *addr_list = (GSList *)data;
-  GSList *curr_addr, *start_addr;
+  GtkWidget *ip_lb            = (GtkWidget *)g_object_get_data(G_OBJECT(widget), CAPTURE_IF_IP_ADDR_LABEL);
+  GSList    *addr_list        = (GSList *)data;
+  GSList    *curr_addr, *start_addr;
   if_addr_t *addr;
-  guint selected_ip_addr = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(ip_lb), CAPTURE_IF_SELECTED_IP_ADDR));
+  guint      selected_ip_addr = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(ip_lb), CAPTURE_IF_SELECTED_IP_ADDR));
 
   /* Select next IP address */
   start_addr = g_slist_nth(addr_list, selected_ip_addr);
@@ -555,7 +555,7 @@ found:
 static void
 capture_if_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-  guint ifs;
+  guint         ifs;
   if_dlg_data_t data;
 
   for (ifs = 0; ifs < if_array->len; ifs++) {
@@ -629,15 +629,15 @@ can_capture(void)
 static void
 capture_if_refresh_if_list(void)
 {
-  GtkWidget         *if_vb, *if_tb, *icon, *if_lb, *eb;
-  GString           *if_tool_str = g_string_new("");
-  GtkRequisition    requisition;
-  int               row = 0, height = 0, curr_height, curr_width;
-  guint             ifs;
-  interface_t       device;
-  const gchar       *addr_str;
-  gchar             *user_descr;
-  if_dlg_data_t     data;
+  GtkWidget      *if_vb, *if_tb, *icon, *if_lb, *eb;
+  GString        *if_tool_str = g_string_new("");
+  GtkRequisition  requisition;
+  int             row = 0, height = 0, curr_height, curr_width;
+  guint           ifs;
+  interface_t     device;
+  const gchar    *addr_str;
+  gchar          *user_descr;
+  if_dlg_data_t   data;
 
   if (!can_capture()) {
     /* No interfaces or, on Windows, no WinPcap; we've already popped
@@ -686,7 +686,7 @@ capture_if_refresh_if_list(void)
   gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 5, 6, row, row+1);
 
   if_lb = gtk_label_new("Packets");
-  gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 6, 7, row, row+1);                            
+  gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 6, 7, row, row+1);
 
   if_lb = gtk_label_new(" Packets/s ");
   gtk_table_attach_defaults(GTK_TABLE(if_tb), if_lb, 7, 8, row, row+1);
@@ -807,12 +807,12 @@ capture_if_refresh_if_list(void)
     row++;
     if (row <= 20) {
         /* Lets add up 20 rows of interfaces, otherwise the window may become too high */
-#ifdef _WIN32        
+#ifdef _WIN32
       gtk_widget_get_preferred_size(GTK_WIDGET(data.details_bt), &requisition, NULL);
 #else
       gtk_widget_get_preferred_size(GTK_WIDGET(data.choose_bt), &requisition, NULL);
-#endif      
-      height += requisition.height;        
+#endif
+      height += requisition.height;
     }
   }
 
@@ -825,8 +825,8 @@ capture_if_refresh_if_list(void)
 #ifndef _WIN32
     if (curr_height < height)
         /* On windows, resetting the size regardless works around what appears to be a windows gtk bug
-         * with multiple nic's where the resulting dialog box is much smaller than it should be. 
-         * note: the actual height calculation is not correct on Windows with varying 
+         * with multiple nic's where the resulting dialog box is much smaller than it should be.
+         * note: the actual height calculation is not correct on Windows with varying
          * number of interfaces but fine at this point in time. */
 #endif
        gtk_window_resize(GTK_WINDOW(cap_if_w), curr_width, height);
@@ -845,10 +845,10 @@ capture_if_refresh_if_list(void)
 void
 capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-  GtkWidget         *bbox,
-                    *help_bt;
+  GtkWidget *bbox,
+            *help_bt;
 #ifdef HAVE_AIRPCAP
-  GtkWidget         *decryption_cb;
+  GtkWidget *decryption_cb;
 #endif
 
   if (cap_if_w != NULL) {
@@ -934,7 +934,7 @@ void refresh_if_window(void)
 
 void select_all_interfaces(gboolean enable _U_)
 {
-  guint ifs;
+  guint       ifs;
   interface_t device;
 
   for (ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
@@ -957,3 +957,16 @@ set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress _U_)
 }
 
 #endif /* HAVE_LIBPCAP */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
