@@ -225,34 +225,34 @@ typedef enum {
 } initfilter_status_t;
 
 typedef struct _pcap_options {
-    guint32        received;
-    guint32        dropped;
-    pcap_t         *pcap_h;
+    guint32                      received;
+    guint32                      dropped;
+    pcap_t                      *pcap_h;
 #ifdef MUST_DO_SELECT
-    int            pcap_fd;               /* pcap file descriptor */
+    int                          pcap_fd;                /* pcap file descriptor */
 #endif
-    gboolean       pcap_err;
-    guint          interface_id;
-    GThread        *tid;
-    int            snaplen;
-    int            linktype;
-    gboolean       ts_nsec;               /* TRUE if we're using nanosecond precision. */
-    /* capture pipe (unix only "input file") */
-    gboolean       from_cap_pipe;         /* TRUE if we are capturing data from a capture pipe */
-    gboolean       from_cap_socket;       /* TRUE if we're capturing from socket */
-    struct pcap_hdr cap_pipe_hdr;         /* Pcap header when capturing from a pipe */
-    struct pcaprec_modified_hdr cap_pipe_rechdr;  /* Pcap record header when capturing from a pipe */
+    gboolean                     pcap_err;
+    guint                        interface_id;
+    GThread                     *tid;
+    int                          snaplen;
+    int                          linktype;
+    gboolean                     ts_nsec;                /* TRUE if we're using nanosecond precision. */
+                                                         /* capture pipe (unix only "input file") */
+    gboolean                     from_cap_pipe;          /* TRUE if we are capturing data from a capture pipe */
+    gboolean                     from_cap_socket;        /* TRUE if we're capturing from socket */
+    struct pcap_hdr              cap_pipe_hdr;           /* Pcap header when capturing from a pipe */
+    struct pcaprec_modified_hdr  cap_pipe_rechdr;        /* Pcap record header when capturing from a pipe */
 #ifdef _WIN32
-    HANDLE         cap_pipe_h;            /* The handle of the capture pipe */
+    HANDLE                       cap_pipe_h;             /* The handle of the capture pipe */
 #endif
-    int            cap_pipe_fd;           /* the file descriptor of the capture pipe */
-    gboolean       cap_pipe_modified;     /* TRUE if data in the pipe uses modified pcap headers */
-    gboolean       cap_pipe_byte_swapped; /* TRUE if data in the pipe is byte swapped */
+    int                          cap_pipe_fd;            /* the file descriptor of the capture pipe */
+    gboolean                     cap_pipe_modified;      /* TRUE if data in the pipe uses modified pcap headers */
+    gboolean                     cap_pipe_byte_swapped;  /* TRUE if data in the pipe is byte swapped */
 #if defined(_WIN32)
-    char *         cap_pipe_buf;          /* Pointer to the data buffer we read into */
+    char *                       cap_pipe_buf;           /* Pointer to the data buffer we read into */
 #endif
-    int            cap_pipe_bytes_to_read;/* Used by cap_pipe_dispatch */
-    int            cap_pipe_bytes_read;   /* Used by cap_pipe_dispatch */
+    int                          cap_pipe_bytes_to_read; /* Used by cap_pipe_dispatch */
+    int                          cap_pipe_bytes_read;    /* Used by cap_pipe_dispatch */
     enum {
         STATE_EXPECT_REC_HDR,
         STATE_READ_REC_HDR,
@@ -261,32 +261,32 @@ typedef struct _pcap_options {
     } cap_pipe_state;
     enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } cap_pipe_err;
 #if defined(_WIN32)
-    GMutex *cap_pipe_read_mtx;
-    GAsyncQueue *cap_pipe_pending_q, *cap_pipe_done_q;
+    GMutex                      *cap_pipe_read_mtx;
+    GAsyncQueue                 *cap_pipe_pending_q, *cap_pipe_done_q;
 #endif
 } pcap_options;
 
 typedef struct _loop_data {
     /* common */
-    gboolean       go;                    /* TRUE as long as we're supposed to keep capturing */
-    int            err;                   /* if non-zero, error seen while capturing */
-    gint           packet_count;          /* Number of packets we have already captured */
-    gint           packet_max;            /* Number of packets we're supposed to capture - 0 means infinite */
-    guint          inpkts_to_sync_pipe;   /* Packets not already send out to the sync_pipe */
+    gboolean  go;               /* TRUE as long as we're supposed to keep capturing */
+    int       err;              /* if non-zero, error seen while capturing */
+    gint      packet_count;     /* Number of packets we have already captured */
+    gint      packet_max;       /* Number of packets we're supposed to capture - 0 means infinite */
+    guint     inpkts_to_sync_pipe; /* Packets not already send out to the sync_pipe */
 #ifdef SIGINFO
-    gboolean       report_packet_count;   /* Set by SIGINFO handler; print packet count */
+    gboolean  report_packet_count; /* Set by SIGINFO handler; print packet count */
 #endif
-    GArray         *pcaps;
+    GArray   *pcaps;
     /* output file(s) */
-    FILE          *pdh;
-    int            save_file_fd;
-    long           bytes_written;
-    guint32        autostop_files;
+    FILE     *pdh;
+    int       save_file_fd;
+    long      bytes_written;
+    guint32   autostop_files;
 } loop_data;
 
 typedef struct _pcap_queue_element {
     pcap_options       *pcap_opts;
-    struct pcap_pkthdr phdr;
+    struct pcap_pkthdr  phdr;
     u_char             *pd;
 } pcap_queue_element;
 
@@ -369,7 +369,7 @@ static void report_cfilter_error(capture_options *capture_opts, guint i, const c
 /* Copied from pcapio.c libpcap_write_interface_statistics_block()*/
 static guint64
 create_timestamp(void) {
-    guint64 timestamp;
+    guint64  timestamp;
 #ifdef _WIN32
     FILETIME now;
 #else
@@ -538,7 +538,7 @@ cmdarg_err(const char *fmt, ...)
 {
     va_list ap;
 
-    if(capture_child) {
+    if (capture_child) {
         gchar *msg;
         /* Generate a 'special format' message back to parent */
         va_start(ap, fmt);
@@ -563,7 +563,7 @@ cmdarg_err_cont(const char *fmt, ...)
 {
     va_list ap;
 
-    if(capture_child) {
+    if (capture_child) {
         gchar *msg;
         va_start(ap, fmt);
         msg = g_strdup_vprintf(fmt, ap);
@@ -1276,9 +1276,9 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
 
 #define ADDRSTRLEN 46 /* Covers IPv4 & IPv6 */
 /*
- * Output a machine readable list of the interfaces 
+ * Output a machine readable list of the interfaces
  * This list is retrieved by the sync_interface_list_open() function
- * The actual output of this function can be viewed with the command "dumpcap -D -Z none" 
+ * The actual output of this function can be viewed with the command "dumpcap -D -Z none"
  */
 static void
 print_machine_readable_interfaces(GList *if_list)
@@ -1311,14 +1311,14 @@ print_machine_readable_interfaces(GList *if_list)
             printf("\t%s\t", if_info->vendor_description);
         else
             printf("\t\t");
-            
+
         /* XXX - Make sure our friendly name doesn't contain a tab */
         if (if_info->friendly_name != NULL)
             printf("%s\t", if_info->friendly_name);
         else
-            printf("\t");            
+            printf("\t");
 
-        for(addr = g_slist_nth(if_info->addrs, 0); addr != NULL;
+        for (addr = g_slist_nth(if_info->addrs, 0); addr != NULL;
                     addr = g_slist_next(addr)) {
             if (addr != g_slist_nth(if_info->addrs, 0))
                 printf(",");
@@ -1920,15 +1920,15 @@ cap_pipe_open_live(char *pipename,
                    char *errmsg, int errmsgl)
 {
 #ifndef _WIN32
-    ws_statb64   pipe_stat;
+    ws_statb64         pipe_stat;
     struct sockaddr_un sa;
 #else /* _WIN32 */
-    char *pncopy, *pos;
+    char    *pncopy, *pos;
     wchar_t *err_str;
 #endif
     int          b, fd, sel_ret;
     unsigned int bytes_read;
-    guint32       magic = 0;
+    guint32      magic = 0;
 
     pcap_opts->cap_pipe_fd = -1;
 #ifdef _WIN32
@@ -2265,17 +2265,17 @@ error:
 static int
 cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *errmsg, int errmsgl)
 {
-    struct pcap_pkthdr phdr;
+    struct pcap_pkthdr  phdr;
     enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
            PD_ERR } result;
 #ifdef _WIN32
 #if !GLIB_CHECK_VERSION(2,31,18)
-    GTimeVal wait_time;
+    GTimeVal  wait_time;
 #endif
-    gpointer q_status;
-    wchar_t *err_str;
+    gpointer  q_status;
+    wchar_t  *err_str;
 #endif
-    int b;
+    int       b;
 
 #ifdef LOG_CAPTURE_VERBOSE
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_dispatch");
@@ -2728,7 +2728,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 /* close the capture input file (pcap or capture pipe) */
 static void capture_loop_close_input(loop_data *ld)
 {
-    guint i;
+    guint         i;
     pcap_options *pcap_opts;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input");
@@ -2801,11 +2801,11 @@ capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe,
 static gboolean
 capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *errmsg, int errmsg_len)
 {
-    int err;
-    guint i;
-    pcap_options *pcap_opts;
-    interface_options interface_opts;
-    gboolean successful;
+    int                err;
+    guint              i;
+    pcap_options      *pcap_opts;
+    interface_options  interface_opts;
+    gboolean           successful;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_output");
 
@@ -2910,9 +2910,9 @@ static gboolean
 capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close)
 {
 
-    unsigned int i;
+    unsigned int  i;
     pcap_options *pcap_opts;
-    guint64 end_time = create_timestamp();
+    guint64       end_time = create_timestamp();
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_output");
 
@@ -2964,11 +2964,11 @@ static int
 capture_loop_dispatch(loop_data *ld,
                       char *errmsg, int errmsg_len, pcap_options *pcap_opts)
 {
-    int       inpkts;
-    gint      packet_count_before;
-    guchar    pcap_data[WTAP_MAX_PACKET_SIZE];
+    int    inpkts;
+    gint   packet_count_before;
+    guchar pcap_data[WTAP_MAX_PACKET_SIZE];
 #ifndef _WIN32
-    int       sel_ret;
+    int    sel_ret;
 #endif
 
     packet_count_before = ld->packet_count;
@@ -3117,7 +3117,7 @@ capture_loop_dispatch(loop_data *ld,
                     }
                 }
 
-                if(in < 0) {
+                if (in < 0) {
                     pcap_opts->pcap_err = TRUE;
                     ld->go = FALSE;
                 }
@@ -3141,7 +3141,7 @@ capture_loop_dispatch(loop_data *ld,
 static GString *
 isolate_uuid(const char *iface)
 {
-    gchar *ptr;
+    gchar   *ptr;
     GString *gstr;
 
     ptr = strchr(iface, '{');
@@ -3164,10 +3164,10 @@ static gboolean
 capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                          char *errmsg, int errmsg_len)
 {
-    char *tmpname;
-    gchar *capfile_name;
-    gchar *prefix;
-    gboolean is_tempfile;
+    char     *tmpname;
+    gchar    *capfile_name;
+    gchar    *prefix;
+    gboolean  is_tempfile;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_output: %s",
           (capture_opts->save_file) ? capture_opts->save_file : "(not specified)");
@@ -3205,7 +3205,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                                              capture_opts->group_read_access);
 
                 /* we need the ringbuf name */
-                if(*save_file_fd != -1) {
+                if (*save_file_fd != -1) {
                     g_free(capfile_name);
                     capfile_name = g_strdup(ringbuf_current_filename());
                 }
@@ -3225,7 +3225,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
             basename = g_path_get_basename(g_array_index(global_capture_opts.ifaces, interface_options, 0).console_display_name);
 #ifdef _WIN32
             /* use the generic portion of the interface guid to form the basis of the filename */
-            if(strncmp("NPF_{", basename, 5)==0)
+            if (strncmp("NPF_{", basename, 5)==0)
             {
                 /* we have a windows guid style device name, extract the guid digits as the basis of the filename */
                 GString *iface;
@@ -3236,7 +3236,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
             }
 #endif
             /* generate the temp file name prefix...
-             * It would be nice if we could specify a pcapng/pcap filename suffix, 
+             * It would be nice if we could specify a pcapng/pcap filename suffix,
              * create_tempfile() however currently uses mkstemp() which doesn't allow this - one day perhaps*/
             if (capture_opts->use_pcapng) {
                 prefix = g_strconcat("wireshark_pcapng_", basename, NULL);
@@ -3271,7 +3271,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         return FALSE;
     }
 
-    if(capture_opts->save_file != NULL) {
+    if (capture_opts->save_file != NULL) {
         g_free(capture_opts->save_file);
     }
     capture_opts->save_file = capfile_name;
@@ -3290,10 +3290,10 @@ do_file_switch_or_stop(capture_options *capture_opts,
                        condition *cnd_autostop_size,
                        condition *cnd_file_duration)
 {
-    guint i;
-    pcap_options *pcap_opts;
-    interface_options interface_opts;
-    gboolean successful;
+    guint              i;
+    pcap_options      *pcap_opts;
+    interface_options  interface_opts;
+    gboolean           successful;
 
     if (capture_opts->multi_files_on) {
         if (cnd_autostop_files != NULL &&
@@ -3382,7 +3382,7 @@ static void *
 pcap_read_handler(void* arg)
 {
     pcap_options *pcap_opts;
-    char errmsg[MSG_MAX_LENGTH+1];
+    char          errmsg[MSG_MAX_LENGTH+1];
 
     pcap_opts = (pcap_options *)arg;
 
@@ -3405,24 +3405,24 @@ static gboolean
 capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
 #ifdef WIN32
-    DWORD upd_time, cur_time;   /* GetTickCount() returns a "DWORD" (which is 'unsigned long') */
+    DWORD              upd_time, cur_time; /* GetTickCount() returns a "DWORD" (which is 'unsigned long') */
 #else
-    struct timeval upd_time, cur_time;
+    struct timeval     upd_time, cur_time;
 #endif
-    int         err_close;
-    int         inpkts;
-    condition  *cnd_file_duration = NULL;
-    condition  *cnd_autostop_files = NULL;
-    condition  *cnd_autostop_size = NULL;
-    condition  *cnd_autostop_duration = NULL;
-    gboolean    write_ok;
-    gboolean    close_ok;
-    gboolean    cfilter_error = FALSE;
-    char        errmsg[MSG_MAX_LENGTH+1];
-    char        secondary_errmsg[MSG_MAX_LENGTH+1];
-    pcap_options *pcap_opts;
-    interface_options interface_opts;
-    guint i, error_index = 0;
+    int                err_close;
+    int                inpkts;
+    condition         *cnd_file_duration     = NULL;
+    condition         *cnd_autostop_files    = NULL;
+    condition         *cnd_autostop_size     = NULL;
+    condition         *cnd_autostop_duration = NULL;
+    gboolean           write_ok;
+    gboolean           close_ok;
+    gboolean           cfilter_error         = FALSE;
+    char               errmsg[MSG_MAX_LENGTH+1];
+    char               secondary_errmsg[MSG_MAX_LENGTH+1];
+    pcap_options      *pcap_opts;
+    interface_options  interface_opts;
+    guint              i, error_index        = 0;
 
     *errmsg           = '\0';
     *secondary_errmsg = '\0';
@@ -3790,7 +3790,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
     /* there might be packets not yet notified to the parent */
     /* (do this after closing the file, so all packets are already flushed) */
-    if(global_ld.inpkts_to_sync_pipe) {
+    if (global_ld.inpkts_to_sync_pipe) {
         if (!quiet)
             report_packet_count(global_ld.inpkts_to_sync_pipe);
         global_ld.inpkts_to_sync_pipe = 0;
@@ -3882,10 +3882,11 @@ error:
 }
 
 
-static void capture_loop_stop(void)
+static void
+capture_loop_stop(void)
 {
 #ifdef HAVE_PCAP_BREAKLOOP
-    guint i;
+    guint         i;
     pcap_options *pcap_opts;
 
     for (i = 0; i < global_ld.pcaps->len; i++) {
@@ -3949,8 +3950,8 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
                              const u_char *pd)
 {
     pcap_options *pcap_opts = (pcap_options *) (void *) pcap_opts_p;
-    int err;
-    guint ts_mul = pcap_opts->ts_nsec ? 1000000000 : 1000000;
+    int           err;
+    guint         ts_mul    = pcap_opts->ts_nsec ? 1000000000 : 1000000;
 
     /* We may be called multiple times from pcap_dispatch(); if we've set
        the "stop capturing" flag, ignore this packet, as we're not
@@ -3994,9 +3995,9 @@ static void
 capture_loop_queue_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr,
                              const u_char *pd)
 {
-    pcap_options *pcap_opts = (pcap_options *) (void *) pcap_opts_p;
+    pcap_options       *pcap_opts = (pcap_options *) (void *) pcap_opts_p;
     pcap_queue_element *queue_element;
-    gboolean limit_reached;
+    gboolean            limit_reached;
 
     /* We may be called multiple times from pcap_dispatch(); if we've set
        the "stop capturing" flag, ignore this packet, as we're not
@@ -4054,8 +4055,9 @@ capture_loop_queue_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
 static int
 set_80211_channel(const char *iface, const char *opt)
 {
-    int freq = 0, type, ret;
+    int     freq    = 0, type, ret;
     gchar **options = NULL;
+
     options = g_strsplit_set(opt, ",", 2);
 
     if (options[0])
@@ -4098,35 +4100,35 @@ out:
 int
 main(int argc, char *argv[])
 {
-    int                  opt;
-    gboolean             arg_error = FALSE;
+    int               opt;
+    gboolean          arg_error             = FALSE;
 
 #ifdef _WIN32
-    WSADATA              wsaData;
+    WSADATA           wsaData;
 #else
-    struct sigaction action, oldaction;
+    struct sigaction  action, oldaction;
 #endif
 
-    gboolean             start_capture = TRUE;
-    gboolean             stats_known;
-    struct pcap_stat     stats;
-    GLogLevelFlags       log_flags;
-    gboolean             list_interfaces = FALSE;
-    gboolean             list_link_layer_types = FALSE;
+    gboolean          start_capture         = TRUE;
+    gboolean          stats_known;
+    struct pcap_stat  stats;
+    GLogLevelFlags    log_flags;
+    gboolean          list_interfaces       = FALSE;
+    gboolean          list_link_layer_types = FALSE;
 #ifdef HAVE_BPF_IMAGE
-    gboolean             print_bpf_code = FALSE;
+    gboolean          print_bpf_code        = FALSE;
 #endif
-    gboolean             set_chan = FALSE;
-    gchar                *set_chan_arg = NULL;
-    gboolean             machine_readable = FALSE;
-    gboolean             print_statistics = FALSE;
-    int                  status, run_once_args = 0;
-    gint                 i;
-    guint                j;
+    gboolean          set_chan              = FALSE;
+    gchar            *set_chan_arg          = NULL;
+    gboolean          machine_readable      = FALSE;
+    gboolean          print_statistics      = FALSE;
+    int               status, run_once_args = 0;
+    gint              i;
+    guint             j;
 #if defined(__APPLE__) && defined(__LP64__)
-    struct utsname       osinfo;
+    struct utsname    osinfo;
 #endif
-    GString             *str;
+    GString          *str;
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
@@ -4233,7 +4235,7 @@ main(int argc, char *argv[])
 
     for (i=1; i<argc; i++) {
         if (strcmp("-Z", argv[i]) == 0) {
-            capture_child = TRUE;
+            capture_child    = TRUE;
             machine_readable = TRUE;  /* request machine-readable output */
 #ifdef _WIN32
             /* set output pipe to binary mode, to avoid ugly text conversions */
@@ -4431,8 +4433,8 @@ main(int argc, char *argv[])
             break;
         case 'v':        /* Show version and exit */
         {
-            GString             *comp_info_str;
-            GString             *runtime_info_str;
+            GString *comp_info_str;
+            GString *runtime_info_str;
             /* Assemble the compile-time version information string */
             comp_info_str = g_string_new("Compiled ");
             get_compiled_version_info(comp_info_str, NULL, NULL);
@@ -4474,7 +4476,7 @@ main(int argc, char *argv[])
         case 'I':        /* Monitor mode */
 #endif
             status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
-            if(status != 0) {
+            if (status != 0) {
                 exit_main(status);
             }
             break;
@@ -4611,9 +4613,9 @@ main(int argc, char *argv[])
      */
     if (list_interfaces) {
         /* Get the list of interfaces */
-        GList       *if_list;
-        int         err;
-        gchar       *err_str;
+        GList *if_list;
+        int    err;
+        gchar *err_str;
 
         if_list = capture_interface_list(&err, &err_str);
         if (if_list == NULL) {
@@ -4694,7 +4696,7 @@ main(int argc, char *argv[])
 #ifdef _WIN32
         if (global_capture_opts.ifaces->len < 2)
 #else
-        if (global_capture_opts.ifaces->len < 4) 
+        if (global_capture_opts.ifaces->len < 4)
 #endif
         {
             for (j = 0; j < global_capture_opts.ifaces->len; j++) {
@@ -4709,7 +4711,7 @@ main(int argc, char *argv[])
                     if (j == global_capture_opts.ifaces->len - 1) {
                         g_string_append_printf(str, "and ");
                     }
-                }                
+                }
                 g_string_append_printf(str, "'%s'", interface_opts.console_display_name);
             }
         } else {
@@ -4723,12 +4725,12 @@ main(int argc, char *argv[])
         /* Get the list of link-layer types for the capture device. */
         if_capabilities_t *caps;
         gchar *err_str;
-        guint i;
+        guint  ii;
 
-        for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+        for (ii = 0; ii < global_capture_opts.ifaces->len; ii++) {
             interface_options interface_opts;
 
-            interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+            interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, ii);
             caps = get_if_capabilities(interface_opts.name,
                                        interface_opts.monitor_mode, &err_str);
             if (caps == NULL) {
@@ -4773,7 +4775,7 @@ main(int argc, char *argv[])
 
     /* Now start the capture. */
 
-    if(capture_loop_start(&global_capture_opts, &stats_known, &stats) == TRUE) {
+    if (capture_loop_start(&global_capture_opts, &stats_known, &stats) == TRUE) {
         /* capture ok */
         exit_main(0);
     } else {
@@ -4788,13 +4790,13 @@ static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
                     const char *message, gpointer user_data _U_)
 {
-    time_t curr;
+    time_t      curr;
     struct tm  *today;
     const char *level;
     gchar      *msg;
 
     /* ignore log message, if log_level isn't interesting */
-    if( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO))) {
+    if ( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO))) {
 #if !defined(DEBUG_DUMPCAP) && !defined(DEBUG_CHILD_DUMPCAP)
         return;
 #endif
@@ -4830,7 +4832,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
     }
 
     /* Generate the output message                                  */
-    if(log_level & G_LOG_LEVEL_MESSAGE) {
+    if (log_level & G_LOG_LEVEL_MESSAGE) {
         /* normal user messages without additional infos */
         msg =  g_strdup_printf("%s\n", message);
     } else {
@@ -4843,7 +4845,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
     /* DEBUG & INFO msgs (if we're debugging today)                 */
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
-    if( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO))) {
+    if ( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO))) {
 #ifdef DEBUG_DUMPCAP
         fprintf(stderr, "%s", msg);
         fflush(stderr);
@@ -4879,7 +4881,7 @@ report_packet_count(unsigned int packet_count)
     char tmp[SP_DECISIZE+1+1];
     static unsigned int count = 0;
 
-    if(capture_child) {
+    if (capture_child) {
         g_snprintf(tmp, sizeof(tmp), "%u", packet_count);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets: %s", tmp);
         pipe_write_block(2, SP_PACKET_COUNT, tmp);
@@ -4894,7 +4896,7 @@ report_packet_count(unsigned int packet_count)
 static void
 report_new_capture_file(const char *filename)
 {
-    if(capture_child) {
+    if (capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "File: %s", filename);
         pipe_write_block(2, SP_FILE, filename);
     } else {
@@ -4955,7 +4957,7 @@ report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg)
 static void
 report_capture_error(const char *error_msg, const char *secondary_error_msg)
 {
-    if(capture_child) {
+    if (capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
             "Primary Error: %s", error_msg);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
@@ -4975,7 +4977,7 @@ report_packet_drops(guint32 received, guint32 drops, gchar *name)
 
     g_snprintf(tmp, sizeof(tmp), "%u", drops);
 
-    if(capture_child) {
+    if (capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
             "Packets received/dropped on interface %s: %u/%u",
             name, received, drops);
@@ -5001,15 +5003,15 @@ static gboolean
 signal_pipe_check_running(void)
 {
     /* any news from our parent? -> just stop the capture */
-    DWORD avail = 0;
+    DWORD    avail = 0;
     gboolean result;
 
     /* if we are running standalone, no check required */
-    if(!capture_child) {
+    if (!capture_child) {
         return TRUE;
     }
 
-    if(!sig_pipe_name || !sig_pipe_handle) {
+    if (!sig_pipe_name || !sig_pipe_handle) {
         /* This shouldn't happen */
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
             "Signal pipe: No name or handle");
@@ -5024,7 +5026,7 @@ signal_pipe_check_running(void)
 
     result = PeekNamedPipe(sig_pipe_handle, NULL, 0, NULL, &avail, NULL);
 
-    if(!result || avail > 0) {
+    if (!result || avail > 0) {
         /* peek failed or some bytes really available */
         /* (if not piping from stdin this would fail) */
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,

@@ -569,7 +569,7 @@ cf_read(capture_file *cf, gboolean reloading)
     if (size >= 0) {
       progbar_quantum = size/N_PROGBAR_UPDATES;
       if (progbar_quantum < MIN_QUANTUM)
-	progbar_quantum = MIN_QUANTUM;
+        progbar_quantum = MIN_QUANTUM;
     }else
       progbar_quantum = 0;
     /* Progress so far. */
@@ -577,53 +577,53 @@ cf_read(capture_file *cf, gboolean reloading)
 
     while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
       if (size >= 0) {
-	count++;
-	file_pos = wtap_read_so_far(cf->wth);
+        count++;
+        file_pos = wtap_read_so_far(cf->wth);
 
-	/* Create the progress bar if necessary.
-	 * Check whether it should be created or not every MIN_NUMBER_OF_PACKET
-	 */
-	if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)) {
-	  progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
-	  if (reloading)
-	    progbar = delayed_create_progress_dlg(cf->window, "Reloading", name_ptr,
-		TRUE, &stop_flag, &start_time, progbar_val);
-	  else
-	    progbar = delayed_create_progress_dlg(cf->window, "Loading", name_ptr,
-		TRUE, &stop_flag, &start_time, progbar_val);
-	}
+        /* Create the progress bar if necessary.
+         * Check whether it should be created or not every MIN_NUMBER_OF_PACKET
+         */
+        if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)) {
+          progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
+          if (reloading)
+            progbar = delayed_create_progress_dlg(cf->window, "Reloading", name_ptr,
+                TRUE, &stop_flag, &start_time, progbar_val);
+          else
+            progbar = delayed_create_progress_dlg(cf->window, "Loading", name_ptr,
+                TRUE, &stop_flag, &start_time, progbar_val);
+        }
 
-	/* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-	   when we update it, we have to run the GTK+ main loop to get it
-	   to repaint what's pending, and doing so may involve an "ioctl()"
-	   to see if there's any pending input from an X server, and doing
-	   that for every packet can be costly, especially on a big file. */
-	if (file_pos >= progbar_nextstep) {
-	  if (progbar != NULL) {
-	    progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
-	    /* update the packet bar content on the first run or frequently on very large files */
+        /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+           when we update it, we have to run the GTK+ main loop to get it
+           to repaint what's pending, and doing so may involve an "ioctl()"
+           to see if there's any pending input from an X server, and doing
+           that for every packet can be costly, especially on a big file. */
+        if (file_pos >= progbar_nextstep) {
+          if (progbar != NULL) {
+            progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
+            /* update the packet bar content on the first run or frequently on very large files */
 #ifdef HAVE_LIBPCAP
-	    if (progbar_quantum > 500000 || displayed_once == 0) {
-	      if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->count != 0) {
-		displayed_once = 1;
-		packets_bar_update();
-	      }
-	    }
+            if (progbar_quantum > 500000 || displayed_once == 0) {
+              if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->count != 0) {
+                displayed_once = 1;
+                packets_bar_update();
+              }
+            }
 #endif /* HAVE_LIBPCAP */
-	    update_progress_dlg(progbar, progbar_val, status_str);
-	  }
-	  progbar_nextstep += progbar_quantum;
-	}
+            update_progress_dlg(progbar, progbar_val, status_str);
+          }
+          progbar_nextstep += progbar_quantum;
+        }
       }
 
       if (stop_flag) {
-	/* Well, the user decided to abort the read. He/She will be warned and
-	   it might be enough for him/her to work with the already loaded
-	   packets.
-	   This is especially true for very large capture files, where you don't
-	   want to wait loading the whole file (which may last minutes or even
-	   hours even on fast machines) just to see that it was the wrong file. */
-	break;
+        /* Well, the user decided to abort the read. He/She will be warned and
+           it might be enough for him/her to work with the already loaded
+           packets.
+           This is especially true for very large capture files, where you don't
+           want to wait loading the whole file (which may last minutes or even
+           hours even on fast machines) just to see that it was the wrong file. */
+        break;
       }
       read_packet(cf, dfcode, create_proto_tree, cinfo, data_offset);
     } 
@@ -804,16 +804,16 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
     while (to_read != 0) {
       wtap_cleareof(cf->wth);
       if (!wtap_read(cf->wth, err, &err_info, &data_offset)) {
-	break;
+        break;
       }
       if (cf->state == FILE_READ_ABORTED) {
-	/* Well, the user decided to exit Wireshark.  Break out of the
-	   loop, and let the code below (which is called even if there
-	   aren't any packets left to read) exit. */
-	break;
+        /* Well, the user decided to exit Wireshark.  Break out of the
+           loop, and let the code below (which is called even if there
+           aren't any packets left to read) exit. */
+        break;
       }
       if (read_packet(cf, dfcode, create_proto_tree, (column_info *) cinfo, data_offset) != -1) {
-	newly_displayed_packets++;
+        newly_displayed_packets++;
       }
       to_read--;
     }
@@ -1294,11 +1294,10 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     wtapng_iface_descriptions_t *idb_inf, *idb_inf_merge_file;
     wtapng_if_descr_t            int_data, *file_int_data;
     GString                     *comment_gstr;
-    int                          i;
 
     fake_interface_ids = TRUE;
     /* Create SHB info */
-    shb_hdr = wtap_file_get_shb_info(in_files[0].wth);
+    shb_hdr      = wtap_file_get_shb_info(in_files[0].wth);
     comment_gstr = g_string_new("");
     g_string_append_printf(comment_gstr, "%s \n",shb_hdr->opt_comment);
     g_string_append_printf(comment_gstr, "File created by merging: \n");
