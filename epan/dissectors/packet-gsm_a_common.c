@@ -91,11 +91,11 @@ static const true_false_string gsm_a_extension_value = {
  * Revision level
  */
 static const value_string gsm_a_msc_rev_vals[] = {
-    { 0,    "Reserved for GSM phase 1"},
-    { 1,    "Used by GSM phase 2 mobile stations"},
-    { 2,    "Used by mobile stations supporting R99 or later versions of the protocol"},
-    { 3,    "Reserved for future use"},
-    { 0,    NULL }
+    { 0, "Reserved for GSM phase 1"},
+    { 1, "Used by GSM phase 2 mobile stations"},
+    { 2, "Used by mobile stations supporting R99 or later versions of the protocol"},
+    { 3, "Reserved for future use"},
+    { 0, NULL }
 };
 
 /* ES IND (octet 3, bit 5) "Controlled Early Classmark Sending" option implementation */
@@ -110,13 +110,13 @@ static const true_false_string A5_1_algorithm_sup_vals = {
 };
 /* RF Power Capability (Octet 3) */
 static const value_string RF_power_capability_vals[] = {
-    { 0,    "class 1"},
-    { 1,    "class 2"},
-    { 2,    "class 3"},
-    { 3,    "class 4"},
-    { 4,    "class 5"},
-    { 7,    "RF Power capability is irrelevant in this information element"},
-    { 0,    NULL }
+    { 0, "class 1"},
+    { 1, "class 2"},
+    { 2, "class 3"},
+    { 3, "class 4"},
+    { 4, "class 5"},
+    { 7, "RF Power capability is irrelevant in this information element"},
+    { 0, NULL }
 };
 /* PS capability (pseudo-synchronization capability) (octet 4) */
 static const true_false_string ps_sup_cap_vals = {
@@ -125,11 +125,11 @@ static const true_false_string ps_sup_cap_vals = {
 };
 /* SS Screening Indicator (octet 4)defined in 3GPP TS 24.080 */
 static const value_string SS_screening_indicator_vals[] = {
-    { 0,    "Default value of phase 1"},
-    { 1,    "Capability of handling of ellipsis notation and phase 2 error handling "},
-    { 2,    "For future use"},
-    { 3,    "For future use"},
-    { 0,    NULL }
+    { 0, "Default value of phase 1"},
+    { 1, "Capability of handling of ellipsis notation and phase 2 error handling "},
+    { 2, "For future use"},
+    { 3, "For future use"},
+    { 0, NULL }
 };
 /* SM capability (MT SMS pt to pt capability) (octet 4)*/
 static const true_false_string SM_capability_vals = {
@@ -208,13 +208,13 @@ static const true_false_string A5_2_algorithm_sup_vals = {
 };
 
 static const value_string mobile_identity_type_vals[] = {
-    { 1,    "IMSI"},
-    { 2,    "IMEI"},
-    { 3,    "IMEISV"},
-    { 4,    "TMSI/P-TMSI"},
-    { 5,    "TMGI and optional MBMS Session Identity"}, /* ETSI TS 124 008 V6.8.0 (2005-03) p326 */
-    { 0,    "No Identity"},
-    { 0,    NULL }
+    { 1, "IMSI"},
+    { 2, "IMEI"},
+    { 3, "IMEISV"},
+    { 4, "TMSI/P-TMSI"},
+    { 5, "TMGI and optional MBMS Session Identity"}, /* ETSI TS 124 008 V6.8.0 (2005-03) p326 */
+    { 0, "No Identity"},
+    { 0, NULL }
 };
 
 static const true_false_string oddevenind_vals = {
@@ -935,23 +935,23 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
  */
 /* 8.6 Coding of Velocity Type */
 static const value_string gsm_a_velocity_type_vals[] = {
-    { 0,        "Horizontal Velocity"},
-    { 1,        "Horizontal with Vertical Velocity"},
-    { 2,        "Horizontal Velocity with Uncertainty"},
-    { 3,        "Horizontal with Vertical Velocity and Uncertainty"},
-    { 4,        "reserved for future use"},
-    { 5,        "reserved for future use"},
-    { 6,        "reserved for future use"},
-    { 7,        "reserved for future use"},
-    { 8,        "reserved for future use"},
-    { 9,        "reserved for future use"},
-    { 10,       "reserved for future use"},
-    { 11,       "reserved for future use"},
-    { 12,       "reserved for future use"},
-    { 13,       "reserved for future use"},
-    { 14,       "reserved for future use"},
-    { 15,       "reserved for future use"},
-    { 0,    NULL }
+    { 0,  "Horizontal Velocity"},
+    { 1,  "Horizontal with Vertical Velocity"},
+    { 2,  "Horizontal Velocity with Uncertainty"},
+    { 3,  "Horizontal with Vertical Velocity and Uncertainty"},
+    { 4,  "reserved for future use"},
+    { 5,  "reserved for future use"},
+    { 6,  "reserved for future use"},
+    { 7,  "reserved for future use"},
+    { 8,  "reserved for future use"},
+    { 9,  "reserved for future use"},
+    { 10, "reserved for future use"},
+    { 11, "reserved for future use"},
+    { 12, "reserved for future use"},
+    { 13, "reserved for future use"},
+    { 14, "reserved for future use"},
+    { 15, "reserved for future use"},
+    { 0,  NULL }
 };
 
 static const true_false_string gsm_a_dir_of_ver_speed_vals = {
@@ -1137,7 +1137,7 @@ const char* get_gsm_a_msg_string(int pdu_type, int idx)
 
 static int get_hf_elem_id(int pdu_type)
 {
-    int         hf_elem_id = 0;
+    int hf_elem_id = 0;
 
     switch (pdu_type) {
     case GSM_A_PDU_TYPE_BSSMAP:
@@ -1204,7 +1204,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
     proto_item         *item;
     const value_string *elem_names;
     gint               *elem_ett;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len);
+    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
     curr_offset = offset;
     consumed = 0;
@@ -1284,7 +1284,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
     proto_item         *item;
     const value_string *elem_names;
     gint               *elem_ett;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len);
+    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
     curr_offset = offset;
     consumed = 0;
@@ -1745,7 +1745,7 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_typ
     proto_item         *item;
     const value_string *elem_names;
     gint               *elem_ett;
-    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len);
+    guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
     curr_offset = offset;
     consumed = 0;
@@ -3321,8 +3321,8 @@ de_cn_common_gsm_map_nas_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *
  * [3] 10.5.1.12.2 CS domain specific system information
  */
 const true_false_string gsm_a_att_value = {
-	"MSs shall apply IMSI attach and detach procedure",
-	"MSs shall not apply IMSI attach and detach procedure"
+    "MSs shall apply IMSI attach and detach procedure",
+    "MSs shall not apply IMSI attach and detach procedure"
 };
 
 guint16
@@ -3347,13 +3347,13 @@ de_cs_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
  * [3] 10.5.1.12.3 PS domain specific system information
  */
 const true_false_string gsm_a_nmo_1_value = {
-	"Network Mode of Operation I is used for MS configured for NMO_I_Behaviour",
-	"Network Mode of Operation indicated in Bit 1 (NMO) is used for MS configured for NMO_I_Behaviour"
+    "Network Mode of Operation I is used for MS configured for NMO_I_Behaviour",
+    "Network Mode of Operation indicated in Bit 1 (NMO) is used for MS configured for NMO_I_Behaviour"
 };
 
 const true_false_string gsm_a_nmo_value = {
-	"Network Mode of Operation II",
-	"Network Mode of Operation I"
+    "Network Mode of Operation II",
+    "Network Mode of Operation I"
 };
 
 guint16
