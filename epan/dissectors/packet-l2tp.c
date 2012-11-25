@@ -110,6 +110,8 @@ static int hf_l2tp_avp_assigned_control_conn_id = -1;
 static int hf_l2tp_avp_assigned_session_id = -1;
 static int hf_l2tp_avp_remote_session_id = -1;
 static int hf_l2tp_avp_local_session_id = -1;
+static int hf_l2tp_avp_called_number = -1;
+static int hf_l2tp_avp_calling_number = -1;
 
 #define UDP_PORT_L2TP   1701
 
@@ -1373,7 +1375,7 @@ static void process_control_avps(tvbuff_t *tvb,
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, idx, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_length, tvb, idx, 2, ENC_BIG_ENDIAN);
 
-		if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
+        if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
             idx += avp_len;
             continue;
         }
@@ -1598,17 +1600,15 @@ static void process_control_avps(tvbuff_t *tvb,
         case CALLED_NUMBER:
             if (avp_len == 0)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Called Number: %s",
-                                tvb_format_text(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_called_number,
+                                tvb, idx, avp_len, ENC_ASCII);
             break;
 
         case CALLING_NUMBER:
             if (avp_len == 0)
                 break;
-            proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
-                                "Calling Number: %s",
-                                tvb_format_text(tvb, idx, avp_len));
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_calling_number,
+                                tvb, idx, avp_len, ENC_ASCII);
             break;
 
         case SUB_ADDRESS:
@@ -2849,6 +2849,14 @@ proto_register_l2tp(void)
 
         { &hf_l2tp_avp_local_session_id,
           { "Local Session ID", "l2tp.avp.local_session_id", FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_avp_called_number,
+          { "Called Number", "l2tp.avp.called_number", FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }},
+
+        { &hf_l2tp_avp_calling_number,
+          { "Calling Number", "l2tp.avp.calling_number", FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }},
     };
 
