@@ -40,6 +40,12 @@ wmem_strdup(wmem_allocator_t *allocator, const gchar *src);
 gchar *
 wmem_strndup(wmem_allocator_t *allocator, const gchar *src, const size_t len);
 
+gchar *
+wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...);
+
+gchar *
+wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

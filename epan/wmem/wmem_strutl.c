@@ -24,8 +24,11 @@
  */
 
 #include <string.h>
+#include <stdarg.h>
 
 #include <glib.h>
+
+#include "config.h"
 
 #include "wmem_core.h"
 #include "wmem_allocator.h"
@@ -60,6 +63,37 @@ wmem_strndup(wmem_allocator_t *allocator, const gchar *src, const size_t len)
     }
 
     dst[i] = '\0';
+
+    return dst;
+}
+
+gchar *
+wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...)
+{
+    va_list ap;
+    gchar *dst;
+
+    va_start(ap, fmt);
+    dst = wmem_strdup_vprintf(allocator, fmt, ap);
+    va_end(ap);
+
+    return dst;
+}
+
+gchar *
+wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
+{
+    va_list ap2;
+    gsize len;
+    gchar* dst;
+
+    G_VA_COPY(ap2, ap);
+
+    len = g_printf_string_upper_bound(fmt, ap);
+
+    dst = wmem_alloc(allocator, len+1);
+    g_vsnprintf(dst, (gulong) len, fmt, ap2);
+    va_end(ap2);
 
     return dst;
 }

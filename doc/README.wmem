@@ -69,6 +69,8 @@ NB: Using these pools outside of the appropriate scope (eg using the packet
 
  - wmem_strdup
  - wmem_strndup
+ - wmem_strdup_printf
+ - wmem_strdup_vprintf
 
 2.4 Stack
 
