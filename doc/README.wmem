@@ -103,7 +103,7 @@ The currently available allocators are:
         allocation via a linked list.
  - block (wmem_allocator_block.h)
         A simple block allocator that grabs large chunks of memory at a time
-        (10 MB currently) and serves allocations out of those chunks.
+        (8 MB currently) and serves allocations out of those chunks.
 
 3.2 Creating a Pool
 

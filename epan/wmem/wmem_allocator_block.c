@@ -30,8 +30,8 @@
 #include "wmem_core.h"
 #include "wmem_allocator.h"
 
-/* When required, allocate more memory from the OS in this size chunks */
-#define WMEM_BLOCK_SIZE (10 * 1024 * 1024)
+/* When required, allocate more memory from the OS in this size chunks (8 MB) */
+#define WMEM_BLOCK_SIZE (8 * 1024 * 1024)
 
 typedef struct _wmem_block_allocator_t {
     GSList *free_list;
