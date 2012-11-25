@@ -107,8 +107,8 @@ struct ct_struct {
   GtkWidget    *main_vb;
   GtkWidget    *notebook;
   GtkWidget    *tree;
-  GtkTreeIter  iter;
-  gint         page;
+  GtkTreeIter   iter;
+  gint          page;
   GtkTreeStore *store;
 };
 
@@ -122,11 +122,11 @@ pref_exists(pref_t *pref _U_, gpointer user_data _U_)
 static guint
 pref_show(pref_t *pref, gpointer user_data)
 {
-  GtkWidget *main_tb = user_data;
+  GtkWidget  *main_tb = user_data;
   const char *title;
-  char *label_string;
-  size_t label_len;
-  char uint_str[10+1];
+  char       *label_string;
+  size_t      label_len;
+  char        uint_str[10+1];
 
   /* Give this preference a label which is its title, followed by a colon,
      and left-align it. */
@@ -139,7 +139,7 @@ pref_show(pref_t *pref, gpointer user_data)
    * Sometimes we don't want to append a ':' after a static text string...
    * If it is needed, we will specify it in the string itself.
    */
-  if(pref->type != PREF_STATIC_TEXT)
+  if (pref->type != PREF_STATIC_TEXT)
     g_strlcat(label_string, ":", label_len);
 
   /* Save the current value of the preference, so that we can revert it if
@@ -277,7 +277,7 @@ prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, cons
 
   frame = gtk_frame_new(title);
   gtk_widget_show(frame);
-  if(page) {
+  if (page) {
     gtk_container_add(GTK_CONTAINER(frame), page);
     g_object_set_data(G_OBJECT(prefs_w), page_key, page);
   }
@@ -293,14 +293,14 @@ static guint
 module_prefs_show(module_t *module, gpointer user_data)
 {
   struct ct_struct *cts = user_data;
-  struct ct_struct child_cts;
+  struct ct_struct  child_cts;
   GtkWidget        *main_vb, *main_tb, *frame, *main_sw;
-  gchar            label_str[MAX_TREE_NODE_NAME_LEN];
+  gchar             label_str[MAX_TREE_NODE_NAME_LEN];
   GtkTreeStore     *model;
-  GtkTreeIter      iter;
+  GtkTreeIter       iter;
 
   if (!module->use_gui) {
-      /* This module uses its own GUI interface to modify its 
+      /* This module uses its own GUI interface to modify its
        * preferences, so ignore it
        */
       return 0;
@@ -420,16 +420,16 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   GtkWidget         *top_hb, *bbox, *prefs_nb, *ct_sb,
                     *ok_bt, *apply_bt, *save_bt, *cancel_bt, *help_bt;
   GtkWidget         *gui_font_pg;
-  gchar             label_str[MAX_TREE_NODE_NAME_LEN];
-  struct ct_struct  cts;
+  gchar              label_str[MAX_TREE_NODE_NAME_LEN];
+  struct ct_struct   cts;
   GtkTreeStore      *store;
   GtkTreeSelection  *selection;
   GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
-  gint              col_offset;
-  prefs_tree_iter   gui_iter, layout_iter, columns_iter, capture_iter;
-  gint              layout_page, columns_page;
-  gint              capture_page = 0;
+  gint               col_offset;
+  prefs_tree_iter    gui_iter, layout_iter, columns_iter, capture_iter;
+  gint               layout_page, columns_page;
+  gint               capture_page = 0;
 
 
   if (prefs_w != NULL) {
@@ -605,7 +605,7 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   gtk_widget_show(prefs_w);
 
   /* hide the Save button if the user uses implicit save */
-  if(!prefs.gui_use_pref_save) {
+  if (!prefs.gui_use_pref_save) {
     gtk_widget_hide(save_bt);
   }
 
@@ -678,11 +678,11 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
     const gchar *label_text, const gchar *tooltip_text,
     const enum_val_t *enumvals, gint current_val)
 {
-  GtkWidget *radio_button_hbox, *button = NULL;
-  GSList *rb_group;
-  int idx;
+  GtkWidget        *radio_button_hbox, *button = NULL;
+  GSList           *rb_group;
+  int               idx;
   const enum_val_t *enum_valp;
-  GtkWidget *event_box;
+  GtkWidget        *event_box;
 
   set_option_label(main_tb, table_position, label_text, tooltip_text);
 
@@ -770,10 +770,10 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
     const gchar *label_text, const gchar *tooltip_text,
     const enum_val_t *enumvals, gint current_val)
 {
-  GtkWidget *menu_box, *combo_box;
-  int menu_idx, idx;
+  GtkWidget        *menu_box, *combo_box;
+  int               menu_idx, idx;
   const enum_val_t *enum_valp;
-  GtkWidget *event_box;
+  GtkWidget        *event_box;
 
   set_option_label(main_tb, table_position, label_text, tooltip_text);
 
@@ -889,7 +889,7 @@ create_preference_static_text(GtkWidget *main_tb, int table_position,
 {
   GtkWidget *label;
 
-  if(label_text != NULL)
+  if (label_text != NULL)
     label = gtk_label_new(label_text);
   else
     label = gtk_label_new("");
@@ -927,9 +927,9 @@ create_preference_uat(GtkWidget *main_tb, int table_position,
 static guint
 pref_check(pref_t *pref, gpointer user_data)
 {
-  const char *str_val;
-  char *p;
-  pref_t **badpref = user_data;
+  const char  *str_val;
+  char        *p;
+  pref_t     **badpref = user_data;
 
   /* Fetch the value of the preference, and check whether it's valid. */
   switch (pref->type) {
@@ -951,7 +951,7 @@ pref_check(pref_t *pref, gpointer user_data)
          and thus avoiding the need to check whether it's a valid number, would also be a good idea."
        ]
     */
-    if(strtoul(str_val, &p, pref->info.base)){}
+    if (strtoul(str_val, &p, pref->info.base)){}
     if (p == str_val || *p != '\0' || errno != 0) {
       *badpref = pref;
       return PREFS_SET_SYNTAX_ERR;      /* number was bad */
@@ -1018,11 +1018,11 @@ static guint
 pref_fetch(pref_t *pref, gpointer user_data)
 {
   const char *str_val;
-  char *p;
-  guint uval;
-  gboolean bval;
-  gint enumval;
-  gboolean *pref_changed_p = user_data;
+  char       *p;
+  guint       uval;
+  gboolean    bval;
+  gint        enumval;
+  gboolean   *pref_changed_p = user_data;
 
   /* Fetch the value of the preference, and set the appropriate variable
      to it. */
@@ -1146,10 +1146,10 @@ static void
 prefs_airpcap_update(void)
 {
   GtkWidget *decryption_cm;
-  gint cur_active;
-  gboolean wireshark_decryption_was_enabled = FALSE;
-  gboolean airpcap_decryption_was_enabled = FALSE;
-  gboolean wireshark_decryption_is_now_enabled = FALSE;
+  gint       cur_active;
+  gboolean   wireshark_decryption_was_enabled    = FALSE;
+  gboolean   airpcap_decryption_was_enabled      = FALSE;
+  gboolean   wireshark_decryption_is_now_enabled = FALSE;
 
   decryption_cm = GTK_WIDGET(g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 
@@ -1181,19 +1181,19 @@ prefs_airpcap_update(void)
 
   wireshark_decryption_is_now_enabled = wireshark_decryption_on();
 
-  if(wireshark_decryption_is_now_enabled && airpcap_decryption_was_enabled)
+  if (wireshark_decryption_is_now_enabled && airpcap_decryption_was_enabled)
   {
     set_airpcap_decryption(FALSE);
     gtk_combo_box_set_active(GTK_COMBO_BOX(decryption_cm), 1);
   }
-  if(wireshark_decryption_is_now_enabled && !airpcap_decryption_was_enabled)
+  if (wireshark_decryption_is_now_enabled && !airpcap_decryption_was_enabled)
   {
     set_airpcap_decryption(FALSE);
     gtk_combo_box_set_active(GTK_COMBO_BOX(decryption_cm), 1);
   }
-  else if(!wireshark_decryption_is_now_enabled && wireshark_decryption_was_enabled)
+  else if (!wireshark_decryption_is_now_enabled && wireshark_decryption_was_enabled)
   {
-    if(airpcap_decryption_was_enabled)
+    if (airpcap_decryption_was_enabled)
     {
       set_airpcap_decryption(TRUE);
       gtk_combo_box_set_active(GTK_COMBO_BOX(decryption_cm), 2);
@@ -1352,7 +1352,7 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
 
   /* show/hide the Save button - depending on setting */
   save_bt = g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_SAVE_BT_KEY);
-  if(prefs.gui_use_pref_save) {
+  if (prefs.gui_use_pref_save) {
     gtk_widget_show(save_bt);
   } else {
     gtk_widget_hide(save_bt);
@@ -1364,13 +1364,13 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
 static void
 prefs_main_destroy_all(GtkWidget *dlg)
 {
-  int page_num;
+  int        page_num;
   GtkWidget *frame;
 
   for (page_num = 0;
        (frame = gtk_notebook_get_nth_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), page_num)) != NULL;
        page_num++) {
-    if(g_object_get_data(G_OBJECT(frame), E_PAGE_ITER_KEY))
+    if (g_object_get_data(G_OBJECT(frame), E_PAGE_ITER_KEY))
       gtk_tree_iter_free(g_object_get_data(G_OBJECT(frame), E_PAGE_ITER_KEY));
   }
 
@@ -1462,7 +1462,7 @@ static void prefs_copy(void) {
 void
 prefs_main_write(void)
 {
-  int err;
+  int   err;
   char *pf_dir_path;
   char *pf_path;
 
@@ -1722,7 +1722,7 @@ prefs_main_destroy_cb(GtkWidget *win _U_, gpointer parent_w)
 
 struct properties_data {
   const char *title;
-  module_t *module;
+  module_t   *module;
 };
 
 static guint
@@ -1743,7 +1743,7 @@ module_search_properties(module_t *module, gpointer user_data)
     return 1;   /* stops the search */
   }
 
-  if(prefs_module_has_submodules(module))
+  if (prefs_module_has_submodules(module))
     return prefs_modules_foreach_submodules(module, module_search_properties, p);
 
   return 0;
@@ -1752,11 +1752,11 @@ module_search_properties(module_t *module, gpointer user_data)
 static void
 tree_expand_row(GtkTreeModel *model, GtkTreeView *tree_view, GtkTreeIter *iter)
 {
-  GtkTreeIter   parent;
-  GtkTreePath   *path;
+  GtkTreeIter  parent;
+  GtkTreePath *path;
 
   /* expand the parent first */
-  if(gtk_tree_model_iter_parent(model, &parent, iter))
+  if (gtk_tree_model_iter_parent(model, &parent, iter))
     tree_expand_row(model, tree_view, &parent);
 
   path = gtk_tree_model_get_path(model, iter);
@@ -1772,8 +1772,8 @@ tree_expand_row(GtkTreeModel *model, GtkTreeView *tree_view, GtkTreeIter *iter)
 static void
 tree_select_node(GtkWidget *tree, prefs_tree_iter *iter)
 {
-  GtkTreeIter  local_iter = *iter;
-  GtkTreeView  *tree_view = GTK_TREE_VIEW(tree);
+  GtkTreeIter   local_iter = *iter;
+  GtkTreeView  *tree_view  = GTK_TREE_VIEW(tree);
   GtkTreeModel *model;
   GtkTreePath  *first_path;
 
@@ -1802,21 +1802,20 @@ tree_select_node(GtkWidget *tree, prefs_tree_iter *iter)
 void
 properties_cb(GtkWidget *w, gpointer dummy)
 {
-  header_field_info *hfinfo;
-  const gchar *title = NULL;
-  struct properties_data p;
-  int page_num;
-  GtkWidget *sw;
-  GtkWidget *frame;
-  module_t *page_module;
+  header_field_info      *hfinfo;
+  const gchar            *title = NULL;
+  struct properties_data  p;
+  int                     page_num;
+  GtkWidget              *sw;
+  GtkWidget              *frame;
+  module_t               *page_module;
 
   if (cfile.finfo_selected == NULL) {
-    const gchar        *abbrev;
+    const gchar *abbrev;
 
     /* There is no field selected, try use on top protocol */
     if (cfile.edt && cfile.edt->tree) {
         GPtrArray          *ga;
-        header_field_info  *hfinfo;
         field_info         *v;
         guint              i;
 
@@ -1878,7 +1877,7 @@ properties_cb(GtkWidget *w, gpointer dummy)
     /* Get the frame from the scrollable window */
     frame = g_object_get_data(G_OBJECT(sw), E_PAGESW_FRAME_KEY);
     /* Get the module for this page (non-protocol prefs don't have one). */
-    if(frame) {
+    if (frame) {
       page_module = g_object_get_data(G_OBJECT(frame), E_PAGE_MODULE_KEY);
       if (page_module != NULL) {
         if (page_module == p.module) {
@@ -1897,7 +1896,7 @@ properties_cb(GtkWidget *w, gpointer dummy)
 static void
 prefs_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
 {
-  gint page;
+  gint          page;
   GtkTreeModel *model;
   GtkTreeIter   iter;
 

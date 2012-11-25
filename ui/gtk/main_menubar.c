@@ -188,7 +188,6 @@ build_conversation_filter(int action, gboolean show_dialog)
     packet_info *pi = &cfile.edt->pi;
     char        *buf;
 
-
     switch(action) {
     case(CONV_CBA):
         if (pi->profinet_type == 0) {
@@ -361,8 +360,8 @@ edit_window_cb(GtkWidget *widget _U_)
 static void
 conversation_cb(GtkAction *a _U_, gpointer data _U_, int action)
 {
-    gchar       *filter;
-    GtkWidget   *filter_te;
+    gchar     *filter;
+    GtkWidget *filter_te;
 
     if (cfile.current_frame) {
         /* create a filter-string based on the selected packet and action */
@@ -382,7 +381,7 @@ conversation_cb(GtkAction *a _U_, gpointer data _U_, int action)
 static void
 colorize_conversation_cb(GtkAction *action _U_, gpointer data _U_, int action_num)
 {
-    gchar        *filter = NULL;
+    gchar *filter = NULL;
 
     if( (action_num>>8) == 255 ) {
         color_filters_reset_tmp();
@@ -425,9 +424,9 @@ colorize_conversation_cb(GtkAction *action _U_, gpointer data _U_, int action_nu
 static void
 goto_conversation_frame(gboolean dir)
 {
-    gchar *filter;
-    dfilter_t *dfcode = NULL;
-    gboolean found_packet=FALSE;
+    gchar     *filter;
+    dfilter_t *dfcode       = NULL;
+    gboolean   found_packet = FALSE;
 
     filter = build_conversation_filter(CONV_TCP,FALSE);
     if( filter == NULL )
@@ -643,6 +642,7 @@ static void
 view_menu_en_for_MAC_cb(GtkAction *action _U_, gpointer user_data)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforMACLayer");
+
     if (!widget){
         g_warning("view_menu_en_for_MAC_cb: No widget found");
     }else{
@@ -654,6 +654,7 @@ static void
 view_menu_en_for_network_cb(GtkAction *action _U_, gpointer user_data)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforNetworkLayer");
+
     if (!widget){
         g_warning("view_menu_en_for_network_cb: No widget found");
     }else{
@@ -665,6 +666,7 @@ static void
 view_menu_en_for_transport_cb(GtkAction *action _U_, gpointer user_data)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforTransportLayer");
+
     if (!widget){
         g_warning("view_menu_en_for_transport_cb: No widget found");
     }else{
@@ -676,6 +678,7 @@ static void
 view_menu_en_use_external_resolver_cb(GtkAction *action _U_, gpointer user_data)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/UseExternalNetworkNameResolver");
+
     if (!widget){
         g_warning("view_menu_en_use_external_resolver_cb: No widget found");
     }else{
@@ -687,6 +690,7 @@ static void
 view_menu_colorize_pkt_lst_cb(GtkAction *action _U_, gpointer user_data)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizePacketList");
+
     if (!widget){
         g_warning("view_menu_colorize_pkt_lst_cb: No widget found");
     }else{
@@ -2972,10 +2976,10 @@ static const char *ui_desc_tree_view_menu_popup =
 "</ui>\n";
 
 static const GtkActionEntry tree_view_menu_popup_action_entries[] = {
-  { "/ExpandSubtrees",                  NULL,                           "Expand Subtrees",      NULL,                   NULL,           G_CALLBACK(expand_tree_cb) },
-  { "/ExpandAll",                       NULL,                           "Expand All",           NULL,                   NULL,           G_CALLBACK(expand_all_cb) },
-  { "/CollapseAll",                     NULL,                           "Collapse All",         NULL,                   NULL,           G_CALLBACK(collapse_all_cb) },
-  { "/Apply as Column",                 NULL,                           "Apply as Column",      NULL,                   NULL,           G_CALLBACK(apply_as_custom_column_cb) },
+  { "/ExpandSubtrees",                  NULL,                           "Expand Subtrees",         NULL,                   NULL,           G_CALLBACK(expand_tree_cb) },
+  { "/ExpandAll",                       NULL,                           "Expand All",              NULL,                   NULL,           G_CALLBACK(expand_all_cb) },
+  { "/CollapseAll",                     NULL,                           "Collapse All",            NULL,                   NULL,           G_CALLBACK(collapse_all_cb) },
+  { "/Apply as Column",                 NULL,                           "Apply as Column",         NULL,                   NULL,           G_CALLBACK(apply_as_custom_column_cb) },
 
   { "/Colorize with Filter",            NULL, "Colorize with Filter",   NULL, NULL, NULL },
   { "/Colorize with Filter/Color 1",        WIRESHARK_STOCK_COLOR1, "Color 1",                  NULL, NULL, G_CALLBACK(tree_view_menu_color_with_flt_color1_cb) },
@@ -3031,9 +3035,9 @@ static const char *ui_desc_bytes_menu_popup =
 
 static const GtkRadioActionEntry bytes_menu_radio_action_entries [] =
 {
-    /* name,    stock id,   label,      accel,  tooltip,  value */
-    { "/HexView",   NULL,       "Hex View", NULL,   NULL,     BYTES_HEX },
-    { "/BitsView",  NULL,       "Bits View",    NULL,   NULL,     BYTES_BITS },
+    /* name,    stock id,        label,      accel,  tooltip,  value */
+    { "/HexView",   NULL,       "Hex View",   NULL,   NULL,     BYTES_HEX },
+    { "/BitsView",  NULL,       "Bits View",  NULL,   NULL,     BYTES_BITS },
 };
 
 static const char *ui_statusbar_profiles_menu_popup =
@@ -3061,7 +3065,8 @@ static const GtkActionEntry statusbar_profiles_menu_action_entries [] =
 };
 
 GtkWidget *
-main_menu_new(GtkAccelGroup ** table) {
+main_menu_new(GtkAccelGroup ** table)
+{
     GtkWidget *menubar;
 #ifdef HAVE_IGE_MAC_INTEGRATION
     GtkWidget *quit_item, *about_item, *preferences_item;
@@ -3246,7 +3251,7 @@ menu_dissector_filter(capture_file *cf)
       return;
     }
 
-    while(list_entry != NULL) {
+    while (list_entry != NULL) {
         filter_entry = list_entry->data;
         action_name = g_strdup_printf ("filter-%u", i);
         /*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
@@ -3273,7 +3278,8 @@ menu_dissector_filter(capture_file *cf)
 }
 
 static void
-menus_init(void) {
+menus_init(void)
+{
     GtkActionGroup *packet_list_heading_action_group, *packet_list_action_group,
         *packet_list_details_action_group, *packet_list_byte_menu_action_group,
         *statusbar_profiles_action_group;
@@ -3579,7 +3585,7 @@ ws_menubar_build_external_menus(void)
 {
     void (*callback)(gpointer);
 
-    while(build_menubar_items_callback_list != NULL) {
+    while (build_menubar_items_callback_list != NULL) {
         callback = build_menubar_items_callback_list->data;
         callback(ui_manager_main_menubar);
         build_menubar_items_callback_list = g_list_next(build_menubar_items_callback_list);
@@ -3680,7 +3686,8 @@ void register_lua_menu_bar_menu_items(
  * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#gtk-ui-manager-add-ui-from-string
  */
 const gchar*
-make_menu_xml(const char *path) {
+make_menu_xml(const char *path)
+{
     GString     *xml;
     char        **p;
     char        **tokens, **name_action_tokens;
@@ -3778,11 +3785,12 @@ make_menu_xml(const char *path) {
 /* NOTE currently only used from Lua, remove this ifdef when used
   outside of #ifdef LUA */
 static GtkActionGroup*
-make_menu_actions(const char *path, const menu_item_t *menu_item_data) {
+make_menu_actions(const char *path, const menu_item_t *menu_item_data)
+{
     GtkActionGroup  *action_group;
     GtkAction       *action;
-    char            **p;
-    char            **tokens;
+    char           **p;
+    char           **tokens;
     char            *lbl;
     const char      *tok = path;
 
@@ -3860,19 +3868,26 @@ make_menu_actions(const char *path, const menu_item_t *menu_item_data) {
 }
 #endif
 
+#ifndef HAVE_LUA
 static void
-merge_lua_menu_items(GList *merge_lua_menu_items_list _U_)
+merge_lua_menu_items(GList *lcl_merge_lua_menu_items_list _U_)
 {
-#ifdef HAVE_LUA
-    guint merge_id;
-    GtkActionGroup *action_group;
-    menu_item_t *menu_item_data;
-    GError *err;
-    const gchar *xml;
-    gchar *xpath;
+}
 
-    while(merge_lua_menu_items_list != NULL) {
-        menu_item_data = merge_lua_menu_items_list->data;
+#else
+
+static void
+merge_lua_menu_items(GList *lcl_merge_lua_menu_items_list)
+{
+    guint           merge_id;
+    GtkActionGroup *action_group;
+    menu_item_t    *menu_item_data;
+    GError         *err;
+    const gchar    *xml;
+    gchar          *xpath;
+
+    while (lcl_merge_lua_menu_items_list != NULL) {
+        menu_item_data = lcl_merge_lua_menu_items_list->data;
         xpath = g_strdup_printf("%s/%s", menu_item_data->gui_path, menu_item_data->name);
 
         xml = make_menu_xml(xpath);
@@ -3899,10 +3914,10 @@ merge_lua_menu_items(GList *merge_lua_menu_items_list _U_)
         }
 
         g_free(xpath);
-        merge_lua_menu_items_list = g_list_next(merge_lua_menu_items_list);
+        lcl_merge_lua_menu_items_list = g_list_next(lcl_merge_lua_menu_items_list);
     }
-#endif
 }
+#endif
 
 
 /*
@@ -3953,7 +3968,8 @@ set_menu_object_data_meat(GtkUIManager *ui_manager, const gchar *path, const gch
 }
 
 void
-set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
+set_menu_object_data (const gchar *path, const gchar *key, gpointer data)
+{
     if (strncmp (path,"/Menubar",8) == 0){
         set_menu_object_data_meat(ui_manager_main_menubar, path, key, data);
     }else if (strncmp (path,"/PacketListMenuPopup",20) == 0){
@@ -3979,9 +3995,10 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
 
 /* Add a file name to the top of the list, if its allrady present remove it first */
 static GList *
-remove_present_file_name(GList *recent_files_list, const gchar *cf_name){
-GList *li;
-gchar *widget_cf_name;
+remove_present_file_name(GList *recent_files_list, const gchar *cf_name)
+{
+    GList *li;
+    gchar *widget_cf_name;
 
     for (li = g_list_first(recent_files_list); li; li = li->next) {
         widget_cf_name = li->data;
@@ -4004,7 +4021,7 @@ static void
 recent_changed_cb (GtkUIManager *ui_manager,
                    gpointer          user_data _U_)
 {
-  guint merge_id;
+  guint  merge_id;
   GList *action_groups, *l;
 
 
@@ -4039,7 +4056,7 @@ static void
 recent_clear_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *submenu_recent_files;
-    GList *recent_files_list;
+    GList     *recent_files_list;
 
     /* Get the list of recent files, free the list and store the empty list with the widget */
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
@@ -4058,11 +4075,11 @@ static void
 add_recent_items (guint merge_id, GtkUIManager *ui_manager)
 {
     GtkActionGroup *action_group;
-    GtkAction *action;
-    GtkWidget *submenu_recent_files;
-    GList *items, *l;
-    gchar *action_name;
-    guint i;
+    GtkAction      *action;
+    GtkWidget      *submenu_recent_files;
+    GList          *items, *l;
+    gchar          *action_name;
+    guint           i;
 
     /* Reset the recent files list in the welcome screen */
     main_welcome_reset_recent_capture_files();
@@ -4169,11 +4186,11 @@ static void
 add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
 {
     GtkActionGroup *action_group;
-    GtkAction *action;
-    GtkWidget *submenu_statistics;
-    GList *cfg_list;
-    GList *iter;
-    gchar *action_name;
+    GtkAction      *action;
+    GtkWidget      *submenu_statistics;
+    GList          *cfg_list;
+    GList          *iter;
+    gchar          *action_name;
 
     action_group = gtk_action_group_new ("tap-plugins-group");
 
@@ -4220,8 +4237,8 @@ void
 menu_open_filename(gchar *cf_name)
 {
     GtkWidget *submenu_recent_files;
-    int       err;
-    GList *recent_files_list;
+    int        err;
+    GList     *recent_files_list;
 
 
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
@@ -4247,10 +4264,10 @@ menu_open_filename(gchar *cf_name)
 static void
 menu_open_recent_file_cmd(GtkAction *action)
 {
-    GtkWidget *submenu_recent_files;
-    GList *recent_files_list;
+    GtkWidget   *submenu_recent_files;
+    GList       *recent_files_list;
     const gchar *cf_name;
-    int         err;
+    int          err;
 
 #if GTK_CHECK_VERSION(2,16,0)
     cf_name = gtk_action_get_label(action);
@@ -4284,13 +4301,14 @@ menu_open_recent_file_cmd_cb(GtkAction *action, gpointer data _U_)
 }
 
 static void
-add_menu_recent_capture_file_absolute(gchar *cf_name) {
+add_menu_recent_capture_file_absolute(gchar *cf_name)
+{
     GtkWidget *submenu_recent_files;
-    GList *li;
-    gchar *widget_cf_name;
-    gchar *normalized_cf_name;
-    guint cnt;
-    GList *recent_files_list;
+    GList     *li;
+    gchar     *widget_cf_name;
+    gchar     *normalized_cf_name;
+    guint      cnt;
+    GList     *recent_files_list;
 
     normalized_cf_name = g_strdup(cf_name);
 #ifdef _WIN32
@@ -4336,13 +4354,13 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 /* (will change nothing, if this filename is already in the menu) */
 /*
  * XXX - We might want to call SHAddToRecentDocs under Windows 7:
- * http://stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
+ * http:                        //stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
  */
 void
-add_menu_recent_capture_file(gchar *cf_name) {
+add_menu_recent_capture_file(gchar *cf_name)
+{
     gchar *curr;
     gchar *absolute;
-
 
     /* if this filename is an absolute path, we can use it directly */
     if (g_path_is_absolute(cf_name)) {
@@ -4361,12 +4379,13 @@ add_menu_recent_capture_file(gchar *cf_name) {
 
 /* write all capture filenames of the menu to the user's recent file */
 void
-menu_recent_file_write_all(FILE *rf) {
-    GtkWidget   *submenu_recent_files;
-    GList       *children;
-    GList       *child;
-    gchar       *cf_name;
-    GList       *recent_files_list, *list;
+menu_recent_file_write_all(FILE *rf)
+{
+    GtkWidget *submenu_recent_files;
+    GList     *children;
+    GList     *child;
+    gchar     *cf_name;
+    GList     *recent_files_list, *list;
 
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
@@ -4374,7 +4393,7 @@ menu_recent_file_write_all(FILE *rf) {
     }
     recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
     list =  g_list_last(recent_files_list);
-    while(list != NULL) {
+    while (list != NULL) {
         cf_name = list->data;
         if (cf_name) {
             if(u3_active())
@@ -4392,7 +4411,7 @@ menu_recent_file_write_all(FILE *rf) {
      * (don't use gtk_container_foreach() here, it will return the wrong iteration order) */
     children = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
     child = g_list_last(children);
-    while(child != NULL) {
+    while (child != NULL) {
         /* get capture filename from the menu item label */
         cf_name = g_object_get_data(G_OBJECT(child->data), MENU_RECENT_FILES_KEY);
         if (cf_name) {
@@ -4412,6 +4431,7 @@ void
 menu_name_resolution_changed(void)
 {
     GtkWidget *menu = NULL;
+
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforMACLayer");
     if(!menu){
         g_warning("menu_name_resolution_changed: No menu found, path= /Menubar/ViewMenu/NameResolution/EnableforMACLayer");
@@ -4458,9 +4478,9 @@ name_resolution_cb(GtkWidget *w, gpointer d _U_, gboolean* res_flag)
 
 #ifdef HAVE_LIBPCAP
 void
-menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
+menu_auto_scroll_live_changed(gboolean auto_scroll_live_in)
+{
     GtkWidget *menu;
-
 
     /* tell menu about it */
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
@@ -4477,9 +4497,9 @@ menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
 
 
 void
-menu_colorize_changed(gboolean packet_list_colorize) {
+menu_colorize_changed(gboolean packet_list_colorize)
+{
     GtkWidget *menu;
-
 
     /* tell menu about it */
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizePacketList");
@@ -4500,7 +4520,8 @@ colorize_cb(GtkWidget *w, gpointer d _U_)
 
 /* the recent file read has finished, update the menu corresponding */
 void
-menu_recent_read_finished(void) {
+menu_recent_read_finished(void)
+{
     GtkWidget *menu = NULL;
 
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/MainToolbar");
@@ -4623,9 +4644,9 @@ menu_recent_read_finished(void) {
 gboolean
 popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-    GtkWidget *menu = (GtkWidget *)data;
+    GtkWidget      *menu         = (GtkWidget *)data;
     GdkEventButton *event_button = NULL;
-    gint row, column;
+    gint            row, column;
 
     if(widget == NULL || event == NULL || data == NULL) {
         return FALSE;
@@ -4865,8 +4886,8 @@ gboolean
 packet_is_ssl(epan_dissect_t* edt)
 {
     GPtrArray* array;
-    int ssl_id;
-    gboolean is_ssl;
+    int        ssl_id;
+    gboolean   is_ssl;
 
     if (!edt || !edt->tree)
         return FALSE;
@@ -4882,11 +4903,11 @@ packet_is_ssl(epan_dissect_t* edt)
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
-    GList              *list_entry = dissector_filter_list;
-    guint              i = 0;
-    gboolean           properties = FALSE;
-    const char         *abbrev = NULL;
-    char               *prev_abbrev;
+    GList      *list_entry = dissector_filter_list;
+    guint       i          = 0;
+    gboolean    properties = FALSE;
+    const char *abbrev     = NULL;
+    char       *prev_abbrev;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -4914,13 +4935,13 @@ set_menus_for_selected_packet(capture_file *cf)
         GPtrArray          *ga;
         header_field_info  *hfinfo;
         field_info         *v;
-        guint              i;
+        guint              ii;
 
         ga = proto_all_finfos(cfile.edt->tree);
 
-        for (i = ga->len - 1; i > 0 ; i -= 1) {
+        for (ii = ga->len - 1; ii > 0 ; ii -= 1) {
 
-            v = g_ptr_array_index (ga, i);
+            v = g_ptr_array_index (ga, ii);
             hfinfo =  v->hfinfo;
 
             if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
@@ -5083,7 +5104,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",
                          tcp_graph_selected_packet_enabled(cf->current_frame,cf->edt, NULL));
 
-    while(list_entry != NULL) {
+    while (list_entry != NULL) {
         dissector_filter_t *filter_entry;
         gchar *path;
 
@@ -5102,7 +5123,7 @@ set_menus_for_selected_packet(capture_file *cf)
 static void
 menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
 {
-    gboolean *value = data;
+    gboolean *value  = data;
     module_t *module = g_object_get_data (G_OBJECT(w), "module");
 
     module->prefs_changed = TRUE;
@@ -5118,9 +5139,9 @@ menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
 static void
 menu_prefs_change_enum (GtkWidget *w, gpointer data)
 {
-    gint *value = data;
-    module_t *module = g_object_get_data (G_OBJECT(w), "module");
-    gint new_value = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(w), "enumval"));
+    gint     *value     = data;
+    module_t *module    = g_object_get_data (G_OBJECT(w), "module");
+    gint      new_value = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(w), "enumval"));
 
     if (!gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(w)))
         return;
@@ -5140,20 +5161,20 @@ menu_prefs_change_enum (GtkWidget *w, gpointer data)
 void
 menu_prefs_reset(void)
 {
-        g_free (g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev"));
-        g_object_set_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev", NULL);
+    g_free (g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev"));
+    g_object_set_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev", NULL);
 }
 
 static void
 menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
 {
-    GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
-    module_t *module = g_object_get_data (G_OBJECT(w), "module");
-    pref_t *pref = g_object_get_data (G_OBJECT(w), "pref");
-    const gchar *new_value =  gtk_entry_get_text(GTK_ENTRY(entry));
-    range_t *newrange;
-    gchar *p;
-    guint uval;
+    GtkWidget   *entry     = g_object_get_data (G_OBJECT(w), "entry");
+    module_t    *module    = g_object_get_data (G_OBJECT(w), "module");
+    pref_t      *pref      = g_object_get_data (G_OBJECT(w), "pref");
+    const gchar *new_value = gtk_entry_get_text(GTK_ENTRY(entry));
+    range_t     *newrange;
+    gchar       *p;
+    guint        uval;
 
     switch (pref->type) {
     case PREF_UINT:
@@ -5218,9 +5239,9 @@ menu_prefs_change_cancel (GtkWidget *w _U_, gpointer parent_w)
 static void
 menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 {
-    pref_t *pref = data;
-    module_t *module = g_object_get_data (G_OBJECT(w), "module");
-    gchar *value = NULL;
+    pref_t    *pref   = data;
+    module_t  *module = g_object_get_data (G_OBJECT(w), "module");
+    gchar     *value  = NULL;
 
     GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
     GtkWidget *entry, *label;
@@ -5301,12 +5322,12 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 static guint
 add_protocol_prefs_generic_menu(pref_t *pref, gpointer data, GtkUIManager *ui_menu, char *path)
 {
-    GtkWidget *menu_preferences;
-    GtkWidget *menu_item, *menu_sub_item, *sub_menu;
-    GSList *group = NULL;
-    module_t *module = data;
+    GtkWidget        *menu_preferences;
+    GtkWidget        *menu_item, *menu_sub_item, *sub_menu;
+    GSList           *group  = NULL;
+    module_t         *module = data;
     const enum_val_t *enum_valp;
-    gchar *label = NULL;
+    gchar            *label  = NULL;
 
     switch (pref->type) {
     case PREF_UINT:
@@ -5397,12 +5418,14 @@ add_protocol_prefs_generic_menu(pref_t *pref, gpointer data, GtkUIManager *ui_me
 }
 
 static guint
-add_protocol_prefs_menu(pref_t *pref, gpointer data) {
+add_protocol_prefs_menu(pref_t *pref, gpointer data)
+{
     return add_protocol_prefs_generic_menu(pref, data, ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences");
 }
 
 static guint
-add_protocol_prefs_packet_list_menu(pref_t *pref, gpointer data) {
+add_protocol_prefs_packet_list_menu(pref_t *pref, gpointer data)
+{
     return add_protocol_prefs_generic_menu(pref, data, ui_manager_packet_list_menu, "/PacketListMenuPopup/ProtocolPreferences");
 }
 
@@ -5413,7 +5436,7 @@ rebuild_protocol_prefs_menu(module_t *prefs_module_p, gboolean preferences,
 {
     GtkWidget *menu_preferences, *menu_item;
     GtkWidget *sub_menu;
-    gchar *label;
+    gchar     *label;
 
     menu_preferences = gtk_ui_manager_get_widget(ui_menu, path);
     if (prefs_module_p && preferences) {
@@ -5461,6 +5484,7 @@ rebuild_visible_columns_menu (void)
     fmt_data  *cfmt;
     gchar     *title;
     gint       i, col_id;
+
     menu_columns[0] = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/DisplayedColumns");
     if(! menu_columns[0]){
         fprintf (stderr, "Warning: couldn't find menu_columns[0] path=/Menubar/ViewMenu/DisplayedColumns");
@@ -5545,7 +5569,7 @@ menus_set_column_align_default (gboolean right_justify)
     /* find the corresponding menu items to update */
     child_list = gtk_container_get_children(GTK_CONTAINER(submenu));
     child_list_item = child_list;
-    while(child_list_item) {
+    while (child_list_item) {
         menu_item_child = gtk_bin_get_child(GTK_BIN(child_list_item->data));
         if (menu_item_child != NULL) {
             menu_item_name = gtk_label_get_text(GTK_LABEL(menu_item_child));
@@ -5573,7 +5597,7 @@ void
 set_menus_for_selected_tree_row(capture_file *cf)
 {
     gboolean properties;
-    gint id;
+    gint     id;
 
     if (cf->finfo_selected != NULL) {
         header_field_info *hfinfo = cf->finfo_selected->hfinfo;
@@ -5672,13 +5696,15 @@ set_menus_for_selected_tree_row(capture_file *cf)
     }
 }
 
-void set_menus_for_packet_history(gboolean back_history, gboolean forward_history) {
+void set_menus_for_packet_history(gboolean back_history, gboolean forward_history)
+{
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Back", back_history);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Forward", forward_history);
 }
 
 
-void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean next_file) {
+void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean next_file)
+{
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/ListFiles", file_set);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/PreviousFile", previous_file);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/NextFile", next_file);
