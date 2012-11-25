@@ -3376,46 +3376,46 @@ get_zoomfactor(struct graph *g, struct zoomfactor *zf, double step_x,
 }
 
 static void
-do_zoom_rectangle(struct graph *g, struct irect zoomrect)
+do_zoom_rectangle(struct graph *g, struct irect lcl_zoomrect)
 {
 	int cur_width = g->wp.width, cur_height = g->wp.height;
 	struct irect geom1 = g->geom;
 	struct zoomfactor factor;
 
 	/* Left hand too much to the right */
-	if (zoomrect.x > g->wp.x + g->wp.width)
+	if (lcl_zoomrect.x > g->wp.x + g->wp.width)
 		return;
 	/* Right hand not far enough */
-	if (zoomrect.x + zoomrect.width < g->wp.x)
+	if (lcl_zoomrect.x + lcl_zoomrect.width < g->wp.x)
 		return;
 	/* Left hand too much to the left */
-	if (zoomrect.x < g->wp.x) {
-		int dx = g->wp.x - zoomrect.x;
-		zoomrect.x += dx;
-		zoomrect.width -= dx;
+	if (lcl_zoomrect.x < g->wp.x) {
+		int dx = g->wp.x - lcl_zoomrect.x;
+		lcl_zoomrect.x += dx;
+		lcl_zoomrect.width -= dx;
 	}
 	/* Right hand too much to the right */
-	if (zoomrect.x + zoomrect.width > g->wp.x + g->wp.width) {
-		int dx = zoomrect.width + zoomrect.x - g->wp.x - g->wp.width;
-		zoomrect.width -= dx;
+	if (lcl_zoomrect.x + lcl_zoomrect.width > g->wp.x + g->wp.width) {
+		int dx = lcl_zoomrect.width + lcl_zoomrect.x - g->wp.x - g->wp.width;
+		lcl_zoomrect.width -= dx;
 	}
 
 	/* Top too low */
-	if (zoomrect.y > g->wp.y + g->wp.height)
+	if (lcl_zoomrect.y > g->wp.y + g->wp.height)
 		return;
 	/* Bottom too high */
-	if (zoomrect.y + zoomrect.height < g->wp.y)
+	if (lcl_zoomrect.y + lcl_zoomrect.height < g->wp.y)
 		return;
 	/* Top too high */
-	if (zoomrect.y < g->wp.y) {
-		int dy = g->wp.y - zoomrect.y;
-		zoomrect.y += dy;
-		zoomrect.height -= dy;
+	if (lcl_zoomrect.y < g->wp.y) {
+		int dy = g->wp.y - lcl_zoomrect.y;
+		lcl_zoomrect.y += dy;
+		lcl_zoomrect.height -= dy;
 	}
 	/* Bottom too low */
-	if (zoomrect.y + zoomrect.height > g->wp.y + g->wp.height) {
-		int dy = zoomrect.height + zoomrect.y - g->wp.y - g->wp.height;
-		zoomrect.height -= dy;
+	if (lcl_zoomrect.y + lcl_zoomrect.height > g->wp.y + g->wp.height) {
+		int dy = lcl_zoomrect.height + lcl_zoomrect.y - g->wp.y - g->wp.height;
+		lcl_zoomrect.height -= dy;
 	}
 
 /*
@@ -3423,13 +3423,13 @@ do_zoom_rectangle(struct graph *g, struct irect zoomrect)
 	       "\tgeom: (%d, %d)+(%d x %d)\n"
 */
 
-	get_zoomfactor(g, &factor, (double)cur_width / zoomrect.width,
-	               (double)cur_height / zoomrect.height);
+	get_zoomfactor(g, &factor, (double)cur_width / lcl_zoomrect.width,
+	               (double)cur_height / lcl_zoomrect.height);
 /*
 	printf("Zoomfactor: %f x %f\n", factor.x, factor.y);
 */
 	perform_zoom(g, &factor,
-	             zoomrect.x, zoomrect.y,
+	             lcl_zoomrect.x, lcl_zoomrect.y,
 	             ZOOM_NOREDRAW);
 
 /*
@@ -3440,12 +3440,12 @@ do_zoom_rectangle(struct graph *g, struct irect zoomrect)
 		   g->geom.x, g->geom.y,
 		   g->geom.width, g->geom.height,
 		   g->wp.x, g->wp.y, g->wp.width, g->wp.height,
-		   zoomrect.x, zoomrect.y, zoomrect.width, zoomrect.height);
+		   lcl_zoomrect.x, lcl_zoomrect.y, lcl_zoomrect.width, lcl_zoomrect.height);
 */
 	g->geom.x = (int)(geom1.x * (1 + factor.x) -
-	            zoomrect.x * factor.x - (geom1.x - g->wp.x));
+	            lcl_zoomrect.x * factor.x - (geom1.x - g->wp.x));
 	g->geom.y = (int)(geom1.y * (1 + factor.y) -
-	             zoomrect.y * factor.y - (geom1.y - g->wp.y));
+	             lcl_zoomrect.y * factor.y - (geom1.y - g->wp.y));
 
 /*
 	printf("after:\n"
@@ -3455,7 +3455,7 @@ do_zoom_rectangle(struct graph *g, struct irect zoomrect)
 		   g->geom.x, g->geom.y,
 		   g->geom.width, g->geom.height,
 		   g->wp.x, g->wp.y, g->wp.width, g->wp.height,
-		   zoomrect.x, zoomrect.y, zoomrect.width, zoomrect.height);
+		   lcl_zoomrect.x, lcl_zoomrect.y, lcl_zoomrect.width, lcl_zoomrect.height);
 */
 
 	graph_element_lists_make(g);
