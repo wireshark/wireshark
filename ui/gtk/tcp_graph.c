@@ -2111,16 +2111,6 @@ static void graph_element_lists_free (struct graph *g)
 {
 	struct element_list *list, *next_list;
 
-#if 0
-	for (list=g->elists; list; list=list->next)
-		g_free (list->elements);
-	while (g->elists->next) {
-		list = g->elists->next->next;
-		g_free (g->elists->next);
-		g->elists->next = list;
-	}
-#endif
-
 	for (list=g->elists; list; list=next_list) {
 		g_free (list->elements);
 		next_list = list->next;
@@ -4183,7 +4173,6 @@ static void tseq_stevens_toggle_time_origin (struct graph *g)
 
 static void tseq_tcptrace_read_config (struct graph *g)
 {
-
 	/* Black */
 	g->s.tseq_tcptrace.seq_color.pixel=0;
 	g->s.tseq_tcptrace.seq_color.red=0;
@@ -4216,6 +4205,7 @@ static void tseq_tcptrace_read_config (struct graph *g)
 
 	g->s.tseq_tcptrace.flags = 0;
 
+	/* Allocate first list, but not elements */
 	g->elists->next = (struct element_list * )
 				g_malloc (sizeof (struct element_list));
 	g->elists->next->next = NULL;
@@ -4249,22 +4239,23 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 
 	debug(DBS_FENTRY) puts ("tseq_tcptrace_make_elmtlist()");
 
-	if (g->elists->elements == NULL) {
+	if (g->elists->elements == NULL ) {
+		/* 3 elements per data segment */
+		int n = 1 + 3*get_num_dsegs(g);
+		e0 = elements0 = (struct element * )g_malloc (n*sizeof (struct element));
+	} else {
+		/* Existing array */
+		e0 = elements0 = g->elists->elements;
+	}
+
+	if (g->elists->next->elements == NULL) {
 		/* 4 elements per ACK, but only one for each SACK range */
 		int n = 1 + 4*get_num_acks(g, &num_sack_ranges);
 		n += num_sack_ranges;
 		e1 = elements1 = (struct element * )g_malloc (n*sizeof (struct element));
 	} else {
 		/* Existing array */
-		e1 = elements1 = g->elists->elements;
-	}
-
-	if (g->elists->next->elements == NULL ) {
-		int n = 1 + 3*get_num_dsegs(g);
-		e0 = elements0 = (struct element * )g_malloc (n*sizeof (struct element));
-	} else {
-		/* Existing array */
-		e0 = elements0 = g->elists->next->elements;
+		e1 = elements1 = g->elists->next->elements;
 	}
 
 	xx0 = g->bounds.x0;
@@ -4418,6 +4409,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 
 	g->elists->elements = elements0;
 	g->elists->next->elements = elements1;
+	g->elists->next->next = NULL;
 }
 
 static void tseq_tcptrace_toggle_seq_origin (struct graph *g)
