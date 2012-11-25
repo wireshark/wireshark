@@ -4253,15 +4253,19 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 		/* 4 elements per ACK, but only one for each SACK range */
 		int n = 1 + 4*get_num_acks(g, &num_sack_ranges);
 		n += num_sack_ranges;
-		e0 = elements0 = (struct element * )g_malloc (n*sizeof (struct element));
-	} else
-		e0 = elements0 = g->elists->elements;
+		e1 = elements1 = (struct element * )g_malloc (n*sizeof (struct element));
+	} else {
+		/* Existing array */
+		e1 = elements1 = g->elists->elements;
+	}
 
 	if (g->elists->next->elements == NULL ) {
 		int n = 1 + 3*get_num_dsegs(g);
-		e1 = elements1 = (struct element * )g_malloc (n*sizeof (struct element));
-	} else
-		e1 = elements1 = g->elists->next->elements;
+		e0 = elements0 = (struct element * )g_malloc (n*sizeof (struct element));
+	} else {
+		/* Existing array */
+		e0 = elements0 = g->elists->next->elements;
+	}
 
 	xx0 = g->bounds.x0;
 	yy0 = g->bounds.y0;
@@ -4279,7 +4283,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				   &tmp->ip_src, &tmp->ip_dst,
 				   tmp->th_sport, tmp->th_dport,
 				   COMPARE_CURR_DIR)) {
-			/* forward direction -> we need seqno and amount of data */
+			/* forward direction (data) -> we need seqno and amount of data */
 			double yy1, yy2;
 
 			seq_cur = tmp->th_seq - seq_base;
@@ -4290,30 +4294,30 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 
 			yy1 = g->zoom.y * (seq_cur);
 			yy2 = g->zoom.y * (seq_cur + data);
-			e1->type = ELMT_LINE;
-			e1->parent = tmp;
+			e0->type = ELMT_LINE;
+			e0->parent = tmp;
 			/* Set the drawing color */
-			e1->elment_color_p = &g->s.tseq_tcptrace.seq_color;
-			e1->p.line.dim.x1 = e1->p.line.dim.x2 = x;
-			e1->p.line.dim.y1 = yy1;
-			e1->p.line.dim.y2 = yy2;
-			e1++;
-			e1->type = ELMT_LINE;
-			e1->parent = tmp;
+			e0->elment_color_p = &g->s.tseq_tcptrace.seq_color;
+			e0->p.line.dim.x1 = e0->p.line.dim.x2 = x;
+			e0->p.line.dim.y1 = yy1;
+			e0->p.line.dim.y2 = yy2;
+			e0++;
+			e0->type = ELMT_LINE;
+			e0->parent = tmp;
 			/* Set the drawing color */
-			e1->elment_color_p = &g->s.tseq_tcptrace.seq_color;
-			e1->p.line.dim.x1 = x - 1;
-			e1->p.line.dim.x2 = x + 1;
-			e1->p.line.dim.y1 = e1->p.line.dim.y2 = yy1;
-			e1++;
-			e1->type = ELMT_LINE;
-			e1->parent = tmp;
+			e0->elment_color_p = &g->s.tseq_tcptrace.seq_color;
+			e0->p.line.dim.x1 = x - 1;
+			e0->p.line.dim.x2 = x + 1;
+			e0->p.line.dim.y1 = e0->p.line.dim.y2 = yy1;
+			e0++;
+			e0->type = ELMT_LINE;
+			e0->parent = tmp;
 			/* Set the drawing color */
-			e1->elment_color_p = &g->s.tseq_tcptrace.seq_color;
-			e1->p.line.dim.x1 = x + 1;
-			e1->p.line.dim.x2 = x - 1;
-			e1->p.line.dim.y1 = e1->p.line.dim.y2 = yy2;
-			e1++;
+			e0->elment_color_p = &g->s.tseq_tcptrace.seq_color;
+			e0->p.line.dim.x1 = x + 1;
+			e0->p.line.dim.x2 = x - 1;
+			e0->p.line.dim.y1 = e0->p.line.dim.y2 = yy2;
+			e0++;
 		} else {
 			double ackno, win;
 			if (! TCP_ACK (tmp->th_flags))
@@ -4328,48 +4332,48 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			if (ack_seen == TRUE) { /* don't plot the first ack */
 
 				/* Horizonal: time of previous ACK to now (at new ACK) */
-				e0->type = ELMT_LINE;
-				e0->parent = tmp;
+				e1->type = ELMT_LINE;
+				e1->parent = tmp;
 				/* Set the drawing color */
-				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
-				e0->p.line.dim.x1 = p_t;
-				e0->p.line.dim.y1 = p_ackno;
-				e0->p.line.dim.x2 = x;
-				e0->p.line.dim.y2 = p_ackno;
-				e0++;
+				e1->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
+				e1->p.line.dim.x1 = p_t;
+				e1->p.line.dim.y1 = p_ackno;
+				e1->p.line.dim.x2 = x;
+				e1->p.line.dim.y2 = p_ackno;
+				e1++;
 
 				/* Vertical: from previous ACKNO to current one (at current time) */
-				e0->type = ELMT_LINE;
-				e0->parent = tmp;
+				e1->type = ELMT_LINE;
+				e1->parent = tmp;
 				/* Set the drawing color */
-				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
-				e0->p.line.dim.x1 = x;
-				e0->p.line.dim.y1 = p_ackno;
-				e0->p.line.dim.x2 = x;
-				e0->p.line.dim.y2 = ackno!=p_ackno || ackno<4 ? ackno : ackno-4;
-				e0++;
+				e1->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
+				e1->p.line.dim.x1 = x;
+				e1->p.line.dim.y1 = p_ackno;
+				e1->p.line.dim.x2 = x;
+				e1->p.line.dim.y2 = ackno!=p_ackno || ackno<4 ? ackno : ackno-4;
+				e1++;
 
 				/* Horizontal: window line */
-				e0->type = ELMT_LINE;
-				e0->parent = tmp;
+				e1->type = ELMT_LINE;
+				e1->parent = tmp;
 				/* Set the drawing color */
-				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
-				e0->p.line.dim.x1 = p_t;
-				e0->p.line.dim.y1 = p_win + p_ackno;
-				e0->p.line.dim.x2 = x;
-				e0->p.line.dim.y2 = p_win + p_ackno;
-				e0++;
+				e1->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
+				e1->p.line.dim.x1 = p_t;
+				e1->p.line.dim.y1 = p_win + p_ackno;
+				e1->p.line.dim.x2 = x;
+				e1->p.line.dim.y2 = p_win + p_ackno;
+				e1++;
 
 				/* Vertical: old window to new window */
-				e0->type = ELMT_LINE;
-				e0->parent = tmp;
+				e1->type = ELMT_LINE;
+				e1->parent = tmp;
 				/* Set the drawing color */
-				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
-				e0->p.line.dim.x1 = x;
-				e0->p.line.dim.y1 = p_win + p_ackno;
-				e0->p.line.dim.x2 = x;
-				e0->p.line.dim.y2 = win + ackno;
-				e0++;
+				e1->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
+				e1->p.line.dim.x1 = x;
+				e1->p.line.dim.y1 = p_win + p_ackno;
+				e1->p.line.dim.x2 = x;
+				e1->p.line.dim.y2 = win + ackno;
+				e1++;
 
 				/* Toggle color to use for ACKs... */
 				toggle = 1^toggle;
@@ -4392,23 +4396,26 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 					   between SACKs, but when TCP is limited by option bytes and needs to
 					   miss out ranges, this can be pretty confusing as we end up apparently
 					   NACKing what has been received... */
-					e0->type = ELMT_LINE;
-					e0->parent = tmp;
+					e1->type = ELMT_LINE;
+					e1->parent = tmp;
 					/* Set the drawing color.  First range is significant, so use
 					   separate colour */
-					e0->elment_color_p = (n==0) ? &g->s.tseq_tcptrace.sack_color[0] :
+					e1->elment_color_p = (n==0) ? &g->s.tseq_tcptrace.sack_color[0] :
 					                              &g->s.tseq_tcptrace.sack_color[1];
-					e0->p.line.dim.x1 = x;
-					e0->p.line.dim.y1 = right_edge;
-					e0->p.line.dim.x2 = x;
-					e0->p.line.dim.y2 = left_edge;
-					e0++;
+					e1->p.line.dim.x1 = x;
+					e1->p.line.dim.y1 = right_edge;
+					e1->p.line.dim.x2 = x;
+					e1->p.line.dim.y2 = left_edge;
+					e1++;
 				}
 			}
 		}
 	}
+
+	/* Terminate both lists */
 	e0->type = ELMT_NONE;
 	e1->type = ELMT_NONE;
+
 	g->elists->elements = elements0;
 	g->elists->next->elements = elements1;
 }
