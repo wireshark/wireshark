@@ -6222,14 +6222,14 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     NULL,    /* NONE */
 };
 
-void get_bssgp_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn)
+void get_bssgp_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
     gint            idx;
 
     *msg_str = match_strval_idx_ext((guint32) (oct & 0xff), &bssgp_msg_strings_ext, &idx);
     *ett_tree = ett_bssgp_msg[idx];
     *hf_idx = hf_bssgp_msg_type;
-    *msg_fcn = bssgp_msg_fcn[idx];
+    *msg_fcn_p = bssgp_msg_fcn[idx];
 
     return;
 }
@@ -6238,14 +6238,14 @@ static void
 dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-    proto_item *ti;
-    proto_tree *bssgp_tree = NULL;
-    int               offset = 0;
-    guint32           len;
-    const gchar       *msg_str = NULL;
-    gint              ett_tree;
-    int               hf_idx;
-    void              (*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
+    proto_item  *ti;
+    proto_tree  *bssgp_tree = NULL;
+    int          offset     = 0;
+    guint32      len;
+    const gchar *msg_str    = NULL;
+    gint         ett_tree;
+    int          hf_idx;
+    void        (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 
     /* Save pinfo */
     gpinfo = pinfo;
@@ -6265,12 +6265,12 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Messge type IE*/
-    msg_fcn = NULL;
+    msg_fcn_p = NULL;
     ett_tree = -1;
     hf_idx = -1;
     msg_str = NULL;
 
-    get_bssgp_msg_params(g_pdu_type, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
+    get_bssgp_msg_params(g_pdu_type, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
 
     if(msg_str){
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
@@ -6289,13 +6289,13 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * decode elements
      */
-    if (msg_fcn == NULL)
+    if (msg_fcn_p == NULL)
     {
         proto_tree_add_text(bssgp_tree, tvb, offset, len - offset, "Message Elements");
     }
     else
     {
-        (*msg_fcn)(tvb, bssgp_tree, pinfo, offset, len - offset);
+        (*msg_fcn_p)(tvb, bssgp_tree, pinfo, offset, len - offset);
     }
 }
 

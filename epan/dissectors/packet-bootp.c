@@ -1,5 +1,6 @@
 /* packet-bootp.c
  * Routines for BOOTP/DHCP packet disassembly
+ *
  * Copyright 1998, Gilbert Ramirez <gram@alumni.rice.edu>
  * Copyright 2004, Thomas Anders <thomas.anders [AT] blue-cable.de>
  *
@@ -12,6 +13,8 @@
  *                    RFC 3396 - Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4)
  * Improved opt 120 : Add support of RFC 3396 - Encoding Long Options in the Dynamic Host Configuration Protocol (DHCPv4)
  *                    Add support compression according to the encoding in Section 4.1.4 of RFC 1035 - DOMAIN NAMES - IMPLEMENTATION AND SPECIFICATION
+ *
+ *
  * Copyright 2012, Jerome LAFORGE <jerome.laforge [AT] gmail.com>
  *
  * $Id$
@@ -1865,7 +1868,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		break;
 	case 77: {	/* User Class Information RFC 3004 */
 		guchar user_class_instance_index;
-		proto_item *vti;
+		proto_item *vtix;
 		proto_tree *o77_v_tree;
 		if (optlen < 2) {
 			expert_add_info_format(pinfo, v_tree, PI_PROTOCOL, PI_ERROR, "length isn't >= 2 (length = %i)", optlen);
@@ -1874,21 +1877,21 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		optleft = optlen;
 		for (user_class_instance_index = 0, i = 0, byte = tvb_get_guint8(tvb, optoff); i < optlen; byte = tvb_get_guint8(tvb, optoff + i), user_class_instance_index++) {
 			/* Create subtree for instance of User Class. */
-			vti = proto_tree_add_uint_format_value(v_tree, hf_bootp_option77_user_class,
+			vtix = proto_tree_add_uint_format_value(v_tree, hf_bootp_option77_user_class,
 					tvb, optoff + i, byte + 1, user_class_instance_index, "[%d]", user_class_instance_index);
-			o77_v_tree = proto_item_add_subtree(vti, ett_bootp_option77_instance);
+			o77_v_tree = proto_item_add_subtree(vtix, ett_bootp_option77_instance);
 
 			/* Add length for instance of User Class. */
 			proto_tree_add_item(o77_v_tree, hf_bootp_option77_user_class_length,
 					tvb, optoff + i, 1, ENC_BIG_ENDIAN);
 
 			if (byte == 0) {
-				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "UC_Len_%u isn't >= 1 (UC_Len_%u = 0)", user_class_instance_index, user_class_instance_index);
+				expert_add_info_format(pinfo, vtix, PI_PROTOCOL, PI_ERROR, "UC_Len_%u isn't >= 1 (UC_Len_%u = 0)", user_class_instance_index, user_class_instance_index);
 				break;
 			}
 			optleft -= byte + 1;
 			if (optleft < 0) {
-				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "User Class Information: malformed option");
+				expert_add_info_format(pinfo, vtix, PI_PROTOCOL, PI_ERROR, "User Class Information: malformed option");
 				break;
 			}
 
@@ -2227,21 +2230,21 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		if (rfc3396_dns_domain_search_list.index_current_block == rfc3396_dns_domain_search_list.total_number_of_block) {
 			/* Here, we are into the last (or unique) option 119. */
 			/* We will display the information about fqdn */
-			unsigned int consumed = 0;
+			unsigned int consumedx = 0;
 			unsigned int offset = 0;
 			tvb_composite_finalize(rfc3396_dns_domain_search_list.tvb_composite);
 
 			while (offset < tvb_length(rfc3396_dns_domain_search_list.tvb_composite)) {
 				/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
-				consumed = get_dns_name(rfc3396_dns_domain_search_list.tvb_composite, offset, tvb_length(rfc3396_dns_domain_search_list.tvb_composite), 0, &dns_name);
+				consumedx = get_dns_name(rfc3396_dns_domain_search_list.tvb_composite, offset, tvb_length(rfc3396_dns_domain_search_list.tvb_composite), 0, &dns_name);
 				if (rfc3396_dns_domain_search_list.total_number_of_block == 1) {
 					/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
-					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_fqdn, tvb, optoff + offset, consumed, dns_name);
+					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_fqdn, tvb, optoff + offset, consumedx, dns_name);
 				} else {
 					/* RFC 3396 is used, so the option is split into several option 119. We don't link fqdn with v_tree. */
 					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_fqdn, tvb, 0, 0, dns_name);
 				}
-				offset += consumed;
+				offset += consumedx;
 			}
 			rfc3396_dns_domain_search_list.tvb_composite = NULL;
 		}
@@ -2287,7 +2290,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 			switch (enc) {
 			case RFC_3361_ENC_FQDN: {
-				unsigned int consumed = 0;
+				unsigned int consumedx = 0;
 				if (tvb_length(rfc3396_sip_server.tvb_composite) < 3) {
 					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't >= 3 (len = %u)", tvb_length(rfc3396_sip_server.tvb_composite));
 					break;
@@ -2295,16 +2298,16 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 				while (offset < tvb_length(rfc3396_sip_server.tvb_composite)) {
 					/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
-					consumed = get_dns_name(rfc3396_sip_server.tvb_composite, offset, tvb_length(rfc3396_sip_server.tvb_composite), 1 /* ignore enc */, &dns_name);
+					consumedx = get_dns_name(rfc3396_sip_server.tvb_composite, offset, tvb_length(rfc3396_sip_server.tvb_composite), 1 /* ignore enc */, &dns_name);
 
 					if (rfc3396_sip_server.total_number_of_block == 1) {
 						/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
-						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, optoff + offset, consumed, dns_name);
+						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, optoff + offset, consumedx, dns_name);
 					} else {
 						/* RFC 3396 is used, so the option is split into several option 120. We don't link fqdn with v_tree. */
 						proto_tree_add_string(v_tree, hf_bootp_option_sip_server_name, tvb, 0, 0, dns_name);
 					}
-					offset += consumed;
+					offset += consumedx;
 				}
 				rfc3396_sip_server.tvb_composite = NULL;
 				break;
