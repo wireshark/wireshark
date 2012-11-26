@@ -2058,6 +2058,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       col_add_fstr(pinfo->cinfo, COL_INFO,
                    "Bogus IP length (%u, less than header length %u)",
                    iph->ip_len, hlen);
+      tf = NULL;
       if (tree) {
         tf = proto_tree_add_uint_format(ip_tree, hf_ip_len, tvb, offset + 2, 2,
           iph->ip_len,
