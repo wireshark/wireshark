@@ -332,7 +332,7 @@ typedef struct _dcerpc_call_value {
 
 typedef struct _dcerpc_info {
 	conversation_t *conv;	/* Which TCP stream we are in */
-	guint32 call_id;	/* Context id for this call */
+	guint32 call_id;	/* Call ID for this call */
 	guint16 smb_fid;	/* FID for DCERPC over SMB */
 	guint8 ptype;       /* packet type: PDU_REQ, PDU_RESP, ... */
 	gboolean conformant_run;
