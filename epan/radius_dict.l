@@ -68,9 +68,9 @@
 #define ECHO
 #define MAX_INCLUDE_DEPTH 10
 
-	static void add_vendor(const gchar* name, guint32 vendor_id, guint vendor_type_octets, guint vendor_length_octets, gboolean vendor_has_flags);
-	static void add_value(const gchar* attrib_name,const  gchar* value_repr, long value);
-	static void add_tlv(const gchar* name, const  gchar* code, radius_attr_dissector_t type, const gchar* current_attr);
+	static void add_vendor(const gchar* name, guint32 id, guint type_octets, guint length_octets, gboolean has_flags);
+	static void add_value(const gchar* attrib_name,const  gchar* repr, long value);
+	static void add_tlv(const gchar* name, const  gchar* code, radius_attr_dissector_t type, const gchar* attr);
 	static void add_attribute(const gchar*,const  gchar*, radius_attr_dissector_t,const  gchar*, guint, gboolean, const gchar*);
 
 	static YY_BUFFER_STATE include_stack[10];
@@ -309,15 +309,15 @@
 
 %%
 
-static void add_vendor(const gchar* name, guint32 vendor_id, guint vendor_type_octets, guint vendor_length_octets, gboolean vendor_has_flags) {
+static void add_vendor(const gchar* name, guint32 id, guint type_octets, guint length_octets, gboolean has_flags) {
 	radius_vendor_info_t* v;
 
-	v = g_hash_table_lookup(dict->vendors_by_id, GUINT_TO_POINTER(vendor_id));
+	v = g_hash_table_lookup(dict->vendors_by_id, GUINT_TO_POINTER(id));
 
 	if (!v) {
 		v = g_malloc(sizeof(radius_vendor_info_t));
 		v->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
-		v->code = vendor_id;
+		v->code = id;
 		v->ett = -1;
 		v->name = NULL;
 	}
@@ -325,9 +325,9 @@ static void add_vendor(const gchar* name, guint32 vendor_id, guint vendor_type_o
          * type/length/has_flags information and thus allow the dictionary to
          * overwrite these values even for vendors that have already been loaded.
          */
-	v->type_octets = vendor_type_octets;
-	v->length_octets = vendor_length_octets;
-	v->has_flags = vendor_has_flags;
+	v->type_octets = type_octets;
+	v->length_octets = length_octets;
+	v->has_flags = has_flags;
 
 	if (v->name)
 		g_free((gpointer) v->name);
@@ -337,25 +337,25 @@ static void add_vendor(const gchar* name, guint32 vendor_id, guint vendor_type_o
 	g_hash_table_insert(dict->vendors_by_name, (gpointer) v->name, v);
 }
 
-static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const  gchar* vendor_name, guint crypt, gboolean tagged, const gchar* current_attr) {
+static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const  gchar* vendor, guint crypt, gboolean tagged, const gchar* attr) {
 	radius_attr_info_t* a;
 	GHashTable* by_id;
 	guint32 code;
 	const gchar *tmpName = NULL;
 
 
-	if (current_attr){
-		add_tlv(name, codestr, type, current_attr);
+	if (attr){
+		add_tlv(name, codestr, type, attr);
 		return;
 	}
 
 
-	if (vendor_name) {
+	if (vendor) {
 		radius_vendor_info_t* v;
-		v = g_hash_table_lookup(dict->vendors_by_name,vendor_name);
+		v = g_hash_table_lookup(dict->vendors_by_name,vendor);
 
 		if (! v) {
-			g_string_append_printf(error, "Vendor: '%s', does not exist in %s:%i \n", vendor_name, fullpaths[include_stack_ptr], linenums[include_stack_ptr] );
+			g_string_append_printf(error, "Vendor: '%s', does not exist in %s:%i \n", vendor, fullpaths[include_stack_ptr], linenums[include_stack_ptr] );
 			BEGIN JUNK;
 			return;
 		} else {
@@ -403,15 +403,15 @@ static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_
 	}
 }
 
-static void add_tlv(const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const gchar* current_attr) {
+static void add_tlv(const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const gchar* attr) {
 	radius_attr_info_t* a;
 	radius_attr_info_t* s;
 	guint32 code;
 
-	a = g_hash_table_lookup(dict->attrs_by_name, current_attr);
+	a = g_hash_table_lookup(dict->attrs_by_name, attr);
 
 	if (! a) {
-		g_string_append_printf(error, "Attr: '%s', does not exist in %s:%i \n", current_attr, fullpaths[include_stack_ptr], linenums[include_stack_ptr]);
+		g_string_append_printf(error, "Attr: '%s', does not exist in %s:%i \n", attr, fullpaths[include_stack_ptr], linenums[include_stack_ptr]);
 		BEGIN JUNK;
 		return;
 	}
@@ -458,7 +458,7 @@ static void add_tlv(const gchar* name, const  gchar* codestr, radius_attr_dissec
 	g_hash_table_insert(dict->tlvs_by_name,(gpointer) (s->name),s);
 }
 
-void add_value(const gchar* attrib_name, const gchar* value_repr, long value) {
+void add_value(const gchar* attrib_name, const gchar* repr, long value) {
 	value_string v;
 	GArray* a = g_hash_table_lookup(value_strings,attrib_name);
 
@@ -468,7 +468,7 @@ void add_value(const gchar* attrib_name, const gchar* value_repr, long value) {
 	}
 
 	v.value = value;
-	v.strptr = g_strdup(value_repr);
+	v.strptr = g_strdup(repr);
 
 	g_array_append_val(a,v);
 }
