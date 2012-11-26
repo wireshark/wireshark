@@ -578,8 +578,8 @@ de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static guint16
 de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	proto_item 	*item;
-	proto_tree	*subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = proto_tree_add_item(tree, hf_gsm_a_dtap_autn, tvb, offset, len, ENC_NA);
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_AUTH_PARAM_AUTN]);
@@ -603,7 +603,7 @@ de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 static guint16
 de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    /* This IE contains either the SRES or the 4 most significant octets of the RES */
+	/* This IE contains either the SRES or the 4 most significant octets of the RES */
 	proto_tree_add_item(tree, hf_gsm_a_dtap_sres, tvb, offset, 4, ENC_NA);
 
 	/* no length check possible */
@@ -628,8 +628,8 @@ de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 static guint16
 de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	proto_item 	*item;
-	proto_tree	*subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = proto_tree_add_item(tree, hf_gsm_a_dtap_auts, tvb, offset, len, ENC_NA);
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_AUTH_FAIL_PARAM]);
@@ -664,15 +664,15 @@ de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 static guint16
 de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
+	guint8       oct;
+	guint32      curr_offset;
 	const gchar *str;
-	guint8 coding_scheme, num_spare_bits;
-	guint32	num_chars, num_text_bits;
-	gchar *net_name = NULL;
-	GIConv cd;
-	GError *l_conv_error = NULL;
-	proto_item *item;
+	guint8       coding_scheme, num_spare_bits;
+	guint32      num_chars, num_text_bits;
+	gchar       *net_name     = NULL;
+	GIConv       cd;
+	GError      *l_conv_error = NULL;
+	proto_item  *item;
 
 	curr_offset = offset;
 
@@ -819,7 +819,7 @@ static const range_string gsm_a_dtap_rej_cause_vals[] = {
 guint16
 de_rej_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
+	guint8       oct;
 	const gchar *str;
 
 	oct = tvb_get_guint8(tvb, offset);
@@ -853,7 +853,7 @@ de_time_zone(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 {
 	guint8	oct;
 	guint32	curr_offset;
-	char sign;
+	char    sign;
 
 	curr_offset = offset;
 
@@ -889,7 +889,7 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 {
 	guint8	oct, oct2, oct3;
 	guint32	curr_offset;
-	char sign;
+	char    sign;
 
 	curr_offset = offset;
 
@@ -983,8 +983,8 @@ de_lsa_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
 static guint16
 de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
+	guint8       oct;
+	guint32      curr_offset;
 	const gchar *str;
 
 	curr_offset = offset;
@@ -1023,13 +1023,13 @@ de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static guint16
 de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-	guint8 en_len, oct, i;
-	guint8 count;
-	guint8	*poctets;
-	proto_tree	*subtree;
-	proto_item	*item;
-	gboolean	malformed_number;
+	guint32     curr_offset;
+	guint8      en_len, oct, i;
+	guint8      count;
+	guint8     *poctets;
+	proto_tree *subtree;
+	proto_item *item;
+	gboolean    malformed_number;
 
 	curr_offset = offset;
 
@@ -1176,8 +1176,8 @@ de_mm_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 static guint16
 de_aux_states(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
+	guint8       oct;
+	guint32      curr_offset;
 	const gchar *str;
 
 	curr_offset = offset;
@@ -1274,13 +1274,13 @@ static const value_string gsm_a_dtap_itc_values[] = {
 guint16
 de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-	guint8	oct;
-	guint8	itc;
-	gboolean	extended;
-	guint32	curr_offset;
-	guint32	saved_offset;
-	proto_tree	*subtree;
-	proto_item	*item;
+	guint8       oct;
+	guint8       itc;
+	gboolean     extended;
+	guint32      curr_offset;
+	guint32      saved_offset;
+	proto_tree  *subtree;
+	proto_item  *item;
 	const gchar *str;
 
 #define	DE_BC_ITC_SPEECH	0x00
@@ -2390,9 +2390,9 @@ static const value_string gsm_a_dtap_call_state_vals[] = {
 static guint16
 de_call_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct, coding_standard, call_state;
-	proto_tree	*subtree;
-	proto_item	*item;
+	guint8      oct, coding_standard, call_state;
+	proto_tree *subtree;
+	proto_item *item;
 
 	item =
 	proto_tree_add_text(tree,
@@ -2478,11 +2478,11 @@ const value_string gsm_a_dtap_screening_ind_values[] = {
 static guint16
 de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, int header_field, gboolean *address_extracted)
 {
-	guint8	*poctets;
-	guint8	extension, oct;
-	guint32	curr_offset, i, num_string_len;
+	guint8     *poctets;
+	guint8      extension, oct;
+	guint32     curr_offset, i, num_string_len;
 	proto_item *item;
-	gboolean malformed_number;
+	gboolean    malformed_number;
 
 	*address_extracted = FALSE;
 	curr_offset = offset;
@@ -2557,10 +2557,10 @@ const value_string gsm_a_dtap_odd_even_ind_values[] = {
 static guint16
 de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gboolean *address_extracted)
 {
-	guint32	curr_offset, ia5_string_len, i;
-	guint8 type_of_sub_addr, afi, dig1, dig2, oct;
-	gchar *ia5_string;
-	gboolean invalid_ia5_char;
+	guint32     curr_offset, ia5_string_len, i;
+	guint8      type_of_sub_addr, afi, dig1, dig2, oct;
+	gchar      *ia5_string;
+	gboolean    invalid_ia5_char;
 	proto_item *item;
 
 	curr_offset = offset;
@@ -2627,7 +2627,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 guint16
 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-	gboolean	addr_extr;
+	gboolean addr_extr;
 
 	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_cld_party_bcd_num, &addr_extr);
 
@@ -2649,7 +2649,7 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 static guint16
 de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	gboolean	addr_extr;
+	gboolean addr_extr;
 
 	de_sub_addr(tvb, tree, pinfo, offset, len, &addr_extr);
 
@@ -2665,7 +2665,7 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 static guint16
 de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-	gboolean	addr_extr;
+	gboolean addr_extr;
 
 	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_clg_party_bcd_num, &addr_extr);
 
@@ -2681,7 +2681,7 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 static guint16
 de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	gboolean	addr_extr;
+	gboolean addr_extr;
 
 	de_sub_addr(tvb, tree, pinfo, offset, len, &addr_extr);
 
@@ -2709,12 +2709,12 @@ static const value_string gsm_a_dtap_cause_ss_diagnostics_vals[] = {
 static guint16
 de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-	guint8	oct;
-	guint8	cause;
-	guint32	curr_offset;
-	guint32 diag_length;
-	proto_tree	*subtree;
-	proto_item	*item;
+	guint8       oct;
+	guint8       cause;
+	guint32      curr_offset;
+	guint32      diag_length;
+	proto_tree  *subtree;
+	proto_item  *item;
 	const gchar *str;
 
 	curr_offset = offset;
@@ -2915,7 +2915,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
 static guint16
 de_conn_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-	gboolean	addr_extr;
+	gboolean addr_extr;
 
 	de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_conn_num, &addr_extr);
 
@@ -2931,7 +2931,7 @@ de_conn_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 static guint16
 de_conn_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	gboolean	addr_extr;
+	gboolean addr_extr;
 
 	de_sub_addr(tvb, tree, pinfo, offset, len, &addr_extr);
 
@@ -2948,17 +2948,17 @@ de_conn_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 static guint16
 de_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint fac_len, gchar *add_string _U_, int string_len _U_)
 {
-	guint	saved_offset;
-	gint8 class;
-	gboolean pc;
-	gboolean ind = FALSE;
-	guint32 component_len = 0;
-	guint32 header_end_offset;
-	guint32 header_len;
-	asn1_ctx_t asn1_ctx;
-	tvbuff_t *SS_tvb = NULL;
-	void *save_private_data;
-	static gint comp_type_tag;
+	guint        saved_offset;
+	gint8        class;
+	gboolean     pc;
+	gboolean     ind           = FALSE;
+	guint32      component_len = 0;
+	guint32      header_end_offset;
+	guint32      header_len;
+	asn1_ctx_t   asn1_ctx;
+	tvbuff_t    *SS_tvb        = NULL;
+	void        *save_private_data;
+	static gint  comp_type_tag;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -3010,8 +3010,8 @@ de_hlc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
 static guint16
 de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
-	guint8	oct, keypad_char;
-	guint32	curr_offset;
+	guint8      oct, keypad_char;
+	guint32     curr_offset;
 	proto_item *item;
 
 	curr_offset = offset;
@@ -3288,8 +3288,8 @@ de_signal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
 static guint16
 de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
+	guint8       oct;
+	guint32      curr_offset;
 	const gchar *str;
 
 	curr_offset = offset;
@@ -3364,9 +3364,9 @@ static const range_string gsm_a_dtap_u2u_prot_discr_vals[] = {
 static guint16
 de_u2u(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-	proto_tree	*subtree;
-	proto_item	*item;
+	guint32     curr_offset;
+	proto_tree *subtree;
+	proto_item *item;
 
 	curr_offset = offset;
 	proto_tree_add_item(tree, hf_gsm_a_dtap_u2u_prot_discr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -3505,7 +3505,7 @@ static guint16
 de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
 	guint32	curr_offset;
-	guint8 oct;
+	guint8  oct;
 
 	curr_offset = offset;
 
@@ -3545,11 +3545,11 @@ static const value_string gsm_a_dtap_sysid_values[] = {
 guint16
 de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-	guint8 length;
-	proto_tree	*subtree;
-	proto_item	*item;
-	guint8 sysid_counter;
+	guint32     curr_offset;
+	guint8      length;
+	proto_tree *subtree;
+	proto_item *item;
+	guint8      sysid_counter;
 
 	curr_offset = offset;
 
@@ -3567,7 +3567,7 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 		proto_tree_add_item(tree, hf_gsm_a_dtap_bitmap_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		length = tvb_get_guint8(tvb,curr_offset);
 		curr_offset++;
-        if (length > 0)
+		if (length > 0)
 		{
 			item = proto_tree_add_text(tree, tvb, curr_offset, length, "Codec Bitmap for SysID %u", sysid_counter);
 			subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_SUP_CODEC_LIST]);
@@ -3674,8 +3674,8 @@ de_serv_cat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 static guint16
 de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-	tvbuff_t	*rp_tvb;
+	guint32   curr_offset;
+	tvbuff_t *rp_tvb;
 
 	curr_offset = offset;
 
@@ -3702,8 +3702,8 @@ de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 static guint16
 de_cp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
-	guint8	oct;
-	guint32	curr_offset;
+	guint8       oct;
+	guint32      curr_offset;
 	const gchar *str;
 
 	curr_offset = offset;
@@ -3745,9 +3745,9 @@ de_cp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 static guint16
 de_tp_sub_channel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-	guchar	oct;
-	const gchar	*str;
+	guint32      curr_offset;
+	guchar       oct;
+	const gchar *str;
 
 	curr_offset = offset;
 
@@ -4148,9 +4148,9 @@ de_tp_epc_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 static guint16
 de_tp_epc_ue_tl_a_lb_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
-	guint32 count, nb_lb;
-	proto_item *item = NULL;
+	guint32     curr_offset;
+	guint32     count, nb_lb;
+	proto_item *item          = NULL;
 	proto_tree *lb_setup_tree = NULL;
 
 	curr_offset = offset;
@@ -4297,91 +4297,91 @@ de_tp_epc_gnss_tod_msec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Mobility Management Information Elements 10.5.3 */
-	de_auth_param_rand,	/* Authentication Parameter RAND */
-	de_auth_param_autn,	/* Authentication Parameter AUTN (UMTS and EPS authentication challenge) */
-	de_auth_resp_param,	/* Authentication Response Parameter */
-	de_auth_resp_param_ext,	/* Authentication Response Parameter (extension) (UMTS authentication challenge only) */
-	de_auth_fail_param,	/* Authentication Failure Parameter (UMTS and EPS authentication challenge) */
-	NULL /* handled inline */,	/* CM Service Type */
-	NULL /* handled inline */,	/* Identity Type */
-	NULL /* handled inline */,	/* Location Updating Type */
-	de_network_name,	/* Network Name */
-	de_rej_cause,	/* Reject Cause */
-	NULL /* no associated data */,	/* Follow-on Proceed */
-	de_time_zone,	/* Time Zone */
-	de_time_zone_time,	/* Time Zone and Time */
-	NULL /* no associated data */,	/* CTS Permission */
-	de_lsa_id,	/* LSA Identifier */
-	de_day_saving_time,	/* Daylight Saving Time */
-	de_emerg_num_list, /* Emergency Number List */
-	de_add_upd_params, /* Additional update parameters */
-	de_mm_timer, /* MM Timer */
-	/* Call Control Information Elements 10.5.4 */
-	de_aux_states,	/* Auxiliary States */
-	de_bearer_cap,	/* Bearer Capability */
-	de_cc_cap,	/* Call Control Capabilities */
-	de_call_state,	/* Call State */
-	de_cld_party_bcd_num,	/* Called Party BCD Number */
-	de_cld_party_sub_addr,	/* Called Party Subaddress */
-	de_clg_party_bcd_num,	/* Calling Party BCD Number */
-	de_clg_party_sub_addr,	/* Calling Party Subaddress */
-	de_cause,	/* Cause */
-	NULL /* no associated data */,	/* CLIR Suppression */
-	NULL /* no associated data */,	/* CLIR Invocation */
-	NULL /* handled inline */,	/* Congestion Level */
-	de_conn_num,	/* Connected Number */
-	de_conn_sub_addr,	/* Connected Subaddress */
-	de_facility,	/* Facility */
-	de_hlc,	/* High Layer Compatibility */
-	de_keypad_facility,	/* Keypad Facility */
-	de_llc,							/* 10.5.4.18 Low layer compatibility */
-	NULL,	/* More Data */
-	de_notif_ind,	/* Notification Indicator */
-	de_prog_ind,	/* Progress Indicator */
-	de_recall_type,	/* 10.5.4.21a Recall type $(CCBS)$ */
-	de_red_party_bcd_num,	/* Redirecting Party BCD Number */
-	de_red_party_sub_addr,	/* Redirecting Party Subaddress */
-	de_repeat_ind,	/* Repeat Indicator */
-	NULL /* no associated data */,	/* Reverse Call Setup Direction */
-	de_setup_cont,	/* SETUP Container $(CCBS)$ */
-	de_signal,				/* Signal */
-	de_ss_ver_ind,			/* SS Version Indicator */
-	de_u2u,					/* User-user */
-	de_alert_pat,			/* Alerting Pattern $(NIA)$ */
-	de_allowed_act,			/* Allowed Actions $(CCBS)$ */
-	de_stream_id,			/* Stream Identifier */
-	de_nw_call_ctrl_cap,	/* Network Call Control Capabilities */
-	de_ca_of_no_cli,		/* Cause of No CLI */
-	de_sup_codec_list,		/* Supported Codec List */
-	de_serv_cat,			/* Service Category */
-	NULL,					/* 10.5.4.34 Redial */
-	NULL,					/* 10.5.4.35 Network-initiated Service Upgrade ind */
-	/* Short Message Service Information Elements [5] 8.1.4 */
-	de_cp_user_data,		/* CP-User Data */
-	de_cp_cause,			/* CP-Cause */
-	/* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
-	de_tp_sub_channel,					/* Close TCH Loop Cmd Sub-channel */
-	de_tp_ack,							/* Open Loop Cmd Ack */
-	de_tp_loop_type,					/* Close Multi-slot Loop Cmd Loop type */
-	de_tp_loop_ack,						/* Close Multi-slot Loop Ack Result */
-	de_tp_tested_device,				/* Test Interface Tested device */
-	de_tp_pdu_description,				/* GPRS Test Mode Cmd PDU description */
-	de_tp_mode_flag,					/* GPRS Test Mode Cmd Mode flag */
-	de_tp_egprs_mode_flag,				/* EGPRS Start Radio Block Loopback Cmd Mode flag */
-	de_tp_ms_positioning_technology,	/* MS Positioning Technology */
-	de_tp_ue_test_loop_mode,			/* Close UE Test Loop Mode */
-	de_tp_ue_positioning_technology,	/* UE Positioning Technology */
-	de_tp_rlc_sdu_counter_value,		/* RLC SDU Counter Value */
-	de_tp_epc_ue_test_loop_mode,		/* UE Test Loop Mode */
-	de_tp_epc_ue_tl_a_lb_setup,			/* UE Test Loop Mode A LB Setup */
-	de_tp_epc_ue_tl_b_lb_setup,			/* UE Test Loop Mode B LB Setup */
-	de_tp_epc_ue_tl_c_setup,			/* UE Test Loop Mode C Setup */
-	de_tp_epc_ue_positioning_technology,/* UE Positioning Technology */
-	de_tp_epc_mbms_packet_counter_value,/* MBMS Packet Counter Value */
-	de_tp_epc_ellipsoid_point_with_alt,	/* ellipsoidPointWithAltitude */
-	de_tp_epc_horizontal_velocity,		/* horizontalVelocity */
-	de_tp_epc_gnss_tod_msec,			/* gnss-TOD-msec */
-	NULL,	/* NONE */
+	de_auth_param_rand,                  /* Authentication Parameter RAND */
+	de_auth_param_autn,                  /* Authentication Parameter AUTN (UMTS and EPS authentication challenge) */
+	de_auth_resp_param,                  /* Authentication Response Parameter */
+	de_auth_resp_param_ext,              /* Authentication Response Parameter (extension) (UMTS authentication challenge only) */
+	de_auth_fail_param,                  /* Authentication Failure Parameter (UMTS and EPS authentication challenge) */
+	NULL                                 /* handled inline */,	/* CM Service Type */
+	NULL                                 /* handled inline */,	/* Identity Type */
+	NULL                                 /* handled inline */,	/* Location Updating Type */
+	de_network_name,                     /* Network Name */
+	de_rej_cause,                        /* Reject Cause */
+	NULL                                 /* no associated data */,	/* Follow-on Proceed */
+	de_time_zone,                        /* Time Zone */
+	de_time_zone_time,                   /* Time Zone and Time */
+	NULL                                 /* no associated data */,	/* CTS Permission */
+	de_lsa_id,                           /* LSA Identifier */
+	de_day_saving_time,                  /* Daylight Saving Time */
+	de_emerg_num_list,                   /* Emergency Number List */
+	de_add_upd_params,                   /* Additional update parameters */
+	de_mm_timer,                         /* MM Timer */
+                                             /* Call Control Information Elements 10.5.4 */
+	de_aux_states,                       /* Auxiliary States */
+	de_bearer_cap,                       /* Bearer Capability */
+	de_cc_cap,                           /* Call Control Capabilities */
+	de_call_state,                       /* Call State */
+	de_cld_party_bcd_num,                /* Called Party BCD Number */
+	de_cld_party_sub_addr,               /* Called Party Subaddress */
+	de_clg_party_bcd_num,                /* Calling Party BCD Number */
+	de_clg_party_sub_addr,               /* Calling Party Subaddress */
+	de_cause,                            /* Cause */
+	NULL                                 /* no associated data */,	/* CLIR Suppression */
+	NULL                                 /* no associated data */,	/* CLIR Invocation */
+	NULL                                 /* handled inline */,	/* Congestion Level */
+	de_conn_num,                         /* Connected Number */
+	de_conn_sub_addr,                    /* Connected Subaddress */
+	de_facility,                         /* Facility */
+	de_hlc,                              /* High Layer Compatibility */
+	de_keypad_facility,                  /* Keypad Facility */
+	de_llc,				     /* 10.5.4.18 Low layer compatibility */
+	NULL,                                /* More Data */
+	de_notif_ind,                        /* Notification Indicator */
+	de_prog_ind,                         /* Progress Indicator */
+	de_recall_type,                      /* 10.5.4.21a Recall type $(CCBS)$ */
+	de_red_party_bcd_num,                /* Redirecting Party BCD Number */
+	de_red_party_sub_addr,               /* Redirecting Party Subaddress */
+	de_repeat_ind,                       /* Repeat Indicator */
+	NULL                                 /* no associated data */,	/* Reverse Call Setup Direction */
+	de_setup_cont,                       /* SETUP Container $(CCBS)$ */
+	de_signal,			     /* Signal */
+	de_ss_ver_ind,                       /* SS Version Indicator */
+	de_u2u,				     /* User-user */
+	de_alert_pat,                        /* Alerting Pattern $(NIA)$ */
+	de_allowed_act,                      /* Allowed Actions $(CCBS)$ */
+	de_stream_id,                        /* Stream Identifier */
+	de_nw_call_ctrl_cap,                 /* Network Call Control Capabilities */
+	de_ca_of_no_cli,                     /* Cause of No CLI */
+	de_sup_codec_list,                   /* Supported Codec List */
+	de_serv_cat,                         /* Service Category */
+	NULL,				     /* 10.5.4.34 Redial */
+	NULL,				     /* 10.5.4.35 Network-initiated Service Upgrade ind */
+					     /* Short Message Service Information Elements [5] 8.1.4 */
+	de_cp_user_data,                     /* CP-User Data */
+	de_cp_cause,                         /* CP-Cause */
+                                             /* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
+	de_tp_sub_channel,		     /* Close TCH Loop Cmd Sub-channel */
+	de_tp_ack,			     /* Open Loop Cmd Ack */
+	de_tp_loop_type,		     /* Close Multi-slot Loop Cmd Loop type */
+	de_tp_loop_ack,			     /* Close Multi-slot Loop Ack Result */
+	de_tp_tested_device,		     /* Test Interface Tested device */
+	de_tp_pdu_description,		     /* GPRS Test Mode Cmd PDU description */
+	de_tp_mode_flag,		     /* GPRS Test Mode Cmd Mode flag */
+	de_tp_egprs_mode_flag,		     /* EGPRS Start Radio Block Loopback Cmd Mode flag */
+	de_tp_ms_positioning_technology,     /* MS Positioning Technology */
+	de_tp_ue_test_loop_mode,	     /* Close UE Test Loop Mode */
+	de_tp_ue_positioning_technology,     /* UE Positioning Technology */
+	de_tp_rlc_sdu_counter_value,	     /* RLC SDU Counter Value */
+	de_tp_epc_ue_test_loop_mode,	     /* UE Test Loop Mode */
+	de_tp_epc_ue_tl_a_lb_setup,	     /* UE Test Loop Mode A LB Setup */
+	de_tp_epc_ue_tl_b_lb_setup,	     /* UE Test Loop Mode B LB Setup */
+	de_tp_epc_ue_tl_c_setup,	     /* UE Test Loop Mode C Setup */
+	de_tp_epc_ue_positioning_technology, /* UE Positioning Technology */
+	de_tp_epc_mbms_packet_counter_value, /* MBMS Packet Counter Value */
+	de_tp_epc_ellipsoid_point_with_alt,  /* ellipsoidPointWithAltitude */
+	de_tp_epc_horizontal_velocity,	     /* horizontalVelocity */
+	de_tp_epc_gnss_tod_msec,	     /* gnss-TOD-msec */
+	NULL,                                /* NONE */
 };
 
 /* MESSAGE FUNCTIONS */
@@ -4392,12 +4392,12 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 static void
 dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-	guint32	curr_offset;
-	guint32	consumed;
-	guint	curr_len;
-	guint8	oct;
-	proto_tree	*subtree;
-	proto_item	*item;
+	guint32     curr_offset;
+	guint32     consumed;
+	guint       curr_len;
+	guint8      oct;
+	proto_tree *subtree;
+	proto_item *item;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -4502,12 +4502,12 @@ dtap_mm_auth_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 static void
 dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-	guint32	curr_offset;
-	guint32	consumed;
-	guint	curr_len;
-	guint8	oct;
-	proto_tree	*subtree;
-	proto_item	*item;
+	guint32     curr_offset;
+	guint32     consumed;
+	guint       curr_len;
+	guint8      oct;
+	proto_tree *subtree;
+	proto_item *item;
 
 	curr_offset = offset;
 	curr_len = len;
@@ -4635,12 +4635,12 @@ dtap_mm_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 static void
 dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-	guint32	curr_offset;
-	guint32	consumed;
-	guint	curr_len;
-	guint8	oct;
-	proto_tree	*subtree;
-	proto_item	*item;
+	guint32      curr_offset;
+	guint32      consumed;
+	guint        curr_len;
+	guint8       oct;
+	proto_tree  *subtree;
+	proto_item  *item;
 	const gchar *str;
 
 	curr_offset = offset;
@@ -4734,11 +4734,11 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 static void
 dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	guint	curr_len;
-	proto_tree	*subtree;
-	proto_item	*item;
+	guint8       oct;
+	guint32      curr_offset;
+	guint        curr_len;
+	proto_tree  *subtree;
+	proto_item  *item;
 	const gchar *str;
 
 	curr_offset = offset;
@@ -5182,12 +5182,12 @@ dtap_cc_call_proceed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 static void
 dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-	guint32	curr_offset;
-	guint32	consumed;
-	guint	curr_len;
-	guint8	oct;
-	proto_tree	*subtree;
-	proto_item	*item;
+	guint32      curr_offset;
+	guint32      consumed;
+	guint        curr_len;
+	guint8       oct;
+	proto_tree  *subtree;
+	proto_item  *item;
 	const gchar *str;
 
 	curr_offset = offset;
@@ -6120,7 +6120,7 @@ dtap_tp_epc_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 {
 	guint32 curr_offset;
 	guint32 consumed;
-	guint curr_len;
+	guint   curr_len;
 
 	curr_len = len;
 	curr_offset = offset;
@@ -6150,7 +6150,7 @@ dtap_tp_epc_activate_test_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 {
 	guint32 curr_offset;
 	guint32 consumed;
-	guint curr_len;
+	guint   curr_len;
 
 	curr_len = len;
 	curr_offset = offset;
@@ -6165,7 +6165,7 @@ dtap_tp_epc_reset_ue_positioning_stored_information(tvbuff_t *tvb, proto_tree *t
 {
 	guint32 curr_offset;
 	guint32 consumed;
-	guint curr_len;
+	guint   curr_len;
 
 	curr_len = len;
 	curr_offset = offset;
@@ -6180,7 +6180,7 @@ dtap_tp_epc_test_loop_mode_c_mbms_packet_counter_response(tvbuff_t *tvb, proto_t
 {
 	guint32 curr_offset;
 	guint32 consumed;
-	guint curr_len;
+	guint   curr_len;
 
 	curr_len = len;
 	curr_offset = offset;
@@ -6194,7 +6194,7 @@ dtap_tp_epc_update_ue_location_information(tvbuff_t *tvb, proto_tree *tree, pack
 {
 	guint32 curr_offset;
 	guint32 consumed;
-	guint curr_len;
+	guint   curr_len;
 
 	curr_len = len;
 	curr_offset = offset;
@@ -6211,132 +6211,132 @@ dtap_tp_epc_update_ue_location_information(tvbuff_t *tvb, proto_tree *tree, pack
 #define	NUM_GSM_DTAP_MSG_MM (sizeof(gsm_a_dtap_msg_mm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_mm[NUM_GSM_DTAP_MSG_MM];
 static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
-	dtap_mm_imsi_det_ind,	/* IMSI Detach Indication */
-	dtap_mm_loc_upd_acc,	/* Location Updating Accept */
-	dtap_mm_loc_upd_rej,	/* Location Updating Reject */
-	dtap_mm_loc_upd_req,	/* Location Updating Request */
-	NULL /* no associated data */,	/* Authentication Reject */
-	dtap_mm_auth_req,	/* Authentication Request */
-	dtap_mm_auth_resp,	/* Authentication Response */
-	dtap_mm_auth_fail,	/* Authentication Failure */
-	dtap_mm_id_req,	/* Identity Request */
-	dtap_mm_id_resp,	/* Identity Response */
-	dtap_mm_tmsi_realloc_cmd,	/* TMSI Reallocation Command */
-	NULL /* no associated data */,	/* TMSI Reallocation Complete */
-	NULL /* no associated data */,	/* CM Service Accept */
-	dtap_mm_cm_srvc_rej,	/* CM Service Reject */
-	NULL /* no associated data */,	/* CM Service Abort */
-	dtap_mm_cm_srvc_req,	/* CM Service Request */
-	dtap_mm_cm_srvc_prompt,	/* CM Service Prompt */
-	NULL,	/* Reserved: was allocated in earlier phases of the protocol */
-	dtap_mm_cm_reestab_req,	/* CM Re-establishment Request */
-	dtap_mm_abort,	/* Abort */
-	NULL /* no associated data */,	/* MM Null */
-	dtap_mm_mm_status,	/* MM Status */
-	dtap_mm_mm_info,	/* MM Information */
-	NULL,	/* NONE */
+	dtap_mm_imsi_det_ind,       /* IMSI Detach Indication */
+	dtap_mm_loc_upd_acc,        /* Location Updating Accept */
+	dtap_mm_loc_upd_rej,        /* Location Updating Reject */
+	dtap_mm_loc_upd_req,        /* Location Updating Request */
+	NULL                        /* no associated data */,	/* Authentication Reject */
+	dtap_mm_auth_req,           /* Authentication Request */
+	dtap_mm_auth_resp,          /* Authentication Response */
+	dtap_mm_auth_fail,          /* Authentication Failure */
+	dtap_mm_id_req,             /* Identity Request */
+	dtap_mm_id_resp,            /* Identity Response */
+	dtap_mm_tmsi_realloc_cmd,   /* TMSI Reallocation Command */
+	NULL                        /* no associated data */,	/* TMSI Reallocation Complete */
+	NULL                        /* no associated data */,	/* CM Service Accept */
+	dtap_mm_cm_srvc_rej,        /* CM Service Reject */
+	NULL                        /* no associated data */,	/* CM Service Abort */
+	dtap_mm_cm_srvc_req,        /* CM Service Request */
+	dtap_mm_cm_srvc_prompt,     /* CM Service Prompt */
+	NULL,                       /* Reserved: was allocated in earlier phases of the protocol */
+	dtap_mm_cm_reestab_req,     /* CM Re-establishment Request */
+	dtap_mm_abort,              /* Abort */
+	NULL                        /* no associated data */,	/* MM Null */
+	dtap_mm_mm_status,          /* MM Status */
+	dtap_mm_mm_info,            /* MM Information */
+	NULL,                       /* NONE */
 };
 
 #define	NUM_GSM_DTAP_MSG_CC (sizeof(gsm_a_dtap_msg_cc_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_cc[NUM_GSM_DTAP_MSG_CC];
 static void (*dtap_msg_cc_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
-	dtap_cc_alerting,	/* Alerting */
-	dtap_cc_call_conf,	/* Call Confirmed */
-	dtap_cc_call_proceed,	/* Call Proceeding */
-	dtap_cc_connect,	/* Connect */
-	NULL /* no associated data */,	/* Connect Acknowledge */
-	dtap_cc_emerg_setup,	/* Emergency Setup */
-	dtap_cc_progress,	/* Progress */
-	dtap_cc_cc_est,	/* CC-Establishment */
-	dtap_cc_cc_est_conf,	/* CC-Establishment Confirmed */
-	dtap_cc_recall,	/* Recall */
-	dtap_cc_start_cc,	/* Start CC */
-	dtap_cc_setup,	/* Setup */
-	dtap_cc_modify,	/* Modify */
-	dtap_cc_modify_complete,	/* Modify Complete */
-	dtap_cc_modify_rej,	/* Modify Reject */
-	dtap_cc_user_info,	/* User Information */
-	NULL /* no associated data */,	/* Hold */
-	NULL /* no associated data */,	/* Hold Acknowledge */
-	dtap_cc_hold_rej,	/* Hold Reject */
-	NULL /* no associated data */,	/* Retrieve */
-	NULL /* no associated data */,	/* Retrieve Acknowledge */
-	dtap_cc_retrieve_rej,	/* Retrieve Reject */
-	dtap_cc_disconnect,	/* Disconnect */
-	dtap_cc_release,	/* Release */
-	dtap_cc_release_complete,	/* Release Complete */
-	dtap_cc_congestion_control,	/* Congestion Control */
-	dtap_cc_notify,	/* Notify */
-	dtap_cc_status,	/* Status */
-	NULL /* no associated data */,	/* Status Enquiry */
-	dtap_cc_start_dtmf,	/* Start DTMF */
-	NULL /* no associated data */,	/* Stop DTMF */
-	NULL /* no associated data */,	/* Stop DTMF Acknowledge */
-	dtap_cc_start_dtmf_ack,	/* Start DTMF Acknowledge */
-	dtap_cc_start_dtmf_rej,	/* Start DTMF Reject */
-	dtap_cc_facility,	/* Facility */
-	NULL,	/* NONE */
+	dtap_cc_alerting,           /* Alerting */
+	dtap_cc_call_conf,          /* Call Confirmed */
+	dtap_cc_call_proceed,       /* Call Proceeding */
+	dtap_cc_connect,            /* Connect */
+	NULL                        /* no associated data */,	/* Connect Acknowledge */
+	dtap_cc_emerg_setup,        /* Emergency Setup */
+	dtap_cc_progress,           /* Progress */
+	dtap_cc_cc_est,             /* CC-Establishment */
+	dtap_cc_cc_est_conf,        /* CC-Establishment Confirmed */
+	dtap_cc_recall,             /* Recall */
+	dtap_cc_start_cc,           /* Start CC */
+	dtap_cc_setup,              /* Setup */
+	dtap_cc_modify,             /* Modify */
+	dtap_cc_modify_complete,    /* Modify Complete */
+	dtap_cc_modify_rej,         /* Modify Reject */
+	dtap_cc_user_info,          /* User Information */
+	NULL                        /* no associated data */,	/* Hold */
+	NULL                        /* no associated data */,	/* Hold Acknowledge */
+	dtap_cc_hold_rej,           /* Hold Reject */
+	NULL                        /* no associated data */,	/* Retrieve */
+	NULL                        /* no associated data */,	/* Retrieve Acknowledge */
+	dtap_cc_retrieve_rej,       /* Retrieve Reject */
+	dtap_cc_disconnect,         /* Disconnect */
+	dtap_cc_release,            /* Release */
+	dtap_cc_release_complete,   /* Release Complete */
+	dtap_cc_congestion_control, /* Congestion Control */
+	dtap_cc_notify,             /* Notify */
+	dtap_cc_status,             /* Status */
+	NULL                        /* no associated data */,	/* Status Enquiry */
+	dtap_cc_start_dtmf,         /* Start DTMF */
+	NULL                        /* no associated data */,	/* Stop DTMF */
+	NULL                        /* no associated data */,	/* Stop DTMF Acknowledge */
+	dtap_cc_start_dtmf_ack,     /* Start DTMF Acknowledge */
+	dtap_cc_start_dtmf_rej,     /* Start DTMF Reject */
+	dtap_cc_facility,           /* Facility */
+	NULL,                       /* NONE */
 };
 
 #define	NUM_GSM_DTAP_MSG_SMS (sizeof(gsm_a_dtap_msg_sms_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_sms[NUM_GSM_DTAP_MSG_SMS];
 static void (*dtap_msg_sms_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
-	dtap_sms_cp_data,	/* CP-DATA */
-	NULL /* no associated data */,	/* CP-ACK */
-	dtap_sms_cp_error,	/* CP-ERROR */
-	NULL,	/* NONE */
+	dtap_sms_cp_data,  /* CP-DATA */
+	NULL               /* no associated data */,	/* CP-ACK */
+	dtap_sms_cp_error, /* CP-ERROR */
+	NULL,              /* NONE */
 };
 
 #define	NUM_GSM_DTAP_MSG_SS (sizeof(gsm_a_dtap_msg_ss_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_ss[NUM_GSM_DTAP_MSG_SS];
 static void (*dtap_msg_ss_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
-	dtap_cc_release_complete,	/* Release Complete */
-	dtap_cc_facility,	/* Facility */
-	dtap_ss_register,	/* Register */
-	NULL,	/* NONE */
+	dtap_cc_release_complete, /* Release Complete */
+	dtap_cc_facility,         /* Facility */
+	dtap_ss_register,         /* Register */
+	NULL,                     /* NONE */
 };
 
 #define	NUM_GSM_DTAP_MSG_TP (sizeof(gsm_a_dtap_msg_tp_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_tp[NUM_GSM_DTAP_MSG_TP];
 static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
-	dtap_tp_close_tch_loop_cmd,	/* CLOSE TCH LOOP CMD */
-	NULL,	/* CLOSE TCH LOOP ACK */
-	dtap_tp_open_loop_cmd,	/* OPEN LOOP CMD */
-	NULL,	/* ACT EMMI CMD */
-	NULL,	/* ACT EMMI ACK */
-	NULL,	/* DEACT EMMI */
-	dtap_tp_test_interface,	/* Test Interface */
-	dtap_tp_multi_slot_loop_cmd,	/* CLOSE Multi-slot LOOP CMD */
-	dtap_tp_multi_slot_loop_ack,	/* CLOSE Multi-slot LOOP ACK */
-	NULL,	/* OPEN Multi-slot LOOP CMD */
-	NULL,	/* OPEN Multi-slot LOOP ACK */
-	dtap_tp_gprs_test_mode_cmd,	/* GPRS TEST MODE CMD */
-	dtap_tp_egprs_start_radio_block_loopback_cmd,	/* EGPRS START RADIO BLOCK LOOPBACK CMD */
-	dtap_tp_reset_ms_positioning_stored_information,	/* RESET MS POSITIONING STORED INFORMATION */
-	dtap_tp_close_ue_test_loop,	/* CLOSE UE TEST LOOP */
-	NULL,	/* CLOSE UE TEST LOOP COMPLETE */
-	NULL,	/* OPEN UE TEST LOOP */
-	NULL,	/* OPEN UE TEST LOOP COMPLETE */
-	NULL,	/* ACTIVATE RB TEST MODE */
-	NULL,	/* ACTIVATE RB TEST MODE COMPLETE */
-	NULL,	/* DEACTIVATE RB TEST MODE */
-	NULL,	/* DEACTIVATE RB TEST MODE COMPLETE */
-	dtap_tp_reset_ue_positioning_stored_information,	/* RESET UE POSITIONING STORED INFORMATION */
-	NULL,	/* UE TEST LOOP MODE 3 RLC SDU COUNTER REQUEST */
-	dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response,	/* UE TEST LOOP MODE 3 RLC SDU COUNTER RESPONSE */
-	dtap_tp_epc_close_ue_test_loop, /* CLOSE UE TEST LOOP */
-	NULL, /* CLOSE UE TEST LOOP COMPLETE */
-	NULL, /* OPEN UE TEST LOOP */
-	NULL, /* OPEN UE TEST LOOP COMPLETE */
-	dtap_tp_epc_activate_test_mode, /* ACTIVATE TEST MODE */
-	NULL, /* ACTIVATE TEST MODE COMPLETE */
-	NULL, /* DEACTIVATE TEST MODE */
-	NULL, /* DEACTIVATE TEST MODE COMPLETE */
-	dtap_tp_epc_reset_ue_positioning_stored_information, /* RESET UE POSITIONING STORED INFORMATION */
-	NULL, /* UE TEST LOOP MODE C MBMS PACKET COUNTER REQUEST */
+	dtap_tp_close_tch_loop_cmd,                                /* CLOSE TCH LOOP CMD */
+	NULL,                                                      /* CLOSE TCH LOOP ACK */
+	dtap_tp_open_loop_cmd,                                     /* OPEN LOOP CMD */
+	NULL,                                                      /* ACT EMMI CMD */
+	NULL,                                                      /* ACT EMMI ACK */
+	NULL,                                                      /* DEACT EMMI */
+	dtap_tp_test_interface,                                    /* Test Interface */
+	dtap_tp_multi_slot_loop_cmd,                               /* CLOSE Multi-slot LOOP CMD */
+	dtap_tp_multi_slot_loop_ack,                               /* CLOSE Multi-slot LOOP ACK */
+	NULL,                                                      /* OPEN Multi-slot LOOP CMD */
+	NULL,                                                      /* OPEN Multi-slot LOOP ACK */
+	dtap_tp_gprs_test_mode_cmd,                                /* GPRS TEST MODE CMD */
+	dtap_tp_egprs_start_radio_block_loopback_cmd,              /* EGPRS START RADIO BLOCK LOOPBACK CMD */
+	dtap_tp_reset_ms_positioning_stored_information,           /* RESET MS POSITIONING STORED INFORMATION */
+	dtap_tp_close_ue_test_loop,                                /* CLOSE UE TEST LOOP */
+	NULL,                                                      /* CLOSE UE TEST LOOP COMPLETE */
+	NULL,                                                      /* OPEN UE TEST LOOP */
+	NULL,                                                      /* OPEN UE TEST LOOP COMPLETE */
+	NULL,                                                      /* ACTIVATE RB TEST MODE */
+	NULL,                                                      /* ACTIVATE RB TEST MODE COMPLETE */
+	NULL,                                                      /* DEACTIVATE RB TEST MODE */
+	NULL,                                                      /* DEACTIVATE RB TEST MODE COMPLETE */
+	dtap_tp_reset_ue_positioning_stored_information,           /* RESET UE POSITIONING STORED INFORMATION */
+	NULL,                                                      /* UE TEST LOOP MODE 3 RLC SDU COUNTER REQUEST */
+	dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response,      /* UE TEST LOOP MODE 3 RLC SDU COUNTER RESPONSE */
+	dtap_tp_epc_close_ue_test_loop,                            /* CLOSE UE TEST LOOP */
+	NULL,                                                      /* CLOSE UE TEST LOOP COMPLETE */
+	NULL,                                                      /* OPEN UE TEST LOOP */
+	NULL,                                                      /* OPEN UE TEST LOOP COMPLETE */
+	dtap_tp_epc_activate_test_mode,                            /* ACTIVATE TEST MODE */
+	NULL,                                                      /* ACTIVATE TEST MODE COMPLETE */
+	NULL,                                                      /* DEACTIVATE TEST MODE */
+	NULL,                                                      /* DEACTIVATE TEST MODE COMPLETE */
+	dtap_tp_epc_reset_ue_positioning_stored_information,       /* RESET UE POSITIONING STORED INFORMATION */
+	NULL,                                                      /* UE TEST LOOP MODE C MBMS PACKET COUNTER REQUEST */
 	dtap_tp_epc_test_loop_mode_c_mbms_packet_counter_response, /* UE TEST LOOP MODE C MBMS PACKET COUNTER RESPONSE */
-	dtap_tp_epc_update_ue_location_information, /* UPDATE UE LOCATION INFORMATION */
-	NULL,	/* NONE */
+	dtap_tp_epc_update_ue_location_information,                /* UPDATE UE LOCATION INFORMATION */
+	NULL,                                                      /* NONE */
 };
 
 /* GENERIC DISSECTOR FUNCTIONS */
@@ -6345,24 +6345,26 @@ static void
 dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	static gsm_a_tap_rec_t	tap_rec[4];
-	static gsm_a_tap_rec_t	*tap_p;
-	static guint			tap_current=0;
-	void			(*dtap_msg_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
-	guint8			oct;
-	guint8			pd;
-	guint32			offset;
-	guint32			len;
-	guint32			oct_1, oct_2;
-	gint			idx;
-	proto_item			*dtap_item = NULL;
-	proto_tree			*dtap_tree = NULL;
-	proto_item			*oct_1_item = NULL;
-	proto_tree			*pd_tree = NULL;
-	const gchar			*msg_str;
-	gint			ett_tree;
-	gint			ti;
-	int				hf_idx;
-	gboolean			nsd;
+	static gsm_a_tap_rec_t *tap_p;
+	static guint            tap_current = 0;
+
+	void  (*dtap_msg_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
+
+	guint8	      oct;
+	guint8	      pd;
+	guint32	      offset;
+	guint32	      len;
+	guint32	      oct_1, oct_2;
+	gint	      idx;
+	proto_item   *dtap_item   = NULL;
+	proto_tree   *dtap_tree   = NULL;
+	proto_item   *oct_1_item  = NULL;
+	proto_tree   *pd_tree     = NULL;
+	const gchar  *msg_str;
+	gint	      ett_tree;
+	gint	      ti;
+	int	      hf_idx;
+	gboolean      nsd;
 
 
 	len = tvb_length(tvb);
@@ -6639,8 +6641,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_gsm_a_dtap(void)
 {
-	guint		i;
-	guint		last_offset;
+	guint i;
+	guint last_offset;
 
 	/* Setup list of header fields */
 
@@ -7135,16 +7137,16 @@ proto_register_gsm_a_dtap(void)
 		  NUM_GSM_DTAP_MSG_SMS + NUM_GSM_DTAP_MSG_SS + NUM_GSM_DTAP_MSG_TP +
 		  NUM_GSM_DTAP_ELEM];
 
-	ett[0] = &ett_dtap_msg;
-	ett[1] = &ett_dtap_oct_1;
-	ett[2] = &ett_cm_srvc_type;
-	ett[3] = &ett_gsm_enc_info;
-	ett[4] = &ett_bc_oct_3;
-	ett[5] = &ett_bc_oct_3a;
-	ett[6] = &ett_bc_oct_4;
-	ett[7] = &ett_bc_oct_5;
-	ett[8] = &ett_bc_oct_5a;
-	ett[9] = &ett_bc_oct_5b;
+	ett[0]  = &ett_dtap_msg;
+	ett[1]  = &ett_dtap_oct_1;
+	ett[2]  = &ett_cm_srvc_type;
+	ett[3]  = &ett_gsm_enc_info;
+	ett[4]  = &ett_bc_oct_3;
+	ett[5]  = &ett_bc_oct_3a;
+	ett[6]  = &ett_bc_oct_4;
+	ett[7]  = &ett_bc_oct_5;
+	ett[8]  = &ett_bc_oct_5a;
+	ett[9]  = &ett_bc_oct_5b;
 	ett[10] = &ett_bc_oct_6;
 	ett[11] = &ett_bc_oct_6a;
 	ett[12] = &ett_bc_oct_6b;
@@ -7218,10 +7220,10 @@ proto_reg_handoff_gsm_a_dtap(void)
 	dissector_add_uint("ranap.nas_pdu", BSSAP_PDU_TYPE_DTAP, dtap_handle);
 	dissector_add_uint("llcgprs.sapi", 1 , dtap_handle); /* GPRS Mobility Management */
 	dissector_add_uint("llcgprs.sapi", 7 , dtap_handle); /* SMS */
-	dissector_add_uint("lapdm.sapi", 0 , dtap_handle); /* LAPDm: CC/RR/MM */
-	dissector_add_uint("lapdm.sapi", 3 , dtap_handle); /* LAPDm: SMS/SS */
+	dissector_add_uint("lapdm.sapi",   0 , dtap_handle); /* LAPDm: CC/RR/MM */
+	dissector_add_uint("lapdm.sapi",   3 , dtap_handle); /* LAPDm: SMS/SS */
 
-	data_handle = find_dissector("data");
+	data_handle    = find_dissector("data");
 	gsm_map_handle = find_dissector("gsm_map");
-	rp_handle = find_dissector("gsm_a_rp");
+	rp_handle      = find_dissector("gsm_a_rp");
 }
