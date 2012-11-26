@@ -4861,7 +4861,7 @@ static void wscale_make_elmtlist(struct graph* g)
 	for ( segm = g->segments; segm; segm = segm->next )
 	{
 		if (compare_headers(&g->src_address, &g->dst_address,
-					g->src_port, g->src_port,
+					g->src_port, g->dst_port,
 					&segm->ip_src, &segm->ip_dst,
 					segm->th_sport, segm->th_dport,
 					COMPARE_CURR_DIR))
