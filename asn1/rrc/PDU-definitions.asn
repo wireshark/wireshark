@@ -7284,7 +7284,7 @@ RRCConnectionRequest ::= SEQUENCE {
 															rrcConnectionRequest-v940ext
 																RRCConnectionRequest-v940ext-IEs,
 															va40NonCriticalExtensions
-																RRCConnectionRequest-NonCriticalExts-va40-IEs	
+																RRCConnectionRequest-NonCriticalExts-va40-IEs	OPTIONAL
 															}	OPTIONAL
 													}	OPTIONAL
 												}	OPTIONAL
