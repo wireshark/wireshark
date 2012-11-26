@@ -67,7 +67,7 @@
 
 static uat_t* uat;
 static guint colnum;
-static gchar* ptr;
+static gchar* ptrx;
 static guint len;
 static gchar* error;
 static void* record;
@@ -78,20 +78,20 @@ static guint parse_str_pos;
 #define ERROR(fmtd) do { error = ep_strdup_printf("%s:%d: %s",uat->filename,linenum,ep_strdup_printf fmtd); yyterminate(); } while(0)
 
 #define SET_FIELD() \
-	{ const gchar* err; \
+	{ const gchar* errx; \
 	if (uat->fields[colnum].cb.chk) { \
-		if ( ! uat->fields[colnum].cb.chk(record, ptr, len, uat->fields[colnum].cbdata.chk, uat->fields[colnum].fld_data, &err) ) { \
-			ERROR(("%s",err)); \
+		if ( ! uat->fields[colnum].cb.chk(record, ptrx, len, uat->fields[colnum].cbdata.chk, uat->fields[colnum].fld_data, &errx) ) { \
+			ERROR(("%s",errx)); \
 		}\
 	}\
-	uat->fields[colnum].cb.set(record, ptr, len, uat->fields[colnum].cbdata.chk, uat->fields[colnum].fld_data);\
-	g_free(ptr);\
+	uat->fields[colnum].cb.set(record, ptrx, len, uat->fields[colnum].cbdata.chk, uat->fields[colnum].fld_data);\
+	g_free(ptrx);\
 	colnum++; \
 	} while(0)
 
 #ifdef DEBUG_UAT_LOAD
 #define DUMP_FIELD(str) \
-		{ guint i; printf("%s: %s='",str,uat->fields[colnum].name); for(i=0;i<len;i++) if (uat->fields[colnum].mode == PT_TXTMOD_HEXBYTES) { printf("%.2x ",((guint8*)ptr)[i]); } else putc(ptr[i],stdout); printf("'[%d]\n",len); }
+		{ guint i; printf("%s: %s='",str,uat->fields[colnum].name); for(i=0;i<len;i++) if (uat->fields[colnum].mode == PT_TXTMOD_HEXBYTES) { printf("%.2x ",((guint8*)ptrx)[i]); } else putc(ptrx[i],stdout); printf("'[%d]\n",len); }
 
 #define DUMP(str) printf("%s\n",str)
 #else
@@ -150,7 +150,7 @@ comment #[^\n]*\n
 <START_OF_LINE>{comment} linenum++;
 
 <START_OF_LINE,NEXT_FIELD>{separator} {
-	ptr = g_strdup("");
+	ptrx = g_strdup("");
 	len = 0;
 
 	DUMP_FIELD("empty->next");
@@ -165,7 +165,7 @@ comment #[^\n]*\n
 }
 
 <START_OF_LINE,NEXT_FIELD>{newline}   {
-	ptr = "";
+	ptrx = "";
 	len = 0;
 
 	BEGIN END_OF_RECORD;
@@ -174,7 +174,7 @@ comment #[^\n]*\n
 }
 
 <START_OF_LINE,NEXT_FIELD>{quoted_string} {
-	ptr = uat_undquote(yytext,yyleng,&len);
+	ptrx = uat_undquote(yytext,yyleng,&len);
 
 
 	if (colnum < uat->ncols - 1) {
@@ -187,9 +187,9 @@ comment #[^\n]*\n
 }
 
 <START_OF_LINE,NEXT_FIELD>{binstring} {
-	ptr = uat_unbinstring(yytext,yyleng,&len);
+	ptrx = uat_unbinstring(yytext,yyleng,&len);
 
-	if (!ptr) {
+	if (!ptrx) {
 		ERROR(("uneven hexstring for field %s",uat->fields[colnum].name));
 	}
 
@@ -248,7 +248,7 @@ comment #[^\n]*\n
 	}
 
 	colnum = 0;
-	ptr = NULL;
+	ptrx = NULL;
 	len = 0;
 
 	/* XXX is this necessary since we free it before reusing anyway? */
@@ -273,7 +273,7 @@ comment #[^\n]*\n
 
 
 gboolean
-uat_load(uat_t *uat_in, char **err)
+uat_load(uat_t *uat_in, char **errx)
 {
 	gchar *fname = uat_get_actual_filename(uat_in, FALSE);
 
@@ -291,7 +291,7 @@ uat_load(uat_t *uat_in, char **err)
 
 
 	if (!(yyin = ws_fopen(fname,"r"))) {
-		*err = g_strerror(errno);
+		*errx = g_strerror(errno);
 		g_free(fname);
 		return FALSE;
 	}
@@ -315,14 +315,14 @@ uat_load(uat_t *uat_in, char **err)
 	UAT_UPDATE(uat);
 
 	if (error) {
-		*err = ep_strdup(error);
+		*errx = ep_strdup(error);
 		return FALSE;
 	}
 
 	if (uat->post_update_cb)
 		uat->post_update_cb();
 
-	*err = NULL;
+	*errx = NULL;
 	return TRUE;
 }
 

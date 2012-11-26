@@ -60,7 +60,7 @@
 
 	static void* pParser;
 	static GString* input_string;
-	static guint offset;
+	static guint offsetx;
 	static guint len;
 	static gchar* location;
 	static gchar* attr_name;
@@ -307,16 +307,16 @@ static dtd_token_data_t* new_token(gchar* text) {
 
 static int my_yyinput(char* buff, guint size) {
 
-	if (offset >= len ) {
+	if (offsetx >= len ) {
 		return YY_NULL;
-	} else if ( offset + size <= len ) {
-		memcpy(buff, input_string->str + offset,size);
-		offset += size;
+	} else if ( offsetx + size <= len ) {
+		memcpy(buff, input_string->str + offsetx,size);
+		offsetx += size;
 		return size;
 	} else {
-		size = len - offset;
-		memcpy(buff, input_string->str + offset,size);
-		offset = len;
+		size = len - offsetx;
+		memcpy(buff, input_string->str + offsetx,size);
+		offsetx = len;
 		return size;
 	}
 }
@@ -324,7 +324,7 @@ static int my_yyinput(char* buff, guint size) {
 extern dtd_build_data_t* dtd_parse(GString* s) {
 
 	input_string = s;
-	offset = 0;
+	offsetx = 0;
 	len = (guint) input_string->len;
 
 	pParser = DtdParseAlloc(g_malloc);
