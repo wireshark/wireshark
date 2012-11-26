@@ -1706,6 +1706,18 @@ packet_list_return_all_comments(GtkTextBuffer *buffer)
 	guint32 framenum;
 	frame_data *fdata;
 	gchar *buf_str;
+	wtapng_section_t* shb_inf = NULL;
+
+	/* Get info from SHB */
+	shb_inf = wtap_file_get_shb_info(cfile.wth);
+
+	if(shb_inf != NULL){
+		if(shb_inf->opt_comment){
+			buf_str = g_strdup_printf("%s \n\n",shb_inf->opt_comment);
+			gtk_text_buffer_insert_at_cursor (buffer, buf_str, -1);
+			g_free(buf_str);
+		}
+	}
 
 	for (framenum = 1; framenum <= cfile.count ; framenum++) {
 		fdata = frame_data_sequence_find(cfile.frames, framenum);

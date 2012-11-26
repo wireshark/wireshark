@@ -1133,6 +1133,7 @@ static const char *ui_desc_menubar =
 "    </menu>\n"
 "    <menu name= 'StatisticsMenu' action='/Statistics'>\n"
 "      <menuitem name='Summary' action='/Statistics/Summary'/>\n"
+"      <menuitem name='ShowCommentsSummary' action='/Statistics/CommentsSummary'/>\n"
 "      <menuitem name='ProtocolHierarchy' action='/Statistics/ProtocolHierarchy'/>\n"
 "      <menuitem name='Conversations' action='/Statistics/Conversations'/>\n"
 "      <menuitem name='Endpoints' action='/Statistics/Endpoints'/>\n"
@@ -1670,6 +1671,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/StatisticsMenu/WLANTraffic",                                     NULL, "WLAN Traffic",                   NULL, NULL, G_CALLBACK(wlanstat_launch) },
 
    { "/Statistics/Summary",                     GTK_STOCK_PROPERTIES,           "_Summary",                     NULL, NULL, G_CALLBACK(summary_open_cb) },
+   { "/Statistics/CommentsSummary",             NULL,                           "Comments Summary",             NULL, NULL, G_CALLBACK(show_packet_comment_summary_dlg) },
    { "/Statistics/ProtocolHierarchy",           NULL,                           "_Protocol Hierarchy",          NULL, NULL, G_CALLBACK(proto_hier_stats_cb) },
    { "/Statistics/Conversations",   WIRESHARK_STOCK_CONVERSATIONS,  "Conversations",            NULL,                       NULL,               G_CALLBACK(init_conversation_notebook_cb) },
    { "/Statistics/Endpoints",       WIRESHARK_STOCK_ENDPOINTS,      "Endpoints",                NULL,                       NULL,               G_CALLBACK(init_hostlist_notebook_cb) },
