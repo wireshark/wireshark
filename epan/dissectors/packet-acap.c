@@ -63,7 +63,7 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * not longer than what's in the buffer, so the "tvb_get_ptr()"
 	 * call won't throw an exception.
 	 */
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, ENC_BIG_ENDIAN);
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
 	if (pinfo->match_uint == pinfo->destport)
