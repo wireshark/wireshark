@@ -73,6 +73,24 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Malformed tpncp.dat file can crash Wireshark.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6665">Bug
+          6665</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Parsing the Server Name Indication extension in SSL/TLS traffic reads some fields incorrectly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7967">Bug
+          7967</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Core dump during SCTP association analysis.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8011">Bug
+          8011</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -99,7 +117,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+SSL/TLS
 
     </para>
     </section>
@@ -107,7 +125,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+
 
     </para>
     </section>
