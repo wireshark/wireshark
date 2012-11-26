@@ -130,6 +130,13 @@ init_dissection(void)
 	/* Reclaim and reinitialize all memory of seasonal scope */
 	se_free_all();
 
+	/*
+	 * Reinitialize resolution information. We do initialization here in
+	 * case we need to resolve between captures.
+	 */
+	host_name_lookup_cleanup();
+	host_name_lookup_init();
+
 	/* Initialize the table of conversations. */
 	epan_conversation_init();
 
@@ -169,6 +176,13 @@ cleanup_dissection(void)
 
 	/* Initialize the expert infos */
 	expert_cleanup();
+
+	/*
+	 * Reinitialize resolution information. We do initialization here in
+	 * case we need to resolve between captures.
+	 */
+	host_name_lookup_cleanup();
+	host_name_lookup_init();
 }
 
 /* Allow protocols to register a "cleanup" routine to be
