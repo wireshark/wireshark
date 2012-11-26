@@ -187,7 +187,12 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x71, "Internal Handover Required Reject" },
     { 0x72, "Internal Handover Command" },
     { 0x73, "Internal Handover Enquiry" },
-
+    { 0x74, "LCLS-Connect-Control" },
+    { 0x75, "LCLS-Connect-Control-Ack" },
+    { 0x76, "LCLS-Notification" },
+    { 0x77, "Unallocated" },
+    { 0x78, "Reroute Command" },
+    { 0x79, "Reroute Complete" },
     { 0, NULL }
 };
 
@@ -310,6 +315,19 @@ const value_string gsm_bssmap_elem_strings[] = {
     { 0x81, "A-Interface Selector for RESET" },
     { 0x83, "Kc128" },
     { 0x84, "CSG Identifier" },
+#if 0
+    { 0x85, "Redirect Attempt FlagT" },            /* 3.2.2.111    */
+    { 0x86, "Reroute Reject Cause" },              /* 3.2.2.112    */
+    { 0x87, "Send Sequence Number" },              /* 3.2.2.113    */
+    { 0x88, "Reroute complete outcome" },          /* 3.2.2.114    */
+    { 0x89, "Global Call Reference" },             /* 3.2.2.115    */
+    { 0x8a, "LCLS-Configuration" },                /* 3.2.2.116    */
+    { 0x8b, "LCLS-Connection-Status-Control" },    /* 3.2.2.117    */
+    { 0x8c, "LCLS-Correlation-Not-Needed" },       /* 3.2.2.118    */
+    { 0x8d, "LCLS-BSS-Status" },                   /* 3.2.2.119    */
+    { 0x8e, "LCLS-Break-Request" },                /* 3.2.2.120    */
+    { 0x8f, "CSFB Indication" },                   /* 3.2.2.121    */
+#endif
     { 0, NULL }
 };
 
@@ -6681,7 +6699,45 @@ bssmap_reset_ip_res_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
+#if 0
+/*
+ * 3.2.1.89 REROUTE COMMAND
+ */
 
+    /* Initial Layer 3 Information 3.2.2.24 MSC-BSS M (note 1) 3-n */
+    /* Reroute Reject Cause 3.2.2.112 MSC-BSS M (note 2) 2 */
+    /* Layer 3 Information 3.2.2.24 MSC-BSS O (note3) 3-n */
+    /* Send Sequence Number 3.2.2.113 MSC-BSS O (note 4) 2 */
+    /* IMSI 3.2.2.6 MSC-BSS O (note 5) 3-10 */
+
+/*
+ * 3.2.1.90 REROUTE COMPLETE
+ */
+
+    /* Reroute complete outcome 3.2.2.114 MSC-BSS M 2 */
+
+/*
+ * 3.2.1.91 LCLS-CONNECT-CONTROL
+ */
+
+    /* LCLS-Configuration 3.2.2.116 MSC-BSS O (note1) 2 */
+    /* LCLS-Connection-Status-Control 3.2.2.117 MSC-BSS O (note1) 2 */
+
+/*
+ * 3.2.1.92 LCLS-CONNECT-CONTROL-ACK
+ */
+
+    /* LCLS-BSS-Status 3.2.2.119 BSS-MSC M 2 */
+
+
+/*
+ * 3.2.1.93 LCLS-NOTIFICATION
+ */
+
+    /* LCLS-BSS-Status 3.2.2.119 BSS-MSC O (note 1) 2 */
+    /* LCLS-Break-Request 3.2.2.120 BSS-MSC O (note 1) 1 */
+
+#endif
 #define NUM_GSM_BSSMAP_MSG (sizeof(gsm_a_bssmap_msg_strings)/sizeof(value_string))
 static gint ett_gsm_bssmap_msg[NUM_GSM_BSSMAP_MSG];
 
@@ -6808,6 +6864,12 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     bssmap_int_ho_req_rej,              /* 0x71 Internal Handover Required Reject */
     bssmap_int_ho_cmd,                  /* 0x72 Internal Handover Command */
     bssmap_int_ho_enq,                  /* 0x73 Internal Handover Enquiry */
+    /* 0x74 LCLS-Connect-Control */
+    /* 0x75 LCLS-Connect-Control-Ack */
+    /* 0x76 LCLS-Notification */
+    /* 0x77 Unallocated */
+    /* 0x78 Reroute Command */
+    /* 0x79 Reroute Complete */
 
     NULL,   /* NONE */
 };
