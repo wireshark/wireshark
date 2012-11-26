@@ -906,9 +906,9 @@ static gboolean gsm_rr_csn_flag(tvbuff_t *tvb, proto_tree *tree, gint bit_offset
    otherwise it is set to 0 */
 static gboolean gsm_rr_csn_HL_flag(tvbuff_t *tvb, proto_tree *tree, guint truncation_length, guint bit_offset, const char *description, const char *true_string, const char * false_string)
 {
-    guint8 bit_mask = 0x80 >> (bit_offset % 8);
-    guint8 value = PADDING_BYTE;
-    char bits_str[] = {".... ...."};
+    guint8 bit_mask        = 0x80 >> (bit_offset % 8);
+    guint8 value           = PADDING_BYTE;
+    char   bits_str[]      = {".... ...."};
     guint8 offset_in_octet = bit_offset % 8;
 
     if (truncation_length)
@@ -979,8 +979,8 @@ de_rr_ba_range(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
 static void display_channel_list(guint8 *list, tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-    int arfcn;
-    proto_item *ti=NULL;
+    int         arfcn;
+    proto_item *ti = NULL;
 
     ti = proto_tree_add_text(tree, tvb, offset, len, "List of ARFCNs =");
     for (arfcn=0; arfcn<ARFCN_MAX; arfcn++) {
@@ -1002,9 +1002,9 @@ static void display_channel_list(guint8 *list, tvbuff_t *tvb, proto_tree *tree, 
  */
 static void gsm_rr_csn_padding_bits(proto_tree* tree, tvbuff_t* tvb, guint16 bit_offset, guint8 octet_len)
 {
-    guint i;
+    guint    i;
     gboolean non_padding_found = FALSE;
-    guint8 octet_offset = bit_offset >> 3;
+    guint8   octet_offset      = bit_offset >> 3;
 
     if ((octet_len << 3) > bit_offset)
     {
@@ -1053,10 +1053,10 @@ gint f_k(gint k, gint *w, gint range)
 {
     gint idx, n, j;
 
-    idx = k;
+    idx    = k;
     range -= 1;
-    range = range/greatest_power_of_2_lesser_or_equal_to(idx);
-    n = w[idx]-1;
+    range  = range/greatest_power_of_2_lesser_or_equal_to(idx);
+    n      = w[idx]-1;
 
     while (idx>1) {
         j = greatest_power_of_2_lesser_or_equal_to(idx);
@@ -1076,11 +1076,11 @@ gint f_k(gint k, gint *w, gint range)
 
 static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gint range)
 {
-  gint   curr_offset=offset, bit_offset, f0, arfcn_orig, w[64], wsize, i;
-  gint   octet, nwi=1, jwi=0, imax, iused, arfcn;
-  guint8 list[1024];
-  proto_item   *item;
-  proto_tree   *subtree;
+  gint        curr_offset = offset, bit_offset, f0, arfcn_orig, w[64], wsize, i;
+  gint        octet, nwi  = 1, jwi=0, imax, iused, arfcn;
+  guint8      list[1024];
+  proto_item *item;
+  proto_tree *subtree;
 
   memset((void*)list,0,sizeof(list));
 
@@ -1162,10 +1162,10 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet
 static guint16
 dissect_arfcn_list_core(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_, guint8 format)
 {
-    guint32 curr_offset,byte;
-    guint8  oct,bit;
-    guint16 arfcn;
-    proto_item  *item;
+    guint32     curr_offset, byte;
+    guint8      oct,bit;
+    guint16     arfcn;
+    proto_item *item;
 
     curr_offset = offset;
 
@@ -1382,7 +1382,7 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint8      value;
 
     curr_offset = offset;
-    bit_offset = curr_offset << 3;
+    bit_offset  = curr_offset << 3;
     value = tvb_get_bits8(tvb,bit_offset,3);
     bit_offset += 3;
     switch (value)
@@ -1565,8 +1565,8 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 guint16
 de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
-    guint16      bcch_arfcn;
+    guint32 curr_offset;
+    guint16 bcch_arfcn;
 
     curr_offset = offset;
 
@@ -1613,7 +1613,7 @@ static const value_string gsm_a_rr_radio_link_timeout_vals[] = {
 static guint16
 de_rr_cell_opt_bcch(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -1649,7 +1649,7 @@ static const crumb_spec_t gsm_a_rr_dtx_sacch_crumbs[] = {
 static guint16
 de_rr_cell_opt_sacch(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -1670,7 +1670,7 @@ de_rr_cell_opt_sacch(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
 static guint16
 de_rr_cell_sel_param(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -2008,7 +2008,7 @@ de_rr_ch_mode2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 static guint16
 de_rr_utran_cm(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
+    guint32   curr_offset;
     tvbuff_t *rrc_irat_ho_info_tvb;
 
     curr_offset = offset;
@@ -2089,8 +2089,8 @@ static const value_string gsm_a_rr_channel_needed_vals[] = {
 guint16
 de_rr_chnl_needed(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
-    gint         bit_offset;
+    guint32 curr_offset;
+    gint    bit_offset;
 
     curr_offset = offset;
     if (RIGHT_NIBBLE == len)
@@ -2292,8 +2292,8 @@ static const value_string gsm_a_rr_cbq3_vals[] = {
 static guint16
 de_rr_ctrl_ch_desc(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint8       oct;
-    guint32      curr_offset;
+    guint8  oct;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -2525,8 +2525,8 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
 {
     proto_tree *subtree, *subtree2;
     proto_item *item, *item2;
-    gint curr_bit_offset, curr_bit_offset_sav;
-    guint8 value;
+    gint        curr_bit_offset, curr_bit_offset_sav;
+    guint8      value;
 
     curr_bit_offset = bit_offset;
 
@@ -2627,7 +2627,7 @@ de_rr_rest_oct_gprs_power_control_parameters(tvbuff_t *tvb, proto_tree *tree, gi
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
 
@@ -2652,7 +2652,7 @@ static guint16
 de_rr_gprs_broadcast_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len , gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
-    gint bit_offset;
+    gint    bit_offset;
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -2670,7 +2670,7 @@ de_rr_gprs_broadcast_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 static guint16
 de_rr_ho_ref(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -2875,7 +2875,7 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
 {
     proto_tree *subtree;
     proto_item *item;
-    guint        curr_bit_offset;
+    guint       curr_bit_offset;
 
     curr_bit_offset = bit_offset;
 
@@ -3150,7 +3150,7 @@ de_rr_ia_rest_oct_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree, gint
 {
     proto_tree *subtree;
     proto_item *item;
-    guint        curr_bit_offset;
+    guint       curr_bit_offset;
 
     curr_bit_offset = bit_offset;
 
@@ -3275,7 +3275,7 @@ de_rr_ia_rest_oct_packet_downlink_assignment(tvbuff_t *tvb, proto_tree *tree, gu
 {
     proto_tree *subtree;
     proto_item *item;
-    guint        curr_bit_offset;
+    guint       curr_bit_offset;
 
     curr_bit_offset = bit_offset;
 
@@ -3360,7 +3360,7 @@ de_rr_ia_rest_oct_second_part_packet_assignment(tvbuff_t *tvb, proto_tree *tree,
 {
     proto_tree *subtree;
     proto_item *item;
-    guint        curr_bit_offset;
+    guint       curr_bit_offset;
 
     curr_bit_offset = bit_offset;
 
@@ -3392,13 +3392,13 @@ de_rr_ia_rest_oct_second_part_packet_assignment(tvbuff_t *tvb, proto_tree *tree,
 static guint16
 de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_item  *item;
-    guint32      curr_offset;
-    gint         bit_offset;
-    gint         length;
-    guint64      ma_length;
-    guint8       tvb_len = tvb_length(tvb);
-    guint16      bit_len = tvb_len << 3;
+    proto_item *item;
+    guint32     curr_offset;
+    gint        bit_offset;
+    gint        length;
+    guint64     ma_length;
+    guint8      tvb_len = tvb_length(tvb);
+    guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
 
@@ -3486,9 +3486,9 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
 static guint16
 de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_bit_offset;
-    guint8       i;
-    guint8 tvb_len = tvb_length(tvb);
+    guint32 curr_bit_offset;
+    guint8  i;
+    guint8  tvb_len = tvb_length(tvb);
 
     curr_bit_offset = offset<<3;
 
@@ -3515,8 +3515,8 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
 static guint16
 de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_bit_offset;
-    guint8 tvb_len = tvb_length(tvb);
+    guint32 curr_bit_offset;
+    guint8  tvb_len = tvb_length(tvb);
 
     curr_bit_offset = offset<<3;
 
@@ -3532,7 +3532,7 @@ de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
 static guint16
 de_rr_l2_pseudo_len(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -3585,9 +3585,9 @@ static const value_string gsm_a_rr_ncell_vals [] = {
 guint16
 de_rr_meas_res(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
-    gint         bit_offset;
-    guint64      no_ncell_m;
+    guint32 curr_offset;
+    gint    bit_offset;
+    guint64 no_ncell_m;
 
     curr_offset = offset;
 
@@ -3876,10 +3876,10 @@ de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 static guint16
 de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_item  *item;
-    guint32 curr_offset;
-    guint8  oct;
-    guint8  i;
+    proto_item *item;
+    guint32     curr_offset;
+    guint8      oct;
+    guint8      i;
 
     curr_offset = offset;
 
@@ -3971,10 +3971,10 @@ static guint16
 de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_item *item2;
-    guint32 curr_offset, value;
-    gint bit_offset, bit_offset_sav;
-    guint8       tvb_len = tvb_length(tvb);
-    guint16      bit_len = tvb_len << 3;
+    guint32     curr_offset, value;
+    gint        bit_offset, bit_offset_sav;
+    guint8      tvb_len = tvb_length(tvb);
+    guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -4036,11 +4036,11 @@ static guint16
 de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 
 {
-    proto_item  *item2;
-    guint32 curr_offset;
-    gint bit_offset;
-    guint8       tvb_len = tvb_length(tvb);
-    guint16      bit_len = tvb_len << 3;
+    proto_item *item2;
+    guint32     curr_offset;
+    gint        bit_offset;
+    guint8      tvb_len = tvb_length(tvb);
+    guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -4098,10 +4098,10 @@ static guint16
 de_rr_p3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_item *item2;
-    guint32 curr_offset;
-    gint bit_offset;
-    guint8       tvb_len = tvb_length(tvb);
-    guint16      bit_len = tvb_len << 3;
+    guint32     curr_offset;
+    gint        bit_offset;
+    guint8      tvb_len = tvb_length(tvb);
+    guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -4226,7 +4226,7 @@ static const value_string gsm_a_rr_dedicated_mode_or_tbf_vals[] = {
 static guint16
 de_rr_ded_mod_or_tbf(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -4242,13 +4242,13 @@ de_rr_ded_mod_or_tbf(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
 static guint16
 de_rr_pkt_ul_ass(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
     proto_tree_add_text(subtree, tvb, curr_offset, len, "Not dissected yet");
-    
-	return len;
+
+    return len;
 }
 
 /*
@@ -4257,13 +4257,13 @@ de_rr_pkt_ul_ass(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gui
 static guint16
 de_rr_pkt_dl_ass(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
     proto_tree_add_text(subtree, tvb, curr_offset, len, "Not dissected yet");
-    
-	return len;
+
+    return len;
 }
 
 /*
@@ -4272,13 +4272,13 @@ de_rr_pkt_dl_ass(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gui
 static guint16
 de_rr_pkt_dl_ass_type2(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
     proto_tree_add_text(subtree, tvb, curr_offset, len, "Not dissected yet");
-    
-	return len;
+
+    return len;
 }
 
 /*
@@ -4295,7 +4295,7 @@ static const value_string gsm_a_rr_page_mode_vals[] = {
 static guint16
 de_rr_page_mode(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -4317,7 +4317,7 @@ de_rr_page_mode(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guin
 static guint16
 de_rr_ncc_perm(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -4381,7 +4381,7 @@ static const true_false_string gsm_a_rr_pow_cmd_fpcepc_value  = {
 static guint16
 de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -4404,7 +4404,7 @@ de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint3
 static guint16
 de_rr_pow_cmd_and_acc_type(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -4466,7 +4466,7 @@ static const value_string gsm_a_rr_re_vals[] = {
 static guint16
 de_rr_rach_ctrl_param(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
+    guint32 curr_offset;
 
     curr_offset = offset;
 
@@ -4488,8 +4488,8 @@ de_rr_rach_ctrl_param(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_
 static guint16 reduced_frame_number(guint16 fn)
 {
     /* great care needed with signed/unsigned - -1 in unsigned is 0xffff, which mod(26) is not what you think !!! */
-    gint16   t2, t3, t;
-    guint16  frame, t1;
+    gint16  t2, t3, t;
+    guint16 frame, t1;
 
     t1 = (fn >> 11) & 0x1f;
     t2 = (fn >> 0) & 0x1f;
@@ -4507,10 +4507,10 @@ static guint16 reduced_frame_number(guint16 fn)
 static guint16
 de_rr_req_ref(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_item  *item;
-    guint32      curr_offset;
-    guint16      rfn;
-    guint16      fn;
+    proto_item *item;
+    guint32     curr_offset;
+    guint16     rfn;
+    guint16     fn;
 
     curr_offset = offset;
 
@@ -4587,9 +4587,9 @@ static const value_string gsm_a_rr_nch_position_vals[] = {
 static guint16
 de_rr_si1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
-    gint         bit_offset;
-    guint8       tvb_len = tvb_length(tvb);
+    guint32 curr_offset;
+    gint    bit_offset;
+    guint8  tvb_len = tvb_length(tvb);
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -4699,12 +4699,12 @@ static const value_string gsm_a_rr_fdd_rscpmin_vals[] = {
 static guint16
 de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree  *subtree2;
-    proto_item  *item2;
-    guint32      curr_offset;
-    gint         bit_offset, bit_offset_sav;
-    guint8       tvb_len = tvb_length(tvb);
-    guint16      bit_len = tvb_len << 3;
+    proto_tree *subtree2;
+    proto_item *item2;
+    guint32     curr_offset;
+    gint        bit_offset, bit_offset_sav;
+    guint8      tvb_len = tvb_length(tvb);
+    guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
     bit_offset = curr_offset<<3;
@@ -4973,8 +4973,8 @@ de_rr_si2quater_meas_info_utran_fdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
 {
     proto_tree *subtree, *subtree2;
     proto_item *item, *item2;
-    gint curr_bit_offset, idx;
-    gint xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0;
+    gint        curr_bit_offset, idx;
+    gint        xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0;
 
     curr_bit_offset = bit_offset;
 
@@ -5052,8 +5052,8 @@ de_rr_si2quater_meas_info_utran_tdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
 {
     proto_tree *subtree, *subtree2;
     proto_item *item, *item2;
-    gint curr_bit_offset, idx;
-    gint xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0;
+    gint        curr_bit_offset, idx;
+    gint        xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0;
 
     curr_bit_offset = bit_offset;
 
@@ -5133,8 +5133,8 @@ de_rr_rtd_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_octets_
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset, idx;
-    guint8 value;
+    gint        curr_bit_offset, idx;
+    guint8      value;
 
     curr_bit_offset = bit_offset;
 
@@ -5213,7 +5213,7 @@ de_rr_bsic_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_octets
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset, idx;
+    gint        curr_bit_offset, idx;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[id].strptr);
@@ -5246,7 +5246,7 @@ de_rr_report_priority_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset, idx;
+    gint        curr_bit_offset, idx;
 
     curr_bit_offset = bit_offset;
 
@@ -5271,7 +5271,7 @@ de_rr_meas_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[id].strptr);
@@ -5342,7 +5342,7 @@ de_rr_3g_add_meas_param_desc2(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC2].strptr);
@@ -5606,7 +5606,7 @@ de_rr_3g_priority_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_PRIORITY_PARAM_DESC].strptr);
@@ -5673,7 +5673,7 @@ de_rr_eutran_neighbour_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS].strptr);
@@ -5720,7 +5720,7 @@ de_rr_eutran_neighbour_cells_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS].strptr);
@@ -5746,7 +5746,7 @@ de_rr_eutran_neighbour_cells_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset
 static gint
 de_rr_eutran_pcid(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-    gint curr_bit_offset = bit_offset;
+    gint        curr_bit_offset = bit_offset;
     proto_item *item;
 
     while (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "Repeated PCID", "Present", "Not Present"))
@@ -5814,7 +5814,7 @@ de_rr_eutran_not_allowed_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NOT_ALLOWED_CELLS].strptr);
@@ -5838,7 +5838,7 @@ de_rr_eutran_pcid_to_ta_mapping(tvbuff_t *tvb, proto_tree *tree, gint bit_offset
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_PCID_TO_TA_MAPPING].strptr);
@@ -5857,9 +5857,9 @@ de_rr_eutran_pcid_to_ta_mapping(tvbuff_t *tvb, proto_tree *tree, gint bit_offset
 static gint
 de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
     proto_item *item;
-    guint8 rep_quant;
+    guint8      rep_quant;
 
     curr_bit_offset = bit_offset;
 
@@ -6027,8 +6027,8 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
-    guint8 rep_quant = 0;
+    gint        curr_bit_offset;
+    guint8      rep_quant = 0;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC].strptr);
@@ -6149,7 +6149,7 @@ de_rr_eutran_param_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC].strptr);
@@ -6207,7 +6207,7 @@ de_rr_priority_and_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_o
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PRIORITY_AND_EUTRAN_PARAM_DESC].strptr);
@@ -6258,7 +6258,7 @@ de_rr_3g_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_CSG_DESC].strptr);
@@ -6322,7 +6322,7 @@ de_rr_eutran_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC].strptr);
@@ -6349,7 +6349,7 @@ de_rr_eutran_csg_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC].strptr);
@@ -6370,7 +6370,7 @@ de_rr_utran_measurement_control_param_mi(tvbuff_t *tvb, proto_tree *tree, gint b
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_MEASUREMENT_CONTROL_PARAM_DESC].strptr);
@@ -6394,7 +6394,7 @@ de_rr_3g_supplementary_param_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_o
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_SUPPLEMENTARY_PARAM_DESC].strptr);
@@ -6434,8 +6434,9 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo 
     guint8       value;
     guint8       tvb_len = tvb_length(tvb);
     guint16      bit_len = tvb_len << 3;
+
     curr_offset = offset;
-    bit_offset = curr_offset << 3;
+    bit_offset  = curr_offset << 3;
 
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ba_ind, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
@@ -6833,7 +6834,7 @@ de_rr_rest_oct_opt_sel_param(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
 
@@ -6866,7 +6867,7 @@ de_rr_rest_oct_gprs_indicator(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
+    gint        curr_bit_offset;
 
     curr_bit_offset = bit_offset;
 
@@ -6901,10 +6902,10 @@ static const true_false_string gsm_a_rr_si13alt_position_value = {
 static guint16
 de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32      curr_offset;
-    gint         bit_offset;
-    gboolean     gprs_indicator;
-    guint8       tvb_len = tvb_length(tvb);
+    guint32  curr_offset;
+    gint     bit_offset;
+    gboolean gprs_indicator;
+    guint8   tvb_len = tvb_length(tvb);
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -6975,12 +6976,12 @@ static const value_string gsm_a_rr_lsa_offset_vals[] = {
 static guint16
 de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree  *subtree2, *subtree3;
-    proto_item  *item2, *item3;
-    guint32      curr_offset;
-    gint         bit_offset, bit_offset_sav;
-    guint8       tvb_len = tvb_length(tvb);
-    guint16      bit_len = tvb_len << 3;
+    proto_tree *subtree2, *subtree3;
+    proto_item *item2, *item3;
+    guint32     curr_offset;
+    gint        bit_offset, bit_offset_sav;
+    guint8      tvb_len = tvb_length(tvb);
+    guint16     bit_len = tvb_len << 3;
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -7116,12 +7117,12 @@ static const true_false_string gsm_a_rr_mnci_support_value = {
 static guint16
 de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree  *subtree2;
-    proto_item  *item2;
-    guint32      curr_offset;
-    gint         bit_offset, bit_offset_sav;
-    guint8       value;
-    guint8       tvb_len = tvb_length(tvb);
+    proto_tree *subtree2;
+    proto_item *item2;
+    guint32     curr_offset;
+    gint        bit_offset, bit_offset_sav;
+    guint8      value;
+    guint8      tvb_len = tvb_length(tvb);
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -7278,9 +7279,9 @@ de_rr_rest_oct_gprs_mobile_allocation(tvbuff_t *tvb, proto_tree *tree, gint bit_
 {
     proto_tree *subtree;
     proto_item *item;
-    gint curr_bit_offset;
-    guint8 value;
-    guint64 ma_length;
+    gint        curr_bit_offset;
+    guint8      value;
+    guint64     ma_length;
 
     curr_bit_offset = bit_offset;
 
@@ -7922,7 +7923,7 @@ de_rr_ext_meas_result(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     guint8  value;
 
     curr_offset = offset;
-    bit_offset = curr_offset << 3;
+    bit_offset  = curr_offset << 3;
 
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_seq_code, tvb,bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
@@ -8757,25 +8758,25 @@ dtap_rr_dtm_ass_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     ELEM_OPT_TLV(0x12, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, NULL);
     /* 13 Mobile Allocation Mobile Allocation 10.5.2.21 C TLV 3 - 10 */
     ELEM_OPT_TLV(0x13, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
-    
+
     /* 15 Description of the Uplink Packet Channel Assignment RR Packet Uplink Assignment 10.5.2.25c O TLV 3 - n */
     ELEM_OPT_TLV(0x15, GSM_A_PDU_TYPE_RR, DE_RR_PKT_UL_ASS, NULL);
-    
+
     /* 16 Description of the Downlink Packet Channel Assignment RR Packet Downlink Assignment 10.5.2.25d O TLV 3 - n */
     ELEM_OPT_TLV(0x16, GSM_A_PDU_TYPE_RR, DE_RR_PKT_DL_ASS, NULL);
-    
+
     /* 17 Multi-Rate configuration MultiRate configuration 10.5.2.21aa O TLV 4-8  */
     ELEM_OPT_TLV(0x17,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, NULL);
-    
+
     /* 9- Ciphering Mode Setting Ciphering Mode Setting 10.5.2.9 O TV 1 */
     ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, NULL);
-    
+
     /* 18 Mobile Allocation C2 Mobile Allocation 10.5.2.21 C TLV 3 - 10 */
     ELEM_OPT_TLV(0x18, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - C2");
-    
+
     /* 19 Frequency List C2 Frequency List 10.5.2.13 C TLV 4 - 132 */
     ELEM_OPT_TLV(0x19, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, " - C2");
-    
+
     /* 20 Description of the Downlink Packet Channel Assignment Type 2 RR Packet Downlink Assignment Type 2 10.5.2.25e C TLV 3 n */
     ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_RR, DE_RR_PKT_DL_ASS_TYPE2, NULL);
 
@@ -9740,9 +9741,9 @@ dtap_rr_sys_info_5(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 static void
 dtap_rr_sys_info_5bis(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
-    guint32     curr_offset;
-    guint32     consumed;
-    guint       curr_len;
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
 
     curr_offset = offset;
     curr_len = len;
@@ -9851,7 +9852,7 @@ dtap_rr_app_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     guint   curr_len;
 
     curr_offset = offset;
-    curr_len = len;
+    curr_len    = len;
 
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_APDU_ID, NULL);
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_APDU_FLAGS, NULL);
@@ -10463,7 +10464,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     static gsm_a_tap_rec_t *tap_p;
     static guint            tap_current = 0;
 
-    void                  (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
+    void                  (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
     guint8                  oct;
     guint8                  pd;
     guint32                 offset;
@@ -10698,7 +10699,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     static gsm_a_tap_rec_t *tap_p;
     static guint            tap_current        = 0;
 
-    void                  (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
+    void                  (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
     guint8                  oct, short_pd, mess_type;
     guint32                 offset, bit_offset = 0;
     guint32                 len;
