@@ -1701,6 +1701,24 @@ packet_list_get_packet_comment(void)
 }
 
 void
+packet_list_return_all_comments(GtkTextBuffer *buffer)
+{
+	guint32 framenum;
+	frame_data *fdata;
+	gchar *buf_str;
+
+	for (framenum = 1; framenum <= cfile.count ; framenum++) {
+		fdata = frame_data_sequence_find(cfile.frames, framenum);
+		if (fdata->opt_comment) {
+			buf_str = g_strdup_printf("Frame %u: %s \n\n",framenum, fdata->opt_comment);
+			gtk_text_buffer_insert_at_cursor (buffer, buf_str, -1);
+			g_free(buf_str);
+		}
+	}
+
+}
+
+void
 packet_list_update_packet_comment(gchar *new_packet_comment)
 {
 

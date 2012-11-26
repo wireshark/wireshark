@@ -135,6 +135,7 @@ void packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 
 gchar *packet_list_get_packet_comment(void);
 void packet_list_update_packet_comment(gchar *new_packet_comment);
+void packet_list_return_all_comments(GtkTextBuffer *buffer);
 
 GtkWidget * packet_list_get_widget(void);
 void packet_list_colorize_packets(void);

@@ -49,6 +49,7 @@
 
 static GtkWidget *edit_or_add_pkt_comment_dlg = NULL;
 static GtkWidget *edit_or_add_capture_comment_dlg = NULL;
+static GtkWidget *view_capture_and_pkt_comments_dlg = NULL;
 
 static void
 pkt_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
@@ -166,6 +167,66 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
 
 
   gtk_widget_show (edit_or_add_pkt_comment_dlg);
+}
+
+void
+show_packet_comment_summary_dlg (GtkAction *action _U_, gpointer data _U_)
+{
+
+  GtkWidget *vbox;
+  GtkWidget *view;
+  GtkWidget *scroll;
+  GtkWidget *bbox;
+  GtkWidget *ok_bt, *cancel_bt, *help_bt;
+  GtkTextBuffer *buffer = NULL;
+
+  view_capture_and_pkt_comments_dlg = dlg_window_new ("View Capture and Packet Comments");
+  gtk_widget_set_size_request (view_capture_and_pkt_comments_dlg, 500, 160);
+  gtk_window_set_resizable (GTK_WINDOW (view_capture_and_pkt_comments_dlg), TRUE);
+  gtk_container_set_border_width (GTK_CONTAINER (view_capture_and_pkt_comments_dlg), DLG_OUTER_MARGIN);
+
+  vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_UNRELATED_SPACING, FALSE);
+  gtk_container_add (GTK_CONTAINER (view_capture_and_pkt_comments_dlg), vbox);
+  gtk_widget_show (vbox);
+
+  view = gtk_text_view_new ();
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+  gtk_widget_show (view);
+
+  scroll = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
+                  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_container_add(GTK_CONTAINER(scroll), view);
+  gtk_widget_show(scroll);
+  gtk_box_pack_start(GTK_BOX (vbox), scroll, TRUE, TRUE, 0);
+
+  /* Get the all comments */
+  packet_list_return_all_comments(buffer);
+  /*g_warning("Fetched comment '%s'",opt_comment);*/
+
+  /* Button row. */
+  bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
+  gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+  ok_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
+  /*g_signal_connect (ok_bt, "clicked", G_CALLBACK(pkt_comment_text_buff_ok_cb), view);*/
+  gtk_widget_set_sensitive (ok_bt, FALSE);
+
+  cancel_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  window_set_cancel_button (view_capture_and_pkt_comments_dlg, cancel_bt, window_cancel_button_cb);
+
+  help_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
+#if 0
+  g_signal_connect (help_bt, "clicked",/* G_CALLBACK(topic_cb)*/NULL, /*(gpointer)HELP_MANUAL_ADDR_RESOLVE_DIALOG*/NULL);
+#endif
+  gtk_widget_set_sensitive (help_bt, FALSE);
+
+  gtk_widget_grab_default (ok_bt);
+  g_signal_connect (view_capture_and_pkt_comments_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+
+
+  gtk_widget_show (view_capture_and_pkt_comments_dlg);
 }
 
 static void
