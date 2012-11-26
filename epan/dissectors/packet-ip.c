@@ -2039,42 +2039,46 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      doing its checksumming. */
   iph->ip_len = tvb_get_ntohs(tvb, offset + 2);
 
-  /* Correct for zero-length TSO packets
-   * If ip_len is zero, assume TSO and use the reported length instead.  Note
-   * that we need to use the frame/reported length instead of the
-   * actually-available length, just in case a snaplen was used on capture. */
-  if (ip_tso_supported && !iph->ip_len)
-    iph->ip_len = tvb_reported_length(tvb);
-
   if (iph->ip_len < hlen) {
-    col_add_fstr(pinfo->cinfo, COL_INFO,
-                 "Bogus IP length (%u, less than header length %u)",
-                 iph->ip_len, hlen);
-    if (tree) {
-      if (!iph->ip_len) {
-        tf = proto_tree_add_uint_format(ip_tree, hf_ip_len, tvb, offset + 2, 2,
+    if (ip_tso_supported && !iph->ip_len) {
+      /* TSO support enabled, and zero length.  Assume the zero length is
+       * the result of TSO, and use the reported length instead.  Note that
+       * we need to use the frame/reported length instead of the actually-
+       * available length, just in case a snaplen was used on capture. */
+      iph->ip_len = tvb_reported_length(tvb);
+      if (tree) {
+        tf = proto_tree_add_uint_format_value(ip_tree, hf_ip_len, tvb, offset + 2, 2,
           iph->ip_len,
-          "Total length: 0 bytes (may be caused by \"TCP segmentation offload\" (TSO)?)");
-      } else {
+          "%u bytes (reported as 0, presumed to be because of \"TCP segmentation offload\" (TSO))",
+          iph->ip_len);
+        PROTO_ITEM_SET_GENERATED(tf);
+      }
+    } else {
+      /* TSO support not enabled, or non-zero length, so treat it as an error. */
+      col_add_fstr(pinfo->cinfo, COL_INFO,
+                   "Bogus IP length (%u, less than header length %u)",
+                   iph->ip_len, hlen);
+      if (tree) {
         tf = proto_tree_add_uint_format(ip_tree, hf_ip_len, tvb, offset + 2, 2,
           iph->ip_len,
           "Total length: %u bytes (bogus, less than header length %u)",
           iph->ip_len, hlen);
       }
       expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_ERROR, "Bogus IP length");
+      /* Can't dissect any further */
+      return;
     }
-    return;
+  } else {
+    /*
+     * Now that we know that the total length of this IP datagram isn't
+     * obviously bogus, adjust the length of this tvbuff to include only
+     * the IP datagram.
+     */
+    set_actual_length(tvb, iph->ip_len);
+
+    if (tree)
+      proto_tree_add_uint(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len);
   }
-
-  /*
-   * Now that we know that the total length of this IP datagram isn't
-   * obviously bogus, adjust the length of this tvbuff to include only
-   * the IP datagram.
-   */
-  set_actual_length(tvb, iph->ip_len);
-
-  if (tree)
-    proto_tree_add_uint(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len);
 
   iph->ip_id  = tvb_get_ntohs(tvb, offset + 4);
   if (tree)
