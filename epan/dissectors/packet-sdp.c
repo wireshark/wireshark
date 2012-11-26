@@ -63,7 +63,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
-#include <epan/conversation.h>
 
 #include "packet-sdp.h"
 #include "packet-frame.h"
@@ -86,7 +85,6 @@ static dissector_handle_t sprt_handle;
 static dissector_handle_t msrp_handle;
 static dissector_handle_t h264_handle;
 static dissector_handle_t mp4ves_handle;
-static dissector_handle_t bfcp_handle;
 
 static int sdp_tap = -1;
 
@@ -296,8 +294,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean    is_t38       = FALSE;
   gboolean    is_msrp      = FALSE;
   gboolean    is_sprt      = FALSE;
-  gboolean    is_bfcp_udp  = FALSE;
-  gboolean    is_bfcp_tcp  = FALSE;
   gboolean    set_rtp      = FALSE;
   gboolean    is_ipv4_addr = FALSE;
   gboolean    is_ipv6_addr = FALSE;
@@ -502,8 +498,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                   (strcmp(transport_info.media_proto[n],"udptl") == 0));
         /* Check if media protocol is MSRP/TCP */
         is_msrp = (strcmp(transport_info.media_proto[n],"msrp/tcp") == 0);
-        is_bfcp_udp = (strcmp(transport_info.media_proto[n],"UDP/BFCP") == 0);
-        is_bfcp_tcp = (strcmp(transport_info.media_proto[n],"TCP/BFCP") == 0);
         /* Check if media protocol is SPRT */
         is_sprt = ((strcmp(transport_info.media_proto[n],"UDPSPRT") == 0) ||
                    (strcmp(transport_info.media_proto[n],"udpsprt") == 0));
@@ -638,39 +632,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((port != 0) && is_t38) {
       if (strlen(sdp_pi->summary_str)) g_strlcat(sdp_pi->summary_str, " ", 50);
       g_strlcat(sdp_pi->summary_str, "t38", 50);
-    }
-    /* Setup BFCP conversations */
-    if ((!pinfo->fd->flags.visited) && is_bfcp_udp && (is_ipv4_addr || is_ipv6_addr) && (port != 0)) {
-        conversation_t* p_conv;
-        address null_addr;
-
-        SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
-
-        p_conv = find_conversation( pinfo->fd->num, &src_addr, &null_addr, PT_UDP, port, 0,
-                                NO_ADDR_B | NO_PORT_B);
-        if(!p_conv){
-           p_conv = conversation_new( pinfo->fd->num, &src_addr, &null_addr, PT_UDP,
-                                   port, 0,
-                                   NO_ADDR2 | NO_PORT2);
-           conversation_set_dissector(p_conv, bfcp_handle);
-
-        }
-    }
-    if ((!pinfo->fd->flags.visited) && is_bfcp_tcp && (is_ipv4_addr || is_ipv6_addr) && (port != 0)) {
-        conversation_t* p_conv;
-        address null_addr;
-
-        SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
-
-        p_conv = find_conversation( pinfo->fd->num, &src_addr, &null_addr, PT_TCP, port, 0,
-                                NO_ADDR_B | NO_PORT_B);
-        if(!p_conv){
-           p_conv = conversation_new( pinfo->fd->num, &src_addr, &null_addr, PT_TCP,
-                                   port, 0,
-                                   NO_ADDR2 | NO_PORT2);
-           conversation_set_dissector(p_conv, bfcp_handle);
-
-        }
     }
   }
 
@@ -2439,7 +2400,6 @@ proto_reg_handoff_sdp(void)
   sprt_handle   = find_dissector("sprt");
   h264_handle   = find_dissector("h264");
   mp4ves_handle = find_dissector("mp4ves");
-  bfcp_handle   = find_dissector("bfcp");
 
   proto_sprt    = dissector_handle_get_protocol_index(find_dissector("sprt"));
 
