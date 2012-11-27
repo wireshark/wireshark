@@ -40,10 +40,10 @@ Wireshark Info
           </para>
           <para>
 	    Wireshark could leak potentially sensitive host name resolution
-	    information when working with multiple pcap-ng files.
+	    information when working with multiple pcap-ng files. Discovered by
+	    Laura Chappell.
             <!-- Fixed in trunk: r45511, r45674 -->
-            <!-- Fixed in trunk-1.8: r? -->
-            <!-- Fixed in trunk-1.6: r? -->
+            <!-- Fixed in trunk-1.8: r46211 -->
           </para>
           <para>Versions affected: 1.8.0 to 1.8.3.</para>
           <para>
@@ -57,9 +57,9 @@ Wireshark Info
           </para>
           <para>
 	    The USB dissector could go into an infinite loop.
-            <!-- Fixed in trunk: r45310, r45339 -->
+            <!-- Fixed in trunk: r45310, r45339, r45742 -->
             <!-- Fixed in trunk-1.8: r45837 -->
-            <!-- Fixed in trunk-1.6: r? -->
+            <!-- Fixed in trunk-1.6: r46225, r46227 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7787">Bug
             7787</ulink>)
           </para>
@@ -149,11 +149,11 @@ Wireshark Info
 	    The ICMPv6 dissector could go into an infinite loop.
             <!-- Fixed in trunk: r45459 -->
             <!-- Fixed in trunk-1.8: r45460 -->
-            <!-- Fixed in trunk-1.6: r? -->
+            <!-- Fixed in trunk-1.6: r45493 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7844">Bug
             7844</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.3.</para>
+          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
           </para>
@@ -167,7 +167,7 @@ Wireshark Info
 	    The ISAKMP dissector could crash.
             <!-- Fixed in trunk: r45510 -->
             <!-- Fixed in trunk-1.8: r45580 -->
-            <!-- Fixed in trunk-1.6: r? -->
+            <!-- Fixed in trunk-1.6: r46628 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7855">Bug
             7855</ulink>)
           </para>
@@ -185,7 +185,7 @@ Wireshark Info
 	    The iSCSI dissector could go into an infinite loop.
             <!-- Fixed in trunk: r45524, r45548 -->
             <!-- Fixed in trunk-1.8: r45549 -->
-            <!-- Fixed in trunk-1.6: r? -->
+            <!-- Fixed in trunk-1.6: r45550 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7858">Bug
             7858</ulink>)
           </para>
@@ -203,7 +203,7 @@ Wireshark Info
 	    The WTP dissector could go into an infinite loop.
             <!-- Fixed in trunk: r45614 -->
             <!-- Fixed in trunk-1.8: r45837 -->
-            <!-- Fixed in trunk-1.6: r? -->
+            <!-- Fixed in trunk-1.6: r46629 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7869">Bug
             7869</ulink>)
           </para>
@@ -221,7 +221,7 @@ Wireshark Info
 	    The RTCP dissector could go into an infinite loop.
             <!-- Fixed in trunk: r45717 -->
             <!-- Fixed in trunk-1.8: r45837 -->
-            <!-- Fixed in trunk-1.6: r? -->
+            <!-- Fixed in trunk-1.6: r46230 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7879">Bug
             7879</ulink>)
           </para>
@@ -439,6 +439,7 @@ sFlow,
 SIP,
 SMB2,
 SSL/TLS,
+TPNCP,
 USB
 
     </para>
