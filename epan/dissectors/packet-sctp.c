@@ -1472,10 +1472,12 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
 
   parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_reported_length(parameter_tvb), "%s parameter", val_to_str_const(type, parameter_identifier_values, "Unknown"));
   parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
-  if (final_parameter && (padding_length > 0)) {
+  if (!final_parameter && (reported_length % 4)) {
     expert_add_info_format(pinfo, parameter_item, PI_MALFORMED, PI_ERROR,
-                           "The padding of this final parameter should be the padding of the chunk.");
+                           "Parameter length is not padded to a multiple of 4 bytes (length=%d)",
+                           reported_length);
   }
+
   if (!(chunk_tree || (dissecting_init_init_ack_chunk && (type == IPV4ADDRESS_PARAMETER_ID || type == IPV6ADDRESS_PARAMETER_ID))))
     return;
 
