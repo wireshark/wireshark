@@ -889,6 +889,7 @@ main(int argc, char *argv[])
   volatile int         out_file_type = WTAP_FILE_PCAP;
 #endif
   volatile gboolean    out_file_name_res = FALSE;
+  gchar                *hosts_file = NULL;
   gchar               *volatile cf_name = NULL;
   gchar               *rfilter = NULL;
 #ifdef HAVE_PCAP_OPEN_DEAD
@@ -1268,15 +1269,15 @@ main(int argc, char *argv[])
       break;
     case 'W':        /* Select extra information to save in our capture file */
       /* This is patterned after the -N flag which may not be the best idea. */
-      if (strchr(optarg, 'n'))
+      if (strchr(optarg, 'n')) {
         out_file_name_res = TRUE;
-      break;
-    case 'H':        /* Read address to name mappings from a hosts file */
-      if (! read_hosts_file(optarg))
-      {
-        cmdarg_err("Can't read host entries from \"%s\"", optarg);
+      } else {
+        cmdarg_err("Invalid -W argument \"%s\"", optarg);
         return 1;
       }
+      break;
+    case 'H':        /* Read address to name mappings from a hosts file */
+      hosts_file = optarg;
       out_file_name_res = TRUE;
       break;
 
@@ -1450,7 +1451,7 @@ main(int argc, char *argv[])
          part of a tap filter.  Instead, we just add the argument
          to a list of stat arguments. */
       if (!process_stat_cmd_arg(optarg)) {
-        cmdarg_err("invalid -z argument.");
+        cmdarg_err("Invalid -z argument \"%s\".", optarg);
         cmdarg_err_cont("  -z argument must be one of :");
         list_stat_cmd_args();
         return 1;
@@ -1840,6 +1841,16 @@ main(int argc, char *argv[])
     default:
       g_assert_not_reached();
     }
+
+  /*  Read in the hosts file after cf_open() (which calls init_dissection()
+   *  which resets the name database).
+   */
+  if (hosts_file) {
+    if (! read_hosts_file(hosts_file)) {
+      cmdarg_err("Can't read host entries from \"%s\"", hosts_file);
+      return 1;
+    }
+  }
 
     /* Process the packets in the file */
     TRY {
