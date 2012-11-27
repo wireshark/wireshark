@@ -1706,7 +1706,6 @@ packet_list_return_all_comments(GtkTextBuffer *buffer)
 	guint32 framenum;
 	frame_data *fdata;
 	gchar *buf_str;
-	wtapng_section_t* shb_inf = NULL;
 
 	for (framenum = 1; framenum <= cfile.count ; framenum++) {
 		fdata = frame_data_sequence_find(cfile.frames, framenum);
