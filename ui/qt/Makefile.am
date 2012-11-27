@@ -132,6 +132,8 @@ remote_icons.h:
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
 	$(QRC_FILES)			\
+	$(TS_FILES)			\
+	$(QM_FILES)			\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
 	export_object_dialog.ui		\

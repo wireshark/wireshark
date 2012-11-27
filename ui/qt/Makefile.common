@@ -124,6 +124,21 @@ QRC_FILES = \
 	welcome.qrc
 
 #
+# .ts files.
+#
+TS_FILES = \
+	qtshark_fr.ts \
+	qtshark_de.ts
+
+#
+# .qm files.
+#
+# Should be auto-generated ?
+QM_FILES = \
+	qtshark_fr.qm \
+	qtshark_de.qm
+
+#
 # The .rcc.cpp files generated from them.
 # We do *not* include these in the distribution; if you have the Qt SDK
 # installed, so that you can build Qt-based applications, you have moc
