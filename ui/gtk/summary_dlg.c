@@ -659,3 +659,117 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show_all(summary_dlg);
   window_present(summary_dlg);
 }
+
+#define INDENT "   "
+void
+summary_to_texbuff(GtkTextBuffer *buffer)
+{
+  summary_tally summary;
+  gchar         string_buff[SUM_STR_MAX];
+  gchar *buf_str;
+  unsigned int  i;
+  unsigned int  elapsed_time;
+
+  /* initial computations */
+  summary_fill_in(&cfile, &summary);
+#ifdef HAVE_LIBPCAP
+  summary_fill_in_capture(&cfile, &global_capture_opts, &summary);
+#endif
+
+  /* Add Wireshark version here? TODO */
+
+  /* Info about file */
+  g_snprintf(string_buff, SUM_STR_MAX, "File: \n");
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  /* Filename */
+  g_snprintf(string_buff, SUM_STR_MAX, INDENT "Name:             %s\n", summary.filename);
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  /* length */
+  g_snprintf(string_buff, SUM_STR_MAX, INDENT "Length:            %" G_GINT64_MODIFIER "d bytes\n",
+             summary.file_length);
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  /* format */
+  g_snprintf(string_buff, SUM_STR_MAX, INDENT "Format:            %s%s",
+             wtap_file_type_string(summary.file_type),
+             summary.iscompressed? " (gzip compressed)\n" : "\n");
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  /* encapsulation */
+  if (summary.file_encap_type == WTAP_ENCAP_PER_PACKET) {
+    for (i = 0; i < summary.packet_encap_types->len; i++) {
+      g_snprintf(string_buff, SUM_STR_MAX, INDENT "Encapsulation:    %s\n",
+                 wtap_encap_string(g_array_index(summary.packet_encap_types, int, i)));
+      gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    }
+  } else {
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "Encapsulation:    %s\n", wtap_encap_string(summary.file_encap_type));
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+  }
+  if (summary.has_snap) {
+    /* snapshot length */
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "Packet size limit: %u bytes\n", summary.snap);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+  }
+
+  /* Add two empty lines */
+  g_snprintf(string_buff, SUM_STR_MAX, "\n\n");
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  /* Time Section */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count >= 1) {
+    /* Add heading Time */
+    g_snprintf(string_buff, SUM_STR_MAX, "Time:\n");
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+    /* start time */
+    time_to_string(string_buff, SUM_STR_MAX, (time_t)summary.start_time);
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "First packet: %s\n",string_buff);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+    /* stop time */
+    time_to_string(string_buff, SUM_STR_MAX, (time_t)summary.stop_time);
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "Last packet: %s\n", string_buff);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+    /*
+     * We must have at least two time-stamped packets for the elapsed time
+     * to be valid.
+     */
+    if (summary.packet_count_ts >= 2) {
+      /* elapsed seconds */
+      elapsed_time = (unsigned int)summary.elapsed_time;
+      if(elapsed_time/86400) {
+          g_snprintf(string_buff, SUM_STR_MAX, "%02u days %02u:%02u:%02u",
+            elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+      } else {
+          g_snprintf(string_buff, SUM_STR_MAX, "%02u:%02u:%02u",
+            elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+      }
+      g_snprintf(string_buff, SUM_STR_MAX, INDENT "Elapsed: %s\n", string_buff);
+	  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    }
+  }
+
+  /* Add two empty lines */
+  g_snprintf(string_buff, SUM_STR_MAX, "\n\n");
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  g_snprintf(string_buff, SUM_STR_MAX, "Capture:\n");
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  /* Trace file comments from SHB */
+  if(summary.opt_comment != NULL) {
+    buf_str = g_strdup_printf("%s", summary.opt_comment);
+    gtk_text_buffer_insert_at_cursor(buffer, buf_str, -1);
+    g_free(buf_str);
+  }
+
+
+  g_snprintf(string_buff, SUM_STR_MAX, "\n\n");
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+}

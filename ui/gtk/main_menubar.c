@@ -4879,6 +4879,8 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
                          have_captured_packets);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/Summary",
                          have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/ShowCommentsSummary",
+                         have_captured_packets);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/ProtocolHierarchy",
                          have_captured_packets);
 }

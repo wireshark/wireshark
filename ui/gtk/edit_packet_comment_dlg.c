@@ -46,6 +46,7 @@
 #include "ui/gtk/packet_list.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/summary_dlg.h"
 
 static GtkWidget *edit_or_add_pkt_comment_dlg = NULL;
 static GtkWidget *edit_or_add_capture_comment_dlg = NULL;
@@ -180,8 +181,8 @@ show_packet_comment_summary_dlg (GtkAction *action _U_, gpointer data _U_)
   GtkWidget *ok_bt, *cancel_bt, *help_bt;
   GtkTextBuffer *buffer = NULL;
 
-  view_capture_and_pkt_comments_dlg = dlg_window_new ("View Capture and Packet Comments");
-  gtk_widget_set_size_request (view_capture_and_pkt_comments_dlg, 500, 160);
+  view_capture_and_pkt_comments_dlg = dlg_window_new ("Comments Summary");
+  gtk_widget_set_size_request (view_capture_and_pkt_comments_dlg, 700, 350);
   gtk_window_set_resizable (GTK_WINDOW (view_capture_and_pkt_comments_dlg), TRUE);
   gtk_container_set_border_width (GTK_CONTAINER (view_capture_and_pkt_comments_dlg), DLG_OUTER_MARGIN);
 
@@ -201,9 +202,11 @@ show_packet_comment_summary_dlg (GtkAction *action _U_, gpointer data _U_)
   gtk_widget_show(scroll);
   gtk_box_pack_start(GTK_BOX (vbox), scroll, TRUE, TRUE, 0);
 
-  /* Get the all comments */
+  /* Add capture summary information */
+  summary_to_texbuff(buffer);
+
+  /* Add all packet comments */
   packet_list_return_all_comments(buffer);
-  /*g_warning("Fetched comment '%s'",opt_comment);*/
 
   /* Button row. */
   bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);

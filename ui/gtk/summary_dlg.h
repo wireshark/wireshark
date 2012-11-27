@@ -37,5 +37,6 @@
  * @param data unused
  */
 void summary_open_cb(GtkWidget *widget, gpointer data);
+void summary_to_texbuff(GtkTextBuffer *buffer);
 
 #endif /* __SUMMARY_DLG_H__ */
