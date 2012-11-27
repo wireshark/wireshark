@@ -81,8 +81,10 @@ MOC_HDRS = \
 	display_filter_combo.h \
 	display_filter_edit.h \
 	export_dissection_dialog.h \
+	export_object_dialog.h \
 	file_set_dialog.h \
 	interface_tree.h \
+	import_text_dialog.h \
 	label_stack.h \
 	main_status_bar.h \
 	main_welcome.h \
@@ -140,8 +142,10 @@ WIRESHARK_QT_SRC = \
 	display_filter_combo.cpp \
 	display_filter_edit.cpp \
 	export_dissection_dialog.cpp \
+	export_object_dialog.cpp \
 	file_set_dialog.cpp \
 	interface_tree.cpp \
+	import_text_dialog.cpp \
 	label_stack.cpp \
 	main_status_bar.cpp \
 	main_welcome.cpp \
@@ -167,4 +171,5 @@ WIRESHARK_QT_SRC = \
 noinst_HEADERS = \
 	$(MOC_HDRS) \
 	packet_list_record.h \
-	qt_ui_utils.h
+	qt_ui_utils.h \
+	tango_colors.h

@@ -131,12 +131,21 @@ remote_icons.h:
 #	Makefile.nmake
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
+	$(QRC_FILES)			\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
+	export_object_dialog.ui		\
+	file_set_dialog.ui		\
+	import_text_dialog.ui		\
 	main.cpp			\
 	Makefile.common			\
 	Makefile_custom.common		\
 	main_welcome.ui			\
 	main_window.ui			\
+	packet_format_group_box.ui	\
+	packet_range_group_box.ui	\
+	print_dialog.ui			\
+	QtShark.pro			\
+	splash_overlay.ui		\
 	display_filter_16.svg		\
 	gpl-template.txt
