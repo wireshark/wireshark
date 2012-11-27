@@ -70,6 +70,24 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-37.html">wnpa-sec-2012-37</ulink>
+          </para>
+          <para>
+	    The WTP dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r45614 -->
+            <!-- Fixed in trunk-1.8: r45837 -->
+            <!-- Fixed in trunk-1.6: r46629 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7869">Bug
+            7869</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -123,6 +141,7 @@ There are no new protocols in this release.
 
 ISAKMP,
 USB,
+WTP
 
     </para>
     </section>
