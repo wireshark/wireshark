@@ -2931,7 +2931,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8     *tmp, *tmp_ptr;
     guint8      data_len;
     int         data_offset;
-    gboolean    crc_OK;
+    gboolean    crc_OK = FALSE;
     tvbuff_t   *next_tvb;
     guint       i;
 
