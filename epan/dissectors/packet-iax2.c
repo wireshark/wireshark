@@ -2789,7 +2789,7 @@ proto_register_iax2(void)
 
     {&hf_iax2_ies[IAX_IE_CAUSECODE],
      {"Hangup cause", "iax2.iax.causecode",
-      FT_UINT8, BASE_HEX | BASE_RANGE_STRING, &iax_causecodes_ext, 0x0,
+      FT_UINT8, BASE_HEX | BASE_EXT_STRING, &iax_causecodes_ext, 0x0,
       NULL, HFILL}},
 
     {&hf_iax2_ies[IAX_IE_ENCRYPTION],
