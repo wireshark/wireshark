@@ -42,7 +42,7 @@ Wireshark Info
 	    The USB dissector could go into an infinite loop.
             <!-- Fixed in trunk: r45310, r45339 -->
             <!-- Fixed in trunk-1.8: r45837 -->
-            <!-- Fixed in trunk-1.6: r46225 -->
+            <!-- Fixed in trunk-1.6: r46225, r46226 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7787">Bug
             7787</ulink>)
           </para>
@@ -103,7 +103,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+USB,
 
     </para>
     </section>
