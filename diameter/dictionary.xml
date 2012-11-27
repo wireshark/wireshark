@@ -8,26 +8,26 @@
 	<!-- Any files added here need to be added to Makefile.am and
 	     packaging/nsis/wireshark.nsi -->
 
-	<!ENTITY nasreq			SYSTEM "nasreq.xml">
-	<!ENTITY eap			SYSTEM "eap.xml">
-	<!ENTITY mobileipv4		SYSTEM "mobileipv4.xml">
+	<!ENTITY nasreq			      SYSTEM "nasreq.xml">
+	<!ENTITY eap			        SYSTEM "eap.xml">
+	<!ENTITY mobileipv4		    SYSTEM "mobileipv4.xml">
 	<!ENTITY chargecontrol		SYSTEM "chargecontrol.xml">
-	<!ENTITY sunping		SYSTEM "sunping.xml">
-	<!ENTITY imscxdx		SYSTEM "imscxdx.xml">
-	<!ENTITY TGPPGmb		SYSTEM "TGPPGmb.xml">
-	<!ENTITY TGPPS9			SYSTEM "TGPPS9.xml">
-	<!ENTITY TGPPSh			SYSTEM "TGPPSh.xml">
-	<!ENTITY TGPPRx			SYSTEM "TGPPRx.xml">
-	<!ENTITY sip			SYSTEM "sip.xml">
-	<!ENTITY gqpolicy		SYSTEM "gqpolicy.xml">
-	<!ENTITY etsie2e4		SYSTEM "etsie2e4.xml">
-	<!ENTITY Ericsson		SYSTEM "Ericsson.xml">
-	<!ENTITY Tango			SYSTEM "Tango.xml">
-	<!ENTITY mobileipv6		SYSTEM "mobileipv6.xml">
-	<!ENTITY Cisco			SYSTEM "Cisco.xml">
-	<!ENTITY Vodafone		SYSTEM "Vodafone.xml">
+	<!ENTITY sunping		      SYSTEM "sunping.xml">
+	<!ENTITY imscxdx		      SYSTEM "imscxdx.xml">
+	<!ENTITY TGPPGmb		      SYSTEM "TGPPGmb.xml">
+	<!ENTITY TGPPS9			      SYSTEM "TGPPS9.xml">
+	<!ENTITY TGPPSh			      SYSTEM "TGPPSh.xml">
+	<!ENTITY TGPPRx			      SYSTEM "TGPPRx.xml">
+	<!ENTITY sip			        SYSTEM "sip.xml">
+	<!ENTITY gqpolicy		      SYSTEM "gqpolicy.xml">
+	<!ENTITY etsie2e4		      SYSTEM "etsie2e4.xml">
+	<!ENTITY Ericsson		      SYSTEM "Ericsson.xml">
+	<!ENTITY Tango			      SYSTEM "Tango.xml">
+	<!ENTITY mobileipv6		    SYSTEM "mobileipv6.xml">
+	<!ENTITY Cisco			      SYSTEM "Cisco.xml">
+	<!ENTITY Vodafone		      SYSTEM "Vodafone.xml">
 	<!ENTITY AlcatelLucent		SYSTEM "AlcatelLucent.xml">
-	<!ENTITY Nokia			SYSTEM "Nokia.xml">
+	<!ENTITY Nokia			      SYSTEM "Nokia.xml">
 	<!ENTITY NokiaSiemensNetworks	SYSTEM "NokiaSiemensNetworks.xml">
 ]>
 <dictionary>
@@ -167,9 +167,10 @@
 		<vendor vendor-id="ALU" code="637" name="ALU Network"/>
 		<vendor vendor-id="Huawei" code="2011" name="Huawei"/>
 		<vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
-		<vendor vendor-id="Cisco" code="5771" name="Cisco"/>
-		<vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
-		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
+    <vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
+    <vendor vendor-id="Cisco" code="5771" name="Cisco"/>
+    <vendor vendor-id="SKT" code="5806" name="SK Telecom"/>
+    <vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
 		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
 		<vendor vendor-id="VerizonWireless" code="12951" name="Verizon Wireless"/>
 		<vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
