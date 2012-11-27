@@ -568,7 +568,7 @@ static const value_string japan_isup_message_type_value[] = {
   { MESSAGE_TYPE_APPLICATION_TRANS,           "Application transport"},
   { MESSAGE_TYPE_PRE_RELEASE_INFO,            "Pre-release information"},
   { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,          "Subsequent Directory Number (national use)"},
-  { MESSAGE_TYPE_JAPAN_CHARG_INF,            "Charge information"},
+  { MESSAGE_TYPE_JAPAN_CHARG_INF,             "Charge information"},
   { 0,                                  NULL}};
 static value_string_ext japan_isup_message_type_value_ext = VALUE_STRING_EXT_INIT(japan_isup_message_type_value);
 
@@ -1205,7 +1205,10 @@ const value_string isup_parameter_type_value[] = {
   { 0,                                 NULL}};
 static value_string_ext isup_parameter_type_value_ext = VALUE_STRING_EXT_INIT(isup_parameter_type_value);
 
+#define JAPAN_ISUP_PARAM_REDIRECT_FORWARD_INF            139 /* 8B */
+
 #define JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO               241 /* F1 */
+
 #define JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT         243 /* F3 */
 #define JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE            250 /* FA */
 #define JAPAN_ISUP_PARAM_TYPE_CHARGE_INF                 251 /* FB */
@@ -1292,6 +1295,7 @@ static const value_string japan_isup_parameter_type_value[] = {
   { PARAM_TYPE_REDIRECT_COUNTER,          "Redirect counter (reserved for national use)"},
   { PARAM_TYPE_APPLICATON_TRANS,          "Application transport"},
   { PARAM_TYPE_COLLECT_CALL_REQ,          "Collect call request"},
+  { JAPAN_ISUP_PARAM_REDIRECT_FORWARD_INF, "Redirect forward information"},
   { PARAM_TYPE_GENERIC_NR,                "Generic number"},
   { PARAM_TYPE_GENERIC_DIGITS,            "Generic digits (national use)"},
   { JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO,       "Carrier Information transfer"},      /* 241 F1 */
@@ -2867,6 +2871,13 @@ static int hf_isup_israeli_charging_message_indicators_next = -1;
 static int hf_isup_israeli_current_rate = -1;
 static int hf_isup_israeli_time_indicator = -1;
 static int hf_isup_israeli_next_rate = -1;
+
+static int hf_japan_isup_redirect_capability = -1;
+static int hf_japan_isup_rfi_info_type = -1;
+static int hf_japan_isup_rfi_info_len = -1;
+static int hf_japan_isup_perf_redir_reason = -1;
+static int hf_japan_isup_redir_pos_ind = -1;
+static int hf_japan_isup_inv_redir_reason = -1;
 
 static int hf_isup_carrier_info_iec = -1;
 /*static int hf_isup_carrier_info_cat_of_carrier = -1;*/
@@ -6322,11 +6333,36 @@ dissect_isup_forward_gvns_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 /* ------------------------------------------------------------------
  Parameter Redirect capability
  */
+
+static const value_string isup_jpn_redirect_capabilit_vals[] = {
+  { 0,   "Reserved" },
+  { 1,   "Redirect possible before ACM" },
+  { 2,   "Reserved" },
+  { 3,   "Reserved" },
+  { 4,   "Spare" },
+  { 5,   "Spare" },
+  { 6,   "Spare" },
+  { 7,   "Spare" },
+  { 0,   NULL}
+};
+
 static void
-dissect_isup_redirect_capability_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Redirect capability (format is a national matter)");
+dissect_isup_redirect_capability_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, guint8 itu_isup_variant)
+{ 
+  guint length = tvb_length(parameter_tvb);
+
+  switch(itu_isup_variant) {
+        case ISUP_JAPAN_VARIANT:
+			proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(parameter_tree, hf_japan_isup_redirect_capability, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+			break;
+		default:
+            proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Redirect capability (format is a national matter)");
+			break;
+  }
+
   proto_item_set_text(parameter_item, "Redirect Capability (%u Byte%s)", length , plurality(length, "", "s"));
+
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Backward GVNS
@@ -6826,6 +6862,204 @@ dissect_isup_unknown_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_it
 
 /* Japan ISUP */
 
+/*
+   8     7     6     5     4     3     2    1
++-----+-----+-----+-----+-----+-----+-----+-----+
+-            Information Type Tag               -  1
++-----------------------------------------------+
+-           Information Type Length             -  2
++-----------------------------------------------+
+-           Information Type Value              -  3
++-----------------------------------------------+
+ .                                              .
+ .                                              .
+ .                                              .
++-----------------------------------------------+
+-            Information Type Tag               -  n+1
++-----------------------------------------------+
+-           Information Type Length             -  n+2
++-----------------------------------------------+
+-           Information Type Value              -  n+3
+|-----------------------------------------------/
+
+Information Type Tag
+
+00000000  Reserved (Note)
+00000001  Reserved
+00000010  Reserved
+00000011  Performing redirect indicator
+00000100  Invoking redirect reason
+00000101
+   to     Spare
+11111111  
+
+Note: In standard this value is marked as -Not used-,
+      here is treated as reserved.
+
+Performing redirect indicator
+
+   8     7     6     5     4     3     2     1
++-----+-----+-----+-----+-----+-----+-----+-----+
+- ext -      Performing redirect reason         -  1
++-----+-----------------------------------------+
+-                             -Redirect possible-  
+-          Spare              -  indicator at   -  2
+-                             -   performing    -
+-                             -    exchange     -
++-----------------------------+-----------------+
+:                       :                       :  :
+:                       :                       :
++-----------------------------------------------+
+- ext -      Performing redirect reason         -  2n|1
++-----+-----------------------|-----------------+    Reason n
+-                             -Redirect possible-  
+-          Spare              -  indicator at   -  2n
+-                             -   performing    -
+-                             -    exchange     -
+|-----------------------------+-----------------/
+
+
+Redirect possible indicator at performing exchange
+000      No indication
+001      Redirect possible before ACM
+010      Reserved
+011      Reserved
+100
+to       Spare
+111
+
+Invoking redirect reason
+
+   8     7     6     5     4     3     2    1
++-----+-----+-----+-----+-----+-----+-----+-----+
+- ext -        Invoking redirect reason         -  1
++-----+-----------------------------------------+
+:     :                                         :
+:     :                                         :
++-----------------------------------------------+
+- ext -        Invoking redirect reason         -  n
+|-----+-----------------------------------------/
+
+Extension indicator (ext)
+
+0        Information continues in next octet
+1        Last octet
+
+Invoking redirect reason
+
+0000000  Unknown / not available
+0000001  Service provider portability (national use)
+0000010  Reserved for location portability
+0000011  Reserved for service portability
+0000100
+to       Spare
+0111111
+1000000
+to       Reserved for national use
+1111101  
+1111110  Local number portability / Mobile number
+         portability
+1111111  Reserved for national use
+
+
+*/
+
+static const value_string isup_rfi_info_type_values[] = {
+  { 0,   "Reserved" },
+  { 1,   "Reserved" },
+  { 2,   "Reserved" },
+  { 3,   "Performing redirect indicator" },
+  { 4,   "Invoking redirect reason" },
+  { 0,   NULL}
+};
+
+/* Performing redirect reason */
+static const value_string perf_redir_reason_vals[] = {
+  { 0,   "Unkown/not available" },
+  { 1,   "Service provider portability (national use)" },
+  { 2,   "Reserved for location portability" },
+  { 3,   "Reserved for service portability" },
+/*
+0000100
+to       Spare
+0111111
+1000000
+to       Reserved for national use
+1111101
+*/
+  { 0x7e,   "Local number portability / Mobile number portability" },
+  { 0x7f,   "Reserved for national use" },
+  { 0,   NULL}
+};
+
+
+static const value_string redir_pos_ind_vals[] = {
+  { 0,   "No indication" },
+  { 1,   "Redirect possible before ACM" },
+  { 2,   "Reserved" },
+  { 3,   "Reserved" },
+  { 4,   "Reserved" },
+  { 5,   "Reserved" },
+  { 6,   "Reserved" },
+  { 7,   "Reserved" },
+  { 0,   NULL}
+};
+
+
+static void
+dissect_japan_isup_redirect_fwd_inf(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    int offset = 0;
+    guint8 tag, tag_len, ext_ind;
+    int parameter_length;
+
+    parameter_length = tvb_length_remaining(parameter_tvb, offset);
+
+    while(offset<parameter_length){
+        /* Information Type Tag */
+        tag = tvb_get_guint8(parameter_tvb,offset);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_rfi_info_type, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* Information Type Length */
+        tag_len = tvb_get_guint8(parameter_tvb,offset);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_rfi_info_len, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        switch(tag){
+        case 3: /* Performing redirect indicator */
+            /* Performing redirect reason oct 1 */
+            ext_ind = 0;
+            while(ext_ind==0){
+                ext_ind = tvb_get_guint8(parameter_tvb, offset)>>7;
+                proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_japan_isup_perf_redir_reason, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+                /* Redirect possible indicator at performing exchange */
+                proto_tree_add_item(parameter_tree, hf_japan_isup_redir_pos_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+            }
+            break;
+        case 4:
+            /* Invoking redirect reason */
+            ext_ind = 0;
+            while(ext_ind==0){
+                ext_ind = tvb_get_guint8(parameter_tvb, offset)>>7;
+                proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_japan_isup_inv_redir_reason, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+            }
+            break;
+        default:
+            /* Information Type Value */
+            proto_tree_add_text(parameter_tree, parameter_tvb, offset, tag_len, "Unknown(not dissected) tag");
+            offset = offset + tag_len;
+            break;
+        }
+    }
+
+    proto_item_set_text(parameter_item, "Redirect forward information");
+
+}
+
 /* ------------------------------------------------------------------
   Dissector Parameter Optional .Carrier Information
 
@@ -7272,6 +7506,16 @@ dissect_japan_chg_inf_type(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
 
 }
 
+static void
+dissect_japan_chg_inf_param(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+
+	proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "Charge information data");
+
+	proto_item_set_text(parameter_item, "Charge information");
+
+}
+
 static const value_string japan_isup_sig_elem_type_values[] = {
   { 2,   "Activate" },
   { 0,   NULL}
@@ -7595,7 +7839,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
             dissect_isup_backward_gvns_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_REDIRECT_CAPAB:
-            dissect_isup_redirect_capability_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_redirect_capability_parameter(parameter_tvb, parameter_tree, parameter_item, itu_isup_variant);
             break;
           case PARAM_TYPE_NETW_MGMT_CTRL:
             dissect_isup_network_management_controls_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -7650,9 +7894,18 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
             switch(itu_isup_variant) {
             case ISUP_JAPAN_VARIANT:
                 switch (parameter_type) {
+				case JAPAN_ISUP_PARAM_REDIRECT_FORWARD_INF:
+                    dissect_japan_isup_redirect_fwd_inf(parameter_tvb, parameter_tree, parameter_item);
+					break;
                 case JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO:
                     dissect_japan_isup_carrier_information(parameter_tvb, parameter_tree, parameter_item);
                     break;
+				case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE:
+					dissect_japan_chg_inf_type(parameter_tvb, parameter_tree, parameter_item);
+					break;
+				case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF:
+					dissect_japan_chg_inf_param(parameter_tvb, parameter_tree, parameter_item);
+					break;
                 case JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT:
                     dissect_japan_isup_add_user_cat(parameter_tvb, parameter_tree, parameter_item);
                     break;
@@ -7927,7 +8180,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_in
             dissect_isup_backward_gvns_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_REDIRECT_CAPAB:
-            dissect_isup_redirect_capability_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_redirect_capability_parameter(parameter_tvb, parameter_tree, parameter_item, itu_isup_variant);
             break;
           case PARAM_TYPE_NETW_MGMT_CTRL:
             dissect_isup_network_management_controls_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -10992,6 +11245,32 @@ proto_register_isup(void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     /* Japan ISUP */
+    { &hf_japan_isup_redirect_capability,
+      {"Redirect possible indicator",  "isup.jpn.redirect_capability",
+       FT_UINT8, BASE_DEC, VALS(isup_jpn_redirect_capabilit_vals), 0x07,
+       NULL, HFILL }},
+
+    { &hf_japan_isup_rfi_info_type,
+      {"Information Type Tag",  "isup.rfi.info_type",
+       FT_UINT8, BASE_DEC, VALS(isup_rfi_info_type_values), 0x0,
+       NULL, HFILL }},
+    { &hf_japan_isup_rfi_info_len,
+      {"Length",  "isup.rfi.info_len",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }},
+    { &hf_japan_isup_perf_redir_reason,
+      {"Performing redirect reason",  "isup.rfi.perf_redir_reason",
+       FT_UINT8, BASE_DEC, VALS(perf_redir_reason_vals), 0x7f,
+       NULL, HFILL }},
+    { &hf_japan_isup_redir_pos_ind,
+      {"Redirect possible indicator at performing exchange",  "isup.rfi.redir_pos_ind",
+       FT_UINT8, BASE_DEC, VALS(redir_pos_ind_vals), 0x07,
+       NULL, HFILL }},
+    /* Value string values the same as perf_redir_reason_vals */ 
+    { &hf_japan_isup_inv_redir_reason,
+      {"Invoking redirect reason",  "isup.rfi.inv_redir_reason",
+       FT_UINT8, BASE_DEC, VALS(perf_redir_reason_vals), 0x7f,
+       NULL, HFILL }},
 
     /* CHARGE AREA INFORMATION */
 
