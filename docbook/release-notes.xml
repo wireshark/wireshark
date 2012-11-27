@@ -44,10 +44,188 @@ Wireshark Info
             <!-- Fixed in trunk: r45511, r45674 -->
             <!-- Fixed in trunk-1.8: r? -->
             <!-- Fixed in trunk-1.6: r? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=X">Bug
-            X</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.3.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-31.html">wnpa-sec-2012-31</ulink>
+          </para>
+          <para>
+	    The USB dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r45310, r45339 -->
+            <!-- Fixed in trunk-1.8: r45837 -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7787">Bug
+            7787</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-32.html">wnpa-sec-2012-32</ulink>
+          </para>
+          <para>
+	    The sFlow dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r45324, r45329 -->
+            <!-- Fixed in trunk-1.8: r45578 -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7789">Bug
+            7789</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-32.html">wnpa-sec-2012-32</ulink>
+          </para>
+          <para>
+	    The 3GPP2 A11 dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r45337, r45338 -->
+            <!-- Fixed in trunk-1.8: r45578 -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7801">Bug
+            7801</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-33.html">wnpa-sec-2012-33</ulink>
+          </para>
+          <para>
+	    The SCTP dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r45355 -->
+            <!-- Fixed in trunk-1.8: r45578 -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7802">Bug
+            7802</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-34.html">wnpa-sec-2012-34</ulink>
+          </para>
+          <para>
+	    The EIGRP dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r45408 -->
+            <!-- Fixed in trunk-1.8: r45579 -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7800">Bug
+            7800</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-34.html">wnpa-sec-2012-34</ulink>
+          </para>
+          <para>
+	    The ICMPv6 dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r45459 -->
+            <!-- Fixed in trunk-1.8: r45460 -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7844">Bug
+            7844</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-35.html">wnpa-sec-2012-35</ulink>
+          </para>
+          <para>
+	    The ISAKMP dissector could crash.
+            <!-- Fixed in trunk: r45510 -->
+            <!-- Fixed in trunk-1.8: r45580 -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7855">Bug
+            7855</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-36.html">wnpa-sec-2012-36</ulink>
+          </para>
+          <para>
+	    The iSCSI dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r45524, r45548 -->
+            <!-- Fixed in trunk-1.8: r45549 -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7858">Bug
+            7858</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-37.html">wnpa-sec-2012-37</ulink>
+          </para>
+          <para>
+	    The WTP dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r45614 -->
+            <!-- Fixed in trunk-1.8: r45837 -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7869">Bug
+            7869</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-38.html">wnpa-sec-2012-38</ulink>
+          </para>
+          <para>
+	    The RTCP dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r45717 -->
+            <!-- Fixed in trunk-1.8: r45837 -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7879">Bug
+            7879</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
           </para>
@@ -74,15 +252,135 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Menu and Title bars inaccessible using GTK2 (non-legacy) with two monitors.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
+          553</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          802.11 Probe Response fails to parse.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1284">Bug
+          1284</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Tshark - decimal symbol.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2880">Bug
+          2880</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Malformed tpncp.dat file can crash Wireshark.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6665">Bug
           6665</ulink>)
         </para></listitem>
 
         <listitem><para>
+          SSL decryption not work even with example capture file and key.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6869">Bug
+          6869</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Info line is incorrect on SIP message containing another SIP message in body.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7780">Bug
+          7780</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          OOPS: dissector table &quot;sctp.ppi&quot; doesn't exist  Protocol being registered is &quot;Datagram Transport Layer Security&quot;.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7784">Bug
+          7784</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Dissection of IEEE 802.11 Channel Switch Announcement element fails.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7797">Bug
+          7797</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Invalid memory accesses when loading RADIUS captures.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7803">Bug
+          7803</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ISUP CIC should have format BASE_DEC, not BASE_HEX.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7848">Bug
+          7848</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          We don't handle pcap-ng files with IDBs that come after packet blocks.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7851">Bug
+          7851</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          '*' wildcard in the 'Src IP' or 'Dest IP' field of the ESP SA dialog does not work.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7866">Bug
+          7866</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          nas_eps dissector does not decode some esm message.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7912">Bug
+          7912</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          WLAN decryption status not updated after updating WEP/WPA keys.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7921">Bug
+          7921</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IPv6 Option Pad1 Incorrect dissection.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7938">Bug
+          7938</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Print GNUTLS error message if PEM import fails.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7948">Bug
+          7948</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          GSM classmark3 8-PSK decode error.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7964">Bug
+          7964</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Parsing the Server Name Indication extension in SSL/TLS traffic reads some fields incorrectly.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7967">Bug
           7967</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Lua code crashes wireshark after update to 1.8.3.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7976">Bug
+          7976</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          2 bugs in Ran-Information-Error Rim Container.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8000">Bug
+          8000</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Misspelling (typo) in IPv6 display filter field name.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8006">Bug
+          8006</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Two BSSGP dissector bugs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8008">Bug
+          8008</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -117,7 +415,31 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-SSL/TLS
+3GPP2 A11,
+BSSGP,
+EIGRP,
+FMP/NOTIFY,
+GSM A,
+ICMP,
+ICMPv6,
+IEEE 802.11,
+IPsec,
+IPv6,
+ISAKMP,
+iSCSI,
+LTE RRC,
+NAS EPS,
+NDPS,
+Prism,
+RADIUS,
+RRC,
+RTCP,
+SCTP,
+sFlow,
+SIP,
+SMB2,
+SSL/TLS,
+USB
 
     </para>
     </section>
@@ -125,7 +447,7 @@ SSL/TLS
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-
+CommView NCF, iSeries, pcap-ng.
 
     </para>
     </section>
