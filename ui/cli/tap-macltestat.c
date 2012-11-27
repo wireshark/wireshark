@@ -49,6 +49,7 @@ enum {
     DL_FRAMES_COLUMN,
     DL_BYTES_COLUMN,
     DL_BW_COLUMN,
+    DL_PADDING_PERCENT_COLUMN,
     DL_CRC_FAILED_COLUMN,
     DL_CRC_HIGH_CODE_RATE_COLUMN,
     DL_CRC_PDSCH_LOST_COLUMN,
@@ -60,7 +61,7 @@ enum {
 
 static const gchar *ue_titles[] = { " RNTI", "  Type", "UEId",
                                     "UL Frames", "UL Bytes", "UL Mb/sec", " UL Pad %", "UL ReTX",
-                                    "DL Frames", "DL Bytes", "DL Mb/sec", "DL CRC Fail", "DL CRC HCR", "DL CRC PDSCH Lost", "DL CRC DupNonZeroRV", "DL ReTX"};
+                                    "DL Frames", "DL Bytes", "DL Mb/sec", " DL Pad %", "DL CRC Fail", "DL CRC HCR", "DL CRC PDSCH Lost", "DL CRC DupNonZeroRV", "DL ReTX"};
 
 
 /* Stats for one UE */
@@ -82,9 +83,12 @@ typedef struct mac_lte_row_data {
     guint32  UL_retx_frames;
 
     guint32  DL_frames;
+    guint32  DL_raw_bytes;   /* all bytes */
     guint32  DL_total_bytes;
     nstime_t DL_time_start;
     nstime_t DL_time_stop;
+    guint32  DL_padding_bytes;
+
     guint32  DL_CRC_failures;
     guint32  DL_CRC_high_code_rate;
     guint32  DL_CRC_PDSCH_lost;
@@ -179,7 +183,11 @@ static mac_lte_ep_t* alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *
     ep->stats.UL_total_bytes = 0;
     ep->stats.UL_raw_bytes = 0;
     ep->stats.UL_padding_bytes = 0;
+
     ep->stats.DL_total_bytes = 0;
+    ep->stats.DL_raw_bytes = 0;
+    ep->stats.DL_padding_bytes = 0;
+
     ep->stats.UL_CRC_errors = 0;
     ep->stats.DL_CRC_failures = 0;
     ep->stats.DL_CRC_high_code_rate = 0;
@@ -377,6 +385,9 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
         te->stats.DL_frames++;
 
+        te->stats.DL_raw_bytes += si->raw_length;
+        te->stats.DL_padding_bytes += si->padding_bytes;
+
         if (si->isPredefinedData) {
             te->stats.DL_total_bytes += si->single_number_of_bytes;
         }
@@ -464,7 +475,7 @@ mac_lte_stat_draw(void *phs)
                                    &tmp->stats.DL_time_stop,
                                    tmp->stats.DL_total_bytes);
 
-        printf("%5u %7s %5u %10u %9u %10f %10f %8u %10u %9u %10f %12u %11u %18u %20u %8u\n",
+        printf("%5u %7s %5u %10u %9u %10f %10f %8u %10u %9u %10f %10f %12u %11u %18u %20u %8u\n",
                tmp->stats.rnti,
                (tmp->stats.rnti_type == C_RNTI) ? "C-RNTI" : "SPS-RNTI",
                tmp->stats.ueid,
@@ -478,6 +489,9 @@ mac_lte_stat_draw(void *phs)
                tmp->stats.DL_frames,
                tmp->stats.DL_total_bytes,
                DL_bw,
+               tmp->stats.DL_raw_bytes ?
+                                    (((float)tmp->stats.DL_padding_bytes / (float)tmp->stats.DL_raw_bytes) * 100.0) :
+                                    0.0,
                tmp->stats.DL_CRC_failures,
                tmp->stats.DL_CRC_high_code_rate,
                tmp->stats.DL_CRC_PDSCH_lost,
