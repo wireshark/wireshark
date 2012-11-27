@@ -42,9 +42,27 @@ Wireshark Info
 	    The USB dissector could go into an infinite loop.
             <!-- Fixed in trunk: r45310, r45339 -->
             <!-- Fixed in trunk-1.8: r45837 -->
-            <!-- Fixed in trunk-1.6: r46225, r46226 -->
+            <!-- Fixed in trunk-1.6: r46225, r46227 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7787">Bug
             7787</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-35.html">wnpa-sec-2012-35</ulink>
+          </para>
+          <para>
+	    The ISAKMP dissector could crash.
+            <!-- Fixed in trunk: r45510 -->
+            <!-- Fixed in trunk-1.8: r45580 -->
+            <!-- Fixed in trunk-1.6: r46628 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7855">Bug
+            7855</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
           <para>
@@ -103,6 +121,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+ISAKMP,
 USB,
 
     </para>
