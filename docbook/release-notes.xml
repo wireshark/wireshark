@@ -131,9 +131,39 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Menu and Title bars inaccessible using GTK2 (non-legacy) with two monitors.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
+          553</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          SMB 2.x Read Request parsing is wrong starting at Channel.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7790">Bug
+          7790</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Dissection of IEEE 802.11 Channel Switch Announcement element fails.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7797">Bug
+          7797</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Invalid memory accesses when loading radius captures.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7803">Bug
           7803</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Error in AUXILIARY SECURITY HEADER Parsing for 802.15.4 in dissect_ieee802154_common function.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7864">Bug
+          7864</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          When cancelling creation of new coloring rule, old one is deleted.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7913">Bug
+          7913</ulink>)
         </para></listitem>
 
      </itemizedlist>
@@ -162,9 +192,12 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+IEEE 802.11,
+IEEE 802.15.4,
 ISAKMP,
 RADIUS,
 RTCP,
+SMB2,
 USB,
 WTP
 
