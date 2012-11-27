@@ -130,6 +130,11 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Invalid memory accesses when loading radius captures.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7803">Bug
+          7803</ulink>)
+        </para></listitem>
 
      </itemizedlist>
 
@@ -158,6 +163,7 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 ISAKMP,
+RADIUS,
 RTCP,
 USB,
 WTP
