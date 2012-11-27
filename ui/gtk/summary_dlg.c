@@ -37,6 +37,7 @@
 #include "../file.h"
 #include "../summary.h"
 #include "../capture-pcap-util.h"
+#include "../version_info.h"
 #ifdef HAVE_LIBPCAP
 #include "../capture.h"
 #include "ui/capture_globals.h"
@@ -669,6 +670,8 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   gchar *buf_str;
   unsigned int  i;
   unsigned int  elapsed_time;
+  iface_options iface;
+  double seconds;
 
   /* initial computations */
   summary_fill_in(&cfile, &summary);
@@ -676,7 +679,9 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   summary_fill_in_capture(&cfile, &global_capture_opts, &summary);
 #endif
 
-  /* Add Wireshark version here? TODO */
+  /* Add Wireshark version*/
+  g_snprintf(string_buff, SUM_STR_MAX, "Summary created by Wireshark %s\n\n", wireshark_svnversion);
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
   /* Info about file */
   g_snprintf(string_buff, SUM_STR_MAX, "File: \n");
@@ -759,6 +764,132 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
   g_snprintf(string_buff, SUM_STR_MAX, "Capture:\n");
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  if(summary.shb_hardware){
+    /* truncate the string to a reasonable length */
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "Capture HW: %s\n",summary.shb_hardware);
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+  }
+  if(summary.shb_os){
+    /* truncate the strings to a reasonable length */
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "OS: %s\n",summary.shb_os);
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+  }
+  if(summary.shb_user_appl){
+    /* truncate the string to a reasonable length */
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "Capture application: %s\n",summary.shb_user_appl);
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+  }
+
+  /* Add empty line */
+  g_snprintf(string_buff, SUM_STR_MAX, "\n");
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  /* Interface info */
+  for (i = 0; i < summary.ifaces->len; i++) {
+    iface = g_array_index(summary.ifaces, iface_options, i);
+    /* interface */
+    if (iface.descr) {
+      g_snprintf(string_buff, SUM_STR_MAX, INDENT "%s:\n", iface.descr);
+    } else if (iface.name) {
+      g_snprintf(string_buff, SUM_STR_MAX, INDENT "%s:\n", iface.name);
+    } else {
+      g_snprintf(string_buff, SUM_STR_MAX, INDENT "Unknown interface:\n");
+    }
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+    /* Dropped count */
+    if (iface.drops_known) {
+      g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Dropped packets: %" G_GINT64_MODIFIER "u (%.3f%%)\n",
+                 iface.drops, summary.packet_count ? (100.0 * iface.drops)/summary.packet_count : 0.0);
+    } else {
+      g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Dropped packets: unknown\n");
+    }
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+	/* Capture filter */
+    if (iface.cfilter && iface.cfilter[0] != '\0') {
+      g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Capture filter: %s\n", iface.cfilter);
+    } else {
+      if (iface.name) {
+        g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Capture filter: none\n");
+      } else {
+        g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Capture filter: unknown\n");
+      }
+    }
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+	g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Link type: %s\n", wtap_encap_string(iface.encap_type));
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+	g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Packet size limit %u bytes\n", iface.snap);
+	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  }
+
+  /* Add empty line */
+  g_snprintf(string_buff, SUM_STR_MAX, "\n");
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  /* Statistics */
+  g_snprintf(string_buff, SUM_STR_MAX, "Statistics:\n");
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  /* Packet count */
+  g_snprintf(cap_buf, SUM_STR_MAX, INDENT "Packets: %i\n", summary.packet_count);
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  /*
+   * Note: the start and stop times are initialized to 0, so if we
+   * have zero or one packets of the type in question that have
+   * time stamps, the elapsed times will be zero, just as if we
+   * have both start and stop time stamps but they're the same.
+   * That means we can avoid some checks for whether we have more
+   * than one packet of the type in question with time stamps.
+   */
+  seconds = summary.stop_time - summary.start_time;
+  /* Time between first and last */
+  if (seconds > 0) {
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "Between first and last packet:%.3f sec\n", seconds);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+  }
+
+  /* Average packets per second */
+  if (seconds > 0) {
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "Avg. packets/sec: %.3f\n", summary.packet_count/seconds);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+  }
+
+  /* Average packet size */
+  if (summary.packet_count > 1) {
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "Avg packet size: %.3f bytes\n",
+               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+               (float) ((gint64) summary.bytes)/summary.packet_count);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+  }
+
+  /* Byte count */
+  g_snprintf(string_buff, SUM_STR_MAX, INDENT "Bytes: %" G_GINT64_MODIFIER "u\n", summary.bytes);
+  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+
+  /* Bytes per second */
+  if (seconds > 0){
+    /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "Avg bytes/sec: %.3f\n", ((gint64) summary.bytes)/seconds);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+  }
+
+  /* MBit per second */
+  if (seconds > 0) {
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT "Avg Mbit/sec: %.3f\n",
+               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+               ((gint64) summary.bytes) * 8.0 / (seconds * 1000.0 * 1000.0));
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+  }
+
+  /* Add empty line */
+  g_snprintf(string_buff, SUM_STR_MAX, "\n");
   gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
   /* Trace file comments from SHB */
