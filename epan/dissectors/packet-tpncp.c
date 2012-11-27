@@ -38,6 +38,7 @@
 
 #include <wsutil/file_util.h>
 
+#include <epan/exceptions.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
@@ -375,7 +376,8 @@ static gint fill_tpncp_id_vals(value_string string[], FILE *file) {
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 static gint fill_enums_id_vals(FILE *file) {
-    gint i = 0, enum_id = 0, enum_val = 0, first_entry = 1;
+    gint i = 0, enum_id = 0, enum_val = 0;
+    gboolean first_entry = TRUE;
     gchar *line_in_file = NULL, *enum_name = NULL,
            *enum_type = NULL, *enum_str = NULL;
 
@@ -405,7 +407,7 @@ static gint fill_enums_id_vals(FILE *file) {
                     }
                 }
                 else
-                    first_entry = 0;
+                    first_entry = FALSE;
                 tpncp_enums_name_vals[enum_val] = g_strdup(enum_name);
                 g_strlcpy(enum_type, enum_name, MAX_TPNCP_DB_ENTRY_LEN);
             }
@@ -418,6 +420,16 @@ static gint fill_enums_id_vals(FILE *file) {
                 break;
             }
         }
+    }
+    /* make sure the last entry in the array is null but
+     * don't overflow if we've filled the entire thing (in which case
+     * we have to drop an entry) */
+    if (enum_val + 1 >= MAX_ENUMS_NUM) {
+        g_free(tpncp_enums_name_vals[enum_val]);
+        tpncp_enums_name_vals[enum_val] = NULL;
+    }
+    else {
+        tpncp_enums_name_vals[enum_val+1] = NULL;
     }
 
     return 0;
@@ -759,13 +771,26 @@ void proto_register_tpncp(void) {
     proto_tpncp = proto_register_protocol("AudioCodes TPNCP (TrunkPack Network Control Protocol)",
                                           "TPNCP", "tpncp");
 
-    /*
-     * The function proto_register_field_array can not work with dynamic arrays,
-     * so passing dynamic array elements one-by-one in the loop.
+    /* Rather than duplicating large quantities of code from
+     * proto_register_field_array() and friends to sanitize the tpncp.dat file
+     * when we read it, just catch any exceptions we get while registering and
+     * take them as a hint that the file is corrupt. Then move on, so that at
+     * least the rest of the protocol dissectors will still work.
      */
-    for(idx = 0; idx < hf_size; idx++) {
-        proto_register_field_array(proto_tpncp, &hf[idx], 1);
+    TRY {
+        /* The function proto_register_field_array does not work with dynamic
+         * arrays, so pass dynamic array elements one-by-one in the loop.
+         */
+        for(idx = 0; idx < hf_size; idx++) {
+            proto_register_field_array(proto_tpncp, &hf[idx], 1);
+        }
     }
+
+    CATCH_ALL {
+        g_warning("Corrupt tpncp.dat file, tpncp dissector will not work.");
+    }
+
+    ENDTRY;
 
     proto_register_subtree_array(ett, array_length(ett));
 

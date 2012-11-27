@@ -137,6 +137,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Corrupted tpncp.dat file that crashes Wireshark.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6665">Bug
+          6665</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           SMB 2.x Read Request parsing is wrong starting at Channel.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7790">Bug
           7790</ulink>)
@@ -198,6 +204,7 @@ ISAKMP,
 RADIUS,
 RTCP,
 SMB2,
+TPNCP,
 USB,
 WTP
 
