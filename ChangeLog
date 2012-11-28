@@ -1,16 +1,1166 @@
 ------------------------------------------------------------------------
-r45262 | gerald | 2012-10-02 12:45:24 -0700 (Tue, 02 Oct 2012) | 2 lines
+r45263 | gerald | 2012-10-02 12:45:57 -0700 (Tue, 02 Oct 2012) | 2 lines
 Changed paths:
-   M /trunk-1.8/config.nmake
-   M /trunk-1.8/configure.in
-   M /trunk-1.8/debian/changelog
-   M /trunk-1.8/debian/wireshark-common.files
-   M /trunk-1.8/docbook/release-notes.xml
-   M /trunk-1.8/epan/Makefile.am
-   M /trunk-1.8/make-version.pl
-   M /trunk-1.8/version.conf
-   M /trunk-1.8/wiretap/Makefile.am
+   M /trunk-1.8/ChangeLog
 
-1.8.3 → 1.8.4.
+Update for 1.8.4.
+
+------------------------------------------------------------------------
+r45319 | gerald | 2012-10-04 12:26:34 -0700 (Thu, 04 Oct 2012) | 3 lines
+Changed paths:
+   M /trunk-1.8/Makefile.am
+
+Add a "patch-bzip2" target which creates a patch from the previous micro
+release.
+
+------------------------------------------------------------------------
+r45327 | gerald | 2012-10-04 15:51:12 -0700 (Thu, 04 Oct 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/Makefile.am
+
+Remove the previous distribution file.
+------------------------------------------------------------------------
+r45348 | jake | 2012-10-06 09:21:36 -0700 (Sat, 06 Oct 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/epan/emem.c
+   M /trunk-1.8/epan/emem.h
+
+------------------------------------------------------------------------
+r45340 | jake | 2012-10-06 16:35:59 +0200 (Sat, 06 Oct 2012) | 2 lines
+
+Vastly improve the debug presentation( of trees)+. 
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r45365 | gerald | 2012-10-07 07:33:51 -0700 (Sun, 07 Oct 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-10-07]
+------------------------------------------------------------------------
+r45409 | etxrab | 2012-10-08 14:10:26 -0700 (Mon, 08 Oct 2012) | 19 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-dtls.c
+
+Copy:
+--------------------------------------------------------------------------------
+Revision 44438 - Use val_to_str_const() where appropriate;
+Also (for a few files):
+- create/use some extended value strings;
+- remove unneeded #include files;
+- remove unneeded variable initialization;
+- re-order fcns slightly so prefs_reg_handoff...() at end, etc
+Revision 44515 - (view) (download) - [select for diffs] 
+Modified Wed Aug 15 13:56:59 2012 UTC (7 weeks, 5 days ago) by mmann 
+File length: 97575 byte(s) 
+Diff to previous 44511 
+convert GStrings to more "ephemeral friendly" use.
+
+--------------------------------------------------------------------------------
+Revision 44511 - Move registration to a better place.
+--------------------------------------------------------------------------------
+Revision 45081 - Move potential dereference until *after* the null-check.
+Caught by cppcheck.
+------------------------------------------------------------------------
+r45410 | etxrab | 2012-10-08 14:22:24 -0700 (Mon, 08 Oct 2012) | 17 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-usb.c
+
+Copy over:
+Revision 45339 - Fix error caught by valgrind where we were running off the end of a
+variable because we were passing the address of a single guint8 as a
+char*. Work around it by making the guint8 an array and filling the last
+element with 0 as if it were a null-terminated string.
+
+
+--------------------------------------------------------------------------------
+Revision 45310 - try to fix usb-related fuzz test crashes
+
+in dissect_usb_interface_descriptor() and
+dissect_usb_endpoint_descriptor, the offset should be incremented
+depending on the number of bytes we dissected, not based on the len
+field (len field==0 would then cause an endless loop)
+
+also fixed one occurrence of old_offset-offset, that's probably a typo,
+the values will always be negative...
+------------------------------------------------------------------------
+r45442 | etxrab | 2012-10-10 00:34:02 -0700 (Wed, 10 Oct 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-sip.c
+
+Copy over:
+Revision 43841 - Pass in proper offset to dfilter_sip_status_line(). Was seeing problems
+with 180 + 200 responses in same frame (over TCP).
+-----------------------------------------------------------------------------------------
+Revision 45429 - Set fence after finishing writing to the info col in order to show
+info from more than one (SIP) message in the frame.
+-----------------------------------------------------------------------------------------
+------------------------------------------------------------------------
+r45443 | etxrab | 2012-10-10 00:50:18 -0700 (Wed, 10 Oct 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/gui_utils.c
+
+Copy over:
+--------------------------------------------------------------------------------
+Revision 45370 - This is an attempt to improve the default window placement position when there's more than one monitor and Wireshark's main window isn't located on the primary monitor.  New windows will now open on the same monitor as Wireshark's main window, at a fixed location slightly offset from the main window.  Previously, new windows would always open on the primary monitor regardless of the monitor that Wireshark was on.  Note that this is only the default position and future patches will likely cause many windows to change this position.  Further usage/feedback will determine if this is a good temporary stategy or not.  It *may* help obviate the need to save every window's x,y & size though.
+--------------------------------------------------------------------------------
+Revision 45331 - A minor modification to Stephen Fisher's r34265 patch to [attempt to] resolve bug 553.  This change takes into account that viewable_area.[x|y] may not be 0,0.  Will this finally fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553 ?Unknown, but I am unable to reproduce it.
+--------------------------------------------------------------------------------
+Revision 45212 - Revert most of r45210. We don't use the return value of GetExitCodeProcess(), but it still needs to be called to get childstatus.
+--------------------------------------------------------------------------------
+Revision 45210 - Don't fetch the exit code of our child process, we never use it.
+--------------------------------------------------------------------------------
+------------------------------------------------------------------------
+r45460 | guy | 2012-10-10 19:01:52 -0700 (Wed, 10 Oct 2012) | 17 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-icmpv6.c
+
+Copy over r45459 from trunk:
+
+  r45459 | guy | 2012-10-10 17:02:14 -0700 (Wed, 10 Oct 2012) | 13 lines
+
+  The usual idiom in C for "do this N times" is "for (i = 0; i < N; i++)",
+  not "for (i = 1; i < N+1; i++)".
+
+  Even if it weren't the idiom, it'd be safer, at least for unsigned
+  values, as, if i and N are the same width, and N has the maximum
+  possible value for that width, the first of those runs i from 0 to N-1,
+  all of which fit in a variable of that width, and the second of those
+  runs i from 1 to N, the latter of which doesn't fit into a variable of
+  that width, so modulo arithmetic turns it into 0 and the loop keeps
+  running forever.
+
+  Fixes bug 7844.
+
+------------------------------------------------------------------------
+r45467 | guy | 2012-10-11 01:31:58 -0700 (Thu, 11 Oct 2012) | 18 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-isup.c
+
+Copy over changes from trunk:
+
+  ------------------------------------------------------------------------
+  r45464 | guy | 2012-10-11 01:23:29 -0700 (Thu, 11 Oct 2012) | 4 lines
+
+  hf_isup_cic is now BASE_DEC, so there's no reason to use
+  proto_tree_add_uint_format() to make it display in decimal -
+  proto_tree_add_uint() suffices.
+  ------------------------------------------------------------------------
+  r45463 | etxrab | 2012-10-11 01:12:41 -0700 (Thu, 11 Oct 2012) | 4 lines
+
+  "Prepare/Apply a filter" on ISUP CIC should make a filter with decimal
+  CIC number, not hex.
+
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7848
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r45482 | wmeier | 2012-10-11 13:37:39 -0700 (Thu, 11 Oct 2012) | 17 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ndps.c
+
+copy over changes from trunk
+
+------------------------------------------------------------------------
+r45476 | wmeier | 2012-10-11 15:14:29 -0400 (Thu, 11 Oct 2012) | 12 lines
+
+Change 'for (i=1; i<=n;...' to 'for (i=0; i<n; ...)'.
+
+The changes fix possibly problematical cases
+ (not clear upon quick inspection).
+
+Also: fix several bugs wherein an inner 'for' loop used
+the same index variable name as an outer loop thus
+messing up the outerloop.
+
+##backport
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r45484 | wmeier | 2012-10-11 13:45:24 -0700 (Thu, 11 Oct 2012) | 18 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-dmp.c
+   M /trunk-1.8/epan/dissectors/packet-dua.c
+   M /trunk-1.8/epan/dissectors/packet-fmp.c
+   M /trunk-1.8/epan/dissectors/packet-fmp_notify.c
+   M /trunk-1.8/epan/dissectors/packet-icmpv6.c
+   M /trunk-1.8/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.8/epan/dissectors/packet-m3ua.c
+   M /trunk-1.8/epan/dissectors/packet-mongo.c
+   M /trunk-1.8/epan/dissectors/packet-ptp.c
+   M /trunk-1.8/epan/dissectors/packet-spice.c
+   M /trunk-1.8/epan/dissectors/packet-ua3g.c
+   M /trunk-1.8/epan/dissectors/packet-vnc.c
+
+Copy over changes from trunk
+
+------------------------------------------------------------------------
+r45477 | wmeier | 2012-10-11 15:20:21 -0400 (Thu, 11 Oct 2012) | 11 lines
+
+Change 'for (i=1; i<=n;...' to 'for (i=0; i<n; ...)
+
+The changes fix definite problems or
+are done "just in case" for cases not esily determined
+to be a problem by quick inspection.
+
+Note: in some cases for loop index variables have been renamed
+      to ensure  all required codes changes detected.
+
+##backport
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r45487 | wmeier | 2012-10-11 14:05:03 -0700 (Thu, 11 Oct 2012) | 9 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ndps.c
+
+Copy over from trunk
+
+------------------------------------------------------------------------
+r45486 | wmeier | 2012-10-11 17:01:51 -0400 (Thu, 11 Oct 2012) | 2 lines
+
+Correction to SVN #45476
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r45496 | guy | 2012-10-11 20:56:58 -0700 (Thu, 11 Oct 2012) | 18 lines
+Changed paths:
+   M /trunk-1.8/wiretap/pcapng.c
+
+Copy over r45495 from trunk:
+
+  ------------------------------------------------------------------------
+  r45495 | guy | 2012-10-11 20:55:10 -0700 (Thu, 11 Oct 2012) | 13 lines
+
+  If we see an SHB after we've read the first SHB, report that as an
+  unsupported feature.
+
+  If we see an IDB after all the IDBs at the beginning of the file,
+  process it.  Fixes bug 7851.
+
+  Get rid of unused read_idbs flag in pcapng_t structure.  (Also, as per
+  the above, just because we've read all the IDBs at the beginning of the
+  section, that doesn't necessarily mean we've read all the IDBs in the
+  section.)
+
+  Fix some places where we reject SPBs.
+
+------------------------------------------------------------------------
+r45501 | wmeier | 2012-10-12 12:34:15 -0700 (Fri, 12 Oct 2012) | 9 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-fmp_notify.c
+
+Copy over from trunk:
+
+------------------------------------------------------------------------
+r45500 | wmeier | 2012-10-12 14:31:31 -0400 (Fri, 12 Oct 2012) | 2 lines
+
+Fix (what appears to be) a minor "off by one" bug in 'for' loop.
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r45505 | guy | 2012-10-12 13:52:02 -0700 (Fri, 12 Oct 2012) | 17 lines
+Changed paths:
+   M /trunk-1.8/wiretap/commview.c
+
+Copy over r45504 from trunk:
+
+  ------------------------------------------------------------------------
+  r45504 | guy | 2012-10-12 13:51:04 -0700 (Fri, 12 Oct 2012) | 14 lines
+
+  The "rate" field in the CommView NCF format is 1 byte long, not 2 bytes
+  long; that means we read only one byte into our structure, so make its
+  "rate" element one byte long, so we don't fill in half the "rate"
+  element with the read - and the *wrong* half on big-endian machines -
+  and leave the other half un-set and thus containing some random possibly
+  non-zero data.
+
+  In addition, that's not the full data rate for faster networks; for
+  Wi-Fi, the one-byte "direction" field is actually the upper 8 bits of
+  the data rate, so combine them when we fill in the data rate in the
+  pseudo-header.
+
+------------------------------------------------------------------------
+r45508 | guy | 2012-10-12 14:00:51 -0700 (Fri, 12 Oct 2012) | 9 lines
+Changed paths:
+   M /trunk-1.8/wiretap/commview.c
+
+Copy over r45507 from trunk:
+
+  ------------------------------------------------------------------------
+  r45507 | guy | 2012-10-12 13:59:08 -0700 (Fri, 12 Oct 2012) | 4 lines
+
+  And that also means that we need to split the data rate from the
+  pseudo-header into two bytes and fill in both the rate and direction
+  fields when writing CommView NCF files out.
+
+------------------------------------------------------------------------
+r45526 | guy | 2012-10-13 15:23:12 -0700 (Sat, 13 Oct 2012) | 11 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-icmp.c
+
+Copy over r45525 from trunk with manual intervention:
+
+  ------------------------------------------------------------------------
+  r45525 | guy | 2012-10-13 15:20:34 -0700 (Sat, 13 Oct 2012) | 6 lines
+
+  The Interface Name field of the Interface Name sub-object of the
+  Interface Information object for ICMP is *NOT* null-terminated.  Use
+  tvb_format_text() for now, to properly null-terminate the display string
+  and to cope with non-ASCII data.  (It should ultimately be a named field
+  with an encoding of UTF-8.)
+
+------------------------------------------------------------------------
+r45528 | guy | 2012-10-13 19:36:22 -0700 (Sat, 13 Oct 2012) | 17 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-6lowpan.c
+
+Copy over r45527 from trunk:
+
+  ------------------------------------------------------------------------
+  r45527 | guy | 2012-10-13 19:33:26 -0700 (Sat, 13 Oct 2012) | 12 lines
+
+  *Always* create a new data source when we decompress an IPv6 header.
+
+  Label the data sources for them as "6LoWPAN xxx", where "xxx" is the
+  type of compression, and label the data sources for reassembled
+  fragments as "Reassembled 6LoWPAN".
+
+  Fix the capitalization of "6LoWPAN".
+
+  Note that if reassembly fails, continuing dissection is not the right
+  thing to do, at least not if it failed because we don't *yet* have all
+  the fragments.
+
+------------------------------------------------------------------------
+r45530 | guy | 2012-10-13 19:55:07 -0700 (Sat, 13 Oct 2012) | 15 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-6lowpan.c
+
+Copy over r45529 from trunk:
+
+  ------------------------------------------------------------------------
+  r45529 | guy | 2012-10-13 19:54:25 -0700 (Sat, 13 Oct 2012) | 10 lines
+
+  Some of the changes claimed to be in the previous checkin weren't there.
+
+  Label the data sources for reassembled fragments as "Reassembled
+  6LoWPAN". 
+
+  Fix the capitalization of "6LoWPAN".
+
+  Also, label the data sources for decompressed fragments as "Decompressed
+  6LoWPAN xxx".
+
+------------------------------------------------------------------------
+r45532 | gerald | 2012-10-14 07:34:18 -0700 (Sun, 14 Oct 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-10-14]
+------------------------------------------------------------------------
+r45546 | guy | 2012-10-14 15:40:43 -0700 (Sun, 14 Oct 2012) | 33 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ieee80211-prism.c
+
+Copy over r45545 from trunk:
+
+  ------------------------------------------------------------------------
+  r45545 | guy | 2012-10-14 15:38:58 -0700 (Sun, 14 Oct 2012) | 28 lines
+
+  According to
+
+	http://home.martin.cc/linux/prism
+
+  there's a set of DID type values different from the ones we were using,
+  and there are captures out there that use values from both sets. 
+  Support both sets.
+
+  That page also says that a "status" value of 0 means "supplied"; treat
+  zero as meaning "supplied", and, if it's not zero for a field, don't
+  include it.
+
+  The "Mac Time" is, according to that page, the lower 32 bits of the MAC
+  timestamp; report it as such.
+
+  Fix some field names that were copied-and-pasted but not changed.
+
+  The RSSI and signal quality values are numbers, so show them in decimal.
+
+  The "signal" and "noise" values appear to be signed numbers, so make
+  them signed rather than unsigned and show them in decimal.
+
+  Show the data rate in the same style as it's shown in the radiotap
+  dissector.
+
+  Show the frame length in decimal; we probably have relatively few users
+  with 16 fingers.
+
+------------------------------------------------------------------------
+r45549 | guy | 2012-10-14 15:55:51 -0700 (Sun, 14 Oct 2012) | 19 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-iscsi.c
+
+Copy over revisions from trunk:
+
+  ------------------------------------------------------------------------
+  r45548 | guy | 2012-10-14 15:53:25 -0700 (Sun, 14 Oct 2012) | 2 lines
+
+  Clean up the "round up to a multiple of 4" code a bit.
+
+  ------------------------------------------------------------------------
+  r45524 | eapache | 2012-10-13 15:12:52 -0700 (Sat, 13 Oct 2012) | 9 lines
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7858
+
+  Use a full 32-bit literal instead of just a 16-bit one. Fixes case where
+  the value we're &-ing with just slips over 2^16, making us get stuck
+  in an infinite loop.
+
+  I'm not sure this matches the iscsi spec anymore, the comment in the code
+  about padding bytes is ambiguous as to whether they're leading or trailing.
+
+------------------------------------------------------------------------
+r45560 | etxrab | 2012-10-15 09:03:10 -0700 (Mon, 15 Oct 2012) | 6 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ieee802154.c
+
+Copy over:
+Revision 45559 -From Rakesh Kumar:
+Error in AUXILIARY SECURITY HEADER Parsing for 802.15.4 in dissect_ieee802154_common function.
+Offset should be +8 not +4
+
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7864
+------------------------------------------------------------------------
+r45578 | etxrab | 2012-10-16 04:29:36 -0700 (Tue, 16 Oct 2012) | 39 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-3g-a11.c
+   M /trunk-1.8/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.8/epan/dissectors/packet-sctp.c
+   M /trunk-1.8/epan/dissectors/packet-sflow.c
+
+Copy over:
+--------------------------------------------------------------------------------
+Revision 45462 - Change 'for (i=1; i<=n;...' to 'for (i=0; i<n; ...)'
+
+Done on general principles altho none of the cases
+changed would have actually resulted in an infinite
+loop because a Bounds error would eventually occur.
+--------------------------------------------------------------------------------
+Revision 45355 - Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7802 :
+Avoid an infinite loop when number_of_dup_tsns is equal to 65535
+--------------------------------------------------------------------------------
+Revision 45338 - pinfo is now used
+--------------------------------------------------------------------------------
+Revision 45337 - Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7801 :
+Ensure that the sub-type length is at least 2 (for sub-type and length fields).
+Prevents an infinite loop when the length equals 0.
+--------------------------------------------------------------------------------
+Revision 45329 - The sFlow specification says there's an address type "unknown", with an
+address type value of 0, and with zero bytes of address; handle it
+explicitly, and don't treat it as an error.
+
+In the sFlow dissectors, do all the checks for "is this an sFlow
+packet?" *before* we do anything to the columns and the protocol tree.
+--------------------------------------------------------------------------------
+Revision 45324 - fix fuzz test failures in sflow
+in dissect_sflow_245_address_type(), don't reset the offset to 0 when
+the address family is unkown
+bring up an expert info instead and increment offset by the number of
+bytes processed
+--------------------------------------------------------------------------------
+Revision 45321 - From Sven Eckelmann:
+Fix dissection of IEEE 802.11 Channel Switch Announcement element.
+--------------------------------------------------------------------------------
+Revision 44559 - Use capture scoped memory for hash table functionality
+--------------------------------------------------------------------------------
+Revision 44438 - Use val_to_str_const() where appropriate;(...) - Done only for affected files for easier compare.
+--------------------------------------------------------------------------------
+Revision 43538 - Update FSF address - part II. - - Done only for affected files for easier compare.
+--------------------------------------------------------------------------------
+------------------------------------------------------------------------
+r45579 | etxrab | 2012-10-16 05:04:06 -0700 (Tue, 16 Oct 2012) | 39 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-eigrp.c
+   M /trunk-1.8/epan/radius_dict.l
+
+Copy over:
+Revision 45408 - fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7800
+
+use correct data types in eigrp dissector to prevent overflow
+
+--------------------------------------------------------------------------------
+
+Revision 45361 - Clean up properly when we can't find a radius $INCLUDE regardless of the
+state of errno. Don't treat it as a fatal parse error because it isn't,
+so we keep parsing the rest of the dictionaries even if one is missing.
+--------------------------------------------------------------------------------
+Revision 45360 - Don't destroy the in-memory radius dictionary if we hit a parse error:
+ - If it's something as simple as a missing $INCLUDE then we probably still want
+ whatever we could parse
+ - We weren't doing it consistently anyways
+ - There were a whole bunch of places where we were using it regardless of
+ whether or not the parse failed, leading to read-after-free errors.
+
+
+--------------------------------------------------------------------------------
+Revision 45359 - Clean up better if we can't open a radius dictionary included by another
+radius dictionary. One of many issues with the way we load radius
+dictionaries.
+
+Part of https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7803
+
+
+--------------------------------------------------------------------------------
+Revision 45354 - Work around bug 7803 by not freeing the old name value until after it's been
+replaced in the key-set of the hash table. This doesn't really provide proper
+behaviour, it just stops us from accessing freed memory.
+
+Also, add modelines.
+
+--------------------------------------------------------------------------------
+Revision 43681 - Don't call subdissectors / expert...() / col...() under 'if (tree)'
+Also:
+ Remove some uneeded initializers;
+ Do some whitespace cleanup and re-formatting.
+------------------------------------------------------------------------
+r45580 | etxrab | 2012-10-16 05:58:07 -0700 (Tue, 16 Oct 2012) | 18 lines
+Changed paths:
+   M /trunk-1.8/epan/addr_resolv.c
+   M /trunk-1.8/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.8/epan/dissectors/packet-isakmp.c
+   M /trunk-1.8/wiretap/pcapng.c
+
+Copy over:
+Revision 43157 - Fix some dead assignments.
+-------------------------------------------------------------------------------------------------
+Revision 44076 - Some more debug info.
+-------------------------------------------------------------------------------------------------
+Revision 45431 - From Mark Phillips via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7820
+wlan_mgt.ht.capabilities bits 8-15 incorrectly decoded (from wrong packet offset)
+
+The bug is that the code defines the bit fields as 16 bit, but increments the
+offset in-between decoding B0-B7 and B8-B15 which causes the wrong bits to be
+decoded.
+
+Also fix to change "Capability" to "Capabilities" to match spec
+
+From me : Fix wrong length for A-MPDU
+
+-------------------------------------------------------------------------------------------------
+Revision 45510 - Do not use private_data from caller dissector as IKEv2 decryption parameters
+------------------------------------------------------------------------
+r45586 | etxrab | 2012-10-16 07:42:25 -0700 (Tue, 16 Oct 2012) | 4 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ipsec.c
+
+Copy over:
+Revision 45585 - '*' wildcard in the 'Src IP' or 'Dest IP' field of the ESP SA dialog does not work
+
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7866
+------------------------------------------------------------------------
+r45610 | guy | 2012-10-16 18:28:56 -0700 (Tue, 16 Oct 2012) | 18 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ieee80211-prism.c
+
+Copy over r45609 from trunk:
+
+  ------------------------------------------------------------------------
+  r45609 | guy | 2012-10-16 18:23:13 -0700 (Tue, 16 Oct 2012) | 13 lines
+
+  The first 4 bytes of the Prism header are, apparently, a "message code",
+  and it apparently either has the value 0x00000044 or 0x00000041.  If
+  those bytes aren't the magic number for an AVS header and aren't one of
+  those "message code" values, assume there's no Prism header, just an
+  802.11 frame - that fixes at least one capture where some packets have
+  AVS radio headers and other packets have no radio header.
+
+  Note that this might also let us handle big-endian Prism headers (see
+  which byte order the message code is in, and assume everything else is
+  in the same byte order).
+
+  Display the message code in hex, not decimal.
+
+------------------------------------------------------------------------
+r45622 | guy | 2012-10-17 14:31:53 -0700 (Wed, 17 Oct 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/file.c
+
+Copy over r45620 from trunk:
+
+  ------------------------------------------------------------------------
+  r45620 | darkjames | 2012-10-17 14:11:58 -0700 (Wed, 17 Oct 2012) | 2 lines
+
+  Fix a copy/paste error
+
+------------------------------------------------------------------------
+r45623 | guy | 2012-10-17 14:37:31 -0700 (Wed, 17 Oct 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/file.c
+
+Copy over r45621 from trunk:
+
+  ------------------------------------------------------------------------
+  r45621 | darkjames | 2012-10-17 14:14:14 -0700 (Wed, 17 Oct 2012) | 2 lines
+
+  Only cap_len (not pkt_len) bytes of buffer are valid.
+
+------------------------------------------------------------------------
+r45628 | guy | 2012-10-17 22:23:03 -0700 (Wed, 17 Oct 2012) | 41 lines
+Changed paths:
+   M /trunk-1.8/wiretap/iseries.c
+
+Copy over revisions from trunk:
+
+  ------------------------------------------------------------------------
+  r45627 | guy | 2012-10-17 22:20:09 -0700 (Wed, 17 Oct 2012) | 9 lines
+
+  Handle the fractions-of-a-second part of the time stamp correctly. 
+  Extract it as a string, not a number, and determine the resolution based
+  on the length of the string, i.e. on the number of digits presented. 
+  (If you base it on the numerical value, leading zeroes will not be taken
+  into account, but they aren't any different from other digits when
+  determining the resolution.)  The resolution is 1/10^ndigits seconds, so
+  we have to multiply it by 10^(9-ndigits) to convert the number to
+  nanoseconds.
+
+  ------------------------------------------------------------------------
+  r45626 | guy | 2012-10-17 21:52:33 -0700 (Wed, 17 Oct 2012) | 24 lines
+
+  Redo the processing of lines in iSeries text packet dumps.
+
+  Process several different flavors of header lines the same: "IP Header",
+  "IPv6 Header", "ARP Header", "TCP Header", "UDP Header", "ICMP Header",
+  "ICMPv6 Hdr", "Option Hdr" - the hex data for all of them should be
+  included in the packet data.  Process continuation lines if those
+  headers wrap over more than one line.
+
+  Do not assume, or require, that *any* of those be present; there is no
+  guarantee that "IP Header" or "IPv6 Header" will be present (there's at
+  least one IBM page showing a packet with "ARP Header" in a trace), and
+  there is no guarantee that "TCP Header" will be present (there are
+  traces with "UDP Header" and "ICMPv6 Hdr").
+
+  Do not impose limits, other than the overall line limit, on the amount
+  of hex data in header or data lines; there is no guarantee that, for
+  example, a TCP header is 20 bytes long (if there are TCP options, it
+  *will* have more than 20 bytes).
+
+  Make sure we have an even number of hex digits.
+
+  Set "caplen" to the actual number of bytes we've read, even if that's
+  less than the purported packet length.
+
+------------------------------------------------------------------------
+r45676 | gerald | 2012-10-21 07:33:53 -0700 (Sun, 21 Oct 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-10-21]
+------------------------------------------------------------------------
+r45816 | gerald | 2012-10-28 07:33:58 -0700 (Sun, 28 Oct 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-10-28]
+------------------------------------------------------------------------
+r45837 | etxrab | 2012-10-30 09:02:51 -0700 (Tue, 30 Oct 2012) | 39 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.8/epan/dissectors/packet-nas_eps.c
+   M /trunk-1.8/epan/dissectors/packet-rtcp.c
+   M /trunk-1.8/epan/dissectors/packet-smb2.c
+   M /trunk-1.8/epan/dissectors/packet-usb.c
+   M /trunk-1.8/epan/dissectors/packet-wtp.c
+   M /trunk-1.8/print.ps
+   M /trunk-1.8/ui/cli/tap-iostat.c
+
+Copy over:
+Revision 43761 - Use same capitalization for Service request message as for other messages
+--------------------------------------------------------------------------------------
+Revision 44082 - Fix a few Clang warnings (dead increment, dead assignment)
+--------------------------------------------------------------------------------------
+Revision 44514 - bugfix minor memory leaks with GString use
+--------------------------------------------------------------------------------------
+Revision 45046 - Test Procedures messages should be also integrity protected
+--------------------------------------------------------------------------------------
+Revision 45267 - Use a value string array for EPS Bearer Identity and remove useless de_esm_lnkd_eps_bearer_id function
+--------------------------------------------------------------------------------------
+Revision 45660 - Add back the "%!" removed in r33773; otherwise, for some unknown reason, only 1 page will be viewable.  (Tested w/gsview 5.0 and ghostscript 9.06)
+#BACKPORT(1.8, 1.6)
+--------------------------------------------------------------------------------------
+
+Revision 45614 - fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7869
+make tpiLen a guint such that it can store 2 + tvb_get_guint8(...)
+without overflow
+--------------------------------------------------------------------------------------
+Revision 45696 - From Sho Amano via https://www.wireshark.org/lists/wireshark-dev/201210/msg00186.html:
+Fix WLAN decryption when using a WPA PSK key
+--------------------------------------------------------------------------------------
+Revision 45717 - Avoid potential infinite loops.  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7879
+--------------------------------------------------------------------------------------
+Revision 45742 - From Steve Magnani
+fix USB descriptor parsing
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7909
+--------------------------------------------------------------------------------------
+Revision 45770 - Allow <interval> to be successfully sscanf'd no matter the locale for the
+decimal symbol.  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2880 (again).
+--------------------------------------------------------------------------------------
+Revision 45789 - From Umberto Corponi via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7912 :
+Allow dissection of ESM messages with integrity protection and EEA0 ciphering
+
+From me:
+Tighten heuristic to check for allowed EPS bearer identity values
+--------------------------------------------------------------------------------------
+Revision 45823 - Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7790 :
+Add missing offset increment after displaying minimum count
+------------------------------------------------------------------------
+r45844 | etxrab | 2012-10-31 02:38:55 -0700 (Wed, 31 Oct 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ipv6.c
+   M /trunk-1.8/epan/proto.c
+   M /trunk-1.8/epan/proto.h
+
+Copy over:
+Revision 45843 - From report of VinsWorldcom via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7938 IPv6 Option Pad1 Incorrect dissection
+Wireshark 1.8.3 does not decode the IPv6 Option Pad1 (RFC 2460 Section 4.2)
+RFC say : NOTE! the format of the Pad1 option is a special case -- it does not have length and value fields.
+-------------------------------------------------------------------------------------------------------------------
+Revision 43779 - Fix some system header files that were #included with "" instead of <>. They made cppcheck unhappy.
+-------------------------------------------------------------------------------------------------------------------
+Revision 43363 - Add proto_tree_add_unicode_string() to add UTF-8 string to tree. 
+Convert some proto_tree_add_string_format_value(..., val, "%s", val); to use new function.
+-------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------
+r45845 | etxrab | 2012-10-31 02:56:13 -0700 (Wed, 31 Oct 2012) | 6 lines
+Changed paths:
+   M /trunk-1.8/wiretap/file_access.c
+
+Copy over:
+evision 44281 - Create (fake)interface information when loading a libpcap file it might be needed when wrinting the file if the format is converted to pcapng.
+Should we do this for other file formats as well?
+
+A pcapng file with per packet encapsulation will need an IDB per encapsulation as the EPB does not have a linktype indicator only a interface index.
+-------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------
+r45853 | etxrab | 2012-10-31 10:14:15 -0700 (Wed, 31 Oct 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-gsm_a_gm.c
+   M /trunk-1.8/epan/dissectors/packet-gtp.c
+
+Copy over:
+Revision 44634 - Fix extended value-string linear search: remove 2 dups from value-string array.
+-------------------------------------------------------------------------------------------------------------------
+Revision 45852 - The GTP dissector can't handle long APN names, max is 100.
+
+Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7932
+-------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------
+r45890 | gerald | 2012-11-04 07:34:39 -0800 (Sun, 04 Nov 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-11-04]
+------------------------------------------------------------------------
+r45925 | etxrab | 2012-11-05 05:33:44 -0800 (Mon, 05 Nov 2012) | 5 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ieee80211.c
+
+Copy over:
+Revision 45867 - Patch to update the decryption status right after the user updates
+WEP/WPA keys in the UAT.
+
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7921
+------------------------------------------------------------------------
+r45926 | etxrab | 2012-11-05 05:48:45 -0800 (Mon, 05 Nov 2012) | 23 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ssl-utils.c
+
+Copy over:
+----------------------------------------------------------------------------------------
+Revision 44611 - From Teguh via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7657
+
+Replace the last instance of gnutls_datum with gnutls_datum_t. The former
+is deprecated, and the latter is already being used elsewhere in the file.
+----------------------------------------------------------------------------------------
+Revision 45465 - Make the SSL dissector work with GnuTLS compiled with nettle.
+
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6869
+----------------------------------------------------------------------------------------
+Revision 45865 - Print the GNUTLS error message upon import failure.
+
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7948
+
+----------------------------------------------------------------------------------------
+Revision 45866 - This patch will print the information if an
+invalid string was entered. It would be better to have a button to click on in
+the UAT dialog to show valid values, but I don't know how I could do that with
+the UAT system. So I'm simply printing it now in the error dialog, which should
+be good enough.
+
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7949
+------------------------------------------------------------------------
+r45927 | etxrab | 2012-11-05 06:30:13 -0800 (Mon, 05 Nov 2012) | 5 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ssl-utils.c
+   M /trunk-1.8/epan/epan.c
+
+Back out Revision 45866 - This patch will print the information if an  invalid string was entered. It would be better to have a button to click on in  the UAT dialog to show valid values, but I don't know how I could do that with  the UAT system. So I'm simply printing it now in the error dialog, which should  be good enough.
+ 
+ https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7949
+
+And add missing patch to epan.c
+------------------------------------------------------------------------
+r45928 | etxrab | 2012-11-05 06:31:02 -0800 (Mon, 05 Nov 2012) | 16 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/color_edit_dlg.c
+
+Copy over:
+----------------------------------------------------------------------------------------
+Revision 43854 - Fix some clang warnings: implicit conversion from enumeration type 'GtkStateType' to different enumeration type 'GtkStateFlags' [-Werror,-Wconversion]
+
+GTK_STATE_NORMAL and GTK_STATE_FLAG_NORMAL are both 0.
+----------------------------------------------------------------------------------------
+Revision 44186 - Get rid of some GTK_CHECK_VERSION instances by using compabillity macros.
+----------------------------------------------------------------------------------------
+Revision 45820 - fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7913
+
+When we create a new color filter, we prepend the color filter list with
+a default entry and launch an edit dialogue. If the user cancels, we
+have to remove this _first_ entry from the list (not the last one).
+
+
+----------------------------------------------------------------------------------------
+------------------------------------------------------------------------
+r45981 | etxrab | 2012-11-09 04:08:41 -0800 (Fri, 09 Nov 2012) | 6 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-gsm_a_common.c
+
+Copy over:
+Revision 45980 - GSM classmark3 8-PSK decode error
+
+proto_tree_add_bits_item() can't be called with a length value of -1.
+Calculate the value, fixes BUG:
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7964
+------------------------------------------------------------------------
+r45982 | etxrab | 2012-11-09 04:25:14 -0800 (Fri, 09 Nov 2012) | 2 lines
+Changed paths:
+   M /trunk-1.8/asn1/lte-rrc/lte-rrc.cnf
+   M /trunk-1.8/asn1/lte-rrc/packet-lte-rrc-template.c
+   M /trunk-1.8/epan/dissectors/packet-lte-rrc.c
+
+Copy over:
+Revision 45950 -Fix dissection of NAS security parameters to/from E-UTRA
+------------------------------------------------------------------------
+r45998 | gerald | 2012-11-11 07:34:20 -0800 (Sun, 11 Nov 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-11-11]
+------------------------------------------------------------------------
+r46011 | etxrab | 2012-11-12 07:02:11 -0800 (Mon, 12 Nov 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/epan/strutil.c
+   M /trunk-1.8/epan/strutil.h
+   M /trunk-1.8/fileset.c
+   M /trunk-1.8/ui/gtk/main_menubar.c
+
+Reverted:
+Revision 45180 - Replace g_strcmp0 with strcmp. It was introduced in GLib 2.16 and our minimum version is 2.14.
+
+Copy over:
+
+Revision 45707 - g_strcmp0 first occures in GLIB 2.16 define it localy if it does not exist
+to make builds on Fedora 8 with GTK 2.12 work.
+------------------------------------------------------------------------
+r46030 | gmorris | 2012-11-14 11:28:29 -0800 (Wed, 14 Nov 2012) | 4 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ncp-nmas.c
+   M /trunk-1.8/epan/dissectors/packet-ncp2222.inc
+   M /trunk-1.8/tools/ncp2222.py
+
+Fix for NCP malformed packets due to hash table corruption
+Fix for NCP 89,6 request packet not displaying 1 char path
+Fix for NMAS malformed packet
+Fix for OES Linux server flag
+------------------------------------------------------------------------
+r46071 | gerald | 2012-11-18 07:34:03 -0800 (Sun, 18 Nov 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-11-18]
+------------------------------------------------------------------------
+r46074 | pascal | 2012-11-18 08:43:47 -0800 (Sun, 18 Nov 2012) | 2 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ncp2222.inc
+
+Fix compilation broken in r46030 due to backport of changes present in trunk and not in trunk-1.8
+
+------------------------------------------------------------------------
+r46100 | wmeier | 2012-11-20 16:55:55 -0800 (Tue, 20 Nov 2012) | 11 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-ipv6.c
+
+Copy over from trunk:
+
+------------------------------------------------------------------------
+r46098 | wmeier | 2012-11-20 19:41:32 -0500 (Tue, 20 Nov 2012) | 4 lines
+
+From Stephen Tarr: Fix 'misspelling (typo) in display filter field name'.
+ipv6.framgent --> ipv6.fragment
+#BACKPORT
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r46106 | stig | 2012-11-21 03:05:50 -0800 (Wed, 21 Nov 2012) | 6 lines
+Changed paths:
+   M /trunk-1.8/epan/wslua/wslua_proto.c
+
+Copy over from trunk:
+------------------------------------------------------------------------
+r46078 | stig | 2012-11-18 20:15:34 +0100 (Sun, 18 Nov 2012) | 2 lines
+
+Added check for missing/empty ProtoField abbrev.
+
+------------------------------------------------------------------------
+r46114 | etxrab | 2012-11-21 10:52:24 -0800 (Wed, 21 Nov 2012) | 17 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-bssgp.c
+
+Copy over:
+Revision 46113 - The previous change means the "len" argument is now being used.
+--------------------------------------------------------------------------------
+Revision 46111 - Allign the tables for dissection.
+From me try to fix the dissection of SONtransferApplicationIdentity_PDU.
+
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8008
+
+--------------------------------------------------------------------------------
+Revision 46081 - - In de_bssgp_pdu_in_error() use current_offset isof 0.
+- in function de_bssgp_ran_inf_error_rim_cont. Error rim
+container doesn't have field rim sequence number. This field exists in the rest
+of containers but not in this one. So I have removed this field. 
+In this function we have field pdu in error and this field is mandatory, not
+optional
+
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8000
+------------------------------------------------------------------------
+r46136 | etxrab | 2012-11-21 23:36:39 -0800 (Wed, 21 Nov 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-bssgp.c
+
+Copy over:
+Revision 46125 - fix
+
+/home/wireshark/builders/trunk/ubuntu1204x64/build/epan/dissectors/packet-bssgp.c: In function de_bssgp_son_transfer_app_id:
+/home/wireshark/builders/trunk/ubuntu1204x64/build/epan/dissectors/packet-bssgp.c:3173:12: error: variable next_tvb set but not used
+[-Werror=unused-but-set-variable]
+cc1: all warnings being treated as errors
+------------------------------------------------------------------------
+r46179 | gerald | 2012-11-25 07:34:04 -0800 (Sun, 25 Nov 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+   M /trunk-1.8/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-11-25]
+------------------------------------------------------------------------
+r46203 | pascal | 2012-11-26 05:24:58 -0800 (Mon, 26 Nov 2012) | 6 lines
+Changed paths:
+   M /trunk-1.8/asn1/rrc/PDU-definitions.asn
+   M /trunk-1.8/epan/dissectors/packet-rrc.c
+
+Copy over from trunk:
+------------------------------------------------------------------------
+r46202 | pascal | 2012-11-26 14:21:18 +0100 (lun., 26 nov. 2012) | 2 lines
+
+Add missing OPTIONAL keyword in RRCConnectionRequest message
+
+------------------------------------------------------------------------
+r46211 | gerald | 2012-11-26 14:35:09 -0800 (Mon, 26 Nov 2012) | 34 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/addr_resolv.c
+   M /trunk-1.8/epan/packet.c
+   M /trunk-1.8/wiretap/pcapng.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r45674 | darkjames | 2012-10-20 13:50:25 -0700 (Sat, 20 Oct 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/addr_resolv.c
+
+  Make r45511 work also without HAVE_C_ARES.
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r45511 | gerald | 2012-10-12 14:37:02 -0700 (Fri, 12 Oct 2012) | 9 lines
+  Changed paths:
+     M /trunk/epan/addr_resolv.c
+     M /trunk/epan/packet.c
+     M /trunk/wiretap/file_access.c
+     M /trunk/wiretap/pcapng.c
+
+  Use seasonal allocation for name resolution. This effectively scrubs our
+  resolution information between capture files so that we don't leak host
+  entries from one file to another (e.g. embarassing-host-name.example.com
+  from file1.pcapng into a name resolution block in file2.pcapng).
+
+  host_name_lookup_cleanup and host_name_lookup_init must now be called
+  after each call to se_free_all. As a result we now end up reading our
+  various name resolution files much more than we should.
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r46212 | gerald | 2012-11-26 14:55:23 -0800 (Mon, 26 Nov 2012) | 47 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-ssl.c
+   M /trunk-1.8/epan/dissectors/packet-tpncp.c
+   M /trunk-1.8/ui/gtk/sctp_stat.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r46003 | eapache | 2012-11-11 12:29:06 -0800 (Sun, 11 Nov 2012) | 7 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-tpncp.c
+
+  Fix part of https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6665
+
+  Make sure the array of names is always null-terminated, even if we have
+  enough names to fill the entire thing. Also use a gboolean instead of a
+  gint for one variable.
+  ------------------------------------------------------------------------
+  r46004 | eapache | 2012-11-11 12:54:12 -0800 (Sun, 11 Nov 2012) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-tpncp.c
+
+  Fix the rest of https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6665
+
+  Catch exceptions thrown while registering the dynamically generated tpncp
+  fields, and take that as a hint that the .dat file is corrupt.
+  ------------------------------------------------------------------------
+  r46153 | ruengeler | 2012-11-23 05:16:04 -0800 (Fri, 23 Nov 2012) | 2 lines
+  Changed paths:
+     M /trunk/ui/gtk/sctp_stat.c
+
+  Fix bug reported in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8011
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r46005 | pascal | 2012-11-11 15:17:09 -0800 (Sun, 11 Nov 2012) | 6 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ssl.c
+
+  From Erik Tews via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7967 :
+  Fix dissection of Server Name Indication extension in SSL/TLS traffic
+
+  From me:
+  Fix a few errors found by checkhf.pl and fix-encoding-args.pl
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r46213 | gerald | 2012-11-26 14:56:22 -0800 (Mon, 26 Nov 2012) | 2 lines
+Changed paths:
+   M /trunk-1.8/doc/make-authors-format.pl
+   M /trunk-1.8/doc/make-authors-short.pl
+   M /trunk-1.8/doc/perlnoutf.pl
+   M /trunk-1.8/epan/dissectors/packet-agentx.c
+   M /trunk-1.8/epan/dissectors/packet-artnet.c
+   M /trunk-1.8/epan/dissectors/packet-cisco-sm.c
+   M /trunk-1.8/epan/dissectors/packet-classicstun.c
+   M /trunk-1.8/epan/dissectors/packet-enttec.c
+   M /trunk-1.8/epan/dissectors/packet-infiniband.c
+   M /trunk-1.8/epan/dissectors/packet-infiniband.h
+   M /trunk-1.8/epan/dissectors/packet-lwres.c
+   M /trunk-1.8/epan/dissectors/packet-opsi.c
+   M /trunk-1.8/epan/dissectors/packet-pcli.c
+   M /trunk-1.8/epan/dissectors/packet-rlm.c
+   M /trunk-1.8/epan/dissectors/packet-rtnet.c
+   M /trunk-1.8/epan/dissectors/packet-rudp.c
+   M /trunk-1.8/epan/dissectors/packet-stun.c
+   M /trunk-1.8/epan/dissectors/packet-v5ua.c
+   M /trunk-1.8/tools/ncp2222.py
+   M /trunk-1.8/tools/process-x11-fields.pl
+   M /trunk-1.8/tools/process-x11-xcb.pl
+   M /trunk-1.8/wiretap/ascend.y
+   M /trunk-1.8/wiretap/ascend_scanner.l
+   M /trunk-1.8/wiretap/ascendtext.c
+   M /trunk-1.8/wiretap/ascendtext.h
+
+Remove a bunch of "mergeinfo" properties.
+
+------------------------------------------------------------------------
+r46216 | gerald | 2012-11-26 17:14:18 -0800 (Mon, 26 Nov 2012) | 2 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.xml
+
+Add missing items from the Roadmap wiki page.
+
+------------------------------------------------------------------------
+r46235 | gerald | 2012-11-27 10:38:20 -0800 (Tue, 27 Nov 2012) | 2 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.xml
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r46241 | gerald | 2012-11-27 16:33:28 -0800 (Tue, 27 Nov 2012) | 19 lines
+Changed paths:
+   M /trunk-1.8
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/tshark.c
+
+Copy over r46238 from the trunk:
+
+  ------------------------------------------------------------------------
+  r46238 | morriss | 2012-11-27 15:05:03 -0800 (Tue, 27 Nov 2012) | 8 lines
+  Changed paths:
+     M /trunk/tshark.c
+
+  Delay the reading of the hosts file ("-H") until after cf_open() has been
+  called.  (cf_open() calls init_dissection() which, since r45511,
+  re-initializes the name resolution database.)
+
+  Complain if the user gives an invalid argument to "-W".
+
+  Specify the invalid argument if we don't like a "-z" argument.
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
 
 ------------------------------------------------------------------------
