@@ -39,29 +39,29 @@
 #include <epan/etypes.h>
 #include <epan/reassemble.h>
 
-#define WAI_SUB_PRE_AUTHENTICATION	0x01	/* pre-authentication start */
-#define WAI_SUB_STAKEY_REQ		0x02	/* STAKey request */
-#define WAI_SUB_AUTH_ACTIVATION		0x03	/* authentication activation */
-#define WAI_SUB_ACCESS_AUTH_REQ		0x04	/* access authentication request */
-#define WAI_SUB_ACCESS_AUTH_RESP	0x05	/* access authentication response */
-#define WAI_SUB_CERT_AUTH_REQ		0x06	/* certificate authentication request */
-#define WAI_SUB_CERT_AUTH_RESP		0x07	/* certificate authentication response */
-#define WAI_SUB_UNICAST_KEY_REQ		0x08	/* unicast key negotiation request */
-#define WAI_SUB_UNICAST_KEY_RESP	0x09	/* unicast key negotiation response */
-#define WAI_SUB_UNICAST_KEY_CONFIRM	0x0A	/* unicast key negotiation confirmation */
-#define WAI_SUB_MULTICAST_ANNOUNCE	0x0B	/* multicast key/STAKey announcement */
-#define WAI_SUB_MULTICAST_ANNOUNCE_RESP	0x0C	/* multicast key/STAKey announcement response */
+#define WAI_SUB_PRE_AUTHENTICATION      0x01    /* pre-authentication start */
+#define WAI_SUB_STAKEY_REQ              0x02    /* STAKey request */
+#define WAI_SUB_AUTH_ACTIVATION         0x03    /* authentication activation */
+#define WAI_SUB_ACCESS_AUTH_REQ         0x04    /* access authentication request */
+#define WAI_SUB_ACCESS_AUTH_RESP        0x05    /* access authentication response */
+#define WAI_SUB_CERT_AUTH_REQ           0x06    /* certificate authentication request */
+#define WAI_SUB_CERT_AUTH_RESP          0x07    /* certificate authentication response */
+#define WAI_SUB_UNICAST_KEY_REQ         0x08    /* unicast key negotiation request */
+#define WAI_SUB_UNICAST_KEY_RESP        0x09    /* unicast key negotiation response */
+#define WAI_SUB_UNICAST_KEY_CONFIRM     0x0A    /* unicast key negotiation confirmation */
+#define WAI_SUB_MULTICAST_ANNOUNCE      0x0B    /* multicast key/STAKey announcement */
+#define WAI_SUB_MULTICAST_ANNOUNCE_RESP 0x0C    /* multicast key/STAKey announcement response */
 
-#define FLAG_BIT0	0x01
-#define FLAG_BIT1	0x02
-#define FLAG_BIT2	0x04
-#define FLAG_BIT3	0x08
-#define FLAG_BIT4	0x10
-#define FLAG_BIT5	0x20
-#define FLAG_BIT6	0x40
-#define FLAG_BIT7	0x80
+#define FLAG_BIT0       0x01
+#define FLAG_BIT1       0x02
+#define FLAG_BIT2       0x04
+#define FLAG_BIT3       0x08
+#define FLAG_BIT4       0x10
+#define FLAG_BIT5       0x20
+#define FLAG_BIT6       0x40
+#define FLAG_BIT7       0x80
 
-static GHashTable *wai_fragment_table = NULL;
+static GHashTable *wai_fragment_table    = NULL;
 static GHashTable *wai_reassembled_table = NULL;
 
 static int proto_wai = -1;
@@ -187,20 +187,21 @@ static const fragment_items wai_frag_items = {
 };
 
 static const value_string wai_subtype_names[] = {
-    {  WAI_SUB_PRE_AUTHENTICATION,	"Pre-Authentication start" },
-    {  WAI_SUB_STAKEY_REQ,		"STAKey request" },
-    {  WAI_SUB_AUTH_ACTIVATION,		"Authentication activation" },
-    {  WAI_SUB_ACCESS_AUTH_REQ,		"Access authentication request" },
-    {  WAI_SUB_ACCESS_AUTH_RESP,	"Access authentication response" },
-    {  WAI_SUB_CERT_AUTH_REQ,		"Certificate authentication request" },
-    {  WAI_SUB_CERT_AUTH_RESP,		"Certificate authentication response" },
-    {  WAI_SUB_UNICAST_KEY_REQ,		"Unicast key negotiation request" },
-    {  WAI_SUB_UNICAST_KEY_RESP,	"Unicast key negotiation response" },
-    {  WAI_SUB_UNICAST_KEY_CONFIRM,	"Unicast key negotiation confirmation" },
-    {  WAI_SUB_MULTICAST_ANNOUNCE,	"Multicast key/STAKey announcement" },
-    {  WAI_SUB_MULTICAST_ANNOUNCE_RESP,	"Multicast key/STAKey announcement response" },
+    {  WAI_SUB_PRE_AUTHENTICATION,      "Pre-Authentication start" },
+    {  WAI_SUB_STAKEY_REQ,              "STAKey request" },
+    {  WAI_SUB_AUTH_ACTIVATION,         "Authentication activation" },
+    {  WAI_SUB_ACCESS_AUTH_REQ,         "Access authentication request" },
+    {  WAI_SUB_ACCESS_AUTH_RESP,        "Access authentication response" },
+    {  WAI_SUB_CERT_AUTH_REQ,           "Certificate authentication request" },
+    {  WAI_SUB_CERT_AUTH_RESP,          "Certificate authentication response" },
+    {  WAI_SUB_UNICAST_KEY_REQ,         "Unicast key negotiation request" },
+    {  WAI_SUB_UNICAST_KEY_RESP,        "Unicast key negotiation response" },
+    {  WAI_SUB_UNICAST_KEY_CONFIRM,     "Unicast key negotiation confirmation" },
+    {  WAI_SUB_MULTICAST_ANNOUNCE,      "Multicast key/STAKey announcement" },
+    {  WAI_SUB_MULTICAST_ANNOUNCE_RESP, "Multicast key/STAKey announcement response" },
     { 0, NULL }
 };
+static value_string_ext wai_subtype_names_ext = VALUE_STRING_EXT_INIT(wai_subtype_names);
 
 static const true_false_string wai_bk_rekeying_flag = {
     "Packet is a BK rekeying packet",
@@ -245,20 +246,20 @@ static const true_false_string  wai_reserved_flag = {
 static void
 dissect_flag(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*flag_item;
-    proto_tree	*flag_tree;
+    proto_item *flag_item;
+    proto_tree *flag_tree;
 
     flag_item = proto_tree_add_item(tree, hf_wai_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     flag_tree = proto_item_add_subtree (flag_item, ett_wai_flags);
 
-    proto_tree_add_item (flag_tree, hf_wai_bk_rekeying_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_bk_rekeying_flag,       tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item (flag_tree, hf_wai_preauthentication_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item (flag_tree, hf_wai_certificate_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item (flag_tree, hf_wai_optional_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item (flag_tree, hf_wai_usk_rekeying_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item (flag_tree, hf_wai_negotiation_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item (flag_tree, hf_wai_revoking_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item (flag_tree, hf_wai_reserved_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_certificate_flag,       tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_optional_flag,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_usk_rekeying_flag,      tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_negotiation_flag,       tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_revoking_flag,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_reserved_flag,          tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 inline static void
@@ -311,13 +312,13 @@ dissect_authentication_id(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static void
 dissect_addid(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*mac_item;
-    proto_tree	*mac_tree;
+    proto_item *mac_item;
+    proto_tree *mac_tree;
 
     mac_item = proto_tree_add_string(tree, hf_wai_addid, tvb, offset, 12, "AE MAC and ASUE MAC addresses");
 
     mac_tree = proto_item_add_subtree(mac_item, ett_wai_mac);
-    proto_tree_add_item(mac_tree, hf_wai_ae_mac, tvb, offset, 6, ENC_NA);
+    proto_tree_add_item(mac_tree, hf_wai_ae_mac,   tvb, offset,   6, ENC_NA);
     proto_tree_add_item(mac_tree, hf_wai_asue_mac, tvb, offset+6, 6, ENC_NA);
 }
 
@@ -325,17 +326,17 @@ static guint16
 dissect_identity(tvbuff_t * tvb, const guint16 offset, proto_tree * tree,
    const char * const label)
 {
-    proto_tree	*id_tree;
-    proto_item	*id_item;
-    guint16	length;
+    proto_tree *id_tree;
+    proto_item *id_item;
+    guint16     length;
 
     length = tvb_get_ntohs(tvb, offset+2);
 
     id_item = proto_tree_add_item(tree, hf_wai_identity, tvb, offset, length+4, ENC_NA);
     id_tree = proto_item_add_subtree(id_item, ett_wai_identity);
     proto_item_set_text(id_item, "%sIdentity", ((label==NULL)?"":label));
-    proto_tree_add_item(id_tree, hf_wai_identity_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(id_tree, hf_wai_identity_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(id_tree, hf_wai_identity_id,   tvb, offset,   2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(id_tree, hf_wai_identity_len,  tvb, offset+2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(id_tree, hf_wai_identity_data, tvb, offset+4, length, ENC_NA);
 
     return length + 4;
@@ -345,12 +346,12 @@ static gint16
 dissect_certificate(tvbuff_t * tvb, const gint offset, proto_tree * tree,
                     const gchar * const label)
 {
-    proto_item	*certificate_item;
-    proto_tree	*certificate_tree;
-    proto_item	*id_item;
-    guint16	length;
-    guint16	id;
-    const gchar	*id_name = "unknown";
+    proto_item  *certificate_item;
+    proto_tree  *certificate_tree;
+    proto_item  *id_item;
+    guint16      length;
+    guint16      id;
+    const gchar *id_name = "unknown";
 
     id = tvb_get_ntohs(tvb, offset);
 
@@ -368,7 +369,7 @@ dissect_certificate(tvbuff_t * tvb, const gint offset, proto_tree * tree,
 
     id_item = proto_tree_add_item(certificate_tree, hf_wai_cert_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_item_set_text(id_item, "Certificate Identifier: %s (%#x)", id_name, id);
-    proto_tree_add_item(certificate_tree, hf_wai_cert_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(certificate_tree, hf_wai_cert_len,  tvb, offset+2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(certificate_tree, hf_wai_cert_data, tvb, offset+4, length, ENC_NA);
 
     return length + 4;
@@ -377,12 +378,12 @@ dissect_certificate(tvbuff_t * tvb, const gint offset, proto_tree * tree,
 static guint16
 dissect_ecdh_parameter(tvbuff_t * tvb, const gint offset, proto_tree * tree)
 {
-    proto_item	*ecdh_item;
-    proto_tree	*ecdh_tree;
-    proto_item	*ecdh_id_item;
-    guint8	ecdh_id;
-    guint16	ecdh_len;
-    const gchar	*id_name = "unknown";
+    proto_item  *ecdh_item;
+    proto_tree  *ecdh_tree;
+    proto_item  *ecdh_id_item;
+    guint8       ecdh_id;
+    guint16      ecdh_len;
+    const gchar *id_name = "unknown";
 
     ecdh_id = tvb_get_guint8(tvb, offset);
 
@@ -394,11 +395,11 @@ dissect_ecdh_parameter(tvbuff_t * tvb, const gint offset, proto_tree * tree)
 
     ecdh_len = tvb_get_ntohs(tvb, offset+1);
 
-    ecdh_item = proto_tree_add_item(tree, hf_wai_ecdh, tvb, offset, ecdh_len+3, ENC_NA);
+    ecdh_item = proto_tree_add_item(tree, hf_wai_ecdh,  tvb, offset, ecdh_len+3, ENC_NA);
     ecdh_tree = proto_item_add_subtree(ecdh_item, ett_wai_ecdh_param);
     ecdh_id_item = proto_tree_add_item(ecdh_tree, hf_wai_ecdh_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_set_text(ecdh_id_item, "ID: %s (%#x)", id_name, ecdh_id);
-    proto_tree_add_item(ecdh_tree, hf_wai_ecdh_len, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ecdh_tree, hf_wai_ecdh_len,     tvb, offset+1, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ecdh_tree, hf_wai_ecdh_content, tvb, offset+3, ecdh_len, ENC_NA);
 
     return ecdh_len + 3;
@@ -407,8 +408,8 @@ dissect_ecdh_parameter(tvbuff_t * tvb, const gint offset, proto_tree * tree)
 static guint16
 dissect_challenge(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar * const label)
 {
-    proto_item		*challenge_item;
-    const guint16	challenge_length = 32;
+    proto_item    *challenge_item;
+    const guint16  challenge_length = 32;
 
     challenge_item = proto_tree_add_item(tree, hf_wai_challenge, tvb, offset, 32, ENC_NA);
     proto_item_append_text(challenge_item, "(%schallenge)",  ((label==NULL)?"":label));
@@ -419,9 +420,9 @@ dissect_challenge(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar * c
 static guint16
 dissect_key_data(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *const label)
 {
-    proto_item	*key_data_item;
-    proto_tree	*key_data_tree;
-    guint8	length;
+    proto_item  *key_data_item;
+    proto_tree  *key_data_tree;
+    guint8      length;
 
     length = tvb_get_guint8(tvb, offset);
 
@@ -440,17 +441,17 @@ dissect_key_data(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *con
 static guint
 dissect_multiple_certificate(tvbuff_t * tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*multicert_item;
-    proto_tree	*multicert_tree;
-    proto_item	*nonce_1_item;
-    proto_item	*nonce_2_item;
-    guint	length;
+    proto_item *multicert_item;
+    proto_tree *multicert_tree;
+    proto_item *nonce_1_item;
+    proto_item *nonce_2_item;
+    guint       length;
 
     length = tvb_get_ntohs(tvb, offset+1);
     multicert_item = proto_tree_add_item(tree, hf_wai_cert_ver, tvb, offset, length+3, ENC_NA);
     multicert_tree = proto_item_add_subtree(multicert_item, ett_wai_certificate_verification);
     proto_tree_add_item(multicert_tree, hf_wai_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    offset += 1;
     proto_tree_add_item(multicert_tree, hf_wai_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     nonce_1_item = proto_tree_add_item(multicert_tree, hf_wai_nonce, tvb, offset, 32, ENC_NA);
@@ -460,10 +461,10 @@ dissect_multiple_certificate(tvbuff_t * tvb, guint offset, proto_tree *tree)
     offset += 32;
     proto_item_append_text(nonce_2_item, " 2");
     proto_tree_add_item(multicert_tree, hf_wai_ver_res, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    offset += 1;
     offset += dissect_certificate(tvb, offset, multicert_tree, "1 ");
     proto_tree_add_item(multicert_tree, hf_wai_ver_res, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    offset += 1;
     offset += dissect_certificate(tvb, offset, multicert_tree, "2 ");
 
     return length + 3;
@@ -472,21 +473,21 @@ dissect_multiple_certificate(tvbuff_t * tvb, guint offset, proto_tree *tree)
 static guint
 dissect_identity_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*id_list_item;
-    proto_tree	*id_list_tree;
-    guint16	length;
-    guint16	no_of_ids;
-    guint16	i;
+    proto_item *id_list_item;
+    proto_tree *id_list_tree;
+    guint16     length;
+    guint16     no_of_ids;
+    guint16     i;
 
     length = tvb_get_ntohs(tvb, offset+1);
     id_list_item = proto_tree_add_item(tree, hf_wai_identity_list, tvb, offset, length+3, ENC_NA);
     id_list_tree = proto_item_add_subtree(id_list_item, ett_wai_identity_list);
     proto_tree_add_item(id_list_tree, hf_wai_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    offset += 1;
     proto_tree_add_item(id_list_tree, hf_wai_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(id_list_tree, hf_wai_reserved_byte, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    offset += 1;
     proto_tree_add_item(id_list_tree, hf_wai_no_of_ids, tvb, offset, 2, ENC_BIG_ENDIAN);
     no_of_ids = tvb_get_ntohs(tvb, offset);
     offset += 2;
@@ -504,18 +505,18 @@ dissect_identity_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static guint16
 dissect_signature_algorithm(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*sa_item;
-    proto_tree	*sa_tree;
-    proto_item	*param_item;
-    proto_tree	*param_tree;
-    proto_item	*alg_name_item;
-    proto_item	*sig_name_item;
-    guint16	length;
-    guint8	alg_id;
-    guint8	sig_id;
-    guint16	param_len;
+    proto_item *sa_item;
+    proto_tree *sa_tree;
+    proto_item *param_item;
+    proto_tree *param_tree;
+    proto_item *alg_name_item;
+    proto_item *sig_name_item;
+    guint16     length;
+    guint8      alg_id;
+    guint8      sig_id;
+    guint16     param_len;
 
-    length = tvb_get_ntohs(tvb, offset);
+    length  = tvb_get_ntohs(tvb, offset);
 
     sa_item = proto_tree_add_item(tree, hf_wai_sign_alg, tvb, offset,  length+2, ENC_NA);
     sa_tree = proto_item_add_subtree(sa_item, ett_wai_sign_alg);
@@ -539,7 +540,7 @@ dissect_signature_algorithm(tvbuff_t *tvb, guint offset, proto_tree *tree)
     }
 
     offset += 1;
-    param_len = tvb_get_ntohs(tvb, offset+1);
+    param_len  = tvb_get_ntohs(tvb, offset+1);
     param_item = proto_tree_add_item(sa_tree, hf_wai_param, tvb, offset,  param_len+3, ENC_NA);
     param_tree = proto_item_add_subtree(param_item, ett_wai_parameter);
     proto_tree_add_item(param_tree, hf_wai_param_id, tvb, offset, 1, ENC_NA);
@@ -554,11 +555,11 @@ dissect_signature_algorithm(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static guint16
 dissect_signature_value(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*sv_item;
-    proto_tree	*sv_tree;
-    guint16	length = 0;
+    proto_item *sv_item;
+    proto_tree *sv_tree;
+    guint16     length = 0;
 
-    length = tvb_get_ntohs(tvb, offset);
+    length  = tvb_get_ntohs(tvb, offset);
 
     sv_item = proto_tree_add_item(tree, hf_wai_sign_val, tvb, offset,  length+2, ENC_NA);
     sv_tree = proto_item_add_subtree(sv_item, ett_wai_sign_val);
@@ -574,18 +575,18 @@ dissect_signature_value(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static guint16
 dissect_signature(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *const label)
 {
-    proto_item	*ss_item;
-    proto_tree	*ss_tree;
-    guint	length = 0;
+    proto_item *ss_item;
+    proto_tree *ss_tree;
+    guint       length = 0;
 
-    length = tvb_get_ntohs(tvb, offset+1);
+    length  = tvb_get_ntohs(tvb, offset+1);
 
     ss_item = proto_tree_add_item(tree, hf_wai_sign, tvb, offset, length+3, ENC_NA);
     proto_item_set_text(ss_item, "%s", (label==NULL)?"Signature":label);
     ss_tree = proto_item_add_subtree(ss_item, ett_wai_sign);
 
     proto_tree_add_item(ss_tree, hf_wai_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    offset += 1;
 
     proto_tree_add_item(ss_tree, hf_wai_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -599,18 +600,18 @@ dissect_signature(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *co
 
 
 static void
-dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length)
+dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 lenx)
 {
-    proto_item	*data_item;
-    proto_tree	*data_tree;
-    const gchar	*type_name;
+    proto_item  *data_item;
+    proto_tree  *data_tree;
+    const gchar *type_name;
 
-    data_item = proto_tree_add_item(tree, hf_wai_data, tvb, 0, length, ENC_NA);
+    data_item = proto_tree_add_item(tree, hf_wai_data, tvb, 0, lenx, ENC_NA);
     data_tree = proto_item_add_subtree (data_item, ett_wai_data);
 
-    type_name = val_to_str_const(subtype, wai_subtype_names, "Unknown type");
+    type_name = val_to_str_ext_const(subtype, &wai_subtype_names_ext, "Unknown type");
 
-    proto_item_set_text(data_item, "%s data (%d bytes)", type_name, length);
+    proto_item_set_text(data_item, "%s data (%d bytes)", type_name, lenx);
 
     switch (subtype) {
         case WAI_SUB_PRE_AUTHENTICATION:
@@ -640,7 +641,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
             guint16 offset = 0;
 
             dissect_flag(tvb, offset, data_tree);
-            offset++;
+            offset += 1;
             dissect_authentication_id(tvb, offset, data_tree);
             offset += 32;
             offset += dissect_identity(tvb, offset, data_tree, "Local ASU ");
@@ -657,7 +658,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
             optional_field = tvb_get_guint8(tvb, 0) & FLAG_BIT3;
 
             dissect_flag(tvb, offset, data_tree);
-            offset++;
+            offset += 1;
             dissect_authentication_id(tvb, offset, data_tree);
             offset += 32;
             offset += dissect_challenge(tvb, offset, data_tree, "ASUE ");
@@ -682,11 +683,11 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
             optional_field = tvb_get_guint8(tvb, 0) & FLAG_BIT3;
 
             dissect_flag(tvb, offset, data_tree);
-            offset++;
+            offset += 1;
             offset += dissect_challenge(tvb, offset, data_tree, "ASUE ");
             offset += dissect_challenge(tvb, offset, data_tree, "AE ");
             proto_tree_add_item(data_tree, hf_wai_access_res, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
+            offset += 1;
             offset += dissect_key_data(tvb, offset, data_tree, "ASUE ");
             offset += dissect_key_data(tvb, offset, data_tree, "AE ");
             offset += dissect_identity(tvb, offset, data_tree, "STA AE ");
@@ -705,7 +706,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
             guint16 offset = 0;
 
             dissect_addid(tvb, offset, data_tree);
-            offset+=12;
+            offset += 12;
             offset += dissect_challenge(tvb, offset, data_tree, "AE ");
             offset += dissect_challenge(tvb, offset, data_tree, "ASUE ");
             offset += dissect_certificate(tvb, offset, data_tree, "STE ASUE ");
@@ -732,14 +733,14 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
             dissect_bkid(tvb, 1, data_tree);
             dissect_uskid(tvb, 17, data_tree);
             dissect_addid(tvb, 18, data_tree);
-            dissect_challenge(tvb, 30, data_tree ,"AE ");
+            dissect_challenge(tvb, 30, data_tree , "AE ");
             break;
         }
         case WAI_SUB_UNICAST_KEY_RESP:
         {
             /* Chapter 8.1.4.3.2 Unicast Key Negotiation Response [ref: 1] */
-            tvbuff_t  *next_tvb;
-            guint length = 0;
+            tvbuff_t *next_tvb;
+            guint     length = 0;
 
             dissect_flag(tvb, 0, data_tree);
             dissect_bkid(tvb, 1, data_tree);
@@ -758,8 +759,8 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
         case WAI_SUB_UNICAST_KEY_CONFIRM:
         {
             /* Chapter 8.1.4.3.3 Unicast Key Negotiation Confirmation [ref: 1] */
-            tvbuff_t  *next_tvb;
-            guint length = 0;
+            tvbuff_t *next_tvb;
+            guint     length = 0;
 
             dissect_flag(tvb, 0, data_tree);
             dissect_bkid(tvb, 1, data_tree);
@@ -798,7 +799,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
         case WAI_SUB_MULTICAST_ANNOUNCE_RESP:
         {
             /* Chapter 8.1.4.4.2 Multicast Key/STAKey Announcement Response [ref: 1] */
-            dissect_flag(tvb, 0, data_tree);
+            dissect_flag(tvb,  0, data_tree);
             dissect_mskid(tvb, 1, data_tree);
             dissect_uskid(tvb, 2, data_tree);
             dissect_addid(tvb, 3, data_tree);
@@ -823,69 +824,70 @@ dissect_wai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 |-----------------------------------------------------------------------------|
 Figure 18 from [ref:1]
 */
-#define WAI_MESSAGE_LENGTH	12 /*Length of all fields without 'Data' field*/
-#define WAI_DATA_OFFSET 	WAI_MESSAGE_LENGTH
-    guint16		version;
-    guint8		subtype;
-    guint16		length;
-    guint16		packet_num;
-    guint8		fragment_num;
-    guint8		flags;
-    fragment_data	*frag_msg;
-    proto_tree		*wai_tree = NULL;
-    tvbuff_t		*next_tvb;
-    tvbuff_t		*new_tvb;
-    const gchar		*subtype_name = "Unknown type";
+#define WAI_MESSAGE_LENGTH 12   /*Length of all fields without 'Data' field*/
+#define WAI_DATA_OFFSET    WAI_MESSAGE_LENGTH
+    guint16        version;
+    guint8         subtype;
+    guint16        length;
+    guint16        packet_num;
+    guint8         fragment_num;
+    guint8         flags;
+    fragment_data *frag_msg;
+    proto_tree    *wai_tree     = NULL;
+    tvbuff_t      *next_tvb;
+    tvbuff_t      *new_tvb;
+    const gchar   *subtype_name = "Unknown type";
 
     length = tvb_get_ntohs(tvb, 6)-WAI_MESSAGE_LENGTH;
     subtype = tvb_get_guint8(tvb, 3);
 
     /* quick sanity check */
-    if ((length != tvb_reported_length (tvb)-WAI_MESSAGE_LENGTH) || (subtype > WAI_SUB_MULTICAST_ANNOUNCE_RESP)) {
+    if ((length != tvb_reported_length (tvb)-WAI_MESSAGE_LENGTH) ||
+        (subtype > WAI_SUB_MULTICAST_ANNOUNCE_RESP)) {
         return;
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WAI");
-    col_clear (pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
     version = tvb_get_ntohs(tvb, 0);
 
     if (version == 1) {
-        subtype_name = val_to_str_const(subtype, wai_subtype_names, "Unknown type");
+        subtype_name = val_to_str_ext_const(subtype, &wai_subtype_names_ext, "Unknown type");
     }
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s", subtype_name);
 
     /* Field lengths and offsets in WAI protocol described above */
-    packet_num = tvb_get_ntohs(tvb, 8);
+    packet_num   = tvb_get_ntohs(tvb, 8);
     fragment_num = tvb_get_guint8(tvb, 10);
-    flags = tvb_get_guint8(tvb, 11);
+    flags        = tvb_get_guint8(tvb, 11);
 
     if (tree) {
-        proto_item	*wai_item;
+        proto_item *wai_item;
 
         wai_item = proto_tree_add_item(tree, proto_wai, tvb, 0, -1, ENC_NA);
 
         proto_item_set_text (wai_item, "WAI Protocol (%s)",
-        			val_to_str_const(subtype, wai_subtype_names, "Unknown type"));
+                                val_to_str_ext_const(subtype, &wai_subtype_names_ext, "Unknown type"));
         wai_tree = proto_item_add_subtree(wai_item, ett_wai);
 
         /* Field lengths and offsets in WAI protocol described above */
-        proto_tree_add_item(wai_tree, hf_wai_version, tvb, 0, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(wai_tree, hf_wai_type, tvb, 2, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(wai_tree, hf_wai_subtype, tvb, 3, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(wai_tree, hf_wai_reserved, tvb, 4, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(wai_tree, hf_wai_length, tvb, 6,2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(wai_tree, hf_wai_seq, tvb, 8, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wai_tree, hf_wai_version,   tvb, 0,  2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wai_tree, hf_wai_type,      tvb, 2,  1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wai_tree, hf_wai_subtype,   tvb, 3,  1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wai_tree, hf_wai_reserved,  tvb, 4,  2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wai_tree, hf_wai_length,    tvb, 6,  2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wai_tree, hf_wai_seq,       tvb, 8,  2, ENC_BIG_ENDIAN);
         proto_tree_add_item(wai_tree, hf_wai_fragm_seq, tvb, 10, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(wai_tree, hf_wai_flag, tvb, 11, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wai_tree, hf_wai_flag,      tvb, 11, 1, ENC_BIG_ENDIAN);
     }
 
     frag_msg =  fragment_add_seq_check (tvb, WAI_DATA_OFFSET, pinfo,
-    					packet_num,
-    					wai_fragment_table,
-    					wai_reassembled_table,
-    					fragment_num,
-    					length,
-    					flags);
+                                        packet_num,
+                                        wai_fragment_table,
+                                        wai_reassembled_table,
+                                        fragment_num,
+                                        length,
+                                        flags);
 
     next_tvb = tvb_new_subset_remaining(tvb, WAI_DATA_OFFSET);
 
@@ -903,7 +905,8 @@ Figure 18 from [ref:1]
         /* If this is the last fragment of fragmented message, then reassamble and dissect
            otherwise only dissect */
         if (fragment_num > 0) {
-            new_tvb = process_reassembled_data(tvb, WAI_DATA_OFFSET, pinfo, "Reassembled WAI", frag_msg, &wai_frag_items,
+            new_tvb = process_reassembled_data(tvb, WAI_DATA_OFFSET, pinfo,
+                                               "Reassembled WAI", frag_msg, &wai_frag_items,
                                                NULL, wai_tree);
 
             if (new_tvb) {
@@ -931,221 +934,365 @@ void
 proto_register_wai(void)
 {
     static hf_register_info hf[] = {
-        { &hf_wai_version, { "Version", "wai.version", FT_UINT16, BASE_DEC, NULL,
-            0x0, "Version of authentication infrastructure", HFILL }},
-
-        { &hf_wai_type, { "Type", "wai.type", FT_UINT8, BASE_HEX, VALS(wai_type_names),
-            0x0, "Protocol type", HFILL }},
-
-        { &hf_wai_subtype, { "Subtype", "wai.subtype", FT_UINT8, BASE_DEC, VALS(wai_subtype_names),
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_reserved, { "Reserved", "wai.reserved", FT_UINT16, BASE_HEX, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_length, { "Length", "wai.length", FT_UINT16, BASE_DEC, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_seq, { "Sequence number", "wai.seq", FT_UINT16, BASE_DEC, NULL,
-            0x0, "Packet sequence number", HFILL }},
-
-        { &hf_wai_fragm_seq, { "Fragment sequence number", "wai.fragm.seq", FT_UINT8, BASE_DEC, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_flag, { "Flag", "wai.flag", FT_UINT8, BASE_HEX, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_data, { "Data", "wai.data", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_bk_rekeying_flag, {"BK rekeying", "wai.bk.rekeying.flag", FT_BOOLEAN, 8, TFS (&wai_bk_rekeying_flag),
-            FLAG_BIT0, "BK rekeying flag", HFILL }},
-
-        { &hf_wai_preauthentication_flag,{"Pre-Authentication", "wai.preauthentication.flag", FT_BOOLEAN, 8, TFS (&wai_preauthentication_flag),
-            FLAG_BIT1, "Pre-Authentication flag", HFILL }},
-
-        { &hf_wai_certificate_flag,{"Certificate", "wai.certificate.flag", FT_BOOLEAN, 8, TFS (&wai_certificate_flag),
-            FLAG_BIT2, "Certificate flag", HFILL }},
-
-        { &hf_wai_optional_flag,{"Optional", "wai.optional.flag", FT_BOOLEAN, 8, TFS (&wai_optional_flag),
-            FLAG_BIT3, "Optional flag", HFILL }},
-
-        { &hf_wai_usk_rekeying_flag,{"USK rekeying", "wai.usk.rekeying.flag", FT_BOOLEAN, 8, TFS (&wai_usk_rekeying_flag),
-            FLAG_BIT4, "USK rekeying flag", HFILL }},
-
-        { &hf_wai_negotiation_flag,{"STA negotiation", "wai.negotiation.flag", FT_BOOLEAN, 8, TFS (&wai_negotiation_flag),
-            FLAG_BIT5, "STA negotiation flag", HFILL }},
-
-        { &hf_wai_revoking_flag,{"STA revoking", "wai.revoking.flag", FT_BOOLEAN, 8, TFS (&wai_revoking_flag),
-            FLAG_BIT6, "STA revoking flag", HFILL }},
-
-        { &hf_wai_reserved_flag,{"Reserved", "wai.reserved.flag", FT_BOOLEAN, 8, TFS (&wai_reserved_flag),
-            FLAG_BIT7, "Reserved flag", HFILL }},
-
-        { &hf_wai_cert, {"Certificate", "wai.cert", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_cert_id, {"Id", "wai.cert.id", FT_UINT16, BASE_HEX, NULL,
-            0x0, "Certificate Id", HFILL }},
-
-        { &hf_wai_cert_data, {"Data", "wai.cert.data", FT_BYTES, BASE_NONE, NULL,
-            0x0, "Certificate data", HFILL }},
-
-        { &hf_wai_cert_len, {"Length", "wai.cert.len", FT_UINT16, BASE_DEC, NULL,
-            0x0, "Certificate length", HFILL }},
-
-        { &hf_wai_addid, {"ADDID", "wai.addid", FT_STRING, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_ae_mac, {"AE MAC", "wai.ae.mac", FT_ETHER, BASE_NONE, NULL,
-            0x0, "AE MAC address", HFILL }},
-
-        { &hf_wai_asue_mac, {"ASUE MAC", "wai.asue.mac", FT_ETHER, BASE_NONE, NULL,
-            0x0, "ASUE MAC address", HFILL }},
-
-        { &hf_wai_bkid, {"BKID", "wai.bkid", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_uskid, {"USKID", "wai.uskid", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_wie, {"WIE from ASUE", "wai.wie", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_message_auth_code, {"Message Authentication Code", "wai.message.auth.code", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_mskid, {"MSKID/STAKeyID", "wai.mskid", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_data_pack_num, {"Data packet number", "wai.data.packet.num", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_key_data, {"Key Data", "wai.key.data", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_key_data_len, {"Length", "wai.key.data.len", FT_UINT8, BASE_DEC, NULL,
-            0x0, "Key data length", HFILL }},
-
-        { &hf_wai_key_data_content, {"Content", "wai.key.data.content", FT_BYTES, BASE_NONE, NULL,
-            0x0, "Key data content", HFILL }},
-
-        { &hf_wai_key_ann_id, {"Key Announcement Identifier", "wai.key.ann.id", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_auth_id, {"Authentication Identifier", "wai.auth.id", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_identity, {"Identifier", "wai.identity", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_identity_id, {"Id", "wai.identity.id", FT_UINT16, BASE_HEX, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_identity_len, {"Length", "wai.identity.len", FT_UINT16, BASE_DEC, NULL,
-            0x0, "Identity length", HFILL }},
-
-        { &hf_wai_identity_data, {"Data", "wai.identity.data", FT_BYTES, BASE_NONE, NULL,
-            0x0, "Identity data", HFILL }},
-
-        { &hf_wai_ecdh, {"ECDH Parameter", "wai.ecdhp", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_ecdh_id, {"ID", "wai.edch.id", FT_UINT8, BASE_HEX, NULL,
-            0x0, "ECDH Parameter Identifier", HFILL }},
-
-        { &hf_wai_ecdh_len, {"Length", "wai.ecdh.len", FT_UINT16, BASE_DEC, NULL,
-            0x0, "ECDH Parameter Length", HFILL }},
-
-        { &hf_wai_ecdh_content, {"Content", "wai.ecdh.content", FT_BYTES, BASE_NONE, NULL,
-            0x0, "ECDH Parameter Content", HFILL }},
-
-        { &hf_wai_counter, {"Replay counter", "wai.counter", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_sta_key_id, {"STAKeyID", "wai.sta.key.id", FT_UINT8, BASE_HEX, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_challenge, {"Challenge", "wai.challenge", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_cert_ver, {"Multiple Certificate Verification Result", "wai.cert.ver", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_nonce, {"Nonce", "wai.nonce", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_ver_res, {"Verification result", "wai.ver.res", FT_UINT8, BASE_HEX, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_sign_alg, {"Signature Algorithm", "wai.sign.alg", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_hash_alg_id, {"Hash Algorithm Identifier", "wai.hash.alg.id", FT_UINT8, BASE_HEX, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_sign_alg_id, {"Signature Algorithm Identifier", "wai.sign.alg.id", FT_UINT8, BASE_HEX, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_param, {"Parameter", "wai.param", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_param_id, {"Parameter Identifier", "wai.param.id", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_param_content, {"Parameter Content", "wai.param.content", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_sign_val, {"Signature Value", "wai.sign.val", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_sign_content, {"Signature Content", "wai.sign.content", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_sign, {"Signature", "wai.sign", FT_BYTES, BASE_NONE, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_identity_list, {"ASU List trusted by ASUE", "wai.identity_list", FT_BYTES, BASE_NONE, NULL,
-            0x0, "Identity list", HFILL }},
-
-        { &hf_wai_reserved_byte, {"Reserved", "wai.reserved.byte", FT_UINT8, BASE_HEX, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_no_of_ids, {"Number of Identities", "wai.no.of.ids", FT_UINT16, BASE_DEC, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_access_res, {"Access result", "wai.access_result", FT_UINT8, BASE_HEX, NULL,
-            0x0, NULL, HFILL }},
-
-        { &hf_wai_fragments,{"Message fragments", "wai.fragments",FT_NONE, BASE_NONE, NULL,
-            0x00, NULL, HFILL }},
-
-        { &hf_wai_fragment,{"Message fragment", "wai.fragment",FT_FRAMENUM, BASE_NONE, NULL,
-            0x00, NULL, HFILL }},
-
-        { &hf_wai_fragment_overlap,{"Message fragment overlap", "wai.fragment.overlap",FT_BOOLEAN, BASE_NONE, NULL,
-            0x00, NULL, HFILL }},
-
-        { &hf_wai_fragment_overlap_conflicts,{"Message fragment overlapping with conflicting data","wai.fragment.overlap.conflicts",FT_BOOLEAN, BASE_NONE, NULL,
-            0x00, NULL, HFILL }},
-
-        { &hf_wai_fragment_multiple_tails,{"Message has multiple tail fragments","wai.fragment.multiple_tails",FT_BOOLEAN, BASE_NONE, NULL,
-            0x00, NULL, HFILL }},
-
-        { &hf_wai_fragment_too_long_fragment,{"Message fragment too long", "wai.fragment.too_long_fragment",FT_BOOLEAN, BASE_NONE, NULL,
-            0x00, NULL, HFILL }},
-
-        { &hf_wai_fragment_error,{"Message defragmentation error", "wai.fragment.error",FT_FRAMENUM, BASE_NONE, NULL,
-            0x00, NULL, HFILL }},
-
-        { &hf_wai_fragment_count,{"Message fragment count", "wai.fragment.count",FT_UINT32, BASE_DEC, NULL,
-            0x00, NULL, HFILL }},
-
-        { &hf_wai_reassembled_in,{"Reassembled in", "wai.reassembled.in",FT_FRAMENUM, BASE_NONE, NULL,
-            0x00, NULL, HFILL }},
-
-        { &hf_wai_reassembled_length,{"Reassembled length", "wai.reassembled.length",FT_UINT32, BASE_DEC, NULL,
-            0x00, NULL, HFILL }}
+        { &hf_wai_version,
+          { "Version", "wai.version",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Version of authentication infrastructure", HFILL }},
+
+        { &hf_wai_type,
+          { "Type", "wai.type",
+            FT_UINT8, BASE_HEX, VALS(wai_type_names), 0x0,
+            "Protocol type", HFILL }},
+
+        { &hf_wai_subtype,
+          { "Subtype", "wai.subtype",
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wai_subtype_names_ext, 0x0,
+            NULL, HFILL }},
+
+        { &hf_wai_reserved,
+          { "Reserved", "wai.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_wai_length,
+          { "Length", "wai.length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_wai_seq,
+          { "Sequence number", "wai.seq",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Packet sequence number", HFILL }},
+
+        { &hf_wai_fragm_seq,
+          { "Fragment sequence number", "wai.fragm.seq",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_wai_flag,
+          { "Flag", "wai.flag",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_wai_data,
+          { "Data", "wai.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_wai_bk_rekeying_flag,
+          {"BK rekeying", "wai.bk.rekeying.flag",
+           FT_BOOLEAN, 8, TFS (&wai_bk_rekeying_flag), FLAG_BIT0,
+           "BK rekeying flag", HFILL }},
+
+        { &hf_wai_preauthentication_flag,
+          {"Pre-Authentication", "wai.preauthentication.flag",
+           FT_BOOLEAN, 8, TFS (&wai_preauthentication_flag), FLAG_BIT1,
+           "Pre-Authentication flag", HFILL }},
+
+        { &hf_wai_certificate_flag,
+          {"Certificate", "wai.certificate.flag",
+           FT_BOOLEAN, 8, TFS (&wai_certificate_flag), FLAG_BIT2,
+           "Certificate flag", HFILL }},
+
+        { &hf_wai_optional_flag,
+          {"Optional", "wai.optional.flag",
+           FT_BOOLEAN, 8, TFS (&wai_optional_flag), FLAG_BIT3,
+           "Optional flag", HFILL }},
+
+        { &hf_wai_usk_rekeying_flag,
+            {"USK rekeying", "wai.usk.rekeying.flag",
+                    FT_BOOLEAN, 8, TFS (&wai_usk_rekeying_flag), FLAG_BIT4,
+                    "USK rekeying flag", HFILL }},
+
+        { &hf_wai_negotiation_flag,
+            {"STA negotiation", "wai.negotiation.flag",
+                    FT_BOOLEAN, 8, TFS (&wai_negotiation_flag), FLAG_BIT5,
+                    "STA negotiation flag", HFILL }},
+
+        { &hf_wai_revoking_flag,
+            {"STA revoking", "wai.revoking.flag",
+                    FT_BOOLEAN, 8, TFS (&wai_revoking_flag), FLAG_BIT6,
+                    "STA revoking flag", HFILL }},
+
+        { &hf_wai_reserved_flag,
+            {"Reserved", "wai.reserved.flag",
+                    FT_BOOLEAN, 8, TFS (&wai_reserved_flag), FLAG_BIT7,
+                    "Reserved flag", HFILL }},
+
+        { &hf_wai_cert,
+            {"Certificate", "wai.cert",
+                    FT_BYTES, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+
+        { &hf_wai_cert_id,
+          {"Id", "wai.cert.id",
+           FT_UINT16, BASE_HEX, NULL, 0x0,
+           "Certificate Id", HFILL }},
+
+        { &hf_wai_cert_data,
+          {"Data", "wai.cert.data",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           "Certificate data", HFILL }},
+
+        { &hf_wai_cert_len,
+          {"Length", "wai.cert.len",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           "Certificate length", HFILL }},
+
+        { &hf_wai_addid,
+          {"ADDID", "wai.addid",
+           FT_STRING, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_ae_mac,
+          {"AE MAC", "wai.ae.mac",
+           FT_ETHER, BASE_NONE, NULL, 0x0,
+           "AE MAC address", HFILL }},
+
+        { &hf_wai_asue_mac,
+          {"ASUE MAC", "wai.asue.mac",
+           FT_ETHER, BASE_NONE, NULL, 0x0,
+           "ASUE MAC address", HFILL }},
+
+        { &hf_wai_bkid,
+          {"BKID", "wai.bkid",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_uskid,
+          {"USKID", "wai.uskid",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_wie,
+          {"WIE from ASUE", "wai.wie",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_message_auth_code,
+          {"Message Authentication Code", "wai.message.auth.code",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_mskid,
+          {"MSKID/STAKeyID", "wai.mskid",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_data_pack_num,
+          {"Data packet number", "wai.data.packet.num",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_key_data,
+          {"Key Data", "wai.key.data",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_key_data_len,
+          {"Length", "wai.key.data.len",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           "Key data length", HFILL }},
+
+        { &hf_wai_key_data_content,
+          {"Content", "wai.key.data.content",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           "Key data content", HFILL }},
+
+        { &hf_wai_key_ann_id,
+          {"Key Announcement Identifier", "wai.key.ann.id",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_auth_id,
+          {"Authentication Identifier", "wai.auth.id",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_identity,
+          {"Identifier", "wai.identity",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_identity_id,
+          {"Id", "wai.identity.id",
+           FT_UINT16, BASE_HEX, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_identity_len,
+          {"Length", "wai.identity.len",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           "Identity length", HFILL }},
+
+        { &hf_wai_identity_data,
+          {"Data", "wai.identity.data",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           "Identity data", HFILL }},
+
+        { &hf_wai_ecdh,
+          {"ECDH Parameter", "wai.ecdhp",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_ecdh_id,
+          {"ID", "wai.edch.id",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
+           "ECDH Parameter Identifier", HFILL }},
+
+        { &hf_wai_ecdh_len,
+          {"Length", "wai.ecdh.len",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           "ECDH Parameter Length", HFILL }},
+
+        { &hf_wai_ecdh_content,
+          {"Content", "wai.ecdh.content",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           "ECDH Parameter Content", HFILL }},
+
+        { &hf_wai_counter,
+          {"Replay counter", "wai.counter",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_sta_key_id,
+          {"STAKeyID", "wai.sta.key.id",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_challenge,
+          {"Challenge", "wai.challenge",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_cert_ver,
+          {"Multiple Certificate Verification Result", "wai.cert.ver",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_nonce,
+          {"Nonce", "wai.nonce",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_ver_res,
+          {"Verification result", "wai.ver.res",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_sign_alg,
+          {"Signature Algorithm", "wai.sign.alg",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_hash_alg_id,
+          {"Hash Algorithm Identifier", "wai.hash.alg.id",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_sign_alg_id,
+          {"Signature Algorithm Identifier", "wai.sign.alg.id",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_param,
+          {"Parameter", "wai.param",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_param_id,
+          {"Parameter Identifier", "wai.param.id",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_param_content,
+          {"Parameter Content", "wai.param.content",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_sign_val,
+          {"Signature Value", "wai.sign.val",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_sign_content,
+          {"Signature Content", "wai.sign.content",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_sign,
+          {"Signature", "wai.sign",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_identity_list,
+          {"ASU List trusted by ASUE", "wai.identity_list",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           "Identity list", HFILL }},
+
+        { &hf_wai_reserved_byte,
+          {"Reserved", "wai.reserved.byte",
+           FT_UINT8, BASE_HEX, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_no_of_ids,
+          {"Number of Identities", "wai.no.of.ids",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+
+        { &hf_wai_access_res,
+        {"Access result", "wai.access_result",
+         FT_UINT8, BASE_HEX, NULL, 0x0,
+         NULL, HFILL }},
+
+        { &hf_wai_fragments,
+          {"Message fragments", "wai.fragments",
+           FT_NONE, BASE_NONE, NULL, 0x00,
+           NULL, HFILL }},
+
+        { &hf_wai_fragment,
+          {"Message fragment", "wai.fragment",
+           FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+           NULL, HFILL }},
+
+        { &hf_wai_fragment_overlap,
+          {"Message fragment overlap", "wai.fragment.overlap",
+           FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+           NULL, HFILL }},
+
+        { &hf_wai_fragment_overlap_conflicts,
+          {"Message fragment overlapping with conflicting data", "wai.fragment.overlap.conflicts",
+           FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+           NULL, HFILL }},
+
+        { &hf_wai_fragment_multiple_tails,
+          {"Message has multiple tail fragments", "wai.fragment.multiple_tails",
+           FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+           NULL, HFILL }},
+
+        { &hf_wai_fragment_too_long_fragment,
+          {"Message fragment too long", "wai.fragment.too_long_fragment",
+           FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+           NULL, HFILL }},
+
+        { &hf_wai_fragment_error,
+          {"Message defragmentation error", "wai.fragment.error",
+           FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+           NULL, HFILL }},
+
+        { &hf_wai_fragment_count,
+          {"Message fragment count", "wai.fragment.count",
+           FT_UINT32, BASE_DEC, NULL, 0x00,
+           NULL, HFILL }},
+
+        { &hf_wai_reassembled_in,
+          {"Reassembled in", "wai.reassembled.in",
+           FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+           NULL, HFILL }},
+
+        { &hf_wai_reassembled_length,
+          {"Reassembled length", "wai.reassembled.length",
+           FT_UINT32, BASE_DEC, NULL, 0x00,
+           NULL, HFILL }}
     };
 
     static gint *ett[] = {

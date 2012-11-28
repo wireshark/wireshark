@@ -152,7 +152,7 @@ static gint ett_netrom_type = -1;
 
 static void
 dissect_netrom_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-			int hf_netrom_type, gint ett_netrom_type, const netrom_tf_items *type_items )
+			int hf_netrom_type_param, gint ett_netrom_type_param, const netrom_tf_items *type_items )
 {
 	proto_tree *tc;
 	proto_tree *type_tree;
@@ -174,7 +174,7 @@ dissect_netrom_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	if ( tree )
 		{
 		tc = proto_tree_add_uint_format( tree,
-						hf_netrom_type,
+						hf_netrom_type_param,
 						tvb,
 						offset,
 						1,
@@ -182,7 +182,7 @@ dissect_netrom_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 						"Type field: %s",
 						info_buffer
 						);
-		type_tree = proto_item_add_subtree( tc, ett_netrom_type );
+		type_tree = proto_item_add_subtree( tc, ett_netrom_type_param );
 
 		proto_tree_add_item( type_tree, *type_items->hf_tf_op, tvb, offset, 1, FALSE );
 		proto_tree_add_item( type_tree, *type_items->hf_tf_choke, tvb, offset, 1, FALSE );
