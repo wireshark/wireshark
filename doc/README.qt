@@ -29,7 +29,7 @@ There are several ways of building qtshark:
 
 2) Using cmake:
    set BUILD_qtshark to ON (default: OFF) in CmakeOptions.txt (may be set
-   in parallel with BUILD_wireshark).
+   in parallel with BUILD_wireshark) or add -D BUILD_qtshark:BOOL=ON flag
    Do the normal out-of-tree or in-tree build.
    This has only been tested on a current openSUSE Linux system with fairly
    current QT and cmake. It may be necessary to copy the FindQt4.cmake and
@@ -144,7 +144,7 @@ HTTP request statistics?
 3. Translations (i18n)
 For make your own translation of QtShark ! it is easy !
 
-- Add your translation (qtshark_XX.ts) in QtShark.pro and i18n.qrc
+- Add your translation (qtshark_XX.ts) in QtShark.pro, i18n.qrc and ui/qt/Makefile.common
 - Launch "lupdate QtShark.pro" to generate/update your translation file
 - Translate with Qt Linguist
 - Launch "lrelease QtShark.pro" to create/update qtshark_xx.qm file
