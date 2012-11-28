@@ -258,7 +258,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int spt_offset = 0;
   guint16 spt_edge_count = 0;
 
-  int MCID_LEN = 51, i = 0;
+  int MCID_LEN = 51;
   guint8 spt_agree_data = 0;
 
   proto_tree *bpdu_tree;
