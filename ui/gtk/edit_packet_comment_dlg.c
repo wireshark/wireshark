@@ -107,7 +107,6 @@ comment_summary_copy_to_clipboard_cb(GtkWidget *w _U_, GtkWidget *view)
 {
   GtkTextBuffer *buffer;
   GtkTextIter start_iter, end_iter;
-  gchar *new_packet_comment = NULL;
   GtkClipboard *clipboard;
 
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
