@@ -252,7 +252,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 msti_bridge_identifier_priority, msti_port_identifier_priority;
   gchar   *msti_bridge_identifier_mac_str;
   int   total_msti_length, offset, msti, msti_format;
-  int msti_len_temp;
+  int   msti_length_remaining;
   guint8 agree_num = 0, dagree_num = 0;
 
   int spt_offset = 0;
@@ -663,7 +663,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (protocol_version_identifier == 3) {
         set_actual_length(tvb, BPDU_MSTI + total_msti_length);
       }
-      msti_len_temp = total_msti_length;
 
       mstp_item = proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_3_LENGTH,
                                       -1, "MST Extension");
@@ -780,7 +779,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* MSTI messages */
       offset = BPDU_MSTI;
       msti = 1;
-      while (total_msti_length > 0) {
+      msti_length_remaining = total_msti_length;
+      while (msti_length_remaining > 0) {
         switch(msti_format) {
 
         case MSTI_FORMAT_IEEE_8021S:
@@ -863,7 +863,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
                               offset + MSTI_REMAINING_HOPS, 1, ENC_BIG_ENDIAN);
 
-          total_msti_length -= MSTI_MESSAGE_SIZE;
+          msti_length_remaining -= MSTI_MESSAGE_SIZE;
           offset += MSTI_MESSAGE_SIZE;
           break;
 
@@ -954,10 +954,9 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
                               offset + ALT_MSTI_REMAINING_HOPS, 1, ENC_BIG_ENDIAN);
 
-          total_msti_length -= ALT_MSTI_MESSAGE_SIZE;
+          msti_length_remaining -= ALT_MSTI_MESSAGE_SIZE;
           offset += ALT_MSTI_MESSAGE_SIZE;
           break;
-
         }
         msti++;
       }
@@ -972,7 +971,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * greater", "BPDU Type is 0000 0010", "contains 106 or
        * more octets", and "a Version 1 Length of 0" tests.
        */
-      bpdu_version_4_length = BPDU_MSTI + msti_len_temp;
+      bpdu_version_4_length = BPDU_MSTI + total_msti_length;
       version_4_length = tvb_get_ntohs(tvb, bpdu_version_4_length);
 
       proto_tree_add_uint(bpdu_tree, hf_bpdu_version_4_length, tvb,
