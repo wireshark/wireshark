@@ -974,7 +974,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 	}
 
 	if (!pinfo->fd->flags.visited) {
-		if (flags_bits & 0x80) {
+		if (flags_bits & DIAM_FLAGS_R) {
 			/* This is a request */
 			diameter_pair = se_alloc(sizeof(diameter_req_ans_pair_t));
 			diameter_pair->hop_by_hop_id = hop_by_hop_id;
@@ -1006,12 +1006,12 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 		diameter_pair->ans_frame = 0;
 		diameter_pair->req_time = pinfo->fd->abs_ts;
 	}
-	diameter_pair->processing_request=(flags_bits & 0x80)!=0;
+	diameter_pair->processing_request=(flags_bits & DIAM_FLAGS_R)!=0;
 
 	if (!tree) return;
 
 	/* print state tracking info in the tree */
-	if (flags_bits & 0x80) {
+	if (flags_bits & DIAM_FLAGS_R) {
 		/* This is a request */
 		if (diameter_pair->ans_frame) {
 			it = proto_tree_add_uint(diam_tree, hf_diameter_answer_in,
