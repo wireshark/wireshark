@@ -1752,7 +1752,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     /* Dissect all TLVs */
-    whie (tvb_reported_length_remaining(tvb, offset) > 0 ) {
+    while (tvb_reported_length_remaining(tvb, offset) > 0 ) {
         len = dissect_mpls_echo_tlv(tvb, pinfo, offset, mpls_echo_tree, rem, FALSE);
         offset += len;
         rem    -= len;
