@@ -662,9 +662,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       if (protocol_version_identifier == 3) {
         set_actual_length(tvb, BPDU_MSTI + total_msti_length);
-      } else {
-        msti_len_temp = total_msti_length;
       }
+      msti_len_temp = total_msti_length;
 
       mstp_item = proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_3_LENGTH,
                                       -1, "MST Extension");
