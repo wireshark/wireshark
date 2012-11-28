@@ -69,6 +69,14 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+	    It is now possible to compare two fields in a display filter
+	    (for example: udp.srcport != udp.dstport).  The two fields must
+	    be of the same type for this to work.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
