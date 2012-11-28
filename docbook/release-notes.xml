@@ -40,16 +40,18 @@ Wireshark Info
           </para>
           <para>
 	    The USB dissector could go into an infinite loop.
-            <!-- Fixed in trunk: r45310, r45339 -->
+            <!-- Fixed in trunk: r45310, r45339, r45742 -->
             <!-- Fixed in trunk-1.8: r45837 -->
             <!-- Fixed in trunk-1.6: r46225, r46227 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7787">Bug
             7787</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+<!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
           </para>
+-->
         </listitem>
 
         <listitem>
@@ -60,32 +62,16 @@ Wireshark Info
 	    The ISAKMP dissector could crash.
             <!-- Fixed in trunk: r45510 -->
             <!-- Fixed in trunk-1.8: r45580 -->
-            <!-- Fixed in trunk-1.6: r46628 -->
+            <!-- Fixed in trunk-1.6: r46228 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7855">Bug
             7855</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+<!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
           </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-34.html">wnpa-sec-2012-34</ulink>
-          </para>
-          <para>
-	    The ICMPv6 dissector could go into an infinite loop.
-            <!-- Fixed in trunk: r45459 -->
-            <!-- Fixed in trunk-1.8: r45460 -->
-            <!-- Fixed in trunk-1.6: r45493 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7844">Bug
-            7844</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
-          </para>
+-->
         </listitem>
 
         <listitem>
@@ -101,9 +87,11 @@ Wireshark Info
             7858</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+<!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
           </para>
+-->
         </listitem>
 
         <listitem>
@@ -114,14 +102,16 @@ Wireshark Info
 	    The WTP dissector could go into an infinite loop.
             <!-- Fixed in trunk: r45614 -->
             <!-- Fixed in trunk-1.8: r45837 -->
-            <!-- Fixed in trunk-1.6: r46629 -->
+            <!-- Fixed in trunk-1.6: r46229 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7869">Bug
             7869</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+<!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
           </para>
+-->
         </listitem>
 
         <listitem>
@@ -137,9 +127,31 @@ Wireshark Info
             7879</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+<!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
           </para>
+-->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-40.html">wnpa-sec-2012-40</ulink>
+          </para>
+          <para>
+	    The ICMPv6 dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r45459 -->
+            <!-- Fixed in trunk-1.8: r45460 -->
+            <!-- Fixed in trunk-1.6: r45493 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7844">Bug
+            7844</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+<!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
+          </para>
+-->
         </listitem>
 
       </itemizedlist>
@@ -280,7 +292,7 @@ WTP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+CommView NCF
 
     </para>
     </section>
