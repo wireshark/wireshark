@@ -102,6 +102,27 @@ capture_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
 
 }
 
+static void
+comment_summary_copy_to_clipboard_cb(GtkWidget *w _U_, GtkWidget *view)
+{
+  GtkTextBuffer *buffer;
+  GtkTextIter start_iter, end_iter;
+  gchar *new_packet_comment = NULL;
+  GtkClipboard *clipboard;
+
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+
+  gtk_text_buffer_get_bounds(buffer, &start_iter, &end_iter);
+
+  gtk_text_buffer_select_range(buffer, &start_iter, &end_iter);
+
+  clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
+  gtk_text_buffer_copy_clipboard (buffer, clipboard);
+
+  gtk_text_buffer_select_range(buffer, &end_iter, &end_iter);
+
+}
+
 void
 edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
 {
@@ -178,7 +199,7 @@ show_packet_comment_summary_dlg (GtkAction *action _U_, gpointer data _U_)
   GtkWidget *view;
   GtkWidget *scroll;
   GtkWidget *bbox;
-  GtkWidget *ok_bt, *cancel_bt, *help_bt;
+  GtkWidget *copy_bt, *cancel_bt, *help_bt;
   GtkTextBuffer *buffer = NULL;
 
   view_capture_and_pkt_comments_dlg = dlg_window_new ("Comments Summary");
@@ -209,12 +230,12 @@ show_packet_comment_summary_dlg (GtkAction *action _U_, gpointer data _U_)
   packet_list_return_all_comments(buffer);
 
   /* Button row. */
-  bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
+  bbox = dlg_button_row_new (GTK_STOCK_COPY, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-  ok_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
-  /*g_signal_connect (ok_bt, "clicked", G_CALLBACK(pkt_comment_text_buff_ok_cb), view);*/
-  gtk_widget_set_sensitive (ok_bt, FALSE);
+  copy_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_COPY);
+  g_signal_connect (copy_bt, "clicked", G_CALLBACK(comment_summary_copy_to_clipboard_cb), view);
+  gtk_widget_set_sensitive (copy_bt, TRUE);
 
   cancel_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button (view_capture_and_pkt_comments_dlg, cancel_bt, window_cancel_button_cb);
@@ -225,8 +246,7 @@ show_packet_comment_summary_dlg (GtkAction *action _U_, gpointer data _U_)
 #endif
   gtk_widget_set_sensitive (help_bt, FALSE);
 
-  gtk_widget_grab_default (ok_bt);
-  g_signal_connect (view_capture_and_pkt_comments_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  gtk_widget_grab_default (copy_bt);
 
 
   gtk_widget_show (view_capture_and_pkt_comments_dlg);
