@@ -4277,6 +4277,7 @@ proto_reg_handoff_sctp(void)
 
   data_handle = find_dissector("data");
   sctp_handle = find_dissector("sctp");
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_SCTP, sctp_handle);
   dissector_add_uint("ip.proto", IP_PROTO_SCTP, sctp_handle);
   dissector_add_uint("udp.port", UDP_TUNNELING_PORT, sctp_handle);
 }

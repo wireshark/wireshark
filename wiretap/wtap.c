@@ -596,6 +596,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_AX25 */
 	{ "Amateur Radio AX.25", "ax25" },
+
+	/* WTAP_ENCAP_SCTP */
+	{ "SCTP", "sctp" },
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

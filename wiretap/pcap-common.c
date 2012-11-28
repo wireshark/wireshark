@@ -392,6 +392,8 @@ static const struct {
 	{ 243,		WTAP_ENCAP_MPEG_2_TS },
 	/* NFC LLCP */
 	{ 245,		WTAP_ENCAP_NFC_LLCP },
+	/* SCTP */
+	{ 248,		WTAP_ENCAP_SCTP},
 
 	/*
 	 * To repeat:
