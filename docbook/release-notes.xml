@@ -42,8 +42,8 @@ Wireshark Info
 	    Wireshark could leak potentially sensitive host name resolution
 	    information when working with multiple pcap-ng files. Discovered by
 	    Laura Chappell.
-            <!-- Fixed in trunk: r45511, r45674 -->
-            <!-- Fixed in trunk-1.8: r46211 -->
+            <!-- Fixed in trunk: r45511, r45674, r46238 -->
+            <!-- Fixed in trunk-1.8: r46211, r46241 -->
           </para>
           <para>Versions affected: 1.8.0 to 1.8.3.</para>
           <para>
@@ -77,7 +77,6 @@ Wireshark Info
 	    The sFlow dissector could go into an infinite loop.
             <!-- Fixed in trunk: r45324, r45329 -->
             <!-- Fixed in trunk-1.8: r45578 -->
-            <!-- Fixed in trunk-1.6: r? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7789">Bug
             7789</ulink>)
           </para>
