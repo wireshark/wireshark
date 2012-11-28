@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.6.12">
+<!ENTITY WiresharkCurrentVersion "1.6.13">
 
 ]>
 
@@ -36,117 +36,17 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-31.html">wnpa-sec-2012-31</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-41.html">wnpa-sec-2012-41</ulink>
           </para>
           <para>
-	    The USB dissector could go into an infinite loop.
-            <!-- Fixed in trunk: r45310, r45339, r45742 -->
-            <!-- Fixed in trunk-1.8: r45837 -->
-            <!-- Fixed in trunk-1.6: r46225, r46227 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7787">Bug
-            7787</ulink>)
+	    .
+            <!-- Fixed in trunk: r? -->
+            <!-- Fixed in trunk-1.8: r? -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=X">Bug
+            X</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-35.html">wnpa-sec-2012-35</ulink>
-          </para>
-          <para>
-	    The ISAKMP dissector could crash.
-            <!-- Fixed in trunk: r45510 -->
-            <!-- Fixed in trunk-1.8: r45580 -->
-            <!-- Fixed in trunk-1.6: r46228 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7855">Bug
-            7855</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-36.html">wnpa-sec-2012-36</ulink>
-          </para>
-          <para>
-	    The iSCSI dissector could go into an infinite loop.
-            <!-- Fixed in trunk: r45524, r45548 -->
-            <!-- Fixed in trunk-1.8: r45549 -->
-            <!-- Fixed in trunk-1.6: r45550 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7858">Bug
-            7858</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-37.html">wnpa-sec-2012-37</ulink>
-          </para>
-          <para>
-	    The WTP dissector could go into an infinite loop.
-            <!-- Fixed in trunk: r45614 -->
-            <!-- Fixed in trunk-1.8: r45837 -->
-            <!-- Fixed in trunk-1.6: r46229 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7869">Bug
-            7869</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-38.html">wnpa-sec-2012-38</ulink>
-          </para>
-          <para>
-	    The RTCP dissector could go into an infinite loop.
-            <!-- Fixed in trunk: r45717 -->
-            <!-- Fixed in trunk-1.8: r45837 -->
-            <!-- Fixed in trunk-1.6: r46230 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7879">Bug
-            7879</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-40.html">wnpa-sec-2012-40</ulink>
-          </para>
-          <para>
-	    The ICMPv6 dissector could go into an infinite loop.
-            <!-- Fixed in trunk: r45459 -->
-            <!-- Fixed in trunk-1.8: r45460 -->
-            <!-- Fixed in trunk-1.6: r45493 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7844">Bug
-            7844</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.</para>
+          <para>Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.</para>
 <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-UNASSIGNED">CVE-2012-UNASSIGNED</ulink>
@@ -178,71 +78,6 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          Menu and Title bars inaccessible using GTK2 (non-legacy) with two monitors.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
-          553</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          802.11 Probe Response fails to parse.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1284">Bug
-          1284</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Corrupted tpncp.dat file that crashes Wireshark.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6665">Bug
-          6665</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SMB 2.x Read Request parsing is wrong starting at Channel.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7790">Bug
-          7790</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Dissection of IEEE 802.11 Channel Switch Announcement element fails.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7797">Bug
-          7797</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Invalid memory accesses when loading radius captures.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7803">Bug
-          7803</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          ISUP CIC should have format BASE_DEC, not BASE_HEX.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7848">Bug
-          7848</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Error in AUXILIARY SECURITY HEADER Parsing for 802.15.4 in dissect_ieee802154_common function.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7864">Bug
-          7864</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          When cancelling creation of new coloring rule, old one is deleted.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7913">Bug
-          7913</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Misspelling (typo) in IPv6 display filter field name.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8006">Bug
-          8006</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Core dumped during sctp association analysis.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8011">Bug
-          8011</ulink>)
-        </para></listitem>
 
      </itemizedlist>
 
@@ -270,21 +105,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-FMP/NOTIFY,
-ICMPv6,
-IEEE 802.11,
-IEEE 802.15.4,
-ISAKMP,
-iSCSI,
-ISUP,
-NDPS,
-Prism,
-RADIUS,
-RTCP,
-SMB2,
-TPNCP,
-USB,
-WTP
+.
 
     </para>
     </section>
@@ -292,7 +113,7 @@ WTP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-CommView NCF
+.
 
     </para>
     </section>
