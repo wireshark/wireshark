@@ -1623,11 +1623,14 @@ sctp_range_add_callback(guint32 port)
 /* registration with the filtering engine */
 void proto_reg_handoff_diameter(void);
 
-void
-proto_register_diameter(void)
+/*
+ * This does most of the registration work; see proto_register_diameter()
+ * for the reason why we split it off.
+ */
+static void
+real_proto_register_diameter(void)
 {
 	module_t *diameter_module;
-	guint wasted_variable = dictionary_load();
 	guint i, ett_length;
 
 	hf_register_info hf_base[] = {
@@ -1759,19 +1762,6 @@ proto_register_diameter(void)
 		&(unknown_avp.ett)
 	};
 
-        /* This condition (wasted_variable == 0) won't normally happen, but:
-         *   1) We must call dictionary_load() *before* hf_base is declared
-         *      (otherwise dictionary.applications will be NULL in the hf).
-         *   2) (and) We can't call dictionary_load() before hf_base is declared unless
-         *      we do so while declaring a variable (otherwise we end up mixing declarations
-         *      and code).
-         *   3) (and) If we don't use the variable, we'll get a "set but not used" warning.
-         *
-         * So, we use the variable...
-         */
-	if (!wasted_variable)
-                dictionary_load();
-
 	g_array_append_vals(build_dict.hf, hf_base, array_length(hf_base));
 	ett_length = array_length(ett_base);
 	for (i = 0; i < ett_length; i++) {
@@ -1835,7 +1825,22 @@ proto_register_diameter(void)
 
 	/* Register tap */
 	diameter_tap = register_tap("diameter");
+}
 
+void
+proto_register_diameter(void)
+{
+	/*
+	 * The hf_base[] array for Diameter refers to a variable
+	 * that is set by dictionary_load(), so we need to call
+	 * dictionary_load() before hf_base[] is initialized.
+	 *
+	 * To ensure that, we call dictionary_load() and then
+	 * call a routine that defines hf_base[] and does all
+	 * the registration work.
+	 */
+	dictionary_load();
+	real_proto_register_diameter();
 } /* proto_register_diameter */
 
 void
