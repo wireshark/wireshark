@@ -693,7 +693,7 @@ static const value_string usb_urb_status_vals[] = {
     { -ENODATA,         "No data available (-ENODATA)" },
     { -ENOSTR,          "Device not a stream (-ENOSTR)" },
     { -EBFONT,          "Bad font file format (-EBFONT)" },
-    { -58,              "(-58 ???)" },   /* dummy so that there are no "gaps" */
+    { -58,              "(-58 \?\?\?)" },   /* dummy so that there are no "gaps" */
     { -EBADSLT,         "Invalid slot (-EBADSLT)" },
     { -EBADRQC,         "Invalid request code (-EBADRQC)" },
     { -ENOANO,          "No anode (-ENOANO)" },
@@ -710,7 +710,7 @@ static const value_string usb_urb_status_vals[] = {
     { -ECHRNG,          "Channel number out of range (-ECHRNG)" },
     { -EIDRM,           "Identifier removed (-EIDRM)" },
     { -ENOMSG,          "No message of desired type (-ENOMSG)" },
-    { -41,              "(-41 ???)" },   /* dummy so that there are no "gaps" */
+    { -41,              "(-41 \?\?\?)" },   /* dummy so that there are no "gaps" */
     { -ELOOP,           "Too many symbolic links encountered (-ELOOP)" },
     { -ENOTEMPTY,       "Directory not empty (-ENOTEMPTY)" },
     { -ENOSYS,          "Function not implemented (-ENOSYS)" },
