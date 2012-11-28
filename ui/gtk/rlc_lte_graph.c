@@ -262,13 +262,12 @@ static int refnum=0;
 #define DBS_AXES_DRAWING	(1 << 2)
 #define DBS_GRAPH_DRAWING	(1 << 3)
 #define DBS_TPUT_ELMTS		(1 << 4)
-/*int debugging = DBS_FENTRY;*/
-/* static int debugging = 1; */
-/*int debugging = DBS_AXES_TICKS;*/
-/*int debugging = DBS_AXES_DRAWING;*/
-/*int debugging = DBS_GRAPH_DRAWING;*/
-/*int debugging = DBS_TPUT_ELMTS;*/
-int debugging = 0;
+/*static int debugging = DBS_FENTRY;*/
+/*static int debugging = DBS_AXES_TICKS;*/
+/*static int debugging = DBS_AXES_DRAWING;*/
+/*static int debugging = DBS_GRAPH_DRAWING;*/
+/*static int debugging = DBS_TPUT_ELMTS;*/
+static int debugging = 0;
 
 static void create_gui(struct graph * );
 static void create_drawing_area(struct graph * );
@@ -2598,12 +2597,12 @@ static void rlc_lte_make_elmtlist(struct graph *g)
     if (g->elists->elements == NULL) {
         get_data_control_counts(g, &data, &acks, &nacks);
 
-        /* Allocate elements for status */
-        n = 2 + (5*acks) + (4*nacks);
+        /* Allocate elements for data */
+        n = data + 1;
         e0 = elements0 = (struct element *)g_malloc(n*sizeof(struct element));
 
-        /* Allocate elements for data */
-        n = data+1;
+        /* Allocate elements for status */
+        n = (2*acks) + (4*nacks) + 2;
         e1 = elements1 = (struct element *)g_malloc(n*sizeof(struct element));
 
         /* Allocate container for 2nd list of elements */
@@ -2642,14 +2641,14 @@ static void rlc_lte_make_elmtlist(struct graph *g)
             y = (g->zoom.y * seq_cur);
 
             /* Circle for data point */
-            e1->type = ELMT_ELLIPSE;
-            e1->parent = tmp;
-            e1->elment_color_p = &g->style.seq_color;
-            e1->p.ellipse.dim.width = DATA_BLOB_SIZE;
-            e1->p.ellipse.dim.height = DATA_BLOB_SIZE;
-            e1->p.ellipse.dim.x = x;
-            e1->p.ellipse.dim.y = y;
-            e1++;
+            e0->type = ELMT_ELLIPSE;
+            e0->parent = tmp;
+            e0->elment_color_p = &g->style.seq_color;
+            e0->p.ellipse.dim.width = DATA_BLOB_SIZE;
+            e0->p.ellipse.dim.height = DATA_BLOB_SIZE;
+            e0->p.ellipse.dim.x = x;
+            e0->p.ellipse.dim.y = y;
+            e0++;
         } else {
 
             /* Remember the last status segment */
@@ -2665,45 +2664,45 @@ static void rlc_lte_make_elmtlist(struct graph *g)
 
                 if (y > previous_status_y) {
                     /* Draw from previous ACK point horizontally to this time */
-                    e0->type = ELMT_LINE;
-                    e0->parent = tmp;
-                    e0->elment_color_p = &g->style.ack_color[0];
-                    e0->p.line.dim.x1 = previous_status_x;
-                    e0->p.line.dim.y1 = previous_status_y;
-                    e0->p.line.dim.x2 = x;
-                    e0->p.line.dim.y2 = previous_status_y;
-                    e0++;
+                    e1->type = ELMT_LINE;
+                    e1->parent = tmp;
+                    e1->elment_color_p = &g->style.ack_color[0];
+                    e1->p.line.dim.x1 = previous_status_x;
+                    e1->p.line.dim.y1 = previous_status_y;
+                    e1->p.line.dim.x2 = x;
+                    e1->p.line.dim.y2 = previous_status_y;
+                    e1++;
     
                     /* Now draw up to current ACK */
-                    e0->type = ELMT_LINE;
-                    e0->parent = tmp;
-                    e0->elment_color_p = &g->style.ack_color[0];
-                    e0->p.line.dim.x1 = x;
-                    e0->p.line.dim.y1 = previous_status_y;
-                    e0->p.line.dim.x2 = x;
-                    e0->p.line.dim.y2 = y;
-                    e0++;
+                    e1->type = ELMT_LINE;
+                    e1->parent = tmp;
+                    e1->elment_color_p = &g->style.ack_color[0];
+                    e1->p.line.dim.x1 = x;
+                    e1->p.line.dim.y1 = previous_status_y;
+                    e1->p.line.dim.x2 = x;
+                    e1->p.line.dim.y2 = y;
+                    e1++;
                 }
                 else {
                     /* Want to go down, then along in this case... */
-                    e0->type = ELMT_LINE;
-                    e0->parent = tmp;
-                    e0->elment_color_p = &g->style.ack_color[0];
-                    e0->p.line.dim.x1 = previous_status_x;
-                    e0->p.line.dim.y1 = previous_status_y;
-                    e0->p.line.dim.x2 = previous_status_x;
-                    e0->p.line.dim.y2 = y;
-                    e0++;
+                    e1->type = ELMT_LINE;
+                    e1->parent = tmp;
+                    e1->elment_color_p = &g->style.ack_color[0];
+                    e1->p.line.dim.x1 = previous_status_x;
+                    e1->p.line.dim.y1 = previous_status_y;
+                    e1->p.line.dim.x2 = previous_status_x;
+                    e1->p.line.dim.y2 = y;
+                    e1++;
     
                     /* Now draw up to current ACK */
-                    e0->type = ELMT_LINE;
-                    e0->parent = tmp;
-                    e0->elment_color_p = &g->style.ack_color[0];
-                    e0->p.line.dim.x1 = previous_status_x;
-                    e0->p.line.dim.y1 = y;
-                    e0->p.line.dim.x2 = x;
-                    e0->p.line.dim.y2 = y;
-                    e0++;
+                    e1->type = ELMT_LINE;
+                    e1->parent = tmp;
+                    e1->elment_color_p = &g->style.ack_color[0];
+                    e1->p.line.dim.x1 = previous_status_x;
+                    e1->p.line.dim.y1 = y;
+                    e1->p.line.dim.x2 = x;
+                    e1->p.line.dim.y2 = y;
+                    e1++;
                 }
             }
 
@@ -2712,42 +2711,42 @@ static void rlc_lte_make_elmtlist(struct graph *g)
                     double nack_y = (g->zoom.y * tmp->NACKs[n]);
 
                     /* A red cross to show where the NACK is reported */
-                    #define NACK_CROSS_SIZE 8
-                    e0->type = ELMT_LINE;
-                    e0->parent = tmp;
-                    e0->elment_color_p = &g->style.ack_color[1];
-                    e0->p.line.dim.x1 = x -NACK_CROSS_SIZE;
-                    e0->p.line.dim.y1 = nack_y - NACK_CROSS_SIZE;
-                    e0->p.line.dim.x2 = x + NACK_CROSS_SIZE;
-                    e0->p.line.dim.y2 = nack_y + NACK_CROSS_SIZE;
-                    e0++;
+                    #define NACK_CROSS_SIZE 3
+                    e1->type = ELMT_LINE;
+                    e1->parent = tmp;
+                    e1->elment_color_p = &g->style.ack_color[1];
+                    e1->p.line.dim.x1 = x -NACK_CROSS_SIZE;
+                    e1->p.line.dim.y1 = nack_y - NACK_CROSS_SIZE;
+                    e1->p.line.dim.x2 = x + NACK_CROSS_SIZE;
+                    e1->p.line.dim.y2 = nack_y + NACK_CROSS_SIZE;
+                    e1++;
 
-                    e0->type = ELMT_LINE;
-                    e0->parent = tmp;
-                    e0->elment_color_p = &g->style.ack_color[1];
-                    e0->p.line.dim.x1 = x - NACK_CROSS_SIZE;
-                    e0->p.line.dim.y1 = nack_y + NACK_CROSS_SIZE;
-                    e0->p.line.dim.x2 = x + NACK_CROSS_SIZE;
-                    e0->p.line.dim.y2 = nack_y - NACK_CROSS_SIZE;
-                    e0++;
+                    e1->type = ELMT_LINE;
+                    e1->parent = tmp;
+                    e1->elment_color_p = &g->style.ack_color[1];
+                    e1->p.line.dim.x1 = x - NACK_CROSS_SIZE;
+                    e1->p.line.dim.y1 = nack_y + NACK_CROSS_SIZE;
+                    e1->p.line.dim.x2 = x + NACK_CROSS_SIZE;
+                    e1->p.line.dim.y2 = nack_y - NACK_CROSS_SIZE;
+                    e1++;
 
-                    e0->type = ELMT_LINE;
-                    e0->parent = tmp;
-                    e0->elment_color_p = &g->style.ack_color[1];
-                    e0->p.line.dim.x1 = x;
-                    e0->p.line.dim.y1 = nack_y + NACK_CROSS_SIZE;
-                    e0->p.line.dim.x2 = x;
-                    e0->p.line.dim.y2 = nack_y - NACK_CROSS_SIZE;
-                    e0++;
+                    e1->type = ELMT_LINE;
+                    e1->parent = tmp;
+                    e1->elment_color_p = &g->style.ack_color[1];
+                    e1->p.line.dim.x1 = x;
+                    e1->p.line.dim.y1 = nack_y + NACK_CROSS_SIZE;
+                    e1->p.line.dim.x2 = x;
+                    e1->p.line.dim.y2 = nack_y - NACK_CROSS_SIZE;
+                    e1++;
 
-                    e0->type = ELMT_LINE;
-                    e0->parent = tmp;
-                    e0->elment_color_p = &g->style.ack_color[1];
-                    e0->p.line.dim.x1 = x - NACK_CROSS_SIZE;
-                    e0->p.line.dim.y1 = nack_y;
-                    e0->p.line.dim.x2 = x + NACK_CROSS_SIZE;
-                    e0->p.line.dim.y2 = nack_y;
-                    e0++;
+                    e1->type = ELMT_LINE;
+                    e1->parent = tmp;
+                    e1->elment_color_p = &g->style.ack_color[1];
+                    e1->p.line.dim.x1 = x - NACK_CROSS_SIZE;
+                    e1->p.line.dim.y1 = nack_y;
+                    e1->p.line.dim.x2 = x + NACK_CROSS_SIZE;
+                    e1->p.line.dim.y2 = nack_y;
+                    e1++;
                 }
             }
 
@@ -2760,14 +2759,14 @@ static void rlc_lte_make_elmtlist(struct graph *g)
 
     if (ack_seen) {
         /* Add one more line for status, from the last PDU -> rhs of graph */
-        e0->type = ELMT_LINE;
-        e0->parent = last_status_segment;
-        e0->elment_color_p = &g->style.ack_color[0];
-        e0->p.line.dim.x1 = previous_status_x;
-        e0->p.line.dim.y1 = previous_status_y;
-        e0->p.line.dim.x2 = g->bounds.width * g->zoom.x;  /* right edge of graph area */
-        e0->p.line.dim.y2 = previous_status_y;
-        e0++;
+        e1->type = ELMT_LINE;
+        e1->parent = last_status_segment;
+        e1->elment_color_p = &g->style.ack_color[0];
+        e1->p.line.dim.x1 = previous_status_x;
+        e1->p.line.dim.y1 = previous_status_y;
+        e1->p.line.dim.x2 = g->bounds.width * g->zoom.x;  /* right edge of graph area */
+        e1->p.line.dim.y2 = previous_status_y;
+        e1++;
     }
 
     /* Complete both element lists */
