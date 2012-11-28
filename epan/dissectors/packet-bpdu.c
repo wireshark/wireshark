@@ -503,31 +503,31 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * */
     if (bpdu_use_system_id_extensions) {
       root_id_item = proto_tree_add_text(bpdu_tree, tvb,
-                          BPDU_ROOT_IDENTIFIER, 8,
-			  "Root Identifier: %d / %d / %s",
-			  root_identifier_bridge_priority,
-			  root_identifier_system_id_extension,
-			  root_identifier_mac_str);
+                                         BPDU_ROOT_IDENTIFIER, 8,
+                                         "Root Identifier: %d / %d / %s",
+                                         root_identifier_bridge_priority,
+                                         root_identifier_system_id_extension,
+                                         root_identifier_mac_str);
       root_id_tree = proto_item_add_subtree(root_id_item, ett_root_id);
       proto_tree_add_uint(root_id_tree, hf_bpdu_root_prio, tvb,
-			      BPDU_ROOT_IDENTIFIER , 1,
-			      root_identifier_bridge_priority);
+                          BPDU_ROOT_IDENTIFIER , 1,
+                          root_identifier_bridge_priority);
       proto_tree_add_uint(root_id_tree, hf_bpdu_root_sys_id_ext, tvb,
-			      BPDU_ROOT_IDENTIFIER , 2,
-			      root_identifier_system_id_extension);
+                          BPDU_ROOT_IDENTIFIER , 2,
+                          root_identifier_system_id_extension);
       proto_tree_add_item(root_id_tree, hf_bpdu_root_mac, tvb,
                           BPDU_ROOT_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
 
     } else {
       root_id_item = proto_tree_add_text(bpdu_tree, tvb,
-                          BPDU_ROOT_IDENTIFIER, 8,
-			  "Root Identifier: %d / %s",
-			  root_identifier_bridge_priority,
-			  root_identifier_mac_str);
+                                         BPDU_ROOT_IDENTIFIER, 8,
+                                         "Root Identifier: %d / %s",
+                                         root_identifier_bridge_priority,
+                                         root_identifier_mac_str);
       root_id_tree = proto_item_add_subtree(root_id_item, ett_root_id);
       proto_tree_add_uint(root_id_tree, hf_bpdu_root_prio, tvb,
-			      BPDU_ROOT_IDENTIFIER , 2,
-			      root_identifier_bridge_priority);
+                          BPDU_ROOT_IDENTIFIER , 2,
+                          root_identifier_bridge_priority);
       proto_tree_add_item(root_id_tree, hf_bpdu_root_mac, tvb,
                           BPDU_ROOT_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
     }
@@ -541,30 +541,30 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * */
     if (bpdu_use_system_id_extensions) {
       bridge_id_item = proto_tree_add_text(bpdu_tree, tvb,
-                          BPDU_BRIDGE_IDENTIFIER, 8,
-			  "Bridge Identifier: %d / %d / %s",
-			  bridge_identifier_bridge_priority,
-			  bridge_identifier_system_id_extension,
-			  bridge_identifier_mac_str);
+                                           BPDU_BRIDGE_IDENTIFIER, 8,
+                                           "Bridge Identifier: %d / %d / %s",
+                                           bridge_identifier_bridge_priority,
+                                           bridge_identifier_system_id_extension,
+                                           bridge_identifier_mac_str);
       bridge_id_tree = proto_item_add_subtree(bridge_id_item, ett_bridge_id);
       proto_tree_add_uint(bridge_id_tree, hf_bpdu_bridge_prio, tvb,
-			      BPDU_BRIDGE_IDENTIFIER , 1,
-			      bridge_identifier_bridge_priority);
+                          BPDU_BRIDGE_IDENTIFIER , 1,
+                          bridge_identifier_bridge_priority);
       proto_tree_add_uint(bridge_id_tree, hf_bpdu_bridge_sys_id_ext, tvb,
-			      BPDU_BRIDGE_IDENTIFIER , 2,
-			      bridge_identifier_system_id_extension);
+                          BPDU_BRIDGE_IDENTIFIER , 2,
+                          bridge_identifier_system_id_extension);
       proto_tree_add_item(bridge_id_tree, hf_bpdu_bridge_mac, tvb,
                           BPDU_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
     } else {
       bridge_id_item = proto_tree_add_text(bpdu_tree, tvb,
-                          BPDU_BRIDGE_IDENTIFIER, 8,
-			  "Bridge Identifier: %d / %s",
-			  bridge_identifier_bridge_priority,
-			  bridge_identifier_mac_str);
+                                           BPDU_BRIDGE_IDENTIFIER, 8,
+                                           "Bridge Identifier: %d / %s",
+                                           bridge_identifier_bridge_priority,
+                                           bridge_identifier_mac_str);
       bridge_id_tree = proto_item_add_subtree(bridge_id_item, ett_bridge_id);
       proto_tree_add_uint(bridge_id_tree, hf_bpdu_bridge_prio, tvb,
-                              BPDU_BRIDGE_IDENTIFIER , 2,
-			      bridge_identifier_bridge_priority);
+                          BPDU_BRIDGE_IDENTIFIER , 2,
+                          bridge_identifier_bridge_priority);
       proto_tree_add_item(bridge_id_tree, hf_bpdu_bridge_mac, tvb,
                           BPDU_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
     }
@@ -619,47 +619,46 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       config_format_selector = tvb_get_guint8(tvb, BPDU_MST_CONFIG_FORMAT_SELECTOR);
       if (version_3_length != 0) {
         msti_format = MSTI_FORMAT_IEEE_8021S;
-	if (version_3_length >= VERSION_3_STATIC_LENGTH) {
-	  total_msti_length = version_3_length - VERSION_3_STATIC_LENGTH;
-	} else {
-	  /*
-	   * XXX - there appears to be an ambiguity in the 802.3Q-2003
-	   * standard and at least some of the 802.3s drafts.
-	   *
-	   * The "Version 3 Length" field is defined to be "the number of
-	   * octets taken by the parameters that follow in the BPDU", but
-	   * it's spoken of as "representing an integral number, from 0 to
-	   * 64 inclusive, of MSTI Configuration Messages".
-	   *
-	   * According to mail from a member of the stds-802-1@ieee.org list,
-	   * the latter of those is just saying that the length must not have
-	   * a value that implies that there's a partial MSTI message in the
-	   * packet; it's still in units of octets, not messages.
-	   *
-	   * However, it appears that Cisco's C3550 software (C3550-I5Q3L2-M,
-	   * Version 12.1(12c)EA1) might be sending out lengths in units of
-	   * messages.
-	   *
-	   * This length can't be the number of octets taken by the parameters
-	   * that follow in the BPDU, because it's less than the fixed-length
-	   * portion of those parameters, so we assume the length is a count of
-	   * messages.
-	   */
-	  total_msti_length = version_3_length * MSTI_MESSAGE_SIZE;
-	}
+        if (version_3_length >= VERSION_3_STATIC_LENGTH) {
+          total_msti_length = version_3_length - VERSION_3_STATIC_LENGTH;
+        } else {
+          /*
+           * XXX - there appears to be an ambiguity in the 802.3Q-2003
+           * standard and at least some of the 802.3s drafts.
+           *
+           * The "Version 3 Length" field is defined to be "the number of
+           * octets taken by the parameters that follow in the BPDU", but
+           * it's spoken of as "representing an integral number, from 0 to
+           * 64 inclusive, of MSTI Configuration Messages".
+           *
+           * According to mail from a member of the stds-802-1@ieee.org list,
+           * the latter of those is just saying that the length must not have
+           * a value that implies that there's a partial MSTI message in the
+           * packet; it's still in units of octets, not messages.
+           *
+           * However, it appears that Cisco's C3550 software (C3550-I5Q3L2-M,
+           * Version 12.1(12c)EA1) might be sending out lengths in units of
+           * messages.
+           *
+           * This length can't be the number of octets taken by the parameters
+           * that follow in the BPDU, because it's less than the fixed-length
+           * portion of those parameters, so we assume the length is a count of
+           * messages.
+           */
+          total_msti_length = version_3_length * MSTI_MESSAGE_SIZE;
+        }
       } else {
-	if (tvb_reported_length(tvb) == (guint)config_format_selector + MST_BPDU_SIZE + 1 ) {
-	  msti_format = MSTI_FORMAT_ALTERNATIVE;
-	  total_msti_length = config_format_selector - VERSION_3_STATIC_LENGTH;
-	} else {
-	  /*
-	   * XXX - Unknown MSTI format, since version_3_length is 0
-	   * lets assume there are no msti instances in the packet.
-	   */
-	  msti_format = MSTI_FORMAT_UNKNOWN;
-	  total_msti_length = 0;
-	}
-
+        if (tvb_reported_length(tvb) == (guint)config_format_selector + MST_BPDU_SIZE + 1 ) {
+          msti_format = MSTI_FORMAT_ALTERNATIVE;
+          total_msti_length = config_format_selector - VERSION_3_STATIC_LENGTH;
+        } else {
+          /*
+           * XXX - Unknown MSTI format, since version_3_length is 0
+           * lets assume there are no msti instances in the packet.
+           */
+          msti_format = MSTI_FORMAT_UNKNOWN;
+          total_msti_length = 0;
+        }
       }
       if (protocol_version_identifier == 3) {
         set_actual_length(tvb, BPDU_MSTI + total_msti_length);
@@ -684,11 +683,11 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       switch(msti_format) {
 
       case MSTI_FORMAT_IEEE_8021S:
-	proto_tree_add_item(mstp_tree, hf_bpdu_cist_internal_root_path_cost, tvb,
-			    BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(mstp_tree, hf_bpdu_cist_internal_root_path_cost, tvb,
+                            BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
 
-	cist_bridge_identifier_bridge_priority = tvb_get_ntohs(tvb,BPDU_CIST_BRIDGE_IDENTIFIER);
-    cist_bridge_identifier_mac_str = tvb_ether_to_str(tvb, BPDU_CIST_BRIDGE_IDENTIFIER + 2);
+        cist_bridge_identifier_bridge_priority = tvb_get_ntohs(tvb,BPDU_CIST_BRIDGE_IDENTIFIER);
+        cist_bridge_identifier_mac_str = tvb_ether_to_str(tvb, BPDU_CIST_BRIDGE_IDENTIFIER + 2);
 
         /* add Identifier with format based on preference value
          * bpdu_use_system_id_extensions
@@ -698,37 +697,37 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           cist_bridge_identifier_bridge_priority &= 0xf000;
 
           cist_bridge_id_item = proto_tree_add_text(mstp_tree, tvb,
-                              BPDU_CIST_BRIDGE_IDENTIFIER, 8,
-                              "CIST Bridge Identifier: %d / %d / %s",
-                              cist_bridge_identifier_bridge_priority,
-                              cist_bridge_identifier_system_id_extension,
-                              cist_bridge_identifier_mac_str);
+                                                    BPDU_CIST_BRIDGE_IDENTIFIER, 8,
+                                                    "CIST Bridge Identifier: %d / %d / %s",
+                                                    cist_bridge_identifier_bridge_priority,
+                                                    cist_bridge_identifier_system_id_extension,
+                                                    cist_bridge_identifier_mac_str);
           cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
-                                  BPDU_CIST_BRIDGE_IDENTIFIER , 1,
-                                  cist_bridge_identifier_bridge_priority);
+                              BPDU_CIST_BRIDGE_IDENTIFIER , 1,
+                              cist_bridge_identifier_bridge_priority);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_sys_id_ext, tvb,
-                                  BPDU_CIST_BRIDGE_IDENTIFIER , 2,
-                                  cist_bridge_identifier_system_id_extension);
+                              BPDU_CIST_BRIDGE_IDENTIFIER , 2,
+                              cist_bridge_identifier_system_id_extension);
           proto_tree_add_item(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac, tvb,
-                                  BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                              BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
 
         } else {
           cist_bridge_id_item = proto_tree_add_text(mstp_tree, tvb,
-                              BPDU_CIST_BRIDGE_IDENTIFIER, 8,
-                              "CIST Bridge Identifier: %d / %s",
-                              cist_bridge_identifier_bridge_priority,
-                              cist_bridge_identifier_mac_str);
+                                                    BPDU_CIST_BRIDGE_IDENTIFIER, 8,
+                                                    "CIST Bridge Identifier: %d / %s",
+                                                    cist_bridge_identifier_bridge_priority,
+                                                    cist_bridge_identifier_mac_str);
           cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
-                                  BPDU_CIST_BRIDGE_IDENTIFIER , 2,
-                                  cist_bridge_identifier_bridge_priority);
+                              BPDU_CIST_BRIDGE_IDENTIFIER , 2,
+                              cist_bridge_identifier_bridge_priority);
           proto_tree_add_item(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac, tvb,
-                                  BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                              BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
         }
         /* end of Identifier formatting */
 
-	break;
+        break;
 
       case MSTI_FORMAT_ALTERNATIVE:
         cist_bridge_identifier_bridge_priority = tvb_get_ntohs(tvb,ALT_BPDU_CIST_BRIDGE_IDENTIFIER);
@@ -742,39 +741,39 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           cist_bridge_identifier_bridge_priority &= 0xf000;
 
           cist_bridge_id_item = proto_tree_add_text(mstp_tree, tvb,
-                              ALT_BPDU_CIST_BRIDGE_IDENTIFIER, 8,
-                              "CIST Bridge Identifier: %d / %d / %s",
-                              cist_bridge_identifier_bridge_priority,
-                              cist_bridge_identifier_system_id_extension,
-                              cist_bridge_identifier_mac_str);
+                                                    ALT_BPDU_CIST_BRIDGE_IDENTIFIER, 8,
+                                                    "CIST Bridge Identifier: %d / %d / %s",
+                                                    cist_bridge_identifier_bridge_priority,
+                                                    cist_bridge_identifier_system_id_extension,
+                                                    cist_bridge_identifier_mac_str);
           cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
-                                  ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 1,
-                                  cist_bridge_identifier_bridge_priority);
+                              ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 1,
+                              cist_bridge_identifier_bridge_priority);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_sys_id_ext, tvb,
-                                  ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 2,
-                                  cist_bridge_identifier_system_id_extension);
+                              ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 2,
+                              cist_bridge_identifier_system_id_extension);
           proto_tree_add_item(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac, tvb,
-                                  ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                              ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
         } else {
           cist_bridge_id_item = proto_tree_add_text(mstp_tree, tvb,
-                              ALT_BPDU_CIST_BRIDGE_IDENTIFIER, 8,
-                              "CIST Bridge Identifier: %d / %s",
-                              cist_bridge_identifier_bridge_priority,
-                              cist_bridge_identifier_mac_str);
+                                                    ALT_BPDU_CIST_BRIDGE_IDENTIFIER, 8,
+                                                    "CIST Bridge Identifier: %d / %s",
+                                                    cist_bridge_identifier_bridge_priority,
+                                                    cist_bridge_identifier_mac_str);
           cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
-                                  ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 2,
-                                  cist_bridge_identifier_bridge_priority);
+                              ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 2,
+                              cist_bridge_identifier_bridge_priority);
           proto_tree_add_item(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac, tvb,
-                                  ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                              ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
         }
         /* end of Identifier formatting */
 
-	proto_tree_add_item(mstp_tree, hf_bpdu_cist_internal_root_path_cost, tvb,
-			    ALT_BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(mstp_tree, hf_bpdu_cist_internal_root_path_cost, tvb,
+                            ALT_BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
 
-	break;
+        break;
       }
 
       proto_tree_add_item(mstp_tree, hf_bpdu_cist_remaining_hops, tvb,
@@ -783,308 +782,300 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset = BPDU_MSTI;
       msti = 1;
       while (total_msti_length > 0) {
-	switch(msti_format) {
+        switch(msti_format) {
 
-	case MSTI_FORMAT_IEEE_8021S:
-	  msti_regional_root_mstid = tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT);
-	  msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
-	  msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
-				     tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT+1);
-      msti_regional_root_mac_str = tvb_ether_to_str(tvb, MSTI_REGIONAL_ROOT + 2);
+        case MSTI_FORMAT_IEEE_8021S:
+          msti_regional_root_mstid = tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT);
+          msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
+          msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
+                                     tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT+1);
+          msti_regional_root_mac_str = tvb_ether_to_str(tvb, MSTI_REGIONAL_ROOT + 2);
 
-	  msti_item = proto_tree_add_text(mstp_tree, tvb, offset, 16,
-					  "MSTID %d, Regional Root Identifier %d / %s",
-					  msti_regional_root_mstid,
-					  msti_regional_root_priority,
-					  msti_regional_root_mac_str);
-	  msti_tree = proto_item_add_subtree(msti_item, ett_msti);
+          msti_item = proto_tree_add_text(mstp_tree, tvb, offset, 16,
+                                          "MSTID %d, Regional Root Identifier %d / %s",
+                                          msti_regional_root_mstid,
+                                          msti_regional_root_priority,
+                                          msti_regional_root_mac_str);
+          msti_tree = proto_item_add_subtree(msti_item, ett_msti);
 
-	  /* flags */
-	  flags = tvb_get_guint8(tvb, offset+MSTI_FLAGS);
-	  flags_item = proto_tree_add_uint(msti_tree, hf_bpdu_msti_flags, tvb,
-					   offset+MSTI_FLAGS, 1, flags);
-	  flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
+          /* flags */
+          flags = tvb_get_guint8(tvb, offset+MSTI_FLAGS);
+          flags_item = proto_tree_add_uint(msti_tree, hf_bpdu_msti_flags, tvb,
+                                           offset+MSTI_FLAGS, 1, flags);
+          flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
 
-	  sep = initial_sep;
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item, "%sMaster");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
-				 offset+MSTI_FLAGS, 1, flags);
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item, "%sAgreement");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
-				 offset+MSTI_FLAGS, 1, flags);
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item, "%sForwarding");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
-				 offset+MSTI_FLAGS, 1, flags);
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item, "%sLearning");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
-				 offset+MSTI_FLAGS, 1, flags);
-	  if (flags_item) {
-	    guint8 port_role;
-	    port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
-	    proto_item_append_text(flags_item, "%sPort Role: %s", sep,
-				   val_to_str(port_role, role_vals,
-				   "Unknown (%u)"));
-	  }
-	  proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
-			      offset+MSTI_FLAGS, 1, flags);
-	  sep = cont_sep;
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item, "%sProposal");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
-				 offset+MSTI_FLAGS, 1, flags);
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item, "%sTopology Change");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
-				 offset+MSTI_FLAGS, 1, flags);
-	  if (sep != initial_sep) { 	      /* We put something in; put in the terminating ")" */
-	    proto_item_append_text(flags_item, ")");
-	  }
+          sep = initial_sep;
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item, "%sMaster");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
+                                 offset+MSTI_FLAGS, 1, flags);
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item, "%sAgreement");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
+                                 offset+MSTI_FLAGS, 1, flags);
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item, "%sForwarding");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
+                                 offset+MSTI_FLAGS, 1, flags);
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item, "%sLearning");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
+                                 offset+MSTI_FLAGS, 1, flags);
+          if (flags_item) {
+            guint8 port_role;
+            port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
+            proto_item_append_text(flags_item, "%sPort Role: %s", sep,
+                                   val_to_str(port_role, role_vals,
+                                   "Unknown (%u)"));
+          }
+          proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
+                              offset+MSTI_FLAGS, 1, flags);
+          sep = cont_sep;
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item, "%sProposal");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
+                                 offset+MSTI_FLAGS, 1, flags);
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item, "%sTopology Change");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
+                                 offset+MSTI_FLAGS, 1, flags);
+          if (sep != initial_sep) {               /* We put something in; put in the terminating ")" */
+            proto_item_append_text(flags_item, ")");
+          }
 
-	  /* pri, MSTID, Regional root */
-      hidden_item = proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
-                                  offset + MSTI_REGIONAL_ROOT + 2, 6, ENC_BIG_ENDIAN);
+          /* pri, MSTID, Regional root */
+          hidden_item = proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
+                                            offset + MSTI_REGIONAL_ROOT + 2, 6, ENC_BIG_ENDIAN);
 
-	  PROTO_ITEM_SET_HIDDEN(hidden_item);
-	  proto_tree_add_text(msti_tree, tvb, offset + MSTI_REGIONAL_ROOT, 8,
-			      "MSTID %d, priority %d Root Identifier %s",
-			      msti_regional_root_mstid,
-			      msti_regional_root_priority,
-			      msti_regional_root_mac_str);
+          PROTO_ITEM_SET_HIDDEN(hidden_item);
+          proto_tree_add_text(msti_tree, tvb, offset + MSTI_REGIONAL_ROOT, 8,
+                              "MSTID %d, priority %d Root Identifier %s",
+                              msti_regional_root_mstid,
+                              msti_regional_root_priority,
+                              msti_regional_root_mac_str);
 
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
+                              offset+MSTI_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
 
-	  proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
-			      offset+MSTI_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
+          msti_bridge_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY) >> 4;
+          msti_port_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_PORT_IDENTIFIER_PRIORITY) >> 4;
 
-	  msti_bridge_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY) >> 4;
-	  msti_port_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_PORT_IDENTIFIER_PRIORITY) >> 4;
+          proto_tree_add_uint(msti_tree, hf_bpdu_msti_bridge_identifier_priority, tvb,
+                              offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY, 1,
+                              msti_bridge_identifier_priority);
+          proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_identifier_priority, tvb,
+                              offset+MSTI_PORT_IDENTIFIER_PRIORITY, 1,
+                              msti_port_identifier_priority);
 
-	  proto_tree_add_uint(msti_tree, hf_bpdu_msti_bridge_identifier_priority, tvb,
-			      offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY, 1,
-			      msti_bridge_identifier_priority);
-	  proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_identifier_priority, tvb,
-			      offset+MSTI_PORT_IDENTIFIER_PRIORITY, 1,
-			      msti_port_identifier_priority);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
+                              offset + MSTI_REMAINING_HOPS, 1, ENC_BIG_ENDIAN);
 
-	  proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
-			      offset + MSTI_REMAINING_HOPS, 1, ENC_BIG_ENDIAN);
+          total_msti_length -= MSTI_MESSAGE_SIZE;
+          offset += MSTI_MESSAGE_SIZE;
+          break;
 
-	  total_msti_length -= MSTI_MESSAGE_SIZE;
-	  offset += MSTI_MESSAGE_SIZE;
-	  break;
+        case MSTI_FORMAT_ALTERNATIVE:
+          msti_regional_root_mstid = tvb_get_guint8(tvb,  offset+ ALT_MSTI_REGIONAL_ROOT);
+          msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
+          msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
+                                     tvb_get_guint8(tvb,  offset+ ALT_MSTI_REGIONAL_ROOT+1);
+          msti_regional_root_mac_str = tvb_ether_to_str(tvb, offset+ ALT_MSTI_REGIONAL_ROOT + 2);
 
-	case MSTI_FORMAT_ALTERNATIVE:
-	  msti_regional_root_mstid = tvb_get_guint8(tvb,  offset+ ALT_MSTI_REGIONAL_ROOT);
-	  msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
-	  msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
-				     tvb_get_guint8(tvb,  offset+ ALT_MSTI_REGIONAL_ROOT+1);
-      msti_regional_root_mac_str = tvb_ether_to_str(tvb, offset+ ALT_MSTI_REGIONAL_ROOT + 2);
+          msti_item = proto_tree_add_text(mstp_tree, tvb, offset, 16,
+                                          "MSTID %d, Regional Root Identifier %d / %s",
+                                          msti_regional_root_mstid,
+                                          msti_regional_root_priority,
+                                          msti_regional_root_mac_str);
+          msti_tree = proto_item_add_subtree(msti_item, ett_msti);
 
-	  msti_item = proto_tree_add_text(mstp_tree, tvb, offset, 16,
-					  "MSTID %d, Regional Root Identifier %d / %s",
-					  msti_regional_root_mstid,
-					  msti_regional_root_priority,
-					  msti_regional_root_mac_str);
-	  msti_tree = proto_item_add_subtree(msti_item, ett_msti);
+          msti_mstid = tvb_get_ntohs(tvb,  offset+ ALT_MSTI_MSTID);
+          proto_tree_add_text(msti_tree, tvb, offset+ALT_MSTI_MSTID, 2,
+                              "MSTID: %d", msti_mstid);
 
-	  msti_mstid = tvb_get_ntohs(tvb,  offset+ ALT_MSTI_MSTID);
-	  proto_tree_add_text(msti_tree, tvb, offset+ALT_MSTI_MSTID, 2,
-			      "MSTID: %d", msti_mstid);
+          /* flags */
+          flags = tvb_get_guint8(tvb, offset+ALT_MSTI_FLAGS);
+          flags_item = proto_tree_add_uint(msti_tree, hf_bpdu_msti_flags, tvb,
+                                           offset+ALT_MSTI_FLAGS, 1, flags);
+          flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
 
-	  /* flags */
-	  flags = tvb_get_guint8(tvb, offset+ALT_MSTI_FLAGS);
-	  flags_item = proto_tree_add_uint(msti_tree, hf_bpdu_msti_flags, tvb,
-					   offset+ALT_MSTI_FLAGS, 1, flags);
-	  flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
+          sep = initial_sep;
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item, "%sMaster");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
+                                 offset+ALT_MSTI_FLAGS, 1, flags);
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item, "%sAgreement");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
+                                 offset+ALT_MSTI_FLAGS, 1, flags);
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item, "%sForwarding");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
+                                 offset+ALT_MSTI_FLAGS, 1, flags);
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item, "%sLearning");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
+                                 offset+ALT_MSTI_FLAGS, 1, flags);
+          if (flags_item) {
+            guint8 port_role;
+            port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
+            proto_item_append_text(flags_item, "%sPort Role: %s", sep,
+                                   val_to_str(port_role, role_vals,
+                                   "Unknown (%u)"));
+          }
+          proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
+                              offset+ALT_MSTI_FLAGS, 1, flags);
+          sep = cont_sep;
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item, "%sProposal");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
+                                 offset+ALT_MSTI_FLAGS, 1, flags);
+          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item, "%sTopology Change");
+          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
+                                 offset+ALT_MSTI_FLAGS, 1, flags);
+          if (sep != initial_sep) {               /* We put something in; put in the terminating ")" */
+            proto_item_append_text(flags_item, ")");
+          }
 
-	  sep = initial_sep;
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item, "%sMaster");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
-				 offset+ALT_MSTI_FLAGS, 1, flags);
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item, "%sAgreement");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
-				 offset+ALT_MSTI_FLAGS, 1, flags);
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item, "%sForwarding");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
-				 offset+ALT_MSTI_FLAGS, 1, flags);
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item, "%sLearning");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
-				 offset+ALT_MSTI_FLAGS, 1, flags);
-	  if (flags_item) {
-	    guint8 port_role;
-	    port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
-	    proto_item_append_text(flags_item, "%sPort Role: %s", sep,
-				   val_to_str(port_role, role_vals,
-				   "Unknown (%u)"));
-	  }
-	  proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
-			      offset+ALT_MSTI_FLAGS, 1, flags);
-	  sep = cont_sep;
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item, "%sProposal");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
-				 offset+ALT_MSTI_FLAGS, 1, flags);
-	  APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item, "%sTopology Change");
-	  proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
-				 offset+ALT_MSTI_FLAGS, 1, flags);
-	  if (sep != initial_sep) { 	      /* We put something in; put in the terminating ")" */
-	    proto_item_append_text(flags_item, ")");
-	  }
+          /* pri, MSTID, Regional root */
+          hidden_item = proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
+                                            offset + ALT_MSTI_REGIONAL_ROOT + 2, 6, ENC_BIG_ENDIAN);
 
-	  /* pri, MSTID, Regional root */
-      hidden_item = proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
-                                  offset + ALT_MSTI_REGIONAL_ROOT + 2, 6, ENC_BIG_ENDIAN);
+          PROTO_ITEM_SET_HIDDEN(hidden_item);
+          proto_tree_add_text(msti_tree, tvb, offset + ALT_MSTI_REGIONAL_ROOT, 8,
+                              "MSTI Regional Root Identifier: %d / %d / %s",
+                              msti_regional_root_mstid,
+                              msti_regional_root_priority,
+                              msti_regional_root_mac_str);
 
-	  PROTO_ITEM_SET_HIDDEN(hidden_item);
-	  proto_tree_add_text(msti_tree, tvb, offset + ALT_MSTI_REGIONAL_ROOT, 8,
-			      "MSTI Regional Root Identifier: %d / %d / %s",
-			      msti_regional_root_mstid,
-			      msti_regional_root_priority,
-			      msti_regional_root_mac_str);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
+                              offset+ALT_MSTI_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
 
+          msti_bridge_identifier_priority = tvb_get_ntohs(tvb, offset+ALT_MSTI_BRIDGE_IDENTIFIER);
+          msti_bridge_identifier_mac_str = tvb_ether_to_str(tvb, ALT_MSTI_BRIDGE_IDENTIFIER + 2);
 
-	  proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
-			      offset+ALT_MSTI_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
+          proto_tree_add_text(msti_tree, tvb, offset+ALT_MSTI_BRIDGE_IDENTIFIER, 8,
+                              "MSTI Bridge Identifier: %d / %d / %s",
+                              msti_bridge_identifier_priority & 0x0fff,
+                              msti_bridge_identifier_priority & 0xf000,
+                              msti_bridge_identifier_mac_str);
 
-	  msti_bridge_identifier_priority = tvb_get_ntohs(tvb, offset+ALT_MSTI_BRIDGE_IDENTIFIER);
-      msti_bridge_identifier_mac_str = tvb_ether_to_str(tvb, ALT_MSTI_BRIDGE_IDENTIFIER + 2);
+          msti_port_identifier_priority = tvb_get_ntohs(tvb, offset+ALT_MSTI_PORT_IDENTIFIER);
+          proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_id, tvb,
+                              offset+ALT_MSTI_PORT_IDENTIFIER, 2, msti_port_identifier_priority);
 
-	  proto_tree_add_text(msti_tree, tvb, offset+ALT_MSTI_BRIDGE_IDENTIFIER, 8,
-			      "MSTI Bridge Identifier: %d / %d / %s",
-			      msti_bridge_identifier_priority & 0x0fff,
-			      msti_bridge_identifier_priority & 0xf000,
-			      msti_bridge_identifier_mac_str);
+          proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
+                              offset + ALT_MSTI_REMAINING_HOPS, 1, ENC_BIG_ENDIAN);
 
-	  msti_port_identifier_priority = tvb_get_ntohs(tvb, offset+ALT_MSTI_PORT_IDENTIFIER);
-	  proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_id, tvb,
-			      offset+ALT_MSTI_PORT_IDENTIFIER, 2, msti_port_identifier_priority);
+          total_msti_length -= ALT_MSTI_MESSAGE_SIZE;
+          offset += ALT_MSTI_MESSAGE_SIZE;
+          break;
 
-	  proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
-			      offset + ALT_MSTI_REMAINING_HOPS, 1, ENC_BIG_ENDIAN);
-
-	  total_msti_length -= ALT_MSTI_MESSAGE_SIZE;
-	  offset += ALT_MSTI_MESSAGE_SIZE;
-	  break;
-
-	}
-    msti++;
+        }
+        msti++;
+      }
     }
-  }
 
-  if (protocol_version_identifier >= 4 && version_1_length == 0
-				&& tvb_reported_length(tvb) >= 106) {
+    if (protocol_version_identifier >= 4 && version_1_length == 0
+        && tvb_reported_length(tvb) >= 106) {
 
-	/*
-	 * OK, it passes the "Protocol Identifier is 0000 0000
-	 * 0000 0000", "Protocol Version Identifier is 4 or
-	 * greater", "BPDU Type is 0000 0010", "contains 106 or
-	 * more octets", and "a Version 1 Length of 0" tests.
-	 */
+      /*
+       * OK, it passes the "Protocol Identifier is 0000 0000
+       * 0000 0000", "Protocol Version Identifier is 4 or
+       * greater", "BPDU Type is 0000 0010", "contains 106 or
+       * more octets", and "a Version 1 Length of 0" tests.
+       */
+      bpdu_version_4_length = BPDU_MSTI + msti_len_temp;
+      version_4_length = tvb_get_ntohs(tvb, bpdu_version_4_length);
 
-	bpdu_version_4_length = BPDU_MSTI + msti_len_temp;
-	version_4_length = tvb_get_ntohs(tvb, bpdu_version_4_length);
+      proto_tree_add_uint(bpdu_tree, hf_bpdu_version_4_length, tvb,
+                          bpdu_version_4_length, 2, version_4_length);
 
-    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_4_length, tvb,
-	bpdu_version_4_length, 2, version_4_length);
+      /* version 4 length is 55 or more.
+       */
+      if (version_4_length >= 53) {
+        spt_item = proto_tree_add_text(bpdu_tree, tvb,
+                                       bpdu_version_4_length, -1, "SPT Extension");
 
-	/* version 4 length is 55 or more.
-	 */
-	if (version_4_length >= 53) {
+        spt_tree = proto_item_add_subtree(spt_item, ett_spt);
 
-    	spt_item = proto_tree_add_text(bpdu_tree, tvb,
-	                	bpdu_version_4_length, -1, "SPT Extension");
+        spt_offset = (bpdu_version_4_length + 2);
 
-		spt_tree = proto_item_add_subtree(spt_item, ett_spt);
+        /* Aux MCID: */
 
-		spt_offset = (bpdu_version_4_length + 2);
+        aux_mcid_item = proto_tree_add_text(spt_tree, tvb, spt_offset,
+                                            MCID_LEN, "MCID Data");
+        aux_mcid_tree = proto_item_add_subtree(aux_mcid_item, ett_aux_mcid);
 
-		/* Aux MCID: */
+        proto_tree_add_item(aux_mcid_tree,
+                            hf_bpdu_spt_config_format_selector, tvb, spt_offset, 1,
+                            ENC_BIG_ENDIAN);
+        proto_tree_add_item(aux_mcid_tree, hf_bpdu_spt_config_name, tvb,
+                            spt_offset + 1, 32, ENC_ASCII | ENC_NA);
 
-		aux_mcid_item = proto_tree_add_text(spt_tree, tvb, spt_offset,
-				MCID_LEN, "MCID Data");
-		aux_mcid_tree = proto_item_add_subtree(aux_mcid_item,
-				ett_aux_mcid);
+        proto_tree_add_item(aux_mcid_tree,
+                            hf_bpdu_spt_config_revision_level, tvb, spt_offset + 33,
+                            2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(aux_mcid_tree, hf_bpdu_spt_config_digest,
+                            tvb, spt_offset + 35, 16, ENC_NA);
+        spt_offset += MCID_LEN;
 
-		proto_tree_add_item(aux_mcid_tree,
-				hf_bpdu_spt_config_format_selector, tvb, spt_offset, 1,
-				ENC_BIG_ENDIAN);
-		proto_tree_add_item(aux_mcid_tree, hf_bpdu_spt_config_name, tvb,
-				spt_offset + 1, 32, ENC_ASCII | ENC_NA);
+        /* Agreement Data */
+        agreement_item = proto_tree_add_text(spt_tree, tvb, spt_offset,
+                                             -1, "Agreement Data");
+        agreement_tree = proto_item_add_subtree(agreement_item, ett_agreement);
 
-		proto_tree_add_item(aux_mcid_tree,
-				hf_bpdu_spt_config_revision_level, tvb, spt_offset + 33,
-				2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(aux_mcid_tree, hf_bpdu_spt_config_digest,
-				tvb, spt_offset + 35, 16, ENC_NA);
-		spt_offset += MCID_LEN;
+        spt_agree_data = tvb_get_guint8(tvb, spt_offset);
 
-		/* Agreement Data */
-		agreement_item = proto_tree_add_text(spt_tree, tvb, spt_offset,
-				-1, "Agreement Data");
-		agreement_tree = proto_item_add_subtree(agreement_item,
-				ett_agreement);
+        sep = initial_sep;
+        if (agreement_item) {
+          agree_num = (spt_agree_data & 0x03);
+          proto_item_append_text(agreement_item, "%sAN: %d", sep, agree_num );
+        }
 
-		spt_agree_data = tvb_get_guint8(tvb, spt_offset);
+        proto_tree_add_uint(agreement_tree, hf_bpdu_flags_agree_num,
+                            tvb, spt_offset, 1, spt_agree_data);
+        sep = cont_sep;
 
-		sep = initial_sep;
-		if (agreement_item) {
-			agree_num = (spt_agree_data & 0x03);
-			proto_item_append_text(agreement_item, "%sAN: %d",
-					sep, agree_num );
-		}
+        if (agreement_item) {
+          dagree_num = ((spt_agree_data & 0x0C) >> 2);
+          proto_item_append_text(agreement_item, "%sDAN: %d", sep, dagree_num);
+        }
+        proto_tree_add_uint(agreement_tree, hf_bpdu_flags_dagree_num,
+                            tvb, spt_offset, 1, spt_agree_data);
 
-		proto_tree_add_uint(agreement_tree, hf_bpdu_flags_agree_num,
-				tvb, spt_offset, 1, spt_agree_data);
-		sep = cont_sep;
+        proto_tree_add_boolean(agreement_tree, hf_bpdu_flags_agree_valid,
+                               tvb, spt_offset, 1, spt_agree_data);
 
-		if (agreement_item) {
-			dagree_num = ((spt_agree_data & 0x0C) >> 2);
-			proto_item_append_text(agreement_item, "%sDAN: %d",
-					sep, dagree_num );
-		}
-		proto_tree_add_uint(agreement_tree, hf_bpdu_flags_dagree_num,
-				tvb, spt_offset, 1, spt_agree_data);
+        proto_tree_add_boolean(agreement_tree, hf_bpdu_flags_restricted_role,
+                               tvb, spt_offset, 1, spt_agree_data);
 
-		proto_tree_add_boolean(agreement_tree, hf_bpdu_flags_agree_valid,
-				tvb, spt_offset, 1, spt_agree_data);
+        if (sep != initial_sep) {
+          proto_item_append_text(agreement_item, ")");
+        }
+        spt_offset += 2;
 
-		proto_tree_add_boolean(agreement_tree, hf_bpdu_flags_restricted_role,
-				tvb, spt_offset, 1, spt_agree_data);
+        spt_agree_data = tvb_get_guint8(tvb, spt_offset);
 
-		if (sep != initial_sep) {
-			proto_item_append_text(agreement_item, ")");
-		}
-		spt_offset += 2;
+        proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
+                            "Agreement Digest Format Id: %d",
+                            (spt_agree_data & 0xf0) >> 4);
+        proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
+                            "Agreement Digest Format Capabilites: %d",
+                            (spt_agree_data & 0x0f));
+        spt_offset += 1;
 
-		spt_agree_data = tvb_get_guint8(tvb, spt_offset);
+        spt_agree_data = tvb_get_guint8(tvb, spt_offset);
 
-		proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-				"Agreement Digest Format Id: %d",
-				(spt_agree_data & 0xf0) >> 4);
-		proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-				"Agreement Digest Format Capabilites: %d",
-				(spt_agree_data & 0x0f));
-		spt_offset += 1;
+        proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
+                            "Agreement Digest Convention Id: %d",
+                            (spt_agree_data & 0xf0) >> 4);
+        proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
+                            "Agreement Digest Convention Capabilites: %d",
+                            (spt_agree_data & 0x0f));
+        spt_offset += 1;
 
-		spt_agree_data = tvb_get_guint8(tvb, spt_offset);
+        spt_edge_count = tvb_get_ntohs(tvb, spt_offset);
 
-		proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-				"Agreement Digest Convention Id: %d",
-				(spt_agree_data & 0xf0) >> 4);
-		proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-				"Agreement Digest Convention Capabilites: %d",
-				(spt_agree_data & 0x0f));
-		spt_offset += 1;
+        proto_tree_add_text(agreement_tree, tvb, spt_offset, 2,
+                            "Agreement Digest Edge Count: %d", spt_edge_count);
+        spt_offset += 10;
 
-		spt_edge_count = tvb_get_ntohs(tvb, spt_offset);
+        proto_tree_add_item(agreement_tree, hf_bpdu_spt_agreement_digest,
+                            tvb, spt_offset, 20, ENC_NA);
+        spt_offset += 20;
 
-		proto_tree_add_text(agreement_tree, tvb, spt_offset, 2,
-				"Agreement Digest Edge Count: %d", spt_edge_count);
-		spt_offset += 10;
-
-		proto_tree_add_item(agreement_tree, hf_bpdu_spt_agreement_digest,
-				tvb, spt_offset, 20, ENC_NA);
-		spt_offset += 20;
-
-		if (protocol_version_identifier == 4) {
-		  set_actual_length(tvb, (bpdu_version_4_length + version_4_length + 2));
-		}
+        if (protocol_version_identifier == 4) {
+          set_actual_length(tvb, (bpdu_version_4_length + version_4_length + 2));
+        }
       }
     }
   }
