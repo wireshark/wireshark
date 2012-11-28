@@ -981,14 +981,14 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 			diameter_pair->cmd_code = cmd;
 			diameter_pair->result_code = 0;
 			diameter_pair->cmd_str = cmd_str;
-			diameter_pair->req_frame = pinfo->fd->num;
+			diameter_pair->req_frame = PINFO_FD_NUM(pinfo);
 			diameter_pair->ans_frame = 0;
 			diameter_pair->req_time = pinfo->fd->abs_ts;
 			se_tree_insert32(diameter_conv_info->pdus, hop_by_hop_id, (void *)diameter_pair);
 		} else {
 			diameter_pair = se_tree_lookup32(diameter_conv_info->pdus, hop_by_hop_id);
 			if (diameter_pair) {
-				diameter_pair->ans_frame = pinfo->fd->num;
+				diameter_pair->ans_frame = PINFO_FD_NUM(pinfo);
 			}
 		}
 	} else {
@@ -1627,6 +1627,7 @@ void
 proto_register_diameter(void)
 {
 	module_t *diameter_module;
+	guint wasted_variable = dictionary_load();
 	guint i, ett_length;
 
 	hf_register_info hf_base[] = {
@@ -1649,7 +1650,7 @@ proto_register_diameter(void)
 		  { "Error","diameter.flags.error", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DIAM_FLAGS_E,
 			  NULL, HFILL }},
 	{ &hf_diameter_flags_T,
-		  { "T(Potentially re-transmitted message)","diameter.flags.T", FT_BOOLEAN, 8, TFS(&tfs_set_notset),DIAM_FLAGS_T,
+		  { "T(Potentially re-transmitted message)","diameter.flags.T", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DIAM_FLAGS_T,
 			  NULL, HFILL }},
 	{ &hf_diameter_flags_reserved4,
 		  { "Reserved","diameter.flags.reserved4", FT_BOOLEAN, 8, TFS(&tfs_set_notset),
@@ -1665,10 +1666,10 @@ proto_register_diameter(void)
 			  DIAM_FLAGS_RESERVED7, NULL, HFILL }},
 	{ &hf_diameter_vendor_id,
 		  { "VendorId",	"diameter.vendorId", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext,
-			  0x0,NULL, HFILL }},
+			  0x0, NULL, HFILL }},
 	{ &hf_diameter_application_id,
-		  { "ApplicationId",	"diameter.applicationId", FT_UINT32, BASE_DEC, dictionary.applications,
-			  0x0,NULL, HFILL }},
+		  { "ApplicationId", "diameter.applicationId", FT_UINT32, BASE_DEC, VALS(dictionary.applications),
+			  0x0, NULL, HFILL }},
 	{ &hf_diameter_hopbyhopid,
 		  { "Hop-by-Hop Identifier", "diameter.hopbyhopid", FT_UINT32,
 			  BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -1758,12 +1759,22 @@ proto_register_diameter(void)
 		&(unknown_avp.ett)
 	};
 
-	dictionary_load();
+        /* This condition (wasted_variable == 0) won't normally happen, but:
+         *   1) We must call dictionary_load() *before* hf_base is declared
+         *      (otherwise dictionary.applications will be NULL in the hf).
+         *   2) (and) We can't call dictionary_load() before hf_base is declared unless
+         *      we do so while declaring a variable (otherwise we end up mixing declarations
+         *      and code).
+         *   3) (and) If we don't use the variable, we'll get a "set but not used" warning.
+         *
+         * So, we use the variable...
+         */
+	if (!wasted_variable)
+                dictionary_load();
 
 	g_array_append_vals(build_dict.hf, hf_base, array_length(hf_base));
 	ett_length = array_length(ett_base);
-	for (i = 0; i < ett_length; i++)
-	{
+	for (i = 0; i < ett_length; i++) {
 		g_ptr_array_add(build_dict.ett, ett_base[i]);
 	}
 
