@@ -960,119 +960,118 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         msti++;
       }
-    }
 
-    if (protocol_version_identifier >= 4 && version_1_length == 0
-        && tvb_reported_length(tvb) >= 106) {
+      if (protocol_version_identifier >= 4 && version_1_length == 0
+          && tvb_reported_length(tvb) >= 106) {
+        /*
+         * OK, it passes the "Protocol Identifier is 0000 0000
+         * 0000 0000", "Protocol Version Identifier is 4 or
+         * greater", "BPDU Type is 0000 0010", "contains 106 or
+         * more octets", and "a Version 1 Length of 0" tests.
+         */
+        bpdu_version_4_length = BPDU_MSTI + total_msti_length;
+        version_4_length = tvb_get_ntohs(tvb, bpdu_version_4_length);
 
-      /*
-       * OK, it passes the "Protocol Identifier is 0000 0000
-       * 0000 0000", "Protocol Version Identifier is 4 or
-       * greater", "BPDU Type is 0000 0010", "contains 106 or
-       * more octets", and "a Version 1 Length of 0" tests.
-       */
-      bpdu_version_4_length = BPDU_MSTI + total_msti_length;
-      version_4_length = tvb_get_ntohs(tvb, bpdu_version_4_length);
+        proto_tree_add_uint(bpdu_tree, hf_bpdu_version_4_length, tvb,
+                            bpdu_version_4_length, 2, version_4_length);
 
-      proto_tree_add_uint(bpdu_tree, hf_bpdu_version_4_length, tvb,
-                          bpdu_version_4_length, 2, version_4_length);
+        /* version 4 length is 55 or more.
+         */
+        if (version_4_length >= 53) {
+          spt_item = proto_tree_add_text(bpdu_tree, tvb,
+                                         bpdu_version_4_length, -1, "SPT Extension");
 
-      /* version 4 length is 55 or more.
-       */
-      if (version_4_length >= 53) {
-        spt_item = proto_tree_add_text(bpdu_tree, tvb,
-                                       bpdu_version_4_length, -1, "SPT Extension");
+          spt_tree = proto_item_add_subtree(spt_item, ett_spt);
 
-        spt_tree = proto_item_add_subtree(spt_item, ett_spt);
+          spt_offset = (bpdu_version_4_length + 2);
 
-        spt_offset = (bpdu_version_4_length + 2);
+          /* Aux MCID: */
 
-        /* Aux MCID: */
+          aux_mcid_item = proto_tree_add_text(spt_tree, tvb, spt_offset,
+                                              MCID_LEN, "MCID Data");
+          aux_mcid_tree = proto_item_add_subtree(aux_mcid_item, ett_aux_mcid);
 
-        aux_mcid_item = proto_tree_add_text(spt_tree, tvb, spt_offset,
-                                            MCID_LEN, "MCID Data");
-        aux_mcid_tree = proto_item_add_subtree(aux_mcid_item, ett_aux_mcid);
+          proto_tree_add_item(aux_mcid_tree,
+                              hf_bpdu_spt_config_format_selector, tvb, spt_offset, 1,
+                              ENC_BIG_ENDIAN);
+          proto_tree_add_item(aux_mcid_tree, hf_bpdu_spt_config_name, tvb,
+                              spt_offset + 1, 32, ENC_ASCII | ENC_NA);
 
-        proto_tree_add_item(aux_mcid_tree,
-                            hf_bpdu_spt_config_format_selector, tvb, spt_offset, 1,
-                            ENC_BIG_ENDIAN);
-        proto_tree_add_item(aux_mcid_tree, hf_bpdu_spt_config_name, tvb,
-                            spt_offset + 1, 32, ENC_ASCII | ENC_NA);
+          proto_tree_add_item(aux_mcid_tree,
+                              hf_bpdu_spt_config_revision_level, tvb, spt_offset + 33,
+                              2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(aux_mcid_tree, hf_bpdu_spt_config_digest,
+                              tvb, spt_offset + 35, 16, ENC_NA);
+          spt_offset += MCID_LEN;
 
-        proto_tree_add_item(aux_mcid_tree,
-                            hf_bpdu_spt_config_revision_level, tvb, spt_offset + 33,
-                            2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(aux_mcid_tree, hf_bpdu_spt_config_digest,
-                            tvb, spt_offset + 35, 16, ENC_NA);
-        spt_offset += MCID_LEN;
+          /* Agreement Data */
+          agreement_item = proto_tree_add_text(spt_tree, tvb, spt_offset,
+                                               -1, "Agreement Data");
+          agreement_tree = proto_item_add_subtree(agreement_item, ett_agreement);
 
-        /* Agreement Data */
-        agreement_item = proto_tree_add_text(spt_tree, tvb, spt_offset,
-                                             -1, "Agreement Data");
-        agreement_tree = proto_item_add_subtree(agreement_item, ett_agreement);
+          spt_agree_data = tvb_get_guint8(tvb, spt_offset);
 
-        spt_agree_data = tvb_get_guint8(tvb, spt_offset);
+          sep = initial_sep;
+          if (agreement_item) {
+            agree_num = (spt_agree_data & 0x03);
+            proto_item_append_text(agreement_item, "%sAN: %d", sep, agree_num );
+          }
 
-        sep = initial_sep;
-        if (agreement_item) {
-          agree_num = (spt_agree_data & 0x03);
-          proto_item_append_text(agreement_item, "%sAN: %d", sep, agree_num );
-        }
+          proto_tree_add_uint(agreement_tree, hf_bpdu_flags_agree_num,
+                              tvb, spt_offset, 1, spt_agree_data);
+          sep = cont_sep;
 
-        proto_tree_add_uint(agreement_tree, hf_bpdu_flags_agree_num,
-                            tvb, spt_offset, 1, spt_agree_data);
-        sep = cont_sep;
+          if (agreement_item) {
+            dagree_num = ((spt_agree_data & 0x0C) >> 2);
+            proto_item_append_text(agreement_item, "%sDAN: %d", sep, dagree_num);
+          }
+          proto_tree_add_uint(agreement_tree, hf_bpdu_flags_dagree_num,
+                              tvb, spt_offset, 1, spt_agree_data);
 
-        if (agreement_item) {
-          dagree_num = ((spt_agree_data & 0x0C) >> 2);
-          proto_item_append_text(agreement_item, "%sDAN: %d", sep, dagree_num);
-        }
-        proto_tree_add_uint(agreement_tree, hf_bpdu_flags_dagree_num,
-                            tvb, spt_offset, 1, spt_agree_data);
+          proto_tree_add_boolean(agreement_tree, hf_bpdu_flags_agree_valid,
+                                 tvb, spt_offset, 1, spt_agree_data);
 
-        proto_tree_add_boolean(agreement_tree, hf_bpdu_flags_agree_valid,
-                               tvb, spt_offset, 1, spt_agree_data);
+          proto_tree_add_boolean(agreement_tree, hf_bpdu_flags_restricted_role,
+                                 tvb, spt_offset, 1, spt_agree_data);
 
-        proto_tree_add_boolean(agreement_tree, hf_bpdu_flags_restricted_role,
-                               tvb, spt_offset, 1, spt_agree_data);
+          if (sep != initial_sep) {
+            proto_item_append_text(agreement_item, ")");
+          }
+          spt_offset += 2;
 
-        if (sep != initial_sep) {
-          proto_item_append_text(agreement_item, ")");
-        }
-        spt_offset += 2;
+          spt_agree_data = tvb_get_guint8(tvb, spt_offset);
 
-        spt_agree_data = tvb_get_guint8(tvb, spt_offset);
+          proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
+                              "Agreement Digest Format Id: %d",
+                              (spt_agree_data & 0xf0) >> 4);
+          proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
+                              "Agreement Digest Format Capabilites: %d",
+                              (spt_agree_data & 0x0f));
+          spt_offset += 1;
 
-        proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-                            "Agreement Digest Format Id: %d",
-                            (spt_agree_data & 0xf0) >> 4);
-        proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-                            "Agreement Digest Format Capabilites: %d",
-                            (spt_agree_data & 0x0f));
-        spt_offset += 1;
+          spt_agree_data = tvb_get_guint8(tvb, spt_offset);
 
-        spt_agree_data = tvb_get_guint8(tvb, spt_offset);
+          proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
+                              "Agreement Digest Convention Id: %d",
+                              (spt_agree_data & 0xf0) >> 4);
+          proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
+                              "Agreement Digest Convention Capabilites: %d",
+                              (spt_agree_data & 0x0f));
+          spt_offset += 1;
 
-        proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-                            "Agreement Digest Convention Id: %d",
-                            (spt_agree_data & 0xf0) >> 4);
-        proto_tree_add_text(agreement_tree, tvb, spt_offset, 1,
-                            "Agreement Digest Convention Capabilites: %d",
-                            (spt_agree_data & 0x0f));
-        spt_offset += 1;
+          spt_edge_count = tvb_get_ntohs(tvb, spt_offset);
 
-        spt_edge_count = tvb_get_ntohs(tvb, spt_offset);
+          proto_tree_add_text(agreement_tree, tvb, spt_offset, 2,
+                              "Agreement Digest Edge Count: %d", spt_edge_count);
+          spt_offset += 10;
 
-        proto_tree_add_text(agreement_tree, tvb, spt_offset, 2,
-                            "Agreement Digest Edge Count: %d", spt_edge_count);
-        spt_offset += 10;
+          proto_tree_add_item(agreement_tree, hf_bpdu_spt_agreement_digest,
+                              tvb, spt_offset, 20, ENC_NA);
+          spt_offset += 20;
 
-        proto_tree_add_item(agreement_tree, hf_bpdu_spt_agreement_digest,
-                            tvb, spt_offset, 20, ENC_NA);
-        spt_offset += 20;
-
-        if (protocol_version_identifier == 4) {
-          set_actual_length(tvb, (bpdu_version_4_length + version_4_length + 2));
+          if (protocol_version_identifier == 4) {
+            set_actual_length(tvb, (bpdu_version_4_length + version_4_length + 2));
+          }
         }
       }
     }
