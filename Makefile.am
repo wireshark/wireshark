@@ -923,7 +923,7 @@ patch-bzip2: distdir
 	if test x$(BASE_VERSION) != x$(PREV_VERSION) ; then \
 		curl -z $(PREV_FILE) -o $(PREV_FILE) $(PREV_URL) && \
 		tar -xjf $(PREV_FILE) && \
-		diff -urN $(PREV_DIR) $(distdir) | bzip2 > patch-wireshark-$(PREV_VERSION)-to-$(VERSION).bz2 && \
+		diff -urN $(PREV_DIR) $(distdir) | bzip2 > patch-wireshark-$(PREV_VERSION)-to-$(VERSION).diff.bz2 && \
 		echo "Created patch-bzip2" ; \
 		rm -rf "$(PREV_FILE)" "$(PREV_DIR)" ; \
 	else \
