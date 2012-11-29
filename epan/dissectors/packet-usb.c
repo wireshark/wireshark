@@ -991,13 +991,12 @@ dissect_usb_device_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                               usb_conv_info_t  *usb_conv_info _U_)
 {
     proto_item  *item       = NULL;
-    proto_item  *nitem       = NULL;
     proto_tree  *tree       = NULL;
     proto_item  *nitem      = NULL;
     int          old_offset = offset;
     guint32      protocol;
     const gchar *description;
-    guint16      product_id;
+    guint16      product_id, vendor_id;
     guint32      product;
 
     if (parent_tree) {
