@@ -277,6 +277,7 @@ static gboolean new_resolved_objects = FALSE;
 
 static struct addrinfo *addrinfo_list = NULL; /* IPv4 and IPv6 */
 static struct addrinfo *addrinfo_list_last = NULL;
+static GPtrArray* extra_hosts_files = NULL;
 
 static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
 static void add_serv_port_cb(const guint32 port);
@@ -2009,7 +2010,7 @@ ipxnet_addr_lookup(const gchar *name, gboolean *success)
 
 } /* ipxnet_addr_lookup */
 
-gboolean
+static gboolean
 read_hosts_file (const char *hostspath)
 {
   FILE *hf;
@@ -2074,6 +2075,36 @@ read_hosts_file (const char *hostspath)
   fclose(hf);
   return TRUE;
 } /* read_hosts_file */
+
+gboolean
+add_hosts_file (const char *hosts_file)
+{
+  FILE *hf;
+  gboolean found = FALSE;
+  guint i;
+
+  if (!hosts_file)
+    return FALSE;
+
+  if ((hf = ws_fopen(hosts_file, "r")) == NULL)
+    return FALSE;
+
+  if (!extra_hosts_files)
+    extra_hosts_files = g_ptr_array_new();
+
+  for (i = 0; i < extra_hosts_files->len; i++) {
+    if (strcmp(hosts_file, (const char *) g_ptr_array_index(extra_hosts_files, i)) == 0)
+      found = TRUE;
+  }
+
+  if (!found) {
+    g_ptr_array_add(extra_hosts_files, g_strdup(hosts_file));
+    if (addrinfo_list) {
+      return read_hosts_file (hosts_file);
+    }
+  }
+  return TRUE;
+}
 
 gboolean
 add_ip_name_from_string (const char *addr, const char *name)
@@ -2425,6 +2456,7 @@ void
 host_name_lookup_init(void) {
   char *hostspath;
   struct addrinfo *ai;
+  guint i;
 
 #ifdef HAVE_GNU_ADNS
 #ifdef _WIN32
@@ -2521,6 +2553,12 @@ host_name_lookup_init(void) {
   async_dns_in_flight = 0;
 #endif /* HAVE_GNU_ADNS */
 #endif /* HAVE_C_ARES */
+
+  if(extra_hosts_files && !gbl_resolv_flags.load_hosts_file_from_profile_only){
+    for (i = 0; i < extra_hosts_files->len; i++) {
+      read_hosts_file((const char *) g_ptr_array_index(extra_hosts_files, i));
+    }
+  }
 
   subnet_name_lookup_init();
 }

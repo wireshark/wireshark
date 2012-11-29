@@ -889,7 +889,6 @@ main(int argc, char *argv[])
   volatile int         out_file_type = WTAP_FILE_PCAP;
 #endif
   volatile gboolean    out_file_name_res = FALSE;
-  gchar                *hosts_file = NULL;
   gchar               *volatile cf_name = NULL;
   gchar               *rfilter = NULL;
 #ifdef HAVE_PCAP_OPEN_DEAD
@@ -1277,7 +1276,11 @@ main(int argc, char *argv[])
       }
       break;
     case 'H':        /* Read address to name mappings from a hosts file */
-      hosts_file = optarg;
+      if (! add_hosts_file(optarg))
+      {
+        cmdarg_err("Can't read host entries from \"%s\"", optarg);
+        return 1;
+      }
       out_file_name_res = TRUE;
       break;
 
@@ -1841,16 +1844,6 @@ main(int argc, char *argv[])
     default:
       g_assert_not_reached();
     }
-
-  /*  Read in the hosts file after cf_open() (which calls init_dissection()
-   *  which resets the name database).
-   */
-  if (hosts_file) {
-    if (! read_hosts_file(hosts_file)) {
-      cmdarg_err("Can't read host entries from \"%s\"", hosts_file);
-      return 1;
-    }
-  }
 
     /* Process the packets in the file */
     TRY {

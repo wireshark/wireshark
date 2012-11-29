@@ -214,8 +214,16 @@ extern void add_ipv4_name(const guint addr, const gchar *name);
 /* adds a hostname/IPv6 in the hash table */
 extern void add_ipv6_name(const struct e_in6_addr *addr, const gchar *name);
 
-/* read a "hosts" file and add its entries to the IPv4 & IPv6 hash tables */
-extern gboolean read_hosts_file (const char *hostspath);
+/** Add an additional "hosts" file for IPv4 and IPv6 name resolution.
+ *
+ * The file can be added before host_name_lookup_init() is called and
+ * will be re-read each time host_name_lookup_init() is called.
+ *
+ * @param hostspath Absolute path to the hosts file.
+ *
+ * @return TRUE if the hosts file can be read.
+ */
+extern gboolean add_hosts_file (const char *hosts_file);
 
 /* adds a hostname in the hash table */
 extern gboolean add_ip_name_from_string (const char *addr, const char *name);

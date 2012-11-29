@@ -11,6 +11,7 @@
 EXPORTS
 abs_time_secs_to_str
 abs_time_to_str
+add_hosts_file
 add_new_data_source
 add_ip_name_from_string
 add_ipv4_name
@@ -905,7 +906,6 @@ range_copy
 range_empty
 range_foreach
 ranges_are_equal
-read_hosts_file
 read_keytab_file
 read_keytab_file_from_preferences
 read_prefs
