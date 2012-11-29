@@ -272,7 +272,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	gdk_window_raise(gtk_widget_get_window(rs->win));
 }
 
-static enum_val_t scsi_command_sets[] = {
+static const enum_val_t scsi_command_sets[] = {
 	{ "sbc", "SBC (disk)", SCSI_DEV_SBC },
 	{ "ssc", "SSC (tape)", SCSI_DEV_SSC },
 	{ "mmc", "MMC (cd/dvd)", SCSI_DEV_CDROM },
