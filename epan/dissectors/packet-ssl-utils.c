@@ -39,6 +39,8 @@
 #include <epan/ipv6-utils.h>
 #include <wsutil/file_util.h>
 
+#include <svnversion.h>
+
 /*
  * Lookup tables
  */
@@ -3879,6 +3881,12 @@ ssl_set_debug(const gchar* name)
         ssl_debug_file = ws_fopen(name, "w");
     if (!use_stderr && ssl_debug_file)
         debug_file_must_be_closed = 1;
+
+    ssl_debug_printf("Wireshark SSL debug log " VERSION
+#ifdef SVNVERSION
+		     " (" SVNVERSION " from " SVNPATH ")"
+#endif
+		     "\n\n");
 }
 
 void
