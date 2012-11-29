@@ -1298,6 +1298,7 @@ set(IPMI_SUBPARSERS
 set(DISSECTOR_SUPPORT_SRC
 	${IPMI_SUBPARSERS}
 	dissectors/packet-dcerpc-nt.c
+	usb.c
 	register.c
 )
 

@@ -1598,6 +1598,7 @@ IPMI_SUBPARSERS = \
 DISSECTOR_SUPPORT_SRC =	\
 	$(IPMI_SUBPARSERS) \
 	packet-dcerpc-nt.c \
+	usb.c \
 	register.c
 
 # this target needed for distribution only

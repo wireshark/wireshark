@@ -414,6 +414,9 @@ static const value_string usb_urb_type_vals[] = {
     {0, NULL}
 };
 
+extern value_string_ext ext_usb_vendors_vals;
+extern value_string_ext ext_usb_products_vals;
+
 /*
  * Descriptor types.
  */
@@ -990,9 +993,12 @@ dissect_usb_device_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     proto_item  *item       = NULL;
     proto_item  *nitem       = NULL;
     proto_tree  *tree       = NULL;
+    proto_item  *nitem      = NULL;
     int          old_offset = offset;
     guint32      protocol;
     const gchar *description;
+    guint16      product_id;
+    guint32      product;
 
     if (parent_tree) {
         item = proto_tree_add_text(parent_tree, tvb, offset, -1, "DEVICE DESCRIPTOR");
@@ -1029,11 +1035,17 @@ dissect_usb_device_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
 
     /* idVendor */
     proto_tree_add_item(tree, hf_usb_idVendor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset+=2;
+    vendor_id = tvb_get_letohs(tvb, offset);
+    offset += 2;
 
     /* idProduct */
-    proto_tree_add_item(tree, hf_usb_idProduct, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset+=2;
+    nitem = proto_tree_add_item(tree, hf_usb_idProduct, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    product_id = tvb_get_letohs(tvb, offset);
+    product = vendor_id << 16 | product_id;
+    proto_item_set_text(nitem, "idProduct: %s (0x%04x)",
+            val_to_str_ext_const(product, &ext_usb_products_vals, "Unknown"),
+            product_id);
+    offset += 2;
 
     /* bcdDevice */
     proto_tree_add_item(tree, hf_usb_bcdDevice, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -3000,7 +3012,7 @@ proto_register_usb(void)
 
         { &hf_usb_idVendor,
           { "idVendor", "usb.idVendor",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ext_usb_vendors_vals, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_idProduct,
