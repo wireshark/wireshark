@@ -990,14 +990,15 @@ dissect_usb_device_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                               usb_trans_info_t *usb_trans_info _U_,
                               usb_conv_info_t  *usb_conv_info _U_)
 {
-    proto_item  *item       = NULL;
-    proto_tree  *tree       = NULL;
-    proto_item  *nitem      = NULL;
-    int          old_offset = offset;
-    guint32      protocol;
-    const gchar *description;
-    guint16      product_id, vendor_id;
-    guint32      product;
+    proto_item      *item       = NULL;
+    proto_tree      *tree       = NULL;
+    proto_item      *nitem      = NULL;
+    int              old_offset = offset;
+    guint32          protocol;
+    const gchar     *description;
+    guint16          vendor_id;
+    guint32          product;
+    guint16          product_id;
 
     if (parent_tree) {
         item = proto_tree_add_text(parent_tree, tvb, offset, -1, "DEVICE DESCRIPTOR");

@@ -89,6 +89,13 @@ typedef struct _usb_tap_data_t {
     usb_trans_info_t *trans_info;
 } usb_tap_data_t;
 
+typedef struct _usb_data_t {
+    guint16  bus_id;
+    guint8   device_address;
+    guint8   endpoint;
+    gint     direction;
+} usb_data_t;
+
 /* This is the endpoint number used for "no endpoint" or the fake endpoint
  * for the host side since we need two endpoints to manage conversations
  * properly.
