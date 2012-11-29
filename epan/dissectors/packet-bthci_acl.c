@@ -110,7 +110,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8                    localhost_bdaddr[6];
     gchar                    *localhost_ether_addr;
     gchar                    *localhost_addr_name;
-    gint                      localhost_length;
+    size_t                   localhost_length;
     localhost_bdaddr_entry_t *localhost_bdaddr_entry;
     localhost_name_entry_t   *localhost_name_entry;
 
@@ -165,7 +165,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         gchar           *remote_name;
         gchar           *remote_ether_addr;
         gchar           *remote_addr_name;
-        gint            remote_length;
+        size_t          remote_length;
 
         bd_addr_oui = remote_bdaddr->bd_addr[0] << 16 | remote_bdaddr->bd_addr[1] << 8 | remote_bdaddr->bd_addr[2];
         bd_addr_id = remote_bdaddr->bd_addr[3] << 16 | remote_bdaddr->bd_addr[4] << 8 | remote_bdaddr->bd_addr[5];
@@ -194,13 +194,13 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         g_snprintf(remote_addr_name, remote_length, "%s (%s)", remote_ether_addr, remote_name);
 
         if (pinfo->p2p_dir == P2P_DIR_RECV) {
-            SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, strlen(remote_name), remote_name);
+            SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, (int)strlen(remote_name), remote_name);
             SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, remote_bdaddr->bd_addr);
-            SET_ADDRESS(&pinfo->src, AT_STRINGZ, strlen(remote_addr_name), remote_addr_name);
+            SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(remote_addr_name), remote_addr_name);
         } else if (pinfo->p2p_dir == P2P_DIR_SENT) {
-            SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, strlen(remote_name), remote_name);
+            SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, (int)strlen(remote_name), remote_name);
             SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, remote_bdaddr->bd_addr);
-            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, strlen(remote_addr_name), remote_addr_name);
+            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(remote_addr_name), remote_addr_name);
         }
     } else {
         if (pinfo->p2p_dir == P2P_DIR_RECV) {
@@ -245,13 +245,13 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     g_snprintf(localhost_addr_name, localhost_length, "%s (%s)", localhost_ether_addr, localhost_name);
 
     if (pinfo->p2p_dir == P2P_DIR_RECV) {
-        SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, strlen(localhost_name), localhost_name);
+        SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, (int)strlen(localhost_name), localhost_name);
         SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, localhost_bdaddr);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, strlen(localhost_addr_name), localhost_addr_name);
+        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(localhost_addr_name), localhost_addr_name);
     } else if (pinfo->p2p_dir == P2P_DIR_SENT) {
-        SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, strlen(localhost_name), localhost_name);
+        SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, (int)strlen(localhost_name), localhost_name);
         SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, localhost_bdaddr);
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ, strlen(localhost_addr_name), localhost_addr_name);
+        SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(localhost_addr_name), localhost_addr_name);
     }
 
     /* find the chandle_data structure associated with this chandle */
