@@ -27,13 +27,13 @@
 #define __TAP_DFILTER_DLG_H__
 
 /*
- * You can easily add a parameter dialog for your gui tap by using 
+ * You can easily add a parameter dialog for your gui tap by using
  * the following infrastructure:
  *
  * Define a global structure of tap_param_dlg within your stat source file.
  * Initiate it with:
  * 1) a title string for the Dialog Window
- * 2) the init string, which is the same as the string after "-z" option without 
+ * 2) the init string, which is the same as the string after "-z" option without
  *    the filter string and without the separating comma.
  * 3) a pointer to the init function of the tap, which will be called when you click
  *    on the start button in the display filter dialog.
@@ -75,7 +75,7 @@ typedef enum {
 typedef struct _tap_param {
 	param_type type;
 	const char *title;
-	enum_val_t *enum_vals;
+	const enum_val_t *enum_vals;
 } tap_param;
 
 typedef struct _tap_param_dlg {
