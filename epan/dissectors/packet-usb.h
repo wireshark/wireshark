@@ -116,27 +116,31 @@ typedef struct _usb_tap_data_t {
 
 #define URB_TRANSFER_IN   0x80		/* to host */
 
-#define IF_CLASS_UNKNOWN		0xffff
-#define IF_CLASS_FROM_INTERFACE_DESC	0x00
-#define IF_CLASS_AUDIO			0x01
-#define IF_CLASS_COMMUNICATIONS		0x02
-#define IF_CLASS_HID			0x03
-#define IF_CLASS_PHYSICAL		0x05
-#define IF_CLASS_IMAGE			0x06
-#define IF_CLASS_PRINTER		0x07
-#define IF_CLASS_MASSTORAGE		0x08
-#define IF_CLASS_HUB			0x09
-#define IF_CLASS_CDC_DATA		0x0a
-#define IF_CLASS_SMART_CARD		0x0b
-#define IF_CLASS_CONTENT_SECURITY	0x0d
-#define IF_CLASS_VIDEO			0x0e
-#define IF_CLASS_DIAGNOSTIC_DEVICE	0xdc
-#define IF_CLASS_WIRELESS_CONTROLLER	0xe0
-#define IF_CLASS_MISCELLANEOUS		0xef
-#define IF_CLASS_APPLICATION_SPECIFIC	0xfe
-#define IF_CLASS_VENDOR_SPECIFIC	0xff
 
-#define IF_SUBCLASS_UNKNOWN		0xffff
+/* http://www.usb.org/developers/defined_class */
+#define IF_CLASS_DEVICE               0x00
+#define IF_CLASS_AUDIO                0x01
+#define IF_CLASS_COMMUNICATIONS       0x02
+#define IF_CLASS_HID                  0x03
+#define IF_CLASS_PHYSICAL             0x05
+#define IF_CLASS_IMAGE                0x06
+#define IF_CLASS_PRINTER              0x07
+#define IF_CLASS_MASS_STORAGE         0x08
+#define IF_CLASS_HUB                  0x09
+#define IF_CLASS_CDC_DATA             0x0a
+#define IF_CLASS_SMART_CARD           0x0b
+#define IF_CLASS_CONTENT_SECURITY     0x0d
+#define IF_CLASS_VIDEO                0x0e
+#define IF_CLASS_PERSONAL_HEALTHCARE  0x0f
+#define IF_CLASS_AUDIO_VIDEO          0x10
+#define IF_CLASS_DIAGNOSTIC_DEVICE    0xdc
+#define IF_CLASS_WIRELESS_CONTROLLER  0xe0
+#define IF_CLASS_MISCELLANEOUS        0xef
+#define IF_CLASS_APPLICATION_SPECIFIC 0xfe
+#define IF_CLASS_VENDOR_SPECIFIC      0xff
+
+#define IF_CLASS_UNKNOWN              0xffff
+#define IF_SUBCLASS_UNKNOWN           0xffff
 
 /* bmRequestType values */
 #define USB_DIR_OUT                     0               /* to device */

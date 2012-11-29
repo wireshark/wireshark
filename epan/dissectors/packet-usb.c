@@ -325,28 +325,61 @@ static const value_string usb_langid_vals[] = {
 static value_string_ext usb_langid_vals_ext = VALUE_STRING_EXT_INIT(usb_langid_vals);
 
 static const value_string usb_class_vals[] = {
-    {IF_CLASS_FROM_INTERFACE_DESC,      "Use class info in Interface Descriptor"},
-    {IF_CLASS_AUDIO,                    "AUDIO"},
-    {IF_CLASS_COMMUNICATIONS,           "COMMUNICATIONS"},
+    {IF_CLASS_DEVICE,                   "Device"},
+    {IF_CLASS_AUDIO,                    "Audio"},
+    {IF_CLASS_COMMUNICATIONS,           "Communications and CDC Control"},
     {IF_CLASS_HID,                      "HID"},
-    {IF_CLASS_PHYSICAL,                 "PHYSICAL"},
-    {IF_CLASS_IMAGE,                    "IMAGE"},
-    {IF_CLASS_PRINTER,                  "PRINTER"},
-    {IF_CLASS_MASSTORAGE,               "MASSTORAGE"},
-    {IF_CLASS_HUB,                      "HUB"},
-    {IF_CLASS_CDC_DATA,                 "CDC_DATA"},
-    {IF_CLASS_SMART_CARD,               "SMART_CARD"},
-    {IF_CLASS_CONTENT_SECURITY,         "CONTENT_SECURITY"},
-    {IF_CLASS_VIDEO,                    "VIDEO"},
-    {IF_CLASS_DIAGNOSTIC_DEVICE,        "DIAGNOSTIC_DEVICE"},
-    {IF_CLASS_WIRELESS_CONTROLLER,      "WIRELESS_CONTROLLER"},
-    {IF_CLASS_MISCELLANEOUS,            "MISCELLANEOUS"},
-    {IF_CLASS_APPLICATION_SPECIFIC,     "APPLICATION_SPECIFIC"},
-    {IF_CLASS_VENDOR_SPECIFIC,          "VENDOR_SPECIFIC"},
+    {IF_CLASS_PHYSICAL,                 "Physical"},
+    {IF_CLASS_IMAGE,                    "Imaging"},
+    {IF_CLASS_PRINTER,                  "Printer"},
+    {IF_CLASS_MASS_STORAGE,             "Mass Storage"},
+    {IF_CLASS_HUB,                      "Hub"},
+    {IF_CLASS_CDC_DATA,                 "CDC-Data"},
+    {IF_CLASS_SMART_CARD,               "Smart Card"},
+    {IF_CLASS_CONTENT_SECURITY,         "Content Security"},
+    {IF_CLASS_VIDEO,                    "Video"},
+    {IF_CLASS_PERSONAL_HEALTHCARE,      "Personal Healthcare"},
+    {IF_CLASS_AUDIO_VIDEO,              "Audio/Video Devices"},
+    {IF_CLASS_DIAGNOSTIC_DEVICE,        "Diagnostic Device"},
+    {IF_CLASS_WIRELESS_CONTROLLER,      "Wireless Controller"},
+    {IF_CLASS_MISCELLANEOUS,            "Miscellaneous"},
+    {IF_CLASS_APPLICATION_SPECIFIC,     "Application Specific"},
+    {IF_CLASS_VENDOR_SPECIFIC,          "Vendor Specific"},
     {0, NULL}
 };
 static value_string_ext usb_class_vals_ext = VALUE_STRING_EXT_INIT(usb_class_vals);
 
+/* use usb class, subclass and protocol id together
+  http://www.usb.org/developers/defined_class*/
+static const value_string usb_protocols[] = {
+    {0x000000,    "Use class code info from Interface Descriptors"},
+    {0x060101,    "Still Imaging"},
+    {0x090000,    "Full speed Hub"},
+    {0x090001,    "Hi-speed hub with single TT"},
+    {0x090002,    "Hi-speed hub with multiple TTs"},
+    {0x0D0000,    "Content Security"},
+    {0x100100,    "AVControl Interface"},
+    {0x100200,    "AVData Video Streaming Interface"},
+    {0x100300,    "AVData Audio Streaming Interface"},
+    {0xDC0101,    "USB2 Compliance Device"},
+    {0xE00101,    "Bluetooth Programming Interface"},
+    {0xE00102,    "UWB Radio Control Interface"},
+    {0xE00103,    "Remote NDIS"},
+    {0xE00104,    "Bluetooth AMP Controller"},
+    {0xE00201,    "Host Wire Adapter Control/Data interface"},
+    {0xE00202,    "Device Wire Adapter Control/Data interface"},
+    {0xE00203,    "Device Wire Adapter Isochronous interface"},
+    {0xEF0101,    "Active Sync device"},
+    {0xEF0102,    "Palm Sync"},
+    {0xEF0201,    "Interface Association Descriptor"},
+    {0xEF0202,    "Wire Adapter Multifunction Peripheral programming interface"},
+    {0xEF0301,    "Cable Based Association Framework"},
+    {0xFE0101,    "Device Firmware Upgrade"},
+    {0xFE0200,    "IRDA Bridge device"},
+    {0xFE0300,    "USB Test and Measurement Device"},
+    {0xFE0301,    "USB Test and Measurement Device conforming to the USBTMC USB488"},
+    {0, NULL}
+};
 
 static const value_string usb_transfer_type_vals[] = {
     {URB_CONTROL,                       "URB_CONTROL"},
@@ -384,62 +417,64 @@ static const value_string usb_urb_type_vals[] = {
 /*
  * Descriptor types.
  */
-#define USB_DT_DEVICE                    1
-#define USB_DT_CONFIG                    2
-#define USB_DT_STRING                    3
-#define USB_DT_INTERFACE                 4
-#define USB_DT_ENDPOINT                  5
-#define USB_DT_DEVICE_QUALIFIER          6
-#define USB_DT_OTHER_SPEED_CONFIG        7
-#define USB_DT_INTERFACE_POWER           8
+#define USB_DT_DEVICE                          1
+#define USB_DT_CONFIG                          2
+#define USB_DT_STRING                          3
+#define USB_DT_INTERFACE                       4
+#define USB_DT_ENDPOINT                        5
+#define USB_DT_DEVICE_QUALIFIER                6
+#define USB_DT_OTHER_SPEED_CONFIG              7
+#define USB_DT_INTERFACE_POWER                 8
 /* these are from a minor usb 2.0 revision (ECN) */
-#define USB_DT_OTG                       9
-#define USB_DT_DEBUG                    10
-#define USB_DT_INTERFACE_ASSOCIATION    11
+#define USB_DT_OTG                             9
+#define USB_DT_DEBUG                          10
+#define USB_DT_INTERFACE_ASSOCIATION          11
 /* these are from the Wireless USB spec */
-#define USB_DT_SECURITY                 12
-#define USB_DT_KEY                      13
-#define USB_DT_ENCRYPTION_TYPE          14
-#define USB_DT_BOS                      15
-#define USB_DT_DEVICE_CAPABILITY        16
-#define USB_DT_WIRELESS_ENDPOINT_COMP   17
-#define USB_DT_HID                      33
-#define USB_DT_RPIPE                    34
+#define USB_DT_SECURITY                       12
+#define USB_DT_KEY                            13
+#define USB_DT_ENCRYPTION_TYPE                14
+#define USB_DT_BOS                            15
+#define USB_DT_DEVICE_CAPABILITY              16
+#define USB_DT_WIRELESS_ENDPOINT_COMP         17
+#define USB_DT_HID                            33
+#define USB_DT_RPIPE                          34
+#define USB_DT_SUPERSPEED_ENDPOINT_COMPANION  48
 
 static const value_string descriptor_type_vals[] = {
-    {USB_DT_DEVICE,                     "DEVICE"},
-    {USB_DT_CONFIG,                     "CONFIGURATION"},
-    {USB_DT_STRING,                     "STRING"},
-    {USB_DT_INTERFACE,                  "INTERFACE"},
-    {USB_DT_ENDPOINT,                   "ENDPOINT"},
-    {USB_DT_DEVICE_QUALIFIER,           "DEVICE QUALIFIER"},
-    {USB_DT_OTHER_SPEED_CONFIG,         "OTHER_SPEED CONFIG"},
-    {USB_DT_INTERFACE_POWER,            "INTERFACE POWER"},
-    {USB_DT_OTG,                        "OTG"},
-    {USB_DT_DEBUG,                      "DEBUG"},
-    {USB_DT_INTERFACE_ASSOCIATION,      "INTERFACE ASSOCIATION"},
-    {USB_DT_SECURITY,                   "SECURITY"},
-    {USB_DT_KEY,                        "KEY"},
-    {USB_DT_ENCRYPTION_TYPE,            "ENCRYPTION TYPE"},
-    {USB_DT_BOS,                        "BOS"},
-    {USB_DT_DEVICE_CAPABILITY,          "DEVICE CAPABILITY"},
-    {USB_DT_WIRELESS_ENDPOINT_COMP,     "WIRELESS ENDPOINT COMP"},
-    {USB_DT_HID,                        "HID"},
-    {USB_DT_RPIPE,                      "RPIPE"},
-    {0, NULL}
+    {USB_DT_DEVICE,                         "DEVICE"},
+    {USB_DT_CONFIG,                         "CONFIGURATION"},
+    {USB_DT_STRING,                         "STRING"},
+    {USB_DT_INTERFACE,                      "INTERFACE"},
+    {USB_DT_ENDPOINT,                       "ENDPOINT"},
+    {USB_DT_DEVICE_QUALIFIER,               "DEVICE QUALIFIER"},
+    {USB_DT_OTHER_SPEED_CONFIG,             "OTHER_SPEED CONFIG"},
+    {USB_DT_INTERFACE_POWER,                "INTERFACE POWER"},
+    {USB_DT_OTG,                            "OTG"},
+    {USB_DT_DEBUG,                          "DEBUG"},
+    {USB_DT_INTERFACE_ASSOCIATION,          "INTERFACE ASSOCIATION"},
+    {USB_DT_SECURITY,                       "SECURITY"},
+    {USB_DT_KEY,                            "KEY"},
+    {USB_DT_ENCRYPTION_TYPE,                "ENCRYPTION TYPE"},
+    {USB_DT_BOS,                            "BOS"},
+    {USB_DT_DEVICE_CAPABILITY,              "DEVICE CAPABILITY"},
+    {USB_DT_WIRELESS_ENDPOINT_COMP,         "WIRELESS ENDPOINT COMP"},
+    {USB_DT_HID,                            "HID"},
+    {USB_DT_RPIPE,                          "RPIPE"},
+    {USB_DT_SUPERSPEED_ENDPOINT_COMPANION,  "SUPERSPEED USB ENDPOINT COMPANION"},
+    {0,NULL}
 };
 static value_string_ext descriptor_type_vals_ext = VALUE_STRING_EXT_INIT(descriptor_type_vals);
 
 /*
  * Feature selectors.
  */
-#define USB_FS_DEVICE_REMOTE_WAKEUP     1
 #define USB_FS_ENDPOINT_HALT            0
+#define USB_FS_DEVICE_REMOTE_WAKEUP     1
 #define USB_FS_TEST_MODE                2
 
 static const value_string usb_feature_selector_vals[] = {
-    {USB_FS_DEVICE_REMOTE_WAKEUP,       "DEVICE REMOTE WAKEUP"},
     {USB_FS_ENDPOINT_HALT,              "ENDPOINT HALT"},
+    {USB_FS_DEVICE_REMOTE_WAKEUP,       "DEVICE REMOTE WAKEUP"},
     {USB_FS_TEST_MODE,                  "TEST MODE"},
     {0, NULL}
 };
@@ -893,7 +928,10 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
 {
     proto_item *item       = NULL;
     proto_tree *tree       = NULL;
+    proto_item *nitem      = NULL;
     int         old_offset = offset;
+    guint32     protocol;
+    const gchar *description;
 
     if (parent_tree) {
         item = proto_tree_add_text(parent_tree, tvb, offset, -1, "DEVICE QUALIFIER DESCRIPTOR");
@@ -905,7 +943,10 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
 
     /* bcdUSB */
     proto_tree_add_item(tree, hf_usb_bcdUSB, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset+=2;
+    offset += 2;
+
+    protocol = tvb_get_ntoh24(tvb, offset);
+    description = val_to_str_const(protocol, usb_protocols, "");
 
     /* bDeviceClass */
     proto_tree_add_item(tree, hf_usb_bDeviceClass, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -916,7 +957,9 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
     offset += 1;
 
     /* bDeviceProtocol */
-    proto_tree_add_item(tree, hf_usb_bDeviceProtocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    nitem = proto_tree_add_item(tree, hf_usb_bDeviceProtocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    if (*description)
+        proto_item_append_text(nitem, " (%s)", description);
     offset += 1;
 
     /* bMaxPacketSize0 */
@@ -944,9 +987,12 @@ dissect_usb_device_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                               usb_trans_info_t *usb_trans_info _U_,
                               usb_conv_info_t  *usb_conv_info _U_)
 {
-    proto_item *item       = NULL;
-    proto_tree *tree       = NULL;
-    int         old_offset = offset;
+    proto_item  *item       = NULL;
+    proto_item  *nitem       = NULL;
+    proto_tree  *tree       = NULL;
+    int          old_offset = offset;
+    guint32      protocol;
+    const gchar *description;
 
     if (parent_tree) {
         item = proto_tree_add_text(parent_tree, tvb, offset, -1, "DEVICE DESCRIPTOR");
@@ -960,6 +1006,9 @@ dissect_usb_device_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     proto_tree_add_item(tree, hf_usb_bcdUSB, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
+    protocol = tvb_get_ntoh24(tvb, offset);
+    description = val_to_str_const(protocol, usb_protocols, "");
+
     /* bDeviceClass */
     proto_tree_add_item(tree, hf_usb_bDeviceClass, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -969,7 +1018,9 @@ dissect_usb_device_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     offset += 1;
 
     /* bDeviceProtocol */
-    proto_tree_add_item(tree, hf_usb_bDeviceProtocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    nitem = proto_tree_add_item(tree, hf_usb_bDeviceProtocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    if (*description)
+        proto_item_append_text(nitem, " (%s)", description);
     offset += 1;
 
     /* bMaxPacketSize0 */
@@ -1901,6 +1952,8 @@ typedef struct _usb_setup_dissector_table_t {
 #define USB_SETUP_GET_INTERFACE         10
 #define USB_SETUP_SET_INTERFACE         11
 #define USB_SETUP_SYNCH_FRAME           12
+#define USB_SETUP_SET_SEL               48
+#define USB_SETUP_SET_ISOCH_DELAY       49
 
 static const usb_setup_dissector_table_t setup_request_dissectors[] = {
     {USB_SETUP_GET_STATUS,        dissect_usb_setup_get_status_request},
@@ -1929,7 +1982,6 @@ static const usb_setup_dissector_table_t setup_response_dissectors[] = {
     {0, NULL}
 };
 
-/* bRequest values but only when bmRequestType.type == 0 (Device) */
 static const value_string setup_request_names_vals[] = {
     {USB_SETUP_GET_STATUS,              "GET STATUS"},
     {USB_SETUP_CLEAR_FEATURE,           "CLEAR FEATURE"},
@@ -1942,6 +1994,8 @@ static const value_string setup_request_names_vals[] = {
     {USB_SETUP_GET_INTERFACE,           "GET INTERFACE"},
     {USB_SETUP_SET_INTERFACE,           "SET INTERFACE"},
     {USB_SETUP_SYNCH_FRAME,             "SYNCH FRAME"},
+    {USB_SETUP_SET_SEL,                 "SET SEL"},
+    {USB_SETUP_SET_ISOCH_DELAY,         "SET ISOCH DELAY"},
     {0, NULL}
 };
 
@@ -2786,7 +2840,6 @@ proto_register_usb(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "URB data length in bytes", HFILL }},
 
-    /* Fields from usb20.pdf, Table 9-2 'Format of Setup Data' */
         { &hf_usb_bmRequestType,
           { "bmRequestType", "usb.bmRequestType",
             FT_UINT8, BASE_HEX, NULL, 0x0,
