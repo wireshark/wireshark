@@ -1324,6 +1324,28 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
     }
 }
 
+/* Version of function above, where no g_vsnprintf() call needed */
+static void write_pdu_label_and_info_literal(proto_item *ti1, proto_item *ti2,
+                                             packet_info *pinfo, const char *info_buffer)
+{
+    if ((ti1 == NULL) && (ti2 == NULL) && (pinfo == NULL)) {
+        return;
+    }
+
+    /* Add to indicated places */
+    if (pinfo != NULL) {
+        col_append_str(pinfo->cinfo, COL_INFO, info_buffer);
+    }
+    if (ti1 != NULL) {
+        proto_item_append_text(ti1, "%s", info_buffer);
+    }
+    if (ti2 != NULL) {
+        proto_item_append_text(ti2, "%s", info_buffer);
+    }
+}
+
+
+
 /* Show extra PHY parameters (if present) */
 static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
                                       struct mac_lte_info *p_mac_lte_info)
@@ -1911,7 +1933,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         }
         else {
             /* Add a separator and protect column contents here */
-            write_pdu_label_and_info(pdu_ti, NULL, pinfo, "   ||   ");
+            write_pdu_label_and_info_literal(pdu_ti, NULL, pinfo, "   ||   ");
             col_set_fence(pinfo->cinfo, COL_INFO);
         }
     }
@@ -2858,10 +2880,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Close off description in info column */
         switch (pdu_lengths[number_of_headers]) {
             case 0:
-                write_pdu_label_and_info(pdu_ti, NULL, pinfo, ") ");
+                write_pdu_label_and_info_literal(pdu_ti, NULL, pinfo, ") ");
                 break;
             case -1:
-                write_pdu_label_and_info(pdu_ti, NULL, pinfo, ":remainder) ");
+                write_pdu_label_and_info_literal(pdu_ti, NULL, pinfo, ":remainder) ");
                 break;
             default:
                 write_pdu_label_and_info(pdu_ti, NULL, pinfo, ":%u bytes) ",
@@ -3748,9 +3770,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     gboolean   expecting_body_data = FALSE;
     volatile   guint32    is_truncated = FALSE;
 
-    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                             "MCH: ",
-                             p_mac_lte_info->subframeNumber);
+    write_pdu_label_and_info_literal(pdu_ti, NULL, pinfo, "MCH: ");
 
     /* Add hidden item to filter on */
     hidden_root_ti = proto_tree_add_string_format(tree, hf_mac_lte_mch, tvb,
@@ -3897,10 +3917,10 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         /* Close off description in info column */
         switch (pdu_lengths[number_of_headers]) {
             case 0:
-                write_pdu_label_and_info(pdu_ti, NULL, pinfo, ") ");
+                write_pdu_label_and_info_literal(pdu_ti, NULL, pinfo, ") ");
                 break;
             case -1:
-                write_pdu_label_and_info(pdu_ti, NULL, pinfo, ":remainder) ");
+                write_pdu_label_and_info_literal(pdu_ti, NULL, pinfo, ":remainder) ");
                 break;
             default:
                 write_pdu_label_and_info(pdu_ti, NULL, pinfo, ":%u bytes) ",

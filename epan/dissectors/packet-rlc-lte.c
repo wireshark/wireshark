@@ -622,6 +622,21 @@ static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
     }
 }
 
+/* Version of function above, where no g_vsnprintf() call needed
+   - the info column
+   - the top-level RLC PDU item
+   - another subtree item (if supplied) */
+static void write_pdu_label_and_info_literal(proto_item *pdu_ti, proto_item *sub_ti,
+                                             packet_info *pinfo, const char *info_buffer)
+{
+    /* Add to indicated places */
+    col_append_str(pinfo->cinfo, COL_INFO, info_buffer);
+    proto_item_append_text(pdu_ti, "%s", info_buffer);
+    if (sub_ti != NULL) {
+        proto_item_append_text(sub_ti, "%s", info_buffer);
+    }
+}
+
 
 
 /* Dissect extension headers (common to both UM and AM) */
@@ -2350,7 +2365,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     if (!is_data) {
         /**********************/
         /* Status PDU         */
-        write_pdu_label_and_info(top_ti, NULL, pinfo, " [CONTROL]");
+        write_pdu_label_and_info_literal(top_ti, NULL, pinfo, " [CONTROL]");
 
         /* Control PDUs are a completely separate format  */
         dissect_rlc_lte_am_status_pdu(tvb, pinfo, am_header_tree, am_header_ti,
@@ -2367,14 +2382,14 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_rf, tvb, offset, 1, ENC_BIG_ENDIAN);
     tap_info->isResegmented = is_resegmented;
 
-    write_pdu_label_and_info(top_ti, NULL, pinfo,
-                             (is_resegmented) ? " [DATA-SEGMENT]" : " [DATA]");
+    write_pdu_label_and_info_literal(top_ti, NULL, pinfo,
+                                     (is_resegmented) ? " [DATA-SEGMENT]" : " [DATA]");
 
     /* Polling bit */
     polling = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_p, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    write_pdu_label_and_info(top_ti, NULL, pinfo, (polling) ? " (P) " : "     ");
+    write_pdu_label_and_info_literal(top_ti, NULL, pinfo, (polling) ? " (P) " : "     ");
     if (polling) {
         proto_item_append_text(am_header_ti, " (P) ");
     }
@@ -2764,8 +2779,8 @@ static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_fstr(pinfo->cinfo, COL_INFO, "UEId=%-4u ", p_rlc_lte_info->ueid);
     }
     if (p_rlc_lte_info->channelId == 0) {
-        write_pdu_label_and_info(top_ti, NULL, pinfo, "%s",
-                                 val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
+        write_pdu_label_and_info_literal(top_ti, NULL, pinfo,
+                                         val_to_str_const(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
     }
     else {
         write_pdu_label_and_info(top_ti, NULL, pinfo, "%s:%-2u",
