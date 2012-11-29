@@ -1686,6 +1686,7 @@ my $StaticRegex             = qr/ static \s+                                    
 my $ConstRegex              = qr/ const  \s+                                                            /xs;
 my $Static_andor_ConstRegex = qr/ (?: $StaticRegex $ConstRegex | $StaticRegex | $ConstRegex)            /xs;
 my $ValueStringRegex        = qr/ $Static_andor_ConstRegex (?:value|string|range)_string \ + [^;*]+ = [^;]+ [{] [^;]+ ;  /xs;
+my $EnumValRegex        = qr/ $Static_andor_ConstRegex enum_val_t \ + [^;*]+ = [^;]+ [{] [^;]+ ;  /xs;
 
 #
 # MAIN
@@ -1830,6 +1831,39 @@ while ($_ = $ARGV[0])
                         }
                         if ($vs !~ / (static)? const (?:value|string|range)_string /xo)  {
                                 $vsx =~ /( (?:value|string|range)_string [^=]+ ) = /xo;
+                                printf STDERR "Error: %-35.35s: Missing 'const': %s\n", $filename, $1;
+                                $errorCount++;
+                        }
+                }
+        }
+
+        # Brute force check for enum_val_t arrays which are missing {NULL, NULL, ...}
+        # as the final (terminating) array entry
+        # For now use the same option to turn this and value_string checking on and off.
+        # (Is the option even necessary?)
+        if ($check_value_string_array_null_termination) {
+                #  Assumption: definition is of form (pseudo-Regex):
+                #    " (static const|static|const) enum_val_t .+ = { .+ ;"
+                #  (possibly over multiple lines)
+                while ($fileContents =~ / ( $EnumValRegex ) /xsog) {
+                        # enum_val_t array definition found; check if NULL terminated
+                        my $vs = my $vsx = $1;
+                        if ($debug_flag) {
+                                $vsx =~ / ( .+ enum_val_t [^=]+ ) = /xo;
+                                printf STDERR "==> %-35.35s: %s\n", $filename, $1;
+                                printf STDERR "%s\n", $vs;
+                        }
+                        $vs =~ s{ \s } {}xg;
+                        # README.developer says
+                        #  "Don't put a comma after the last tuple of an initializer of an array"
+                        # However: since this usage is present in some number of cases, we'll allow for now
+                        if ($vs !~ / NULL, NULL, -?[0-9] [}] ,? [}] ; $/xo) {
+                                $vsx =~ /( enum_val_t [^=]+ ) = /xo;
+                                printf STDERR "Error: %-35.35s: {NULL, NULL, ...} is required as the last enum_val_t array entry: %s\n", $filename, $1;
+                                $errorCount++;
+                        }
+                        if ($vs !~ / (static)? const enum_val_t /xo)  {
+                                $vsx =~ /( enum_val_t [^=]+ ) = /xo;
                                 printf STDERR "Error: %-35.35s: Missing 'const': %s\n", $filename, $1;
                                 $errorCount++;
                         }
