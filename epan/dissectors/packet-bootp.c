@@ -743,7 +743,7 @@ static const true_false_string flag_set_broadcast = {
 #define PACKETCABLE_CCC_DRAFT5	 2
 #define PACKETCABLE_CCC_RFC_3495 3
 
-static enum_val_t pkt_ccc_protocol_versions[] = {
+static const enum_val_t pkt_ccc_protocol_versions[] = {
 	{ "ccc_i05",	 "PKT-SP-PROV-I05-021127", PACKETCABLE_CCC_I05 },
 	{ "ccc_draft_5", "IETF Draft 5",	   PACKETCABLE_CCC_DRAFT5 },
 	{ "rfc_3495",	 "RFC 3495",		   PACKETCABLE_CCC_RFC_3495 },

@@ -958,7 +958,7 @@ proto_register_fr(void)
     &ett_fr_address,
     &ett_fr_control,
   };
-  static enum_val_t fr_encap_options[] = {
+  static const enum_val_t fr_encap_options[] = {
     { "frf-3.2", "FRF 3.2/Cisco HDLC", FRF_3_2 },
     { "gprs-ns", "GPRS Network Service", GPRS_NS },
     { "ethernet", "Raw Ethernet", RAW_ETHER },

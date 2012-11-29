@@ -2053,7 +2053,7 @@ proto_register_m3ua(void)
     &ett_q708_dpc,
   };
 
-  static enum_val_t options[] = {
+  static const enum_val_t options[] = {
     { "draft-5", "Internet Draft version 5",        M3UA_V5  },
     { "draft-6", "Internet Draft version 6",        M3UA_V6  },
     { "draft-7", "Internet Draft version 7",        M3UA_V7  },

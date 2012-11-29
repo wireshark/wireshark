@@ -92,7 +92,7 @@ static gint ett_ccsds_checkword = -1;
 /* Generic data handle */
 static dissector_handle_t data_handle;
 
-static enum_val_t dissect_checkword[] = {
+static const enum_val_t dissect_checkword[] = {
   { "hdr", "Use header flag", 2 },
   { "no", "Override header flag to be false", 0 },
   { "yes", "Override header flag to be true", 1 },

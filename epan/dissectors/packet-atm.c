@@ -1979,7 +1979,7 @@ proto_register_atm(void)
     &ett_atm_lane_lc_tlv,
   };
 
-  static enum_val_t unknown_aal2_options[] = {
+  static const enum_val_t unknown_aal2_options[] = {
     { "raw",     "Raw data", TRAF_UNKNOWN },
     { "umts_fp", "UMTS FP",  TRAF_UMTS_FP },
     { NULL, NULL, 0 }

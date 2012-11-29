@@ -57,7 +57,7 @@
 #define ISCSI_PROTOCOL_DRAFT12 4
 #define ISCSI_PROTOCOL_DRAFT13 5
 
-static enum_val_t iscsi_protocol_versions[] = {
+static const enum_val_t iscsi_protocol_versions[] = {
     { "draft-08", "Draft 08", ISCSI_PROTOCOL_DRAFT08 },
     { "draft-09", "Draft 09", ISCSI_PROTOCOL_DRAFT09 },
     { "draft-11", "Draft 11", ISCSI_PROTOCOL_DRAFT11 },

@@ -5729,9 +5729,9 @@ cigi3_3_add_short_symbol_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
     } else {
         if (select1 >= 5 && select1 <= 11) {
             proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_value1f, tvb, offset, 4, cigi_byte_order);
-        } else {        
+        } else {
             proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_value1, tvb, offset, 4, cigi_byte_order);
-        }    
+        }
         offset += 4;
     }
 
@@ -5765,9 +5765,9 @@ cigi3_3_add_short_symbol_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
     } else {
         if (select2 >= 5 && select2 <= 11) {
             proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_value2f, tvb, offset, 4, cigi_byte_order);
-        } else {        
+        } else {
             proto_tree_add_item(tree, hf_cigi3_3_short_symbol_control_attribute_value2, tvb, offset, 4, cigi_byte_order);
-        }    
+        }
         offset += 4;
     }
 
@@ -11909,14 +11909,14 @@ proto_register_cigi(void)
     };
 
     /* CIGI preferences */
-    static enum_val_t cigi_versions[] = {
+    static const enum_val_t cigi_versions[] = {
         { "from_packet", "From Packet", CIGI_VERSION_FROM_PACKET },
         { "cigi2", "CIGI 2", CIGI_VERSION_2 },
         { "cigi3", "CIGI 3", CIGI_VERSION_3 },
         { NULL, NULL, 0 }
     };
 
-    static enum_val_t cigi_byte_orders[] = {
+    static const enum_val_t cigi_byte_orders[] = {
         { "from_packet", "From Packet", CIGI_BYTE_ORDER_FROM_PACKET },
         { "big_endian", "Big-Endian", CIGI_BYTE_ORDER_BIG_ENDIAN },
         { "little_endian", "Little-Endian", CIGI_BYTE_ORDER_LITTLE_ENDIAN },

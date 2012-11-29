@@ -329,12 +329,11 @@ static int hf_dlr_soreserved = -1;
 
 static gint ett_dlr = -1;
 
-static enum_val_t enip_io_dissector_types[] = {
+static const enum_val_t enip_io_dissector_types[] = {
    { "Off",        "Regular Ethernet/IP I/O data", ENIP_IO_OFF},
    { "CIP Safety", "CIP Safety",                   ENIP_IO_SAFETY },
    { "CIP Motion", "CIP Motion",                   ENIP_IO_MOTION },
-
-   { NULL, NULL, 0 }
+   { NULL,         NULL,                           0 }
 };
 
 /* decode I/O traffic as this type if ForwardOpen isn't captured */
@@ -1984,7 +1983,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item( header_tree, hf_enip_length,       tvb,  2, 2, ENC_LITTLE_ENDIAN );
       proto_tree_add_item( header_tree, hf_enip_session,      tvb,  4, 4, ENC_LITTLE_ENDIAN );
       proto_tree_add_item( header_tree, hf_enip_status,       tvb,  8, 4, ENC_LITTLE_ENDIAN );
-      if ((encap_cmd == LIST_IDENTITY) && 
+      if ((encap_cmd == LIST_IDENTITY) &&
           /* Length of 0 probably indicates a request */
           ((encap_data_length == 0) || (packet_type == ENIP_REQUEST_PACKET)))
       {
@@ -2178,7 +2177,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    proto_tree_add_item( dlr_tree, hf_dlr_sequenceid, tvb, DLR_MPF_SEQUENCE_ID, 4, ENC_BIG_ENDIAN );
 
    /* Add frame type to col info */
-   col_add_fstr(pinfo->cinfo, COL_INFO, "%s", 
+   col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
        val_to_str(dlr_frametype, dlr_frame_type_vals, "Unknown (0x%04x)") );
 
    if( dlr_frametype == DLR_FT_BEACON )
@@ -3068,7 +3067,7 @@ proto_register_enip(void)
           FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020,
           NULL, HFILL }},
 
-      { &hf_dlr_capflags_reserved2, 
+      { &hf_dlr_capflags_reserved2,
         { "Reserved", "cip.dlr.capflags.reserved2",
           FT_BOOLEAN, 32, NULL, 0xFFFFFFC0,
           NULL, HFILL }}

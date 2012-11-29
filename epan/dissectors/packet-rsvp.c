@@ -380,7 +380,7 @@ static gint ett_treelist[TT_MAX];
 static gboolean rsvp_bundle_dissect = TRUE;
 
 /* FF: How should we dissect generalized label? */
-static enum_val_t rsvp_generalized_label_options[] = {
+static const enum_val_t rsvp_generalized_label_options[] = {
     /* see RFC 3471 Section 3.2.1.2 */
     { "data", "data (no interpretation)", 1 },
     /* see RFC 4606 Section 3 */
@@ -4210,7 +4210,7 @@ dissect_rsvp_session_attribute(proto_item *ti, proto_tree *rsvp_object_tree,
 }
 
 /*------------------------------------------------------------------------------
- * EXPLICIT ROUTE AND RECORD ROUTE SUBOBJECTS, 
+ * EXPLICIT ROUTE AND RECORD ROUTE SUBOBJECTS,
  * RFC 3209, RFC 3473, RFC 5420, RFC 4873, RFC 5553
  *------------------------------------------------------------------------------*/
 static void

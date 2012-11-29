@@ -5604,7 +5604,7 @@ proto_register_tcp(void)
         &ett_tcp_process_info
     };
 
-    static enum_val_t window_scaling_vals[] = {
+    static const enum_val_t window_scaling_vals[] = {
         {"not-known",  "Not known",                  WindowScaling_NotKnown},
         {"0",          "0 (no scaling)",             WindowScaling_0},
         {"1",          "1 (multiply by 2)",          WindowScaling_1},

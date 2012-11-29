@@ -23,8 +23,8 @@
  *                     Nikitha Malgi       <malgi.nikitha@ipinfusion.com>
  *     - Identification of BFD CC, BFD CV and ON-Demand CV ACH types as per RFC 6428, RFC 6426
  *       respectively and the corresponding decoding of messages
- *     - Decoding support for MPLS-TP Lock Instruct as per RFC 6435  
- *     - Decoding support for MPLS-TP Fault-Management as per RFC 6427  
+ *     - Decoding support for MPLS-TP Lock Instruct as per RFC 6435
+ *     - Decoding support for MPLS-TP Fault-Management as per RFC 6427
  *
  * (c) Copyright 2012, Aditya Ambadkar and Diana Chris <arambadk,dvchris@ncsu.edu>
  *   -  Added preference to select BOS label as flowlabel as per RFC 6391
@@ -138,7 +138,7 @@ enum mpls_default_dissector_t {
  * this way, mpls_default_payload will be automatically filled up when
  * new mpls-specific dissector added.
  */
-static enum_val_t mpls_default_payload_defs[] = {
+static const enum_val_t mpls_default_payload_defs[] = {
     {
         "pw satop"
         ,pwc_longname_pw_satop

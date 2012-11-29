@@ -12062,7 +12062,7 @@ proto_register_ansi_a(void)
         }
     };
 
-    static enum_val_t a_variant_options[] = {
+    static const enum_val_t a_variant_options[] = {
             { "is-634-rev0",    "IS-634 rev. 0",        A_VARIANT_IS634 },
             { "tsb-80",         "TSB-80",               A_VARIANT_TSB80 },
             { "is-634-a",       "IS-634-A",             A_VARIANT_IS634A },

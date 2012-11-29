@@ -2546,13 +2546,13 @@ proto_register_bssap(void)
         &ett_bssap_plmn,
     };
 
-    static enum_val_t gsm_or_lb_interface_options[] = {
+    static const enum_val_t gsm_or_lb_interface_options[] = {
         { "gsm a",    "GSM A",    GSM_INTERFACE },
         { "lb",    "Lb",    LB_INTERFACE  },
         { NULL,        NULL,        0 }
     };
 
-    static enum_val_t bssap_or_bsap_options[] = {
+    static const enum_val_t bssap_or_bsap_options[] = {
         { "bssap",  "BSSAP",    BSSAP },
         { "bsap",   "BSAP",     BSAP  },
         { NULL,     NULL,       0 }

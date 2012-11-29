@@ -216,7 +216,7 @@ static int hf_rtp_ext_rfc5285_data = -1;
 #define RTP0_T38     2
 #define RTP0_SPRT    3
 
-static enum_val_t rtp_version0_types[] = {
+static const enum_val_t rtp_version0_types[] = {
 	{ "invalid", "Invalid or ZRTP packets", RTP0_INVALID },
 	{ "classicstun", "CLASSIC-STUN packets", RTP0_CLASSICSTUN },
 	{ "t38", "T.38 packets", RTP0_T38 },

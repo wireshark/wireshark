@@ -4215,7 +4215,7 @@ proto_register_sctp(void)
     &ett_sctp_tsn_retransmitted
   };
 
-  static enum_val_t sctp_checksum_options[] = {
+  static const enum_val_t sctp_checksum_options[] = {
     { "none",      "None",        SCTP_CHECKSUM_NONE },
     { "adler-32",  "Adler 32",    SCTP_CHECKSUM_ADLER32 },
     { "crc-32c",   "CRC 32c",     SCTP_CHECKSUM_CRC32C },

@@ -710,7 +710,7 @@ static dissector_table_t nfs_fhandle_table;
 #define FHT_CELERRA		8
 
 
-static enum_val_t nfs_fhandle_types[] = {
+static const enum_val_t nfs_fhandle_types[] = {
 	{ "unknown",	"Unknown",	FHT_UNKNOWN },
 	{ "svr4",	"SVR4",		FHT_SVR4 },
 	{ "knfsd_le",	"KNFSD_LE",	FHT_LINUX_KNFSD_LE },

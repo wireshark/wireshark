@@ -1872,7 +1872,7 @@ proto_register_erf(void)
     &ett_erf_eth
   };
 
-  static enum_val_t erf_hdlc_options[] = {
+  static const enum_val_t erf_hdlc_options[] = {
     { "chdlc",  "Cisco HDLC",       ERF_HDLC_CHDLC },
     { "ppp",    "PPP serial",       ERF_HDLC_PPP },
     { "frelay", "Frame Relay",      ERF_HDLC_FRELAY },
@@ -1881,7 +1881,7 @@ proto_register_erf(void)
     { NULL, NULL, 0 }
   };
 
-  static enum_val_t erf_aal5_options[] = {
+  static const enum_val_t erf_aal5_options[] = {
     { "guess", "Attempt to guess", ERF_AAL5_GUESS },
     { "llc",   "LLC multiplexed",  ERF_AAL5_LLC },
     { "unspec", "Unspecified", ERF_AAL5_UNSPEC },

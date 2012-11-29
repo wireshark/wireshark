@@ -728,7 +728,7 @@ proto_register_amr(void)
         &ett_amr,
         &ett_amr_toc,
     };
-    static enum_val_t encoding_types[] = {
+    static const enum_val_t encoding_types[] = {
         {"RFC 3267 Byte aligned", "RFC 3267 octet aligned", 0},
         {"RFC 3267 Bandwidth-efficient", "RFC 3267 BW-efficient", 1},
         {"AMR IF1", "AMR IF1", 2},
@@ -736,7 +736,7 @@ proto_register_amr(void)
         {NULL, NULL, -1}
     };
 
-    static enum_val_t modes[] = {
+    static const enum_val_t modes[] = {
         {"AMR-NB", "Narrowband AMR", AMR_NB},
         {"AMR-WB", "Wideband AMR", AMR_WB},
         {NULL, NULL, -1}

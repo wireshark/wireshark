@@ -140,7 +140,7 @@ static int hf_gsm_apn_str = -1;
 static int hf_gsm_map_locationnumber_odd_even = -1;
 static int hf_gsm_map_locationnumber_nai = -1;
 static int hf_gsm_map_locationnumber_inn = -1;
-static int hf_gsm_map_locationnumber_npi = -1; 
+static int hf_gsm_map_locationnumber_npi = -1;
 static int hf_gsm_map_locationnumber_apri = -1;
 static int hf_gsm_map_locationnumber_screening_ind = -1;
 static int hf_gsm_map_locationnumber_digits = -1;
@@ -2637,7 +2637,7 @@ void proto_register_gsm_map(void) {
 #include "packet-gsm_map-ettarr.c"
   };
 
-  static enum_val_t application_context_modes[] = {
+  static const enum_val_t application_context_modes[] = {
     {"Use Application Context from the trace", "Use application context from the trace", APPLICATON_CONTEXT_FROM_TRACE},
     {"Treat as AC 1", "Treat as AC 1", 1},
     {"Treat as AC 2", "Treat as AC 2", 2},

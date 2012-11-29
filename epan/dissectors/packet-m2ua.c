@@ -1118,7 +1118,7 @@ proto_register_m2ua(void)
     &ett_m2ua_parameter,
   };
 
-  static enum_val_t protocol_data_1_options[] = {
+  static const enum_val_t protocol_data_1_options[] = {
     { "draft-7", "0x000e (Draft 7)", PROTOCOL_DATA_1_DRAFT_7 },
     { "rfc3331", "0x0300 (RFC3331)", PROTOCOL_DATA_1_PARAMETER_TAG },
     { NULL, NULL, 0 }

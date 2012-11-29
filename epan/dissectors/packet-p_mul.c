@@ -245,7 +245,7 @@ static const value_string pdu_vals[] = {
   { 0,                     NULL                    }
 };
 
-static enum_val_t decode_options[] = {
+static const enum_val_t decode_options[] = {
   { "none", "No decoding",          DECODE_NONE },
   { "ber",  "BER encoded ASN.1",    DECODE_BER  },
   { "cdt",  "Compressed Data Type", DECODE_CDT  },

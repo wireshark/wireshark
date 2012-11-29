@@ -293,7 +293,7 @@ static GHashTable *ndmp_reassembled_table = NULL;
 #define NDMP_PROTOCOL_V3	3
 #define NDMP_PROTOCOL_V4	4
 #define NDMP_PROTOCOL_V5	5
-static enum_val_t ndmp_protocol_versions[] = {
+static const enum_val_t ndmp_protocol_versions[] = {
 	{ "version2",	"Version 2",	NDMP_PROTOCOL_V2 },
 	{ "version3",	"Version 3",	NDMP_PROTOCOL_V3 },
 	{ "version4",	"Version 4",	NDMP_PROTOCOL_V4 },

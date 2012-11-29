@@ -822,15 +822,15 @@ proto_register_mtp3(void)
     &ett_mtp3_label_opc
   };
 
-  static enum_val_t mtp3_options[] = {
+  static const enum_val_t mtp3_options[] = {
     { "itu",		"ITU",		ITU_STANDARD },
     { "ansi",		"ANSI",		ANSI_STANDARD },
     { "chinese-itu",	"Chinese ITU",	CHINESE_ITU_STANDARD },
     { "japan",		"Japan",	JAPAN_STANDARD },
-    { NULL, NULL, 0 }
+    { NULL,		NULL,		0 }
   };
 
-  static enum_val_t mtp3_addr_fmt_str_e[] = {
+  static const enum_val_t mtp3_addr_fmt_str_e[] = {
     { "decimal",	"Decimal",		MTP3_ADDR_FMT_DEC },
     { "hexadecimal",	"Hexadecimal",		MTP3_ADDR_FMT_HEX },
     { "ni-decimal",     "NI-Decimal",		MTP3_ADDR_FMT_NI_DEC },
@@ -839,14 +839,14 @@ proto_register_mtp3(void)
     { NULL,		NULL,			0 }
   };
 
-  static enum_val_t itu_pc_structures[] = {
+  static const enum_val_t itu_pc_structures[] = {
     { "unstructured",	"Unstructured",	ITU_PC_STRUCTURE_NONE},
     { "3-8-3",		"3-8-3",	ITU_PC_STRUCTURE_3_8_3 },
     { "4-3-4-3",	"4-3-4-3",	ITU_PC_STRUCTURE_4_3_4_3 },
     { NULL,		NULL,		0 }
   };
 
-  static enum_val_t japan_pc_structures[] = {
+  static const enum_val_t japan_pc_structures[] = {
     { "unstructured",	"Unstructured",	JAPAN_PC_STRUCTURE_NONE},
     { "7-4-5",		"7-4-5",	JAPAN_PC_STRUCTURE_7_4_5 },
     { "3-4-4-5",	"3-4-4-5",	JAPAN_PC_STRUCTURE_3_4_4_5 },

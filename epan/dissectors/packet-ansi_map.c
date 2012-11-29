@@ -19568,7 +19568,7 @@ void proto_register_ansi_map(void) {
 #line 5270 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
-    static enum_val_t ansi_map_response_matching_type_values[] = {
+    static const enum_val_t ansi_map_response_matching_type_values[] = {
         {"Only Transaction ID will be used in Invoke/response matching",                    "Transaction ID only", 0},
         {"Transaction ID and Source will be used in Invoke/response matching",                "Transaction ID and Source", 1},
         {"Transaction ID Source and Destination will be used in Invoke/response matching",    "Transaction ID Source and Destination", 2},

@@ -162,7 +162,7 @@ static const value_string status_change_vals[] = {
     { 0, NULL }
 };
 
-static enum_val_t pref_top_dissect[] = {
+static const enum_val_t pref_top_dissect[] = {
     { "off",      "off",                                  TOP_DISSECT_OFF },
     { "internal", "Put higher dissectors under this one", TOP_DISSECT_INTERNAL },
     { "top",      "On top",                               TOP_DISSECT_TOP },

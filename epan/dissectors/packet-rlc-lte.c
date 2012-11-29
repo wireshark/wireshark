@@ -64,7 +64,7 @@ static gint global_rlc_lte_um_sequence_analysis = FALSE;
 static gboolean global_rlc_lte_call_pdcp_for_srb = FALSE;
 
 enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_7, PDCP_drb_SN_12, PDCP_drb_SN_signalled, PDCP_drb_SN_15};
-static enum_val_t pdcp_drb_col_vals[] = {
+static const enum_val_t pdcp_drb_col_vals[] = {
     {"pdcp-drb-off",           "Off",                 PDCP_drb_off},
     {"pdcp-drb-sn-7",          "7-bit SN",            PDCP_drb_SN_7},
     {"pdcp-drb-sn-12",         "12-bit SN",           PDCP_drb_SN_12},
@@ -382,7 +382,7 @@ static GHashTable *sequence_analysis_channel_hash = NULL;
 /* for context information before the dissector is called               */
 
 /* Info to attach to frame when first read, recording what to show about sequence */
-typedef enum { 
+typedef enum {
     SN_OK, SN_Repeated, SN_MAC_Retx, SN_Retx, SN_Missing, ACK_Out_of_Window, SN_Error
 } sequence_analysis_state;
 
@@ -3282,7 +3282,7 @@ void proto_register_rlc_lte(void)
         &ett_rlc_lte_reassembly_source_segment
     };
 
-    static enum_val_t sequence_analysis_vals[] = {
+    static const enum_val_t sequence_analysis_vals[] = {
         {"no-analysis", "No-Analysis",     FALSE},
         {"mac-only",    "Only-MAC-frames", SEQUENCE_ANALYSIS_MAC_ONLY},
         {"rlc-only",    "Only-RLC-frames", SEQUENCE_ANALYSIS_RLC_ONLY},

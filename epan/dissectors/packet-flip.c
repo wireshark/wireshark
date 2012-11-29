@@ -108,7 +108,7 @@ static const value_string flip_etype[] = {
 #define FLIP_PAYLOAD_DECODING_MODE_HEURISTIC (1)
 #define FLIP_PAYLOAD_DECODING_MODE_FORCED    (2)
 
-static enum_val_t flip_payload_decoding_modes[] = {
+static const enum_val_t flip_payload_decoding_modes[] = {
     {"none",      "no decoding", FLIP_PAYLOAD_DECODING_MODE_NONE},
     {"heuristic", "heuristic",   FLIP_PAYLOAD_DECODING_MODE_HEURISTIC},
     {"forced",    "forced",      FLIP_PAYLOAD_DECODING_MODE_FORCED},

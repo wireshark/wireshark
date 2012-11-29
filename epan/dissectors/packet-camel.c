@@ -869,7 +869,7 @@ static const true_false_string camel_extension_value = {
 #define AMERICAN_DATE 2
 #define CAMEL_DATE_AND_TIME_LEN 20 /* 2*5 + 4 + 5 + 1 (HH:MM:SS;mm/dd/yyyy) */
 
-static enum_val_t date_options[] = {
+static const enum_val_t date_options[] = {
   { "european",         "DD/MM/YYYY",       EUROPEAN_DATE },
   { "american",        "MM/DD/YYYY",        AMERICAN_DATE },
   { NULL, NULL, 0 }

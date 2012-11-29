@@ -69,7 +69,7 @@ typedef enum {
 	CAN_CANOPEN_DISSECTOR = 2
 } Dissector_Option;
 
-static enum_val_t can_high_level_protocol_dissector_options[] = {
+static const enum_val_t can_high_level_protocol_dissector_options[] = {
 	{ "raw",	"Raw data (no further dissection)",	CAN_DATA_DISSECTOR },
 	{ "CANopen",	"CANopen protocol",			CAN_CANOPEN_DISSECTOR },
 	{ NULL,	NULL, 0 }

@@ -40,7 +40,7 @@ static gint ett_isdn = -1;
 #define DCHANNEL_LAPD	0	/* LAPD */
 #define DCHANNEL_DPNSS	1	/* DPNSS link layer */
 
-static enum_val_t dchannel_protocol_options[] = {
+static const enum_val_t dchannel_protocol_options[] = {
     { "lapd", "LAPD", DCHANNEL_LAPD },
     { "DPNSS", "DPNSS", DCHANNEL_DPNSS },
     { NULL, NULL, 0 }

@@ -583,7 +583,7 @@ proto_register_m2pa(void)
     &ett_m2pa_li
   };
 
-  static enum_val_t m2pa_version_options[] = {
+  static const enum_val_t m2pa_version_options[] = {
     { "draft-2",  "Internet Draft version 2",  M2PA_V02     },
     { "draft-8",  "Internet Draft version 8",  M2PA_V08     },
     { "RFC4165",  "RFC 4165",                  M2PA_RFC4165 },

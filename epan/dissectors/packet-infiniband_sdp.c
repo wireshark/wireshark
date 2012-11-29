@@ -117,7 +117,7 @@ static guint gPREF_QP[2]        = {0};
 address manual_addr[2];
 void *manual_addr_data[2];
 
-static enum_val_t pref_address_types[] = {
+static const enum_val_t pref_address_types[] = {
     {"lid", "LID", 0},
     {"gid", "GID", 1},
     {NULL, NULL, -1}

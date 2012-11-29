@@ -77,7 +77,7 @@ static gboolean tcap_subdissector_used=FALSE;
 static struct tcaphash_context_t * gp_tcap_context=NULL;
 
 /* Note the high bit should be masked off when registering in this table (0x7fff)*/
-static dissector_table_t	ansi_tcap_national_opcode_table; /* National Operation Codes */
+static dissector_table_t  ansi_tcap_national_opcode_table; /* National Operation Codes */
 
 #include "packet-ansi_tcap-ett.c"
 
@@ -193,17 +193,17 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
 
           /* Only do this once XXX I hope its the right thing to do */
           /* The hash string needs to contain src and dest to distiguish differnt flows */
-		  switch(ansi_tcap_response_matching_type){
-				case 0:
-					buf = ep_strdup(ansi_tcap_private.TransactionID_str);
-					break;
-				case 1:
-					buf = ep_strdup_printf("%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src));
-					break;
-				default:
-					buf = ep_strdup_printf("%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src),ep_address_to_str(dst));
-					break;
-			}
+          switch(ansi_tcap_response_matching_type){
+                        case 0:
+                                buf = ep_strdup(ansi_tcap_private.TransactionID_str);
+                                break;
+                        case 1:
+                                buf = ep_strdup_printf("%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src));
+                                break;
+                        default:
+                                buf = ep_strdup_printf("%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src),ep_address_to_str(dst));
+                                break;
+                }
 
           /* If the entry allready exists don't owervrite it */
           ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)g_hash_table_lookup(TransactionId_table,buf);
@@ -243,16 +243,16 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
         ansi_tcap_private.TransactionID_str, ep_address_to_str(dst),
         ep_address_to_str(src));
   switch(ansi_tcap_response_matching_type){
-		case 0:
-			g_snprintf(buf,MAX_TID_STR_LEN,"%s",ansi_tcap_private.TransactionID_str);
-			break;
-		case 1:
-			g_snprintf(buf,MAX_TID_STR_LEN,"%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(dst));
-			break;
-		default:
-			g_snprintf(buf,MAX_TID_STR_LEN,"%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(dst),ep_address_to_str(src));
-			break;
-	}
+        case 0:
+                g_snprintf(buf,MAX_TID_STR_LEN,"%s",ansi_tcap_private.TransactionID_str);
+                break;
+        case 1:
+                g_snprintf(buf,MAX_TID_STR_LEN,"%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(dst));
+                break;
+        default:
+                    g_snprintf(buf,MAX_TID_STR_LEN,"%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(dst),ep_address_to_str(src));
+                    break;
+    }
 
   ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)g_hash_table_lookup(TransactionId_table, buf);
   if(ansi_tcap_saved_invokedata){
@@ -310,23 +310,23 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
         }
         if(ansi_tcap_private.d.OperationCode == 0){
                 /* national */
-				guint8 family = (ansi_tcap_private.d.OperationCode_national & 0x7f00)>>8;
-				guint8 specifier = (guint8)(ansi_tcap_private.d.OperationCode_national & 0xff);
-				if(!dissector_try_uint(ansi_tcap_national_opcode_table, ansi_tcap_private.d.OperationCode_national, tvb, actx->pinfo, tcap_top_tree)){
-					item = proto_tree_add_text(tree, tvb, 0, -1,
-							"Dissector for ANSI TCAP NATIONAL code:0x%x(Family %u, Specifier %u) \n"
-							"not implemented. Contact Wireshark developers if you want this supported(Spec required)",
-							ansi_tcap_private.d.OperationCode_national, family, specifier);
-					PROTO_ITEM_SET_GENERATED(item);
-					return FALSE;
-				}
-				return TRUE;
+                guint8 family = (ansi_tcap_private.d.OperationCode_national & 0x7f00)>>8;
+                guint8 specifier = (guint8)(ansi_tcap_private.d.OperationCode_national & 0xff);
+                if(!dissector_try_uint(ansi_tcap_national_opcode_table, ansi_tcap_private.d.OperationCode_national, tvb, actx->pinfo, tcap_top_tree)){
+                        item = proto_tree_add_text(tree, tvb, 0, -1,
+                                        "Dissector for ANSI TCAP NATIONAL code:0x%x(Family %u, Specifier %u) \n"
+                                        "not implemented. Contact Wireshark developers if you want this supported(Spec required)",
+                                        ansi_tcap_private.d.OperationCode_national, family, specifier);
+                        PROTO_ITEM_SET_GENERATED(item);
+                        return FALSE;
+                }
+                return TRUE;
         }else if(ansi_tcap_private.d.OperationCode == 1){
                 /* private */
                 if((ansi_tcap_private.d.OperationCode_private & 0x0900) != 0x0900){
                         item = proto_tree_add_text(tree, tvb, 0, -1,
                                 "Dissector for ANSI TCAP PRIVATE code:%u not implemented.\n"
-								"Contact Wireshark developers if you want this supported(Spec required)",
+                                "Contact Wireshark developers if you want this supported(Spec required)",
                                 ansi_tcap_private.d.OperationCode_private);
                         PROTO_ITEM_SET_GENERATED(item);
                         return FALSE;
@@ -466,18 +466,18 @@ proto_register_ansi_tcap(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-		{ &hf_ansi_tcap_bit_h,
+        { &hf_ansi_tcap_bit_h,
           { "Require Reply", "ansi_tcap.req_rep",
             FT_BOOLEAN, 16, NULL, 0x8000,
             NULL, HFILL }
         },
-		{ &hf_ansi_tcap_op_family,
+        { &hf_ansi_tcap_op_family,
           { "Family",
             "ansi_tcap.op_family",
             FT_UINT16, BASE_DEC, VALS(ansi_tcap_national_op_code_family_vals), 0x7f00,
             NULL, HFILL }
         },
-		{ &hf_ansi_tcap_op_specifier,
+        { &hf_ansi_tcap_op_specifier,
           { "Specifier",
             "ansi_tcap.op_specifier",
             FT_UINT16, BASE_DEC, NULL, 0x00ff,
@@ -493,16 +493,16 @@ proto_register_ansi_tcap(void)
         &ett_otid,
         &ett_dtid,
         &ett_ansi_tcap_stat,
-		&ett_ansi_tcap_op_code_nat,
+        &ett_ansi_tcap_op_code_nat,
         #include "packet-ansi_tcap-ettarr.c"
     };
 
-	static enum_val_t ansi_tcap_response_matching_type_values[] = {
-		{"Only Transaction ID will be used in Invoke/response matching",					"Transaction ID only", 0},
-		{"Transaction ID and Source will be used in Invoke/response matching",				"Transaction ID and Source", 1},
-		{"Transaction ID Source and Destination will be used in Invoke/response matching",	"Transaction ID Source and Destination", 2},
-		{NULL, NULL, -1}
-	};
+    static const enum_val_t ansi_tcap_response_matching_type_values[] = {
+        {"Only Transaction ID will be used in Invoke/response matching",                        "Transaction ID only", 0},
+        {"Transaction ID and Source will be used in Invoke/response matching",                  "Transaction ID and Source", 1},
+        {"Transaction ID Source and Destination will be used in Invoke/response matching",      "Transaction ID Source and Destination", 2},
+        {NULL, NULL, -1}
+    };
 
 
 /* Register the protocol name and description */

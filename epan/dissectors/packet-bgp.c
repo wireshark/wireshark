@@ -1172,7 +1172,7 @@ decode_mdt_safi(proto_tree *tree, tvbuff_t *tvb, gint offset)
     guint length; /* length in bits */
     gint  orig_offset = offset;
     proto_item *item;
-        
+
     length = tvb_get_guint8(tvb, offset);
     if (length != mdt_safi_nlri_length_bits)
         return -1;
@@ -1516,15 +1516,15 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                      tvb_get_ntohs(tvb, offset + 1 + 10));
                     break;
                 case BGP_EXT_COM_RT_2:
-                    ep_strbuf_printf(comm_strbuf, "%u:%u", 
-                                     tvb_get_ntohl(tvb, 6), 
+                    ep_strbuf_printf(comm_strbuf, "%u:%u",
+                                     tvb_get_ntohl(tvb, 6),
                                      tvb_get_ntohs(tvb, offset + 1 + 10));
                     break;
                 default:
                     ep_strbuf_printf(comm_strbuf, "Invalid RT type");
                     break;
                 }
-                ti = proto_tree_add_text(tree, tvb, offset + 1, length, "%s %u:%s/%u", 
+                ti = proto_tree_add_text(tree, tvb, offset + 1, length, "%s %u:%s/%u",
                                     tag, tvb_get_ntohl(tvb, offset + 1 + 0),
                                     comm_strbuf->str,
                                     plen);
@@ -4407,7 +4407,7 @@ proto_register_bgp(void)
       &ett_bgp_tunnel_subtlv_subtree,
     };
     module_t *bgp_module;
-    static enum_val_t asn_len[] = {
+    static const enum_val_t asn_len[] = {
         {"auto-detect", "Auto-detect", 0},
         {"2", "2 octet", 2},
         {"4", "4 octet", 4},

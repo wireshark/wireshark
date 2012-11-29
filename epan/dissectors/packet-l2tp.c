@@ -142,7 +142,7 @@ static gint ett_l2tp_avp_sub = -1;
 static gint ett_l2tp_lcp = -1;
 static gint ett_l2tp_l2_spec = -1;
 
-static enum_val_t l2tpv3_cookies[] = {
+static const enum_val_t l2tpv3_cookies[] = {
     {"detect",  "Detect",              -1},
     {"cookie0", "None",                 0},
     {"cookie4", "4 Byte Cookie",        4},
@@ -150,7 +150,7 @@ static enum_val_t l2tpv3_cookies[] = {
     {NULL, NULL, 0}
 };
 
-#define L2TPv3_COOKIE_DEFAULT       0 
+#define L2TPv3_COOKIE_DEFAULT       0
 
 #define L2TPv3_PROTOCOL_ETH         0
 #define L2TPv3_PROTOCOL_CHDLC       1
@@ -166,7 +166,7 @@ static enum_val_t l2tpv3_cookies[] = {
 
 #define L2TPv3_PROTOCOL_DEFAULT     L2TPv3_PROTOCOL_CHDLC
 
-static enum_val_t l2tpv3_protocols[] = {
+static const enum_val_t l2tpv3_protocols[] = {
     {"detect",      "Detect",        -1},
     {"eth",         "Ethernet",      L2TPv3_PROTOCOL_ETH},
     {"chdlc",       "Cisco HDLC",    L2TPv3_PROTOCOL_CHDLC},
@@ -188,7 +188,7 @@ static enum_val_t l2tpv3_protocols[] = {
 #define L2TPv3_L2_SPECIFIC_DOCSIS_DMPT  4
 #define L2TPv3_L2_SPECIFIC_MAX          (L2TPv3_L2_SPECIFIC_DOCSIS_DMPT + 1)
 
-static enum_val_t l2tpv3_l2_specifics[] = {
+static const enum_val_t l2tpv3_l2_specifics[] = {
     {"detect",  "Detect",               -1},
     {"none",    "None",                 L2TPv3_L2_SPECIFIC_NONE},
     {"default", "Default L2-Specific",  L2TPv3_L2_SPECIFIC_DEFAULT},
@@ -895,7 +895,7 @@ static l2tpv3_session_t *find_session(l2tpv3_tunnel_t *tunnel,
             (session->lcce2.id == lcce2_id)) {
                 return session;
         }
-        
+
         iterator = g_slist_next(iterator);
     }
 
@@ -1015,18 +1015,18 @@ static l2tpv3_session_t *store_pw_type(l2tpv3_session_t *_session,
     l2tpv3_session_t *session = _session;
     gint result = l2tpv3_protocol;
     guint16 pw_type;
- 
+
     switch (msg_type) {
         case MESSAGE_TYPE_ICRQ:
         case MESSAGE_TYPE_OCRQ:
             break;
         default:
             return session;
-    } 
- 
+    }
+
     if (session == NULL)
         session = alloc_session();
- 
+
     pw_type = tvb_get_ntohs(tvb, offset);
     switch (pw_type) {
         case 0x0007:
@@ -1042,9 +1042,9 @@ static l2tpv3_session_t *store_pw_type(l2tpv3_session_t *_session,
         default:
             break;
     }
- 
+
     session->pw_type = result;
- 
+
     return session;
 }
 
@@ -1056,7 +1056,7 @@ static l2tpv3_session_t *store_l2_sublayer(l2tpv3_session_t *_session,
     l2tpv3_session_t *session = _session;
     gint result = l2tpv3_l2_specific;
     guint16 l2_sublayer;
- 
+
     switch (msg_type) {
         case MESSAGE_TYPE_ICRQ:
         case MESSAGE_TYPE_OCRQ:
@@ -1067,11 +1067,11 @@ static l2tpv3_session_t *store_l2_sublayer(l2tpv3_session_t *_session,
             break;
         default:
             return session;
-    } 
- 
+    }
+
     if (session == NULL)
         session = alloc_session();
- 
+
     l2_sublayer = tvb_get_ntohs(tvb, offset);
     switch (l2_sublayer) {
        case 0x0000:
@@ -1096,8 +1096,8 @@ static l2tpv3_session_t *store_l2_sublayer(l2tpv3_session_t *_session,
         case MESSAGE_TYPE_OCRP:
             session->lcce2.l2_specific = result;
             break;
-    } 
- 
+    }
+
     return session;
 }
 
@@ -1338,7 +1338,7 @@ static void process_control_avps(tvbuff_t *tvb,
                 idx += avp_len;
                 continue;
 
-            } else {        
+            } else {
                 /* Vendor-Specific AVP */
                 tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
                                       avp_len, "Vendor %s AVP Type %u",

@@ -3872,7 +3872,7 @@ static const fragment_items frag_items = {
   "fragments"
 };
 
-static enum_val_t wlan_ignore_wep_options[] = {
+static const enum_val_t wlan_ignore_wep_options[] = {
   { "no",         "No",               WLAN_IGNORE_WEP_NO    },
   { "without_iv", "Yes - without IV", WLAN_IGNORE_WEP_WO_IV },
   { "with_iv",    "Yes - with IV",    WLAN_IGNORE_WEP_W_IV  },
@@ -7839,10 +7839,10 @@ dissect_vht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
   /* B16 - B18 */
   proto_tree_add_item(cap_tree, hf_ieee80211_vht_sounding_dimensions, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  /* B19 */  
+  /* B19 */
   proto_tree_add_item(cap_tree, hf_ieee80211_vht_mu_beamformer_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
-  /* B20 - B22 2x 1 bit fields */ 
+  /* B20 - B22 2x 1 bit fields */
   proto_tree_add_item(cap_tree, hf_ieee80211_vht_mu_beamformee_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(cap_tree, hf_ieee80211_vht_txop_ps, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(cap_tree, hf_ieee80211_vht_var_htc_field, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -8493,7 +8493,7 @@ dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   proto_tree_add_item(cap_tree, hf_ieee80211_ht_psmp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(cap_tree, hf_ieee80211_ht_40_mhz_intolerant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(cap_tree, hf_ieee80211_ht_l_sig, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  offset += 2; 
+  offset += 2;
 
   /* 1 byte A-MPDU Parameters */
   if(vs)

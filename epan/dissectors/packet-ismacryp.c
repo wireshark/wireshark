@@ -841,13 +841,13 @@ void proto_register_ismacryp (void)
 		&ett_ismacryp_message
 	};
 
-	static enum_val_t version_types[] = {
+	static const enum_val_t version_types[] = {
 		{PROTO_TAG_ISMACRYP_11, "ISMACryp v1.1", V11},
 		{PROTO_TAG_ISMACRYP_20, "ISMACryp v2.0", V20},
 		{NULL, NULL, -1}
 	};
 
-	static enum_val_t mode_types[] = {
+	static const enum_val_t mode_types[] = {
 		{"aac-hbr", "aac-hbr", AAC_HBR_MODE},
 		{"mpeg4-video", "mpeg4-video", MPEG4_VIDEO_MODE},
 		{"avc-video", "avc-video", AVC_VIDEO_MODE},

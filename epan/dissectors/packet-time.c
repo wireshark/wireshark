@@ -32,7 +32,7 @@
 #include <epan/prefs.h>
 
 
-static enum_val_t time_display_types[] = {
+static const enum_val_t time_display_types[] = {
     { "UTC", "UTC", ABSOLUTE_TIME_UTC },
     { "Local", "Local", ABSOLUTE_TIME_LOCAL},
     { NULL, NULL, 0 }

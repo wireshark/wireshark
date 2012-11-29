@@ -58,7 +58,7 @@ static range_t *global_udp_port_range;
 static dissector_handle_t sscop_handle;
 
 
-static enum_val_t sscop_payload_dissector_options[] = {
+static const enum_val_t sscop_payload_dissector_options[] = {
   { "data",	"Data (no further dissection)",	DATA_DISSECTOR },
   { "Q.2931",	"Q.2931",	Q2931_DISSECTOR },
   { "SSCF-NNI",	"SSCF-NNI (MTP3-b)",		SSCF_NNI_DISSECTOR },

@@ -2398,7 +2398,7 @@ proto_register_sua(void)
 
   module_t *sua_module;
 
-  static enum_val_t options[] = {
+  static const enum_val_t options[] = {
     { "draft-08", "Internet Draft version 08", SUA_V08  },
     { "rfc3868",  "RFC 3868",                  SUA_RFC  },
     { NULL, NULL, 0 }

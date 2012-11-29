@@ -57,7 +57,7 @@ enum ws_nfulnl_attr_type {
 #define BYTE_ORDER_LE 2
 #define BYTE_ORDER_HOST 3
 
-static enum_val_t byte_order_types[] = {
+static const enum_val_t byte_order_types[] = {
     { "Auto", "Auto",          BYTE_ORDER_AUTO },
     { "Host", "Host",          BYTE_ORDER_HOST },
     { "LE",   "Little Endian", BYTE_ORDER_LE },

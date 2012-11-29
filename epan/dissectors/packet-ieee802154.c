@@ -344,7 +344,7 @@ static const true_false_string ieee802154_gts_direction_tfs = {
 
 /* The 802.15.4-2003 security suites for the security preferences (only AES-CCM suites are supported). */
 /* NOTE: The equivalent 2006 security level identifer enumerations are used to simplify 2003 & 2006 integration! */
-static enum_val_t ieee802154_2003_sec_suite_enums[] = {
+static const enum_val_t ieee802154_2003_sec_suite_enums[] = {
     { "AES-CCM-128", "AES-128 Encryption, 128-bit Integrity Protection", SECURITY_LEVEL_ENC_MIC_128 },
     { "AES-CCM-64",  "AES-128 Encryption, 64-bit Integrity Protection",  SECURITY_LEVEL_ENC_MIC_64 },
     { "AES-CCM-32",  "AES-128 Encryption, 32-bit Integrity Protection",  SECURITY_LEVEL_ENC_MIC_32 },

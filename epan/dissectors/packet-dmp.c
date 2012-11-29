@@ -778,7 +778,7 @@ static value_string nat_pol_id[MAX_NATIONAL_VALUES+1];
  * for description we use the Country Name and
  * for value we use the DMP value for National Policy Identifier.
  */
-static enum_val_t dmp_national_values[MAX_NATIONAL_VALUES+1] = {
+static const enum_val_t dmp_national_values[MAX_NATIONAL_VALUES+1] = {
   { "???",  "None", 0x00 },
   { "alb",  "Albania", 0x1B },
   { "arm",  "Armenia", 0x20 },
@@ -967,7 +967,7 @@ static const value_string ack_msg_type [] = {
   { ACK,    " (ack)"     },
   { 0,      NULL } };
 
-static enum_val_t struct_id_options[] = {
+static const enum_val_t struct_id_options[] = {
   { "none",    "None",                        STRUCT_ID_NONE     },
   { "1byte",   "1 Byte value",                STRUCT_ID_UINT8    },
   { "2byte",   "2 Byte value",                STRUCT_ID_UINT16   },
@@ -978,7 +978,7 @@ static enum_val_t struct_id_options[] = {
   { NULL,      NULL,                          0                  }
 };
 
-static enum_val_t national_decoding[] = {
+static const enum_val_t national_decoding[] = {
   { "none",    "None (raw data)", NAT_DECODE_NONE   },
   { "dmp",     "As for regular",  NAT_DECODE_DMP    },
   { "thales",  "Thales XOmail",   NAT_DECODE_THALES },

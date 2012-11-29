@@ -1670,14 +1670,14 @@ void proto_register_pdcp(void)
         &ett_pdcp_report_bitmap
     };
 
-    static enum_val_t sequence_analysis_vals[] = {
+    static const enum_val_t sequence_analysis_vals[] = {
         {"no-analysis", "No-Analysis",      FALSE},
         {"rlc-only",    "Only-RLC-frames",  SEQUENCE_ANALYSIS_RLC_ONLY},
         {"pdcp-only",   "Only-PDCP-frames", SEQUENCE_ANALYSIS_PDCP_ONLY},
         {NULL, NULL, -1}
     };
 
-    static enum_val_t show_info_col_vals[] = {
+    static const enum_val_t show_info_col_vals[] = {
         {"show-rlc", "RLC Info", ShowRLCLayer},
         {"show-pdcp", "PDCP Info", ShowPDCPLayer},
         {"show-traffic", "Traffic Info", ShowTrafficLayer},

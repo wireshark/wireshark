@@ -101,7 +101,7 @@ static const value_string zbee_sec_level_names[] = {
 #endif
 
 /* The ZigBee security level, in enum_val_t for the security preferences. */
-static enum_val_t zbee_sec_level_enums[] = {
+static const enum_val_t zbee_sec_level_enums[] = {
     { "None",       "No Security",                                      ZBEE_SEC_NONE },
     { "MIC32",      "No Encryption, 32-bit Integrity Protection",       ZBEE_SEC_MIC32 },
     { "MIC64",      "No Encryption, 64-bit Integrity Protection",       ZBEE_SEC_MIC64 },

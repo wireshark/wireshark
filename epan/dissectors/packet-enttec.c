@@ -478,20 +478,20 @@ proto_register_enttec(void)
 
 	module_t *enttec_module;
 
-	static enum_val_t disp_chan_val_types[] = {
+	static const enum_val_t disp_chan_val_types[] = {
 		{ "pro", "Percent", 0 },
 		{ "hex", "Hexadecimal", 1 },
 		{ "dec", "Decimal", 2 },
 		{ NULL, NULL, 0 }
 	};
 
-	static enum_val_t disp_chan_nr_types[] = {
+	static const enum_val_t disp_chan_nr_types[] = {
 		{ "hex", "Hexadecimal", 0 },
 		{ "dec", "Decimal", 1 },
 		{ NULL, NULL, 0 }
 	};
 
-	static enum_val_t col_count[] = {
+	static const enum_val_t col_count[] = {
 		{ "6", "6", 6 },
 		{ "10", "10", 10 },
 		{ "12", "12", 12 },

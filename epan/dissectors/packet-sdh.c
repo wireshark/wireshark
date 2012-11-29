@@ -68,7 +68,7 @@ static dissector_handle_t data_handle;
 
 static gint sdh_data_rate = 1;
 
-static enum_val_t data_rates[] = {
+static const enum_val_t data_rates[] = {
   {"Attempt to guess", "Attempt to guess", -1},
   {"OC-3",  "OC-3",   1},
   {"OC-12", "OC-12",  4},
@@ -97,21 +97,21 @@ const value_string sdh_s1_vals[] = {
   { 0, NULL }
 };
 
-static int 
+static int
 get_sdh_level(tvbuff_t *tvb, packet_info *pinfo)
 {
   /*data rate has been set in the SDH options*/
   if(sdh_data_rate != -1) return sdh_data_rate;
   /*ERF specifies data rate*/
-  switch((pinfo->pseudo_header->erf.ehdr_list[0].ehdr & 0xff00) >> 8){ 
+  switch((pinfo->pseudo_header->erf.ehdr_list[0].ehdr & 0xff00) >> 8){
     case 1: /*OC-3*/
       return 1;
     case 2: /*OC-12*/
       return 4;
     case 3: /*OC-48*/
-      return 16; 
+      return 16;
     default:  /*drop through and try the next method*/
-      ;   
+      ;
   }
   /*returns the multiplier for each data level*/
   switch(tvb_reported_length(tvb)){
@@ -122,7 +122,7 @@ get_sdh_level(tvbuff_t *tvb, packet_info *pinfo)
     case 19440: /*OC-24*/
       return 8;
     case 38880: /*OC-48*/
-      return 16; 
+      return 16;
   }
 
   return 1;

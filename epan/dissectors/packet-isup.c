@@ -41,7 +41,7 @@
  * French ISUP Specification: SPIROU 1998 - 002-005 edition 1 ( Info found here http://www.icg-corp.com/docs/ISUP.pdf ).
  * Israeli ISUP Specification: excertp (for BCM messsage) found in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4231 .
  * Russian national ISUP-R 2000: RD 45.217-2001 book 4
- * Japan ISUP http://www.ttc.or.jp/jp/document_list/sum/sum_JT-Q763v21.1.pdf 
+ * Japan ISUP http://www.ttc.or.jp/jp/document_list/sum/sum_JT-Q763v21.1.pdf
  */
 
 #include "config.h"
@@ -6348,7 +6348,7 @@ static const value_string isup_jpn_redirect_capabilit_vals[] = {
 
 static void
 dissect_isup_redirect_capability_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, guint8 itu_isup_variant)
-{ 
+{
   guint length = tvb_length(parameter_tvb);
 
   switch(itu_isup_variant) {
@@ -6891,7 +6891,7 @@ Information Type Tag
 00000100  Invoking redirect reason
 00000101
    to     Spare
-11111111  
+11111111
 
 Note: In standard this value is marked as -Not used-,
       here is treated as reserved.
@@ -6902,7 +6902,7 @@ Performing redirect indicator
 +-----+-----+-----+-----+-----+-----+-----+-----+
 - ext -      Performing redirect reason         -  1
 +-----+-----------------------------------------+
--                             -Redirect possible-  
+-                             -Redirect possible-
 -          Spare              -  indicator at   -  2
 -                             -   performing    -
 -                             -    exchange     -
@@ -6912,7 +6912,7 @@ Performing redirect indicator
 +-----------------------------------------------+
 - ext -      Performing redirect reason         -  2n|1
 +-----+-----------------------|-----------------+    Reason n
--                             -Redirect possible-  
+-                             -Redirect possible-
 -          Spare              -  indicator at   -  2n
 -                             -   performing    -
 -                             -    exchange     -
@@ -6956,7 +6956,7 @@ to       Spare
 0111111
 1000000
 to       Reserved for national use
-1111101  
+1111101
 1111110  Local number portability / Mobile number
          portability
 1111111  Reserved for national use
@@ -11266,7 +11266,7 @@ proto_register_isup(void)
       {"Redirect possible indicator at performing exchange",  "isup.rfi.redir_pos_ind",
        FT_UINT8, BASE_DEC, VALS(redir_pos_ind_vals), 0x07,
        NULL, HFILL }},
-    /* Value string values the same as perf_redir_reason_vals */ 
+    /* Value string values the same as perf_redir_reason_vals */
     { &hf_japan_isup_inv_redir_reason,
       {"Invoking redirect reason",  "isup.rfi.inv_redir_reason",
        FT_UINT8, BASE_DEC, VALS(perf_redir_reason_vals), 0x7f,
@@ -11434,7 +11434,7 @@ proto_register_isup(void)
     &ett_isup_apm_msg_fragments,
   };
 
-  static enum_val_t isup_variants[] = {
+  static const enum_val_t isup_variants[] = {
     {"ITU Standard",              "ITU Standard",              ISUP_ITU_STANDARD_VARIANT},
     {"French National Standard",  "French National Standard",  ISUP_FRENCH_VARIANT},
     {"Israeli National Standard", "Israeli National Standard", ISUP_ISRAELI_VARIANT},

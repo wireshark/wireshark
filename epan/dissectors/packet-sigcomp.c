@@ -2581,12 +2581,12 @@ proto_register_sigcomp(void)
     };
 
     module_t *sigcomp_module;
-    static enum_val_t udvm_detail_vals[] = {
-    {"no-printout", "No-Printout", 0},
-    {"low-detail", "Low-detail", 1},
-    {"medium-detail", "Medium-detail", 2},
-    {"high-detail", "High-detail", 3},
-    {NULL, NULL, -1}
+    static const enum_val_t udvm_detail_vals[] = {
+        {"no-printout",   "No-Printout", 0},
+        {"low-detail",    "Low-detail", 1},
+        {"medium-detail", "Medium-detail", 2},
+        {"high-detail",   "High-detail", 3},
+        {NULL, NULL, -1}
     };
 
 

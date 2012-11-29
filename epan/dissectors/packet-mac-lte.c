@@ -5741,14 +5741,14 @@ void proto_register_mac_lte(void)
         &ett_mac_lte_oob
     };
 
-    static enum_val_t show_info_col_vals[] = {
+    static const enum_val_t show_info_col_vals[] = {
         {"show-phy", "PHY Info", ShowPHYLayer},
         {"show-mac", "MAC Info", ShowMACLayer},
         {"show-rlc", "RLC Info", ShowRLCLayer},
         {NULL, NULL, -1}
     };
 
-    static enum_val_t lcid_drb_source_vals[] = {
+    static const enum_val_t lcid_drb_source_vals[] = {
         {"from-static-stable",          "From static table",           FromStaticTable},
         {"from-configuration-protocol", "From configuration protocol", FromConfigurationProtocol},
         {NULL, NULL, -1}
