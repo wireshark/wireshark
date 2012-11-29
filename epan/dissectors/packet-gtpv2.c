@@ -366,6 +366,7 @@ static int hf_gtpv2_mbms_ip_mc_src_addrv4 = -1;
 static int hf_gtpv2_mbms_ip_mc_src_addrv6 = -1;
 static int hf_gtpv2_mbms_hc_indicator = -1;
 static int hf_gtpv2_mbms_dist_indication = -1;
+static int hf_gtpv2_rfsp_index = -1;
 static int hf_gtpv2_mbms_service_id = -1;
 static int hf_gtpv2_add_flags_for_srvcc_ics = -1;
 static int hf_gtpv2_vsrvcc_flag = -1;
@@ -420,6 +421,9 @@ static gint ett_gtpv2_mm_context_net_cap = -1;
 static gint ett_gtpv2_ms_network_capability = -1;
 static gint ett_gtpv2_vd_pref = -1;
 static gint ett_gtpv2_access_rest_data = -1;
+static gint ett_gtpv2_qua = -1;
+static gint ett_gtpv2_qui = -1;
+
 
 /* Definition of User Location Info (AVP 22) masks */
 #define GTPv2_ULI_CGI_MASK          0x01
@@ -3315,8 +3319,8 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static void
 dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *flag_item;
-    proto_tree *flag_tree;
+    proto_item *flag_item, *qua_item, *qui_item;
+    proto_tree *flag_tree, *qua_tree, *qui_tree;
     gint        offset;
     guint8      tmp, nhi, drxi, nr_qua, nr_qui, uamb_ri, samb_ri, vdp_len;
 
@@ -3385,14 +3389,20 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_item(tree, hf_gtpv2_mm_context_kasme, tvb, offset, 32, ENC_BIG_ENDIAN);
     offset += 32;
 
-
-    if ( nr_qua )
-    {
-        offset = dissect_gtpv2_authentication_quadruplets(tvb, tree, offset, nr_qui);
+    qua_item = proto_tree_add_text(tree, tvb, offset, 0, "Authentication Quadruplets %u", nr_qua);
+    if ( nr_qua ){
+        qua_tree = proto_item_add_subtree(qua_item, ett_gtpv2_qua);
+        offset = dissect_gtpv2_authentication_quadruplets(tvb, qua_tree, offset, nr_qua);
+    }else {
+        PROTO_ITEM_SET_GENERATED(qua_item);
     }
 
+    qui_item = proto_tree_add_text(tree, tvb, offset, 0, "Authentication Quintuplets %u", nr_qui);
     if (nr_qui) {
+        qui_tree = proto_item_add_subtree(qui_item, ett_gtpv2_qui);
         offset = dissect_gtpv2_authentication_quintuplets(tvb, tree, offset, nr_qui);
+    }else{
+        PROTO_ITEM_SET_GENERATED(qui_item);
     }
 
     /* (h+1) to (h+2) DRX parameter */
@@ -4609,11 +4619,10 @@ dissect_gtpv2_csg_info_rep_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static void
 dissect_gtpv2_rfsp_index(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
+    int offset = 0;
 
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
-    PROTO_ITEM_SET_GENERATED(expert_item);
+	proto_tree_add_item(tree, hf_gtpv2_rfsp_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+
 }
 
 /* 8.78 CSG ID */
@@ -6646,6 +6655,11 @@ void proto_register_gtpv2(void)
           FT_UINT8, BASE_DEC, VALS(gtpv2_mbms_dist_indication_vals), 0x03,
           NULL, HFILL}
         },
+        { &hf_gtpv2_rfsp_index,
+          {"RFSP Index", "gtpv2.rfsp_index",
+          FT_INT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
         { &hf_gtpv2_mbms_service_id,
           {"MBMS Service ID", "gtpv2.mbms_service_id",
           FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -6774,6 +6788,8 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_ms_network_capability,
         &ett_gtpv2_vd_pref,
         &ett_gtpv2_access_rest_data,
+        &ett_gtpv2_qua, 
+        &ett_gtpv2_qui,
     };
 
     proto_gtpv2 = proto_register_protocol("GPRS Tunneling Protocol V2", "GTPv2", "gtpv2");
