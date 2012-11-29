@@ -3400,7 +3400,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     qui_item = proto_tree_add_text(tree, tvb, offset, 0, "Authentication Quintuplets %u", nr_qui);
     if (nr_qui) {
         qui_tree = proto_item_add_subtree(qui_item, ett_gtpv2_qui);
-        offset = dissect_gtpv2_authentication_quintuplets(tvb, tree, offset, nr_qui);
+        offset = dissect_gtpv2_authentication_quintuplets(tvb, qui_tree, offset, nr_qui);
     }else{
         PROTO_ITEM_SET_GENERATED(qui_item);
     }
