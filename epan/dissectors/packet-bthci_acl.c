@@ -110,7 +110,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8                    localhost_bdaddr[6];
     gchar                    *localhost_ether_addr;
     gchar                    *localhost_addr_name;
-    size_t                   localhost_length;
+    gint                     localhost_length;
     localhost_bdaddr_entry_t *localhost_bdaddr_entry;
     localhost_name_entry_t   *localhost_name_entry;
 
@@ -165,7 +165,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         gchar           *remote_name;
         gchar           *remote_ether_addr;
         gchar           *remote_addr_name;
-        size_t          remote_length;
+        gint            remote_length;
 
         bd_addr_oui = remote_bdaddr->bd_addr[0] << 16 | remote_bdaddr->bd_addr[1] << 8 | remote_bdaddr->bd_addr[2];
         bd_addr_id = remote_bdaddr->bd_addr[3] << 16 | remote_bdaddr->bd_addr[4] << 8 | remote_bdaddr->bd_addr[5];
@@ -188,7 +188,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             remote_name = "";
 
         remote_ether_addr = get_ether_name(remote_bdaddr->bd_addr);
-        remote_length = strlen(remote_ether_addr) + 3 + strlen(remote_name) + 1;
+        remote_length = (gint)(strlen(remote_ether_addr) + 3 + strlen(remote_name) + 1);
         remote_addr_name = ep_alloc(remote_length);
 
         g_snprintf(remote_addr_name, remote_length, "%s (%s)", remote_ether_addr, remote_name);
@@ -239,7 +239,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else
         localhost_name ="";
 
-    localhost_length = strlen(localhost_ether_addr) + 3 + strlen(localhost_name) + 1;
+    localhost_length = (gint)(strlen(localhost_ether_addr) + 3 + strlen(localhost_name) + 1);
     localhost_addr_name = ep_alloc(localhost_length);
 
     g_snprintf(localhost_addr_name, localhost_length, "%s (%s)", localhost_ether_addr, localhost_name);
