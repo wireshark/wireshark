@@ -1240,9 +1240,8 @@ static guint dissect_wimaxmacphy_dl_burst_descriptor(tvbuff_t *tvb, guint offset
     /* sub-burst descriptors */
     for (sub_burst = 0; sub_burst < sub_burst_descriptor_count; ++sub_burst)
     {
-        proto_item *item;
         proto_tree *sub_burst_descriptor_tree;
-        guint sub_burst_descriptor_length;
+        guint       sub_burst_descriptor_length;
 
         item = proto_tree_add_text(tree, tvb, offset, 1, "Sub-Burst Descriptor %u", sub_burst);
         sub_burst_descriptor_tree = proto_item_add_subtree(item, ett_wimaxmacphy_dl_sub_burst_descriptor);
@@ -1349,9 +1348,8 @@ static guint dissect_wimaxmacphy_dl_zone_descriptor(tvbuff_t *tvb, guint offset,
     /* burst descriptors */
     for (burst = 0; burst < burst_descriptor_count; ++burst)
     {
-        proto_item *item;
         proto_tree *burst_descriptor_tree;
-        guint burst_descriptor_length;
+        guint       burst_descriptor_length;
 
         /* note: we'll adjust the length later */
         item = proto_tree_add_text(tree, tvb, offset, 1, "Burst Descriptor %u", burst);
@@ -1890,7 +1888,7 @@ static guint dissect_wimaxmacphy_ul_burst_descriptor(tvbuff_t *tvb, guint offset
     for (sub_burst = 0; sub_burst < sub_burst_descriptor_count; ++sub_burst)
     {
         proto_tree *sub_burst_descriptor_tree;
-        guint sub_burst_descriptor_length;
+        guint       sub_burst_descriptor_length;
 
         item = proto_tree_add_text(tree, tvb, offset, 1, "Sub-Burst Descriptor %u", sub_burst);
         sub_burst_descriptor_tree = proto_item_add_subtree(item, ett_wimaxmacphy_ul_sub_burst_descriptor);

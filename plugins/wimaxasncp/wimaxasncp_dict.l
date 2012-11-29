@@ -702,23 +702,23 @@ void wimaxasncp_dict_free(wimaxasncp_dict_t *d) {
 }
 
 void wimaxasncp_dict_print(FILE *fh, wimaxasncp_dict_t *d) {
-	wimaxasncp_dict_tlv_t *tlv;
+	wimaxasncp_dict_tlv_t *tlvp;
 
 	fprintf(fh,"\n");
 
-	for (tlv = d->tlvs; tlv; tlv = tlv->next) {
+	for (tlvp = d->tlvs; tlvp; tlvp = tlvp->next) {
 		wimaxasncp_dict_enum_t *e;
 		fprintf(fh,"TLV: %s[%u] %s[%d] %s (since %u)\n",
-				tlv->name ? tlv->name : "-",
-				tlv->type,
-				val_to_str(tlv->decoder,
+				tlvp->name ? tlvp->name : "-",
+				tlvp->type,
+				val_to_str(tlvp->decoder,
 					   wimaxasncp_decode_type_vals,
 					   "Unknown"),
-				tlv->decoder,
-				tlv->description ? tlv->description : "",
-            			tlv->since);
+				tlvp->decoder,
+				tlvp->description ? tlvp->description : "",
+            			tlvp->since);
 
-		for (e = tlv->enums; e; e = e->next) {
+		for (e = tlvp->enums; e; e = e->next) {
 			fprintf(fh,"\tEnum: %s[%u]\n",
 					e->name ? e->name : "-",
 					e->code);
