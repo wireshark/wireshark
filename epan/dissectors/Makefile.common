@@ -1229,7 +1229,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bacapp.h	\
 	packet-ber.h	\
 	packet-bfd.h	\
-	packet-bluetooth_hci.h	\
+	packet-bluetooth-hci.h	\
 	packet-bpq.h	\
 	packet-bssap.h	\
 	packet-bssgp.h	\
