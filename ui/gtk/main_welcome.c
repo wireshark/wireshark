@@ -704,32 +704,6 @@ main_welcome_add_recent_capture_file(const char *widget_cf_name, GObject *menu_i
 }
 
 #ifdef HAVE_LIBPCAP
-static gboolean select_current_ifaces(GtkTreeModel  *model,
-                                  GtkTreePath   *path,
-                                  GtkTreeIter   *iter,
-                                  gpointer       userdata)
-{
-    guint i;
-    gchar *if_name;
-    interface_t device;
-
-    GtkTreeSelection *selection = (GtkTreeSelection *)userdata;
-    device.name = NULL;
-    gtk_tree_model_get (model, iter, IFACE_NAME, &if_name, -1);
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (strcmp(device.name, if_name) == 0) {
-            if (device.selected && !gtk_tree_selection_path_is_selected(selection, path)) {
-                gtk_tree_selection_select_iter(selection, iter);
-            } else {
-                gtk_tree_selection_unselect_iter(selection, iter);
-            }
-            break;
-        }
-    }
-    return FALSE;
-}
-
 gboolean on_selection_changed(GtkTreeSelection *selection _U_,
                               GtkTreeModel *model,
                               GtkTreePath *path,
@@ -826,24 +800,6 @@ void change_selection_for_all(gboolean enable)
 }
 #endif
 
-void
-select_ifaces(void)
-{
-#ifdef HAVE_LIBPCAP
-    GtkWidget        *view;
-    GtkTreeModel     *model;
-    GtkTreeSelection *entry;
-
-    if (global_capture_opts.num_selected > 0 && if_scrolled_window) {
-        view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
-        model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
-        entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-        gtk_tree_model_foreach(GTK_TREE_MODEL(model), select_current_ifaces, (gpointer) entry);
-        gtk_widget_grab_focus(view);
-    }
-#endif
-}
-
 #ifdef HAVE_LIBPCAP
 void
 change_interface_name(gchar *oldname, guint index)
@@ -931,16 +887,16 @@ clear_capture_box(void)
 
 static void update_interface_scrolled_window_height(void)
 {
-    /* set the height of the scroll window that shows the interfaces 
+    /* set the height of the scroll window that shows the interfaces
      * based on the number of visible interfaces - up to a maximum of 10 interfaces */
     guint i;
     interface_t device;
     int visible_interface_count=0;
-    
+
     if(if_scrolled_window==NULL){
         return;
     }
-    
+
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (!device.hidden) {
@@ -972,7 +928,7 @@ update_capture_box(void)
     gtk_tree_selection_unselect_all(GTK_TREE_SELECTION(entry));
     store = gtk_list_store_new(NUMCOLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
 
-    gtk_list_store_clear(store);    
+    gtk_list_store_clear(store);
     gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
@@ -1023,7 +979,7 @@ static void fill_capture_box(void)
                                                 "Same as Capture/Interfaces menu or toolbar item",
                                                 welcome_button_callback_helper, capture_if_cb);
         gtk_box_pack_start(GTK_BOX(box_to_fill), item_hb_interface_list, FALSE, FALSE, 5);
-        if_scrolled_window = gtk_scrolled_window_new (NULL, NULL);        
+        if_scrolled_window = gtk_scrolled_window_new (NULL, NULL);
         update_interface_scrolled_window_height();
         gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(if_scrolled_window), GTK_SHADOW_IN);
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(if_scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -1087,7 +1043,7 @@ static void fill_capture_box(void)
        if (if_view) {
            clear_capture_box();
        }
-       
+
        /* run capture_interface_list(), not to get the interfaces, but to detect
         * any errors, if there is an error, display an appropriate message in the gui */
        capture_interface_list(&error, &err_str);

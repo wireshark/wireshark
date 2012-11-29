@@ -68,8 +68,6 @@ void welcome_header_set_message(gchar *msg);
  */
 void welcome_header_pop_msg(void);
 
-void select_ifaces(void);
-
 GtkWidget* get_welcome_window(void);
 
 void change_interface_selection(gchar* name, gboolean activate);
