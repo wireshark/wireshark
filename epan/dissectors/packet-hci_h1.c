@@ -26,7 +26,7 @@
 
 #include <epan/packet.h>
 
-
+#include "packet-bluetooth-hci.h"
 
 static int proto_hci_h1 = -1;
 static int hf_hci_h1_type = -1;
@@ -37,6 +37,10 @@ static gint ett_hci_h1 = -1;
 static dissector_table_t hci_h1_table;
 static dissector_handle_t data_handle;
 
+static emem_tree_t *chandle_to_bdaddr_table = NULL;
+static emem_tree_t *bdaddr_to_name_table    = NULL;
+static emem_tree_t *localhost_name          = NULL;
+static emem_tree_t *localhost_bdaddr        = NULL;
 
 static const value_string hci_h1_type_vals[] = {
 	{BTHCI_CHANNEL_COMMAND, "HCI Command"},
@@ -55,10 +59,12 @@ static const value_string hci_h1_direction_vals[] = {
 static void
 dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 type;
-	tvbuff_t *next_tvb;
+	guint8      type;
+	tvbuff_t   *next_tvb;
 	proto_item *ti=NULL;
-	proto_tree *hci_h1_tree=NULL;
+	proto_tree *hci_h1_tree = NULL;
+	void       *pd_save;
+	hci_data_t *hci_data;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI");
 
@@ -99,6 +105,16 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						"Unknown 0x%02x"));
 	}
 
+	pd_save = pinfo->private_data;
+	hci_data = ep_alloc(sizeof(hci_data_t));
+	hci_data->interface_id = HCI_INTERFACE_H4;
+	hci_data->adapter_id = HCI_ADAPTER_DEFAULT;
+	hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
+	hci_data->bdaddr_to_name_table = bdaddr_to_name_table;
+	hci_data->localhost_bdaddr = localhost_bdaddr;
+	hci_data->localhost_name = localhost_name;
+	pinfo->private_data = hci_data;
+
 	ti=proto_tree_add_int(hci_h1_tree, hf_hci_h1_direction, tvb, 0, 0, pinfo->p2p_dir);
 	PROTO_ITEM_SET_GENERATED(ti);
 
@@ -106,6 +122,8 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(!dissector_try_uint(hci_h1_table, type, next_tvb, pinfo, tree)) {
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
+
+	pinfo->private_data = pd_save;
 }
 
 
@@ -139,6 +157,11 @@ proto_register_hci_h1(void)
 
 	hci_h1_table = register_dissector_table("hci_h1.type",
 		"HCI h1 pdu type", FT_UINT8, BASE_HEX);
+
+	chandle_to_bdaddr_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "hci adapter/chandle to bdaddr");
+	bdaddr_to_name_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "hci bdaddr to name");
+	localhost_bdaddr = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "hci adaper/frame to bdaddr");
+	localhost_name = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "hci adaper/frame to name");
 }
 
 void

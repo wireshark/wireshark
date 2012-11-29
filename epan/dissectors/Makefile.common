@@ -1229,6 +1229,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bacapp.h	\
 	packet-ber.h	\
 	packet-bfd.h	\
+	packet-bluetooth_hci.h	\
 	packet-bpq.h	\
 	packet-bssap.h	\
 	packet-bssgp.h	\
@@ -1341,7 +1342,6 @@ DISSECTOR_INCLUDES =	\
 	packet-h264.h	\
 	packet-h323.h	\
 	packet-h450-ros.h	\
-	packet-hci_h4.h	\
 	packet-hclnfsd.h	\
 	packet-hdcp.h	\
 	packet-hpext.h	\

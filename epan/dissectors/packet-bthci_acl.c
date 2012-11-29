@@ -34,7 +34,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-#include "packet-hci_h4.h"
+#include "packet-bluetooth-hci.h"
 #include "packet-bthci_acl.h"
 
 /* Initialize the protocol and registered fields */
@@ -88,16 +88,31 @@ static const value_string bc_flag_vals[] = {
 static void
 dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item       *ti                        = NULL;
-    proto_tree       *bthci_acl_tree            = NULL;
-    guint16           flags, length;
-    gboolean          fragmented;
-    int               offset                = 0;
-    guint16           pb_flag, l2cap_length = 0;
-    tvbuff_t         *next_tvb;
-    bthci_acl_data_t *acl_data;
-    chandle_data_t   *chandle_data;
-    void*             pd_save;
+    proto_item               *ti                        = NULL;
+    proto_tree               *bthci_acl_tree            = NULL;
+    guint16                   flags;
+    guint16                   length;
+    gboolean                  fragmented;
+    int                       offset                = 0;
+    guint16                   pb_flag, l2cap_length = 0;
+    tvbuff_t                 *next_tvb;
+    bthci_acl_data_t         *acl_data;
+    chandle_data_t           *chandle_data;
+    void                     *pd_save;
+    hci_data_t               *hci_data;
+    emem_tree_key_t           key[5];
+    guint32                   k_connection_handle;
+    guint32                   k_frame_number;
+    guint32                   k_interface_id;
+    guint32                   k_adapter_id;
+    remote_bdaddr_t          *remote_bdaddr;
+    gchar                    *localhost_name;
+    guint8                    localhost_bdaddr[6];
+    gchar                    *localhost_ether_addr;
+    gchar                    *localhost_addr_name;
+    gint                      localhost_length;
+    localhost_bdaddr_entry_t *localhost_bdaddr_entry;
+    localhost_name_entry_t   *localhost_name_entry;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_ACL");
 
@@ -113,10 +128,131 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_bc_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
+    hci_data = (hci_data_t *) pinfo->private_data;
+
     acl_data            = ep_alloc(sizeof(bthci_acl_data_t));
     acl_data->chandle   = flags&0x0fff;
     pd_save             = pinfo->private_data;
     pinfo->private_data = acl_data;
+
+    k_interface_id = hci_data->interface_id;
+    k_adapter_id = hci_data->adapter_id;
+    k_connection_handle = flags & 0x0fff;
+    k_frame_number = pinfo->fd->num;
+
+    key[0].length = 1;
+    key[0].key    = &k_interface_id;
+    key[1].length = 1;
+    key[1].key    = &k_adapter_id;
+    key[2].length = 1;
+    key[2].key    = &k_connection_handle;
+    key[3].length = 1;
+    key[3].key    = &k_frame_number;
+    key[4].length = 0;
+    key[4].key    = NULL;
+
+    /* remote bdaddr and name */
+    remote_bdaddr = se_tree_lookup32_array_le(hci_data->chandle_to_bdaddr_table, key);
+    if (remote_bdaddr && remote_bdaddr->interface_id == k_interface_id &&
+            remote_bdaddr->adapter_id == k_adapter_id &&
+            remote_bdaddr->chandle == (flags & 0x0fff)) {
+        guint32         k_bd_addr_oui;
+        guint32         k_bd_addr_id;
+        guint32         k_frame_number;
+        guint32         bd_addr_oui;
+        guint32         bd_addr_id;
+        device_name_t   *device_name;
+        gchar           *remote_name;
+        gchar           *remote_ether_addr;
+        gchar           *remote_addr_name;
+        gint            remote_length;
+
+        bd_addr_oui = remote_bdaddr->bd_addr[0] << 16 | remote_bdaddr->bd_addr[1] << 8 | remote_bdaddr->bd_addr[2];
+        bd_addr_id = remote_bdaddr->bd_addr[3] << 16 | remote_bdaddr->bd_addr[4] << 8 | remote_bdaddr->bd_addr[5];
+        k_bd_addr_oui = bd_addr_oui;
+        k_bd_addr_id = bd_addr_id;
+
+        key[0].length = 1;
+        key[0].key    = &k_bd_addr_id;
+        key[1].length = 1;
+        key[1].key    = &k_bd_addr_oui;
+        key[2].length = 1;
+        key[2].key    = &k_frame_number;
+        key[3].length = 0;
+        key[3].key    = NULL;
+
+        device_name = se_tree_lookup32_array_le(hci_data->bdaddr_to_name_table, key);
+        if (device_name && device_name->bd_addr_oui == bd_addr_oui && device_name->bd_addr_id == bd_addr_id)
+            remote_name = device_name->name;
+        else
+            remote_name = "";
+
+        remote_ether_addr = get_ether_name(remote_bdaddr->bd_addr);
+        remote_length = strlen(remote_ether_addr) + 3 + strlen(remote_name) + 1;
+        remote_addr_name = ep_alloc(remote_length);
+
+        g_snprintf(remote_addr_name, remote_length, "%s (%s)", remote_ether_addr, remote_name);
+
+        if (pinfo->p2p_dir == P2P_DIR_RECV) {
+            SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, strlen(remote_name), remote_name);
+            SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, remote_bdaddr->bd_addr);
+            SET_ADDRESS(&pinfo->src, AT_STRINGZ, strlen(remote_addr_name), remote_addr_name);
+        } else if (pinfo->p2p_dir == P2P_DIR_SENT) {
+            SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, strlen(remote_name), remote_name);
+            SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, remote_bdaddr->bd_addr);
+            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, strlen(remote_addr_name), remote_addr_name);
+        }
+    } else {
+        if (pinfo->p2p_dir == P2P_DIR_RECV) {
+            SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, 0, "");
+            SET_ADDRESS(&pinfo->dl_src, AT_STRINGZ, 0, "");
+            SET_ADDRESS(&pinfo->src, AT_STRINGZ, 0, "");
+        } else if (pinfo->p2p_dir == P2P_DIR_SENT) {
+            SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 0, "");
+            SET_ADDRESS(&pinfo->dl_dst, AT_STRINGZ, 0, "");
+            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 0, "");
+        }
+    }
+
+    /* localhost bdaddr and name */
+    key[0].length = 1;
+    key[0].key    = &k_interface_id;
+    key[1].length = 1;
+    key[1].key    = &k_adapter_id;
+    key[2].length = 1;
+    key[2].key    = &k_frame_number;
+    key[3].length = 0;
+    key[3].key    = NULL;
+
+
+    localhost_bdaddr_entry = se_tree_lookup32_array_le(hci_data->localhost_bdaddr, key);
+    if (localhost_bdaddr_entry && localhost_bdaddr_entry->interface_id == k_interface_id &&
+            localhost_bdaddr_entry->adapter_id == k_adapter_id)
+        localhost_ether_addr = get_ether_name(localhost_bdaddr_entry->bd_addr);
+    else
+        localhost_ether_addr = "localhost";
+
+    localhost_name_entry = se_tree_lookup32_array_le(hci_data->localhost_name, key);
+    if (localhost_name_entry && localhost_name_entry->interface_id == k_interface_id &&
+            localhost_name_entry->adapter_id == k_adapter_id)
+        localhost_name = localhost_name_entry->name;
+    else
+        localhost_name ="";
+
+    localhost_length = strlen(localhost_ether_addr) + 3 + strlen(localhost_name) + 1;
+    localhost_addr_name = ep_alloc(localhost_length);
+
+    g_snprintf(localhost_addr_name, localhost_length, "%s (%s)", localhost_ether_addr, localhost_name);
+
+    if (pinfo->p2p_dir == P2P_DIR_RECV) {
+        SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, strlen(localhost_name), localhost_name);
+        SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, localhost_bdaddr);
+        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, strlen(localhost_addr_name), localhost_addr_name);
+    } else if (pinfo->p2p_dir == P2P_DIR_SENT) {
+        SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, strlen(localhost_name), localhost_name);
+        SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, localhost_bdaddr);
+        SET_ADDRESS(&pinfo->src, AT_STRINGZ, strlen(localhost_addr_name), localhost_addr_name);
+    }
 
     /* find the chandle_data structure associated with this chandle */
     chandle_data = se_tree_lookup32(chandle_tree, acl_data->chandle);

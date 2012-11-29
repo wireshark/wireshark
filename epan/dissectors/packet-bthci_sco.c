@@ -30,7 +30,7 @@
 
 #include <epan/packet.h>
 
-#include "packet-hci_h4.h"
+#include "packet-bluetooth-hci.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_bthci_sco = -1;

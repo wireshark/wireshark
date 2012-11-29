@@ -1,4 +1,4 @@
-/* packet-hci_h4.h
+/* packet-bluetooth-hci.h
  *
  * $Id$
  *
@@ -21,8 +21,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __PACKET_HCI_H4_H__
-#define __PACKET_HCI_H4_H__
+#ifndef __PACKET_BLUETOOTH_HCI_H__
+#define __PACKET_BLUETOOTH_HCI__H__
 
 #define HCI_H4_TYPE_CMD		0x01
 #define HCI_H4_TYPE_ACL		0x02
@@ -58,5 +58,50 @@ extern const value_string bthci_cmd_page_scan_modes[];
 extern const value_string bthci_cmd_page_scan_repetition_modes[];
 extern const value_string bthci_cmd_page_scan_period_modes[];
 extern const value_string bthci_cmd_notification_types[];
+
+
+#define HCI_INTERFACE_H1   0
+#define HCI_INTERFACE_H4   1
+#define HCI_INTERFACE_USB  2
+
+#define HCI_ADAPTER_DEFAULT 0
+
+/* chandle_to_bdaddr_table:  interface_id + adapter_id + connection_handle + frame_number -> bd_addr[6] */
+/* bdaddr_to_name_table:     bd_addr[6] + frame_number -> name */
+/* localhost_bdaddr:         interface_id + adapter_id + frame_number -> bd_addr[6] */
+/* localhost_name:           interface_id + adapter_id + frame_number -> name */
+typedef struct _hci_data_t {
+    guint32     interface_id;
+    guint32     adapter_id;
+    emem_tree_t *chandle_to_bdaddr_table;
+    emem_tree_t *bdaddr_to_name_table;
+    emem_tree_t *localhost_bdaddr;
+    emem_tree_t *localhost_name;
+} hci_data_t;
+
+typedef struct _remote_bdaddr_t {
+    guint32  interface_id;
+    guint32  adapter_id;
+    guint16  chandle;
+    guint8   bd_addr[6];
+} remote_bdaddr_t;
+
+typedef struct _device_name_t {
+    guint32  bd_addr_oui;
+    guint32  bd_addr_id;
+    gchar    *name;
+} device_name_t;
+
+typedef struct _localhost_bdaddr_entry_t {
+    guint32  interface_id;
+    guint32  adapter_id;
+    guint8   bd_addr[6];
+} localhost_bdaddr_entry_t;
+
+typedef struct _localhost_name_entry_t {
+    guint32  interface_id;
+    guint32  adapter_id;
+    gchar    *name;
+} localhost_name_entry_t;
 
 #endif
