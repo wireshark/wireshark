@@ -999,7 +999,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(tree, hf_btavrcp_bt_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     } else {
 
-        if (tvb_ensure_length_remaining(tvb, offset) == 0) { /* XXX: actually: throws exception if -== 0 */
+        if (tvb_length_remaining(tvb, offset) == 0) {
             col_append_str(pinfo->cinfo, COL_INFO, " - No PDU ID");
             return offset;
         }
