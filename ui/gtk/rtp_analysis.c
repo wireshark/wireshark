@@ -231,14 +231,14 @@ struct _info_direction {
 typedef struct _user_data_t {
 	/* tap associated data*/
 	address ip_src_fwd;
-	guint16 port_src_fwd;
+	guint32 port_src_fwd;
 	address ip_dst_fwd;
-	guint16 port_dst_fwd;
+	guint32 port_dst_fwd;
 	guint32 ssrc_fwd;
 	address ip_src_rev;
-	guint16 port_src_rev;
+	guint32 port_src_rev;
 	address ip_dst_rev;
-	guint16 port_dst_rev;
+	guint32 port_dst_rev;
 	guint32 ssrc_rev;
 
 	struct _info_direction forward;
@@ -3640,14 +3640,14 @@ static gboolean get_int_value_from_proto_tree(proto_tree *protocol_tree,
 /****************************************************************************/
 void rtp_analysis(
 		address *ip_src_fwd,
-		guint16 port_src_fwd,
+		guint32 port_src_fwd,
 		address *ip_dst_fwd,
-		guint16 port_dst_fwd,
+		guint32 port_dst_fwd,
 		guint32 ssrc_fwd,
 		address *ip_src_rev,
-		guint16 port_src_rev,
+		guint32 port_src_rev,
 		address *ip_dst_rev,
-		guint16 port_dst_rev,
+		guint32 port_dst_rev,
 		guint32 ssrc_rev
 		)
 {
@@ -3766,14 +3766,14 @@ void rtp_analysis(
 void rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	address ip_src_fwd;
-	guint16 port_src_fwd;
+	guint32 port_src_fwd;
 	address ip_dst_fwd;
-	guint16 port_dst_fwd;
+	guint32 port_dst_fwd;
 	guint32 ssrc_fwd = 0;
 	address ip_src_rev;
-	guint16 port_src_rev;
+	guint32 port_src_rev;
 	address ip_dst_rev;
-	guint16 port_dst_rev;
+	guint32 port_dst_rev;
 	guint32 ssrc_rev = 0;
 	unsigned int version_fwd;
 

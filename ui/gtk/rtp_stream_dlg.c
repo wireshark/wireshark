@@ -500,14 +500,14 @@ static void
 rtpstream_on_analyse(GtkButton *button _U_, gpointer user_data _U_)
 {
 	address ip_src_fwd;
-	guint16 port_src_fwd = 0;
+	guint32 port_src_fwd = 0;
 	address ip_dst_fwd;
-	guint16 port_dst_fwd = 0;
+	guint32 port_dst_fwd = 0;
 	guint32 ssrc_fwd = 0;
 	address ip_src_rev;
-	guint16 port_src_rev = 0;
+	guint32 port_src_rev = 0;
 	address ip_dst_rev;
-	guint16 port_dst_rev = 0;
+	guint32 port_dst_rev = 0;
 	guint32 ssrc_rev = 0;
 
 	if (!(selected_stream_fwd || selected_stream_rev))

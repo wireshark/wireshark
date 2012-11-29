@@ -43,14 +43,14 @@
 
 void rtp_analysis(
 		address *ip_src_fwd,
-		guint16 port_src_fwd,
+		guint32 port_src_fwd,
 		address *ip_dst_fwd,
-		guint16 port_dst_fwd,
+		guint32 port_dst_fwd,
 		guint32 ssrc_fwd,
 		address *ip_src_rev,
-		guint16 port_src_rev,
+		guint32 port_src_rev,
 		address *ip_dst_rev,
-		guint16 port_dst_rev,
+		guint32 port_dst_rev,
 		guint32 ssrc_rev
 		);
 

@@ -53,9 +53,9 @@ typedef rtp_sample_t* rtp_sample_p;
 /* defines an rtp stream */
 typedef struct _rtp_stream_info {
 	address src_addr;
-	guint16 src_port;
+	guint32 src_port;
 	address dest_addr;
-	guint16 dest_port;
+	guint32 dest_port;
 	guint32 ssrc;
 	guint8  pt;
 	gchar	*info_payload_type_str;
