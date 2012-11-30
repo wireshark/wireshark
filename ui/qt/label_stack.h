@@ -26,6 +26,8 @@
 
 #include <QLabel>
 #include <QStack>
+#include <QTime>
+#include <QTimer>
 
 class LabelStack : public QLabel
 {
@@ -41,18 +43,21 @@ private:
         int ctx;
     } StackItem;
 
-    int m_temporaryCtx;
-    QList<StackItem *> m_labels;
+    int temporary_ctx_;
+    QList<StackItem *> labels_;
+    QTime  temporary_epoch_;
+    QTimer temporary_timer_;
 
     void fillLabel();
 
 signals:
+    void toggleTemporaryFlash(bool enable);
 
 public slots:
     void popText(int ctx);
 
 private slots:
-    void popTemporaryText();
+    void updateTemporaryStatus();
 };
 
 #endif // LABEL_STACK_H

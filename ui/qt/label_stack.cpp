@@ -23,12 +23,13 @@
 
 #include "label_stack.h"
 
-#include <QTimer>
+#include "tango_colors.h"
 
 /* Temporary message timeouts */
-#define TEMPORARY_MSG_TIMEOUT (7 * 1000)
-//#define TEMPORARY_FLASH_TIMEOUT (1 * 1000)
-//#define TEMPORARY_FLASH_INTERVAL (TEMPORARY_FLASH_TIMEOUT / 4)
+const int temporary_interval_ = 1000;
+const int temporary_msg_timeout_ = temporary_interval_ * 9;
+const int temporary_flash_timeout_ = temporary_interval_ / 5;
+const int num_flashes_ = 3;
 
 LabelStack::LabelStack(QWidget *parent) :
     QLabel(parent)
@@ -36,42 +37,42 @@ LabelStack::LabelStack(QWidget *parent) :
 #ifdef Q_WS_MAC
     setAttribute(Qt::WA_MacSmallSize, true);
 #endif
-    m_temporaryCtx = -1;
+    temporary_ctx_ = -1;
     fillLabel();
+
+    connect(&temporary_timer_, SIGNAL(timeout()), this, SLOT(updateTemporaryStatus()));
 }
 
 void LabelStack::setTemporaryContext(int ctx) {
-    m_temporaryCtx = ctx;
+    temporary_ctx_ = ctx;
 }
 
 void LabelStack::fillLabel() {
     StackItem *si;
+    QString style_sheet;
 
-    setStyleSheet(
+    style_sheet =
             "QLabel {"
-            "  margin-left: 0.5em;"
-            "}"
-            );
+            "  margin-left: 0.5em;";
 
-    if (m_labels.isEmpty()) {
+    if (labels_.isEmpty()) {
         clear();
         return;
     }
 
-    si = m_labels.first();
+    si = labels_.first();
 
-    if (si->ctx == m_temporaryCtx) {
-        setStyleSheet(
-                // Tango "Scarlet Red"
-                "QLabel {"
-                "  margin-left: 0.5em;"
-                "  border-radius: 3px;"
-                "  color: white;"
-                "  background-color: rgba(239, 41, 41, 128);"
-                "}"
-                );
+    if (si->ctx == temporary_ctx_) {
+        style_sheet += QString(
+                "  border-radius: 0.25em;"
+                "  color: black;"
+                "  background-color: #%1;"
+                )
+                .arg(tango_butter_4, 6, 16, QChar('0'));
     }
 
+    style_sheet += "}";
+    setStyleSheet(style_sheet);
     setText(si->text);
 }
 
@@ -79,17 +80,19 @@ void LabelStack::pushText(QString &text, int ctx) {
     StackItem *si = new StackItem;
     si->text = text;
     si->ctx = ctx;
-    m_labels.prepend(si);
+    labels_.prepend(si);
 
-    if (ctx == m_temporaryCtx) {
-        QTimer::singleShot(TEMPORARY_MSG_TIMEOUT, this, SLOT(popTemporaryText()));
+    if (ctx == temporary_ctx_) {
+        temporary_epoch_.start();
+        temporary_timer_.start(temporary_flash_timeout_);
+        emit toggleTemporaryFlash(true);
     }
 
     fillLabel();
 }
 
 void LabelStack::popText(int ctx) {
-    QMutableListIterator<StackItem *> iter(m_labels);
+    QMutableListIterator<StackItem *> iter(labels_);
 
     while (iter.hasNext()) {
         if (iter.next()->ctx == ctx) {
@@ -101,8 +104,19 @@ void LabelStack::popText(int ctx) {
     fillLabel();
 }
 
-void LabelStack::popTemporaryText() {
-    popText(m_temporaryCtx);
+void LabelStack::updateTemporaryStatus() {
+    if (temporary_epoch_.elapsed() >= temporary_msg_timeout_) {
+        popText(temporary_ctx_);
+        emit toggleTemporaryFlash(false);
+        temporary_timer_.stop();
+    } else {
+        for (int i = (num_flashes_ * 2); i > 0; i--) {
+            if (temporary_epoch_.elapsed() >= temporary_flash_timeout_ * i) {
+                emit toggleTemporaryFlash(i % 2);
+                break;
+            }
+        }
+    }
 }
 
 /*

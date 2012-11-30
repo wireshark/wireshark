@@ -62,6 +62,9 @@ public slots:
     void popPacketStatus();
     void pushProfileStatus(QString &message);
     void popProfileStatus();
+
+private slots:
+    void toggleBackground(bool enabled);
 };
 
 #endif // MAIN_STATUS_BAR_H

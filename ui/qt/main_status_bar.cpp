@@ -39,6 +39,8 @@
 #include <QSplitter>
 #include <QHBoxLayout>
 
+#include "tango_colors.h"
+
 #ifdef HAVE_LIBPCAP
 #define DEF_READY_MESSAGE QObject::tr("Ready to load or capture")
 #else
@@ -143,7 +145,6 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     expert_status_.setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-//    infoProgress->setStyleSheet("QWidget { border: 0.5px dotted red; }"); // Debug layout
     expert_status_.setTextFormat(Qt::RichText);
     expert_status_.hide();
 
@@ -175,6 +176,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     packets_bar_update();
 
     connect(wsApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
+    connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),
+            this, SLOT(toggleBackground(bool)));
 }
 
 void MainStatusBar::showExpert() {
@@ -273,6 +276,20 @@ void MainStatusBar::pushProfileStatus(QString &message) {
 
 void MainStatusBar::popProfileStatus() {
     profile_status_.popText(STATUS_CTX_MAIN);
+}
+
+void MainStatusBar::toggleBackground(bool enabled)
+{
+    if (enabled) {
+        setStyleSheet(QString(
+                          "QStatusBar {"
+                          "  background-color: #%1;"
+                          "}"
+                          )
+                      .arg(tango_butter_4, 6, 16, QChar('0')));
+    } else {
+        setStyleSheet("");
+    }
 }
 
 /*
