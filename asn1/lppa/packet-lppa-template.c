@@ -34,7 +34,7 @@
 
 #include "packet-per.h"
 
-#define PNAME  "LTE Positioning Protocol A (LLPa)"
+#define PNAME  "LTE Positioning Protocol A (LPPa)"
 #define PSNAME "LPPa"
 #define PFNAME "lppa"
 
