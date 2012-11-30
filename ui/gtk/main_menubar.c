@@ -109,6 +109,7 @@
 #include "ui/gtk/expert_comp_dlg.h"
 #include "ui/gtk/time_shift_dlg.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
+#include "ui/gtk/addr_resolution_dlg.h"
 
 #include "ui/gtk/packet_list.h"
 
@@ -1134,6 +1135,7 @@ static const char *ui_desc_menubar =
 "    <menu name= 'StatisticsMenu' action='/Statistics'>\n"
 "      <menuitem name='Summary' action='/Statistics/Summary'/>\n"
 "      <menuitem name='ShowCommentsSummary' action='/Statistics/CommentsSummary'/>\n"
+"      <menuitem name='ShowAddreRes' action='/Statistics/ShowAddreRes'/>\n"
 "      <menuitem name='ProtocolHierarchy' action='/Statistics/ProtocolHierarchy'/>\n"
 "      <menuitem name='Conversations' action='/Statistics/Conversations'/>\n"
 "      <menuitem name='Endpoints' action='/Statistics/Endpoints'/>\n"
@@ -1672,6 +1674,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Statistics/Summary",                     GTK_STOCK_PROPERTIES,           "_Summary",                     NULL, NULL, G_CALLBACK(summary_open_cb) },
    { "/Statistics/CommentsSummary",             NULL,                           "Comments Summary",             NULL, NULL, G_CALLBACK(show_packet_comment_summary_dlg) },
+   { "/Statistics/ShowAddreRes",                NULL,                           "Show address resolution",      NULL, NULL, G_CALLBACK(addr_resolution_dlg) },
    { "/Statistics/ProtocolHierarchy",           NULL,                           "_Protocol Hierarchy",          NULL, NULL, G_CALLBACK(proto_hier_stats_cb) },
    { "/Statistics/Conversations",   WIRESHARK_STOCK_CONVERSATIONS,  "Conversations",            NULL,                       NULL,               G_CALLBACK(init_conversation_notebook_cb) },
    { "/Statistics/Endpoints",       WIRESHARK_STOCK_ENDPOINTS,      "Endpoints",                NULL,                       NULL,               G_CALLBACK(init_hostlist_notebook_cb) },

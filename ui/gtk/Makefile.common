@@ -43,6 +43,7 @@ GENERATOR_FILES =
 
 WIRESHARK_GTK_SRC = \
 	about_dlg.c	\
+	addr_resolution_dlg.c	\
 	airpcap_dlg.c \
 	airpcap_gui_utils.c \
 	bytes_view.c \
@@ -229,6 +230,7 @@ WIRESHARK_TAP_SRC = \
 
 noinst_HEADERS = \
 	about_dlg.h	\
+	addr_resolution_dlg.h	\
 	airpcap_dlg.h \
 	airpcap_gui_utils.h \
 	bytes_view.h \
