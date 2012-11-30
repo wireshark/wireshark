@@ -123,7 +123,7 @@ static int hf_uplink_tfi = -1;
 static int hf_downlink_tfi = -1;
 static int hf_page_mode = -1;
 static int hf_bsn = -1;
-static int hf_bsn2 = -1;
+static int hf_bsn2_offset = -1;
 static int hf_e = -1;
 static int hf_li= -1;
 static int hf_pi= -1;
@@ -6084,10 +6084,10 @@ CSN_DESCR_BEGIN  (UL_Data_Block_EGPRS_Header_Type1_t)
   M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type1_t, BSN1, bits_spec_ul_bsn1, 11, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type1_t, BSN1, bits_spec_ul_bsn1, 1, &hf_bsn),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type1_t, TFI, bits_spec_ul_tfi, 0, &hf_uplink_tfi),
-  M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type1_t, BSN2, bits_spec_ul_bsn2, 10, &hf_bsn2),
-  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type1_t, BSN2, bits_spec_ul_bsn2, 1, &hf_bsn2),
+  M_SPLIT_BITS   (UL_Data_Block_EGPRS_Header_Type1_t, BSN2_offset, bits_spec_ul_bsn2, 10, &hf_bsn2_offset),
+  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type1_t, BSN2_offset, bits_spec_ul_bsn2, 1, &hf_bsn2_offset),
   M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type1_t, BSN1, bits_spec_ul_bsn1, 0, &hf_bsn),
-  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type1_t, BSN2, bits_spec_ul_bsn2, 0, &hf_bsn2),
+  M_BITS_CRUMB   (UL_Data_Block_EGPRS_Header_Type1_t, BSN2_offset, bits_spec_ul_bsn2, 0, &hf_bsn2_offset),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, SPARE1, 1, &hf_ul_data_spare),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, PI, 1, &hf_pi),
   M_UINT         (UL_Data_Block_EGPRS_Header_Type1_t, RSB, 1, &hf_rsb),
@@ -6186,11 +6186,11 @@ CSN_DESCR_BEGIN  (DL_Data_Block_EGPRS_Header_Type1_t)
   M_UINT         (DL_Data_Block_EGPRS_Header_Type1_t, Power_Reduction, 2, &hf_dl_ctrl_pr),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type1_t, TFI, bits_spec_dl_tfi, 0, &hf_downlink_tfi),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type1_t, BSN1, bits_spec_dl_type1_bsn1, 1, &hf_bsn),
-  M_SPLIT_BITS   (DL_Data_Block_EGPRS_Header_Type1_t, BSN2, bits_spec_dl_type1_bsn2, 11, &hf_bsn2),
-  M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type1_t, BSN2, bits_spec_dl_type1_bsn2, 1, &hf_bsn2),
+  M_SPLIT_BITS   (DL_Data_Block_EGPRS_Header_Type1_t, BSN2_offset, bits_spec_dl_type1_bsn2, 11, &hf_bsn2_offset),
+  M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type1_t, BSN2_offset, bits_spec_dl_type1_bsn2, 1, &hf_bsn2_offset),
   M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type1_t, BSN1, bits_spec_dl_type1_bsn1, 0, &hf_bsn),
   M_UINT         (DL_Data_Block_EGPRS_Header_Type1_t, CPS, 5, &hf_cps1),
-  M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type1_t, BSN2, bits_spec_dl_type1_bsn2, 0, &hf_bsn2),
+  M_BITS_CRUMB   (DL_Data_Block_EGPRS_Header_Type1_t, BSN2_offset, bits_spec_dl_type1_bsn2, 0, &hf_bsn2_offset),
 CSN_DESCR_END    (DL_Data_Block_EGPRS_Header_Type1_t)
 
 CSN_DESCR_BEGIN  (DL_Data_Block_EGPRS_Header_Type2_t)
@@ -7411,7 +7411,8 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             break;
       }
       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn1 = data->u.DL_Data_Block_EGPRS_Header.BSN1;
-      ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn2 = data->u.DL_Data_Block_EGPRS_Header.BSN2;
+      ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_dl_header_info.bsn2 = 
+         (data->u.DL_Data_Block_EGPRS_Header.BSN1 + data->u.DL_Data_Block_EGPRS_Header.BSN2_offset) % 2048;
    }
 }
 
@@ -7594,7 +7595,8 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
        ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.pi = data->u.UL_Data_Block_EGPRS_Header.PI;
        ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn1 = data->u.UL_Data_Block_EGPRS_Header.BSN1;
-       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn2 = data->u.UL_Data_Block_EGPRS_Header.BSN2;
+       ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn2 = 
+          (data->u.UL_Data_Block_EGPRS_Header.BSN1 + data->u.UL_Data_Block_EGPRS_Header.BSN2_offset) % 2048;
    }
 }
 
@@ -7609,7 +7611,7 @@ dissect_egprs_ul_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    guint64 e, tlli_i;
    guint16 block_number;
 
-   block_number = (data->flags & GSM_RLC_MAC_EGPRS_BLOCK2)?(egprs_ul_header_info->bsn1 + egprs_ul_header_info->bsn2) % 1024:egprs_ul_header_info->bsn1;
+   block_number = (data->flags & GSM_RLC_MAC_EGPRS_BLOCK2)?egprs_ul_header_info->bsn2:egprs_ul_header_info->bsn1;
 
    col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "DATA BLOCK");
    ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, offset, -1,
@@ -7668,11 +7670,7 @@ dissect_egprs_dl_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8 li_count = array_length(li_array);
     guint64 fbi, e;
 
-    block_number = egprs_dl_header_info->bsn1;
-    if (data->flags & GSM_RLC_MAC_EGPRS_BLOCK2)
-    {
-       block_number = (block_number + egprs_dl_header_info->bsn2) % 1024;
-    }
+    block_number = (data->flags & GSM_RLC_MAC_EGPRS_BLOCK2)?egprs_dl_header_info->bsn2:egprs_dl_header_info->bsn1;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, ":", "DATA BLOCK");
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, offset, -1,
@@ -7837,8 +7835,8 @@ proto_register_gsm_rlcmac(void)
          NULL, HFILL
        }
      },
-     { &hf_bsn2,
-       { "BSN 2 offset", "gsm_rlcmac.bsn2",
+     { &hf_bsn2_offset,
+       { "BSN 2 offset", "gsm_rlcmac.bsn2_offset",
          FT_UINT32, BASE_DEC, NULL, 0x0,
          NULL, HFILL
        }

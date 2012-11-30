@@ -4873,8 +4873,8 @@ typedef struct
   guint8 RRBP;
   guint8 ES_P;
   guint8 USF;
-  guint8 BSN1;
-  guint8 BSN2;
+  guint16 BSN1;
+  guint16 BSN2_offset;
   guint8 Power_Reduction;
   guint8 SPB;
   guint8 CPS;
@@ -4891,8 +4891,8 @@ typedef struct
   guint8 Countdown_Value;
   guint8 SI;
   guint8 R;
-  guint8 BSN1;
-  guint8 BSN2;
+  guint16 BSN1;
+  guint16 BSN2_offset;
   guint8 PI;
   guint8 RSB;
   guint8 SPB;
@@ -5080,15 +5080,15 @@ typedef struct
 
 typedef struct
 {
-   guint8 bsn1;
-   guint8 bsn2;
+   guint16 bsn1;
+   guint16 bsn2;
    guint8 pi;
 }egprs_ul_header_info_t;
 
 typedef struct
 {
-   guint8 bsn1;
-   guint8 bsn2;
+   guint16 bsn1;
+   guint16 bsn2;
 }egprs_dl_header_info_t;
 
 typedef struct
