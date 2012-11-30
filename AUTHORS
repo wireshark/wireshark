@@ -3474,6 +3474,7 @@ Michal Labedzki		<michal.labedzki[at]tieto.com> {
 	Bluetooth SAP dissector
 	Bluetooth AVCTP dissector
 	Bluetooth AVRCP dissector
+	Bluetooth HCI USB transport dissector
 }
 
 and by:

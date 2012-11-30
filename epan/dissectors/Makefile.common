@@ -626,6 +626,7 @@ DISSECTOR_SRC = \
 	packet-hazelcast.c	\
 	packet-hci_h1.c		\
 	packet-hci_h4.c		\
+	packet-hci_usb.c	\
 	packet-hclnfsd.c	\
 	packet-hdcp.c		\
 	packet-hdcp2.c		\
