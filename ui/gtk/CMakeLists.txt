@@ -24,6 +24,7 @@
 
 set(WIRESHARK_GTK_SRC
 	about_dlg.c
+	addr_resolution_dlg.c
 	airpcap_dlg.c
 	airpcap_gui_utils.c
 	bytes_view.c
