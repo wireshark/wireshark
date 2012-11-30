@@ -509,6 +509,7 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
             sep_data = se_alloc(sizeof(sep_entry_t));
             sep_data->seid = seid;
             sep_data->type = type;
+            sep_data->codec = type;
             sep_data->media_type = media_type;
             if (in_use) {
                 sep_data->state = SEP_STATE_IN_USE;
@@ -1957,7 +1958,7 @@ proto_reg_handoff_btavdtp(void)
 
 
 static gint
-dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item          *ti;
     proto_tree          *bta2dp_tree;
