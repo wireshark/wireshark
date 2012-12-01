@@ -35,7 +35,7 @@ COMMAND_ARGS2=
 VALID=0
 PCAP=""
 
-while getopts ":2b:C:lntwce" OPTCHAR ; do
+while getopts ":2b:C:lnrtwce" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
         b) BIN_DIR=$OPTARG ;;
@@ -43,6 +43,7 @@ while getopts ":2b:C:lntwce" OPTCHAR ; do
         l) LEAK_CHECK="--leak-check=full" ;;
         n) COMMAND_ARGS="-v"
            VALID=1 ;;
+        l) REACHABLE="--show-reachable=yes" ;;
         t) TRACK_ORIGINS="--track-origins=yes" ;;
         w) COMMAND=wireshark
            COMMAND_ARGS="-nr" ;;
@@ -64,7 +65,7 @@ fi
 
 if [ $VALID -eq 0 ]
 then
-    printf "Usage: $0 [-2] [-b bin_dir] [-C config_profile] [-l] [-n] [-t] [-w] /path/to/file.pcap\n"
+    printf "Usage: $0 [-2] [-b bin_dir] [-C config_profile] [-l] [-n] [-r] [-t] [-w] /path/to/file.pcap\n"
     exit 1
 fi
 
@@ -77,4 +78,4 @@ export WIRESHARK_DEBUG_SE_NO_CHUNKS=
 export WIRESHARK_DEBUG_WMEM_PACKET_NO_CHUNKS=
 export G_SLICE=always-malloc # or debug-blocks
 
-libtool --mode=execute valgrind $LEAK_CHECK $TRACK_ORIGINS $BIN_DIR/$COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
+libtool --mode=execute valgrind $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $BIN_DIR/$COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
