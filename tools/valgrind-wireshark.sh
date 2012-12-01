@@ -43,7 +43,7 @@ while getopts ":2b:C:lnrtwce" OPTCHAR ; do
         l) LEAK_CHECK="--leak-check=full" ;;
         n) COMMAND_ARGS="-v"
            VALID=1 ;;
-        l) REACHABLE="--show-reachable=yes" ;;
+        r) REACHABLE="--show-reachable=yes" ;;
         t) TRACK_ORIGINS="--track-origins=yes" ;;
         w) COMMAND=wireshark
            COMMAND_ARGS="-nr" ;;
