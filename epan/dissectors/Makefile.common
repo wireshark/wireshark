@@ -929,6 +929,7 @@ DISSECTOR_SRC = \
 	packet-pw-eth.c		\
 	packet-pw-fr.c		\
 	packet-pw-hdlc.c	\
+	packet-pw-oam.c		\
 	packet-pw-satop.c	\
 	packet-q2931.c		\
 	packet-q708.c		\

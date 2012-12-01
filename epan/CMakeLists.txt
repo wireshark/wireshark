@@ -1009,6 +1009,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-pw-eth.c
 	dissectors/packet-pw-fr.c
 	dissectors/packet-pw-hdlc.c
+	dissectors/packet-pw-oam.c
 	dissectors/packet-pw-satop.c
 	dissectors/packet-q2931.c
 	dissectors/packet-q708.c
