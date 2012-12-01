@@ -29,7 +29,6 @@
 #include "config.h"
 #include <glib.h>
 #include <epan/packet.h>
-#include <packet-ip.h>
 
 /* MPLS-TP FM protocol specific variables */
 static gint proto_pw_oam             = -1;
