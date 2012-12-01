@@ -5,6 +5,8 @@
 * (c) Copyright 2012, Krishnamurthy Mayya <krishnamurthymayya@gmail.com>
 *                     Nikitha Malgi <nikitha01@gmail.com>     
 *
+* $Id$
+*
 * Wireshark - Network traffic analyzer
 * By Gerald Combs <gerald@wireshark.org>
 * Copyright 1998 Gerald Combs
@@ -56,10 +58,10 @@ static const value_string pw_oam_code[] = {
 void
 dissect_pw_status_tlv (tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-  proto_item *ti          = NULL;
-  proto_tree *pw_oam_tlv_tree = NULL;
+  proto_item *ti;
+  proto_tree *pw_oam_tlv_tree;
 
-  guint reserved        = 0;
+  guint reserved;
 
   ti = proto_tree_add_protocol_format (tree, proto_pw_oam, tvb, offset, 8, 
                                        "Pseudo-Wire Status TLV");
@@ -158,7 +160,7 @@ proto_register_pw_oam(void)
 
     {&hf_pw_oam_flags,
       {"Flags", "pw_oam.flags", FT_UINT8,
-        BASE_HEX, NULL, 0x0000, "Flags", HFILL }},
+        BASE_HEX, NULL, 0x0000, "OAM Flags", HFILL }},
 
     {&hf_pw_oam_flags_a,
       {"Acknowledgement", "pw_oam.flags_a",
@@ -176,7 +178,7 @@ proto_register_pw_oam(void)
     },
 
     {&hf_pw_oam_tlv_len,
-      {"TLV Length ", "pw_oam.tlv-len",
+      {"TLV Length", "pw_oam.tlv-len",
         FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL}
     },
 
