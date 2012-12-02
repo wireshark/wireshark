@@ -2,8 +2,9 @@ $Id$
 
 1. Introduction
 
-NB: Wmem is still incomplete and under construction. New code may need to
-    continue using emem for the time being.
+NB: Wmem still does not provide all of the functionality of emem (it should
+    provide most of it). New code might still need to use emem for the time
+    being.
 
 The 'emem' memory manager (described in README.malloc) has been a part of
 Wireshark since 2005 and has served us well, but is starting to show its age.
@@ -38,13 +39,13 @@ allocates 20 bytes in the pool pointed to by myPool.
 
 2.1 Available Pools
 
-Dissectors that include the wmem header file will have three pools available
-to them automatically: wmem_epan_scope(), wmem_packet_scope() and
-wmem_file_scope().
+2.1.1 (Sort Of) Global Pools
 
-The epan pool is scoped to the library's lifetime - memory allocated in it is
-not freed until epan_cleanup() is called, which is typically at the end of the
-program. The packet pool is scoped to the dissection of each packet, replacing
+Dissectors that include the wmem header file will have three pools available
+to them automatically: wmem_packet_scope(), wmem_file_scope() and
+wmem_epan_scope();
+
+The packet pool is scoped to the dissection of each packet, replacing
 emem's ep_ allocators. The file pool is scoped to the dissection of each file,
 replacing emem's se_ allocators. For example:
 
@@ -59,6 +60,18 @@ could be replaced with
 NB: Using these pools outside of the appropriate scope (eg using the packet
     pool when there isn't a packet being dissected) will throw an assertion.
     See the comment in epan/wmem/wmem_scopes.c for details.
+
+The epan pool is scoped to the library's lifetime - memory allocated in it is
+not freed until epan_cleanup() is called, which is typically at the end of the
+program. 
+
+2.1.2 Pinfo Pool
+
+Certain places (such as AT_STRINGZ address allocations) need their memory to
+stay around a little longer than the usual packet scope - basically until the
+next packet is dissected. This is effectively the scope of Wireshark's pinfo
+structure, so the pinfo struct has a 'pool' member which is a wmem pool scoped
+to the lifetime of the pinfo struct.
 
 2.2 Core API
 
@@ -209,6 +222,21 @@ be written once and used with any available memory pool. Data structures like
 wmem's stack implementation only take the pool when created - the provided
 pointer is stored internally with the data structure, and subsequent calls
 (like push and pop) will take the stack itself instead of the pool.
+
+5. TODO List
+
+The following is an incomplete list of things that emem provides but wmem has
+not yet implemented:
+
+ - strbuf
+ - red-black tree
+ - tvb_memdup
+ - canaries
+
+The following is a list of things that emem doesn't provide but that it might
+be nice if wmem did provide them:
+
+ - radix tree
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
