@@ -1360,6 +1360,8 @@ my @TvbPtrAPIs = (
         # Use tvb_bytes_to_str[_punct] instead of:
         'bytes_to_str',
         'bytes_to_str_punct',
+        'SET_ADDRESS',
+        'SET_ADDRESS_HF',
 );
 
 sub checkAPIsCalledWithTvbGetPtr($$$)
@@ -1795,7 +1797,7 @@ while ($_ = $ARGV[0])
 
         #checkAPIsCalledWithTvbGetPtr(\@TvbPtrAPIs, \$fileContents, \@foundAPIs);
         #if (@foundAPIs) {
-        #       print STDERR "Found APIs with embedded tvb_get_ptr() calls in ".$filename.": ".join(',', @foundAPIs)."\n"
+        #       print STDERR "Found APIs with embedded tvb_get_ptr() calls in ".$filename." : ".join(',', @foundAPIs)."\n"
         #}
 
         check_snprintf_plus_strlen(\$fileContents, $filename);
