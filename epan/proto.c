@@ -106,7 +106,7 @@ wrs_count_bitshift(const guint32 bitmask)
 	PTREE_DATA(tree)->count++;					\
 	if (PTREE_DATA(tree)->count > MAX_TREE_ITEMS) {			\
 		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL) \
-			abort();					\
+			g_error("More than %d items in the tree -- possible infinite loop", MAX_TREE_ITEMS); \
 		/* Let the exception handler add items to the tree */	\
 		PTREE_DATA(tree)->count = 0;				\
 		THROW_MESSAGE(DissectorError,				\
@@ -292,8 +292,10 @@ static struct ws_memory_slab item_label_slab =
 #define ITEM_LABEL_FREE(il)				\
 	sl_free(&item_label_slab, il);
 
-#define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo) \
-	DISSECTOR_ASSERT((guint)hfindex < gpa_hfinfo.len); \
+#define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo)						\
+	if((guint)hfindex >= gpa_hfinfo.len && getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG"))	\
+		g_error("Unregistered hf! index=%d", hfindex);					\
+	DISSECTOR_ASSERT((guint)hfindex < gpa_hfinfo.len);					\
 	hfinfo = gpa_hfinfo.hfi[hfindex];
 
 /* List which stores protocols and fields that have been registered */
