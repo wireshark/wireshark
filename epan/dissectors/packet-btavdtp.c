@@ -131,7 +131,6 @@ static int hf_btavdtp_multiplexing_entry_rfa                               = -1;
 static int hf_btavdtp_header_compression_backch                            = -1;
 static int hf_btavdtp_header_compression_media                             = -1;
 static int hf_btavdtp_header_compression_recovery                          = -1;
-static int hf_btavdtp_header_compression_rfa                               = -1;
 static int hf_btavdtp_content_protection_type                              = -1;
 static int hf_btavdtp_media_codec_media_type                               = -1;
 static int hf_btavdtp_media_codec_rfa                                      = -1;
@@ -1341,6 +1340,11 @@ proto_register_btavdtp(void)
             FT_UINT8, BASE_HEX, NULL, AVDTP_RFA0_MASK,
             NULL, HFILL }
         },
+        { &hf_btavdtp_number_of_signal_packets,
+            { "Number of signal packets",       "btavdtp.num_signal_packets",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_btavdtp_error_code,
             { "Error Code",                     "btavdtp.error_code",
             FT_UINT8, BASE_HEX, VALS(error_code_vals), 0x00,
@@ -1460,11 +1464,6 @@ proto_register_btavdtp(void)
         { &hf_btavdtp_header_compression_recovery,
             { "Recovery",                       "btavdtp.header_compression_recovery",
             FT_UINT8, BASE_HEX, VALS(true_false), 0x20,
-            NULL, HFILL }
-        },
-        { &hf_btavdtp_header_compression_rfa,
-            { "RFA",                            "btavdtp.header_compression_rfa",
-            FT_UINT8, BASE_HEX, VALS(true_false), 0x1f,
             NULL, HFILL }
         },
         { &hf_btavdtp_content_protection_type,
