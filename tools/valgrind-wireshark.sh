@@ -30,12 +30,12 @@ BIN_DIR=.
 
 # Use tshark by default
 COMMAND=tshark
-COMMAND_ARGS="-nVxr"
+COMMAND_ARGS="-nr"
 COMMAND_ARGS2=
 VALID=0
 PCAP=""
 
-while getopts ":2b:C:lnrtwce" OPTCHAR ; do
+while getopts ":2b:C:lnrtTwce" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
         b) BIN_DIR=$OPTARG ;;
@@ -45,6 +45,7 @@ while getopts ":2b:C:lnrtwce" OPTCHAR ; do
            VALID=1 ;;
         r) REACHABLE="--show-reachable=yes" ;;
         t) TRACK_ORIGINS="--track-origins=yes" ;;
+        T) COMMAND_ARGS="-nVxr" ;; # "build the Tree"
         w) COMMAND=wireshark
            COMMAND_ARGS="-nr" ;;
         c) COMMAND=capinfos
@@ -53,6 +54,8 @@ while getopts ":2b:C:lnrtwce" OPTCHAR ; do
            COMMAND_ARGS="-E 0.02"
            # We don't care about the output of editcap
            COMMAND_ARGS2="/dev/null" ;;
+        *) printf "Unknown option -$OPTARG!\n"
+           exit ;;
     esac
 done
 shift $(($OPTIND - 1))
