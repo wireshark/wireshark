@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-11-20
+# 2012-11-29
 # 
 # Experts
 # 
@@ -11206,10 +11206,11 @@ stun-behaviors	5349/tcp	# STUN Behavior Discovery over                          
 # TLS
 stun-behaviors	5349/udp	# Reserved for a future                                                                                                                                               [RFC5780]
 # enhancement of STUN-BEHAVIOR
-nat-pmp-status	5350/tcp	# NAT-PMP Status Announcements [Stuart_Cheshire]                                  [Stuart_Cheshire]                                         2007-12-03
-nat-pmp-status	5350/udp	# NAT-PMP Status Announcements [Stuart_Cheshire]                                  [Stuart_Cheshire]                                         2007-12-03
-nat-pmp	5351/tcp	# NAT Port Mapping Protocol    [Joshua_Graessley]                                 [Joshua_Graessley]                                        2004-12
-nat-pmp	5351/udp	# NAT Port Mapping Protocol    [Joshua_Graessley]                                 [Joshua_Graessley]                                        2004-12
+# 5350        tcp    Reserved
+pcp-multicast	5350/udp	# Port Control Protocol        [IESG]                                             [IETF_Chair]                                                                        [RFC-ietf-pcp-base-29]
+# Multicast
+# 5351        tcp    Reserved
+pcp	5351/udp	# Port Control Protocol        [IESG]                                             [IETF_Chair]                                                                        [RFC-ietf-pcp-base-29]
 dns-llq	5352/tcp	# DNS Long-Lived Queries       [Kiren_Sekar]                                      [Kiren_Sekar]                                             2005-08
 dns-llq	5352/udp	# DNS Long-Lived Queries       [Kiren_Sekar]                                      [Kiren_Sekar]                                             2005-08
 mdns	5353/tcp	# Multicast DNS                [IESG]                                             [IETF_Chair]                                                                        [RFC-cheshire-dnsext-multicastdns-15]
@@ -12756,7 +12757,9 @@ drm-production	7171/tcp	# Discovery and Retention Mgt  [Micha_Ben_Efraim_3]     
 # Production
 drm-production	7171/udp	# Discovery and Retention Mgt  [Micha_Ben_Efraim_3]                               [Micha_Ben_Efraim_3]                                      2010-02-18
 # Production
-# 7172               Unassigned
+metalbend	7172/tcp	# Port used for MetalBend      [Micha_Ben_Efraim_4]                               [Micha_Ben_Efraim_4]                                      2012-11-27
+# programmable interface
+# 7172        udp    Reserved
 zsecure	7173/tcp	# zSecure Server               [Hans_Schoone]                                     [Hans_Schoone]                                            2010-10-01
 # 7173        udp    Reserved
 clutild	7174/tcp	# Clutild                      [Cheryl_Stoutenburg]                               [Cheryl_Stoutenburg]
@@ -13724,7 +13727,15 @@ astergatefax	9107/tcp	# AstergateFax Control Service [Gijs_Middelkamp]          
 # 9108-9118            Unassigned
 mxit	9119/tcp	# MXit Instant Messaging       [Marnus_Freeman]                                   [Marnus_Freeman]                                          2006-02
 mxit	9119/udp	# MXit Instant Messaging       [Marnus_Freeman]                                   [Marnus_Freeman]                                          2006-02
-# 9120-9130            Unassigned
+# 9120-9121            Unassigned
+# Global Relay compliant
+grcmp	9122/tcp	# mobile instant messaging     [Global_Relay]                                     [Mike_Sample]                                             2012-11-28
+# protocol
+# 9122        udp    Reserved
+grcp	9123/tcp	# Global Relay compliant       [Global_Relay]                                     [Mike_Sample]                                             2012-11-28
+# instant messaging protocol
+# 9123        udp    Reserved
+# 9124-9130            Unassigned
 dddp	9131/tcp	# Dynamic Device Discovery     [Shane_Dick]                                       [Shane_Dick]                                              2005-08
 dddp	9131/udp	# Dynamic Device Discovery     [Shane_Dick]                                       [Shane_Dick]                                              2005-08
 # 9132-9159            Unassigned
@@ -15580,8 +15591,9 @@ pmcd	44321/tcp	# PCP server (pmcd)            [Ken_McDonell]                    
 pmcd	44321/udp	# PCP server (pmcd)            [Ken_McDonell]                                     [Ken_McDonell]                                            2010-12-20
 pmcdproxy	44322/tcp	# PCP server (pmcd) proxy      [Ken_McDonell]                                     [Ken_McDonell]                                            2003-07      2010-12-20
 pmcdproxy	44322/udp	# PCP server (pmcd) proxy      [Ken_McDonell]                                     [Ken_McDonell]                                            2003-07      2010-12-20
-# 44323       tcp    Reserved
-pcp	44323/udp	# Port Control Protocol        [Dan_Wing]                                         [Dan_Wing]                                                2011-01-11
+# 44323       tcp    Unassigned
+# 44323       udp    Unassigned                                                                                                                                                                                                                         "pcp" assignment withdrawn, moved to port 5351 per
+# RFC-ietf-pcp-base-29
 # UNAUTHORIZED
 # USE: Ports
 # 44324-44443           Unassigned                                                                                                                                                                                                           44515 & 44516
@@ -16937,6 +16949,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # vue4rendercow                         VueProRenderCow                                                                                                                                                                                                                    Defined TXT keys: None
 # vxi-11                                VXI-11 TCP/IP Instrument     [Nick_Barendt_2]                                   [Nick_Barendt_2]                                                                                                                                   Defined TXT keys: None
 # Protocol
+# wakeywakey                     tcp    Proprietary                  [gerry_Brown_associates]                           [Gerry_Brown]                                             2012-11-29                                                                               Defined TXT keys: None
 # walkietalkie                          Walkie Talkie                [Johan_Kool]                                       [Johan_Kool]                                                                                                                                       Defined TXT keys: None
 # wd-2go                         tcp    NAS Service Protocol         [Western_Digital]                                  [Rajesh_Batra]                                            2012-07-11                                                                               Defined TXT keys: None
 # we-jell                               Proprietary collaborative    [Vaughn_Amann]                                     [Vaughn_Amann]                                                                                                                                     Defined TXT keys: user=<user name> stat=<OK, DND, AWY,
@@ -18566,6 +18579,10 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Gerd_Beling]                                             Gerd Beling                                     mailto:GBELING&isi.edu
 # [Gerg_Cole]                                               Gerg Cole                                       mailto:gcole&corp.borland.com
 # [Gerhard_Wagner]                                          Gerhard Wagner                                  mailto:gw&nova-ratio.de                                       2009-03-10
+# [Gerry_Brown]                                             Gerry Brown               gerry Brown           mailto:gerry&gbrown.com                                       2012-11-29
+# associates
+# [gerry_Brown_associates]                                                            gerry Brown           mailto:gerry&gbrown.com                                       2012-11-29
+# associates
 # [Gerry_Dubois]                                            Gerry Dubois                                    mailto:gdubois&carriustech.com                                2005-08
 # [Gerry_Gorman]                                            Gerry Gorman                                    mailto:gerry.gorman&emclock.com                               2010-12-06
 # [Gert_Thomasen]                                           Gert Thomasen                                   mailto:gert.thomasen&etsi.org                                 2009-12-07
@@ -18597,6 +18614,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Glenn_Peterson]                                          Glenn Peterson                                  mailto:glennp&microsoft.com
 # [Glenn_Reid]                                              Glenn Reid                                      mailto:port-reg&fiveacross.com                                2004-11
 # [Glenn_Russell]                                           Glenn Russell                                   mailto:grussell&cablelabs.com
+# [Global_Relay]                                                                      Global Relay          mailto:Michael.Sample&GlobalRelay.net                         2012-11-28
+# Communications Inc
 # [Gobby_0x539]                                                                       0x539 dev group       http://darcs.0x539.de/trac/obby/cgi-bin/trac.cgi
 # [Gopikrishna_Sandra]                                      Gopikrishna Sandra                              mailto:v-gosand&microsoft.com                                 2005-02
 # [Goran_Runfeldt]                                          Goeran Runfeldt                                 mailto:goran&netadmin.se                                      2006-12
@@ -19898,6 +19917,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Micha_Ben_Efraim]                                        Micha Ben-Efraim                                mailto:benmi07&ca.com                                         2008-01-07
 # [Micha_Ben_Efraim_2]                                      Micha Ben-Efraim                                mailto:micha&metalix.net                                      2011-01-31
 # [Micha_Ben_Efraim_3]                                      Micha Ben-Efraim                                mailto:micha.ben-efraim&ca.com                                2010-02-18
+# [Micha_Ben_Efraim_4]                                      Micha Ben-Efraim                                mailto:micha&metalix.net                                      2012-11-27
 # [Michael_Agishtein]                                       Michael Agishtein                               mailto:misha&unx.dec.com
 # [Michael_Alyn_Miller]                                     Michael Alyn Miller                             mailto:iana&aeolon.com
 # [Michael_Andre]                                           Michael Andre                                   mailto:mandre&gts-tkts.com
@@ -20052,6 +20072,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Mike_Pontillo]                                           Mike Pontillo                                   mailto:pontillo&hp.com                                        2003-08
 # [Mike_Rieker]                                             Mike Rieker                                     mailto:mikea&sp32.com
 # [Mike_Rodbell]                                            Mike Rodbell                                    mailto:mrodbell&ciena.com
+# [Mike_Sample]                                             Mike Sample               Global Relay          mailto:Michael.Sample&GlobalRelay.net                         2012-11-28
+# Communications Inc
 # [Mike_Sherrill]                                           Mike Sherrill                                   mailto:sherrill&commvault.com
 # [Mike_Spitzer]                                            Mike Spitzer                                    mailto:mjs&polyserve.com                                      2005-08
 # [Mike_St_Johns]                                           Mike St. Johns                                  mailto:stjohns&arpa.mil
