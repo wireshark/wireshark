@@ -997,7 +997,7 @@ static void
 dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree);
 
 static void
-dissect_oampdu_event_notification(tvbuff_t *tvb, proto_tree *tree);
+dissect_oampdu_event_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
 dissect_oampdu_variable_request(tvbuff_t *tvb, proto_tree *tree);
@@ -2060,7 +2060,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 dissect_oampdu_information(tvb, oampdu_tree);
                 break;
             case OAMPDU_EVENT_NOTIFICATION:
-                dissect_oampdu_event_notification(tvb, oampdu_tree);
+                dissect_oampdu_event_notification(tvb, pinfo, oampdu_tree);
                 break;
             case OAMPDU_VAR_REQUEST:
                 dissect_oampdu_variable_request(tvb, oampdu_tree);
@@ -2285,7 +2285,7 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
  *      + add support for 802.3ah-2004.
  */
 static void
-dissect_oampdu_event_notification(tvbuff_t *tvb, proto_tree *tree)
+dissect_oampdu_event_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8    raw_octet;
     guint16   raw_word;
@@ -2527,12 +2527,20 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, proto_tree *tree)
                                     ett_oampdu_event_ose);
 
                 raw_octet = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(event_tree, hf_oampdu_event_length,
-                        tvb, offset, 1, raw_octet);
+                event_item = proto_tree_add_uint(event_tree, hf_oampdu_event_length,
+                                     tvb, offset, 1, raw_octet);
 
                 offset += OAMPDU_EVENT_LENGTH_SZ;
 
-                offset += (raw_octet-2);
+                if (raw_octet < 2)
+                {
+                    expert_add_info_format(pinfo, event_item, PI_MALFORMED, PI_ERROR,
+                        "Event length should be at least 2");
+                }
+                else
+                {
+                    offset += (raw_octet-2);
+                }
                 break;
             }
             default:
