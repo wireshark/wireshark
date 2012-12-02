@@ -997,12 +997,14 @@ Function .onSelChange
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 1
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" ""
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" ""
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 8" "Flags" ""
 	Goto onSelChange.end
 
 onSelChange.unselect:
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State" 0
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "Flags" "DISABLED"
 	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 7" "Flags" "DISABLED"
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 8" "Flags" "DISABLED"
 	Goto onSelChange.end
 
 onSelChange.end:
