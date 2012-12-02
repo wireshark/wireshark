@@ -726,7 +726,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, offset + 10, 2, FALSE);
                 proto_tree_add_text(tlv_fec_tree, tvb, offset + 12, 4,
                                     "Extended Tunnel ID: 0x%08X (%s)", tvb_get_ntohl(tvb, offset + 12),
-                                    ip_to_str(tvb_get_ptr(tvb, offset + 12, 4)));
+                                    tvb_ip_to_str(tvb, offset + 12));
                 hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ext_tunnel_id,
                                                   tvb, offset + 12, 4, FALSE);
                 PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -756,7 +756,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                                     tvb, offset + 22, 2, FALSE);
                 proto_tree_add_text(tlv_fec_tree, tvb, offset + 24, 16, "Extended Tunnel ID: 0x%s (%s)",
                                     tvb_bytes_to_str(tvb, offset + 24, 16),
-                                    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 24, 16)));
+                                    tvb_ip6_to_str(tvb, offset + 24));
                 hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ext_tunnel_id,
                                                   tvb, offset + 24, 16, FALSE);
                 PROTO_ITEM_SET_HIDDEN(hidden_item);
