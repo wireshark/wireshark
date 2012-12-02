@@ -1306,7 +1306,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             proto_tree *padding_tree = proto_item_add_subtree(ti, ett_csn1);
             while (remaining_bits_len > 0)
             {
-              guint8 bits_to_handle = remaining_bits_len + (bit_offset%8);
+              gint bits_to_handle = remaining_bits_len + (bit_offset%8);
               if (bits_to_handle > 32)
               {
                  bits_to_handle = 32 - (bit_offset%8);
