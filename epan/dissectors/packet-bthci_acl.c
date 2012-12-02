@@ -33,6 +33,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/wmem/wmem.h>
 
 #include "packet-bluetooth-hci.h"
 #include "packet-bthci_acl.h"
@@ -187,7 +188,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         remote_ether_addr = get_ether_name(remote_bdaddr->bd_addr);
         remote_length = (gint)(strlen(remote_ether_addr) + 3 + strlen(remote_name) + 1);
-        remote_addr_name = se_alloc(remote_length);
+        remote_addr_name = wmem_alloc(pinfo->pool, remote_length);
 
         g_snprintf(remote_addr_name, remote_length, "%s (%s)", remote_ether_addr, remote_name);
 
@@ -238,7 +239,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         localhost_name = "";
 
     localhost_length = (gint)(strlen(localhost_ether_addr) + 3 + strlen(localhost_name) + 1);
-    localhost_addr_name = se_alloc(localhost_length);
+    localhost_addr_name = wmem_alloc(pinfo->pool, localhost_length);
 
     g_snprintf(localhost_addr_name, localhost_length, "%s (%s)", localhost_ether_addr, localhost_name);
 

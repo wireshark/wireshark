@@ -319,9 +319,13 @@ void
 dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	       const guchar *pd, frame_data *fd, column_info *cinfo)
 {
+	/* We have to preserve the pool pointer across the memzeroing */
+	wmem_allocator_t *tmp = edt->pi.pool;
+
 	if (cinfo != NULL)
 		col_init(cinfo);
 	memset(&edt->pi, 0, sizeof(edt->pi));
+	edt->pi.pool = tmp;
 	edt->pi.current_proto = "<Missing Protocol Name>";
 	edt->pi.cinfo = cinfo;
 	edt->pi.fd = fd;
