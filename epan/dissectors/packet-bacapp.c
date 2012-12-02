@@ -5491,7 +5491,7 @@ fMacAddress (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, 
     guint start = offset;
     guint8 tag_no, tag_info;
     proto_tree* subtree = tree;
-    proto_item* ti = 0;
+    proto_item* ti;
 
     offset += fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
 
@@ -5992,7 +5992,7 @@ fBitStringTagVS (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
     guint32     lvt, i, numberOfBytes;
     guint8      bf_arr[256];
     proto_tree* subtree = tree;
-    proto_item* ti = 0;
+    proto_item* ti;
 
     offs = fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     numberOfBytes = lvt-1; /* Ignore byte for unused bit count */
@@ -6990,7 +6990,7 @@ fUnconfirmedTextMessageRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static guint
 fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-    guint       lastoffset = 0, len;
+    guint       lastoffset, len;
     guint8      tag_no, tag_info;
     guint32     lvt;
     proto_tree *subtree = tree;
@@ -7160,7 +7160,7 @@ fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 {
     guint8       tag_no, tag_info;
     guint32      lvt;
-    const gchar* label = NULL;
+    const gchar* label;
 
     fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     label = ep_strdup_printf( "%s: ", val_to_str_const( tag_no, VALS(BACnetPropertyStates), "Unknown State" ));
@@ -10419,9 +10419,8 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* not resetting the offset so the remaining can be done */
 
     if (fragment) { /* fragmented */
-        fragment_data *frag_msg = NULL;
+        fragment_data *frag_msg;
 
-        new_tvb = NULL;
         pinfo->fragmented = TRUE;
 
         frag_msg = fragment_add_seq_check(tvb, data_offset, pinfo,
@@ -10498,7 +10497,7 @@ uni_to_string(char * data, gsize str_length, char *dest_buf)
 {
     gint    i;
     guint16 c_char;
-    gsize   length_remaining = 0;
+    gsize   length_remaining;
 
     length_remaining = str_length;
     dest_buf[0] = '\0';

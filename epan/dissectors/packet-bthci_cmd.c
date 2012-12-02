@@ -1190,8 +1190,8 @@ dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
         length = tvb_get_guint8(tvb, offset+i);
         if (length != 0) {
 
-            proto_item *ti_data_struct=NULL;
-            proto_tree *ti_data_struct_subtree=NULL;
+            proto_item *ti_data_struct;
+            proto_tree *ti_data_struct_subtree;
 
             ti_data_struct = proto_tree_add_text(ti_data_subtree, tvb, offset+i, length+1, "%s", "");
             ti_data_struct_subtree = proto_item_add_subtree(ti_data_struct, ett_eir_struct_subtree);
@@ -1311,8 +1311,8 @@ dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 static int
 dissect_bthci_cmd_flow_spec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, gboolean tx)
 {
-    proto_item *ti_flow_spec=NULL;
-    proto_tree *ti_flow_spec_subtree=NULL;
+    proto_item *ti_flow_spec;
+    proto_tree *ti_flow_spec_subtree;
 
     ti_flow_spec = proto_tree_add_none_format(tree, hf_bthci_cmd_flow_spec, tvb, offset, 16, tx?"Tx Flow Spec ":"Rx Flow Spec");
     ti_flow_spec_subtree = proto_item_add_subtree(ti_flow_spec, ett_flow_spec_subtree);

@@ -427,7 +427,6 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     save_fragmented = pinfo->fragmented;
 
-    frag_msg = NULL;
     complete = FALSE;
 
     if (fragment_get(pinfo, pinfo->p2p_dir, fragment_table)) {

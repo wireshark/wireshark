@@ -275,8 +275,8 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
 {
     proto_tree   *st;
     proto_item   *ti;
-    proto_tree   *dlci_tree = NULL;
-    proto_item   *dlci_item = NULL;
+    proto_tree   *dlci_tree;
+    proto_item   *dlci_item;
     int           mcc_dlci;
     int           cl;
     dlci_state_t *dlci_state;
@@ -362,8 +362,8 @@ dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length, guint8 *m
 
     proto_tree *st;
     proto_item *it;
-    proto_tree *dlci_tree = NULL;
-    proto_item *dlci_item = NULL;
+    proto_tree *dlci_tree;
+    proto_item *dlci_item;
     guint8      mcc_dlci;
     guint8      status;
     int         start_offset;

@@ -525,7 +525,7 @@ static int
 dissect_bssap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tree,
              proto_tree *tree)
 {
-    gint offset = 0;
+    gint offset;
 
     /*
      * Extract the PDU type

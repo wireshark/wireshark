@@ -580,8 +580,8 @@ dissect_attribute_id_list(tvbuff_t *tvb, proto_tree *tree, gint offset,
                           guint count)
 {
     guint       i_attribute;
-    proto_item *pitem = NULL;
-    proto_tree *ptree = NULL;
+    proto_item *pitem;
+    proto_tree *ptree;
 
     pitem = proto_tree_add_text(tree, tvb, offset, count * 4, "Attribute List");
     ptree = proto_item_add_subtree(pitem, ett_btavrcp_attribute_list);
@@ -649,12 +649,12 @@ dissect_item_mediaplayer(tvbuff_t *tvb, proto_tree *tree, gint offset)
     guint       feature_octet;
     guint       i_feature;
     guint8     *displayable_name;
-    proto_item *pitem                 = NULL;
-    proto_tree *ptree                 = NULL;
-    proto_item *features_item         = NULL;
-    proto_tree *features_tree         = NULL;
-    proto_item *features_not_set_item = NULL;
-    proto_tree *features_not_set_tree = NULL;
+    proto_item *pitem;
+    proto_tree *ptree;
+    proto_item *features_item;
+    proto_tree *features_tree;
+    proto_item *features_not_set_item;
+    proto_tree *features_not_set_tree;
 
     item_length = tvb_get_ntohs(tvb, offset + 1);
     displayable_name_length = tvb_get_ntohs(tvb, offset + 1 + 2 + 1 + 1 + 4 + 16 + 1 + 2);
@@ -814,8 +814,8 @@ dissect_item_media_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint       displayable_name_length;
     guint       item_length;
     guint8     *displayable_name;
-    proto_item *pitem = NULL;
-    proto_tree *ptree = NULL;
+    proto_item *pitem;
+    proto_tree *ptree;
     gint        offset_in;
 
     item_length = tvb_get_ntohs(tvb, offset + 1);
@@ -868,8 +868,8 @@ dissect_item_folder(tvbuff_t *tvb, proto_tree *tree, gint offset)
     guint       displayable_name_length;
     guint       item_length;
     guint8     *displayable_name;
-    proto_item *pitem = NULL;
-    proto_tree *ptree = NULL;
+    proto_item *pitem;
+    proto_tree *ptree;
 
     item_length = tvb_get_ntohs(tvb, offset + 1);
     displayable_name_length = tvb_get_ntohs(tvb, offset + 1 + 2 + 8 + 1 + 1 + 2);
@@ -1664,7 +1664,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (is_command)  {
                 guint       volume;
                 guint       volume_percent;
-                proto_item  *pitem = NULL;
+                proto_item  *pitem;
 
                 proto_tree_add_item(tree, hf_btavrcp_absolute_volume_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
                 pitem = proto_tree_add_item(tree, hf_btavrcp_absolute_volume, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1677,7 +1677,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else {
                 guint  volume;
                 guint  volume_percent;
-                proto_item    *pitem = NULL;
+                proto_item    *pitem;
 
                 proto_tree_add_item(tree, hf_btavrcp_absolute_volume_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
                 pitem = proto_tree_add_item(tree, hf_btavrcp_absolute_volume, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1814,8 +1814,8 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 guint         i_folder;
                 guint         folder_depth;
                 guint         folder_name_length;
-                proto_item    *pitem = NULL;
-                proto_tree    *ptree = NULL;
+                proto_item    *pitem;
+                proto_tree    *ptree;
                 guint8        *folder_name;
 
                 proto_tree_add_item(tree, hf_btavrcp_uid_counter, tvb, offset, 2, ENC_BIG_ENDIAN);

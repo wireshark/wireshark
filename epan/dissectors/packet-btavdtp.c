@@ -688,8 +688,8 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item  *pitem                                        = NULL;
     proto_item  *ptree                                        = NULL;
-    proto_tree  *capabilities_tree                            = NULL;
-    proto_item  *capabilities_item                            = NULL;
+    proto_tree  *capabilities_tree;
+    proto_item  *capabilities_item;
     proto_tree  *service_tree                                 = NULL;
     proto_item  *service_item                                 = NULL;
     gint        service_category                              = 0;
@@ -875,7 +875,7 @@ static gint
 dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
              gint seid_side, gint i_item, guint32 *sep_seid)
 {
-    guint32     seid           = 0;
+    guint32     seid;
     proto_tree  *seid_tree     = NULL;
     proto_item  *seid_item     = NULL;
 

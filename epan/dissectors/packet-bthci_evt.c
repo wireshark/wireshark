@@ -1386,8 +1386,8 @@ static int
 dissect_bthci_evt_conn_packet_type_changed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     guint16 flags;
-    proto_tree *handle_tree=NULL;
-    proto_item *ti_ptype_subtree=NULL;
+    proto_tree *handle_tree;
+    proto_item *ti_ptype_subtree;
 
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -1557,8 +1557,8 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
         length = tvb_get_guint8(tvb, offset+i);
         if( length != 0 ){
 
-            proto_item *ti_eir_struct=NULL;
-            proto_tree *ti_eir_struct_subtree=NULL;
+            proto_item *ti_eir_struct;
+            proto_tree *ti_eir_struct_subtree;
 
             ti_eir_struct = proto_tree_add_text(ti_eir_subtree, tvb, offset+i, length+1, "%s", "");
             ti_eir_struct_subtree = proto_item_add_subtree(ti_eir_struct, ett_eir_struct_subtree);
@@ -2059,8 +2059,8 @@ dissect_bthci_evt_amp_status_change(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti_opcode=NULL;
-    proto_tree *opcode_tree=NULL;
+    proto_item *ti_opcode;
+    proto_tree *opcode_tree;
     proto_item *item;
     gint16 timeout;
     guint8 num8, i;
@@ -2970,8 +2970,8 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 
         case 0x201c: /* LE Read Supported States */
         {
-            proto_item *ti_le_states=NULL;
-            proto_item *ti_le_states_subtree=NULL;
+            proto_item *ti_le_states;
+            proto_item *ti_le_states_subtree;
 
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;

@@ -825,7 +825,7 @@ static void
 dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int offset;
-  struct beep_proto_data  *beep_frame_data = NULL;
+  struct beep_proto_data  *beep_frame_data;
   proto_tree              *beep_tree = NULL, *ti = NULL;
   conversation_t          *conversation = NULL;
   struct beep_request_key request_key, *new_request_key;
