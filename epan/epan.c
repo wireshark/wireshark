@@ -237,14 +237,13 @@ epan_dissect_cleanup(epan_dissect_t* edt)
 		proto_tree_free(edt->tree);
 	}
 
-	wmem_free_all(edt->pi.pool);
+	wmem_destroy_allocator(edt->pi.pool);
 }
 
 void
 epan_dissect_free(epan_dissect_t* edt)
 {
 	epan_dissect_cleanup(edt);
-	wmem_destroy_allocator(edt->pi.pool);
 	g_free(edt);
 }
 
