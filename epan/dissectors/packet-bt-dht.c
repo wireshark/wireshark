@@ -254,7 +254,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     for( ; string_len>=6; string_len-=6, offset+=6 )
     {
       peer_index += 1;
-      SET_ADDRESS( &addr, AT_IPv4, 4, tvb_get_ptr( tvb, offset, 4) );
+      TVB_SET_ADDRESS( &addr, AT_IPv4, tvb, offset, 4);
       port = tvb_get_letohl( tvb, offset+4 );
 
       value_ti = proto_tree_add_none_format( sub_tree, hf_bt_dht_peer, tvb, offset, 6,
@@ -311,7 +311,7 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     node_index += 1;
 
     id = tvb_bytes_to_str(tvb, offset, 20 );
-    SET_ADDRESS( &addr, AT_IPv4, 4, tvb_get_ptr( tvb, offset, 4) );
+    TVB_SET_ADDRESS( &addr, AT_IPv4, tvb, offset, 4);
     port = tvb_get_letohl( tvb, offset+24 );
 
     node_ti = proto_tree_add_none_format( sub_tree, hf_bt_dht_node, tvb, offset, 26,

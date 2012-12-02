@@ -142,10 +142,10 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   src = tvb_get_guint8 (tvb, 0);
   dst = tvb_get_guint8 (tvb, 1);
-  SET_ADDRESS(&pinfo->dl_src,   AT_ARCNET, 1, tvb_get_ptr(tvb, 0, 1));
-  SET_ADDRESS(&pinfo->src,      AT_ARCNET, 1, tvb_get_ptr(tvb, 0, 1));
-  SET_ADDRESS(&pinfo->dl_dst,   AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
-  SET_ADDRESS(&pinfo->dst,      AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
+  TVB_SET_ADDRESS(&pinfo->dl_src,   AT_ARCNET, tvb, 0, 1);
+  TVB_SET_ADDRESS(&pinfo->src,      AT_ARCNET, tvb, 0, 1);
+  TVB_SET_ADDRESS(&pinfo->dl_dst,   AT_ARCNET, tvb, 1, 1);
+  TVB_SET_ADDRESS(&pinfo->dst,      AT_ARCNET, tvb, 1, 1);
 
   ti = proto_tree_add_item (tree, proto_arcnet, tvb, 0, -1, ENC_NA);
 

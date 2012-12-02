@@ -631,16 +631,15 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
                                      + n * sizeof(struct e_in6_addr),
                               sizeof(struct e_in6_addr), ENC_NA);
               if (seg_left)
-                  SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb,
-                              offset + offsetof(struct ip6_rthdr0, ip6r0_addr)
-                                     + n * sizeof(struct e_in6_addr), 16));
+                  TVB_SET_ADDRESS(&pinfo->dst, AT_IPv6, tvb,
+                                  offset + offsetof(struct ip6_rthdr0, ip6r0_addr) + n * sizeof(struct e_in6_addr), 16);
             }
         }
         if (rt.ip6r_type == IPv6_RT_HEADER_MobileIP) {
             proto_tree_add_item(rthdr_tree, hf_ipv6_mipv6_home_address, tvb,
                               offset + 8, 16, ENC_NA);
             if (seg_left)
-                SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb, offset + 8, 16));
+                TVB_SET_ADDRESS(&pinfo->dst, AT_IPv6, tvb, offset + 8, 16);
         }
         if (rt.ip6r_type == IPv6_RT_HEADER_RPL) {
             guint8 cmprI;
@@ -975,7 +974,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 }
                 proto_tree_add_item(opt_tree, hf_ipv6_mipv6_home_address, tvb,
                                     offset, 16, ENC_NA);
-                SET_ADDRESS(&pinfo->src, AT_IPv6, 16, tvb_get_ptr(tvb, offset, 16));
+                TVB_SET_ADDRESS(&pinfo->src, AT_IPv6, tvb, offset, 16);
                 offset += 16;
                 break;
             case IP6OPT_CALIPSO:
@@ -1690,10 +1689,10 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
   set_actual_length(tvb, plen + sizeof (struct ip6_hdr));
 
-  SET_ADDRESS(&pinfo->net_src, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_SRC, 16));
-  SET_ADDRESS(&pinfo->src, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_SRC, 16));
-  SET_ADDRESS(&pinfo->net_dst, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_DST, 16));
-  SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_DST, 16));
+  TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv6, tvb, offset + IP6H_SRC, 16);
+  TVB_SET_ADDRESS(&pinfo->src, AT_IPv6,     tvb, offset + IP6H_SRC, 16);
+  TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv6, tvb, offset + IP6H_DST, 16);
+  TVB_SET_ADDRESS(&pinfo->dst, AT_IPv6,     tvb, offset + IP6H_DST, 16);
 
   if (tree) {
     proto_tree* pt;

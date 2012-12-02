@@ -70,17 +70,45 @@ typedef struct _address {
 } address;
 
 #define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) { \
+	(addr)->data = (addr_data); \
 	(addr)->type = (addr_type); \
 	(addr)->hf   = -1;          \
 	(addr)->len  = (addr_len);  \
-	(addr)->data = (addr_data); \
+	}
+
+/* Same as SET_ADDRESS but it takes a TVB and an offset instead of
+ * (frequently) a pointer into a TVB.  This allow us to get the tvb_get_ptr()
+ * call out of the dissectors.
+ *
+ * Call tvb_get_ptr() first in case it throws an exception: then we won't
+ * modify the address at all.
+ */
+#define	TVB_SET_ADDRESS(addr, addr_type, tvb, offset, addr_len) { \
+	(addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
+	(addr)->type = (addr_type); \
+	(addr)->hf   = -1;          \
+	(addr)->len  = (addr_len);  \
 	}
 
 #define	SET_ADDRESS_HF(addr, addr_type, addr_len, addr_data, addr_hf) { \
+	(addr)->data = (addr_data); \
 	(addr)->type = (addr_type); \
 	(addr)->hf   = (addr_hf);   \
 	(addr)->len  = (addr_len);  \
-	(addr)->data = (addr_data); \
+	}
+
+/* Same as SET_ADDRESS_HF but it takes a TVB and an offset instead of
+ * (frequently) a pointer into a TVB.  This allow us to get the tvb_get_ptr()
+ * call out of the dissectors.
+ *
+ * Call tvb_get_ptr() first in case it throws an exception: then we won't
+ * modify the address at all.
+ */
+#define	TVB_SET_ADDRESS_HF(addr, addr_type, tvb, offset, addr_len, addr_hf) { \
+	(addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
+	(addr)->type = (addr_type); \
+	(addr)->hf   = (addr_hf);   \
+	(addr)->len  = (addr_len);  \
 	}
 
 /*

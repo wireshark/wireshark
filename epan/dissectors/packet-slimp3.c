@@ -272,7 +272,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     * is used to identify packets originating at the client.
     */
     if ((pinfo->destport == UDP_PORT_SLIMP3_V2) && (pinfo->srcport == UDP_PORT_SLIMP3_V2)) {
-	SET_ADDRESS(&tmp_addr, AT_ETHER, 6, tvb_get_ptr(tvb, offset+12, 6));
+	TVB_SET_ADDRESS(&tmp_addr, AT_ETHER, tvb, offset+12, 6);
 	to_server = ADDRESSES_EQUAL(&tmp_addr, &pinfo->dl_src);
     }
     else if (pinfo->destport == UDP_PORT_SLIMP3_V2) {

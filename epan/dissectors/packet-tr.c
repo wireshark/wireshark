@@ -370,8 +370,8 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Get the data */
 	trh->fc		= tvb_get_guint8(tr_tvb, 1);
-	SET_ADDRESS(&trh->src,	AT_ETHER, 6, tvb_get_ptr(tr_tvb, 8, 6));
-	SET_ADDRESS(&trh->dst,	AT_ETHER, 6, tvb_get_ptr(tr_tvb, 2, 6));
+	TVB_SET_ADDRESS(&trh->src, AT_ETHER, tr_tvb, 8, 6);
+	TVB_SET_ADDRESS(&trh->dst, AT_ETHER, tr_tvb, 2, 6);
 
 	/* if the high bit on the first byte of src hwaddr is 1, then
 		this packet is source-routed */

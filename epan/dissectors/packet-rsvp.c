@@ -1825,8 +1825,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
          * later.
          */
         rsvph->session_type = RSVP_SESSION_TYPE_IPV4;
-        SET_ADDRESS(&rsvph->destination, AT_IPv4, 4,
-                    tvb_get_ptr(tvb, offset2, 4));
+        TVB_SET_ADDRESS(&rsvph->destination, AT_IPv4, tvb, offset2, 4);
         rsvph->protocol = tvb_get_guint8(tvb, offset2+4);
         rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
 
@@ -1881,8 +1880,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
          * later.
          */
         rsvph->session_type = RSVP_SESSION_TYPE_IPV4_LSP;
-        SET_ADDRESS(&rsvph->destination, AT_IPv4, 4,
-                    tvb_get_ptr(tvb, offset2, 4));
+        TVB_SET_ADDRESS(&rsvph->destination, AT_IPv4, tvb, offset2, 4);
         rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
         rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
         break;
@@ -1904,8 +1902,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
          * later.
          */
         rsvph->session_type = RSVP_SESSION_TYPE_AGGREGATE_IPV4;
-        SET_ADDRESS(&rsvph->destination, AT_IPv4, 4,
-                    tvb_get_ptr(tvb, offset2, 4));
+        TVB_SET_ADDRESS(&rsvph->destination, AT_IPv4, tvb, offset2, 4);
         rsvph->dscp = tvb_get_guint8(tvb, offset2+7);
         rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
         break;
@@ -1934,8 +1931,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
          * later.
          */
         rsvph->session_type = RSVP_SESSION_TYPE_IPV4_UNI;
-        SET_ADDRESS(&rsvph->destination, AT_IPv4, 4,
-                    tvb_get_ptr(tvb, offset2, 4));
+        TVB_SET_ADDRESS(&rsvph->destination, AT_IPv4, tvb, offset2, 4);
         rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
         rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
 
@@ -1965,8 +1961,7 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
          * later.
          */
         rsvph->session_type = RSVP_SESSION_TYPE_IPV4_E_NNI;
-        SET_ADDRESS(&rsvph->destination, AT_IPv4, 4,
-                    tvb_get_ptr(tvb, offset2, 4));
+        TVB_SET_ADDRESS(&rsvph->destination, AT_IPv4, tvb, offset2, 4);
         rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
         rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
 
@@ -2729,7 +2724,7 @@ dissect_rsvp_template_filter(proto_item *ti, proto_tree *rsvp_object_tree,
          /*
           * Save this information to build the conversation request key later.
           */
-         SET_ADDRESS(&rsvph->source, AT_IPv4, 4, tvb_get_ptr(tvb, offset2, 4));
+         TVB_SET_ADDRESS(&rsvph->source, AT_IPv4, tvb, offset2, 4);
          rsvph->udp_source_port = tvb_get_ntohs(tvb, offset2+6);
          break;
 
@@ -2757,7 +2752,7 @@ dissect_rsvp_template_filter(proto_item *ti, proto_tree *rsvp_object_tree,
          /*
           * Save this information to build the conversation request key later.
           */
-         SET_ADDRESS(&rsvph->source, AT_IPv4, 4, tvb_get_ptr(tvb, offset2, 4));
+         TVB_SET_ADDRESS(&rsvph->source, AT_IPv4, tvb, offset2, 4);
          rsvph->udp_source_port = tvb_get_ntohs(tvb, offset2+6);
          break;
 
@@ -2771,7 +2766,7 @@ dissect_rsvp_template_filter(proto_item *ti, proto_tree *rsvp_object_tree,
          /*
           * Save this information to build the conversation request key later.
           */
-         SET_ADDRESS(&rsvph->source, AT_IPv4, 4, tvb_get_ptr(tvb, offset2, 4));
+         TVB_SET_ADDRESS(&rsvph->source, AT_IPv4, tvb, offset2, 4);
          break;
 
      default:

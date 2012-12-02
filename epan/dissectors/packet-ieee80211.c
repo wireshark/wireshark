@@ -11405,7 +11405,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       SET_ADDRESS_HF(&pinfo->dst, AT_ETHER, 6, dst, hf_ieee80211_addr_da);
 
       /* for tap */
-      SET_ADDRESS_HF(&whdr->bssid, AT_ETHER, 6, tvb_get_ptr(tvb, 16,6), hf_ieee80211_addr_bssid);
+      TVB_SET_ADDRESS_HF(&whdr->bssid, AT_ETHER, tvb, 16, 6, hf_ieee80211_addr_bssid);
       SET_ADDRESS_HF(&whdr->src, AT_ETHER, 6, src, hf_ieee80211_addr_sa);
       SET_ADDRESS_HF(&whdr->dst, AT_ETHER, 6, dst, hf_ieee80211_addr_da);
       whdr->type = frame_type_subtype;

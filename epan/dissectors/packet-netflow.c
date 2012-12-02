@@ -4521,28 +4521,28 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case VENDOR_CACE << 16 | 0: /* caceLocalIPv4Address */
             ti = proto_tree_add_item(pdutree, hf_pie_cace_local_ipv4_address,
                                      tvb, offset, length, ENC_NA);
-            SET_ADDRESS(&local_addr, AT_IPv4, 4, tvb_get_ptr(tvb, offset, 4));
+            TVB_SET_ADDRESS(&local_addr, AT_IPv4, tvb, offset, 4);
             got_flags |= GOT_LOCAL_ADDR;
             break;
 
         case VENDOR_CACE << 16 | 1: /* caceRemoteIPv4Address */
             ti = proto_tree_add_item(pdutree, hf_pie_cace_remote_ipv4_address,
                                      tvb, offset, length, ENC_NA);
-            SET_ADDRESS(&remote_addr, AT_IPv4, 4, tvb_get_ptr(tvb, offset, 4));
+            TVB_SET_ADDRESS(&remote_addr, AT_IPv4, tvb, offset, 4);
             got_flags |= GOT_REMOTE_ADDR;
             break;
 
         case VENDOR_CACE << 16 | 2: /* caceLocalIPv6Address */
             ti = proto_tree_add_item(pdutree, hf_pie_cace_local_ipv6_address,
                                      tvb, offset, length, ENC_NA);
-            SET_ADDRESS(&local_addr, AT_IPv6, 16, tvb_get_ptr(tvb, offset, 16));
+            TVB_SET_ADDRESS(&local_addr, AT_IPv6, tvb, offset, 16);
             got_flags |= GOT_LOCAL_ADDR;
             break;
 
         case VENDOR_CACE << 16 | 3: /* caceRemoteIPv6Address */
             ti = proto_tree_add_item(pdutree, hf_pie_cace_remote_ipv6_address,
                                      tvb, offset, length, ENC_NA);
-            SET_ADDRESS(&remote_addr, AT_IPv6, 16, tvb_get_ptr(tvb, offset, 16));
+            TVB_SET_ADDRESS(&remote_addr, AT_IPv6, tvb, offset, 16);
             got_flags |= GOT_REMOTE_ADDR;
             break;
 

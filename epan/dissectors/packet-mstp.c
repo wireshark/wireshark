@@ -327,10 +327,10 @@ dissect_mstp_wtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* set the MS/TP MAC address in the source/destination */
 	/* Use AT_ARCNET since it is similar to BACnet MS/TP */
-	SET_ADDRESS(&pinfo->dl_dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, offset+3, 1));
-	SET_ADDRESS(&pinfo->dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, offset+3, 1));
-	SET_ADDRESS(&pinfo->dl_src,	AT_ARCNET, 1, tvb_get_ptr(tvb, offset+4, 1));
-	SET_ADDRESS(&pinfo->src,	AT_ARCNET, 1, tvb_get_ptr(tvb, offset+4, 1));
+	TVB_SET_ADDRESS(&pinfo->dl_dst,	AT_ARCNET, tvb, offset+3, 1);
+	TVB_SET_ADDRESS(&pinfo->dst,	AT_ARCNET, tvb, offset+3, 1);
+	TVB_SET_ADDRESS(&pinfo->dl_src,	AT_ARCNET, tvb, offset+4, 1);
+	TVB_SET_ADDRESS(&pinfo->src,	AT_ARCNET, tvb, offset+4, 1);
 
 #ifdef BACNET_MSTP_SUMMARY_IN_TREE
 	mstp_frame_type = tvb_get_guint8(tvb, offset+2);

@@ -1219,7 +1219,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, guint32 offset,
             ie_data->peer_port = tvb_get_ntohs(tvb, offset+4);
 
             /* the ip address is big-endian, but then so is peer_address.data */
-            SET_ADDRESS(&ie_data->peer_address, AT_IPv4, 4, tvb_get_ptr(tvb, offset+6, 4));
+            TVB_SET_ADDRESS(&ie_data->peer_address, AT_IPv4, tvb, offset+6, 4);
             break;
 
           default:
