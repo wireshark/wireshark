@@ -131,6 +131,7 @@ static int hf_btavdtp_multiplexing_entry_rfa                               = -1;
 static int hf_btavdtp_header_compression_backch                            = -1;
 static int hf_btavdtp_header_compression_media                             = -1;
 static int hf_btavdtp_header_compression_recovery                          = -1;
+static int hf_btavdtp_header_compression_rfa                               = -1;
 static int hf_btavdtp_content_protection_type                              = -1;
 static int hf_btavdtp_media_codec_media_type                               = -1;
 static int hf_btavdtp_media_codec_rfa                                      = -1;
@@ -800,6 +801,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(service_tree, hf_btavdtp_header_compression_backch,   tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(service_tree, hf_btavdtp_header_compression_media,    tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(service_tree, hf_btavdtp_header_compression_recovery, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(service_tree, hf_btavdtp_header_compression_rfa,      tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
                 losc -= 1;
                 break;
@@ -1463,6 +1465,11 @@ proto_register_btavdtp(void)
         { &hf_btavdtp_header_compression_recovery,
             { "Recovery",                       "btavdtp.header_compression_recovery",
             FT_UINT8, BASE_HEX, VALS(true_false), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_header_compression_rfa,
+            { "RFA",                            "btavdtp.header_compression_rfa",
+            FT_UINT8, BASE_HEX, NULL, 0x1f,
             NULL, HFILL }
         },
         { &hf_btavdtp_content_protection_type,
