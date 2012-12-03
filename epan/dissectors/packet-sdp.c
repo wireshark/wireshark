@@ -1855,7 +1855,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		  return;
 	  }
       tokenlen    = next_offset - offset;
-      proto_tree_add_item(sdp_media_attribute_tree, hf_sdp_crypto_crypto_suite,
+      parameter_item = proto_tree_add_item(sdp_media_attribute_tree, hf_sdp_crypto_crypto_suite,
           tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
       if (tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_80", tokenlen) == 0) {
 
