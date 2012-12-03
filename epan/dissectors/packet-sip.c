@@ -1202,7 +1202,7 @@ dissect_sip_p_charging_func_addresses(tvbuff_t *tvb, proto_tree* tree, packet_in
 	while (line_end_offset > current_offset){
 		/* Do we have a quoted string ? */
 		quote_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '"');
-		if(quote_offset){
+		if(quote_offset>0){
 			/* Find end of quoted string */
 			quote_offset = tvb_find_guint8(tvb, quote_offset+1, line_end_offset - current_offset, '"');
 			/* Find parameter end */
