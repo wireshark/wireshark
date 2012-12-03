@@ -1188,7 +1188,7 @@ static const ip_tcp_opt ipcp_opts[] = {
 #define IPCP_COMPRESS_VJ        0x002d  /* value defined in RFC1332 (correct) */
 #define IPCP_COMPRESS_IPHC      0x0061  /* RFC3544 (and RFC2509) */
 
-const value_string ipcp_compress_proto_vals[] = {
+static const value_string ipcp_compress_proto_vals[] = {
     {IPCP_ROHC,             "Robust Header Compression (ROHC)"},
     {IPCP_COMPRESS_VJ,      "VJ compression"},
     {IPCP_COMPRESS_VJ_1172, "VJ compression (RFC1172-typo)"},
