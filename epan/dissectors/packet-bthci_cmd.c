@@ -1176,7 +1176,8 @@ dissect_bthci_cmd_cod(int type, tvbuff_t *tvb, int offset, packet_info *pinfo _U
 static int 
 dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 size)
 {
-    guint8 i, j, length, type, data_size = size;
+    guint8 length, type, data_size = size;
+    guint16 i, j;
     proto_item *item, *ti_data = NULL;
     proto_tree *ti_data_subtree = NULL;
 
