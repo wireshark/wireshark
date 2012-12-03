@@ -67,10 +67,10 @@ public slots:
     void popPacketStatus();
     void pushProfileStatus(QString &message);
     void popProfileStatus();
+    void updateCaptureStatistics(capture_options * capture_opts);
 
 private slots:
     void toggleBackground(bool enabled);
-    void updateCaptureStatistics(capture_options * capture_opts);
 };
 
 #endif // MAIN_STATUS_BAR_H

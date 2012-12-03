@@ -85,7 +85,9 @@ statusbar_push_temporary_msg(const gchar *msg_format, ...)
 void
 packets_bar_update(void)
 {
-    // XXX Implement
+    if (!cur_main_status_bar_) return;
+
+    cur_main_status_bar_->updateCaptureStatistics(NULL);
 }
 
 MainStatusBar::MainStatusBar(QWidget *parent) :
@@ -250,25 +252,11 @@ void MainStatusBar::popProfileStatus() {
     profile_status_.popText(STATUS_CTX_MAIN);
 }
 
-void MainStatusBar::toggleBackground(bool enabled)
-{
-    if (enabled) {
-        setStyleSheet(QString(
-                          "QStatusBar {"
-                          "  background-color: #%1;"
-                          "}"
-                          )
-                      .arg(tango_butter_4, 6, 16, QChar('0')));
-    } else {
-        setStyleSheet("");
-    }
-}
-
 void MainStatusBar::updateCaptureStatistics(capture_options *capture_opts)
 {
     QString packets_str;
 
-    if (capture_opts->cf != cap_file_ || !cap_file_) return;
+    if ((capture_opts && capture_opts->cf != cap_file_) || !cap_file_) return;
 
     /* Do we have any packets? */
     if (cap_file_->count) {
@@ -298,6 +286,20 @@ void MainStatusBar::updateCaptureStatistics(capture_options *capture_opts)
 
     popPacketStatus();
     pushPacketStatus(packets_str);
+}
+
+void MainStatusBar::toggleBackground(bool enabled)
+{
+    if (enabled) {
+        setStyleSheet(QString(
+                          "QStatusBar {"
+                          "  background-color: #%1;"
+                          "}"
+                          )
+                      .arg(tango_butter_4, 6, 16, QChar('0')));
+    } else {
+        setStyleSheet("");
+    }
 }
 
 /*
