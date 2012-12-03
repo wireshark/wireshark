@@ -385,11 +385,10 @@ void ByteViewText::mousePressEvent (QMouseEvent * event) {
     if (event->button() == Qt::LeftButton) {
         int byte;
         QTextCursor cursor(cursorForPosition(event->pos()));
-        field_info *fi;
 
         byte = byteFromRowCol(cursor.blockNumber(), cursor.columnNumber());
         if (byte >= 0) {
-            fi = proto_find_field_from_offset(proto_tree_, byte, tvb_);
+            field_info *fi = proto_find_field_from_offset(proto_tree_, byte, tvb_);
 
             if (fi && tree_widget_) {
                 // XXX - This should probably be a ProtoTree method.
