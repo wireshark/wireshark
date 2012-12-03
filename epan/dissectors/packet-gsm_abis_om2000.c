@@ -950,36 +950,24 @@ dissect_om2k_mo(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree
 {
 	guint8      class = tvb_get_guint8(tvb, offset);
 	guint8      inst  = tvb_get_guint8(tvb, offset+3);
-	guint8      sub1  = tvb_get_guint8(tvb, offset+1);
-	guint8      sub2  = tvb_get_guint8(tvb, offset+2);
-	proto_item *ti;
-	proto_tree *mo_tree;
 
-	ti = proto_tree_add_item(tree, hf_om2k_mo_if, tvb, offset,
-				 4, ENC_NA);
-	mo_tree = proto_item_add_subtree(ti, ett_om2k_mo);
-	proto_tree_add_item(mo_tree, hf_om2k_mo_class, tvb, offset,
-				    1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(mo_tree, hf_om2k_mo_sub1, tvb, offset+1,
-				    1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(mo_tree, hf_om2k_mo_sub2, tvb, offset+2,
-				    1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(mo_tree, hf_om2k_mo_instance, tvb, offset+3,
-				    1, ENC_BIG_ENDIAN);
-	proto_item_append_text(ti, ", Class: %s, Sub: %02x/%02x, Instance: %u",
-				val_to_str(class, om2k_mo_class_vals, "0x%02x"),
-				sub1, sub2, inst);
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", (%-4s %u)",
 				val_to_str(class, om2k_mo_class_short_vals,
 					   "0x%02x"), inst);
 	if (tree) {
 		proto_item *ti;
 		proto_tree *mo_tree;
+		guint8      sub1  = tvb_get_guint8(tvb, offset+1);
+		guint8      sub2  = tvb_get_guint8(tvb, offset+2);
 
 		ti      = proto_tree_add_item(tree, hf_om2k_mo_if, tvb, offset,
 					      4, ENC_NA);
 		mo_tree = proto_item_add_subtree(ti, ett_om2k_mo);
 		proto_tree_add_item(mo_tree, hf_om2k_mo_class, tvb, offset,
+				    1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mo_tree, hf_om2k_mo_sub1, tvb, offset+1,
+				    1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mo_tree, hf_om2k_mo_sub2, tvb, offset+2,
 				    1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(mo_tree, hf_om2k_mo_instance, tvb, offset+3,
 				    1, ENC_BIG_ENDIAN);
