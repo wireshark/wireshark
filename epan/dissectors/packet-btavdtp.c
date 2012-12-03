@@ -230,6 +230,7 @@ static gboolean force_avdtp = FALSE;
 static dissector_handle_t btavdtp_handle;
 static dissector_handle_t bta2dp_handle;
 static dissector_handle_t btvdp_handle;
+static dissector_handle_t rtp_handle;
 
 static emem_tree_t *sep_list          = NULL;
 static emem_tree_t *sep_open          = NULL;
@@ -239,7 +240,6 @@ static emem_tree_t *cid_to_type_table = NULL;
 static int proto_bta2dp                        = -1;
 static gint ett_bta2dp                         = -1;
 
-static dissector_handle_t rtp_handle;
 static dissector_handle_t sbc_handle;
 static dissector_handle_t mp2t_handle;
 static dissector_handle_t mpeg_audio_handle;
@@ -249,7 +249,6 @@ static dissector_handle_t atrac_handle;
 static int proto_btvdp                         = -1;
 static gint ett_btvdp                          = -1;
 
-static dissector_handle_t rtp_handle;
 static dissector_handle_t h263_handle;
 static dissector_handle_t mp4v_es_handle;
 
@@ -403,7 +402,7 @@ typedef struct _cid_type_data_t {
 } cid_type_data_t;
 
 
-const char *
+static const char *
 get_sep_type(guint32 frame_number, guint seid)
 {
     sep_entry_t      *sep;
@@ -429,7 +428,7 @@ get_sep_type(guint32 frame_number, guint seid)
     return "unknown";
 }
 
-const char *
+static const char *
 get_sep_media_type(guint32 frame_number, guint seid)
 {
     sep_entry_t      *sep;
@@ -508,7 +507,7 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
             sep_data = se_alloc(sizeof(sep_entry_t));
             sep_data->seid = seid;
             sep_data->type = type;
-            sep_data->codec = type;
+            sep_data->codec = -1;
             sep_data->media_type = media_type;
             if (in_use) {
                 sep_data->state = SEP_STATE_IN_USE;
@@ -2074,7 +2073,7 @@ proto_reg_handoff_bta2dp(void)
 
 
 static gint
-dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item          *ti;
     proto_tree          *btvdp_tree;
