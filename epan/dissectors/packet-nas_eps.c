@@ -306,9 +306,12 @@ static const value_string security_header_type_vals[] = {
     { 10,   "Reserved"},
     { 11,   "Reserved"},
     { 12,   "Security header for the SERVICE REQUEST message"},
-    { 13,   "These values are not used in this version of the protocol. If received they shall be interpreted as security header for the SERVICE REQUEST message"},
-    { 14,   "These values are not used in this version of the protocol. If received they shall be interpreted as Security header for the SERVICE REQUEST message"},
-    { 15,   "These values are not used in this version of the protocol. If received they shall be interpreted as Security header for the SERVICE REQUEST message"},
+    { 13,   "These values are not used in this version of the protocol."
+             " If received they shall be interpreted as security header for the SERVICE REQUEST message"},
+    { 14,   "These values are not used in this version of the protocol."
+             " If received they shall be interpreted as Security header for the SERVICE REQUEST message"},
+    { 15,   "These values are not used in this version of the protocol."
+             " If received they shall be interpreted as Security header for the SERVICE REQUEST message"},
     { 0,    NULL }
 };
 static value_string_ext security_header_type_vals_ext = VALUE_STRING_EXT_INIT(security_header_type_vals);
@@ -411,7 +414,9 @@ nas_eps_common_elem_idx_t;
 
 /* 9.9.2.0 Additional information */
 static guint16
-de_eps_cmn_add_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_eps_cmn_add_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+                    guint32 offset, guint len,
+                    gchar *add_string _U_, int string_len _U_)
 {
     proto_item *item;
     proto_tree *sub_tree;
@@ -443,22 +448,24 @@ static const true_false_string  nas_eps_emm_ebi_vals = {
 };
 
 static guint16
-de_eps_cmn_eps_be_ctx_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_eps_cmn_eps_be_ctx_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                             guint32 offset, guint len _U_,
+                             gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
 
     /* EBI(7)  EBI(6)  EBI(5)  EBI(4)  EBI(3)  EBI(2)  EBI(1) EBI(0) octet 3 */
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi7,  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi6,  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi5,  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     /* EBI(0) - EBI(4): Bits 0 to 4 of octet 3 are spare and shall be coded as zero. */
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi4,  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi3,  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi2,  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi1,  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi0,  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
     /* EBI(15) EBI(14) EBI(13) EBI(12) EBI(11) EBI(10) EBI(9) EBI(8) octet 4 */
     proto_tree_add_item(tree, hf_nas_eps_emm_ebi15, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -467,8 +474,8 @@ de_eps_cmn_eps_be_ctx_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     proto_tree_add_item(tree, hf_nas_eps_emm_ebi12, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_nas_eps_emm_ebi11, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_nas_eps_emm_ebi10, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi9, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ebi8, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi9,  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ebi8,  tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     return len;
 }
@@ -495,7 +502,9 @@ de_eps_cmn_eps_be_ctx_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
  * 9.9.2.6  NAS security parameters from E-UTRA
  */
 guint16
-de_emm_sec_par_from_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_sec_par_from_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                          guint32 offset, guint len _U_,
+                          gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -515,7 +524,9 @@ de_emm_sec_par_from_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  * 9.9.2.7  NAS security parameters to E-UTRA
  */
 guint16
-de_emm_sec_par_to_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_sec_par_to_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                        guint32 offset, guint len _U_,
+                        gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -570,7 +581,9 @@ de_emm_sec_par_to_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * Dissected in packet-gsm_a_dtap.c
  */
 
-guint16 (*nas_eps_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
+guint16 (*nas_eps_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                                     guint32 offset, guint len,
+                                     gchar *add_string, int string_len) = {
     /* 9.9.2    Common information elements */
     de_eps_cmn_add_info,            /* 9.9.2.0  Additional information */
     NULL,                           /* 9.9.2.0A Device properties */
@@ -729,7 +742,9 @@ static const value_string nas_eps_emm_add_upd_res_vals[] = {
     { 0, NULL }
 };
 static guint16
-de_emm_add_upd_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_add_upd_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                   guint32 offset, guint len _U_,
+                   gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, bit_offset;
 
@@ -747,12 +762,15 @@ de_emm_add_upd_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  * 9.9.3.0B  Additional update type
  */
 static const value_string nas_eps_emm_add_upd_type_vals[] = {
-    { 0x0, "no additional information (shall be interpreted as request for combined attach or combined tracking area updating)"},
+    { 0x0, "no additional information (shall be interpreted as request for"
+            " combined attach or combined tracking area updating)"},
     { 0x1, "SMS only"},
     { 0, NULL }
 };
 static guint16
-de_emm_add_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_add_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                    guint32 offset, guint len _U_,
+                    gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, bit_offset;
 
@@ -783,7 +801,9 @@ de_emm_add_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
  * 9.9.3.4  Authentication response parameter
  */
 static guint16
-de_emm_auth_resp_par(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_auth_resp_par(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                     guint32 offset, guint len _U_,
+                     gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -813,7 +833,9 @@ static const value_string nas_eps_emm_csfb_resp_vals[] = {
 };
 
 static guint16
-de_emm_csfb_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_csfb_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                 guint32 offset, guint len _U_,
+                 gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, bit_offset;
 
@@ -854,7 +876,8 @@ static const value_string nas_eps_emm_type_of_dtatch_UL_vals[] = {
     { 0x1,  "EPS detach"},
     { 0x2,  "IMSI detach"},
     { 0x3,  "Combined EPS/IMSI detach"},
-    { 0x4,  "Combined EPS/IMSI detach"}, /* All other values are interpreted as "combined EPS/IMSI detach" in this version of the protocol.*/
+    { 0x4,  "Combined EPS/IMSI detach"}, /* All other values are interpreted as
+                                             "combined EPS/IMSI detach" in this version of the protocol.*/
     { 0x5,  "Combined EPS/IMSI detach"}, /* -"- */
     { 0x6,  "Reserved"},
     { 0x7,  "Reserved"},
@@ -869,7 +892,8 @@ static const value_string nas_eps_emm_type_of_dtatch_DL_vals[] = {
     { 0x1,  "Re-attach required"},
     { 0x2,  "Re-attach not required"},
     { 0x3,  "IMSI detach"},
-    { 0x4,  "Re-attach not required"}, /* All other values are interpreted as "re-attach not required" in this version of the protocol.*/
+    { 0x4,  "Re-attach not required"}, /* All other values are interpreted as
+                                           "re-attach not required" in this version of the protocol.*/
     { 0x5,  "Re-attach not required"}, /* -"- */
     { 0x6,  "Reserved"},
     { 0x7,  "Reserved"},
@@ -925,7 +949,9 @@ static const value_string nas_eps_emm_cause_values[] = {
 static value_string_ext nas_eps_emm_cause_values_ext = VALUE_STRING_EXT_INIT(nas_eps_emm_cause_values);
 
 static guint16
-de_emm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+             guint32 offset, guint len _U_,
+             gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1026,7 +1052,9 @@ static const value_string nas_eps_emm_type_of_id_vals[] = {
     { 0, NULL }
 };
 static guint16
-de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+               guint32 offset, guint len _U_,
+               gchar *add_string _U_, int string_len _U_)
 {
     guint32   curr_offset;
     guint8    octet;
@@ -1102,7 +1130,9 @@ static const true_false_string nas_eps_emm_ims_vops_value = {
 };
 
 static guint16
-de_emm_eps_net_feature_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_eps_net_feature_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                           guint32 offset, guint len _U_,
+                           gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, bit_offset;
 
@@ -1162,7 +1192,9 @@ static const value_string nas_eps_emm_eps_update_type_vals[] = {
  * 9.9.3.15 ESM message container
  */
 static guint16
-de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                    guint32 offset, guint len,
+                    gchar *add_string _U_, int string_len _U_)
 {
     proto_item *item;
     proto_tree *sub_tree;
@@ -1226,7 +1258,9 @@ static const value_string nas_eps_emm_imeisv_req_vals[] = {
     { 0, NULL }
 };
 static guint16
-de_emm_nas_imeisv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_nas_imeisv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                      guint32 offset, guint len _U_,
+                      gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     int     bit_offset;
@@ -1245,7 +1279,9 @@ de_emm_nas_imeisv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  * 9.9.3.19 KSI and sequence number
  */
 static guint16
-de_emm_nas_ksi_and_seq_no(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_nas_ksi_and_seq_no(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                          guint32 offset, guint len _U_,
+                          gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     int     bit_offset;
@@ -1316,7 +1352,9 @@ de_emm_nas_key_set_id_bits(tvbuff_t *tvb, proto_tree *tree, guint32 bit_offset, 
  * Note used for TV Short
  */
 static guint16
-de_emm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                      guint32 offset, guint len _U_,
+                      gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, bit_offset;
 
@@ -1341,7 +1379,9 @@ de_emm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  * 9.9.3.22 NAS message container
  */
 static guint16
-de_emm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                    guint32 offset, guint len _U_,
+                    gchar *add_string _U_, int string_len _U_)
 {
     proto_item *item;
     proto_tree *sub_tree;
@@ -1394,7 +1434,9 @@ static const value_string nas_eps_emm_toc_vals[] = {
     { 0, NULL }
 };
 static guint16
-de_emm_nas_sec_alsgs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_nas_sec_alsgs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                     guint32 offset, guint len _U_,
+                     gchar *add_string _U_, int string_len _U_)
 {
     int     bit_offset;
     guint32 curr_offset;
@@ -1424,7 +1466,9 @@ de_emm_nas_sec_alsgs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  * 9.9.3.25 Nonce
  */
 static guint16
-de_emm_nonce(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_nonce(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+             guint32 offset, guint len _U_,
+             gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1444,7 +1488,9 @@ de_emm_nonce(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 };
 
 static guint16
-de_emm_paging_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_paging_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                 guint32 offset, guint len _U_,
+                 gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1476,7 +1522,9 @@ static const range_string nas_eps_service_type_vals[] = {
  * 9.9.3.28 Short MAC
  */
 static guint16
-de_emm_nas_short_mac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_nas_short_mac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                     guint32 offset, guint len _U_,
+                     gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1505,7 +1553,9 @@ de_emm_nas_short_mac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
  */
 
 guint16
-de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                    guint32 offset, guint len _U_,
+                    gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1531,7 +1581,9 @@ static const value_string nas_eps_emm_tai_tol_vals[] = {
 };
 
 static guint16
-de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                        guint32 offset, guint len _U_,
+                        gchar *add_string _U_, int string_len _U_)
 {
     proto_item *item;
     guint32 curr_offset;
@@ -1659,7 +1711,9 @@ static const true_false_string  nas_eps_emm_nf_cap_flg = {
 };
 
 guint16
-de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                  guint32 offset, guint len,
+                  gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1788,7 +1842,9 @@ static const true_false_string  nas_eps_emm_ue_ra_cap_inf_upd_need_flg = {
  */
 
 static guint16
-de_emm_ue_ra_cap_inf_upd_need(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_ue_ra_cap_inf_upd_need(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                              guint32 offset, guint len _U_,
+                              gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1804,7 +1860,9 @@ de_emm_ue_ra_cap_inf_upd_need(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
  */
 
 static guint16
-de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                  guint32 offset, guint len _U_,
+                  gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1937,7 +1995,9 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * 9.9.3.39 SS Code
  */
 static guint16
-de_emm_ss_code(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_ss_code(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+               guint32 offset, guint len _U_,
+               gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1965,7 +2025,9 @@ static const value_string nas_eps_emm_lcs_ind_vals[] = {
 
 
 static guint16
-de_emm_lcs_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_lcs_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+               guint32 offset, guint len _U_,
+               gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -1980,7 +2042,9 @@ de_emm_lcs_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  * 9.9.3.41 LCS client identity
  */
 static guint16
-de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_lcs_client_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                     guint32 offset, guint len _U_,
+                     gchar *add_string _U_, int string_len _U_)
 {
     guint32   curr_offset;
     tvbuff_t *new_tvb;
@@ -2010,7 +2074,9 @@ static const range_string nas_eps_emm_gen_msg_cont_type_vals[] = {
 };
 
 static guint16
-de_emm_gen_msg_cont_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_gen_msg_cont_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                         guint32 offset, guint len _U_,
+                         gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2026,7 +2092,9 @@ de_emm_gen_msg_cont_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
  * 9.9.3.43 Generic message container
  */
 static guint16
-de_emm_gen_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_emm_gen_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+                    guint32 offset, guint len,
+                    gchar *add_string _U_, int string_len _U_)
 {
     proto_item *item;
     proto_tree *sub_tree;
@@ -2070,7 +2138,9 @@ static const true_false_string nas_eps_emm_guti_type_value = {
 };
 
 static guint16
-de_emm_guti_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_guti_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                 guint32 offset, guint len _U_,
+                 gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, bit_offset;
 
@@ -2098,7 +2168,9 @@ de_emm_guti_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  */
 
 static guint16
-de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                       guint32 offset, guint len _U_,
+                       gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     guint8  octet;
@@ -2251,7 +2323,9 @@ static const range_string nas_eps_qci_vals[] = {
 
 
 guint16
-de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+           guint32 offset, guint len,
+           gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     guint8  octet;
@@ -2459,7 +2533,9 @@ static const value_string nas_eps_esm_cause_vals[] = {
 static value_string_ext nas_eps_esm_cause_vals_ext = VALUE_STRING_EXT_INIT(nas_eps_esm_cause_vals);
 
 static guint16
-de_esm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_esm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+             guint32 offset, guint len _U_,
+             gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2479,7 +2555,9 @@ static const true_false_string  nas_eps_emm_eit_vals = {
     "Security protected ESM information transfer not required"
 };
 static guint16
-de_esm_inf_trf_flg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_esm_inf_trf_flg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                   guint32 offset, guint len _U_,
+                   gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2533,7 +2611,9 @@ static const value_string nas_eps_esm_notif_ind_vals[] = {
 };
 
 static guint16
-de_esm_notif_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_esm_notif_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                 guint32 offset, guint len _U_,
+                 gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2552,7 +2632,9 @@ de_esm_notif_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
  * 9.9.4.9 PDN address
  */
 static guint16
-de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+                guint32 offset, guint len _U_,
+                gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
     guint8  pdn_type;
@@ -2961,7 +3043,7 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_COMMON, DE_MS_NET_FEAT_SUP, NULL);
     /* 10   TMSI based NRI container  Network resource identifier container 9.9.3.24A 0  TLV 4 */
     ELEM_OPT_TLV(0x10, GSM_A_PDU_TYPE_GM, DE_NET_RES_ID_CONT, " - TMSI based NRI container");
- 
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 /*
@@ -4916,13 +4998,6 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-proto_reg_handoff_nas_eps(void)
-{
-    gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
-    lpp_handle = find_dissector("lpp");
-}
-
-void
 proto_register_nas_eps(void) {
     guint     i;
     guint     last_offset;
@@ -5725,7 +5800,19 @@ proto_register_nas_eps(void) {
     register_dissector("nas-eps_plain", dissect_nas_eps_plain, proto_nas_eps);
 
     /* Register configuration options to always dissect as plain messages */
-    nas_eps_module = prefs_register_protocol(proto_nas_eps, proto_reg_handoff_nas_eps);
+    nas_eps_module = prefs_register_protocol(proto_nas_eps, NULL);
 
-    prefs_register_bool_preference(nas_eps_module, "dissect_plain", "Force dissect as plain NAS EPS", "Always dissect NAS EPS messages as plain", &g_nas_eps_dissect_plain);
+    prefs_register_bool_preference(nas_eps_module,
+                                   "dissect_plain",
+                                   "Force dissect as plain NAS EPS",
+                                   "Always dissect NAS EPS messages as plain",
+                                   &g_nas_eps_dissect_plain);
 }
+
+void
+proto_reg_handoff_nas_eps(void)
+{
+    gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+    lpp_handle = find_dissector("lpp");
+}
+
