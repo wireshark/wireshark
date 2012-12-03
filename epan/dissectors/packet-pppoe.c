@@ -294,7 +294,7 @@ static const value_string vspec_tag_dslf_access_loop_encap_encap_2_vals[] = {
 		{0,                                                     NULL                               }
 };
 
-const value_string datarate_scale_vals[] = {
+static const value_string datarate_scale_vals[] = {
                 {PPPOE_SCALE_KBPS,	"kilobits per second"},
                 {PPPOE_SCALE_MBPS,	"megabits per second"},
                 {PPPOE_SCALE_GBPS,	"gigabits per second"},
