@@ -98,7 +98,7 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
   gcry_mpi_t num_b1 = NULL;
   size_t pwlen;
   char hash[20], buf_b[64], buf_i[128], *p;
-  char *salt;
+  char *salt_p;
   int salt_size;
   size_t cur_keylen;
   size_t n;
@@ -107,7 +107,7 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
   cur_keylen = 0;
 
   salt_size = tvb_length(salt_tvb);
-  salt = tvb_get_ephemeral_string(salt_tvb, 0, salt_size);
+  salt_p = tvb_get_ephemeral_string(salt_tvb, 0, salt_size);
 
   if (pw == NULL)
     pwlen = 0;
@@ -122,7 +122,7 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
   /* Store salt and password in BUF_I */
   p = buf_i;
   for (i = 0; i < 64; i++)
-    *p++ = salt[i % salt_size];
+    *p++ = salt_p[i % salt_size];
   if (pw)
     {
       for (i = j = 0; i < 64; i += 2)
@@ -211,7 +211,7 @@ void PBE_reset_parameters(void)
 	salt = NULL;
 }
 
-int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_tvb _U_, asn1_ctx_t *actx _U_, proto_item *item _U_)
+int PBE_decrypt_data(const char *object_identifier_id_param, tvbuff_t *encrypted_tvb, asn1_ctx_t *actx, proto_item *item)
 {
 #ifdef HAVE_LIBGCRYPT
 	const char	*encryption_algorithm;
@@ -358,8 +358,8 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 	tvb_set_free_cb(clear_tvb, g_free);
 
 	name = g_string_new("");
-	oidname = oid_resolved_from_string(object_identifier_id);
-	g_string_printf(name, "Decrypted %s", oidname ? oidname : object_identifier_id);
+	oidname = oid_resolved_from_string(object_identifier_id_param);
+	g_string_printf(name, "Decrypted %s", oidname ? oidname : object_identifier_id_param);
 
 	/* add it as a new source */
 	add_new_data_source(actx->pinfo, clear_tvb, name->str);
@@ -367,7 +367,7 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 	g_string_free(name, TRUE);
 
 	/* now try and decode it */
-	call_ber_oid_callback(object_identifier_id, clear_tvb, 0, actx->pinfo, tree);
+	call_ber_oid_callback(object_identifier_id_param, clear_tvb, 0, actx->pinfo, tree);
 
 	return TRUE;
 #else
