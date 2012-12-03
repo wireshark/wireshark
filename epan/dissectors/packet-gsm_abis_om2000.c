@@ -971,9 +971,9 @@ dissect_om2k_mo(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree
 				    1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(mo_tree, hf_om2k_mo_instance, tvb, offset+3,
 				    1, ENC_BIG_ENDIAN);
-		proto_item_append_text(ti, ", Class: %s, Instance: %u",
+		proto_item_append_text(ti, ", Class: %s, Sub: %02x/%02x, Instance: %u",
 				       val_to_str(class, om2k_mo_class_vals, "0x%02x"),
-				       inst);
+				       sub1, sub2, inst);
 	}
 	return 4;
 }
