@@ -27,8 +27,6 @@
 #include "ui/iface_lists.h"
 #include "ui/utf8_entities.h"
 
-#include "epan/prefs.h"
-
 #include "sparkline_delegate.h"
 #include "wireshark_application.h"
 
@@ -49,6 +47,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     setRootIsDecorated(false);
     setUniformRowHeights(true);
     setColumnCount(2);
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
     setAccessibleName(tr("Welcome screen list"));
 
     setItemDelegateForColumn(1, new SparkLineDelegate());
@@ -59,7 +58,8 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     addTopLevelItem(ti);
     resizeColumnToContents(0);
 
-    connect (wsApp, SIGNAL(appInitialized()), this, SLOT(getInterfaceList()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(getInterfaceList()));
+    connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelectedInterfaces()));
 }
 
 InterfaceTree::~InterfaceTree() {
@@ -120,30 +120,30 @@ void InterfaceTree::getInterfaceList()
 
     // XXX Do we need to check for this? capture_interface_list returns an error if the length is 0.
     if (g_list_length(if_list) > 0) {
-        if_info_t *if_info;
-        GList *curr;
+        interface_t device;
         setDisabled(false);
 
-        for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
+        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             QList<int> *points;
-            QVariant v;
 
-            if_info = (if_info_t *) curr->data;
+            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+
             /* Continue if capture device is hidden */
-            if (prefs_is_capture_device_hidden(if_info->name)) {
+            if (device.hidden) {
                 continue;
             }
 
             QTreeWidgetItem *ti = new QTreeWidgetItem();
-            // XXX Using if_info->name is amazingly ugly under Windows but it's needed for
-            // statistics updates
-//            ti->setText(0, QString().fromUtf8(if_info->vendor_description ? if_info->vendor_description : if_info->name));
-            ti->setText(0, QString().fromUtf8(if_info->name));
+            ti->setText(0, QString().fromUtf8(device.display_name));
+            ti->setData(0, Qt::UserRole, QString(device.name));
             points = new QList<int>();
-            v.setValue(points);
-            ti->setData(1, Qt::UserRole, v);
+            ti->setData(1, Qt::UserRole, qVariantFromValue(points));
             addTopLevelItem(ti);
+            // XXX Add other device information
             resizeColumnToContents(1);
+            if (device.selected) {
+                ti->setSelected(true);
+            }
         }
     }
     free_interface_list(if_list);
@@ -171,11 +171,11 @@ void InterfaceTree::updateStatistics(void) {
     QTreeWidgetItemIterator iter(this);
     while (*iter) {
         QList<int> *points;
-        QVariant v;
 
         for (if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
-            if ((*iter)->text(0).compare(QString().fromUtf8(device.name)) || device.hidden || device.type == IF_PIPE)
+            QString device_name = (*iter)->data(0, Qt::UserRole).value<QString>();
+            if (device_name.compare(device.name) || device.hidden || device.type == IF_PIPE)
                 continue;
 
             diff = 0;
@@ -186,12 +186,46 @@ void InterfaceTree::updateStatistics(void) {
                 device.last_packets = stats.ps_recv;
             }
 
-            v = (*iter)->data(1, Qt::UserRole);
-            points = v.value<QList<int> *>();
+            points = (*iter)->data(1, Qt::UserRole).value<QList<int> *>();
             points->append(diff);
             update(indexFromItem((*iter), 1));
             global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, if_idx);
             g_array_insert_val(global_capture_opts.all_ifaces, if_idx, device);
+        }
+        iter++;
+    }
+}
+
+void InterfaceTree::updateSelectedInterfaces()
+{
+    QTreeWidgetItemIterator iter(this);
+
+    global_capture_opts.num_selected = 0;
+
+    while (*iter) {
+        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            QString device_name = (*iter)->data(0, Qt::UserRole).value<QString>();
+            interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (device_name.compare(QString().fromUtf8(device.name)) == 0) {
+                if (!device.locked) {
+                    if ((*iter)->isSelected()) {
+                        device.selected = TRUE;
+                        global_capture_opts.num_selected++;
+                    } else {
+                        device.selected = FALSE;
+                    }
+                    device.locked = TRUE;
+                    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+                    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+
+                    emit interfaceUpdated(device.name, device.selected);
+
+                    device.locked = FALSE;
+                    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+                    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+                }
+                break;
+            }
         }
         iter++;
     }

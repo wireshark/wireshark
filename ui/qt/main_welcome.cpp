@@ -51,15 +51,12 @@ MainWelcome::MainWelcome(QWidget *parent) :
 //    QGridLayout *grid = new QGridLayout(this);
 //    QVBoxLayout *column;
 //    QLabel *heading;
-#ifdef Q_WS_MAC
-    InterfaceTree *iface_tree;
-#endif
 
     welcome_ui_->setupUi(this);
+
+    welcome_ui_->mainWelcomeBanner->setText("Wireshark<br><small>" VERSION "</small>");
+
     task_list_ = welcome_ui_->taskList;
-#ifdef Q_WS_MAC
-    iface_tree = welcome_ui_->interfaceTree;
-#endif
     recent_files_ = welcome_ui_->recentList;
 
     setStyleSheet(QString(
@@ -103,7 +100,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
 #ifdef Q_WS_MAC
     recent_files_->setAttribute(Qt::WA_MacShowFocusRect, false);
     welcome_ui_->taskList->setAttribute(Qt::WA_MacShowFocusRect, false);
-    iface_tree->setAttribute(Qt::WA_MacShowFocusRect, false);
+    welcome_ui_->interfaceTree->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
 
     task_list_->setStyleSheet(
@@ -138,6 +135,8 @@ MainWelcome::MainWelcome(QWidget *parent) :
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(destroySplashOverlay()));
     connect(task_list_, SIGNAL(itemSelectionChanged()), this, SLOT(showTask()));
+    connect(welcome_ui_->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
+            this, SLOT(interfaceDoubleClicked(QTreeWidgetItem*,int)));
     connect(recent_files_, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
     updateRecentFiles();
 
@@ -164,6 +163,15 @@ void MainWelcome::destroySplashOverlay()
 
 void MainWelcome::showTask() {
     welcome_ui_->taskStack->setCurrentIndex(task_list_->currentRow());
+}
+
+void MainWelcome::interfaceDoubleClicked(QTreeWidgetItem *item, int column)
+{
+    Q_UNUSED(column);
+
+    if (item) {
+        emit startCapture();
+    }
 }
 
 void MainWelcome::updateRecentFiles() {

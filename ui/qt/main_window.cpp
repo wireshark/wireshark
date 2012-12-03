@@ -90,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setMenusForSelectedTreeRow();
     setForCaptureInProgress(false);
     setMenusForFileSet(false);
+    interfaceSelectionChanged();
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     updateRecentFiles();
@@ -181,9 +182,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(captureFileClosed(const capture_file*)),
             this, SLOT(captureFileClosed(const capture_file*)));
 
+    connect(main_welcome_, SIGNAL(startCapture()),
+            this, SLOT(startCapture()));
     connect(main_welcome_, SIGNAL(recentFileActivated(QString&)),
             this, SLOT(openCaptureFile(QString&)));
 
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            main_ui_->statusBar, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             packet_list_, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
@@ -214,6 +219,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString&)),
             this, SLOT(openCaptureFile(QString&)));
 
+    QTreeWidget *iface_tree = findChild<QTreeWidget *>("interfaceTree");
+    if (iface_tree) {
+        connect(iface_tree, SIGNAL(itemSelectionChanged()),
+                this, SLOT(interfaceSelectionChanged()));
+    }
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
 
@@ -443,8 +453,10 @@ void MainWindow::mergeCaptureFile()
         cf_close(cap_file_);
 
         /* Try to open the merged capture file. */
+        cfile.window = this;
         if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
             /* We couldn't open it; fail. */
+            cfile.window = NULL;
             if (rfcode != NULL)
                 dfilter_free(rfcode);
             g_free(tmpname);

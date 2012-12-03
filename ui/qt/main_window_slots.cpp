@@ -328,8 +328,7 @@ void MainWindow::startCapture() {
     guint i;
 
     /* did the user ever select a capture interface before? */
-    if(global_capture_opts.num_selected == 0 &&
-            ((prefs.capture_device == NULL) || (*prefs.capture_device != '\0'))) {
+    if(global_capture_opts.num_selected == 0) {
         QString msg = QString("No interface selected");
         main_ui_->statusBar->pushTemporaryStatus(msg);
         return;
@@ -349,6 +348,7 @@ void MainWindow::startCapture() {
        this capture. */
     collect_ifaces(&global_capture_opts);
 
+    cfile.window = this;
     if (capture_start(&global_capture_opts)) {
         /* The capture succeeded, which means the capture filter syntax is
          valid; add this capture filter to the recent capture filter list. */
@@ -358,6 +358,8 @@ void MainWindow::startCapture() {
 //              cfilter_combo_add_recent(interface_opts.cfilter);
             }
         }
+    } else {
+        cfile.window = NULL;
     }
 }
 
@@ -614,6 +616,15 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ApplyAsFilter", FALSE);
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/PrepareaFilter", FALSE);
         main_ui_->actionViewExpandSubtrees->setEnabled(false);
+    }
+}
+
+void MainWindow::interfaceSelectionChanged()
+{
+    if (global_capture_opts.num_selected > 0) {
+        main_ui_->actionStartCapture->setEnabled(true);
+    } else {
+        main_ui_->actionStartCapture->setEnabled(false);
     }
 }
 
@@ -970,12 +981,8 @@ void MainWindow::on_actionStartCapture_triggered()
     main_ui_->mainStack->setCurrentWidget(packet_splitter_);
 
     if (global_capture_opts.num_selected == 0) {
-        QMessageBox::critical(
-                    this,
-                    tr("No Interface Selected"),
-                    tr("You didn't specify an interface on which to capture packets."),
-                    QMessageBox::Ok
-                    );
+        QString err_msg = tr("No Interface Selected");
+        main_ui_->statusBar->pushTemporaryStatus(err_msg);
         return;
     }
 

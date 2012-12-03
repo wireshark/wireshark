@@ -151,6 +151,7 @@ private slots:
     void updateRecentFiles();
     void recentActionTriggered();
     void setMenusForSelectedTreeRow(field_info *fi = NULL);
+    void interfaceSelectionChanged();
 
     void on_actionFileOpen_triggered();
     void on_actionFileMerge_triggered();

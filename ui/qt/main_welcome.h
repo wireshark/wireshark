@@ -26,6 +26,7 @@
 
 #include <QFrame>
 #include <QListWidget>
+#include <QTreeWidgetItem>
 
 #include "splash_overlay.h"
 
@@ -54,14 +55,15 @@ private:
 
 
 signals:
+    void startCapture();
     void recentFileActivated(QString& cfile);
 
 private slots:
     void destroySplashOverlay();
     void showTask();
+    void interfaceDoubleClicked(QTreeWidgetItem *item, int column);
     void updateRecentFiles();
     void openRecentItem(QListWidgetItem *item);
-
 };
 
 #endif // MAIN_WELCOME_H

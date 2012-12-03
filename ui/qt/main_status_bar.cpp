@@ -27,10 +27,6 @@
 
 #include "main_status_bar.h"
 
-#include "wireshark_application.h"
-
-#include "globals.h"
-
 #include "epan/expert.h"
 
 #include "ui/main_statusbar.h"
@@ -42,9 +38,9 @@
 #include "tango_colors.h"
 
 #ifdef HAVE_LIBPCAP
-#define DEF_READY_MESSAGE QObject::tr("Ready to load or capture")
+#define DEF_READY_MESSAGE tr("Ready to load or capture")
 #else
-#define DEF_READY_MESSAGE QObject::tr("Ready to load file")
+#define DEF_READY_MESSAGE tr("Ready to load file")
 #endif
 
 // XXX - The GTK+ code assigns priorities to these and pushes/pops accordingly.
@@ -89,43 +85,12 @@ statusbar_push_temporary_msg(const gchar *msg_format, ...)
 void
 packets_bar_update(void)
 {
-    QString packetsStr = QString("");
-
-    if (!cur_main_status_bar_) return;
-
-    cur_main_status_bar_->popPacketStatus();
-
-    /* Do we have any packets? */
-    if (cfile.count) {
-        packetsStr.append(QString(QObject::tr("Packets: %1 %4 Displayed: %2 %4 Marked: %3"))
-                          .arg(cfile.count)
-                          .arg(cfile.displayed_count)
-                          .arg(cfile.marked_count)
-                          .arg(UTF8_MIDDLE_DOT));
-        if(cfile.drops_known) {
-            packetsStr.append(QString(QObject::tr(" %1 Dropped: %2"))).arg(UTF8_MIDDLE_DOT).arg(cfile.drops);
-        }
-        if(cfile.ignored_count > 0) {
-            packetsStr.append(QString(QObject::tr(" %1 Ignored: %2")).arg(UTF8_MIDDLE_DOT).arg(cfile.ignored_count));
-        }
-        if(!cfile.is_tempfile) {
-            /* Loading an existing file */
-            gulong computed_elapsed = cf_get_computed_elapsed();
-            packetsStr.append(QString(QObject::tr(" %1  Load time: %2:%3.%4"))
-                                        .arg(UTF8_MIDDLE_DOT)
-                                        .arg(computed_elapsed/60000)
-                                        .arg(computed_elapsed%60000/1000)
-                                        .arg(computed_elapsed%1000));
-        }
-    } else {
-        packetsStr.append(QObject::tr("No Packets"));
-    }
-
-    cur_main_status_bar_->pushPacketStatus(packetsStr);
+    // XXX Implement
 }
 
 MainStatusBar::MainStatusBar(QWidget *parent) :
-    QStatusBar(parent)
+    QStatusBar(parent),
+    cap_file_(NULL)
 {
     QSplitter *splitter = new QSplitter(this);
     QString ready_msg(DEF_READY_MESSAGE);
@@ -178,6 +143,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
     connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),
             this, SLOT(toggleBackground(bool)));
+    connect(wsApp, SIGNAL(captureCaptureUpdateContinue(capture_options*)),
+            this, SLOT(updateCaptureStatistics(capture_options*)));
 }
 
 void MainStatusBar::showExpert() {
@@ -222,6 +189,11 @@ void MainStatusBar::expertUpdate() {
     expert_status_.setText(imgText);
     expert_status_.setToolTip(ttText);
     expert_status_.show();
+}
+
+void MainStatusBar::setCaptureFile(capture_file *cf)
+{
+    cap_file_ = cf;
 }
 
 void MainStatusBar::pushTemporaryStatus(QString &message) {
@@ -290,6 +262,42 @@ void MainStatusBar::toggleBackground(bool enabled)
     } else {
         setStyleSheet("");
     }
+}
+
+void MainStatusBar::updateCaptureStatistics(capture_options *capture_opts)
+{
+    QString packets_str;
+
+    if (capture_opts->cf != cap_file_ || !cap_file_) return;
+
+    /* Do we have any packets? */
+    if (cap_file_->count) {
+        packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 %4 Marked: %3"))
+                          .arg(cap_file_->count)
+                          .arg(cap_file_->displayed_count)
+                          .arg(cap_file_->marked_count)
+                          .arg(UTF8_MIDDLE_DOT));
+        if(cap_file_->drops_known) {
+            packets_str.append(QString(tr(" %1 Dropped: %2")).arg(UTF8_MIDDLE_DOT).arg(cap_file_->drops));
+        }
+        if(cap_file_->ignored_count > 0) {
+            packets_str.append(QString(tr(" %1 Ignored: %2")).arg(UTF8_MIDDLE_DOT).arg(cap_file_->ignored_count));
+        }
+        if(!cap_file_->is_tempfile) {
+            /* Loading an existing file */
+            gulong computed_elapsed = cf_get_computed_elapsed();
+            packets_str.append(QString(tr(" %1  Load time: %2:%3.%4"))
+                                        .arg(UTF8_MIDDLE_DOT)
+                                        .arg(computed_elapsed/60000)
+                                        .arg(computed_elapsed%60000/1000)
+                                        .arg(computed_elapsed%1000));
+        }
+    } else {
+        packets_str.append(tr("No Packets"));
+    }
+
+    popPacketStatus();
+    pushPacketStatus(packets_str);
 }
 
 /*
