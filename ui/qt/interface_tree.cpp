@@ -96,6 +96,19 @@ void InterfaceTree::showEvent(QShowEvent *evt) {
     if (stat_timer_) stat_timer_->start(stat_update_interval_);
 }
 
+void InterfaceTree::resizeEvent(QResizeEvent *evt)
+{
+    Q_UNUSED(evt);
+    int max_if_width = width() * 2 / 3; // Arbitrary
+
+    setUpdatesEnabled(false);
+    resizeColumnToContents(0);
+    if (columnWidth(0) > max_if_width) {
+        setColumnWidth(0, max_if_width);
+    }
+    setUpdatesEnabled(true);
+}
+
 void InterfaceTree::getInterfaceList()
 {
     GList *if_list;
@@ -147,6 +160,7 @@ void InterfaceTree::getInterfaceList()
         }
     }
     free_interface_list(if_list);
+    resizeEvent(NULL);
 
     if (!stat_timer_) {
         updateStatistics();

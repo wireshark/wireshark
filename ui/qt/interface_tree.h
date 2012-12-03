@@ -47,6 +47,7 @@ public:
 protected:
     void hideEvent(QHideEvent *evt);
     void showEvent(QShowEvent *evt);
+    void resizeEvent(QResizeEvent *evt);
 
 private:
     if_stat_cache_t *stat_cache_;
