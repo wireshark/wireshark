@@ -2308,6 +2308,8 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     offset     += 40;           /* skip first part of the pseudo-header */
 
     usb_data = se_alloc(sizeof(usb_data_t));
+    usb_data->bus_id = bus_id;
+    usb_data->device_address = device_address;
     usb_data->endpoint = endpoint;
 
     if (tvb_get_guint8(tvb, 10) & URB_TRANSFER_IN) {

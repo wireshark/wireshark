@@ -140,7 +140,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     hci_data = ep_alloc(sizeof(hci_data_t));
     hci_data->interface_id = HCI_INTERFACE_USB;
-    hci_data->adapter_id = usb_data->bus_id << 8  | usb_data->device_address;
+    hci_data->adapter_id = usb_data->bus_id << 8 | usb_data->device_address;
     hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
     hci_data->bdaddr_to_name_table = bdaddr_to_name_table;
     hci_data->localhost_bdaddr = localhost_bdaddr;
@@ -148,66 +148,65 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     pinfo->private_data = hci_data;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
+    if (!pinfo->fd->flags.visited && usb_data->endpoint <= 0x02) {
+        fragment_info_t  *fragment_info;
 
-        if (!pinfo->fd->flags.visited && usb_data->endpoint <= 0x02) {
-            fragment_info_t  *fragment_info;
+        fragment_info = se_tree_lookup32(fragment_info_table, session_id);
+        if (fragment_info == NULL) {
+            fragment_info = se_alloc(sizeof(fragment_info_t));
+            fragment_info->fragment_id = 0;
+            fragment_info->remaining_length = 0;
 
-            fragment_info = se_tree_lookup32(fragment_info_table, session_id);
-            if (fragment_info == NULL) {
-                fragment_info = se_alloc(sizeof(fragment_info_t));
-                fragment_info->fragment_id = 0;
-
-                se_tree_insert32(fragment_info_table, session_id, fragment_info);
-            }
-
-            if (fragment_info->fragment_id == 0) {
-                if (usb_data->endpoint == 0x00) {
-                    fragment_info->remaining_length = tvb_get_guint8(tvb, offset + 2) + 3;
-                } else if (usb_data->endpoint == 0x01) {
-                    fragment_info->remaining_length = tvb_get_guint8(tvb, offset + 1) + 2;
-                } else if (usb_data->endpoint == 0x02) {
-                    fragment_info->remaining_length = tvb_get_letohs(tvb, offset + 2) + 4;
-                }
-            }
-
-            fragment_info->remaining_length -= tvb_ensure_length_remaining(tvb, offset);
-
-            fragment_add_seq_check(tvb, offset, pinfo, session_id, fragment_table, reassembled_table, fragment_info->fragment_id, tvb_length_remaining(tvb, offset), (fragment_info->remaining_length == 0) ? FALSE : TRUE);
-            if (fragment_info->remaining_length > 0)
-                fragment_info->fragment_id += 1;
-            else
-                fragment_info->fragment_id = 0;
+            se_tree_insert32(fragment_info_table, session_id, fragment_info);
         }
 
-        reassembled = fragment_get_reassembled_id(pinfo, session_id, reassembled_table);
-
-        if (reassembled && pinfo->fd->num < reassembled->reassembled_in) {
-            pitem = proto_tree_add_text(ttree, tvb, offset, -1, "Fragment");
-            PROTO_ITEM_SET_GENERATED(pitem);
-
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Fragment");
-        } else if (reassembled && pinfo->fd->num == reassembled->reassembled_in) {
-            pitem = proto_tree_add_text(ttree, tvb, offset, -1, "Complete");
-            PROTO_ITEM_SET_GENERATED(pitem);
-
-            if (reassembled->len > tvb_ensure_length_remaining(tvb, offset)) {
-                next_tvb = process_reassembled_data(tvb, 0, pinfo,
-                        "Reassembled HCI_USB",
-                        reassembled, &hci_usb_msg_frag_items,
-                        NULL, ttree);
-            }
-
+        if (fragment_info->fragment_id == 0) {
             if (usb_data->endpoint == 0x00) {
-                call_dissector(find_dissector("bthci_cmd"), next_tvb, pinfo, tree);
+                fragment_info->remaining_length = tvb_get_guint8(tvb, offset + 2) + 3;
             } else if (usb_data->endpoint == 0x01) {
-                call_dissector(find_dissector("bthci_evt"), next_tvb, pinfo, tree);
+                fragment_info->remaining_length = tvb_get_guint8(tvb, offset + 1) + 2;
             } else if (usb_data->endpoint == 0x02) {
-                call_dissector(find_dissector("bthci_acl"), next_tvb, pinfo, tree);
+                fragment_info->remaining_length = tvb_get_letohs(tvb, offset + 2) + 4;
             }
-        } else {
-            pitem = proto_tree_add_text(ttree, tvb, offset, -1, "Unknown Fragment");
-            PROTO_ITEM_SET_GENERATED(pitem);
         }
+
+        fragment_info->remaining_length -= tvb_ensure_length_remaining(tvb, offset);
+
+        fragment_add_seq_check(tvb, offset, pinfo, session_id, fragment_table, reassembled_table, fragment_info->fragment_id, tvb_length_remaining(tvb, offset), (fragment_info->remaining_length == 0) ? FALSE : TRUE);
+        if (fragment_info->remaining_length > 0)
+            fragment_info->fragment_id += 1;
+        else
+            fragment_info->fragment_id = 0;
+    }
+
+    reassembled = fragment_get_reassembled_id(pinfo, session_id, reassembled_table);
+    if (reassembled && pinfo->fd->num < reassembled->reassembled_in) {
+        pitem = proto_tree_add_text(ttree, tvb, offset, -1, "Fragment");
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, " Fragment");
+    } else if (reassembled && pinfo->fd->num == reassembled->reassembled_in) {
+        pitem = proto_tree_add_text(ttree, tvb, offset, -1, "Complete");
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        if (reassembled->len > tvb_ensure_length_remaining(tvb, offset)) {
+            next_tvb = process_reassembled_data(tvb, 0, pinfo,
+                    "Reassembled HCI_USB",
+                    reassembled, &hci_usb_msg_frag_items,
+                    NULL, ttree);
+        }
+
+        if (usb_data->endpoint == 0x00) {
+            call_dissector(find_dissector("bthci_cmd"), next_tvb, pinfo, tree);
+        } else if (usb_data->endpoint == 0x01) {
+            call_dissector(find_dissector("bthci_evt"), next_tvb, pinfo, tree);
+        } else if (usb_data->endpoint == 0x02) {
+            call_dissector(find_dissector("bthci_acl"), next_tvb, pinfo, tree);
+        }
+    } else {
+        pitem = proto_tree_add_text(ttree, tvb, offset, -1, "Unknown Fragment");
+        PROTO_ITEM_SET_GENERATED(pitem);
+    }
 
     if (usb_data->endpoint == 0x03) {
         call_dissector(find_dissector("bthci_sco"), next_tvb, pinfo, tree);
