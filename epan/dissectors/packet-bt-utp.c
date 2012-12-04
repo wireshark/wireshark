@@ -336,7 +336,7 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   if(version >= 0)
   {
     conversation_t *conversation;
-    guint tvb_length;
+    guint len_tvb;
     proto_tree *sub_tree = NULL;
     proto_item *ti;
     gint offset = 0;
@@ -350,10 +350,10 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     /* set the info column */
     col_set_str( pinfo->cinfo, COL_INFO, "uTorrent Transport Protocol" );
 
-    tvb_length = tvb_reported_length(tvb);
+    len_tvb = tvb_reported_length(tvb);
     ti = proto_tree_add_protocol_format(tree, proto_bt_utp, tvb, 0, -1,
                                         "uTorrent Transport Protocol V%d (%d bytes)",
-                                        version, tvb_length);
+                                        version, len_tvb);
     sub_tree = proto_item_add_subtree(ti, ett_bt_utp);
 
     /* Determine header version */
@@ -366,11 +366,11 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     offset = dissect_utp_extension(tvb, pinfo, sub_tree, offset, &extension_type);
 
-    tvb_length = tvb_length_remaining(tvb, offset);
-    if(tvb_length > 0)
-      proto_tree_add_item(sub_tree, hf_bt_utp_data, tvb, offset, tvb_length, ENC_NA);
+    len_tvb = tvb_length_remaining(tvb, offset);
+    if(len_tvb > 0)
+      proto_tree_add_item(sub_tree, hf_bt_utp_data, tvb, offset, len_tvb, ENC_NA);
 
-    return offset+tvb_length;
+    return offset+len_tvb;
   }
   return 0;
 }
