@@ -643,14 +643,14 @@ dissect_aprs_compressed_msg(	tvbuff_t *tvb,
 static const mic_e_dst_code_table_s *
 dst_code_lookup( guint8 ch )
 {
-	guint index;
+	guint indx;
 
-	index = 0;
-	while ( index < ( sizeof( dst_code ) / sizeof( mic_e_dst_code_table_s ) )
-			&& dst_code[ index ].key != ch
-			&& dst_code[ index ].key > 0 )
-		index++;
-	return &( dst_code[ index ] );
+	indx = 0;
+	while ( indx < ( sizeof( dst_code ) / sizeof( mic_e_dst_code_table_s ) )
+			&& dst_code[ indx ].key != ch
+			&& dst_code[ indx ].key > 0 )
+		indx++;
+	return &( dst_code[ indx ] );
 }
 
 static int
@@ -1019,17 +1019,17 @@ static int
 aprs_timestamp( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 {
 	int	data_len;
-	char   *timezone;
+	char   *tzone;
 	guint8  ch;
 
 	data_len = 8;
-	timezone = "zulu";
+	tzone = "zulu";
 
 	ch= tvb_get_guint8( tvb, offset + 6 );
 	if ( isdigit( ch ) )
 		{ /* MDHM */
 		proto_tree_add_item( aprs_tree, hf_aprs_mdhm, tvb, offset, data_len, ENC_ASCII|ENC_NA );
-		proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset, data_len, timezone );
+		proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset, data_len, tzone );
 		}
 	else
 		{
@@ -1037,18 +1037,18 @@ aprs_timestamp( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 		if ( ch  == 'h' )
 			{ /* HMS */
 			proto_tree_add_item( aprs_tree, hf_aprs_hms,  tvb, offset, data_len, ENC_ASCII|ENC_NA );
-			proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset, data_len, timezone );
+			proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset, data_len, tzone );
 			}
 		else
 			{ /* DHM */
 			switch ( ch )
 				{
-				case 'z' : timezone = "zulu";    break;
-				case '/' : timezone = "local";   break;
-				default  : timezone = "unknown"; break;
+				case 'z' : tzone = "zulu";    break;
+				case '/' : tzone = "local";   break;
+				default  : tzone = "unknown"; break;
 				}
 			proto_tree_add_item( aprs_tree, hf_aprs_dhm,  tvb, offset, data_len, ENC_ASCII|ENC_NA );
-			proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset + 6, 1, timezone );
+			proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset + 6, 1, tzone );
 			}
 		}
 
