@@ -341,4 +341,11 @@
 #define CLEANUP_POP			except_cleanup_pop(0)
 #define CLEANUP_CALL_AND_POP		except_cleanup_pop(1)
 
+/* Variants to allow nesting of except_cleanup_push w/o "shadowing" variables */
+#define CLEANUP_PUSH_PFX(pfx,f,a)	except_cleanup_push_pfx(pfx,(f),(a))
+#define CLEANUP_POP_PFX(pfx)		except_cleanup_pop_pfx(pfx,0)
+#define CLEANUP_CALL_AND_POP_PFX(pfx)	except_cleanup_pop_pfx(pfx,1)
+
+
+
 #endif /* __EXCEPTIONS_H__ */

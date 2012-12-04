@@ -143,6 +143,29 @@ extern void except_free(void *);
 	    except_cl.except_func(except_cl.except_context);	\
     }
 
+
+/* --- Variants to allow nesting of except_cleanup_push w/o "shadowing" variables */
+#define except_cleanup_push_pfx(pfx, F, C)				\
+    {									\
+	struct except_stacknode pfx##_except_sn;			\
+	struct except_cleanup pfx##_except_cl;				\
+	except_setup_clean(&pfx##_except_sn, &pfx##_except_cl, F, C)
+
+#define except_cleanup_pop_pfx(pfx, E)					\
+	except_pop();							\
+	if (E)								\
+	    pfx##_except_cl.except_func(pfx##_except_cl.except_context);\
+    }
+
+#define except_checked_cleanup_pop_pfx(pfx, F, E)			\
+    	except_pop();							\
+	assert (pfx##_except_cl.except_func == (F));			\
+	if (E)								\
+	    pfx##_except_cl.except_func(pfx##_except_cl.except_context);\
+    }
+/* ---------- */
+
+
 #define except_try_push(ID, NUM, PPE)				\
      {								\
 	struct except_stacknode except_sn;			\
