@@ -1415,7 +1415,7 @@ static const true_false_string fromds_flag = {
   "Frame is not exiting DS"
 };
 
-static const true_false_string more_frags = {
+static const true_false_string more_fragments = {
   "More fragments follow",
   "This is the last fragment"
 };
@@ -9818,7 +9818,6 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
             while(offset < tag_end)
             {
               guint8 sub_id, sub_length, sub_tag_end;
-              proto_item *ti;
               proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_id, tvb, offset, 1, ENC_NA);
               sub_id = tvb_get_guint8(tvb, offset);
               offset += 1;
@@ -9856,8 +9855,9 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
              }
              if(offset < sub_tag_end)
              {
-               ti = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_unknown, tvb, offset, sub_tag_end - offset, ENC_NA);
-               expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, " Unknown Data (not interpreted)");
+               proto_item *tix;
+               tix = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_unknown, tvb, offset, sub_tag_end - offset, ENC_NA);
+               expert_add_info_format(pinfo, tix, PI_UNDECODED, PI_WARN, " Unknown Data (not interpreted)");
                offset = sub_tag_end;
              }
             }
@@ -12896,7 +12896,7 @@ proto_register_ieee80211 (void)
       "From DS flag", HFILL }},    /* 5 */
 
     {&hf_ieee80211_fc_more_frag,
-     {"More Fragments", "wlan.fc.frag", FT_BOOLEAN, 8, TFS (&more_frags), FLAG_MORE_FRAGMENTS,
+     {"More Fragments", "wlan.fc.frag", FT_BOOLEAN, 8, TFS (&more_fragments), FLAG_MORE_FRAGMENTS,
       "More Fragments flag", HFILL }},  /* 6 */
 
     {&hf_ieee80211_fc_retry,
