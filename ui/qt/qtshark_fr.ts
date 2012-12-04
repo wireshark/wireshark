@@ -396,10 +396,6 @@
         <translation>Aucune capture chargée</translation>
     </message>
     <message>
-        <source>%1 Bytes</source>
-        <translation type="obsolete">%1 Octets</translation>
-    </message>
-    <message>
         <location filename="file_set_dialog.cpp" line="116"/>
         <source>Open this capture file</source>
         <translation>Ouvrir le fichier de capture</translation>
@@ -667,77 +663,80 @@
         <translation>Page de bienvenue</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="65"/>
-        <source>No interfaces found
-%1</source>
-        <translation>Aucune interfaces trouvées
-%1</translation>
+        <location filename="interface_tree.cpp" line="57"/>
+        <source>Waiting for startup</source>
+        <translation>Démarrage en cours</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;No interfaces found&lt;/h3&gt;%1</source>
-        <translation type="obsolete">&lt;h3&gt;Interface non trouvée&lt;/h3&gt;%1</translation>
+        <location filename="interface_tree.cpp" line="125"/>
+        <source>%1</source>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>MainStatusBar</name>
     <message>
-        <location filename="main_status_bar.cpp" line="187"/>
+        <location filename="main_status_bar.cpp" line="160"/>
         <source> is the highest expert info level</source>
         <translation>c&apos;est le plus haut niveau d&apos;information expert</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="192"/>
+        <location filename="main_status_bar.cpp" line="165"/>
         <source>ERROR</source>
         <translation>ERREUR</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="196"/>
+        <location filename="main_status_bar.cpp" line="169"/>
         <source>WARNING</source>
         <translation>ATTENTION</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="200"/>
+        <location filename="main_status_bar.cpp" line="173"/>
         <source>NOTE</source>
         <translation>NOTE</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="204"/>
+        <location filename="main_status_bar.cpp" line="177"/>
         <source>CHAT</source>
         <translation>CHAT</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="211"/>
+        <location filename="main_status_bar.cpp" line="184"/>
         <source>No expert info</source>
         <translation>Pas d&apos;information experte</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="275"/>
+        <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
+        <translation>Paquets: %1 %4 Affichés: %2 %4 Marqués: %3</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="281"/>
+        <source> %1 Dropped: %2</source>
+        <translation>%1 Supprimés: %2</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="284"/>
+        <source> %1 Ignored: %2</source>
+        <translation>%1 Ignorés: %2</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="289"/>
+        <source> %1  Load time: %2:%3.%4</source>
+        <translation>%1  Temps de chargement: %2:%3.%4</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="296"/>
+        <source>No Packets</source>
+        <translation>Pas de paquets</translation>
     </message>
 </context>
 <context>
     <name>MainWelcome</name>
     <message>
-        <source>&lt;h1&gt;Capture&lt;/h1&gt;</source>
-        <translation type="obsolete">&lt;h1&gt;Capture&lt;/h1&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;h1&gt;Capture Help&lt;/h1&gt;</source>
-        <translation type="obsolete">&lt;h1&gt;Aide à la capture&lt;/h1&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;h1&gt;Recent Files&lt;/h1&gt;</source>
-        <oldsource>&lt;h1&gt;Files&lt;/h1&gt;</oldsource>
-        <translation type="obsolete">&lt;h1&gt;Fichiers&lt;/h1&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;h1&gt;Online&lt;/h1&gt;</source>
-        <translation type="obsolete">&lt;h1&gt;En Ligne&lt;/h1&gt;</translation>
-    </message>
-    <message>
-        <location filename="main_welcome.cpp" line="199"/>
+        <location filename="main_welcome.cpp" line="202"/>
         <source>not found</source>
         <translation>Non trouvé</translation>
-    </message>
-    <message>
-        <source>not found)</source>
-        <translation type="obsolete">non trouvé)</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="20"/>
@@ -745,31 +744,26 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="34"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wireshark&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_welcome.ui" line="89"/>
+        <location filename="main_welcome.ui" line="79"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;User&apos;s Guide&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Wiki&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Guide d&apos;utilisateur&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Wiki&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="119"/>
+        <location filename="main_welcome.ui" line="109"/>
         <source>Capture
 live packets from the network</source>
         <translation>Capture
 Paquet temps reel depuis le réseau</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="125"/>
+        <location filename="main_welcome.ui" line="115"/>
         <source>Open
 a recent capture file</source>
         <translation>Ouvrir
 un des derniers fichiers de capture</translation>
     </message>
     <message>
-        <location filename="main_welcome.ui" line="131"/>
+        <location filename="main_welcome.ui" line="121"/>
         <source>Learn
 more about Wireshark</source>
         <translation>Apprendre
@@ -888,14 +882,6 @@ plus a propos de Wireshark</translation>
         <location filename="main_window.ui" line="300"/>
         <source>Ctrl+Q</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>Interfaces</source>
-        <translation type="obsolete">Interfaces</translation>
-    </message>
-    <message>
-        <source>Start</source>
-        <translation type="obsolete">Démarrer</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="327"/>
@@ -1118,17 +1104,9 @@ plus a propos de Wireshark</translation>
         <translation></translation>
     </message>
     <message>
-        <source>Export Packets...</source>
-        <translation type="obsolete">Exporter des Paquets...</translation>
-    </message>
-    <message>
         <location filename="main_window.ui" line="612"/>
         <source>Export specified packets</source>
         <translation>Exporter les paquets specifiés</translation>
-    </message>
-    <message>
-        <source>Export Packet Dissections...</source>
-        <translation type="obsolete">Exporter la dissection des paquets...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="617"/>
@@ -1144,10 +1122,6 @@ plus a propos de Wireshark</translation>
         <location filename="main_window.ui" line="625"/>
         <source>Export SSL Session Keys...</source>
         <translation>Exporter les clés de sessions SSL...</translation>
-    </message>
-    <message>
-        <source>Export Objects...</source>
-        <translation type="obsolete">Exporter les objects...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="630"/>
@@ -1234,10 +1208,6 @@ plus a propos de Wireshark</translation>
         <location filename="main_window.ui" line="694"/>
         <source>Restart current capture</source>
         <translation>Redémarrer la capture en cours</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="obsolete">Arrêter</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="342"/>
@@ -1381,168 +1351,155 @@ plus a propos de Wireshark</translation>
         <translation>Chargement: %1</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="406"/>
+        <location filename="main_window.cpp" line="416"/>
         <location filename="main_window_slots.cpp" line="110"/>
         <source>Invalid Display Filter</source>
         <translation>Filtre d&apos;affichage invalide</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="407"/>
+        <location filename="main_window.cpp" line="417"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>Le filtre %1 n&apos;est pas un filtre d&apos;affichage valide (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="340"/>
+        <location filename="main_window.cpp" line="350"/>
         <source>Save packets before merging?</source>
         <translation>Sauvegarder les paquets avant la fusion?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="341"/>
+        <location filename="main_window.cpp" line="351"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>une capture temporaire ne peut pas etre fusionner.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="347"/>
+        <location filename="main_window.cpp" line="357"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Sauvegarder les changements dans &quot;%1&quot; avant la fusion?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="349"/>
+        <location filename="main_window.cpp" line="359"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Les changements doivent etre sauvegarder avant la fusion de fichier.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="492"/>
+        <location filename="main_window.cpp" line="504"/>
         <source> before importing a new capture</source>
         <translation> avant l&apos;import d&apos;une nouvelle capture</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="799"/>
+        <location filename="main_window.cpp" line="811"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Impossible d&apos;exporter dans &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="800"/>
+        <location filename="main_window.cpp" line="812"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Vous ne pouvez pas exporter les paquets de la capture en cours.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="886"/>
-        <location filename="main_window.cpp" line="911"/>
+        <location filename="main_window.cpp" line="898"/>
+        <location filename="main_window.cpp" line="923"/>
         <source>.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="950"/>
+        <location filename="main_window.cpp" line="962"/>
         <source>You have unsaved packets</source>
         <translation>Vous avez des paquets non sauvegardés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="951"/>
+        <location filename="main_window.cpp" line="963"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>Ils seront perdues si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="954"/>
-        <location filename="main_window.cpp" line="967"/>
+        <location filename="main_window.cpp" line="966"/>
+        <location filename="main_window.cpp" line="979"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>
 Voulez-vous arrêter la capture et enregistrer les paquets capturés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="956"/>
+        <location filename="main_window.cpp" line="968"/>
         <source>Do you want to save the captured packets</source>
         <translation>Voulez-vous  enregistrer les paquets capturés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="958"/>
-        <location filename="main_window.cpp" line="968"/>
+        <location filename="main_window.cpp" line="970"/>
+        <location filename="main_window.cpp" line="980"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="969"/>
+        <location filename="main_window.cpp" line="981"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Votre capture de paquet sera perdu si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="972"/>
+        <location filename="main_window.cpp" line="984"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Voulez-vous enregistrer les modifications que vous avez apportées au fichier de capture &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="977"/>
+        <location filename="main_window.cpp" line="989"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Vos changements seront perdus si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="989"/>
+        <location filename="main_window.cpp" line="1001"/>
         <source>Stop and Save</source>
         <translation>Arreter et Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="997"/>
+        <location filename="main_window.cpp" line="1009"/>
         <source>Stop and Quit without Saving</source>
         <oldsource>Stop and Quit without Saving)</oldsource>
         <translation>Arreter et Quitter sans Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="999"/>
+        <location filename="main_window.cpp" line="1011"/>
         <source>Quit without Saving</source>
         <translation>Quitter sans Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1003"/>
+        <location filename="main_window.cpp" line="1015"/>
         <source>Stop and Continue without Saving</source>
         <translation>Arreter et Continuer sans Sauvegarder</translation>
     </message>
     <message>
-        <source>No interface selected</source>
-        <translation type="obsolete">Aucune interface sélectionnée</translation>
-    </message>
-    <message>
-        <location filename="main_window_slots.cpp" line="492"/>
+        <location filename="main_window_slots.cpp" line="494"/>
         <source>Clear Menu</source>
         <translation>Effacer les fichiers récemment ouverts</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="715"/>
+        <location filename="main_window_slots.cpp" line="726"/>
         <source>Wireshark: Export Selected Packet Bytes</source>
         <translation>Wireshark: Exporter la selection de paquets octets</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="717"/>
+        <location filename="main_window_slots.cpp" line="728"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>Raw data (*.bin *.dat *.raw);;Tous les fichiers (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="758"/>
+        <location filename="main_window_slots.cpp" line="769"/>
         <source>No Keys</source>
         <translation>Aucune clés</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="759"/>
+        <location filename="main_window_slots.cpp" line="770"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Il y a aucune clé de Session SSL à sauvegarder.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="770"/>
+        <location filename="main_window_slots.cpp" line="781"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>Clé de Session SSL (*.keys *.txt);;Tous les fichiers (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="975"/>
+        <location filename="main_window_slots.cpp" line="984"/>
         <source>No Interface Selected</source>
         <translation>Aucune Interface Sélectionnée</translation>
-    </message>
-    <message>
-        <location filename="main_window_slots.cpp" line="976"/>
-        <source>You didn&apos;t specify an interface on which to capture packets.</source>
-        <translation>Vous n&apos;avez pas spécifié une interface sur laquelle capturer les paquets.</translation>
-    </message>
-    <message>
-        <source> before starting a new capture</source>
-        <translation type="obsolete">avant de démarrer une nouvelle capture</translation>
     </message>
 </context>
 <context>
@@ -1753,68 +1710,22 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation>Détail du paquet</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="199"/>
+        <location filename="proto_tree.cpp" line="198"/>
         <source>, 1 byte</source>
         <translation>, 1 octet</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="201"/>
+        <location filename="proto_tree.cpp" line="200"/>
         <source>, %1 bytes</source>
         <translation>, %1 octets</translation>
     </message>
 </context>
 <context>
-    <name>QObject</name>
+    <name>SplashOverlay</name>
     <message>
-        <location filename="main_status_bar.cpp" line="43"/>
-        <source> Ready to load or capture</source>
-        <translation> Prêt pour ouvrir ou capturer</translation>
-    </message>
-    <message>
-        <location filename="main_status_bar.cpp" line="45"/>
-        <source> Ready to load file</source>
-        <translation> Prêt pour ouvrir un fichier</translation>
-    </message>
-    <message>
-        <location filename="main_status_bar.cpp" line="98"/>
-        <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
-        <translation>Paquets: %1 %4 Affichés: %2 %4 Marqués: %3</translation>
-    </message>
-    <message>
-        <location filename="main_status_bar.cpp" line="104"/>
-        <source> %1 Dropped: %2</source>
-        <translation>%1 Supprimés: %2</translation>
-    </message>
-    <message>
-        <location filename="main_status_bar.cpp" line="107"/>
-        <source> %1 Ignored: %2</source>
-        <translation>%1 Ignorés: %2</translation>
-    </message>
-    <message>
-        <location filename="main_status_bar.cpp" line="112"/>
-        <source> %1  Load time: %2:%3.%4</source>
-        <translation>%1 Temps de chargement %2:%3.%4</translation>
-    </message>
-    <message>
-        <source>Packets: %1 Displayed: %2 Marked: %3</source>
-        <translation type="obsolete">Paquets: %1 Affichés: %2 Marqués: %3</translation>
-    </message>
-    <message>
-        <source> Dropped: %1</source>
-        <translation type="obsolete"> Supprimé: %1</translation>
-    </message>
-    <message>
-        <source> Ignored: %1</source>
-        <translation type="obsolete"> Ignoré: %1</translation>
-    </message>
-    <message>
-        <source> Load time: %1:%2.%3</source>
-        <translation type="obsolete"> Temps de Chargement: %1:%2.%3</translation>
-    </message>
-    <message>
-        <location filename="main_status_bar.cpp" line="119"/>
-        <source>No Packets</source>
-        <translation>Pas de paquets</translation>
+        <location filename="splash_overlay.ui" line="17"/>
+        <source>Form</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

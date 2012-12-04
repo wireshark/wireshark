@@ -528,8 +528,11 @@
         <translation></translation>
     </message>
     <message>
-        <source>No interfaces found
-%1</source>
+        <source>Waiting for startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -559,6 +562,26 @@
         <source>No expert info</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> %1 Dropped: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> %1 Ignored: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> %1  Load time: %2:%3.%4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainWelcome</name>
@@ -568,10 +591,6 @@
     </message>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wireshark&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1029,10 +1048,6 @@ more about Wireshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>You didn&apos;t specify an interface on which to capture packets.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Save packets before merging?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1346,33 +1361,9 @@ more about Wireshark</source>
     </message>
 </context>
 <context>
-    <name>QObject</name>
+    <name>SplashOverlay</name>
     <message>
-        <source> Ready to load or capture</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source> Ready to load file</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>No Packets</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> %1 Dropped: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> %1 Ignored: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> %1  Load time: %2:%3.%4</source>
+        <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
