@@ -7419,7 +7419,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     volatile gboolean       run_info_str = FALSE;
     guint32                 length_remaining;
     guint32                 testvar;
-    volatile unsigned long  except_code;
+    volatile unsigned long  exception_code;
     const char              *volatile message;
 
 
@@ -7569,7 +7569,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
          * CLEANUP_POP or CLEANUP_POP_AND_ALLOC. So, we always
          * call CLEANUP_POP and friends, but the value of temp_tree is
          * NULL if no cleanup is needed, and non-null if cleanup is needed. */
-        CLEANUP_PUSH(free_proto_tree, temp_tree);
+        CLEANUP_PUSH_PFX(xx,free_proto_tree, temp_tree);
 
 #ifdef FAKE_TREE_IS_VISIBLE
         PTREE_DATA(ncp_tree)->visible=1;
@@ -7645,7 +7645,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_uint_format(ncp_tree, hf_ncp_group, tvb, 0, 0, ncp_rec->group, "Group: %s", ncp_groups[ncp_rec->group]);
         }
 
-        except_code = 0;
+        exception_code = 0;
         message = NULL;
         if (ncp_rec && ncp_rec->request_ptvc) {
             clear_repeat_vars();
@@ -7661,7 +7661,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
             TRY {
                 process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
             } CATCH_ALL {
-                except_code = EXCEPT_CODE;
+                exception_code = EXCEPT_CODE;
                 message = GET_MESSAGE;
             }
             ENDTRY;
@@ -7838,11 +7838,11 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         /* Check to see if we need to report to the expert table */
         trap_for_expert_event(ncp_tree, pinfo, ncp_rec, 0);
         /* Free the temporary proto_tree */
-        CLEANUP_CALL_AND_POP;
+        CLEANUP_CALL_AND_POP_PFX(xx);
 
         /* Re-throw any exception. */
-        if (except_code != 0)
-            THROW_MESSAGE(except_code, message);
+        if (exception_code != 0)
+            THROW_MESSAGE(exception_code, message);
     }
 }
 
