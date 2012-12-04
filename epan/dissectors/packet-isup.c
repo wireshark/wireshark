@@ -1205,11 +1205,17 @@ const value_string isup_parameter_type_value[] = {
   { 0,                                 NULL}};
 static value_string_ext isup_parameter_type_value_ext = VALUE_STRING_EXT_INIT(isup_parameter_type_value);
 
+#define JAPAN_ISUP_PARAM_CALLED_DIRECTORY_NUMBER         125 /* 7D */
 #define JAPAN_ISUP_PARAM_REDIRECT_FORWARD_INF            139 /* 8B */
-
+#define JAPAN_ISUP_PARAM_REDIRECT_BACKWARD_INF           140 /* 8C */
+#define JAPAN_ISUP_PARAM_EMERGENCY_CALL_INF_IND          236 /* EC */
+#define JAPAN_ISUP_PARAM_NETWORK_POI_CA                  238 /* EE */
 #define JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO               241 /* F1 */
+#define JAPAN_ISUP_PARAM_CHARGE_INF_DELAY                242 /* F2 */
 
 #define JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT         243 /* F3 */
+#define JAPAN_ISUP_PARAM_REASON_FOR_CLIP_FAIL            245 /* F5 */
+#define JAPAN_ISUP_PARAM_TYPE_CONTRACTOR_NUMBER          249 /* F9 */
 #define JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE            250 /* FA */
 #define JAPAN_ISUP_PARAM_TYPE_CHARGE_INF                 251 /* FB */
 #define JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO           253 /* FD */
@@ -1294,15 +1300,22 @@ static const value_string japan_isup_parameter_type_value[] = {
   { PARAM_TYPE_UID_CAPAB_IND,             "UID capability indicators"},
   { PARAM_TYPE_REDIRECT_COUNTER,          "Redirect counter (reserved for national use)"},
   { PARAM_TYPE_APPLICATON_TRANS,          "Application transport"},
-  { PARAM_TYPE_COLLECT_CALL_REQ,          "Collect call request"},
-  { JAPAN_ISUP_PARAM_REDIRECT_FORWARD_INF, "Redirect forward information"},
-  { PARAM_TYPE_GENERIC_NR,                "Generic number"},
-  { PARAM_TYPE_GENERIC_DIGITS,            "Generic digits (national use)"},
-  { JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO,       "Carrier Information transfer"},      /* 241 F1 */
-  { JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT, "Additional party's category"},       /* 243 F3 */
-  { JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE,    "Charge information type"},           /* 250 FA */
-  { JAPAN_ISUP_PARAM_TYPE_CHARGE_INF,         "Charge information"},                /* 250 FA */
-  { JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO,   "Charge area information"},           /* 253 FD */
+  { PARAM_TYPE_COLLECT_CALL_REQ,              "Collect call request"},                 /* 121    */
+  { JAPAN_ISUP_PARAM_CALLED_DIRECTORY_NUMBER, "Called Directory Number"},              /* 125 7D */
+  { JAPAN_ISUP_PARAM_REDIRECT_FORWARD_INF,    "Redirect forward information"},         /* 139 8B */
+  { JAPAN_ISUP_PARAM_REDIRECT_BACKWARD_INF,   "Redirect Backward information"},        /* 140 8C */
+  { PARAM_TYPE_GENERIC_NR,                    "Generic number"},                       /* 192    */
+  { PARAM_TYPE_GENERIC_DIGITS,                "Generic digits (national use)"},        /* 193    */
+  { JAPAN_ISUP_PARAM_EMERGENCY_CALL_INF_IND,  "Emergency Call Information indicator"}, /* 236 EC */
+  { JAPAN_ISUP_PARAM_NETWORK_POI_CA,          "Network POI-CA"},                       /* 238 EE */
+  { JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO,       "Carrier Information transfer"},         /* 241 F1 */
+  { JAPAN_ISUP_PARAM_CHARGE_INF_DELAY,        "Charge Information Delay"},             /* 242 F2 */
+  { JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT, "Additional party's category"},          /* 243 F3 */
+  { JAPAN_ISUP_PARAM_REASON_FOR_CLIP_FAIL,    "Reason For CLIP Failure"},              /* 245 F5 */
+  { JAPAN_ISUP_PARAM_TYPE_CONTRACTOR_NUMBER,  "Contractor Number"},                    /* 249 F9 */
+  { JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE,    "Charge information type"},              /* 250 FA */
+  { JAPAN_ISUP_PARAM_TYPE_CHARGE_INF,         "Charge information"},                   /* 250 FA */
+  { JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO,   "Charge area information"},              /* 253 FD */
 
   { 0,                                 NULL}};
 static value_string_ext japan_isup_parameter_type_value_ext = VALUE_STRING_EXT_INIT(japan_isup_parameter_type_value);
@@ -2927,6 +2940,7 @@ static gint ett_scs                             = -1;
 
 static gint ett_isup_apm_msg_fragment = -1;
 static gint ett_isup_apm_msg_fragments = -1;
+static gint ett_isup_range = -1;
 
 
 static dissector_handle_t sdp_handle = NULL;
@@ -3730,16 +3744,27 @@ dissect_isup_suspend_resume_indicators_parameter(tvbuff_t *parameter_tvb, proto_
 static void
 dissect_isup_range_and_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+  proto_item *item;
+  proto_tree *range_tree;
+  int offset = 0;
   guint8 range, actual_status_length;
 
-  range = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_uint_format(parameter_tree, hf_isup_range_indicator, parameter_tvb, 0, RANGE_LENGTH, range, "Range: %u", range);
-  actual_status_length = tvb_reported_length_remaining(parameter_tvb, RANGE_LENGTH);
-  if (actual_status_length > 0)
-    proto_tree_add_text(parameter_tree, parameter_tvb , RANGE_LENGTH, -1, "Status subfield");
-  else
-    proto_tree_add_text(parameter_tree, parameter_tvb , 0, 0, "Status subfield is not present with this message type");
+  range = tvb_get_guint8(parameter_tvb, 0) + 1;
+  proto_tree_add_uint_format(parameter_tree, hf_isup_range_indicator, parameter_tvb, offset, RANGE_LENGTH, range, "Range: %u", range);
+  offset = offset + RANGE_LENGTH;
 
+  actual_status_length = tvb_reported_length_remaining(parameter_tvb, offset);
+  if (actual_status_length > 0){
+    item = proto_tree_add_text(parameter_tree, parameter_tvb , offset, -1, "Status subfield");
+	range_tree = proto_item_add_subtree(item, ett_isup_range);
+	if(range<9){
+		proto_tree_add_text(range_tree, parameter_tvb , offset, 1, "Bit %u %s bit 1",
+			range, 
+			decode_bits_in_field(8-range, range, tvb_get_guint8(parameter_tvb,offset)));
+	}
+  }else{
+    proto_tree_add_text(parameter_tree, parameter_tvb , 0, 0, "Status subfield is not present with this message type");
+  }
 
   proto_item_set_text(parameter_item, "Range (%u) and status", range);
 }
@@ -11432,6 +11457,7 @@ proto_register_isup(void)
     &ett_acs,
     &ett_isup_apm_msg_fragment,
     &ett_isup_apm_msg_fragments,
+	&ett_isup_range,
   };
 
   static const enum_val_t isup_variants[] = {
