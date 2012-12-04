@@ -1,12 +1,13 @@
 <RCC>
-  <qresource prefix="/toolbar/main">
-    <file>capture_start_24.png</file>
-    <file>capture_stop_24.png</file>
-    <file>capture_start_active_24.png</file>
-  </qresource>
-  <qresource prefix="/menu/help">
-    <file alias="wsicon16.xpm">wsicon16.xpm</file>
-    <file alias="wiki_24.xpm">toolbar/wiki_24.xpm</file>
-    <file alias="wsicon-ask.png">wsicon-ask.png</file>
-  </qresource>
+    <qresource prefix="/toolbar/main">
+        <file>capture_start_24.png</file>
+        <file>capture_stop_24.png</file>
+        <file>capture_start_active_24.png</file>
+        <file>WiresharkDoc-24.png</file>
+    </qresource>
+    <qresource prefix="/menu/help">
+        <file alias="wsicon16.xpm">wsicon16.xpm</file>
+        <file alias="wiki_24.xpm">toolbar/wiki_24.xpm</file>
+        <file alias="wsicon-ask.png">wsicon-ask.png</file>
+    </qresource>
 </RCC>

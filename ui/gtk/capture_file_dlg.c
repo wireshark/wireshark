@@ -986,10 +986,10 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                            GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
+                            WIRESHARK_STOCK_FILE, GTK_RESPONSE_ACCEPT);
 #else
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                            GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
+                            WIRESHARK_STOCK_FILE, GTK_RESPONSE_ACCEPT);
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
 #endif
@@ -1122,13 +1122,13 @@ test_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
                             (capture_in_progress ?
                                 WIRESHARK_STOCK_STOP_SAVE :
-                                GTK_STOCK_SAVE),
+                                WIRESHARK_STOCK_FILE),
                             GTK_RESPONSE_ACCEPT);
 #else
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
                             (capture_in_progress ?
                                 WIRESHARK_STOCK_STOP_SAVE :
-                                GTK_STOCK_SAVE),
+                                WIRESHARK_STOCK_FILE),
                             GTK_RESPONSE_ACCEPT);
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);

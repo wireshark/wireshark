@@ -104,8 +104,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // http://qt-project.org/doc/qt-4.8/qstyle.html#StandardPixmap-enum
     main_ui_->actionFileOpen->setIcon(
                 QIcon().fromTheme("document-open", style()->standardIcon(QStyle::SP_DirIcon)));
-    main_ui_->actionFileSave->setIcon(
-                QIcon().fromTheme("document-save", style()->standardIcon(QStyle::SP_FileIcon)));
+//    main_ui_->actionFileSave->setIcon(
+//                QIcon().fromTheme("document-save", style()->standardIcon(QStyle::SP_FileIcon)));
     main_ui_->actionFileClose->setIcon(
                 QIcon().fromTheme("process-stop", style()->standardIcon(QStyle::SP_BrowserStop)));
 
@@ -137,7 +137,6 @@ MainWindow::MainWindow(QWidget *parent) :
 #if defined(Q_WS_MAC)
     foreach (QMenu *menu, main_ui_->menuBar->findChildren<QMenu*>()) {
         foreach (QAction *act, menu->actions()) {
-            qDebug() << "disabling" << act->objectName();
             act->setIconVisibleInMenu(false);
         }
     }

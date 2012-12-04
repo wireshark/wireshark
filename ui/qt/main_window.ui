@@ -90,7 +90,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -318,7 +318,8 @@
    <property name="icon">
     <iconset resource="../../image/toolbar.qrc">
      <normaloff>:/toolbar/main/capture_start_24.png</normaloff>
-     <normalon>:/toolbar/main/capture_start_active_24.png</normalon>:/toolbar/main/capture_start_24.png</iconset>
+     <normalon>:/toolbar/main/capture_start_active_24.png</normalon>
+     <disabledon>:/toolbar/main/capture_start_active_24.png</disabledon>:/toolbar/main/capture_start_24.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Start</string>
@@ -583,6 +584,10 @@
    </property>
   </action>
   <action name="actionFileSave">
+   <property name="icon">
+    <iconset resource="../../image/toolbar.qrc">
+     <normaloff>:/toolbar/main/WiresharkDoc-24.png</normaloff>:/toolbar/main/WiresharkDoc-24.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Save</string>
    </property>
@@ -594,6 +599,10 @@
    </property>
   </action>
   <action name="actionFileSaveAs">
+   <property name="icon">
+    <iconset resource="../../image/toolbar.qrc">
+     <normaloff>:/toolbar/main/WiresharkDoc-24.png</normaloff>:/toolbar/main/WiresharkDoc-24.png</iconset>
+   </property>
    <property name="text">
     <string>Save &amp;As...</string>
    </property>

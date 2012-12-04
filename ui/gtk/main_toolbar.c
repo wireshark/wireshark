@@ -68,7 +68,7 @@ static GtkToolItem *capture_options_button, *new_button, *stop_button, *clear_bu
 static GtkToolItem *capture_filter_button, *autoscroll_button;
 #endif /* HAVE_LIBPCAP */
 static GtkToolItem *open_button, *save_button, *close_button, *reload_button;
-static GtkToolItem *print_button, *find_button, *history_forward_button, *history_back_button;
+static GtkToolItem *find_button, *history_forward_button, *history_back_button;
 static GtkToolItem *go_to_button, *go_to_top_button, *go_to_bottom_button;
 static GtkToolItem *display_filter_button;
 static GtkToolItem *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button;
@@ -185,8 +185,6 @@ void set_toolbar_for_capture_stopping(void) {
 void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
 
     if (toolbar_init) {
-	gtk_widget_set_sensitive(GTK_WIDGET(print_button),
-				 have_captured_packets);
         gtk_widget_set_sensitive(GTK_WIDGET(find_button),
 				 have_captured_packets);
         gtk_widget_set_sensitive(GTK_WIDGET(history_back_button),
@@ -321,16 +319,13 @@ toolbar_new(void)
 	GTK_STOCK_OPEN, "Open a capture file...", file_open_cmd_cb, NULL);
 
     toolbar_item(save_button, main_tb,
-	GTK_STOCK_SAVE, "Save this capture file", file_save_cmd_cb, NULL);
+	WIRESHARK_STOCK_FILE, "Save this capture file", file_save_cmd_cb, NULL);
 
     toolbar_item(close_button, main_tb,
 	GTK_STOCK_CLOSE, "Close this capture file", file_close_cmd_cb, NULL);
 
     toolbar_item(reload_button, main_tb,
 	GTK_STOCK_REFRESH, "Reload this capture file", file_reload_cmd_cb, NULL);
-
-    toolbar_item(print_button, main_tb,
-	GTK_STOCK_PRINT, "Print packet(s)...", file_print_cmd_cb, NULL);
 
     toolbar_append_separator(main_tb);
 

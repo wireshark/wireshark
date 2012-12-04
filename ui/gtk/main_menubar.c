@@ -1405,8 +1405,8 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/File/Import",             NULL,                              "_Import...",         NULL,                   NULL,           G_CALLBACK(file_import_cmd_cb) },
   { "/File/Close",              GTK_STOCK_CLOSE,                   "_Close",             "<control>W",           NULL,           G_CALLBACK(file_close_cmd_cb) },
 
-  { "/File/Save",               GTK_STOCK_SAVE,                    "_Save",              "<control>S",           NULL,           G_CALLBACK(file_save_cmd_cb) },
-  { "/File/SaveAs",             GTK_STOCK_SAVE_AS,                 "Save _As...",        "<shift><control>S",    NULL,           G_CALLBACK(file_save_as_cmd_cb) },
+  { "/File/Save",               WIRESHARK_STOCK_FILE,              "_Save",              "<control>S",           NULL,           G_CALLBACK(file_save_cmd_cb) },
+  { "/File/SaveAs",             WIRESHARK_STOCK_FILE,              "Save _As...",        "<shift><control>S",    NULL,           G_CALLBACK(file_save_as_cmd_cb) },
 
   { "/File/Set",                NULL,                              "File Set",           NULL,                   NULL,           NULL },
   { "/File/ExportSpecifiedPackets", NULL,         "Export Specified Packets...", NULL,           NULL,           G_CALLBACK(file_export_specified_packets_cmd_cb) },
