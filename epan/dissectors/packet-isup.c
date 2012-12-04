@@ -2153,67 +2153,6 @@ static const value_string isup_charge_area_info_nat_of_info_value[] = {
   { CHARGE_AREA_NAT_INFO_CA, "CA code"},
   { 0,NULL}};
 
-/*******************************/
-/*    ADDITIONAL USER CATEGORY */
-/*******************************/
-#define ADD_USER_CAT_TYPE3                     0xFB
-#define ADD_USER_CAT_TYPE2                     0xFC
-#define ADD_USER_CAT_TYPE1                     0xFD
-#define ADD_USER_CAT_TYPE1_FIXED               0xFE
-static const value_string isup_add_user_cat_type_value[] = {
-  { ADD_USER_CAT_TYPE3, "Type 3 mobile service information"},
-  { ADD_USER_CAT_TYPE2, "Type 2 mobile service information"},
-  { ADD_USER_CAT_TYPE1, "Type 1 mobile service information"},
-  { ADD_USER_CAT_TYPE1_FIXED, "Type 1 fixed user information"},
-  { 0,NULL}};
-
-#define ADD_USER_CAT_TYPE1_FIXED_SPARE            0
-#define ADD_USER_CAT_TYPE1_FIXED_TRAIN            1
-#define ADD_USER_CAT_TYPE1_FIXED_PINK             2
-static const value_string isup_add_user_cat_type1_fixed_value[] = {
-  { ADD_USER_CAT_TYPE1_FIXED_SPARE,"Spare"},
-  { ADD_USER_CAT_TYPE1_FIXED_TRAIN,"Train payphone"},
-  { ADD_USER_CAT_TYPE1_FIXED_PINK, "Pink (non|NTT payphone)"},
-  { 0,NULL}};
-
-#define ADD_USER_CAT_TYPE1_SPARE                  0
-#define ADD_USER_CAT_TYPE1_CELL                   1
-#define ADD_USER_CAT_TYPE1_MARITIME               2
-#define ADD_USER_CAT_TYPE1_AIRPLANE               3
-#define ADD_USER_CAT_TYPE1_PAGING                 4
-#define ADD_USER_CAT_TYPE1_PHS                    5
-static const value_string isup_add_user_cat_type1_value[] = {
-  { ADD_USER_CAT_TYPE1_SPARE,"Spare"},
-  { ADD_USER_CAT_TYPE1_CELL,"Cellular telephone service"},
-  { ADD_USER_CAT_TYPE1_MARITIME, "Maritime telephone service"},
-  { ADD_USER_CAT_TYPE1_AIRPLANE, "Airplane telephone service"},
-  { ADD_USER_CAT_TYPE1_PAGING, "Paging service"},
-  { ADD_USER_CAT_TYPE1_PHS, "PHS service"},
-  { 0,NULL}};
-
-#define ADD_USER_CAT_TYPE2_SPARE                  0
-#define ADD_USER_CAT_TYPE2_HICAP                  1
-#define ADD_USER_CAT_TYPE2_TACS                   2
-#define ADD_USER_CAT_TYPE2_PDC800                 3
-#define ADD_USER_CAT_TYPE2_PDC1500                4
-#define ADD_USER_CAT_TYPE2_STARSAT                5
-#define ADD_USER_CAT_TYPE2_CDMA1                  6
-#define ADD_USER_CAT_TYPE2_IRID                   7
-#define ADD_USER_CAT_TYPE2_IMT                    8
-#define ADD_USER_CAT_TYPE2_PHS                    9
-static const value_string isup_add_user_cat_type2_value[] = {
-  { ADD_USER_CAT_TYPE2_SPARE,"Spare"},
-  { ADD_USER_CAT_TYPE2_HICAP,"HiCap method (analog)"},
-  { ADD_USER_CAT_TYPE2_TACS, "N/J|TACS"},
-  { ADD_USER_CAT_TYPE2_PDC800, "PDC 800 MHz"},
-  { ADD_USER_CAT_TYPE2_PDC1500, "PDC 1500 MHz"},
-  { ADD_USER_CAT_TYPE2_STARSAT, "N|STAR satellite"},
-  { ADD_USER_CAT_TYPE2_CDMA1, "cdmaOne 800 MHz"},
-  { ADD_USER_CAT_TYPE2_IRID, "Iridium satellite"},
-  { ADD_USER_CAT_TYPE2_IMT, "IMT|2000"},
-  { ADD_USER_CAT_TYPE2_PHS, "PHS (fixed network dependent)"},
-  { 0,NULL}};
-
 static const true_false_string isup_calling_party_address_request_ind_value = {
   "calling party address requested",
   "calling party address not requested"
@@ -2891,6 +2830,11 @@ static int hf_japan_isup_rfi_info_len = -1;
 static int hf_japan_isup_perf_redir_reason = -1;
 static int hf_japan_isup_redir_pos_ind = -1;
 static int hf_japan_isup_inv_redir_reason = -1;
+static int hf_japan_isup_add_user_cat_type = -1;
+static int hf_japan_isup_type_1_add_fixed_serv_inf = -1;
+static int hf_japan_isup_type_1_add_mobile_serv_inf = -1;
+static int hf_japan_isup_type_2_add_mobile_serv_inf = -1;
+static int hf_japan_isup_type_3_add_mobile_serv_inf = -1;
 
 static int hf_isup_carrier_info_iec = -1;
 /*static int hf_isup_carrier_info_cat_of_carrier = -1;*/
@@ -2917,12 +2861,6 @@ static int hf_japan_isup_charging_info_nc_odd_digits = -1;
 static int hf_japan_isup_charging_info_nc_even_digits = -1;
 static int hf_isup_charging_info_maca_odd_digits = -1;
 static int hf_isup_charging_info_maca_even_digits = -1;
-
-static int hf_isup_add_user_cat_type_of_info = -1;
-static int hf_isup_add_user_cat_type1 = -1;
-static int hf_isup_add_user_cat_type1_fixed = -1;
-static int hf_isup_add_user_cat_type2 = -1;
-static int hf_isup_add_user_cat_type3 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_isup                            = -1;
@@ -6888,6 +6826,37 @@ dissect_isup_unknown_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_it
 /* Japan ISUP */
 
 /*
+8 7 6 5 4 3 2 1
+O/E Nature of address indicator 1
+INN NAPI Spare 2
+2nd address signal 1st address signal 3
+... ... :
+Filler (if necessary) nth address signal 15
+*/
+static void
+dissect_japan_isup_called_dir_num(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    int offset = 0;
+	int parameter_length;
+
+    parameter_length = tvb_length_remaining(parameter_tvb, offset);
+
+	proto_tree_add_item(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(parameter_tree, hf_isup_called_party_nature_of_address_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(parameter_tree, hf_isup_inn_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_text(parameter_tree, parameter_tvb, offset, parameter_length-offset, "Number not dissected yet");
+
+    proto_item_set_text(parameter_item, "Called Directory Number");
+
+}
+
+
+/*
    8     7     6     5     4     3     2    1
 +-----+-----+-----+-----+-----+-----+-----+-----+
 -            Information Type Tag               -  1
@@ -7082,6 +7051,93 @@ dissect_japan_isup_redirect_fwd_inf(tvbuff_t *parameter_tvb, proto_tree *paramet
     }
 
     proto_item_set_text(parameter_item, "Redirect forward information");
+
+}
+
+static const range_string jpn_isup_add_user_cat_type_vals[] = {
+    {  0,    0,			"Spare" },
+    {  1,    0x80,		"Reserved for network specific use" },
+    {  0x81, 0xfa,		"Spare" },
+    {  0xfb, 0xfb,		"Type 3 of additional mobile service information" },
+    {  0xfc, 0xfc,		"Type 2 of additional mobile service information" },
+    {  0xfd, 0xfd,		"Type 1 of additional mobile service information" },
+    {  0xfe, 0xfe,		"Type 1 of additional fixed service information" },
+    {  0xff, 0xff,		"Spare" },
+    {  0,0,             NULL } };
+
+static const value_string jpn_isup_type_1_add_fixed_serv_inf_vals[] = {
+  { 0,   "Spare" },
+  { 1,   "Train payphone" },
+  { 2,   "Pink (non-NTT payphone)" },
+  { 0,   NULL}
+};
+
+static const value_string jpn_isup_type_1_add_mobile_serv_inf_vals[] = {
+  { 0,   "Spare" },
+  { 1,   "Cellular telephone service" },
+  { 2,   "Maritime telephone service" },
+  { 3,   "Airplane telephone service" },
+  { 4,   "Paging service" },
+  { 5,   "PHS service" },
+  { 6,   "Spare" },
+  { 0,   NULL}
+};
+static const value_string jpn_isup_type_2_add_mobile_serv_inf_vals[] = {
+  { 0,   "Spare" },
+  { 1,   "HiCap method (analog)" },
+  { 2,   "N/J-TACS" },
+  { 3,   "PDC 800 MHz" },
+  { 4,   "PDC 1500 MHz" },
+  { 5,   "N-STAR satellite" },
+  { 6,   "cdmaOne 800 MHz" },
+  { 7,   "Iridium satellite" },
+  { 8,   "IMT-2000" },
+  { 9,   "PHS (fixed network dependent)" },
+  { 10,   "Spare" },
+  { 0,   NULL}
+};
+
+
+static void
+dissect_japan_isup_additonal_user_cat(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    int offset = 0;
+    guint8 type;
+    int parameter_length;
+
+    parameter_length = tvb_length_remaining(parameter_tvb, offset);
+
+    while(offset<parameter_length){
+		/* Type of Additional User/Service Information */
+		type = tvb_get_guint8(parameter_tvb,offset);
+		proto_tree_add_item(parameter_tree, hf_japan_isup_add_user_cat_type, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+		/* Additional User/Service Information  */
+		switch(type){
+		case 0xfe:
+			/* Type 1 of additional fixed service information */
+			proto_tree_add_item(parameter_tree, hf_japan_isup_type_1_add_fixed_serv_inf, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+			break;
+		case 0xfd:
+			/* Type 1 of additional mobile service information */
+			proto_tree_add_item(parameter_tree, hf_japan_isup_type_1_add_mobile_serv_inf, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+			break;
+		case 0xfc:
+			/* Type 2 of additional mobile service information */
+			proto_tree_add_item(parameter_tree, hf_japan_isup_type_2_add_mobile_serv_inf, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+			break;
+		case 0xfb:
+			/* Type 3 of additional mobile service information */
+			proto_tree_add_item(parameter_tree, hf_japan_isup_type_3_add_mobile_serv_inf, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+			break;
+		default:
+			proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "Unknown(not dissected) Additional User/Service Information");
+			break;
+		}
+		offset++;
+	}
+    /* Write to top of tree */
+    proto_item_set_text(parameter_item, "Additional User Category");
 
 }
 
@@ -7351,48 +7407,6 @@ dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, proto_tree *para
 \------------------------------------------------
 */
 
-static void
-dissect_japan_isup_add_user_cat(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{
-    guint8 octet;
-
-    gint offset=0;
-    gint length=0;
-
-    length = tvb_length_remaining(parameter_tvb, offset);
-
-    while(length>0){
-        /*Octet 1 : Indicator*/
-        octet = tvb_get_guint8(parameter_tvb, offset);
-        proto_tree_add_uint(parameter_tree, hf_isup_add_user_cat_type_of_info, parameter_tvb, 0, 1, octet);
-
-        if(octet==ADD_USER_CAT_TYPE1){
-            offset++;
-            octet = tvb_get_guint8(parameter_tvb, offset);
-            proto_tree_add_uint(parameter_tree, hf_isup_add_user_cat_type1, parameter_tvb, 0, 1, octet);
-        }
-        if(octet==ADD_USER_CAT_TYPE1_FIXED){
-            offset++;
-            octet = tvb_get_guint8(parameter_tvb, offset);
-            proto_tree_add_uint(parameter_tree, hf_isup_add_user_cat_type1_fixed, parameter_tvb, 0, 1, octet);
-        }
-        if(octet==ADD_USER_CAT_TYPE2){
-            offset++;
-            octet = tvb_get_guint8(parameter_tvb, offset);
-            proto_tree_add_uint(parameter_tree, hf_isup_add_user_cat_type2, parameter_tvb, 0, 1, octet);
-        }
-        if(octet==ADD_USER_CAT_TYPE3){
-            offset++;
-            octet = tvb_get_guint8(parameter_tvb, offset);
-            proto_tree_add_uint(parameter_tree, hf_isup_add_user_cat_type3, parameter_tvb, 0, 1, octet);
-        }
-        offset++;
-        length = tvb_length_remaining(parameter_tvb, offset);
-    }
-
-    /* Write to top of tree */
-    proto_item_set_text(parameter_item, "Additional User Category");
-}
 
 
 /* ----------------------------------------------------
@@ -7919,20 +7933,23 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
             switch(itu_isup_variant) {
             case ISUP_JAPAN_VARIANT:
                 switch (parameter_type) {
-				case JAPAN_ISUP_PARAM_REDIRECT_FORWARD_INF:
+                case JAPAN_ISUP_PARAM_CALLED_DIRECTORY_NUMBER:
+                    dissect_japan_isup_called_dir_num(parameter_tvb, parameter_tree, parameter_item);
+                    break;
+                case JAPAN_ISUP_PARAM_REDIRECT_FORWARD_INF: /* 0x8D */
                     dissect_japan_isup_redirect_fwd_inf(parameter_tvb, parameter_tree, parameter_item);
-					break;
+                    break;
+                case JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT:
+                    dissect_japan_isup_additonal_user_cat(parameter_tvb, parameter_tree, parameter_item);
+                    break;
                 case JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO:
                     dissect_japan_isup_carrier_information(parameter_tvb, parameter_tree, parameter_item);
                     break;
-				case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE:
-					dissect_japan_chg_inf_type(parameter_tvb, parameter_tree, parameter_item);
-					break;
-				case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF:
-					dissect_japan_chg_inf_param(parameter_tvb, parameter_tree, parameter_item);
-					break;
-                case JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT:
-                    dissect_japan_isup_add_user_cat(parameter_tvb, parameter_tree, parameter_item);
+                case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE:
+                    dissect_japan_chg_inf_type(parameter_tvb, parameter_tree, parameter_item);
+                    break;
+                case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF:
+                    dissect_japan_chg_inf_param(parameter_tvb, parameter_tree, parameter_item);
                     break;
                 case JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO:
                     dissect_japan_isup_charge_area_info(parameter_tvb, parameter_tree, parameter_item);
@@ -11297,6 +11314,27 @@ proto_register_isup(void)
        FT_UINT8, BASE_DEC, VALS(perf_redir_reason_vals), 0x7f,
        NULL, HFILL }},
 
+    { &hf_japan_isup_add_user_cat_type,
+      {"Type of Additional User/Service Information",  "isup.jpn.add_user_cat_type",
+       FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(jpn_isup_add_user_cat_type_vals), 0x0,
+       NULL, HFILL }},
+    { &hf_japan_isup_type_1_add_fixed_serv_inf,
+      {"Type 1 of additional fixed service information",  "isup.jpn.type_1_add_fixed_serv_inf",
+       FT_UINT8, BASE_DEC, VALS(jpn_isup_type_1_add_fixed_serv_inf_vals), 0x0,
+       NULL, HFILL }},
+    { &hf_japan_isup_type_1_add_mobile_serv_inf,
+      {"Type 1 of additional mobile service information",  "isup.jpn.type_1_add_mobile_serv_inf",
+       FT_UINT8, BASE_DEC, VALS(jpn_isup_type_1_add_mobile_serv_inf_vals), 0x0,
+       NULL, HFILL }},
+    { &hf_japan_isup_type_2_add_mobile_serv_inf,
+      {"Type 2 of additional mobile service information (Communication Method)",  "isup.jpn.type_2_add_mobile_serv_inf",
+       FT_UINT8, BASE_DEC, VALS(jpn_isup_type_2_add_mobile_serv_inf_vals), 0x0,
+       NULL, HFILL }},
+    { &hf_japan_isup_type_3_add_mobile_serv_inf,
+      {"Type 3 of additional mobile service information (Charging Method)",  "isup.jpn.type_3_add_mobile_serv_inf",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }},
+
     /* CHARGE AREA INFORMATION */
 
     { &hf_japan_isup_charge_area_nat_of_info_value,
@@ -11322,32 +11360,6 @@ proto_register_isup(void)
     { &hf_isup_charging_info_maca_even_digits,
       {"MA/CA", "isup.charg_area_info.maca_even_digit",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0xF0,NULL, HFILL }},
-
-    /* ADDITIONAL USER CATEGORY */
-    { &hf_isup_add_user_cat_type_of_info,
-      {"Info Type", "isup.add_user_cat.type_of_info",
-      FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type_value), 0x00,
-      NULL, HFILL }},
-
-    { &hf_isup_add_user_cat_type1,
-      {"Type1 Info", "isup.add_user_cat.type1_info",
-      FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type1_value), 0xFF,
-      NULL, HFILL }},
-
-    { &hf_isup_add_user_cat_type1_fixed,
-      {"Type 1 Fixed", "isup.add_user_cat.type1_fixed_info",
-      FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type1_fixed_value), 0xFF,
-      NULL, HFILL }},
-
-    { &hf_isup_add_user_cat_type2,
-      {"Type2 Info", "isup.add_user_cat.type2_info",
-      FT_UINT8, BASE_DEC, VALS(isup_add_user_cat_type2_value), 0xFF,
-      NULL, HFILL }},
-
-    { &hf_isup_add_user_cat_type3,
-      {"Type3 Info", "isup.add_user_cat.type3_info",
-      FT_UINT8, BASE_DEC, NULL, 0xFF,
-      NULL, HFILL }},
 
     /* CARRIER INFORMATION */
 
