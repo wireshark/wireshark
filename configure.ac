@@ -835,6 +835,20 @@ if test "x$enable_wireshark" = "xyes"; then
 		])
 
 		#
+		# Qt 5.0 appears to move the widgets out of Qt GUI
+		# to Qt Widgets; look for QtWidgets and, if we find
+		# it, add its flags to CFLAGS and CXXFLAGS, so that
+		# we find the include files for the widgets.  (If
+		# we don't find it, we assume it's Qt 4.)
+		#
+		PKG_CHECK_MODULES([QtWidgets], [QtWidgets],
+		[
+			CFLAGS="$CFLAGS $QtWidgets_CFLAGS"
+			CXXFLAGS="$CXXFLAGS $QtWidgets_CFLAGS"
+		],
+		[])
+
+		#
 		# We don't know whether we have GTK+, but we
 		# won't be using it, so it's as if we don't
 		# have it.
