@@ -430,6 +430,8 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition, C)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=shadow)  ## temp
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-variable)    ##  for now
 #
 # Use the faster pre gcc 4.5 floating point precision if available;
