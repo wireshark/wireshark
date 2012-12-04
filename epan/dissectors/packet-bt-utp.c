@@ -56,19 +56,19 @@ enum {
 
 static const value_string bt_utp_extension_type_vals[] = {
   { EXT_NO_EXTENSION,   "No Extension" },
-  { EXT_SELECTION_ACKS, "Selective acks" },
+  { EXT_SELECTION_ACKS, "Selective ACKs" },
   { EXT_EXTENSION_BITS, "Extension bits" },
   { 0, NULL }
 };
 
 static int proto_bt_utp = -1;
 
-/* ---  "Original" utp Header ("version 0" ?) --------------
+/* ---  "Original" uTP Header ("version 0" ?) --------------
 
 See utp.cpp source code @ https://github.com/bittorrent/libutp
 
 -- Fixed Header --
-
+0       4       8               16              24              32
 +-------+-------+---------------+---------------+---------------+
 | connection_id                                                 |
 +-------+-------+---------------+---------------+---------------+
@@ -84,7 +84,6 @@ See utp.cpp source code @ https://github.com/bittorrent/libutp
 +---------------+---------------+---------------+
 
 -- Extension Field(s) --
-
 0               8               16
 +---------------+---------------+---------------+---------------+
 | extension     | len           | bitmask
@@ -103,7 +102,7 @@ http://www.bittorrent.org/beps/bep_0029.html
 Fields Types
 0       4       8               16              24              32
 +-------+-------+---------------+---------------+---------------+
-| ver   | type  | extension     | connection_id                 |
+| type  | ver   | extension     | connection_id                 |
 +-------+-------+---------------+---------------+---------------+
 | timestamp_microseconds                                        |
 +---------------+---------------+---------------+---------------+
@@ -114,10 +113,6 @@ Fields Types
 | seq_nr                        | ack_nr                        |
 +---------------+---------------+---------------+---------------+
 
-XXX: It appears that the above is to be interpreted as indicating
-     that 'ver' is in the low-order 4 bits of byte 0 (mask: 0x0f).
-     (See utp.cpp @ https://github.com/bittorrent/libutp)
-
 -- Extension Field(s) --
 0               8               16
 +---------------+---------------+---------------+---------------+
@@ -127,6 +122,7 @@ XXX: It appears that the above is to be interpreted as indicating
 +---------------+---------------+....
 */
 
+#define V0_FIXED_HDR_SIZE 23
 #define V1_FIXED_HDR_SIZE 20
 
 static dissector_handle_t bt_utp_handle;
@@ -148,50 +144,58 @@ static int hf_bt_utp_wnd_size_v0 = -1;
 static int hf_bt_utp_wnd_size_v1 = -1;
 static int hf_bt_utp_seq_nr = -1;
 static int hf_bt_utp_ack_nr = -1;
+static int hf_bt_utp_data = -1;
 
 static gint ett_bt_utp = -1;
 static gint ett_bt_utp_extension = -1;
 
 void proto_reg_handoff_bt_utp(void);
 
-static gboolean
-utp_is_v1(tvbuff_t *tvb) {
-  guint8 v1_ver_type;
-  guint8 v1_ext;
+static gint
+get_utp_version(tvbuff_t *tvb) {
+  guint8 v0_flags, v0_ext;
+  guint8 v1_ver_type, v1_ext;
+  gint   version;
   guint  len;
+
+  /* Simple heuristics inspired by code from utp.cpp */
 
   v1_ver_type = tvb_get_guint8(tvb, 0);
   v1_ext      = tvb_get_guint8(tvb, 1);
 
-  if (((v1_ver_type & 0x0f) != 1)             ||
-      ((v1_ver_type>>4)     >= ST_NUM_STATES) ||
-      (v1_ext               >= EXT_NUM_EXT)) {
-    return FALSE;  /* Not V1 (or corrupt) */
+  v0_flags    = tvb_get_guint8(tvb, 18);
+  v0_ext      = tvb_get_guint8(tvb, 17);
+
+  if (!(((v1_ver_type & 0x0f) != 1)             ||
+        ((v1_ver_type>>4)     >= ST_NUM_STATES) ||
+        (v1_ext               >= EXT_NUM_EXT))) {
+    version = 1;  /* V1 */
+  }
+  else if (!((v0_flags >= ST_NUM_STATES) ||
+             (v0_ext   >= EXT_NUM_EXT))) {
+    version = 0;  /* V0 */
+  }
+  else
+    return -1;
+
+  len = tvb_reported_length(tvb);
+
+  switch(version) {
+  case 0:
+    if (len < V0_FIXED_HDR_SIZE)
+      return -1;
+    break;
+
+  case 1:
+    if (len < V1_FIXED_HDR_SIZE)
+      return -1;
+    break;
+
+  default:
+    return -1;
   }
 
-  /* The simple heuristic above (based upon code from utp.cpp) suggests the header is "V1";
-   *  However, based upon a capture seen, the simple heuristic does not appear to be sufficient.
-   *  So: Also do some length checking:
-   *   The length of "V1" frames should be 20, 26, 30, 34, 36, 38, ...
-   *   fixed hdr len:    20
-   *   extension(s) len:  6, 10, 14, 16, 18, 20, ...
-   *   XXX: this is a hack and should be replaced !!
-   *        In fact this heuristic probably fails for some SF_DATA packets since they
-   *        presumably can contain a variable number of data bytes after the header.
-   */
-  len = tvb_reported_length(tvb);
-  if (len < V1_FIXED_HDR_SIZE) {
-    return TRUE;  /* Invalid ?: pretend V1 anyways */
-  }
-  len -= V1_FIXED_HDR_SIZE;
-  if ((len ==  0) ||
-      (len ==  6) ||
-      (len == 10) ||
-      (len == 14) ||
-      ((len > 14) && (len%2 == 0))) {
-    return TRUE; /* looks like V1 */
-  }
-  return FALSE;   /* Not V1 (or corrupt) */
+  return version;
 }
 
 static int
@@ -227,10 +231,6 @@ static int
 dissect_utp_header_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 *extension_type)
 {
   /* V1 */
-  /* Strange: Contrary to BEP-29, in LibuTP (utp.cpp) the first byte has the following definition:
-     packet_type (4 high bits)
-     protocol version (4 low bits)
-  */
   proto_tree_add_item(tree, hf_bt_utp_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(tree, hf_bt_utp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   col_append_fstr(pinfo->cinfo, COL_INFO, " Type: %s", val_to_str((tvb_get_guint8(tvb, offset) >> 4), bt_utp_type_vals, "Unknown %d"));
@@ -262,11 +262,7 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
   guint8 extension_length;
   /* display the extension tree */
 
-  /* XXX: This code loops thru the packet bytes until reaching the end of the PDU
-   *      ignoring the "end-of-list" [EXT_NO_EXTENSION] extension type.
-   *      Should we just quit when EXT_NO_EXTENSION is encountered ?
-   */
-  while(offset < (int)tvb_reported_length(tvb))
+  while(*extension_type != EXT_NO_EXTENSION && offset < (int)tvb_reported_length(tvb))
   {
     switch(*extension_type){
       case EXT_SELECTION_ACKS: /* 1 */
@@ -280,7 +276,7 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
 
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         extension_length = tvb_get_guint8(tvb, offset);
-        proto_item_append_text(ti, " Selection Acks, Len=%d", extension_length);
+        proto_item_append_text(ti, " Selection ACKs, Len=%d", extension_length);
         offset += 1;
 
         proto_tree_add_item(ext_tree, hf_bt_utp_extension_bitmask, tvb, offset, extension_length, ENC_NA);
@@ -333,13 +329,17 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
 static int
 dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  conversation_t *conversation;
+  gint version;
+  version = get_utp_version(tvb);
 
   /* try dissecting */
-  if( tvb_get_guint8(tvb,0)=='d' )
+  if(version >= 0)
   {
+    conversation_t *conversation;
+    guint tvb_length;
     proto_tree *sub_tree = NULL;
-    int decoded_length = 0;
+    proto_item *ti;
+    gint offset = 0;
     guint8 extension_type;
 
     conversation = find_or_create_conversation(pinfo);
@@ -350,24 +350,27 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     /* set the info column */
     col_set_str( pinfo->cinfo, COL_INFO, "uTorrent Transport Protocol" );
 
-    if(tree)
-    {
-      proto_item *ti;
-      ti = proto_tree_add_item(tree, proto_bt_utp, tvb, 0, -1, ENC_NA);
-      sub_tree = proto_item_add_subtree(ti, ett_bt_utp);
-    }
+    tvb_length = tvb_reported_length(tvb);
+    ti = proto_tree_add_protocol_format(tree, proto_bt_utp, tvb, 0, -1,
+                                        "uTorrent Transport Protocol V%d (%d bytes)",
+                                        version, tvb_length);
+    sub_tree = proto_item_add_subtree(ti, ett_bt_utp);
 
     /* Determine header version */
 
-    if (!utp_is_v1(tvb)) {
-      decoded_length = dissect_utp_header_v0(tvb, pinfo, sub_tree, decoded_length, &extension_type);
+    if (version == 0) {
+      offset = dissect_utp_header_v0(tvb, pinfo, sub_tree, offset, &extension_type);
     } else {
-      decoded_length = dissect_utp_header_v1(tvb, pinfo, sub_tree,  decoded_length, &extension_type);
+      offset = dissect_utp_header_v1(tvb, pinfo, sub_tree, offset, &extension_type);
     }
 
-    decoded_length = dissect_utp_extension(tvb, pinfo, sub_tree, decoded_length, &extension_type);
+    offset = dissect_utp_extension(tvb, pinfo, sub_tree, offset, &extension_type);
 
-    return decoded_length;
+    tvb_length = tvb_length_remaining(tvb, offset);
+    if(tvb_length > 0)
+      proto_tree_add_item(sub_tree, hf_bt_utp_data, tvb, offset, tvb_length, ENC_NA);
+
+    return offset+tvb_length;
   }
   return 0;
 }
@@ -452,13 +455,18 @@ proto_register_bt_utp(void)
       NULL, HFILL }
     },
     { &hf_bt_utp_seq_nr,
-      { "Sequence NR", "bt-utp.seq_nr",
+      { "Sequence number", "bt-utp.seq_nr",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
     },
     { &hf_bt_utp_ack_nr,
-      { "ACK NR", "bt-utp.ack_nr",
+      { "ACK number", "bt-utp.ack_nr",
       FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_bt_utp_data,
+      { "Data", "bt-utp.data",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
     },
   };
