@@ -45,7 +45,7 @@ while getopts ":2b:C:lnrtTwce" OPTCHAR ; do
            VALID=1 ;;
         r) REACHABLE="--show-reachable=yes" ;;
         t) TRACK_ORIGINS="--track-origins=yes" ;;
-        T) COMMAND_ARGS="-nVxr" ;; # "build the Tree"
+        T) COMMAND_ARGS="-Vx $COMMAND_ARGS" ;; # "build the Tree"
         w) COMMAND=wireshark
            COMMAND_ARGS="-nr" ;;
         c) COMMAND=capinfos
