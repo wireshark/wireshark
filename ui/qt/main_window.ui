@@ -13,12 +13,6 @@
   <property name="windowTitle">
    <string>Wireshark</string>
   </property>
-  <property name="iconSize">
-   <size>
-    <width>24</width>
-    <height>24</height>
-   </size>
-  </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>true</bool>
   </property>
@@ -254,7 +248,7 @@
     </size>
    </property>
    <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonTextUnderIcon</enum>
+    <enum>Qt::ToolButtonIconOnly</enum>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -265,11 +259,17 @@
    <addaction name="actionStartCapture"/>
    <addaction name="actionStopCapture"/>
    <addaction name="separator"/>
+   <addaction name="actionFileOpen"/>
+   <addaction name="actionFileSave"/>
+   <addaction name="actionFileClose"/>
   </widget>
   <widget class="MainStatusBar" name="statusBar"/>
-  <widget class="QToolBar" name="utilityToolBar">
+  <widget class="QToolBar" name="displayFilterToolBar">
    <property name="windowTitle">
     <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>

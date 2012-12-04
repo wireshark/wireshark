@@ -393,6 +393,8 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     }
 #endif // Q_WS_WIN
 
+    setAttribute(Qt::AA_DontShowIconsInMenus, true);
+
     recent_timer_ = new QTimer(this);
     connect(recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
     recent_timer_->start(2000);

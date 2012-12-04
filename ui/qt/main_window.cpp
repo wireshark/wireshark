@@ -100,9 +100,20 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
     connect(df_edit, SIGNAL(pushFilterSyntaxWarning(QString&)), main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
 
-    main_ui_->mainToolBar->addWidget(df_combo_box_);
+    // http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
+    // http://qt-project.org/doc/qt-4.8/qstyle.html#StandardPixmap-enum
+    main_ui_->actionFileOpen->setIcon(
+                QIcon().fromTheme("document-open", style()->standardIcon(QStyle::SP_DirIcon)));
+    main_ui_->actionFileSave->setIcon(
+                QIcon().fromTheme("document-save", style()->standardIcon(QStyle::SP_FileIcon)));
+    main_ui_->actionFileClose->setIcon(
+                QIcon().fromTheme("process-stop", style()->standardIcon(QStyle::SP_BrowserStop)));
 
-    main_ui_->utilityToolBar->hide();
+    // In Qt4 multiple toolbars and "pretty" are mutually exculsive on OS X. If
+    // unifiedTitleAndToolBarOnMac is enabled everything ends up in the same row.
+    // https://bugreports.qt-project.org/browse/QTBUG-22433
+    // This property is obsolete in Qt5 so this issue may be fixed in that version.
+    main_ui_->displayFilterToolBar->addWidget(df_combo_box_);
 
     main_ui_->goToFrame->hide();
     go_to_margins = main_ui_->goToHB->contentsMargins();
@@ -116,13 +127,20 @@ MainWindow::MainWindow(QWidget *parent) :
                 "  background: palette(window);"
                 "  padding-top: 0.1em;"
                 "  padding-bottom: 0.1em;"
-                "  border-bottom: 0.1em solid palette(shadow);"
+                "  border-bottom: 1px solid palette(shadow);"
                 "}"
                 "QLineEdit {"
                 "  max-width: 5em;"
                 "}"
                 );
+
 #if defined(Q_WS_MAC)
+    foreach (QMenu *menu, main_ui_->menuBar->findChildren<QMenu*>()) {
+        foreach (QAction *act, menu->actions()) {
+            qDebug() << "disabling" << act->objectName();
+            act->setIconVisibleInMenu(false);
+        }
+    }
     main_ui_->goToLineEdit->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToGo->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToCancel->setAttribute(Qt::WA_MacSmallSize, true);
