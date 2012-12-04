@@ -63,7 +63,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
                       "MainWelcome {"
                       "  padding: 2em;"
                       " }"
-                      "QWidget {"
+                      "MainWelcome, QAbstractItemView {"
                       "  background-color: white;"
                       "  color: #%1;"
                       " }"
