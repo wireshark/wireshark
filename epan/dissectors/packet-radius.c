@@ -953,8 +953,8 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 	 * In case we throw an exception, clean up whatever stuff we've
 	 * allocated (if any).
 	 */
-	CLEANUP_PUSH(g_free, eap_buffer);
-	CLEANUP_PUSH(vsa_buffer_table_destroy, (void *)vsa_buffer_table);
+	CLEANUP_PUSH_PFX(la, g_free, eap_buffer);
+	CLEANUP_PUSH_PFX(lb, vsa_buffer_table_destroy, (void *)vsa_buffer_table);
 
 	while (length > 0) {
 		radius_attr_info_t* dictionary_entry = NULL;
@@ -1299,13 +1299,13 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 
 	}  /* while (length > 0) */
 
-	CLEANUP_CALL_AND_POP; /* vsa_buffer_table_destroy(vsa_buffer_table) */
+	CLEANUP_CALL_AND_POP_PFX(lb); /* vsa_buffer_table_destroy(vsa_buffer_table) */
 
 	/*
 	 * Call the cleanup handler to free any reassembled data we haven't
 	 * attached to a tvbuff, and pop the handler.
 	 */
-	CLEANUP_CALL_AND_POP;
+	CLEANUP_CALL_AND_POP_PFX(la);
 }
 
 /* This function tries to determine whether a packet is radius or not */
