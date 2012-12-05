@@ -63,6 +63,10 @@
 #include "export_object_dialog.h"
 #include "print_dialog.h"
 
+#include <QMessageBox>
+
+#include <QDebug>
+
 //
 // Public slots
 //

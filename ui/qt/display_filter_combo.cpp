@@ -27,8 +27,9 @@
 #include "ui/recent.h"
 
 #include "display_filter_edit.h"
-
 #include "display_filter_combo.h"
+
+#include <QCompleter>
 
 // If we ever add support for multiple windows this will need to be replaced.
 static DisplayFilterCombo *cur_display_filter_combo = NULL;

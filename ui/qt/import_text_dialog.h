@@ -64,7 +64,7 @@ private:
     QString capfile_name_;
 
 public slots:
-    void exec();
+    int exec();
 
 private slots:
     void on_textFileBrowseButton_clicked();

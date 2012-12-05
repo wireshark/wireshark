@@ -202,13 +202,13 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_buttons) {
     ti_ui_->ppiLineEdit->setEnabled(sctp_ppi);
 }
 
-void ImportTextDialog::exec() {
+int ImportTextDialog::exec() {
     QVariant encap_val;
 
     QDialog::exec();
 
     if (result() != QDialog::Accepted) {
-        return;
+        return result();
     }
 
     import_info_.import_text_filename = ti_ui_->textFileLineEdit->text().toUtf8().data();
@@ -216,7 +216,7 @@ void ImportTextDialog::exec() {
     if (!import_info_.import_text_file) {
         open_failure_alert_box(import_info_.import_text_filename, errno, FALSE);
         setResult(QDialog::Rejected);
-        return;
+        return QDialog::Rejected;
     }
 
     import_info_.offset_type =
@@ -250,6 +250,7 @@ void ImportTextDialog::exec() {
     }
 
     convertTextFile();
+    return QDialog::Accepted;
 }
 
 void ImportTextDialog::on_textFileBrowseButton_clicked()

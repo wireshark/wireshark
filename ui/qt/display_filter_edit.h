@@ -24,7 +24,7 @@
 #ifndef DISPLAYFILTEREDIT_H
 #define DISPLAYFILTEREDIT_H
 
-#include <QtGui>
+#include <QToolButton>
 #include "syntax_line_edit.h"
 
 class DisplayFilterEdit : public SyntaxLineEdit
