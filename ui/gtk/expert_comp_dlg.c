@@ -758,7 +758,7 @@ expert_dlg_draw(void *data)
 }
 
 static void
-expert_comp_init(const char *optarg _U_, void* userdata _U_)
+expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
 {
     expert_comp_dlg_t *ss;
     const char *filter=NULL;

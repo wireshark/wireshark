@@ -135,10 +135,10 @@ filter_expression_reinit(int what)
 	}
 
 	if ((what & FILTER_EXPRESSION_REINIT_CREATE) != 0) {
-		gint maxindex = -1, index;
+		gint maxindx = -1, indx;
 		fe = *pfilter_expression_head;
 		while (fe != NULL) {
-			maxindex = MAX(maxindex, fe->index);
+			maxindx = MAX(maxindx, fe->index);
 			fe = fe->next;
 		}
 
@@ -149,10 +149,10 @@ filter_expression_reinit(int what)
 		 * The list should be in the order identified by the
 		 * index member.
 		 */
-		for (index = 0; index <= maxindex; index++) {
+		for (indx = 0; indx <= maxindx; indx++) {
 			if (prevhead != NULL) {
 				fe = prevhead;
-				while (fe != NULL && fe->index != index)
+				while (fe != NULL && fe->index != indx)
 					fe = fe->next;
 			}
 			if (fe == NULL)

@@ -224,15 +224,15 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         /* display the service type in addition to the message type */
         if (iServiceId != -1)
         {
-            int index = 0;
-            while (index < g_NumServices)
+            int indx = 0;
+            while (indx < g_NumServices)
             {
-                if (g_requesttypes[index].value == (guint32)iServiceId)
+                if (g_requesttypes[indx].value == (guint32)iServiceId)
                 {
-                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", g_szMessageTypes[msgtype], g_requesttypes[index].strptr);
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", g_szMessageTypes[msgtype], g_requesttypes[indx].strptr);
                     break;
                 }
-                index++;
+                indx++;
             }
         }
     }

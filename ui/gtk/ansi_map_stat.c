@@ -342,7 +342,7 @@ ansi_map_stat_gtk_cb(GtkAction *action _U_, gpointer user_data _U_)
 
 static void
 ansi_map_stat_gtk_init(
-    const char      *optarg _U_,
+    const char      *opt_arg _U_,
     void* userdata _U_ )
 {
     ansi_map_stat_gtk_cb(NULL, NULL);

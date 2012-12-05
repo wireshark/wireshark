@@ -114,14 +114,14 @@ eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry, gbool
 #define HEXTOASCII(x)   (((x) < 10) ? ((x) + '0') : ((x) - 10 + 'a'))
 #define MAXFILELEN      255
 
-static GString *eo_rename(GString *gstr, int dup)
+static GString *eo_rename(GString *gstr, int dupn)
 {
     GString *gstr_tmp;
     gchar *tmp_ptr;
     GString *ext_str;
 
     gstr_tmp = g_string_new("(");
-    g_string_append_printf (gstr_tmp, "%d)", dup);
+    g_string_append_printf (gstr_tmp, "%d)", dupn);
     if ( (tmp_ptr = strrchr(gstr->str, '.')) != NULL ) {
         /* Retain the extension */
         ext_str = g_string_new(tmp_ptr);
@@ -142,7 +142,7 @@ static GString *eo_rename(GString *gstr, int dup)
 }
 
 GString *
-eo_massage_str(const gchar *in_str, gsize maxlen, int dup)
+eo_massage_str(const gchar *in_str, gsize maxlen, int dupn)
 {
     gchar *tmp_ptr;
     /* The characters in "reject" come from:
@@ -178,8 +178,8 @@ eo_massage_str(const gchar *in_str, gsize maxlen, int dup)
         else
             out_str = g_string_truncate(out_str, maxlen);
     }
-    if ( dup != 0 )
-        out_str = eo_rename(out_str, dup);
+    if ( dupn != 0 )
+        out_str = eo_rename(out_str, dupn);
     return out_str;
 }
 

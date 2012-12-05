@@ -48,7 +48,7 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
-static void gtk_h225counter_init(const char *optarg, void *userdata);
+static void gtk_h225counter_init(const char *opt_arg, void *userdata);
 
 static tap_param h225_counter_params[] = {
 	{ PARAM_FILTER, "Filter", NULL }
@@ -504,7 +504,7 @@ static const stat_column titles[]={
 };
 
 static void
-gtk_h225counter_init(const char *optarg, void *userdata _U_)
+gtk_h225counter_init(const char *opt_arg, void *userdata _U_)
 {
 	h225counter_t *hs;
 	GString *error_string;
@@ -513,8 +513,8 @@ gtk_h225counter_init(const char *optarg, void *userdata _U_)
 
 	hs=g_malloc(sizeof(h225counter_t));
 
-	if(strncmp(optarg,"h225,counter,",13) == 0){
-		hs->filter=g_strdup(optarg+13);
+	if(strncmp(opt_arg,"h225,counter,",13) == 0){
+		hs->filter=g_strdup(opt_arg+13);
 	} else {
 		hs->filter=NULL;
 	}

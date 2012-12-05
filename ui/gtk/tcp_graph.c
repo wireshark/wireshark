@@ -3715,14 +3715,14 @@ static gboolean button_release_event (GtkWidget *widget _U_, GdkEventButton *eve
 		g->grab.grabbed = FALSE;
 
 	if (event->button == MOUSE_BUTTON_LEFT) {
-		int x1 = zoomrect.x;
-		int x2 = (int)event->x;
-		int y1 = zoomrect.y;
-		int y2 = (int)event->y;
-		zoomrect.x = MIN(x1, x2);
-		zoomrect.width = abs(x1 - x2);
-		zoomrect.y = MIN(y1, y2);
-		zoomrect.height = abs(y1 - y2);
+		int xx1 = zoomrect.x;
+		int xx2 = (int)event->x;
+		int yy1 = zoomrect.y;
+		int yy2 = (int)event->y;
+		zoomrect.x = MIN(xx1, xx2);
+		zoomrect.width = abs(xx1 - xx2);
+		zoomrect.y = MIN(yy1, yy2);
+		zoomrect.height = abs(yy1 - yy2);
 
 		/* Finish selecting a region to zoom in on.
 		   Take care not to choose a too-small area (by accident?) */

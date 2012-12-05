@@ -66,7 +66,7 @@ static int camelsrt_packet(void *phs,
 
 static void camelsrt_draw(void *phs);
 static void win_destroy_cb(GtkWindow *win _U_, gpointer data);
-static void gtk_camelsrt_init(const char *optarg, void *userdata _U_);
+static void gtk_camelsrt_init(const char *opt_arg, void *userdata _U_);
 void register_tap_listener_gtk_camelsrt(void);
 
 /*
@@ -131,7 +131,7 @@ static void win_destroy_cb(GtkWindow *win _U_, gpointer data)
   g_free(hs);
 }
 
-static void gtk_camelsrt_init(const char *optarg, void *userdata _U_)
+static void gtk_camelsrt_init(const char *opt_arg, void *userdata _U_)
 {
   struct camelsrt_t * p_camelsrt;
   const char *filter=NULL;
@@ -146,8 +146,8 @@ static void gtk_camelsrt_init(const char *optarg, void *userdata _U_)
   GtkWidget *close_bt;
   int i;
 
-  if(strncmp(optarg,"camel,srt,",10) == 0){
-    filter=optarg+10;
+  if(strncmp(opt_arg,"camel,srt,",10) == 0){
+    filter=opt_arg+10;
   } else {
     filter=NULL;
   }

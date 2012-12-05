@@ -377,23 +377,23 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     /*check if desegment
      * now it checks that last char is '>',
      * TODO checks that first element in packet is closed*/
-    int   index;
+    int   indx;
     gchar last_char;
 
     if (xmpp_desegment)
     {
-        index = tvb_reported_length(tvb) - 1;
-        if (index >= 0)
+        indx = tvb_reported_length(tvb) - 1;
+        if (indx >= 0)
         {
-            last_char = tvb_get_guint8(tvb, index);
+            last_char = tvb_get_guint8(tvb, indx);
 
-            while ((last_char <= ' ') && (index - 1 >= 0))
+            while ((last_char <= ' ') && (indx - 1 >= 0))
             {
-                index--;
-                last_char = tvb_get_guint8(tvb, index);
+                indx--;
+                last_char = tvb_get_guint8(tvb, indx);
             }
 
-            if ((index >= 0) && (last_char != '>'))
+            if ((indx >= 0) && (last_char != '>'))
             {
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                 return;

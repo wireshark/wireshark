@@ -1306,7 +1306,7 @@ resp_register(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_getspeeds(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int index,
+    int indx,
         size = tvb_get_guint8(tvb, offset+8),
         number = tvb_get_guint8(tvb, offset+9);
 
@@ -1316,9 +1316,9 @@ resp_getspeeds(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_tree_add_item(pt, hf_gryphon_getspeeds_preset, tvb, offset+9, 1, ENC_BIG_ENDIAN);
     offset += 10;
 
-    for (index = 1; index <= number; index++) {
+    for (indx = 1; indx <= number; indx++) {
         proto_tree_add_bytes_format(pt, hf_gryphon_getspeeds_data, tvb, offset, size,
-	        tvb_get_ptr(tvb, offset, size), "Data for preset %d", index);
+	        tvb_get_ptr(tvb, offset, size), "Data for preset %d", indx);
         offset += size;
     }
     return offset;
@@ -2100,7 +2100,7 @@ static int
 cmd_init_strat (tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     guint32 reset_limit;
-    int     msglen, index;
+    int     msglen, indx;
     float   value;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
@@ -2109,14 +2109,14 @@ cmd_init_strat (tvbuff_t *tvb, int offset, proto_tree *pt)
         reset_limit, "Reset Limit = %u messages", reset_limit);
     offset += 4;
     msglen -= 4;
-    for (index = 1; msglen; index++, offset++, msglen--) {
+    for (indx = 1; msglen; indx++, offset++, msglen--) {
         value = tvb_get_guint8(tvb, offset);
         if (value)
             proto_tree_add_float_format_value(pt, hf_gryphon_init_strat_delay, tvb, offset, 1,
-	            value/4, "Delay %d = %.2f seconds", index, value/4);
+	            value/4, "Delay %d = %.2f seconds", indx, value/4);
         else
             proto_tree_add_float_format_value(pt, hf_gryphon_init_strat_delay, tvb, offset, 1,
-	            0, "Delay %d = infinite", index);
+	            0, "Delay %d = infinite", indx);
     }
 
     return offset;

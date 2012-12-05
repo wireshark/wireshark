@@ -222,7 +222,7 @@ dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   guint offset = 0;
   guint32 orig_crc, new_crc, comp_crc;
   guint16 port_num;
-  nstime_t gmtime;
+  nstime_t gmtimev;
 
   struct tm *tm = NULL;
 
@@ -251,12 +251,12 @@ dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
       offset += 4;
       port_num = tvb_get_ntohs(tvb, offset);
       offset += 2;
-      gmtime.secs = tvb_get_ntohl(tvb, offset);
+      gmtimev.secs = tvb_get_ntohl(tvb, offset);
       offset += 4;
-      gmtime.nsecs = tvb_get_ntohl(tvb, offset);
+      gmtimev.nsecs = tvb_get_ntohl(tvb, offset);
 
-      tm = localtime(&gmtime.secs);
-      proto_item_append_text(ti, ", Port: %d, Timestamp: %d:%d:%d.%d", port_num, tm->tm_hour, tm->tm_min, tm->tm_sec, gmtime.nsecs);
+      tm = localtime(&gmtimev.secs);
+      proto_item_append_text(ti, ", Port: %d, Timestamp: %d:%d:%d.%d", port_num, tm->tm_hour, tm->tm_min, tm->tm_sec, gmtimev.nsecs);
     }
 
     offset = 0;

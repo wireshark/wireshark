@@ -685,7 +685,7 @@ setup_tree_view(GtkWidget *treeview)
 /* when called, this function will create a new instance of gtk2-comparestat.
  */
 static void
-gtk_comparestat_init(const char *optarg, void* userdata _U_)
+gtk_comparestat_init(const char *opt_arg, void* userdata _U_)
 {
 	compstat_t *cs;
 	char *display_name;
@@ -702,12 +702,12 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	const char *filter=NULL;
 	GString *error_string;
 
-	if(sscanf(optarg,"compare,%d,%d,%d,%d,%lf%n",&start, &stop, &ttl, &order, &variance, &pos)==5){
+	if(sscanf(opt_arg,"compare,%d,%d,%d,%d,%lf%n",&start, &stop, &ttl, &order, &variance, &pos)==5){
 		if(pos){
-			if(*(optarg+pos)==',')
-				filter=optarg+pos+1;
+			if(*(opt_arg+pos)==',')
+				filter=opt_arg+pos+1;
 			else
-				filter=optarg+pos;
+				filter=opt_arg+pos;
 		} else {
 			filter=NULL;
 		}

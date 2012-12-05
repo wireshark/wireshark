@@ -54,12 +54,12 @@ fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 
 static void
-fc_conversation_init(const char *optarg, void* userdata _U_)
+fc_conversation_init(const char *opt_arg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
-	if(!strncmp(optarg,"conv,fc,",8)){
-		filter=optarg+8;
+	if(!strncmp(opt_arg,"conv,fc,",8)){
+		filter=opt_arg+8;
 	} else {
 		filter=NULL;
 	}

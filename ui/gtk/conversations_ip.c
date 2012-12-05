@@ -49,12 +49,12 @@ ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
 }
 
 static void
-ip_conversation_init(const char *optarg, void* userdata _U_)
+ip_conversation_init(const char *opt_arg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
-	if(!strncmp(optarg,"conv,ip,",8)){
-		filter=optarg+8;
+	if(!strncmp(opt_arg,"conv,ip,",8)){
+		filter=opt_arg+8;
 	} else {
 		filter=NULL;
 	}

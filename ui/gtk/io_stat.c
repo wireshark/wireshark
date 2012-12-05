@@ -1314,7 +1314,7 @@ disable_graph(io_stat_graph_t *gio)
 }
 
 static void
-iostat_init(const char *optarg _U_, void* userdata _U_)
+iostat_init(const char *opt_arg _U_, void* userdata _U_)
 {
 	io_stat_t *io;
 	int i=0, j=0;

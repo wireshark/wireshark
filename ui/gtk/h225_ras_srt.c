@@ -49,7 +49,7 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
-static void gtk_h225rassrt_init(const char *optarg, void *userdata);
+static void gtk_h225rassrt_init(const char *opt_arg, void *userdata);
 
 static tap_param h225_rassrt_params[] = {
 	{ PARAM_FILTER, "Filter", NULL }
@@ -272,7 +272,7 @@ static const stat_column titles[]={
 };
 
 static void
-gtk_h225rassrt_init(const char *optarg, void *userdata _U_)
+gtk_h225rassrt_init(const char *opt_arg, void *userdata _U_)
 {
 	h225rassrt_t *hs;
 	GString *error_string;
@@ -281,8 +281,8 @@ gtk_h225rassrt_init(const char *optarg, void *userdata _U_)
 
 	hs=g_malloc(sizeof(h225rassrt_t));
 
-	if(strncmp(optarg,"h225,srt,",9) == 0){
-		hs->filter=g_strdup(optarg+9);
+	if(strncmp(opt_arg,"h225,srt,",9) == 0){
+		hs->filter=g_strdup(opt_arg+9);
 	} else {
 		hs->filter=NULL;
 	}

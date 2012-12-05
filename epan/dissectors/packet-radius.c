@@ -551,25 +551,25 @@ radius_decrypt_avp(gchar *dest,int dest_len,tvbuff_t *tvb,int offset,int length)
 
 
 void radius_integer(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
-	guint32 uint;
+	guint32 uintv;
 
 	switch (len) {
 		case 1:
-			uint = tvb_get_guint8(tvb,offset);
+			uintv = tvb_get_guint8(tvb,offset);
 			break;
 		case 2:
-			uint = tvb_get_ntohs(tvb,offset);
+			uintv = tvb_get_ntohs(tvb,offset);
 			break;
 		case 3:
-			uint = tvb_get_ntoh24(tvb,offset);
+			uintv = tvb_get_ntoh24(tvb,offset);
 			break;
 		case 4:
-			uint = tvb_get_ntohl(tvb,offset);
+			uintv = tvb_get_ntohl(tvb,offset);
 			break;
 		case 8: {
-			guint64 uint64 = tvb_get_ntoh64(tvb,offset);
-			proto_tree_add_uint64(tree,a->hf_alt,tvb,offset,len,uint64);
-			proto_item_append_text(avp_item, "%" G_GINT64_MODIFIER "u", uint64);
+			guint64 uintv64 = tvb_get_ntoh64(tvb,offset);
+			proto_tree_add_uint64(tree,a->hf_alt,tvb,offset,len,uintv64);
+			proto_item_append_text(avp_item, "%" G_GINT64_MODIFIER "u", uintv64);
 			return;
 		}
 		default:
@@ -579,32 +579,32 @@ void radius_integer(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo 
 	proto_tree_add_item(tree,a->hf,tvb, offset, len, ENC_BIG_ENDIAN);
 
 	if (a->vs) {
-		proto_item_append_text(avp_item, "%s(%u)", val_to_str_const(uint, a->vs, "Unknown"),uint);
+		proto_item_append_text(avp_item, "%s(%u)", val_to_str_const(uintv, a->vs, "Unknown"),uintv);
 	} else {
-		proto_item_append_text(avp_item, "%u", uint);
+		proto_item_append_text(avp_item, "%u", uintv);
 	}
 }
 
 void radius_signed(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
-	guint32 uint;
+	guint32 uintv;
 
 	switch (len) {
 		case 1:
-			uint = tvb_get_guint8(tvb,offset);
+			uintv = tvb_get_guint8(tvb,offset);
 			break;
 		case 2:
-			uint = tvb_get_ntohs(tvb,offset);
+			uintv = tvb_get_ntohs(tvb,offset);
 			break;
 		case 3:
-			uint = tvb_get_ntoh24(tvb,offset);
+			uintv = tvb_get_ntoh24(tvb,offset);
 			break;
 		case 4:
-			uint = tvb_get_ntohl(tvb,offset);
+			uintv = tvb_get_ntohl(tvb,offset);
 			break;
 		case 8: {
-			guint64 uint64 = tvb_get_ntoh64(tvb,offset);
-			proto_tree_add_int64(tree,a->hf_alt,tvb,offset,len,uint64);
-			proto_item_append_text(avp_item, "%" G_GINT64_MODIFIER "u", uint64);
+			guint64 uintv64 = tvb_get_ntoh64(tvb,offset);
+			proto_tree_add_int64(tree,a->hf_alt,tvb,offset,len,uintv64);
+			proto_item_append_text(avp_item, "%" G_GINT64_MODIFIER "u", uintv64);
 			return;
 		}
 		default:
@@ -612,12 +612,12 @@ void radius_signed(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 			return;
 	}
 
-	proto_tree_add_int(tree,a->hf,tvb,offset,len,uint);
+	proto_tree_add_int(tree,a->hf,tvb,offset,len,uintv);
 
 	if (a->vs) {
-		proto_item_append_text(avp_item, "%s(%d)", val_to_str_const(uint, a->vs, "Unknown"),uint);
+		proto_item_append_text(avp_item, "%s(%d)", val_to_str_const(uintv, a->vs, "Unknown"),uintv);
 	} else {
-		proto_item_append_text(avp_item, "%d", uint);
+		proto_item_append_text(avp_item, "%d", uintv);
 	}
 }
 

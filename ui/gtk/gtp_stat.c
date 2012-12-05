@@ -134,7 +134,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_gtpstat_init(const char *optarg, void *userdata _U_)
+gtk_gtpstat_init(const char *opt_arg, void *userdata _U_)
 {
 	gtpstat_t *gtp;
 	const char *filter=NULL;
@@ -145,8 +145,8 @@ gtk_gtpstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
-	if(!strncmp(optarg,"gtp,",4)){
-		filter=optarg+4;
+	if(!strncmp(opt_arg,"gtp,",4)){
+		filter=opt_arg+4;
 	} else {
 		filter="gtp"; /*NULL doesn't work here like in LDAP. Too little time/lazy to find out why ?*/
 	}

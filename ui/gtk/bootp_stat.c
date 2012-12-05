@@ -166,7 +166,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 /* When called, this function will create a new instance of gtk2-dhcpstat.
  */
 static void
-dhcpstat_init(const char *optarg, void *userdata _U_)
+dhcpstat_init(const char *opt_arg, void *userdata _U_)
 {
 	dhcpstat_t *sp;
 	const char *filter;
@@ -177,8 +177,8 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget  *bt_close;
 	GtkWidget  *bbox;
 
-	if (strncmp(optarg, "bootp,stat,", 11) == 0) {
-		filter = optarg+11;
+	if (strncmp(opt_arg, "bootp,stat,", 11) == 0) {
+		filter = opt_arg+11;
 	} else {
 		filter = NULL;
 	}

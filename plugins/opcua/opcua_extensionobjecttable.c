@@ -163,7 +163,7 @@ const int g_NumTypes = sizeof(g_arExtensionObjectParserTable) / sizeof(Extension
 void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int TypeId)
 {
     gint    iOffset = *pOffset;
-    int     index = 0;
+    int     indx = 0;
     int     bFound = 0;
     gint32  iLen = 0;
 
@@ -171,15 +171,15 @@ void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
     iLen = tvb_get_letohl(tvb, iOffset);
     iOffset += 4;
 
-    while (index < g_NumTypes)
+    while (indx < g_NumTypes)
     {
-        if (g_arExtensionObjectParserTable[index].iRequestId == TypeId)
+        if (g_arExtensionObjectParserTable[indx].iRequestId == TypeId)
         {
             bFound = 1;
-            (*g_arExtensionObjectParserTable[index].pParser)(tree, tvb, &iOffset, g_arExtensionObjectParserTable[index].typeName);
+            (*g_arExtensionObjectParserTable[indx].pParser)(tree, tvb, &iOffset, g_arExtensionObjectParserTable[indx].typeName);
             break;
         }
-        index++;
+        indx++;
     }
 
     /* display contained object as ByteString if unknown type */

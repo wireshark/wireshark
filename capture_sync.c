@@ -1715,12 +1715,12 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         break;
     case SP_BAD_FILTER: {
         char *ch;
-        int index;
+        int indx;
 
         ch = strtok(buffer, ":");
-        index = (int)strtol(ch, NULL, 10);
+        indx = (int)strtol(ch, NULL, 10);
         ch = strtok(NULL, ":");
-        capture_input_cfilter_error_message(capture_opts, index, ch);
+        capture_input_cfilter_error_message(capture_opts, indx, ch);
          /* the capture child will close the sync_pipe, nothing to do for now */
          break;
         }

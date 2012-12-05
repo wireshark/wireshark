@@ -57,7 +57,7 @@ static int gtk_camelcounter_packet(void *phs,
 				   const void *phi);
 static void gtk_camelcounter_draw(void *phs);
 static void win_destroy_cb(GtkWindow *win _U_, gpointer data);
-static void gtk_camelcounter_init(const char *optarg, void *userdata _U_);
+static void gtk_camelcounter_init(const char *opt_arg, void *userdata _U_);
 void register_tap_listener_gtk_camelcounter(void);
 
 /* following values represent the size of their valuestring arrays */
@@ -144,7 +144,7 @@ static const stat_column titles[]={
   {G_TYPE_UINT, RIGHT, "Count" }
 };
 
-static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
+static void gtk_camelcounter_init(const char *opt_arg, void *userdata _U_)
 {
   struct camelcounter_t *p_camelcounter;
   const char *filter=NULL;
@@ -152,8 +152,8 @@ static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
   GtkWidget *bbox;
   GtkWidget *close_bt;
 
-  if(strncmp(optarg,"camel,counter,",14) == 0){
-    filter=optarg+14;
+  if(strncmp(opt_arg,"camel,counter,",14) == 0){
+    filter=opt_arg+14;
   } else {
     filter=NULL;
   }

@@ -1567,8 +1567,8 @@ gint
 dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response)
 {
     gint size;
-    guint16 index;
-    guint8 subindex;
+    guint16 indx;
+    guint8 subindx;
     guint32 val;
     proto_item* item;
 
@@ -1576,23 +1576,23 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
     {   /* request */
         if (segmented <= EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
         {
-            index = tvb_get_letohs(tvb, offset);
+            indx = tvb_get_letohs(tvb, offset);
             if (epl_tree)
             {
-                proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_write_by_index_index, tvb, offset, 2, index);
+                proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_write_by_index_index, tvb, offset, 2, indx);
             }
             offset += 2;
 
-            subindex = tvb_get_guint8(tvb, offset);
+            subindx = tvb_get_guint8(tvb, offset);
             if (epl_tree)
             {
-                proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_write_by_index_subindex, tvb, offset, 1, subindex);
+                proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_write_by_index_subindex, tvb, offset, 1, subindx);
             }
             offset += 2;
 
             if (check_col(pinfo->cinfo, COL_INFO))
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Write 0x%04X/%d", index, subindex);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Write 0x%04X/%d", indx, subindx);
             }
         }
         else if (check_col(pinfo->cinfo, COL_INFO))
@@ -1636,30 +1636,30 @@ gint
 dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response)
 {
     gint size;
-    guint16 index;
-    guint8 subindex;
+    guint16 indx;
+    guint8 subindx;
     guint32 val;
     proto_item* item;
 
     if (!response)
     {   /* request */
-        index = tvb_get_letohs(tvb, offset);
+        indx = tvb_get_letohs(tvb, offset);
         if (epl_tree)
         {
-            proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_read_by_index_index, tvb, offset, 2, index);
+            proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_read_by_index_index, tvb, offset, 2, indx);
         }
         offset += 2;
 
-        subindex = tvb_get_guint8(tvb, offset);
+        subindx = tvb_get_guint8(tvb, offset);
         if (epl_tree)
         {
-            proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_read_by_index_subindex, tvb, offset, 1, subindex);
+            proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_read_by_index_subindex, tvb, offset, 1, subindx);
         }
         offset += 1;
 
         if (check_col(pinfo->cinfo, COL_INFO))
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Read 0x%04X/%d", index, subindex);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Read 0x%04X/%d", indx, subindx);
         }
 
     }

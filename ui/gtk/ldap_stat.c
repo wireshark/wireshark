@@ -128,7 +128,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_ldapstat_init(const char *optarg, void *userdata _U_)
+gtk_ldapstat_init(const char *opt_arg, void *userdata _U_)
 {
 	ldapstat_t *ldap;
 	const char *filter=NULL;
@@ -139,8 +139,8 @@ gtk_ldapstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
-	if(!strncmp(optarg,"ldap,srt,",9)){
-		filter=optarg+9;
+	if(!strncmp(opt_arg,"ldap,srt,",9)){
+		filter=opt_arg+9;
 	} else {
 		filter=NULL;
 	}

@@ -3528,14 +3528,14 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
             local_tree = proto_item_add_subtree(ti_local, ett_reload_pingans);
             proto_tree_add_item(local_tree, hf_reload_ping_response_id, tvb, offset, 8, ENC_BIG_ENDIAN);
             {
-              guint64 time;
+              guint64 timev;
               guint32 remaining_ms;
               time_t time_sec;
               nstime_t l_nsTime;
 
-              time = tvb_get_ntoh64(tvb, offset+8);
-              time_sec = (time_t)time/1000;
-              remaining_ms = (guint32)(time % 1000);
+              timev = tvb_get_ntoh64(tvb, offset+8);
+              time_sec = (time_t)timev/1000;
+              remaining_ms = (guint32)(timev % 1000);
 
               l_nsTime.secs = time_sec;
               l_nsTime.nsecs =  remaining_ms*1000*1000;

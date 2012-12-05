@@ -110,7 +110,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_afpstat_init(const char *optarg, void *userdata _U_)
+gtk_afpstat_init(const char *opt_arg, void *userdata _U_)
 {
 	afpstat_t *ss;
 	const char *filter=NULL;
@@ -122,8 +122,8 @@ gtk_afpstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
-	if(!strncmp(optarg,"afp,srt,",8)){
-		filter=optarg+8;
+	if(!strncmp(opt_arg,"afp,srt,",8)){
+		filter=opt_arg+8;
 	} else {
 		filter=NULL;
 	}

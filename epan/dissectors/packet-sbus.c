@@ -549,11 +549,11 @@ static GHashTable *sbus_request_hash = NULL;
 
 static guint crc_calc (guint crc, guint val)
 {
-       int index;
+       int indx;
        guint ncrc;
 
-       index = (((crc >> 8) ^ val) & 0xff);
-       ncrc = crc_table[index] ^ ((crc << 8) & 0xffff);
+       indx = (((crc >> 8) ^ val) & 0xff);
+       ncrc = crc_table[indx] ^ ((crc << 8) & 0xffff);
 
        return ncrc;
 }

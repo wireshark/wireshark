@@ -347,23 +347,23 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     {
       guint32     received;
       int         last_received      = -1;
-      int         index              = 0;
+      int         indx               = 0;
       proto_tree *received_tree;
       proto_item *ti_parsed_received = NULL;
 
       received = tvb_get_ntohl(tvb, offset);
-      while ((received<<index) != 0) {
-        if (index>=32) break;
-        if (received &(0x1<<(31-index))) {
-          if (index==0) {
+      while ((received<<indx) != 0) {
+        if (indx>=32) break;
+        if (received &(0x1<<(31-indx))) {
+          if (indx==0) {
             received_tree = proto_item_add_subtree(ti_received, ett_reload_framing_received);
             ti_parsed_received = proto_tree_add_item(received_tree, hf_reload_framing_parsed_received, tvb, offset, 4, ENC_NA);
-            proto_item_append_text(ti_parsed_received, "[%u", (sequence -32+index));
-            last_received = index;
+            proto_item_append_text(ti_parsed_received, "[%u", (sequence -32+indx));
+            last_received = indx;
           }
           else {
-            if (received &(0x1<<(31-index+1))) {
-              index++;
+            if (received &(0x1<<(31-indx+1))) {
+              indx++;
               /* range: skip */
               continue;
             }
@@ -373,43 +373,43 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 /* 1st acked ever */
                 received_tree = proto_item_add_subtree(ti_received, ett_reload_framing_received);
                 ti_parsed_received = proto_tree_add_item(received_tree, hf_reload_framing_parsed_received, tvb, offset, 4, ENC_NA);
-                proto_item_append_text(ti_parsed_received, "[%u",(sequence-32+index));
+                proto_item_append_text(ti_parsed_received, "[%u",(sequence-32+indx));
               }
               else {
-                proto_item_append_text(ti_parsed_received, ",%u",(sequence-32+index));
+                proto_item_append_text(ti_parsed_received, ",%u",(sequence-32+indx));
               }
-              last_received = index;
+              last_received = indx;
 
             }
           }
         }
-        else if (index>0) {
-          if ((received &(0x1<<(31-index+1))) && (received &(0x1<<(31-index+2)))) {
+        else if (indx>0) {
+          if ((received &(0x1<<(31-indx+1))) && (received &(0x1<<(31-indx+2)))) {
             /* end of a series */
-            if ((received &(0x1<<(31-index+3)))) {
-              proto_item_append_text(ti_parsed_received,"-%u",(sequence-32+index-1));
+            if ((received &(0x1<<(31-indx+3)))) {
+              proto_item_append_text(ti_parsed_received,"-%u",(sequence-32+indx-1));
             }
             else {
               /* just a pair */
-              proto_item_append_text(ti_received, ",%u", (sequence-32+index-1));
+              proto_item_append_text(ti_received, ",%u", (sequence-32+indx-1));
             }
           }
           else {
-            index++;
+            indx++;
             continue;
           }
         }
-        index++;
+        indx++;
       }
       if (last_received>=0) {
-        if ((received &(0x1<<(31-index+1))) && (received &(0x1<<(31-index+2)))) {
+        if ((received &(0x1<<(31-indx+1))) && (received &(0x1<<(31-indx+2)))) {
           /* end of a series */
-          if ((received &(0x1<<(31-index+3)))) {
-            proto_item_append_text(ti_parsed_received,"-%u",(sequence-32+index-1));
+          if ((received &(0x1<<(31-indx+3)))) {
+            proto_item_append_text(ti_parsed_received,"-%u",(sequence-32+indx-1));
           }
           else {
             /* just a pair */
-            proto_item_append_text(ti_parsed_received, ",%u", (sequence-32+index-1));
+            proto_item_append_text(ti_parsed_received, ",%u", (sequence-32+indx-1));
           }
         }
         proto_item_append_text(ti_parsed_received, "]");

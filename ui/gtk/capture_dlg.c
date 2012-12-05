@@ -284,7 +284,7 @@ void
 update_visible_columns_menu (void);
 
 static void
-update_options_table(gint index);
+update_options_table(gint indx);
 
 static gboolean
 query_tooltip_tree_view_cb (GtkWidget  *widget,
@@ -295,11 +295,11 @@ query_tooltip_tree_view_cb (GtkWidget  *widget,
                             gpointer    data);
 
 static
-gchar *col_index_to_name(gint index)
+gchar *col_index_to_name(gint indx)
 {
   gchar *col_name;
 
-  switch (index)
+  switch (indx)
   {
     case INTERFACE: col_name = g_strdup("INTERFACE");
       break;
@@ -2340,7 +2340,7 @@ options_edit_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 }
 
 static void
-update_options_table(gint index)
+update_options_table(gint indx)
 {
   interface_t   device;
   GtkTreePath  *path;
@@ -2375,7 +2375,7 @@ update_options_table(gint index)
     }
     if (cap_open_w) {
       if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
-      path_str = g_strdup_printf("%d", index);
+      path_str = g_strdup_printf("%d", indx);
       path = gtk_tree_path_new_from_string(path_str);
       model = gtk_tree_view_get_model(if_cb);
       gtk_tree_model_get_iter(model, &iter, path);
@@ -2976,7 +2976,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   GtkWidget    *pcap_ng_cb, *filter_cm;
   interface_t   device;
   gchar        *name;
-  gint          index = -1;
+  gint          indx = -1;
   guint         i;
 
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
@@ -2989,7 +2989,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
     if (strcmp(device.name, name) == 0) {
-      index = i;
+      indx = i;
       break;
     }
   }
@@ -3003,9 +3003,9 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
     }
     device.locked = TRUE;
   }
-  if (index != -1) {
-    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, index);
-    g_array_insert_val(global_capture_opts.all_ifaces, index, device);
+  if (indx != -1) {
+    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, indx);
+    g_array_insert_val(global_capture_opts.all_ifaces, indx, device);
     pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PCAP_NG_KEY);
     if (global_capture_opts.num_selected >= 2) {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), TRUE);
@@ -3035,8 +3035,8 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
     }
   }
   device.locked = FALSE;
-  global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, index);
-  g_array_insert_val(global_capture_opts.all_ifaces, index, device);
+  global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, indx);
+  g_array_insert_val(global_capture_opts.all_ifaces, indx, device);
   gtk_tree_path_free (path);
   filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY);
   if (strcmp(gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm)),"") != 0) {
@@ -3302,7 +3302,7 @@ static void
 add_pipe_cb(gpointer w _U_)
 {
   interface_t   device;
-  gint          index;
+  gint          indx;
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
   GtkTreeIter   iter;
@@ -3365,7 +3365,7 @@ add_pipe_cb(gpointer w _U_)
 #endif
     global_capture_opts.num_selected++;
 
-    index = global_capture_opts.all_ifaces->len;
+    indx = global_capture_opts.all_ifaces->len;
     temp = g_strdup_printf("<b>%s</b>", device.display_name);
 
     if (device.has_snaplen) {
@@ -3375,7 +3375,7 @@ add_pipe_cb(gpointer w _U_)
     }
 
     if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
-    path_str = g_strdup_printf("%d", index);
+    path_str = g_strdup_printf("%d", indx);
     model = gtk_tree_view_get_model(if_cb);
     gtk_tree_model_get_iter_from_string(model, &iter, path_str);
     g_array_append_val(global_capture_opts.all_ifaces, device);
@@ -5494,9 +5494,9 @@ activate_monitor(GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *renderer,
 {
   interface_t  device;
   GtkTreePath *path  = gtk_tree_model_get_path(tree_model, iter);
-  int          index = atoi(gtk_tree_path_to_string(path));
+  int          indx = atoi(gtk_tree_path_to_string(path));
 
-  device = g_array_index(global_capture_opts.all_ifaces, interface_t, index);
+  device = g_array_index(global_capture_opts.all_ifaces, interface_t, indx);
 
   if (device.monitor_mode_supported == TRUE) {
     g_object_set(G_OBJECT(renderer), "mode", GTK_CELL_RENDERER_MODE_ACTIVATABLE, NULL);

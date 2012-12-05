@@ -548,14 +548,14 @@ static void append_to_buffer(gchar *txt, int len) {
 }
 
 static size_t file_input(gchar *buf, size_t max) {
-	size_t read;
+	size_t read_cnt;
 
-	read = fread(buf,1,max,yyin);
+	read_cnt = fread(buf,1,max,yyin);
 
-	if ( read == max ) {
+	if ( read_cnt == max ) {
 		return max;
-	} else if (read > 0) {
-		return read;
+	} else if (read_cnt > 0) {
+		return read_cnt;
 	} else {
 		return YY_NULL;
 	}

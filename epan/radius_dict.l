@@ -337,7 +337,7 @@ static void add_vendor(const gchar* name, guint32 id, guint type_octets, guint l
 	g_hash_table_insert(dict->vendors_by_name, (gpointer) v->name, v);
 }
 
-static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const  gchar* vendor, guint crypt, gboolean tagged, const gchar* attr) {
+static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_dissector_t type, const  gchar* vendor, guint encrypted_flag, gboolean tagged, const gchar* attr) {
 	radius_attr_info_t* a;
 	GHashTable* by_id;
 	guint32 code;
@@ -376,7 +376,7 @@ static void add_attribute(const gchar* name, const  gchar* codestr, radius_attr_
 	}
 
 	a->code = code;
-	a->encrypt = crypt;
+	a->encrypt = encrypted_flag;
 	a->tagged =  tagged;
 	a->type = type;
 	a->vs = NULL;

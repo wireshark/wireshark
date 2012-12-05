@@ -1401,7 +1401,7 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
     for(i = 0; i< tvb_length(tvb)-header_size; i++ ){
         out[i+header_size] = tvb_get_guint8(tvb, header_size+i);
     }
-    /*Call KASUMI confidentiality function, note that rbid is zero indexed*/
+    /*Call KASUMI confidentiality function, note that rbid is zero indxed*/
     f8( key_in, counter, rbid-1, dir, &out[header_size], (tvb_length(tvb)-header_size)*8 );
 
     /*Restore header in tvb*/
@@ -1459,10 +1459,10 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
              rlc_info * rlcinf, guint16 seq, enum rlc_mode mode)
 {
     rrc_ciphering_info * c_inf;
-    guint8 index, header_size, hfn_shift;
+    guint8 indx, header_size, hfn_shift;
     gint16 pos;
 
-    index = fpinf->is_uplink ? 1 : 0;
+    indx = fpinf->is_uplink ? 1 : 0;
     pos = fpinf->cur_tb;
     if (mode ==RLC_UM) {
         header_size = 1;
@@ -1477,13 +1477,13 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
 
     /*TODO: This doesnt really work for all packets..*/
     /*Check if we have ciphering info and that this frame is ciphered*/
-    if(c_inf!=NULL && ( (c_inf->setup_frame > 0 && c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][index] == -1)  ||
-                     (c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][index] >= 0  && c_inf->seq_no[rlcinf->rbid[pos]][index] <= seq) )){
+    if(c_inf!=NULL && ( (c_inf->setup_frame > 0 && c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][indx] == -1)  ||
+                     (c_inf->setup_frame < pinfo->fd->num && c_inf->seq_no[rlcinf->rbid[pos]][indx] >= 0  && c_inf->seq_no[rlcinf->rbid[pos]][indx] <= seq) )){
 
         tvbuff_t *t;
 
         /*Check if this counter has been initialized*/
-        if(!counter_init[rlcinf->rbid[pos]][index] ){
+        if(!counter_init[rlcinf->rbid[pos]][indx] ){
             guint32 frame_num = pinfo->fd->num;
 
             /*Initializes counter*/
@@ -1493,7 +1493,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
             g_tree_foreach(c_inf->start_ps, (GTraverseFunc)iter_same, &frame_num);
 
             /*Set COUNTER value accordingly as specified by 6.4.8 in 3GPP TS 33.102 */
-            if(max_counter +2 > frame_num && c_inf->seq_no[rlcinf->rbid[pos]][index] == -1){
+            if(max_counter +2 > frame_num && c_inf->seq_no[rlcinf->rbid[pos]][indx] == -1){
                 ps_counter[rlcinf->rbid[pos]][0] = (max_counter+2) << hfn_shift;
                 ps_counter[rlcinf->rbid[pos]][1] = (max_counter+2) << hfn_shift;
             }else{
@@ -1512,7 +1512,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
 
         }
         /*Update the maximal COUNTER value seen so far*/
-        max_counter = MAX(max_counter,((ps_counter[rlcinf->rbid[pos]][index]) | seq) >> hfn_shift);
+        max_counter = MAX(max_counter,((ps_counter[rlcinf->rbid[pos]][indx]) | seq) >> hfn_shift);
 
     /*XXX:Since RBID in umts isnt configured properly..*/
         if(rlcinf->rbid[pos] == 9 ){
@@ -1522,9 +1522,9 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
                 frame_num[0] = pinfo->fd->num;
                 /*Find the correct counter value*/
                 g_tree_foreach(counter_map, (GTraverseFunc)rlc_find_old_counter, &frame_num[0]);
-                t = rlc_decipher_tvb(tvb, pinfo, (frame_num[index+1] | seq),16,!fpinf->is_uplink,header_size);
+                t = rlc_decipher_tvb(tvb, pinfo, (frame_num[indx+1] | seq),16,!fpinf->is_uplink,header_size);
             }else{
-                t = rlc_decipher_tvb(tvb, pinfo, ((ps_counter[rlcinf->rbid[pos]][index]) | seq),16,!fpinf->is_uplink,header_size);
+                t = rlc_decipher_tvb(tvb, pinfo, ((ps_counter[rlcinf->rbid[pos]][indx]) | seq),16,!fpinf->is_uplink,header_size);
             }
         }else{
             if(tree){
@@ -1532,15 +1532,15 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
                 guint32 frame_num[3];
                 frame_num[0] = pinfo->fd->num;
                 g_tree_foreach(counter_map, (GTraverseFunc)rlc_find_old_counter, &frame_num[0]);
-                t = rlc_decipher_tvb(tvb, pinfo, (frame_num[index+1] | seq),rlcinf->rbid[pos],!fpinf->is_uplink,header_size);
+                t = rlc_decipher_tvb(tvb, pinfo, (frame_num[indx+1] | seq),rlcinf->rbid[pos],!fpinf->is_uplink,header_size);
             }else
-                t = rlc_decipher_tvb(tvb, pinfo, ((ps_counter[rlcinf->rbid[pos]][index]) | seq),rlcinf->rbid[pos],!fpinf->is_uplink,header_size);
+                t = rlc_decipher_tvb(tvb, pinfo, ((ps_counter[rlcinf->rbid[pos]][indx]) | seq),rlcinf->rbid[pos],!fpinf->is_uplink,header_size);
         }
 
         /*Update the hyperframe number*/
         if(seq == 4095){
 
-            ps_counter[rlcinf->rbid[pos]][index] += 1 << hfn_shift;
+            ps_counter[rlcinf->rbid[pos]][indx] += 1 << hfn_shift;
 
             if(!tree){/*Preserve counter for second packet analysis run*/
                 guint32 * ciph;

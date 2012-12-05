@@ -115,7 +115,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_fcstat_init(const char *optarg, void *userdata _U_)
+gtk_fcstat_init(const char *opt_arg, void *userdata _U_)
 {
 	fcstat_t *fc;
 	const char *filter=NULL;
@@ -127,8 +127,8 @@ gtk_fcstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
-	if(!strncmp(optarg,"fc,srt,",7)){
-		filter=optarg+7;
+	if(!strncmp(opt_arg,"fc,srt,",7)){
+		filter=opt_arg+7;
 	} else {
 		filter=NULL;
 	}

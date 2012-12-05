@@ -1693,8 +1693,8 @@ static gchar *dissect_thales_ipm_id (tvbuff_t *tvb, gint offset, gint length, gi
   if (length >= 6 && length <= 20 && modifier >= 0 && modifier <= 2) {
     guint number = tvb_get_ntohs (tvb, offset + length - 6);
     guint8 number_len = modifier + 2;
-    time_t time = tvb_get_ntohl(tvb, offset + length - 4);
-    struct tm *tmp = gmtime(&time);
+    time_t timev = tvb_get_ntohl(tvb, offset + length - 4);
+    struct tm *tmp = gmtime(&timev);
 
     if (modifier == 1 && number >= 1024) {
       /* The number is in the range 65536-99999 */

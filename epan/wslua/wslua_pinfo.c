@@ -76,14 +76,14 @@ WSLUA_CONSTRUCTOR NSTime_new(lua_State *L) {
 	/* Creates a new NSTime object */
 #define WSLUA_OPTARG_NSTime_new_SECONDS 1 /* Seconds */
 #define WSLUA_OPTARG_NSTime_new_NSECONDS 2 /* Nano seconds */
-    NSTime time = g_malloc(sizeof(nstime_t));
+    NSTime nstime = g_malloc(sizeof(nstime_t));
 
-    if (!time) return 0;
+    if (!nstime) return 0;
 
-    time->secs = (time_t) luaL_optint(L,WSLUA_OPTARG_NSTime_new_SECONDS,0);
-    time->nsecs = luaL_optint(L,WSLUA_OPTARG_NSTime_new_NSECONDS,0);
+    nstime->secs = (time_t) luaL_optint(L,WSLUA_OPTARG_NSTime_new_SECONDS,0);
+    nstime->nsecs = luaL_optint(L,WSLUA_OPTARG_NSTime_new_NSECONDS,0);
 
-    pushNSTime(L,time);
+    pushNSTime(L,nstime);
 
     WSLUA_RETURN(1); /* The new NSTime object. */
 }
@@ -185,36 +185,36 @@ typedef struct {
 } nstime_actions_t;
 
 static int NSTime_get_secs(lua_State* L) {
-    NSTime time = toNSTime(L,1);
+    NSTime nstime = toNSTime(L,1);
 
-    lua_pushnumber (L,(lua_Number)(time->secs));
+    lua_pushnumber (L,(lua_Number)(nstime->secs));
 
     return 1;
 }
 
 static int NSTime_set_secs(lua_State* L)
  {
-    NSTime time = toNSTime(L,1);
+    NSTime nstime = toNSTime(L,1);
     time_t secs = luaL_checkint(L,3);
 
-    time->secs = secs;
+    nstime->secs = secs;
 
     return 0;
 }
 
 static int NSTime_get_nsecs(lua_State* L) {
-    NSTime time = toNSTime(L,1);
+    NSTime nstime = toNSTime(L,1);
 
-    lua_pushnumber (L,(lua_Number)(time->nsecs));
+    lua_pushnumber (L,(lua_Number)(nstime->nsecs));
 
     return 1;
 }
 
 static int NSTime_set_nsecs(lua_State* L) {
-    NSTime time = toNSTime(L,1);
+    NSTime nstime = toNSTime(L,1);
     int nsecs = luaL_checkint(L,3);
 
-    time->nsecs = nsecs;
+    nstime->nsecs = nsecs;
 
     return 0;
 }
@@ -230,11 +230,11 @@ static const nstime_actions_t nstime_actions[] = {
 };
 
 static int NSTime__index(lua_State* L) {
-    NSTime time = checkNSTime(L,1);
+    NSTime nstime = checkNSTime(L,1);
     const gchar* name = luaL_checkstring(L,2);
     const nstime_actions_t* pa;
 
-    if (! (time && name) ) return 0;
+    if (! (nstime && name) ) return 0;
 
     for (pa = nstime_actions; pa->name; pa++) {
         if ( g_str_equal(name,pa->name) ) {
@@ -252,11 +252,11 @@ static int NSTime__index(lua_State* L) {
 }
 
 static int NSTime__newindex(lua_State* L) {
-    NSTime time = checkNSTime(L,1);
+    NSTime nstime = checkNSTime(L,1);
     const gchar* name = luaL_checkstring(L,2);
     const nstime_actions_t* pa;
 
-    if (! (time && name) ) return 0;
+    if (! (nstime && name) ) return 0;
 
     for (pa = nstime_actions; pa->name; pa++) {
         if ( g_str_equal(name,pa->name) ) {

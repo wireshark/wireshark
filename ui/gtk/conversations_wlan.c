@@ -51,12 +51,12 @@ wlan_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 
 static void
-wlan_conversation_init(const char *optarg, void* userdata _U_)
+wlan_conversation_init(const char *opt_arg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
-	if(!strncmp(optarg,"conv,wlan,",10)){
-		filter=optarg+10;
+	if(!strncmp(opt_arg,"conv,wlan,",10)){
+		filter=opt_arg+10;
 	} else {
 		filter=NULL;
 	}

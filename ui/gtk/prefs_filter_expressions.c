@@ -346,7 +346,7 @@ filter_expressions_prefs_fetch(GtkWidget *w)
     GtkListStore *store;
     struct filter_expression *fe;
     gint          first_row = TRUE;
-    gint	  index = 0;
+    gint	  indx = 0;
 
     column_l = (GtkTreeView *)g_object_get_data(G_OBJECT(w),
 	E_FILTER_EXPRESSION_COLUMNL);
@@ -359,7 +359,7 @@ filter_expressions_prefs_fetch(GtkWidget *w)
     while (items_left) {
         gtk_tree_model_get(model, &iter, DATA_COLUMN, &fe, -1);
         if (fe != NULL)
-	    fe->index = index++;
+	    fe->index = indx++;
 	items_left = gtk_tree_model_iter_next (model, &iter);
     }
 

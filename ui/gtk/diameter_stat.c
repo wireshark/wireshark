@@ -126,7 +126,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_diameterstat_init(const char *optarg, void *userdata _U_)
+gtk_diameterstat_init(const char *opt_arg, void *userdata _U_)
 {
 	diameterstat_t *diameter;
 	const char *filter=NULL;
@@ -138,8 +138,8 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget *close_bt;
 	int* idx;
 
-	if(!strncmp(optarg,"diameter,",9)){
-		filter=optarg+9;
+	if(!strncmp(opt_arg,"diameter,",9)){
+		filter=opt_arg+9;
 	} else {
 		filter="diameter"; /*NULL doesn't work here like in LDAP. Too little time/lazy to find out why ?*/
 	}

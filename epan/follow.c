@@ -181,16 +181,16 @@ follow_tcp_addr(const address *addr0, guint port0,
   return TRUE;
 }
 
-/* select a tcp stream to follow via it's index */
+/* select a tcp stream to follow via its index */
 gboolean
-follow_tcp_index(guint32 index)
+follow_tcp_index(guint32 indx)
 {
   if (find_tcp_index || find_tcp_addr) {
     return FALSE;
   }
 
   find_tcp_addr = TRUE;
-  tcp_stream_to_follow = index;
+  tcp_stream_to_follow = indx;
   memset(ip_address, 0, sizeof ip_address);
   port[0] = port[1] = 0;
 

@@ -114,15 +114,15 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
 		*adjtime_rb, *undo_rb,
 
 		*bbox, *apply_bt, *close_bt, *help_bt;
- 
+
   if (time_shift_frame_w != NULL) {
     /* There's already a "Time Shift" dialog box; reactivate it. */
     reactivate_window(time_shift_frame_w);
     return;
   }
- 
+
   time_shift_frame_w = dlg_window_new("Wireshark: Time Shift");
- 
+
   /* Container for each row of widgets */
   main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
@@ -237,7 +237,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(settime_time_text_box,
     "The time for the frame in the format of [YYYY-MM-DD] "
     "hh:mm:ss[.ddddddddd]");
- 
+
   /*
    * Set two Packet Numbers to Time frame and extrapolate
    */
@@ -372,7 +372,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(undo_rb);
   gtk_widget_set_tooltip_text(undo_rb,
     "Undo all the Time Shift offsets on the frames.");
- 
+
   /*
    * Button row
    */
@@ -619,7 +619,7 @@ action_timeshift(GtkWindow *parent_w)
     modify_time_perform(fd, neg, &offset, SHIFT_KEEPOFFSET);
   }
   packet_list_queue_draw();
-  
+
   return(0);
 }
 
@@ -712,7 +712,7 @@ action_settime(GtkWindow *parent_w)
   long		packetnumber;
   GtkWidget	*time_te;
   const gchar	*time_text;
-  nstime_t	settime, difftime, packettime;
+  nstime_t	set_time, diff_time, packet_time;
   frame_data	*fd, *packetfd;
   guint32	i;
 
@@ -731,13 +731,13 @@ action_settime(GtkWindow *parent_w)
    */
   if ((packetfd = frame_data_sequence_find(cfile.frames, packetnumber)) == NULL)
     return;
-  nstime_delta(&packettime, &(packetfd->abs_ts), &(packetfd->shift_offset));
+  nstime_delta(&packet_time, &(packetfd->abs_ts), &(packetfd->shift_offset));
 
-  if (timestring2nstime(time_text, &packettime, &settime) != 0)
+  if (timestring2nstime(time_text, &packet_time, &set_time) != 0)
     return;
 
   /* Calculate difference between packet time and requested time */
-  nstime_delta(&difftime, &settime, &packettime); 
+  nstime_delta(&diff_time, &set_time, &packet_time);
 
   /* Up to here nothing is changed */
 
@@ -749,7 +749,7 @@ action_settime(GtkWindow *parent_w)
   for (i = 1; i <= cfile.count; i++) {
     if ((fd = frame_data_sequence_find(cfile.frames, i)) == NULL)
       continue;	/* Shouldn't happen */
-    modify_time_perform(fd, SHIFT_POS, &difftime, SHIFT_SETTOZERO);
+    modify_time_perform(fd, SHIFT_POS, &diff_time, SHIFT_SETTOZERO);
   }
 
   packet_list_queue_draw();
@@ -758,10 +758,10 @@ action_settime(GtkWindow *parent_w)
 /*
  * If the line between (OT1, NT1) and (OT2, NT2) is a straight line
  * and (OT3, NT3) is on that line,
- * then (NT2 - NT1) / (OT2 - OT2) = (NT3 - NT1) / (OT3 - OT1) and 
+ * then (NT2 - NT1) / (OT2 - OT2) = (NT3 - NT1) / (OT3 - OT1) and
  * then (OT3 - OT1) * (NT2 - NT1) / (OT2 - OT2) = (NT3 - NT1) and
  * then NT1 + (OT3 - OT1) * (NT2 - NT1) / (OT2 - OT2) = NT3 and
- * then NT3 = NT1 + (OT3 - OT1) * (NT2 - NT1) / (OT2 - OT2) and 
+ * then NT3 = NT1 + (OT3 - OT1) * (NT2 - NT1) / (OT2 - OT2) and
  * thus NT3 = NT1 + (OT3 - OT1) * (NT2 - NT1) / (OT2 - OT1)
  *   or NT3 = NT1 + (OT3 - OT1) * ( deltaNT12 / deltaOT12)
  *
@@ -861,7 +861,7 @@ action_adjtime(GtkWindow *parent_w _U_)
 
   if (timestring2nstime(time2_text, &ot2, &nt2) != 0)
     return;
- 
+
   nstime_copy(&dot, &ot2);
   nstime_subtract(&dot, &ot1);
 

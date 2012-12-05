@@ -51,12 +51,12 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
 
 
 static void
-tcpip_conversation_init(const char *optarg, void* userdata _U_)
+tcpip_conversation_init(const char *opt_arg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
-	if(!strncmp(optarg,"conv,tcp,",9)){
-		filter=optarg+9;
+	if(!strncmp(opt_arg,"conv,tcp,",9)){
+		filter=opt_arg+9;
 	} else {
 		filter=NULL;
 	}

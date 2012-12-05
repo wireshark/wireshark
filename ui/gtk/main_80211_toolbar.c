@@ -63,12 +63,12 @@ static void tb80211_set_info(char *errstr)
 }
 
 static
-void add_channel_type(char *type, int oldtype, int index )
+void add_channel_type(char *type, int oldtype, int indx )
 {
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(tb80211_chan_type_box), type);
 
     if (oldtype != -1 && oldtype == ws80211_str_to_chan_type(type)) {
-        gtk_combo_box_set_active(GTK_COMBO_BOX(tb80211_chan_type_box), index);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(tb80211_chan_type_box), indx);
         tb80211_current_type = oldtype;
     }
 }

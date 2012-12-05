@@ -1197,15 +1197,15 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item	*nlp_item, *bf_item;
 	guint8		nhdr_0, nhdr_1, nhdr_x, thdr_8, thdr_9, fid;
 	guint32		thdr_len, thdr_dlf;
-	guint16		subindex;
+	guint16		subindx;
 
-	int index = 0, counter = 0;
+	int indx = 0, counter = 0;
 
 	nlp_tree = NULL;
 	nlp_item = NULL;
 
-	nhdr_0 = tvb_get_guint8(tvb, index);
-	nhdr_1 = tvb_get_guint8(tvb, index+1);
+	nhdr_0 = tvb_get_guint8(tvb, indx);
+	nhdr_1 = tvb_get_guint8(tvb, indx+1);
 
 	col_set_str(pinfo->cinfo, COL_INFO, "HPR NLP Packet");
 
@@ -1213,177 +1213,177 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Don't bother setting length. We'll set it later after we
 		 * find the lengths of NHDR */
 		nlp_item = proto_tree_add_item(tree, hf_sna_nlp_nhdr, tvb,
-		    index, -1, ENC_NA);
+		    indx, -1, ENC_NA);
 		nlp_tree = proto_item_add_subtree(nlp_item, ett_sna_nlp_nhdr);
 
 		bf_item = proto_tree_add_uint(nlp_tree, hf_sna_nlp_nhdr_0, tvb,
-		    index, 1, nhdr_0);
+		    indx, 1, nhdr_0);
 		bf_tree = proto_item_add_subtree(bf_item, ett_sna_nlp_nhdr_0);
 
-		proto_tree_add_uint(bf_tree, hf_sna_nlp_sm, tvb, index, 1,
+		proto_tree_add_uint(bf_tree, hf_sna_nlp_sm, tvb, indx, 1,
 		    nhdr_0);
-		proto_tree_add_uint(bf_tree, hf_sna_nlp_tpf, tvb, index, 1,
+		proto_tree_add_uint(bf_tree, hf_sna_nlp_tpf, tvb, indx, 1,
 		    nhdr_0);
 
 		bf_item = proto_tree_add_uint(nlp_tree, hf_sna_nlp_nhdr_1, tvb,
-		    index+1, 1, nhdr_1);
+		    indx+1, 1, nhdr_1);
 		bf_tree = proto_item_add_subtree(bf_item, ett_sna_nlp_nhdr_1);
 
 		proto_tree_add_uint(bf_tree, hf_sna_nlp_ft, tvb,
-		    index+1, 1, nhdr_1);
+		    indx+1, 1, nhdr_1);
 		proto_tree_add_boolean(bf_tree, hf_sna_nlp_tspi, tvb,
-		    index+1, 1, nhdr_1);
+		    indx+1, 1, nhdr_1);
 		proto_tree_add_boolean(bf_tree, hf_sna_nlp_slowdn1, tvb,
-		    index+1, 1, nhdr_1);
+		    indx+1, 1, nhdr_1);
 		proto_tree_add_boolean(bf_tree, hf_sna_nlp_slowdn2, tvb,
-		    index+1, 1, nhdr_1);
+		    indx+1, 1, nhdr_1);
 	}
 	/* ANR or FR lists */
 
-	index += 2;
+	indx += 2;
 	counter = 0;
 
 	if ((nhdr_0 & 0xe0) == 0xa0) {
 		do {
-			nhdr_x = tvb_get_guint8(tvb, index + counter);
+			nhdr_x = tvb_get_guint8(tvb, indx + counter);
 			counter ++;
 		} while (nhdr_x != 0xff);
 		if (tree)
 			proto_tree_add_item(nlp_tree,
-			    hf_sna_nlp_fra, tvb, index, counter, ENC_NA);
-		index += counter;
+			    hf_sna_nlp_fra, tvb, indx, counter, ENC_NA);
+		indx += counter;
 		if (tree)
-			proto_tree_add_text(nlp_tree, tvb, index, 1,
+			proto_tree_add_text(nlp_tree, tvb, indx, 1,
 			    "Reserved");
-		index++;
+		indx++;
 
 		if (tree)
-			proto_item_set_len(nlp_item, index);
+			proto_item_set_len(nlp_item, indx);
 
 		if ((nhdr_1 & 0xf0) == 0x10) {
-			nhdr_x = tvb_get_guint8(tvb, index);
+			nhdr_x = tvb_get_guint8(tvb, indx);
 			if (tree)
 				proto_tree_add_uint(tree, hf_sna_nlp_frh,
-				    tvb, index, 1, nhdr_x);
-			index ++;
+				    tvb, indx, 1, nhdr_x);
+			indx ++;
 
-			if (tvb_offset_exists(tvb, index))
+			if (tvb_offset_exists(tvb, indx))
 				call_dissector(data_handle,
-					tvb_new_subset_remaining(tvb, index),
+					tvb_new_subset_remaining(tvb, indx),
 					pinfo, parent_tree);
 			return;
 		}
 	}
 	if ((nhdr_0 & 0xe0) == 0xc0) {
 		do {
-			nhdr_x = tvb_get_guint8(tvb, index + counter);
+			nhdr_x = tvb_get_guint8(tvb, indx + counter);
 			counter ++;
 		} while (nhdr_x != 0xff);
 		if (tree)
 			proto_tree_add_item(nlp_tree, hf_sna_nlp_anr,
-			    tvb, index, counter, ENC_NA);
-		index += counter;
+			    tvb, indx, counter, ENC_NA);
+		indx += counter;
 
 		if (tree)
-			proto_tree_add_text(nlp_tree, tvb, index, 1,
+			proto_tree_add_text(nlp_tree, tvb, indx, 1,
 			    "Reserved");
-		index++;
+		indx++;
 
 		if (tree)
-			proto_item_set_len(nlp_item, index);
+			proto_item_set_len(nlp_item, indx);
 	}
 
-	thdr_8 = tvb_get_guint8(tvb, index+8);
-	thdr_9 = tvb_get_guint8(tvb, index+9);
-	thdr_len = tvb_get_ntohs(tvb, index+10);
-	thdr_dlf = tvb_get_ntohl(tvb, index+12);
+	thdr_8 = tvb_get_guint8(tvb, indx+8);
+	thdr_9 = tvb_get_guint8(tvb, indx+9);
+	thdr_len = tvb_get_ntohs(tvb, indx+10);
+	thdr_dlf = tvb_get_ntohl(tvb, indx+12);
 
 	if (tree) {
 		nlp_item = proto_tree_add_item(tree, hf_sna_nlp_thdr, tvb,
-		    index, thdr_len << 2, ENC_NA);
+		    indx, thdr_len << 2, ENC_NA);
 		nlp_tree = proto_item_add_subtree(nlp_item, ett_sna_nlp_thdr);
 
 		proto_tree_add_item(nlp_tree, hf_sna_nlp_tcid, tvb,
-		    index, 8, ENC_NA);
+		    indx, 8, ENC_NA);
 		bf_item = proto_tree_add_uint(nlp_tree, hf_sna_nlp_thdr_8, tvb,
-		    index+8, 1, thdr_8);
+		    indx+8, 1, thdr_8);
 		bf_tree = proto_item_add_subtree(bf_item, ett_sna_nlp_thdr_8);
 
 		proto_tree_add_boolean(bf_tree, hf_sna_nlp_setupi, tvb,
-		    index+8, 1, thdr_8);
-		proto_tree_add_boolean(bf_tree, hf_sna_nlp_somi, tvb, index+8,
+		    indx+8, 1, thdr_8);
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_somi, tvb, indx+8,
 		    1, thdr_8);
-		proto_tree_add_boolean(bf_tree, hf_sna_nlp_eomi, tvb, index+8,
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_eomi, tvb, indx+8,
 		    1, thdr_8);
-		proto_tree_add_boolean(bf_tree, hf_sna_nlp_sri, tvb, index+8,
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_sri, tvb, indx+8,
 		    1, thdr_8);
 		proto_tree_add_boolean(bf_tree, hf_sna_nlp_rasapi, tvb,
-		    index+8, 1, thdr_8);
+		    indx+8, 1, thdr_8);
 		proto_tree_add_boolean(bf_tree, hf_sna_nlp_retryi, tvb,
-		    index+8, 1, thdr_8);
+		    indx+8, 1, thdr_8);
 
 		bf_item = proto_tree_add_uint(nlp_tree, hf_sna_nlp_thdr_9, tvb,
-		    index+9, 1, thdr_9);
+		    indx+9, 1, thdr_9);
 		bf_tree = proto_item_add_subtree(bf_item, ett_sna_nlp_thdr_9);
 
-		proto_tree_add_boolean(bf_tree, hf_sna_nlp_lmi, tvb, index+9,
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_lmi, tvb, indx+9,
 		    1, thdr_9);
-		proto_tree_add_boolean(bf_tree, hf_sna_nlp_cqfi, tvb, index+9,
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_cqfi, tvb, indx+9,
 		    1, thdr_9);
-		proto_tree_add_boolean(bf_tree, hf_sna_nlp_osi, tvb, index+9,
+		proto_tree_add_boolean(bf_tree, hf_sna_nlp_osi, tvb, indx+9,
 		    1, thdr_9);
 
-		proto_tree_add_uint(nlp_tree, hf_sna_nlp_offset, tvb, index+10,
+		proto_tree_add_uint(nlp_tree, hf_sna_nlp_offset, tvb, indx+10,
 		    2, thdr_len);
-		proto_tree_add_uint(nlp_tree, hf_sna_nlp_dlf, tvb, index+12,
+		proto_tree_add_uint(nlp_tree, hf_sna_nlp_dlf, tvb, indx+12,
 		    4, thdr_dlf);
-		proto_tree_add_item(nlp_tree, hf_sna_nlp_bsn, tvb, index+16,
+		proto_tree_add_item(nlp_tree, hf_sna_nlp_bsn, tvb, indx+16,
 		    4, ENC_BIG_ENDIAN);
 	}
-	subindex = 20;
+	subindx = 20;
 
-	if (((thdr_9 & 0x18) == 0x08) && ((thdr_len << 2) > subindex)) {
-		counter = tvb_get_guint8(tvb, index + subindex);
-		if (tvb_get_guint8(tvb, index+subindex+1) == 5)
-			dissect_control(tvb, index + subindex, counter+2, nlp_tree, 1, LT);
+	if (((thdr_9 & 0x18) == 0x08) && ((thdr_len << 2) > subindx)) {
+		counter = tvb_get_guint8(tvb, indx + subindx);
+		if (tvb_get_guint8(tvb, indx+subindx+1) == 5)
+			dissect_control(tvb, indx + subindx, counter+2, nlp_tree, 1, LT);
 		else
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, index + subindex, counter+2,
+			    tvb_new_subset(tvb, indx + subindx, counter+2,
 			    -1), pinfo, nlp_tree);
 
-		subindex += (counter+2);
+		subindx += (counter+2);
 	}
-	if ((thdr_9 & 0x04) && ((thdr_len << 2) > subindex))
+	if ((thdr_9 & 0x04) && ((thdr_len << 2) > subindx))
 		dissect_optional(
-		    tvb_new_subset(tvb, index + subindex,
-		    (thdr_len << 2) - subindex, -1),
+		    tvb_new_subset(tvb, indx + subindx,
+		    (thdr_len << 2) - subindx, -1),
 		    pinfo, nlp_tree);
 
-	index += (thdr_len << 2);
+	indx += (thdr_len << 2);
 	if (((thdr_8 & 0x20) == 0) && thdr_dlf) {
 		col_set_str(pinfo->cinfo, COL_INFO, "HPR Fragment");
-		if (tvb_offset_exists(tvb, index)) {
+		if (tvb_offset_exists(tvb, indx)) {
 			call_dissector(data_handle,
-			    tvb_new_subset_remaining(tvb, index), pinfo,
+			    tvb_new_subset_remaining(tvb, indx), pinfo,
 			    parent_tree);
 		}
 		return;
 	}
-	if (tvb_offset_exists(tvb, index)) {
+	if (tvb_offset_exists(tvb, indx)) {
 		/* Transmission Header Format Identifier */
-		fid = hi_nibble(tvb_get_guint8(tvb, index));
+		fid = hi_nibble(tvb_get_guint8(tvb, indx));
 		if (fid == 5) /* Only FID5 allowed for HPR */
-			dissect_fid(tvb_new_subset_remaining(tvb, index), pinfo,
+			dissect_fid(tvb_new_subset_remaining(tvb, indx), pinfo,
 			    tree, parent_tree);
 		else {
-			if (tvb_get_ntohs(tvb, index+2) == 0x12ce) {
+			if (tvb_get_ntohs(tvb, indx+2) == 0x12ce) {
 				/* Route Setup */
 				col_set_str(pinfo->cinfo, COL_INFO, "HPR Route Setup");
-				dissect_gds(tvb_new_subset_remaining(tvb, index),
+				dissect_gds(tvb_new_subset_remaining(tvb, indx),
 				    pinfo, tree, parent_tree);
 			} else
 				call_dissector(data_handle,
-				    tvb_new_subset_remaining(tvb, index),
+				    tvb_new_subset_remaining(tvb, indx),
 				    pinfo, parent_tree);
 		}
 	}

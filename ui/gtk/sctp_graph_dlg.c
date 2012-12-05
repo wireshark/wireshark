@@ -144,7 +144,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 	GList *list=NULL, *tlist;
 	guint16 gap_start=0, gap_end=0, i, j, nr, dup_nr;
 	guint8 type;
-	guint32 tsnumber, dup;
+	guint32 tsnumber, dupx;
 	gint xvalue, yvalue;
 	GdkColor red_color = {0, 65535, 0, 0};
 	GdkColor green_color = {0, 0, 65535, 0};
@@ -282,15 +282,15 @@ draw_sack_graph(struct sctp_udata *u_data)
 						dup_list = &sack_header->a_rwnd + 2 + nr;
 						for (i = 0; i < dup_nr; i++)
 						{
-							dup = g_ntohl(dup_list[i]);
-							if (dup >= min_tsn)
+							dupx = g_ntohl(dup_list[i]);
+							if (dupx >= min_tsn)
 							{
 								if (u_data->io->uoff)
 									diff = sack->secs - u_data->io->min_x;
 								else
 									diff=sack->secs*1000000+sack->usecs-u_data->io->min_x;
 								xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
-								yvalue = (guint32)(u_data->io->surface_height-BOTTOM_BORDER-POINT_SIZE -u_data->io->offset-((SUB_32(dup,min_tsn))*u_data->io->y_interval));
+								yvalue = (guint32)(u_data->io->surface_height-BOTTOM_BORDER-POINT_SIZE -u_data->io->offset-((SUB_32(dupx,min_tsn))*u_data->io->y_interval));
 								if (xvalue >= LEFT_BORDER+u_data->io->offset &&
 								    xvalue <= u_data->io->surface_width-RIGHT_BORDER+u_data->io->offset &&
 								    yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&

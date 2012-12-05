@@ -802,7 +802,7 @@ void change_selection_for_all(gboolean enable)
 
 #ifdef HAVE_LIBPCAP
 void
-change_interface_name(gchar *oldname, guint index)
+change_interface_name(gchar *oldname, guint indx)
 {
     GtkWidget        *view;
     GtkTreeModel     *model;
@@ -815,7 +815,7 @@ change_interface_name(gchar *oldname, guint index)
     entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
 
-    device = g_array_index(global_capture_opts.all_ifaces, interface_t, index);
+    device = g_array_index(global_capture_opts.all_ifaces, interface_t, indx);
     if (gtk_tree_model_get_iter_first (model, &iter)) {
         do {
             gtk_tree_model_get(model, &iter, IFACE_NAME, &optname, -1);
@@ -834,7 +834,7 @@ change_interface_name(gchar *oldname, guint index)
 
 #ifdef HAVE_PCAP_REMOTE
 void
-add_interface_to_list(guint index)
+add_interface_to_list(guint indx)
 {
     GtkWidget *view, *icon;
     GtkTreeModel *model;
@@ -843,7 +843,7 @@ add_interface_to_list(guint index)
     gchar *lines;
     interface_t device;
 
-    device = g_array_index(global_capture_opts.all_ifaces, interface_t, index);
+    device = g_array_index(global_capture_opts.all_ifaces, interface_t, indx);
     icon = pixbuf_to_widget(remote_sat_pb_data);
     view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));

@@ -115,7 +115,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     const gchar *cap_details  = NULL;
 #endif
     const gchar *clear        = NULL;
-    const gchar *close        = NULL;
+    const gchar *closex       = NULL;
     const gchar *copy         = NULL;
     const gchar *create_stat  = NULL;
     const gchar *delete       = NULL;
@@ -165,7 +165,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         } else if (strcmp(stock_id, GTK_STOCK_CANCEL) == 0) {
             cancel = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CLOSE) == 0) {
-            close = stock_id;
+            closex = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CLEAR) == 0) {
             clear = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_REFRESH) == 0) {
@@ -337,8 +337,8 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             dlg_button_new(hbox, button_hbox, ok);
             return hbox;
         }
-        if (save && close) {
-            dlg_button_new(hbox, button_hbox, close);
+        if (save && closex) {
+            dlg_button_new(hbox, button_hbox, closex);
             dlg_button_new(hbox, button_hbox, save);
             return hbox;
         }
@@ -364,9 +364,9 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         }
     }
     if (buttons == 3) {
-        if (ok && save && close) {
+        if (ok && save && closex) {
             dlg_button_new(hbox, button_hbox, save);
-            dlg_button_new(hbox, button_hbox, close);
+            dlg_button_new(hbox, button_hbox, closex);
             dlg_button_new(hbox, button_hbox, ok);
             return hbox;
         }
@@ -376,9 +376,9 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             dlg_button_new(hbox, button_hbox, ok);
             return hbox;
         }
-        if (apply && save && close) {
+        if (apply && save && closex) {
             dlg_button_new(hbox, button_hbox, save);
-            dlg_button_new(hbox, button_hbox, close);
+            dlg_button_new(hbox, button_hbox, closex);
             dlg_button_new(hbox, button_hbox, apply);
             return hbox;
         }
@@ -403,10 +403,10 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             dlg_button_new(hbox, button_hbox, ok);
             return hbox;
         }
-        if (ok && apply && save && close) {
+        if (ok && apply && save && closex) {
             dlg_button_new(hbox, button_hbox, save);
             dlg_button_new(hbox, button_hbox, apply);
-            dlg_button_new(hbox, button_hbox, close);
+            dlg_button_new(hbox, button_hbox, closex);
             dlg_button_new(hbox, button_hbox, ok);
             return hbox;
         }
@@ -439,7 +439,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (follow_stream != NULL) dlg_button_new(hbox, button_hbox, follow_stream);
     if (graph_a_b != NULL) dlg_button_new(hbox, button_hbox, graph_a_b);
     if (graph_b_a != NULL) dlg_button_new(hbox, button_hbox, graph_b_a);
-    if (close   != NULL) dlg_button_new(hbox, button_hbox, close);
+    if (closex   != NULL) dlg_button_new(hbox, button_hbox, closex);
     if (cancel  != NULL) dlg_button_new(hbox, button_hbox, cancel);
 
     return hbox;

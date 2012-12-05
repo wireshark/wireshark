@@ -304,14 +304,14 @@ rtp_decoder_value_destroy(gpointer dec_arg)
 
 /****************************************************************************/
 static void
-set_sensitive_check_bt(gchar *key _U_ , rtp_channel_info_t *rci, guint *stop _U_ )
+set_sensitive_check_bt(gchar *key _U_ , rtp_channel_info_t *rci, guint *stop_p )
 {
-	gtk_widget_set_sensitive(rci->check_bt, !(*stop));
+	gtk_widget_set_sensitive(rci->check_bt, !(*stop_p));
 }
 
 /****************************************************************************/
 static void
-bt_state(gboolean decode, gboolean play, gboolean pause, gboolean stop)
+bt_state(gboolean decode, gboolean play_state, gboolean pause_state, gboolean stop_state)
 {
 	gboolean new_jitter_value = FALSE;
 	gboolean false_val = FALSE;
@@ -329,19 +329,19 @@ bt_state(gboolean decode, gboolean play, gboolean pause, gboolean stop)
 	}
 
 	/* set the sensitive state of play only if there is a channel selected */
-	if ( play && (rtp_channels->rci[0] || rtp_channels->rci[1]) && !new_jitter_value) {
+	if ( play_state && (rtp_channels->rci[0] || rtp_channels->rci[1]) && !new_jitter_value) {
 		gtk_widget_set_sensitive(bt_play, TRUE);
 	} else {
 		gtk_widget_set_sensitive(bt_play, FALSE);
 	}
 
 	if (!new_jitter_value) {
-		gtk_widget_set_sensitive(bt_pause, pause);
-		gtk_widget_set_sensitive(bt_stop, stop);
+		gtk_widget_set_sensitive(bt_pause, pause_state);
+		gtk_widget_set_sensitive(bt_stop, stop_state);
 
 		/* Set sensitive to the check buttons based on the STOP state */
 		if (rtp_channels_hash)
-			g_hash_table_foreach( rtp_channels_hash, (GHFunc)set_sensitive_check_bt, &stop);
+			g_hash_table_foreach( rtp_channels_hash, (GHFunc)set_sensitive_check_bt, &stop_state);
 	} else {
 		gtk_widget_set_sensitive(bt_pause, FALSE);
 		gtk_widget_set_sensitive(bt_stop, FALSE);

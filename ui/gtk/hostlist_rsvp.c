@@ -58,12 +58,12 @@ rsvp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 }
 
 static void
-gtk_rsvp_hostlist_init(const char *optarg, void* userdata _U_)
+gtk_rsvp_hostlist_init(const char *opt_arg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
-	if(!strncmp(optarg,"hosts,rsvp,",11)){
-		filter=optarg+11;
+	if(!strncmp(opt_arg,"hosts,rsvp,",11)){
+		filter=opt_arg+11;
 	} else {
 		filter=NULL;
 	}

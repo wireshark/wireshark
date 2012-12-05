@@ -56,12 +56,12 @@ tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 
 static void
-gtk_tcpip_hostlist_init(const char *optarg, void* userdata _U_)
+gtk_tcpip_hostlist_init(const char *opt_arg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
-	if(!strncmp(optarg,"endpoints,tcp,",14)){
-		filter=optarg+14;
+	if(!strncmp(opt_arg,"endpoints,tcp,",14)){
+		filter=opt_arg+14;
 	} else {
 		filter=NULL;
 	}

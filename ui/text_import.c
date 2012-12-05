@@ -512,7 +512,8 @@ write_current_packet (void)
             memset(&packet_buf[prefix_length+curr_offset], 0, eth_trailer_length);
         }
 
-        HDR_TCP.seq_num = g_htonl(g_ntohl(HDR_TCP.seq_num) + curr_offset);
+        HDR_TCP.seq_num = g_ntohl(HDR_TCP.seq_num) + curr_offset;
+        HDR_TCP.seq_num = g_htonl(HDR_TCP.seq_num);
 
         {
             /* Write the packet */

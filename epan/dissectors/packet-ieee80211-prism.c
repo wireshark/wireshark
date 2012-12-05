@@ -269,7 +269,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset;
     guint32 msgcode, msglen, did;
     guint16 status;
-    guint8 *devname;
+    guint8 *devname_p;
 
     offset = 0;
     did = 0;
@@ -324,10 +324,10 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(tree) {
        proto_tree_add_item(prism_tree, hf_ieee80211_prism_devname, tvb, offset, 16, ENC_ASCII|ENC_NA);
     }
-    devname = tvb_get_ephemeral_string(tvb, offset, 16);
+    devname_p = tvb_get_ephemeral_string(tvb, offset, 16);
     offset += 16;
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Device: %s, Message 0x%x, Length %d", devname, msgcode, msglen);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Device: %s, Message 0x%x, Length %d", devname_p, msgcode, msglen);
 
 
     while(offset < PRISM_HEADER_LENGTH)

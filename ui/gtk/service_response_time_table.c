@@ -493,14 +493,14 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 }
 
 void
-init_srt_table_row(srt_stat_table *rst, int index, const char *procedure)
+init_srt_table_row(srt_stat_table *rst, int indx, const char *procedure)
 {
 	/* we have discovered a new procedure. Extend the table accordingly */
-	if(index>=rst->num_procs){
+	if(indx>=rst->num_procs){
 		int old_num_procs=rst->num_procs;
 		int i;
 
-		rst->num_procs=index+1;
+		rst->num_procs=indx+1;
 		rst->procedures=g_realloc(rst->procedures, sizeof(srt_procedure_t)*(rst->num_procs));
 		for(i=old_num_procs;i<rst->num_procs;i++){
 			time_stat_init(&rst->procedures[i].stats);
@@ -508,18 +508,18 @@ init_srt_table_row(srt_stat_table *rst, int index, const char *procedure)
 			rst->procedures[i].procedure=NULL;
 		}
 	}
-	rst->procedures[index].index = index;
-	rst->procedures[index].procedure=g_strdup(procedure);
+	rst->procedures[indx].index = indx;
+	rst->procedures[indx].procedure=g_strdup(procedure);
 }
 
 void
-add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, packet_info *pinfo)
+add_srt_table_data(srt_stat_table *rst, int indx, const nstime_t *req_time, packet_info *pinfo)
 {
 	srt_procedure_t *rp;
 	nstime_t t, delta;
 
-	g_assert(index >= 0 && index < rst->num_procs);
-	rp=&rst->procedures[index];
+	g_assert(indx >= 0 && indx < rst->num_procs);
+	rp=&rst->procedures[indx];
 
 	/*
 	 * If the count of calls for this procedure is currently zero, it's

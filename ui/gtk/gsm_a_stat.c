@@ -449,7 +449,7 @@ void gsm_a_stat_gtk_bssmap_cb(GtkAction *action _U_, gpointer user_data _U_ )
 
 static void
 gsm_a_stat_gtk_bssmap_init(
-    const char      *optarg _U_,
+    const char      *opt_arg _U_,
     void* userdata _U_)
 {
     gsm_a_stat_gtk_bssmap_cb(NULL, NULL);
@@ -487,7 +487,7 @@ gsm_a_stat_gtk_dtap_mm_cb(GtkAction *action, gpointer user_data )
 }
 
 static void
-gsm_a_stat_gtk_dtap_mm_init(const char      *optarg _U_,
+gsm_a_stat_gtk_dtap_mm_init(const char      *opt_arg _U_,
                             void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_mm_cb(NULL, NULL);
@@ -502,7 +502,7 @@ gsm_a_stat_gtk_dtap_rr_cb(GtkAction *action, gpointer user_data )
 }
 
 static void
-gsm_a_stat_gtk_dtap_rr_init(const char      *optarg _U_,
+gsm_a_stat_gtk_dtap_rr_init(const char      *opt_arg _U_,
                             void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_rr_cb(NULL, NULL);
@@ -517,7 +517,7 @@ gsm_a_stat_gtk_dtap_cc_cb(GtkAction *action, gpointer user_data )
 }
 
 static void
-gsm_a_stat_gtk_dtap_cc_init(const char      *optarg _U_,
+gsm_a_stat_gtk_dtap_cc_init(const char      *opt_arg _U_,
                             void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_cc_cb(NULL, NULL);
@@ -532,7 +532,7 @@ gsm_a_stat_gtk_dtap_gmm_cb(GtkAction *action, gpointer user_data )
 }
 
 static void
-gsm_a_stat_gtk_dtap_gmm_init(const char     *optarg _U_,
+gsm_a_stat_gtk_dtap_gmm_init(const char     *opt_arg _U_,
                              void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_gmm_cb(NULL, NULL);
@@ -547,7 +547,7 @@ gsm_a_stat_gtk_dtap_sms_cb(GtkAction *action, gpointer user_data )
 }
 
 static void
-gsm_a_stat_gtk_dtap_sms_init(const char     *optarg _U_,
+gsm_a_stat_gtk_dtap_sms_init(const char     *opt_arg _U_,
                              void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_sms_cb(NULL, NULL);
@@ -562,7 +562,7 @@ gsm_a_stat_gtk_dtap_sm_cb(GtkAction *action, gpointer user_data )
 }
 
 static void
-gsm_a_stat_gtk_dtap_sm_init(const char      *optarg _U_,
+gsm_a_stat_gtk_dtap_sm_init(const char      *opt_arg _U_,
                             void* userdata _U_)
 {
     gsm_a_stat_gtk_dtap_sm_cb(NULL, NULL);
@@ -578,7 +578,7 @@ gsm_a_stat_gtk_dtap_ss_cb(GtkAction *action, gpointer user_data )
 
 static void
 gsm_a_stat_gtk_dtap_ss_init(
-    const char      *optarg _U_,
+    const char      *opt_arg _U_,
     void        *userdata _U_)
 {
     gsm_a_stat_gtk_dtap_ss_cb(NULL, NULL);
@@ -594,7 +594,7 @@ gsm_a_stat_gtk_dtap_tp_cb(GtkAction *action, gpointer user_data )
 
 static void
 gsm_a_stat_gtk_dtap_tp_init(
-    const char      *optarg _U_,
+    const char      *opt_arg _U_,
     void        *userdata _U_)
 {
     gsm_a_stat_gtk_dtap_tp_cb(NULL, NULL);
@@ -619,7 +619,7 @@ gsm_a_stat_gtk_sacch_rr_cb(GtkAction *action _U_, gpointer user_data _U_ )
 
 static void
 gsm_a_stat_gtk_sacch_rr_init(
-    const char      *optarg _U_,
+    const char      *opt_arg _U_,
     void* userdata _U_)
 {
     gsm_a_stat_gtk_sacch_rr_cb(NULL, NULL);

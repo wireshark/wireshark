@@ -51,12 +51,12 @@ udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
 
 
 static void
-udpip_conversation_init(const char *optarg, void* userdata _U_)
+udpip_conversation_init(const char *opt_arg, void* userdata _U_)
 {
 	const char *filter=NULL;
 
-	if(!strncmp(optarg,"conv,udp,",9)){
-		filter=optarg+9;
+	if(!strncmp(opt_arg,"conv,udp,",9)){
+		filter=opt_arg+9;
 	} else {
 		filter=NULL;
 	}
