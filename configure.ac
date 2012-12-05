@@ -849,6 +849,17 @@ if test "x$enable_wireshark" = "xyes"; then
 		[])
 
 		#
+		# It also appears to move the printing support into
+		# the QtPrintSupport module.
+		#
+		PKG_CHECK_MODULES([QtPrintSupport], [QtPrintSupport],
+		[
+			CFLAGS="$CFLAGS $QtPrintSupport_CFLAGS"
+			CXXFLAGS="$CXXFLAGS $QtPrintSupport_CFLAGS"
+		],
+		[])
+
+		#
 		# We don't know whether we have GTK+, but we
 		# won't be using it, so it's as if we don't
 		# have it.
