@@ -15,6 +15,10 @@
 
 # LWP is part of the standard Perl module libwww
 
+# As of April 2012 the IEEE content is mostly UTF-8 encoded although some
+# of the entries feature sequences listed at
+# http://www.i18nqa.com/debug/utf8-debug.html
+
 use Encode;
 use open ':encoding(utf8)';
 
@@ -23,15 +27,20 @@ if( $@ ) {
   die "LWP isn't installed. It is part of the standard Perl\n" .
 	" module libwww.  Bailing.\n";
 }
+
+$revision = '$Revision$';
+if ($revision !~ /[0-9]/ ) { $revision = "unknown"; }
+
 $agent    = LWP::UserAgent->new;
 $agent->env_proxy;
+$agent->agent("Wireshark make-manuf/$revision");
 
 $template = "manuf.tmpl";
 $wkatmpl  = "wka.tmpl";
 $outfile  = "manuf";
 $inheader = 1;
-$oui_url  = "http://standards.ieee.org/regauth/oui/oui.txt";
-$iab_url  = "http://standards.ieee.org/regauth/oui/iab.txt";
+$oui_url  = "http://standards.ieee.org/develop/regauth/oui/oui.txt";
+$iab_url  = "http://standards.ieee.org/develop/regauth/iab/iab.txt";
 $cb_url   = "http://www.cavebear.com/archive/cavebear/Ethernet/Ethernet.txt";
 %oui_list = ();
 $hp       = "[0-9a-fA-F]{2}";
@@ -82,7 +91,7 @@ sub fetch
   if (!$result->is_success) {
     die ("Error fetching $url: " . $result->status_line . "\n");
   }
-  return decode("iso-8859-1", $result->content);
+  return decode("utf-8", $result->content);
 }
 
 # Write out the header and populate the OUI list with our entries.

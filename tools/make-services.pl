@@ -38,6 +38,9 @@ my $iana_port_url = "http://www.iana.org/assignments/service-names-port-numbers/
 # is XML. Perhaps we should parse that instead.
 $in = $iana_port_url unless(defined $in);
 
+my $revision = '$Revision$';
+if ($revision !~ /[0-9]/ ) { $revision = "unknown"; }
+
 my $body = "";
 
 if($in =~ m/^http:/i) {
@@ -45,6 +48,7 @@ if($in =~ m/^http:/i) {
 	die "LWP isn't installed. It is part of the standard Perl module libwww." if $@;
 
 	my $agent    = LWP::UserAgent->new;
+	$agent->agent("Wireshark make-services.pl/$revision");
 
 	warn "starting to fetch $in ...\n";
 
