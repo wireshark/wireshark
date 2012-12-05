@@ -36,11 +36,11 @@ for line in lines:
 
     if mode == MODE_VENDOR_PRODUCT:
         if re.match("^[0-9a-f]{4}", line):
-            vendors += "    { 0x%s, \"%s\" },\n"%(line[:4], re.sub("\"", "\\\"", re.sub("\?+", "?", line[4:].strip().replace("\\", "\\\\"))))
+            vendors += "    { 0x%s, \"%s\" },\n"%(line[:4], re.sub("\"", "\\\"", re.sub("\?+", "?", repr(line[4:].strip())[1:-1].replace("\\", "\\\\"))))
             last_vendor = line[:4]
         elif re.match("^\t[0-9a-f]{4}", line):
             line = line.strip()
-            products += "    { 0x%s%s, \"%s\" },\n"%(last_vendor, line[:4], re.sub("\"", "\\\"", re.sub("\?+", "?", line[4:].strip().replace("\\", "\\\\"))))
+            products += "    { 0x%s%s, \"%s\" },\n"%(last_vendor, line[:4], re.sub("\"", "\\\"", re.sub("\?+", "?", repr(line[4:].strip())[1:-1].replace("\\", "\\\\"))))
 
 
 vendors += """    { 0, NULL }\n};
