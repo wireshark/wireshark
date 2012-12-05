@@ -52,6 +52,8 @@
 #include <QSpacerItem>
 #endif // Q_WS_WIN
 
+#include <QPushButton>
+
 #include <QDebug>
 
 #ifdef Q_WS_WIN
