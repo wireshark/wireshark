@@ -7320,7 +7320,7 @@ dissect_japan_isup_additonal_user_cat(tvbuff_t *parameter_tvb, proto_tree *param
 
 static const value_string jpn_isup_reason_for_clip_fail_vals[] = {
   { 0,   "Spare" },
-  { 1,   "User’s request" },
+  { 1,   "User's request" },
   { 2,   "Interaction with other service" },
   { 3,   "Public telephone origination" },
   { 4,   "Spare" },
