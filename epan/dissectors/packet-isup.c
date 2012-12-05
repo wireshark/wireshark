@@ -7148,7 +7148,6 @@ dissect_japan_isup_network_poi_cad(tvbuff_t *parameter_tvb, proto_tree *paramete
     guint8 octet;
     guint8 odd_even;
     guint8 carrier_info_length;
-    gint length=0;
     gint num_octets_with_digits=0;
     gint digit_index=0;
     char ca_number[MAXDIGITS + 1]="";
