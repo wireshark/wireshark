@@ -1474,7 +1474,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
   parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
   if (final_parameter) {
     if (padding_length > 0) {
-      expert_add_info_format(pinfo, parameter_item, PI_MALFORMED, PI_ERROR,
+      expert_add_info_format(pinfo, parameter_item, PI_MALFORMED, PI_NOTE,
                              "The padding of this final parameter should be the padding of the chunk.");
     }
   } else {
