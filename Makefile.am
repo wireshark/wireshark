@@ -795,6 +795,8 @@ EXTRA_DIST = \
 	image/toolbar/telephone_16.xpm	\
 	image/toolbar/telephony_16.xpm	\
 	image/toolbar/time_24.xpm	\
+	image/toolbar/toolbar_wireshark_file_16.png	\
+	image/toolbar/toolbar_wireshark_file_24.png	\
 	image/toolbar/voip_flow_24.xpm	\
 	image/toolbar/web_support_24.xpm	\
 	image/toolbar/wep_closed_24.xpm \
@@ -814,7 +816,6 @@ EXTRA_DIST = \
 	image/WiresharkDoc-32.png	\
 	image/WiresharkDoc-48.png	\
 	image/WiresharkDoc-64.png	\
-	image/WiresharkDoc_24.xpm	\
 	image/wiretap.rc.in	\
 	image/wsicon.svg	\
 	image/wsicon16.png	\

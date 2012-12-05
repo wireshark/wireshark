@@ -586,7 +586,7 @@
   <action name="actionFileSave">
    <property name="icon">
     <iconset resource="../../image/toolbar.qrc">
-     <normaloff>:/toolbar/main/WiresharkDoc-24.png</normaloff>:/toolbar/main/WiresharkDoc-24.png</iconset>
+     <normaloff>:/toolbar/main/toolbar/toolbar_wireshark_file_24.png</normaloff>:/toolbar/main/toolbar/toolbar_wireshark_file_24.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Save</string>
@@ -601,7 +601,7 @@
   <action name="actionFileSaveAs">
    <property name="icon">
     <iconset resource="../../image/toolbar.qrc">
-     <normaloff>:/toolbar/main/WiresharkDoc-24.png</normaloff>:/toolbar/main/WiresharkDoc-24.png</iconset>
+     <normaloff>:/toolbar/main/toolbar/toolbar_wireshark_file_24.png</normaloff>:/toolbar/main/toolbar/toolbar_wireshark_file_24.png</iconset>
    </property>
    <property name="text">
     <string>Save &amp;As...</string>

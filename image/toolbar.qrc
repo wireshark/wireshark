@@ -3,7 +3,7 @@
         <file>capture_start_24.png</file>
         <file>capture_stop_24.png</file>
         <file>capture_start_active_24.png</file>
-        <file>WiresharkDoc-24.png</file>
+        <file>toolbar/toolbar_wireshark_file_24.png</file>
     </qresource>
     <qresource prefix="/menu/help">
         <file alias="wsicon16.xpm">wsicon16.xpm</file>

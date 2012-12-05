@@ -28,6 +28,7 @@
 #include <gtk/gtk.h>
 
 #include "ui/gtk/stock_icons.h"
+#include "ui/gtk/toolbar_icons.h"
 
 /* these icons are derived from the original stock icons */
 #include "../../image/toolbar/capture_interfaces_24.xpm"
@@ -72,12 +73,17 @@
 #include "../../image/toolbar/voip_flow_24.xpm"
 #include "../../image/toolbar/telephone_16.xpm"
 #include "../../image/toolbar/analyze_24.xpm"
-#include "../../image/WiresharkDoc_24.xpm"
 
 typedef struct stock_pixmap_tag{
     const char *    name;
     const char **   xpm_data;
 } stock_pixmap_t;
+
+typedef struct stock_pixbuf_tag{
+    const char    * name;
+    const guint8 * pb_data16; /* Optional */
+    const guint8 * pb_data24; /* Mandatory */
+} stock_pixbuf_t;
 
 /* generate application specific stock items */
 void stock_icons_init(void) {
@@ -211,10 +217,13 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_TELEPHONE,             telephone_16_xpm},
         { WIRESHARK_STOCK_PREPARE_FILTER,        display_filter_24_xpm},
         { WIRESHARK_STOCK_ANALYZE,               analyze_24_xpm},
-	{ WIRESHARK_STOCK_FILE,                  WiresharkDoc_24_xpm},
         { NULL, NULL }
     };
 
+    static const stock_pixbuf_t pixbufs[] = {
+        { WIRESHARK_STOCK_FILE,          toolbar_wireshark_file_16_pb_data, toolbar_wireshark_file_24_pb_data},
+        { NULL, NULL, NULL }
+    };
     /* Register our stock items */
     gtk_stock_add (stock_items, G_N_ELEMENTS (stock_items));
 
@@ -222,7 +231,8 @@ void stock_icons_init(void) {
     factory = gtk_icon_factory_new();
     gtk_icon_factory_add_default(factory);
 
-    /* Create the stock items to add into our icon factory */
+    /* Add pixmaps our icon factory */
+    /* Please use pixbufs (below) for new icons */
     for (i = 0; pixmaps[i].name != NULL; i++) {
         /* The default icon */
         pixbuf = gdk_pixbuf_new_from_xpm_data((const char **) (pixmaps[i].xpm_data));
@@ -235,6 +245,23 @@ void stock_icons_init(void) {
         gtk_icon_factory_add (factory, pixmaps[i].name, icon_set);
         gtk_icon_set_unref (icon_set);
         g_object_unref (G_OBJECT (pixbuf));
+    }
+
+    /* Add pixbufs our icon factory */
+    for (i = 0; pixbufs[i].name != NULL; i++) {
+        /* Default image */
+        icon_set = gtk_icon_set_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, pixbufs[i].pb_data24, FALSE, NULL));
+
+        if (pixbufs[i].pb_data16) {
+            GtkIconSource *source16 = gtk_icon_source_new();
+            gtk_icon_source_set_pixbuf(source16, gdk_pixbuf_new_from_inline(-1, pixbufs[i].pb_data16, FALSE, NULL));
+            gtk_icon_source_set_size_wildcarded(source16, FALSE);
+            gtk_icon_source_set_size(source16, GTK_ICON_SIZE_MENU);
+            gtk_icon_set_add_source(icon_set, source16);
+        }
+
+        gtk_icon_factory_add (factory, pixbufs[i].name, icon_set);
+        gtk_icon_set_unref (icon_set);
     }
 
     /* use default stock icons for Wireshark specifics where the icon metapher makes sense */
@@ -270,4 +297,15 @@ void stock_icons_init(void) {
     g_object_unref (G_OBJECT (factory));
 }
 
-
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

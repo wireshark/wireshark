@@ -132,6 +132,16 @@ pipe_icon.h:
 	echo >> $@
 	gdk-pixbuf-csource --raw --name=pipe_pb_data $(top_srcdir)/image/toolbar/pipe_16.png >> $@
 
+toolbar_icons.h:
+	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
+	echo >> $@
+	for icon16 in wireshark_file ; do \
+		gdk-pixbuf-csource --raw --name=toolbar_$${icon16}_16_pb_data $(top_srcdir)/image/toolbar/toolbar_$${icon16}_16.png >> $@ ;\
+	done
+	for icon24 in wireshark_file ; do \
+		gdk-pixbuf-csource --raw --name=toolbar_$${icon24}_24_pb_data $(top_srcdir)/image/toolbar/toolbar_$${icon24}_24.png >> $@ ;\
+	done
+
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
 	airpcap_dlg.c			\

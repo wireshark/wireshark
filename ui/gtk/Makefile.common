@@ -145,6 +145,7 @@ WIRESHARK_GTK_SRC = \
 about_dlg.c main_welcome.c: ../../image/wssplash.xpm ../../image/wssplash-dev.xpm remote_icons.h
 main_statusbar.c: expert_indicators.h capture_comment_icons.h
 capture_if_dlg.c: network_icons.h remote_icons.h pipe_icon.h
+stock_icons.c: toolbar_icons.h
 
 WIRESHARK_TAP_SRC = \
 	afp_stat.c	\
@@ -336,6 +337,7 @@ noinst_HEADERS = \
 	supported_protos_dlg.h   \
 	tap_param_dlg.h	\
 	text_page_utils.h	\
+	toolbar_icons.h	\
 	uat_gui.h \
 	voip_calls.h	\
 	voip_calls_dlg.h \
