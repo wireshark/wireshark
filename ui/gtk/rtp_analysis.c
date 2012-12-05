@@ -230,14 +230,14 @@ struct _info_direction {
 * and structures for both directions */
 typedef struct _user_data_t {
 	/* tap associated data*/
-	address ip_src_fwd;
+	address src_fwd;
 	guint32 port_src_fwd;
-	address ip_dst_fwd;
+	address dst_fwd;
 	guint32 port_dst_fwd;
 	guint32 ssrc_fwd;
-	address ip_src_rev;
+	address src_rev;
 	guint32 port_src_rev;
-	address ip_dst_rev;
+	address dst_rev;
 	guint32 port_dst_rev;
 	guint32 ssrc_rev;
 
@@ -484,9 +484,9 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		return 0;
 	/* is it the forward direction?  */
 	else if (user_data->ssrc_fwd == rtpinfo->info_sync_src
-		&& CMP_ADDRESS(&(user_data->ip_src_fwd), &(pinfo->net_src)) == 0
+		&& CMP_ADDRESS(&(user_data->src_fwd), &(pinfo->src)) == 0
 		&& user_data->port_src_fwd == pinfo->srcport
-		&& CMP_ADDRESS(&(user_data->ip_dst_fwd), &(pinfo->net_dst)) == 0
+		&& CMP_ADDRESS(&(user_data->dst_fwd), &(pinfo->dst)) == 0
 		&& user_data->port_dst_fwd == pinfo->destport)  {
 		rtp_packet_analyse(&(user_data->forward.statinfo), pinfo, rtpinfo);
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]),
@@ -506,9 +506,9 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 	}
 	/* is it the reversed direction? */
 	else if (user_data->ssrc_rev == rtpinfo->info_sync_src
-		&& CMP_ADDRESS(&(user_data->ip_src_rev), &(pinfo->net_src)) == 0
+		&& CMP_ADDRESS(&(user_data->src_rev), &(pinfo->src)) == 0
 		&& user_data->port_src_rev == pinfo->srcport
-		&& CMP_ADDRESS(&(user_data->ip_dst_rev), &(pinfo->net_dst)) == 0
+		&& CMP_ADDRESS(&(user_data->dst_rev), &(pinfo->dst)) == 0
 		&& user_data->port_dst_rev == pinfo->destport)  {
 		rtp_packet_analyse(&(user_data->reversed.statinfo), pinfo, rtpinfo);
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]),
@@ -836,13 +836,13 @@ static void dialog_graph_set_title(user_data_t* user_data)
 		return;
 	}
 	title = g_strdup_printf("RTP Graph Analysis Forward: %s:%u to %s:%u   Reverse: %s:%u to %s:%u",
-			get_addr_name(&(user_data->ip_src_fwd)),
+			get_addr_name(&(user_data->src_fwd)),
 			user_data->port_src_fwd,
-			get_addr_name(&(user_data->ip_dst_fwd)),
+			get_addr_name(&(user_data->dst_fwd)),
 			user_data->port_dst_fwd,
-			get_addr_name(&(user_data->ip_src_rev)),
+			get_addr_name(&(user_data->src_rev)),
 			user_data->port_src_rev,
-			get_addr_name(&(user_data->ip_dst_rev)),
+			get_addr_name(&(user_data->dst_rev)),
 			user_data->port_dst_rev);
 
 	gtk_window_set_title(GTK_WINDOW(user_data->dlg.dialog_graph.window), title);
@@ -877,9 +877,9 @@ static void dialog_graph_reset(user_data_t* user_data)
 				   sizeof(user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u (SSRC=0x%X)",
 				   graph_descr[i],
-				   get_addr_name(&(user_data->ip_src_fwd)),
+				   get_addr_name(&(user_data->src_fwd)),
 				   user_data->port_src_fwd,
-				   get_addr_name(&(user_data->ip_dst_fwd)),
+				   get_addr_name(&(user_data->dst_fwd)),
 				   user_data->port_dst_fwd,
 				   user_data->ssrc_fwd);
 		/* it is reverse */
@@ -888,9 +888,9 @@ static void dialog_graph_reset(user_data_t* user_data)
 				   sizeof(user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u (SSRC=0x%X)",
 				   graph_descr[i],
-				   get_addr_name(&(user_data->ip_src_rev)),
+				   get_addr_name(&(user_data->src_rev)),
 				   user_data->port_src_rev,
-				   get_addr_name(&(user_data->ip_dst_rev)),
+				   get_addr_name(&(user_data->dst_rev)),
 				   user_data->port_dst_rev,
 				   user_data->ssrc_rev);
 		}
@@ -3393,8 +3393,8 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gchar label_forward_tree[150];
 	gchar label_reverse[150];
 
-	gchar str_ip_src[16];
-	gchar str_ip_dst[16];
+	gchar str_src[16];
+	gchar str_dst[16];
 
 	window = dlg_window_new("Wireshark: RTP Stream Analysis");  /* transient_for top_level */
 	gtk_window_set_default_size(GTK_WINDOW(window), 700, 400);
@@ -3406,24 +3406,24 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(main_vb);
 
 	/* Notebooks... */
-	g_strlcpy(str_ip_src, get_addr_name(&(user_data->ip_src_fwd)), sizeof(str_ip_src));
-	g_strlcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_fwd)), sizeof(str_ip_dst));
+	g_strlcpy(str_src, get_addr_name(&(user_data->src_fwd)), sizeof(str_src));
+	g_strlcpy(str_dst, get_addr_name(&(user_data->dst_fwd)), sizeof(str_dst));
 
 	g_snprintf(label_forward, sizeof(label_forward),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
-		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
+		str_src, user_data->port_src_fwd, str_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 	g_snprintf(label_forward_tree, sizeof(label_forward_tree),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
-		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
+		str_src, user_data->port_src_fwd, str_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 
-	g_strlcpy(str_ip_src, get_addr_name(&(user_data->ip_src_rev)), sizeof(str_ip_src));
-	g_strlcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_rev)), sizeof(str_ip_dst));
+	g_strlcpy(str_src, get_addr_name(&(user_data->src_rev)), sizeof(str_src));
+	g_strlcpy(str_dst, get_addr_name(&(user_data->dst_rev)), sizeof(str_dst));
 
 	g_snprintf(label_reverse, sizeof(label_reverse),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
-		str_ip_src, user_data->port_src_rev, str_ip_dst, user_data->port_dst_rev, user_data->ssrc_rev);
+		str_src, user_data->port_src_rev, str_dst, user_data->port_dst_rev, user_data->ssrc_rev);
 
 	/* Start a notebook for flipping between sets of changes */
 	notebook = gtk_notebook_new();
@@ -3639,14 +3639,14 @@ static gboolean get_int_value_from_proto_tree(proto_tree *protocol_tree,
 
 /****************************************************************************/
 void rtp_analysis(
-		address *ip_src_fwd,
+		address *src_fwd,
 		guint32 port_src_fwd,
-		address *ip_dst_fwd,
+		address *dst_fwd,
 		guint32 port_dst_fwd,
 		guint32 ssrc_fwd,
-		address *ip_src_rev,
+		address *src_rev,
 		guint32 port_src_rev,
-		address *ip_dst_rev,
+		address *dst_rev,
 		guint32 port_dst_rev,
 		guint32 ssrc_rev
 		)
@@ -3678,14 +3678,14 @@ void rtp_analysis(
 	/* init */
 	user_data = g_malloc(sizeof(user_data_t));
 
-	COPY_ADDRESS(&(user_data->ip_src_fwd), ip_src_fwd);
+	COPY_ADDRESS(&(user_data->src_fwd), src_fwd);
 	user_data->port_src_fwd = port_src_fwd;
-	COPY_ADDRESS(&(user_data->ip_dst_fwd), ip_dst_fwd);
+	COPY_ADDRESS(&(user_data->dst_fwd), dst_fwd);
 	user_data->port_dst_fwd = port_dst_fwd;
 	user_data->ssrc_fwd = ssrc_fwd;
-	COPY_ADDRESS(&(user_data->ip_src_rev), ip_src_rev);
+	COPY_ADDRESS(&(user_data->src_rev), src_rev);
 	user_data->port_src_rev = port_src_rev;
-	COPY_ADDRESS(&(user_data->ip_dst_rev), ip_dst_rev);
+	COPY_ADDRESS(&(user_data->dst_rev), dst_rev);
 	user_data->port_dst_rev = port_dst_rev;
 	user_data->ssrc_rev = ssrc_rev;
 
@@ -3765,14 +3765,14 @@ void rtp_analysis(
 /* entry point from main menu */
 void rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-	address ip_src_fwd;
+	address src_fwd;
 	guint32 port_src_fwd;
-	address ip_dst_fwd;
+	address dst_fwd;
 	guint32 port_dst_fwd;
 	guint32 ssrc_fwd = 0;
-	address ip_src_rev;
+	address src_rev;
 	guint32 port_src_rev;
-	address ip_dst_rev;
+	address dst_rev;
 	guint32 port_dst_rev;
 	guint32 ssrc_rev = 0;
 	unsigned int version_fwd;
@@ -3819,14 +3819,14 @@ void rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	}
 
 	/* ok, it is a RTP frame, so let's get the ip and port values */
-	COPY_ADDRESS(&(ip_src_fwd), &(edt.pi.src))
-	COPY_ADDRESS(&(ip_dst_fwd), &(edt.pi.dst))
+	COPY_ADDRESS(&(src_fwd), &(edt.pi.src))
+	COPY_ADDRESS(&(dst_fwd), &(edt.pi.dst))
 	port_src_fwd = edt.pi.srcport;
 	port_dst_fwd = edt.pi.destport;
 
 	/* assume the inverse ip/port combination for the reverse direction */
-	COPY_ADDRESS(&(ip_src_rev), &(edt.pi.dst))
-	COPY_ADDRESS(&(ip_dst_rev), &(edt.pi.src))
+	COPY_ADDRESS(&(src_rev), &(edt.pi.dst))
+	COPY_ADDRESS(&(dst_rev), &(edt.pi.src))
 	port_src_rev = edt.pi.destport;
 	port_dst_rev = edt.pi.srcport;
 
@@ -3852,17 +3852,17 @@ void rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	while (strinfo_list)
 	{
 		strinfo = (rtp_stream_info_t*)(strinfo_list->data);
-		if (ADDRESSES_EQUAL(&(strinfo->src_addr),&(ip_src_fwd))
+		if (ADDRESSES_EQUAL(&(strinfo->src_addr),&(src_fwd))
 			&& strinfo->src_port==port_src_fwd
-			&& ADDRESSES_EQUAL(&(strinfo->dest_addr),&(ip_dst_fwd))
+			&& ADDRESSES_EQUAL(&(strinfo->dest_addr),&(dst_fwd))
 			&& strinfo->dest_port==port_dst_fwd)
 		{
 			filtered_list = g_list_prepend(filtered_list, strinfo);
 		}
 
-		if (ADDRESSES_EQUAL(&(strinfo->src_addr),&(ip_src_rev))
+		if (ADDRESSES_EQUAL(&(strinfo->src_addr),&(src_rev))
 			&& strinfo->src_port==port_src_rev
-			&& ADDRESSES_EQUAL(&(strinfo->dest_addr),&(ip_dst_rev))
+			&& ADDRESSES_EQUAL(&(strinfo->dest_addr),&(dst_rev))
 			&& strinfo->dest_port==port_dst_rev)
 		{
 			++nfound;
@@ -3881,14 +3881,14 @@ void rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	}
 	else {
 		rtp_analysis(
-			&ip_src_fwd,
+			&src_fwd,
 			port_src_fwd,
-			&ip_dst_fwd,
+			&dst_fwd,
 			port_dst_fwd,
 			ssrc_fwd,
-			&ip_src_rev,
+			&src_rev,
 			port_src_rev,
-			&ip_dst_rev,
+			&dst_rev,
 			port_dst_rev,
 			ssrc_rev
 			);

@@ -499,14 +499,14 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 static void
 rtpstream_on_analyse(GtkButton *button _U_, gpointer user_data _U_)
 {
-	address ip_src_fwd;
+	address src_fwd;
 	guint32 port_src_fwd = 0;
-	address ip_dst_fwd;
+	address dst_fwd;
 	guint32 port_dst_fwd = 0;
 	guint32 ssrc_fwd = 0;
-	address ip_src_rev;
+	address src_rev;
 	guint32 port_src_rev = 0;
-	address ip_dst_rev;
+	address dst_rev;
 	guint32 port_dst_rev = 0;
 	guint32 ssrc_rev = 0;
 
@@ -515,36 +515,36 @@ rtpstream_on_analyse(GtkButton *button _U_, gpointer user_data _U_)
 		return;
 	}
 
-	SET_ADDRESS(&ip_src_fwd,AT_NONE,0,NULL);
-	SET_ADDRESS(&ip_dst_fwd,AT_NONE,0,NULL);
-	SET_ADDRESS(&ip_src_rev,AT_NONE,0,NULL);
-	SET_ADDRESS(&ip_dst_rev,AT_NONE,0,NULL);
+	SET_ADDRESS(&src_fwd,AT_NONE,0,NULL);
+	SET_ADDRESS(&dst_fwd,AT_NONE,0,NULL);
+	SET_ADDRESS(&src_rev,AT_NONE,0,NULL);
+	SET_ADDRESS(&dst_rev,AT_NONE,0,NULL);
 
 	if (selected_stream_fwd) {
-		COPY_ADDRESS(&(ip_src_fwd), &(selected_stream_fwd->src_addr));
+		COPY_ADDRESS(&(src_fwd), &(selected_stream_fwd->src_addr));
 		port_src_fwd = selected_stream_fwd->src_port;
-		COPY_ADDRESS(&(ip_dst_fwd), &(selected_stream_fwd->dest_addr));
+		COPY_ADDRESS(&(dst_fwd), &(selected_stream_fwd->dest_addr));
 		port_dst_fwd = selected_stream_fwd->dest_port;
 		ssrc_fwd = selected_stream_fwd->ssrc;
 	}
 
 	if (selected_stream_rev) {
-		COPY_ADDRESS(&(ip_src_rev), &(selected_stream_rev->src_addr));
+		COPY_ADDRESS(&(src_rev), &(selected_stream_rev->src_addr));
 		port_src_rev = selected_stream_rev->src_port;
-		COPY_ADDRESS(&(ip_dst_rev), &(selected_stream_rev->dest_addr));
+		COPY_ADDRESS(&(dst_rev), &(selected_stream_rev->dest_addr));
 		port_dst_rev = selected_stream_rev->dest_port;
 		ssrc_rev = selected_stream_rev->ssrc;
 	}
 
 	rtp_analysis(
-		&ip_src_fwd,
+		&src_fwd,
 		port_src_fwd,
-		&ip_dst_fwd,
+		&dst_fwd,
 		port_dst_fwd,
 		ssrc_fwd,
-		&ip_src_rev,
+		&src_rev,
 		port_src_rev,
-		&ip_dst_rev,
+		&dst_rev,
 		port_dst_rev,
 		ssrc_rev
 		);
@@ -797,7 +797,7 @@ create_list_view(void)
 	 * cell_renderer to the first column of the model
 	 */
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("Src IP addr", renderer,
+	column = gtk_tree_view_column_new_with_attributes("Src addr", renderer,
 		"text", RTP_COL_SRC_ADDR,
 		NULL);
 	gtk_tree_view_column_set_sort_column_id(column, RTP_COL_SRC_ADDR);
@@ -822,7 +822,7 @@ create_list_view(void)
 
 	/* Destination address */
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("Dst IP addr", renderer,
+	column = gtk_tree_view_column_new_with_attributes("Dst addr", renderer,
 		"text", RTP_COL_DST_ADDR,
 		NULL);
 	gtk_tree_view_column_set_sort_column_id(column, RTP_COL_DST_ADDR);
