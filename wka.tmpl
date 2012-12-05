@@ -62,6 +62,20 @@
 01-00-81-00-00-02	Nortel-Network-Management
 01-00-81-00-01-00	Nortel-autodiscovery
 01-00-81-00-01-01	Nortel-autodiscovery
+#
+# As per
+#
+#	http://www.t11.org/ftp/t11/pub/fc/bb-5/08-334v0.pdf
+#
+# Broadcom "donated" one of their OUIs, 00-10-18, for use for
+# Fibre Channel over Ethernet, so we add entries for the
+# addresses in that document and a group of addresses for all
+# otherwise unlisted 01-10-18-XX-XX-XX addresses.
+#
+01-10-18-01-00-00	All-FCoE-MACs
+01-10-18-01-00-01	All-ENode-MACs
+01-10-18-01-00-02	All-FCF-MACs
+01-10-18-00-00-00/24	FCoE-group
 01-11-1E-00-00-01	EPLv2_SoC
 01-11-1E-00-00-02	EPLv2_PRes
 01-11-1E-00-00-03	EPLv2_SoA
