@@ -379,8 +379,7 @@ static void rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     }
 
     /* Create top-level struct */
-    hs = g_malloc(sizeof(rlc_lte_stat_t));
-    memset(hs, 0,  sizeof(rlc_lte_stat_t));
+    hs = g_malloc0(sizeof(rlc_lte_stat_t));
     hs->ep_list = NULL;
 
 

@@ -518,7 +518,7 @@ static void mac_lte_stat_init(const char *optarg, void *userdata _U_)
     }
 
     /* Create struct */
-    hs = g_malloc(sizeof(mac_lte_stat_t));
+    hs = g_malloc0(sizeof(mac_lte_stat_t));
     hs->ep_list = NULL;
 
     error_string = register_tap_listener("mac-lte", hs,
