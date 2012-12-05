@@ -2,13 +2,14 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * Copyright 2004-2005, Anders Broman <anders.broman@ericsson.com>
  * Modified 2003-09-10 by Anders Broman
  *          <anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
+ *
+ * Copyright 2004-2005, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -2825,21 +2826,26 @@ static int hf_isup_israeli_time_indicator = -1;
 static int hf_isup_israeli_next_rate = -1;
 
 static int hf_japan_isup_redirect_capability = -1;
+static int hf_japan_isup_redirect_counter = -1;
 static int hf_japan_isup_rfi_info_type = -1;
 static int hf_japan_isup_rfi_info_len = -1;
 static int hf_japan_isup_perf_redir_reason = -1;
 static int hf_japan_isup_redir_pos_ind = -1;
 static int hf_japan_isup_inv_redir_reason = -1;
+static int hf_japan_isup_bwd_info_type = -1;
+static int hf_japan_isup_tag_len = -1;
+static int hf_japan_isup_hold_at_emerg_call_disc_ind = -1;
 static int hf_japan_isup_add_user_cat_type = -1;
 static int hf_japan_isup_type_1_add_fixed_serv_inf = -1;
 static int hf_japan_isup_type_1_add_mobile_serv_inf = -1;
 static int hf_japan_isup_type_2_add_mobile_serv_inf = -1;
 static int hf_japan_isup_type_3_add_mobile_serv_inf = -1;
+static int hf_japan_isup_reason_for_clip_fail = -1;
 
 static int hf_isup_carrier_info_iec = -1;
 /*static int hf_isup_carrier_info_cat_of_carrier = -1;*/
-/*static int hf_isup_carrier_info_length_of_carrierX = -1;*/
 /*static int hf_isup_carrier_info_type_of_carrier_info = -1;*/
+static int hf_japan_isup_carrier_info_length = -1;
 static int hf_isup_carrier_info_odd_no_digits = -1;
 static int hf_isup_carrier_info_even_no_digits = -1;
 static int hf_isup_carrier_info_ca_odd_no_digits = -1;
@@ -2847,6 +2853,7 @@ static int hf_isup_carrier_info_ca_even_no_digits = -1;
 static int hf_isup_carrier_info_poi_entry_HEI = -1;
 static int hf_isup_carrier_info_poi_exit_HEI = -1;
 
+static int hf_japan_isup_charge_delay_type = -1;
 static int hf_japan_isup_charge_info_type = -1;
 static int hf_japan_isup_sig_elem_type = -1;
 static int hf_japan_isup_activation_id = -1;
@@ -6527,9 +6534,19 @@ dissect_isup_uid_capability_indicators_parameter(tvbuff_t *parameter_tvb, proto_
  Parameter Redirect counter
  */
 static void
-dissect_isup_redirect_counter_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Redirect counter (format is a national matter)");
+dissect_isup_redirect_counter_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, guint8 itu_isup_variant)
+{ 
+  guint length = tvb_length(parameter_tvb);
+
+  switch(itu_isup_variant) {
+        case ISUP_JAPAN_VARIANT:
+			proto_tree_add_item(parameter_tree, hf_japan_isup_redirect_counter, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+			break;
+		default:
+            proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "Redirect counter (format is a national matter)");
+			break;
+  }
+  
   proto_item_set_text(parameter_item, "Redirect counter (%u Byte%s)", length , plurality(length, "", "s"));
 }
 /* ------------------------------------------------------------------
@@ -7054,6 +7071,166 @@ dissect_japan_isup_redirect_fwd_inf(tvbuff_t *parameter_tvb, proto_tree *paramet
 
 }
 
+
+static const value_string japan_isup_bwd_info_type_vals[] = {
+  { 0,   "Reserved" },
+  { 1,   "Reserved" },
+  { 2,   "Reserved" },
+  { 3,   "invoking redirect reason" },
+  { 0,   NULL}
+};
+
+static void
+dissect_japan_isup_redirect_backw_inf(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    int offset = 0;
+    guint8 tag, tag_len, ext_ind;
+    int parameter_length;
+
+    parameter_length = tvb_length_remaining(parameter_tvb, offset);
+
+    while(offset<parameter_length){
+        /* Information Type Tag */
+        tag = tvb_get_guint8(parameter_tvb,offset);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_bwd_info_type, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* Information Type Length */
+        tag_len = tvb_get_guint8(parameter_tvb,offset);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_tag_len, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        switch(tag){
+        case 3: /* invoking redirect reason */
+            /* invoking redirect reason oct 1 */
+            ext_ind = 0;
+            while(ext_ind==0){
+                ext_ind = tvb_get_guint8(parameter_tvb, offset)>>7;
+                proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_japan_isup_inv_redir_reason, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+            }
+            break;
+        default:
+            /* Information Type Value */
+            proto_tree_add_text(parameter_tree, parameter_tvb, offset, tag_len, "Unknown(not dissected) tag");
+            offset = offset + tag_len;
+            break;
+        }
+    }
+
+    proto_item_set_text(parameter_item, "Redirect backward information");
+
+}
+static const value_string hold_at_emerg_call_disc_ind_vals[] = {
+  { 0,   "No indication" },
+  { 1,   "Emergency Call is holding" },
+  { 2,   "Call Back from the Emergency Center" },
+  { 3,   "Re-answer to an Emergency call" },
+  { 0,   NULL}
+};
+
+static void
+dissect_japan_isup_emergency_call_inf_ind(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    int offset = 0;
+
+
+    proto_tree_add_item(parameter_tree, hf_japan_isup_hold_at_emerg_call_disc_ind, parameter_tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_item_set_text(parameter_item, "Emergency Call Information Indicator");
+
+}
+
+static void
+dissect_japan_isup_network_poi_cad(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    proto_item *digits_item;
+    proto_tree *digits_tree;
+    int offset = 0;
+    guint8 octet;
+    guint8 odd_even;
+    guint8 carrier_info_length;
+    gint length=0;
+    gint num_octets_with_digits=0;
+    gint digit_index=0;
+    char ca_number[MAXDIGITS + 1]="";
+
+	/* POI Hierarchy information
+
+        8     7     6     5     4     3     2    1
+    +-----------------------|-----------------------+
+    |  Entry POI Hierarchy  |  Exit POI Hierarchy   |  1
+    |                       |                       |
+    \-----------------------------------------------|
+
+    */
+
+    /* POI Hierarchy information */
+    proto_tree_add_item(parameter_tree, hf_isup_carrier_info_poi_entry_HEI, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_isup_carrier_info_poi_exit_HEI, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+	/* length of CA information (in octets) */
+	carrier_info_length = tvb_get_guint8(parameter_tvb, offset);
+    proto_tree_add_item(parameter_tree, hf_japan_isup_carrier_info_length, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* POI|CA information (Charge Area)
+
+        8     7     6     5     4     3     2     1
+    +-----|-----------------------------------------+
+    |Odd/ |                Spare                    |  1
+    |even |                                         |
+    +-----------------------------------------------+
+    |   2nd CA code digit   |   1st CA code digit   |  2
+    |                       |                       |
+    +-----------------------+-----------------------+
+        .                      .                       .
+    .                      .                       .
+    .                      .                       .
+    +-----------------------+-----------------------+
+    |         Filler        |   5|th CA code digit  |  m
+    |                       |                       |
+    \-----------------------------------------------|
+    */
+
+    digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,offset, -1,"Charge Area:");
+    digits_tree = proto_item_add_subtree(digits_item, ett_isup_address_digits);
+
+    /* Odd.Even Indicator*/
+    odd_even = tvb_get_guint8(parameter_tvb,offset);
+    proto_tree_add_boolean(digits_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, odd_even);
+
+    /* Number of Octets containing digits*/
+    num_octets_with_digits = carrier_info_length - 1;
+
+    /* Lets now load up the digits.*/
+    /* If the odd indicator is set... drop the Filler from the last octet.*/
+    /* This loop also loads up ca_number with the digits for display*/
+    digit_index=0;
+    while(num_octets_with_digits>0){
+        offset++;
+        octet = tvb_get_guint8(parameter_tvb,offset);
+        proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_odd_no_digits, parameter_tvb, 0, 1, octet);
+        ca_number[digit_index++] = number_to_char(octet & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+        if(num_octets_with_digits==1){
+            if(odd_even==0){
+                proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
+                ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+            }
+        }
+        else{
+            proto_tree_add_uint(digits_tree, hf_isup_carrier_info_ca_even_no_digits, parameter_tvb, 0, 1, octet);
+            ca_number[digit_index++] = number_to_char((octet & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+        }
+
+        num_octets_with_digits --;
+    }
+    ca_number[digit_index++] = '\0';
+    proto_item_set_text(digits_item, "Charge Area Number : %s", ca_number);
+
+    proto_item_set_text(parameter_item, "Network POI-CA");
+
+}
+
 static const range_string jpn_isup_add_user_cat_type_vals[] = {
     {  0,    0,			"Spare" },
     {  1,    0x80,		"Reserved for network specific use" },
@@ -7141,6 +7318,48 @@ dissect_japan_isup_additonal_user_cat(tvbuff_t *parameter_tvb, proto_tree *param
 
 }
 
+
+static const value_string jpn_isup_reason_for_clip_fail_vals[] = {
+  { 0,   "Spare" },
+  { 1,   "User’s request" },
+  { 2,   "Interaction with other service" },
+  { 3,   "Public telephone origination" },
+  { 4,   "Spare" },
+  { 0,   NULL}
+};
+static void
+dissect_japan_isup_reason_for_clip_fail(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    int offset = 0;
+
+
+    proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_japan_isup_reason_for_clip_fail, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    proto_item_set_text(parameter_item, "Reason for CLIP failure");
+
+}
+
+static void
+dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+    int offset = 0;
+    int parameter_length;
+
+    parameter_length = tvb_length_remaining(parameter_tvb, offset);
+
+    proto_tree_add_item(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_isup_called_party_nature_of_address_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_text(parameter_tree, parameter_tvb, offset, parameter_length-offset, "Number not dissected yet");
+
+    proto_item_set_text(parameter_item, "Contractor Number");
+
+}
 /* ------------------------------------------------------------------
   Dissector Parameter Optional .Carrier Information
 
@@ -7383,6 +7602,34 @@ dissect_japan_isup_carrier_information(tvbuff_t *parameter_tvb, proto_tree *para
 
 }
 
+
+static const range_string japan_isup_charge_delay_type_value[] = {
+    {  0,    0,			"Spare" },
+    {  1,    0xfc,		"Reserved for network specific use" },
+    {  0x81, 0xfa,		"Spare" },
+    {  0xfd, 0xfd,		"Charge rate transfer" },
+    {  0xfe, 0xfe,		"Terminating charge area information" },
+    {  0xff, 0xff,		"Spare" },
+    {  0,0,             NULL } };
+
+static void
+dissect_japan_isup_charge_inf_delay(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+
+    int offset = 0;
+    int parameter_length;
+
+    parameter_length = tvb_length_remaining(parameter_tvb, offset);
+
+    while(offset<parameter_length){
+		proto_tree_add_item(parameter_tree, hf_japan_isup_charge_delay_type, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+	}
+
+    /* Write to top of tree */
+    proto_item_set_text(parameter_item, "Carrier Information");
+
+}
 
 /* ----------------------------------------------------
   Dissector Parameter Optional .Additional User Information
@@ -7914,7 +8161,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
             dissect_isup_uid_capability_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_REDIRECT_COUNTER:
-            dissect_isup_redirect_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_redirect_counter_parameter(parameter_tvb, parameter_tree, parameter_item, itu_isup_variant);
             break;
           case PARAM_TYPE_COLLECT_CALL_REQ:
             dissect_isup_collect_call_request_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -7936,16 +8183,34 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
                 case JAPAN_ISUP_PARAM_CALLED_DIRECTORY_NUMBER:
                     dissect_japan_isup_called_dir_num(parameter_tvb, parameter_tree, parameter_item);
                     break;
-                case JAPAN_ISUP_PARAM_REDIRECT_FORWARD_INF: /* 0x8D */
+                case JAPAN_ISUP_PARAM_REDIRECT_FORWARD_INF: /* 0x8B */
                     dissect_japan_isup_redirect_fwd_inf(parameter_tvb, parameter_tree, parameter_item);
                     break;
-                case JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT:
-                    dissect_japan_isup_additonal_user_cat(parameter_tvb, parameter_tree, parameter_item);
+                case JAPAN_ISUP_PARAM_REDIRECT_BACKWARD_INF:  /* 0x8C */
+                    dissect_japan_isup_redirect_backw_inf(parameter_tvb, parameter_tree, parameter_item);
                     break;
-                case JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO:
+                case JAPAN_ISUP_PARAM_EMERGENCY_CALL_INF_IND: /* EC */
+                    dissect_japan_isup_emergency_call_inf_ind(parameter_tvb, parameter_tree, parameter_item);
+                    break;
+                case JAPAN_ISUP_PARAM_NETWORK_POI_CA: /* EE */
+                    dissect_japan_isup_network_poi_cad(parameter_tvb, parameter_tree, parameter_item);
+                    break;
+                case JAPAN_ISUP_PARAM_TYPE_CARRIER_INFO: /* 241 F1 */
                     dissect_japan_isup_carrier_information(parameter_tvb, parameter_tree, parameter_item);
                     break;
-                case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE:
+                case JAPAN_ISUP_PARAM_CHARGE_INF_DELAY:  /* 242 F2 */
+                    dissect_japan_isup_charge_inf_delay(parameter_tvb, parameter_tree, parameter_item);
+                    break;
+                case JAPAN_ISUP_PARAM_TYPE_ADDITONAL_USER_CAT: /* F3 */
+                    dissect_japan_isup_additonal_user_cat(parameter_tvb, parameter_tree, parameter_item);
+                    break;
+                case JAPAN_ISUP_PARAM_REASON_FOR_CLIP_FAIL: /* F5 */
+                    dissect_japan_isup_reason_for_clip_fail(parameter_tvb, parameter_tree, parameter_item);
+                    break;
+                case JAPAN_ISUP_PARAM_TYPE_CONTRACTOR_NUMBER: /* F9 */
+                    dissect_japan_isup_contractor_number(parameter_tvb, parameter_tree, parameter_item);
+                    break;
+                case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE: /* FA */
                     dissect_japan_chg_inf_type(parameter_tvb, parameter_tree, parameter_item);
                     break;
                 case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF:
@@ -8258,7 +8523,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_in
             dissect_isup_uid_capability_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_REDIRECT_COUNTER:
-            dissect_isup_redirect_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_redirect_counter_parameter(parameter_tvb, parameter_tree, parameter_item, itu_isup_variant);
             break;
           case PARAM_TYPE_COLLECT_CALL_REQ:
             dissect_isup_collect_call_request_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -11291,7 +11556,10 @@ proto_register_isup(void)
       {"Redirect possible indicator",  "isup.jpn.redirect_capability",
        FT_UINT8, BASE_DEC, VALS(isup_jpn_redirect_capabilit_vals), 0x07,
        NULL, HFILL }},
-
+    { &hf_japan_isup_redirect_counter,
+      {"Redirect counter",  "isup.jpn.redirect_counter",
+       FT_UINT8, BASE_DEC, NULL, 0x0f,
+       NULL, HFILL }},
     { &hf_japan_isup_rfi_info_type,
       {"Information Type Tag",  "isup.rfi.info_type",
        FT_UINT8, BASE_DEC, VALS(isup_rfi_info_type_values), 0x0,
@@ -11308,10 +11576,22 @@ proto_register_isup(void)
       {"Redirect possible indicator at performing exchange",  "isup.rfi.redir_pos_ind",
        FT_UINT8, BASE_DEC, VALS(redir_pos_ind_vals), 0x07,
        NULL, HFILL }},
+    { &hf_japan_isup_hold_at_emerg_call_disc_ind,
+      {"Hold at emergency Call Disconnection Indicators",  "isup.jpn.hold_at_emerg_call_disc_ind",
+       FT_UINT16, BASE_DEC, VALS(hold_at_emerg_call_disc_ind_vals), 0x0300,
+       NULL, HFILL }},
     /* Value string values the same as perf_redir_reason_vals */
     { &hf_japan_isup_inv_redir_reason,
       {"Invoking redirect reason",  "isup.rfi.inv_redir_reason",
        FT_UINT8, BASE_DEC, VALS(perf_redir_reason_vals), 0x7f,
+       NULL, HFILL }},
+    { &hf_japan_isup_bwd_info_type,
+      {"Information Type Tag",  "isup.jpn.bwd_info_type",
+       FT_UINT8, BASE_DEC, VALS(japan_isup_bwd_info_type_vals), 0x0,
+       NULL, HFILL }},
+    { &hf_japan_isup_tag_len,
+      {"Length",  "isup.jpn.tag_len",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
        NULL, HFILL }},
 
     { &hf_japan_isup_add_user_cat_type,
@@ -11333,6 +11613,10 @@ proto_register_isup(void)
     { &hf_japan_isup_type_3_add_mobile_serv_inf,
       {"Type 3 of additional mobile service information (Charging Method)",  "isup.jpn.type_3_add_mobile_serv_inf",
        FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }},
+    { &hf_japan_isup_reason_for_clip_fail,
+      {"Reason for CLIP failure",  "isup.jpn.reason_for_clip_fail",
+       FT_UINT8, BASE_DEC, VALS(jpn_isup_reason_for_clip_fail_vals), 0x0,
        NULL, HFILL }},
 
     /* CHARGE AREA INFORMATION */
@@ -11373,16 +11657,17 @@ proto_register_isup(void)
       FT_UINT8, BASE_HEX, VALS(isup_carrier_info_category_value), 0x00,
       NULL,HFILL }},
 
-    { &hf_isup_carrier_info_length_of_carrierX,
-      {"Length of Category Information","isup.carrier_info.length_of_cat",
-      FT_UINT8, BASE_DEC, NULL, 0xFF,
-      NULL,HFILL }},
 
     { &hf_isup_carrier_info_type_of_carrier_info,
       {"Type of Carrier","isup.carrier_info.type_of_carrier",
       FT_UINT8, BASE_HEX, VALS(isup_carrier_info_type_of_carrier_value), 0x00,
       NULL,HFILL }},
 #endif
+    { &hf_japan_isup_carrier_info_length,
+      {"Length of Carrier Information","isup.jpn.arrier_info_length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL,HFILL }},
+
     { &hf_isup_carrier_info_odd_no_digits,
       {"CID", "isup.carrier_info.cid_odd_digit",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_digits_value), 0x0F,
@@ -11411,6 +11696,11 @@ proto_register_isup(void)
     { &hf_isup_carrier_info_poi_entry_HEI,
       {"Entry POI Hierarchy", "isup.carrier_info_entry_hierarchy",
       FT_UINT8, BASE_DEC, VALS(isup_carrier_info_poihie_value), 0xF0,
+      NULL, HFILL }},
+
+    { &hf_japan_isup_charge_delay_type,
+      {"Type of delayed charging information", "isup.japan.charge_delay_type",
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(japan_isup_charge_delay_type_value), 0x0,
       NULL, HFILL }},
 
     { &hf_japan_isup_charge_info_type,
