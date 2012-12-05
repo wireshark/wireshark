@@ -724,16 +724,15 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
                 if (path_currently_selected) {
                     if (device.selected) {
                         device.selected = FALSE;
-                        device.locked = TRUE;
                         global_capture_opts.num_selected--;
                     }
                 } else {
                     if (!device.selected) {
                         device.selected = TRUE;
-                        device.locked = TRUE;
                         global_capture_opts.num_selected++;
                     }
                 }
+                device.locked = TRUE;
                 global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
                 g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 
