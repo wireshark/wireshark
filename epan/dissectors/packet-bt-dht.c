@@ -90,6 +90,27 @@ static const value_string short_val_name_value_string[] = {
 
 static const char dict_str[] = "dictionary...";
 static const char list_str[] = "list...";
+
+
+static inline int
+bencoded_string_length(tvbuff_t *tvb, guint *offset_ptr)
+{
+  guint offset, start, len;
+
+  offset = *offset_ptr;
+  start = offset;
+
+  while(tvb_get_guint8(tvb, offset) != ':')
+    ++offset;
+
+  len = atoi(tvb_get_ephemeral_string(tvb, start, offset-start));
+  ++offset; /* skip the ':' */
+
+  *offset_ptr = offset;
+  return len;
+}
+
+
 /*
  * dissect a bencoded string from tvb, start at offset. it's like "5:abcde"
  * *result will be the decoded value
@@ -98,17 +119,8 @@ static const char list_str[] = "list...";
 static int
 dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, char **result, gboolean tohex, const char *label )
 {
-  guint string_len_start;
   guint string_len;
-
-  string_len_start = offset;
-
-  while( tvb_get_guint8(tvb,offset) != ':' )
-    offset += 1;
-
-  string_len = atoi( tvb_get_ephemeral_string(tvb,string_len_start,offset-string_len_start) );
-  /* skip the ':' */
-  offset += 1;
+  string_len = bencoded_string_length(tvb, &offset);
 
   /* fill the return data */
   if( tohex )
@@ -229,7 +241,6 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   address     addr;
 
   guint       peer_index;
-  guint       string_len_start;
   guint       string_len;
   guint16     port;
 
@@ -243,13 +254,8 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   /* dissect bt-dht values */
   while( tvb_get_guint8(tvb,offset)!='e' )
   {
-    string_len_start = offset;
-    while( tvb_get_guint8(tvb,offset) != ':' )
-      offset += 1;
+    string_len = bencoded_string_length(tvb, &offset);
 
-    string_len = atoi( tvb_get_ephemeral_string(tvb,string_len_start,offset-string_len_start) );
-    /* skip the ':' */
-    offset += 1;
     /* 4 bytes ip, 2 bytes port */
     for( ; string_len>=6; string_len-=6, offset+=6 )
     {
@@ -287,23 +293,16 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
   proto_tree *node_tree;
 
   guint       node_index;
-  guint       string_len_start;
   guint       string_len;
   address     addr;
   guint16     port;
   guint8     *id;
 
-  ti = proto_tree_add_item( tree, hf_bt_dht_nodes, tvb, offset, 0, ENC_NA );
+  string_len = bencoded_string_length(tvb, &offset);
+
+  ti = proto_tree_add_item( tree, hf_bt_dht_nodes, tvb, offset, string_len, ENC_NA );
   sub_tree = proto_item_add_subtree( ti, ett_bt_dht_nodes);
   node_index = 0;
-
-  string_len_start = offset;
-  while( tvb_get_guint8(tvb,offset) != ':' )
-    offset += 1;
-
-  string_len = atoi( tvb_get_ephemeral_string(tvb,string_len_start,offset-string_len_start) );
-  /* skip the ':' */
-  offset += 1;
 
   /* 20 bytes id, 4 bytes ip, 2 bytes port */
   for( ; string_len>=26; string_len-=26, offset+=26 )
@@ -377,14 +376,38 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* it's a string */
   default:
     /* special process */
-  if( strcmp(key,"nodes")==0 )
+    if( strcmp(key,"nodes")==0 )
+    {
       offset = dissect_bt_dht_nodes( tvb, pinfo, sub_tree, offset, &val, "Value" );
-  /* some need to return hex string */
+    }
+    else if( strcmp(key,"ip")==0 )
+    {
+      /*
+       * Not found in BEP 0005 but explained by
+       * http://www.rasterbar.com/products/libtorrent/dht_sec.html
+       */
+
+      int len, old_offset;
+      old_offset = offset;
+      len = bencoded_string_length(tvb, &offset);
+
+      if(len == 4) {
+        address addr;
+        TVB_SET_ADDRESS(&addr, AT_IPv4, tvb, offset, 4);
+        val = ep_address_to_str(&addr);
+        proto_tree_add_ipv4_format(sub_tree, hf_ip, tvb, offset, len, tvb_get_ipv4(tvb, offset), "Value: %s", val);
+        offset += len;
+      }
+      else {
+        offset = dissect_bencoded_string( tvb, pinfo, sub_tree, old_offset, &val, TRUE, "Value" );
+      }
+    }
     else
     {
+      /* some need to return hex string */
       tohex = strcmp(key,"id")==0 || strcmp(key,"target")==0
            || strcmp(key,"info_hash")==0 || strcmp(key,"t")==0
-           || strcmp(key,"v")==0;
+           || strcmp(key,"v")==0 || strcmp(key,"token")==0;
       offset = dissect_bencoded_string( tvb, pinfo, sub_tree, offset, &val, tohex, "Value" );
     }
   }
@@ -411,8 +434,16 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   proto_tree *sub_tree;
   guint       orig_offset = offset;
 
-  ti = proto_tree_add_none_format( tree, hf_bencoded_dict, tvb, offset, 0, "%s: dictionary...", label );
-  sub_tree = proto_item_add_subtree( ti, ett_bencoded_dict);
+  if(offset == 0)
+  {
+    ti = proto_tree_add_item(tree, proto_bt_dht, tvb, 0, -1, ENC_NA);
+    sub_tree = proto_item_add_subtree(ti, ett_bt_dht);
+  }
+  else
+  {
+    ti = proto_tree_add_none_format( tree, hf_bencoded_dict, tvb, offset, -1, "%s: dictionary...", label );
+    sub_tree = proto_item_add_subtree( ti, ett_bencoded_dict);
+  }
 
   /* skip the first char('d') */
   offset += 1;
@@ -432,7 +463,7 @@ dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-DHT");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  return dissect_bencoded_dict(tvb, pinfo, tree, 0, "BT-DHT Protocol" );
+  return dissect_bencoded_dict(tvb, pinfo, tree, 0, "BitTorrent DHT Protocol");
 }
 
 static
@@ -440,18 +471,28 @@ gboolean dissect_bt_dht_heur (tvbuff_t *tvb, packet_info *pinfo,
                                         proto_tree *tree, void *data _U_)
 {
   /* try dissecting */
-  /* XXX: This is a very weak heuristic; so: heuristic dissection is disabled by default */
-  if( tvb_get_guint8(tvb,0)=='d' )
+  /* Assume dictionary (d) is followed by a one char long (1:) key string. */
+  if(tvb_memeql(tvb, 0, "d1:", 3) == 0)
   {
-    conversation_t *conversation;
+    int i;
+    guint8 key = tvb_get_guint8(tvb, 3);
 
-    conversation = find_or_create_conversation(pinfo);
-    conversation_set_dissector(conversation, bt_dht_handle);
+    /* Iterate through possible keys to improve heuristics. */
+    for(i=0; short_key_name_value_string[i].value != 0; i++)
+    {
+      if(short_key_name_value_string[i].value == key)
+      {
+        conversation_t *conversation;
 
-    dissect_bt_dht(tvb, pinfo, tree, NULL);
-    return TRUE;
-   }
-   return FALSE;
+        conversation = find_or_create_conversation(pinfo);
+        conversation_set_dissector(conversation, bt_dht_handle);
+
+        dissect_bt_dht(tvb, pinfo, tree, NULL);
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
 }
 
 void proto_reg_handoff_bt_dht(void);
@@ -532,13 +573,13 @@ proto_register_bt_dht(void)
   module_t *bt_dht_module;
 
   proto_bt_dht = proto_register_protocol (
-    "Bittorrent DHT Protocol",  /* name */
+    "BitTorrent DHT Protocol",  /* name */
     "BT-DHT",                   /* short name */
     "bt-dht"                    /* abbrev */
   );
 
   bt_dht_module = prefs_register_protocol(proto_bt_dht, proto_reg_handoff_bt_dht);
-  prefs_register_bool_preference(bt_dht_module, "enable", "Enable BT-DHT heuristic_dissection",
+  prefs_register_bool_preference(bt_dht_module, "enable", "Enable BT-DHT heuristic dissection",
                                  "Enable BT-DHT heuristic dissection (default is disabled)",
                                  &bt_dht_enable_heuristic_dissection);
 
@@ -553,6 +594,7 @@ proto_reg_handoff_bt_dht(void)
 
   /* "Decode As" is always available;
    *  Heuristic dissection in disabled by default since the heuristic is quite weak.
+   *  XXX - Still too weak?
    */
   if (!prefs_initialized) {
     heur_dissector_add("udp", dissect_bt_dht_heur, proto_bt_dht);
