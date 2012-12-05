@@ -890,8 +890,8 @@ file_open(const char *path)
 	return ft;
 }
 
-void 
-file_set_random_access(FILE_T stream, gboolean random _U_, GPtrArray *seek)
+void
+file_set_random_access(FILE_T stream, gboolean random_flag _U_, GPtrArray *seek)
 {
 	stream->fast_seek = seek;
 }
@@ -1029,7 +1029,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 	}
 
 	/* if within raw area while reading, just go there */
-	if (file->compression == UNCOMPRESSED && file->pos + offset >= file->raw 
+	if (file->compression == UNCOMPRESSED && file->pos + offset >= file->raw
 			&& (offset < 0 || offset >= file->have) /* seek only when we don't have that offset in buffer */)
 	{
 		if (ws_lseek64(file->fd, offset - file->have, SEEK_CUR) == -1) {
@@ -1124,7 +1124,7 @@ file_iscompressed(FILE_T stream)
 	return stream->is_compressed;
 }
 
-int 
+int
 file_read(void *buf, unsigned int len, FILE_T file)
 {
 	unsigned got, n;
@@ -1271,7 +1271,7 @@ file_gets(char *buf, int len, FILE_T file)
 	return str;
 }
 
-int 
+int
 file_eof(FILE_T file)
 {
 	/* return end-of-file state */

@@ -29,7 +29,7 @@
 
 extern FILE_T file_open(const char *path);
 extern FILE_T file_fdopen(int fildes);
-extern void file_set_random_access(FILE_T stream, gboolean random, GPtrArray *seek);
+extern void file_set_random_access(FILE_T stream, gboolean random_flag, GPtrArray *seek);
 extern gint64 file_seek(FILE_T stream, gint64 offset, int whence, int *err);
 extern gint64 file_skip(FILE_T file, gint64 delta, int *err);
 extern gint64 file_tell(FILE_T stream);
