@@ -256,9 +256,9 @@ static gboolean lua_load_script(const gchar* filename) {
             fclose(file);
             return FALSE;
         default:
-        	report_failure("Lua: unspecified error during execution of %s", filename);
-        	fclose(file);
-        	return FALSE;
+	    report_failure("Lua: unspecified error during execution of %s", filename);
+	    fclose(file);
+	    return FALSE;
     }
 
     report_failure("Lua: unknown error during execution of %s: %d",filename,error);
