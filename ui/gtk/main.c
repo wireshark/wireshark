@@ -243,7 +243,7 @@ static void main_save_window_geometry(GtkWidget *widget);
 
 /* Match selected byte pattern */
 static void
-match_selected_cb_do(GtkWidget *filter_te, gpointer data, int action, gchar *text)
+match_selected_cb_do(GtkWidget *filter_te, int action, gchar *text)
 {
     char       *cur_filter, *new_filter;
 
@@ -252,7 +252,6 @@ match_selected_cb_do(GtkWidget *filter_te, gpointer data, int action, gchar *tex
         return;
     }
 
-    g_assert(data);
     g_assert(filter_te);
 
     cur_filter = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, -1);
@@ -331,7 +330,7 @@ match_selected_ptree_cb(gpointer data, MATCH_SELECTED_E action)
     if (cfile.finfo_selected) {
         filter = proto_construct_match_selected_string(cfile.finfo_selected,
                                                        cfile.edt);
-        match_selected_cb_do(g_object_get_data(G_OBJECT(data), E_DFILTER_TE_KEY),data, action, filter);
+        match_selected_cb_do(g_object_get_data(G_OBJECT(data), E_DFILTER_TE_KEY), action, filter);
     }
 }
 
@@ -628,7 +627,6 @@ void
 match_selected_plist_cb(gpointer data, MATCH_SELECTED_E action)
 {
     match_selected_cb_do(g_object_get_data(G_OBJECT(data), E_DFILTER_TE_KEY),
-		data,
         action,
         get_filter_from_packet_list_row_and_column(data));
 }
@@ -644,7 +642,7 @@ void
 copy_selected_plist_cb(GtkWidget *w _U_, gpointer data _U_, COPY_SELECTED_E action)
 {
     GString *gtk_text_str = g_string_new("");
-    char labelstring[256];
+    char labelstring[ITEM_LABEL_LENGTH];
     char *stringpointer = labelstring;
 
     switch(action)
