@@ -84,9 +84,10 @@ const guint8 gsm_rlcmac_egprs_header_type_to_ul_header_block_length[] = {
    4  /* RLCMAC_HDR_TYPE_3 */
 };
 
+#define MCS_INVALID 10 /* used for reserved CPS codepoints */
 const guint8 gsm_rlcmac_egprs_mcs_to_data_block_length[] = {
-   0,/* MCS0 */
-   23,
+   0, /* MCS0 */
+   23,/* MCS1 */
    29,
    38,
    45,
@@ -94,7 +95,8 @@ const guint8 gsm_rlcmac_egprs_mcs_to_data_block_length[] = {
    75,
    57,
    69,
-   75 /* MCS9 */
+   75, /* MCS9 */
+   0, /* MCS_INVALID */
 };
 
 /* Initialize the protocol and registered fields
@@ -969,11 +971,11 @@ static const guint8 egprs_Header_type1_coding_puncturing_scheme_to_mcs[] = {
    9 /* 0x00, "(MCS-9/P1 ; MCS-9/P1)" */,
    9 /* 0x01, "(MCS-9/P1 ; MCS-9/P2)" */,
    9 /* 0x02, "(MCS-9/P1 ; MCS-9/P3)" */,
-   9 /* 0x03, "reserved" */,
+   MCS_INVALID /* 0x03, "reserved" */,
    9 /* 0x04, "(MCS-9/P2 ; MCS-9/P1)" */,
    9 /* 0x05, "(MCS-9/P2 ; MCS-9/P2)" */,
    9 /* 0x06, "(MCS-9/P2 ; MCS-9/P3)" */,
-   9 /* 0x07, "reserved" */,
+   MCS_INVALID /* 0x07, "reserved" */,
    9 /* 0x08, "(MCS-9/P3 ; MCS-9/P1)" */,
    9 /* 0x09, "(MCS-9/P3 ; MCS-9/P2)" */,
    9 /* 0x0A, "(MCS-9/P3 ; MCS-9/P3)" */,
@@ -995,6 +997,9 @@ static const guint8 egprs_Header_type1_coding_puncturing_scheme_to_mcs[] = {
    7 /* 0x1A, "(MCS-7/P3 ; MCS-7/P1)" */,
    7 /* 0x1B, "(MCS-7/P3 ; MCS-7/P2)" */,
    7 /* 0x1C, "(MCS-7/P3 ; MCS-7/P3)" */,
+   MCS_INVALID /* 0x1D, "reserved" */,
+   MCS_INVALID /* 0x1E, "reserved" */,
+   MCS_INVALID /* 0x1F, "reserved" */
 };
 
 static const guint8 egprs_Header_type2_coding_puncturing_scheme_to_mcs[] = {
@@ -1005,7 +1010,7 @@ static const guint8 egprs_Header_type2_coding_puncturing_scheme_to_mcs[] = {
    5 /* {0x04, "MCS-5/P1"} */,
    5 /* {0x05, "MCS-5/P2"} */,
    5 /* {0x06, "MCS-6/P1 with 10 octet padding "} */,
-   5 /* {0x07, "MCS-6/P2 with 10 octet padding "} */,
+   5 /* {0x07, "MCS-6/P2 with 10 octet padding "} */
 };
 
 static const guint8 egprs_Header_type3_coding_puncturing_scheme_to_mcs[] = {
@@ -1024,7 +1029,7 @@ static const guint8 egprs_Header_type3_coding_puncturing_scheme_to_mcs[] = {
    1 /* {0x0C, "MCS-1/P2"} */,
    2 /* {0x0D, "MCS-2/P1 with padding"} */,
    2 /* {0x0E, "MCS-2/P2 with padding"} */,
-   0 /* {0x0F, "MCS-0"} */,
+   0 /* {0x0F, "MCS-0"} */
 };
 
 static crumb_spec_t bits_spec_ul_bsn1[] = {
@@ -6589,9 +6594,11 @@ static const value_string egprs_Header_type1_coding_puncturing_scheme_vals[] = {
     {0x00, "(MCS-9/P1 ; MCS-9/P1)"},
     {0x01, "(MCS-9/P1 ; MCS-9/P2)"},
     {0x02, "(MCS-9/P1 ; MCS-9/P3)"},
+    {0x03, "reserved"},
     {0x04, "(MCS-9/P2 ; MCS-9/P1)"},
     {0x05, "(MCS-9/P2 ; MCS-9/P2)"},
     {0x06, "(MCS-9/P2 ; MCS-9/P3)"},
+    {0x07, "reserved"},
     {0x08, "(MCS-9/P3 ; MCS-9/P1)"},
     {0x09, "(MCS-9/P3 ; MCS-9/P2)"},
     {0x0A, "(MCS-9/P3 ; MCS-9/P3)"},
@@ -6613,6 +6620,9 @@ static const value_string egprs_Header_type1_coding_puncturing_scheme_vals[] = {
     {0x1A, "(MCS-7/P3 ; MCS-7/P1)"},
     {0x1B, "(MCS-7/P3 ; MCS-7/P2)"},
     {0x1C, "(MCS-7/P3 ; MCS-7/P3)"},
+    {0x1D, "reserved"},
+    {0x1E, "reserved"},
+    {0x1F, "reserved"},
     {0, NULL }
 };
 static value_string_ext egprs_Header_type1_coding_puncturing_scheme_vals_ext = VALUE_STRING_EXT_INIT(egprs_Header_type1_coding_puncturing_scheme_vals);
@@ -7377,33 +7387,24 @@ dissect_egprs_dl_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                           "GSM RLC/MAC: EGPRS DL HEADER");
       rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
-      ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = 0;
+      ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = MCS_INVALID;
 
       csnStreamInit(&ar, 0, bit_length);
       switch(data->block_format)
       {
          case RLCMAC_HDR_TYPE_3:
             csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(DL_Data_Block_EGPRS_Header_Type3_t), tvb, &data->u.DL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-            if (data->u.DL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type3_coding_puncturing_scheme_vals))
-            {
-               ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type3_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
-            }
+            ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type3_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
             break;
 
          case RLCMAC_HDR_TYPE_2:
             csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(DL_Data_Block_EGPRS_Header_Type2_t), tvb, &data->u.DL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-            if (data->u.DL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type2_coding_puncturing_scheme_vals))
-            {
-              ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type2_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
-            }
-             break;
+            ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type2_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
+            break;
 
          case RLCMAC_HDR_TYPE_1:
             csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(DL_Data_Block_EGPRS_Header_Type1_t), tvb, &data->u.DL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-            if (data->u.DL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type1_coding_puncturing_scheme_vals))
-            {
-                ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type1_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
-            }
+            ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type1_coding_puncturing_scheme_to_mcs[data->u.DL_Data_Block_EGPRS_Header.CPS];
             break;
 
          default:
@@ -7559,39 +7560,29 @@ dissect_egprs_ul_header_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                            "GSM RLC/MAC: EGPRS UL HEADER");
        rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
        data->u.UL_Data_Block_EGPRS_Header.PI = 0;
-       ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = 0;
+       ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = MCS_INVALID;
        csnStreamInit(&ar, 0, bit_length);
        switch(data->block_format)
        {
           case RLCMAC_HDR_TYPE_3:
              csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(UL_Data_Block_EGPRS_Header_Type3_t), tvb, &data->u.UL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-             if (data->u.UL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type3_coding_puncturing_scheme_vals))
-             {
-                ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type3_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
-             }
+             ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type3_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
              break;
 
           case RLCMAC_HDR_TYPE_2:
              csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(UL_Data_Block_EGPRS_Header_Type2_t), tvb, &data->u.UL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-             if (data->u.UL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type2_coding_puncturing_scheme_vals))
-             {
-                ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type2_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
-             }
+             ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type2_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
              break;
 
           case RLCMAC_HDR_TYPE_1:
              csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(UL_Data_Block_EGPRS_Header_Type1_t), tvb, &data->u.UL_Data_Block_EGPRS_Header, ett_gsm_rlcmac);
-             if (data->u.UL_Data_Block_EGPRS_Header.CPS < array_length(egprs_Header_type1_coding_puncturing_scheme_vals))
-             {
-                ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type1_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
-             }
+             ((RlcMacPrivateData_t *)(pinfo->private_data))->mcs = egprs_Header_type1_coding_puncturing_scheme_to_mcs[data->u.UL_Data_Block_EGPRS_Header.CPS];
              break;
 
           default:
              proto_tree_add_text(tree, tvb, 0, -1, "EGPRS Header Type not handled (yet)");
              break;
        }
-       /*bit_offset = ar.bit_offset;*/
 
        ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.pi = data->u.UL_Data_Block_EGPRS_Header.PI;
        ((RlcMacPrivateData_t *)(pinfo->private_data))->u.egprs_ul_header_info.bsn1 = data->u.UL_Data_Block_EGPRS_Header.BSN1;
