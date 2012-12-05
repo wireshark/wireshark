@@ -961,7 +961,8 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
     hdrs->channelType = th.rlchdrs[0]->channelType;
     hdrs->channelId = th.rlchdrs[0]->channelId;
     hdrs->rlcMode = th.rlchdrs[0]->rlcMode;
-    hdrs->direction = th.rlchdrs[0]->direction;
+    hdrs->isControlPDU = th.rlchdrs[0]->isControlPDU;
+    hdrs->direction = !hdrs->isControlPDU ? th.rlchdrs[0]->direction : !th.rlchdrs[0]->direction;
 
     return th.rlchdrs[0];
 }
