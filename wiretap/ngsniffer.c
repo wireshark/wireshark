@@ -490,6 +490,21 @@ typedef struct {
 	GList	*current_blob;		/* list element for current blob */
 } ngsniffer_t;
 
+/*
+ * DOS date to "struct tm" conversion values.
+ */
+/* DOS year = upper 7 bits */
+#define DOS_YEAR_OFFSET (1980-1900)	/* tm_year = year+1900, DOS date year year+1980 */
+#define DOS_YEAR_SHIFT	9
+#define DOS_YEAR_MASK	(0x7F<<DOS_YEAR_SHIFT)
+/* DOS month = next 4 bits */
+#define DOS_MONTH_OFFSET	(-1)	/* tm_mon = month #-1, DOS date month = month # */
+#define DOS_MONTH_SHIFT	5
+#define DOS_MONTH_MASK	(0x0F<<DOS_MONTH_SHIFT)
+/* DOS day = next 5 bits */
+#define DOS_DAY_SHIFT	0
+#define DOS_DAY_MASK	(0x1F<<DOS_DAY_SHIFT)
+
 static int process_header_records(wtap *wth, int *err, gchar **err_info,
     gint16 maj_vers, guint8 network);
 static int process_rec_header2_v2(wtap *wth, unsigned char *buffer,
@@ -750,9 +765,9 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Get capture start time */
 	start_date = pletohs(&version.date);
-	tm.tm_year = ((start_date&0xfe00)>>9) + 1980 - 1900;
-	tm.tm_mon = ((start_date&0x1e0)>>5) - 1;
-	tm.tm_mday = (start_date&0x1f);
+	tm.tm_year = ((start_date&DOS_YEAR_MASK)>>DOS_YEAR_SHIFT) + DOS_YEAR_OFFSET;
+	tm.tm_mon = ((start_date&DOS_MONTH_MASK)>>DOS_MONTH_SHIFT) + DOS_MONTH_OFFSET;
+	tm.tm_mday = ((start_date&DOS_DAY_MASK)>>DOS_DAY_SHIFT);
 #if 0
 	/* The time does not appear to act as an offset; only the date */
 	start_time = pletohs(&version.time);
@@ -2122,10 +2137,10 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		else
 #endif
 		tm = localtime(&phdr->ts.secs);
-		if (tm != NULL && tm->tm_year >= 1980) {
-			start_date = (tm->tm_year - (1980 - 1900)) << 9;
-			start_date |= (tm->tm_mon + 1) << 5;
-			start_date |= tm->tm_mday;
+		if (tm != NULL && tm->tm_year >= DOS_YEAR_OFFSET) {
+			start_date = (tm->tm_year - DOS_YEAR_OFFSET) << DOS_YEAR_SHIFT;
+			start_date |= (tm->tm_mon - DOS_MONTH_OFFSET) << DOS_MONTH_SHIFT;
+			start_date |= tm->tm_mday << DOS_DAY_SHIFT;
 			/* record the start date, not the start time */
 			ngsniffer->start = phdr->ts.secs - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
 		} else {
