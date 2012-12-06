@@ -4929,10 +4929,11 @@ static void dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, 
 
   while (offset < tvb_reported_length (payload_tvb))
   {
-    proto_item *alarmcfg_item = NULL;
+    proto_item *alarmcfg_item, *pi;
     proto_tree *alarmcfg_tree = NULL;
     const gchar *ai;
     const gchar *as;
+    guint32 alarm_len;
 
     if (!(ai = match_strval_ext (tvb_get_guint8 (payload_tvb, offset + 1), &r3_alarmidnames_ext)))
     {
@@ -4945,7 +4946,14 @@ static void dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, 
     alarmcfg_item = proto_tree_add_text (alarm_tree, payload_tvb, offset, tvb_get_guint8 (payload_tvb, offset), "Alarm Item (%s, %s)", ai, as);
     alarmcfg_tree = proto_item_add_subtree (alarmcfg_item, ett_r3alarmcfg);
 
-    proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_length, payload_tvb, offset + 0, 1, TRUE);
+    alarm_len = tvb_get_guint8 (payload_tvb, offset + 0);
+    pi = proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_length, payload_tvb, offset + 0, 1, TRUE);
+    if (alarm_len == 0) {
+      expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_WARN,
+                              "Alarm length equal to 0; payload could be partially decoded");
+      break;
+    }
+    proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_id, payload_tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_id, payload_tvb, offset + 1, 1, TRUE);
     proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_state, payload_tvb, offset + 2, 1, TRUE);
 
