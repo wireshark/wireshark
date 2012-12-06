@@ -358,7 +358,7 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 /* When called, this function will start rpcprogs
  */
 static void
-gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
+gtk_rpcprogs_init(const char *opt_arg _U_, void* userdata _U_)
 {
 	char      *title_string;
 	GtkWidget *vbox;

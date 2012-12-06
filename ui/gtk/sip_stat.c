@@ -553,7 +553,7 @@ init_table(GtkWidget *main_vb, gchar *title, tbl_info_t *tbl_info)
 
 /* Create a new instance of gtk_sipstat. */
 static void
-gtk_sipstat_init(const char *optarg, void *userdata _U_)
+gtk_sipstat_init(const char *opt_arg, void *userdata _U_)
 {
     sipstat_t  *sp;
     const char *filter;
@@ -564,10 +564,10 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     GtkWidget  *bbox;
 
 
-    if (strncmp(optarg, "sip,stat,", 9) == 0)
+    if (strncmp(opt_arg, "sip,stat,", 9) == 0)
     {
         /* Skip those characters from filter to display */
-        filter = optarg + 9;
+        filter = opt_arg + 9;
     }
     else
     {

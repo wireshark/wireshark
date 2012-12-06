@@ -238,7 +238,7 @@ static const stat_column titles[]={
 };
 
 static void
-gtk_mgcpstat_init(const char *optarg, void *userdata _U_)
+gtk_mgcpstat_init(const char *opt_arg, void *userdata _U_)
 {
 	mgcpstat_t *ms;
 	GString *error_string;
@@ -247,8 +247,8 @@ gtk_mgcpstat_init(const char *optarg, void *userdata _U_)
 
 	ms=g_malloc(sizeof(mgcpstat_t));
 
-	if(strncmp(optarg,"mgcp,srt,",9) == 0){
-		ms->filter=g_strdup(optarg+9);
+	if(strncmp(opt_arg,"mgcp,srt,",9) == 0){
+		ms->filter=g_strdup(opt_arg+9);
 	} else {
 		ms->filter=NULL;
 	}

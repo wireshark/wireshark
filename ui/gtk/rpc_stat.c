@@ -212,7 +212,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 /* When called, this function will create a new instance of gtk2-rpcstat.
  */
 static void
-gtk_rpcstat_init(const char *optarg, void* userdata _U_)
+gtk_rpcstat_init(const char *opt_arg, void* userdata _U_)
 {
 	rpcstat_t *rs;
 	guint32 i;
@@ -230,9 +230,9 @@ gtk_rpcstat_init(const char *optarg, void* userdata _U_)
 	header_field_info *hfi;
 
 	pos=0;
-	if(sscanf(optarg,"rpc,srt,%d,%d,%n",&program,&version,&pos)==2){
+	if(sscanf(opt_arg,"rpc,srt,%d,%d,%n",&program,&version,&pos)==2){
 		if(pos){
-			filter=optarg+pos;
+			filter=opt_arg+pos;
 		} else {
 			filter=NULL;
 		}

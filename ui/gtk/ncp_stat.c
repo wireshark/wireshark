@@ -481,7 +481,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_ncpstat_init(const char *optarg, void *userdata _U_)
+gtk_ncpstat_init(const char *opt_arg, void *userdata _U_)
 {
     ncpstat_t *ss;
     const char *filter=NULL;
@@ -494,8 +494,8 @@ gtk_ncpstat_init(const char *optarg, void *userdata _U_)
     GtkWidget *bbox;
     GtkWidget *close_bt;
 
-    if(!strncmp(optarg,"ncp,srt,",8)){
-        filter=optarg+8;
+    if(!strncmp(opt_arg,"ncp,srt,",8)){
+        filter=opt_arg+8;
     } else {
         filter=NULL;
     }

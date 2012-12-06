@@ -177,9 +177,9 @@ reset_tap(void* p)
 
 /* initializes the stats_tree window */
 static void
-init_gtk_tree(const char* optarg, void *userdata _U_)
+init_gtk_tree(const char* opt_arg, void *userdata _U_)
 {
-	gchar *abbr = stats_tree_get_abbr(optarg);
+	gchar *abbr = stats_tree_get_abbr(opt_arg);
 	stats_tree* st = NULL;
 	stats_tree_cfg* cfg = NULL;
 	tree_pres* pr = g_malloc(sizeof(tree_pres));
@@ -204,11 +204,11 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 		if (cfg != NULL) {
 			init_strlen = strlen(cfg->pr->stat_dlg->init_string);
 
-			if (strncmp (optarg, cfg->pr->stat_dlg->init_string, init_strlen) == 0){
-				if (init_strlen == strlen(optarg)) {
+			if (strncmp (opt_arg, cfg->pr->stat_dlg->init_string, init_strlen) == 0){
+				if (init_strlen == strlen(opt_arg)) {
 					st = stats_tree_new(cfg,pr,NULL);
 				} else {
-					st = stats_tree_new(cfg,pr,(char*)optarg+init_strlen+1);
+					st = stats_tree_new(cfg,pr,(char*)opt_arg+init_strlen+1);
 				}
 
 			} else {
@@ -222,7 +222,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 		g_free(abbr);
 
 	} else {
-		report_failure("could not obtain stats_tree abbr from optarg");
+		report_failure("could not obtain stats_tree abbr from opt_arg");
 		g_free(pr);
 		return;
 	}

@@ -285,7 +285,7 @@ wsp_init_table(wspstat_t *sp)
 /* When called, this function will create a new instance of gtk2-wspstat.
  */
 static void
-gtk_wspstat_init(const char *optarg, void *userdata _U_)
+gtk_wspstat_init(const char *opt_arg, void *userdata _U_)
 {
 	wspstat_t  *sp;
 	const char *filter;
@@ -298,8 +298,8 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 	wsp_status_code_t  *sc;
 	const value_string *wsp_vals_status_p;
 
-	if (strncmp(optarg, "wsp,stat,", 9) == 0) {
-		filter = optarg+9;
+	if (strncmp(opt_arg, "wsp,stat,", 9) == 0) {
+		filter = opt_arg+9;
 	} else {
 		filter = NULL;
 	}

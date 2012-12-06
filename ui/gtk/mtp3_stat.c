@@ -412,7 +412,7 @@ void mtp3_stat_gtk_cb(GtkAction *action _U_, gpointer user_data _U_)
 
 
 static void
-mtp3_stat_gtk_init( const char *optarg _U_, void* userdata _U_)
+mtp3_stat_gtk_init( const char *opt_arg _U_, void* userdata _U_)
 {
     mtp3_stat_gtk_cb(NULL, NULL);
 }

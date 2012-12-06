@@ -1192,7 +1192,7 @@ insert_new_rows(GList *list)
   GString           *ip_str;
   GtkTreeView       *if_cb;
   GtkTreeModel      *model;
-  link_row          *link      = NULL;
+  link_row          *linkr     = NULL;
 
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
@@ -1277,21 +1277,21 @@ insert_new_rows(GList *list)
 #endif
       for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
         data_link_info = (data_link_info_t *)lt_entry->data;
-        link = (link_row *)g_malloc(sizeof(link_row));
+        linkr = (link_row *)g_malloc(sizeof(link_row));
         if (data_link_info->description != NULL) {
           str = g_strdup_printf("%s", data_link_info->description);
-          link->dlt = data_link_info->dlt;
+          linkr->dlt = data_link_info->dlt;
         } else {
           str = g_strdup_printf("%s (not supported)", data_link_info->name);
-          link->dlt = -1;
+          linkr->dlt = -1;
         }
         if (linktype_count == 0) {
           link_type_name = g_strdup(str);
           device.active_dlt = data_link_info->dlt;
         }
-        link->name = g_strdup(str);
+        linkr->name = g_strdup(str);
         g_free(str);
-        device.links = g_list_append(device.links, link);
+        device.links = g_list_append(device.links, linkr);
         linktype_count++;
       } /* for link_types */
     } else {
@@ -1337,11 +1337,11 @@ insert_new_rows(GList *list)
     }
 
 #if defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkr_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkr_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
  #else
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, -1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkr_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, -1);
 #endif
     g_string_free(ip_str, TRUE);
 #ifdef HAVE_PCAP_REMOTE
@@ -2349,7 +2349,7 @@ update_options_table(gint indx)
   GtkTreeIter   iter;
   gchar        *temp, *path_str, *snaplen_string, *linkname = "";
   GList        *list;
-  link_row     *link = NULL;
+  link_row     *linkr = NULL;
   gboolean      enabled;
 
   device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_interface);
@@ -2362,9 +2362,9 @@ update_options_table(gint indx)
     }
     for (list=device.links; list!=NULL; list=g_list_next(list))
     {
-      link = (link_row*)(list->data);
-      linkname = g_strdup(link->name);
-      if (link->dlt == device.active_dlt) {
+      linkr = (link_row*)(list->data);
+      linkname = g_strdup(linkr->name);
+      if (linkr->dlt == device.active_dlt) {
         break;
       }
     }
@@ -5366,7 +5366,7 @@ create_and_fill_model(GtkTreeView *view)
   GList        *list;
   char         *temp = "", *snaplen_string, *linkname="";
   guint         i;
-  link_row     *link = NULL;
+  link_row     *linkr = NULL;
   interface_t   device;
 
 #if defined(HAVE_PCAP_CREATE)
@@ -5386,9 +5386,9 @@ create_and_fill_model(GtkTreeView *view)
         temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
       }
       for (list = device.links; list != NULL; list = g_list_next(list)) {
-        link = (link_row*)(list->data);
-        linkname = g_strdup(link->name);
-        if (link->dlt == device.active_dlt) {
+        linkr = (link_row*)(list->data);
+        linkname = g_strdup(linkr->name);
+        if (linkr->dlt == device.active_dlt) {
         break;
         }
       }
@@ -5561,7 +5561,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
   gint               linktype_count     = 0, i;
   data_link_info_t  *data_link_info;
   interface_t        device;
-  link_row          *link;
+  link_row          *linkr;
   GtkWidget         *linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
   GtkWidget         *linktype_lb        = (GtkWidget *)g_object_get_data(G_OBJECT(linktype_combo_box), E_CAP_LT_CBX_LABEL_KEY);
 
@@ -5586,17 +5586,17 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
     device.monitor_mode_supported = caps->can_set_rfmon;
     device.monitor_mode_enabled = monitor_mode;
     for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-      link = (link_row *)g_malloc(sizeof(link_row));
+      linkr = (link_row *)g_malloc(sizeof(link_row));
       data_link_info = (data_link_info_t *)lt_entry->data;
       if (data_link_info->description != NULL) {
         ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(linktype_combo_box),
                                              data_link_info->description,
                                              GINT_TO_POINTER(data_link_info->dlt));
-        link->dlt = data_link_info->dlt;
+        linkr->dlt = data_link_info->dlt;
         if (linktype_count == 0) {
           device.active_dlt = data_link_info->dlt;
         }
-        link->name = g_strdup(data_link_info->description);
+        linkr->name = g_strdup(data_link_info->description);
       } else {
         gchar *str;
         /* Not supported - tell them about it but don't let them select it. */
@@ -5606,11 +5606,11 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
                                                   str,
                                                   GINT_TO_POINTER(-1),  /* Flag as "not supported" */
                                                   FALSE);
-        link->dlt = -1;
-        link->name = g_strdup(str);
+        linkr->dlt = -1;
+        linkr->name = g_strdup(str);
         g_free(str);
       }
-      device.links = g_list_append(device.links, link);
+      device.links = g_list_append(device.links, linkr);
       linktype_count++;
     }
     free_if_capabilities(caps);

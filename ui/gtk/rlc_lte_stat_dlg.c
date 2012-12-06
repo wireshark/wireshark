@@ -1248,7 +1248,7 @@ static void dl_graph_clicked(GtkWidget *win _U_,  rlc_lte_stat_t* hs)
 
 
 /* Create a new RLC LTE stats dialog */
-static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
+static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
     rlc_lte_stat_t    *hs;
     const char        *filter = NULL;
@@ -1284,9 +1284,9 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     gint i;
 
     /* Check for a filter string */
-    if (strncmp(optarg, "rlc-lte,stat,", 13) == 0) {
+    if (strncmp(opt_arg, "rlc-lte,stat,", 13) == 0) {
         /* Skip those characters from filter to display */
-        filter = optarg + 13;
+        filter = opt_arg + 13;
     }
     else {
         /* No filter */

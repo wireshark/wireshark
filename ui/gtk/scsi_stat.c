@@ -157,7 +157,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 /* When called, this function will create a new instance of gtk2-scsistat.
  */
 static void
-gtk_scsistat_init(const char *optarg, void* userdata _U_)
+gtk_scsistat_init(const char *opt_arg, void* userdata _U_)
 {
 	scsistat_t *rs;
 	guint32 i;
@@ -174,9 +174,9 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	const char *hf_name=NULL;
 
 	pos=0;
-	if(sscanf(optarg,"scsi,srt,%d,%n",&program,&pos)==1){
+	if(sscanf(opt_arg,"scsi,srt,%d,%n",&program,&pos)==1){
 		if(pos){
-			filter=optarg+pos;
+			filter=opt_arg+pos;
 		} else {
 			filter=NULL;
 		}

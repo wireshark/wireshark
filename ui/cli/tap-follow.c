@@ -767,10 +767,10 @@ followArgRange(
 
 static void
 followArgDone(
-  const char * optarg
+  const char * optargp
   )
 {
-  if (*optarg != 0)
+  if (*optargp != 0)
   {
     followExit("Invalid parameter.");
   }
@@ -778,21 +778,21 @@ followArgDone(
 
 static void
 followTcp(
-  const char *  optarg,
+  const char *  optargp,
   void *        userdata _U_
   )
 {
   follow_t *    fp;
   GString *     errp;
 
-  optarg += strlen(STR_FOLLOW_TCP);
+  optargp += strlen(STR_FOLLOW_TCP);
 
   fp = followAlloc(type_TCP);
 
-  followArgMode(&optarg, fp);
-  followArgFilter(&optarg, fp);
-  followArgRange(&optarg, fp);
-  followArgDone(optarg);
+  followArgMode(&optargp, fp);
+  followArgFilter(&optargp, fp);
+  followArgRange(&optargp, fp);
+  followArgDone(optargp);
 
   reset_tcp_reassembly();
   if (fp->index != G_MAXUINT32)
@@ -825,21 +825,21 @@ followTcp(
 
 static void
 followUdp(
-  const char *  optarg,
+  const char *  optargp,
   void *        userdata _U_
   )
 {
   follow_t *    fp;
   GString *     errp;
 
-  optarg += strlen(STR_FOLLOW_UDP);
+  optargp += strlen(STR_FOLLOW_UDP);
 
   fp = followAlloc(type_UDP);
 
-  followArgMode(&optarg, fp);
-  followArgFilter(&optarg, fp);
-  followArgRange(&optarg, fp);
-  followArgDone(optarg);
+  followArgMode(&optargp, fp);
+  followArgFilter(&optargp, fp);
+  followArgRange(&optargp, fp);
+  followArgDone(optargp);
 
   if (fp->index != G_MAXUINT32)
   {

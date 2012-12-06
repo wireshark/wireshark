@@ -137,7 +137,7 @@ static const stat_column titles[]={
 };
 
 static void
-gtk_megacostat_init(const char *optarg, void *userdata _U_)
+gtk_megacostat_init(const char *opt_arg, void *userdata _U_)
 {
 	megacostat_t *ms;
 	GString *error_string;
@@ -160,8 +160,8 @@ gtk_megacostat_init(const char *optarg, void *userdata _U_)
 
 	ms=g_malloc(sizeof(megacostat_t));
 
-	if(strncmp(optarg,"megaco,srt,",11) == 0){
-		ms->filter=g_strdup(optarg+11);
+	if(strncmp(opt_arg,"megaco,srt,",11) == 0){
+		ms->filter=g_strdup(opt_arg+11);
 	} else {
 		ms->filter=NULL;
 	}

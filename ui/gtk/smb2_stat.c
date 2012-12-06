@@ -114,7 +114,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_smb2stat_init(const char *optarg, void *userdata _U_)
+gtk_smb2stat_init(const char *opt_arg, void *userdata _U_)
 {
 	smb2stat_t *ss;
 	const char *filter=NULL;
@@ -126,8 +126,8 @@ gtk_smb2stat_init(const char *optarg, void *userdata _U_)
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
-	if(!strncmp(optarg,"smb2,srt,",9)){
-		filter=optarg+9;
+	if(!strncmp(opt_arg,"smb2,srt,",9)){
+		filter=opt_arg+9;
 	} else {
 		filter=NULL;
 	}

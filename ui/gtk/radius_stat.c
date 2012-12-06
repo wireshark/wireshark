@@ -308,7 +308,7 @@ static const stat_column titles[]={
 };
 
 static void
-gtk_radiusstat_init(const char *optarg, void *userdata _U_)
+gtk_radiusstat_init(const char *opt_arg, void *userdata _U_)
 {
 	radiusstat_t *rs;
 	GString *error_string;
@@ -317,8 +317,8 @@ gtk_radiusstat_init(const char *optarg, void *userdata _U_)
 
 	rs=g_malloc(sizeof(radiusstat_t));
 
-	if(strncmp(optarg,"radius,srt,",11) == 0){
-		rs->filter=g_strdup(optarg+11);
+	if(strncmp(opt_arg,"radius,srt,",11) == 0){
+		rs->filter=g_strdup(opt_arg+11);
 	} else {
 		rs->filter=NULL;
 	}

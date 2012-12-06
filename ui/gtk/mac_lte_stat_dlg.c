@@ -995,7 +995,7 @@ static void win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 /* Create a new MAC LTE stats dialog */
-static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
+static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
 {
     mac_lte_stat_t    *hs;
     const char    *filter = NULL;
@@ -1032,9 +1032,9 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     gint i, n;
 
     /* Check for a filter string */
-    if (strncmp(optarg, "mac-lte,stat,", 13) == 0) {
+    if (strncmp(opt_arg, "mac-lte,stat,", 13) == 0) {
         /* Skip those characters from filter to display */
-        filter = optarg + 13;
+        filter = opt_arg + 13;
     }
     else {
         /* No filter */

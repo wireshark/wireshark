@@ -50,7 +50,7 @@
 #include "ui/gtk/sctp_stat.h"
 
 
-static void sctpstat_init(const char *optarg, void *userdata);
+static void sctpstat_init(const char *opt_arg, void *userdata);
 
 static tap_param sctp_stat_params[] = {
 	{ PARAM_FILTER, "Filter", NULL }
@@ -259,7 +259,7 @@ static const stat_column titles[]={
 };
 
 static void
-sctpstat_init(const char *optarg, void *userdata _U_)
+sctpstat_init(const char *opt_arg, void *userdata _U_)
 {
 	sctpstat_t *hs;
 	GString *error_string;
@@ -267,8 +267,8 @@ sctpstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget *close_bt;
 
 	hs=g_malloc(sizeof(sctpstat_t));
-	if(strncmp(optarg,"sctp,stat,",10) == 0){
-		hs->filter=g_strdup(optarg+10);
+	if(strncmp(opt_arg,"sctp,stat,",10) == 0){
+		hs->filter=g_strdup(opt_arg+10);
 	} else {
 		hs->filter=NULL;
 	}
