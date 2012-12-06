@@ -1,6 +1,6 @@
 /* packet-assa_r3.c
  * Routines for R3 packet dissection
- * Copyright (c) 2009 Assa Abloy USA <jcwren@assaabloyusa.com>
+ * Copyright (c) 2009 Assa Abloy USA <jcwren[AT]assaabloyusa.com>
  *
  * R3 is an electronic lock management protocol for configuring operational
  *  parameters, adding/removing/altering users, dumping log files, etc.
@@ -8868,7 +8868,7 @@ static void dissect_r3_cmd_filters (tvbuff_t *tvb, guint32 start_offset, guint32
     proto_tree_add_item (filter_tree, hf_r3_filter_list, payload_tvb, i + 2, 1, ENC_LITTLE_ENDIAN);
 }
 
-static void dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *alarm_item;
   proto_tree *alarm_tree;
@@ -8891,10 +8891,11 @@ static void dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, 
 
   while (offset < (cmdLen - 2))
   {
-    proto_item  *alarmcfg_item;
+    proto_item  *alarmcfg_item, *pi;
     proto_tree  *alarmcfg_tree;
     const gchar *ai;
     const gchar *as;
+    guint32 alarm_len;
 
     if (!(ai = match_strval_ext (tvb_get_guint8 (payload_tvb, offset + 1), &r3_alarmidnames_ext)))
     {
@@ -8909,12 +8910,19 @@ static void dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, 
                                          "Alarm Item (%s, %s)", ai, as);
     alarmcfg_tree = proto_item_add_subtree (alarmcfg_item, ett_r3alarmcfg);
 
-    proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_length, payload_tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
+    alarm_len = tvb_get_guint8 (payload_tvb, offset + 0);
+    pi = proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_length, payload_tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
+    if (alarm_len == 0) {
+      expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_WARN,
+                              "Alarm length equal to 0; payload could be partially decoded");
+      break;
+    }
+
     proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_id,     payload_tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_state,  payload_tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
 
     alarms++;
-    offset += tvb_get_guint8 (payload_tvb, offset);
+    offset += alarm_len;
   }
 
   if (alarms)
