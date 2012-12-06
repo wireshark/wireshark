@@ -872,7 +872,8 @@ dissect_bthci_cmd_cod(int type, tvbuff_t *tvb, int offset, packet_info *pinfo _U
 static int
 dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint8 i, j, length, type;
+	guint8      length, type;
+	guint16     i, j;
 	proto_item *ti_eir=NULL;
 	proto_tree *ti_eir_subtree=NULL;
 
