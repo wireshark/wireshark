@@ -1337,11 +1337,11 @@ insert_new_rows(GList *list)
     }
 
 #if defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkr_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
     gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
  #else
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkr_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, -1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, -1);
 #endif
     g_string_free(ip_str, TRUE);
 #ifdef HAVE_PCAP_REMOTE
