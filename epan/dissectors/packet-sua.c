@@ -217,18 +217,18 @@ static const value_string message_class_type_acro_values[] = {
   { 0,                           NULL } };
 
 const value_string sua_co_class_type_acro_values[] = {
-	{ MESSAGE_TYPE_CORE ,         "CORE" },
-	{ MESSAGE_TYPE_COAK ,         "COAK" },
-	{ MESSAGE_TYPE_COREF ,        "COREF" },
-	{ MESSAGE_TYPE_RELRE ,        "RELRE" },
-	{ MESSAGE_TYPE_RELCO ,        "RELCO" },
-	{ MESSAGE_TYPE_RESCO ,        "RESCO" },
-	{ MESSAGE_TYPE_RESRE ,        "RESRE" },
-	{ MESSAGE_TYPE_CODT ,         "CODT" },
-	{ MESSAGE_TYPE_CODA ,         "CODA" },
-	{ MESSAGE_TYPE_COERR ,        "COERR" },
-	{ MESSAGE_TYPE_COIT ,         "COIT" },
-	{ 0, NULL }
+  { MESSAGE_TYPE_CORE ,         "CORE" },
+  { MESSAGE_TYPE_COAK ,         "COAK" },
+  { MESSAGE_TYPE_COREF ,        "COREF" },
+  { MESSAGE_TYPE_RELRE ,        "RELRE" },
+  { MESSAGE_TYPE_RELCO ,        "RELCO" },
+  { MESSAGE_TYPE_RESCO ,        "RESCO" },
+  { MESSAGE_TYPE_RESRE ,        "RESRE" },
+  { MESSAGE_TYPE_CODT ,         "CODT" },
+  { MESSAGE_TYPE_CODA ,         "CODA" },
+  { MESSAGE_TYPE_COERR ,        "COERR" },
+  { MESSAGE_TYPE_COIT ,         "COIT" },
+  { 0, NULL }
 };
 
 /* Initialize the protocol and registered fields */
@@ -259,16 +259,45 @@ static int hf_sua_dpc = -1;
 static int hf_sua_registration_status = -1;
 static int hf_sua_deregistration_status = -1;
 static int hf_sua_local_routing_key_identifier = -1;
+
 static int hf_sua_source_address_routing_indicator = -1;
 static int hf_sua_source_address_reserved_bits = -1;
 static int hf_sua_source_address_gt_bit = -1;
 static int hf_sua_source_address_pc_bit = -1;
 static int hf_sua_source_address_ssn_bit = -1;
+static int hf_sua_source_gt_reserved = -1;
+static int hf_sua_source_gti = -1;
+static int hf_sua_source_number_of_digits = -1;
+static int hf_sua_source_translation_type = -1;
+static int hf_sua_source_numbering_plan = -1;
+static int hf_sua_source_nature_of_address = -1;
+static int hf_sua_source_global_title_digits = -1;
+static int hf_sua_source_point_code = -1;
+static int hf_sua_source_ssn_reserved = -1;
+static int hf_sua_source_ssn_number = -1;
+static int hf_sua_source_ipv4 = -1;
+static int hf_sua_source_hostname = -1;
+static int hf_sua_source_ipv6 = -1;
+
 static int hf_sua_destination_address_routing_indicator = -1;
 static int hf_sua_destination_address_reserved_bits = -1;
 static int hf_sua_destination_address_gt_bit = -1;
 static int hf_sua_destination_address_pc_bit = -1;
 static int hf_sua_destination_address_ssn_bit = -1;
+static int hf_sua_dest_gt_reserved = -1;
+static int hf_sua_dest_gti = -1;
+static int hf_sua_dest_number_of_digits = -1;
+static int hf_sua_dest_translation_type = -1;
+static int hf_sua_dest_numbering_plan = -1;
+static int hf_sua_dest_nature_of_address = -1;
+static int hf_sua_dest_global_title_digits = -1;
+static int hf_sua_dest_point_code = -1;
+static int hf_sua_dest_ssn_reserved = -1;
+static int hf_sua_dest_ssn_number = -1;
+static int hf_sua_dest_ipv4 = -1;
+static int hf_sua_dest_hostname = -1;
+static int hf_sua_dest_ipv6 = -1;
+
 static int hf_sua_ss7_hop_counter_counter = -1;
 static int hf_sua_ss7_hop_counter_reserved = -1;
 static int hf_sua_destination_reference_number = -1;
@@ -296,7 +325,6 @@ static int hf_sua_data = -1;
 static int hf_sua_cause = -1;
 static int hf_sua_user = -1;
 static int hf_sua_network_appearance = -1;
-static int hf_sua_routing_key_identifier = -1;
 static int hf_sua_correlation_id = -1;
 static int hf_sua_importance_reserved = -1;
 static int hf_sua_importance = -1;
@@ -317,21 +345,8 @@ static int hf_sua_tid_label_value = -1;
 static int hf_sua_drn_label_start = -1;
 static int hf_sua_drn_label_end = -1;
 static int hf_sua_drn_label_value = -1;
-static int hf_sua_gt_reserved = -1;
-static int hf_sua_gti = -1;
-static int hf_sua_number_of_digits = -1;
-static int hf_sua_translation_type = -1;
-static int hf_sua_numbering_plan = -1;
-static int hf_sua_nature_of_address = -1;
-static int hf_sua_global_title_digits = -1;
-static int hf_sua_point_code_dpc = -1;
-static int hf_sua_ssn_reserved = -1;
-static int hf_sua_ssn_number = -1;
-static int hf_sua_ipv4 = -1;
-static int hf_sua_hostname = -1;
-static int hf_sua_ipv6 = -1;
+
 static int hf_sua_assoc_id = -1;
-static int hf_sua_assoc_msg = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sua = -1;
@@ -382,21 +397,21 @@ typedef struct _sua_assoc_info_t {
 static emem_tree_t* assocs = NULL;
 sua_assoc_info_t* assoc;
 sua_assoc_info_t no_sua_assoc = {
-	0,		/* assoc_id */
-	0,		/* calling_routing_ind */
-	0,		/* called_routing_ind */
-	0,		/* calling_dpc */
-	0,		/* called_dpc */
-	0,		/* calling_ssn */
-	0,		/* called_ssn */
-	FALSE,  /* has_bw_key */
-	FALSE   /* has_fw_key */
+    0,      /* assoc_id */
+    0,      /* calling_routing_ind */
+    0,      /* called_routing_ind */
+    0,      /* calling_dpc */
+    0,      /* called_dpc */
+    0,      /* calling_ssn */
+    0,      /* called_ssn */
+    FALSE,  /* has_bw_key */
+    FALSE   /* has_fw_key */
 };
 
 static sua_assoc_info_t *
 new_assoc(guint32 calling, guint32 called)
 {
-	sua_assoc_info_t* a = se_alloc0(sizeof(sua_assoc_info_t));
+    sua_assoc_info_t *a = se_alloc0(sizeof(sua_assoc_info_t));
 
     a->assoc_id               = next_assoc_id++;
     a->calling_routing_ind    = 0;
@@ -406,68 +421,68 @@ new_assoc(guint32 calling, guint32 called)
     a->calling_ssn            = INVALID_SSN;
     a->called_ssn             = INVALID_SSN;
 
-	return a;
+    return a;
 }
 
 static sua_assoc_info_t*
 sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint dst_rn)
 {
-	guint32 opck, dpck;
-	if (!src_rn && !dst_rn)
-	{
-		return &no_sua_assoc;
-	}
-	opck = opc->type == AT_SS7PC ? mtp3_pc_hash(opc->data) : g_str_hash(address_to_str(opc));
-	dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash(dpc->data) : g_str_hash(address_to_str(dpc));
-	switch (message_type)
-	{
-		case MESSAGE_TYPE_CORE:
-		{
-			/* Calling and called is seen from initiator of CORE */
-       		emem_tree_key_t bw_key[] = {
-                		{1,&dpck},
-                		{1,&opck},
-                		{1,&src_rn},
-                		{0,NULL}
-            		};
+    guint32 opck, dpck;
 
-        	if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited )
-			{
+    if (!src_rn && !dst_rn) {
+            return &no_sua_assoc;
+    }
+
+    opck = opc->type == AT_SS7PC ? mtp3_pc_hash(opc->data) : g_str_hash(address_to_str(opc));
+    dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash(dpc->data) : g_str_hash(address_to_str(dpc));
+
+    switch (message_type) {
+        case MESSAGE_TYPE_CORE:
+        {
+            /* Calling and called is seen from initiator of CORE */
+            emem_tree_key_t bw_key[] = {
+                            {1, &dpck},
+                            {1, &opck},
+                            {1, &src_rn},
+                            {0, NULL}
+                            };
+
+            if ( !(assoc = se_tree_lookup32_array(assocs,bw_key)) && ! pinfo->fd->flags.visited) {
                 assoc = new_assoc(opck, dpck);
-        		se_tree_insert32_array(assocs,bw_key,assoc);
-				assoc->has_bw_key = TRUE;
-				/*g_warning("CORE dpck %u,opck %u,src_rn %u",dpck,opck,src_rn);*/
-    		}
-    		break;
+                se_tree_insert32_array(assocs,bw_key,assoc);
+                assoc->has_bw_key = TRUE;
+                /*g_warning("CORE dpck %u,opck %u,src_rn %u",dpck,opck,src_rn);*/
+            }
+            break;
 
-		}
+        }
 
-		case MESSAGE_TYPE_COAK:
-        	{
-    		/* Calling and called is seen from initiator of CORE */
-    		emem_tree_key_t fw_key[] = {
-        				{1,&dpck},
-        				{1,&opck},
-        				{1,&src_rn},
-        				{0,NULL}
-    					};
-    		emem_tree_key_t bw_key[] = {
-        				{1,&opck},
-        				{1,&dpck},
-        				{1,&dst_rn},
-        				{0,NULL}
-    					};
-			/*g_warning("MESSAGE_TYPE_COAK dst_rn %u,src_rn %u ",dst_rn,src_rn);*/
-			if ( ( assoc = se_tree_lookup32_array(assocs, bw_key) ) ) {
-				goto got_assoc;
-			}
-			if ( (assoc = se_tree_lookup32_array(assocs, fw_key) ) ) {
-				goto got_assoc;
-			}
+        case MESSAGE_TYPE_COAK:
+        {
+            /* Calling and called is seen from initiator of CORE */
+            emem_tree_key_t fw_key[] = {
+                                    {1,&dpck},
+                                    {1,&opck},
+                                    {1,&src_rn},
+                                    {0,NULL}
+                                    };
+            emem_tree_key_t bw_key[] = {
+                                    {1,&opck},
+                                    {1,&dpck},
+                                    {1,&dst_rn},
+                                    {0,NULL}
+                                    };
+                    /*g_warning("MESSAGE_TYPE_COAK dst_rn %u,src_rn %u ",dst_rn,src_rn);*/
+                    if ( ( assoc = se_tree_lookup32_array(assocs, bw_key) ) ) {
+                            goto got_assoc;
+                    }
+                    if ( (assoc = se_tree_lookup32_array(assocs, fw_key) ) ) {
+                            goto got_assoc;
+                    }
 
-           assoc = new_assoc(dpck,opck);
+            assoc = new_assoc(dpck,opck);
 
-     got_assoc:
+got_assoc:
 
             pinfo->p2p_dir = P2P_DIR_RECV;
 
@@ -484,21 +499,21 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
             break;
         }
 
-       	default:
-        	{
-    		emem_tree_key_t key[] = {
-        				{1,&opck},
-        				{1,&dpck},
-        				{1,&dst_rn},
-        				{0,NULL}
-    					};
-   			assoc = se_tree_lookup32_array(assocs,key);
-   			/* Should a check be made on pinfo->p2p_dir ??? */
-            break;
+        default:
+        {
+            emem_tree_key_t key[] = {
+                                    {1, &opck},
+                                    {1, &dpck},
+                                    {1, &dst_rn},
+                                    {0, NULL}
+                                    };
+                    assoc = se_tree_lookup32_array(assocs,key);
+                    /* Should a check be made on pinfo->p2p_dir ??? */
+        break;
         }
-	}
+    }
 
-	return assoc ? assoc : &no_sua_assoc;
+    return assoc ? assoc : &no_sua_assoc;
 }
 
 /* stuff for supporting multiple versions */
@@ -528,7 +543,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
     proto_tree_add_item(sua_tree, hf_sua_reserved,       common_header_tvb, RESERVED_OFFSET,       RESERVED_LENGTH,       ENC_NA);
     proto_tree_add_item(sua_tree, hf_sua_message_class,  common_header_tvb, MESSAGE_CLASS_OFFSET,  MESSAGE_CLASS_LENGTH,  ENC_BIG_ENDIAN);
     proto_tree_add_uint_format(sua_tree, hf_sua_message_type, common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH, message_type, "Message Type: %s (%u)",
-			                   val_to_str_const(message_class * 256 + message_type, message_class_type_values, "reserved"), message_type);
+                               val_to_str_const(message_class * 256 + message_type, message_class_type_values, "reserved"), message_type);
     proto_tree_add_item(sua_tree, hf_sua_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   };
 }
@@ -544,10 +559,10 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto
 
   info_string_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   /* If we have a SUA Info String sub dissector call it */
-  if(sua_info_str_handle){
+  if(sua_info_str_handle) {
     next_tvb = tvb_new_subset(parameter_tvb, INFO_STRING_OFFSET, info_string_length, info_string_length);
     call_dissector(sua_info_str_handle, next_tvb, pinfo, parameter_tree);
-	return;
+    return;
   }
 
   proto_tree_add_item(parameter_tree, hf_sua_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_ASCII|ENC_NA);
@@ -716,7 +731,7 @@ dissect_status_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 
   proto_tree_add_item(parameter_tree, hf_sua_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_uint_format(parameter_tree, hf_sua_status_info, parameter_tvb, STATUS_INFO_OFFSET, STATUS_INFO_LENGTH,
-			                 status_info, "Status info: %s (%u)", val_to_str_const(status_type * 256 * 256 + status_info, status_type_info_values, "unknown"), status_info);
+                             status_info, "Status info: %s (%u)", val_to_str_const(status_type * 256 * 256 + status_info, status_type_info_values, "unknown"), status_info);
 
   proto_item_append_text(parameter_item, " (%s)", val_to_str_const(status_type * 256 * 256 + status_info, status_type_info_values, "unknown"));
 }
@@ -956,12 +971,12 @@ dissect_destination_reference_number_parameter(tvbuff_t *parameter_tvb, proto_tr
 #define CAUSE_TYPE_RESET   0x4
 #define CAUSE_TYPE_ERROR   0x5
 static const value_string cause_type_values[] = {
-  { CAUSE_TYPE_RETURN,	"Return Cause" },
-  { CAUSE_TYPE_REFUSAL,	"Refusal Cause" },
-  { CAUSE_TYPE_RELEASE,	"Release Cause" },
-  { CAUSE_TYPE_RESET,	"Reset Cause" },
-  { CAUSE_TYPE_ERROR,	"Error cause" },
-  { 0,			NULL } };
+  { CAUSE_TYPE_RETURN,  "Return Cause" },
+  { CAUSE_TYPE_REFUSAL, "Refusal Cause" },
+  { CAUSE_TYPE_RELEASE, "Release Cause" },
+  { CAUSE_TYPE_RESET,   "Reset Cause" },
+  { CAUSE_TYPE_ERROR,   "Error cause" },
+  { 0,                  NULL } };
 
 static void
 dissect_sccp_cause_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
@@ -1364,12 +1379,12 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 
   global_title_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) -
                         (PARAMETER_HEADER_LENGTH + RESERVED_3_LENGTH + GTI_LENGTH + NO_OF_DIGITS_LENGTH + TRANSLATION_TYPE_LENGTH + NUMBERING_PLAN_LENGTH + NATURE_OF_ADDRESS_LENGTH);
-  proto_tree_add_item(parameter_tree, hf_sua_gt_reserved,       parameter_tvb, PARAMETER_VALUE_OFFSET,   RESERVED_3_LENGTH,        ENC_NA);
-  proto_tree_add_item(parameter_tree, hf_sua_gti,               parameter_tvb, GTI_OFFSET,               GTI_LENGTH,               ENC_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_sua_number_of_digits,  parameter_tvb, NO_OF_DIGITS_OFFSET,      NO_OF_DIGITS_LENGTH,      ENC_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_sua_translation_type,  parameter_tvb, TRANSLATION_TYPE_OFFSET,  TRANSLATION_TYPE_LENGTH,  ENC_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_sua_numbering_plan,    parameter_tvb, NUMBERING_PLAN_OFFSET,    NUMBERING_PLAN_LENGTH,    ENC_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_sua_nature_of_address, parameter_tvb, NATURE_OF_ADDRESS_OFFSET, NATURE_OF_ADDRESS_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, source ? hf_sua_source_gt_reserved       : hf_sua_dest_gt_reserved,       parameter_tvb, PARAMETER_VALUE_OFFSET,   RESERVED_3_LENGTH,        ENC_NA);
+  proto_tree_add_item(parameter_tree, source ? hf_sua_source_gti               : hf_sua_dest_gti,               parameter_tvb, GTI_OFFSET,               GTI_LENGTH,               ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, source ? hf_sua_source_number_of_digits  : hf_sua_dest_number_of_digits,  parameter_tvb, NO_OF_DIGITS_OFFSET,      NO_OF_DIGITS_LENGTH,      ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, source ? hf_sua_source_translation_type  : hf_sua_dest_translation_type,  parameter_tvb, TRANSLATION_TYPE_OFFSET,  TRANSLATION_TYPE_LENGTH,  ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, source ? hf_sua_source_numbering_plan    : hf_sua_dest_numbering_plan,    parameter_tvb, NUMBERING_PLAN_OFFSET,    NUMBERING_PLAN_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, source ? hf_sua_source_nature_of_address : hf_sua_dest_nature_of_address, parameter_tvb, NATURE_OF_ADDRESS_OFFSET, NATURE_OF_ADDRESS_LENGTH, ENC_BIG_ENDIAN);
 
   number_of_digits = tvb_get_guint8(parameter_tvb, NO_OF_DIGITS_OFFSET);
   even_length = !(number_of_digits % 2);
@@ -1381,20 +1396,20 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
     even_signal >>= GT_EVEN_SIGNAL_SHIFT;
 
     g_strlcat(gt_digits, val_to_str_const(odd_signal, sccp_address_signal_values,
-				    "Unknown"), GT_MAX_SIGNALS+1);
+                                          "Unknown"), GT_MAX_SIGNALS+1);
 
     /* If the last signal is NOT filler */
     if (offset != (GLOBAL_TITLE_OFFSET + global_title_length - 1) || even_length == TRUE)
       g_strlcat(gt_digits, val_to_str_const(even_signal, sccp_address_signal_values,
-				   "Unknown"), GT_MAX_SIGNALS+1);
+                                            "Unknown"), GT_MAX_SIGNALS+1);
 
     offset += GT_SIGNAL_LENGTH;
   }
 
-  proto_tree_add_string_format(parameter_tree, hf_sua_global_title_digits,
-			       parameter_tvb, GLOBAL_TITLE_OFFSET,
-			       global_title_length, gt_digits,
-			       "Address information (digits): %s", gt_digits);
+  proto_tree_add_string_format(parameter_tree, source ? hf_sua_source_global_title_digits : hf_sua_dest_global_title_digits,
+                               parameter_tvb, GLOBAL_TITLE_OFFSET,
+                               global_title_length, gt_digits,
+                               "Address information (digits): %s", gt_digits);
 
   if (sua_ri == ROUTE_ON_GT_ROUTING_INDICATOR) {
     if (source) {
@@ -1425,7 +1440,7 @@ dissect_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
     }
   }
 
-  proto_tree_add_item(parameter_tree, hf_sua_point_code_dpc, parameter_tvb, POINT_CODE_OFFSET, POINT_CODE_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, source ? hf_sua_source_point_code : hf_sua_dest_point_code, parameter_tvb, POINT_CODE_OFFSET, POINT_CODE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(pc));
 }
 
@@ -1434,13 +1449,13 @@ dissect_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
 #define INVALID_SSN 0xff
 
 static void
-dissect_ssn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, guint8 *ssn)
+dissect_ssn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, guint8 *ssn, gboolean source)
 {
   *ssn = tvb_get_guint8(parameter_tvb,  SSN_OFFSET);
 
   if(parameter_tree) {
-    proto_tree_add_item(parameter_tree, hf_sua_ssn_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_NA);
-    proto_tree_add_item(parameter_tree, hf_sua_ssn_number,   parameter_tvb, SSN_OFFSET,             SSN_LENGTH,        ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, source ? hf_sua_source_ssn_reserved : hf_sua_dest_ssn_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_NA);
+    proto_tree_add_item(parameter_tree, source ? hf_sua_source_ssn_number   : hf_sua_dest_ssn_number,   parameter_tvb, SSN_OFFSET,             SSN_LENGTH,        ENC_BIG_ENDIAN);
     proto_item_append_text(parameter_item, " (%u)", *ssn);
   }
 }
@@ -1449,21 +1464,21 @@ dissect_ssn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto
 #define IPV4_ADDRESS_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, gboolean source)
 {
-  proto_tree_add_item(parameter_tree, hf_sua_ipv4, parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, source ? hf_sua_source_ipv4 : hf_sua_dest_ipv4, parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", tvb_ip_to_str(parameter_tvb, IPV4_ADDRESS_OFFSET));
 }
 
 #define HOSTNAME_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, gboolean source)
 {
   guint16 hostname_length;
 
   hostname_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_sua_hostname, parameter_tvb, HOSTNAME_OFFSET, hostname_length, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(parameter_tree, source ? hf_sua_source_hostname : hf_sua_dest_hostname, parameter_tvb, HOSTNAME_OFFSET, hostname_length, ENC_ASCII|ENC_NA);
   proto_item_append_text(parameter_item, " (%.*s)", hostname_length,
                          tvb_get_ephemeral_string(parameter_tvb, HOSTNAME_OFFSET, hostname_length));
 }
@@ -1472,9 +1487,9 @@ dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
 #define IPV6_ADDRESS_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, gboolean source)
 {
-  proto_tree_add_item(parameter_tree, hf_sua_ipv6, parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH, ENC_NA);
+  proto_tree_add_item(parameter_tree, source ? hf_sua_source_ipv6 : hf_sua_dest_ipv6, parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH, ENC_NA);
   proto_item_append_text(parameter_item, " (%s)", tvb_ip6_to_str(parameter_tvb, IPV6_ADDRESS_OFFSET));
 }
 
@@ -1612,8 +1627,8 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   if (!tree && tag != V8_DATA_PARAMETER_TAG
             && tag != V8_SOURCE_ADDRESS_PARAMETER_TAG
             && tag != V8_DESTINATION_ADDRESS_PARAMETER_TAG
-			&& tag != V8_DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG
-			&& tag != V8_SOURCE_REFERENCE_NUMBER_PARAMETER_TAG
+            && tag != V8_DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG
+            && tag != V8_SOURCE_REFERENCE_NUMBER_PARAMETER_TAG
             && tag != V8_SUBSYSTEM_NUMBER_PARAMETER_TAG)
     return;
 
@@ -1735,7 +1750,8 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case V8_SUBSYSTEM_NUMBER_PARAMETER_TAG:
-    dissect_ssn_parameter(parameter_tvb, parameter_tree, parameter_item, &ssn);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_ssn_parameter(parameter_tvb, parameter_tree, parameter_item, &ssn, (source_ssn != NULL));
     if(source_ssn)
     {
         *source_ssn = ssn;
@@ -1746,13 +1762,16 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
     }
     break;
   case V8_IPV4_ADDRESS_PARAMETER_TAG:
-    dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case V8_HOSTNAME_PARAMETER_TAG:
-    dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case V8_IPV6_ADDRESS_PARAMETER_TAG:
-    dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   default:
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1877,25 +1896,25 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
     /* If it's a known parameter it's present in the value_string.
      * If param_tag_str = NULL then this is an unknown parameter
      */
-	param_tag_str    = match_strval(tag, parameter_tag_values);
-	if(param_tag_str){
-		/* The parameter exists */
-		parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", param_tag_str);
-	}else{
-		if(dissector_try_uint(sua_parameter_table, tag, parameter_tvb, pinfo,tree)){
-			return;
-		}else{
-			parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "Unknown parameter");
-		}
-	}
-    parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
+        param_tag_str    = match_strval(tag, parameter_tag_values);
+        if(param_tag_str) {
+            /* The parameter exists */
+            parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", param_tag_str);
+        } else {
+            if(dissector_try_uint(sua_parameter_table, tag, parameter_tvb, pinfo,tree)) {
+                return;
+            } else {
+                parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "Unknown parameter");
+            }
+        }
+        parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
 
-    /* Add tag and length to the sua tree */
-    proto_tree_add_item(parameter_tree, hf_sua_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
-    proto_tree_add_item(parameter_tree, hf_sua_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
+        /* Add tag and length to the sua tree */
+        proto_tree_add_item(parameter_tree, hf_sua_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
+        proto_tree_add_item(parameter_tree, hf_sua_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   } else {
-    parameter_tree = NULL;
-    parameter_item = NULL;
+        parameter_tree = NULL;
+        parameter_item = NULL;
   }
 
   /*
@@ -1909,10 +1928,10 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
             && tag != DESTINATION_ADDRESS_PARAMETER_TAG
             && tag != POINT_CODE_PARAMETER_TAG
             && tag != GLOBAL_TITLE_PARAMETER_TAG
-			&& tag != DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG
-			&& tag != SOURCE_REFERENCE_NUMBER_PARAMETER_TAG
+            && tag != DESTINATION_REFERENCE_NUMBER_PARAMETER_TAG
+            && tag != SOURCE_REFERENCE_NUMBER_PARAMETER_TAG
             && tag != SUBSYSTEM_NUMBER_PARAMETER_TAG)
-    return;	/* Nothing to do here */
+    return;   /* Nothing to do here */
 
   switch(tag) {
   case DATA_PARAMETER_TAG:
@@ -2041,7 +2060,8 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
     dissect_point_code_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case SUBSYSTEM_NUMBER_PARAMETER_TAG:
-    dissect_ssn_parameter(parameter_tvb, parameter_tree, parameter_item, &ssn);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_ssn_parameter(parameter_tvb, parameter_tree, parameter_item, &ssn, (source_ssn != NULL));
     if(source_ssn)
     {
         *source_ssn = ssn;
@@ -2052,13 +2072,16 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
     }
     break;
   case IPV4_ADDRESS_PARAMETER_TAG:
-    dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_ipv4_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case HOSTNAME_PARAMETER_TAG:
-    dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_hostname_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   case IPV6_ADDRESS_PARAMETER_TAG:
-    dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item);
+    /* Reuse whether we have source_ssn or not to determine which address we're looking at */
+    dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item, (source_ssn != NULL));
     break;
   default:
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -2134,70 +2157,70 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 
 
 
-  if ( message_class == MESSAGE_CLASS_CO_MESSAGE) {
-	  /* XXX: this might fail with multihomed SCTP (on a path failure during a call)
-	   * or with "load sharing"?
-	   */
-	  sccp_assoc_info_t* sccp_assoc;
-	  reset_sccp_assoc();
-	  /* sua assoc */
+  if (message_class == MESSAGE_CLASS_CO_MESSAGE) {
+      /* XXX: this might fail with multihomed SCTP (on a path failure during a call)
+       * or with "load sharing"?
+       */
+      sccp_assoc_info_t* sccp_assoc;
+      reset_sccp_assoc();
+      /* sua assoc */
 
-	  switch (message_type){
-		  case MESSAGE_TYPE_CORE:
-			  assoc = sua_assoc(pinfo,&(pinfo->src),&(pinfo->dst), srn , drn);
-			  if(assoc){
-				  assoc->calling_routing_ind = sua_ri;
-				  assoc->calling_ssn = source_ssn;
-				  assoc->called_ssn = dest_ssn;
-			  }
-			  break;
-		  case MESSAGE_TYPE_COAK:
-			  assoc = sua_assoc(pinfo,&(pinfo->src),&(pinfo->dst), srn , drn);
-			  if(assoc){
-				  assoc->called_routing_ind = sua_ri;
-				  if( (assoc->called_ssn != INVALID_SSN)&& (dest_ssn != INVALID_SSN)){
-					  assoc->called_ssn = dest_ssn;
-				  }
-			  }
-			  break;
-		  default :
-			  assoc = sua_assoc(pinfo,&(pinfo->src),&(pinfo->dst), srn , drn);
-	  }
+      switch (message_type) {
+              case MESSAGE_TYPE_CORE:
+                      assoc = sua_assoc(pinfo,&(pinfo->src),&(pinfo->dst), srn , drn);
+                      if(assoc){
+                              assoc->calling_routing_ind = sua_ri;
+                              assoc->calling_ssn = source_ssn;
+                              assoc->called_ssn = dest_ssn;
+                      }
+                      break;
+              case MESSAGE_TYPE_COAK:
+                      assoc = sua_assoc(pinfo,&(pinfo->src),&(pinfo->dst), srn , drn);
+                      if(assoc){
+                              assoc->called_routing_ind = sua_ri;
+                              if( (assoc->called_ssn != INVALID_SSN)&& (dest_ssn != INVALID_SSN)){
+                                      assoc->called_ssn = dest_ssn;
+                              }
+                      }
+                      break;
+              default :
+                      assoc = sua_assoc(pinfo,&(pinfo->src),&(pinfo->dst), srn , drn);
+      }
 
-	  switch (message_type){
-		  case MESSAGE_TYPE_CORE:
-		  case MESSAGE_TYPE_COAK:
-			   break;
-		  default:
-			  if( (assoc && assoc->called_ssn != INVALID_SSN)&& (dest_ssn != INVALID_SSN)){
-				  dest_ssn = assoc->called_ssn;
-			  }
-			  if( (assoc && assoc->calling_ssn != INVALID_SSN)&& (source_ssn != INVALID_SSN)){
-				  source_ssn = assoc->calling_ssn;
-			  }
+      switch (message_type){
+              case MESSAGE_TYPE_CORE:
+              case MESSAGE_TYPE_COAK:
+                       break;
+              default:
+                      if((assoc && assoc->called_ssn != INVALID_SSN)&& (dest_ssn != INVALID_SSN)) {
+                              dest_ssn = assoc->called_ssn;
+                      }
+                      if((assoc && assoc->calling_ssn != INVALID_SSN)&& (source_ssn != INVALID_SSN)) {
+                              source_ssn = assoc->calling_ssn;
+                      }
 
-	  }
-	  if (assoc && assoc->assoc_id !=0){
-		  assoc_item = proto_tree_add_uint(tree, hf_sua_assoc_id, message_tvb, 0, 0, assoc->assoc_id);
-		  PROTO_ITEM_SET_GENERATED(assoc_item);
+      }
+      if (assoc && assoc->assoc_id !=0) {
+          assoc_item = proto_tree_add_uint(tree, hf_sua_assoc_id, message_tvb, 0, 0, assoc->assoc_id);
+          PROTO_ITEM_SET_GENERATED(assoc_item);
 #if 0
-		  assoc_tree = proto_item_add_subtree(assoc_item, ett_sua_assoc);
-		  proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->calling_routing_ind);
-		  proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->called_routing_ind);
-		  proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "calling_ssn %u", assoc->calling_ssn);
-		  proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "called_ssn %u", assoc->called_ssn);
+          assoc_tree = proto_item_add_subtree(assoc_item, ett_sua_assoc);
+          proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->calling_routing_ind);
+          proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->called_routing_ind);
+          proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "calling_ssn %u", assoc->calling_ssn);
+          proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "called_ssn %u", assoc->called_ssn);
 #endif /* 0 */
-	  }
+      }
 
-	  sccp_assoc = get_sccp_assoc(pinfo, tvb_offset_from_real_beginning(message_tvb), srn, drn, message_type);
-	  if (sccp_assoc && sccp_assoc->curr_msg) {
-		  pinfo->sccp_info = sccp_assoc->curr_msg;
-		  tap_queue_packet(sua_tap,pinfo,sccp_assoc->curr_msg);
-	  } else {
-		   pinfo->sccp_info = NULL;
-	  }
+      sccp_assoc = get_sccp_assoc(pinfo, tvb_offset_from_real_beginning(message_tvb), srn, drn, message_type);
+      if (sccp_assoc && sccp_assoc->curr_msg) {
+              pinfo->sccp_info = sccp_assoc->curr_msg;
+              tap_queue_packet(sua_tap,pinfo,sccp_assoc->curr_msg);
+      } else {
+               pinfo->sccp_info = NULL;
+      }
   } else {
-	  pinfo->sccp_info = NULL;
+      pinfo->sccp_info = NULL;
   }
 
   if (set_addresses) {
@@ -2221,10 +2244,10 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
        && (source_ssn == INVALID_SSN ||
        !dissector_try_uint(sccp_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree)))
     {
-		/* try heuristic subdissector list to see if there are any takers */
-		if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree, NULL)) {
-			return;
-		}
+      /* try heuristic subdissector list to see if there are any takers */
+      if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree, NULL)) {
+        return;
+      }
       /* No sub-dissection occured, treat it as raw data */
       call_dissector(data_handle, data_tvb, pinfo, tree);
     }
@@ -2299,16 +2322,45 @@ proto_register_sua(void)
     { &hf_sua_registration_status,                   { "Registration status",          "sua.registration_status",                       FT_UINT32,  BASE_DEC,  VALS(registration_status_values),   0x0,                      NULL, HFILL } },
     { &hf_sua_deregistration_status,                 { "Deregistration status",        "sua.deregistration_status",                     FT_UINT32,  BASE_DEC,  VALS(deregistration_status_values), 0x0,                      NULL, HFILL } },
     { &hf_sua_local_routing_key_identifier,          { "Local routing key identifier", "sua.local_routing_key_identifier",              FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_source_address_routing_indicator,      { "Routing Indicator",            "sua.source_address_routing_indicator",          FT_UINT16,  BASE_DEC,  VALS(routing_indicator_values),     0x0,                      NULL, HFILL } },
-    { &hf_sua_source_address_reserved_bits,          { "Reserved Bits",                "sua.source_address_reserved_bits",              FT_UINT16,  BASE_DEC,  NULL,                               ADDRESS_RESERVED_BITMASK, NULL, HFILL } },
-    { &hf_sua_source_address_gt_bit,                 { "Include GT",                   "sua.source_address_gt_bit",                     FT_BOOLEAN, 16,        NULL,                               ADDRESS_GT_BITMASK,       NULL, HFILL } },
-    { &hf_sua_source_address_pc_bit,                 { "Include PC",                   "sua.source_address_pc_bit",                     FT_BOOLEAN, 16,        NULL,                               ADDRESS_PC_BITMASK,       NULL, HFILL } },
-    { &hf_sua_source_address_ssn_bit,                { "Include SSN",                  "sua.source_address_ssn_bit",                    FT_BOOLEAN, 16,        NULL,                               ADDRESS_SSN_BITMASK,      NULL, HFILL } },
-    { &hf_sua_destination_address_routing_indicator, { "Routing Indicator",            "sua.destination_address_routing_indicator",     FT_UINT16,  BASE_DEC,  VALS(routing_indicator_values),     0x0,                      NULL, HFILL } },
-    { &hf_sua_destination_address_reserved_bits,     { "Reserved Bits",                "sua.destination_address_reserved_bits",         FT_UINT16,  BASE_DEC,  NULL,                               ADDRESS_RESERVED_BITMASK, NULL, HFILL } },
-    { &hf_sua_destination_address_gt_bit,            { "Include GT",                   "sua.destination_address_gt_bit",                FT_BOOLEAN, 16,        NULL,                               ADDRESS_GT_BITMASK,       NULL, HFILL } },
-    { &hf_sua_destination_address_pc_bit,            { "Include PC",                   "sua.destination_address_pc_bit",                FT_BOOLEAN, 16,        NULL,                               ADDRESS_PC_BITMASK,       NULL, HFILL } },
-    { &hf_sua_destination_address_ssn_bit,           { "Include SSN",                  "sua.destination_address_ssn_bit",               FT_BOOLEAN, 16,        NULL,                               ADDRESS_SSN_BITMASK,      NULL, HFILL } },
+
+    { &hf_sua_source_address_routing_indicator,      { "Routing Indicator",            "sua.source.routing_indicator",                  FT_UINT16,  BASE_DEC,  VALS(routing_indicator_values),     0x0,                      NULL, HFILL } },
+    { &hf_sua_source_address_reserved_bits,          { "Reserved Bits",                "sua.source.reserved_bits",                      FT_UINT16,  BASE_DEC,  NULL,                               ADDRESS_RESERVED_BITMASK, NULL, HFILL } },
+    { &hf_sua_source_address_gt_bit,                 { "Include GT",                   "sua.source.gt_bit",                             FT_BOOLEAN, 16,        NULL,                               ADDRESS_GT_BITMASK,       NULL, HFILL } },
+    { &hf_sua_source_address_pc_bit,                 { "Include PC",                   "sua.source.pc_bit",                             FT_BOOLEAN, 16,        NULL,                               ADDRESS_PC_BITMASK,       NULL, HFILL } },
+    { &hf_sua_source_address_ssn_bit,                { "Include SSN",                  "sua.source.ssn_bit",                            FT_BOOLEAN, 16,        NULL,                               ADDRESS_SSN_BITMASK,      NULL, HFILL } },
+    { &hf_sua_source_gt_reserved,                    { "Reserved",                     "sua.source.gt_reserved",                        FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_gti,                            { "GTI",                          "sua.source.gti",                                FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_number_of_digits,               { "Number of Digits",             "sua.source.global_title_number_of_digits",      FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_translation_type,               { "Translation Type",             "sua.source.global_title_translation_type",      FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_numbering_plan,                 { "Numbering Plan",               "sua.source.global_title_numbering_plan",        FT_UINT8,   BASE_HEX,  VALS(numbering_plan_values),        0x0,                      NULL, HFILL } },
+    { &hf_sua_source_nature_of_address,              { "Nature of Address",            "sua.source.global_title_nature_of_address",     FT_UINT8,   BASE_HEX,  VALS(nature_of_address_values),     0x0,                      NULL, HFILL } },
+    { &hf_sua_source_global_title_digits,            { "Global Title Digits",          "sua.source.global_title_digits",                FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_point_code,                     { "Point Code",                   "sua.source.point_code",                         FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_ssn_reserved,                   { "Reserved",                     "sua.source.ssn_reserved",                       FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_ssn_number,                     { "Subsystem Number",             "sua.source.ssn",                                FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_ipv4,                           { "IP Version 4 address",         "sua.source.ipv4_address",                       FT_IPv4,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_hostname,                       { "Hostname",                     "sua.source.hostname.name",                      FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_ipv6,                           { "IP Version 6 address",         "sua.source.ipv6_address",                       FT_IPv6,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+
+    { &hf_sua_destination_address_routing_indicator, { "Routing Indicator",            "sua.destination.routing_indicator",             FT_UINT16,  BASE_DEC,  VALS(routing_indicator_values),     0x0,                      NULL, HFILL } },
+    { &hf_sua_destination_address_reserved_bits,     { "Reserved Bits",                "sua.destination.reserved_bits",                 FT_UINT16,  BASE_DEC,  NULL,                               ADDRESS_RESERVED_BITMASK, NULL, HFILL } },
+    { &hf_sua_destination_address_gt_bit,            { "Include GT",                   "sua.destination.gt_bit",                        FT_BOOLEAN, 16,        NULL,                               ADDRESS_GT_BITMASK,       NULL, HFILL } },
+    { &hf_sua_destination_address_pc_bit,            { "Include PC",                   "sua.destination.pc_bit",                        FT_BOOLEAN, 16,        NULL,                               ADDRESS_PC_BITMASK,       NULL, HFILL } },
+    { &hf_sua_destination_address_ssn_bit,           { "Include SSN",                  "sua.destination.ssn_bit",                       FT_BOOLEAN, 16,        NULL,                               ADDRESS_SSN_BITMASK,      NULL, HFILL } },
+    { &hf_sua_dest_gt_reserved,                      { "Reserved",                     "sua.destination.gt_reserved",                   FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_gti,                              { "GTI",                          "sua.destination.gti",                           FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_number_of_digits,                 { "Number of Digits",             "sua.destination.global_title_number_of_digits", FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_translation_type,                 { "Translation Type",             "sua.destination.global_title_translation_type", FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_numbering_plan,                   { "Numbering Plan",               "sua.destination.global_title_numbering_plan",   FT_UINT8,   BASE_HEX,  VALS(numbering_plan_values),        0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_nature_of_address,                { "Nature of Address",            "sua.destination.global_title_nature_of_address",FT_UINT8,   BASE_HEX,  VALS(nature_of_address_values),     0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_global_title_digits,              { "Global Title Digits",          "sua.destination.global_title_digits",           FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_point_code,                       { "Point Code",                   "sua.destination.point_code",                    FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_ssn_reserved,                     { "Reserved",                     "sua.destination.ssn_reserved",                  FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_ssn_number,                       { "Subsystem Number",             "sua.destination.ssn",                           FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_ipv4,                             { "IP Version 4 address",         "sua.destination.ipv4_address",                  FT_IPv4,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_hostname,                         { "Hostname",                     "sua.destination.hostname.name",                 FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_ipv6,                             { "IP Version 6 address",         "sua.destination.ipv6_address",                  FT_IPv6,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+
     { &hf_sua_ss7_hop_counter_counter,               { "SS7 Hop Counter",              "sua.ss7_hop_counter_counter",                   FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_ss7_hop_counter_reserved,              { "Reserved",                     "sua.ss7_hop_counter_reserved",                  FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_destination_reference_number,          { "Destination Reference Number", "sua.destination_reference_number",              FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
@@ -2320,36 +2372,35 @@ proto_register_sua(void)
     { &hf_sua_sequence_number_rec_number,            { "Receive Sequence Number P(R)", "sua.sequence_number_receive_sequence_number",   FT_UINT8,   BASE_DEC,  NULL,                               SEQ_NUM_MASK,             NULL, HFILL } },
     { &hf_sua_sequence_number_more_data_bit,         { "More Data Bit",                "sua.sequence_number_more_data_bit",             FT_BOOLEAN, 8,         TFS(&more_data_bit_value),          MORE_DATA_BIT_MASK,       NULL, HFILL } },
     { &hf_sua_sequence_number_sent_number,           { "Sent Sequence Number P(S)",    "sua.sequence_number_sent_sequence_number",      FT_UINT8,   BASE_DEC,  NULL,                               SEQ_NUM_MASK,             NULL, HFILL } },
-    { &hf_sua_sequence_number_spare_bit,             { "Spare Bit",                    "sua.sequence_number_spare_bit",                 FT_UINT8,	BASE_DEC,  NULL,                               SPARE_BIT_MASK,           NULL, HFILL } },
+    { &hf_sua_sequence_number_spare_bit,             { "Spare Bit",                    "sua.sequence_number_spare_bit",                 FT_UINT8,   BASE_DEC,  NULL,                               SPARE_BIT_MASK,           NULL, HFILL } },
     { &hf_sua_receive_sequence_number_reserved,      { "Reserved",                     "sua.receive_sequence_number_reserved",          FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_receive_sequence_number_number,        { "Receive Sequence Number P(R)", "sua.receive_sequence_number_number",            FT_UINT8,   BASE_DEC,  NULL,                               SEQ_NUM_MASK,             NULL, HFILL } },
     { &hf_sua_receive_sequence_number_spare_bit,     { "Spare Bit",                    "sua.receive_sequence_number_spare_bit",         FT_UINT8,   BASE_DEC,  NULL,                               SPARE_BIT_MASK,           NULL, HFILL } },
     { &hf_sua_asp_capabilities_reserved,             { "Reserved",                     "sua.asp_capabilities_reserved",                 FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_asp_capabilities_reserved_bits,        { "Reserved Bits",                "sua.asp_capabilities_reserved_bits",            FT_UINT8,   BASE_HEX,  NULL,                               RESERVED_BITS_MASK,       NULL, HFILL } },
-    { &hf_sua_asp_capabilities_a_bit,                { "Protocol Class 3",             "sua.asp_capabilities_a_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),      A_BIT_MASK,               NULL, HFILL } },
-    { &hf_sua_asp_capabilities_b_bit,                { "Protocol Class 2",             "sua.asp_capabilities_b_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),      B_BIT_MASK,               NULL, HFILL } },
-    { &hf_sua_asp_capabilities_c_bit,                { "Protocol Class 1",             "sua.asp_capabilities_c_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),      C_BIT_MASK,               NULL, HFILL } },
-    { &hf_sua_asp_capabilities_d_bit,                { "Protocol Class 0",             "sua.asp_capabilities_d_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),      D_BIT_MASK,               NULL, HFILL } },
+    { &hf_sua_asp_capabilities_a_bit,                { "Protocol Class 3",             "sua.asp_capabilities_a_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),  A_BIT_MASK,               NULL, HFILL } },
+    { &hf_sua_asp_capabilities_b_bit,                { "Protocol Class 2",             "sua.asp_capabilities_b_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),  B_BIT_MASK,               NULL, HFILL } },
+    { &hf_sua_asp_capabilities_c_bit,                { "Protocol Class 1",             "sua.asp_capabilities_c_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),  C_BIT_MASK,               NULL, HFILL } },
+    { &hf_sua_asp_capabilities_d_bit,                { "Protocol Class 0",             "sua.asp_capabilities_d_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),  D_BIT_MASK,               NULL, HFILL } },
     { &hf_sua_asp_capabilities_interworking,         { "Interworking",                 "sua.asp_capabilities_interworking",             FT_UINT8,   BASE_HEX,  VALS(interworking_values),          0x0,                      NULL, HFILL } },
     { &hf_sua_credit,                                { "Credit",                       "sua.credit",                                    FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_cause,                                 { "Cause",                        "sua.cause_user_cause",                          FT_UINT16,  BASE_DEC,  VALS(cause_values),                 0x0,                      NULL, HFILL } },
     { &hf_sua_user,                                  { "User",                         "sua.cause_user_user",                           FT_UINT16,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_data,                                  { "Data",                         "sua.data",                                      FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_network_appearance,                    { "Network Appearance",           "sua.network_appearance",                        FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_routing_key_identifier,                { "Local Routing Key Identifier", "sua.routing_key_identifier",                    FT_UINT32,  BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_correlation_id,                        { "Correlation ID",               "sua.correlation_id",                            FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_importance_reserved,                   { "Reserved",                     "sua.importance_reserved",                       FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_importance,                            { "Importance",                   "sua.importance_inportance",                     FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_message_priority_reserved,             { "Reserved",                     "sua.message_priority_reserved",                 FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_message_priority,                      { "Message Priority",             "sua.message_priority_priority",                 FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_protocol_class_reserved,               { "Reserved",                     "sua.protcol_class_reserved",                    FT_BYTES,   BASE_NONE,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_protocol_class_reserved,               { "Reserved",                     "sua.protcol_class_reserved",                    FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_return_on_error_bit,                   { "Return On Error Bit",          "sua.protocol_class_return_on_error_bit",        FT_BOOLEAN, 8,         TFS(&return_on_error_bit_value),    RETURN_ON_ERROR_BIT_MASK, NULL, HFILL } },
     { &hf_sua_protocol_class,                        { "Protocol Class",               "sua.protocol_class_class",                      FT_UINT8,   BASE_DEC,  NULL,                               PROTOCOL_CLASS_MASK,      NULL, HFILL } },
     { &hf_sua_sequence_control,                      { "Sequence Control",             "sua.sequence_control_sequence_control",         FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_first_bit,                             { "First Segment Bit",            "sua.segmentation_first_bit",                    FT_BOOLEAN, 8,         TFS(&first_bit_value),              FIRST_BIT_MASK,           NULL, HFILL } },
     { &hf_sua_number_of_remaining_segments,          { "Number of Remaining Segments", "sua.segmentation_number_of_remaining_segments", FT_UINT8,   BASE_DEC,  NULL,                               NUMBER_OF_SEGMENTS_MASK,  NULL, HFILL } },
     { &hf_sua_segmentation_reference,                { "Segmentation Reference",       "sua.segmentation_reference",                    FT_UINT24,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_smi_reserved,                          { "Reserved",                     "sua.smi_reserved",                              FT_BYTES,   BASE_NONE,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_smi_reserved,                          { "Reserved",                     "sua.smi_reserved",                              FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_smi,                                   { "SMI",                          "sua.smi_smi",                                   FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_tid_label_start,                       { "Start",                        "sua.tid_label_start",                           FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_tid_label_end,                         { "End",                          "sua.tid_label_end",                             FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
@@ -2357,26 +2408,8 @@ proto_register_sua(void)
     { &hf_sua_drn_label_start,                       { "Start",                        "sua.drn_label_start",                           FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_drn_label_end,                         { "End",                          "sua.drn_label_end",                             FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_drn_label_value,                       { "Label Value",                  "sua.drn_label_value",                           FT_UINT16,  BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_gt_reserved,                           { "Reserved",                     "sua.gt_reserved",                               FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_gti,                                   { "GTI",                          "sua.gti",                                       FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_number_of_digits,                      { "Number of Digits",             "sua.global_title_number_of_digits",             FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_translation_type,                      { "Translation Type",             "sua.global_title_translation_type",             FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_numbering_plan,                        { "Numbering Plan",               "sua.global_title_numbering_plan",               FT_UINT8,   BASE_HEX,  VALS(numbering_plan_values),        0x0,                      NULL, HFILL } },
-    { &hf_sua_nature_of_address,                     { "Nature of Address",            "sua.global_title_nature_of_address",            FT_UINT8,   BASE_HEX,  VALS(nature_of_address_values),     0x0,                      NULL, HFILL } },
-    { &hf_sua_global_title_digits,                   { "Global Title Digits",          "sua.global_title_digits",                       FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_point_code_dpc,                        { "Point Code",                   "sua.point_code",                                FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_ssn_reserved,                          { "Reserved",                     "sua.ssn_reserved",                              FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_ssn_number,                            { "Subsystem Number",             "sua.ssn",                                       FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_ipv4,                                  { "IP Version 4 address",         "sua.ipv4_address",                              FT_IPv4,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_hostname,                              { "Hostname",                     "sua.hostname.name",                             FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_ipv6,                                  { "IP Version 6 address",         "sua.ipv6_address",                              FT_IPv6,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-     { &hf_sua_assoc_id,
-      { "Association ID", "sua.assoc.id",
-	FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_sua_assoc_msg,
-	{"Message in frame", "sua.assoc.msg",
-	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
-    },
+
+    { &hf_sua_assoc_id,                              { "Association ID",               "sua.assoc.id",                                  FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL}},
  };
 
   /* Setup protocol subtree array */
@@ -2416,8 +2449,8 @@ proto_register_sua(void)
   prefs_register_obsolete_preference(sua_module, "sua_version");
   prefs_register_enum_preference(sua_module, "version", "SUA Version", "Version used by Wireshark", &version, options, FALSE);
   prefs_register_bool_preference(sua_module, "set_addresses", "Set source and destination addresses",
-				 "Set the source and destination addresses to the PC or GT digits, depending on the routing indicator."
-				 "  This may affect TCAP's ability to recognize which messages belong to which TCAP session.", &set_addresses);
+                                 "Set the source and destination addresses to the PC or GT digits, depending on the routing indicator."
+                                 "  This may affect TCAP's ability to recognize which messages belong to which TCAP session.", &set_addresses);
 
   register_heur_dissector_list("sua", &heur_subdissector_list);
   sua_parameter_table = register_dissector_table("sua.prop.tags", "Proprietary SUA Tags", FT_UINT16, BASE_DEC);
