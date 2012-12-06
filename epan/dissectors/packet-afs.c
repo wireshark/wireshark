@@ -1545,7 +1545,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	nstime_t delta_ts;
 
-	void (*dissector)(tvbuff_t *, struct rxinfo *, proto_tree *, int, int);
+	void (*dissector)(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode);
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AFS (RX)");
