@@ -411,10 +411,6 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-prototypes)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-declarations)
 		#
-		# epan/dissectors/packet-afs.c blocks this one for now.
-		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow)
-		#
 		# More cleanup needed for this on LP64.
 		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
@@ -430,6 +426,7 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition, C)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow, C)                           ## OK for C++ ??
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-variable)    ##  for now
 #
 # Use the faster pre gcc 4.5 floating point precision if available;
