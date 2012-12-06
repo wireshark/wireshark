@@ -1809,6 +1809,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
       /* We are at the first colon */
       /* tag */
       next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+	  if(next_offset==-1){
+		  /* XXX Add expert item? */
+		  return;
+	  }
       tokenlen    = next_offset - offset;
       proto_tree_add_uint(sdp_media_attribute_tree, hf_sdp_crypto_tag, tvb, offset, tokenlen,
           atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen)));
@@ -1816,8 +1820,12 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
       /* crypto-suite */
       next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
+	  if(next_offset==-1){
+		  /* XXX Add expert item? */
+		  return;
+	  }
       tokenlen    = next_offset - offset;
-      proto_tree_add_item(sdp_media_attribute_tree, hf_sdp_crypto_crypto_suite,
+      parameter_item = proto_tree_add_item(sdp_media_attribute_tree, hf_sdp_crypto_crypto_suite,
           tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
       if (tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_80", tokenlen) == 0) {
 
@@ -1864,10 +1872,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
               has_more_pars = FALSE;
               param_end_offset = tvb_length(tvb);
           }
-          parameter_item = proto_tree_add_text(sdp_media_attribute_tree,
-              tvb, offset, param_end_offset-offset, "Key parameters");
-          parameter_tree = proto_item_add_subtree(parameter_item, ett_sdp_crypto_key_parameters);
-
           /* key-method or key-method-ext */
           next_offset = tvb_find_guint8(tvb, offset, -1, ':');
           if (next_offset == -1) {
@@ -1875,7 +1879,11 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                   "Invalid key-param (no ':' delimiter)");
               break;
           }
+
           if (tvb_strncaseeql(tvb, offset, "inline", next_offset-offset) == 0) {
+			  parameter_item = proto_tree_add_text(sdp_media_attribute_tree,
+				  tvb, offset, param_end_offset-offset, "Key parameters");
+			  parameter_tree = proto_item_add_subtree(parameter_item, ett_sdp_crypto_key_parameters);
               /* XXX only for SRTP? */
               /* srtp-key-info       = key-salt ["|" lifetime] ["|" mki] */
               offset      = next_offset +1;
@@ -1941,10 +1949,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
               }
               offset = param_end_offset;
           } else {
-              tokenlen = param_end_offset -  next_offset + 1;
-              proto_tree_add_text(parameter_tree, tvb, next_offset + 1, tokenlen,
-                  "%s", tvb_get_ephemeral_string(tvb, next_offset + 1, tokenlen));
-              offset = param_end_offset;
+			  break;
           }
       }
 
