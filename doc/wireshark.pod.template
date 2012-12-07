@@ -169,6 +169,9 @@ Apple PacketLogger files
 Files from Aethra Telecommunications' PC108 software for their test
 instruments
 
+=item *
+MPEG-2 Transport Streams as defined in ISO/IEC 13818-1
+
 =back
 
 There is no need to tell B<Wireshark> what type of
