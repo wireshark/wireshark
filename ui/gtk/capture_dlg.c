@@ -3034,6 +3034,10 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
       change_interface_selection(g_strdup(device.name), device.selected);
     }
   }
+  if (device.cfilter != NULL) {
+    device.cfilter = NULL;
+    update_filter_string(device.name, NULL);
+  }
   device.locked = FALSE;
   global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, indx);
   g_array_insert_val(global_capture_opts.all_ifaces, indx, device);
@@ -4631,7 +4635,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   gtk_widget_set_tooltip_text(all_filter_cm,
-    "Enter a capture filter for all interfaces to reduce the amount of packets to be captured. "
+    "Enter a capture filter for all selected interfaces to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it. "
     "Syntax checking can be disabled in Preferences -> Capture -> Syntax check capture filter."
     );
