@@ -41,6 +41,7 @@ Certificate				B "2.5.4.37" "id-at-cAcertificate"
 CertificateList			B "2.5.4.38" "id-at-authorityRevocationList"
 CertificateList			B "2.5.4.39" "id-at-certificateRevocationList"
 CertificatePair			B "2.5.4.40" "id-at-crossCertificatePair"
+CertificateList			B "2.5.4.53" "id-at-deltaRevocationList"
 AttributeCertificate	B "2.5.4.58" "id-at-attributeCertificate"
 CertificateList			B "2.5.4.59" "id-at-attributeCertificateRevocationList"
 

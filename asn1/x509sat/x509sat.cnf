@@ -169,11 +169,11 @@ ProtocolInformation     B "2.5.4.48" "id-at-protocolInformation"
 NameAndOptionalUID      B "2.5.4.50" "id-at-uniqueMember"
 DirectoryString         B "2.5.4.51"   "id-at-houseIdentifier"
 ObjectIdentifier        B "2.5.4.52"	"id-at-supportedAlgorithms"
-# 53 "id-at-deltaRevocationList" - what syntax?
+# 53 "id-at-deltaRevocationList" - see x509af.cnf
 DirectoryString         B "2.5.4.54"   "id-at-dmdName"
 #Clearance				B "2.5.4.55"	"id-at-clearance"
-# 56 "id-at-defaultDirQop" - what syntax?
-# 56 "id-at-attributeIntegrityInfo" - what syntax?
+ObjectIdentifier	B "2.5.4.56" "id-at-defaultDirQop"
+# 57 "id-at-attributeIntegrityInfo" - what syntax?
 # 58 "id-at-attributeCertificate" - see x509af.cnf
 # 59 "id-at-attributeCertificateRevocationLIst" - see x509af.cnf
 # 60 "id-at-confKeyInfo" - what syntax?
