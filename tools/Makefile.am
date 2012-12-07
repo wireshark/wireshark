@@ -125,6 +125,7 @@ EXTRA_DIST = \
 	rdps.py						\
 	runlex.sh					\
 	setuid-root.pl.in				\
+	test-common.sh					\
 	test-fuzzed-cap.sh				\
 	textify.sh 					\
 	valgrind-wireshark.sh				\

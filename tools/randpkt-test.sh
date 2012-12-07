@@ -8,28 +8,9 @@
 # content.  It runs TShark on each generated file and checks for errors.
 # The files are processed repeatedly until an error is found.
 
-# Tweak the following to your liking.
-TSHARK=./tshark
-RANDPKT=./randpkt
+TEST_TYPE="randpkt"
+. `dirname $0`/test-common.sh
 
-# This needs to point to a 'date' that supports %s.
-DATE=/bin/date
-BASE_NAME=randpkt-`$DATE +%Y-%m-%d`-$$
-
-# Temporary file directory and names.
-# (had problems with this on cygwin, tried TMP_DIR=./ which worked)
-TMP_DIR=/tmp
-TMP_FILE=$BASE_NAME.pcap
-ERR_FILE=$BASE_NAME.err
-
-# Loop this many times (< 1 loops forever)
-MAX_PASSES=0
-
-# These may be set to your liking
-# Stop the child process, if it's running longer than x seconds
-MAX_CPU_TIME=900
-# Stop the child process, if it's using more than y * 1024 bytes
-MAX_VMEM=500000
 # Trigger an abort if a dissector finds a bug.
 # Uncomment to disable
 WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
@@ -45,11 +26,6 @@ while getopts ":d:p:t:" OPTCHAR ; do
     esac
 done
 shift $(($OPTIND - 1))
-
-# set some limits to the child processes, e.g. stop it if it's running longer then MAX_CPU_TIME seconds
-# (ulimit is not supported well on cygwin and probably other platforms, e.g. cygwin shows some warnings)
-ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM
-ulimit -c unlimited
 
 ### usually you won't have to change anything below this line ###
 
@@ -84,33 +60,6 @@ echo ""
 
 trap "MAX_PASSES=1; echo 'Caught signal'" HUP INT TERM
 
-function exit_error() {
-    echo -e "\n ERROR"
-    echo -e "Processing failed. Capture info follows:\n"
-    echo "  Input file: $CF"
-
-    ERR_SIZE=$(du -sk $TMP_DIR/$ERR_FILE | awk '{ print $1 }')
-    if [ $ERR_SIZE -ge 5000 ] ; then
-        mv $TMP_DIR/$ERR_FILE $TMP_DIR/${ERR_FILE}.full
-        head -n 2000 $TMP_DIR/${ERR_FILE}.full > $TMP_DIR/$ERR_FILE
-        echo -e "\n\n[ Output removed ]\n\n" >> $TMP_DIR/$ERR_FILE
-        tail -n 2000 $TMP_DIR/${ERR_FILE}.full >> $TMP_DIR/$ERR_FILE
-        rm -f $TMP_DIR/${ERR_FILE}.full
-    fi
-
-    if [ -d .svn ] ; then
-        echo -e "\nSubversion revision" >> $TMP_DIR/$ERR_FILE
-        svn log -l 1 >> $TMP_DIR/$ERR_FILE
-    elif [ -d .git ] ; then
-        echo -e "\nGit commit" >> $TMP_DIR/$ERR_FILE
-        git log -1 >> $TMP_DIR/$ERR_FILE
-    fi
-
-    echo -e "stderr follows:\n"
-    cat $TMP_DIR/$ERR_FILE
-
-    exit 1
-}
 
 # Iterate over our capture files.
 PASS=0
