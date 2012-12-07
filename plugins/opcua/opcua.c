@@ -348,7 +348,6 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 if (frag_msg == NULL)
                 {
                     /* first fragment */
-                    offset = 0;
                     opcua_seqnum = 0;
                 }
                 else
@@ -420,6 +419,10 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         /* parse the service if not chunked or last chunk */
         if (msgtype == MSG_MESSAGE && bParseService)
         {
+            if (bIsLastFragment != FALSE)
+            {
+                offset = 0;
+            }
             iServiceId = parseService(transport_tree, next_tvb, &offset);
         }
 
