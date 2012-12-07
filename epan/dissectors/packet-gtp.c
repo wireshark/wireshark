@@ -233,7 +233,8 @@ static int hf_gtp_ext_rat_type = -1;
 static int hf_gtp_ext_geo_loc_type = -1;
 static int hf_gtp_ext_sac = -1;
 static int hf_gtp_ext_imeisv = -1;
-static int hf_gtp_targetRNC_ID = -1;
+static int hf_gtp_target_rnc_id = -1;
+static int hf_gtp_target_ext_rnc_id = -1;
 static int hf_gtp_bssgp_cause = -1;
 static int hf_gtp_bssgp_ra_discriminator = -1;
 static int hf_gtp_sapi = -1;
@@ -3197,8 +3198,8 @@ decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
     ext_tree_rai = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_RAI]);
 
     dissect_e212_mcc_mnc(tvb, pinfo, ext_tree_rai, offset+1, TRUE);
-    proto_tree_add_uint(ext_tree_rai, hf_gtp_rai_lac, tvb, offset + 4, 2, tvb_get_ntohs(tvb, offset + 4));
-    proto_tree_add_uint(ext_tree_rai, hf_gtp_rai_rac, tvb, offset + 6, 1, tvb_get_guint8(tvb, offset + 6));
+    proto_tree_add_item(ext_tree_rai, hf_gtp_rai_lac, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree_rai, hf_gtp_rai_rac, tvb, offset + 6, 1, ENC_BIG_ENDIAN);
 
     return 7;
 }
@@ -5112,9 +5113,10 @@ decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
 }
 
 /* GPRS:        not present
- * UMTS:        29.060 v4.0, chapter 7.7.37
+ * UMTS:        3GPP TS 29.060 version 10.4.0 Release 10, chapter 7.7.37
  * Type = 138 (Decimal)
  *              25.413(RANAP) TargetID
+ * There are several CRs to to this IE make sure to check with a recent spec if dissection is questioned.
  */
 static int
 decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -5123,9 +5125,6 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     guint16     length;
     proto_item *te;
     proto_tree *ext_tree;
-    tvbuff_t   *next_tvb;
-    asn1_ctx_t  asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
@@ -5134,13 +5133,31 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     offset = offset + 1;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* The Target Identification information element contains the identification of a target RNC. Octets 4-n shall be encoded
-     * as the "Target RNC-ID" part of the "Target ID" parameter in 3GPP TS 25.413 [7]. Therefore, the "Choice Target ID"
-     * that indicates "Target RNC-ID" (numerical value of 0x20) shall not be included in the "Target RNC-ID" value in octets
-     * 4-n.
+    /* Quote from specification:
+	 * The Target Identification information element contains the identification of a target RNC. Octets 4-n shall contain a
+     * non-transparent copy of the corresponding IEs (see subclause 7.7.2) and be encoded as specified in Figure 51 below.
+     * The "Target RNC-ID" part of the "Target ID" parameter is specified in 3GPP TS 25.413 [7].
+     * NOTE 1: The ASN.1 parameter "Target ID" is forwarded non-transparently in order to maintain backward compatibility.
+	 * NOTE 2: The preamble of the "Target RNC-ID" (numerical value of e.g. 0x20) however shall not be included in
+	 *         octets 4-n. Also the optional "iE-Extensions" parameter shall not be included into the GTP IE.
      */
-    next_tvb = tvb_new_subset(tvb, offset, length, length);
-    dissect_ranap_TargetRNC_ID(next_tvb, 0, &asn1_ctx, ext_tree, hf_gtp_targetRNC_ID);
+	/* Octet 4-6 MCC + MNC */
+	dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, TRUE);
+	offset+=3;
+	/* Octet 7-8 LAC */
+    proto_tree_add_item(ext_tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset+=2;
+	/* Octet 9 RAC */
+    proto_tree_add_item(ext_tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	/* Octet 10-11 RNC-ID*/
+    proto_tree_add_item(ext_tree, hf_gtp_target_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	/* If the optional Extended RNC-ID is not included, then the length variable 'n' = 8 and the overall length of the IE is 11
+	 * octets. Otherwise, 'n' = 10 and the overall length of the IE is 13 octets
+	 */
+	if(length == 10){
+	    proto_tree_add_item(ext_tree, hf_gtp_target_ext_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	}
 
     return 3 + length;
 }
@@ -5585,7 +5602,8 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
             dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case 128:
             /* Geographic Location field included and it holds the Tracking
@@ -5685,7 +5703,8 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
             dissect_e212_mcc_mnc(tvb, pinfo, rai_tree, offset, TRUE);
             offset+=3;
             proto_tree_add_item(rai_tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rai_tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+            proto_tree_add_item(rai_tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         default:
             proto_tree_add_text(tree, tvb, offset, length - 1, "Unknown Location type data");
@@ -8910,9 +8929,14 @@ proto_register_gtp(void)
            FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
-        { &hf_gtp_targetRNC_ID,
+        { &hf_gtp_target_rnc_id,
           { "targetRNC-ID", "gtp.targetRNC_ID",
-            FT_NONE, BASE_NONE, NULL, 0,
+            FT_UINT16, BASE_HEX, NULL, 0x0fff,
+            NULL, HFILL }
+        },
+        { &hf_gtp_target_ext_rnc_id,
+          { "Extended RNC-ID", "gtp.target_ext_RNC_ID",
+            FT_UINT16, BASE_HEX, NULL, 0,
             NULL, HFILL }
         },
         {&hf_gtp_bssgp_cause,
