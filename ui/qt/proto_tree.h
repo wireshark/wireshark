@@ -29,6 +29,7 @@
 #include <epan/proto.h>
 
 #include <QTreeWidget>
+#include <QMenu>
 
 Q_DECLARE_METATYPE(field_info *)
 
@@ -40,7 +41,11 @@ public:
     void fillProtocolTree(proto_tree *protocol_tree);
     void clear();
 
+protected:
+     void contextMenuEvent(QContextMenuEvent *event);
+
 private:
+     QMenu ctx_menu_;
 
 signals:
     void protoItemSelected(QString &);

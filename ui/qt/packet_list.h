@@ -30,6 +30,7 @@
 
 #include <QTreeView>
 #include <QTreeWidget>
+#include <QMenu>
 
 // It might make more sense to subclass QTableView here.
 class PacketList : public QTreeView
@@ -43,16 +44,20 @@ public:
     void updateAll();
     void clear();
     void writeRecent(FILE *rf);
+    bool contextMenuActive();
 
 protected:
     void showEvent (QShowEvent *event);
     void selectionChanged (const QItemSelection & selected, const QItemSelection & deselected);
+    void contextMenuEvent(QContextMenuEvent *event);
 
 private:
     PacketListModel *packet_list_model_;
     ProtoTree *proto_tree_;
     ByteViewTab *byte_view_tab_;
     capture_file *cap_file_;
+    QMenu ctx_menu_;
+    QList<QMenu *> submenus_;
 
 signals:
 

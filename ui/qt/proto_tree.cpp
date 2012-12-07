@@ -33,6 +33,8 @@
 #include <QTreeWidgetItemIterator>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QContextMenuEvent>
+#include <QMainWindow>
 
 QColor        expert_color_comment    ( 0x00, 0xff, 0x00 );        /* Green */
 QColor        expert_color_chat       ( 0x80, 0xb7, 0xf7 );        /* light blue */
@@ -151,8 +153,81 @@ proto_tree_draw_node(proto_node *node, gpointer data)
 ProtoTree::ProtoTree(QWidget *parent) :
     QTreeWidget(parent)
 {
+    QMenu *submenu, *subsubmenu;
+
     setAccessibleName(tr("Packet details"));
     setUniformRowHeights(true);
+
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandSubtrees"));
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandAll"));
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewCollapseAll"));
+    ctx_menu_.addSeparator();
+//    "     <menuitem name='ApplyasColumn' action='/Apply as Column'/>\n"
+    ctx_menu_.addSeparator();
+    submenu = new QMenu(tr("Apply as Filter"));
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
+    submenu = new QMenu(tr("Prepare a Filter"));
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
+    submenu = new QMenu(tr("Colorize with Filter"));
+    ctx_menu_.addMenu(submenu);
+//    "       <menuitem name='Color1' action='/Colorize with Filter/Color 1'/>\n"
+//    "       <menuitem name='Color2' action='/Colorize with Filter/Color 2'/>\n"
+//    "       <menuitem name='Color3' action='/Colorize with Filter/Color 3'/>\n"
+//    "       <menuitem name='Color4' action='/Colorize with Filter/Color 4'/>\n"
+//    "       <menuitem name='Color5' action='/Colorize with Filter/Color 5'/>\n"
+//    "       <menuitem name='Color6' action='/Colorize with Filter/Color 6'/>\n"
+//    "       <menuitem name='Color7' action='/Colorize with Filter/Color 7'/>\n"
+//    "       <menuitem name='Color8' action='/Colorize with Filter/Color 8'/>\n"
+//    "       <menuitem name='Color9' action='/Colorize with Filter/Color 9'/>\n"
+//    "       <menuitem name='Color10' action='/Colorize with Filter/Color 10'/>\n"
+//    "       <menuitem name='NewColoringRule' action='/Colorize with Filter/New Coloring Rule'/>\n"
+//    "     </menu>\n"
+//    "     <menuitem name='FollowTCPStream' action='/Follow TCP Stream'/>\n"
+//    "     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
+//    "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
+    ctx_menu_.addSeparator();
+    submenu = new QMenu(tr("Copy"));
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionEditCopyDescription"));
+    submenu->addAction(window()->findChild<QAction *>("actionEditCopyFieldName"));
+    submenu->addAction(window()->findChild<QAction *>("actionEditCopyValue"));
+    submenu->addSeparator();
+    submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
+    subsubmenu = new QMenu(tr("Bytes"));
+    submenu->addMenu(subsubmenu);
+    subsubmenu->addSeparator();
+//    "        <menu name= 'Bytes' action='/Copy/Bytes'>\n"
+//    "           <menuitem name='OffsetHexText' action='/Copy/Bytes/OffsetHexText'/>\n"
+//    "           <menuitem name='OffsetHex' action='/Copy/Bytes/OffsetHex'/>\n"
+//    "           <menuitem name='PrintableTextOnly' action='/Copy/Bytes/PrintableTextOnly'/>\n"
+//    "           <separator/>\n"
+//    "           <menuitem name='HexStream' action='/Copy/Bytes/HexStream'/>\n"
+//    "           <menuitem name='BinaryStream' action='/Copy/Bytes/BinaryStream'/>\n"
+//    "        </menu>\n"
+//    "     </menu>\n"
+//    "     <menuitem name='ExportSelectedPacketBytes' action='/ExportSelectedPacketBytes'/>\n"
+    ctx_menu_.addSeparator();
+//    "     <menuitem name='WikiProtocolPage' action='/WikiProtocolPage'/>\n"
+//    "     <menuitem name='FilterFieldReference' action='/FilterFieldReference'/>\n"
+//    "     <menuitem name='ProtocolHelp' action='/ProtocolHelp'/>\n"
+//    "     <menuitem name='ProtocolPreferences' action='/ProtocolPreferences'/>\n"
+    ctx_menu_.addSeparator();
+//    "     <menuitem name='DecodeAs' action='/DecodeAs'/>\n"
+//    "     <menuitem name='DisableProtocol' action='/DisableProtocol'/>\n"
+//    "     <menuitem name='ResolveName' action='/ResolveName'/>\n"
+//    "     <menuitem name='GotoCorrespondingPacket' action='/GotoCorrespondingPacket'/>\n"
 
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
             this, SLOT(updateSelectionStatus(QTreeWidgetItem*)));
@@ -165,6 +240,11 @@ ProtoTree::ProtoTree(QWidget *parent) :
 void ProtoTree::clear() {
     updateSelectionStatus(NULL);
     QTreeWidget::clear();
+}
+
+void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
+{
+    ctx_menu_.exec(event->globalPos());
 }
 
 void ProtoTree::fillProtocolTree(proto_tree *protocol_tree) {

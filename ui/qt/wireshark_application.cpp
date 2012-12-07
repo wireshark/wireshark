@@ -415,6 +415,12 @@ void WiresharkApplication::allSystemsGo()
     }
 }
 
+void WiresharkApplication::applyAllPreferences()
+{
+    prefs_apply_all();
+    emit updatePreferences();
+}
+
 QList<recent_item_status *> WiresharkApplication::recentItems() const {
     return recent_items;
 }

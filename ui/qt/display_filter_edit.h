@@ -39,10 +39,13 @@ protected:
 //    void focusInEvent(QFocusEvent *evt);
 //    void focusOutEvent(QFocusEvent *evt);
 
+public slots:
+    void applyDisplayFilter();
+    void displayFilterSuccess(bool success);
+
 private slots:
     void checkFilter(const QString &text);
     void showDisplayFilterDialog();
-    void applyDisplayFilter();
 
 private:
     bool plain_;
@@ -56,6 +59,7 @@ signals:
     void pushFilterSyntaxStatus(QString&);
     void popFilterSyntaxStatus();
     void pushFilterSyntaxWarning(QString&);
+    void filterPackets(QString& new_filter, bool force);
 
 public slots:
 

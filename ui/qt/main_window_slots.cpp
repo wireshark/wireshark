@@ -64,6 +64,7 @@
 #include "print_dialog.h"
 
 #include <QMessageBox>
+#include <QClipboard>
 
 #include <QDebug>
 
@@ -163,6 +164,24 @@ void MainWindow::openCaptureFile(QString &cf_path, QString &display_filter)
     df_combo_box_->setEditText(display_filter);
 
     main_ui_->statusBar->showExpert();
+}
+
+void MainWindow::filterPackets(QString& new_filter, bool force)
+{
+    cf_status_t cf_status;
+
+    cf_status = cf_filter_packets(&cfile, new_filter.toUtf8().data(), force);
+
+    if (cf_status == CF_OK) {
+        emit displayFilterSuccess(true);
+        if (new_filter.length() > 0) {
+            if (df_combo_box_->findText(new_filter) < 0) {
+                df_combo_box_->insertItem(0, new_filter);
+            }
+        }
+    } else {
+        emit displayFilterSuccess(false);
+    }
 }
 
 // Capture callbacks
@@ -539,19 +558,14 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
         }
         properties = prefs_is_registered_protocol(abbrev);
         */
-
+        bool can_match_selected = proto_can_match_selected(cap_file_->finfo_selected, cap_file_->edt);
 //        set_menu_sensitivity(ui_manager_tree_view_menu,
 //                             "/TreeViewPopup/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy",
 //                             TRUE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy/AsFilter",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyasColumn",
 //                             hfinfo->type != FT_NONE);
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ColorizewithFilter",
 //                             proto_can_match_selected(cf->finfo_selected, cf->edt));
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences",
@@ -569,6 +583,11 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 
 //        set_menu_sensitivity(ui_manager_main_menubar,
 //                             "/Menubar/GoMenu/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
+
+        main_ui_->actionEditCopyDescription->setEnabled(can_match_selected);
+        main_ui_->actionEditCopyFieldName->setEnabled(can_match_selected);
+        main_ui_->actionEditCopyValue->setEnabled(can_match_selected);
+        main_ui_->actionEditCopyAsFilter->setEnabled(can_match_selected);
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Description",
 //                             proto_can_match_selected(cf->finfo_selected, cf->edt));
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Fieldname",
@@ -577,12 +596,23 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 //                             proto_can_match_selected(cf->finfo_selected, cf->edt));
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/AsFilter",
 //                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ApplyasColumn",
 //                             hfinfo->type != FT_NONE);
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ApplyAsFilter",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/PrepareaFilter",
-//                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        main_ui_->actionAnalyzeAAFSelected->setEnabled(can_match_selected);
+        main_ui_->actionAnalyzeAAFNotSelected->setEnabled(can_match_selected);
+        main_ui_->actionAnalyzeAAFAndSelected->setEnabled(can_match_selected);
+        main_ui_->actionAnalyzeAAFOrSelected->setEnabled(can_match_selected);
+        main_ui_->actionAnalyzeAAFAndNotSelected->setEnabled(can_match_selected);
+        main_ui_->actionAnalyzeAAFOrNotSelected->setEnabled(can_match_selected);
+
+        main_ui_->actionAnalyzePAFSelected->setEnabled(can_match_selected);
+        main_ui_->actionAnalyzePAFNotSelected->setEnabled(can_match_selected);
+        main_ui_->actionAnalyzePAFAndSelected->setEnabled(can_match_selected);
+        main_ui_->actionAnalyzePAFOrSelected->setEnabled(can_match_selected);
+        main_ui_->actionAnalyzePAFAndNotSelected->setEnabled(can_match_selected);
+        main_ui_->actionAnalyzePAFOrNotSelected->setEnabled(can_match_selected);
+
         main_ui_->actionViewExpandSubtrees->setEnabled(cap_file_->finfo_selected->tree_type != -1);
 //        prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev");
 //        if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
@@ -612,13 +642,26 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
         main_ui_->actionFileExportPacketBytes->setEnabled(false);
 //        set_menu_sensitivity(ui_manager_main_menubar,
 //                             "/Menubar/GoMenu/GotoCorrespondingPacket", FALSE);
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Description", FALSE);
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Fieldname", FALSE);
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Value", FALSE);
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/AsFilter", FALSE);
+        main_ui_->actionEditCopyDescription->setEnabled(false);
+        main_ui_->actionEditCopyFieldName->setEnabled(false);
+        main_ui_->actionEditCopyValue->setEnabled(false);
+        main_ui_->actionEditCopyAsFilter->setEnabled(false);
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ApplyasColumn", FALSE);
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ApplyAsFilter", FALSE);
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/PrepareaFilter", FALSE);
+
+        main_ui_->actionAnalyzeAAFSelected->setEnabled(false);
+        main_ui_->actionAnalyzeAAFNotSelected->setEnabled(false);
+        main_ui_->actionAnalyzeAAFAndSelected->setEnabled(false);
+        main_ui_->actionAnalyzeAAFOrSelected->setEnabled(false);
+        main_ui_->actionAnalyzeAAFAndNotSelected->setEnabled(false);
+        main_ui_->actionAnalyzeAAFOrNotSelected->setEnabled(false);
+
+        main_ui_->actionAnalyzePAFSelected->setEnabled(false);
+        main_ui_->actionAnalyzePAFNotSelected->setEnabled(false);
+        main_ui_->actionAnalyzePAFAndSelected->setEnabled(false);
+        main_ui_->actionAnalyzePAFOrSelected->setEnabled(false);
+        main_ui_->actionAnalyzePAFAndNotSelected->setEnabled(false);
+        main_ui_->actionAnalyzePAFOrNotSelected->setEnabled(false);
+
         main_ui_->actionViewExpandSubtrees->setEnabled(false);
     }
 }
@@ -839,11 +882,306 @@ void MainWindow::on_actionFilePrint_triggered()
     pdlg.exec();
 }
 
+// Edit Menu
+
+// XXX This should probably be somewhere else.
+void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type)
+{
+    char label_str[ITEM_LABEL_LENGTH];
+    QString clip;
+
+    if (!cap_file_) return;
+
+    switch(selection_type) {
+    case CopySelectedDescription:
+        if (cap_file_->finfo_selected->rep &&
+                strlen (cap_file_->finfo_selected->rep->representation) > 0) {
+            clip.append(cap_file_->finfo_selected->rep->representation);
+        }
+        break;
+    case CopySelectedFieldName:
+        if (cap_file_->finfo_selected->hfinfo->abbrev != 0) {
+            clip.append(cap_file_->finfo_selected->hfinfo->abbrev);
+        }
+        break;
+    case CopySelectedValue:
+        if (cap_file_->edt != 0) {
+            clip.append(get_node_field_value(cap_file_->finfo_selected, cap_file_->edt));
+        }
+        break;
+    }
+
+    if (clip.length() == 0) {
+        /* If no representation then... Try to read the value */
+        proto_item_fill_label(cap_file_->finfo_selected, label_str);
+        clip.append(label_str);
+    }
+
+    if (clip.length()) {
+        wsApp->clipboard()->setText(clip);
+    } else {
+        QString err = tr("Couldn't copy text. Try another item.");
+        main_ui_->statusBar->pushTemporaryStatus(err);
+    }
+}
+
+void MainWindow::on_actionEditCopyDescription_triggered()
+{
+    actionEditCopyTriggered(CopySelectedDescription);
+}
+
+void MainWindow::on_actionEditCopyFieldName_triggered()
+{
+    actionEditCopyTriggered(CopySelectedFieldName);
+}
+
+void MainWindow::on_actionEditCopyValue_triggered()
+{
+    actionEditCopyTriggered(CopySelectedValue);
+}
+
+void MainWindow::on_actionEditCopyAsFilter_triggered()
+{
+    if (!cap_file_) return;
+
+    QString filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                   cap_file_->edt);
+    matchSelectedFilter(filter, MatchSelectedReplace, false, true);
+}
+
 // View Menu
 
 // Expand / collapse slots in proto_tree
 
 // Go Menu
+
+// Analyze Menu
+
+// XXX This should probably be somewhere else.
+void MainWindow::matchSelectedFilter(QString &field_filter, MainWindow::MatchSelected filter_type, bool apply, bool copy_only)
+{
+    QString cur_filter;
+    QString new_filter;
+
+    if (field_filter.length() < 1) {
+        QString err = tr("Couldn't build a filter. Try another item.");
+        main_ui_->statusBar->pushTemporaryStatus(err);
+        return;
+    }
+
+    if (!df_combo_box_) return;
+
+    cur_filter = df_combo_box_->lineEdit()->text();
+
+    switch (filter_type) {
+    case MatchSelectedReplace:
+        new_filter = field_filter;
+        break;
+    case MatchSelectedAnd:
+        if (cur_filter.length()) {
+            new_filter = "(" + cur_filter + ") && (" + field_filter + ")";
+        } else {
+            new_filter = field_filter;
+        }
+        break;
+    case MatchSelectedOr:
+        if (cur_filter.length()) {
+            new_filter = "(" + cur_filter + ") || (" + field_filter + ")";
+        } else {
+            new_filter = field_filter;
+        }
+        break;
+    case MatchSelectedNot:
+        new_filter = "!(" + field_filter + ")";
+        break;
+    case MatchSelectedAndNot:
+        if (cur_filter.length()) {
+            new_filter = "(" + cur_filter + ") && !(" + field_filter + ")";
+        } else {
+            new_filter = "!(" + field_filter + ")";
+        }
+        break;
+    case MatchSelectedOrNot:
+        if (cur_filter.length()) {
+            new_filter = "(" + cur_filter + ") || !(" + field_filter + ")";
+        } else {
+            new_filter = "!(" + field_filter + ")";
+        }
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    if (copy_only) {
+        wsApp->clipboard()->setText(new_filter);
+    } else {
+        df_combo_box_->lineEdit()->setText(new_filter);
+        if (apply) {
+            df_combo_box_->applyDisplayFilter();
+        } else {
+            df_combo_box_->lineEdit()->setFocus();
+        }
+    }
+
+}
+
+void MainWindow::on_actionAnalyzeAAFSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedReplace, true, false);
+}
+
+void MainWindow::on_actionAnalyzeAAFNotSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedNot, true, false);
+}
+
+void MainWindow::on_actionAnalyzeAAFAndSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedAnd, true, false);
+}
+
+void MainWindow::on_actionAnalyzeAAFOrSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedOr, true, false);
+}
+
+void MainWindow::on_actionAnalyzeAAFAndNotSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedAndNot, true, false);
+}
+
+void MainWindow::on_actionAnalyzeAAFOrNotSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedOrNot, true, false);
+}
+
+void MainWindow::on_actionAnalyzePAFSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedReplace, false, false);
+}
+
+void MainWindow::on_actionAnalyzePAFNotSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedNot, false, false);
+}
+
+void MainWindow::on_actionAnalyzePAFAndSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedAnd, false, false);
+}
+
+void MainWindow::on_actionAnalyzePAFOrSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedOr, false, false);
+}
+
+void MainWindow::on_actionAnalyzePAFAndNotSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedAndNot, false, false);
+}
+
+void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
+{
+    QString filter;
+
+    if (packet_list_->contextMenuActive()) {
+        // filter = packet_list_->getSelectedColumnFilter();
+    } else {
+        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    }
+    matchSelectedFilter(filter, MatchSelectedOrNot, false, false);
+}
+
 
 // Next / previous / first / last slots in packet_list
 

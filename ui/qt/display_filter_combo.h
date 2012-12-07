@@ -38,7 +38,10 @@ public:
 signals:
 
 public slots:
+    void applyDisplayFilter();
 
+private slots:
+    void updateMaxCount();
 };
 
 #endif // DISPLAY_FILTER_COMBO_H

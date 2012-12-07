@@ -75,6 +75,21 @@ protected:
     void closeEvent (QCloseEvent *event);
 
 private:
+    enum MatchSelected {
+        MatchSelectedReplace,
+        MatchSelectedAnd,
+        MatchSelectedOr,
+        MatchSelectedNot,
+        MatchSelectedAndNot,
+        MatchSelectedOrNot
+    };
+
+    enum CopySelected {
+        CopySelectedDescription,
+        CopySelectedFieldName,
+        CopySelectedValue
+    };
+
     Ui::MainWindow *main_ui_;
     QMenu *open_recent_menu_;
     QSplitter *packet_splitter_;
@@ -82,6 +97,7 @@ private:
     DisplayFilterCombo *df_combo_box_;
     capture_file *cap_file_;
     PacketList *packet_list_;
+    ProtoTree *proto_tree_;
     QWidget *previous_focus_;
     FileSetDialog file_set_dialog_;
     bool capture_stopping_;
@@ -119,10 +135,12 @@ private:
 signals:
     void showProgress(progdlg_t **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
     void setCaptureFile(capture_file *cf);
+    void displayFilterSuccess(bool success);
 
 public slots:
     // in main_window_slots.cpp
     void openCaptureFile(QString& cf_path = *new QString(), QString &display_filter = *new QString());
+    void filterPackets(QString& new_filter = *new QString(), bool force = false);
 
 #ifdef HAVE_LIBPCAP
     void captureCapturePrepared(capture_options *capture_opts);
@@ -175,8 +193,30 @@ private slots:
     void on_actionFileExportObjectsSMB_triggered();
     void on_actionFilePrint_triggered();
 
+    void on_actionFileExportSSLSessionKeys_triggered();
+
+    void actionEditCopyTriggered(MainWindow::CopySelected selection_type);
+    void on_actionEditCopyDescription_triggered();
+    void on_actionEditCopyFieldName_triggered();
+    void on_actionEditCopyValue_triggered();
+    void on_actionEditCopyAsFilter_triggered();
+
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();
+
+    void matchSelectedFilter(QString &field_filter, MainWindow::MatchSelected filter_type, bool apply = false, bool copy_only = false);
+    void on_actionAnalyzeAAFSelected_triggered();
+    void on_actionAnalyzeAAFNotSelected_triggered();
+    void on_actionAnalyzeAAFAndSelected_triggered();
+    void on_actionAnalyzeAAFOrSelected_triggered();
+    void on_actionAnalyzeAAFAndNotSelected_triggered();
+    void on_actionAnalyzeAAFOrNotSelected_triggered();
+    void on_actionAnalyzePAFSelected_triggered();
+    void on_actionAnalyzePAFNotSelected_triggered();
+    void on_actionAnalyzePAFAndSelected_triggered();
+    void on_actionAnalyzePAFOrSelected_triggered();
+    void on_actionAnalyzePAFAndNotSelected_triggered();
+    void on_actionAnalyzePAFOrNotSelected_triggered();
 
     void on_actionHelpContents_triggered();
     void on_actionHelpMPWireshark_triggered();
@@ -198,7 +238,6 @@ private slots:
     void on_goToLineEdit_returnPressed();
     void on_actionStartCapture_triggered();
     void on_actionStopCapture_triggered();
-    void on_actionFileExportSSLSessionKeys_triggered();
 };
 
 

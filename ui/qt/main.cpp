@@ -1055,10 +1055,10 @@ int main(int argc, char *argv[])
     capture_opts_trim_ring_num_files(&global_capture_opts);
 #endif /* HAVE_LIBPCAP */
 
-  /* Notify all registered modules that have had any of their preferences
-     changed either from one of the preferences file or from the command
-     line that their preferences have changed. */
-    prefs_apply_all();
+    /* Notify all registered modules that have had any of their preferences
+       changed either from one of the preferences file or from the command
+       line that their preferences have changed. */
+    wsApp->applyAllPreferences();
 
 #ifdef HAVE_LIBPCAP
     if ((global_capture_opts.num_selected == 0) &&

@@ -60,6 +60,7 @@ public:
 
     void registerUpdate(register_action_e action, const char *message);
     void allSystemsGo();
+    void applyAllPreferences();
     QList<recent_item_status *> recentItems() const;
     void addRecentItem(const QString &filename, qint64 size, bool accessible);
 #ifdef HAVE_LIBPCAP
@@ -86,6 +87,7 @@ signals:
     void openCaptureFile(QString &cf_path);
     void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
     void splashUpdate(register_action_e action, const char *message);
+    void updatePreferences();
 
 #ifdef HAVE_LIBPCAP
     // XXX It might make more sense to move these to main.cpp or main_window.cpp or their own class.

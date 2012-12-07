@@ -47,6 +47,7 @@
 #include <QTabWidget>
 #include <QTextEdit>
 #include <QScrollBar>
+#include <QContextMenuEvent>
 
 // If we ever add the ability to open multiple capture files we might be
 // able to use something like QMap<capture_file *, PacketList *> to match
@@ -300,6 +301,21 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     }
 }
 
+void PacketList::contextMenuEvent(QContextMenuEvent *event)
+{
+    foreach (QMenu *submenu, submenus_) {
+        foreach (QAction *a, submenu->actions()) {
+            a->setData(true);
+        }
+    }
+    ctx_menu_.exec(event->globalPos());
+    foreach (QMenu *submenu, submenus_) {
+        foreach (QAction *a, submenu->actions()) {
+            a->setData(QVariant());
+        }
+    }
+}
+
 // Redraw the packet list and detail
 void PacketList::updateAll() {
     update();
@@ -349,6 +365,11 @@ void PacketList::writeRecent(FILE *rf) {
     }
     fprintf (rf, "\n");
 
+}
+
+bool PacketList::contextMenuActive()
+{
+    return ctx_menu_.isVisible();
 }
 
 // Slots

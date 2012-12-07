@@ -99,6 +99,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(df_edit, SIGNAL(pushFilterSyntaxStatus(QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
     connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
     connect(df_edit, SIGNAL(pushFilterSyntaxWarning(QString&)), main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
+    connect(df_edit, SIGNAL(filterPackets(QString&,bool)), this, SLOT(filterPackets(QString&,bool)));
+    connect (this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
 
     // http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
     // http://qt-project.org/doc/qt-4.8/qstyle.html#StandardPixmap-enum
@@ -106,7 +108,7 @@ MainWindow::MainWindow(QWidget *parent) :
                 QIcon().fromTheme("document-open", style()->standardIcon(QStyle::SP_DirIcon)));
     // main_ui_->actionFileSave set in main_window.ui
     main_ui_->actionFileClose->setIcon(
-                QIcon().fromTheme("process-stop", style()->standardIcon(QStyle::SP_BrowserStop)));
+                QIcon().fromTheme("process-stop", style()->standardIcon(QStyle::SP_DialogCloseButton)));
 
     // In Qt4 multiple toolbars and "pretty" are mutually exculsive on OS X. If
     // unifiedTitleAndToolBarOnMac is enabled everything ends up in the same row.
@@ -150,20 +152,20 @@ MainWindow::MainWindow(QWidget *parent) :
 
     packet_list_ = new PacketList(packet_splitter_);
 
-    ProtoTree *proto_tree = new ProtoTree(packet_splitter_);
-    proto_tree->setHeaderHidden(true);
-    proto_tree->installEventFilter(this);
+    proto_tree_ = new ProtoTree(packet_splitter_);
+    proto_tree_->setHeaderHidden(true);
+    proto_tree_->installEventFilter(this);
 
     ByteViewTab *byte_view_tab = new ByteViewTab(packet_splitter_);
     byte_view_tab->setTabPosition(QTabWidget::South);
     byte_view_tab->setDocumentMode(true);
 
-    packet_list_->setProtoTree(proto_tree);
+    packet_list_->setProtoTree(proto_tree_);
     packet_list_->setByteViewTab(byte_view_tab);
     packet_list_->installEventFilter(this);
 
     packet_splitter_->addWidget(packet_list_);
-    packet_splitter_->addWidget(proto_tree);
+    packet_splitter_->addWidget(proto_tree_);
     packet_splitter_->addWidget(byte_view_tab);
 
     main_ui_->mainStack->addWidget(packet_splitter_);
@@ -220,16 +222,16 @@ MainWindow::MainWindow(QWidget *parent) :
             packet_list_, SLOT(goLastPacket()));
 
     connect(main_ui_->actionViewExpandSubtrees, SIGNAL(triggered()),
-            proto_tree, SLOT(expandSubtrees()));
+            proto_tree_, SLOT(expandSubtrees()));
     connect(main_ui_->actionViewExpandAll, SIGNAL(triggered()),
-            proto_tree, SLOT(expandAll()));
+            proto_tree_, SLOT(expandAll()));
     connect(main_ui_->actionViewCollapseAll, SIGNAL(triggered()),
-            proto_tree, SLOT(collapseAll()));
+            proto_tree_, SLOT(collapseAll()));
 
-    connect(proto_tree, SIGNAL(protoItemSelected(QString&)),
+    connect(proto_tree_, SIGNAL(protoItemSelected(QString&)),
             main_ui_->statusBar, SLOT(pushFieldStatus(QString&)));
 
-    connect(proto_tree, SIGNAL(protoItemSelected(field_info *)),
+    connect(proto_tree_, SIGNAL(protoItemSelected(field_info *)),
             this, SLOT(setMenusForSelectedTreeRow(field_info *)));
 
     connect(&file_set_dialog_, SIGNAL(fileSetOpenCaptureFile(QString&)),

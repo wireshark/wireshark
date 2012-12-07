@@ -90,7 +90,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -155,6 +155,17 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <widget class="QMenu" name="menuEditCopy">
+     <property name="title">
+      <string>Copy</string>
+     </property>
+     <addaction name="actionEditCopyDescription"/>
+     <addaction name="actionEditCopyFieldName"/>
+     <addaction name="actionEditCopyValue"/>
+     <addaction name="separator"/>
+     <addaction name="actionEditCopyAsFilter"/>
+    </widget>
+    <addaction name="menuEditCopy"/>
    </widget>
    <widget class="QMenu" name="menuCapture">
     <property name="title">
@@ -221,11 +232,45 @@
     <addaction name="separator"/>
     <addaction name="actionViewReload"/>
    </widget>
+   <widget class="QMenu" name="menuAnalyze">
+    <property name="title">
+     <string>Analyze</string>
+    </property>
+    <widget class="QMenu" name="menuApplyAsFilter">
+     <property name="title">
+      <string>Apply as Filter</string>
+     </property>
+     <addaction name="actionAnalyzeAAFSelected"/>
+     <addaction name="actionAnalyzeAAFNotSelected"/>
+     <addaction name="actionAnalyzeAAFAndSelected"/>
+     <addaction name="actionAnalyzeAAFOrSelected"/>
+     <addaction name="actionAnalyzeAAFAndNotSelected"/>
+     <addaction name="actionAnalyzeAAFOrNotSelected"/>
+    </widget>
+    <widget class="QMenu" name="menuPrepareAFilter">
+     <property name="title">
+      <string>Prepare a Filter</string>
+     </property>
+     <addaction name="actionAnalyzePAFSelected"/>
+     <addaction name="actionAnalyzePAFNotSelected"/>
+     <addaction name="actionAnalyzePAFAndSelected"/>
+     <addaction name="actionAnalyzePAFOrSelected"/>
+     <addaction name="actionAnalyzePAFAndNotSelected"/>
+     <addaction name="actionAnalyzePAFOrNotSelected"/>
+    </widget>
+    <addaction name="actionDisplayFilters"/>
+    <addaction name="actionDisplayFilterMacros"/>
+    <addaction name="separator"/>
+    <addaction name="actionApplyAsColumn"/>
+    <addaction name="menuApplyAsFilter"/>
+    <addaction name="menuPrepareAFilter"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
    <addaction name="menuGo"/>
    <addaction name="menuCapture"/>
+   <addaction name="menuAnalyze"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -744,6 +789,143 @@
   <action name="actionFileExportObjectsSMB">
    <property name="text">
     <string>&amp;SMB...</string>
+   </property>
+  </action>
+  <action name="actionEditCopyDescription">
+   <property name="text">
+    <string>Description</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="actionEditCopyFieldName">
+   <property name="text">
+    <string>Field Name</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+F</string>
+   </property>
+  </action>
+  <action name="actionEditCopyValue">
+   <property name="text">
+    <string>Value</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+V</string>
+   </property>
+  </action>
+  <action name="actionEditCopyAsFilter">
+   <property name="text">
+    <string>As Filter</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeAAFSelected">
+   <property name="text">
+    <string>&amp;Selected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeAAFNotSelected">
+   <property name="text">
+    <string>&amp;Not Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Not Selected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeAAFAndSelected">
+   <property name="text">
+    <string>... &amp;and Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>... and Selected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeAAFOrSelected">
+   <property name="text">
+    <string>... &amp;or Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>... or Selected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeAAFAndNotSelected">
+   <property name="text">
+    <string>... a&amp;nd not Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>... and not Selected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeAAFOrNotSelected">
+   <property name="text">
+    <string>... o&amp;r not Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>... or not Selected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzePAFSelected">
+   <property name="text">
+    <string>&amp;Selected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzePAFNotSelected">
+   <property name="text">
+    <string>&amp;Not Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Not Selected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzePAFAndSelected">
+   <property name="text">
+    <string>... &amp;and Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>... and Selected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzePAFOrSelected">
+   <property name="text">
+    <string>... &amp;or Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>... or Selected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzePAFAndNotSelected">
+   <property name="text">
+    <string>... a&amp;nd not Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>... and not Selected</string>
+   </property>
+  </action>
+  <action name="actionAnalyzePAFOrNotSelected">
+   <property name="text">
+    <string>... o&amp;r not Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>... or not Selected</string>
+   </property>
+  </action>
+  <action name="actionDisplayFilters">
+   <property name="text">
+    <string>Display Filters...</string>
+   </property>
+  </action>
+  <action name="actionDisplayFilterMacros">
+   <property name="text">
+    <string>Display Filter &amp;Macros...</string>
+   </property>
+  </action>
+  <action name="actionApplyAsColumn">
+   <property name="text">
+    <string>Apply as Column</string>
    </property>
   </action>
  </widget>

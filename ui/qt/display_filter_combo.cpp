@@ -26,8 +26,11 @@
 #include "qt_ui_utils.h"
 #include "ui/recent.h"
 
+#include <epan/prefs.h>
+
 #include "display_filter_edit.h"
 #include "display_filter_combo.h"
+#include "wireshark_application.h"
 
 #include <QCompleter>
 
@@ -69,6 +72,8 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
             "}"
             );
     completer()->setCompletionMode(QCompleter::PopupCompletion);
+
+    connect(wsApp, SIGNAL(updatePreferences()), this, SLOT(updateMaxCount()));
 }
 
 extern "C" void dfilter_recent_combo_write_all(FILE *rf) {
@@ -88,6 +93,18 @@ void DisplayFilterCombo::writeRecent(FILE *rf) {
             fprintf(rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter_str);
         }
     }
+}
+
+void DisplayFilterCombo::applyDisplayFilter()
+{
+    DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(lineEdit());
+
+    if (df_edit) df_edit->applyDisplayFilter();
+}
+
+void DisplayFilterCombo::updateMaxCount()
+{
+    setMaxCount(prefs.gui_recent_df_entries_max);
 }
 
 extern "C" gboolean dfilter_combo_add_recent(gchar *filter) {
