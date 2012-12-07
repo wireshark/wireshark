@@ -702,14 +702,10 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (is_port_request) {
         if (parse_port_pasv(line, linelen, &ftp_ip, &ftp_port, &pasv_offset, &ftp_ip_len, &ftp_port_len)) {
-            if (tree) {
-                proto_tree_add_ipv4(reqresp_tree,
-                    hf_ftp_active_ip, tvb, pasv_offset + (tokenlen+1) , ftp_ip_len,
-                    ftp_ip);
-                proto_tree_add_uint(reqresp_tree,
-                    hf_ftp_active_port, tvb, pasv_offset + 1 + (tokenlen+1) + ftp_ip_len, ftp_port_len,
-                    ftp_port);
-            }
+            proto_tree_add_ipv4(reqresp_tree, hf_ftp_active_ip,
+                    tvb, pasv_offset + (tokenlen+1) , ftp_ip_len, ftp_ip);
+            proto_tree_add_uint(reqresp_tree, hf_ftp_active_port,
+                    tvb, pasv_offset + 1 + (tokenlen+1) + ftp_ip_len, ftp_port_len, ftp_port);
             SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4, (const guint8 *)&ftp_ip);
             ftp_nat = !ADDRESSES_EQUAL(&pinfo->src, &ftp_ip_address);
             if (ftp_nat) {
@@ -887,26 +883,24 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    if (tree) {
+    /*
+     * Show the rest of the request or response as text,
+     * a line at a time.
+     * XXX - only if there's a continuation indicator?
+     */
+    while (tvb_offset_exists(tvb, offset)) {
         /*
-         * Show the rest of the request or response as text,
-         * a line at a time.
-         * XXX - only if there's a continuation indicator?
+         * Find the end of the line.
          */
-        while (tvb_offset_exists(tvb, offset)) {
-            /*
-             * Find the end of the line.
-             */
-            tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
-            /*
-             * Put this line.
-             */
-            proto_tree_add_text(ftp_tree, tvb, offset,
+        /*
+         * Put this line.
+         */
+        proto_tree_add_text(ftp_tree, tvb, offset,
                 next_offset - offset, "%s",
                 tvb_format_text(tvb, offset, next_offset - offset));
-            offset = next_offset;
-        }
+        offset = next_offset;
     }
 }
 
