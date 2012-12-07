@@ -116,7 +116,11 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     bookmark_button_->setStyleSheet(QString(
             "QToolButton { /* all types of tool button */"
             "  border 0 0 0 0;"
+#ifdef Q_WS_MAC
+            "  border-right: %1px solid gray;"
+#else
             "  border-right: %1px solid palette(shadow);"
+#endif
             "  border-top-left-radius: 3px;"
             "  border-bottom-left-radius: 3px;"
             "  padding-left: 1px;"

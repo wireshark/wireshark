@@ -47,7 +47,11 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     cur_display_filter_combo = this;
     setStyleSheet(
             "QComboBox {"
+#ifdef Q_WS_MAC
+            "  border: 1px solid gray;"
+#else
             "  border: 1px solid palette(shadow);"
+#endif
             "  border-radius: 3px;"
             "  padding: 0px 0px 0px 0px;"
             "  margin-left: 0px;"
