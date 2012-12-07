@@ -909,36 +909,34 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     int         data_length;
+    gboolean    is_text = TRUE;
+    gint        check_chars, i;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTP-DATA");
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "FTP Data: %u bytes",
         tvb_reported_length(tvb));
 
-    if (tree) {
-        gboolean is_text = TRUE;
-        gint  check_chars, i;
-        data_length = tvb_length(tvb);
+    data_length = tvb_length(tvb);
 
-        ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0, -1, ENC_NA);
 
-        /* Check the first few chars to see whether it looks like a text file or not */
-        check_chars = MIN(10, data_length);
-        for (i=0; i < check_chars; i++) {
-            if (!isprint(tvb_get_guint8(tvb, i))) {
-                is_text = FALSE;
-                break;
-            }
+    /* Check the first few chars to see whether it looks like a text file or not */
+    check_chars = MIN(10, data_length);
+    for (i=0; i < check_chars; i++) {
+        if (!isprint(tvb_get_guint8(tvb, i))) {
+            is_text = FALSE;
+            break;
         }
-                
-        if (is_text) {
-            /* Show as string, but don't format more text than will be displayed */
-            proto_item_append_text(ti, " (%s)", tvb_format_text(tvb, 0, MIN(data_length, ITEM_LABEL_LENGTH)));
-        }
-        else {
-            /* Assume binary, just show the number of bytes */
-            proto_item_append_text(ti, " (%u bytes data)", data_length);
-        }
+    }
+
+    if (is_text) {
+        /* Show as string, but don't format more text than will be displayed */
+        proto_item_append_text(ti, " (%s)", tvb_format_text(tvb, 0, MIN(data_length, ITEM_LABEL_LENGTH)));
+    }
+    else {
+        /* Assume binary, just show the number of bytes */
+        proto_item_append_text(ti, " (%u bytes data)", data_length);
     }
 }
 
