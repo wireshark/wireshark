@@ -3035,6 +3035,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
     }
   }
   if (device.cfilter != NULL) {
+    g_free(device.cfilter);
     device.cfilter = NULL;
     update_filter_string(device.name, NULL);
   }
