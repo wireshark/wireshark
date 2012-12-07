@@ -6948,6 +6948,9 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	guint8		   c;
 	gchar		   is_signed_num = FALSE;
 
+        if (!finfo)
+                return FALSE;
+
 	hfinfo     = finfo->hfinfo;
 	DISSECTOR_ASSERT(hfinfo);
 	abbrev_len = (int) strlen(hfinfo->abbrev);

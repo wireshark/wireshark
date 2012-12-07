@@ -942,11 +942,7 @@ void MainWindow::on_actionEditCopyValue_triggered()
 
 void MainWindow::on_actionEditCopyAsFilter_triggered()
 {
-    if (!cap_file_) return;
-
-    QString filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                   cap_file_->edt);
-    matchSelectedFilter(filter, MatchSelectedReplace, false, true);
+    matchSelectedFilter(MatchSelectedReplace, false, true);
 }
 
 // View Menu
@@ -958,13 +954,25 @@ void MainWindow::on_actionEditCopyAsFilter_triggered()
 // Analyze Menu
 
 // XXX This should probably be somewhere else.
-void MainWindow::matchSelectedFilter(QString &field_filter, MainWindow::MatchSelected filter_type, bool apply, bool copy_only)
+void MainWindow::matchSelectedFilter(MainWindow::MatchSelected filter_type, bool apply, bool copy_only)
 {
+    QString field_filter;
     QString cur_filter;
     QString new_filter;
 
-    if (field_filter.length() < 1) {
-        QString err = tr("Couldn't build a filter. Try another item.");
+    if (packet_list_->contextMenuActive()) {
+        field_filter = packet_list_->getFilterFromRowAndColumn();
+    } else if (cap_file_ && cap_file_->finfo_selected) {
+        field_filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
+                                                       cap_file_->edt);
+    } else {
+        return;
+    }
+
+    if (field_filter.isEmpty()) {
+        QString err = tr("No filter available. Try another ");
+        err.append(packet_list_->contextMenuActive() ? "column" : "item");
+        err.append(".");
         main_ui_->statusBar->pushTemporaryStatus(err);
         return;
     }
@@ -1028,158 +1036,62 @@ void MainWindow::matchSelectedFilter(QString &field_filter, MainWindow::MatchSel
 
 void MainWindow::on_actionAnalyzeAAFSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedReplace, true, false);
+    matchSelectedFilter(MatchSelectedReplace, true, false);
 }
 
 void MainWindow::on_actionAnalyzeAAFNotSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedNot, true, false);
+    matchSelectedFilter(MatchSelectedNot, true, false);
 }
 
 void MainWindow::on_actionAnalyzeAAFAndSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedAnd, true, false);
+    matchSelectedFilter(MatchSelectedAnd, true, false);
 }
 
 void MainWindow::on_actionAnalyzeAAFOrSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedOr, true, false);
+    matchSelectedFilter(MatchSelectedOr, true, false);
 }
 
 void MainWindow::on_actionAnalyzeAAFAndNotSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedAndNot, true, false);
+    matchSelectedFilter(MatchSelectedAndNot, true, false);
 }
 
 void MainWindow::on_actionAnalyzeAAFOrNotSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedOrNot, true, false);
+    matchSelectedFilter(MatchSelectedOrNot, true, false);
 }
 
 void MainWindow::on_actionAnalyzePAFSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedReplace, false, false);
+    matchSelectedFilter(MatchSelectedReplace, false, false);
 }
 
 void MainWindow::on_actionAnalyzePAFNotSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedNot, false, false);
+    matchSelectedFilter(MatchSelectedNot, false, false);
 }
 
 void MainWindow::on_actionAnalyzePAFAndSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedAnd, false, false);
+    matchSelectedFilter(MatchSelectedAnd, false, false);
 }
 
 void MainWindow::on_actionAnalyzePAFOrSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedOr, false, false);
+    matchSelectedFilter(MatchSelectedOr, false, false);
 }
 
 void MainWindow::on_actionAnalyzePAFAndNotSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedAndNot, false, false);
+    matchSelectedFilter(MatchSelectedAndNot, false, false);
 }
 
 void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 {
-    QString filter;
-
-    if (packet_list_->contextMenuActive()) {
-        // filter = packet_list_->getSelectedColumnFilter();
-    } else {
-        filter = proto_construct_match_selected_string(cap_file_->finfo_selected,
-                                                       cap_file_->edt);
-    }
-    matchSelectedFilter(filter, MatchSelectedOrNot, false, false);
+    matchSelectedFilter(MatchSelectedOrNot, false, false);
 }
 
 

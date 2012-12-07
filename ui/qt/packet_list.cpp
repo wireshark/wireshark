@@ -217,18 +217,145 @@ PacketList::PacketList(QWidget *parent) :
     QTreeView(parent),
     proto_tree_(NULL),
     byte_view_tab_(NULL),
-    cap_file_(NULL)
+    cap_file_(NULL),
+    ctx_column_(-1)
 {
+    QMenu *submenu, *subsubmenu;
+
     setItemsExpandable(FALSE);
     setRootIsDecorated(FALSE);
     setSortingEnabled(TRUE);
     setUniformRowHeights(TRUE);
     setAccessibleName("Packet list");
 
+
     packet_list_model_ = new PacketListModel(this, cap_file_);
     setModel(packet_list_model_);
     packet_list_model_->setColorEnabled(true); // We don't yet fetch color settings.
 //    packet_list_model_->setColorEnabled(recent.packet_list_colorize);
+
+//    "     <menuitem name='MarkPacket' action='/MarkPacket'/>\n"
+//    "     <menuitem name='IgnorePacket' action='/IgnorePacket'/>\n"
+//    "     <menuitem name='SetTimeReference' action='/Set Time Reference'/>\n"
+//    "     <menuitem name='TimeShift' action='/TimeShift'/>\n"
+//    "     <menuitem name='AddEditPktComment' action='/Edit/AddEditPktComment'/>\n"
+    ctx_menu_.addSeparator();
+//    "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
+    ctx_menu_.addSeparator();
+    submenu = new QMenu(tr("Apply as Filter"));
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
+    filter_actions_ << submenu->actions();
+    submenu = new QMenu(tr("Prepare a Filter"));
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
+    filter_actions_ << submenu->actions();
+    submenu = new QMenu(tr("Colorize with Filter"));
+//    "     <menu name= 'ConversationFilter' action='/Conversation Filter'>\n"
+//    "       <menuitem name='Ethernet' action='/Conversation Filter/Ethernet'/>\n"
+//    "       <menuitem name='IP' action='/Conversation Filter/IP'/>\n"
+//    "       <menuitem name='TCP' action='/Conversation Filter/TCP'/>\n"
+//    "       <menuitem name='UDP' action='/Conversation Filter/UDP'/>\n"
+//    "       <menuitem name='PN-CBA' action='/Conversation Filter/PN-CBA'/>\n"
+//    "     <menu name= 'ColorizeConversation' action='/Colorize Conversation'>\n"
+//    "        <menu name= 'Ethernet' action='/Colorize Conversation/Ethernet'>\n"
+//    "          <menuitem name='Color1' action='/Colorize Conversation/Ethernet/Color 1'/>\n"
+//    "          <menuitem name='Color2' action='/Colorize Conversation/Ethernet/Color 2'/>\n"
+//    "          <menuitem name='Color3' action='/Colorize Conversation/Ethernet/Color 3'/>\n"
+//    "          <menuitem name='Color4' action='/Colorize Conversation/Ethernet/Color 4'/>\n"
+//    "          <menuitem name='Color5' action='/Colorize Conversation/Ethernet/Color 5'/>\n"
+//    "          <menuitem name='Color6' action='/Colorize Conversation/Ethernet/Color 6'/>\n"
+//    "          <menuitem name='Color7' action='/Colorize Conversation/Ethernet/Color 7'/>\n"
+//    "          <menuitem name='Color8' action='/Colorize Conversation/Ethernet/Color 8'/>\n"
+//    "          <menuitem name='Color9' action='/Colorize Conversation/Ethernet/Color 9'/>\n"
+//    "          <menuitem name='Color10' action='/Colorize Conversation/Ethernet/Color 10'/>\n"
+//    "          <menuitem name='NewColoringRule' action='/Colorize Conversation/Ethernet/New Coloring Rule'/>\n"
+//    "        <menu name= 'IP' action='/Colorize Conversation/IP'>\n"
+//    "          <menuitem name='Color1' action='/Colorize Conversation/IP/Color 1'/>\n"
+//    "          <menuitem name='Color2' action='/Colorize Conversation/IP/Color 2'/>\n"
+//    "          <menuitem name='Color3' action='/Colorize Conversation/IP/Color 3'/>\n"
+//    "          <menuitem name='Color4' action='/Colorize Conversation/IP/Color 4'/>\n"
+//    "          <menuitem name='Color5' action='/Colorize Conversation/IP/Color 5'/>\n"
+//    "          <menuitem name='Color6' action='/Colorize Conversation/IP/Color 6'/>\n"
+//    "          <menuitem name='Color7' action='/Colorize Conversation/IP/Color 7'/>\n"
+//    "          <menuitem name='Color8' action='/Colorize Conversation/IP/Color 8'/>\n"
+//    "          <menuitem name='Color9' action='/Colorize Conversation/IP/Color 9'/>\n"
+//    "          <menuitem name='Color10' action='/Colorize Conversation/IP/Color 10'/>\n"
+//    "          <menuitem name='NewColoringRule' action='/Colorize Conversation/IP/New Coloring Rule'/>\n"
+//    "        <menu name= 'TCP' action='/Colorize Conversation/TCP'>\n"
+//    "          <menuitem name='Color1' action='/Colorize Conversation/TCP/Color 1'/>\n"
+//    "          <menuitem name='Color2' action='/Colorize Conversation/TCP/Color 2'/>\n"
+//    "          <menuitem name='Color3' action='/Colorize Conversation/TCP/Color 3'/>\n"
+//    "          <menuitem name='Color4' action='/Colorize Conversation/TCP/Color 4'/>\n"
+//    "          <menuitem name='Color5' action='/Colorize Conversation/TCP/Color 5'/>\n"
+//    "          <menuitem name='Color6' action='/Colorize Conversation/TCP/Color 6'/>\n"
+//    "          <menuitem name='Color7' action='/Colorize Conversation/TCP/Color 7'/>\n"
+//    "          <menuitem name='Color8' action='/Colorize Conversation/TCP/Color 8'/>\n"
+//    "          <menuitem name='Color9' action='/Colorize Conversation/TCP/Color 9'/>\n"
+//    "          <menuitem name='Color10' action='/Colorize Conversation/TCP/Color 10'/>\n"
+//    "          <menuitem name='NewColoringRule' action='/Colorize Conversation/TCP/New Coloring Rule'/>\n"
+//    "        <menu name= 'UDP' action='/Colorize Conversation/UDP'>\n"
+//    "          <menuitem name='Color1' action='/Colorize Conversation/UDP/Color 1'/>\n"
+//    "          <menuitem name='Color2' action='/Colorize Conversation/UDP/Color 2'/>\n"
+//    "          <menuitem name='Color3' action='/Colorize Conversation/UDP/Color 3'/>\n"
+//    "          <menuitem name='Color4' action='/Colorize Conversation/UDP/Color 4'/>\n"
+//    "          <menuitem name='Color5' action='/Colorize Conversation/UDP/Color 5'/>\n"
+//    "          <menuitem name='Color6' action='/Colorize Conversation/UDP/Color 6'/>\n"
+//    "          <menuitem name='Color7' action='/Colorize Conversation/UDP/Color 7'/>\n"
+//    "          <menuitem name='Color8' action='/Colorize Conversation/UDP/Color 8'/>\n"
+//    "          <menuitem name='Color9' action='/Colorize Conversation/UDP/Color 9'/>\n"
+//    "          <menuitem name='Color10' action='/Colorize Conversation/UDP/Color 10'/>\n"
+//    "          <menuitem name='NewColoringRule' action='/Colorize Conversation/UDP/New Coloring Rule'/>\n"
+//    "        <menu name= 'PN-CBA' action='/Colorize Conversation/PN-CBA'>\n"
+//    "          <menuitem name='Color1' action='/Colorize Conversation/PN-CBA/Color 1'/>\n"
+//    "          <menuitem name='Color2' action='/Colorize Conversation/PN-CBA/Color 2'/>\n"
+//    "          <menuitem name='Color3' action='/Colorize Conversation/PN-CBA/Color 3'/>\n"
+//    "          <menuitem name='Color4' action='/Colorize Conversation/PN-CBA/Color 4'/>\n"
+//    "          <menuitem name='Color5' action='/Colorize Conversation/PN-CBA/Color 5'/>\n"
+//    "          <menuitem name='Color6' action='/Colorize Conversation/PN-CBA/Color 6'/>\n"
+//    "          <menuitem name='Color7' action='/Colorize Conversation/PN-CBA/Color 7'/>\n"
+//    "          <menuitem name='Color8' action='/Colorize Conversation/PN-CBA/Color 8'/>\n"
+//    "          <menuitem name='Color9' action='/Colorize Conversation/PN-CBA/Color 9'/>\n"
+//    "          <menuitem name='Color10' action='/Colorize Conversation/PN-CBA/Color 10'/>\n"
+//    "          <menuitem name='NewColoringRule' action='/Colorize Conversation/PN-CBA/New Coloring Rule'/>\n"
+//    "     <menu name= 'SCTP' action='/SCTP'>\n"
+//    "        <menuitem name='AnalysethisAssociation' action='/SCTP/Analyse this Association'/>\n"
+//    "        <menuitem name='PrepareFilterforthisAssociation' action='/SCTP/Prepare Filter for this Association'/>\n"
+//    "     <menuitem name='FollowTCPStream' action='/Follow TCP Stream'/>\n"
+//    "     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
+//    "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
+    ctx_menu_.addSeparator();
+//    "     <menu name= 'Copy' action='/Copy'>\n"
+    submenu = new QMenu(tr("Copy"));
+    ctx_menu_.addMenu(submenu);
+    //    "        <menuitem name='SummaryTxt' action='/Copy/SummaryTxt'/>\n"
+    //    "        <menuitem name='SummaryCSV' action='/Copy/SummaryCSV'/>\n"
+    submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
+    filter_actions_ << window()->findChild<QAction *>("actionEditCopyAsFilter");
+    submenu->addSeparator();
+    subsubmenu = new QMenu(tr("Bytes"));
+    submenu->addMenu(subsubmenu);
+    //    "           <menuitem name='OffsetHexText' action='/Copy/Bytes/OffsetHexText'/>\n"
+    //    "           <menuitem name='OffsetHex' action='/Copy/Bytes/OffsetHex'/>\n"
+    //    "           <menuitem name='PrintableTextOnly' action='/Copy/Bytes/PrintableTextOnly'/>\n"
+    ctx_menu_.addSeparator();
+//    "           <menuitem name='HexStream' action='/Copy/Bytes/HexStream'/>\n"
+//    "           <menuitem name='BinaryStream' action='/Copy/Bytes/BinaryStream'/>\n"
+    ctx_menu_.addSeparator();
+//    "     <menuitem name='ProtocolPreferences' action='/ProtocolPreferences'/>\n"
+//    "     <menuitem name='DecodeAs' action='/DecodeAs'/>\n"
+//    "     <menuitem name='Print' action='/Print'/>\n"
+//    "     <menuitem name='ShowPacketinNewWindow' action='/ShowPacketinNewWindow'/>\n"
 
     g_assert(gbl_cur_packet_list == NULL);
     gbl_cur_packet_list = this;
@@ -303,16 +430,17 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
 void PacketList::contextMenuEvent(QContextMenuEvent *event)
 {
-    foreach (QMenu *submenu, submenus_) {
-        foreach (QAction *a, submenu->actions()) {
-            a->setData(true);
-        }
+    bool fa_enabled = filter_actions_[0]->isEnabled();
+    QAction *act;
+
+    foreach (act, filter_actions_) {
+        act->setEnabled(true);
     }
+    ctx_column_ = columnAt(event->x());
     ctx_menu_.exec(event->globalPos());
-    foreach (QMenu *submenu, submenus_) {
-        foreach (QAction *a, submenu->actions()) {
-            a->setData(QVariant());
-        }
+    ctx_column_ = -1;
+    foreach (act, filter_actions_) {
+        act->setEnabled(fa_enabled);
     }
 }
 
@@ -369,7 +497,68 @@ void PacketList::writeRecent(FILE *rf) {
 
 bool PacketList::contextMenuActive()
 {
-    return ctx_menu_.isVisible();
+    return ctx_column_ >= 0 ? true : false;
+}
+
+QString &PacketList::getFilterFromRowAndColumn()
+{
+    frame_data *fdata;
+    QString &filter = *new QString();
+    int row = currentIndex().row();
+
+    if (!cap_file_ || !packet_list_model_ || ctx_column_ < 0 || ctx_column_ >= cap_file_->cinfo.num_cols) return filter;
+
+    fdata = (frame_data *) packet_list_model_->getRowFdata(row);
+
+    if (fdata != NULL) {
+        epan_dissect_t edt;
+
+        if (!cf_read_frame(cap_file_, fdata))
+            return filter; /* error reading the frame */
+        /* proto tree, visible. We need a proto tree if there's custom columns */
+        epan_dissect_init(&edt, have_custom_cols(&cap_file_->cinfo), FALSE);
+        col_custom_prime_edt(&edt, &cap_file_->cinfo);
+
+        epan_dissect_run(&edt, &cap_file_->phdr, cap_file_->pd, fdata, &cap_file_->cinfo);
+        epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
+
+        if ((cap_file_->cinfo.col_custom_occurrence[ctx_column_]) ||
+            (strchr (cap_file_->cinfo.col_expr.col_expr_val[ctx_column_], ',') == NULL))
+        {
+            /* Only construct the filter when a single occurrence is displayed
+             * otherwise we might end up with a filter like "ip.proto==1,6".
+             *
+             * Or do we want to be able to filter on multiple occurrences so that
+             * the filter might be calculated as "ip.proto==1 && ip.proto==6"
+             * instead?
+             */
+            if (strlen(cap_file_->cinfo.col_expr.col_expr[ctx_column_]) != 0 &&
+                strlen(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]) != 0) {
+                /* leak a little but safer than ep_ here */
+                if (cap_file_->cinfo.col_fmt[ctx_column_] == COL_CUSTOM) {
+                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.col_custom_field[ctx_column_]);
+                    if (hfi->parent == -1) {
+                        /* Protocol only */
+                        filter.append(cap_file_->cinfo.col_expr.col_expr[ctx_column_]);
+                    } else if (hfi->type == FT_STRING) {
+                        /* Custom string, add quotes */
+                        filter.append(QString("%1 == \"%2\"")
+                                      .arg(cap_file_->cinfo.col_expr.col_expr[ctx_column_])
+                                      .arg(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]));
+                    }
+                }
+                if (filter.isEmpty()) {
+                    filter.append(QString("%1 == %2")
+                                  .arg(cap_file_->cinfo.col_expr.col_expr[ctx_column_])
+                                  .arg(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]));
+                }
+            }
+        }
+
+        epan_dissect_cleanup(&edt);
+    }
+
+    return filter;
 }
 
 // Slots

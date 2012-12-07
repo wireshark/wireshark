@@ -45,6 +45,7 @@ public:
     void clear();
     void writeRecent(FILE *rf);
     bool contextMenuActive();
+    QString &getFilterFromRowAndColumn();
 
 protected:
     void showEvent (QShowEvent *event);
@@ -58,6 +59,8 @@ private:
     capture_file *cap_file_;
     QMenu ctx_menu_;
     QList<QMenu *> submenus_;
+    QList<QAction *> filter_actions_;
+    int ctx_column_;
 
 signals:
 

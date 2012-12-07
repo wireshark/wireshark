@@ -293,10 +293,12 @@ void MainStatusBar::toggleBackground(bool enabled)
     if (enabled) {
         setStyleSheet(QString(
                           "QStatusBar {"
-                          "  background-color: #%1;"
+                          "  color: #%1;"
+                          "  background-color: #%2;"
                           "}"
                           )
-                      .arg(tango_butter_4, 6, 16, QChar('0')));
+                      .arg(tango_aluminium_6, 6, 16, QChar('0'))
+                      .arg(tango_butter_2, 6, 16, QChar('0')));
     } else {
         setStyleSheet("");
     }

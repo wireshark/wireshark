@@ -64,11 +64,12 @@ void LabelStack::fillLabel() {
 
     if (si->ctx == temporary_ctx_) {
         style_sheet += QString(
-                "  border-radius: 0.25em;"
-                "  color: black;"
-                "  background-color: #%1;"
-                )
-                .arg(tango_butter_4, 6, 16, QChar('0'));
+                    "  border-radius: 0.25em;"
+                    "  color: #%1;"
+                    "  background-color: #%2;"
+                    )
+                .arg(tango_aluminium_6, 6, 16, QChar('0'))
+                .arg(tango_butter_2, 6, 16, QChar('0'));
     }
 
     style_sheet += "}";

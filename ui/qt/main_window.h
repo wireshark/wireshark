@@ -204,7 +204,7 @@ private slots:
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();
 
-    void matchSelectedFilter(QString &field_filter, MainWindow::MatchSelected filter_type, bool apply = false, bool copy_only = false);
+    void matchSelectedFilter(MainWindow::MatchSelected filter_type, bool apply = false, bool copy_only = false);
     void on_actionAnalyzeAAFSelected_triggered();
     void on_actionAnalyzeAAFNotSelected_triggered();
     void on_actionAnalyzeAAFAndSelected_triggered();
