@@ -1,7 +1,7 @@
 #
 # $Id$
 # 
-# Add your csutom plugins here
+# Add your custom plugins here
 CUSTOM_PLUGINS= \
 # Example:
 # 	../../plugins/foo/foo.dll 	
