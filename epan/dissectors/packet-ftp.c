@@ -610,11 +610,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         tokenlen = get_token_len(line, line + linelen, &next_token);
         if (tokenlen != 0) {
-            if (tree) {
-                proto_tree_add_item(reqresp_tree,
-                    hf_ftp_request_command, tvb, offset,
-                    tokenlen, ENC_ASCII|ENC_NA);
-            }
+            proto_tree_add_item(reqresp_tree, hf_ftp_request_command,
+                    tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
             if (strncmp(line, "PORT", tokenlen) == 0)
                 is_port_request = TRUE;
             /*
@@ -679,6 +676,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             next_token = line;
         }
     }
+
     offset  += (gint) (next_token - line);
     linelen -= (int) (next_token - line);
     line     = next_token;
@@ -793,31 +791,30 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (parse_eprt_request(line, linelen,
                         &eprt_af, &eprt_ip, eprt_ipv6, &ftp_port,
                         &eprt_ip_len, &ftp_port_len)) {
-                if (tree) {
-                    /* since parse_eprt_request() returned TRUE,
-                       we know that we have a valid address family */
-                    eprt_offset = tokenlen + 1 + 1;  /* token, space, 1st delimiter */
-                    proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_af, tvb, 
-                            eprt_offset, 1, eprt_af);
-                    eprt_offset += 1 + 1; /* addr family, 2nd delimiter */
 
-                    if (eprt_af == EPRT_AF_IPv4) {
-                        proto_tree_add_ipv4(reqresp_tree, hf_ftp_eprt_ip,
-                                tvb, eprt_offset, eprt_ip_len, eprt_ip);
-                        SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4,
-                                (const guint8 *)&eprt_ip);
-                    }
-                    else if (eprt_af == EPRT_AF_IPv6) {
-                        proto_tree_add_ipv6(reqresp_tree, hf_ftp_eprt_ipv6,
-                                tvb, eprt_offset, eprt_ip_len, (const guint8 *)eprt_ipv6);
-                        SET_ADDRESS(&ftp_ip_address, AT_IPv6, 16,
-                                (const guint8 *)&eprt_ipv6);
-                    }
-                    eprt_offset += eprt_ip_len + 1; /* addr, 3rd delimiter */
+                /* since parse_eprt_request() returned TRUE,
+                   we know that we have a valid address family */
+                eprt_offset = tokenlen + 1 + 1;  /* token, space, 1st delimiter */
+                proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_af, tvb, 
+                        eprt_offset, 1, eprt_af);
+                eprt_offset += 1 + 1; /* addr family, 2nd delimiter */
 
-                    proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_port,
-                            tvb, eprt_offset, ftp_port_len, ftp_port);
+                if (eprt_af == EPRT_AF_IPv4) {
+                    proto_tree_add_ipv4(reqresp_tree, hf_ftp_eprt_ip,
+                            tvb, eprt_offset, eprt_ip_len, eprt_ip);
+                    SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4,
+                            (const guint8 *)&eprt_ip);
                 }
+                else if (eprt_af == EPRT_AF_IPv6) {
+                    proto_tree_add_ipv6(reqresp_tree, hf_ftp_eprt_ipv6,
+                            tvb, eprt_offset, eprt_ip_len, (const guint8 *)eprt_ipv6);
+                    SET_ADDRESS(&ftp_ip_address, AT_IPv6, 16,
+                            (const guint8 *)&eprt_ipv6);
+                }
+                eprt_offset += eprt_ip_len + 1; /* addr, 3rd delimiter */
+
+                proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_port,
+                        tvb, eprt_offset, ftp_port_len, ftp_port);
 
                 /* Find/create conversation for data */
                 conversation = find_conversation(pinfo->fd->num,
@@ -852,25 +849,24 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (parse_extended_pasv_response(line, linelen,
                         &ftp_port, &pasv_offset, &ftp_port_len)) {
                 /* Add IP address and port number to tree */
-                if (tree) {
-                    if (ftp_ip_address.type == AT_IPv4) {
-                        guint32 addr;
-                        memcpy(&addr, ftp_ip_address.data, 4);
-                        addr_it = proto_tree_add_ipv4(reqresp_tree,
-                                hf_ftp_epsv_ip, tvb, 0, 0, addr);
-                        PROTO_ITEM_SET_GENERATED(addr_it);
-                    }
-                    else if (ftp_ip_address.type == AT_IPv6) {
-                        addr_it = proto_tree_add_ipv6(reqresp_tree,
-                                hf_ftp_epsv_ipv6, tvb, 0, 0,
-                                (guint8*)ftp_ip_address.data);
-                        PROTO_ITEM_SET_GENERATED(addr_it);
-                    }
 
-                    proto_tree_add_uint(reqresp_tree, 
-                            hf_ftp_epsv_port, tvb, pasv_offset + 4, 
-                            ftp_port_len, ftp_port);
+                if (ftp_ip_address.type == AT_IPv4) {
+                    guint32 addr;
+                    memcpy(&addr, ftp_ip_address.data, 4);
+                    addr_it = proto_tree_add_ipv4(reqresp_tree,
+                            hf_ftp_epsv_ip, tvb, 0, 0, addr);
+                    PROTO_ITEM_SET_GENERATED(addr_it);
                 }
+                else if (ftp_ip_address.type == AT_IPv6) {
+                    addr_it = proto_tree_add_ipv6(reqresp_tree,
+                            hf_ftp_epsv_ipv6, tvb, 0, 0,
+                            (guint8*)ftp_ip_address.data);
+                    PROTO_ITEM_SET_GENERATED(addr_it);
+                }
+
+                proto_tree_add_uint(reqresp_tree, 
+                        hf_ftp_epsv_port, tvb, pasv_offset + 4, 
+                        ftp_port_len, ftp_port);
 
                 /* Find/create conversation for data */
                 conversation = find_conversation(pinfo->fd->num, &ftp_ip_address,
