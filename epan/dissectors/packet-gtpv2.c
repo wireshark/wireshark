@@ -1236,12 +1236,15 @@ dissect_gtpv2_srvcc_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 }
 
-/* 6.8 Target RNC ID */
+/* 
+ * 3GPP TS 29.280 version 10.3.0
+ * 6.8 Target RNC ID
+ */
 static void
 dissect_gtpv2_tgt_rnc_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     int         offset = 0;
-    guint8      rnc_id;
+    guint16     rnc_id;
     proto_tree *subtree;
     proto_item *rai_item;
     guint32     mcc;
@@ -1262,7 +1265,7 @@ dissect_gtpv2_tgt_rnc_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
         mnc = mnc >> 4;
 
     lac = tvb_get_ntohs(tvb, curr_offset + 3);
-    rnc_id = tvb_get_guint8(tvb,  curr_offset + 5);
+    rnc_id = tvb_get_ntohs(tvb,  curr_offset + 5);
 
     rai_item = proto_tree_add_text(tree,
                                    tvb, curr_offset, 6,
@@ -1271,9 +1274,12 @@ dissect_gtpv2_tgt_rnc_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 
     subtree = proto_item_add_subtree(rai_item, ett_gtpv2_rai);
     dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, TRUE);
+	curr_offset+=3;
 
-    proto_tree_add_item(subtree, hf_gtpv2_lac,    tvb, curr_offset + 3, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_gtpv2_rnc_id, tvb, curr_offset + 5, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_gtpv2_lac,    tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+	curr_offset+=2;
+    proto_tree_add_item(subtree, hf_gtpv2_rnc_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+	curr_offset+=2;
 
     /* no length check possible */
 
@@ -3958,10 +3964,8 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
          * RNC-ID part of the "Target ID" parameter in 3GPP TS 25.413 [33]. Therefore, the "Choice Target ID" that indicates
          * "Target RNC-ID" (numerical value of 0x20) shall not be included (value in octet 5 specifies the target type).
          */
-        new_tvb = tvb_new_subset_remaining(tvb, offset);
-        dissect_ranap_TargetRNC_ID_PDU(new_tvb, pinfo, tree, NULL);
+        proto_tree_add_item(tree, hf_gtpv2_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         return;
-        break;
     case 1:
         /* Macro eNodeB ID*/
         new_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -5381,7 +5385,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_rnc_id,
           {"RNC ID", "gtpv2.rnc_id",
-           FT_UINT8, BASE_DEC, NULL, 0x0,
+           FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_lac,
