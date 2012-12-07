@@ -2168,7 +2168,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
       switch (message_type) {
               case MESSAGE_TYPE_CORE:
                       assoc = sua_assoc(pinfo,&(pinfo->src),&(pinfo->dst), srn , drn);
-                      if(assoc){
+                      if(assoc) {
                               assoc->calling_routing_ind = sua_ri;
                               assoc->calling_ssn = source_ssn;
                               assoc->called_ssn = dest_ssn;
@@ -2176,9 +2176,9 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
                       break;
               case MESSAGE_TYPE_COAK:
                       assoc = sua_assoc(pinfo,&(pinfo->src),&(pinfo->dst), srn , drn);
-                      if(assoc){
+                      if(assoc) {
                               assoc->called_routing_ind = sua_ri;
-                              if( (assoc->called_ssn != INVALID_SSN)&& (dest_ssn != INVALID_SSN)){
+                              if( (assoc->called_ssn != INVALID_SSN)&& (dest_ssn != INVALID_SSN)) {
                                       assoc->called_ssn = dest_ssn;
                               }
                       }
@@ -2187,7 +2187,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
                       assoc = sua_assoc(pinfo,&(pinfo->src),&(pinfo->dst), srn , drn);
       }
 
-      switch (message_type){
+      switch (message_type) {
               case MESSAGE_TYPE_CORE:
               case MESSAGE_TYPE_COAK:
                        break;
@@ -2323,43 +2323,43 @@ proto_register_sua(void)
     { &hf_sua_deregistration_status,                 { "Deregistration status",        "sua.deregistration_status",                     FT_UINT32,  BASE_DEC,  VALS(deregistration_status_values), 0x0,                      NULL, HFILL } },
     { &hf_sua_local_routing_key_identifier,          { "Local routing key identifier", "sua.local_routing_key_identifier",              FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
 
-    { &hf_sua_source_address_routing_indicator,      { "Routing Indicator",            "sua.source.routing_indicator",                  FT_UINT16,  BASE_DEC,  VALS(routing_indicator_values),     0x0,                      NULL, HFILL } },
-    { &hf_sua_source_address_reserved_bits,          { "Reserved Bits",                "sua.source.reserved_bits",                      FT_UINT16,  BASE_DEC,  NULL,                               ADDRESS_RESERVED_BITMASK, NULL, HFILL } },
-    { &hf_sua_source_address_gt_bit,                 { "Include GT",                   "sua.source.gt_bit",                             FT_BOOLEAN, 16,        NULL,                               ADDRESS_GT_BITMASK,       NULL, HFILL } },
-    { &hf_sua_source_address_pc_bit,                 { "Include PC",                   "sua.source.pc_bit",                             FT_BOOLEAN, 16,        NULL,                               ADDRESS_PC_BITMASK,       NULL, HFILL } },
-    { &hf_sua_source_address_ssn_bit,                { "Include SSN",                  "sua.source.ssn_bit",                            FT_BOOLEAN, 16,        NULL,                               ADDRESS_SSN_BITMASK,      NULL, HFILL } },
-    { &hf_sua_source_gt_reserved,                    { "Reserved",                     "sua.source.gt_reserved",                        FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_source_gti,                            { "GTI",                          "sua.source.gti",                                FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_source_number_of_digits,               { "Number of Digits",             "sua.source.global_title_number_of_digits",      FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_source_translation_type,               { "Translation Type",             "sua.source.global_title_translation_type",      FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_source_numbering_plan,                 { "Numbering Plan",               "sua.source.global_title_numbering_plan",        FT_UINT8,   BASE_HEX,  VALS(numbering_plan_values),        0x0,                      NULL, HFILL } },
-    { &hf_sua_source_nature_of_address,              { "Nature of Address",            "sua.source.global_title_nature_of_address",     FT_UINT8,   BASE_HEX,  VALS(nature_of_address_values),     0x0,                      NULL, HFILL } },
-    { &hf_sua_source_global_title_digits,            { "Global Title Digits",          "sua.source.global_title_digits",                FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_source_point_code,                     { "Point Code",                   "sua.source.point_code",                         FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_source_ssn_reserved,                   { "Reserved",                     "sua.source.ssn_reserved",                       FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_source_ssn_number,                     { "Subsystem Number",             "sua.source.ssn",                                FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_source_ipv4,                           { "IP Version 4 address",         "sua.source.ipv4_address",                       FT_IPv4,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_source_hostname,                       { "Hostname",                     "sua.source.hostname.name",                      FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_source_ipv6,                           { "IP Version 6 address",         "sua.source.ipv6_address",                       FT_IPv6,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_address_routing_indicator,      { "Source Routing Indicator",     "sua.source.routing_indicator",                  FT_UINT16,  BASE_DEC,  VALS(routing_indicator_values),     0x0,                      NULL, HFILL } },
+    { &hf_sua_source_address_reserved_bits,          { "Source Reserved Bits",         "sua.source.reserved_bits",                      FT_UINT16,  BASE_DEC,  NULL,                               ADDRESS_RESERVED_BITMASK, NULL, HFILL } },
+    { &hf_sua_source_address_gt_bit,                 { "Source Include GT",            "sua.source.gt_bit",                             FT_BOOLEAN, 16,        NULL,                               ADDRESS_GT_BITMASK,       NULL, HFILL } },
+    { &hf_sua_source_address_pc_bit,                 { "Source Include PC",            "sua.source.pc_bit",                             FT_BOOLEAN, 16,        NULL,                               ADDRESS_PC_BITMASK,       NULL, HFILL } },
+    { &hf_sua_source_address_ssn_bit,                { "Source Include SSN",           "sua.source.ssn_bit",                            FT_BOOLEAN, 16,        NULL,                               ADDRESS_SSN_BITMASK,      NULL, HFILL } },
+    { &hf_sua_source_gt_reserved,                    { "Source Reserved",              "sua.source.gt_reserved",                        FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_gti,                            { "Source GTI",                   "sua.source.gti",                                FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_number_of_digits,               { "Source Number of Digits",      "sua.source.global_title_number_of_digits",      FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_translation_type,               { "Source Translation Type",      "sua.source.global_title_translation_type",      FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_numbering_plan,                 { "Source Numbering Plan",        "sua.source.global_title_numbering_plan",        FT_UINT8,   BASE_HEX,  VALS(numbering_plan_values),        0x0,                      NULL, HFILL } },
+    { &hf_sua_source_nature_of_address,              { "Source Nature of Address",     "sua.source.global_title_nature_of_address",     FT_UINT8,   BASE_HEX,  VALS(nature_of_address_values),     0x0,                      NULL, HFILL } },
+    { &hf_sua_source_global_title_digits,            { "Source Global Title Digits",   "sua.source.global_title_digits",                FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_point_code,                     { "Source Point Code",            "sua.source.point_code",                         FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_ssn_reserved,                   { "Source Reserved",              "sua.source.ssn_reserved",                       FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_ssn_number,                     { "Source Subsystem Number",      "sua.source.ssn",                                FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_ipv4,                           { "Source IP Version 4 address",  "sua.source.ipv4_address",                       FT_IPv4,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_hostname,                       { "Source Hostname",              "sua.source.hostname.name",                      FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_source_ipv6,                           { "Source IP Version 6 address",  "sua.source.ipv6_address",                       FT_IPv6,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
 
-    { &hf_sua_destination_address_routing_indicator, { "Routing Indicator",            "sua.destination.routing_indicator",             FT_UINT16,  BASE_DEC,  VALS(routing_indicator_values),     0x0,                      NULL, HFILL } },
-    { &hf_sua_destination_address_reserved_bits,     { "Reserved Bits",                "sua.destination.reserved_bits",                 FT_UINT16,  BASE_DEC,  NULL,                               ADDRESS_RESERVED_BITMASK, NULL, HFILL } },
-    { &hf_sua_destination_address_gt_bit,            { "Include GT",                   "sua.destination.gt_bit",                        FT_BOOLEAN, 16,        NULL,                               ADDRESS_GT_BITMASK,       NULL, HFILL } },
-    { &hf_sua_destination_address_pc_bit,            { "Include PC",                   "sua.destination.pc_bit",                        FT_BOOLEAN, 16,        NULL,                               ADDRESS_PC_BITMASK,       NULL, HFILL } },
-    { &hf_sua_destination_address_ssn_bit,           { "Include SSN",                  "sua.destination.ssn_bit",                       FT_BOOLEAN, 16,        NULL,                               ADDRESS_SSN_BITMASK,      NULL, HFILL } },
-    { &hf_sua_dest_gt_reserved,                      { "Reserved",                     "sua.destination.gt_reserved",                   FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_gti,                              { "GTI",                          "sua.destination.gti",                           FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_number_of_digits,                 { "Number of Digits",             "sua.destination.global_title_number_of_digits", FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_translation_type,                 { "Translation Type",             "sua.destination.global_title_translation_type", FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_numbering_plan,                   { "Numbering Plan",               "sua.destination.global_title_numbering_plan",   FT_UINT8,   BASE_HEX,  VALS(numbering_plan_values),        0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_nature_of_address,                { "Nature of Address",            "sua.destination.global_title_nature_of_address",FT_UINT8,   BASE_HEX,  VALS(nature_of_address_values),     0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_global_title_digits,              { "Global Title Digits",          "sua.destination.global_title_digits",           FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_point_code,                       { "Point Code",                   "sua.destination.point_code",                    FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_ssn_reserved,                     { "Reserved",                     "sua.destination.ssn_reserved",                  FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_ssn_number,                       { "Subsystem Number",             "sua.destination.ssn",                           FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_ipv4,                             { "IP Version 4 address",         "sua.destination.ipv4_address",                  FT_IPv4,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_hostname,                         { "Hostname",                     "sua.destination.hostname.name",                 FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_dest_ipv6,                             { "IP Version 6 address",         "sua.destination.ipv6_address",                  FT_IPv6,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_destination_address_routing_indicator, { "Destination Routing Indicator","sua.destination.routing_indicator",             FT_UINT16,  BASE_DEC,  VALS(routing_indicator_values),     0x0,                      NULL, HFILL } },
+    { &hf_sua_destination_address_reserved_bits,     { "Destination Reserved Bits",    "sua.destination.reserved_bits",                 FT_UINT16,  BASE_DEC,  NULL,                               ADDRESS_RESERVED_BITMASK, NULL, HFILL } },
+    { &hf_sua_destination_address_gt_bit,            { "Destination Include GT",       "sua.destination.gt_bit",                        FT_BOOLEAN, 16,        NULL,                               ADDRESS_GT_BITMASK,       NULL, HFILL } },
+    { &hf_sua_destination_address_pc_bit,            { "Destination Include PC",       "sua.destination.pc_bit",                        FT_BOOLEAN, 16,        NULL,                               ADDRESS_PC_BITMASK,       NULL, HFILL } },
+    { &hf_sua_destination_address_ssn_bit,           { "Destination Include SSN",      "sua.destination.ssn_bit",                       FT_BOOLEAN, 16,        NULL,                               ADDRESS_SSN_BITMASK,      NULL, HFILL } },
+    { &hf_sua_dest_gt_reserved,                      { "Destination Reserved",         "sua.destination.gt_reserved",                   FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_gti,                              { "Destination GTI",              "sua.destination.gti",                           FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_number_of_digits,                 { "Destination Number of Digits", "sua.destination.global_title_number_of_digits", FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_translation_type,                 { "Destination Translation Type", "sua.destination.global_title_translation_type", FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_numbering_plan,                   { "Destination Numbering Plan",   "sua.destination.global_title_numbering_plan",   FT_UINT8,   BASE_HEX,  VALS(numbering_plan_values),        0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_nature_of_address,                { "Destination Nature of Address","sua.destination.global_title_nature_of_address",FT_UINT8,   BASE_HEX,  VALS(nature_of_address_values),     0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_global_title_digits,              { "Destination Global Title Digits","sua.destination.global_title_digits",         FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_point_code,                       { "Destination Point Code",       "sua.destination.point_code",                    FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_ssn_reserved,                     { "Destination Reserved",         "sua.destination.ssn_reserved",                  FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_ssn_number,                       { "Destination Subsystem Number", "sua.destination.ssn",                           FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_ipv4,                             { "Destination IPv4 address",     "sua.destination.ipv4_address",                  FT_IPv4,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_hostname,                         { "Destination Hostname",         "sua.destination.hostname.name",                 FT_STRING,  BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_dest_ipv6,                             { "Destination IPv6 address",     "sua.destination.ipv6_address",                  FT_IPv6,    BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
 
     { &hf_sua_ss7_hop_counter_counter,               { "SS7 Hop Counter",              "sua.ss7_hop_counter_counter",                   FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_ss7_hop_counter_reserved,              { "Reserved",                     "sua.ss7_hop_counter_reserved",                  FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
