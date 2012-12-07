@@ -47,12 +47,11 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     cur_display_filter_combo = this;
     setStyleSheet(
             "QComboBox {"
-            "  border: 1px solid gray;"
+            "  border: 1px solid palette(shadow);"
             "  border-radius: 3px;"
             "  padding: 0px 0px 0px 0px;"
             "  margin-left: 0px;"
             "  min-width: 20em;"
-//            "  background: #ccccff;"
             " }"
 
             "QComboBox::drop-down {"

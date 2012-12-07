@@ -116,26 +116,20 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     bookmark_button_->setStyleSheet(QString(
             "QToolButton { /* all types of tool button */"
             "  border 0 0 0 0;"
-            "  border-right: %1px solid gray;"
+            "  border-right: %1px solid palette(shadow);"
             "  border-top-left-radius: 3px;"
             "  border-bottom-left-radius: 3px;"
             "  padding-left: 1px;"
-            "  background: palette(base) url(:/dfilter/dfilter_bookmark_normal.png) no-repeat center;"
-//            "  background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-//            "                                      stop: 0 #f6f7fa, stop: 1 #dadbde);"
+            "  image: url(:/dfilter/dfilter_bookmark_normal.png) center;"
             "}"
 
             "QToolButton:hover {"
-            "  background: palette(base) url(:/dfilter/dfilter_bookmark_hover.png) no-repeat center;"
+            "  image: url(:/dfilter/dfilter_bookmark_hover.png) center;"
             "}"
             "QToolButton:pressed {"
-            "  background: palette(base) url(:/dfilter/dfilter_bookmark_pressed.png) no-repeat center;"
+            "  image: url(:/dfilter/dfilter_bookmark_pressed.png) center;"
             "}"
 
-//            "QToolButton:pressed {"
-//            "    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
-//            "                                      stop: 0 #dadbde, stop: 1 #f6f7fa);"
-//            "}"
 
             ).arg(plain_ ? 0 : 1)
             );
@@ -145,15 +139,15 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     clear_button_->setCursor(Qt::ArrowCursor);
     clear_button_->setStyleSheet(
             "QToolButton {"
-            "  background: palette(base) url(:/dfilter/dfilter_erase_normal.png) no-repeat center;"
+            "  image: url(:/dfilter/dfilter_erase_normal.png) center;"
             "  border: none;"
             "  width: 16px;"
             "}"
             "QToolButton:hover {"
-            "  background: palette(base) url(:/dfilter/dfilter_erase_active.png) no-repeat center;"
+            "  image: url(:/dfilter/dfilter_erase_active.png) center;"
             "}"
             "QToolButton:pressed {"
-            "  background: palette(base) url(:/dfilter/dfilter_erase_selected.png) no-repeat center;"
+            "  image: url(:/dfilter/dfilter_erase_selected.png) center;"
             "}"
             );
     clear_button_->hide();
@@ -170,14 +164,14 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
                 "  border-top-right-radius: 3px;"
                 "  border-bottom-right-radius: 3px;"
                 "  padding-right: 1px;"
-                "  background: palette(base) url(:/dfilter/dfilter_apply_normal.png) no-repeat center;"
+                "  image: url(:/dfilter/dfilter_apply_normal.png) center;"
                 "}"
 
                 "QToolButton:hover {"
-                "  background: palette(base) url(:/dfilter/dfilter_apply_hover.png) no-repeat center;"
+                "  image: url(:/dfilter/dfilter_apply_hover.png) center;"
                 "}"
                 "QToolButton:pressed {"
-                "  background: palette(base) url(:/dfilter/dfilter_apply_pressed.png) no-repeat center;"
+                "  image: url(:/dfilter/dfilter_apply_pressed.png) center;"
                 "}"
                 );
         connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyDisplayFilter()));
@@ -242,12 +236,13 @@ void DisplayFilterEdit::resizeEvent(QResizeEvent *)
         apsz.setHeight(0); apsz.setWidth(0);
     }
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    clear_button_->move(rect().right() - frameWidth - cbsz.width() - apsz.width(),
-                      (rect().bottom() + 1 - cbsz.height())/2);
+    clear_button_->move(contentsRect().right() - frameWidth - cbsz.width() - apsz.width(),
+                      (contentsRect().bottom() + 1 - cbsz.height())/2);
     if (apply_button_) {
-        apply_button_->move(rect().right() - frameWidth - apsz.width(),
-                          (rect().bottom() + 1 - apsz.height())/2);
+        apply_button_->move(contentsRect().right() - frameWidth - apsz.width(),
+                          (contentsRect().bottom() + 1 - apsz.height())/2);
     }
+    bookmark_button_->setMaximumHeight(contentsRect().height());
 }
 
 void DisplayFilterEdit::checkFilter(const QString& text)
