@@ -237,10 +237,12 @@ void DisplayFilterEdit::resizeEvent(QResizeEvent *)
     }
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     clear_button_->move(contentsRect().right() - frameWidth - cbsz.width() - apsz.width(),
-                      (contentsRect().bottom() + 1 - cbsz.height())/2);
+                        contentsRect().top());
+    clear_button_->setMaximumHeight(contentsRect().height());
     if (apply_button_) {
         apply_button_->move(contentsRect().right() - frameWidth - apsz.width(),
-                          (contentsRect().bottom() + 1 - apsz.height())/2);
+                            contentsRect().top());
+        apply_button_->setMaximumHeight(contentsRect().height());
     }
     bookmark_button_->setMaximumHeight(contentsRect().height());
 }
