@@ -524,7 +524,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree     *ftp_tree          = NULL;
     proto_tree     *reqresp_tree      = NULL;
     proto_item     *ti, *hidden_item;
-    gint            offset            = 0;
+    gint            offset;
     const guchar   *line;
     guint32         code;
     gchar           code_str[4];
@@ -567,8 +567,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * not longer than what's in the buffer, so the "tvb_get_ptr()"
      * call won't throw an exception.
      */
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-    line    = tvb_get_ptr(tvb, offset, linelen);
+    linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
+    line    = tvb_get_ptr(tvb, 0, linelen);
 
     /*
      * Put the first line from the buffer into the summary
@@ -578,7 +578,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         is_request ? "Request" : "Response",
         format_text(line, linelen));
 
-    ti = proto_tree_add_item(tree, proto_ftp, tvb, offset, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_ftp, tvb, 0, -1, ENC_NA);
     ftp_tree = proto_item_add_subtree(ti, ett_ftp);
 
     if (is_request) {
@@ -598,9 +598,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Put the line into the protocol tree. */
-    ti = proto_tree_add_text(ftp_tree, tvb, offset,
-            next_offset - offset, "%s",
-            tvb_format_text(tvb, offset, next_offset - offset));
+    ti = proto_tree_add_text(ftp_tree, tvb, 0, next_offset, "%s",
+            tvb_format_text(tvb, 0, next_offset));
     reqresp_tree = proto_item_add_subtree(ti, ett_ftp_reqresp);
 
     if (is_request) {
@@ -611,7 +610,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tokenlen = get_token_len(line, line + linelen, &next_token);
         if (tokenlen != 0) {
             proto_tree_add_item(reqresp_tree, hf_ftp_request_command,
-                    tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+                    tvb, 0, tokenlen, ENC_ASCII|ENC_NA);
             if (strncmp(line, "PORT", tokenlen) == 0)
                 is_port_request = TRUE;
             /*
@@ -639,11 +638,11 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * One-line reply, or first or last line
              * of a multi-line reply.
              */
-            tvb_get_nstringz0(tvb, offset, sizeof(code_str), code_str);
+            tvb_get_nstringz0(tvb, 0, sizeof(code_str), code_str);
             code = strtoul(code_str, NULL, 10);
 
             proto_tree_add_uint(reqresp_tree,
-                    hf_ftp_response_code, tvb, offset, 3, code);
+                    hf_ftp_response_code, tvb, 0, 3, code);
 
             /*
              * See if it's a passive-mode response.
@@ -677,7 +676,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    offset  += (gint) (next_token - line);
+    offset   = (gint) (next_token - line);
     linelen -= (int) (next_token - line);
     line     = next_token;
 
