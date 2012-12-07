@@ -26,6 +26,7 @@ int parseHello(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 int parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 int parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+int parseService(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 int registerTransportLayerTypes(int proto);

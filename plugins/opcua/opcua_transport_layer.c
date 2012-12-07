@@ -162,11 +162,6 @@ int parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
 int parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_item *ti;
-    proto_tree *encobj_tree;
-    proto_tree *nodeid_tree;
-    int ServiceId = 0;
-
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
     proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
@@ -175,12 +170,22 @@ int parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     /* message data contains the security layer */
     parseSecurityLayer(tree, tvb, pOffset);
 
+    return -1;
+}
+
+int parseService(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+{
+    proto_item *ti;
+    proto_tree *encobj_tree;
+    proto_tree *nodeid_tree;
+    int ServiceId = 0;
+
     /* AT THE MOMENT NO SECURITY IS IMPLEMENTED IN UA.
      * WE CAN JUST JUMP INTO THE APPLICATION LAYER DATA.
      * THIS WILL CHAHNGE IN THE FUTURE. */
 
     /* add encodeable object subtree */
-    ti = proto_tree_add_text(tree, tvb, 0, -1, "Message : Encodeable Object");
+    ti = proto_tree_add_text(tree, tvb, 0, -1, "OpcUa Service : Encodeable Object");
     encobj_tree = proto_item_add_subtree(ti, ett_opcua_extensionobject);
 
     /* add nodeid subtree */
