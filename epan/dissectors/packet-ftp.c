@@ -680,24 +680,22 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     linelen -= (int) (next_token - line);
     line     = next_token;
 
-    if (tree) {
-        /*
-         * Add the rest of the first line as request or
-         * reply data.
-         */
-        if (linelen != 0) {
-            if (is_request) {
-                proto_tree_add_item(reqresp_tree,
+    /*
+     * Add the rest of the first line as request or
+     * reply data.
+     */
+    if (linelen != 0) {
+        if (is_request) {
+            proto_tree_add_item(reqresp_tree,
                     hf_ftp_request_arg, tvb, offset,
                     linelen, ENC_ASCII|ENC_NA);
-            } else {
-                proto_tree_add_item(reqresp_tree,
+        } else {
+            proto_tree_add_item(reqresp_tree,
                     hf_ftp_response_arg, tvb, offset,
                     linelen, ENC_ASCII|ENC_NA);
-            }
         }
-        offset = next_offset;
     }
+    offset = next_offset;
 
     /*
      * If this is a PORT request or a PASV response, handle it.
