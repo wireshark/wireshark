@@ -258,6 +258,13 @@ void stock_icons_init(void) {
             gtk_icon_source_set_size_wildcarded(source16, FALSE);
             gtk_icon_source_set_size(source16, GTK_ICON_SIZE_MENU);
             gtk_icon_set_add_source(icon_set, source16);
+
+            /* Twice? Really? Seriously? */
+            source16 = gtk_icon_source_new();
+            gtk_icon_source_set_pixbuf(source16, gdk_pixbuf_new_from_inline(-1, pixbufs[i].pb_data16, FALSE, NULL));
+            gtk_icon_source_set_size_wildcarded(source16, FALSE);
+            gtk_icon_source_set_size(source16, GTK_ICON_SIZE_SMALL_TOOLBAR);
+            gtk_icon_set_add_source(icon_set, source16);
         }
 
         gtk_icon_factory_add (factory, pixbufs[i].name, icon_set);
