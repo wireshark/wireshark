@@ -331,8 +331,10 @@ parse_eprt_request(const guchar* line, gint linelen, guint32 *eprt_af,
     gboolean  ret = TRUE;
 
 
-    if (!line)
+    /* line contains the EPRT parameters, we need at least the 4 delimiters */
+    if (!line || linelen<4)
         return FALSE;
+
     /* Copy the rest of the line into a null-terminated buffer. */
     args = ep_strndup(line, linelen);
     p = args;
@@ -775,59 +777,57 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (is_eprt_request) {
-        if (linelen != 0) {
-            /* 
-             * RFC2428 - sect. 2
-             * This frame contains a EPRT request; let's dissect it and set up a 
-             * conversation for the data connection.
-             */
-            if (parse_eprt_request(line, linelen,
-                        &eprt_af, &eprt_ip, eprt_ipv6, &ftp_port,
-                        &eprt_ip_len, &ftp_port_len)) {
+        /* 
+         * RFC2428 - sect. 2
+         * This frame contains a EPRT request; let's dissect it and set up a 
+         * conversation for the data connection.
+         */
+        if (parse_eprt_request(line, linelen,
+                    &eprt_af, &eprt_ip, eprt_ipv6, &ftp_port,
+                    &eprt_ip_len, &ftp_port_len)) {
 
-                /* since parse_eprt_request() returned TRUE,
-                   we know that we have a valid address family */
-                eprt_offset = tokenlen + 1 + 1;  /* token, space, 1st delimiter */
-                proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_af, tvb, 
-                        eprt_offset, 1, eprt_af);
-                eprt_offset += 1 + 1; /* addr family, 2nd delimiter */
+            /* since parse_eprt_request() returned TRUE,
+               we know that we have a valid address family */
+            eprt_offset = tokenlen + 1 + 1;  /* token, space, 1st delimiter */
+            proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_af, tvb, 
+                    eprt_offset, 1, eprt_af);
+            eprt_offset += 1 + 1; /* addr family, 2nd delimiter */
 
-                if (eprt_af == EPRT_AF_IPv4) {
-                    proto_tree_add_ipv4(reqresp_tree, hf_ftp_eprt_ip,
-                            tvb, eprt_offset, eprt_ip_len, eprt_ip);
-                    SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4,
-                            (const guint8 *)&eprt_ip);
-                }
-                else if (eprt_af == EPRT_AF_IPv6) {
-                    proto_tree_add_ipv6(reqresp_tree, hf_ftp_eprt_ipv6,
-                            tvb, eprt_offset, eprt_ip_len, (const guint8 *)eprt_ipv6);
-                    SET_ADDRESS(&ftp_ip_address, AT_IPv6, 16,
-                            (const guint8 *)&eprt_ipv6);
-                }
-                eprt_offset += eprt_ip_len + 1; /* addr, 3rd delimiter */
-
-                proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_port,
-                        tvb, eprt_offset, ftp_port_len, ftp_port);
-
-                /* Find/create conversation for data */
-                conversation = find_conversation(pinfo->fd->num,
-                        &pinfo->src, &ftp_ip_address,
-                        PT_TCP, ftp_port, 0, NO_PORT_B);
-                if (conversation == NULL) {
-                    conversation = conversation_new(
-                            pinfo->fd->num, &pinfo->src, &ftp_ip_address, 
-                            PT_TCP, ftp_port, 0, NO_PORT2);
-                    conversation_set_dissector(conversation,
-                            ftpdata_handle);
-                }
+            if (eprt_af == EPRT_AF_IPv4) {
+                proto_tree_add_ipv4(reqresp_tree, hf_ftp_eprt_ip,
+                        tvb, eprt_offset, eprt_ip_len, eprt_ip);
+                SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4,
+                        (const guint8 *)&eprt_ip);
             }
-            else {
-                proto_item *item;
-                item = proto_tree_add_text(reqresp_tree, 
-                        tvb, offset - linelen - 1, linelen, "Invalid EPRT arguments");
-                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
-                        "EPRT arguments must have the form: |<family>|<addr>|<port>|");
+            else if (eprt_af == EPRT_AF_IPv6) {
+                proto_tree_add_ipv6(reqresp_tree, hf_ftp_eprt_ipv6,
+                        tvb, eprt_offset, eprt_ip_len, (const guint8 *)eprt_ipv6);
+                SET_ADDRESS(&ftp_ip_address, AT_IPv6, 16,
+                        (const guint8 *)&eprt_ipv6);
             }
+            eprt_offset += eprt_ip_len + 1; /* addr, 3rd delimiter */
+
+            proto_tree_add_uint(reqresp_tree, hf_ftp_eprt_port,
+                    tvb, eprt_offset, ftp_port_len, ftp_port);
+
+            /* Find/create conversation for data */
+            conversation = find_conversation(pinfo->fd->num,
+                    &pinfo->src, &ftp_ip_address,
+                    PT_TCP, ftp_port, 0, NO_PORT_B);
+            if (conversation == NULL) {
+                conversation = conversation_new(
+                        pinfo->fd->num, &pinfo->src, &ftp_ip_address, 
+                        PT_TCP, ftp_port, 0, NO_PORT2);
+                conversation_set_dissector(conversation,
+                        ftpdata_handle);
+            }
+        }
+        else {
+            proto_item *item;
+            item = proto_tree_add_text(reqresp_tree, 
+                    tvb, offset - linelen - 1, linelen, "Invalid EPRT arguments");
+            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
+                    "EPRT arguments must have the form: |<family>|<addr>|<port>|");
         }
     }
 
