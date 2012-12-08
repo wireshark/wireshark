@@ -38,7 +38,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/base64.h>
 #include <epan/dissectors/packet-ssl.h>
@@ -336,7 +336,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * No - create one and attach it.
      */
-    session_state = se_alloc(sizeof(struct smtp_session_state));
+    session_state = wmem_alloc(wmem_file_scope(), sizeof(struct smtp_session_state));
     session_state->smtp_state = SMTP_STATE_READING_CMDS;
     session_state->auth_state = SMTP_AUTH_STATE_NONE;
     session_state->first_auth_frame = 0;
@@ -394,7 +394,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /*
        * Create a frame data structure and attach it to the packet.
        */
-      spd_frame_data = se_alloc0(sizeof(struct smtp_proto_data));
+      spd_frame_data = wmem_alloc0(wmem_file_scope(), sizeof(struct smtp_proto_data));
 
       spd_frame_data->conversation_id = conversation->index;
       spd_frame_data->more_frags = TRUE;
