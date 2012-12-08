@@ -48,7 +48,7 @@
 #include <epan/nlpid.h>
 #include <epan/ax25_pids.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 #include "packet-ip.h"
@@ -906,14 +906,14 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         guint byte_spot = 0;
         unsigned char bitmask;
         char *cat_str;
-        char *cat_str_tmp = ep_alloc(USHRT_MAX_STRLEN);
+        char *cat_str_tmp = wmem_alloc(wmem_packet_scope(), USHRT_MAX_STRLEN);
         size_t cat_str_len;
         const guint8 *val_ptr = tvb_get_ptr(tvb, offset, taglen - 4);
 
         /* this is just a guess regarding string size, but we grow it below
          * if needed */
         cat_str_len = 256;
-        cat_str = ep_alloc0(cat_str_len);
+        cat_str = wmem_alloc0(wmem_packet_scope(), cat_str_len);
 
         /* we checked the length above so the highest category value
          * possible here is 240 */
@@ -929,7 +929,7 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
                 while (cat_str_len < (strlen(cat_str) + 2 + USHRT_MAX_STRLEN))
                   cat_str_len += cat_str_len;
-                cat_str_new = ep_alloc(cat_str_len);
+                cat_str_new = wmem_alloc(wmem_packet_scope(), cat_str_len);
                 g_strlcpy(cat_str_new, cat_str, cat_str_len);
                 cat_str_new[cat_str_len - 1] = '\0';
                 cat_str = cat_str_new;
@@ -975,8 +975,8 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
       if (taglen > 4) {
         int offset_max_cat = offset + taglen - 4;
-        char *cat_str = ep_alloc0(USHRT_MAX_STRLEN * 15);
-        char *cat_str_tmp = ep_alloc(USHRT_MAX_STRLEN);
+        char *cat_str = wmem_alloc0(wmem_packet_scope(), USHRT_MAX_STRLEN * 15);
+        char *cat_str_tmp = wmem_alloc(wmem_packet_scope(), USHRT_MAX_STRLEN);
 
         while ((offset + 2) <= offset_max_cat) {
           g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN, "%u",
@@ -1014,8 +1014,8 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
       if (taglen > 4) {
         guint16 cat_low, cat_high;
         int offset_max_cat = offset + taglen - 4;
-        char *cat_str = ep_alloc0(USHRT_MAX_STRLEN * 16);
-        char *cat_str_tmp = ep_alloc(USHRT_MAX_STRLEN * 2);
+        char *cat_str = wmem_alloc0(wmem_packet_scope(), USHRT_MAX_STRLEN * 16);
+        char *cat_str_tmp = wmem_alloc(wmem_packet_scope(), USHRT_MAX_STRLEN * 2);
 
         while ((offset + 2) <= offset_max_cat) {
           cat_high = tvb_get_ntohs(tvb, offset);
@@ -1624,7 +1624,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       optp = NULL;  /* indicate that we don't know this option */
       len_type = OPT_LEN_VARIABLE_LENGTH;
       optlen = 2;
-      name = ep_strdup_printf("Unknown (0x%02x)", opt);
+      name = wmem_strdup_printf(wmem_packet_scope(), "Unknown (0x%02x)", opt);
       dissect = NULL;
       nop_count = 0;
     } else {
@@ -1946,7 +1946,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   guint16 ttl;
 
   tree = parent_tree;
-  iph = ep_alloc(sizeof(ws_ip));
+  iph = wmem_alloc(wmem_packet_scope(), sizeof(ws_ip));
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv4");
   col_clear(pinfo->cinfo, COL_INFO);
