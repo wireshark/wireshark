@@ -142,7 +142,7 @@ static char *separator = "";
 /*
  * TRUE if we're to print packet counts to keep track of captured packets.
  */
-static gboolean print_packet_counts;
+static gboolean print_packet_counts = TRUE;
 
 static capture_options global_capture_opts;
 
@@ -307,7 +307,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|text|fields\n");
   fprintf(output, "                           format of text output (def: text)\n");
-  fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port);\n");
+  fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port, col.Info);\n");
   fprintf(output, "                           this option can be repeated to print multiple fields\n");
   fprintf(output, "  -E<fieldsoption>=<value> set options for output when -Tfields selected:\n");
   fprintf(output, "     header=y|n            switch headers on and off\n");
@@ -3148,8 +3148,10 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
          1) some tap needs the columns
        or
          2) we're printing packet info but we're *not* verbose; in verbose
-            mode, we print the protocol tree, not the protocol summary. */
-    if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && print_summary))
+            mode, we print the protocol tree, not the protocol summary.
+       or
+         3) there is a column mapped as an individual field */
+    if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && print_summary) || output_fields_has_cols(output_fields))
       cinfo = &cf->cinfo;
     else
       cinfo = NULL;
@@ -3503,24 +3505,26 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
 {
   print_args_t print_args;
 
-  if (print_summary) {
+  if (print_summary || output_fields_has_cols(output_fields)) {
     /* Just fill in the columns. */
     epan_dissect_fill_in_columns(edt, FALSE, TRUE);
 
-    /* Now print them. */
-    switch (output_action) {
+    if (print_summary) {
+      /* Now print them. */
+      switch (output_action) {
 
-    case WRITE_TEXT:
+      case WRITE_TEXT:
         if (!print_columns(cf))
           return FALSE;
         break;
 
-    case WRITE_XML:
+      case WRITE_XML:
         proto_tree_write_psml(edt, stdout);
         return !ferror(stdout);
-    case WRITE_FIELDS: /*No non-verbose "fields" format */
+      case WRITE_FIELDS: /*No non-verbose "fields" format */
         g_assert_not_reached();
         break;
+      }
     }
   }
   if (print_details) {
@@ -3553,7 +3557,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       printf("\n");
       return !ferror(stdout);
     case WRITE_FIELDS:
-      proto_tree_write_fields(output_fields, edt, stdout);
+      proto_tree_write_fields(output_fields, edt, &cf->cinfo, stdout);
       printf("\n");
       return !ferror(stdout);
     }

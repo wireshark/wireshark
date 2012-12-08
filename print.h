@@ -123,6 +123,7 @@ extern void output_fields_add(output_fields_t* info, const gchar* field);
 extern gsize output_fields_num_fields(output_fields_t* info);
 extern gboolean output_fields_set_option(output_fields_t* info, gchar* option);
 extern void output_fields_list_options(FILE *fh);
+extern gboolean output_fields_has_cols(output_fields_t* info);
 
 /*
  * Output only these protocols
@@ -154,7 +155,7 @@ extern void proto_tree_write_carrays(guint32 num, FILE *fh, epan_dissect_t *edt)
 extern void write_carrays_finale(FILE *fh);
 
 extern void write_fields_preamble(output_fields_t* fields, FILE *fh);
-extern void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE *fh);
+extern void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh);
 extern void write_fields_finale(output_fields_t* fields, FILE *fh);
 
 extern const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt);

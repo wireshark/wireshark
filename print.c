@@ -84,6 +84,7 @@ struct _output_fields {
     GHashTable* field_indicies;
     emem_strbuf_t** field_values;
     gchar quote;
+    gboolean includes_col_fields;
 };
 
 GHashTable *output_only_tables = NULL;
@@ -1328,6 +1329,7 @@ output_fields_t* output_fields_new(void)
     fields->field_indicies = NULL;
     fields->field_values = NULL;
     fields->quote='\0';
+    fields->includes_col_fields = FALSE;
     return fields;
 }
 
@@ -1364,6 +1366,8 @@ void output_fields_free(output_fields_t* fields)
     g_free(fields);
 }
 
+#define COLUMN_FIELD_FILTER  "col."
+
 void output_fields_add(output_fields_t* fields, const gchar* field)
 {
     gchar* field_copy;
@@ -1379,6 +1383,11 @@ void output_fields_add(output_fields_t* fields, const gchar* field)
     field_copy = g_strdup(field);
 
     g_ptr_array_add(fields->fields, field_copy);
+
+    /* See if we have a column as a field entry */
+    if (!strncmp(field, COLUMN_FIELD_FILTER, strlen(COLUMN_FIELD_FILTER)))
+        fields->includes_col_fields = TRUE;
+
 }
 
 gboolean output_fields_set_option(output_fields_t* info, gchar* option)
@@ -1499,6 +1508,11 @@ void output_fields_list_options(FILE *fh)
     fputs("quote=d|s|n   Print either d: double-quotes, s: single quotes or \n     n: no quotes around field values (def: n: none)\n", fh);
 }
 
+gboolean output_fields_has_cols(output_fields_t* fields)
+{
+    g_assert(fields);
+    return fields->includes_col_fields;
+}
 
 void write_fields_preamble(output_fields_t* fields, FILE *fh)
 {
@@ -1521,6 +1535,25 @@ void write_fields_preamble(output_fields_t* fields, FILE *fh)
     fputc('\n', fh);
 }
 
+static void format_field_values(output_fields_t* fields, gpointer field_index, const gchar* value)
+{
+    if(NULL != value && '\0' != *value) {
+        guint actual_index;
+        actual_index = GPOINTER_TO_UINT(field_index);
+        /* Unwrap change made to disambiguiate zero / null */
+        if (fields->field_values[actual_index - 1] == NULL ) {
+            fields->field_values[actual_index - 1] = ep_strbuf_new(value);
+        } else if (fields->occurrence == 'l' ) {
+            /* print only the value of the last occurrence of the field */
+            ep_strbuf_printf(fields->field_values[actual_index - 1],"%s",value);
+        } else if (fields->occurrence == 'a' ) {
+            /* print the value of all accurrences of the field */
+            ep_strbuf_append_printf(fields->field_values[actual_index - 1],
+                "%c%s",fields->aggregator,value);
+        }
+    }
+}
+
 static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
 {
     write_field_data_t *call_data;
@@ -1535,25 +1568,9 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
 
     field_index = g_hash_table_lookup(call_data->fields->field_indicies, fi->hfinfo->abbrev);
     if(NULL != field_index) {
-        const gchar* value;
-
-        value = get_node_field_value(fi, call_data->edt); /* ep_alloced string */
-
-        if(NULL != value && '\0' != *value) {
-            guint actual_index;
-            actual_index = GPOINTER_TO_UINT(field_index);
-            /* Unwrap change made to disambiguiate zero / null */
-            if ( call_data->fields->field_values[actual_index - 1] == NULL ) {
-                call_data->fields->field_values[actual_index - 1] = ep_strbuf_new(value);
-            } else if ( call_data->fields->occurrence == 'l' ) {
-                /* print only the value of the last occurrence of the field */
-                ep_strbuf_printf(call_data->fields->field_values[actual_index - 1],"%s",value);
-            } else if ( call_data->fields->occurrence == 'a' ) {
-                /* print the value of all accurrences of the field */
-                ep_strbuf_append_printf(call_data->fields->field_values[actual_index - 1],
-                    "%c%s",call_data->fields->aggregator,value);
-            }
-        }
+        format_field_values(call_data->fields, field_index,
+                            get_node_field_value(fi, call_data->edt) /* ep_alloced string */
+                            );
     }
 
     /* Recurse here. */
@@ -1563,9 +1580,12 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     }
 }
 
-void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE *fh)
+void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh)
 {
     gsize i;
+    gint col;
+    gchar* col_name;
+    gpointer field_index;
 
     write_field_data_t data;
 
@@ -1596,6 +1616,18 @@ void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE 
 
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
                                 &data);
+
+    if (fields->includes_col_fields) {
+        for (col = 0; col < cinfo->num_cols; col++) {
+            /* Prepend COLUMN_FIELD_FILTER as the field name */
+            col_name = ep_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->col_title[col]);
+            field_index = g_hash_table_lookup(fields->field_indicies, col_name);
+
+            if(NULL != field_index) {
+                format_field_values(fields, field_index, cinfo->col_data[col]);
+            }
+        }
+    }
 
     for(i = 0; i < fields->fields->len; ++i) {
         if(0 != i) {
