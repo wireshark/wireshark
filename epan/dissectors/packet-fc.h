@@ -142,7 +142,6 @@ typedef struct _fc_hdr {
     guint8 r_ctl;
     guint8 cs_ctl;
     itlq_nexus_t *itlq;
-    conversation_t *conversation;
     guint32 relative_offset;
 } fc_hdr;
 

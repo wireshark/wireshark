@@ -91,6 +91,15 @@ typedef struct _fcp_conv_data_t {
     emem_tree_t *luns;
 } fcp_conv_data_t;
 
+typedef struct fcp_request_data {
+   guint32 request_frame;
+   guint32 response_frame;
+   nstime_t request_time;
+   /* XXX - keep for "backwards compatility", but not sure it really 
+      needs to be part of the persistent data */
+   itl_nexus_t *itl; 
+} fcp_request_data_t;
+
 static dissector_table_t fcp_dissector;
 static dissector_handle_t data_handle;
 
@@ -380,7 +389,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     guint16      lun     = 0xffff;
     tvbuff_t    *cdb_tvb;
     int          tvb_len, tvb_rlen;
-    itl_nexus_t *itl     = NULL;
+    fcp_request_data_t *request_data = NULL;
     proto_item  *hidden_item;
 
     /* Determine the length of the FCP part of the packet */
@@ -414,12 +423,19 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     if (fchdr->itlq)
         fchdr->itlq->lun = lun;
 
-    itl = (itl_nexus_t *)se_tree_lookup32(fcp_conv_data->luns, lun);
-    if (!itl) {
-        itl = se_alloc(sizeof(itl_nexus_t));
-        itl->cmdset = 0xff;
-        itl->conversation = conversation;
-        se_tree_insert32(fcp_conv_data->luns, lun, itl);
+    if (!pinfo->fd->flags.visited)
+        p_add_proto_data(pinfo->fd, proto_fcp, (void*)lun);
+
+    request_data = (fcp_request_data_t*)se_tree_lookup32(fcp_conv_data->luns, lun);
+    if (!request_data) {
+        request_data = se_alloc(sizeof(fcp_request_data_t));
+        request_data->request_frame = pinfo->fd->num;
+        request_data->response_frame = 0;
+        request_data->request_time = pinfo->fd->abs_ts;
+        request_data->itl = se_alloc(sizeof(itl_nexus_t));
+        request_data->itl->cmdset = 0xff;
+        request_data->itl->conversation = conversation;
+        se_tree_insert32(fcp_conv_data->luns, lun, request_data);
     }
 
     proto_tree_add_item(tree, hf_fcp_crn, tvb, offset+8, 1, ENC_BIG_ENDIAN);
@@ -445,7 +461,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     if (tvb_rlen > (16 + add_len))
       tvb_rlen = 16 + add_len;
     cdb_tvb = tvb_new_subset(tvb, offset+12, tvb_len, tvb_rlen);
-    dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, fchdr->itlq, itl);
+    dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, fchdr->itlq, request_data->itl);
 
     proto_tree_add_item(tree, hf_fcp_dl, tvb, offset+12+16+add_len,
                         4, ENC_BIG_ENDIAN);
@@ -487,7 +503,7 @@ dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static void
-dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation _U_, fc_hdr *fchdr, itl_nexus_t *itl)
+dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation _U_, fc_hdr *fchdr, fcp_request_data_t *request_data)
 {
     guint32     offset = 0;
     gint32      snslen = 0;
@@ -502,6 +518,10 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
         col_append_fstr(pinfo->cinfo, COL_INFO, ":%s",
                          val_to_str(status, scsi_status_val, "0x%x"));
     }
+
+    /* Save the response frame */
+    if (request_data != NULL)
+        request_data->response_frame = pinfo->fd->num;
 
     hidden_item = proto_tree_add_uint(tree, hf_fcp_type, tvb, offset, 0, 0);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -520,7 +540,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
 
     /* scsi status code */
     proto_tree_add_item(tree, hf_fcp_scsistatus, tvb, offset, 1, ENC_BIG_ENDIAN);
-    dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->itlq, itl, tvb_get_guint8(tvb, offset));
+    dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->itlq, (request_data != NULL) ? request_data->itl : NULL, tvb_get_guint8(tvb, offset));
     offset += 1;
 
     /* residual count */
@@ -562,7 +582,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
         sns_tvb = tvb_new_subset(tvb, offset, MIN(snslen, tvb_length_remaining(tvb, offset)), snslen);
         dissect_scsi_snsinfo(sns_tvb, pinfo, parent_tree, 0,
                               snslen,
-                              fchdr->itlq, itl);
+                              fchdr->itlq, (request_data != NULL) ? request_data->itl : NULL);
 
         offset += snslen;
     }
@@ -642,8 +662,9 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree      *fcp_tree      = NULL;
     fc_hdr          *fchdr;
     guint8           r_ctl;
+    conversation_t  *fc_conv;
     fcp_conv_data_t *fcp_conv_data;
-    itl_nexus_t     *itl           = NULL;
+    fcp_request_data_t *request_data = NULL;
     gboolean         els;
 
     fchdr = (fc_hdr *)pinfo->private_data;
@@ -670,16 +691,30 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         fcp_tree = proto_item_add_subtree(ti, ett_fcp);
     }
 
+    fc_conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                     pinfo->ptype, pinfo->srcport,
+                     pinfo->destport, 0);
+    if (fc_conv != NULL) {
 
-    fcp_conv_data = conversation_get_proto_data(fchdr->conversation, proto_fcp);
-    if (!fcp_conv_data) {
-        fcp_conv_data = se_alloc(sizeof(fcp_conv_data_t));
-        fcp_conv_data->luns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "FCP Luns");
-        conversation_add_proto_data(fchdr->conversation, proto_fcp, fcp_conv_data);
+        fcp_conv_data = conversation_get_proto_data(fc_conv, proto_fcp);
+        if (!fcp_conv_data) {
+            fcp_conv_data = se_alloc(sizeof(fcp_conv_data_t));
+            fcp_conv_data->luns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "FCP Luns");
+            conversation_add_proto_data(fc_conv, proto_fcp, fcp_conv_data);
+        }
+    }
+
+    /* Lun is only populated by FCP_IU_CMD, and subsequent packets assume the same lun.
+       The only way that consistently works is to save the lun on the first pass when packets
+       are guaranteed to be parsed consecutively */
+    if (!pinfo->fd->flags.visited) {
+        p_add_proto_data(pinfo->fd, proto_fcp, (void*)fchdr->itlq->lun);
+    } else {
+        fchdr->itlq->lun = (guint16)p_get_proto_data(pinfo->fd, proto_fcp);
     }
 
     if ((r_ctl != FCP_IU_CMD) && (r_ctl != FCP_IU_UNSOL_CTL)) {
-        itl = (itl_nexus_t *)se_tree_lookup32(fcp_conv_data->luns, fchdr->itlq->lun);
+        request_data = (fcp_request_data_t *)se_tree_lookup32(fcp_conv_data->luns, fchdr->itlq->lun);
     }
 
     /* put a request_in in all frames except the command frame */
@@ -688,21 +723,23 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item *it;
         it = proto_tree_add_uint(fcp_tree, hf_fcp_singlelun, tvb, 0, 0, fchdr->itlq->lun);
         PROTO_ITEM_SET_GENERATED(it);
-        it = proto_tree_add_uint(fcp_tree, hf_fcp_request_in, tvb, 0, 0, fchdr->itlq->first_exchange_frame);
-        PROTO_ITEM_SET_GENERATED(it);
-        /* only put the response time in the actual response frame */
-        if (r_ctl == FCP_IU_RSP) {
-            nstime_t delta_ts;
-            nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &fchdr->itlq->fc_time);
-            it = proto_tree_add_time(ti, hf_fcp_time, tvb, 0, 0, &delta_ts);
+        if (request_data != NULL) {
+            it = proto_tree_add_uint(fcp_tree, hf_fcp_request_in, tvb, 0, 0, request_data->request_frame);
             PROTO_ITEM_SET_GENERATED(it);
+            /* only put the response time in the actual response frame */
+            if (r_ctl == FCP_IU_RSP) {
+                nstime_t delta_ts;
+                nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &request_data->request_time);
+                it = proto_tree_add_time(ti, hf_fcp_time, tvb, 0, 0, &delta_ts);
+                PROTO_ITEM_SET_GENERATED(it);
+            }
         }
     }
     /* put a response_in in all frames except the response frame */
     if ((r_ctl != FCP_IU_RSP) && (r_ctl != FCP_IU_SOL_CTL) &&
-            (fchdr->itlq->last_exchange_frame)) {
+        (request_data != NULL) && (request_data->response_frame)) {
         proto_item *it;
-        it = proto_tree_add_uint(fcp_tree, hf_fcp_response_in, tvb, 0, 0, fchdr->itlq->last_exchange_frame);
+        it = proto_tree_add_uint(fcp_tree, hf_fcp_response_in, tvb, 0, 0, request_data->response_frame);
         PROTO_ITEM_SET_GENERATED(it);
     }
 
@@ -713,7 +750,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (r_ctl) {
     case FCP_IU_DATA:
-        dissect_fcp_data(tvb, pinfo, tree, fchdr->conversation, fchdr, itl);
+        dissect_fcp_data(tvb, pinfo, tree, fc_conv, fchdr, (request_data != NULL) ? request_data->itl : NULL);
         break;
     case FCP_IU_CONFIRM:
         /* Nothing to be done here */
@@ -722,10 +759,10 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_fcp_xfer_rdy(tvb, fcp_tree);
         break;
     case FCP_IU_CMD:
-        dissect_fcp_cmnd(tvb, pinfo, tree, fcp_tree, fchdr->conversation, fchdr, fcp_conv_data);
+        dissect_fcp_cmnd(tvb, pinfo, tree, fcp_tree, fc_conv, fchdr, fcp_conv_data);
         break;
     case FCP_IU_RSP:
-        dissect_fcp_rsp(tvb, pinfo, tree, fcp_tree, fchdr->conversation, fchdr, itl);
+        dissect_fcp_rsp(tvb, pinfo, tree, fcp_tree, fc_conv, fchdr, request_data);
         break;
     default:
         call_dissector(data_handle, tvb, pinfo, tree);

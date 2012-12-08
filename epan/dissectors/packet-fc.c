@@ -761,7 +761,6 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     /* set up a conversation and conversation data */
     /* TODO treat the fc address  s_id==00.00.00 as a wildcard matching anything */
     conversation=find_or_create_conversation(pinfo);
-    fchdr.conversation=conversation;
     fc_conv_data=conversation_get_proto_data(conversation, proto_fc);
     if(!fc_conv_data){
         fc_conv_data=se_alloc(sizeof(fc_conv_data_t));
