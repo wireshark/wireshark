@@ -68,6 +68,7 @@ wmem_block_free_block(wmem_block_t *block)
 static void *
 wmem_block_alloc(void *private_data, const size_t size)
 {
+    guint8                  align;
     void                   *buf;
     wmem_block_t           *block;
     wmem_block_allocator_t *allocator = (wmem_block_allocator_t*) private_data;
@@ -108,6 +109,22 @@ wmem_block_alloc(void *private_data, const size_t size)
     buf = ((guint8*) block->base) + block->offset;
     block->offset    += size;
     block->remaining -= size;
+
+    /* Make sure that our next allocation is 8-byte aligned. This wastes a
+     * little space on 32-bit systems, but greatly simplifies the logic. */
+    align = block->offset & 0x07;
+    if (align) {
+
+        align = 0x08 - align;
+
+        if (align > block->remaining) {
+            align = block->remaining;
+        }
+
+        block->offset    += align;
+        block->remaining -= align;
+    }
+
     return buf;
 }
 
