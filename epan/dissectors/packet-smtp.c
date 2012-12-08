@@ -341,6 +341,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     session_state->auth_state = SMTP_AUTH_STATE_NONE;
     session_state->first_auth_frame = 0;
     session_state->last_auth_frame = 0;
+    session_state->username_frame = 0;
+    session_state->password_frame = 0;
     session_state->crlf_seen = FALSE;
     session_state->data_seen = FALSE;
     session_state->msg_read_len = 0;
