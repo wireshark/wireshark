@@ -118,7 +118,10 @@ wmem_block_alloc(void *private_data, const size_t size)
         align = 0x08 - align;
 
         if (align > block->remaining) {
-            align = block->remaining;
+            /* The cast is to avoid a moronic MSVC warning about loss of data,
+             * even though the if statement clearly guarantees that it will
+             * fit */
+            align = (guint8)(block->remaining);
         }
 
         block->offset    += align;
