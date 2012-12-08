@@ -46,10 +46,10 @@ files:
 
 - README.binarytrees    - fast access to large data collections
 - README.heuristic      - what are heuristic dissectors and how to write them
-- README.malloc         - how to obtain "memory leak free" memory
 - README.plugins        - how to "pluginize" a dissector
 - README.python         - writing a dissector in PYTHON.
 - README.request_response_tracking - how to track req./resp. times and such
+- README.wmem           - how to obtain "memory leak free" memory
 
 0.3 Contributors
 
@@ -465,8 +465,8 @@ I.e. do not use a buffer declared as
 
    char buffer[1024];
 
-instead allocate a buffer dynamically using the string-specific or plain emem
-routines (see README.malloc) such as
+instead allocate a buffer dynamically using the string-specific or plain wmem
+routines (see README.wmem) such as
 
    emem_strbuf_t *strbuf;
    strbuf = ep_strbuf_new_label("");
@@ -477,7 +477,7 @@ or
    char *buffer=NULL;
    ...
    #define MAX_BUFFER 1024
-   buffer=ep_alloc(MAX_BUFFER);
+   buffer=wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
    buffer[0]='\0';
    ...
    g_snprintf(buffer, MAX_BUFFER, ...
@@ -490,8 +490,8 @@ If you write a routine that will create and return a pointer to a filled in
 string and if that buffer will not be further processed or appended to after
 the routine returns (except being added to the proto tree),
 do not preallocate the buffer to fill in and pass as a parameter instead
-pass a pointer to a pointer to the function and return a pointer to an
-emem allocated buffer that will be automatically freed. (see README.malloc)
+pass a pointer to a pointer to the function and return a pointer to a
+wmem-allocated buffer that will be automatically freed. (see README.wmem)
 
 I.e. do not write code such as
   static void
@@ -508,7 +508,7 @@ instead write the code as
   static void
   foo_to_str(char **buffer, ...
     #define MAX_BUFFER x
-    *buffer=ep_alloc(MAX_BUFFER);
+    *buffer=wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
     <fill in *buffer>
   }
   ...
@@ -517,10 +517,10 @@ instead write the code as
     foo_to_str(&buffer, ...
     proto_tree_add_text(... *buffer ...
 
-Use ep_ allocated buffers. They are very fast and nice. These buffers are all
+Use wmem_ allocated buffers. They are very fast and nice. These buffers are all
 automatically free()d when the dissection of the current packet ends so you
 don't have to worry about free()ing them explicitly in order to not leak memory.
-Please read README.malloc.
+Please read README.wmem.
 
 Don't use non-ASCII characters in source files; not all compiler
 environments will be using the same encoding for non-ASCII characters,
@@ -3384,11 +3384,11 @@ SVN 23058 to see the implementation of conversation timestamps for
 the tcp-dissector.
 
 
-2.2.3 The example conversation code using se_alloc'd memory.
+2.2.3 The example conversation code using wmem_file_scope memory.
 
 For a conversation between two IP addresses and ports you can use this as an
-example.  This example uses se_alloc() to allocate memory and stores the data
-pointer in the conversation 'data' variable.
+example.  This example uses wmem_alloc() with wmem_file_scope() to allocate
+memory and stores the data pointer in the conversation 'data' variable.
 
 /************************ Global values ************************/
 
@@ -3420,7 +3420,7 @@ else {
 
     /* new conversation create local data structure */
 
-    data_ptr = se_alloc(sizeof(my_entry_t));
+    data_ptr = wmem_alloc(wmem_file_scope(), sizeof(my_entry_t));
 
     /*** add your code here to setup the new data structure ***/
 
@@ -3497,10 +3497,10 @@ upon the conversation index and values inside the request packets.
 	opcode = 0;
 	if (!request_val && !reply)
 	{
-		new_request_key = se_alloc(sizeof(struct afs_request_key));
+		new_request_key = wmem_alloc(wmem_file_scope(), sizeof(struct afs_request_key));
 		*new_request_key = request_key;
 
-		request_val = se_alloc(sizeof(struct afs_request_val));
+		request_val = wmem_alloc(wmem_file_scope(), sizeof(struct afs_request_val));
 		request_val -> opcode = pntohl(&afsh->opcode);
 		opcode = request_val->opcode;
 
@@ -3571,7 +3571,7 @@ static void sub_dissector(tvbuff_t *tvb, packet_info *pinfo,
 */
 	if ( (conversation == NULL) ||
 	     (conversation->dissector_handle != sub_dissector_handle) ) {
-            new_conv_info = se_alloc(sizeof(struct _new_conv_info));
+            new_conv_info = wmem_alloc(wmem_file_scope(), sizeof(struct _new_conv_info));
             new_conv_info->data1 = value1;
 
 /* create the conversation for the dynamic port */
@@ -3645,7 +3645,7 @@ static dissector_handle_t sub_dissector_handle;
 
 /* if conversation has a data field, create it and load structure */
 
-        new_conv_info = se_alloc(sizeof(struct _new_conv_info));
+        new_conv_info = wmem_alloc(wmem_file_scope(), sizeof(struct _new_conv_info));
         new_conv_info->data1 = value1;
 
 /* create the conversation for the dynamic server address and port 	*/

@@ -2,9 +2,9 @@ $Id$
 
 1. Introduction
 
-NB: Wmem still does not provide all of the functionality of emem (it should
-    provide most of it). New code might still need to use emem for the time
-    being.
+NB: Wmem still does not provide all of the functionality of emem
+    (see README.malloc), although it should provide most of it. New code
+    may still need to use emem for the time being.
 
 The 'emem' memory manager (described in README.malloc) has been a part of
 Wireshark since 2005 and has served us well, but is starting to show its age.
