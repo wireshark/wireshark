@@ -1,4 +1,4 @@
-/* Routines for UMTS RLC (Radio Link Control) disassembly
+/* Routines for UMTS RLC (Radio Link Control) v9.3.0 disassembly
  * http://www.3gpp.org/ftp/Specs/archive/25_series/25.322/
  *
  * $Id$
