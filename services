@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-11-29
+# 2012-12-07
 # 
 # Experts
 # 
@@ -13440,7 +13440,10 @@ copy-disc	8445/udp	# Port for copy discovery      [Copy]                        
 # 8446-8449            Unassigned
 npmp	8450/tcp	# npmp                         [Ian_Chard]                                        [Ian_Chard]
 npmp	8450/udp	# npmp                         [Ian_Chard]                                        [Ian_Chard]
-# 8451-8469            Unassigned
+# 8451-8456            Unassigned
+nexentamv	8457/tcp	# Nexenta Management GUI       [Nexenta]                                          [Andrew_Galloway]                                         2012-12-07
+# 8457        udp    Reserved
+# 8458-8469            Unassigned
 cisco-avp	8470/tcp	# Cisco Address Validation     [Cullen_Jennings]                                  [Cullen_Jennings]                                         2009-02-13
 # Protocol
 # 8470        udp    Reserved
@@ -15931,6 +15934,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Anquet map synchronization
 # anquetsync                            between desktop and handheld [Paul_Lesurf]                                      [Paul_Lesurf]                                                                                                                                      Defined TXT keys: Proprietary
 # devices
+# antrmai                        tcp    ANT Galio web services       [ANT_Software]                                     [Simon_Middleton]                                         2012-12-06                                                                               Defined TXT keys: txtvers, man
 # appelezvous                           Appelezvous                  [Marco_Piovanelli]                                 [Marco_Piovanelli]                                                                                                                                 Defined TXT keys: None
 # apple-ausend                          Apple Audio Units            [James_McCartney]                                  [James_McCartney]                                                                                                                                  Defined TXT keys: None
 # apple-mobdev                   tcp    Apple Mobile Device Protocol [Apple_2]                                          [Paul_Chinn][Justin_Ko]                                   2011-10-20                                                                               Defined TXT keys: None
@@ -17235,6 +17239,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Andrew_Crockford]                                        Andrew Crockford                                mailto:andrew.crockford&modus-interactive.co.uk
 # [Andrew_Donoho]                                           Andrew Donoho                                   mailto:awd&us.ibm.com
 # [Andrew_Draper]                                           Andrew Draper                                   mailto:adraper&altera.com
+# [Andrew_Galloway]                                         Andrew Galloway           Nexenta               mailto:andrew.galloway&nexenta.com                            2012-12-07
 # [Andrew_H_Derbyshire]                                     Andrew H Derbyshire                             mailto:ahd&meetingmaker.plus.kew.com                          2004-12
 # [Andrew_Hoddinott]                                        Andrew Hoddinott                                mailto:support&artvps.com
 # [Andrew_Jay_Schneider]                                    Andrew Jay Schneider                            mailto:ajs&relsoft.com
@@ -17287,6 +17292,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Annette_Klecha]                                          Annette Klecha                                  mailto:annette_klecha&bbn.hp.com
 # [Anoop_Tewari]                                            Anoop Tewari                                    mailto:anoop&next.distinct.com
 # [Ansgar_Bergmann]                                         Ansgar Bergmann                                 mailto:Ansgar.Bergmann&etsi.fr
+# [ANT_Software]                                                                      ANT Software Limited  mailto:simon.middleton&antplc.com                             2012-12-06
 # [Anthon_van_der_Neut]                                     Anthon van der Neut                             mailto:anthon&mnt.org
 # [Anthony_Cake]                                            Anthony Cake                                    mailto:anthonyrc&lecroy.com
 # [Anthony_Carrabino]                                       Anthony Carrabino                               mailto:anthonyc&vistasoftware.com                             2003-08
@@ -20161,6 +20167,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Nestor_A_Diaz]                                           Nestor A. Diaz                                  mailto:nestor&tiendalinux.com                                 2009-05-12
 # [NetOp_Technical_Supp]                                    NetOp Technical Support                         mailto:support&danware.dk
 # [Nevil_Brownlee]                                          Nevil Brownlee                                  mailto:n.brownlee&auckland.ac.nz                              2006-10
+# [Nexenta]                                                 John S. Howard            Nexenta               mailto:jsh&nexenta.com                                        2012-12-07
 # [NexStor_India_Limite]                                    NexStor India Limited                           mailto:next&nda.vsnl.net.in
 # [NextDay_Aps]                                                                       NextDay Aps           mailto:nextday&infinite-loop.dk                               2012-04-24
 # [Nexum]                                                                             Nexum, Inc.           mailto:mfread&nexuminc.com                                    2012-09-21
@@ -21055,6 +21062,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Simon_Hovell]                                            Simon Hovell                                    mailto:simonh&brandcomms.com
 # [Simon_J_Gerraty]                                         Simon J. Gerraty                                mailto:sjg&quick.com.au
 # [Simon_Jolly]                                             Simon Jolly                                     mailto:simon.jolly&origin-data.co.uk                          2002-07
+# [Simon_Middleton]                                         Simon Middleton           ANT Software Limited  mailto:simon.middleton&antplc.com                             2012-12-06
 # [Simon_Newton]                                            Simon Newton                                    mailto:simon&nomis52.net                                      2012-06-01
 # [Simon_P_Jackson]                                         Simon P Jackson                                 mailto:jacko&kring.co.uk
 # [Simon_Parker]                                            Simon Parker                                    mailto:simon.j.parker&philips.com
