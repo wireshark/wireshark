@@ -435,19 +435,7 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition, C)
 # some Xcode versions that came with Mac OS X 10.5) complain about
 # that.
 #
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow, C,
-  [
-extern int atoi(char *p);
-
-int
-foo(char *p)
-{
-	int (*fptr)(char *p) = atoi;
-
-	return fptr(p) * 2;
-}
-  ],
-  [warns about variables in function declarations shadowing other variables])
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow, C)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-variable)    ##  for now
 #
 # Use the faster pre gcc 4.5 floating point precision if available;
