@@ -87,7 +87,9 @@ static int hf_gtpv2_ksi = -1;
 /*static int hf_gtpv2_kc = -1; */
 static int hf_gtpv2_cksn = -1;
 static int hf_gtpv2_srvcc_cause = -1;
+static int hf_gtpv2_rac = -1;
 static int hf_gtpv2_rnc_id = -1;
+static int hf_gtpv2_ext_rnc_id = -1;
 static int hf_gtpv2_lac = -1;
 static int hf_gtpv2_sac = -1;
 static int hf_gtpv2_tgt_g_cell_id = -1;
@@ -3959,12 +3961,28 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     offset += 1;
     switch (target_type) {
     case 0:
+        new_tvb = tvb_new_subset_remaining(tvb, offset);
+        dissect_e212_mcc_mnc(new_tvb, pinfo, tree, 0, TRUE);
+        offset += 3;
+        /* LAC */
+        proto_tree_add_item(tree, hf_gtpv2_lac,    tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+
+        /* RAC (see NOTE 3) */
+        proto_tree_add_item(tree, hf_gtpv2_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset++;
         /* RNC ID
          * In this case the Target ID field shall be encoded as the Target
          * RNC-ID part of the "Target ID" parameter in 3GPP TS 25.413 [33]. Therefore, the "Choice Target ID" that indicates
          * "Target RNC-ID" (numerical value of 0x20) shall not be included (value in octet 5 specifies the target type).
          */
         proto_tree_add_item(tree, hf_gtpv2_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        /* If the optional Extended RNC-ID is not included, then the length variable 'n' = 8 and the overall length of the IE is 11
+         * octets. Otherwise, 'n' = 10 and the overall length of the IE is 13 octets
+         */
+        if(length == 11){
+            proto_tree_add_item(tree, hf_gtpv2_ext_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        }
         return;
     case 1:
         /* Macro eNodeB ID*/
@@ -5383,8 +5401,19 @@ void proto_register_gtpv2(void)
            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_srvcc_cause_vals_ext, 0x0,
            NULL, HFILL}
         },
+        {&hf_gtpv2_rac,
+         { "Routing Area Code (RAC)", "gtpv2.rac",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           "Routing Area Code", HFILL}
+        },
+
         { &hf_gtpv2_rnc_id,
           {"RNC ID", "gtpv2.rnc_id",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+		{ &hf_gtpv2_ext_rnc_id,
+          {"Extended RNC-ID", "gtpv2.ext_rnc_id",
            FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
