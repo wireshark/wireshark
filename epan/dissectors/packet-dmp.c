@@ -4975,7 +4975,7 @@ void proto_register_dmp (void)
                                   TRUE,
                                   (void*) &dmp_security_classes,
                                   &num_dmp_security_classes,
-                                  UAT_CAT_FFMT,
+                                  UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                   "ChDMPSecurityClassifications",
                                   dmp_class_copy_cb,
                                   NULL,

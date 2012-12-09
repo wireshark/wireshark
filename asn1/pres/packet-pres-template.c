@@ -417,7 +417,7 @@ void proto_register_pres(void) {
                              TRUE,
                              (void*) &pres_users,
                              &num_pres_users,
-                             UAT_CAT_PORTS,
+                             UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                              "ChPresContextList",
                              pres_copy_cb,
                              NULL,

@@ -5886,11 +5886,11 @@ proto_register_reload(void)
   reloadkindids_uat =
     uat_new("Kind-ID Table",
             sizeof(kind_t),
-            "reload_kindids",                     /* filename */
+            "reload_kindids",               /* filename */
             TRUE,                           /* from_profile */
             (void*) &kindidlist_uats,       /* data_ptr */
-            &nreloadkinds,                   /* numitems_ptr */
-            UAT_CAT_GENERAL,                   /* category */
+            &nreloadkinds,                  /* numitems_ptr */
+            UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
             NULL,                           /* Help section (currently a wiki page) */
             uat_kindid_copy_cb,
             NULL,

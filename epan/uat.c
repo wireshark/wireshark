@@ -62,7 +62,7 @@ uat_t* uat_new(const char* name,
                gboolean from_profile,
                void** data_ptr,
                guint* numitems_ptr,
-               const char* category,
+               guint flags,
                const char* help,
                uat_copy_cb_t copy_cb,
                uat_update_cb_t update_cb,
@@ -101,7 +101,7 @@ uat_t* uat_new(const char* name,
     uat->rep = NULL;
     uat->free_rep = NULL;
     uat->help = help;
-    uat->category = category;
+    uat->flags = flags;
 
     for (i=0;flds_array[i].title;i++) {
         fld_data_t* f = g_malloc(sizeof(fld_data_t));

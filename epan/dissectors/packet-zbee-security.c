@@ -274,7 +274,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
                                TRUE,
                                (void*) &uat_key_records,
                                &num_uat_key_records,
-                               UAT_CAT_FFMT,
+                               UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                NULL,  /* TODO: ptr to help manual? */
                                uat_key_record_copy_cb,
                                uat_key_record_update_cb,

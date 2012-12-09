@@ -455,9 +455,9 @@ proto_register_k12(void)
 		    sizeof(k12_handles_t),
 		    "k12_protos",             /* filename */
 		    TRUE,                     /* from_profile */
-		    (void*) &k12_handles,    /* data_ptr */
+		    (void*) &k12_handles,     /* data_ptr */
 		    &nk12_handles,            /* numitems_ptr */
-		    UAT_CAT_FFMT,             /* category */
+		    UAT_AFFECTS_DISSECTION,   /* affects dissection of packets, but not set of named fields */
 		    "ChK12ProtocolsSection",  /* help */
 		    k12_copy_cb,
 		    k12_update_cb,
