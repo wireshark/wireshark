@@ -411,10 +411,6 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-prototypes)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-declarations)
 		#
-		# epan/dissectors/packet-afs.c blocks this one for now.
-		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow)
-		#
 		# More cleanup needed for this on LP64.
 		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
@@ -430,6 +426,28 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition, C)
+#
+# XXX - OK for C++?
+#
+# Make sure -Wshadow doesn't complain about variables in function and
+# function pointer declarations shadowing other variables; if not, don't
+# turn it on, as some versions of GCC (including the one in at least
+# some Xcode versions that came with Mac OS X 10.5) complain about
+# that.
+#
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow, C,
+  [
+extern int atoi(char *p);
+
+int
+foo(char *p)
+{
+	int (*fptr)(char *p) = atoi;
+
+	return fptr(p) * 2;
+}
+  ],
+  [warns about variables in function declarations shadowing other variables])
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-variable)    ##  for now
 #
 # Use the faster pre gcc 4.5 floating point precision if available;

@@ -1578,6 +1578,13 @@ fi
 #
 # $1 : cflags to test
 # $2 : if supplied, C for C-only flags, CXX for C++-only flags
+# $3 : if supplied, a program to try to compile with the flag
+#      and, if the compile fails when -Werror is turned on,
+#      we don't add the flag - used for warning flags that
+#      issue incorrect or non-useful warnings with some
+#      compiler versions
+# $4 : must be supplied if $3 is supplied - a message describing
+#      for what the test program is testing
 #
 # The macro first determines if the compiler supports GCC-style flags.
 # Then it attempts to compile with the defined cflags.  The defined
@@ -1630,16 +1637,47 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                     [
                       AC_MSG_RESULT(yes)
                       #
-                      # Remove -Werror=unknown-warning-option, if we
-                      # added it, by setting CFLAGS to the saved value
-                      # plus just the new option.
-                      #
-                      CFLAGS="$CFLAGS_saved $GCC_OPTION"
-                      if test "$2" != C ; then
+		      # OK, do we have a test program?  If so, check
+		      # whether it fails with this option and -Werror,
+		      # and, if so, don't include it.
+		      #
+		      if test "x$3" != "x" ; then
+                        CFLAGS="$CFLAGS -Werror"
+                        AC_MSG_CHECKING(whether $GCC_OPTION $4)
+                        AC_COMPILE_IFELSE([
+                          AC_LANG_SOURCE($3)],
+                          [
+                            AC_MSG_RESULT(no)
+                            #
+                            # Remove -Werror=unknown-warning-option, if we
+                            # added it, and -Werror by setting CFLAGS to
+                            # the saved value plus just the new option.
+                            #
+                            CFLAGS="$CFLAGS_saved $GCC_OPTION"
+                            if test "$2" != C ; then
+                              #
+                              # Add it to the C++ flags as well.
+                              #
+                              CXXFLAGS="$CXXFLAGS $GCC_OPTION"
+                            fi
+                          ],
+                          [
+                            AC_MSG_RESULT(yes)
+                            CFLAGS="$CFLAGS_saved"
+                          ])
+                      else
                         #
-                        # Add it to the C++ flags as well.
+                        # Remove -Werror=unknown-warning-option, if we
+                        # added it, and -Werror by setting CFLAGS to
+                        # the saved value plus just the new option.
                         #
-                        CXXFLAGS="$CXXFLAGS $GCC_OPTION"
+                        CFLAGS="$CFLAGS_saved $GCC_OPTION"
+                        if test "$2" != C ; then
+                          #
+                          # Add it to the C++ flags as well.
+                          #
+                          CXXFLAGS="$CXXFLAGS $GCC_OPTION"
+                        fi
                       fi
                     ],
                     [
@@ -1662,6 +1700,37 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                     ]])],
                     [
                       AC_MSG_RESULT(yes)
+                      #
+		      # OK, do we have a test program?  If so, check
+		      # whether it fails with this option and -Werror,
+		      # and, if so, don't include it.
+		      #
+		      if test "x$3" != "x" ; then
+                        CXXFLAGS="$CXXFLAGS -Werror"
+                        AC_MSG_CHECKING(whether $GCC_OPTION $4)
+                        AC_COMPILE_IFELSE([
+                          AC_LANG_SOURCE($3)],
+                          [
+                            AC_MSG_RESULT(no)
+                            #
+                            # Remove -Werror=unknown-warning-option, if we
+                            # added it, and -Werror by setting CXXFLAGS to
+                            # the saved value plus just the new option.
+                            #
+                            CXXFLAGS="$CXXFLAGS_saved $GCC_OPTION"
+                          ],
+                          [
+                            AC_MSG_RESULT(yes)
+                            CXXFLAGS="$CXXFLAGS_saved"
+                          ])
+                      else
+                        #
+                        # Remove -Werror=unknown-warning-option, if we
+                        # added it, and -Werror by setting CXXFLAGS to
+                        # the saved value plus just the new option.
+                        #
+                        CXXFLAGS="$CXXFLAGS_saved $GCC_OPTION"
+                      fi
                     ],
                     [
                       AC_MSG_RESULT(no)
