@@ -3969,7 +3969,7 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         offset+=2;
 
         /* RAC (see NOTE 3) */
-        proto_tree_add_item(tree, hf_gtpv2_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         /* RNC ID
          * In this case the Target ID field shall be encoded as the Target
