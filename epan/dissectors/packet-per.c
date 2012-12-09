@@ -1212,7 +1212,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 		/* Avoiding g_snprintf() here */
 		g_strlcpy(str, hfi->name, str_length);
-		str_index = strlen(hfi->name);
+		str_index = (int)strlen(hfi->name);
 		str[str_index++] = ':';
 		str[str_index++] = ' ';
 
