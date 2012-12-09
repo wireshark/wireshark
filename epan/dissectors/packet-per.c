@@ -964,21 +964,22 @@ DEBUG_ENTRY("dissect_per_boolean");
 		value=0;
 	}
 	if(hf_index!=-1){
-		char *str;
+		char bits[10];
+		bits[0] = mask&0x80?'0'+value:'.';
+		bits[1] = mask&0x40?'0'+value:'.';
+		bits[2] = mask&0x20?'0'+value:'.';
+		bits[3] = mask&0x10?'0'+value:'.';
+		bits[4] = ' ';
+		bits[5] = mask&0x08?'0'+value:'.';
+		bits[6] = mask&0x04?'0'+value:'.';
+		bits[7] = mask&0x02?'0'+value:'.';
+		bits[8] = mask&0x01?'0'+value:'.';
+		bits[9] = '\0';
+
 		hfi = proto_registrar_get_nth(hf_index);
-		str=ep_strdup_printf("%c%c%c%c %c%c%c%c %s: %s",
-			mask&0x80?'0'+value:'.',
-			mask&0x40?'0'+value:'.',
-			mask&0x20?'0'+value:'.',
-			mask&0x10?'0'+value:'.',
-			mask&0x08?'0'+value:'.',
-			mask&0x04?'0'+value:'.',
-			mask&0x02?'0'+value:'.',
-			mask&0x01?'0'+value:'.',
-			hfi->name,
-			value?"True":"False"
-		);
-		actx->created_item = proto_tree_add_boolean_format(tree, hf_index, tvb, offset>>3, 1, value, "%s", str);
+		actx->created_item = proto_tree_add_boolean_format(tree, hf_index, tvb, offset>>3, 1, value,
+                                                           "%s %s: %s", bits, hfi->name,
+                                                           value?"True":"False");
 	} else {
 		actx->created_item = NULL;
 	}
