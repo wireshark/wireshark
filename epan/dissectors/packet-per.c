@@ -1209,7 +1209,13 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		/* prepare the string (max number of bits + quartet separators + field name + ": ") */
 		str_length = 256+64+(int)strlen(hfi->name)+2;
 		str=ep_alloc(str_length+1);
-		str_index = g_snprintf(str, str_length+1, "%s: ", hfi->name);
+
+		/* Avoiding g_snprintf() here */
+		g_strlcpy(str, hfi->name, str_length);
+		str_index = strlen(hfi->name);
+		str[str_index++] = ':';
+		str[str_index++] = ' ';
+
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
 				if (str_index < str_length) str[str_index++] = ' ';
