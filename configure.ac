@@ -437,14 +437,15 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition, C)
 #
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow, C,
   [
-extern int atoi(char *p);
+extern int bar(int a);
+extern int foo(int);
 
 int
-foo(char *p)
+foo(int a)
 {
-	int (*fptr)(char *p) = atoi;
+	int (*fptr)(int a) = bar;
 
-	return fptr(p) * 2;
+	return fptr(a) * 2;
 }
   ],
   [warns about variables in function declarations shadowing other variables])
