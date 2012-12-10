@@ -964,7 +964,7 @@ capture_interface_list(int *err, char **err_str)
  * rest-of-the-universe libpcap.
  */
 static int
-get_pcap_linktype(pcap_t *pch, const char *devname
+get_pcap_linktype(pcap_t *pch, const char *devicename
 #ifndef _AIX
         _U_
 #endif
@@ -1026,9 +1026,9 @@ get_pcap_linktype(pcap_t *pch, const char *devname
      * Find the last component of the device name, which is the
      * interface name.
      */
-    ifacename = strchr(devname, '/');
+    ifacename = strchr(devicename, '/');
     if (ifacename == NULL)
-        ifacename = devname;
+        ifacename = devicename;
 
     /* See if it matches any of the LAN device names. */
     if (strncmp(ifacename, "en", 2) == 0) {
@@ -1101,7 +1101,7 @@ create_data_link_info(int dlt)
  * Get the capabilities of a network device.
  */
 static if_capabilities_t *
-get_if_capabilities(const char *devname, gboolean monitor_mode
+get_if_capabilities(const char *devicename, gboolean monitor_mode
 #ifndef HAVE_PCAP_CREATE
         _U_
 #endif
@@ -1141,7 +1141,7 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
      */
     errbuf[0] = '\0';
 #ifdef HAVE_PCAP_OPEN
-    pch = pcap_open(devname, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
+    pch = pcap_open(devicename, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
     caps->can_set_rfmon = FALSE;
     if (pch == NULL) {
         if (err_str != NULL)
@@ -1150,7 +1150,7 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
         return NULL;
     }
 #elif defined(HAVE_PCAP_CREATE)
-    pch = pcap_create(devname, errbuf);
+    pch = pcap_create(devicename, errbuf);
     if (pch == NULL) {
         if (err_str != NULL)
             *err_str = g_strdup(errbuf);
@@ -1200,7 +1200,7 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
         return NULL;
     }
 #else
-    pch = pcap_open_live(devname, MIN_PACKET_SIZE, 0, 0, errbuf);
+    pch = pcap_open_live(devicename, MIN_PACKET_SIZE, 0, 0, errbuf);
     caps->can_set_rfmon = FALSE;
     if (pch == NULL) {
         if (err_str != NULL)
@@ -1209,7 +1209,7 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
         return NULL;
     }
 #endif
-    deflt = get_pcap_linktype(pch, devname);
+    deflt = get_pcap_linktype(pch, devicename);
 #ifdef HAVE_PCAP_LIST_DATALINKS
     nlt = pcap_list_datalinks(pch, &linktypes);
     if (nlt == 0 || linktypes == NULL) {
