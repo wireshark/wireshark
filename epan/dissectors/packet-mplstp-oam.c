@@ -6,7 +6,7 @@
 *
 * Authors:
 * Krishnamurthy Mayya <krishnamurthymayya@gmail.com>
-* Nikitha Malgi <nikitha01@gmail.com>     
+* Nikitha Malgi <nikitha01@gmail.com>
 *
 * Wireshark - Network traffic analyzer
 * By Gerald Combs <gerald@wireshark.org>
@@ -62,7 +62,7 @@ static const value_string fm_msg_type[] = {
   {0, NULL}
 };
 
-/* MPLS-TP Lock protocol specific variables */  
+/* MPLS-TP Lock protocol specific variables */
 static gint proto_mplstp_lock = -1;
 static gint ett_mplstp_lock   = -1;
 
@@ -70,19 +70,19 @@ static int hf_mplstp_lock_version       = -1;
 static int hf_mplstp_lock_reserved      = -1;
 static int hf_mplstp_lock_refresh_timer = -1;
 
-void
+static void
 dissect_mplstp_fm_tlv (tvbuff_t *tvb, proto_tree *tree)
 {
-  proto_item *ti          = NULL;
-  proto_tree *fm_tlv_tree = NULL;
+  proto_item *ti;
+  proto_tree *fm_tlv_tree;
 
-  guint offset          =  0;
-
-  ti = proto_tree_add_protocol_format (tree, proto_mplstp_fm, tvb, offset, 16, 
-                                       "Fault-Management TLVs");
+  guint offset = 0;
 
   if (!tree)
     return;
+
+  ti = proto_tree_add_protocol_format (tree, proto_mplstp_fm, tvb, offset, 16,
+                                       "Fault-Management TLVs");
 
   fm_tlv_tree = proto_item_add_subtree (ti, ett_mplstp_fm_tlv_tree);
 
@@ -106,20 +106,20 @@ dissect_mplstp_fm_tlv (tvbuff_t *tvb, proto_tree *tree)
   offset = offset + 1;
   proto_tree_add_item (fm_tlv_tree, hf_mplstp_fm_global_id, tvb, offset,
                                     4, ENC_BIG_ENDIAN);
-  offset = offset + 4;
+  /* offset = offset + 4; */
 
-  return ;
+  return;
 }
 
 /* Dissector for MPLS-TP LI protocol: RFC 6435 */
 static void
 dissect_mplstp_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti        = NULL;
-  proto_tree *lock_tree = NULL;
-  tvbuff_t    *next_tvb = NULL;
+  proto_item *ti;
+  proto_tree *lock_tree;
+  tvbuff_t   *next_tvb;
 
-  guint8  offset        = 0;
+  guint8      offset = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS-TP LI");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -145,7 +145,7 @@ dissect_mplstp_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                        1, ENC_BIG_ENDIAN);
   offset = offset + 1;
 
-  /*Source-MEP TLVs  */
+  /* Source-MEP TLVs  */
   next_tvb = tvb_new_subset_remaining (tvb, offset);
   dissect_bfd_mep (next_tvb, tree, proto_mplstp_lock);
 
@@ -157,16 +157,15 @@ dissect_mplstp_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_mplstp_fm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-   proto_item *ti = NULL, *ti_flags = NULL;
-   proto_tree *fm_tree = NULL, *fm_flags = NULL;
-   
-   tvbuff_t   *next_tvb = NULL;
+   proto_item *ti, *ti_flags;
+   proto_tree *fm_tree, *fm_flags;
 
-   guint8  offset     = 0;
-   guint8 tlv_len     = 0;
+   guint8 offset = 0;
+   guint8 tlv_len;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS-TP FM");
    col_clear(pinfo->cinfo, COL_INFO);
+
    tlv_len = tvb_get_guint8 (tvb, (offset + 4));
 
    if (!tree)
@@ -188,7 +187,7 @@ dissect_mplstp_fm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    offset = offset + 1;
 
    /* Flags field */
-   ti_flags = proto_tree_add_item (fm_tree, hf_mplstp_fm_flags, tvb, 
+   ti_flags = proto_tree_add_item (fm_tree, hf_mplstp_fm_flags, tvb,
                                    offset, 1, ENC_BIG_ENDIAN);
    fm_flags = proto_item_add_subtree(ti_flags, ett_mplstp_fm_flags);
 
@@ -200,7 +199,7 @@ dissect_mplstp_fm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_tree_add_item (fm_tree, hf_mplstp_fm_refresh_timer, tvb, offset,
                         1, ENC_BIG_ENDIAN);
    offset = offset + 1;
-  
+
    /* FM-TLV Length field*/
    proto_tree_add_item (fm_tree, hf_mplstp_fm_total_tlv_len, tvb, offset,
                         1, ENC_BIG_ENDIAN);
@@ -208,6 +207,8 @@ dissect_mplstp_fm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    if (tlv_len != 0)
      {
+       tvbuff_t *next_tvb;
+
        /* FM TLVs*/
        next_tvb = tvb_new_subset_remaining (tvb, offset);
        dissect_mplstp_fm_tlv (next_tvb, tree);
@@ -250,7 +251,7 @@ proto_register_mplstp_lock(void)
 
 void
 proto_register_mplstp_fm(void)
-{    
+{
     static hf_register_info hf[] = {
 
         {&hf_mplstp_fm_version,
