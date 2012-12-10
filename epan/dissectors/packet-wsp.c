@@ -1069,17 +1069,17 @@ static value_string_ext vals_cache_control_ext = VALUE_STRING_EXT_INIT(vals_cach
 
 static const value_string vals_wap_application_ids[] = {
     /* Well-known WAP applications */
-    { 0x00, "x-wap-application:*"},
-    { 0x01, "x-wap-application:push.sia"},
-    { 0x02, "x-wap-application:wml.ua"},
-    { 0x03, "x-wap-application:wta.ua"},
-    { 0x04, "x-wap-application:mms.ua"},
-    { 0x05, "x-wap-application:push.syncml"},
-    { 0x06, "x-wap-application:loc.ua"},
-    { 0x07, "x-wap-application:syncml.dm"},
-    { 0x08, "x-wap-application:drm.ua"},
-    { 0x09, "x-wap-application:emn.ua"},
-    { 0x0A, "x-wap-application:wv.ua"},
+    { 0x0000, "x-wap-application:*"},
+    { 0x0001, "x-wap-application:push.sia"},
+    { 0x0002, "x-wap-application:wml.ua"},
+    { 0x0003, "x-wap-application:wta.ua"},
+    { 0x0004, "x-wap-application:mms.ua"},
+    { 0x0005, "x-wap-application:push.syncml"},
+    { 0x0006, "x-wap-application:loc.ua"},
+    { 0x0007, "x-wap-application:syncml.dm"},
+    { 0x0008, "x-wap-application:drm.ua"},
+    { 0x0009, "x-wap-application:emn.ua"},
+    { 0x000A, "x-wap-application:wv.ua"},
     /* Registered by 3rd parties */
     { 0x8000, "x-wap-microsoft:localcontent.ua"},
     { 0x8001, "x-wap-microsoft:IMclient.ua"},
@@ -1736,15 +1736,16 @@ static const hdr_parse_func_ptr WellKnownOpenwaveHeader[128] = {
 static void
 add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 {
-    guint8 hdr_id, val_id, codepage = 1;
-    gint32 tvb_len = tvb_length(tvb);
-    gint32 offset = 0, hdr_len, hdr_start;
-    gint32 val_len, val_start;
-    gchar *hdr_str, *val_str;
+    guint8      hdr_id, val_id, codepage = 1;
+    gint32      tvb_len                  = tvb_length(tvb);
+    gint32      offset                   = 0;
+    gint32      hdr_len, hdr_start;
+    gint32      val_len, val_start;
+    gchar      *hdr_str, *val_str;
     proto_tree *wsp_headers;
     proto_item *ti, *hidden_item;
-    guint8 ok;
-    guint32 val = 0;
+    guint8      ok;
+    guint32     val                      = 0;
 
     if (! tree)
         return;
@@ -2272,7 +2273,7 @@ wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_
  *  | ( Value-length ( Token-text | Integer-value ) [ Q-value ] )
  */
 wkh_accept_x_q_header(accept_charset, "Accept-Charset",
-        &vals_character_sets_ext, "character set")
+        &wap_mib_enum_vals_character_sets_ext, "character set")
 /*
  * Accept-language-value =
  *    Short-integer
@@ -2329,7 +2330,7 @@ static guint32 wkh_profile_diff_wbxml (proto_tree *tree, tvbuff_t *tvb,
         guint32 hdr_start, packet_info *pinfo)
 {
     wkh_0a_Declarations;
-    tvbuff_t *tmp_tvb;
+    tvbuff_t   *tmp_tvb;
     proto_tree *subtree;
 
     ok = TRUE; /* Bypass error checking as we don't parse the values! */
@@ -2594,9 +2595,9 @@ static guint32
 wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
     wkh_0_Declarations;
-    guint32 len, off;
-    guint8 peek;
-    gchar *str;
+    guint32     len, off;
+    guint8      peek;
+    gchar      *str;
     proto_tree *parameter_tree = NULL;
 
     wkh_1_WellKnownValue;
@@ -2695,9 +2696,9 @@ static guint32
 wkh_content_disposition(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
     wkh_0a_Declarations;
-    guint32 len, off;
-    guint8 peek;
-    gchar *str;
+    guint32     len, off;
+    guint8      peek;
+    gchar      *str;
     proto_tree *parameter_tree = NULL;
 
     wkh_1_WellKnownValue;
@@ -3481,9 +3482,9 @@ static guint32
 wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
     wkh_0_Declarations;
-    guint32 off, len, val;
-    guint8 warn_code;
-    gchar *str;
+    guint32     off, len, val;
+    guint8      warn_code;
+    gchar      *str;
     proto_tree *subtree;
 
     /* TODO - subtree with values */
@@ -3550,9 +3551,9 @@ static guint32
 wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
     wkh_0_Declarations;
-    guint32 off, len, val = 0;
-    guint8 warn_code;
-    gchar *str;
+    guint32  off, len, val = 0;
+    guint8   warn_code;
+    gchar   *str;
 
     wkh_1_WellKnownValue;
         val = val_id & 0x7F;
@@ -3610,8 +3611,8 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
         guint32 hdr_start, packet_info *pinfo _U_)
 {
     wkh_0_Declarations;
-    guint32 off, val, len;
-    gchar *str;
+    guint32  off, val, len;
+    gchar   *str;
 
     wkh_1_WellKnownValue;
         val = val_id & 0x7F;
@@ -3655,7 +3656,7 @@ static guint32
 wkh_content_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
     wkh_0_Declarations;
-    guint32 off, val, len;
+    guint32     off, val, len;
     proto_tree *subtree = NULL;
 
     wkh_1_WellKnownValue;
@@ -3703,7 +3704,7 @@ static guint32
 wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
     wkh_0_Declarations;
-    guint32 off, val, len;
+    guint32     off, val, len;
     proto_tree *subtree = NULL;
 
     wkh_1_WellKnownValue;
@@ -3949,7 +3950,7 @@ wkh_tod_value_header(openwave_x_up_proxy_tod,
 /* Openwave accept_x_q header */
 wkh_accept_x_q_header(openwave_x_up_proxy_trans_charset,
         "x-up-proxy-trans-charset",
-        &vals_character_sets_ext, "character set")
+        &wap_mib_enum_vals_character_sets_ext, "character set")
 
 /* Openwave content type header */
 wkh_content_type_header(openwave_x_up_proxy_push_accept,
@@ -4126,7 +4127,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
         case 0x01:  /* WSP 1.1 encoding - Charset: Well-known-charset */
             get_integer_value(val, tvb, offset, val_len, ok);
             if (ok) {
-                val_str = val_to_str_ext(val, &vals_character_sets_ext,
+                val_str = val_to_str_ext(val, &wap_mib_enum_vals_character_sets_ext,
                         "<Unknown character set Identifier 0x%X>");
                 proto_tree_add_string(tree, hf_parameter_charset,
                         tvb, start, type_len + val_len, val_str);
@@ -4380,10 +4381,10 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 static int
 parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start)
 {
-    int offset = start;
-    guint32 val = 0, val_len;
-    gchar *str = NULL, *s = NULL;
-    guint8 ok;
+    int      offset = start;
+    guint32  val    = 0, val_len;
+    gchar   *str    = NULL, *s = NULL;
+    guint8   ok;
 
     get_uintvar_integer (val, tvb, offset, val_len, ok);
     if (ok && (val < 1100)) {
@@ -4420,22 +4421,22 @@ static void
 dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, dissector_handle_t dissector_handle)
 {
-    guint8 flags;
-    proto_item *ti;
-    proto_tree *addresses_tree = NULL;
-    proto_tree *addr_tree = NULL;
-    proto_tree *flags_tree;
-    guint8 bearer_type;
-    guint8 address_flags_len;
-    int address_len;
-    proto_tree *address_flags_tree;
-    guint16 port_num;
-    guint32 address_ipv4;
-    struct e_in6_addr address_ipv6;
-    address redir_address;
-    conversation_t *conv;
-    guint32 idx = 0; /* Address index */
-    guint32 address_record_len; /* Length of the entire address record */
+    guint8             flags;
+    proto_item        *ti;
+    proto_tree        *addresses_tree = NULL;
+    proto_tree        *addr_tree      = NULL;
+    proto_tree        *flags_tree;
+    guint8             bearer_type;
+    guint8             address_flags_len;
+    int                address_len;
+    proto_tree        *address_flags_tree;
+    guint16            port_num;
+    guint32            address_ipv4;
+    struct e_in6_addr  address_ipv6;
+    address            redir_address;
+    conversation_t    *conv;
+    guint32            idx            = 0; /* Address index */
+    guint32            address_record_len; /* Length of the entire address record */
 
     /*
      * Redirect flags.
@@ -4635,20 +4636,20 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
 {
-    proto_item *ti;
-    proto_tree *addresses_tree;
-    proto_tree *addr_tree;
-    guint8 bearer_type;
-    guint8 address_flags_len;
-    int address_len;
-    proto_tree *address_flags_tree;
-    guint16 port_num;
-    guint32 address_ipv4;
-    struct e_in6_addr address_ipv6;
-    guint32 tvb_len = tvb_length(tvb);
-    guint32 offset = 0;
-    guint32 idx = 0; /* Address index */
-    guint32 address_record_len; /* Length of the entire address record */
+    proto_item        *ti;
+    proto_tree        *addresses_tree;
+    proto_tree        *addr_tree;
+    guint8             bearer_type;
+    guint8             address_flags_len;
+    int                address_len;
+    proto_tree        *address_flags_tree;
+    guint16            port_num;
+    guint32            address_ipv4;
+    struct e_in6_addr  address_ipv6;
+    guint32            tvb_len = tvb_length(tvb);
+    guint32            offset  = 0;
+    guint32            idx     = 0; /* Address index */
+    guint32            address_record_len; /* Length of the entire address record */
 
     /* Skip needless processing */
     if (! tree)
@@ -4798,13 +4799,13 @@ static const value_string vals_sir_protocol_options[] = {
 static void
 dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 version;
-    guint32 val_len;
-    guint32 val_len_save;
-    guint32 len;
-    guint32 offset = 0;
-    guint32 i;
-    tvbuff_t *tmp_tvb;
+    guint8      version;
+    guint32     val_len;
+    guint32     val_len_save;
+    guint32     len;
+    guint32     offset = 0;
+    guint32     i;
+    tvbuff_t   *tmp_tvb;
     proto_tree *subtree;
     proto_item *ti;
 
@@ -4913,22 +4914,22 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     int offset = 0;
 
-    guint8 pdut;
-    guint count = 0;
-    guint value = 0;
-    guint uriLength = 0;
-    guint uriStart = 0;
-    guint capabilityLength = 0;
-    guint capabilityStart = 0;
-    guint headersLength = 0;
-    guint headerLength = 0;
-    guint headerStart = 0;
-    guint nextOffset = 0;
-    guint contentTypeStart = 0;
-    guint contentType = 0;
+    guint8      pdut;
+    guint       count            = 0;
+    guint       value            = 0;
+    guint       uriLength        = 0;
+    guint       uriStart         = 0;
+    guint       capabilityLength = 0;
+    guint       capabilityStart  = 0;
+    guint       headersLength    = 0;
+    guint       headerLength     = 0;
+    guint       headerStart      = 0;
+    guint       nextOffset       = 0;
+    guint       contentTypeStart = 0;
+    guint       contentType      = 0;
     const char *contentTypeStr;
-    tvbuff_t *tmp_tvb;
-    gboolean found_match;
+    tvbuff_t   *tmp_tvb;
+    gboolean    found_match;
 
 /* Set up structures we will need to add the protocol subtree and manage it */
     proto_item *proto_ti = NULL; /* for the proto entry */
@@ -5426,9 +5427,9 @@ static void
 add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         guint URILenOffset, guint URIOffset, proto_item *proto_ti)
 {
-    guint count = 0;
-    guint uriLen = tvb_get_guintvar (tvb, URILenOffset, &count);
-    gchar *str = NULL;
+    guint  count  = 0;
+    guint  uriLen = tvb_get_guintvar (tvb, URILenOffset, &count);
+    gchar *str    = NULL;
 
     if (tree)
         proto_tree_add_uint (tree, hf_wsp_header_uri_len,
@@ -5474,16 +5475,16 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
     proto_tree *wsp_capabilities;
     proto_tree *capa_subtree;
     proto_item *ti;
-    char *capaName, *str, *valStr;
-    guint32 offset = 0;
-    guint32 len = 0;
-    guint32 capaStart = 0;      /* Start offset of the capability */
-    guint32 capaLen = 0;        /* Length of the entire capability */
-    guint32 capaValueLen = 0;   /* Length of the capability value & type */
-    guint32 tvb_len = tvb_reported_length(tvb);
-    gboolean ok = FALSE;
-    guint8 peek;
-    guint32 value;
+    char       *capaName, *str, *valStr;
+    guint32     offset       = 0;
+    guint32     len          = 0;
+    guint32     capaStart    = 0; /* Start offset of the capability */
+    guint32     capaLen      = 0; /* Length of the entire capability */
+    guint32     capaValueLen = 0; /* Length of the capability value & type */
+    guint32     tvb_len      = tvb_reported_length(tvb);
+    gboolean    ok           = FALSE;
+    guint8      peek;
+    guint32     value;
 
     if (tvb_len == 0) {
         DebugLog(("add_capabilities(): Capabilities = 0\n"));
@@ -5768,13 +5769,13 @@ void
 add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
     const char *contentTypeStr, packet_info *pinfo)
 {
-    guint offset = 0;
-    guint variableStart = 0;
-    guint variableEnd = 0;
-    guint valueStart = 0;
-    guint8 peek = 0;
+    guint       offset        = 0;
+    guint       variableStart = 0;
+    guint       variableEnd   = 0;
+    guint       valueStart    = 0;
+    guint8      peek          = 0;
     proto_item *ti;
-    proto_tree *sub_tree = NULL;
+    proto_tree *sub_tree      = NULL;
 
     DebugLog(("add_post_data() - START\n"));
 
@@ -5833,8 +5834,8 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 static void
 add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint variableEnd, guint valueStart, guint valueEnd)
 {
-    int variableLength = variableEnd-variableStart;
-    int valueLength = 0;
+    int   variableLength = variableEnd-variableStart;
+    int   valueLength    = 0;
     char *variableBuffer;
     char *valueBuffer;
 
@@ -5869,22 +5870,22 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 static void
 add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 {
-    int      offset = 0;
-    guint        nextOffset;
-    guint        nEntries = 0;
-    guint        count;
-    guint        HeadersLen;
-    guint        DataLen;
-    guint        contentType = 0;
-    const char  *contentTypeStr;
-    tvbuff_t    *tmp_tvb;
-    int      partnr = 1;
-    int      part_start;
-    gboolean found_match = FALSE;
+    int         offset      = 0;
+    guint       nextOffset;
+    guint       nEntries    = 0;
+    guint       count;
+    guint       HeadersLen;
+    guint       DataLen;
+    guint       contentType = 0;
+    const char *contentTypeStr;
+    tvbuff_t   *tmp_tvb;
+    int         partnr      = 1;
+    int         part_start;
+    gboolean    found_match = FALSE;
 
-    proto_item  *sub_tree = NULL;
-    proto_item  *ti = NULL;
-    proto_tree  *mpart_tree = NULL;
+    proto_item *sub_tree   = NULL;
+    proto_item *ti         = NULL;
+    proto_tree *mpart_tree = NULL;
 
     DebugLog(("add_multipart_data(): offset = %u, byte = 0x%02x: ",
                 offset, tvb_get_guint8(tvb,offset)));

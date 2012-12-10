@@ -77,7 +77,7 @@
 guint tvb_get_guintvar (tvbuff_t *, guint , guint *);
 
 /* Character set encoding */
-extern value_string_ext vals_character_sets_ext;
+extern value_string_ext wap_mib_enum_vals_character_sets_ext;
 
 /*
  * Misc TODO:

@@ -6878,17 +6878,17 @@ static const wbxml_decoding *get_wbxml_decoding_from_content_type (
  *   4. If exists, retrieve token mapping
  */
 
-#define wbxml_UNDEFINED_TOKEN					\
+#define wbxml_UNDEFINED_TOKEN                   \
 	"(Requested token not defined for this content type)"
-#define wbxml_UNDEFINED_TOKEN_CODE_PAGE					\
+#define wbxml_UNDEFINED_TOKEN_CODE_PAGE         \
 	"(Requested token code page not defined for this content type)"
-#define wbxml_UNDEFINED_TOKEN_MAP					\
+#define wbxml_UNDEFINED_TOKEN_MAP               \
 	"(Requested token map not defined for this content type)"
 /* Return token mapping for a given content mapping entry. */
 static const char *
 map_token (const value_valuestring *token_map, guint8 codepage, guint8 token) {
 	const value_string *vs;
-	const char *s;
+	const char         *s;
 
 	if (token_map) { /* Found map */
 		if ((vs = val_to_valstr (codepage, token_map))) {
@@ -6985,26 +6985,26 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     const wbxml_decoding *override_content_map)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
-	proto_item *ti;
-	proto_tree *wbxml_tree; /* Main WBXML tree */
-	proto_tree *wbxml_str_tbl_tree; /* String table subtree */
-	proto_tree *wbxml_content_tree; /* Content subtree */
-	guint8 version;
-	guint offset = 0;
-	guint32 len;
-	guint32 charset = 0;
-	guint32 charset_len = 0;
-	guint32 publicid;
-	guint32 publicid_index = 0;
-	guint32 publicid_len;
-	guint32 str_tbl;
-	guint32 str_tbl_len;
-	guint32 str_tbl_len_len = 0;
-	guint8 level = 0; /* WBXML recursion level */
-	const wbxml_decoding *content_map = NULL;
-	gchar *summary = NULL;
-	guint8 codepage_stag = 0;
-	guint8 codepage_attr = 0;
+	proto_item           *ti;
+	proto_tree           *wbxml_tree;          /* Main WBXML tree */
+	proto_tree           *wbxml_str_tbl_tree;  /* String table subtree */
+	proto_tree           *wbxml_content_tree;  /* Content subtree */
+	guint8                version;
+	guint                 offset          = 0;
+	guint32               len;
+	guint32               charset         = 0;
+	guint32               charset_len     = 0;
+	guint32               publicid;
+	guint32               publicid_index  = 0;
+	guint32               publicid_len;
+	guint32               str_tbl;
+	guint32               str_tbl_len;
+	guint32               str_tbl_len_len = 0;
+	guint8                level           = 0; /* WBXML recursion level */
+	const wbxml_decoding *content_map     = NULL;
+	gchar                *summary         = NULL;
+	guint8                codepage_stag   = 0;
+	guint8                codepage_attr   = 0;
 
 	DebugLog(("dissect_wbxml: Dissecting packet %u\n", pinfo->fd->num));
 	/* WBXML format
@@ -7307,24 +7307,24 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			 guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr,
 			 const wbxml_decoding *map)
 {
-	guint32 tvb_len = tvb_reported_length (tvb);
-	guint32 off = offset;
-	guint32 len;
-	guint str_len;
-	guint32 ent;
-	guint32 idx;
-	guint8 peek;
-	guint32 tag_len; /* Length of the index (uintvar) from a LITERAL tag */
-	guint8 tag_save_known = 0; /* Will contain peek & 0x3F (tag identity) */
-	guint8 tag_new_known = 0; /* Will contain peek & 0x3F (tag identity) */
-	const char *tag_save_literal; /* Will contain the LITERAL tag identity */
-	const char *tag_new_literal; /* Will contain the LITERAL tag identity */
-	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
-					       tag with content: <x>Content</x>
+	guint32     tvb_len  = tvb_reported_length (tvb);
+	guint32     off      = offset;
+	guint32     len;
+	guint       str_len;
+	guint32     ent;
+	guint32     idx;
+	guint8      peek;
+	guint32     tag_len;                     /* Length of the index (uintvar) from a LITERAL tag */
+	guint8      tag_save_known      = 0;     /* Will contain peek & 0x3F (tag identity) */
+	guint8      tag_new_known       = 0;     /* Will contain peek & 0x3F (tag identity) */
+	const char *tag_save_literal;            /* Will contain the LITERAL tag identity */
+	const char *tag_new_literal;             /* Will contain the LITERAL tag identity */
+	guint8      parsing_tag_content = FALSE; /* Are we parsing content from a
+					            tag with content: <x>Content</x>
 
-					       The initial state is FALSE.
-					       This state will trigger recursion. */
-	tag_save_literal = NULL; /* Prevents compiler warning */
+					            The initial state is FALSE.
+					            This state will trigger recursion. */
+	tag_save_literal = NULL;                 /* Prevents compiler warning */
 
 	DebugLog(("parse_wbxml_tag_defined (level = %u, offset = %u)\n", *level, offset));
 	while (off < tvb_len) {
@@ -7714,26 +7714,26 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		 guint32 str_tbl, guint8 *level,
 		 guint8 *codepage_stag, guint8 *codepage_attr)
 {
-	guint32 tvb_len = tvb_reported_length (tvb);
-	guint32 off = offset;
-	guint32 len;
-	guint str_len;
-	guint32 ent;
-	guint32 idx;
-	guint8 peek;
-	guint32 tag_len; /* Length of the idx (uintvar) from a LITERAL tag */
-	guint8 tag_save_known = 0; /* Will contain peek & 0x3F (tag identity) */
-	guint8 tag_new_known = 0; /* Will contain peek & 0x3F (tag identity) */
-	const char *tag_save_literal; /* Will contain the LITERAL tag identity */
-	const char *tag_new_literal; /* Will contain the LITERAL tag identity */
-	char *tag_save_buf=NULL; /* Will contain "tag_0x%02X" */
-	char *tag_new_buf=NULL; /* Will contain "tag_0x%02X" */
-	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
-					       tag with content: <x>Content</x>
+	guint32     tvb_len             = tvb_reported_length (tvb);
+	guint32     off                 = offset;
+	guint32     len;
+	guint       str_len;
+	guint32     ent;
+	guint32     idx;
+	guint8      peek;
+	guint32     tag_len;                     /* Length of the idx (uintvar) from a LITERAL tag */
+	guint8      tag_save_known      = 0;     /* Will contain peek & 0x3F (tag identity) */
+	guint8      tag_new_known       = 0;     /* Will contain peek & 0x3F (tag identity) */
+	const char *tag_save_literal;            /* Will contain the LITERAL tag identity */
+	const char *tag_new_literal;             /* Will contain the LITERAL tag identity */
+	char       *tag_save_buf        = NULL;  /* Will contain "tag_0x%02X" */
+	char       *tag_new_buf         = NULL;  /* Will contain "tag_0x%02X" */
+	guint8      parsing_tag_content = FALSE; /* Are we parsing content from a
+					            tag with content: <x>Content</x>
 
-					       The initial state is FALSE.
-					       This state will trigger recursion. */
-	tag_save_literal = NULL; /* Prevents compiler warning */
+					            The initial state is FALSE.
+					            This state will trigger recursion. */
+	tag_save_literal = NULL;                 /* Prevents compiler warning */
 
 	DebugLog(("parse_wbxml_tag (level = %u, offset = %u)\n", *level, offset));
 	while (off < tvb_len) {
@@ -8129,14 +8129,14 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				    guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr,
 				    const wbxml_decoding *map)
 {
-	guint32 tvb_len = tvb_reported_length (tvb);
-	guint32 off = offset;
-	guint32 len;
-	guint str_len;
-	guint32 ent;
-	guint32 idx;
-	guint8 peek;
-	guint8 attr_save_known = 0; /* Will contain peek & 0x3F (attr identity) */
+	guint32     tvb_len = tvb_reported_length (tvb);
+	guint32     off     = offset;
+	guint32     len;
+	guint       str_len;
+	guint32     ent;
+	guint32     idx;
+	guint8      peek;
+	guint8      attr_save_known   = 0; /* Will contain peek & 0x3F (attr identity) */
 	const char *attr_save_literal = NULL; /* Will contain the LITERAL attr identity */
 
 	DebugLog(("parse_wbxml_attr_defined (level = %u, offset = %u)\n",
@@ -8354,12 +8354,12 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 			    guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
-	guint32 off = offset;
+	guint32 off     = offset;
 	guint32 len;
-	guint str_len;
+	guint   str_len;
 	guint32 ent;
 	guint32 idx;
-	guint8 peek;
+	guint8  peek;
 
 	DebugLog(("parse_wbxml_attr (level = %u, offset = %u)\n", level, offset));
 	/* Parse attributes */
@@ -8565,7 +8565,7 @@ proto_register_wbxml(void)
 		  { "Character Set",
 		    "wbxml.charset",
 		    FT_UINT32, BASE_HEX|BASE_EXT_STRING,
-		    &vals_character_sets_ext, 0x00,
+		    &wap_mib_enum_vals_character_sets_ext, 0x00,
 		    "WBXML Character Set", HFILL }
 		},
 	};
