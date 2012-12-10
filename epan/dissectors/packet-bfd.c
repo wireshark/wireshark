@@ -311,7 +311,7 @@ get_bfd_checksum_len(guint8 auth_type)
 static void
 dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int         offset = 24;
+    int         offset    = 24;
     guint8      auth_type;
     guint8      auth_len;
     proto_item *ti        = NULL;
@@ -380,15 +380,15 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint flags;
     guint bfd_version;
     guint bfd_diag;
-    guint bfd_sta = 0;
+    guint bfd_sta        = 0;
     guint bfd_flags;
-    guint bfd_flags_h = 0;
-    guint bfd_flags_p = 0;
-    guint bfd_flags_f = 0;
-    guint bfd_flags_c = 0;
-    guint bfd_flags_a = 0;
-    guint bfd_flags_d = 0;
-    guint bfd_flags_m = 0;
+    guint bfd_flags_h    = 0;
+    guint bfd_flags_p    = 0;
+    guint bfd_flags_f    = 0;
+    guint bfd_flags_c    = 0;
+    guint bfd_flags_a    = 0;
+    guint bfd_flags_d    = 0;
+    guint bfd_flags_m    = 0;
     guint bfd_flags_d_v0 = 0;
     guint bfd_flags_p_v0 = 0;
     guint bfd_flags_f_v0 = 0;
@@ -574,18 +574,19 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     return;
 }
+
 /* BFD CV Source MEP-ID TLV Decoder,
    As per RFC 6428 : http://tools.ietf.org/html/rfc6428
    sections - 3.5.1, 3.5.2, 3.5.3 */
 void
 dissect_bfd_mep (tvbuff_t *tvb, proto_tree *tree, const int hfindex)
 {
-    proto_item *ti = NULL;
-    proto_tree *bfd_tree = NULL;
+    proto_item *ti;
+    proto_tree *bfd_tree;
     gint        offset = 0;
-    gint        mep_type = 0;
-    gint        mep_len = 0;
-    gint        mep_agi_len = 0;
+    gint        mep_type;
+    gint        mep_len;
+    gint        mep_agi_len;
 
     if (!tree)
         return;
@@ -593,14 +594,14 @@ dissect_bfd_mep (tvbuff_t *tvb, proto_tree *tree, const int hfindex)
     /* Fetch the BFD control message length and move the offset
        to point to the data portion after the control message */
 
-    /* The parameter hfindex is used for determining the tree under which MEP-ID TLV 
-       has to be determined. Since according to RFC 6428, MEP-ID TLV can be used by any 
-       OAM function, if hfindex is 0, as per this function the MEP-TLV is a part of 
-       BFD-CV payload. If a non-zero hfindex comes, then tht TLV info will be displayed 
+    /* The parameter hfindex is used for determining the tree under which MEP-ID TLV
+       has to be determined. Since according to RFC 6428, MEP-ID TLV can be used by any
+       OAM function, if hfindex is 0, as per this function the MEP-TLV is a part of
+       BFD-CV payload. If a non-zero hfindex comes, then tht TLV info will be displayed
        under a particular protocol-tree. */
     if (!hfindex)
       {
-        offset = tvb_get_guint8(tvb, 3);
+        offset   = tvb_get_guint8(tvb, 3);
         mep_type = tvb_get_ntohs (tvb, offset);
         mep_len  = tvb_get_ntohs (tvb, (offset + 2));
         ti       = proto_tree_add_protocol_format (tree, proto_bfd, tvb, offset, (mep_len + 4),
