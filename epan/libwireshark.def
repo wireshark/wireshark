@@ -359,7 +359,7 @@ dtbl_entry_get_initial_handle
 EBCDIC_to_ASCII
 EBCDIC_to_ASCII1
 eap_code_vals                 DATA
-eap_type_vals                 DATA
+eap_type_vals_ext             DATA
 emem_init
 emem_tree_foreach
 emem_tree_insert32
