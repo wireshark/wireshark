@@ -27,11 +27,11 @@
     <example id="AppToolstsharkEx">
       <title>Help information available from tshark</title>
       <programlisting>
-TShark 1.7.0 (SVN Rev 39165 from /trunk)
+TShark 1.9.0 (SVN Rev 46500 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
-Copyright 1998-2011 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
+Copyright 1998-2012 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
 This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -56,6 +56,8 @@ Capture output:
   -b &lt;ringbuffer opt.&gt; ... duration:NUM - switch to next file after NUM secs
                            filesize:NUM - switch to next file after NUM KB
                               files:NUM - ringbuffer: replace after NUM files
+RPCAP options:
+  -A &lt;user&gt;:&lt;password&gt;     use RPCAP password authentication
 Input file:
   -r &lt;infile&gt;              set the filename to read from (no pipes or stdin!)
 
@@ -67,6 +69,8 @@ Processing:
   -d &lt;layer_type&gt;==&lt;selector&gt;,&lt;decode_as_protocol&gt; ...
                            "Decode As", see the man page for details
                            Example: tcp.port==8888,http
+  -H &lt;hosts file&gt;          read a list of entries from a hosts file, which will
+                           then be written to a capture file. (Implies -W n)
 Output:
   -w &lt;outfile|-&gt;           write packets to a pcap-format file named "outfile"
                            (or to the standard output for "-")
@@ -94,6 +98,8 @@ Output:
   -u s|hms                 output format of seconds (def: s: seconds)
   -l                       flush standard output after each packet
   -q                       be more quiet on stdout (e.g. when using statistics)
+  -W n                     Save extra information in the file, if supported.
+                           n = write network address resolution information
   -X &lt;key&gt;:&lt;value&gt;         eXtension options, see the man page for details
   -z &lt;statistics&gt;          various statistics, see the man page for details
 
@@ -168,14 +174,17 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 1.7.0 (SVN Rev 39165 from /trunk)
-Capture network packets and dump them into a libpcap file.
+Dumpcap 1.9.0 (SVN Rev 46500 from /trunk)
+Capture network packets and dump them into a pcapng file.
 See http://www.wireshark.org for more information.
 
 Usage: dumpcap [options] ...
 
 Capture interface:
   -i &lt;interface&gt;           name or idx of interface (def: first non-loopback)
+                           or for remote capturing, use one of these formats:
+                               rpcap://&lt;host&gt;/&lt;interface&gt;
+                               TCP@&lt;host&gt;:&lt;port&gt;
   -f &lt;capture filter&gt;      packet filter in libpcap filter syntax
   -s &lt;snaplen&gt;             packet snapshot length (def: 65535)
   -p                       don't capture in promiscuous mode
@@ -184,6 +193,7 @@ Capture interface:
   -D                       print list of interfaces and exit
   -L                       print list of link-layer types of iface and exit
   -d                       print generated BPF code for capture filter
+  -k                       set channel on wifi interface &lt;freq&gt;,[&lt;type&gt;]
   -S                       print statistics for each interface once per second
   -M                       for -D, -L, and -S, produce machine-readable output
 
@@ -205,7 +215,8 @@ Output (files):
   -b &lt;ringbuffer opt.&gt; ... duration:NUM - switch to next file after NUM secs
                            filesize:NUM - switch to next file after NUM KB
                               files:NUM - ringbuffer: replace after NUM files
-  -n                       use pcapng format instead of pcap
+  -n                       use pcapng format instead of pcap (default)
+  -P                       use libpcap format instead of pcapng
 
 Miscellaneous:
   -t                       use a separate thread per interface
@@ -213,8 +224,8 @@ Miscellaneous:
   -v                       print version information and exit
   -h                       display this help and exit
 
-Example: dumpcap -i eth0 -a duration:60 -w output.pcap
-"Capture network packets from interface eth0 until 60s passed into output.pcap"
+Example: dumpcap -i eth0 -a duration:60 -w output.pcapng
+"Capture packets from interface eth0 until 60s passed into output.pcapng"
 
 Use Ctrl-C to stop capturing at any time.
       </programlisting>
@@ -234,7 +245,7 @@ Use Ctrl-C to stop capturing at any time.
     <example id="AppToolscapinfosEx">
       <title>Help information available from capinfos</title>
       <programlisting>
-Capinfos 1.7.0 (SVN Rev 39165 from /trunk)
+Capinfos 1.9.0 (SVN Rev 46500 from /trunk)
 Prints various information (infos) about capture files.
 See http://www.wireshark.org for more information.
 
@@ -306,11 +317,11 @@ output format.
     <example id="AppToolsrawsharkEx">
       <title>Help information available from rawshark</title>
       <programlisting>
-Rawshark 1.7.0 (SVN Rev 39165 from /trunk)
+Rawshark 1.9.0 (SVN Rev 46500 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
-Copyright 1998-2011 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
+Copyright 1998-2012 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
 This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -360,7 +371,7 @@ Miscellaneous:
       <title>Help information available from editcap</title>
       <para>
       <programlisting>
-Editcap 1.7.0 (SVN Rev 39165 from /trunk)
+Editcap 1.9.0 (SVN Rev 46500 from /trunk)
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -437,12 +448,13 @@ Miscellaneous:
       <para>
       <programlisting>
 $ editcap -F
-editcap: option requires an argument -- F
+editcap: option requires an argument -- 'F'
 editcap: The available capture file types for the "-F" flag are:
-    5views - Accellent 5Views capture
+    5views - InfoVista 5View capture
     btsnoop - Symbian OS btsnoop
     commview - TamoSoft CommView
     dct2000 - Catapult DCT2000 trace (.out format)
+    erf - Endace ERF capture
     eyesdn - EyeSDN USB S0/E1 ISDN trace format
     k12text - K12 text file
     lanalyzer - Novell LANalyzer
@@ -454,8 +466,8 @@ editcap: The available capture file types for the "-F" flag are:
     ngsniffer - NA Sniffer (DOS)
     ngwsniffer_1_1 - NA Sniffer (Windows) 1.1
     ngwsniffer_2_0 - NA Sniffer (Windows) 2.00x
-    niobserverv - Network Instruments Observer
-    nokialibpcap - Nokia tcpdump - libpcap
+    niobserver - Network Instruments Observer
+    nokialibpcap - Nokia tcpdump - libpcap 
     nseclibpcap - Wireshark - nanosecond libpcap
     nstrace10 - NetScaler Trace (Version 1.0)
     nstrace20 - NetScaler Trace (Version 2.0)
@@ -477,7 +489,7 @@ editcap: The available capture file types for the "-F" flag are:
       <para>
       <programlisting>
 $ editcap -T
-editcap: option requires an argument -- T
+editcap: option requires an argument -- 'T'
 editcap: The available encapsulation types for the "-T" flag are:
     ap1394 - Apple IP-over-IEEE 1394
     arcnet - ARCNET
@@ -486,7 +498,10 @@ editcap: The available encapsulation types for the "-T" flag are:
     atm-pdus - ATM PDUs
     atm-pdus-untruncated - ATM PDUs - untruncated
     atm-rfc1483 - RFC 1483 ATM
+    ax25 - Amateur Radio AX.25
+    ax25-kiss - AX.25 with KISS header
     bacnet-ms-tp - BACnet MS/TP
+    bacnet-ms-tp-with-direction - BACnet MS/TP with Directional Info
     ber - ASN.1 Basic Encoding Rules
     bluetooth-h4 - Bluetooth H4
     bluetooth-h4-linux - Bluetooth H4 with linux header
@@ -495,12 +510,13 @@ editcap: The available encapsulation types for the "-T" flag are:
     chdlc - Cisco HDLC
     chdlc-with-direction - Cisco HDLC with Directional Info
     cosine - CoSine L2 debug log
+    dbus - D-Bus
     dct2000 - Catapult DCT2000
     docsis - Data Over Cable Service Interface Specification
     dpnss_link - Digital Private Signalling System No 1 Link Layer
     dvbci - DVB-CI (Common Interface)
     enc - OpenBSD enc(4) encapsulating interface
-    erf - Endace Record File
+    erf - Extensible Record Format
     ether - Ethernet
     ether-nettl - Ethernet with nettl headers
     fc2 - Fibre Channel FC-2
@@ -518,18 +534,22 @@ editcap: The available encapsulation types for the "-T" flag are:
     hhdlc - HiPath HDLC
     i2c - I2C
     ieee-802-11 - IEEE 802.11 Wireless LAN
-    ieee-802-11-avs - IEEE 802.11 plus AVS WLAN header
+    ieee-802-11-airopeek - IEEE 802.11 plus AiroPeek radio header
+    ieee-802-11-avs - IEEE 802.11 plus AVS radio header
     ieee-802-11-netmon - IEEE 802.11 plus Network Monitor radio header
+    ieee-802-11-prism - IEEE 802.11 plus Prism II monitor mode radio header
     ieee-802-11-radio - IEEE 802.11 Wireless LAN with radio information
-    ieee-802-11-radiotap - IEEE 802.11 plus radiotap WLAN header
+    ieee-802-11-radiotap - IEEE 802.11 plus radiotap radio header
     ieee-802-16-mac-cps - IEEE 802.16 MAC Common Part Sublayer
     ios - Cisco IOS internal
     ip-over-fc - RFC 2625 IP-over-Fibre Channel
+    ip-over-ib - IP over Infiniband
     ipfix - IPFIX
     ipmb - Intelligent Platform Management Bus
     ipnet - Solaris IPNET
     irda - IrDA
     isdn - ISDN
+    ixveriwave - IxVeriWave header and stats block
     jfif - JPEG/JFIF
     juniper-atm1 - Juniper ATM1
     juniper-atm2 - Juniper ATM2
@@ -544,19 +564,25 @@ editcap: The available encapsulation types for the "-T" flag are:
     juniper-vp - Juniper Voice PIC
     k12 - K12 protocol analyzer
     lapb - LAPB
-    lapd - Lapd header
     lapd - LAPD
     layer1-event - EyeSDN Layer 1 event
     lin - Local Interconnect Network
     linux-atm-clip - Linux ATM CLIP
+    linux-lapd - LAPD with Linux pseudo-header
     linux-sll - Linux cooked-mode capture
     ltalk - Localtalk
+    mime - MIME
     most - Media Oriented Systems Transport
+    mp2ts - ISO/IEC 13818-1 MPEG2-TS
     mpeg - MPEG
     mtp2 - SS7 MTP2
     mtp2-with-phdr - MTP2 with pseudoheader
     mtp3 - SS7 MTP3
     mux27010 - MUX27010
+    netanalyzer - netANALYZER
+    netanalyzer-transparent - netANALYZER-Transparent
+    nfc-llcp - NFC LLCP
+    nflog - NFLOG
     nstrace10 - NetScaler Encapsulation 1.0 of Ethernet
     nstrace20 - NetScaler Encapsulation 2.0 of Ethernet
     null - NULL
@@ -566,7 +592,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     ppi - Per-Packet Information header
     ppp - PPP
     ppp-with-direction - PPP with Directional Info
-    prism - IEEE 802.11 plus Prism II monitor mode header
+    pppoes - PPP-over-Ethernet session
     raw-icmp-nettl - Raw ICMP with nettl headers
     raw-icmpv6-nettl - Raw ICMPv6 with nettl headers
     raw-telnet-nettl - Raw telnet with nettl headers
@@ -576,6 +602,8 @@ editcap: The available encapsulation types for the "-T" flag are:
     rawip6 - Raw IPv6
     redback - Redback SmartEdge
     sccp - SS7 SCCP
+    sctp - SCTP
+    sdh - SDH
     sdlc - SDLC
     sita-wan - SITA WAN packets
     slip - SLIP
@@ -606,11 +634,12 @@ editcap: The available encapsulation types for the "-T" flag are:
     user7 - USER 7
     user8 - USER 8
     user9 - USER 9
+    v5-ef - V5 Envelope Function
     whdlc - Wellfleet HDLC
     wpan - IEEE 802.15.4 Wireless PAN
     wpan-nofcs - IEEE 802.15.4 Wireless PAN with FCS not present
     wpan-nonask-phy - IEEE 802.15.4 Wireless PAN non-ASK PHY
-    x25-nettl - X25 with nettl headers
+    x25-nettl - X.25 with nettl headers
     x2e-serial - X2E serial line capture
     x2e-xoraya - X2E Xoraya
       </programlisting>
@@ -684,7 +713,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     <example id="AppToolsmergecapEx">
       <title>Help information available from mergecap</title>
       <programlisting>
-Mergecap 1.7.0 (SVN Rev 39165 from /trunk)
+Mergecap 1.9.0 (SVN Rev 46500 from /trunk)
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 
@@ -788,7 +817,7 @@ Miscellaneous:
     <example id="AppToolstext2pcapEx">
       <title>Help information available for text2pcap</title>
       <programlisting>
-Text2pcap 1.7.0 (SVN Rev 39165 from /trunk)
+Text2pcap 1.9.0 (SVN Rev 46500 from /trunk)
 Generate a capture file from an ASCII hexdump of packets.
 See http://www.wireshark.org for more information.
 
