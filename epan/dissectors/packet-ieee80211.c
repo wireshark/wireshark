@@ -64,30 +64,11 @@
  * Reference :
  * The 802.11 standard is "free", 6 month after the publication.
  *
- * IEEE Std 802.11-2007: Revision of IEEE Std 802.11-199
- * include 8 amendments (802.11a,b,d,e,g,h,i,j)
- * http://standards.ieee.org/getieee802/download/802.11-2007.pdf
+ * IEEE Std 802.11-2012: Revision of IEEE Std 802.11-2007
+ * include 10 amendments (802.11k,r,y,w,n,p,z,v,u,s) 802.11-2007
+ * include 8 amendments (802.11a,b,d,e,g,h,i,j) 802.11-1999
+ * http://standards.ieee.org/getieee802/download/802.11-2012.pdf
  *
- * IEEE Std 802.11k-2008: Radio Resource Measurement of Wireless LANs
- * http://standards.ieee.org/getieee802/download/802.11k-2008.pdf
- *
- * IEEE Std 802.11r-2008: Fast Basic Service Set (BSS) Transition
- * http://standards.ieee.org/getieee802/download/802.11r-2008.pdf
- *
- * IEEE Std 802.11y-2008: 3650-3700 MHz Operation in USA
- * http://standards.ieee.org/getieee802/download/802.11y-2008.pdf
- *
- * IEEE Std 802.11w-2009: Protected Management Frames
- * http://standards.ieee.org/getieee802/download/802.11w-2009.pdf
- *
- * IEEE Std 802.11n-2009: Enhancements for Higher Throughput
- * http://standards.ieee.org/getieee802/download/802.11n-2009.pdf
- *
- * IEEE Std 802.11p-2010: Wireless Access in Vehicular Environments
- * http://standards.ieee.org/getieee802/download/802.11p-2010.pdf
- *
- * IEEE Std 802.11z-2010: Extensions to Direct-Link Setup (DLS)
- * http://standards.ieee.org/getieee802/download/802.11z-2010.pdf
  */
 
 
