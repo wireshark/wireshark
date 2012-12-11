@@ -361,6 +361,9 @@ static int hf_nfs_fattr4_space_total = -1;
 static int hf_nfs_fattr4_space_used = -1;
 static int hf_nfs_fattr4_mounted_on_fileid = -1;
 static int hf_nfs_fattr4_layout_blksize = -1;
+static int hf_nfs_fattr4_security_label_lfs = -1;
+static int hf_nfs_fattr4_security_label_pi = -1;
+static int hf_nfs_fattr4_security_label_context = -1;
 static int hf_nfs_who = -1;
 static int hf_nfs_server = -1;
 static int hf_nfs_fslocation4 = -1;
@@ -694,6 +697,7 @@ static gint ett_nfs_fh_ex = -1;
 static gint ett_nfs_layoutseg_fh = -1;
 static gint ett_nfs_reclaim_complete4 = -1;
 static gint ett_nfs_chan_attrs = -1;
+static gint ett_nfs_security_label = -1;
 
 /* what type of fhandles should we dissect as */
 static dissector_table_t nfs_fhandle_table;
@@ -6896,6 +6900,8 @@ static const value_string names_fattr4[] = {
 	{	FATTR4_SUPPATTR_EXCLCREAT, "FATTR4_SUPPATTR_EXCLCREAT"	},
 #define FATTR4_FS_CHARSET_CAP      76
 	{	FATTR4_FS_CHARSET_CAP, "FATTR4_FS_CHARSET_CAP"		},
+#define FATTR4_SECURITY_LABEL      81
+	{	FATTR4_SECURITY_LABEL, "FATTR4_SECURITY_LABEL"		},
 	{	0,	NULL	}
 };
 
@@ -6973,6 +6979,17 @@ dissect_nfs4_attr_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 }
 
 static int
+dissect_nfs4_security_label(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_fattr4_security_label_lfs, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_fattr4_security_label_pi, offset);
+	offset = dissect_nfs_utf8string(tvb, offset, tree, 
+		hf_nfs_fattr4_security_label_context, NULL);
+
+	return offset;
+}
+static int
 dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		       proto_tree *tree, int type)
 {
@@ -7009,7 +7026,6 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	for (i = 0; i < bitmap_len; i++)
 	{
 		bitmap[i] = tvb_get_ntohl(tvb, offset);
-
 		sl = 0x00000001;
 
 		for (j = 0; j < 32; j++)
@@ -7314,6 +7330,10 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 							hf_nfs_fattr4_layout_blksize, attr_vals_offset);
 						break;
 
+					case FATTR4_SECURITY_LABEL:
+						attr_vals_offset = dissect_nfs4_security_label(tvb, 
+							attr_newftree, attr_vals_offset);
+						break;
 					default:
 						break;
 					}
@@ -7553,6 +7573,9 @@ dissect_nfs4_attribute(tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tre
 
 	case FATTR4_LAYOUT_BLKSIZE:
 		offset = dissect_rpc_uint32(tvb, attribute_tree, hf_nfs_fattr4_layout_blksize, offset);
+		break;
+	case FATTR4_SECURITY_LABEL:
+		offset = dissect_nfs4_security_label(tvb, attribute_tree, offset);
 		break;
 
 	default:
@@ -11475,6 +11498,18 @@ proto_register_nfs(void)
 			"fileid", "nfs.fattr4.layout_blksize", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs_fattr4_security_label_lfs, {
+			"label_format", "nfs.fattr4.security_label.lfs", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs_fattr4_security_label_pi, {
+			"policy_id", "nfs.fattr4.security_label.pi", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs_fattr4_security_label_context, {
+			"context", "nfs.fattr4.security_label.context", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
 		{ &hf_nfs_verifier4, {
 			"verifier", "nfs.verifier4", FT_UINT64, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -12514,7 +12549,8 @@ proto_register_nfs(void)
 		&ett_nfs_cb_illegal,
 		&ett_nfs_chan_attrs,
 		&ett_create_session_flags,
-		&ett_sequence_status_flags
+		&ett_sequence_status_flags,
+		&ett_nfs_security_label
 	};
 	module_t *nfs_module;
 
