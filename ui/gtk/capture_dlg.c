@@ -126,6 +126,7 @@ enum
 #define E_CAP_SNAP_SB_KEY               "cap_snap_sb"
 #define E_CAP_PROMISC_KEY               "cap_promisc"
 #define E_CAP_PROMISC_KEY_ALL           "cap_promisc_all"
+#define E_CAP_KEY_ALL                   "cap_all"
 #ifdef HAVE_PCAP_CREATE
 #define E_CAP_MONITOR_KEY               "cap_monitor"
 #endif
@@ -285,6 +286,9 @@ update_visible_columns_menu (void);
 
 static void
 update_options_table(gint indx);
+
+static void
+update_properties_all(void);
 
 static gboolean
 query_tooltip_tree_view_cb (GtkWidget  *widget,
@@ -732,10 +736,12 @@ capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
       filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
       if (strlen(filter_text) == 0) {
         colorize_filter_te_as_empty(filter_te);
-        g_array_remove_index(global_capture_opts.all_ifaces, i);
-        device.cfilter = g_strdup(filter_text);
-        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-        update_filter_string(device.name, filter_text);
+        if (strlen(device.cfilter) == 1) {
+          g_array_remove_index(global_capture_opts.all_ifaces, i);
+          device.cfilter = g_strdup(filter_text);
+          g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+          update_filter_string(device.name, filter_text);
+        }
         g_free(filter_text);
         continue;
       }
@@ -2486,6 +2492,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   g_array_insert_val(global_capture_opts.all_ifaces, marked_interface, device);
   window_destroy(opt_edit_w);
   update_options_table(marked_row);
+  update_properties_all();
 }
 
 static void
@@ -3047,6 +3054,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   if (strcmp(gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm)),"") != 0) {
     capture_all_filter_check_syntax_cb(NULL, NULL);
   }
+  update_properties_all();
 }
 
 void enable_selected_interface(gchar *name, gboolean selected)
@@ -3692,6 +3700,7 @@ capture_dlg_refresh_if (void)
 
   view = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   create_and_fill_model(GTK_TREE_VIEW(view));
+  update_properties_all();
 }
 
 static void
@@ -4282,6 +4291,54 @@ columns_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
   }
   return FALSE;
 }
+
+static void
+update_properties_all(void) {
+  unsigned int i;
+  interface_t device;
+  gchar * filter_str = NULL;
+  gboolean filter_all = TRUE;
+  gboolean capture_all = TRUE;
+  gboolean promisc_all = TRUE;
+  GtkWidget *promisc_b;
+  GtkWidget *capture_b;
+
+  for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+    device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+    if (!device.hidden) {
+      if (!device.selected) {
+        capture_all = FALSE;
+      } else if (device.cfilter != NULL && filter_all) {
+        if (filter_str == NULL) {
+          filter_str = g_strdup(device.cfilter);
+        } else if (strcmp(device.cfilter, filter_str)) {
+          filter_str = NULL;
+          filter_all = FALSE;
+        }
+      }
+      if (!device.pmode) {
+        promisc_all = FALSE;
+      }
+    }
+  }
+
+  if (promisc_all) {
+    promisc_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY_ALL);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_b), TRUE);
+  }
+  if (capture_all) {
+    capture_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_KEY_ALL);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(capture_b), TRUE);
+  }
+  if (filter_all && filter_str != NULL) {
+    gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY)), 0, filter_str);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY)), 0);
+  } else {
+    gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY)), 0, "");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(g_object_get_data(G_OBJECT(cap_open_w), E_ALL_CFILTER_CM_KEY)), 0);
+  }
+}
+
 
 static gboolean
 column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
@@ -4989,6 +5046,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #if defined(HAVE_PCAP_REMOTE)
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_REMOTE_DIALOG_PTR_KEY, NULL);
 #endif
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_KEY_ALL, all_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY_ALL, promisc_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_PCAP_NG_KEY, pcap_ng_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_TE_KEY,  file_te);
@@ -5026,6 +5084,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
      widgets. */
   capture_prep_adjust_sensitivity(NULL, cap_open_w);
 
+  update_properties_all();
   update_visible_columns_menu ();
 
   /* Catch the "activate" signal on the text
