@@ -1129,7 +1129,6 @@ dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx,
 	nstime_t timeval;
 	header_field_info *hfi;
 	int num_bits;
-	gboolean tmp;
 
 DEBUG_ENTRY("dissect_per_constrained_integer");
 	if(has_extension){
@@ -1185,8 +1184,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		 * number of bits necessary to represent the range.
 		 */
 		char *str;
-		int  str_index = 0;
-		int i, bit, length, str_length;
+		int i, length;
 		guint32 mask,mask2;
 		/* We only handle 32 bit integers */
 		mask  = 0x80000000;
@@ -1206,52 +1204,17 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 			num_bits=1;
 		}
 
-		/* prepare the string (max number of bits + quartet separators + field name + ": ") */
-		str_length = 256+64+(int)strlen(hfi->name)+2;
-		str=ep_alloc(str_length+1);
+		val_start = (offset)>>3; 
+		val_length = length;
+		val = (guint32)tvb_get_bits64(tvb,offset,num_bits, ENC_BIG_ENDIAN);
 
-		/* Avoiding g_snprintf() here */
-		g_strlcpy(str, hfi->name, str_length);
-		str_index = (int)strlen(hfi->name);
-		str[str_index++] = ':';
-		str[str_index++] = ' ';
-
-		for(bit=0;bit<((int)(offset&0x07));bit++){
-			if(bit&&(!(bit%4))){
-				if (str_index < str_length) str[str_index++] = ' ';
-			}
-			if (str_index < str_length) str[str_index++] = '.';
+		if (display_internal_per_fields){
+			str = decode_bits_in_field((offset&0x07),num_bits,val);
+			proto_tree_add_text(tree, tvb, val_start,val_length,"MIN %u Range = %u Bitfield length %u, %s: %s value: %u",min, range, num_bits, hfi->name, str, val+min);
 		}
-		/* read the bits for the int */
-		for(i=0;i<num_bits;i++){
-			if(bit&&(!(bit%4))){
-				if (str_index < str_length) str[str_index++] = ' ';
-			}
-			if(bit&&(!(bit%8))){
-				length+=1;
-				if (str_index < str_length) str[str_index++] = ' ';
-			}
-			bit++;
-			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
-			val<<=1;
-			if(tmp){
-				val|=1;
-				if (str_index < str_length) str[str_index++] = '1';
-			} else {
-				if (str_index < str_length) str[str_index++] = '0';
-			}
-		}
-		for(;bit%8;bit++){
-			if(bit&&(!(bit%4))){
-				if (str_index < str_length) str[str_index++] = ' ';
-			}
-			if (str_index < str_length) str[str_index++] = '.';
-		}
-		str[str_index] = '\0'; /* Terminate string */
-		val_start = (offset-num_bits)>>3; val_length = length;
+		/* The actual value */
 		val+=min;
-		if (display_internal_per_fields)
-			proto_tree_add_text(tree, tvb, val_start,val_length,"Range = %u Bitfield length %u, %s", range, num_bits, str);
+		offset = offset+num_bits;
 	} else if(range==256){
 		/* 10.5.7.2 */
 
