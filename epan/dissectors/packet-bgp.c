@@ -154,11 +154,12 @@ struct bgp_route_refresh {
 /* draft-ietf-idr-route-filter-06.txt */
 #define BGP_ORF_ACTION      0xc0
 #define BGP_ORF_ADD         0x00
-#define BGP_ORF_REMOVE      0x40
-#define BGP_ORF_REMOVEALL   0x80
+#define BGP_ORF_REMOVE      0x01
+#define BGP_ORF_REMOVEALL   0x02
+
 #define BGP_ORF_MATCH       0x20
 #define BGP_ORF_PERMIT      0x00
-#define BGP_ORF_DENY        0x20
+#define BGP_ORF_DENY        0x01
 
 /* well-known communities, from RFC1997 */
 #define BGP_COMM_NO_EXPORT           0xFFFFFF01
@@ -549,15 +550,15 @@ static const value_string orf_when_vals[] = {
 };
 
 static const value_string orf_entry_action_vals[] = {
-    { 0,        "Add" },
-    { 0x40,     "Remove" },
-    { 0x80,     "RemoveAll" },
+    { BGP_ORF_ADD,          "Add" },
+    { BGP_ORF_REMOVE,       "Remove" },
+    { BGP_ORF_REMOVEALL,    "RemoveAll" },
     { 0,        NULL }
 };
 
 static const value_string orf_entry_match_vals[] = {
-    { 0,        "Permit" },
-    { 0x20,     "Deny" },
+    { BGP_ORF_PERMIT,   "Permit" },
+    { BGP_ORF_DENY,     "Deny" },
     { 0,        NULL }
 };
 
@@ -638,6 +639,16 @@ static int hf_bgp_notify_data = -1;
 static int hf_bgp_route_refresh_afi = -1;
 static int hf_bgp_route_refresh_subtype = -1;
 static int hf_bgp_route_refresh_safi = -1;
+static int hf_bgp_route_refresh_orf = -1;
+static int hf_bgp_route_refresh_orf_flag = -1;
+static int hf_bgp_route_refresh_orf_type = -1;
+static int hf_bgp_route_refresh_orf_length = -1;
+static int hf_bgp_route_refresh_orf_entry_prefixlist = -1;
+static int hf_bgp_route_refresh_orf_entry_action = -1;
+static int hf_bgp_route_refresh_orf_entry_match = -1;
+static int hf_bgp_route_refresh_orf_entry_sequence = -1;
+static int hf_bgp_route_refresh_orf_entry_prefixmask_lower = -1;
+static int hf_bgp_route_refresh_orf_entry_prefixmask_upper = -1;
 static int hf_bgp_cap = -1;
 static int hf_bgp_cap_type = -1;
 static int hf_bgp_cap_length = -1;
@@ -3575,7 +3586,7 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
  * Dissect a BGP ROUTE-REFRESH message.
  */
 static void
-dissect_bgp_route_refresh(tvbuff_t *tvb, proto_tree *tree)
+dissect_bgp_route_refresh(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
     int             p;         /* tvb offset counter    */
     int             pend;       /* end of list of entries for one orf type */
@@ -3585,13 +3596,9 @@ dissect_bgp_route_refresh(tvbuff_t *tvb, proto_tree *tree)
     proto_tree      *subtree;   /* tree for orf   */
     proto_tree      *subtree1;  /* tree for orf entry */
     guint8          orftype;    /* ORF Type */
-    guint8          orfwhen;    /* ORF flag: immediate, defer */
     guint16         orflen;     /* ORF len */
     guint8          entryflag;  /* ORF Entry flag: action(add,del,delall) match(permit,deny) */
-    guint32         entryseq;   /* ORF Entry sequence number */
     int             entrylen;   /* ORF Entry length */
-    guint8          pfx_ge;     /* ORF PrefixList mask lower bound */
-    guint8          pfx_le;     /* ORF PrefixList mask upper bound */
     int             advance;    /* tmp                      */
 
 
@@ -3633,64 +3640,58 @@ example 2
         return;
     while (p < hlen) {
         /* ORF type */
-        orfwhen = tvb_get_guint8(tvb, p);
-        orftype = tvb_get_guint8(tvb, p+1);
-        orflen = tvb_get_ntohs(tvb, p+2);
-        ti = proto_tree_add_text(tree, tvb, p , orflen + 4 , "ORF information (%u bytes)", orflen + 4);
+
+        ti = proto_tree_add_item(tree, hf_bgp_route_refresh_orf, tvb, p, 4, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_bgp_orf);
-        proto_tree_add_text(subtree, tvb, p , 1, "ORF flag: %s", val_to_str_const(orfwhen, orf_when_vals,"UNKNOWN"));
-        proto_tree_add_text(subtree, tvb, p+1 , 1, "ORF type: %s", val_to_str_const(orftype, orf_type_vals,"UNKNOWN"));
-        proto_tree_add_text(subtree, tvb, p+2 , 2, "ORF len: %u byte%s", orflen, plurality(orflen, "", "s"));
-        p += 4;
+
+        proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_flag, tvb, p, 1, ENC_BIG_ENDIAN);
+        p += 1;
+
+        ti1 = proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_type, tvb, p , 1, ENC_BIG_ENDIAN);
+        orftype = tvb_get_guint8(tvb, p);
+        p += 1;
+
+        proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_length, tvb, p , 2, ENC_BIG_ENDIAN);
+        orflen = tvb_get_ntohs(tvb, p);
+        proto_item_set_len(ti, orflen + 4);
+        p += 2;
 
         if (orftype != BGP_ORF_PREFIX_CISCO) {
-            proto_tree_add_text(subtree, tvb, p, orflen,
-                    "ORFEntry-Unknown (%u bytes)", orflen);
+            expert_add_info_format(pinfo, ti1, PI_CHAT, PI_ERROR, "ORFEntry-Unknown (type %u)", orftype);
             p += orflen;
             continue;
         }
         pend = p + orflen;
         while (p < pend) {
+
+            ti1 = proto_tree_add_item(subtree, hf_bgp_route_refresh_orf_entry_prefixlist, tvb, p, 1, ENC_NA);
+            subtree1 = proto_item_add_subtree(ti1, ett_bgp_orf_entry);
+            proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_action, tvb, p, 1, ENC_BIG_ENDIAN);
             entryflag = tvb_get_guint8(tvb, p);
-            if ((entryflag & BGP_ORF_ACTION) == BGP_ORF_REMOVEALL) {
-                ti1 = proto_tree_add_text(subtree, tvb, p, 1,
-                        "ORFEntry-PrefixList (1 byte)");
-                subtree1 = proto_item_add_subtree(ti1, ett_bgp_orf_entry);
-                proto_tree_add_text(subtree1, tvb, p , 1, "RemoveAll");
+            if (((entryflag & BGP_ORF_ACTION) >> 6) == BGP_ORF_REMOVEALL) {
                 p++;
-            } else {
-                ti1 = proto_tree_add_text(subtree, tvb, p, -1,
-                        "ORFEntry-PrefixList");
-                subtree1 = proto_item_add_subtree(ti1, ett_bgp_orf_entry);
-                proto_tree_add_text(subtree1, tvb, p, 1,
-                        "ACTION: %s MATCH: %s",
-                        val_to_str_const(entryflag&BGP_ORF_ACTION,
-                            orf_entry_action_vals, "UNKNOWN"),
-                        val_to_str_const(entryflag&BGP_ORF_MATCH,
-                            orf_entry_match_vals, "UNKNOWN"));
-                p++;
-                entryseq = tvb_get_ntohl(tvb, p);
-                proto_tree_add_text(subtree1, tvb, p, 4,
-                        "Entry Sequence No: %u", entryseq);
-                p += 4;
-                pfx_ge = tvb_get_guint8(tvb, p);
-                proto_tree_add_text(subtree1, tvb, p, 1,
-                        "PrefixMask length lower bound: %u", pfx_ge);
-                p++;
-                pfx_le = tvb_get_guint8(tvb, p);
-                proto_tree_add_text(subtree1, tvb, p, 1,
-                        "PrefixMask length upper bound: %u", pfx_le);
-                p++;
-
-                advance = decode_prefix4(subtree1, -1, tvb, p, 0, "ORF");
-                if (advance < 0)
-                        break;
-                entrylen = 7 + 1 + advance;
-
-                proto_item_append_text(ti1, " (%u bytes)", entrylen);
-                proto_item_set_len(ti1, entrylen);
-                p += advance;
+                continue;
             }
+            proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_match, tvb, p, 1, ENC_BIG_ENDIAN);
+            p++;
+
+            proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_sequence, tvb, p, 4, ENC_BIG_ENDIAN);
+            p +=4;
+
+            proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_prefixmask_lower, tvb, p, 1, ENC_BIG_ENDIAN);
+            p++;
+
+            proto_tree_add_item(subtree1, hf_bgp_route_refresh_orf_entry_prefixmask_upper, tvb, p, 1, ENC_BIG_ENDIAN);
+            p++;
+
+            advance = decode_prefix4(subtree1, -1, tvb, p, 0, "ORF");
+            if (advance < 0)
+                    break;
+            entrylen = 7 + 1 + advance;
+
+            proto_item_set_len(ti1, entrylen);
+            p += advance;
+
         }
     }
 }
@@ -3789,7 +3790,7 @@ dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
         break;
     case BGP_ROUTE_REFRESH_CISCO:
     case BGP_ROUTE_REFRESH:
-        dissect_bgp_route_refresh(tvb, bgp_tree);
+        dissect_bgp_route_refresh(tvb, bgp_tree, pinfo);
         break;
     case BGP_CAPABILITY:
         dissect_bgp_capability(tvb, bgp_tree, pinfo);
@@ -4093,6 +4094,37 @@ proto_register_bgp(void)
       { &hf_bgp_route_refresh_safi,
         { "Subsequent address family identifier (SAFI)", "bgp.route_refresh.safi", FT_UINT8, BASE_DEC,
           VALS(bgpattr_nlri_safi), 0x0, NULL, HFILL }},
+
+      { &hf_bgp_route_refresh_orf,
+        { "ORF information", "bgp.route_refresh.orf", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_route_refresh_orf_flag,
+        { "ORF flag", "bgp.route_refresh.orf.flag", FT_UINT8, BASE_DEC,
+          VALS(orf_when_vals), 0x0, NULL, HFILL }},
+      { &hf_bgp_route_refresh_orf_type,
+        { "ORF type", "bgp.route_refresh.orf.type", FT_UINT8, BASE_DEC,
+          VALS(orf_type_vals), 0x0, NULL, HFILL }},
+      { &hf_bgp_route_refresh_orf_length,
+        { "ORF length", "bgp.route_refresh.orf.length", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_route_refresh_orf_entry_prefixlist,
+        { "ORFEntry PrefixList", "bgp.route_refresh.orf.entry", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_route_refresh_orf_entry_action,
+        { "ORFEntry Action", "bgp.route_refresh.orf.entry.action", FT_UINT8, BASE_DEC,
+          VALS(orf_entry_action_vals), BGP_ORF_ACTION, NULL, HFILL }},
+      { &hf_bgp_route_refresh_orf_entry_match,
+        { "ORFEntry Match", "bgp.route_refresh.orf.entry.match", FT_UINT8, BASE_DEC,
+          VALS(orf_entry_match_vals), BGP_ORF_MATCH, NULL, HFILL }},
+      { &hf_bgp_route_refresh_orf_entry_sequence,
+        { "ORFEntry Sequence", "bgp.route_refresh.orf.entry.sequence", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_route_refresh_orf_entry_prefixmask_lower,
+        { "ORFEntry PrefixMask length lower bound", "bgp.route_refresh.orf.entry.prefixmask_lower", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_route_refresh_orf_entry_prefixmask_upper,
+        { "ORFEntry PrefixMask length upper bound", "bgp.route_refresh.orf.entry.prefixmask_upper", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
 
         /* Capability */
       { &hf_bgp_cap,
