@@ -60,20 +60,18 @@ dissect_pw_status_tlv (tvbuff_t *tvb, proto_tree *tree, gint offset)
   proto_item *ti;
   proto_tree *pw_oam_tlv_tree;
 
-  guint reserved;
 
   ti = proto_tree_add_protocol_format (tree, proto_pw_oam, tvb, offset, 8, 
                                        "Pseudo-Wire Status TLV");
 
-  reserved = (tvb_get_guint8 (tvb, offset) >> 6);
 
   if (!tree)
     return;
 
   pw_oam_tlv_tree = proto_item_add_subtree (ti, ett_pw_oam_tlv_tree);
 
-  proto_tree_add_uint (pw_oam_tlv_tree, hf_pw_oam_tlv_reserved, tvb, offset,
-                                    1, reserved);
+  proto_tree_add_item (pw_oam_tlv_tree, hf_pw_oam_tlv_reserved, tvb, offset,
+                                    2, ENC_BIG_ENDIAN);
   proto_tree_add_item (pw_oam_tlv_tree, hf_pw_oam_tlv_type, tvb, offset,
                                     2, ENC_BIG_ENDIAN);
   offset = offset + 2;
@@ -168,12 +166,12 @@ proto_register_pw_oam(void)
 
     {&hf_pw_oam_tlv_reserved,
       {"Reserved", "pw_oam.tlv-reserved",
-        FT_UINT8, BASE_HEX, NULL, 0x0000, NULL, HFILL}
+        FT_UINT16, BASE_HEX, NULL, 0xC000, NULL, HFILL}
     },
 
     {&hf_pw_oam_tlv_type,
       {"TLV Type", "pw_oam.tlv-type",
-        FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL}
+        FT_UINT16, BASE_HEX, NULL, 0x3FFF, NULL, HFILL}
     },
 
     {&hf_pw_oam_tlv_len,
