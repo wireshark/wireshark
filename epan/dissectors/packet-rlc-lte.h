@@ -42,6 +42,7 @@
 #define CHANNEL_TYPE_DRB 5
 #define CHANNEL_TYPE_BCCH_DL_SCH 6
 #define CHANNEL_TYPE_MCCH 7
+#define CHANNEL_TYPE_MTCH 8
 
 /* UMSequenceNumberLength */
 #define UM_SN_LENGTH_5_BITS 5

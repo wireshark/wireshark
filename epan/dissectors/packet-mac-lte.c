@@ -807,6 +807,9 @@ static gboolean global_mac_lte_attempt_srb_decode = TRUE;
 /* Whether should attempt to decode MCH LCID 0 as MCCH */
 static gboolean global_mac_lte_attempt_mcch_decode = FALSE;
 
+/* Whether should call RLC dissector to decode MTCH LCIDs */
+static gboolean global_mac_lte_call_rlc_for_mtch = FALSE;
+
 /* Where to take LCID -> DRB mappings from */
 enum lcid_drb_source {
     FromStaticTable, FromConfigurationProtocol
@@ -4098,6 +4101,11 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                RLC_UM_MODE, DIRECTION_DOWNLINK, 0,
                                CHANNEL_TYPE_MCCH, 0, 5, 0);
+        } else if ((lcids[n] <= 28) && global_mac_lte_call_rlc_for_mtch) {
+            /* Call RLC dissector */
+            call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
+                               RLC_UM_MODE, DIRECTION_DOWNLINK, 0,
+                               CHANNEL_TYPE_MTCH, 0, 5, 0);
         } else {
             /* Dissect SDU as raw bytes */
             sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_mch_sdu, tvb, offset, pdu_lengths[n],
@@ -5836,6 +5844,11 @@ void proto_register_mac_lte(void)
         "Attempt to dissect MCH LCID 0 as MCCH",
         "Will call LTE RLC dissector for MCH LCID 0",
         &global_mac_lte_attempt_mcch_decode);
+
+    prefs_register_bool_preference(mac_lte_module, "call_rlc_for_mtch",
+        "Call RLC dissector MTCH LCIDs",
+        "Call RLC dissector MTCH LCIDs",
+        &global_mac_lte_call_rlc_for_mtch);
 
     prefs_register_enum_preference(mac_lte_module, "lcid_to_drb_mapping_source",
         "Source of LCID -> drb channel settings",

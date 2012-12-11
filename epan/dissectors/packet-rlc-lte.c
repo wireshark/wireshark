@@ -77,6 +77,7 @@ static gint signalled_pdcp_sn_bits = 12;
 
 static gboolean global_rlc_lte_call_rrc_for_ccch = FALSE;
 static gboolean global_rlc_lte_call_rrc_for_mcch = FALSE;
+static gboolean global_rlc_lte_call_ip_for_mtch = FALSE;
 
 /* Preference to expect RLC headers without payloads */
 static gboolean global_rlc_lte_headers_expected = FALSE;
@@ -95,6 +96,7 @@ extern int proto_mac_lte;
 extern int proto_pdcp_lte;
 
 static dissector_handle_t pdcp_lte_handle;
+static dissector_handle_t ip_handle;
 
 static int rlc_lte_tap = -1;
 
@@ -227,6 +229,7 @@ static const value_string rlc_channel_type_vals[] =
     { CHANNEL_TYPE_DRB,          "DRB"},
     { CHANNEL_TYPE_BCCH_DL_SCH,  "BCCH_DL_SCH"},
     { CHANNEL_TYPE_MCCH,         "MCCH"},
+    { CHANNEL_TYPE_MTCH,         "MTCH"},
     { 0, NULL }
 };
 
@@ -727,7 +730,7 @@ static void show_PDU_in_info(packet_info *pinfo,
 }
 
 
-/* Show an SDU. If configured, pass to PDCP/RRC dissector */
+/* Show an SDU. If configured, pass to PDCP/RRC/IP dissector */
 static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
                              rlc_lte_info *rlc_info, gboolean whole_pdu, rlc_channel_reassembly_info *reassembly_info,
                              sequence_analysis_state state)
@@ -832,6 +835,29 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
             TRY {
                 call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree, NULL);
+            }
+            CATCH_ALL {
+            }
+            ENDTRY
+
+            PROTO_ITEM_SET_HIDDEN(data_ti);
+        }
+        else if (global_rlc_lte_call_ip_for_mtch && (rlc_info->channelType == CHANNEL_TYPE_MTCH)) {
+            /* Send whole PDU to IP */
+            static tvbuff_t *ip_tvb = NULL;
+
+            /* Get tvb for passing to IP dissector */
+            if (reassembly_info == NULL) {
+                ip_tvb = tvb_new_subset(tvb, offset, length, length);
+            }
+            else {
+                /* Get combined tvb. */
+                ip_tvb = reassembly_get_reassembled_tvb(reassembly_info, tvb, pinfo);
+                reassembly_show_source(reassembly_info, tree, tvb, offset);
+            }
+
+            TRY {
+                call_dissector_only(ip_handle, ip_tvb, pinfo, tree, NULL);
             }
             CATCH_ALL {
             }
@@ -1917,6 +1943,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
             case CHANNEL_TYPE_SRB:
             case CHANNEL_TYPE_DRB:
             case CHANNEL_TYPE_MCCH:
+            case CHANNEL_TYPE_MTCH:
 
             default:
                 /* Shouldn't happen, just return... */
@@ -3333,7 +3360,7 @@ void proto_register_rlc_lte(void)
     prefs_register_bool_preference(rlc_lte_module, "call_pdcp_for_srb",
         "Call PDCP dissector for SRB PDUs",
         "Call PDCP dissector for signalling PDUs.  Note that without reassembly, it can"
-        "only be called for complete PDus (i.e. not segmented over RLC)",
+        "only be called for complete PDUs (i.e. not segmented over RLC)",
         &global_rlc_lte_call_pdcp_for_srb);
 
     prefs_register_enum_preference(rlc_lte_module, "call_pdcp_for_drb",
@@ -3350,8 +3377,15 @@ void proto_register_rlc_lte(void)
 
     prefs_register_bool_preference(rlc_lte_module, "call_rrc_for_mcch",
         "Call RRC dissector for MCCH PDUs",
-        "Call RRC dissector for MCCH PDUs",
+        "Call RRC dissector for MCCH PDUs  Note that without reassembly, it can"
+        "only be called for complete PDUs (i.e. not segmented over RLC)",
         &global_rlc_lte_call_rrc_for_mcch);
+
+    prefs_register_bool_preference(rlc_lte_module, "call_ip_for_mtch",
+        "Call IP dissector for MTCH PDUs",
+        "Call ip dissector for MTCH PDUs  Note that without reassembly, it can"
+        "only be called for complete PDUs (i.e. not segmented over RLC)",
+        &global_rlc_lte_call_ip_for_mtch);
 
     prefs_register_bool_preference(rlc_lte_module, "heuristic_rlc_lte_over_udp",
         "Try Heuristic LTE-RLC over UDP framing",
@@ -3384,4 +3418,5 @@ proto_reg_handoff_rlc_lte(void)
     heur_dissector_add("udp", dissect_rlc_lte_heur, proto_rlc_lte);
 
     pdcp_lte_handle = find_dissector("pdcp-lte");
+    ip_handle       = find_dissector("ip");
 }
