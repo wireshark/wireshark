@@ -13,6 +13,7 @@ S<[ B<-c> E<lt>capture packet countE<gt> ]>
 S<[ B<-d> ]>
 S<[ B<-D> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
+S<[ B<-g> ]>
 S<[ B<-h> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|rpcap://E<lt>hostE<gt>/E<lt>capture interfaceE<gt>|TCP@E<lt>hostE<gt>:E<lt>portE<gt>|- ]>
 S<[ B<-I> ]>
@@ -172,6 +173,12 @@ If used after an B<-i> option, it sets the capture filter expression for
 the interface specified by the last B<-i> option occurring before
 this option. If the capture filter expression is not set specifically,
 the default capture filter expression is used if provided.
+
+=item -g
+
+This option causes the output file(s) to be created with group-read permission
+(meaning that the output file(s) can be read by other members of the calling
+user's group).
 
 =item -h
 

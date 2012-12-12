@@ -4453,13 +4453,13 @@ main(int argc, char *argv[])
         case 'b':        /* Ringbuffer option */
         case 'c':        /* Capture x packets */
         case 'f':        /* capture filter */
+        case 'g':        /* enable group read accesson file(s) */
         case 'i':        /* Use interface x */
         case 'n':        /* Use pcapng format */
         case 'p':        /* Don't capture in promiscuous mode */
         case 'P':        /* Use pcap format */
         case 's':        /* Set the snapshot (capture) length */
         case 'w':        /* Write to capture file x */
-        case 'g':        /* enable group read accesson file(s) */
         case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_PCAP_REMOTE
         case 'u':        /* Use UDP for data transfer */

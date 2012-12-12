@@ -320,6 +320,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
   fprintf(output, "  -l                       flush standard output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
+  fprintf(output, "  -g                       enable group read access on the output file(s)\n");
   fprintf(output, "  -W n                     Save extra information in the file, if supported.\n");
   fprintf(output, "                           n = write network address resolution information\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
@@ -1185,6 +1186,7 @@ main(int argc, char *argv[])
     case 'b':        /* Ringbuffer option */
     case 'c':        /* Capture x packets */
     case 'f':        /* capture filter */
+    case 'g':        /* enable group read accesson file(s) */
     case 'i':        /* Use interface x */
     case 'p':        /* Don't capture in promiscuous mode */
 #ifdef HAVE_PCAP_REMOTE

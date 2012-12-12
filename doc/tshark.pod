@@ -18,6 +18,7 @@ S<[ B<-e> E<lt>fieldE<gt> ]>
 S<[ B<-E> E<lt>field print optionE<gt> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
+S<[ B<-g> ]>
 S<[ B<-h> ]>
 S<[ B<-H> E<lt>input hosts fileE<gt> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
@@ -340,6 +341,12 @@ Set the file format of the output capture file written using the B<-w>
 option.  The output written with the B<-w> option is raw packet data, not
 text, so there is no B<-F> option to request text output.  The option B<-F>
 without a value will list the available formats.
+
+=item -g
+
+This option causes the output file(s) to be created with group-read permission
+(meaning that the output file(s) can be read by other members of the calling
+user's group).
 
 =item -G  [fields|fields2|fields3|protocols|values|decodes|defaultprefs|currentprefs]
 
