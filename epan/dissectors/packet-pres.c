@@ -292,8 +292,26 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 	g_hash_table_insert(pres_ctx_oid_table, pco, pco);
 }
 
+static char *
+find_oid_in_users_table(packet_info *pinfo, guint32 ctx_id)
+{
+	guint i;
+
+	for (i = 0; i < num_pres_users; i++) {
+		pres_user_t *u = &(pres_users[i]);
+
+		if (u->ctx_id == ctx_id) {
+			/* Register oid so other dissectors can find this connection */
+			register_ctx_id_and_oid(pinfo, u->ctx_id, u->oid);
+			return u->oid;
+		}
+	}
+
+	return NULL;
+}
+
 char *
-find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
+find_oid_by_pres_ctx_id(packet_info *pinfo, guint32 idx)
 {
 	pres_ctx_oid_t pco, *tmppco;
 	conversation_t *conversation;
@@ -311,7 +329,8 @@ find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
 	if(tmppco){
 		return tmppco->oid;
 	}
-	return NULL;
+
+	return find_oid_in_users_table(pinfo, idx);
 }
 
 static void *
@@ -332,27 +351,6 @@ pres_free_cb(void *r)
 	pres_user_t *u = r;
 
 	g_free(u->oid);
-}
-
-static gboolean
-pres_try_users_table(guint32 ctx_id, tvbuff_t *tvb, int offset, packet_info *pinfo)
-{
-	tvbuff_t *next_tvb;
-	guint i;
-
-	for (i = 0; i < num_pres_users; i++) {
-		pres_user_t *u = &(pres_users[i]);
-
-		if (u->ctx_id == ctx_id) {
-			/* Register oid so other dissectors can find this connection */
-			register_ctx_id_and_oid(pinfo, u->ctx_id, u->oid);
-			next_tvb = tvb_new_subset_remaining(tvb, offset);
-			call_ber_oid_callback(u->oid, next_tvb, offset, pinfo, global_tree);
-			return TRUE;
-		}
-	}
-
-	return FALSE;
 }
 
 
@@ -436,7 +434,7 @@ dissect_pres_Called_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "../../asn1/pres/pres.cnf"
+#line 73 "../../asn1/pres/pres.cnf"
   const char *name;
   char *oid;
 
@@ -499,13 +497,13 @@ static const ber_sequence_t Context_list_item_sequence[] = {
 
 static int
 dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 101 "../../asn1/pres/pres.cnf"
+#line 98 "../../asn1/pres/pres.cnf"
 	abstract_syntax_name_oid=NULL;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
 
-#line 104 "../../asn1/pres/pres.cnf"
+#line 101 "../../asn1/pres/pres.cnf"
 	register_ctx_id_and_oid(actx->pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 
   return offset;
@@ -645,11 +643,10 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
-		if (!pres_try_users_table(presentation_context_identifier, tvb, offset, actx->pinfo)) {
-			proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
-			expert_add_info_format(actx->pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
-		}
+		proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
+		expert_add_info_format(actx->pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
 	}
+
 
 
   return offset;
@@ -659,7 +656,7 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 52 "../../asn1/pres/pres.cnf"
+#line 51 "../../asn1/pres/pres.cnf"
 
  tvbuff_t	*next_tvb;
  char *oid; 
@@ -669,10 +666,8 @@ dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &next_tvb);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
-		if (!pres_try_users_table(presentation_context_identifier, tvb, offset, actx->pinfo)) {
-			proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
-			expert_add_info_format(actx->pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
-		}
+		proto_item *ti = proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
+		expert_add_info_format(actx->pinfo, ti, PI_UNDECODED, PI_WARN, "Dissector is not available");
 		  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1090,7 +1085,7 @@ static const value_string pres_Abort_reason_vals[] = {
 
 static int
 dissect_pres_Abort_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 94 "../../asn1/pres/pres.cnf"
+#line 91 "../../asn1/pres/pres.cnf"
   guint32 reason;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1376,7 +1371,7 @@ static void dissect_UDC_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 227 "../../asn1/pres/packet-pres-template.c"
+#line 225 "../../asn1/pres/packet-pres-template.c"
 
 
 /*
@@ -1864,7 +1859,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 398 "../../asn1/pres/packet-pres-template.c"
+#line 396 "../../asn1/pres/packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1911,7 +1906,7 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 404 "../../asn1/pres/packet-pres-template.c"
+#line 402 "../../asn1/pres/packet-pres-template.c"
   };
 
   static uat_field_t users_flds[] = {

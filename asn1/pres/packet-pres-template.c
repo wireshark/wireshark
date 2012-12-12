@@ -159,8 +159,26 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 	g_hash_table_insert(pres_ctx_oid_table, pco, pco);
 }
 
+static char *
+find_oid_in_users_table(packet_info *pinfo, guint32 ctx_id)
+{
+	guint i;
+
+	for (i = 0; i < num_pres_users; i++) {
+		pres_user_t *u = &(pres_users[i]);
+
+		if (u->ctx_id == ctx_id) {
+			/* Register oid so other dissectors can find this connection */
+			register_ctx_id_and_oid(pinfo, u->ctx_id, u->oid);
+			return u->oid;
+		}
+	}
+
+	return NULL;
+}
+
 char *
-find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
+find_oid_by_pres_ctx_id(packet_info *pinfo, guint32 idx)
 {
 	pres_ctx_oid_t pco, *tmppco;
 	conversation_t *conversation;
@@ -178,7 +196,8 @@ find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
 	if(tmppco){
 		return tmppco->oid;
 	}
-	return NULL;
+
+	return find_oid_in_users_table(pinfo, idx);
 }
 
 static void *
@@ -199,27 +218,6 @@ pres_free_cb(void *r)
 	pres_user_t *u = r;
 
 	g_free(u->oid);
-}
-
-static gboolean
-pres_try_users_table(guint32 ctx_id, tvbuff_t *tvb, int offset, packet_info *pinfo)
-{
-	tvbuff_t *next_tvb;
-	guint i;
-
-	for (i = 0; i < num_pres_users; i++) {
-		pres_user_t *u = &(pres_users[i]);
-
-		if (u->ctx_id == ctx_id) {
-			/* Register oid so other dissectors can find this connection */
-			register_ctx_id_and_oid(pinfo, u->ctx_id, u->oid);
-			next_tvb = tvb_new_subset_remaining(tvb, offset);
-			call_ber_oid_callback(u->oid, next_tvb, offset, pinfo, global_tree);
-			return TRUE;
-		}
-	}
-
-	return FALSE;
 }
 
 
