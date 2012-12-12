@@ -143,7 +143,7 @@ dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     }
     if (pdata)
         *pdata = data;
-    return offset+3;
+    return offset + 3;
 }
 
 /* dissect a 6 byte MAC address */
@@ -205,7 +205,7 @@ dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         "Undecoded Data: %d bytes", length);
 
     expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
-		    "Undecoded Data, %u bytes", length);
+                           "Undecoded Data, %u bytes", length);
 
     return offset + length;
 }
@@ -215,11 +215,12 @@ int
 dissect_pn_user_data_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, guint32 length, int iSelect)
 {
-    if(iSelect == FRAG_DATA)
-    proto_tree_add_bytes(tree, hf_pn_frag_bytes, tvb, offset, length, tvb_get_ptr(tvb,offset, length));
-    else
-    proto_tree_add_bytes(tree, hf_pn_user_bytes, tvb, offset, length, tvb_get_ptr(tvb,offset, length));
-
+    if (tree) {
+        if(iSelect == FRAG_DATA)
+            proto_tree_add_bytes(tree, hf_pn_frag_bytes, tvb, offset, length, tvb_get_ptr(tvb,offset, length));
+        else
+            proto_tree_add_bytes(tree, hf_pn_user_bytes, tvb, offset, length, tvb_get_ptr(tvb,offset, length));
+    }
     return offset + length;
 }
 
@@ -227,9 +228,10 @@ int
 dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, guint32 length, const char *text)
 {
-    proto_tree_add_string_format(tree, hf_pn_user_data, tvb, offset, length, "data",
-        "%s: %d bytes", text, length);
-
+    if (tree) {
+        proto_tree_add_string_format(tree, hf_pn_user_data, tvb, offset, length, "data",
+            "%s: %d bytes", text, length);
+    }
     return offset + length;
 }
 
@@ -286,26 +288,26 @@ pn_append_info(packet_info *pinfo, proto_item *dcp_item, const char *text)
 void
 init_pn (int proto)
 {
-	static hf_register_info hf[] = {
+    static hf_register_info hf[] = {
         { &hf_pn_padding,
-        { "Padding", "pn.padding", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "Padding", "pn.padding", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_pn_undecoded_data,
-        { "Undecoded Data", "pn.undecoded", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "Undecoded Data", "pn.undecoded", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_pn_user_data,
-        { "User Data", "pn.user_data", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "User Data", "pn.user_data", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_pn_user_bytes,
-        { "Substitute Data", "pn.user_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "Substitute Data", "pn.user_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_pn_frag_bytes,
-        { "Fragment Data", "pn.frag_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-	{ &hf_pn_malformed,
-	{ "Malformed", "pn_rt.malformed", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
-        };
+          { "Fragment Data", "pn.frag_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_pn_malformed,
+          { "Malformed", "pn_rt.malformed", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
+    };
 
 
-	/*static gint *ett[] = {
-        };*/
+    /*static gint *ett[] = {
+      };*/
 
-	proto_register_field_array (proto, hf, array_length (hf));
-	/*proto_register_subtree_array (ett, array_length (ett));*/
+    proto_register_field_array (proto, hf, array_length (hf));
+    /*proto_register_subtree_array (ett, array_length (ett));*/
 }
 
