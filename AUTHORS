@@ -3477,6 +3477,7 @@ Michal Labedzki		<michal.labedzki[at]tieto.com> {
 	Bluetooth HCI USB transport dissector
 }
 
+
 and by:
 
 Pavel Roskin		<proski[AT]gnu.org>
@@ -3684,6 +3685,7 @@ Tomofumi Hayashi	<s1061123[AT]gmail.com>
 Tim Hentenaar		<tim.hentenaar[AT]gmail.com>
 Krishnamurthy Mayya	<krishnamurthymayya[AT]gmail.com>
 Nikitha Malgi		<nikitha01[AT]gmail.com>
+Adam Butcher		<adam[AT]jessamine.co.uk>
 
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.

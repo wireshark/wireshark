@@ -24,7 +24,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Ref:
- * http://www.ietf.org/rfc/rfc3830.txt?number=3830
+ * http://tools.ietf.org/html/rfc3830  MIKEY
+ * http://tools.ietf.org/html/rfc6043  MIKEY-TICKET (ID role required for SAKKE)
+ * http://tools.ietf.org/html/rfc6509  MIKEY-SAKKE
  */
 
 /*
@@ -72,7 +74,9 @@ enum data_type_t {
 	MIKEY_TYPE_DHHMAC_INIT,
 	MIKEY_TYPE_DHHMAC_RESP,
 	MIKEY_TYPE_RSA_R_INIT,
-	MIKEY_TYPE_RSA_R_RESP
+	MIKEY_TYPE_RSA_R_RESP,
+	MIKEY_TYPE_SAKKE_INIT = 26, 
+	MIKEY_TYPE_SAKKE_RESP
 };
 
 static const value_string data_type_vals[] = {
@@ -87,6 +91,8 @@ static const value_string data_type_vals[] = {
 	{ MIKEY_TYPE_DHHMAC_RESP, "DHHMAC resp" },
 	{ MIKEY_TYPE_RSA_R_INIT, "RSA-R I_MSG" },
 	{ MIKEY_TYPE_RSA_R_RESP, "RSA-R R_MSG" },
+	{ MIKEY_TYPE_SAKKE_INIT, "SAKKE" },
+	{ MIKEY_TYPE_SAKKE_RESP, "CS Id map Update" },
 	{ 0, NULL }
 };
 
@@ -114,8 +120,14 @@ enum payload_t {
 	PL_SP,
 	PL_RAND,
 	PL_ERR,
+	PL_TR = 13, /* MIKEY-TICKET (6043) */
+	PL_IDR,
+	PL_RANDR,
+	PL_TP,
+	PL_TICKET,
 	PL_KEY_DATA = 20,
 	PL_GENERAL_EXT,
+	PL_SAKKE = 26,
 	PL_MAX
 };
 
@@ -134,7 +146,9 @@ enum payload_t {
 #define PL_RAND_TEXT "RAND"
 #define PL_ERR_TEXT "Error (ERR)"
 #define PL_KEY_DATA_TEXT "Key data (KEY)"
+#define PL_IDR_TEXT "IDR"
 #define PL_GENERAL_EXT_TEXT "General Extension (EXT)"
+#define PL_SAKKE_TEXT "SAKKE Encapsulated Data (SAKKE)"
 
 static const value_string payload_vals[] = {
 	{ PL_HDR, PL_HDR_TEXT },
@@ -151,8 +165,10 @@ static const value_string payload_vals[] = {
 	{ PL_SP, PL_SP_TEXT },
 	{ PL_RAND, PL_RAND_TEXT },
 	{ PL_ERR, PL_ERR_TEXT },
+	{ PL_IDR, PL_IDR_TEXT },
 	{ PL_KEY_DATA, PL_KEY_DATA_TEXT },
 	{ PL_GENERAL_EXT, PL_GENERAL_EXT_TEXT },
+	{ PL_SAKKE, PL_SAKKE_TEXT },
 	{ 0, NULL }
 };
 
@@ -221,23 +237,50 @@ static const value_string pke_c_vals[] = {
 
 enum sign_s_t {
 	SIGN_S_PKCS1 = 0,
-	SIGN_S_PSS
+	SIGN_S_PSS,
+	SIGN_S_ECCSI
 };
 
 static const value_string sign_s_vals[] = {
 	{ SIGN_S_PKCS1, "RSA/PKCS#1/1.5" },
 	{ SIGN_S_PSS, "RSA/PSS" },
+	{ SIGN_S_ECCSI, "ECCSI" },
 	{ 0, NULL }
 };
 
 enum id_type_t {
 	ID_TYPE_NAI = 0,
-	ID_TYPE_URI
+	ID_TYPE_URI,
+	ID_TYPE_BYTE_STRING
 };
 
 static const value_string id_type_vals[] = {
 	{ ID_TYPE_NAI, "NAI" },
 	{ ID_TYPE_URI, "URI" },
+	{ ID_TYPE_BYTE_STRING, "Byte string" },
+	{ 0, NULL }
+};
+
+enum id_role_t {
+	ID_ROLE_RESERVED = 0,
+	ID_ROLE_INIT,
+	ID_ROLE_RESP,
+	ID_ROLE_KMS,
+	ID_ROLE_PSK,
+	ID_ROLE_APP,
+	ID_ROLE_INIT_KMS,
+	ID_ROLE_RESP_KMS
+};
+
+static const value_string id_role_vals[] = {
+	{ ID_ROLE_RESERVED, "Reserved" },
+	{ ID_ROLE_INIT, "Initiator (IDRi)" },
+	{ ID_ROLE_RESP, "Responder (IDRr)" },
+	{ ID_ROLE_KMS, "KMS (IDRkms)" },
+	{ ID_ROLE_PSK, "Pre-Shared Key (IDRpsk)" },
+	{ ID_ROLE_APP, "Application (IDRapp)" },
+	{ ID_ROLE_INIT_KMS, "Initiator's KMS (IDRkmsi)" },
+	{ ID_ROLE_RESP_KMS, "Responder's KMS (IDRkmsr)" },
 	{ 0, NULL }
 };
 
@@ -477,7 +520,8 @@ enum {
 	POS_TS_TYPE,
 	POS_TS_NTP,
 
-	/* ID */
+	/* ID/IDR */
+	POS_ID_ROLE,
 	POS_ID_TYPE,
 	POS_ID_LEN,
 	POS_ID,
@@ -530,6 +574,12 @@ enum {
 	POS_GENERAL_EXT_LEN,
 	POS_GENERAL_EXT_DATA,
 	POS_GENERAL_EXT_VALUE,
+
+	/* SAKKE */
+	POS_SAKKE_PARAMS,
+	POS_SAKKE_ID_SCHEME,
+	POS_SAKKE_LEN,
+	POS_SAKKE_DATA,
 
 	/* MIKEY */
 	POS_PAYLOAD_STR,
@@ -891,6 +941,34 @@ dissect_payload_id(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 }
 
 static int
+dissect_payload_idr(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = 0;
+	guint8 type;
+	guint16 length;
+	proto_item* parent = NULL;
+
+	tvb_ensure_bytes_exist(tvb, offset+0, 5);
+	type = tvb_get_guint8(tvb, offset+2);
+	length = tvb_get_ntohs(tvb, offset+3);
+	if (tree) {
+		proto_tree_add_item(tree, hf_mikey[POS_ID_ROLE], tvb, 1, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_mikey[POS_ID_TYPE], tvb, 2, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_mikey[POS_ID_LEN], tvb, 3, 2, ENC_NA);
+	}
+
+	tvb_ensure_bytes_exist(tvb, offset+5, length);
+	if (tree) {
+		proto_tree_add_item(tree, hf_mikey[POS_ID], tvb, 5, length, ENC_NA);
+
+		parent = proto_tree_get_parent(tree);
+		proto_item_append_text(parent, " %s: %s", val_to_str_const(type, id_type_vals, "Unknown"), tvb_get_ephemeral_string(tvb, 5, length));
+	}
+
+	return 5 + length;
+}
+
+static int
 dissect_payload_cert(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
@@ -1194,6 +1272,29 @@ dissect_payload_general_ext(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinf
 	return 4 + data_len;
 }
 
+static int
+dissect_payload_sakke(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = 0;
+	guint16 data_len;
+
+	tvb_ensure_bytes_exist(tvb, offset+0, 5);
+	data_len = tvb_get_ntohs(tvb, offset+3);
+
+	if (tree) {
+		proto_tree_add_item(tree, hf_mikey[POS_SAKKE_PARAMS], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_SAKKE_ID_SCHEME], tvb, 2, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_SAKKE_LEN], tvb, 3, 2, ENC_BIG_ENDIAN);
+	}
+
+	tvb_ensure_bytes_exist(tvb, offset+5, data_len);
+
+	if (tree) {
+		proto_tree_add_item(tree, hf_mikey[POS_SAKKE_DATA], tvb, 5, data_len, ENC_NA);
+	}
+	return 5 + data_len;
+}
+
 static const struct mikey_dissector_entry payload_map[] = {
 	{ PL_HDR, dissect_payload_hdr },
 	{ PL_KEMAC, dissect_payload_kemac },
@@ -1207,8 +1308,10 @@ static const struct mikey_dissector_entry payload_map[] = {
 	{ PL_SP, dissect_payload_sp },
 	{ PL_RAND, dissect_payload_rand },
 	{ PL_ERR, dissect_payload_err },
+	{ PL_IDR, dissect_payload_idr },
 	{ PL_KEY_DATA, dissect_payload_keydata },
 	{ PL_GENERAL_EXT, dissect_payload_general_ext },
+	{ PL_SAKKE, dissect_payload_sakke },
 	{ 0, NULL }
 };
 
@@ -1373,12 +1476,20 @@ proto_register_mikey(void)
 		  { PL_ERR_TEXT, "mikey.err",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
+		{ &hf_mikey_pl[PL_IDR],
+		  { PL_IDR_TEXT, "mikey.idr",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_KEY_DATA],
 		  { PL_KEY_DATA_TEXT, "mikey.key",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_GENERAL_EXT],
 		  { PL_GENERAL_EXT_TEXT, "mikey.ext",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey_pl[PL_SAKKE],
+		  { PL_SAKKE_TEXT, "mikey.sakke",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
@@ -1661,6 +1772,12 @@ proto_register_mikey(void)
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
+		/* IDR */
+		{ &hf_mikey[POS_ID_ROLE],
+		  { "ID role", "mikey.id.role",
+		    FT_UINT8, BASE_DEC, VALS(id_role_vals), 0x0,
+		    NULL, HFILL }},
+
 		/* Key data sub-payload */
 		{ &hf_mikey[POS_KEY_DATA_TYPE],
 		  { "Type", "mikey.key.type",
@@ -1727,6 +1844,24 @@ proto_register_mikey(void)
 		{ &hf_mikey[POS_GENERAL_EXT_VALUE],
 		  { "Value", "mikey.ext.value",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		/* SAKKE */
+		{ &hf_mikey[POS_SAKKE_PARAMS],
+		  { "SAKKE params", "mikey.sakke.params",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_SAKKE_ID_SCHEME],
+		  { "ID scheme", "mikey.sakke.idscheme",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_SAKKE_LEN],
+		  { "SAKKE data length", "mikey.sakke.len",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_SAKKE_DATA],
+		  { "SAKKE data", "mikey.sakke.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 /*
