@@ -467,13 +467,13 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         tvb_memcpy(tvb, (guint8 *) typeofstation, offset, block_length);
         typeofstation[block_length] = '\0';
         proto_tree_add_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, typeofstation);
-        pn_append_info(pinfo, dcp_item, ", TypeOfStation");
+        pn_append_info(pinfo, dcp_item, ", DeviceVendorValue");
         proto_item_append_text(block_item, "Device/Manufacturer specific");
         if(have_block_qualifier)
             proto_item_append_text(block_item, ", BlockQualifier: %s", val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
         if(have_block_info)
             proto_item_append_text(block_item, ", BlockInfo: %s", val_to_str(block_info, pn_dcp_block_info, "Unknown"));
-        proto_item_append_text(block_item, ", TypeOfStation: \"%s\"", typeofstation);
+        proto_item_append_text(block_item, ", DeviceVendorValue: \"%s\"", typeofstation);
         offset += block_length;
         break;
     case(PNDCP_SUBOPTION_DEVICE_NAMEOFSTATION):
@@ -998,7 +998,7 @@ proto_register_pn_dcp (void)
     { &hf_pn_dcp_suboption_device,
         { "Suboption", "pn_dcp.suboption_device", FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_device), 0x0, NULL, HFILL }},
     { &hf_pn_dcp_suboption_device_typeofstation,
-        { "TypeOfStation", "pn_dcp.suboption_device_typeofstation", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { "DeviceVendorValue", "pn_dcp.suboption_device_devicevendorvalue", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_dcp_suboption_device_nameofstation,
         { "NameOfStation", "pn_dcp.suboption_device_nameofstation", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_dcp_suboption_vendor_id,
