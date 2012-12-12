@@ -65,7 +65,7 @@ clopts_suite_dumpcap_invalid_chars() {
 # tests only those options that cause dumpcap to do something other than
 # capture
 clopts_suite_dumpcap_valid_chars() {
-	for index in h v 
+	for index in h v
 	do
 	  test_step_add "Valid dumpcap parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $DUMPCAP $index $EXIT_OK"
 	done
@@ -173,7 +173,7 @@ clopts_step_nonexisting_file() {
 
 # check exit status of all invalid single char TShark options (must be 1)
 clopts_suite_tshark_invalid_chars() {
-	for index in A B C E F H J K M N O Q R T U W X Y Z a b c d e f g i j k m o r s t u w y z
+	for index in A B C E F H J K M N O Q R T U W X Y Z a b c d e f i j k m o r s t u w y z
 	do
 	  test_step_add "Invalid TShark parameter -$index, exit status must be $EXIT_COMMAND_LINE" "test_single_char_options $TSHARK $index $EXIT_COMMAND_LINE"
 	done
