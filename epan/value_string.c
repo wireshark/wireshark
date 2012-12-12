@@ -454,7 +454,8 @@ decode_enumerated_bitfield_shifted(const guint32 val, const guint32 mask, const 
 /* Tries to match val against each range in the range_string array rs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-const gchar *rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
+const gchar *
+rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
 {
   const gchar *ret = NULL;
 
@@ -471,7 +472,8 @@ const gchar *rval_to_str(const guint32 val, const range_string *rs, const char *
    Returns the associated string ptr, and sets "*idx" to the index in
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
-const gchar *match_strrval_idx(const guint32 val, const range_string *rs, gint *idx)
+const gchar *
+match_strrval_idx(const guint32 val, const range_string *rs, gint *idx)
 {
   gint i = 0;
 
@@ -490,7 +492,8 @@ const gchar *match_strrval_idx(const guint32 val, const range_string *rs, gint *
 }
 
 /* Like match_strrval_idx(), but doesn't return the index. */
-const gchar *match_strrval(const guint32 val, const range_string *rs)
+const gchar *
+match_strrval(const guint32 val, const range_string *rs)
 {
     gint ignore_me = 0;
     return match_strrval_idx(val, rs, &ignore_me);
