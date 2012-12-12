@@ -430,6 +430,10 @@ sync_pipe_start(capture_options *capture_opts) {
         argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
     }
 
+    if (capture_opts->group_read_access) {
+        argv = sync_pipe_add_arg(argv, &argc, "-g");
+    }
+
     for (j = 0; j < capture_opts->ifaces->len; j++) {
         interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
 

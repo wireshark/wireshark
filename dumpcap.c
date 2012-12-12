@@ -4453,7 +4453,7 @@ main(int argc, char *argv[])
         case 'b':        /* Ringbuffer option */
         case 'c':        /* Capture x packets */
         case 'f':        /* capture filter */
-        case 'g':        /* enable group read accesson file(s) */
+        case 'g':        /* enable group read access on file(s) */
         case 'i':        /* Use interface x */
         case 'n':        /* Use pcapng format */
         case 'p':        /* Don't capture in promiscuous mode */

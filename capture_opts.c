@@ -692,6 +692,9 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             capture_opts->default_options.cfilter = g_strdup(optarg_str_p);
         }
         break;
+    case 'g':        /* enable group read access on the capture file(s) */
+        capture_opts->group_read_access = TRUE;
+        break;
     case 'H':        /* Hide capture info dialog box */
         capture_opts->show_info = FALSE;
         break;
@@ -803,9 +806,6 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->save_file = g_strdup(optarg_str_p);
         status = capture_opts_output_to_pipe(capture_opts->save_file, &capture_opts->output_to_pipe);
         return status;
-    case 'g':        /* enable group read access on the capture file(s) */
-        capture_opts->group_read_access = TRUE;
-        break;
     case 'y':        /* Set the pcap data link type */
         if (capture_opts->ifaces->len > 0) {
             interface_options interface_opts;
@@ -887,7 +887,8 @@ capture_opts_print_interfaces(GList *if_list)
 }
 
 
-void capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
+void
+capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
 {
     guint i;
     interface_options interface_opts;
@@ -911,7 +912,8 @@ void capture_opts_trim_snaplen(capture_options *capture_opts, int snaplen_min)
 }
 
 
-void capture_opts_trim_ring_num_files(capture_options *capture_opts)
+void
+capture_opts_trim_ring_num_files(capture_options *capture_opts)
 {
     /* Check the value range of the ring_num_files parameter */
     if (capture_opts->ring_num_files > RINGBUFFER_MAX_NUM_FILES) {
@@ -957,7 +959,8 @@ capture_opts_trim_iface(capture_options *capture_opts, const char *capture_devic
 #endif
 
 /* copied from filesystem.c */
-static int capture_opts_test_for_fifo(const char *path)
+static int
+capture_opts_test_for_fifo(const char *path)
 {
   ws_statb64 statb;
 
@@ -970,7 +973,8 @@ static int capture_opts_test_for_fifo(const char *path)
     return 0;
 }
 
-static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe)
+static gboolean
+capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe)
 {
   int err;
 

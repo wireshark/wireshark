@@ -923,7 +923,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "2a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:d:De:E:f:F:G:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqr:R:s:S:t:T:u:vVw:W:xX:y:z:"
+#define OPTSTRING "2a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:d:De:E:f:F:gG:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqr:R:s:S:t:T:u:vVw:W:xX:y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1186,7 +1186,7 @@ main(int argc, char *argv[])
     case 'b':        /* Ringbuffer option */
     case 'c':        /* Capture x packets */
     case 'f':        /* capture filter */
-    case 'g':        /* enable group read accesson file(s) */
+    case 'g':        /* enable group read access on file(s) */
     case 'i':        /* Use interface x */
     case 'p':        /* Don't capture in promiscuous mode */
 #ifdef HAVE_PCAP_REMOTE
