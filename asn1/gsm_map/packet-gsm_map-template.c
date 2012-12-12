@@ -880,6 +880,11 @@ static const value_string gsm_map_number_plan_values[] = {
 	{   0x07,	"spare" },
 	{   0x08,	"National Numbering" },
 	{   0x09,	"Private Numbering" },
+	{   0x0a,	"spare" },
+	{   0x0b,	"spare" },
+	{   0x0c,	"spare" },
+	{   0x0d,	"spare" },
+	{   0x0e,	"spare" },
 	{   0x0f,	"Reserved for extension" },
 	{ 0, NULL }
 };

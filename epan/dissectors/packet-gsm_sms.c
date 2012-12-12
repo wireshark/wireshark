@@ -1540,6 +1540,7 @@ static const value_string gsm_sms_tp_failure_cause_values[] = {
   { 0xD5,        "(U)SIM data download error" },
         /* D6 - DF Reserved */
   { 0xd6,        "Reserved" },
+  { 0xd7,        "Reserved" },
   { 0xd8,        "Reserved" },
   { 0xd9,        "Reserved" },
   { 0xda,        "Reserved" },

@@ -140,36 +140,38 @@ static const value_string bsap_sapi_values[] = {
 #define BSSAP_MS_UNREACHABLE                31                  /*  17.1.17 */
 
 static const value_string bssap_plus_message_type_values[] = {
-    { 0x00,                                 "Unassigned: treated as an unknown Message type." },
-    { BSSAP_PAGING_REQUEST,                 "BSSAP+-PAGING-REQUEST" },                              /*  17.1.19 */
-    { BSSAP_PAGING_REJECT,                  "BSSAP+-PAGING-REJECT" },                               /*  17.1.18 */
-    { 0x03,                                 "Unassigned: treated as an unknown Message type." },
-    { 0x04,                                 "Unassigned: treated as an unknown Message type." },
-    { 0x05,                                 "Unassigned: treated as an unknown Message type." },
-    { 0x06,                                 "Unassigned: treated as an unknown Message type." },
-    { BSSAP_DOWNLINK_TUNNEL_REQUEST,        "BSSAP+-DOWNLINK-TUNNEL-REQUEST" },                     /*  17.1.4  */
-    { BSSAP_UPLINK_TUNNEL_REQUEST,          "BSSAP+-UPLINK-TUNNEL-REQUEST" },                       /*  17.1.23 */
-    { BSSAP_LOCATION_UPDATE_REQUEST,        "BSSAP+-LOCATION-UPDATE-REQUEST" },                     /*  17.1.11 */
-    { BSSAP_LOCATION_UPDATE_ACCEPT,         "BSSAP+-LOCATION-UPDATE-ACCEPT" },                      /*  17.1.9  */
-    { BSSAP_LOCATION_UPDATE_REJECT,         "BSSAP+-LOCATION-UPDATE-REJECT" },                      /*  17.1.10 */
-    { BSSAP_TMSI_REALLOCATION_COMPLETE,     "BSSAP+-TMSI-REALLOCATION-COMPLETE" },                  /*  17.1.22 */
-    { BSSAP_ALERT_REQUEST,                  "BSSAP+-ALERT-REQUEST" },                               /*  17.1.3  */
-    { BSSAP_ALERT_ACK,                      "BSSAP+-ALERT-ACK" },                                   /*  17.1.1  */
-    { BSSAP_ALERT_REJECT,                   "BSSAP+-ALERT-REJECT" },                                /*  17.1.2  */
-    { BSSAP_MS_ACTIVITY_INDICATION,         "BSSAP+-MS-ACTIVITY-INDICATION" },                      /*  17.1.14 */
-    { BSSAP_GPRS_DETACH_INDICATION,         "BSSAP+-GPRS-DETACH-INDICATION" },                      /*  17.1.6  */
-    { BSSAP_GPRS_DETACH_ACK,                "BSSAP+-GPRS-DETACH-ACK" },                             /*  17.1.5  */
-    { BSSAP_IMSI_DETACH_INDICATION,         "BSSAP+-IMSI-DETACH-INDICATION" },                      /*  17.1.8  */
-    { BSSAP_IMSI_DETACH_ACK,                "BSSAP+-IMSI-DETACH-ACK" },                             /*  17.1.7  */
-    { BSSAP_RESET_INDICATION,               "BSSAP+-RESET-INDICATION" },                            /*  17.1.21 */
-    { BSSAP_RESET_ACK,                      "BSSAP+-RESET-ACK" },                                   /*  17.1.20 */
-    { BSSAP_MS_INFORMATION_REQUEST,         "BSSAP+-MS-INFORMATION-REQUEST" },                      /*  17.1.15 */
-    { BSSAP_MS_INFORMATION_RESPONSE,        "BSSAP+-MS-INFORMATION-RESPONSE" },                     /*  17.1.16 */
-    { 0x19,                                 "Unassigned: treated as an unknown Message type." },
-    { BSSAP_MM_INFORMATION_REQUEST,         "BSSAP+-MM-INFORMATION-REQUEST" },                      /*  17.1.12 */
-    { BSSAP_MOBILE_STATUS,                  "BSSAP+-MOBILE-STATUS" },                               /*  17.1.13 */
-    { 0x1e,                                 "Unassigned: treated as an unknown Message type." },
-    { BSSAP_MS_UNREACHABLE,                 "BSSAP+-MS-UNREACHABLE" },                              /*  17.1.17 */
+/*  0 */    { 0x00,                                 "Unassigned: treated as an unknown Message type." },
+/*  1 */    { BSSAP_PAGING_REQUEST,                 "BSSAP+-PAGING-REQUEST" },                              /*  17.1.19 */
+/*  2 */    { BSSAP_PAGING_REJECT,                  "BSSAP+-PAGING-REJECT" },                               /*  17.1.18 */
+/*  3 */    { 0x03,                                 "Unassigned: treated as an unknown Message type." },
+/*  4 */    { 0x04,                                 "Unassigned: treated as an unknown Message type." },
+/*  5 */    { 0x05,                                 "Unassigned: treated as an unknown Message type." },
+/*  6 */    { 0x06,                                 "Unassigned: treated as an unknown Message type." },
+/*  7 */    { BSSAP_DOWNLINK_TUNNEL_REQUEST,        "BSSAP+-DOWNLINK-TUNNEL-REQUEST" },                     /*  17.1.4  */
+/*  8 */    { BSSAP_UPLINK_TUNNEL_REQUEST,          "BSSAP+-UPLINK-TUNNEL-REQUEST" },                       /*  17.1.23 */
+/*  9 */    { BSSAP_LOCATION_UPDATE_REQUEST,        "BSSAP+-LOCATION-UPDATE-REQUEST" },                     /*  17.1.11 */
+/* 10 */    { BSSAP_LOCATION_UPDATE_ACCEPT,         "BSSAP+-LOCATION-UPDATE-ACCEPT" },                      /*  17.1.9  */
+/* 11 */    { BSSAP_LOCATION_UPDATE_REJECT,         "BSSAP+-LOCATION-UPDATE-REJECT" },                      /*  17.1.10 */
+/* 12 */    { BSSAP_TMSI_REALLOCATION_COMPLETE,     "BSSAP+-TMSI-REALLOCATION-COMPLETE" },                  /*  17.1.22 */
+/* 13 */    { BSSAP_ALERT_REQUEST,                  "BSSAP+-ALERT-REQUEST" },                               /*  17.1.3  */
+/* 14 */    { BSSAP_ALERT_ACK,                      "BSSAP+-ALERT-ACK" },                                   /*  17.1.1  */
+/* 15 */    { BSSAP_ALERT_REJECT,                   "BSSAP+-ALERT-REJECT" },                                /*  17.1.2  */
+/* 16 */    { BSSAP_MS_ACTIVITY_INDICATION,         "BSSAP+-MS-ACTIVITY-INDICATION" },                      /*  17.1.14 */
+/* 17 */    { BSSAP_GPRS_DETACH_INDICATION,         "BSSAP+-GPRS-DETACH-INDICATION" },                      /*  17.1.6  */
+/* 18 */    { BSSAP_GPRS_DETACH_ACK,                "BSSAP+-GPRS-DETACH-ACK" },                             /*  17.1.5  */
+/* 19 */    { BSSAP_IMSI_DETACH_INDICATION,         "BSSAP+-IMSI-DETACH-INDICATION" },                      /*  17.1.8  */
+/* 20 */    { BSSAP_IMSI_DETACH_ACK,                "BSSAP+-IMSI-DETACH-ACK" },                             /*  17.1.7  */
+/* 21 */    { BSSAP_RESET_INDICATION,               "BSSAP+-RESET-INDICATION" },                            /*  17.1.21 */
+/* 22 */    { BSSAP_RESET_ACK,                      "BSSAP+-RESET-ACK" },                                   /*  17.1.20 */
+/* 23 */    { BSSAP_MS_INFORMATION_REQUEST,         "BSSAP+-MS-INFORMATION-REQUEST" },                      /*  17.1.15 */
+/* 24 */    { BSSAP_MS_INFORMATION_RESPONSE,        "BSSAP+-MS-INFORMATION-RESPONSE" },                     /*  17.1.16 */
+/* 25 */    { 0x19,                                 "Unassigned: treated as an unknown Message type." },
+/* 26 */    { BSSAP_MM_INFORMATION_REQUEST,         "BSSAP+-MM-INFORMATION-REQUEST" },                      /*  17.1.12 */
+/* 27 */    { 0x1b,                                 "Unassigned: treated as an unknown Message type." },
+/* 28 */    { 0x1c,                                 "Unassigned: treated as an unknown Message type." },
+/* 29 */    { BSSAP_MOBILE_STATUS,                  "BSSAP+-MOBILE-STATUS" },                               /*  17.1.13 */
+/* 30 */    { 0x1e,                                 "Unassigned: treated as an unknown Message type." },
+/* 31 */    { BSSAP_MS_UNREACHABLE,                 "BSSAP+-MS-UNREACHABLE" },                              /*  17.1.17 */
     { 0,        NULL }
 };
 static value_string_ext bssap_plus_message_type_values_ext = VALUE_STRING_EXT_INIT(bssap_plus_message_type_values);

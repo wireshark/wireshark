@@ -187,7 +187,7 @@
 	<avp name="Next-Authorization-State" code="1059" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="Enumerated"/>
 		<enum name="Authorized" code="0"/>
-		<enum name="Unauthorized due to calendar time" code="0"/>
+		<enum name="Unauthorized due to calendar time" code="1"/>
 	</avp>
 	<avp name="Gx-Capability-List" code="1060" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="Unsigned32"/>
