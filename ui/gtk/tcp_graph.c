@@ -1632,11 +1632,15 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	gtk_container_add (GTK_CONTAINER (graph_frame), graph_box);
 
 	g_object_set_data(G_OBJECT(graph_tseqstevens), "new-graph-type",
-	                  GINT_TO_POINTER(0));
-	g_object_set_data(G_OBJECT(graph_tseqttrace), "new-graph-type", GINT_TO_POINTER(1));
-	g_object_set_data(G_OBJECT(graph_tput), "new-graph-type", GINT_TO_POINTER(2));
-	g_object_set_data(G_OBJECT(graph_rtt), "new-graph-type", GINT_TO_POINTER(3));
-	g_object_set_data(G_OBJECT(graph_wscale), "new-graph-type", GINT_TO_POINTER(GRAPH_WSCALE));
+	                  GINT_TO_POINTER(GRAPH_TSEQ_STEVENS));
+	g_object_set_data(G_OBJECT(graph_tseqttrace), "new-graph-type",
+	                  GINT_TO_POINTER(GRAPH_TSEQ_TCPTRACE));
+	g_object_set_data(G_OBJECT(graph_tput), "new-graph-type",
+	                  GINT_TO_POINTER(GRAPH_THROUGHPUT));
+	g_object_set_data(G_OBJECT(graph_rtt), "new-graph-type",
+	                  GINT_TO_POINTER(GRAPH_RTT));
+	g_object_set_data(G_OBJECT(graph_wscale), "new-graph-type",
+	                  GINT_TO_POINTER(GRAPH_WSCALE));
 
 	g->gt.graph_wscale = (GtkToggleButton *)graph_wscale;
 	g->gt.graph_rtt = (GtkToggleButton * )graph_rtt;
