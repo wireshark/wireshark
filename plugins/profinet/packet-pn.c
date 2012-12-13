@@ -290,17 +290,35 @@ init_pn (int proto)
 {
     static hf_register_info hf[] = {
         { &hf_pn_padding,
-          { "Padding", "pn.padding", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "Padding", "pn.padding",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_pn_undecoded_data,
-          { "Undecoded Data", "pn.undecoded", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "Undecoded Data", "pn.undecoded",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_pn_user_data,
-          { "User Data", "pn.user_data", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "User Data", "pn.user_data",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_pn_user_bytes,
-          { "Substitute Data", "pn.user_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "Substitute Data", "pn.user_bytes",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_pn_frag_bytes,
-          { "Fragment Data", "pn.frag_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "Fragment Data", "pn.frag_bytes",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_pn_malformed,
-          { "Malformed", "pn_rt.malformed", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
+          { "Malformed", "pn_rt.malformed",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }}
+
     };
 
 
