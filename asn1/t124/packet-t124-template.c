@@ -126,7 +126,7 @@ dissect_t124_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 
   top_tree = parent_tree;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.125");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.124");
   col_clear(pinfo->cinfo, COL_INFO);
 
   item = proto_tree_add_item(parent_tree, proto_t124, tvb, 0, tvb_length(tvb), ENC_NA);
