@@ -66,6 +66,10 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/follow_stream.h"
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif
+
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
 WS_VAR_IMPORT FILE *data_out_file;
 
@@ -309,6 +313,81 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 	data_out_file = NULL;
 }
 
+#ifdef HAVE_LIBZ
+static char *
+sgetline(char *str, int *next) {
+  char *end;
+
+  end = strstr(str, "\r\n");
+  if (!end) {
+    return NULL;
+  }
+  *end = '\0';
+  *next = end-str+2;
+  return str;
+}
+
+static gboolean
+parse_http_header(char *data, size_t len, size_t *content_start) {
+  char *tmp, *copy, *line;
+  size_t pos = 0;
+  int next_line;
+  gboolean is_gzipped;
+
+  /* XXX handle case where only partial header is passed in here.
+   * we should pass something back to indicate whether header is complete.
+   * (if not, is_gzipped is may still be unknown)
+   */
+
+  /*
+   * In order to parse header, we duplicate data and tokenize lines.
+   * We aren't interested in actual data, so use strndup instead of memcpy
+   * to (possibly) copy fewer bytes (e.g., if a nul byte exists in data)
+   * This also ensures that we have a terminated string for futher processing.
+   */
+  tmp = copy = g_strndup(data, len);
+  if (!tmp) {
+      *content_start = 0;
+      return FALSE;
+  }
+
+  // skip HTTP... line
+  line = sgetline(tmp, &next_line);
+
+  tmp += next_line;
+  pos += next_line;
+
+  is_gzipped = FALSE;
+
+  *content_start = -1;
+  while ((line = sgetline(tmp, &next_line))) {
+    char *key, *val, *c;
+
+    tmp += next_line;
+    pos += next_line;
+
+    if (strlen(line) == 0) {
+      // end of header
+      break;
+    }
+
+    c = strchr(line, ':');
+    if (!c) break;
+
+    key = line;
+    *c = '\0';
+    val = c+2;
+
+    if (!strcmp(key, "Content-Encoding") && strstr(val, "gzip")) {
+      is_gzipped = TRUE;
+    }
+  }
+  *content_start = pos;
+  free(copy);
+  return is_gzipped;
+}
+#endif
+
 #define FLT_BUF_SIZE 1024
 
 /*
@@ -346,8 +425,13 @@ follow_read_tcp_stream(follow_info_t *follow_info,
     guint32		*global_pos;
     gboolean		skip;
     char                buffer[FLT_BUF_SIZE+1]; /* +1 to fix ws bug 1043 */
+    char                outbuffer[FLT_BUF_SIZE+1];
     size_t              nchars;
     frs_return_t        frs_return;
+    z_stream            strm;
+    gboolean            gunzip;
+    int                 ret;
+
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
 
@@ -400,6 +484,76 @@ follow_read_tcp_stream(follow_info_t *follow_info,
 	    /* XXX - if we don't get "bcount" bytes, is that an error? */
             bytes_read += nchars;
 
+#ifdef HAVE_LIBZ
+	    /* If we are on the first packet of an HTTP response, check if data is gzip
+	     * compressed. */
+	    if (is_server && bytes_read == nchars && !memcmp(buffer, "HTTP", 4)) {
+		size_t header_len;
+		gunzip = parse_http_header(buffer, nchars, &header_len);
+		if (gunzip) {
+		    // show header (which is not gzipped)
+		    frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
+			header_len, is_server, arg, global_pos,
+			&server_packet_count, &client_packet_count);
+		    if (frs_return == FRS_PRINT_ERROR) {
+			fclose(data_out_file);
+			data_out_file = NULL;
+			return frs_return;
+		    }
+
+		    // init gz_stream
+		    strm.next_in = Z_NULL;
+		    strm.avail_in = 0;
+		    strm.next_out = Z_NULL;
+		    strm.avail_out = 0;
+		    strm.zalloc = Z_NULL;
+		    strm.zfree = Z_NULL;
+		    strm.opaque = Z_NULL;
+		    ret = inflateInit2(&strm, MAX_WBITS+16);
+		    if (ret != Z_OK) {
+			fclose(data_out_file);
+			data_out_file = NULL;
+			return FRS_READ_ERROR;
+		    }
+
+		    /* prepare remainder of buffer to be inflated below */
+		    memmove(buffer, buffer+header_len, nchars-header_len);
+		    nchars -= header_len;
+		}
+	    }
+
+	    if (gunzip) {
+		strm.next_in = buffer;
+		strm.avail_in = nchars;
+		do {
+		    strm.next_out = outbuffer;
+		    strm.avail_out = FLT_BUF_SIZE;
+
+		    ret = inflate(&strm, Z_NO_FLUSH);
+		    if (ret < 0 || ret == Z_NEED_DICT) {
+			inflateEnd(&strm);
+			fclose(data_out_file);
+			data_out_file = NULL;
+			return FRS_READ_ERROR;
+		    } else if (ret == Z_STREAM_END) {
+			inflateEnd(&strm);
+		    }
+
+		    frs_return = follow_show(follow_info, print_line_fcn_p, outbuffer,
+					     FLT_BUF_SIZE-strm.avail_out, is_server,
+					     arg, global_pos,
+					     &server_packet_count,
+					     &client_packet_count);
+		    if(frs_return == FRS_PRINT_ERROR) {
+			    inflateEnd(&strm);
+			    fclose(data_out_file);
+			    data_out_file = NULL;
+			    return frs_return;
+		    }
+		} while (strm.avail_out == 0);
+		skip = TRUE;
+	    }
+#endif
 	    if (!skip) {
 		    frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
 					     nchars, is_server, arg, global_pos,
