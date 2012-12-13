@@ -48,9 +48,6 @@ static int hf_pn_mrp_interval = -1;
 static int hf_pn_mrp_transition = -1;
 static int hf_pn_mrp_time_stamp = -1;
 static int hf_pn_mrp_blocked = -1;
-#if 0 /* XXX: not used ? */
-static int hf_pn_mrp_manufacturer_oui = -1;
-#endif
 static int hf_pn_manufacturer_data = -1;
 static int hf_pn_mrp_domain_uuid = -1;
 static int hf_pn_mrp_oui = -1;

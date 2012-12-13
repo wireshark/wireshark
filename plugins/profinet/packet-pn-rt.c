@@ -159,10 +159,6 @@ static gboolean IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 u16SFCRC16;
 	guint8  u8SFPosition;
 	guint8  u8SFDataLength   = 255;
-#if 0 /* XXX: set but not used ? */
-    guint8  u8SFCycleCounter = 0;
-    guint8  u8SFDataStatus;
-#endif
 	int offset = 0;
 	guint32 u32SubStart;
 	guint16 crc;
@@ -214,14 +210,7 @@ static gboolean IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         }
 
-#if 0 /* XXX: set but not used ? */
-        u8SFCycleCounter = tvb_get_guint8(tvb, offset);
-#endif
-        offset += 1;
-#if 0 /* XXX: set but not used ? */
-        u8SFDataStatus = tvb_get_guint8(tvb, offset);
-#endif
-        offset += 1;
+        offset += 2;
 
         offset += u8SFDataLength;
        if(offset > tvb_len)
