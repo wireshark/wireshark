@@ -341,7 +341,7 @@ parse_http_header(char *data, size_t len, size_t *content_start) {
 
   /*
    * In order to parse header, we duplicate data and tokenize lines.
-   * We aren't interested in actual data, so use strndup instead of memcpy
+   * We aren't interested in actual data, so use g_strndup instead of memcpy
    * to (possibly) copy fewer bytes (e.g., if a nul byte exists in data)
    * This also ensures that we have a terminated string for futher processing.
    */
@@ -351,7 +351,7 @@ parse_http_header(char *data, size_t len, size_t *content_start) {
       return FALSE;
   }
 
-  // skip HTTP... line
+  /* skip HTTP... line*/
   line = sgetline(tmp, &next_line);
 
   tmp += next_line;
@@ -367,7 +367,7 @@ parse_http_header(char *data, size_t len, size_t *content_start) {
     pos += next_line;
 
     if (strlen(line) == 0) {
-      // end of header
+      /* end of header*/
       break;
     }
 
@@ -383,7 +383,7 @@ parse_http_header(char *data, size_t len, size_t *content_start) {
     }
   }
   *content_start = pos;
-  free(copy);
+  g_free(copy);
   return is_gzipped;
 }
 #endif
@@ -408,177 +408,178 @@ parse_http_header(char *data, size_t len, size_t *content_start) {
  * correctly but get extra blank lines very other line when printed.
  */
 frs_return_t
-follow_read_tcp_stream(follow_info_t *follow_info,
-		       gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
-		       void *arg)
+	follow_read_tcp_stream(follow_info_t *follow_info,
+	gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
+	void *arg)
 {
-    tcp_stream_chunk	sc;
-    size_t		bcount;
-    size_t		bytes_read;
-    int			iplen;
-    guint8		client_addr[MAX_IPADDR_LEN];
-    guint16		client_port = 0;
-    gboolean		is_server;
-    guint32		global_client_pos = 0, global_server_pos = 0;
-    guint32		server_packet_count = 0;
-    guint32		client_packet_count = 0;
-    guint32		*global_pos;
-    gboolean		skip;
-    char                buffer[FLT_BUF_SIZE+1]; /* +1 to fix ws bug 1043 */
-    char                outbuffer[FLT_BUF_SIZE+1];
-    size_t              nchars;
-    frs_return_t        frs_return;
-    z_stream            strm;
-    gboolean            gunzip;
-    int                 ret;
+	tcp_stream_chunk	sc;
+	size_t		bcount;
+	size_t		bytes_read;
+	int			iplen;
+	guint8		client_addr[MAX_IPADDR_LEN];
+	guint16		client_port = 0;
+	gboolean		is_server;
+	guint32		global_client_pos = 0, global_server_pos = 0;
+	guint32		server_packet_count = 0;
+	guint32		client_packet_count = 0;
+	guint32		*global_pos;
+	gboolean		skip;
+	char                buffer[FLT_BUF_SIZE+1]; /* +1 to fix ws bug 1043 */
+	char                outbuffer[FLT_BUF_SIZE+1];
+	size_t              nchars;
+	frs_return_t        frs_return;
+	z_stream            strm;
+	gboolean            gunzip;
+	int                 ret;
 
 
-    iplen = (follow_info->is_ipv6) ? 16 : 4;
+	iplen = (follow_info->is_ipv6) ? 16 : 4;
 
-    data_out_file = ws_fopen(follow_info->data_out_filename, "rb");
-    if (data_out_file == NULL) {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Could not open temporary file %s: %s", follow_info->data_out_filename,
-		      g_strerror(errno));
-	return FRS_OPEN_ERROR;
-    }
-
-    while ((nchars=fread(&sc, 1, sizeof(sc), data_out_file))) {
-    	if (nchars != sizeof(sc)) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			  "Short read from temporary file %s: expected %lu, got %lu",
-			  follow_info->data_out_filename,
-			  (unsigned long)sizeof(sc),
-			  (unsigned long)nchars);
-	    fclose(data_out_file);
-	    data_out_file = NULL;
-	    return FRS_READ_ERROR;
-	}
-	if (client_port == 0) {
-	    memcpy(client_addr, sc.src_addr, iplen);
-	    client_port = sc.src_port;
-	}
-	skip = FALSE;
-	if (memcmp(client_addr, sc.src_addr, iplen) == 0 &&
-	    client_port == sc.src_port) {
-	    is_server = FALSE;
-	    global_pos = &global_client_pos;
-	    if (follow_info->show_stream == FROM_SERVER) {
-		skip = TRUE;
-	    }
-	}
-	else {
-	    is_server = TRUE;
-	    global_pos = &global_server_pos;
-	    if (follow_info->show_stream == FROM_CLIENT) {
-		skip = TRUE;
-	    }
+	data_out_file = ws_fopen(follow_info->data_out_filename, "rb");
+	if (data_out_file == NULL) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			"Could not open temporary file %s: %s", follow_info->data_out_filename,
+			g_strerror(errno));
+		return FRS_OPEN_ERROR;
 	}
 
-        bytes_read = 0;
-	while (bytes_read < sc.dlen) {
-	    bcount = ((sc.dlen-bytes_read) < FLT_BUF_SIZE) ? (sc.dlen-bytes_read) : FLT_BUF_SIZE;
-	    nchars = fread(buffer, 1, bcount, data_out_file);
-	    if (nchars == 0)
-		break;
-	    /* XXX - if we don't get "bcount" bytes, is that an error? */
-            bytes_read += nchars;
+	while ((nchars=fread(&sc, 1, sizeof(sc), data_out_file))) {
+		if (nchars != sizeof(sc)) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				"Short read from temporary file %s: expected %lu, got %lu",
+				follow_info->data_out_filename,
+				(unsigned long)sizeof(sc),
+				(unsigned long)nchars);
+			fclose(data_out_file);
+			data_out_file = NULL;
+			return FRS_READ_ERROR;
+		}
+		if (client_port == 0) {
+			memcpy(client_addr, sc.src_addr, iplen);
+			client_port = sc.src_port;
+		}
+		skip = FALSE;
+		if (memcmp(client_addr, sc.src_addr, iplen) == 0 &&
+			client_port == sc.src_port) {
+				is_server = FALSE;
+				global_pos = &global_client_pos;
+				if (follow_info->show_stream == FROM_SERVER) {
+					skip = TRUE;
+				}
+		}
+		else {
+			is_server = TRUE;
+			global_pos = &global_server_pos;
+			if (follow_info->show_stream == FROM_CLIENT) {
+				skip = TRUE;
+			}
+		}
+
+		bytes_read = 0;
+		while (bytes_read < sc.dlen) {
+			bcount = ((sc.dlen-bytes_read) < FLT_BUF_SIZE) ? (sc.dlen-bytes_read) : FLT_BUF_SIZE;
+			nchars = fread(buffer, 1, bcount, data_out_file);
+			if (nchars == 0)
+				break;
+			/* XXX - if we don't get "bcount" bytes, is that an error? */
+			bytes_read += nchars;
 
 #ifdef HAVE_LIBZ
-	    /* If we are on the first packet of an HTTP response, check if data is gzip
-	     * compressed. */
-	    if (is_server && bytes_read == nchars && !memcmp(buffer, "HTTP", 4)) {
-		size_t header_len;
-		gunzip = parse_http_header(buffer, nchars, &header_len);
-		if (gunzip) {
-		    // show header (which is not gzipped)
-		    frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
-			header_len, is_server, arg, global_pos,
-			&server_packet_count, &client_packet_count);
-		    if (frs_return == FRS_PRINT_ERROR) {
-			fclose(data_out_file);
-			data_out_file = NULL;
-			return frs_return;
-		    }
+			/* If we are on the first packet of an HTTP response, check if data is gzip
+			* compressed.
+			*/
+			if (is_server && bytes_read == nchars && !memcmp(buffer, "HTTP", 4)) {
+				size_t header_len;
+				gunzip = parse_http_header(buffer, nchars, &header_len);
+				if (gunzip) {
+					/* show header (which is not gzipped)*/
+					frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
+						header_len, is_server, arg, global_pos,
+						&server_packet_count, &client_packet_count);
+					if (frs_return == FRS_PRINT_ERROR) {
+						fclose(data_out_file);
+						data_out_file = NULL;
+						return frs_return;
+					}
 
-		    // init gz_stream
-		    strm.next_in = Z_NULL;
-		    strm.avail_in = 0;
-		    strm.next_out = Z_NULL;
-		    strm.avail_out = 0;
-		    strm.zalloc = Z_NULL;
-		    strm.zfree = Z_NULL;
-		    strm.opaque = Z_NULL;
-		    ret = inflateInit2(&strm, MAX_WBITS+16);
-		    if (ret != Z_OK) {
-			fclose(data_out_file);
-			data_out_file = NULL;
-			return FRS_READ_ERROR;
-		    }
+					/* init gz_stream*/
+					strm.next_in = Z_NULL;
+					strm.avail_in = 0;
+					strm.next_out = Z_NULL;
+					strm.avail_out = 0;
+					strm.zalloc = Z_NULL;
+					strm.zfree = Z_NULL;
+					strm.opaque = Z_NULL;
+					ret = inflateInit2(&strm, MAX_WBITS+16);
+					if (ret != Z_OK) {
+						fclose(data_out_file);
+						data_out_file = NULL;
+						return FRS_READ_ERROR;
+					}
 
-		    /* prepare remainder of buffer to be inflated below */
-		    memmove(buffer, buffer+header_len, nchars-header_len);
-		    nchars -= header_len;
-		}
-	    }
+					/* prepare remainder of buffer to be inflated below */
+					memmove(buffer, buffer+header_len, nchars-header_len);
+					nchars -= header_len;
+				}
+			}
 
-	    if (gunzip) {
-		strm.next_in = buffer;
-		strm.avail_in = nchars;
-		do {
-		    strm.next_out = outbuffer;
-		    strm.avail_out = FLT_BUF_SIZE;
+			if (gunzip) {
+				strm.next_in = buffer;
+				strm.avail_in = nchars;
+				do {
+					strm.next_out = outbuffer;
+					strm.avail_out = FLT_BUF_SIZE;
 
-		    ret = inflate(&strm, Z_NO_FLUSH);
-		    if (ret < 0 || ret == Z_NEED_DICT) {
-			inflateEnd(&strm);
-			fclose(data_out_file);
-			data_out_file = NULL;
-			return FRS_READ_ERROR;
-		    } else if (ret == Z_STREAM_END) {
-			inflateEnd(&strm);
-		    }
+					ret = inflate(&strm, Z_NO_FLUSH);
+					if (ret < 0 || ret == Z_NEED_DICT) {
+						inflateEnd(&strm);
+						fclose(data_out_file);
+						data_out_file = NULL;
+						return FRS_READ_ERROR;
+					} else if (ret == Z_STREAM_END) {
+						inflateEnd(&strm);
+					}
 
-		    frs_return = follow_show(follow_info, print_line_fcn_p, outbuffer,
-					     FLT_BUF_SIZE-strm.avail_out, is_server,
-					     arg, global_pos,
-					     &server_packet_count,
-					     &client_packet_count);
-		    if(frs_return == FRS_PRINT_ERROR) {
-			    inflateEnd(&strm);
-			    fclose(data_out_file);
-			    data_out_file = NULL;
-			    return frs_return;
-		    }
-		} while (strm.avail_out == 0);
-		skip = TRUE;
-	    }
+					frs_return = follow_show(follow_info, print_line_fcn_p, outbuffer,
+						FLT_BUF_SIZE-strm.avail_out, is_server,
+						arg, global_pos,
+						&server_packet_count,
+						&client_packet_count);
+					if(frs_return == FRS_PRINT_ERROR) {
+						inflateEnd(&strm);
+						fclose(data_out_file);
+						data_out_file = NULL;
+						return frs_return;
+					}
+				} while (strm.avail_out == 0);
+				skip = TRUE;
+			}
 #endif
-	    if (!skip) {
-		    frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
-					     nchars, is_server, arg, global_pos,
-					     &server_packet_count,
-					     &client_packet_count);
-		    if(frs_return == FRS_PRINT_ERROR) {
-			    fclose(data_out_file);
-			    data_out_file = NULL;
-			    return frs_return;
+			if (!skip) {
+				frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
+					nchars, is_server, arg, global_pos,
+					&server_packet_count,
+					&client_packet_count);
+				if(frs_return == FRS_PRINT_ERROR) {
+					fclose(data_out_file);
+					data_out_file = NULL;
+					return frs_return;
 
-		    }
-	    }
+				}
+			}
+		}
 	}
-    }
 
-    if (ferror(data_out_file)) {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Error reading temporary file %s: %s", follow_info->data_out_filename,
-		      g_strerror(errno));
+	if (ferror(data_out_file)) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			"Error reading temporary file %s: %s", follow_info->data_out_filename,
+			g_strerror(errno));
+		fclose(data_out_file);
+		data_out_file = NULL;
+		return FRS_READ_ERROR;
+	}
+
 	fclose(data_out_file);
 	data_out_file = NULL;
-	return FRS_READ_ERROR;
-    }
-
-    fclose(data_out_file);
-    data_out_file = NULL;
-    return FRS_OK;
+	return FRS_OK;
 }
