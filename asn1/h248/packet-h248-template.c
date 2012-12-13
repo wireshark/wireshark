@@ -1024,7 +1024,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
         if(tree){
             package_tree = proto_item_add_subtree(actx->created_item, ett_packagename);
 			proto_tree_add_uint_format(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major,
-				"PkgName%s (0x%04x)", val_to_str(0, pkg->param_names, "Unknown Package"), name_major);
+				"PkgName: %s (0x%04x)", val_to_str(0, pkg->param_names, "Unknown Package"), name_major);
         }
 
         {
