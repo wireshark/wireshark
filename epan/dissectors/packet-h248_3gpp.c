@@ -33,6 +33,7 @@
 #define PFNAME "h248.3gpp"
 
 #include "packet-isup.h"
+#include "packet-gsm_a_common.h"
 
 /*
  * 3GUP Package
@@ -160,7 +161,17 @@ static gint ett_h248_3GCSD_evt_protres = -1;
 static gint ett_h248_3GCSD_evt_ratechg = -1;
 static gint ett_pkg_3GCSD_sig_actprot = -1;
 
+static void dissect_3gcsd_plmnbc(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* cu _U_, void* ignored _U_) {
+	tvbuff_t* sub_tvb = NULL;
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	dissect_ber_octet_string(implicit ? *((gboolean*)implicit) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &sub_tvb);
+	de_bearer_cap(sub_tvb, tree, pinfo, 0, tvb_length(sub_tvb), NULL, 0);
+}
+
 static const value_string h248_3GCSD_properties_vals[] = {
+	{ 0x0000, "Circuit Switched Data (threegcsd)"},
 	{ 0x0001, "plmnbc"},
 	{ 0x0002, "gsmchancod"},
 	{0,     NULL}
@@ -212,7 +223,7 @@ static const value_string h248_3GCSD_actprot_sig_localpeer_vals[] = {
 };
 
 static const h248_pkg_param_t h248_package_3GCSD_props[] = {
-	{ 0x0001, &hf_h248_package_3GCSD_plmnbc, h248_param_ber_octetstring, &implicit},
+	{ 0x0001, &hf_h248_package_3GCSD_plmnbc, dissect_3gcsd_plmnbc, &implicit},
 	{ 0x0002, &hf_h248_package_3GCSD_gsmchancod, h248_param_ber_octetstring, &implicit },
 	{ 0x0000, NULL, NULL, NULL }
 };
@@ -249,8 +260,8 @@ static const h248_package_t h248_package_3GCSD = {
 	&hf_h248_package_3GCSD,
 	&ett_h248_package_3GCSD,
 	h248_3GCSD_properties_vals,
-	NULL,
-	NULL,
+	h248_3GCSD_signals_vals,
+	h248_3GCSD_events_vals,
 	NULL,
 	h248_package_3GCSD_props,
 	h248_package_3GCSD_sigs,
@@ -336,6 +347,7 @@ static void dissect_3GTFO_codec_list(proto_tree* tree, tvbuff_t* tvb, packet_inf
 
 
 static const value_string h248_package_3GTFO_props_vals[] = {
+	{0,"3G Tandem Free Operation (3gtfo)"},
 	{1,"enable"},
 	{2,"codeclist"},
 	{0,NULL}
