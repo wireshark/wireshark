@@ -7803,7 +7803,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     /* Setting everything to 0, so that the TEID is 0 for GTP version 0
      * The magic number should perhaps be replaced.
      */
-    gtp_hdr = gtp_hdr = ep_new0(gtp_hdr_t);
+    gtp_hdr = ep_new0(gtp_hdr_t);
 
 	/* Setting the TEID to -1 to say that the TEID is not valid for this packet */
     gtp_hdr->teid = -1;
