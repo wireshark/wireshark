@@ -320,11 +320,11 @@ sgetline(char *str, int *next) {
 
   end = strstr(str, "\r\n");
   if (!end) {
-    *next = strlen(str);
+    *next = (int)strlen(str);
     return NULL;
   }
   *end = '\0';
-  *next = end-str+2;
+  *next = (int)(end-str+2);
   return str;
 }
 
@@ -526,7 +526,7 @@ frs_return_t
 
 			if (gunzip) {
 				strm.next_in = buffer;
-				strm.avail_in = nchars;
+				strm.avail_in = (int)nchars;
 				do {
 					strm.next_out = outbuffer;
 					strm.avail_out = FLT_BUF_SIZE;
