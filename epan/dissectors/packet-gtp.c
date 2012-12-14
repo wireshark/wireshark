@@ -7782,15 +7782,15 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     gtp_hdr_t       *gtp_hdr = NULL;
     proto_tree      *gtp_tree = NULL, *ext_tree;
     proto_item      *ti = NULL, *tf, *item;
-    int              i, offset, length, gtp_prime, checked_field, mandatory;
+    int              i, offset = 0, length, gtp_prime, checked_field, mandatory;
     int              seq_no           = 0;
     int              flow_label       = 0;
     guint8           pdu_no, next_hdr = 0;
     guint8           ext_hdr_val;
     guint8           noOfExtHdrs      = 0;
     guint8           ext_hdr_length;
+    guint16          ext_hdr_pdcpsn;
     gchar           *tid_str;
-    guint32          teid             = 0;
     tvbuff_t        *next_tvb;
     guint8           sub_proto;
     guint8           acfield_len      = 0;
@@ -7800,7 +7800,13 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     gtp_conv_info_t *gtp_info;
     void*            pd_save;
 
-    gtp_hdr = ep_new(gtp_hdr_t);
+    /* Setting everything to 0, so that the TEID is 0 for GTP version 0
+     * The magic number should perhaps be replaced.
+     */
+    gtp_hdr = gtp_hdr = ep_new0(gtp_hdr_t);
+
+	/* Setting the TEID to -1 to say that the TEID is not valid for this packet */
+    gtp_hdr->teid = -1;
     
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -7830,13 +7836,25 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
     pd_save = pinfo->private_data;
     pinfo->private_data = gtp_info;
+    
+    tvb_memcpy(tvb, (guint8 *) gtp_hdr, 0, 4); /* Does NOT include TEID */
+    offset = 4;
+    /* This is better than memcpy? At least it's clear.
+     * But memcpy is faster?
+     */
 
-    tvb_memcpy(tvb, (guint8 *) gtp_hdr, 0, 8); /* Includes TEID */
+    /*gtp_hdr->flags = tvb_get_guint8(tvb, offset++);
+    gtp_hdr->message = tvb_get_guint8(tvb, offset++);
+    gtp_hdr->length = tvb_get_letohs(tvb, offset); 
 
-    if (!(gtp_hdr->flags & 0x10))
+    offset += 2; */
+    
+    if (!(gtp_hdr->flags & 0x10)){
+
         gtp_prime = 1;
-    else
+	}else{
         gtp_prime = 0;
+    }
 
     switch ((gtp_hdr->flags >> 5) & 0x07) {
         case 0:
@@ -7897,7 +7915,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr->length);
     }
 
-    offset = 4;
+    /*offset = 4; */
 
     if (gtp_prime) {
         seq_no = tvb_get_ntohs(tvb, offset);
@@ -7927,8 +7945,8 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             offset += 8;
             break;
         case 1:
-            teid = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(gtp_tree, hf_gtp_teid, tvb, offset, 4, teid);
+            gtp_hdr->teid = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_item(gtp_tree, hf_gtp_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Are sequence number/N-PDU Number/extension header present? */
@@ -7980,8 +7998,13 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
                         offset++;
 
+                        ext_hdr_pdcpsn = tvb_get_ntohs(tvb, offset);
+                        if (ext_hdr_pdcpsn & 0x700) {
+                            expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_NOTE, "3GPP TS 29.281 v9.0.0: When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare. The meaning of the spare bits shall be set to zero.");
+                        }
                         proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
+                        
 
                         /* Last is next_hdr */
                         next_hdr = tvb_get_guint8(tvb, offset);
@@ -8155,6 +8178,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             offset = 20;
     }
 #endif
+    
     pinfo->private_data = pd_save;
     tap_queue_packet(gtpv1_tap,pinfo, gtp_hdr);
 }

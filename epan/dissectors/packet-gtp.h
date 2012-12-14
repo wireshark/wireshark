@@ -38,7 +38,7 @@ typedef struct _gtp_hdr {
   guint8 flags;  /* GTP header flags */ 
   guint8 message; /* Message type */
   guint16 length; /* Length of header */
-  guint32 teid; /* Tunnel End-point ID */
+  gint64 teid; /* Tunnel End-point ID */
 } gtp_hdr_t;
 
 /* definitions of GTP messages */
