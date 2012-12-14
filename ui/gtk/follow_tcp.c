@@ -320,6 +320,7 @@ sgetline(char *str, int *next) {
 
   end = strstr(str, "\r\n");
   if (!end) {
+    *next = strlen(str);
     return NULL;
   }
   *end = '\0';
