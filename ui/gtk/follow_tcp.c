@@ -429,7 +429,7 @@ frs_return_t
 	size_t              nchars;
 	frs_return_t        frs_return;
 	z_stream            strm;
-	gboolean            gunzip;
+	gboolean            gunzip = FALSE;
 	int                 ret;
 
 
