@@ -81,8 +81,6 @@ MainWindow::MainWindow(QWidget *parent) :
     pipe_notifier_(NULL)
 #endif
 {
-    QMargins go_to_margins;
-
     gbl_cur_main_window = this;
     main_ui_->setupUi(this);
     setMenusForCaptureFile();
@@ -116,24 +114,26 @@ MainWindow::MainWindow(QWidget *parent) :
     // This property is obsolete in Qt5 so this issue may be fixed in that version.
     main_ui_->displayFilterToolBar->addWidget(df_combo_box_);
 
-    main_ui_->goToFrame->hide();
-    go_to_margins = main_ui_->goToHB->contentsMargins();
-//    go_to_margins.setTop(0);
-//    go_to_margins.setBottom(0);
-    main_ui_->goToHB->setContentsMargins(go_to_margins);
-    // XXX For some reason the cursor is drawn funny with an input mask set
-    // https://bugreports.qt-project.org/browse/QTBUG-7174
-    main_ui_->goToFrame->setStyleSheet(
-                "QFrame {"
+    QString subframe_style(
+                ".QFrame {"
                 "  background: palette(window);"
                 "  padding-top: 0.1em;"
                 "  padding-bottom: 0.1em;"
                 "  border-bottom: 1px solid palette(shadow);"
                 "}"
-                "QLineEdit {"
+                "QLineEdit#goToLineEdit {"
                 "  max-width: 5em;"
                 "}"
                 );
+    main_ui_->goToFrame->hide();
+    // XXX For some reason the cursor is drawn funny with an input mask set
+    // https://bugreports.qt-project.org/browse/QTBUG-7174
+    main_ui_->goToFrame->setStyleSheet(subframe_style);
+
+    main_ui_->searchFrame->hide();
+    main_ui_->searchFrame->setStyleSheet(subframe_style);
+    connect(main_ui_->searchFrame, SIGNAL(pushFilterSyntaxStatus(QString&)),
+            main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
 
 #if defined(Q_WS_MAC)
     foreach (QMenu *menu, main_ui_->menuBar->findChildren<QMenu*>()) {
@@ -205,6 +205,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_welcome_, SIGNAL(recentFileActivated(QString&)),
             this, SLOT(openCaptureFile(QString&)));
 
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            main_ui_->searchFrame, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             main_ui_->statusBar, SLOT(setCaptureFile(capture_file*)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
@@ -1208,12 +1210,9 @@ void MainWindow::setForCapturedPackets(bool have_captured_packets)
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Print",
 //                         have_captured_packets);
 
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindPacket",
-//                         have_captured_packets);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindNext",
-//                         have_captured_packets);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindPrevious",
-//                         have_captured_packets);
+    main_ui_->actionEditFindPacket->setEnabled(have_captured_packets);
+    main_ui_->actionEditFindNext->setEnabled(have_captured_packets);
+    main_ui_->actionEditFindPrevious->setEnabled(have_captured_packets);
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ZoomIn",
 //                         have_captured_packets);
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ZoomOut",

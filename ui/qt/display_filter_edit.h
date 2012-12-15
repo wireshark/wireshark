@@ -61,8 +61,6 @@ signals:
     void pushFilterSyntaxWarning(QString&);
     void filterPackets(QString& new_filter, bool force);
 
-public slots:
-
 };
 
 #endif // DISPLAYFILTEREDIT_H

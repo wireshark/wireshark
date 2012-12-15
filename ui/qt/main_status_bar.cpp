@@ -64,19 +64,15 @@ void
 statusbar_push_temporary_msg(const gchar *msg_format, ...)
 {
     va_list ap;
-    gchar *msg;
-    QString pushMsg;
+    QString push_msg;
 
     if (!cur_main_status_bar_) return;
 
     va_start(ap, msg_format);
-    msg = g_strdup_vprintf(msg_format, ap);
+    push_msg.vsprintf(msg_format, ap);
     va_end(ap);
 
-    pushMsg.fromUtf8(msg);
-    g_free(msg);
-
-    cur_main_status_bar_->pushTemporaryStatus(pushMsg);
+    cur_main_status_bar_->pushTemporaryStatus(push_msg);
 }
 
 /*

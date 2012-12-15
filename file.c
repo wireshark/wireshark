@@ -103,11 +103,11 @@ static match_result match_protocol_tree(capture_file *cf, frame_data *fdata,
 static void match_subtree_text(proto_node *node, gpointer data);
 static match_result match_summary_line(capture_file *cf, frame_data *fdata,
     void *criterion);
-static match_result match_ascii_and_unicode(capture_file *cf, frame_data *fdata,
+static match_result match_narrow_and_wide(capture_file *cf, frame_data *fdata,
     void *criterion);
-static match_result match_ascii(capture_file *cf, frame_data *fdata,
+static match_result match_narrow(capture_file *cf, frame_data *fdata,
     void *criterion);
-static match_result match_unicode(capture_file *cf, frame_data *fdata,
+static match_result match_wide(capture_file *cf, frame_data *fdata,
     void *criterion);
 static match_result match_binary(capture_file *cf, frame_data *fdata,
     void *criterion);
@@ -626,7 +626,7 @@ cf_read(capture_file *cf, gboolean reloading)
         break;
       }
       read_packet(cf, dfcode, create_proto_tree, cinfo, data_offset);
-    } 
+    }
   }
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
@@ -3111,6 +3111,17 @@ typedef struct {
     size_t        data_len;
 } cbs_t;    /* "Counted byte string" */
 
+
+/*
+ * The current match_* routines only support ASCII case insensitivity and don't
+ * convert UTF-8 inputs to UTF-16 for matching.
+ *
+ * We could modify them to use the GLib Unicode routines or the International
+ * Components for Unicode library but it's not apparent that we could do so
+ * without consuming a lot more CPU and memory or that searching would be
+ * significantly better.
+ */
+
 gboolean
 cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size,
                     search_direction dir)
@@ -3125,14 +3136,14 @@ cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size,
     /* String search - what type of string? */
     switch (cf->scs_type) {
 
-    case SCS_ASCII_AND_UNICODE:
-      return find_packet(cf, match_ascii_and_unicode, &info, dir);
+    case SCS_NARROW_AND_WIDE:
+      return find_packet(cf, match_narrow_and_wide, &info, dir);
 
-    case SCS_ASCII:
-      return find_packet(cf, match_ascii, &info, dir);
+    case SCS_NARROW:
+      return find_packet(cf, match_narrow, &info, dir);
 
-    case SCS_UNICODE:
-      return find_packet(cf, match_unicode, &info, dir);
+    case SCS_WIDE:
+      return find_packet(cf, match_wide, &info, dir);
 
     default:
       g_assert_not_reached();
@@ -3143,7 +3154,7 @@ cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size,
 }
 
 static match_result
-match_ascii_and_unicode(capture_file *cf, frame_data *fdata, void *criterion)
+match_narrow_and_wide(capture_file *cf, frame_data *fdata, void *criterion)
 {
   cbs_t        *info       = criterion;
   const guint8 *ascii_text = info->data;
@@ -3189,7 +3200,7 @@ match_ascii_and_unicode(capture_file *cf, frame_data *fdata, void *criterion)
 }
 
 static match_result
-match_ascii(capture_file *cf, frame_data *fdata, void *criterion)
+match_narrow(capture_file *cf, frame_data *fdata, void *criterion)
 {
   cbs_t        *info       = criterion;
   const guint8 *ascii_text = info->data;
@@ -3234,7 +3245,7 @@ match_ascii(capture_file *cf, frame_data *fdata, void *criterion)
 }
 
 static match_result
-match_unicode(capture_file *cf, frame_data *fdata, void *criterion)
+match_wide(capture_file *cf, frame_data *fdata, void *criterion)
 {
   cbs_t        *info       = criterion;
   const guint8 *ascii_text = info->data;
@@ -3699,7 +3710,7 @@ cf_select_packet(capture_file *cf, int row)
   cf->edt = epan_dissect_new(TRUE, TRUE);
 
   tap_build_interesting(cf->edt);
-  epan_dissect_run(cf->edt, &cf->phdr, cf->pd, cf->current_frame, 
+  epan_dissect_run(cf->edt, &cf->phdr, cf->pd, cf->current_frame,
           NULL);
 
   dfilter_macro_build_ftv_cache(cf->edt->tree);

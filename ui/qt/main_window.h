@@ -200,6 +200,9 @@ private slots:
     void on_actionEditCopyFieldName_triggered();
     void on_actionEditCopyValue_triggered();
     void on_actionEditCopyAsFilter_triggered();
+    void on_actionEditFindPacket_triggered();
+    void on_actionEditFindNext_triggered();
+    void on_actionEditFindPrevious_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();

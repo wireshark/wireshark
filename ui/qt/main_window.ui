@@ -77,6 +77,9 @@
      </widget>
     </item>
     <item row="1" column="0">
+     <widget class="SearchFrame" name="searchFrame" native="true"/>
+    </item>
+    <item row="2" column="0">
      <widget class="QStackedWidget" name="mainStack">
       <widget class="MainWelcome" name="welcomePage"/>
       <widget class="QWidget" name="packetPage"/>
@@ -166,6 +169,9 @@
      <addaction name="actionEditCopyAsFilter"/>
     </widget>
     <addaction name="menuEditCopy"/>
+    <addaction name="actionEditFindPacket"/>
+    <addaction name="actionEditFindNext"/>
+    <addaction name="actionEditFindPrevious"/>
    </widget>
    <widget class="QMenu" name="menuCapture">
     <property name="title">
@@ -928,6 +934,39 @@
     <string>Apply as Column</string>
    </property>
   </action>
+  <action name="actionEditFindPacket">
+   <property name="text">
+    <string>&amp;Find Packet...</string>
+   </property>
+   <property name="toolTip">
+    <string>Find a packet</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionEditFindNext">
+   <property name="text">
+    <string>Find Ne&amp;xt...</string>
+   </property>
+   <property name="toolTip">
+    <string>Find the next packet</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionEditFindPrevious">
+   <property name="text">
+    <string>Find Pre&amp;vious...</string>
+   </property>
+   <property name="toolTip">
+    <string>Find the previous packet</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -941,6 +980,11 @@
    <extends>QFrame</extends>
    <header>main_welcome.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SearchFrame</class>
+   <extends>QWidget</extends>
+   <header>search_frame.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -43,9 +43,9 @@ typedef enum {
 
 /* Character set for text search. */
 typedef enum {
-  SCS_ASCII_AND_UNICODE,
-  SCS_ASCII,
-  SCS_UNICODE
+  SCS_NARROW_AND_WIDE,
+  SCS_NARROW,
+  SCS_WIDE
   /* add EBCDIC when it's implemented */
 } search_charset_t;
 

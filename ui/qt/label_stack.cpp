@@ -79,16 +79,19 @@ void LabelStack::fillLabel() {
 
 void LabelStack::pushText(QString &text, int ctx) {
     StackItem *si = new StackItem;
-    si->text = text;
-    si->ctx = ctx;
-    labels_.prepend(si);
 
     if (ctx == temporary_ctx_) {
+        temporary_timer_.stop();
+        popText(temporary_ctx_);
+
         temporary_epoch_.start();
         temporary_timer_.start(temporary_flash_timeout_);
         emit toggleTemporaryFlash(true);
     }
 
+    si->text = text;
+    si->ctx = ctx;
+    labels_.prepend(si);
     fillLabel();
 }
 

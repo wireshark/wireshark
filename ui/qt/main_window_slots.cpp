@@ -320,6 +320,7 @@ void MainWindow::captureFileClosing(const capture_file *cf) {
 
     // Reset expert info indicator
     main_ui_->statusBar->hideExpert();
+    main_ui_->searchFrame->hide();
 //    gtk_widget_show(expert_info_none);
     emit setCaptureFile(NULL);
 }
@@ -945,6 +946,31 @@ void MainWindow::on_actionEditCopyAsFilter_triggered()
     matchSelectedFilter(MatchSelectedReplace, false, true);
 }
 
+void MainWindow::on_actionEditFindPacket_triggered()
+{
+    if (packet_list_->model()->rowCount() < 1) {
+        return;
+    }
+    previous_focus_ = wsApp->focusWidget();
+    connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
+    main_ui_->goToFrame->hide();
+    if (main_ui_->searchFrame->isVisible()) {
+        main_ui_->searchFrame->hide();
+    } else {
+        main_ui_->searchFrame->show();
+    }
+}
+
+void MainWindow::on_actionEditFindNext_triggered()
+{
+    main_ui_->searchFrame->findNext();
+}
+
+void MainWindow::on_actionEditFindPrevious_triggered()
+{
+    main_ui_->searchFrame->findPrevious();
+}
+
 // View Menu
 
 // Expand / collapse slots in proto_tree
@@ -1172,7 +1198,13 @@ void MainWindow::on_actionGoGoToPacket_triggered() {
     }
     previous_focus_ = wsApp->focusWidget();
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
-    main_ui_->goToFrame->show();
+
+    main_ui_->searchFrame->hide();
+    if (main_ui_->goToFrame->isVisible()) {
+        main_ui_->goToFrame->hide();
+    } else {
+        main_ui_->goToFrame->show();
+    }
     main_ui_->goToLineEdit->setFocus();
 }
 

@@ -187,7 +187,8 @@ FORMS += main_window.ui \
     packet_format_group_box.ui \
     export_object_dialog.ui \
     print_dialog.ui \
-    splash_overlay.ui
+    splash_overlay.ui \
+    search_frame.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -215,7 +216,8 @@ HEADERS += $$HEADERS_WS_C \
     packet_format_group_box.h \
     export_object_dialog.h \
     print_dialog.h \
-    splash_overlay.h
+    splash_overlay.h \
+    search_frame.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -427,4 +429,5 @@ SOURCES += \
     sparkline_delegate.cpp \
     splash_overlay.cpp \
     syntax_line_edit.cpp \
-    wireshark_application.cpp
+    wireshark_application.cpp \
+    search_frame.cpp

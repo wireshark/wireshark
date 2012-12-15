@@ -23,8 +23,6 @@
 
 #include "config.h"
 
-#include "globals.h"
-
 #include <glib.h>
 
 #include <epan/proto.h>
@@ -268,7 +266,7 @@ void DisplayFilterEdit::checkFilter(const QString& text)
         if (dfp != NULL) {
             depr = dfilter_deprecated_tokens(dfp);
         }
-        if (text.length() < 1) {
+        if (text.isEmpty()) {
             setSyntaxState(Empty);
         } else if (depr) {
             /* You keep using that word. I do not think it means what you think it means. */

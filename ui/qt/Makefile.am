@@ -116,6 +116,11 @@ print_dialog.h: ui_print_dialog.h
 ui_print_dialog.h: print_dialog.ui
 	uic $< -o $@
 
+search_frame.h: ui_search_frame.h
+
+ui_search_frame.h: search_frame.ui
+	uic $< -o $@
+
 splash_overlay.h: ui_splash_overlay.h
 
 ui_splash_overlay.h: splash_overlay.ui
@@ -183,6 +188,7 @@ EXTRA_DIST = \
 	packet_range_group_box.ui	\
 	print_dialog.ui			\
 	QtShark.pro			\
+	search_frame.ui			\
 	splash_overlay.ui		\
 	display_filter_16.svg		\
 	gpl-template.txt
