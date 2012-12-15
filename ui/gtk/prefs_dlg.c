@@ -94,6 +94,7 @@ static GtkWidget *create_preference_filename_entry(GtkWidget *, int,
 #define E_CAPTURE_PAGE_KEY            "capture_options_page"
 #define E_NAMERES_PAGE_KEY            "nameres_options_page"
 #define E_FILTER_EXPRESSIONS_PAGE_KEY "filter_expressions_page"
+#define E_TABLE_MODULE_KEY            "table_module"
 
 /*
  * Keep a static pointer to the current "Preferences" window, if any, so that
@@ -118,15 +119,36 @@ pref_exists(pref_t *pref _U_, gpointer user_data _U_)
   return 1;
 }
 
+static const char*
+get_pref_type_string(pref_type_t t)
+{
+  switch (t)
+    {
+#define CASE(T) case PREF_##T: return #T
+      CASE(UINT);
+      CASE(BOOL);
+      CASE(ENUM);
+      CASE(STRING);
+      CASE(RANGE);
+      CASE(STATIC_TEXT);
+      CASE(UAT);
+      CASE(OBSOLETE);
+    default:
+      return "UNKNOWN";
+    }
+}
+
 /* show a single preference on the GtkTable of a preference page */
 static guint
 pref_show(pref_t *pref, gpointer user_data)
 {
   GtkWidget  *main_tb = user_data;
+  module_t  *module  = g_object_get_data(G_OBJECT(main_tb), E_TABLE_MODULE_KEY);
   const char *title;
   char       *label_string;
   size_t      label_len;
   char        uint_str[10+1];
+  char *tooltip_txt;
 
   /* Give this preference a label which is its title, followed by a colon,
      and left-align it. */
@@ -134,6 +156,12 @@ pref_show(pref_t *pref, gpointer user_data)
   label_len = strlen(title) + 2;
   label_string = g_malloc(label_len);
   g_strlcpy(label_string, title, label_len);
+
+  tooltip_txt = pref->description? g_strdup_printf("%s.%s: %s\n%s", 
+                                                   module->name,
+                                                   pref->name,
+                                                   get_pref_type_string(pref->type),
+                                                   pref->description): NULL;
 
   /*
    * Sometimes we don't want to append a ':' after a static text string...
@@ -169,14 +197,14 @@ pref_show(pref_t *pref, gpointer user_data)
       break;
     }
     pref->control = create_preference_entry(main_tb, pref->ordinal,
-                                            label_string, pref->description,
+                                            label_string, tooltip_txt,
                                             uint_str);
     break;
 
   case PREF_BOOL:
     pref->saved_val.boolval = *pref->varp.boolp;
     pref->control = create_preference_check_button(main_tb, pref->ordinal,
-                                                   label_string, pref->description,
+                                                   label_string, tooltip_txt,
                                                    pref->saved_val.boolval);
     break;
 
@@ -185,13 +213,13 @@ pref_show(pref_t *pref, gpointer user_data)
     if (pref->info.enum_info.radio_buttons) {
       /* Show it as radio buttons. */
       pref->control = create_preference_radio_buttons(main_tb, pref->ordinal,
-                                                      label_string, pref->description,
+                                                      label_string, tooltip_txt,
                                                       pref->info.enum_info.enumvals,
                                                       pref->saved_val.enumval);
     } else {
       /* Show it as an option menu. */
       pref->control = create_preference_option_menu(main_tb, pref->ordinal,
-                                                    label_string, pref->description,
+                                                    label_string, tooltip_txt,
                                                     pref->info.enum_info.enumvals,
                                                     pref->saved_val.enumval);
     }
@@ -201,7 +229,7 @@ pref_show(pref_t *pref, gpointer user_data)
     g_free(pref->saved_val.string);
     pref->saved_val.string = g_strdup(*pref->varp.string);
     pref->control = create_preference_entry(main_tb, pref->ordinal,
-                                            label_string, pref->description,
+                                            label_string, tooltip_txt,
                                             pref->saved_val.string);
     break;
 
@@ -210,7 +238,7 @@ pref_show(pref_t *pref, gpointer user_data)
     pref->saved_val.string = g_strdup(*pref->varp.string);
     pref->control = create_preference_filename_entry(main_tb, pref->ordinal,
                                                      label_string,
-                                                     pref->description,
+                                                     tooltip_txt,
                                                      pref->saved_val.string);
     break;
 
@@ -222,7 +250,7 @@ pref_show(pref_t *pref, gpointer user_data)
     pref->saved_val.range = range_copy(*pref->varp.range);
     range_str_p = range_convert_range(*pref->varp.range);
     pref->control = create_preference_entry(main_tb, pref->ordinal,
-                                            label_string, pref->description,
+                                            label_string, tooltip_txt,
                                             range_str_p);
     break;
   }
@@ -230,14 +258,14 @@ pref_show(pref_t *pref, gpointer user_data)
   case PREF_STATIC_TEXT:
   {
     pref->control = create_preference_static_text(main_tb, pref->ordinal,
-                                                  label_string, pref->description);
+                                                  label_string, tooltip_txt);
     break;
   }
 
   case PREF_UAT:
   {
     pref->control = create_preference_uat(main_tb, pref->ordinal,
-                                          label_string, pref->description,
+                                          label_string, tooltip_txt,
                                           pref->varp.uat);
     break;
   }
@@ -250,6 +278,7 @@ pref_show(pref_t *pref, gpointer user_data)
     g_assert_not_reached();
     break;
   }
+  g_free(tooltip_txt);
   g_free(label_string);
 
   return 0;
@@ -386,7 +415,9 @@ module_prefs_show(module_t *module, gpointer user_data)
   gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
 
   /* Add items for each of the preferences */
+  g_object_set_data(G_OBJECT(main_tb), E_TABLE_MODULE_KEY, module);
   prefs_pref_foreach(module, pref_show, main_tb);
+  g_object_set_data(G_OBJECT(main_tb), E_TABLE_MODULE_KEY, NULL);
 
   /* Associate this module with the page's frame. */
   g_object_set_data(G_OBJECT(frame), E_PAGE_MODULE_KEY, module);
