@@ -1,5 +1,5 @@
-/* wmem.h
- * Definitions for the Wireshark Memory Manager
+/* wmem_strbuf.h
+ * Definitions for the Wireshark Memory Manager String Buffer
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * $Id$
@@ -23,16 +23,37 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_H__
-#define __WMEM_H__
+#ifndef __WMEM_STRBUF_H__
+#define __WMEM_STRBUF_H__
+
+#include <string.h>
+#include <glib.h>
 
 #include "wmem_core.h"
-#include "wmem_scopes.h"
-#include "wmem_stack.h"
-#include "wmem_strbuf.h"
-#include "wmem_strutl.h"
 
-#endif /* __WMEM_H__ */
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+struct _wmem_strbuf_t;
+
+typedef struct _wmem_strbuf_t wmem_strbuf_t;
+
+wmem_strbuf_t *
+wmem_strbuf_sized_new(wmem_allocator_t *allocator,
+                      gsize alloc_len, gsize max_len);
+
+wmem_strbuf_t *
+wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str);
+
+void
+wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __WMEM_STRBUF_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
