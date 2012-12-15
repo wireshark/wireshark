@@ -1,6 +1,6 @@
 /* search_frame.cpp
  *
- * $Id: splash_overlay.cpp 45941 2012-11-05 22:43:15Z gerald $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
