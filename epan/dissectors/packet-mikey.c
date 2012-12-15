@@ -962,7 +962,7 @@ dissect_payload_idr(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, p
 	tvb_ensure_bytes_exist(tvb, offset+5, length);
 	if (tree) {
 		proto_item *parent;
-		proto_tree_add_item(tree, hf_mikey[POS_ID], tvb, 5, length, ENC_NA);
+		proto_tree_add_item(tree, hf_mikey[POS_ID], tvb, 5, length, ENC_ASCII|ENC_NA);
 
 		parent = proto_tree_get_parent(tree);
 		proto_item_append_text(parent, " %s: %s",
