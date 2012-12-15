@@ -420,6 +420,7 @@ static const value_string mptcp_subtype_vs[] = {
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
+static dissector_handle_t sport_handle;
 static guint32 tcp_stream_index;
 
 /* TCP structs and definitions */
@@ -3530,7 +3531,6 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_item *flag_pi;
     guint32 src, dst;
     guint16 sport, dport, flags;
-    static dissector_handle_t sport_handle = NULL;
 
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "TRPY, ");
 
@@ -3592,11 +3592,12 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
         proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_client_port,
                             tvb, offset + TRPY_CLIENT_PORT_OFFSET, 2, ENC_BIG_ENDIAN);
 
-    /* We need to map this TCP session on our own dissector instead of what
-       Wireshark thinks runs on these ports */
-    if (sport_handle == NULL) {
-        sport_handle = find_dissector("sport");
-    }
+    /* Despite that we have the right TCP ports for other protocols,
+     * the data is related to the Riverbed Optimization Protocol and
+     * not understandable by normal protocol dissectors. If the sport
+     * protocol is available then use that, otherwise just output it
+     * as a hex-dump.
+     */
     if (sport_handle != NULL) {
         conversation_t *conversation;
         conversation = find_conversation(pinfo->fd->num,
@@ -3609,6 +3610,19 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
         }
         if (conversation->dissector_handle != sport_handle) {
             conversation_set_dissector(conversation, sport_handle);
+        }
+    } else if (data_handle != NULL) {
+        conversation_t *conversation;
+        conversation = find_conversation(pinfo->fd->num,
+            &pinfo->src, &pinfo->dst, pinfo->ptype,
+            pinfo->srcport, pinfo->destport, 0);
+        if (conversation == NULL) {
+            conversation = conversation_new(pinfo->fd->num,
+                &pinfo->src, &pinfo->dst, pinfo->ptype,
+                pinfo->srcport, pinfo->destport, 0);
+        }
+        if (conversation->dissector_handle != data_handle) {
+            conversation_set_dissector(conversation, data_handle);
         }
     }
 }
@@ -5705,6 +5719,7 @@ proto_reg_handoff_tcp(void)
     tcp_handle = find_dissector("tcp");
     dissector_add_uint("ip.proto", IP_PROTO_TCP, tcp_handle);
     data_handle = find_dissector("data");
+    sport_handle = find_dissector("sport");
     tcp_tap = register_tap("tcp");
 }
 
