@@ -2219,7 +2219,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			}
 		}
 
-		if (rfc3396_dns_domain_search_list.tvb_composite == NULL) {
+		if (rfc3396_dns_domain_search_list.tvb_composite == NULL && optlen) {
 			/* We use composite tvb for managing RFC 3396 */
 			rfc3396_dns_domain_search_list.tvb_composite = tvb_new_composite();
 		}
@@ -2228,7 +2228,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		if (optlen)
 			tvb_composite_append(rfc3396_dns_domain_search_list.tvb_composite, tvb_new_subset(tvb, optoff, optlen, optlen));
 
-		if (rfc3396_dns_domain_search_list.index_current_block == rfc3396_dns_domain_search_list.total_number_of_block) {
+		if (rfc3396_dns_domain_search_list.index_current_block == rfc3396_dns_domain_search_list.total_number_of_block
+		    && rfc3396_dns_domain_search_list.tvb_composite) {
 			/* Here, we are into the last (or unique) option 119. */
 			/* We will display the information about fqdn */
 			unsigned int consumedx = 0;
@@ -2265,7 +2266,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			}
 		}
 
-		if (rfc3396_sip_server.tvb_composite == NULL) {
+		if (rfc3396_sip_server.tvb_composite == NULL && optlen) {
 			/* We use composite tvb for managing RFC 3396 */
 			rfc3396_sip_server.tvb_composite = tvb_new_composite();
 		}
@@ -2274,7 +2275,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		if (optlen)
 			tvb_composite_append(rfc3396_sip_server.tvb_composite, tvb_new_subset(tvb, optoff, optlen, optlen));
 
-		if (rfc3396_sip_server.index_current_block == rfc3396_sip_server.total_number_of_block) {
+		if (rfc3396_sip_server.index_current_block == rfc3396_sip_server.total_number_of_block
+		    && rfc3396_sip_server.tvb_composite) {
 			/* Here, we are into the last (or unique) option 120. */
 			/* We will display the information about SIP server */
 			guint8 enc;
