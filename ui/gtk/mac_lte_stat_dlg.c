@@ -263,7 +263,7 @@ static void mac_lte_stat_reset(void *phs)
 
 
 /* Allocate a mac_lte_ep_t struct to store info for new UE */
-static mac_lte_ep_t* alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *pinfo _U_)
+static mac_lte_ep_t* alloc_mac_lte_ep(const struct mac_lte_tap_info *si, packet_info *pinfo _U_)
 {
     mac_lte_ep_t* ep;
     int n;
@@ -341,7 +341,7 @@ static int mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
     mac_lte_ep_t *tmp = NULL, *te = NULL;
 
     /* Cast tap info struct */
-    struct mac_lte_tap_info *si = (struct mac_lte_tap_info *)phi;
+    const struct mac_lte_tap_info *si = (const struct mac_lte_tap_info *)phi;
 
     if (!hs) {
         return 0;

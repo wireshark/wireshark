@@ -424,7 +424,7 @@ static void callback_create_help (GtkWidget * , gpointer );
 static void get_mouse_position (GtkWidget *, int *pointer_x, int *pointer_y, GdkModifierType *mask);
 static void update_zoom_spins (struct graph * );
 static struct tcpheader *select_tcpip_session (capture_file *, struct segment * );
-static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, address *saddr2, address *daddr2, guint16 sport2, guint16 dport2, int dir);
+static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, const address *saddr2, const address *daddr2, guint16 sport2, guint16 dport2, int dir);
 static int get_num_dsegs (struct graph * );
 static int get_num_acks (struct graph *, int * );
 static void graph_type_dependent_initialize (struct graph * );
@@ -1838,7 +1838,7 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 {
 	tcp_scan_t *ts=(tcp_scan_t *)pct;
 	struct graph *g = ts->g;
-	struct tcpheader *tcphdr=(struct tcpheader *)vip;
+	const struct tcpheader *tcphdr = (const struct tcpheader *)vip;
 
 	if (compare_headers(&g->src_address, &g->dst_address,
 	                    g->src_port, g->dst_port,
@@ -1937,7 +1937,7 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 	int n;
 	gboolean is_unique = TRUE;
 	th_t *th=pct;
-	struct tcpheader *header = (struct tcpheader *)vip;
+	const struct tcpheader *header = (const struct tcpheader *)vip;
 
 	/* Check new header details against any/all stored ones */
 	for (n=0; n < th->num_hdrs; n++) {
@@ -2048,7 +2048,7 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 
 }
 
-static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, address *saddr2, address *daddr2, guint16 sport2, guint16 dport2, int dir)
+static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, const address *saddr2, const address *daddr2, guint16 sport2, guint16 dport2, int dir)
 {
 	int dir1, dir2;
 

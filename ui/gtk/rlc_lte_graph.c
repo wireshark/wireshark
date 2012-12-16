@@ -750,7 +750,7 @@ tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, co
 {
     rlc_scan_t *ts=(rlc_scan_t *)pct;
     struct graph *g = ts->g;
-    rlc_lte_tap_info *rlchdr=(rlc_lte_tap_info*)vip;
+    const rlc_lte_tap_info *rlchdr = (const rlc_lte_tap_info*)vip;
 
     /* See if this one matches current channel */
     if (compare_headers(g->ueid,       g->channelType,       g->channelId,       g->rlcMode,       g->direction,
@@ -854,7 +854,7 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
     int n;
     gboolean is_unique = TRUE;
     th_t *th = pct;
-    rlc_lte_tap_info *header = (rlc_lte_tap_info*)vip;
+    const rlc_lte_tap_info *header = (const rlc_lte_tap_info*)vip;
 
     /* Check new header details against any/all stored ones */
     for (n=0; n < th->num_hdrs; n++) {

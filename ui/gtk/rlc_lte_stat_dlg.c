@@ -312,7 +312,7 @@ static void rlc_lte_stat_reset(void *phs)
 
 
 /* Allocate a rlc_lte_ep_t struct to store info for new UE */
-static rlc_lte_ep_t* alloc_rlc_lte_ep(struct rlc_lte_tap_info *si, packet_info *pinfo _U_)
+static rlc_lte_ep_t* alloc_rlc_lte_ep(const struct rlc_lte_tap_info *si, packet_info *pinfo _U_)
 {
     rlc_lte_ep_t* ep;
     int n;
@@ -385,7 +385,7 @@ static int rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
     rlc_channel_stats *channel_stats = NULL;
 
     /* Cast tap info struct */
-    struct rlc_lte_tap_info *si = (struct rlc_lte_tap_info *)phi;
+    const struct rlc_lte_tap_info *si = (const struct rlc_lte_tap_info *)phi;
 
     /* Need this */
     if (!hs) {
