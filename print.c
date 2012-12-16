@@ -946,7 +946,7 @@ print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
     guint length, packet_char_enc encoding)
 {
 	register unsigned int ad, i, j, k, l;
-	gchar c;
+	guchar c;
 	gchar line[MAX_LINE_LEN + 1];
 	unsigned int use_digits;
 	static gchar binhex[16] = {
@@ -983,7 +983,7 @@ print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
 			do {
 				l--;
 				c = (ad >> (l*4)) & 0xF;
-				line[j++] = binhex[(unsigned int) c];
+				line[j++] = binhex[c];
 			} while (l != 0);
 			line[j++] = ' ';
 			line[j++] = ' ';
