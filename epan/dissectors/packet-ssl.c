@@ -249,6 +249,7 @@ static gint hf_pct_handshake_sig              = -1;
 static gint hf_pct_msg_error_type             = -1;
 static int hf_ssl_reassembled_in              = -1;
 static int hf_ssl_reassembled_length          = -1;
+static int hf_ssl_reassembled_data            = -1;
 static int hf_ssl_segments                    = -1;
 static int hf_ssl_segment                     = -1;
 static int hf_ssl_segment_overlap             = -1;
@@ -257,6 +258,7 @@ static int hf_ssl_segment_multiple_tails      = -1;
 static int hf_ssl_segment_too_long_fragment   = -1;
 static int hf_ssl_segment_error               = -1;
 static int hf_ssl_segment_count               = -1;
+static int hf_ssl_segment_data                = -1;
 
 static gint hf_ssl_heartbeat_extension_mode          = -1;
 static gint hf_ssl_heartbeat_message                 = -1;
@@ -313,10 +315,34 @@ static const fragment_items ssl_segment_items = {
     &hf_ssl_segment_count,
     &hf_ssl_reassembled_in,
     &hf_ssl_reassembled_length,
-    /* Reassembled data field */
-    NULL,
+    &hf_ssl_reassembled_data,
     "Segments"
 };
+
+/* These two "SSL segment data" items are factored out to obey DRY. */
+#define SSL_SEGMENT_DATA_TEXT "SSL segment data"
+
+static void
+ssl_proto_tree_add_segment_data(
+    proto_tree *  tree,
+    tvbuff_t *    tvb,
+    gint          offset,
+    gint          length,
+    const gchar * prefix)
+{
+    proto_tree_add_bytes_format(
+        tree,
+        hf_ssl_segment_data,
+        tvb,
+        offset,
+        length,
+        NULL,
+        "%s" SSL_SEGMENT_DATA_TEXT " (%u %s)",
+        prefix != NULL ? prefix : "",
+        length,
+        plurality(length, "byte", "bytes"));
+}
+
 
 /* ssl_session_hash is used by "Export SSL Session Keys" */
 GHashTable *ssl_session_hash   = NULL;
@@ -968,19 +994,17 @@ again:
      * the pdu).
      */
     if ((msp = se_tree_lookup32(flow->multisegment_pdus, seq))) {
-        const char* str;
+        const char* prefix;
 
         if (msp->first_frame == PINFO_FD_NUM(pinfo)) {
-            str = "";
+            prefix = "";
             col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
         } else {
-            str = "Retransmitted ";
+            prefix = "Retransmitted ";
         }
 
         nbytes = tvb_reported_length_remaining(tvb, offset);
-        proto_tree_add_text(tree, tvb, offset, nbytes,
-                            "%sSSL segment data (%u byte%s)",
-                            str, nbytes, plurality(nbytes, "", "s"));
+        ssl_proto_tree_add_segment_data(tree, tvb, offset, nbytes, prefix);
         return;
     }
 
@@ -1138,9 +1162,7 @@ again:
                  * just raw TCP segment data.
                  */
                 nbytes = tvb_reported_length_remaining(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, -1,
-                                    "SSL segment data (%u byte%s)", nbytes,
-                                    plurality(nbytes, "", "s"));
+                ssl_proto_tree_add_segment_data(tree, tvb, offset, nbytes, NULL);
 
                 /*
                  * The subdissector thought it was completely
@@ -1302,9 +1324,7 @@ again:
          * was, and report it as a continuation of that, instead?
          */
         nbytes = tvb_reported_length_remaining(tvb, deseg_offset);
-        proto_tree_add_text(tree, tvb, deseg_offset, -1,
-                            "SSL segment data (%u byte%s)", nbytes,
-                            plurality(nbytes, "", "s"));
+        ssl_proto_tree_add_segment_data(tree, tvb, deseg_offset, nbytes, NULL);
     }
     pinfo->can_desegment = 0;
     pinfo->desegment_offset = 0;
@@ -5631,12 +5651,12 @@ proto_register_ssl(void)
             NULL, HFILL }},
 
         { &hf_ssl_segment,
-          { "SSL Segment", "ssl.segment",
+          { "SSL segment", "ssl.segment",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssl_segments,
-          { "Reassembled SSL Segments", "ssl.segments",
+          { "Reassembled SSL segments", "ssl.segments",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "SSL Segments", HFILL }},
 
@@ -5649,6 +5669,16 @@ proto_register_ssl(void)
           { "Reassembled PDU length", "ssl.reassembled.length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "The total length of the reassembled payload", HFILL }},
+
+        { &hf_ssl_reassembled_data,
+          { "Reassembled PDU data", "ssl.reassembled.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            "The payload of multiple reassembled SSL segments", HFILL }},
+
+        { &hf_ssl_segment_data,
+          { SSL_SEGMENT_DATA_TEXT, "ssl.segment.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            "The payload of a single SSL segment", HFILL }},
     };
 
     /* Setup protocol subtree array */

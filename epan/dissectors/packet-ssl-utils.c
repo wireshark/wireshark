@@ -3917,13 +3917,19 @@ ssl_print_data(const gchar* name, const guchar* data, size_t len)
         return;
     fprintf(ssl_debug_file,"%s[%d]:\n",name, (int) len);
     for (i=0; i<len; i+=16) {
+        fprintf(ssl_debug_file,"| ");
         for (j=i, k=0; k<16 && j<len; ++j, ++k)
             fprintf(ssl_debug_file,"%.2x ",data[j]);
         for (; k<16; ++k)
             fprintf(ssl_debug_file,"   ");
-        fprintf(ssl_debug_file,"|");
-        for (j=i, k=0; k<16 && j<len; ++j, ++k)
-            fprintf(ssl_debug_file,"%c",isprint(data[j]) ? data[j] : '.');
+        fputc('|', ssl_debug_file);
+        for (j=i, k=0; k<16 && j<len; ++j, ++k) {
+            guchar c = data[j];
+            if (!isprint(c) || (c=='\t')) c = '.';
+            fputc(c, ssl_debug_file);
+        }
+        for (; k<16; ++k)
+            fputc(' ', ssl_debug_file);
         fprintf(ssl_debug_file,"|\n");
     }
 }
