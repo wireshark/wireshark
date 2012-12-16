@@ -27,6 +27,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/prefs.h>
 
 enum {
   ST_DATA  = 0,
@@ -62,6 +63,8 @@ static const value_string bt_utp_extension_type_vals[] = {
 };
 
 static int proto_bt_utp = -1;
+
+static gboolean bt_utp_enable_heuristic_dissection = FALSE; /* disabled by default since heuristic is weak */
 
 /* ---  "Original" uTP Header ("version 0" ?) --------------
 
@@ -160,25 +163,29 @@ get_utp_version(tvbuff_t *tvb) {
 
   /* Simple heuristics inspired by code from utp.cpp */
 
+  len = tvb_reported_length(tvb);
+
+  if (len < MIN(V0_FIXED_HDR_SIZE, V1_FIXED_HDR_SIZE)) {
+    return -1;
+  }
+
   v1_ver_type = tvb_get_guint8(tvb, 0);
   v1_ext      = tvb_get_guint8(tvb, 1);
 
   v0_flags    = tvb_get_guint8(tvb, 18);
   v0_ext      = tvb_get_guint8(tvb, 17);
 
-  if (!(((v1_ver_type & 0x0f) != 1)             ||
-        ((v1_ver_type>>4)     >= ST_NUM_STATES) ||
-        (v1_ext               >= EXT_NUM_EXT))) {
+  if (((v1_ver_type & 0x0f) == 1)             &&
+      ((v1_ver_type>>4)     < ST_NUM_STATES) &&
+      (v1_ext               < EXT_NUM_EXT)) {
     version = 1;  /* V1 */
   }
-  else if (!((v0_flags >= ST_NUM_STATES) ||
-             (v0_ext   >= EXT_NUM_EXT))) {
+  else if ((v0_flags < ST_NUM_STATES) ||
+           (v0_ext   < EXT_NUM_EXT)) {
     version = 0;  /* V0 */
   }
   else
     return -1;
-
-  len = tvb_reported_length(tvb);
 
   switch(version) {
   case 0:
@@ -333,7 +340,7 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   version = get_utp_version(tvb);
 
   /* try dissecting */
-  if(version >= 0)
+  if (version >= 0)
   {
     conversation_t *conversation;
     guint len_tvb;
@@ -474,12 +481,19 @@ proto_register_bt_utp(void)
   /* Setup protocol subtree array */
   static gint *ett[] = { &ett_bt_utp, &ett_bt_utp_extension };
 
+  module_t *bt_utp_module;
+
   /* Register protocol */
   proto_bt_utp = proto_register_protocol (
                         "uTorrent Transport Protocol",  /* name */
                         "BT-uTP",               /* short name */
                         "bt-utp"                /* abbrev */
                         );
+
+  bt_utp_module = prefs_register_protocol(proto_bt_utp, proto_reg_handoff_bt_utp);
+  prefs_register_bool_preference(bt_utp_module, "enable", "Enable BT-uTP heuristic dissection",
+                                 "Enable BT-uTP heuristic dissection (default is disabled)",
+                                 &bt_utp_enable_heuristic_dissection);
 
   proto_register_field_array(proto_bt_utp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -488,11 +502,20 @@ proto_register_bt_utp(void)
 void
 proto_reg_handoff_bt_utp(void)
 {
-  heur_dissector_add("udp", dissect_bt_utp, proto_bt_utp);
+  static gboolean prefs_initialized = FALSE;
 
-  bt_utp_handle = new_create_dissector_handle(dissect_bt_utp, proto_bt_utp);
-  dissector_add_handle("udp.port", bt_utp_handle);
+  if (!prefs_initialized) {
+    heur_dissector_add("udp", dissect_bt_utp, proto_bt_utp);
+
+    bt_utp_handle = new_create_dissector_handle(dissect_bt_utp, proto_bt_utp);
+    dissector_add_handle("udp.port", bt_utp_handle);
+
+    prefs_initialized = TRUE;
+  }
+
+  heur_dissector_set_enabled("udp", dissect_bt_utp, proto_bt_utp, bt_utp_enable_heuristic_dissection);
 }
+
 /*
  * Editor modelines
  *
