@@ -697,7 +697,6 @@ static gint ett_nfs_fh_ex = -1;
 static gint ett_nfs_layoutseg_fh = -1;
 static gint ett_nfs_reclaim_complete4 = -1;
 static gint ett_nfs_chan_attrs = -1;
-static gint ett_nfs_security_label = -1;
 
 /* what type of fhandles should we dissect as */
 static dissector_table_t nfs_fhandle_table;
@@ -12549,8 +12548,7 @@ proto_register_nfs(void)
 		&ett_nfs_cb_illegal,
 		&ett_nfs_chan_attrs,
 		&ett_create_session_flags,
-		&ett_sequence_status_flags,
-		&ett_nfs_security_label
+		&ett_sequence_status_flags
 	};
 	module_t *nfs_module;
 
