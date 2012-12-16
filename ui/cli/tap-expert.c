@@ -85,7 +85,7 @@ static int
 expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
                    const void *pointer)
 {
-    expert_info_t    *ei = (expert_info_t *)pointer;
+    const expert_info_t *ei = (const expert_info_t *)pointer;
     expert_tapdata_t *data = tapdata;
     severity_level_t severity_level;
     expert_entry     tmp_entry;
