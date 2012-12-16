@@ -1044,6 +1044,7 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_len
 		retval = compute_offset_length(member_tvb->length, member_tvb->reported_length, abs_offset - composite->start_offsets[i], -1,
 				&member_offset, &member_length, NULL);
 		DISSECTOR_ASSERT(retval);
+		DISSECTOR_ASSERT(member_length);
 
 		tvb_memcpy(member_tvb, target, member_offset, member_length);
 		abs_offset	+= member_length;
