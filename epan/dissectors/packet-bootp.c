@@ -2271,7 +2271,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		}
 
 		/* Concatenate the block before being interpreted for managing RFC 3396 */
-		tvb_composite_append(rfc3396_sip_server.tvb_composite, tvb_new_subset(tvb, optoff, optlen, optlen));
+		if (optlen)
+			tvb_composite_append(rfc3396_sip_server.tvb_composite, tvb_new_subset(tvb, optoff, optlen, optlen));
 
 		if (rfc3396_sip_server.index_current_block == rfc3396_sip_server.total_number_of_block) {
 			/* Here, we are into the last (or unique) option 120. */
