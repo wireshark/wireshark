@@ -1202,8 +1202,9 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                 offset++;
                 break;
             case MAC_LTE_CRC_STATUS_TAG:
-                p_mac_lte_info->crcStatusValid = TRUE;
-                p_mac_lte_info->detailed_phy_info.dl_info.crc_status = tvb_get_guint8(tvb, offset);
+                p_mac_lte_info->crcStatusValid = crc_success;
+                p_mac_lte_info->detailed_phy_info.dl_info.crc_status =
+                    (mac_lte_crc_status)tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
             case MAC_LTE_EXT_BSR_SIZES_TAG:
@@ -4358,6 +4359,11 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_sysframe_number,
                              tvb, 0, 0, p_mac_lte_info->sysframeNumber);
     PROTO_ITEM_SET_GENERATED(ti);
+    if (p_mac_lte_info->sysframeNumber > 1023) {
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                               "Sysframe number (%u) out of range - valid range is 0-1023",
+                               p_mac_lte_info->subframeNumber);
+    }
 
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_subframe_number,
                              tvb, 0, 0, p_mac_lte_info->subframeNumber);
@@ -4366,7 +4372,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* N.B. if we set it to valid value, it won't trigger when we rescan
            (at least with DCT2000 files where the context struct isn't re-read). */
         expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                               "Subframe number (%u) was out of range - valid range is 0-9",
+                               "Subframe number (%u) out of range - valid range is 0-9",
                                p_mac_lte_info->subframeNumber);
     }
 

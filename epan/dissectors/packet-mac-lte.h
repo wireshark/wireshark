@@ -120,7 +120,7 @@ typedef struct mac_lte_info
 
     /* UL only.  Indicates if the R10 extendedBSR-Sizes parameter is set */
     gboolean        isExtendedBSRSizes;
-    
+
     /* DL only.  Status of CRC check */
     mac_lte_crc_status   crcStatusValid;
 
