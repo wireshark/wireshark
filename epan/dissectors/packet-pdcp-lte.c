@@ -345,6 +345,10 @@ static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
 
 
 /* Info to attach to frame when first read, recording what to show about sequence */
+typedef enum
+{
+    SN_OK, SN_Repeated, SN_MAC_Retx, SN_Retx, SN_Missing
+} sequence_state;
 typedef struct
 {
     gboolean sequenceExpectedCorrect;
@@ -355,7 +359,7 @@ typedef struct
     guint16  firstSN;
     guint16  lastSN;
 
-    enum { SN_OK, SN_Repeated, SN_MAC_Retx, SN_Retx, SN_Missing} state;
+    sequence_state state;
 } pdcp_sequence_report_in_frame;
 
 /* The sequence analysis frame report hash table instance itself   */
@@ -885,9 +889,9 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
 
     /* Read fixed fields */
-    p_pdcp_lte_info->no_header_pdu = tvb_get_guint8(tvb, offset++);
-    p_pdcp_lte_info->plane = tvb_get_guint8(tvb, offset++);
-    p_pdcp_lte_info->rohc_compression = tvb_get_guint8(tvb, offset++);
+    p_pdcp_lte_info->no_header_pdu = (gboolean)tvb_get_guint8(tvb, offset++);
+    p_pdcp_lte_info->plane = (enum pdcp_plane)tvb_get_guint8(tvb, offset++);
+    p_pdcp_lte_info->rohc_compression = (gboolean)tvb_get_guint8(tvb, offset++);
 
     /* Read optional fields */
     while (tag != PDCP_LTE_PAYLOAD_TAG) {

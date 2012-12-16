@@ -909,8 +909,8 @@ typedef struct {
 /* Compare 2 rlc_result_hash_key structs */
 static gint rlc_result_hash_equal(gconstpointer v, gconstpointer v2)
 {
-    const rlc_result_hash_key *val1 = (rlc_result_hash_key *)v;
-    const rlc_result_hash_key *val2 = (rlc_result_hash_key *)v2;
+    const rlc_result_hash_key *val1 = (const rlc_result_hash_key *)v;
+    const rlc_result_hash_key *val2 = (const rlc_result_hash_key *)v2;
 
     /* All fields (and any padding...) must match */
     return (memcmp(val1, val2, sizeof(rlc_result_hash_key)) == 0);
@@ -919,9 +919,9 @@ static gint rlc_result_hash_equal(gconstpointer v, gconstpointer v2)
 /* Compute a hash value for a given key. */
 static guint rlc_result_hash_func(gconstpointer v)
 {
-    const rlc_result_hash_key* val1 = (rlc_result_hash_key *)v;
+    const rlc_result_hash_key* val1 = (const rlc_result_hash_key *)v;
 
-    /* TODO: Got rid of multipliers - no evidence that they reduced collisions */
+    /* Got rid of multipliers - no evidence that they reduced collisions */
     return val1->frameNumber + val1->SN +
                                val1->channelType +
                                val1->channelId +
