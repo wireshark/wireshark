@@ -645,6 +645,12 @@ tvb_composite_finalize(tvbuff_t *tvb)
 	composite   = &tvb->tvbuffs.composite;
 	num_members = g_slist_length(composite->tvbs);
 
+	/* Dissectors should not create composite TVBs if they're not going to
+	 * put at least one TVB in them.
+	 * (Without this check--or something similar--we'll seg-fault below.)
+	 */
+	DISSECTOR_ASSERT(num_members);
+
 	composite->start_offsets = g_new(guint, num_members);
 	composite->end_offsets = g_new(guint, num_members);
 
