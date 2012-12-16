@@ -105,7 +105,7 @@ tvb_init(tvbuff_t *tvb, const tvbuff_type type)
 }
 
 
-tvbuff_t*
+tvbuff_t *
 tvb_new(const tvbuff_type type)
 {
 	tvbuff_t *tvb;
@@ -117,7 +117,7 @@ tvb_new(const tvbuff_type type)
 	return tvb;
 }
 
-static tvbuff_t*
+static tvbuff_t *
 tvb_new_with_subset(const guint subset_tvb_offset, const guint subset_tvb_length)
 {
 	tvbuff_t *tvb = tvb_new(TVBUFF_SUBSET);
@@ -129,7 +129,7 @@ tvb_new_with_subset(const guint subset_tvb_offset, const guint subset_tvb_length
 }
 
 static void
-tvb_free_internal(tvbuff_t* tvb)
+tvb_free_internal(tvbuff_t *tvb)
 {
 	tvb_comp_t	*composite;
 
@@ -183,7 +183,7 @@ tvb_free(tvbuff_t *tvb)
 }
 
 void
-tvb_free_chain(tvbuff_t* tvb)
+tvb_free_chain(tvbuff_t  *tvb)
 {
 	tvbuff_t *next_tvb;
 	DISSECTOR_ASSERT(tvb);
@@ -197,7 +197,7 @@ tvb_free_chain(tvbuff_t* tvb)
 }
 
 void
-tvb_set_free_cb(tvbuff_t* tvb, const tvbuff_free_cb_t func)
+tvb_set_free_cb(tvbuff_t *tvb, const tvbuff_free_cb_t func)
 {
 	DISSECTOR_ASSERT(tvb);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_REAL_DATA);
@@ -217,7 +217,7 @@ add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 }
 
 void
-tvb_set_child_real_data_tvbuff(tvbuff_t *parent, tvbuff_t* child)
+tvb_set_child_real_data_tvbuff(tvbuff_t *parent, tvbuff_t *child)
 {
 	DISSECTOR_ASSERT(parent && child);
 	DISSECTOR_ASSERT(parent->initialized);
@@ -227,7 +227,7 @@ tvb_set_child_real_data_tvbuff(tvbuff_t *parent, tvbuff_t* child)
 }
 
 static void
-tvb_set_real_data_no_exceptions(tvbuff_t* tvb, const guint8* data, const guint length, const gint reported_length)
+tvb_set_real_data_no_exceptions(tvbuff_t *tvb, const guint8* data, const guint length, const gint reported_length)
 {
 	tvb->real_data       = data;
 	tvb->length          = length;
@@ -236,7 +236,7 @@ tvb_set_real_data_no_exceptions(tvbuff_t* tvb, const guint8* data, const guint l
 }
 
 void
-tvb_set_real_data(tvbuff_t* tvb, const guint8* data, const guint length, const gint reported_length)
+tvb_set_real_data(tvbuff_t *tvb, const guint8* data, const guint length, const gint reported_length)
 {
 	DISSECTOR_ASSERT(tvb);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_REAL_DATA);
@@ -247,7 +247,7 @@ tvb_set_real_data(tvbuff_t* tvb, const guint8* data, const guint length, const g
 	tvb_set_real_data_no_exceptions(tvb, data, length, reported_length);
 }
 
-tvbuff_t*
+tvbuff_t *
 tvb_new_real_data(const guint8* data, const guint length, const gint reported_length)
 {
 	tvbuff_t *tvb;
@@ -266,7 +266,7 @@ tvb_new_real_data(const guint8* data, const guint length, const gint reported_le
 	return tvb;
 }
 
-tvbuff_t*
+tvbuff_t *
 tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, const guint length, const gint reported_length)
 {
 	tvbuff_t *tvb = tvb_new_real_data(data, length, reported_length);
@@ -527,7 +527,7 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 	tvb_set_subset_no_exceptions(tvb, backing, reported_length);
 }
 
-tvbuff_t*
+tvbuff_t *
 tvb_new_subset(tvbuff_t *backing, const gint backing_offset, const gint backing_length, const gint reported_length)
 {
 	tvbuff_t *tvb;
@@ -555,7 +555,7 @@ tvb_new_subset(tvbuff_t *backing, const gint backing_offset, const gint backing_
 	return tvb;
 }
 
-tvbuff_t*
+tvbuff_t *
 tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
 {
 	tvbuff_t *tvb;
@@ -587,37 +587,49 @@ tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
  *      This means that composite tvb members must all be in the same chain.
  *      ToDo: enforce this: By searching the chain?
  */
-tvbuff_t*
+tvbuff_t *
 tvb_new_composite(void)
 {
 	return tvb_new(TVBUFF_COMPOSITE);
 }
 
 void
-tvb_composite_append(tvbuff_t* tvb, tvbuff_t* member)
+tvb_composite_append(tvbuff_t *tvb, tvbuff_t *member)
 {
 	tvb_comp_t *composite;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
+
+	/* Don't allow zero-length TVBs: composite_memcpy() can't handle them
+	 * and anyway it makes no sense.
+	 */
+	DISSECTOR_ASSERT(member->length);
+
 	composite       = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_append(composite->tvbs, member);
 }
 
 void
-tvb_composite_prepend(tvbuff_t* tvb, tvbuff_t* member)
+tvb_composite_prepend(tvbuff_t *tvb, tvbuff_t *member)
 {
 	tvb_comp_t *composite;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
+
+	/* Don't allow zero-length TVBs: composite_memcpy() can't handle them
+	 * and anyway it makes no sense.
+	 */
+	DISSECTOR_ASSERT(member->length);
+
 	composite       = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_prepend(composite->tvbs, member);
 }
 
 
 void
-tvb_composite_finalize(tvbuff_t* tvb)
+tvb_composite_finalize(tvbuff_t *tvb)
 {
 	GSList	   *slist;
 	guint	    num_members;
@@ -652,7 +664,7 @@ tvb_composite_finalize(tvbuff_t* tvb)
 
 
 guint
-tvb_length(const tvbuff_t* tvb)
+tvb_length(const tvbuff_t *tvb)
 {
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -765,7 +777,7 @@ tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
 }
 
 guint
-tvb_reported_length(const tvbuff_t* tvb)
+tvb_reported_length(const tvbuff_t *tvb)
 {
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -796,7 +808,7 @@ tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
  * this protocol.
  * Also adjusts the data length. */
 void
-tvb_set_reported_length(tvbuff_t* tvb, const guint reported_length)
+tvb_set_reported_length(tvbuff_t *tvb, const guint reported_length)
 {
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -1003,7 +1015,7 @@ guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, g
 
 /************** ACCESSORS **************/
 
-static void*
+static void *
 composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_length)
 {
 	guint	    i, num_members;
@@ -1044,7 +1056,6 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_len
 		retval = compute_offset_length(member_tvb->length, member_tvb->reported_length, abs_offset - composite->start_offsets[i], -1,
 				&member_offset, &member_length, NULL);
 		DISSECTOR_ASSERT(retval);
-		DISSECTOR_ASSERT(member_length);
 
 		tvb_memcpy(member_tvb, target, member_offset, member_length);
 		abs_offset	+= member_length;
@@ -1061,8 +1072,8 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_len
 	DISSECTOR_ASSERT_NOT_REACHED();
 }
 
-void*
-tvb_memcpy(tvbuff_t *tvb, void* target, const gint offset, size_t length)
+void *
+tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
 
@@ -1114,7 +1125,7 @@ tvb_memcpy(tvbuff_t *tvb, void* target, const gint offset, size_t length)
  * an error; does anything else depend on this routine treating -1 as
  * meaning "to the end of the buffer"?
  */
-void*
+void *
 tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
@@ -1144,7 +1155,7 @@ tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length)
  * Do not use this function if you want the allocated memory to be persistent
  * after the current packet has been dissected.
  */
-void*
+void *
 ep_tvb_memdup(tvbuff_t *tvb, const gint offset, size_t length)
 {
 	guint	abs_offset, abs_length;
@@ -3164,7 +3175,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
  *			is smaller.
  */
 gint
-tvb_skip_wsp(tvbuff_t* tvb, const gint offset, const gint maxlength)
+tvb_skip_wsp(tvbuff_t *tvb, const gint offset, const gint maxlength)
 {
 	gint   counter = offset;
 	gint   end, tvb_len;
@@ -3189,7 +3200,7 @@ tvb_skip_wsp(tvbuff_t* tvb, const gint offset, const gint maxlength)
 }
 
 gint
-tvb_skip_wsp_return(tvbuff_t* tvb, const gint offset) {
+tvb_skip_wsp_return(tvbuff_t *tvb, const gint offset) {
 	gint   counter = offset;
 	gint   end;
 	guint8 tempchar;
