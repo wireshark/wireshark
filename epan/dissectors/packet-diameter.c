@@ -851,7 +851,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 hop_by_hop_id, end_to_end_id;
 	conversation_t *conversation;
 	diameter_conv_info_t *diameter_conv_info;
-	diameter_req_ans_pair_t *diameter_pair;
+	diameter_req_ans_pair_t *diameter_pair = NULL;
 	emem_tree_t *pdus_tree;
 	proto_item *it;
 	nstime_t ns;
@@ -987,9 +987,6 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* This is the first request we've seen with this hop-by-hop id */
 		pdus_tree = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "diameter_pdus");
 		se_tree_insert32(diameter_conv_info->pdus_tree, hop_by_hop_id, pdus_tree);
-	} else {
-		/* If we found nothing with this Answer's hop-by-hop-id then we're done. */
-		diameter_pair = NULL;
 	}
 
 	if (pdus_tree) {
