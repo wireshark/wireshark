@@ -602,6 +602,12 @@ tvb_composite_append(tvbuff_t* tvb, tvbuff_t* member)
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
+
+	/* Don't allow zero-length TVBs: composite_memcpy() can't handle them
+	 * and anyway it makes no sense.
+	 */
+	DISSECTOR_ASSERT(member->length);
+
 	composite       = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_append(composite->tvbs, member);
 }
@@ -613,6 +619,12 @@ tvb_composite_prepend(tvbuff_t* tvb, tvbuff_t* member)
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
+
+	/* Don't allow zero-length TVBs: composite_memcpy() can't handle them
+	 * and anyway it makes no sense.
+	 */
+	DISSECTOR_ASSERT(member->length);
+
 	composite       = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_prepend(composite->tvbs, member);
 }
@@ -634,6 +646,12 @@ tvb_composite_finalize(tvbuff_t* tvb)
 
 	composite   = &tvb->tvbuffs.composite;
 	num_members = g_slist_length(composite->tvbs);
+
+	/* Dissectors should not create composite TVBs if they're not going to
+	 * put at least one TVB in them.
+	 * (Without this check--or something similar--we'll seg-fault below.)
+	 */
+	DISSECTOR_ASSERT(num_members);
 
 	composite->start_offsets = g_new(guint, num_members);
 	composite->end_offsets = g_new(guint, num_members);
@@ -1046,6 +1064,9 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_len
 		retval = compute_offset_length(member_tvb->length, member_tvb->reported_length, abs_offset - composite->start_offsets[i], -1,
 				&member_offset, &member_length, NULL);
 		DISSECTOR_ASSERT(retval);
+
+		/* composite_memcpy() can't handle a member_length of zero.  */
+		DISSECTOR_ASSERT(member_length);
 
 		tvb_memcpy(member_tvb, target, member_offset, member_length);
 		abs_offset	+= member_length;
