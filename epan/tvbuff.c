@@ -1057,6 +1057,9 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_len
 				&member_offset, &member_length, NULL);
 		DISSECTOR_ASSERT(retval);
 
+		/* composite_memcpy() can't handle a member_length of zero.  */
+		DISSECTOR_ASSERT(member_length);
+
 		tvb_memcpy(member_tvb, target, member_offset, member_length);
 		abs_offset	+= member_length;
 		abs_length	-= member_length;
