@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-12-07
+# 2012-12-14
 # 
 # Experts
 # 
@@ -13808,7 +13808,10 @@ teamcoherence	9222/udp	# QSC Team Coherence           [Ewan_McNab]              
 # 9223-9254            Unassigned
 mon	9255/tcp	# Manager On Network           [David_Rouchet]                                    [David_Rouchet]                                           2007-05
 mon	9255/udp	# Manager On Network           [David_Rouchet]                                    [David_Rouchet]                                           2007-05
-# 9256-9277            Unassigned
+# 9256-9276            Unassigned
+traingpsdata	9277/udp	# GPS Data transmitted from    [Alstom_Transport_Preston]                         [Paul_Steane]                                             2012-12-14
+# train to ground network
+# 9277        tcp    Reserved
 pegasus	9278/tcp	# Pegasus GPS Platform         [Nestor_A_Diaz]                                    [Nestor_A_Diaz]                                           2009-05-12
 pegasus	9278/udp	# Pegasus GPS Platform         [Nestor_A_Diaz]                                    [Nestor_A_Diaz]                                           2009-05-12
 pegasus-ctl	9279/tcp	# Pegaus GPS System Control    [Nestor_A_Diaz]                                    [Nestor_A_Diaz]                                           2009-05-12
@@ -15098,7 +15101,10 @@ vista-4gl	24249/udp	# Vista 4GL                    [Mark_Itzcovitz]             
 # 24250-24320           Unassigned
 ild	24321/tcp	# Isolv Local Directory        [Mitchell_Bass]                                    [Mitchell_Bass]                                           2005-08
 ild	24321/udp	# Isolv Local Directory        [Mitchell_Bass]                                    [Mitchell_Bass]                                           2005-08
-# 24322-24385           Unassigned
+hid	24322/udp	# Transport of Human Interface [Freebox_SAS]                                      [Nicolas_Pouillon]                                        2012-12-14
+# Device data streams
+# 24322       tcp    Reserved
+# 24323-24385           Unassigned
 # Intel RCI
 # 
 intel-rci	24386/tcp	# IANA assigned this           [Mark_Lewis_2]                                     [Mark_Lewis_2]
@@ -16454,6 +16460,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # protocol for NAS Monitor
 # nasmon                         udp    Proprietary communication    [Infinite_Loop]                                    [Claus_Broch2]                                            2012-10-09                                                                               Defined TXT keys: Proprietary
 # protocol for NAS Monitor
+# nav-data                       tcp    Navtech Radar Sensor Data    [Navtech_Radar_Ltd]                                [Guy_Avery]                                               2012-12-13                                                                               Defined TXT keys: None
+# nav-data                       udp    Navtech Radar Sensor Data    [Navtech_Radar_Ltd]                                [Guy_Avery]                                               2012-12-13                                                                               Defined TXT keys: None
 # ncbroadcast                           Network Clipboard Broadcasts [Thom_McGrath]                                     [Thom_McGrath]                                                                                                                                     Defined TXT keys: Contact The ZAZ Software <networkclipboard
 # at thezaz.com>
 # ncdirect                              Network Clipboard Direct     [Thom_McGrath]                                     [Thom_McGrath]                                                                                                                                     Defined TXT keys: Contact The ZAZ Software <networkclipboard
@@ -17168,6 +17176,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Alon_Tamir]                                              Alon Tamir                                      mailto:alon_tamir&symantec.com                                2006-04
 # [ALPESH_DHAMELIA]                                         ALPESH DHAMELIA           MINDARRAY SYSTEMS (P) mailto:alpesh&mindarraysystems.com                            2011-10-25
 # LTD.
+# [Alstom_Transport_Preston]                                                          Alstom Transport,     mailto:paul.steane&transport.alstom.com                       2012-12-14
+# Preston
 # [Altova]                                                                            Altova                mailto:has&altova.com                                         2005-08
 # [Alvaro_P_Dominguez]                                      Alvaro P. Dominguez                             mailto:alpado&gmail.com                                       2006-02
 # [Alwin_Egger]                                             Alwin Egger                                     mailto:alwin.egger&tegonal.com                                2003-11
@@ -18498,6 +18508,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Frederic_Weymann]                                        Frederic Weymann                                mailto:contact&fizzban.net
 # [Frederick_Parent]                                        Frederick Parent                                mailto:fparent&elfiq.com                                      2005-11
 # [Fredrik_Haglund]                                         Fredrik Haglund                                 mailto:fredik.haglund&boldsoft.com
+# [Freebox_SAS]                                                                       Freebox SAS           mailto:npouillon&freebox.fr                                   2012-12-14
 # [Freeverse_Software]                                                                Freeverse Software    mailto:info&freeverse.com
 # [Friedman_Wagner_Dobl]                                    Friedman Wagner-Dobler                          mailto:Friedman.Wagner-Dobler&gdc4s.com                       2005-09
 # [Frode_Randers]                                           Frode Randers                                   mailto:Frode.Randers&tietoenator.com                          2006-01
@@ -18682,6 +18693,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Gus_McNaughton]                                          Gus McNaughton                                  mailto:gus&chevin.com
 # [Gustavo_Rodriguez_Ri]                                    Gustavo Rodriguez-Rivera                        mailto:grr&geodesic.com
 # [Guus_Sliepen]                                            Guus Sliepen                                    mailto:guus&warande3094.warande.uu.nl
+# [Guy_Avery]                                               Guy Avery                 Navtech Radar Ltd     mailto:guy.avery&navtechradar.com                             2012-12-13
 # [Guy_Cheng]                                               Guy Cheng                                       mailto:GCHE&kastenchase.com
 # [Guy_Keren]                                               Guy Keren                                       mailto:Guy_Keren&mail.stil.scitex.com
 # [Guy_Meyer]                                               Guy Meyer                                       mailto:rominar&mac.com
@@ -20155,6 +20167,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # National Marine
 # [National_Marine_Electronics_Association]                                           Electronics           mailto:sspitzer&nmea.org                                      2011-09-15
 # Association
+# [Navtech_Radar_Ltd]                                                                 Navtech Radar Ltd     mailto:network.admin&navtechradar.com                         2012-12-13
 # [Neal_Taylor]                                             Neal Taylor                                     mailto:ianareg&apani.com
 # [Nedelcho_Stanev]                                         Nedelcho Stanev                                 mailto:nstanev&csoft.bg
 # [Nedelcho_Stanev_2]                                       Nedelcho Stanev                                 mailto:decho&csoft.bg
@@ -20197,6 +20210,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Nicola_J_Howarth]                                        Nicola J. Howarth                               mailto:njh&ansa.co.uk
 # [Nicolas_Bouilleaud]                                      Nicolas Bouilleaud                              mailto:nbouilleaud&lacie.com
 # [Nicolas_Payette]                                         Nicolas Payette                                 mailto:payetten&trivialtechnology.com
+# [Nicolas_Pouillon]                                        Nicolas Pouillon          Freebox SAS           mailto:npouillon&freebox.fr                                   2012-12-14
 # [Nicolas_Williams]                                        Nicolas Williams                                mailto:Nicolas.Williams&oracle.com                            2010-08-09
 # [Nicole_C_Ouellette]                                      Nicole C. Ouellette                             mailto:nouellette&connected.com                               2004-02
 # [Niels_Castle]                                            Niels Castle                                    mailto:castle&castleandersen.dk
@@ -20372,6 +20386,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Paul_Santinelli_Jr]                                      Paul Santinelli Jr.                             mailto:psantinelli&narrative.com
 # [Paul_Schilling]                                          Paul Schilling                                  mailto:PaulS&synapsis.com
 # [Paul_Snook]                                              Paul Snook                                      mailto:paul.snook&itheon.com
+# [Paul_Steane]                                             Paul Steane               Alstom Transport,     mailto:paul.steane&transport.alstom.com                       2012-12-14
+# Preston
 # [Paul_Stephen_Borlie]                                     Paul Stephen Borlie                             mailto:paul&icona.it
 # [Paul_Sterk]                                              Paul Sterk                                      mailto:paul.sterk&sun.com                                     2006-03
 # [Paul_Streatch]                                           Paul Streatch                                   mailto:pstreatch&marchnetworks.com                            2004-06
