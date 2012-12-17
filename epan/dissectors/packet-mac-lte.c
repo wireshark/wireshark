@@ -4362,7 +4362,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (p_mac_lte_info->sysframeNumber > 1023) {
         expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                "Sysframe number (%u) out of range - valid range is 0-1023",
-                               p_mac_lte_info->subframeNumber);
+                               p_mac_lte_info->sysframeNumber);
     }
 
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_subframe_number,
