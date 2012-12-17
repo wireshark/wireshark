@@ -37,7 +37,6 @@
 #include "wireshark_application.h"
 #include <QColor>
 
-
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent)
 {
@@ -287,7 +286,7 @@ gint PacketListModel::appendPacket(frame_data *fdata)
 }
 
 frame_data *PacketListModel::getRowFdata(int row) {
-    if (row >= visible_rows_.count())
+    if (row < 0 || row >= visible_rows_.size())
         return NULL;
     PacketListRecord *record = visible_rows_[row];
     if (!record)

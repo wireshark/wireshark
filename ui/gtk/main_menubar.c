@@ -1502,23 +1502,24 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/FindNext",                  NULL,               "Find Ne_xt",                           "<control>N",           NULL,           G_CALLBACK(find_next_cb) },
    { "/Edit/FindPrevious",              NULL,               "Find Pre_vious",                       "<control>B",           NULL,           G_CALLBACK(find_previous_cb) },
 
-   { "/Edit/MarkPacket",                NULL,               "_Mark Packet (toggle)",                "<control>M",           NULL,           G_CALLBACK(packet_list_mark_frame_cb) },
-   { "/Edit/ToggleMarkingOfAllDisplayedPackets",    NULL,   "Toggle Marking Of All Displayed Packets",  "<shift><alt><control>M",           NULL,           G_CALLBACK(packet_list_toggle_mark_all_displayed_frames_cb) },
+   { "/Edit/MarkPacket",                NULL,               "_Mark/Unmark Packet",                  "<control>M",           NULL,           G_CALLBACK(packet_list_mark_frame_cb) },
+   /* XXX - Unused. Should this and its associated code be removed? */
+   { "/Edit/ToggleMarkingOfAllDisplayedPackets",    NULL,   "Toggle Marking of All Displayed Packets",  "<shift><alt><control>M",           NULL,           G_CALLBACK(packet_list_toggle_mark_all_displayed_frames_cb) },
    { "/Edit/MarkAllDisplayedPackets",   NULL,               "Mark All Displayed Packets",           "<shift><control>M",    NULL,           G_CALLBACK(packet_list_mark_all_displayed_frames_cb) },
    { "/Edit/UnmarkAllDisplayedPackets", NULL,               "_Unmark All Displayed Packets",        "<alt><control>M",      NULL,           G_CALLBACK(packet_list_unmark_all_displayed_frames_cb) },
-   { "/Edit/FindNextMark",              NULL,               "Find Next Mark",                       "<shift><control>N",    NULL,           G_CALLBACK(find_next_mark_cb) },
-   { "/Edit/FindPreviousMark",          NULL,               "Find Previous Mark",                   "<shift><control>B",    NULL,           G_CALLBACK(find_prev_mark_cb) },
+   { "/Edit/FindNextMark",              NULL,               "Next Mark",                            "<shift><control>N",    NULL,           G_CALLBACK(find_next_mark_cb) },
+   { "/Edit/FindPreviousMark",          NULL,               "Previous Mark",                        "<shift><control>B",    NULL,           G_CALLBACK(find_prev_mark_cb) },
 
-   { "/Edit/IgnorePacket",              NULL,               "_Ignore Packet (toggle)",              "<control>X",           NULL,           G_CALLBACK(packet_list_ignore_frame_cb) },
+   { "/Edit/IgnorePacket",              NULL,               "_Ignore/Unignore Packet",              "<control>X",           NULL,           G_CALLBACK(packet_list_ignore_frame_cb) },
     /*
      * XXX - this next one overrides /Edit/Copy/Description
      */
-   { "/Edit/IgnoreAllDisplayedPackets", NULL,               "_Ignore All Displayed Packets (toggle)","<alt><shift><control>X",  NULL,           G_CALLBACK(packet_list_ignore_all_displayed_frames_cb) },
-   { "/Edit/Un-IgnoreAllPackets",       NULL,               "U_n-Ignore All Packets",               "<shift><control>X",        NULL,           G_CALLBACK(packet_list_unignore_all_frames_cb) },
-   { "/Edit/SetTimeReference",          WIRESHARK_STOCK_TIME,   "Set Time Reference (toggle)",          "<control>T",           NULL,           G_CALLBACK(set_reftime_cb) },
-   { "/Edit/Un-TimeReferenceAllPackets",NULL,               "Un-Time Reference All Packets",        "<alt><control>T",          NULL,           G_CALLBACK(packet_list_untime_reference_all_frames_cb) },
-   { "/Edit/FindNextTimeReference",     NULL,               "Find Next Time Reference",             "<alt><control>N",          NULL,           G_CALLBACK(find_next_ref_time_cb) },
-   { "/Edit/FindPreviousTimeReference", NULL,               "Find Previous Time Reference",         "<alt><control>B",          NULL,           G_CALLBACK(find_previous_ref_time_cb) },
+   { "/Edit/IgnoreAllDisplayedPackets", NULL,               "Ignore All Displayed Packets",         "<alt><shift><control>X",  NULL,           G_CALLBACK(packet_list_ignore_all_displayed_frames_cb) },
+   { "/Edit/Un-IgnoreAllPackets",       NULL,               "U_nignore All Packets",                "<shift><control>X",        NULL,           G_CALLBACK(packet_list_unignore_all_frames_cb) },
+   { "/Edit/SetTimeReference",          WIRESHARK_STOCK_TIME,   "Set/Unset Time Reference",         "<control>T",           NULL,           G_CALLBACK(set_reftime_cb) },
+   { "/Edit/Un-TimeReferenceAllPackets",NULL,               "Unset All Time References",            "<alt><control>T",          NULL,           G_CALLBACK(packet_list_untime_reference_all_frames_cb) },
+   { "/Edit/FindNextTimeReference",     NULL,               "Next Time Reference",                  "<alt><control>N",          NULL,           G_CALLBACK(find_next_ref_time_cb) },
+   { "/Edit/FindPreviousTimeReference", NULL,               "Previous Time Reference",              "<alt><control>B",          NULL,           G_CALLBACK(find_previous_ref_time_cb) },
    { "/Edit/TimeShift",             WIRESHARK_STOCK_TIME,   "Time Shift...",                        "<shift><control>T",        NULL,           G_CALLBACK(time_shift_cb) },
 
    { "/Edit/ConfigurationProfiles", NULL,                   "_Configuration Profiles...",           "<shift><control>A",        NULL,           G_CALLBACK(profile_dialog_cb) },

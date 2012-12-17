@@ -25,6 +25,10 @@
 #ifndef __FRAME_DATA_SEQUENCE_H__
 #define __FRAME_DATA_SEQUENCE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 typedef struct _frame_data_sequence frame_data_sequence;
 
 extern frame_data_sequence *new_frame_data_sequence(void);
@@ -43,4 +47,8 @@ extern frame_data *frame_data_sequence_find(frame_data_sequence *fds,
  */
 extern void free_frame_data_sequence(frame_data_sequence *fds);
 
-#endif /* frame_data_sequence.h */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __FRAME_DATA_SEQUENCE_H__ */

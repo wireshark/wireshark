@@ -85,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->setupUi(this);
     setMenusForCaptureFile();
     setForCapturedPackets(false);
+    setMenusForSelectedPacket();
     setMenusForSelectedTreeRow();
     setForCaptureInProgress(false);
     setMenusForFileSet(false);
@@ -229,6 +230,11 @@ MainWindow::MainWindow(QWidget *parent) :
             proto_tree_, SLOT(expandAll()));
     connect(main_ui_->actionViewCollapseAll, SIGNAL(triggered()),
             proto_tree_, SLOT(collapseAll()));
+
+    connect(packet_list_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(setMenusForSelectedPacket()));
+    connect(packet_list_, SIGNAL(packetsChanged()),
+            this, SLOT(redissectPackets()));
 
     connect(proto_tree_, SIGNAL(protoItemSelected(QString&)),
             main_ui_->statusBar, SLOT(pushFieldStatus(QString&)));

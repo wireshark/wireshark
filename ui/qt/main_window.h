@@ -168,9 +168,13 @@ private slots:
 
     void updateRecentFiles();
     void recentActionTriggered();
+    void setMenusForSelectedPacket();
     void setMenusForSelectedTreeRow(field_info *fi = NULL);
     void interfaceSelectionChanged();
+    void redissectPackets();
 
+    // We should probably move these to main_window_actions.cpp similar to
+    // gtk/main_menubar.c
     void on_actionFileOpen_triggered();
     void on_actionFileMerge_triggered();
     void on_actionFileImport_triggered();
@@ -203,6 +207,18 @@ private slots:
     void on_actionEditFindPacket_triggered();
     void on_actionEditFindNext_triggered();
     void on_actionEditFindPrevious_triggered();
+    void on_actionEditMarkPacket_triggered();
+    void on_actionEditMarkAllDisplayed_triggered();
+    void on_actionEditUnmarkAllDisplayed_triggered();
+    void on_actionEditFindNextMark_triggered();
+    void on_actionEditFindPreviousMark_triggered();
+    void on_actionEditIgnorePacket_triggered();
+    void on_actionEditIgnoreAllDisplayed_triggered();
+    void on_actionEditUnignoreAllDisplayed_triggered();
+    void on_actionEditSetTimeReference_triggered();
+    void on_actionEditUnsetAllTimeReferences_triggered();
+    void on_actionEditNextTimeReference_triggered();
+    void on_actionEditPreviousTimeReference_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();

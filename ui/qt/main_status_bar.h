@@ -40,6 +40,7 @@ public:
     explicit MainStatusBar(QWidget *parent = 0);
     void showExpert();
     void hideExpert();
+    void expertUpdate();
 
 private:
     QLabel expert_status_;
@@ -48,8 +49,6 @@ private:
     LabelStack packet_status_;
     LabelStack profile_status_;
     capture_file *cap_file_;
-
-    void expertUpdate();
 
 signals:
 

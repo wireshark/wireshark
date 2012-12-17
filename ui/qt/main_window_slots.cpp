@@ -316,6 +316,7 @@ void MainWindow::captureFileClosing(const capture_file *cf) {
 
     setMenusForCaptureFile(true);
     setForCapturedPackets(false);
+    setMenusForSelectedPacket();
     setForCaptureInProgress(false);
 
     // Reset expert info indicator
@@ -534,6 +535,224 @@ void MainWindow::recentActionTriggered() {
     }
 }
 
+void MainWindow::setMenusForSelectedPacket()
+{
+//    GList      *list_entry = dissector_filter_list;
+//    guint       i          = 0;
+//    gboolean    properties = FALSE;
+//    const char *abbrev     = NULL;
+//    char       *prev_abbrev;
+
+//    /* Making the menu context-sensitive allows for easier selection of the
+//       desired item and has the added benefit, with large captures, of
+//       avoiding needless looping through huge lists for marked, ignored,
+//       or time-referenced packets. */
+//    gboolean is_ssl = packet_is_ssl(cf->edt);
+
+    /* We have one or more items in the packet list */
+    gboolean have_frames = FALSE;
+    /* A frame is selected */
+    gboolean frame_selected = FALSE;
+    /* We have marked frames.  (XXX - why check frame_selected?) */
+    gboolean have_marked = FALSE;
+    /* We have a marked frame other than the current frame (i.e.,
+       we have at least one marked frame, and either there's more
+       than one marked frame or the current frame isn't marked). */
+    gboolean another_is_marked = FALSE;
+    /* One or more frames are hidden by a display filter */
+    gboolean have_filtered = FALSE;
+    /* One or more frames have been ignored */
+    gboolean have_ignored = FALSE;
+    gboolean have_time_ref = FALSE;
+    /* We have a time reference frame other than the current frame (i.e.,
+       we have at least one time reference frame, and either there's more
+       than one time reference frame or the current frame isn't a
+       time reference frame). (XXX - why check frame_selected?) */
+    gboolean another_is_time_ref = FALSE;
+
+    if (cap_file_) {
+        frame_selected = cap_file_->current_frame != NULL;
+        have_frames = cap_file_->count > 0;
+        have_marked = frame_selected && cap_file_->marked_count > 0;
+        another_is_marked = have_marked &&
+                !(cap_file_->marked_count == 1 && cap_file_->current_frame->flags.marked);
+        have_filtered = cap_file_->displayed_count > 0 && cap_file_->displayed_count != cap_file_->count;
+        have_ignored = cap_file_->ignored_count > 0;
+        have_time_ref = cap_file_->ref_time_count > 0;
+        another_is_time_ref = frame_selected && have_time_ref &&
+                !(cap_file_->ref_time_count == 1 && cap_file_->current_frame->flags.ref_time);
+    }
+//    if (cfile.edt && cfile.edt->tree) {
+//        GPtrArray          *ga;
+//        header_field_info  *hfinfo;
+//        field_info         *v;
+//        guint              ii;
+
+//        ga = proto_all_finfos(cfile.edt->tree);
+
+//        for (ii = ga->len - 1; ii > 0 ; ii -= 1) {
+
+//            v = g_ptr_array_index (ga, ii);
+//            hfinfo =  v->hfinfo;
+
+//            if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
+//                !g_str_has_prefix(hfinfo->abbrev, "expert") &&
+//                !g_str_has_prefix(hfinfo->abbrev, "malformed")) {
+
+//                if (hfinfo->parent == -1) {
+//                    abbrev = hfinfo->abbrev;
+//                } else {
+//                    abbrev = proto_registrar_get_abbrev(hfinfo->parent);
+//                }
+//                properties = prefs_is_registered_protocol(abbrev);
+//                break;
+//            }
+//        }
+//    }
+
+    main_ui_->actionEditMarkPacket->setEnabled(frame_selected);
+    main_ui_->actionEditMarkAllDisplayed->setEnabled(have_frames);
+    /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
+    main_ui_->actionEditUnmarkAllDisplayed->setEnabled(have_marked);
+    main_ui_->actionEditNextMark->setEnabled(another_is_marked);
+    main_ui_->actionEditPreviousMark->setEnabled(another_is_marked);
+
+//#ifdef WANT_PACKET_EDITOR
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket",
+//                         frame_selected);
+//#endif /* WANT_PACKET_EDITOR */
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/AddEditPktComment",
+//                         frame_selected);
+
+    main_ui_->actionEditIgnorePacket->setEnabled(frame_selected);
+    main_ui_->actionEditIgnoreAllDisplayed->setEnabled(have_filtered);
+    /* Allow un-ignore of all frames even with no frames currently displayed */
+    main_ui_->actionEditUnignoreAllDisplayed->setEnabled(have_ignored);
+
+    main_ui_->actionEditSetTimeReference->setEnabled(frame_selected);
+    main_ui_->actionEditUnsetAllTimeReferences->setEnabled(have_time_ref);
+    main_ui_->actionEditNextTimeReference->setEnabled(another_is_time_ref);
+    main_ui_->actionEditPreviousTimeReference->setEnabled(another_is_time_ref);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/TimeShift",
+//                         cf->count > 0);
+
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ResizeAllColumns",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/CollapseAll",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CollapseAll",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandAll",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandAll",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizeConversation",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ResetColoring1-10",
+//                         tmp_color_filters_used());
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ShowPacketinNewWindow",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ShowPacketinNewWindow",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ManuallyResolveAddress",
+//                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SCTP",
+//                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowTCPStream",
+//                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowTCPStream",
+//                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowUDPStream",
+//                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowSSLStream",
+//                         frame_selected ? is_ssl : FALSE);
+//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowSSLStream",
+//                         frame_selected ? is_ssl : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/Ethernet",
+//                         frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/IP",
+//                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/TCP",
+//                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/UDP",
+//                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowUDPStream",
+//                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ConversationFilter/PN-CBA",
+//                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/Ethernet",
+//                         frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/IP",
+//                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/TCP",
+//                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/UDP",
+//                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation/PN-CBA",
+//                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/DecodeAs",
+//                         frame_selected && decode_as_ok());
+
+//    if (properties) {
+//        prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_packet_list_menu), "menu_abbrev");
+//        if (!prev_abbrev || (strcmp(prev_abbrev, abbrev) != 0)) {
+//          /*No previous protocol or protocol changed - update Protocol Preferences menu*/
+//            module_t *prefs_module_p = prefs_find_module(abbrev);
+//            rebuild_protocol_prefs_menu(prefs_module_p, properties, ui_manager_packet_list_menu, "/PacketListMenuPopup/ProtocolPreferences");
+
+//            g_object_set_data(G_OBJECT(ui_manager_packet_list_menu), "menu_abbrev", g_strdup(abbrev));
+//            g_free (prev_abbrev);
+//        }
+//    }
+
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ProtocolPreferences",
+//                             properties);
+//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DecodeAs",
+//                         frame_selected && decode_as_ok());
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Copy",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ApplyAsFilter",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/PrepareaFilter",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
+//                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
+//                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowTCPStream",
+//                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowUDPStream",
+//                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowSSLStream",
+//                         frame_selected ? is_ssl : FALSE);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/DecodeAs",
+//                         frame_selected && decode_as_ok());
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
+//                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name ||
+//                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
+//                         frame_selected);
+//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",
+//                         tcp_graph_selected_packet_enabled(cf->current_frame,cf->edt, NULL));
+
+//    while (list_entry != NULL) {
+//        dissector_filter_t *filter_entry;
+//        gchar *path;
+
+//        filter_entry = list_entry->data;
+//        path = g_strdup_printf("/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters/filter-%u", i);
+
+//        set_menu_sensitivity(ui_manager_main_menubar, path,
+//            menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry));
+//        g_free(path);
+//        i++;
+//        list_entry = g_list_next(list_entry);
+//    }
+}
+
 void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     //gboolean properties;
     //gint id;
@@ -674,6 +893,13 @@ void MainWindow::interfaceSelectionChanged()
     } else {
         main_ui_->actionStartCapture->setEnabled(false);
     }
+}
+
+void MainWindow::redissectPackets()
+{
+    if (cap_file_)
+        cf_redissect_packets(cap_file_);
+    main_ui_->statusBar->expertUpdate();
 }
 
 
@@ -969,6 +1195,70 @@ void MainWindow::on_actionEditFindNext_triggered()
 void MainWindow::on_actionEditFindPrevious_triggered()
 {
     main_ui_->searchFrame->findPrevious();
+}
+
+void MainWindow::on_actionEditMarkPacket_triggered()
+{
+    packet_list_->markFrame();
+}
+
+void MainWindow::on_actionEditMarkAllDisplayed_triggered()
+{
+    packet_list_->markAllDisplayedFrames(true);
+}
+
+void MainWindow::on_actionEditUnmarkAllDisplayed_triggered()
+{
+    packet_list_->markAllDisplayedFrames(false);
+}
+
+void MainWindow::on_actionEditFindNextMark_triggered()
+{
+    if (cap_file_)
+        cf_find_packet_marked(cap_file_, SD_FORWARD);
+}
+
+void MainWindow::on_actionEditFindPreviousMark_triggered()
+{
+    if (cap_file_)
+        cf_find_packet_marked(cap_file_, SD_BACKWARD);
+}
+
+void MainWindow::on_actionEditIgnorePacket_triggered()
+{
+    packet_list_->ignoreFrame();
+}
+
+void MainWindow::on_actionEditIgnoreAllDisplayed_triggered()
+{
+    packet_list_->ignoreAllDisplayedFrames(true);
+}
+
+void MainWindow::on_actionEditUnignoreAllDisplayed_triggered()
+{
+    packet_list_->ignoreAllDisplayedFrames(false);
+}
+
+void MainWindow::on_actionEditSetTimeReference_triggered()
+{
+    packet_list_->setTimeReference();
+}
+
+void MainWindow::on_actionEditUnsetAllTimeReferences_triggered()
+{
+    packet_list_->unsetAllTimeReferences();
+}
+
+void MainWindow::on_actionEditNextTimeReference_triggered()
+{
+    if (!cap_file_) return;
+    cf_find_packet_time_reference(cap_file_, SD_FORWARD);
+}
+
+void MainWindow::on_actionEditPreviousTimeReference_triggered()
+{
+    if (!cap_file_) return;
+    cf_find_packet_time_reference(cap_file_, SD_BACKWARD);
 }
 
 // View Menu

@@ -24,19 +24,19 @@
 #include "packet_list_record.h"
 
 PacketListRecord::PacketListRecord(frame_data *frameData) :
-    col_text(NULL), col_text_len(NULL), fdata(frameData)
+    col_text_(NULL), col_text_len_(NULL), fdata_(frameData)
 {
 }
 
 QVariant PacketListRecord::data(int col_num, column_info *cinfo) const
 {
-    g_assert(fdata);
+    g_assert(fdata_);
 
     if (!cinfo)
         return QVariant();
 
     if (col_based_on_frame_data(cinfo, col_num)) //{
-        col_fill_in_frame_data(fdata, cinfo, col_num, FALSE);
+        col_fill_in_frame_data(fdata_, cinfo, col_num, FALSE);
         return cinfo->col_data[col_num];
 //    } else {
 //        QString unknown;
@@ -45,7 +45,7 @@ QVariant PacketListRecord::data(int col_num, column_info *cinfo) const
 }
 
 frame_data *PacketListRecord::getFdata() {
-    return fdata;
+    return fdata_;
 }
 
 /*

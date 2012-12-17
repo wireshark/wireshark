@@ -62,7 +62,13 @@ private:
     QList<QAction *> filter_actions_;
     int ctx_column_;
 
+    void markFramesReady();
+    void setFrameMark(gboolean set, frame_data *fdata);
+    void setFrameIgnore(gboolean set, frame_data *fdata);
+    void setFrameReftime(gboolean set, frame_data *fdata);
+
 signals:
+    void packetsChanged();
 
 public slots:
     void setCaptureFile(capture_file *cf);
@@ -71,6 +77,12 @@ public slots:
     void goFirstPacket();
     void goLastPacket();
     void goToPacket(int packet);
+    void markFrame();
+    void markAllDisplayedFrames(bool set);
+    void ignoreFrame();
+    void ignoreAllDisplayedFrames(bool set);
+    void setTimeReference();
+    void unsetAllTimeReferences();
 };
 
 #endif // PACKET_LIST_H

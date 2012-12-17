@@ -63,7 +63,6 @@ public:
     frame_data *getRowFdata(int row);
     int visibleIndexOf(frame_data *fdata) const;
 
-
 signals:
 
 public slots:

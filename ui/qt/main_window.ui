@@ -172,6 +172,21 @@
     <addaction name="actionEditFindPacket"/>
     <addaction name="actionEditFindNext"/>
     <addaction name="actionEditFindPrevious"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditMarkPacket"/>
+    <addaction name="actionEditMarkAllDisplayed"/>
+    <addaction name="actionEditUnmarkAllDisplayed"/>
+    <addaction name="actionEditNextMark"/>
+    <addaction name="actionEditPreviousMark"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditIgnorePacket"/>
+    <addaction name="actionEditIgnoreAllDisplayed"/>
+    <addaction name="actionEditUnignoreAllDisplayed"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditSetTimeReference"/>
+    <addaction name="actionEditUnsetAllTimeReferences"/>
+    <addaction name="actionEditNextTimeReference"/>
+    <addaction name="actionEditPreviousTimeReference"/>
    </widget>
    <widget class="QMenu" name="menuCapture">
     <property name="title">
@@ -965,6 +980,138 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="actionEditMarkPacket">
+   <property name="text">
+    <string>&amp;Mark/Unmark Packet</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark or unmark this packet</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionEditMarkAllDisplayed">
+   <property name="text">
+    <string>Mark All Displayed</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark all displayed packets</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+M</string>
+   </property>
+  </action>
+  <action name="actionEditUnmarkAllDisplayed">
+   <property name="text">
+    <string>Unmark All Displayed</string>
+   </property>
+   <property name="toolTip">
+    <string>Unmark all displayed packets</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Alt+M</string>
+   </property>
+  </action>
+  <action name="actionEditNextMark">
+   <property name="text">
+    <string>Next Mark</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the next marked packet</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Shift+N</string>
+   </property>
+  </action>
+  <action name="actionEditPreviousMark">
+   <property name="text">
+    <string>Previous Mark</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the previous marked packet</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Shift+B</string>
+   </property>
+  </action>
+  <action name="actionEditIgnorePacket">
+   <property name="text">
+    <string>&amp;Ignore/Unignore Packet</string>
+   </property>
+   <property name="toolTip">
+    <string>Ignore or unignore this packet</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+X</string>
+   </property>
+  </action>
+  <action name="actionEditIgnoreAllDisplayed">
+   <property name="text">
+    <string>Ignore All Displayed</string>
+   </property>
+   <property name="toolTip">
+    <string>Ignore all displayed packets</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Alt+Shift+X</string>
+   </property>
+  </action>
+  <action name="actionEditUnignoreAllDisplayed">
+   <property name="text">
+    <string>Unignore All Displayed</string>
+   </property>
+   <property name="toolTip">
+    <string>Unignore all displayed packets</string>
+   </property>
+   <property name="shortcut">
+    <string>Meta+Shift+X</string>
+   </property>
+  </action>
+  <action name="actionEditSetTimeReference">
+   <property name="text">
+    <string>Set/Unset Time Reference</string>
+   </property>
+   <property name="toolTip">
+    <string>Set or unset a time reference for this packet</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionEditUnsetAllTimeReferences">
+   <property name="text">
+    <string>Unset All Time References</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove all time references</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+T</string>
+   </property>
+  </action>
+  <action name="actionEditNextTimeReference">
+   <property name="text">
+    <string>Next Time Reference</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the next time reference</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+N</string>
+   </property>
+  </action>
+  <action name="actionEditPreviousTimeReference">
+   <property name="text">
+    <string>Previous Time Reference</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the previous time reference</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Alt+B</string>
    </property>
   </action>
  </widget>
