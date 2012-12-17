@@ -35,17 +35,20 @@ set(COMMON_UI_SRC
 	util.c
 )
 
-set(CLEAN_FILES
-	${COMMON_UI_SRC}
+set(DIRTY_UI_SRC)
+
+add_lex_files(DIRTY_UI_SRC
+	text_import_scanner.l
 )
 
-add_lex_files(COMMON_UI_SRC
-	text_import_scanner.l
+set(CLEAN_FILES
+	${COMMON_UI_SRC}
+	${DIRTY_UI_SRC}
 )
 
 if (WERROR)
 	set_source_files_properties(
-		${CLEAN_FILES}
+		${COMMON_UI_SRC}
 		PROPERTIES
 		COMPILE_FLAGS -Werror
 	)
@@ -57,3 +60,9 @@ add_library(ui STATIC
 )
 
 set_target_properties(ui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+
+add_library(ui_dirty STATIC
+	${DIRTY_UI_SRC}
+)
+
+set_target_properties(ui_dirty PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
