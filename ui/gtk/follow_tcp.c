@@ -315,7 +315,8 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 
 #ifdef HAVE_LIBZ
 static char *
-sgetline(char *str, int *next) {
+sgetline(char *str, int *next)
+{
   char *end;
 
   end = strstr(str, "\r\n");
@@ -329,7 +330,8 @@ sgetline(char *str, int *next) {
 }
 
 static gboolean
-parse_http_header(char *data, size_t len, size_t *content_start) {
+parse_http_header(char *data, size_t len, size_t *content_start)
+{
   char *tmp, *copy, *line;
   size_t pos = 0;
   int next_line;
@@ -409,7 +411,7 @@ parse_http_header(char *data, size_t len, size_t *content_start) {
  * correctly but get extra blank lines very other line when printed.
  */
 frs_return_t
-	follow_read_tcp_stream(follow_info_t *follow_info,
+follow_read_tcp_stream(follow_info_t *follow_info,
 	gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
 	void *arg)
 {
@@ -426,12 +428,14 @@ frs_return_t
 	guint32		*global_pos;
 	gboolean		skip;
 	char                buffer[FLT_BUF_SIZE+1]; /* +1 to fix ws bug 1043 */
-	char                outbuffer[FLT_BUF_SIZE+1];
 	size_t              nchars;
 	frs_return_t        frs_return;
+#ifdef HAVE_LIBZ
+	char                outbuffer[FLT_BUF_SIZE+1];
 	z_stream            strm;
 	gboolean            gunzip = FALSE;
 	int                 ret;
+#endif
 
 
 	iplen = (follow_info->is_ipv6) ? 16 : 4;
