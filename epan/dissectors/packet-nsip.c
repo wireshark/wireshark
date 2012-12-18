@@ -31,6 +31,8 @@
 
 #include <prefs.h>
 
+#include "packet-mpls.h"
+
 #define NSIP_DEBUG 0
 #define NSIP_SEP ", " /* Separator string */
 
@@ -41,6 +43,7 @@ void proto_reg_handoff_nsip(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_nsip = -1;
+static int proto_pw_nsip_cw = -1;
 
 static int hf_nsip_cause = -1;
 static int hf_nsip_ns_vci = -1;
@@ -69,6 +72,9 @@ static int hf_nsip_ip_element_udp_port = -1;
 static int hf_nsip_ip_element_signalling_weight = -1;
 static int hf_nsip_ip_element_data_weight = -1;
 
+static int hf_pw_nsip_cw_flags = -1;
+static int hf_pw_nsip_cw_length = -1;
+static int hf_pw_nsip_cw_sequence_number = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_nsip = -1;
@@ -77,6 +83,8 @@ static gint ett_nsip_reset_flag = -1;
 static gint ett_nsip_end_flag = -1;
 static gint ett_nsip_ip_element = -1;
 static gint ett_nsip_ip_element_list = -1;
+
+static gint ett_pw_nsip = -1;
 
 /* PDU type coding, v5.3.0, table 10.3.7.1, p 51 */
 #define NSIP_PDU_NS_UNITDATA        0x00
@@ -1021,6 +1029,42 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   decode_pdu(pdu_type, &bi);
 }
 
+static void
+dissect_pw_nsip_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  tvbuff_t *subset_tvb;
+
+  if (tvb_reported_length_remaining(tvb, 0) < 4) {
+    proto_tree_add_text(tree, tvb, 0, -1, "Error processing Message");
+    return;
+  }
+
+  if (dissect_try_cw_first_nibble(tvb, pinfo, tree)) {
+    return;
+  }
+
+  if (tree) {
+    proto_tree  *mpls_pw_nsip_cw_tree;
+    proto_item  *ti;
+
+    ti = proto_tree_add_item(tree, proto_pw_nsip_cw, tvb, 0, 4, ENC_NA);
+    mpls_pw_nsip_cw_tree = proto_item_add_subtree(ti, ett_pw_nsip);
+
+    proto_tree_add_item(mpls_pw_nsip_cw_tree, hf_pw_nsip_cw_flags,
+                        tvb, 0, 2, ENC_BIG_ENDIAN);
+    /* bits 4 to 7 and FRG bits are displayed together */
+    proto_tree_add_item(mpls_pw_nsip_cw_tree, hf_pw_nsip_cw_length,
+                        tvb, 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(mpls_pw_nsip_cw_tree, hf_pw_nsip_cw_sequence_number,
+                        tvb, 2, 2, ENC_BIG_ENDIAN);
+  }
+
+  subset_tvb = tvb_new_subset_remaining(tvb, 4);
+  if (subset_tvb) {
+    dissect_nsip(subset_tvb, pinfo, tree);
+  }
+}
+
 void
 proto_register_nsip(void)
 {
@@ -1166,6 +1210,28 @@ proto_register_nsip(void)
     &ett_nsip_ip_element,
     &ett_nsip_ip_element_list,
   };
+  
+  static hf_register_info hf_pw_nsip_cw[] = {
+    { &hf_pw_nsip_cw_flags,
+      { "Flags", "pw_nsip_cw.flags",
+        FT_UINT16, BASE_HEX, NULL, 0x0FC0,
+        NULL, HFILL }
+    },
+    { &hf_pw_nsip_cw_length,
+      { "Length", "pw_nsip_cw.length",
+        FT_UINT8, BASE_DEC, NULL, 0x3F,
+        NULL, HFILL }
+    },
+    { &hf_pw_nsip_cw_sequence_number,
+      { "Sequence Number", "pw_nsip_cw.sequence_number",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+  };
+
+  static gint *ett_pw_nsip_cw[] = {
+    &ett_pw_nsip,
+  };
 
   module_t *nsip_module;
 
@@ -1179,6 +1245,14 @@ proto_register_nsip(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("gprs_ns", dissect_nsip, proto_nsip);
+
+  proto_pw_nsip_cw = proto_register_protocol("GPRS-NS MPLS PW Control Word",
+                                             "GPRS-NS MPLS PW (with CW)", "pw_nsip_cw");
+
+  proto_register_field_array(proto_pw_nsip_cw, hf_pw_nsip_cw, array_length(hf_pw_nsip_cw));
+  proto_register_subtree_array(ett_pw_nsip_cw, array_length(ett_pw_nsip_cw));
+
+  register_dissector("pw_gprs_ns_cw", dissect_pw_nsip_cw, proto_pw_nsip_cw);
 
   /* Set default UDP ports */
   range_convert_str(&global_nsip_udp_port_range, DEFAULT_NSIP_PORT_RANGE, MAX_UDP_PORT);
@@ -1213,6 +1287,7 @@ proto_reg_handoff_nsip(void) {
   if (!nsip_prefs_initialized) {
     nsip_handle = find_dissector("gprs_ns");
     bssgp_handle = find_dissector("bssgp");
+    dissector_add_uint("mpls.label", MPLS_LABEL_INVALID, find_dissector("pw_gprs_ns_cw"));
     nsip_prefs_initialized = TRUE;
   } else {
     range_foreach(nsip_udp_port_range, range_delete_callback);
