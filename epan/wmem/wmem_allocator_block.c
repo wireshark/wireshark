@@ -150,7 +150,7 @@ wmem_block_free_all(void *private_data)
 }
 
 static void
-wmem_destroy_block_allocator(wmem_allocator_t *allocator)
+wmem_block_allocator_destroy(wmem_allocator_t *allocator)
 {
     GSList                 *tmp;
     wmem_block_allocator_t *real_allocator;
@@ -173,7 +173,7 @@ wmem_destroy_block_allocator(wmem_allocator_t *allocator)
 }
 
 wmem_allocator_t *
-wmem_create_block_allocator(void)
+wmem_block_allocator_new(void)
 {
     wmem_allocator_t       *allocator;
     wmem_block_allocator_t *block_allocator;
@@ -183,7 +183,7 @@ wmem_create_block_allocator(void)
 
     allocator->alloc        = &wmem_block_alloc;
     allocator->free_all     = &wmem_block_free_all;
-    allocator->destroy      = &wmem_destroy_block_allocator;
+    allocator->destroy      = &wmem_block_allocator_destroy;
     allocator->private_data = (void*) block_allocator;
 
     block_allocator->free_list = NULL;

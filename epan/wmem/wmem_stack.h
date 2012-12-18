@@ -52,7 +52,7 @@ void
 wmem_stack_push(wmem_stack_t *stack, void *data);
 
 wmem_stack_t *
-wmem_create_stack(wmem_allocator_t *allocator);
+wmem_stack_new(wmem_allocator_t *allocator);
 
 #ifdef __cplusplus
 }

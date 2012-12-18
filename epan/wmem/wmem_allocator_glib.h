@@ -33,7 +33,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 wmem_allocator_t *
-wmem_create_glib_allocator(void);
+wmem_glib_allocator_new(void);
 
 #ifdef __cplusplus
 }

@@ -87,7 +87,7 @@ to the lifetime of the pinfo struct.
 
 2.4 Stack
 
- - wmem_create_stack
+ - wmem_stack_new
  - wmem_stack_push
  - wmem_stack_pop
  - wmem_stack_peek
@@ -95,7 +95,7 @@ to the lifetime of the pinfo struct.
 
 2.5 Slab
 
- - wmem_create_slab
+ - wmem_slab_new
  - wmem_slab_alloc
  - wmem_slab_free
 
@@ -123,12 +123,12 @@ The currently available allocators are:
 3.2 Creating a Pool
 
 To create a pool, include the header for the type of allocator you want to use
-and call the create function available in that header. For example,
+and call the 'new' function available in that header. For example,
 
     #include "wmem/wmem_allocator_glib.h"
 
     wmem_allocator_t *myPool;
-    myPool = wmem_create_glib_allocator();
+    myPool = wmem_glib_allocator_new();
 
 From here on in, you don't need to remember which type of allocator you used
 (although allocator authors are welcome to expose additional allocator-specific
@@ -149,7 +149,7 @@ with a call to the function wmem_destroy_allocator(). For example:
 
     wmem_allocator_t *myPool;
 
-    myPool = wmem_create_glib_allocator();
+    myPool = wmem_glib_allocator_new();
 
     /* Allocate some memory in myPool ... */
 
@@ -170,7 +170,7 @@ the pool would otherwise be scoped to a single iteration of a loop. For example:
 
     wmem_allocator_t *myPool;
 
-    myPool = wmem_create_glib_allocator();
+    myPool = wmem_glib_allocator_new();
     for (...) {
 
         /* Allocate some memory in myPool ... */

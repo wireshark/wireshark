@@ -154,14 +154,14 @@ wmem_init_scopes(void)
     g_assert(in_file_scope   == FALSE);
 
     if (getenv("WIRESHARK_DEBUG_WMEM_PACKET_NO_CHUNKS")) {
-        packet_scope = wmem_create_glib_allocator();
+        packet_scope = wmem_glib_allocator_new();
     }
     else {
-        packet_scope = wmem_create_block_allocator();
+        packet_scope = wmem_block_allocator_new();
     }
 
-    file_scope   = wmem_create_glib_allocator();
-    epan_scope   = wmem_create_glib_allocator();
+    file_scope   = wmem_glib_allocator_new();
+    epan_scope   = wmem_glib_allocator_new();
 }
 
 void

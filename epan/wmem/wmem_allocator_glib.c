@@ -69,14 +69,14 @@ wmem_glib_free_all(void *private_data)
 }
 
 static void
-wmem_destroy_glib_allocator(wmem_allocator_t *allocator)
+wmem_glib_allocator_destroy(wmem_allocator_t *allocator)
 {
     g_free(allocator->private_data);
     g_free(allocator);
 }
 
 wmem_allocator_t *
-wmem_create_glib_allocator(void)
+wmem_glib_allocator_new(void)
 {
     wmem_allocator_t      *allocator;
     wmem_glib_allocator_t *glib_allocator;
@@ -86,7 +86,7 @@ wmem_create_glib_allocator(void)
 
     allocator->alloc        = &wmem_glib_alloc;
     allocator->free_all     = &wmem_glib_free_all;
-    allocator->destroy      = &wmem_destroy_glib_allocator;
+    allocator->destroy      = &wmem_glib_allocator_destroy;
     allocator->private_data = (void*) glib_allocator;
 
     glib_allocator->block_list = NULL;

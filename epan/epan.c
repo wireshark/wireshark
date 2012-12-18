@@ -162,7 +162,7 @@ epan_dissect_init(epan_dissect_t *edt, const gboolean create_proto_tree, const g
 {
 	g_assert(edt);
 
-	edt->pi.pool = wmem_create_glib_allocator();
+	edt->pi.pool = wmem_glib_allocator_new();
 
 	if (create_proto_tree) {
 		edt->tree = proto_tree_create_root(&edt->pi);

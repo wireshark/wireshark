@@ -88,7 +88,7 @@ wmem_stack_push(wmem_stack_t *stack, void *data)
 }
 
 wmem_stack_t *
-wmem_create_stack(wmem_allocator_t *allocator)
+wmem_stack_new(wmem_allocator_t *allocator)
 {
     wmem_stack_t *stack;
 
@@ -96,7 +96,7 @@ wmem_create_stack(wmem_allocator_t *allocator)
 
     stack->count = 0;
     stack->top   = NULL;
-    stack->slab  = wmem_create_slab(allocator, sizeof(wmem_stack_frame_t));
+    stack->slab  = wmem_slab_new(allocator, sizeof(wmem_stack_frame_t));
 
     return stack;
 }
