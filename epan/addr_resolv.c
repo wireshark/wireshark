@@ -2620,6 +2620,7 @@ _host_name_lookup_cleanup(void) {
   }
 
   g_list_free(async_dns_queue_head);
+  async_dns_queue_head = NULL;
 
   if (async_dns_initialized) {
     ares_destroy(ghba_chan);
