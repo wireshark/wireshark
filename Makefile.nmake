@@ -152,7 +152,7 @@ reordercap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
-text2pcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+text2pcap_LIBS= \
 	wsock32.lib user32.lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)

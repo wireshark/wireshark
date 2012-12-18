@@ -884,7 +884,7 @@ endif()
 
 if(BUILD_text2pcap)
 	set(text2pcap_LIBS
-		wiretap
+		wsutil
 		${M_LIBRARIES}
 		${ZLIB_LIBRARIES}
 	)

@@ -423,7 +423,6 @@ rawshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
-	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@ -lm
 # Don't turn on -Werror for text2pcap: its source includes text2pcap-scanner.c
