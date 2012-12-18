@@ -1,6 +1,6 @@
 # h225.cnf
 # H.225 conformation file
-# Copyright 2004 Anders Broman 
+# Copyright 2004 Anders Broman
 # $Id$
 
 #.IMPORT ../h235/h235-exp.cnf
@@ -17,14 +17,14 @@
 H323-UU-PDU/h323-message-body
 FacilityReason
 GatekeeperRejectReason
-UnregRequestReason	
-UnregRejectReason	
-BandRejectReason	
-DisengageReason		
-DisengageRejectReason	
-InfoRequestNakReason	
-AdmissionRejectReason	
-LocationRejectReason	
+UnregRequestReason
+UnregRejectReason
+BandRejectReason
+DisengageReason
+DisengageRejectReason
+InfoRequestNakReason
+AdmissionRejectReason
+LocationRejectReason
 RegistrationRejectReason
 
 #.MODULE_EXPORTS
@@ -68,7 +68,7 @@ H323-UserInformation
 RasMessage
 ExtendedAliasAddress
 #.END
- 
+
 #----------------------------------------------------------------------------------------
 
 #.OMIT_ASSIGNMENT
@@ -77,7 +77,7 @@ FastStartToken
 #.END
 
 #.VIRTUAL_ASSGN
-FastStart  Setup-UUIE/fastStart 
+FastStart  Setup-UUIE/fastStart
 #.SET_TYPE
 Setup-UUIE/fastStart           FastStart
 CallProceeding-UUIE/fastStart  FastStart
@@ -93,7 +93,7 @@ ParallelH245Control  Setup-UUIE/parallelH245Control
 DialedDigits  AliasAddress/dialledDigits
 
 #.VIRTUAL_ASSGN
-DestinationInfo  AdmissionRequest/destinationInfo 
+DestinationInfo  AdmissionRequest/destinationInfo
 #.SET_TYPE
 AdmissionRequest/destinationInfo  DestinationInfo
 AdmissionConfirm/destinationInfo  DestinationInfo
@@ -141,7 +141,7 @@ RasUsageSpecification/when RasUsageSpecification_when
 TransportAddress/ipAddress/ip IpV4
 #----------------------------------------------------------------------------------------
 #.FIELD_RENAME
-RasUsageSpecification/callStartingPoint/alerting alerting_flg 
+RasUsageSpecification/callStartingPoint/alerting alerting_flg
 CallCreditServiceControl/callStartingPoint/alerting alerting_flg
 UseSpecifiedTransport/annexE annexE_flg
 
@@ -154,8 +154,8 @@ NonStandardParameter/data nsp_data
 H323-UU-PDU/h323-message-body/empty empty_flg
 RasUsageInfoTypes/endTime endTime_flg
 UUIEsRequested/facility facility_bool
-CallsAvailable/group group_IA5String 
-GroupID/group group_IA5String 
+CallsAvailable/group group_IA5String
+GroupID/group group_IA5String
 
 Setup-UUIE/hopCount hopCount_1_31
 UUIEsRequested/information information_bool
@@ -174,12 +174,12 @@ UUIEsRequested/progress progress_bool
 Facility-UUIE/reason facilityReason
 UnregistrationRequest/reason unregRequestReason
 ReleaseComplete-UUIE/reason releaseCompleteReason
-BandwidthReject/rejectReason bandRejectReason     
-UnregistrationReject/rejectReason unregRejectReason    
-RegistrationReject/rejectReason registrationRejectReason 
-LocationReject/rejectReason locationRejectReason 
-DisengageReject/rejectReason disengageRejectReason 
-GatekeeperReject/rejectReason gatekeeperRejectReason 
+BandwidthReject/rejectReason bandRejectReason
+UnregistrationReject/rejectReason unregRejectReason
+RegistrationReject/rejectReason registrationRejectReason
+LocationReject/rejectReason locationRejectReason
+DisengageReject/rejectReason disengageRejectReason
+GatekeeperReject/rejectReason gatekeeperRejectReason
 
 UUIEsRequested/releaseComplete releaseComplete_bool
 UseSpecifiedTransport/sctp sctp_flg
@@ -200,7 +200,7 @@ RasUsageSpecification/callStartingPoint/connect connect_flg
 CallCreditServiceControl/callStartingPoint/connect connect_flg
 
 Alerting-UUIE/destinationInfo uUIE_destinationInfo
-CallProceeding-UUIE/destinationInfo uUIE_destinationInfo 
+CallProceeding-UUIE/destinationInfo uUIE_destinationInfo
 Connect-UUIE/destinationInfo uUIE_destinationInfo
 Facility-UUIE/destinationInfo uUIE_destinationInfo
 Progress-UUIE/destinationInfo uUIE_destinationInfo
@@ -209,9 +209,9 @@ TunnelledProtocol/id tunnelledProtocol_id
 SecurityCapabilities/integrity securityCapabilities_integrity
 
 GenericIdentifier/nonStandard genericIdentifier_nonStandard
-AlternateGK/rasAddress alternateGK_rasAddress 
+AlternateGK/rasAddress alternateGK_rasAddress
 GatekeeperRequest/rasAddress gatekeeperRequest_rasAddress
-GatekeeperConfirm/rasAddress gatekeeperConfirm_rasAddress 
+GatekeeperConfirm/rasAddress gatekeeperConfirm_rasAddress
 LocationConfirm/rasAddress locationConfirm_rasAddress
 InfoRequestResponse/rasAddress infoRequestResponse_rasAddress
 
@@ -364,7 +364,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   h225_pi->cs_type = H225_PROGRESS;
   if (contains_faststart == TRUE )
         g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-  else 
+  else
         g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
@@ -409,7 +409,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   h225_pi->cs_type = H225_ALERTING;
   if (contains_faststart == TRUE )
        g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-  else 
+  else
        g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
@@ -424,7 +424,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   h225_pi->cs_type = H225_CONNECT;
   if (contains_faststart == TRUE )
       g_snprintf(h225_pi->frame_label, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-  else 
+  else
       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
@@ -437,16 +437,14 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_FTR H245TransportAddress
 	/* we need this info for TAPing */
 	h225_pi->is_h245 = TRUE;
-	h225_pi->h245_address = ipv4_address;	
-	h225_pi->h245_port = ipv4_port;	
+	h225_pi->h245_address = ipv4_address;
+	h225_pi->h245_port = ipv4_port;
 
 	if((!actx->pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && h245_handle){
 		address src_addr;
 		conversation_t *conv=NULL;
 
-		src_addr.type=AT_IPv4;
-		src_addr.len=4;
-		src_addr.data=(const guint8 *)&ipv4_address;
+		SET_ADDRESS(&src_addr, AT_IPv4, 4, &ipv4_address);
 
 		conv=find_conversation(actx->pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
 		if(!conv){
@@ -459,21 +457,21 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #----------------------------------------------------------------------------------------
 #.FN_BODY FacilityReason  VAL_PTR = &value
 	gint32 value;
-	
+
 %(DEFAULT_BODY)s
 	h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY GatekeeperRejectReason  VAL_PTR = &value
   gint32 value;
-	
+
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnregRequestReason  VAL_PTR = &value
   gint32 value;
-	
+
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
@@ -494,13 +492,13 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #----------------------------------------------------------------------------------------
 #.FN_BODY DisengageReason  VAL_PTR = &value
   gint32 value;
-	
+
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #----------------------------------------------------------------------------------------
 #.FN_BODY DisengageRejectReason  VAL_PTR = &value
   gint32 value;
-	
+
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
@@ -528,14 +526,14 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #----------------------------------------------------------------------------------------
 #.FN_BODY InfoRequestNakReason  VAL_PTR = &value
   gint32 value;
-	
+
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ReleaseCompleteReason  VAL_PTR = &value
   gint32 value;
-	
+
 %(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
@@ -615,7 +613,7 @@ NonStandardIdentifier/object  FN_VARIANT = _str  VAL_PTR = &nsiOID
 #.FN_FTR H221NonStandard
   h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
   proto_tree_add_uint(tree, hf_h221Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
-#.FN_PARS 
+#.FN_PARS
 H221NonStandard/t35CountryCode    VAL_PTR = &t35CountryCode
 H221NonStandard/t35Extension      VAL_PTR = &t35Extension
 H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
@@ -644,7 +642,7 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
     gefx = gef_ctx_alloc(NULL, "GenericData");
     actx->private_data = gefx;
   }
-#.FN_FTR 
+#.FN_FTR
   actx->private_data = priv_data;
 #.END
 
@@ -661,7 +659,7 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 #.FN_HDR FeatureDescriptor
   void *priv_data = actx->private_data;
   actx->private_data = gef_ctx_alloc(NULL, "FeatureDescriptor");
-#.FN_FTR 
+#.FN_FTR
   actx->private_data = priv_data;
 #.END
 #----------------------------------------------------------------------------------------
@@ -707,7 +705,7 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 #.FN_HDR TBCD-STRING
   int min_len, max_len;
   gboolean has_extension;
-  
+
   get_size_constraint_from_stack(actx, "TBCD_STRING", &min_len, &max_len, &has_extension);
 #.FN_PARS TBCD-STRING
 MIN_VAL = min_len

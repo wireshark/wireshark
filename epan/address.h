@@ -150,15 +150,26 @@ typedef struct _address {
 	guint8 *COPY_ADDRESS_data; \
 	(to)->type = (from)->type; \
 	(to)->len = (from)->len; \
+	(to)->hf = (from)->hf; \
 	COPY_ADDRESS_data = g_malloc((from)->len); \
 	memcpy(COPY_ADDRESS_data, (from)->data, (from)->len); \
 	(to)->data = COPY_ADDRESS_data; \
 	}
 
+/* Perform a shallow copy of the address (both addresses point to the same
+ * memory location).
+ */
+#define COPY_ADDRESS_SHALLOW(to, from) \
+	(to)->type = (from)->type; \
+	(to)->len = (from)->len; \
+	(to)->hf = (from)->hf; \
+	(to)->data = (from)->data;
+
 #define SE_COPY_ADDRESS(to, from) { \
 	guint8 *SE_COPY_ADDRESS_data; \
 	(to)->type = (from)->type; \
 	(to)->len = (from)->len; \
+	(to)->hf = (from)->hf; \
 	SE_COPY_ADDRESS_data = se_alloc((from)->len); \
 	memcpy(SE_COPY_ADDRESS_data, (from)->data, (from)->len); \
 	(to)->data = SE_COPY_ADDRESS_data; \

@@ -841,9 +841,7 @@ mkipv4_address( address **addr, const char *str_addr )
 	*addr=g_malloc( sizeof(address) );
 	addr_data=g_malloc( 4 );
 	inet_pton( AF_INET, str_addr, addr_data );
-	(*addr)->type=AT_IPv4;
-	(*addr)->len=4;
-	(*addr)->data=(guint8*)addr_data;
+	SET_ADDRESS(*addr, AT_IPv4, 4, addr_data);
 }
 static void
 parse_tuple( char *key_from_option )

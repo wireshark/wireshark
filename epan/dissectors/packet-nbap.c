@@ -8691,7 +8691,7 @@ dissect_nbap_E_DCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                                             0U, maxNrOfEDCHMACdFlows_1, &e_dch_macdflow_id, FALSE);
 
 
- 
+
 
 
   return offset;
@@ -10032,7 +10032,7 @@ dissect_nbap_AddorDeleteIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_nbap_CFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2153 "../../asn1/nbap/nbap.cnf"
+#line 2136 "../../asn1/nbap/nbap.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &cfn, FALSE);
 
@@ -10285,7 +10285,7 @@ dissect_nbap_AvailabilityStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_nbap_HSDSCH_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2119 "../../asn1/nbap/nbap.cnf"
+#line 2102 "../../asn1/nbap/nbap.cnf"
 umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
 address     null_addr;
 conversation_t   *conversation = NULL;
@@ -10312,7 +10312,7 @@ int i;
             }
          }
      }
-     
+
 
 
   return offset;
@@ -11504,7 +11504,7 @@ dissect_nbap_Common_E_DCH_Resource_Combination_InfoList(tvbuff_t *tvb _U_, int o
 
 static int
 dissect_nbap_Common_MACFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1976 "../../asn1/nbap/nbap.cnf"
+#line 1961 "../../asn1/nbap/nbap.cnf"
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxNrOfCommonMACFlows_1, &common_macdflow_id, FALSE);
@@ -11638,12 +11638,12 @@ dissect_nbap_E_DCH_MACdFlow_Multiplexing_List(tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_nbap_LogicalChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1632 "../../asn1/nbap/nbap.cnf"
+#line 1619 "../../asn1/nbap/nbap.cnf"
     /* Set logical channel id for this entry*/
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 15U, &logical_channel_id, FALSE);
 
-    
+
 
     nbap_edch_channel_info[e_dch_macdflow_id].lchId[num_items-1] = logical_channel_id;
 
@@ -11657,7 +11657,7 @@ dissect_nbap_LogicalChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_nbap_MAC_PDU_SizeExtended(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1731 "../../asn1/nbap/nbap.cnf"
+#line 1717 "../../asn1/nbap/nbap.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 1504U, NULL, TRUE);
 
@@ -12080,12 +12080,12 @@ static const per_sequence_t CommonMACFlow_Specific_InfoItem_sequence[] = {
 
 static int
 dissect_nbap_CommonMACFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1983 "../../asn1/nbap/nbap.cnf"
+#line 1968 "../../asn1/nbap/nbap.cnf"
     address     dst_addr;
     transportLayerAddress_ipv4 = 0;
     BindingID_port = 0;
     num_items++;
-    
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_CommonMACFlow_Specific_InfoItem, CommonMACFlow_Specific_InfoItem_sequence);
 
@@ -12095,15 +12095,13 @@ dissect_nbap_CommonMACFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_, 
         return offset;
     }
 
-    dst_addr.type=AT_IPv4;
-    dst_addr.len=4;
-    dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+    SET_ADDRESS(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
     /* Set address for collection of common entries */
     COPY_ADDRESS(&(nbap_common_channel_info[common_macdflow_id].crnc_address),&dst_addr);
     nbap_common_channel_info[common_macdflow_id].crnc_port = BindingID_port;
-    
-    
+
+
 
 
   return offset;
@@ -12127,7 +12125,7 @@ dissect_nbap_CommonMACFlow_Specific_InfoList(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_nbap_MACdPDU_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1623 "../../asn1/nbap/nbap.cnf"
+#line 1610 "../../asn1/nbap/nbap.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 5000U, &MACdPDU_Size, TRUE);
 
@@ -13347,7 +13345,7 @@ dissect_nbap_CriticalityDiagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_nbap_CRNC_CommunicationContextID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2093 "../../asn1/nbap/nbap.cnf"
+#line 2076 "../../asn1/nbap/nbap.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 1048575U, &com_context_id, FALSE);
 
@@ -14799,7 +14797,7 @@ dissect_nbap_T_dCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_nbap_TransportFormatSet_NrOfTransportBlocks(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1064 "../../asn1/nbap/nbap.cnf"
+#line 1058 "../../asn1/nbap/nbap.cnf"
 guint32 NrOfTransportBlocks;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -14816,13 +14814,13 @@ guint32 NrOfTransportBlocks;
                 nbap_dch_chnl_info[dch_id].num_dl_chans++;
                 nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
                 break;
-            case NBAP_CPCH: 
+            case NBAP_CPCH:
                 nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans++;
                 nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
                 nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans++;
                 nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
                 break;
-            case NBAP_PCH: 
+            case NBAP_PCH:
                 nbap_dch_chnl_info[commontransportchannelid].num_ul_chans++;
                 nbap_dch_chnl_info[commontransportchannelid].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
                 nbap_dch_chnl_info[commontransportchannelid].num_dl_chans++;
@@ -14842,7 +14840,7 @@ guint32 NrOfTransportBlocks;
 
 static int
 dissect_nbap_TransportFormatSet_TransportBlockSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1096 "../../asn1/nbap/nbap.cnf"
+#line 1090 "../../asn1/nbap/nbap.cnf"
 guint32 TransportBlockSize;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -14970,7 +14968,7 @@ static const per_sequence_t TransportFormatSet_DynamicPartList_item_sequence[] =
 
 static int
 dissect_nbap_TransportFormatSet_DynamicPartList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1060 "../../asn1/nbap/nbap.cnf"
+#line 1054 "../../asn1/nbap/nbap.cnf"
     num_items++;
 
 
@@ -14988,7 +14986,7 @@ static const per_sequence_t TransportFormatSet_DynamicPartList_sequence_of[1] = 
 
 static int
 dissect_nbap_TransportFormatSet_DynamicPartList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1057 "../../asn1/nbap/nbap.cnf"
+#line 1051 "../../asn1/nbap/nbap.cnf"
     num_items = 0;
 
 
@@ -15159,7 +15157,7 @@ dissect_nbap_TransportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_nbap_T_ul_TransportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1035 "../../asn1/nbap/nbap.cnf"
+#line 1029 "../../asn1/nbap/nbap.cnf"
     transportFormatSet_type = NBAP_DCH_UL;
     nbap_dch_chnl_info[dch_id].num_ul_chans = 0;
 
@@ -15173,7 +15171,7 @@ dissect_nbap_T_ul_TransportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_nbap_T_dl_TransportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1039 "../../asn1/nbap/nbap.cnf"
+#line 1033 "../../asn1/nbap/nbap.cnf"
     transportFormatSet_type = NBAP_DCH_DL;
     nbap_dch_chnl_info[dch_id].num_dl_chans = 0;
 
@@ -15223,14 +15221,14 @@ static const per_sequence_t DCH_Specific_FDD_Item_sequence[] = {
 
 static int
 dissect_nbap_DCH_Specific_FDD_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1029 "../../asn1/nbap/nbap.cnf"
+#line 1023 "../../asn1/nbap/nbap.cnf"
     g_num_dch_in_flow++;
 
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_DCH_Specific_FDD_Item, DCH_Specific_FDD_Item_sequence);
 
-#line 1032 "../../asn1/nbap/nbap.cnf"
+#line 1026 "../../asn1/nbap/nbap.cnf"
     prev_dch_id = dch_id;
 
 
@@ -15244,7 +15242,7 @@ static const per_sequence_t DCH_Specific_FDD_InformationList_sequence_of[1] = {
 
 static int
 dissect_nbap_DCH_Specific_FDD_InformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1025 "../../asn1/nbap/nbap.cnf"
+#line 1019 "../../asn1/nbap/nbap.cnf"
     g_num_dch_in_flow = 0;
     prev_dch_id = 0;
 
@@ -15538,7 +15536,7 @@ dissect_nbap_T_dCH_ID_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_nbap_T_ul_TransportFormatSet_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1043 "../../asn1/nbap/nbap.cnf"
+#line 1037 "../../asn1/nbap/nbap.cnf"
     transportFormatSet_type = NBAP_DCH_UL;
     nbap_dch_chnl_info[dch_id].num_ul_chans = 0;
 
@@ -15552,7 +15550,7 @@ dissect_nbap_T_ul_TransportFormatSet_01(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_nbap_T_dl_TransportFormatSet_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1047 "../../asn1/nbap/nbap.cnf"
+#line 1041 "../../asn1/nbap/nbap.cnf"
     transportFormatSet_type = NBAP_DCH_DL;
     nbap_dch_chnl_info[dch_id].num_dl_chans = 0;
 
@@ -15608,7 +15606,7 @@ static const per_sequence_t FDD_DCHs_to_ModifyItem_sequence[] = {
 
 static int
 dissect_nbap_FDD_DCHs_to_ModifyItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1123 "../../asn1/nbap/nbap.cnf"
+#line 1117 "../../asn1/nbap/nbap.cnf"
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_FDD_DCHs_to_ModifyItem, FDD_DCHs_to_ModifyItem_sequence);
@@ -18030,7 +18028,7 @@ dissect_nbap_E_DCH_HARQ_Combining_Capability(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_nbap_E_DCH_DDI_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1613 "../../asn1/nbap/nbap.cnf"
+#line 1600 "../../asn1/nbap/nbap.cnf"
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 62U, &e_dch_ddi_value, FALSE);
@@ -18164,7 +18162,7 @@ static const per_sequence_t E_DCH_LogicalChannelInformationItem_sequence[] = {
 
 static int
 dissect_nbap_E_DCH_LogicalChannelInformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1610 "../../asn1/nbap/nbap.cnf"
+#line 1597 "../../asn1/nbap/nbap.cnf"
     num_items++;
 
 
@@ -18181,7 +18179,7 @@ static const per_sequence_t E_DCH_LogicalChannelInformation_sequence_of[1] = {
 
 static int
 dissect_nbap_E_DCH_LogicalChannelInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1603 "../../asn1/nbap/nbap.cnf"
+#line 1590 "../../asn1/nbap/nbap.cnf"
     num_items = 0;
 
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
@@ -18214,7 +18212,7 @@ static const per_sequence_t E_DCH_MACdFlow_Specific_InfoItem_sequence[] = {
 
 static int
 dissect_nbap_E_DCH_MACdFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1362 "../../asn1/nbap/nbap.cnf"
+#line 1352 "../../asn1/nbap/nbap.cnf"
 umts_fp_conversation_info_t *p_conv_data = NULL;
 address     null_addr;
 conversation_t   *p_conv;
@@ -18227,7 +18225,7 @@ guint32 no_ddi_entries, i;
     {
         return offset;
     }
-            
+
     /* Check if we have conversation info */
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
     p_conv = find_conversation(actx->pinfo->fd->num, &nbap_edch_channel_info[e_dch_macdflow_id].crnc_address, &null_addr,
@@ -18246,21 +18244,21 @@ guint32 no_ddi_entries, i;
         p_conv_data->edch_ddi[i]            = nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[i];
         p_conv_data->edch_macd_pdu_size[i]  = nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[i];
 
-        p_conv_data->edch_lchId[i]          =  nbap_edch_channel_info[e_dch_macdflow_id].lchId[i]; /*lchId_type_table[nbap_edch_channel_info[e_dch_macdflow_id].lchId[i]];*/    
+        p_conv_data->edch_lchId[i]          =  nbap_edch_channel_info[e_dch_macdflow_id].lchId[i]; /*lchId_type_table[nbap_edch_channel_info[e_dch_macdflow_id].lchId[i]];*/
         /*g_print("E-DCH-MACdFlow-Specific-InfoItem: e_dch_macdflow_id %u edch_ddi %u edch_macd_pdu_size %u\n",
-            e_dch_macdflow_id, 
+            e_dch_macdflow_id,
             nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[i],
             nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[i]
         );*/
     }
-    
+
 /*  COPY_ADDRESS(&(nbap_edch_port_info->crnc_address[e_dch_macdflow_id]),&dst_addr);*/
     p_conv_data->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
-    
+
     /* Figure out which type of E-DCH frame, based on DDI value (DDI = 0 => type 2)*/
     if( 0 == e_dch_ddi_value ){
         p_conv_data->edch_type = 1; /* 1 means T2 */
-    }else{ 
+    }else{
     /*Value 1-5 means T1*/
         p_conv_data->edch_type = 0;  /* 0 means T1 */
     }
@@ -18397,7 +18395,7 @@ static const per_sequence_t E_DCH_LogicalChannelToModifyItem_sequence[] = {
 
 static int
 dissect_nbap_E_DCH_LogicalChannelToModifyItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1598 "../../asn1/nbap/nbap.cnf"
+#line 1585 "../../asn1/nbap/nbap.cnf"
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_E_DCH_LogicalChannelToModifyItem, E_DCH_LogicalChannelToModifyItem_sequence);
@@ -18472,7 +18470,7 @@ static const per_sequence_t E_DCH_MACdFlow_Specific_InfoItem_to_Modify_sequence[
 
 static int
 dissect_nbap_E_DCH_MACdFlow_Specific_InfoItem_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1506 "../../asn1/nbap/nbap.cnf"
+#line 1493 "../../asn1/nbap/nbap.cnf"
 guint32 no_ddi_entries, i;
 address     null_addr;
 nbap_edch_port_info_t *old_info;
@@ -18483,15 +18481,15 @@ num_items = 1;
    offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_E_DCH_MACdFlow_Specific_InfoItem_to_Modify, E_DCH_MACdFlow_Specific_InfoItem_to_Modify_sequence);
 
- 
+
     if (actx->pinfo->fd->flags.visited)
     {
         return offset;
     }
-    
+
     nbap_debug1("Frame %u E-DCH-MACdFlow-Specific-InfoItem-to-Modify",
         actx->pinfo->fd->num);
-         
+
     /****** Look up old port and ip information since this is not included in this message ******/
     /*Find proper communication context ID*/
     if(crcn_context_present){
@@ -18511,7 +18509,7 @@ num_items = 1;
         return offset;
     }
     nbap_debug1("    Found com_context_id %u", com_context_id);
-        
+
     /*Set the appropriate port, cheat and use same variable.*/
     BindingID_port = old_info->crnc_port[e_dch_macdflow_id];
 
@@ -18521,7 +18519,7 @@ num_items = 1;
 
     /*TODO: Fix this for ipv6 as well!*/
     transportLayerAddress_ipv4 =  old_info->crnc_address;
-  
+
     /*Do the configurations*/
     /* Check if we have conversation info */
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
@@ -18541,28 +18539,28 @@ num_items = 1;
         p_conv_data->edch_ddi[i]            = nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[i];
         p_conv_data->edch_macd_pdu_size[i]  = nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[i];
 
-        p_conv_data->edch_lchId[i]          =  nbap_edch_channel_info[e_dch_macdflow_id].lchId[i]; /*lchId_type_table[nbap_edch_channel_info[e_dch_macdflow_id].lchId[i]];*/    
+        p_conv_data->edch_lchId[i]          =  nbap_edch_channel_info[e_dch_macdflow_id].lchId[i]; /*lchId_type_table[nbap_edch_channel_info[e_dch_macdflow_id].lchId[i]];*/
     /*  g_print("E-DCH-MACdFlow-Specific-InfoItem: e_dch_macdflow_id %u edch_ddi %u edch_macd_pdu_size %u\n",
-            e_dch_macdflow_id, 
+            e_dch_macdflow_id,
             nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[i],
             nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[i]
         );*/
     }
-    
+
 /*  COPY_ADDRESS(&(nbap_edch_port_info->crnc_address[e_dch_macdflow_id]),&dst_addr);*/
     p_conv_data->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
-    
+
     /* Figure out which type of E-DCH frame, based on DDI value (DDI = 0 => type 2)*/
     if( 0 == e_dch_ddi_value ){
         p_conv_data->edch_type = 1; /* 1 means T2 */
-    }else{ 
+    }else{
     /*Value 1-5 means T1*/
         p_conv_data->edch_type = 0;  /* 0 means T1 */
     }
     /* use to display e_dch_macdflow_id */
     p_conv_data->num_dch_in_flow = 1;
     p_conv_data->dchs_in_flow_list[0] = e_dch_macdflow_id;
-     
+
 
 
 
@@ -18614,7 +18612,7 @@ static const per_sequence_t E_DCH_FDD_Information_to_Modify_sequence[] = {
 
 static int
 dissect_nbap_E_DCH_FDD_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1415 "../../asn1/nbap/nbap.cnf"
+#line 1405 "../../asn1/nbap/nbap.cnf"
 
 address     dst_addr, null_addr;
 conversation_t *conversation,*old_conversation = NULL;
@@ -18626,7 +18624,7 @@ BindingID_port = 0;
    offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_E_DCH_FDD_Information_to_Modify, E_DCH_FDD_Information_to_Modify_sequence);
 
- 
+
         if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
         {
             return offset;
@@ -18637,27 +18635,24 @@ BindingID_port = 0;
          * */
         SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
-        dst_addr.type=AT_IPv4;
-        dst_addr.len=4;
-        dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
-        
-        
+	SET_ADDRESS(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
+
         old_conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
             &null_addr, PT_UDP, BindingID_port,
             0, NO_ADDR_B|NO_PORT_B);
 
         if(old_conversation){
-            nbap_debug3("Frame %u E-DCH-FDD-Information-to-Modify: found old conv on IP %s Port %u", 
-                actx->pinfo->fd->num, 
+            nbap_debug3("Frame %u E-DCH-FDD-Information-to-Modify: found old conv on IP %s Port %u",
+                actx->pinfo->fd->num,
                 ep_address_to_str(&dst_addr),
                 BindingID_port);
         }else{
-            nbap_debug3("Frame %u E-DCH-FDD-Information-to-Modify: Did not find old conv on IP %s Port %u", 
-                actx->pinfo->fd->num, 
+            nbap_debug3("Frame %u E-DCH-FDD-Information-to-Modify: Did not find old conv on IP %s Port %u",
+                actx->pinfo->fd->num,
                 ep_address_to_str(&dst_addr),
                 BindingID_port);
         }
-           
+
         /* It's not part of any conversation - create a new one. */
         conversation = conversation_new(actx->pinfo->fd->num, &dst_addr,
                 &null_addr, PT_UDP,BindingID_port ,
@@ -18669,7 +18664,7 @@ BindingID_port = 0;
                 umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
                 /*Steal the old informatoin*/
                 memcpy(umts_fp_conversation_info,conversation_get_proto_data(old_conversation, proto_fp),sizeof(umts_fp_conversation_info_t));
-                
+
                 /* Overwrite the data */
                 umts_fp_conversation_info->iface_type        = IuB_Interface;
                 umts_fp_conversation_info->division          = Division_FDD;
@@ -18681,8 +18676,8 @@ BindingID_port = 0;
 
 
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
-                
-                
+
+
                 if(crcn_context_present){
                     umts_fp_conversation_info->com_context_id = com_context_id;
                 }else{
@@ -18693,15 +18688,15 @@ BindingID_port = 0;
                         expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Communication Context-ID, fragments over reconfigured channels might fail");
                     }
                 }
-        
+
                 /* Set address for collection of DDI entries */
                 COPY_ADDRESS(&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
                 nbap_edch_channel_info[e_dch_macdflow_id].crnc_port = BindingID_port;
-                
-                
+
+
                 /*Indicate that the frag table has to be reset*/
                 umts_fp_conversation_info->reset_frag = TRUE;
-                    
+
 
                 set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
             }
@@ -23194,7 +23189,7 @@ static const value_string nbap_PICH_Mode_vals[] = {
 
 static int
 dissect_nbap_PICH_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 796 "../../asn1/nbap/nbap.cnf"
+#line 794 "../../asn1/nbap/nbap.cnf"
 guint32 PICH_Mode = 0;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      4, &PICH_Mode, TRUE, 0, NULL);
@@ -23215,7 +23210,7 @@ guint32 PICH_Mode = 0;
             break;
     }
 
- 
+
 
 
 
@@ -23309,7 +23304,7 @@ static const per_sequence_t HSDSCH_Common_System_InformationFDD_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_Common_System_InformationFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2005 "../../asn1/nbap/nbap.cnf"
+#line 1988 "../../asn1/nbap/nbap.cnf"
 /*
  * 5.1.6 High Speed Downlink Shared Channels
  * The Data Transfer procedure is used to transfer a HS-DSCH DATA FRAME (TYPE 1, TYPE 2 [FDD and 1.28Mcps
@@ -23331,9 +23326,9 @@ int i;
         for (i = 0; i < maxNrOfCommonMACFlows; i++) {
             nbap_common_channel_info[i].crnc_port = 0;
             nbap_common_channel_info[i].rlc_mode = FP_RLC_MODE_UNKNOWN;
-            
+
         }
-        
+
     }
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_HSDSCH_Common_System_InformationFDD, HSDSCH_Common_System_InformationFDD_sequence);
@@ -23350,7 +23345,7 @@ int i;
             conversation = find_conversation(actx->pinfo->fd->num, &(nbap_common_channel_info[i].crnc_address), &null_addr,
                                PT_UDP,
                                nbap_common_channel_info[i].crnc_port, 0, NO_ADDR_B);
-                               
+
             if (conversation == NULL) {
                 conversation = conversation_new(actx->pinfo->fd->num, &(nbap_common_channel_info[i].crnc_address),
                     &null_addr, PT_UDP, nbap_common_channel_info[i].crnc_port,
@@ -23360,30 +23355,30 @@ int i;
             conversation_set_dissector(conversation, fp_handle);
             /*Set NBAP configuration to lower layers*/
             if(actx->pinfo->link_dir==P2P_DIR_DL){
-        
+
                 umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
                 /*Select frame type = 3 according to paragraph 5.1.6 in 3GPP TS 25.435*/
                 umts_fp_conversation_info->channel = CHANNEL_HSDSCH_COMMON;
                 umts_fp_conversation_info->division          = Division_FDD;
-                
+
                 umts_fp_conversation_info->dl_frame_number   = 0;
                 umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
                 SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &nbap_common_channel_info[i].crnc_address);
                 umts_fp_conversation_info->crnc_port         = nbap_common_channel_info[i].crnc_port;
-                    
+
                 /*umts_fp_conversation_info->hsdsch_macdflow_id = i ;*/ /*hsdsch_macdflow_ids[i];*/ /* hsdsch_macdflow_id;*/
                 umts_fp_conversation_info->common_macdflow_id = common_macdflow_id;
-                    
+
                 umts_fp_conversation_info->hsdsch_entity = ehs;
-                
+
                 umts_fp_conversation_info->num_dch_in_flow++;
                 umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
-                    
+
                 set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
             }
-        
+
         }
-    
+
 
         }
 
@@ -23470,7 +23465,7 @@ static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoItem_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1708 "../../asn1/nbap/nbap.cnf"
+#line 1695 "../../asn1/nbap/nbap.cnf"
 
 
     address     dst_addr;
@@ -23481,20 +23476,19 @@ dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_
                                    ett_nbap_HSDSCH_MACdFlow_Specific_InfoItem, HSDSCH_MACdFlow_Specific_InfoItem_sequence);
 
 
-    
+
     if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
     {
         return offset;
     }
-    dst_addr.type=AT_IPv4;
-    dst_addr.len=4;
-    dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+
+    SET_ADDRESS(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
     /* Set address for collection of HSDSCH entries */
     COPY_ADDRESS(&(nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_address),&dst_addr);
     nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_port = BindingID_port;
-    
-    
+
+
 
 
   return offset;
@@ -23574,7 +23568,7 @@ static const value_string nbap_RLC_Mode_vals[] = {
 
 static int
 dissect_nbap_RLC_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1640 "../../asn1/nbap/nbap.cnf"
+#line 1627 "../../asn1/nbap/nbap.cnf"
     guint32 rlc_mode;
 
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
@@ -23615,7 +23609,7 @@ static const per_sequence_t PriorityQueue_InfoItem_sequence[] = {
 
 static int
 dissect_nbap_PriorityQueue_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1699 "../../asn1/nbap/nbap.cnf"
+#line 1686 "../../asn1/nbap/nbap.cnf"
     num_items++;
 
 
@@ -23649,14 +23643,14 @@ static const per_sequence_t HSDSCH_MACdFlows_Information_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_MACdFlows_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1664 "../../asn1/nbap/nbap.cnf"
+#line 1651 "../../asn1/nbap/nbap.cnf"
 
     int protocol_ie_id;
     guint32 i;
     num_items = 0;
     protocol_ie_id = ProtocolIE_ID;
-        
-        
+
+
     /*Handle special cases, when the tree is weird, ie. no useful message appears in the tree, like HSDHSCH-Information-FDD */
     switch(protocol_ie_id){
             /*This flow must also be added*/
@@ -23674,7 +23668,7 @@ dissect_nbap_HSDSCH_MACdFlows_Information(tvbuff_t *tvb _U_, int offset _U_, asn
                                    ett_nbap_HSDSCH_MACdFlows_Information, HSDSCH_MACdFlows_Information_sequence);
 
                 add_hsdsch_bind(actx->pinfo,tree);
-                
+
             break;
             default:
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -23692,7 +23686,7 @@ dissect_nbap_HSDSCH_MACdFlows_Information(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_nbap_T_hSDSCH_Physical_Layer_Category(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1657 "../../asn1/nbap/nbap.cnf"
+#line 1644 "../../asn1/nbap/nbap.cnf"
     guint32 hsdsch_physical_layer_category;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -23760,7 +23754,7 @@ static const per_sequence_t HSDSCH_FDD_Information_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1761 "../../asn1/nbap/nbap.cnf"
+#line 1747 "../../asn1/nbap/nbap.cnf"
 /*
  * Collect the information about the HSDSCH MACdFlows set up conversation(s) and set the conversation data.
  */
@@ -23793,14 +23787,14 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
             nbap_debug4("Frame %u HSDSCH-MACdFlows-Information:hsdsch_macdflow_id %u Look for conv on IP %s Port %u",
                         actx->pinfo->fd->num,
-                        i, 
+                        i,
                         ep_address_to_str (&(nbap_hsdsch_channel_info[i].crnc_address)),
                         nbap_hsdsch_channel_info[i].crnc_port);
             conversation = find_conversation(actx->pinfo->fd->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
                                PT_UDP,
                                nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
 
-            
+
             if (conversation == NULL) {
                 /* It's not part of any conversation - create a new one. */
                 nbap_debug2("Frame %u HSDSCH-MACdFlows-Information: Set up conv on Port %u", actx->pinfo->fd->num, nbap_hsdsch_channel_info[i].crnc_port);
@@ -23810,7 +23804,7 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
                 /* Set dissector */
                 conversation_set_dissector(conversation, fp_handle);
-            
+
                 if(actx->pinfo->link_dir==P2P_DIR_DL){
                     umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
                     /* Fill in the HSDSCH relevant data */
@@ -23822,10 +23816,10 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                     umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
                     SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
                     umts_fp_conversation_info->crnc_port         = nbap_hsdsch_channel_info[i].crnc_port;
-                    
+
                     /*Added june 3, normally just the iterator variable*/
                     umts_fp_conversation_info->hsdsch_macdflow_id = i ; /*hsdsch_macdflow_ids[i];*/ /* hsdsch_macdflow_id;*/
-                    
+
                     /*Added july 2012*/
                     umts_fp_conversation_info->com_context_id = com_context_id;
 
@@ -23833,9 +23827,9 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                     umts_fp_conversation_info->num_dch_in_flow++;
                     umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
 
-                    /*XXX: Is this craziness, what is physical_layer? */                    
+                    /*XXX: Is this craziness, what is physical_layer? */
                     if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
-                        
+
                         if(nbap_hsdsch_channel_info[i].hsdsch_physical_layer_category > 12){
                             umts_fp_conversation_info->hsdsch_entity = ehs;
                         }else{
@@ -23897,12 +23891,12 @@ static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoItem_to_Modify_sequence
 
 static int
 dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1850 "../../asn1/nbap/nbap.cnf"
+#line 1836 "../../asn1/nbap/nbap.cnf"
     address     dst_addr;
     transportLayerAddress_ipv4 = 0;
     BindingID_port = 0;
     num_items++;
-    
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify, HSDSCH_MACdFlow_Specific_InfoItem_to_Modify_sequence);
 
@@ -23911,15 +23905,14 @@ dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify(tvbuff_t *tvb _U_, int 
     {
         return offset;
     }
-    dst_addr.type=AT_IPv4;
-    dst_addr.len=4;
-    dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+
+    SET_ADDRESS(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
     /* Set address for collection of HSDSCH entries */
     COPY_ADDRESS(&(nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_address),&dst_addr);
     nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_port = BindingID_port;
-    
-    
+
+
 
 
   return offset;
@@ -23956,7 +23949,7 @@ static const per_sequence_t PriorityQueue_InfoItem_to_Add_sequence[] = {
 
 static int
 dissect_nbap_PriorityQueue_InfoItem_to_Add(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1702 "../../asn1/nbap/nbap.cnf"
+#line 1689 "../../asn1/nbap/nbap.cnf"
     num_items = 1;
 
 
@@ -24091,12 +24084,12 @@ static const per_sequence_t HSDSCH_Information_to_Modify_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1871 "../../asn1/nbap/nbap.cnf"
+#line 1856 "../../asn1/nbap/nbap.cnf"
 /*
  * This is pretty much the same like if we setup a previous flow
- */ 
+ */
 
-/* 
+/*
  * Collect the information about the HSDSCH MACdFlows set up conversation(s) and set the conversation data.
  */
     address     null_addr;
@@ -24131,14 +24124,14 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
     for (i = 0; i < maxNrOfMACdFlows; i++) {
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
             nbap_debug3("    hsdsch_macdflow_id %u Look for conv on IP %s Port %u",
-                        i, 
+                        i,
                         ep_address_to_str (&(nbap_hsdsch_channel_info[i].crnc_address)),
                         nbap_hsdsch_channel_info[i].crnc_port);
             conversation = find_conversation(actx->pinfo->fd->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
                                PT_UDP,
                                nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
 
-            
+
             if (conversation == NULL) {
                 /* It's not part of any conversation - create a new one. */
                 nbap_debug1("    Set up conv on Port %u", nbap_hsdsch_channel_info[i].crnc_port);
@@ -24149,7 +24142,7 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
 
                 /* Set dissector */
                 conversation_set_dissector(conversation, fp_handle);
-            
+
                 if(actx->pinfo->link_dir==P2P_DIR_DL){
                     umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
                     /* Fill in the HSDSCH relevant data */
@@ -24161,10 +24154,10 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
                     umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
                     SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
                     umts_fp_conversation_info->crnc_port         = nbap_hsdsch_channel_info[i].crnc_port;
-                    
+
                     /*Added june 3, normally just the iterator variable*/
                     umts_fp_conversation_info->hsdsch_macdflow_id = i ; /*hsdsch_macdflow_ids[i];*/ /* hsdsch_macdflow_id;*/
-                    
+
                     /*Added july 2012*/
                     umts_fp_conversation_info->com_context_id = com_context_id;
 
@@ -24172,7 +24165,7 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
                     umts_fp_conversation_info->num_dch_in_flow++;
                     umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
 
-                    /*XXX: Is this craziness, what is physical_layer? */                    
+                    /*XXX: Is this craziness, what is physical_layer? */
                     if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
 
                         if(nbap_hsdsch_channel_info[i].hsdsch_physical_layer_category > 12){
@@ -24183,12 +24176,12 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
                     }else{
                         umts_fp_conversation_info->hsdsch_entity = nbap_hsdsch_channel_info[i].entity;
                     }
-                
+
                     umts_fp_conversation_info->rlc_mode = nbap_hsdsch_channel_info[i].rlc_mode;
-                    
+
                     /*Indicate that the frag table has to be reset*/
                     umts_fp_conversation_info->reset_frag = TRUE;
-                    
+
                     set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
                 }
             }
@@ -24213,10 +24206,10 @@ static const value_string nbap_HSDSCH_MACdPDUSizeFormat_vals[] = {
 
 static int
 dissect_nbap_HSDSCH_MACdPDUSizeFormat(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1738 "../../asn1/nbap/nbap.cnf"
+#line 1724 "../../asn1/nbap/nbap.cnf"
 /*
  * Removed 10 Aug. 2012, I'm not sure if this was right, it wrongfully
- * set some packets as type 2 for HSDHCH modified items. 
+ * set some packets as type 2 for HSDHCH modified items.
  **/
 
 
@@ -24233,9 +24226,9 @@ dissect_nbap_HSDSCH_MACdPDUSizeFormat(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
             nbap_hsdsch_channel_info[i].entity = ehs;
         }
-        
+
     }*/
-    
+
 
 
 
@@ -24324,7 +24317,7 @@ static const per_sequence_t HSDSCH_MACdFlow_Specific_InformationResp_Item_sequen
 
 static int
 dissect_nbap_HSDSCH_MACdFlow_Specific_InformationResp_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1705 "../../asn1/nbap/nbap.cnf"
+#line 1692 "../../asn1/nbap/nbap.cnf"
     num_items++;
 
 
@@ -24740,7 +24733,7 @@ static const per_sequence_t HSDSCH_Paging_System_InformationFDD_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_Paging_System_InformationFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2083 "../../asn1/nbap/nbap.cnf"
+#line 2066 "../../asn1/nbap/nbap.cnf"
   /*
   g_warning("HS-DSCH Type 3 NOT Implemented!");
   */
@@ -24934,7 +24927,7 @@ static const per_sequence_t HSDSCH_MACdFlows_to_Delete_Item_sequence[] = {
 
 static int
 dissect_nbap_HSDSCH_MACdFlows_to_Delete_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1696 "../../asn1/nbap/nbap.cnf"
+#line 1683 "../../asn1/nbap/nbap.cnf"
     num_items++;
 
 
@@ -28049,7 +28042,7 @@ dissect_nbap_NI_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_nbap_NodeB_CommunicationContextID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 2097 "../../asn1/nbap/nbap.cnf"
+#line 2080 "../../asn1/nbap/nbap.cnf"
 /*Set up and map that maps Node-B ids to CRNC ids, since often you only have one of them present in nbap*/
 nbap_com_context_id_t *cur_val;
 
@@ -28064,7 +28057,7 @@ nbap_com_context_id_t *cur_val;
    /*If both are avaible we can update the map*/
 if(crcn_context_present){
         if( (cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) == NULL ){
-                    
+
             cur_val = g_new(nbap_com_context_id_t,1);
             cur_val->crnc_context = com_context_id;
             cur_val->frame_num = actx->pinfo->fd->num;
@@ -28614,7 +28607,7 @@ dissect_nbap_RACH_SubChannelNumbers(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_nbap_T_dCH_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1129 "../../asn1/nbap/nbap.cnf"
+#line 1123 "../../asn1/nbap/nbap.cnf"
 
   offset = dissect_nbap_DCH_ID(tvb, offset, actx, tree, hf_index);
 
@@ -28636,7 +28629,7 @@ static const per_sequence_t RL_Specific_DCH_Info_Item_sequence[] = {
 
 static int
 dissect_nbap_RL_Specific_DCH_Info_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1134 "../../asn1/nbap/nbap.cnf"
+#line 1128 "../../asn1/nbap/nbap.cnf"
 address     dst_addr, null_addr;
 conversation_t *conversation = NULL;
 umts_fp_conversation_info_t *umts_fp_conversation_info;
@@ -28654,17 +28647,15 @@ dch_id = 0xFFFFFFFF;
         {
             return offset;
         }
-        
+
         /*RBS might sometimes send a nonsens bind, to indicate that no DCH is present*/
         if(BindingID_port == NBAP_IGNORE_PORT){
                 return offset;
         }
-        
+
         SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
-        dst_addr.type=AT_IPv4;
-        dst_addr.len=4;
-        dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+	SET_ADDRESS(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
         conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
             &null_addr, PT_UDP, BindingID_port,
@@ -28693,7 +28684,7 @@ dch_id = 0xFFFFFFFF;
 
                 /* DCH's in this flow */
                 umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
-                
+
                 /*Save unique UE-identifier */
                 umts_fp_conversation_info->com_context_id = com_context_id;
 
@@ -28711,17 +28702,17 @@ dch_id = 0xFFFFFFFF;
                     umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[dch_id].dl_chan_tf_size[j];
                     umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[j];
                 }
-                
+
                 /* Set data for associated DCH's if we have any */
                 i = dch_id;
                 umts_fp_conversation_info->dchs_in_flow_list[0] = dch_id;
                 while(nbap_dch_chnl_info[i].next_dch != 0){
-                    
-                
+
+
                     i = nbap_dch_chnl_info[i].next_dch;
                     umts_fp_conversation_info->num_dch_in_flow++;
                     umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;   /*Set transport channel id*/
-                    
+
                     /*Setting Logical Channel's for this DCH*/
                     /* Traffic flows per DCH(UL) */
                     umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
@@ -28736,17 +28727,17 @@ dch_id = 0xFFFFFFFF;
                         umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
                         umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
                     }
-                    
+
                 }
                 umts_fp_conversation_info->num_dch_in_flow++;
                 umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
                 set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
             }
-            
+
             nbap_debug1("Frame %u RL-Specific-DCH-Info-Item Start", actx->pinfo->fd->num);
             nbap_debug1("    Total no of ch in flow will be: %d", umts_fp_conversation_info->num_dch_in_flow);
             nbap_debug1("Frame %u RL-Specific-DCH-Info-Item End", actx->pinfo->fd->num);
-            
+
         }
 
 
@@ -28782,7 +28773,7 @@ static const per_sequence_t RL_Specific_E_DCH_Information_Item_sequence[] = {
 
 static int
 dissect_nbap_RL_Specific_E_DCH_Information_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1250 "../../asn1/nbap/nbap.cnf"
+#line 1242 "../../asn1/nbap/nbap.cnf"
 address     dst_addr, null_addr;
 conversation_t *conversation;
 umts_fp_conversation_info_t *umts_fp_conversation_info;
@@ -28802,21 +28793,19 @@ BindingID_port = 0;
         }
         SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
-        dst_addr.type=AT_IPv4;
-        dst_addr.len=4;
-        dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+	SET_ADDRESS(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
         conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
             &null_addr, PT_UDP, BindingID_port,
             0, NO_ADDR_B|NO_PORT_B);
 
-        /* We must also check if this port is about to be overriden, if thats the case we 
+        /* We must also check if this port is about to be overriden, if thats the case we
          * might already have a DCH entry on this port which should be overwritten
          */
         if (conversation == NULL || ((umts_fp_conversation_info_t*)conversation_get_proto_data(conversation, proto_fp))->channel == CHANNEL_DCH) {
-            
-            
-        
+
+
+
             /* It's not part of any conversation - create a new one. */
             conversation = conversation_new(actx->pinfo->fd->num, &dst_addr,
                 &null_addr, PT_UDP,BindingID_port ,
@@ -28837,8 +28826,8 @@ BindingID_port = 0;
 
 
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
-                
-                
+
+
                 if(crcn_context_present){
                     umts_fp_conversation_info->com_context_id = com_context_id;
                 }else{
@@ -28861,8 +28850,8 @@ BindingID_port = 0;
                     nbap_edch_port_info->crnc_port[e_dch_macdflow_id] = BindingID_port;
                     /*Ip address might be useful as well*/
                     nbap_edch_port_info->crnc_address = transportLayerAddress_ipv4;
-    
-                    nbap_debug1("Frame %u RL-Specific-E-DCH-Information-Item Start", 
+
+                    nbap_debug1("Frame %u RL-Specific-E-DCH-Information-Item Start",
                         actx->pinfo->fd->num);
 
                     nbap_debug4("    g_tree_insert(edch_flow_port_map) com_context_id %u e_dch_macdflow_id %u IP %s Port %u",
@@ -28887,14 +28876,14 @@ BindingID_port = 0;
                     /* Must be same ADDRESS */
                     old_info->crnc_port[e_dch_macdflow_id] = BindingID_port;
                 }
-        
+
 
                 set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 
                 nbap_debug1("Frame %u RL-Specific-E-DCH-Information-Item End", actx->pinfo->fd->num);
             }
     }
-    
+
 
 
 
@@ -32349,7 +32338,7 @@ static const per_sequence_t FACH_ParametersItem_CTCH_SetupRqstFDD_sequence[] = {
 
 static int
 dissect_nbap_FACH_ParametersItem_CTCH_SetupRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 930 "../../asn1/nbap/nbap.cnf"
+#line 926 "../../asn1/nbap/nbap.cnf"
 address     dst_addr, null_addr;
 conversation_t *conversation;
 
@@ -32371,9 +32360,7 @@ transportFormatSet_type = NBAP_CPCH;
         }
         SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
-        dst_addr.type=AT_IPv4;
-        dst_addr.len=4;
-        dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+	SET_ADDRESS(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
         conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
             &null_addr, PT_UDP, BindingID_port,
@@ -32400,8 +32387,8 @@ transportFormatSet_type = NBAP_CPCH;
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
                 /*Save unique UE-identifier */
                 umts_fp_conversation_info->com_context_id = crcn_context_present ? com_context_id : 1;
-                
-                
+
+
                 /* DCH's in this flow */
                 umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
                 /* Set data for First or single channel */
@@ -32469,7 +32456,7 @@ dissect_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD(tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_nbap_T_transportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1051 "../../asn1/nbap/nbap.cnf"
+#line 1045 "../../asn1/nbap/nbap.cnf"
     transportFormatSet_type = NBAP_PCH;
     nbap_dch_chnl_info[commontransportchannelid].num_dl_chans = 0;
     nbap_dch_chnl_info[commontransportchannelid].num_ul_chans = 0;
@@ -32514,7 +32501,7 @@ static const per_sequence_t PCH_ParametersItem_CTCH_SetupRqstFDD_sequence[] = {
 
 static int
 dissect_nbap_PCH_ParametersItem_CTCH_SetupRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 817 "../../asn1/nbap/nbap.cnf"
+#line 815 "../../asn1/nbap/nbap.cnf"
 
 address     dst_addr, null_addr;
 conversation_t *conversation;
@@ -32538,9 +32525,7 @@ num_items = 1;
         }
         SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
-        dst_addr.type=AT_IPv4;
-        dst_addr.len=4;
-        dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+	SET_ADDRESS(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
         conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
             &null_addr, PT_UDP, BindingID_port,
@@ -32575,7 +32560,7 @@ num_items = 1;
                 nbap_debug2("Frame %u PCH-ParametersItem-CTCH-SetupRqstFDD Start: num_tf %u",
                         actx->pinfo->fd->num,
                         num_tf);
-                
+
                 for (j = 0; j < num_tf; j++) {
                     umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[j];
                     umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_num_tbs[j];
@@ -32594,7 +32579,7 @@ num_items = 1;
                 i = commontransportchannelid;
 
                 nbap_debug2("    commontransportchannelid %u next ch %u",commontransportchannelid, nbap_dch_chnl_info[i].next_dch);
-                
+
                 umts_fp_conversation_info->dchs_in_flow_list[0] = commontransportchannelid;
                 while(nbap_dch_chnl_info[i].next_dch != 0){
                     i = nbap_dch_chnl_info[i].next_dch;
@@ -32617,7 +32602,7 @@ num_items = 1;
                 umts_fp_conversation_info->num_dch_in_flow++;
 
                 nbap_debug1("    num_dch_in_flow %u", umts_fp_conversation_info->num_dch_in_flow);
-                
+
                 umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
                 set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 
@@ -32683,9 +32668,7 @@ transportFormatSet_type = NBAP_CPCH;
         }
         SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
-        dst_addr.type=AT_IPv4;
-        dst_addr.len=4;
-        dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+	SET_ADDRESS(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
         conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
             &null_addr, PT_UDP, BindingID_port,
@@ -32710,7 +32693,7 @@ transportFormatSet_type = NBAP_CPCH;
                 SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
                 umts_fp_conversation_info->crnc_port         = BindingID_port;
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
-                
+
                 /*Save unique UE-identifier */
                 umts_fp_conversation_info->com_context_id = crcn_context_present ?  com_context_id : 1;
 
@@ -37333,7 +37316,7 @@ dissect_nbap_RadioLinkSetupRequestFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
     g_nbap_msg_info_for_fp.ddMode = ddMode;
     g_nbap_msg_info_for_fp.is_uplink = TRUE;
     g_nbap_msg_info_for_fp.dch_crc_present = 2; /* unknown */
-    
+
 
     col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupRequest(FDD) ");
     /* CRNC -> Node B */
@@ -37816,7 +37799,7 @@ dissect_nbap_RadioLinkSetupResponseFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_c
     g_nbap_msg_info_for_fp.ddMode = ddMode;
     g_nbap_msg_info_for_fp.is_uplink = FALSE;
     g_nbap_msg_info_for_fp.dch_crc_present = 2; /* unknown */
-    
+
 
     col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupResponse(FDD) ");
     /* Node B -> CRNC */
@@ -41074,12 +41057,12 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationCommit ");
 actx->pinfo->link_dir=P2P_DIR_DL;
 
 
-#line 2145 "../../asn1/nbap/nbap.cnf"
+#line 2128 "../../asn1/nbap/nbap.cnf"
 /*
  * Here we need to signal the CFN value, down to FP so
  * that lowert layers know when a reconfiguration becomes active
  * */
- 
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_RadioLinkReconfigurationCommit, RadioLinkReconfigurationCommit_sequence);
 

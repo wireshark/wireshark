@@ -1475,9 +1475,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		}
 		SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
-		dst_addr.type=AT_IPv4;
-		dst_addr.len=4;
-		dst_addr.data=(guint8 *)&GPRS_user_data_ipv4_address;
+		SET_ADDRESS(&dst_addr, AT_IPv4, 4, &GPRS_user_data_ipv4_address);
 
 		conversation = find_conversation(pinfo->fd->num,&dst_addr,
 			&null_addr, PT_UDP, GPRS_user_data_transport_UDP_port,
@@ -1509,9 +1507,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		}
 		SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
-		dst_addr.type=AT_IPv4;
-		dst_addr.len=4;
-		dst_addr.data=(guint8 *)&unc_ipv4_address;
+		SET_ADDRESS(&dst_addr, AT_IPv4, 4, &unc_ipv4_address);
 
 		conversation = find_conversation(pinfo->fd->num,&dst_addr,
 			&null_addr, PT_TCP, UNC_tcp_port,
@@ -1536,9 +1532,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			rtp_ipv4_address,RTP_UDP_port,rtp_handle);
 			*/
 		if(unc_ipv4_address!=0){
-			src_addr.type=AT_IPv4;
-			src_addr.len=4;
-			src_addr.data=(guint8 *)&unc_ipv4_address;
+			SET_ADDRESS(&src_addr, AT_IPv4, 4, &unc_ipv4_address);
 		}else{
 			/* Set Source IP = own IP */
 			src_addr = pinfo->src;
@@ -1557,9 +1551,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RTCP_port, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		/* TODO find out exactly which element contains IP addr */
 		if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && RTCP_UDP_port!=0 && rtcp_handle){
-			src_addr.type=AT_IPv4;
-			src_addr.len=4;
-			src_addr.data=(guint8 *)&rtcp_ipv4_address;
+			SET_ADDRESS(&src_addr, AT_IPv4, 4, &rtcp_ipv4_address);
 
 			rtcp_add_address(pinfo, &src_addr, RTCP_UDP_port, 0, "UMA", pinfo->fd->num);
 		}
