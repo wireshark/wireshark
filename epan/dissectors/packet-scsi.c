@@ -1051,10 +1051,14 @@ static const value_string scsi_mmc5_modepage_val[] = {
 
 #define SCSI_SPC_RESVIN_SVCA_RDKEYS 0
 #define SCSI_SPC_RESVIN_SVCA_RDRESV 1
+#define SCSI_SPC_RESVIN_SVCA_RPTCAP 2
+#define SCSI_SPC_RESVIN_SVCA_FULL   3
 
 static const value_string scsi_persresvin_svcaction_val[] = {
     {SCSI_SPC_RESVIN_SVCA_RDKEYS, "Read Keys"},
     {SCSI_SPC_RESVIN_SVCA_RDRESV, "Read Reservation"},
+    {SCSI_SPC_RESVIN_SVCA_RPTCAP, "Report Capabilities"},
+    {SCSI_SPC_RESVIN_SVCA_FULL,   "Read Full Status"},
     {0, NULL},
 };
 
@@ -5291,7 +5295,7 @@ proto_register_scsi(void)
            HFILL}},
         { &hf_scsi_persresvin_svcaction,
           {"Service Action", "scsi.persresvin.svcaction", FT_UINT8, BASE_HEX,
-           VALS(scsi_persresvin_svcaction_val), 0x0F, NULL, HFILL}},
+           VALS(scsi_persresvin_svcaction_val), 0x1F, NULL, HFILL}},
         { &hf_scsi_persresvout_svcaction,
           {"Service Action", "scsi.persresvout.svcaction", FT_UINT8, BASE_HEX,
            VALS(scsi_persresvout_svcaction_val), 0x0F, NULL, HFILL}},
