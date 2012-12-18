@@ -283,12 +283,12 @@ static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0,
 #endif
 };
 
-static struct {			/* pseudo header for checksum calculation */
-	guint32 src_addr;
-	guint32 dest_addr;
-	guint8  zero;
-	guint8  protocol;
-	guint16 length;
+static struct {         /* pseudo header for checksum calculation */
+    guint32 src_addr;
+    guint32 dest_addr;
+    guint8  zero;
+    guint8  protocol;
+    guint16 length;
 } pseudoh;
 
 typedef struct {
@@ -416,15 +416,15 @@ in_checksum (void *buf, unsigned long count)
     unsigned long sum = 0;
     guint16 *addr = buf;
 
-    while( count > 1 )  {
+    while (count > 1) {
         /*  This is the inner loop */
         sum += g_ntohs(* (guint16 *) addr);
-	addr++;
+        addr++;
         count -= 2;
     }
 
     /*  Add left-over byte, if any */
-    if( count > 0 )
+    if (count > 0)
         sum += g_ntohs(* (guint8 *) addr);
 
     /*  Fold 32-bit sum to 16 bits */
@@ -511,42 +511,42 @@ static guint32 crc_c[256] =
 static guint32
 crc32c(const guint8* buf, unsigned int len, guint32 crc32_init)
 {
-  unsigned int i;
-  guint32 crc32;
+    unsigned int i;
+    guint32 crc32;
 
-  crc32 = crc32_init;
-  for (i = 0; i < len; i++)
-    CRC32C(crc32, buf[i]);
+    crc32 = crc32_init;
+    for (i = 0; i < len; i++)
+        CRC32C(crc32, buf[i]);
 
-  return ( crc32 );
+    return ( crc32 );
 }
 
 static guint32
 finalize_crc32c(guint32 crc32)
 {
-  guint32 result;
-  guint8 byte0,byte1,byte2,byte3;
+    guint32 result;
+    guint8 byte0,byte1,byte2,byte3;
 
-  result = ~crc32;
-  byte0 = result & 0xff;
-  byte1 = (result>>8) & 0xff;
-  byte2 = (result>>16) & 0xff;
-  byte3 = (result>>24) & 0xff;
-  result = ((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3);
-  return ( result );
+    result = ~crc32;
+    byte0 = result & 0xff;
+    byte1 = (result>>8) & 0xff;
+    byte2 = (result>>16) & 0xff;
+    byte3 = (result>>24) & 0xff;
+    result = ((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3);
+    return ( result );
 }
 
 static unsigned long
 number_of_padding_bytes (unsigned long length)
 {
-  unsigned long remainder;
+    unsigned long remainder;
 
-  remainder = length % 4;
+    remainder = length % 4;
 
-  if (remainder == 0)
-    return 0;
-  else
-    return 4 - remainder;
+    if (remainder == 0)
+        return 0;
+    else
+        return 4 - remainder;
 }
 
 /*----------------------------------------------------------------------
@@ -608,12 +608,12 @@ write_current_packet (void)
                 goto write_current_packet_err;
         }
 
-	/* initialize pseudo header for checksum calculation */
-	pseudoh.src_addr    = HDR_IP.src_addr;
-	pseudoh.dest_addr   = HDR_IP.dest_addr;
-	pseudoh.zero        = 0;
-	pseudoh.protocol    = (guint8) hdr_ip_proto;
-	pseudoh.length      = g_htons(proto_length);
+        /* initialize pseudo header for checksum calculation */
+        pseudoh.src_addr    = HDR_IP.src_addr;
+        pseudoh.dest_addr   = HDR_IP.dest_addr;
+        pseudoh.zero        = 0;
+        pseudoh.protocol    = (guint8) hdr_ip_proto;
+        pseudoh.length      = g_htons(proto_length);
 
         /* Write UDP header */
         if (hdr_udp) {
@@ -623,7 +623,7 @@ write_current_packet (void)
             HDR_UDP.length = g_htons(proto_length);
 
             /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
-	    HDR_UDP.checksum = 0;
+            HDR_UDP.checksum = 0;
             x16  = in_checksum(&pseudoh, sizeof(pseudoh));
             u    = g_ntohs(x16);
             x16  = in_checksum(&HDR_UDP, sizeof(HDR_UDP));
@@ -631,9 +631,9 @@ write_current_packet (void)
             x16  = in_checksum(packet_buf, curr_offset);
             u   += g_ntohs(x16);
             x16  = (u & 0xffff) + (u>>16);
-	    HDR_UDP.checksum = g_htons(x16);
-	    if (HDR_UDP.checksum == 0) /* differentiate between 'none' and 0 */
-	    	    HDR_UDP.checksum = g_htons(1);
+            HDR_UDP.checksum = g_htons(x16);
+            if (HDR_UDP.checksum == 0) /* differentiate between 'none' and 0 */
+                    HDR_UDP.checksum = g_htons(1);
 
             if (fwrite(&HDR_UDP, sizeof(HDR_UDP), 1, output_file) != 1)
                 goto write_current_packet_err;
@@ -644,11 +644,11 @@ write_current_packet (void)
             guint16 x16;
             HDR_TCP.source_port = g_htons(hdr_src_port);
             HDR_TCP.dest_port = g_htons(hdr_dest_port);
-    	    /* HDR_TCP.seq_num already correct */
-	    HDR_TCP.window = g_htons(0x2000);
+            /* HDR_TCP.seq_num already correct */
+            HDR_TCP.window = g_htons(0x2000);
 
             /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
-	    HDR_TCP.checksum = 0;
+            HDR_TCP.checksum = 0;
             x16  = in_checksum(&pseudoh, sizeof(pseudoh));
             u    = g_ntohs(x16);
             x16  = in_checksum(&HDR_TCP, sizeof(HDR_TCP));
@@ -656,8 +656,8 @@ write_current_packet (void)
             x16  = in_checksum(packet_buf, curr_offset);
             u   += g_ntohs(x16);
             x16  = (u & 0xffff) + (u>>16);
-	    HDR_TCP.checksum = g_htons(x16);
-	    if (HDR_TCP.checksum == 0) /* differentiate between 'none' and 0 */
+            HDR_TCP.checksum = g_htons(x16);
+            if (HDR_TCP.checksum == 0) /* differentiate between 'none' and 0 */
                 HDR_TCP.checksum = g_htons(1);
 
             if (fwrite(&HDR_TCP, sizeof(HDR_TCP), 1, output_file) != 1)
@@ -773,13 +773,13 @@ append_to_preamble(char *str)
             return;	/* no room to add the token to the preamble */
         g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
         packet_preamble_len += (int) toklen;
-	if (debug >= 2) {
-		char *c;
-		char xs[PACKET_PREAMBLE_MAX_LEN];
-		g_strlcpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
-		while ((c = strchr(xs, '\r')) != NULL) *c=' ';
-		fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs);
-	}
+        if (debug >= 2) {
+            char *c;
+            char xs[PACKET_PREAMBLE_MAX_LEN];
+            g_strlcpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
+            while ((c = strchr(xs, '\r')) != NULL) *c=' ';
+            fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs);
+        }
     }
 }
 
@@ -790,103 +790,100 @@ append_to_preamble(char *str)
 static void
 parse_preamble (void)
 {
-	struct tm timecode;
-	char *subsecs;
-	char *p;
-	int  subseclen;
-	int  i;
+    struct tm timecode;
+    char *subsecs;
+    char *p;
+    int  subseclen;
+    int  i;
 
-	/*
-	 * If no "-t" flag was specified, don't attempt to parse a packet
-	 * preamble to extract a time stamp.
-	 */
-	if (ts_fmt == NULL)
-	    return;
+    /*
+     * If no "-t" flag was specified, don't attempt to parse a packet
+     * preamble to extract a time stamp.
+     */
+    if (ts_fmt == NULL)
+        return;
 
-	/*
-	 * Initialize to today localtime, just in case not all fields
-	 * of the date and time are specified.
-	 */
+    /*
+     * Initialize to today localtime, just in case not all fields
+     * of the date and time are specified.
+     */
 
-	timecode = timecode_default;
-	ts_usec = 0;
+    timecode = timecode_default;
+    ts_usec = 0;
 
-	/*
-	 * Null-terminate the preamble.
-	 */
-	packet_preamble[packet_preamble_len] = '\0';
+    /*
+     * Null-terminate the preamble.
+     */
+    packet_preamble[packet_preamble_len] = '\0';
 
-	/* Ensure preamble has more than two chars before attempting to parse.
-	 * This should cover line breaks etc that get counted.
-	 */
-	if ( strlen(packet_preamble) > 2 ) {
-		/* Get Time leaving subseconds */
-		subsecs = strptime( packet_preamble, ts_fmt, &timecode );
-		if (subsecs != NULL) {
-			/* Get the long time from the tm structure */
-                        /*  (will return -1 if failure)            */
-			ts_sec  = mktime( &timecode );
-		} else
-			ts_sec = -1;	/* we failed to parse it */
+    /* Ensure preamble has more than two chars before attempting to parse.
+     * This should cover line breaks etc that get counted.
+     */
+    if (strlen(packet_preamble) > 2) {
+        /* Get Time leaving subseconds */
+        subsecs = strptime( packet_preamble, ts_fmt, &timecode );
+        if (subsecs != NULL) {
+            /* Get the long time from the tm structure */
+            /*  (will return -1 if failure)            */
+            ts_sec  = mktime( &timecode );
+        } else
+            ts_sec = -1;    /* we failed to parse it */
 
-		/* This will ensure incorrectly parsed dates get set to zero */
-		if ( -1 == ts_sec )
-		{
-			/* Sanitize - remove all '\r' */
-			char *c;
-			while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-			fprintf (stderr, "Failure processing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00 GMT)\n",
-				 packet_preamble, ts_fmt);
-			if (debug >= 2) {
-				fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n",
-					timecode.tm_mday, timecode.tm_mon, timecode.tm_year,
-					timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
-			}
-			ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
-			ts_usec = 0;
-		}
-		else
-		{
-			/* Parse subseconds */
-			ts_usec = strtol(subsecs, &p, 10);
-			if (subsecs == p) {
-				/* Error */
-				ts_usec = 0;
-			} else {
-				/*
-				 * Convert that number to a number
-				 * of microseconds; if it's N digits
-				 * long, it's in units of 10^(-N) seconds,
-				 * so, to convert it to units of
-				 * 10^-6 seconds, we multiply by
-				 * 10^(6-N).
-				 */
-				subseclen = (int) (p - subsecs);
-				if (subseclen > 6) {
-					/*
-					 * *More* than 6 digits; 6-N is
-					 * negative, so we divide by
-					 * 10^(N-6).
-					 */
-					for (i = subseclen - 6; i != 0; i--)
-						ts_usec /= 10;
-				} else if (subseclen < 6) {
-					for (i = 6 - subseclen; i != 0; i--)
-						ts_usec *= 10;
-				}
-			}
-		}
-	}
-	if (debug >= 2) {
-		char *c;
-		while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-		fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
-		fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_usec);
-	}
+        /* This will ensure incorrectly parsed dates get set to zero */
+        if (-1 == ts_sec) {
+            /* Sanitize - remove all '\r' */
+            char *c;
+            while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
+            fprintf (stderr, "Failure processing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00 GMT)\n",
+                 packet_preamble, ts_fmt);
+            if (debug >= 2) {
+                fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n",
+                    timecode.tm_mday, timecode.tm_mon, timecode.tm_year,
+                    timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
+            }
+            ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
+            ts_usec = 0;
+        } else {
+            /* Parse subseconds */
+            ts_usec = strtol(subsecs, &p, 10);
+            if (subsecs == p) {
+                /* Error */
+                ts_usec = 0;
+            } else {
+                /*
+                 * Convert that number to a number
+                 * of microseconds; if it's N digits
+                 * long, it's in units of 10^(-N) seconds,
+                 * so, to convert it to units of
+                 * 10^-6 seconds, we multiply by
+                 * 10^(6-N).
+                 */
+                subseclen = (int) (p - subsecs);
+                if (subseclen > 6) {
+                    /*
+                     * *More* than 6 digits; 6-N is
+                     * negative, so we divide by
+                     * 10^(N-6).
+                     */
+                    for (i = subseclen - 6; i != 0; i--)
+                        ts_usec /= 10;
+                } else if (subseclen < 6) {
+                    for (i = 6 - subseclen; i != 0; i--)
+                        ts_usec *= 10;
+                }
+            }
+        }
+    }
+    if (debug >= 2) {
+        char *c;
+        while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
+        fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
+        fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_usec);
+    }
 
 
-	/* Clear Preamble */
-	packet_preamble_len = 0;
+    /* Clear Preamble */
+    packet_preamble_len = 0;
 }
 
 /*----------------------------------------------------------------------
@@ -895,7 +892,7 @@ parse_preamble (void)
 static void
 start_new_packet (void)
 {
-    if (debug>=1)
+    if (debug >= 1)
         fprintf(stderr, "Start new packet\n");
 
     /* Write out the current packet, if required */
@@ -936,7 +933,7 @@ parse_token (token_t token, char *str)
      * scanner. The code should be self_documenting.
      */
 
-    if (debug>=2) {
+    if (debug >= 2) {
         /* Sanitize - remove all '\r' */
         char *c;
         if (str!=NULL) { while ((c = strchr(str, '\r')) != NULL) *c=' '; }
@@ -1085,7 +1082,7 @@ parse_token (token_t token, char *str)
                 line_size = curr_offset-(int)(pkt_lnstart-packet_buf);
                 s2 = (char*)g_malloc((line_size+1)/4+1);
                 /* gather the possible pattern */
-                for(i=0; i<(line_size+1)/4; i++) {
+                for (i = 0; i < (line_size+1)/4; i++) {
                     tmp_str[0] = pkt_lnstart[i*3];
                     tmp_str[1] = pkt_lnstart[i*3+1];
                     tmp_str[2] = '\0';
@@ -1259,11 +1256,11 @@ parse_options (int argc, char *argv[])
                 fprintf(stderr, "Bad argument for '-o': %s\n", optarg);
                 usage();
             }
-			switch(optarg[0]) {
-			case 'o': offset_base = 8; break;
-			case 'h': offset_base = 16; break;
-			case 'd': offset_base = 10; break;
-			}
+            switch(optarg[0]) {
+            case 'o': offset_base = 8; break;
+            case 'h': offset_base = 16; break;
+            case 'd': offset_base = 10; break;
+            }
             break;
         case 'e':
             hdr_ethernet = TRUE;
@@ -1413,7 +1410,7 @@ parse_options (int argc, char *argv[])
 
         case 'a':
             identify_ascii = TRUE;
-			break;
+            break;
 
         default:
             usage();
