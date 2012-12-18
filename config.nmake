@@ -265,15 +265,15 @@ XML_DLL=libxml2-2.dll
 !IF "$(GTK_NAME)" == "gtk2"
 GDK_DLL=libgdk-win32-2.0-0.dll
 GTK_DLL=libgtk-win32-2.0-0.dll
-#GTK_PKG=2.16.6-20100912
-#GTK_PKG=2.22.1-20101227
 GTK_PKG=2.24.10-2.7
+#GTK_PKG=2.24.14-1.1
 PKG_SUFIX=ws
 !ELSE
 GDK_DLL=libgdk-3-0.dll
 GTK_DLL=libgtk-3-0.dll
 PKG_SUFIX=ws
-GTK_PKG=3.4.4-2.1
+GTK_PKG=3.4.2-2.9
+#GTK_PKG=3.4.4-2.1
 !ENDIF
 
 #
@@ -283,8 +283,6 @@ GTK_PKG=3.4.4-2.1
 # These macros are used by the nsis installer script and by the setup target.
 #
 !IF "$(GTK_NAME)" == "gtk2"
-#GTK_INST_VERSION=2.16
-#GTK_INST_VERSION=2.22
 GTK_INST_VERSION=2.24
 !ELSE
 GTK_INST_VERSION=3.4
@@ -480,14 +478,15 @@ XML_DLL=libxml2-2.dll
 !IF "$(GTK_NAME)" == "gtk2"
 GDK_DLL=libgdk-win32-2.0-0.dll
 GTK_DLL=libgtk-win32-2.0-0.dll
-#GTK_PKG=2.16.6-20100912
 GTK_PKG=2.24.10-2.7
+#GTK_PKG=2.24.14-1.1
 PKG_SUFIX=ws
 !ELSE
 GDK_DLL=libgdk-3-0.dll
 GTK_DLL=libgtk-3-0.dll
 PKG_SUFIX=ws
-GTK_PKG=3.4.4-2.1
+GTK_PKG=3.4.2-3.5
+#GTK_PKG=3.4.4-2.1
 !ENDIF
 
 #
@@ -663,7 +662,7 @@ GTK_MODULES_DIR=lib\gtk-2.0\modules
 GTK_THEMES_DIR=share\themes\MS-Windows\gtk-2.0
 !ELSE
 GTK_ETC_DIR=etc\gtk-3.0
-GTK_SCHEMAS_DIR=\share\glib-2.0\schemas
+#GTK_SCHEMAS_DIR=\share\glib-2.0\schemas
 !ENDIF
 
 
