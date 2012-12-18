@@ -104,7 +104,7 @@ PROCESSOR_ARCHITECTURE=amd64
 
 # "Microsoft Visual Studio 2010"
 # Visual C++ 10.0, _MSC_VER 1600, msvcr100.dll
-#MSVC_VARIANT=MSVC2010
+MSVC_VARIANT=MSVC2010
 
 # "Microsoft Visual C++ 2010 Express Edition"
 # Visual C++ 10.0, _MSC_VER 1600, msvcr100.dll
@@ -236,13 +236,13 @@ XML_DLL=libxml2-2.dll
 
 # This macro is used by the setup target.
 !IF "$(GTK_NAME)" == "gtk2"
-#GTK_PKG=2.16.6-20100912
-#GTK_PKG=2.22.1-20101227
 GTK_PKG=2.24.10-2.7
+#GTK_PKG=2.24.14-1.1
 PKG_SUFIX=ws
 !ELSE
 PKG_SUFIX=ws
 GTK_PKG=3.4.2-3.5
+#GTK_PKG=3.4.4-2.1
 !ENDIF
 
 #
@@ -447,12 +447,13 @@ XML_DLL=libxml2-2.dll
 
 # These macros are used by the setup target.
 !IF "$(GTK_NAME)" == "gtk2"
-#GTK_PKG=2.16.6-20100912
 GTK_PKG=2.24.10-2.7
+#GTK_PKG=2.24.14-1.1
 PKG_SUFIX=ws
 !ELSE
 PKG_SUFIX=ws
 GTK_PKG=3.4.2-3.5
+#GTK_PKG=3.4.4-2.1
 !ENDIF
 
 #
