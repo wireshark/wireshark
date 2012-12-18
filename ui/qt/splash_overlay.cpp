@@ -89,7 +89,7 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
                       ));
 
     // Check for a remote connection
-    if (get_conn_cfilter() != NULL)
+    if (strlen (get_conn_cfilter()) > 0)
         info_update_freq_ = 1000;
 
     connect(wsApp, SIGNAL(splashUpdate(register_action_e,const char*)),

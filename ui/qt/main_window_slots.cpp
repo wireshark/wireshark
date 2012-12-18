@@ -321,7 +321,7 @@ void MainWindow::captureFileClosing(const capture_file *cf) {
 
     // Reset expert info indicator
     main_ui_->statusBar->hideExpert();
-    main_ui_->searchFrame->hide();
+    main_ui_->searchFrame->animatedHide();
 //    gtk_widget_show(expert_info_none);
     emit setCaptureFile(NULL);
 }
@@ -1179,11 +1179,11 @@ void MainWindow::on_actionEditFindPacket_triggered()
     }
     previous_focus_ = wsApp->focusWidget();
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
-    main_ui_->goToFrame->hide();
+    main_ui_->goToFrame->animatedHide();
     if (main_ui_->searchFrame->isVisible()) {
-        main_ui_->searchFrame->hide();
+        main_ui_->searchFrame->animatedHide();
     } else {
-        main_ui_->searchFrame->show();
+        main_ui_->searchFrame->animatedShow();
     }
 }
 
@@ -1489,11 +1489,11 @@ void MainWindow::on_actionGoGoToPacket_triggered() {
     previous_focus_ = wsApp->focusWidget();
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
 
-    main_ui_->searchFrame->hide();
+    main_ui_->searchFrame->animatedHide();
     if (main_ui_->goToFrame->isVisible()) {
-        main_ui_->goToFrame->hide();
+        main_ui_->goToFrame->animatedHide();
     } else {
-        main_ui_->goToFrame->show();
+        main_ui_->goToFrame->animatedShow();
     }
     main_ui_->goToLineEdit->setFocus();
 }
@@ -1504,7 +1504,7 @@ void MainWindow::resetPreviousFocus() {
 
 void MainWindow::on_goToCancel_clicked()
 {
-    main_ui_->goToFrame->hide();
+    main_ui_->goToFrame->animatedHide();
     if (previous_focus_) {
         disconnect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
         previous_focus_->setFocus();

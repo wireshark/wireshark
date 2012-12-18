@@ -44,7 +44,7 @@ const int narrow_chars = 1;
 const int wide_chars = 2;
 
 SearchFrame::SearchFrame(QWidget *parent) :
-    QFrame(parent),
+    AccordionFrame(parent),
     sf_ui_(new Ui::SearchFrame),
     cap_file_(NULL)
 {
@@ -64,10 +64,11 @@ SearchFrame::~SearchFrame()
     delete sf_ui_;
 }
 
-void SearchFrame::show()
+void SearchFrame::animatedShow()
 {
     sf_ui_->searchLineEdit->setFocus();
-    QFrame::show();
+
+    AccordionFrame::animatedShow();
 }
 
 void SearchFrame::findNext()
@@ -76,7 +77,7 @@ void SearchFrame::findNext()
 
     cap_file_->dir = SD_FORWARD;
     if (isHidden()) {
-        show();
+        animatedShow();
         return;
     }
     on_findButton_clicked();
@@ -88,7 +89,7 @@ void SearchFrame::findPrevious()
 
     cap_file_->dir = SD_BACKWARD;
     if (isHidden()) {
-        show();
+        animatedShow();
         return;
     }
     on_findButton_clicked();
@@ -98,14 +99,14 @@ void SearchFrame::setCaptureFile(capture_file *cf)
 {
     cap_file_ = cf;
     if (!cf && isVisible()) {
-        hide();
+        animatedHide();
     }
     enableWidgets();
 }
 
 void SearchFrame::findFrameWithFilter(QString &filter)
 {
-    show();
+    animatedShow();
     sf_ui_->searchLineEdit->setText(filter);
     sf_ui_->searchTypeComboBox->setCurrentIndex(0);
     enableWidgets();
@@ -356,7 +357,7 @@ void SearchFrame::on_findButton_clicked()
 
 void SearchFrame::on_cancelButton_clicked()
 {
-    hide();
+    animatedHide();
 }
 
 /*

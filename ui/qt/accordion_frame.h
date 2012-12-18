@@ -1,6 +1,6 @@
-/* search_frame.h
+/* accordion_frame.cpp
  *
- * $Id$
+ * $Id: splash_overlay.cpp 45941 2012-11-05 22:43:15Z gerald $
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,54 +21,31 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SEARCH_FRAME_H
-#define SEARCH_FRAME_H
+#ifndef ACCORDION_FRAME_H
+#define ACCORDION_FRAME_H
 
-#include <config.h>
+#include <QFrame>
+#include <QPropertyAnimation>
 
-#include "accordion_frame.h"
-
-#include "cfile.h"
-
-namespace Ui {
-class SearchFrame;
-}
-
-class SearchFrame : public AccordionFrame
+class AccordionFrame : public QFrame
 {
     Q_OBJECT
-    
 public:
-    explicit SearchFrame(QWidget *parent = 0);
-    ~SearchFrame();
+    explicit AccordionFrame(QWidget *parent = 0);
     void animatedShow();
-    void findNext();
-    void findPrevious();
+    void animatedHide();
 
-public slots:
-    void setCaptureFile(capture_file *cf);
-    void findFrameWithFilter(QString &filter);
-    
 signals:
-    void pushFilterSyntaxStatus(QString&);
-
-protected:
-    void keyPressEvent(QKeyEvent *event);
+    
+public slots:
 
 private:
-    void enableWidgets();
-
-    Ui::SearchFrame *sf_ui_;
-    capture_file *cap_file_;
+    int frame_height_;
+    QPropertyAnimation *animation_;
 
 private slots:
-    void on_searchTypeComboBox_currentIndexChanged(int index);
-
-    void on_searchLineEdit_textChanged(const QString &search_string);
-
-    void on_findButton_clicked();
-
-    void on_cancelButton_clicked();
+    void animationFinished();
+    
 };
 
-#endif // SEARCH_FRAME_H
+#endif // ACCORDION_FRAME_H

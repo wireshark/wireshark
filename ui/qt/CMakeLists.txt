@@ -24,6 +24,7 @@
 # All .h files which inherit from QObject aka which use the Q_OBJECT macro
 # need to go here.
 set(QTSHARK_H_SRC
+	accordion_frame.h
 	byte_view_tab.h
 	byte_view_text.h
 	capture_file_dialog.h
@@ -53,6 +54,7 @@ set(QTSHARK_H_SRC
 	recent_file_status.h
 	simple_dialog_qt.h
 	search_frame.h
+	sparkline_delegate.h
 	splash_overlay.h
 	syntax_line_edit.h
 	wireshark_application.h
@@ -63,6 +65,7 @@ set(QTSHARK_H_SRC
 )
 
 set(QTSHARK_CPP_SRC
+	accordion_frame.cpp
 	byte_view_tab.cpp
 	byte_view_text.cpp
 	capture_file_dialog.cpp

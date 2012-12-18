@@ -217,7 +217,8 @@ HEADERS += $$HEADERS_WS_C \
     export_object_dialog.h \
     print_dialog.h \
     splash_overlay.h \
-    search_frame.h
+    search_frame.h \
+    accordion_frame.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -394,6 +395,7 @@ HEADERS += \
     wireshark_application.h
 
 SOURCES += \
+    accordion_frame.cpp \
     byte_view_tab.cpp \
     byte_view_text.cpp \
     capture_file_dialog.cpp \
@@ -425,9 +427,9 @@ SOURCES += \
     proto_tree.cpp \
     qt_ui_utils.cpp \
     recent_file_status.cpp \
+    search_frame.cpp \
     simple_dialog_qt.cpp \
     sparkline_delegate.cpp \
     splash_overlay.cpp \
     syntax_line_edit.cpp \
-    wireshark_application.cpp \
-    search_frame.cpp
+    wireshark_application.cpp

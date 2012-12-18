@@ -115,24 +115,11 @@ MainWindow::MainWindow(QWidget *parent) :
     // This property is obsolete in Qt5 so this issue may be fixed in that version.
     main_ui_->displayFilterToolBar->addWidget(df_combo_box_);
 
-    QString subframe_style(
-                ".QFrame {"
-                "  background: palette(window);"
-                "  padding-top: 0.1em;"
-                "  padding-bottom: 0.1em;"
-                "  border-bottom: 1px solid palette(shadow);"
-                "}"
-                "QLineEdit#goToLineEdit {"
-                "  max-width: 5em;"
-                "}"
-                );
     main_ui_->goToFrame->hide();
     // XXX For some reason the cursor is drawn funny with an input mask set
     // https://bugreports.qt-project.org/browse/QTBUG-7174
-    main_ui_->goToFrame->setStyleSheet(subframe_style);
 
     main_ui_->searchFrame->hide();
-    main_ui_->searchFrame->setStyleSheet(subframe_style);
     connect(main_ui_->searchFrame, SIGNAL(pushFilterSyntaxStatus(QString&)),
             main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
 

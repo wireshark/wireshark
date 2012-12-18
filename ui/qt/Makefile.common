@@ -75,6 +75,7 @@ GENERATOR_FILES =
 # Headers that have to be run through moc.
 #
 MOC_HDRS = \
+	accordion_frame.h \
 	byte_view_tab.h \
 	byte_view_text.h \
 	capture_file_dialog.h \
@@ -152,6 +153,7 @@ QM_FILES = \
 QRC_SRC = $(QRC_FILES:.qrc=.rcc.cpp)
 
 WIRESHARK_QT_SRC = \
+	accordion_frame.cpp \
 	byte_view_tab.cpp \
 	byte_view_text.cpp \
 	capture_file_dialog.cpp \
