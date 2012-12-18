@@ -1059,8 +1059,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
         }
         else if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ASSIGNED_UDID_SCM) == 0 )
         {
-            item = proto_tree_add_ether(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1,
-                    6, tvb_get_ptr(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 6));
+            item = proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 6, ENC_NA);
 
             if ( global_scm_udid_autoset == TRUE )
             {
@@ -1091,8 +1090,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
         {
             proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
             proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
-            item = proto_tree_add_ether(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1,
-                    6, tvb_get_ptr(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 6));
+            item = proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 6, ENC_NA);
 
             if ( global_scm_udid_autoset == TRUE )
             {
@@ -1124,8 +1122,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
 
         if (dataLength > 0)
-            proto_tree_add_ether(snmt_tree, hf_oss_snmt_udid, message_tvb,
-                    OSS_FRAME_POS_DATA + frameStart1, 6, tvb_get_ptr(message_tvb, OSS_FRAME_POS_DATA + frameStart1, 6));
+            proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 6, ENC_NA);
     }
     else if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_ASSIGN_SADR) == 0 )
     {
@@ -1133,8 +1130,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, frameStart2 + 3, 2, taddr);
 
         if (dataLength > 0)
-            proto_tree_add_ether(snmt_tree, hf_oss_snmt_udid, message_tvb,
-                    OSS_FRAME_POS_DATA + frameStart1, 6, tvb_get_ptr(message_tvb, OSS_FRAME_POS_DATA + frameStart1, 6));
+            proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 6, ENC_NA);
 
     }
     else if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_RESPONSE_UDID) == 0 )
@@ -1143,8 +1139,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
 
         if (dataLength > 0)
-            proto_tree_add_ether(snmt_tree, hf_oss_snmt_udid, message_tvb,
-                    OSS_FRAME_POS_DATA + frameStart1, 6, tvb_get_ptr(message_tvb, OSS_FRAME_POS_DATA + frameStart1, 6));
+            proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 6, ENC_NA);
 
     }
     else if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_REQUEST_UDID) == 0 )

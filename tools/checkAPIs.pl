@@ -1351,6 +1351,7 @@ my @TvbPtrAPIs = (
         # given offset and length are equal) with these:
         'proto_tree_add_bytes_format',
         'proto_tree_add_bytes_format_value',
+        'proto_tree_add_ether',
         # Use the tvb_* version of these:
         'ether_to_str',
         'ip_to_str',
