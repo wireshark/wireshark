@@ -182,7 +182,7 @@ struct option {
                                                                                            \
                 nwritten = fwrite(data_pointer, data_length, 1, file_pointer);             \
                 if (nwritten != 1) {                                                       \
-                        if (nwritten == 0 && ferror(file_pointer)) {                       \
+                        if (ferror(file_pointer)) {                                        \
                                 *error_pointer = errno;                                    \
                         } else {                                                           \
                                 *error_pointer = 0;                                        \
@@ -225,7 +225,7 @@ libpcap_write_file_header(FILE *fp, int linktype, int snaplen, gboolean ts_nsecs
         file_hdr.network = linktype;
         nwritten = fwrite(&file_hdr, sizeof(file_hdr), 1, fp);
         if (nwritten != 1) {
-                if (nwritten == 0 && ferror(fp))
+                if (ferror(fp))
                         *err = errno;
                 else
                         *err = 0;       /* short write */
@@ -251,7 +251,7 @@ libpcap_write_packet(FILE *fp, const struct pcap_pkthdr *phdr, const u_char *pd,
         rec_hdr.orig_len = phdr->len;
         nwritten = fwrite(&rec_hdr, sizeof(rec_hdr), 1, fp);
         if (nwritten != 1) {
-                if (nwritten == 0 && ferror(fp))
+                if (ferror(fp))
                         *err = errno;
                 else
                         *err = 0;       /* short write */
@@ -261,7 +261,7 @@ libpcap_write_packet(FILE *fp, const struct pcap_pkthdr *phdr, const u_char *pd,
 
         nwritten = fwrite(pd, phdr->caplen, 1, fp);
         if (nwritten != 1) {
-                if (nwritten == 0 && ferror(fp))
+                if (ferror(fp))
                         *err = errno;
                 else
                         *err = 0;       /* short write */
