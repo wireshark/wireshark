@@ -28,8 +28,8 @@
 #include <glib.h>
 
 #include "wmem_scopes.h"
-#include "wmem_allocator_glib.h"
 #include "wmem_allocator_block.h"
+#include "wmem_allocator_simple.h"
 
 /* One of the supposed benefits of wmem over the old emem was going to be that
  * the scoping of the various memory pools would be obvious, since they would
@@ -154,14 +154,14 @@ wmem_init_scopes(void)
     g_assert(in_file_scope   == FALSE);
 
     if (getenv("WIRESHARK_DEBUG_WMEM_PACKET_NO_CHUNKS")) {
-        packet_scope = wmem_glib_allocator_new();
+        packet_scope = wmem_simple_allocator_new();
     }
     else {
         packet_scope = wmem_block_allocator_new();
     }
 
-    file_scope   = wmem_glib_allocator_new();
-    epan_scope   = wmem_glib_allocator_new();
+    file_scope   = wmem_simple_allocator_new();
+    epan_scope   = wmem_simple_allocator_new();
 }
 
 void

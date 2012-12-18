@@ -28,7 +28,6 @@
 #include "wmem_core.h"
 #include "wmem_scopes.h"
 #include "wmem_allocator.h"
-#include "wmem_allocator_glib.h"
 
 void *
 wmem_alloc(wmem_allocator_t *allocator, const size_t size)

@@ -51,7 +51,7 @@
 #include "oids.h"
 #include "emem.h"
 #include "wmem/wmem.h"
-#include "wmem/wmem_allocator_glib.h"
+#include "wmem/wmem_allocator_simple.h"
 #include "expert.h"
 
 #ifdef HAVE_LUA
@@ -162,7 +162,7 @@ epan_dissect_init(epan_dissect_t *edt, const gboolean create_proto_tree, const g
 {
 	g_assert(edt);
 
-	edt->pi.pool = wmem_glib_allocator_new();
+	edt->pi.pool = wmem_simple_allocator_new();
 
 	if (create_proto_tree) {
 		edt->tree = proto_tree_create_root(&edt->pi);

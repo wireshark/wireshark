@@ -25,8 +25,8 @@
 
 LIBWMEM_SRC =				\
 	wmem_core.c    			\
-	wmem_allocator_glib.c		\
 	wmem_allocator_block.c		\
+	wmem_allocator_simple.c		\
 	wmem_scopes.c			\
 	wmem_slab.c			\
 	wmem_stack.c			\
@@ -37,8 +37,8 @@ LIBWMEM_INCLUDES =			\
 	wmem.h				\
 	wmem_core.h    			\
 	wmem_allocator.h       		\
-	wmem_allocator_glib.h		\
 	wmem_allocator_block.h		\
+	wmem_allocator_simple.h		\
 	wmem_scopes.h			\
 	wmem_slab.h			\
 	wmem_stack.h			\

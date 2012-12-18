@@ -1,5 +1,5 @@
-/* wmem_allocator_glib.h
- * Definitions for the Wireshark Memory Manager GLib-Based Allocator
+/* wmem_allocator_simple.h
+ * Definitions for the Wireshark Memory Manager Simple Allocator
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * $Id$
@@ -23,8 +23,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_ALLOCATOR_GLIB_H__
-#define __WMEM_ALLOCATOR_GLIB_H__
+#ifndef __WMEM_ALLOCATOR_SIMPLE_H__
+#define __WMEM_ALLOCATOR_SIMPLE_H__
 
 #include "wmem_core.h"
 
@@ -33,13 +33,13 @@ extern "C" {
 #endif /* __cplusplus */
 
 wmem_allocator_t *
-wmem_glib_allocator_new(void);
+wmem_simple_allocator_new(void);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __WMEM_ALLOCATOR_GLIB_H__ */
+#endif /* __WMEM_ALLOCATOR_SIMPLE_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

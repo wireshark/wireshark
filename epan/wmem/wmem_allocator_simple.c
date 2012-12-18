@@ -1,5 +1,5 @@
-/* wmem_allocator_glib.c
- * Wireshark Memory Manager GLib-Based Allocator
+/* wmem_allocator_simple.c
+ * Wireshark Memory Manager Simple Allocator
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * $Id$
@@ -32,15 +32,15 @@
 
 /* In this trivial allocator, we just store a GSList of g_malloc()ed
  * blocks in the private_data pointer. */
-typedef struct _wmem_glib_allocator_t {
+typedef struct _wmem_simple_allocator_t {
     GSList *block_list;
-} wmem_glib_allocator_t;
+} wmem_simple_allocator_t;
 
 static void *
-wmem_glib_alloc(void *private_data, const size_t size)
+wmem_simple_alloc(void *private_data, const size_t size)
 {
     void *buf;
-    wmem_glib_allocator_t *allocator = (wmem_glib_allocator_t*) private_data;
+    wmem_simple_allocator_t *allocator = (wmem_simple_allocator_t*) private_data;
     
     buf = g_malloc(size);
 
@@ -50,10 +50,10 @@ wmem_glib_alloc(void *private_data, const size_t size)
 }
 
 static void
-wmem_glib_free_all(void *private_data)
+wmem_simple_free_all(void *private_data)
 {
-    wmem_glib_allocator_t *allocator = (wmem_glib_allocator_t*) private_data;
-    GSList                *tmp;
+    wmem_simple_allocator_t *allocator = (wmem_simple_allocator_t*) private_data;
+    GSList                  *tmp;
 
     /* We can't use g_slist_free_full() as it was only introduced in GLIB 2.28
      * while we support way back to 2.14. So loop through and manually free
@@ -69,27 +69,27 @@ wmem_glib_free_all(void *private_data)
 }
 
 static void
-wmem_glib_allocator_destroy(wmem_allocator_t *allocator)
+wmem_simple_allocator_destroy(wmem_allocator_t *allocator)
 {
     g_free(allocator->private_data);
     g_free(allocator);
 }
 
 wmem_allocator_t *
-wmem_glib_allocator_new(void)
+wmem_simple_allocator_new(void)
 {
-    wmem_allocator_t      *allocator;
-    wmem_glib_allocator_t *glib_allocator;
+    wmem_allocator_t        *allocator;
+    wmem_simple_allocator_t *simple_allocator;
 
-    allocator      = g_new(wmem_allocator_t, 1);
-    glib_allocator = g_new(wmem_glib_allocator_t, 1);
+    allocator        = g_new(wmem_allocator_t, 1);
+    simple_allocator = g_new(wmem_simple_allocator_t, 1);
 
-    allocator->alloc        = &wmem_glib_alloc;
-    allocator->free_all     = &wmem_glib_free_all;
-    allocator->destroy      = &wmem_glib_allocator_destroy;
-    allocator->private_data = (void*) glib_allocator;
+    allocator->alloc        = &wmem_simple_alloc;
+    allocator->free_all     = &wmem_simple_free_all;
+    allocator->destroy      = &wmem_simple_allocator_destroy;
+    allocator->private_data = (void*) simple_allocator;
 
-    glib_allocator->block_list = NULL;
+    simple_allocator->block_list = NULL;
 
     return allocator;
 }
