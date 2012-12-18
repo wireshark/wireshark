@@ -52,6 +52,7 @@
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
+#include <epan/wmem/wmem.h>
 #include "packet-ipv6.h"
 #include "packet-ieee802154.h"
 #include "packet-6lowpan.h"
@@ -2184,7 +2185,7 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tree) {
             proto_tree_add_uint(mesh_tree, hf_6lowpan_mesh_orig16, tvb, offset, sizeof(guint16), addr16);
         }
-        ifcid = (guint8 *)ep_alloc(sizeof(guint64));
+        ifcid = (guint8 *)wmem_alloc(pinfo->pool, sizeof(guint64));
         lowpan_addr16_to_ifcid(addr16, ifcid);
         src_ifcid = ifcid;
         offset += sizeof(guint16);
@@ -2207,7 +2208,7 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tree) {
             proto_tree_add_uint(mesh_tree, hf_6lowpan_mesh_dest16, tvb, offset, sizeof(guint16), addr16);
         }
-        ifcid = (guint8 *)ep_alloc(sizeof(guint64));
+        ifcid = (guint8 *)wmem_alloc(pinfo->pool, sizeof(guint64));
         lowpan_addr16_to_ifcid(addr16, ifcid);
         dst_ifcid = ifcid;
         offset += sizeof(guint16);
