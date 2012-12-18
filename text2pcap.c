@@ -1283,7 +1283,10 @@ parse_options (int argc, char *argv[])
             break;
 
         case 's':
-            hdr_sctp       = TRUE;
+            hdr_sctp = TRUE;
+            hdr_data_chunk = FALSE;
+            hdr_tcp = FALSE;
+            hdr_udp = FALSE;
             hdr_sctp_src   = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-%c'\n", c);
@@ -1318,8 +1321,10 @@ parse_options (int argc, char *argv[])
             hdr_ethernet_proto = 0x800;
             break;
         case 'S':
-            hdr_sctp       = TRUE;
+            hdr_sctp = TRUE;
             hdr_data_chunk = TRUE;
+            hdr_tcp = FALSE;
+            hdr_udp = FALSE;
             hdr_sctp_src   = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-%c'\n", c);
@@ -1361,6 +1366,8 @@ parse_options (int argc, char *argv[])
         case 'u':
             hdr_udp = TRUE;
             hdr_tcp = FALSE;
+            hdr_sctp = FALSE;
+            hdr_data_chunk = FALSE;
             hdr_src_port = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-u'\n");
@@ -1386,6 +1393,8 @@ parse_options (int argc, char *argv[])
         case 'T':
             hdr_tcp = TRUE;
             hdr_udp = FALSE;
+            hdr_sctp = FALSE;
+            hdr_data_chunk = FALSE;
             hdr_src_port = strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-T'\n");
