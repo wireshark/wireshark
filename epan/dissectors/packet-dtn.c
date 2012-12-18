@@ -729,7 +729,6 @@ static int
 dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *tvb)
 {
     guint8        cosflags;
-    const guint8 *dict_ptr;
     int           bundle_header_length;
     int           bundle_header_dict_length;
     int           offset;     /*Total offset into frame (frame_offset + convergence layer size)*/
@@ -1030,13 +1029,15 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
          * Add Source/Destination to INFO Field
          */
 
-        /* Note: If we get this far, the offsets (and the strings) are at least within the TVB */
-        dict_ptr = tvb_get_ptr(tvb, offset, bundle_header_dict_length);
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
-                     dict_ptr + source_scheme_offset, dict_ptr + source_ssp_offset,
-                     dict_ptr + dest_scheme_offset, dict_ptr + dest_ssp_offset);
+                     tvb_get_ephemeral_stringz(tvb, offset + source_scheme_offset, NULL),
+                     tvb_get_ephemeral_stringz(tvb, offset + source_ssp_offset, NULL),
+                     tvb_get_ephemeral_stringz(tvb, offset + dest_scheme_offset, NULL),
+                     tvb_get_ephemeral_stringz(tvb, offset + dest_ssp_offset, NULL));
+
         /* remember custodian, for use in checking cteb validity */
-        bundle_custodian = ep_strdup_printf("%s:%s", dict_ptr + cust_scheme_offset, dict_ptr + cust_ssp_offset);
+        bundle_custodian = ep_strdup_printf("%s:%s", tvb_get_ephemeral_stringz(tvb, offset + cust_scheme_offset, NULL),
+                                            tvb_get_ephemeral_stringz(tvb, offset + cust_ssp_offset, NULL));
     }
     offset += bundle_header_dict_length;        /*Skip over dictionary*/
 
