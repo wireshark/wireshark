@@ -313,6 +313,7 @@ static int hf_nfs_opentype4 = -1;
 static int hf_nfs_state_protect_how4 = -1;
 static int hf_nfs_limit_by4 = -1;
 static int hf_nfs_open_delegation_type4 = -1;
+static int hf_nfs_why_no_delegation4 = -1;
 static int hf_nfs_ftype4 = -1;
 static int hf_nfs_change_info4_atomic = -1;
 static int hf_nfs_open4_share_access = -1;
@@ -520,6 +521,7 @@ static int hf_nfs_sequence_status_flags_cb_path_down_session = -1;
 static int hf_nfs_sequence_status_flags_backchannel_fault = -1;
 static int hf_nfs_sequence_status_flags_devid_changed = -1;
 static int hf_nfs_sequence_status_flags_devid_deleted = -1;
+static int hf_nfs_secinfo_style4 = -1;
 
 /* Hidden field for v2, v3, and v4 status */
 int hf_nfs_nfsstat = -1;
@@ -622,6 +624,7 @@ static gint ett_nfs_setclientid_confirm4 = -1;
 static gint ett_nfs_verify4 = -1;
 static gint ett_nfs_write4 = -1;
 static gint ett_nfs_release_lockowner4 = -1;
+static gint ett_nfs_backchannel_ctl4 = -1;
 static gint ett_nfs_illegal4 = -1;
 static gint ett_nfs_verifier4 = -1;
 static gint ett_nfs_opaque = -1;
@@ -664,6 +667,8 @@ static gint ett_nfs_bind_conn_to_session4 = -1;
 static gint ett_nfs_exchange_id4 = -1;
 static gint ett_nfs_create_session4 = -1;
 static gint ett_nfs_destroy_session4 = -1;
+static gint ett_nfs_free_stateid4 = -1;
+static gint ett_nfs_secinfo_no_name4 = -1;
 static gint ett_nfs_sequence4 = -1;
 static gint ett_nfs_slotid4 = -1;
 static gint ett_nfs_sr_status4 = -1;
@@ -695,6 +700,7 @@ static gint ett_nfs_layoutseg = -1;
 static gint ett_nfs_fh_obj = -1;
 static gint ett_nfs_fh_ex = -1;
 static gint ett_nfs_layoutseg_fh = -1;
+static gint ett_nfs_destroy_clientid4 = -1;
 static gint ett_nfs_reclaim_complete4 = -1;
 static gint ett_nfs_chan_attrs = -1;
 
@@ -8112,24 +8118,24 @@ static gint *nfsv4_operation_ett[] =
 	 &ett_nfs_verify4 ,
 	 &ett_nfs_write4,
 	 &ett_nfs_release_lockowner4,
-	 NULL, /* backchannel_ctl */
+	 &ett_nfs_backchannel_ctl4,
 	 &ett_nfs_bind_conn_to_session4,
 	 &ett_nfs_exchange_id4,
 	 &ett_nfs_create_session4,
 	 &ett_nfs_destroy_session4,
-	 NULL, /* free stateid */
+	 &ett_nfs_free_stateid4,
 	 NULL, /* get dir delegation */
 	 &ett_nfs_getdevinfo4,
 	 &ett_nfs_getdevlist4,
 	 &ett_nfs_layoutcommit4,
 	 &ett_nfs_layoutget4,
 	 &ett_nfs_layoutreturn4,
-	 NULL, /* secinfo no name */
+	 &ett_nfs_secinfo_no_name4,
 	 &ett_nfs_sequence4,
 	 NULL, /* set ssv */
 	 NULL, /* test stateid */
 	 NULL, /* want delegation */
-	 NULL, /* destroy clientid */
+	 &ett_nfs_destroy_clientid4,
 	 &ett_nfs_reclaim_complete4
 };
 
@@ -8494,6 +8500,28 @@ static const value_string names_open_delegation_type4[] = {
 	{	0,	NULL }
 };
 
+#define WND4_NOT_WANTED 0
+#define WND4_CONTENTION 1
+#define WND4_RESOURCE 2
+#define WND4_NOT_SUPP_FTYPE 3
+#define WND4_WRITE_DELEG_NOT_SUPP_FTYPE 4
+#define WND4_NOT_SUPP_UPGRADE 5
+#define WND4_NOT_SUPP_DOWNGRADE 6
+#define WND4_CANCELLED 7
+#define WND4_IS_DIR 8
+static const value_string names_why_no_delegation4[] = {
+	{	WND4_NOT_WANTED,		"WND4_NOT_WANTED" },
+	{	WND4_CONTENTION,		"WND4_CONTENTION" },
+	{	WND4_RESOURCE,			"WND4_RESOURCE" },
+	{	WND4_NOT_SUPP_FTYPE,		"WND4_NOT_SUPP_FTYPE" },
+	{	WND4_WRITE_DELEG_NOT_SUPP_FTYPE,"WND4_WRITE_DELEG_NOT_SUPP_FTYPE" },
+	{	WND4_NOT_SUPP_UPGRADE,		"WND4_NOT_SUPP_UPGRADE" },
+	{	WND4_NOT_SUPP_DOWNGRADE,	"WND4_NOT_SUPP_DOWNGRADE" },
+	{	WND4_CANCELLED,			"WND4_CANCELLED" },
+	{	WND4_IS_DIR,			"WND4_IS_DIR" },
+	{	0,				NULL }
+};
+
 static int
 dissect_nfs_open_delegation4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
@@ -8521,7 +8549,10 @@ dissect_nfs_open_delegation4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case OPEN_DELEGATE_WRITE:
 			offset = dissect_nfs_open_write_delegation4(tvb, offset, pinfo, newftree);
 			break;
-
+		case OPEN_DELEGATE_NONE_EXT:
+			proto_tree_add_item(tree, hf_nfs_why_no_delegation4, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			break;
 		default:
 			break;
 	}
@@ -8941,6 +8972,14 @@ static const value_string names_channel_dir_from_server[] = {
 	{ 0, NULL }
 };
 
+#define SECINFO_STYLE4_CURRENT_FH 0
+#define SECINFO_STYLE4_PARENT 1
+static const value_string names_secinfo_style4[] = {
+	{ SECINFO_STYLE4_CURRENT_FH,	"SECINFO_STYLE4_CURRENT_FH" },
+        { SECINFO_STYLE4_PARENT, 	"SECINFO_STYLE4_PARENT" },
+	{ 0, NULL }
+};
+
 static int
 dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree)
@@ -9280,6 +9319,9 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case NFS4_OP_READLINK:
 			break;
 
+		case NFS4_OP_DESTROY_CLIENTID:
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4, offset);
+			break;
 		case NFS4_OP_RECLAIM_COMPLETE:
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_reclaim_one_fs4, offset);
 			break;
@@ -9323,6 +9365,11 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case NFS4_OP_SECINFO:
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
 				hf_nfs_component4, NULL);
+			break;
+
+		case NFS4_OP_SECINFO_NO_NAME:
+			proto_tree_add_item(newftree, hf_nfs_secinfo_style4, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
 			break;
 
 		case NFS4_OP_SETATTR:
@@ -9379,6 +9426,10 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 			/* Minor Version 1 */
+		case NFS4_OP_BACKCHANNEL_CTL:
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_cb_program, offset);
+			offset = dissect_rpc_secparms4(tvb, offset, newftree);
+			break;
 		case NFS4_OP_BIND_CONN_TO_SESSION:
 			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_bctsa_dir, offset);
@@ -9425,6 +9476,10 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		case NFS4_OP_DESTROY_SESSION:
 			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
+			break;
+		case NFS4_OP_FREE_STATEID:
+			offset = dissect_nfs_stateid4(tvb, offset, newftree, &sid_hash);
+			g_string_append_printf(op_summary[ops_counter].optext, " StateID:0x%04x", sid_hash);
 			break;
 
 			/* pNFS */
@@ -9801,6 +9856,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_SECINFO:
+		case NFS4_OP_SECINFO_NO_NAME:
 			offset = dissect_rpc_array(tvb, pinfo, newftree, offset,
 				dissect_nfs_secinfo4_res, hf_nfs_secinfo_arr4);
 			break;
@@ -9873,7 +9929,8 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		case NFS4_OP_DESTROY_SESSION:
 			break;
-
+		case NFS4_OP_FREE_STATEID:
+			break;
 		case NFS4_OP_LAYOUTGET:
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_return_on_close4,
 									  offset);
@@ -11185,6 +11242,14 @@ proto_register_nfs(void)
 			"Delegation Type", "nfs.open.delegation_type", FT_UINT32, BASE_DEC,
 			VALS(names_open_delegation_type4), 0, NULL, HFILL }},
 
+		{ &hf_nfs_why_no_delegation4, {
+			"why no delegation", "nfs.open.why_no_delegation", FT_UINT32, BASE_DEC,
+			VALS(names_why_no_delegation4), 0, NULL, HFILL }},
+
+		{ &hf_nfs_secinfo_style4, {
+			"Secinfo Style", "nfs.secinfo.style", FT_UINT32, BASE_DEC,
+			VALS(names_secinfo_style4), 0, NULL, HFILL }},
+
 		{ &hf_nfs_ftype4, {
 			"nfs_ftype4", "nfs.nfs_ftype4", FT_UINT32, BASE_DEC,
 			VALS(names_ftype4), 0, NULL, HFILL }},
@@ -12443,6 +12508,7 @@ proto_register_nfs(void)
 		&ett_nfs_read4,
 		&ett_nfs_readdir4,
 		&ett_nfs_readlink4,
+		&ett_nfs_destroy_clientid4,
 		&ett_nfs_reclaim_complete4,
 		&ett_nfs_remove4,
 		&ett_nfs_rename4,
@@ -12455,10 +12521,13 @@ proto_register_nfs(void)
 		&ett_nfs_verify4,
 		&ett_nfs_write4,
 		&ett_nfs_release_lockowner4,
+		&ett_nfs_backchannel_ctl4,
 		&ett_nfs_bind_conn_to_session4,
 		&ett_nfs_exchange_id4,
 		&ett_nfs_create_session4,
 		&ett_nfs_destroy_session4,
+		&ett_nfs_free_stateid4,
+		&ett_nfs_secinfo_no_name4,
 		&ett_nfs_sequence4,
 		&ett_nfs_layoutget4,
 		&ett_nfs_layoutcommit4,
