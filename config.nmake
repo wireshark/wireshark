@@ -272,7 +272,7 @@ PKG_SUFIX=ws
 GDK_DLL=libgdk-3-0.dll
 GTK_DLL=libgtk-3-0.dll
 PKG_SUFIX=ws
-GTK_PKG=3.4.2-2.9
+GTK_PKG=3.4.0-3.9
 #GTK_PKG=3.4.4-2.1
 !ENDIF
 

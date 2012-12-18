@@ -2128,7 +2128,11 @@ cap_pipe_open_live(char *pipename,
     }
 #ifdef _WIN32
     else {
+#if GLIB_CHECK_VERSION(2,31,0)
+       g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_opts);
+#else
        g_thread_create(&cap_thread_read, pcap_opts, FALSE, NULL);
+#endif
 
        pcap_opts->cap_pipe_buf = (char *) &magic;
        pcap_opts->cap_pipe_bytes_read = 0;
