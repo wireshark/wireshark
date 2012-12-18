@@ -264,15 +264,18 @@ Don't use "index()" or "rindex()"; instead, use the ANSI C equivalents,
 "index()" or "rindex()", and those that do might not declare them in the
 header file on which they're declared on your platform.
 
-Don't fetch data from packets by getting a pointer to data in the packet
-with "tvb_get_ptr()", casting that pointer to a pointer to a structure,
-and dereferencing that pointer.  That pointer won't necessarily be aligned
-on the proper boundary, which can cause crashes on some platforms (even
-if it doesn't crash on an x86-based PC); furthermore, the data in a
-packet is not necessarily in the byte order of the machine on which
-Wireshark is running.  Use the tvbuff routines to extract individual
-items from the packet, or use "proto_tree_add_item()" and let it extract
-the items for you.
+Don't use "tvb_get_ptr().  If you must use it, keep in mind that the pointer
+returned by a call to "tvb_get_ptr()" is not guaranteed to be aligned on any
+particular byte boundary; this means that you cannot safely cast it to any
+data type other than a pointer to "char", unsigned char", "guint8", or other
+one-byte data types.  Casting a pointer returned by tvb_get_ptr() into any
+multi-byte data type or structure may cause crashes on some platforms (even
+if it does not crash on x86-based PCs).  Even if such mis-aligned accesses
+don't crash on your platform they will be slower than properly aligned
+accesses would be.  Furthermore, the data in a packet is not necessarily in
+the byte order of the machine on which Wireshark is running.  Use the tvbuff
+routines to extract individual items from the packet, or, better yet, use
+"proto_tree_add_item()" and let it extract the items for you.
 
 Don't use structures that overlay packet data, or into which you copy
 packet data; the C programming language does not guarantee any
@@ -422,17 +425,6 @@ tmpnam() -> mkstemp()
 tmpnam is insecure and should not be used any more. Wireshark brings its
 own mkstemp implementation for use on platforms that lack mkstemp.
 Note: mkstemp does not accept NULL as a parameter.
-
-The pointer returned by a call to "tvb_get_ptr()" is not guaranteed to be
-aligned on any particular byte boundary; this means that you cannot
-safely cast it to any data type other than a pointer to "char",
-"unsigned char", "guint8", or other one-byte data types.  You cannot,
-for example, safely cast it to a pointer to a structure, and then access
-the structure members directly; on some systems, unaligned accesses to
-integral data types larger than 1 byte, and floating-point data types,
-cause a trap, which will, at best, result in the OS slowly performing an
-unaligned access for you, and will, on at least some platforms, cause
-the program to be terminated.
 
 Wireshark supports platforms with GLib 2.14[.x]/GTK+ 2.12[.x] or newer.
 If a Glib/GTK+ mechanism is available only in Glib/GTK+ versions newer
@@ -599,10 +591,10 @@ the buffer, and the sequence has a specified size, you can use
 before allocating a buffer for it.
 
 Otherwise, you can check whether the data is present by using
-"tvb_ensure_bytes_exist()" or by getting a pointer to the data by using
-"tvb_get_ptr()", although note that there might be problems with using
-the pointer from "tvb_get_ptr()" (see the item on this in the
-Portability section above, and the next item below).
+"tvb_ensure_bytes_exist()" although this frequently is not needed: the
+TVB-accessor routines can handle requests to read data beyond the end of
+the TVB (by throwing an exception which will either mark the frame as
+truncated--not all the data was captured--or as malformed).
 
 Note also that you should only fetch string data into a fixed-length
 buffer if the code ensures that no more bytes than will fit into the
@@ -615,11 +607,12 @@ routines such as "tvb_get_*_string()" are safer, as they allocate a buffer
 large enough to hold the string.  (Note that some variants of this call
 require you to free the string once you're finished with it.)
 
-If you have gotten a pointer using "tvb_get_ptr()", you must make sure
-that you do not refer to any data past the length passed as the last
-argument to "tvb_get_ptr()"; while the various "tvb_get" routines
-perform bounds checking and throw an exception if you refer to data not
-available in the tvbuff, direct references through a pointer gotten from
+If you have gotten a pointer using "tvb_get_ptr()" (which you should not
+have: you should seriously consider a better alternative to this function),
+you must make sure that you do not refer to any data past the length passed
+as the last argument to "tvb_get_ptr()"; while the various "tvb_get"
+routines perform bounds checking and throw an exception if you refer to data
+not available in the tvbuff, direct references through a pointer gotten from
 "tvb_get_ptr()" do not do any bounds checking.
 
 If you have a loop that dissects a sequence of items, each of which has
@@ -1260,7 +1253,7 @@ answer on big-endian machines.
 gchar *tvb_ip_to_str(tvbuff_t *tvb, const gint offset)
 gchar *tvb_ip6_to_str(tvbuff_t *tvb, const gint offset)
 
-Returns a null-terminated buffer containing a string with IPv4 or IPv6 Address 
+Returns a null-terminated buffer containing a string with IPv4 or IPv6 Address
 from the specified tvbuff, starting at the specified offset.
 
 Accessors for GUID:
@@ -1389,20 +1382,12 @@ specified offset. The ephemeral variant is freed automatically after the
 packet is dissected.
 
 Pointer-retrieval:
-/* WARNING! This function is possibly expensive, temporarily allocating
- * another copy of the packet data. Furthermore, it's dangerous because once
- * this pointer is given to the user, there's no guarantee that the user will
- * honor the 'length' and not overstep the boundaries of the buffer.
+/* WARNING! Don't use this function.  There is almost always a better way.
+ * It's dangerous because once this pointer is given to the user, there's
+ * no guarantee that the user will honor the 'length' and not overstep the
+ * boundaries of the buffer.  Also see the warning in the Portability section.
  */
 guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
-
-The reason that tvb_get_ptr() might have to allocate a copy of its data
-only occurs with TVBUFF_COMPOSITES, data that spans multiple tvbuffers.
-If the user requests a pointer to a range of bytes that span the member
-tvbuffs that make up the TVBUFF_COMPOSITE, the data will have to be
-copied to another memory region to assure that all the bytes are
-contiguous.
-
 
 
 1.5 Functions to handle columns in the traffic summary window.
@@ -2709,7 +2694,7 @@ Works in the same way but also returns the value of the read bits.
 proto_tree_add_split_bits_item_ret_val()
 -----------------------------------
 Similar, but is used for items that are made of 2 or more smaller sets of bits (crumbs)
-which are not contiguous, but are concatenated to form the actual value.  The size of 
+which are not contiguous, but are concatenated to form the actual value.  The size of
 the crumbs and the order of assembly are specified in an array of crumb_spec structures.
 
 proto_tree_add_split_bits_crumb()
