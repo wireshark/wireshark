@@ -71,8 +71,10 @@ unix {
     }
 
     # Some versions of Ubuntu don't ship with zlib.pc
-    eval(PKGCONFIG += zlib) {
-        PKGCONFIG += zlib
+    !macx {
+        eval(PKGCONFIG += zlib) {
+            PKGCONFIG += zlib
+        }
     }
 }
 
@@ -241,7 +243,7 @@ macx:QMAKE_LFLAGS += \
 
 unix:LIBS += -L../../lib -Wl,-rpath ../../lib -lwireshark -lwiretap -lwsutil -lui \
     -lpcap -lui_dirty
-macx:LIBS += -Wl,-macosx_version_min,10.5 -liconv
+macx:LIBS += -Wl,-macosx_version_min,10.5 -liconv -lz
 
 # XXX Copy this only if we're linking with Lua.
 EXTRA_BINFILES = \
