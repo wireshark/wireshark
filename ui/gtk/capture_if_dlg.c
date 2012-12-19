@@ -402,6 +402,9 @@ GtkWidget * capture_get_if_icon(interface_t *device)
     return pixbuf_to_widget(remote_sat_pb_data);
   }
 #endif
+  if (device->display_name && strstr(device->display_name,"Wi-Fi") != NULL) {
+    return pixbuf_to_widget(network_wireless_pb_data);
+  }
   switch (device->type) {
   case IF_DIALUP:
     return xpm_to_widget(modem_16_xpm);
