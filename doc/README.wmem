@@ -113,6 +113,7 @@ to the lifetime of the pinfo struct.
 
  - wmem_strbuf_new
  - wmem_strbuf_sized_new
+ - wmem_strbuf_append
  - wmem_strbuf_get_str
  - wmem_strbuf_get_len
 
