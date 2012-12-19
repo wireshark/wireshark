@@ -866,6 +866,7 @@ EXTRA_DIST = \
 	text2pcap.h		\
 	services		\
 	wireshark.desktop	\
+	wireshark-mime-package.xml \
 	wka.tmpl		\
 	CMakeLists.txt		\
 	cmakeconfig.h.in	\
