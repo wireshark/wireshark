@@ -265,7 +265,8 @@ XML_DLL=libxml2-2.dll
 !IF "$(GTK_NAME)" == "gtk2"
 GDK_DLL=libgdk-win32-2.0-0.dll
 GTK_DLL=libgtk-win32-2.0-0.dll
-GTK_PKG=2.24.10-2.7
+#GTK_PKG=2.24.10-2.7
+GTK_PKG=2.24.14-1.1
 #GTK_PKG=2.24.14-1.1
 PKG_SUFIX=ws
 !ELSE
