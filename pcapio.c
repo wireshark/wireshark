@@ -157,6 +157,7 @@ struct option {
 };
 #define OPT_ENDOFOPT      0
 #define OPT_COMMENT       1
+#define EPB_FLAGS         2
 #define SHB_HARDWARE      2 /* currently not used */
 #define SHB_OS            3
 #define SHB_USERAPPL      4
@@ -554,10 +555,12 @@ libpcap_write_enhanced_packet_block(FILE *fp,
                                     guint32 interface_id,
                                     guint ts_mul,
                                     const u_char *pd,
+                                    guint32 flags,
                                     long *bytes_written,
                                     int *err)
 {
         struct epb epb;
+        struct option option;
         guint32 block_total_length;
         guint64 timestamp;
         const guint32 padding = 0;
@@ -565,6 +568,9 @@ libpcap_write_enhanced_packet_block(FILE *fp,
         block_total_length = sizeof(struct epb) +
                              ADD_PADDING(phdr->caplen) +
                              sizeof(guint32);
+        if (flags != 0) {
+        	block_total_length += 2 * sizeof(struct option) + sizeof(guint32);
+        }
         timestamp = (guint64)(phdr->ts.tv_sec) * ts_mul +
                     (guint64)(phdr->ts.tv_usec);
         epb.block_type = ENHANCED_PACKET_BLOCK_TYPE;
@@ -579,6 +585,15 @@ libpcap_write_enhanced_packet_block(FILE *fp,
         if (phdr->caplen % 4) {
                 WRITE_DATA(fp, &padding, 4 - phdr->caplen % 4, *bytes_written, err);
         }
+        if (flags != 0) {
+                option.type = EPB_FLAGS;
+                option.value_length = sizeof(guint32);
+                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+                WRITE_DATA(fp, &flags, sizeof(guint32), *bytes_written, err);
+                option.type = OPT_ENDOFOPT;
+                option.value_length = 0;
+                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+       }
         WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
         return TRUE;
 }

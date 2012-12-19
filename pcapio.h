@@ -93,6 +93,7 @@ libpcap_write_enhanced_packet_block(FILE *fp,
                                     guint32 interface_id,
                                     guint ts_mul,
                                     const u_char *pd,
+                                    guint32 flags,
                                     long *bytes_written,
                                     int *err);
 
