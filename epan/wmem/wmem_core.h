@@ -32,9 +32,14 @@
 extern "C" {
 #endif /* __cplusplus */
 
+typedef enum _wmem_allocator_type_t {
+    WMEM_ALLOCATOR_SIMPLE,
+    WMEM_ALLOCATOR_BLOCK
+} wmem_allocator_type_t;
+
 struct _wmem_allocator_t;
 
-typedef struct _wmem_allocator_t wmem_allocator_t;
+typedef struct _wmem_allocator_t      wmem_allocator_t;
 
 void *
 wmem_alloc(wmem_allocator_t *allocator, const size_t size);
@@ -47,6 +52,9 @@ wmem_free_all(wmem_allocator_t *allocator);
 
 void
 wmem_destroy_allocator(wmem_allocator_t *allocator);
+
+wmem_allocator_t *
+wmem_allocator_new(const wmem_allocator_type_t type);
 
 void
 wmem_init(void);

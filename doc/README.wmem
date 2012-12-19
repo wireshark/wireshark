@@ -112,23 +112,27 @@ pool to pick one.
 
 3.1 Available Allocator Back-Ends
 
+Each available allocator type has a corresponding entry in the
+wmem_allocator_type_t enumeration defined in wmem_core.h.
+
 The currently available allocators are:
- - glib (wmem_allocator_glib.h)
-        A simple allocator that g_allocs requested memory and tracks each
-        allocation via a linked list.
- - block (wmem_allocator_block.h)
-        A simple block allocator that grabs large chunks of memory at a time
+ - WMEM_ALLOCATOR_SIMPLE (wmem_allocator_simple.*)
+        A trivial allocator that g_allocs requested memory and tracks
+        allocations via a simple linked list.
+ - WMEM_ALLOCATOR_BLOCK (wmem_allocator_block.*)
+        A block allocator that grabs large chunks of memory at a time
         (8 MB currently) and serves allocations out of those chunks.
 
 3.2 Creating a Pool
 
-To create a pool, include the header for the type of allocator you want to use
-and call the 'new' function available in that header. For example,
+To create a pool, include the regular wmem header and call the
+wmem_allocator_new() function with the appropriate type value.
+For example:
 
-    #include "wmem/wmem_allocator_glib.h"
+    #include "wmem/wmem.h"
 
     wmem_allocator_t *myPool;
-    myPool = wmem_glib_allocator_new();
+    myPool = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
 
 From here on in, you don't need to remember which type of allocator you used
 (although allocator authors are welcome to expose additional allocator-specific
@@ -136,20 +140,16 @@ helper functions in their headers). The "myPool" variable can be passed around
 and used as normal in allocation requests as described in section 2 of this
 document.
 
-All the other functions described in this section can be found
-in epan/wmem/wmem.h.
-
 3.3 Destroying a Pool
 
 Regardless of which allocator you used to create a pool, it can be destroyed
 with a call to the function wmem_destroy_allocator(). For example:
 
     #include "wmem/wmem.h"
-    #include "wmem/wmem_allocator_glib.h"
 
     wmem_allocator_t *myPool;
 
-    myPool = wmem_glib_allocator_new();
+    myPool = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
 
     /* Allocate some memory in myPool ... */
 
@@ -166,11 +166,10 @@ and recreating the pool. This method is therefore recommended, especially when
 the pool would otherwise be scoped to a single iteration of a loop. For example:
 
     #include "wmem/wmem.h"
-    #include "wmem/wmem_allocator_glib.h"
 
     wmem_allocator_t *myPool;
 
-    myPool = wmem_glib_allocator_new();
+    myPool = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
     for (...) {
 
         /* Allocate some memory in myPool ... */
@@ -237,6 +236,9 @@ The following is a list of things that emem doesn't provide but that it might
 be nice if wmem did provide them:
 
  - radix tree
+ - linked list
+ - dynamic array
+ - realloc
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

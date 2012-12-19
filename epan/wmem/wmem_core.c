@@ -23,11 +23,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #include "wmem_core.h"
 #include "wmem_scopes.h"
 #include "wmem_allocator.h"
+#include "wmem_allocator_simple.h"
+#include "wmem_allocator_block.h"
 
 void *
 wmem_alloc(wmem_allocator_t *allocator, const size_t size)
@@ -56,6 +60,27 @@ wmem_destroy_allocator(wmem_allocator_t *allocator)
 {
     wmem_free_all(allocator);
     allocator->destroy(allocator);
+}
+
+wmem_allocator_t *
+wmem_allocator_new(const wmem_allocator_type_t type)
+{
+    /* Our valgrind script uses this environment variable to override the
+     * usual allocator choice so that everything goes through system-level
+     * allocations that it understands and can track. Otherwise it will get
+     * confused by the block allocator etc. */
+    if (getenv("WIRESHARK_DEBUG_WMEM_SIMPLE")) {
+        return wmem_simple_allocator_new();
+    }
+
+    switch (type) {
+        case WMEM_ALLOCATOR_SIMPLE:
+            return wmem_simple_allocator_new();
+        case WMEM_ALLOCATOR_BLOCK:
+            return wmem_block_allocator_new();
+        default:
+            g_assert_not_reached();
+    };
 }
 
 void
