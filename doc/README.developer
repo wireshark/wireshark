@@ -179,9 +179,8 @@ support "%ll" for printing 64-bit integral data types.  Instead, for
 GLib routines, and routines that use them, such as all the routines in
 Wireshark that take format arguments, use G_GINT64_MODIFIER, for example:
 
-    proto_tree_add_text(tree, tvb, offset, 8,
-			"Sequence Number: %" G_GINT64_MODIFIER "u",
-			sequence_number);
+    proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len,
+				       val, "%" G_GINT64_MODIFIER "u", val);
 
 When specifying an integral constant that doesn't fit in 32 bits, don't
 use "LL" at the end of the constant - not all compilers use "LL" for
@@ -494,7 +493,7 @@ I.e. do not write code such as
      char buffer[1024];
      ...
      foo_to_str(buffer, ...
-     proto_tree_add_text(... buffer ...
+     proto_tree_add_string(... buffer ...
 
 instead write the code as
   static void
@@ -507,7 +506,7 @@ instead write the code as
     char *buffer;
     ...
     foo_to_str(&buffer, ...
-    proto_tree_add_text(... *buffer ...
+    proto_tree_add_string(... *buffer ...
 
 Use wmem_ allocated buffers. They are very fast and nice. These buffers are all
 automatically free()d when the dissection of the current packet ends so you
@@ -2631,8 +2630,11 @@ converted all the old-style proto_tree calls to the new-style proto_tree
 calls.  In other words, you should not use this in new code unless you've got
 a specific reason (see below).
 
-This can also be used for items with subtrees, which may not have values
-themselves - the items in the subtree are the ones with values.
+This can (and should only) be used for items with subtrees, which may not
+have values themselves - the items in the subtree are the ones with values.
+In other words, if you're using proto_tree_add_text() and not using the
+return value to build a new tree, you probably shouldn't be using this
+function: you probably should be using proto_tree_add_item() instead.
 
 For a subtree, the label on the subtree might reflect some of the items
 in the subtree.  This means the label can't be set until at least some
