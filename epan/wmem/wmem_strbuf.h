@@ -49,6 +49,12 @@ wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str);
 void
 wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str);
 
+const gchar *
+wmem_strbuf_get_str(wmem_strbuf_t *strbuf);
+
+gsize
+wmem_strbuf_get_len(wmem_strbuf_t *strbuf);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

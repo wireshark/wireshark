@@ -141,6 +141,18 @@ wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
     g_strlcpy(&strbuf->str[strbuf->len], str, strbuf->alloc_len);
 }
 
+const gchar *
+wmem_strbuf_get_str(wmem_strbuf_t *strbuf)
+{
+    return strbuf->str;
+}
+
+gsize
+wmem_strbuf_get_len(wmem_strbuf_t *strbuf)
+{
+    return strbuf->len;
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
