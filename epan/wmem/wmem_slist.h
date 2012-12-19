@@ -1,5 +1,5 @@
-/* wmem.h
- * Definitions for the Wireshark Memory Manager
+/* wmem_slist.h
+ * Definitions for the Wireshark Memory Manager Singly-Linked List
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * $Id$
@@ -23,17 +23,50 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_H__
-#define __WMEM_H__
+#ifndef __WMEM_SLIST_H__
+#define __WMEM_SLIST_H__
+
+#include <string.h>
+#include <glib.h>
 
 #include "wmem_core.h"
-#include "wmem_scopes.h"
-#include "wmem_slist.h"
-#include "wmem_stack.h"
-#include "wmem_strbuf.h"
-#include "wmem_strutl.h"
 
-#endif /* __WMEM_H__ */
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+struct _wmem_slist_t;
+struct _wmem_slist_frame_t;
+
+typedef struct _wmem_slist_t       wmem_slist_t;
+typedef struct _wmem_slist_frame_t wmem_slist_frame_t;
+
+guint
+wmem_slist_count(const wmem_slist_t *slist);
+
+wmem_slist_frame_t *
+wmem_slist_front(const wmem_slist_t *slist);
+
+wmem_slist_frame_t *
+wmem_slist_frame_next(const wmem_slist_frame_t *frame);
+
+void *
+wmem_slist_frame_data(const wmem_slist_frame_t *frame);
+
+void
+wmem_slist_remove(wmem_slist_t *slist, void *data);
+
+void
+wmem_slist_prepend(wmem_slist_t *slist, void *data);
+
+wmem_slist_t *
+wmem_slist_new(wmem_allocator_t *allocator);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __WMEM_SLIST_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

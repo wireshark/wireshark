@@ -93,11 +93,28 @@ to the lifetime of the pinfo struct.
  - wmem_stack_peek
  - wmem_stack_count
 
-2.5 Slab
+2.5 Singly-Linked List
+
+ - wmem_slist_new
+ - wmem_slist_prepend
+ - wmem_slist_remove
+ - wmem_slist_front
+ - wmem_slist_frame_next
+ - wmem_slist_frame_data
+ - wmem_slist_count
+
+2.6 Slab
 
  - wmem_slab_new
  - wmem_slab_alloc
  - wmem_slab_free
+
+2.7 String-Buffers
+
+ - wmem_strbuf_new
+ - wmem_strbuf_sized_new
+ - wmem_strbuf_get_str
+ - wmem_strbuf_get_len
 
 3. Usage for Producers
 
@@ -236,7 +253,6 @@ The following is a list of things that emem doesn't provide but that it might
 be nice if wmem did provide them:
 
  - radix tree
- - linked list
  - dynamic array
  - realloc
 

@@ -29,47 +29,30 @@
 #include "wmem_core.h"
 #include "wmem_slab.h"
 #include "wmem_stack.h"
+#include "wmem_slist.h"
 
-typedef struct _wmem_stack_frame_t {
-    struct _wmem_stack_frame_t *next;
-    void *data;
-} wmem_stack_frame_t;
-
-struct _wmem_stack_t {
-    guint count;
-    wmem_stack_frame_t *top;
-    wmem_slab_t *slab;
-};
-
-guint
-wmem_stack_count(const wmem_stack_t *stack)
-{
-    return stack->count;
-}
+/* Wmem stack is implemented as a simple wrapper over Wmem slist */
 
 void *
 wmem_stack_peek(const wmem_stack_t *stack)
 {
-    g_assert(stack->top != NULL);
-    g_assert(stack->count > 0);
+    wmem_slist_frame_t *frame;
 
-    return stack->top->data;
+    frame = wmem_slist_front(stack);
+
+    g_assert(frame);
+
+    return wmem_slist_frame_data(frame);
 }
 
 void *
 wmem_stack_pop(wmem_stack_t *stack)
 {
-    wmem_stack_frame_t *top;
     void *data;
 
-    g_assert(stack->top != NULL);
-    g_assert(stack->count > 0);
+    data = wmem_stack_peek(stack);
 
-    top = stack->top;
-    stack->top = top->next;
-    stack->count--;
-    data = top->data;
-    wmem_slab_free(stack->slab, top);
+    wmem_slist_remove(stack, data);
 
     return data;
 }
@@ -77,28 +60,7 @@ wmem_stack_pop(wmem_stack_t *stack)
 void
 wmem_stack_push(wmem_stack_t *stack, void *data)
 {
-    wmem_stack_frame_t *new;
-
-    new = (wmem_stack_frame_t *) wmem_slab_alloc(stack->slab);
-
-    new->data = data;
-    new->next = stack->top;
-    stack->top = new;
-    stack->count++;
-}
-
-wmem_stack_t *
-wmem_stack_new(wmem_allocator_t *allocator)
-{
-    wmem_stack_t *stack;
-
-    stack = (wmem_stack_t *) wmem_alloc(allocator, sizeof(wmem_stack_t));
-
-    stack->count = 0;
-    stack->top   = NULL;
-    stack->slab  = wmem_slab_new(allocator, sizeof(wmem_stack_frame_t));
-
-    return stack;
+    wmem_slist_prepend(stack, data);
 }
 
 /*
