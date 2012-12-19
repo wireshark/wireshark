@@ -28,7 +28,7 @@
 #include "frame_data.h"
 #include "tvbuff.h"
 #include "address.h"
-#include "wmem/wmem.h"
+#include "wmem/wmem_core.h"
 
 /* Also defined in wiretap/wtap.h */
 #define P2P_DIR_UNKNOWN	-1
