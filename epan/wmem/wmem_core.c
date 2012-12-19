@@ -81,6 +81,9 @@ wmem_allocator_new(const wmem_allocator_type_t type)
         default:
             g_assert_not_reached();
     };
+
+    /* This is doubly not-reachable, but MSVC gets confused otherwise... */
+    g_assert_not_reached();
 }
 
 void
