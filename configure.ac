@@ -426,6 +426,30 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition, C)
+
+CFLAGS_before_pie=$CFLAGS
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-fPIE, C)
+if test "x$CLFAGS" != "x$CFLAGS_before_pie"
+then
+	# Restore CFLAGS
+	CFLAGS=$CFLAGS_before_pie
+
+	LDFLAGS_before_pie=$LDFLAGS
+	AC_WIRESHARK_LDFLAGS_CHECK([-pie])
+	if test "x$LDFLAGS" != "x$LDFLAGS_before_pie"
+	then
+		# We can use PIE
+		PIE_CFLAGS="-fPIE"
+		PIE_LDFLAGS="-pie"
+
+		# Restore LDFLAGS
+		LDFLAGS=$LDFLAGS_before_pie
+	fi
+
+fi
+AC_SUBST(PIE_CFLAGS)
+AC_SUBST(PIE_LDFLAGS)
+
 #
 # XXX - OK for C++?
 #

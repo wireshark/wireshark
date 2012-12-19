@@ -85,7 +85,7 @@ diameter_DATA = \
 	diameter/Vodafone.xml \
 	diameter/AlcatelLucent.xml \
 	diameter/Nokia.xml \
-	diameter/NokiaSiemensNetworks.xml 
+	diameter/NokiaSiemensNetworks.xml
 
 #
 # Install the DTDs directory files in the "dtds" subdirectory
@@ -503,7 +503,8 @@ dumpcap_LDADD = \
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBCAP_LIBS@
-dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS)
+dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS) $(PIE_CFLAGS)
+dumpcap_LDFLAGS = $(PIE_LDFLAGS)
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
