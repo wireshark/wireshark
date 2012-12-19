@@ -435,7 +435,7 @@ then
 	CFLAGS=$CFLAGS_before_pie
 
 	LDFLAGS_before_pie=$LDFLAGS
-	AC_WIRESHARK_LDFLAGS_CHECK([-pie])
+	AC_WIRESHARK_LDFLAGS_CHECK([-fPIE -pie])
 	if test "x$LDFLAGS" != "x$LDFLAGS_before_pie"
 	then
 		# We can use PIE
