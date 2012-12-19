@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/vnd.tcpdump.pcap">
+    <comment>Packet Capture (PCAP)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <alias type="application/x-pcap"/>
+    <alias type="application/pcap"/>
+    <glob pattern="*.pcap"/>
+  </mime-type>
+
+  <mime-type type="application/x-pcapng">
+    <comment>Packet Capture (PCAPNG)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <glob pattern="*.pcapng"/>
+  </mime-type>
+
+  <mime-type type="application/x-snoop">
+    <comment>Packet Capture (Snoop)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <glob pattern="*.snoop"/>
+  </mime-type>
+</mime-info>
