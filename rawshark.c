@@ -101,7 +101,6 @@
 #ifdef HAVE_LIBPCAP
 #include <setjmp.h>
 #include "capture-pcap-util.h"
-#include "pcapio.h"
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #endif /* _WIN32 */
