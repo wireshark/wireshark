@@ -25,10 +25,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/** Returns a FILE * to write to on success, NULL on failure */
-extern FILE *
-libpcap_fdopen(int fd, int *err);
-
 /** Write the file header to a dump file.
    Returns TRUE on success, FALSE on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
@@ -96,9 +92,3 @@ libpcap_write_enhanced_packet_block(FILE *fp,
                                     guint32 flags,
                                     long *bytes_written,
                                     int *err);
-
-extern gboolean
-libpcap_dump_flush(FILE *pd, int *err);
-
-extern gboolean
-libpcap_dump_close(FILE *pd, int *err);

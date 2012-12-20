@@ -63,7 +63,6 @@
 
 #include <glib.h>
 
-#include "pcapio.h"
 #include "ringbuffer.h"
 #include <wsutil/file_util.h>
 
@@ -226,12 +225,17 @@ const gchar *ringbuf_current_filename(void)
 }
 
 /*
- * Calls libpcap_fdopen() for the current ringbuffer file
+ * Calls ws_fdopen() for the current ringbuffer file
  */
 FILE *
 ringbuf_init_libpcap_fdopen(int *err)
 {
-  rb_data.pdh = libpcap_fdopen(rb_data.fd, err);
+  rb_data.pdh = ws_fdopen(rb_data.fd, "wb");
+  if (rb_data.pdh == NULL) {
+    if (err != NULL) {
+      *err = errno;
+    }
+  }
   return rb_data.pdh;
 }
 
@@ -246,7 +250,10 @@ ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
 
   /* close current file */
 
-  if (!libpcap_dump_close(rb_data.pdh, err)) {
+  if (ws_fclose(rb_data.pdh) == EOF) {
+    if (err != NULL) {
+      *err = errno;
+    }
     ws_close(rb_data.fd);	/* XXX - the above should have closed this already */
     rb_data.pdh = NULL;	/* it's still closed, we just got an error while closing */
     rb_data.fd = -1;
@@ -279,7 +286,7 @@ ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, int *err)
 }
 
 /*
- * Calls libpcap_dump_close() for the current ringbuffer file
+ * Calls ws_fclose() for the current ringbuffer file
  */
 gboolean
 ringbuf_libpcap_dump_close(gchar **save_file, int *err)
@@ -288,11 +295,13 @@ ringbuf_libpcap_dump_close(gchar **save_file, int *err)
 
   /* close current file, if it's open */
   if (rb_data.pdh != NULL) {
-    if (!libpcap_dump_close(rb_data.pdh, err)) {
+    if (ws_fclose(rb_data.pdh) == EOF) {
+      if (err != NULL) {
+        *err = errno;
+      }
       ws_close(rb_data.fd);
       ret_val = FALSE;
     }
-
     rb_data.pdh = NULL;
     rb_data.fd  = -1;
   }
@@ -340,15 +349,13 @@ ringbuf_error_cleanup(void)
 
   /* try to close via wtap */
   if (rb_data.pdh != NULL) {
-    if (libpcap_dump_close(rb_data.pdh, NULL)) {
+    if (ws_fclose(rb_data.pdh) == 0) {
       rb_data.fd = -1;
     }
     rb_data.pdh = NULL;
   }
 
   /* close directly if still open */
-  /* XXX - it shouldn't still be open; "libpcap_dump_close()" should leave the
-     file closed even if it fails */
   if (rb_data.fd != -1) {
     ws_close(rb_data.fd);
     rb_data.fd = -1;

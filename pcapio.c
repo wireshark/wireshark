@@ -194,19 +194,6 @@ struct option {
         } while (0);                                                                       \
 }
 
-/* Returns a FILE * to write to on success, NULL on failure */
-FILE *
-libpcap_fdopen(int fd, int *err)
-{
-        FILE *fp;
-
-        fp = fdopen(fd, "wb");
-        if (fp == NULL) {
-                *err = errno;
-        }
-        return fp;
-}
-
 /* Write the file header to a dump file.
    Returns TRUE on success, FALSE on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
@@ -748,28 +735,6 @@ libpcap_write_interface_statistics_block(FILE *fp,
 
         WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
 
-        return TRUE;
-}
-
-gboolean
-libpcap_dump_flush(FILE *pd, int *err)
-{
-        if (fflush(pd) == EOF) {
-                if (err != NULL)
-                        *err = errno;
-                return FALSE;
-        }
-        return TRUE;
-}
-
-gboolean
-libpcap_dump_close(FILE *pd, int *err)
-{
-        if (fclose(pd) == EOF) {
-                if (err != NULL)
-                        *err = errno;
-                return FALSE;
-        }
         return TRUE;
 }
 

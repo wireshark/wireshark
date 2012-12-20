@@ -2824,7 +2824,10 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     if (capture_opts->multi_files_on) {
         ld->pdh = ringbuf_init_libpcap_fdopen(&err);
     } else {
-        ld->pdh = libpcap_fdopen(ld->save_file_fd, &err);
+        ld->pdh = ws_fdopen(ld->save_file_fd, "wb");
+        if (ld->pdh == NULL) {
+            err = errno;
+        }
     }
     if (ld->pdh) {
         if (capture_opts->use_pcapng) {
@@ -2949,7 +2952,14 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
                 }
             }
         }
-        return libpcap_dump_close(ld->pdh, err_close);
+        if (ws_fclose(ld->pdh) == EOF) {
+            if (err_close != NULL) {
+                *err_close = errno;
+            }
+            return (FALSE);
+        } else {
+            return (TRUE);
+        }
     }
 }
 
@@ -3364,7 +3374,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 cnd_reset(cnd_autostop_size);
             if (cnd_file_duration)
                 cnd_reset(cnd_file_duration);
-            libpcap_dump_flush(global_ld.pdh, NULL);
+            ws_fflush(global_ld.pdh);
             if (!quiet)
                 report_packet_count(global_ld.inpkts_to_sync_pipe);
             global_ld.inpkts_to_sync_pipe = 0;
@@ -3515,7 +3525,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
            message to our parent so that they'll open the capture file and
            update its windows to indicate that we have a live capture in
            progress. */
-        libpcap_dump_flush(global_ld.pdh, NULL);
+        ws_fflush(global_ld.pdh);
         report_new_capture_file(capture_opts->save_file);
     }
 
@@ -3632,7 +3642,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                     continue;
             } /* cnd_autostop_size */
             if (capture_opts->output_to_pipe) {
-                libpcap_dump_flush(global_ld.pdh, NULL);
+                ws_fflush(global_ld.pdh);
             }
         } /* inpkts */
 
@@ -3661,7 +3671,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             /* Let the parent process know. */
             if (global_ld.inpkts_to_sync_pipe) {
                 /* do sync here */
-                libpcap_dump_flush(global_ld.pdh, NULL);
+                ws_fflush(global_ld.pdh);
 
                 /* Send our parent a message saying we've written out
                    "global_ld.inpkts_to_sync_pipe" packets to the capture file. */
@@ -3721,7 +3731,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             g_free(queue_element);
             global_ld.inpkts_to_sync_pipe += 1;
             if (capture_opts->output_to_pipe) {
-                libpcap_dump_flush(global_ld.pdh, NULL);
+                ws_fflush(global_ld.pdh);
             }
         }
     }
