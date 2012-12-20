@@ -2031,13 +2031,15 @@ AC_SUBST(PLUGIN_LIBS)
 # alignment (64-bit x86 will get 8-byte alignment from G_MEM_ALIGN anyway).
 #
 AC_MSG_CHECKING(whether we need memory allocations to be 8-byte aligned)
-if test x$host_cpu != xi386
-then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(NEED_8_BYTE_ALIGNMENT, 1, [Define if we need memory allocations to be 8-byte aligned])
-else
-  AC_MSG_RESULT(no)
-fi
+case $host_cpu in
+	i386|i486|i586|i686)
+		AC_MSG_RESULT(no)
+		;;
+	*)
+		AC_MSG_RESULT(yes)
+		AC_DEFINE(NEED_8_BYTE_ALIGNMENT, 1, [Define if we need memory allocations to be 8-byte aligned])
+		;;
+esac
 
 dnl libtool defs
 #
