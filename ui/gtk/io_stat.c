@@ -68,6 +68,8 @@ static guint32 yscale_max[MAX_YSCALE] = {LOGARITHMIC_YSCALE, AUTO_MAX_YSCALE, 10
 static guint32 moving_average_orders[MAX_MOVING_AVERAGE_ORDER] = {NO_FILTER_ORDER, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 #define NO_FILTER 0
 #define MOVING_AVERAGE_FILTER 1
+#define GRAPH_NOFILTER		0
+#define GRAPH_FOLLOWFILTER	1
 
 #define MAX_PIXELS_PER_TICK 4
 #define DEFAULT_PIXELS_PER_TICK_INDEX 2
@@ -155,6 +157,9 @@ typedef struct _io_stat_graph_t {
 #endif
 	construct_args_t *args;
 	GtkWidget *filter_bt;
+
+	gboolean follow_smooth;
+	GtkWidget *follow_smooth_toggle;
 } io_stat_graph_t;
 
 
@@ -1043,7 +1048,8 @@ static void
             continue;
         }
 
-        if(io->filter_type == MOVING_AVERAGE_FILTER){
+        if (io->graphs[i].follow_smooth == GRAPH_FOLLOWFILTER &&
+	    io->filter_type == MOVING_AVERAGE_FILTER) {
             /* "Warm-up phase" - calculate average on some data not displayed;
             just to make sure average on leftmost and rightmost displayed
             values is as reliable as possible
@@ -1082,8 +1088,9 @@ static void
             io->left_x_border;
         val = get_it_value(io, i, first_interval / io->interval);
 
-        if(io->filter_type==MOVING_AVERAGE_FILTER
-            && mavg_in_average_count > 0) {
+        if (io->graphs[i].follow_smooth == GRAPH_FOLLOWFILTER &&
+	    io->filter_type==MOVING_AVERAGE_FILTER &&
+	    mavg_in_average_count > 0) {
                 val = mavg_cumulated / mavg_in_average_count;
         }
 
@@ -1110,7 +1117,8 @@ static void
 
                 val = get_it_value(io, i, interval/io->interval);
                 /* Moving average calculation */
-                if (io->filter_type==MOVING_AVERAGE_FILTER) {
+                if (io->graphs[i].follow_smooth == GRAPH_FOLLOWFILTER &&
+		    io->filter_type == MOVING_AVERAGE_FILTER) {
                     if (interval != first_interval){
                         mavg_left++;
                         if (mavg_left > io->filter_order/2) {
@@ -1390,6 +1398,7 @@ iostat_init(const char *opt_arg _U_, void* userdata _U_)
 		for(j=0;j<NUM_IO_ITEMS;j++){
 			io->graphs[i].items[j] = g_new(io_item_t,1);
 		}
+		io->graphs[i].follow_smooth = GRAPH_FOLLOWFILTER;
 	}
 	io_stat_reset(io);
 
@@ -2176,11 +2185,22 @@ filter_button_clicked(GtkWidget *w, gpointer user_data)
 }
 
 static void
+smooth_filter_toggled(GtkWidget *w, gpointer user_data)
+{
+	io_stat_graph_t *gio = user_data;
+
+	gio->follow_smooth =
+	    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w));
+	io_stat_redraw(gio->io);
+}
+
+static void
 create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 {
 	GtkWidget *combo_box;
 	GtkWidget *hbox;
 	GtkWidget *label;
+	GtkWidget *smooth;
 	char str[256];
 	int i;
 
@@ -2262,8 +2282,20 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_PLOT_STYLE);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(plot_style_select), &gio->io->graphs[num-1]);
 
-	gtk_box_pack_end(GTK_BOX(hbox), combo_box, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), combo_box, FALSE, FALSE, 0);
 	gtk_widget_show(combo_box);
+
+	/*
+	 * Create smooth followfilter option
+	 */
+	smooth = gtk_check_button_new_with_mnemonic("Smooth");
+	gtk_widget_set_tooltip_text(smooth,  "Only has effect if a smothing filter is set");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(smooth),
+	    gio->follow_smooth);
+	g_signal_connect(smooth, "toggled", G_CALLBACK(smooth_filter_toggled),
+	    gio);
+	gtk_widget_show(smooth);
+	gtk_box_pack_end(GTK_BOX(hbox), smooth, FALSE, FALSE, 0);
 
 	return;
 }
