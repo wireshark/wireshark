@@ -49,6 +49,9 @@
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 #include <glib.h>
 
