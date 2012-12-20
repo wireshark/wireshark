@@ -2028,7 +2028,11 @@ AC_SUBST(PLUGIN_LIBS)
 # I haven't been able to write C code that reliably makes that determination
 # (different versions of GCC with or without optimization give different
 # results) so just assume everything except (32-bit) x86 needs 8-byte
-# alignment (64-bit x86 will get 8-byte alignment from G_MEM_ALIGN anyway).
+# alignment (64-bit platforms either require 8-byte alignment for pointers
+# and 64-bit integral data types or may get better performance from that;
+# 64-bit x86 will get 8-byte alignment from G_MEM_ALIGN anyway.  32-bit
+# platforms would only require it, or get better performance from it,
+# for 64-bit floating-point values.).
 #
 AC_MSG_CHECKING(whether we need memory allocations to be 8-byte aligned)
 case $host_cpu in
