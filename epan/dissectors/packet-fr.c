@@ -616,10 +616,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case GPRS_NS:
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (addr != 0)
-      call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
-    else
-      dissect_lapf(next_tvb, pinfo, tree);
+    call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
     break;
 
   case RAW_ETHER:
