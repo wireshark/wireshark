@@ -2952,7 +2952,7 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
                 }
             }
         }
-        if (ws_fclose(ld->pdh) == EOF) {
+        if (fclose(ld->pdh) == EOF) {
             if (err_close != NULL) {
                 *err_close = errno;
             }
@@ -3374,7 +3374,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 cnd_reset(cnd_autostop_size);
             if (cnd_file_duration)
                 cnd_reset(cnd_file_duration);
-            ws_fflush(global_ld.pdh);
+            fflush(global_ld.pdh);
             if (!quiet)
                 report_packet_count(global_ld.inpkts_to_sync_pipe);
             global_ld.inpkts_to_sync_pipe = 0;
@@ -3525,7 +3525,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
            message to our parent so that they'll open the capture file and
            update its windows to indicate that we have a live capture in
            progress. */
-        ws_fflush(global_ld.pdh);
+        fflush(global_ld.pdh);
         report_new_capture_file(capture_opts->save_file);
     }
 
@@ -3642,7 +3642,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                     continue;
             } /* cnd_autostop_size */
             if (capture_opts->output_to_pipe) {
-                ws_fflush(global_ld.pdh);
+                fflush(global_ld.pdh);
             }
         } /* inpkts */
 
@@ -3671,7 +3671,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             /* Let the parent process know. */
             if (global_ld.inpkts_to_sync_pipe) {
                 /* do sync here */
-                ws_fflush(global_ld.pdh);
+                fflush(global_ld.pdh);
 
                 /* Send our parent a message saying we've written out
                    "global_ld.inpkts_to_sync_pipe" packets to the capture file. */
@@ -3731,7 +3731,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             g_free(queue_element);
             global_ld.inpkts_to_sync_pipe += 1;
             if (capture_opts->output_to_pipe) {
-                ws_fflush(global_ld.pdh);
+                fflush(global_ld.pdh);
             }
         }
     }
