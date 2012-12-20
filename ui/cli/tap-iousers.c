@@ -128,7 +128,7 @@ iousers_process_name_packet_with_conv_id(
 
 void
 iousers_process_address_packet(io_users_t *iu, const address *src, const address *dst, guint64 pkt_len, 
-								nstime_t *ts, nstime_t *abs_ts)
+								nstime_t *ts)
 {
 	const address *addr1, *addr2;
 	io_users_item_t *iui;
@@ -281,7 +281,7 @@ iousers_ip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	io_users_t *iu=arg;
 	const ws_ip *iph=vip;
 
-	iousers_process_address_packet(iu, &iph->ip_src, &iph->ip_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
+	iousers_process_address_packet(iu, &iph->ip_src, &iph->ip_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -299,7 +299,7 @@ iousers_ipv6_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	src.data = &ip6h->ip6_src;
 	dst.data = &ip6h->ip6_dst;
 
-	iousers_process_address_packet(iu, &src, &dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
+	iousers_process_address_packet(iu, &src, &dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -310,7 +310,7 @@ iousers_ipx_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	io_users_t *iu=arg;
 	const ipxhdr_t *ipxh=vipx;
 
-	iousers_process_address_packet(iu, &ipxh->ipx_src, &ipxh->ipx_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
+	iousers_process_address_packet(iu, &ipxh->ipx_src, &ipxh->ipx_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -321,7 +321,7 @@ iousers_fc_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	io_users_t *iu=arg;
 	const fc_hdr *fchdr=vfc;
 
-	iousers_process_address_packet(iu, &fchdr->s_id, &fchdr->d_id, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
+	iousers_process_address_packet(iu, &fchdr->s_id, &fchdr->d_id, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -332,7 +332,7 @@ iousers_eth_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	io_users_t *iu=arg;
 	const eth_hdr *ehdr=veth;
 
-	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
+	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -343,7 +343,7 @@ iousers_fddi_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	io_users_t *iu=arg;
 	const fddi_hdr *ehdr=veth;
 
-	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
+	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -354,7 +354,7 @@ iousers_tr_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	io_users_t *iu=arg;
 	const tr_hdr *trhdr=vtr;
 
-	iousers_process_address_packet(iu, &trhdr->src, &trhdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
+	iousers_process_address_packet(iu, &trhdr->src, &trhdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
