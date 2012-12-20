@@ -3982,9 +3982,19 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
            If this fails, set "ld->go" to FALSE, to stop the capture, and set
            "ld->err" to the error. */
         if (global_capture_opts.use_pcapng) {
-            successful = libpcap_write_enhanced_packet_block(global_ld.pdh, phdr, pcap_opts->interface_id, ts_mul, pd, 0, &global_ld.bytes_written, &err);
+            successful = libpcap_write_enhanced_packet_block(global_ld.pdh,
+                                                             phdr->ts.tv_sec, phdr->ts.tv_usec,
+                                                             phdr->caplen, phdr->len,
+                                                             pcap_opts->interface_id,
+                                                             ts_mul,
+                                                             pd, 0,
+                                                             &global_ld.bytes_written, &err);
         } else {
-            successful = libpcap_write_packet(global_ld.pdh, phdr, pd, &global_ld.bytes_written, &err);
+            successful = libpcap_write_packet(global_ld.pdh,
+                                              phdr->ts.tv_sec, phdr->ts.tv_usec,
+                                              phdr->caplen, phdr->len,
+                                              pd,
+                                              &global_ld.bytes_written, &err);
         }
         if (!successful) {
             global_ld.go = FALSE;

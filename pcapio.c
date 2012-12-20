@@ -42,14 +42,13 @@
 
 #include "config.h"
 
-#ifdef HAVE_LIBPCAP
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-
-#include <pcap.h>
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
 
 #include <glib.h>
 
@@ -227,16 +226,19 @@ libpcap_write_file_header(FILE *fp, int linktype, int snaplen, gboolean ts_nsecs
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 gboolean
-libpcap_write_packet(FILE *fp, const struct pcap_pkthdr *phdr, const u_char *pd,
-    long *bytes_written, int *err)
+libpcap_write_packet(FILE *fp,
+                     guint32 sec, guint32 usec,
+                     guint32 caplen, guint32 len,
+                     const unsigned char *pd,
+                     long *bytes_written, int *err)
 {
         struct pcaprec_hdr rec_hdr;
         size_t nwritten;
 
-        rec_hdr.ts_sec = phdr->ts.tv_sec;
-        rec_hdr.ts_usec = phdr->ts.tv_usec;
-        rec_hdr.incl_len = phdr->caplen;
-        rec_hdr.orig_len = phdr->len;
+        rec_hdr.ts_sec = sec;
+        rec_hdr.ts_usec = usec;
+        rec_hdr.incl_len = caplen;
+        rec_hdr.orig_len = len;
         nwritten = fwrite(&rec_hdr, sizeof(rec_hdr), 1, fp);
         if (nwritten != 1) {
                 if (ferror(fp))
@@ -247,7 +249,7 @@ libpcap_write_packet(FILE *fp, const struct pcap_pkthdr *phdr, const u_char *pd,
         }
         *bytes_written += sizeof rec_hdr;
 
-        nwritten = fwrite(pd, phdr->caplen, 1, fp);
+        nwritten = fwrite(pd, caplen, 1, fp);
         if (nwritten != 1) {
                 if (ferror(fp))
                         *err = errno;
@@ -255,7 +257,7 @@ libpcap_write_packet(FILE *fp, const struct pcap_pkthdr *phdr, const u_char *pd,
                         *err = 0;       /* short write */
                 return FALSE;
         }
-        *bytes_written += phdr->caplen;
+        *bytes_written += caplen;
         return TRUE;
 }
 
@@ -538,10 +540,11 @@ libpcap_write_interface_description_block(FILE *fp,
    Returns TRUE on success, FALSE on failure. */
 gboolean
 libpcap_write_enhanced_packet_block(FILE *fp,
-                                    const struct pcap_pkthdr *phdr,
+                                    guint32 sec, guint32 usec,
+                                    guint32 caplen, guint32 len,
                                     guint32 interface_id,
                                     guint ts_mul,
-                                    const u_char *pd,
+                                    const unsigned char *pd,
                                     guint32 flags,
                                     long *bytes_written,
                                     int *err)
@@ -553,24 +556,23 @@ libpcap_write_enhanced_packet_block(FILE *fp,
         const guint32 padding = 0;
 
         block_total_length = sizeof(struct epb) +
-                             ADD_PADDING(phdr->caplen) +
+                             ADD_PADDING(caplen) +
                              sizeof(guint32);
         if (flags != 0) {
         	block_total_length += 2 * sizeof(struct option) + sizeof(guint32);
         }
-        timestamp = (guint64)(phdr->ts.tv_sec) * ts_mul +
-                    (guint64)(phdr->ts.tv_usec);
+        timestamp = (guint64)sec * ts_mul + (guint64)usec;
         epb.block_type = ENHANCED_PACKET_BLOCK_TYPE;
         epb.block_total_length = block_total_length;
         epb.interface_id = interface_id;
         epb.timestamp_high = (guint32)((timestamp>>32) & 0xffffffff);
         epb.timestamp_low = (guint32)(timestamp & 0xffffffff);
-        epb.captured_len = phdr->caplen;
-        epb.packet_len = phdr->len;
+        epb.captured_len = caplen;
+        epb.packet_len = len;
         WRITE_DATA(fp, &epb, sizeof(struct epb), *bytes_written, err);
-        WRITE_DATA(fp, pd, phdr->caplen, *bytes_written, err);
-        if (phdr->caplen % 4) {
-                WRITE_DATA(fp, &padding, 4 - phdr->caplen % 4, *bytes_written, err);
+        WRITE_DATA(fp, pd, caplen, *bytes_written, err);
+        if (caplen % 4) {
+                WRITE_DATA(fp, &padding, 4 - caplen % 4, *bytes_written, err);
         }
         if (flags != 0) {
                 option.type = EPB_FLAGS;
@@ -737,8 +739,6 @@ libpcap_write_interface_statistics_block(FILE *fp,
 
         return TRUE;
 }
-
-#endif /* HAVE_LIBPCAP */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

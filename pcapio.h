@@ -34,8 +34,11 @@ libpcap_write_file_header(FILE *fp, int linktype, int snaplen, gboolean ts_nsecs
 /** Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 extern gboolean
-libpcap_write_packet(FILE *fp, const struct pcap_pkthdr *phdr, const u_char *pd,
-    long *bytes_written, int *err);
+libpcap_write_packet(FILE *fp,
+                     guint32 sec, guint32 usec,
+                     guint32 caplen, guint32 len,
+                     const unsigned char *pd,
+                     long *bytes_written, int *err);
 
 /** Write a section header block (SHB)
  *
@@ -85,10 +88,11 @@ libpcap_write_interface_statistics_block(FILE *fp,
 
 extern gboolean
 libpcap_write_enhanced_packet_block(FILE *fp,
-                                    const struct pcap_pkthdr *phdr,
+                                    guint32 sec, guint32 usec,
+                                    guint32 caplen, guint32 len,
                                     guint32 interface_id,
                                     guint ts_mul,
-                                    const u_char *pd,
+                                    const unsigned char *pd,
                                     guint32 flags,
                                     long *bytes_written,
                                     int *err);
