@@ -3595,8 +3595,15 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_l1_inf(tvb, pinfo, tree, offset, FALSE);
         /* L3 Info (MEAS REP, EXT MEAS REP or ENH MEAS REP) 9.3.11 O 1) TLV 21 */
-        if (tvb_length_remaining(tvb,offset) > 0)
-            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_SACCH);
+        if (tvb_length_remaining(tvb,offset) > 0){
+			/* Try to figure out of we have (MEAS REP, EXT MEAS REP or ENH MEAS REP) */
+			if ( ( tvb_get_guint8(tvb, offset+3) & 0xFE ) == 0x10 ) {
+				/* ENH MEAS REP */
+	            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_SACCH);
+			}else{
+	            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_OTHER);
+			}
+		}
         /* MS Timing Offset         9.3.37 O 2) TV 2        */
         if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_ms_timing_offset(tvb, pinfo, tree, offset, FALSE);
