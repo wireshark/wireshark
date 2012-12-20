@@ -1621,13 +1621,16 @@ main_capture_cb_capture_update_finished(capture_options *capture_opts)
         add_menu_recent_capture_file(cf->filename);
     }
 
-    /* Update the main window as appropriate */
-    main_update_for_unsaved_changes(cf);
-
     /* Enable menu items that make sense if you're not currently running
      a capture. */
     main_set_for_capture_in_progress(FALSE);
     set_capture_if_dialog_for_capture_in_progress(FALSE);
+
+    /* Update the main window as appropriate. This has to occur AFTER
+     * main_set_for_capture_in_progress() or else some of the menus are
+     * incorrectly disabled (see bug
+     * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8108) */
+    main_update_for_unsaved_changes(cf);
 
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);
