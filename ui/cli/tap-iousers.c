@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
+#include <epan/timestamp.h>
 #include <epan/conv_id.h>
 #include <epan/conversation.h>
 #include <epan/stat_cmd_args.h>
@@ -53,39 +54,41 @@ typedef struct _io_users_t {
 } io_users_t;
 
 typedef struct _io_users_item_t {
-    struct _io_users_item_t *next;
-    char                    *name1;
-    char                    *name2;
-    conv_id_t               conv_id;
-    address                 addr1;
-    address                 addr2;
-    guint32                 frames1;
-    guint32                 frames2;
-    guint64                 bytes1;
-    guint64                 bytes2;
-    nstime_t                start_time;
-    nstime_t                stop_time;
+	struct _io_users_item_t *next;
+	char                    *name1;
+	char                    *name2;
+	conv_id_t               conv_id;
+	address                 addr1;
+	address                 addr2;
+	guint32                 frames1;
+	guint32                 frames2;
+	guint64                 bytes1;
+	guint64                 bytes2;
+	nstime_t                start_rel_time;
+	nstime_t                stop_rel_time;
+	nstime_t                start_abs_time;
 } io_users_item_t;
 
-#define iousers_process_name_packet(iu, name1, name2, direction, pkt_len, ts) \
-    iousers_process_name_packet_with_conv_id(iu, name1, name2, CONV_ID_UNSET, direction, pkt_len, ts)
+#define iousers_process_name_packet(iu, name1, name2, direction, pkt_len, rel_ts, abs_ts) \
+    iousers_process_name_packet_with_conv_id(iu, name1, name2, CONV_ID_UNSET, direction, pkt_len, rel_ts, abs_ts)
 
 void
 iousers_process_name_packet_with_conv_id(
-    io_users_t *iu,
-    char *name1,
-    char *name2,
-    conv_id_t conv_id,
-    int direction,
-    guint64 pkt_len,
-    nstime_t *ts)
+	io_users_t *iu,
+	char *name1,
+	char *name2,
+	conv_id_t conv_id,
+	int direction,
+	guint64 pkt_len,
+	nstime_t *rel_ts,
+	nstime_t *abs_ts)
 {
 	io_users_item_t *iui;
 
 	for(iui=iu->items;iui;iui=iui->next){
 		if((iui->conv_id==conv_id)
-            && (!strcmp(iui->name1, name1))
-            && (!strcmp(iui->name2, name2)) ){
+			&& (!strcmp(iui->name1, name1))
+			&& (!strcmp(iui->name2, name2)) ){
 			break;
 		}
 	}
@@ -96,19 +99,21 @@ iousers_process_name_packet_with_conv_id(
 		iu->items=iui;
 		iui->name1=g_strdup(name1);
 		iui->name2=g_strdup(name2);
-        iui->conv_id=conv_id;
+		iui->conv_id=conv_id;
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
 		iui->bytes2=0;
-		memcpy(&iui->start_time, ts, sizeof(iui->start_time));
-		memcpy(&iui->stop_time, ts, sizeof(iui->stop_time));
+		memcpy(&iui->start_rel_time, rel_ts, sizeof(iui->start_rel_time));
+		memcpy(&iui->stop_rel_time, rel_ts, sizeof(iui->stop_rel_time));
+		memcpy(&iui->start_abs_time, abs_ts, sizeof(iui->start_abs_time));
 	}
 	else {
-		if (nstime_cmp(ts, &iui->stop_time) > 0) {
-			memcpy(&iui->stop_time, ts, sizeof(iui->stop_time));
-		} else if (nstime_cmp(ts, &iui->start_time) < 0) {
-			memcpy(&iui->start_time, ts, sizeof(iui->start_time));
+		if (nstime_cmp(rel_ts, &iui->stop_rel_time) > 0) {
+			memcpy(&iui->stop_rel_time, rel_ts, sizeof(iui->stop_rel_time));
+		} else if (nstime_cmp(rel_ts, &iui->start_rel_time) < 0) {
+			memcpy(&iui->start_rel_time, rel_ts, sizeof(iui->start_rel_time));
+			memcpy(&iui->start_abs_time, abs_ts, sizeof(iui->start_abs_time));
 		}
 	}
 
@@ -122,7 +127,8 @@ iousers_process_name_packet_with_conv_id(
 }
 
 void
-iousers_process_address_packet(io_users_t *iu, const address *src, const address *dst, guint64 pkt_len, nstime_t *ts)
+iousers_process_address_packet(io_users_t *iu, const address *src, const address *dst, guint64 pkt_len, 
+								nstime_t *ts, nstime_t *abs_ts)
 {
 	const address *addr1, *addr2;
 	io_users_item_t *iui;
@@ -154,14 +160,14 @@ iousers_process_address_packet(io_users_t *iu, const address *src, const address
 		iui->frames2=0;
 		iui->bytes1=0;
 		iui->bytes2=0;
-		memcpy(&iui->start_time, ts, sizeof(iui->start_time));
-		memcpy(&iui->stop_time, ts, sizeof(iui->stop_time));
+		memcpy(&iui->start_rel_time, ts, sizeof(iui->start_rel_time));
+		memcpy(&iui->stop_rel_time, ts, sizeof(iui->stop_rel_time));
 	}
 	else {
-		if (nstime_cmp(ts, &iui->stop_time) > 0) {
-			memcpy(&iui->stop_time, ts, sizeof(iui->stop_time));
-		} else if (nstime_cmp(ts, &iui->start_time) < 0) {
-			memcpy(&iui->start_time, ts, sizeof(iui->start_time));
+		if (nstime_cmp(ts, &iui->stop_rel_time) > 0) {
+			memcpy(&iui->stop_rel_time, ts, sizeof(iui->stop_rel_time));
+		} else if (nstime_cmp(ts, &iui->start_rel_time) < 0) {
+			memcpy(&iui->start_rel_time, ts, sizeof(iui->start_rel_time));
 		}
 	}
 
@@ -200,7 +206,7 @@ iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	}
 
-	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
 	
 	return 1;
 }
@@ -231,7 +237,7 @@ iousers_sctp_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&sctph->ip_dst),s_dport);
 	}
 
-	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
 
 	return 1;
 }
@@ -263,7 +269,7 @@ iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	}
 
-	iousers_process_name_packet_with_conv_id(iu, name1, name2, tcph->th_stream, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_name_packet_with_conv_id(iu, name1, name2, tcph->th_stream, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
 
 	return 1;
 }
@@ -275,7 +281,7 @@ iousers_ip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	io_users_t *iu=arg;
 	const ws_ip *iph=vip;
 
-	iousers_process_address_packet(iu, &iph->ip_src, &iph->ip_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &iph->ip_src, &iph->ip_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
 
 	return 1;
 }
@@ -293,7 +299,7 @@ iousers_ipv6_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	src.data = &ip6h->ip6_src;
 	dst.data = &ip6h->ip6_dst;
 
-	iousers_process_address_packet(iu, &src, &dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &src, &dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
 
 	return 1;
 }
@@ -304,7 +310,7 @@ iousers_ipx_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	io_users_t *iu=arg;
 	const ipxhdr_t *ipxh=vipx;
 
-	iousers_process_address_packet(iu, &ipxh->ipx_src, &ipxh->ipx_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &ipxh->ipx_src, &ipxh->ipx_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
 
 	return 1;
 }
@@ -315,7 +321,7 @@ iousers_fc_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	io_users_t *iu=arg;
 	const fc_hdr *fchdr=vfc;
 
-	iousers_process_address_packet(iu, &fchdr->s_id, &fchdr->d_id, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &fchdr->s_id, &fchdr->d_id, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
 
 	return 1;
 }
@@ -326,7 +332,7 @@ iousers_eth_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	io_users_t *iu=arg;
 	const eth_hdr *ehdr=veth;
 
-	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
 
 	return 1;
 }
@@ -337,7 +343,7 @@ iousers_fddi_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	io_users_t *iu=arg;
 	const fddi_hdr *ehdr=veth;
 
-	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
 
 	return 1;
 }
@@ -348,7 +354,7 @@ iousers_tr_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	io_users_t *iu=arg;
 	const tr_hdr *trhdr=vtr;
 
-	iousers_process_address_packet(iu, &trhdr->src, &trhdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_address_packet(iu, &trhdr->src, &trhdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, &pinfo->fd->abs_ts);
 
 	return 1;
 }
@@ -359,12 +365,29 @@ iousers_draw(void *arg)
 	io_users_t *iu = arg;
 	io_users_item_t *iui;
 	guint32 last_frames, max_frames;
+	struct tm * tm_time;
 
 	printf("================================================================================\n");
 	printf("%s Conversations\n",iu->type);
 	printf("Filter:%s\n",iu->filter?iu->filter:"<No Filter>");
-	printf("                                               |       <-      | |       ->      | |     Total     |   Rel. Start   |   Duration   |\n");
-	printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |                |              |\n");
+
+	switch (timestamp_get_type()) {
+	case TS_ABSOLUTE:
+		printf("                                               |       <-      | |       ->      | |     Total     | Absolute Time  |   Duration   |\n");
+		printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |      Start     |              |\n");
+		break;
+	case TS_ABSOLUTE_WITH_DATE:
+		printf("                                               |       <-      | |       ->      | |     Total     | Absolute Date  |   Duration   |\n");
+		printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |     Start      |              |\n");
+		break;
+	case TS_RELATIVE:
+	case TS_NOT_SET:
+	default:
+		printf("                                               |       <-      | |       ->      | |     Total     |    Relative    |   Duration   |\n");
+		printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |      Start     |              |\n");
+		break;
+	}
+
 	max_frames=0xffffffff;
 	do {
 		last_frames=0;
@@ -382,15 +405,42 @@ iousers_draw(void *arg)
 			tot_frames=iui->frames1+iui->frames2;
 
 			if(tot_frames==last_frames){
-				printf("%-20s <-> %-20s  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d  %14.9f   %12.4f\n",
+				printf("%-20s <-> %-20s  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d  ",
 					iui->name1, iui->name2,
 					iui->frames1, iui->bytes1,
 					iui->frames2, iui->bytes2,
 					iui->frames1+iui->frames2,
-					iui->bytes1+iui->bytes2,
-					nstime_to_sec(&iui->start_time),
-					nstime_to_sec(&iui->stop_time) - nstime_to_sec(&iui->start_time)
+					iui->bytes1+iui->bytes2
 				);
+
+				tm_time = localtime(&iui->start_abs_time.secs);
+				switch (timestamp_get_type()) {
+				case TS_ABSOLUTE:
+					printf("%02d:%02d:%02d   %12.4f\n",
+						 tm_time->tm_hour,
+						 tm_time->tm_min,
+						 tm_time->tm_sec,
+						 nstime_to_sec(&iui->stop_rel_time) - nstime_to_sec(&iui->start_rel_time));
+					break;
+				case TS_ABSOLUTE_WITH_DATE:
+					printf("%04d-%02d-%02d %02d:%02d:%02d   %12.4f\n",
+						 tm_time->tm_year + 1900,
+						 tm_time->tm_mon + 1,
+						 tm_time->tm_mday,
+						 tm_time->tm_hour,
+						 tm_time->tm_min,
+						 tm_time->tm_sec,
+						 nstime_to_sec(&iui->stop_rel_time) - nstime_to_sec(&iui->start_rel_time));
+					break;
+				case TS_RELATIVE:
+				case TS_NOT_SET:
+				default:
+					printf("%14.9f   %12.4f\n",
+						nstime_to_sec(&iui->start_rel_time),
+						nstime_to_sec(&iui->stop_rel_time) - nstime_to_sec(&iui->start_rel_time)
+					);
+					break;
+				}
 			}
 		}
 		max_frames=last_frames;
