@@ -20,13 +20,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /* Request-Answer Pair */
 typedef struct _diameter_req_ans_pair_t
 {
 	guint32		hop_by_hop_id;
+	guint32		end_to_end_id;
 	guint32		cmd_code;
 	guint32		result_code;
 	const char*	cmd_str;
@@ -34,11 +35,6 @@ typedef struct _diameter_req_ans_pair_t
 	guint32		ans_frame;	/* frame number in which answer was seen */
 	nstime_t	req_time;
 	nstime_t	srt_time;
-  gboolean  processing_request; /* TRUE if processing request, FALSE if processing answer. */
+	gboolean	processing_request; /* TRUE if processing request, FALSE if processing answer. */
 } diameter_req_ans_pair_t;
-
-/* Conversation Info */
-typedef struct _diameter_conv_info_t {
-        emem_tree_t *pdus;
-} diameter_conv_info_t;
 
