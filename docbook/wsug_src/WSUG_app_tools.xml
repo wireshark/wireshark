@@ -98,6 +98,7 @@ Output:
   -u s|hms                 output format of seconds (def: s: seconds)
   -l                       flush standard output after each packet
   -q                       be more quiet on stdout (e.g. when using statistics)
+  -Q                       only log true errors to stderr (quieter than -q)
   -W n                     Save extra information in the file, if supported.
                            n = write network address resolution information
   -X &lt;key&gt;:&lt;value&gt;         eXtension options, see the man page for details

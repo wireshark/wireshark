@@ -129,6 +129,7 @@ static gint print_summary = -1;    /* TRUE if we're to print packet summary info
 static gboolean print_details;     /* TRUE if we're to print packet details information */
 static gboolean print_hex;         /* TRUE if we're to print hex/ascci information */
 static gboolean line_buffered;
+static gboolean really_quiet = FALSE;
 
 static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream;
@@ -320,6 +321,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
   fprintf(output, "  -l                       flush standard output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
+  fprintf(output, "  -Q                       only log true errors to stderr (quieter than -q)\n");
   fprintf(output, "  -g                       enable group read access on the output file(s)\n");
   fprintf(output, "  -W n                     Save extra information in the file, if supported.\n");
   fprintf(output, "                           n = write network address resolution information\n");
@@ -923,7 +925,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "2a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:d:De:E:f:F:gG:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqr:R:s:S:t:T:u:vVw:W:xX:y:z:"
+#define OPTSTRING "2a:" OPTSTRING_A "b:" OPTSTRING_B "c:C:d:De:E:f:F:gG:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqQr:R:s:S:t:T:u:vVw:W:xX:y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1348,6 +1350,10 @@ main(int argc, char *argv[])
       break;
     case 'q':        /* Quiet */
       quiet = TRUE;
+      break;
+    case 'Q':        /* Really quiet */
+      quiet = TRUE;
+      really_quiet = TRUE;
       break;
     case 'r':        /* Read capture file x */
       cf_name = g_strdup(optarg);
@@ -2204,7 +2210,8 @@ capture(void)
   } else {
     g_string_append_printf(str, "%u interfaces", global_capture_opts.ifaces->len);
   }
-  fprintf(stderr, "Capturing on %s\n", str->str);
+  if (really_quiet == FALSE)
+    fprintf(stderr, "Capturing on %s\n", str->str);
   fflush(stderr);
   g_string_free(str, TRUE);
 
@@ -2461,10 +2468,10 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 static void
 report_counts(void)
 {
-  if (!print_packet_counts) {
+  if ((print_packet_counts == FALSE) && (really_quiet == FALSE)) {
     /* Report the count only if we aren't printing a packet count
        as packets arrive. */
-    fprintf(stderr, "%u packet%s captured\n", packet_count,
+      fprintf(stderr, "%u packet%s captured\n", packet_count,
             plurality(packet_count, "", "s"));
   }
 #ifdef SIGINFO

@@ -33,6 +33,7 @@ S<[ B<-O> E<lt>protocolsE<gt> ]>
 S<[ B<-p> ]>
 S<[ B<-P> ]>
 S<[ B<-q> ]>
+S<[ B<-Q> ]>
 S<[ B<-r> E<lt>infileE<gt> ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
@@ -597,6 +598,12 @@ When reading a capture file, or when capturing and not saving to a file,
 don't print packet information; this is useful if you're using a B<-z>
 option to calculate statistics and don't want the packet information
 printed, just the statistics.
+
+=item -Q
+
+When capturing packets, only display true errors.  This outputs less
+than the B<-q> option, so the interface name and total packet
+count and the end of a capture are not sent to stderr.
 
 =item -r  E<lt>infileE<gt>
 
