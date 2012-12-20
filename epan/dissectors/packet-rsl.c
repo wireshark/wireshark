@@ -24,7 +24,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * REF: 3GPP TS 48.058 version 6.1.0 Release 6
  * http://www.3gpp.org/ftp/Specs/html-info/48058.htm
@@ -521,7 +521,7 @@ static const value_string rsl_ie_type_vals[] = {
 /* 0x03 */    { RSL_IE_ACT_TYPE,        "Activation Type" },            /*  9.3.3 */
 /* 0x04 */    { RSL_IE_BS_POW,          "BS Power" },                   /*  9.3.4 */
 /* 0x05 */    { RSL_IE_CH_ID,           "Channel Identification" },     /*  9.3.5 */
-/* 0x06 */    { RSL_IE_ENC_INF,         "Channel Mode" },               /*  9.3.6 */
+/* 0x06 */    { RSL_IE_CH_MODE,         "Channel Mode" },               /*  9.3.6 */
 /* 0x07 */    { RSL_IE_ENC_INF,         "Encryption Information" },     /*  9.3.7 */
 /* 0x08 */    { RSL_IE_FRAME_NO,        "Frame Number" },               /*  9.3.8 */
 /* 0x09 */    { RSL_IE_HO_REF,          "Handover Reference" },         /*  9.3.9 */
@@ -3597,8 +3597,15 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_l1_inf(tvb, pinfo, tree, offset, FALSE);
         /* L3 Info (MEAS REP, EXT MEAS REP or ENH MEAS REP) 9.3.11 O 1) TLV 21 */
-        if (tvb_length_remaining(tvb,offset) > 0)
-            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_SACCH);
+        if (tvb_length_remaining(tvb,offset) > 0){
+			/* Try to figure out of we have (MEAS REP, EXT MEAS REP or ENH MEAS REP) */
+			if ( ( tvb_get_guint8(tvb, offset+3) & 0xFE ) == 0x10 ) {
+				/* ENH MEAS REP */
+	            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_SACCH);
+			}else{
+	            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_OTHER);
+			}
+		}
         /* MS Timing Offset         9.3.37 O 2) TV 2        */
         if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_ms_timing_offset(tvb, pinfo, tree, offset, FALSE);
