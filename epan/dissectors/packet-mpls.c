@@ -116,7 +116,6 @@ static dissector_handle_t dissector_mpls_pw_atm_n1_nocw;
 static dissector_handle_t dissector_mpls_pw_atm_11_aal5pdu;
 static dissector_handle_t dissector_mpls_pw_atm_aal5_sdu;
 static dissector_handle_t dissector_pw_cesopsn;
-static dissector_handle_t dissector_pw_gprs_ns_cw;
 
 enum mpls_default_dissector_t {
     MDD_PW_ETH_HEUR = 0
@@ -133,7 +132,6 @@ enum mpls_default_dissector_t {
     ,MDD_MPLS_PW_ATM_N1_NOCW
     ,MDD_MPLS_PW_ATM_11_OR_AAL5_PDU
     ,MDD_MPLS_PW_ATM_AAL5_SDU
-    ,MDD_MPLS_PW_GPRS_NS_CW
 };
 
 /* TODO the content of mpls_default_payload menu
@@ -211,11 +209,6 @@ static const enum_val_t mpls_default_payload_defs[] = {
         "mpls pw atm aal5_sdu"
         ,pwc_longname_pw_atm_aal5_sdu
         ,MDD_MPLS_PW_ATM_AAL5_SDU
-    },
-    {
-        "mpls pw gprs-ns cw"
-        ,"GPRS-NS MPLS PW (with CW)"
-        ,MDD_MPLS_PW_GPRS_NS_CW
     },
     {
         NULL
@@ -672,9 +665,6 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case MDD_MPLS_PW_ATM_AAL5_SDU:
             call_dissector(dissector_mpls_pw_atm_aal5_sdu, next_tvb, pinfo, tree);
             break;
-        case MDD_MPLS_PW_GPRS_NS_CW:
-            call_dissector(dissector_pw_gprs_ns_cw, next_tvb, pinfo, tree);
-            break;
         default: /* fallthrough */
         case MDD_MPLS_PW_GENERIC:
             dissect_pw_mcw(next_tvb, pinfo, tree);
@@ -740,7 +730,7 @@ proto_register_mpls(void)
         /* Generic/Preferred PW MPLS Control Word fields */
         {&hf_mpls_pw_mcw_flags,
          {"Flags", "pwmcw.flags",
-          FT_UINT16, BASE_HEX, NULL, 0x0FC0,
+          FT_UINT8, BASE_HEX, NULL, 0x0FC0,
           "Generic/Preferred PW MPLS Control Word Flags", HFILL }
         },
 
@@ -840,7 +830,7 @@ proto_reg_handoff_mpls(void)
     dissector_mpls_pw_atm_11_aal5pdu= find_dissector("mpls_pw_atm_11_or_aal5_pdu");
     dissector_mpls_pw_atm_aal5_sdu  = find_dissector("mpls_pw_atm_aal5_sdu");
     dissector_pw_cesopsn            = find_dissector("pw_cesopsn_mpls");
-    dissector_pw_gprs_ns_cw         = find_dissector("pw_gprs_ns_cw");
+
 }
 /*
  * Editor modelines
