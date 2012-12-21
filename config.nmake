@@ -110,6 +110,22 @@ MSVC_VARIANT=MSVC2010
 # Visual C++ 10.0, _MSC_VER 1600, msvcr100.dll
 #MSVC_VARIANT=MSVC2010EE
 
+# "Microsoft Visual C++ 2012 Express Edition"
+# Visual C++ 11.0, _MSC_VER 1700, msvcr110.dll
+## Note: Sep 20,2012: *Beta*: Build with VC11 (2012) succeeds; Seems OK: Minimally tested;
+##       win32.mak is apparently not part of the MS 2012EE install;
+##       To build Windows Wireshark, win32.mak must be obtained*
+##        and copied to a dir specified in the Windows Environment
+##        variable 'include' (or to a dir added to the list in 'include').
+##       *One possibility: download the Windows 7 Platform SDK and copy
+##         win32.mak from ...\Microsoft SDKs\Windows\v7.[something]\include
+##         See: http://ask.wireshark.org/questions/14343/setting-development-project-under-visual-studio-2012
+#MSVC_VARIANT=MSVC2012EE
+
+# "Microsoft Visual Studio 2012"
+# Visual C++ 11.0, _MSC_VER 1700, msvcr110.dll
+#MSVC_VARIANT=MSVC2012
+
 # The default if we haven't set a system environment variable or
 # uncommented an entry above.  We default to the version recommended
 # in the Developer's Guide, namely MSVC++ 2010 Express Edition.
@@ -735,6 +751,8 @@ MSC_VER_REQUIRED=1400
 MSC_VER_REQUIRED=1500
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010" ||  "$(MSVC_VARIANT)" == "MSVC2010EE"
 MSC_VER_REQUIRED=1600
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2012" ||  "$(MSVC_VARIANT)" == "MSVC2012EE"
+MSC_VER_REQUIRED=1700
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF
@@ -773,7 +791,9 @@ MANIFEST_INFO_REQUIRED=1
         "$(MSVC_VARIANT)" == "MSVC2008"   || \
         "$(MSVC_VARIANT)" == "MSVC2008EE" || \
         "$(MSVC_VARIANT)" == "MSVC2010"   || \
-        "$(MSVC_VARIANT)" == "MSVC2010EE"
+        "$(MSVC_VARIANT)" == "MSVC2010EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2012"   || \
+        "$(MSVC_VARIANT)" == "MSVC2012EE"
 LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
 	     /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
 
@@ -806,7 +826,9 @@ WARNINGS_CFLAGS=/w34295
 !IF     "$(MSVC_VARIANT)" == "MSVC2008"   || \
         "$(MSVC_VARIANT)" == "MSVC2008EE" || \
         "$(MSVC_VARIANT)" == "MSVC2010"   || \
-        "$(MSVC_VARIANT)" == "MSVC2010EE"
+        "$(MSVC_VARIANT)" == "MSVC2010EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2012"   || \
+        "$(MSVC_VARIANT)" == "MSVC2012EE"
 LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 !ENDIF
 
@@ -890,28 +912,100 @@ INSTALL_DIR=wireshark-gtk2
 # packages, the following will use the default paths depending
 # on the package version.
 #
+
+# You can either place the redistributable in its own platform-
+# and compiler-specific directory or in the top-level library
+# directory.
+!IF EXIST("$(WIRESHARK_LIB_DIR)\vcredist_$(MSVC_VARIANT)")
+VCREDIST_DIR=$(WIRESHARK_LIB_DIR)\vcredist_$(MSVC_VARIANT)
+!ELSE
+VCREDIST_DIR=$(WIRESHARK_LIB_DIR)
+!ENDIF
+
 !IF "$(WIRESHARK_TARGET_PLATFORM)" == "win64"
-# We're not creating portable packages and therefore don't have to worry about
-# "deploying using xcopy"
-VCREDIST_EXE=$(WIRESHARK_LIB_DIR)\vcredist_$(TARGET_MACHINE).exe
+#
+# For 64-bit platforms, we don't create portable packages and therefore
+# don't have to worry that "Using the Visual C++ Redistributable
+# Package" requires that an installer be run to install that package,
+# so we use that method to make the C runtime available.
+#
+VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"
+#
+# For MSVC 2005 non-Express Edition, we "Install a particular Visual C++
+# assembly as a private assembly for the application", by copying
+# the contents of the Microsoft.VC80.CRT folder to the target directory.
+# This is done to reduce the size of the installer; it also makes
+# a portable version work, as the C runtime doesn't have to be
+# installed on the target machine.
+#
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 8\VC\redist\$(PROCESSOR_ARCHITECTURE)\Microsoft.VC80.CRT\*.*
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" || "$(MSVC_VARIANT)" == "MSVC2008EE"
-# you need to download the redistributable package vcredist_x86.exe from Microsoft first,
-# and copy it to the lib folder!!!
-VCREDIST_EXE=$(WIRESHARK_LIB_DIR)\vcredist_$(TARGET_MACHINE).exe
+#
+# For MSVC 2005 Express Edition, for the .NET Framework 2.0 SDK, and
+# for MSVC 2008 Express Edition, we "Use the Visual C++ Redistributable
+# Package", because they don't provide the Microsoft.VC80.CRT folder.
+#
+# They also don't provide the redistributable package, so you need to
+# download the appropriate version of the redistributable package,
+# vcredist_x86.exe, vcredist_x64.exe, or vcredist_ia64.exe, from
+# Microsoft first, and copy it to the lib folder!!!
+#
+VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2008"
+#
+# For MSVC 2008 non-Express Edition, we "Install a particular Visual C++
+# assembly as a private assembly for the application", by copying
+# the contents of the Microsoft.VC90.CRT folder to the target directory.
+# This is done to reduce the size of the installer; it also makes
+# a portable version work, as the C runtime doesn't have to be
+# installed on the target machine.
+#
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(PROCESSOR_ARCHITECTURE)\Microsoft.VC90.CRT\*.*
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010EE"
-# you need to download the redistributable package vcredist_x86.exe from Microsoft first,
-# and copy it to the lib folder!!!
-VCREDIST_EXE=$(WIRESHARK_LIB_DIR)\vcredist_$(TARGET_MACHINE).exe
+#
+# For MSVC 2010 Express Edition, we "Use the Visual C++ Redistributable
+# Package", because it doesn't provide the Microsoft.VC80.CRT folder.
+#
+# It also doesn't provide the redistributable package, so you need to
+# download the appropriate version of the redistributable package,
+# vcredist_x86.exe or vcredist_x64.exe, from Microsoft first, and copy
+# it to the lib folder!!!
+VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010"
+#
+# For MSVC 2010 non-Express Edition, we "Install a particular Visual C++
+# assembly as a private assembly for the application", by copying
+# the contents of the Microsoft.VC100.CRT folder to the target directory.
+# This is done to reduce the size of the installer; it also makes
+# a portable version work, as the C runtime doesn't have to be
+# installed on the target machine.
+#
+# Note: for what it's worth, Microsoft recommends "Using the Visual C++
+# Redistributable Package", rather than "Installing a particular Visual
+# C++ assembly as a private assembly for the application", starting
+# with Visual Studio 2010.
+#
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 10.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC100.CRT\*.*
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2012"
+#
+# For MSVC 2012 non-Express Edition, we "Install a particular Visual C++
+# assembly as a private assembly for the application", by copying
+# the contents of the Microsoft.VC110.CRT folder to the target directory.
+# This is done to reduce the size of the installer; it also makes
+# a portable version work, as the C runtime doesn't have to be
+# installed on the target machine.
+#
+# Note: for what it's worth, Microsoft recommends "Using the Visual C++
+# Redistributable Package", rather than "Installing a particular Visual
+# C++ assembly as a private assembly for the application", starting
+# with Visual Studio 2010.
+#
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 11.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC110.CRT\*.*
 
 !ELSE
 !ERROR MSVC_VARIANT unknown
