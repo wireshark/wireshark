@@ -555,10 +555,10 @@ finalize_crc32c(guint32 crc32)
     return ( result );
 }
 
-static unsigned long
+static guint16
 number_of_padding_bytes (unsigned long length)
 {
-    unsigned long remainder;
+    guint16 remainder;
 
     remainder = length % 4;
 
