@@ -197,7 +197,6 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-p1.c \
 	packet-parlay.c \
 	packet-pkcs12.c \
-	packet-pres.c \
 	packet-rnsap.c \
 	packet-snmp.c \
 	packet-t124.c \
@@ -920,6 +919,7 @@ DISSECTOR_SRC = \
 	packet-ppp.c		\
 	packet-pppoe.c		\
 	packet-pptp.c		\
+	packet-pres.c		\
 	packet-prp.c		\
 	packet-ptp.c		\
 	packet-pvfs2.c		\
