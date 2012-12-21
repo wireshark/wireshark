@@ -438,8 +438,8 @@ static const mic_e_dst_code_table_s dst_code[] =
 /* MIC-E message table */
 typedef struct
 	{
-	char *std;
-	char *custom;
+	const char *std;
+	const char *custom;
 	} mic_e_msg_table_s;
 
 static const mic_e_msg_table_s mic_e_msg_table[] =
@@ -852,7 +852,7 @@ dissect_aprs_storm(	tvbuff_t   *tvb,
 		proto_tree *tc;
 		int	    data_len;
 		char	   *info_buffer;
-		static char *storm_format = " (%*.*s)";
+		static const char *storm_format = " (%*.*s)";
 
 		data_len = tvb_length_remaining( tvb, offset );
 		info_buffer = ep_alloc( STRLEN );
@@ -897,7 +897,7 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 	int	     new_offset;
 	int	     data_len;
 	char	    *info_buffer;
-	static char *weather_format = " (%*.*s)";
+	static const char *weather_format = " (%*.*s)";
 	guint8	     ch;
 
 
@@ -1019,7 +1019,7 @@ static int
 aprs_timestamp( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 {
 	int	data_len;
-	char   *tzone;
+	const char *tzone;
 	guint8  ch;
 
 	data_len = 8;

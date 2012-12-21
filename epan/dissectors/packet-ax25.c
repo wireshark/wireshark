@@ -134,7 +134,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	int via_index;
 	char *info_buffer;
 	/* char v2cmdresp; */
-	char *ax25_version;
+	const char *ax25_version;
 	int is_response;
 	const guint8 *src_addr;
 	const guint8 *dst_addr;

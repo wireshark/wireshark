@@ -4612,7 +4612,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
     int           hoffset;
     proto_item   *cause;
     proto_tree   *error_tree;
-    gchar        *error_str = NULL;
+    const gchar  *error_str = NULL;
 
     if (!implicit_tag) {
         hoffset = offset;
