@@ -150,14 +150,14 @@ struct wtap_reader {
 static int	/* gz_load */
 raw_read(FILE_T state, unsigned char *buf, unsigned int count, unsigned *have)
 {
-	int ret;
+	ssize_t ret;
 
 	*have = 0;
 	do {
 		ret = read(state->fd, buf + *have, count - *have);
 		if (ret <= 0)
 			break;
-		*have += ret;
+		*have += (unsigned)ret;
 		state->raw_pos += ret;
 	} while (*have < count);
 	if (ret < 0) {
@@ -427,8 +427,21 @@ zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, gin
 		} else
 			memcpy(val->data.zlib.window, point->window, ZLIB_WINSIZE);
 
-		val->data.zlib.adler = file->strm.adler;
-		val->data.zlib.total_out = file->strm.total_out;
+		/*
+		 * XXX - strm.adler is a uLong in at least some versions
+		 * of zlib, and uLong is an unsigned long in at least
+		 * some of those versions, which means it's 64-bit
+		 * on LP64 platforms, even though the checksum is
+		 * 32-bit.  We assume the actual Adler checksum
+		 * is in the lower 32 bits of strm.adler; as the
+		 * checksum in the file is only 32 bits, we save only
+		 * those lower 32 bits, and cast away any additional
+		 * bits to squelch warnings.
+		 *
+		 * The same applies to strm.total_out.
+		 */
+		val->data.zlib.adler = (guint32) file->strm.adler;
+		val->data.zlib.total_out = (guint32) file->strm.total_out;
 		g_ptr_array_add(file->fast_seek, val);
 	}
 }
@@ -1463,8 +1476,9 @@ gz_init(GZWFILE_T state)
 static int
 gz_comp(GZWFILE_T state, int flush)
 {
-    int ret, got;
-    unsigned have;
+    int ret;
+    ssize_t got;
+    ptrdiff_t have;
     z_streamp strm = &(state->strm);
 
     /* allocate memory if this is the first time through */
@@ -1478,14 +1492,14 @@ gz_comp(GZWFILE_T state, int flush)
            doing Z_FINISH then don't write until we get to Z_STREAM_END */
         if (strm->avail_out == 0 || (flush != Z_NO_FLUSH &&
             (flush != Z_FINISH || ret == Z_STREAM_END))) {
-            have = (unsigned)(strm->next_out - state->next);
+            have = strm->next_out - state->next;
             if (have) {
 		got = write(state->fd, state->next, have);
 		if (got < 0) {
                     state->err = errno;
                     return -1;
                 }
-                if ((unsigned)got != have) {
+                if ((ptrdiff_t)got != have) {
                     state->err = WTAP_ERR_SHORT_WRITE;
                     return -1;
                 }

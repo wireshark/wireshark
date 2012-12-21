@@ -651,7 +651,7 @@ static gboolean erf_dump(
 
       alignbytes = (8 - (other_phdr.erf.phdr.rlen % 8)) % 8;  /*calculate how much padding will be required */
       if(phdr->caplen < phdr->len){ /*if packet has been snapped, we need to round down what we output*/
-        round_down = (8 - alignbytes) % 8;
+        round_down = (8 - (guint)alignbytes) % 8;
         other_phdr.erf.phdr.rlen -= round_down;
       }else{
         other_phdr.erf.phdr.rlen += (gint16)alignbytes;

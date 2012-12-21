@@ -221,7 +221,7 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 		 * XXX - if this is big, we might waste memory by
 		 * growing the buffer to handle it.
 		 */
-		packet_size = rec_size - (sizeof hdr - sizeof hdr.rec_size);
+		packet_size = rec_size - (guint32)(sizeof hdr - sizeof hdr.rec_size);
 		if (packet_size != 0) {
 			buffer_assure_space(wth->frame_buffer, packet_size);
 			if (!aethra_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),

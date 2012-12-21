@@ -753,12 +753,12 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     /* Calculate time of this packet to write, relative to start of dump */
     if (phdr->ts.nsecs >= dct2000->start_time.nsecs) {
         write_timestamp_string(time_string,
-                               (long)(phdr->ts.secs - dct2000->start_time.secs),
+                               (int)(phdr->ts.secs - dct2000->start_time.secs),
                                (phdr->ts.nsecs - dct2000->start_time.nsecs) / 100000);
     }
     else {
         write_timestamp_string(time_string,
-                               (long)(phdr->ts.secs - dct2000->start_time.secs-1),
+                               (int)(phdr->ts.secs - dct2000->start_time.secs-1),
                                ((1000000000 + (phdr->ts.nsecs / 100000)) - (dct2000->start_time.nsecs / 100000)) % 10000);
     }
 

@@ -2407,7 +2407,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
 
         /* write block header */
         bh.block_type = BLOCK_TYPE_SHB;
-        bh.block_total_length = sizeof(bh) + sizeof(shb) + options_total_length + 4;
+        bh.block_total_length = (guint32)(sizeof(bh) + sizeof(shb) + options_total_length + 4);
         pcapng_debug2("pcapng_write_section_header_block: Total len %u, Options total len %u",bh.block_total_length, options_total_length);
 
         if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
@@ -2671,7 +2671,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 
         /* write block header */
         bh.block_type = BLOCK_TYPE_IDB;
-        bh.block_total_length = sizeof(bh) + sizeof(idb) + options_total_length + 4;
+        bh.block_total_length = (guint32)(sizeof(bh) + sizeof(idb) + options_total_length + 4);
 
         if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
                 return FALSE;
@@ -2959,7 +2959,7 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_
 
         /* write block header */
         bh.block_type = BLOCK_TYPE_ISB;
-        bh.block_total_length = sizeof(bh) + sizeof(isb) + options_total_length + 4;
+        bh.block_total_length = (guint32)(sizeof(bh) + sizeof(isb) + options_total_length + 4);
 
         if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
                 return FALSE;

@@ -82,7 +82,7 @@ typedef struct nspr_header_v10
     guint8 ph_RecordType[2]; /* Record Type */
     guint8 ph_RecordSize[2]; /* Record Size including header */
 } nspr_header_v10_t;
-#define nspr_header_v10_s    sizeof(nspr_header_v10_t)
+#define nspr_header_v10_s    ((guint32)sizeof(nspr_header_v10_t))
 
 /* This is V20 short header (2 bytes long) to be included where needed */
 #define NSPR_HEADER_V20(prefix) \
@@ -104,7 +104,7 @@ typedef struct nspr_hd_v20
     NSPR_HEADER3B_V20(phd); /* long performance header */
 
 } nspr_hd_v20_t;
-#define nspr_hd_v20_s    sizeof(nspr_hd_v20_t)
+#define nspr_hd_v20_s    ((guint32)sizeof(nspr_hd_v20_t))
 
 
 /*
@@ -121,19 +121,19 @@ typedef struct nspr_headerdev_v10
     guint8 ph_RecordSize[2]; /* Record Size including header */
     guint8 ph_DevNo[4];      /* Network Device (NIC/CONN) number */
 } nspr_headerdev_v10_t;
-#define nspr_headerdev_v10_s    sizeof(nspr_headerdev_v10_t)
+#define nspr_headerdev_v10_s    ((guint32)sizeof(nspr_headerdev_v10_t))
 
 typedef struct nspr_hd_v10
 {
     nspr_header_v10_t phd; /* performance header */
 } nspr_hd_v10_t;
-#define nspr_hd_v10_s    sizeof(nspr_hd_v10_t)
+#define nspr_hd_v10_s    ((guint32)sizeof(nspr_hd_v10_t))
 
 typedef struct nspr_hdev_v10
 {
     nspr_headerdev_v10_t phd; /* performance header */
 } nspr_hdev_v10_t;
-#define nspr_hdev_v10_s    sizeof(nspr_hdev_v10_t)
+#define nspr_hdev_v10_s    ((guint32)sizeof(nspr_hdev_v10_t))
 
 /* if structure has defined phd as first field, it can use following names */
 #define nsprRecordType    phd.ph_RecordType
@@ -152,7 +152,7 @@ typedef struct nspr_signature_v10
     guint8 sig_Reserved1[2];
     gchar sig_Signature[NSPR_SIGSIZE_V10]; /* Signature value */
 } nspr_signature_v10_t;
-#define nspr_signature_v10_s    sizeof(nspr_signature_v10_t)
+#define nspr_signature_v10_s    ((guint32)sizeof(nspr_signature_v10_t))
 
 /* NSPR_SIGNATURE_V20 structure */
 #define NSPR_SIGSIZE_V20        sizeof(NSPR_SIGSTR_V20) /* signature value size in bytes */
@@ -162,7 +162,7 @@ typedef struct nspr_signature_v20
     guint8 sig_EndianType; /* Endian Type for the data */
     gchar sig_Signature[NSPR_SIGSIZE_V20]; /* Signature value */
 } nspr_signature_v20_t;
-#define nspr_signature_v20_s    sizeof(nspr_signature_v20_t)
+#define nspr_signature_v20_s    ((guint32)sizeof(nspr_signature_v20_t))
 
 /* NSPR_ABSTIME_V10 and NSPR_SYSTARTIME_V10 structure */
 typedef struct nspr_abstime_v10
@@ -171,7 +171,7 @@ typedef struct nspr_abstime_v10
     guint8 abs_RelTime[4]; /* relative time is ms from last time */
     guint8 abs_Time[4];    /* absolute time in seconds from 1970 */
 } nspr_abstime_v10_t;
-#define nspr_abstime_v10_s    sizeof(nspr_abstime_v10_t)
+#define nspr_abstime_v10_s    ((guint32)sizeof(nspr_abstime_v10_t))
 
 
 /* NSPR_ABSTIME_V20 and NSPR_SYSTARTIME_V20 structure */
@@ -181,7 +181,7 @@ typedef struct nspr_abstime_v20
     guint8 abs_RelTime[2]; /* relative time is ms from last time */
     guint8 abs_Time[4];    /* absolute time in seconds from 1970 */
 } nspr_abstime_v20_t;
-#define nspr_abstime_v20_s    sizeof(nspr_abstime_v20_t)
+#define nspr_abstime_v20_s    ((guint32)sizeof(nspr_abstime_v20_t))
 
 
 
@@ -202,7 +202,7 @@ typedef struct nspr_pktracefull_v20
     guint8 fp_RelTimeHr[4]; /* High resolution relative time */
     guint8 fp_Data[4];      /* packet data starts here */
 } nspr_pktracefull_v20_t;
-#define nspr_pktracefull_v20_s    (sizeof(nspr_pktracefull_v20_t) - 4)
+#define nspr_pktracefull_v20_s    ((guint32)(sizeof(nspr_pktracefull_v20_t) - 4))
 
 /* new full packet trace structure v21 */
 typedef struct nspr_pktracefull_v21
@@ -214,7 +214,7 @@ typedef struct nspr_pktracefull_v21
     guint8 fp_lPcbDevNo[4]; /* link PCB devno */
     guint8 fp_Data[4];      /* packet data starts here */
 } nspr_pktracefull_v21_t;
-#define nspr_pktracefull_v21_s    (sizeof(nspr_pktracefull_v21_t) - 4)
+#define nspr_pktracefull_v21_s    ((guint32)(sizeof(nspr_pktracefull_v21_t) - 4))
 
 /* new full packet trace structure v22 */
 typedef struct nspr_pktracefull_v22
@@ -227,7 +227,7 @@ typedef struct nspr_pktracefull_v22
     guint8 fp_VlanTag[2];   /* vlan tag */
     guint8 fp_Data[2];      /* packet data starts here */
 } nspr_pktracefull_v22_t;
-#define nspr_pktracefull_v22_s    (sizeof(nspr_pktracefull_v22_t) - 2)
+#define nspr_pktracefull_v22_s    ((guint32)(sizeof(nspr_pktracefull_v22_t) - 2))
 
 typedef struct nspr_pktracefull_v23
 {
@@ -240,7 +240,7 @@ typedef struct nspr_pktracefull_v23
     guint8 fp_Coreid[2];    /* coreid of the packet */
     guint8 fp_Data[2];      /* packet data starts here */
 } nspr_pktracefull_v23_t;
-#define nspr_pktracefull_v23_s    (sizeof(nspr_pktracefull_v23_t) - 2)
+#define nspr_pktracefull_v23_s    ((guint32)(sizeof(nspr_pktracefull_v23_t) - 2))
 
 /* New full packet trace structure v24 for cluster tracing */
 typedef struct nspr_pktracefull_v24
@@ -257,7 +257,7 @@ typedef struct nspr_pktracefull_v24
     guint8 fp_clFlags;       /* cluster flags */
     guint8 fp_Data[2];       /* packet data starts here */
 } nspr_pktracefull_v24_t;
-#define nspr_pktracefull_v24_s    (sizeof(nspr_pktracefull_v24_t) - 4)
+#define nspr_pktracefull_v24_s    ((guint32)(sizeof(nspr_pktracefull_v24_t) - 4))
 
 /* New full packet trace structure v25 for vm info tracing */
 typedef struct nspr_pktracefull_v25
@@ -276,7 +276,7 @@ typedef struct nspr_pktracefull_v25
     guint8 fp_dst_vmname_len; /* vm src info */
     guint8 fp_Data[4];        /* packet data starts here */
 } nspr_pktracefull_v25_t;
-#define nspr_pktracefull_v25_s    (sizeof(nspr_pktracefull_v25_t) - 4)
+#define nspr_pktracefull_v25_s    ((guint32)(sizeof(nspr_pktracefull_v25_t) - 4))
 #define fp_src_vmname    fp_Data
 #define fp_src_vmname    fp_Data
 
@@ -302,7 +302,7 @@ typedef struct nspr_pktracepart_v20
     guint8 pp_PktOffset[2];  /* starting offset in packet */
     guint8 pp_Data[4];       /* packet data starts here */
 } nspr_pktracepart_v20_t;
-#define nspr_pktracepart_v20_s    (sizeof(nspr_pktracepart_v20_t) -4)
+#define nspr_pktracepart_v20_s    ((guint32)(sizeof(nspr_pktracepart_v20_t) -4))
 
 /* new partial packet trace structure */
 typedef struct nspr_pktracepart_v21
@@ -316,7 +316,7 @@ typedef struct nspr_pktracepart_v21
     guint8 pp_lPcbDevNo[4];  /* link PCB devno */
     guint8 pp_Data[4];       /* packet data starts here */
 } nspr_pktracepart_v21_t;
-#define nspr_pktracepart_v21_s    (sizeof(nspr_pktracepart_v21_t) -4)
+#define nspr_pktracepart_v21_s    ((guint32)(sizeof(nspr_pktracepart_v21_t) -4))
 
 /* new partial packet trace structure v22 */
 typedef struct nspr_pktracepart_v22
@@ -331,7 +331,7 @@ typedef struct nspr_pktracepart_v22
     guint8 pp_VlanTag[2];    /* Vlan Tag */
     guint8 pp_Data[2];       /* packet data starts here */
 } nspr_pktracepart_v22_t;
-#define nspr_pktracepart_v22_s    (sizeof(nspr_pktracepart_v22_t) -2)
+#define nspr_pktracepart_v22_s    ((guint32)(sizeof(nspr_pktracepart_v22_t) -2))
 
 typedef struct nspr_pktracepart_v23
 {
@@ -346,7 +346,7 @@ typedef struct nspr_pktracepart_v23
     guint8 pp_Coreid[2];     /* Coreid of the packet */
     guint8 pp_Data[4];       /* packet data starts here */
 } nspr_pktracepart_v23_t;
-#define nspr_pktracepart_v23_s    (sizeof(nspr_pktracepart_v23_t) -4)
+#define nspr_pktracepart_v23_s    ((guint32)(sizeof(nspr_pktracepart_v23_t) -4))
 
 /* New partial packet trace structure v24 for cluster tracing */
 typedef struct nspr_pktracepart_v24
@@ -365,7 +365,7 @@ typedef struct nspr_pktracepart_v24
     guint8 pp_clFlags;       /* cluster flags */
     guint8 pp_Data[4];       /* packet data starts here */
 } nspr_pktracepart_v24_t;
-#define nspr_pktracepart_v24_s    (sizeof(nspr_pktracepart_v24_t) -4)
+#define nspr_pktracepart_v24_s    ((guint32)(sizeof(nspr_pktracepart_v24_t) -4))
 
 /* New partial packet trace structure v25 for vm info tracing */
 typedef struct nspr_pktracepart_v25
@@ -386,7 +386,7 @@ typedef struct nspr_pktracepart_v25
     guint8 pp_dst_vmname_len; /* vm info */
     guint8 pp_Data[4];        /* packet data starts here */
 } nspr_pktracepart_v25_t;
-#define nspr_pktracepart_v25_s    (sizeof(nspr_pktracepart_v25_t) -4)
+#define nspr_pktracepart_v25_s    ((guint32)(sizeof(nspr_pktracepart_v25_t) -4))
 #define pp_src_vmname    pp_Data
 #define pp_dst_vmname    pp_Data
 
@@ -420,7 +420,7 @@ typedef struct nspr_pktracepart_v25
     (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
     (phdr)->len =  pletohs(&pp->pp_PktSizeOrg) + nspr_pktracepart_v10_s;\
     (phdr)->caplen =  pletohs(&pp->nsprRecordSize);\
-    TRACE_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)        
+    TRACE_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)
 
 #define TRACE_V20_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
     __TNO(phdr,enumprefix,structprefix,structname,dir,RecordType)\

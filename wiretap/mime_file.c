@@ -154,7 +154,7 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	for (i = 0; i < N_MAGIC_TYPES; i++)
 		read_bytes = MAX(read_bytes, magic_files[i].magic_len);
 
-	read_bytes = MIN(read_bytes, sizeof(magic_buf));
+	read_bytes = (guint)MIN(read_bytes, sizeof(magic_buf));
 	bytes_read = file_read(magic_buf, read_bytes, wth->fh);
 
 	if (bytes_read > 0) {
