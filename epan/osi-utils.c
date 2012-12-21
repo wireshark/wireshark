@@ -190,8 +190,6 @@ print_area_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
 	{
       g_snprintf(buf, buf_len, "%02x%02x%02x%02x", ad[0], ad[1], ad[2], ad[3] );
 	}
-    if ( 4 < length ) 
-	{
       while ( tmp < length / 4 ) {      /* 16/4==4 > four Octets left to print */
         cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
         cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
@@ -207,7 +205,7 @@ print_area_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
           cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
         }
       }
-    }
+    
   }
 } /* print_area_buf */
 
