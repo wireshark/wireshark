@@ -32,6 +32,7 @@ set(COMMON_UI_SRC
 	iface_lists.c
 	ssl_key_export.c
 	text_import.c
+	time_shift.c
 	util.c
 )
 

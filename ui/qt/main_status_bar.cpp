@@ -293,8 +293,8 @@ void MainStatusBar::toggleBackground(bool enabled)
                           "  background-color: #%2;"
                           "}"
                           )
-                      .arg(tango_aluminium_6, 6, 16, QChar('0'))
-                      .arg(tango_butter_2, 6, 16, QChar('0')));
+                      .arg(ws_css_warn_text, 6, 16, QChar('0'))
+                      .arg(ws_css_warn_background, 6, 16, QChar('0')));
     } else {
         setStyleSheet("");
     }

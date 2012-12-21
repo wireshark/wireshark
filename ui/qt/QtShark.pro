@@ -182,15 +182,16 @@ HEADERS_WS_C  = \
     ../../wsutil/privileges.h
 
 FORMS += main_window.ui \
-    main_welcome.ui \
-    import_text_dialog.ui \
-    file_set_dialog.ui \
-    packet_range_group_box.ui \
-    packet_format_group_box.ui \
     export_object_dialog.ui \
+    file_set_dialog.ui \
+    import_text_dialog.ui \
+    main_welcome.ui \
+    packet_format_group_box.ui \
+    packet_range_group_box.ui \
     print_dialog.ui \
+    search_frame.ui \
     splash_overlay.ui \
-    search_frame.ui
+    time_shift_dialog.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -214,13 +215,15 @@ win32 { ## These should be in config.pri ??
 }
 
 HEADERS += $$HEADERS_WS_C \
+    accordion_frame.h \
     export_dissection_dialog.h \
-    packet_format_group_box.h \
     export_object_dialog.h \
+    packet_format_group_box.h \
     print_dialog.h \
-    splash_overlay.h \
     search_frame.h \
-    accordion_frame.h
+    splash_overlay.h \
+    tango_colors.h \
+    time_shift_dialog.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -394,6 +397,7 @@ HEADERS += \
     simple_dialog_qt.h \
     sparkline_delegate.h \
     syntax_line_edit.h \
+    time_shift_dialog.h \
     wireshark_application.h
 
 SOURCES += \
@@ -434,4 +438,5 @@ SOURCES += \
     sparkline_delegate.cpp \
     splash_overlay.cpp \
     syntax_line_edit.cpp \
+    time_shift_dialog.cpp \
     wireshark_application.cpp

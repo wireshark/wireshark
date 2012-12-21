@@ -62,6 +62,7 @@
 #include "capture_file_dialog.h"
 #include "export_object_dialog.h"
 #include "print_dialog.h"
+#include "time_shift_dialog.h"
 
 #include <QMessageBox>
 #include <QClipboard>
@@ -1259,6 +1260,15 @@ void MainWindow::on_actionEditPreviousTimeReference_triggered()
 {
     if (!cap_file_) return;
     cf_find_packet_time_reference(cap_file_, SD_BACKWARD);
+}
+
+void MainWindow::on_actionEditTimeShift_triggered()
+{
+    TimeShiftDialog ts_dialog(this, cap_file_);
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            &ts_dialog, SLOT(setCaptureFile(capture_file*)));
+
+    ts_dialog.exec();
 }
 
 // View Menu

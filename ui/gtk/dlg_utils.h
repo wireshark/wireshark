@@ -79,6 +79,7 @@
 
 #define DLG_OUTER_MARGIN 11
 #define DLG_BUTTON_SPACING 7
+#define DLG_LABEL_SPACING 5
 #define DLG_UNRELATED_SPACING 11
 
 /* elif defined (__APPLE__) */
@@ -88,6 +89,7 @@
 
 #define DLG_OUTER_MARGIN 12
 #define DLG_BUTTON_SPACING 6
+#define DLG_LABEL_SPACING 4 /* Not specified. Guessing. */
 #define DLG_UNRELATED_SPACING 12
 
 #endif

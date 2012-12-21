@@ -25,8 +25,6 @@
 #ifndef __TIME_SHIFT_DLG_H__
 #define __TIME_SHIFT_DLG_H__
 
-#include "globals.h"
-
 /** User requested to shift the time of the trace
  *
  * @param widget parent widget (unused)

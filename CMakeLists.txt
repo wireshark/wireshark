@@ -221,7 +221,7 @@ else()
 	unset(WERROR)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_CXX_COMPILER MATCHES ".*clang")
 	set (C_UNUSED "__attribute__((unused))" )
 else()
 	set (C_UNUSED "" )

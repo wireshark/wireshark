@@ -187,6 +187,12 @@
     <addaction name="actionEditUnsetAllTimeReferences"/>
     <addaction name="actionEditNextTimeReference"/>
     <addaction name="actionEditPreviousTimeReference"/>
+    <addaction name="actionEditTimeShift"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditPacketComment"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditConfigurationProfiles"/>
+    <addaction name="actionEditPreferences"/>
    </widget>
    <widget class="QMenu" name="menuCapture">
     <property name="title">
@@ -1112,6 +1118,47 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+B</string>
+   </property>
+  </action>
+  <action name="actionEditTimeShift">
+   <property name="text">
+    <string>Time Shift...</string>
+   </property>
+   <property name="toolTip">
+    <string>Shift or change packet timestamps</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+T</string>
+   </property>
+  </action>
+  <action name="actionEditPacketComment">
+   <property name="text">
+    <string>Packet Comment...</string>
+   </property>
+   <property name="toolTip">
+    <string>Add or change a packet comment</string>
+   </property>
+  </action>
+  <action name="actionEditConfigurationProfiles">
+   <property name="text">
+    <string>Configuration Profiles...</string>
+   </property>
+   <property name="toolTip">
+    <string>Manage configuration profiles</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+A</string>
+   </property>
+  </action>
+  <action name="actionEditPreferences">
+   <property name="text">
+    <string>Preferences...</string>
+   </property>
+   <property name="toolTip">
+    <string>Manage Wireshark's preferences</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+P</string>
    </property>
   </action>
  </widget>

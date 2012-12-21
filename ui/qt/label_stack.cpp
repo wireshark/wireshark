@@ -68,8 +68,8 @@ void LabelStack::fillLabel() {
                     "  color: #%1;"
                     "  background-color: #%2;"
                     )
-                .arg(tango_aluminium_6, 6, 16, QChar('0'))
-                .arg(tango_butter_2, 6, 16, QChar('0'));
+                .arg(ws_css_warn_text, 6, 16, QChar('0'))
+                .arg(ws_css_warn_background, 6, 16, QChar('0'));
     }
 
     style_sheet += "}";
