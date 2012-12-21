@@ -23,6 +23,8 @@
 
 #include <glib.h>
 
+#include <wsutil/crc11.h>
+
 /**
  * Functions and types for CRC checks.
  *
