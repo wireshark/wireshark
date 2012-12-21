@@ -634,8 +634,7 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionEditUnsetAllTimeReferences->setEnabled(have_time_ref);
     main_ui_->actionEditNextTimeReference->setEnabled(another_is_time_ref);
     main_ui_->actionEditPreviousTimeReference->setEnabled(another_is_time_ref);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/TimeShift",
-//                         cf->count > 0);
+    main_ui_->actionEditTimeShift->setEnabled(have_frames);
 
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ResizeAllColumns",
 //                         frame_selected);
