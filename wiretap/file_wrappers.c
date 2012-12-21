@@ -1494,7 +1494,7 @@ gz_comp(GZWFILE_T state, int flush)
             (flush != Z_FINISH || ret == Z_STREAM_END))) {
             have = strm->next_out - state->next;
             if (have) {
-		got = write(state->fd, state->next, have);
+		got = write(state->fd, state->next, (size_t)have);
 		if (got < 0) {
                     state->err = errno;
                     return -1;
