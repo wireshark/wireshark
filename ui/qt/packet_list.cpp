@@ -237,8 +237,7 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addAction(window()->findChild<QAction *>("actionEditMarkPacket"));
     ctx_menu_.addAction(window()->findChild<QAction *>("actionEditIgnorePacket"));
     ctx_menu_.addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));
-//    "     <menuitem name='SetTimeReference' action='/Set Time Reference'/>\n"
-//    "     <menuitem name='TimeShift' action='/TimeShift'/>\n"
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditTimeShift"));
 //    "     <menuitem name='AddEditPktComment' action='/Edit/AddEditPktComment'/>\n"
     ctx_menu_.addSeparator();
 //    "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
