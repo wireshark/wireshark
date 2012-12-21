@@ -950,8 +950,8 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 #define INET6_ADDRLEN   16
 
 /* TCP Record Mark */
-#define KRB_RM_RESERVED 0x80000000L
-#define KRB_RM_RECLEN   0x7fffffffL
+#define KRB_RM_RESERVED 0x80000000U
+#define KRB_RM_RECLEN   0x7fffffffU
 
 #define KRB5_MSG_TICKET                  1      /* Ticket */
 #define KRB5_MSG_AUTHENTICATOR           2      /* Authenticator */
@@ -2904,8 +2904,6 @@ dissect_krb5_AD_WIN2K_PAC(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_
     return offset;
 }
 
-
-int dissect_krb5_Checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
 
 static ber_old_sequence_t AD_SIGNTICKET_sequence[] = {
     { BER_CLASS_CON, 0, 0,
