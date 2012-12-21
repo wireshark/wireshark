@@ -50,7 +50,7 @@ typedef struct _dhcp_stats_t {
 	char 		*filter;
 	GtkWidget 	*win;
 	GHashTable	*hash;
-	GtkWidget	*table_message_type;
+	GtkWidget	*grid_message_type;
 	guint		 index;	/* Number of  to display */
 } dhcpstat_t;
 
@@ -86,13 +86,13 @@ dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar * unused
 		/* Maybe we should display the hexadecimal value ? */
 		/* g_snprintf(string_buff, sizeof(string_buff), "%s  (0X%x)", data->name, *key); */
 		tmp = gtk_label_new(data->name  /* string_buff */);
-		gtk_table_attach_defaults(GTK_TABLE(data->sp->table_message_type), tmp, x, x+1, y, y+1);
+		ws_gtk_grid_attach(GTK_GRID(data->sp->grid_message_type), tmp, x, y, 1, 1);
 		gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(tmp);
 
 		g_snprintf(string_buff, sizeof(string_buff), "%9d", data->packets);
 		data->widget = gtk_label_new(string_buff);
-		gtk_table_attach_defaults(GTK_TABLE(data->sp->table_message_type), data->widget, x+1, x+2, y, y+1);
+		ws_gtk_grid_attach(GTK_GRID(data->sp->grid_message_type), data->widget, x+1, y, 1, 1);
 		gtk_label_set_justify(GTK_LABEL(data->widget), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(data->widget);
 
@@ -207,10 +207,10 @@ dhcpstat_init(const char *opt_arg, void *userdata _U_)
 	gtk_box_pack_start(GTK_BOX(vbox), message_type_fr, TRUE, TRUE, 0);
 	gtk_widget_show(message_type_fr);
 
-	sp->table_message_type = gtk_table_new(0, 4, FALSE);
-	gtk_table_set_col_spacings(GTK_TABLE(sp->table_message_type), 10);
-	gtk_container_add(GTK_CONTAINER(message_type_fr), sp->table_message_type);
-	gtk_container_set_border_width(GTK_CONTAINER(sp->table_message_type) , 10);
+	sp->grid_message_type = ws_gtk_grid_new();
+	ws_gtk_grid_set_column_spacing(GTK_GRID(sp->grid_message_type), 10);
+	gtk_container_add(GTK_CONTAINER(message_type_fr), sp->grid_message_type);
+	gtk_container_set_border_width(GTK_CONTAINER(sp->grid_message_type) , 10);
 	sp->index = 0; 		/* Nothing to display yet */
 
 
