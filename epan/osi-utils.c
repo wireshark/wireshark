@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -188,26 +188,23 @@ print_area_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
       g_snprintf(buf, buf_len, "%02x.%02x%02x", ad[0], ad[1], ad[2] );
       return;
     }
-	if(length == 4)
-	{
+    if ( length == 4 ) {
       g_snprintf(buf, buf_len, "%02x%02x%02x%02x", ad[0], ad[1], ad[2], ad[3] );
-	}
-    if ( 4 < length ) 
-	{
-      while ( tmp < length / 4 ) {      /* 16/4==4 > four Octets left to print */
+      return;
+    }
+    while ( tmp < length / 4 ) {      /* 16/4==4 > four Octets left to print */
+      cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
+      cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
+      cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
+      cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x.", ad[tmp++] );
+    }
+    if ( 1 == tmp ) {                     /* Special case for Designated IS */
+      cur--;
+      g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "-%02x", ad[tmp] );
+    }
+    else {
+      for ( ; tmp < length; ) {  /* print the rest without dot or dash */
         cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
-        cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
-        cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
-        cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x.", ad[tmp++] );
-      }
-      if ( 1 == tmp ) {                     /* Special case for Designated IS */
-        cur--;
-        g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "-%02x", ad[tmp] );
-      }
-      else {
-        for ( ; tmp < length; ) {  /* print the rest without dot */
-          cur += g_snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
-        }
       }
     }
   }
