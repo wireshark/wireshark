@@ -430,7 +430,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Length of CLNP datagram plus headers above it. */
   len = segment_length;
 
-  offset = cnf_hdr_len;
+  offset += opt_len;
 
   /* If clnp_reassemble is on, this is a segment, we have all the
    * data in the segment, and the checksum is valid, then just add the
