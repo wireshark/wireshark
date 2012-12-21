@@ -781,7 +781,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	default:
 		fl_value = (float)(0.5 * (1 << (value >> 1)));
 		if (value & 0x01)
-			fl_value *= 1.5;
+			fl_value *= 1.5f;
 		str = ep_strdup_printf("%.2f meters", fl_value);
 	}
 	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_a, tvb, bit_offset, 5, value,
@@ -797,7 +797,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	default:
 		fl_value = (float)(0.5 * (1 << (value >> 1)));
 		if (value & 0x01)
-			fl_value *= 1.5;
+			fl_value *= 1.5f;
 		str = ep_strdup_printf("%.2f meters", fl_value);
 	}
 	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_p, tvb, bit_offset, 5, value,
@@ -876,7 +876,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 		default:
 			fl_value = (float)(0.5 * (1 << (value >> 1)));
 			if (value & 0x01)
-				fl_value *= 1.5;
+				fl_value *= 1.5f;
 			str = ep_strdup_printf("%.2f meters", fl_value);
 		}
 		proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_v, tvb, bit_offset, 5, value,
