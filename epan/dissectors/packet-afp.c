@@ -4028,15 +4028,14 @@ dissect_query_afp_with_did(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static gint
 spotlight_int64(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
 {
-	gint count, i;
+	guint count, i;
 	guint64 query_data64;
 
 	query_data64 = spotlight_ntoh64(tvb, offset, encoding);
-	count = query_data64 >> 32;
+	count = (guint)(query_data64 >> 32);
 	offset += 8;
 
-	i = 0;
-	while (i++ < count) {
+	for (i = 0; i < count; i++) {
 		query_data64 = spotlight_ntoh64(tvb, offset, encoding);
 		proto_tree_add_text(tree, tvb, offset, 8, "int64: 0x%016" G_GINT64_MODIFIER "x", query_data64);
 		offset += 8;
@@ -4048,12 +4047,12 @@ spotlight_int64(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
 static gint
 spotlight_date(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint encoding)
 {
-	gint count, i;
+	guint count, i;
 	guint64 query_data64;
 	nstime_t t;
 
 	query_data64 = spotlight_ntoh64(tvb, offset, encoding);
-	count = query_data64 >> 32;
+	count = (guint)(query_data64 >> 32);
 	offset += 8;
 
 	if (count > SUBQ_SAFETY_LIM) {
@@ -4062,8 +4061,7 @@ spotlight_date(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
 		return -1;
 	}
 
-	i = 0;
-	while (i++ < count) {
+	for (i = 0; i < count; i++) {
 		query_data64 = spotlight_ntoh64(tvb, offset, encoding) >> 24;
 		t.secs = query_data64 - SPOTLIGHT_TIME_DELTA;
 		t.nsecs = 0;
@@ -4077,15 +4075,14 @@ spotlight_date(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
 static gint
 spotlight_uuid(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
 {
-	gint count, i;
+	guint count, i;
 	guint64 query_data64;
 
 	query_data64 = spotlight_ntoh64(tvb, offset, encoding);
-	count = query_data64 >> 32;
+	count = (guint)(query_data64 >> 32);
 	offset += 8;
 
-	i = 0;
-	while (i++ < count) {
+	for (i = 0; i < count; i++) {
 		proto_tree_add_item(tree, hf_afp_spotlight_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
 		offset += 16;
 	}
@@ -4096,16 +4093,15 @@ spotlight_uuid(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
 static gint
 spotlight_float(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
 {
-	gint count, i;
+	guint count, i;
 	guint64 query_data64;
 	gdouble fval;
 
 	query_data64 = spotlight_ntoh64(tvb, offset, encoding);
-	count = query_data64 >> 32;
+	count = (guint)(query_data64 >> 32);
 	offset += 8;
 
-	i = 0;
-	while (i++ < count) {
+	for (i = 0; i < count; i++) {
 		fval = spotlight_ntohieee_double(tvb, offset, encoding);
 		proto_tree_add_text(tree, tvb, offset, 8, "float: %f", fval);
 		offset += 8;
@@ -4117,15 +4113,15 @@ spotlight_float(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
 static gint
 spotlight_CNID_array(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
 {
-	gint count;
+	guint count;
 	guint64 query_data64;
 	guint16 unknown1;
 	guint32 unknown2;
 
 	query_data64 = spotlight_ntoh64(tvb, offset, encoding);
-	count = query_data64 & 0xffff;
+	count = (guint)(query_data64 & 0xffff);
 	unknown1 = (query_data64 & 0xffff0000) >> 16;
-	unknown2 = query_data64 >> 32;
+	unknown2 = (guint32)(query_data64 >> 32);
 
 	proto_tree_add_text(tree, tvb, offset + 2, 2, "unknown1: 0x%04" G_GINT16_MODIFIER "x",
 		unknown1);
@@ -4198,7 +4194,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint64 query_type;
 	guint64 complex_query_type;
 	guint unicode_encoding;
-	guint8 mark_exists;
+	gboolean mark_exists;
 
 	proto_item *item_query;
 	proto_tree *sub_tree;
@@ -4215,7 +4211,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	 */
 	while ((offset < (toc_offset - 8)) && (count > 0)) {
 		query_data64 = spotlight_ntoh64(tvb, offset, encoding);
-		query_length = (query_data64 & 0xffff) * 8;
+		query_length = ((gint)query_data64 & 0xffff) * 8;
 		if (query_length == 0) {
 			/* XXX - report this as an error */
 			break;
@@ -4241,7 +4237,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			case SQ_CPX_TYPE_STRING:
 				subquery_count = 1;
 				query_data64 = spotlight_ntoh64(tvb, offset + 8, encoding);
-				query_length = (query_data64 & 0xffff) * 8;
+				query_length = ((gint)query_data64 & 0xffff) * 8;
 				item_query = proto_tree_add_text(tree, tvb, offset, query_length + 8,
 								 "%s, toc index: %u, string: '%s'",
 								 spotlight_get_cpx_qtype_string(complex_query_type),
@@ -4258,7 +4254,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 				subquery_count = 1;
 				query_data64 = spotlight_ntoh64(tvb, offset + 8, encoding);
-				query_length = (query_data64 & 0xffff) * 8;
+				query_length = ((gint)query_data64 & 0xffff) * 8;
 
 				unicode_encoding = spotlight_get_utf16_string_encoding(tvb, offset + 16, query_length - 8, encoding);
 				mark_exists = (unicode_encoding & ENC_UTF_16);
