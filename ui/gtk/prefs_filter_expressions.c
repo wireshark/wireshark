@@ -75,7 +75,7 @@ enable_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
     fe->enabled = !fe->enabled;
 
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, ENABLED_COLUMN,
-	fe->enabled, -1);
+            fe->enabled, -1);
 
     gtk_tree_path_free(path);
 } /* visible_toggled */
@@ -97,8 +97,7 @@ filter_expressions_prefs_show(void) {
     GtkTreeIter        first_iter;
     gint               first_row = TRUE;
     struct filter_expression *fe;
-    const gchar       *column_titles[] = {"Enabled", "Label",
-					  "Filter Expression"};
+    const gchar       *column_titles[] = {"Enabled", "Label", "Filter Expression"};
 
     /* Container for each row of widgets */
     main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
@@ -111,35 +110,34 @@ filter_expressions_prefs_show(void) {
     gtk_box_pack_start(GTK_BOX(main_vb), list_vb, TRUE, TRUE, 0);
 
     list_lb = gtk_label_new(("[The first list entry will be displayed as the "
-	"first button right of the Save button - Drag and drop entries to "
-	"change column order]"));
+                "first button right of the Save button - Drag and drop entries to "
+                "change column order]"));
     gtk_widget_show(list_lb);
     gtk_box_pack_start(GTK_BOX(list_vb), list_lb, FALSE, FALSE, 0);
 
     list_sc = scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(list_sc),
-	GTK_SHADOW_IN);
+            GTK_SHADOW_IN);
     gtk_box_pack_start(GTK_BOX(list_vb), list_sc, TRUE, TRUE, 0);
     gtk_widget_show(list_sc);
 
     store = gtk_list_store_new(N_COLUMN,
-			       G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING,
-			       G_TYPE_POINTER);
+            G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING,
+            G_TYPE_POINTER);
 
     column_l = tree_view_new(GTK_TREE_MODEL(store));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(column_l), TRUE);
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(column_l), FALSE);
     gtk_tree_view_set_reorderable(GTK_TREE_VIEW(column_l), TRUE);
     gtk_widget_set_tooltip_text(column_l, "Click on a label or expression to "
-	"change its name.\nDrag an item to change its order.\nTick 'Enable' "
-	"to enable the filter in the buttons.");
+            "change its name.\nDrag an item to change its order.\nTick 'Enable' "
+            "to enable the filter in the buttons.");
 
     /* Enabled button */
     renderer = gtk_cell_renderer_toggle_new();
     g_signal_connect(renderer, "toggled", G_CALLBACK(enable_toggled), store);
     column = gtk_tree_view_column_new_with_attributes(
-	column_titles[ENABLED_COLUMN], renderer, "active", ENABLED_COLUMN,
-	NULL);
+            column_titles[ENABLED_COLUMN], renderer, "active", ENABLED_COLUMN, NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(column_l), column);
 
@@ -147,9 +145,9 @@ filter_expressions_prefs_show(void) {
     renderer = gtk_cell_renderer_text_new();
     g_object_set(G_OBJECT(renderer), "editable", TRUE, NULL);
     g_signal_connect(renderer, "edited",
-	G_CALLBACK(filter_expressions_label_changed_cb), GTK_TREE_MODEL(store));
+            G_CALLBACK(filter_expressions_label_changed_cb), GTK_TREE_MODEL(store));
     column = gtk_tree_view_column_new_with_attributes(
-	column_titles[LABEL_COLUMN], renderer, "text", LABEL_COLUMN, NULL);
+            column_titles[LABEL_COLUMN], renderer, "text", LABEL_COLUMN, NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(column_l), column);
 
@@ -157,11 +155,10 @@ filter_expressions_prefs_show(void) {
     renderer = gtk_cell_renderer_text_new();
     g_object_set(G_OBJECT(renderer), "editable", TRUE, NULL);
     g_signal_connect(renderer, "edited",
-	G_CALLBACK(filter_expressions_expression_changed_cb),
-	GTK_TREE_MODEL(store));
+            G_CALLBACK(filter_expressions_expression_changed_cb),
+            GTK_TREE_MODEL(store));
     column = gtk_tree_view_column_new_with_attributes(
-	column_titles[EXPRESSION_COLUMN], renderer, "text", EXPRESSION_COLUMN,
-	NULL);
+            column_titles[EXPRESSION_COLUMN], renderer, "text", EXPRESSION_COLUMN, NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(column_l), column);
 
@@ -174,19 +171,19 @@ filter_expressions_prefs_show(void) {
 
     fe = *pfilter_expression_head;
     while (fe != NULL) {
-	fe->index = -1;
+        fe->index = -1;
         gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
-	    ENABLED_COLUMN, fe->enabled,
-	    LABEL_COLUMN, fe->label,
-	    EXPRESSION_COLUMN, fe->expression,
-	    DATA_COLUMN, fe,
-	    -1);
+                ENABLED_COLUMN, fe->enabled,
+                LABEL_COLUMN, fe->label,
+                EXPRESSION_COLUMN, fe->expression,
+                DATA_COLUMN, fe,
+                -1);
 
         if (first_row) {
             first_iter = iter;
             first_row = FALSE;
         }
-	fe = fe->next;
+        fe = fe->next;
     }
     g_object_unref(G_OBJECT(store));
 
@@ -203,16 +200,16 @@ filter_expressions_prefs_show(void) {
 
     add_bt = gtk_button_new_from_stock(GTK_STOCK_ADD);
     g_signal_connect(add_bt, "clicked",
-	G_CALLBACK(filter_expressions_list_new_cb), column_l);
+            G_CALLBACK(filter_expressions_list_new_cb), column_l);
     gtk_box_pack_start(GTK_BOX(add_remove_hb), add_bt, FALSE, FALSE, 0);
     gtk_widget_set_tooltip_text(add_bt,
-	"Add a new row at the end of the list.");
+            "Add a new row at the end of the list.");
     gtk_widget_show(add_bt);
 
     /* Remove button */
     remove_bt = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
     g_signal_connect(remove_bt, "clicked",
-	G_CALLBACK(filter_expressions_list_remove_cb), column_l);
+            G_CALLBACK(filter_expressions_list_remove_cb), column_l);
     gtk_box_pack_start(GTK_BOX(add_remove_hb), remove_bt, FALSE, FALSE, 0);
     gtk_widget_set_tooltip_text(remove_bt, "Remove the selected row.");
     gtk_widget_show(remove_bt);
@@ -220,12 +217,10 @@ filter_expressions_prefs_show(void) {
     /* select the first menu list row.             */
     /*  Triggers call to column_list_select_cb().  */
     if (first_row == FALSE)
-	gtk_tree_selection_select_iter(sel, &first_iter);
+        gtk_tree_selection_select_iter(sel, &first_iter);
 
-    g_object_set_data(G_OBJECT(main_vb), E_FILTER_EXPRESSION_COLUMNL,
-	column_l);
-    g_object_set_data(G_OBJECT(main_vb), E_FILTER_EXPRESSION_STORE,
-	store);
+    g_object_set_data(G_OBJECT(main_vb), E_FILTER_EXPRESSION_COLUMNL, column_l);
+    g_object_set_data(G_OBJECT(main_vb), E_FILTER_EXPRESSION_STORE, store);
 
     return(main_vb);
 }
@@ -241,7 +236,7 @@ filter_expressions_list_remove_cb(GtkWidget *w _U_, gpointer data)
 
     sel = gtk_tree_view_get_selection(column_l);
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
-	return;
+        return;
 
     gtk_tree_model_get(model, &iter, DATA_COLUMN, &fe, -1);
     fe->deleted = TRUE;
@@ -265,11 +260,11 @@ filter_expressions_list_new_cb(GtkWidget *w _U_, gpointer data _U_)
 
     model = gtk_tree_view_get_model(fe_l);
     gtk_list_store_insert_with_values(GTK_LIST_STORE(model), &iter, G_MAXINT,
-	ENABLED_COLUMN, fe->enabled,
-	LABEL_COLUMN, fe->label,
-	EXPRESSION_COLUMN, fe->expression,
-	DATA_COLUMN, fe,
-	-1);
+            ENABLED_COLUMN, fe->enabled,
+            LABEL_COLUMN, fe->label,
+            EXPRESSION_COLUMN, fe->expression,
+            DATA_COLUMN, fe,
+            -1);
 
     /* Triggers call to column_list_select_cb()   */
     gtk_tree_selection_select_iter(gtk_tree_view_get_selection(fe_l), &iter);
@@ -301,7 +296,7 @@ filter_expressions_expression_changed_cb(GtkCellRendererText *cell _U_, const gc
 
     gtk_tree_model_get_iter(model, &iter, path);
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, EXPRESSION_COLUMN,
-	new_expression, -1);
+            new_expression, -1);
 
     gtk_tree_model_get(model, &iter, DATA_COLUMN, &fe, -1);
     if (fe != NULL) {
@@ -322,8 +317,7 @@ filter_expressions_label_changed_cb(GtkCellRendererText *cell _U_, const gchar *
     GtkTreeIter   iter;
 
     gtk_tree_model_get_iter(model, &iter, path);
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, LABEL_COLUMN, new_label,
-	-1);
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, LABEL_COLUMN, new_label, -1);
 
     gtk_tree_model_get(model, &iter, DATA_COLUMN, &fe, -1);
     if (fe != NULL) {
@@ -346,21 +340,21 @@ filter_expressions_prefs_fetch(GtkWidget *w)
     GtkListStore *store;
     struct filter_expression *fe;
     gint          first_row = TRUE;
-    gint	  indx = 0;
+    gint          indx = 0;
 
     column_l = (GtkTreeView *)g_object_get_data(G_OBJECT(w),
-	E_FILTER_EXPRESSION_COLUMNL);
+            E_FILTER_EXPRESSION_COLUMNL);
     model = gtk_tree_view_get_model(column_l);
     store = (GtkListStore *)g_object_get_data(G_OBJECT(w),
-	E_FILTER_EXPRESSION_STORE);
+            E_FILTER_EXPRESSION_STORE);
 
     /* Record the order of the items in the list.  */
     items_left = gtk_tree_model_get_iter_first(model, &iter);
     while (items_left) {
         gtk_tree_model_get(model, &iter, DATA_COLUMN, &fe, -1);
         if (fe != NULL)
-	    fe->index = indx++;
-	items_left = gtk_tree_model_iter_next (model, &iter);
+            fe->index = indx++;
+        items_left = gtk_tree_model_iter_next (model, &iter);
     }
 
     filter_expression_reinit(FILTER_EXPRESSION_REINIT_DESTROY | FILTER_EXPRESSION_REINIT_CREATE);
@@ -368,17 +362,30 @@ filter_expressions_prefs_fetch(GtkWidget *w)
     gtk_list_store_clear(store);
     fe = *pfilter_expression_head;
     while (fe != NULL) {
-	fe->index = -1;
+        fe->index = -1;
         gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
-	    ENABLED_COLUMN, fe->enabled,
-	    LABEL_COLUMN, fe->label,
-	    EXPRESSION_COLUMN, fe->expression,
-	    DATA_COLUMN, fe,
-	    -1);
+                ENABLED_COLUMN, fe->enabled,
+                LABEL_COLUMN, fe->label,
+                EXPRESSION_COLUMN, fe->expression,
+                DATA_COLUMN, fe,
+                -1);
 
         if (first_row) {
             first_row = FALSE;
         }
-	fe = fe->next;
+        fe = fe->next;
     }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
