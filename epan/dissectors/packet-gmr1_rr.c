@@ -38,7 +38,7 @@
 #include <epan/packet.h>
 
 #include "packet-gmr1_common.h"
-
+#include "packet-gsm_sms.h"
 
 /* GMR-1 RR and CCCH proto */
 static int proto_gmr1_rr = -1;
@@ -610,14 +610,6 @@ static const value_string rr_pos_display_flag_vals[] = {
 	{ 0, NULL }
 };
 
-extern int
-gsm_sms_char_7bit_unpack(
-	unsigned int offset, unsigned int in_length, unsigned int out_length,
-	const guint8 *input, unsigned char *output);
-
-extern gchar *
-gsm_sms_chars_to_utf8(const unsigned char* src, int len);
-
 GMR1_IE_FUNC(gmr1_ie_rr_pos_display)
 {
 	const unsigned char *txt_raw;
@@ -638,8 +630,8 @@ GMR1_IE_FUNC(gmr1_ie_rr_pos_display)
 	out_len = gsm_sms_char_7bit_unpack(0, 11, 12, txt_packed, txt_unpacked);
 
 	/* Display it */
-	proto_tree_add_string(tree, hf_rr_pos_display_text,
-	                      tvb, offset, 11, gsm_sms_chars_to_utf8(txt_unpacked, out_len));
+	proto_tree_add_unicode_string(tree, hf_rr_pos_display_text,
+	                              tvb, offset, 11, gsm_sms_chars_to_utf8(txt_unpacked, out_len));
 
 	return 11;
 }
