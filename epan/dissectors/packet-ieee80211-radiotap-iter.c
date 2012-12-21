@@ -67,6 +67,13 @@ static const struct ieee80211_radiotap_namespace radiotap_ns = {
 	0
 };
 
+/*
+ * Sanity check.
+ */
+#define ITERATOR_VALID(iterator, size) \
+    (((iterator)->_arg + (size) - (unsigned char *)((iterator)->_rtheader)) <= \
+        (ptrdiff_t)(iterator)->_max_length)
+
 /**
  * ieee80211_radiotap_iterator_init - radiotap parser iterator initialization
  * @iterator: radiotap_iterator to initialize
@@ -148,9 +155,7 @@ int ieee80211_radiotap_iterator_init(
 			 * stated radiotap header length
 			 */
 
-			if ((unsigned long)iterator->_arg -
-			    (unsigned long)iterator->_rtheader >
-			    (unsigned long)iterator->_max_length)
+			if (!ITERATOR_VALID(iterator, 0))
 				return -EINVAL;
 		}
 
@@ -302,8 +307,7 @@ int ieee80211_radiotap_iterator_next(
 		 * multibyte elements from the radiotap area.
 		 */
 
-		pad = ((unsigned long)iterator->_arg -
-		       (unsigned long)iterator->_rtheader) & (align - 1);
+		pad = (int)((iterator->_arg - (unsigned char *)iterator->_rtheader) & (align - 1));
 
 		if (pad)
 			iterator->_arg += align - pad;
@@ -311,9 +315,7 @@ int ieee80211_radiotap_iterator_next(
 		if (iterator->_arg_index % 32 == IEEE80211_RADIOTAP_VENDOR_NAMESPACE) {
 			int vnslen;
 
-			if ((unsigned long)iterator->_arg + size -
-			    (unsigned long)iterator->_rtheader >
-			    (unsigned long)iterator->_max_length)
+			if (!ITERATOR_VALID(iterator, size))
 				return -EINVAL;
 
 			oui = (*iterator->_arg << 16) |
@@ -347,9 +349,7 @@ int ieee80211_radiotap_iterator_next(
 		 * max_length on the last arg, never exceeding it.
 		 */
 
-		if ((unsigned long)iterator->_arg -
-		    (unsigned long)iterator->_rtheader >
-		    (unsigned long)iterator->_max_length)
+		if (!ITERATOR_VALID(iterator, 0))
 			return -EINVAL;
 
 		/* these special ones are valid in each bitmap word */
