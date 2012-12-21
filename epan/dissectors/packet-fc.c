@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -738,8 +738,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      * will use ip addresses instead and still work.
      */
     if(!is_ifcp){
-        SET_ADDRESS (&pinfo->dst, AT_FC, 3, tvb_get_ptr(tvb,offset+1,3));
-        SET_ADDRESS (&pinfo->src, AT_FC, 3, tvb_get_ptr(tvb,offset+5,3));
+        TVB_SET_ADDRESS (&pinfo->dst, AT_FC, tvb, offset+1, 3);
+        TVB_SET_ADDRESS (&pinfo->src, AT_FC, tvb, offset+5, 3);
         pinfo->srcport=0;
         pinfo->destport=0;
     }
@@ -764,7 +764,6 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     /* set up a conversation and conversation data */
     /* TODO treat the fc address  s_id==00.00.00 as a wildcard matching anything */
     conversation=find_or_create_conversation(pinfo);
-    fchdr.conversation=conversation;
     fc_conv_data=conversation_get_proto_data(conversation, proto_fc);
     if(!fc_conv_data){
         fc_conv_data=se_alloc(sizeof(fc_conv_data_t));

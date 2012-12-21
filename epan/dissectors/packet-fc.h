@@ -20,7 +20,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifndef __PACKET_FC_H_
@@ -142,7 +142,6 @@ typedef struct _fc_hdr {
     guint8 r_ctl;
     guint8 cs_ctl;
     itlq_nexus_t *itlq;
-    conversation_t *conversation;
     guint32 relative_offset;
 } fc_hdr;
 
