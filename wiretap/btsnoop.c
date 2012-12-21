@@ -355,6 +355,7 @@ static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
     struct btsnooprec_hdr *rec_hdr)
 {
     gint64 ts_usec;
+    gint64 nsecs;
     guint8 flags = 0;
 
     if (!btsnoop_lookup_flags(*pd, pseudo_header->p2p.sent, &flags)) {
@@ -362,7 +363,8 @@ static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
         return FALSE;
     }
 
-    ts_usec  = ((gint64) phdr->ts.secs * 1000000) + ((gint64) phdr->ts.nsecs / 1000);
+    nsecs = phdr->ts.nsecs;
+    ts_usec  = ((gint64) phdr->ts.secs * 1000000) + (nsecs / 1000);
     ts_usec += KUnixTimeBase;
 
     rec_hdr->flags = GUINT32_TO_BE(flags);
@@ -510,4 +512,3 @@ gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err)
 
     return TRUE;
 }
-
