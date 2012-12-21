@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifndef __ADDRESS_H__
@@ -38,37 +38,77 @@ extern "C" {
 /* also be included in address_to_str_buf defined in to_str.c, for presentation purposes */
 
 typedef enum {
-  AT_NONE,		/* no link-layer address */
-  AT_ETHER,		/* MAC (Ethernet, 802.x, FDDI) address */
-  AT_IPv4,		/* IPv4 */
-  AT_IPv6,		/* IPv6 */
-  AT_IPX,		/* IPX */
-  AT_SNA,		/* SNA */
-  AT_ATALK,		/* Appletalk DDP */
-  AT_VINES,		/* Banyan Vines */
-  AT_OSI,		/* OSI NSAP */
-  AT_ARCNET,		/* ARCNET */
-  AT_FC,		/* Fibre Channel */
-  AT_SS7PC,		/* SS7 Point Code */
-  AT_STRINGZ,		/* null-terminated string */
-  AT_EUI64,		/* IEEE EUI-64 */
-  AT_URI,		/* URI/URL/URN */
-  AT_TIPC,		/* TIPC Address Zone,Subnetwork,Processor */
-  AT_IB,		/* Infiniband GID/LID */
-  AT_USB		/* USB Device address
-			 * (0xffffffff represents the host) */
+  AT_NONE,               /* no link-layer address */
+  AT_ETHER,              /* MAC (Ethernet, 802.x, FDDI) address */
+  AT_IPv4,               /* IPv4 */
+  AT_IPv6,               /* IPv6 */
+  AT_IPX,                /* IPX */
+  AT_SNA,                /* SNA */
+  AT_ATALK,              /* Appletalk DDP */
+  AT_VINES,              /* Banyan Vines */
+  AT_OSI,                /* OSI NSAP */
+  AT_ARCNET,             /* ARCNET */
+  AT_FC,                 /* Fibre Channel */
+  AT_SS7PC,              /* SS7 Point Code */
+  AT_STRINGZ,            /* null-terminated string */
+  AT_EUI64,              /* IEEE EUI-64 */
+  AT_URI,                /* URI/URL/URN */
+  AT_TIPC,               /* TIPC Address Zone,Subnetwork,Processor */
+  AT_IB,                 /* Infiniband GID/LID */
+  AT_USB,                /* USB Device address
+                          * (0xffffffff represents the host) */
+  AT_AX25,               /* AX.25 */
+  AT_IEEE_802_15_4_SHORT /* IEEE 802.15.4 16-bit short address */
+                         /* (the long addresses are EUI-64's */
 } address_type;
 
 typedef struct _address {
   address_type  type;		/* type of address */
+  int           hf;		/* the specific field that this addr is */
   int           len;		/* length of address, in bytes */
   const void	*data;		/* pointer to address data */
 } address;
 
 #define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) { \
-	(addr)->type = (addr_type); \
-	(addr)->len = (addr_len); \
 	(addr)->data = (addr_data); \
+	(addr)->type = (addr_type); \
+	(addr)->hf   = -1;          \
+	(addr)->len  = (addr_len);  \
+	}
+
+/* Same as SET_ADDRESS but it takes a TVB and an offset instead of
+ * (frequently) a pointer into a TVB.  This allow us to get the tvb_get_ptr()
+ * call out of the dissectors.
+ *
+ * Call tvb_get_ptr() first in case it throws an exception: then we won't
+ * modify the address at all.
+ */
+#define	TVB_SET_ADDRESS(addr, addr_type, tvb, offset, addr_len) { \
+	(addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
+	(addr)->type = (addr_type); \
+	(addr)->hf   = -1;          \
+	(addr)->len  = (addr_len);  \
+	}
+
+#define	SET_ADDRESS_HF(addr, addr_type, addr_len, addr_data, addr_hf) { \
+	(addr)->data = (addr_data); \
+	(addr)->type = (addr_type); \
+	(addr)->hf   = (addr_hf);   \
+	(addr)->len  = (addr_len);  \
+	}
+
+/* Same as SET_ADDRESS_HF but it takes a TVB and an offset instead of
+ * (frequently) a pointer into a TVB.  This allow us to get the tvb_get_ptr()
+ * call out of the dissectors.
+ *
+ * Call tvb_get_ptr() first in case it throws an exception: then we won't
+ * modify the address at all.
+ */
+#define	TVB_SET_ADDRESS_HF(addr, addr_type, tvb, offset, addr_len, addr_hf) { \
+	(addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
+	(addr)->type = (addr_type); \
+	(addr)->hf   = (addr_hf);   \
+	(addr)->len  = (addr_len);  \
 	}
 
 /*
@@ -110,15 +150,26 @@ typedef struct _address {
 	guint8 *COPY_ADDRESS_data; \
 	(to)->type = (from)->type; \
 	(to)->len = (from)->len; \
+	(to)->hf = (from)->hf; \
 	COPY_ADDRESS_data = g_malloc((from)->len); \
 	memcpy(COPY_ADDRESS_data, (from)->data, (from)->len); \
 	(to)->data = COPY_ADDRESS_data; \
 	}
 
+/* Perform a shallow copy of the address (both addresses point to the same
+ * memory location).
+ */
+#define COPY_ADDRESS_SHALLOW(to, from) \
+	(to)->type = (from)->type; \
+	(to)->len = (from)->len; \
+	(to)->hf = (from)->hf; \
+	(to)->data = (from)->data;
+
 #define SE_COPY_ADDRESS(to, from) { \
 	guint8 *SE_COPY_ADDRESS_data; \
 	(to)->type = (from)->type; \
 	(to)->len = (from)->len; \
+	(to)->hf = (from)->hf; \
 	SE_COPY_ADDRESS_data = se_alloc((from)->len); \
 	memcpy(SE_COPY_ADDRESS_data, (from)->data, (from)->len); \
 	(to)->data = SE_COPY_ADDRESS_data; \
