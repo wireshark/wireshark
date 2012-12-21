@@ -64,7 +64,7 @@ include Makefile.common
 wireshark_OBJECTS = $(wireshark_SOURCES:.c=.obj)
 tshark_OBJECTS = $(tshark_SOURCES:.c=.obj)
 rawshark_OBJECTS = $(rawshark_SOURCES:.c=.obj)
-text2pcap_OBJECTS = $(text2pcap_SOURCES:.c=.obj)
+###text2pcap_OBJECTS = $(text2pcap_SOURCES:.c=.obj)
 ###mergecap_OBJECTS = $(mergecap_SOURCES:.c=.obj)
 editcap_OBJECTS = $(editcap_SOURCES:.c=.obj)
 capinfos_OBJECTS = $(capinfos_SOURCES:.c=.obj)
@@ -362,10 +362,10 @@ reordercap.exe	: $(LIBS_CHECK)  config.h reordercap.obj wsutil\libwsutil.lib wir
 	mt.exe -nologo -manifest "reordercap.exe.manifest" -outputresource:reordercap.exe;1
 !ENDIF
 
-text2pcap.exe	: $(LIBS_CHECK) config.h $(text2pcap_OBJECTS) text2pcap-scanner.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\text2pcap.res
+text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj pcapio.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(text2pcap_OBJECTS) text2pcap-scanner.obj $(text2pcap_LIBS) image\text2pcap.res
+		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj pcapio.obj $(text2pcap_LIBS) image\text2pcap.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "text2pcap.exe.manifest" -outputresource:text2pcap.exe;1
