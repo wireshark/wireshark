@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>537</width>
-    <height>299</height>
+    <width>549</width>
+    <height>257</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -151,24 +151,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
+         <width>60</width>
          <height>20</height>
         </size>
        </property>
@@ -177,7 +160,7 @@
      <item>
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;Time format: [YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
@@ -227,8 +210,6 @@
   </layout>
   <zorder>buttonBox</zorder>
   <zorder>unshiftAllButton</zorder>
-  <zorder>errorLabel</zorder>
-  <zorder>horizontalSpacer_5</zorder>
  </widget>
  <customwidgets>
   <customwidget>
