@@ -522,21 +522,20 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int q;
 	proto_item	*ti;
 	proto_tree	*clv_tree;
-	int 		adj;
 
 	while ( len > 0 ) {
 		code = tvb_get_guint8(tvb, offset);
 		offset += 1;
+		len -= 1;
 
 		length = tvb_get_guint8(tvb, offset);
 		offset += 1;
+		len -= 1;
 
-		adj = (sizeof(code) + sizeof(length) + length);
-		len -= adj;
-		if ( len < 0 ) {
+		if ( len < length ) {
 			isis_dissect_unknown(tvb, tree, offset,
 				"Short CLV header (%d vs %d)",
-				adj, len + adj );
+				length, len );
 			return;
 		}
 		q = 0;
@@ -576,5 +575,6 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 #endif
 		}
 		offset += length;
+		len -= length;
 	}
 }
