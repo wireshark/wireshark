@@ -186,7 +186,9 @@ static int identify_ascii = FALSE;
 /* This is where we store the packet currently being built */
 #define MAX_PACKET 64000
 static unsigned char packet_buf[MAX_PACKET];
-static unsigned long curr_offset = 0;
+static unsigned long header_length;
+static unsigned long ip_offset;
+static unsigned long curr_offset;
 static unsigned long max_offset = MAX_PACKET;
 static unsigned long packet_start = 0;
 static void start_new_packet (void);
@@ -395,7 +397,24 @@ write_byte (const char *str)
     packet_buf[curr_offset] = (unsigned char) num;
     curr_offset ++;
     if (curr_offset >= max_offset) /* packet full */
-	    start_new_packet();
+        start_new_packet();
+}
+
+/*----------------------------------------------------------------------
+ * Write a number of bytes into current packet
+ */
+
+static void
+write_bytes(const char bytes[], unsigned long nbytes)
+{
+    unsigned long i;
+
+    if (curr_offset + nbytes < max_offset) {
+        for (i = 0; i < nbytes; i++) {
+            packet_buf[curr_offset] = bytes[i];
+            curr_offset++;
+        }
+    }
 }
 
 /*----------------------------------------------------------------------
@@ -555,173 +574,172 @@ number_of_padding_bytes (unsigned long length)
 static void
 write_current_packet (void)
 {
-    int length = 0;
-    int proto_length = 0;
-    int ip_length = 0;
-    int eth_trailer_length = 0;
-    int i, padding_length;
-    guint32 u;
+    unsigned long length = 0;
+    guint16 padding_length;
     struct pcaprec_hdr ph;
 
-    if (curr_offset > 0) {
+    if (curr_offset > header_length) {
         /* Write the packet */
 
         /* Compute packet length */
         length = curr_offset;
-        if (hdr_data_chunk) { length += sizeof(HDR_DATA_CHUNK) + number_of_padding_bytes(curr_offset); }
-        if (hdr_sctp) { length += sizeof(HDR_SCTP); }
-        if (hdr_udp) { length += sizeof(HDR_UDP); proto_length = length; }
-        if (hdr_tcp) { length += sizeof(HDR_TCP); proto_length = length; }
-        if (hdr_ip) { length += sizeof(HDR_IP); ip_length = length; }
-        if (hdr_ethernet) {
-            length += sizeof(HDR_ETHERNET);
-            /* Pad trailer */
-            if (length < 60) {
-                eth_trailer_length = 60 - length;
-                length = 60;
-            }
-        }
 
-        /* Write PCAP header */
-        ph.ts_sec = (guint32)ts_sec;
-        ph.ts_usec = ts_usec;
-        if (ts_fmt == NULL) { ts_usec++; }	/* fake packet counter */
-        ph.incl_len = length;
-        ph.orig_len = length;
-        if (fwrite(&ph, sizeof(ph), 1, output_file) != 1)
-            goto write_current_packet_err;
+        /* Reset curr_offset, since we now write the headers */
+        curr_offset = 0;
 
         /* Write Ethernet header */
         if (hdr_ethernet) {
             HDR_ETHERNET.l3pid = g_htons(hdr_ethernet_proto);
-            if (fwrite(&HDR_ETHERNET, sizeof(HDR_ETHERNET), 1, output_file) != 1)
-                goto write_current_packet_err;
+            write_bytes((const char *)&HDR_ETHERNET, sizeof(HDR_ETHERNET));
         }
 
         /* Write IP header */
         if (hdr_ip) {
-            HDR_IP.packet_length = g_htons(ip_length);
+            HDR_IP.packet_length = g_htons(length - ip_offset);
             HDR_IP.protocol = (guint8) hdr_ip_proto;
             HDR_IP.hdr_checksum = 0;
             HDR_IP.hdr_checksum = in_checksum(&HDR_IP, sizeof(HDR_IP));
-            if (fwrite(&HDR_IP, sizeof(HDR_IP), 1, output_file) != 1)
-                goto write_current_packet_err;
+            write_bytes((const char *)&HDR_IP, sizeof(HDR_IP));
         }
-
-        /* initialize pseudo header for checksum calculation */
-        pseudoh.src_addr    = HDR_IP.src_addr;
-        pseudoh.dest_addr   = HDR_IP.dest_addr;
-        pseudoh.zero        = 0;
-        pseudoh.protocol    = (guint8) hdr_ip_proto;
-        pseudoh.length      = g_htons(proto_length);
 
         /* Write UDP header */
         if (hdr_udp) {
             guint16 x16;
+            guint32 u;
+
+            /* initialize pseudo header for checksum calculation */
+            pseudoh.src_addr    = HDR_IP.src_addr;
+            pseudoh.dest_addr   = HDR_IP.dest_addr;
+            pseudoh.zero        = 0;
+            pseudoh.protocol    = (guint8) hdr_ip_proto;
+            pseudoh.length      = g_htons(length - header_length + sizeof(HDR_UDP));
+            /* initialize the UDP header */
             HDR_UDP.source_port = g_htons(hdr_src_port);
             HDR_UDP.dest_port = g_htons(hdr_dest_port);
-            HDR_UDP.length = g_htons(proto_length);
-
-            /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
+            HDR_UDP.length = g_htons(length - header_length + sizeof(HDR_UDP));
             HDR_UDP.checksum = 0;
+            /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
             x16  = in_checksum(&pseudoh, sizeof(pseudoh));
             u    = g_ntohs(x16);
             x16  = in_checksum(&HDR_UDP, sizeof(HDR_UDP));
             u   += g_ntohs(x16);
-            x16  = in_checksum(packet_buf, curr_offset);
+            x16  = in_checksum(packet_buf + header_length, length - header_length);
             u   += g_ntohs(x16);
             x16  = (u & 0xffff) + (u>>16);
             HDR_UDP.checksum = g_htons(x16);
             if (HDR_UDP.checksum == 0) /* differentiate between 'none' and 0 */
-                    HDR_UDP.checksum = g_htons(1);
-
-            if (fwrite(&HDR_UDP, sizeof(HDR_UDP), 1, output_file) != 1)
-                goto write_current_packet_err;
+                HDR_UDP.checksum = g_htons(1);
+            write_bytes((const char *)&HDR_UDP, sizeof(HDR_UDP));
         }
 
         /* Write TCP header */
         if (hdr_tcp) {
             guint16 x16;
+            guint32 u;
+
+             /* initialize pseudo header for checksum calculation */
+            pseudoh.src_addr    = HDR_IP.src_addr;
+            pseudoh.dest_addr   = HDR_IP.dest_addr;
+            pseudoh.zero        = 0;
+            pseudoh.protocol    = (guint8) hdr_ip_proto;
+            pseudoh.length      = g_htons(length - header_length + sizeof(HDR_TCP));
+            /* initialize the TCP header */
             HDR_TCP.source_port = g_htons(hdr_src_port);
             HDR_TCP.dest_port = g_htons(hdr_dest_port);
             /* HDR_TCP.seq_num already correct */
             HDR_TCP.window = g_htons(0x2000);
-
-            /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
             HDR_TCP.checksum = 0;
+            /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
             x16  = in_checksum(&pseudoh, sizeof(pseudoh));
             u    = g_ntohs(x16);
             x16  = in_checksum(&HDR_TCP, sizeof(HDR_TCP));
             u   += g_ntohs(x16);
-            x16  = in_checksum(packet_buf, curr_offset);
+            x16  = in_checksum(packet_buf + header_length, length - header_length);
             u   += g_ntohs(x16);
             x16  = (u & 0xffff) + (u>>16);
             HDR_TCP.checksum = g_htons(x16);
             if (HDR_TCP.checksum == 0) /* differentiate between 'none' and 0 */
                 HDR_TCP.checksum = g_htons(1);
+            write_bytes((const char *)&HDR_TCP, sizeof(HDR_TCP));
+            HDR_TCP.seq_num = g_ntohl(HDR_TCP.seq_num) + length - header_length;
+            HDR_TCP.seq_num = g_htonl(HDR_TCP.seq_num);
+        }
 
-            if (fwrite(&HDR_TCP, sizeof(HDR_TCP), 1, output_file) != 1)
-                goto write_current_packet_err;
+        /* Write SCTP common header */
+        if (hdr_sctp) {
+            guint32 zero = 0;
+
+            padding_length = number_of_padding_bytes(length - header_length);
+            HDR_SCTP.src_port  = g_htons(hdr_sctp_src);
+            HDR_SCTP.dest_port = g_htons(hdr_sctp_dest);
+            HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
+            HDR_SCTP.checksum  = g_htonl(0);
+            HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_SCTP, sizeof(HDR_SCTP), ~0L);
+            if (hdr_data_chunk) {
+                HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), HDR_SCTP.checksum);
+                HDR_SCTP.checksum  = crc32c((guint8 *)packet_buf + header_length, length - header_length, HDR_SCTP.checksum);
+                HDR_SCTP.checksum  = crc32c((guint8 *)&zero, padding_length, HDR_SCTP.checksum);
+            } else {
+                HDR_SCTP.checksum  = crc32c((guint8 *)packet_buf + header_length, length - header_length, HDR_SCTP.checksum);
+            }
+            HDR_SCTP.checksum = finalize_crc32c(HDR_SCTP.checksum);
+            HDR_SCTP.checksum  = g_htonl(HDR_SCTP.checksum);
+            write_bytes((const char *)&HDR_SCTP, sizeof(HDR_SCTP));
         }
 
         /* Compute DATA chunk header and append padding */
         if (hdr_data_chunk) {
             HDR_DATA_CHUNK.type   = hdr_data_chunk_type;
             HDR_DATA_CHUNK.bits   = hdr_data_chunk_bits;
-            HDR_DATA_CHUNK.length = g_htons(curr_offset + sizeof(HDR_DATA_CHUNK));
+            HDR_DATA_CHUNK.length = g_htons(length - header_length + sizeof(HDR_DATA_CHUNK));
             HDR_DATA_CHUNK.tsn    = g_htonl(hdr_data_chunk_tsn);
             HDR_DATA_CHUNK.sid    = g_htons(hdr_data_chunk_sid);
             HDR_DATA_CHUNK.ssn    = g_htons(hdr_data_chunk_ssn);
             HDR_DATA_CHUNK.ppid   = g_htonl(hdr_data_chunk_ppid);
-
-            padding_length = number_of_padding_bytes(curr_offset);
-            for (i=0; i<padding_length; i++)
-              write_byte("0");
+            write_bytes((const char *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK));
         }
 
-        /* Write SCTP header */
-        if (hdr_sctp) {
-            guint32 x32;
-            HDR_SCTP.src_port  = g_htons(hdr_sctp_src);
-            HDR_SCTP.dest_port = g_htons(hdr_sctp_dest);
-            HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
-            HDR_SCTP.checksum  = g_htonl(0);
-            HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_SCTP, sizeof(HDR_SCTP), ~0L);
-            if (hdr_data_chunk)
-              HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), HDR_SCTP.checksum);
-            /* Note: g_ntohl() macro arg may be eval'd twice so calc value before invoking macro */
-            x32 = finalize_crc32c(crc32c(packet_buf, curr_offset, HDR_SCTP.checksum));
-            HDR_SCTP.checksum  = g_htonl(x32);
+        /* Reset curr_offset, since we now write the trailers */
+        curr_offset = length;
 
-            if (fwrite(&HDR_SCTP, sizeof(HDR_SCTP), 1, output_file) != 1)
-                goto write_current_packet_err;
+        /* Write DATA chunk padding */
+        if (hdr_data_chunk && (padding_length > 0)) {
+            memset(tempbuf, 0, padding_length);
+            write_bytes((const char *)&tempbuf, padding_length);
+            length += padding_length;
         }
-
-        /* Write DATA chunk header */
-        if (hdr_data_chunk) {
-            if (fwrite(&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), 1, output_file) != 1)
-                goto write_current_packet_err;
-        }
-        /* Write packet */
-        if (fwrite(packet_buf, curr_offset, 1, output_file) != 1)
-            goto write_current_packet_err;
 
         /* Write Ethernet trailer */
-        if (hdr_ethernet && eth_trailer_length > 0) {
-            memset(tempbuf, 0, eth_trailer_length);
-            if (fwrite(tempbuf, eth_trailer_length, 1, output_file) != 1)
-                goto write_current_packet_err;
+        if (hdr_ethernet && (length < 60)) {
+            memset(tempbuf, 0, 60 - length);
+            write_bytes((const char *)&tempbuf, 60 - length);
+            length = 60;
         }
 
-        if (!quiet)
-            fprintf(stderr, "Wrote packet of %lu bytes at %u\n", curr_offset, g_ntohl(HDR_TCP.seq_num));
+        /* Write PCAP packet header */
+        ph.ts_sec = (guint32)ts_sec;
+        ph.ts_usec = ts_usec;
+        if (ts_fmt == NULL) {
+            /* fake packet counter */
+            ts_usec++;
+        }
+        ph.incl_len = length;
+        ph.orig_len = length;
+        if (fwrite(&ph, sizeof(ph), 1, output_file) != 1) {
+            goto write_current_packet_err;
+        }
+        /* Write packet */
+        if (fwrite(packet_buf, length, 1, output_file) != 1) {
+            goto write_current_packet_err;
+        }
+        if (!quiet) {
+            fprintf(stderr, "Wrote packet of %lu bytes.\n", length);
+        }
         num_packets_written ++;
     }
-    HDR_TCP.seq_num = g_ntohl(HDR_TCP.seq_num) + curr_offset;
-    HDR_TCP.seq_num = g_htonl(HDR_TCP.seq_num);
 
     packet_start += curr_offset;
-    curr_offset = 0;
+    curr_offset = header_length;
     return;
 
 write_current_packet_err:
@@ -1507,6 +1525,28 @@ main(int argc, char *argv[])
 
     write_file_header();
 
+    header_length = 0;
+    if (hdr_ethernet) {
+        header_length += sizeof(HDR_ETHERNET);
+    }
+    if (hdr_ip) {
+        ip_offset = header_length;
+        header_length += sizeof(HDR_IP);
+    }
+    if (hdr_sctp) {
+        header_length += sizeof(HDR_SCTP);
+    }
+    if (hdr_data_chunk) {
+        header_length += sizeof(HDR_DATA_CHUNK);
+    }
+    if (hdr_tcp) {
+        header_length += sizeof(HDR_TCP);
+    }
+    if (hdr_udp) {
+        header_length += sizeof(HDR_UDP);
+    }
+    curr_offset = header_length;
+
     yyin = input_file;
     yylex();
 
@@ -1517,8 +1557,8 @@ main(int argc, char *argv[])
         fprintf(stderr, "\n-------------------------\n");
     if (!quiet) {
     fprintf(stderr, "Read %ld potential packet%s, wrote %ld packet%s\n",
-            num_packets_read,    (num_packets_read==1)   ?"":"s",
-            num_packets_written, (num_packets_written==1)?"":"s");
+            num_packets_read, (num_packets_read == 1) ? "" : "s",
+            num_packets_written, (num_packets_written == 1) ? "" : "s");
     }
     return 0;
 }
