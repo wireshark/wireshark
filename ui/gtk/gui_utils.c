@@ -2030,3 +2030,66 @@ gtk_separator_new(GtkOrientation orientation)
     }
 }
 #endif /* GTK_CHECK_VERSION(3,0,0) */
+
+
+
+/* ---------------------------------
+ * ws_gtk_grid...() wrappers
+ * See gui_utils.h
+ */
+
+#if !GTK_CHECK_VERSION(3,0,0)
+
+#else  /* GTK3 */
+
+void
+ws_gtk_grid_attach(GtkGrid *grid, GtkWidget *child, gint left, gint top, gint width, gint height)
+{
+    ws_gtk_grid_attach_extended(grid, child, left, top, width, height, GTK_EXPAND|GTK_FILL, GTK_EXPAND|GTK_FILL, 0, 0);
+}
+
+void
+ws_gtk_grid_attach_extended(GtkGrid *grid, GtkWidget *child,
+                            gint left, gint top, gint width, gint height,
+                            GtkAttachOptions xoptions, GtkAttachOptions yoptions,
+                            guint xpadding, guint ypadding)
+{
+    gtk_grid_attach(grid, child, left, top, width, height);
+
+    /* XXX: On Gtk3, there's Some trickyness about EXPAND which I probably don't
+     *      really understand.
+     *      It seems that:
+     *       Default for EXPAND is "not set".
+     *         In this case "computed expand" based on any child(ren) of this widget will
+     *         affect this widget.
+     *       If EXPAND is set (either TRUE or FALSE) then the value overrides any effect from children.
+     *
+     *       This wrapper currently only sets EXPAND (to TRUE) if the GTK_FILL is specified;
+     */
+    if (xoptions & GTK_EXPAND)
+        gtk_widget_set_hexpand(child, TRUE);
+    if (yoptions & GTK_EXPAND)
+        gtk_widget_set_vexpand(child, TRUE);
+
+    /* Note: default is GTK_FILL */
+    gtk_widget_set_halign(child, (xoptions & GTK_FILL) ? GTK_ALIGN_FILL : GTK_ALIGN_CENTER);
+    gtk_widget_set_valign(child, (yoptions & GTK_FILL) ? GTK_ALIGN_FILL : GTK_ALIGN_CENTER);
+
+    if (xpadding != 0) {
+        gtk_widget_set_margin_left(child, xpadding);
+        gtk_widget_set_margin_right(child, xpadding);
+    }
+    if (ypadding != 0) {
+        gtk_widget_set_margin_top(child, ypadding);
+        gtk_widget_set_margin_bottom(child, ypadding);
+    }
+}
+
+void
+ws_gtk_grid_set_homogeneous(GtkGrid *grid, gboolean homogeneous)
+{
+    gtk_grid_set_row_homogeneous(grid, homogeneous);
+    gtk_grid_set_column_homogeneous(grid, homogeneous);
+}
+
+#endif /* GTK_CHECK_VERSION(3,0,0) */
