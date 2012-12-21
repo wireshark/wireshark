@@ -575,7 +575,7 @@ static void
 write_current_packet (void)
 {
     unsigned long length = 0;
-    guint16 padding_length;
+    guint16 padding_length = 0;
     struct pcaprec_hdr ph;
 
     if (curr_offset > header_length) {
