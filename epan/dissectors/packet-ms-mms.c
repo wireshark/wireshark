@@ -874,8 +874,9 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
     /* Tool version string */
-    if (tool_version_length > 1)
+    if (tool_version_length>1 && tool_version_length<G_MAXINT/2)
     {
+        /* we checked above that tool_version_length*2 fits into a gint */
         tool_version = tvb_get_ephemeral_unicode_string(tvb, offset, tool_version_length*2, ENC_LITTLE_ENDIAN);
 
         /* Server version string */
