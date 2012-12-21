@@ -103,7 +103,6 @@ static int hf_pres_Typed_data_type = -1;
 /*--- Included file: packet-pres-hf.c ---*/
 #line 1 "../../asn1/pres/packet-pres-hf.c"
 static int hf_pres_UD_type_PDU = -1;              /* UD_type */
-static int hf_pres_UDC_type_PDU = -1;             /* UDC_type */
 static int hf_pres_mode_selector = -1;            /* Mode_selector */
 static int hf_pres_x410_mode_parameters = -1;     /* RTORQapdu */
 static int hf_pres_normal_mode_parameters = -1;   /* T_normal_mode_parameters */
@@ -1348,25 +1347,12 @@ dissect_pres_UD_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-
-static int
-dissect_pres_UDC_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_pres_User_data(implicit_tag, tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
 /*--- PDUs ---*/
 
 static void dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_pres_UD_type(FALSE, tvb, 0, &asn1_ctx, tree, hf_pres_UD_type_PDU);
-}
-static void dissect_UDC_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_pres_UDC_type(FALSE, tvb, 0, &asn1_ctx, tree, hf_pres_UDC_type_PDU);
 }
 
 
@@ -1548,10 +1534,6 @@ void proto_register_pres(void) {
     { &hf_pres_UD_type_PDU,
       { "UD-type", "pres.UD_type",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_pres_UDC_type_PDU,
-      { "UDC-type", "pres.UDC_type",
-        FT_UINT32, BASE_DEC, VALS(pres_User_data_vals), 0,
         NULL, HFILL }},
     { &hf_pres_mode_selector,
       { "mode-selector", "pres.mode_selector",

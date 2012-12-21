@@ -9,9 +9,9 @@
 
 #.PDU
 UD-type
-UDC-type
 
 #.NO_EMIT
+UDC-type
 
 #.TYPE_RENAME
 CPA-PPDU/normal-mode-parameters	T_CPA_PPDU_normal_mode_parameters
