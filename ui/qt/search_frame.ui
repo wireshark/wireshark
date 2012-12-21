@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>SearchFrame</class>
- <widget class="QFrame" name="SearchFrame">
+ <widget class="AccordionFrame" name="SearchFrame">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -18,9 +18,6 @@
   </property>
   <property name="frameShadow">
    <enum>QFrame::Plain</enum>
-  </property>
-  <property name="lineWidth">
-   <number>0</number>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="topMargin">
@@ -59,7 +56,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>40</width>
-       <height>5</height>
+       <height>10</height>
       </size>
      </property>
     </spacer>
@@ -101,7 +98,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>40</width>
-       <height>5</height>
+       <height>10</height>
       </size>
      </property>
     </spacer>
@@ -155,6 +152,12 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>AccordionFrame</class>
+   <extends>QFrame</extends>
+   <header>accordion_frame.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>SyntaxLineEdit</class>
    <extends>QLineEdit</extends>
