@@ -890,6 +890,7 @@ if(BUILD_text2pcap)
 	)
 	set(text2pcap_CLEAN_FILES
 		text2pcap.c
+		pcapio.c
 	)
 	set(text2pcap_FILES
 		${text2pcap_CLEAN_FILES}

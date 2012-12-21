@@ -133,6 +133,7 @@
 # include "wsutil/strptime.h"
 #endif
 
+#include "pcapio.h"
 #include "text2pcap.h"
 #include "svnversion.h"
 
@@ -201,6 +202,7 @@ static int packet_preamble_len = 0;
 /* Number of packets read and written */
 static unsigned long num_packets_read = 0;
 static unsigned long num_packets_written = 0;
+static long bytes_written = 0;
 
 /* Time code of packet, derived from packet_preamble */
 static time_t ts_sec  = 0;
@@ -576,7 +578,7 @@ write_current_packet (void)
 {
     unsigned long length = 0;
     guint16 padding_length = 0;
-    struct pcaprec_hdr ph;
+    int err;
 
     if (curr_offset > header_length) {
         /* Write the packet */
@@ -715,22 +717,18 @@ write_current_packet (void)
             write_bytes((const char *)&tempbuf, 60 - length);
             length = 60;
         }
-
-        /* Write PCAP packet header */
-        ph.ts_sec = (guint32)ts_sec;
-        ph.ts_usec = ts_usec;
+        if (!libpcap_write_packet(output_file,
+                                  ts_sec, ts_usec,
+                                  length, length,
+                                  packet_buf,
+                                  &bytes_written, &err)) {
+            fprintf(stderr, "File write error [%s] : %s\n",
+                    output_filename, g_strerror(err));
+            exit(-1);
+        }
         if (ts_fmt == NULL) {
             /* fake packet counter */
             ts_usec++;
-        }
-        ph.incl_len = length;
-        ph.orig_len = length;
-        if (fwrite(&ph, sizeof(ph), 1, output_file) != 1) {
-            goto write_current_packet_err;
-        }
-        /* Write packet */
-        if (fwrite(packet_buf, length, 1, output_file) != 1) {
-            goto write_current_packet_err;
         }
         if (!quiet) {
             fprintf(stderr, "Wrote packet of %lu bytes.\n", length);
@@ -741,11 +739,6 @@ write_current_packet (void)
     packet_start += curr_offset;
     curr_offset = header_length;
     return;
-
-write_current_packet_err:
-    fprintf(stderr, "File write error [%s] : %s\n",
-            output_filename, g_strerror(errno));
-    exit(-1);
 }
 
 /*----------------------------------------------------------------------
@@ -754,19 +747,12 @@ write_current_packet_err:
 static void
 write_file_header (void)
 {
-    struct pcap_hdr fh;
+    int err;
 
-    fh.magic = PCAP_MAGIC;
-    fh.version_major = 2;
-    fh.version_minor = 4;
-    fh.thiszone = 0;
-    fh.sigfigs = 0;
-    fh.snaplen = 102400;
-    fh.network = pcap_link_type;
-
-    if (fwrite(&fh, sizeof(fh), 1, output_file) != 1) {
+    if (!libpcap_write_file_header(output_file, pcap_link_type, 102400,
+                                   FALSE, &bytes_written, &err)) {
         fprintf(stderr, "File write error [%s] : %s\n",
-                output_filename, g_strerror(errno));
+                output_filename, g_strerror(err));
         exit(-1);
     }
 }

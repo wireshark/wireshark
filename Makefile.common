@@ -159,8 +159,13 @@ rawshark_SOURCES =	\
 
 # text2pcap specifics
 text2pcap_SOURCES = \
+	pcapio.c \
 	text2pcap.c \
 	text2pcap-scanner.l
+
+text2pcap_INCLUDES = \
+	pcapio.h \
+	text2pcap.h
 
 # mergecap specifics
 mergecap_SOURCES = \
