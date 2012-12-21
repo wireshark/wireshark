@@ -718,7 +718,7 @@ write_current_packet (void)
             length = 60;
         }
         if (!libpcap_write_packet(output_file,
-                                  ts_sec, ts_usec,
+                                  (guint32)ts_sec, ts_usec,
                                   length, length,
                                   packet_buf,
                                   &bytes_written, &err)) {
