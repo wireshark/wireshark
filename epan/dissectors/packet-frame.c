@@ -788,12 +788,12 @@ proto_register_frame(void)
 
 		{ &hf_frame_pack_direction,
 		  { "Direction", "frame.packet_flags_direction",
-		    FT_UINT32, BASE_HEX, TFS(&packet_word_directions), PACKET_WORD_DIRECTION_MASK,
+		    FT_UINT32, BASE_HEX, VALS(&packet_word_directions), PACKET_WORD_DIRECTION_MASK,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_reception_type,
 		  { "Reception type", "frame.packet_flags_reception_type",
-		    FT_UINT32, BASE_DEC, TFS(&packet_word_reception_types), PACKET_WORD_RECEPTION_TYPE_MASK,
+		    FT_UINT32, BASE_DEC, VALS(&packet_word_reception_types), PACKET_WORD_RECEPTION_TYPE_MASK,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_fcs_length,
