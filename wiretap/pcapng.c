@@ -228,11 +228,14 @@ struct option {
 #define BLOCK_TYPE_SHB 0x0A0D0D0A /* Section Header Block */
 
 /* Options */
-#define OPT_EOFOPT       0
-#define OPT_COMMENT      1
-#define OPT_SHB_HARDWARE 2
-#define OPT_SHB_OS       3
-#define OPT_SHB_USERAPPL 4
+#define OPT_EOFOPT        0
+#define OPT_COMMENT       1
+#define OPT_SHB_HARDWARE  2
+#define OPT_SHB_OS        3
+#define OPT_SHB_USERAPPL  4
+#define OPT_EPB_FLAGS     2
+#define OPT_EPB_HASH      3
+#define OPT_EPB_DROPCOUNT 4
 
 /* Capture section */
 #if 0
@@ -587,14 +590,14 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 
                 /* handle option content */
                 switch (oh.option_code) {
-                    case(0): /* opt_endofopt */
+                    case(OPT_EOFOPT):
                         if (to_read != 0) {
                                 pcapng_debug1("pcapng_read_section_header_block: %u bytes after opt_endofopt", to_read);
                         }
                         /* padding should be ok here, just get out of this */
                         to_read = 0;
                         break;
-                    case(1): /* opt_comment */
+                    case(OPT_COMMENT):
                         if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                                 wblock->data.section.opt_comment = g_strndup(option_content, oh.option_length);
                                 pcapng_debug1("pcapng_read_section_header_block: opt_comment %s", wblock->data.section.opt_comment);
@@ -602,7 +605,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                                 pcapng_debug1("pcapng_read_section_header_block: opt_comment length %u seems strange", oh.option_length);
                         }
                         break;
-                    case(2): /* shb_hardware */
+                    case(OPT_SHB_HARDWARE):
                         if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                                 wblock->data.section.shb_hardware = g_strndup(option_content, oh.option_length);
                                 pcapng_debug1("pcapng_read_section_header_block: shb_hardware %s", wblock->data.section.shb_hardware);
@@ -610,7 +613,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                                 pcapng_debug1("pcapng_read_section_header_block: shb_hardware length %u seems strange", oh.option_length);
                         }
                         break;
-                    case(3): /* shb_os */
+                    case(OPT_SHB_OS):
                         if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                                 wblock->data.section.shb_os = g_strndup(option_content, oh.option_length);
                                 pcapng_debug1("pcapng_read_section_header_block: shb_os %s", wblock->data.section.shb_os);
@@ -618,7 +621,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                                 pcapng_debug2("pcapng_read_section_header_block: shb_os length %u seems strange, opt buffsize %u", oh.option_length,to_read);
                         }
                         break;
-                    case(4): /* shb_user_appl */
+                    case(OPT_SHB_USERAPPL):
                         if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                                 wblock->data.section.shb_user_appl = g_strndup(option_content, oh.option_length);
                                 pcapng_debug1("pcapng_read_section_header_block: shb_user_appl %s", wblock->data.section.shb_user_appl);
@@ -1154,14 +1157,14 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
                 /* handle option content */
                 switch (oh.option_code) {
-                    case(0): /* opt_endofopt */
+                    case(OPT_EOFOPT):
                         if (to_read != 0) {
                                 pcapng_debug1("pcapng_read_packet_block: %u bytes after opt_endofopt", to_read);
                         }
                         /* padding should be ok here, just get out of this */
                         to_read = 0;
                         break;
-                    case(1): /* opt_comment */
+                    case(OPT_COMMENT):
                         if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                                 wblock->packet_header->presence_flags |= WTAP_HAS_COMMENTS;
                                 wblock->packet_header->opt_comment = g_strndup(option_content, oh.option_length);
@@ -1170,7 +1173,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                                 pcapng_debug1("pcapng_read_packet_block: opt_comment length %u seems strange", oh.option_length);
                         }
                         break;
-                    case(2): /* pack_flags / epb_flags */
+                    case(OPT_EPB_FLAGS):
                         if (oh.option_length == 4) {
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
@@ -1188,11 +1191,11 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                                 pcapng_debug1("pcapng_read_packet_block: pack_flags length %u not 4 as expected", oh.option_length);
                         }
                         break;
-                    case(3): /* epb_hash */
+                    case(OPT_EPB_HASH):
                         pcapng_debug2("pcapng_read_packet_block: epb_hash %u currently not handled - ignoring %u bytes",
                                       oh.option_code, oh.option_length);
                         break;
-                    case(4): /* epb_dropcount */
+                    case(OPT_EPB_DROPCOUNT):
                         if (oh.option_length == 8) {
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
@@ -2688,7 +2691,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 
         /* XXX - write (optional) block options */
         if (comment_len != 0) {
-                option_hdr.type          = OPT_COMMENT;
+                option_hdr.type         = OPT_COMMENT;
                 option_hdr.value_length = comment_len;
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
                         return FALSE;
@@ -3141,7 +3144,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
         guint32 phdr_len;
         gboolean have_options = FALSE;
         guint32 options_total_length = 0;
-        guint32 options_hdr = 0;
+        struct option option_hdr;
         guint32 comment_len = 0, comment_pad_len = 0;
         wtapng_if_descr_t int_data;
 
@@ -3163,7 +3166,10 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
                 }
                 options_total_length = options_total_length + comment_len + comment_pad_len + 4 /* comment options tag */ ;
         }
-
+        if (phdr->presence_flags & WTAP_HAS_PACK_FLAGS) {
+                have_options = TRUE;
+                options_total_length = options_total_length + 8;
+        }
         if (have_options) {
                 /* End-of optios tag */
                 options_total_length += 4;
@@ -3252,11 +3258,9 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
          * opt_endofopt    0   0          It delimits the end of the optional fields. This block cannot be repeated within a given list of options.
          */
         if (phdr->opt_comment) {
-                options_hdr = comment_len;
-                options_hdr = options_hdr << 16;
-                /* Option 1  */
-                options_hdr += 1;
-                if (!wtap_dump_file_write(wdh, &options_hdr, 4, err))
+                option_hdr.type         = OPT_COMMENT;
+                option_hdr.value_length = comment_len;
+                if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
                         return FALSE;
                 wdh->bytes_dumped += 4;
 
@@ -3277,7 +3281,17 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
                         comment_len,
                         comment_pad_len);
         }
-
+        if (phdr->presence_flags & WTAP_HAS_PACK_FLAGS) {
+                option_hdr.type         = OPT_EPB_FLAGS;
+                option_hdr.value_length = 4;
+                if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+                        return FALSE;
+                wdh->bytes_dumped += 4;
+                if (!wtap_dump_file_write(wdh, &phdr->pack_flags, 4, err))
+                        return FALSE;
+                wdh->bytes_dumped += 4;
+                pcapng_debug1("pcapng_write_enhanced_packet_block: Wrote Options packet flags: %x", phdr->pack_flags)
+        }
         /* Write end of options if we have otions */
         if (have_options) {
                 if (!wtap_dump_file_write(wdh, &zero_pad, 4, err))

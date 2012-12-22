@@ -3920,6 +3920,8 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
     hdr.presence_flags |= WTAP_HAS_TS;
   if (fdata->flags.has_if_id)
     hdr.presence_flags |= WTAP_HAS_INTERFACE_ID;
+  if (fdata->flags.has_pack_flags)
+    hdr.presence_flags |= WTAP_HAS_PACK_FLAGS;
   hdr.ts.secs      = fdata->abs_ts.secs;
   hdr.ts.nsecs     = fdata->abs_ts.nsecs;
   hdr.caplen       = fdata->cap_len;
@@ -3928,6 +3930,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   /* pcapng */
   hdr.interface_id = fdata->interface_id;   /* identifier of the interface. */
   /* options */
+  hdr.pack_flags   = fdata->pack_flags;
   hdr.opt_comment  = fdata->opt_comment; /* NULL if not available */
   /* pseudo */
   hdr.pseudo_header = phdr->pseudo_header;
