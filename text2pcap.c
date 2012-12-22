@@ -726,7 +726,7 @@ write_current_packet (void)
                                                           (guint32)ts_sec, ts_usec,
                                                           length, length,
                                                           0,
-                                                          6,
+                                                          1000000,
                                                           packet_buf, 0,
                                                           &bytes_written, &err);
         } else {
@@ -791,7 +791,7 @@ write_file_header (void)
                                                                 102400,
                                                                 &bytes_written,
                                                                 0,
-                                                                6,
+                                                                0,
                                                                 &err);
         }
     } else {
