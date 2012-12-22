@@ -143,6 +143,9 @@
 
 /*--- Options --------------------------------------------------------------------*/
 
+/* File format */
+static gboolean use_pcapng = FALSE;
+
 /* Debug level */
 static int debug = 0;
 /* Be quiet */
@@ -579,6 +582,7 @@ write_current_packet (void)
     unsigned long length = 0;
     guint16 padding_length = 0;
     int err;
+    gboolean success;
 
     if (curr_offset > header_length) {
         /* Write the packet */
@@ -717,11 +721,22 @@ write_current_packet (void)
             write_bytes((const char *)&tempbuf, 60 - length);
             length = 60;
         }
-        if (!libpcap_write_packet(output_file,
-                                  (guint32)ts_sec, ts_usec,
-                                  length, length,
-                                  packet_buf,
-                                  &bytes_written, &err)) {
+        if (use_pcapng) {
+            success = libpcap_write_enhanced_packet_block(output_file,
+                                                          (guint32)ts_sec, ts_usec,
+                                                          length, length,
+                                                          0,
+                                                          6,
+                                                          packet_buf, 0,
+                                                          &bytes_written, &err);
+        } else {
+            success = libpcap_write_packet(output_file,
+                                           (guint32)ts_sec, ts_usec,
+                                           length, length,
+                                           packet_buf,
+                                           &bytes_written, &err);
+        }
+        if (!success) {
             fprintf(stderr, "File write error [%s] : %s\n",
                     output_filename, g_strerror(err));
             exit(-1);
@@ -742,19 +757,80 @@ write_current_packet (void)
 }
 
 /*----------------------------------------------------------------------
- * Write the PCap file header
+ * Write file header and trailer
  */
 static void
 write_file_header (void)
 {
     int err;
+    gboolean success;
 
-    if (!libpcap_write_file_header(output_file, pcap_link_type, 102400,
-                                   FALSE, &bytes_written, &err)) {
+    if (use_pcapng) {
+#ifdef SVNVERSION
+        char *appname = "text2pcap (" SVNVERSION " from " SVNPATH ")";
+#else
+        char *appname = "text2pcap";
+#endif
+
+        success = libpcap_write_session_header_block(output_file,
+                                                     NULL,
+                                                     NULL,
+                                                     NULL,
+                                                     appname,
+                                                     -1,
+                                                     &bytes_written,
+                                                     &err);
+        if (success) {
+            success = libpcap_write_interface_description_block(output_file,
+                                                                NULL,
+                                                                NULL,
+                                                                NULL,
+                                                                "",
+                                                                NULL,
+                                                                pcap_link_type,
+                                                                102400,
+                                                                &bytes_written,
+                                                                0,
+                                                                6,
+                                                                &err);
+        }
+    } else {
+        success = libpcap_write_file_header(output_file, pcap_link_type, 102400,
+                                            FALSE, &bytes_written, &err);
+    }
+    if (!success) {
         fprintf(stderr, "File write error [%s] : %s\n",
                 output_filename, g_strerror(err));
         exit(-1);
     }
+}
+
+static void
+write_file_trailer (void)
+{
+    int err;
+    gboolean success;
+
+    if (use_pcapng) {
+        success = libpcap_write_interface_statistics_block(output_file,
+                                                           0,
+                                                           &bytes_written,
+                                                           "Counters provided by text2pcap",
+                                                           0,
+                                                           0,
+                                                           num_packets_written,
+                                                           num_packets_written - num_packets_written,
+                                                           &err);
+
+    } else {
+        success = TRUE;
+    }
+    if (!success) {
+        fprintf(stderr, "File write error [%s] : %s\n",
+                output_filename, g_strerror(err));
+        exit(-1);
+    }
+   return;
 }
 
 /*----------------------------------------------------------------------
@@ -1226,6 +1302,7 @@ usage (void)
             "  -h                     display this help and exit.\n"
             "  -d                     show detailed debug of parser states.\n"
             "  -q                     generate no output at all (automatically turns off -d).\n"
+            "  -n                     use PCAP-NG instead of PCAP as output format.\n"
             "",
             VERSION, MAX_PACKET);
 
@@ -1246,7 +1323,7 @@ parse_options (int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "Ddhqe:i:l:m:o:u:s:S:t:T:a")) != -1) {
+    while ((c = getopt(argc, argv, "Ddhqe:i:l:m:no:u:s:S:t:T:a")) != -1) {
         switch(c) {
         case '?': usage(); break;
         case 'h': usage(); break;
@@ -1255,6 +1332,7 @@ parse_options (int argc, char *argv[])
         case 'q': quiet = TRUE; debug = FALSE; break;
         case 'l': pcap_link_type = strtol(optarg, NULL, 0); break;
         case 'm': max_offset = strtol(optarg, NULL, 0); break;
+        case 'n': use_pcapng = TRUE; break;
         case 'o':
             if (optarg[0]!='h' && optarg[0] != 'o' && optarg[0] != 'd') {
                 fprintf(stderr, "Bad argument for '-o': %s\n", optarg);
@@ -1485,6 +1563,7 @@ parse_options (int argc, char *argv[])
     if (!quiet) {
         fprintf(stderr, "Input from: %s\n", input_filename);
         fprintf(stderr, "Output to: %s\n", output_filename);
+        fprintf(stderr, "Outputfile format: %s\n", use_pcapng ? "PCAP-NG" : "PCAP");
 
         if (hdr_ethernet) fprintf(stderr, "Generate dummy Ethernet header: Protocol: 0x%0lX\n",
                                   hdr_ethernet_proto);
@@ -1537,6 +1616,7 @@ main(int argc, char *argv[])
     yylex();
 
     write_current_packet();
+    write_file_trailer();
     fclose(input_file);
     fclose(output_file);
     if (debug)

@@ -12,6 +12,7 @@ S<[ B<-e> E<lt>l3pidE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-i> E<lt>protoE<gt> ]>
 S<[ B<-l> E<lt>typenumE<gt> ]>
+S<[ B<-n> ]>
 S<[ B<-m> E<lt>max-packetE<gt> ]>
 S<[ B<-o> hex|oct|dec ]>
 S<[ B<-q> ]>
@@ -145,6 +146,10 @@ I<od -Ax -tx1 stream | text2pcap -m1460 -T1234,1234 - stream.pcap>
 
 will convert from plain datastream format to a sequence of Ethernet
 TCP packets.
+
+=item -n
+
+Write PCAP-NG file instead of a PCAP.
 
 =item -o hex|oct|dec
 
