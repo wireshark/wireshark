@@ -804,13 +804,14 @@ static const value_string homeplug_av_key_type_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_DEV_ID_MASK		0x03
+#define HOMEPLUG_AV_DEV_ID_MASK		0x07
 
 static const value_string homeplug_av_dev_id_vals[] = {
-   { 0x00, "Uknown" },
+   { 0x00, "Unknown" },
    { 0x01, "INT6000" },
    { 0x02, "INT6300" },
    { 0x03, "INT6400" },
+   { 0x04, "INT7400" },
    { 0, NULL }
 };
 
