@@ -1847,7 +1847,7 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		break;
 
 	case WTAP_ENCAP_ERF:
-	        hdrsize = (int)sizeof (struct erf_phdr);
+		hdrsize = (int)sizeof (struct erf_phdr);
 		switch (pseudo_header->erf.phdr.type & 0x7F) {
 
 		case ERF_TYPE_MC_HDLC:
@@ -2025,7 +2025,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		/*
 		 * Write the ERF header.
 		 */
-	        memset(&erf_hdr, 0, sizeof(erf_hdr));
+		memset(&erf_hdr, 0, sizeof(erf_hdr));
 		phtolell(&erf_hdr[0], pseudo_header->erf.phdr.ts);
 		erf_hdr[8] = pseudo_header->erf.phdr.type;
 		erf_hdr[9] = pseudo_header->erf.phdr.flags;
@@ -2042,17 +2042,17 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		case ERF_TYPE_MC_AAL5:
 		case ERF_TYPE_MC_AAL2:
 		case ERF_TYPE_COLOR_MC_HDLC_POS:
-		  phtonl(&erf_hdr[16], pseudo_header->erf.subhdr.mc_hdr);
-		  size += (int)sizeof(struct erf_mc_hdr);
-		  break;
+			phtonl(&erf_hdr[16], pseudo_header->erf.subhdr.mc_hdr);
+			size += (int)sizeof(struct erf_mc_hdr);
+			break;
 		case ERF_TYPE_ETH:
 		case ERF_TYPE_COLOR_ETH:
 		case ERF_TYPE_DSM_COLOR_ETH:
-		  phtons(&erf_hdr[16], pseudo_header->erf.subhdr.eth_hdr);
-		  size += (int)sizeof(struct erf_eth_hdr);
-		  break;
+			phtons(&erf_hdr[16], pseudo_header->erf.subhdr.eth_hdr);
+			size += (int)sizeof(struct erf_eth_hdr);
+			break;
 		default:
-		  break;
+			break;
 		}
 		if (!wtap_dump_file_write(wdh, erf_hdr, size, err))
 			return FALSE;
