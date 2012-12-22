@@ -791,7 +791,7 @@ write_file_header (void)
                                                                 102400,
                                                                 &bytes_written,
                                                                 0,
-                                                                0,
+                                                                6,
                                                                 &err);
         }
     } else {
