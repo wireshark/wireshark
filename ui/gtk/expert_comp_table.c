@@ -742,7 +742,7 @@ void
 init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
 {
     guint old_num_procs=err->num_procs;
-    gint row=0;
+    gint row;
     error_procedure_t *procedure;
     GtkTreeStore *store;
     GtkTreeIter   new_iter;

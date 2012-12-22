@@ -3374,7 +3374,7 @@ GtkWidget* create_list(user_data_t* user_data)
 /* Create the dialog box with all widgets */
 static void create_rtp_dialog(user_data_t* user_data)
 {
-	GtkWidget *window = NULL;
+	GtkWidget *window;
 	GtkWidget *list_fwd;
 	GtkWidget *list_rev;
 	GtkWidget *label_stats_fwd;
@@ -3386,7 +3386,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	GtkWidget *scrolled_window, *scrolled_window_r/*, *frame, *text, *label4, *page_help*/;
 	GtkWidget *box4, *voice_bt, *refresh_bt, *goto_bt, *close_bt, *csv_bt, *next_bt;
 #ifdef HAVE_LIBPORTAUDIO
-	GtkWidget *player_bt = NULL;
+	GtkWidget *player_bt;
 #endif /* HAVE_LIBPORTAUDIO */
 	GtkWidget *graph_bt;
 	gchar label_forward[150];

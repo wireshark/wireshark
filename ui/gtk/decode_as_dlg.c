@@ -1105,7 +1105,7 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
 static void
 decode_close_cb (GtkWidget *close_bt _U_, gpointer parent_w)
 {
-    GtkWidget *notebook_pg = NULL;
+    GtkWidget *notebook_pg;
     void *binding = NULL;
 
 

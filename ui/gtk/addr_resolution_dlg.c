@@ -225,7 +225,7 @@ addr_resolution_dlg (GtkAction *action _U_, gpointer data _U_)
   GtkWidget *scroll;
   GtkWidget *bbox;
   GtkWidget *ok_bt, *cancel_bt, *help_bt;
-  GtkTextBuffer *buffer = NULL;
+  GtkTextBuffer *buffer;
 
   addr_resolution_dlg_w = dlg_window_new ("Address Resolution");
   gtk_widget_set_size_request (addr_resolution_dlg_w, 500, 160);

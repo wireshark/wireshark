@@ -300,7 +300,7 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
 static void
 expert_comp_draw(void *data)
 {
-    gchar *buf = NULL;
+    gchar *buf;
 
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)data;
 

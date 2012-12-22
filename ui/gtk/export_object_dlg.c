@@ -137,7 +137,7 @@ eo_save_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 {
 	GtkWidget *save_as_w;
 	export_object_list_t *object_list = arg;
-	export_object_entry_t *entry = NULL;
+	export_object_entry_t *entry;
 	gchar *filename = NULL;
 
 	entry = g_slist_nth_data(object_list->entries,

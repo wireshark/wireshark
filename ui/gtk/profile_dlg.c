@@ -695,7 +695,7 @@ profile_name_te_changed_cb(GtkWidget *w, gpointer data _U_)
   GtkWidget   *profile_l = g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY);
   profile_def *profile;
   GList       *fl_entry;
-  const gchar *name = "";
+  const gchar *name;
 
   GtkTreeSelection  *sel;
   GtkTreeModel      *model;

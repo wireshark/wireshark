@@ -3505,13 +3505,13 @@ pipe_name_te_changed_cb(GtkWidget *w _U_, gpointer data _U_)
 {
   GtkWidget        *name_te = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
   GtkWidget        *pipe_l  = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_L_KEY);
-  const gchar      *name    = "";
+  const gchar      *name;
   GtkTreeSelection *sel;
   GtkTreeModel     *model;
   GtkTreeIter       iter;
 
-  sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(pipe_l));
-  name   = gtk_entry_get_text(GTK_ENTRY(name_te));
+  sel  = gtk_tree_view_get_selection(GTK_TREE_VIEW(pipe_l));
+  name = gtk_entry_get_text(GTK_ENTRY(name_te));
 
   /* if something was selected */
   if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
@@ -5620,9 +5620,9 @@ static void
 capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
 {
   GList             *lt_entry;
-  gchar             *if_string          = "";
+  gchar             *if_string;
   gboolean           monitor_mode;
-  if_capabilities_t *caps               = NULL;
+  if_capabilities_t *caps;
   gint               linktype_count     = 0, i;
   data_link_info_t  *data_link_info;
   interface_t        device;

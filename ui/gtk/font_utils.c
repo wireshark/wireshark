@@ -327,7 +327,7 @@ static void try_to_get_windows_font_gtk2(void)
     fontspec = default_windows_menu_fontspec_gtk2();
 
     if (fontspec != NULL) {
-        int match = 0;
+        int match;
         PangoFontDescription *pfd;
         PangoFont *pfont;
         PangoContext *pc;

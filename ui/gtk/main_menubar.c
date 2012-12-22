@@ -4436,7 +4436,7 @@ menu_recent_file_write_all(FILE *rf)
 void
 menu_name_resolution_changed(void)
 {
-    GtkWidget *menu = NULL;
+    GtkWidget *menu;
 
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforMACLayer");
     if(!menu){
@@ -4528,7 +4528,7 @@ colorize_cb(GtkWidget *w, gpointer d _U_)
 void
 menu_recent_read_finished(void)
 {
-    GtkWidget *menu = NULL;
+    GtkWidget *menu;
 
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/MainToolbar");
     if(!menu){

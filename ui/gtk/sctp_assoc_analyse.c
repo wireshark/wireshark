@@ -115,7 +115,7 @@ on_notebook_switch_page(void)
 
 static void on_chunk_stat_bt(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 {
-	sctp_assoc_info_t* assinfo = NULL;
+	sctp_assoc_info_t* assinfo;
 	int i;
 
 	assinfo = &static_assoc;
@@ -142,7 +142,7 @@ static void on_close_dlg(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 
 static void on_chunk1_dlg(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 {
-sctp_assoc_info_t* assinfo = NULL;
+sctp_assoc_info_t* assinfo;
 
 	assinfo = &static_assoc;
 	assinfo->addr_chunk_count = (static_assoc.addr_chunk_count);
@@ -152,7 +152,7 @@ sctp_assoc_info_t* assinfo = NULL;
 
 static void on_chunk2_dlg(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 {
-sctp_assoc_info_t* assinfo=NULL;
+sctp_assoc_info_t* assinfo;
 
 	assinfo = &static_assoc;
 	assinfo->addr_chunk_count = (static_assoc.addr_chunk_count);
@@ -505,7 +505,7 @@ GtkWidget *create_list(void)
 
 static void create_analyse_window(struct sctp_analyse* u_data)
 {
-	GtkWidget *window = NULL;
+	GtkWidget *window;
 	GtkWidget *notebook;
 	GtkWidget *main_vb, *page1, *page2, *page3, *hbox, *vbox_l, *vbox_r, *addr_hb, *stat_fr;
 	GtkWidget *hbox_l1, *hbox_l2,*label, *h_button_box;

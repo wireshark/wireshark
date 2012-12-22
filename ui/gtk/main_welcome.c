@@ -917,7 +917,7 @@ static void
 update_capture_box(void)
 {
     guint               i;
-    GtkListStore        *store = NULL;
+    GtkListStore        *store;
     GtkTreeIter         iter;
     GtkTreeSelection    *entry;
     interface_t         device;

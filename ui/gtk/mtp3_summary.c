@@ -218,7 +218,7 @@ mtp3_sum_draw(
     int			i, j;
     int			num_msus;
     int			num_bytes;
-    GtkListStore *list_store = NULL;
+    GtkListStore *list_store;
     GtkTreeIter  iter;
 
     *tot_num_msus_p = 0;

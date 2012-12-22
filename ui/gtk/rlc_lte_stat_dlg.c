@@ -1143,7 +1143,7 @@ static void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     guint16  channelType;
     guint16  channelId;
     int      sn = -1;
-    const gchar *sn_string = "";
+    const gchar *sn_string;
 
     /* Read SN to filter on (if present) */
     sn_string = gtk_entry_get_text(GTK_ENTRY(hs->sn_filter_te));
@@ -1172,7 +1172,7 @@ static void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     guint16  channelType;
     guint16  channelId;
     int      sn = -1;
-    const gchar *sn_string = "";
+    const gchar *sn_string;
 
     /* Read SN to filter on (if present) */
     sn_string = gtk_entry_get_text(GTK_ENTRY(hs->sn_filter_te));
@@ -1201,7 +1201,7 @@ static void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     guint16  channelType;
     guint16  channelId;
     int      sn = -1;
-    const gchar *sn_string = "";
+    const gchar *sn_string;
 
     /* Read SN to filter on (if present) */
     sn_string = gtk_entry_get_text(GTK_ENTRY(hs->sn_filter_te));

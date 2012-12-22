@@ -58,7 +58,7 @@ pkt_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
   GtkTextBuffer *buffer;
   GtkTextIter start_iter;
   GtkTextIter end_iter;
-  gchar *new_packet_comment = NULL;
+  gchar *new_packet_comment;
 
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
   gtk_text_buffer_get_start_iter (buffer, &start_iter);
@@ -82,7 +82,7 @@ capture_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
   GtkTextBuffer *buffer;
   GtkTextIter start_iter;
   GtkTextIter end_iter;
-  gchar *new_capture_comment = NULL;
+  gchar *new_capture_comment;
 
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
   gtk_text_buffer_get_start_iter (buffer, &start_iter);
@@ -131,7 +131,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   GtkWidget *scroll;
   GtkWidget *bbox;
   GtkWidget *ok_bt, *cancel_bt, *help_bt;
-  GtkTextBuffer *buffer = NULL;
+  GtkTextBuffer *buffer;
   gchar *opt_comment;
   gchar *buf_str;
 
@@ -199,7 +199,7 @@ show_packet_comment_summary_dlg (GtkAction *action _U_, gpointer data _U_)
   GtkWidget *scroll;
   GtkWidget *bbox;
   GtkWidget *copy_bt, *cancel_bt, *help_bt;
-  GtkTextBuffer *buffer = NULL;
+  GtkTextBuffer *buffer;
 
   view_capture_and_pkt_comments_dlg = dlg_window_new ("Comments Summary");
   gtk_widget_set_size_request (view_capture_and_pkt_comments_dlg, 700, 350);

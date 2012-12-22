@@ -1763,7 +1763,7 @@ button_press_event_channel(GtkWidget *widget _U_, GdkEventButton *event _U_, gpo
 static void
 add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _U_ )
 {
-	GString *label = NULL;
+	GString *label;
 	GtkWidget *viewport;
 
 
