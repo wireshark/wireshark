@@ -1405,8 +1405,8 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/File/Import",             NULL,                              "_Import...",         NULL,                   NULL,           G_CALLBACK(file_import_cmd_cb) },
   { "/File/Close",              GTK_STOCK_CLOSE,                   "_Close",             "<control>W",           NULL,           G_CALLBACK(file_close_cmd_cb) },
 
-  { "/File/Save",               WIRESHARK_STOCK_FILE,              "_Save",              "<control>S",           NULL,           G_CALLBACK(file_save_cmd_cb) },
-  { "/File/SaveAs",             WIRESHARK_STOCK_FILE,              "Save _As...",        "<shift><control>S",    NULL,           G_CALLBACK(file_save_as_cmd_cb) },
+  { "/File/Save",               WIRESHARK_STOCK_SAVE,              "_Save",              "<control>S",           NULL,           G_CALLBACK(file_save_cmd_cb) },
+  { "/File/SaveAs",             WIRESHARK_STOCK_SAVE,              "Save _As...",        "<shift><control>S",    NULL,           G_CALLBACK(file_save_as_cmd_cb) },
 
   { "/File/Set",                NULL,                              "File Set",           NULL,                   NULL,           NULL },
   { "/File/ExportSpecifiedPackets", NULL,         "Export Specified Packets...", NULL,           NULL,           G_CALLBACK(file_export_specified_packets_cmd_cb) },
@@ -4134,7 +4134,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
       action = g_object_new (GTK_TYPE_ACTION,
                  "name", action_name,
                  "label", item_name,
-                 "stock_id", WIRESHARK_STOCK_FILE,
+                 "stock_id", WIRESHARK_STOCK_SAVE,
                  NULL);
       g_signal_connect (action, "activate",
                         G_CALLBACK (menu_open_recent_file_cmd_cb), NULL);

@@ -95,7 +95,7 @@
 #define WIRESHARK_STOCK_TELEPHONE                "Wireshark_Telephone"
 #define WIRESHARK_STOCK_PREPARE_FILTER           "Wireshark_Prepare_Filter"
 #define WIRESHARK_STOCK_ANALYZE                  "Wireshark_Analyze"
-#define WIRESHARK_STOCK_FILE                     "Wireshark_File"
+#define WIRESHARK_STOCK_SAVE                     "Wireshark_Save"
 
 void stock_icons_init(void);
 

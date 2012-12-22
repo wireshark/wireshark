@@ -163,7 +163,7 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_TELEPHONE,             "Telephone",              0, 0, NULL },
         { WIRESHARK_STOCK_PREPARE_FILTER,        "Prepare Filter",         0, 0, NULL },
         { WIRESHARK_STOCK_ANALYZE,               "Analyze",                0, 0, NULL },
-        { WIRESHARK_STOCK_FILE,                  "File",                   0, 0, NULL }
+        { WIRESHARK_STOCK_SAVE,                  "Save",                   0, 0, NULL }
     };
 
     static const stock_pixmap_t pixmaps[] = {
@@ -221,7 +221,7 @@ void stock_icons_init(void) {
     };
 
     static const stock_pixbuf_t pixbufs[] = {
-        { WIRESHARK_STOCK_FILE,          toolbar_wireshark_file_16_pb_data, toolbar_wireshark_file_24_pb_data},
+        { WIRESHARK_STOCK_SAVE,          toolbar_wireshark_file_16_pb_data, toolbar_wireshark_file_24_pb_data},
         { NULL, NULL, NULL }
     };
     /* Register our stock items */

@@ -319,7 +319,7 @@ toolbar_new(void)
 	GTK_STOCK_OPEN, "Open a capture file...", file_open_cmd_cb, NULL);
 
     toolbar_item(save_button, main_tb,
-	WIRESHARK_STOCK_FILE, "Save this capture file", file_save_cmd_cb, NULL);
+	WIRESHARK_STOCK_SAVE, "Save this capture file", file_save_cmd_cb, NULL);
 
     toolbar_item(close_button, main_tb,
 	GTK_STOCK_CLOSE, "Close this capture file", file_close_cmd_cb, NULL);

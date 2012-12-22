@@ -92,7 +92,7 @@ file_selection_new(const gchar *title, file_selection_action_t action)
 
     case FILE_SELECTION_SAVE:
         gtk_action = GTK_FILE_CHOOSER_ACTION_SAVE;
-        ok_button_text = GTK_STOCK_SAVE;
+        ok_button_text = WIRESHARK_STOCK_SAVE;
         break;
 
     case FILE_SELECTION_WRITE_BROWSE:
