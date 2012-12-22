@@ -55,6 +55,7 @@ typedef struct _frame_data {
   gint64       file_off;     /**< File offset */
   guint16      subnum;       /**< subframe number, for protocols that require this */
   gint16       lnk_t;        /**< Per-packet encapsulation/data-link type */
+  guint32      pack_flags;   /**< Packet Flags */
   struct {
     unsigned int passed_dfilter : 1; /**< 1 = display, 0 = no display */
     unsigned int dependent_of_displayed : 1; /**< 1 if a displayed frame depends on this frame */
@@ -65,6 +66,7 @@ typedef struct _frame_data {
     unsigned int ignored        : 1; /**< 1 = ignore this frame, 0 = normal */
     unsigned int has_ts         : 1; /**< 1 = has time stamp, 0 = no time stamp */
     unsigned int has_if_id      : 1; /**< 1 = has interface ID, 0 = no interface ID */
+    unsigned int has_pack_flags : 1; /**< 1 = has packet flags, 0 = no packet flags */
   } flags;
 
   const void *color_filter;  /**< Per-packet matching color_filter_t object */

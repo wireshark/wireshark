@@ -65,6 +65,19 @@ static int hf_frame_protocols = -1;
 static int hf_frame_color_filter_name = -1;
 static int hf_frame_color_filter_text = -1;
 static int hf_frame_interface_id = -1;
+static int hf_frame_pack_flags = -1;
+static int hf_frame_pack_direction = -1;
+static int hf_frame_pack_reception_type = -1;
+static int hf_frame_pack_fcs_length = -1;
+static int hf_frame_pack_reserved = -1;
+static int hf_frame_pack_crc_error = -1;
+static int hf_frame_pack_wrong_packet_too_long_error = -1;
+static int hf_frame_pack_wrong_packet_too_short_error = -1;
+static int hf_frame_pack_wrong_inter_frame_gap_error = -1;
+static int hf_frame_pack_unaligned_frame_error = -1;
+static int hf_frame_pack_start_frame_delimiter_error = -1;
+static int hf_frame_pack_preamble_error = -1;
+static int hf_frame_pack_symbol_error = -1;
 static int hf_frame_wtap_encap = -1;
 static int hf_comments_text = -1;
 
@@ -73,6 +86,7 @@ int proto_malformed = -1;
 static int proto_unreassembled = -1;
 
 static gint ett_frame = -1;
+static gint ett_flags = -1;
 static gint ett_comments = -1;
 
 static int frame_tap = -1;
@@ -91,6 +105,39 @@ static const value_string p2p_dirs[] = {
 	{ P2P_DIR_UNKNOWN, "Unknown" },
 	{ P2P_DIR_SENT,	"Sent" },
 	{ P2P_DIR_RECV, "Received" },
+	{ 0, NULL }
+};
+
+#define PACKET_WORD_DIRECTION_MASK                        0x00000003
+#define PACKET_WORD_RECEPTION_TYPE_MASK                   0x0000001C
+#define PACKET_WORD_FCS_LENGTH_MASK                       0x000001E0
+#define PACKET_WORD_RESERVED_MASK                         0x0000FE00
+#define PACKET_WORD_CRC_ERR_MASK                          0x01000000
+#define PACKET_WORD_PACKET_TOO_LONG_ERR_MASK              0x02000000
+#define PACKET_WORD_PACKET_TOO_SHORT_ERR_MASK             0x04000000
+#define PACKET_WORD_WRONG_INTER_FRAME_GAP_ERR_MASK        0x08000000
+#define PACKET_WORD_UNALIGNED_FRAME_ERR_MASK              0x10000000
+#define PACKET_WORD_START_FRAME_DELIMITER_ERR_MASK        0x20000000
+#define PACKET_WORD_PREAMBLE_ERR_MASK                     0x40000000
+#define PACKET_WORD_SYMBOL_ERR_MASK                       0x80000000
+
+static const value_string packet_word_directions[] = {
+	{ 0x00, "Not available" },
+	{ 0x01, "Inbound" },
+	{ 0x02, "Outbound" },
+	{ 0x03, "Undefined" },
+	{ 0, NULL }
+};
+
+static const value_string packet_word_reception_types[] = {
+	{ 0x00, "Not specified" },
+	{ 0x01, "Unicast" },
+	{ 0x02, "Multicast" },
+	{ 0x03, "Broadcast" },
+	{ 0x04, "Promiscuous" },
+	{ 0x05, "Undefined" },
+	{ 0x06, "Undefined" },
+	{ 0x07, "Undefined" },
 	{ 0, NULL }
 };
 
@@ -204,7 +251,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						       "Arrival Time: Fractional second out of range (0-1000000000)");
 		}
 	} else {
-		proto_tree	*fh_tree;
+		proto_tree *fh_tree;
 		gboolean old_visible;
 
 		/* Put in frame header information. */
@@ -229,11 +276,41 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			proto_item_append_text(ti, " on interface %u",
 			    pinfo->fd->interface_id);
 		}
+		if (pinfo->fd->flags.has_pack_flags) {
+			if (pinfo->fd->pack_flags & 0x00000001) {
+				proto_item_append_text(ti, " (inbound)");
+				pinfo->p2p_dir = P2P_DIR_RECV;
+			}
+			if (pinfo->fd->pack_flags & 0x00000002) {
+				proto_item_append_text(ti, " (outbound)");
+				pinfo->p2p_dir = P2P_DIR_SENT;
+			}
+		}
 
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
 
 		if (pinfo->fd->flags.has_if_id)
 			proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->fd->interface_id);
+
+		if (pinfo->fd->flags.has_pack_flags) {
+			proto_tree *flags_tree;
+			proto_item *flags_item;
+
+			flags_item = proto_tree_add_uint(fh_tree, hf_frame_pack_flags, tvb, 0, 0, pinfo->fd->pack_flags);
+			flags_tree = proto_item_add_subtree(flags_item, ett_flags);
+			proto_tree_add_uint(flags_tree, hf_frame_pack_direction, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_uint(flags_tree, hf_frame_pack_reception_type, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_uint(flags_tree, hf_frame_pack_fcs_length, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_uint(flags_tree, hf_frame_pack_reserved, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_crc_error, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_packet_too_long_error, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_packet_too_short_error, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_wrong_inter_frame_gap_error, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_unaligned_frame_error, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_start_frame_delimiter_error, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_preamble_error, tvb, 0, 0, pinfo->fd->pack_flags);
+			proto_tree_add_boolean(flags_tree, hf_frame_pack_symbol_error, tvb, 0, 0, pinfo->fd->pack_flags);
+		}
 
 		proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->fd->lnk_t);
 
@@ -704,6 +781,71 @@ proto_register_frame(void)
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
+		{ &hf_frame_pack_flags,
+		  { "Packet flags", "frame.packet_flags",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_direction,
+		  { "Direction", "frame.packet_flags_direction",
+		    FT_UINT32, BASE_HEX, TFS(&packet_word_directions), PACKET_WORD_DIRECTION_MASK,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_reception_type,
+		  { "Reception type", "frame.packet_flags_reception_type",
+		    FT_UINT32, BASE_DEC, TFS(&packet_word_reception_types), PACKET_WORD_RECEPTION_TYPE_MASK,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_fcs_length,
+		  { "FCS length", "frame.packet_flags_fcs_length",
+		    FT_UINT32, BASE_DEC, NULL, PACKET_WORD_FCS_LENGTH_MASK,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_reserved,
+		  { "Reserved", "frame.packet_flags_reserved",
+		    FT_UINT32, BASE_DEC, NULL, PACKET_WORD_RESERVED_MASK,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_crc_error,
+		  { "CRC error", "frame.packet_flags_crc_error",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_CRC_ERR_MASK,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_wrong_packet_too_long_error,
+		  { "Packet too long error", "frame.packet_flags_packet_too_error",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_PACKET_TOO_LONG_ERR_MASK,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_wrong_packet_too_short_error,
+		  { "Packet too short error", "frame.packet_flags_packet_too_short_error",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_PACKET_TOO_SHORT_ERR_MASK,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_wrong_inter_frame_gap_error,
+		  { "Wrong interframe gap error", "frame.packet_flags_wrong_inter_frame_gap_error",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_WRONG_INTER_FRAME_GAP_ERR_MASK,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_unaligned_frame_error,
+		  { "Unaligned frame error", "frame.packet_flags_unaligned_frame_error",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_UNALIGNED_FRAME_ERR_MASK,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_start_frame_delimiter_error,
+		  { "Start frame delimiter error", "frame.packet_flags_start_frame_delimiter_error",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_START_FRAME_DELIMITER_ERR_MASK,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_preamble_error,
+		  { "Preamble error", "frame.packet_flags_preamble_error",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_PREAMBLE_ERR_MASK,
+		    NULL, HFILL }},
+
+		{ &hf_frame_pack_symbol_error,
+		  { "Symbol error", "frame.packet_flags_symbol_error",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_SYMBOL_ERR_MASK,
+		    NULL, HFILL }},
+
 		{ &hf_comments_text,
 		  { "Comment", "frame.comment",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
@@ -718,6 +860,7 @@ proto_register_frame(void)
 	
  	static gint *ett[] = {
 		&ett_frame,
+		&ett_flags,
 		&ett_comments
 	};
 
