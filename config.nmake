@@ -660,7 +660,7 @@ GTK_MODULES_DIR=lib\gtk-2.0\modules
 GTK_THEMES_DIR=share\themes\MS-Windows\gtk-2.0
 !ELSE
 GTK_ETC_DIR=etc\gtk-3.0
-#GTK_SCHEMAS_DIR=\share\glib-2.0\schemas
+GTK_SCHEMAS_DIR=\share\glib-2.0\schemas
 !ENDIF
 
 
