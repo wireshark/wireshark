@@ -166,7 +166,7 @@ void SearchFrame::enableWidgets()
         if (sf_ui_->searchLineEdit->text().isEmpty()) {
             sf_ui_->searchLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
         } else {
-            guint8 *bytes = NULL;
+            guint8 *bytes;
             size_t nbytes;
             bytes = convert_string_to_hex(sf_ui_->searchLineEdit->text().toUtf8().constData(), &nbytes);
             if (bytes == NULL)

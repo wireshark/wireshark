@@ -91,7 +91,7 @@ void TimeShiftDialog::enableWidgets()
         if (ts_ui_->shiftAllTimeLineEdit->syntaxState() == SyntaxLineEdit::Valid)
             enable_ok = true;
     } else if (ts_ui_->setOneButton->isChecked()) {
-        bool set_two_valid;
+        bool set_two_valid = false;
         if (ts_ui_->setTwoCheckBox->isChecked()) {
             if (ts_ui_->setTwoFrameLineEdit->syntaxState() == SyntaxLineEdit::Valid &&
                     ts_ui_->setTwoTimeLineEdit->syntaxState() == SyntaxLineEdit::Valid) {
