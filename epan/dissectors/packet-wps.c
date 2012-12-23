@@ -377,7 +377,33 @@ static int hf_eapwps_tlv_public_key_hash = -1;
 static int hf_eapwps_tlv_rekey_key = -1;
 static int hf_eapwps_tlv_key_lifetime = -1;
 static int hf_eapwps_tlv_permitted_config_methods = -1;
+static int hf_eapwps_tlv_permitted_config_methods_usba = -1;
+static int hf_eapwps_tlv_permitted_config_methods_ethernet = -1;
+static int hf_eapwps_tlv_permitted_config_methods_label = -1;
+static int hf_eapwps_tlv_permitted_config_methods_display = -1;
+static int hf_eapwps_tlv_permitted_config_methods_phy_display = -1;
+static int hf_eapwps_tlv_permitted_config_methods_virt_display = -1;
+static int hf_eapwps_tlv_permitted_config_methods_nfcext = -1;
+static int hf_eapwps_tlv_permitted_config_methods_nfcint = -1;
+static int hf_eapwps_tlv_permitted_config_methods_nfcinf = -1;
+static int hf_eapwps_tlv_permitted_config_methods_pushbutton = -1;
+static int hf_eapwps_tlv_permitted_config_methods_phy_pushbutton = -1;
+static int hf_eapwps_tlv_permitted_config_methods_virt_pushbutton = -1;
+static int hf_eapwps_tlv_permitted_config_methods_keypad = -1;
 static int hf_eapwps_tlv_selected_registrar_config_methods = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_usba = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_ethernet = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_label = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_display = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_phy_display = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_virt_display = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_nfcext = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_nfcint = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_nfcinf = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_pushbutton = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_phy_pushbutton = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_virt_pushbutton = -1;
+static int hf_eapwps_tlv_selected_registrar_config_methods_keypad = -1;
 static int hf_eapwps_tlv_primary_device_type = -1;
 static int hf_eapwps_tlv_primary_device_type_category = -1;
 #define WPS_DEVICE_TYPE_CATEGORY_MAX 11
@@ -763,27 +789,6 @@ static const value_string eapwps_tlv_audio_devices_subcategory[] = {
   { 0, NULL }
 };
 
-/*  ********************************************************************** */
-/*  pinfo may be NULL ! */
-/*  ********************************************************************** */
-static void
-dissect_wps_config_methods(proto_tree *root, tvbuff_t *tvb, int offset,
-                           gint _U_ size, packet_info _U_ *pinfo)
-{
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_usba,            tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_ethernet,        tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_label,           tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_display,         tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_virt_display,    tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_phy_display,     tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcext,          tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcint,          tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcinf,          tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_pushbutton,      tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_virt_pushbutton, tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_phy_pushbutton,  tvb, offset+4, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_keypad,          tvb, offset+4, 2, ENC_BIG_ENDIAN);
-}
 
 static void
 add_wps_wfa_ext(guint8 id, proto_tree *tree, tvbuff_t *tvb,
@@ -1449,7 +1454,19 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods, tvb, offset+4, 2, ENC_BIG_ENDIAN);
       hfindex = hf_eapwps_tlv_permitted_config_methods;
 
-      dissect_wps_config_methods(tlv_root, tvb, offset, size, pinfo);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_usba, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_ethernet, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_label, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_display, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_virt_display, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_phy_display, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_nfcext, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_nfcint, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_nfcinf, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_pushbutton, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_virt_pushbutton, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_phy_pushbutton, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_permitted_config_methods_keypad, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
       break;
 
@@ -1457,7 +1474,19 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods, tvb, offset+4, 2, ENC_BIG_ENDIAN);
       hfindex = hf_eapwps_tlv_selected_registrar_config_methods;
 
-      dissect_wps_config_methods(tlv_root, tvb, offset, size, pinfo);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_usba, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_ethernet, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_label, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_display, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_virt_display, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_phy_display, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_nfcext, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_nfcint, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_nfcinf, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_pushbutton, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_virt_pushbutton, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_phy_pushbutton, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_selected_registrar_config_methods_keypad, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
       break;
 
@@ -2119,10 +2148,113 @@ proto_register_wps(void)
       { "Permitted COnfig Methods", "wps.permitted_config_methods",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+    { &hf_eapwps_tlv_permitted_config_methods_usba,
+      { "USB", "wps.permitted_config_methods.usba",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_USBA, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_ethernet,
+      { "Ethernet", "wps.permitted_config_methods.ethernet",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_ETHERNET, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_label,
+      { "Label", "wps.permitted_config_methods.label",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_LABEL, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_display,
+      { "Display", "wps.permitted_config_methods.display",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_DISPLAY, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_virt_display,
+      { "Virtual Display", "wps.permitted_config_methods.virt_display",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_VIRT_DISPLAY, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_phy_display,
+      { "Physical Display", "wps.permitted_config_methods.phy_display",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PHY_DISPLAY, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_nfcext,
+      { "External NFC", "wps.permitted_config_methods.nfcext",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_NFCEXT, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_nfcint,
+      { "Internal NFC", "wps.permitted_config_methods.nfcint",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_NFCINT, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_nfcinf,
+      { "NFC Interface", "wps.permitted_config_methods.nfcinf",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_NFCINF, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_pushbutton,
+      { "Push Button", "wps.permitted_config_methods.pushbutton",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PUSHBUTTON, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_virt_pushbutton,
+      { "Virtual Push Button", "wps.permitted_config_methods.virt_pushbutton",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_VIRT_PUSHBUTTON, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_phy_pushbutton,
+      { "Physical Push Button", "wps.permitted_config_methods.phy_pushbutton",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PHY_PUSHBUTTON, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_permitted_config_methods_keypad,
+      { "Keypad", "wps.permitted_config_methods.keypad",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_KEYPAD, NULL, HFILL }},
+
     { &hf_eapwps_tlv_selected_registrar_config_methods,
       { "Selected Registrar Config Methods", "wps.selected_registrar_config_methods",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+    { &hf_eapwps_tlv_selected_registrar_config_methods_usba,
+      { "USB", "wps.selected_registrar_config_methods.usba",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_USBA, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_ethernet,
+      { "Ethernet", "wps.selected_registrar_config_methods.ethernet",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_ETHERNET, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_label,
+      { "Label", "wps.selected_registrar_config_methods.label",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_LABEL, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_display,
+      { "Display", "wps.selected_registrar_config_methods.display",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_DISPLAY, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_virt_display,
+      { "Virtual Display", "wps.selected_registrar_config_methods.virt_display",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_VIRT_DISPLAY, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_phy_display,
+      { "Physical Display", "wps.selected_registrar_config_methods.phy_display",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PHY_DISPLAY, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_nfcext,
+      { "External NFC", "wps.selected_registrar_config_methods.nfcext",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_NFCEXT, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_nfcint,
+      { "Internal NFC", "wps.selected_registrar_config_methods.nfcint",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_NFCINT, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_nfcinf,
+      { "NFC Interface", "wps.selected_registrar_config_methods.nfcinf",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_NFCINF, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_pushbutton,
+      { "Push Button", "wps.selected_registrar_config_methods.pushbutton",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PUSHBUTTON, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_virt_pushbutton,
+      { "Virtual Push Button", "wps.selected_registrar_config_methods.virt_pushbutton",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_VIRT_PUSHBUTTON, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_phy_pushbutton,
+      { "Physical Push Button", "wps.selected_registrar_config_methods.phy_pushbutton",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PHY_PUSHBUTTON, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_selected_registrar_config_methods_keypad,
+      { "Keypad", "wps.selected_registrar_config_methods.keypad",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_KEYPAD, NULL, HFILL }},
 
     { &hf_eapwps_tlv_primary_device_type,
       { "Primary Device Type", "wps.primary_device_type",
