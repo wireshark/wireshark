@@ -184,7 +184,7 @@ typedef struct _rtp_channel_info {
 	GArray *samples;			/* the array with decoded audio */
 	guint16 call_num;
 	gboolean selected;
-	guint32 frame_index;
+	unsigned long frame_index;
 	guint32 drop_by_jitter_buff;
 	guint32 out_of_seq;
 	guint32 wrong_timestamp;
@@ -225,10 +225,10 @@ typedef struct _rtp_play_channles {
 	guint32 end_index[2];
 	int channel;
 	guint32 max_frame_index;
-	guint32 frame_index;
+	unsigned long frame_index;
 	gboolean pause;
 	gboolean stop;
-	gint32 pause_duration;
+	unsigned long pause_duration;
 #if PORTAUDIO_API_1
 	PaTimestamp out_diff_time;
 #else /* PORTAUDIO_API_1 */
@@ -1143,14 +1143,14 @@ init_rtp_channels_vals(void)
  */
 #if PORTAUDIO_API_1
 
-static int paCallback(   void *inputBuffer, void *outputBuffer,
+static int paCallback(   void *inputBuffer _U_, void *outputBuffer,
 			 unsigned long framesPerBuffer,
-			 PaTimestamp outTime, void *userData)
+			 PaTimestamp outTime _U_, void *userData)
 {
 #else /* PORTAUDIO_API_1 */
-static int paCallback( const void *inputBuffer, void *outputBuffer,
+static int paCallback( const void *inputBuffer _U_, void *outputBuffer,
 		       unsigned long framesPerBuffer,
-		       const PaStreamCallbackTimeInfo* outTime,
+		       const PaStreamCallbackTimeInfo* outTime _U_,
 		       PaStreamCallbackFlags statusFlags _U_,
 		       void *userData)
 {
@@ -1158,10 +1158,10 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
 	rtp_play_channels_t *rpci = (rtp_play_channels_t *)userData;
 	SAMPLE *wptr = (SAMPLE*)outputBuffer;
 	sample_t sample;
-	unsigned int i;
+	unsigned long i;
 	int finished;
-	unsigned int framesLeft;
-	int framesToPlay;
+	unsigned long framesLeft;
+	unsigned long framesToPlay;
 
 	/* if it is pasued, we keep the stream running but with silence only */
 	if (rtp_channels->pause) {
@@ -1187,9 +1187,6 @@ static int paCallback( const void *inputBuffer, void *outputBuffer,
 	}
 
 	framesLeft = rpci->max_frame_index - rpci->frame_index;
-
-	(void) inputBuffer; /* Prevent unused variable warnings. */
-	(void) outTime;
 
 	if( framesLeft < framesPerBuffer )
 	{
@@ -1691,7 +1688,7 @@ button_press_event_channel(GtkWidget *widget _U_, GdkEventButton *event _U_, gpo
 {
 	rtp_channel_info_t *rci = user_data;
 	int this_channel;
-	guint32 prev_index;
+	unsigned long prev_index;
 
 	if (!rci->selected) {
 
