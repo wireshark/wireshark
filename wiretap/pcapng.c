@@ -3290,7 +3290,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
                 if (!wtap_dump_file_write(wdh, &phdr->pack_flags, 4, err))
                         return FALSE;
                 wdh->bytes_dumped += 4;
-                pcapng_debug1("pcapng_write_enhanced_packet_block: Wrote Options packet flags: %x", phdr->pack_flags)
+                pcapng_debug1("pcapng_write_enhanced_packet_block: Wrote Options packet flags: %x", phdr->pack_flags);
         }
         /* Write end of options if we have otions */
         if (have_options) {
