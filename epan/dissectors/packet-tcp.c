@@ -176,6 +176,7 @@ static int hf_tcp_option_md5 = -1;
 static int hf_tcp_option_qs = -1;
 static int hf_tcp_option_exp = -1;
 static int hf_tcp_option_exp_data = -1;
+static int hf_tcp_option_exp_magic_number = -1;
 
 static int hf_tcp_option_rvbd_probe = -1;
 static int hf_tcp_option_rvbd_probe_version1 = -1;
@@ -237,6 +238,9 @@ static int hf_tcp_option_mptcp_ipver = -1;
 static int hf_tcp_option_mptcp_ipv4 = -1;
 static int hf_tcp_option_mptcp_ipv6 = -1;
 static int hf_tcp_option_mptcp_port = -1;
+static int hf_tcp_option_fast_open = -1;
+static int hf_tcp_option_fast_open_cookie_request = -1;
+static int hf_tcp_option_fast_open_cookie = -1;
 
 static int hf_tcp_ts_relative = -1;
 static int hf_tcp_ts_delta = -1;
@@ -304,10 +308,18 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
  */
 static gboolean tcp_no_subdissector_on_error = FALSE;
 
+/* 
+ * FF: (draft-ietf-tcpm-experimental-options-03)
+ * With this flag set we assume the option structure for experimental 
+ * codepoints (253, 254) has a magic number field (first field after the 
+ * Kind and Length).  The magic number is used to differentiate different 
+ * experiments and thus will be used in data dissection.
+ */
+static gboolean tcp_exp_options_with_magic = TRUE;
+
 /*
  *  TCP option
  */
-
 #define TCPOPT_NOP              1       /* Padding */
 #define TCPOPT_EOL              0       /* End of options */
 #define TCPOPT_MSS              2       /* Segment size negotiating */
@@ -337,7 +349,6 @@ static gboolean tcp_no_subdissector_on_error = FALSE;
 /*
  *     TCP option lengths
  */
-
 #define TCPOLEN_MSS            4
 #define TCPOLEN_WINDOW         3
 #define TCPOLEN_SACK_PERM      2
@@ -2358,17 +2369,46 @@ dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 {
     proto_item *item;
     proto_tree *exp_tree;
+    proto_item *hidden_item;
+    guint16 magic;
 
     item = proto_tree_add_item(opt_tree, hf_tcp_option_exp, tvb,
-        offset, optlen, ENC_NA);
+                               offset, optlen, ENC_NA);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_exp);
     proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(exp_tree, hf_tcp_option_exp_data, tvb,
-        offset + 2, optlen - 2, ENC_NA);
-    tcp_info_append_uint(pinfo, "Expxx", TRUE);
+    if (tcp_exp_options_with_magic && ((optlen - 2) > 0)) {
+        magic = tvb_get_ntohs(tvb, offset + 2);
+        proto_tree_add_item(exp_tree, hf_tcp_option_exp_magic_number, tvb,
+                            offset + 2, 2, ENC_BIG_ENDIAN);
+        switch (magic) {
+        case 0xf989:
+            /* FF: draft-ietf-tcpm-fastopen-02, TCP Fast Open */
+            hidden_item = proto_tree_add_item(exp_tree, hf_tcp_option_fast_open,
+                                              tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            if ((optlen - 2) == 2) {
+                /* Fast Open Cookie Request */
+                proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie_request, 
+                                    tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " TFO=R");
+            } else if ((optlen - 2) > 2) {
+                /* Fast Open Cookie */
+                proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie, 
+                                    tvb, offset + 4, optlen - 4, ENC_NA);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " TFO=C");
+            }
+            break;
+        default:
+            /* Unknown magic number */
+            break;
+        }
+    } else {
+        proto_tree_add_item(exp_tree, hf_tcp_option_exp_data, tvb,
+                            offset + 2, optlen - 2, ENC_NA);
+        tcp_info_append_uint(pinfo, "Expxx", TRUE);
+    }
 }
-
 
 static void
 dissect_tcpopt_sack_perm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
@@ -5129,6 +5169,10 @@ proto_register_tcp(void)
           { "Data", "tcp.options.experimental.data", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
+        { &hf_tcp_option_exp_magic_number,
+          { "Magic Number", "tcp.options.experimental.magic_number", FT_UINT16,
+            BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
         { &hf_tcp_option_sack_perm,
           { "TCP SACK Permitted Option", "tcp.options.sack_perm",
             FT_BOOLEAN,
@@ -5534,6 +5578,18 @@ proto_register_tcp(void)
           { "Out of band connection Client Port", "tcp.options.rvbd.trpy.client.port",
             FT_UINT16, BASE_DEC, NULL , 0x0, NULL, HFILL }},
 
+        { &hf_tcp_option_fast_open,
+          { "Fast Open", "tcp.options.tfo", FT_NONE,
+            BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_fast_open_cookie_request,
+          { "Fast Open Cookie Request", "tcp.options.tfo.request", FT_NONE,
+            BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_fast_open_cookie,
+          { "Fast Open Cookie", "tcp.options.tfo.cookie", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
         { &hf_tcp_pdu_time,
           { "Time until the last segment of this PDU", "tcp.pdu.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
             "How long time has passed until the last frame of this PDU", HFILL}},
@@ -5707,6 +5763,11 @@ proto_register_tcp(void)
         "Do not call subdissectors for error packets",
         "Do not call any subdissectors for Retransmitted or OutOfOrder segments",
         &tcp_no_subdissector_on_error);
+
+    prefs_register_bool_preference(tcp_module, "dissect_experimental_options_with_magic",
+        "TCP Experimental Options with a Magic Number",
+        "Assume TCP Experimental Options (253, 254) have a Magic Number and use it for dissection",
+        &tcp_exp_options_with_magic);
 
     register_init_routine(tcp_init);
 }
