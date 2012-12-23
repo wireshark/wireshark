@@ -36,11 +36,13 @@ GENERATED_NODIST_HEADER_FILES = \
 	ui_import_text_dialog.h \
 	ui_main_welcome.h \
 	ui_main_window.h \
+	ui_packet_comment_dialog.h \
 	ui_packet_format_group_box.h \
 	ui_packet_range_group_box.h \
 	ui_print_dialog.h \
 	ui_search_frame.h \
-	ui_splash_overlay.h
+	ui_splash_overlay.h \
+	ui_time_shift_dialog.h
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES =
