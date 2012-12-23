@@ -543,6 +543,7 @@ libpcap_write_interface_description_block(FILE *fp,
    Returns TRUE on success, FALSE on failure. */
 gboolean
 libpcap_write_enhanced_packet_block(FILE *fp,
+                                    const char *comment,
                                     guint32 sec, guint32 usec,
                                     guint32 caplen, guint32 len,
                                     guint32 interface_id,
@@ -556,13 +557,24 @@ libpcap_write_enhanced_packet_block(FILE *fp,
         struct option option;
         guint32 block_total_length;
         guint64 timestamp;
+        gboolean have_options = FALSE;
         const guint32 padding = 0;
 
         block_total_length = sizeof(struct epb) +
                              ADD_PADDING(caplen) +
                              sizeof(guint32);
+        if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
+                block_total_length += sizeof(struct option) +
+                                      (guint16)ADD_PADDING(strlen(comment));
+                have_options = TRUE;
+        }
         if (flags != 0) {
-        	block_total_length += 2 * sizeof(struct option) + sizeof(guint32);
+                have_options = TRUE;
+                block_total_length += sizeof(struct option) + sizeof(guint32);
+        }
+        /* If we have options add size of end-of-options */
+        if (have_options) {
+                block_total_length += sizeof(struct option);
         }
         timestamp = (guint64)sec * ts_mul + (guint64)usec;
         epb.block_type = ENHANCED_PACKET_BLOCK_TYPE;
@@ -577,6 +589,15 @@ libpcap_write_enhanced_packet_block(FILE *fp,
         if (caplen % 4) {
                 WRITE_DATA(fp, &padding, 4 - caplen % 4, *bytes_written, err);
         }
+        if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
+                option.type = OPT_COMMENT;
+                option.value_length = (guint16)strlen(comment);
+                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+                WRITE_DATA(fp, comment, strlen(comment), *bytes_written, err);
+                if (strlen(comment) % 4) {
+                        WRITE_DATA(fp, &padding, 4 - strlen(comment) % 4 , *bytes_written, err);
+                }
+        }
         if (flags != 0) {
                 option.type = EPB_FLAGS;
                 option.value_length = sizeof(guint32);
@@ -585,7 +606,13 @@ libpcap_write_enhanced_packet_block(FILE *fp,
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
                 WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-       }
+        }
+        if (have_options) {
+                option.type = OPT_ENDOFOPT;
+                option.value_length = 0;
+                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+        }
+        /* write the trailing Block Total Length */
         WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
         return TRUE;
 }

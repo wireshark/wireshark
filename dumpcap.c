@@ -3979,6 +3979,7 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
            "ld->err" to the error. */
         if (global_capture_opts.use_pcapng) {
             successful = libpcap_write_enhanced_packet_block(global_ld.pdh,
+                                                             NULL,
                                                              phdr->ts.tv_sec, phdr->ts.tv_usec,
                                                              phdr->caplen, phdr->len,
                                                              pcap_opts->interface_id,

@@ -723,6 +723,7 @@ write_current_packet (void)
         }
         if (use_pcapng) {
             success = libpcap_write_enhanced_packet_block(output_file,
+                                                          NULL,
                                                           (guint32)ts_sec, ts_usec,
                                                           length, length,
                                                           0,

@@ -88,6 +88,7 @@ libpcap_write_interface_statistics_block(FILE *fp,
 
 extern gboolean
 libpcap_write_enhanced_packet_block(FILE *fp,
+                                    const char *comment,
                                     guint32 sec, guint32 usec,
                                     guint32 caplen, guint32 len,
                                     guint32 interface_id,
