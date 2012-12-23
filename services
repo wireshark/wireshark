@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-12-14
+# 2012-12-22
 # 
 # Experts
 # 
@@ -9945,9 +9945,9 @@ publiqare-sync	4329/tcp	# Environment Synchronisation  [Tom_Maaswinkel]         
 gaia	4340/tcp	# Gaia Connector Protocol      [Philippe_Detournay]                               [Philippe_Detournay]                                      2007-11-12
 gaia	4340/udp	# Gaia Connector Protocol      [Philippe_Detournay]                               [Philippe_Detournay]                                      2007-11-12
 lisp-data	4341/tcp	# LISP Data Packets            [Dino_Farinacci]                                   [Dino_Farinacci]                                          2007-11-12
-lisp-data	4341/udp	# LISP Data Packets            [IESG]                                             [IETF_Chair]                                              2007-11-12   2012-04-26   [draft-ietf-lisp-22]
+lisp-data	4341/udp	# LISP Data Packets            [IESG]                                             [IETF_Chair]                                              2007-11-12   2012-04-26   [RFC-ietf-lisp-24]
 lisp-cons	4342/tcp	# LISP-CONS Control
-lisp-control	4342/udp	# LISP Data-Triggered Control  [IESG]                                             [IETF_Chair]                                              2007-05      2012-04-26   [draft-ietf-lisp-22]
+lisp-control	4342/udp	# LISP Data-Triggered Control  [IESG]                                             [IETF_Chair]                                              2007-05      2012-04-26   [RFC-ietf-lisp-24]
 unicall	4343/tcp	# UNICALL                      [James_Powell_2]                                   [James_Powell_2]
 unicall	4343/udp	# UNICALL                      [James_Powell_2]                                   [James_Powell_2]
 vinainstall	4344/tcp	# VinaInstall                  [Jay_Slupesky]                                     [Jay_Slupesky]
@@ -11529,7 +11529,8 @@ vfmobile	5646/tcp	# Ventureforth Mobile          [Ventureforth_Inc]             
 # SAIC NRPE
 filemq	5670/tcp	# ZeroMQ file                  [ZeroMQ.org]                                       [Pieter_Hintjens2]                                        2012-11-01
 # publish-subscribe protocol
-# 5670        udp    Reserved
+zre-disc	5670/udp	# Local area discovery and     [None]                                             [Pieter_Hintjens_3]                                       2012-12-17
+# messaging over ZeroMQ
 amqps	5671/tcp	# amqp protocol over TLS/SSL   [Ted_Ross_2]                                       [Ted_Ross_2]                                              2008-03-26
 amqps	5671/udp	# amqp protocol over TLS/SSL   [Ted_Ross_2]                                       [Ted_Ross_2]                                              2008-03-26
 amqp	5672/tcp	# AMQP                         [Pieter_Hintjens]                                  [Pieter_Hintjens]                                         2006-01
@@ -11802,7 +11803,9 @@ dpm-acm	6075/tcp	# Microsoft DPM Access Control [Prabu_Ambravaneswara]          
 msft-dpm-cert	6076/tcp	# Microsoft DPM WCF            [Microsoft_Corporation]                            [Prateek_Sharma]                                          2011-08-04
 # Certificates
 # 6076        udp    Reserved
-# 6077-6081            Unassigned
+iconstructsrv	6077/tcp	# iConstruct Server            [iConstruct_Aus_Pty_Ltd]                           [Afshin_Jafari]                                           2012-12-21
+# 6077        udp    Reserved
+# 6078-6081            Unassigned
 # 6082        tcp    Reserved
 # APCO Project 25 Common Air
 p25cai	6082/udp	# Interface - UDP              [APCO_Project]                                     [APCO_Project]                                            2011-05-13
@@ -13509,7 +13512,11 @@ msi-cps-rm-disc	8675/udp	# Programming Software for     [Motorola_Solutions_Inc]
 # 8676-8685            Unassigned
 sun-as-jmxrmi	8686/tcp	# Sun App Server - JMX/RMI     [Abhijit_Kumar]                                    [Abhijit_Kumar]                                           2005-11
 sun-as-jmxrmi	8686/udp	# Sun App Server - JMX/RMI     [Abhijit_Kumar]                                    [Abhijit_Kumar]                                           2005-11
-# 8687-8698            Unassigned
+# 8687               Unassigned
+openremote-ctrl	8688/tcp	# OpenRemote Controller        [OpenRemote_Inc]                                   [Juha_Lindfors]                                           2012-12-18
+# HTTP/REST
+# 8688        udp    Reserved
+# 8689-8698            Unassigned
 vnyx	8699/tcp	# VNYX Primary Port            [Gregg_Green]                                      [Gregg_Green]                                             2004-11
 vnyx	8699/udp	# VNYX Primary Port            [Gregg_Green]                                      [Gregg_Green]                                             2004-11
 # 8700-8710            Unassigned
@@ -14858,7 +14865,10 @@ sxuptp	19540/tcp	# SXUPTP                       [Keiji_Okuma]                   
 sxuptp	19540/udp	# SXUPTP                       [Keiji_Okuma]                                      [Keiji_Okuma]                                             2002-08
 jcp	19541/tcp	# JCP Client                   [Yuji_Sasaki]                                      [Yuji_Sasaki]
 jcp	19541/udp	# JCP Client                   [Yuji_Sasaki]                                      [Yuji_Sasaki]
-# 19542-19997           Unassigned
+# 19542-19787           Unassigned
+mle	19788/udp	# Mesh Link Establishment      [IESG]                                             [IETF_Chair]                                              2012-12-18
+# 19788       tcp    Reserved
+# 19789-19997           Unassigned
 iec-104-sec	19998/tcp	# IEC 60870-5-104 process      [Grant_Gilchrist]                                  [Grant_Gilchrist]                                         2010-10-18
 # control - secure
 # 19998       udp    Reserved
@@ -15568,7 +15578,11 @@ candrp	42509/tcp	# CA discovery response        [Jon_Press]                     
 candrp	42509/udp	# CA discovery response        [Jon_Press]                                        [Jon_Press]                                               2005-08
 caerpc	42510/tcp	# CA eTrust RPC                [Jon_Press]                                        [Jon_Press]                                               2005-08
 caerpc	42510/udp	# CA eTrust RPC                [Jon_Press]                                        [Jon_Press]                                               2005-08
-# 42511-43187           Unassigned
+# 42511-42999           Unassigned
+recvr-rc	43000/tcp	# Receiver Remote Control      [Research_Electronics_International]               [Ross_Binkley]                                            2012-12-20
+recvr-rc-disc	43000/udp	# Receiver Remote Control      [Research_Electronics_International]               [Ross_Binkley]                                            2012-12-20
+# Discovery
+# 43001-43187           Unassigned
 reachout	43188/tcp	# REACHOUT                     [Roman_Kriis]                                      [Roman_Kriis]
 reachout	43188/udp	# REACHOUT                     [Roman_Kriis]                                      [Roman_Kriis]
 ndm-agent-port	43189/tcp	# NDM-AGENT-PORT               [Roman_Kriis]                                      [Roman_Kriis]
@@ -15686,7 +15700,12 @@ mbus	47000/udp	# Message Bus                  [Dirk_Kutscher]                   
 winrm	47001/tcp	# Windows Remote Management    [Ryan_Mack]                                        [Ryan_Mack]                                               2009-04-29
 # Service
 # 47001       udp    Reserved
-# 47002-47556           Unassigned
+# 47002-47099           Unassigned
+# Configuration of motors
+jvl-mactalk	47100/udp	# connected to Industrial      [JVL_Industri_Elektronik]                          [Kim_Berthelsen]                                          2012-12-21
+# Ethernet
+# 47100       tcp    Reserved
+# 47101-47556           Unassigned
 dbbrowse	47557/tcp	# Databeam Corporation         [Cindy_Martin]                                     [Cindy_Martin]
 dbbrowse	47557/udp	# Databeam Corporation         [Cindy_Martin]                                     [Cindy_Martin]
 # 47558-47623           Unassigned
@@ -17071,6 +17090,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Adwait_Sathe]                                            Adwait Sathe                                    mailto:asathe&sonusnet.com                                    2005-08
 # [Aerohive_Networks]                                                                 Aerohive Networks     mailto:iana&aerohive.com                                      2012-06-04
 # [Afkham_Azeez]                                            Afkham Azeez                                    mailto:azeez&wso2.com                                         2006-06
+# [Afshin_Jafari]                                           Afshin Jafari             iConstruct (Aus) Pty  mailto:jafari&pdcwa.com.au                                    2012-12-21
+# Ltd
 # [Agri_Datalog]                                            Agri Datalog                                    mailto:contact&agri-datalog.com
 # [Ahmad_Tajuddin_Samsu]                                    Ahmad Tajuddin Samsudin                         mailto:tajuddin&tmrnd.com.my                                  2007-02
 # [Ahti_Heinla]                                             Ahti Heinla                                     mailto:ahti&ahti.bluemoon.ee                                  2002-06
@@ -18845,6 +18866,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ian_Wilson]                                              Ian Wilson                                      mailto:hsrp-info&cisco.com                                    2004-11
 # [Ibtsam_Mahfouz]                                          Ibtsam Mahfouz                                  mailto:imahfouz&cisco.com
 # [Ico_Doornekamp]                                          Ico Doornekamp                                  mailto:ico&saedra.nl
+# [iConstruct_Aus_Pty_Ltd]                                                            iConstruct (Aus) Pty  mailto:jafari&pdcwa.com.au                                    2012-12-21
+# Ltd
 # [Ido_Ben_David]                                           Ido Ben-David                                   mailto:dgntcom&netvision.net.il
 # [Ieuan_Friend]                                            Ieuan Friend                                    mailto:ieuan.friend&dip.co.uk                                 2006-03
 # [Igor_Kostic]                                             Igor Kostic                                     mailto:igorko&microsoft.com                                   2002-08
@@ -19345,6 +19368,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Juan_Carlos_Luciani]                                     Juan Carlos Luciani                             mailto:jluciani&novell.com
 # [Juan_Carlos_Olivares]                                    Juan Carlos Olivares                            mailto:jcolivares04c&cenidet.edu.mx                           2006-03
 # Rojas
+# [Juha_Lindfors]                                           Juha Lindfors             OpenRemote, Inc.      mailto:juha&openremote.org                                    2012-12-18
 # [Jude_George]                                             Jude George                                     mailto:jude&nas.nasa.gov
 # [Juergen_Edelhaeuser]                                     Juergen Edelhaeuser                             mailto:Juergen.Edelhaeuser&locanis.com                        2002-08
 # [Juergen_Fischbach]                                       Juergen Fischbach                               mailto:juergen.fischbach&philips.com
@@ -19368,6 +19392,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Justin_Vegso]                                            Justin Vegso                                    mailto:jvegso&quantapoint.com                                 2010-07-01
 # [Justin_Yu]                                               Justin Yu                                       mailto:yyu&mitre.org                                          2011-05-25
 # [Justine_Higgins]                                         Justine Higgins                                 mailto:iana&corsof.com
+# [JVL_Industri_Elektronik]                                                           JVL Industri          mailto:jvl&jvl.dk                                             2012-12-21
+# Elektronik
 # [Jyri_J_Virkki]                                           Jyri J. Virkki                                  mailto:jyri.virkki&sun.com                                    2005-12
 # [K_Arvind]                                                K. Arvind                                       mailto:arvind&tenornetworks.com
 # [K_K_Ho]                                                  K. K Ho                                         mailto:kk.ho&afe-solutions.com                                2004-04
@@ -19491,6 +19517,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Khelben_Blackstaff]                                      Khelben Blackstaff                              mailto:khelben&gmx.at
 # [Khiem_Tran]                                              Khiem Tran                                      mailto:Khiem.Tran&andrew.com                                  2007-11-06
 # [Kim_Alan_Waggoner]                                       Kim Alan Waggoner                               mailto:kimw&weatherbank.com                                   2006-11
+# [Kim_Berthelsen]                                          Kim Berthelsen            JVL Industri          mailto:kb&jvl.dk                                              2012-12-21
+# Elektronik
 # [Kim_Hancock]                                             Kim Hancock                                     mailto:registry&dragondex.com                                 2007-10-24
 # [Kim_Moraros]                                             Kim Moraros                                     mailto:moraros&via.enet.dec.com
 # [Kim_Scott]                                               Kim Scott                                       mailto:kims&cup.hp.com
@@ -20281,6 +20309,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Open_Mobile_Alliance_Device_Management_DM_Working_Group] Device Management (DM)                          mailto:Technical-Comments&mail.openmobilealliance.org         2011-08-19
 # Working Group
 # [OpenMail_Encyclopedi]                                                              OpenMail Encyclopedia mailto:opencyc&hpopd.pwd.hp.com
+# [OpenRemote_Inc]                                                                    OpenRemote, Inc.      mailto:juha&openremote.org                                    2012-12-18
 # [OPNET_Technologies_Inc]                                                            OPNET Technologies    mailto:tmacomber&opnet.com                                    2011-09-21
 # Inc
 # [Oracle]                                                                            Oracle Corporation    mailto:Devjani.Ray&oracle.com                                 2012-04-20
@@ -20521,6 +20550,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Pieter_Ditmars]                                          Pieter Ditmars                                  mailto:pditmars&bbn.com
 # [Pieter_Hintjens]                                         Pieter Hintjens                                 mailto:ph&imatix.com                                          2006-01
 # [Pieter_Hintjens2]                                        Pieter Hintjens                                 mailto:ph&imatix.com                                          2012-11-01
+# [Pieter_Hintjens_3]                                       Pieter Hintjens                                 mailto:ph&imatix.com                                          2012-12-17
 # [Pim_van_Riezen]                                          Pim van Riezen                                  mailto:registries&panelsix.com                                2006-07
 # [Piotr_Parlewicz]                                         Piotr Parlewicz                                 mailto:pparlewicz&queryobject.com
 # [Pisharath_Krishnan]                                      Pisharath Krishnan                              mailto:krishnan&axis-inc.com
@@ -20642,6 +20672,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Rene_Kurt]                                               Rene Kurt                                       mailto:rene.kurt&adasoft.ch                                   2005-08
 # [Reprise_Software_Inc]                                                              Reprise Software,     mailto:matt&reprisesoftware.com                               2012-11-06
 # Inc.
+# [Research_Electronics_International]                                                Research Electronics  mailto:software&reiusa.net                                    2012-12-20
+# International
 # [Resource_Allocation]                                     Resource Allocation Team                        mailto:resources&littlehall.com                               2010-09-27
 # [Retrospect_Inc]                                                                    Retrospect, Inc.      mailto:JG.Heithcock&retrospect.com                            2012-02-02
 # [Reuven_Harrison]                                         Reuven Harrison                                 mailto:rnd_ana&checkpoint.com
@@ -20869,6 +20901,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Rory_McClure]                                            Rory McClure                                    mailto:mcclurert&hotmail.com
 # [Rory_McGuire]                                            Rory McGuire                                    mailto:rlpm&apple.com                                         2010-09-24
 # [Rory_McGuire_2]                                          Rory McGuire                                    mailto:rlpm&apple.com
+# [Ross_Binkley]                                            Ross Binkley              Research Electronics  mailto:software&reiusa.net                                    2012-12-20
+# International
 # [Ross_E_Greinke]                                          Ross E. Greinke                                 mailto:greinker&execpc.com
 # [Ross_Swithenbank]                                        Ross Swithenbank                                mailto:iana&ncode.co.uk                                       2006-09
 # [Ross_Williams]                                           Ross Williams                                   mailto:ross&rocksoft.com
