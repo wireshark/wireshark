@@ -71,7 +71,10 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include <wsutil/str_util.h>
+
 #define COLUMN_WIDTH_MIN 40
+#define MAX_COMMENTS_TO_FETCH 20000000 /* Arbitrary */
 
 #define COL_EDIT_COLUMN          "column"
 #define COL_EDIT_FORMAT_CMB      "format_cmb"
@@ -1682,7 +1685,7 @@ packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 	g_string_free(text,TRUE);
 }
 
-gchar *
+const gchar *
 packet_list_get_packet_comment(void)
 {
 	GtkTreeModel *model;
@@ -1714,8 +1717,13 @@ packet_list_return_all_comments(GtkTextBuffer *buffer)
 			gtk_text_buffer_insert_at_cursor (buffer, buf_str, -1);
 			g_free(buf_str);
 		}
+		if (gtk_text_buffer_get_char_count(buffer) > MAX_COMMENTS_TO_FETCH) {
+			buf_str = g_strdup_printf("[ Comment text exceeds %s. Stopping. ]",
+						  format_size(MAX_COMMENTS_TO_FETCH, format_size_unit_bytes|format_size_prefix_si));
+			gtk_text_buffer_insert_at_cursor (buffer, buf_str, -1);
+			return;
+		}
 	}
-
 }
 
 void

@@ -46,6 +46,9 @@ public:
     void writeRecent(FILE *rf);
     bool contextMenuActive();
     QString &getFilterFromRowAndColumn();
+    QString packetComment();
+    void setPacketComment(QString new_comment);
+    QString allPacketComments();
 
 protected:
     void showEvent (QShowEvent *event);

@@ -36,7 +36,7 @@
 #include <QContextMenuEvent>
 #include <QMainWindow>
 
-QColor        expert_color_comment    ( 0x00, 0xff, 0x00 );        /* Green */
+QColor        expert_color_comment    ( 0xb7, 0xf7, 0x74 );        /* Green */
 QColor        expert_color_chat       ( 0x80, 0xb7, 0xf7 );        /* light blue */
 QColor        expert_color_note       ( 0xa0, 0xff, 0xff );        /* bright turquoise */
 QColor        expert_color_warn       ( 0xf7, 0xf2, 0x53 );        /* yellow */

@@ -101,6 +101,11 @@ main_window.h: ui_main_window.h
 ui_main_window.h: main_window.ui
 	uic $< -o $@
 
+packet_comment_dialog.h: ui_packet_comment_dialog.h
+
+ui_packet_comment_dialog.h: packet_comment_dialog.ui
+	uic $< -o $@
+
 packet_format_group_box.h: ui_packet_format_group_box.h
 
 ui_packet_format_group_box.h: packet_format_group_box.ui

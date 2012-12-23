@@ -220,6 +220,7 @@ private slots:
     void on_actionEditNextTimeReference_triggered();
     void on_actionEditPreviousTimeReference_triggered();
     void on_actionEditTimeShift_triggered();
+    void on_actionEditPacketComment_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();

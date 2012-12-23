@@ -1127,7 +1127,7 @@ set_ptree_font_all(PangoFontDescription *font)
  */
 static gboolean colors_ok = FALSE;
 
-GdkColor        expert_color_comment    = {0,  0x0000, 0xffff, 0x0000 };        /* Green */
+GdkColor        expert_color_comment    = { 0, 0xb7b7, 0xf7f7, 0x7474 };        /* Green */
 GdkColor        expert_color_chat       = { 0, 0x8080, 0xb7b7, 0xf7f7 };        /* light blue */
 GdkColor        expert_color_note       = { 0, 0xa0a0, 0xffff, 0xffff };        /* bright turquoise */
 GdkColor        expert_color_warn       = { 0, 0xf7f7, 0xf2f2, 0x5353 };        /* yellow */

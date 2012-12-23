@@ -43,6 +43,8 @@
 #include "ui/recent_utils.h"
 #include "ui/ui_util.h"
 
+#include "wsutil/str_util.h"
+
 #include <QTreeWidget>
 #include <QTabWidget>
 #include <QTextEdit>
@@ -54,6 +56,8 @@
 // able to use something like QMap<capture_file *, PacketList *> to match
 // capture files against packet lists and models.
 static PacketList *gbl_cur_packet_list = NULL;
+
+const int max_comments_to_fetch_ = 20000000; // Arbitrary
 
 guint
 packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo)
@@ -238,7 +242,8 @@ PacketList::PacketList(QWidget *parent) :
     ctx_menu_.addAction(window()->findChild<QAction *>("actionEditIgnorePacket"));
     ctx_menu_.addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));
     ctx_menu_.addAction(window()->findChild<QAction *>("actionEditTimeShift"));
-//    "     <menuitem name='AddEditPktComment' action='/Edit/AddEditPktComment'/>\n"
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditPacketComment"));
+
     ctx_menu_.addSeparator();
 //    "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
     ctx_menu_.addSeparator();
@@ -488,8 +493,14 @@ void PacketList::setFrameReftime(gboolean set, frame_data *fdata)
 void PacketList::updateAll() {
     update();
 
-    if (cap_file_ && selectedIndexes().length() > 0) {
+    if (!cap_file_) return;
+
+    if (selectedIndexes().length() > 0) {
         cf_select_packet(cap_file_, selectedIndexes()[0].row());
+    }
+
+    if (cap_file_->edt && cap_file_->edt->tree) {
+        proto_tree_->fillProtocolTree(cap_file_->edt->tree);
     }
 }
 
@@ -599,6 +610,72 @@ QString &PacketList::getFilterFromRowAndColumn()
     }
 
     return filter;
+}
+
+QString PacketList::packetComment()
+{
+    int row = currentIndex().row();
+    frame_data *fdata;
+
+    if (!cap_file_ || !packet_list_model_) return NULL;
+
+    fdata = packet_list_model_->getRowFdata(row);
+
+    if (!fdata) return NULL;
+
+    return QString(fdata->opt_comment);
+}
+
+void PacketList::setPacketComment(QString new_comment)
+{
+    int row = currentIndex().row();
+    frame_data *fdata;
+    gchar *new_packet_comment = new_comment.toUtf8().data();
+
+    if (!cap_file_ || !packet_list_model_) return;
+
+    fdata = packet_list_model_->getRowFdata(row);
+
+    if (!fdata) return;
+
+    /* Check if the comment has changed */
+    if (fdata->opt_comment) {
+        if (strcmp(fdata->opt_comment, new_packet_comment) == 0) {
+            return;
+        }
+    }
+
+    /* Check if we are clearing the comment */
+    if(new_comment.isEmpty()) {
+        new_packet_comment = NULL;
+    }
+
+    /* The comment has changed, let's update it */
+    cf_update_packet_comment(cap_file_, fdata, g_strdup(new_packet_comment));
+
+    updateAll();
+}
+
+QString PacketList::allPacketComments()
+{
+    guint32 framenum;
+    frame_data *fdata;
+    QString buf_str;
+
+    if (!cap_file_) return buf_str;
+
+    for (framenum = 1; framenum <= cap_file_->count ; framenum++) {
+        fdata = frame_data_sequence_find(cap_file_->frames, framenum);
+        if (fdata->opt_comment) {
+            buf_str.append(QString("Frame %1: %2 \n\n").arg(framenum).arg(fdata->opt_comment));
+        }
+        if (buf_str.length() > max_comments_to_fetch_) {
+            buf_str.append(QString("[ Comment text exceeds %1. Stopping. ]")
+                           .arg(format_size(max_comments_to_fetch_, format_size_unit_bytes|format_size_prefix_si)));
+            return buf_str;
+        }
+    }
+    return buf_str;
 }
 
 // Slots

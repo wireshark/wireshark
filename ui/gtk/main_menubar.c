@@ -1525,7 +1525,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/ConfigurationProfiles", NULL,                   "_Configuration Profiles...",           "<shift><control>A",        NULL,           G_CALLBACK(profile_dialog_cb) },
    { "/Edit/Preferences",           GTK_STOCK_PREFERENCES,  "_Preferences...",                      "<shift><control>P",        NULL,           G_CALLBACK(menus_prefs_cb) },
    { "/Edit/EditPacket",                NULL,               "_Edit Packet",                         NULL,                       NULL,           G_CALLBACK(edit_window_cb) },
-   { "/Edit/AddEditPktComment",         WIRESHARK_STOCK_EDIT,   "Edit or Add Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
+   { "/Edit/AddEditPktComment",         WIRESHARK_STOCK_EDIT,   "Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
 
    { "/View/TimeDisplayFormat",     NULL,                   "_Time Display Format",                 NULL,                       NULL,           NULL },
 
@@ -2797,7 +2797,7 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/Set Time Reference",              WIRESHARK_STOCK_TIME,   "Set Time Reference (toggle)",  NULL,                   NULL,           G_CALLBACK(packet_list_menu_set_ref_time_cb) },
   { "/TimeShift",                       WIRESHARK_STOCK_TIME,   "Time Shift...",                NULL,                   NULL,           G_CALLBACK(time_shift_cb) },
   { "/ManuallyResolveAddress",          NULL,                   "Manually Resolve Address",     NULL,                   NULL,           G_CALLBACK(manual_addr_resolv_dlg) },
-  { "/Edit/AddEditPktComment",          WIRESHARK_STOCK_EDIT,   "Edit or Add Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
+  { "/Edit/AddEditPktComment",          WIRESHARK_STOCK_EDIT,   "Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
 
 
   { "/Conversation Filter",             NULL, "Conversation Filter",    NULL, NULL, NULL },

@@ -31,7 +31,6 @@
 
 #include <QMessageBox>
 
-#include <QDebug>
 TimeShiftDialog::TimeShiftDialog(QWidget *parent, capture_file *cf) :
     QDialog(parent),
     ts_ui_(new Ui::TimeShiftDialog),

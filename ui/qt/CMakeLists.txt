@@ -44,6 +44,7 @@ set(QTSHARK_H_SRC
 	main_welcome.h
 	main_window.h
 	monospace_font.h
+	packet_comment_dialog.h
 	packet_format_group_box.h
 	packet_list.h
 	packet_list_model.h
@@ -88,6 +89,7 @@ set(QTSHARK_CPP_SRC
 	main_window.cpp
 	main_window_slots.cpp
 	monospace_font.cpp
+	packet_comment_dialog.cpp
 	packet_format_group_box.cpp
 	packet_list.cpp
 	packet_list_model.cpp
@@ -117,6 +119,7 @@ set(QTSHARK_UI
 	import_text_dialog.ui
 	main_welcome.ui
 	main_window.ui
+	packet_comment_dialog.ui
 	packet_format_group_box.ui
 	packet_range_group_box.ui
 	print_dialog.ui

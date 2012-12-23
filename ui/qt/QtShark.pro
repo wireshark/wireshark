@@ -186,6 +186,7 @@ FORMS += main_window.ui \
     file_set_dialog.ui \
     import_text_dialog.ui \
     main_welcome.ui \
+    packet_comment_dialog.ui \
     packet_format_group_box.ui \
     packet_range_group_box.ui \
     print_dialog.ui \
@@ -218,6 +219,7 @@ HEADERS += $$HEADERS_WS_C \
     accordion_frame.h \
     export_dissection_dialog.h \
     export_object_dialog.h \
+    packet_comment_dialog.h \
     packet_format_group_box.h \
     print_dialog.h \
     search_frame.h \
@@ -423,6 +425,7 @@ SOURCES += \
     main_window.cpp \
     main_window_slots.cpp \
     monospace_font.cpp \
+    packet_comment_dialog.cpp \
     packet_format_group_box.cpp \
     packet_list.cpp \
     packet_list_model.cpp \

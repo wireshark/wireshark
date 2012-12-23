@@ -32,9 +32,6 @@
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 
-#include "../cfile.h"
-#include "../file.h"
-
 #include "ui/main_statusbar.h"
 #include "ui/simple_dialog.h"
 
@@ -132,7 +129,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   GtkWidget *bbox;
   GtkWidget *ok_bt, *cancel_bt, *help_bt;
   GtkTextBuffer *buffer;
-  gchar *opt_comment;
+  const gchar *opt_comment;
   gchar *buf_str;
 
   edit_or_add_pkt_comment_dlg = dlg_window_new ("Edit or Add Packet Comments");

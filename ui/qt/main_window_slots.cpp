@@ -63,6 +63,7 @@
 #include "export_object_dialog.h"
 #include "print_dialog.h"
 #include "time_shift_dialog.h"
+#include "packet_comment_dialog.h"
 
 #include <QMessageBox>
 #include <QClipboard>
@@ -622,8 +623,7 @@ void MainWindow::setMenusForSelectedPacket()
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket",
 //                         frame_selected);
 //#endif /* WANT_PACKET_EDITOR */
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/AddEditPktComment",
-//                         frame_selected);
+    main_ui_->actionEditPacketComment->setEnabled(frame_selected);
 
     main_ui_->actionEditIgnorePacket->setEnabled(frame_selected);
     main_ui_->actionEditIgnoreAllDisplayed->setEnabled(have_filtered);
@@ -1266,8 +1266,16 @@ void MainWindow::on_actionEditTimeShift_triggered()
     TimeShiftDialog ts_dialog(this, cap_file_);
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             &ts_dialog, SLOT(setCaptureFile(capture_file*)));
-
     ts_dialog.exec();
+}
+
+void MainWindow::on_actionEditPacketComment_triggered()
+{
+    PacketCommentDialog pc_dialog(this, packet_list_->packetComment());
+    if (pc_dialog.exec() == QDialog::Accepted) {
+        packet_list_->setPacketComment(pc_dialog.text());
+        updateForUnsavedChanges();
+    }
 }
 
 // View Menu
