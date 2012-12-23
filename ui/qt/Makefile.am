@@ -126,6 +126,11 @@ splash_overlay.h: ui_splash_overlay.h
 ui_splash_overlay.h: splash_overlay.ui
 	uic $< -o $@
 
+time_shift_dialog.h: ui_time_shift_dialog.h
+
+ui_time_shift_dialog.h: time_shift_dialog.ui
+	uic $< -o $@
+
 doxygen:
 if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg
@@ -190,5 +195,6 @@ EXTRA_DIST = \
 	QtShark.pro			\
 	search_frame.ui			\
 	splash_overlay.ui		\
+	time_shift_dialog.ui		\
 	display_filter_16.svg		\
 	gpl-template.txt

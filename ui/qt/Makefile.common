@@ -108,6 +108,7 @@ MOC_HDRS = \
 	search_frame.h \
 	splash_overlay.h \
 	syntax_line_edit.h \
+	time_shift_dialog.h \
 	wireshark_application.h
 
 #
@@ -189,6 +190,7 @@ WIRESHARK_QT_SRC = \
 	search_frame.cpp \
 	splash_overlay.cpp \
 	syntax_line_edit.cpp \
+	time_shift_dialog.cpp \
 	wireshark_application.cpp
 
 noinst_HEADERS = \

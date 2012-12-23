@@ -57,6 +57,7 @@ set(QTSHARK_H_SRC
 	sparkline_delegate.h
 	splash_overlay.h
 	syntax_line_edit.h
+	time_shift_dialog.h
 	wireshark_application.h
 
 	# No Q_OBJECT:
@@ -102,6 +103,7 @@ set(QTSHARK_CPP_SRC
 	search_frame.cpp
 	splash_overlay.cpp
 	syntax_line_edit.cpp
+	time_shift_dialog.cpp
 	wireshark_application.cpp
 )
 
@@ -120,6 +122,7 @@ set(QTSHARK_UI
 	print_dialog.ui
 	search_frame.ui
 	splash_overlay.ui
+	time_shift_dialog.ui
 )
 
 set(QTSHARK_QRC
