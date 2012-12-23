@@ -771,9 +771,11 @@ write_file_header (void)
 #else
         char *appname = "text2pcap";
 #endif
+        char comment[100];
 
+        g_snprintf(comment, sizeof(comment), "Generated from input file %s.", input_filename);
         success = libpcap_write_session_header_block(output_file,
-                                                     NULL,
+                                                     comment,
                                                      NULL,
                                                      NULL,
                                                      appname,
@@ -989,8 +991,7 @@ start_new_packet (void)
 static void
 process_directive (char *str)
 {
-    fprintf(stderr, "\n--- Directive [%s] currently unsupported ---\n", str+10);
-
+    fprintf(stderr, "\n--- Directive [%s] currently unsupported ---\n", str + 10);
 }
 
 /*----------------------------------------------------------------------
