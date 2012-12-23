@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2012-12-15)
+(last updated 2012-12-22)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -859,8 +859,8 @@ Decimal
       netadmin&ml.hco.ntt.co.jp
 211
   Fujitsu Limited
-    Koji Ishibashi
-      ishibashi.koji&jp.fujitsu.com
+    Aki Yuuko
+      aki.yuko&jp.fujitsu.com
 212
   Network Peripherals Inc.
     Creighton Chong
@@ -17759,8 +17759,8 @@ Decimal
       terren&desupernet.net
 4440
   Purdue University
-    David A. Halsema
-      halsema&purdue.edu
+    Rob Stanfield
+      iamo&purdue.edu
 4441
   GE Capital Fleet Services
     Thomas Cooper
@@ -19794,9 +19794,9 @@ Decimal
     Brian L. Detweiler
       brian.l.detweiler.gc2k&statefarm.com
 4952
-  ThinkingObjects Software
-    Thomas Uhl
-      thomas.uhl&to.com
+  Thinking Objects GmbH
+    Markus Klingspor
+      markus.klingspor&to.com
 4953
   Tecnet Teleinformatica Ltda.
     Paulo Eduardo Macagnani
@@ -163659,9 +163659,9 @@ Decentralization / Helenic Public Administra
     Ing. Walter Hoehlhubmer
       waldinetwork.home&liwest.at
 41019
-  Acuntia
+  Acuntia S.A.
     Diego Nuevo
-      diego.nuevo&acuntia.es
+      tech.admin&acuntia.es
 41020
   GetOnline Ltd
     Karl Pielorz
@@ -163674,6 +163674,186 @@ Decentralization / Helenic Public Administra
   van Rens IT Consultancy
     Erwin van Rens
       info&vanrens.nl
+41023
+  BAITS Global
+    Georges Haddad
+      georges.haddad&baitsglobal.com
+41024
+  BG Unfallklinik Murnau
+    Erwin Kinateder
+      erwin.kinateder&bgu-murnau.de
+41025
+  Lorillard Tobacco Company
+    Stephen Norat
+      stephen.norat&capgemini.com
+41026
+  DealerTrack
+    Ronald Buglione
+      ronald.buglione&dealertrack.com
+41027
+  Direct Line Insurance Group PLC
+    Ashish Surti
+      ashish.a.surti&directlinegroup.co.uk
+41028
+  Delphix Corp
+    Peng Dai
+      peng.dai&delphix.com
+41029
+  The Orvis Company Inc.
+    Armand Boudreau
+      Boudreaua&orvis.com
+41030
+  JAI Inc.
+    Avinash V. Uppuluri
+      au&jai.com
+41031
+  Axeos Services B.V.
+    Max van Biezen
+      mvanbiez&axeos.nl
+41032
+  VeriCom AB
+    Fredrik Nilsson
+      fredrik&vericom.se
+41033
+  Amor Group
+    Matthew Wicks
+      matthew.wicks&amorgroup.com
+41034
+  Systems With Intelligence Inc.
+    Fausto Della Rovere
+      fausto.dellarovere&systemswithintelligence.com
+41035
+  TM Systems, LLC
+    Anna Homyakova
+      tms&tm-sys.ru
+41036
+  Corero Network Security
+    Scott Barvick
+      scott.barvick&corero.com
+41037
+  Edgepoint IT Services
+    Thomas Schweizer-Bolzonello
+      eusupport&edgepoint.fr
+41038
+  Gridcore AB
+    Richard Säfström
+      richard&gridcore.se
+41039
+  adidas AG
+    Eric Gunter
+      eric.gunter&adidas-group.com
+41040
+  Scientific & Research Center Epsilon
+    Aleksei Lukin
+      alukin&ntc-epsilon.com
+41041
+  Fairpersonal GmbH
+    Bernhard Hess
+      bernhard.hess&fairpersonal.de
+41042
+  tinNet - Lukas Barth
+    Lukas Barth
+      mail&tinloaf.de
+41043
+  Radius, LLC
+    Michael Lopez
+      mlopez&radiustoday.com
+41044
+  SohnTech Solutions, LLC.
+    Stephen Sohn
+      ssohn&sohntechsolutions.com
+41045
+  Rover Apps, LLC
+    Jeff Garbers
+      jgarbers&roverapps.com
+41046
+  Driven Technical Solutions
+    Jonque Washington
+      jonque&driventechnical.com
+41047
+  Sestek Communications Inc.
+    Bill Lin
+      bill&sestek.com.tw
+41048
+  NETIFY
+    Olivier LE CAM
+      olc&netify.fr
+41049
+  Erudio Solutions
+    Luca Filipozzi
+      noc&erudio.ca
+41050
+  Raspmon
+    Luke Niland
+      beakersoft&gmail.com
+41051
+  MBIA Inc.
+    Jake Kim
+      jake.kim&mbia.com
+41052
+  IntraFind Software AG
+    Bernhard Messer
+      bernhard.messer&intrafind.de
+41053
+  musicute project - Rouven Raudzus
+    Rouven Raudzus
+      Rouven.Raudzus&gmx.de
+41054
+  Dinamo Networks
+    Enilton Antonio do Nascimento Junior
+      eniltonj&dinamonetworks.com
+41055
+  Esquisse Software Studio
+    Alexander Konnen
+      alex&esquisse-studio.eu
+41056
+  telco Management & Service GmbH
+    Bernhard Hess
+      bernhard.hess&telco-ms.de
+41057
+  FANCYRABBIT.ORG
+    Huaping Huang
+      sysadmin&fancyrabbit.org
+41058
+  Loggly Inc.
+    Philip O'Toole
+      philip&loggly.com
+41059
+  Petromoc
+    Boris Wiethoff
+      borisw&petromoc.co.mz
+41060
+  M-D Technology
+    Haixing Li
+      aner.li&md-technologies.com
+41061
+  SOLUTI Certificacao Digital
+    Reinaldo Borges
+      reinaldo.borges&acsoluti.com.br
+41062
+  NuScale Power LLC
+    Chris Bates
+      cbates&nuscalepower.com
+41063
+  Asynchrony, Inc.
+    Nate McKie
+      nate.mckie&asynchrony.com
+41064
+  CheckMySystems Ltd.
+    Darren Rewston
+      darren&checkmysystems.com
+41065
+  Alea Iacta Est
+    Mark Rogaski
+      admin&aie-guild.org
+41066
+  Shaanxi Tians Information & Technology Co.,Ltd.
+    Xu aiming
+      xuaiming&tianstech.com
+41067
+  Quantitative Risk Research, S.L.
+    Raul Wegmann
+      it&qrr.es
 
 
 End of Document
