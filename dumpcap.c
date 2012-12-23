@@ -2030,8 +2030,7 @@ cap_pipe_open_live(char *pipename,
                  * interfaces are in /dev.  Pretend we haven't seen it.
                  */
                 pcap_opts->cap_pipe_err = PIPNEXIST;
-            } else
-            {
+            } else {
                 g_snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated because\n"
                            "\"%s\" is neither an interface nor a socket nor a pipe", pipename);
@@ -2102,52 +2101,51 @@ cap_pipe_open_live(char *pipename,
 #ifndef _WIN32
          || 1
 #endif
-         )
-    {
-       /* read the pcap header */
-       bytes_read = 0;
-       while (bytes_read < sizeof magic) {
-           sel_ret = cap_pipe_select(fd);
-           if (sel_ret < 0) {
-               g_snprintf(errmsg, errmsgl,
-                          "Unexpected error from select: %s", g_strerror(errno));
-               goto error;
-           } else if (sel_ret > 0) {
-               b = cap_pipe_read(fd, ((char *)&magic)+bytes_read, sizeof magic-bytes_read, pcap_opts->from_cap_socket);
-               if (b <= 0) {
-                   if (b == 0)
-                       g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open");
-                   else
-                       g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s",
-                                  g_strerror(errno));
-                   goto error;
-               }
-               bytes_read += b;
-           }
-       }
+         ) {
+        /* read the pcap header */
+        bytes_read = 0;
+        while (bytes_read < sizeof magic) {
+            sel_ret = cap_pipe_select(fd);
+            if (sel_ret < 0) {
+                g_snprintf(errmsg, errmsgl,
+                           "Unexpected error from select: %s", g_strerror(errno));
+                goto error;
+            } else if (sel_ret > 0) {
+                b = cap_pipe_read(fd, ((char *)&magic)+bytes_read, sizeof magic-bytes_read, pcap_opts->from_cap_socket);
+                if (b <= 0) {
+                    if (b == 0)
+                        g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open");
+                    else
+                        g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s",
+                                   g_strerror(errno));
+                    goto error;
+                }
+                bytes_read += b;
+            }
+        }
     }
 #ifdef _WIN32
     else {
 #if GLIB_CHECK_VERSION(2,31,0)
-       g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_opts);
+        g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_opts);
 #else
-       g_thread_create(&cap_thread_read, pcap_opts, FALSE, NULL);
+        g_thread_create(&cap_thread_read, pcap_opts, FALSE, NULL);
 #endif
 
-       pcap_opts->cap_pipe_buf = (char *) &magic;
-       pcap_opts->cap_pipe_bytes_read = 0;
-       pcap_opts->cap_pipe_bytes_to_read = sizeof(magic);
-       /* We don't have to worry about cap_pipe_read_mtx here */
-       g_async_queue_push(pcap_opts->cap_pipe_pending_q, pcap_opts->cap_pipe_buf);
-       g_async_queue_pop(pcap_opts->cap_pipe_done_q);
-       if (pcap_opts->cap_pipe_bytes_read <= 0) {
-           if (pcap_opts->cap_pipe_bytes_read == 0)
-               g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open");
-           else
-               g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s",
-                          g_strerror(errno));
-           goto error;
-       }
+        pcap_opts->cap_pipe_buf = (char *) &magic;
+        pcap_opts->cap_pipe_bytes_read = 0;
+        pcap_opts->cap_pipe_bytes_to_read = sizeof(magic);
+        /* We don't have to worry about cap_pipe_read_mtx here */
+        g_async_queue_push(pcap_opts->cap_pipe_pending_q, pcap_opts->cap_pipe_buf);
+        g_async_queue_pop(pcap_opts->cap_pipe_done_q);
+        if (pcap_opts->cap_pipe_bytes_read <= 0) {
+            if (pcap_opts->cap_pipe_bytes_read == 0)
+                g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open");
+            else
+                g_snprintf(errmsg, errmsgl, "Error on pipe magic during open: %s",
+                           g_strerror(errno));
+            goto error;
+        }
     }
 #endif
 
@@ -2192,46 +2190,45 @@ cap_pipe_open_live(char *pipename,
 #ifndef _WIN32
          || 1
 #endif
-         )
-    {
-       /* Read the rest of the header */
-       bytes_read = 0;
-       while (bytes_read < sizeof(struct pcap_hdr)) {
-           sel_ret = cap_pipe_select(fd);
-           if (sel_ret < 0) {
-               g_snprintf(errmsg, errmsgl,
-                          "Unexpected error from select: %s", g_strerror(errno));
-               goto error;
-           } else if (sel_ret > 0) {
-               b = cap_pipe_read(fd, ((char *)hdr)+bytes_read,
-                        sizeof(struct pcap_hdr) - bytes_read, pcap_opts->from_cap_socket);
-               if (b <= 0) {
-                   if (b == 0)
-                       g_snprintf(errmsg, errmsgl, "End of file on pipe header during open");
-                   else
-                       g_snprintf(errmsg, errmsgl, "Error on pipe header during open: %s",
-                                  g_strerror(errno));
-                   goto error;
-               }
-               bytes_read += b;
-           }
-       }
+         ) {
+        /* Read the rest of the header */
+        bytes_read = 0;
+        while (bytes_read < sizeof(struct pcap_hdr)) {
+            sel_ret = cap_pipe_select(fd);
+            if (sel_ret < 0) {
+                g_snprintf(errmsg, errmsgl,
+                           "Unexpected error from select: %s", g_strerror(errno));
+                goto error;
+            } else if (sel_ret > 0) {
+                b = cap_pipe_read(fd, ((char *)hdr)+bytes_read,
+                         sizeof(struct pcap_hdr) - bytes_read, pcap_opts->from_cap_socket);
+                if (b <= 0) {
+                    if (b == 0)
+                        g_snprintf(errmsg, errmsgl, "End of file on pipe header during open");
+                    else
+                        g_snprintf(errmsg, errmsgl, "Error on pipe header during open: %s",
+                                   g_strerror(errno));
+                    goto error;
+                }
+                bytes_read += b;
+            }
+        }
     }
 #ifdef _WIN32
     else {
-       pcap_opts->cap_pipe_buf = (char *) hdr;
-       pcap_opts->cap_pipe_bytes_read = 0;
-       pcap_opts->cap_pipe_bytes_to_read = sizeof(struct pcap_hdr);
-       g_async_queue_push(pcap_opts->cap_pipe_pending_q, pcap_opts->cap_pipe_buf);
-       g_async_queue_pop(pcap_opts->cap_pipe_done_q);
-       if (pcap_opts->cap_pipe_bytes_read <= 0) {
-           if (pcap_opts->cap_pipe_bytes_read == 0)
-               g_snprintf(errmsg, errmsgl, "End of file on pipe header during open");
-           else
-               g_snprintf(errmsg, errmsgl, "Error on pipe header header during open: %s",
-                          g_strerror(errno));
-           goto error;
-       }
+        pcap_opts->cap_pipe_buf = (char *) hdr;
+        pcap_opts->cap_pipe_bytes_read = 0;
+        pcap_opts->cap_pipe_bytes_to_read = sizeof(struct pcap_hdr);
+        g_async_queue_push(pcap_opts->cap_pipe_pending_q, pcap_opts->cap_pipe_buf);
+        g_async_queue_pop(pcap_opts->cap_pipe_done_q);
+        if (pcap_opts->cap_pipe_bytes_read <= 0) {
+            if (pcap_opts->cap_pipe_bytes_read == 0)
+                g_snprintf(errmsg, errmsgl, "End of file on pipe header during open");
+            else
+                g_snprintf(errmsg, errmsgl, "Error on pipe header header during open: %s",
+                           g_strerror(errno));
+            goto error;
+        }
     }
 #endif
 
@@ -2259,8 +2256,6 @@ error:
     pcap_opts->cap_pipe_err = PIPERR;
     cap_pipe_close(fd, pcap_opts->from_cap_socket);
     pcap_opts->cap_pipe_fd = -1;
-    return;
-
 }
 
 
