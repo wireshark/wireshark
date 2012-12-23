@@ -2306,44 +2306,42 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         /* Fall through */
 
     case STATE_READ_REC_HDR:
-      if ((pcap_opts->from_cap_socket)
+        if ((pcap_opts->from_cap_socket)
 #ifndef _WIN32
-         || 1
+           || 1
 #endif
-         )
-      {
-        b = cap_pipe_read(pcap_opts->cap_pipe_fd, ((char *)&pcap_opts->cap_pipe_rechdr)+pcap_opts->cap_pipe_bytes_read,
+           ) {
+            b = cap_pipe_read(pcap_opts->cap_pipe_fd, ((char *)&pcap_opts->cap_pipe_rechdr)+pcap_opts->cap_pipe_bytes_read,
                  pcap_opts->cap_pipe_bytes_to_read - pcap_opts->cap_pipe_bytes_read, pcap_opts->from_cap_socket);
-        if (b <= 0) {
-            if (b == 0)
-                result = PD_PIPE_EOF;
-            else
-                result = PD_PIPE_ERR;
-            break;
+            if (b <= 0) {
+                if (b == 0)
+                    result = PD_PIPE_EOF;
+                else
+                    result = PD_PIPE_ERR;
+                break;
+            }
+            pcap_opts->cap_pipe_bytes_read += b;
         }
-        pcap_opts->cap_pipe_bytes_read += b;
-      }
 #ifdef _WIN32
-      else
-      {
+        else {
 #if GLIB_CHECK_VERSION(2,31,18)
-        q_status = g_async_queue_timeout_pop(pcap_opts->cap_pipe_done_q, PIPE_READ_TIMEOUT);
+            q_status = g_async_queue_timeout_pop(pcap_opts->cap_pipe_done_q, PIPE_READ_TIMEOUT);
 #else
-        g_get_current_time(&wait_time);
-        g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
-        q_status = g_async_queue_timed_pop(pcap_opts->cap_pipe_done_q, &wait_time);
+            g_get_current_time(&wait_time);
+            g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
+            q_status = g_async_queue_timed_pop(pcap_opts->cap_pipe_done_q, &wait_time);
 #endif
-        if (pcap_opts->cap_pipe_err == PIPEOF) {
-            result = PD_PIPE_EOF;
-            break;
-        } else if (pcap_opts->cap_pipe_err == PIPERR) {
-            result = PD_PIPE_ERR;
-            break;
+            if (pcap_opts->cap_pipe_err == PIPEOF) {
+                result = PD_PIPE_EOF;
+                break;
+            } else if (pcap_opts->cap_pipe_err == PIPERR) {
+                result = PD_PIPE_ERR;
+                break;
+            }
+            if (!q_status) {
+                return 0;
+            }
         }
-        if (!q_status) {
-            return 0;
-        }
-      }
 #endif
         if ((pcap_opts->cap_pipe_bytes_read) < pcap_opts->cap_pipe_bytes_to_read)
             return 0;
@@ -2368,45 +2366,43 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         /* Fall through */
 
     case STATE_READ_DATA:
-      if ((pcap_opts->from_cap_socket)
+        if ((pcap_opts->from_cap_socket)
 #ifndef _WIN32
-         || 1
+           || 1
 #endif
-         )
-      {
-        b = cap_pipe_read(pcap_opts->cap_pipe_fd, data+pcap_opts->cap_pipe_bytes_read,
+           ) {
+            b = cap_pipe_read(pcap_opts->cap_pipe_fd, data+pcap_opts->cap_pipe_bytes_read,
                  pcap_opts->cap_pipe_bytes_to_read - pcap_opts->cap_pipe_bytes_read, pcap_opts->from_cap_socket);
-        if (b <= 0) {
-            if (b == 0)
-                result = PD_PIPE_EOF;
-            else
-                result = PD_PIPE_ERR;
-            break;
+            if (b <= 0) {
+                if (b == 0)
+                    result = PD_PIPE_EOF;
+                else
+                    result = PD_PIPE_ERR;
+                break;
+            }
+            pcap_opts->cap_pipe_bytes_read += b;
         }
-        pcap_opts->cap_pipe_bytes_read += b;
-      }
 #ifdef _WIN32
-      else
-      {
+        else {
 
 #if GLIB_CHECK_VERSION(2,31,18)
-        q_status = g_async_queue_timeout_pop(pcap_opts->cap_pipe_done_q, PIPE_READ_TIMEOUT);
+            q_status = g_async_queue_timeout_pop(pcap_opts->cap_pipe_done_q, PIPE_READ_TIMEOUT);
 #else
-        g_get_current_time(&wait_time);
-        g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
-        q_status = g_async_queue_timed_pop(pcap_opts->cap_pipe_done_q, &wait_time);
+            g_get_current_time(&wait_time);
+            g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
+            q_status = g_async_queue_timed_pop(pcap_opts->cap_pipe_done_q, &wait_time);
 #endif
-        if (pcap_opts->cap_pipe_err == PIPEOF) {
-            result = PD_PIPE_EOF;
-            break;
-        } else if (pcap_opts->cap_pipe_err == PIPERR) {
-            result = PD_PIPE_ERR;
-            break;
+            if (pcap_opts->cap_pipe_err == PIPEOF) {
+                result = PD_PIPE_EOF;
+                break;
+            } else if (pcap_opts->cap_pipe_err == PIPERR) {
+                result = PD_PIPE_ERR;
+                break;
+            }
+            if (!q_status) {
+                return 0;
+            }
         }
-        if (!q_status) {
-            return 0;
-        }
-      }
 #endif
         if ((pcap_opts->cap_pipe_bytes_read) < pcap_opts->cap_pipe_bytes_to_read)
             return 0;
