@@ -91,9 +91,12 @@ $INCLUDE dictionary.rfc4679
 $INCLUDE dictionary.rfc4818
 $INCLUDE dictionary.rfc4849
 $INCLUDE dictionary.rfc5176
+$INCLUDE dictionary.rfc5447
 $INCLUDE dictionary.rfc5580
 $INCLUDE dictionary.rfc5607
 $INCLUDE dictionary.rfc5904
+$INCLUDE dictionary.rfc6519
+$INCLUDE dictionary.rfc6572
 
 #
 #	Include vendor dictionaries after the standard ones.

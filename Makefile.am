@@ -221,9 +221,12 @@ radius_DATA = \
 	radius/dictionary.rfc4849 \
 	radius/dictionary.rfc5090 \
 	radius/dictionary.rfc5176 \
+	radius/dictionary.rfc5447 \
 	radius/dictionary.rfc5580 \
 	radius/dictionary.rfc5607 \
 	radius/dictionary.rfc5904 \
+	radius/dictionary.rfc6519 \
+	radius/dictionary.rfc6572 \
 	radius/dictionary.riverstone \
 	radius/dictionary.roaringpenguin \
 	radius/dictionary.shasta  \
