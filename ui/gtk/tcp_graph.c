@@ -1238,7 +1238,7 @@ static void callback_zoom_step (GtkWidget *spin, gpointer data)
 	GtkSpinButton *widget_this, *widget_other;
 	double old_this;
 
-	direction = (long)g_object_get_data(G_OBJECT(spin), "direction");
+	direction = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(spin), "direction"));
 	value = gtk_spin_button_get_value (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
@@ -1277,7 +1277,7 @@ static void callback_zoom_step (GtkWidget *spin, gpointer data)
 static void callback_zoom_flags (GtkWidget *toggle, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
-	int flag = (long)g_object_get_data(G_OBJECT(toggle), "flag");
+	int flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(toggle), "flag"));
 
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle)))
 		g->zoom.flags |= flag;
@@ -1439,7 +1439,7 @@ static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 		g->magnify.flags &= ~MAGZOOMS_IGNORE;
 		return;
 	}
-	direction = (long)g_object_get_data(G_OBJECT(spin), "direction");
+	direction = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(spin), "direction"));
 	value = gtk_spin_button_get_value (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
@@ -1482,7 +1482,7 @@ static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 static void callback_mag_flags (GtkWidget *toggle, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
-	int flag = (long)g_object_get_data(G_OBJECT(toggle), "flag");
+	int flag = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(toggle), "flag"));
 
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle)))
 		g->magnify.flags |= flag;
@@ -1663,7 +1663,7 @@ static void callback_graph_type (GtkWidget *toggle, gpointer data)
 	int old_type, new_type;
 	struct graph *g = (struct graph * )data;
 
-	new_type = (long)g_object_get_data(G_OBJECT(toggle),"new-graph-type");
+	new_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(toggle),"new-graph-type"));
 
 	if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle)))
 		return;
