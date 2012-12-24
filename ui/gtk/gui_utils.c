@@ -514,16 +514,16 @@ window_geom_recent_read_pair(const char *name,
     }
 
     if (strcmp(key, "x") == 0) {
-        geom.x = strtol(value, NULL, 10);
+        geom.x = (gint)strtol(value, NULL, 10);
         geom.set_pos = TRUE;
     } else if (strcmp(key, "y") == 0) {
-        geom.y = strtol(value, NULL, 10);
+        geom.y = (gint)strtol(value, NULL, 10);
         geom.set_pos = TRUE;
     } else if (strcmp(key, "width") == 0) {
-        geom.width = strtol(value, NULL, 10);
+        geom.width = (gint)strtol(value, NULL, 10);
         geom.set_size = TRUE;
     } else if (strcmp(key, "height") == 0) {
-        geom.height = strtol(value, NULL, 10);
+        geom.height = (gint)strtol(value, NULL, 10);
         geom.set_size = TRUE;
     } else if (strcmp(key, "maximized") == 0) {
         if (g_ascii_strcasecmp(value, "true") == 0) {
@@ -1228,10 +1228,11 @@ copy_binary_to_clipboard(const guint8 *data_p,
                          int           len)
 {
     static GtkTargetEntry target_entry[] = {
-         {"application/octet_stream", 0, 0}}; /* XXX - this not understood by most applications,
-                                             * but can be pasted into the better hex editors - is
-                                             * there something better that we can do?
-                                             */
+         {(char *)"application/octet-stream", 0, 0}};
+	     /* XXX - this is not understood by most applications,
+              * but can be pasted into the better hex editors - is
+              * there something better that we can do?
+              */
 
     GtkClipboard  *cb;
     copy_binary_t *copy_data;

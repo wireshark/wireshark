@@ -293,7 +293,7 @@ extern GtkWidget *pixbuf_to_widget(const char * pb_data);
 extern void copy_to_clipboard(GString *str);
 
 /** Copy an array of bytes to the clipboard.
- * Copies as mime-type application/octet_stream in GTK 2.
+ * Copies as mime-type application/octet-stream in GTK 2.
  *
  * @param data_p Pointer to data to be copied.
  * @param len Number of bytes in the data to be copied.
