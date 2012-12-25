@@ -98,8 +98,13 @@
 #define UDP_PORT_VINES	573
 
 static int proto_vines_frp = -1;
+static int hf_vines_frp_flags = -1;
+static int hf_vines_frp_flags_first_fragment = -1;
+static int hf_vines_frp_flags_last_fragment = -1;
+static int hf_vines_frp_sequence_number = -1;
 
 static gint ett_vines_frp = -1;
+static gint ett_vines_frp_flags = -1;
 
 static int proto_vines_llc = -1;
 
@@ -243,6 +248,10 @@ capture_vines(packet_counts *ld)
 static dissector_handle_t vines_ip_handle;
 static dissector_handle_t data_handle;
 
+/* Control flags */
+#define VINES_FRP_FIRST_FRAGMENT	0x01
+#define VINES_FRP_LAST_FRAGMENT		0x02
+
 /* AFAIK Vines FRP (Fragmentation Protocol) is used on all media except
  * Ethernet and TR (and probably FDDI) - Fragmentation on these media types
  * is not possible
@@ -254,7 +263,7 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8   vines_frp_ctrl;
 	proto_tree *vines_frp_tree;
 	proto_item *ti;
-	gchar	*frp_flags_str="";
+	proto_tree *flags_tree;
 	tvbuff_t *next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines FRP");
@@ -267,41 +276,16 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		vines_frp_ctrl = tvb_get_guint8(tvb, 0);
 
-		/*
-		 * 1: first fragment of vines packet
-		 * 2: last fragment of vines packet
-		 * 4 ... 80: unused
-		 */
-		switch (vines_frp_ctrl) {
+		ti = proto_tree_add_uint(vines_frp_tree, hf_vines_frp_flags,
+		    tvb, 0, 1, vines_frp_ctrl);
+		flags_tree = proto_item_add_subtree(ti, ett_vines_frp_flags);
+		proto_tree_add_boolean(flags_tree, hf_vines_frp_flags_first_fragment,
+		    tvb, 0, 1, vines_frp_ctrl);
+		proto_tree_add_boolean(flags_tree, hf_vines_frp_flags_last_fragment,
+		    tvb, 0, 1, vines_frp_ctrl);
 
-		case 0:
-			frp_flags_str= "middle";
-			break;
-
-		case 1:
-			frp_flags_str= "first";
-			break;
-
-		case 2:
-			frp_flags_str= "last";
-			break;
-
-		case 3:
-			frp_flags_str= "only";
-			break;
-
-		default:
-			frp_flags_str= "please report: unknown";
-			break;
-		}
-
-		proto_tree_add_text(vines_frp_tree, tvb, 0, 1,
-				    "Control Flags: 0x%02x = %s fragment",
-				    vines_frp_ctrl, frp_flags_str);
-
-		proto_tree_add_text(vines_frp_tree, tvb, 1, 1,
-				    "Sequence Number: 0x%02x",
-				    tvb_get_guint8(tvb, 1));
+		proto_tree_add_item(vines_frp_tree, hf_vines_frp_sequence_number,
+		    tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	}
 
 	/* Decode the "real" Vines now */
@@ -309,22 +293,65 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	call_dissector(vines_ip_handle, next_tvb, pinfo, tree);
 }
 
+static int
+dissect_vines_frp_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    void *params _U_)
+{
+	guint8   vines_frp_ctrl;
+
+	if (!tvb_bytes_exist(tvb, 0, 1)) {
+		/* Too short to check the flags value. */
+		return 0;
+	}
+	vines_frp_ctrl = tvb_get_guint8(tvb, 0);
+	if ((vines_frp_ctrl & ~(VINES_FRP_FIRST_FRAGMENT|VINES_FRP_LAST_FRAGMENT)) != 0) {
+		/* Those are the only flags; if anything else is set, this
+		 * is presumably not Vines FRP. */
+		return 0;
+	}
+	dissect_vines_frp(tvb, pinfo, tree);
+	return tvb_length(tvb);
+}
+
 void
 proto_register_vines_frp(void)
 {
+	static hf_register_info hf[] = {
+	  { &hf_vines_frp_flags,
+	    { "Control Flags",		"vines_frp.flags",
+	      FT_UINT8,		BASE_HEX,	NULL,	0x0,
+	      NULL, HFILL }},
+
+	  { &hf_vines_frp_flags_first_fragment,
+	    { "First fragment",		"vines_frp.flags.first_fragment",
+	      FT_BOOLEAN,	8,	NULL,	VINES_FRP_FIRST_FRAGMENT,
+	      NULL, HFILL }},
+
+	  { &hf_vines_frp_flags_last_fragment,
+	    { "Last fragment",		"vines_frp.flags.last_fragment",
+	      FT_BOOLEAN,	8,	NULL,	VINES_FRP_LAST_FRAGMENT,
+	      NULL, HFILL }},
+
+	  { &hf_vines_frp_sequence_number,
+	    { "Sequence Number",	"vines_frp.sequence_number",
+	      FT_UINT8,		BASE_HEX,	NULL,	0x0,
+	      NULL, HFILL }},
+	};
 	static gint *ett[] = {
 		&ett_vines_frp,
+		&ett_vines_frp_flags
 	};
 
 	proto_vines_frp = proto_register_protocol(
 	    "Banyan Vines Fragmentation Protocol", "Vines FRP", "vines_frp");
+	proto_register_field_array(proto_vines_ip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_vines_frp(void)
 {
-	dissector_handle_t vines_frp_handle;
+	dissector_handle_t vines_frp_handle, vines_frp_new_handle;
 
 	vines_frp_handle = create_dissector_handle(dissect_vines_frp,
 	    proto_vines_frp);
@@ -332,7 +359,9 @@ proto_reg_handoff_vines_frp(void)
 
 	/* XXX: AFAIK, src and dst port must be the same; should
 	   the dissector check for that? */
-	dissector_add_uint("udp.port", UDP_PORT_VINES, vines_frp_handle);
+	vines_frp_new_handle = new_create_dissector_handle(dissect_vines_frp_new,
+	    proto_vines_frp);
+	dissector_add_uint("udp.port", UDP_PORT_VINES, vines_frp_new_handle);
 }
 
 static dissector_table_t vines_llc_dissector_table;
