@@ -1262,14 +1262,23 @@ dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 static gboolean
 heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
+	gint length;
 	guint offset = 0;
 
-	if (tvb_length_remaining(tvb, offset) % MP2T_PACKET_SIZE) {
+	length = tvb_length_remaining(tvb, offset);
+	if (length == 0) {
+		/* Nothing to check for */
+		return FALSE;
+	}
+	if ((length % MP2T_PACKET_SIZE) != 0) {
+		/* Not a multiple of the MPEG-2 transport packet size */
 		return FALSE;
 	} else {
-		while (tvb_length_remaining(tvb, offset) > 0) {
-			if (tvb_get_guint8(tvb, offset) != MP2T_SYNC_BYTE)
+		while (tvb_offset_exists(tvb, offset)) {
+			if (tvb_get_guint8(tvb, offset) != MP2T_SYNC_BYTE) {
+				/* No sync byte at the appropriate offset */
 				return FALSE;
+			}
 			offset += MP2T_PACKET_SIZE;
 		}
 	}
