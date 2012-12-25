@@ -527,10 +527,14 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 		code = tvb_get_guint8(tvb, offset);
 		offset += 1;
 		len -= 1;
+		if (len == 0)
+			break;
 
 		length = tvb_get_guint8(tvb, offset);
 		offset += 1;
 		len -= 1;
+		if (len == 0)
+			break;
 
 		if ( len < length ) {
 			isis_dissect_unknown(tvb, tree, offset,
