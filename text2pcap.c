@@ -589,7 +589,11 @@ write_current_packet (void)
 
         /* Compute packet length */
         length = curr_offset;
-
+        if (hdr_sctp) {
+            padding_length = number_of_padding_bytes(length - header_length );
+        } else {
+            padding_length = 0;
+        }
         /* Reset curr_offset, since we now write the headers */
         curr_offset = 0;
 
@@ -601,7 +605,7 @@ write_current_packet (void)
 
         /* Write IP header */
         if (hdr_ip) {
-            HDR_IP.packet_length = g_htons(length - ip_offset);
+            HDR_IP.packet_length = g_htons(length - ip_offset + padding_length);
             HDR_IP.protocol = (guint8) hdr_ip_proto;
             HDR_IP.hdr_checksum = 0;
             HDR_IP.hdr_checksum = in_checksum(&HDR_IP, sizeof(HDR_IP));
@@ -671,11 +675,21 @@ write_current_packet (void)
             HDR_TCP.seq_num = g_htonl(HDR_TCP.seq_num);
         }
 
+        /* Compute DATA chunk header */
+        if (hdr_data_chunk) {
+            HDR_DATA_CHUNK.type   = hdr_data_chunk_type;
+            HDR_DATA_CHUNK.bits   = hdr_data_chunk_bits;
+            HDR_DATA_CHUNK.length = g_htons(length - header_length + sizeof(HDR_DATA_CHUNK));
+            HDR_DATA_CHUNK.tsn    = g_htonl(hdr_data_chunk_tsn);
+            HDR_DATA_CHUNK.sid    = g_htons(hdr_data_chunk_sid);
+            HDR_DATA_CHUNK.ssn    = g_htons(hdr_data_chunk_ssn);
+            HDR_DATA_CHUNK.ppid   = g_htonl(hdr_data_chunk_ppid);
+        }
+
         /* Write SCTP common header */
         if (hdr_sctp) {
             guint32 zero = 0;
 
-            padding_length = number_of_padding_bytes(length - header_length);
             HDR_SCTP.src_port  = g_htons(hdr_sctp_src);
             HDR_SCTP.dest_port = g_htons(hdr_sctp_dest);
             HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
@@ -693,15 +707,8 @@ write_current_packet (void)
             write_bytes((const char *)&HDR_SCTP, sizeof(HDR_SCTP));
         }
 
-        /* Compute DATA chunk header and append padding */
+        /* Write DATA chunk header */
         if (hdr_data_chunk) {
-            HDR_DATA_CHUNK.type   = hdr_data_chunk_type;
-            HDR_DATA_CHUNK.bits   = hdr_data_chunk_bits;
-            HDR_DATA_CHUNK.length = g_htons(length - header_length + sizeof(HDR_DATA_CHUNK));
-            HDR_DATA_CHUNK.tsn    = g_htonl(hdr_data_chunk_tsn);
-            HDR_DATA_CHUNK.sid    = g_htons(hdr_data_chunk_sid);
-            HDR_DATA_CHUNK.ssn    = g_htons(hdr_data_chunk_ssn);
-            HDR_DATA_CHUNK.ppid   = g_htonl(hdr_data_chunk_ppid);
             write_bytes((const char *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK));
         }
 
