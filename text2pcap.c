@@ -401,7 +401,7 @@ write_byte (const char *str)
     num = parse_num(str, FALSE);
     packet_buf[curr_offset] = (unsigned char) num;
     curr_offset ++;
-    if (curr_offset >= max_offset) /* packet full */
+    if (curr_offset - header_length >= max_offset) /* packet full */
         start_new_packet();
 }
 
@@ -414,7 +414,7 @@ write_bytes(const char bytes[], unsigned long nbytes)
 {
     unsigned long i;
 
-    if (curr_offset + nbytes < max_offset) {
+    if (curr_offset + nbytes < MAX_PACKET) {
         for (i = 0; i < nbytes; i++) {
             packet_buf[curr_offset] = bytes[i];
             curr_offset++;
@@ -752,7 +752,7 @@ write_current_packet (void)
         num_packets_written ++;
     }
 
-    packet_start += curr_offset;
+    packet_start += curr_offset - header_length;
     curr_offset = header_length;
     return;
 }
@@ -1074,12 +1074,12 @@ parse_token (token_t token, char *str)
             break;
         case T_OFFSET:
             num = parse_num(str, TRUE);
-            if (num==0) {
+            if (num == 0) {
                 /* New packet starts here */
                 start_new_packet();
                 packet_start = 0;
                 state = READ_OFFSET;
-            } else if ((num - packet_start) != curr_offset) {
+            } else if ((num - packet_start) != curr_offset - header_length) {
                 /*
                  * The offset we read isn't the one we expected.
                  * This may only mean that we mistakenly interpreted
@@ -1094,7 +1094,7 @@ parse_token (token_t token, char *str)
                     state = READ_OFFSET;
                 } else {
                     /* Bad offset; switch to INIT state */
-                    if (debug>=1)
+                    if (debug >= 1)
                         fprintf(stderr, "Inconsistent offset. Expecting %0lX, got %0lX. Ignoring rest of packet\n",
                                 curr_offset, num);
                     write_current_packet();
