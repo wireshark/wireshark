@@ -603,9 +603,6 @@ libpcap_write_enhanced_packet_block(FILE *fp,
                 option.value_length = sizeof(guint32);
                 WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
                 WRITE_DATA(fp, &flags, sizeof(guint32), *bytes_written, err);
-                option.type = OPT_ENDOFOPT;
-                option.value_length = 0;
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
         }
         if (have_options) {
                 option.type = OPT_ENDOFOPT;
