@@ -176,7 +176,7 @@ static unsigned long hdr_sctp_tag  = 0;
 /* Dummy DATA chunk header */
 static int hdr_data_chunk = FALSE;
 static unsigned char  hdr_data_chunk_type = 0;
-static unsigned char  hdr_data_chunk_bits = 3;
+static unsigned char  hdr_data_chunk_bits = 0;
 static unsigned long  hdr_data_chunk_tsn  = 0;
 static unsigned short hdr_data_chunk_sid  = 0;
 static unsigned short hdr_data_chunk_ssn  = 0;
@@ -195,7 +195,7 @@ static unsigned long ip_offset;
 static unsigned long curr_offset;
 static unsigned long max_offset = MAX_PACKET;
 static unsigned long packet_start = 0;
-static void start_new_packet (void);
+static void start_new_packet(gboolean);
 
 /* This buffer contains strings present before the packet offset 0 */
 #define PACKET_PREAMBLE_MAX_LEN	2048
@@ -402,7 +402,7 @@ write_byte (const char *str)
     packet_buf[curr_offset] = (unsigned char) num;
     curr_offset ++;
     if (curr_offset - header_length >= max_offset) /* packet full */
-        start_new_packet();
+        start_new_packet(TRUE);
 }
 
 /*----------------------------------------------------------------------
@@ -577,7 +577,7 @@ number_of_padding_bytes (unsigned long length)
  * Write current packet out
  */
 static void
-write_current_packet (void)
+write_current_packet(gboolean cont)
 {
     unsigned long length = 0;
     guint16 padding_length = 0;
@@ -677,6 +677,13 @@ write_current_packet (void)
 
         /* Compute DATA chunk header */
         if (hdr_data_chunk) {
+            hdr_data_chunk_bits = 0;
+            if (packet_start == 0) {
+                hdr_data_chunk_bits |= 0x02;
+            }
+            if (!cont) {
+                hdr_data_chunk_bits |= 0x01;
+            }
             HDR_DATA_CHUNK.type   = hdr_data_chunk_type;
             HDR_DATA_CHUNK.bits   = hdr_data_chunk_bits;
             HDR_DATA_CHUNK.length = g_htons(length - header_length + sizeof(HDR_DATA_CHUNK));
@@ -684,6 +691,10 @@ write_current_packet (void)
             HDR_DATA_CHUNK.sid    = g_htons(hdr_data_chunk_sid);
             HDR_DATA_CHUNK.ssn    = g_htons(hdr_data_chunk_ssn);
             HDR_DATA_CHUNK.ppid   = g_htonl(hdr_data_chunk_ppid);
+            hdr_data_chunk_tsn++;
+            if (!cont) {
+                hdr_data_chunk_ssn++;
+            }
         }
 
         /* Write SCTP common header */
@@ -980,13 +991,13 @@ parse_preamble (void)
  * Start a new packet
  */
 static void
-start_new_packet (void)
+start_new_packet(gboolean cont)
 {
     if (debug >= 1)
-        fprintf(stderr, "Start new packet\n");
+        fprintf(stderr, "Start new packet (cont = %s).\n", cont ? "TRUE" : "FALSE");
 
     /* Write out the current packet, if required */
-    write_current_packet();
+    write_current_packet(cont);
     num_packets_read ++;
 
     /* Ensure we parse the packet preamble as it may contain the time */
@@ -1052,9 +1063,9 @@ parse_token (token_t token, char *str)
             break;
         case T_OFFSET:
             num = parse_num(str, TRUE);
-            if (num==0) {
+            if (num == 0) {
                 /* New packet starts here */
-                start_new_packet();
+                start_new_packet(FALSE);
                 state = READ_OFFSET;
                 pkt_lnstart = packet_buf + num;
             }
@@ -1083,7 +1094,7 @@ parse_token (token_t token, char *str)
             num = parse_num(str, TRUE);
             if (num == 0) {
                 /* New packet starts here */
-                start_new_packet();
+                start_new_packet(FALSE);
                 packet_start = 0;
                 state = READ_OFFSET;
             } else if ((num - packet_start) != curr_offset - header_length) {
@@ -1104,7 +1115,7 @@ parse_token (token_t token, char *str)
                     if (debug >= 1)
                         fprintf(stderr, "Inconsistent offset. Expecting %0lX, got %0lX. Ignoring rest of packet\n",
                                 curr_offset, num);
-                    write_current_packet();
+                    write_current_packet(FALSE);
                     state = INIT;
                 }
             } else
@@ -1624,7 +1635,7 @@ main(int argc, char *argv[])
     yyin = input_file;
     yylex();
 
-    write_current_packet();
+    write_current_packet(FALSE);
     write_file_trailer();
     fclose(input_file);
     fclose(output_file);
