@@ -2063,7 +2063,8 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
     proto_tree *opcode_tree;
     proto_item *item;
     gint16 timeout;
-    guint8 num8, i;
+    guint8 num8;
+    guint i;
     guint16 com_opcode;
     guint32 accuracy;
     guint8 bd_addr[6];
@@ -2184,25 +2185,26 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
                 localhost_bdaddr_entry_t   *localhost_bdaddr_entry;
 
                 hci_data = (hci_data_t *) pinfo->private_data;
+                if (hci_data != NULL) {
+                    k_interface_id = hci_data->interface_id;
+                    k_adapter_id = hci_data->adapter_id;
+                    k_frame_number = pinfo->fd->num;
 
-                k_interface_id = hci_data->interface_id;
-                k_adapter_id = hci_data->adapter_id;
-                k_frame_number = pinfo->fd->num;
+                    key[0].length = 1;
+                    key[0].key    = &k_interface_id;
+                    key[1].length = 1;
+                    key[1].key    = &k_adapter_id;
+                    key[2].length = 1;
+                    key[2].key    = &k_frame_number;
+                    key[3].length = 0;
+                    key[3].key    = NULL;
 
-                key[0].length = 1;
-                key[0].key    = &k_interface_id;
-                key[1].length = 1;
-                key[1].key    = &k_adapter_id;
-                key[2].length = 1;
-                key[2].key    = &k_frame_number;
-                key[3].length = 0;
-                key[3].key    = NULL;
-
-                localhost_bdaddr_entry = se_alloc(sizeof(localhost_bdaddr_entry_t));
-                localhost_bdaddr_entry->interface_id = k_interface_id;
-                localhost_bdaddr_entry->adapter_id = k_adapter_id;
-                memcpy(localhost_bdaddr_entry->bd_addr, bd_addr, 6);
-                se_tree_insert32_array(hci_data->localhost_bdaddr, key, localhost_bdaddr_entry);
+                    localhost_bdaddr_entry = se_alloc(sizeof(localhost_bdaddr_entry_t));
+                    localhost_bdaddr_entry->interface_id = k_interface_id;
+                    localhost_bdaddr_entry->adapter_id = k_adapter_id;
+                    memcpy(localhost_bdaddr_entry->bd_addr, bd_addr, 6);
+                    se_tree_insert32_array(hci_data->localhost_bdaddr, key, localhost_bdaddr_entry);
+                }
             }
 
             break;
@@ -2386,28 +2388,29 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
                 localhost_name_entry_t  *localhost_name_entry;
 
                 hci_data = (hci_data_t *) pinfo->private_data;
+                if (hci_data != NULL) {
+                    k_interface_id = hci_data->interface_id;
+                    k_adapter_id = hci_data->adapter_id;
+                    k_frame_number = pinfo->fd->num;
 
-                k_interface_id = hci_data->interface_id;
-                k_adapter_id = hci_data->adapter_id;
-                k_frame_number = pinfo->fd->num;
+                    name = tvb_get_ephemeral_string(tvb, offset, 248);
 
-                name = tvb_get_ephemeral_string(tvb, offset, 248);
+                    key[0].length = 1;
+                    key[0].key    = &k_interface_id;
+                    key[1].length = 1;
+                    key[1].key    = &k_adapter_id;
+                    key[2].length = 1;
+                    key[2].key    = &k_frame_number;
+                    key[3].length = 0;
+                    key[3].key    = NULL;
 
-                key[0].length = 1;
-                key[0].key    = &k_interface_id;
-                key[1].length = 1;
-                key[1].key    = &k_adapter_id;
-                key[2].length = 1;
-                key[2].key    = &k_frame_number;
-                key[3].length = 0;
-                key[3].key    = NULL;
+                    localhost_name_entry = se_alloc(sizeof(localhost_name_entry_t));
+                    localhost_name_entry->interface_id = k_interface_id;
+                    localhost_name_entry->adapter_id = k_adapter_id;
+                    localhost_name_entry->name = se_strdup(name);
 
-                localhost_name_entry = se_alloc(sizeof(localhost_name_entry_t));
-                localhost_name_entry->interface_id = k_interface_id;
-                localhost_name_entry->adapter_id = k_adapter_id;
-                localhost_name_entry->name = se_strdup(name);
-
-                se_tree_insert32_array(hci_data->localhost_name, key, localhost_name_entry);
+                    se_tree_insert32_array(hci_data->localhost_name, key, localhost_name_entry);
+                }
             }
             offset += 248;
 
