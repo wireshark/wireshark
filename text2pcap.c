@@ -213,7 +213,6 @@ static guint32 ts_usec = 0;
 static char *ts_fmt = NULL;
 static struct tm timecode_default;
 
-static char new_date_fmt = 0;
 static unsigned char* pkt_lnstart;
 
 /* Input file */
@@ -1048,14 +1047,6 @@ parse_token (token_t token, char *str)
                 state_str[state], token_str[token], str ? str : "");
     }
 
-    /* First token must be treated as a timestamp if time strip format is
-       not empty */
-    if (state == INIT || state == START_OF_LINE) {
-        if (ts_fmt != NULL && new_date_fmt) {
-            token = T_TEXT;
-        }
-    }
-
     switch(state) {
 
     /* ----- Waiting for new packet -------------------------------------------*/
@@ -1349,11 +1340,10 @@ parse_options (int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "Ddhqe:i:l:m:no:u:s:S:t:T:a")) != -1) {
+    while ((c = getopt(argc, argv, "dhqe:i:l:m:no:u:s:S:t:T:a")) != -1) {
         switch(c) {
         case '?': usage(); break;
         case 'h': usage(); break;
-        case 'D': new_date_fmt = 1; break;
         case 'd': if (!quiet) debug++; break;
         case 'q': quiet = TRUE; debug = FALSE; break;
         case 'l': pcap_link_type = strtol(optarg, NULL, 0); break;
