@@ -1565,7 +1565,7 @@ parse_options (int argc, char *argv[])
     if (!quiet) {
         fprintf(stderr, "Input from: %s\n", input_filename);
         fprintf(stderr, "Output to: %s\n", output_filename);
-        fprintf(stderr, "Outputfile format: %s\n", use_pcapng ? "PCAP-NG" : "PCAP");
+        fprintf(stderr, "Output format: %s\n", use_pcapng ? "PCAP-NG" : "PCAP");
 
         if (hdr_ethernet) fprintf(stderr, "Generate dummy Ethernet header: Protocol: 0x%0lX\n",
                                   hdr_ethernet_proto);
