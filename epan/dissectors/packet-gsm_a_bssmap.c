@@ -6864,12 +6864,13 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     bssmap_int_ho_req_rej,              /* 0x71 Internal Handover Required Reject */
     bssmap_int_ho_cmd,                  /* 0x72 Internal Handover Command */
     bssmap_int_ho_enq,                  /* 0x73 Internal Handover Enquiry */
-    /* 0x74 LCLS-Connect-Control */
-    /* 0x75 LCLS-Connect-Control-Ack */
-    /* 0x76 LCLS-Notification */
-    /* 0x77 Unallocated */
-    /* 0x78 Reroute Command */
-    /* 0x79 Reroute Complete */
+
+    NULL,                               /* 0x74 LCLS-Connect-Control */
+    NULL,                               /* 0x75 LCLS-Connect-Control-Ack */
+    NULL,                               /* 0x76 LCLS-Notification */
+    NULL,                               /* 0x77 Unallocated */
+    NULL,                               /* 0x78 Reroute Command */
+    NULL,                               /* 0x79 Reroute Complete */
 
     NULL,   /* NONE */
 };
