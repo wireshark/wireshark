@@ -901,8 +901,11 @@ parse_preamble (void)
      * If no "-t" flag was specified, don't attempt to parse a packet
      * preamble to extract a time stamp.
      */
-    if (ts_fmt == NULL)
+    if (ts_fmt == NULL) {
+        /* Clear Preamble */
+        packet_preamble_len = 0;
         return;
+    }
 
     /*
      * Initialize to today localtime, just in case not all fields
