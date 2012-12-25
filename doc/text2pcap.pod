@@ -142,7 +142,7 @@ Set the maximum packet length, default is 64000.
 Useful for testing various packet boundaries when only an application
 level datastream is available.  Example:
 
-I<od -Ax -tx1 stream | text2pcap -m1460 -T1234,1234 - stream.pcap>
+I<od -Ax -tx1 -v stream | text2pcap -m1460 -T1234,1234 - stream.pcap>
 
 will convert from plain datastream format to a sequence of Ethernet
 TCP packets.
