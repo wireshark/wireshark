@@ -185,6 +185,9 @@ static unsigned long  hdr_data_chunk_ppid = 0;
 /* ASCII text dump identification */
 static int identify_ascii = FALSE;
 
+static gboolean has_direction = FALSE;
+static guint32 direction = 0;
+
 /*--- Local date -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
@@ -745,7 +748,7 @@ write_current_packet(gboolean cont)
                                                           length, length,
                                                           0,
                                                           1000000,
-                                                          packet_buf, 0,
+                                                          packet_buf, direction,
                                                           &bytes_written, &err);
         } else {
             success = libpcap_write_packet(output_file,
@@ -907,12 +910,38 @@ parse_preamble (void)
      * If no "-t" flag was specified, don't attempt to parse a packet
      * preamble to extract a time stamp.
      */
-    if (ts_fmt == NULL) {
+    if ((ts_fmt == NULL) && !has_direction) {
         /* Clear Preamble */
         packet_preamble_len = 0;
         return;
     }
 
+    if (has_direction) {
+        switch (packet_preamble[0]) {
+        case 'i':
+        case 'I':
+            direction = 0x00000001;
+            packet_preamble[0] = ' ';
+            break;
+        case 'o':
+        case 'O':
+            direction = 0x00000002;
+            packet_preamble[0] = ' ';
+            break;
+        default:
+            direction = 0x00000000;
+            break;
+        }
+        i = 0;
+        while (packet_preamble[i] == ' ' ||
+               packet_preamble[i] == '\r' ||
+               packet_preamble[i] == '\t') {
+            i++;
+        }
+        packet_preamble_len -= i;
+        memmove(packet_preamble, packet_preamble+i, packet_preamble_len);
+    }
+    
     /*
      * Initialize to today localtime, just in case not all fields
      * of the date and time are specified.
@@ -1272,6 +1301,9 @@ usage (void)
             "                         number is assumed to be fractions of a second.\n"
             "                         NOTE: Date/time fields from the current date/time are\n"
             "                         used as the default for unspecified fields.\n"
+            "  -D                     the text before the packet starts either with an I or O\n"
+            "                         indicating that the packet is inbound or outbound.\n"
+            "                         This is only stored if the output format is PCAP-NG.\n"
             "  -a                     enable ASCII text dump identification.\n"
             "                         It allows to identify the start of the ASCII text\n"
             "                         dump and not include it in the packet even if it\n"
@@ -1340,11 +1372,12 @@ parse_options (int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "dhqe:i:l:m:no:u:s:S:t:T:a")) != -1) {
+    while ((c = getopt(argc, argv, "Ddhqe:i:l:m:no:u:s:S:t:T:a")) != -1) {
         switch(c) {
         case '?': usage(); break;
         case 'h': usage(); break;
         case 'd': if (!quiet) debug++; break;
+        case 'D': has_direction = TRUE; break;
         case 'q': quiet = TRUE; debug = FALSE; break;
         case 'l': pcap_link_type = strtol(optarg, NULL, 0); break;
         case 'm': max_offset = strtol(optarg, NULL, 0); break;

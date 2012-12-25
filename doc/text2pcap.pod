@@ -8,6 +8,7 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 B<text2pcap>
 S<[ B<-a> ]>
 S<[ B<-d> ]>
+S<[ B<-D> ]>
 S<[ B<-e> E<lt>l3pidE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-i> E<lt>protoE<gt> ]>
@@ -100,6 +101,12 @@ B<NOTE:> Do not enable it if the input file does not contain the ASCII text dump
 
 Displays debugging information during the process. Can be used
 multiple times to generate more debugging information.
+
+=item -D
+
+The text before the packet starts either with an I or O indicating that
+the packet is inbound or outbound.
+This is only stored if the output format is PCAP-NG.
 
 =item -e E<lt>l3pidE<gt>
 
