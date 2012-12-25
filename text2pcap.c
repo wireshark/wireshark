@@ -897,6 +897,13 @@ parse_preamble (void)
     int  subseclen;
     int  i;
 
+     /*
+     * Null-terminate the preamble.
+     */
+    packet_preamble[packet_preamble_len] = '\0';
+    if (debug > 0)
+        fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
+
     /*
      * If no "-t" flag was specified, don't attempt to parse a packet
      * preamble to extract a time stamp.
@@ -915,10 +922,6 @@ parse_preamble (void)
     timecode = timecode_default;
     ts_usec = 0;
 
-    /*
-     * Null-terminate the preamble.
-     */
-    packet_preamble[packet_preamble_len] = '\0';
 
     /* Ensure preamble has more than two chars before attempting to parse.
      * This should cover line breaks etc that get counted.
