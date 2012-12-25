@@ -949,30 +949,31 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, p
         remote_bdaddr_t  *remote_bdaddr;
 
         hci_data = (hci_data_t *) pinfo->private_data;
+        if (hci_data != NULL) {
+            k_interface_id = hci_data->interface_id;
+            k_adapter_id = hci_data->adapter_id;
+            k_connection_handle = connection_handle;
+            k_frame_number = pinfo->fd->num;
 
-        k_interface_id = hci_data->interface_id;
-        k_adapter_id = hci_data->adapter_id;
-        k_connection_handle = connection_handle;
-        k_frame_number = pinfo->fd->num;
+            key[0].length = 1;
+            key[0].key    = &k_interface_id;
+            key[1].length = 1;
+            key[1].key    = &k_adapter_id;
+            key[2].length = 1;
+            key[2].key    = &k_connection_handle;
+            key[3].length = 1;
+            key[3].key    = &k_frame_number;
+            key[4].length = 0;
+            key[4].key    = NULL;
 
-        key[0].length = 1;
-        key[0].key    = &k_interface_id;
-        key[1].length = 1;
-        key[1].key    = &k_adapter_id;
-        key[2].length = 1;
-        key[2].key    = &k_connection_handle;
-        key[3].length = 1;
-        key[3].key    = &k_frame_number;
-        key[4].length = 0;
-        key[4].key    = NULL;
+            remote_bdaddr = se_alloc(sizeof(remote_bdaddr_t));
+            remote_bdaddr->interface_id = hci_data->interface_id;
+            remote_bdaddr->adapter_id = hci_data->adapter_id;
+            remote_bdaddr->chandle = connection_handle;
+            memcpy(remote_bdaddr->bd_addr, bd_addr, 6);
 
-        remote_bdaddr = se_alloc(sizeof(remote_bdaddr_t));
-        remote_bdaddr->interface_id = hci_data->interface_id;
-        remote_bdaddr->adapter_id = hci_data->adapter_id;
-        remote_bdaddr->chandle = connection_handle;
-        memcpy(remote_bdaddr->bd_addr, bd_addr, 6);
-
-        se_tree_insert32_array(hci_data->chandle_to_bdaddr_table, key, remote_bdaddr);
+            se_tree_insert32_array(hci_data->chandle_to_bdaddr_table, key, remote_bdaddr);
+        }
     }
 
 
@@ -1195,28 +1196,29 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_inf
         device_name_t   *device_name;
 
         hci_data = (hci_data_t *) pinfo->private_data;
+        if (hci_data != NULL) {
+            name = tvb_get_ephemeral_string(tvb, offset, 248);
 
-        name = tvb_get_ephemeral_string(tvb, offset, 248);
+            k_frame_number = pinfo->fd->num;
+            k_bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
+            k_bd_addr_id = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
 
-        k_frame_number = pinfo->fd->num;
-        k_bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
-        k_bd_addr_id = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
+            key[0].length = 1;
+            key[0].key    = &k_bd_addr_id;
+            key[1].length = 1;
+            key[1].key    = &k_bd_addr_oui;
+            key[2].length = 1;
+            key[2].key    = &k_frame_number;
+            key[3].length = 0;
+            key[3].key    = NULL;
 
-        key[0].length = 1;
-        key[0].key    = &k_bd_addr_id;
-        key[1].length = 1;
-        key[1].key    = &k_bd_addr_oui;
-        key[2].length = 1;
-        key[2].key    = &k_frame_number;
-        key[3].length = 0;
-        key[3].key    = NULL;
+            device_name = se_alloc(sizeof(device_name_t));
+            device_name->bd_addr_oui =  bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
+            device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
+            device_name->name = se_strdup(name);
 
-        device_name = se_alloc(sizeof(device_name_t));
-        device_name->bd_addr_oui =  bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
-        device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
-        device_name->name = se_strdup(name);
-
-        se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
+            se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
+        }
     }
     offset += 248;
 
@@ -1623,28 +1625,29 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         device_name_t   *device_name;
 
                         hci_data = (hci_data_t *) pinfo->private_data;
+                        if (hci_data != NULL) {
+                            name = tvb_get_ephemeral_string(tvb, offset+i+2, length-1);
 
-                        name = tvb_get_ephemeral_string(tvb, offset+i+2, length-1);
+                            k_frame_number = pinfo->fd->num;
+                            k_bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
+                            k_bd_addr_id = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
 
-                        k_frame_number = pinfo->fd->num;
-                        k_bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
-                        k_bd_addr_id = bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
+                            key[0].length = 1;
+                            key[0].key    = &k_bd_addr_id;
+                            key[1].length = 1;
+                            key[1].key    = &k_bd_addr_oui;
+                            key[2].length = 1;
+                            key[2].key    = &k_frame_number;
+                            key[3].length = 0;
+                            key[3].key    = NULL;
 
-                        key[0].length = 1;
-                        key[0].key    = &k_bd_addr_id;
-                        key[1].length = 1;
-                        key[1].key    = &k_bd_addr_oui;
-                        key[2].length = 1;
-                        key[2].key    = &k_frame_number;
-                        key[3].length = 0;
-                        key[3].key    = NULL;
+                            device_name = se_alloc(sizeof(device_name_t));
+                            device_name->bd_addr_oui =  bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
+                            device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
+                            device_name->name = se_strdup(name);
 
-                        device_name = se_alloc(sizeof(device_name_t));
-                        device_name->bd_addr_oui =  bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
-                        device_name->bd_addr_id =  bd_addr[3] << 16 | bd_addr[4] << 8 | bd_addr[5];
-                        device_name->name = se_strdup(name);
-
-                        se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
+                            se_tree_insert32_array(hci_data->bdaddr_to_name_table, key, device_name);
+                        }
                     }
                     break;
                 case 0x0A: /* Tx Power Level */
