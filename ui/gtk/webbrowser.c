@@ -158,21 +158,23 @@ browser_open_url (const gchar *url)
 
 #elif defined(HAVE_XDG_OPEN)
 
-  GError   *error = NULL;
-  gchar    *argv[3];
-  gboolean  retval;
+  GError      *error = NULL;
+  const gchar *argv[3];
+  gboolean     retval;
 
   g_return_val_if_fail (url != NULL, FALSE);
 
   argv[0] = "xdg-open";
-  argv[1] = (char *)url;	/* Grr - g_spawn_async() shouldn't modify this */
+  argv[1] = url;
   argv[2] = NULL;
 
   /*
    * XXX - use g_spawn_on_screen() so the browser window shows up on
    * the same screen?
+   *
+   * Also, g_spawn_async() shouldn't modify argv but takes it as non-const!
    */
-  retval = g_spawn_async (NULL, argv, NULL,
+  retval = g_spawn_async (NULL, (gchar**) argv, NULL,
                           G_SPAWN_SEARCH_PATH,
                           NULL, NULL,
                           NULL, &error);
@@ -261,6 +263,8 @@ browser_open_url (const gchar *url)
 #endif
 }
 
+/* XXX: Much of this is very similar to browser_open_url - abstract a common
+ * function out of the two of them? */
 gboolean
 filemanager_open_directory (const gchar *path)
 {
@@ -310,21 +314,23 @@ filemanager_open_directory (const gchar *path)
 
 #elif defined(HAVE_XDG_OPEN)
 
-  GError   *error = NULL;
-  gchar    *argv[3];
-  gboolean  retval;
+  GError      *error = NULL;
+  const gchar *argv[3];
+  gboolean     retval;
 
   g_return_val_if_fail (path != NULL, FALSE);
 
   argv[0] = "xdg-open";
-  argv[1] = (char *)path;	/* Grr - g_spawn_async() shouldn't modify this */
+  argv[1] = path;
   argv[2] = NULL;
 
   /*
    * XXX - use g_spawn_on_screen() so the file managaer window shows up on
    * the same screen?
+   *
+   * Also, g_spawn_async shouldn't modify argv but takes it as non-const!
    */
-  retval = g_spawn_async (NULL, argv, NULL,
+  retval = g_spawn_async (NULL, (gchar**) argv, NULL,
                           G_SPAWN_SEARCH_PATH,
                           NULL, NULL,
                           NULL, &error);
