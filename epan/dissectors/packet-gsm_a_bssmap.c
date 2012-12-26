@@ -6937,8 +6937,9 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * create the protocol tree
      */
-    /* These two conditions are actually the same, but checking idx makes it
-     * obvious we won' t use a potentially negative idx in the else case.
+    /* The first two conditions are actually the same, i.e. if str != NULL,
+     * idx >= 0, but checking idx makes it obvious we won' t use a potentially
+     * negative idx in the else case.
      */
     if (str == NULL || idx < 0 || idx >= NUM_GSM_BSSMAP_MSG)
     {
