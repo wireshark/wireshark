@@ -84,15 +84,11 @@ extern const char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *n
  */
 extern const char *geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found);
 
-#ifdef HAVE_GEOIP
-
 /**
  * Get all configured paths
  *
  * @return String with all paths separated by a path separator
  */
 extern gchar *geoip_db_get_paths(void);
-
-#endif /* HAVE_GEOIP */
 
 #endif /* __GEOIP_DB_H__ */

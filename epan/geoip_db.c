@@ -596,6 +596,11 @@ geoip_db_lookup_ipv6(guint dbnum _U_, guint32 addr _U_, const char *not_found) {
     return not_found;
 }
 
+gchar *
+geoip_db_get_paths(void) {
+    return g_strdup("");
+}
+
 #endif /* HAVE_GEOIP */
 
 /*
