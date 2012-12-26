@@ -4063,7 +4063,7 @@ spotlight_date(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
 
 	for (i = 0; i < count; i++) {
 		query_data64 = spotlight_ntoh64(tvb, offset, encoding) >> 24;
-		t.secs = query_data64 - SPOTLIGHT_TIME_DELTA;
+		t.secs = (time_t)(query_data64 - SPOTLIGHT_TIME_DELTA);
 		t.nsecs = 0;
 		proto_tree_add_time(tree, hf_afp_spotlight_date, tvb, offset, 8, &t);
 		offset += 8;
