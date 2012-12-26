@@ -181,7 +181,7 @@ typedef struct
   {
     const void*     ptr;
     guint32   value;
-    const crumb_spec_t const *crumb_spec;
+    const crumb_spec_t *crumb_spec;
   } descr;
   size_t      offset;
   gboolean    may_be_null;
