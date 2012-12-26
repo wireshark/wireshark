@@ -8412,7 +8412,7 @@ dissect_time_adv(proto_tree *tree, tvbuff_t *tvb, int offset)
     tm.tm_isdst = -1;
     t = mktime(&tm);
     if (t != -1) {
-      t += last_timestamp / 1000000;
+      t += (time_t)(last_timestamp / 1000000);
       now = localtime(&t);
       if (now)
         proto_item_append_text(item,
