@@ -606,7 +606,7 @@ tvb_mip6_fmt_ts(tvbuff_t *tvb, gint offset)
 		return "NULL";
 	}
 
-	temptime = tempstmp /*- (guint32) NTP_BASETIME*/;
+	temptime = (time_t)(tempstmp /*- (guint32) NTP_BASETIME*/);
 	bd = gmtime(&temptime);
 	if(!bd){
 		return "Not representable";
