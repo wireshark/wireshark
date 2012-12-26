@@ -365,10 +365,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 		   Initialize the data offset while we're at it. */
 		if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
 			/* I/O error - give up */
-			if (wth->random_fh != NULL)
-				file_close(wth->random_fh);
-			file_close(wth->fh);
-			g_free(wth);
+			wtap_close(wth);
 			return NULL;
 		}
 
@@ -376,10 +373,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 
 		case -1:
 			/* I/O error - give up */
-			if (wth->random_fh != NULL)
-				file_close(wth->random_fh);
-			file_close(wth->fh);
-			g_free(wth);
+			wtap_close(wth);
 			return NULL;
 
 		case 0:
