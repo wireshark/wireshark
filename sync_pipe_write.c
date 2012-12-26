@@ -43,7 +43,7 @@
 
 
 /* write a single message header to the recipient pipe */
-size_t
+ssize_t
 pipe_write_header(int pipe_fd, char indicator, int length)
 {
     guchar header[1+3]; /* indicator + 3-byte len */
