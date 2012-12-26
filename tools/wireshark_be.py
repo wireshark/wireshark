@@ -11,13 +11,12 @@
 #  This file is a backend to "omniidl", used to generate "Wireshark"
 #  dissectors from IDL descriptions. The output language generated
 #  is "C". It will generate code to use the GIOP/IIOP get_CDR_XXX API.
-#  
 #
 #  Please see packet-giop.h in Wireshark distro for API description.
 #  Wireshark is available at http://www.wireshark.org/
 #
 #  Omniidl is part of the OmniOrb distribution, and is available at
-#  http://www.uk.research.att.com/omniORB/omniORB.html
+#  http://omniorb.sourceforge.net
 #
 #  This program is free software; you can redistribute it and/or modify it
 #  under the terms of the GNU General Public License as published by

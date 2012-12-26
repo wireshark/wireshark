@@ -1,6 +1,6 @@
 To generate the parlay dissector from the .idl documents do:
 
-omniidl -p ./ -b wireshark_be Parlay.idl
+idl2wrs Parlay.idl
 
 The Parlay.idl file includes all the other .idl files to create one
 dissector for Parlay.
