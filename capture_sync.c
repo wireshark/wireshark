@@ -114,7 +114,7 @@ static const char *sync_pipe_signame(int);
 
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
 static int sync_pipe_wait_for_child(int fork_child, gchar **msgp);
-static void pipe_convert_header(const gchar *header, int header_len, char *indicator, int *block_len);
+static void pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len);
 static ssize_t pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
                            char **err_msg);
 
@@ -1021,10 +1021,10 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
          */
 
         /* convert primary message */
-        pipe_convert_header(buffer, 4, &indicator, &primary_msg_len);
+        pipe_convert_header((guchar*)buffer, 4, &indicator, &primary_msg_len);
         primary_msg_text = buffer+4;
         /* convert secondary message */
-        pipe_convert_header(primary_msg_text + primary_msg_len, 4, &indicator,
+        pipe_convert_header((guchar*)primary_msg_text + primary_msg_len, 4, &indicator,
                             &secondary_msg_len);
         secondary_msg_text = primary_msg_text + primary_msg_len + 4;
         /* the capture child will close the sync_pipe, nothing to do */
@@ -1343,10 +1343,10 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
          */
 
         /* convert primary message */
-        pipe_convert_header(buffer, 4, &indicator, &primary_msg_len);
+        pipe_convert_header((guchar*)buffer, 4, &indicator, &primary_msg_len);
         primary_msg_text = buffer+4;
         /* convert secondary message */
-        pipe_convert_header(primary_msg_text + primary_msg_len, 4, &indicator,
+        pipe_convert_header((guchar*)primary_msg_text + primary_msg_len, 4, &indicator,
                             &secondary_msg_len);
         /*secondary_msg_text = primary_msg_text + primary_msg_len + 4;*/
         /* the capture child will close the sync_pipe, nothing to do */
@@ -1514,7 +1514,7 @@ sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
 
 /* convert header values (indicator and 3-byte length) */
 static void
-pipe_convert_header(const gchar *header, int header_len, char *indicator, int *block_len) {
+pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len) {
 
     g_assert(header_len == 4);
 
@@ -1560,7 +1560,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
     }
 
     /* convert header values */
-    pipe_convert_header(header, 4, indicator, &required);
+    pipe_convert_header((guchar*)header, 4, indicator, &required);
 
     /* only indicator with no value? */
     if(required == 0) {
@@ -1708,10 +1708,10 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         break;
     case SP_ERROR_MSG:
         /* convert primary message */
-        pipe_convert_header(buffer, 4, &indicator, &primary_len);
+        pipe_convert_header((guchar*)buffer, 4, &indicator, &primary_len);
         primary_msg = buffer+4;
         /* convert secondary message */
-        pipe_convert_header(primary_msg + primary_len, 4, &indicator, &secondary_len);
+        pipe_convert_header((guchar*)primary_msg + primary_len, 4, &indicator, &secondary_len);
         secondary_msg = primary_msg + primary_len + 4;
         /* message output */
         capture_input_error_message(capture_opts, primary_msg, secondary_msg);
