@@ -1520,7 +1520,7 @@ pipe_convert_header(const guchar *header, int header_len, char *indicator, int *
 
     /* convert header values */
     *indicator = header[0];
-    *block_len = header[1]<<16 | header[2]<<8 | header[3];
+    *block_len = (header[1]&0xFF)<<16 | (header[2]&0xFF)<<8 | (header[3]&0xFF);
 }
 
 /* read a message from the sending pipe in the standard format
