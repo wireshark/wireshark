@@ -117,7 +117,7 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
      * It would be really cool to be able to configure the bitrate...
      */
     tmp = ((guint64)(*data_offset - mp2t->start_offset) * 8);	/* offset, in bits */
-    wth->phdr.ts.secs = tmp / MP2T_QAM256_BITRATE;
+    wth->phdr.ts.secs = (time_t)(tmp / MP2T_QAM256_BITRATE);
     wth->phdr.ts.nsecs = (int)((tmp % MP2T_QAM256_BITRATE) * 1000000000 / MP2T_QAM256_BITRATE);
 
     wth->phdr.caplen = MP2T_SIZE;
