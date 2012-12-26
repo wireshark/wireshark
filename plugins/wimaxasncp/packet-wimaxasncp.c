@@ -131,7 +131,7 @@ wimaxasncp_build_dict_t wimaxasncp_build_dict;
 
 static wimaxasncp_dict_tlv_t wimaxasncp_tlv_not_found =
 {
-    0, "Unknown", NULL, WIMAXASNCP_TLV_UNKNOWN, 0,
+    0, (char *)"Unknown", NULL, WIMAXASNCP_TLV_UNKNOWN, 0,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     NULL, NULL, NULL
 };
@@ -2518,7 +2518,8 @@ static void add_tlv_reg_info(
 {
     char *name;
     char *abbrev;
-    const char *blurb;
+    const char *root_blurb;
+    char *blurb;
 
     /* ------------------------------------------------------------------------
      * add root reg info
@@ -2531,24 +2532,24 @@ static void add_tlv_reg_info(
     switch (tlv->decoder)
     {
     case WIMAXASNCP_TLV_UNKNOWN:
-        blurb = "type=Unknown";
+        root_blurb = "type=Unknown";
         break;
     case WIMAXASNCP_TLV_TBD:
-        blurb = g_strdup_printf("type=%u, TBD", tlv->type);
+        root_blurb = g_strdup_printf("type=%u, TBD", tlv->type);
         break;
     case WIMAXASNCP_TLV_COMPOUND:
-        blurb = g_strdup_printf("type=%u, Compound", tlv->type);
+        root_blurb = g_strdup_printf("type=%u, Compound", tlv->type);
         break;
     case WIMAXASNCP_TLV_FLAG0:
-        blurb = g_strdup_printf("type=%u, Value = Null", tlv->type);
+        root_blurb = g_strdup_printf("type=%u, Value = Null", tlv->type);
         break;
     default:
-        blurb = g_strdup_printf("type=%u", tlv->type);
+        root_blurb = g_strdup_printf("type=%u", tlv->type);
         break;
     }
 
     add_reg_info(
-        &tlv->hf_root, name, abbrev, FT_BYTES, BASE_NONE, blurb);
+        &tlv->hf_root, name, abbrev, FT_BYTES, BASE_NONE, root_blurb);
 
     /* ------------------------------------------------------------------------
      * add value(s) reg info
@@ -2707,13 +2708,11 @@ static void add_tlv_reg_info(
 
         blurb = g_strdup_printf("value component for type=%u", tlv->type);
 
-        name = "Protocol";
-
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.value.protocol", tlv->name));
 
         add_reg_info(
-            &tlv->hf_protocol, name, abbrev, FT_UINT16, BASE_DEC, blurb);
+            &tlv->hf_protocol, "Protocol", abbrev, FT_UINT16, BASE_DEC, blurb);
 
         break;
 
@@ -2723,21 +2722,17 @@ static void add_tlv_reg_info(
 
         blurb = g_strdup_printf("value component for type=%u", tlv->type);
 
-        name = "Port Low";
-
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.value.port_low", tlv->name));
 
         add_reg_info(
-            &tlv->hf_port_low, name, abbrev, FT_UINT16, BASE_DEC, blurb);
-
-        name = "Port High";
+            &tlv->hf_port_low, "Port Low", abbrev, FT_UINT16, BASE_DEC, blurb);
 
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.value.port_high", tlv->name));
 
         add_reg_info(
-            &tlv->hf_port_high, name, abbrev, FT_UINT16, BASE_DEC, blurb);
+            &tlv->hf_port_high, "Port High", abbrev, FT_UINT16, BASE_DEC, blurb);
 
         break;
 
@@ -2747,37 +2742,29 @@ static void add_tlv_reg_info(
 
         blurb = g_strdup_printf("value component for type=%u", tlv->type);
 
-        name = "IPv4 Address";
-
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.value.ipv4", tlv->name));
 
         add_reg_info(
-            &tlv->hf_ipv4, name, abbrev, FT_IPv4, BASE_NONE, blurb);
-
-        name = "IPv4 Mask";
+            &tlv->hf_ipv4, "IPv4 Address", abbrev, FT_IPv4, BASE_NONE, blurb);
 
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.value.ipv4_mask", tlv->name));
 
         add_reg_info(
-            &tlv->hf_ipv4_mask, name, abbrev, FT_IPv4, BASE_NONE, blurb);
-
-        name = "IPv6 Address";
+            &tlv->hf_ipv4_mask, "IPv4 Mask", abbrev, FT_IPv4, BASE_NONE, blurb);
 
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.value.ipv6", tlv->name));
 
         add_reg_info(
-            &tlv->hf_ipv6, name, abbrev, FT_IPv6, BASE_NONE, blurb);
-
-        name = "IPv6 Mask";
+            &tlv->hf_ipv6, "IPv6 Address", abbrev, FT_IPv6, BASE_NONE, blurb);
 
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.value.ipv6_mask", tlv->name));
 
         add_reg_info(
-            &tlv->hf_ipv6_mask, name, abbrev, FT_IPv6, BASE_NONE, blurb);
+            &tlv->hf_ipv6_mask, "IPv6 Mask", abbrev, FT_IPv6, BASE_NONE, blurb);
 
         break;
 
@@ -2787,22 +2774,18 @@ static void add_tlv_reg_info(
 
         blurb = g_strdup_printf("value component for type=%u", tlv->type);
 
-        name = "Vendor ID";
-
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.value.vendor_id", tlv->name));
 
         add_reg_info(
-            &tlv->hf_vendor_id, name, abbrev, FT_UINT24, BASE_DEC, blurb);
-
-        name = "Rest of Info";
+            &tlv->hf_vendor_id, "Vendor ID", abbrev, FT_UINT24, BASE_DEC, blurb);
 
         abbrev = alnumerize(
             g_strdup_printf(
                 "wimaxasncp.tlv.%s.value.vendor_rest_of_info", tlv->name));
 
         add_reg_info(
-            &tlv->hf_vendor_rest_of_info, name, abbrev, FT_BYTES, BASE_NONE,
+            &tlv->hf_vendor_rest_of_info, "Rest of Info", abbrev, FT_BYTES, BASE_NONE,
             blurb);
 
         break;
