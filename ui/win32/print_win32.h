@@ -33,6 +33,6 @@
  *
  * @param file_name the file to print
  */
-void print_mswin(char *file_name);
+void print_mswin(const char *file_name);
 
 #endif

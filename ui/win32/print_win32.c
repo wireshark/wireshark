@@ -56,15 +56,15 @@ for information on printer APIs.
 static BOOL CALLBACK abort_proc( HDC hDC, int Error );
 static HDC get_printer_dc(void);
 static void init_doc_struct( DOCINFO* di, char* docname);
-static void print_file( char* file_name, HDC hdc);
+static void print_file( const char* file_name, HDC hdc);
 
-void print_mswin(char *file_name)
+void print_mswin(const char *file_name)
 
    {
        HDC        hDC;
        DOCINFO    di;
 
-	HWND hWndParent = HWND_DESKTOP;	/* would be better to be a real window */
+       HWND hWndParent = HWND_DESKTOP;	/* would be better to be a real window */
 
        /* Need a printer DC to print to. */
        hDC = get_printer_dc();
@@ -168,7 +168,7 @@ void print_mswin(char *file_name)
    /*===============================*/
    /* Drawing on the DC             */
    /* ==============================*/
-static void print_file( char *file_name, HDC hdc) {
+static void print_file( const char *file_name, HDC hdc) {
 
     #define max_buf_size 1024
     #define max_lines 66
