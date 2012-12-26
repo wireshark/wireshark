@@ -392,7 +392,9 @@ about_folders_page_new(void)
   gint i;
   gchar **resultArray;
 #endif
+#if 0
   const gchar * const *dirs;
+#endif
 
   scrolledwindow = scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
