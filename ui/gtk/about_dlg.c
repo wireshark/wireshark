@@ -429,12 +429,12 @@ about_folders_page_new(void)
     about_folders_row(table, "Global configuration", constpath,
         "\"dfilters\", \"preferences\", \"manuf\", ...");
   }
-
+#if 0
   dirs = g_get_system_data_dirs ();
   for (i = 0; dirs[i]; i++){
 	  g_warning("glibs data path %u %s",i+1,dirs[i]);
   }
-
+#endif
   /* system */
   constpath = get_systemfile_dir();
   about_folders_row(table, "System", constpath,
