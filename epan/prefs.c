@@ -2887,10 +2887,8 @@ read_prefs_file(const char *pf_path, FILE *pf,
         if (isalnum(got_c)) {
           if (cur_var->len > 0) {
             if (got_val) {
-              /*  Convert the string to a range.  Since we're reading the
-               *  preferences file, silently lower values in excess of the
-               *  range's maximum.
-               */
+              /* Call the routine to set the preference; it will parse
+	         the value as appropriate. */
               switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data, FALSE)) {
 
               case PREFS_SET_OK:
