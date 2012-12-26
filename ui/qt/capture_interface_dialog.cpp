@@ -49,7 +49,7 @@ capture_remote_combo_recent_write_all(FILE *rf)
 }
 
 gboolean
-capture_remote_combo_add_recent(gchar *s)
+capture_remote_combo_add_recent(const gchar *s)
 {
   GList *vals = prefs_get_string_list (s);
   GList *valp = vals;

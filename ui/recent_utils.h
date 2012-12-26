@@ -79,7 +79,7 @@ capture_remote_combo_recent_write_all(FILE *rf);
  * @return TRUE if correctly added
  */
 gboolean
-capture_remote_combo_add_recent(gchar *s);
+capture_remote_combo_add_recent(const gchar *s);
 #endif
 
 /** Read in a single geometry key value pair from the recent file.
