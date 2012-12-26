@@ -38,6 +38,7 @@
 #include "../summary.h"
 #include "../capture-pcap-util.h"
 #include "../version_info.h"
+
 #ifdef HAVE_LIBPCAP
 #include "../capture.h"
 #include "ui/capture_globals.h"
@@ -48,12 +49,15 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/help_dlg.h"
+#include "ui/gtk/packet_list.h"
 
 #define SUM_STR_MAX     1024
 #define FILTER_SNIP_LEN 50
 #define SHB_STR_SNIP_LEN 50
 
 static GtkWidget *summary_dlg = NULL;
+static GtkWidget *view_capture_and_pkt_comments_dlg = NULL;
+
 
 static void
 add_string_to_table_sensitive(GtkWidget *list, guint *row, const gchar *title, const gchar *value, gboolean sensitive)
@@ -903,4 +907,85 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   g_snprintf(string_buff, SUM_STR_MAX, "\n\n");
   gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
+}
+
+static void
+comment_summary_copy_to_clipboard_cb(GtkWidget *w _U_, GtkWidget *view)
+{
+  GtkTextBuffer *buffer;
+  GtkTextIter start_iter, end_iter;
+  GtkClipboard *clipboard;
+
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+
+  gtk_text_buffer_get_bounds(buffer, &start_iter, &end_iter);
+
+  gtk_text_buffer_select_range(buffer, &start_iter, &end_iter);
+
+  clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
+  gtk_text_buffer_copy_clipboard (buffer, clipboard);
+
+  gtk_text_buffer_select_range(buffer, &end_iter, &end_iter);
+
+}
+
+void
+show_packet_comment_summary_dlg (GtkAction *action _U_, gpointer data _U_)
+{
+
+  GtkWidget *vbox;
+  GtkWidget *view;
+  GtkWidget *scroll;
+  GtkWidget *bbox;
+  GtkWidget *copy_bt, *cancel_bt, *help_bt;
+  GtkTextBuffer *buffer;
+
+  view_capture_and_pkt_comments_dlg = dlg_window_new ("Comments Summary");
+  gtk_widget_set_size_request (view_capture_and_pkt_comments_dlg, 700, 350);
+  gtk_window_set_resizable (GTK_WINDOW (view_capture_and_pkt_comments_dlg), TRUE);
+  gtk_container_set_border_width (GTK_CONTAINER (view_capture_and_pkt_comments_dlg), DLG_OUTER_MARGIN);
+
+  vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_UNRELATED_SPACING, FALSE);
+  gtk_container_add (GTK_CONTAINER (view_capture_and_pkt_comments_dlg), vbox);
+  gtk_widget_show (vbox);
+
+  view = gtk_text_view_new ();
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+  gtk_widget_show (view);
+
+  scroll = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
+                  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_container_add(GTK_CONTAINER(scroll), view);
+  gtk_widget_show(scroll);
+  gtk_box_pack_start(GTK_BOX (vbox), scroll, TRUE, TRUE, 0);
+
+  /* Add capture summary information */
+  summary_to_texbuff(buffer);
+
+  /* Add all packet comments */
+  packet_list_return_all_comments(buffer);
+
+  /* Button row. */
+  bbox = dlg_button_row_new (GTK_STOCK_COPY, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
+  gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+  copy_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_COPY);
+  g_signal_connect (copy_bt, "clicked", G_CALLBACK(comment_summary_copy_to_clipboard_cb), view);
+  gtk_widget_set_sensitive (copy_bt, TRUE);
+
+  cancel_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  window_set_cancel_button (view_capture_and_pkt_comments_dlg, cancel_bt, window_cancel_button_cb);
+
+  help_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
+#if 0
+  g_signal_connect (help_bt, "clicked",/* G_CALLBACK(topic_cb)*/NULL, /*(gpointer)HELP_MANUAL_ADDR_RESOLVE_DIALOG*/NULL);
+#endif
+  gtk_widget_set_sensitive (help_bt, FALSE);
+
+  gtk_widget_grab_default (copy_bt);
+
+
+  gtk_widget_show (view_capture_and_pkt_comments_dlg);
 }

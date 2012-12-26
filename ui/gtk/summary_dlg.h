@@ -38,5 +38,6 @@
  */
 void summary_open_cb(GtkWidget *widget, gpointer data);
 void summary_to_texbuff(GtkTextBuffer *buffer);
+void show_packet_comment_summary_dlg(GtkAction *action, gpointer data);
 
 #endif /* __SUMMARY_DLG_H__ */

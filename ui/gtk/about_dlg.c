@@ -392,6 +392,7 @@ about_folders_page_new(void)
   gint i;
   gchar **resultArray;
 #endif
+  const gchar * const *dirs;
 
   scrolledwindow = scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
@@ -427,6 +428,11 @@ about_folders_page_new(void)
   if (constpath != NULL) {
     about_folders_row(table, "Global configuration", constpath,
         "\"dfilters\", \"preferences\", \"manuf\", ...");
+  }
+
+  dirs = g_get_system_data_dirs ();
+  for (i = 0; dirs[i]; i++){
+	  g_warning("glibs data path %u %s",i+1,dirs[i]);
   }
 
   /* system */
