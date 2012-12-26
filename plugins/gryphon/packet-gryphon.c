@@ -1121,7 +1121,7 @@ resp_time(tvbuff_t *tvb, int offset, proto_tree *pt)
     nstime_t        timestamp;
 
     val = tvb_get_ntoh64(tvb, offset);
-    timestamp.secs = val/100000;
+    timestamp.secs = (time_t)(val/100000);
     timestamp.nsecs = (int)((val%100000)*1000);
 
     proto_tree_add_time(pt, hf_gryphon_resp_time, tvb, offset, 8, &timestamp);
