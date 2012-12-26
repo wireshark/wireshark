@@ -953,11 +953,8 @@ iseries_parse_hex_string (const char * ascii, guint8 * buf, size_t len)
   guint8 bytevalue;
 
   byte = 0;
-  i = 0;
-  for (;;)
+  for (i = 0; i < len; i++)
     {
-      if (i >= len)
-        break;
       hexvalue = g_ascii_xdigit_value(ascii[i]);
       i++;
       if (hexvalue == -1)
@@ -966,7 +963,6 @@ iseries_parse_hex_string (const char * ascii, guint8 * buf, size_t len)
       if (i >= len)
         return FALSE;        /* only one hex digit of the byte is present */
       hexvalue = g_ascii_xdigit_value(ascii[i]);
-      i++;
       if (hexvalue == -1)
         return FALSE;        /* not a valid hex digit */
       bytevalue |= (guint8) hexvalue;
