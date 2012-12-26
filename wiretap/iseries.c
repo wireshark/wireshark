@@ -195,7 +195,7 @@ static int iseries_parse_packet (wtap * wth, FILE_T fh,
                                  guint8 * pd, int *err, gchar ** err_info);
 static int iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes);
 static gboolean iseries_parse_hex_string (const char * ascii, guint8 * buf,
-                                          int len);
+                                          size_t len);
 
 int
 iseries_open (wtap * wth, int *err, gchar ** err_info)
@@ -891,12 +891,12 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       buffer_assure_space (wth->frame_buffer, ISERIES_MAX_PACKET_LEN);
       buf = buffer_start_ptr (wth->frame_buffer);
       /* Convert ascii data to binary and return in the frame buffer */
-      iseries_parse_hex_string (ascii_buf, buf, (int) strlen (ascii_buf));
+      iseries_parse_hex_string (ascii_buf, buf, strlen (ascii_buf));
     }
   else
     {
       /* Convert ascii data to binary and return in the frame buffer */
-      iseries_parse_hex_string (ascii_buf, pd, (int) strlen (ascii_buf));
+      iseries_parse_hex_string (ascii_buf, pd, strlen (ascii_buf));
     }
 
   /* free buffer allocs and return */
@@ -945,9 +945,10 @@ iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes)
  * Requires ASCII hex data and buffer to populate with binary data
  */
 static gboolean
-iseries_parse_hex_string (const char * ascii, guint8 * buf, int len)
+iseries_parse_hex_string (const char * ascii, guint8 * buf, size_t len)
 {
-  int    i, byte;
+  size_t i;
+  int byte;
   gint   hexvalue;
   guint8 bytevalue;
 
