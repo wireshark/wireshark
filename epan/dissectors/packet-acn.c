@@ -1901,13 +1901,13 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
   guint32           vector;
   gchar             buffer[BUFFER_SIZE];
   char             *buf_ptr;
-  guint32           x;
+  guint             x;
   guint8            level;
   guint8            min_char;
   guint8            base;
   gchar             leading_char;
-  guint8            perline;
-  guint8            halfline;
+  guint             perline;
+  guint             halfline;
   guint16           dmx_count;
   guint16           dmx_start_code;
 
