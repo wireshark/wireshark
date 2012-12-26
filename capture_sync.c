@@ -114,7 +114,7 @@ static const char *sync_pipe_signame(int);
 
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
 static int sync_pipe_wait_for_child(int fork_child, gchar **msgp);
-static void pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len);
+static void pipe_convert_header(const gchar *header, int header_len, char *indicator, int *block_len);
 static ssize_t pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
                            char **err_msg);
 
@@ -1514,7 +1514,7 @@ sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
 
 /* convert header values (indicator and 3-byte length) */
 static void
-pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len) {
+pipe_convert_header(const gchar *header, int header_len, char *indicator, int *block_len) {
 
     g_assert(header_len == 4);
 
@@ -1532,7 +1532,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
 {
     int required;
     ssize_t newly;
-    guchar header[4];
+    gchar header[4];
 
     /* read header (indicator and 3-byte length) */
     newly = pipe_read_bytes(pipe_fd, header, 4, err_msg);

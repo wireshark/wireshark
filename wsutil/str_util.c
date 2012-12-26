@@ -55,7 +55,7 @@ ascii_strup_inplace(gchar *str)
 
 /* Check if an entire string is printable. */
 gboolean
-isprint_string(const guchar *str)
+isprint_string(const gchar *str)
 {
 	guint pos;
 
