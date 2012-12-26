@@ -482,7 +482,7 @@ get_md4pass_list(md4_pass** p_pass_list, const char* nt_password)
   if ((nt_password[0] != '\0') && (strlen(nt_password) < 129)) {
     int password_len;
     nb_pass++;
-    password_len = strlen(nt_password);
+    password_len = (int)strlen(nt_password);
     str_to_unicode(nt_password, nt_password_unicode);
     crypt_md4(nt_password_hash, nt_password_unicode, password_len*2);
   }

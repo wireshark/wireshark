@@ -59,7 +59,7 @@ WSLUA_API const gchar* lua_shiftstring(lua_State* L, int i) {
 }
 
 WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Get Wireshark version */
-    gchar* str = VERSION;
+    const gchar* str = VERSION;
     lua_pushstring(L,str);
     WSLUA_RETURN(1); /* version string */
 }

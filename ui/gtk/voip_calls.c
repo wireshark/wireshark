@@ -3815,7 +3815,6 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 	address* phone;
 	const iax2_info_t *ii = iax2_info;
 	iax2_info_t *tmp_iax2info;
-	gchar * comment;
 
 	if (ii == NULL || ii->ptype != IAX2_FULL_PACKET || (ii->scallno == 0 && ii->dcallno == 0))
 		return 0;
@@ -3874,9 +3873,7 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 		++(callsinfo->npackets);
 	}
 
-	comment = "";
-
-	add_to_graph(tapinfo, pinfo, ii->messageName, comment,
+	add_to_graph(tapinfo, pinfo, ii->messageName, "",
 				 callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 
 	return 1;

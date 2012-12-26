@@ -266,10 +266,10 @@ httpstat_draw(void *psp  )
 
 	printf(	"* HTTP Status Codes in reply packets\n");
 	g_hash_table_foreach( sp->hash_responses, (GHFunc)http_draw_hash_responses,
-		"    HTTP %3d %s\n");
+		(gpointer)"    HTTP %3d %s\n");
 	printf("* List of HTTP Request methods\n");
 	g_hash_table_foreach( sp->hash_requests,  (GHFunc)http_draw_hash_requests,
-		"    %9s %d \n");
+		(gpointer)"    %9s %d \n");
 	printf("===================================================================\n");
 }
 

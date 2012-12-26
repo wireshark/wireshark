@@ -88,7 +88,7 @@ struct string_counter_s;
 typedef struct string_counter_s string_counter_t;
 struct string_counter_s
 {
-	gchar *string;
+	const gchar *string;
 	gint   count;
 	string_counter_t *next;
 };

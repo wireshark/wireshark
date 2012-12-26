@@ -1360,8 +1360,8 @@ on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer us
 		cairo_rectangle (cr,
 			floor(MIN(u_data->io->x_old,u_data->io->x_new)),
 			floor(MIN(u_data->io->y_old,u_data->io->y_new)),
-			floor(abs((long)(u_data->io->x_new-u_data->io->x_old))),
-			floor(abs((long)(u_data->io->y_new-u_data->io->y_old))));
+			floor(abs((int)(u_data->io->x_new-u_data->io->x_old))),
+			floor(abs((int)(u_data->io->y_new-u_data->io->y_old))));
 		cairo_set_source_rgb (cr, 1, 1, 1);
 		cairo_stroke (cr);
 		cairo_destroy (cr);
@@ -1377,7 +1377,7 @@ on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer us
 #else
 		gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 #endif
-		cairo_rectangle (cr, 0, 0, abs((long)(u_data->io->x_new-u_data->io->x_old)), abs((long)(u_data->io->y_new-u_data->io->y_old)));
+		cairo_rectangle (cr, 0, 0, abs((int)(u_data->io->x_new-u_data->io->x_old)), abs((int)(u_data->io->y_new-u_data->io->y_old)));
 		cairo_fill (cr);
 
 		cairo_destroy (cr);
@@ -1422,7 +1422,7 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 		event->y = u_data->io->surface_height-BOTTOM_BORDER-u_data->io->offset;
 	if (event->x < LEFT_BORDER+u_data->io->offset)
 		event->x = LEFT_BORDER+u_data->io->offset;
-	if (abs((long)(event->x-u_data->io->x_old))>10 || abs((long)(event->y-u_data->io->y_old))>10)
+	if (abs((int)(event->x-u_data->io->x_old))>10 || abs((int)(event->y-u_data->io->y_old))>10)
 	{
 		u_data->io->rect_x_min = (gint)floor(MIN(u_data->io->x_old,event->x));
 		u_data->io->rect_x_max = (gint)ceil(MAX(u_data->io->x_old,event->x));

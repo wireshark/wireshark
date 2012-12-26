@@ -130,9 +130,9 @@ dissect_variable_length_long (tvbuff_t *tvb, proto_tree *hdfsdata_tree, int* off
 {
   int byte_count = 1;
   int idx = 0;
-  long i = 0;
-  char first_byte = tvb_get_guint8(tvb, *offset);
-  long size = 0;
+  guint i = 0;
+  gint8 first_byte = tvb_get_guint8(tvb, *offset);
+  guint size = 0;
 
   int len = decode_vint_size(first_byte);
   if (len == 1) {
@@ -147,7 +147,7 @@ dissect_variable_length_long (tvbuff_t *tvb, proto_tree *hdfsdata_tree, int* off
     i = i << 8;
     i = i | (b & 0xFF);
   }
-  size = ((first_byte < -120 || (first_byte >= -112 && first_byte < 0)) ? (i ^ -1L) : i);
+  size = ((first_byte < -120 || (first_byte >= -112 && first_byte < 0)) ? (i ^ 0xFFFFFFFF) : i);
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_clientlen, tvb, *offset, byte_count, ENC_BIG_ENDIAN);
   *offset = (*offset) + byte_count;
 

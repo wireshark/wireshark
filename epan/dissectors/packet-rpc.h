@@ -151,19 +151,19 @@ extern unsigned int rpc_roundup(unsigned int a);
 extern int dissect_rpc_bool(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
 extern int dissect_rpc_string(tvbuff_t *tvb,
-	proto_tree *tree, int hfindex, int offset, char **string_buffer_ret);
+	proto_tree *tree, int hfindex, int offset, const char **string_buffer_ret);
 int dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
     proto_tree *tree,
     packet_info *pinfo,
     int hfindex,
     gboolean fixed_length, guint32 length,
-    gboolean string_data, char **string_buffer_ret,
+    gboolean string_data, const char **string_buffer_ret,
     dissect_function_t *dissect_it);
 extern int dissect_rpc_data(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
 extern int dissect_rpc_bytes(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset, guint32 length,
-	gboolean string_data, char **string_buffer_ret);
+	gboolean string_data, const char **string_buffer_ret);
 extern int dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, dissect_function_t *rpc_list_dissector);
 extern int dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo,

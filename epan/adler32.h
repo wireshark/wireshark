@@ -30,9 +30,9 @@
 extern "C"{
 #endif
 
-unsigned long update_adler32(unsigned long adler, const unsigned char *buf, int len);
-unsigned long adler32_bytes(const unsigned char *buf, int len);
-unsigned long adler32_str(const char *buf);
+guint32 update_adler32(guint32 adler, const guint8 *buf, size_t len);
+guint32 adler32_bytes(const guint8 *buf, size_t len);
+guint32 adler32_str(const char *buf);
 
 #ifdef __cplusplus
 }

@@ -290,12 +290,12 @@ static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 byt
         /* Only really meaningful if have a few frames spread over time...
            For now at least avoid dividing by something very close to 0.0 */
         if (elapsed_ms < 2.0) {
-           return 0.0;
+           return 0.0f;
         }
         return ((bytes * 8) / elapsed_ms) / 1000;
     }
     else {
-        return 0.0;
+        return 0.0f;
     }
 }
 

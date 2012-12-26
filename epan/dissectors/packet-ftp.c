@@ -641,7 +641,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * of a multi-line reply.
              */
             tvb_get_nstringz0(tvb, 0, sizeof(code_str), code_str);
-            code = strtoul(code_str, NULL, 10);
+            code = (guint32)strtoul(code_str, NULL, 10);
 
             proto_tree_add_uint(reqresp_tree,
                     hf_ftp_response_code, tvb, 0, 3, code);

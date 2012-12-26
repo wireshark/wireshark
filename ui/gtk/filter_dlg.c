@@ -379,7 +379,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
     GtkTreeIter       *l_select;
-    gchar *list_name = NULL;
+    const gchar *list_name = NULL;
 
     /* Get a pointer to a static variable holding the type of filter on
        which we're working, so we can pass that pointer to callback
@@ -489,7 +489,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     /* This is a Boolean, but we make it a non-null pointer for TRUE
        and a null pointer for FALSE, as object data is a pointer. */
     g_object_set_data(G_OBJECT(filter_l), E_FILT_DBLACTIVATE_KEY,
-                    construct_args->activate_on_ok ? "" : NULL);
+                    construct_args->activate_on_ok ? (gpointer)"" : NULL);
 
     /* fill in data */
     l_select = fill_list(main_w, list_type, filter_te_str);

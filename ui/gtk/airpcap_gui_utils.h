@@ -110,7 +110,7 @@ airpcap_get_link_type(const gchar* name);
 /*
  * Returns the string name corresponding to the given AirpcapLinkType.
  */
-gchar*
+const gchar*
 airpcap_get_link_name(AirpcapLinkType lt);
 
 /*

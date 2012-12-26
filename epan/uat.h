@@ -439,7 +439,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  */
 #define UAT_DEC_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
-	((rec_t*)rec)->field_name = strtol(ep_strndup(buf,len),NULL,10); } \
+	((rec_t*)rec)->field_name = (guint)strtol(ep_strndup(buf,len),NULL,10); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%d",((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
@@ -454,7 +454,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  */
 #define UAT_HEX_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
-	((rec_t*)rec)->field_name = strtol(ep_strndup(buf,len),NULL,16); } \
+	((rec_t*)rec)->field_name = (guint)strtol(ep_strndup(buf,len),NULL,16); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%x",((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }

@@ -506,7 +506,7 @@ dissect_gadu_gadu_uint32_string_utf8(tvbuff_t *tvb, int hfindex, proto_tree *tre
 {
 	const int org_offset = offset;
 
-	char *str;
+	const char *str;
 	guint32 len;
 
 	len = tvb_get_letohl(tvb, offset);

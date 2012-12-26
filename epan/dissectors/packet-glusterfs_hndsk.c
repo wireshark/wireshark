@@ -104,10 +104,9 @@ static int
 gluster_hndsk_2_getspec_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 							proto_tree *tree)
 {
-	gchar* spec = NULL;
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree);
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_hndsk_spec, offset,
-									&spec);
+									NULL);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_gluster_hndsk_dict,
 								offset);
 	return offset;
@@ -117,14 +116,12 @@ static int
 gluster_hndsk_2_getspec_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree)
 {
-	gchar *key = NULL;
-
 	if (tree)
 		proto_tree_add_item(tree, hf_gluster_hndsk_flags, tvb, offset,
 								4, ENC_NA);
 	offset += 4;
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_hndsk_key, offset,
-								&key);
+								NULL);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_gluster_hndsk_dict,
 								offset);
 	return offset;
@@ -143,9 +140,8 @@ static int
 gluster_hndsk_2_set_lk_ver_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree)
 {
-	gchar* uid = NULL;
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_hndsk_uid, offset,
-									&uid);
+									NULL);
 	offset = dissect_rpc_uint32(tvb, tree,hf_gluster_hndsk_lk_ver, offset);
 	return offset;
 }

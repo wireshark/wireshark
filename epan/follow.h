@@ -44,7 +44,7 @@ typedef struct _tcp_stream_chunk {
 char* build_follow_filter( packet_info * );
 gboolean follow_tcp_addr( const address *, guint, const address *, guint );
 gboolean follow_tcp_index( guint32 );
-void reassemble_tcp( guint32, gulong, gulong, gulong, const char*, gulong,
+void reassemble_tcp( guint32, guint32, guint32, guint32, const char*, guint32,
                      int, address *, address *, guint, guint );
 void  reset_tcp_reassembly( void );
 

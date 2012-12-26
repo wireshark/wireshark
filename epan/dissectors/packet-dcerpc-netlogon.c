@@ -6849,7 +6849,7 @@ static guint32 get_keytab_as_list(md4_pass **p_pass_list,const char* ntlm_pass _
     if (ntlm_pass[0] != '\0' && ( strlen(ntlm_pass) < 129 )) {
         nb_pass++;
         debugprintf("Password: %s\n",ntlm_pass);
-        password_len = strlen(ntlm_pass);
+        password_len = (int)strlen(ntlm_pass);
         str_to_unicode(ntlm_pass,ntlm_pass_unicode);
         crypt_md4(ntlm_pass_hash.md4,ntlm_pass_unicode,password_len*2);
         printnbyte(ntlm_pass_hash.md4,16,"Hash of the NT pass: ","\n");

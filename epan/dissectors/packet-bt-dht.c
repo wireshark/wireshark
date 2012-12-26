@@ -159,7 +159,7 @@ dissect_bencoded_int(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, gui
 }
 
 /* pre definition of dissect_bencoded_dict(), which is needed by dissect_bencoded_list() */
-static int dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char *label );
+static int dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char *label );
 
 /* dissect a bencoded list from tvb, start at offset. it's like "lXXXe", "X" is any bencoded thing */
 static int
@@ -285,7 +285,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 }
 
 static int
-dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char **result, char *label )
+dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char **result, const char *label )
 {
   proto_item *ti;
   proto_tree *sub_tree;
@@ -428,7 +428,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* dict = d...e */
 static int
-dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char *label )
+dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char *label )
 {
   proto_item *ti;
   proto_tree *sub_tree;

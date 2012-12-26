@@ -141,7 +141,7 @@ static int debug = 0;
 
 /* Dummy Ethernet header */
 static int hdr_ethernet = FALSE;
-static unsigned long hdr_ethernet_proto = 0;
+static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
 static int hdr_ip = FALSE;
@@ -149,40 +149,40 @@ static long hdr_ip_proto = 0;
 
 /* Dummy UDP header */
 static int hdr_udp = FALSE;
-static unsigned long hdr_dest_port = 0;
-static unsigned long hdr_src_port = 0;
+static guint32 hdr_dest_port = 0;
+static guint32 hdr_src_port = 0;
 
 /* Dummy TCP header */
 static int hdr_tcp = FALSE;
 
 /* Dummy SCTP header */
 static int hdr_sctp = FALSE;
-static unsigned long hdr_sctp_src  = 0;
-static unsigned long hdr_sctp_dest = 0;
-static unsigned long hdr_sctp_tag  = 0;
+static guint32 hdr_sctp_src  = 0;
+static guint32 hdr_sctp_dest = 0;
+static guint32 hdr_sctp_tag  = 0;
 
 /* Dummy DATA chunk header */
 static int hdr_data_chunk = FALSE;
-static unsigned char  hdr_data_chunk_type = 0;
-static unsigned char  hdr_data_chunk_bits = 3;
-static unsigned long  hdr_data_chunk_tsn  = 0;
-static unsigned short hdr_data_chunk_sid  = 0;
-static unsigned short hdr_data_chunk_ssn  = 0;
-static unsigned long  hdr_data_chunk_ppid = 0;
+static guint8  hdr_data_chunk_type = 0;
+static guint8  hdr_data_chunk_bits = 3;
+static guint32 hdr_data_chunk_tsn  = 0;
+static guint16 hdr_data_chunk_sid  = 0;
+static guint16 hdr_data_chunk_ssn  = 0;
+static guint32 hdr_data_chunk_ppid = 0;
 
 
 /*--- Local data -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
-static unsigned char *packet_buf;
-static unsigned long curr_offset = 0;
-static unsigned long max_offset = IMPORT_MAX_PACKET;
-static unsigned long packet_start = 0;
+static guint8 *packet_buf;
+static guint32 curr_offset = 0;
+static guint32 max_offset = IMPORT_MAX_PACKET;
+static guint32 packet_start = 0;
 static void start_new_packet (void);
 
 /* This buffer contains strings present before the packet offset 0 */
 #define PACKET_PREAMBLE_MAX_LEN    2048
-static unsigned char packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
+static guint8 packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
 static int packet_preamble_len = 0;
 
 /* Time code of packet, derived from packet_preamble */
@@ -194,7 +194,7 @@ static struct tm timecode_default;
 static wtap_dumper* wdh;
 
 /* HDR_ETH Offset base to parse */
-static unsigned long offset_base = 16;
+static guint32 offset_base = 16;
 
 /* ----- State machine -----------------------------------------------------------*/
 
@@ -306,14 +306,14 @@ typedef struct {
 static hdr_data_chunk_t HDR_DATA_CHUNK = {0, 0, 0, 0, 0, 0, 0};
 
 /* Link-layer type; see net/bpf.h for details */
-static unsigned long pcap_link_type = 1;   /* Default is DLT-EN10MB */
+static guint pcap_link_type = 1;   /* Default is DLT_EN10MB */
 
 /*----------------------------------------------------------------------
  * Parse a single hex number
  * Will abort the program if it can't parse the number
  * Pass in TRUE if this is an offset, FALSE if not
  */
-static unsigned long
+static guint32
 parse_num (const char *str, int offset)
 {
     unsigned long num;
@@ -323,7 +323,7 @@ parse_num (const char *str, int offset)
     if (c==str) {
         fprintf(stderr, "FATAL ERROR: Bad hex number? [%s]\n", str);
     }
-    return num;
+    return (guint32)num;
 }
 
 /*----------------------------------------------------------------------
@@ -332,10 +332,10 @@ parse_num (const char *str, int offset)
 static void
 write_byte (const char *str)
 {
-    unsigned long num;
+    guint32 num;
 
     num = parse_num(str, FALSE);
-    packet_buf[curr_offset] = (unsigned char) num;
+    packet_buf[curr_offset] = (guint8) num;
     curr_offset ++;
     if (curr_offset >= max_offset) /* packet full */
         start_new_packet();
@@ -345,7 +345,7 @@ write_byte (const char *str)
  * Remove bytes from the current packet
  */
 static void
-unwrite_bytes (unsigned long nbytes)
+unwrite_bytes (guint32 nbytes)
 {
     curr_offset -= nbytes;
 }
@@ -353,10 +353,10 @@ unwrite_bytes (unsigned long nbytes)
 /*----------------------------------------------------------------------
  * Determin SCTP chunk padding length
  */
-static unsigned long
-number_of_padding_bytes (unsigned long length)
+static guint32
+number_of_padding_bytes (guint32 length)
 {
-  unsigned long remainder;
+  guint32 remainder;
 
   remainder = length % 4;
 
@@ -384,15 +384,15 @@ write_current_packet (void)
 
         /* Compute packet length */
         prefix_length = 0;
-        if (hdr_data_chunk) { prefix_length += sizeof(HDR_DATA_CHUNK); }
-        if (hdr_sctp) { prefix_length += sizeof(HDR_SCTP); }
-        if (hdr_udp) { prefix_length += sizeof(HDR_UDP); proto_length = prefix_length + curr_offset; }
-        if (hdr_tcp) { prefix_length += sizeof(HDR_TCP); proto_length = prefix_length + curr_offset; }
+        if (hdr_data_chunk) { prefix_length += (int)sizeof(HDR_DATA_CHUNK); }
+        if (hdr_sctp) { prefix_length += (int)sizeof(HDR_SCTP); }
+        if (hdr_udp) { prefix_length += (int)sizeof(HDR_UDP); proto_length = prefix_length + curr_offset; }
+        if (hdr_tcp) { prefix_length += (int)sizeof(HDR_TCP); proto_length = prefix_length + curr_offset; }
         if (hdr_ip) {
-            prefix_length += sizeof(HDR_IP);
+            prefix_length += (int)sizeof(HDR_IP);
             ip_length = prefix_length + curr_offset + ((hdr_data_chunk) ? number_of_padding_bytes(curr_offset) : 0);
         }
-        if (hdr_ethernet) { prefix_length += sizeof(HDR_ETHERNET); }
+        if (hdr_ethernet) { prefix_length += (int)sizeof(HDR_ETHERNET); }
 
         /* Make room for dummy header */
         memmove(&packet_buf[prefix_length], packet_buf, curr_offset);
@@ -408,7 +408,7 @@ write_current_packet (void)
         if (hdr_ethernet) {
             HDR_ETHERNET.l3pid = g_htons(hdr_ethernet_proto);
             memcpy(&packet_buf[prefix_index], &HDR_ETHERNET, sizeof(HDR_ETHERNET));
-            prefix_index += sizeof(HDR_ETHERNET);
+            prefix_index += (int)sizeof(HDR_ETHERNET);
         }
 
         /* Write IP header */
@@ -422,7 +422,7 @@ write_current_packet (void)
             HDR_IP.hdr_checksum = in_cksum(cksum_vector, 1);
 
             memcpy(&packet_buf[prefix_index], &HDR_IP, sizeof(HDR_IP));
-            prefix_index += sizeof(HDR_IP);
+            prefix_index += (int)sizeof(HDR_IP);
         }
 
         /* initialize pseudo header for checksum calculation */
@@ -447,7 +447,7 @@ write_current_packet (void)
             HDR_UDP.checksum = in_cksum(cksum_vector, 3);
 
             memcpy(&packet_buf[prefix_index], &HDR_UDP, sizeof(HDR_UDP));
-            prefix_index += sizeof(HDR_UDP);
+            prefix_index += (int)sizeof(HDR_UDP);
         }
 
         /* Write TCP header */
@@ -466,7 +466,7 @@ write_current_packet (void)
             HDR_TCP.checksum = in_cksum(cksum_vector, 3);
 
             memcpy(&packet_buf[prefix_index], &HDR_TCP, sizeof(HDR_TCP));
-            prefix_index += sizeof(HDR_TCP);
+            prefix_index += (int)sizeof(HDR_TCP);
         }
 
         /* Compute DATA chunk header and append padding */
@@ -498,13 +498,13 @@ write_current_packet (void)
             HDR_SCTP.checksum  = g_htonl(~crc32c_calculate(&packet_buf[prefix_length], curr_offset, HDR_SCTP.checksum));
 
             memcpy(&packet_buf[prefix_index], &HDR_SCTP, sizeof(HDR_SCTP));
-            prefix_index += sizeof(HDR_SCTP);
+            prefix_index += (int)sizeof(HDR_SCTP);
         }
 
         /* Write DATA chunk header */
         if (hdr_data_chunk) {
             memcpy(&packet_buf[prefix_index], &HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK));
-            prefix_index += sizeof(HDR_DATA_CHUNK);
+            prefix_index += (int)sizeof(HDR_DATA_CHUNK);
         }
 
         /* Write Ethernet trailer */
@@ -636,7 +636,7 @@ parse_preamble (void)
         else
         {
             /* Parse subseconds */
-            ts_usec = strtol(subsecs, &p, 10);
+            ts_usec = (guint32)strtol(subsecs, &p, 10);
             if (subsecs == p) {
                 /* Error */
                 ts_usec = 0;
@@ -709,7 +709,7 @@ process_directive (char *str)
 void
 parse_token (token_t token, char *str)
 {
-    unsigned long num;
+    guint32 num;
 
     /*
      * This is implemented as a simple state machine of five states.
@@ -782,7 +782,7 @@ parse_token (token_t token, char *str)
                 } else {
                     /* Bad offset; switch to INIT state */
                     if (debug>=1)
-                        fprintf(stderr, "Inconsistent offset. Expecting %0lX, got %0lX. Ignoring rest of packet\n",
+                        fprintf(stderr, "Inconsistent offset. Expecting %0X, got %0X. Ignoring rest of packet\n",
                                 curr_offset, num);
                     write_current_packet();
                     state = INIT;
@@ -863,9 +863,9 @@ parse_token (token_t token, char *str)
 void
 text_import_setup(text_import_info_t *info)
 {
-    packet_buf = (unsigned char *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
-                                           sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
-                                           IMPORT_MAX_PACKET);
+    packet_buf = (guint8 *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
+                                    sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
+                                    IMPORT_MAX_PACKET);
 
     if (!packet_buf)
     {

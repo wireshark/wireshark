@@ -1010,7 +1010,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_widget_show (add_frame);
     gtk_box_pack_start (GTK_BOX (main_v_box), add_frame, TRUE, TRUE, 0);
 
-    add_frame_al = gtk_alignment_new (0.5, 0.5, 1, 1);
+    add_frame_al = gtk_alignment_new (0.5f, 0.5f, 1, 1);
     gtk_widget_set_name (add_frame_al, "add_frame_al");
     gtk_widget_show (add_frame_al);
     gtk_container_add (GTK_CONTAINER (add_frame), add_frame_al);
@@ -1228,7 +1228,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     gchar *row_type,
           *row_key,
-          *row_ssid = "";
+          *row_ssid = NULL;
 
     airpcap_advanced_w = GTK_WIDGET(data);
 
@@ -1265,7 +1265,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_widget_show (edit_frame);
     gtk_box_pack_start (GTK_BOX (main_v_box), edit_frame, TRUE, TRUE, 0);
 
-    edit_frame_al = gtk_alignment_new (0.5, 0.5, 1, 1);
+    edit_frame_al = gtk_alignment_new (0.5f, 0.5f, 1, 1);
     gtk_widget_set_name (edit_frame_al, "edit_frame_al");
     gtk_widget_show (edit_frame_al);
     gtk_container_add (GTK_CONTAINER (edit_frame), edit_frame_al);
@@ -1371,7 +1371,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     else
     {
         gtk_widget_set_sensitive(edit_ssid_te,TRUE);
-        gtk_entry_set_text(GTK_ENTRY(edit_ssid_te),row_ssid);
+        gtk_entry_set_text(GTK_ENTRY(edit_ssid_te),row_ssid?row_ssid:"");
     }
 
     /* XXX - Decomment only when WPA and WPA@ will be ready */
@@ -1768,7 +1768,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
                         0);
     gtk_container_set_border_width (GTK_CONTAINER (interface_fr), 10);
 
-    interface_al = gtk_alignment_new (0.5, 0.5, 1, 1);
+    interface_al = gtk_alignment_new (0.5f, 0.5f, 1, 1);
     gtk_widget_set_name (interface_al, "interface_al");
     gtk_widget_show (interface_al);
     gtk_container_add (GTK_CONTAINER (interface_fr), interface_al);
@@ -1821,7 +1821,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_box_pack_start (GTK_BOX (settings_sub_box), basic_parameters_fr, TRUE,FALSE, 0);
     gtk_container_set_border_width (GTK_CONTAINER (basic_parameters_fr), 10);
 
-    basic_parameters_al = gtk_alignment_new (0.5, 0.5, 1, 1);
+    basic_parameters_al = gtk_alignment_new (0.5f, 0.5f, 1, 1);
     gtk_widget_set_name (basic_parameters_al, "basic_parameters_al");
     gtk_widget_show (basic_parameters_al);
     gtk_container_add (GTK_CONTAINER (basic_parameters_fr),basic_parameters_al);
@@ -1841,7 +1841,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_table_attach (GTK_TABLE (basic_parameters_tb), channel_lb, 0, 1, 0, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
-    gtk_misc_set_alignment (GTK_MISC (channel_lb), 0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC (channel_lb), 0, 0.5f);
 
     capture_type_lb = gtk_label_new ("Capture Type:");
     gtk_widget_set_name (capture_type_lb, "capture_type_lb");
@@ -1849,7 +1849,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_table_attach (GTK_TABLE (basic_parameters_tb), capture_type_lb, 0, 1, 2,
                       3, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0),
                       0, 0);
-    gtk_misc_set_alignment (GTK_MISC (capture_type_lb), 0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC (capture_type_lb), 0, 0.5f);
 
     /* Start: Channel offset label */
     channel_offset_lb = gtk_label_new ("Channel Offset:");
@@ -1858,7 +1858,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_table_attach (GTK_TABLE (basic_parameters_tb), channel_offset_lb, 0, 1, 1, 2,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
-    gtk_misc_set_alignment (GTK_MISC (channel_offset_lb), 0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC (channel_offset_lb), 0, 0.5f);
     /* End: Channel offset label */
 
     /* Start: Channel offset combo box */
@@ -2151,7 +2151,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_box_pack_start (GTK_BOX (main_box), keys_fr, FALSE, FALSE, 0);
     gtk_container_set_border_width (GTK_CONTAINER (keys_fr), 10);
 
-    keys_al = gtk_alignment_new (0.5, 0.5, 1, 1);
+    keys_al = gtk_alignment_new (0.5f, 0.5f, 1, 1);
     gtk_widget_set_name (keys_al, "keys_al");
     gtk_widget_show (keys_al);
     gtk_container_add (GTK_CONTAINER (keys_fr), keys_al);
@@ -2177,7 +2177,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_table_attach (GTK_TABLE (decryption_mode_tb), decryption_mode_lb, 1,
                       2, 0, 1, (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
-    gtk_misc_set_alignment (GTK_MISC (decryption_mode_lb), 0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC (decryption_mode_lb), 0, 0.5f);
 
     decryption_mode_cb = gtk_combo_box_text_new();
     update_decryption_mode_list(decryption_mode_cb);
@@ -2753,7 +2753,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     gtk_table_attach (GTK_TABLE (radio_tb), keep_lb, 1, 2, 0, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
-    gtk_misc_set_alignment (GTK_MISC (keep_lb), 0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC (keep_lb), 0, 0.5f);
 
     merge_lb = gtk_label_new ("Merge Wireshark and AirPcap adapter(s) keys.");
     gtk_widget_set_name (merge_lb, "merge_lb");
@@ -2761,7 +2761,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     gtk_table_attach (GTK_TABLE (radio_tb), merge_lb, 1, 2, 1, 2,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
-    gtk_misc_set_alignment (GTK_MISC (merge_lb), 0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC (merge_lb), 0, 0.5f);
 
     import_lb =
         gtk_label_new
@@ -2771,7 +2771,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     gtk_table_attach (GTK_TABLE (radio_tb), import_lb, 1, 2, 2, 3,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
-    gtk_misc_set_alignment (GTK_MISC (import_lb), 0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC (import_lb), 0, 0.5f);
 
     ignore_lb =
         gtk_label_new
@@ -2782,7 +2782,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_label_set_line_wrap (GTK_LABEL (ignore_lb), TRUE);
-    gtk_misc_set_alignment (GTK_MISC (ignore_lb), 0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC (ignore_lb), 0, 0.5f);
 
     low_h_button_box = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_set_name (low_h_button_box, "low_h_button_box");

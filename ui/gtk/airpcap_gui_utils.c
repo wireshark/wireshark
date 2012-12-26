@@ -269,7 +269,7 @@ airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, g
 void
 airpcap_fill_key_list(GtkListStore *key_list_store)
 {
-    gchar*         s = NULL;
+    const gchar*   s = NULL;
     unsigned int i,n;
     airpcap_if_info_t* fake_if_info;
     GList*         wireshark_key_list=NULL;
@@ -411,7 +411,7 @@ airpcap_get_link_type(const gchar* name)
  * Returns the string name corresponding to the given AirpcapLinkType, or
  * NULL in case of error.
  */
-gchar*
+const gchar*
 airpcap_get_link_name(AirpcapLinkType lt)
 {
     if(lt == AIRPCAP_LT_802_11){
@@ -715,7 +715,7 @@ airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_in
     /*
      * Calculate the size of the keys collection
      */
-    KeysCollectionSize = sizeof(AirpcapKeysCollection) + keys_in_list * sizeof(AirpcapKey);
+    KeysCollectionSize = (guint) (sizeof(AirpcapKeysCollection) + keys_in_list * sizeof(AirpcapKey));
 
     /*
      * Allocate the collection
@@ -798,7 +798,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
 
     char* tmp_type = NULL;
     char* tmp_key = NULL;
-    char* tmp_ssid = "";
+    char* tmp_ssid = NULL;
 
     decryption_key_t* tmp_dk=NULL;
 
@@ -831,7 +831,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
             tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
             tmp_dk->key = g_string_new(tmp_key);
             tmp_dk->ssid = g_byte_array_new();
-            uri_str_to_bytes(tmp_ssid, tmp_dk->ssid);
+            uri_str_to_bytes(tmp_ssid?tmp_ssid:"", tmp_dk->ssid);
             tmp_dk->type = AIRPDCAP_KEY_TYPE_WPA_PWD;
             tmp_dk->bits = 256;
             key_list = g_list_append(key_list,tmp_dk);

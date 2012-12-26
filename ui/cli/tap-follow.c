@@ -519,7 +519,7 @@ followDraw(
     {
       while (sc.dlen > 0)
       {
-        len = sc.dlen < sizeof bin ? sc.dlen : sizeof bin;
+        len = sc.dlen < sizeof bin ? sc.dlen : (guint32)sizeof bin;
         sc.dlen -= len;
         if (fread(bin, 1, len, fp->filep) != len)
         {
@@ -549,7 +549,7 @@ followDraw(
 
       while (sc.dlen > 0)
       {
-        len = sc.dlen < sizeof bin ? sc.dlen : sizeof bin;
+        len = sc.dlen < sizeof bin ? sc.dlen : (guint32)sizeof bin;
         sc.dlen -= len;
         if (fread(bin, 1, len, fp->filep) != len)
         {

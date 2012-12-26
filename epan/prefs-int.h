@@ -67,7 +67,7 @@ WS_VAR_IMPORT module_t *protocols_module;
 
 typedef void (*pref_custom_free_cb) (pref_t* pref);
 typedef void (*pref_custom_reset_cb) (pref_t* pref);
-typedef prefs_set_pref_e (*pref_custom_set_cb) (pref_t* pref, gchar* value, gboolean* changed);
+typedef prefs_set_pref_e (*pref_custom_set_cb) (pref_t* pref, const gchar* value, gboolean* changed);
 typedef void (*pref_custom_write_cb) (pref_t* pref, write_pref_arg_t* arg);
 
 /** Structure to hold callbacks for PREF_CUSTOM type */
@@ -155,7 +155,7 @@ struct preference {
  * @return an indication of whether it succeeded or failed
  * in some fashion.
  */
-typedef prefs_set_pref_e (*pref_set_pair_cb) (gchar *key, gchar *value, void *private_data, gboolean return_range_errors);
+typedef prefs_set_pref_e (*pref_set_pair_cb) (gchar *key, const gchar *value, void *private_data, gboolean return_range_errors);
 
 /** read the preferences file (or similiar) and call the callback
  * function to set each key/value pair found

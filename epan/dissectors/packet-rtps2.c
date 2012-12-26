@@ -754,17 +754,17 @@ static guint16 rtps_util_add_short(proto_tree *, tvbuff_t *,
                         gint, int, int, gboolean, gboolean, const char *,
                         guint8 *, gint);
 static void rtps_util_add_port(proto_tree *, tvbuff_t *,
-                        gint, int, char *, guint8 *, gint);
+                        gint, int, const char *, guint8 *, gint);
 static void rtps_util_add_boolean(proto_tree *, tvbuff_t *,
-                        gint, char *, guint8 *, size_t);
+                        gint, const char *, guint8 *, size_t);
 static void rtps_util_add_durability_service_qos(proto_tree *, tvbuff_t *,
                         gint, int, guint8 *, gint);
 static void rtps_util_add_liveliness_qos(proto_tree *, tvbuff_t *,
                         gint, int, guint8 *, gint);
 static void rtps_util_add_kind_qos(proto_tree *, tvbuff_t *,
-                        gint, int, char *, const value_string *, guint8 *, size_t);
+                        gint, int, const char *, const value_string *, guint8 *, size_t);
 static gint rtps_util_add_seq_string(proto_tree *, tvbuff_t *,
-                        gint, int, int, char *, guint8 *, gint);
+                        gint, int, int, const char *, guint8 *, gint);
 static void rtps_util_add_seq_octets(proto_tree *, tvbuff_t *,
                         gint, int, int, int, guint8 *, gint);
 static int rtps_util_add_bitmap(proto_tree *, tvbuff_t *,
@@ -776,7 +776,7 @@ static void rtps_util_decode_flags(proto_tree *, tvbuff_t *,
 static void rtps_util_decode_flags_16bit(proto_tree *, tvbuff_t *,
                         gint, guint16, const struct Flag_definition *);
 static gint rtps_util_add_seq_ulong(proto_tree *, tvbuff_t *,
-                        gint, int, int, int, int, char *);
+                        gint, int, int, int, int, const char *);
 static void rtps_util_add_extra_flags(proto_tree *, tvbuff_t *,
                         gint, const char *);
 
@@ -1914,7 +1914,7 @@ static void rtps_util_add_port(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
                         gboolean   little_endian,
-                        char *     label,
+                        const char *label,
                         guint8 *   buffer,              /* Can be NULL */
                         gint       buffer_size) {
   guint8 tempBuffer[MAX_PORT_SIZE];
@@ -1949,7 +1949,7 @@ static void rtps_util_add_port(proto_tree *tree,
 static void rtps_util_add_boolean(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        char *     label,
+                        const char *label,
                         guint8 *   buffer,              /* Can be NULL */
                         size_t     buffer_size) {
   const char *str;
@@ -2098,7 +2098,7 @@ static void rtps_util_add_kind_qos(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
                         gboolean   little_endian,
-                        char *     label,
+                        const char *label,
                         const value_string *vals,
                         guint8 *   buffer,              /* Can be NULL */
                         size_t     buffer_size) {
@@ -2132,7 +2132,7 @@ static gint rtps_util_add_seq_string(proto_tree *tree,
                         gint       offset,
                         gboolean   little_endian,
                         int        param_length,
-                        char *     label,
+                        const char *label,
                         guint8 *   buffer,              /* Can NOT be NULL */
                         gint       buffer_size) {
   guint32 num_strings;
@@ -2202,7 +2202,7 @@ static gint rtps_util_add_seq_ulong(proto_tree *tree,
                         int        param_length,
                         int        is_hex,
                         int        is_signed,
-                        char *     label) {
+                        const char *label) {
   guint32 num_elem;
   guint32 i;
   proto_tree *string_tree;

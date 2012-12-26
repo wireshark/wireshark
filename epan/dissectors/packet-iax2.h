@@ -249,8 +249,8 @@ typedef struct _iax2_info_t
 	guint payload_len;
 	voip_call_state callState;
 	const gchar *messageName;
-	gchar *callingParty;
-	gchar *calledParty;
+	const gchar *callingParty;
+	const gchar *calledParty;
 	const guint8 *payload_data;
 } iax2_info_t;
 

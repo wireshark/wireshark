@@ -59,7 +59,7 @@ int ws80211_get_iface_info(const char *name, struct ws80211_iface_info *iface_in
 void ws80211_free_interfaces(GArray *interfaces);
 int ws80211_frequency_to_channel(int freq);
 int ws80211_set_freq(const char *name, int freq, int chan_type);
-int ws80211_str_to_chan_type(gchar *s);
+int ws80211_str_to_chan_type(const gchar *s);
 gchar *ws80211_chan_type_to_str(int type);
 
 #endif /* __WS80211_UTILS_H__ */

@@ -672,7 +672,7 @@ setup_file_import(GtkWidget *main_w)
             switch (text_import_info->dummy_header_type)
             {
             case HEADER_ETH:
-                text_import_info->pid = strtol(gtk_entry_get_text(GTK_ENTRY(etype_te)), NULL, 16);
+                text_import_info->pid = (guint) strtol(gtk_entry_get_text(GTK_ENTRY(etype_te)), NULL, 16);
                 if (text_import_info->pid > 0xffff)
                 {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The Ethertype (%x) is too large.",
@@ -686,7 +686,7 @@ setup_file_import(GtkWidget *main_w)
                 break;
 
             case HEADER_IPV4:
-                text_import_info->protocol = strtol(gtk_entry_get_text(GTK_ENTRY(protocol_te)), NULL, 10);
+                text_import_info->protocol = (guint) strtol(gtk_entry_get_text(GTK_ENTRY(protocol_te)), NULL, 10);
                 if (text_import_info->protocol > 0xff)
                 {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The IPv4 protocol (%u) is too large.",
@@ -701,7 +701,7 @@ setup_file_import(GtkWidget *main_w)
 
             case HEADER_UDP:
             case HEADER_TCP:
-                text_import_info->src_port = strtol(gtk_entry_get_text(GTK_ENTRY(src_port_te)), NULL, 10);
+                text_import_info->src_port = (guint) strtol(gtk_entry_get_text(GTK_ENTRY(src_port_te)), NULL, 10);
                 if (text_import_info->src_port > 0xffff)
                 {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The source port (%u) is too large.",
@@ -712,7 +712,7 @@ setup_file_import(GtkWidget *main_w)
                     g_free(text_import_info);
                     return NULL;
                 }
-                text_import_info->dst_port = strtol(gtk_entry_get_text(GTK_ENTRY(dst_port_te)), NULL, 10);
+                text_import_info->dst_port = (guint) strtol(gtk_entry_get_text(GTK_ENTRY(dst_port_te)), NULL, 10);
                 if (text_import_info->dst_port > 0xffff)
                 {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The destination port (%u) is too large.",
@@ -726,7 +726,7 @@ setup_file_import(GtkWidget *main_w)
                 break;
 
             case HEADER_SCTP:
-                text_import_info->src_port = strtol(gtk_entry_get_text(GTK_ENTRY(src_port_te)), NULL, 10);
+                text_import_info->src_port = (guint) strtol(gtk_entry_get_text(GTK_ENTRY(src_port_te)), NULL, 10);
                 if (text_import_info->src_port > 0xffff)
                 {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The source port (%u) is too large.",
@@ -737,7 +737,7 @@ setup_file_import(GtkWidget *main_w)
                     g_free(text_import_info);
                     return NULL;
                 }
-                text_import_info->dst_port = strtol(gtk_entry_get_text(GTK_ENTRY(dst_port_te)), NULL, 10);
+                text_import_info->dst_port = (guint) strtol(gtk_entry_get_text(GTK_ENTRY(dst_port_te)), NULL, 10);
                 if (text_import_info->dst_port > 0xffff)
                 {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The destination port (%u) is too large.",
@@ -748,11 +748,11 @@ setup_file_import(GtkWidget *main_w)
                     g_free(text_import_info);
                     return NULL;
                 }
-                text_import_info->tag = strtol(gtk_entry_get_text(GTK_ENTRY(tag_te)), NULL, 10);
+                text_import_info->tag = (guint) strtol(gtk_entry_get_text(GTK_ENTRY(tag_te)), NULL, 10);
                 break;
 
             case HEADER_SCTP_DATA:
-                text_import_info->src_port = strtol(gtk_entry_get_text(GTK_ENTRY(src_port_te)), NULL, 10);
+                text_import_info->src_port = (guint) strtol(gtk_entry_get_text(GTK_ENTRY(src_port_te)), NULL, 10);
                 if (text_import_info->src_port > 0xffff)
                 {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The source port (%u) is too large.",
@@ -763,7 +763,7 @@ setup_file_import(GtkWidget *main_w)
                     g_free(text_import_info);
                     return NULL;
                 }
-                text_import_info->dst_port = strtol(gtk_entry_get_text(GTK_ENTRY(dst_port_te)), NULL, 10);
+                text_import_info->dst_port = (guint) strtol(gtk_entry_get_text(GTK_ENTRY(dst_port_te)), NULL, 10);
                 if (text_import_info->dst_port > 0xffff)
                 {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The destination port (%u) is too large.",
@@ -774,7 +774,7 @@ setup_file_import(GtkWidget *main_w)
                     g_free(text_import_info);
                     return NULL;
                 }
-                text_import_info->ppi = strtol(gtk_entry_get_text(GTK_ENTRY(ppi_te)), NULL, 10);
+                text_import_info->ppi = (guint) strtol(gtk_entry_get_text(GTK_ENTRY(ppi_te)), NULL, 10);
                 break;
 
             default:
@@ -784,7 +784,7 @@ setup_file_import(GtkWidget *main_w)
             text_import_info->dummy_header_type = HEADER_NONE;
         }
 
-        text_import_info->max_frame_length = strtol(gtk_entry_get_text(GTK_ENTRY(framelen_te)), NULL, 10);
+        text_import_info->max_frame_length = (guint)strtol(gtk_entry_get_text(GTK_ENTRY(framelen_te)), NULL, 10);
         if (text_import_info->max_frame_length == 0) {
             text_import_info->max_frame_length = IMPORT_MAX_PACKET;
         }

@@ -371,7 +371,8 @@ comparetimes(struct timeval *t1, struct timeval *t2, guint16 burstint_lcl)
 static void
 buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double emptyspeed_lcl)
 {
-	gint32 sec=0, usec=0, cur, prev;
+	time_t sec=0;
+	gint32 usec=0, cur, prev;
 	struct timeval *buffer;
 	double timeelapsed;
 

@@ -157,7 +157,7 @@ static void menu_name_resolution_update_cb(GtkAction *action, gpointer data);
 static void name_resolution_cb(GtkWidget *w, gpointer d, gboolean* res_flag);
 static void colorize_cb(GtkWidget *w, gpointer d);
 static void rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences,
-        GtkUIManager *ui_menu, char *path);
+        GtkUIManager *ui_menu, const char *path);
 
 
 /*  As a general GUI guideline, we try to follow the Gnome Human Interface Guidelines, which can be found at:
@@ -4307,7 +4307,7 @@ menu_open_recent_file_cmd_cb(GtkAction *action, gpointer data _U_)
 }
 
 static void
-add_menu_recent_capture_file_absolute(gchar *cf_name)
+add_menu_recent_capture_file_absolute(const gchar *cf_name)
 {
     GtkWidget *submenu_recent_files;
     GList     *li;
@@ -5186,7 +5186,7 @@ menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
 
     switch (pref->type) {
     case PREF_UINT:
-        uval = strtoul(new_value, &p, pref->info.base);
+        uval = (guint)strtoul(new_value, &p, pref->info.base);
         if (p == new_value || *p != '\0') {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                           "The value \"%s\" isn't a valid number.",
@@ -5328,7 +5328,7 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 }
 
 static guint
-add_protocol_prefs_generic_menu(pref_t *pref, gpointer data, GtkUIManager *ui_menu, char *path)
+add_protocol_prefs_generic_menu(pref_t *pref, gpointer data, GtkUIManager *ui_menu, const char *path)
 {
     GtkWidget        *menu_preferences;
     GtkWidget        *menu_item, *menu_sub_item, *sub_menu;
@@ -5440,7 +5440,7 @@ add_protocol_prefs_packet_list_menu(pref_t *pref, gpointer data)
 
 static void
 rebuild_protocol_prefs_menu(module_t *prefs_module_p, gboolean preferences,
-        GtkUIManager *ui_menu, char *path)
+        GtkUIManager *ui_menu, const char *path)
 {
     GtkWidget *menu_preferences, *menu_item;
     GtkWidget *sub_menu;

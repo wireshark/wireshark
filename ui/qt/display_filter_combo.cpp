@@ -110,7 +110,7 @@ void DisplayFilterCombo::updateMaxCount()
     setMaxCount(prefs.gui_recent_df_entries_max);
 }
 
-extern "C" gboolean dfilter_combo_add_recent(gchar *filter) {
+extern "C" gboolean dfilter_combo_add_recent(const gchar *filter) {
     if (!cur_display_filter_combo)
         return FALSE;
 
@@ -123,7 +123,7 @@ extern "C" gboolean dfilter_combo_add_recent(gchar *filter) {
 // xxx - Move to an as-yet-to-be-written capture filter module along with ::addRecentCapture and ::writeRecentCapture
 QList<QString> cfilters;
 
-extern "C" gboolean cfilter_combo_add_recent(gchar *filter) {
+extern "C" gboolean cfilter_combo_add_recent(const gchar *filter) {
     cfilters.append(filter);
     return TRUE;
 }

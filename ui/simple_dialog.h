@@ -124,7 +124,7 @@ extern void simple_dialog_close(gpointer dialog);
  * @param dialog the dialog from simple_dialog()
  * @param text the text to display
  */
-extern void simple_dialog_check_set(gpointer dialog, gchar *text);
+extern void simple_dialog_check_set(gpointer dialog, const gchar *text);
 
 /** Get the check buttons state.
  *
@@ -137,12 +137,12 @@ extern gboolean simple_dialog_check_get(gpointer dialog);
  *  simple_dialog_primary_start() and simple_dialog_primary_end().
  *  To highlight the first sentence (will take effect on GTK2 only).
  */
-extern char *simple_dialog_primary_start(void);
+extern const char *simple_dialog_primary_start(void);
 /** Surround the primary dialog message text by
  *  simple_dialog_primary_start() and simple_dialog_primary_end().
  *  To highlight the first sentence (will take effect on GTK2 only).
  */
-extern char *simple_dialog_primary_end(void);
+extern const char *simple_dialog_primary_end(void);
 
 /** Escape the message text, if it probably contains Pango escape sequences.
  *  For example html like tags starting with a <.

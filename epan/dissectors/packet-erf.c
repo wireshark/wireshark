@@ -724,7 +724,7 @@ channelised_fill_vc_id_string(emem_strbuf_t* out_string, sdh_g707_format_t* in_f
   int      i;
   gboolean is_printed  = FALSE;
 
-  static char* g_vc_size_strings[] = {
+  static const char* g_vc_size_strings[] = {
     "unknown",  /*0x0*/
     "VC3",      /*0x1*/
     "VC4",      /*0x2*/

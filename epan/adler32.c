@@ -26,16 +26,18 @@
 
 #include <string.h>
 
+#include <glib.h>
+
 #include <epan/adler32.h>
 
 #define BASE 65521 /* largest prime smaller than 65536 */
 
 /*--- update_adler32 --------------------------------------------------------*/
-unsigned long update_adler32(unsigned long adler, const unsigned char *buf, int len)
+guint32 update_adler32(guint32 adler, const guint8 *buf, size_t len)
 {
-  unsigned long s1 = adler & 0xffff;
-  unsigned long s2 = (adler >> 16) & 0xffff;
-  int n;
+  guint32 s1 = adler & 0xffff;
+  guint32 s2 = (adler >> 16) & 0xffff;
+  size_t n;
 
   for (n = 0; n < len; n++) {
     s1 = (s1 + buf[n]) % BASE;
@@ -45,15 +47,15 @@ unsigned long update_adler32(unsigned long adler, const unsigned char *buf, int 
 }
 
 /*--- adler32 ---------------------------------------------------------------*/
-unsigned long adler32_bytes(const unsigned char *buf, int len)
+guint32 adler32_bytes(const guint8 *buf, size_t len)
 {
-  return update_adler32(1L, buf, len);
+  return update_adler32(1, buf, len);
 }
 
 /*--- adler32_str -----------------------------------------------------------*/
-unsigned long adler32_str(const char *buf)
+guint32 adler32_str(const char *buf)
 {
-  return update_adler32(1L, (const unsigned char*)buf, (int)strlen(buf));
+  return update_adler32(1, (const guint8*)buf, strlen(buf));
 }
 
 /*---------------------------------------------------------------------------*/

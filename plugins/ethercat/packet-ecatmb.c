@@ -253,14 +253,14 @@ static const true_false_string tfs_complete =
 
 void init_mbx_header(PETHERCAT_MBOX_HEADER pMbox, tvbuff_t *tvb, gint offset)
 {
-   pMbox->Length = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
-   pMbox->Address = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
+   pMbox->Length = tvb_get_letohs(tvb, offset); offset+=(int)sizeof(guint16);
+   pMbox->Address = tvb_get_letohs(tvb, offset); offset+=(int)sizeof(guint16);
    pMbox->aControlUnion.Control = tvb_get_letohs(tvb, offset);
 }
 
 void init_eoe_header(PETHERCAT_EOE_HEADER pEoE, tvbuff_t *tvb, gint offset)
 {
-   pEoE->anEoeHeaderInfoUnion.Info = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
+   pEoE->anEoeHeaderInfoUnion.Info = tvb_get_letohs(tvb, offset); offset+=(int)sizeof(guint16);
    pEoE->anEoeHeaderDataUnion.Result = tvb_get_letohs(tvb, offset);
 }
 
@@ -286,7 +286,7 @@ void init_coe_header(PETHERCAT_COE_HEADER pCoE, tvbuff_t *tvb, gint offset)
 void init_sdo_header(PETHERCAT_SDO_HEADER pSdo, tvbuff_t *tvb, gint offset)
 {
    pSdo->anSdoHeaderUnion.CS = tvb_get_guint8(tvb, offset++);
-   pSdo->Index = tvb_get_letohs(tvb, offset);offset+=sizeof(guint16);
+   pSdo->Index = tvb_get_letohs(tvb, offset);offset+=(int)sizeof(guint16);
    pSdo->SubIndex = tvb_get_guint8(tvb, offset++);
    pSdo->Data = tvb_get_letohl(tvb, offset);
 }
@@ -295,7 +295,7 @@ void init_sdo_info_header(PETHERCAT_SDO_INFO_HEADER pInfo, tvbuff_t *tvb, gint o
 {
    pInfo->anSdoControlUnion.Control = tvb_get_guint8(tvb, offset++);
    pInfo->Reserved = tvb_get_guint8(tvb, offset);
-   pInfo->FragmentsLeft = sizeof(guint16);
+   pInfo->FragmentsLeft = (int)sizeof(guint16);
 }
 
 
@@ -435,7 +435,7 @@ static void CANopenSdoResFormatter(PETHERCAT_SDO_HEADER pSdo, char *szText, gint
 static void CANopenSdoInfoFormatter(PETHERCAT_SDO_INFO_HEADER pHead, char *szText, gint nMax)
 {
    guint8 opCode = pHead->anSdoControlUnion.v.OpCode & 0x7F;
-   char* txt2 = "";
+   const char* txt2 = "";
    if ( (pHead->anSdoControlUnion.v.OpCode & 0x80) != 0 )
       txt2 = " - More Follows";
    switch (opCode)
@@ -1161,10 +1161,10 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                      proto_tree_add_item(ecat_eoe_macfilter_filter_tree, hf_ecat_mailbox_eoe_macfilter_filters[nCnt], tvb, offset+nCnt*ETHERNET_ADDRESS_LEN, ETHERNET_ADDRESS_LEN, ENC_NA);
                   offset+=16*ETHERNET_ADDRESS_LEN;
 
-                  anItem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filtermask, tvb, offset, 4*sizeof(guint32), ENC_NA);
+                  anItem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filtermask, tvb, offset, 4*(int)sizeof(guint32), ENC_NA);
                   ecat_eoe_macfilter_filtermask_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe_macfilter_filtermask);
                   for( nCnt=0; nCnt<options.v.MacFilterMaskCount; nCnt++)
-                     proto_tree_add_item(ecat_eoe_macfilter_filtermask_tree, hf_ecat_mailbox_eoe_macfilter_filtermasks[nCnt], tvb, offset+nCnt*sizeof(guint32), sizeof(guint32), ENC_NA);
+                     proto_tree_add_item(ecat_eoe_macfilter_filtermask_tree, hf_ecat_mailbox_eoe_macfilter_filtermasks[nCnt], tvb, offset+nCnt*(int)sizeof(guint32), (int)sizeof(guint32), ENC_NA);
                }
                else
                   proto_item_append_text(anItem, " - Invalid length!");
@@ -1319,15 +1319,15 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
             /* Add length information to the mailbox header */
             proto_tree_add_item(ecat_mailbox_header_tree, hf_ecat_mailboxlength, tvb, offset, sizeof(hdr.Length), ENC_LITTLE_ENDIAN);
-            offset+=sizeof(hdr.Length);
+            offset+=(int)sizeof(hdr.Length);
 
             /* Add address information to the mailbox header */
             proto_tree_add_item(ecat_mailbox_header_tree, hf_ecat_mailboxaddress, tvb, offset, sizeof(hdr.Address), ENC_LITTLE_ENDIAN);
-            offset+=sizeof(hdr.Address);
+            offset+=(int)sizeof(hdr.Address);
 
             /* Add priority information to the mailbox header */
             proto_tree_add_text(ecat_mailbox_header_tree, tvb, offset, 1, "Priority: %d", tvb_get_guint8(tvb, offset) & 0x3);
-            offset+=sizeof(guint8);
+            offset+=(int)sizeof(guint8);
 
             /* Add type information to the mailbox header */
             MailboxTypeFormatter(&hdr, szText, nMax);

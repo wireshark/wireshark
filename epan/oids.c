@@ -93,7 +93,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 		char* debug_env = getenv("WIRESHARK_DEBUG_MIBS");
 		guint32 subid;
 
-		debuglevel = debug_env ? strtoul(debug_env,NULL,10) : 0;
+		debuglevel = debug_env ? (int)strtoul(debug_env,NULL,10) : 0;
 
 		oid_root.children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_root");
 
@@ -367,7 +367,7 @@ static guint get_non_implicit_size(SmiType* sT) {
 		for (sR = smiGetFirstRange(sT); sR ; sR = smiGetNextRange(sR)) {
 			if (size == 0xffffffff) {
 				if (sR->minValue.value.unsigned32 == sR->maxValue.value.unsigned32) {
-					size = sR->minValue.value.unsigned32;
+					size = (guint32)sR->minValue.value.unsigned32;
 				} else {
 					return 0;
 				}
@@ -639,7 +639,7 @@ static void register_mibs(void) {
 
 					for(;smiEnum; smiEnum = smiGetNextNamedNumber(smiEnum)) {
 						if (smiEnum->name) {
-							value_string val = {smiEnum->value.value.integer32,g_strdup(smiEnum->name)};
+							value_string val = {(guint32)smiEnum->value.value.integer32,g_strdup(smiEnum->name)};
 							g_array_append_val(vals,val);
 						}
 					}

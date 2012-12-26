@@ -71,23 +71,23 @@ zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, packet_info *
         /* Extended PAN Identifiers are used in ZigBee 2006 & later. */
         ext_pan = tvb_get_letoh64(tvb, *offset + len);
         if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 0, "{Pan: %s", eui64_to_str(ext_pan));
-        len += sizeof(guint64);
+        len += (int)sizeof(guint64);
     }
     else {
         /* Short PAN Identifiers are used in ZigBee 2003 and earlier. */
         pan = tvb_get_letohs(tvb, *offset + len);
         if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 0, "{Pan: 0x%04x", pan);
-        len += sizeof(guint16);
+        len += (int)sizeof(guint16);
     }
 
     channel = tvb_get_guint8(tvb, *offset + len);
     if (tree) proto_item_append_text(ti, ", Channel: %d", channel);
-    len += sizeof(guint8);
+    len += (int)sizeof(guint8);
 
     profile = (tvb_get_guint8(tvb, *offset + len) & 0x0f) >> 0;
     version = (tvb_get_guint8(tvb, *offset + len) & 0xf0) >> 4;
     if (tree) proto_item_append_text(ti, ", Profile: 0x%01x, Version: %d", profile, version);
-    len += sizeof(guint8);
+    len += (int)sizeof(guint8);
 
     beacon      = (tvb_get_guint8(tvb, *offset + len) & 0x0f) >> 0;
     superframe  = (tvb_get_guint8(tvb, *offset + len) & 0xf0) >> 4;
@@ -97,11 +97,11 @@ zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, packet_info *
     else if (tree) {
         proto_item_append_text(ti, ", BeaconOrder: %d, SuperframeOrder: %d", beacon, superframe);
     }
-    len += sizeof(guint8);
+    len += (int)sizeof(guint8);
 
     permit = tvb_get_guint8(tvb, *offset) & 0x01;
     if (tree) proto_item_append_text(ti, ", PermitJoining: %s}", permit?"True":"False");
-    len += sizeof(guint8);
+    len += (int)sizeof(guint8);
 
     if (tree) proto_item_set_len(ti, len);
     *offset += len;
@@ -141,22 +141,22 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, p
         /* ZigBee 2006 & later use an extended PAN Identifier. */
         ext_pan = tvb_get_letoh64(tvb, *offset + len);
         if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 0, "{Extended PAN: %s", eui64_to_str(ext_pan));
-        len += sizeof(guint64);
+        len += (int)sizeof(guint64);
     }
     else {
         /* ZigBee 2003 & earlier use a short PAN Identifier. */
         pan = tvb_get_letohs(tvb, *offset + len);
         if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 0, "{PAN: 0x%04x", pan);
-        len += sizeof(guint16);
+        len += (int)sizeof(guint16);
     }
 
     ext_addr = tvb_get_letoh64(tvb, *offset + len);
     if (tree) proto_item_append_text(ti, ", Extended Addr: %s", get_eui64_name(ext_addr));
-    len += sizeof(guint64);
+    len += (int)sizeof(guint64);
 
     device = tvb_get_letohs(tvb, *offset + len);
     if (tree) proto_item_append_text(ti, ", Addr: 0x%04x", device);
-    len += sizeof(guint16);
+    len += (int)sizeof(guint16);
 
     if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
         type    = (tvb_get_guint8(tvb, *offset + len) & 0x03) >> 0;
@@ -185,13 +185,13 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, p
         else if (rel == 0x04)   proto_item_append_text(ti, ", Relationship: Previous Child");
         else                    proto_item_append_text(ti, ", Relationship: Unknown");
     }
-    len += sizeof(guint8);
+    len += (int)sizeof(guint8);
 
     if (pinfo->zbee_stack_vers <= ZBEE_VERSION_2004) {
         /* In ZigBee 2003 & earlier, the depth field is before the permit joining field. */
         depth = tvb_get_guint8(tvb, *offset + len);
         if (tree) proto_item_append_text(ti, ", Depth: %d", depth);
-        len += sizeof(guint8);
+        len += (int)sizeof(guint8);
     }
 
     permit_joining = (tvb_get_guint8(tvb, *offset + len) & 0x03) >> 0;
@@ -200,18 +200,18 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, p
         else if (permit_joining == 0x01)proto_item_append_text(ti, ", Permit Joining: True");
         else                            proto_item_append_text(ti, ", Permit Joining: Unknown");
     }
-    len += sizeof(guint8);
+    len += (int)sizeof(guint8);
 
     if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
         /* In ZigBee 2006 & later, the depth field is after the permit joining field. */
         depth = tvb_get_guint8(tvb, *offset + len);
         if (tree) proto_item_append_text(ti, ", Depth: %d", depth);
-        len += sizeof(guint8);
+        len += (int)sizeof(guint8);
     }
 
     lqi = tvb_get_guint8(tvb, *offset + len);
     if (tree) proto_item_append_text(ti, ", LQI: %d}", lqi);
-    len += sizeof(guint8);
+    len += (int)sizeof(guint8);
 
     if (tree) proto_item_set_len(ti, len);
     *offset += len;
@@ -240,11 +240,11 @@ zdp_parse_routing_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset)
     guint16     next;
 
     dest = tvb_get_letohs(tvb, *offset + len);
-    if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 2*sizeof(guint16) + sizeof(guint8), "{Destination: 0x%04x", dest);
-    len += sizeof(guint16);
+    if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 2*(int)sizeof(guint16) + (int)sizeof(guint8), "{Destination: 0x%04x", dest);
+    len += (int)sizeof(guint16);
 
     status = tvb_get_guint8(tvb, *offset + len);
-    next   = tvb_get_letohs(tvb, *offset + len + sizeof(guint8));
+    next   = tvb_get_letohs(tvb, *offset + len + (int)sizeof(guint8));
     if (tree) {
         /* Display the next hop first, because it looks a lot cleaner that way. */
         proto_item_append_text(ti, ", Next Hop: 0x%04x", next);
@@ -255,7 +255,7 @@ zdp_parse_routing_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset)
         else if (status == 0x03)proto_item_append_text(ti, ", Status: Inactive}");
         else                    proto_item_append_text(ti, ", Status: Unknown}");
     }
-    len += sizeof(guint8) + sizeof(guint16);
+    len += (int)sizeof(guint8) + (int)sizeof(guint16);
 
     *offset += len;
 } /* zdp_parse_routing_table_entry */
@@ -308,7 +308,7 @@ dissect_zbee_zdp_req_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     channels = tvb_get_letohl(tvb, offset);
     if (tree) {
         gboolean    first = 1;
-        ti = proto_tree_add_text(tree, tvb, offset, sizeof(guint32), "Scan Channels: ");
+        ti = proto_tree_add_text(tree, tvb, offset, (int)sizeof(guint32), "Scan Channels: ");
 
         for (i=0; i<27; i++) {
             if (channels & (1<<i)) {
@@ -323,10 +323,10 @@ dissect_zbee_zdp_req_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
         if (first) proto_item_append_text(ti, "None");
     }
-    offset += sizeof(guint32);
+    offset += (int)sizeof(guint32);
 
-    /*duration =*/ zbee_parse_uint(tree, hf_zbee_zdp_duration, tvb, &offset, sizeof(guint8), NULL);
-    /*idx      =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
+    /*duration =*/ zbee_parse_uint(tree, hf_zbee_zdp_duration, tvb, &offset, (int)sizeof(guint8), NULL);
+    /*idx      =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, (int)sizeof(guint8), NULL);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -352,7 +352,7 @@ dissect_zbee_zdp_req_mgmt_lqi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint   offset = 0;
     /*guint8  idx;*/
 
-    /*idx =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
+    /*idx =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, (int)sizeof(guint8), NULL);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -378,7 +378,7 @@ dissect_zbee_zdp_req_mgmt_rtg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint   offset = 0;
     /*guint8  idx;*/
 
-    /*idx =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
+    /*idx =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, (int)sizeof(guint8), NULL);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -404,7 +404,7 @@ dissect_zbee_zdp_req_mgmt_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint   offset = 0;
     /*guint8  idx;*/
 
-    /*idx =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
+    /*idx =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, (int)sizeof(guint8), NULL);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -431,15 +431,15 @@ dissect_zbee_zdp_req_mgmt_leave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint64 ext_addr;
     guint8  flags;
 
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
+    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
     if (pinfo->zbee_stack_vers >= ZBEE_VERSION_2007) {
         /* Flags present on ZigBee 2006 & later. */
         flags    = tvb_get_guint8(tvb, offset);
         if (tree) {
-            proto_tree_add_boolean(tree, hf_zbee_zdp_leave_children, tvb, offset, sizeof(guint8), flags & ZBEE_ZDP_MGMT_LEAVE_CHILDREN);
-            proto_tree_add_boolean(tree, hf_zbee_zdp_leave_rejoin, tvb, offset, sizeof(guint8), flags & ZBEE_ZDP_MGMT_LEAVE_REJOIN);
+            proto_tree_add_boolean(tree, hf_zbee_zdp_leave_children, tvb, offset, (int)sizeof(guint8), flags & ZBEE_ZDP_MGMT_LEAVE_CHILDREN);
+            proto_tree_add_boolean(tree, hf_zbee_zdp_leave_rejoin, tvb, offset, (int)sizeof(guint8), flags & ZBEE_ZDP_MGMT_LEAVE_REJOIN);
         }
-        offset += sizeof(guint8);
+        offset += (int)sizeof(guint8);
     }
 
     zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
@@ -469,7 +469,7 @@ dissect_zbee_zdp_req_mgmt_direct_join(tvbuff_t *tvb, packet_info *pinfo, proto_t
     guint64 ext_addr;
     /*guint8  cinfo;*/
 
-    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, sizeof(guint64), NULL);
+    ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
     /*cinfo    =*/ zdp_parse_cinfo(tree, ett_zbee_zdp_cinfo, tvb, &offset);
 
     zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
@@ -499,8 +499,8 @@ dissect_zbee_zdp_req_mgmt_permit_join(tvbuff_t *tvb, packet_info *pinfo, proto_t
     /*guint8  duration;*/
     /*guint8  significance;*/
 
-    /*duration     =*/ zbee_parse_uint(tree, hf_zbee_zdp_duration, tvb, &offset, sizeof(guint8), NULL);
-    /*significance =*/ zbee_parse_uint(tree, hf_zbee_zdp_significance, tvb, &offset, sizeof(guint8), NULL);
+    /*duration     =*/ zbee_parse_uint(tree, hf_zbee_zdp_duration, tvb, &offset, (int)sizeof(guint8), NULL);
+    /*significance =*/ zbee_parse_uint(tree, hf_zbee_zdp_significance, tvb, &offset, (int)sizeof(guint8), NULL);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -526,7 +526,7 @@ dissect_zbee_zdp_req_mgmt_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint   offset = 0;
     /*guint8  idx;*/
 
-    /*idx =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
+    /*idx =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, (int)sizeof(guint8), NULL);
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -557,16 +557,16 @@ dissect_zbee_zdp_req_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     /*guint16 manager;*/
 
     /*channels =*/ zdp_parse_chanmask(tree, tvb, &offset);
-    duration = zbee_parse_uint(tree, hf_zbee_zdp_duration, tvb, &offset, sizeof(guint8), NULL);
+    duration = zbee_parse_uint(tree, hf_zbee_zdp_duration, tvb, &offset, (int)sizeof(guint8), NULL);
     if (duration == ZBEE_ZDP_NWKUPDATE_PARAMETERS) {
-        /*update_id =*/ zbee_parse_uint(tree, hf_zbee_zdp_update_id, tvb, &offset, sizeof(guint8), NULL);
-        /*manager =*/ zbee_parse_uint(tree, hf_zbee_zdp_manager, tvb, &offset, sizeof(guint16), NULL);
+        /*update_id =*/ zbee_parse_uint(tree, hf_zbee_zdp_update_id, tvb, &offset, (int)sizeof(guint8), NULL);
+        /*manager =*/ zbee_parse_uint(tree, hf_zbee_zdp_manager, tvb, &offset, (int)sizeof(guint16), NULL);
     }
     else if (duration == ZBEE_ZDP_NWKUPDATE_CHANNEL_HOP) {
-        /*update_id =*/ zbee_parse_uint(tree, hf_zbee_zdp_update_id, tvb, &offset, sizeof(guint8), NULL);
+        /*update_id =*/ zbee_parse_uint(tree, hf_zbee_zdp_update_id, tvb, &offset, (int)sizeof(guint8), NULL);
     }
     else if (duration <= ZBEE_ZDP_NWKUPDATE_SCAN_MAX) {
-        /*count =*/ zbee_parse_uint(tree, hf_zbee_zdp_scan_count, tvb, &offset, sizeof(guint8), NULL);
+        /*count =*/ zbee_parse_uint(tree, hf_zbee_zdp_scan_count, tvb, &offset, (int)sizeof(guint8), NULL);
     }
 
     /* Dump any leftover bytes. */
@@ -605,9 +605,9 @@ dissect_zbee_zdp_rsp_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     guint8  table_count;
 
     status      = zdp_parse_status(tree, tvb, &offset);
-    /*table_size  =*/ zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, sizeof(guint8), NULL);
-    /*idx         =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
-    table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, sizeof(guint8), NULL);
+    /*table_size  =*/ zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, (int)sizeof(guint8), NULL);
+    /*idx         =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, (int)sizeof(guint8), NULL);
+    table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, (int)sizeof(guint8), NULL);
 
     if (tree && table_count) {
         ti = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Network List");
@@ -651,9 +651,9 @@ dissect_zbee_zdp_rsp_mgmt_lqi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint8  table_count;
 
     status      = zdp_parse_status(tree, tvb, &offset);
-    /*table_size  =*/ zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, sizeof(guint8), NULL);
-    /*idx         =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
-    table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, sizeof(guint8), NULL);
+    /*table_size  =*/ zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, (int)sizeof(guint8), NULL);
+    /*idx         =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, (int)sizeof(guint8), NULL);
+    table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, (int)sizeof(guint8), NULL);
 
     if (tree && table_count) {
         ti = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Neighbor Table");
@@ -697,9 +697,9 @@ dissect_zbee_zdp_rsp_mgmt_rtg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint8  table_count;
 
     status      = zdp_parse_status(tree, tvb, &offset);
-    /*table_size  =*/ zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, sizeof(guint8), NULL);
-    /*idx         =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
-    table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, sizeof(guint8), NULL);
+    /*table_size  =*/ zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, (int)sizeof(guint8), NULL);
+    /*idx         =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, (int)sizeof(guint8), NULL);
+    table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, (int)sizeof(guint8), NULL);
 
     if (tree && table_count) {
         ti = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Routing Table");
@@ -743,9 +743,9 @@ dissect_zbee_zdp_rsp_mgmt_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint8  table_count;
 
     status      = zdp_parse_status(tree, tvb, &offset);
-    /*table_size  =*/ zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, sizeof(guint8), NULL);
-    /*idx         =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
-    table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, sizeof(guint8), NULL);
+    /*table_size  =*/ zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, (int)sizeof(guint8), NULL);
+    /*idx         =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, (int)sizeof(guint8), NULL);
+    table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, (int)sizeof(guint8), NULL);
 
     if (tree && table_count) {
         ti = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Binding Table");
@@ -873,24 +873,24 @@ dissect_zbee_zdp_rsp_mgmt_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint8  table_count;
 
     status      = zdp_parse_status(tree, tvb, &offset);
-    /*table_size  =*/ zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, sizeof(guint8), NULL);
-    /*idx         =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, sizeof(guint8), NULL);
-    table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, sizeof(guint8), NULL);
+    /*table_size  =*/ zbee_parse_uint(tree, hf_zbee_zdp_table_size, tvb, &offset, (int)sizeof(guint8), NULL);
+    /*idx         =*/ zbee_parse_uint(tree, hf_zbee_zdp_index, tvb, &offset, (int)sizeof(guint8), NULL);
+    table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, (int)sizeof(guint8), NULL);
 
     if (tree && table_count) {
-        ti = proto_tree_add_text(tree, tvb, offset, table_count*(sizeof(guint16)+sizeof(guint64)), "Discovery Cache");
+        ti = proto_tree_add_text(tree, tvb, offset, table_count*((int)sizeof(guint16)+(int)sizeof(guint64)), "Discovery Cache");
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_cache);
     } else {
         field_tree = NULL;
     }
     for (i=0; i<table_count; i++) {
         guint64 addr64 = tvb_get_letoh64(tvb, offset);
-        guint16 addr16 = tvb_get_letohs(tvb, offset+sizeof(guint64));
+        guint16 addr16 = tvb_get_letohs(tvb, offset+(int)sizeof(guint64));
 
         if (field_tree) {
-            proto_tree_add_text(field_tree, tvb, offset, sizeof(guint16)+sizeof(guint64), "{%s = 0x%04x}", get_eui64_name(addr64), addr16);
+            proto_tree_add_text(field_tree, tvb, offset, (int)sizeof(guint16)+(int)sizeof(guint64), "{%s = 0x%04x}", get_eui64_name(addr64), addr16);
         }
-        offset += sizeof(guint16)+sizeof(guint64);
+        offset += (int)sizeof(guint16)+(int)sizeof(guint64);
     } /* for */
 
     zbee_append_info(tree, pinfo, ", Status: %s", zdp_status_name(status));
@@ -927,12 +927,12 @@ dissect_zbee_zdp_rsp_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     /*status      =*/ zdp_parse_status(tree, tvb, &offset);
     channels    = zdp_parse_chanmask(tree, tvb, &offset);
-    /*tx_total    =*/ zbee_parse_uint(tree, hf_zbee_zdp_tx_total, tvb, &offset, sizeof(guint16), NULL);
-    /*tx_fail     =*/ zbee_parse_uint(tree, hf_zbee_zdp_tx_fail, tvb, &offset, sizeof(guint16), NULL);
-    channel_count     = zbee_parse_uint(tree, hf_zbee_zdp_channel_count, tvb, &offset, sizeof(guint8), NULL);
+    /*tx_total    =*/ zbee_parse_uint(tree, hf_zbee_zdp_tx_total, tvb, &offset, (int)sizeof(guint16), NULL);
+    /*tx_fail     =*/ zbee_parse_uint(tree, hf_zbee_zdp_tx_fail, tvb, &offset, (int)sizeof(guint16), NULL);
+    channel_count     = zbee_parse_uint(tree, hf_zbee_zdp_channel_count, tvb, &offset, (int)sizeof(guint8), NULL);
 
     /* Display the channel list. */
-    for (i=0, j=0; i<(8*sizeof(guint32)); i++) {
+    for (i=0, j=0; i<(8*(int)sizeof(guint32)); i++) {
         guint8  energy;
 
         if ( ! ((1<<i) & channels) ) {
@@ -946,9 +946,9 @@ dissect_zbee_zdp_rsp_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         /* Get and display the channel energy. */
         energy = tvb_get_guint8(tvb, offset);
         if (tree) {
-            proto_tree_add_text(tree, tvb, offset, sizeof(guint8), "Channel %d Energy = 0x%02x", i, energy);
+            proto_tree_add_text(tree, tvb, offset, (int)sizeof(guint8), "Channel %d Energy = 0x%02x", i, energy);
         }
-        offset += sizeof(guint8);
+        offset += (int)sizeof(guint8);
         /* Increment the number of channels we found energy values for. */
         j++;
     } /* for */

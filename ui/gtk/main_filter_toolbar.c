@@ -162,7 +162,7 @@ filter_toolbar_new(void)
     g_signal_connect(filter_te, "changed", G_CALLBACK(filter_changed_cb), filter_cm);
     g_signal_connect(filter_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
     g_object_set_data(G_OBJECT(filter_tb), E_FILT_AUTOCOMP_PTR_KEY, NULL);
-    g_object_set_data(G_OBJECT(filter_te), E_FILT_FIELD_USE_STATUSBAR_KEY, "");
+    g_object_set_data(G_OBJECT(filter_te), E_FILT_FIELD_USE_STATUSBAR_KEY, (gpointer)"");
     g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
     g_signal_connect(filter_tb, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
 
@@ -356,7 +356,7 @@ dfilter_recent_combo_write_all(FILE *rf) {
 
 /* add a display filter coming from the user's recent file to the dfilter combo box */
 gboolean
-dfilter_combo_add_recent(gchar *s) {
+dfilter_combo_add_recent(const gchar *s) {
     GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
     char      *dupstr;
 

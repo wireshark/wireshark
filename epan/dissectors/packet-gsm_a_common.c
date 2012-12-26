@@ -40,6 +40,7 @@
 #include "packet-bssap.h"
 #include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
+#include "packet-gmr1_common.h"
 #include "packet-e212.h"
 
 

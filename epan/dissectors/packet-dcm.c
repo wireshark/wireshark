@@ -3712,7 +3712,7 @@ static guint32  dissect_dcm_pdv_header	    (tvbuff_t *tvb, packet_info *pinfo, p
 static guint32	dissect_dcm_pdv_fragmented  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_assoc_t *assoc, guint32 offset, guint32 pdv_len, gchar **pdv_description);
 static guint32	dissect_dcm_pdv_body	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint32 pdv_body_len, gchar **pdv_description);
 
-static guint32  dissect_dcm_tag		    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint32 endpos, gboolean is_first_tag, gchar **tag_description, gboolean *end_of_seq_or_item);
+static guint32  dissect_dcm_tag		    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint32 endpos, gboolean is_first_tag, const gchar **tag_description, gboolean *end_of_seq_or_item);
 static guint32  dissect_dcm_tag_open	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint32 endpos, gboolean *is_first_tag);
 static guint32  dissect_dcm_tag_value	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv, guint32 offset, guint16 grp, guint16 elm, guint32 vl, guint32 vl_max, const gchar* vr, gchar **tag_value);
 
@@ -4229,7 +4229,7 @@ dcm_export_create_tag_str(guint8 *buffer, guint32 bufflen, guint32 offset,
 
 
 static guint8*
-dcm_export_create_header(guint32 *dcm_header_len, gchar *sop_class_uid, gchar *sop_instance_uid, gchar *xfer_uid)
+dcm_export_create_header(guint32 *dcm_header_len, const gchar *sop_class_uid, gchar *sop_instance_uid, gchar *xfer_uid)
 {
     guint8	*dcm_header=NULL;
     guint32	offset=0;
@@ -4317,7 +4317,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
     gchar      *filename;
     const gchar *hostname;
 
-    gchar	*sop_class_uid;
+    const gchar	*sop_class_uid;
     gchar	*sop_instance_uid;
 
     /* Calculate total PDV length, i.e. all packets until last PDV without continuation  */
@@ -4440,7 +4440,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
     guint16  assoc_ver;
 
-    gchar	 *buf_desc = NULL;
+    const gchar	 *buf_desc = NULL;
     const char   *reject_result_desc = "";
     const char   *reject_source_desc = "";
     const char   *reject_reason_desc = "";
@@ -4452,8 +4452,6 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     guint8  reject_reason;
     guint8  abort_source;
     guint8  abort_reason;
-
-    buf_desc = (gchar *)ep_alloc0(MAX_BUF_LEN);	    /* Valid for this packet */
 
     assoc_header_pitem = proto_tree_add_text(tree, tvb, offset, pdu_len-6, "Association Header");
     assoc_header_ptree = proto_item_add_subtree(assoc_header_pitem, ett_assoc_header);
@@ -4479,7 +4477,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
 	offset += 32;				/* 32 reserved bytes */
 
-	g_snprintf(buf_desc, MAX_BUF_LEN, "A-ASSOCIATE request %s --> %s",
+	buf_desc = ep_strdup_printf("A-ASSOCIATE request %s --> %s",
 	    g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called));
 
 	offset = dissect_dcm_assoc_detail(tvb, pinfo, assoc_header_ptree, assoc,
@@ -4506,7 +4504,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
 	offset += 32;				/* 32 reserved bytes */
 
-	g_snprintf(buf_desc, MAX_BUF_LEN, "A-ASSOCIATE accept  %s <-- %s",
+	buf_desc = ep_strdup_printf("A-ASSOCIATE accept  %s <-- %s",
 	    g_strstrip(assoc->ae_calling_resp), g_strstrip(assoc->ae_called_resp));
 
 	offset = dissect_dcm_assoc_detail(tvb, pinfo, assoc_header_ptree, assoc,
@@ -4565,7 +4563,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	offset += 3;
 
 	/* Provider aborted */
-	g_snprintf(buf_desc, MAX_BUF_LEN,"A-ASSOCIATE reject  %s <-- %s (%s)",
+	buf_desc = ep_strdup_printf("A-ASSOCIATE reject  %s <-- %s (%s)",
 	    g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called), reject_reason_desc);
 
 	expert_add_info_format(pinfo, assoc_header_pitem,
@@ -4623,12 +4621,12 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
 	if (abort_source == 0) {
 	    /* User aborted */
-	    g_snprintf(buf_desc, MAX_BUF_LEN,"ABORT %s --> %s",
+	    buf_desc = ep_strdup_printf("ABORT %s --> %s",
 		g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called));
 	}
 	else {
 	    /* Provider aborted, slightly more information */
-	    g_snprintf(buf_desc, MAX_BUF_LEN,"ABORT %s <-- %s (%s)",
+	    buf_desc = ep_strdup_printf("ABORT %s <-- %s (%s)",
 		g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called), abort_reason_desc);
 	}
 
@@ -5625,7 +5623,7 @@ dcm_tag_summary(guint16 grp, guint16 elm, guint32 vl, const gchar *tag_desc, con
 static guint32
 dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		dcm_state_pdv_t *pdv, guint32 offset, guint32 endpos,
-		gboolean is_first_tag, gchar **tag_description,
+		gboolean is_first_tag, const gchar **tag_description,
 		gboolean *end_of_seq_or_item)
 {
     /* Decode one tag. If it is a sequence or item start create a subtree.
@@ -5921,7 +5919,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gboolean local_end_of_seq_or_item = FALSE;
 	gboolean is_first_desc = TRUE;
 
-	gchar *item_description = NULL;	    /* Will be allocated as ep_ memory in dissect_dcm_tag() */
+	const gchar *item_description = NULL;	    /* Will be allocated as ep_ memory in dissect_dcm_tag() */
 
 	if (vl == 0xFFFFFFFF) {
 	    /* Undefined length */
@@ -6113,7 +6111,7 @@ dissect_dcm_pdv_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     /* Handle one PDV inside a data PDU */
 
-    gchar *tag_value = NULL;
+    const gchar *tag_value = NULL;
     gboolean dummy = FALSE;
     guint32 endpos = 0;
 

@@ -1972,7 +1972,7 @@ static guint dissect_wimaxasncp_backend(
     guint     offset = 0;
     guint16   ui16;
     guint32   ui32;
-    guint8   *pmsid;
+    const guint8 *pmsid;
     guint16   tid    = 0;
     gboolean  dbit_show;
 
@@ -2518,7 +2518,7 @@ static void add_tlv_reg_info(
 {
     char *name;
     char *abbrev;
-    char *blurb;
+    const char *blurb;
 
     /* ------------------------------------------------------------------------
      * add root reg info
@@ -2627,32 +2627,25 @@ static void add_tlv_reg_info(
         break;
 
     case WIMAXASNCP_TLV_ID:
-        g_free(name);
         g_free(abbrev);
-
-        name = "IPv4 Address";
 
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.ipv4_value", tlv->name));
 
         add_reg_info(
-            &tlv->hf_ipv4, name, abbrev, FT_IPv4, BASE_NONE, blurb);
-
-        name = "IPv6 Address";
+            &tlv->hf_ipv4, "IPv4 Address", abbrev, FT_IPv4, BASE_NONE, blurb);
 
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.ipv6_value", tlv->name));
 
         add_reg_info(
-            &tlv->hf_ipv6, name, abbrev, FT_IPv6, BASE_NONE, blurb);
-
-        name = "BS ID";
+            &tlv->hf_ipv6, "IPv6 Address", abbrev, FT_IPv6, BASE_NONE, blurb);
 
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.bsid_value", tlv->name));
 
         add_reg_info(
-            &tlv->hf_bsid, name, abbrev, FT_ETHER, BASE_NONE, blurb);
+            &tlv->hf_bsid, "BS ID", abbrev, FT_ETHER, BASE_NONE, blurb);
 
         break;
 
@@ -2687,24 +2680,19 @@ static void add_tlv_reg_info(
         break;
 
     case WIMAXASNCP_TLV_IP_ADDRESS:
-        g_free(name);
         g_free(abbrev);
-
-        name = "IPv4 Address";
 
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.ipv4_value", tlv->name));
 
         add_reg_info(
-            &tlv->hf_ipv4, name, abbrev, FT_IPv4, BASE_NONE, blurb);
-
-        name = "IPv6 Address";
+            &tlv->hf_ipv4, "IPv4 Address", abbrev, FT_IPv4, BASE_NONE, blurb);
 
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.ipv6_value", tlv->name));
 
         add_reg_info(
-            &tlv->hf_ipv6, name, abbrev, FT_IPv6, BASE_NONE, blurb);
+            &tlv->hf_ipv6, "IPv6 Address", abbrev, FT_IPv6, BASE_NONE, blurb);
 
         break;
 

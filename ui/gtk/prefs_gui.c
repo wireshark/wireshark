@@ -594,7 +594,7 @@ recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 	 * filed ...
 	 */
 
-	newval = strtol(gtk_entry_get_text (GTK_ENTRY(recent_df_entries_count_te)), NULL, 10);
+	newval = (guint)strtol(gtk_entry_get_text (GTK_ENTRY(recent_df_entries_count_te)), NULL, 10);
 
 	if (newval > 0) {
 		prefs.gui_recent_df_entries_max = newval;
@@ -619,7 +619,7 @@ recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 	 * filed ...
 	 */
 
-	newval = strtol(gtk_entry_get_text (GTK_ENTRY(recent_files_count_te)), NULL, 10);
+	newval = (guint)strtol(gtk_entry_get_text (GTK_ENTRY(recent_files_count_te)), NULL, 10);
 
 	if (newval > 0) {
 		prefs.gui_recent_files_count_max = newval;
@@ -644,7 +644,7 @@ fileopen_preview_changed_cb(GtkWidget *recent_files_entry _U_,
 	 * filed ...
 	 */
 
-	newval = strtol(gtk_entry_get_text (GTK_ENTRY(fileopen_preview_te)), NULL, 10);
+	newval = (guint)strtol(gtk_entry_get_text (GTK_ENTRY(fileopen_preview_te)), NULL, 10);
 
 	if (newval > 0) {
 		prefs.gui_fileopen_preview = newval;
@@ -705,7 +705,7 @@ scroll_percent_changed_cb(GtkWidget *recent_files_entry _U_,
    * Now, just convert the string to a number and store it in the prefs field ...
    */
 
-  newval = strtol(gtk_entry_get_text(GTK_ENTRY(scroll_percent_te)), NULL, 10);
+  newval = (guint)strtol(gtk_entry_get_text(GTK_ENTRY(scroll_percent_te)), NULL, 10);
   
   if (newval <= 100) {
     prefs.gui_auto_scroll_percentage = newval;

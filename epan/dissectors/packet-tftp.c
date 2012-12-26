@@ -148,7 +148,7 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	  /* Special code to handle individual options */
 	  if (!g_ascii_strcasecmp((const char *)optionname, "blksize") &&
 	      opcode == TFTP_OACK) {
-		gint blocksize = strtol((const char *)optionvalue, NULL, 10);
+		gint blocksize = (gint)strtol((const char *)optionvalue, NULL, 10);
 		if (blocksize < 8 || blocksize > 65464) {
 			expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE,
 				PI_WARN, "TFTP blocksize out of range");

@@ -149,7 +149,7 @@ extern void initialize_mate_runtime(void) {
 		}
 
 		rd->current_items = 0;
-		rd->now = -1.0;
+		rd->now = -1.0f;
 		rd->highest_analyzed_frame = 0;
 		rd->frames = g_hash_table_new(g_direct_hash,g_direct_equal);
 
@@ -189,10 +189,10 @@ static mate_gop* new_gop(mate_cfg_gop* cfg, mate_pdu* pdu, gchar* key) {
 	gop->expiration = cfg->expiration > 0.0 ? cfg->expiration + rd->now : (float) -1.0 ;
 	gop->idle_expiration = cfg->idle_timeout > 0.0 ? cfg->idle_timeout + rd->now : (float) -1.0 ;
 	gop->time_to_die = cfg->lifetime > 0.0 ? cfg->lifetime + rd->now : (float) -1.0 ;
-	gop->time_to_timeout = 0.0;
+	gop->time_to_timeout = 0.0f;
 
 	gop->last_time = gop->start_time = rd->now;
-	gop->release_time = 0.0;
+	gop->release_time = 0.0f;
 
 	gop->num_of_pdus = 0;
 	gop->num_of_after_release_pdus = 0;
@@ -205,7 +205,7 @@ static mate_gop* new_gop(mate_cfg_gop* cfg, mate_pdu* pdu, gchar* key) {
 	pdu->gop = gop;
 	pdu->next = NULL;
 	pdu->is_start = TRUE;
-	pdu->time_in_gop = 0.0;
+	pdu->time_in_gop = 0.0f;
 
 	g_hash_table_insert(cfg->gop_index,gop->gop_key,gop);
 	return gop;
@@ -245,12 +245,12 @@ static mate_gog* new_gog(mate_cfg_gog* cfg, mate_gop* gop) {
 	gog->avpl = new_avpl(cfg->name);
 	gog->last_n = 0;
 
-	gog->expiration = 0.0;
-	gog->idle_expiration = 0.0;
+	gog->expiration = 0.0f;
+	gog->idle_expiration = 0.0f;
 
 	gog->start_time = rd->now;
-	gog->release_time = 0.0;
-	gog->last_time = 0.0;
+	gog->release_time = 0.0f;
+	gog->last_time = 0.0f;
 
 	gog->gops = NULL;
 	gog->last_gop = NULL;
@@ -734,7 +734,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 
 	pdu->gop = NULL;
 	pdu->next = NULL;
-	pdu->time_in_gop = -1.0;
+	pdu->time_in_gop = -1.0f;
 
 	pdu->first = FALSE;
 	pdu->is_start = FALSE;

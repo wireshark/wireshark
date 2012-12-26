@@ -472,7 +472,7 @@ static void dissect_a_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int o
     if(tree)
     {
         a_rec_item = proto_tree_add_text(tree,tvb,offset,
-                    ((sizeof(guint32) + sizeof(guint16)) * nrec),"A records");
+                    (int)((sizeof(guint32) + sizeof(guint16)) * nrec),"A records");
 
         a_rec_tree = proto_item_add_subtree(a_rec_item, ett_a_rec);
     }
@@ -482,7 +482,7 @@ static void dissect_a_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int o
     for(i=0; i<nrec; i++)
     {
 
-        curr = offset + ((sizeof(guint32)+sizeof(guint16)) * i);
+        curr = offset + (int)((sizeof(guint32)+sizeof(guint16)) * i);
 
         len  = tvb_get_ntohs(tvb,curr);
 
@@ -575,7 +575,7 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
                             dlen,
                             "DNAME: %s", dname);
 
-        curr+=((sizeof(short)*4) + dlen);
+        curr+=(int)((sizeof(short)*4) + dlen);
 
     }
 
@@ -631,7 +631,7 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
                             dlen,
                             "name: %s", dname);
 
-        curr+=((sizeof(short)*2) + dlen);
+        curr+=(int)((sizeof(short)*2) + dlen);
 
 
     }
@@ -675,7 +675,7 @@ static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
                             curr + 2,
                             dlen,
                             "Name: %s", dname);
-        curr+=(sizeof(short) + dlen);
+        curr+=(int)(sizeof(short) + dlen);
 
     }
 

@@ -614,7 +614,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (!tvb_memeql(tvb, offset, REQUEST_STR, sizeof(REQUEST_STR) - 1)) {
 
                 proto_tree_add_item(hdfs_tree, hf_hdfs_sequenceno, tvb, offset, sizeof(REQUEST_STR) - 1, ENC_ASCII|ENC_NA);
-                offset += sizeof(REQUEST_STR) - 1;
+                offset += (int)sizeof(REQUEST_STR) - 1;
 
                 proto_tree_add_item(hdfs_tree, hf_hdfs_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;

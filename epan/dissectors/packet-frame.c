@@ -380,7 +380,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			const guint8 *cp;
 			md5_state_t   md_ctx;
 			md5_byte_t    digest[16];
-			gchar        *digest_string;
+			const gchar  *digest_string;
 
 			cp = tvb_get_ptr(tvb, 0, cap_len);
 

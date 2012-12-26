@@ -296,9 +296,9 @@ dissect_npmp_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
   if (onoffevents > 0) {
      onofftree = proto_item_add_subtree(onoffitem, ett_onoffarray);
     for(i = 0;i < onoffevents;i++) {
-      onoffvalue = tvb_get_ntohl(message_tvb, offset_addflow_onoffeventarray + (sizeof(guint32) * i));
+      onoffvalue = tvb_get_ntohl(message_tvb, offset_addflow_onoffeventarray + (int)(sizeof(guint32) * i));
       proto_tree_add_uint_format(onofftree, hf_addflow_onoffeventarray, message_tvb,
-                                 offset_addflow_onoffeventarray + (sizeof(guint32) * i), sizeof(guint32),
+                                 offset_addflow_onoffeventarray + (int)(sizeof(guint32) * i), (int)sizeof(guint32),
                                  onoffvalue, "%1.3f s: set to %s", onoffvalue / 1000.0, (i & 1) ? "OFF" : "ON");
     }
   }

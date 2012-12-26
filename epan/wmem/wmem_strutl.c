@@ -42,7 +42,7 @@ wmem_strdup(wmem_allocator_t *allocator, const gchar *src)
     /* If the string is NULL, just return the string "<NULL>" so that the
      * callers don't have to bother checking it. */
     if(!src) {
-        return "<NULL>";
+        src = "<NULL>";
     }
 
     len = strlen(src) + 1; /* +1 for the null-terminator */

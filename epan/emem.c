@@ -215,7 +215,7 @@ emem_canary_next(guint8 *mem_canary, guint8 *canary, int *len)
 			memcpy(&ptr, &canary[i+1], sizeof(void *));
 
 			if (len)
-				*len = i + 1 + sizeof(void *);
+				*len = i + 1 + (int)sizeof(void *);
 			return ptr;
 		}
 
@@ -584,7 +584,7 @@ static void
 emem_scrub_memory(char *buf, size_t size, gboolean alloc)
 {
 	guint scrubbed_value;
-	guint offset;
+	size_t offset;
 
 	if (!debug_use_memory_scrubber)
 		return;
@@ -739,8 +739,8 @@ emem_create_chunk_gp(size_t size)
 	ret = mprotect(prot2, pagesize, PROT_NONE);
 	g_assert(ret != -1);
 
-	npc->amount_free_init = prot2 - prot1 - pagesize;
-	npc->free_offset_init = (prot1 - npc->buf) + pagesize;
+	npc->amount_free_init = (unsigned int)(prot2 - prot1 - pagesize);
+	npc->free_offset_init = (unsigned int)((prot1 - npc->buf) + pagesize);
 #else
 	npc->amount_free_init = size;
 	npc->free_offset_init = 0;
@@ -966,7 +966,7 @@ emem_strdup(const gchar *src, void *allocator(size_t))
 	 * have to bother checking it.
 	 */
 	if(!src)
-		return "<NULL>";
+		src = "<NULL>";
 
 	len = (guint) strlen(src);
 	dst = memcpy(allocator(len+1), src, len+1);

@@ -187,7 +187,7 @@ dissect_domain_nonack_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 static int
 dissect_match_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	char *str;
+	const char *str;
 
 	proto_item_append_text(tree, " MATCH call");
 
@@ -219,7 +219,7 @@ static int
 dissect_match_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	gint32 status;
-	char *str;
+	const char *str;
 
 	proto_item_append_text(tree, " MATCH reply");
 
@@ -392,7 +392,7 @@ dissect_xfr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 static int
 dissect_order_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	char *str;
+	const char *str;
 
 	proto_item_append_text(tree, " ORDER call");
 

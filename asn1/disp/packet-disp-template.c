@@ -82,7 +82,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	int (*disp_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
-	char *disp_op_name;
+	const char *disp_op_name;
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);

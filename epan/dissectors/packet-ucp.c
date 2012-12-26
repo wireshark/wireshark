@@ -111,12 +111,12 @@ static int st_ucp_results        = -1;
 static int st_ucp_results_pos    = -1;
 static int st_ucp_results_neg    = -1;
 
-static gchar* st_str_ucp         = "UCP Messages";
-static gchar* st_str_ops         = "Operations";
-static gchar* st_str_res         = "Results";
-static gchar* st_str_ucp_res     = "UCP Results Acks/Nacks";
-static gchar* st_str_pos         = "Positive";
-static gchar* st_str_neg         = "Negative";
+static gchar st_str_ucp[]         = "UCP Messages";
+static gchar st_str_ops[]         = "Operations";
+static gchar st_str_res[]         = "Results";
+static gchar st_str_ucp_res[]     = "UCP Results Acks/Nacks";
+static gchar st_str_pos[]         = "Positive";
+static gchar st_str_neg[]         = "Negative";
 
 /*
  * Data (variable) section
@@ -749,7 +749,7 @@ check_ucp(tvbuff_t *tvb, int *endpkt)
  * \return              The date in standard 'time_t' format.
  */
 static time_t
-ucp_mktime(char *datestr)
+ucp_mktime(const char *datestr)
 {
     struct tm    r_time;
 
@@ -866,7 +866,7 @@ static guint
 ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
     gint         idx, len;
-    char         *strval;
+    const char   *strval;
     guint        intval = 0;
 
     idx = tvb_find_guint8(tvb, *offset, -1, '/');
@@ -876,7 +876,7 @@ ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
         tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
         len = idx - *offset;
-    strval = (gchar*)tvb_get_ephemeral_string(tvb, *offset, len);
+    strval = tvb_get_ephemeral_string(tvb, *offset, len);
     if (len > 0) {
         intval = atoi(strval);
         proto_tree_add_uint(tree, field, tvb, *offset, len, intval);
@@ -891,7 +891,7 @@ static void
 ucp_handle_time(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
     gint         idx, len;
-    char         *strval;
+    const char   *strval;
     time_t       tval;
     nstime_t     tmptime;
 
@@ -902,7 +902,7 @@ ucp_handle_time(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
         tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
         len = idx - *offset;
-    strval = (gchar*)tvb_get_ephemeral_string(tvb, *offset, len);
+    strval = tvb_get_ephemeral_string(tvb, *offset, len);
     if (len > 0) {
         tval = ucp_mktime(strval);
         tmptime.secs  = tval;

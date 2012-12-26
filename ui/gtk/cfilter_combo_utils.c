@@ -81,7 +81,7 @@ void
 
 /* add a capture filter coming from the user's recent file to the cfilter combo box */
 gboolean
- cfilter_combo_add_recent(gchar *s) {
+ cfilter_combo_add_recent(const gchar *s) {
    gchar *dupstr;
 
    if (s) {

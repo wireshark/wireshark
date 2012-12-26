@@ -421,7 +421,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
             return 0;
         }
 
-        offset += sizeof(JXTA_UDP_SIG);
+        offset += (int)sizeof(JXTA_UDP_SIG);
 
         jxta_message_framing_tvb = tvb_new_subset_remaining(tvb, offset);
         processed = dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, NULL, &content_length, &content_type);
@@ -471,8 +471,8 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         gchar *content_type = NULL;
         tvbuff_t *jxta_message_tvb;
 
-        proto_tree_add_item(jxta_udp_tree, hf_jxta_udpsig, tvb, tree_offset, sizeof(JXTA_UDP_SIG), ENC_ASCII|ENC_NA);
-        tree_offset += sizeof(JXTA_UDP_SIG);
+        proto_tree_add_item(jxta_udp_tree, hf_jxta_udpsig, tvb, tree_offset, (int)sizeof(JXTA_UDP_SIG), ENC_ASCII|ENC_NA);
+        tree_offset += (int)sizeof(JXTA_UDP_SIG);
 
         jxta_message_framing_tvb = tvb_new_subset_remaining(tvb, tree_offset);
 
@@ -988,7 +988,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
             break;
         } else {
             headername_len = tvb_get_guint8(tvb, offset);
-            offset += sizeof(guint8);
+            offset += (int)sizeof(guint8);
             headername_offset = offset;
 
             available = tvb_reported_length_remaining(tvb, offset);
@@ -1009,7 +1009,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
             break;
         } else {
             headervalue_len = tvb_get_ntohs(tvb, offset);
-            offset += sizeof(guint16);
+            offset += (int)sizeof(guint16);
             headervalue_offset = offset;
 
             available = tvb_reported_length_remaining(tvb, offset);
@@ -1061,35 +1061,35 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
             /*
              *   Put header name into the protocol tree
              */
-            proto_tree_add_item(framing_header_tree, hf_jxta_framing_header_name, tvb, tree_offset, sizeof(gint8), ENC_ASCII|ENC_NA);
+            proto_tree_add_item(framing_header_tree, hf_jxta_framing_header_name, tvb, tree_offset, (int)sizeof(gint8), ENC_ASCII|ENC_NA);
 
             /*
              *   Append header name into the header protocol item. It's a nice hint so you don't have to reveal all headers.
              */
             if (headernamelen > 0) {
                 proto_item_append_text(framing_header_tree_item, " \"%s\"",
-                                       tvb_format_text(tvb, tree_offset + sizeof(guint8), headernamelen));
+                                       tvb_format_text(tvb, tree_offset + (int)sizeof(guint8), headernamelen));
             }
 
-            tree_offset += sizeof(guint8) + headernamelen;
+            tree_offset += (int)sizeof(guint8) + headernamelen;
 
             if (headernamelen > 0) {
                 guint16 headervaluelen = tvb_get_ntohs(tvb, tree_offset);
 
                 if (tree) {
                     proto_tree_add_uint(framing_header_tree, hf_jxta_framing_header_value_length, tvb, tree_offset,
-                                        sizeof(guint16), headervaluelen);
+                                        (int)sizeof(guint16), headervaluelen);
 
                     /** TODO bondolo Add specific handling for known header types */
 
                     /*
                      * Put header value into protocol tree.
                      */
-                    proto_tree_add_item(framing_header_tree, hf_jxta_framing_header_value, tvb, tree_offset + sizeof(guint16),
+                    proto_tree_add_item(framing_header_tree, hf_jxta_framing_header_value, tvb, tree_offset + (int)sizeof(guint16),
                                         headervaluelen, ENC_NA);
                 }
 
-                tree_offset += sizeof(guint16) + headervaluelen;
+                tree_offset += (int)sizeof(guint16) + headervaluelen;
             }
 
             proto_item_set_end(framing_header_tree_item, tvb, tree_offset);
@@ -1150,7 +1150,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             return 0;
         }
 
-        offset += sizeof(JXTA_MSG_SIG);
+        offset += (int)sizeof(JXTA_MSG_SIG);
 
         available = tvb_reported_length_remaining(tvb, offset);
         if (available < sizeof(guint8)) {
@@ -1159,7 +1159,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         } else {
             message_version = tvb_get_guint8(tvb, offset);
 
-            offset += sizeof(guint8);
+            offset += (int)sizeof(guint8);
 
             if ((JXTA_MSG_VERSION_1 != message_version) && (JXTA_MSG_VERSION_2 != message_version)) {
                 /* Sort of a lie, we say that we don't recognize it at all. */
@@ -1174,7 +1174,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                 needed = (gint) (sizeof(guint8) - available);
                 break;
             } else {
-                offset += sizeof(guint8);
+                offset += (int)sizeof(guint8);
             }
         }
 
@@ -1187,7 +1187,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             guint16 msg_names_count = tvb_get_ntohs(tvb, offset);
             guint each_name;
 
-            offset += sizeof(guint16);
+            offset += (int)sizeof(guint16);
 
             for (each_name = 0; each_name < msg_names_count; each_name++) {
                 guint16 name_len;
@@ -1200,13 +1200,13 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
                 name_len = tvb_get_ntohs(tvb, offset);
 
-                available = tvb_reported_length_remaining(tvb, offset + sizeof(name_len));
+                available = tvb_reported_length_remaining(tvb, offset + (int)sizeof(name_len));
                 if (available < name_len) {
                     needed = (gint) (name_len - available);
                     break;
                 }
 
-                offset += sizeof(name_len) + name_len;
+                offset += (int)sizeof(name_len) + name_len;
             }
         }
 
@@ -1219,7 +1219,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             guint16 elem_count = tvb_get_ntohs(tvb, offset);
             guint each_elem;
 
-            offset += sizeof(guint16);
+            offset += (int)sizeof(guint16);
 
             /* parse elements */
             for (each_elem = 0; each_elem < elem_count; each_elem++) {
@@ -1309,8 +1309,8 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
         jxta_msg_tree = proto_item_add_subtree(jxta_msg_tree_item, ett_jxta_msg);
 
-        proto_tree_add_item(jxta_msg_tree, hf_jxta_message_sig, tvb, tree_offset, sizeof(JXTA_MSG_SIG), ENC_ASCII|ENC_NA);
-        tree_offset += sizeof(JXTA_MSG_SIG);
+        proto_tree_add_item(jxta_msg_tree, hf_jxta_message_sig, tvb, tree_offset, (int)sizeof(JXTA_MSG_SIG), ENC_ASCII|ENC_NA);
+        tree_offset += (int)sizeof(JXTA_MSG_SIG);
 
         tree_item = proto_tree_add_string(jxta_msg_tree, hf_jxta_message_src, tvb, 0, 0, src_addr->str);
         PROTO_ITEM_SET_GENERATED(tree_item);
@@ -1345,21 +1345,21 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         }
 
         message_version = tvb_get_guint8(tvb, tree_offset);
-        proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_version, tvb, tree_offset, sizeof(guint8), message_version);
-        tree_offset += sizeof(guint8);
+        proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_version, tvb, tree_offset, (int)sizeof(guint8), message_version);
+        tree_offset += (int)sizeof(guint8);
 
         if( message_version > 0 ) {
             guint8 flags = tvb_get_guint8(tvb, tree_offset);
-            proto_item *flags_ti = proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_flags, tvb, tree_offset, sizeof(guint8), flags);
+            proto_item *flags_ti = proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_flags, tvb, tree_offset, (int)sizeof(guint8), flags);
             proto_tree *jxta_msg_flags_tree = proto_item_add_subtree(flags_ti, ett_jxta_msg_flags);
             proto_tree_add_boolean(jxta_msg_flags_tree, hf_jxta_message_flag_utf16be, tvb, tree_offset, 1, flags);
             proto_tree_add_boolean(jxta_msg_flags_tree, hf_jxta_message_flag_ucs32be, tvb, tree_offset, 1, flags);
-            tree_offset += sizeof(guint8);
+            tree_offset += (int)sizeof(guint8);
         }
 
         msg_names_count = tvb_get_ntohs(tvb, tree_offset);
-        proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_names_count, tvb, tree_offset, sizeof(guint16), msg_names_count);
-        tree_offset += sizeof(guint16);
+        proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_names_count, tvb, tree_offset, (int)sizeof(guint16), msg_names_count);
+        tree_offset += (int)sizeof(guint16);
 
         names_table = ep_alloc((msg_names_count + 2) * sizeof(const gchar *));
         names_table[0] = "";
@@ -1369,15 +1369,15 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         for (each_name = 0; each_name < msg_names_count; each_name++) {
             guint16 name_len = tvb_get_ntohs(tvb, tree_offset);
 
-            names_table[2 + each_name] = tvb_get_ephemeral_string(tvb, tree_offset + sizeof(name_len), name_len);
-            proto_tree_add_item(jxta_msg_tree, hf_jxta_message_names_name, tvb, tree_offset, sizeof(name_len), ENC_ASCII|ENC_NA);
-            tree_offset += sizeof(name_len) + name_len;
+            names_table[2 + each_name] = tvb_get_ephemeral_string(tvb, tree_offset + (int)sizeof(name_len), name_len);
+            proto_tree_add_item(jxta_msg_tree, hf_jxta_message_names_name, tvb, tree_offset, (int)sizeof(name_len), ENC_ASCII|ENC_NA);
+            tree_offset += (int)sizeof(name_len) + name_len;
         }
 
         /* parse element count */
         elem_count = tvb_get_ntohs(tvb, tree_offset);
-        proto_tree_add_item(jxta_msg_tree, hf_jxta_message_element_count, tvb, tree_offset, sizeof(guint16), ENC_BIG_ENDIAN);
-        tree_offset += sizeof(guint16);
+        proto_tree_add_item(jxta_msg_tree, hf_jxta_message_element_count, tvb, tree_offset, (int)sizeof(guint16), ENC_BIG_ENDIAN);
+        tree_offset += (int)sizeof(guint16);
 
         /* FIXME bondolo Element count 0 (Process elements until FIN) should be supported. */
 
@@ -1442,7 +1442,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             return 0;
         }
 
-        offset += sizeof(JXTA_MSGELEM_SIG);
+        offset += (int)sizeof(JXTA_MSGELEM_SIG);
 
         /* namespace id field */
         available = tvb_reported_length_remaining(tvb, offset);
@@ -1451,7 +1451,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             break;
         }
 
-        offset += sizeof(guint8);
+        offset += (int)sizeof(guint8);
 
         /* flags field */
         available = tvb_reported_length_remaining(tvb, offset);
@@ -1460,7 +1460,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             break;
         } else {
             flags = tvb_get_guint8(tvb, offset);
-            offset += sizeof(guint8);
+            offset += (int)sizeof(guint8);
         }
 
         /* name field */
@@ -1470,7 +1470,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             break;
         } else {
             guint16 name_len = tvb_get_ntohs(tvb, offset);
-            offset += sizeof(guint16);
+            offset += (int)sizeof(guint16);
 
             available = tvb_reported_length_remaining(tvb, offset);
             if (available < name_len) {
@@ -1492,7 +1492,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             }
 
             type_len = tvb_get_ntohs(tvb, offset);
-            offset += sizeof(guint16);
+            offset += (int)sizeof(guint16);
 
             available = tvb_reported_length_remaining(tvb, offset);
             if (available < type_len) {
@@ -1514,7 +1514,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             }
 
             encoding_len = tvb_get_ntohs(tvb, offset);
-            offset += sizeof(guint16);
+            offset += (int)sizeof(guint16);
 
             available = tvb_reported_length_remaining(tvb, offset);
             if (available < encoding_len) {
@@ -1532,7 +1532,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             break;
         } else {
             guint32 content_len = tvb_get_ntohl(tvb, offset);
-            offset += sizeof(guint32);
+            offset += (int)sizeof(guint32);
 
             available = tvb_reported_length_remaining(tvb, offset);
             if (available < content_len) {
@@ -1588,37 +1588,37 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
         gchar *mediatype = NULL;
         tvbuff_t *element_content_tvb;
 
-        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, sizeof(JXTA_MSGELEM_SIG), ENC_ASCII|ENC_NA);
-        tree_offset += sizeof(JXTA_MSGELEM_SIG);
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, (int)sizeof(JXTA_MSGELEM_SIG), ENC_ASCII|ENC_NA);
+        tree_offset += (int)sizeof(JXTA_MSGELEM_SIG);
 
         namespaceID = tvb_get_guint8(tvb, tree_offset);
         namespace_ti =
-            proto_tree_add_uint(jxta_elem_tree, hf_jxta_element1_namespaceid, tvb, tree_offset, sizeof(guint8), namespaceID);
+            proto_tree_add_uint(jxta_elem_tree, hf_jxta_element1_namespaceid, tvb, tree_offset, (int)sizeof(guint8), namespaceID);
         if (namespaceID < ns_count) {
             proto_item_append_text(namespace_ti, " (%s)", names_table[namespaceID]);
         } else {
             proto_item_append_text(namespace_ti, " * BAD *");
         }
-        tree_offset += sizeof(guint8);
+        tree_offset += (int)sizeof(guint8);
 
         flags = tvb_get_guint8(tvb, tree_offset);
-        flags_ti = proto_tree_add_uint(jxta_elem_tree, hf_jxta_element_flags, tvb, tree_offset, sizeof(guint8), flags);
+        flags_ti = proto_tree_add_uint(jxta_elem_tree, hf_jxta_element_flags, tvb, tree_offset, (int)sizeof(guint8), flags);
         jxta_elem_flags_tree = proto_item_add_subtree(flags_ti, ett_jxta_elem_1_flags);
         proto_tree_add_boolean(jxta_elem_flags_tree, hf_jxta_element1_flag_hasType, tvb, tree_offset, 1, flags);
         proto_tree_add_boolean(jxta_elem_flags_tree, hf_jxta_element1_flag_hasEncoding, tvb, tree_offset, 1, flags);
         proto_tree_add_boolean(jxta_elem_flags_tree, hf_jxta_element1_flag_hasSignature, tvb, tree_offset, 1, flags);
-        tree_offset += sizeof(guint8);
+        tree_offset += (int)sizeof(guint8);
 
         name_len = tvb_get_ntohs(tvb, tree_offset);
-        proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + sizeof(guint16), name_len));
-        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_NA);
-        tree_offset += sizeof(guint16) + name_len;
+        proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + (int)sizeof(guint16), name_len));
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, (int)sizeof(guint16), ENC_ASCII|ENC_NA);
+        tree_offset += (int)sizeof(guint16) + name_len;
 
         /* process type */
         if ((flags & JXTAMSG1_ELMFLAG_TYPE) != 0) {
             guint16 type_len = tvb_get_ntohs(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_NA);
-            tree_offset += sizeof(guint16);
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, tree_offset, (int)sizeof(guint16), ENC_ASCII|ENC_NA);
+            tree_offset += (int)sizeof(guint16);
 
             mediatype = tvb_get_ephemeral_string(tvb, tree_offset, type_len);
 
@@ -1628,14 +1628,14 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
         /* process encoding */
         if ((flags & JXTAMSG1_ELMFLAG_ENCODING) != 0) {
             guint16 encoding_len = tvb_get_ntohs(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_encoding, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_NA);
-            tree_offset += sizeof(guint16) + encoding_len;
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_encoding, tvb, tree_offset, (int)sizeof(guint16), ENC_ASCII|ENC_NA);
+            tree_offset += (int)sizeof(guint16) + encoding_len;
         }
 
         /* content */
         content_len = tvb_get_ntohl(tvb, tree_offset);
-        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, sizeof(guint32), ENC_BIG_ENDIAN);
-        tree_offset += sizeof(guint32);
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, (int)sizeof(guint32), ENC_BIG_ENDIAN);
+        tree_offset += (int)sizeof(guint32);
 
         element_content_tvb = tvb_new_subset(tvb, tree_offset, content_len, content_len);
 
@@ -1690,7 +1690,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             return 0;
         }
 
-        offset += sizeof(JXTA_MSGELEM_SIG);
+        offset += (int)sizeof(JXTA_MSGELEM_SIG);
 
         /* flags field */
         available = tvb_reported_length_remaining(tvb, offset);
@@ -1699,7 +1699,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             break;
         } else {
             flags = tvb_get_guint8(tvb, offset);
-            offset += sizeof(guint8);
+            offset += (int)sizeof(guint8);
         }
 
         /* namespace id field */
@@ -1709,7 +1709,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             break;
         }
 
-        offset += sizeof(guint16);
+        offset += (int)sizeof(guint16);
 
         /* name field */
         if ((flags & JXTAMSG2_ELMFLAG_NAME_LITERAL) == 0) {
@@ -1719,7 +1719,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                 break;
             }
 
-            offset += sizeof(guint16);
+            offset += (int)sizeof(guint16);
         } else {
             /* literal name field */
             available = tvb_reported_length_remaining(tvb, offset);
@@ -1728,7 +1728,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                 break;
             } else {
                 guint16 name_len = tvb_get_ntohs(tvb, offset);
-                offset += sizeof(guint16);
+                offset += (int)sizeof(guint16);
 
                 available = tvb_reported_length_remaining(tvb, offset);
                 if (available < name_len) {
@@ -1748,7 +1748,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                 break;
             }
 
-            offset += sizeof(guint16);
+            offset += (int)sizeof(guint16);
         }
 
         /* encoding field */
@@ -1759,7 +1759,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                 break;
             }
 
-            offset += sizeof(guint16);
+            offset += (int)sizeof(guint16);
         }
 
 
@@ -1771,7 +1771,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                 break;
             } else {
                 guint64 content_len = tvb_get_ntoh64(tvb, offset);
-                offset += sizeof(guint64);
+                offset += (int)sizeof(guint64);
 
                 available = tvb_reported_length_remaining(tvb, offset);
                 if (available < content_len) {
@@ -1788,7 +1788,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                 break;
             } else {
                 guint64 content_len = tvb_get_ntohl(tvb, offset);
-                offset += sizeof(guint32);
+                offset += (int)sizeof(guint32);
 
                 available = tvb_reported_length_remaining(tvb, offset);
                 if (available < content_len) {
@@ -1846,11 +1846,11 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
         const gchar *mediatype = NULL;
         tvbuff_t *element_content_tvb;
 
-        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, sizeof(JXTA_MSGELEM_SIG), ENC_ASCII|ENC_NA);
-        tree_offset += sizeof(JXTA_MSGELEM_SIG);
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, (int)sizeof(JXTA_MSGELEM_SIG), ENC_ASCII|ENC_NA);
+        tree_offset += (int)sizeof(JXTA_MSGELEM_SIG);
 
         flags = tvb_get_guint8(tvb, tree_offset);
-        flags_ti = proto_tree_add_uint(jxta_elem_tree, hf_jxta_element_flags, tvb, tree_offset, sizeof(guint8), flags);
+        flags_ti = proto_tree_add_uint(jxta_elem_tree, hf_jxta_element_flags, tvb, tree_offset, (int)sizeof(guint8), flags);
         jxta_elem_flags_tree = proto_item_add_subtree(flags_ti, ett_jxta_elem_2_flags);
         proto_tree_add_boolean(jxta_elem_flags_tree, hf_jxta_element2_flag_64bitlens, tvb, tree_offset, 1, flags);
         proto_tree_add_boolean(jxta_elem_flags_tree, hf_jxta_element2_flag_nameLiteral, tvb, tree_offset, 1, flags);
@@ -1858,43 +1858,43 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
         proto_tree_add_boolean(jxta_elem_flags_tree, hf_jxta_element2_flag_hasSignature, tvb, tree_offset, 1, flags);
         proto_tree_add_boolean(jxta_elem_flags_tree, hf_jxta_element2_flag_hasEncoding, tvb, tree_offset, 1, flags);
         proto_tree_add_boolean(jxta_elem_flags_tree, hf_jxta_element2_flag_sigOfEncoded, tvb, tree_offset, 1, flags);
-        tree_offset += sizeof(guint8);
+        tree_offset += (int)sizeof(guint8);
 
         /* Namespace */
         namespaceID = tvb_get_ntohs(tvb, tree_offset);
         namespace_ti =
-            proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_namespaceid, tvb, tree_offset, sizeof(guint16), namespaceID);
+            proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_namespaceid, tvb, tree_offset, (int)sizeof(guint16), namespaceID);
         if (namespaceID < names_count) {
             proto_item_append_text(namespace_ti, " (%s)", names_table[namespaceID]);
         } else {
             proto_item_append_text(namespace_ti, " * BAD *");
         }
-        tree_offset += sizeof(guint16);
+        tree_offset += (int)sizeof(guint16);
 
         /* Name */
         if ((flags & JXTAMSG2_ELMFLAG_NAME_LITERAL) == 0) {
             nameID = tvb_get_ntohs(tvb, tree_offset);
             name_ti =
-                proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_nameid, tvb, tree_offset, sizeof(guint16), nameID);
+                proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_nameid, tvb, tree_offset, (int)sizeof(guint16), nameID);
             if (namespaceID < names_count) {
                 proto_item_append_text(name_ti, " (%s)", names_table[nameID]);
             } else {
                 proto_item_append_text(name_ti, " * BAD *");
             }
-            tree_offset += sizeof(guint16);
+            tree_offset += (int)sizeof(guint16);
         } else {
             /* literal name */
             guint16 name_len = tvb_get_ntohs(tvb, tree_offset);
-            proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + sizeof(guint16), name_len));
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_NA);
-            tree_offset += sizeof(guint16) + name_len;
+            proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + (int)sizeof(guint16), name_len));
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, (int)sizeof(guint16), ENC_ASCII|ENC_NA);
+            tree_offset += (int)sizeof(guint16) + name_len;
         }
 
         /* process type */
         if ((flags & JXTAMSG2_ELMFLAG_TYPE) != 0) {
             guint16 mimeID = tvb_get_ntohs(tvb, tree_offset);
             proto_item *mime_ti =
-                proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_mimeid, tvb, tree_offset, sizeof(guint16), mimeID);
+                proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_mimeid, tvb, tree_offset, (int)sizeof(guint16), mimeID);
 
             if (mimeID < names_count) {
                 proto_item_append_text(mime_ti, " (%s)", names_table[mimeID]);
@@ -1903,16 +1903,16 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                 proto_item_append_text(mime_ti, " * BAD *");
             }
 
-            tree_offset += sizeof(guint16);
+            tree_offset += (int)sizeof(guint16);
         } else {
-            mediatype = "application/octect-stream";
+            mediatype = "application/octet-stream";
         }
 
         /* process encoding */
         if ((flags & JXTAMSG2_ELMFLAG_ENCODINGS) != 0) {
             guint16 encodingID = tvb_get_ntohs(tvb, tree_offset);
             proto_item *encoding_ti =
-                proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_encodingid, tvb, tree_offset, sizeof(guint16), encodingID);
+                proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_encodingid, tvb, tree_offset, (int)sizeof(guint16), encodingID);
 
             if (encodingID < names_count) {
                 proto_item_append_text(encoding_ti, " (%s)", names_table[encodingID]);
@@ -1920,18 +1920,18 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                 proto_item_append_text(encoding_ti, " * BAD *");
             }
 
-            tree_offset += sizeof(guint16);
+            tree_offset += (int)sizeof(guint16);
         }
 
 
         if ((flags & JXTAMSG2_ELMFLAG_UINT64_LENS) != 0) {
             content_len = tvb_get_ntoh64(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len64, tvb, tree_offset, sizeof(guint64), ENC_BIG_ENDIAN);
-            tree_offset += sizeof(guint64);
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len64, tvb, tree_offset, (int)sizeof(guint64), ENC_BIG_ENDIAN);
+            tree_offset += (int)sizeof(guint64);
         } else {
             content_len = tvb_get_ntohl(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, sizeof(guint32), ENC_BIG_ENDIAN);
-            tree_offset += sizeof(guint32);
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, (int)sizeof(guint32), ENC_BIG_ENDIAN);
+            tree_offset += (int)sizeof(guint32);
         }
 
         /* content */

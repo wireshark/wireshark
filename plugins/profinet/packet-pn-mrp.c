@@ -232,7 +232,7 @@ dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static char * mrp_Prio2msg(guint16 prio)
+static const char * mrp_Prio2msg(guint16 prio)
 {
 
 if (prio == 0x0000)

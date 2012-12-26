@@ -40,7 +40,7 @@ typedef enum {
 typedef struct {
 	e164_number_type_t e164_number_type;
 	guint nature_of_address;
-	char *E164_number_str;		/* E164 number string */
+	const char *E164_number_str;	/* E164 number string */
 	guint E164_number_length;	/* Length of the E164_number string */
 } e164_info_t;
 

@@ -208,7 +208,7 @@ mpls_pm_dissect_counter(tvbuff_t *tvb, proto_tree *pm_tree,
      *  fields represent octet counts.  Otherwise Counter 1-4 fields
      *  represent packet counts
      */
-    gchar *unit = bflag ? "octets" : "packets";
+    const gchar *unit = bflag ? "octets" : "packets";
 
     if (query) {
         switch (i) {

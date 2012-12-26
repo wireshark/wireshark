@@ -30,6 +30,6 @@ typedef struct _IoRawParser
 {
    guint32 head;
 } IoRawParserHDR, *PIoRawParserHDR;
-#define IoRawParserHDR_Len sizeof(IoRawParserHDR)
+#define IoRawParserHDR_Len (int)sizeof(IoRawParserHDR)
 
 #endif /* _PACKET_IORAW_H_*/

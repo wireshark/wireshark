@@ -1240,11 +1240,11 @@ smpp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 }
 
 /* NOTE - caller must free the returned string! */
-static char *
+static const char *
 smpp_handle_string_return(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
     gint         len;
-    char        *str;
+    const char   *str;
 
     len = tvb_strsize(tvb, *offset);
     if (len > 1) {
@@ -1926,8 +1926,8 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     int       offset  = 0;
     guint8    flag, udhi;
     guint8    length;
-    char     *src_str = NULL;
-    char     *dst_str = NULL;
+    const char *src_str = NULL;
+    const char *dst_str = NULL;
     address   save_src, save_dst;
 
     smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");

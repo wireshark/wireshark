@@ -54,14 +54,14 @@ get_natural_int(const char *string, const char *name)
 	       name, string, INT_MAX);
     exit(1);
   }
-  return number;
+  return (int)number;
 }
 
 
 int
 get_positive_int(const char *string, const char *name)
 {
-  long number;
+  int number;
 
   number = get_natural_int(string, name);
 

@@ -607,15 +607,15 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 	matecfg->defaults.pdu.replace_mode = AVPL_INSERT;
 
 		/* gop prefs */
-	matecfg->defaults.gop.expiration = -1.0;
-	matecfg->defaults.gop.idle_timeout = -1.0;
-	matecfg->defaults.gop.lifetime = -1.0;
+	matecfg->defaults.gop.expiration = -1.0f;
+	matecfg->defaults.gop.idle_timeout = -1.0f;
+	matecfg->defaults.gop.lifetime = -1.0f;
 	matecfg->defaults.gop.pdu_tree_mode = GOP_FRAME_TREE;
 	matecfg->defaults.gop.show_times = TRUE;
 	matecfg->defaults.gop.drop_unassigned = FALSE;
 
 		/* gog prefs */
-	matecfg->defaults.gog.expiration = 5.0;
+	matecfg->defaults.gog.expiration = 5.0f;
 	matecfg->defaults.gog.show_times = TRUE;
 	matecfg->defaults.gog.gop_tree_mode = GOP_BASIC_TREE;
 

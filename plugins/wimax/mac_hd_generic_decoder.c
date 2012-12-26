@@ -703,9 +703,9 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	static guint8 frag_number[MAX_CID];
 	static guint cid_list[MAX_CID];
 	static guint cid_base;
-	static char *reassem_str = "Reassembled Data transport PDU (%u bytes)";
-	static char *data_str = "Data transport PDU (%u bytes)";
-	char *str_ptr;
+	static const char reassem_str[] = "Reassembled Data transport PDU (%u bytes)";
+	static const char data_str[] = "Data transport PDU (%u bytes)";
+	const char *str_ptr;
 	gint length, i, cid_index;
 	guint tvb_len, ret_length, ubyte, new_tvb_len;
 	guint new_payload_len = 0;
@@ -819,7 +819,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 			{
 				if (length >= (gint)sizeof(mac_crc))
 				{
-					length -= sizeof(mac_crc);
+					length -= (int)sizeof(mac_crc);
 				}
 			}
 			generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Encrypted PDU (%u bytes)", length);
@@ -986,7 +986,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Error - the frame is too short (%u bytes)", length);
 				return;
 			}
-			length -= sizeof(mac_crc);
+			length -= (int)sizeof(mac_crc);
 		}
 		while (length > 0)
 		{
@@ -1029,10 +1029,10 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				while (pinfo->fd->num > cid_adj_array_size)
 				{
 					cid_adj_array_size += 1024;
-					cid_adj_array = g_realloc(cid_adj_array, sizeof(guint) * cid_adj_array_size);
-					frag_num_array = g_realloc(frag_num_array, sizeof(guint8) * cid_adj_array_size);
+					cid_adj_array = g_realloc(cid_adj_array, (int)sizeof(guint) * cid_adj_array_size);
+					frag_num_array = g_realloc(frag_num_array, (int)sizeof(guint8) * cid_adj_array_size);
 					/* Clear the added memory */
-					memset(&cid_adj_array[cid_adj_array_size - 1024], 0, sizeof(guint) * 1024);
+					memset(&cid_adj_array[cid_adj_array_size - 1024], 0, (int)sizeof(guint) * 1024);
 				}
 				if (first_gmh)
 				{
@@ -1220,11 +1220,11 @@ check_crc:
 			/* check the length */
 			if (MIN(tvb_len, tvb_reported_length(tvb)) >= mac_len)
 			{	/* get the CRC */
-				mac_crc = tvb_get_ntohl(tvb, mac_len - sizeof(mac_crc));
+				mac_crc = tvb_get_ntohl(tvb, mac_len - (int)sizeof(mac_crc));
 				/* calculate the CRC */
-        	    calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - sizeof(mac_crc)), mac_len - sizeof(mac_crc));
+        	    calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - (int)sizeof(mac_crc)), mac_len - (int)sizeof(mac_crc));
 				/* display the CRC */
-				generic_item = proto_tree_add_item(tree, hf_mac_header_generic_crc, tvb, mac_len - sizeof(mac_crc), sizeof(mac_crc), ENC_BIG_ENDIAN);
+				generic_item = proto_tree_add_item(tree, hf_mac_header_generic_crc, tvb, mac_len - (int)sizeof(mac_crc), (int)sizeof(mac_crc), ENC_BIG_ENDIAN);
 				if (mac_crc != calculated_crc)
 				{
 			    		proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);

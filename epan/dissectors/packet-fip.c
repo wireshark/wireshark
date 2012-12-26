@@ -342,7 +342,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint       val;
     tvbuff_t   *desc_tvb;
     const char *info;
-    char       *text;
+    const char *text;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIP");
     col_clear(pinfo->cinfo, COL_INFO);

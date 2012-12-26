@@ -585,7 +585,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
 
     if (!was_registered) {
         /* Register non-standard data should be done only once. */
-        hf_allocated = hf_size+array_length(hf_tpncp)-1;
+        hf_allocated = hf_size+(int)array_length(hf_tpncp)-1;
         if ((hf = (hf_register_info *)g_realloc(hf, hf_allocated * sizeof(hf_register_info))) == NULL)
             return (-1);
         for (idx = 0; idx < array_length(hf_tpncp); idx++) {

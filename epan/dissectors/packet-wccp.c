@@ -252,7 +252,7 @@ static void dissect_web_cache_list_entry(tvbuff_t *tvb, int offset,
     int idx, proto_tree *wccp_tree);
 static guint32 wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree,
     guint32 start, tvbuff_t *tvb, int offset);
-static gchar *bucket_name(guint8 bucket);
+static const gchar *bucket_name(guint8 bucket);
 static guint16 dissect_wccp2_header(tvbuff_t *tvb, int offset,
     proto_tree *wccp_tree);
 static void dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
@@ -456,10 +456,10 @@ wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree, guint32 start,
 	return(start);
 }
 
-static gchar *
+static const gchar *
 bucket_name(guint8 bucket)
 {
-	gchar *cur;
+	const gchar *cur;
 
 	if (bucket == 0xff) {
 		cur="Unassigned";
@@ -956,10 +956,10 @@ dissect_wccp2_router_assignment_element(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_router_assignment_element_change_num, tvb, offset+8, 4, ENC_BIG_ENDIAN);
 }
 
-static gchar *
+static const gchar *
 assignment_bucket_name(guint8 bucket)
 {
-	gchar *cur;
+	const gchar *cur;
 
 	if (bucket == 0xff) {
 		cur="Unassigned";

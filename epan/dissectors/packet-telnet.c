@@ -1091,7 +1091,6 @@ static void
 dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len, proto_tree *tree)
 {
   guint8  acmd;
-  char   *name;
 
 /* XXX here we should really split it up in a conversation struct keeping
    track of what method we actually use and not just assume it is always
@@ -1116,14 +1115,7 @@ dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuf
     }
     break;
   case TN_AC_NAME:
-    if(len<255){
-      name=ep_alloc(256);
-      tvb_memcpy(tvb, (guint8*)name, offset, len);
-      name[len]=0;
-    } else {
-      name="<...name too long...>";
-    }
-    proto_tree_add_string(tree, hf_telnet_auth_name, tvb, offset, len, name);
+    proto_tree_add_item(tree, hf_telnet_auth_name, tvb, offset, len, ENC_ASCII);
     break;
   }
 }

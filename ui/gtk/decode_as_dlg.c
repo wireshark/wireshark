@@ -289,7 +289,7 @@ void change_dissector_if_matched(gpointer item, gpointer user_data) {
  * A callback function to parse each "decode as" entry in the file and apply the change
  */
 prefs_set_pref_e
-read_set_decode_as_entries(gchar *key, gchar *value,
+read_set_decode_as_entries(gchar *key, const gchar *value,
 			   void *user_data _U_,
 			   gboolean return_range_errors _U_)
 {
@@ -1638,7 +1638,7 @@ decode_add_tcpudp_page (const gchar *prompt, const gchar *table_name)
     page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_transport);
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) table_name);
-    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, "Transport");
+    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, (gpointer)"Transport");
 
     /* Always enabled */
     label = gtk_label_new(prompt);
@@ -1717,7 +1717,7 @@ decode_sctp_update_ppid_combo_box(GtkWidget *w _U_, GtkWidget *page)
     if (number_of_ppid)
         ws_combo_box_set_active(GTK_COMBO_BOX(sctp_combo_box), 0); /* default */
 
-    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, "sctp.ppi");
+    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gpointer)"sctp.ppi");
 
     sctp_store = g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
     gtk_list_store_clear(sctp_store);
@@ -1745,7 +1745,7 @@ decode_sctp_update_srcdst_combo_box(GtkWidget *w _U_, GtkWidget *page)
     ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box), "both", GINT_TO_POINTER(E_DECODE_BPORT));
     ws_combo_box_set_active(GTK_COMBO_BOX(sctp_combo_box), 0);
 
-    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, "sctp.port");
+    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gpointer)"sctp.port");
     g_object_set_data(G_OBJECT(page), E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
     g_object_set_data(G_OBJECT(page), E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));
     sctp_store = g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
@@ -1789,7 +1789,7 @@ decode_add_sctp_page (const gchar *prompt, const gchar *table_name)
     page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_transport);
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) table_name);
-    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, "Transport");
+    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, (gpointer)"Transport");
 
     vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     radio = decode_sctp_add_port_ppid(page);
@@ -1855,7 +1855,7 @@ decode_bluetooth(GtkWidget *notebook_pg)
                 E_LIST_S_TABLE+1, &handle, -1);
     }
 
-    value = strtol(gtk_entry_get_text((GtkEntry *) g_hash_table_lookup(value_entry_table, table_name)), NULL, 0);
+    value = (guint)strtol(gtk_entry_get_text((GtkEntry *) g_hash_table_lookup(value_entry_table, table_name)), NULL, 0);
 
     if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
         dissector_reset_uint(table_name, value);

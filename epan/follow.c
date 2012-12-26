@@ -43,9 +43,9 @@
 #define MAX_IPADDR_LEN  16
 
 typedef struct _tcp_frag {
-  gulong              seq;
-  gulong              len;
-  gulong              data_len;
+  guint32             seq;
+  guint32             len;
+  guint32             data_len;
   gchar              *data;
   struct _tcp_frag   *next;
 } tcp_frag;
@@ -61,7 +61,7 @@ static guint   port[2];
 static guint   bytes_written[2];
 static gboolean is_ipv6 = FALSE;
 
-static int check_fragments( int, tcp_stream_chunk *, gulong );
+static int check_fragments( int, tcp_stream_chunk *, guint32 );
 static void write_packet_data( int, tcp_stream_chunk *, const char * );
 
 void
@@ -202,18 +202,18 @@ follow_tcp_index(guint32 indx)
    of order packets in a smart way. */
 
 static tcp_frag *frags[2] = { 0, 0 };
-static gulong seq[2];
+static guint32 seq[2];
 static guint8 src_addr[2][MAX_IPADDR_LEN];
 static guint src_port[2] = { 0, 0 };
 
 void
-reassemble_tcp( guint32 tcp_stream, gulong sequence, gulong acknowledgement,
-                gulong length, const char* data, gulong data_length, 
+reassemble_tcp( guint32 tcp_stream, guint32 sequence, guint32 acknowledgement,
+                guint32 length, const char* data, guint32 data_length, 
                 int synflag, address *net_src, address *net_dst, 
                 guint srcport, guint dstport) {
   guint8 srcx[MAX_IPADDR_LEN], dstx[MAX_IPADDR_LEN];
   int src_index, j, first = 0, len;
-  gulong newseq;
+  guint32 newseq;
   tcp_frag *tmp_frag;
   tcp_stream_chunk sc;
 
@@ -327,7 +327,7 @@ reassemble_tcp( guint32 tcp_stream, gulong sequence, gulong acknowledgement,
        info than we have already seen */
     newseq = sequence + length;
     if( newseq > seq[src_index] ) {
-      gulong new_len;
+      guint32 new_len;
 
       /* this one has more than we have seen. let's get the
 	 payload that we have not seen. */
@@ -382,10 +382,10 @@ reassemble_tcp( guint32 tcp_stream, gulong sequence, gulong acknowledgement,
 /* here we search through all the frag we have collected to see if
    one fits */
 static int
-check_fragments( int idx, tcp_stream_chunk *sc, gulong acknowledged ) {
+check_fragments( int idx, tcp_stream_chunk *sc, guint32 acknowledged ) {
   tcp_frag *prev = NULL;
   tcp_frag *current;
-  gulong lowest_seq;
+  guint32 lowest_seq;
   gchar *dummy_str;
 
   current = frags[idx];
@@ -397,13 +397,13 @@ check_fragments( int idx, tcp_stream_chunk *sc, gulong acknowledged ) {
       }
 
       if( current->seq < seq[idx] ) {
-        gulong newseq;
+        guint32 newseq;
         /* this sequence number seems dated, but
            check the end to make sure it has no more
            info than we have already seen */
         newseq = current->seq + current->len;
         if( newseq > seq[idx] ) {
-          gulong new_pos;
+          guint32 new_pos;
 
           /* this one has more than we have seen. let's get the
              payload that we have not seen. This happens when 

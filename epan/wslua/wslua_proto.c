@@ -1391,7 +1391,7 @@ static int Proto_set_fields(lua_State* L) {
 }
 
 typedef struct {
-    gchar* name;
+    const gchar* name;
     lua_CFunction get;
     lua_CFunction set;
 } proto_actions_t;
@@ -1553,7 +1553,7 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
     Tvb tvb = checkTvb(L,WSLUA_ARG_Dissector_call_TVB);
     Pinfo pinfo = checkPinfo(L,WSLUA_ARG_Dissector_call_PINFO);
     TreeItem ti = checkTreeItem(L,WSLUA_ARG_Dissector_call_TREE);
-    char *volatile error = NULL;
+    const char *volatile error = NULL;
 
     if (! ( d && tvb && pinfo) ) return 0;
 
@@ -1752,7 +1752,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
     TreeItem ti = checkTreeItem(L,5);
     ftenum_t type;
     gboolean handled = FALSE;
-    gchar *volatile error = NULL;
+    const gchar *volatile error = NULL;
 
     if (! (dt && tvb && tvb->ws_tvb && pinfo && ti) ) return 0;
 

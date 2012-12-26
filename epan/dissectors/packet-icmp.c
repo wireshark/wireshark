@@ -1658,9 +1658,9 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		{
 			guint32 frame_ts, orig_ts;
 
-			frame_ts = ((pinfo->fd->abs_ts.secs * 1000) +
+			frame_ts = (guint32)(((pinfo->fd->abs_ts.secs * 1000) +
 				    (pinfo->fd->abs_ts.nsecs / 1000000)) %
-			    86400000;
+			    86400000);
 
 			orig_ts =
 			    get_best_guess_mstimeofday(tvb, 8, frame_ts);

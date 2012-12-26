@@ -169,7 +169,7 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
 	    }
 	 }
 	 p = endp;
-	 range->ranges[range->nranges].low = val;
+	 range->ranges[range->nranges].low = (guint32)val;
 
 	 /* Skip white space. */
 	 while ((c = *p) == ' ' || c == '\t')
@@ -215,7 +215,7 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
 		}
 	    }
 	    p = endp;
-	    range->ranges[range->nranges].high = val;
+	    range->ranges[range->nranges].high = (guint32)val;
 
 	    /* Skip white space. */
 	    while ((c = *p) == ' ' || c == '\t')

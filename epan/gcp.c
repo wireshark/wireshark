@@ -523,8 +523,8 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
 
 }
 
-gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
-    gchar* s;
+const gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
+    const gchar* s;
     gcp_terms_t* term;
 
     if ( !c ) return "-";
@@ -620,7 +620,7 @@ gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
     return s;
 }
 
-static gchar* gcp_trx_to_str(gcp_msg_t* m, gcp_trx_t* t, gboolean persistent) {
+static const gchar* gcp_trx_to_str(gcp_msg_t* m, gcp_trx_t* t, gboolean persistent) {
     gchar* s;
     gcp_cmd_msg_t* c;
 
@@ -649,9 +649,9 @@ static gchar* gcp_trx_to_str(gcp_msg_t* m, gcp_trx_t* t, gboolean persistent) {
     return ep_strdup_printf("%s %s",s,"}");
 }
 
-gchar* gcp_msg_to_str(gcp_msg_t* m, gboolean persistent) {
+const gchar* gcp_msg_to_str(gcp_msg_t* m, gboolean persistent) {
     gcp_trx_msg_t* t;
-    gchar* s = "";
+    const gchar* s = "";
 
     if ( !m ) return "-";
 

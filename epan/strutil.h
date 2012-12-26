@@ -139,7 +139,7 @@ gboolean   uri_str_to_bytes(const char *uri_str, GByteArray *bytes);
  *       with the % character itself are always reserved.
  * @see uri_str_to_bytes(),  format_text(), isprint()
  */
-gchar*     format_uri(const GByteArray *bytes, const gchar *reserved_chars);
+const gchar* format_uri(const GByteArray *bytes, const gchar *reserved_chars);
 
 /** Turn a OID string representation (dot notation) into a byte array.
  *

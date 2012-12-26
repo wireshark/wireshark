@@ -587,7 +587,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean global_rtcp_show_roundtrip_calculation = FALSE;
 #define MIN_ROUNDTRIP_TO_REPORT_DEFAULT 10
 static guint global_rtcp_show_roundtrip_calculation_minimum = MIN_ROUNDTRIP_TO_REPORT_DEFAULT;
-static void remember_outgoing_sr(packet_info *pinfo, long lsr);
+static void remember_outgoing_sr(packet_info *pinfo, guint32 lsr);
 static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
                                       proto_tree *tree, guint32 lsr, guint32 dlsr);
 static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
@@ -2542,7 +2542,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /* Update conversation data to record time that outgoing rr/sr was sent */
-static void remember_outgoing_sr(packet_info *pinfo, long lsr)
+static void remember_outgoing_sr(packet_info *pinfo, guint32 lsr)
 {
     conversation_t                 *p_conv;
     struct _rtcp_conversation_info *p_conv_data;

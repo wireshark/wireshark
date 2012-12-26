@@ -191,32 +191,32 @@ static const fragment_items nds_frag_items = {
 #define IT_ATLAST                               24
 
 /* Iteration information flags */
-#define DSI_OUTPUT_FIELDS               0x00000001L
-#define DSI_ENTRY_ID                    0x00000002L
-#define DSI_ENTRY_FLAGS                 0x00000004L
-#define DSI_SUBORDINATE_COUNT           0x00000008L
-#define DSI_MODIFICATION_TIME           0x00000010L
-#define DSI_MODIFICATION_TIMESTAMP      0x00000020L
-#define DSI_CREATION_TIMESTAMP          0x00000040L
-#define DSI_PARTITION_ROOT_ID           0x00000080L
-#define DSI_PARENT_ID                   0x00000100L
-#define DSI_REVISION_COUNT              0x00000200L
-#define DSI_REPLICA_TYPE                0x00000400L
-#define DSI_BASE_CLASS                  0x00000800L
-#define DSI_ENTRY_RDN                   0x00001000L
-#define DSI_ENTRY_DN                    0x00002000L
-#define DSI_PARTITION_ROOT_DN           0x00004000L
-#define DSI_PARENT_DN                   0x00008000L
-#define DSI_PURGE_TIME                  0x00010000L
-#define DSI_DEREFERENCED_BASE_CLASS     0x00020000L
-#define DSI_REPLICA_NUMBER              0x00040000L
-#define DSI_REPLICA_STATE               0x00080000L
-#define DSI_FEDERATION_BOUNDARY         0x00100000L
-#define DSI_SCHEMA_BOUNDARY             0x00200000L
-#define DSI_FEDERATION_BOUNDARY_ID      0x00400000L
-#define DSI_SCHEMA_BOUNDARY_ID          0x00800000L
-#define DSI_CUR_SUBCOUNT                0x01000000L
-#define DSI_LOCAL_ENTRY_FLAGS           0x02000000L
+#define DSI_OUTPUT_FIELDS               0x00000001U
+#define DSI_ENTRY_ID                    0x00000002U
+#define DSI_ENTRY_FLAGS                 0x00000004U
+#define DSI_SUBORDINATE_COUNT           0x00000008U
+#define DSI_MODIFICATION_TIME           0x00000010U
+#define DSI_MODIFICATION_TIMESTAMP      0x00000020U
+#define DSI_CREATION_TIMESTAMP          0x00000040U
+#define DSI_PARTITION_ROOT_ID           0x00000080U
+#define DSI_PARENT_ID                   0x00000100U
+#define DSI_REVISION_COUNT              0x00000200U
+#define DSI_REPLICA_TYPE                0x00000400U
+#define DSI_BASE_CLASS                  0x00000800U
+#define DSI_ENTRY_RDN                   0x00001000U
+#define DSI_ENTRY_DN                    0x00002000U
+#define DSI_PARTITION_ROOT_DN           0x00004000U
+#define DSI_PARENT_DN                   0x00008000U
+#define DSI_PURGE_TIME                  0x00010000U
+#define DSI_DEREFERENCED_BASE_CLASS     0x00020000
+#define DSI_REPLICA_NUMBER              0x00040000
+#define DSI_REPLICA_STATE               0x00080000
+#define DSI_FEDERATION_BOUNDARY         0x00100000
+#define DSI_SCHEMA_BOUNDARY             0x00200000
+#define DSI_FEDERATION_BOUNDARY_ID      0x00400000
+#define DSI_SCHEMA_BOUNDARY_ID          0x00800000
+#define DSI_CUR_SUBCOUNT                0x01000000
+#define DSI_LOCAL_ENTRY_FLAGS           0x02000000
 
 static const value_string zensearchenum[] = {
     { 0, "[Root]" },
@@ -2849,7 +2849,7 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 }
 
                 expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "%s: %s, Rights:(%s)",
-                                       val_to_str((strtoul(oaction, NULL, 16) & 0xeb), open_create_mode_vals, "Unknown: %d"),
+                                       val_to_str((guint32)(strtoul(oaction, NULL, 16) & 0xeb), open_create_mode_vals, "Unknown: %d"),
                                        p_filename,
                                        val_to_str((atoi(p_rights) & 0x5f), ncp_rights_vals, "Unknown: %d"));
             }

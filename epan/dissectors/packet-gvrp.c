@@ -60,12 +60,12 @@ static const value_string attribute_type_vals[] = {
 
 /* The length of GVRP LeaveAll attribute should be 2 octets (one for length
  * and the other for event) */
-#define GVRP_LENGTH_LEAVEALL            (sizeof(guint8)+sizeof(guint8))
+#define GVRP_LENGTH_LEAVEALL            (int)(sizeof(guint8)+sizeof(guint8))
 
 /* The length of GVRP attribute other than LeaveAll should be 4 octets (one
  * for length, one for event, and the last two for VID value).
  */
-#define GVRP_LENGTH_NON_LEAVEALL        (sizeof(guint8)+sizeof(guint8)+sizeof(guint16))
+#define GVRP_LENGTH_NON_LEAVEALL        (int)(sizeof(guint8)+sizeof(guint8)+sizeof(guint16))
 
 /* Packet offset definitions */
 #define GARP_PROTOCOL_ID                0
@@ -115,7 +115,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         protocol_id = tvb_get_ntohs(tvb, GARP_PROTOCOL_ID);
 
         proto_tree_add_uint_format(gvrp_tree, hf_gvrp_proto_id, tvb,
-                                   GARP_PROTOCOL_ID, sizeof(guint16),
+                                   GARP_PROTOCOL_ID, (int)sizeof(guint16),
                                    protocol_id,
                                    "Protocol Identifier: 0x%04x (%s)",
                                    protocol_id,
@@ -126,16 +126,16 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Currently only one protocol ID is supported */
         if (protocol_id != GARP_DEFAULT_PROTOCOL_ID)
         {
-            proto_tree_add_text(gvrp_tree, tvb, GARP_PROTOCOL_ID, sizeof(guint16),
+            proto_tree_add_text(gvrp_tree, tvb, GARP_PROTOCOL_ID, (int)sizeof(guint16),
                 "   (Warning: this version of Wireshark only knows about protocol id = 1)");
             call_dissector(data_handle,
-                tvb_new_subset(tvb, GARP_PROTOCOL_ID + sizeof(guint16), -1, -1),
+                tvb_new_subset(tvb, GARP_PROTOCOL_ID + (int)sizeof(guint16), -1, -1),
                 pinfo, tree);
             return;
         }
 
-        offset += sizeof(guint16);
-        length -= sizeof(guint16);
+        offset += (int)sizeof(guint16);
+        length -= (int)sizeof(guint16);
 
         msg_index = 0;
 
@@ -154,7 +154,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* End of GARP PDU */
                 if (msg_index)
                 {
-                    proto_tree_add_text(gvrp_tree, tvb, offset, sizeof(guint8),
+                    proto_tree_add_text(gvrp_tree, tvb, offset, (int)sizeof(guint8),
                                         "End of mark");
                     break;
                 }
@@ -166,14 +166,14 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
             }
 
-            offset += sizeof(guint8);
-            length -= sizeof(guint8);
+            offset += (int)sizeof(guint8);
+            length -= (int)sizeof(guint8);
 
             msg_item = proto_tree_add_text(gvrp_tree, tvb, msg_start, -1,
                                            "Message %d", msg_index + 1);
 
             proto_tree_add_uint(gvrp_tree, hf_gvrp_attribute_type, tvb,
-                                msg_start, sizeof(guint8), octet);
+                                msg_start, (int)sizeof(guint8), octet);
 
             /* GVRP only supports one attribute type. */
             if (octet != GVRP_ATTRIBUTE_TYPE)
@@ -202,10 +202,10 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     if (attr_index)
                     {
                         proto_tree_add_text(gvrp_tree, tvb, offset,
-                                            sizeof(guint8), "  End of mark");
+                                            (int)sizeof(guint8), "  End of mark");
 
-                        offset += sizeof(guint8);
-                        length -= sizeof(guint8);
+                        offset += (int)sizeof(guint8);
+                        length -= (int)sizeof(guint8);
 
                         proto_item_set_len(msg_item, offset - msg_start);
                         break;
@@ -221,23 +221,23 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 {
                     guint8 event;
 
-                    offset += sizeof(guint8);
-                    length -= sizeof(guint8);
+                    offset += (int)sizeof(guint8);
+                    length -= (int)sizeof(guint8);
 
                     attr_item = proto_tree_add_text(gvrp_tree, tvb,
                          attr_start, -1, "  Attribute %d", attr_index + 1);
 
                     proto_tree_add_uint(gvrp_tree, hf_gvrp_attribute_length,
-                         tvb, attr_start, sizeof(guint8), octet);
+                         tvb, attr_start, (int)sizeof(guint8), octet);
 
                     /* Read in attribute event */
                     event = tvb_get_guint8(tvb, offset);
 
                     proto_tree_add_uint(gvrp_tree, hf_gvrp_attribute_event,
-                         tvb, offset, sizeof(guint8), event);
+                         tvb, offset, (int)sizeof(guint8), event);
 
-                    offset += sizeof(guint8);
-                    length -= sizeof(guint8);
+                    offset += (int)sizeof(guint8);
+                    length -= (int)sizeof(guint8);
 
                     switch (event) {
 
@@ -266,10 +266,10 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                         /* Show attribute value */
                         proto_tree_add_item(gvrp_tree, hf_gvrp_attribute_value,
-                            tvb, offset, sizeof(guint16), ENC_BIG_ENDIAN);
+                            tvb, offset, (int)sizeof(guint16), ENC_BIG_ENDIAN);
 
-                        offset += sizeof(guint16);
-                        length -= sizeof(guint16);
+                        offset += (int)sizeof(guint16);
+                        length -= (int)sizeof (guint16);
                         break;
 
                      default:

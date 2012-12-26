@@ -179,9 +179,9 @@ typedef struct
   gint16      i;
   union
   {
-    void*     ptr;
+    const void*     ptr;
     guint32   value;
-    crumb_spec_t const *crumb_spec;
+    const crumb_spec_t const *crumb_spec;
   } descr;
   size_t      offset;
   gboolean    may_be_null;

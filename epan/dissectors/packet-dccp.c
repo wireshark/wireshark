@@ -624,7 +624,7 @@ dccp_csum_coverage(const e_dccphdr *dccph, guint len)
     if (dccph->cscov == 0)
         return len;
 
-    cov = (dccph->data_offset + dccph->cscov - 1) * sizeof (guint32);
+    cov = (dccph->data_offset + dccph->cscov - 1) * (guint)sizeof (guint32);
     return (cov > len) ? len : cov;
 }
 

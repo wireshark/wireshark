@@ -377,43 +377,44 @@ AC_ARG_ENABLE(extra-gcc-checks,
 	if test $enableval != no
 	then
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-pedantic)
+		#
+		# Various code blocks this one.
+		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Woverflow)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wlogical-op)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-overlength-strings)
-#		AC_WIRESHARK_GCC_CFLAGS_CHECK(-fstrict-overflow -Wstrict-overflow=4)
-#		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wunreachable-code)
-#		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wunsafe-loop-optimizations)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-long-long)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast, C)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-fstrict-overflow -Wstrict-overflow=4)
+		#
+		# Some memset() calls to clear out structures
+		# on the stack are getting flagged as "will never
+		# be executed" by this, at least by Apple's
+		# i686-apple-darwin11-llvm-gcc-4.2 (GCC) 4.2.1 (Based on
+		# Apple Inc. build 5658) (LLVM build 2336.11.00), for
+		# some unknown reason.
+		#
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wunreachable-code)
+		#
+		# Due to various places where APIs we don't control
+		# require us to cast away constness, we can probably
+		# never enable these ones with -Werror.
+		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-qual)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Waddress)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wattributes)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdiv-by-zero)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wignored-qualifiers)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpragmas)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast, C)
+		#
+		# Some generated ASN.1 dissectors block this one;
+		# multiple function declarations for the same
+		# function are being generated.
+		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wredundant-decls)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wvla)
+		#
+		# A ton of code blocks this one - it warns about
+		# implict conversions of void * to/from arbitrary
+		# pointer types, for example.
+		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wc++-compat, C)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wjump-misses-init, C)
-		#
-		# epan/dissectors/packet-ncp2222.inc blocks this one
-		# for now.
-		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
-		#
-		# GLib blocks this for now.
-		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wstrict-prototypes)
 		#
 		# All the registration functions block these for now.
 		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-prototypes)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-declarations)
-		#
-		# More cleanup needed for this on LP64.
-		#
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
 	fi
 ],)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
@@ -426,6 +427,21 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition, C)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wstrict-prototypes)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wjump-misses-init, C)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wvla)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Waddress)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wattributes)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdiv-by-zero)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wignored-qualifiers)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpragmas)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wlogical-op)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-overlength-strings)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wunsafe-loop-optimizations)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-long-long)
 
 CFLAGS_before_pie=$CFLAGS
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-fPIE, C)
@@ -525,9 +541,9 @@ warnings_as_errors_default="yes"
 AC_MSG_CHECKING(whether we should treat compiler warnings as errors)
 AC_ARG_ENABLE(warnings-as-errors,
   AC_HELP_STRING( [--enable-warnings-as-errors],
-		  [treat warnings as errors (only for GCC or clang) @<:@default=yes@:>@]),
+		  [treat warnings as errors (only for GCC or clang) @<:@default=yes, unless extra warnings are enabled@:>@]),
 [
-  if test "x$ac_supports_gcc_flags" = "xyes" -a "x$enableval" = "xyes" -a "x$wireshark_extra_gcc_flags" != "xyes"; then
+  if test "x$ac_supports_gcc_flags" = "xyes" -a "x$enableval" = "xyes"; then
     with_warnings_as_errors="yes"
     AC_MSG_RESULT(yes)
   else
@@ -535,6 +551,7 @@ AC_ARG_ENABLE(warnings-as-errors,
     AC_MSG_RESULT(no)
   fi
 ],
+[
   if test "x$ac_supports_gcc_flags" = "xyes" -a "x$wireshark_extra_gcc_flags" = "x" -a "x$warnings_as_errors_default" = "xyes"; then
     with_warnings_as_errors="yes"
     AC_MSG_RESULT(yes)
@@ -542,6 +559,7 @@ AC_ARG_ENABLE(warnings-as-errors,
     with_warnings_as_errors="no"
     AC_MSG_RESULT(no)
   fi
+]
 )
 AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, test "x$with_warnings_as_errors" = "xyes")
 

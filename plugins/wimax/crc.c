@@ -28,7 +28,7 @@
 
 #include "crc.h"
 
-#define WMAX_MAC_CRC32_POLYNOMIAL 0x04c11db7L /* polynomial used in calculating the CRC-32 checksum */
+#define WMAX_MAC_CRC32_POLYNOMIAL 0x04c11db7U /* polynomial used in calculating the CRC-32 checksum */
 #define CCITT_X25_CRC16_POLYNOMIAL 0x1021     /* polynomial used in calculating the CRC-16 checksum */
 #define WMAX_MAC_CRC8_POLYNOMIAL  0x07	      /* polynomial used in calculating the CRC-8 checksum */
 #define CRC32_INITIAL_VALUE       0xFFFFFFFF
@@ -66,7 +66,7 @@ void wimax_mac_gen_crc32_table(void)
     crc = ( index << 24 );
     for ( bit = 0;  bit < 8;  bit++ )
     {
-      if ( crc & 0x80000000L )
+      if ( crc & 0x80000000U )
         crc = ( crc << 1 ) ^ WMAX_MAC_CRC32_POLYNOMIAL;
       else
         crc = ( crc << 1 ); 

@@ -644,8 +644,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if (check_col(pinfo->cinfo, COL_INFO) )
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply  ",
-                tvb_format_text(tvb,tvb_offset,len));
-                trx_id = strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
+                  tvb_format_text(tvb,tvb_offset,len));
+            trx_id = (guint)strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
 
             if(tree)
                 my_proto_tree_add_string(message_body_tree, hf_megaco_transid, tvb,
@@ -681,8 +681,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             if (check_col(pinfo->cinfo, COL_INFO) )
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s Request",
-                tvb_format_text(tvb,tvb_offset,len));
-                trx_id = strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
+                  tvb_format_text(tvb,tvb_offset,len));
+            trx_id = (guint)strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
             if(tree)
                 my_proto_tree_add_string(message_body_tree, hf_megaco_transid, tvb, tvb_offset,len,
                     tvb_format_text(tvb,tvb_offset,len));
@@ -767,7 +767,7 @@ nextcontext:
                 tvb_previous_offset, tokenlen,
                 tvb_format_text(tvb, tvb_previous_offset,
                 tokenlen));
-            ctx_id = strtoul(tvb_format_text(tvb, tvb_previous_offset, tokenlen),NULL,10);
+            ctx_id = (guint)strtoul(tvb_format_text(tvb, tvb_previous_offset, tokenlen),NULL,10);
 
             if (check_col(pinfo->cinfo, COL_INFO) )
                 col_append_fstr(pinfo->cinfo, COL_INFO, " |=%s",tvb_format_text(tvb, tvb_previous_offset,tokenlen));
@@ -3221,7 +3221,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
             tvb_get_nstringz0(tvb,tvb_current_offset,3,code_str);
             proto_item_append_text(item,"[ %s ]",
-                                   val_to_str_ext(strtoul(code_str,NULL,16), &dscp_vals_ext,"Unknown (%u)"));
+                                   val_to_str_ext((guint32)strtoul(code_str,NULL,16), &dscp_vals_ext,"Unknown (%u)"));
 
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;

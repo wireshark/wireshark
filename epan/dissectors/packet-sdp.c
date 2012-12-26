@@ -482,7 +482,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   for (n = 0; n < transport_info.media_count; n++)
   {
     if (transport_info.media_port[n] != NULL) {
-      port = atol(transport_info.media_port[n]);
+      port = (guint32)strtol(transport_info.media_port[n], NULL, 10);
     }
     if (transport_info.media_proto[n] != NULL) {
       /* Check if media protocol is RTP
@@ -1189,9 +1189,9 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                "RTP/AVP") == 0) {
       media_format = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
-                            tokenlen, val_to_str_ext(atol((char*)media_format), &rtp_payload_type_vals_ext, "%u"));
+                            tokenlen, val_to_str_ext((guint32)strtoul((char*)media_format, NULL, 10), &rtp_payload_type_vals_ext, "%u"));
       idx = transport_info->media[transport_info->media_count].pt_count;
-      transport_info->media[transport_info->media_count].pt[idx] = atol((char*)media_format);
+      transport_info->media[transport_info->media_count].pt[idx] = (gint32)strtol((char*)media_format, NULL, 10);
       if (idx < (SDP_MAX_RTP_PAYLOAD_TYPES-1))
         transport_info->media[transport_info->media_count].pt_count++;
     } else {
@@ -1372,7 +1372,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       item = proto_tree_add_uint(tree, hf_sdp_fmtp_mpeg4_profile_level_id, tvb, offset, tokenlen,
-                                 atol((char*)format_specific_parameter));
+                                 (guint32)strtol((char*)format_specific_parameter, NULL, 10));
       PROTO_ITEM_SET_GENERATED(item);
     } else if (strcmp((char*)field_name, "config") == 0) {
       /* String including "=" */
@@ -1394,14 +1394,14 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_profile, tvb, offset, tokenlen,
-                                 atol((char*)format_specific_parameter));
+                                 (guint32)strtol((char*)format_specific_parameter, NULL, 10));
       PROTO_ITEM_SET_GENERATED(item);
     } else if (strcmp((char*)field_name, "level") == 0) {
       offset++;
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_level, tvb, offset, tokenlen,
-                                 atol((char*)format_specific_parameter));
+                                 (guint32)strtol((char*)format_specific_parameter, NULL, 10));
       PROTO_ITEM_SET_GENERATED(item);
     }
   }
@@ -1445,7 +1445,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       item = proto_tree_add_uint(tree, hf_sdp_h264_packetization_mode, tvb, offset, tokenlen,
-                                 atol((char*)format_specific_parameter));
+                                 (guint32)strtol((char*)format_specific_parameter, NULL, 10));
       PROTO_ITEM_SET_GENERATED(item);
     } else if (strcmp(field_name, "sprop-parameter-sets") == 0) {
       /* The value of the parameter is the
@@ -1622,7 +1622,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     }
 
     key  = se_alloc(sizeof (gint));
-    *key = atol((char*)payload_type);
+    *key = (gint)strtol((char*)payload_type, NULL, 10);
 
     transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
@@ -1665,7 +1665,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
         } else {    /* we create a new key and encoding_name to assign to the other hash tables */
           gint *key2;
           key2  = se_alloc(sizeof (gint));
-          *key2 = atol((char*)payload_type);
+          *key2 = (gint)strtol((char*)payload_type, NULL, 10);
           g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
                               key2, encoding_name_and_rate);
         }

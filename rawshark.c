@@ -810,10 +810,10 @@ main(int argc, char *argv[])
 
         /* Do we need to PCAP header and magic? */
         if (skip_pcap_header) {
-            guint bytes_left = sizeof(struct pcap_hdr) + sizeof(guint32);
+            size_t bytes_left = sizeof(struct pcap_hdr) + sizeof(guint32);
             gchar buf[sizeof(struct pcap_hdr) + sizeof(guint32)];
-            while (bytes_left > 0) {
-                guint bytes = read(fd, buf, bytes_left);
+            while (bytes_left != 0) {
+                ssize_t bytes = read(fd, buf, bytes_left);
                 if (bytes <= 0) {
                     cmdarg_err("Not enough bytes for pcap header.");
                     exit(2);
@@ -884,8 +884,8 @@ static gboolean
 raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err_info, gint64 *data_offset) {
     struct pcap_pkthdr mem_hdr;
     struct pcaprec_hdr disk_hdr;
-    int bytes_read = 0;
-    int bytes_needed = sizeof(disk_hdr);
+    ssize_t bytes_read = 0;
+    size_t bytes_needed = sizeof(disk_hdr);
     guchar *ptr = (guchar*) &disk_hdr;
     static gchar err_str[100];
 
@@ -913,14 +913,15 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
     if (want_pcap_pkthdr) {
         phdr->ts.secs = mem_hdr.ts.tv_sec;
         phdr->ts.nsecs = mem_hdr.ts.tv_usec * 1000;
-        phdr->caplen = bytes_needed = mem_hdr.caplen;
+        phdr->caplen = mem_hdr.caplen;
         phdr->len = mem_hdr.len;
     } else {
         phdr->ts.secs = disk_hdr.ts_sec;
         phdr->ts.nsecs = disk_hdr.ts_usec * 1000;
-        phdr->caplen = bytes_needed = disk_hdr.incl_len;
+        phdr->caplen = disk_hdr.incl_len;
         phdr->len = disk_hdr.orig_len;
     }
+    bytes_needed = phdr->caplen;
 
     phdr->pkt_encap = encap;
 
@@ -932,7 +933,8 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
 #endif
     if (bytes_needed > WTAP_MAX_PACKET_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        g_snprintf(err_str, 100, "Bad packet length: %d (%04x)", bytes_needed, bytes_needed);
+        g_snprintf(err_str, 100, "Bad packet length: %lu\n",
+                   (unsigned long) bytes_needed);
         *err_info = err_str;
         return FALSE;
     }

@@ -6,7 +6,7 @@ RTORJapdu
 RTABapdu
 
 #.FN_BODY RTORJapdu/userDataRJ
-	char *oid = NULL;
+	const char *oid = NULL;
 
 	switch(app_proto)  {
 	case 1:		/* mts-transfer-protocol-1984 */
@@ -51,7 +51,7 @@ RTABapdu
 
 #.FN_BODY ConnectionData/open
 
-	char *oid = NULL;
+	const char *oid = NULL;
 
 	switch(app_proto)  {
 	case 1:		/* mts-transfer-protocol-1984 */

@@ -3829,9 +3829,9 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                       tvbuff_t *tvb,
                       int offset)
 {
-    float   freq       = 0.0;
+    float   freq       = 0.0f;
     guint32 wavelength = 0;
-    float   cs_thz     = 0.0;
+    float   cs_thz     = 0.0f;
 
     guint8 grid = ((tvb_get_guint8(tvb, offset) & 0xE0) >> 5);
     guint8 cs   = ((tvb_get_guint8(tvb, offset) & 0x1E) >> 1);

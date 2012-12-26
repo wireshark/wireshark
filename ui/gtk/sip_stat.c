@@ -538,7 +538,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-init_table(GtkWidget *main_vb, gchar *title, tbl_info_t *tbl_info)
+init_table(GtkWidget *main_vb, const gchar *title, tbl_info_t *tbl_info)
 {
     GtkWidget *fr;
 

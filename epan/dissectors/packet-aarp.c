@@ -111,7 +111,7 @@ tvb_atalkid_to_str(tvbuff_t *tvb, gint offset)
   return cur;
 }
 
-static gchar *
+static const gchar *
 tvb_aarphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
 {
   if (AARP_HW_IS_ETHER(type, ad_len)) {
@@ -151,7 +151,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item  *ti;
   const gchar *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
-  gchar       *sha_str, *spa_str, /* *tha_str, */ *tpa_str;
+  const gchar *sha_str, *spa_str, /* *tha_str, */ *tpa_str;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AARP");
   col_clear(pinfo->cinfo, COL_INFO);

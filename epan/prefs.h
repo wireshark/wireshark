@@ -55,7 +55,7 @@ extern "C" {
  * Set "*name_resolve" to the bitmask, and return '\0', on success;
  * return the bad character in the string on error.
  */
-char string_to_name_resolve(char *string, e_addr_resolve *name_resolve);
+char string_to_name_resolve(const char *string, e_addr_resolve *name_resolve);
 
 /*
  * Modes for the starting directory in File Open dialogs.
@@ -115,70 +115,70 @@ typedef enum {
 
 
 typedef struct _e_prefs {
-  gint     pr_format;
-  gint     pr_dest;
-  gchar   *pr_file;
-  gchar   *pr_cmd;
-  GList   *col_list;
-  gint     num_cols;
-  color_t  st_client_fg, st_client_bg, st_server_fg, st_server_bg;
-  gboolean gui_scrollbar_on_right;
-  gboolean gui_plist_sel_browse;
-  gboolean gui_ptree_sel_browse;
-  gboolean gui_altern_colors;
-  gboolean gui_expert_composite_eyecandy;
-  gboolean filter_toolbar_show_in_statusbar;
-  gint     gui_ptree_line_style;
-  gint     gui_ptree_expander_style;
-  gboolean gui_hex_dump_highlight_style;
-  gint     gui_toolbar_main_style;
-  gint     gui_toolbar_filter_style;
-  gchar   *gui_font_name;
-  color_t  gui_marked_fg;
-  color_t  gui_marked_bg;
-  color_t  gui_ignored_fg;
-  color_t  gui_ignored_bg;
-  gchar   *gui_colorized_fg;
-  gchar   *gui_colorized_bg;
-  gboolean gui_geometry_save_position;
-  gboolean gui_geometry_save_size;
-  gboolean gui_geometry_save_maximized;
-  gboolean gui_macosx_style;
+  gint          pr_format;
+  gint          pr_dest;
+  const gchar *pr_file;
+  const gchar *pr_cmd;
+  GList       *col_list;
+  gint         num_cols;
+  color_t      st_client_fg, st_client_bg, st_server_fg, st_server_bg;
+  gboolean     gui_scrollbar_on_right;
+  gboolean     gui_plist_sel_browse;
+  gboolean     gui_ptree_sel_browse;
+  gboolean     gui_altern_colors;
+  gboolean     gui_expert_composite_eyecandy;
+  gboolean     filter_toolbar_show_in_statusbar;
+  gint         gui_ptree_line_style;
+  gint         gui_ptree_expander_style;
+  gboolean     gui_hex_dump_highlight_style;
+  gint         gui_toolbar_main_style;
+  gint         gui_toolbar_filter_style;
+  gchar       *gui_font_name;
+  color_t      gui_marked_fg;
+  color_t      gui_marked_bg;
+  color_t      gui_ignored_fg;
+  color_t      gui_ignored_bg;
+  const gchar *gui_colorized_fg;
+  const gchar *gui_colorized_bg;
+  gboolean     gui_geometry_save_position;
+  gboolean     gui_geometry_save_size;
+  gboolean     gui_geometry_save_maximized;
+  gboolean     gui_macosx_style;
   console_open_e gui_console_open;
-  guint    gui_recent_df_entries_max;
-  guint    gui_recent_files_count_max;
-  guint    gui_fileopen_style;
-  gchar	   *gui_fileopen_dir;
-  guint    gui_fileopen_preview;
-  gboolean gui_ask_unsaved;
-  gboolean gui_find_wrap;
-  gboolean gui_use_pref_save;
-  gchar   *gui_webbrowser;
-  gchar   *gui_window_title;
-  gchar   *gui_start_title;
+  guint        gui_recent_df_entries_max;
+  guint        gui_recent_files_count_max;
+  guint        gui_fileopen_style;
+  gchar	      *gui_fileopen_dir;
+  guint        gui_fileopen_preview;
+  gboolean     gui_ask_unsaved;
+  gboolean     gui_find_wrap;
+  gboolean     gui_use_pref_save;
+  gchar       *gui_webbrowser;
+  gchar       *gui_window_title;
+  const gchar *gui_start_title;
   version_info_e gui_version_placement;
-  gboolean gui_auto_scroll_on_expand;
-  guint    gui_auto_scroll_percentage;
+  gboolean     gui_auto_scroll_on_expand;
+  guint        gui_auto_scroll_percentage;
   layout_type_e gui_layout_type;
   layout_pane_content_e gui_layout_content_1;
   layout_pane_content_e gui_layout_content_2;
   layout_pane_content_e gui_layout_content_3;
-  gint     console_log_level;
-  gchar   *capture_device;
-  gchar   *capture_devices_linktypes;
-  gchar   *capture_devices_descr;
-  gchar   *capture_devices_hide;
-  gchar   *capture_devices_monitor_mode;
-  gboolean capture_prom_mode;
-  gboolean capture_pcap_ng;
-  gboolean capture_real_time;
-  gboolean capture_auto_scroll;
-  gboolean capture_show_info;
-  GList   *capture_columns;
-  guint    rtp_player_max_visible;
-  guint    tap_update_interval;
-  gboolean display_hidden_proto_items;
-  gpointer filter_expressions;	/* Actually points to &head */
+  gint         console_log_level;
+  gchar       *capture_device;
+  gchar       *capture_devices_linktypes;
+  gchar       *capture_devices_descr;
+  gchar       *capture_devices_hide;
+  gchar       *capture_devices_monitor_mode;
+  gboolean     capture_prom_mode;
+  gboolean     capture_pcap_ng;
+  gboolean     capture_real_time;
+  gboolean     capture_auto_scroll;
+  gboolean     capture_show_info;
+  GList       *capture_columns;
+  guint        rtp_player_max_visible;
+  guint        tap_update_interval;
+  gboolean     display_hidden_proto_items;
+  gpointer     filter_expressions;	/* Actually points to &head */
 } e_prefs;
 
 WS_VAR_IMPORT e_prefs prefs;
@@ -446,7 +446,7 @@ extern guint prefs_pref_foreach(module_t *module, pref_cb callback,
 /* Parse through a list of comma-separated, possibly quoted strings.
  *  Return a list of the string data.
  */
-extern GList *prefs_get_string_list(gchar *str);
+extern GList *prefs_get_string_list(const gchar *str);
 
 /* Clear the given list of string data. */
 extern void prefs_clear_string_list(GList *sl);

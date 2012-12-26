@@ -192,7 +192,7 @@ typedef struct _dialog_data_t {
 	GtkWidget *notebook;
 	GtkWidget *save_voice_as_w;
 	GtkWidget *save_csv_as_w;
-	gint notebook_signal_id;
+	gulong notebook_signal_id;
 	dialog_graph_t dialog_graph;
 } dialog_data_t;
 

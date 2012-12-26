@@ -111,7 +111,7 @@ typedef struct {
 
 	guint32 body_len;
 	guint32 fields_len;
-	char *body_sig;
+	const char *body_sig;
 } dbus_info_t;
 
 typedef union {

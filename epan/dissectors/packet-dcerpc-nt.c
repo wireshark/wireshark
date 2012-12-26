@@ -1143,7 +1143,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	&& !pinfo->fd->flags.visited
 	&& !di->conformant_run){
 		char *pol_string=NULL;
-		char *pol_name=NULL;
+		const char *pol_name=NULL;
 		dcerpc_call_value *dcv;
 
 		dcv = (dcerpc_call_value *)di->call_data;

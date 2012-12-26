@@ -115,7 +115,7 @@ static const char *sync_pipe_signame(int);
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
 static int sync_pipe_wait_for_child(int fork_child, gchar **msgp);
 static void pipe_convert_header(const guchar *header, int header_len, char *indicator, int *block_len);
-static int pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
+static ssize_t pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
                            char **err_msg);
 
 
@@ -949,7 +949,7 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
     int data_pipe_read_fd, sync_pipe_read_fd, fork_child, ret;
     char *wait_msg;
     gchar buffer[PIPE_BUF_SIZE+1];
-    int  nread;
+    ssize_t nread;
     char indicator;
     int  primary_msg_len;
     char *primary_msg_text;
@@ -957,7 +957,7 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
     char *secondary_msg_text;
     char *combined_msg;
     GString *data_buf = NULL;
-    int count;
+    size_t count;
 
     ret = sync_pipe_open_command(argv, &data_pipe_read_fd, &sync_pipe_read_fd,
                                  &fork_child, &msg);
@@ -1262,7 +1262,7 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg)
     int message_read_fd, ret;
     char *wait_msg;
     gchar buffer[PIPE_BUF_SIZE+1];
-    int  nread;
+    ssize_t nread;
     char indicator;
     int  primary_msg_len;
     char *primary_msg_text;
@@ -1416,11 +1416,11 @@ sync_interface_stats_close(int *read_fd, int *fork_child, gchar **msg)
 
 /* read a number of bytes from a pipe */
 /* (blocks until enough bytes read or an error occurs) */
-static int
+static ssize_t
 pipe_read_bytes(int pipe_fd, char *bytes, int required, char **msg)
 {
-    int newly;
-    int offset = 0;
+    ssize_t newly;
+    ssize_t offset = 0;
     int error;
 
     while(required) {
@@ -1443,7 +1443,7 @@ pipe_read_bytes(int pipe_fd, char *bytes, int required, char **msg)
             return newly;
         }
 
-        required -= newly;
+        required -= (int)newly;
         offset += newly;
     }
 
@@ -1484,7 +1484,7 @@ static gboolean pipe_data_available(int pipe_fd) {
 /* Read a line from a pipe, similar to fgets */
 int
 sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
-    int newly;
+    ssize_t newly;
     int offset = -1;
 
     while(offset < max - 1) {
@@ -1495,11 +1495,11 @@ sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
         if (newly == 0) {
             /* EOF - not necessarily an error */
             break;
-        } else if (newly < 0) {
+        } else if (newly == -1) {
             /* error */
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
                   "read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
-            return newly;
+            return -1;
         } else if (bytes[offset] == '\n') {
             break;
         }
@@ -1526,12 +1526,12 @@ pipe_convert_header(const guchar *header, int header_len, char *indicator, int *
 /* read a message from the sending pipe in the standard format
    (1-byte message indicator, 3-byte message length (excluding length
    and indicator field), and the rest is the message) */
-static int
+static ssize_t
 pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
                 char **err_msg)
 {
     int required;
-    int newly;
+    ssize_t newly;
     guchar header[4];
 
     /* read header (indicator and 3-byte length) */
@@ -1548,13 +1548,13 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
             return 0;
         }
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "read %d failed to read header: %u", pipe_fd, newly);
+              "read %d failed to read header: %lu", pipe_fd, (long)newly);
         if (newly != -1) {
             /*
              * Short read, but not an immediate EOF.
              */
-            *err_msg = g_strdup_printf("Premature EOF reading from sync pipe: got only %d bytes",
-                                       newly);
+            *err_msg = g_strdup_printf("Premature EOF reading from sync pipe: got only %ld bytes",
+                                       (long)newly);
         }
         return -1;
     }
@@ -1617,13 +1617,14 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     capture_options *capture_opts = (capture_options *)user_data;
     int  ret;
     char buffer[SP_MAX_MSG_LEN+1];
-    int  nread;
+    ssize_t nread;
     char indicator;
     int  primary_len;
     char *primary_msg;
     int  secondary_len;
     char *secondary_msg;
     char *wait_msg, *combined_msg;
+    int npackets;
 
     nread = pipe_read_block(source, &indicator, SP_MAX_MSG_LEN, buffer,
                             &primary_msg);
@@ -1701,9 +1702,9 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         }
         break;
     case SP_PACKET_COUNT:
-        nread = atoi(buffer);
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: new packets %u", nread);
-        capture_input_new_packets(capture_opts, nread);
+        npackets = atoi(buffer);
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: new packets %u", npackets);
+        capture_input_new_packets(capture_opts, npackets);
         break;
     case SP_ERROR_MSG:
         /* convert primary message */
@@ -1817,8 +1818,8 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
 #endif
 
     g_get_current_time(&end_time);
-    elapsed = (end_time.tv_sec - start_time.tv_sec) +
-    ((end_time.tv_usec - start_time.tv_usec) / (float) 1e6);
+    elapsed = (float) ((end_time.tv_sec - start_time.tv_sec) +
+                       ((end_time.tv_usec - start_time.tv_usec) / 1e6));
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: capture child closed after %.3fs", elapsed);
     return ret;
 }

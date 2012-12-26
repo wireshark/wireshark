@@ -170,12 +170,18 @@ dissect_pcnfsd2_mapid_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /* "NFS Illustrated 14.7.13 */
-static void
-pcnfsd_decode_obscure(char* data, int len)
+static char *
+pcnfsd_decode_obscure(const char* data, int len)
 {
-	for ( ; len>0 ; len--, data++) {
-		*data = (*data ^ 0x5b) & 0x7f;
+	char *decoded_buf;
+	char *decoded_data;
+
+	decoded_buf = ep_alloc(len);
+	decoded_data = decoded_buf;
+	for ( ; len>0 ; len--, data++, decoded_data++) {
+		*decoded_data = (*data ^ 0x5b) & 0x7f;
 	}
+	return decoded_buf;
 }
 
 
@@ -185,10 +191,11 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
 	int	newoffset;
-	char	*ident = NULL;
+	const char	*ident = NULL;
+	const char	*ident_decoded;
 	proto_item	*ident_item = NULL;
 	proto_tree	*ident_tree = NULL;
-	char	*password = NULL;
+	const char	*password = NULL;
 	proto_item	*password_item = NULL;
 	proto_tree	*password_tree = NULL;
 
@@ -210,13 +217,15 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	if (ident) {
 		/* Only attempt to decode the ident if it has been specified */
-		if (strcmp(ident, RPC_STRING_EMPTY))	
-			pcnfsd_decode_obscure(ident, (int)strlen(ident));
+		if (strcmp(ident, RPC_STRING_EMPTY) != 0)
+			ident_decoded = pcnfsd_decode_obscure(ident, (int)strlen(ident));
+		else
+			ident_decoded = ident;
 
 		if (ident_tree)
 			proto_tree_add_string(ident_tree,
 				hf_pcnfsd_auth_ident_clear,
-				tvb, offset+4, (gint)strlen(ident), ident);
+				tvb, offset+4, (gint)strlen(ident_decoded), ident_decoded);
 	}
 	if (ident_item) {
 		proto_item_set_text(ident_item, "Authentication Ident: %s",

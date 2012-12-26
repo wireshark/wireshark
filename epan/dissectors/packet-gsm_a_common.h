@@ -153,7 +153,6 @@ extern int hf_bssgp_elem_id;
 extern const value_string gmr1_ie_common_strings[];
 extern elem_fcn gmr1_ie_common_func[];
 extern gint ett_gmr1_ie_common[];
-extern int hf_gmr1_elem_id;
 
 extern const value_string gmr1_ie_rr_strings[];
 extern elem_fcn gmr1_ie_rr_func[];

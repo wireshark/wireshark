@@ -27,6 +27,6 @@
 /*
  * Add an entry for a new OUI.
  */
-void ieee802a_add_oui(guint32, const char *, char *, hf_register_info *);
+void ieee802a_add_oui(guint32, const char *, const char *, hf_register_info *);
 
 #endif

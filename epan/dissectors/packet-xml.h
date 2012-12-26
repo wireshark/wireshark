@@ -29,7 +29,7 @@ typedef struct _xml_ns_t {
 	gchar* name;
 
     /* its fully qualified name */
-	gchar* fqn;
+	const gchar* fqn;
 
 	/* the contents of the whole element from <> to </> */
 	int hf_tag;

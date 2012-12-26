@@ -938,7 +938,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
           packet->key_source.addr32 = tvb_get_ntohl(tvb, offset);
           proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, offset, 4, packet->key_source.addr32);
           proto_item_set_len(ti, 1 + 4);
-          offset += sizeof (guint32);
+          offset += (int)sizeof (guint32);
         }
         if (packet->key_id_mode == KEY_ID_MODE_KEY_EXPLICIT_8) {
           packet->key_source.addr64 = tvb_get_ntoh64(tvb, offset);
@@ -993,12 +993,12 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         /* Frame Counter and Key Sequence Counter prepended to the payload of an encrypted frame */
         if (IEEE802154_IS_ENCRYPTED(packet->security_level)) {
             packet->frame_counter = tvb_get_letohl (tvb, offset);
-            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_sec_frame_counter, tvb, offset, sizeof(guint32), packet->frame_counter);
-            offset += sizeof(guint32);
+            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_sec_frame_counter, tvb, offset, (int)sizeof(guint32), packet->frame_counter);
+            offset += (int)sizeof(guint32);
 
             packet->key_sequence_counter = tvb_get_guint8 (tvb, offset);
-            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_sec_key_sequence_counter, tvb, offset, sizeof(guint8), packet->key_sequence_counter);
-            offset += sizeof(guint8);
+            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_sec_key_sequence_counter, tvb, offset, (int)sizeof(guint8), packet->key_sequence_counter);
+            offset += (int)sizeof(guint8);
         }
     }
 
@@ -2152,7 +2152,7 @@ ccm_cbc_mac(const gchar *key _U_, const gchar *iv _U_, const gchar *a _U_, gint 
         else {memcpy(block, a, a_len); memset(block+a_len, 0, sizeof(block)-a_len);}
         /* Adjust pointers. */
         a += sizeof(block);
-        a_len -= sizeof(block);
+        a_len -= (int)sizeof(block);
         /* Execute the CBC-MAC algorithm. */
         if (gcry_cipher_encrypt(cipher_hd, mic, 16, block, sizeof(block))) {
             gcry_cipher_close(cipher_hd);
@@ -2167,7 +2167,7 @@ ccm_cbc_mac(const gchar *key _U_, const gchar *iv _U_, const gchar *a _U_, gint 
         else {memcpy(block, m, m_len); memset(block+m_len, 0, sizeof(block)-m_len);}
         /* Adjust pointers. */
         m += sizeof(block);
-        m_len -= sizeof(block);
+        m_len -= (int)sizeof(block);
         /* Execute the CBC-MAC algorithm. */
         if (gcry_cipher_encrypt(cipher_hd, mic, 16, block, sizeof(block))) {
             gcry_cipher_close(cipher_hd);

@@ -94,7 +94,7 @@ extern GList *follow_infos;
 
 void follow_load_text(follow_info_t *follow_info);
 void follow_filter_out_stream(GtkWidget * w, gpointer parent_w);
-void follow_stream(gchar *title, follow_info_t *follow_info,
+void follow_stream(const gchar *title, follow_info_t *follow_info,
 		   gchar *both_directions_string,
 		   gchar *server_to_client_string,
 		   gchar *client_to_server_string);

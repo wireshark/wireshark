@@ -57,13 +57,13 @@ static gint32 tb80211_current_type = -1;
 static gboolean tb80211_dont_set_chan;
 static gboolean tb80211_dont_set_iface;
 
-static void tb80211_set_info(char *errstr)
+static void tb80211_set_info(const char *errstr)
 {
     gtk_label_set_markup(GTK_LABEL(tb80211_info_label), errstr);
 }
 
 static
-void add_channel_type(char *type, int oldtype, int indx )
+void add_channel_type(const char *type, int oldtype, int indx )
 {
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(tb80211_chan_type_box), type);
 
@@ -332,7 +332,7 @@ out_free:
 }
 
 static void
-tb80211_add_label(gchar *text, GtkWidget *tb)
+tb80211_add_label(const gchar *text, GtkWidget *tb)
 {
     GtkWidget     *label;
     GtkToolItem	  *label_ti;

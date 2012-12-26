@@ -1459,7 +1459,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			{
 				transid = tvb_format_text(tvb,tvb_previous_offset,tokenlen);
 				/* XXX - what if this isn't a valid text string? */
-				mi->transid = atol(transid);
+				mi->transid = (guint32)strtoul(transid, NULL, 10);
 				proto_tree_add_string(tree, hf_mgcp_transid, tvb,
 				                      tvb_previous_offset, tokenlen, transid);
 			}
@@ -1915,7 +1915,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 			{
 				if (hf_uint != -1)
 				{
-					proto_tree_add_uint(tree, hf_uint, tvb, offset, tokenlen, atol(typval[1]));
+					proto_tree_add_uint(tree, hf_uint, tvb, offset, tokenlen, (guint32)strtoul(typval[1], NULL, 10));
 				}
 				else if (hf_string != -1)
 				{
@@ -2075,7 +2075,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 			{
 				if (hf_uint != -1)
 				{
-					proto_tree_add_uint(tree, hf_uint, tvb, offset, tokenlen, atol(typval[1]));
+					proto_tree_add_uint(tree, hf_uint, tvb, offset, tokenlen, (guint32)strtoul(typval[1], NULL, 10));
 				}
 				else if (hf_string != -1)
 				{

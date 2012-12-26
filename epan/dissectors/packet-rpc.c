@@ -553,7 +553,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
     packet_info *pinfo,
     int hfindex,
     gboolean fixed_length, guint32 length,
-    gboolean string_data, char **string_buffer_ret,
+    gboolean string_data, const char **string_buffer_ret,
     dissect_function_t *dissect_it)
 {
 	int data_offset;
@@ -576,7 +576,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	/* int string_item_offset; */
 
 	char *string_buffer = NULL;
-	char *string_buffer_print = NULL;
+	const char *string_buffer_print = NULL;
 
 	if (fixed_length) {
 		string_length = length;
@@ -734,7 +734,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 
 int
 dissect_rpc_string(tvbuff_t *tvb, proto_tree *tree,
-    int hfindex, int offset, char **string_buffer_ret)
+    int hfindex, int offset, const char **string_buffer_ret)
 {
         offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
 	    hfindex, FALSE, 0, TRUE, string_buffer_ret, NULL);
@@ -755,7 +755,7 @@ dissect_rpc_data(tvbuff_t *tvb, proto_tree *tree,
 int
 dissect_rpc_bytes(tvbuff_t *tvb, proto_tree *tree,
     int hfindex, int offset, guint32 length,
-    gboolean string_data, char **string_buffer_ret)
+    gboolean string_data, const char **string_buffer_ret)
 {
         offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
 	    hfindex, TRUE, length, string_data, string_buffer_ret, NULL);

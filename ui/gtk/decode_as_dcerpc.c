@@ -358,8 +358,8 @@ decode_dcerpc_add_page (packet_info *pinfo)
     /* create page content */
     page_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     g_object_set_data(G_OBJECT(page_hb), E_PAGE_ACTION, decode_dcerpc);
-    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TABLE, "DCE-RPC");
-    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TITLE, "DCE-RPC");
+    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TABLE, (gpointer)"DCE-RPC");
+    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TITLE, (gpointer)"DCE-RPC");
     g_object_set_data(G_OBJECT(page_hb), E_PAGE_BINDING, binding);
 
     info_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);

@@ -280,7 +280,6 @@ static void dissect_ice_facet(packet_info *pinfo, proto_tree *tree, proto_item *
 	 */
 
 	guint32 Size = 0; /* number of elements in the sequence */
-	char *s = NULL;
 
 	(*consumed) = 0;
 
@@ -305,9 +304,8 @@ static void dissect_ice_facet(packet_info *pinfo, proto_tree *tree, proto_item *
 	if ( Size == 0 ) {
 
 		if (tree) {
-			s = ep_strdup( "(empty)" );
 			/* display the 0x00 Size byte when click on a empty ice_string */
-			proto_tree_add_string(tree, hf_icep, tvb, offset - 1, 1, s);
+			proto_tree_add_string(tree, hf_icep, tvb, offset - 1, 1, "(empty)");
 		}
 		return;
 	}

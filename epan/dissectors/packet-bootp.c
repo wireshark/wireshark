@@ -3974,7 +3974,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 			if (raw_val == PKT_MDC_PROV_FLOWS) {
 				for (i = 0 ; i < 3; i++) {
 					if (flow_val & pkt_mdc_supp_flow_vals[i].value) {
-						decode_bitfield_value(bit_fld, flow_val, pkt_mdc_supp_flow_vals[i].value, 16);
+						decode_bitfield_value(bit_fld, (guint32)flow_val, pkt_mdc_supp_flow_vals[i].value, 16);
 						proto_tree_add_text(subtree, tvb, off + 4, 4, "%s%s",
 							bit_fld, pkt_mdc_supp_flow_vals[i].strptr);
 					}

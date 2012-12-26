@@ -68,7 +68,7 @@ static int proto_dop = -1;
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static const char *binding_type = NULL; /* binding_type */
 
-static int call_dop_oid_callback(char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info);
+static int call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info);
 
 
 /*--- Included file: packet-dop-hf.c ---*/
@@ -2045,7 +2045,7 @@ static void dissect_ACIItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 #line 84 "../../asn1/dop/packet-dop-template.c"
 
 static int
-call_dop_oid_callback(char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info)
+call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info)
 {
   char* binding_param;
 
@@ -2082,7 +2082,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	int (*dop_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
-	char *dop_op_name;
+	const char *dop_op_name;
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);

@@ -487,7 +487,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             }
             return 2;
         }
-        if_info = (if_info_t *)g_list_nth_data(if_list, adapter_index - 1);
+        if_info = (if_info_t *)g_list_nth_data(if_list, (int)(adapter_index - 1));
         if (if_info == NULL) {
             cmdarg_err("There is no interface with that adapter index");
             return 1;

@@ -1674,7 +1674,7 @@ static gchar *dissect_7bit_string (tvbuff_t *tvb, gint offset, gint length)
   return (gchar *) decoded;
 }
 
-static gchar *dissect_thales_mts_id (tvbuff_t *tvb, gint offset, gint length)
+static const gchar *dissect_thales_mts_id (tvbuff_t *tvb, gint offset, gint length)
 {
   /* Thales XOmail uses this format: "MTA-NAME/000000000000" */
   if (length >= 7 && length <= 22) {
@@ -1687,7 +1687,7 @@ static gchar *dissect_thales_mts_id (tvbuff_t *tvb, gint offset, gint length)
   return ILLEGAL_FORMAT;
 }
 
-static gchar *dissect_thales_ipm_id (tvbuff_t *tvb, gint offset, gint length, gint modifier)
+static const gchar *dissect_thales_ipm_id (tvbuff_t *tvb, gint offset, gint length, gint modifier)
 {
   /* Thales XOmail uses this format: "<prefix>0000 YYMMDDhhmmssZ" */
   if (length >= 6 && length <= 20 && modifier >= 0 && modifier <= 2) {
@@ -1842,12 +1842,12 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
           } else if ((key & 0xF0) == 0xB0) { /* bit 7-4: 1011 */
             length = 7;
             bytes = 6;
-            value = ((guint64)tvb_get_ntohs (tvb, offset) & 0x0FFF) << 32 |
+            value = ((guint64)(tvb_get_ntohs (tvb, offset) & 0x0FFF)) << 32 |
               tvb_get_ntohl (tvb, offset + 2);
           } else if ((key & 0xF0) == 0x90) { /* bit 7-4: 1001 */
             length = 8;
             bytes = 7;
-            value = ((guint64)(tvb_get_ntohl (tvb, offset)>>8) & 0x0FFF)<<32 |
+            value = ((guint64)((tvb_get_ntohl (tvb, offset)>>8) & 0x0FFF))<<32 |
               tvb_get_ntohl (tvb, offset + 3);
           } else {                           /* bit 7-4: 0xxx or 1000 */
             length = 5;
@@ -2692,7 +2692,7 @@ static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto
                                     gint offset, gboolean subject)
 {
   proto_item *hidden_item;
-  gchar      *mts_id;
+  const gchar *mts_id;
 
   if (dmp.msg_id_type == X400_MSG_ID || dmp_nat_decode == NAT_DECODE_DMP) {
     mts_id = dissect_7bit_string (tvb, offset, dmp.mts_id_length);
@@ -2725,7 +2725,7 @@ static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto
 {
   proto_tree *field_tree;
   proto_item *tf, *hidden_item;
-  gchar      *ipm_id;
+  const gchar *ipm_id;
   gint        length, modifier, ipm_id_length;
 
   length = tvb_get_guint8 (tvb, offset);
@@ -3491,7 +3491,8 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 /* Ref chapter 6.2.1.2.8 SecurityCategories */
 static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
-                                           proto_tree *tree, gchar **label_string,
+                                           proto_tree *tree,
+                                           const gchar **label_string,
                                            gint offset, guint8 ext)
 {
   proto_tree *field_tree = NULL;
@@ -3602,7 +3603,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *field_tree = NULL;
   proto_item *en = NULL, *ei = NULL, *tf = NULL;
   proto_item *hidden_item;
-  gchar      *label_string = ep_strdup ("");
+  const char  *label_string = ep_strdup ("");
   const gchar *class_name = NULL;
   guint8      message, dmp_sec_pol, dmp_sec_class, dmp_nation = 0, exp_time, dtg;
   gint32      secs = 0;

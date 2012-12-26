@@ -1058,7 +1058,7 @@ static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code
 
     /* Pad to 32bit boundary */
     if (object_len % sizeof (guint32))
-        object_len += (sizeof (guint32) - object_len % sizeof (guint32));
+        object_len += ((int)sizeof (guint32) - object_len % (int)sizeof (guint32));
 
     return object_len;
 }
@@ -1116,7 +1116,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 o
 
         /* Pad to 32bit boundary */
         if (object_len % sizeof (guint32))
-            object_len += (sizeof (guint32) - object_len % sizeof (guint32));
+            object_len += ((int)sizeof (guint32) - object_len % (int)sizeof (guint32));
 
         pr_len -= object_len - COPS_OBJECT_HDR_SIZE;
         offset += object_len - COPS_OBJECT_HDR_SIZE;
@@ -1163,7 +1163,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
             offset += 4;
         } else if (c_type == 2) {   /* IPv6 */
             tvb_get_ipv6(tvb, offset, &ipv6addr);
-            ifindex = tvb_get_ntohl(tvb, offset + sizeof ipv6addr);
+            ifindex = tvb_get_ntohl(tvb, offset + (int)sizeof ipv6addr);
             ti = proto_tree_add_text(tree, tvb, offset, 20, "Contents: IPv6 address %s, ifIndex: %u",
                                      ip6_to_str(&ipv6addr), ifindex);
             itf_tree = proto_item_add_subtree(ti, ett_cops_itf);
@@ -1304,7 +1304,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
             offset += 4;
         } else if (c_type == 2) {   /* IPv6 */
             tvb_get_ipv6(tvb, offset, &ipv6addr);
-            tcp_port = tvb_get_ntohs(tvb, offset + sizeof ipv6addr + 2);
+            tcp_port = tvb_get_ntohs(tvb, offset + (int)sizeof ipv6addr + 2);
             ti = proto_tree_add_text(tree, tvb, offset, 20, "Contents: IPv6 address %s, TCP Port Number: %u",
                                      ip6_to_str(&ipv6addr), tcp_port);
             pdp_tree = proto_item_add_subtree(ti, ett_cops_pdp);

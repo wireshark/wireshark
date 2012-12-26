@@ -2914,7 +2914,7 @@ decodetime(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int
 	guint8		octet;
 	unsigned int	consumed;
 	unsigned int    i;
-	unsigned long   deltatime;
+	unsigned int    deltatime;
 
 	consumed  = 0;
 	deltatime = 0;
@@ -7115,7 +7115,7 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	guint8				header;
 	guint8				octet;
 	unsigned int			consumed = 0;
-	unsigned long			cmdlen   = 0;
+	unsigned int			cmdlen   = 0;
 	unsigned int			i;
 
 	/* Can we read this chapter's header? */
@@ -7165,8 +7165,8 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	}
 
 	if ( header & RTP_MIDI_SJ_CHAPTER_X_FLAG_F ) {
-		unsigned long field    = 0;
-		unsigned long fieldlen = 0;
+		unsigned int field    = 0;
+		unsigned int fieldlen = 0;
 
 		/* FIRST is "compressed" using only the necessary amount of octets, like delta-time */
 		for ( i=0; i < 4; i++ ) {

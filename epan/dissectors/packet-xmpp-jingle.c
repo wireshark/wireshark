@@ -202,7 +202,7 @@ xmpp_jingle_reason(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_ele
     if((condition = xmpp_steal_element_by_names(element, reason_names, array_length(reason_names)))!=NULL)
     {
         xmpp_attr_t *fake_cond = xmpp_ep_init_attr_t(condition->name, condition->offset, condition->length);
-        g_hash_table_insert(element->attrs, "condition", fake_cond);
+        g_hash_table_insert(element->attrs, (gpointer)"condition", fake_cond);
 
     } else if((condition = xmpp_steal_element_by_name(element, "alternative-session"))!=NULL)
     {
@@ -210,26 +210,26 @@ xmpp_jingle_reason(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_ele
         xmpp_element_t *sid;
 
         fake_cond = xmpp_ep_init_attr_t(condition->name, condition->offset, condition->length);
-        g_hash_table_insert(element->attrs, "condition", fake_cond);
+        g_hash_table_insert(element->attrs, (gpointer)"condition", fake_cond);
 
 
         if((sid = xmpp_steal_element_by_name(condition, "sid"))!=NULL)
         {
             fake_alter_sid = xmpp_ep_init_attr_t(sid->name, sid->offset, sid->length);
-            g_hash_table_insert(element->attrs, "sid", fake_alter_sid);
+            g_hash_table_insert(element->attrs, (gpointer)"sid", fake_alter_sid);
         }
     }
 
     if((rtp_error = xmpp_steal_element_by_names(element, rtp_error_names, array_length(rtp_error_names)))!=NULL)
     {
         xmpp_attr_t *fake_rtp_error = xmpp_ep_init_attr_t(rtp_error->name, rtp_error->offset, rtp_error->length);
-        g_hash_table_insert(element->attrs, "rtp-error", fake_rtp_error);
+        g_hash_table_insert(element->attrs, (gpointer)"rtp-error", fake_rtp_error);
     }
 
     if((text = xmpp_steal_element_by_name(element, "text"))!=NULL)
     {
         xmpp_attr_t *fake_text = xmpp_ep_init_attr_t(text->data?text->data->value:"", text->offset, text->length);
-        g_hash_table_insert(element->attrs, "text", fake_text);
+        g_hash_table_insert(element->attrs, (gpointer)"text", fake_text);
     }
 
     xmpp_display_attrs(reason_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -375,7 +375,7 @@ xmpp_jingle_cont_desc_rtp_enc_zrtp_hash(proto_tree* tree, tvbuff_t* tvb, packet_
     if(element->data)
     {
         xmpp_attr_t *fake_hash = xmpp_ep_init_attr_t(element->data->value, element->offset, element->length);
-        g_hash_table_insert(element->attrs, "hash", fake_hash);
+        g_hash_table_insert(element->attrs, (gpointer)"hash", fake_hash);
     }
 
     xmpp_display_attrs(zrtp_hash_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -422,7 +422,7 @@ xmpp_jingle_cont_desc_rtp_bandwidth(proto_tree* tree, tvbuff_t* tvb, packet_info
     if(element->data)
     {
         xmpp_attr_t *fake_value = xmpp_ep_init_attr_t(element->data->value, element->offset, element->length);
-        g_hash_table_insert(element->attrs, "value", fake_value);
+        g_hash_table_insert(element->attrs, (gpointer)"value", fake_value);
     }
 
     xmpp_display_attrs(bandwidth_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
@@ -456,7 +456,7 @@ xmpp_jingle_cont_desc_rtp_hdrext(proto_tree* tree, tvbuff_t* tvb, packet_info *p
     {
         xmpp_attr_t *name = xmpp_get_attr(element, "name");
         xmpp_attr_t *fake_attr = xmpp_ep_init_attr_t(name?name->value:"", parameter->offset, parameter->length);
-        g_hash_table_insert(element->attrs, "parameter", fake_attr);
+        g_hash_table_insert(element->attrs, (gpointer)"parameter", fake_attr);
     }
 
     xmpp_display_attrs(rtp_hdr_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));

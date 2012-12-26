@@ -85,7 +85,7 @@ typedef struct entity_t {
 #define MAX_INCLUDE_DEPTH 10
 #define YY_INPUT(buf,result,max_size) { result = current_yyinput(buf,max_size); }
 #define ECHO
-#define APPEND(txt,len) append_to_buffer(txt,len)
+#define APPEND(txt,len) append_to_buffer(txt,(int)len)
 
 static entity_t ents;
 static YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
@@ -108,7 +108,7 @@ static gint16 *attr_uint16;
 static guint wimaxasncp_bits(guint bits, char *n);
 static gint wimaxasncp_decode_type(const gchar *name);
 static void wimaxasncp_dict_debug(const gchar *fmt, ...);
-static void append_to_buffer(gchar *txt, int len);
+static void append_to_buffer(const gchar *txt, int len);
 static FILE *wimaxasncp_dict_open(const gchar*, const gchar*);
 
 static GString *dict_error = NULL;
@@ -313,7 +313,7 @@ since_attr since=\042
 }
 
 <GET_UINT_ATTR>{number} {
-	*attr_uint = strtoul(yytext,NULL,0);
+	*attr_uint = (guint)strtoul(yytext,NULL,0);
 	D(("%s\n",yytext););
 	attr_uint = NULL;
 	BEGIN END_ATTR;
@@ -531,7 +531,7 @@ void wimaxasncp_dict_unused(void) {
 	yy_top_state();
 }
 
-static void append_to_buffer(gchar *txt, int len) {
+static void append_to_buffer(const gchar *txt, int len) {
 
 	if (strbuf == NULL) {
 		read_ptr = write_ptr = strbuf = g_malloc(size_strbuf);

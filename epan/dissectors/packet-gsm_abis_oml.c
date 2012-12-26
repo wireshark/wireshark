@@ -1801,7 +1801,7 @@ dissect_oml_manuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    tvb_memeql(tvb, offset+1, ipaccess_magic, sizeof(ipaccess_magic)))
 		return offset;
 
-	offset += sizeof(ipaccess_magic) + 1;
+	offset += (int)sizeof(ipaccess_magic) + 1;
 
 	return dissect_oml_fom(tvb, pinfo, tree, offset, top_ti);
 }

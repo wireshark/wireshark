@@ -355,7 +355,6 @@ static int hf_spx_ndps_func_delivery = -1;
 static int hf_spx_ndps_func_broker = -1;
 
 static gint ett_ndps = -1;
-static dissector_handle_t ndps_data_handle;
 
 /* desegmentation of NDPS over TCP */
 static gboolean ndps_desegment = TRUE;

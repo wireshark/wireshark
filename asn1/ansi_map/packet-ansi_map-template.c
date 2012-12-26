@@ -403,7 +403,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
     address* dst = &(pinfo->dst);
     guint8 *src_str;
     guint8 *dst_str;
-    char *buf = NULL;
+    const char *buf = NULL;
 
     src_str = ep_address_to_str(src);
     dst_str = ep_address_to_str(dst);

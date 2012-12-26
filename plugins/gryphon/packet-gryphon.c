@@ -1117,10 +1117,12 @@ eventnum(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_time(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
+    guint64         val;
     nstime_t        timestamp;
 
-    timestamp.secs = tvb_get_ntoh64(tvb, offset)/100000;
-    timestamp.nsecs = (tvb_get_ntoh64(tvb, offset)%100000)*1000;
+    val = tvb_get_ntoh64(tvb, offset);
+    timestamp.secs = val/100000;
+    timestamp.nsecs = (int)((val%100000)*1000);
 
     proto_tree_add_time(pt, hf_gryphon_resp_time, tvb, offset, 8, &timestamp);
     offset += 8;

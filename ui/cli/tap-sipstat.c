@@ -377,10 +377,10 @@ sipstat_draw(void *psp  )
 	printf("\nNumber of resent SIP messages: %d\n", sp->resent_packets);
 	printf(	"\n* SIP Status Codes in reply packets\n");
 	g_hash_table_foreach( sp->hash_responses, (GHFunc)sip_draw_hash_responses,
-		"  SIP %3d %-15s : %5d Packets\n");
+		(gpointer)"  SIP %3d %-15s : %5d Packets\n");
 	printf("\n* List of SIP Request methods\n");
 	g_hash_table_foreach( sp->hash_requests,  (GHFunc)sip_draw_hash_requests,
-		"  %-15s : %5d Packets\n");
+		(gpointer)"  %-15s : %5d Packets\n");
 	printf(	"\n* Average setup time %d ms\n Min %d ms\n Max %d ms\n", sp->average_setup_time, sp->min_setup_time, sp->max_setup_time);
 	printf("===================================================================\n");
 }

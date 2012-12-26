@@ -618,7 +618,7 @@ hostlist_create_popup_menu(hostlist_table *hl)
 
 /* Draw/refresh the address field of a single entry at the specified index */
 static void
-get_hostlist_table_address(hostlist_table *hl, hostlist_talker_t *host, char **entries)
+get_hostlist_table_address(hostlist_table *hl, hostlist_talker_t *host, const char **entries)
 {
     char *port;
     guint32 pt;
@@ -651,7 +651,7 @@ static void
 draw_hostlist_table_addresses(hostlist_table *hl)
 {
     guint32 i;
-    char *entries[2];
+    const char *entries[2];
     GtkListStore *store;
 
     store = GTK_LIST_STORE(gtk_tree_view_get_model(hl->table));
@@ -711,7 +711,7 @@ draw_hostlist_table_data(hostlist_table *hl)
         }
         host->modified = FALSE;
         if (!host->iter_valid) {
-            char *entries[2];
+            const char *entries[2];
 #ifdef HAVE_GEOIP
             char *geoip[NUM_GEOIP_COLS];
             guint j;
@@ -930,7 +930,7 @@ typedef struct {
     hostlist_table    *talkers;
 } map_t;
 
-static char *map_endpoint_opener;
+static const char *map_endpoint_opener;
 
 static void
 map_init(void)

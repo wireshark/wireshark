@@ -1746,7 +1746,7 @@ dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_text(tree, tvb, offset + 24, 4,
                 "Output interface: ifIndex %u", output & 0x7fffffff);
     }
-    offset += sizeof (flow_header);
+    offset += (int)sizeof (flow_header);
 
     /* what kind of flow sample is it? */
     packet_type = tvb_get_ntohl(tvb, offset);
@@ -2421,7 +2421,7 @@ dissect_sflow_24_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint offset, p
             val_to_str_const(g_ntohl(counters_header.counters_type),
             sflow_245_counterstype, "Unknown type"));
 
-    offset += sizeof (counters_header);
+    offset += (int)sizeof (counters_header);
 
     /* most counters types have the "generic" counters first */
     switch (g_ntohl(counters_header.counters_type)) {
@@ -2504,19 +2504,19 @@ dissect_sflow_24_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint offset, p
     switch (g_ntohl(counters_header.counters_type)) {
         case SFLOW_245_COUNTERS_ETHERNET:
             tvb_memcpy(tvb, (guint8 *) & ethc, offset, sizeof (ethc));
-            offset += sizeof (ethc);
+            offset += (int)sizeof (ethc);
             break;
         case SFLOW_245_COUNTERS_TOKENRING:
             tvb_memcpy(tvb, (guint8 *) & tokc, offset, sizeof (tokc));
-            offset += sizeof (tokc);
+            offset += (int)sizeof (tokc);
             break;
         case SFLOW_245_COUNTERS_VG:
             tvb_memcpy(tvb, (guint8 *) & vgc, offset, sizeof (vgc));
-            offset += sizeof (vgc);
+            offset += (int)sizeof (vgc);
             break;
         case SFLOW_245_COUNTERS_VLAN:
             tvb_memcpy(tvb, (guint8 *) & vlanc, offset, sizeof (vlanc));
-            offset += sizeof (vlanc);
+            offset += (int)sizeof (vlanc);
 
             break;
         default:

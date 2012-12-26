@@ -123,7 +123,7 @@ dhcpstat_draw(void *psp)
 	printf("BOOTP Option 53: DHCP Messages Types:\n");
 	printf("DHCP Message Type      Packets nb\n" );
 	g_hash_table_foreach( sp->hash, (GHFunc) dhcp_draw_message_type,
-			"%23s %-9d\n" );
+			(gpointer)"%23s %-9d\n" );
 	printf("===================================================================\n");
 
 }

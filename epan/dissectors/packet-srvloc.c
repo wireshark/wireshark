@@ -443,7 +443,7 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
  *
  * XXX - this is also used with CHARSET_UTF_8.  Is that a cut-and-pasteo?
  */
-static guint8*
+static const guint8*
 unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
 {
   const guint8	*ascii_text = tvb_get_ephemeral_string(tvb, offset, length);
@@ -505,10 +505,10 @@ static void
 attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
     guint16 encoding)
 {
-    char    *attr_type;
+    const char *attr_type;
     int     i, svc, ss, type_len, foffset=offset;
     guint32 prot;
-    guint8  *byte_value;
+    const guint8  *byte_value;
     proto_item 	*ti;
     proto_tree 	*srvloc_tree;
     char *tmp;
@@ -549,16 +549,15 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
             attr_type = tvb_get_ephemeral_unicode_string(tvb, offset, type_len*2, ENC_BIG_ENDIAN);
             proto_tree_add_string(tree, hf, tvb, offset, type_len*2, attr_type);
             offset += (type_len*2)+2;
-            /* If this is the attribute svcname */
             if (strcmp(attr_type, "svcname-ws")==0) {
+                /* This is the attribute svcname */
                 tmp = tvb_get_ephemeral_unicode_string(tvb, offset, length-offset, ENC_BIG_ENDIAN);
                 type_len = (int)strcspn(tmp, ")");
                 add_v1_string(tree, hf_srvloc_srvrply_svcname, tvb, offset, type_len*2, encoding);
                 offset += (type_len*2)+4;
-                attr_type[0] = '\0';
-            }
-            /* If this is the attribute svcaddr */
-            if (strcmp(attr_type, "svcaddr-ws")==0) {
+                attr_type = "";
+            } else if (strcmp(attr_type, "svcaddr-ws")==0) {
+                /* This is the attribute svcaddr */
                 i=1;
                 for (foffset = offset; foffset<length; foffset += 2) {
 
@@ -582,7 +581,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                         else
                         {
                             byte_value = unicode_to_bytes(tvb, foffset, 4, FALSE); /* UDP */
-                            prot = atol(byte_value);
+                            prot = (guint32)strtoul(byte_value, NULL, 10);
                             proto_tree_add_text(srvloc_tree, tvb, foffset, 4,
                                     "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
                             foffset += 4;
@@ -591,7 +590,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                     else
                     {
                         byte_value = unicode_to_bytes(tvb, foffset, 8, FALSE); /* IPX */
-                        prot = atol(byte_value);
+                        prot = (guint32)strtoul(byte_value, NULL, 10);
                         proto_tree_add_text(srvloc_tree, tvb, foffset, 8,
                                     "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
                         foffset += 8;
@@ -620,10 +619,10 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                     foffset += 57;
                 }
                 offset = foffset;
-                attr_type[0] = '\0';
+                attr_type = "";
             }
             /* If there are no more supported attributes available then abort dissection */
-            if (strcmp(attr_type, "svcaddr-ws")!=0 && strcmp(attr_type, "svcname-ws")!=0 && strcmp(attr_type, "\0")!=0) {
+            if (strcmp(attr_type, "svcaddr-ws")!=0 && strcmp(attr_type, "svcname-ws")!=0 && strcmp(attr_type, "")!=0) {
                 break;
             }
         }
@@ -657,7 +656,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                 {
                     /* UDP */
                     byte_value = unicode_to_bytes(tvb, foffset, 2, FALSE); /* UDP */
-                    prot = atol(byte_value);
+                    prot = (guint32)strtoul(byte_value, NULL, 10);
                     proto_tree_add_text(srvloc_tree, tvb, foffset, 2,
                             "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
                     foffset += 2;
@@ -666,7 +665,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
             else
             {
                 byte_value = unicode_to_bytes(tvb, foffset, 4, FALSE); /* IPX */
-                prot = atol(byte_value);
+                prot = (guint32)strtoul(byte_value, NULL, 10);
                 proto_tree_add_text(srvloc_tree, tvb, foffset, 4,
                             "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
                 foffset += 4;

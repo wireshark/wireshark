@@ -1861,7 +1861,7 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 		/* 86400 seconds in one day */
 
 		ts.secs = (days + 5113) * 86400 + milliseconds / 1000;
-		ts.nsecs = (milliseconds % 1000) * G_GINT64_CONSTANT(1000000U);
+		ts.nsecs = (milliseconds % 1000) * 1000000U;
 
 		ptime = abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, TRUE);
 		if(hf_index >= 0)

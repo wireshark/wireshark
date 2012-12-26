@@ -1229,11 +1229,11 @@ static const value_string zero_is_none_vals[] = {
                                                                               \
       seqno = VALUE16(tvb, *offsetp);                                         \
       proto_tree_add_uint_format(t, hf_x11_reply_##name, tvb,                 \
-      *offsetp, sizeof(seqno), seqno,                                         \
+      *offsetp, 2, seqno,                                                     \
       "sequencenumber: %d (%s)",                                              \
       (int)seqno,                                                             \
       val_to_str(opcode & 0xFF, state->opcode_vals, "<Unknown opcode %d>"));  \
-      *offsetp += sizeof(seqno);                                              \
+      *offsetp += 2;                                                          \
 } while (0)
 
 #define REPLYCONTENTS_COMMON() do {                                   \
@@ -1580,10 +1580,12 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       }
 }
 
+#if 0  /* XXX: Use of GTree no longer needed; use value_string_ext */
 static gint compareGuint32(gconstpointer a, gconstpointer b)
 {
       return GPOINTER_TO_INT(b) - GPOINTER_TO_INT(a);
 }
+#endif
 
 static void
 XConvertCase(register int sym, int *lower, int *upper)
@@ -1893,7 +1895,7 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                           guint byte_order _U_)
 {
       proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp,
-        array_length(modifiers) * keycodes_per_modifier, ENC_NA);
+        (int)array_length(modifiers) * keycodes_per_modifier, ENC_NA);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keycode);
       size_t m;
 

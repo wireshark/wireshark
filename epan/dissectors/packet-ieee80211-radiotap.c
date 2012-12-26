@@ -278,9 +278,9 @@ static const int ieee80211_vht_bw2rate_index[] = {
 };
 
 struct mcs_vht_info {
-	char  *modulation;
-	char  *coding_rate;
-	float  rates[4][2];
+	const char *modulation;
+	const char *coding_rate;
+	float       rates[4][2];
 };
 
 static const struct mcs_vht_info ieee80211_vhtinfo[MAX_MCS_VHT_INDEX+1] = {
@@ -894,8 +894,8 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
 	}
 
 	present = pletohl(&hdr->it_present);
-	offset += sizeof(struct ieee80211_radiotap_header);
-	it_len -= sizeof(struct ieee80211_radiotap_header);
+	offset += (int)sizeof(struct ieee80211_radiotap_header);
+	it_len -= (int)sizeof(struct ieee80211_radiotap_header);
 
 	/* skip over other present bitmaps */
 	xpresent = present;

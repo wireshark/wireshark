@@ -1910,7 +1910,7 @@ ssl3_prf(StringInfo* secret, const gchar* usage,
     return(0);
 }
 
-static gint prf(SslDecryptSession* ssl,StringInfo* secret,gchar* usage,StringInfo* rnd1,StringInfo* rnd2,StringInfo* out)
+static gint prf(SslDecryptSession* ssl,StringInfo* secret,const gchar* usage,StringInfo* rnd1,StringInfo* rnd2,StringInfo* out)
 {
     gint ret;
     if (ssl->version_netorder==SSLV3_VERSION){
@@ -2745,7 +2745,8 @@ ssl_load_key(FILE* fp)
      */
     gnutls_x509_privkey_t priv_key;
     gnutls_datum_t        key;
-    gint                  size, ret;
+    long                  size;
+    gint                  ret;
     guint                 bytes;
 
     Ssl_private_key_t *private_key = g_malloc0(sizeof(Ssl_private_key_t));
@@ -2770,7 +2771,7 @@ ssl_load_key(FILE* fp)
         return NULL;
     }
     key.data = g_malloc(size);
-    key.size = size;
+    key.size = (int)size;
     bytes = (guint) fread(key.data, 1, key.size, fp);
     if (bytes < key.size) {
         ssl_debug_printf("ssl_load_key: can't read from file %d bytes, got %d\n",

@@ -34,7 +34,7 @@ typedef struct _ETYPE_88A4_NV_DATA_HEADER
    guint16 Length;
    guint16 Quality;
 } ETYPE_88A4_NV_DATA_HEADER;
-#define ETYPE_88A4_NV_DATA_HEADER_Len sizeof(ETYPE_88A4_NV_DATA_HEADER)
+#define ETYPE_88A4_NV_DATA_HEADER_Len (int)sizeof(ETYPE_88A4_NV_DATA_HEADER)
 
 typedef struct _NvParserHDR
 {
@@ -43,6 +43,6 @@ typedef struct _NvParserHDR
    guint16 CycleIndex;
    guint16 Reserved;
 } NvParserHDR;
-#define NvParserHDR_Len sizeof(NvParserHDR)
+#define NvParserHDR_Len (int)sizeof(NvParserHDR)
 
 #endif /* _PACKET_NV_H_*/

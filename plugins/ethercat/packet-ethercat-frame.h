@@ -38,6 +38,6 @@ typedef union _EtherCATFrameParser
 } EtherCATFrameParserHDR;
 typedef EtherCATFrameParserHDR *PEtherCATFrameParserHDR;
 
-#define EtherCATFrameParserHDR_Len sizeof(EtherCATFrameParserHDR)
+#define EtherCATFrameParserHDR_Len (int)sizeof(EtherCATFrameParserHDR)
 
 #endif

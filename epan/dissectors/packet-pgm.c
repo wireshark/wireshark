@@ -505,7 +505,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			tvb_memcpy(tvb, (guint8 *)naklist, ptvcursor_current_offset(cursor), optdata_len);
 			firsttime = TRUE;
 			soffset = 0;
-			naks = (optdata_len/sizeof(guint32));
+			naks = (int)(optdata_len/sizeof(guint32));
 			nakbuf = ep_alloc(8192);
 			j = 0;
 			/*

@@ -2371,7 +2371,7 @@ dissect_file_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *par
 	proto_tree* tree = NULL;
 	int old_offset=offset;
 	guint32 type;
-	char *name;
+	const char *name;
 
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,

@@ -2180,7 +2180,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
         ti_dlmap_ies = proto_tree_add_text(tree, tvb, offset, length, "DL-MAP IEs (%d bytes)", length);
         ie_tree = proto_item_add_subtree(ti_dlmap_ies, ett_dlmap_ie);
 
-        /* length = BYTE_TO_NIB(mac_len - sizeof(mac_crc) - 1); */ /* convert length to nibbles */
+        /* length = BYTE_TO_NIB(mac_len - (int)sizeof(mac_crc) - 1); */ /* convert length to nibbles */
 
         while (dl_ie_count--) {
             nib += dissect_dlmap_ie(ie_tree, bufptr, nib, tvb_len * 2, tvb);
@@ -2212,11 +2212,11 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     /* check the length */
     if (MIN(tvb_len, tvb_reported_length(tvb)) >= mac_len)
     {   /* get the CRC */
-        mac_crc = tvb_get_ntohl(tvb, mac_len - sizeof(mac_crc));
+        mac_crc = tvb_get_ntohl(tvb, mac_len - (int)sizeof(mac_crc));
         /* calculate the CRC */
-        calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - sizeof(mac_crc)), mac_len - sizeof(mac_crc));
+        calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - (int)sizeof(mac_crc)), mac_len - (int)sizeof(mac_crc));
         /* display the CRC */
-        generic_item = proto_tree_add_item(base_tree, hf_mac_header_compress_dlmap_crc, tvb, mac_len - sizeof(mac_crc), sizeof(mac_crc), ENC_BIG_ENDIAN);
+        generic_item = proto_tree_add_item(base_tree, hf_mac_header_compress_dlmap_crc, tvb, mac_len - (int)sizeof(mac_crc), (int)sizeof(mac_crc), ENC_BIG_ENDIAN);
         if (mac_crc != calculated_crc)
         {
             proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);

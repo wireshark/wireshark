@@ -33,10 +33,10 @@
 
 /* Used for BACnet statistics */
 typedef struct _bacapp_info_value_t {
-	gchar	*service_type;	
-	gchar	*invoke_id;	
-	gchar	*instance_ident;	
-	gchar	*object_ident;	
+	const gchar	*service_type;	
+	const gchar	*invoke_id;	
+	const gchar	*instance_ident;	
+	const gchar	*object_ident;	
 } bacapp_info_value_t;
 
 #endif /* __PACKET_BACNET_H__ */

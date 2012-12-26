@@ -1513,7 +1513,7 @@ static const value_string rohc_attr_type[] = {
   { 0,	NULL },
 };
 
-#define ISAKMP_HDR_SIZE (sizeof(struct isakmp_hdr) + (2 * COOKIE_SIZE))
+#define ISAKMP_HDR_SIZE ((int)sizeof(struct isakmp_hdr) + (2 * COOKIE_SIZE))
 
 
 #ifdef HAVE_LIBGCRYPT
@@ -4804,7 +4804,7 @@ isakmp_hash_func(gconstpointer c) {
   guint   val = 0, keychunk, i;
 
   /* XOR our icookie down to the size of a guint */
-  for (i = 0; i < COOKIE_SIZE - (COOKIE_SIZE % sizeof(keychunk)); i += sizeof(keychunk)) {
+  for (i = 0; i < COOKIE_SIZE - (COOKIE_SIZE % (guint)sizeof(keychunk)); i += (guint)sizeof(keychunk)) {
     memcpy(&keychunk, &i_cookie[i], sizeof(keychunk));
     val ^= keychunk;
   }
@@ -4826,11 +4826,11 @@ static guint ikev2_key_hash_func(gconstpointer k) {
   guint hash = 0, keychunk, i;
 
   /* XOR our icookie down to the size of a guint */
-  for (i = 0; i < key->spii_len - (key->spii_len % sizeof(keychunk)); i += sizeof(keychunk)) {
+  for (i = 0; i < key->spii_len - (key->spii_len % (guint)sizeof(keychunk)); i += (guint)sizeof(keychunk)) {
     memcpy(&keychunk, &key->spii[i], sizeof(keychunk));
     hash ^= keychunk;
   }
-  for (i = 0; i < key->spir_len - (key->spir_len % sizeof(keychunk)); i += sizeof(keychunk)) {
+  for (i = 0; i < key->spir_len - (key->spir_len % (guint)sizeof(keychunk)); i += (guint)sizeof(keychunk)) {
     memcpy(&keychunk, &key->spir[i], sizeof(keychunk));
     hash ^= keychunk;
   }

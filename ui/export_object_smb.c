@@ -336,9 +336,9 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
                         match_strval(contains, smb_eo_contains_string));
         } else {
             if (new_file->file_length > 0) {
-                percent = (gfloat) 100*new_file->data_gathered/new_file->file_length;
+                percent = (gfloat) (100*new_file->data_gathered/new_file->file_length);
             } else {
-                percent = 0.0;
+                percent = 0.0f;
             }
 
             entry->content_type =
@@ -371,7 +371,7 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
                         current_file->file_length,
                         match_strval(current_file->flag_contains, smb_eo_contains_string));
         } else {
-            percent = (gfloat) 100*current_file->data_gathered/current_file->file_length;
+            percent = (gfloat) (100*current_file->data_gathered/current_file->file_length);
             current_entry->content_type =
                 g_strdup_printf("%s (%"G_GUINT64_FORMAT"/%"G_GUINT64_FORMAT") %s [%5.2f%%]",
                         match_strval(eo_info->fid_type, smb_fid_types),

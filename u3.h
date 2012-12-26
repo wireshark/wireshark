@@ -36,8 +36,8 @@ void u3_runtime_info(GString *str);
 void u3_register_pid(void);
 void u3_deregister_pid(void);
 
-char * u3_expand_device_path(char *path);
-char * u3_contract_device_path(char *path);
+const char * u3_expand_device_path(const char *path);
+const char * u3_contract_device_path(char *path);
 
 #ifdef __cplusplus
 }

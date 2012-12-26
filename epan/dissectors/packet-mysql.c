@@ -1850,7 +1850,7 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree, mysq
 	conn_data->stmt_num_params = tvb_get_letohs(tvb, offset);
 	stmt_data = se_alloc(sizeof(struct my_stmt_data));
 	stmt_data->nparam = conn_data->stmt_num_params;
-	flagsize = sizeof(guint8) * stmt_data->nparam;
+	flagsize = (int)(sizeof(guint8) * stmt_data->nparam);
 	stmt_data->param_flags = se_alloc(flagsize);
 	memset(stmt_data->param_flags, 0, flagsize);
 	se_tree_insert32(conn_data->stmts, stmt_id, stmt_data);

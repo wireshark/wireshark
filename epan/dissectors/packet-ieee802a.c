@@ -55,7 +55,7 @@ static GHashTable *oui_info_table = NULL;
  * Add an entry for a new OUI.
  */
 void
-ieee802a_add_oui(guint32 oui, const char *table_name, char *table_ui_name,
+ieee802a_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
     hf_register_info *hf_item)
 {
 	oui_info_t *new_info;

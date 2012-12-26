@@ -408,7 +408,7 @@ toolbar_new(void)
 }
 
 void
-set_toolbar_object_data(gchar *key, gpointer data)
+set_toolbar_object_data(const gchar *key, gpointer data)
 {
     g_object_set_data(G_OBJECT(open_button), key, data);
     g_object_set_data(G_OBJECT(reload_button), key, data);

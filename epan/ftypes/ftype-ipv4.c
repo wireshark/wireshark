@@ -49,25 +49,16 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 	guint32	addr;
 	unsigned int nmask_bits;
 
-	char *has_slash, *s_copy = NULL;
+	char *has_slash;
 	char *net_str, *addr_str;
 	fvalue_t *nmask_fvalue;
 
 	/* Look for CIDR: Is there a single slash in the string? */
 	has_slash = strchr(s, '/');
 	if (has_slash) {
-		/* Make a copy of the string and use strtok() to
-		 * get the address portion. */
-		s_copy = ep_strdup(s);
-		addr_str = strtok(s_copy, "/");
-
-		/* I just checked for slash! I shouldn't get NULL here.
-		 * Double check just in case. */
-		if (!addr_str) {
-			logfunc("Unexpected strtok() error parsing IP address: %s",
-			    s_copy);
-			return FALSE;
-		}
+		/* Make a copy of the string up to but not including the
+		 * slash; that's the address portion. */
+		addr_str = ep_strndup(s, has_slash - s);
 	}
 	else {
 		addr_str = s;
@@ -83,14 +74,8 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 
 	/* If CIDR, get netmask bits. */
 	if (has_slash) {
-		net_str = strtok(NULL, "/");
-		/* I checked for slash! I shouldn't get NULL here.
-		 * Double check just in case. */
-		if (!net_str) {
-			logfunc("Unexpected strtok() error parsing netmask: %s",
-			    s_copy);
-			return FALSE;
-		}
+		/* Skip past the slash */
+		net_str = has_slash + 1;
 
 		/* XXX - this is inefficient */
 		nmask_fvalue = fvalue_from_unparsed(FT_UINT32, net_str, FALSE, logfunc);

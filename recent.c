@@ -424,7 +424,7 @@ write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
 
 /* set one user's recent common file key/value pair */
 static prefs_set_pref_e
-read_set_recent_common_pair_static(gchar *key, gchar *value,
+read_set_recent_common_pair_static(gchar *key, const gchar *value,
 				   void *private_data _U_,
 				   gboolean return_range_errors _U_)
 {
@@ -443,33 +443,33 @@ read_set_recent_common_pair_static(gchar *key, gchar *value,
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
-    recent.gui_geometry_main_x = num;
+    recent.gui_geometry_main_x = (gint)num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_Y) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
-    recent.gui_geometry_main_y = num;
+    recent.gui_geometry_main_y = (gint)num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_WIDTH) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
     if (num <= 0)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_main_width = num;
+    recent.gui_geometry_main_width = (gint)num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
     if (num <= 0)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_main_height = num;
+    recent.gui_geometry_main_height = (gint)num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
     if (num <= 0)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_status_pane_right = num;
+    recent.gui_geometry_status_pane_right = (gint)num;
     recent.has_gui_geometry_status_pane = TRUE;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT) == 0) {
     num = strtol(value, &p, 0);
@@ -477,7 +477,7 @@ read_set_recent_common_pair_static(gchar *key, gchar *value,
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
     if (num <= 0)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_status_pane_left = num;
+    recent.gui_geometry_status_pane_left = (gint)num;
     recent.has_gui_geometry_status_pane = TRUE;
   } else if (strcmp(key, RECENT_LAST_USED_PROFILE) == 0) {
     if ((strcmp(value, DEFAULT_PROFILE) != 0) && profile_exists (value, FALSE)) {
@@ -489,7 +489,7 @@ read_set_recent_common_pair_static(gchar *key, gchar *value,
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
     if (num <= 0)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_wlan_stats_pane = num;
+    recent.gui_geometry_wlan_stats_pane = (gint)num;
   } else if (strncmp(key, RECENT_GUI_GEOMETRY, sizeof(RECENT_GUI_GEOMETRY)-1) == 0) {
     /* now have something like "gui.geom.main.x", split it into win and sub_key */
     char *win = &key[sizeof(RECENT_GUI_GEOMETRY)-1];
@@ -520,7 +520,8 @@ read_set_recent_common_pair_static(gchar *key, gchar *value,
 
 /* set one user's recent file key/value pair */
 static prefs_set_pref_e
-read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_,
+read_set_recent_pair_static(gchar *key, const gchar *value,
+			    void *private_data _U_,
 			    gboolean return_range_errors _U_)
 {
   long num;
@@ -607,12 +608,12 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_,
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
-    recent.gui_zoom_level = num;
+    recent.gui_zoom_level = (gint)num;
   } else if (strcmp(key, RECENT_GUI_BYTES_VIEW) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
-    recent.gui_bytes_view = num;
+    recent.gui_bytes_view = (gint)num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.gui_geometry_main_maximized = TRUE;
@@ -627,7 +628,7 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_,
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
     if (num <= 0)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_main_upper_pane = num;
+    recent.gui_geometry_main_upper_pane = (gint)num;
     recent.has_gui_geometry_main_upper_pane = TRUE;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE) == 0) {
     num = strtol(value, &p, 0);
@@ -635,7 +636,7 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_,
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
     if (num <= 0)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_main_lower_pane = num;
+    recent.gui_geometry_main_lower_pane = (gint)num;
     recent.has_gui_geometry_main_lower_pane = TRUE;
   }
   else if (strcmp(key, RECENT_KEY_COL_WIDTH) == 0) {
@@ -693,7 +694,7 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_,
       }
 
       col_l_elt      = col_l_elt->next;
-      cfmt->width    = strtol(col_l_elt->data, &p, 0);
+      cfmt->width    = (gint)strtol(col_l_elt->data, &p, 0);
       if (p == col_l_elt->data || (*p != '\0' && *p != ':')) {
 	g_free(cfmt->cfield);
 	g_free(cfmt);
@@ -723,7 +724,8 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_,
 
 /* set one user's recent file key/value pair */
 static prefs_set_pref_e
-read_set_recent_pair_dynamic(gchar *key, gchar *value, void *private_data _U_,
+read_set_recent_pair_dynamic(gchar *key, const gchar *value,
+			     void *private_data _U_,
 			     gboolean return_range_errors _U_)
 {
   if (!isprint_string(value)) {

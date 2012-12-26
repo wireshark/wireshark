@@ -907,8 +907,8 @@ extern AVP* match_avp(AVP* src, AVP* op) {
 	gchar* p;
 	guint ls;
 	guint lo;
-	float fs = 0.0;
-	float fo = 0.0;
+	float fs = 0.0f;
+	float fo = 0.0f;
 	gboolean lower = FALSE;
 
 #ifdef _AVP_DEBUGGING

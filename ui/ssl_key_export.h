@@ -35,14 +35,14 @@ extern "C" {
  *
  * @return The number of available SSL session keys.
  */
-extern int ssl_session_key_count();
+extern int ssl_session_key_count(void);
 
 /** Dump our SSL Session Keys to a string
  *
  * @return A string containing all the SSL Session Keys. Must be freed with
  * g_free().
  */
-extern gchar* ssl_export_sessions();
+extern gchar* ssl_export_sessions(void);
 
 #ifdef __cplusplus
 }

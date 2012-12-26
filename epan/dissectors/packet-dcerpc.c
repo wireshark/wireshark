@@ -4348,7 +4348,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     hdr.flags = tvb_get_guint8(tvb, offset++);
     tvb_memcpy(tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
-    offset += sizeof (hdr.drep);
+    offset += (int)sizeof (hdr.drep);
 
     hdr.frag_len = dcerpc_tvb_get_ntohs(tvb, offset, hdr.drep);
     offset += 2;
@@ -4441,7 +4441,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree_add_uint(drep_tree, hf_dcerpc_drep_byteorder, tvb, offset, 1, hdr.drep[0] >> 4);
     proto_tree_add_uint(drep_tree, hf_dcerpc_drep_character, tvb, offset, 1, hdr.drep[0] & 0x0f);
     proto_tree_add_uint(drep_tree, hf_dcerpc_drep_fp, tvb, offset+1, 1, hdr.drep[1]);
-    offset += sizeof (hdr.drep);
+    offset += (int)sizeof (hdr.drep);
 
     proto_tree_add_uint(dcerpc_tree, hf_dcerpc_cn_frag_len, tvb, offset, 2, hdr.frag_len);
     offset += 2;
@@ -5201,7 +5201,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     col_add_str(pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
 
     tvb_memcpy(tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
-    offset += sizeof (hdr.drep);
+    offset += (int)sizeof (hdr.drep);
     hdr.serial_hi = tvb_get_guint8(tvb, offset++);
     dcerpc_tvb_get_uuid(tvb, offset, hdr.drep, &hdr.obj_id);
     offset += 16;
@@ -5306,7 +5306,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                                    val_to_str_const(hdr.drep[1], drep_fp_vals, "Unknown"));
         }
     }
-    offset += sizeof (hdr.drep);
+    offset += (int)sizeof (hdr.drep);
 
     if (tree)
         proto_tree_add_uint(dcerpc_tree, hf_dcerpc_dg_serial_hi, tvb, offset, 1, hdr.serial_hi);

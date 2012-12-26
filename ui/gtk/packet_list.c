@@ -385,7 +385,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 			      "This string has the same syntax as a display filter string.");
 	field_te = gtk_entry_new();
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), field_te, 1, 2, 2, 3);
-	g_object_set_data (G_OBJECT(field_te), E_FILT_FIELD_NAME_ONLY_KEY, "");
+	g_object_set_data (G_OBJECT(field_te), E_FILT_FIELD_NAME_ONLY_KEY, (gpointer)"");
 	g_signal_connect(field_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
 	g_signal_connect(field_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
 	g_signal_connect(win, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
@@ -1039,7 +1039,7 @@ scroll_to_and_select_iter(GtkTreeModel *model, GtkTreeSelection *selection, GtkT
 			path,
 			NULL,
 			TRUE,	/* use_align */
-			0.5,	/* row_align determines where the row is placed, 0.5 means center */
+			0.5f,	/* row_align determines where the row is placed, 0.5 means center */
 			0); 	/* The horizontal alignment of the column */
 
 	/* "cursor-changed" signal triggers packet_list_select_cb() */
@@ -1105,7 +1105,7 @@ packet_list_moveto_end(void)
 			path,
 			NULL,
 			TRUE,	/* use_align */
-			0.5,	/* row_align determines where the row is placed, 0.5 means center */
+			0.5f,	/* row_align determines where the row is placed, 0.5 means center */
 			0); 	/* The horizontal alignment of the column */
 
 	gtk_tree_path_free(path);

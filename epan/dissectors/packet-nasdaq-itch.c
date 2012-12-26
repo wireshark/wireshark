@@ -157,7 +157,7 @@ order_ref_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree
 
   if (nasdaq_itch_tree || col_info) {
       const char *str_value = tvb_get_ephemeral_string(tvb, offset, 9);
-      guint32 value = strtoul(str_value, NULL, 10);
+      guint32 value = (guint32)strtoul(str_value, NULL, 10);
 
       proto_tree_add_uint(nasdaq_itch_tree, hf_nasdaq_itch_order_reference, tvb, offset, 9, value);
       if (col_info) {
@@ -177,7 +177,7 @@ time_stamp(tvbuff_t *tvb, proto_tree *nasdaq_itch_tree, int id, int offset, int 
       const char *display = "";
       const char *str_value = tvb_get_ephemeral_string(tvb, offset, size);
 
-      ms = val = strtoul(str_value, NULL, 10);
+      ms = val = (guint32)strtoul(str_value, NULL, 10);
       switch (size) {
       case 3:
           display = ep_strdup_printf(" %03u" , val);
@@ -203,7 +203,7 @@ number_of_shares(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree
 
   if (nasdaq_itch_tree || col_info) {
       const char *str_value = tvb_get_ephemeral_string(tvb, offset, size);
-      guint32 value = strtoul(str_value, NULL, 10);
+      guint32 value = (guint32)strtoul(str_value, NULL, 10);
 
       proto_tree_add_uint(nasdaq_itch_tree, id, tvb, offset, size, value);
       if (col_info) {

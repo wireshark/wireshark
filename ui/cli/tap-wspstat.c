@@ -195,7 +195,7 @@ wspstat_draw(void *psp)
 	printf("\nStatus code in reply packets\n");
 	printf(		"Status Code    Packets  Description\n");
 	g_hash_table_foreach( sp->hash, (GHFunc) wsp_print_statuscode,
-			"       0x%02X  %9d  %s\n" ) ;
+			(gpointer)"       0x%02X  %9d  %s\n" ) ;
 	printf("===================================================================\n");
 }
 

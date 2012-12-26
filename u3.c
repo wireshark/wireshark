@@ -57,7 +57,7 @@ static char *pid_file = NULL;
 static char *u3devicepath = (char*)-1;
 static gchar *newpath = NULL;
 
-static char *u3_change_path(char *path, const char *old, const char *new);
+static const char *u3_change_path(const char *path, const char *old, const char *new);
 
 gboolean u3_active(void)
 {
@@ -153,18 +153,18 @@ void u3_deregister_pid(void)
   }
 }
 
-char *u3_expand_device_path(char *path)
+const char *u3_expand_device_path(const char *path)
 {
   return u3_change_path(path, U3_DEVICE_PATH_VAR, NULL);
 }
 
 
-char *u3_contract_device_path(char *path)
+const char *u3_contract_device_path(char *path)
 {
   return u3_change_path(path, NULL, U3_DEVICE_PATH_VAR);
 }
 
-static char *u3_change_path(char *path, const char *old, const char *new)
+static const char *u3_change_path(const char *path, const char *old, const char *new)
 {
 
   if(u3devicepath == (char*)-1) {

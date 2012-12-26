@@ -262,7 +262,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_widget_show(field_lb);
 
     field_te = gtk_entry_new();
-    g_object_set_data (G_OBJECT(field_te), E_FILT_FIELD_NAME_ONLY_KEY, "");
+    g_object_set_data (G_OBJECT(field_te), E_FILT_FIELD_NAME_ONLY_KEY, (gpointer)"");
     g_signal_connect(field_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
 
     /* XXX: column_field_changed_cb will be called for every character entered in the entry box.      */
@@ -293,7 +293,7 @@ column_prefs_show(GtkWidget *prefs_window) {
 
     occurrence_te = gtk_entry_new();
     gtk_entry_set_max_length (GTK_ENTRY(occurrence_te),4);
-    g_object_set_data (G_OBJECT(occurrence_te), "occurrence", "");
+    g_object_set_data (G_OBJECT(occurrence_te), "occurrence", (gpointer)"");
 
     /* XXX: column_occurrence_changed_cb will be called for every character entered in the entry box.      */
     /*       Consider Changing logic so that the field is "accepted" only when a return is entered ?? */

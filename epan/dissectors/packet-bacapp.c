@@ -4658,7 +4658,7 @@ register_bacapp_stat_trees(void)
 
 /* 'data' must be ep_ allocated */
 static gint
-updateBacnetInfoValue(gint whichval, gchar *data)
+updateBacnetInfoValue(gint whichval, const gchar *data)
 {
     if (whichval == BACINFO_SERVICE) {
         bacinfo.service_type = data;

@@ -366,7 +366,7 @@ xmpp_ep_init_array_t(const gchar** array, gint len)
 }
 
 xmpp_attr_t*
-xmpp_ep_init_attr_t(gchar *value, gint offset, gint length)
+xmpp_ep_init_attr_t(const gchar *value, gint offset, gint length)
 {
     xmpp_attr_t *result;
     result = ep_alloc(sizeof(xmpp_attr_t));
@@ -552,7 +552,7 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
         xmpp_copy_hash_table(parent->namespaces, node->namespaces);
     } else
     {
-        g_hash_table_insert(node->namespaces, "", "jabber:client");
+        g_hash_table_insert(node->namespaces, (gpointer)"", (gpointer)"jabber:client");
     }
 
     if(xml_frame->item != NULL)
@@ -613,7 +613,7 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
                         g_hash_table_insert(node->namespaces, (gpointer)ep_strdup(&attr->name[6]), (gpointer)ep_strdup(attr->value));
                     } else if(attr->name[5] == '\0')
                     {
-                        g_hash_table_insert(node->namespaces, "", (gpointer)ep_strdup(attr->value));
+                        g_hash_table_insert(node->namespaces, (gpointer)"", (gpointer)ep_strdup(attr->value));
                     }
                 }
 
@@ -946,16 +946,16 @@ xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *p
 
 struct name_attr_t
 {
-    gchar *name;
-    gchar *attr_name;
-    gchar *attr_value;
+    const gchar *name;
+    const gchar *attr_name;
+    const gchar *attr_value;
 };
 
 /*
 returns pointer to the struct that contains 3 strings(element name, attribute name, attribute value)
 */
 gpointer
-xmpp_name_attr_struct(gchar *name, gchar *attr_name, gchar *attr_value)
+xmpp_name_attr_struct(const gchar *name, const gchar *attr_name, const gchar *attr_value)
 {
     struct name_attr_t *result;
 
@@ -979,7 +979,7 @@ xmpp_display_elems(proto_tree *tree, xmpp_element_t *parent, packet_info *pinfo,
         {
             gboolean loop = TRUE;
 
-            struct
+            const struct
             {
                 gchar *name;
                 gchar *attr_name;
@@ -997,7 +997,7 @@ xmpp_display_elems(proto_tree *tree, xmpp_element_t *parent, packet_info *pinfo,
         } else if(elems[i].type == NAME)
         {
             gboolean loop = TRUE;
-            gchar *name = elems[i].data;
+            const gchar *name = elems[i].data;
 
             while(loop && (elem = xmpp_steal_element_by_name(parent, name))!=NULL)
             {
@@ -1009,7 +1009,7 @@ xmpp_display_elems(proto_tree *tree, xmpp_element_t *parent, packet_info *pinfo,
         else if(elems[i].type == ATTR)
         {
             gboolean loop = TRUE;
-            struct {
+            const struct {
                 gchar *name;
                 gchar *attr_name;
                 gchar *attr_value;
@@ -1025,7 +1025,7 @@ xmpp_display_elems(proto_tree *tree, xmpp_element_t *parent, packet_info *pinfo,
         } else if(elems[i].type == NAMES)
         {
             gboolean loop = TRUE;
-            xmpp_array_t *names = elems[i].data;
+            const xmpp_array_t *names = elems[i].data;
 
             while(loop && (elem =  xmpp_steal_element_by_names(parent, (const gchar**)names->data, names->length))!=NULL)
             {
@@ -1043,9 +1043,9 @@ xmpp_display_elems(proto_tree *tree, xmpp_element_t *parent, packet_info *pinfo,
 function checks that variable value is in array ((xmpp_array_t)data)->data
 */
 void
-xmpp_val_enum_list(packet_info *pinfo, proto_item *item, gchar *name, gchar *value, gpointer data)
+xmpp_val_enum_list(packet_info *pinfo, proto_item *item, const gchar *name, const gchar *value, gconstpointer data)
 {
-    xmpp_array_t *enums_array = data;
+    const xmpp_array_t *enums_array = data;
 
     gint i;
     gboolean value_in_enums = FALSE;

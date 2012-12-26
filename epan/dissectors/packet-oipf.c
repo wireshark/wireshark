@@ -49,7 +49,7 @@ static int hf_oipf_ciplus_data = -1;
    for the dissector table directly, we have to process it as a string
    (the string must not be a local variable as glib stores a pointer to
    it in the hash table) */
-static gchar *sas_app_id_str_oipf = "0x0108113101190000";
+static const gchar sas_app_id_str_oipf[] = "0x0108113101190000";
 
 static const value_string oipf_ciplus_cmd_id[] = {
     { 0x01, "send_msg" },

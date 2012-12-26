@@ -179,7 +179,7 @@ WSLUA_METAMETHOD NSTime__lt(lua_State* L) { /* Compares two NSTimes */
 }
 
 typedef struct {
-    gchar* name;
+    const gchar* name;
     lua_CFunction get;
     lua_CFunction set;
 } nstime_actions_t;

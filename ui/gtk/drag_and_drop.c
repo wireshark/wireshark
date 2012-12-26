@@ -375,7 +375,7 @@ dnd_init(GtkWidget *w)
     static GtkTargetEntry target_entry[] = {
          /*{"STRING", 0, DND_TARGET_STRING},*/
          /*{"text/plain", 0, DND_TARGET_STRING},*/
-         {"text/uri-list", 0, DND_TARGET_URL}
+         {(gchar *)"text/uri-list", 0, DND_TARGET_URL}
     };
 
     /* set this window as a dnd destination */

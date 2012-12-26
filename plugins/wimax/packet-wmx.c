@@ -597,11 +597,11 @@ static gint ett_wimax_cdma = -1;
 static gint ett_wimax_ffb = -1;
 #endif
 
-static gchar *tlv_val_1byte = "TLV value: %s (0x%02x)";
-static gchar *tlv_val_2byte = "TLV value: %s (0x%04x)";
-static gchar *tlv_val_3byte = "TLV value: %s (0x%06x)";
-static gchar *tlv_val_4byte = "TLV value: %s (0x%08x)";
-static gchar *tlv_val_5byte = "TLV value: %s (0x%08x...)";
+static const gchar tlv_val_1byte[] = "TLV value: %s (0x%02x)";
+static const gchar tlv_val_2byte[] = "TLV value: %s (0x%04x)";
+static const gchar tlv_val_3byte[] = "TLV value: %s (0x%06x)";
+static const gchar tlv_val_4byte[] = "TLV value: %s (0x%08x)";
+static const gchar tlv_val_5byte[] = "TLV value: %s (0x%08x...)";
 
 /*************************************************************/
 /* add_tlv_subtree()                                         */
@@ -627,7 +627,7 @@ proto_tree *add_tlv_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hf
 	guint8 size_of_tlv_length_field;
 	guint8 tlv_type;
 	guint32 tlv_value;
-	gchar *hex_fmt;
+	const gchar *hex_fmt;
 
 	/* Retrieve the necessary TLV information */
 	tlv_val_offset = get_tlv_value_offset(this);
@@ -719,7 +719,7 @@ proto_tree *add_protocol_subtree(tlv_info_t *this, gint idx, proto_tree *tree, i
 	guint32 tlv_value;
 	va_list ap; /* points to each unnamed arg in turn */
 	gchar *message = NULL;
-	gchar *hex_fmt;
+	const gchar *hex_fmt;
 
 	/* Retrieve the necessary TLV information */
 	tlv_val_offset = get_tlv_value_offset(this);

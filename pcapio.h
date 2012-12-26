@@ -29,16 +29,16 @@
    Returns TRUE on success, FALSE on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
 extern gboolean
-libpcap_write_file_header(FILE *fp, int linktype, int snaplen, gboolean ts_nsecs, long *bytes_written, int *err);
+libpcap_write_file_header(FILE *fp, int linktype, int snaplen, gboolean ts_nsecs, guint64 *bytes_written, int *err);
 
 /** Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 extern gboolean
 libpcap_write_packet(FILE *fp,
-                     guint32 sec, guint32 usec,
+                     time_t sec, guint32 usec,
                      guint32 caplen, guint32 len,
-                     const unsigned char *pd,
-                     long *bytes_written, int *err);
+                     const guint8 *pd,
+                     guint64 *bytes_written, int *err);
 
 /** Write a section header block (SHB)
  *
@@ -58,7 +58,7 @@ libpcap_write_session_header_block(FILE *fp,             /**< File pointer */
                                                           * An UTF-8 string containing the name of the application  used to create this section.
                                                           */
                                    guint64 section_length,
-                                   long *bytes_written,
+                                   guint64 *bytes_written,
                                    int *err);
 
 extern gboolean
@@ -70,7 +70,7 @@ libpcap_write_interface_description_block(FILE *fp,
                                           const char *os,       /* IDB_OS               12 */
                                           int link_type,
                                           int snap_len,
-                                          long *bytes_written,
+                                          guint64 *bytes_written,
                                           guint64 if_speed,     /* IDB_IF_SPEED          8 */
                                           guint8 tsresol,       /* IDB_TSRESOL           9 */
                                           int *err);
@@ -78,7 +78,7 @@ libpcap_write_interface_description_block(FILE *fp,
 extern gboolean
 libpcap_write_interface_statistics_block(FILE *fp,
                                          guint32 interface_id,
-                                         long *bytes_written,
+                                         guint64 *bytes_written,
                                          const char *comment,   /* OPT_COMMENT           1 */
                                          guint64 isb_starttime, /* ISB_STARTTIME         2 */
                                          guint64 isb_endtime,   /* ISB_ENDTIME           3 */
@@ -89,11 +89,11 @@ libpcap_write_interface_statistics_block(FILE *fp,
 extern gboolean
 libpcap_write_enhanced_packet_block(FILE *fp,
                                     const char *comment,
-                                    guint32 sec, guint32 usec,
+                                    time_t sec, guint32 usec,
                                     guint32 caplen, guint32 len,
                                     guint32 interface_id,
                                     guint ts_mul,
-                                    const unsigned char *pd,
+                                    const guint8 *pd,
                                     guint32 flags,
-                                    long *bytes_written,
+                                    guint64 *bytes_written,
                                     int *err);

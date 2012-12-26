@@ -181,7 +181,7 @@ typedef struct _dialog_data_t {
 	GtkWidget *notebook;
 	GtkWidget *save_voice_as_w;
 	GtkWidget *save_csv_as_w;
-	gint notebook_signal_id;
+	gulong notebook_signal_id;
 	dialog_graph_t dialog_graph;
 } dialog_data_t;
 
@@ -2279,7 +2279,8 @@ static void save_voice_as_destroy_cb(GtkWidget *win _U_, gpointer data)
 /* XXX what about endians here? could go something wrong? */
 static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 {
-	int to_fd, forw_fd, rev_fd, fread_cnt = 0, rread = 0, fwritten, rwritten;
+	int to_fd, forw_fd, rev_fd;
+	size_t fread_cnt = 0, rread = 0, fwritten, rwritten;
 	gchar f_pd[1] = {0};
 	gchar r_pd[1] = {0};
 	gint16 sample;
@@ -2317,7 +2318,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		/* XXX: Should we be checking for write errors below ? */
 		phtonl(pd, 0x2e736e64);
 		fwritten = ws_write(to_fd, pd, 4);
-		if ((fwritten < 4) || (fread_cnt < 0)) {
+		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
 			ws_close(rev_fd);
 			ws_close(to_fd);
@@ -2327,7 +2328,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		/* header offset == 24 bytes */
 		phtonl(pd, 24);
 		fwritten = ws_write(to_fd, pd, 4);
-		if ((fwritten < 4) || (fread_cnt < 0)) {
+		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
 			ws_close(rev_fd);
 			ws_close(to_fd);
@@ -2337,7 +2338,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		/* total length, it is permited to set this to 0xffffffff */
 		phtonl(pd, -1);
 		fwritten = ws_write(to_fd, pd, 4);
-		if ((fwritten < 4) || (fread_cnt < 0)) {
+		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
 			ws_close(rev_fd);
 			ws_close(to_fd);
@@ -2347,7 +2348,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		/* encoding format == 16-bit linear PCM */
 		phtonl(pd, 3);
 		fwritten = ws_write(to_fd, pd, 4);
-		if ((fwritten < 4) || (fread_cnt < 0)) {
+		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
 			ws_close(rev_fd);
 			ws_close(to_fd);
@@ -2357,7 +2358,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		/* sample rate == 8000 Hz */
 		phtonl(pd, 8000);
 		fwritten = ws_write(to_fd, pd, 4);
-		if ((fwritten < 4) || (fread_cnt < 0)) {
+		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
 			ws_close(rev_fd);
 			ws_close(to_fd);
@@ -2367,7 +2368,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		/* channels == 1 */
 		phtonl(pd, 1);
 		fwritten = ws_write(to_fd, pd, 4);
-		if ((fwritten < 4) || (fread_cnt < 0)) {
+		if ((fwritten < 4) || (fread_cnt == (size_t)-1)) {
 			ws_close(forw_fd);
 			ws_close(rev_fd);
 			ws_close(to_fd);
@@ -2407,7 +2408,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 
 					fwritten = ws_write(to_fd, pd, 2);
-					if ((fwritten < 2) || (fread_cnt < 0)) {
+					if ((fwritten < 2) || (fread_cnt == (size_t)-1)) {
 						ws_close(forw_fd);
 						ws_close(rev_fd);
 						ws_close(to_fd);
@@ -2448,7 +2449,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 
 					rwritten = ws_write(to_fd, pd, 2);
-					if ((rwritten < 2) || (rread < 0)) {
+					if ((rwritten < 2) || (rread == (size_t)-1)) {
 						ws_close(forw_fd);
 						ws_close(rev_fd);
 						ws_close(to_fd);
@@ -2534,7 +2535,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 
 
 					rwritten = ws_write(to_fd, pd, 2);
-					if ((rwritten < 2) || (rread < 0) || (fread_cnt < 0)) {
+					if ((rwritten < 2) || (rread == (size_t)-1) || (fread_cnt == (size_t)-1)) {
 						ws_close(forw_fd);
 						ws_close(rev_fd);
 						ws_close(to_fd);
@@ -2587,7 +2588,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 
 			rwritten = ws_write(to_fd, pd, 1);
 
-			if ((rwritten < rread) || (rwritten < 0) || (rread < 0)) {
+			if ((rwritten < rread) || (rwritten == (size_t)-1) || (rread == (size_t)-1)) {
 				ws_close(forw_fd);
 				ws_close(rev_fd);
 				ws_close(to_fd);

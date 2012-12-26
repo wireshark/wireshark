@@ -1317,7 +1317,7 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start);
     " <Warning: Quoted-string value has been encoded with a trailing quote>"
 
 /* WSP well-known header parsing function prototypes;
- * will be listed in the function lookup table WellKnownHeaders[] */
+ * will be listed in the function lookup table WellKnownHeader[] */
 static guint32 wkh_default (proto_tree *tree, tvbuff_t *tvb,
         guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_accept (proto_tree *tree, tvbuff_t *tvb,
@@ -1413,9 +1413,6 @@ static guint32 wkh_www_authenticate (proto_tree *tree, tvbuff_t *tvb,
 static guint32 wkh_authorization (proto_tree *tree, tvbuff_t *tvb,
         guint32 hdr_start, packet_info *pinfo _U_);
 static guint32 wkh_proxy_authorization (proto_tree *tree, tvbuff_t *tvb,
-        guint32 hdr_start, packet_info *pinfo _U_);
-/* Pragma */
-static guint32 wkh_pragma (proto_tree *tree, tvbuff_t *tvb,
         guint32 hdr_start, packet_info *pinfo _U_);
 /* Integer-value */
 static guint32 wkh_content_length (proto_tree *tree, tvbuff_t *tvb,

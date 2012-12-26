@@ -482,8 +482,6 @@ ssl_association_info_(gpointer key_ _U_, gpointer value_, gpointer s_)
     return FALSE;
 }
 
-extern GTree* ssl_associations;
-
 /**
  * @return an information string on the SSL protocol associations. The string has ephemeral lifetime/scope.
  */

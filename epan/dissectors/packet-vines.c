@@ -299,6 +299,11 @@ dissect_vines_frp_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	guint8   vines_frp_ctrl;
 
+	if (pinfo->srcport != pinfo->destport) {
+		/* Require that the source and destination ports be the
+		 * port for Vines FRP. */
+		return 0;
+	}
 	if (!tvb_bytes_exist(tvb, 0, 1)) {
 		/* Too short to check the flags value. */
 		return 0;
@@ -357,8 +362,6 @@ proto_reg_handoff_vines_frp(void)
 	    proto_vines_frp);
 	dissector_add_uint("ip.proto", IP_PROTO_VINES, vines_frp_handle);
 
-	/* XXX: AFAIK, src and dst port must be the same; should
-	   the dissector check for that? */
 	vines_frp_new_handle = new_create_dissector_handle(dissect_vines_frp_new,
 	    proto_vines_frp);
 	dissector_add_uint("udp.port", UDP_PORT_VINES, vines_frp_new_handle);

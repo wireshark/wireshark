@@ -80,9 +80,8 @@ static int
 gluster_pmap_portbybrick_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree)
 {
-	gchar *brick = NULL;
 	offset = dissect_rpc_string(tvb, tree, hf_gluster_brick, offset,
-								&brick);
+								NULL);
 	return offset;
 }
 
@@ -96,7 +95,7 @@ gluster_dump_reply_detail(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
 	proto_item *detail_item;
 	proto_tree *detail_tree;
-	gchar *progname = NULL;
+	const gchar *progname = NULL;
 
 	detail_item = proto_tree_add_text(tree, tvb, offset, -1,
 							"Available Progam: ");

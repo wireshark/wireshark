@@ -672,7 +672,7 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree)
 }
 
 /* forward declarations of helper functions for 'dissect_config_frame()' */
-static gint dissect_CHNAM  (tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt, char *prefix);
+static gint dissect_CHNAM  (tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt, const char *prefix);
 static gint dissect_PHUNIT (tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt);
 static gint dissect_ANUNIT (tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt);
 static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt);
@@ -1171,7 +1171,7 @@ static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 }
 
 /* used by 'dissect_config_frame()' to dissect the "channel name"-fields */
-static gint dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt, char *prefix)
+static gint dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt, const char *prefix)
 {
 	proto_item *temp_item = NULL;
 	proto_tree *temp_tree = NULL;

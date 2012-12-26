@@ -554,7 +554,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
       label_string = ep_strbuf_append(label_string, label);
 
       if (tvb_get_guint8(tvb, item_offset + 5) == '*') { /* continuations */
-        int num = strtol(tvb_get_ephemeral_string(tvb, item_offset + 6, value_offset - item_offset + 6), NULL, 10);
+        int num = (int)strtol(tvb_get_ephemeral_string(tvb, item_offset + 6, value_offset - item_offset + 6), NULL, 10);
         proto_tree_add_string_format(tree, hf_imf_siolabel_label, tvb, value_offset, value_length,
                                      label, "Label[%d]: \"%s\"", num, label);
       } else {

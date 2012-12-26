@@ -1841,7 +1841,7 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_count_sb, 1, 2, 1, 2);
 
   sampling_lb = gtk_label_new("packets");
-  gtk_misc_set_alignment(GTK_MISC(sampling_lb), 0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(sampling_lb), 0, 0.5f);
   gtk_table_attach_defaults(GTK_TABLE(sampling_tb), sampling_lb, 2, 3, 1, 2);
 
   /* "Sampling by timer" row */
@@ -1861,7 +1861,7 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_timer_sb, 1, 2, 2, 3);
 
   sampling_lb = gtk_label_new("milliseconds");
-  gtk_misc_set_alignment(GTK_MISC(sampling_lb), 0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(sampling_lb), 0, 0.5f);
   gtk_table_attach_defaults(GTK_TABLE(sampling_tb), sampling_lb, 2, 3, 2, 3);
 #endif
 
@@ -2353,7 +2353,7 @@ update_options_table(gint indx)
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
   GtkTreeIter   iter;
-  gchar        *temp, *path_str, *snaplen_string, *linkname = "";
+  gchar        *temp, *path_str, *snaplen_string, *linkname;
   GList        *list;
   link_row     *linkr = NULL;
   gboolean      enabled;
@@ -2366,11 +2366,12 @@ update_options_table(gint indx)
     } else {
       temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
     }
+    linkname = NULL;
     for (list=device.links; list!=NULL; list=g_list_next(list))
     {
       linkr = (link_row*)(list->data);
-      linkname = g_strdup(linkr->name);
       if (linkr->dlt == device.active_dlt) {
+        linkname = g_strdup(linkr->name);
         break;
       }
     }
@@ -2393,11 +2394,11 @@ update_options_table(gint indx)
         g_array_insert_val(global_capture_opts.all_ifaces, marked_interface, device);
       }
   #if defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
+      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname?linkname:"This should not happen",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
   #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
+      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, linkname?linkname:"This should not happen",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
   #else
-      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
+      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, linkname?linkname:"This should not happen",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
   #endif
       if (global_capture_opts.num_selected > 0) {
         gtk_widget_set_sensitive(ok_bt, TRUE);
@@ -3455,7 +3456,7 @@ pipe_del_bt_clicked_cb(GtkWidget *w _U_, gpointer data _U_)
   GtkTreeModel     *model, *optmodel;
   GtkTreeIter       iter, optiter;
   GtkTreeView      *if_cb;
-  gchar            *name, *optname = "";
+  gchar            *name, *optname = NULL;
   guint             i;
 
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(pipe_l));
@@ -3477,7 +3478,7 @@ pipe_del_bt_clicked_cb(GtkWidget *w _U_, gpointer data _U_)
       if (gtk_tree_model_get_iter_first (optmodel, &optiter)) {
         do {
           gtk_tree_model_get(optmodel, &optiter, IFACE_HIDDEN_NAME, &optname, -1);
-          if (strcmp(optname, name) == 0) {
+          if (optname != NULL && strcmp(optname, name) == 0) {
             gtk_list_store_remove(GTK_LIST_STORE(gtk_tree_view_get_model(if_cb)), &optiter);
             break;
           }
@@ -4485,7 +4486,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   column = gtk_tree_view_get_column(GTK_TREE_VIEW (view), INTERFACE);
   gtk_tree_view_column_set_min_width(column, 200);
   gtk_tree_view_column_set_resizable(column, TRUE );
-  gtk_tree_view_column_set_alignment(column, 0.5);
+  gtk_tree_view_column_set_alignment(column, 0.5f);
   g_object_set_data(G_OBJECT(column), E_MCAPTURE_COLUMNS_COL_KEY, GINT_TO_POINTER(INTERFACE));
   gtk_tree_view_column_set_clickable(column, TRUE);
   gtk_tree_view_column_set_reorderable(column, TRUE);
@@ -4510,12 +4511,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_tree_view_column_set_visible(column, TRUE);
   else
     gtk_tree_view_column_set_visible(column, FALSE);
-  gtk_tree_view_column_set_alignment(column, 0.5);
+  gtk_tree_view_column_set_alignment(column, 0.5f);
 
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes("Prom. Mode", renderer, "text", PMODE, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
-  g_object_set(renderer, "xalign", 0.5, NULL);
+  g_object_set(renderer, "xalign", 0.5f, NULL);
   gtk_tree_view_column_set_clickable(column, TRUE);
   gtk_tree_view_column_set_reorderable(column, TRUE);
   g_object_set_data(G_OBJECT(column), E_MCAPTURE_COLUMNS_COL_KEY, GINT_TO_POINTER(PMODE));
@@ -4525,7 +4526,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_tree_view_column_set_visible(column, TRUE);
   else
     gtk_tree_view_column_set_visible(column, FALSE);
-  gtk_tree_view_column_set_alignment(column, 0.5);
+  gtk_tree_view_column_set_alignment(column, 0.5f);
 
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes("Snaplen [B]", renderer, "text", SNAPLEN, NULL);
@@ -4539,7 +4540,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_tree_view_column_set_visible(column, TRUE);
   else
     gtk_tree_view_column_set_visible(column, FALSE);
-  g_object_set(renderer, "xalign", 0.5, NULL);
+  g_object_set(renderer, "xalign", 0.5f, NULL);
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   renderer = gtk_cell_renderer_text_new();
@@ -4554,7 +4555,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_tree_view_column_set_visible(column, TRUE);
   else
     gtk_tree_view_column_set_visible(column, FALSE);
-  g_object_set(renderer, "xalign", 0.5, NULL);
+  g_object_set(renderer, "xalign", 0.5f, NULL);
 #endif
 
 #if defined (HAVE_PCAP_CREATE)
@@ -4571,13 +4572,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_tree_view_column_set_visible(column, TRUE);
   else
     gtk_tree_view_column_set_visible(column, FALSE);
-  g_object_set(renderer, "xalign", 0.5, NULL);
+  g_object_set(renderer, "xalign", 0.5f, NULL);
 #endif
 
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes("Capture Filter", renderer, "text", FILTER, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
-  gtk_tree_view_column_set_alignment(column, 0.5);
+  gtk_tree_view_column_set_alignment(column, 0.5f);
   create_and_fill_model(GTK_TREE_VIEW(view));
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
   gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
@@ -5429,7 +5430,7 @@ create_and_fill_model(GtkTreeView *view)
   GtkListStore *store;
   GtkTreeIter   iter;
   GList        *list;
-  char         *temp = "", *snaplen_string, *linkname="";
+  char         *temp, *snaplen_string, *linkname;
   guint         i;
   link_row     *linkr = NULL;
   interface_t   device;
@@ -5450,11 +5451,12 @@ create_and_fill_model(GtkTreeView *view)
       } else {
         temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
       }
+      linkname = NULL;
       for (list = device.links; list != NULL; list = g_list_next(list)) {
         linkr = (link_row*)(list->data);
-        linkname = g_strdup(linkr->name);
         if (linkr->dlt == device.active_dlt) {
-        break;
+          linkname = g_strdup(linkr->name);
+          break;
         }
       }
       if (device.has_snaplen) {
@@ -5464,11 +5466,11 @@ create_and_fill_model(GtkTreeView *view)
       }
       gtk_list_store_append (store, &iter);
 #if defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname?linkname:"This should not happen",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname?linkname:"This should not happen",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
 #else
-      gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname?linkname:"This should not happen",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
 #endif
     }
   }

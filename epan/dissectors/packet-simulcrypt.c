@@ -51,7 +51,7 @@
 typedef struct Tecm_interpretation
 {
 	int ca_system_id;
-	char *protocol_name;
+	const char *protocol_name;
 	dissector_handle_t protocol_handle;
 	guint ecmg_port;
 } ecm_interpretation;

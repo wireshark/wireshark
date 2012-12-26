@@ -528,7 +528,7 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
  * Given a GByteArray, generate a string from it that shows non-printable
  * characters as percent-style escapes, and return a pointer to it.
  */
-gchar *
+const gchar *
 format_uri(const GByteArray *bytes, const gchar *reserved_chars)
 {
     static gchar *fmtbuf[3];

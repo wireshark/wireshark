@@ -140,7 +140,7 @@ void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		{	/* add the UL-MAp IEs info */
 			proto_item_append_text(parent_item, ",UL-MAP IEs");
 			/* process the compact ul_map ies */
-			while(offset < (length - sizeof(harq_map_msg_crc)))
+			while(offset < (length - (int)sizeof(harq_map_msg_crc)))
 			{	/* decode Compact UL-MAP IEs */
 				ie_length = wimax_compact_ulmap_ie_decoder(harq_map_tree, pinfo, tvb, offset, nibble_offset);
 				/* Prevent endless loop with erroneous data. */
@@ -160,11 +160,11 @@ void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		/* add the CRC info */
 		proto_item_append_text(parent_item, ",CRC");
 		/* get the CRC */
-		harq_map_msg_crc = tvb_get_ntohl(tvb, length - sizeof(harq_map_msg_crc));
+		harq_map_msg_crc = tvb_get_ntohl(tvb, length - (int)sizeof(harq_map_msg_crc));
 		/* calculate the HARQ MAM Message CRC */
-		calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, length - sizeof(harq_map_msg_crc)), length - sizeof(harq_map_msg_crc));
+		calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, length - (int)sizeof(harq_map_msg_crc)), length - (int)sizeof(harq_map_msg_crc));
 		/* display the CRC */
-		it = proto_tree_add_item(harq_map_tree, hf_harq_map_msg_crc, tvb, length - sizeof(harq_map_msg_crc), sizeof(harq_map_msg_crc), ENC_BIG_ENDIAN);
+		it = proto_tree_add_item(harq_map_tree, hf_harq_map_msg_crc, tvb, length - (int)sizeof(harq_map_msg_crc), (int)sizeof(harq_map_msg_crc), ENC_BIG_ENDIAN);
 		/* verify the CRC */
 		if (harq_map_msg_crc != calculated_crc)
 		{

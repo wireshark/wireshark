@@ -1962,7 +1962,7 @@ ct_create_popup_menu(conversations_table *ct)
 
 /* Draw/refresh the address fields of a single entry at the specified index */
 static void
-get_ct_table_address(conversations_table *ct, conv_t *conv, char **entries)
+get_ct_table_address(conversations_table *ct, conv_t *conv, const char **entries)
 {
     char *port;
     guint32 pt;
@@ -2017,7 +2017,7 @@ static void
 draw_ct_table_addresses(conversations_table *ct)
 {
     guint32 i;
-    char *entries[4];
+    const char *entries[4];
     GtkListStore *store;
 
     if (!ct->num_conversations)
@@ -2074,7 +2074,7 @@ draw_ct_table_data(conversations_table *ct)
     for(i=0;i<ct->num_conversations;i++){
         char start_time[COL_STR_LEN], duration[COL_STR_LEN],
              txbps[COL_STR_LEN], rxbps[COL_STR_LEN];
-        char *tx_ptr, *rx_ptr;
+        const char *tx_ptr, *rx_ptr;
         double duration_s;
         conv_t *conversation = &g_array_index(ct->conversations, conv_t, i);
 
@@ -2105,7 +2105,7 @@ draw_ct_table_data(conversations_table *ct)
         }
         conversation->modified = FALSE;
         if (!conversation->iter_valid) {
-            char *entries[4];
+            const char *entries[4];
 
             get_ct_table_address(ct, conversation, entries);
             conversation->iter_valid = TRUE;

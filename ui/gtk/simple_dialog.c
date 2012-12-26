@@ -375,7 +375,7 @@ void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpoi
     g_object_set_data(G_OBJECT(GTK_WIDGET(dialog)), CALLBACK_DATA_KEY, data);
 }
 
-void simple_dialog_check_set(gpointer dialog, gchar *text _U_) {
+void simple_dialog_check_set(gpointer dialog, const gchar *text) {
     GtkWidget *ask_cb = g_object_get_data(G_OBJECT(dialog), CHECK_BUTTON);
 
     gtk_button_set_label(GTK_BUTTON(ask_cb), text);
@@ -388,12 +388,12 @@ gboolean simple_dialog_check_get(gpointer dialog) {
     return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ask_cb));
 }
 
-char *
+const char *
 simple_dialog_primary_start(void) {
     return "<span weight=\"bold\" size=\"larger\">";
 }
 
-char *
+const char *
 simple_dialog_primary_end(void) {
     return "</span>";
 }

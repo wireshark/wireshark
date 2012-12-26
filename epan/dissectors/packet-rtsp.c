@@ -460,7 +460,7 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
             if (tokenlen >= 3) {
                 memcpy(response_chars, next_token, 3);
                 response_chars[3] = '\0';
-                rtsp_stat_info->response_code = strtoul(response_chars, NULL, 10);
+                rtsp_stat_info->response_code = (guint)strtoul(response_chars, NULL, 10);
             }
         }
         return TRUE;
@@ -678,7 +678,7 @@ rtsp_get_content_length(const guchar *line_begin, size_t line_len)
     up = p;
     if (up == tmp || (*up != '\0' && !isspace(*up)))
         return -1;  /* not a valid number */
-    return content_length;
+    return (int)content_length;
 }
 
 static const char rtsp_Session[] = "Session:";
@@ -1060,7 +1060,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                       tvb_format_text(tvb, value_offset,
                                                       value_len));
 
-                offset = offset + STRLEN_CONST(rtsp_content_type);
+                offset = offset + (int)STRLEN_CONST(rtsp_content_type);
                 /* Skip wsp */
                 offset = tvb_skip_wsp(tvb, offset, value_len);
                 semi_colon_offset = tvb_find_guint8(tvb, value_offset, value_len, ';');

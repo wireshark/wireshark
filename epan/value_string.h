@@ -142,7 +142,7 @@ extern const value_string *_match_strval_ext_init(const guint32 val, const value
 /* Create a value_string_ext given a ptr to a value_string array and the total number of entries. */
 /* Note: vs_tot_num_entries should include the required {0, NULL} terminating entry of the array. */
 /* Return: a pointer to a gmalloc'd and initialized value_string_ext struct.                      */
-extern value_string_ext *value_string_ext_new(value_string *vs, guint vs_tot_num_entries, gchar *vs_name);
+extern value_string_ext *value_string_ext_new(value_string *vs, guint vs_tot_num_entries, const gchar *vs_name);
 
 /* Looks up val in a value_string array using access method (direct, binary search
  *  or linear) determined at rutime during the initial access); (see _match_strval_ext_init)

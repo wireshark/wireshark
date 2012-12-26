@@ -625,7 +625,7 @@ dns_type_name (guint type)
   return val_to_str(type, dns_types, "Unknown (%u)");
 }
 
-static char *
+static const char *
 dns_type_description (guint type)
 {
   static const char *type_names[] = {

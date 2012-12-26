@@ -313,7 +313,7 @@ fill_in_tree_node(GNode *node, gpointer data)
     ph_stats_t      *ps = di->ps;
     draw_info_t     child_di;
     double          seconds;
-    gchar           *text[NUM_STAT_COLUMNS];
+    gchar          *text[NUM_STAT_COLUMNS];
     float           percent_packets, percent_bytes;
     GtkTreeView     *tree_view = di->tree_view;
     GtkTreeIter     *iter = di->iter;
@@ -333,7 +333,7 @@ fill_in_tree_node(GNode *node, gpointer data)
         text[BANDWIDTH_COLUMN] = g_strdup_printf("%.3f",
             BANDWIDTH(stats->num_bytes_total, seconds));
     } else {
-        text[BANDWIDTH_COLUMN] = "n.c.";
+        text[BANDWIDTH_COLUMN] = g_strdup("n.c.");
     }
     text[END_PKTS_COLUMN] = g_strdup_printf("%u", stats->num_pkts_last);
     text[END_BYTES_COLUMN] = g_strdup_printf("%u", stats->num_bytes_last);
@@ -341,7 +341,7 @@ fill_in_tree_node(GNode *node, gpointer data)
         text[END_BANDWIDTH_COLUMN] = g_strdup_printf("%.3f",
             BANDWIDTH(stats->num_bytes_last, seconds));
     } else {
-        text[END_BANDWIDTH_COLUMN] = "n.c.";
+        text[END_BANDWIDTH_COLUMN] = g_strdup("n.c.");
     }
 
     store = GTK_TREE_STORE(gtk_tree_view_get_model(tree_view));

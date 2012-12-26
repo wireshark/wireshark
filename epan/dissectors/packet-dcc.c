@@ -78,8 +78,8 @@ static gint ett_dcc_trace = -1;
 /* Utility macros */
 #define D_SIGNATURE() \
 	proto_tree_add_item(dcc_optree, hf_dcc_signature, tvb, \
-		offset, sizeof(DCC_SIGNATURE), ENC_NA); \
-	offset += sizeof(DCC_SIGNATURE);
+		offset, (int)sizeof(DCC_SIGNATURE), ENC_NA); \
+	offset += (int)sizeof(DCC_SIGNATURE);
 
 #define D_LABEL(label,len) \
 	proto_tree_add_text(dcc_optree, tvb, offset, len, label); \
@@ -100,12 +100,9 @@ static gint ett_dcc_trace = -1;
 
 
 #define D_TARGET() \
-	hidden_item = proto_tree_add_item(dcc_tree, hf_dcc_target, tvb, \
-		offset, sizeof(DCC_TGTS), ENC_BIG_ENDIAN); \
-	PROTO_ITEM_SET_HIDDEN(hidden_item); \
-	proto_tree_add_text(dcc_optree, tvb, offset, sizeof(DCC_TGTS), "%s", \
-		val_to_str(tvb_get_ntohl(tvb,offset), dcc_target_vals, "Targets (%u)")); \
-	offset += sizeof(DCC_TGTS); \
+	proto_tree_add_item(dcc_tree, hf_dcc_target, tvb, \
+		offset, (int)sizeof(DCC_TGTS), ENC_BIG_ENDIAN); \
+	offset += (int)sizeof(DCC_TGTS);
 
 #define D_DATE() { \
 	nstime_t ts; \
@@ -118,7 +115,7 @@ static gint ett_dcc_trace = -1;
 
 #define D_CHECKSUM() { \
 	proto_tree *cktree, *ckti; \
-	ckti = proto_tree_add_text(dcc_optree, tvb, offset, sizeof(DCC_CK), \
+	ckti = proto_tree_add_text(dcc_optree, tvb, offset, (int)sizeof(DCC_CK), \
 		"Checksum - %s", val_to_str(tvb_get_guint8(tvb,offset), \
 		dcc_cktype_vals, \
 		"Unknown Type: %u")); \
@@ -128,8 +125,8 @@ static gint ett_dcc_trace = -1;
 	proto_tree_add_item(cktree, hf_dcc_ck_len, tvb, offset, 1, ENC_BIG_ENDIAN); \
 	offset += 1; \
 	proto_tree_add_item(cktree, hf_dcc_ck_sum, tvb, offset, \
-		sizeof(DCC_SUM), ENC_NA); \
-	offset += sizeof(DCC_SUM); \
+		(int)sizeof(DCC_SUM), ENC_NA); \
+	offset += (int)sizeof(DCC_SUM); \
 }
 
 
@@ -206,7 +203,6 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree      *dcc_tree, *dcc_optree, *dcc_opnumtree, *ti;
 	proto_tree *dcc_tracetree;
-	proto_item *hidden_item;
 	int offset = 0;
 	int client_is_le = 0;
 	int op = 0;
@@ -304,7 +300,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			case DCC_OP_REPORT:
 				D_TARGET();
 				for (i=0; i<=DCC_QUERY_MAX &&
-					tvb_bytes_exist(tvb, offset+sizeof(DCC_SIGNATURE),1); i++)
+					tvb_bytes_exist(tvb, offset+(int)sizeof(DCC_SIGNATURE),1); i++)
 				{
 					D_CHECKSUM();
 				}
@@ -313,7 +309,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
 			case DCC_OP_QUERY_RESP:
 				for (i=0; i<=DCC_QUERY_MAX &&
-					tvb_bytes_exist(tvb, offset+sizeof(DCC_SIGNATURE),1); i++)
+					tvb_bytes_exist(tvb, offset+(int)sizeof(DCC_SIGNATURE),1); i++)
 				{
 					D_TARGET();
 				}
@@ -324,17 +320,17 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 				if ( is_response )
 				{
 					int left_local = tvb_length_remaining(tvb, offset) -
-						sizeof(DCC_SIGNATURE);
+						(int)sizeof(DCC_SIGNATURE);
 					if ( left_local == sizeof(DCC_ADMN_RESP_CLIENTS) )
 					{
 						D_LABEL("Addr", 16);
-						D_LABEL("Id", sizeof(DCC_CLNT_ID));
+						D_LABEL("Id", (int)sizeof(DCC_CLNT_ID));
 						D_LABEL("Last Used", 4);
 						D_LABEL("Requests", 4);
 					}
 					else
 					{
-						D_TEXT("Response Text", sizeof(DCC_SIGNATURE));
+						D_TEXT("Response Text", (int)sizeof(DCC_SIGNATURE));
 					}
 					D_SIGNATURE();
 				}
@@ -397,8 +393,8 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 				offset += 2;
 
 				proto_tree_add_item(dcc_optree, hf_dcc_brand, tvb,
-					offset, sizeof(DCC_BRAND), ENC_ASCII|ENC_NA);
-				offset += sizeof(DCC_BRAND);
+					offset, (int)sizeof(DCC_BRAND), ENC_ASCII|ENC_NA);
+				offset += (int)sizeof(DCC_BRAND);
 
 				D_SIGNATURE();
 				break;
@@ -478,7 +474,7 @@ proto_register_dcc(void)
 
 			{ &hf_dcc_target, {
 				"Target", "dcc.target", FT_UINT32, BASE_HEX,
-				NULL, 0, NULL, HFILL }},
+				VALS(dcc_target_vals), 0, NULL, HFILL }},
 
 			{ &hf_dcc_date, {
 				"Date", "dcc.date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,

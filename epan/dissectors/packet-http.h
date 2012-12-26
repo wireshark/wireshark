@@ -34,7 +34,7 @@ typedef struct _http_info_value_t {
 	gchar	*request_method;
 	guint	 response_code;
 	gchar   *http_host;
-	gchar   *request_uri;
+	const gchar   *request_uri;
 } http_info_value_t;
 
 /* Used for HTTP Export Object feature */

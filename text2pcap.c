@@ -153,7 +153,7 @@ static int quiet = FALSE;
 
 /* Dummy Ethernet header */
 static int hdr_ethernet = FALSE;
-static unsigned long hdr_ethernet_proto = 0;
+static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
 static int hdr_ip = FALSE;
@@ -161,26 +161,26 @@ static long hdr_ip_proto = 0;
 
 /* Dummy UDP header */
 static int hdr_udp = FALSE;
-static unsigned long hdr_dest_port = 0;
-static unsigned long hdr_src_port = 0;
+static guint32 hdr_dest_port = 0;
+static guint32 hdr_src_port = 0;
 
 /* Dummy TCP header */
 static int hdr_tcp = FALSE;
 
 /* Dummy SCTP header */
 static int hdr_sctp = FALSE;
-static unsigned long hdr_sctp_src  = 0;
-static unsigned long hdr_sctp_dest = 0;
-static unsigned long hdr_sctp_tag  = 0;
+static guint32 hdr_sctp_src  = 0;
+static guint32 hdr_sctp_dest = 0;
+static guint32 hdr_sctp_tag  = 0;
 
 /* Dummy DATA chunk header */
 static int hdr_data_chunk = FALSE;
-static unsigned char  hdr_data_chunk_type = 0;
-static unsigned char  hdr_data_chunk_bits = 0;
-static unsigned long  hdr_data_chunk_tsn  = 0;
-static unsigned short hdr_data_chunk_sid  = 0;
-static unsigned short hdr_data_chunk_ssn  = 0;
-static unsigned long  hdr_data_chunk_ppid = 0;
+static guint8  hdr_data_chunk_type = 0;
+static guint8  hdr_data_chunk_bits = 0;
+static guint32 hdr_data_chunk_tsn  = 0;
+static guint16 hdr_data_chunk_sid  = 0;
+static guint16 hdr_data_chunk_ssn  = 0;
+static guint32 hdr_data_chunk_ppid = 0;
 
 /* ASCII text dump identification */
 static int identify_ascii = FALSE;
@@ -192,23 +192,23 @@ static guint32 direction = 0;
 
 /* This is where we store the packet currently being built */
 #define MAX_PACKET 64000
-static unsigned char packet_buf[MAX_PACKET];
-static unsigned long header_length;
-static unsigned long ip_offset;
-static unsigned long curr_offset;
-static unsigned long max_offset = MAX_PACKET;
-static unsigned long packet_start = 0;
+static guint8 packet_buf[MAX_PACKET];
+static guint32 header_length;
+static guint32 ip_offset;
+static guint32 curr_offset;
+static guint32 max_offset = MAX_PACKET;
+static guint32 packet_start = 0;
 static void start_new_packet(gboolean);
 
 /* This buffer contains strings present before the packet offset 0 */
 #define PACKET_PREAMBLE_MAX_LEN	2048
-static unsigned char packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
+static guint8 packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
 static int packet_preamble_len = 0;
 
 /* Number of packets read and written */
-static unsigned long num_packets_read = 0;
-static unsigned long num_packets_written = 0;
-static long bytes_written = 0;
+static guint32 num_packets_read = 0;
+static guint32 num_packets_written = 0;
+static guint64 bytes_written = 0;
 
 /* Time code of packet, derived from packet_preamble */
 static time_t ts_sec  = 0;
@@ -216,7 +216,7 @@ static guint32 ts_usec = 0;
 static char *ts_fmt = NULL;
 static struct tm timecode_default;
 
-static unsigned char* pkt_lnstart;
+static guint8* pkt_lnstart;
 
 /* Input file */
 static const char *input_filename;
@@ -226,7 +226,7 @@ static const char *output_filename;
 static FILE *output_file = NULL;
 
 /* Offset base to parse */
-static unsigned long offset_base = 16;
+static guint32 offset_base = 16;
 
 extern FILE *yyin;
 
@@ -371,20 +371,20 @@ struct pcaprec_hdr {
 };
 
 /* Link-layer type; see net/bpf.h for details */
-static unsigned long pcap_link_type = 1;   /* Default is DLT-EN10MB */
+static guint32 pcap_link_type = 1;   /* Default is DLT-EN10MB */
 
 /*----------------------------------------------------------------------
  * Parse a single hex number
  * Will abort the program if it can't parse the number
  * Pass in TRUE if this is an offset, FALSE if not
  */
-static unsigned long
+static guint32
 parse_num (const char *str, int offset)
 {
-    unsigned long num;
+    guint32 num;
     char *c;
 
-    num = strtoul(str, &c, offset ? offset_base : 16);
+    num = (guint32)strtoul(str, &c, offset ? offset_base : 16);
     if (c==str) {
         fprintf(stderr, "FATAL ERROR: Bad hex number? [%s]\n", str);
         exit(-1);
@@ -398,10 +398,10 @@ parse_num (const char *str, int offset)
 static void
 write_byte (const char *str)
 {
-    unsigned long num;
+    guint32 num;
 
     num = parse_num(str, FALSE);
-    packet_buf[curr_offset] = (unsigned char) num;
+    packet_buf[curr_offset] = (guint8) num;
     curr_offset ++;
     if (curr_offset - header_length >= max_offset) /* packet full */
         start_new_packet(TRUE);
@@ -412,9 +412,9 @@ write_byte (const char *str)
  */
 
 static void
-write_bytes(const char bytes[], unsigned long nbytes)
+write_bytes(const char bytes[], guint32 nbytes)
 {
-    unsigned long i;
+    guint32 i;
 
     if (curr_offset + nbytes < MAX_PACKET) {
         for (i = 0; i < nbytes; i++) {
@@ -428,7 +428,7 @@ write_bytes(const char bytes[], unsigned long nbytes)
  * Remove bytes from the current packet
  */
 static void
-unwrite_bytes (unsigned long nbytes)
+unwrite_bytes (guint32 nbytes)
 {
     curr_offset -= nbytes;
 }
@@ -437,9 +437,9 @@ unwrite_bytes (unsigned long nbytes)
  * Compute one's complement checksum (from RFC1071)
  */
 static guint16
-in_checksum (void *buf, unsigned long count)
+in_checksum (void *buf, guint32 count)
 {
-    unsigned long sum = 0;
+    guint32 sum = 0;
     guint16 *addr = buf;
 
     while (count > 1) {
@@ -563,7 +563,7 @@ finalize_crc32c(guint32 crc32)
 }
 
 static guint16
-number_of_padding_bytes (unsigned long length)
+number_of_padding_bytes (guint32 length)
 {
     guint16 remainder;
 
@@ -581,7 +581,7 @@ number_of_padding_bytes (unsigned long length)
 static void
 write_current_packet(gboolean cont)
 {
-    unsigned long length = 0;
+    guint32 length = 0;
     guint16 padding_length = 0;
     int err;
     gboolean success;
@@ -767,7 +767,7 @@ write_current_packet(gboolean cont)
             ts_usec++;
         }
         if (!quiet) {
-            fprintf(stderr, "Wrote packet of %lu bytes.\n", length);
+            fprintf(stderr, "Wrote packet of %u bytes.\n", length);
         }
         num_packets_written ++;
     }
@@ -788,9 +788,9 @@ write_file_header (void)
 
     if (use_pcapng) {
 #ifdef SVNVERSION
-        char *appname = "text2pcap (" SVNVERSION " from " SVNPATH ")";
+        const char *appname = "text2pcap (" SVNVERSION " from " SVNPATH ")";
 #else
-        char *appname = "text2pcap";
+        const char *appname = "text2pcap";
 #endif
         char comment[100];
 
@@ -980,7 +980,7 @@ parse_preamble (void)
             ts_usec = 0;
         } else {
             /* Parse subseconds */
-            ts_usec = strtol(subsecs, &p, 10);
+            ts_usec = (guint32)strtol(subsecs, &p, 10);
             if (subsecs == p) {
                 /* Error */
                 ts_usec = 0;
@@ -1053,7 +1053,7 @@ process_directive (char *str)
 void
 parse_token (token_t token, char *str)
 {
-    unsigned long num;
+    guint32 num;
     int by_eol;
     int rollback = 0;
     int line_size;
@@ -1139,7 +1139,7 @@ parse_token (token_t token, char *str)
                 } else {
                     /* Bad offset; switch to INIT state */
                     if (debug >= 1)
-                        fprintf(stderr, "Inconsistent offset. Expecting %0lX, got %0lX. Ignoring rest of packet\n",
+                        fprintf(stderr, "Inconsistent offset. Expecting %0X, got %0X. Ignoring rest of packet\n",
                                 curr_offset, num);
                     write_current_packet(FALSE);
                     state = INIT;
@@ -1379,8 +1379,8 @@ parse_options (int argc, char *argv[])
         case 'd': if (!quiet) debug++; break;
         case 'D': has_direction = TRUE; break;
         case 'q': quiet = TRUE; debug = FALSE; break;
-        case 'l': pcap_link_type = strtol(optarg, NULL, 0); break;
-        case 'm': max_offset = strtol(optarg, NULL, 0); break;
+        case 'l': pcap_link_type = (guint32)strtol(optarg, NULL, 0); break;
+        case 'm': max_offset = (guint32)strtol(optarg, NULL, 0); break;
         case 'n': use_pcapng = TRUE; break;
         case 'o':
             if (optarg[0]!='h' && optarg[0] != 'o' && optarg[0] != 'd') {
@@ -1395,7 +1395,7 @@ parse_options (int argc, char *argv[])
             break;
         case 'e':
             hdr_ethernet = TRUE;
-            if (sscanf(optarg, "%lx", &hdr_ethernet_proto) < 1) {
+            if (sscanf(optarg, "%x", &hdr_ethernet_proto) < 1) {
                 fprintf(stderr, "Bad argument for '-e': %s\n", optarg);
                 usage();
             }
@@ -1418,7 +1418,7 @@ parse_options (int argc, char *argv[])
             hdr_data_chunk = FALSE;
             hdr_tcp = FALSE;
             hdr_udp = FALSE;
-            hdr_sctp_src   = strtol(optarg, &p, 10);
+            hdr_sctp_src   = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-%c'\n", c);
                 usage();
@@ -1429,7 +1429,7 @@ parse_options (int argc, char *argv[])
             }
             p++;
             optarg = p;
-            hdr_sctp_dest = strtol(optarg, &p, 10);
+            hdr_sctp_dest = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad dest port for '-s'\n");
                 usage();
@@ -1440,7 +1440,7 @@ parse_options (int argc, char *argv[])
             }
             p++;
             optarg = p;
-            hdr_sctp_tag = strtol(optarg, &p, 10);
+            hdr_sctp_tag = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad tag for '-%c'\n", c);
                 usage();
@@ -1456,7 +1456,7 @@ parse_options (int argc, char *argv[])
             hdr_data_chunk = TRUE;
             hdr_tcp = FALSE;
             hdr_udp = FALSE;
-            hdr_sctp_src   = strtol(optarg, &p, 10);
+            hdr_sctp_src   = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-%c'\n", c);
                 usage();
@@ -1467,7 +1467,7 @@ parse_options (int argc, char *argv[])
             }
             p++;
             optarg = p;
-            hdr_sctp_dest = strtol(optarg, &p, 10);
+            hdr_sctp_dest = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad dest port for '-s'\n");
                 usage();
@@ -1478,7 +1478,7 @@ parse_options (int argc, char *argv[])
             }
             p++;
             optarg = p;
-            hdr_data_chunk_ppid = strtoul(optarg, &p, 10);
+            hdr_data_chunk_ppid = (guint32)strtoul(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad ppi for '-%c'\n", c);
                 usage();
@@ -1499,7 +1499,7 @@ parse_options (int argc, char *argv[])
             hdr_tcp = FALSE;
             hdr_sctp = FALSE;
             hdr_data_chunk = FALSE;
-            hdr_src_port = strtol(optarg, &p, 10);
+            hdr_src_port = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-u'\n");
                 usage();
@@ -1510,7 +1510,7 @@ parse_options (int argc, char *argv[])
             }
             p++;
             optarg = p;
-            hdr_dest_port = strtol(optarg, &p, 10);
+            hdr_dest_port = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad dest port for '-u'\n");
                 usage();
@@ -1526,7 +1526,7 @@ parse_options (int argc, char *argv[])
             hdr_udp = FALSE;
             hdr_sctp = FALSE;
             hdr_data_chunk = FALSE;
-            hdr_src_port = strtol(optarg, &p, 10);
+            hdr_src_port = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || (*p != ',' && *p != '\0')) {
                 fprintf(stderr, "Bad src port for '-T'\n");
                 usage();
@@ -1537,7 +1537,7 @@ parse_options (int argc, char *argv[])
             }
             p++;
             optarg = p;
-            hdr_dest_port = strtol(optarg, &p, 10);
+            hdr_dest_port = (guint32)strtol(optarg, &p, 10);
             if (p == optarg || *p != '\0') {
                 fprintf(stderr, "Bad dest port for '-T'\n");
                 usage();
@@ -1614,17 +1614,17 @@ parse_options (int argc, char *argv[])
         fprintf(stderr, "Output to: %s\n", output_filename);
         fprintf(stderr, "Output format: %s\n", use_pcapng ? "PCAP-NG" : "PCAP");
 
-        if (hdr_ethernet) fprintf(stderr, "Generate dummy Ethernet header: Protocol: 0x%0lX\n",
+        if (hdr_ethernet) fprintf(stderr, "Generate dummy Ethernet header: Protocol: 0x%0X\n",
                                   hdr_ethernet_proto);
         if (hdr_ip) fprintf(stderr, "Generate dummy IP header: Protocol: %ld\n",
                             hdr_ip_proto);
-        if (hdr_udp) fprintf(stderr, "Generate dummy UDP header: Source port: %ld. Dest port: %ld\n",
+        if (hdr_udp) fprintf(stderr, "Generate dummy UDP header: Source port: %u. Dest port: %u\n",
                              hdr_src_port, hdr_dest_port);
-        if (hdr_tcp) fprintf(stderr, "Generate dummy TCP header: Source port: %ld. Dest port: %ld\n",
+        if (hdr_tcp) fprintf(stderr, "Generate dummy TCP header: Source port: %u. Dest port: %u\n",
                              hdr_src_port, hdr_dest_port);
-        if (hdr_sctp) fprintf(stderr, "Generate dummy SCTP header: Source port: %ld. Dest port: %ld. Tag: %ld\n",
+        if (hdr_sctp) fprintf(stderr, "Generate dummy SCTP header: Source port: %u. Dest port: %u. Tag: %u\n",
                               hdr_sctp_src, hdr_sctp_dest, hdr_sctp_tag);
-        if (hdr_data_chunk) fprintf(stderr, "Generate dummy DATA chunk header: TSN: %lu. SID: %d. SSN: %d. PPID: %lu\n",
+        if (hdr_data_chunk) fprintf(stderr, "Generate dummy DATA chunk header: TSN: %u. SID: %d. SSN: %d. PPID: %u\n",
                                     hdr_data_chunk_tsn, hdr_data_chunk_sid, hdr_data_chunk_ssn, hdr_data_chunk_ppid);
     }
 }
@@ -1641,23 +1641,23 @@ main(int argc, char *argv[])
 
     header_length = 0;
     if (hdr_ethernet) {
-        header_length += sizeof(HDR_ETHERNET);
+        header_length += (int)sizeof(HDR_ETHERNET);
     }
     if (hdr_ip) {
         ip_offset = header_length;
-        header_length += sizeof(HDR_IP);
+        header_length += (int)sizeof(HDR_IP);
     }
     if (hdr_sctp) {
-        header_length += sizeof(HDR_SCTP);
+        header_length += (int)sizeof(HDR_SCTP);
     }
     if (hdr_data_chunk) {
-        header_length += sizeof(HDR_DATA_CHUNK);
+        header_length += (int)sizeof(HDR_DATA_CHUNK);
     }
     if (hdr_tcp) {
-        header_length += sizeof(HDR_TCP);
+        header_length += (int)sizeof(HDR_TCP);
     }
     if (hdr_udp) {
-        header_length += sizeof(HDR_UDP);
+        header_length += (int)sizeof(HDR_UDP);
     }
     curr_offset = header_length;
 
@@ -1671,7 +1671,7 @@ main(int argc, char *argv[])
     if (debug)
         fprintf(stderr, "\n-------------------------\n");
     if (!quiet) {
-    fprintf(stderr, "Read %ld potential packet%s, wrote %ld packet%s\n",
+    fprintf(stderr, "Read %u potential packet%s, wrote %u packet%s\n",
             num_packets_read, (num_packets_read == 1) ? "" : "s",
             num_packets_written, (num_packets_written == 1) ? "" : "s");
     }

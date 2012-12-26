@@ -451,7 +451,7 @@ dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
 
     }  /* tree */
 
-    next_client = tvb_new_subset_remaining(tvb, (have_destmac?6:0) + sizeof(LWAPP_Header));
+    next_client = tvb_new_subset_remaining(tvb, (have_destmac?6:0) + (int)sizeof(LWAPP_Header));
     if ((header.flags & LWAPP_FLAGS_T) == 0) {
         call_dissector(swap_frame_control ? wlan_bsfc_handle : wlan_handle,
                        next_client, pinfo, tree);

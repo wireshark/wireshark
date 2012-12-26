@@ -1107,51 +1107,51 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     td7hdr.total_packet_size = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_login_total_size, tvb, offset,
                         sizeof(td7hdr.total_packet_size), td7hdr.total_packet_size);
-    offset += sizeof(td7hdr.total_packet_size);
+    offset += (int)sizeof(td7hdr.total_packet_size);
 
     td7hdr.tds_version = tvb_get_ntohl(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_version, tvb, offset, sizeof(td7hdr.tds_version), td7hdr.tds_version);
-    offset += sizeof(td7hdr.tds_version);
+    offset += (int)sizeof(td7hdr.tds_version);
 
     td7hdr.packet_size = tvb_get_ntohl(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_packet_size, tvb, offset, sizeof(td7hdr.packet_size), td7hdr.packet_size);
-    offset += sizeof(td7hdr.packet_size);
+    offset += (int)sizeof(td7hdr.packet_size);
 
     td7hdr.client_version = tvb_get_ntohl(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_client_version, tvb, offset, sizeof(td7hdr.client_version), td7hdr.client_version);
-    offset += sizeof(td7hdr.client_version);
+    offset += (int)sizeof(td7hdr.client_version);
 
     td7hdr.client_pid = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_client_pid, tvb, offset, sizeof(td7hdr.client_pid), td7hdr.client_pid);
-    offset += sizeof(td7hdr.client_pid);
+    offset += (int)sizeof(td7hdr.client_pid);
 
     td7hdr.connection_id= tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_connection_id, tvb, offset, sizeof(td7hdr.connection_id), td7hdr.connection_id);
-    offset += sizeof(td7hdr.connection_id);
+    offset += (int)sizeof(td7hdr.connection_id);
 
     td7hdr.option_flags1 = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_option_flags1, tvb, offset, sizeof(td7hdr.option_flags1), td7hdr.option_flags1);
-    offset += sizeof(td7hdr.option_flags1);
+    offset += (int)sizeof(td7hdr.option_flags1);
 
     td7hdr.option_flags2 = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_option_flags2, tvb, offset, sizeof(td7hdr.option_flags2), td7hdr.option_flags2);
-    offset += sizeof(td7hdr.option_flags2);
+    offset += (int)sizeof(td7hdr.option_flags2);
 
     td7hdr.sql_type_flags = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_sql_type_flags, tvb, offset, sizeof(td7hdr.sql_type_flags), td7hdr.sql_type_flags);
-    offset += sizeof(td7hdr.sql_type_flags);
+    offset += (int)sizeof(td7hdr.sql_type_flags);
 
     td7hdr.reserved_flags = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_reserved_flags, tvb, offset, sizeof(td7hdr.reserved_flags), td7hdr.reserved_flags);
-    offset += sizeof(td7hdr.reserved_flags);
+    offset += (int)sizeof(td7hdr.reserved_flags);
 
     td7hdr.time_zone = tvb_get_ntohl(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_time_zone, tvb, offset, sizeof(td7hdr.time_zone), td7hdr.time_zone);
-    offset += sizeof(td7hdr.time_zone);
+    offset += (int)sizeof(td7hdr.time_zone);
 
     td7hdr.collation = tvb_get_ntohl(tvb, offset);
     proto_tree_add_uint(header_tree, hf_tds7_collation, tvb, offset, sizeof(td7hdr.collation), td7hdr.collation);
-    offset += sizeof(td7hdr.collation);
+    offset += (int)sizeof(td7hdr.collation);
 
     length_hdr = proto_tree_add_text(login_tree, tvb, offset, 50, "Lengths and offsets");
     length_tree = proto_item_add_subtree(length_hdr, ett_tds7_hdr);

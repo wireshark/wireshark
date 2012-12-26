@@ -31,6 +31,6 @@ typedef struct _actrace_info_t
 	int direction;  /* direction BLADE_TO_PSTN=0 PSTN_TO_BLADE=1 */
 	int trunk;
 	gint32 cas_bchannel;
-	gchar *cas_frame_label;
+	const gchar *cas_frame_label;
 } actrace_info_t;
 

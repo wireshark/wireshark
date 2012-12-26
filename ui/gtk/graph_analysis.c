@@ -304,7 +304,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 	gboolean first_packet  = TRUE;
 
 	GString *label_string, *empty_line,*separator_line, *tmp_str, *tmp_str2;
-	char    *empty_header;
+	const char *empty_header;
 	char     src_port[8],dst_port[8];
 	gchar	*time_str;
 	GList *list;

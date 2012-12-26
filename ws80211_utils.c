@@ -633,7 +633,7 @@ int ws80211_frequency_to_channel(int freq)
 }
 
 int
-ws80211_str_to_chan_type(gchar *s)
+ws80211_str_to_chan_type(const gchar *s)
 {
 	int ret = -1;
 	if (!s)
@@ -696,7 +696,7 @@ int ws80211_set_freq(const char *name _U_, int freq _U_, int chan_type _U_)
 	return -1;
 }
 
-int ws80211_str_to_chan_type(gchar *s _U_)
+int ws80211_str_to_chan_type(const gchar *s _U_)
 {
 	return -1;
 }

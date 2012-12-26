@@ -498,7 +498,7 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	/* Declare variables */
 	gint32 value, function, trunk, bchannel, source, event, curr_state, next_state;
 	gint32 par0, par1, par2;
-	gchar *frame_label = NULL;
+	const gchar *frame_label = NULL;
 	int direction = 0;
 	int offset = 0;
 

@@ -632,14 +632,14 @@ get_range(char *rngstr)
 
         /* string == "X-?" */
         if (*(split[0]) != '\0') {
-            rng->floor = strtol(split[0],NULL,10);
+            rng->floor = (gint)strtol(split[0],NULL,10);
         } else
           /* string == "-?" */
           rng->floor = G_MININT;
 
         /* string != "?-" */
         if (*(split[1]) != '\0') {
-          rng->ceil  = strtol(split[1],NULL,10);
+          rng->ceil  = (gint)strtol(split[1],NULL,10);
         } else
           /* string == "?-" */
           rng->ceil = G_MAXINT;

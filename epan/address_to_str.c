@@ -84,13 +84,13 @@ char *bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct
 /* XXX FIXME
 remove this one later when every call has been converted to ep_address_to_str()
 */
-gchar *
+const gchar *
 ether_to_str(const guint8 *ad)
 {
 	return bytestring_to_str(ad, 6, ':');
 }
 
-gchar *
+const gchar *
 tvb_ether_to_str(tvbuff_t *tvb, const gint offset)
 {
 	return bytestring_to_str(tvb_get_ptr(tvb, offset, 6), 6, ':');
@@ -386,9 +386,9 @@ tipc_addr_to_str_buf( const guint8 *data, gchar *buf, int buf_len){
 static void
 ib_addr_to_str_buf( const address *addr, gchar *buf, int buf_len){
 	if (addr->len >= 16) {	/* GID is 128bits */
-		#define PREAMBLE_STR_LEN		(sizeof("GID: ") - 1)
+		#define PREAMBLE_STR_LEN	((int)(sizeof("GID: ") - 1))
 		g_snprintf(buf,buf_len,"GID: ");
-		if (buf_len < (int)PREAMBLE_STR_LEN ||
+		if (buf_len < PREAMBLE_STR_LEN ||
 				inet_ntop(AF_INET6, addr->data, buf + PREAMBLE_STR_LEN, 
 						  buf_len - PREAMBLE_STR_LEN) == NULL ) /* Returns NULL if no space and does not touch buf */
 			g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR ); /* Let the unexpected value alert user */
@@ -403,13 +403,13 @@ ib_addr_to_str_buf( const address *addr, gchar *buf, int buf_len){
 /* XXX FIXME
 remove this one later when every call has been converted to ep_address_to_str()
 */
-gchar *
+const gchar *
 fc_to_str(const guint8 *ad)
 {
     return bytestring_to_str (ad, 3, '.');
 }
 
-gchar *
+const gchar *
 tvb_fc_to_str(tvbuff_t *tvb, const gint offset)
 {
     return bytestring_to_str (tvb_get_ptr(tvb, offset, 3), 3, '.');
@@ -478,7 +478,7 @@ tvb_fcwwn_to_str(tvbuff_t *tvb, const gint offset)
 /* XXX FIXME
 remove this one later when every call has been converted to address_to_str()
 */
-gchar *
+const gchar *
 ax25_to_str(const guint8 *ad)
 {
 	return bytestring_to_str(ad, 7, ':');

@@ -6737,7 +6737,7 @@ dissect_ARFSUDataAdjust_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-static char* decode_ARType_spezial(guint16 ARType, guint16 ARAccess)
+static const char* decode_ARType_spezial(guint16 ARType, guint16 ARAccess)
 {
     if (ARType == 0x0001)
         return ("IO Controller AR");

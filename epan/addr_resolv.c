@@ -1070,7 +1070,7 @@ parse_ether_address(const char *cp, ether_t *eth, unsigned int *mask,
       if (num == 0 || num >= 48)
         return FALSE;   /* bogus mask */
       /* Mask out the bits not covered by the mask */
-      *mask = num;
+      *mask = (int)num;
       for (i = 0; num >= 8; i++, num -= 8)
         ;   /* skip octets entirely covered by the mask */
       /* Mask out the first masked octet */

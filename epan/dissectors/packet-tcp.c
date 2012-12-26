@@ -3415,7 +3415,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
                 if (tvb_memeql(tvb, offset + PROBE_V1_QUERY_LEN,
                                qinfo_hdr, sizeof(qinfo_hdr)) == 0) {
                         not_cfe = tvb_get_guint8(tvb, offset + PROBE_V1_QUERY_LEN +
-                                                 sizeof(qinfo_hdr)) & RVBD_FLAGS_PROBE_NCFE;
+                                                 (int)sizeof(qinfo_hdr)) & RVBD_FLAGS_PROBE_NCFE;
                 }
                 col_prepend_fstr(pinfo->cinfo, COL_INFO, "S%s, ",
                                  type == PROBE_TRACE ? "#" :

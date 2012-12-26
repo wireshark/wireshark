@@ -79,7 +79,7 @@ set_last_open_dir(const char *dirname)
  * http://stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
  */
 extern "C" void
-add_menu_recent_capture_file(gchar *cf_name) {
+add_menu_recent_capture_file(const gchar *cf_name) {
     QString normalized_cf_name = QString::fromUtf8(cf_name);
 //    QDir cf_path;
 

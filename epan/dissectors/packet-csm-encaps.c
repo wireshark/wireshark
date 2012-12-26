@@ -155,7 +155,7 @@ static gint ett_csm_encaps_control = -1;
 
 
 /* returns the command name */
-static gchar *
+static const gchar *
 csm_fc(guint16 fc, guint16 ct)
 {
     if (fc == 0x0000) {
@@ -196,7 +196,7 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint        control, type, sequence, length;
     guint        i;
     gboolean     show_error_param= FALSE;
-    gchar       *str_function_name;
+    const gchar *str_function_name;
 
 
     function_code = tvb_get_letohs(tvb, 10);

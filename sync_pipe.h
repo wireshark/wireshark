@@ -63,7 +63,7 @@
 #define SP_QUIT         'Q'     /* "gracefully" capture quit message (SIGUSR1) */
 
 /* write a single message header to the recipient pipe */
-extern int
+extern size_t
 pipe_write_header(int pipe_fd, char indicator, int length);
 
 /* write a message to the recipient pipe in the standard format 

@@ -53,7 +53,7 @@
 
 struct _attr_reg_data {
     GArray *hf;
-    gchar *basename;
+    const gchar *basename;
 };
 
 
@@ -77,8 +77,8 @@ static tvbparse_wanted_t *want_heur;
 static GHashTable *xmpli_names;
 static GHashTable *media_types;
 
-static xml_ns_t xml_ns     = {"xml",     "/", -1, -1, -1, NULL, NULL, NULL};
-static xml_ns_t unknown_ns = {"unknown", "?", -1, -1, -1, NULL, NULL, NULL};
+static xml_ns_t xml_ns     = {(gchar *)"xml",     "/", -1, -1, -1, NULL, NULL, NULL};
+static xml_ns_t unknown_ns = {(gchar *)"unknown", "?", -1, -1, -1, NULL, NULL, NULL};
 static xml_ns_t *root_ns;
 
 static gboolean pref_heuristic_media      = FALSE;
@@ -184,7 +184,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbparse_t       *tt;
     static GPtrArray *stack;
     xml_frame_t      *current_frame;
-    char             *colinfo_str;
+    const char       *colinfo_str;
 
     if (stack != NULL)
         g_ptr_array_free(stack, TRUE);
@@ -210,8 +210,10 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         root_ns = &xml_ns;
         colinfo_str = "/XML";
     } else {
-        colinfo_str = ep_strdup_printf("/%s", root_ns->name);
-        ascii_strup_inplace(colinfo_str);
+        char *colinfo_str_buf;
+        colinfo_str_buf = ep_strdup_printf("/%s", root_ns->name);
+        ascii_strup_inplace(colinfo_str_buf);
+        colinfo_str = colinfo_str_buf;
     }
 
     col_append_str(pinfo->cinfo, COL_PROTOCOL, colinfo_str);
@@ -769,7 +771,7 @@ static void init_xml_parser(void)
 }
 
 
-static xml_ns_t *xml_new_namespace(GHashTable *hash, gchar *name, ...)
+static xml_ns_t *xml_new_namespace(GHashTable *hash, const gchar *name, ...)
 {
     xml_ns_t *ns = g_malloc(sizeof(xml_ns_t));
     va_list   ap;
@@ -798,7 +800,7 @@ static xml_ns_t *xml_new_namespace(GHashTable *hash, gchar *name, ...)
 }
 
 
-static void add_xml_field(GArray *hfs, int *p_id, gchar *name, gchar *fqn)
+static void add_xml_field(GArray *hfs, int *p_id, const gchar *name, const gchar *fqn)
 {
     hf_register_info hfri;
 
@@ -1064,7 +1066,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
             g_string_append_printf(errors, "element %s defined more than once\n", element->name);
             free_elements(NULL, element, NULL);
         } else {
-            g_hash_table_insert(elements, element->name, element);
+            g_hash_table_insert(elements, (gpointer)element->name, element);
             g_ptr_array_add(element_names, g_strdup(element->name));
         }
 
@@ -1140,7 +1142,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
 
         make_xml_hier(root_name, root_element, elements, hier, errors, hfs, etts, dtd_data->proto_name);
 
-        g_hash_table_insert(root_element->elements, root_element->name, root_element);
+        g_hash_table_insert(root_element->elements, (gpointer)root_element->name, root_element);
 
         orig_root = g_hash_table_lookup(elements, root_name);
 
@@ -1166,7 +1168,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
             if( ! g_hash_table_lookup(root_element->elements, curr_name) ) {
                 xml_ns_t *new = make_xml_hier(curr_name, root_element, elements, hier, errors,
                                               hfs, etts, dtd_data->proto_name);
-                g_hash_table_insert(root_element->elements, new->name, new);
+                g_hash_table_insert(root_element->elements, (gpointer)new->name, new);
             }
 
             g_free(curr_name);
@@ -1200,7 +1202,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
 
             g_ptr_array_free(new->element_names, TRUE);
 
-            g_hash_table_insert(root_element->elements, new->name, new);
+            g_hash_table_insert(root_element->elements, (gpointer)new->name, new);
         }
     }
 
@@ -1241,7 +1243,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         g_array_free(etts, TRUE);
     }
 
-    g_hash_table_insert(xml_ns.elements, root_element->name, root_element);
+    g_hash_table_insert(xml_ns.elements, (gpointer)root_element->name, root_element);
 
     g_hash_table_foreach_remove(elements, free_elements, NULL);
     g_hash_table_destroy(elements);
@@ -1345,7 +1347,7 @@ static void init_xml_names(void)
         }
     }
 
-    g_hash_table_foreach(xmpli_names, add_xmlpi_namespace, "xml.xmlpi");
+    g_hash_table_foreach(xmpli_names, add_xmlpi_namespace, (gpointer)"xml.xmlpi");
 
     g_free(dummy);
 }

@@ -368,7 +368,7 @@ set_time_adjustment(char *optarg_str_p)
       frac_digits++;
     }
   }
-  time_adj.tv.tv_usec = val;
+  time_adj.tv.tv_usec = (int)val;
 }
 
 static void
@@ -443,7 +443,7 @@ set_strict_time_adj(char *optarg_str_p)
       frac_digits++;
     }
   }
-  strict_time_adj.tv.tv_usec = val;
+  strict_time_adj.tv.tv_usec = (int)val;
 }
 
 static void
@@ -513,7 +513,7 @@ set_rel_time(char *optarg_str_p)
       frac_digits++;
     }
   }
-  relative_time_window.nsecs = val;
+  relative_time_window.nsecs = (int)val;
 }
 
 static gboolean
@@ -894,7 +894,7 @@ main(int argc, char *argv[])
       break;
 
     case 'c':
-      split_packet_count = strtol(optarg, &p, 10);
+      split_packet_count = (int)strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
         fprintf(stderr, "editcap: \"%s\" isn't a valid packet count\n",
             optarg);
@@ -908,7 +908,7 @@ main(int argc, char *argv[])
       break;
 
     case 'C':
-      choplen = strtol(optarg, &p, 10);
+      choplen = (int)strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
         fprintf(stderr, "editcap: \"%s\" isn't a valid chop length\n",
             optarg);
@@ -925,7 +925,7 @@ main(int argc, char *argv[])
     case 'D':
       dup_detect = TRUE;
       dup_detect_by_time = FALSE;
-      dup_window = strtol(optarg, &p, 10);
+      dup_window = (int)strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
         fprintf(stderr, "editcap: \"%s\" isn't a valid duplicate window value\n",
             optarg);
@@ -969,7 +969,7 @@ main(int argc, char *argv[])
       break;
 
     case 's':
-      snaplen = strtol(optarg, &p, 10);
+      snaplen = (guint32)strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
         fprintf(stderr, "editcap: \"%s\" isn't a valid snapshot length\n",
                 optarg);

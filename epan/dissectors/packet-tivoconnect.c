@@ -70,7 +70,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     gchar * string = NULL;
     gint length = -1;
     /* value strings */
-    gchar * proto_name = NULL;
+    const gchar * proto_name = NULL;
     gchar * packet_identity = NULL;
     gchar * packet_machine = NULL;
 

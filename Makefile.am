@@ -861,11 +861,9 @@ EXTRA_DIST = \
 	$(tpncp_DATA)		\
 	$(ui_DATA)		\
 	$(wimaxasncp_DATA)	\
-	randpkt.c		\
 	reordercap.c		\
 	smi_modules		\
 	text2pcap-scanner.l	\
-	text2pcap.c		\
 	text2pcap.h		\
 	services		\
 	wireshark.desktop	\

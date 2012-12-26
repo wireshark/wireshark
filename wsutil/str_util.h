@@ -68,7 +68,7 @@ gchar *ascii_strup_inplace(gchar *str);
  * @param str The string to be checked
  * @return    TRUE if the entire string is printable, otherwise FALSE
  */
-gboolean isprint_string(guchar *string);
+gboolean isprint_string(const guchar *string);
 
 /** Check if an entire string consists of digits
  *

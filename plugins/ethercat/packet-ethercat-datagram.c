@@ -291,9 +291,9 @@ static void init_EcParserHDR(EcParserHDR* pHdr, tvbuff_t *tvb, gint offset)
 {
    pHdr->cmd = tvb_get_guint8(tvb, offset++);
    pHdr->idx = tvb_get_guint8(tvb, offset++);
-   pHdr->anAddrUnion.a.adp = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
-   pHdr->anAddrUnion.a.ado = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
-   pHdr->len = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
+   pHdr->anAddrUnion.a.adp = tvb_get_letohs(tvb, offset); offset+=(int)sizeof(guint16);
+   pHdr->anAddrUnion.a.ado = tvb_get_letohs(tvb, offset); offset+=(int)sizeof(guint16);
+   pHdr->len = tvb_get_letohs(tvb, offset); offset+=(int)sizeof(guint16);
    pHdr->intr = tvb_get_letohs(tvb, offset);
 }
 
@@ -303,7 +303,7 @@ static void init_dc_measure(guint32* pDC, tvbuff_t *tvb, gint offset)
    for ( i=0; i<4; i++ )
    {
       pDC[i] = tvb_get_letohl(tvb, offset);
-      offset+=sizeof(guint32);
+      offset+=(int)sizeof(guint32);
    }
 }
 
@@ -555,14 +555,14 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             PROTO_ITEM_SET_HIDDEN(aitem);
          }
 
-         suboffset+= sizeof(ecHdr.cmd);
+         suboffset+= (int)sizeof(ecHdr.cmd);
 
          proto_tree_add_item(ecat_header_tree, hf_ecat_idx, tvb, suboffset, sizeof(ecHdr.idx), ENC_LITTLE_ENDIAN);
          if( subCount < 10 ){
             aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_sub_idx[subCount], tvb, suboffset, sizeof(ecHdr.idx), ENC_LITTLE_ENDIAN);
             PROTO_ITEM_SET_HIDDEN(aitem);
          }
-         suboffset+= sizeof(ecHdr.idx);
+         suboffset+= (int)sizeof(ecHdr.idx);
 
          switch ( ecHdr.cmd )
          {
@@ -575,7 +575,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                PROTO_ITEM_SET_HIDDEN(aitem);
             }
 
-            suboffset += (sizeof(ecHdr.anAddrUnion.a.adp)+sizeof(ecHdr.anAddrUnion.a.ado));
+            suboffset += (int)((sizeof(ecHdr.anAddrUnion.a.adp)+sizeof(ecHdr.anAddrUnion.a.ado)));
             break;
          default:
             proto_tree_add_item(ecat_header_tree, hf_ecat_adp, tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.adp), ENC_LITTLE_ENDIAN);
@@ -584,14 +584,14 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                PROTO_ITEM_SET_HIDDEN(aitem);
             }
 
-            suboffset+= sizeof(ecHdr.anAddrUnion.a.adp);
+            suboffset+= (int)sizeof(ecHdr.anAddrUnion.a.adp);
             proto_tree_add_item(ecat_header_tree, hf_ecat_ado, tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.ado), ENC_LITTLE_ENDIAN);
             if( subCount < 10 ){
                aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_sub_ado[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.ado), ENC_LITTLE_ENDIAN);
                PROTO_ITEM_SET_HIDDEN(aitem);
             }
 
-            suboffset+= sizeof(ecHdr.anAddrUnion.a.ado);
+            suboffset+= (int)sizeof(ecHdr.anAddrUnion.a.ado);
          }
 
          {
@@ -609,11 +609,11 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             proto_tree_add_item(length_sub_tree, hf_ecat_length_c, tvb, suboffset, sizeof(ecHdr.len), ENC_LITTLE_ENDIAN);
             proto_tree_add_item(length_sub_tree, hf_ecat_length_m, tvb, suboffset, sizeof(ecHdr.len), ENC_LITTLE_ENDIAN);
 
-            suboffset+= sizeof(ecHdr.len);
+            suboffset+= (int)sizeof(ecHdr.len);
          }
 
          proto_tree_add_item(ecat_header_tree, hf_ecat_int, tvb, suboffset, sizeof(ecHdr.intr), ENC_LITTLE_ENDIAN);
-         suboffset+= sizeof(ecHdr.intr);
+         suboffset+= (int)sizeof(ecHdr.intr);
       }
       else
       {

@@ -42,6 +42,6 @@ void toolbar_redraw_all(void);
  * @param key the key
  * @param data the data to set
  */
-void set_toolbar_object_data(gchar *key, gpointer data);
+void set_toolbar_object_data(const gchar *key, gpointer data);
 
 #endif /* __TOOLBAR_H__ */

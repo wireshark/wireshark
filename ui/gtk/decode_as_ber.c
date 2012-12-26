@@ -121,8 +121,8 @@ decode_ber_add_page (packet_info *pinfo _U_)
     /* create page content */
     page_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     g_object_set_data(G_OBJECT(page_hb), E_PAGE_ACTION, decode_ber);
-    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TABLE, "ASN.1");
-    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TITLE, "ASN.1");
+    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TABLE, (gpointer)"ASN.1");
+    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TITLE, (gpointer)"ASN.1");
 
     info_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_box_pack_start(GTK_BOX(page_hb), info_vb, TRUE, TRUE, 0);

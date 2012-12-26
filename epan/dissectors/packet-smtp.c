@@ -550,7 +550,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                */
               guint32 msg_len;
 
-              msg_len = strtoul (line+5, NULL, 10);
+              msg_len = (guint32)strtoul (line+5, NULL, 10);
 
               spd_frame_data->pdu_type = SMTP_PDU_CMD;
               session_state->data_seen = TRUE;

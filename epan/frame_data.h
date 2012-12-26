@@ -59,7 +59,7 @@ typedef struct _frame_data {
   struct {
     unsigned int passed_dfilter : 1; /**< 1 = display, 0 = no display */
     unsigned int dependent_of_displayed : 1; /**< 1 if a displayed frame depends on this frame */
-    packet_char_enc encoding    : 1; /**< Character encoding (ASCII, EBCDIC...) */
+    unsigned int encoding       : 1; /**< Character encoding (ASCII, EBCDIC...) */
     unsigned int visited        : 1; /**< Has this packet been visited yet? 1=Yes,0=No*/
     unsigned int marked         : 1; /**< 1 = marked by user, 0 = normal */
     unsigned int ref_time       : 1; /**< 1 = marked as a reference time frame, 0 = normal */

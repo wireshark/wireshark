@@ -57,7 +57,7 @@
 /** PacketListRecord: represents a row */
 typedef struct _PacketListRecord {
 	/** The column text for some columns */
-	gchar **col_text;
+	const gchar **col_text;
 	/**< The length of the column text strings in 'col_text' */
 	gushort *col_text_len;
 
@@ -1281,7 +1281,7 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 		PacketListRecord *record;
 		guint vis_idx;
 
-		gchar *widest_column_str = NULL;
+		const gchar *widest_column_str = NULL;
 		guint widest_column_len = 0;
 
 		if (!packet_list->columnized)

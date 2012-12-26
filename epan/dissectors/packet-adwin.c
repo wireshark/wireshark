@@ -868,7 +868,7 @@ dissect_UDPR2(tvbuff_t *tvb, packet_info *pinfo,
 
 	for (i = 0; i < 250; i++) {
 		proto_item *item;
-		guint32 offset = 8 + i * sizeof(guint32);
+		guint32 offset = 8 + i * (int)sizeof(guint32);
 		gint32 value = tvb_get_letohl(tvb, offset);
 		void * fvalue = &value;
 		proto_tree_add_text(adwin_debug_tree, tvb, offset, 4,
@@ -907,7 +907,7 @@ dissect_UDPR3(tvbuff_t *tvb, packet_info *pinfo,
 
 	for (i = 0; i < 350; i++) {
 		proto_item *item;
-		guint32 offset = 8 + i * sizeof(guint32);
+		guint32 offset = 8 + i * (int)sizeof(guint32);
 		gint32 value = tvb_get_letohl(tvb, offset);
 		void * fvalue = &value;
 		proto_tree_add_text(adwin_debug_tree, tvb, offset, 4,
@@ -959,7 +959,7 @@ dissect_UDPR4(tvbuff_t *tvb, packet_info *pinfo,
 
 	for (i = 0; i < 350; i++) {
 		proto_item *item;
-		guint32 offset = 8 + i * sizeof(guint32);
+		guint32 offset = 8 + i * (int)sizeof(guint32);
 		gint32 value = tvb_get_letohl(tvb, offset);
 		void * fvalue = &value;
 		switch (data_type) {
@@ -1018,7 +1018,7 @@ dissect_GDSHP(tvbuff_t *tvb, packet_info *pinfo,
 
 	for (i = 0; i < 336; i++) {
 		proto_item *item;
-		guint32 offset = 12 + i * sizeof(guint32);
+		guint32 offset = 12 + i * (int)sizeof(guint32);
 		gint32 value = tvb_get_letohl(tvb, offset);
 		void * fvalue = &value;
 		proto_tree_add_text(adwin_debug_tree, tvb, offset, 4,

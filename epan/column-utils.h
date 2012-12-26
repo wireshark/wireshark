@@ -246,7 +246,7 @@ extern void	col_append_sep_fstr(column_info *cinfo, const gint col, const gchar 
  *			  applying/preparing/copying as filter)
  */
 extern void 	col_set_time(column_info *cinfo, const int col,
-			const nstime_t *ts, char *fieldname);
+			const nstime_t *ts, const char *fieldname);
 
 extern void set_fd_time(frame_data *fd, gchar *buf);
 

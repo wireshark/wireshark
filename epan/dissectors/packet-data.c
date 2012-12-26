@@ -81,7 +81,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				const guint8 *cp;
 				md5_state_t   md_ctx;
 				md5_byte_t    digest[16];
-				gchar        *digest_string;
+				const gchar  *digest_string;
 
 				cp = tvb_get_ptr(tvb, 0, bytes);
 

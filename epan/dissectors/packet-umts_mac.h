@@ -84,6 +84,6 @@ enum enum_mac_tsn_size {
     MAC_TSN_6BITS,
     MAC_TSN_14BITS
 };
-gint get_mac_tsn_size();
+gint get_mac_tsn_size(void);
 
 #endif

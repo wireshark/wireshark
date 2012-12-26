@@ -98,7 +98,7 @@ typedef enum ReplyStatusType {
  */
 
 typedef gboolean (giop_sub_dissector_t)(tvbuff_t *, packet_info *, proto_tree *, int *,
-				  MessageHeader *, gchar * , gchar *);
+				  MessageHeader *, const gchar * , gchar *);
 
 /*
  * Generic Subdissector handle, wraps user info.
@@ -359,7 +359,7 @@ extern guint8 get_CDR_octet(tvbuff_t *tvb, int *offset);
  * This function also increments offset by len.
  */
 
-extern void get_CDR_octet_seq(tvbuff_t *tvb, gchar **seq, int *offset, guint32 len);
+extern void get_CDR_octet_seq(tvbuff_t *tvb, const gchar **seq, int *offset, guint32 len);
 
 /* Copy a 2 octet sequence from the tvbuff
  * which represents a signed short value, and convert
@@ -396,7 +396,7 @@ extern void giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *offset,
  *
  */
 
-extern guint32 get_CDR_string(tvbuff_t *tvb, gchar **seq, int *offset,
+extern guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
@@ -482,7 +482,7 @@ extern guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset,
  * Wchar is not supported for GIOP 1.0.
  */
 
-extern gint get_CDR_wchar(tvbuff_t *tvb, gchar **seq, int *offset,
+extern gint get_CDR_wchar(tvbuff_t *tvb, const gchar **seq, int *offset,
     MessageHeader * header);
 
 
@@ -505,7 +505,7 @@ extern gint get_CDR_wchar(tvbuff_t *tvb, gchar **seq, int *offset,
  * Wstring is not supported for GIOP 1.0.
  */
 
-extern guint32 get_CDR_wstring(tvbuff_t *tvb, gchar **seq, int *offset,
+extern guint32 get_CDR_wstring(tvbuff_t *tvb, const gchar **seq, int *offset,
     gboolean stream_is_big_endian, int boundary, MessageHeader * header);
 
 
@@ -540,7 +540,7 @@ extern guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
  * the initial sequence.
  */
 
-extern gchar * make_printable_string (gchar *in, guint32 len);
+extern gchar * make_printable_string (const gchar *in, guint32 len);
 
 /*
  * Enums for TCkind

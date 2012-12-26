@@ -114,7 +114,7 @@ enum MessageType
 };
 
 /** OpcUa Transport Message Type Names */
-static char* g_szMessageTypes[] =
+static const char* g_szMessageTypes[] =
 {
     "Hello message",
     "Acknowledge message",

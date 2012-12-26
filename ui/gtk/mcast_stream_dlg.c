@@ -212,7 +212,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_1);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
-	fnumber = strtoul(fnumber_text, &p, 10);
+	fnumber = (gint)strtol(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) || (fnumber > 1000) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The burst interval should be between 1 and 1000 ms.");
 		return;
@@ -221,7 +221,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_2);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
-	fnumber = strtoul(fnumber_text, &p, 10);
+	fnumber = (gint)strtol(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The burst alarm threshold you entered isn't valid.");
 		return;
@@ -230,7 +230,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_3);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
-	fnumber = strtoul(fnumber_text, &p, 10);
+	fnumber = (gint)strtol(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The buffer alarm threshold you entered isn't valid.");
 		return;
@@ -239,7 +239,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_4);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
-	fnumber = strtoul(fnumber_text, &p, 10);
+	fnumber = (gint)strtol(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) || (fnumber > 10000000) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The stream empty speed should be between 1 and 10000000");
 		return;
@@ -248,7 +248,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_5);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
-	fnumber = strtoul(fnumber_text, &p, 10);
+	fnumber = (gint)strtol(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) || (fnumber > 10000000) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The total empty speed should be between 1 and 10000000");
 		return;

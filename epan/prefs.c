@@ -63,7 +63,7 @@ static module_t *find_subtree(module_t *parent, const char *tilte);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void), gboolean use_gui);
-static prefs_set_pref_e set_pref(gchar*, gchar*, void *, gboolean);
+static prefs_set_pref_e set_pref(gchar*, const gchar*, void *, gboolean);
 static void write_string_list(FILE *, GList *, gboolean is_default);
 static void free_col_info(GList *);
 static void pre_init_prefs(void);
@@ -1216,11 +1216,11 @@ static void console_log_level_reset_cb(pref_t* pref)
     *pref->varp.uint = pref->default_val.uint;
 }
 
-static prefs_set_pref_e console_log_level_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+static prefs_set_pref_e console_log_level_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
 {
     guint    uval;
 
-    uval = strtoul(value, NULL, 10);
+    uval = (guint)strtoul(value, NULL, 10);
 
     if (*pref->varp.uint != uval) {
         *changed = TRUE;
@@ -1278,7 +1278,7 @@ static void column_hidden_reset_cb(pref_t* pref)
     *pref->varp.string = g_strdup(pref->default_val.string);
 }
 
-static prefs_set_pref_e column_hidden_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+static prefs_set_pref_e column_hidden_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
 {
     GList       *clp;
     fmt_data    *cfmt;
@@ -1357,7 +1357,7 @@ static void column_num_reset_cb(pref_t* pref)
     *pref->varp.uint = pref->default_val.uint;
 }
 
-static prefs_set_pref_e column_num_set_cb(pref_t* pref _U_, gchar* value _U_, gboolean* changed _U_)
+static prefs_set_pref_e column_num_set_cb(pref_t* pref _U_, const gchar* value _U_, gboolean* changed _U_)
 {
     /* Don't write this to the preferences file */
     return PREFS_SET_OK;
@@ -1430,7 +1430,7 @@ static void column_format_reset_cb(pref_t* pref)
     column_num_reset_cb(col_num_pref);
 }
 
-static prefs_set_pref_e column_format_set_cb(pref_t* pref, gchar* value, gboolean* changed _U_)
+static prefs_set_pref_e column_format_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
 {
     GList    *col_l, *col_l_elt;
     fmt_data *cfmt;
@@ -1622,7 +1622,7 @@ static void capture_column_reset_cb(pref_t* pref)
     }
 }
 
-static prefs_set_pref_e capture_column_set_cb(pref_t* pref, gchar* value, gboolean* changed _U_)
+static prefs_set_pref_e capture_column_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
 {
     GList    *col_l, *col_l_elt;
     gchar    *col_name;
@@ -1706,7 +1706,7 @@ static void colorized_frame_reset_cb(pref_t* pref)
     *pref->varp.string = g_strdup(pref->default_val.string);
 }
 
-static prefs_set_pref_e colorized_frame_set_cb(pref_t* pref, gchar* value, gboolean* changed)
+static prefs_set_pref_e colorized_frame_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
 {
     if (strcmp(*pref->varp.string, value) != 0) {
         *changed = TRUE;
@@ -2160,7 +2160,7 @@ prefs_register_modules(void)
 /* Parse through a list of comma-separated, possibly quoted strings.
    Return a list of the string data. */
 GList *
-prefs_get_string_list(gchar *str)
+prefs_get_string_list(const gchar *str)
 {
   enum { PRE_STRING, IN_QUOT, NOT_IN_QUOT };
 
@@ -2514,57 +2514,12 @@ pre_init_prefs(void)
   prefs.filter_toolbar_show_in_statusbar = FALSE;
   prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
   prefs.gui_toolbar_filter_style = TB_STYLE_TEXT;
+  /* This can be g_freed, so it must be g_mallocated. */
+  /* XXX - are these the right font names for Qt? */
 #ifdef _WIN32
-  prefs.gui_font_name = "Lucida Console 10";
+  prefs.gui_font_name              = g_strdup("Lucida Console 10");
 #else
-  /*
-   * XXX - for now, we make the initial font name a pattern that matches
-   * only ISO 8859/1 fonts, so that we don't match 2-byte fonts such
-   * as ISO 10646 fonts.
-   *
-   * Users in locales using other one-byte fonts will have to choose
-   * a different font from the preferences dialog - or put the font
-   * selection in the global preferences file to make that font the
-   * default for all users who don't explicitly specify a different
-   * font.
-   *
-   * Making this a font set rather than a font has two problems:
-   *
-   *	1) as far as I know, you can't select font sets with the
-   *	   font selection dialog;
-   *
-   *  2) if you use a font set, the text to be drawn must be a
-   *	   multi-byte string in the appropriate locale, but
-   *	   Wireshark does *NOT* guarantee that's the case - in
-   *	   the hex-dump window, each character in the text portion
-   *	   of the display must be a *single* byte, and in the
-   *	   packet-list and protocol-tree windows, text extracted
-   *	   from the packet is not necessarily in the right format.
-   *
-   * "Doing this right" may, for the packet-list and protocol-tree
-   * windows, require that dissectors know what the locale is
-   * *AND* know what locale and text representation is used in
-   * the packets they're dissecting, and may be impossible in
-   * the hex-dump window (except by punting and displaying only
-   * ASCII characters).
-   *
-   * GTK+ 2.0 may simplify part of the problem, as it will, as I
-   * understand it, use UTF-8-encoded Unicode as its internal
-   * character set; however, we'd still have to know whatever
-   * character set and encoding is used in the packet (which
-   * may differ for different protocols, e.g. SMB might use
-   * PC code pages for some strings and Unicode for others, whilst
-   * NFS might use some UNIX character set encoding, e.g. ISO 8859/x,
-   * or one of the EUC character sets for Asian languages, or one
-   * of the other multi-byte character sets, or UTF-8, or...).
-   *
-   * I.e., as far as I can tell, "internationalizing" the packet-list,
-   * protocol-tree, and hex-dump windows involves a lot more than, say,
-   * just using font sets rather than fonts.
-   */
-  /* XXX - the above comment was about the GTK1 font stuff, just remove this comment now */
-  /* XXX- is this the correct default font name for GTK2 none win32? */
-  prefs.gui_font_name = "Monospace 10";
+  prefs.gui_font_name              = g_strdup("Monospace 10");
 #endif
   prefs.gui_marked_fg.pixel        =     65535;
   prefs.gui_marked_fg.red          =     65535;
@@ -2613,8 +2568,10 @@ pre_init_prefs(void)
   prefs.gui_ask_unsaved            = TRUE;
   prefs.gui_find_wrap              = TRUE;
   prefs.gui_use_pref_save          = FALSE;
-  prefs.gui_webbrowser             = HTML_VIEWER " %s";
-  prefs.gui_window_title           = "";
+  /* This can be g_freed, so it must be g_mallocated. */
+  prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
+  /* This can be g_freed, so it must be g_mallocated. */
+  prefs.gui_window_title           = g_strdup("");
   prefs.gui_start_title            = "The World's Most Popular Network Protocol Analyzer";
   prefs.gui_version_placement      = version_both;
   prefs.gui_auto_scroll_on_expand  = FALSE;
@@ -3282,7 +3239,7 @@ prefs_capture_options_dialog_column_is_visible(const gchar *column)
 #define BLUE_COMPONENT(x)  (guint16) ( (((x)        & 0xff) * 65535 / 255))
 
 char
-string_to_name_resolve(char *string, e_addr_resolve *name_resolve)
+string_to_name_resolve(const char *string, e_addr_resolve *name_resolve)
 {
   char c;
 
@@ -3321,7 +3278,7 @@ try_convert_to_custom_column(gpointer *el_data)
     /* Array of columns that have been migrated to custom columns */
     struct {
         gint el;
-        gchar *col_expr;
+        const gchar *col_expr;
     } migrated_columns[] = {
         { COL_COS_VALUE, "vlan.priority" },
         { COL_CIRCUIT_ID, "iax2.call" },
@@ -3359,7 +3316,7 @@ try_convert_to_custom_column(gpointer *el_data)
 }
 
 static prefs_set_pref_e
-set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
+set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
          gboolean return_range_errors)
 {
   unsigned long int cval;
@@ -3772,7 +3729,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     switch (pref->type) {
 
     case PREF_UINT:
-      uval = strtoul(value, &p, pref->info.base);
+      /* XXX - give an error if it doesn't fit in a guint? */
+      uval = (guint)strtoul(value, &p, pref->info.base);
       if (p == value || *p != '\0')
         return PREFS_SET_SYNTAX_ERR;        /* number was bad */
       if (*pref->varp.uint != uval) {

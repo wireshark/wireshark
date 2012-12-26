@@ -43,7 +43,7 @@
 
 
 /* write a single message header to the recipient pipe */
-int
+size_t
 pipe_write_header(int pipe_fd, char indicator, int length)
 {
     guchar header[1+3]; /* indicator + 3-byte len */
@@ -69,7 +69,7 @@ pipe_write_header(int pipe_fd, char indicator, int length)
 void
 pipe_write_block(int pipe_fd, char indicator, const char *msg)
 {
-    int ret;
+    ssize_t ret;
     int len;
 
     /*g_warning("write %d enter", pipe_fd);*/
@@ -89,7 +89,7 @@ pipe_write_block(int pipe_fd, char indicator, const char *msg)
     /* write value (if we have one) */
     if(len) {
         /*g_warning("write %d indicator: %c value len: %u msg: %s", pipe_fd, indicator, len, msg);*/
-        ret = (int) write(pipe_fd, msg, len);
+        ret = write(pipe_fd, msg, len);
         if(ret == -1) {
             return;
         }

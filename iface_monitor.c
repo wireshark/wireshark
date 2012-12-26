@@ -243,7 +243,7 @@ iface_mon_event(void)
     ssize_t received;
     struct kern_event_msg *kem;
     struct net_event_data *evd;
-    int evd_len;
+    size_t evd_len;
     char ifr_name[IFNAMSIZ];
 
     received = recv(s, msg, sizeof msg, 0);

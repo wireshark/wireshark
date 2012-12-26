@@ -450,14 +450,14 @@ void parseXmlElement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex
 
 void parseFloat(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-     proto_tree_add_item(tree, hfIndex, tvb, *pOffset, sizeof(gfloat), ENC_LITTLE_ENDIAN);
-     *pOffset += sizeof(gfloat);
+     proto_tree_add_item(tree, hfIndex, tvb, *pOffset, (int)sizeof(gfloat), ENC_LITTLE_ENDIAN);
+     *pOffset += (int)sizeof(gfloat);
 }
 
 void parseDouble(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-	 proto_tree_add_item(tree, hfIndex, tvb, *pOffset, sizeof(gdouble), ENC_LITTLE_ENDIAN);
-     *pOffset += sizeof(gdouble);
+     proto_tree_add_item(tree, hfIndex, tvb, *pOffset, (int)sizeof(gdouble), ENC_LITTLE_ENDIAN);
+     *pOffset += (int)sizeof(gdouble);
 }
 
 void parseDateTime(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)

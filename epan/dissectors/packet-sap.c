@@ -135,7 +135,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         is_comp = vers_flags&MCAST_SAP_BIT_C;
 
         sap_version = (vers_flags&MCAST_SAP_VERSION_MASK)>>MCAST_SAP_VERSION_SHIFT;
-        addr_len = (is_ipv6) ? sizeof(struct e_in6_addr) : 4;
+        addr_len = (is_ipv6) ? (int)sizeof(struct e_in6_addr) : 4;
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%u)",
@@ -176,7 +176,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                   int has_pad;
                   guint8 pad_len = 0;
 
-                  auth_data_len = auth_len * sizeof(guint32);
+                  auth_data_len = (guint32)(auth_len * sizeof(guint32));
 
                   sdi = proto_tree_add_item(sap_tree, hf_auth_data, tvb, offset, auth_data_len, ENC_NA);
                   sa_tree = proto_item_add_subtree(sdi, ett_sap_auth);

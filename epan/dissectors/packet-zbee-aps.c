@@ -1715,12 +1715,12 @@ zbee_apf_transaction_len(tvbuff_t *tvb, guint offset, guint8 type)
         switch (kvp_type) {
             case ZBEE_APP_KVP_ABS_TIME:
             case ZBEE_APP_KVP_REL_TIME:
-                kvp_len += sizeof(guint32);
+                kvp_len += 4;
                 break;
             case ZBEE_APP_KVP_UINT16:
             case ZBEE_APP_KVP_INT16:
             case ZBEE_APP_KVP_FLOAT16:
-                kvp_len +=2;
+                kvp_len += 2;
                 break;
             case ZBEE_APP_KVP_UINT8:
             case ZBEE_APP_KVP_INT8:

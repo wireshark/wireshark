@@ -390,8 +390,8 @@ dissect_float(proto_tree *tree, int hf, tvbuff_t *tvb, gint offset)
 }
 
 static gint
-dissect_string(proto_tree *tree, int hf, char *name, int len, tvbuff_t *tvb,
-  gint offset)
+dissect_string(proto_tree *tree, int hf, const char *name, int len,
+  tvbuff_t *tvb, gint offset)
 {
   proto_item *ti;
   char       *str;
@@ -408,8 +408,8 @@ dissect_string(proto_tree *tree, int hf, char *name, int len, tvbuff_t *tvb,
 }
 
 static gint
-dissect_packAscii(proto_tree *tree, int hf, char *name, int len, tvbuff_t *tvb,
-  gint offset)
+dissect_packAscii(proto_tree *tree, int hf, const char *name, int len,
+  tvbuff_t *tvb, gint offset)
 {
   gushort     usIdx;
   gushort     usGroupCnt;
@@ -458,8 +458,8 @@ dissect_packAscii(proto_tree *tree, int hf, char *name, int len, tvbuff_t *tvb,
 }
 
 static gint
-dissect_timestamp(proto_tree *tree, int hf, char *name, int len, tvbuff_t *tvb,
-  gint offset)
+dissect_timestamp(proto_tree *tree, int hf, const char *name, int len,
+  tvbuff_t *tvb, gint offset)
 {
   proto_item *ti;
   guint32     t;

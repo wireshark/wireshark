@@ -39,7 +39,6 @@
 int proto_umts_mac = -1;
 extern int proto_fp;
 extern int proto_rlc;
-extern int proto_rrc;
 
 /* dissector fields */
 static int hf_mac_fach_fdd_tctf = -1;

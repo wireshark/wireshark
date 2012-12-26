@@ -565,26 +565,26 @@ dissect_btsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (parameters_check < required_parameters) {
-        gchar *error_message = "There is no required parameters";
-        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message, NULL);
+        static const gchar error_message[] = "There are no required parameters";
+        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message);
         PROTO_ITEM_SET_GENERATED(pitem);
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message, NULL);
+        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message);
     } else if (parameters_check > required_parameters) {
-        gchar *error_message = "Invalid parameters";
-        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message, NULL);
+        static const gchar error_message[] = "Invalid parameters";
+        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message);
         PROTO_ITEM_SET_GENERATED(pitem);
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message, NULL);
+        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message);
     }
     if (number_of_parameters < required_parameters) {
-        gchar *error_message = "Too few parameters";
-        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message, NULL);
+        static const gchar error_message[] = "Too few parameters";
+        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message);
         PROTO_ITEM_SET_GENERATED(pitem);
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message, NULL);
+        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message);
     } else if (number_of_parameters > required_parameters) {
-        gchar *error_message = "Too many parameters";
-        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message, NULL);
+        static const gchar error_message[] = "Too many parameters";
+        pitem = proto_tree_add_text(tree, tvb, offset, 0, error_message);
         PROTO_ITEM_SET_GENERATED(pitem);
-        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message, NULL);
+        expert_add_info_format(pinfo, pitem, PI_PROTOCOL, PI_WARN, error_message);
     }
 
     if (tvb_length(tvb) > offset) {

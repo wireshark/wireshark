@@ -676,58 +676,58 @@ set_abs_date_time(const frame_data *fd, gchar *buf, gboolean local)
           break;
       case TS_PREC_FIXED_DSEC:
       case TS_PREC_AUTO_DSEC:
-          g_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d.%01ld",
+          g_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d.%01d",
              tmp->tm_year + 1900,
              tmp->tm_mon + 1,
              tmp->tm_mday,
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_ts.nsecs / 100000000);
+             fd->abs_ts.nsecs / 100000000);
           break;
       case TS_PREC_FIXED_CSEC:
       case TS_PREC_AUTO_CSEC:
-          g_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d.%02ld",
+          g_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d.%02d",
              tmp->tm_year + 1900,
              tmp->tm_mon + 1,
              tmp->tm_mday,
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_ts.nsecs / 10000000);
+             fd->abs_ts.nsecs / 10000000);
           break;
       case TS_PREC_FIXED_MSEC:
       case TS_PREC_AUTO_MSEC:
-          g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%03ld",
+          g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%03d",
              tmp->tm_year + 1900,
              tmp->tm_mon + 1,
              tmp->tm_mday,
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_ts.nsecs / 1000000);
+             fd->abs_ts.nsecs / 1000000);
           break;
       case TS_PREC_FIXED_USEC:
       case TS_PREC_AUTO_USEC:
-          g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%06ld",
+          g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%06d",
              tmp->tm_year + 1900,
              tmp->tm_mon + 1,
              tmp->tm_mday,
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_ts.nsecs / 1000);
+             fd->abs_ts.nsecs / 1000);
           break;
       case TS_PREC_FIXED_NSEC:
       case TS_PREC_AUTO_NSEC:
-          g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%09ld",
+          g_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d.%09d",
              tmp->tm_year + 1900,
              tmp->tm_mon + 1,
              tmp->tm_mday,
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_ts.nsecs);
+             fd->abs_ts.nsecs);
           break;
       default:
           g_assert_not_reached();
@@ -1051,43 +1051,43 @@ set_abs_time(const frame_data *fd, gchar *buf, gboolean local)
           break;
       case TS_PREC_FIXED_DSEC:
       case TS_PREC_AUTO_DSEC:
-          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%01ld",
+          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%01d",
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_ts.nsecs / 100000000);
+             fd->abs_ts.nsecs / 100000000);
           break;
       case TS_PREC_FIXED_CSEC:
       case TS_PREC_AUTO_CSEC:
-          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%02ld",
+          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%02d",
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_ts.nsecs / 10000000);
+             fd->abs_ts.nsecs / 10000000);
           break;
       case TS_PREC_FIXED_MSEC:
       case TS_PREC_AUTO_MSEC:
-          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%03ld",
+          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%03d",
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_ts.nsecs / 1000000);
+             fd->abs_ts.nsecs / 1000000);
           break;
       case TS_PREC_FIXED_USEC:
       case TS_PREC_AUTO_USEC:
-          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%06ld",
+          g_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d.%06d",
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_ts.nsecs / 1000);
+             fd->abs_ts.nsecs / 1000);
           break;
       case TS_PREC_FIXED_NSEC:
       case TS_PREC_AUTO_NSEC:
-          g_snprintf(buf, COL_MAX_LEN, "%02d:%02d:%02d.%09ld",
+          g_snprintf(buf, COL_MAX_LEN, "%02d:%02d:%02d.%09d",
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_ts.nsecs);
+             fd->abs_ts.nsecs);
           break;
       default:
           g_assert_not_reached();
@@ -1364,7 +1364,7 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const
  *			  applying/preparing/copying as filter)
  */
 void
-col_set_time(column_info *cinfo, const gint el, const nstime_t *ts, char *fieldname)
+col_set_time(column_info *cinfo, const gint el, const nstime_t *ts, const char *fieldname)
 {
   int col;
 

@@ -390,7 +390,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 {
 	print_stream_t	*stream;
 	gboolean	 to_file;
-	char		*print_dest;
+	const char	*print_dest;
 	follow_info_t	*follow_info = data;
 #ifdef _WIN32
 	gboolean         win_printer = FALSE;
@@ -711,7 +711,7 @@ forget_follow_info(follow_info_t *follow_info)
 }
 
 void
-follow_stream(gchar *title, follow_info_t *follow_info,
+follow_stream(const gchar *title, follow_info_t *follow_info,
 	      gchar *both_directions_string,
 	      gchar *server_to_client_string, gchar *client_to_server_string)
 {

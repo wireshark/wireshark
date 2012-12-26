@@ -319,7 +319,7 @@ dissect_create_link_parms(tvbuff_t *tvb,
                           packet_info *pinfo,
                           proto_tree *tree)
 {
-    char *str;
+    const char *str;
 
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_client_id, offset);
     offset = dissect_rpc_bool(tvb, tree, hf_vxi11_core_lock_device, offset);

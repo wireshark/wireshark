@@ -899,11 +899,11 @@ arcfour_mic_cksum(guint8 *key_data, int key_length,
  */
 static int
 gssapi_verify_pad(unsigned char *wrapped_data, int wrapped_length,
-		   size_t datalen,
-		   size_t *padlen)
+		   int datalen,
+		   int *padlen)
 {
     unsigned char *pad;
-    size_t padlength;
+    int padlength;
     int i;
 
     pad = wrapped_data + wrapped_length - 1;
@@ -930,14 +930,14 @@ decrypt_arcfour(packet_info *pinfo,
 {
     guint8 Klocaldata[16];
     int ret;
-    size_t datalen;
+    int datalen;
     guint8 k6_data[16];
     guint32 SND_SEQ[2];
     guint8 Confounder[8];
     guint8 cksum_data[8];
     int cmp;
     int conf_flag;
-    size_t padlen = 0;
+    int padlen = 0;
 
     datalen = tvb_length(pinfo->gssapi_encrypted_tvb);
 

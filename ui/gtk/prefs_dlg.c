@@ -1061,7 +1061,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
 
   case PREF_UINT:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
-    uval = strtoul(str_val, &p, pref->info.base);
+    uval = (guint)strtoul(str_val, &p, pref->info.base);
 #if 0
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;      /* number was bad */

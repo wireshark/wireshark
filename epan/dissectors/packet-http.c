@@ -1360,7 +1360,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 			http_conv_t *conv_data)
 {
 	const guchar *next_token;
-	gchar *request_uri;
+	const gchar *request_uri;
 	int tokenlen;
 
 	/* The first token is the method. */
@@ -1380,7 +1380,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	tokenlen = get_token_len(line, lineend, &next_token);
 
 	/* Save the request URI for various later uses */
-	request_uri = (gchar *)tvb_get_ephemeral_string(tvb, offset, tokenlen);
+	request_uri = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 	stat_info->request_uri = ep_strdup(request_uri);
  	conv_data->request_uri = se_strdup(request_uri);
 
@@ -1430,7 +1430,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	response_code_chars[3] = '\0';
 
 	stat_info->response_code = conv_data->response_code =
-		strtoul(response_code_chars, NULL, 10);
+		(guint)strtoul(response_code_chars, NULL, 10);
 
 	proto_tree_add_uint(tree, hf_http_response_code, tvb, offset, 3,
 			    stat_info->response_code);
@@ -1708,7 +1708,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			*c = '\0';
 		}
 
-		chunk_size = strtol((gchar*)chunk_string, NULL, 16);
+		chunk_size = (guint32)strtol((gchar*)chunk_string, NULL, 16);
 
 		if (chunk_size > datalen) {
 			/*
@@ -1815,7 +1815,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			PROTO_ITEM_SET_GENERATED(item);
 
 			item = proto_tree_add_uint(proxy_tree, hf_http_proxy_connect_port,
-						   tvb, 0, 0, strtol(strings[1], NULL, 10) );
+						   tvb, 0, 0, (guint32)strtol(strings[1], NULL, 10) );
 			PROTO_ITEM_SET_GENERATED(item);
 		}
 
@@ -2241,7 +2241,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			case FT_INT16:
 			case FT_INT24:
 			case FT_INT32:
-				tmp=strtol(value, NULL, 10);
+				tmp=(guint32)strtol(value, NULL, 10);
 				hdr_item = proto_tree_add_uint(tree, *headers[hf_index].hf, tvb, offset, len, tmp);
 				break;
 			default:
