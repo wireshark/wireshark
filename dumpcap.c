@@ -250,9 +250,12 @@ typedef struct _pcap_options {
     gboolean                     cap_pipe_byte_swapped;  /* TRUE if data in the pipe is byte swapped */
 #if defined(_WIN32)
     char *                       cap_pipe_buf;           /* Pointer to the data buffer we read into */
-#endif
+    DWORD                        cap_pipe_bytes_to_read; /* Used by cap_pipe_dispatch */
+    DWORD                        cap_pipe_bytes_read;    /* Used by cap_pipe_dispatch */
+#else
     size_t                       cap_pipe_bytes_to_read; /* Used by cap_pipe_dispatch */
     size_t                       cap_pipe_bytes_read;    /* Used by cap_pipe_dispatch */
+#endif
     enum {
         STATE_EXPECT_REC_HDR,
         STATE_READ_REC_HDR,
@@ -280,7 +283,7 @@ typedef struct _loop_data {
     /* output file(s) */
     FILE     *pdh;
     int       save_file_fd;
-    long      bytes_written;
+    guint64   bytes_written;
     guint32   autostop_files;
 } loop_data;
 
@@ -1713,11 +1716,11 @@ cap_pipe_read(int pipe_fd, char *buf, size_t sz, gboolean from_socket _U_)
 static void *cap_thread_read(void *arg)
 {
     pcap_options *pcap_opts;
-    size_t bytes_read;
 #ifdef _WIN32
     BOOL res;
-    DWORD b, last_err;
+    DWORD b, last_err, bytes_read;
 #else /* _WIN32 */
+    size_t bytes_read;
     int b;
 #endif /* _WIN32 */
 
