@@ -4358,6 +4358,8 @@ static guint16 (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tre
     NULL,   /* NONE */
 };
 
+#define NUM_BSS_ELEMENT_FCNS	(int)(sizeof(bssmap_bss_to_bss_element_fcn)/(sizeof bssmap_bss_to_bss_element_fcn[0]))
+
 static guint16
 be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -4395,7 +4397,8 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
         /*
          * decode field element
          */
-        if (idx < 0 || (bssmap_bss_to_bss_element_fcn[idx] == NULL))
+        if (idx < 0 || idx >= NUM_BSS_ELEMENT_FCNS ||
+           (bssmap_bss_to_bss_element_fcn[idx] == NULL))
         {
             proto_tree_add_text(bss_to_bss_tree,
                 tvb, curr_offset, ie_len,
@@ -6369,7 +6372,7 @@ bssmap_reset_ip_res_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
-#define NUM_GSM_BSSMAP_MSG (sizeof(gsm_a_bssmap_msg_strings)/sizeof(value_string))
+#define NUM_GSM_BSSMAP_MSG (int)(sizeof(gsm_a_bssmap_msg_strings)/sizeof(value_string))
 static gint ett_gsm_bssmap_msg[NUM_GSM_BSSMAP_MSG];
 
 static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
@@ -6496,8 +6499,16 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     bssmap_int_ho_cmd,                  /* 0x72 Internal Handover Command */
     bssmap_int_ho_enq,                  /* 0x73 Internal Handover Enquiry */
 
+    NULL,                               /* 0x74 LCLS-Connect-Control */
+    NULL,                               /* 0x75 LCLS-Connect-Control-Ack */
+    NULL,                               /* 0x76 LCLS-Notification */
+    NULL,                               /* 0x77 Unallocated */
+    NULL,                               /* 0x78 Reroute Command */
+    NULL,                               /* 0x79 Reroute Complete */
+
     NULL,   /* NONE */
 };
+#define NUM_BSSMAP_MSG_FCNS	(int)(sizeof(bssmap_msg_fcn)/sizeof(bssmap_msg_fcn[0]))
 
 void
 dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -6560,7 +6571,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* These two conditions are actually the same, but checking idx makes it
      * obvious we won' t use a potentially negative idx in the else case.
      */
-    if (str == NULL || idx < 0)
+    if (str == NULL || idx < 0 || idx >= NUM_GSM_BSSMAP_MSG)
     {
         bssmap_item =
         proto_tree_add_protocol_format(tree, proto_a_bssmap, tvb, 0, len,
@@ -6599,7 +6610,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * decode elements
      */
-    if (idx < 0 || bssmap_msg_fcn[idx] == NULL) {
+    if (idx < 0 || idx >= NUM_BSSMAP_MSG_FCNS || bssmap_msg_fcn[idx] == NULL) {
         proto_tree_add_text(bssmap_tree,
             tvb, offset, len - offset,
             "Message Elements");
