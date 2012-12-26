@@ -2068,9 +2068,9 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
       g_snprintf(buffer, BUFFER_SIZE, "%-10s: ", "Data...");
 
       buf_ptr += 9;
-      for (x=1; x<=perline; x++) {
-        buf_ptr = ltos((guint8)x, buf_ptr, 10, ' ', min_char, FALSE);
-        if (x==halfline) {
+      for (x=0; x<perline; x++) {
+        buf_ptr = ltos((guint8)(x+1), buf_ptr, 10, ' ', min_char, FALSE);
+        if ((x+1)==halfline) {
           *buf_ptr++ =  '|';
           *buf_ptr++ =  ' ';
         }
