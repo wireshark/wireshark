@@ -107,14 +107,14 @@ simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
     return ret;
 }
 
-char *
+const char *
 simple_dialog_primary_start(void) {
-    return (char *) "";
+    return "";
 }
 
-char *
+const char *
 simple_dialog_primary_end(void) {
-    return (char *) "";
+    return "";
 }
 
 char *
