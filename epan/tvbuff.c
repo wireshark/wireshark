@@ -32,7 +32,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -2361,11 +2361,11 @@ tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length)
 gchar *
 tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
-	gchar     *tmpbuf = NULL;
 	gunichar2  uchar;
 	gint       i;           /* Byte counter for tvbuff */
-	gint       tmpbuf_len;
 	GString   *strbuf = NULL;
+
+	tvb_ensure_bytes_exist(tvb, offset, length);
 
 	strbuf = g_string_new(NULL);
 
@@ -2376,22 +2376,7 @@ tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guin
 		else
 			uchar = tvb_get_letohs(tvb, offset + i);
 
-		/* Calculate how much space is needed to store UTF-16 character
-		 * in UTF-8 */
-		tmpbuf_len = g_unichar_to_utf8(uchar, NULL);
-
-		tmpbuf     = g_malloc(tmpbuf_len + 1); /* + 1 to make room for null
-						    * terminator */
-
-		g_unichar_to_utf8(uchar, tmpbuf);
-
-		/* NULL terminate the tmpbuf so g_string_append knows where
-		 * to stop */
-		tmpbuf[tmpbuf_len] = '\0';
-
-		g_string_append(strbuf, tmpbuf);
-
-		g_free(tmpbuf);
+		g_string_append_unichar(strbuf, uchar);
 	}
 
 	return g_string_free(strbuf, FALSE);
@@ -2511,11 +2496,14 @@ tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
 gchar *
 tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
-	gchar         *tmpbuf = NULL;
+	/* Longest UTF-8 character takes 6 bytes + 1 byte for NUL, round it to 8B */
+	gchar          tmpbuf[8];
 	gunichar2      uchar;
 	gint           i;       /* Byte counter for tvbuff */
 	gint           tmpbuf_len;
 	emem_strbuf_t *strbuf = NULL;
+
+	tvb_ensure_bytes_exist(tvb, offset, length);
 
 	strbuf = ep_strbuf_new(NULL);
 
@@ -2526,22 +2514,13 @@ tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, 
 		else
 			uchar = tvb_get_letohs(tvb, offset + i);
 
-		/* Calculate how much space is needed to store UTF-16 character
-		 * in UTF-8 */
-		tmpbuf_len = g_unichar_to_utf8(uchar, NULL);
-
-		tmpbuf     = g_malloc(tmpbuf_len + 1); /* + 1 to make room for null
-						    * terminator */
-
-		g_unichar_to_utf8(uchar, tmpbuf);
+		tmpbuf_len = g_unichar_to_utf8(uchar, tmpbuf);
 
 		/* NULL terminate the tmpbuf so ep_strbuf_append knows where
 		 * to stop */
 		tmpbuf[tmpbuf_len] = '\0';
 
 		ep_strbuf_append(strbuf, tmpbuf);
-
-		g_free(tmpbuf);
 	}
 
 	return strbuf->str;
@@ -2743,7 +2722,8 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 gchar *
 tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
-	gchar         *tmpbuf = NULL;
+	/* Longest UTF-8 character takes 6 bytes + 1 byte for NUL, round it to 8B */
+	gchar          tmpbuf[8];
 	gunichar2      uchar;
 	gint           size;    /* Number of UTF-16 characters */
 	gint           i;       /* Byte counter for tvbuff */
@@ -2761,22 +2741,13 @@ tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *length
 		else
 			uchar = tvb_get_letohs(tvb, offset + i);
 
-		/* Calculate how much space is needed to store UTF-16 character
-		 * in UTF-8 */
-		tmpbuf_len = g_unichar_to_utf8(uchar, NULL);
-
-		tmpbuf = g_malloc(tmpbuf_len + 1); /* + 1 to make room for null
-						    * terminator */
-
-		g_unichar_to_utf8(uchar, tmpbuf);
+		tmpbuf_len = g_unichar_to_utf8(uchar, tmpbuf);
 
 		/* NULL terminate the tmpbuf so ep_strbuf_append knows where
 		 * to stop */
 		tmpbuf[tmpbuf_len] = '\0';
 
 		ep_strbuf_append(strbuf, tmpbuf);
-
-		g_free(tmpbuf);
 	}
 
 	if (lengthp)
