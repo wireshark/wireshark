@@ -158,6 +158,12 @@ helper functions in their headers). The "myPool" variable can be passed around
 and used as normal in allocation requests as described in section 2 of this
 document.
 
+Note that the type of pool you request won't always be the type you get - the
+WIRESHARK_DEBUG_WMEM_OVERRIDE environment variable (if set) can be used to
+force all calls to wmem_allocator_new() to returns a specific type for debugging
+purposes. It will always be safe to call allocator-specific helpers though, they
+will simply be no-ops if the type doesn't match.
+
 3.3 Destroying a Pool
 
 Regardless of which allocator you used to create a pool, it can be destroyed
