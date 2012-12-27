@@ -65,19 +65,31 @@ wmem_destroy_allocator(wmem_allocator_t *allocator)
 wmem_allocator_t *
 wmem_allocator_new(const wmem_allocator_type_t type)
 {
-    wmem_allocator_t *allocator;
+    const char            *override;
+    wmem_allocator_t      *allocator;
+    wmem_allocator_type_t  real_type;
 
     /* Our valgrind script uses this environment variable to override the
      * usual allocator choice so that everything goes through system-level
      * allocations that it understands and can track. Otherwise it will get
      * confused by the block allocator etc. */
-    if (getenv("WIRESHARK_DEBUG_WMEM_SIMPLE")) {
-        allocator = wmem_simple_allocator_new();
-        allocator->type = WMEM_ALLOCATOR_SIMPLE;
-        return allocator;
+    override = getenv("WIRESHARK_DEBUG_WMEM_OVERRIDE");
+
+    if (override == NULL) {
+        real_type = type;
+    }
+    else if (strncmp(override, "simple", strlen("simple")) == 0) {
+        real_type = WMEM_ALLOCATOR_SIMPLE;
+    }
+    else if (strncmp(override, "block", strlen("block")) == 0) {
+        real_type = WMEM_ALLOCATOR_BLOCK;
+    }
+    else {
+        g_warning("Unrecognized wmem override");
+        real_type = type;
     }
 
-    switch (type) {
+    switch (real_type) {
         case WMEM_ALLOCATOR_SIMPLE:
             allocator = wmem_simple_allocator_new();
             break;
@@ -92,7 +104,7 @@ wmem_allocator_new(const wmem_allocator_type_t type)
             return NULL;
     };
 
-    allocator->type = type;
+    allocator->type = real_type;
 
     return allocator;
 }
