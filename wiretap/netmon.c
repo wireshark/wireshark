@@ -48,12 +48,12 @@
 
 /* Magic number in Network Monitor 1.x files. */
 static const char netmon_1_x_magic[MAGIC_SIZE] = {
-	"RTSS"
+	'R', 'T', 'S', 'S'
 };
 
 /* Magic number in Network Monitor 2.x files. */
 static const char netmon_2_x_magic[MAGIC_SIZE] = {
-	"GMBU"
+	'G', 'M', 'B', 'U'
 };
 
 /* Network Monitor file header (minus magic number). */
