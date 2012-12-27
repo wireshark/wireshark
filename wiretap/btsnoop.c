@@ -92,7 +92,7 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(magic, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -106,9 +106,9 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
-			return -1;
-		return 0;
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
 	}
 
 	/*

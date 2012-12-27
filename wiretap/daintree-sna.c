@@ -90,13 +90,18 @@ static gboolean daintree_sna_seek_read(wtap *wth, gint64 seek_off,
 static guint daintree_sna_hex_char(guchar *str, int *err);
 
 /* Open a file and determine if it's a Daintree file */
-int daintree_sna_open(wtap *wth, int *err _U_, gchar **err_info _U_)
+int daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 {
 	char readLine[DAINTREE_MAX_LINE_SIZE];
 	guint i; 
 
 	/* get first line of file header */
-	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) return 0;
+	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) {
+		*err = file_error(wth->fh, err_info);
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
+	}
 
 	/* check magic text */
 	i = 0;
@@ -106,7 +111,12 @@ int daintree_sna_open(wtap *wth, int *err _U_, gchar **err_info _U_)
 	} 
 
 	/* read second header line */
-	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) return 0;
+	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) {
+		*err = file_error(wth->fh, err_info);
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
+	}
 	if (readLine[0] != COMMENT_LINE) return 0; /* daintree files have a two line header */
 
 	/* set up the pointers to the handlers for this file type */

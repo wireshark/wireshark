@@ -148,12 +148,11 @@ static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
     }
   }
 
-  if (byte != EOF || file_eof(wth->fh)) {
-    /* Either we didn't find the offset, or we got an EOF. */
+  if (byte != EOF) {
+    /* We didn't find the offset. Treat that as a "not an Ascend file"
+       indication. */
     *err = 0;
   } else {
-    /* We (presumably) got an error (there's no equivalent to "ferror()"
-       in zlib, alas, so we don't have a wrapper to check for an error). */
     *err = file_error(wth->fh, err_info);
   }
   return -1;
@@ -187,10 +186,9 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
 
   offset = ascend_seek(wth, err, err_info);
   if (offset == -1) {
-    if (*err == 0)
-      return 0;
-    else
+    if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
       return -1;
+    return 0;
   }
 
   /* Do a trial parse of the first packet just found to see if we might really have an Ascend file */

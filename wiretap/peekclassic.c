@@ -155,6 +155,7 @@ int
 peekclassic_open(wtap *wth, int *err, gchar **err_info)
 {
 	peekclassic_header_t ep_hdr;
+	int bytes_read;
 	struct timeval reference_time;
 	int file_encap;
 	peekclassic_t *peekclassic;
@@ -168,8 +169,14 @@ peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	 *	and we may have to add more checks at some point.
 	 */
 	g_assert(sizeof(ep_hdr.master) == PEEKCLASSIC_MASTER_HDR_SIZE);
-	wtap_file_read_unknown_bytes(
-		&ep_hdr.master, sizeof(ep_hdr.master), wth->fh, err, err_info);
+	bytes_read = file_read(&ep_hdr.master, (int)sizeof(ep_hdr.master),
+	    wth->fh);
+	if (bytes_read != sizeof(ep_hdr.master)) {
+		*err = file_error(wth->fh, err_info);
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
+	}
 
 	/*
 	 * It appears that EtherHelp (a free application from WildPackets
@@ -194,9 +201,14 @@ peekclassic_open(wtap *wth, int *err, gchar **err_info)
 		/* get the secondary header */
 		g_assert(sizeof(ep_hdr.secondary.v567) ==
 		        PEEKCLASSIC_V567_HDR_SIZE);
-		wtap_file_read_unknown_bytes(
-			&ep_hdr.secondary.v567,
-			sizeof(ep_hdr.secondary.v567), wth->fh, err, err_info);
+		bytes_read = file_read(&ep_hdr.secondary.v567,
+		    (int)sizeof(ep_hdr.secondary.v567), wth->fh);
+		if (bytes_read != sizeof(ep_hdr.secondary.v567)) {
+			*err = file_error(wth->fh, err_info);
+			if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+				return -1;
+			return 0;
+		}
 
 		if ((0 != ep_hdr.secondary.v567.reserved[0]) ||
 		    (0 != ep_hdr.secondary.v567.reserved[1]) ||

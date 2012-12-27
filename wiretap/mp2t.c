@@ -155,7 +155,9 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
 
     if (MP2T_SIZE != bytes_read) {
         *err = file_error(wth->fh, err_info);
-        return (*err == 0) ? 0 : -1;
+        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+            return -1;
+        return 0;
     }
 
     first = -1;
@@ -175,8 +177,10 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
     /* read some packets and make sure they all start with a sync byte */
     do {
        bytes_read = file_read(buffer, MP2T_SIZE+trailer_len, wth->fh);
-       if (bytes_read < 0)
+       if (bytes_read < 0) {
+          *err = file_error(wth->fh, err_info);
           return -1;  /* read error */
+       }
        if (bytes_read < MP2T_SIZE+trailer_len) {
 	  if(sync_steps<2) return 0; /* wrong file type - not an mpeg2 ts file */
           break;  /* end of file, that's ok if we're still in sync */

@@ -96,11 +96,9 @@ int commview_open(wtap *wth, int *err, gchar **err_info)
 	commview_header_t cv_hdr;
 
 	if(!commview_read_header(&cv_hdr, wth->fh, err, err_info)) {
-		if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
-			/* This just means "not CommView" */
-			return 0;
-		}
-		return -1;
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
 	}
 
 	/* If any of these fields do not match what we expect, bail out. */

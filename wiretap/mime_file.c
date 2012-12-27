@@ -146,7 +146,8 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 {
 	char magic_buf[128]; /* increase buffer size when needed */
 	int bytes_read;
-	int ret;
+	gboolean found_file;
+	/* guint file_ok; */
 	guint i;
 
 	guint read_bytes = 0;
@@ -157,40 +158,39 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	read_bytes = (guint)MIN(read_bytes, sizeof(magic_buf));
 	bytes_read = file_read(magic_buf, read_bytes, wth->fh);
 
-	if (bytes_read > 0) {
-		gboolean found_file = FALSE;
-		/* guint file_ok; */
-
-		for (i = 0; i < N_MAGIC_TYPES; i++) {
-			if ((guint) bytes_read >= magic_files[i].magic_len && !memcmp(magic_buf, magic_files[i].magic, MIN(magic_files[i].magic_len, (guint) bytes_read))) {
-				if (!found_file) {
-					found_file = TRUE;
-					/* file_ok = i; */
-				} else
-					return 0;	/* many files matched, bad file */
-			}
-		}
-
-		if (!found_file)
-			return 0;
-
-		if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
-			return -1;
-
-		wth->file_type = WTAP_FILE_MIME;
-		wth->file_encap = WTAP_ENCAP_MIME;
-		wth->tsprecision = WTAP_FILE_TSPREC_SEC;
-		wth->subtype_read = mime_read;
-		wth->subtype_seek_read = mime_seek_read;
-		wth->snapshot_length = 0;
-		ret = 1;
-
-		wth->priv = g_malloc0(sizeof(mime_file_private_t));
-
-	} else {
+	if (bytes_read < 0) {
 		*err = file_error(wth->fh, err_info);
-		ret = -1;
+		return -1;
 	}
-	return ret;
+	if (bytes_read == 0)
+		return 0;
+		
+	found_file = FALSE;
+	for (i = 0; i < N_MAGIC_TYPES; i++) {
+		if ((guint) bytes_read >= magic_files[i].magic_len && !memcmp(magic_buf, magic_files[i].magic, MIN(magic_files[i].magic_len, (guint) bytes_read))) {
+			if (!found_file) {
+				found_file = TRUE;
+				/* file_ok = i; */
+			} else
+				return 0;	/* many files matched, bad file */
+		}
+	}
+
+	if (!found_file)
+		return 0;
+
+	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
+		return -1;
+
+	wth->file_type = WTAP_FILE_MIME;
+	wth->file_encap = WTAP_ENCAP_MIME;
+	wth->tsprecision = WTAP_FILE_TSPREC_SEC;
+	wth->subtype_read = mime_read;
+	wth->subtype_seek_read = mime_seek_read;
+	wth->snapshot_length = 0;
+
+	wth->priv = g_malloc0(sizeof(mime_file_private_t));
+
+	return 1;
 }
 

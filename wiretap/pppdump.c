@@ -249,6 +249,7 @@ int
 pppdump_open(wtap *wth, int *err, gchar **err_info)
 {
 	guint8		buffer[6];	/* Looking for: 0x07 t3 t2 t1 t0 ID */
+	int		bytes_read;
 	pppdump_t	*state;
 
 	/* There is no file header, only packet records. Fortunately for us,
@@ -259,8 +260,13 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 	* representing the timestamp.
 	*/
 
-	wtap_file_read_unknown_bytes(buffer, sizeof(buffer), wth->fh, err,
-	    err_info);
+	bytes_read = file_read(buffer, sizeof(buffer), wth->fh);
+	if (bytes_read != (int) sizeof(buffer)) {
+		*err = file_error(wth->fh, err_info);
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
+	}
 
 	if (buffer[0] == PPPD_RESET_TIME &&
 			(buffer[5] == PPPD_SENT_DATA ||

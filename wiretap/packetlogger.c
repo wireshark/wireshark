@@ -61,11 +61,18 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info)
 	packetlogger_header_t pl_hdr;
 	guint8 type;
 
-	if(!packetlogger_read_header(&pl_hdr, wth->fh, err, err_info))
-		return -1;
+	if(!packetlogger_read_header(&pl_hdr, wth->fh, err, err_info)) {
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
+	}
 
-	if (file_read(&type, 1, wth->fh) <= 0)
-		return -1;
+	if (file_read(&type, 1, wth->fh) <= 0) {
+		*err = file_error(wth->fh, err_info);
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
+	}
 
 	/* Verify this file belongs to us */
 	if (!((8 <= pl_hdr.len) && (pl_hdr.len < 65536) &&

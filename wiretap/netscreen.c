@@ -176,10 +176,7 @@ static gboolean netscreen_check_file_type(wtap *wth, int *err, gchar **err_info)
 			}
 		} else {
 			/* EOF or error. */
-			if (file_eof(wth->fh))
-				*err = 0;
-			else
-				*err = file_error(wth->fh, err_info);
+			*err = file_error(wth->fh, err_info);
 			return FALSE;
 		}
 	}
@@ -193,10 +190,9 @@ int netscreen_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Look for a NetScreen snoop header line */
 	if (!netscreen_check_file_type(wth, err, err_info)) {
-		if (*err == 0)
-			return 0;
-		else
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
+		return 0;
 	}
 
 	if (file_seek(wth->fh, 0L, SEEK_SET, err) == -1)	/* rewind */

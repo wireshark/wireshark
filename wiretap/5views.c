@@ -126,7 +126,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(&Capture_Header.Info_Header, sizeof(t_5VW_Info_Header), wth->fh);
 	if (bytes_read != sizeof(t_5VW_Info_Header)) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -180,9 +180,9 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(&Capture_Header.HeaderDateCreation, sizeof (t_5VW_Capture_Header) - sizeof(t_5VW_Info_Header), wth->fh);
 	if (bytes_read != sizeof (t_5VW_Capture_Header)- sizeof(t_5VW_Info_Header) ) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
-			return -1;
-		return 0;
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
 	}
 
 	/* This is a 5views capture file */

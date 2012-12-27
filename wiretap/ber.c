@@ -131,7 +131,9 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
   bytes_read = file_read(&bytes, BER_BYTES_TO_CHECK, wth->fh);
   if (bytes_read != BER_BYTES_TO_CHECK) {
     *err = file_error(wth->fh, err_info);
-    return (*err != 0) ? -1 : 0;
+    if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+      return -1;
+    return 0;
   }
 
   ber_id = bytes[offset++];

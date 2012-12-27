@@ -188,7 +188,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     if (bytes_read != sizeof magic)
     {
         *err = file_error(wth->fh, err_info);
-        if (*err != 0)
+        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
     }
@@ -203,9 +203,9 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     if (bytes_read != sizeof vfile_hdr)
     {
         *err = file_error(wth->fh, err_info);
-        if (*err != 0)
-            return -1;
-        return 0;
+        if (*err == 0)
+            *err = WTAP_ERR_SHORT_READ;
+        return -1;
     }
 
     /* Verify the file version is known */

@@ -124,7 +124,8 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
 
     if (r == 0 ) break;
     if (r != sizeof(header)) {
-      if ((*err = file_error(wth->fh, err_info)) != 0) {
+      *err = file_error(wth->fh, err_info);
+      if (*err != 0 && *err != WTAP_ERR_SHORT_READ) {
         return -1;
       } else {
         /* ERF header too short accept the file,
@@ -195,6 +196,8 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
     while (type & 0x80){
       if (file_read(&erf_ext_header, sizeof(erf_ext_header),wth->fh) != sizeof(erf_ext_header)) {
         *err = file_error(wth->fh, err_info);
+        if (*err == 0)
+          *err = WTAP_ERR_SHORT_READ;
         return -1;
       }
       packet_size -= (guint32)sizeof(erf_ext_header);

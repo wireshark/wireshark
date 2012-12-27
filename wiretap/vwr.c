@@ -899,9 +899,9 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 /* if we don't get it all, assume this isn't a vwr file */
                 if (file_read(rec, rec_size, wth->fh) != rec_size) {
                     *err = file_error(wth->fh, err_info);
-                    if (*err == 0)
-                        return(UNKNOWN_FPGA); /* short read - not a vwr file */
-                    return(-1);
+                    if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+                        return(-1);
+                    return(UNKNOWN_FPGA); /* short read - not a vwr file */
                 }
 
 
@@ -983,9 +983,9 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     }
 
     *err = file_error(wth->fh, err_info);
-    if (*err == 0)
-        return(UNKNOWN_FPGA); /* short read - not a vwr file */
-    return(-1);
+    if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+        return(-1);
+    return(UNKNOWN_FPGA); /* short read - not a vwr file */
 }
 
 /* copy the actual packet data from the capture file into the target data block */

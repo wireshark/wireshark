@@ -133,7 +133,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
     bytes_read = file_read(&file_header, sizeof file_header, wth->fh);
     if (bytes_read != sizeof file_header) {
         *err = file_error(wth->fh, err_info);
-        if (*err != 0)
+        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
     }
@@ -184,7 +184,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
             bytes_read = file_read(&private_state->time_format, sizeof private_state->time_format, wth->fh);
             if (bytes_read != sizeof private_state->time_format) {
                 *err = file_error(wth->fh, err_info);
-                if(*err == 0)
+                if (*err == 0)
                     *err = WTAP_ERR_SHORT_READ;
                 return -1;
             }
@@ -206,7 +206,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("Observer: bad record (offset to first packet %d < %d)",
             header_offset, offset);
-        return FALSE;
+        return -1;
     }
     seek_increment = header_offset - offset;
     if (seek_increment > 0) {
@@ -218,9 +218,9 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
     bytes_read = file_read(&packet_header, sizeof packet_header, wth->fh);
     if (bytes_read != sizeof packet_header) {
         *err = file_error(wth->fh, err_info);
-        if (*err != 0)
-            return -1;
-        return 0;
+        if (*err == 0)
+            *err = WTAP_ERR_SHORT_READ;
+        return -1;
     }
     PACKET_ENTRY_HEADER_FROM_LE_IN_PLACE(packet_header);
 

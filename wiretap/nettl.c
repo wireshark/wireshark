@@ -205,7 +205,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
     bytes_read = file_read(file_hdr.magic, MAGIC_SIZE, wth->fh);
     if (bytes_read != MAGIC_SIZE) {
     	*err = file_error(wth->fh, err_info);
-	if (*err != 0)
+	if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 	    return -1;
 	return 0;
     }
@@ -220,9 +220,9 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
 			   wth->fh);
     if (bytes_read != FILE_HDR_SIZE - MAGIC_SIZE) {
 	*err = file_error(wth->fh, err_info);
-	if (*err != 0)
-	    return -1;
-	return 0;
+	if (*err == 0)
+	    *err = WTAP_ERR_SHORT_READ;
+	return -1;
     }
 
     /* This is an nettl file */

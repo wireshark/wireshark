@@ -111,7 +111,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(r_magic, 8, wth->fh);
 	if (bytes_read != 8) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -132,7 +132,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(t_magic, 11, wth->fh);
 	if (bytes_read != 11) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -144,7 +144,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 		bytes_read = file_read(t_magic, 11, wth->fh);
 		if (bytes_read != 11) {
 			*err = file_error(wth->fh, err_info);
-			if (*err != 0)
+			if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 				return -1;
 			return 0;
 		}
@@ -157,7 +157,7 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 			       wth->fh);
 	if (bytes_read != sizeof(struct frame_date)) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}

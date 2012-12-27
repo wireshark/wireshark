@@ -156,49 +156,25 @@ xml_get_int(int *val, const unsigned char *str, const unsigned char *pattern)
 }
 
 
-/* Look through the first part of a file to see if this is
- * a DCT3 trace file.
- *
- * Returns TRUE if it is, FALSE if it isn't or if we get an I/O error;
- * if we get an I/O error, "*err" will be set to a non-zero value
- * and "*err_info" will be set to null or an additional error string.
- */
-static gboolean dct3trace_check_file_type(wtap *wth, int *err, gchar **err_info)
+int dct3trace_open(wtap *wth, int *err, gchar **err_info)
 {
 	char line1[64], line2[64];
 
-	if (file_gets(line1, sizeof(line1), wth->fh) != NULL &&
-		file_gets(line2, sizeof(line2), wth->fh) != NULL)
-	{
-		/* Don't compare line endings */
-		if( strncmp(dct3trace_magic_line1, line1, strlen(dct3trace_magic_line1)) == 0 &&
-			strncmp(dct3trace_magic_line2, line2, strlen(dct3trace_magic_line2)) == 0)
-		{
-			return TRUE;
-		}
-	}
-	/* EOF or error. */
-	else
-	{
-		if (file_eof(wth->fh))
-			*err = 0;
-		else
-			*err = file_error(wth->fh, err_info);
-	}
-
-	return FALSE;
-}
-
-
-int dct3trace_open(wtap *wth, int *err, gchar **err_info)
-{
 	/* Look for Gammu DCT3 trace header */
-	if (!dct3trace_check_file_type(wth, err, err_info))
+	if (file_gets(line1, sizeof(line1), wth->fh) == NULL ||
+		file_gets(line2, sizeof(line2), wth->fh) == NULL)
 	{
-		if (*err == 0)
-			return 0;
-		else
+		*err = file_error(wth->fh, err_info);
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
+		return 0;
+	}
+
+	/* Don't compare line endings */
+	if( strncmp(dct3trace_magic_line1, line1, strlen(dct3trace_magic_line1)) != 0 ||
+		strncmp(dct3trace_magic_line2, line2, strlen(dct3trace_magic_line2)) != 0)
+	{
+		return 0;
 	}
 
 	wth->file_encap = WTAP_ENCAP_GSM_UM;

@@ -595,6 +595,8 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
     {
         *err = file_error(wth->fh, err_info);
         g_free(nstrace_buf);
+        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+            return -1;
         return 0;
     }
 

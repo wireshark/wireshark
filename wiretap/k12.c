@@ -696,7 +696,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
     if ( file_read(header_buffer,0x200,wth->fh) != 0x200 ) {
         K12_DBG(1,("k12_open: FILE HEADER TOO SHORT OR READ ERROR"));
         *err = file_error(wth->fh, err_info);
-        if (*err != 0) {
+        if (*err != 0 && *err != WTAP_ERR_SHORT_READ) {
             return -1;
         }
         return 0;

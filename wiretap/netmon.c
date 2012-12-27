@@ -43,14 +43,17 @@
 /* Capture file header, *including* magic number, is padded to 128 bytes. */
 #define	CAPTUREFILE_HEADER_SIZE	128
 
+/* Magic number size, for both 1.x and 2.x. */
+#define MAGIC_SIZE	4
+
 /* Magic number in Network Monitor 1.x files. */
-static const char netmon_1_x_magic[] = {
-	'R', 'T', 'S', 'S'
+static const char netmon_1_x_magic[MAGIC_SIZE] = {
+	"RTSS"
 };
 
 /* Magic number in Network Monitor 2.x files. */
-static const char netmon_2_x_magic[] = {
-	'G', 'M', 'B', 'U'
+static const char netmon_2_x_magic[MAGIC_SIZE] = {
+	"GMBU"
 };
 
 /* Network Monitor file header (minus magic number). */
@@ -193,7 +196,7 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err);
 int netmon_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
-	char magic[sizeof netmon_1_x_magic];
+	char magic[MAGIC_SIZE];
 	struct netmon_hdr hdr;
 	int file_type;
 	struct tm tm;
@@ -209,16 +212,16 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	/* Read in the string that should be at the start of a Network
 	 * Monitor file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, sizeof magic, wth->fh);
-	if (bytes_read != sizeof magic) {
+	bytes_read = file_read(magic, MAGIC_SIZE, wth->fh);
+	if (bytes_read != MAGIC_SIZE) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
 
-	if (memcmp(magic, netmon_1_x_magic, sizeof netmon_1_x_magic) != 0
-	 && memcmp(magic, netmon_2_x_magic, sizeof netmon_1_x_magic) != 0) {
+	if (memcmp(magic, netmon_1_x_magic, MAGIC_SIZE) != 0 &&
+	    memcmp(magic, netmon_2_x_magic, MAGIC_SIZE) != 0) {
 		return 0;
 	}
 
@@ -227,9 +230,9 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
-			return -1;
-		return 0;
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
 	}
 
 	switch (hdr.ver_major) {

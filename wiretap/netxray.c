@@ -33,13 +33,16 @@
 /* Capture file header, *including* magic number, is padded to 128 bytes. */
 #define	CAPTUREFILE_HEADER_SIZE	128
 
+/* Magic number size, in both 1.x and later files. */
+#define MAGIC_SIZE	4
+
 /* Magic number in NetXRay 1.x files. */
-static const char old_netxray_magic[] = {
+static const char old_netxray_magic[MAGIC_SIZE] = {
 	'V', 'L', '\0', '\0'
 };
 
 /* Magic number in NetXRay 2.0 and later, and Windows Sniffer, files. */
-static const char netxray_magic[] = {	/* magic header */
+static const char netxray_magic[MAGIC_SIZE] = {
 	'X', 'C', 'P', '\0'
 };
 
@@ -339,7 +342,7 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err);
 int netxray_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
-	char magic[sizeof netxray_magic];
+	char magic[MAGIC_SIZE];
 	gboolean is_old;
 	struct netxray_hdr hdr;
 	guint network_type;
@@ -378,17 +381,17 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	/* Read in the string that should be at the start of a NetXRay
 	 * file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, sizeof magic, wth->fh);
-	if (bytes_read != sizeof magic) {
+	bytes_read = file_read(magic, MAGIC_SIZE, wth->fh);
+	if (bytes_read != MAGIC_SIZE) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
 
-	if (memcmp(magic, netxray_magic, sizeof magic) == 0) {
+	if (memcmp(magic, netxray_magic, MAGIC_SIZE) == 0) {
 		is_old = FALSE;
-	} else if (memcmp(magic, old_netxray_magic, sizeof magic) == 0) {
+	} else if (memcmp(magic, old_netxray_magic, MAGIC_SIZE) == 0) {
 		is_old = TRUE;
 	} else {
 		return 0;
@@ -399,9 +402,9 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
 	if (bytes_read != sizeof hdr) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
-			return -1;
-		return 0;
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
 	}
 
 	if (is_old) {

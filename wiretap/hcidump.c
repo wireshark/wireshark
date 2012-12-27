@@ -128,7 +128,9 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(&dh, DUMP_HDR_SIZE, wth->fh);
 	if (bytes_read != DUMP_HDR_SIZE) {
 		*err = file_error(wth->fh, err_info);
-		return (*err != 0) ? -1 : 0;
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
 	}
 
 	if ((dh.in != 0 && dh.in != 1) || dh.pad != 0
@@ -138,7 +140,9 @@ int hcidump_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(&type, 1, wth->fh);
 	if (bytes_read != 1) {
 		*err = file_error(wth->fh, err_info);
-		return (*err != 0) ? -1 : 0;
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
 	}
 
 	if (type < 1 || type > 4)

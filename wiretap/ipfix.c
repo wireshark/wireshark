@@ -197,7 +197,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
                 *err_info = NULL;
                 return 0;
             }
-            if (*err != 0)
+            if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
                 return -1; /* real failure */
             /* else it's EOF */
             if (i < 1) {

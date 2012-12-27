@@ -193,10 +193,9 @@ int dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info)
 {
 	/* Look for DBS ETHERWATCH header */
 	if (!dbs_etherwatch_check_file_type(wth, err, err_info)) {
-		if (*err == 0)
-			return 0;
-		else
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
+		return 0;
 	}
 
 	wth->file_encap = WTAP_ENCAP_ETHERNET;

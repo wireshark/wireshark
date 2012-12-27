@@ -187,6 +187,7 @@ static int wtap_file_read_number (wtap *wth, guint32 *num, int *err,
 int peektagged_open(wtap *wth, int *err, gchar **err_info)
 {
     peektagged_section_header_t ap_hdr;
+    int bytes_read;
     int ret;
     guint32 fileVersion;
     guint32 mediaType;
@@ -201,8 +202,13 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
     #define NUM_PEEKTAGGED_ENCAPS (sizeof peektagged_encap / sizeof peektagged_encap[0])
     peektagged_t *peektagged;
 
-    wtap_file_read_unknown_bytes(&ap_hdr, sizeof(ap_hdr), wth->fh, err,
-                                 err_info);
+    bytes_read = file_read(&ap_hdr, (int)sizeof(ap_hdr), wth->fh);
+    if (bytes_read != (int)sizeof(ap_hdr)) {
+    	*err = file_error(wth->fh, err_info);
+        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+            return -1;
+        return 0;
+    }
 
     if (memcmp (ap_hdr.section_id, "\177ver", sizeof(ap_hdr.section_id)) != 0)
 	return 0;	/* doesn't begin with a "\177ver" section */

@@ -79,11 +79,10 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
   bytesRead = file_read( &hdr, sizeof( struct csids_header), wth->fh );
   if( bytesRead != sizeof( struct csids_header) ) {
     *err = file_error( wth->fh, err_info );
-    if( *err != 0 ) {
+    if( *err != 0 && *err != WTAP_ERR_SHORT_READ ) {
       return -1;
-    } else {
-      return 0;
     }
+    return 0;
   }
   if( hdr.zeropad != 0 || hdr.caplen == 0 ) {
 	return 0;
@@ -93,25 +92,23 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
   bytesRead = file_read( &tmp, 2, wth->fh );
   if( bytesRead != 2 ) {
     *err = file_error( wth->fh, err_info );
-    if( *err != 0 ) {
+    if( *err != 0 && *err != WTAP_ERR_SHORT_READ ) {
       return -1;
-    } else {
-      return 0;
     }
+    return 0;
   }
   bytesRead = file_read( &iplen, 2, wth->fh );
   if( bytesRead != 2 ) {
     *err = file_error( wth->fh, err_info );
-    if( *err != 0 ) {
+    if( *err != 0 && *err != WTAP_ERR_SHORT_READ ) {
       return -1;
-    } else {
-      return 0;
     }
+    return 0;
   }
   iplen = pntohs(&iplen);
 
   if ( iplen == 0 )
-    return(0);
+    return 0;
 
   /* if iplen and hdr.caplen are equal, default to no byteswap. */
   if( iplen > hdr.caplen ) {

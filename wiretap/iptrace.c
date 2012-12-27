@@ -59,11 +59,11 @@ int iptrace_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(name, 11, wth->fh);
 	if (bytes_read != 11) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
-	name[11] = 0;
+	name[11] = '\0';
 
 	if (strcmp(name, "iptrace 1.0") == 0) {
 		wth->file_type = WTAP_FILE_IPTRACE_1_0;

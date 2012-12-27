@@ -290,7 +290,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	bytes_read = file_read(&rec_header, LA_RecordHeaderSize, wth->fh);
 	if (bytes_read != LA_RecordHeaderSize) {
 		*err = file_error(wth->fh, err_info);
-		if (*err != 0)
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
@@ -303,18 +303,18 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read the major and minor version numbers */
 	if (record_length < 2) {
-		/* Not enough room for the major and minor version numbers. */
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("lanalyzer: trace header record length %u < 2",
-		    record_length);
-		return -1;
+		/*
+		 * Not enough room for the major and minor version numbers.
+		 * Just treat that as a "not a LANalyzer file" indication.
+		 */
+		return 0;
 	}
 	bytes_read = file_read(&header_fixed, sizeof header_fixed, wth->fh);
 	if (bytes_read != sizeof header_fixed) {
 		*err = file_error(wth->fh, err_info);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+			return -1;
+		return 0;
 	}
 	record_length -= sizeof header_fixed;
 
@@ -324,9 +324,9 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		bytes_read = file_read(comment, record_length, wth->fh);
 		if (bytes_read != record_length) {
 			*err = file_error(wth->fh, err_info);
-			if (*err == 0)
-				*err = WTAP_ERR_SHORT_READ;
-			return -1;
+			if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+				return -1;
+			return 0;
 		}
 		comment[record_length] = '\0';
 		wth->shb_hdr.opt_comment = comment;
@@ -349,12 +349,11 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		bytes_read = file_read(&rec_header, LA_RecordHeaderSize, wth->fh);
 		if (bytes_read != LA_RecordHeaderSize) {
 			*err = file_error(wth->fh, err_info);
-			if (*err != 0) {
-				g_free(wth->priv);
-				return -1;
-			}
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
 			g_free(wth->priv);
-			return 0;
+			wth->priv = NULL;
+			return -1;
 		}
 
 		record_type = pletohs(rec_header.record_type);
@@ -369,12 +368,11 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				    wth->fh);
 				if (bytes_read != sizeof summary) {
 					*err = file_error(wth->fh, err_info);
-					if (*err != 0) {
-						g_free(wth->priv);
-						return -1;
-					}
+					if (*err == 0)
+						*err = WTAP_ERR_SHORT_READ;
 					g_free(wth->priv);
-					return 0;
+					wth->priv = NULL;
+					return -1;
 				}
 
 				/* Assume that the date of the creation of the trace file
@@ -415,6 +413,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 						break;
 					default:
 						g_free(wth->priv);
+						wth->priv = NULL;
 						*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 						*err_info = g_strdup_printf("lanalyzer: board type %u unknown",
 						    board_type);
@@ -428,6 +427,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				 * can read this header */
 				if (file_seek(wth->fh, -LA_RecordHeaderSize, SEEK_CUR, err) == -1) {
 					g_free(wth->priv);
+					wth->priv = NULL;
 					return -1;
 				}
 				return 1;
@@ -435,6 +435,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			default:
 				if (file_seek(wth->fh, record_length, SEEK_CUR, err) == -1) {
 					g_free(wth->priv);
+					wth->priv = NULL;
 					return -1;
 				}
 				break;
