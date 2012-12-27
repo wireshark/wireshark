@@ -65,19 +65,25 @@ wmem_destroy_allocator(wmem_allocator_t *allocator)
 wmem_allocator_t *
 wmem_allocator_new(const wmem_allocator_type_t type)
 {
+    wmem_allocator_t *allocator;
+
     /* Our valgrind script uses this environment variable to override the
      * usual allocator choice so that everything goes through system-level
      * allocations that it understands and can track. Otherwise it will get
      * confused by the block allocator etc. */
     if (getenv("WIRESHARK_DEBUG_WMEM_SIMPLE")) {
-        return wmem_simple_allocator_new();
+        allocator = wmem_simple_allocator_new();
+        allocator->type = WMEM_ALLOCATOR_SIMPLE;
+        return allocator;
     }
 
     switch (type) {
         case WMEM_ALLOCATOR_SIMPLE:
-            return wmem_simple_allocator_new();
+            allocator = wmem_simple_allocator_new();
+            break;
         case WMEM_ALLOCATOR_BLOCK:
-            return wmem_block_allocator_new();
+            allocator = wmem_block_allocator_new();
+            break;
         default:
             g_assert_not_reached();
             /* This is necessary to squelch MSVC errors; is there
@@ -85,6 +91,10 @@ wmem_allocator_new(const wmem_allocator_type_t type)
 	       never returns? */
             return NULL;
     };
+
+    allocator->type = type;
+
+    return allocator;
 }
 
 void
