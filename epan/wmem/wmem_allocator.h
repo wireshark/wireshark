@@ -32,15 +32,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef enum _wmem_allocator_type_t wmem_allocator_type_t;
+enum _wmem_allocator_type_t;
 
 struct _wmem_allocator_t {
     void *(*alloc)(void *private_data, const size_t size);
     void  (*free_all)(void *private_data);
     void  (*destroy)(struct _wmem_allocator_t *allocator);
 
-    void                  *private_data;
-    wmem_allocator_type_t  type;
+    void                        *private_data;
+    enum _wmem_allocator_type_t  type;
 };
 
 #ifdef __cplusplus
