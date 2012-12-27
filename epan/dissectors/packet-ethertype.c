@@ -164,6 +164,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_IEEE80211_DATA_ENCAP, "IEEE 802.11 data encapsulation" },
 	{ ETHERTYPE_LINX,                 "LINX IPC Protocol" },
 	{ ETHERTYPE_FIP,                  "FCoE Initialization Protocol" },
+	{ ETHERTYPE_MIH,                  "Media Independent Handover Protocol" },
 	{ ETHERTYPE_ELMI,                 "Ethernet Local Management Interface (MEF16)" },
 	{ ETHERTYPE_PTP,                  "PTPv2 over Ethernet (IEEE1588)" },
 	{ ETHERTYPE_PRP,                  "Parallel Redundancy Protocol (PRP) and HSR Supervision (IEC62439 Part 3)" },

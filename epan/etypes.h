@@ -492,6 +492,10 @@
 #define ETHERTYPE_FIP			0x8914	/* FCoE Initialization Protocol */
 #endif
 
+#ifndef ETHERTYPE_MIH
+#define ETHERTYPE_MIH 			0x8917	/* Media Independent Handover Protocol */
+#endif
+
 #ifndef ETHERTYPE_TTE_PCF
 #define ETHERTYPE_TTE_PCF		0x891D  /* TTEthernet Protocol Control Frame */
 #endif
