@@ -10,4 +10,9 @@
         <file alias="wiki_24.xpm">toolbar/wiki_24.xpm</file>
         <file alias="wsicon-ask.png">wsicon-ask.png</file>
     </qresource>
+    <qresource prefix="/stock">
+        <file>minus-8.png</file>
+        <file>plus-8.png</file>
+        <file>copy-8.png</file>
+    </qresource>
 </RCC>
