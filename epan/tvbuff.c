@@ -2329,6 +2329,8 @@ tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guin
 	gint tmpbuf_len;
 	GString *strbuf = NULL;
 
+	tvb_ensure_bytes_exist(tvb, offset, length);
+
 	strbuf = g_string_new(NULL);
 
 	for(i = 0; i < length; i += 2) {
@@ -2418,6 +2420,8 @@ tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, 
 	gint i; /* Byte counter for tvbuff */
 	gint tmpbuf_len;
 	emem_strbuf_t *strbuf = NULL;
+
+	tvb_ensure_bytes_exist(tvb, offset, length);
 
 	strbuf = ep_strbuf_new(NULL);
 
