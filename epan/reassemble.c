@@ -983,7 +983,7 @@ fragment_add_common(tvbuff_t *tvb, const int offset, const packet_info *pinfo, c
 
 	if (fd_head==NULL){
 		/* not found, this must be the first snooped fragment for this
-				 * packet. Create list-head.
+		 * packet. Create list-head.
 		 */
 		fd_head = new_head(0);
 
@@ -2147,9 +2147,14 @@ show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 }
 
 /*
- * Local Variables:
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
  * c-basic-offset: 8
- * indent-tabs-mode: t
  * tab-width: 8
+ * indent-tabs-mode: t
  * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
  */
