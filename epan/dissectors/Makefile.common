@@ -782,6 +782,7 @@ DISSECTOR_SRC = \
 	packet-mesh.c		\
 	packet-meta.c		\
 	packet-mgcp.c		\
+	packet-mih.c		\
 	packet-mikey.c		\
 	packet-mim.c		\
 	packet-mime-encap.c	\
