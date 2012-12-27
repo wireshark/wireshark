@@ -949,7 +949,7 @@ profile_name_edit_dlg (gint operation)
   gchar       *window_title=NULL;
   GList       *fl_entry;
   profile_def *profile;
-  const gchar *profile_name, *profiles_dir;
+  const gchar *profile_name;
   gboolean     has_global = has_global_profiles();
 
   profile_name = get_profile_name();
@@ -1006,7 +1006,6 @@ profile_name_edit_dlg (gint operation)
 
     gtk_tree_store_append(store, &iter, has_global ? &parent : NULL);
     gtk_tree_store_set(store, &iter, 0, DEFAULT_PROFILE, 1, FALSE, 2, TRUE, -1);
-    profiles_dir = get_profiles_dir();
     init_profile_list();
     fl_entry = current_profile_list();
 
