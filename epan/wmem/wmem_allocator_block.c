@@ -30,6 +30,15 @@
 #include "wmem_core.h"
 #include "wmem_allocator.h"
 
+/* https://mail.gnome.org/archives/gtk-devel-list/2004-December/msg00091.html
+ * The 2*sizeof(size_t) alignment here is borrowed from GNU libc, so it should
+ * be good most everywhere. It is more conservative than is needed on some
+ * 64-bit platforms, but ia64 does require a 16-byte alignment. The SIMD
+ * extensions for x86 and ppc32 would want a larger alignment than this, but
+ * we don't need to do better than malloc.
+ */
+#define WMEM_BLOCK_ALIGN (2 * sizeof (gsize))
+
 /* When required, allocate more memory from the OS in this size chunks (8 MB) */
 #define WMEM_BLOCK_SIZE (8 * 1024 * 1024)
 
@@ -110,12 +119,11 @@ wmem_block_alloc(void *private_data, const size_t size)
     block->offset    += size;
     block->remaining -= size;
 
-    /* Make sure that our next allocation is 8-byte aligned. This wastes a
-     * little space on 32-bit systems, but greatly simplifies the logic. */
-    align = block->offset & 0x07;
+    /* Make sure that our next allocation is aligned. */
+    align = block->offset & (WMEM_BLOCK_ALIGN - 1);
     if (align) {
 
-        align = 0x08 - align;
+        align = WMEM_BLOCK_ALIGN - align;
 
         if (align > block->remaining) {
             /* The cast is to avoid a moronic MSVC warning about loss of data,
