@@ -108,13 +108,12 @@ static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err,
     while (*cp)
     {
 	c = file_getc(wth->fh);
-	if (c == EOF) {
-	    if (file_eof(wth->fh))
-		return 0;	/* EOF */
-	    else {
-		*err = file_error(wth->fh, err_info);
+	if (c == EOF)
+	{
+	    *err = file_error(wth->fh, err_info);
+	    if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 		return -1;	/* error */
-	    }
+	    return 0;	/* EOF */
 	}
 	if (c == *cp)
 	    cp++;
@@ -141,13 +140,12 @@ static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
     for (cp = buffer, i = 0; i < buflen; i++, cp++)
     {
 	c = file_getc(wth->fh);
-	if (c == EOF) {
-	    if (file_eof(wth->fh))
-		return 0;	/* EOF */
-	    else {
-		*err = file_error(wth->fh, err_info);
+	if (c == EOF)
+	{
+	    *err = file_error(wth->fh, err_info);
+	    if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 		return -1;	/* error */
-	    }
+	    return 0;	/* EOF */
 	}
 	if (strchr (separators, c) != NULL)
 	{

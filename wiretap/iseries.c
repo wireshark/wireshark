@@ -420,58 +420,54 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
    */
   for (line = 0; line < ISERIES_MAX_TRACE_LEN; line++)
     {
-      if (file_gets (buf, ISERIES_LINE_LENGTH, wth->fh) != NULL)
+      if (file_gets (buf, ISERIES_LINE_LENGTH, wth->fh) == NULL)
         {
-          /* Convert UNICODE to ASCII if required and determine    */
-          /* the number of bytes to rewind to beginning of record. */
-          if (iseries->format == ISERIES_FORMAT_UNICODE)
+          /* EOF or error. */
+          *err = file_error (wth->fh, err_info);
+          if (*err != 0)
             {
-              /* buflen is #bytes to 1st 0x0A */
-             buflen = iseries_UNICODE_to_ASCII ((guint8 *) buf, ISERIES_LINE_LENGTH);
+              return -1;
             }
-          else
-            {
-              /* Else buflen is just length of the ASCII string */
-              buflen = (long) strlen (buf);
-            }
-          ascii_strup_inplace (buf);
-          /* If packet header found return the offset */
-          num_items_scanned =
-            sscanf (buf+78,
-                    "%*[ \n\t]ETHV2%*[ .:\n\t]TYPE%*[ .:\n\t]%4s",type);
-          if (num_items_scanned == 1)
-            {
-              /* Rewind to beginning of line */
-              cur_off = file_tell (wth->fh);
-              if (cur_off == -1)
-                {
-                  *err = file_error (wth->fh, err_info);
-                  return -1;
-                }
-              if (file_seek (wth->fh, cur_off - buflen, SEEK_SET, err) == -1)
-                {
-                  return -1;
-                }
-              return cur_off - buflen;
-            }
+          return 0;
         }
-      /* Otherwise we got an error or reached EOF */
-      else
-        {
-          if (file_eof (wth->fh))
-            {
-              /* We got an EOF. */
-              *err = 0;
-            }
-          else
-            {
-              /* We got an error. */
-              *err = file_error (wth->fh, err_info);
-            }
-          return -1;
-        }
+        /* Convert UNICODE to ASCII if required and determine    */
+        /* the number of bytes to rewind to beginning of record. */
+        if (iseries->format == ISERIES_FORMAT_UNICODE)
+          {
+            /* buflen is #bytes to 1st 0x0A */
+           buflen = iseries_UNICODE_to_ASCII ((guint8 *) buf, ISERIES_LINE_LENGTH);
+          }
+        else
+          {
+            /* Else buflen is just length of the ASCII string */
+            buflen = (long) strlen (buf);
+          }
+        ascii_strup_inplace (buf);
+        /* If packet header found return the offset */
+        num_items_scanned =
+          sscanf (buf+78,
+                  "%*[ \n\t]ETHV2%*[ .:\n\t]TYPE%*[ .:\n\t]%4s",type);
+        if (num_items_scanned == 1)
+          {
+            /* Rewind to beginning of line */
+            cur_off = file_tell (wth->fh);
+            if (cur_off == -1)
+              {
+                *err = file_error (wth->fh, err_info);
+                return -1;
+              }
+            if (file_seek (wth->fh, cur_off - buflen, SEEK_SET, err) == -1)
+              {
+                return -1;
+              }
+            return cur_off - buflen;
+          }
     }
 
+  *err = WTAP_ERR_BAD_FILE;
+  *err_info =
+    g_strdup_printf ("iseries: next packet header not found within %d lines",
+             ISERIES_MAX_TRACE_LEN);
   return -1;
 }
 
@@ -620,11 +616,11 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       if (file_gets (data, ISERIES_LINE_LENGTH, fh) == NULL)
         {
           *err = file_error (fh, err_info);
-          if (*err == 0)
+          if (*err != 0)
             {
-              *err = WTAP_ERR_SHORT_READ;
+              return -1;
             }
-          return -1;
+          return 0;
         }
       /* Convert UNICODE data to ASCII */
       if (iseries->format == ISERIES_FORMAT_UNICODE)
@@ -724,7 +720,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   ascii_offset = 14*2; /* 14-byte Ethernet header, 2 characters per byte */
 
   /*
-   * Start Reading packet contents
+   * Start reading packet contents
    */
   isCurrentPacket = TRUE;
 
@@ -736,19 +732,13 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       /* Read the next line */
       if (file_gets (data, ISERIES_LINE_LENGTH, fh) == NULL)
         {
-          if (file_eof (fh))
+          *err = file_error (fh, err_info);
+          if (*err == 0)
             {
+              /* Hit the EOF without an error */
               break;
             }
-          else
-            {
-              *err = file_error (fh, err_info);
-              if (*err == 0)
-                {
-                  *err = WTAP_ERR_SHORT_READ;
-                }
-              goto errxit;
-            }
+          goto errxit;
         }
 
       /* Convert UNICODE data to ASCII and determine line length */

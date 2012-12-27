@@ -145,13 +145,8 @@ static gint64 toshiba_seek_next_packet(wtap *wth, int *err, gchar **err_info)
       level = 0;
     }
   }
-  if (file_eof(wth->fh)) {
-    /* We got an EOF. */
-    *err = 0;
-  } else {
-    /* We got an error. */
-    *err = file_error(wth->fh, err_info);
-  }
+  /* EOF or error. */
+  *err = file_error(wth->fh, err_info);
   return -1;
 }
 

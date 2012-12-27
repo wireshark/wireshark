@@ -200,8 +200,8 @@ static gboolean empty_line(const gchar *line)
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset. Copy the header line to hdr. Returns -1 on failure,
-   and sets "*err" to the error, sets "*err_info" to null or an
-   additional error string, and sets hdr to NULL. */
+   and sets "*err" to the error and sets "*err_info" to null or an
+   additional error string. */
 static gint64 cosine_seek_next_packet(wtap *wth, int *err, gchar **err_info,
 	char *hdr)
 {
@@ -213,27 +213,18 @@ static gint64 cosine_seek_next_packet(wtap *wth, int *err, gchar **err_info,
 		if (cur_off == -1) {
 			/* Error */
 			*err = file_error(wth->fh, err_info);
-			hdr = NULL;
 			return -1;
 		}
-		if (file_gets(buf, sizeof(buf), wth->fh) != NULL) {
-			if (strstr(buf, COSINE_REC_MAGIC_STR1) ||
-			    strstr(buf, COSINE_REC_MAGIC_STR2)) {
-				g_strlcpy(hdr, buf, COSINE_LINE_LENGTH);
-				return cur_off;
-			}
-		} else {
-			if (file_eof(wth->fh)) {
-				/* We got an EOF. */
-				*err = 0;
-			} else {
-				/* We got an error. */
-				*err = file_error(wth->fh, err_info);
-			}
-			break;
+		if (file_gets(buf, sizeof(buf), wth->fh) == NULL) {
+			*err = file_error(wth->fh, err_info);
+			return -1;
+		}
+		if (strstr(buf, COSINE_REC_MAGIC_STR1) ||
+		    strstr(buf, COSINE_REC_MAGIC_STR2)) {
+			g_strlcpy(hdr, buf, COSINE_LINE_LENGTH);
+			return cur_off;
 		}
 	}
-	hdr = NULL;
 	return -1;
 }
 

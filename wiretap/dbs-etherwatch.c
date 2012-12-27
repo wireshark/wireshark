@@ -124,13 +124,8 @@ static gint64 dbs_etherwatch_seek_next_packet(wtap *wth, int *err,
       level = 0;
     }
   }
-  if (file_eof(wth->fh)) {
-    /* We got an EOF. */
-    *err = 0;
-  } else {
-    /* We got an error. */
-    *err = file_error(wth->fh, err_info);
-  }
+  /* EOF or error. */
+  *err = file_error(wth->fh, err_info);
   return -1;
 }
 
@@ -155,33 +150,28 @@ static gboolean dbs_etherwatch_check_file_type(wtap *wth, int *err,
 	buf[DBS_ETHERWATCH_LINE_LENGTH-1] = 0;
 
 	for (line = 0; line < DBS_ETHERWATCH_HEADER_LINES_TO_CHECK; line++) {
-		if (file_gets(buf, DBS_ETHERWATCH_LINE_LENGTH, wth->fh)!=NULL){
-
-			reclen = strlen(buf);
-			if (reclen < DBS_ETHERWATCH_HDR_MAGIC_SIZE)
-				continue;
-
-			level = 0;
-			for (i = 0; i < reclen; i++) {
-				byte = buf[i];
-				if (byte == dbs_etherwatch_hdr_magic[level]) {
-					level++;
-					if (level >=
-					      DBS_ETHERWATCH_HDR_MAGIC_SIZE) {
-						return TRUE;
-					}
-				}
-				else
-					level = 0;
-			}
-		}
-		else {
+		if (file_gets(buf, DBS_ETHERWATCH_LINE_LENGTH, wth->fh) == NULL) {
 			/* EOF or error. */
-			if (file_eof(wth->fh))
-				*err = 0;
-			else
-				*err = file_error(wth->fh, err_info);
+			*err = file_error(wth->fh, err_info);
 			return FALSE;
+		}
+
+		reclen = strlen(buf);
+		if (reclen < DBS_ETHERWATCH_HDR_MAGIC_SIZE)
+			continue;
+
+		level = 0;
+		for (i = 0; i < reclen; i++) {
+			byte = buf[i];
+			if (byte == dbs_etherwatch_hdr_magic[level]) {
+				level++;
+				if (level >=
+				      DBS_ETHERWATCH_HDR_MAGIC_SIZE) {
+					return TRUE;
+				}
+			}
+			else
+				level = 0;
 		}
 	}
 	*err = 0;

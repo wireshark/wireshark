@@ -155,43 +155,33 @@ static gboolean parse_vms_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr,
 
 #ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
 /* Seeks to the beginning of the next packet, and returns the
-   byte offset.  Returns -1 on failure, and sets "*err" to the error. */
-static long vms_seek_next_packet(wtap *wth, int *err)
+   byte offset.  Returns -1 on failure, and sets "*err" to the error
+   and sets "*err_info" to null or an additional error string. */
+static long vms_seek_next_packet(wtap *wth, int *err, gchar **err_info)
 {
-  long cur_off;
-  char buf[VMS_LINE_LENGTH];
+    long cur_off;
+    char buf[VMS_LINE_LENGTH];
   
-  while (1) {
-    cur_off = file_tell(wth->fh);
-    if (cur_off == -1) {
-      /* Error */
-      *err = file_error(wth->fh, err_info);
-      hdr = NULL;
-      return -1;
+    while (1) {
+        cur_off = file_tell(wth->fh);
+        if (cur_off == -1) {
+            /* Error */
+            *err = file_error(wth->fh, err_info);
+            return -1;
+        }
+        if (file_gets(buf, sizeof(buf), wth->fh) == NULL) {
+            /* EOF or error. */
+            *err = file_error(wth->fh, err_info);
+            break;
+        }
+        if (strstr(buf, VMS_REC_MAGIC_STR1) ||
+            strstr(buf, VMS_REC_MAGIC_STR2) ||
+            strstr(buf, VMS_REC_MAGIC_STR2)) {
+            g_strlcpy(hdr, buf,VMS_LINE_LENGTH);
+            return cur_off;
+        }
     }
-    if (file_gets(buf, sizeof(buf), wth->fh) != NULL) {
-      if (strstr(buf, VMS_REC_MAGIC_STR1) ||
-	  strstr(buf, VMS_REC_MAGIC_STR2) ||
-	  strstr(buf, VMS_REC_MAGIC_STR2)) {
-		  g_strlcpy(hdr, buf,VMS_LINE_LENGTH);
-		  return cur_off;
-      }
-    } else {
-      if (file_eof(wth->fh)) {
-	/* We got an EOF. */
-	*err = 0;
-      } else {
-	/* We (presumably) got an error (there's no
-	   equivalent to "ferror()" in zlib, alas,
-	   so we don't have a wrapper to check for
-	   an error). */
-	*err = file_error(wth->fh, err_info);
-      }
-      break;
-    }
-  }
-  hdr = NULL;
-  return -1;
+    return -1;
 }
 #endif /* TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE */
 
@@ -207,50 +197,46 @@ static long vms_seek_next_packet(wtap *wth, int *err)
  */
 static gboolean vms_check_file_type(wtap *wth, int *err, gchar **err_info)
 {
-  char	buf[VMS_LINE_LENGTH];
-  guint	reclen, line;
-  gint64 mpos;
+    char buf[VMS_LINE_LENGTH];
+    guint reclen, line;
+    gint64 mpos;
   
-  buf[VMS_LINE_LENGTH-1] = '\0';
+    buf[VMS_LINE_LENGTH-1] = '\0';
   
-  for (line = 0; line < VMS_HEADER_LINES_TO_CHECK; line++) {
-    mpos = file_tell(wth->fh);
-    if (mpos == -1) {
-      /* Error. */
-      *err = file_error(wth->fh, err_info);
-      return FALSE;
-    }
-    if (file_gets(buf, VMS_LINE_LENGTH, wth->fh) != NULL) {
+    for (line = 0; line < VMS_HEADER_LINES_TO_CHECK; line++) {
+        mpos = file_tell(wth->fh);
+        if (mpos == -1) {
+            /* Error. */
+            *err = file_error(wth->fh, err_info);
+            return FALSE;
+        }
+        if (file_gets(buf, VMS_LINE_LENGTH, wth->fh) == NULL) {
+            /* EOF or error. */
+            *err = file_error(wth->fh, err_info);
+            return FALSE;
+        }
       
-      reclen = (guint) strlen(buf);
-      if (reclen < strlen(VMS_HDR_MAGIC_STR1) ||
-	  reclen < strlen(VMS_HDR_MAGIC_STR2) || 
-	  reclen < strlen(VMS_HDR_MAGIC_STR3)) {
-	continue;
-      }
+        reclen = (guint) strlen(buf);
+        if (reclen < strlen(VMS_HDR_MAGIC_STR1) ||
+            reclen < strlen(VMS_HDR_MAGIC_STR2) || 
+            reclen < strlen(VMS_HDR_MAGIC_STR3)) {
+            continue;
+        }
       
-      if (strstr(buf, VMS_HDR_MAGIC_STR1) ||
-	  strstr(buf, VMS_HDR_MAGIC_STR2) ||
-	  strstr(buf, VMS_HDR_MAGIC_STR3)) {
-	/* Go back to the beginning of this line, so we will
-	 * re-read it. */
-	if (file_seek(wth->fh, mpos, SEEK_SET, err) == -1) {
-	  /* Error. */
-	  return FALSE;
-	}
-	return TRUE;
-      }
-    } else {
-      /* EOF or error. */
-      if (file_eof(wth->fh))
-	*err = 0;
-      else
-	*err = file_error(wth->fh, err_info);
-      return FALSE;
+        if (strstr(buf, VMS_HDR_MAGIC_STR1) ||
+            strstr(buf, VMS_HDR_MAGIC_STR2) ||
+            strstr(buf, VMS_HDR_MAGIC_STR3)) {
+            /* Go back to the beginning of this line, so we will
+             * re-read it. */
+            if (file_seek(wth->fh, mpos, SEEK_SET, err) == -1) {
+                /* Error. */
+                return FALSE;
+            }
+            return TRUE;
+        }
     }
-  }
-  *err = 0;
-  return FALSE;
+    *err = 0;
+    return FALSE;
 }
 
 
@@ -268,7 +254,7 @@ int vms_open(wtap *wth, int *err, gchar **err_info)
     wth->snapshot_length = 0; /* not known */
     wth->subtype_read = vms_read;
     wth->subtype_seek_read = vms_seek_read;
-	wth->tsprecision = WTAP_FILE_TSPREC_CSEC;
+    wth->tsprecision = WTAP_FILE_TSPREC_CSEC;
 
     return 1;
 }
@@ -282,7 +268,7 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
 
     /* Find the next packet */
 #ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
-    offset = vms_seek_next_packet(wth, err);
+    offset = vms_seek_next_packet(wth, err, err_info);
 #else
     offset = file_tell(wth->fh);
 #endif
