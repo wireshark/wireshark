@@ -25,8 +25,6 @@
 
 #include "config.h"
 
-#include <string.h>
-
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #if GTK_CHECK_VERSION(3,0,0)
@@ -36,10 +34,9 @@
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 
+#include "ui/profile.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
-
-#include <wsutil/file_util.h>
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
@@ -62,262 +59,41 @@ enum {
 #define E_PROF_NAME_TE_KEY          "profile_name_te"
 
 static GtkWidget *global_profile_w = NULL;
-static GList *current_profiles = NULL;
-static GList *edited_profiles = NULL;
-
-#define PROF_STAT_DEFAULT  1
-#define PROF_STAT_EXISTS   2
-#define PROF_STAT_NEW      3
-#define PROF_STAT_CHANGED  4
-#define PROF_STAT_COPY     5
 
 #define PROF_OPERATION_NEW  1
 #define PROF_OPERATION_EDIT 2
-
-typedef struct {
-  char *name;           /* profile name */
-  char *reference;      /* profile reference */
-  int   status;
-  gboolean is_global;
-  gboolean from_global;
-} profile_def;
-
-static GList *
-add_profile_entry(GList *fl, const char *profilename, const char *reference, int status, 
-		  gboolean is_global, gboolean from_global)
-{
-    profile_def *profile;
-
-    profile = (profile_def *) g_malloc(sizeof(profile_def));
-    profile->name = g_strdup(profilename);
-    profile->reference = g_strdup(reference);
-    profile->status = status;
-    profile->is_global = is_global;
-    profile->from_global = from_global;
-    return g_list_append(fl, profile);
-}
-
-static GList *
-remove_profile_entry(GList *fl, GList *fl_entry)
-{
-  profile_def *profile;
-
-  profile = (profile_def *) fl_entry->data;
-  g_free(profile->name);
-  g_free(profile->reference);
-  g_free(profile);
-  return g_list_remove_link(fl, fl_entry);
-}
-
-static const gchar *
-get_profile_parent (const gchar *profilename)
-{
-  GList *fl_entry = g_list_first(edited_profiles);
-  guint no_edited = g_list_length(edited_profiles);
-  profile_def *profile;
-  guint i;
-
-  if (fl_entry) {
-    /* We have edited profiles, find parent */
-    for (i = 0; i < no_edited; i++) {
-      while (fl_entry) {
-	profile = (profile_def *) fl_entry->data;
-	if (strcmp (profile->name, profilename) == 0) {
-	  if ((profile->status == PROF_STAT_NEW) ||
-	      (profile->reference == NULL)) {
-	    /* Copy from a new profile */
-	    return NULL;
-	  } else {
-	    /* Found a parent, use this */
-	    profilename = profile->reference;
-	  }
-	}
-	fl_entry = g_list_next(fl_entry);
-      }
-      fl_entry = g_list_first(edited_profiles);
-    }
-  }
-
-  return profilename;
-}
-
-static GList *
-add_to_profile_list(const char *name, const char *expression, int status, 
-		    gboolean is_global, gboolean from_global)
-{
-  edited_profiles = add_profile_entry(edited_profiles, name, expression, status,
-				      is_global, from_global);
-
-  return g_list_last(edited_profiles);
-}
-
-static void
-remove_from_profile_list(GList *fl_entry)
-{
-  edited_profiles = remove_profile_entry(edited_profiles, fl_entry);
-}
-
-static void
-empty_profile_list(gboolean edit_list)
-{
-  GList **flpp;
-
-  if (edit_list) {
-    flpp = &edited_profiles;
-
-    while(*flpp) {
-      *flpp = remove_profile_entry(*flpp, g_list_first(*flpp));
-    }
-
-    g_assert(g_list_length(*flpp) == 0);
-  }
-
-  flpp = &current_profiles;
-
-  while(*flpp) {
-    *flpp = remove_profile_entry(*flpp, g_list_first(*flpp));
-  }
-
-  g_assert(g_list_length(*flpp) == 0);
-}
-
-static void
-copy_profile_list(void)
-{
-    GList      *flp_src;
-    profile_def *profile;
-
-    flp_src = edited_profiles;
-
-    /* throw away the "old" destination list - a NULL list is ok here */
-    empty_profile_list(FALSE);
-
-    /* copy the list entries */
-    while(flp_src) {
-        profile = (flp_src)->data;
-
-        current_profiles = add_profile_entry(current_profiles, profile->name,
-					     profile->reference, profile->status, 
-					     profile->is_global, profile->from_global);
-        flp_src = g_list_next(flp_src);
-    }
-}
 
 
 static GtkTreeIter *
 fill_list(GtkWidget *main_w)
 {
-  WS_DIR        *dir;             /* scanned directory */
-  WS_DIRENT     *file;            /* current file */
   GList         *fl_entry;
   profile_def   *profile;
   GtkTreeView   *profile_l;
   GtkListStore  *store;
   GtkTreeIter    iter, *l_select = NULL;
   const gchar   *profile_name = get_profile_name ();
-  const gchar   *profiles_dir, *name;
-  gchar         *filename;
 
   profile_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY));
   store = GTK_LIST_STORE(gtk_tree_view_get_model(profile_l));
 
-  fl_entry = add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT, FALSE, FALSE);
-  gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, NAME_COLUMN, DEFAULT_PROFILE, GLOBAL_COLUMN, FALSE, DATA_COLUMN, fl_entry, -1);
-  if (strcmp (profile_name, DEFAULT_PROFILE)==0) {
-    l_select = g_memdup(&iter, sizeof(iter));
-  }
+  fl_entry = current_profile_list();
+  while (fl_entry && fl_entry->data) {
+    profile = (profile_def *) fl_entry->data;
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter, NAME_COLUMN, profile->name, GLOBAL_COLUMN, profile->is_global, DATA_COLUMN, fl_entry, -1);
 
-  /* fill in data */
-  profiles_dir = get_profiles_dir();
-  if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
-    while ((file = ws_dir_read_name(dir)) != NULL) {
-      name = ws_dir_get_name(file);
-      filename = g_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
-
-      if (test_for_directory(filename) == EISDIR) {
-	fl_entry = add_to_profile_list(name, name, PROF_STAT_EXISTS, FALSE, FALSE);
-	profile = (profile_def *) fl_entry->data;
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, NAME_COLUMN, profile->name, GLOBAL_COLUMN, FALSE, DATA_COLUMN, fl_entry, -1);
-
-	if (profile->name) {
-	  if (strcmp(profile_name, profile->name) == 0) {
-	    /*
-	     * XXX - We're assuming that we can just copy a GtkTreeIter
-	     * and use it later without any crashes.  This may not be a
-	     * valid assumption.
-	     */
-	    l_select = g_memdup(&iter, sizeof(iter));
-	  }
-	}
-      }
-      g_free (filename);
+    if (profile->name && strcmp(profile_name, profile->name) == 0) {
+      /*
+       * XXX - We're assuming that we can just copy a GtkTreeIter
+       * and use it later without any crashes.  This may not be a
+       * valid assumption.
+       */
+      l_select = g_memdup(&iter, sizeof(iter));
     }
-    ws_dir_close (dir);
   }
-
-  profiles_dir = get_global_profiles_dir();
-  if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
-    while ((file = ws_dir_read_name(dir)) != NULL) {
-      name = ws_dir_get_name(file);
-      filename = g_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
-
-      if (test_for_directory(filename) == EISDIR) {
-	fl_entry = add_to_profile_list(name, name, PROF_STAT_EXISTS, TRUE, TRUE);
-	profile = (profile_def *) fl_entry->data;
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, NAME_COLUMN, profile->name, GLOBAL_COLUMN, TRUE, DATA_COLUMN, fl_entry, -1);
-      }
-      g_free (filename);
-    }
-    ws_dir_close (dir);
-  }
-
-  /* Make the current list and the edited list equal */
-  copy_profile_list ();
 
   return l_select;
-}
-
-static gboolean
-profile_is_invalid_name(const gchar *name)
-{
-  gchar  *message = NULL;
-
-#ifdef _WIN32
-  char *invalid_dir_char = "\\/:*?\"<>|";
-  gboolean invalid = FALSE;
-  int i;
-
-  for (i = 0; i < 9; i++) {
-    if (strchr(name, invalid_dir_char[i])) {
-      /* Invalid character in directory */
-      invalid = TRUE;
-    }
-  }
-  if (name[0] == '.' || name[strlen(name)-1] == '.') {
-    /* Profile name cannot start or end with period */
-    invalid = TRUE;
-  }
-  if (invalid) {
-    message = g_strdup_printf("start or end with period (.), or contain any of the following characters:\n"
-			      "   \\ / : * ? \" &lt; &gt; |");
-  }
-#else
-  if (strchr(name, '/')) {
-    /* Invalid character in directory */
-    message = g_strdup_printf("contain the '/' character.");
-  }
-#endif
-
-  if (message) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "A profile name cannot %s\nProfiles unchanged.", message);
-    g_free(message);
-    return TRUE;
-  }
-
-  return FALSE;
 }
 
 static void
@@ -362,20 +138,22 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
   GList       *fl1, *fl2;
   profile_def *profile1, *profile2;
   gboolean     found;
+  const gchar *err_msg;
 
   /* First validate all profile names */
-  fl1 = g_list_first(edited_profiles);
+  fl1 = edited_profile_list();
   while (fl1) {
     profile1 = (profile_def *) fl1->data;
     g_strstrip(profile1->name);
-    if (profile_is_invalid_name(profile1->name)) {
+    if ((err_msg = profile_name_is_valid(profile1->name)) != NULL) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
       return;
     }
     fl1 = g_list_next(fl1);
   }
 
   /* Then do all copy profiles */
-  fl1 = g_list_first(edited_profiles);
+  fl1 = edited_profile_list();
   while (fl1) {
     profile1 = (profile_def *) fl1->data;
     g_strstrip(profile1->name);
@@ -384,7 +162,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Can't create directory\n\"%s\":\n%s.",
                       pf_dir_path, g_strerror(errno));
-        
+
         g_free(pf_dir_path);
       }
       profile1->status = PROF_STAT_EXISTS;
@@ -410,7 +188,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 
 
   /* Then create new and rename changed */
-  fl1 = g_list_first(edited_profiles);
+  fl1 = edited_profile_list();
   while (fl1) {
     profile1 = (profile_def *) fl1->data;
     g_strstrip(profile1->name);
@@ -450,11 +228,11 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
   }
 
   /* Last remove deleted */
-  fl1 = g_list_first(current_profiles);
+  fl1 = current_profile_list();
   while (fl1) {
     found = FALSE;
     profile1 = (profile_def *) fl1->data;
-    fl2 = g_list_first(edited_profiles);
+    fl2 = edited_profile_list();
     while (fl2) {
       profile2 = (profile_def *) fl2->data;
       if (!profile2->is_global) {
@@ -783,7 +561,7 @@ profile_dialog_new(void)
   GtkTreeSelection  *sel;
   GtkTreeIter       *l_select;
   gboolean           has_global = has_global_profiles();
-  
+
   /* Get a pointer to a static variable holding the type of profile on
      which we're working, so we can pass that pointer to callback
      routines. */
@@ -980,9 +758,8 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
 {
   GdkEventButton *bevent = (GdkEventButton *)event;
   const gchar    *profile_name = get_profile_name ();
-  const gchar    *profiles_dir, *name;
-  WS_DIR         *dir;             /* scanned directory */
-  WS_DIRENT      *file;            /* current file */
+  GList          *fl_entry;
+  profile_def    *profile;
   GtkWidget      *menu;
   GtkWidget      *menu_item;
 
@@ -1010,71 +787,48 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
     gtk_menu_item_set_submenu (GTK_MENU_ITEM(change_menu), menu);
   }
 
-  /* Add a menu item for the Default profile */
-  menu_item = gtk_check_menu_item_new_with_label (DEFAULT_PROFILE);
-  if (strcmp (profile_name, DEFAULT_PROFILE) == 0) {
-    /* Check current profile */
-    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
-  }
-  g_object_set (G_OBJECT(menu_item), "draw-as-radio", TRUE, NULL);
-  g_signal_connect (menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup (DEFAULT_PROFILE));
-  gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
-  gtk_widget_show (menu_item);
-
-  profiles_dir = get_profiles_dir();
-  if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
-    while ((file = ws_dir_read_name(dir)) != NULL) {
-      name = ws_dir_get_name(file);
-
-      if (profile_exists(name, FALSE)) {
-	menu_item = gtk_check_menu_item_new_with_label (name);
-	if (strcmp (name, profile_name)==0) {
-	  /* Check current profile */
-	  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
-	}
-	g_object_set (G_OBJECT(menu_item), "draw-as-radio", TRUE, NULL);
-	g_signal_connect (menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup (name));
-	gtk_menu_shell_append  (GTK_MENU_SHELL (menu), menu_item);
-	gtk_widget_show (menu_item);
-      }
-    }
-    ws_dir_close (dir);
-  }
-
-  profiles_dir = get_global_profiles_dir();
-  if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
+  init_profile_list();
+  fl_entry = current_profile_list();
+  while (fl_entry && fl_entry->data) {
     GtkWidget *sub_menu = NULL;
     gboolean   added_submenu = FALSE;
-  
-    while ((file = ws_dir_read_name(dir)) != NULL) {
-      name = ws_dir_get_name(file);
 
-      if (profile_exists(name, TRUE)) {
-	if (!added_submenu) {
-	  menu_item =  gtk_separator_menu_item_new ();
-	  gtk_menu_shell_append  (GTK_MENU_SHELL (menu), menu_item);
-	  gtk_widget_show (menu_item);
-	  
-	  menu_item = gtk_menu_item_new_with_label ("New from Global");
-	  gtk_menu_shell_append  (GTK_MENU_SHELL (menu), menu_item);
-	  gtk_widget_show (menu_item);
+    profile = (profile_def *) fl_entry->data;
 
-	  sub_menu = gtk_menu_new ();
-	  gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_item), sub_menu);
-
-	  added_submenu = TRUE;
-	}
-
-	menu_item = gtk_menu_item_new_with_label (name);
-	g_signal_connect (menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup (name));
-	if (profile_exists(name, FALSE)) {
-	  gtk_widget_set_sensitive(menu_item, FALSE);
-	}
-	gtk_menu_shell_append  (GTK_MENU_SHELL (sub_menu), menu_item);
-	gtk_widget_show (menu_item);
+    if (profile_exists(profile->name, FALSE)) {
+      menu_item = gtk_check_menu_item_new_with_label (profile->name);
+      if (strcmp (profile->name, profile_name)==0) {
+	/* Check current profile */
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
       }
+      g_object_set (G_OBJECT(menu_item), "draw-as-radio", TRUE, NULL);
+      g_signal_connect (menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup (profile->name));
+      gtk_menu_shell_append  (GTK_MENU_SHELL (menu), menu_item);
+      gtk_widget_show (menu_item);
+    } else if (profile_exists(profile->name, TRUE)) {
+      if (!added_submenu) {
+	menu_item =  gtk_separator_menu_item_new ();
+	gtk_menu_shell_append  (GTK_MENU_SHELL (menu), menu_item);
+	gtk_widget_show (menu_item);
+
+	menu_item = gtk_menu_item_new_with_label ("New from Global");
+	gtk_menu_shell_append  (GTK_MENU_SHELL (menu), menu_item);
+	gtk_widget_show (menu_item);
+
+	sub_menu = gtk_menu_new ();
+	gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_item), sub_menu);
+
+	added_submenu = TRUE;
+      }
+
+      menu_item = gtk_menu_item_new_with_label (profile->name);
+      g_signal_connect (menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup (profile->name));
+      if (profile_exists(profile->name, FALSE)) {
+	gtk_widget_set_sensitive(menu_item, FALSE);
+      }
+      gtk_menu_shell_append  (GTK_MENU_SHELL (sub_menu), menu_item);
+      gtk_widget_show (menu_item);
     }
-    ws_dir_close (dir);
   }
 
   if (bevent->button != 1) {
@@ -1101,7 +855,7 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
   gboolean     from_global = FALSE;
   char        *pf_dir_path, *pf_dir_path2, *pf_filename;
 
-  if (strlen(new_name) == 0 || profile_is_invalid_name(new_name)) {
+  if (strlen(new_name) == 0 || profile_name_is_valid(new_name) != NULL) {
     return;
   }
 
@@ -1139,16 +893,16 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't create directory\n\"%s\":\n%s.",
 		    pf_dir_path, g_strerror(errno));
-      
+
       g_free(pf_dir_path);
-    } else if (strlen (profile_name) && 
+    } else if (strlen (profile_name) &&
 	       copy_persconffile_profile(new_name, profile_name, from_global, &pf_filename,
 					 &pf_dir_path, &pf_dir_path2) == -1)
     {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
 		    pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
-	
+
       g_free(pf_filename);
       g_free(pf_dir_path);
       g_free(pf_dir_path2);
@@ -1162,7 +916,7 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't rename directory\n\"%s\" to\n\"%s\":\n%s.",
 		    pf_dir_path, pf_dir_path2, g_strerror(errno));
-      
+
       g_free(pf_dir_path);
       g_free(pf_dir_path2);
     } else {
@@ -1185,15 +939,15 @@ profile_name_edit_cancel (GtkWidget *w _U_, gpointer parent_w)
 static void
 profile_name_edit_dlg (gint operation)
 {
-  WS_DIR      *dir;             /* scanned directory */
-  WS_DIRENT   *file;            /* current file */
   GtkWidget   *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
   GtkWidget   *entry, *label, *combo_box=NULL;
   GtkCellRenderer *cell;
   GtkTreeStore    *store;
   GtkTreeIter   iter, parent;
   gchar       *window_title=NULL;
-  const gchar *profile_name, *profiles_dir, *name;
+  GList       *fl_entry;
+  profile_def *profile;
+  const gchar *profile_name, *profiles_dir;
   gboolean     has_global = has_global_profiles();
 
   profile_name = get_profile_name();
@@ -1251,32 +1005,31 @@ profile_name_edit_dlg (gint operation)
     gtk_tree_store_append(store, &iter, has_global ? &parent : NULL);
     gtk_tree_store_set(store, &iter, 0, DEFAULT_PROFILE, 1, FALSE, 2, TRUE, -1);
     profiles_dir = get_profiles_dir();
-    if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
-      while ((file = ws_dir_read_name(dir)) != NULL) {
-	name = ws_dir_get_name(file);
-	if (profile_exists(name, FALSE)) {
-	  gtk_tree_store_append(store, &iter, has_global ? &parent : NULL);
-	  gtk_tree_store_set(store, &iter, 0, name, 1, FALSE, 2, TRUE, -1);
-	}
+    init_profile_list();
+    fl_entry = current_profile_list();
+
+    while (fl_entry && fl_entry->data) {
+      profile = (profile_def *) fl_entry->data;
+      if (!profile->is_global) {
+	gtk_tree_store_append(store, &iter, has_global ? &parent : NULL);
+	gtk_tree_store_set(store, &iter, 0, profile->name, 1, FALSE, 2, TRUE, -1);
       }
-      ws_dir_close (dir);
     }
 
     if (has_global) {
       gtk_tree_store_append(store, &parent, NULL);
       gtk_tree_store_set(store, &parent, 0, "Global", 1, FALSE, 2, FALSE, -1);
-      profiles_dir = get_global_profiles_dir();
-      if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
-	while ((file = ws_dir_read_name(dir)) != NULL) {
-	  name = ws_dir_get_name(file);
-	  if (profile_exists(name, TRUE)) {
-	    gtk_tree_store_append(store, &iter, &parent);
-	    gtk_tree_store_set(store, &iter, 0, name, 1, TRUE, 2, TRUE, -1);
-	  }
+      fl_entry = current_profile_list();
+
+      while (fl_entry && fl_entry->data) {
+	profile = (profile_def *) fl_entry->data;
+	if (profile->is_global) {
+	  gtk_tree_store_append(store, &iter, &parent);
+	  gtk_tree_store_set(store, &iter, 0, profile->name, 1, TRUE, 2, TRUE, -1);
 	}
-	ws_dir_close (dir);
       }
     }
+
     gtk_table_attach_defaults(GTK_TABLE(main_tb), combo_box, 1, 2, 0, 1);
     g_object_unref(store);
   }
@@ -1341,7 +1094,7 @@ profile_delete_cb (GtkWidget *w _U_, gpointer data _U_)
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't delete profile directory\n\"%s\":\n%s.",
 		    pf_dir_path, g_strerror(errno));
-      
+
       g_free(pf_dir_path);
     }
 
@@ -1369,4 +1122,3 @@ profile_dialog_cb(GtkWidget *w _U_)
     global_profile_w = profile_dialog_new ();
   }
 }
-

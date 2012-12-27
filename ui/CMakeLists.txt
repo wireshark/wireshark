@@ -30,6 +30,7 @@ set(COMMON_UI_SRC
 	export_object_smb.c
 	help_url.c
 	iface_lists.c
+	profile.c
 	ssl_key_export.c
 	text_import.c
 	time_shift.c
