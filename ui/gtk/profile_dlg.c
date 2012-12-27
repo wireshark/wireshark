@@ -91,6 +91,7 @@ fill_list(GtkWidget *main_w)
        */
       l_select = g_memdup(&iter, sizeof(iter));
     }
+    fl_entry = g_list_next(fl_entry);
   }
 
   return l_select;
@@ -244,7 +245,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 	  found = TRUE;
 	}
       }
-      fl2 = fl2->next;
+      fl2 = g_list_next(fl2);
     }
     if (!found) {
       /* Exists in existing list and not in edited, this is a deleted profile */
@@ -829,6 +830,7 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
       gtk_menu_shell_append  (GTK_MENU_SHELL (sub_menu), menu_item);
       gtk_widget_show (menu_item);
     }
+    fl_entry = g_list_next(fl_entry);
   }
 
   if (bevent->button != 1) {
@@ -1014,6 +1016,7 @@ profile_name_edit_dlg (gint operation)
 	gtk_tree_store_append(store, &iter, has_global ? &parent : NULL);
 	gtk_tree_store_set(store, &iter, 0, profile->name, 1, FALSE, 2, TRUE, -1);
       }
+      fl_entry = g_list_next(fl_entry);
     }
 
     if (has_global) {
@@ -1027,6 +1030,7 @@ profile_name_edit_dlg (gint operation)
 	  gtk_tree_store_append(store, &iter, &parent);
 	  gtk_tree_store_set(store, &iter, 0, profile->name, 1, TRUE, 2, TRUE, -1);
 	}
+        fl_entry = g_list_next(fl_entry);
       }
     }
 
