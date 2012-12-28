@@ -192,7 +192,7 @@ init_profile_list(void)
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
     GList         *fl_entry;
-    profile_def   *profile;
+    /*profile_def   *profile;*/
     const gchar   *profiles_dir, *name;
     gchar         *filename;
 
@@ -225,7 +225,7 @@ init_profile_list(void)
 
             if (test_for_directory(filename) == EISDIR) {
                 fl_entry = add_to_profile_list(name, name, PROF_STAT_EXISTS, TRUE, TRUE);
-                profile = (profile_def *) fl_entry->data;
+                /*profile = (profile_def *) fl_entry->data;*/
             }
             g_free (filename);
         }
