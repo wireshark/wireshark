@@ -37,7 +37,7 @@
 #include <strings.h>
 #include <errno.h>
 
-#if defined(HAVE_LIBNL1) || defined(HAVE_LIBNL2)
+#if defined(HAVE_LIBNL1) || defined(HAVE_LIBNL2) || defined(HAVE_LIBNL3) 
 #include <net/if.h>
 #endif
 
