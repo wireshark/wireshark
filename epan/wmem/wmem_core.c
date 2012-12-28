@@ -32,6 +32,7 @@
 #include "wmem_allocator.h"
 #include "wmem_allocator_simple.h"
 #include "wmem_allocator_block.h"
+#include "wmem_allocator_strict.h"
 
 void *
 wmem_alloc(wmem_allocator_t *allocator, const size_t size)
@@ -84,6 +85,9 @@ wmem_allocator_new(const wmem_allocator_type_t type)
     else if (strncmp(override, "block", strlen("block")) == 0) {
         real_type = WMEM_ALLOCATOR_BLOCK;
     }
+    else if (strncmp(override, "strict", strlen("strict")) == 0) {
+        real_type = WMEM_ALLOCATOR_STRICT;
+    }
     else {
         g_warning("Unrecognized wmem override");
         real_type = type;
@@ -95,6 +99,9 @@ wmem_allocator_new(const wmem_allocator_type_t type)
             break;
         case WMEM_ALLOCATOR_BLOCK:
             allocator = wmem_block_allocator_new();
+            break;
+        case WMEM_ALLOCATOR_STRICT:
+            allocator = wmem_strict_allocator_new();
             break;
         default:
             g_assert_not_reached();

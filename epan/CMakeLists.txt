@@ -1355,6 +1355,7 @@ set(WMEM_FILES
 	wmem/wmem_core.c
 	wmem/wmem_allocator_block.c
 	wmem/wmem_allocator_simple.c
+	wmem/wmem_allocator_strict.c
 	wmem/wmem_scopes.c
 	wmem/wmem_slab.c
 	wmem/wmem_slist.c

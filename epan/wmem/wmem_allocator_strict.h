@@ -1,5 +1,5 @@
-/* wmem_core.h
- * Definitions for the Wireshark Memory Manager Core
+/* wmem_allocator_strict.h
+ * Definitions for the Wireshark Memory Manager Strict Allocator
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
  * $Id$
@@ -23,51 +23,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_CORE_H__
-#define __WMEM_CORE_H__
+#ifndef __WMEM_ALLOCATOR_STRICT_H__
+#define __WMEM_ALLOCATOR_STRICT_H__
 
-#include <string.h>
+#include "wmem_core.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-typedef enum _wmem_allocator_type_t {
-    WMEM_ALLOCATOR_SIMPLE,
-    WMEM_ALLOCATOR_BLOCK,
-    WMEM_ALLOCATOR_STRICT
-} wmem_allocator_type_t;
-
-struct _wmem_allocator_t;
-
-typedef struct _wmem_allocator_t      wmem_allocator_t;
-
-void *
-wmem_alloc(wmem_allocator_t *allocator, const size_t size);
-
-void *
-wmem_alloc0(wmem_allocator_t *allocator, const size_t size);
-
-void
-wmem_free_all(wmem_allocator_t *allocator);
-
-void
-wmem_destroy_allocator(wmem_allocator_t *allocator);
-
 wmem_allocator_t *
-wmem_allocator_new(const wmem_allocator_type_t type);
+wmem_strict_allocator_new(void);
 
 void
-wmem_init(void);
-
-void
-wmem_cleanup(void);
+wmem_strict_check_canaries(wmem_allocator_t *allocator);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __WMEM_CORE_H__ */
+#endif /* __WMEM_ALLOCATOR_STRICT_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
