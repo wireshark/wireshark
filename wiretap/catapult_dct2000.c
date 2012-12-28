@@ -120,7 +120,8 @@ static gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr
 /************************************************************/
 /* Private helper functions                                 */
 static gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length,
-                              gchar *buf, size_t bufsize);
+                              gchar *buf, size_t bufsize, int *err,
+                              gchar **err_info);
 static gboolean parse_line(char *linebuff, gint line_length,
                            gint *seconds, gint *useconds,
                            long *before_time_offset, long *after_time_offset,
@@ -168,7 +169,7 @@ static gboolean free_line_prefix_info(gpointer key, gpointer value, gpointer use
 /* Open file (for reading)                 */
 /********************************************/
 int
-catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
+catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
 {
     gint64  offset = 0;
     time_t  timestamp;
@@ -185,8 +186,12 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     /********************************************************************/
     /* First line needs to contain at least as many characters as magic */
 
-    read_new_line(wth->fh, &offset, &firstline_length, linebuff,
-                  sizeof linebuff);
+    if (!read_new_line(wth->fh, &offset, &firstline_length, linebuff,
+                       sizeof linebuff, err, err_info)) {
+        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+            return -1;
+        return 0;
+    }
     if (((size_t)firstline_length < strlen(catapult_dct2000_magic)) ||
         firstline_length >= MAX_FIRST_LINE_LENGTH) {
 
@@ -220,8 +225,13 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     /* Second line contains file timestamp                     */
     /* Store this offset in in file_externals                  */
 
-    read_new_line(wth->fh, &offset, &(file_externals->secondline_length),
-                  linebuff, sizeof linebuff);
+    if (!read_new_line(wth->fh, &offset, &(file_externals->secondline_length),
+                       linebuff, sizeof linebuff, err, err_info)) {
+        g_free(file_externals);
+        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+            return -1;
+        return 0;
+    }
     if ((file_externals->secondline_length >= MAX_TIMESTAMP_LINE_LENGTH) ||
         (!get_file_time_stamp(linebuff, &timestamp, &usecs))) {
 
@@ -326,7 +336,7 @@ static void write_timestamp_string(char *timestamp_string, int secs, int tenthou
 /* - return TRUE and details if found             */
 /**************************************************/
 static gboolean
-catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
+catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                       gint64 *data_offset)
 {
     gint64 offset = file_tell(wth->fh);
@@ -362,13 +372,12 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                             file_externals->secondline_length+1);
         }
 
-        /* Clear errno before reading from the file */
-        errno = 0;
-
         /* Read a new line from file into linebuff */
-        if (read_new_line(wth->fh, &offset, &line_length, linebuff,
-                          sizeof linebuff) == FALSE) {
-            /* Get out if no more lines can be read */
+        if (!read_new_line(wth->fh, &offset, &line_length, linebuff,
+                           sizeof linebuff, err, err_info)) {
+            if (*err != 0)
+                return FALSE;  /* error */
+            /* No more lines can be read, so quit. */
             break;
         }
 
@@ -483,13 +492,11 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                                    direction, aal_header_chars);
 
             /* OK, we have packet details to return */
-            *err = errno;
             return TRUE;
         }
     }
 
     /* No packet details to return... */
-    *err = errno;
     return FALSE;
 }
 
@@ -535,8 +542,8 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     }
 
     /* Re-read whole line (this really should succeed) */
-    if (read_new_line(wth->random_fh, &offset, &length, linebuff,
-                      sizeof linebuff) == FALSE) {
+    if (!read_new_line(wth->random_fh, &offset, &length, linebuff,
+                      sizeof linebuff, err, err_info)) {
         return FALSE;
     }
 
@@ -863,13 +870,14 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 /**********************************************************************/
 static gboolean
 read_new_line(FILE_T fh, gint64 *offset, gint *length,
-              gchar *linebuff, size_t linebuffsize)
+              gchar *linebuff, size_t linebuffsize, int *err, gchar **err_info)
 {
     /* Read in a line */
     gint64 pos_before = file_tell(fh);
-    char *result = file_gets(linebuff, (int)linebuffsize - 1, fh);
-    if (result == NULL) {
+
+    if (file_gets(linebuff, (int)linebuffsize - 1, fh) == NULL) {
         /* No characters found, or error */
+        *err = file_error(fh, err_info);
         return FALSE;
     }
 
