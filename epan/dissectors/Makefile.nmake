@@ -34,7 +34,9 @@ dissectors.lib: register.obj packet-ncp2222.c $(GENERATED_HEADER_FILES) ../../co
     "$(MSVC_VARIANT)" != "MSVC2008"   && \
     "$(MSVC_VARIANT)" != "MSVC2008EE" && \
     "$(MSVC_VARIANT)" != "MSVC2010"   && \
-    "$(MSVC_VARIANT)" != "MSVC2010EE"
+    "$(MSVC_VARIANT)" != "MSVC2010EE" && \
+    "$(MSVC_VARIANT)" != "MSVC2012"   && \
+    "$(MSVC_VARIANT)" != "MSVC2012EE"
 # Disable debug for large dissectors
 packet-rrc.obj : packet-rrc.c
    $(CC) $(CFLAGS) /Zd /Fd.\ -c $?
