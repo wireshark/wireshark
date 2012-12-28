@@ -863,6 +863,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mesh.c
 	dissectors/packet-meta.c
 	dissectors/packet-mgcp.c
+	dissectors/packet-mih.c
 	dissectors/packet-mikey.c
 	dissectors/packet-mim.c
 	dissectors/packet-mime-encap.c
@@ -1062,6 +1063,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rstat.c
 	dissectors/packet-rsvp.c
 	dissectors/packet-rsync.c
+	dissectors/packet-rtcdc.c
 	dissectors/packet-rtcp.c
 	dissectors/packet-rtmpt.c
 	dissectors/packet-rtnet.c
