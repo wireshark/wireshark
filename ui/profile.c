@@ -191,7 +191,7 @@ init_profile_list(void)
 {
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
-    GList         *fl_entry;
+    /*GList         *fl_entry;*/
     /*profile_def   *profile;*/
     const gchar   *profiles_dir, *name;
     gchar         *filename;
@@ -199,7 +199,7 @@ init_profile_list(void)
     empty_profile_list(TRUE);
 
     /* Default entry */
-    fl_entry = add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT, FALSE, FALSE);
+    /*fl_entry =*/ add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT, FALSE, FALSE);
 
     /* Local (user) profiles */
     profiles_dir = get_profiles_dir();
@@ -209,7 +209,7 @@ init_profile_list(void)
             filename = g_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
 
             if (test_for_directory(filename) == EISDIR) {
-                fl_entry = add_to_profile_list(name, name, PROF_STAT_EXISTS, FALSE, FALSE);
+                /*fl_entry =*/ add_to_profile_list(name, name, PROF_STAT_EXISTS, FALSE, FALSE);
             }
             g_free (filename);
         }
@@ -224,7 +224,7 @@ init_profile_list(void)
             filename = g_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
 
             if (test_for_directory(filename) == EISDIR) {
-                fl_entry = add_to_profile_list(name, name, PROF_STAT_EXISTS, TRUE, TRUE);
+                /*fl_entry =*/ add_to_profile_list(name, name, PROF_STAT_EXISTS, TRUE, TRUE);
                 /*profile = (profile_def *) fl_entry->data;*/
             }
             g_free (filename);
