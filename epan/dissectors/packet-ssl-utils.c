@@ -3006,7 +3006,7 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
     Ssl_private_key_t * private_key;
 
     if (!ssl_session) {
-	return 0;
+        return 0;
     }
 
     /* we need to know which side of the conversation is speaking */
@@ -3885,9 +3885,9 @@ ssl_set_debug(const gchar* name)
 
     ssl_debug_printf("Wireshark SSL debug log " VERSION
 #ifdef SVNVERSION
-		     " (" SVNVERSION " from " SVNPATH ")"
+                     " (" SVNVERSION " from " SVNPATH ")"
 #endif
-		     "\n\n");
+                     "\n\n");
 }
 
 void
