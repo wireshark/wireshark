@@ -37,13 +37,20 @@
 #include <strings.h>
 #include <errno.h>
 
-#if defined(HAVE_LIBNL1) || defined(HAVE_LIBNL2) || defined(HAVE_LIBNL3) 
-#include <net/if.h>
-#endif
-
 #include <netlink/msg.h>
 #include <netlink/attr.h>
 #include <netlink/route/link.h>
+
+#ifndef IFF_UP
+/*
+ * Apparently, some versions of libnl drag in headers that define IFF_UP
+ * and others don't.  Include <net/if.h> iff IFF_UP isn't already defined,
+ * so that if <linux/if.h> has been included by some or all of the
+ * netlink headers, we don't include <net/if.h> and get a bunch of
+ * complaints about various structures being redefined.
+ */
+#include <net/if.h>
+#endif
 
 /* libnl 1.x compatibility code */
 #ifdef HAVE_LIBNL1
