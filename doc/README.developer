@@ -459,9 +459,9 @@ I.e. do not use a buffer declared as
 instead allocate a buffer dynamically using the string-specific or plain wmem
 routines (see README.wmem) such as
 
-   emem_strbuf_t *strbuf;
-   strbuf = ep_strbuf_new_label("");
-   ep_strbuf_append_printf(strbuf, ...
+   wmem_strbuf_t *strbuf;
+   strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
+   wmem_strbuf_append_printf(strbuf, ...
 
 or
 
