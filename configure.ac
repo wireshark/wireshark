@@ -447,29 +447,6 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-overlength-strings)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-long-long)
 
-CFLAGS_before_pie=$CFLAGS
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-fPIE, C)
-if test "x$CLFAGS" != "x$CFLAGS_before_pie"
-then
-	# Restore CFLAGS
-	CFLAGS=$CFLAGS_before_pie
-
-	LDFLAGS_before_pie=$LDFLAGS
-	AC_WIRESHARK_LDFLAGS_CHECK([-fPIE -pie])
-	if test "x$LDFLAGS" != "x$LDFLAGS_before_pie"
-	then
-		# We can use PIE
-		PIE_CFLAGS="-fPIE"
-		PIE_LDFLAGS="-pie"
-
-		# Restore LDFLAGS
-		LDFLAGS=$LDFLAGS_before_pie
-	fi
-
-fi
-AC_SUBST(PIE_CFLAGS)
-AC_SUBST(PIE_LDFLAGS)
-
 #
 # XXX - OK for C++?
 #
@@ -513,6 +490,35 @@ AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 # AC_WIRESHARK_LDFLAGS_CHECK([-flto])
 # AC_WIRESHARK_LDFLAGS_CHECK([-fwhopr])
 # AC_WIRESHARK_LDFLAGS_CHECK([-fwhole-program])
+
+#
+# Put -fPIE in PIE_CFLAGS and -pie in PIE_LDFLAGS if we can use them,
+# so that we can build dumpcap PIE - it may run with elevated
+# privileges, and using PIE means the OS can run it at random locations
+# in the address space to make attacks more difficult.
+#
+CFLAGS_before_pie=$CFLAGS
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-fPIE, C)
+if test "x$CLFAGS" != "x$CFLAGS_before_pie"
+then
+	# Restore CFLAGS
+	CFLAGS=$CFLAGS_before_pie
+
+	LDFLAGS_before_pie=$LDFLAGS
+	AC_WIRESHARK_LDFLAGS_CHECK([-fPIE -pie])
+	if test "x$LDFLAGS" != "x$LDFLAGS_before_pie"
+	then
+		# We can use PIE
+		PIE_CFLAGS="-fPIE"
+		PIE_LDFLAGS="-pie"
+
+		# Restore LDFLAGS
+		LDFLAGS=$LDFLAGS_before_pie
+	fi
+
+fi
+AC_SUBST(PIE_CFLAGS)
+AC_SUBST(PIE_LDFLAGS)
 
 #
 # If we're running GCC or clang define _U_ to be "__attribute__((unused))"
