@@ -26,6 +26,8 @@
 #include <string.h>
 #include <glib.h>
 
+#include "config.h"
+
 #include "wmem_core.h"
 #include "wmem_strbuf.h"
 
@@ -96,12 +98,13 @@ wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str)
 }
 
 static void
-wmem_strbuf_grow(wmem_strbuf_t *strbuf, const gsize new_len)
+wmem_strbuf_grow(wmem_strbuf_t *strbuf, const gsize to_add)
 {
-    gsize  new_alloc_len;
+    gsize  new_alloc_len, new_len;
     gchar *new_str;
     
     new_alloc_len = strbuf->alloc_len;
+    new_len = strbuf->len + to_add;
 
     /* +1 for the null-terminator */
     while (new_alloc_len < (new_len + 1)) {
@@ -128,17 +131,43 @@ wmem_strbuf_grow(wmem_strbuf_t *strbuf, const gsize new_len)
 void
 wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
 {
-    gsize new_len;
-
     if (!strbuf || !str || str[0] == '\0') {
         return;
     }
 
-    new_len = strbuf->len + strlen(str);
-    
-    wmem_strbuf_grow(strbuf, new_len);
+    wmem_strbuf_grow(strbuf, strlen(str));
 
     g_strlcpy(&strbuf->str[strbuf->len], str, strbuf->alloc_len);
+}
+
+static void
+wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
+{
+    va_list ap2;
+    gsize len;
+
+    G_VA_COPY(ap2, ap);
+
+    len = g_printf_string_upper_bound(fmt, ap);
+
+    /* -1 because g_printf_string_upper_bound counts the null-terminator, but
+     * wmem_strbuf_grow does not */
+    wmem_strbuf_grow(strbuf, len - 1);
+
+    g_vsnprintf(strbuf->str + strbuf->len, strbuf->alloc_len - strbuf->len,
+                fmt, ap2);
+
+    va_end(ap2);
+}
+
+void
+wmem_strbuf_append_printf(wmem_strbuf_t *strbuf, const gchar *format, ...)
+{
+    va_list ap;
+
+    va_start(ap, format);
+    wmem_strbuf_append_vprintf(strbuf, format, ap);
+    va_end(ap);
 }
 
 const gchar *
