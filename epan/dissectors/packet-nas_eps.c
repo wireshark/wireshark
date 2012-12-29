@@ -23,7 +23,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * References: 3GPP TS 24.301 V11.4.0 (2012-09)
+ * References: 3GPP TS 24.301 V11.5.0 (2012-12)
  */
 
 #include "config.h"
@@ -1729,13 +1729,13 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_nas_eps_emm_128eea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     /* EPS encryption algorithm 128-EEA3 supported (octet 3, bit 5) */
     proto_tree_add_item(tree, hf_nas_eps_emm_eea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-EEA4 supported (octet 3, bit 4) */
+    /* EPS encryption algorithm EEA4 supported (octet 3, bit 4) */
     proto_tree_add_item(tree, hf_nas_eps_emm_eea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-EEA5 supported (octet 3, bit 5) */
+    /* EPS encryption algorithm EEA5 supported (octet 3, bit 3) */
     proto_tree_add_item(tree, hf_nas_eps_emm_eea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-EEA6 supported (octet 3, bit 6) */
+    /* EPS encryption algorithm EEA6 supported (octet 3, bit 2) */
     proto_tree_add_item(tree, hf_nas_eps_emm_eea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-EEA7 supported (octet 3, bit 7) */
+    /* EPS encryption algorithm EEA7 supported (octet 3, bit 1) */
     proto_tree_add_item(tree, hf_nas_eps_emm_eea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
@@ -1769,19 +1769,19 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
      */
     /* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 8) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea0, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 7) */
+    /* UMTS encryption algorithm 128-UEA1 supported (octet 5, bit 7) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 6) */
+    /* UMTS encryption algorithm 128-UEA2 supported (octet 5, bit 6) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 5) */
+    /* UMTS encryption algorithm 128-UEA3 supported (octet 5, bit 5) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-UEA0 supported (octet 5, bit 4) */
+    /* UMTS encryption algorithm 128-UEA4 supported (octet 5, bit 4) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 5) */
+    /* UMTS encryption algorithm 128-UEA5 supported (octet 5, bit 3) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 6) */
+    /* UMTS encryption algorithm 128-UEA6 supported (octet 5, bit 2) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 7) */
+    /* UMTS encryption algorithm 128-UEA7 supported (octet 5, bit 1) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
@@ -1796,17 +1796,17 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* UMTS integrity algorithms supported (octet 6) */
     /* UMTS integrity algorithm UIA1 supported (octet 6, bit 7) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uia1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA1 supported (octet 6, bit 6) */
+    /* UMTS integrity algorithm UIA2 supported (octet 6, bit 6) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uia2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA1 supported (octet 6, bit 5) */
+    /* UMTS integrity algorithm UIA3 supported (octet 6, bit 5) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uia3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA1 supported (octet 6, bit 4) */
+    /* UMTS integrity algorithm UIA4 supported (octet 6, bit 4) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uia4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA1 supported (octet 6, bit 3) */
+    /* UMTS integrity algorithm UIA5 supported (octet 6, bit 3) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uia5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA1 supported (octet 6, bit 2) */
+    /* UMTS integrity algorithm UIA6 supported (octet 6, bit 2) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uia6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS integrity algorithm UIA1 supported (octet 6, bit 1) */
+    /* UMTS integrity algorithm UIA7 supported (octet 6, bit 1) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uia7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
@@ -1828,6 +1828,11 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* NF capability (octet 7, bit 1) */
     proto_tree_add_item(tree, hf_nas_eps_emm_nf_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
+    
+    while ((curr_offset - offset) < len) {
+        proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 8, ENC_BIG_ENDIAN);
+        curr_offset++;
+    }
 
     return(len);
 }
@@ -1877,13 +1882,13 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_nas_eps_emm_128eea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     /* EPS encryption algorithm 128-EEA3 supported (octet 3, bit 5) */
     proto_tree_add_item(tree, hf_nas_eps_emm_eea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-EEA4 supported (octet 3, bit 4) */
+    /* EPS encryption algorithm EEA4 supported (octet 3, bit 4) */
     proto_tree_add_item(tree, hf_nas_eps_emm_eea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-EEA5 supported (octet 3, bit 5) */
+    /* EPS encryption algorithm EEA5 supported (octet 3, bit 3) */
     proto_tree_add_item(tree, hf_nas_eps_emm_eea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-EEA6 supported (octet 3, bit 6) */
+    /* EPS encryption algorithm EEA6 supported (octet 3, bit 2) */
     proto_tree_add_item(tree, hf_nas_eps_emm_eea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm 128-EEA7 supported (octet 3, bit 7) */
+    /* EPS encryption algorithm EEA7 supported (octet 3, bit 1) */
     proto_tree_add_item(tree, hf_nas_eps_emm_eea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
@@ -1923,13 +1928,13 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_nas_eps_emm_uea2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     /* UMTS encryption algorithm UEA3 supported (octet 5, bit 5) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* EPS encryption algorithm UEA4 supported (octet 5, bit 4) */
+    /* UMTS encryption algorithm UEA4 supported (octet 5, bit 4) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea4, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm UEA5 supported (octet 5, bit 5) */
+    /* UMTS encryption algorithm UEA5 supported (octet 5, bit 3) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea5, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm UEA6 supported (octet 5, bit 6) */
+    /* UMTS encryption algorithm UEA6 supported (octet 5, bit 2) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea6, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    /* UMTS encryption algorithm UEA7 supported (octet 5, bit 7) */
+    /* UMTS encryption algorithm UEA7 supported (octet 5, bit 1) */
     proto_tree_add_item(tree, hf_nas_eps_emm_uea7, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
@@ -2504,7 +2509,7 @@ static const value_string nas_eps_esm_cause_vals[] = {
     { 0x2b, "Invalid EPS bearer identity"},
     { 0x2c, "Semantic errors in packet filter(s)"},
     { 0x2d, "Syntactical errors in packet filter(s)"},
-    { 0x2e, "EPS bearer context without TFT already activated"},
+    { 0x2e, "Unused"},
     { 0x2f, "PTI mismatch"},
     { 0x31, "Last PDN disconnection not allowed"},
     { 0x32, "PDN type IPv4 only allowed"},

@@ -45,7 +45,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 11.4.0 Release 11)
+ *   (3GPP TS 24.008 version 11.5.0 Release 11)
  *
  * $Id$
  *
@@ -4727,12 +4727,12 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 static const value_string gsm_a_sm_cause_vals[] = {
 	{ 0x08, "Operator Determined Barring" },
 	{ 0x18, "MBMS bearer capabilities insufficient for the service" },
-	{ 0x19, "LLC or SNDCP failure(GSM only)" },
+	{ 0x19, "LLC or SNDCP failure(A/Gb only)" },
 	{ 0x1a, "Insufficient resources" },
 	{ 0x1b, "Missing or unknown APN" },
 	{ 0x1c, "Unknown PDP address or PDP type" },
-	{ 0x1d, "User Authentication failed" },
-	{ 0x1e, "Activation rejected by GGSN" },
+	{ 0x1d, "User authentication failed" },
+	{ 0x1e, "Activation rejected by GGSN, Serving GW or PDN GW" },
 	{ 0x1f, "Activation rejected, unspecified" },
 	{ 0x20, "Service option not supported" },
 	{ 0x21, "Requested service option not subscribed" },

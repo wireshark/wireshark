@@ -69,11 +69,11 @@ const value_string gsm_common_elem_strings[] = {
 
 static const value_string gsm_a_skip_ind_vals[] = {
     { 0, "No indication of selected PLMN"},
-    { 1, "First PLMN in the broadcast system information"},
-    { 2, "Second PLMN in the broadcast system information"},
-    { 3, "Third PLMN in the broadcast system information"},
-    { 4, "Fourth PLMN in the broadcast sytem information"},
-    { 5, "Fifth PLMN in the broadcast system information"},
+    { 1, "PLMN identity of the Common PLMN in the broadcast system information"},
+    { 2, "PLMN identity of the first Additional PLMN in the broadcast system information"},
+    { 3, "PLMN identity of the second Additional PLMN in the broadcast system information"},
+    { 4, "PLMN identity of the third Additional PLMN in the broadcast sytem information"},
+    { 5, "PLMN identity of the fourth Additional PLMN in the broadcast system information"},
     { 6, "Reserved"},
     { 7, "Reserved"},
     { 0, NULL }
@@ -209,12 +209,12 @@ static const true_false_string A5_2_algorithm_sup_vals = {
 };
 
 static const value_string mobile_identity_type_vals[] = {
+    { 0, "No Identity"},
     { 1, "IMSI"},
     { 2, "IMEI"},
     { 3, "IMEISV"},
-    { 4, "TMSI/P-TMSI"},
+    { 4, "TMSI/P-TMSI/M-TMSI"},
     { 5, "TMGI and optional MBMS Session Identity"}, /* ETSI TS 124 008 V6.8.0 (2005-03) p326 */
-    { 0, "No Identity"},
     { 0, NULL }
 };
 
@@ -2229,7 +2229,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         curr_offset += len - (curr_offset - offset);
         break;
 
-    case 4: /* TMSI/P-TMSI */
+    case 4: /* TMSI/P-TMSI/M-TMSI */
         other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
         proto_tree_add_text(tree,
             tvb, curr_offset, 1,
