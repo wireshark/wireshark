@@ -121,6 +121,11 @@ print_dialog.h: ui_print_dialog.h
 ui_print_dialog.h: print_dialog.ui
 	uic $< -o $@
 
+profile_dialog.h: ui_profile_dialog.h
+
+ui_profile_dialog.h: profile_dialog.ui
+	uic $< -o $@
+
 search_frame.h: ui_search_frame.h
 
 ui_search_frame.h: search_frame.ui

@@ -50,6 +50,7 @@ set(QTSHARK_H_SRC
 	packet_list_model.h
 	packet_range_group_box.h
 	print_dialog.h
+	profile_dialog.h
 	progress_bar.h
 	proto_tree.h
 	recent_file_status.h
@@ -96,6 +97,7 @@ set(QTSHARK_CPP_SRC
 	packet_list_record.cpp
 	packet_range_group_box.cpp
 	print_dialog.cpp
+	profile_dialog.cpp
 	progress_bar.cpp
 	proto_tree.cpp
 	qt_ui_utils.cpp
@@ -123,6 +125,7 @@ set(QTSHARK_UI
 	packet_format_group_box.ui
 	packet_range_group_box.ui
 	print_dialog.ui
+	profile_dialog.ui
 	search_frame.ui
 	splash_overlay.ui
 	time_shift_dialog.ui

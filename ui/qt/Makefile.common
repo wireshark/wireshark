@@ -40,6 +40,7 @@ GENERATED_NODIST_HEADER_FILES = \
 	ui_packet_format_group_box.h \
 	ui_packet_range_group_box.h \
 	ui_print_dialog.h \
+	ui_profile_dialog.h \
 	ui_search_frame.h \
 	ui_splash_overlay.h \
 	ui_time_shift_dialog.h
@@ -102,6 +103,7 @@ MOC_HDRS = \
 	packet_list_model.h \
 	packet_range_group_box.h \
 	print_dialog.h \
+	profile_dialog.h \
 	progress_bar.h \
 	proto_tree.h \
 	recent_file_status.h \
@@ -183,6 +185,7 @@ WIRESHARK_QT_SRC = \
 	packet_list_record.cpp \
 	packet_range_group_box.cpp \
 	print_dialog.cpp \
+	profile_dialog.cpp \
 	progress_bar.cpp \
 	proto_tree.cpp \
 	qt_ui_utils.cpp \
