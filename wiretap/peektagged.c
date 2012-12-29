@@ -49,11 +49,34 @@
  * was called before renaming it to peekclassic.c).
  */
 
-/* section header */
+/*
+ * Section header.
+ *
+ * A Peek tagged file consists of multiple sections, each of which begins
+ * with a header in the following format.
+ *
+ * The section ID is a 4-character string saying what type of section
+ * it is.  The section length is a little-endian field giving the
+ * length of the section, in bytes, including the section header
+ * itself.  The other field of the section header is a little-endian
+ * constant that always appears to be 0x00000200.
+ *
+ * Files we've seen have the following sections, in order:
+ *
+ * "\177vers" - version information.  The contents are XML, giving
+ * the file format version and application version information.
+ *
+ * "sess" - capture session information.  The contents are XML, giving
+ * various information about the capture session.
+ *
+ * "pkts" - captured packets.  The contents are binary records, one for
+ * each packet, with the record being a list of tagged values followed
+ * by the raw packet data.
+ */
 typedef struct peektagged_section_header {
-	gint8   section_id[4];
-	guint32 section_len;
-	guint32 section_const;
+	gint8   section_id[4];		/* string identifying the section */
+	guint32 section_len;		/* little-endian section length */
+	guint32 section_const;		/* little-endian 0x00000200 */
 } peektagged_section_header_t;
 
 /*
