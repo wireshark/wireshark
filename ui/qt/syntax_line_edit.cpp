@@ -25,10 +25,10 @@ SyntaxLineEdit::SyntaxLineEdit(QWidget *parent) :
             .arg(Invalid)
             .arg(Deprecated)
             .arg(Valid)
-            .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Foreground
-            .arg(tango_scarlet_red_1, 6, 16, QChar('0')) // Invalid
-            .arg(tango_butter_1, 6, 16, QChar('0'))      // Deprecated
-            .arg(tango_chameleon_1, 6, 16, QChar('0'))   // Valid
+            .arg(ws_syntax_invalid_foreground, 6, 16, QChar('0'))   // Foreground
+            .arg(ws_syntax_invalid_background, 6, 16, QChar('0')) // Invalid
+            .arg(ws_syntax_deprecated_background, 6, 16, QChar('0'))      // Deprecated
+            .arg(ws_syntax_valid_background, 6, 16, QChar('0'))   // Valid
             ;
     setStyleSheet(tr(""));
     setSyntaxState();

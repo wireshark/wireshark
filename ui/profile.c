@@ -33,29 +33,18 @@
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 
+#include "profile.h"
+
 #include "ui/recent.h"
+#include "ui/simple_dialog.h"
 
 #include <wsutil/file_util.h>
 
 static GList *current_profiles = NULL;
 static GList *edited_profiles = NULL;
 
-#define PROF_STAT_DEFAULT  1
-#define PROF_STAT_EXISTS   2
-#define PROF_STAT_NEW      3
-#define PROF_STAT_CHANGED  4
-#define PROF_STAT_COPY     5
-
 #define PROF_OPERATION_NEW  1
 #define PROF_OPERATION_EDIT 2
-
-typedef struct {
-    char *name;           /* profile name */
-    char *reference;      /* profile reference */
-    int   status;
-    gboolean is_global;
-    gboolean from_global;
-} profile_def;
 
 GList * current_profile_list(void) {
     return g_list_first(current_profiles);
@@ -71,7 +60,7 @@ add_profile_entry(GList *fl, const char *profilename, const char *reference, int
 {
     profile_def *profile;
 
-    profile = (profile_def *) g_malloc(sizeof(profile_def));
+    profile = (profile_def *) g_malloc0(sizeof(profile_def));
     profile->name = g_strdup(profilename);
     profile->reference = g_strdup(reference);
     profile->status = status;
@@ -122,6 +111,137 @@ get_profile_parent (const gchar *profilename)
     }
 
     return profilename;
+}
+
+const gchar *apply_profile_changes(void) {
+    char        *pf_dir_path, *pf_dir_path2, *pf_filename;
+    GList       *fl1, *fl2;
+    profile_def *profile1, *profile2;
+    gboolean     found;
+    emem_strbuf_t *message = ep_strbuf_new(NULL);
+    const gchar *err_msg;
+
+    /* First validate all profile names */
+    fl1 = edited_profile_list();
+    while (fl1) {
+        profile1 = (profile_def *) fl1->data;
+        g_strstrip(profile1->name);
+        if ((err_msg = profile_name_is_valid(profile1->name)) != NULL) {
+            ep_strbuf_printf(message, "%s", err_msg);
+            return message->str;
+        }
+        fl1 = g_list_next(fl1);
+    }
+
+    /* Then do all copy profiles */
+    fl1 = edited_profile_list();
+    while (fl1) {
+        profile1 = (profile_def *) fl1->data;
+        g_strstrip(profile1->name);
+        if (profile1->status == PROF_STAT_COPY) {
+            if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
+                ep_strbuf_printf(message,
+                        "Can't create directory\n\"%s\":\n%s.",
+                        pf_dir_path, g_strerror(errno));
+
+                g_free(pf_dir_path);
+            }
+            profile1->status = PROF_STAT_EXISTS;
+
+            if (profile1->reference) {
+                if (copy_persconffile_profile(profile1->name, profile1->reference, profile1->from_global,
+                            &pf_filename, &pf_dir_path, &pf_dir_path2) == -1) {
+                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                            "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
+                            pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
+
+                    g_free(pf_filename);
+                    g_free(pf_dir_path);
+                    g_free(pf_dir_path2);
+                }
+            }
+
+            g_free (profile1->reference);
+            profile1->reference = g_strdup(profile1->name);
+        }
+        fl1 = g_list_next(fl1);
+    }
+
+
+    /* Then create new and rename changed */
+    fl1 = edited_profile_list();
+    while (fl1) {
+        profile1 = (profile_def *) fl1->data;
+        g_strstrip(profile1->name);
+        if (profile1->status == PROF_STAT_NEW) {
+            /* We do not create a directory for the default profile */
+            if (strcmp(profile1->name, DEFAULT_PROFILE)!=0) {
+                if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
+                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                            "Can't create directory\n\"%s\":\n%s.",
+                            pf_dir_path, g_strerror(errno));
+
+                    g_free(pf_dir_path);
+                }
+                profile1->status = PROF_STAT_EXISTS;
+
+                g_free (profile1->reference);
+                profile1->reference = g_strdup(profile1->name);
+            }
+        } else if (profile1->status == PROF_STAT_CHANGED) {
+            if (strcmp(profile1->reference, profile1->name)!=0) {
+                /* Rename old profile directory to new */
+                if (rename_persconffile_profile(profile1->reference, profile1->name,
+                            &pf_dir_path, &pf_dir_path2) == -1) {
+                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                            "Can't rename directory\n\"%s\" to\n\"%s\":\n%s.",
+                            pf_dir_path, pf_dir_path2, g_strerror(errno));
+
+                    g_free(pf_dir_path);
+                    g_free(pf_dir_path2);
+                }
+                profile1->status = PROF_STAT_EXISTS;
+                g_free (profile1->reference);
+                profile1->reference = g_strdup(profile1->name);
+            }
+        }
+        fl1 = g_list_next(fl1);
+    }
+
+    /* Last remove deleted */
+    fl1 = current_profile_list();
+    while (fl1) {
+        found = FALSE;
+        profile1 = (profile_def *) fl1->data;
+        fl2 = edited_profile_list();
+        while (fl2) {
+            profile2 = (profile_def *) fl2->data;
+            if (!profile2->is_global) {
+                if (strcmp(profile1->name, profile2->name)==0) {
+                    /* Profile exists in both lists */
+                    found = TRUE;
+                } else if (strcmp(profile1->name, profile2->reference)==0) {
+                    /* Profile has been renamed */
+                    found = TRUE;
+                }
+            }
+            fl2 = g_list_next(fl2);
+        }
+        if (!found) {
+            /* Exists in existing list and not in edited, this is a deleted profile */
+            if (delete_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                        "Can't delete profile directory\n\"%s\":\n%s.",
+                        pf_dir_path, g_strerror(errno));
+
+                g_free(pf_dir_path);
+            }
+        }
+        fl1 = g_list_next(fl1);
+    }
+
+    copy_profile_list();
+    return NULL;
 }
 
 GList *
@@ -191,15 +311,13 @@ init_profile_list(void)
 {
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
-    /*GList         *fl_entry;*/
-    /*profile_def   *profile;*/
     const gchar   *profiles_dir, *name;
     gchar         *filename;
 
     empty_profile_list(TRUE);
 
     /* Default entry */
-    /*fl_entry =*/ add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT, FALSE, FALSE);
+    add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT, FALSE, FALSE);
 
     /* Local (user) profiles */
     profiles_dir = get_profiles_dir();

@@ -371,6 +371,9 @@
    <property name="shortcut">
     <string>Ctrl+Q</string>
    </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
   </action>
   <action name="actionCaptureInterfaces">
    <property name="text">
@@ -531,6 +534,9 @@
    </property>
    <property name="text">
     <string>&amp;About Wireshark</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::AboutRole</enum>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
@@ -1140,25 +1146,37 @@
    </property>
   </action>
   <action name="actionEditConfigurationProfiles">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="text">
+    <string>Name set in iconText to keep QMenuBar from grabbing it on OS X</string>
+   </property>
+   <property name="iconText">
     <string>Configuration Profiles...</string>
    </property>
    <property name="toolTip">
-    <string>Manage configuration profiles</string>
+    <string>Manage your configuration profiles</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+A</string>
    </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
   </action>
   <action name="actionEditPreferences">
    <property name="text">
-    <string>Preferences...</string>
+    <string>&amp;Preferences...</string>
    </property>
    <property name="toolTip">
     <string>Manage Wireshark's preferences</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+P</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::PreferencesRole</enum>
    </property>
   </action>
  </widget>

@@ -606,9 +606,9 @@ timestamp_seconds_time_cb(GtkAction *action _U_, gpointer user_data _U_)
 static void
 timestamp_format_new_cb (GtkRadioAction *action, GtkRadioAction *current _U_, gpointer user_data  _U_)
 {
-    gint value;
+    ts_type value;
 
-    value = gtk_radio_action_get_current_value (action);
+    value = (ts_type) gtk_radio_action_get_current_value (action);
     if (recent.gui_time_format != value) {
         timestamp_set_type(value);
         recent.gui_time_format = value;

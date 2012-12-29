@@ -189,11 +189,13 @@ free_pref(gpointer data, gpointer user_data _U_)
         g_free((char *)*pref->varp.string);
         *pref->varp.string = NULL;
         g_free(pref->default_val.string);
+        pref->default_val.string = NULL;
         break;
     case PREF_RANGE:
         g_free(*pref->varp.range);
         *pref->varp.range = NULL;
         g_free(pref->default_val.range);
+        pref->default_val.range = NULL;
         break;
     case PREF_CUSTOM:
         pref->custom_cbs.free_cb(pref);
@@ -1270,6 +1272,7 @@ static void column_hidden_free_cb(pref_t* pref)
     g_free((char *)*pref->varp.string);
     *pref->varp.string = NULL;
     g_free(pref->default_val.string);
+    pref->default_val.string = NULL;
 }
 
 static void column_hidden_reset_cb(pref_t* pref)
@@ -1288,6 +1291,8 @@ static prefs_set_pref_e column_hidden_set_cb(pref_t* pref, const gchar* value, g
         *changed = TRUE;
         g_free((void *)*pref->varp.string);
         *pref->varp.string = g_strdup(value);
+    } else {
+        *pref->varp.string = NULL;
     }
 
     /*
@@ -1698,6 +1703,8 @@ static void colorized_frame_free_cb(pref_t* pref)
     g_free((char *)*pref->varp.string);
     *pref->varp.string = NULL;
     g_free(pref->default_val.string);
+    pref->default_val.string = NULL;
+
 }
 
 static void colorized_frame_reset_cb(pref_t* pref)

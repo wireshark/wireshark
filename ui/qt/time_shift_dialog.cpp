@@ -29,7 +29,6 @@
 #include <ui/time_shift.h>
 #include "tango_colors.h"
 
-#include <QMessageBox>
 
 TimeShiftDialog::TimeShiftDialog(QWidget *parent, capture_file *cf) :
     QDialog(parent),
@@ -78,7 +77,7 @@ TimeShiftDialog::~TimeShiftDialog()
 void TimeShiftDialog::enableWidgets()
 {
     bool enable_two = ts_ui_->setOneButton->isChecked();
-    bool enable_ok = false;
+    bool enable_apply = false;
 
     ts_ui_->setTwoCheckBox->setEnabled(enable_two);
     ts_ui_->setTwoFrameLineEdit->setEnabled(enable_two);
@@ -88,7 +87,7 @@ void TimeShiftDialog::enableWidgets()
 
     if (ts_ui_->shiftAllButton->isChecked()) {
         if (ts_ui_->shiftAllTimeLineEdit->syntaxState() == SyntaxLineEdit::Valid)
-            enable_ok = true;
+            enable_apply = true;
     } else if (ts_ui_->setOneButton->isChecked()) {
         bool set_two_valid = false;
         if (ts_ui_->setTwoCheckBox->isChecked()) {
@@ -102,10 +101,10 @@ void TimeShiftDialog::enableWidgets()
         if (set_two_valid &&
                 ts_ui_->setOneFrameLineEdit->syntaxState() == SyntaxLineEdit::Valid &&
                 ts_ui_->setOneTimeLineEdit->syntaxState() == SyntaxLineEdit::Valid) {
-            enable_ok = true;
+            enable_apply = true;
         }
     } else if (ts_ui_->unshiftAllButton->isChecked()) {
-        enable_ok = true;
+        enable_apply = true;
     }
 
     if (syntax_err_.isEmpty()) {
@@ -124,7 +123,7 @@ void TimeShiftDialog::enableWidgets()
                 .arg(ws_css_warn_background, 6, 16, QChar('0'))
                 );
     }
-    apply_button_->setEnabled(enable_ok);
+    apply_button_->setEnabled(enable_apply);
 }
 
 void TimeShiftDialog::checkFrameNumber(SyntaxLineEdit &frame_le)
@@ -294,4 +293,3 @@ void TimeShiftDialog::on_buttonBox_helpRequested()
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

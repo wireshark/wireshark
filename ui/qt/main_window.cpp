@@ -109,6 +109,10 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->actionFileClose->setIcon(
                 QIcon().fromTheme("process-stop", style()->standardIcon(QStyle::SP_DialogCloseButton)));
 
+    // If we use the name "Configuration Profiles" OS X QMenuBar will match "config" and
+    // use the "profiles" action as the default preferences item.
+    main_ui_->actionEditConfigurationProfiles->setText(main_ui_->actionEditConfigurationProfiles->iconText());
+
     // In Qt4 multiple toolbars and "pretty" are mutually exculsive on OS X. If
     // unifiedTitleAndToolBarOnMac is enabled everything ends up in the same row.
     // https://bugreports.qt-project.org/browse/QTBUG-22433

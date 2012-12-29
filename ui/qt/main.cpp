@@ -65,7 +65,6 @@
 /* general (not Qt specific) */
 #include "file.h"
 #include "summary.h"
-#include "filters.h"
 #include "disabled_protos.h"
 #include "color.h"
 #include "color_filters.h"
@@ -159,110 +158,6 @@ main_cf_callback(gint event, gpointer data, gpointer user_data )
 {
     Q_UNUSED(user_data);
     wsApp->captureFileCallback(event, data);
-}
-
-// XXX Copied from ui/gtk/main.c. This should be moved to a common location.
-static e_prefs *
-read_configuration_files(char **gdp_path, char **dp_path)
-{
-  int                  gpf_open_errno, gpf_read_errno;
-  int                  cf_open_errno, df_open_errno;
-  int                  gdp_open_errno, gdp_read_errno;
-  int                  dp_open_errno, dp_read_errno;
-  char                *gpf_path, *pf_path;
-  char                *cf_path, *df_path;
-  int                  pf_open_errno, pf_read_errno;
-  e_prefs             *prefs_p;
-
-  /* Read the preference files. */
-  prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-                     &pf_open_errno, &pf_read_errno, &pf_path);
-
-  if (gpf_path != NULL) {
-    if (gpf_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open global preferences file\n\"%s\": %s.", gpf_path,
-        g_strerror(gpf_open_errno));
-    }
-    if (gpf_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading global preferences file\n\"%s\": %s.", gpf_path,
-        g_strerror(gpf_read_errno));
-    }
-  }
-  if (pf_path != NULL) {
-    if (pf_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your preferences file\n\"%s\": %s.", pf_path,
-        g_strerror(pf_open_errno));
-    }
-    if (pf_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading your preferences file\n\"%s\": %s.", pf_path,
-        g_strerror(pf_read_errno));
-    }
-    g_free(pf_path);
-    pf_path = NULL;
-  }
-
-#ifdef _WIN32
-  /* if the user wants a console to be always there, well, we should open one for him */
-  if (prefs_p->gui_console_open == console_open_always) {
-    create_console();
-  }
-#endif
-
-  /* Read the capture filter file. */
-  read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
-  if (cf_path != NULL) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your capture filter file\n\"%s\": %s.", cf_path,
-        g_strerror(cf_open_errno));
-      g_free(cf_path);
-  }
-
-  /* Read the display filter file. */
-  read_filter_list(DFILTER_LIST, &df_path, &df_open_errno);
-  if (df_path != NULL) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your display filter file\n\"%s\": %s.", df_path,
-        g_strerror(df_open_errno));
-      g_free(df_path);
-  }
-
-  /* Read the disabled protocols file. */
-  read_disabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
-                            dp_path, &dp_open_errno, &dp_read_errno);
-  if (*gdp_path != NULL) {
-    if (gdp_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open global disabled protocols file\n\"%s\": %s.",
-        *gdp_path, g_strerror(gdp_open_errno));
-    }
-    if (gdp_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading global disabled protocols file\n\"%s\": %s.",
-        *gdp_path, g_strerror(gdp_read_errno));
-    }
-    g_free(*gdp_path);
-    *gdp_path = NULL;
-  }
-  if (*dp_path != NULL) {
-    if (dp_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your disabled protocols file\n\"%s\": %s.", *dp_path,
-        g_strerror(dp_open_errno));
-    }
-    if (dp_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading your disabled protocols file\n\"%s\": %s.", *dp_path,
-        g_strerror(dp_read_errno));
-    }
-    g_free(*dp_path);
-    *dp_path = NULL;
-  }
-
-  return prefs_p;
 }
 
 /* update the main window */
@@ -585,8 +480,8 @@ get_gui_runtime_info(GString *str)
 /* And now our feature presentation... [ fade to music ] */
 int main(int argc, char *argv[])
 {
-    WiresharkApplication a(argc, argv);
-    MainWindow *w;
+    WiresharkApplication ws_app(argc, argv);
+    MainWindow *main_w;
 
 //    char                *init_progfile_dir_error;
 //    char                *s;
@@ -637,24 +532,24 @@ int main(int argc, char *argv[])
     g_log(NULL, G_LOG_LEVEL_DEBUG, "Translator %s", locale.toStdString().c_str());
     QTranslator translator;
     translator.load(QString(":/i18n/qtshark_") + locale);
-    a.installTranslator(&translator);
+    ws_app.installTranslator(&translator);
 
     QTranslator qtTranslator;
     qtTranslator.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    a.installTranslator(&qtTranslator);
+    ws_app.installTranslator(&qtTranslator);
 
     // Hopefully we won't have to use QString::fromUtf8() in as many places.
     QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
     QTextCodec::setCodecForCStrings(utf8codec);
     QTextCodec::setCodecForTr(utf8codec);
 
-    w = new(MainWindow);
+    main_w = new(MainWindow);
 //    w->setEnabled(false);
-    w->show();
+    main_w->show();
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
-    w->connect(&a, SIGNAL(openCaptureFile(QString&)),
-            w, SLOT(openCaptureFile(QString&)));
+    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&)),
+            main_w, SLOT(openCaptureFile(QString&)));
 
     // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
 #ifdef HAVE_LIBPCAP
@@ -946,7 +841,7 @@ int main(int argc, char *argv[])
 
     splash_update(RA_PREFERENCES, NULL, NULL);
 
-    prefs_p = read_configuration_files (&gdp_path, &dp_path);
+    prefs_p = ws_app.readConfigurationFiles (&gdp_path, &dp_path);
     /* Removed thread code:
      * http://anonsvn.wireshark.org/viewvc/viewvc.cgi?view=rev&revision=35027
      */

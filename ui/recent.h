@@ -32,6 +32,8 @@ extern "C" {
 
 #include <glib.h>
 
+#include "epan/timestamp.h"
+
 /** @file
  *  Recent user interface settings.
  *  @ingroup main_window_group
@@ -73,9 +75,9 @@ typedef struct recent_settings_tag {
     gboolean    byte_view_show;
     gboolean    statusbar_show;
     gboolean    packet_list_colorize;
-    gint        gui_time_format;
+    ts_type     gui_time_format;
     gint        gui_time_precision;
-    gint        gui_seconds_format;
+    ts_seconds_type gui_seconds_format;
     gint        gui_zoom_level;
     gint        gui_bytes_view;
 

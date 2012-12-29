@@ -28,6 +28,8 @@
 
 #include <glib.h>
 
+#include "epan/prefs.h"
+
 #include "capture_opts.h"
 #include "file.h"
 #include "register.h"
@@ -61,6 +63,7 @@ public:
     void registerUpdate(register_action_e action, const char *message);
     void allSystemsGo();
     void applyAllPreferences();
+    e_prefs * readConfigurationFiles(char **gdp_path, char **dp_path);
     QList<recent_item_status *> recentItems() const;
     void addRecentItem(const QString &filename, qint64 size, bool accessible);
 #ifdef HAVE_LIBPCAP
@@ -72,9 +75,12 @@ public:
     void setLastOpenDir(QString *dir_str);
     void helpTopicAction(topic_action_e action);
     QFont monospaceFont(bool bold = false);
+    void setConfigurationProfile(const gchar *profile_name);
 
 
 private:
+    void prefsToCaptureOpts();
+
     bool initialized_;
     QTimer *recent_timer_;
     QList<QString> pending_open_files_;
@@ -88,6 +94,7 @@ signals:
     void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
     void splashUpdate(register_action_e action, const char *message);
     void updatePreferences();
+    void configurationProfileChanged(const gchar *profile_name);
 
 #ifdef HAVE_LIBPCAP
     // XXX It might make more sense to move these to main.cpp or main_window.cpp or their own class.

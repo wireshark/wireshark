@@ -64,6 +64,7 @@
 #include "print_dialog.h"
 #include "time_shift_dialog.h"
 #include "packet_comment_dialog.h"
+#include "profile_dialog.h"
 
 #include <QMessageBox>
 #include <QClipboard>
@@ -342,6 +343,24 @@ void MainWindow::captureFileClosed(const capture_file *cf) {
     cap_file_ = NULL;
 
     setMenusForSelectedTreeRow();
+}
+
+void MainWindow::configurationProfileChanged(const gchar *profile_name) {
+    Q_UNUSED(profile_name);
+    /* Update window view and redraw the toolbar */
+//    main_titlebar_update();
+//    filter_expression_reinit(FILTER_EXPRESSION_REINIT_CREATE);
+//    toolbar_redraw_all();
+
+    /* Reload list of interfaces on welcome page */
+//    welcome_if_panel_reload();
+
+    /* Recreate the packet list according to new preferences */
+//    packet_list_recreate ();
+    if (cap_file_) cap_file_->columns_changed = FALSE; /* Reset value */
+
+    /* Reload pane geometry, must be done after recreating the list */
+//    main_pane_load_window_geometry();
 }
 
 //
@@ -902,7 +921,6 @@ void MainWindow::redissectPackets()
     main_ui_->statusBar->expertUpdate();
 }
 
-
 // File Menu
 
 void MainWindow::on_actionFileOpen_triggered()
@@ -1047,8 +1065,8 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
         return;
     }
 
-    save_title.append("Wireshark: Export SSL Session Keys (%1 key%2").
-            arg(keylist_len).arg(plurality(keylist_len, "", "s"));
+    save_title.append(QString("Wireshark: Export SSL Session Keys (%1 key%2").
+            arg(keylist_len).arg(plurality(keylist_len, "", "s")));
     file_name = QFileDialog::getSaveFileName(this,
                                              save_title,
                                              wsApp->lastOpenDir().canonicalPath(),
@@ -1212,13 +1230,13 @@ void MainWindow::on_actionEditUnmarkAllDisplayed_triggered()
     packet_list_->markAllDisplayedFrames(false);
 }
 
-void MainWindow::on_actionEditFindNextMark_triggered()
+void MainWindow::on_actionEditNextMark_triggered()
 {
     if (cap_file_)
         cf_find_packet_marked(cap_file_, SD_FORWARD);
 }
 
-void MainWindow::on_actionEditFindPreviousMark_triggered()
+void MainWindow::on_actionEditPreviousMark_triggered()
 {
     if (cap_file_)
         cf_find_packet_marked(cap_file_, SD_BACKWARD);
@@ -1276,6 +1294,13 @@ void MainWindow::on_actionEditPacketComment_triggered()
         packet_list_->setPacketComment(pc_dialog.text());
         updateForUnsavedChanges();
     }
+}
+
+void MainWindow::on_actionEditConfigurationProfiles_triggered()
+{
+    ProfileDialog cp_dialog;
+
+    cp_dialog.exec();
 }
 
 // View Menu

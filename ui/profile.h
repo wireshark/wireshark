@@ -26,6 +26,10 @@
 #ifndef __PROFILE_H__
 #define __PROFILE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /** @file
  * "Configuration Profiles" dialog box
  * @ingroup dialog_group
@@ -95,6 +99,11 @@ GList * current_profile_list(void);
  */
 GList * edited_profile_list(void);
 
+/** Apply the changes in the edited profile list
+ * @return NULL if the operation was successful or an error message otherwise.
+ */
+const gchar *apply_profile_changes(void);
+
 /** Given a profile name, return the name of its parent profile.
  *
  * @param profilename Child profile name
@@ -109,5 +118,9 @@ const gchar *get_profile_parent (const gchar *profilename);
  * @return NULL if the name is valid or an error message otherwise.
  */
 const gchar *profile_name_is_valid(const gchar *name);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __PROFILE_H__ */

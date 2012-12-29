@@ -23,13 +23,22 @@
 
 #include "wireshark_application.h"
 
-#include <epan/prefs.h>
+#include <epan/filesystem.h>
+#include <epan/timestamp.h>
+
+#include "ui/recent.h"
+#include "ui/simple_dialog.h"
 
 #include "qt_ui_utils.h"
 
 #include "capture.h"
+#include "color_filters.h"
+#include "disabled_protos.h"
+#include "filters.h"
 #include "log.h"
 #include "recent_file_status.h"
+
+#include "ui/capture_globals.h"
 
 #include <QDir>
 #include <QTimer>
@@ -293,6 +302,112 @@ void WiresharkApplication::helpTopicAction(topic_action_e action)
     }
 }
 
+void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
+{
+    char  *gdp_path, *dp_path;
+    char  *rf_path;
+    int    rf_open_errno;
+
+    /* First check if profile exists */
+    if (!profile_exists(profile_name, FALSE)) {
+        if (profile_exists(profile_name, TRUE)) {
+            char  *pf_dir_path, *pf_dir_path2, *pf_filename;
+            /* Copy from global profile */
+            if (create_persconffile_profile(profile_name, &pf_dir_path) == -1) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Can't create directory\n\"%s\":\n%s.",
+                    pf_dir_path, g_strerror(errno));
+
+                g_free(pf_dir_path);
+            }
+
+            if (copy_persconffile_profile(profile_name, profile_name, TRUE, &pf_filename,
+                    &pf_dir_path, &pf_dir_path2) == -1) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
+                    pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
+
+                g_free(pf_filename);
+                g_free(pf_dir_path);
+                g_free(pf_dir_path2);
+            }
+        } else {
+            /* No personal and no global profile exists */
+            return;
+        }
+    }
+
+    /* Then check if changing to another profile */
+    if (profile_name && strcmp (profile_name, get_profile_name()) == 0) {
+        return;
+    }
+
+    /* Get the current geometry, before writing it to disk */
+//    main_save_window_geometry(top_level);
+
+    if (profile_exists(get_profile_name(), FALSE)) {
+        /* Write recent file for profile we are leaving, if it still exists */
+        write_profile_recent();
+    }
+
+    /* Set profile name and update the status bar */
+    set_profile_name (profile_name);
+    emit configurationProfileChanged(profile_name);
+//    filter_expression_reinit(FILTER_EXPRESSION_REINIT_DESTROY);
+
+    /* Reset current preferences and apply the new */
+    prefs_reset();
+//    menu_prefs_reset();
+
+    (void) readConfigurationFiles (&gdp_path, &dp_path);
+
+    recent_read_profile_static(&rf_path, &rf_open_errno);
+    if (rf_path != NULL && rf_open_errno != 0) {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+            "Could not open common recent file\n\"%s\": %s.",
+            rf_path, g_strerror(rf_open_errno));
+    }
+    if (recent.gui_fileopen_remembered_dir &&
+        test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
+        set_last_open_dir(recent.gui_fileopen_remembered_dir);
+    }
+    timestamp_set_type (recent.gui_time_format);
+    timestamp_set_seconds_type (recent.gui_seconds_format);
+    color_filters_enable(recent.packet_list_colorize);
+
+    prefsToCaptureOpts();
+    prefs_apply_all();
+//    macros_post_update();
+
+    /* Enable all protocols and disable from the disabled list */
+    proto_enable_all();
+    if (gdp_path == NULL && dp_path == NULL) {
+        set_disabled_protos_list();
+    }
+
+    /* Reload color filters */
+    color_filters_reload();
+
+//    user_font_apply();
+
+    /* Update menus with new recent values */
+//    menu_recent_read_finished();
+
+}
+
+void WiresharkApplication::prefsToCaptureOpts()
+{
+#ifdef HAVE_LIBPCAP
+    /* Set promiscuous mode from the preferences setting. */
+    /* the same applies to other preferences settings as well. */
+    global_capture_opts.default_options.promisc_mode = prefs.capture_prom_mode;
+    global_capture_opts.use_pcapng                   = prefs.capture_pcap_ng;
+    global_capture_opts.show_info                    = prefs.capture_show_info;
+    global_capture_opts.real_time_mode               = prefs.capture_real_time;
+//    auto_scroll_live                                 = prefs.capture_auto_scroll;
+#endif /* HAVE_LIBPCAP */
+}
+
 void WiresharkApplication::setLastOpenDir(const char *dir_name)
 {
     qint64 len;
@@ -419,6 +534,108 @@ void WiresharkApplication::applyAllPreferences()
 {
     prefs_apply_all();
     emit updatePreferences();
+}
+
+e_prefs * WiresharkApplication::readConfigurationFiles(char **gdp_path, char **dp_path)
+{
+    int                  gpf_open_errno, gpf_read_errno;
+    int                  cf_open_errno, df_open_errno;
+    int                  gdp_open_errno, gdp_read_errno;
+    int                  dp_open_errno, dp_read_errno;
+    char                *gpf_path, *pf_path;
+    char                *cf_path, *df_path;
+    int                  pf_open_errno, pf_read_errno;
+    e_prefs             *prefs_p;
+
+    /* Read the preference files. */
+    prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+                         &pf_open_errno, &pf_read_errno, &pf_path);
+
+    if (gpf_path != NULL) {
+        if (gpf_open_errno != 0) {
+            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                          "Could not open global preferences file\n\"%s\": %s.", gpf_path,
+                          g_strerror(gpf_open_errno));
+        }
+        if (gpf_read_errno != 0) {
+            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                          "I/O error reading global preferences file\n\"%s\": %s.", gpf_path,
+                          g_strerror(gpf_read_errno));
+        }
+    }
+    if (pf_path != NULL) {
+        if (pf_open_errno != 0) {
+            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                          "Could not open your preferences file\n\"%s\": %s.", pf_path,
+                          g_strerror(pf_open_errno));
+        }
+        if (pf_read_errno != 0) {
+            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                          "I/O error reading your preferences file\n\"%s\": %s.", pf_path,
+                          g_strerror(pf_read_errno));
+        }
+        g_free(pf_path);
+        pf_path = NULL;
+    }
+
+#ifdef _WIN32
+    /* if the user wants a console to be always there, well, we should open one for him */
+    if (prefs_p->gui_console_open == console_open_always) {
+        create_console();
+    }
+#endif
+
+    /* Read the capture filter file. */
+    read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
+    if (cf_path != NULL) {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                      "Could not open your capture filter file\n\"%s\": %s.", cf_path,
+                      g_strerror(cf_open_errno));
+        g_free(cf_path);
+    }
+
+    /* Read the display filter file. */
+    read_filter_list(DFILTER_LIST, &df_path, &df_open_errno);
+    if (df_path != NULL) {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                      "Could not open your display filter file\n\"%s\": %s.", df_path,
+                      g_strerror(df_open_errno));
+        g_free(df_path);
+    }
+
+    /* Read the disabled protocols file. */
+    read_disabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
+                              dp_path, &dp_open_errno, &dp_read_errno);
+    if (*gdp_path != NULL) {
+        if (gdp_open_errno != 0) {
+            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                          "Could not open global disabled protocols file\n\"%s\": %s.",
+                          *gdp_path, g_strerror(gdp_open_errno));
+        }
+        if (gdp_read_errno != 0) {
+            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                          "I/O error reading global disabled protocols file\n\"%s\": %s.",
+                          *gdp_path, g_strerror(gdp_read_errno));
+        }
+        g_free(*gdp_path);
+        *gdp_path = NULL;
+    }
+    if (*dp_path != NULL) {
+        if (dp_open_errno != 0) {
+            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                          "Could not open your disabled protocols file\n\"%s\": %s.", *dp_path,
+                          g_strerror(dp_open_errno));
+        }
+        if (dp_read_errno != 0) {
+            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                          "I/O error reading your disabled protocols file\n\"%s\": %s.", *dp_path,
+                          g_strerror(dp_read_errno));
+        }
+        g_free(*dp_path);
+        *dp_path = NULL;
+    }
+
+    return prefs_p;
 }
 
 QList<recent_item_status *> WiresharkApplication::recentItems() const {

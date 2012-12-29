@@ -158,6 +158,8 @@ public slots:
     void captureFileClosing(const capture_file *cf);
     void captureFileClosed(const capture_file *cf);
 
+    void configurationProfileChanged(const gchar *profile_name);
+
 private slots:
     // in main_window_slots.cpp
     void startCapture();
@@ -210,8 +212,8 @@ private slots:
     void on_actionEditMarkPacket_triggered();
     void on_actionEditMarkAllDisplayed_triggered();
     void on_actionEditUnmarkAllDisplayed_triggered();
-    void on_actionEditFindNextMark_triggered();
-    void on_actionEditFindPreviousMark_triggered();
+    void on_actionEditNextMark_triggered();
+    void on_actionEditPreviousMark_triggered();
     void on_actionEditIgnorePacket_triggered();
     void on_actionEditIgnoreAllDisplayed_triggered();
     void on_actionEditUnignoreAllDisplayed_triggered();
@@ -221,6 +223,7 @@ private slots:
     void on_actionEditPreviousTimeReference_triggered();
     void on_actionEditTimeShift_triggered();
     void on_actionEditPacketComment_triggered();
+    void on_actionEditConfigurationProfiles_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();

@@ -77,7 +77,8 @@ fill_list(GtkWidget *main_w)
   profile_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY));
   store = GTK_LIST_STORE(gtk_tree_view_get_model(profile_l));
 
-  fl_entry = current_profile_list();
+  init_profile_list();
+  fl_entry = edited_profile_list();
   while (fl_entry && fl_entry->data) {
     profile = (profile_def *) fl_entry->data;
     gtk_list_store_append(store, &iter);
@@ -135,132 +136,13 @@ profile_select(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 static void
 profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 {
-  char        *pf_dir_path, *pf_dir_path2, *pf_filename;
-  GList       *fl1, *fl2;
-  profile_def *profile1, *profile2;
-  gboolean     found;
   const gchar *err_msg;
 
-  /* First validate all profile names */
-  fl1 = edited_profile_list();
-  while (fl1) {
-    profile1 = (profile_def *) fl1->data;
-    g_strstrip(profile1->name);
-    if ((err_msg = profile_name_is_valid(profile1->name)) != NULL) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
-      return;
-    }
-    fl1 = g_list_next(fl1);
+  if ((err_msg = apply_profile_changes()) != NULL) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+    return;
   }
 
-  /* Then do all copy profiles */
-  fl1 = edited_profile_list();
-  while (fl1) {
-    profile1 = (profile_def *) fl1->data;
-    g_strstrip(profile1->name);
-    if (profile1->status == PROF_STAT_COPY) {
-      if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Can't create directory\n\"%s\":\n%s.",
-                      pf_dir_path, g_strerror(errno));
-
-        g_free(pf_dir_path);
-      }
-      profile1->status = PROF_STAT_EXISTS;
-
-      if (profile1->reference) {
-        if (copy_persconffile_profile(profile1->name, profile1->reference, profile1->from_global,
-				      &pf_filename, &pf_dir_path, &pf_dir_path2) == -1) {
-          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                        "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
-                        pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
-
-          g_free(pf_filename);
-          g_free(pf_dir_path);
-          g_free(pf_dir_path2);
-        }
-      }
-
-      g_free (profile1->reference);
-      profile1->reference = g_strdup(profile1->name);
-    }
-    fl1 = g_list_next(fl1);
-  }
-
-
-  /* Then create new and rename changed */
-  fl1 = edited_profile_list();
-  while (fl1) {
-    profile1 = (profile_def *) fl1->data;
-    g_strstrip(profile1->name);
-    if (profile1->status == PROF_STAT_NEW) {
-      /* We do not create a directory for the default profile */
-      if (strcmp(profile1->name, DEFAULT_PROFILE)!=0) {
-	if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
-	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't create directory\n\"%s\":\n%s.",
-			pf_dir_path, g_strerror(errno));
-
-	  g_free(pf_dir_path);
-	}
-	profile1->status = PROF_STAT_EXISTS;
-
-	g_free (profile1->reference);
-	profile1->reference = g_strdup(profile1->name);
-      }
-    } else if (profile1->status == PROF_STAT_CHANGED) {
-      if (strcmp(profile1->reference, profile1->name)!=0) {
-	/* Rename old profile directory to new */
-	if (rename_persconffile_profile(profile1->reference, profile1->name,
-					&pf_dir_path, &pf_dir_path2) == -1) {
-	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't rename directory\n\"%s\" to\n\"%s\":\n%s.",
-			pf_dir_path, pf_dir_path2, g_strerror(errno));
-
-	  g_free(pf_dir_path);
-	  g_free(pf_dir_path2);
-	}
-	profile1->status = PROF_STAT_EXISTS;
-	g_free (profile1->reference);
-	profile1->reference = g_strdup(profile1->name);
-      }
-    }
-    fl1 = g_list_next(fl1);
-  }
-
-  /* Last remove deleted */
-  fl1 = current_profile_list();
-  while (fl1) {
-    found = FALSE;
-    profile1 = (profile_def *) fl1->data;
-    fl2 = edited_profile_list();
-    while (fl2) {
-      profile2 = (profile_def *) fl2->data;
-      if (!profile2->is_global) {
-	if (strcmp(profile1->name, profile2->name)==0) {
-	  /* Profile exists in both lists */
-	  found = TRUE;
-	} else if (strcmp(profile1->name, profile2->reference)==0) {
-	  /* Profile has been renamed */
-	  found = TRUE;
-	}
-      }
-      fl2 = g_list_next(fl2);
-    }
-    if (!found) {
-      /* Exists in existing list and not in edited, this is a deleted profile */
-      if (delete_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Can't delete profile directory\n\"%s\":\n%s.",
-		      pf_dir_path, g_strerror(errno));
-
-	g_free(pf_dir_path);
-      }
-    }
-    fl1 = g_list_next(fl1);
-  }
-
-  copy_profile_list();
   profile_select(main_w, profile_l, destroy);
 }
 
@@ -899,7 +781,7 @@ profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
       g_free(pf_dir_path);
     } else if (strlen (profile_name) &&
 	       copy_persconffile_profile(new_name, profile_name, from_global, &pf_filename,
-					 &pf_dir_path, &pf_dir_path2) == -1)
+					 &pf_dir_path, &pf_dir_path2) != 0)
     {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",

@@ -192,7 +192,8 @@ FORMS += main_window.ui \
     print_dialog.ui \
     search_frame.ui \
     splash_overlay.ui \
-    time_shift_dialog.ui
+    time_shift_dialog.ui \
+    profile_dialog.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -225,7 +226,7 @@ HEADERS += $$HEADERS_WS_C \
     search_frame.h \
     splash_overlay.h \
     tango_colors.h \
-    time_shift_dialog.h
+    profile_dialog.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -442,4 +443,5 @@ SOURCES += \
     splash_overlay.cpp \
     syntax_line_edit.cpp \
     time_shift_dialog.cpp \
-    wireshark_application.cpp
+    wireshark_application.cpp \
+    profile_dialog.cpp
