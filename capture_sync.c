@@ -1115,7 +1115,7 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
 }
 
 int
-sync_interface_set_80211_chan(gchar *iface, char *freq, gchar *type,
+sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar *type,
                               gchar **data, gchar **primary_msg,
                               gchar **secondary_msg)
 {

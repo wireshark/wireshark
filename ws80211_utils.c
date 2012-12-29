@@ -650,7 +650,7 @@ ws80211_str_to_chan_type(const gchar *s)
 	return ret;
 }
 
-gchar
+const gchar
 *ws80211_chan_type_to_str(int type)
 {
 	switch (type) {
@@ -701,7 +701,7 @@ int ws80211_str_to_chan_type(const gchar *s _U_)
 	return -1;
 }
 
-gchar *ws80211_chan_type_to_str(int type _U_)
+const gchar *ws80211_chan_type_to_str(int type _U_)
 {
 	return NULL;
 }

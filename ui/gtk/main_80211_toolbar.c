@@ -165,7 +165,8 @@ int get_selected_channel_type(void)
 static int
 tb80211_do_set_channel(char *iface, int freq, int type)
 {
-	gchar *freq_s, *type_s;
+	gchar *freq_s;
+	const gchar *type_s;
 	gchar *data, *primary_msg, *secondary_msg;
 	int ret;
 
