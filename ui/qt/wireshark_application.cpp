@@ -396,7 +396,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
 
     /* Update menus with new recent values */
 //    menu_recent_read_finished();
-
+    emit configurationProfileChanged(profile_name);
 }
 
 void WiresharkApplication::prefsToCaptureOpts()

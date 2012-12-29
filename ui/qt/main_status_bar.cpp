@@ -28,6 +28,7 @@
 #include "main_status_bar.h"
 
 #include "epan/expert.h"
+#include "epan/filesystem.h"
 
 #include "ui/main_statusbar.h"
 #include "ui/utf8_entities.h"
@@ -137,12 +138,15 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     splitter->hide();
     info_status_.pushText(ready_msg, STATUS_CTX_MAIN);
     packets_bar_update();
+    pushProfileName(get_profile_name());
 
     connect(wsApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
     connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),
             this, SLOT(toggleBackground(bool)));
     connect(wsApp, SIGNAL(captureCaptureUpdateContinue(capture_options*)),
             this, SLOT(updateCaptureStatistics(capture_options*)));
+    connect(wsApp, SIGNAL(configurationProfileChanged(const gchar *profile_name)),
+            this, SLOT(pushProfileName(const gchar*)));
 }
 
 void MainStatusBar::showExpert() {
@@ -244,6 +248,14 @@ void MainStatusBar::pushProfileStatus(QString &message) {
     profile_status_.pushText(message, STATUS_CTX_MAIN);
 }
 
+void MainStatusBar::pushProfileName(const gchar *profile_name)
+{
+    QString status = tr("Profile: ") + profile_name;
+
+    popProfileStatus();
+    pushProfileStatus(status);
+}
+
 void MainStatusBar::popProfileStatus() {
     profile_status_.popText(STATUS_CTX_MAIN);
 }
@@ -252,10 +264,8 @@ void MainStatusBar::updateCaptureStatistics(capture_options *capture_opts)
 {
     QString packets_str;
 
-    if ((capture_opts && capture_opts->cf != cap_file_) || !cap_file_) return;
-
     /* Do we have any packets? */
-    if (cap_file_->count) {
+    if ((!capture_opts || capture_opts->cf == cap_file_) && cap_file_ && cap_file_->count) {
         packets_str.append(QString(tr("Packets: %1 %4 Displayed: %2 %4 Marked: %3"))
                           .arg(cap_file_->count)
                           .arg(cap_file_->displayed_count)
@@ -277,7 +287,7 @@ void MainStatusBar::updateCaptureStatistics(capture_options *capture_opts)
                                         .arg(computed_elapsed%1000));
         }
     } else {
-        packets_str.append(tr("No Packets"));
+        packets_str = tr("No Packets");
     }
 
     popPacketStatus();

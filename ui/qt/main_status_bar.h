@@ -65,6 +65,7 @@ public slots:
     void pushPacketStatus(QString &message);
     void popPacketStatus();
     void pushProfileStatus(QString &message);
+    void pushProfileName(const gchar *profile_name);
     void popProfileStatus();
     void updateCaptureStatistics(capture_options * capture_opts);
 
