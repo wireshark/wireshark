@@ -231,7 +231,7 @@ void ProfileDialog::on_copyToolButton_clicked()
 void ProfileDialog::on_buttonBox_accepted()
 {
     const gchar *err_msg;
-//    QTreeWidgetItem *item = pd_ui_->profileTreeWidget->currentItem();
+    QTreeWidgetItem *item = pd_ui_->profileTreeWidget->currentItem();
 
     if ((err_msg = apply_profile_changes()) != NULL) {
         QMessageBox::critical(this, tr("Profile Error"),
@@ -240,17 +240,17 @@ void ProfileDialog::on_buttonBox_accepted()
         return;
     }
 
-//    if (item) {
-//        profile_def *profile = (profile_def *) item->data(0, Qt::UserRole).value<GList *>()->data;
-//        if (profile_exists (profile->name, FALSE) || profile_exists (profile->name, TRUE)) {
-//            /* The new profile exists, change */
-//            wsApp->setConfigurationProfile (profile->name);
-//        } else if (!profile_exists (get_profile_name(), FALSE)) {
-//            /* The new profile does not exist, and the previous profile has
-//               been deleted.  Change to the default profile */
-//            wsApp->setConfigurationProfile (NULL);
-//        }
-//    }
+    if (item) {
+        profile_def *profile = (profile_def *) item->data(0, Qt::UserRole).value<GList *>()->data;
+        if (profile_exists (profile->name, FALSE) || profile_exists (profile->name, TRUE)) {
+            /* The new profile exists, change */
+            wsApp->setConfigurationProfile (profile->name);
+        } else if (!profile_exists (get_profile_name(), FALSE)) {
+            /* The new profile does not exist, and the previous profile has
+               been deleted.  Change to the default profile */
+            wsApp->setConfigurationProfile (NULL);
+        }
+    }
 }
 
 void ProfileDialog::on_buttonBox_helpRequested()
