@@ -154,7 +154,8 @@ wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
      * wmem_strbuf_grow does not */
     wmem_strbuf_grow(strbuf, len - 1);
 
-    g_vsnprintf(strbuf->str + strbuf->len, strbuf->alloc_len - strbuf->len,
+    g_vsnprintf((strbuf->str + strbuf->len),
+                (gulong) (strbuf->alloc_len - strbuf->len),
                 fmt, ap2);
 
     va_end(ap2);
