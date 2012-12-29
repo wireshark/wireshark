@@ -40,6 +40,10 @@
 
 #include "ui/capture_globals.h"
 
+#ifdef _WIN32
+#  include "ui/win32/console_win32.h"
+#endif /* _WIN32 */
+
 #include <QDir>
 #include <QTimer>
 #include <QEvent>
