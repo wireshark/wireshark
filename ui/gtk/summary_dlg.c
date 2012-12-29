@@ -214,11 +214,17 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   marked_seconds = summary.marked_stop - summary.marked_start;
 
   summary_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Summary");
+  gtk_window_set_default_size(GTK_WINDOW(summary_dlg), 400, 750);
+
+  /* Scrolled Window to hold them all */
+  scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_container_add(GTK_CONTAINER(summary_dlg), scrolled_window);
 
   /* Container for each row of widgets */
   main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
-  gtk_container_add(GTK_CONTAINER(summary_dlg), main_vb);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window), main_vb);
 
   /* table */
   table = gtk_table_new(1, 2, FALSE);
