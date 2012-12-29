@@ -493,7 +493,9 @@ foo(int a)
 }
   ],
   [warns about variables in function declarations shadowing other variables])
+
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-variable)    ##  for now
+
 #
 # Use the faster pre gcc 4.5 floating point precision if available;
 # clang doesn't error out on -f options that it doesn't know about,
