@@ -47,15 +47,21 @@ file on disk.
         uint8_t data[caplen]; /* Packet data */
     };
 
-If B<-p> is supplied B<rawshark> expects the following format. This matches the
-pcap_pkthdr struct and packet data used in libpcap. Note that the time stamp
-value will match the previous format on some systems but not others.
+If B<-p> is supplied B<rawshark> expects the following format.  This
+matches the I<struct pcap_pkthdr> structure and packet data used in
+libpcap.  This structure's format is platform-dependent; the size of the
+I<tv_sec> field in the I<struct timeval> structure could be 32 bits or
+64 bits.  For B<rawshark> to work, the layout of the structure in the
+input must match the layout of the structure in B<rawshark>.  Note that
+this format will probably be the same as the previous format if
+B<rawshark> is a 32-bit program, but will not necessarily be the same if
+B<rawshark> is a 64-bit program.
 
     struct rawshark_rec_s {
         struct timeval ts;    /* Time stamp */
         uint32_t caplen;      /* Length of the packet buffer */
         uint32_t len;         /* "On the wire" length of the packet */
-        uint8_t *data;        /* Packet data */
+        uint8_t data[caplen]; /* Packet data */
     };
 
 In either case, the endianness (byte ordering) of each integer must match the
