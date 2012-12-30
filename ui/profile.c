@@ -395,6 +395,24 @@ profile_name_is_valid(const gchar *name)
     return NULL;
 }
 
+gboolean delete_current_profile(void) {
+    const gchar *name = get_profile_name();
+    char        *pf_dir_path;
+
+    if (profile_exists(name, FALSE) && strcmp (name, DEFAULT_PROFILE) != 0) {
+        if (delete_persconffile_profile(name, &pf_dir_path) == -1) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Can't delete profile directory\n\"%s\":\n%s.",
+                    pf_dir_path, g_strerror(errno));
+
+            g_free(pf_dir_path);
+        } else {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 /*
  * Editor modelines
  *

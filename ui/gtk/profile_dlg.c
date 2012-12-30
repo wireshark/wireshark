@@ -971,19 +971,8 @@ profile_new_cb (GtkWidget *w _U_, gpointer data _U_)
 void
 profile_delete_cb (GtkWidget *w _U_, gpointer data _U_)
 {
-  const gchar *name = get_profile_name();
-  char        *pf_dir_path;
-
-  if (profile_exists(name, FALSE) && strcmp (name, DEFAULT_PROFILE) != 0) {
-    if (delete_persconffile_profile(name, &pf_dir_path) == -1) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Can't delete profile directory\n\"%s\":\n%s.",
-		    pf_dir_path, g_strerror(errno));
-
-      g_free(pf_dir_path);
-    }
-
-    /* Change to the default profile */
+  if (delete_current_profile()) {
+    /* Change to the default profile (we have to do this ourselves). */
     change_configuration_profile (NULL);
   }
 }

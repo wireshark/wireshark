@@ -99,6 +99,38 @@ ProfileDialog::~ProfileDialog()
     empty_profile_list (TRUE);
 }
 
+int ProfileDialog::execAction(ProfileDialog::ProfileAction profile_action)
+{
+    int ret = QDialog::Accepted;
+    QTreeWidgetItem *item;
+
+    switch (profile_action) {
+    case ShowProfiles:
+        ret = exec();
+        break;
+    case NewProfile:
+        on_newToolButton_clicked();
+        ret = exec();
+        break;
+    case EditCurrentProfile:
+        item = pd_ui_->profileTreeWidget->currentItem();
+        if (item) {
+            pd_ui_->profileTreeWidget->editItem(item, 0);
+        }
+        ret = exec();
+        break;
+    case DeleteCurrentProfile:
+        if (delete_current_profile()) {
+            wsApp->setConfigurationProfile (NULL);
+        }
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+    return ret;
+}
+
 void ProfileDialog::updateWidgets()
 {
     QTreeWidgetItem *item = pd_ui_->profileTreeWidget->currentItem();

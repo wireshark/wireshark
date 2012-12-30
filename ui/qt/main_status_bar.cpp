@@ -25,16 +25,19 @@
 
 #include <glib.h>
 
-#include "main_status_bar.h"
-
 #include "epan/expert.h"
 #include "epan/filesystem.h"
 
 #include "ui/main_statusbar.h"
+#include "ui/profile.h"
 #include "ui/utf8_entities.h"
+
+#include "main_status_bar.h"
+#include "profile_dialog.h"
 
 #include <QSplitter>
 #include <QHBoxLayout>
+#include <QAction>
 
 #include "tango_colors.h"
 
@@ -53,6 +56,8 @@ enum StatusContext {
     STATUS_CTX_FILTER,
     STATUS_CTX_TEMPORARY
 };
+
+Q_DECLARE_METATYPE(ProfileDialog::ProfileAction)
 
 // If we ever add support for multiple windows this will need to be replaced.
 // See also: main_window.cpp
@@ -89,12 +94,15 @@ packets_bar_update(void)
 
 MainStatusBar::MainStatusBar(QWidget *parent) :
     QStatusBar(parent),
-    cap_file_(NULL)
+    cap_file_(NULL),
+    edit_action_(NULL),
+    delete_action_(NULL)
 {
     QSplitter *splitter = new QSplitter(this);
     QString ready_msg(DEF_READY_MESSAGE);
     QWidget *info_progress = new QWidget(this);
     QHBoxLayout *info_progress_hb = new QHBoxLayout(info_progress);
+    QAction *action;
 
 #if defined(Q_WS_WIN)
     // Handles are the same color as widgets, at least on Windows 7.
@@ -138,15 +146,34 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     splitter->hide();
     info_status_.pushText(ready_msg, STATUS_CTX_MAIN);
     packets_bar_update();
-    pushProfileName(get_profile_name());
+
+    action = ctx_menu_.addAction(tr("Manage Profiles..."));
+    action->setData(ProfileDialog::ShowProfiles);
+    connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+    ctx_menu_.addSeparator();
+    action = ctx_menu_.addAction(tr("New..."));
+    action->setData(ProfileDialog::NewProfile);
+    connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+    edit_action_ = ctx_menu_.addAction(tr("Edit..."));
+    edit_action_->setData(ProfileDialog::EditCurrentProfile);
+    connect(edit_action_, SIGNAL(triggered()), this, SLOT(manageProfile()));
+    delete_action_ = ctx_menu_.addAction(tr("Delete"));
+    delete_action_->setData(ProfileDialog::DeleteCurrentProfile);
+    connect(delete_action_, SIGNAL(triggered()), this, SLOT(manageProfile()));
+    ctx_menu_.addSeparator();
+    profile_menu_.setTitle(tr("Switch to"));
+    ctx_menu_.addMenu(&profile_menu_);
 
     connect(wsApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(pushProfileName()));
     connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),
             this, SLOT(toggleBackground(bool)));
     connect(wsApp, SIGNAL(captureCaptureUpdateContinue(capture_options*)),
             this, SLOT(updateCaptureStatistics(capture_options*)));
-    connect(wsApp, SIGNAL(configurationProfileChanged(const gchar *profile_name)),
-            this, SLOT(pushProfileName(const gchar*)));
+    connect(wsApp, SIGNAL(configurationProfileChanged(const gchar *)),
+            this, SLOT(pushProfileName()));
+    connect(&profile_status_, SIGNAL(mousePressedAt(QPoint,Qt::MouseButton)),
+            this, SLOT(showProfileMenu(QPoint,Qt::MouseButton)));
 }
 
 void MainStatusBar::showExpert() {
@@ -158,38 +185,38 @@ void MainStatusBar::hideExpert() {
 }
 
 void MainStatusBar::expertUpdate() {
-    QString imgText = "<img src=\":/expert/expert_";
-    QString ttText = tr(" is the highest expert info level");
+    QString img_text = "<img src=\":/expert/expert_";
+    QString tt_text = tr(" is the highest expert info level");
 
     switch(expert_get_highest_severity()) {
     case(PI_ERROR):
-        imgText.append("error");
-        ttText.prepend(tr("ERROR"));
+        img_text.append("error");
+        tt_text.prepend(tr("ERROR"));
         break;
     case(PI_WARN):
-        imgText.append("warn");
-        ttText.prepend(tr("WARNING"));
+        img_text.append("warn");
+        tt_text.prepend(tr("WARNING"));
         break;
     case(PI_NOTE):
-        imgText.append("note");
-        ttText.prepend(tr("NOTE"));
+        img_text.append("note");
+        tt_text.prepend(tr("NOTE"));
         break;
     case(PI_CHAT):
-        imgText.append("chat");
-        ttText.prepend(tr("CHAT"));
+        img_text.append("chat");
+        tt_text.prepend(tr("CHAT"));
         break;
 //    case(PI_COMMENT):
 //        m_expertStatus.setText("<img src=\":/expert/expert_comment.png\"></img>");
 //        break;
     default:
-        imgText.append("none");
-        ttText = tr("No expert info");
+        img_text.append("none");
+        tt_text = tr("No expert info");
         break;
     }
 
-    imgText.append(".png\"></img>");
-    expert_status_.setText(imgText);
-    expert_status_.setToolTip(ttText);
+    img_text.append(".png\"></img>");
+    expert_status_.setText(img_text);
+    expert_status_.setToolTip(tt_text);
     expert_status_.show();
 }
 
@@ -248,12 +275,21 @@ void MainStatusBar::pushProfileStatus(QString &message) {
     profile_status_.pushText(message, STATUS_CTX_MAIN);
 }
 
-void MainStatusBar::pushProfileName(const gchar *profile_name)
+void MainStatusBar::pushProfileName()
 {
-    QString status = tr("Profile: ") + profile_name;
+    const gchar *cur_profile = get_profile_name();
+    QString status = tr("Profile: ") + cur_profile;
 
     popProfileStatus();
     pushProfileStatus(status);
+
+    if (profile_exists(cur_profile, FALSE) && strcmp (cur_profile, DEFAULT_PROFILE) != 0) {
+        edit_action_->setEnabled(true);
+        delete_action_->setEnabled(true);
+    } else {
+        edit_action_->setEnabled(false);
+        delete_action_->setEnabled(false);
+    }
 }
 
 void MainStatusBar::popProfileStatus() {
@@ -294,6 +330,30 @@ void MainStatusBar::updateCaptureStatistics(capture_options *capture_opts)
     pushPacketStatus(packets_str);
 }
 
+void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton button)
+{
+    GList *fl_entry;
+    profile_def *profile;
+    QAction *pa;
+
+    init_profile_list();
+    fl_entry = edited_profile_list();
+
+    profile_menu_.clear();
+    while (fl_entry && fl_entry->data) {
+        profile = (profile_def *) fl_entry->data;
+        pa = profile_menu_.addAction(profile->name);
+        connect(pa, SIGNAL(triggered()), this, SLOT(switchToProfile()));
+        fl_entry = g_list_next(fl_entry);
+    }
+
+    if (button == Qt::LeftButton) {
+        profile_menu_.exec(global_pos);
+    } else {
+        ctx_menu_.exec(global_pos);
+    }
+}
+
 void MainStatusBar::toggleBackground(bool enabled)
 {
     if (enabled) {
@@ -307,6 +367,25 @@ void MainStatusBar::toggleBackground(bool enabled)
                       .arg(ws_css_warn_background, 6, 16, QChar('0')));
     } else {
         setStyleSheet("");
+    }
+}
+
+void MainStatusBar::switchToProfile()
+{
+    QAction *pa = qobject_cast<QAction*>(sender());
+
+    if (pa) {
+        wsApp->setConfigurationProfile(pa->text().toUtf8().constData());
+    }
+}
+
+void MainStatusBar::manageProfile()
+{
+    QAction *pa = qobject_cast<QAction*>(sender());
+
+    if (pa) {
+        ProfileDialog cp_dialog;
+        cp_dialog.execAction(static_cast<ProfileDialog::ProfileAction>(pa->data().toInt()));
     }
 }
 

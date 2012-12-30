@@ -3062,11 +3062,11 @@ static const char *ui_statusbar_profiles_menu_popup =
 "</ui>\n";
 static const GtkActionEntry statusbar_profiles_menu_action_entries [] =
 {
-    { "/Profiles",  NULL,   "Configuration Profiles...",    NULL,   NULL,     G_CALLBACK(profile_dialog_cb) },
+    { "/Profiles",  NULL,   "Manage Profiles...",    NULL,   NULL,     G_CALLBACK(profile_dialog_cb) },
     { "/New",   GTK_STOCK_NEW,  "New...",   NULL,   NULL,     G_CALLBACK(profile_new_cb) },
     { "/Edit",  GTK_STOCK_EDIT, "Edit...",  NULL,   NULL,     G_CALLBACK(profile_edit_cb) },
     { "/Delete",    GTK_STOCK_DELETE,   "Delete",   NULL,   NULL,     G_CALLBACK(profile_delete_cb) },
-    { "/Change",    NULL,       "Change",   NULL,   NULL,   NULL },
+    { "/Change",    NULL,       "Switch to",   NULL,   NULL,   NULL },
     { "/Change/Default",    NULL,   "Default",  NULL,   NULL,     NULL },
 };
 

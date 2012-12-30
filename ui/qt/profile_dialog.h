@@ -37,9 +37,13 @@ class ProfileDialog : public QDialog
     Q_OBJECT
     
 public:
+    enum ProfileAction { ShowProfiles, NewProfile, EditCurrentProfile, DeleteCurrentProfile };
+
     explicit ProfileDialog(QWidget *parent = 0);
     ~ProfileDialog();
-    
+    int execAction(ProfileAction profile_action);
+
+
 private:
     void updateWidgets();
     Ui::ProfileDialog *pd_ui_;

@@ -119,6 +119,13 @@ const gchar *get_profile_parent (const gchar *profilename);
  */
 const gchar *profile_name_is_valid(const gchar *name);
 
+/** Remove the current profile.
+ *
+ * @return TRUE if the current profile exists and was successfully deleted
+ * or FALSE otherwise.
+ */
+gboolean delete_current_profile(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

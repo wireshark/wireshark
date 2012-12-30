@@ -30,6 +30,7 @@
 
 #include <QStatusBar>
 #include <QLabel>
+#include <QMenu>
 
 #include "cfile.h"
 
@@ -49,6 +50,10 @@ private:
     LabelStack packet_status_;
     LabelStack profile_status_;
     capture_file *cap_file_;
+    QMenu profile_menu_;
+    QMenu ctx_menu_;
+    QAction *edit_action_;
+    QAction *delete_action_;
 
 signals:
 
@@ -62,15 +67,18 @@ public slots:
     void popFieldStatus();
     void pushFilterStatus(QString &message);
     void popFilterStatus();
-    void pushPacketStatus(QString &message);
-    void popPacketStatus();
-    void pushProfileStatus(QString &message);
-    void pushProfileName(const gchar *profile_name);
-    void popProfileStatus();
+    void pushProfileName();
     void updateCaptureStatistics(capture_options * capture_opts);
 
 private slots:
+    void pushPacketStatus(QString &message);
+    void popPacketStatus();
+    void pushProfileStatus(QString &message);
+    void popProfileStatus();
     void toggleBackground(bool enabled);
+    void switchToProfile();
+    void manageProfile();
+    void showProfileMenu(const QPoint &global_pos, Qt::MouseButton button);
 };
 
 #endif // MAIN_STATUS_BAR_H

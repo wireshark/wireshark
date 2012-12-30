@@ -22,6 +22,8 @@
  */
 
 #include "label_stack.h"
+#include <QMouseEvent>
+#include <QContextMenuEvent>
 
 #include "tango_colors.h"
 
@@ -93,6 +95,32 @@ void LabelStack::pushText(QString &text, int ctx) {
     si->ctx = ctx;
     labels_.prepend(si);
     fillLabel();
+}
+
+void LabelStack::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+        emit mousePressedAt(QPoint(event->globalPos()), Qt::LeftButton);
+}
+
+void LabelStack::mouseReleaseEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void LabelStack::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void LabelStack::mouseMoveEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void LabelStack::contextMenuEvent(QContextMenuEvent *event)
+{
+    emit mousePressedAt(QPoint(event->globalPos()), Qt::RightButton);
 }
 
 void LabelStack::popText(int ctx) {

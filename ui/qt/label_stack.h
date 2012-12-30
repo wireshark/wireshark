@@ -37,6 +37,13 @@ public:
     void setTemporaryContext(int ctx);
     void pushText(QString &text, int ctx);
 
+protected:
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
+
 private:
     typedef struct _StackItem {
         QString text;
@@ -52,6 +59,7 @@ private:
 
 signals:
     void toggleTemporaryFlash(bool enable);
+    void mousePressedAt(const QPoint &global_pos, Qt::MouseButton button);
 
 public slots:
     void popText(int ctx);
