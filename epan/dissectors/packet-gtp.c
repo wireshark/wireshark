@@ -7753,14 +7753,11 @@ decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
         proto_tree_add_uint(ext_tree_priv_ext, hf_gtp_ext_id, tvb, offset, 2, ext_id);
         offset = offset + 2;
 
-        /*
-         * XXX - is this always a text string?  Or should it be
-         * displayed as hex data?
-         */
        if (length > 2) {
-            proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_val, tvb, offset, length - 2, ENC_NA);
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            dissector_try_uint(gtp_priv_ext_dissector_table, ext_id, next_tvb, pinfo, ext_tree_priv_ext);
+            if(!dissector_try_uint(gtp_priv_ext_dissector_table, ext_id, next_tvb, pinfo, ext_tree_priv_ext)){
+                    proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_val, tvb, offset, length - 2, ENC_NA);
+            }
        }
     }
 
