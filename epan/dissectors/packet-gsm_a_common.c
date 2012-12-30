@@ -567,6 +567,7 @@ static int hf_gsm_a_A5_3_algorithm_sup = -1;
 static int hf_gsm_a_A5_2_algorithm_sup = -1;
 
 static int hf_gsm_a_odd_even_ind = -1;
+static int hf_gsm_a_unused = -1;
 static int hf_gsm_a_mobile_identity_type = -1;
 static int hf_gsm_a_tmgi_mcc_mnc_ind = -1;
 static int hf_gsm_a_mbs_ses_id_ind = -1;
@@ -2107,6 +2108,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
     guint8   *poctets;
     guint32   value;
     gboolean  odd;
+	const gchar *digit_str;
 
     curr_offset = offset;
 
@@ -2115,14 +2117,8 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
     switch (oct & 0x07)
     {
     case 0: /* No Identity */
-        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "%s = Unused",
-            a_bigbuf);
-
+        proto_tree_add_item(tree, hf_gsm_a_unused, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
         proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
         if (add_string)
@@ -2156,31 +2152,25 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
         proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-        a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
-        curr_offset++;
-
-        poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
-
-        my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
-            &Dgt1_9_bcd);
+		digit_str = tvb_bcd_dig_to_ep_str(tvb ,curr_offset , len - (curr_offset - offset), NULL, TRUE);
 
         proto_tree_add_string_format(tree,
             ((oct & 0x07) == 3) ? hf_gsm_a_imeisv : hf_gsm_a_imsi,
-            tvb, curr_offset - 1, len - (curr_offset - offset) + 1,
-            a_bigbuf,
+            tvb, curr_offset, len - (curr_offset - offset),
+            digit_str,
             "BCD Digits: %s",
-            a_bigbuf);
+            digit_str);
 
         if (sccp_assoc && ! sccp_assoc->calling_party) {
             sccp_assoc->calling_party = se_strdup_printf(
                 ((oct & 0x07) == 3) ? "IMEISV: %s" : "IMSI: %s",
-                a_bigbuf );
+                digit_str );
         }
 
         if (add_string)
             g_snprintf(add_string, string_len, " - %s (%s)",
                 ((oct & 0x07) == 3) ? "IMEISV" : "IMSI",
-                a_bigbuf);
+                digit_str);
 
         curr_offset += len - (curr_offset - offset);
 
@@ -2230,16 +2220,9 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         break;
 
     case 4: /* TMSI/P-TMSI/M-TMSI */
-        other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
-        proto_tree_add_text(tree,
-            tvb, curr_offset, 1,
-            "%s = Unused",
-            a_bigbuf);
-
+        proto_tree_add_item(tree, hf_gsm_a_unused, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
         proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
         curr_offset++;
 
         value = tvb_get_ntohl(tvb, curr_offset);
@@ -3658,6 +3641,11 @@ proto_register_gsm_a_common(void)
     { &hf_gsm_a_odd_even_ind,
         { "Odd/even indication", "gsm_a.oddevenind",
         FT_BOOLEAN, 8, TFS(&oddevenind_vals), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_gsm_a_unused,
+        { "Unused", "gsm_a.unused",
+        FT_UINT8, BASE_HEX, NULL, 0xf0,
         NULL, HFILL }
     },
     { &hf_gsm_a_tmgi_mcc_mnc_ind,
