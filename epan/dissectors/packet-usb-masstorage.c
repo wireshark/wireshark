@@ -361,6 +361,23 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 }
 
+static gboolean
+dissect_usb_ms_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    const gchar usbc[] = {0x55, 0x53, 0x42, 0x43};
+    const gchar usbs[] = {0x55, 0x53, 0x42, 0x53};
+    if (tvb_reported_length(tvb) < 4)
+        return FALSE;
+
+    if (tvb_memeql(tvb, 0, usbc, sizeof(usbc)) == 0 ||
+        tvb_memeql(tvb, 0, usbs, sizeof(usbs)) == 0) {
+        dissect_usb_ms_bulk(tvb, pinfo, tree);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 void
 proto_register_usb_ms(void)
 {
@@ -446,4 +463,6 @@ proto_reg_handoff_usb_ms(void)
 
     usb_ms_control_handle = new_create_dissector_handle(dissect_usb_ms_control, proto_usb_ms);
     dissector_add_uint("usb.control", IF_CLASS_MASS_STORAGE, usb_ms_control_handle);
+
+    heur_dissector_add("usb.bulk", dissect_usb_ms_bulk_heur, proto_usb_ms);
 }
