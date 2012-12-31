@@ -201,6 +201,7 @@ EXTRA_DIST = \
 	main_window.ui			\
 	packet_format_group_box.ui	\
 	packet_range_group_box.ui	\
+	packet_comment_dialog.ui	\
 	print_dialog.ui			\
 	profile_dialog.ui		\
 	QtShark.pro			\

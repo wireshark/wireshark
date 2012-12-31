@@ -98,6 +98,7 @@ MOC_HDRS = \
 	main_welcome.h \
 	main_window.h \
 	monospace_font.h \
+	packet_comment_dialog.h \
 	packet_format_group_box.h \
 	packet_list.h \
 	packet_list_model.h \
@@ -179,6 +180,7 @@ WIRESHARK_QT_SRC = \
 	main_window.cpp \
 	main_window_slots.cpp \
 	monospace_font.cpp \
+	packet_comment_dialog.cpp \
 	packet_format_group_box.cpp \
 	packet_list.cpp \
 	packet_list_model.cpp \
