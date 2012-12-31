@@ -691,6 +691,7 @@ EXTRA_DIST = \
 	image/capture_stop_24.png		\
 	image/clist_ascend.xpm			\
 	image/clist_descend.xpm			\
+	image/copy-8.png			\
 	image/dfilter_apply_hover.png		\
 	image/dfilter_apply_normal.png		\
 	image/dfilter_apply_pressed.png		\
@@ -730,8 +731,10 @@ EXTRA_DIST = \
 	image/make-icons			\
 	image/Makefile.nmake			\
 	image/mergecap.rc.in			\
+	image/minus-8.png			\
 	image/nsis-checked.bmp			\
 	image/nsis-unchecked.bmp		\
+	image/plus-8.png			\
 	image/rawshark.rc.in			\
 	image/README.image			\
 	image/reordercap.rc.in			\
