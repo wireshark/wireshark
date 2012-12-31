@@ -63,7 +63,7 @@ do
 		*.gz)
 			svn ps svn:mime-type application/x-gzip $file
 			;;
-		*.ui|*.xml)
+		*.ts|*.ui|*.xml)
 			svn ps svn:keywords Id $file
 			svn ps svn:eol-style native $file
 			svn ps svn:mime-type text/xml $file
