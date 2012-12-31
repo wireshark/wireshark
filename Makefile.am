@@ -366,6 +366,10 @@ wireshark_LDADD = \
 
 wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
+if HAVE_WIRESHARK_CPP
+nodist_EXTRA_wireshark_SOURCES = dummy.cpp
+endif
+
 if ENABLE_STATIC
 tshark_LDFLAGS = -Wl,-static -all-static
 else

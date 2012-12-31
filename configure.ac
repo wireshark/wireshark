@@ -994,6 +994,7 @@ fi
 # 2.32.0: 24 Mar 2012
 # 2.34.0: 24 Sep 2012
 
+have_wireshark_cpp="false"
 if test "$have_gtk" = "no" ; then
 	#
 	# We don't have GTK+.
@@ -1007,6 +1008,8 @@ if test "$have_gtk" = "no" ; then
 		#
 		wireshark_bin="wireshark\$(EXEEXT)"
 		wireshark_ui_lib="ui/qt/libqtui.a"
+	        # Give automake a hint that it needs to use c++ linking.
+                have_wireshark_cpp="true"
 		wireshark_man="wireshark.1"
 	        wireshark_SUBDIRS="codecs ui/qt"
 	else
@@ -1046,7 +1049,7 @@ else
 	wireshark_bin="wireshark\$(EXEEXT)"
 	wireshark_ui_lib="ui/gtk/libgtkui.a"
 	wireshark_man="wireshark.1"
-        wireshark_SUBDIRS="codecs ui/gtk"
+	wireshark_SUBDIRS="codecs ui/gtk"
 	# Don't use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0(2.14.0, , AC_MSG_ERROR(GLib 2.14 or later distribution not found.), gthread gmodule)
 
@@ -1178,6 +1181,7 @@ fi
 AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_ui_lib)
 AC_SUBST(wireshark_man)
+AM_CONDITIONAL(HAVE_WIRESHARK_CPP, test "$have_wireshark_cpp" = "true")
 
 
 # Enable/disable tshark
