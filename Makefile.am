@@ -338,7 +338,7 @@ endif
 # GLIB_LIBS (that's the case on my machine right now, for example).
 #
 wireshark_LDADD = \
-	ui/gtk/libgtkui.a		\
+	@wireshark_ui_lib@		\
 	ui/libui.a			\
 	ui/libui_dirty.a		\
 	codecs/libcodec.a		\
