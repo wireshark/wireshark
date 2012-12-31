@@ -919,7 +919,7 @@ if test "x$enable_wireshark" = "xyes"; then
 			CFLAGS="$CFLAGS $QtWidgets_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $QtWidgets_CFLAGS"
 		],
-		[])
+		AC_MSG_NOTICE([QtWidgets not found. Assuming Qt4]))
 
 		#
 		# It also appears to move the printing support into
@@ -930,7 +930,7 @@ if test "x$enable_wireshark" = "xyes"; then
 			CFLAGS="$CFLAGS $QtPrintSupport_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $QtPrintSupport_CFLAGS"
 		],
-		[])
+		AC_MSG_NOTICE([QtPrintSupport not found. Assuming Qt4]))
 
 		#
 		# We don't know whether we have GTK+, but we
