@@ -367,7 +367,11 @@ wireshark_LDADD = \
 wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 if HAVE_WIRESHARK_CPP
-nodist_EXTRA_wireshark_SOURCES = dummy.cpp
+# Ideally we could trigger automatic c++ linking here with
+#   nodist_EXTRA_wireshark_SOURCES = dummy.cpp
+# Unfortunately that check is done by automake and not configure
+# c++ linking for Wireshark at all times.
+wireshark_LDFLAGS += -lstdc++
 endif
 
 if ENABLE_STATIC
