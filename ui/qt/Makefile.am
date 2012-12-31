@@ -71,7 +71,7 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBG
 SUFFIXES = .moc.cpp .qrc .rcc.cpp
 
 .h.moc.cpp:
-	moc -o $@ $<
+	moc -I.. -I../.. -o $@ $<
 
 .qrc.rcc.cpp:
 	rcc -name `basename $< .qrc` -o $@ $<
