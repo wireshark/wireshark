@@ -91,8 +91,8 @@ MOC_HDRS = \
 	export_dissection_dialog.h \
 	export_object_dialog.h \
 	file_set_dialog.h \
-	interface_tree.h \
 	import_text_dialog.h \
+	interface_tree.h \
 	label_stack.h \
 	main_status_bar.h \
 	main_welcome.h \
@@ -108,9 +108,9 @@ MOC_HDRS = \
 	progress_bar.h \
 	proto_tree.h \
 	recent_file_status.h \
+	search_frame.h \
 	simple_dialog_qt.h \
 	sparkline_delegate.h \
-	search_frame.h \
 	splash_overlay.h \
 	syntax_line_edit.h \
 	time_shift_dialog.h \
@@ -172,9 +172,10 @@ WIRESHARK_QT_SRC = \
 	export_dissection_dialog.cpp \
 	export_object_dialog.cpp \
 	file_set_dialog.cpp \
-	interface_tree.cpp \
 	import_text_dialog.cpp \
+	interface_tree.cpp \
 	label_stack.cpp \
+	main.cpp \
 	main_status_bar.cpp \
 	main_welcome.cpp \
 	main_window.cpp \
@@ -192,9 +193,9 @@ WIRESHARK_QT_SRC = \
 	proto_tree.cpp \
 	qt_ui_utils.cpp \
 	recent_file_status.cpp \
+	search_frame.cpp \
 	simple_dialog_qt.cpp \
 	sparkline_delegate.cpp \
-	search_frame.cpp \
 	splash_overlay.cpp \
 	syntax_line_edit.cpp \
 	time_shift_dialog.cpp \

@@ -360,6 +360,7 @@ wireshark_LDADD = \
 	@LIBSMI_LDFLAGS@		\
 	@PORTAUDIO_LIBS@		\
 	@GTK_LIBS@			\
+	@Qt_LIBS@			\
 	@GLIB_LIBS@			\
 	-lm
 
