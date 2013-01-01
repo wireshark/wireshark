@@ -404,17 +404,25 @@ prefs_tree_page_add(const gchar *title, gint page_nr,
 static GtkWidget *
 prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, const char *page_key)
 {
+  GtkWidget         *sw;
   GtkWidget         *frame;
 
+  sw = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_widget_show(sw);
+
   frame = gtk_frame_new(title);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sw), frame);
   gtk_widget_show(frame);
+
   if(page) {
     gtk_container_add(GTK_CONTAINER(frame), page);
     g_object_set_data(G_OBJECT(prefs_w), page_key, page);
   }
-  gtk_notebook_append_page (GTK_NOTEBOOK(notebook), frame, NULL);
 
-  return frame;
+  gtk_notebook_append_page (GTK_NOTEBOOK(notebook), sw, NULL);
+
+  return sw;
 }
 
 
@@ -453,6 +461,7 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   copy_prefs(&saved_prefs, &prefs);
 
   prefs_w = dlg_conf_window_new("Wireshark: Preferences");
+  gtk_window_set_default_size(GTK_WINDOW(prefs_w), 400, 650);
 
   /*
    * Unfortunately, we can't arrange that a GtkTable widget wrap an event box
