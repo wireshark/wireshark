@@ -1414,8 +1414,10 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             break;
     }
 
-    /* Set length of IR header */
-    proto_item_set_len(ir_item, offset-ir_item_start);
+    if (offset != -1) {
+        /* Set length of IR header */
+        proto_item_set_len(ir_item, offset-ir_item_start);
+    }
 
     return offset;
 }
@@ -1737,7 +1739,7 @@ start_over:
         col_append_str(pinfo->cinfo, COL_INFO, "IR packet");
         offset = dissect_rohc_ir_packet(tvb, rohc_tree, pinfo, offset, cid, is_add_cid, p_rohc_info);
         if(offset == -1){
-            /* Could not pare header */
+            /* Could not parse header */
             return;
         }
         /*proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");*/
