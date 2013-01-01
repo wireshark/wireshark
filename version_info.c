@@ -343,6 +343,9 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 			case 1:
 				g_string_append_printf(str, is_nt_workstation ? "Windows 7" : "Windows Server 2008 R2");
 				break;
+			case 2:
+				g_string_append_printf(str, is_nt_workstation ? "Windows 8" : "Windows Server 2012");
+				break;
 			default:
 				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
 						       info.dwMajorVersion, info.dwMinorVersion);
@@ -581,7 +584,7 @@ const char *
 get_copyright_info(void)
 {
 	return
-"Copyright 1998-2012 Gerald Combs <gerald@wireshark.org> and contributors.\n"
+"Copyright 1998-2013 Gerald Combs <gerald@wireshark.org> and contributors.\n"
 "This is free software; see the source for copying conditions. There is NO\n"
 "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n";
 }
