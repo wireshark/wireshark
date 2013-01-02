@@ -179,8 +179,8 @@ struct option {
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
 /* Write libcap to file.  write_data_info will be a FILE* */
-gboolean libpcap_write_to_file(void* write_data_info, 
-                                      const guint8* data, 
+gboolean libpcap_write_to_file(void* write_data_info,
+                                      const guint8* data,
                                       long data_length,
                                       guint64 *bytes_written,
                                       int *err)
@@ -305,7 +305,7 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                     return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)comment, strlen(comment), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
                     return FALSE;
 
                 if (strlen(comment) % 4) {
@@ -321,7 +321,7 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                     return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)hw, strlen(hw), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)hw, (int) strlen(hw), bytes_written, err))
                     return FALSE;
 
                 if ((strlen(hw) + 1) % 4) {
@@ -337,7 +337,7 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                     return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)os, strlen(os), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)os, (int) strlen(os), bytes_written, err))
                     return FALSE;
 
                 if (strlen(os) % 4) {
@@ -353,7 +353,7 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                     return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)appname, strlen(appname), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)appname, (int) strlen(appname), bytes_written, err))
                     return FALSE;
 
                 if (strlen(appname) % 4) {
@@ -465,7 +465,7 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                     return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)comment, strlen(comment), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
                     return FALSE;
 
                 if (strlen(comment) % 4) {
@@ -482,7 +482,7 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                     return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)name, strlen(name), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)name, (int) strlen(name), bytes_written, err))
                     return FALSE;
 
                 if (strlen(name) % 4) {
@@ -500,7 +500,7 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                     return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)descr, strlen(descr), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)descr, (int) strlen(descr), bytes_written, err))
                     return FALSE;
 
                 if (strlen(descr) % 4) {
@@ -548,7 +548,7 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 /* The first byte of the Option Data keeps a code of the filter used, 0 = lipbpcap filter string */
                 if (!write_func(write_data_info, (const guint8*)&padding, 1, bytes_written, err))
                     return FALSE;
-                if (!write_func(write_data_info, (const guint8*)filter, strlen(filter), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)filter, (int) strlen(filter), bytes_written, err))
                     return FALSE;
                 if ((strlen(filter) + 1) % 4) {
                     if (!write_func(write_data_info, (const guint8*)&padding, 4 - (strlen(filter) + 1) % 4, bytes_written, err))
@@ -562,7 +562,7 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.value_length = (guint16)strlen(os);
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                     return FALSE;
-                if (!write_func(write_data_info, (const guint8*)os, strlen(os), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)os, (int) strlen(os), bytes_written, err))
                     return FALSE;
                 if (strlen(os) % 4) {
                     if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(os) % 4, bytes_written, err))
@@ -643,7 +643,7 @@ libpcap_write_enhanced_packet_block(libpcap_write_t write_func, void* write_data
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                     return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)comment, strlen(comment), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
                     return FALSE;
 
                 if (strlen(comment) % 4) {
@@ -775,7 +775,7 @@ libpcap_write_interface_statistics_block(libpcap_write_t write_func, void* write
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                     return FALSE;
 
-                if (!write_func(write_data_info, (const guint8*)comment, strlen(comment), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
                     return FALSE;
 
                 if (strlen(comment) % 4) {
