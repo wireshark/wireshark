@@ -50,8 +50,7 @@ bin_PROGRAMS = \
 	@rawshark_bin@
 
 EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
-	randpkt text2pcap dumpcap reordercap rawshark \
-	wireshark_c wireshark_cxx
+	randpkt text2pcap dumpcap reordercap rawshark
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -370,22 +369,13 @@ wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 # Ideally we could trigger automatic c++ linking here with
 #   nodist_EXTRA_wireshark_SOURCES = dummy.cpp
 # Unfortunately that check is done by automake and not configure.
-# We do the following to try to avoid c++ linking for Wireshark at
+# We do the following to try to avoid using c++ to link Wireshark at
 # all times.
-nodist_EXTRA_wireshark_c_SOURCES = dummy.c
-wireshark_c_SOURCES = 
-wireshark_c_CFLAGS = $(wireshark_CFLAGS)
-wireshark_c_LDFLAGS = $(wireshark_LDFLAGS)
-
-nodist_EXTRA_wireshark_cxx_SOURCES = dummy.cpp
-wireshark_cxx_SOURCES = 
-wireshark_cxx_CFLAGS = $(wireshark_CFLAGS)
-wireshark_cxx_LDFLAGS = $(wireshark_LDFLAGS)
 
 if HAVE_WIRESHARK_CXX
-wireshark_LINK = $(wireshark_cxx_LINK)
+wireshark_LINK = $(CXXLINK)
 else
-wireshark_LINK = $(wireshark_c_LINK)
+wireshark_LINK = $(LINK)
 endif
 
 if ENABLE_STATIC
