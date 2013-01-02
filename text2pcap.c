@@ -1671,9 +1671,10 @@ main(int argc, char *argv[])
     if (debug)
         fprintf(stderr, "\n-------------------------\n");
     if (!quiet) {
-    fprintf(stderr, "Read %u potential packet%s, wrote %u packet%s\n",
+    fprintf(stderr, "Read %u potential packet%s, wrote %u packet%s (%" G_GINT64_MODIFIER "u byte%s).\n",
             num_packets_read, (num_packets_read == 1) ? "" : "s",
-            num_packets_written, (num_packets_written == 1) ? "" : "s");
+            num_packets_written, (num_packets_written == 1) ? "" : "s",
+            bytes_written, (bytes_written == 1) ? "" : "s");
     }
     return 0;
 }
