@@ -180,26 +180,26 @@ struct option {
 
 /* Write libcap to file.  write_data_info will be a FILE* */
 gboolean libpcap_write_to_file(void* write_data_info,
-                                      const guint8* data,
-                                      long data_length,
-                                      guint64 *bytes_written,
-                                      int *err)
+                               const guint8* data,
+                               long data_length,
+                               guint64 *bytes_written,
+                               int *err)
 {
-    size_t nwritten;
-    FILE* pFile = (FILE*)write_data_info;
+        size_t nwritten;
+        FILE* pFile = (FILE*)write_data_info;
 
-    nwritten = fwrite(data, data_length, 1, pFile);
-    if (nwritten != 1) {
-            if (ferror(pFile)) {
-                    *err = errno;
-            } else {
-                    *err = 0;
-            }
-            return FALSE;
-    }
+        nwritten = fwrite(data, data_length, 1, pFile);
+        if (nwritten != 1) {
+                if (ferror(pFile)) {
+                        *err = errno;
+                } else {
+                        *err = 0;
+                }
+                return FALSE;
+        }
 
-    (*bytes_written) += (long)nwritten;
-    return TRUE;
+        (*bytes_written) += (long)nwritten;
+        return TRUE;
 }
 
 /* Write the file header to a dump file.
