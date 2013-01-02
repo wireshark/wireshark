@@ -2336,7 +2336,7 @@ rtp_player_dlg_create(void)
 	gtk_widget_set_size_request(main_scrolled_window, CHANNEL_WIDTH, 0);
 
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (main_scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-	gtk_container_add(GTK_CONTAINER(main_vb), main_scrolled_window);
+        gtk_box_pack_start(GTK_BOX(main_vb), main_scrolled_window, TRUE, TRUE, 0);
 
 	channels_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_set_border_width (GTK_CONTAINER (channels_vb), 2);
