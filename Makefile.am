@@ -50,7 +50,7 @@ bin_PROGRAMS = \
 	@rawshark_bin@
 
 EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
-	randpkt text2pcap dumpcap reordercap rawshark
+	randpkt text2pcap dumpcap reordercap rawshark wireshark_cxx
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -371,6 +371,8 @@ wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 # Unfortunately that check is done by automake and not configure.
 # We do the following to try to avoid using c++ to link Wireshark at
 # all times.
+nodist_EXTRA_wireshark_cxx_SOURCES = dummy.cpp 	 
+wireshark_cxx_SOURCES =
 
 if HAVE_WIRESHARK_CXX
 wireshark_LINK = $(CXXLINK)
