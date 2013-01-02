@@ -198,7 +198,7 @@ gboolean libpcap_write_to_file(void* write_data_info,
                 return FALSE;
         }
 
-        (*bytes_written) += (long)nwritten;
+        (*bytes_written) += data_length;
         return TRUE;
 }
 
