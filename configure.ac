@@ -1007,9 +1007,8 @@ if test "$have_gtk" = "no" ; then
 		# wouldn't think we had it, and thus wouldn't be here).
 		#
 		wireshark_bin="wireshark\$(EXEEXT)"
-		wireshark_ui_lib="ui/qt/libqtui.a"
 	        # Give automake a hint that it needs to use c++ linking.
-                have_wireshark_cxx="true"
+                have_wireshark_cxx="yes"
 		wireshark_man="wireshark.1"
 	        wireshark_SUBDIRS="codecs ui/qt"
 	else
@@ -1031,7 +1030,6 @@ if test "$have_gtk" = "no" ; then
 			fi
 		fi
 		wireshark_bin=""
-		wireshark_ui_lib=""
 		wireshark_man=""
 	fi
 	# Use GLIB_CFLAGS
@@ -1047,7 +1045,6 @@ else
 	# GTK+, so we wouldn't think we had it, and thus wouldn't be here).
 	#
 	wireshark_bin="wireshark\$(EXEEXT)"
-	wireshark_ui_lib="ui/gtk/libgtkui.a"
 	wireshark_man="wireshark.1"
 	wireshark_SUBDIRS="codecs ui/gtk"
 	# Don't use GLIB_CFLAGS
@@ -1179,9 +1176,9 @@ then
 fi
 
 AC_SUBST(wireshark_bin)
-AC_SUBST(wireshark_ui_lib)
 AC_SUBST(wireshark_man)
-AM_CONDITIONAL(HAVE_WIRESHARK_CXX, test "$have_wireshark_cxx" = "true")
+AM_CONDITIONAL(HAVE_Qt, test "$have_qt" = "yes")
+AM_CONDITIONAL(HAVE_WIRESHARK_CXX, test "$have_wireshark_cxx" = "yes")
 
 
 # Enable/disable tshark

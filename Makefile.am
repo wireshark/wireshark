@@ -337,8 +337,14 @@ endif
 # although it's also possible that -lgmodule is in GTK_LIBS but not
 # GLIB_LIBS (that's the case on my machine right now, for example).
 #
+if HAVE_Qt
+wireshark_ui_ldadd = ui/qt/libqtui.a
+else
+wireshark_ui_ldadd = ui/gtk/libgtkui.a
+endif
+
 wireshark_LDADD = \
-	@wireshark_ui_lib@		\
+	$(wireshark_ui_ldadd)		\
 	ui/libui.a			\
 	ui/libui_dirty.a		\
 	codecs/libcodec.a		\
