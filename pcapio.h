@@ -25,16 +25,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+typedef gboolean (*libpcap_write_t) (void* write_data_info, const guint8* data,  long data_length,
+                                     guint64 *bytes_written, int *err);
+
+/* Write libcap to file.  write_data_info will be a FILE* */
+extern gboolean libpcap_write_to_file(void* write_data_info, 
+                                      const guint8* data, 
+                                      long data_length,
+                                      guint64 *bytes_written,
+                                      int *err);
+
+
 /** Write the file header to a dump file.
    Returns TRUE on success, FALSE on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
 extern gboolean
-libpcap_write_file_header(FILE *fp, int linktype, int snaplen, gboolean ts_nsecs, guint64 *bytes_written, int *err);
+libpcap_write_file_header(libpcap_write_t write_func, void* write_data_info, int linktype, int snaplen, 
+                          gboolean ts_nsecs, guint64 *bytes_written, int *err);
 
 /** Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 extern gboolean
-libpcap_write_packet(FILE *fp,
+libpcap_write_packet(libpcap_write_t write_func, void* write_data_info, 
                      time_t sec, guint32 usec,
                      guint32 caplen, guint32 len,
                      const guint8 *pd,
@@ -44,7 +56,7 @@ libpcap_write_packet(FILE *fp,
  *
  */
 extern gboolean
-libpcap_write_session_header_block(FILE *fp,             /**< File pointer */
+libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_info,  /**< Write information */
                                    const char *comment,  /**< Comment on the section, Optinon 1 opt_comment
                                                           * A UTF-8 string containing a comment that is associated to the current block.
                                                           */
@@ -62,7 +74,7 @@ libpcap_write_session_header_block(FILE *fp,             /**< File pointer */
                                    int *err);
 
 extern gboolean
-libpcap_write_interface_description_block(FILE *fp,
+libpcap_write_interface_description_block(libpcap_write_t write_func, void* write_data_info,
                                           const char *comment,  /* OPT_COMMENT           1 */
                                           const char *name,     /* IDB_NAME              2 */
                                           const char *descr,    /* IDB_DESCRIPTION       3 */
@@ -76,7 +88,7 @@ libpcap_write_interface_description_block(FILE *fp,
                                           int *err);
 
 extern gboolean
-libpcap_write_interface_statistics_block(FILE *fp,
+libpcap_write_interface_statistics_block(libpcap_write_t write_func, void* write_data_info,
                                          guint32 interface_id,
                                          guint64 *bytes_written,
                                          const char *comment,   /* OPT_COMMENT           1 */
@@ -87,7 +99,7 @@ libpcap_write_interface_statistics_block(FILE *fp,
                                          int *err);
 
 extern gboolean
-libpcap_write_enhanced_packet_block(FILE *fp,
+libpcap_write_enhanced_packet_block(libpcap_write_t write_func, void* write_data_info,
                                     const char *comment,
                                     time_t sec, guint32 usec,
                                     guint32 caplen, guint32 len,

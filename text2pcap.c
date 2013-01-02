@@ -742,17 +742,17 @@ write_current_packet(gboolean cont)
             length = 60;
         }
         if (use_pcapng) {
-            success = libpcap_write_enhanced_packet_block(output_file,
+            success = libpcap_write_enhanced_packet_block(libpcap_write_to_file, output_file,
                                                           NULL,
-                                                          (guint32)ts_sec, ts_usec,
+                                                          ts_sec, ts_usec,
                                                           length, length,
                                                           0,
                                                           1000000,
                                                           packet_buf, direction,
                                                           &bytes_written, &err);
         } else {
-            success = libpcap_write_packet(output_file,
-                                           (guint32)ts_sec, ts_usec,
+            success = libpcap_write_packet(libpcap_write_to_file, output_file,
+                                           ts_sec, ts_usec,
                                            length, length,
                                            packet_buf,
                                            &bytes_written, &err);
@@ -795,7 +795,7 @@ write_file_header (void)
         char comment[100];
 
         g_snprintf(comment, sizeof(comment), "Generated from input file %s.", input_filename);
-        success = libpcap_write_session_header_block(output_file,
+        success = libpcap_write_session_header_block(libpcap_write_to_file, output_file,
                                                      comment,
                                                      NULL,
                                                      NULL,
@@ -804,7 +804,7 @@ write_file_header (void)
                                                      &bytes_written,
                                                      &err);
         if (success) {
-            success = libpcap_write_interface_description_block(output_file,
+            success = libpcap_write_interface_description_block(libpcap_write_to_file, output_file,
                                                                 NULL,
                                                                 NULL,
                                                                 NULL,
@@ -818,7 +818,7 @@ write_file_header (void)
                                                                 &err);
         }
     } else {
-        success = libpcap_write_file_header(output_file, pcap_link_type, 102400,
+        success = libpcap_write_file_header(libpcap_write_to_file, output_file, pcap_link_type, 102400,
                                             FALSE, &bytes_written, &err);
     }
     if (!success) {
@@ -835,7 +835,7 @@ write_file_trailer (void)
     gboolean success;
 
     if (use_pcapng) {
-        success = libpcap_write_interface_statistics_block(output_file,
+        success = libpcap_write_interface_statistics_block(libpcap_write_to_file, output_file,
                                                            0,
                                                            &bytes_written,
                                                            "Counters provided by text2pcap",

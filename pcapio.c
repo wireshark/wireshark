@@ -178,32 +178,37 @@ struct option {
 #define ISB_USRDELIV      8
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
-#define WRITE_DATA(file_pointer, data_pointer, data_length, written_length, error_pointer) \
-{                                                                                          \
-        do {                                                                               \
-                size_t nwritten;                                                           \
-                                                                                           \
-                nwritten = fwrite(data_pointer, data_length, 1, file_pointer);             \
-                if (nwritten != 1) {                                                       \
-                        if (ferror(file_pointer)) {                                        \
-                                *error_pointer = errno;                                    \
-                        } else {                                                           \
-                                *error_pointer = 0;                                        \
-                        }                                                                  \
-                        return FALSE;                                                      \
-                }                                                                          \
-                written_length += nwritten;                                          \
-        } while (0);                                                                       \
+/* Write libcap to file.  write_data_info will be a FILE* */
+gboolean libpcap_write_to_file(void* write_data_info, 
+                                      const guint8* data, 
+                                      long data_length,
+                                      guint64 *bytes_written,
+                                      int *err)
+{
+    size_t nwritten;
+    FILE* pFile = (FILE*)write_data_info;
+
+    nwritten = fwrite(data, data_length, 1, pFile);
+    if (nwritten != 1) {
+            if (ferror(pFile)) {
+                    *err = errno;
+            } else {
+                    *err = 0;
+            }
+            return FALSE;
+    }
+
+    (*bytes_written) += (long)nwritten;
+    return TRUE;
 }
 
 /* Write the file header to a dump file.
    Returns TRUE on success, FALSE on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
 gboolean
-libpcap_write_file_header(FILE *fp, int linktype, int snaplen, gboolean ts_nsecs, guint64 *bytes_written, int *err)
+libpcap_write_file_header(libpcap_write_t write_func, void* write_data_info, int linktype, int snaplen, gboolean ts_nsecs, guint64 *bytes_written, int *err)
 {
         struct pcap_hdr file_hdr;
-        size_t nwritten;
 
         file_hdr.magic = ts_nsecs ? PCAP_NSEC_MAGIC : PCAP_MAGIC;
         /* current "libpcap" format is 2.4 */
@@ -213,59 +218,33 @@ libpcap_write_file_header(FILE *fp, int linktype, int snaplen, gboolean ts_nsecs
         file_hdr.sigfigs = 0;   /* unknown, but also apparently unused */
         file_hdr.snaplen = snaplen;
         file_hdr.network = linktype;
-        nwritten = fwrite(&file_hdr, sizeof(file_hdr), 1, fp);
-        if (nwritten != 1) {
-                if (ferror(fp))
-                        *err = errno;
-                else
-                        *err = 0;       /* short write */
-                return FALSE;
-        }
-        *bytes_written += sizeof(file_hdr);
 
-        return TRUE;
+        return write_func(write_data_info, (const guint8*)&file_hdr, sizeof(file_hdr), bytes_written, err);
 }
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 gboolean
-libpcap_write_packet(FILE *fp,
+libpcap_write_packet(libpcap_write_t write_func, void* write_data_info,
                      time_t sec, guint32 usec,
                      guint32 caplen, guint32 len,
                      const guint8 *pd,
                      guint64 *bytes_written, int *err)
 {
         struct pcaprec_hdr rec_hdr;
-        size_t nwritten;
 
         rec_hdr.ts_sec = (guint32)sec; /* Y2.038K issue in pcap format.... */
         rec_hdr.ts_usec = usec;
         rec_hdr.incl_len = caplen;
         rec_hdr.orig_len = len;
-        nwritten = fwrite(&rec_hdr, sizeof(rec_hdr), 1, fp);
-        if (nwritten != 1) {
-                if (ferror(fp))
-                        *err = errno;
-                else
-                        *err = 0;       /* short write */
-                return FALSE;
-        }
-        *bytes_written += sizeof rec_hdr;
+        if (!write_func(write_data_info, (const guint8*)&rec_hdr, sizeof(rec_hdr), bytes_written, err))
+            return FALSE;
 
-        nwritten = fwrite(pd, caplen, 1, fp);
-        if (nwritten != 1) {
-                if (ferror(fp))
-                        *err = errno;
-                else
-                        *err = 0;       /* short write */
-                return FALSE;
-        }
-        *bytes_written += caplen;
-        return TRUE;
+        return write_func(write_data_info, pd, caplen, bytes_written, err);
 }
 
 gboolean
-libpcap_write_session_header_block(FILE *fp,
+libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_info,
                                    const char *comment,
                                    const char *hw,
                                    const char *os,
@@ -314,62 +293,88 @@ libpcap_write_session_header_block(FILE *fp,
         shb.major_version = PCAPNG_MAJOR_VERSION;
         shb.minor_version = PCAPNG_MINOR_VERSION;
         shb.section_length = section_length;
-        WRITE_DATA(fp, &shb, sizeof(struct shb), *bytes_written, err);
+
+        if (!write_func(write_data_info, (const guint8*)&shb, sizeof(struct shb), bytes_written, err))
+            return FALSE;
 
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 /* write opt_comment options */
                 option.type = OPT_COMMENT;
                 option.value_length = (guint16)strlen(comment);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, comment, strlen(comment), *bytes_written, err);
+
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)comment, strlen(comment), bytes_written, err))
+                    return FALSE;
+
                 if (strlen(comment) % 4) {
-                        WRITE_DATA(fp, &padding, 4 - strlen(comment) % 4, *bytes_written, err);
+                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
+                        return FALSE;
                 }
         }
         if ((hw != NULL) && (strlen(hw) > 0) && (strlen(hw) < G_MAXUINT16)) {
                 /* write shb_hardware options */
                 option.type = SHB_HARDWARE;
                 option.value_length = (guint16)strlen(hw);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, hw, strlen(hw), *bytes_written, err);
+
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)hw, strlen(hw), bytes_written, err))
+                    return FALSE;
+
                 if ((strlen(hw) + 1) % 4) {
-                        WRITE_DATA(fp, &padding, 4 - strlen(hw) % 4, *bytes_written, err);
+                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(hw) % 4, bytes_written, err))
+                        return FALSE;
                 }
         }
         if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
                 /* write shb_os options */
                 option.type = SHB_OS;
                 option.value_length = (guint16)strlen(os);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, os, strlen(os), *bytes_written, err);
+
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)os, strlen(os), bytes_written, err))
+                    return FALSE;
+
                 if (strlen(os) % 4) {
-                        WRITE_DATA(fp, &padding, 4 - strlen(os) % 4, *bytes_written, err);
+                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(os) % 4, bytes_written, err))
+                        return FALSE;
                 }
         }
         if ((appname != NULL) && (strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
                 /* write shb_userappl options */
                 option.type = SHB_USERAPPL;
                 option.value_length = (guint16)strlen(appname);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, appname, strlen(appname), *bytes_written, err);
+
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)appname, strlen(appname), bytes_written, err))
+                    return FALSE;
+
                 if (strlen(appname) % 4) {
-                        WRITE_DATA(fp, &padding, 4 - strlen(appname) % 4, *bytes_written, err);
+                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(appname) % 4, bytes_written, err))
+                        return FALSE;
                 }
         }
         if (have_options) {
                 /* write end of options */
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
         }
 
         /* write the trailing block total length */
-        WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
-        return TRUE;
+        return write_func(write_data_info, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
 }
 
 gboolean
-libpcap_write_interface_description_block(FILE *fp,
+libpcap_write_interface_description_block(libpcap_write_t write_func, void* write_data_info,
                                           const char *comment, /* OPT_COMMENT        1 */
                                           const char *name,    /* IDB_NAME           2 */
                                           const char *descr,   /* IDB_DESCRIPTION    3 */
@@ -449,16 +454,23 @@ libpcap_write_interface_description_block(FILE *fp,
         idb.link_type = link_type;
         idb.reserved = 0;
         idb.snap_len = snap_len;
-        WRITE_DATA(fp, &idb, sizeof(struct idb), *bytes_written, err);
+        if (!write_func(write_data_info, (const guint8*)&idb, sizeof(struct idb), bytes_written, err))
+            return FALSE;
 
         /* 01 - OPT_COMMENT - write comment string if applicable */
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 option.type = OPT_COMMENT;
                 option.value_length = (guint16)strlen(comment);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, comment, strlen(comment), *bytes_written, err);
+
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)comment, strlen(comment), bytes_written, err))
+                    return FALSE;
+
                 if (strlen(comment) % 4) {
-                        WRITE_DATA(fp, &padding, 4 - strlen(comment) % 4 , *bytes_written, err);
+                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
+                        return FALSE;
                 }
         }
 
@@ -466,10 +478,16 @@ libpcap_write_interface_description_block(FILE *fp,
         if ((name != NULL) && (strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
                 option.type = IDB_NAME;
                 option.value_length = (guint16)strlen(name);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, name, strlen(name), *bytes_written, err);
+
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)name, strlen(name), bytes_written, err))
+                    return FALSE;
+
                 if (strlen(name) % 4) {
-                        WRITE_DATA(fp, &padding, 4 - strlen(name) % 4 , *bytes_written, err);
+                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(name) % 4, bytes_written, err))
+                        return FALSE;
                 }
         }
 
@@ -478,10 +496,16 @@ libpcap_write_interface_description_block(FILE *fp,
         if ((descr != NULL) && (strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
                 option.type = IDB_DESCRIPTION;
                 option.value_length = (guint16)strlen(descr);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, descr, strlen(descr), *bytes_written, err);
+
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)descr, strlen(descr), bytes_written, err))
+                    return FALSE;
+
                 if (strlen(descr) % 4) {
-                        WRITE_DATA(fp, &padding, 4 - strlen(descr) % 4 , *bytes_written, err);
+                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(descr) % 4, bytes_written, err))
+                        return FALSE;
                 }
         }
 
@@ -489,17 +513,27 @@ libpcap_write_interface_description_block(FILE *fp,
         if (if_speed != 0) {
                 option.type = IDB_IF_SPEED;
                 option.value_length = sizeof(guint64);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, &if_speed, sizeof(guint64), *bytes_written, err);
+
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)&if_speed, sizeof(guint64), bytes_written, err))
+                    return FALSE;
         }
 
         /* 09 - IDB_TSRESOL */
         if (tsresol != 0) {
                 option.type = IDB_TSRESOL;
                 option.value_length = sizeof(guint8);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, &tsresol, sizeof(guint8), *bytes_written, err);
-                WRITE_DATA(fp, &padding, 3 , *bytes_written, err);
+
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)&tsresol, sizeof(guint8), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)&padding, 3, bytes_written, err))
+                    return FALSE;
         }
 
         /* 11 - IDB_FILTER - write filter string if applicable
@@ -508,13 +542,17 @@ libpcap_write_interface_description_block(FILE *fp,
         if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
                 option.type = IDB_FILTER;
                 option.value_length = (guint16)(strlen(filter) + 1 );
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
 
                 /* The first byte of the Option Data keeps a code of the filter used, 0 = lipbpcap filter string */
-                WRITE_DATA(fp, &padding, 1, *bytes_written, err);
-                WRITE_DATA(fp, filter, strlen(filter), *bytes_written, err);
+                if (!write_func(write_data_info, (const guint8*)&padding, 1, bytes_written, err))
+                    return FALSE;
+                if (!write_func(write_data_info, (const guint8*)filter, strlen(filter), bytes_written, err))
+                    return FALSE;
                 if ((strlen(filter) + 1) % 4) {
-                        WRITE_DATA(fp, &padding, 4 - (strlen(filter) + 1) % 4 , *bytes_written, err);
+                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - (strlen(filter) + 1) % 4, bytes_written, err))
+                        return FALSE;
                 }
         }
 
@@ -522,10 +560,13 @@ libpcap_write_interface_description_block(FILE *fp,
         if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
                 option.type = IDB_OS;
                 option.value_length = (guint16)strlen(os);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, os, strlen(os), *bytes_written, err);
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+                if (!write_func(write_data_info, (const guint8*)os, strlen(os), bytes_written, err))
+                    return FALSE;
                 if (strlen(os) % 4) {
-                        WRITE_DATA(fp, &padding, 4 - strlen(os) % 4 , *bytes_written, err);
+                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(os) % 4, bytes_written, err))
+                        return FALSE;
                 }
         }
 
@@ -533,18 +574,18 @@ libpcap_write_interface_description_block(FILE *fp,
                 /* write end of options */
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
         }
 
         /* write the trailing Block Total Length */
-        WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
-        return TRUE;
+        return write_func(write_data_info, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
 }
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 gboolean
-libpcap_write_enhanced_packet_block(FILE *fp,
+libpcap_write_enhanced_packet_block(libpcap_write_t write_func, void* write_data_info,
                                     const char *comment,
                                     time_t sec, guint32 usec,
                                     guint32 caplen, guint32 len,
@@ -587,38 +628,47 @@ libpcap_write_enhanced_packet_block(FILE *fp,
         epb.timestamp_low = (guint32)(timestamp & 0xffffffff);
         epb.captured_len = caplen;
         epb.packet_len = len;
-        WRITE_DATA(fp, &epb, sizeof(struct epb), *bytes_written, err);
-        WRITE_DATA(fp, pd, caplen, *bytes_written, err);
+        if (!write_func(write_data_info, (const guint8*)&epb, sizeof(struct epb), bytes_written, err))
+            return FALSE;
+        if (!write_func(write_data_info, pd, caplen, bytes_written, err))
+            return FALSE;
         if (caplen % 4) {
-                WRITE_DATA(fp, &padding, 4 - caplen % 4, *bytes_written, err);
+            if (!write_func(write_data_info, (const guint8*)&padding, 4 - caplen % 4, bytes_written, err))
+                return FALSE;
         }
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 option.type = OPT_COMMENT;
                 option.value_length = (guint16)strlen(comment);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, comment, strlen(comment), *bytes_written, err);
+
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)comment, strlen(comment), bytes_written, err))
+                    return FALSE;
+
                 if (strlen(comment) % 4) {
-                        WRITE_DATA(fp, &padding, 4 - strlen(comment) % 4 , *bytes_written, err);
+                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
+                        return FALSE;
                 }
         }
         if (flags != 0) {
                 option.type = EPB_FLAGS;
                 option.value_length = sizeof(guint32);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, &flags, sizeof(guint32), *bytes_written, err);
-        }
-        if (have_options) {
+                if (!write_func(write_data_info, (const guint8*)&epb, sizeof(struct epb), bytes_written, err))
+                    return FALSE;
+                if (!write_func(write_data_info, (const guint8*)&flags, sizeof(guint32), bytes_written, err))
+                    return FALSE;
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-        }
-        /* write the trailing Block Total Length */
-        WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
-        return TRUE;
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+       }
+
+       return write_func(write_data_info, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
 }
 
 gboolean
-libpcap_write_interface_statistics_block(FILE *fp,
+libpcap_write_interface_statistics_block(libpcap_write_t write_func, void* write_data_info,
                                          guint32 interface_id,
                                          guint64 *bytes_written,
                                          const char *comment,   /* OPT_COMMENT           1 */
@@ -715,16 +765,22 @@ libpcap_write_interface_statistics_block(FILE *fp,
         isb.interface_id = interface_id;
         isb.timestamp_high = (guint32)((timestamp>>32) & 0xffffffff);
         isb.timestamp_low = (guint32)(timestamp & 0xffffffff);
-        WRITE_DATA(fp, &isb, sizeof(struct isb), *bytes_written, err);
+        if (!write_func(write_data_info, (const guint8*)&isb, sizeof(struct isb), bytes_written, err))
+            return FALSE;
 
         /* write comment string if applicable */
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 option.type = OPT_COMMENT;
                 option.value_length = (guint16)strlen(comment);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, comment, strlen(comment), *bytes_written, err);
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)comment, strlen(comment), bytes_written, err))
+                    return FALSE;
+
                 if (strlen(comment) % 4) {
-                        WRITE_DATA(fp, &padding, 4 - strlen(comment) % 4 , *bytes_written, err);
+                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
+                        return FALSE;
                 }
         }
 
@@ -735,9 +791,14 @@ libpcap_write_interface_statistics_block(FILE *fp,
                 option.value_length = sizeof(guint64);
                 high = (guint32)((isb_starttime>>32) & 0xffffffff);
                 low = (guint32)(isb_starttime & 0xffffffff);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, &high, sizeof(guint32), *bytes_written, err);
-                WRITE_DATA(fp, &low, sizeof(guint32), *bytes_written, err);
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)&high, sizeof(guint32), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)&low, sizeof(guint32), bytes_written, err))
+                    return FALSE;
         }
         if (isb_endtime !=0) {
                 guint32 high, low;
@@ -746,32 +807,42 @@ libpcap_write_interface_statistics_block(FILE *fp,
                 option.value_length = sizeof(guint64);
                 high = (guint32)((isb_endtime>>32) & 0xffffffff);
                 low = (guint32)(isb_endtime & 0xffffffff);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, &high, sizeof(guint32), *bytes_written, err);
-                WRITE_DATA(fp, &low, sizeof(guint32), *bytes_written, err);
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)&high, sizeof(guint32), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)&low, sizeof(guint32), bytes_written, err))
+                    return FALSE;
         }
         if (isb_ifrecv != G_MAXUINT64) {
                 option.type = ISB_IFRECV;
                 option.value_length = sizeof(guint64);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, &isb_ifrecv, sizeof(guint64), *bytes_written, err);
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)&isb_ifrecv, sizeof(guint64), bytes_written, err))
+                    return FALSE;
         }
         if (isb_ifdrop != G_MAXUINT64) {
                 option.type = ISB_IFDROP;
                 option.value_length = sizeof(guint64);
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, &isb_ifdrop, sizeof(guint64), *bytes_written, err);
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
+
+                if (!write_func(write_data_info, (const guint8*)&isb_ifdrop, sizeof(guint64), bytes_written, err))
+                    return FALSE;
         }
         if (have_options) {
                 /* write end of options */
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
-                WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
+                    return FALSE;
         }
 
-        WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
-
-        return TRUE;
+        return write_func(write_data_info, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
 }
 
 /*
