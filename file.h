@@ -53,7 +53,7 @@ typedef enum {
 typedef enum {
     CF_WRITE_OK,      /**< operation succeeded */
     CF_WRITE_ERROR,   /**< operation got an error (function may provide err with details) */
-    CF_WRITE_ABORTED, /**< operation aborted by user */
+    CF_WRITE_ABORTED  /**< operation aborted by user */
 } cf_write_status_t;
 
 /** Return values from functions that print sets of packets. */
