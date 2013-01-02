@@ -654,7 +654,7 @@ libpcap_write_enhanced_packet_block(libpcap_write_t write_func, void* write_data
         if (flags != 0) {
                 option.type = EPB_FLAGS;
                 option.value_length = sizeof(guint32);
-                if (!write_func(write_data_info, (const guint8*)&epb, sizeof(struct epb), bytes_written, err))
+                if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
                     return FALSE;
                 if (!write_func(write_data_info, (const guint8*)&flags, sizeof(guint32), bytes_written, err))
                     return FALSE;
