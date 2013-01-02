@@ -122,71 +122,75 @@
 #define REQ_RES_SET             63
 #define VEND_SPECIFIC_TLV       100
 
+/*Bitmasks in 802.21 are encoded in Network-Byte-Order: bit0 is leftmost bit*/
+
 /*MASK for event list*/
-#define LINK_DETECT_MASK        0x01
-#define LINK_UP_MASK            0x02
-#define LINK_DOWN_MASK          0x04
-#define LINK_PARAM_MASK         0x08
-#define LINK_GD_MASK            0x10
-#define LINK_HO_IMM_MASK        0x20
-#define LINK_HO_COMP_MASK       0x40
-#define LINK_PDU_MASK           0x80
+#define LINK_DETECT_MASK        0x80000000
+#define LINK_UP_MASK            0x40000000
+#define LINK_DOWN_MASK          0x20000000
+#define LINK_PARAM_MASK         0x10000000
+#define LINK_GD_MASK            0x08000000
+#define LINK_HO_IMM_MASK        0x04000000
+#define LINK_HO_COMP_MASK       0x02000000
+#define LINK_PDU_MASK           0x01000000
 
 /*MASK for command list*/
-#define CMD_EVT_SUBS_MASK       0x01
-#define CMD_EVT_UNSUBS_MASK     0x02
-#define CMD_GET_PARA_MASK       0x04
-#define CMD_CONF_TH_MASK        0x08
-#define CMD_LINK_AC_MASK        0x10
+/*1st bit is reserved*/
+#define CMD_EVT_SUBS_MASK       0x40000000
+#define CMD_EVT_UNSUBS_MASK     0x20000000
+#define CMD_GET_PARA_MASK       0x10000000
+#define CMD_CONF_TH_MASK        0x08000000
+#define CMD_LINK_AC_MASK        0x04000000
 
 /*MASK for Info Query list*/
-#define IQ_BIN_DATA_MASK        0x01    
-#define IQ_RDF_DATA_MASK        0x02
-#define IQ_RDF_SCH_U_MASK       0x04
-#define IQ_RDF_SCH_MASK         0x08
-#define IQ_IE_NET_TYPE_MASK     0x10
-#define IQ_IE_OP_ID_MASK        0x20
-#define IQ_SERV_ID_MASK         0x40
-#define IQ_IE_COUN_MASK         0x80
-#define IQ_NET_ID_MASK          0x100
-#define IQ_NET_AUX_MASK         0x200
-#define IQ_IE_ROAM_MASK         0x400
-#define IQ_IE_COST_MASK         0x800
-#define IQ_IE_QOS_MASK          0x1000
-#define IQ_IE_DATA_MASK         0x2000
-#define IQ_IE_REGDOM_MASK       0x4000
-#define IQ_IE_FREQ_MASK         0x8000
-#define IQ_IE_IP_CFG_MASK       0x10000
-#define IQ_IE_CAP_MASK          0x20000
-#define IQ_IE_SUP_MASK          0x40000
-#define IQ_IE_MOB_MG_MASK       0x80000
-#define IQ_IE_EM_SERV_MASK      0x100000
-#define IQ_IE_IMS_MASK          0x200000
-#define IQ_IE_MOB_NET_MASK      0x400000
-#define IQ_IE_POA_ADDR_MASK     0x800000
-#define IQ_IE_POA_LOC_MASK      0x1000000
-#define IQ_IE_POA_CHAN_MASK     0x2000000
-#define IQ_IE_POA_SYS_MASK      0x4000000
-#define IQ_IE_POA_SUB_MASK      0x8000000
-#define IQ_IE_POA_IP_MASK       0x10000000
+#define IQ_BIN_DATA_MASK        0x80000000
+#define IQ_RDF_DATA_MASK        0x40000000
+#define IQ_RDF_SCH_U_MASK       0x20000000
+#define IQ_RDF_SCH_MASK         0x10000000
+#define IQ_IE_NET_TYPE_MASK     0x08000000
+#define IQ_IE_OP_ID_MASK        0x04000000
+#define IQ_SERV_ID_MASK         0x02000000
+#define IQ_IE_COUN_MASK         0x01000000
+#define IQ_NET_ID_MASK          0x00800000
+#define IQ_NET_AUX_MASK         0x00400000
+#define IQ_IE_ROAM_MASK         0x00200000
+#define IQ_IE_COST_MASK         0x00100000
+#define IQ_IE_QOS_MASK          0x00080000
+#define IQ_IE_DATA_MASK         0x00040000
+#define IQ_IE_REGDOM_MASK       0x00020000
+#define IQ_IE_FREQ_MASK         0x00010000
+#define IQ_IE_IP_CFG_MASK       0x00008000
+#define IQ_IE_CAP_MASK          0x00004000
+#define IQ_IE_SUP_MASK          0x00002000
+#define IQ_IE_MOB_MG_MASK       0x00001000
+#define IQ_IE_EM_SERV_MASK      0x00000800
+#define IQ_IE_IMS_MASK          0x00000400
+#define IQ_IE_MOB_NET_MASK      0x00000200
+#define IQ_IE_POA_ADDR_MASK     0x00000100
+#define IQ_IE_POA_LOC_MASK      0x00000080
+#define IQ_IE_POA_CHAN_MASK     0x00000040
+#define IQ_IE_POA_SYS_MASK      0x00000020
+#define IQ_IE_POA_SUB_MASK      0x00000010
+#define IQ_IE_POA_IP_MASK       0x00000008
 
 /*MASK for mobility Management methods*/
-#define MOB_MIP4_MASK           0x01
-#define MOB_MIP4_REG_MASK       0x02
-#define MOB_MIP6_MASK           0x04
-#define MOB_HMIP6_MASK          0x08
-#define MOB_LOW_LAT_MASK        0x10
-#define MOB_FMIP6_MASK          0x20
-#define MOB_IKE_MULTI_MASK      0x40
+#define MOB_MIP4_MASK           0x8000
+#define MOB_MIP4_REG_MASK       0x4000
+#define MOB_MIP6_MASK           0x2000
+#define MOB_HMIP6_MASK          0x1000
+#define MOB_LOW_LAT_MASK        0x0800
+#define MOB_FMIP6_MASK          0x0400
+#define MOB_IKE_MULTI_MASK      0x0200
 
 /*MASK for ip configuration methods*/
-#define IP_CFG_STAT_MASK        0x01    
-#define IP_CFG_DHCP4_MASK       0x02
-#define IP_CFG_MIP4_FA_MASK     0x04
-#define IP_CFG_MIP4_NFA_MASK    0x08
-#define IP_CFG_IP6_SL_MASK      0x800
-#define IP_CFG_DHCP6_MASK       0x1000
-#define IP_CFG_IP6_MAN_MASK     0x2000
+#define IP_CFG_STAT_MASK        0x80000000
+#define IP_CFG_DHCP4_MASK       0x40000000
+#define IP_CFG_MIP4_FA_MASK     0x20000000
+#define IP_CFG_MIP4_NFA_MASK    0x10000000
+/*bits 4-10 reserved for IPv4 address configuration*/
+#define IP_CFG_IP6_SL_MASK      0x00100000
+#define IP_CFG_DHCP6_MASK       0x00080000
+#define IP_CFG_IP6_MAN_MASK     0x00040000
 
 /*information holder integers...*/
 static int proto_mih = -1;
@@ -1093,9 +1097,9 @@ static gint16 dissect_net_type(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tre
                 /*LINK_SUBTYPE*/
                 switch (type)
                 {
-                        /* offset = 5 since proto_tree_add_bitmask only handles bitmasks of length 32
+                        /* last 32 bits are not read since proto_tree_add_bitmask only handles bitmasks of length 32
                          Even though the standard defines a bitmasks of length 64, there are no definitions in the standard that require more than 32 bits
-                         1 (identifier) + 4 (unused bits) = 5 (offset)*/
+                         1 (identifier) + 4(bitmask defined values) + 4 (unused bits) = 9 (final offset)*/
                         case 15 : /*subtype ethernet*/
                                 proto_tree_add_bitmask(tlv_tree, tvb, offset+1, hf_link_subtype_eth, ett_subtype_eth_bitmap, subtype_eth_fields, ENC_BIG_ENDIAN);
                                 break;
@@ -1117,8 +1121,10 @@ static gint16 dissect_net_type(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tre
                         default :
                                 proto_item_append_text(tlv_tree, "N/A");
                 }
+                /*4(bitmask defined values) + 4 (unused bits) = 8 bits*/
                 offset += 8;
         }
+        /*1 (identifier) = 1 bit*/
         offset += 1;
         if(!tvb_get_guint8(tvb, offset))
         {
@@ -1679,6 +1685,8 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                                                 
                 case MIH_IQ_TYPE_LIST :
                         /*MIH_IQ_TYPE_LIST*/
+                        /*last 32 bits are not read since proto_tree_add_bitmask only handles bitmasks of length 32
+                         Even though the standard defines a bitmasks of length 64, there are no definitions in the standard that require more than 32 bits*/
                         proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_iq_list, ett_iq_type_bitmap, iq_type_fields, ENC_BIG_ENDIAN);
                         break;
 
@@ -2476,7 +2484,7 @@ void proto_register_mih(void)
                         {
                                 "Ethernet - IEEE802.3 Subtype",
                                 "mih.link_subtype_eth",
-                                FT_UINT64,
+                                FT_UINT32,
                                 BASE_HEX,
                                 NULL,
                                 0x0,
@@ -2489,7 +2497,7 @@ void proto_register_mih(void)
                                 "Ethernet 10 Mb",
                                 "mih.link_subtype_eth.10mb",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0001,
                                 NULL, HFILL
@@ -2501,7 +2509,7 @@ void proto_register_mih(void)
                                 "Ethernet 100 Mb",
                                 "mih.link_subtype_eth.100mb",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0002,
                                 NULL, HFILL
@@ -2513,7 +2521,7 @@ void proto_register_mih(void)
                                 "Ethernet 1000 Mb",
                                 "mih.link_subtype_eth.1000mb",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0004,
                                 NULL, HFILL
@@ -2524,7 +2532,7 @@ void proto_register_mih(void)
                         {
                                 "Wireless Other Subtype",
                                 "mih.link_subtype_wireless_other",
-                                FT_UINT64,
+                                FT_UINT32,
                                 BASE_HEX,
                                 NULL,
                                 0x0,
@@ -2537,7 +2545,7 @@ void proto_register_mih(void)
                                 "DVB",
                                 "mih.link_subtype_wireless_other.dvb",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0001,
                                 NULL, HFILL
@@ -2549,7 +2557,7 @@ void proto_register_mih(void)
                                 "T-DVB",
                                 "mih.link_subtype_wireless_other.tdmb",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0002,
                                 NULL, HFILL
@@ -2561,7 +2569,7 @@ void proto_register_mih(void)
                                 "ATSC-M/H",
                                "mih.link_subtype_wireless_other.atsc",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0004,
                                 NULL, HFILL
@@ -2572,7 +2580,7 @@ void proto_register_mih(void)
                         {
                                 "Wireless - IEEE 802.11 Subtype",
                                 "mih.link_subtype_ieee80211",
-                                FT_UINT64,
+                                FT_UINT32,
                                 BASE_HEX,
                                 NULL,
                                 0x0,
@@ -2585,7 +2593,7 @@ void proto_register_mih(void)
                                 "2.4 GHz",
                                 "mih.link_subtype_ieee80211.2_4ghz",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0001,
                                 NULL, HFILL
@@ -2597,7 +2605,7 @@ void proto_register_mih(void)
                                 "5 GHz",
                                 "mih.link_subtype_ieee80211.5ghz",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0002,
                                 NULL, HFILL
@@ -2609,7 +2617,7 @@ void proto_register_mih(void)
                                 "4.9 GHz",
                                 "mih.link_subtype_ieee80211.4_9ghz",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0004,
                                 NULL, HFILL
@@ -2621,7 +2629,7 @@ void proto_register_mih(void)
                                 "3.65 GHz",
                                 "mih.link_subtype_ieee80211.3_65ghz",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0008,
                                 NULL, HFILL
@@ -2633,7 +2641,7 @@ void proto_register_mih(void)
                                 "316 THz",
                                "mih.link_subtype_ieee80211.316thz",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0010,
                                 NULL, HFILL
@@ -2644,7 +2652,7 @@ void proto_register_mih(void)
                         {
                                 "Wireless - UMTS Subtype",
                                 "mih.link_subtype_umts",
-                                FT_UINT64,
+                                FT_UINT32,
                                 BASE_HEX,
                                 NULL,
                                 0x0,
@@ -2657,7 +2665,7 @@ void proto_register_mih(void)
                                 "Rel-99",
                                 "mih.link_subtype_umts.rel99",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0001,
                                 NULL, HFILL
@@ -2669,7 +2677,7 @@ void proto_register_mih(void)
                                 "Rel-4",
                                 "mih.link_subtype_umts.rel4",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0002,
                                 NULL, HFILL
@@ -2681,7 +2689,7 @@ void proto_register_mih(void)
                                 "Rel-5 (w/HSDPA)",
                                 "mih.link_subtype_umts.rel5",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0004,
                                 NULL, HFILL
@@ -2693,7 +2701,7 @@ void proto_register_mih(void)
                                 "Rel-6 (w/ HSUPA)",
                                 "mih.link_subtype_umts.rel6",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0008,
                                 NULL, HFILL
@@ -2705,7 +2713,7 @@ void proto_register_mih(void)
                                 "Rel-7 (MIMO/OFDM)",
                                 "mih.link_subtype_umts.rel7",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0010,
                                 NULL, HFILL
@@ -2717,7 +2725,7 @@ void proto_register_mih(void)
                                 "Rel-8",
                                "mih.link_subtype_umts.rel8",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0020,
                                 NULL, HFILL
@@ -2728,7 +2736,7 @@ void proto_register_mih(void)
                         {
                                 "Wireless - cdma2000-HRPD",
                                 "mih.link_subtype_cdma2000",
-                                FT_UINT64,
+                                FT_UINT32,
                                 BASE_HEX,
                                 NULL,
                                 0x0,
@@ -2741,7 +2749,7 @@ void proto_register_mih(void)
                                 "Rev-0",
                                 "mih.link_subtype_cdma2000.rev0",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0001,
                                 NULL, HFILL
@@ -2753,7 +2761,7 @@ void proto_register_mih(void)
                                 "Rev-A",
                                 "mih.link_subtype_cdma2000.reva",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0002,
                                 NULL, HFILL
@@ -2765,7 +2773,7 @@ void proto_register_mih(void)
                                 "Rev-B",
                                 "mih.link_subtype_cdma2000.revb",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0004,
                                 NULL, HFILL
@@ -2777,7 +2785,7 @@ void proto_register_mih(void)
                                 "Rev-C",
                                 "mih.link_subtype_cdma2000.revc",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0008,
                                 NULL, HFILL
@@ -2788,7 +2796,7 @@ void proto_register_mih(void)
                         {
                                 "Wireless - IEEE 802.16",
                                 "mih.link_subtype_ieee80216",
-                                FT_UINT64,
+                                FT_UINT32,
                                 BASE_HEX,
                                 NULL,
                                 0x0,
@@ -2801,7 +2809,7 @@ void proto_register_mih(void)
                                 "2.5 GHz",
                                 "mih.link_subtype_ieee80216.2_5ghz",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0001,
                                 NULL, HFILL
@@ -2813,7 +2821,7 @@ void proto_register_mih(void)
                                 "3.5 GHz",
                                 "mih.link_subtype_ieee80216.3_5ghz",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 0x0002,
                                 NULL, HFILL
@@ -3827,7 +3835,7 @@ void proto_register_mih(void)
                         {
                                 "List of of IS query types",
                                 "mih.iq_type_list",
-                                FT_UINT64,
+                                FT_UINT32,
                                 BASE_HEX,
                                 NULL,
                                 0x0,
@@ -3840,7 +3848,7 @@ void proto_register_mih(void)
                                 "Binary data",
                                 "mih.iq_type_list.bin_data",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_BIN_DATA_MASK,
                                 NULL, HFILL
@@ -3852,7 +3860,7 @@ void proto_register_mih(void)
                                 "RDF data",
                                 "mih.iq_type_list.rdf_data",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_RDF_DATA_MASK,
                                 NULL, HFILL
@@ -3864,7 +3872,7 @@ void proto_register_mih(void)
                                 "RDF schema URL",
                                 "mih.iq_type_list.rdf_sch_u",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_RDF_SCH_U_MASK,
                                 NULL, HFILL
@@ -3876,7 +3884,7 @@ void proto_register_mih(void)
                                 "RDF schema",
                                 "mih.iq_type_list.rdf_sch",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_RDF_SCH_MASK,
                                 NULL, HFILL
@@ -3888,7 +3896,7 @@ void proto_register_mih(void)
                                 "IE_NETWORK_TYPE",
                                 "mih.iq_type_list.ie_net_type",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_NET_TYPE_MASK,
                                 NULL, HFILL
@@ -3900,7 +3908,7 @@ void proto_register_mih(void)
                                 "IE_OPERATOR_ID",
                                 "mih.iq_type_list.ie_op_id",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_OP_ID_MASK,
                                 NULL, HFILL
@@ -3912,7 +3920,7 @@ void proto_register_mih(void)
                                 "IE_SERVICE_PROVIDER_ID",
                                 "mih.iq_type_list.ie_serv_id",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_SERV_ID_MASK,
                                 NULL, HFILL
@@ -3924,7 +3932,7 @@ void proto_register_mih(void)
                                 "IE_COUNTRY_CODE",
                                 "mih.iq_type_list.ie_country_code",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_COUN_MASK,
                                 NULL, HFILL
@@ -3936,7 +3944,7 @@ void proto_register_mih(void)
                                 "IE_NETWORK_ID",
                                 "mih.iq_type_list.ie_net_id",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_NET_ID_MASK,
                                 NULL, HFILL
@@ -3948,7 +3956,7 @@ void proto_register_mih(void)
                                 "IE_NETWORK_AUX_ID",
                                 "mih.iq_type_list.net_aux_id",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_NET_AUX_MASK,
                                 NULL, HFILL
@@ -3960,7 +3968,7 @@ void proto_register_mih(void)
                                 "IE_ROAMING_PARTNERS",
                                 "mih.iq_type_list.ie_roam_part",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_ROAM_MASK,
                                 NULL, HFILL
@@ -3972,7 +3980,7 @@ void proto_register_mih(void)
                                 "IE_COST",
                                 "mih.iq_type_list.ie_cost",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_COST_MASK,
                                 NULL, HFILL
@@ -3984,7 +3992,7 @@ void proto_register_mih(void)
                                 "IE_NETWORK_QOS",
                                 "mih.iq_type_list.ie_net_qos",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_QOS_MASK,
                                 NULL, HFILL
@@ -3996,7 +4004,7 @@ void proto_register_mih(void)
                                 "IE_NETWORK_DATA_RATE",
                                 "mih.iq_type_list.ie_net_dat_rt",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_DATA_MASK,
                                 NULL, HFILL
@@ -4008,7 +4016,7 @@ void proto_register_mih(void)
                                 "IE_NET_REGULT_DOMAIN",
                                 "mih.iq_type_list.ie_net_reg_dom",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_REGDOM_MASK,
                                 NULL, HFILL
@@ -4020,7 +4028,7 @@ void proto_register_mih(void)
                                 "IE_NET_FREQUENCY_BANDS",
                                 "mih.iq_type_list.ie_net_freq",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_FREQ_MASK,
                                 NULL, HFILL
@@ -4032,7 +4040,7 @@ void proto_register_mih(void)
                                 "IE_NET_IP_CFG_METHODS",
                                 "mih.iq_type_list.ie_net_ip_cfg",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_IP_CFG_MASK,
                                 NULL, HFILL
@@ -4044,7 +4052,7 @@ void proto_register_mih(void)
                                 "IE_NET_CAPABILITIES",
                                 "mih.iq_type_list.ie_net_cap",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_CAP_MASK,
                                 NULL, HFILL
@@ -4056,7 +4064,7 @@ void proto_register_mih(void)
                                 "IE_NET_SUPPORTED_LCP",
                                 "mih.iq_type_list.ie_net_sup_lcp",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_SUP_MASK,
                                 NULL, HFILL
@@ -4068,7 +4076,7 @@ void proto_register_mih(void)
                                 "IE_NET_MOB_MGMT_PROT",
                                 "mih.iq_type_list.ie_net_mob_mg",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_MOB_MG_MASK,
                                 NULL, HFILL
@@ -4080,7 +4088,7 @@ void proto_register_mih(void)
                                 "IE_NET_EMSERV_PROXY",
                                 "mih.iq_type_list.ie_net_emer_serv",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_EM_SERV_MASK,
                                 NULL, HFILL
@@ -4092,7 +4100,7 @@ void proto_register_mih(void)
                                 "IE_NET_IMS_PROXY_CSCF",
                                 "mih.iq_type_list.ie_net_ims_pcscf",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_IMS_MASK,
                                 NULL, HFILL
@@ -4104,7 +4112,7 @@ void proto_register_mih(void)
                                 "IE_NET_MOBILE_NETWORK",
                                 "mih.iq_type_list.ie_net_mob_net",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_MOB_NET_MASK,
                                 NULL, HFILL
@@ -4116,7 +4124,7 @@ void proto_register_mih(void)
                                 "IE_POA_LINK_ADDR",
                                 "mih.iq_type_list.ie_poa_link",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_POA_ADDR_MASK,
                                 NULL, HFILL
@@ -4128,7 +4136,7 @@ void proto_register_mih(void)
                                 "IE_POA_LOCATION",
                                 "mih.iq_type_list.ie_poa_loc",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_POA_LOC_MASK,
                                 NULL, HFILL
@@ -4140,7 +4148,7 @@ void proto_register_mih(void)
                                 "IE_POA_CHANNEL_RANGE",
                                 "mih.iq_type_list.ie_poa_chan_rg",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_POA_CHAN_MASK,
                                 NULL, HFILL
@@ -4152,7 +4160,7 @@ void proto_register_mih(void)
                                 "IE_POA_SYSTEM_INFO",
                                 "mih.iq_type_list.ie_poa_syst_info",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_POA_SYS_MASK,
                                 NULL, HFILL
@@ -4164,7 +4172,7 @@ void proto_register_mih(void)
                                 "IE_POA_SUBNET_INFO",
                                 "mih.iq_type_list.ie_poa_sub_info",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_POA_SUB_MASK,
                                 NULL, HFILL
@@ -4176,7 +4184,7 @@ void proto_register_mih(void)
                                 "IE_POA_IP_ADDR",
                                 "mih.iq_type_list.ie_poa_ip",
                                 FT_BOOLEAN,
-                                64,
+                                32,
                                 NULL,
                                 IQ_IE_POA_IP_MASK,
                                 NULL, HFILL
@@ -4400,7 +4408,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 16,
                                 NULL,
-                                0x01,
+                                0x8000,
                                 NULL, HFILL
                         }
                 },
@@ -4412,7 +4420,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 16,
                                 NULL,
-                                0x02,
+                                0x4000,
                                 NULL, HFILL
                         }
                 },
@@ -4438,7 +4446,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 16,
                                 NULL,
-                                0x01,
+                                0x8000,
                                 NULL, HFILL
                         }
                 },
@@ -4450,7 +4458,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 16,
                                 NULL,
-                                0x02,
+                                0x4000,
                                 NULL, HFILL
                         }
                 },
@@ -4476,7 +4484,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 8,
                                 NULL,
-                                0x1,
+                                0x80,
                                 NULL, HFILL
                         }
                 },
@@ -4488,7 +4496,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 8,
                                 NULL,
-                                0x2,
+                                0x40,
                                 NULL, HFILL
                         }
                 },
@@ -4500,7 +4508,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 8,
                                 NULL,
-                                0x4,
+                                0x20,
                                 NULL, HFILL
                         }
                 },
@@ -4526,7 +4534,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0001,
+                                0x80000000,
                                 NULL, HFILL
                         }
                 },
@@ -4538,7 +4546,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0002,
+                                0x40000000,
                                 NULL, HFILL
                         }
                 },
@@ -4550,7 +4558,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0004,
+                                0x20000000,
                                 NULL, HFILL
                         }
                 },
@@ -4562,7 +4570,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0008,
+                                0x10000000,
                                 NULL, HFILL
                         }
                 },
@@ -4574,7 +4582,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0010,
+                                0x08000000,
                                 NULL, HFILL
                         }
                 },
@@ -4586,7 +4594,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0020,
+                                0x04000000,
                                 NULL, HFILL
                         }
                 },
@@ -4598,7 +4606,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0040,
+                                0x02000000,
                                 NULL, HFILL
                         }
                 },
@@ -4610,7 +4618,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0080,
+                                0x01000000,
                                 NULL, HFILL
                         }
                 },
@@ -4622,7 +4630,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0100,
+                                0x00800000,
                                 NULL, HFILL
                         }
                 },
@@ -4634,7 +4642,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 32,
                                 NULL,
-                                0x0200,
+                                0x00400000,
                                 NULL, HFILL
                         }
                 },
@@ -4660,7 +4668,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 8,
                                 NULL,
-                                0x1,
+                                0x80,
                                 NULL, HFILL
                         }
                 },
@@ -4672,7 +4680,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 8,
                                 NULL,
-                                0x2,
+                                0x40,
                                 NULL, HFILL
                         }
                 },
@@ -4684,7 +4692,7 @@ void proto_register_mih(void)
                                 FT_BOOLEAN,
                                 8,
                                 NULL,
-                                0x4,
+                                0x20,
                                 NULL, HFILL
                         }
                 }
