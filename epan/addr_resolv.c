@@ -2079,14 +2079,10 @@ read_hosts_file (const char *hostspath)
 gboolean
 add_hosts_file (const char *hosts_file)
 {
-  FILE *hf;
   gboolean found = FALSE;
   guint i;
 
   if (!hosts_file)
-    return FALSE;
-
-  if ((hf = ws_fopen(hosts_file, "r")) == NULL)
     return FALSE;
 
   if (!extra_hosts_files)
