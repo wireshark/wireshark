@@ -238,7 +238,7 @@ libpcap_write_packet(libpcap_write_t write_func, void* write_data_info,
         rec_hdr.incl_len = caplen;
         rec_hdr.orig_len = len;
         if (!write_func(write_data_info, (const guint8*)&rec_hdr, sizeof(rec_hdr), bytes_written, err))
-            return FALSE;
+                return FALSE;
 
         return write_func(write_data_info, pd, caplen, bytes_written, err);
 }
@@ -264,22 +264,22 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
                              sizeof(guint32);
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               (guint16)ADD_PADDING(strlen(comment)));
+                                                (guint16)ADD_PADDING(strlen(comment)));
                 have_options = TRUE;
         }
         if ((hw != NULL) && (strlen(hw) > 0) && (strlen(hw) < G_MAXUINT16)) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               (guint16)ADD_PADDING(strlen(hw)));
+                                                (guint16)ADD_PADDING(strlen(hw)));
                 have_options = TRUE;
         }
         if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               (guint16)ADD_PADDING(strlen(os)));
+                                                (guint16)ADD_PADDING(strlen(os)));
                 have_options = TRUE;
         }
         if ((appname != NULL) && (strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               (guint16)ADD_PADDING(strlen(appname)));
+                                                (guint16)ADD_PADDING(strlen(appname)));
                 have_options = TRUE;
         }
         /* If we have options add size of end-of-options */
@@ -295,7 +295,7 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
         shb.section_length = section_length;
 
         if (!write_func(write_data_info, (const guint8*)&shb, sizeof(struct shb), bytes_written, err))
-            return FALSE;
+                return FALSE;
 
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 /* write opt_comment options */
@@ -303,14 +303,14 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
                 option.value_length = (guint16)strlen(comment);
 
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (strlen(comment) % 4) {
-                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
-                        return FALSE;
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
+                                return FALSE;
                 }
         }
         if ((hw != NULL) && (strlen(hw) > 0) && (strlen(hw) < G_MAXUINT16)) {
@@ -319,14 +319,14 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
                 option.value_length = (guint16)strlen(hw);
 
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)hw, (int) strlen(hw), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if ((strlen(hw) + 1) % 4) {
-                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(hw) % 4, bytes_written, err))
-                        return FALSE;
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(hw) % 4, bytes_written, err))
+                                return FALSE;
                 }
         }
         if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
@@ -335,14 +335,14 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
                 option.value_length = (guint16)strlen(os);
 
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)os, (int) strlen(os), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (strlen(os) % 4) {
-                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(os) % 4, bytes_written, err))
-                        return FALSE;
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(os) % 4, bytes_written, err))
+                                return FALSE;
                 }
         }
         if ((appname != NULL) && (strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
@@ -351,14 +351,14 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
                 option.value_length = (guint16)strlen(appname);
 
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)appname, (int) strlen(appname), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (strlen(appname) % 4) {
-                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(appname) % 4, bytes_written, err))
-                        return FALSE;
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(appname) % 4, bytes_written, err))
+                                return FALSE;
                 }
         }
         if (have_options) {
@@ -366,7 +366,7 @@ libpcap_write_session_header_block(libpcap_write_t write_func, void* write_data_
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
         }
 
         /* write the trailing block total length */
@@ -397,49 +397,49 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
         /* 01 - OPT_COMMENT */
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               (guint16)ADD_PADDING(strlen(comment)));
+                                                (guint16)ADD_PADDING(strlen(comment)));
                 have_options = TRUE;
         }
 
         /* 02 - IDB_NAME */
         if ((name != NULL) && (strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               (guint16)ADD_PADDING(strlen(name)));
+                                                (guint16)ADD_PADDING(strlen(name)));
                 have_options = TRUE;
         }
 
         /* 03 - IDB_DESCRIPTION */
         if ((descr != NULL) && (strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               (guint16)ADD_PADDING(strlen(descr)));
+                                                (guint16)ADD_PADDING(strlen(descr)));
                 have_options = TRUE;
         }
 
         /* 08 - IDB_IF_SPEED */
         if (if_speed != 0) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               sizeof(guint64));
+                                                sizeof(guint64));
                 have_options = TRUE;
         }
 
         /* 09 - IDB_TSRESOL */
         if (tsresol != 0) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               sizeof(struct option));
+                                                sizeof(struct option));
                 have_options = TRUE;
         }
 
         /* 11 - IDB_FILTER */
         if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               (guint16)(ADD_PADDING(strlen(filter)+ 1)));
+                                                (guint16)(ADD_PADDING(strlen(filter)+ 1)));
                 have_options = TRUE;
         }
 
         /* 12 - IDB_OS */
         if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               (guint16)ADD_PADDING(strlen(os)));
+                                                (guint16)ADD_PADDING(strlen(os)));
                 have_options = TRUE;
         }
 
@@ -455,7 +455,7 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
         idb.reserved = 0;
         idb.snap_len = snap_len;
         if (!write_func(write_data_info, (const guint8*)&idb, sizeof(struct idb), bytes_written, err))
-            return FALSE;
+                return FALSE;
 
         /* 01 - OPT_COMMENT - write comment string if applicable */
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
@@ -463,14 +463,14 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.value_length = (guint16)strlen(comment);
 
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (strlen(comment) % 4) {
-                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
-                        return FALSE;
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
+                                return FALSE;
                 }
         }
 
@@ -480,14 +480,14 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.value_length = (guint16)strlen(name);
 
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)name, (int) strlen(name), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (strlen(name) % 4) {
-                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(name) % 4, bytes_written, err))
-                        return FALSE;
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(name) % 4, bytes_written, err))
+                                return FALSE;
                 }
         }
 
@@ -498,14 +498,14 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.value_length = (guint16)strlen(descr);
 
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)descr, (int) strlen(descr), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (strlen(descr) % 4) {
-                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(descr) % 4, bytes_written, err))
-                        return FALSE;
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(descr) % 4, bytes_written, err))
+                                return FALSE;
                 }
         }
 
@@ -515,10 +515,10 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.value_length = sizeof(guint64);
 
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)&if_speed, sizeof(guint64), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
         }
 
         /* 09 - IDB_TSRESOL */
@@ -527,13 +527,13 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.value_length = sizeof(guint8);
 
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)&tsresol, sizeof(guint8), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)&padding, 3, bytes_written, err))
-                    return FALSE;
+                        return FALSE;
         }
 
         /* 11 - IDB_FILTER - write filter string if applicable
@@ -543,16 +543,16 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.type = IDB_FILTER;
                 option.value_length = (guint16)(strlen(filter) + 1 );
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 /* The first byte of the Option Data keeps a code of the filter used, 0 = lipbpcap filter string */
                 if (!write_func(write_data_info, (const guint8*)&padding, 1, bytes_written, err))
-                    return FALSE;
-                if (!write_func(write_data_info, (const guint8*)filter, (int) strlen(filter), bytes_written, err))
-                    return FALSE;
-                if ((strlen(filter) + 1) % 4) {
-                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - (strlen(filter) + 1) % 4, bytes_written, err))
                         return FALSE;
+                if (!write_func(write_data_info, (const guint8*)filter, (int) strlen(filter), bytes_written, err))
+                        return FALSE;
+                if ((strlen(filter) + 1) % 4) {
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - (strlen(filter) + 1) % 4, bytes_written, err))
+                                return FALSE;
                 }
         }
 
@@ -561,12 +561,12 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.type = IDB_OS;
                 option.value_length = (guint16)strlen(os);
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
-                if (!write_func(write_data_info, (const guint8*)os, (int) strlen(os), bytes_written, err))
-                    return FALSE;
-                if (strlen(os) % 4) {
-                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(os) % 4, bytes_written, err))
                         return FALSE;
+                if (!write_func(write_data_info, (const guint8*)os, (int) strlen(os), bytes_written, err))
+                        return FALSE;
+                if (strlen(os) % 4) {
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(os) % 4, bytes_written, err))
+                                return FALSE;
                 }
         }
 
@@ -575,7 +575,7 @@ libpcap_write_interface_description_block(libpcap_write_t write_func, void* writ
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
         }
 
         /* write the trailing Block Total Length */
@@ -604,17 +604,17 @@ libpcap_write_enhanced_packet_block(libpcap_write_t write_func, void* write_data
         const guint32 padding = 0;
 
         block_total_length = (guint32)(sizeof(struct epb) +
-                                      ADD_PADDING(caplen) +
-                                      sizeof(guint32));
+                                       ADD_PADDING(caplen) +
+                                       sizeof(guint32));
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               (guint16)ADD_PADDING(strlen(comment)));
+                                                (guint16)ADD_PADDING(strlen(comment)));
                 have_options = TRUE;
         }
         if (flags != 0) {
-                have_options = TRUE;
                 block_total_length += (guint32)(sizeof(struct option) +
-                                               sizeof(guint32));
+                                                sizeof(guint32));
+                have_options = TRUE;
         }
         /* If we have options add size of end-of-options */
         if (have_options) {
@@ -629,39 +629,39 @@ libpcap_write_enhanced_packet_block(libpcap_write_t write_func, void* write_data
         epb.captured_len = caplen;
         epb.packet_len = len;
         if (!write_func(write_data_info, (const guint8*)&epb, sizeof(struct epb), bytes_written, err))
-            return FALSE;
-        if (!write_func(write_data_info, pd, caplen, bytes_written, err))
-            return FALSE;
-        if (caplen % 4) {
-            if (!write_func(write_data_info, (const guint8*)&padding, 4 - caplen % 4, bytes_written, err))
                 return FALSE;
+        if (!write_func(write_data_info, pd, caplen, bytes_written, err))
+                return FALSE;
+        if (caplen % 4) {
+                if (!write_func(write_data_info, (const guint8*)&padding, 4 - caplen % 4, bytes_written, err))
+                        return FALSE;
         }
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 option.type = OPT_COMMENT;
                 option.value_length = (guint16)strlen(comment);
 
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (strlen(comment) % 4) {
-                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
-                        return FALSE;
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
+                                return FALSE;
                 }
         }
         if (flags != 0) {
                 option.type = EPB_FLAGS;
                 option.value_length = sizeof(guint32);
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
                 if (!write_func(write_data_info, (const guint8*)&flags, sizeof(guint32), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
        }
 
        return write_func(write_data_info, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
@@ -730,14 +730,14 @@ libpcap_write_interface_statistics_block(libpcap_write_t write_func, void* write
 #endif
         block_total_length = (guint32)(sizeof(struct isb) + sizeof(guint32));
         if (isb_ifrecv != G_MAXUINT64) {
-            block_total_length += (guint32)(sizeof(struct option) +
-                                           sizeof(guint64));
-            have_options = TRUE;
+                block_total_length += (guint32)(sizeof(struct option) +
+                                                sizeof(guint64));
+                have_options = TRUE;
         }
         if (isb_ifdrop != G_MAXUINT64) {
-            block_total_length += (guint32)(sizeof(struct option) +
-                                           sizeof(guint64));
-            have_options = TRUE;
+                block_total_length += (guint32)(sizeof(struct option) +
+                                                sizeof(guint64));
+                have_options = TRUE;
         }
         /* OPT_COMMENT */
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
@@ -766,21 +766,21 @@ libpcap_write_interface_statistics_block(libpcap_write_t write_func, void* write
         isb.timestamp_high = (guint32)((timestamp>>32) & 0xffffffff);
         isb.timestamp_low = (guint32)(timestamp & 0xffffffff);
         if (!write_func(write_data_info, (const guint8*)&isb, sizeof(struct isb), bytes_written, err))
-            return FALSE;
+                return FALSE;
 
         /* write comment string if applicable */
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
                 option.type = OPT_COMMENT;
                 option.value_length = (guint16)strlen(comment);
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)comment, (int) strlen(comment), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (strlen(comment) % 4) {
-                    if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
-                        return FALSE;
+                        if (!write_func(write_data_info, (const guint8*)&padding, 4 - strlen(comment) % 4, bytes_written, err))
+                                return FALSE;
                 }
         }
 
@@ -792,13 +792,13 @@ libpcap_write_interface_statistics_block(libpcap_write_t write_func, void* write
                 high = (guint32)((isb_starttime>>32) & 0xffffffff);
                 low = (guint32)(isb_starttime & 0xffffffff);
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)&high, sizeof(guint32), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)&low, sizeof(guint32), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
         }
         if (isb_endtime !=0) {
                 guint32 high, low;
@@ -808,38 +808,38 @@ libpcap_write_interface_statistics_block(libpcap_write_t write_func, void* write
                 high = (guint32)((isb_endtime>>32) & 0xffffffff);
                 low = (guint32)(isb_endtime & 0xffffffff);
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)&high, sizeof(guint32), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)&low, sizeof(guint32), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
         }
         if (isb_ifrecv != G_MAXUINT64) {
                 option.type = ISB_IFRECV;
                 option.value_length = sizeof(guint64);
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)&isb_ifrecv, sizeof(guint64), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
         }
         if (isb_ifdrop != G_MAXUINT64) {
                 option.type = ISB_IFDROP;
                 option.value_length = sizeof(guint64);
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
 
                 if (!write_func(write_data_info, (const guint8*)&isb_ifdrop, sizeof(guint64), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
         }
         if (have_options) {
                 /* write end of options */
                 option.type = OPT_ENDOFOPT;
                 option.value_length = 0;
                 if (!write_func(write_data_info, (const guint8*)&option, sizeof(struct option), bytes_written, err))
-                    return FALSE;
+                        return FALSE;
         }
 
         return write_func(write_data_info, (const guint8*)&block_total_length, sizeof(guint32), bytes_written, err);
