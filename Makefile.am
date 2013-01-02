@@ -372,9 +372,13 @@ wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 # Unfortunately that check is done by automake and not configure.
 # We do the following to try to avoid c++ linking for Wireshark at
 # all times.
-nodist_EXTRA_wireshark_cxx_SOURCES = dummy.cpp
+nodist_EXTRA_wireshark_c_SOURCES = dummy.c
+wireshark_c_SOURCES = 
 wireshark_c_CFLAGS = $(wireshark_CFLAGS)
 wireshark_c_LDFLAGS = $(wireshark_LDFLAGS)
+
+nodist_EXTRA_wireshark_cxx_SOURCES = dummy.cpp
+wireshark_cxx_SOURCES = 
 wireshark_cxx_CFLAGS = $(wireshark_CFLAGS)
 wireshark_cxx_LDFLAGS = $(wireshark_LDFLAGS)
 
