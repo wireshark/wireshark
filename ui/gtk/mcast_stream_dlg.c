@@ -64,18 +64,18 @@ static const gchar FWD_LABEL_TEXT[] = "Select a stream with left mouse button";
 static const gchar PAR_LABEL_TEXT[] = "\nBurst int: ms   Burst alarm: pps    Buffer alarm: KB    Stream empty speed: Mbps    Total empty speed: Mbps\n";
 
 /****************************************************************************/
-static GtkWidget *mcast_stream_dlg = NULL;
-static GtkWidget *mcast_params_dlg = NULL;
+static GtkWidget    *mcast_stream_dlg = NULL;
+static GtkWidget    *mcast_params_dlg = NULL;
 
-static GtkListStore *list_store = NULL;
-static GtkTreeIter list_iter;
-static GtkWidget *list_w    = NULL;
-static GtkWidget *top_label = NULL;
-static GtkWidget *label_fwd = NULL;
-static GtkWidget *label_par = NULL;
-static GtkWidget *bt_filter = NULL;
+static GtkListStore *list_store	      = NULL;
+static GtkTreeIter   list_iter;
+static GtkWidget    *list_w	      = NULL;
+static GtkWidget    *top_label	      = NULL;
+static GtkWidget    *label_fwd	      = NULL;
+static GtkWidget    *label_par	      = NULL;
+static GtkWidget    *bt_filter	      = NULL;
 
-static mcast_stream_info_t* selected_stream_fwd = NULL;  /* current selection */
+static mcast_stream_info_t *selected_stream_fwd = NULL;  /* current selection */
 static GList *last_list = NULL;
 
 static guint32 streams_nb = 0;     /* number of displayed streams */
@@ -124,6 +124,7 @@ static void
 mcaststream_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 {
 	GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list_w));
+
 	gtk_tree_selection_unselect_all(selection);
 
 	selected_stream_fwd = NULL;
@@ -136,13 +137,13 @@ mcaststream_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 static void
 mcaststream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 {
-	gchar *filter_string_fwd = NULL;
-	gchar ip_version[3];
+	gchar *filter_string_fwd;
+	gchar  ip_version[3];
 
-	if (selected_stream_fwd==NULL)
+	if (selected_stream_fwd == NULL)
 		return;
 
-	if (selected_stream_fwd->src_addr.type==AT_IPv6){
+	if (selected_stream_fwd->src_addr.type == AT_IPv6) {
 		g_strlcpy(ip_version,"v6",sizeof(ip_version));
 	} else {
 		ip_version[0] = '\0';
@@ -159,10 +160,10 @@ mcaststream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd);
 	g_free(filter_string_fwd);
 
-/*
+#if 0
 	main_filter_packets(&cfile, filter_string, FALSE);
 	mcaststream_dlg_update(mcaststream_get_info()->strinfo_list);
-*/
+#endif
 }
 
 /****************************************************************************/
@@ -213,7 +214,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_1);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = (gint)strtol(fnumber_text, &p, 10);
-	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) || (fnumber > 1000) ) {
+	if ( ((p == fnumber_text) || (*p != '\0')) || (fnumber <= 0) || (fnumber > 1000) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The burst interval should be between 1 and 1000 ms.");
 		return;
 	}
@@ -222,7 +223,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_2);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = (gint)strtol(fnumber_text, &p, 10);
-	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) ) {
+	if ( ((p == fnumber_text) || (*p != '\0')) || (fnumber <= 0) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The burst alarm threshold you entered isn't valid.");
 		return;
 	}
@@ -231,7 +232,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_3);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = (gint)strtol(fnumber_text, &p, 10);
-	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) ) {
+	if ( ((p == fnumber_text) || (*p != '\0')) || (fnumber <= 0) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The buffer alarm threshold you entered isn't valid.");
 		return;
 	}
@@ -240,7 +241,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_4);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = (gint)strtol(fnumber_text, &p, 10);
-	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) || (fnumber > 10000000) ) {
+	if ( ((p == fnumber_text) || (*p != '\0')) || (fnumber <= 0) || (fnumber > 10000000) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The stream empty speed should be between 1 and 10000000");
 		return;
 	}
@@ -249,7 +250,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_5);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = (gint)strtol(fnumber_text, &p, 10);
-	if ( (p == fnumber_text || *p != '\0') || (fnumber <= 0) || (fnumber > 10000000) ) {
+	if ( ((p == fnumber_text) || (*p != '\0')) || (fnumber <= 0) || (fnumber > 10000000) ) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The total empty speed should be between 1 and 10000000");
 		return;
 	}
@@ -269,7 +270,7 @@ static void
 mcast_on_params(GtkButton *button _U_, gpointer data _U_)
 {
 	GtkWidget *main_vb;
-	GtkWidget *label, *hbuttonbox, *table;
+	GtkWidget *label, *hbuttonbox, *grid;
 	GtkWidget *ok_bt, *cancel_bt;
 	GtkWidget *entry1, *entry2, *entry3, *entry4, *entry5;
 	gchar label_text[51];
@@ -292,45 +293,44 @@ mcast_on_params(GtkButton *button _U_, gpointer data _U_)
 	gtk_container_add(GTK_CONTAINER(mcast_params_dlg), main_vb);
 	gtk_widget_show(main_vb);
 
-	table = gtk_table_new(6, 2, FALSE);
-	gtk_container_add (GTK_CONTAINER (main_vb), table);
-
+	grid = ws_gtk_grid_new();
+	gtk_box_pack_start(GTK_BOX(main_vb), grid, TRUE, TRUE, 0);
 	label = gtk_label_new("  Burst measurement interval (ms)  ");
-	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 0, 1);
+	ws_gtk_grid_attach(GTK_GRID(grid), label, 0, 0, 1, 1);
 	entry1 = gtk_entry_new();
 	g_snprintf(label_text, sizeof(label_text), "%u", mcast_stream_burstint);
 	gtk_entry_set_text(GTK_ENTRY(entry1), label_text);
-	gtk_table_attach_defaults(GTK_TABLE(table), entry1, 1, 2, 0, 1);
+	ws_gtk_grid_attach(GTK_GRID(grid), entry1, 1, 0, 1, 1);
 	label = gtk_label_new("  Burst alarm threshold (packets)   ");
-	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 1, 2);
+	ws_gtk_grid_attach(GTK_GRID(grid), label, 0, 1, 1, 1);
 	entry2 = gtk_entry_new();
 	g_snprintf(label_text, sizeof(label_text), "%u", mcast_stream_trigger);
 	gtk_entry_set_text(GTK_ENTRY(entry2), label_text);
-	gtk_table_attach_defaults(GTK_TABLE(table), entry2, 1, 2, 1, 2);
+	ws_gtk_grid_attach(GTK_GRID(grid), entry2, 1, 1, 1, 1);
 	label = gtk_label_new("  Buffer alarm threshold (bytes)     ");
-	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 2, 3);
+	ws_gtk_grid_attach(GTK_GRID(grid), label, 0, 2, 1, 1);
 	entry3 = gtk_entry_new();
 	g_snprintf(label_text, sizeof(label_text), "%u", mcast_stream_bufferalarm);
 	gtk_entry_set_text(GTK_ENTRY(entry3), label_text);
-	gtk_table_attach_defaults(GTK_TABLE(table), entry3, 1, 2, 2, 3);
+	ws_gtk_grid_attach(GTK_GRID(grid), entry3, 1, 2, 1, 1);
 	label = gtk_label_new("  Stream empty speed (kbit/s)      ");
-	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 3, 4);
+	ws_gtk_grid_attach(GTK_GRID(grid), label, 0, 3, 1, 1);
 	entry4 = gtk_entry_new();
 	g_snprintf(label_text, sizeof(label_text), "%u", mcast_stream_emptyspeed);
 	gtk_entry_set_text(GTK_ENTRY(entry4), label_text);
-	gtk_table_attach_defaults(GTK_TABLE(table), entry4, 1, 2, 3, 4);
+	ws_gtk_grid_attach(GTK_GRID(grid), entry4, 1, 3, 1, 1);
 	label = gtk_label_new("  Total empty speed (kbit/s)       ");
-	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 4, 5);
+	ws_gtk_grid_attach(GTK_GRID(grid), label, 0, 4, 1, 1);
 	entry5 = gtk_entry_new();
 	g_snprintf(label_text, sizeof(label_text), "%u", mcast_stream_cumulemptyspeed);
 	gtk_entry_set_text(GTK_ENTRY(entry5), label_text);
-	gtk_table_attach_defaults(GTK_TABLE(table), entry5, 1, 2, 4, 5);
+	ws_gtk_grid_attach(GTK_GRID(grid), entry5, 1, 4, 1, 1);
 
-	gtk_widget_show (table);
+	gtk_widget_show (grid);
 
 	/* button row */
 	hbuttonbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
-	gtk_table_attach_defaults(GTK_TABLE(table), hbuttonbox, 0, 2, 5, 6);
+	ws_gtk_grid_attach(GTK_GRID(grid), hbuttonbox, 0, 5, 2, 1);
 	ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
 	gtk_container_add (GTK_CONTAINER(hbuttonbox), ok_bt);
 	cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
@@ -361,10 +361,10 @@ mcast_on_params(GtkButton *button _U_, gpointer data _U_)
 static void
 add_to_list_store(mcast_stream_info_t* strinfo)
 {
-	gchar label_text[256];
+	gchar  label_text[256];
 	gchar *data[NUM_COLS];
-	int i;
-	char *savelocale;
+	int    i;
+	char  *savelocale;
 
 	/* save the current locale */
 	savelocale = setlocale(LC_NUMERIC, NULL);
@@ -644,15 +644,15 @@ mcaststream_dlg_create(void)
 	GtkWidget *bt_params;
 	GtkWidget *bt_close;
 
-	gchar *title_name_ptr;
-	gchar *win_name;
+	gchar	  *title_name_ptr;
+	gchar	  *win_name;
 
 	title_name_ptr = cf_get_display_name(&cfile);
 	win_name = g_strdup_printf("%s - UDP Multicast Streams", title_name_ptr);
-        g_free(title_name_ptr);
+	g_free(title_name_ptr);
 	mcaststream_dlg_w = dlg_window_new(win_name);
 
-	gtk_window_set_default_size(GTK_WINDOW(mcaststream_dlg_w), 620, 400);
+	gtk_window_set_default_size(GTK_WINDOW(mcaststream_dlg_w), 1150, 400);
 
 	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(mcaststream_dlg_w), main_vb);
