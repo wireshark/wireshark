@@ -26,8 +26,8 @@
 #define __PREFS_DLG_H__
 
 /** @defgroup prefs_group Preferences
- * 
- *  All GUI related preferences things. Please note, that some GUI related things 
+ *
+ *  All GUI related preferences things. Please note, that some GUI related things
  *  are saved in the recent file, which is processed in recent.h.
  *
  *  The Preference dialog has the following page submodules:
@@ -38,8 +38,8 @@
       ui [ label="User Interface" URL="\ref prefs_gui.h"];
       layout [ label="UI: Layout" URL="\ref prefs_layout.h"];
       columns [ label="UI: Columns" URL="\ref prefs_column.h"];
-      font [ label="UI: Font" URL="\ref prefs_gui.h"];
-      colors [ label="UI: Colors" URL="\ref prefs_stream.h"];
+      font [ label="UI: Font" URL="\ref prefs_font_colors.h"];
+      colors [ label="UI: Colors" URL="\ref prefs_font_colors.h"];
       capture [ label="Capture" URL="\ref prefs_capture.h"];
       print [ label="Printing" URL="\ref prefs_print.h"];
       nameres [ label="Name resolution" URL="\ref prefs_nameres.h"];
@@ -71,14 +71,14 @@ typedef enum {
 } PREFS_PAGE_E;
 
 /** Show the preferences dialog.
- * 
+ *
  * @param widget parent widget (unused)
  * @param data unused
  */
 extern void prefs_cb(GtkWidget *widget, gpointer data);
 
 /** Show the preferences dialog in given page.
- * 
+ *
  * @param widget parent widget (unused)
  * @param data unused
  * @param prefs_page page to show
@@ -86,7 +86,7 @@ extern void prefs_cb(GtkWidget *widget, gpointer data);
 extern void prefs_page_cb(GtkWidget *widget, gpointer data, PREFS_PAGE_E prefs_page);
 
 /** Show the protocol properties dialog.
- * 
+ *
  * @param widget parent widget (unused)
  * @param data unused
  */
@@ -119,7 +119,7 @@ extern GtkWidget *create_preference_radio_buttons(GtkWidget *main_tb, int table_
     const enum_val_t *enumvals, gint current_val);
 
 /** Get the currently selected value from a radio button.
- * 
+ *
  * @param button the button from create_preference_radio_buttons()
  * @param enumvals the same enum vals as in create_preference_radio_buttons()
  * @return the index of the currently selected item
@@ -141,7 +141,7 @@ extern GtkWidget *create_preference_option_menu(GtkWidget *main_tb, int table_ro
     const enum_val_t *enumvals, gint current_val);
 
 /** Get the currently selected value from an option menu.
- * 
+ *
  * @param optmenu the option menu from create_preference_option_menu()
  * @param enumvals the same enum vals as in create_preference_option_menu()
  * @return the index of the currently selected item

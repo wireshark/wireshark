@@ -43,7 +43,7 @@
 #include "ui/gtk/prefs_column.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/prefs_filter_expressions.h"
-#include "ui/gtk/prefs_stream.h"
+#include "ui/gtk/prefs_font_color.h"
 #include "ui/gtk/prefs_gui.h"
 #include "ui/gtk/prefs_layout.h"
 #include "ui/gtk/prefs_capture.h"
@@ -55,6 +55,7 @@
 #include "ui/gtk/uat_gui.h"
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/file_dlg.h"
+#include "ui/gtk/dlg_utils.h"
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -90,7 +91,7 @@ static GtkWidget *create_preference_filename_entry(GtkWidget *, int,
 #define E_GUI_LAYOUT_PAGE_KEY         "gui_layout_page"
 #define E_GUI_COLUMN_PAGE_KEY         "gui_column_options_page"
 #define E_GUI_FONT_PAGE_KEY           "gui_font_options_page"
-#define E_GUI_COLORS_PAGE_KEY         "gui_colors_options_page"
+#define E_GUI_FONT_COLORS_PAGE_KEY    "gui_font_colors_options_page"
 #define E_CAPTURE_PAGE_KEY            "capture_options_page"
 #define E_NAMERES_PAGE_KEY            "nameres_options_page"
 #define E_FILTER_EXPRESSIONS_PAGE_KEY "filter_expressions_page"
@@ -157,7 +158,7 @@ pref_show(pref_t *pref, gpointer user_data)
   label_string = g_malloc(label_len);
   g_strlcpy(label_string, title, label_len);
 
-  tooltip_txt = pref->description? g_strdup_printf("%s.%s: %s\n%s", 
+  tooltip_txt = pref->description? g_strdup_printf("%s.%s: %s\n%s",
                                                    module->name,
                                                    pref->name,
                                                    get_pref_type_string(pref->type),
@@ -300,7 +301,7 @@ prefs_tree_page_add(const gchar *title, gint page_nr,
 
 /* add a page to the notebook */
 static GtkWidget *
-prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, const char *page_key)
+prefs_nb_page_add(GtkWidget *notebook, const gchar *title _U_, GtkWidget *page, const char *page_key)
 {
   GtkWidget         *sw;
   GtkWidget         *frame;
@@ -309,7 +310,9 @@ prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, cons
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_widget_show(sw);
 
-  frame = gtk_frame_new(title);
+  frame = gtk_frame_new(NULL);
+  gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
+  gtk_container_set_border_width(GTK_CONTAINER(frame), DLG_OUTER_MARGIN);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sw), frame);
   gtk_widget_show(frame);
 
@@ -406,8 +409,9 @@ module_prefs_show(module_t *module, gpointer user_data)
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 
   /* Frame */
-  frame = gtk_frame_new(module->description);
-  gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
+  frame = gtk_frame_new(NULL);
+  gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
+  gtk_container_set_border_width(GTK_CONTAINER(frame), DLG_OUTER_MARGIN);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), frame);
   g_object_set_data(G_OBJECT(main_sw), E_PAGESW_FRAME_KEY, frame);
 
@@ -458,7 +462,6 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
 {
   GtkWidget         *top_hb, *bbox, *prefs_nb, *ct_sb,
                     *ok_bt, *apply_bt, *save_bt, *cancel_bt, *help_bt;
-  GtkWidget         *gui_font_pg;
   gchar              label_str[MAX_TREE_NODE_NAME_LEN];
   struct ct_struct   cts;
   GtkTreeStore      *store;
@@ -556,30 +559,9 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   columns_iter = prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
   columns_page = cts.page++;
 
-  /* GUI Font prefs */
-  g_strlcpy(label_str, "Font", MAX_TREE_NODE_NAME_LEN);
-  gui_font_pg = gui_font_prefs_show();
-  prefs_nb_page_add(prefs_nb, label_str, gui_font_pg, E_GUI_FONT_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
-  cts.page++;
-
-  gtk_container_set_border_width( GTK_CONTAINER(gui_font_pg), 5 );
-
-  /* IMPORTANT: the following gtk_font_selection_set_font_name() function will
-     only work if the widget and it's corresponding window is already shown
-     (so don't put the following into gui_font_prefs_show()) !!! */
-
-  /* We set the current font now, because setting it appears not to work
-     when run before appending the frame to the notebook. */
-#if GTK_CHECK_VERSION(3,2,0)
-  gtk_font_chooser_set_font(GTK_FONT_CHOOSER(gui_font_pg), prefs.gui_font_name);
-#else
-  gtk_font_selection_set_font_name(
-    GTK_FONT_SELECTION(gui_font_pg), prefs.gui_font_name);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
   /* GUI Colors prefs */
-  g_strlcpy(label_str, "Colors", MAX_TREE_NODE_NAME_LEN);
-  prefs_nb_page_add(prefs_nb, label_str, stream_prefs_show(), E_GUI_COLORS_PAGE_KEY);
+  g_strlcpy(label_str, "Font and Colors", MAX_TREE_NODE_NAME_LEN);
+  prefs_nb_page_add(prefs_nb, label_str, font_color_prefs_show(), E_GUI_FONT_COLORS_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
   cts.page++;
 
@@ -1342,7 +1324,7 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
   gui_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_GUI_PAGE_KEY));
   layout_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_GUI_LAYOUT_PAGE_KEY));
   column_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_GUI_COLUMN_PAGE_KEY));
-  stream_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_GUI_COLORS_PAGE_KEY));
+  font_color_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_GUI_FONT_COLORS_PAGE_KEY));
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -1374,10 +1356,10 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
    */
   prefs_apply_all();
 
-  gui_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_PAGE_KEY), redissect);
+  gui_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_PAGE_KEY));
   layout_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_LAYOUT_PAGE_KEY));
   column_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_COLUMN_PAGE_KEY));
-  stream_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_COLORS_PAGE_KEY));
+  font_color_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_FONT_COLORS_PAGE_KEY), redissect);
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -1417,7 +1399,7 @@ prefs_main_destroy_all(GtkWidget *dlg)
   gui_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_GUI_PAGE_KEY));
   layout_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_GUI_LAYOUT_PAGE_KEY));
   column_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_GUI_COLUMN_PAGE_KEY));
-  stream_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_GUI_COLORS_PAGE_KEY));
+  font_color_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_GUI_FONT_COLORS_PAGE_KEY));
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32

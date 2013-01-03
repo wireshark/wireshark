@@ -1,4 +1,4 @@
-/* stream_prefs.h
+/* prefs_font_color.h
  * Definitions for stream preferences window
  *
  * $Id$
@@ -23,8 +23,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __STREAM_PREFS_H__
-#define __STREAM_PREFS_H__
+#ifndef __PREFS_FONT_COLOR_H__
+#define __PREFS_FONT_COLOR_H__
 
 /** @file
  *  "User Interface: Colors" preferences page.
@@ -32,28 +32,28 @@
  *  @ingroup prefs_group
  */
 
-/** Build a Colors preferences page.
+/** Build a Font and Colors preferences page.
  *
  * @return the new preferences page
  */
-GtkWidget *stream_prefs_show(void);
+GtkWidget *font_color_prefs_show(void);
 
 /** Fetch preference values from page.
  *
- * @param widget widget from stream_prefs_show()
+ * @param widget widget from font_color_prefs_show()
  */
-void stream_prefs_fetch(GtkWidget *widget);
+void font_color_prefs_fetch(GtkWidget *widget);
 
 /** Apply preference values from page.
  *
- * @param widget widget from stream_prefs_show()
+ * @param widget widget from font_color_prefs_show()
  */
-void stream_prefs_apply(GtkWidget *widget);
+void font_color_prefs_apply(GtkWidget *widget, gboolean);
 
 /** Destroy preference values from page.
  *
- * @param widget widget from stream_prefs_show()
+ * @param widget widget from font_color_prefs_show()
  */
-void stream_prefs_destroy(GtkWidget *widget);
+void font_color_prefs_destroy(GtkWidget *widget);
 
-#endif
+#endif /* __PREFS_FONT_COLOR__ */

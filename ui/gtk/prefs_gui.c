@@ -143,18 +143,6 @@ static const enum_val_t gui_fileopen_vals[] = {
 	{ NULL,          NULL,                      0 }
 };
 
-/* Set to FALSE initially; set to TRUE if the user ever hits "OK" on
-   the "Font..." dialog, so that we know that they (probably) changed
-   the font, and therefore that the "apply" function needs to take care
-   of that */
-static gboolean font_changed;
-
-/* Font name from the font dialog box; if "font_changed" is TRUE, this
-   has been set to the name of the font the user selected. */
-static gchar *new_font_name;
-
-static GtkWidget *font_browse_w;
-
 /* Used to contain the string from the Recent Files Count Max pref item */
 static char recent_files_count_max_str[128] = "";
 
@@ -192,9 +180,6 @@ gui_prefs_show(void)
 
 	int        pos = 0;
 	char       current_val_str[128];
-
-	/* The font haven't been changed yet. */
-	font_changed = FALSE;
 
 	/* The columns haven't been changed yet */
 	cfile.columns_changed = FALSE;
@@ -382,56 +367,6 @@ gui_prefs_show(void)
 }
 
 
-/* Create a font widget for browsing. */
-GtkWidget *
-gui_font_prefs_show(void)
-{
-	/* Create the font selection widget. */
-#if GTK_CHECK_VERSION(3,2,0)
-	font_browse_w = gtk_font_chooser_widget_new();
-#else
-	font_browse_w = (GtkWidget *) gtk_font_selection_new();
-#endif /* GTK_CHECK_VERSION(3,2,0) */
-	gtk_widget_show(font_browse_w);
-
-	return font_browse_w;
-}
-
-
-static gboolean
-font_fetch(void)
-{
-	gchar   *font_name;
-
-
-#if GTK_CHECK_VERSION(3,2,0)
-	font_name = g_strdup(gtk_font_chooser_get_font(
-	      GTK_FONT_CHOOSER(font_browse_w)));
-#else
-	font_name = g_strdup(gtk_font_selection_get_font_name(
-	      GTK_FONT_SELECTION(font_browse_w)));
-#endif /* GTK_CHECK_VERSION(3,2,0) */
-	if (font_name == NULL) {
-		/* No font was selected; let the user know, but don't
-		   tear down the font selection dialog, so they can
-		   try again. */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		   "You have not selected a font.");
-		return FALSE;
-	}
-
-	if (!user_font_test(font_name)) {
-		/* The font isn't usable; "user_font_test()" has already
-		   told the user why.  Don't tear down the font selection
-		   dialog. */
-		g_free(font_name);
-		return FALSE;
-	}
-	new_font_name = font_name;
-	return TRUE;
-}
-
-
 static gint
 fetch_enum_value(gpointer control, const enum_val_t *enumvals)
 {
@@ -480,7 +415,7 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_version_placement =
         fetch_enum_value(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY), gui_version_placement_vals);
 
-	prefs.gui_auto_scroll_on_expand = 
+	prefs.gui_auto_scroll_on_expand =
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_AUTO_SCROLL_KEY));
 
 	if (browser_needs_pref()) {
@@ -492,25 +427,12 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_expert_composite_eyecandy =
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_EXPERT_EYECANDY_KEY));
 
-	/*
-	 * XXX - we need to have a way to fetch the preferences into
-	 * local storage and only set the permanent preferences if there
-	 * weren't any errors in those fetches, as there are several
-	 * places where there *can* be a bad preference value.
-	 */
-	if (font_fetch()) {
-		if (strcmp(new_font_name, prefs.gui_font_name) != 0) {
-			font_changed = TRUE;
-			g_free(prefs.gui_font_name);
-			prefs.gui_font_name = g_strdup(new_font_name);
-		}
-	}
 }
 
 
 
 void
-gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
+gui_prefs_apply(GtkWidget *w _U_)
 {
 
 #ifdef _WIN32
@@ -520,39 +442,10 @@ gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
 	}
 #endif
 
-	if (font_changed) {
-		/* This redraws the packet bytes windows. */
-		switch (user_font_apply()) {
-
-		case FA_SUCCESS:
-			break;
-
-		case FA_FONT_NOT_RESIZEABLE:
-			/* "user_font_apply()" popped up an alert box. */
-			/* turn off zooming - font can't be resized */
-			recent.gui_zoom_level = 0;
-			break;
-
-		case FA_FONT_NOT_AVAILABLE:
-			/* We assume this means that the specified size
-			   isn't available. */
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			    "That font isn't available at the specified zoom level;\n"
-			    "turning zooming off.");
-			recent.gui_zoom_level = 0;
-			break;
-		}
-	} else if (!redissect) {
-		/* Redraw the packet bytes windows, in case the
-		   highlight style changed, only if we aren't redissecting the whole file.
-		   XXX - do it only if the highlight style *did* change. */
-		redraw_packet_bytes_all();
-	}
-
 	/* Redisplay the main window's title */
 	main_titlebar_update();
 
-	/* Redisplay the default welcome header message in case the "show 
+	/* Redisplay the default welcome header message in case the "show
 	 * version" option was changed. */
 	welcome_header_set_message(NULL);
 
@@ -573,11 +466,6 @@ gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
 void
 gui_prefs_destroy(GtkWidget *w _U_)
 {
-	/* Free up any saved font name. */
-	if (new_font_name != NULL) {
-		g_free(new_font_name);
-		new_font_name = NULL;
-	}
 }
 
 static gboolean
@@ -693,7 +581,7 @@ fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w)
 }
 
 static gboolean
-scroll_percent_changed_cb(GtkWidget *recent_files_entry _U_, 
+scroll_percent_changed_cb(GtkWidget *recent_files_entry _U_,
 			  GdkEvent *event _U_, gpointer parent_w)
 {
   GtkWidget *scroll_percent_te;
@@ -701,12 +589,12 @@ scroll_percent_changed_cb(GtkWidget *recent_files_entry _U_,
 
   scroll_percent_te = (GtkWidget*)g_object_get_data(G_OBJECT(parent_w), GUI_SCROLL_PERCENT_KEY);
 
-  /* 
+  /*
    * Now, just convert the string to a number and store it in the prefs field ...
    */
 
   newval = (guint)strtol(gtk_entry_get_text(GTK_ENTRY(scroll_percent_te)), NULL, 10);
-  
+
   if (newval <= 100) {
     prefs.gui_auto_scroll_percentage = newval;
   }
