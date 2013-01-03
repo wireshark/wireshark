@@ -153,10 +153,16 @@ static const true_false_string hub_port_status_indicator_meaning = {
 
 /* Dissector for ClearHubFeature, Chapter 11.24.2.1 Clear Hub Feature */
 static void
-dissect_usb_hub_clear_hub_feature(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_clear_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
+	const gchar* feature_name;
+
+	feature_name = val_to_str(usb_trans_info->setup.wValue, 
+								hub_class_feature_selectors_recipient_hub_vals,
+								"UNKNOWN (0x%x)");
+	col_append_fstr(pinfo->cinfo, COL_INFO, " [Hub: %s]", feature_name);
 
 	if (is_request) {
 		item = proto_tree_add_item(tree, hf_usb_hub_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -179,10 +185,16 @@ dissect_usb_hub_clear_hub_feature(packet_info *pinfo _U_, proto_tree *tree, tvbu
 
 /* Dissector for ClearPortFeature, Chapter 11.24.2.2 Clear Port Feature */
 static void
-dissect_usb_hub_clear_port_feature(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_clear_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
+	const gchar* feature_name;
+
+	feature_name = val_to_str(usb_trans_info->setup.wValue, 
+								hub_class_feature_selectors_recipient_port_vals,
+								"UNKNOWN (0x%x)");
+	col_append_fstr(pinfo->cinfo, COL_INFO, " [Port %u: %s]", usb_trans_info->setup.wIndex, feature_name);
 
 	if (is_request) {
 		item = proto_tree_add_item(tree, hf_usb_hub_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -263,10 +275,12 @@ dissect_usb_hub_get_hub_descriptor(packet_info *pinfo _U_, proto_tree *tree, tvb
 
 /* Dissector for GetHubStatus, Chapter 11.24.2.6 Get Hub Status */
 static void
-dissect_usb_hub_get_hub_status(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_get_hub_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, "    [Hub]");
 
 	if (is_request) {
 		item = proto_tree_add_item(tree, hf_usb_hub_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -288,10 +302,12 @@ dissect_usb_hub_get_hub_status(packet_info *pinfo _U_, proto_tree *tree, tvbuff_
 
 /* Dissector for GetPortStatus, Chapter 11.24.2.7 Get Port Status */
 static void
-dissect_usb_hub_get_port_status(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_get_port_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, "    [Port %u]", usb_trans_info->setup.wIndex);
 
 	if (is_request) {
 		item = proto_tree_add_item(tree, hf_usb_hub_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -448,10 +464,15 @@ dissect_usb_hub_stop_tt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb,
 
 /* Dissector for SetHubFeature, Chapter 11.24.2.12 Set Hub Feature */
 static void
-dissect_usb_hub_set_hub_feature(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_set_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
+	const gchar* feature_name;
+	feature_name = val_to_str(usb_trans_info->setup.wValue, 
+								hub_class_feature_selectors_recipient_hub_vals,
+								"UNKNOWN (0x%x)");
+	col_append_fstr(pinfo->cinfo, COL_INFO, "   [Hub: %s]", feature_name);
 
 	if (is_request) {
 		item = proto_tree_add_item(tree, hf_usb_hub_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -474,10 +495,17 @@ dissect_usb_hub_set_hub_feature(packet_info *pinfo _U_, proto_tree *tree, tvbuff
 
 /* Dissector for SetPortFeature, Chapter 11.24.2.13 Set Port Feature */
 static void
-dissect_usb_hub_set_port_feature(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+dissect_usb_hub_set_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
+	const gchar* feature_name;
+
+	feature_name = val_to_str(usb_trans_info->setup.wValue, 
+								hub_class_feature_selectors_recipient_port_vals,
+								"UNKNOWN (0x%x)");
+	col_append_fstr(pinfo->cinfo, COL_INFO, "   [Port %u: %s]", usb_trans_info->setup.wIndex,
+					feature_name);
 
 	if (is_request) {
 		item = proto_tree_add_item(tree, hf_usb_hub_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -615,11 +643,9 @@ dissect_usb_hub_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBHUB");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		val_to_str(usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
-			is_request ? "Request" : "Response");
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+	val_to_str(usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
+		is_request ? "Request " : "Response");
 
 	if (is_request) {
 		proto_tree_add_item(tree, hf_usb_hub_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
