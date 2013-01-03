@@ -813,6 +813,7 @@ DISSECTOR_SRC = \
 	packet-mpls.c		\
 	packet-mq-pcf.c		\
 	packet-mq.c		\
+	packet-mrcpv2.c		\
 	packet-mrdisc.c		\
 	packet-mrp-mmrp.c	\
 	packet-mrp-msrp.c	\
