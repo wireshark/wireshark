@@ -37,24 +37,21 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/sctp_stat.h"
 
-static GtkWidget *clist = NULL;
-static GList *last_list = NULL;
-static sctp_assoc_info_t* selected_stream = NULL;  /* current selection */
-
-#define NUM_COLS   14
-#define FRAME_LIMIT 8
+static GtkWidget         *clist           = NULL;
+static GList             *last_list       = NULL;
+static sctp_assoc_info_t *selected_stream = NULL; /* current selection */
 
 enum chunk_types {
-    DATA          = 0,
-    INIT          = 1,
-    INIT_ACK      = 2,
-    SACK          = 3,
-    HEARTBEAT     = 4,
-    HEARTBEAT_ACK = 5,
-    ABORT         = 6,
-    SHUTDOWN      = 7,
-    SHUTDOWN_ACK  = 8,
-    SCTP_ERROR    = 9,
+    DATA          =  0,
+    INIT          =  1,
+    INIT_ACK      =  2,
+    SACK          =  3,
+    HEARTBEAT     =  4,
+    HEARTBEAT_ACK =  5,
+    ABORT         =  6,
+    SHUTDOWN      =  7,
+    SHUTDOWN_ACK  =  8,
+    SCTP_ERROR    =  9,
     COOKIE_ECHO   = 10,
     COOKIE_ACK    = 11,
     ECNE          = 12,
@@ -69,30 +66,30 @@ enum chunk_types {
 };
 enum
 {
-   IP_ADDR_COLUMN,
-   DATA_COLUMN,
-   INIT_COLUMN,
-   INIT_ACK_COLUMN,
-   SACK_COLUMN,
-   HEARTBEAT_COLUMN,
-   HEARTBEAT_ACK_COLUMN,
-   ABORT_COLUMN,
-   SHUTDOWN_COLUMN,
-   SHUTDOWN_ACK_COLUMN,
-   ERROR_COLUMN,
-   COOKIE_ECHO_COLUMN,
-   COOKIE_ACK_COLUMN,
-   ECNE_COLUMN,
-   CWR_COLUMN,
-   SHUT_COMPLETE_COLUMN,
-   AUTH_COLUMN,
-   NR_SACK_COLUMN,
-   ASCONF_ACK_COLUMN,
-   PKTDROP_COLUMN,
-   FORWARD_TSN_COLUMN,
-   ASCONF_COLUMN,
-   OTHERS_COLUMN,
-   N_COLUMN /* The number of columns */
+    IP_ADDR_COLUMN,
+    DATA_COLUMN,
+    INIT_COLUMN,
+    INIT_ACK_COLUMN,
+    SACK_COLUMN,
+    HEARTBEAT_COLUMN,
+    HEARTBEAT_ACK_COLUMN,
+    ABORT_COLUMN,
+    SHUTDOWN_COLUMN,
+    SHUTDOWN_ACK_COLUMN,
+    ERROR_COLUMN,
+    COOKIE_ECHO_COLUMN,
+    COOKIE_ACK_COLUMN,
+    ECNE_COLUMN,
+    CWR_COLUMN,
+    SHUT_COMPLETE_COLUMN,
+    AUTH_COLUMN,
+    NR_SACK_COLUMN,
+    ASCONF_ACK_COLUMN,
+    PKTDROP_COLUMN,
+    FORWARD_TSN_COLUMN,
+    ASCONF_COLUMN,
+    OTHERS_COLUMN,
+    N_COLUMN /* The number of columns */
 };
 
 /* Create list */
@@ -100,12 +97,12 @@ static
 GtkWidget* create_list(void)
 {
 
-    GtkListStore *list_store;
-    GtkWidget *list;
+    GtkListStore      *list_store;
+    GtkWidget         *list;
     GtkTreeViewColumn *column;
-    GtkCellRenderer *renderer;
-    GtkTreeSortable *sortable;
-    GtkTreeView     *list_view;
+    GtkCellRenderer   *renderer;
+    GtkTreeSortable   *sortable;
+    GtkTreeView       *list_view;
     GtkTreeSelection  *selection;
 
     /* Create the store */
@@ -137,7 +134,7 @@ GtkWidget* create_list(void)
     list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
 
     list_view = GTK_TREE_VIEW(list);
-    sortable = GTK_TREE_SORTABLE(list_store);
+    sortable  = GTK_TREE_SORTABLE(list_store);
 
     /* Speed up the list display */
     gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
@@ -425,7 +422,7 @@ GtkWidget* create_list(void)
 static const char *
 chunk_name(int type)
 {
-#define CASE(x) case x: s=#x; break
+#define CASE(x) case x: s = #x; break
     const char *s = "unknown";
     switch (type)
     {
@@ -455,7 +452,7 @@ chunk_name(int type)
 }
 
 typedef struct column_arrows {
-    GtkWidget *table;
+    GtkWidget *grid;
     GtkWidget *ascend_pm;
     GtkWidget *descend_pm;
 } column_arrows;
@@ -464,7 +461,8 @@ typedef struct column_arrows {
 static void
 chunk_dlg_destroy(GObject *object _U_, gpointer user_data)
 {
-    struct sctp_udata *u_data=(struct sctp_udata*)user_data;
+    struct sctp_udata *u_data = (struct sctp_udata*)user_data;
+
     decrease_childcount(u_data->parent);
     remove_child(u_data, u_data->parent);
     g_free(u_data->io);
@@ -474,7 +472,8 @@ chunk_dlg_destroy(GObject *object _U_, gpointer user_data)
 static void
 on_destroy(GObject *object _U_, gpointer user_data)
 {
-    struct sctp_udata *u_data=(struct sctp_udata*)user_data;
+    struct sctp_udata *u_data = (struct sctp_udata*)user_data;
+
     decrease_childcount(u_data->parent);
     remove_child(u_data, u_data->parent);
     g_free(u_data->io);
@@ -491,9 +490,9 @@ add_to_clist(sctp_addr_chunk* sac)
 
     list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (clist))); /* Get store */
 
-    if (sac->addr->type==AT_IPv4) {
+    if (sac->addr->type == AT_IPv4) {
         g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ip_to_str((const guint8 *)(sac->addr->data)));
-    } else if (sac->addr->type==AT_IPv6) {
+    } else if (sac->addr->type == AT_IPv6) {
         g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ip6_to_str((const struct e_in6_addr *)(sac->addr->data)));
     }
 
@@ -526,20 +525,20 @@ add_to_clist(sctp_addr_chunk* sac)
 
 void sctp_chunk_stat_dlg_update(struct sctp_udata* udata, unsigned int direction)
 {
-    GList *list=NULL;
-    sctp_addr_chunk* sac;
+    GList *list = NULL;
+    sctp_addr_chunk *sac;
 
     if (udata->io->window != NULL)
     {
         gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(clist))));
-        if (udata->assoc->addr_chunk_count!=NULL)
+        if (udata->assoc->addr_chunk_count != NULL)
         {
             list = g_list_first(udata->assoc->addr_chunk_count);
 
             while (list)
             {
                 sac = (sctp_addr_chunk*)(list->data);
-                if (sac->direction==direction)
+                if (sac->direction == direction)
                 {
                     add_to_clist(sac);
                     list = g_list_next(list);
@@ -581,7 +580,7 @@ path_window_set_title(struct sctp_udata *u_data, unsigned int direction)
     char *display_name;
     char *title;
 
-    if(!u_data->io->window){
+    if (!u_data->io->window) {
         return;
     }
     display_name = cf_get_display_name(&cfile);
@@ -601,10 +600,10 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
     GtkWidget *bt_close;
 
 
-    sctp_graph_t* io=g_malloc(sizeof(sctp_graph_t));
-    io->window=NULL;
-    u_data->io=io;
-    u_data->io->window= gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    sctp_graph_t *io = g_malloc(sizeof(sctp_graph_t));
+    io->window = NULL;
+    u_data->io = io;
+    u_data->io->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_window_set_default_size(GTK_WINDOW(u_data->io->window), 850, 200);
     gtk_window_set_position (GTK_WINDOW (u_data->io->window), GTK_WIN_POS_CENTER);
     path_window_set_title(u_data, direction);
@@ -651,7 +650,7 @@ chunk_window_set_title(struct sctp_udata *u_data)
     char *display_name;
     char *title;
 
-    if(!u_data->io->window){
+    if (!u_data->io->window) {
         return;
     }
     display_name = cf_get_display_name(&cfile);
@@ -665,15 +664,16 @@ chunk_window_set_title(struct sctp_udata *u_data)
 static void
 sctp_chunk_dlg(struct sctp_udata *u_data)
 {
-    GtkWidget *main_vb, *table;
+    GtkWidget *main_vb, *grid;
     GtkWidget *label, *h_button_box;
     GtkWidget *close_bt;
-    gchar label_txt[50];
-    int i, row;
+    gchar      label_txt[50];
+    int        i, row;
 
-    sctp_graph_t* io=g_malloc(sizeof(sctp_graph_t));
-    io->window=NULL;
-    u_data->io=io;
+    sctp_graph_t *io = g_malloc(sizeof(sctp_graph_t));
+
+    io->window = NULL;
+    u_data->io = io;
     u_data->io->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_window_set_position (GTK_WINDOW (u_data->io->window), GTK_WIN_POS_CENTER);
     gtk_widget_set_size_request(u_data->io->window, 500, 650);
@@ -684,34 +684,34 @@ sctp_chunk_dlg(struct sctp_udata *u_data)
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
     gtk_container_add(GTK_CONTAINER(u_data->io->window), main_vb);
 
-    /* table */
-    table = gtk_table_new(1, 4, FALSE);
-    gtk_table_set_col_spacings(GTK_TABLE(table), 6);
-    gtk_table_set_row_spacings(GTK_TABLE(table), 3);
-    gtk_container_add(GTK_CONTAINER(main_vb), table);
+    /* grid */
+    grid = ws_gtk_grid_new();
+    ws_gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
+    ws_gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
+    gtk_box_pack_start(GTK_BOX(main_vb), grid, TRUE, TRUE, 0);
     row = 0;
 
     label = gtk_label_new("ChunkType");
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     label = gtk_label_new("Association");
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 1, 2, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 1, row, 1, 1);
     label = gtk_label_new("Endpoint 1");
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 2, 3, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 2, row, 1, 1);
     label = gtk_label_new("Endpoint 2");
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 3, 4, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 3, row, 1, 1);
     row ++;
     label = gtk_label_new("");
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     label = gtk_label_new("");
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 1, 2, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 1, row, 1, 1);
     label = gtk_label_new("");
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 2, 3, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 2, row, 1, 1);
     label = gtk_label_new("");
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 3, 4, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 3, row, 1, 1);
     row ++;
 
     for (i=0; i<NUM_CHUNKS; i++)
@@ -720,40 +720,40 @@ sctp_chunk_dlg(struct sctp_udata *u_data)
         {
             label = gtk_label_new(chunk_name(i));
             gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, row, row+1);
+            ws_gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
             g_snprintf(label_txt, 10, "%u", selected_stream->chunk_count[i]);
             label = gtk_label_new(label_txt);
             gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(table), label, 1, 2, row, row+1);
+            ws_gtk_grid_attach(GTK_GRID(grid), label, 1, row, 1, 1);
             g_snprintf(label_txt, 10, "%u", selected_stream->ep1_chunk_count[i]);
             label = gtk_label_new(label_txt);
             gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(table), label, 2, 3, row, row+1);
+            ws_gtk_grid_attach(GTK_GRID(grid), label, 2, row, 1, 1);
             g_snprintf(label_txt, 10, "%u", selected_stream->ep2_chunk_count[i]);
             label = gtk_label_new(label_txt);
             gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-            gtk_table_attach_defaults(GTK_TABLE(table), label, 3, 4, row, row+1);
+            ws_gtk_grid_attach(GTK_GRID(grid), label, 3, row, 1, 1);
             row ++;
         }
     }
 
     label = gtk_label_new("Others");
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     g_snprintf(label_txt, 10, "%u", selected_stream->chunk_count[OTHER_CHUNKS_INDEX]);
     label = gtk_label_new(label_txt);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 1, 2, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 1, row, 1, 1);
     g_snprintf(label_txt, 10, "%u", selected_stream->ep1_chunk_count[OTHER_CHUNKS_INDEX]);
     label = gtk_label_new(label_txt);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 2, 3, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 2, row, 1, 1);
     g_snprintf(label_txt, 10, "%u", selected_stream->ep2_chunk_count[OTHER_CHUNKS_INDEX]);
     label = gtk_label_new(label_txt);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    gtk_table_attach_defaults(GTK_TABLE(table), label, 3, 4, row, row+1);
+    ws_gtk_grid_attach(GTK_GRID(grid), label, 3, row, 1, 1);
 
-    h_button_box=gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+    h_button_box = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_start(GTK_BOX(main_vb), h_button_box, FALSE, FALSE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(h_button_box), 10);
     gtk_button_box_set_layout(GTK_BUTTON_BOX (h_button_box), GTK_BUTTONBOX_SPREAD);
@@ -775,20 +775,20 @@ sctp_chunk_dlg_show(struct sctp_analyse* userdata)
     gint i;
     struct sctp_udata *u_data;
 
-    u_data=g_malloc(sizeof(struct sctp_udata));
-    u_data->assoc=g_malloc(sizeof(sctp_assoc_info_t));
-    u_data->assoc=userdata->assoc;
-    u_data->io=NULL;
+    u_data = g_malloc(sizeof(struct sctp_udata));
+    u_data->assoc  = g_malloc(sizeof(sctp_assoc_info_t));
+    u_data->assoc  = userdata->assoc;
+    u_data->io     = NULL;
     u_data->parent = userdata;
 
-    if (selected_stream==NULL)
-        selected_stream=g_malloc(sizeof(sctp_assoc_info_t));
+    if (selected_stream == NULL)
+        selected_stream = g_malloc(sizeof(sctp_assoc_info_t));
 
-    selected_stream=u_data->assoc;
+    selected_stream = u_data->assoc;
     for (i=0; i<NUM_CHUNKS; i++)
     {
-        if (IS_SCTP_CHUNK_TYPE(i) || i == OTHER_CHUNKS_INDEX)
-            selected_stream->chunk_count[i]=u_data->assoc->chunk_count[i];
+        if (IS_SCTP_CHUNK_TYPE(i) || (i == OTHER_CHUNKS_INDEX))
+            selected_stream->chunk_count[i] = u_data->assoc->chunk_count[i];
     }
     set_child(u_data, u_data->parent);
     increase_childcount(u_data->parent);
@@ -800,16 +800,16 @@ sctp_chunk_stat_dlg_show(unsigned int direction, struct sctp_analyse* userdata)
 {
     struct sctp_udata *u_data;
 
-    u_data=g_malloc(sizeof(struct sctp_udata));
-    u_data->assoc=g_malloc(sizeof(sctp_assoc_info_t));
-    u_data->assoc=userdata->assoc;
-    u_data->io=NULL;
+    u_data = g_malloc(sizeof(struct sctp_udata));
+    u_data->assoc  = g_malloc(sizeof(sctp_assoc_info_t));
+    u_data->assoc  = userdata->assoc;
+    u_data->io     = NULL;
     u_data->parent = userdata;
 
-    if (selected_stream==NULL)
-        selected_stream=g_malloc(sizeof(sctp_assoc_info_t));
-    selected_stream=u_data->assoc;
-    selected_stream->addr_chunk_count=u_data->assoc->addr_chunk_count;
+    if (selected_stream == NULL)
+        selected_stream = g_malloc(sizeof(sctp_assoc_info_t));
+    selected_stream = u_data->assoc;
+    selected_stream->addr_chunk_count = u_data->assoc->addr_chunk_count;
 
     set_child(u_data, u_data->parent);
     increase_childcount(u_data->parent);
