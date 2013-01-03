@@ -894,6 +894,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mpls.c
 	dissectors/packet-mq-pcf.c
 	dissectors/packet-mq.c
+	dissectors/packet-mrcpv2.c
 	dissectors/packet-mrdisc.c
 	dissectors/packet-mrp-mmrp.c
 	dissectors/packet-mrp-msrp.c
