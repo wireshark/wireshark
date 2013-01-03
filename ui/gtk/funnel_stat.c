@@ -410,7 +410,7 @@ static void funnel_new_dialog(const gchar* title,
                                           const gchar** fieldnames,
                                           funnel_dlg_cb_t dlg_cb,
                                           void* data) {
-    GtkWidget *win, *main_tb, *main_vb, *bbox, *bt_cancel, *bt_ok;
+    GtkWidget *win, *main_grid, *main_vb, *bbox, *bt_cancel, *bt_ok;
     guint i;
     const gchar* fieldname;
     struct _funnel_dlg_data* dd = g_malloc(sizeof(struct _funnel_dlg_data));
@@ -419,7 +419,7 @@ static void funnel_new_dialog(const gchar* title,
     dd->dlg_cb = dlg_cb;
     dd->data = data;
 
-    for (i=0;fieldnames[i];i++);
+    for (i=0; fieldnames[i]; i++);
 
     win = dlg_window_new(title);
 
@@ -431,22 +431,22 @@ static void funnel_new_dialog(const gchar* title,
     gtk_container_add(GTK_CONTAINER(win), main_vb);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
-    main_tb = gtk_table_new(i+1, 2, FALSE);
-    gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-    gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-    gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+    main_grid = ws_gtk_grid_new();
+    gtk_box_pack_start(GTK_BOX(main_vb), main_grid, FALSE, FALSE, 0);
+    ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 10);
+    ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 15);
 
     for (i = 0; (fieldname = fieldnames[i]) ; i++) {
         GtkWidget *entry, *label;
 
         label = gtk_label_new(fieldname);
         gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-        gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, i+1, i + 2);
+        ws_gtk_grid_attach(GTK_GRID(main_grid), label, 0, i+1, 1, 1);
         gtk_widget_show(label);
 
         entry = gtk_entry_new();
         g_ptr_array_add(dd->entries,entry);
-        gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, i+1, i + 2);
+        ws_gtk_grid_attach(GTK_GRID(main_grid), entry, 1, i+1, 1, 1);
         gtk_widget_show(entry);
     }
 
@@ -461,7 +461,7 @@ static void funnel_new_dialog(const gchar* title,
     g_signal_connect(bt_cancel, "clicked", G_CALLBACK(funnel_cancel_btn_cb), win);
     gtk_widget_grab_default(bt_cancel);
 
-    gtk_widget_show(main_tb);
+    gtk_widget_show(main_grid);
     gtk_widget_show(main_vb);
     gtk_widget_show(win);
 }
