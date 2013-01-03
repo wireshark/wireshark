@@ -950,6 +950,11 @@ parse_preamble (void)
     timecode = timecode_default;
     ts_usec = 0;
 
+    if (ts_fmt == NULL) {
+        /* Clear Preamble */
+        packet_preamble_len = 0;
+        return;
+    }
 
     /* Ensure preamble has more than two chars before attempting to parse.
      * This should cover line breaks etc that get counted.
