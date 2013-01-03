@@ -906,16 +906,6 @@ parse_preamble (void)
     if (debug > 0)
         fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
 
-    /*
-     * If no "-t" flag was specified, don't attempt to parse a packet
-     * preamble to extract a time stamp.
-     */
-    if ((ts_fmt == NULL) && !has_direction) {
-        /* Clear Preamble */
-        packet_preamble_len = 0;
-        return;
-    }
-
     if (has_direction) {
         switch (packet_preamble[0]) {
         case 'i':
@@ -942,6 +932,17 @@ parse_preamble (void)
         memmove(packet_preamble, packet_preamble+i, packet_preamble_len);
     }
     
+
+    /*
+     * If no "-t" flag was specified, don't attempt to parse the packet
+     * preamble to extract a time stamp.
+     */
+    if (ts_fmt == NULL) {
+        /* Clear Preamble */
+        packet_preamble_len = 0;
+        return;
+    }
+
     /*
      * Initialize to today localtime, just in case not all fields
      * of the date and time are specified.
@@ -949,12 +950,6 @@ parse_preamble (void)
 
     timecode = timecode_default;
     ts_usec = 0;
-
-    if (ts_fmt == NULL) {
-        /* Clear Preamble */
-        packet_preamble_len = 0;
-        return;
-    }
 
     /* Ensure preamble has more than two chars before attempting to parse.
      * This should cover line breaks etc that get counted.
