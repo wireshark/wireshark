@@ -46,11 +46,11 @@
 
 #define SUM_STR_MAX  1024
 
-/* Ino about a table */
+/* Info about a grid */
 typedef struct {
-    GtkWidget  *table;
+    GtkWidget  *grid;
     guint       row_count;
-} tbl_info_t;
+} grid_info_t;
 
 /* Used to keep track of the statistics for an entire program interface */
 typedef struct _sip_stats_t {
@@ -69,14 +69,14 @@ typedef struct _sip_stats_t {
     GtkWidget   *resent_label;
     GtkWidget   *average_setup_time_label;
 
-    GtkWidget   *request_box;    /* container for INVITE, ... */
+    GtkWidget   *request_box;   /* container for INVITE, ... */
 
-    tbl_info_t   informational_table_info;   /* Status code between 100 and 199 */
-    tbl_info_t   success_table_info;         /*   200 and 299 */
-    tbl_info_t   redirection_table_info;     /*   300 and 399 */
-    tbl_info_t   client_error_table_info;    /*   400 and 499 */
-    tbl_info_t   server_errors_table_info;   /*   500 and 599 */
-    tbl_info_t   global_failures_table_info; /*   600 and 699 */
+    grid_info_t  informational_table_info;   /* Status code between 100 and 199 */
+    grid_info_t  success_table_info;         /*   200 and 299 */
+    grid_info_t  redirection_table_info;     /*   300 and 399 */
+    grid_info_t  client_error_table_info;    /*   400 and 499 */
+    grid_info_t  server_errors_table_info;   /*   500 and 599 */
+    grid_info_t  global_failures_table_info; /*   600 and 699 */
 } sipstat_t;
 
 /* Used to keep track of the stats for a specific response code
@@ -87,7 +87,7 @@ typedef struct _sip_response_code_t {
     guint        response_code;         /* 404 */
     const gchar *name;                  /* "Not Found" */
     GtkWidget   *widget;                /* Label where we display it */
-    tbl_info_t  *table_info;            /* Info about table in which we put it,
+    grid_info_t *table_info;            /* Info about table in which we put it,
                                            e.g. client_error_table_info */
     sipstat_t   *sp;                    /* Pointer back to main struct */
 } sip_response_code_t;
@@ -305,7 +305,7 @@ sip_draw_hash_responses(gint *key _U_ , sip_response_code_t *data, gchar *unused
         tmp = gtk_label_new(string_buff);
 
         /* Insert the label in the correct place in the table */
-        gtk_table_attach_defaults(GTK_TABLE(data->table_info->table), tmp,  0, 1, x, x+1);
+        ws_gtk_grid_attach(GTK_GRID(data->table_info->grid), tmp,  0, x, 1, 1);
         gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
         gtk_widget_show(tmp);
 
@@ -314,7 +314,7 @@ sip_draw_hash_responses(gint *key _U_ , sip_response_code_t *data, gchar *unused
         data->widget = gtk_label_new(string_buff);
 
         /* Show this widget in the right place */
-        gtk_table_attach_defaults(GTK_TABLE(data->table_info->table), data->widget, 1, 2, x, x+1);
+        ws_gtk_grid_attach(GTK_GRID(data->table_info->grid), data->widget, 1, x, 1, 1);
         gtk_label_set_justify(GTK_LABEL(data->widget), GTK_JUSTIFY_RIGHT);
         gtk_widget_show(data->widget);
 
@@ -538,7 +538,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-init_table(GtkWidget *main_vb, const gchar *title, tbl_info_t *tbl_info)
+init_table(GtkWidget *main_vb, const gchar *title, grid_info_t *tbl_info)
 {
     GtkWidget *fr;
 
@@ -546,8 +546,8 @@ init_table(GtkWidget *main_vb, const gchar *title, tbl_info_t *tbl_info)
     gtk_box_pack_start(GTK_BOX(main_vb), fr, TRUE, TRUE, 0);
 
     /* table (within that frame) */
-    (*tbl_info).table = gtk_table_new(0, 2, FALSE);
-    gtk_container_add(GTK_CONTAINER(fr), (*tbl_info).table);
+    (*tbl_info).grid = ws_gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(fr), (*tbl_info).grid);
     (*tbl_info).row_count = 0;
 }
 
@@ -631,8 +631,8 @@ gtk_sipstat_init(const char *opt_arg, void *userdata _U_)
     gtk_container_add(GTK_CONTAINER(request_fr), sp->request_box);
 
     sp->average_setup_time = 0;
-    sp->max_setup_time =0;
-    sp->min_setup_time =0;
+    sp->max_setup_time = 0;
+    sp->min_setup_time = 0;
     sp->average_setup_time_label = gtk_label_new("(Not calculated)");
     gtk_box_pack_start(GTK_BOX(main_vb), sp->average_setup_time_label, TRUE, TRUE, 0);
     gtk_widget_show(sp->average_setup_time_label);
