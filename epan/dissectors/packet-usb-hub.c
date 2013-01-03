@@ -54,11 +54,30 @@ static int hf_usb_hub_tt_port = -1;
 static int hf_usb_hub_tt_state_length = -1;
 static int hf_usb_hub_port = -1;
 static int hf_usb_hub_port_selector = -1;
+static int hf_usb_hub_port_status = -1;
+static int hf_usb_hub_port_change = -1;
+static int hf_usb_hub_port_status_connection = -1;
+static int hf_usb_hub_port_status_enable = -1;
+static int hf_usb_hub_port_status_suspend = -1;
+static int hf_usb_hub_port_status_overcurrent = -1;
+static int hf_usb_hub_port_status_reset = -1;
+static int hf_usb_hub_port_status_power = -1;
+static int hf_usb_hub_port_status_low_speed = -1;
+static int hf_usb_hub_port_status_high_speed = -1;
+static int hf_usb_hub_port_status_test = -1;
+static int hf_usb_hub_port_status_indicator = -1;
+static int hf_usb_hub_port_change_connection = -1;
+static int hf_usb_hub_port_change_enable = -1;
+static int hf_usb_hub_port_change_suspend = -1;
+static int hf_usb_hub_port_change_overcurrent = -1;
+static int hf_usb_hub_port_change_reset = -1;
 static int hf_usb_hub_descriptor_length = -1;
 
 static gint ett_usb_hub_wValue = -1;
 static gint ett_usb_hub_wIndex = -1;
 static gint ett_usb_hub_wLength = -1;
+static gint ett_usb_hub_port_status = -1;
+static gint ett_usb_hub_port_change = -1;
 
 /* Table 11-16. Hub Class Request Codes */
 #define USB_HUB_REQUEST_GET_STATUS           0
@@ -127,6 +146,10 @@ static const value_string hub_class_feature_selectors_recipient_port_vals[] = {
 	{ 0, NULL }
 };
 
+static const true_false_string hub_port_status_indicator_meaning = {
+	"Software-controlled color",
+	"Default colors"
+};
 
 /* Dissector for ClearHubFeature, Chapter 11.24.2.1 Clear Hub Feature */
 static void
@@ -285,6 +308,35 @@ dissect_usb_hub_get_port_status(packet_info *pinfo _U_, proto_tree *tree, tvbuff
 		/* length shall always contain 4 */
 		/*offset += 2;*/
 	} else {
+		static const int *status_fields[] = {
+			&hf_usb_hub_port_status_connection,
+			&hf_usb_hub_port_status_enable,
+			&hf_usb_hub_port_status_suspend,
+			&hf_usb_hub_port_status_overcurrent,
+			&hf_usb_hub_port_status_reset,
+			&hf_usb_hub_port_status_power,
+			&hf_usb_hub_port_status_low_speed,
+			&hf_usb_hub_port_status_high_speed,
+			&hf_usb_hub_port_status_test,
+			&hf_usb_hub_port_status_indicator,
+			NULL
+		};
+
+		static const int *change_fields[] = {
+			&hf_usb_hub_port_change_connection,
+			&hf_usb_hub_port_change_enable,
+			&hf_usb_hub_port_change_suspend,
+			&hf_usb_hub_port_change_overcurrent,
+			&hf_usb_hub_port_change_reset,
+			NULL
+		};
+
+		proto_tree_add_bitmask(tree, tvb, offset, hf_usb_hub_port_status,
+		                       ett_usb_hub_port_status, status_fields, ENC_LITTLE_ENDIAN);
+		offset += 2;
+		proto_tree_add_bitmask(tree, tvb, offset, hf_usb_hub_port_change,
+		                       ett_usb_hub_port_change, change_fields, ENC_LITTLE_ENDIAN);
+		/*offset += 2;*/
 	}
 }
 
@@ -651,14 +703,84 @@ proto_register_usb_hub(void)
 
 		{ &hf_usb_hub_port,
 		{ "Port", "usbhub.setup.Port", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  NULL, HFILL }}
+		  NULL, HFILL }},
 
+		{ &hf_usb_hub_port_status,
+		{ "Port Status", "usbhub.status.port", FT_UINT16, BASE_HEX, NULL, 0,
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_change,
+		{ "Port Change", "usbhub.change.port", FT_UINT16, BASE_HEX, NULL, 0,
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_status_connection,
+		{ "PORT_CONNECTION", "usbhub.status.port.connection", FT_BOOLEAN, 16, NULL, (1<<0),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_status_enable,
+		{ "PORT_ENABLE", "usbhub.status.port.enable", FT_BOOLEAN, 16, NULL, (1<<1),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_status_suspend,
+		{ "PORT_SUSPEND", "usbhub.status.port.suspend", FT_BOOLEAN, 16, NULL, (1<<2),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_status_overcurrent,
+		{ "PORT_OVER_CURRENT", "usbhub.status.port.overcurrent", FT_BOOLEAN, 16, NULL, (1<<3),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_status_reset,
+		{ "PORT_RESET", "usbhub.status.port.reset", FT_BOOLEAN, 16, NULL, (1<<4),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_status_power,
+		{ "PORT_POWER", "usbhub.status.port.power", FT_BOOLEAN, 16, NULL, (1<<8),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_status_low_speed,
+		{ "PORT_LOW_SPEED", "usbhub.status.port.low_speed", FT_BOOLEAN, 16, NULL, (1<<9),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_status_high_speed,
+		{ "PORT_HIGH_SPEED", "usbhub.status.port.high_speed", FT_BOOLEAN, 16, NULL, (1<<10),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_status_test,
+		{ "PORT_TEST", "usbhub.status.port.test", FT_BOOLEAN, 16, NULL, (1<<11),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_status_indicator,
+		{ "PORT_INDICATOR", "usbhub.status.port.indicator", FT_BOOLEAN, 16,
+		  TFS(&hub_port_status_indicator_meaning), (1<<12),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_change_connection,
+		{ "C_PORT_CONNECTION", "usbhub.change.port.connection", FT_BOOLEAN, 16, NULL, (1<<0),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_change_enable,
+		{ "C_PORT_ENABLE", "usbhub.change.port.enable", FT_BOOLEAN, 16, NULL, (1<<1),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_change_suspend,
+		{ "C_PORT_SUSPEND", "usbhub.status.port.suspend", FT_BOOLEAN, 16, NULL, (1<<2),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_change_overcurrent,
+		{ "C_PORT_OVER_CURRENT", "usbhub.status.port.overcurrent", FT_BOOLEAN, 16, NULL, (1<<3),
+		  NULL, HFILL }},
+
+		{ &hf_usb_hub_port_change_reset,
+		{ "C_PORT_RESET", "usbhub.status.port.reset", FT_BOOLEAN, 16, NULL, (1<<4),
+		  NULL, HFILL }}
 	};
 
 	static gint *usb_hub_subtrees[] = {
 		&ett_usb_hub_wValue,
 		&ett_usb_hub_wIndex,
-		&ett_usb_hub_wLength
+		&ett_usb_hub_wLength,
+		&ett_usb_hub_port_status,
+		&ett_usb_hub_port_change
 	};
 
 	proto_usb_hub = proto_register_protocol("USB HUB", "USBHUB", "usbhub");
