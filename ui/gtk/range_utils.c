@@ -127,14 +127,14 @@ void
 range_update_dynamics(gpointer data)
 {
   packet_range_t *range;
-  GtkWidget     *range_displayed_bt;
-  gboolean      filtered_active;
-  gint          selected_num;
-  gboolean      can_select;
-  gboolean      selected_packets;
-  gchar         label_text[100];
-  guint32       ignored_cnt = 0, displayed_ignored_cnt = 0;
-  guint32       displayed_cnt;
+  GtkWidget      *range_displayed_bt;
+  gboolean        filtered_active;
+  gint            selected_num;
+  gboolean        can_select;
+  gboolean        selected_packets;
+  gchar           label_text[100];
+  guint32         ignored_cnt = 0, displayed_ignored_cnt = 0;
+  guint32         displayed_cnt;
 
   range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);
 
@@ -276,7 +276,8 @@ range_update_dynamics(gpointer data)
   }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_C_KEY)), label_text);
   if (range->remove_ignored) {
-    g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_mark_range_cnt - range->displayed_ignored_mark_range_cnt);
+    g_snprintf(label_text, sizeof(label_text), "%u",
+               range->displayed_mark_range_cnt - range->displayed_ignored_mark_range_cnt);
   } else {
     g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_mark_range_cnt);
   }
@@ -294,7 +295,8 @@ range_update_dynamics(gpointer data)
   }
   gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_C_KEY)), label_text);
   if (range->remove_ignored) {
-    g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_user_range_cnt - range->displayed_ignored_user_range_cnt);
+    g_snprintf(label_text, sizeof(label_text), "%u",
+               range->displayed_user_range_cnt - range->displayed_ignored_user_range_cnt);
   } else {
     g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_user_range_cnt);
   }
@@ -467,7 +469,8 @@ toggle_select_user_range(GtkWidget *widget, gpointer data)
   }
 
   /* Make the entry widget sensitive or insensitive */
-  gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_ENTRY_KEY), range->process == range_process_user_range);
+  gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_ENTRY_KEY),
+                           range->process == range_process_user_range);
 
   /* When selecting user specified range, then focus on the entry */
   if (range->process == range_process_user_range)
@@ -495,8 +498,8 @@ toggle_remove_ignored(GtkWidget *widget, gpointer data)
 static void
 range_entry(GtkWidget *widget _U_, gpointer data)
 {
-  const gchar   *entry_text;
-  GtkWidget     *entry;
+  const gchar    *entry_text;
+  GtkWidget      *entry;
   packet_range_t *range;
 
 
@@ -513,179 +516,187 @@ range_entry(GtkWidget *widget _U_, gpointer data)
 static void
 range_entry_in_event(GtkWidget *widget _U_, GdkEventFocus *event _U_, gpointer user_data _U_)
 {
-    /* This event is called, if the "enter" key is pressed while the key focus (right name?) */
-    /* is in the range entry field. */
+  /* This event is called, if the "enter" key is pressed while the key focus (right name?) */
+  /* is in the range entry field. */
 
-    /* Calling range_entry() isn't necessary as all changes are already done while the */
-    /* entry was edited. Calling it here will cause a NULL pointer exception, */
-    /* so don't do: <range_entry(widget, user_data); as we did before. */
+  /* Calling range_entry() isn't necessary as all changes are already done while the */
+  /* entry was edited. Calling it here will cause a NULL pointer exception, */
+  /* so don't do: <range_entry(widget, user_data); as we did before. */
 
-    /* What we could do here is to cause the "hosting" dialog box do whatever it */
-    /* needs to do when the default button was pressed. This is difficult as we currently */
-    /* don't have a concept to call the hosting dialog this way. */
+  /* What we could do here is to cause the "hosting" dialog box do whatever it */
+  /* needs to do when the default button was pressed. This is difficult as we currently */
+  /* don't have a concept to call the hosting dialog this way. */
 
-    /* XXX - As we might want to put the whole range thing in it's own dialog, this would be */
-    /* a much easier task than it would be today as we could simply close our own dialog. */
+  /* XXX - As we might want to put the whole range thing in it's own dialog, this would be */
+  /* a much easier task than it would be today as we could simply close our own dialog. */
 }
 
 
 /* create a new range "widget" */
 GtkWidget *range_new(packet_range_t *range, gboolean saving)
 {
-  GtkWidget     *range_tb;
-  GtkWidget     *captured_bt;
-  GtkWidget     *displayed_bt;
+  GtkWidget *range_grid;
+  GtkWidget *captured_bt;
+  GtkWidget *displayed_bt;
 
-  GtkWidget     *select_all_rb;
-  GtkWidget     *select_all_c_lb;
-  GtkWidget     *select_all_d_lb;
-  GtkWidget     *select_curr_rb;
-  GtkWidget     *select_curr_c_lb;
-  GtkWidget     *select_curr_d_lb;
-  GtkWidget     *select_marked_only_rb;
-  GtkWidget     *select_marked_only_c_lb;
-  GtkWidget     *select_marked_only_d_lb;
-  GtkWidget     *select_marked_range_rb;
-  GtkWidget     *select_marked_range_c_lb;
-  GtkWidget     *select_marked_range_d_lb;
-  GtkWidget     *select_user_range_rb;
-  GtkWidget     *select_user_range_c_lb;
-  GtkWidget     *select_user_range_d_lb;
-  GtkWidget     *select_user_range_entry;
-  GtkWidget     *remove_ignored_cb;
-  GtkWidget     *ignored_c_lb;
-  GtkWidget     *ignored_d_lb;
+  GtkWidget *select_all_rb;
+  GtkWidget *select_all_c_lb;
+  GtkWidget *select_all_d_lb;
+  GtkWidget *select_curr_rb;
+  GtkWidget *select_curr_c_lb;
+  GtkWidget *select_curr_d_lb;
+  GtkWidget *select_marked_only_rb;
+  GtkWidget *select_marked_only_c_lb;
+  GtkWidget *select_marked_only_d_lb;
+  GtkWidget *select_marked_range_rb;
+  GtkWidget *select_marked_range_c_lb;
+  GtkWidget *select_marked_range_d_lb;
+  GtkWidget *select_user_range_rb;
+  GtkWidget *select_user_range_c_lb;
+  GtkWidget *select_user_range_d_lb;
+  GtkWidget *select_user_range_entry;
+  GtkWidget *remove_ignored_cb;
+  GtkWidget *ignored_c_lb;
+  GtkWidget *ignored_d_lb;
 
-  /* range table */
-  range_tb = gtk_table_new(7, 3, FALSE);
-  gtk_container_set_border_width(GTK_CONTAINER(range_tb), 5);
+  /* range grid */
+  range_grid = ws_gtk_grid_new();
+  gtk_container_set_border_width(GTK_CONTAINER(range_grid), 5);
 
   /* captured button */
   captured_bt = gtk_toggle_button_new_with_mnemonic("_Captured");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), captured_bt, 1, 2, 0, 1);
-  g_signal_connect(captured_bt, "toggled", G_CALLBACK(toggle_captured_cb), range_tb);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), captured_bt, 1, 0, 1, 1);
+  g_signal_connect(captured_bt, "toggled", G_CALLBACK(toggle_captured_cb), range_grid);
   gtk_widget_set_tooltip_text (captured_bt,("Process all the below chosen packets"));
 
   /* displayed button */
   displayed_bt = gtk_toggle_button_new_with_mnemonic("_Displayed");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), displayed_bt, 2, 3, 0, 1);
-  g_signal_connect(displayed_bt, "toggled", G_CALLBACK(toggle_filtered_cb), range_tb);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), displayed_bt, 2, 0, 1, 1);
+  g_signal_connect(displayed_bt, "toggled", G_CALLBACK(toggle_filtered_cb), range_grid);
   if (saving)
-    gtk_widget_set_tooltip_text (displayed_bt,("Save the packets chosen below which also pass the current display filter.  If"
-                                 " \"all packets\" is selected then packets required (e.g., for reassembled data) by the packets"
-				 " that passed the display filter are also included."));
+    /* XXX: Testing shows there's a limit to the number of tooltip character displayed: 72 ? */
+    gtk_widget_set_tooltip_text (displayed_bt,("Save the packets chosen below which also pass the current"
+                                               " display filter.  If \"all packets\" is selected then the packets"
+                                               " required (e.g., for reassembled data) by the packets"
+                                               " that passed the display filter are also included."));
   else
-    gtk_widget_set_tooltip_text (displayed_bt,("Process only the below chosen packets which also pass the current display filter"));
+    gtk_widget_set_tooltip_text (displayed_bt,("Process only the below chosen packets which also pass"
+                                               " the current display filter"));
 
 
   /* Process all packets */
   select_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_All packets");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_all_rb, 0, 1, 1, 2);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_all_rb, 0, 1, 1, 1);
   gtk_widget_set_tooltip_text (select_all_rb, ("Process all packets"));
-  g_signal_connect(select_all_rb, "toggled", G_CALLBACK(toggle_select_all), range_tb);
+  g_signal_connect(select_all_rb, "toggled", G_CALLBACK(toggle_select_all), range_grid);
 
   select_all_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_all_c_lb, 1, 2, 1, 2);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_all_c_lb, 1, 1, 1, 1);
   select_all_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_all_d_lb, 2, 3, 1, 2);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_all_d_lb, 2, 1, 1, 1);
 
 
   /* Process currently selected */
-  select_curr_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb), "_Selected packet only");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_curr_rb, 0, 1, 2, 3);
+  select_curr_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb),
+                                                                  "_Selected packet only");
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_curr_rb, 0, 2, 1, 1);
   gtk_widget_set_tooltip_text (select_curr_rb, ("Process the currently selected packet only"));
-  g_signal_connect(select_curr_rb, "toggled", G_CALLBACK(toggle_select_selected), range_tb);
+  g_signal_connect(select_curr_rb, "toggled", G_CALLBACK(toggle_select_selected), range_grid);
 
   select_curr_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_curr_c_lb, 1, 2, 2, 3);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_curr_c_lb, 1, 2, 1, 1);
   select_curr_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_curr_d_lb, 2, 3, 2, 3);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_curr_d_lb, 2, 2, 1, 1);
 
 
   /* Process marked packets */
-  select_marked_only_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb), "_Marked packets only");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_only_rb, 0, 1, 3, 4);
+  select_marked_only_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb),
+                                                                         "_Marked packets only");
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_marked_only_rb, 0, 3, 1, 1);
   gtk_widget_set_tooltip_text (select_marked_only_rb, ("Process marked packets only"));
-  g_signal_connect(select_marked_only_rb, "toggled", G_CALLBACK(toggle_select_marked_only), range_tb);
+  g_signal_connect(select_marked_only_rb, "toggled", G_CALLBACK(toggle_select_marked_only), range_grid);
 
   select_marked_only_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_only_c_lb, 1, 2, 3, 4);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_marked_only_c_lb, 1, 3, 1, 1);
   select_marked_only_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_only_d_lb, 2, 3, 3, 4);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_marked_only_d_lb, 2, 3, 1, 1);
 
 
   /* Process packet range between first and last packet */
-  select_marked_range_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb), "From first _to last marked packet");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_range_rb, 0, 1, 4, 5);
+  select_marked_range_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb),
+                                                                          "From first _to last marked packet");
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_marked_range_rb, 0, 4, 1, 1);
   gtk_widget_set_tooltip_text (select_marked_range_rb,("Process all packets between the first and last marker"));
-  g_signal_connect(select_marked_range_rb, "toggled", G_CALLBACK(toggle_select_marked_range), range_tb);
+  g_signal_connect(select_marked_range_rb, "toggled", G_CALLBACK(toggle_select_marked_range), range_grid);
 
   select_marked_range_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_range_c_lb, 1, 2, 4, 5);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_marked_range_c_lb, 1, 4, 1, 1);
   select_marked_range_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_range_d_lb, 2, 3, 4, 5);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_marked_range_d_lb, 2, 4, 1, 1);
 
 
   /* Process a user specified provided packet range : -10,30,40-70,80- */
-  select_user_range_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb), "Specify a packet _range:");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_rb, 0, 1, 5, 6);
+  select_user_range_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb),
+                                                                        "Specify a packet _range:");
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_user_range_rb, 0, 5, 1, 1);
   gtk_widget_set_tooltip_text (select_user_range_rb,("Process a specified packet range"));
-  g_signal_connect(select_user_range_rb, "toggled", G_CALLBACK(toggle_select_user_range), range_tb);
+  g_signal_connect(select_user_range_rb, "toggled", G_CALLBACK(toggle_select_user_range), range_grid);
 
   select_user_range_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_c_lb, 1, 2, 5, 6);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_user_range_c_lb, 1, 5, 1, 1);
   select_user_range_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_d_lb, 2, 3, 5, 6);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_user_range_d_lb, 2, 5, 1, 1);
 
 
   /* The entry part */
   select_user_range_entry = gtk_entry_new();
   gtk_entry_set_max_length (GTK_ENTRY (select_user_range_entry), 254);
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_entry, 0, 1, 6, 7);
-  gtk_widget_set_tooltip_text (select_user_range_entry, ("Specify a range of packet numbers :     \nExample :  1-10,18,25-100,332-"));
-  g_signal_connect(select_user_range_entry,"changed", G_CALLBACK(range_entry), range_tb);
-  g_signal_connect(select_user_range_entry,"activate", G_CALLBACK(range_entry_in_event), range_tb);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), select_user_range_entry, 0, 6, 1, 1);
+  gtk_widget_set_tooltip_text (select_user_range_entry,
+                               "Specify a range of packet numbers :     \nExample :  1-10,18,25-100,332-");
+  g_signal_connect(select_user_range_entry,"changed", G_CALLBACK(range_entry), range_grid);
+  g_signal_connect(select_user_range_entry,"activate", G_CALLBACK(range_entry_in_event), range_grid);
 
   /* Remove ignored packets */
   remove_ignored_cb = gtk_check_button_new_with_mnemonic("Remove _Ignored packets");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), remove_ignored_cb, 0, 1, 7, 8);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), remove_ignored_cb, 0, 7, 1, 1);
   gtk_widget_set_tooltip_text (remove_ignored_cb,("Remove all packets marked as Ignored"));
-  g_signal_connect(remove_ignored_cb, "toggled", G_CALLBACK(toggle_remove_ignored), range_tb);
+  g_signal_connect(remove_ignored_cb, "toggled", G_CALLBACK(toggle_remove_ignored), range_grid);
 
   ignored_c_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), ignored_c_lb, 1, 2, 7, 8);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), ignored_c_lb, 1, 7, 1, 1);
   ignored_d_lb = gtk_label_new("?");
-  gtk_table_attach_defaults(GTK_TABLE(range_tb), ignored_d_lb, 2, 3, 7, 8);
+  ws_gtk_grid_attach(GTK_GRID(range_grid), ignored_d_lb, 2, 7, 1, 1);
 
-  gtk_widget_show_all(range_tb);
+  gtk_widget_show_all(range_grid);
 
 
-  g_object_set_data(G_OBJECT(range_tb), RANGE_VALUES_KEY,               range);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_CAPTURED_BT_KEY,          captured_bt);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_DISPLAYED_BT_KEY,         displayed_bt);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_VALUES_KEY,               range);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_CAPTURED_BT_KEY,          captured_bt);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_DISPLAYED_BT_KEY,         displayed_bt);
 
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_ALL_KEY,           select_all_rb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_ALL_C_KEY,         select_all_c_lb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_ALL_D_KEY,         select_all_d_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_ALL_KEY,           select_all_rb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_ALL_C_KEY,         select_all_c_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_ALL_D_KEY,         select_all_d_lb);
 
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_CURR_KEY,          select_curr_rb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_CURR_C_KEY,        select_curr_c_lb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_CURR_D_KEY,        select_curr_d_lb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_CURR_D_KEY,        select_curr_d_lb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_KEY,        select_marked_only_rb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_C_KEY,      select_marked_only_c_lb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_D_KEY,      select_marked_only_d_lb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_RANGE_KEY,  select_marked_range_rb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_RANGE_C_KEY,select_marked_range_c_lb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_RANGE_D_KEY,select_marked_range_d_lb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_USER_KEY,          select_user_range_rb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_USER_C_KEY,        select_user_range_c_lb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_USER_D_KEY,        select_user_range_d_lb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_USER_ENTRY_KEY,    select_user_range_entry);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_CURR_KEY,          select_curr_rb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_CURR_C_KEY,        select_curr_c_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_CURR_D_KEY,        select_curr_d_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_CURR_D_KEY,        select_curr_d_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_MARKED_KEY,        select_marked_only_rb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_MARKED_C_KEY,      select_marked_only_c_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_MARKED_D_KEY,      select_marked_only_d_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_MARKED_RANGE_KEY,  select_marked_range_rb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_MARKED_RANGE_C_KEY,select_marked_range_c_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_MARKED_RANGE_D_KEY,select_marked_range_d_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_USER_KEY,          select_user_range_rb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_USER_C_KEY,        select_user_range_c_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_USER_D_KEY,        select_user_range_d_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_SELECT_USER_ENTRY_KEY,    select_user_range_entry);
 
-  g_object_set_data(G_OBJECT(range_tb), RANGE_REMOVE_IGNORED_KEY,       remove_ignored_cb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_IGNORED_C_KEY,            ignored_c_lb);
-  g_object_set_data(G_OBJECT(range_tb), RANGE_IGNORED_D_KEY,            ignored_d_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_REMOVE_IGNORED_KEY,       remove_ignored_cb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_IGNORED_C_KEY,            ignored_c_lb);
+  g_object_set_data(G_OBJECT(range_grid), RANGE_IGNORED_D_KEY,            ignored_d_lb);
 
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(captured_bt), !range->process_filtered);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_bt), range->process_filtered);
@@ -710,5 +721,5 @@ GtkWidget *range_new(packet_range_t *range, gboolean saving)
     g_assert_not_reached();
   }
 
-  return range_tb;
+  return range_grid;
 }
