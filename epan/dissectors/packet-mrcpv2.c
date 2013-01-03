@@ -570,20 +570,20 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Request_Line, tvb, offset, linelen, ENC_UTF_8);
 			request_line_item = proto_item_add_subtree(line_item, ett_Request_Line);
 			/* version */
-			str_len = strlen(field1);			
+			str_len = (gint)strlen(field1);			
 			proto_tree_add_item(request_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* message length */
-			str_len = strlen(field2);			
+			str_len = (gint)strlen(field2);			
 			proto_tree_add_item(request_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* method name */
 			col_append_str(pinfo->cinfo, COL_INFO, field3);
-			str_len = strlen(field3);			
+			str_len = (gint)strlen(field3);			
 			proto_tree_add_item(request_line_item, hf_mrcpv2_Method, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* request ID */
-			str_len = strlen(field4);			
+			str_len = (gint)strlen(field4);			
 			proto_tree_add_item(request_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 2; /* add CRLF */
 		}
@@ -593,19 +593,19 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Response_Line, tvb, offset, linelen, ENC_UTF_8);
 			response_line_item = proto_item_add_subtree(line_item, ett_Response_Line);
 			/* version */
-			str_len = strlen(field1);			
+			str_len = (gint)strlen(field1);			
 			proto_tree_add_item(response_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* message length */
-			str_len = strlen(field2);			
+			str_len = (gint)strlen(field2);			
 			proto_tree_add_item(response_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* request ID */
-			str_len = strlen(field3);			
+			str_len = (gint)strlen(field3);			
 			proto_tree_add_item(response_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* status code */
-			str_len = strlen(field4);
+			str_len = (gint)strlen(field4);
 			status_code_line = proto_tree_add_item(response_line_item, hf_mrcpv2_status_code, tvb, offset,
 				str_len, ENC_UTF_8);
 			status_code_item = proto_item_add_subtree(status_code_line, ett_Request_Line);
@@ -617,7 +617,7 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			/* request state */
 			g_snprintf(helper_str, sizeof(helper_str), "(%s) %s", field4, field5);
 			col_append_str(pinfo->cinfo, COL_INFO, helper_str);
-			str_len = strlen(field5);			
+			str_len = (gint)strlen(field5);			
 			proto_tree_add_item(response_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 2; /* add CRLF */			
 		}
@@ -627,24 +627,24 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Event_Line, tvb, offset, linelen, ENC_UTF_8);
 			event_line_item = proto_item_add_subtree(line_item, ett_Event_Line);
 			/* version */
-			str_len = strlen(field1);			
+			str_len = (gint)strlen(field1);			
 			proto_tree_add_item(event_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* message length */
-			str_len = strlen(field2);			
+			str_len = (gint)strlen(field2);			
 			proto_tree_add_item(event_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* event name */
 			col_append_str(pinfo->cinfo, COL_INFO, field3);
-			str_len = strlen(field3);			
+			str_len = (gint)strlen(field3);			
 			proto_tree_add_item(event_line_item, hf_mrcpv2_Event, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* request ID */
-			str_len = strlen(field4);			
+			str_len = (gint)strlen(field4);			
 			proto_tree_add_item(event_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* request state */
-			str_len = strlen(field5);			
+			str_len = (gint)strlen(field5);			
 			proto_tree_add_item(event_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 2; /* add CRLF */			
 		}
