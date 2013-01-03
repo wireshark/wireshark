@@ -477,6 +477,8 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wlogical-op, C,
   [
 #include <string.h>
 
+extern int foo(char *, int);
+
 int
 foo(char *sep, int c)
 {
