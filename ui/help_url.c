@@ -135,10 +135,9 @@ user_guide_url(const gchar *page) {
         utf_8to16(url->str),
         HH_DISPLAY_TOPIC, 0);
 
-    g_string_free(url, TRUE /* free_segment */);
-
     /* if the .chm file could be opened, stop here */
     if(hw != NULL) {
+        g_string_free(url, TRUE /* free_segment */);
         return NULL;
     }
 #endif /* HHC_DIR */
