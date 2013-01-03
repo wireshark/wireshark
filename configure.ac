@@ -442,7 +442,6 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wattributes)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdiv-by-zero)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wignored-qualifiers)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpragmas)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wlogical-op)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-overlength-strings)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-long-long)
@@ -470,6 +469,31 @@ foo(int a)
 }
   ],
   [warns about variables in function declarations shadowing other variables])
+
+# Unfortunately some versions of gcc generate logical-op warnings when strchr()
+# is given a constant seperators list.
+# gcc versions 4.3.2 and 4.4.5 are known to have the problem.
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wlogical-op, C,
+  [
+#include <string.h>
+
+int
+foo(char *sep, int c)
+{
+	if (strchr (sep, c) != NULL)
+		return 1;
+	else
+		return 0;
+}
+
+int
+main(int argc, char **argv)
+{
+	return foo(\"<\", 'a');
+}
+  ],
+  [generates warnings from strchr()])
+
 
 ## AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-variable)
 
