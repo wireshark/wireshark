@@ -54,6 +54,7 @@
 #include "ui/main_statusbar.h"
 
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/gui_utils.h"
 
 #define MAX_GRAPHS 5
 
@@ -152,9 +153,7 @@ typedef struct _io_stat_graph_t {
 	int hf_index;
 	GtkWidget *calc_field;
 	GdkColor color;
-#if GTK_CHECK_VERSION(3,0,0)
 	GdkRGBA rgba_color;
-#endif
 	construct_args_t *args;
 	GtkWidget *filter_bt;
 
@@ -1165,7 +1164,7 @@ static void
                     if( (prev_y_pos!=0) || (y_pos!=0) ){
                         cairo_move_to(cr, prev_x_pos+0.5, prev_y_pos+0.5);
                         cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
-						gdk_cairo_set_source_color (cr, &io->graphs[i].color);
+						gdk_cairo_set_source_rgba (cr, &io->graphs[i].rgba_color);
                         cairo_stroke(cr);
                     }
                     break;
@@ -1173,7 +1172,7 @@ static void
                     if(val){
                         cairo_move_to(cr, x_pos+0.5, draw_height-1+top_y_border+0.5);
                         cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
-						gdk_cairo_set_source_color (cr, &io->graphs[i].color);
+						gdk_cairo_set_source_rgba (cr, &io->graphs[i].rgba_color);
                         cairo_stroke(cr);
                     }
                     break;
@@ -1184,7 +1183,7 @@ static void
                             y_pos+0.5,
                             io->pixels_per_tick,
                             draw_height-1+top_y_border-y_pos);
-						gdk_cairo_set_source_color (cr, &io->graphs[i].color);
+						gdk_cairo_set_source_rgba (cr, &io->graphs[i].rgba_color);
                         cairo_fill (cr);
                     }
                     break;
@@ -1196,7 +1195,7 @@ static void
                             (gdouble)io->pixels_per_tick/2,
                             0,
                             2 * G_PI);
-						gdk_cairo_set_source_color (cr, &io->graphs[i].color);
+						gdk_cairo_set_source_rgba (cr, &io->graphs[i].rgba_color);
                         cairo_fill (cr);
                     }
                     break;
@@ -1333,7 +1332,7 @@ iostat_init(const char *opt_arg _U_, void* userdata _U_)
 		{0,	0x0000,	0x0000,	0xffff}, /* Blue */
 		{0,	0xffff,	0x5000,	0xffff}  /* Light brilliant magenta */
 	};
-#if GTK_CHECK_VERSION(3,0,0)
+
 	static GdkRGBA rgba_col[MAX_GRAPHS] = {
 		{0.0, 0.0,   0.0,   1.0}, /* Black */
 		{1.0, 0.0,   0.1,   1.0}, /* Red */
@@ -1341,7 +1340,7 @@ iostat_init(const char *opt_arg _U_, void* userdata _U_)
 		{0.0, 0.0,   1.0,   1.0}, /* Blue */
 		{1.0, 0.314, 1.0,   1.0}  /* Light brilliant magenta */
 	};
-#endif
+
 	GString *error_string;
 
 	io=g_new(io_stat_t,1);
@@ -1375,12 +1374,10 @@ iostat_init(const char *opt_arg _U_, void* userdata _U_)
 		io->graphs[i].color.red=col[i].red;
 		io->graphs[i].color.green=col[i].green;
 		io->graphs[i].color.blue=col[i].blue;
-#if GTK_CHECK_VERSION(3,0,0)
 		io->graphs[i].rgba_color.red=rgba_col[i].red;
 		io->graphs[i].rgba_color.green=rgba_col[i].green;
 		io->graphs[i].rgba_color.blue=rgba_col[i].blue;
 		io->graphs[i].rgba_color.alpha=rgba_col[i].alpha;
-#endif
 		io->graphs[i].display=0;
 		io->graphs[i].display_button=NULL;
 		io->graphs[i].filter_field=NULL;

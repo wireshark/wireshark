@@ -50,6 +50,7 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/font_utils.h"
+#include "ui/gtk/color_utils.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 
@@ -2040,7 +2041,6 @@ gtk_separator_new(GtkOrientation orientation)
  */
 
 #if !GTK_CHECK_VERSION(3,0,0)
-
 #else  /* GTK3 */
 
 void
@@ -2093,4 +2093,20 @@ ws_gtk_grid_set_homogeneous(GtkGrid *grid, gboolean homogeneous)
     gtk_grid_set_column_homogeneous(grid, homogeneous);
 }
 
+/*
+ * Wrapp gdk_cairo_set_source_color() with the GTK 3 equivalent
+ * to be used in GTK2
+ */
+#if !GTK_CHECK_VERSION(3,0,0)
+void
+gdk_cairo_set_source_rgba(cairo_t *cr, const GdkRGBA *rgba)
+{
+	GdkColor color;
+
+	gdkRGBAcolor_to_GdkColor(&color, rgba);
+
+	gdk_cairo_set_source_color(cr, &color);
+	
+}
+#endif /* !GTK_CHECK_VERSION(3,0,0) */
 #endif /* GTK_CHECK_VERSION(3,0,0) */

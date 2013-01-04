@@ -32,6 +32,7 @@
 
 #include "ui/simple_dialog.h"
 
+#include "ui/gtk/gui_utils.h"
 #include "ui/gtk/color_utils.h"
 #include "ui/gtk/gtkglobals.h"
 #if 0
@@ -113,6 +114,7 @@ get_color(GdkColor *new_color)
 	return (gdk_colormap_alloc_color(our_cmap, new_color, FALSE, TRUE));
 }
 #endif
+
 void
 color_t_to_gdkcolor(GdkColor *target, const color_t *source)
 {
@@ -121,7 +123,7 @@ color_t_to_gdkcolor(GdkColor *target, const color_t *source)
 	target->green = source->green;
 	target->blue  = source->blue;
 }
-#if GTK_CHECK_VERSION(3,0,0)
+
 void
 color_t_to_gdkRGBAcolor(GdkRGBA *target, const color_t *source)
 {
@@ -130,7 +132,6 @@ color_t_to_gdkRGBAcolor(GdkRGBA *target, const color_t *source)
 	target->green = source->green / 65535.0;
 	target->blue  = source->blue / 65535.0;
 }
-#endif
 void
 gdkcolor_to_color_t(color_t *target, const GdkColor *source)
 {
@@ -139,7 +140,7 @@ gdkcolor_to_color_t(color_t *target, const GdkColor *source)
 	target->green = source->green;
 	target->blue  = source->blue;
 }
-#if GTK_CHECK_VERSION(3,0,0)
+
 void
 gdkRGBAcolor_to_color_t(color_t *target, const GdkRGBA *source)
 {
@@ -148,5 +149,23 @@ gdkRGBAcolor_to_color_t(color_t *target, const GdkRGBA *source)
 	target->green = (guint16)(source->green*65535);
 	target->blue  = (guint16)(source->blue*65535);
 }
-#endif
+
+
+void
+GdkColor_to_GdkRGBA(GdkRGBA *target, const GdkColor *source)
+{
+	target->alpha = 1;
+	target->red   = (double)source->red / 65535.0;
+	target->green = (double)source->green / 65535.0;
+	target->blue  = (double)source->blue / 65535.0;
+}
+
+void
+gdkRGBAcolor_to_GdkColor(GdkColor *target, const GdkRGBA *source)
+{
+	target->pixel = 0;
+	target->red   = (guint16)(source->red*65535);
+	target->green = (guint16)(source->green*65535);
+	target->blue  = (guint16)(source->blue*65535);
+}
 

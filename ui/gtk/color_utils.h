@@ -25,6 +25,8 @@
 #ifndef  __COLORS_H__
 #define  __COLORS_H__
 
+#include "ui/gtk/gui_utils.h"
+
 /** @file
  *  Definitions for color structures and routines
  */
@@ -49,22 +51,22 @@ void colors_init(void);
 #if 0
 gboolean get_color(GdkColor *new_color);
 #endif
+
 /** Convert color_t to GdkColor.
  *
  * @param target the GdkColor to be filled
  * @param source the source color_t
  */
 void color_t_to_gdkcolor(GdkColor *target, const color_t *source);
-#if GTK_CHECK_VERSION(3,0,0)
 void color_t_to_gdkRGBAcolor(GdkRGBA *target, const color_t *source);
-#endif
 /** Convert GdkColor to color_t.
  *
  * @param target the source color_t
  * @param source the GdkColor to be filled
  */
 void gdkcolor_to_color_t(color_t *target, const GdkColor *source);
-#if GTK_CHECK_VERSION(3,0,0)
 void gdkRGBAcolor_to_color_t(color_t *target, const GdkRGBA *source);
-#endif
+
+void GdkColor_to_GdkRGBA(GdkRGBA *target, const GdkColor *source);
+void gdkRGBAcolor_to_GdkColor(GdkColor *target, const GdkRGBA *source);
 #endif /* __COLORS_H__ */

@@ -530,10 +530,18 @@ GdkPixbuf *gdk_pixbuf_get_from_surface (cairo_surface_t *surface,
 GtkWidget * ws_gtk_box_new(GtkOrientation orientation, gint spacing, gboolean homogeneous);
 
 #if !GTK_CHECK_VERSION(3,0,0)
+typedef struct {
+  gdouble red;
+  gdouble green;
+  gdouble blue;
+  gdouble alpha;
+} GdkRGBA;
+
 GtkWidget * gtk_button_box_new(GtkOrientation orientation);
 GtkWidget * gtk_scrollbar_new(GtkOrientation orientation, GtkAdjustment *adjustment);
 GtkWidget * gtk_paned_new(GtkOrientation orientation);
 GtkWidget * gtk_separator_new (GtkOrientation orientation);
+void gdk_cairo_set_source_rgba(cairo_t *cr, const GdkRGBA *rgba);
 #endif /* GTK_CHECK_VERSION(3,0,0) */
 
 
