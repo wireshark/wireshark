@@ -1,7 +1,7 @@
 /* packet-mrcpv2.c
  * Routines for Media Resource Control Protocol Version 2 (MRCPv2) dissection
- * Copyright 2012, Zeljko Ancimer  <zancimer@gmail.com>
- * 
+ * Copyright 2012, Zeljko Ancimer  <zancimer[AT]gmail.com>
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -26,7 +26,7 @@
  * Based on RFC 6787
  *
  * TODO:
- * - TLS has not been tested 
+ * - TLS has not been tested
  * - MRCP conversation (similar to VoIP Calls)
  * - convert header value into the correct types (numbers, booleans,...);
  *   currently all values are treated as strings so one has to be
@@ -58,7 +58,7 @@
 /* min length to determine MRCPv2 version */
 #define MRCPV2_MIN_LENGTH	10
 /* min length to determine MRCPv2 PDU length */
-#define MRCPV2_MIN_PDU_LEN  30
+#define MRCPV2_MIN_PDU_LEN	30
 
 /* line type */
 typedef enum {
@@ -70,193 +70,193 @@ typedef enum {
 
 /* header type */
 typedef enum {
-	UNKNOWN = 							0,
-	ABORT_MODEL = 						1,
-	ABORT_PHRASE_ENROLLMENT = 			2,
-	ABORT_VERIFICATION = 				3,
-	ACCEPT = 							4,
-	ACCEPT_CHARSET = 					5,
-	ACTIVE_REQUEST_ID_LIST = 			6,
-	ADAPT_MODEL = 						7,
-	AUDIO_FETCH_HINT = 					8,
-	CACHE_CONTROL = 					9,
-	CANCEL_IF_QUEUE = 					10,
-	CAPTURE_ON_SPEECH = 				11,
-	CHANNEL_IDENTIFIER = 				12,
-	CLASH_THRESHOLD = 					13,
-	CLEAR_DTMF_BUFFER = 				14,
-	COMPLETION_CAUSE = 					15,
-	COMPLETION_REASON = 				16,
-	CONFIDENCE_THRESHOLD = 				17,
-	CONFUSABLE_PHRASES_URI = 			18,
-	CONSISTENCY_THRESHOLD = 			19,
-	CONTENT_BASE = 						20,
-	CONTENT_ENCODING = 					21,
-	CONTENT_ID = 						22,
-	CONTENT_LENGTH = 					23,
-	CONTENT_LOCATION = 					24,
-	CONTENT_TYPE = 						25,
-	DTMF_BUFFER_TIME = 					26,
-	DTMF_INTERDIGIT_TIMEOUT = 			27,
-	DTMF_TERM_CHAR = 					28,
-	DTMF_TERM_TIMEOUT = 				29,
-	EARLY_NO_MATCH = 					30,
-	ENROLL_UTTERANCE = 					31,
-	FAILED_URI = 						32,
-	FAILED_URI_CAUSE = 					33,
-	FETCH_HINT = 						34,
-	FETCH_TIMEOUT = 					35,
-	FINAL_SILENCE = 					36,
-	HOTWORD_MAX_DURATION = 				37,
-	HOTWORD_MIN_DURATION = 				38,
-	INPUT_TYPE = 						39,
-	INPUT_WAVEFORM_URI = 				40,
-	INTERPRET_TEXT = 					41,
-	JUMP_SIZE = 						42,
-	KILL_ON_BARGE_IN = 					43,
-	LEXICON_SEARCH_ORDER = 				44,
-	LOAD_LEXICON = 						45,
-	LOGGING_TAG = 						46,
-	MAX_TIME = 							47,
-	MEDIA_TYPE = 						48,
-	MIN_VERIFICATION_SCORE = 			49,
-	N_BEST_LIST_LENGTH = 				50,
-	NEW_AUDIO_CHANNEL = 				51,
-	NEW_PHRASE_ID = 					52,
-	NO_INPUT_TIMEOUT = 					53,
-	NUM_MAX_VERIFICATION_PHRASES = 		54,
-	NUM_MIN_CONSISTENT_PRONUNCIATIONS = 55,
-	NUM_MIN_VERIFICATION_PHRASES = 		56,
-	PERSONAL_GRAMMAR_URI = 				57,
-	PHRASE_ID = 						58,
-	PHRASE_NL = 						59,
-	PROSODY_PARAMETER = 				60,
-	PROXY_SYNC_ID = 					61,
-	RECOGNITION_MODE = 					62,
-	RECOGNITION_TIMEOUT = 				63,
-	RECOGNIZER_CONTEXT_BLOCK = 			64,
-	RECORD_URI = 						65,
-	REPOSITORY_URI = 					66,
-	SAVE_BEST_WAVEFORM = 				67,
-	SAVE_WAVEFORM = 					68,
-	SENSITIVITY_LEVEL = 				69,
-	SET_COOKIE = 						70,
-	SPEAK_LENGTH = 						71,
-	SPEAK_RESTART = 					72,
-	SPEAKER_PROFILE = 					73,
-	SPEECH_COMPLETE_TIMEOUT = 			74,
-	SPEECH_INCOMPLETE_TIMEOUT = 		75,
-	SPEECH_LANGUAGE = 					76,
-	SPEECH_MARKER = 					77,
-	SPEED_VS_ACCURACY = 				78,
-	START_INPUT_TIMERS = 				79,
-	TRIM_LENGTH = 						80,
-	VENDOR_SPECIFIC_PARAMETERS = 		81,
-	VER_BUFFER_UTTERANCE = 				82,
-	VERIFICATION_MODE = 				83,
-	VOICE_AGE = 						84,
-	VOICE_GENDER = 						85,
-	VOICE_NAME = 						86,
-	VOICE_VARIANT = 					87,
-	VOICEPRINT_EXISTS = 				88,
-	VOICEPRINT_IDENTIFIER = 			89,
-	WAVEFORM_URI = 						90,
-	WEIGHT = 							91
+	UNKNOWN =					0,
+	ABORT_MODEL =					1,
+	ABORT_PHRASE_ENROLLMENT =			2,
+	ABORT_VERIFICATION =				3,
+	ACCEPT =					4,
+	ACCEPT_CHARSET =				5,
+	ACTIVE_REQUEST_ID_LIST =			6,
+	ADAPT_MODEL =					7,
+	AUDIO_FETCH_HINT =				8,
+	CACHE_CONTROL =					9,
+	CANCEL_IF_QUEUE =				10,
+	CAPTURE_ON_SPEECH =				11,
+	CHANNEL_IDENTIFIER =				12,
+	CLASH_THRESHOLD =				13,
+	CLEAR_DTMF_BUFFER =				14,
+	COMPLETION_CAUSE =				15,
+	COMPLETION_REASON =				16,
+	CONFIDENCE_THRESHOLD =				17,
+	CONFUSABLE_PHRASES_URI =			18,
+	CONSISTENCY_THRESHOLD =				19,
+	CONTENT_BASE =					20,
+	CONTENT_ENCODING =				21,
+	CONTENT_ID =					22,
+	CONTENT_LENGTH =				23,
+	CONTENT_LOCATION =				24,
+	CONTENT_TYPE =					25,
+	DTMF_BUFFER_TIME =				26,
+	DTMF_INTERDIGIT_TIMEOUT =			27,
+	DTMF_TERM_CHAR =				28,
+	DTMF_TERM_TIMEOUT =				29,
+	EARLY_NO_MATCH =				30,
+	ENROLL_UTTERANCE =				31,
+	FAILED_URI =					32,
+	FAILED_URI_CAUSE =				33,
+	FETCH_HINT =					34,
+	FETCH_TIMEOUT =					35,
+	FINAL_SILENCE =					36,
+	HOTWORD_MAX_DURATION =				37,
+	HOTWORD_MIN_DURATION =				38,
+	INPUT_TYPE =					39,
+	INPUT_WAVEFORM_URI =				40,
+	INTERPRET_TEXT =				41,
+	JUMP_SIZE =					42,
+	KILL_ON_BARGE_IN =				43,
+	LEXICON_SEARCH_ORDER =				44,
+	LOAD_LEXICON =					45,
+	LOGGING_TAG =					46,
+	MAX_TIME =					47,
+	MEDIA_TYPE =					48,
+	MIN_VERIFICATION_SCORE =			49,
+	N_BEST_LIST_LENGTH =				50,
+	NEW_AUDIO_CHANNEL =				51,
+	NEW_PHRASE_ID =					52,
+	NO_INPUT_TIMEOUT =				53,
+	NUM_MAX_VERIFICATION_PHRASES =			54,
+	NUM_MIN_CONSISTENT_PRONUNCIATIONS =		55,
+	NUM_MIN_VERIFICATION_PHRASES =			56,
+	PERSONAL_GRAMMAR_URI =				57,
+	PHRASE_ID =					58,
+	PHRASE_NL =					59,
+	PROSODY_PARAMETER =				60,
+	PROXY_SYNC_ID =					61,
+	RECOGNITION_MODE =				62,
+	RECOGNITION_TIMEOUT =				63,
+	RECOGNIZER_CONTEXT_BLOCK =			64,
+	RECORD_URI =					65,
+	REPOSITORY_URI =				66,
+	SAVE_BEST_WAVEFORM =				67,
+	SAVE_WAVEFORM =					68,
+	SENSITIVITY_LEVEL =				69,
+	SET_COOKIE =					70,
+	SPEAK_LENGTH =					71,
+	SPEAK_RESTART =					72,
+	SPEAKER_PROFILE =				73,
+	SPEECH_COMPLETE_TIMEOUT =			74,
+	SPEECH_INCOMPLETE_TIMEOUT =			75,
+	SPEECH_LANGUAGE =				76,
+	SPEECH_MARKER =					77,
+	SPEED_VS_ACCURACY =				78,
+	START_INPUT_TIMERS =				79,
+	TRIM_LENGTH =					80,
+	VENDOR_SPECIFIC_PARAMETERS =			81,
+	VER_BUFFER_UTTERANCE =				82,
+	VERIFICATION_MODE =				83,
+	VOICE_AGE =					84,
+	VOICE_GENDER =					85,
+	VOICE_NAME =					86,
+	VOICE_VARIANT =					87,
+	VOICEPRINT_EXISTS =				88,
+	VOICEPRINT_IDENTIFIER =				89,
+	WAVEFORM_URI =					90,
+	WEIGHT =					91
 } HEADER_TYPE;
 
 static const value_string header_type_vals[] = {
-	{ ABORT_MODEL,							"abort-model" },
+	{ ABORT_MODEL,						"abort-model" },
 	{ ABORT_PHRASE_ENROLLMENT,				"abort-phrase-enrollment" },
 	{ ABORT_VERIFICATION,					"abort-verification" },
-	{ ACCEPT,								"accept" },
-	{ ACCEPT_CHARSET,						"accept-charset" },
+	{ ACCEPT,						"accept" },
+	{ ACCEPT_CHARSET,					"accept-charset" },
 	{ ACTIVE_REQUEST_ID_LIST,				"active-request-id-list" },
-	{ ADAPT_MODEL,							"adapt-model" },
-	{ AUDIO_FETCH_HINT,						"audio-fetch-hint" },
-	{ CACHE_CONTROL,						"cache-control" },
-	{ CANCEL_IF_QUEUE,						"cancel-if-queue" },
+	{ ADAPT_MODEL,						"adapt-model" },
+	{ AUDIO_FETCH_HINT,					"audio-fetch-hint" },
+	{ CACHE_CONTROL,					"cache-control" },
+	{ CANCEL_IF_QUEUE,					"cancel-if-queue" },
 	{ CAPTURE_ON_SPEECH,					"capture-on-speech" },
 	{ CHANNEL_IDENTIFIER,					"channel-identifier" },
-	{ CLASH_THRESHOLD,						"clash-threshold" },
+	{ CLASH_THRESHOLD,					"clash-threshold" },
 	{ CLEAR_DTMF_BUFFER,					"clear-dtmf-buffer" },
-	{ COMPLETION_CAUSE,						"completion-cause" },
+	{ COMPLETION_CAUSE,					"completion-cause" },
 	{ COMPLETION_REASON,					"completion-reason" },
 	{ CONFIDENCE_THRESHOLD,					"confidence-threshold" },
 	{ CONFUSABLE_PHRASES_URI,				"confusable-phrases-uri" },
 	{ CONSISTENCY_THRESHOLD,				"consistency-threshold" },
-	{ CONTENT_BASE,							"content-base" },
-	{ CONTENT_ENCODING,						"content-encoding" },
-	{ CONTENT_ID,							"content-id" },
-	{ CONTENT_LENGTH,						"content-length" },
-	{ CONTENT_LOCATION,						"content-location" },
-	{ CONTENT_TYPE,							"content-type" },
-	{ DTMF_BUFFER_TIME,						"dtmf-buffer-time" },
+	{ CONTENT_BASE,						"content-base" },
+	{ CONTENT_ENCODING,					"content-encoding" },
+	{ CONTENT_ID,						"content-id" },
+	{ CONTENT_LENGTH,					"content-length" },
+	{ CONTENT_LOCATION,					"content-location" },
+	{ CONTENT_TYPE,						"content-type" },
+	{ DTMF_BUFFER_TIME,					"dtmf-buffer-time" },
 	{ DTMF_INTERDIGIT_TIMEOUT,				"dtmf-interdigit-timeout" },
-	{ DTMF_TERM_CHAR,						"dtmf-term-char" },
+	{ DTMF_TERM_CHAR,					"dtmf-term-char" },
 	{ DTMF_TERM_TIMEOUT,					"dtmf-term-timeout" },
-	{ EARLY_NO_MATCH,						"early-no-match" },
-	{ ENROLL_UTTERANCE,						"enroll-utterance" },
-	{ FAILED_URI,							"failed-uri" },
-	{ FAILED_URI_CAUSE,						"failed-uri-cause" },
-	{ FETCH_HINT,							"fetch-hint" },
-	{ FETCH_TIMEOUT,						"fetch-timeout" },
-	{ FINAL_SILENCE,						"final-silence" },
+	{ EARLY_NO_MATCH,					"early-no-match" },
+	{ ENROLL_UTTERANCE,					"enroll-utterance" },
+	{ FAILED_URI,						"failed-uri" },
+	{ FAILED_URI_CAUSE,					"failed-uri-cause" },
+	{ FETCH_HINT,						"fetch-hint" },
+	{ FETCH_TIMEOUT,					"fetch-timeout" },
+	{ FINAL_SILENCE,					"final-silence" },
 	{ HOTWORD_MAX_DURATION,					"hotword-max-duration" },
 	{ HOTWORD_MIN_DURATION,					"hotword-min-duration" },
-	{ INPUT_TYPE,							"input-type" },
+	{ INPUT_TYPE,						"input-type" },
 	{ INPUT_WAVEFORM_URI,					"input-waveform-uri" },
-	{ INTERPRET_TEXT,						"interpret-text" },
-	{ JUMP_SIZE,							"jump-size" },
-	{ KILL_ON_BARGE_IN,						"kill-on-barge-in" },
+	{ INTERPRET_TEXT,					"interpret-text" },
+	{ JUMP_SIZE,						"jump-size" },
+	{ KILL_ON_BARGE_IN,					"kill-on-barge-in" },
 	{ LEXICON_SEARCH_ORDER,					"lexicon-search-order" },
-	{ LOAD_LEXICON,							"load-lexicon" },
-	{ LOGGING_TAG,							"logging-tag" },
-	{ MAX_TIME,								"max-time" },
-	{ MEDIA_TYPE,							"media-type" },
+	{ LOAD_LEXICON,						"load-lexicon" },
+	{ LOGGING_TAG,						"logging-tag" },
+	{ MAX_TIME,						"max-time" },
+	{ MEDIA_TYPE,						"media-type" },
 	{ MIN_VERIFICATION_SCORE,				"min-verification-score" },
 	{ N_BEST_LIST_LENGTH,					"n-best-list-length" },
 	{ NEW_AUDIO_CHANNEL,					"new-audio-channel" },
-	{ NEW_PHRASE_ID,						"new-phrase-id" },
-	{ NO_INPUT_TIMEOUT,						"no-input-timeout" },
-	{ NUM_MAX_VERIFICATION_PHRASES,			"num-max-verification-phrases" },
-	{ NUM_MIN_CONSISTENT_PRONUNCIATIONS,	"num-min-consistent-pronunciations" },
-	{ NUM_MIN_VERIFICATION_PHRASES,			"num-min-verification-phrases" },
+	{ NEW_PHRASE_ID,					"new-phrase-id" },
+	{ NO_INPUT_TIMEOUT,					"no-input-timeout" },
+	{ NUM_MAX_VERIFICATION_PHRASES,				"num-max-verification-phrases" },
+	{ NUM_MIN_CONSISTENT_PRONUNCIATIONS,			"num-min-consistent-pronunciations" },
+	{ NUM_MIN_VERIFICATION_PHRASES,				"num-min-verification-phrases" },
 	{ PERSONAL_GRAMMAR_URI,					"personal-grammar-uri" },
-	{ PHRASE_ID,							"phrase-id" },
-	{ PHRASE_NL,							"phrase-nl" },
+	{ PHRASE_ID,						"phrase-id" },
+	{ PHRASE_NL,						"phrase-nl" },
 	{ PROSODY_PARAMETER,					"prosody-" },
-	{ PROXY_SYNC_ID,						"proxy-sync-id" },
-	{ RECOGNITION_MODE,						"recognition-mode" },
+	{ PROXY_SYNC_ID,					"proxy-sync-id" },
+	{ RECOGNITION_MODE,					"recognition-mode" },
 	{ RECOGNITION_TIMEOUT,					"recognition-timeout" },
 	{ RECOGNIZER_CONTEXT_BLOCK,				"recognizer-context-block" },
-	{ RECORD_URI,							"record-uri" },
-	{ REPOSITORY_URI,						"repository-uri" },
+	{ RECORD_URI,						"record-uri" },
+	{ REPOSITORY_URI,					"repository-uri" },
 	{ SAVE_BEST_WAVEFORM,					"save-best-waveform" },
-	{ SAVE_WAVEFORM,						"save-waveform" },
+	{ SAVE_WAVEFORM,					"save-waveform" },
 	{ SENSITIVITY_LEVEL,					"sensitivity-level" },
-	{ SET_COOKIE,							"set-cookie" },
-	{ SPEAK_LENGTH,							"speak-length" },
-	{ SPEAK_RESTART,						"speak-restart" },
-	{ SPEAKER_PROFILE,						"speaker-profile" },
+	{ SET_COOKIE,						"set-cookie" },
+	{ SPEAK_LENGTH,						"speak-length" },
+	{ SPEAK_RESTART,					"speak-restart" },
+	{ SPEAKER_PROFILE,					"speaker-profile" },
 	{ SPEECH_COMPLETE_TIMEOUT,				"speech-complete-timeout" },
-	{ SPEECH_INCOMPLETE_TIMEOUT,			"speech-incomplete-timeout" },
-	{ SPEECH_LANGUAGE,						"speech-language" },
-	{ SPEECH_MARKER,						"speech-marker" },
+	{ SPEECH_INCOMPLETE_TIMEOUT,				"speech-incomplete-timeout" },
+	{ SPEECH_LANGUAGE,					"speech-language" },
+	{ SPEECH_MARKER,					"speech-marker" },
 	{ SPEED_VS_ACCURACY,					"speed-vs-accuracy" },
 	{ START_INPUT_TIMERS,					"start-input-timers" },
-	{ TRIM_LENGTH,							"trim-length" },
-	{ VENDOR_SPECIFIC_PARAMETERS,			"vendor-specific-parameters" },
+	{ TRIM_LENGTH,						"trim-length" },
+	{ VENDOR_SPECIFIC_PARAMETERS,				"vendor-specific-parameters" },
 	{ VER_BUFFER_UTTERANCE,					"ver-buffer-utterance" },
 	{ VERIFICATION_MODE,					"verification-mode" },
-	{ VOICE_AGE,							"voice-age" },
-	{ VOICE_GENDER,							"voice-gender" },
-	{ VOICE_NAME,							"voice-name" },
-	{ VOICE_VARIANT,						"voice-variant" },
+	{ VOICE_AGE,						"voice-age" },
+	{ VOICE_GENDER,						"voice-gender" },
+	{ VOICE_NAME,						"voice-name" },
+	{ VOICE_VARIANT,					"voice-variant" },
 	{ VOICEPRINT_EXISTS,					"voiceprint-exists" },
 	{ VOICEPRINT_IDENTIFIER,				"voiceprint-identifier" },
-	{ WAVEFORM_URI,							"waveform-uri" },
-	{ WEIGHT,								"weight" },
- 	{ 0,	NULL }
+	{ WAVEFORM_URI,						"waveform-uri" },
+	{ WEIGHT,						"weight" },
+	{ 0,	NULL }
 };
 
 /* Forward declaration we need below (if using proto_reg_handoff... as a prefs callback) */
@@ -380,7 +380,8 @@ static gint ett_Event_Line = -1;
 static gint ett_Status_Code = -1;
 
 /* format status code description */
-void get_status_code_description(gint status_code, gchar *text, int size)
+void
+get_status_code_description(gint status_code, gchar *text, int size)
 {
 	switch(status_code)
 	{
@@ -392,65 +393,65 @@ void get_status_code_description(gint status_code, gchar *text, int size)
 			break;
 		case 401:
 			g_snprintf(text, size, "Client Failure:\n"
-									"\tMethod not allowed");
+						"\tMethod not allowed");
 			break;
 		case 402:
 			g_snprintf(text, size, "Client Failure:\n"
-									"\tMethod not valid in this state");
+						"\tMethod not valid in this state");
 			break;
 		case 403:
 			g_snprintf(text, size, "Client Failure:\n"
-									"\tUnsupported header field");
+						"\tUnsupported header field");
 			break;
 		case 404:
 			g_snprintf(text, size, "Client Failure:\n"
-									"\tIllegal value for header field. This is the error\n"
-									"\tfor a syntax violation.");
+						"\tIllegal value for header field. This is the error\n"
+						"\tfor a syntax violation.");
 			break;
 		case 405:
 			g_snprintf(text, size, "Client Failure:\n"
-									"\tResource not allocated for this session or does not exist");
+						"\tResource not allocated for this session or does not exist");
 			break;
 		case 406:
 			g_snprintf(text, size, "Client Failure:\n"
-									"\tMandatory Header Field Missing");
+						"\tMandatory Header Field Missing");
 			break;
 		case 407:
 			g_snprintf(text, size, "Client Failure:\n"
-									"\tMethod or Operation Failed (e.g., Grammar\n"
-									"\tcompilation failed in the recognizer. Detailed\n"
-									"\tcause codes might be available through a resource\n"
-									"\tspecific header.)");
+						"\tMethod or Operation Failed (e.g., Grammar\n"
+						"\tcompilation failed in the recognizer. Detailed\n"
+						"\tcause codes might be available through a resource\n"
+						"\tspecific header.)");
 			break;
 		case 408:
 			g_snprintf(text, size, "Client Failure:\n"
-									"\tUnrecognized or unsupported message entity");
+						"\tUnrecognized or unsupported message entity");
 			break;
 		case 409:
 			g_snprintf(text, size, "Client Failure:\n"
-									"\tUnsupported Header Field Value. This is a value\n"
-									"\tthat is syntactically legal but exceeds the\n"
-									"\timplementation's capabilities or expectations.");
+						"\tUnsupported Header Field Value. This is a value\n"
+						"\tthat is syntactically legal but exceeds the\n"
+						"\timplementation's capabilities or expectations.");
 			break;
 		case 410:
 			g_snprintf(text, size, "Client Failure:\n"
-									"\tNon-Monotonic or Out of order sequence number in request.\n");
+						"\tNon-Monotonic or Out of order sequence number in request.\n");
 			break;
 		case 501:
 			g_snprintf(text, size, "Server Failure:\n"
-									"\tServer Internal Error");
+						"\tServer Internal Error");
 			break;
 		case 502:
 			g_snprintf(text, size, "Server Failure:\n"
-									"\tProtocol Version not supported");
+						"\tProtocol Version not supported");
 			break;
 		case 503:
 			g_snprintf(text, size, "Server Failure:\n"
-									"\tReserved for future assignment");
+						"\tReserved for future assignment");
 			break;
 		case 504:
 			g_snprintf(text, size, "Server Failure:\n"
-									"\tMessage too large");
+						"\tMessage too large");
 			break;
 		default:
 			g_snprintf(text, size, "Unknown status code");
@@ -459,7 +460,8 @@ void get_status_code_description(gint status_code, gchar *text, int size)
 }
 
 /* Code to actually dissect the packets */
-static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -491,8 +493,8 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	guint8 *field2;
 	guint8 *field3;
 	guint8 *field4;
-	guint8 *field5;
-	
+	guint8 *field5 = NULL;
+
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRCPv2");
 
@@ -502,15 +504,15 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 		ti = proto_tree_add_item(tree, proto_mrcpv2, tvb, 0, -1, ENC_UTF_8);
 		mrcpv2_tree = proto_item_add_subtree(ti, ett_mrcpv2);
-		
+
 		/* get first line */
 		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
 		/*  find out MRCP message type:
 
-			request-line		= mrcp-version SP message-length SP method-name SP request-id CRLF
+			request-line	= mrcp-version SP message-length SP method-name SP request-id CRLF
 			response-line	= mrcp-version SP message-length SP request-id  SP status-code SP request-state CRLF
-			event-line		= mrcp-version SP message-length SP event-name  SP request-id  SP request-state CRLF
+			event-line	= mrcp-version SP message-length SP event-name  SP request-id  SP request-state CRLF
 		*/
 		/* version */
 		sp_end = tvb_find_guint8(tvb, 0, linelen, ' ');
@@ -550,7 +552,7 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				line_type = RESPONSE_LINE;
 			else
 				line_type = EVENT_LINE;
-			
+
 			sp_start = sp_end + 1;
 			sp_end = linelen;
 			if ((sp_end > tvb_len) || (sp_end > linelen))
@@ -562,7 +564,7 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		pdu_size = atoi(field2);
 		if (pdu_size > tvb_len)
 			return -1;
-		
+
 		/* process MRCP header line */
 		if (line_type == REQUEST_LINE)
 		{
@@ -570,20 +572,20 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Request_Line, tvb, offset, linelen, ENC_UTF_8);
 			request_line_item = proto_item_add_subtree(line_item, ett_Request_Line);
 			/* version */
-			str_len = (gint)strlen(field1);			
+			str_len = (gint)strlen(field1);
 			proto_tree_add_item(request_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* message length */
-			str_len = (gint)strlen(field2);			
+			str_len = (gint)strlen(field2);
 			proto_tree_add_item(request_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* method name */
 			col_append_str(pinfo->cinfo, COL_INFO, field3);
-			str_len = (gint)strlen(field3);			
+			str_len = (gint)strlen(field3);
 			proto_tree_add_item(request_line_item, hf_mrcpv2_Method, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* request ID */
-			str_len = (gint)strlen(field4);			
+			str_len = (gint)strlen(field4);
 			proto_tree_add_item(request_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 2; /* add CRLF */
 		}
@@ -593,15 +595,15 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Response_Line, tvb, offset, linelen, ENC_UTF_8);
 			response_line_item = proto_item_add_subtree(line_item, ett_Response_Line);
 			/* version */
-			str_len = (gint)strlen(field1);			
+			str_len = (gint)strlen(field1);
 			proto_tree_add_item(response_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* message length */
-			str_len = (gint)strlen(field2);			
+			str_len = (gint)strlen(field2);
 			proto_tree_add_item(response_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* request ID */
-			str_len = (gint)strlen(field3);			
+			str_len = (gint)strlen(field3);
 			proto_tree_add_item(response_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* status code */
@@ -613,13 +615,13 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			get_status_code_description(atoi(field4), helper_str, sizeof(helper_str));
 			proto_tree_add_string_format(status_code_item, hf_mrcpv2_status_code, tvb, offset, str_len,
 				helper_str, "%s", helper_str);
-			offset += str_len + 1; /* add SP */			
+			offset += str_len + 1; /* add SP */
 			/* request state */
 			g_snprintf(helper_str, sizeof(helper_str), "(%s) %s", field4, field5);
 			col_append_str(pinfo->cinfo, COL_INFO, helper_str);
-			str_len = (gint)strlen(field5);			
+			str_len = (gint)strlen(field5);
 			proto_tree_add_item(response_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 2; /* add CRLF */			
+			offset += str_len + 2; /* add CRLF */
 		}
 		else if (line_type == EVENT_LINE)
 		{
@@ -627,26 +629,26 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Event_Line, tvb, offset, linelen, ENC_UTF_8);
 			event_line_item = proto_item_add_subtree(line_item, ett_Event_Line);
 			/* version */
-			str_len = (gint)strlen(field1);			
+			str_len = (gint)strlen(field1);
 			proto_tree_add_item(event_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* message length */
-			str_len = (gint)strlen(field2);			
+			str_len = (gint)strlen(field2);
 			proto_tree_add_item(event_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* event name */
 			col_append_str(pinfo->cinfo, COL_INFO, field3);
-			str_len = (gint)strlen(field3);			
+			str_len = (gint)strlen(field3);
 			proto_tree_add_item(event_line_item, hf_mrcpv2_Event, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* request ID */
-			str_len = (gint)strlen(field4);			
+			str_len = (gint)strlen(field4);
 			proto_tree_add_item(event_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
 			offset += str_len + 1; /* add SP */
 			/* request state */
-			str_len = (gint)strlen(field5);			
+			str_len = (gint)strlen(field5);
 			proto_tree_add_item(event_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 2; /* add CRLF */			
+			offset += str_len + 2; /* add CRLF */
 		}
 		else
 		{
@@ -675,9 +677,9 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					next_offset = tvb_len; /* we are done */
 				}
 				continue;
-			}		
+			}
 
-			/* get header type and its value */ 
+			/* get header type and its value */
 			colon_offset = tvb_find_guint8(tvb, offset, linelen, ':');
 			if (colon_offset == -1)
 			{ /* header type should end with ':' */
@@ -688,7 +690,7 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			ascii_strdown_inplace(header_name);
 			value_offset = tvb_skip_wsp(tvb, colon_offset + 1, offset + linelen - (colon_offset + 1));
 			header_value = tvb_get_ephemeral_string(tvb, value_offset, offset + linelen - value_offset);
-			
+
 			/* find out header type */
 			header_type = UNKNOWN;
 			for (p = header_type_vals; p->strptr != NULL; ++p)
@@ -699,7 +701,7 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					break;
 				}
 			}
-			
+
 			/* add header type and value into the tree */
 			switch (header_type)
 			{
@@ -769,7 +771,7 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				case CONTENT_ID:
 					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_ID, tvb, offset, linelen, header_value);
 					break;
-				case CONTENT_LENGTH:					
+				case CONTENT_LENGTH:
 					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Length, tvb, offset, linelen, header_value);
 					/* if content length is > 0, then there are some data after the headers */
 					content_length = atoi(header_value);
@@ -990,7 +992,8 @@ static int dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 /* get the length of the MRCP message */
-static guint get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint
+get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	gint len_start;
 	gint len_end;
@@ -1014,12 +1017,14 @@ static guint get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offse
 	return num_msg_len;
 }
 
-static void dissect_mrcpv2_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_mrcpv2_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	dissect_mrcpv2_common(tvb, pinfo, tree);
 }
 
-static int dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static int
+dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	gint len;
 	gint value_size;
@@ -1038,25 +1043,25 @@ static int dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	/* we are looking for MRCP string */
 	slash_offset = tvb_find_guint8(tvb, 0, MRCPV2_MIN_LENGTH, '/');
 	if (slash_offset != 4)
-		return 0;		
+		return 0;
 	version = tvb_get_ephemeral_string(tvb, 0, slash_offset);
 	if (strcmp(version, "MRCP") != 0)
 		return 0;
-	
+
 	/* get first digit after the '/'; it should be 2 */
 	dot_offset = tvb_find_guint8(tvb, slash_offset + 1, MRCPV2_MIN_LENGTH - slash_offset - 1, '.');
 	if (dot_offset == -1)
-		return 0;	
-	value_size = dot_offset - slash_offset - 1;	
+		return 0;
+	value_size = dot_offset - slash_offset - 1;
 	if ((value_size != 1) && (value_size != 2))
 		return 0;
 	major = tvb_get_ephemeral_string(tvb, slash_offset + 1, dot_offset - 1);
 	value = atoi(major);
 	if (value != 2)
 		return 0;
-	
+
 	/* get second digit, it should be 0 */
-	sp_offset = tvb_find_guint8(tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - dot_offset - 1, ' ');	
+	sp_offset = tvb_find_guint8(tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - dot_offset - 1, ' ');
 	if (sp_offset == -1)
 	{
 		minor = tvb_get_ephemeral_string(tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - dot_offset - 1);
@@ -1078,7 +1083,8 @@ static int dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	return len;
 }
 
-void proto_register_mrcpv2(void)
+void
+proto_register_mrcpv2(void)
 {
 	module_t *mrcpv2_module;
 
@@ -1098,7 +1104,7 @@ void proto_register_mrcpv2(void)
 		{ &hf_mrcpv2_Unknown_Message,
 			{ "Unknown Message", "mrcpv2.Unknown-Message",
 			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},		
+		},
 		{ &hf_mrcpv2_Unknown_Header,
 			{ "Unknown Header", "mrcpv2.Unknown-Header",
 			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
@@ -1126,7 +1132,7 @@ void proto_register_mrcpv2(void)
 		{ &hf_mrcpv2_request_id,
 			{ "Request ID", "mrcpv2.reqID",
 			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},		
+		},
 		{ &hf_mrcpv2_status_code,
 			{ "Status Code", "mrcpv2.status_code",
 			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
@@ -1500,7 +1506,7 @@ void proto_register_mrcpv2(void)
 			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
 		}
 	};
-	
+
 	static gint *ett[] = {
 		&ett_mrcpv2,
 		&ett_Request_Line,
@@ -1510,7 +1516,7 @@ void proto_register_mrcpv2(void)
 	};
 
 	proto_mrcpv2 = proto_register_protocol(
-		"Media Resource Control Protocol Version 2 (MRCPv2)", 
+		"Media Resource Control Protocol Version 2 (MRCPv2)",
 		"MRCPv2",
 		"mrcpv2");
 
@@ -1524,7 +1530,8 @@ void proto_register_mrcpv2(void)
 	     10, &global_mrcpv2_tcp_port);
 }
 
-void proto_reg_handoff_mrcpv2(void)
+void
+proto_reg_handoff_mrcpv2(void)
 {
 	static gboolean initialized = FALSE;
 	static dissector_handle_t mrcpv2_handle;
