@@ -82,6 +82,8 @@
 #include "ui/gtk/stock_icons.h"
 
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/color_utils.h"
+#include "ui/gtk/gui_utils.h"
 
 /*define this symbol to compile with G729 and G723 codecs*/
 /*#define HAVE_G729_G723 1*/
@@ -205,7 +207,7 @@ typedef struct _rtp_channel_info {
 #else /* PORTAUDIO_API_1 */
 	PaTime cursor_prev;
 #endif /* PORTAUDIO_API_1 */
-	GdkColor bg_color[MAX_NUM_COL_CONV+1];
+	GdkRGBA bg_color[MAX_NUM_COL_CONV+1];
 	gboolean cursor_catch;
 	rtp_stream_info_t *first_stream;	/* This is the first RTP stream in the channel */
 	guint32 num_packets;
@@ -1274,12 +1276,13 @@ static void channel_draw(rtp_channel_info_t* rci)
 	int progbar_quantum;
 	gfloat progbar_val;
 	guint status;
-	GdkColor red_color = {0, 65535, 0, 0};
-	GdkColor amber_color = {0, 65535, 49152, 0};
-	GdkColor white_color = {0, 65535, 65535, 65535};
-	GdkColor black_color = {0, 0, 0, 0};
+	GdkRGBA red_color =    {1.0, 0.0, 0.1, 1.0}; /* Red */
+	/*GdkColor amber_color = {0, 65535, 49152, 0};*/
+	GdkRGBA amber_color =  {1.0, 0.75, 0.0, 1.0};
+	GdkRGBA white_color =  {1.0, 1.0, 1.0, 1.0 };
+	GdkRGBA black_color =  {0.0, 0.0, 0.0, 1.0}; /* Black */
 
-	GdkColor *draw_color_p;
+	GdkRGBA *draw_color_p;
 	time_t seconds;
 	struct tm *timestamp;
 	GtkAllocation widget_alloc;
@@ -1289,7 +1292,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 	gtk_widget_get_allocation(rci->draw_area, &widget_alloc);
 	/* Clear out old plot */
 	cr = cairo_create (rci->surface);
-	gdk_cairo_set_source_color (cr, &rci->bg_color[1+rci->call_num%MAX_NUM_COL_CONV]);
+	gdk_cairo_set_source_rgba (cr, &rci->bg_color[1+rci->call_num%MAX_NUM_COL_CONV]);
 	cairo_rectangle (cr, 0, 0, widget_alloc.width,widget_alloc.height);
 	cairo_fill (cr);
 	cairo_destroy (cr);
@@ -1359,7 +1362,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 		if ((status == S_DROP_BY_JITT) || (status == S_WRONG_TIMESTAMP) || (status == S_SILENCE)) {
 			cr = cairo_create (rci->surface);
 			cairo_set_line_width (cr, 1.0);
-			gdk_cairo_set_source_color (cr, draw_color_p);
+			gdk_cairo_set_source_rgba (cr, draw_color_p);
 			cairo_move_to(cr, i+0.5, 0);
 			cairo_line_to(cr, i+0.5, (widget_alloc.height-HEIGHT_TIME_LABEL)-1);
 			cairo_stroke(cr);
@@ -1373,7 +1376,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 			pango_layout_set_text(small_layout, label_string, -1);
 			pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
 			cr = cairo_create (rci->surface);
-			gdk_cairo_set_source_color (cr, draw_color_p);
+			gdk_cairo_set_source_rgba (cr, draw_color_p);
 			cairo_move_to (cr, i, 0);
 			pango_cairo_show_layout (cr, small_layout);
 			cairo_destroy (cr);
@@ -1382,7 +1385,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 			/* Draw a graphical representation of the sample */
 			cr = cairo_create (rci->surface);
 			cairo_set_line_width (cr, 1.0);
-			gdk_cairo_set_source_color (cr, draw_color_p);
+			gdk_cairo_set_source_rgba (cr, draw_color_p);
 			cairo_move_to(cr, i+0.5, ( (0x7FFF+min) * (widget_alloc.height-HEIGHT_TIME_LABEL))/0xFFFF);
 			cairo_line_to(cr, i+0.5, ( (0x7FFF+max) * (widget_alloc.height-HEIGHT_TIME_LABEL))/0xFFFF);
 			cairo_stroke(cr);
@@ -1437,7 +1440,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 		gtk_widget_get_allocation(rci->draw_area, &widget_alloc);
 		/* Clear out old plot */
 		cr = gdk_cairo_create (rci->pixmap);
-		gdk_cairo_set_source_color (cr, &rci->bg_color[1+rci->call_num%MAX_NUM_COL_CONV]);
+		gdk_cairo_set_source_rgba (cr, &rci->bg_color[1+rci->call_num%MAX_NUM_COL_CONV]);
 		cairo_rectangle (cr, 0, 0, widget_alloc.width,widget_alloc.height);
 		cairo_fill (cr);
 		cairo_destroy (cr);
@@ -1507,7 +1510,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 			if ((status == S_DROP_BY_JITT) || (status == S_WRONG_TIMESTAMP) || (status == S_SILENCE)) {
 				cr = gdk_cairo_create (rci->pixmap);
 				cairo_set_line_width (cr, 1.0);
-				gdk_cairo_set_source_color (cr, draw_color_p);
+				gdk_cairo_set_source_rgba (cr, draw_color_p);
 				cairo_move_to(cr, i+0.5, 0);
 				cairo_line_to(cr, i+0.5, (widget_alloc.height-HEIGHT_TIME_LABEL)-1);
 				cairo_stroke(cr);
@@ -1521,7 +1524,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 				pango_layout_set_text(small_layout, label_string, -1);
 				pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
 				cr = gdk_cairo_create (rci->pixmap);
-				gdk_cairo_set_source_color (cr, draw_color_p);
+				gdk_cairo_set_source_rgba (cr, draw_color_p);
 				cairo_move_to (cr, i, 0);
 				pango_cairo_show_layout (cr, small_layout);
 				cairo_destroy (cr);
@@ -1530,7 +1533,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 				/* Draw a graphical representation of the sample */
 				cr = gdk_cairo_create (rci->pixmap);
 				cairo_set_line_width (cr, 1.0);
-				gdk_cairo_set_source_color (cr, draw_color_p);
+				gdk_cairo_set_source_rgba (cr, draw_color_p);
 				cairo_move_to(cr, i+0.5, ( (0x7FFF+min) * (widget_alloc.height-HEIGHT_TIME_LABEL))/0xFFFF);
 				cairo_line_to(cr, i+0.5, ( (0x7FFF+max) * (widget_alloc.height-HEIGHT_TIME_LABEL))/0xFFFF);
 				cairo_stroke(cr);
@@ -1670,10 +1673,13 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 
 	/* create gc's for the background color of each channel */
 	for (i=0; i<MAX_NUM_COL_CONV+1; i++){
-		rci->bg_color[i].pixel=col[i].pixel;
-		rci->bg_color[i].red=col[i].red;
-		rci->bg_color[i].green=col[i].green;
-		rci->bg_color[i].blue=col[i].blue;
+		GdkRGBA rgba_color;
+
+		GdkColor_to_GdkRGBA(&rgba_color, &col[i]);
+		rci->bg_color[i].alpha=rgba_color.alpha;
+		rci->bg_color[i].red=rgba_color.red;
+		rci->bg_color[i].green=rgba_color.green;
+		rci->bg_color[i].blue=rgba_color.blue;
 
 	}
 
