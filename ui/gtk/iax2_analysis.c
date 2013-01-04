@@ -113,12 +113,17 @@ enum
 #define GRAPH_FWD_DIFF 1
 #define GRAPH_REV_JITTER 2
 #define GRAPH_REV_DIFF 3
-static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000};
+static guint32 yscale_max[MAX_YSCALE] = {
+	AUTO_MAX_YSCALE, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000,
+	1000000, 2000000, 5000000, 10000000, 20000000, 50000000
+};
 
 #define MAX_PIXELS_PER_TICK 4
 #define DEFAULT_PIXELS_PER_TICK_INDEX 1
 static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
-static const char *graph_descr[4] = {"Fwd Jitter", "Fwd Difference", "Rvr Jitter", "Rvr Difference"};
+static const char *graph_descr[4] = {
+	"Fwd Jitter", "Fwd Difference", "Rvr Jitter", "Rvr Difference"
+};
 /* unit is in ms */
 #define MAX_TICK_VALUES 5
 #define DEFAULT_TICK_VALUE_INDEX 1
@@ -264,7 +269,8 @@ static const gchar *titles[7] =	 {
 
 static void on_refresh_bt_clicked(GtkWidget *bt _U_, gpointer data);
 /****************************************************************************/
-static void enable_graph(dialog_graph_graph_t *dgg)
+static void 
+enable_graph(dialog_graph_graph_t *dgg)
 {
 
 	dgg->display=TRUE;
@@ -357,7 +363,8 @@ iax2_reset(void *user_data_arg)
 }
 
 /****************************************************************************/
-static gboolean iax2_packet_add_graph(dialog_graph_graph_t *dgg, tap_iax2_stat_t *statinfo, packet_info *pinfo, guint32 value)
+static gboolean 
+iax2_packet_add_graph(dialog_graph_graph_t *dgg, tap_iax2_stat_t *statinfo, packet_info *pinfo, guint32 value)
 {
 	dialog_graph_graph_item_t *it;
 	guint32 idx;
@@ -414,7 +421,8 @@ static gboolean iax2_packet_add_graph(dialog_graph_graph_t *dgg, tap_iax2_stat_t
 /****************************************************************************/
 /* here we can redraw the output */
 /* not used yet */
-static void iax2_draw(void *prs _U_)
+static void 
+iax2_draw(void *prs _U_)
 {
 	return;
 }
@@ -436,7 +444,8 @@ static void iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
 
 /****************************************************************************/
 /* whenever a IAX2 packet is seen by the tap listener */
-static gboolean iax2_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *iax2info_arg)
+static gboolean 
+iax2_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *iax2info_arg)
 {
 	user_data_t *user_data = user_data_arg;
 	const struct _iax2_info_t *iax2info = iax2info_arg;
@@ -680,7 +689,8 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 
 #define MAX_SILENCE_TICKS 1000000
 /****************************************************************************/
-static void iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
+static void 
+iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
 				    tap_iax2_stat_t *statinfo,
 				    packet_info *pinfo,
 				    const struct _iax2_info_t *iax2info)
@@ -742,7 +752,8 @@ static void iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
 
 /****************************************************************************/
 /* close the dialog window and remove the tap listener */
-static void on_iax2_window_destroy(GtkWidget *win _U_, gpointer data)
+static void 
+on_iax2_window_destroy(GtkWidget *win _U_, gpointer data)
 {
 	user_data_t *user_data = data;
 
@@ -783,7 +794,8 @@ static void on_iax2_window_destroy(GtkWidget *win _U_, gpointer data)
 
 
 /****************************************************************************/
-static void on_notebook_switch_page(GtkNotebook *notebook _U_,
+static void 
+on_notebook_switch_page(GtkNotebook *notebook _U_,
 				    gpointer *page _U_,
 				    gint page_num,
 				    gpointer data)
@@ -791,13 +803,14 @@ static void on_notebook_switch_page(GtkNotebook *notebook _U_,
 	user_data_t *user_data = data;
 
 	user_data->dlg.selected_list =
-		(page_num==0) ? user_data->dlg.list_fwd : user_data->dlg.list_rev ;
+		(page_num == 0) ? user_data->dlg.list_fwd : user_data->dlg.list_rev ;
 
 	user_data->dlg.selected_list_row = 0;
 }
 
 /****************************************************************************/
-static void on_list_select_row(GtkTreeSelection *selection,
+static void
+on_list_select_row(GtkTreeSelection *selection,
 				gpointer data)
 {
 	user_data_t *user_data = data;
@@ -807,7 +820,8 @@ static void on_list_select_row(GtkTreeSelection *selection,
 
 
 /****************************************************************************/
-static void dialog_graph_set_title(user_data_t* user_data)
+static void 
+dialog_graph_set_title(user_data_t* user_data)
 {
 	char	*title;
 
@@ -831,27 +845,28 @@ static void dialog_graph_set_title(user_data_t* user_data)
 
 
 /****************************************************************************/
-static void dialog_graph_reset(user_data_t* user_data)
+static void 
+dialog_graph_reset(user_data_t* user_data)
 {
 	int i, j;
 
-	user_data->dlg.dialog_graph.needs_redraw=TRUE;
-	for(i=0;i<MAX_GRAPHS;i++){
-		for(j=0;j<NUM_GRAPH_ITEMS;j++){
+	user_data->dlg.dialog_graph.needs_redraw = TRUE;
+	for (i = 0; i < MAX_GRAPHS; i++) {
+		for (j = 0; j < NUM_GRAPH_ITEMS; j++) {
 			dialog_graph_graph_item_t *dggi;
 			dggi=&user_data->dlg.dialog_graph.graph[i].items[j];
-			dggi->value=0;
-			dggi->flags=0;
+			dggi->value = 0;
+			dggi->flags = 0;
 		}
 	}
-	user_data->dlg.dialog_graph.last_interval=0xffffffff;
-	user_data->dlg.dialog_graph.max_interval=0;
+	user_data->dlg.dialog_graph.last_interval = 0xffffffff;
+	user_data->dlg.dialog_graph.max_interval = 0;
 	user_data->dlg.dialog_graph.num_items=0;
 
 	/* create the color titles near the filter buttons */
-	for(i=0;i<MAX_GRAPHS;i++){
+	for (i = 0; i < MAX_GRAPHS; i++) {
 		/* it is forward */
-		if (i<2){
+		if (i < 2){
 			g_snprintf(user_data->dlg.dialog_graph.graph[i].title,
 				   sizeof (user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u",
@@ -877,25 +892,27 @@ static void dialog_graph_reset(user_data_t* user_data)
 }
 
 /****************************************************************************/
-static guint32 get_it_value(dialog_graph_graph_t *dgg, int idx)
+static guint32
+get_it_value(dialog_graph_graph_t *dgg, int idx)
 {
 	dialog_graph_graph_item_t *it;
 
-	it=&dgg->items[idx];
+	it = &dgg->items[idx];
 
 	return it->value;
 }
 
 /****************************************************************************/
-static void print_time_scale_string(char *buf, int buf_len, guint32 t)
+static void 
+print_time_scale_string(char *buf, int buf_len, guint32 t)
 {
-	if(t>=10000000){
+	if (t >= 10000000){
 		g_snprintf(buf, buf_len, "%ds",t/1000000);
-	} else if(t>=1000000){
+	} else if (t >= 1000000){
 		g_snprintf(buf, buf_len, "%d.%03ds",t/1000000,(t%1000000)/1000);
-	} else if(t>=10000){
+	} else if (t >= 10000){
 		g_snprintf(buf, buf_len, "%dms",t/1000);
-	} else if(t>=1000){
+	} else if (t >= 1000){
 		g_snprintf(buf, buf_len, "%d.%03dms",t/1000,t%1000);
 	} else {
 		g_snprintf(buf, buf_len, "%dus",t);
@@ -903,7 +920,8 @@ static void print_time_scale_string(char *buf, int buf_len, guint32 t)
 }
 
 /****************************************************************************/
-static void dialog_graph_draw(user_data_t* user_data)
+static void 
+dialog_graph_draw(user_data_t* user_data)
 {
 	int i, lwidth;
 	guint32 last_interval, first_interval, interval_delta, delta_multiplier;
@@ -934,14 +952,14 @@ static void dialog_graph_draw(user_data_t* user_data)
 	 * Find the length of the intervals we have data for
 	 * so we know how large arrays we need to malloc()
 	 */
-	num_time_intervals=user_data->dlg.dialog_graph.num_items;
+	num_time_intervals = user_data->dlg.dialog_graph.num_items;
 	/* if there isnt anything to do, just return */
-	if(num_time_intervals==0){
+	if(num_time_intervals == 0) {
 		return;
 	}
 	num_time_intervals+=1;
 	/* XXX move this check to _packet() */
-	if(num_time_intervals>NUM_GRAPH_ITEMS){
+	if (num_time_intervals>NUM_GRAPH_ITEMS){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "IAX2 Graph error. There are too many entries, bailing out");
 		return;
 	}
@@ -950,20 +968,20 @@ static void dialog_graph_draw(user_data_t* user_data)
 	 * find the max value so we can autoscale the y axis
 	 */
 	max_value=0;
-	for(i=0;i<MAX_GRAPHS;i++){
+	for (i = 0; i < MAX_GRAPHS; i++){
 		int idx;
 
-		if(!user_data->dlg.dialog_graph.graph[i].display){
+		if (!user_data->dlg.dialog_graph.graph[i].display){
 			continue;
 		}
-		for(idx=0;(guint32) (idx) < num_time_intervals;idx++){
+		for (idx = 0; (guint32) (idx) < num_time_intervals; idx++){
 			guint32 val;
 
-			val=get_it_value(&user_data->dlg.dialog_graph.graph[i], idx);
+			val = get_it_value(&user_data->dlg.dialog_graph.graph[i], idx);
 
 			/* keep track of the max value we have encountered */
-			if(val>max_value){
-				max_value=val;
+			if (val>max_value) {
+				max_value = val;
 			}
 		}
 	}
@@ -990,16 +1008,16 @@ static void dialog_graph_draw(user_data_t* user_data)
 	/*
 	 * Calculate the y scale we should use
 	 */
-	if(user_data->dlg.dialog_graph.max_y_units==AUTO_MAX_YSCALE){
-		max_y=yscale_max[MAX_YSCALE-1];
-		for(i=MAX_YSCALE-1;i>0;i--){
-			if(max_value<yscale_max[i]){
-				max_y=yscale_max[i];
+	if (user_data->dlg.dialog_graph.max_y_units == AUTO_MAX_YSCALE){
+		max_y = yscale_max[MAX_YSCALE-1];
+		for (i = MAX_YSCALE-1; i > 0; i--){
+			if(max_value < yscale_max[i]){
+				max_y = yscale_max[i];
 			}
 		}
 	} else {
 		/* the user had specified an explicit y scale to use */
-		max_y=user_data->dlg.dialog_graph.max_y_units;
+		max_y = user_data->dlg.dialog_graph.max_y_units;
 	}
 
 	/*
@@ -1027,8 +1045,8 @@ static void dialog_graph_draw(user_data_t* user_data)
 	/*
 	 * Calculate the size of the drawing area for the actual plot
 	 */
-	draw_width=user_data->dlg.dialog_graph.surface_width-right_x_border-left_x_border;
-	draw_height=user_data->dlg.dialog_graph.surface_height-top_y_border-bottom_y_border;
+	draw_width = user_data->dlg.dialog_graph.surface_width-right_x_border-left_x_border;
+	draw_height = user_data->dlg.dialog_graph.surface_height-top_y_border-bottom_y_border;
 
 
 	/*
@@ -1046,13 +1064,13 @@ static void dialog_graph_draw(user_data_t* user_data)
 	cairo_stroke(cr);
 	cairo_destroy(cr);
 
-	for(i=0;i<=10;i++){
+	for (i = 0; i <= 10; i++) {
 		int xwidth;
 
-		xwidth=5;
-		if(!(i%5)){
+		xwidth = 5;
+		if (!(i%5)) {
 			/* first, middle and last tick are slightly longer */
-			xwidth=10;
+			xwidth = 10;
 		}
 		/* draw the tick */
 #if GTK_CHECK_VERSION(2,22,0)
@@ -1071,7 +1089,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 		cairo_stroke(cr);
 		cairo_destroy(cr);
 		/* draw the labels */
-		if(i==0){
+		if (i == 0){
 			print_time_scale_string(label_string, sizeof(label_string), (max_y*i/10));
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
@@ -1387,7 +1405,8 @@ static void dialog_graph_draw(user_data_t* user_data)
 }
 
 /****************************************************************************/
-static void dialog_graph_redraw(user_data_t* user_data)
+static void 
+dialog_graph_redraw(user_data_t* user_data)
 {
 	user_data->dlg.dialog_graph.needs_redraw=TRUE;
 	dialog_graph_draw(user_data);
@@ -1395,7 +1414,8 @@ static void dialog_graph_redraw(user_data_t* user_data)
 
 /****************************************************************************/
 
-static void draw_area_destroy_cb(GtkWidget *widget _U_, gpointer data)
+static void 
+draw_area_destroy_cb(GtkWidget *widget _U_, gpointer data)
 {
 	user_data_t *user_data = data;
 
@@ -1404,7 +1424,8 @@ static void draw_area_destroy_cb(GtkWidget *widget _U_, gpointer data)
 
 /****************************************************************************/
 #if GTK_CHECK_VERSION(3,0,0)
-static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
+static 
+gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
 	user_data_t *user_data = data;
 	GtkAllocation allocation;
@@ -1418,7 +1439,8 @@ static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 	return FALSE;
 }
 #else
-static gboolean draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
+static gboolean 
+draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
 	user_data_t *user_data = data;
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
@@ -1437,7 +1459,8 @@ static gboolean draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event,
 }
 #endif
 /****************************************************************************/
-static gboolean draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
+static gboolean 
+draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 {
 	user_data_t *user_data = data;
 	GtkAllocation widget_alloc;
@@ -1483,7 +1506,8 @@ static gboolean draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *
 }
 
 /****************************************************************************/
-static void scrollbar_changed(GtkWidget *widget _U_, gpointer data)
+static void 
+scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 {
 	user_data_t *user_data = data;
 	guint32 mi;
@@ -1504,7 +1528,8 @@ static void scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 }
 
 /****************************************************************************/
-static void create_draw_area(user_data_t* user_data, GtkWidget *box)
+static void 
+create_draw_area(user_data_t* user_data, GtkWidget *box)
 {
 	user_data->dlg.dialog_graph.draw_area=gtk_drawing_area_new();
 	g_signal_connect(user_data->dlg.dialog_graph.draw_area, "destroy", G_CALLBACK(draw_area_destroy_cb), user_data);
@@ -1531,7 +1556,8 @@ static void create_draw_area(user_data_t* user_data, GtkWidget *box)
 }
 
 /****************************************************************************/
-static void disable_graph(dialog_graph_graph_t *dgg)
+static void 
+disable_graph(dialog_graph_graph_t *dgg)
 {
 	if (dgg->display) {
 		dgg->display=FALSE;
@@ -1541,7 +1567,8 @@ static void disable_graph(dialog_graph_graph_t *dgg)
 }
 
 /****************************************************************************/
-static void filter_box_display_button_cb(GtkWidget *widget _U_, gpointer data)
+static void
+filter_box_display_button_cb(GtkWidget *widget _U_, gpointer data)
 {
 	dialog_graph_graph_t *dgg = data;
 
@@ -1560,19 +1587,20 @@ static void filter_box_display_button_cb(GtkWidget *widget _U_, gpointer data)
 }
 
 /****************************************************************************/
-static void create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num)
+static void
+create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num)
 {
 	GtkWidget *hbox;
 	GtkWidget *label;
 	char str[256];
 
-	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-	gtk_container_add(GTK_CONTAINER(box), hbox);
-	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+	hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
+	gtk_box_pack_start(GTK_BOX(box), hbox, FALSE, FALSE, 0);
+
 	gtk_widget_show(hbox);
 
 	g_snprintf(str, sizeof(str), "Graph %d", num);
-	dgg->display_button=gtk_toggle_button_new_with_label(str);
+	dgg->display_button = gtk_toggle_button_new_with_label(str);
 	gtk_box_pack_start(GTK_BOX(hbox), dgg->display_button, FALSE, FALSE, 0);
 	gtk_widget_show(dgg->display_button);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dgg->display_button), dgg->display);
@@ -1599,28 +1627,29 @@ static void create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num
 }
 
 /****************************************************************************/
-static void create_filter_area(user_data_t* user_data, GtkWidget *box)
+static void
+create_filter_area(user_data_t* user_data, GtkWidget *box)
 {
 	GtkWidget *frame;
 	GtkWidget *vbox;
 	int i;
 	GtkWidget *label;
 
-	frame=gtk_frame_new("Graphs");
-	gtk_container_add(GTK_CONTAINER(box), frame);
+	frame = gtk_frame_new("Graphs");
+	gtk_box_pack_start(GTK_BOX(box), frame, TRUE, TRUE, 0);
 	gtk_widget_show(frame);
 
-	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
-	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_START);
+
 	gtk_widget_show(vbox);
 
-	for(i=0;i<MAX_GRAPHS;i++){
+	for (i = 0; i < MAX_GRAPHS; i++) {
 		create_filter_box(&user_data->dlg.dialog_graph.graph[i], vbox, i+1);
 	}
 
-	label=gtk_label_new("Label:    x = Wrong Seq. number      m = Mark set");
+	label = gtk_label_new("Label:    x = Wrong Seq. number      m = Mark set");
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 
@@ -1628,31 +1657,34 @@ static void create_filter_area(user_data_t* user_data, GtkWidget *box)
 }
 
 /****************************************************************************/
-static void yscale_select(GtkWidget *item, gpointer data)
+static void 
+yscale_select(GtkWidget *item, gpointer data)
 {
-	user_data_t *user_data = data;
 	int i;
+	user_data_t *user_data = data;
 
 	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
-	user_data->dlg.dialog_graph.max_y_units=yscale_max[i];
+	user_data->dlg.dialog_graph.max_y_units = yscale_max[i];
 	dialog_graph_redraw(user_data);
 }
 
 /****************************************************************************/
-static void pixels_per_tick_select(GtkWidget *item, gpointer data)
+static void 
+pixels_per_tick_select(GtkWidget *item, gpointer data)
 {
-	user_data_t *user_data = data;
 	int i;
+	user_data_t *user_data = data;
 
 	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
-	user_data->dlg.dialog_graph.pixels_per_tick=pixels_per_tick[i];
+	user_data->dlg.dialog_graph.pixels_per_tick = pixels_per_tick[i];
 	dialog_graph_redraw(user_data);
 }
 
 /****************************************************************************/
-static void tick_interval_select(GtkWidget *item, gpointer data)
+static void 
+tick_interval_select(GtkWidget *item, gpointer data)
 {
 	user_data_t *user_data = data;
 	int i;
@@ -1674,7 +1706,7 @@ create_yscale_max_menu_items(user_data_t* user_data)
 
 	combo_box = gtk_combo_box_text_new();
 
-	for(i=0;i<MAX_YSCALE;i++){
+	for (i = 0; i < MAX_YSCALE; i++) {
 		if(yscale_max[i]==AUTO_MAX_YSCALE){
 			g_strlcpy(str,"Auto",sizeof(str));
 		} else if (yscale_max[i] < 1000000) {
@@ -1740,18 +1772,18 @@ create_tick_interval_menu_items(user_data_t *user_data)
 }
 
 /****************************************************************************/
-static void create_ctrl_menu(user_data_t* user_data, GtkWidget *box, const char *name, GtkWidget *(*func)(user_data_t* user_data))
+static void 
+create_ctrl_menu(user_data_t* user_data, GtkWidget *box, const char *name, GtkWidget *(*func)(user_data_t* user_data))
 {
 	GtkWidget *hbox;
 	GtkWidget *label;
 	GtkWidget *combo_box;
 
-	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
-	gtk_container_add(GTK_CONTAINER(box), hbox);
-	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+	hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
+	gtk_box_pack_start(GTK_BOX(box), hbox, FALSE, FALSE, 0);
 	gtk_widget_show(hbox);
 
-	label=gtk_label_new(name);
+	label = gtk_label_new(name);
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
@@ -1761,24 +1793,25 @@ static void create_ctrl_menu(user_data_t* user_data, GtkWidget *box, const char 
 }
 
 /****************************************************************************/
-static void create_ctrl_area(user_data_t* user_data, GtkWidget *box)
+static void 
+create_ctrl_area(user_data_t* user_data, GtkWidget *box)
 {
 	GtkWidget *frame_vbox;
 	GtkWidget *frame;
 	GtkWidget *vbox;
 
-	frame_vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-	gtk_container_add(GTK_CONTAINER(box), frame_vbox);
+	frame_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+	gtk_box_pack_start(GTK_BOX(box), frame_vbox, TRUE, TRUE, 0);
 	gtk_widget_show(frame_vbox);
 
 	frame = gtk_frame_new("X Axis");
 	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
 	gtk_widget_show(frame);
 
-	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
-	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
+
 	gtk_widget_show(vbox);
 
 	create_ctrl_menu(user_data, vbox, "Tick interval:", create_tick_interval_menu_items);
@@ -1788,10 +1821,10 @@ static void create_ctrl_area(user_data_t* user_data, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
 	gtk_widget_show(frame);
 
-	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
-	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
+
 	gtk_widget_show(vbox);
 
 	create_ctrl_menu(user_data, vbox, "Scale:", create_yscale_max_menu_items);
@@ -1800,7 +1833,8 @@ static void create_ctrl_area(user_data_t* user_data, GtkWidget *box)
 }
 
 /****************************************************************************/
-static void dialog_graph_init_window(user_data_t* user_data)
+static void 
+dialog_graph_init_window(user_data_t* user_data)
 {
 	GtkWidget *vbox;
 	GtkWidget *hbox;
@@ -1809,16 +1843,16 @@ static void dialog_graph_init_window(user_data_t* user_data)
 	/* create the main window */
 	user_data->dlg.dialog_graph.window=dlg_window_new("I/O Graphs");   /* transient_for top_level */
 
-	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(user_data->dlg.dialog_graph.window), vbox);
 	gtk_widget_show(vbox);
 
 	create_draw_area(user_data, vbox);
 
-	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-	gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
+	hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox), 3);
-	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+
 	gtk_widget_show(hbox);
 
 	create_filter_area(user_data, hbox);
@@ -1842,7 +1876,8 @@ static void dialog_graph_init_window(user_data_t* user_data)
 
 
 /****************************************************************************/
-static void on_graph_bt_clicked(GtkWidget *bt _U_, gpointer data)
+static void 
+on_graph_bt_clicked(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = data;
 
@@ -1857,7 +1892,8 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, gpointer data)
 }
 
 /****************************************************************************/
-static void on_goto_bt_clicked(GtkWidget *bt _U_, gpointer data)
+static void 
+on_goto_bt_clicked(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = data;
 	GtkTreeIter iter;
@@ -1881,7 +1917,8 @@ static void draw_stat(user_data_t *user_data);
 
 /****************************************************************************/
 /* re-dissects all packets */
-static void on_refresh_bt_clicked(GtkWidget *bt _U_, gpointer data)
+static void 
+on_refresh_bt_clicked(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = data;
 	GString *error_string;
@@ -1907,7 +1944,8 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, gpointer data)
 }
 
 /****************************************************************************/
-static void on_next_bt_clicked(GtkWidget *bt _U_, gpointer data)
+static void 
+on_next_bt_clicked(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = data;
 	GtkTreeIter iter;
@@ -1949,7 +1987,8 @@ try_again:
 
 /****************************************************************************/
 /* when we want to save the information */
-static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
+static gboolean 
+save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
 {
 	gchar        *g_dest;
 	GtkWidget    *rev, *forw, *both;
@@ -1980,9 +2019,9 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 	if (test_for_directory(g_dest) == EISDIR) {
 		/* It's a directory - set the file selection box to display it. */
 		set_last_open_dir(g_dest);
+		g_free(g_dest);
 		file_selection_set_current_folder(fc, get_last_open_dir());
 		gtk_file_chooser_set_current_name(fc, "");
-		g_free(g_dest);
 		return FALSE; /* run the dialog again */
 	}
 	rev  = (GtkWidget*)g_object_get_data(G_OBJECT(fc), "reversed_rb");
@@ -2156,7 +2195,8 @@ static void save_csv_as_destroy_cb(GtkWidget *win _U_, gpointer data)
 }
 
 /* when the user wants to save the csv information in a file */
-static void save_csv_as_cb(GtkWidget *bt _U_, gpointer data)
+static void 
+save_csv_as_cb(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = data;
 	GtkWidget *vertb;
@@ -2971,7 +3011,8 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 
 /****************************************************************************/
 /* when we are finished with redisection, we add the label for the statistic */
-static void draw_stat(user_data_t *user_data)
+static void 
+draw_stat(user_data_t *user_data)
 {
 	gchar label_max[200];
 
@@ -2986,6 +3027,7 @@ static void draw_stat(user_data_t *user_data)
 		user_data->reversed.statinfo.max_delta, user_data->reversed.statinfo.max_nr);
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_rev), label_max);
+	gtk_label_set_selectable (GTK_LABEL(user_data->dlg.label_stats_rev),TRUE);
 
 	return ;
 }
@@ -2994,7 +3036,8 @@ static void draw_stat(user_data_t *user_data)
 
 /****************************************************************************/
 /* append a line to list */
-static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number,
+static void 
+add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number,
 			double delta, double jitter, double bandwidth, gchar *status,
 			gchar *timeStr, guint32 pkt_len, gchar *color_str, guint32 flags)
 {
@@ -3068,7 +3111,8 @@ iax2_float_data_func (GtkTreeViewColumn *column _U_,
 
 /* Create list */
 static
-GtkWidget* create_list(user_data_t* user_data)
+GtkWidget* 
+create_list(user_data_t* user_data)
 {
 
 	GtkListStore      *list_store;
@@ -3222,7 +3266,8 @@ GtkWidget* create_list(user_data_t* user_data)
 
 /****************************************************************************/
 /* Create the dialog box with all widgets */
-static void create_iax2_dialog(user_data_t* user_data)
+static void 
+create_iax2_dialog(user_data_t* user_data)
 {
 	GtkWidget *window = NULL;
 	GtkWidget *list_fwd;
@@ -3404,7 +3449,8 @@ static void create_iax2_dialog(user_data_t* user_data)
 
 #if 0
 /****************************************************************************/
-static gboolean process_node(proto_node *ptree_node, header_field_info *hfinformation,
+static gboolean 
+process_node(proto_node *ptree_node, header_field_info *hfinformation,
 							const gchar* proto_field, guint32* p_result)
 {
 	field_info            *finfo;
@@ -3449,7 +3495,8 @@ static gboolean process_node(proto_node *ptree_node, header_field_info *hfinform
 }
 
 /****************************************************************************/
-static gboolean get_int_value_from_proto_tree(proto_tree *protocol_tree,
+static gboolean 
+get_int_value_from_proto_tree(proto_tree *protocol_tree,
 						 const gchar* proto_name,
 						 const gchar* proto_field,
 						 guint32* p_result)
@@ -3475,16 +3522,17 @@ static gboolean get_int_value_from_proto_tree(proto_tree *protocol_tree,
 #endif
 
 /****************************************************************************/
-void iax2_analysis(
-		address *ip_src_fwd,
-		guint16 port_src_fwd,
-		address *ip_dst_fwd,
-		guint16 port_dst_fwd,
-		address *ip_src_rev,
-		guint16 port_src_rev,
-		address *ip_dst_rev,
-		guint16 port_dst_rev
-		)
+void 
+iax2_analysis(
+	address *ip_src_fwd,
+	guint16 port_src_fwd,
+	address *ip_dst_fwd,
+	guint16 port_dst_fwd,
+	address *ip_src_rev,
+	guint16 port_src_rev,
+	address *ip_dst_rev,
+	guint16 port_dst_rev
+	)
 {
 	user_data_t *user_data;
 	int fd;
