@@ -571,7 +571,7 @@ abs_time_to_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
         const char *zonename = "???";
         gchar *buf = NULL;
 
-#ifdef _MSC_VER
+#if (defined _WIN32) && (_MSC_VER < 1500)
         /* calling localtime() on MSVC 2005 with huge values causes it to crash */
         /* XXX - find the exact value that still does work */
         /* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
@@ -655,7 +655,7 @@ abs_time_secs_to_str(const time_t abs_time, const absolute_time_display_e fmt,
         const char *zonename = "???";
         gchar *buf = NULL;
 
-#ifdef _MSC_VER
+#if (defined _WIN32) && (_MSC_VER < 1500)
         /* calling localtime() on MSVC 2005 with huge values causes it to crash */
         /* XXX - find the exact value that still does work */
         /* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */

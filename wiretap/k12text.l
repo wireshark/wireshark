@@ -375,6 +375,7 @@ k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 	guint ns;
 	guint ms;
 	gboolean ret;
+	struct tm *tmp;
 
 	str_enc = NULL;
 	for(i=0; encaps[i].s; i++) {
@@ -397,16 +398,19 @@ k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 	ms = phdr->ts.nsecs / 1000000;
 	ns = (phdr->ts.nsecs - (1000000*ms))/1000;
 
-#ifdef _MSC_VER
+#if (defined _WIN32) && (_MSC_VER < 1500)
 	/* calling gmtime() on MSVC 2005 with huge values causes it to crash */
 	/* XXX - find the exact value that still does work */
 	/* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
 	if (phdr->ts.secs > 2000000000)
-		g_snprintf(p, 90, "+---------+---------------+----------+\r\nXX:XX:XX,");
+		tmp = NULL;
 	else
 #endif
-	strftime(p, 90, "+---------+---------------+----------+\r\n%H:%M:%S,",
-		 gmtime(&phdr->ts.secs));
+	tmp = gmtime(&phdr->ts.secs);
+	if (tmp == NULL)
+		g_snprintf(p, 90, "+---------+---------------+----------+\r\nXX:XX:XX,");
+	else
+		strftime(p, 90, "+---------+---------------+----------+\r\n%H:%M:%S,", tmp);
 	wl = strlen(p);
 	p += wl;
 	left -= wl;
