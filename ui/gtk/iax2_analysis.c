@@ -87,6 +87,7 @@
 #include "ui/gtk/rtp_stream_dlg.h"
 
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/gui_utils.h"
 
 enum
 {
@@ -140,9 +141,7 @@ typedef struct _dialog_graph_graph_t {
 	gboolean display;
 	GtkWidget *display_button;
 	int hf_index;
-#if GTK_CHECK_VERSION(3,0,0)
 	GdkRGBA rgba_color;
-#endif
 	GdkColor color;
 	gchar title[100];
 } dialog_graph_graph_t;
@@ -1362,7 +1361,7 @@ dialog_graph_draw(user_data_t* user_data)
 #else
 				cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
-				gdk_cairo_set_source_color (cr, &user_data->dlg.dialog_graph.graph[i].color);
+				gdk_cairo_set_source_rgba (cr, &user_data->dlg.dialog_graph.graph[i].rgba_color);
 				cairo_set_line_width (cr, 1.0);
 				cairo_move_to(cr, x_pos+0.5, draw_height-1+top_y_border+0.5);
 				cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
@@ -3543,14 +3542,12 @@ iax2_analysis(
 		{0,     0x0000, 0xffff, 0x0000},
 		{0,     0x0000, 0x0000, 0xffff}
 	};
-#if GTK_CHECK_VERSION(3,0,0)
 	static GdkRGBA rgba_col[MAX_GRAPHS] = {
 		{0.0, 0.0,   0.0,   1.0}, /* Black */
 		{1.0, 0.0,   0.1,   1.0}, /* Red */
 		{0.0, 1.0,   0.0,   1.0}, /* Green */
 		{0.0, 0.0,   1.0,   1.0}, /* Blue */
 	};
-#endif
 
 	char *tempname;
 
@@ -3620,12 +3617,10 @@ iax2_analysis(
 		user_data->dlg.dialog_graph.graph[i].color.red=col[i].red;
 		user_data->dlg.dialog_graph.graph[i].color.green=col[i].green;
 		user_data->dlg.dialog_graph.graph[i].color.blue=col[i].blue;
-#if GTK_CHECK_VERSION(3,0,0)
 		user_data->dlg.dialog_graph.graph[i].rgba_color.red=rgba_col[i].red;
 		user_data->dlg.dialog_graph.graph[i].rgba_color.green=rgba_col[i].green;
 		user_data->dlg.dialog_graph.graph[i].rgba_color.blue=rgba_col[i].blue;
 		user_data->dlg.dialog_graph.graph[i].rgba_color.alpha=rgba_col[i].alpha;
-#endif
 		user_data->dlg.dialog_graph.graph[i].display=TRUE;
 		user_data->dlg.dialog_graph.graph[i].display_button=NULL;
 		user_data->dlg.dialog_graph.graph[i].ud=user_data;
