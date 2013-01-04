@@ -252,8 +252,8 @@ XML_DLL=libxml2-2.dll
 
 # This macro is used by the setup target.
 !IF "$(GTK_NAME)" == "gtk2"
-GTK_PKG=2.24.10-2.7
-#GTK_PKG=2.24.14-1.1
+#GTK_PKG=2.24.10-2.7
+GTK_PKG=2.24.14-1.1
 PKG_SUFIX=ws
 !ELSE
 PKG_SUFIX=ws
@@ -463,8 +463,8 @@ XML_DLL=libxml2-2.dll
 
 # These macros are used by the setup target.
 !IF "$(GTK_NAME)" == "gtk2"
-GTK_PKG=2.24.10-2.7
-#GTK_PKG=2.24.14-1.1
+#GTK_PKG=2.24.10-2.7
+GTK_PKG=2.24.14-1.1
 PKG_SUFIX=ws
 !ELSE
 PKG_SUFIX=ws
