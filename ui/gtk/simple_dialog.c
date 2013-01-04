@@ -49,9 +49,9 @@ static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
  * Queue for messages requested before we have a main window.
  */
 typedef struct {
-	gint	type;
-	gint	btn_mask;
-	char	*message;
+  gint  type;
+  gint  btn_mask;
+  char *message;
 } queued_message_t;
 
 static GSList *message_queue;
@@ -85,23 +85,23 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   /*
    * The GNOME HIG:
    *
-   *	http://developer.gnome.org/projects/gup/hig/1.0/windows.html#alert-windows
+   *    http://developer.gnome.org/projects/gup/hig/1.0/windows.html#alert-windows
    *
    * says that the title should be empty for alert boxes, so there's "less
    * visual noise and confounding text."
    *
    * The Windows HIG:
    *
-   *	http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnwue/html/ch09f.asp
+   *    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnwue/html/ch09f.asp
    *
    * says it should
    *
-   *	...appropriately identify the source of the message -- usually
-   *	the name of the object.  For example, if the message results
-   *	from editing a document, the title text is the name of the
-   *	document, optionally followed by the application name.  If the
-   *	message results from a non-document object, then use the
-   *	application name."
+   *    ...appropriately identify the source of the message -- usually
+   *    the name of the object.  For example, if the message results
+   *    from editing a document, the title text is the name of the
+   *    document, optionally followed by the application name.  If the
+   *    message results from a non-document object, then use the
+   *    application name."
    *
    * and notes that the title is important "because message boxes might
    * not always the the result of current user interaction" (e.g., some
@@ -117,7 +117,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
    * arguably take an argument for the title.
    */
   if(btn_mask == ESD_BTN_NONE) {
-	win = splash_window_new();
+    win = splash_window_new();
   } else {
 #ifdef _WIN32
     win = dlg_window_new("Wireshark");
@@ -137,17 +137,17 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   /* Top row: Icon and message text */
   top_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
-  gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
+  gtk_box_pack_start(GTK_BOX(main_vb), top_hb, TRUE, TRUE, 0);
   gtk_widget_show(top_hb);
 
   gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5f, 0.0f);
-  gtk_container_add(GTK_CONTAINER(top_hb), type_pm);
+  gtk_box_pack_start(GTK_BOX(top_hb), type_pm, TRUE, TRUE, 0);
   gtk_widget_show(type_pm);
 
   /* column for message and optional check button */
   msg_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_box_set_spacing(GTK_BOX(msg_vb), 24);
-  gtk_container_add(GTK_CONTAINER(top_hb), msg_vb);
+  gtk_box_pack_start(GTK_BOX(top_hb), msg_vb, TRUE, TRUE, 0);
   gtk_widget_show(msg_vb);
 
   /* message */
@@ -160,18 +160,18 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
 
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
   gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5f, 0.0f);
-  gtk_container_add(GTK_CONTAINER(msg_vb), msg_label);
+  gtk_box_pack_start(GTK_BOX(msg_vb), msg_label, TRUE, TRUE, 0);
   gtk_label_set_line_wrap(GTK_LABEL(msg_label), TRUE);
   gtk_widget_show(msg_label);
 
   if(btn_mask == ESD_BTN_NONE) {
-	gtk_widget_show(win);
-	return win;
+    gtk_widget_show(win);
+    return win;
   }
 
   /* optional check button */
   ask_cb = gtk_check_button_new_with_label("replace with text...");
-  gtk_container_add(GTK_CONTAINER(msg_vb), ask_cb);
+  gtk_box_pack_start(GTK_BOX(msg_vb), ask_cb, TRUE, TRUE, 0);
   g_object_set_data(G_OBJECT(win), CHECK_BUTTON, ask_cb);
 
   /* Button row */
@@ -205,62 +205,62 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
     bbox = NULL;
     break;
   }
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  gtk_box_pack_start(GTK_BOX(main_vb), bbox, TRUE, TRUE, 0);
   gtk_widget_show(bbox);
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   if(ok_bt) {
-      g_object_set_data(G_OBJECT(ok_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_OK));
-      g_signal_connect(ok_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
+    g_object_set_data(G_OBJECT(ok_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_OK));
+    g_signal_connect(ok_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
 
   save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
   if (save_bt) {
-      g_object_set_data(G_OBJECT(save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_SAVE));
-      g_signal_connect(save_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
+    g_object_set_data(G_OBJECT(save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_SAVE));
+    g_signal_connect(save_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
 
   dont_save_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_DONT_SAVE);
   if (dont_save_bt) {
-      g_object_set_data(G_OBJECT(dont_save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_DONT_SAVE));
-      g_signal_connect(dont_save_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
+    g_object_set_data(G_OBJECT(dont_save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_DONT_SAVE));
+    g_signal_connect(dont_save_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
 
   dont_save_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_QUIT_DONT_SAVE);
   if (dont_save_bt) {
-      g_object_set_data(G_OBJECT(dont_save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_QUIT_DONT_SAVE));
-      g_signal_connect(dont_save_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
+    g_object_set_data(G_OBJECT(dont_save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_QUIT_DONT_SAVE));
+    g_signal_connect(dont_save_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
   bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
   if(bt) {
-      g_object_set_data(G_OBJECT(bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CLEAR));
-      g_signal_connect(bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
+    g_object_set_data(G_OBJECT(bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CLEAR));
+    g_signal_connect(bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
 
   yes_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_YES);
   if(yes_bt) {
-      g_object_set_data(G_OBJECT(yes_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_YES));
-      g_signal_connect(yes_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
+    g_object_set_data(G_OBJECT(yes_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_YES));
+    g_signal_connect(yes_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
 
   bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_NO);
   if(bt) {
-      g_object_set_data(G_OBJECT(bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_NO));
-      g_signal_connect(bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
+    g_object_set_data(G_OBJECT(bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_NO));
+    g_signal_connect(bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
 
   bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   if(bt) {
-      g_object_set_data(G_OBJECT(bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CANCEL));
-      window_set_cancel_button(win, bt, simple_dialog_cancel_cb);
+    g_object_set_data(G_OBJECT(bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CANCEL));
+    window_set_cancel_button(win, bt, simple_dialog_cancel_cb);
   }
 
   if(!bt) {
-      if(yes_bt) {
-          window_set_cancel_button(win, yes_bt, simple_dialog_cancel_cb);
-      } else {
-          window_set_cancel_button(win, ok_bt, simple_dialog_cancel_cb);
-      }
+    if(yes_bt) {
+      window_set_cancel_button(win, yes_bt, simple_dialog_cancel_cb);
+    } else {
+      window_set_cancel_button(win, ok_bt, simple_dialog_cancel_cb);
+    }
   }
 
   dlg_button_focus_nth(bbox, 0);
@@ -300,10 +300,10 @@ display_queued_messages(void)
 gpointer
 vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list ap)
 {
-  gchar             *message;
+  gchar            *message;
   queued_message_t *queued_message;
   GtkWidget        *win;
-  GdkWindowState state = 0;
+  GdkWindowState    state = 0;
 
   /* Format the message. */
   message = g_strdup_vprintf(msg_format, ap);
@@ -315,7 +315,7 @@ vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list 
   /* If we don't yet have a main window or it's iconified or hidden (i.e. not
      yet ready, don't show the dialog. If showing up a dialog, while main
      window is iconified, program will become unresponsive! */
-  if (top_level == NULL || state & GDK_WINDOW_STATE_ICONIFIED
+  if ((top_level == NULL) || state & GDK_WINDOW_STATE_ICONIFIED
           || state & GDK_WINDOW_STATE_WITHDRAWN) {
 
     queued_message = g_malloc(sizeof (queued_message_t));
@@ -341,7 +341,7 @@ vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list 
 gpointer
 simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
 {
-  va_list ap;
+  va_list  ap;
   gpointer ret;
 
   va_start(ap, msg_format);
@@ -352,9 +352,9 @@ simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
 
 static void
 simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
-  gint button                           = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), CALLBACK_BTN_KEY));
-  simple_dialog_cb_t    callback_fct    = g_object_get_data(G_OBJECT(win), CALLBACK_FCT_KEY);
-  gpointer              data            = g_object_get_data(G_OBJECT(win), CALLBACK_DATA_KEY);
+  gint               button       = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), CALLBACK_BTN_KEY));
+  simple_dialog_cb_t callback_fct = g_object_get_data(G_OBJECT(win), CALLBACK_FCT_KEY);
+  gpointer           data         = g_object_get_data(G_OBJECT(win), CALLBACK_DATA_KEY);
 
   if (callback_fct)
     (callback_fct) (win, button, data);
@@ -368,21 +368,24 @@ simple_dialog_close(gpointer dialog)
     window_destroy(GTK_WIDGET(dialog));
 }
 
-void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpointer data)
+void
+simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpointer data)
 {
 
     g_object_set_data(G_OBJECT(GTK_WIDGET(dialog)), CALLBACK_FCT_KEY, callback_fct);
     g_object_set_data(G_OBJECT(GTK_WIDGET(dialog)), CALLBACK_DATA_KEY, data);
 }
 
-void simple_dialog_check_set(gpointer dialog, const gchar *text) {
+void
+simple_dialog_check_set(gpointer dialog, const gchar *text) {
     GtkWidget *ask_cb = g_object_get_data(G_OBJECT(dialog), CHECK_BUTTON);
 
     gtk_button_set_label(GTK_BUTTON(ask_cb), text);
     gtk_widget_show(ask_cb);
 }
 
-gboolean simple_dialog_check_get(gpointer dialog) {
+gboolean
+simple_dialog_check_get(gpointer dialog) {
     GtkWidget *ask_cb = g_object_get_data(G_OBJECT(GTK_WIDGET(dialog)), CHECK_BUTTON);
 
     return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ask_cb));
@@ -401,14 +404,14 @@ simple_dialog_primary_end(void) {
 char *
 simple_dialog_format_message(const char *msg)
 {
-    char *str;
+  char *str;
 
-    if (msg) {
-	str = xml_escape(msg);
-    } else {
-	str = NULL;
-    }
-    return str;
+  if (msg) {
+    str = xml_escape(msg);
+  } else {
+    str = NULL;
+  }
+  return str;
 }
 
 static void
@@ -416,10 +419,10 @@ do_simple_message_box(ESD_TYPE_E type, gboolean *notagain,
                       const char *secondary_msg, const char *msg_format,
                       va_list ap)
 {
-  GtkMessageType gtk_message_type;
-  gchar *message;
-  GtkWidget *msg_dialog;
-  GtkWidget *checkbox = NULL;
+  GtkMessageType  gtk_message_type;
+  gchar          *message;
+  GtkWidget      *msg_dialog;
+  GtkWidget      *checkbox = NULL;
 
   if (notagain != NULL) {
     if (*notagain) {
