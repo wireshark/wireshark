@@ -77,6 +77,8 @@ to the lifetime of the pinfo struct.
 
  - wmem_alloc
  - wmem_alloc0
+ - wmem_new
+ - wmem_new0
 
 2.3 String Utilities
 
