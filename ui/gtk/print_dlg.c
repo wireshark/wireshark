@@ -133,15 +133,15 @@ file_print_cmd(gboolean print_selected)
 
   /* get settings from preferences (and other initial values) only once */
   if(print_prefs_init == FALSE) {
-      print_prefs_init          = TRUE;
-      args->format              = prefs.pr_format;
-      args->to_file             = prefs.pr_dest;
-      args->file                = g_strdup(prefs.pr_file);
-      args->cmd                 = g_strdup(prefs.pr_cmd);
-      args->print_summary       = TRUE;
-      args->print_dissections   = print_dissections_as_displayed;
-      args->print_hex           = FALSE;
-      args->print_formfeed      = FALSE;
+    print_prefs_init          = TRUE;
+    args->format              = prefs.pr_format;
+    args->to_file             = prefs.pr_dest;
+    args->file                = g_strdup(prefs.pr_file);
+    args->cmd                 = g_strdup(prefs.pr_cmd);
+    args->print_summary       = TRUE;
+    args->print_dissections   = print_dissections_as_displayed;
+    args->print_hex           = FALSE;
+    args->print_formfeed      = FALSE;
   }
 
   /* init the printing range */
@@ -159,13 +159,13 @@ file_print_cmd(gboolean print_selected)
 void
 file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-    file_print_cmd(FALSE);
+  file_print_cmd(FALSE);
 }
 
 void
 file_print_selected_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-    file_print_cmd(TRUE);
+  file_print_cmd(TRUE);
 }
 
 /*
@@ -201,15 +201,15 @@ export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* get settings from preferences (and other initial values) only once */
   if(export_text_prefs_init == FALSE) {
-      export_text_prefs_init    = TRUE;
-      args->format              = PR_FMT_TEXT;
-      args->to_file             = TRUE;
-      args->file                = g_strdup("");
-      args->cmd                 = g_strdup("");
-      args->print_summary       = TRUE;
-      args->print_dissections   = print_dissections_as_displayed;
-      args->print_hex           = FALSE;
-      args->print_formfeed      = FALSE;
+    export_text_prefs_init    = TRUE;
+    args->format              = PR_FMT_TEXT;
+    args->to_file             = TRUE;
+    args->file                = g_strdup("");
+    args->cmd                 = g_strdup("");
+    args->print_summary       = TRUE;
+    args->print_dissections   = print_dissections_as_displayed;
+    args->print_hex           = FALSE;
+    args->print_formfeed      = FALSE;
   }
 
   /* init the printing range */
@@ -255,15 +255,15 @@ export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* get settings from preferences (and other initial values) only once */
   if(export_ps_prefs_init == FALSE) {
-      export_ps_prefs_init      = TRUE;
-      args->format              = PR_FMT_PS;
-      args->to_file             = TRUE;
-      args->file                = g_strdup("");
-      args->cmd                 = g_strdup("");
-      args->print_summary       = TRUE;
-      args->print_dissections   = print_dissections_as_displayed;
-      args->print_hex           = FALSE;
-      args->print_formfeed      = FALSE;
+    export_ps_prefs_init      = TRUE;
+    args->format              = PR_FMT_PS;
+    args->to_file             = TRUE;
+    args->file                = g_strdup("");
+    args->cmd                 = g_strdup("");
+    args->print_summary       = TRUE;
+    args->print_dissections   = print_dissections_as_displayed;
+    args->print_hex           = FALSE;
+    args->print_formfeed      = FALSE;
   }
 
   /* init the printing range */
@@ -309,15 +309,15 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* get settings from preferences (and other initial values) only once */
   if(export_psml_prefs_init == FALSE) {
-      export_psml_prefs_init    = TRUE;
-      args->format              = PR_FMT_TEXT;	/* XXX */
-      args->to_file             = TRUE;
-      args->file                = g_strdup("");
-      args->cmd                 = g_strdup("");
-      args->print_summary       = TRUE;
-      args->print_dissections   = print_dissections_as_displayed;
-      args->print_hex           = FALSE;
-      args->print_formfeed      = FALSE;
+    export_psml_prefs_init    = TRUE;
+    args->format              = PR_FMT_TEXT;    /* XXX */
+    args->to_file             = TRUE;
+    args->file                = g_strdup("");
+    args->cmd                 = g_strdup("");
+    args->print_summary       = TRUE;
+    args->print_dissections   = print_dissections_as_displayed;
+    args->print_hex           = FALSE;
+    args->print_formfeed      = FALSE;
   }
 
   /* init the printing range */
@@ -362,15 +362,15 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* get settings from preferences (and other initial values) only once */
   if(export_pdml_prefs_init == FALSE) {
-      export_pdml_prefs_init    = TRUE;
-      args->format              = PR_FMT_TEXT;	/* XXX */
-      args->to_file             = TRUE;
-      args->file                = g_strdup("");
-      args->cmd                 = g_strdup("");
-      args->print_summary       = TRUE;
-      args->print_dissections   = print_dissections_as_displayed;
-      args->print_hex           = FALSE;
-      args->print_formfeed      = FALSE;
+    export_pdml_prefs_init    = TRUE;
+    args->format              = PR_FMT_TEXT;   /* XXX */
+    args->to_file             = TRUE;
+    args->file                = g_strdup("");
+    args->cmd                 = g_strdup("");
+    args->print_summary       = TRUE;
+    args->print_dissections   = print_dissections_as_displayed;
+    args->print_hex           = FALSE;
+    args->print_formfeed      = FALSE;
   }
 
   /* init the printing range */
@@ -414,15 +414,15 @@ export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* get settings from preferences (and other initial values) only once */
   if(export_csv_prefs_init == FALSE) {
-      export_csv_prefs_init     = TRUE;
-      args->format              = PR_FMT_TEXT; /* XXX */
-      args->to_file             = TRUE;
-      args->file                = g_strdup("");
-      args->cmd                 = g_strdup("");
-      args->print_summary       = FALSE;
-      args->print_dissections   = print_dissections_none;
-      args->print_hex           = FALSE;
-      args->print_formfeed      = FALSE;
+    export_csv_prefs_init     = TRUE;
+    args->format              = PR_FMT_TEXT; /* XXX */
+    args->to_file             = TRUE;
+    args->file                = g_strdup("");
+    args->cmd                 = g_strdup("");
+    args->print_summary       = FALSE;
+    args->print_dissections   = print_dissections_none;
+    args->print_hex           = FALSE;
+    args->print_formfeed      = FALSE;
   }
 
   /* init the printing range */
@@ -466,15 +466,15 @@ export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* get settings from preferences (and other initial values) only once */
   if(export_carrays_prefs_init == FALSE) {
-      export_carrays_prefs_init = TRUE;
-      args->format              = PR_FMT_TEXT;
-      args->to_file             = TRUE;
-      args->file                = g_strdup("");
-      args->cmd                 = g_strdup("");
-      args->print_summary       = FALSE;
-      args->print_dissections   = print_dissections_none;
-      args->print_hex           = FALSE;
-      args->print_formfeed      = FALSE;
+    export_carrays_prefs_init = TRUE;
+    args->format              = PR_FMT_TEXT;
+    args->to_file             = TRUE;
+    args->file                = g_strdup("");
+    args->cmd                 = g_strdup("");
+    args->print_summary       = FALSE;
+    args->print_dissections   = print_dissections_none;
+    args->print_hex           = FALSE;
+    args->print_formfeed      = FALSE;
   }
 
   /* init the printing range */
@@ -482,7 +482,7 @@ export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   args->range.process_filtered = TRUE;
 
   export_carrays_win = open_print_dialog("Wireshark: Export as \"C Arrays\" File",
-					 output_action_export_carrays, args);
+                                         output_action_export_carrays, args);
   g_signal_connect(export_carrays_win, "destroy", G_CALLBACK(print_destroy_cb), &export_carrays_win);
 }
 #endif
@@ -500,31 +500,31 @@ print_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 static GtkWidget *
 open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 {
-  GtkWidget     *main_win;
-  GtkWidget     *main_vb;
+  GtkWidget *main_win;
+  GtkWidget *main_vb;
 
-  GtkWidget     *printer_fr, *printer_vb, *export_format_lb;
-  GtkWidget     *text_rb, *ps_rb, *pdml_rb, *psml_rb, *csv_rb, *carrays_rb;
-  GtkWidget     *printer_tb, *dest_cb;
+  GtkWidget *printer_fr, *printer_vb, *export_format_lb;
+  GtkWidget *text_rb, *ps_rb, *pdml_rb, *psml_rb, *csv_rb, *carrays_rb;
+  GtkWidget *printer_grid, *dest_cb;
 #ifndef _WIN32
-  GtkWidget     *cmd_lb, *cmd_te;
+  GtkWidget *cmd_lb, *cmd_te;
 #endif
-  GtkWidget     *file_bt, *file_te;
+  GtkWidget *file_bt, *file_te;
 
-  GtkWidget     *range_fr, *range_tb;
+  GtkWidget *range_fr, *range_grid;
 
-  GtkWidget     *packet_hb;
+  GtkWidget *packet_hb;
 
-  GtkWidget     *format_fr, *format_vb;
-  GtkWidget     *summary_cb;
+  GtkWidget *format_fr, *format_vb;
+  GtkWidget *summary_cb;
 
-  GtkWidget     *details_cb;
-  GtkWidget     *details_hb, *details_vb;
-  GtkWidget     *collapse_all_rb, *as_displayed_rb, *expand_all_rb;
-  GtkWidget     *hex_cb;
-  GtkWidget     *sep, *formfeed_cb;
+  GtkWidget *details_cb;
+  GtkWidget *details_hb, *details_vb;
+  GtkWidget *collapse_all_rb, *as_displayed_rb, *expand_all_rb;
+  GtkWidget *hex_cb;
+  GtkWidget *sep, *formfeed_cb;
 
-  GtkWidget     *bbox, *ok_bt, *cancel_bt, *help_bt;
+  GtkWidget *bbox, *ok_bt, *cancel_bt, *help_bt;
 
   /* dialog window */
   main_win = dlg_window_new(title);
@@ -539,8 +539,9 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
   /*** printer frame ***/
   printer_fr = gtk_frame_new(action == output_action_print ? "Printer" : "Export to file:");
-  gtk_box_pack_start(GTK_BOX(main_vb), printer_fr, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), printer_fr, TRUE, TRUE, 0);
   gtk_widget_show(printer_fr);
+
   printer_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(printer_vb), 5);
   gtk_container_add(GTK_CONTAINER(printer_fr), printer_vb);
@@ -603,16 +604,12 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_box_pack_start(GTK_BOX(printer_vb), carrays_rb, FALSE, FALSE, 0);
   /* gtk_widget_show(carrays_rb); */
 
-  /* printer table */
-#ifndef _WIN32
-  printer_tb = gtk_table_new(2, 3, FALSE);
-#else
-  printer_tb = gtk_table_new(2, 2, FALSE);
-#endif
-  gtk_box_pack_start(GTK_BOX(printer_vb), printer_tb, FALSE, FALSE, 0);
-  gtk_table_set_row_spacings(GTK_TABLE(printer_tb), 5);
-  gtk_table_set_col_spacings(GTK_TABLE(printer_tb), 5);
-  gtk_widget_show(printer_tb);
+  /* printer grid */
+  printer_grid = ws_gtk_grid_new();
+  gtk_box_pack_start(GTK_BOX(printer_vb), printer_grid, TRUE, TRUE, 0);
+  ws_gtk_grid_set_row_spacing(GTK_GRID(printer_grid), 5);
+  ws_gtk_grid_set_column_spacing(GTK_GRID(printer_grid), 5);
+  gtk_widget_show(printer_grid);
 
 
   /* Output to file button */
@@ -620,7 +617,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   if (args->to_file)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dest_cb), TRUE);
   gtk_widget_set_tooltip_text(dest_cb, "Output to file instead of printer");
-  gtk_table_attach_defaults(GTK_TABLE(printer_tb), dest_cb, 0, 1, 0, 1);
+  ws_gtk_grid_attach(GTK_GRID(printer_grid), dest_cb, 0, 0, 1, 1);
   if(action == output_action_print)
     gtk_widget_show(dest_cb);
 
@@ -629,7 +626,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   g_object_set_data(G_OBJECT(dest_cb), PRINT_FILE_TE_KEY, file_te);
   gtk_widget_set_tooltip_text(file_te, "Enter Output filename");
   gtk_entry_set_text(GTK_ENTRY(file_te), args->file);
-  gtk_table_attach_defaults(GTK_TABLE(printer_tb), file_te, 1, 2, 0, 1);
+  ws_gtk_grid_attach(GTK_GRID(printer_grid), file_te, 1, 0, 1, 1);
   gtk_widget_set_sensitive(file_te, args->to_file);
   gtk_widget_show(file_te);
   if (args->to_file)
@@ -640,7 +637,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   g_object_set_data(G_OBJECT(dest_cb), PRINT_FILE_BT_KEY, file_bt);
   g_object_set_data(G_OBJECT(file_bt), PRINT_TE_PTR_KEY, file_te);
   gtk_widget_set_tooltip_text(file_bt, "Browse output filename in filesystem");
-  gtk_table_attach_defaults(GTK_TABLE(printer_tb), file_bt, 2, 3, 0, 1);
+  ws_gtk_grid_attach(GTK_GRID(printer_grid), file_bt, 2, 0, 1, 1);
   gtk_widget_set_sensitive(file_bt, args->to_file);
   gtk_widget_show(file_bt);
 
@@ -649,7 +646,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   cmd_lb = gtk_label_new("Print command:");
   g_object_set_data(G_OBJECT(dest_cb), PRINT_CMD_LB_KEY, cmd_lb);
   gtk_misc_set_alignment(GTK_MISC(cmd_lb), 1.0f, 0.5f);
-  gtk_table_attach_defaults(GTK_TABLE(printer_tb), cmd_lb, 0, 1, 1, 2);
+  ws_gtk_grid_attach(GTK_GRID(printer_grid), cmd_lb, 0, 1, 1, 1);
   gtk_widget_set_sensitive(cmd_lb, !args->to_file);
   if(action == output_action_print)
     gtk_widget_show(cmd_lb);
@@ -658,7 +655,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   g_object_set_data(G_OBJECT(dest_cb), PRINT_CMD_TE_KEY, cmd_te);
   gtk_widget_set_tooltip_text(cmd_te, "Enter print command");
   gtk_entry_set_text(GTK_ENTRY(cmd_te), args->cmd);
-  gtk_table_attach_defaults(GTK_TABLE(printer_tb), cmd_te, 1, 2, 1, 2);
+  ws_gtk_grid_attach(GTK_GRID(printer_grid), cmd_te, 1, 1, 1, 1);
   gtk_widget_set_sensitive(cmd_te, !args->to_file);
   if(action == output_action_print)
     gtk_widget_show(cmd_te);
@@ -685,9 +682,9 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_box_pack_start(GTK_BOX(packet_hb), range_fr, FALSE, FALSE, 0);
   gtk_widget_show(range_fr);
 
-  range_tb = range_new(&args->range, FALSE);
-  gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
-  gtk_widget_show(range_tb);
+  range_grid = range_new(&args->range, FALSE);
+  gtk_container_add(GTK_CONTAINER(range_fr), range_grid);
+  gtk_widget_show(range_grid);
 
 /*****************************************************/
 
@@ -728,31 +725,31 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
   details_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(details_vb), 0);
-  gtk_container_add(GTK_CONTAINER(details_hb), details_vb);
+  gtk_box_pack_start(GTK_BOX(details_hb), details_vb, TRUE, TRUE, 0);
   gtk_widget_show(details_vb);
 
   details_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(details_vb), 0);
-  gtk_container_add(GTK_CONTAINER(details_hb), details_vb);
+  gtk_box_pack_start(GTK_BOX(details_hb), details_vb, TRUE, TRUE, 0);
   gtk_widget_show(details_vb);
 
   /* "All collapsed"/"As displayed"/"All Expanded" radio buttons */
   collapse_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "All co_llapsed");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(collapse_all_rb), args->print_dissections == print_dissections_collapsed);
   gtk_widget_set_tooltip_text(collapse_all_rb, "Output of the packet details tree \"collapsed\"");
-  gtk_container_add(GTK_CONTAINER(details_vb), collapse_all_rb);
+  gtk_box_pack_start(GTK_BOX(details_vb), collapse_all_rb, TRUE, TRUE, 0);
   gtk_widget_show(collapse_all_rb);
 
   as_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(collapse_all_rb), "As displa_yed");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(as_displayed_rb), args->print_dissections == print_dissections_as_displayed);
   gtk_widget_set_tooltip_text(as_displayed_rb, "Output of the packet details tree \"as displayed\"");
-  gtk_container_add(GTK_CONTAINER(details_vb), as_displayed_rb);
+  gtk_box_pack_start(GTK_BOX(details_vb), as_displayed_rb, TRUE, TRUE, 0);
   gtk_widget_show(as_displayed_rb);
 
   expand_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(collapse_all_rb), "All e_xpanded");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(expand_all_rb), args->print_dissections == print_dissections_expanded);
   gtk_widget_set_tooltip_text(expand_all_rb, "Output of the packet details tree \"expanded\"");
-  gtk_container_add(GTK_CONTAINER(details_vb), expand_all_rb);
+  gtk_box_pack_start(GTK_BOX(details_vb), expand_all_rb, TRUE, TRUE, 0);
   gtk_widget_show(expand_all_rb);
 
   /* "Print hex" check button. */
@@ -763,7 +760,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_box_pack_start(GTK_BOX(format_vb), hex_cb, TRUE, TRUE, 0);
   gtk_widget_show(hex_cb);
 
-  /* seperator */
+  /* separator */
   sep = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
   gtk_box_pack_start(GTK_BOX(format_vb), sep, TRUE, TRUE, 0);
   gtk_widget_show(sep);
@@ -862,10 +859,10 @@ static void
 print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
 {
 #ifndef _WIN32
-  GtkWidget     *cmd_lb, *cmd_te;
+  GtkWidget *cmd_lb, *cmd_te;
 #endif
-  GtkWidget     *file_bt, *file_te;
-  int            to_file;
+  GtkWidget *file_bt, *file_te;
+  int        to_file;
 
 #ifndef _WIN32
   cmd_lb = GTK_WIDGET(g_object_get_data(G_OBJECT(widget), PRINT_CMD_LB_KEY));
@@ -888,9 +885,8 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
 static void
 print_cmd_toggle_detail(GtkWidget *widget _U_, gpointer data)
 {
-  GtkWidget     *print_bt, *summary_cb, *details_cb, *collapse_all_rb, *expand_all_rb, *as_displayed_rb, *hex_cb;
-  gboolean      print_detail;
-
+  GtkWidget *print_bt, *summary_cb, *details_cb, *collapse_all_rb, *expand_all_rb, *as_displayed_rb, *hex_cb;
+  gboolean   print_detail;
 
   print_bt = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_BT_KEY));
   summary_cb = GTK_WIDGET(g_object_get_data(G_OBJECT(data), PRINT_SUMMARY_CB_KEY));
@@ -922,16 +918,16 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   const gchar       *g_dest;
   gchar             *f_name;
   gchar             *dirname;
-  gboolean          export_as_pdml = FALSE, export_as_psml = FALSE;
-  gboolean          export_as_csv = FALSE;
-  gboolean          export_as_carrays = FALSE;
+  gboolean           export_as_pdml    = FALSE, export_as_psml = FALSE;
+  gboolean           export_as_csv     = FALSE;
+  gboolean           export_as_carrays = FALSE;
 #ifdef _WIN32
-  gboolean          win_printer = FALSE;
-  int               tmp_fd;
+  gboolean           win_printer       = FALSE;
+  int                tmp_fd;
   char              *tmp_namebuf;
-  char              *tmp_oldfile = NULL;
+  char              *tmp_oldfile       = NULL;
 #endif
-  cf_print_status_t status;
+  cf_print_status_t  status;
 
   args = (print_args_t *)g_object_get_data(G_OBJECT(ok_bt), PRINT_ARGS_KEY);
 
@@ -947,8 +943,8 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   args->to_file = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 
   if (args->to_file) {
-      g_dest = gtk_entry_get_text(GTK_ENTRY(g_object_get_data(G_OBJECT(ok_bt),
-                                                          PRINT_FILE_TE_KEY)));
+    g_dest = gtk_entry_get_text(GTK_ENTRY(g_object_get_data(G_OBJECT(ok_bt),
+                                                            PRINT_FILE_TE_KEY)));
     if (!g_dest[0]) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         "Output to file, but no file specified.");
@@ -973,9 +969,9 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     /* Also: tmpnam is "insecure" and should not be used.                     */
     tmp_fd = create_tempfile(&tmp_namebuf, "wshprint");
     if(tmp_fd == -1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Couldn't create a temporary file for printing:\n%s", tmp_namebuf);
-        return;
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Couldn't create a temporary file for printing:\n%s", tmp_namebuf);
+      return;
     }
     /* remember to restore these values later! */
     tmp_oldfile = args->file;
@@ -1105,7 +1101,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
       write_failure_alert_box(args->file, errno);
     else
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	"Error writing to print command: %s", g_strerror(errno));
+                    "Error writing to print command: %s", g_strerror(errno));
     break;
   }
 
@@ -1127,7 +1123,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 static void
 print_destroy_cb(GtkWidget *win, gpointer user_data)
 {
-  GtkWidget     *fs;
+  GtkWidget *fs;
 
   /* Is there a file selection dialog associated with this
      Print File dialog? */
