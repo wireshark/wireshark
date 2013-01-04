@@ -99,7 +99,7 @@ struct _uat_rep_t {
 
 struct _str_pair {
 	const char* ptr;
-	unsigned len;
+	guint len;
 };
 
 struct _uat_dlg_data {
@@ -226,7 +226,7 @@ static guint8* unhexbytes(const char* si, guint len, guint* len_p, const char** 
 	guint8* buf;
 	guint8* p;
 	const guint8* s = (void*)si;
-	unsigned i;
+	guint i;
 
 	if (len % 2) {
 		*err = ep_strdup_printf("Uneven number of chars hex string %u \n'%s'",len, si);
@@ -293,7 +293,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 		void* e = g_ptr_array_index(dd->entries,colnum);
 		const char *text = NULL;
 		char *text_free = NULL;
-		unsigned len = 0;
+		guint len = 0;
 
 		switch(f[colnum].mode) {
 			case PT_TXTMOD_FILENAME:

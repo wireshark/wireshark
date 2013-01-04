@@ -151,7 +151,7 @@ struct visual_read_info
 /* Additional information for writing Visual files */
 struct visual_write_info
 {
-    unsigned start_time;        /* Capture start time in seconds */
+    guint start_time;        /* Capture start time in seconds */
     int     index_table_index;  /* Index of the next index entry */
     int     index_table_size;   /* Allocated size of the index table */
     guint32 * index_table;      /* File offsets for the packets */
@@ -702,7 +702,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;
     struct visual_pkt_hdr vpkt_hdr;
     size_t hdr_size = sizeof vpkt_hdr;
-    unsigned delta_msec;
+    guint delta_msec;
     guint32 packet_status;
 
     /* If the visual structure was never allocated then nothing useful

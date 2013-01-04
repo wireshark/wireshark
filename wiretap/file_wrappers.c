@@ -109,12 +109,12 @@ struct wtap_reader {
 	int fd;                 /* file descriptor */
 	gint64 raw_pos;         /* current position in file (just to not call lseek()) */
 	gint64 pos;             /* current position in uncompressed data */
-	unsigned size;          /* buffer size */
+	guint size;          /* buffer size */
 	unsigned char *in;      /* input buffer */
 	unsigned char *out;     /* output buffer (double-sized when reading) */
 	unsigned char *next;    /* next output data to deliver or write */
 
-	unsigned have;          /* amount of output data unused at next */
+	guint have;          /* amount of output data unused at next */
 	int eof;                /* true if end of input file reached */
 	gint64 start;           /* where the gzip data started, for rewinding */
 	gint64 raw;             /* where the raw data started, for seeking */
@@ -148,7 +148,7 @@ struct wtap_reader {
 #endif
 
 static int	/* gz_load */
-raw_read(FILE_T state, unsigned char *buf, unsigned int count, unsigned *have)
+raw_read(FILE_T state, unsigned char *buf, unsigned int count, guint *have)
 {
 	ssize_t ret;
 
@@ -176,7 +176,7 @@ fill_in_buffer(FILE_T state)
 	if (state->err)
 		return -1;
 	if (state->eof == 0) {
-		if (raw_read(state, state->in, state->size, (unsigned *)&(state->avail_in)) == -1)
+		if (raw_read(state, state->in, state->size, (guint *)&(state->avail_in)) == -1)
 			return -1;
 		state->next_in = state->in;
 	}
@@ -513,7 +513,7 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 			unsigned int ready = count2 - strm->avail_out;
 
 			if (ready < ZLIB_WINSIZE) {
-				unsigned left = ZLIB_WINSIZE - cur->pos;
+				guint left = ZLIB_WINSIZE - cur->pos;
 
 				if (ready >= left) {
 					memcpy(cur->window + cur->pos, buf2, left);
@@ -729,7 +729,7 @@ fill_out_buffer(FILE_T state)
 static int
 gz_skip(FILE_T state, gint64 len)
 {
-	unsigned n;
+	guint n;
 
 	/* skip over len bytes or reach end-of-file, whichever comes first */
 	while (len)
@@ -913,7 +913,7 @@ gint64
 file_seek(FILE_T file, gint64 offset, int whence, int *err)
 {
 	struct fast_seek_point *here;
-	unsigned n;
+	guint n;
 
 	/* can only seek from start or relative to current position */
 	if (whence != SEEK_SET && whence != SEEK_CUR) {
@@ -937,7 +937,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 		 * To squelch compiler warnings, we cast the
 		 * result.
 		 */
-		unsigned had = (unsigned)(file->next - file->out);
+		guint had = (unsigned)(file->next - file->out);
 		if (-offset <= had) {
 			/*
 			 * Offset is negative, so -offset is
@@ -951,7 +951,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 			 * would want, so we cast -offset
 			 * instead.)
 			 */
-			unsigned adjustment = (unsigned)(-offset);
+			guint adjustment = (unsigned)(-offset);
 			file->have += adjustment;
 			file->next -= adjustment;
 			file->pos -= adjustment;
@@ -1140,7 +1140,7 @@ file_iscompressed(FILE_T stream)
 int
 file_read(void *buf, unsigned int len, FILE_T file)
 {
-	unsigned got, n;
+	guint got, n;
 
 	/* if len is zero, avoid unnecessary operations */
 	if (len == 0)
@@ -1219,7 +1219,7 @@ file_getc(FILE_T file)
 char *
 file_gets(char *buf, int len, FILE_T file)
 {
-	unsigned left, n;
+	guint left, n;
 	char *str;
 	unsigned char *eol;
 
@@ -1364,8 +1364,8 @@ file_close(FILE_T file)
 struct wtap_writer {
     int fd;                 /* file descriptor */
     gint64 pos;             /* current position in uncompressed data */
-    unsigned size;          /* buffer size, zero if not allocated yet */
-    unsigned want;          /* requested buffer size, default is GZBUFSIZE */
+    guint size;          /* buffer size, zero if not allocated yet */
+    guint want;          /* requested buffer size, default is GZBUFSIZE */
     unsigned char *in;      /* input buffer */
     unsigned char *out;     /* output buffer (double-sized when reading) */
     unsigned char *next;    /* next output data to deliver or write */
@@ -1534,10 +1534,10 @@ gz_comp(GZWFILE_T state, int flush)
    failure or on an attempt to write 0 bytes (in which case state->err
    is Z_OK); return the number of bytes written on success. */
 unsigned
-gzwfile_write(GZWFILE_T state, const void *buf, unsigned len)
+gzwfile_write(GZWFILE_T state, const void *buf, guint len)
 {
-    unsigned put = len;
-    unsigned n;
+    guint put = len;
+    guint n;
     z_streamp strm;
 
     strm = &(state->strm);

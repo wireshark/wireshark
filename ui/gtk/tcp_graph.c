@@ -586,7 +586,7 @@ static char helptext[] =
 #if 0
 static void debug_coord (struct graph *g, const char *c)
 {
-	static unsigned count = 0;
+	static guint count = 0;
 
 	count++;
 	printf("%u: %s\n", count, c);

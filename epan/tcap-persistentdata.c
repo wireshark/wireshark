@@ -139,10 +139,10 @@ guint32 tcapsrt_global_SessionId=1;
 #ifdef DEBUG_TCAPSRT
 #include <stdio.h>
 #include <stdarg.h>
-static unsigned debug_level = 99;
+static guint debug_level = 99;
 
 static void
-dbg(unsigned  level, char* fmt, ...)
+dbg(guint level, char* fmt, ...)
 {
   va_list ap;
 

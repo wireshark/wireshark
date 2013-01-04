@@ -347,7 +347,7 @@ static void
 prepare_pseudo_header_atm(
 	union wtap_pseudo_header * const ph,
 	const pwatm_private_data_t * const pdata,
-	const unsigned aal)
+	const guint aal)
 {
 	DISSECTOR_ASSERT(NULL != pdata);
 	DISSECTOR_ASSERT(NULL != ph);

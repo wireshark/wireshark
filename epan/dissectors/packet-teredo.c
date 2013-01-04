@@ -83,7 +83,7 @@ static int
 parse_teredo_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			int offset, e_teredohdr *teredoh)
 {
-	unsigned idlen, aulen;
+	guint idlen, aulen;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_sep_str (pinfo->cinfo, COL_INFO, ", ",

@@ -2192,7 +2192,7 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
     csv_t   *csv = (csv_t *)data;
     gchar   *table_text;
     int      i;
-    unsigned idx;
+    guint idx;
     conv_t   *conv;
     double duration_s;
     guint64  value;

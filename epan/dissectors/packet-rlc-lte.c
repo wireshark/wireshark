@@ -331,10 +331,10 @@ static guint16 s_lengths[MAX_RLC_SDUS];
 /* Channel key */
 typedef struct
 {
-    unsigned  ueId : 16;
-    unsigned  channelType : 3;
-    unsigned  channelId : 5;
-    unsigned  direction : 1;
+    guint  ueId : 16;
+    guint  channelType : 3;
+    guint  channelId : 5;
+    guint  direction : 1;
 } channel_hash_key;
 
 
@@ -899,11 +899,11 @@ static guint rlc_channel_hash_func(gconstpointer v)
 /* Result hash                                                           */
 
 typedef struct {
-    guint32            frameNumber;
-    unsigned           SN :             10;
-    unsigned           channelType :    2;
-    unsigned           channelId:       5;
-    unsigned           direction:       1;
+    guint32           frameNumber;
+    guint32           SN :             10;
+    guint32           channelType :    2;
+    guint32           channelId:       5;
+    guint32           direction:       1;
 } rlc_result_hash_key;
 
 /* Compare 2 rlc_result_hash_key structs */

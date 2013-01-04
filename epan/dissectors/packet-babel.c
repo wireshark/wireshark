@@ -124,7 +124,7 @@ network_prefix(int ae, int plen, unsigned int omitted,
                const unsigned char *p, const unsigned char *dp,
                unsigned int len, unsigned char *p_r)
 {
-    unsigned      pb;
+    guint      pb;
     unsigned char prefix[16];
 
     if (plen >= 0)

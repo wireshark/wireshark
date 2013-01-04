@@ -67,10 +67,10 @@ static int hf_dmx_sip_trailer = -1;
 static int ett_dmx_sip = -1;
 
 static guint8
-dmx_sip_checksum(tvbuff_t *tvb, unsigned length)
+dmx_sip_checksum(tvbuff_t *tvb, guint length)
 {
 	guint8    sum = DMX_SC_SIP;
-	unsigned  i;
+	guint  i;
 	for (i = 0; i < length; i++)
 		sum += tvb_get_guint8(tvb, i);
 	return sum;
@@ -83,9 +83,9 @@ dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree != NULL) {
-		unsigned    offset = 0;
-		unsigned    byte_count;
-		unsigned    checksum, checksum_shouldbe;
+		guint    offset = 0;
+		guint    byte_count;
+		guint    checksum, checksum_shouldbe;
 		proto_item *item;
 		proto_tree *checksum_tree;
 

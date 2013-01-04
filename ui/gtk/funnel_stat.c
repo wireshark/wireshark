@@ -96,7 +96,7 @@ static void text_window_cancel_button_cb(GtkWidget *bt _U_, gpointer data) {
 
 static void unref_text_win_cancel_bt_cb(GtkWidget *bt _U_, gpointer data) {
     funnel_text_window_t* tw = data;
-    unsigned i;
+    guint i;
 
     window_destroy(GTK_WIDGET(tw->win));
     tw->win = NULL;
@@ -117,7 +117,7 @@ static void unref_text_win_cancel_bt_cb(GtkWidget *bt _U_, gpointer data) {
 
 static gboolean text_window_unref_del_event_cb(GtkWidget *win _U_, GdkEvent *event _U_, gpointer user_data) {
     funnel_text_window_t* tw = user_data;
-    unsigned i;
+    guint i;
 
     window_destroy(GTK_WIDGET(tw->win));
     tw->win = NULL;
@@ -320,7 +320,7 @@ static void text_window_destroy(funnel_text_window_t*  tw) {
         g_signal_connect(tw->bt_close, "clicked", G_CALLBACK(unref_text_win_cancel_bt_cb), tw);
         g_signal_connect(tw->win, "delete-event", G_CALLBACK(text_window_unref_del_event_cb), tw);
     } else {
-        unsigned i;
+        guint i;
         /*
          * we have no window anymore a human user closed
          * the window already just free the container

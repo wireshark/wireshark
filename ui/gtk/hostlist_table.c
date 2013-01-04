@@ -835,7 +835,7 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
     csv_t   *csv = (csv_t *)data;
     gchar   *table_text;
     int      i;
-    unsigned idx;
+    guint idx;
     guint64  value;
 
     gtk_tree_model_get(model, iter, INDEX_COLUMN, &idx, -1);

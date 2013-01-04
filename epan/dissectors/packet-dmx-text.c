@@ -55,8 +55,8 @@ dissect_dmx_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree != NULL) {
-		unsigned offset = 0;
-		unsigned size;
+		guint offset = 0;
+		guint size;
 
 		proto_tree *ti = proto_tree_add_item(tree, proto_dmx_text, tvb,
 							offset, -1, FALSE);

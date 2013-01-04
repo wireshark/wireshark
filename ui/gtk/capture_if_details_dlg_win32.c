@@ -1088,7 +1088,7 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
                 int len = bssid_item->ie_length;
                 unsigned char *iep = bssid_item->ies;
                 unsigned char id;
-                unsigned el_len;
+                guint el_len;
                 NDIS_802_11_FIXED_IEs *fixed_ies;
 /*#define DEBUG_IE*/
 #ifdef DEBUG_IE

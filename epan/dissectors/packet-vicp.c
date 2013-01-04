@@ -48,7 +48,7 @@ static void dissect_vicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_tree *vicp_tree;
    ptvcursor_t* cursor;
 
-   unsigned len;
+   guint len;
 
    if (tvb_reported_length_remaining(tvb, 0) < 8)
    {

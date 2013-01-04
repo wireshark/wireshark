@@ -1353,7 +1353,7 @@ static guint32 add_boolean(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
 
 static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
-      unsigned do_red_green_blue = VALUE8(tvb, *offsetp);
+      guint do_red_green_blue = VALUE8(tvb, *offsetp);
       proto_item *ti;
       proto_tree *tt;
 
@@ -1541,7 +1541,7 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       while(length--) {
             proto_item *tti;
             proto_tree *ttt;
-            unsigned do_red_green_blue;
+            guint do_red_green_blue;
             guint16 red, green, blue;
             emem_strbuf_t *buffer;
             const char *sep;
@@ -2026,7 +2026,7 @@ static void listOfRectangle(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_rectangle);
       while(length--) {
             gint16 x, y;
-            unsigned width, height;
+            guint width, height;
             proto_item *tti;
             proto_tree *ttt;
 
@@ -2099,7 +2099,7 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       tt = proto_item_add_subtree(ti, ett_x11_list_of_string8);
 
       while(length--) {
-            unsigned l = VALUE8(tvb, *offsetp);
+            guint l = VALUE8(tvb, *offsetp);
             s = tvb_get_ephemeral_string(tvb, *offsetp + 1, l);
             proto_tree_add_string_format(tt, hf_item, tvb, *offsetp, l + 1, s, "\"%s\"", s);
             *offsetp += l + 1;
@@ -2108,7 +2108,7 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
 #define STRING16_MAX_DISPLAYED_LENGTH 150
 
-static int stringIsActuallyAn8BitString(tvbuff_t *tvb, int offset, unsigned length)
+static int stringIsActuallyAn8BitString(tvbuff_t *tvb, int offset, guint length)
 {
       if (length > STRING16_MAX_DISPLAYED_LENGTH) length = STRING16_MAX_DISPLAYED_LENGTH;
       for(; length > 0; offset += 2, length--) {
@@ -2122,11 +2122,11 @@ static int stringIsActuallyAn8BitString(tvbuff_t *tvb, int offset, unsigned leng
 
 static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
                                               int hf, int hf_bytes,
-                                              int offset, unsigned length,
+                                              int offset, guint length,
                                               char **s, guint byte_order)
 {
       int truncated = FALSE;
-      unsigned l = length / 2;
+      guint l = length / 2;
 
       if (stringIsActuallyAn8BitString(tvb, offset, l)) {
             char *dp;
@@ -2186,7 +2186,7 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       tt = proto_item_add_subtree(ti, ett_x11_list_of_text_item);
 
       while(n--) {
-            unsigned l = VALUE8(tvb, *offsetp);
+            guint l = VALUE8(tvb, *offsetp);
             if (l == 255) { /* Item is a font */
                   fid = tvb_get_ntohl(tvb, *offsetp + 1);
                   proto_tree_add_uint(tt, hf_x11_textitem_font, tvb, *offsetp, 5, fid);
@@ -2464,7 +2464,7 @@ static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 }
 
 static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
-    int hf, unsigned length)
+    int hf, guint length)
 {
       proto_tree_add_item(t, hf, tvb, *offsetp, length, ENC_NA|ENC_ASCII);
       *offsetp += length;
@@ -2473,7 +2473,7 @@ static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 /* The length is the length of the _byte_zone_ (twice the length of the string) */
 
 static void string16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-    int hf_bytes, unsigned length, guint byte_order)
+    int hf_bytes, guint length, guint byte_order)
 {
       char *s = NULL;
 

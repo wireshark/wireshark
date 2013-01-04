@@ -75,7 +75,7 @@ enum
 
 struct _wimaxasncp_dict_namecode_t {
     gchar *name;
-    unsigned code;
+    guint code;
     struct _wimaxasncp_dict_namecode_t *next;
 };
 

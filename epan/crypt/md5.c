@@ -143,7 +143,7 @@ void md5_append( md5_state_t *ctx, unsigned char const *buf, size_t len)
  */
 void md5_finish(md5_state_t *ctx, unsigned char digest[16])
 {
-    unsigned count;
+    guint count;
     unsigned char *p;
 
     /* Compute number of bytes mod 64 */

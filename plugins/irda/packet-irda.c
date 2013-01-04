@@ -427,7 +427,7 @@ static ias_class_dissector_t class_dissector[] = { CLASS_DISSECTORS };
 /*
  * Dissect parameter tuple
  */
-unsigned dissect_param_tuple(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
+guint dissect_param_tuple(tvbuff_t* tvb, proto_tree* tree, guint offset)
 {
     guint8  len = tvb_get_guint8(tvb, offset + 1);
 
@@ -453,9 +453,9 @@ unsigned dissect_param_tuple(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
 /*
  * Dissect TTP
  */
-static unsigned dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, gboolean data)
+static guint dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, gboolean data)
 {
-    unsigned    offset = 0;
+    guint    offset = 0;
     guint8      head;
 	char		buf[128];
 
@@ -502,7 +502,7 @@ static unsigned dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root,
  */
 static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
-    unsigned            offset = 0;
+    guint            offset = 0;
     guint8              op;
     guint8              clen = 0;
     guint8              alen = 0;
@@ -654,10 +654,10 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
  */
 static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
-    unsigned            offset = 0;
-    unsigned            len    = tvb_length(tvb);
-    unsigned            n      = 0;
-    unsigned            list_len;
+    guint            offset = 0;
+    guint            len    = tvb_length(tvb);
+    guint            n      = 0;
+    guint            list_len;
     guint8              op;
     guint8              retcode;
     guint8              type;
@@ -907,7 +907,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 /*
  * Check if IAP result is octet sequence
  */
-gboolean check_iap_octet_result(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
+gboolean check_iap_octet_result(tvbuff_t* tvb, proto_tree* tree, guint offset,
                                 const char* attr_name, guint8 attr_type)
 {
     if (attr_type != IAS_OCT_SEQ)
@@ -929,7 +929,7 @@ gboolean check_iap_octet_result(tvbuff_t* tvb, proto_tree* tree, unsigned offset
 /*
  * Check if IAP result is correct LsapSel
  */
-guint8 check_iap_lsap_result(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
+guint8 check_iap_lsap_result(tvbuff_t* tvb, proto_tree* tree, guint offset,
                              const char* attr_name, guint8 attr_type)
 {
     guint32 lsap;
@@ -957,7 +957,7 @@ guint8 check_iap_lsap_result(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
  */
 static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pdu_type_t pdu_type)
 {
-    unsigned            offset = 0;
+    guint            offset = 0;
     guint8              src;
     address             srcaddr;
     address             destaddr;
@@ -1027,7 +1027,7 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
  */
 static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
-    unsigned    offset = 0;
+    guint    offset = 0;
     guint8      dlsap;
     guint8      slsap;
     guint8      cbit;
@@ -1250,9 +1250,9 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
 /*
  * Dissect Negotiation Parameters
  */
-static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
+static guint dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, guint offset)
 {
-    unsigned    n   = 0;
+    guint    n   = 0;
     proto_item* ti;
     proto_tree* p_tree;
     char        buf[256];
@@ -1527,7 +1527,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 
     if (tvb_reported_length_remaining(tvb, offset) > 0)
     {
-        unsigned    hints_len;
+        guint    hints_len;
         guint8      hint1 = 0;
         guint8      hint2 = 0;
         char buf[23];
@@ -1879,7 +1879,7 @@ static void dissect_irda(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
  */
 void proto_register_irda(void)
 {
-    unsigned i;
+    guint i;
 
     /* Setup list of header fields */
     static hf_register_info hf_lap[] = {

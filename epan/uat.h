@@ -331,7 +331,7 @@ CHK_STR_IS_DECL(isdigit);
 CHK_STR_IS_DECL(isxdigit);
 
 #define CHK_STR_IS_DEF(what) \
-gboolean uat_fld_chk_str_ ## what (void* u1 _U_, const char* strptr, unsigned len, const void* u2 _U_, const void* u3 _U_, const char** err) { \
+gboolean uat_fld_chk_str_ ## what (void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, const char** err) { \
 	guint i; for (i=0;i<len;i++) { \
 		char c = strptr[i]; \
 			if (! what((int)c)) { \
@@ -350,7 +350,7 @@ gboolean uat_fld_chk_str_ ## what (void* u1 _U_, const char* strptr, unsigned le
  *    a simple c-string contained in (((rec_t*)rec)->(field_name))
  */
 #define UAT_CSTRING_CB_DEF(basename,field_name,rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* u1 _U_, const void* u2 _U_) {\
     char* new_buf = g_strndup(buf,len); \
 	g_free((((rec_t*)rec)->field_name)); \
 	(((rec_t*)rec)->field_name) = new_buf; } \
@@ -398,7 +398,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  * LSTRING MACROS
  */
 #define UAT_LSTRING_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* u1 _U_, const void* u2 _U_) {\
 	char* new_val = uat_unesc(buf,len,&(((rec_t*)rec)->len_element)); \
         g_free((((rec_t*)rec)->ptr_element)); \
 	(((rec_t*)rec)->ptr_element) = new_val; }\
@@ -420,7 +420,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  *  XXX: UNTESTED and probably BROKEN
  */
 #define UAT_BUFFER_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* u1 _U_, const void* u2 _U_) {\
         char* new_buf = len ? g_memdup(buf,len) : NULL; \
 	g_free((((rec_t*)rec)->ptr_element)); \
 	(((rec_t*)rec)->ptr_element) = new_buf; \
@@ -438,7 +438,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  *   a decimal number contained in
  */
 #define UAT_DEC_CB_DEF(basename,field_name,rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* u1 _U_, const void* u2 _U_) {\
 	((rec_t*)rec)->field_name = (guint)strtol(ep_strndup(buf,len),NULL,10); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%d",((rec_t*)rec)->field_name); \
@@ -453,7 +453,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  *   an hexadecimal number contained in
  */
 #define UAT_HEX_CB_DEF(basename,field_name,rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* u1 _U_, const void* u2 _U_) {\
 	((rec_t*)rec)->field_name = (guint)strtol(ep_strndup(buf,len),NULL,16); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%x",((rec_t*)rec)->field_name); \
@@ -471,7 +471,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  *        value
  */
 #define UAT_VS_DEF(basename,field_name,rec_t,default_val,default_str) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* vs, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* vs, const void* u2 _U_) {\
 	guint i; \
 	char* str = ep_strndup(buf,len); \
 	const char* cstr; ((rec_t*)rec)->field_name = default_val; \
@@ -488,7 +488,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 			*out_len = (unsigned)strlen(*out_ptr); return; } } }
 
 #define UAT_VS_CSTRING_DEF(basename,field_name,rec_t,default_val,default_str) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* vs, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* vs, const void* u2 _U_) {\
 	guint i; \
 	char* str = ep_strndup(buf,len); \
 	const char* cstr; ((rec_t*)rec)->field_name = default_val; \
@@ -511,7 +511,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  */
 
 #define UAT_PROTO_DEF(basename, field_name, dissector_field, name_field, rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* u1 _U_, const void* u2 _U_) {\
 	if (len) { \
 		gchar *tmp = g_strndup(buf,len); \
 		((rec_t*)rec)->name_field = g_ascii_strdown(tmp, -1); \
@@ -538,7 +538,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  */
 
 #define UAT_RANGE_CB_DEF(basename,field_name,rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* u1 _U_, const void* u2) {\
 	char* rng = ep_strndup(buf,len);\
 		range_convert_str(&(((rec_t*)rec)->field_name), rng,GPOINTER_TO_UINT(u2)); \
 	} \

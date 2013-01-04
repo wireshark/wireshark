@@ -26,19 +26,19 @@
 #define MPA_H 1
 
 struct mpa {
-	unsigned emphasis   :2;
-	unsigned original   :1;
-	unsigned copyright  :1;
-	unsigned modeext    :2;
-	unsigned mode       :2;
-	unsigned private    :1;
-	unsigned padding    :1;
-	unsigned frequency  :2;
-	unsigned bitrate    :4;
-	unsigned protection :1;
-	unsigned layer      :2;
-	unsigned version    :2;
-	unsigned sync       :11;
+	unsigned int emphasis   :2;
+	unsigned int original   :1;
+	unsigned int copyright  :1;
+	unsigned int modeext    :2;
+	unsigned int mode       :2;
+	unsigned int private    :1;
+	unsigned int padding    :1;
+	unsigned int frequency  :2;
+	unsigned int bitrate    :4;
+	unsigned int protection :1;
+	unsigned int layer      :2;
+	unsigned int version    :2;
+	unsigned int sync       :11;
 };
 
 #define MPA_UNMARSHAL_SYNC(n)       ((n) >> 21 & 0x7ff)
@@ -73,10 +73,10 @@ struct mpa {
 
 int mpa_version(const struct mpa *);
 int mpa_layer(const struct mpa *);
-unsigned mpa_samples(const struct mpa *);
-unsigned mpa_bitrate(const struct mpa *);
-unsigned mpa_frequency(const struct mpa *);
-unsigned mpa_padding(const struct mpa *);
+unsigned int mpa_samples(const struct mpa *);
+unsigned int mpa_bitrate(const struct mpa *);
+unsigned int mpa_frequency(const struct mpa *);
+unsigned int mpa_padding(const struct mpa *);
 
 #define MPA_DATA_BYTES(mpa) (mpa_bitrate(mpa) * mpa_samples(mpa) \
 		/ mpa_frequency(mpa) / 8)

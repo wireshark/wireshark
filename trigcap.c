@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
 	char errbuf[PCAP_ERRBUF_SIZE];
 	char* interface = NULL;
 	char* outfile = NULL;
-	unsigned snaplen = 65536;
+	guint snaplen = 65536;
 	char* start_filter_str = NULL;
 	char* stop_filter_str = NULL;
 	char* capture_filter_str = NULL;

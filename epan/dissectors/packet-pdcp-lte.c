@@ -240,11 +240,11 @@ typedef struct
 {
     /* Using bit fields to fit into 32 bits, so avoiding the need to allocate
        heap memory for these structs */
-    unsigned           ueId : 16;
-    unsigned           plane : 2;
-    unsigned           channelId : 6;
-    unsigned           direction : 1;
-    unsigned           notUsed : 7;
+    guint           ueId : 16;
+    guint           plane : 2;
+    guint           channelId : 6;
+    guint           direction : 1;
+    guint           notUsed : 7;
 } pdcp_channel_hash_key;
 
 /* Channel state */
@@ -276,12 +276,12 @@ static guint pdcp_channel_hash_func(gconstpointer v)
 /* Hash table types & functions for frame reports */
 
 typedef struct {
-    guint32            frameNumber;
-    unsigned           SN :       15;
-    unsigned           plane :    2;
-    unsigned           channelId: 5;
-    unsigned           direction: 1;
-    unsigned           notUsed :  9;
+    guint32         frameNumber;
+    guint32         SN :       15;
+    guint32         plane :    2;
+    guint32         channelId: 5;
+    guint32         direction: 1;
+    guint32         notUsed :  9;
 } pdcp_result_hash_key;
 
 static gint pdcp_result_hash_equal(gconstpointer v, gconstpointer v2)

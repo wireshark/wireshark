@@ -51,7 +51,7 @@ typedef struct wtap_writer *GZWFILE_T;
 
 extern GZWFILE_T gzwfile_open(const char *path);
 extern GZWFILE_T gzwfile_fdopen(int fd);
-extern unsigned gzwfile_write(GZWFILE_T state, const void *buf, unsigned len);
+extern guint gzwfile_write(GZWFILE_T state, const void *buf, guint len);
 extern int gzwfile_flush(GZWFILE_T state);
 extern int gzwfile_close(GZWFILE_T state);
 extern int gzwfile_geterr(GZWFILE_T state);

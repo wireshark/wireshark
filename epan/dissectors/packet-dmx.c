@@ -74,7 +74,7 @@ static void
 dissect_dmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
-	unsigned  offset = 0;
+	guint     offset = 0;
 	guint8    start_code;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DMX");

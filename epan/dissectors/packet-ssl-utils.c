@@ -3945,7 +3945,7 @@ ssl_print_string(const gchar* name, const StringInfo* data)
 /* checks for SSL and DTLS UAT key list fields */
 
 gboolean
-ssldecrypt_uat_fld_ip_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
+ssldecrypt_uat_fld_ip_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
     if (!p || strlen(p) == 0u) {
         *err = ep_strdup_printf("No IP address given.");
@@ -3957,7 +3957,7 @@ ssldecrypt_uat_fld_ip_chk_cb(void* r _U_, const char* p, unsigned len _U_, const
 }
 
 gboolean
-ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
+ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
     if (!p || strlen(p) == 0u) {
         *err = ep_strdup_printf("No Port given.");
@@ -3977,7 +3977,7 @@ ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, unsigned len _U_, con
 }
 
 gboolean
-ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
+ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
     if (!p || strlen(p) == 0u) {
         *err = ep_strdup_printf("No protocol given.");
@@ -3994,7 +3994,7 @@ ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, unsigned len _U_,
 }
 
 gboolean
-ssldecrypt_uat_fld_fileopen_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
+ssldecrypt_uat_fld_fileopen_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
     ws_statb64 st;
 
@@ -4013,7 +4013,7 @@ ssldecrypt_uat_fld_fileopen_chk_cb(void* r _U_, const char* p, unsigned len _U_,
 }
 
 gboolean
-ssldecrypt_uat_fld_password_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char ** err)
+ssldecrypt_uat_fld_password_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, const char ** err)
 {
     ssldecrypt_assoc_t*  f  = r;
     FILE                *fp = NULL;

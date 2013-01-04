@@ -135,12 +135,12 @@ static int hf_param_pv = -1;
 static int hf_control = -1;
 static int hf_control_len = -1;
 
-static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet_info* pinfo,
-                                          proto_tree* tree, unsigned list_index, guint8 attr_type);
-static gboolean dissect_ircomm_ttp_lsap(tvbuff_t* tvb, unsigned offset, packet_info* pinfo,
-                                        proto_tree* tree, unsigned list_index, guint8 attr_type);
-static gboolean dissect_ircomm_lmp_lsap(tvbuff_t* tvb, unsigned offset, packet_info* pinfo,
-                                        proto_tree* tree, unsigned list_index, guint8 attr_type);
+static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, guint offset, packet_info* pinfo,
+                                          proto_tree* tree, guint list_index, guint8 attr_type);
+static gboolean dissect_ircomm_ttp_lsap(tvbuff_t* tvb, guint offset, packet_info* pinfo,
+                                        proto_tree* tree, guint list_index, guint8 attr_type);
+static gboolean dissect_ircomm_lmp_lsap(tvbuff_t* tvb, guint offset, packet_info* pinfo,
+                                        proto_tree* tree, guint list_index, guint8 attr_type);
 
 ias_attr_dissector_t ircomm_attr_dissector[] = {
 /* IrDA:IrCOMM attribute dissectors */
@@ -162,10 +162,10 @@ ias_attr_dissector_t irlpt_attr_dissector[] = {
  */
 static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
-    unsigned offset = 0;
-    unsigned clen;
+    guint offset = 0;
+    guint clen;
     char        buf[128];
-    unsigned    len;
+    guint    len;
 
 
     if (tvb_length(tvb) == 0)
@@ -215,7 +215,7 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
  */
 static void dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
-    unsigned len = tvb_length(tvb);
+    guint len = tvb_length(tvb);
 	char    buf[128];
 
     if (len == 0)
@@ -241,11 +241,11 @@ static void dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 /*
  * Dissect IrCOMM IAS "Parameters" attribute
  */
-static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet_info* pinfo _U_,
-                                          proto_tree* tree, unsigned list_index, guint8 attr_type)
+static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, guint offset, packet_info* pinfo _U_,
+                                          proto_tree* tree, guint list_index, guint8 attr_type)
 {
-    unsigned    len;
-    unsigned    n = 0;
+    guint    len;
+    guint    n = 0;
     proto_item* ti;
     proto_tree* p_tree;
     char        buf[256];
@@ -331,8 +331,8 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet
 /*
  * Dissect IrCOMM IAS "IrDA:TinyTP:LsapSel" attribute
  */
-static gboolean dissect_ircomm_ttp_lsap(tvbuff_t* tvb, unsigned offset, packet_info* pinfo,
-                                        proto_tree* tree, unsigned list_index _U_, guint8 attr_type)
+static gboolean dissect_ircomm_ttp_lsap(tvbuff_t* tvb, guint offset, packet_info* pinfo,
+                                        proto_tree* tree, guint list_index _U_, guint8 attr_type)
 {
     guint8 dlsap;
 
@@ -349,8 +349,8 @@ static gboolean dissect_ircomm_ttp_lsap(tvbuff_t* tvb, unsigned offset, packet_i
 /*
  * Dissect IrCOMM/IrLPT IAS "IrDA:IrLMP:LsapSel" attribute
  */
-static gboolean dissect_ircomm_lmp_lsap(tvbuff_t* tvb, unsigned offset, packet_info* pinfo,
-                                        proto_tree* tree, unsigned list_index _U_, guint8 attr_type)
+static gboolean dissect_ircomm_lmp_lsap(tvbuff_t* tvb, guint offset, packet_info* pinfo,
+                                        proto_tree* tree, guint list_index _U_, guint8 attr_type)
 {
     guint8 dlsap;
 
@@ -369,7 +369,7 @@ static gboolean dissect_ircomm_lmp_lsap(tvbuff_t* tvb, unsigned offset, packet_i
  */
 void proto_register_ircomm(void)
 {
-    unsigned i;
+    guint i;
 
     /* Setup list of header fields */
     static hf_register_info hf_ircomm[] = {
