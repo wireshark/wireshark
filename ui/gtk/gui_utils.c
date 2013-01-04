@@ -2092,6 +2092,7 @@ ws_gtk_grid_set_homogeneous(GtkGrid *grid, gboolean homogeneous)
     gtk_grid_set_row_homogeneous(grid, homogeneous);
     gtk_grid_set_column_homogeneous(grid, homogeneous);
 }
+#endif /* !GTK_CHECK_VERSION(3,0,0) */
 
 /*
  * Wrapp gdk_cairo_set_source_color() with the GTK 3 equivalent
@@ -2108,5 +2109,4 @@ gdk_cairo_set_source_rgba(cairo_t *cr, const GdkRGBA *rgba)
 	gdk_cairo_set_source_color(cr, &color);
 	
 }
-#endif /* !GTK_CHECK_VERSION(3,0,0) */
 #endif /* GTK_CHECK_VERSION(3,0,0) */
