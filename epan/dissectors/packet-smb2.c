@@ -323,7 +323,7 @@ static int hf_smb2_transform_msg_size = -1;
 static int hf_smb2_transform_reserved = -1;
 static int hf_smb2_encryption_aes128_ccm = -1;
 static int hf_smb2_transform_enc_alg = -1;
-static int hf_smb2_transform_encyrpted_data = -1;
+static int hf_smb2_transform_encrypted_data = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -6275,11 +6275,11 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 	*plain_tvb = NULL;
 
 	/* signature */
-	proto_tree_add_item(tree, hf_smb2_transform_signature, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb2_transform_signature, tvb, offset, 16, ENC_NA);
 	offset += 16;
 
 	/* nonce */
-	proto_tree_add_item(tree, hf_smb2_transform_nonce, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb2_transform_nonce, tvb, offset, 16, ENC_NA);
 	tvb_memcpy(tvb, sti->nonce, offset, 16);
 	offset += 16;
 
@@ -6289,7 +6289,7 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 	offset += 4;
 
 	/* reserved */
-	proto_tree_add_item(tree, hf_smb2_transform_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb2_transform_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* enc algorithm */
@@ -6634,7 +6634,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 			si->status = 0;
 			proto_tree_add_item(header_tree, hf_smb2_channel_sequence, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
-			proto_tree_add_item(header_tree, hf_smb2_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(header_tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 			offset += 2;
 		}
 
@@ -6803,8 +6803,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 			dissect_smb2(plain_tvb, pinfo, enc_tree, FALSE);
 		} else {
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Encrypted SMB3");
-			proto_tree_add_item(enc_tree, hf_smb2_transform_encyrpted_data,
-					    enc_tvb, 0, sti->size, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(enc_tree, hf_smb2_transform_encrypted_data,
+					    enc_tvb, 0, sti->size, ENC_NA);
 		}
 
 		if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -7896,7 +7896,7 @@ proto_register_smb2(void)
 		{ "SMB2_ENCRYPTION_AES128_CCM", "smb2.header.transform.enc_aes128_ccm", FT_BOOLEAN, 16,
 		NULL, ENC_ALG_aes128_ccm, NULL, HFILL }},
 
-	{ &hf_smb2_transform_encyrpted_data,
+	{ &hf_smb2_transform_encrypted_data,
 		{ "Data", "smb2.header.transform.enc_data", FT_BYTES, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
