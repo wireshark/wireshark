@@ -122,7 +122,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
    * Shift All Packets frame
    */
   types_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_LABEL_SPACING, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), types_vb);
+  gtk_box_pack_start(GTK_BOX(main_vb), types_vb, TRUE, TRUE, 0);
 
   /* Radio button row */
   timeshift_offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, DLG_BUTTON_SPACING, FALSE);
@@ -157,8 +157,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
    * Set Packet Number to Time frame
    */
   types_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_LABEL_SPACING, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), types_vb);
-
+  gtk_box_pack_start(GTK_BOX(main_vb), types_vb, TRUE, TRUE, 0);
   /* time shift type row */
   settime_time_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, DLG_BUTTON_SPACING, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), settime_time_hb, FALSE,
@@ -217,7 +216,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
    * Set two Packet Numbers to Time frame and extrapolate
    */
   types_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_LABEL_SPACING, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), types_vb);
+  gtk_box_pack_start(GTK_BOX(main_vb), types_vb, TRUE, TRUE, 0);
 
   /* packet number row 1 */
   adjtime_offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, DLG_BUTTON_SPACING, FALSE);
@@ -311,7 +310,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
    * Undo all shifts
    */
   types_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_LABEL_SPACING, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), types_vb);
+  gtk_box_pack_start(GTK_BOX(main_vb), types_vb, TRUE, TRUE, 0);
 
   /* time shift type row */
   undo_type_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, DLG_BUTTON_SPACING, FALSE);
