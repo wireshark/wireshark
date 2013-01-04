@@ -471,16 +471,17 @@ foo(int a)
   [warns about variables in function declarations shadowing other variables])
 
 # Unfortunately some versions of gcc generate logical-op warnings when strchr()
-# is given a constant seperators list.
+# is given a constant string.
 # gcc versions 4.3.2 and 4.4.5 are known to have the problem.
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wlogical-op, C,
   [
 #include <string.h>
 
-extern int foo(char *, int);
+int foo(const char *, int);
+int bar(void);
 
 int
-foo(char *sep, int c)
+foo(const char *sep, int c)
 {
 	if (strchr (sep, c) != NULL)
 		return 1;
@@ -489,9 +490,9 @@ foo(char *sep, int c)
 }
 
 int
-main(int argc, char **argv)
+bar(void)
 {
-	return foo(\"<\", 'a');
+	return foo("<", 'a');
 }
   ],
   [generates warnings from strchr()])

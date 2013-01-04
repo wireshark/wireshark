@@ -785,10 +785,10 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		LIBS="$LIBS -L$lua_dir/lib -llua -lm"
 		wireshark_save_LDFLAGS="$LDFLAGS"
 		LDFLAGS="$LDFLAGS -L$lua_dir/lib"
-		
+
 		#
 		# Determine Lua version by reading the LUA_VERSION_NUM definition
-		# from lua.h under the given Lua directory. The value is 501 for 
+		# from lua.h under the given Lua directory. The value is 501 for
 		# Lua 5.1, 502 for Lua 5.2, etc.
 		#
 		AC_MSG_CHECKING(Lua version)
@@ -1641,7 +1641,10 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
 		      # whether it fails with this option and -Werror,
 		      # and, if so, don't include it.
 		      #
-		      if test "x$3" != "x" ; then
+		      # We test arg 4 here because arg 3 is a program which
+		      # could contain quotes (breaking the comparison).
+		      #
+		      if test "x$4" != "x" ; then
                         CFLAGS="$CFLAGS -Werror"
                         AC_MSG_CHECKING(whether $GCC_OPTION $4)
                         AC_COMPILE_IFELSE([
@@ -1705,7 +1708,10 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
 		      # whether it fails with this option and -Werror,
 		      # and, if so, don't include it.
 		      #
-		      if test "x$3" != "x" ; then
+		      # We test arg 4 here because arg 3 is a program which
+		      # could contain quotes (breaking the comparison).
+		      #
+		      if test "x$4" != "x" ; then
                         CXXFLAGS="$CXXFLAGS -Werror"
                         AC_MSG_CHECKING(whether $GCC_OPTION $4)
                         AC_COMPILE_IFELSE([
