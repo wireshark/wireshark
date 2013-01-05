@@ -47,7 +47,17 @@ auto_open_opt=
 utilities="Utilities"
 ws_bin="$app_bundle/Contents/Resources/bin/wireshark-bin"
 
-PATH=$PATH:/Developer/Tools
+if [ -d /Applications/Xcode.app/Developer ]
+then
+	developer_path=/Applications/Xcode.app/Developer
+elif [ -d /Developer ]
+then
+	developer_path=/Developer
+fi
+if [ ! -z $developer_path ]
+then
+	PATH=$PATH:$developer_path/Tools:$developer_path/usr/bin
+fi
 
 # Help message
 #----------------------------------------------------------
@@ -132,7 +142,7 @@ echo -e "\nCREATE WIRESHARK PACKAGE\n"
 pkg_title="$volume_name $version $architecture"
 pkg_file="$pkg_title.pkg"
 rm -rf "$pkg_file"
-/Developer/usr/bin/packagemaker --doc "Wireshark_package.pmdoc" \
+packagemaker --doc "Wireshark_package.pmdoc" \
     --title "$pkg_title" \
     --version "$version" \
     --verbose || exit 1
