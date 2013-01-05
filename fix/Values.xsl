@@ -36,6 +36,7 @@ translate(@description,$uppercase,$smallcase)
     <xsl:variable name="val_type"  >
     <xsl:choose>   
            <xsl:when test="@type='STRING'"> string_string </xsl:when>
+           <xsl:when test="@type='MULTIPLESTRINGVALUE'"> string_string </xsl:when>
   	   <xsl:otherwise> value_string </xsl:otherwise>
     </xsl:choose>
     </xsl:variable>
@@ -43,6 +44,8 @@ translate(@description,$uppercase,$smallcase)
              <xsl:when test="../@type='INT'">
        { <xsl:value-of select="@enum"/>, "<xsl:value-of select="translate(@description,'_',' ')"/>" },</xsl:when>
              <xsl:when test="../@type='STRING'">
+       { "<xsl:value-of select="@enum"/>", "<xsl:value-of select="translate(@description,'_',' ')"/>" },</xsl:when>
+             <xsl:when test="../@type='MULTIPLESTRINGVALUE'">
        { "<xsl:value-of select="@enum"/>", "<xsl:value-of select="translate(@description,'_',' ')"/>" },</xsl:when>
   	     <xsl:otherwise>
        { '<xsl:value-of select="@enum"/>', "<xsl:value-of select="translate(@description,'_',' ')"/>" },</xsl:otherwise>
