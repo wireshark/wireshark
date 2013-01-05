@@ -103,16 +103,16 @@ fi
 
 # Get the architecture
 case `file $ws_bin` in
-	*Mach-O*64-bit*x86_64)
+	*Mach-O*64-bit*x86_64*)
 		architecture="Intel 64"
 		;;
-	*Mach-O*i386)
+	*Mach-O*i386*)
 		architecture="Intel 32"
 		;;
-	*Mach-O*ppc64)
+	*Mach-O*ppc64*)
 		architecture="PPC 64"
 		;;
-	*Mach-O*ppc)
+	*Mach-O*ppc*)
 		architecture="PPC 32"
 		;;
 	*)
