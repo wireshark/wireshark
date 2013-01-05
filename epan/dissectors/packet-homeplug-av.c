@@ -37,6 +37,7 @@ static int hf_homeplug_av_mmhdr_mmver            = -1;
 static int hf_homeplug_av_mmhdr_mmtype           = -1;
 static int hf_homeplug_av_mmhdr_mmtype_lsb       = -1;
 static int hf_homeplug_av_mmhdr_mmtype_msb       = -1;
+static int hf_homeplug_av_mmhdr_fmi              = -1;
 static int hf_homeplug_av_vendor                 = -1;
 static int hf_homeplug_av_vendor_oui             = -1;
 static int hf_homeplug_av_reserved               = -1;
@@ -420,6 +421,7 @@ static int hf_homeplug_av_tone_map_carrier_hi    = -1;
 static gint ett_homeplug_av                      = -1;
 static gint ett_homeplug_av_mmhdr                = -1;
 static gint ett_homeplug_av_mmtype               = -1;
+static gint ett_homeplug_av_fmi                  = -1;
 static gint ett_homeplug_av_vendor               = -1;
 static gint ett_homeplug_av_public               = -1;
 
@@ -1107,8 +1109,6 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor)
    guint8 lsb, msb, mmv;
    guint16 homeplug_av_mmtype;
 
-   ti = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr, 3, ENC_NA);
-
    mmv = tvb_get_guint8(ptvcursor_tvbuff(cursor),
                         ptvcursor_current_offset(cursor));
    lsb = tvb_get_guint8(ptvcursor_tvbuff(cursor),
@@ -1117,6 +1117,16 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor)
                         ptvcursor_current_offset(cursor) + 2);
 
    homeplug_av_mmtype = (msb << 8) | lsb;
+
+   /* Header in HomePlug AV 1.1 is 2 bytes larger (Fragmentation information) */
+   if (mmv)
+   {
+     ti = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr, 5, ENC_NA);
+   }
+   else
+   {
+     ti = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr, 3, ENC_NA);
+   }
 
    if (!ptvcursor_tree(cursor))
       return homeplug_av_mmtype;
@@ -1130,16 +1140,22 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor)
       {
          ptvcursor_add(cursor, hf_homeplug_av_mmhdr_mmtype_lsb, 1, ENC_BIG_ENDIAN);
          ptvcursor_add(cursor, hf_homeplug_av_mmhdr_mmtype_msb, 1, ENC_BIG_ENDIAN);
-
-         /* Fragmentation information is part of the header in HomePlug AV 1.1 */
-         if (mmv)
-         {
-            ptvcursor_add_no_advance(cursor, hf_homeplug_av_public_frag_count, 1, ENC_BIG_ENDIAN);
-            ptvcursor_add(cursor, hf_homeplug_av_public_frag_index, 1, ENC_BIG_ENDIAN);
-            ptvcursor_add(cursor, hf_homeplug_av_public_frag_seqnum, 1, ENC_BIG_ENDIAN);
-         }
       }
       ptvcursor_pop_subtree(cursor);
+
+      /* Fragmentation information is part of the header in HomePlug AV 1.1 */
+      if (mmv)
+      {
+		ti_public = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr_fmi, 2, ENC_LITTLE_ENDIAN);
+
+		ptvcursor_push_subtree(cursor, ti_public, ett_homeplug_av_fmi);
+		{
+		  ptvcursor_add_no_advance(cursor, hf_homeplug_av_public_frag_count, 1, ENC_BIG_ENDIAN);
+		  ptvcursor_add(cursor, hf_homeplug_av_public_frag_index, 1, ENC_BIG_ENDIAN);
+		  ptvcursor_add(cursor, hf_homeplug_av_public_frag_seqnum, 1, ENC_BIG_ENDIAN);
+		}
+		ptvcursor_pop_subtree(cursor);		
+      }
    }
    ptvcursor_pop_subtree(cursor);
 
@@ -2924,6 +2940,10 @@ proto_register_homeplug_av(void)
         { "MSB", "homeplug_av.mmhdr.mmtype.msb",
           FT_UINT8, BASE_HEX, VALS(homeplug_av_mmtype_msb_vals), HOMEPLUG_AV_MMTYPE_MSB_MASK, "Reserved", HFILL },
       },
+      { &hf_homeplug_av_mmhdr_fmi,
+        { "Fragmentation Info", "homeplug_av.mmhdr.fmi",
+	      FT_UINT16, BASE_HEX, NULL, 0x0000, "Reserved", HFILL },
+      },
       /* Public MME */
       { &hf_homeplug_av_public,
         { "Public MME", "homeplug_av.public",
@@ -4191,6 +4211,7 @@ proto_register_homeplug_av(void)
       &ett_homeplug_av,
       &ett_homeplug_av_mmhdr,
       &ett_homeplug_av_mmtype,
+      &ett_homeplug_av_fmi,
       &ett_homeplug_av_vendor,
       &ett_homeplug_av_public,
 
