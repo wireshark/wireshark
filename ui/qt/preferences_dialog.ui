@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PreferencesDialog</class>
+ <widget class="QDialog" name="PreferencesDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>680</width>
+    <height>475</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QTreeWidget" name="prefsTree">
+      <property name="uniformRowHeights">
+       <bool>true</bool>
+      </property>
+      <property name="headerHidden">
+       <bool>true</bool>
+      </property>
+      <column>
+       <property name="text">
+        <string notr="true">1</string>
+       </property>
+      </column>
+      <item>
+       <property name="text">
+        <string>Appearance</string>
+       </property>
+       <property name="flags">
+        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+       </property>
+       <item>
+        <property name="text">
+         <string>Layout</string>
+        </property>
+       <property name="flags">
+        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+       </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Columns</string>
+        </property>
+       <property name="flags">
+        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+       </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Font and Colors</string>
+        </property>
+       <property name="flags">
+        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+       </property>
+       </item>
+      </item>
+      <item>
+       <property name="text">
+        <string>Capture</string>
+       </property>
+       <property name="flags">
+        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Filter Expressions</string>
+       </property>
+       <property name="flags">
+        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Name Resolution</string>
+       </property>
+       <property name="flags">
+        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Protocols</string>
+       </property>
+       <property name="flags">
+        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Statistics</string>
+       </property>
+       <property name="flags">
+        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Advanced</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>9</number>
+      </property>
+      <widget class="QFrame" name="appearanceFrame"/>
+      <widget class="QFrame" name="layoutFrame"/>
+      <widget class="QFrame" name="columnFrame"/>
+      <widget class="QFrame" name="fontColorFrame"/>
+      <widget class="QFrame" name="captureFrame"/>
+      <widget class="QFrame" name="filterFrame"/>
+      <widget class="QFrame" name="nameResolutionFrame"/>
+      <widget class="QFrame" name="protocolsFrame"/>
+      <widget class="QFrame" name="statisticsFrame"/>
+      <widget class="QFrame" name="advancedFrame">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Search:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="advancedSearchLineEdit"/>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTreeWidget" name="advancedTree">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="uniformRowHeights">
+           <bool>true</bool>
+          </property>
+          <column>
+           <property name="text">
+            <string>Name</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Status</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Type</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Value</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>PreferencesDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>PreferencesDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

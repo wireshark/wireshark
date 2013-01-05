@@ -31,6 +31,7 @@
 #include <epan/tvbuff.h>
 
 #include "proto_tree.h"
+#include <QPrinter>
 #include <QTextEdit>
 
 // XXX - Is there any reason we shouldn't add ByteViewImage, etc?

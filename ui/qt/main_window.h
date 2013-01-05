@@ -224,6 +224,7 @@ private slots:
     void on_actionEditTimeShift_triggered();
     void on_actionEditPacketComment_triggered();
     void on_actionEditConfigurationProfiles_triggered();
+    void on_actionEditPreferences_triggered();
 
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();

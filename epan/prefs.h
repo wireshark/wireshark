@@ -456,6 +456,43 @@ extern void prefs_clear_string_list(GList *sl);
  */
 extern void prefs_register_modules(void);
 
+/** Fetch a short preference type name, e.g. "Integer".
+ *
+ * @param pref A preference.
+ *
+ * @return The preference type name. May be NULL.
+ */
+const char *prefs_pref_type_name(pref_t *pref);
+
+/** Fetch a long description of the preference type
+ *
+ * @param pref A preference.
+ *
+ * @return A description of the preference type including allowed
+ * values for enums. The description may include newlines. Must be
+ * g_free()d.
+ */
+char *prefs_pref_type_description(pref_t *pref);
+
+/** Check if a preference differs from its default value
+ *
+ * @param pref A preference.
+ *
+ * @return TRUE if the current value of the preference is the same as
+ * its default value or FALSE if they differ.
+ */
+gboolean prefs_pref_is_default(pref_t *pref);
+
+/** Fetch a string representation of the preference.
+ *
+ * @param pref A preference.
+ * @param default_val Return the default value if TRUE or the current value
+ * if FALSE.
+ *
+ * @return A string representation of the preference. Must be g_free()d.
+ */
+char *prefs_pref_to_str(pref_t *pref, gboolean default_val);
+
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
    If we got an error (other than "it doesn't exist") trying to read

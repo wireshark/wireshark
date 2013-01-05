@@ -58,13 +58,14 @@
 #include "ui/main_statusbar.h"
 #include "ui/ssl_key_export.h"
 
-#include "wireshark_application.h"
 #include "capture_file_dialog.h"
 #include "export_object_dialog.h"
-#include "print_dialog.h"
 #include "time_shift_dialog.h"
 #include "packet_comment_dialog.h"
+#include "preferences_dialog.h"
+#include "print_dialog.h"
 #include "profile_dialog.h"
+#include "wireshark_application.h"
 
 #include <QMessageBox>
 #include <QClipboard>
@@ -1301,6 +1302,13 @@ void MainWindow::on_actionEditConfigurationProfiles_triggered()
     ProfileDialog cp_dialog;
 
     cp_dialog.exec();
+}
+
+void MainWindow::on_actionEditPreferences_triggered()
+{
+    PreferencesDialog pref_dialog;
+
+    pref_dialog.exec();
 }
 
 // View Menu

@@ -33,7 +33,6 @@ ByteViewTab::ByteViewTab(QWidget *parent) :
     addTab();
 }
 
-#include <QDebug>
 void ByteViewTab::addTab(const char *name, tvbuff_t *tvb, proto_tree *tree, QTreeWidget *protoTree, packet_char_enc encoding) {
     ByteViewText *byte_view_text = new ByteViewText(this, tvb, tree, protoTree, encoding);
 

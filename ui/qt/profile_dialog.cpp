@@ -316,4 +316,3 @@ void ProfileDialog::editingFinished()
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

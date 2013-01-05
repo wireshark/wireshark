@@ -43,7 +43,6 @@
 #include <QGridLayout>
 #include <QPushButton>
 
-#include <QDebug>
 #endif // Q_WS_WIN
 
 ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type):

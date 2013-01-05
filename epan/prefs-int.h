@@ -68,14 +68,23 @@ WS_VAR_IMPORT module_t *protocols_module;
 typedef void (*pref_custom_free_cb) (pref_t* pref);
 typedef void (*pref_custom_reset_cb) (pref_t* pref);
 typedef prefs_set_pref_e (*pref_custom_set_cb) (pref_t* pref, const gchar* value, gboolean* changed);
-typedef void (*pref_custom_write_cb) (pref_t* pref, write_pref_arg_t* arg);
+/* typedef void (*pref_custom_write_cb) (pref_t* pref, write_pref_arg_t* arg); Deprecated. */
+/* pref_custom_type_name_cb should return NULL for internal / hidden preferences. */
+typedef const char * (*pref_custom_type_name_cb) (void);
+typedef char * (*pref_custom_type_description_cb) (void);
+typedef gboolean (*pref_custom_is_default_cb) (pref_t* pref);
+typedef char * (*pref_custom_to_str_cb) (pref_t* pref, gboolean default_val);
 
 /** Structure to hold callbacks for PREF_CUSTOM type */
 struct pref_custom_cbs {
     pref_custom_free_cb free_cb;
     pref_custom_reset_cb reset_cb;
     pref_custom_set_cb set_cb;
-    pref_custom_write_cb write_cb;
+    /* pref_custom_write_cb write_cb; Deprecated. */
+    pref_custom_type_name_cb type_name_cb;
+    pref_custom_type_description_cb type_description_cb;
+    pref_custom_is_default_cb is_default_cb;
+    pref_custom_to_str_cb to_str_cb;
 };
 
 /**

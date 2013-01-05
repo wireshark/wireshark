@@ -87,63 +87,29 @@ export_object_dialog.cpp export_object_dialog.h: ui_export_object_dialog.h
 
 file_set_dialog.cpp file_set_dialog.h: ui_file_set_dialog.h
 
-#ui_file_set_dialog.h: file_set_dialog.ui
-#	uic $< -o $@
-
 import_text_dialog.cpp import_text_dialog.h: ui_import_text_dialog.h
-
-#ui_import_text_dialog.h: import_text_dialog.ui
-#	uic $< -o $@
 
 main_welcome.cpp main_welcome.h: ui_main_welcome.h
 
-#ui_main_welcome.h: main_welcome.ui
-#	uic $< -o $@
-
 main_window.cpp main_window.h: ui_main_window.h
-
-#ui_main_window.h: main_window.ui
-#	uic $< -o $@
 
 packet_comment_dialog.cpp packet_comment_dialog.h: ui_packet_comment_dialog.h
 
-#ui_packet_comment_dialog.h: packet_comment_dialog.ui
-#	uic $< -o $@
-
 packet_format_group_box.cpp packet_format_group_box.h: ui_packet_format_group_box.h
-
-#ui_packet_format_group_box.h: packet_format_group_box.ui
-#	uic $< -o $@
 
 packet_range_group_box.cpp packet_range_group_box.h: ui_packet_range_group_box.h
 
-#ui_packet_range_group_box.h: packet_range_group_box.ui
-#	uic $< -o $@
+preferences_dialog.cpp preferences_dialog.h: ui_preferences_dialog.h
 
 print_dialog.cpp print_dialog.h: ui_print_dialog.h
 
-#ui_print_dialog.h: print_dialog.ui
-#	uic $< -o $@
-
 profile_dialog.cpp profile_dialog.h: ui_profile_dialog.h
-
-#ui_profile_dialog.h: profile_dialog.ui
-#	uic $< -o $@
 
 search_frame.cpp search_frame.h: ui_search_frame.h
 
-#ui_search_frame.h: search_frame.ui
-#	uic $< -o $@
-
 splash_overlay.cpp splash_overlay.h: ui_splash_overlay.h
 
-#ui_splash_overlay.h: splash_overlay.ui
-#	uic $< -o $@
-
 time_shift_dialog.cpp time_shift_dialog.h: ui_time_shift_dialog.h
-
-#ui_time_shift_dialog.h: time_shift_dialog.ui
-#	uic $< -o $@
 
 doxygen:
 if HAVE_DOXYGEN
@@ -206,6 +172,7 @@ EXTRA_DIST = \
 	packet_format_group_box.ui	\
 	packet_range_group_box.ui	\
 	packet_comment_dialog.ui	\
+	preferences_dialog.ui		\
 	print_dialog.ui			\
 	profile_dialog.ui		\
 	QtShark.pro			\

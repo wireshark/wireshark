@@ -34,7 +34,7 @@
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="InterfaceTree" name="interfaceTree">
            <property name="sizePolicy">
@@ -45,6 +45,9 @@
            </property>
            <property name="horizontalScrollBarPolicy">
             <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="uniformRowHeights">
+            <bool>true</bool>
            </property>
            <property name="columnCount">
             <number>2</number>

@@ -54,8 +54,6 @@
 
 #include <QPushButton>
 
-#include <QDebug>
-
 #ifdef Q_WS_WIN
 // All of these routines are required by file_dlg_win32.c.
 // We don't yet have a good place for them so we'll add them as stubs here.
