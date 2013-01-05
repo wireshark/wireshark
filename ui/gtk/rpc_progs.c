@@ -112,27 +112,27 @@ rpcprogs_init_grid(GtkWidget *grid_parent)
 	gtk_container_add(GTK_CONTAINER(grid_parent), grid);
 
 	tmp = gtk_label_new("Program");
-	ws_gtk_grid_attach(GTK_GRID(grid), tmp, 0, 0, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), tmp, 0, 0, 1, 1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 
 	tmp = gtk_label_new("Version");
-	ws_gtk_grid_attach(GTK_GRID(grid), tmp, 1, 0, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), tmp, 1, 0, 1, 1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
 
 	tmp = gtk_label_new("Calls");
-	ws_gtk_grid_attach(GTK_GRID(grid), tmp, 2, 0, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), tmp, 2, 0, 1, 1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
 
 	tmp = gtk_label_new("Min SRT");
-	ws_gtk_grid_attach(GTK_GRID(grid), tmp, 3, 0, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), tmp, 3, 0, 1, 1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
 
 	tmp = gtk_label_new("Max SRT");
-	ws_gtk_grid_attach(GTK_GRID(grid), tmp, 4, 0, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), tmp, 4, 0, 1, 1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
 
 	tmp = gtk_label_new("Avg SRT");
-	ws_gtk_grid_attach(GTK_GRID(grid), tmp, 5, 0, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), tmp, 5, 0, 1, 1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
 }
 
@@ -166,27 +166,27 @@ add_new_program(rpc_program_t *rp)
 	num_progs++;
 
 	rp->wprogram = gtk_label_new("0");
-	ws_gtk_grid_attach(GTK_GRID(grid), rp->wprogram, 0, num_progs, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), rp->wprogram, 0, num_progs, 1, 1);
 	gtk_widget_show(rp->wprogram);
 
 	rp->wversion = gtk_label_new("0");
-	ws_gtk_grid_attach(GTK_GRID(grid), rp->wversion, 1, num_progs, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), rp->wversion, 1, num_progs, 1, 1);
 	gtk_widget_show(rp->wversion);
 
 	rp->wnum = gtk_label_new("0");
-	ws_gtk_grid_attach(GTK_GRID(grid), rp->wnum,     2, num_progs, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), rp->wnum,     2, num_progs, 1, 1);
 	gtk_widget_show(rp->wnum);
 
 	rp->wmin = gtk_label_new("0");
-	ws_gtk_grid_attach(GTK_GRID(grid), rp->wmin,     3, num_progs, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), rp->wmin,     3, num_progs, 1, 1);
 	gtk_widget_show(rp->wmin);
 
 	rp->wmax = gtk_label_new("0");
-	ws_gtk_grid_attach(GTK_GRID(grid), rp->wmax,     4, num_progs, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), rp->wmax,     4, num_progs, 1, 1);
 	gtk_widget_show(rp->wmax);
 
 	rp->wavg = gtk_label_new("0");
-	ws_gtk_grid_attach(GTK_GRID(grid), rp->wavg,     5, num_progs, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(grid), rp->wavg,     5, num_progs, 1, 1);
 	gtk_widget_show(rp->wavg);
 
 	rp->num       = 0;

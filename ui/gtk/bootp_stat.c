@@ -47,19 +47,19 @@ typedef const char *bootp_info_value_t;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _dhcp_stats_t {
-	char 		*filter;
-	GtkWidget 	*win;
-	GHashTable	*hash;
-	GtkWidget	*grid_message_type;
-	guint		 index;	/* Number of  to display */
+	char 	   *filter;
+	GtkWidget  *win;
+	GHashTable *hash;
+	GtkWidget  *grid_message_type;
+	guint	    index;	/* Number of  to display */
 } dhcpstat_t;
 
 /* used to keep track of a single DHCP message type */
 typedef struct _dhcp_message_type_t {
-	const char	*name;
-	guint32		 packets;
-	GtkWidget	*widget;/* label in which we print the number of packets */
-	dhcpstat_t	*sp;	/* entire program interface */
+	const char *name;
+	guint32	    packets;
+	GtkWidget  *widget;	/* label in which we print the number of packets */
+	dhcpstat_t *sp;		/* entire program interface */
 } dhcp_message_type_t;
 
 static void
@@ -72,7 +72,7 @@ dhcp_reset_hash(gchar *key _U_ , dhcp_message_type_t *data, gpointer ptr _U_)
  * or create it if it don't exist.
  */
 static void
-dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar * unused _U_)
+dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar *unused _U_)
 {
 	char string_buff[256];
 
@@ -86,13 +86,13 @@ dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar * unused
 		/* Maybe we should display the hexadecimal value ? */
 		/* g_snprintf(string_buff, sizeof(string_buff), "%s  (0X%x)", data->name, *key); */
 		tmp = gtk_label_new(data->name  /* string_buff */);
-		ws_gtk_grid_attach(GTK_GRID(data->sp->grid_message_type), tmp, x, y, 1, 1);
+		ws_gtk_grid_attach_defaults(GTK_GRID(data->sp->grid_message_type), tmp, x, y, 1, 1);
 		gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(tmp);
 
 		g_snprintf(string_buff, sizeof(string_buff), "%9d", data->packets);
 		data->widget = gtk_label_new(string_buff);
-		ws_gtk_grid_attach(GTK_GRID(data->sp->grid_message_type), data->widget, x+1, y, 1, 1);
+		ws_gtk_grid_attach_defaults(GTK_GRID(data->sp->grid_message_type), data->widget, x+1, y, 1, 1);
 		gtk_label_set_justify(GTK_LABEL(data->widget), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(data->widget);
 
@@ -109,6 +109,7 @@ dhcpstat_reset(void *psp)
 	dhcpstat_t *sp = psp;
 	g_hash_table_foreach(sp->hash, (GHFunc)dhcp_reset_hash, NULL);
 }
+
 static gboolean
 dhcpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {

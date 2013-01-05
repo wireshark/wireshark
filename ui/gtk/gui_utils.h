@@ -563,8 +563,9 @@ void gdk_cairo_set_source_rgba(cairo_t *cr, const GdkRGBA *rgba);
  *    (other than ws_gtk_attach_extended() which has no gtk_grid...() equivalent).
  *
  *     ws_gtk_grid_new()               ;; gtk_table_new()
- *     ws_gtk_grid_attach()            ;; gtk_table_attach_defaults()
- *                                     ;;  Gtk3: sets GTK_EXPAND/GTK_FILL as default;
+ *     ws_gtk_grid_attach_defaults()   ;; gtk_table_attach_defaults()
+ *                                     ;;   Gtk3: sets GTK_EXPAND/GTK_FILL as default;
+ *                                     ;;         That is, the defaults used by gtk_table_attach_defaults()
  *     ws_gtk_grid_attach_extended()   ;; gtk_table_attach()
  *                                     ;;   Essentially gtk_grid_attach() with eadditional args
  *                                     ;;   to specify 'options' and 'padding' [as used in gtk_table_attach()];
@@ -580,7 +581,7 @@ void gdk_cairo_set_source_rgba(cairo_t *cr, const GdkRGBA *rgba);
  *     gtk_table_attach_defaults(GTK_TABLE(foo_tb), child, col, col+1, row, row+1)
  *
  *   should be converted to:
- *     ws_gtk_grid_attach(GTK_GRID(foo_grid), child, col, row, 1, 1);
+ *     ws_gtk_grid_attach_defaults(GTK_GRID(foo_grid), child, col, row, 1, 1);
  */
 
 #if !GTK_CHECK_VERSION(3,0,0)
@@ -591,7 +592,7 @@ typedef GtkTable GtkGrid;
 #define ws_gtk_grid_new() \
     gtk_table_new(0, 0, FALSE)
 
-#define ws_gtk_grid_attach(grid, child, left, top, width, height) \
+#define ws_gtk_grid_attach_defaults(grid, child, left, top, width, height) \
     gtk_table_attach_defaults(grid, child, left, left+width, top, top+height)
 
 #define ws_gtk_grid_attach_extended(grid, child, left, top, width, height, xoptions, yoptions, xpadding, ypadding) \
@@ -611,8 +612,8 @@ typedef GtkTable GtkGrid;
 #define ws_gtk_grid_new() \
     gtk_grid_new()
 
-extern void ws_gtk_grid_attach(GtkGrid *grid, GtkWidget *child,
-                               gint left, gint top, gint width, gint height);
+extern void ws_gtk_grid_attach_defaults(GtkGrid *grid, GtkWidget *child,
+                                        gint left, gint top, gint width, gint height);
 
 extern void ws_gtk_grid_attach_extended(GtkGrid *grid, GtkWidget *child,
                                         gint left, gint top, gint width, gint height,

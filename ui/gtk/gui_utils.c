@@ -2044,8 +2044,9 @@ gtk_separator_new(GtkOrientation orientation)
 #else  /* GTK3 */
 
 void
-ws_gtk_grid_attach(GtkGrid *grid, GtkWidget *child, gint left, gint top, gint width, gint height)
+ws_gtk_grid_attach_defaults(GtkGrid *grid, GtkWidget *child, gint left, gint top, gint width, gint height)
 {
+    /* Use defaults for [x|y]options and [x|y]padding which match those for gtk_table_attach_defaults() */
     ws_gtk_grid_attach_extended(grid, child, left, top, width, height, GTK_EXPAND|GTK_FILL, GTK_EXPAND|GTK_FILL, 0, 0);
 }
 
@@ -2095,7 +2096,7 @@ ws_gtk_grid_set_homogeneous(GtkGrid *grid, gboolean homogeneous)
 #endif /* !GTK_CHECK_VERSION(3,0,0) */
 
 /*
- * Wrapp gdk_cairo_set_source_color() with the GTK 3 equivalent
+ * Wrap gdk_cairo_set_source_color() with the GTK 3 equivalent
  * to be used in GTK2
  */
 #if !GTK_CHECK_VERSION(3,0,0)
@@ -2107,6 +2108,6 @@ gdk_cairo_set_source_rgba(cairo_t *cr, const GdkRGBA *rgba)
 	gdkRGBAcolor_to_GdkColor(&color, rgba);
 
 	gdk_cairo_set_source_color(cr, &color);
-	
+
 }
 #endif /* GTK_CHECK_VERSION(3,0,0) */

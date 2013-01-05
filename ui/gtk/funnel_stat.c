@@ -441,12 +441,12 @@ static void funnel_new_dialog(const gchar* title,
 
         label = gtk_label_new(fieldname);
         gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-        ws_gtk_grid_attach(GTK_GRID(main_grid), label, 0, i+1, 1, 1);
+        ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), label, 0, i+1, 1, 1);
         gtk_widget_show(label);
 
         entry = gtk_entry_new();
         g_ptr_array_add(dd->entries,entry);
-        ws_gtk_grid_attach(GTK_GRID(main_grid), entry, 1, i+1, 1, 1);
+        ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), entry, 1, i+1, 1, 1);
         gtk_widget_show(entry);
     }
 

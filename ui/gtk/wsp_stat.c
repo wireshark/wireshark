@@ -94,13 +94,13 @@ wsp_draw_statuscode(gchar *key _U_, wsp_status_code_t *data, gchar *unused _U_)
 		/* Maybe we should display the hexadecimal value ? */
 		/* g_snprintf(string_buff, sizeof(string_buff), "%s  (0X%x)", data->name, *key); */
 		tmp = gtk_label_new(data->name  /* string_buff */ );
-		ws_gtk_grid_attach(GTK_GRID(data->sp->grid_status_code), tmp, x, y, 1, 1);
+		ws_gtk_grid_attach_defaults(GTK_GRID(data->sp->grid_status_code), tmp, x, y, 1, 1);
 		gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(tmp);
 
 		g_snprintf(string_buff, sizeof(string_buff), "%9d", data->packets);
 		data->widget = gtk_label_new(string_buff);
-		ws_gtk_grid_attach(GTK_GRID(data->sp->grid_status_code), data->widget, x+1, y, 1, 1);
+		ws_gtk_grid_attach_defaults(GTK_GRID(data->sp->grid_status_code), data->widget, x+1, y, 1, 1);
 		gtk_label_set_justify(GTK_LABEL(data->widget), GTK_JUSTIFY_LEFT);
 		gtk_widget_show(data->widget);
 
@@ -231,7 +231,7 @@ add_table_entry(wspstat_t *sp, const char *str, int x, int y, int idx)
 	GtkWidget *tmp;
 
 	tmp = gtk_label_new(str);
-	ws_gtk_grid_attach(GTK_GRID(sp->grid_pdu_types), tmp, x, y, 1, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(sp->grid_pdu_types), tmp, x, y, 1, 1);
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 	gtk_widget_show(tmp);
 	if (idx != 0) {

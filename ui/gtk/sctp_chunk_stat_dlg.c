@@ -693,25 +693,25 @@ sctp_chunk_dlg(struct sctp_udata *u_data)
 
     label = gtk_label_new("ChunkType");
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, row, 1, 1);
     label = gtk_label_new("Association");
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 1, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 1, row, 1, 1);
     label = gtk_label_new("Endpoint 1");
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 2, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 2, row, 1, 1);
     label = gtk_label_new("Endpoint 2");
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 3, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 3, row, 1, 1);
     row ++;
     label = gtk_label_new("");
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, row, 1, 1);
     label = gtk_label_new("");
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 1, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 1, row, 1, 1);
     label = gtk_label_new("");
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 2, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 2, row, 1, 1);
     label = gtk_label_new("");
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 3, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 3, row, 1, 1);
     row ++;
 
     for (i=0; i<NUM_CHUNKS; i++)
@@ -720,38 +720,38 @@ sctp_chunk_dlg(struct sctp_udata *u_data)
         {
             label = gtk_label_new(chunk_name(i));
             gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-            ws_gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
+            ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, row, 1, 1);
             g_snprintf(label_txt, 10, "%u", selected_stream->chunk_count[i]);
             label = gtk_label_new(label_txt);
             gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-            ws_gtk_grid_attach(GTK_GRID(grid), label, 1, row, 1, 1);
+            ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 1, row, 1, 1);
             g_snprintf(label_txt, 10, "%u", selected_stream->ep1_chunk_count[i]);
             label = gtk_label_new(label_txt);
             gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-            ws_gtk_grid_attach(GTK_GRID(grid), label, 2, row, 1, 1);
+            ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 2, row, 1, 1);
             g_snprintf(label_txt, 10, "%u", selected_stream->ep2_chunk_count[i]);
             label = gtk_label_new(label_txt);
             gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-            ws_gtk_grid_attach(GTK_GRID(grid), label, 3, row, 1, 1);
+            ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 3, row, 1, 1);
             row ++;
         }
     }
 
     label = gtk_label_new("Others");
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, row, 1, 1);
     g_snprintf(label_txt, 10, "%u", selected_stream->chunk_count[OTHER_CHUNKS_INDEX]);
     label = gtk_label_new(label_txt);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 1, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 1, row, 1, 1);
     g_snprintf(label_txt, 10, "%u", selected_stream->ep1_chunk_count[OTHER_CHUNKS_INDEX]);
     label = gtk_label_new(label_txt);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 2, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 2, row, 1, 1);
     g_snprintf(label_txt, 10, "%u", selected_stream->ep2_chunk_count[OTHER_CHUNKS_INDEX]);
     label = gtk_label_new(label_txt);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    ws_gtk_grid_attach(GTK_GRID(grid), label, 3, row, 1, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 3, row, 1, 1);
 
     h_button_box = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_start(GTK_BOX(main_vb), h_button_box, FALSE, FALSE, 0);

@@ -305,7 +305,7 @@ sip_draw_hash_responses(gint *key _U_ , sip_response_code_t *data, gchar *unused
         tmp = gtk_label_new(string_buff);
 
         /* Insert the label in the correct place in the table */
-        ws_gtk_grid_attach(GTK_GRID(data->table_info->grid), tmp,  0, x, 1, 1);
+        ws_gtk_grid_attach_defaults(GTK_GRID(data->table_info->grid), tmp,  0, x, 1, 1);
         gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
         gtk_widget_show(tmp);
 
@@ -314,7 +314,7 @@ sip_draw_hash_responses(gint *key _U_ , sip_response_code_t *data, gchar *unused
         data->widget = gtk_label_new(string_buff);
 
         /* Show this widget in the right place */
-        ws_gtk_grid_attach(GTK_GRID(data->table_info->grid), data->widget, 1, x, 1, 1);
+        ws_gtk_grid_attach_defaults(GTK_GRID(data->table_info->grid), data->widget, 1, x, 1, 1);
         gtk_label_set_justify(GTK_LABEL(data->widget), GTK_JUSTIFY_RIGHT);
         gtk_widget_show(data->widget);
 
