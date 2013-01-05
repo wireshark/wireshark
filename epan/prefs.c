@@ -3969,7 +3969,7 @@ prefs_pref_type_name(pref_t *pref)
 char *
 prefs_pref_type_description(pref_t *pref)
 {
-    char *type_desc = "An unkown preference type";
+    const char *type_desc = "An unkown preference type";
 
     if (!pref) {
         return g_strdup_printf("%s.", type_desc); /* ...or maybe assert? */
@@ -4000,6 +4000,7 @@ prefs_pref_type_description(pref_t *pref)
 
     case PREF_ENUM:
     {
+        char *enum_desc;
         const enum_val_t *enum_valp = pref->info.enum_info.enumvals;
         GString *enum_str = g_string_new("One of: ");
         while (enum_valp->name != NULL) {
@@ -4009,9 +4010,9 @@ prefs_pref_type_description(pref_t *pref)
                 g_string_append(enum_str, ", ");
         }
         g_string_append(enum_str, "\n(case-insensitive).");
-        type_desc = enum_str->str;
+        enum_desc = enum_str->str;
         g_string_free(enum_str, FALSE);
-        return type_desc;
+        return enum_desc;
         break;
     }
 
@@ -4117,7 +4118,7 @@ prefs_pref_is_default(pref_t *pref) {
 
 char *
 prefs_pref_to_str(pref_t *pref, gboolean default_val) {
-    char *pref_text = "[Unknown]";
+    const char *pref_text = "[Unknown]";
     guint pref_uint;
     gboolean pref_boolval;
     gint pref_enumval;
