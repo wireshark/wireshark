@@ -1019,6 +1019,7 @@ DISSECTOR_SRC = \
 	packet-sdlc.c		\
 	packet-sdp.c		\
 	packet-sebek.c		\
+	packet-selfm.c		\
 	packet-sercosiii.c	\
 	packet-ses.c		\
 	packet-sflow.c		\
