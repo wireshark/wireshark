@@ -57,9 +57,11 @@ binary_list="
 	wireshark
 "
 
-# Location for libraries (MacPorts defaults to /opt/local)
+# Location for libraries (macosx-setup.sh defaults to whatever the
+# various support libraries use as their standard installation location,
+# which is /usr/local)
 if [ -z $LIBPREFIX ]; then
-	LIBPREFIX="/opt/local"
+	LIBPREFIX="/usr/local"
 fi
 
 
@@ -79,15 +81,16 @@ OPTIONS
 	-s
 		strip the libraries and executables from debugging symbols
 	-l,--libraries
-		specify the path to the librairies Wireshark depends on
-		(typically /sw or /opt/local)
+		specify the path to the libraries Wireshark depends on
+		(typically /sw or /opt/local).  By default it is
+		/usr/local.
 	-bp,--binary-path
 		specify the path to the Wireshark binaries. By default it
-		is in $binary_path
+		is /tmp/inst/bin.
 	-p,--plist
 		specify the path to Info.plist. Info.plist can be found
 		in the base directory of the source code once configure
-		has been run
+		has been run.
 
 EXAMPLE
 	$0 -s -l /opt/local -bp ../../Build/bin -p Info.plist
