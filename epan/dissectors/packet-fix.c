@@ -23,7 +23,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Documentation: http://www.fixprotocol.org/
- * Fields and messages from http://www.quickfixengine.org/ xml
+ * Fields and messages from http://www.quickfixengine.org/ and http://sourceforge.net/projects/quickfix/files/ xml
  *
  */
 

@@ -1,6 +1,7 @@
 FIX4x.xml from quickfixengine.org 
+FIX5x.xml from http://sourceforge.net/projects/quickfix/files/
 
-FIX.xml is a modified FIX44.xml with fields from previous versions.
+FIX.xml is a modified FIX50SP2.xml with fields from previous versions.
 cf new field attributes 'since' and 'until'.
 
 hfField.xsl: generate hf_register_info list.

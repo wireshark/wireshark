@@ -1,35 +1,7 @@
 <fix major='5' type='FIX' servicepack='2' minor='0'>
  <header />
  <messages>
-   <message name='Heartbeat' msgtype='0' msgcat='admin'>
-     <field name='TestReqID' required='N' />
-   </message>
-   <message name='TestRequest' msgtype='1' msgcat='admin'>
-     <field name='TestReqID' required='Y' />
-   </message>
-   <message name='ResendRequest' msgtype='2' msgcat='admin'>
-     <field name='BeginSeqNo' required='Y' />
-     <field name='EndSeqNo' required='Y' />
-   </message>
-   <message name='Reject' msgtype='3' msgcat='admin'>
-     <field name='RefSeqNum' required='Y' />
-     <field name='RefTagID' required='N' />
-     <field name='RefMsgType' required='N' />
-     <field name='SessionRejectReason' required='N' />
-     <field name='Text' required='N' />
-     <field name='EncodedTextLen' required='N' />
-     <field name='EncodedText' required='N' />
-   </message>
-   <message name='SequenceReset' msgtype='4' msgcat='admin'>
-     <field name='GapFillFlag' required='N' />
-     <field name='NewSeqNo' required='Y' />
-   </message>
-   <message name='Logout' msgtype='5' msgcat='admin'>
-     <field name='Text' required='N' />
-     <field name='EncodedTextLen' required='N' />
-     <field name='EncodedText' required='N' />
-   </message>
-   <message name='IOI' msgcat='app' msgtype='6'>
+  <message name='IOI' msgcat='app' msgtype='6'>
    <field name='IOIID' required='Y' />
    <field name='IOITransType' required='Y' />
    <field name='IOIRefID' required='N' />
@@ -279,23 +251,7 @@
    <field name='EncodedTextLen' required='N' />
    <field name='EncodedText' required='N' />
   </message>
-  <message name='Logon' msgtype='A' msgcat='admin'>
-     <field name='EncryptMethod' required='Y' />
-     <field name='HeartBtInt' required='Y' />
-     <field name='RawDataLength' required='N' />
-     <field name='RawData' required='N' />
-     <field name='ResetSeqNumFlag' required='N' />
-     <field name='NextExpectedMsgSeqNum' required='N' />
-     <field name='MaxMessageSize' required='N' />
-     <group name='NoMsgTypes' required='N'>
-       <field name='RefMsgType' required='N' />
-       <field name='MsgDirection' required='N' />
-     </group>
-     <field name='TestMessageIndicator' required='N' />
-     <field name='Username' required='N' />
-     <field name='Password' required='N' />
-   </message>
-   <message name='News' msgcat='app' msgtype='B'>
+  <message name='News' msgcat='app' msgtype='B'>
    <field name='OrigTime' required='N' />
    <field name='Urgency' required='N' />
    <field name='Headline' required='Y' />
@@ -5689,8 +5645,8 @@
    <value enum='1' description='PER_UNIT' />
    <value enum='2' description='PERCENT' />
    <value enum='3' description='ABSOLUTE' />
-   <value enum='4' description='PERCENTAGE_WAIVED_CASH_DISCOUNT' />
-   <value enum='5' description='PERCENTAGE_WAIVED_ENHANCED_UNITS' />
+   <value enum='4' description='PERCENTAGE_WAIVED_4' />
+   <value enum='5' description='PERCENTAGE_WAIVED_5' />
    <value enum='6' description='POINTS_PER_BOND_OR_CONTRACT' />
   </field>
   <field number='14' name='CumQty' type='QTY' />
@@ -5704,15 +5660,20 @@
    <value enum='3' description='GO_ALONG' />
    <value enum='4' description='OVER_THE_DAY' />
    <value enum='5' description='HELD' />
-   <value enum='6' description='PARTICIPATE_DONT_INITIATE' />
+   <value enum='6' description='PARTICIPANT_DONT_INITIATE' />
    <value enum='7' description='STRICT_SCALE' />
    <value enum='8' description='TRY_TO_SCALE' />
    <value enum='9' description='STAY_ON_BID_SIDE' />
    <value enum='A' description='NO_CROSS' />
+   <value enum='a' description='TRAILING_STOP_PEG' />
    <value enum='B' description='OK_TO_CROSS' />
+   <value enum='b' description='STRICT_LIMIT' />
+   <value enum='c' description='IGNORE_PRICE_VALIDITY_CHECKS' />
    <value enum='C' description='CALL_FIRST' />
+   <value enum='d' description='PEG_TO_LIMIT_PRICE' />
    <value enum='D' description='PERCENT_OF_VOLUME' />
    <value enum='E' description='DO_NOT_INCREASE' />
+   <value enum='e' description='WORK_TO_TARGET_STRATEGY' />
    <value enum='F' description='DO_NOT_REDUCE' />
    <value enum='G' description='ALL_OR_NONE' />
    <value enum='H' description='REINSTATE_ON_SYSTEM_FAILURE' />
@@ -5727,23 +5688,18 @@
    <value enum='Q' description='CANCEL_ON_SYSTEM_FAILURE' />
    <value enum='R' description='PRIMARY_PEG' />
    <value enum='S' description='SUSPEND' />
-   <value enum='T' description='FIXED_PEG_TO_LOCAL_BEST_BID_OR_OFFER_AT_TIME_OF_ORDER' />
    <value enum='U' description='CUSTOMER_DISPLAY_INSTRUCTION' />
    <value enum='V' description='NETTING' />
    <value enum='W' description='PEG_TO_VWAP' />
    <value enum='X' description='TRADE_ALONG' />
    <value enum='Y' description='TRY_TO_STOP' />
    <value enum='Z' description='CANCEL_IF_NOT_BEST' />
-   <value enum='a' description='TRAILING_STOP_PEG' />
-   <value enum='b' description='STRICT_LIMIT' />
-   <value enum='c' description='IGNORE_PRICE_VALIDITY_CHECKS' />
-   <value enum='d' description='PEG_TO_LIMIT_PRICE' />
-   <value enum='e' description='WORK_TO_TARGET_STRATEGY' />
    <value enum='f' description='INTERMARKET_SWEEP' />
    <value enum='j' description='SINGLE_EXECUTION_REQUESTED_FOR_BLOCK_TRADE' />
    <value enum='g' description='EXTERNAL_ROUTING_ALLOWED' />
    <value enum='h' description='EXTERNAL_ROUTING_NOT_ALLOWED' />
    <value enum='i' description='IMBALANCE_ONLY' />
+   <value enum='T' description='FIXED_PEG_TO_LOCAL_BEST_BID_OR_OFFER_AT_TIME_OF_ORDER' />
    <value enum='k' description='BEST_EXECUTION' />
    <value enum='l' description='SUSPEND_ON_SYSTEM_FAILURE' />
    <value enum='m' description='SUSPEND_ON_TRADING_HALT' />
@@ -5824,123 +5780,123 @@
   <field number='34' name='MsgSeqNum' type='SEQNUM' />
   <field number='35' name='MsgType' type='STRING'>
    <value enum='0' description='HEARTBEAT' />
-   <value enum='1' description='TEST_REQUEST' />
-   <value enum='2' description='RESEND_REQUEST' />
+   <value enum='1' description='TESTREQUEST' />
+   <value enum='2' description='RESENDREQUEST' />
    <value enum='3' description='REJECT' />
-   <value enum='4' description='SEQUENCE_RESET' />
+   <value enum='4' description='SEQUENCERESET' />
    <value enum='5' description='LOGOUT' />
-   <value enum='6' description='INDICATION_OF_INTEREST' />
+   <value enum='6' description='IOI' />
    <value enum='7' description='ADVERTISEMENT' />
-   <value enum='8' description='EXECUTION_REPORT' />
-   <value enum='9' description='ORDER_CANCEL_REJECT' />
+   <value enum='8' description='EXECUTIONREPORT' />
+   <value enum='9' description='ORDERCANCELREJECT' />
    <value enum='A' description='LOGON' />
-   <value enum='AA' description='DERIVATIVE_SECURITY_LIST' />
-   <value enum='AB' description='NEW_ORDER_MULTILEG' />
-   <value enum='AC' description='MULTILEG_ORDER_CANCEL_REPLACE' />
-   <value enum='AD' description='TRADE_CAPTURE_REPORT_REQUEST' />
-   <value enum='AE' description='TRADE_CAPTURE_REPORT' />
-   <value enum='AF' description='ORDER_MASS_STATUS_REQUEST' />
-   <value enum='AG' description='QUOTE_REQUEST_REJECT' />
-   <value enum='AH' description='RFQ_REQUEST' />
-   <value enum='AI' description='QUOTE_STATUS_REPORT' />
-   <value enum='AJ' description='QUOTE_RESPONSE' />
+   <value enum='AA' description='DERIVATIVESECURITYLIST' />
+   <value enum='AB' description='NEWORDERMULTILEG' />
+   <value enum='AC' description='MULTILEGORDERCANCELREPLACE' />
+   <value enum='AD' description='TRADECAPTUREREPORTREQUEST' />
+   <value enum='AE' description='TRADECAPTUREREPORT' />
+   <value enum='AF' description='ORDERMASSSTATUSREQUEST' />
+   <value enum='AG' description='QUOTEREQUESTREJECT' />
+   <value enum='AH' description='RFQREQUEST' />
+   <value enum='AI' description='QUOTESTATUSREPORT' />
+   <value enum='AJ' description='QUOTERESPONSE' />
    <value enum='AK' description='CONFIRMATION' />
-   <value enum='AL' description='POSITION_MAINTENANCE_REQUEST' />
-   <value enum='AM' description='POSITION_MAINTENANCE_REPORT' />
-   <value enum='AN' description='REQUEST_FOR_POSITIONS' />
-   <value enum='AO' description='REQUEST_FOR_POSITIONS_ACK' />
-   <value enum='AP' description='POSITION_REPORT' />
-   <value enum='AQ' description='TRADE_CAPTURE_REPORT_REQUEST_ACK' />
-   <value enum='AR' description='TRADE_CAPTURE_REPORT_ACK' />
-   <value enum='AS' description='ALLOCATION_REPORT' />
-   <value enum='AT' description='ALLOCATION_REPORT_ACK' />
+   <value enum='AL' description='POSITIONMAINTENANCEREQUEST' />
+   <value enum='AM' description='POSITIONMAINTENANCEREPORT' />
+   <value enum='AN' description='REQUESTFORPOSITIONS' />
+   <value enum='AO' description='REQUESTFORPOSITIONSACK' />
+   <value enum='AP' description='POSITIONREPORT' />
+   <value enum='AQ' description='TRADECAPTUREREPORTREQUESTACK' />
+   <value enum='AR' description='TRADECAPTUREREPORTACK' />
+   <value enum='AS' description='ALLOCATIONREPORT' />
+   <value enum='AT' description='ALLOCATIONREPORTACK' />
    <value enum='AU' description='CONFIRMATION_ACK' />
-   <value enum='AV' description='SETTLEMENT_INSTRUCTION_REQUEST' />
-   <value enum='AW' description='ASSIGNMENT_REPORT' />
-   <value enum='AX' description='COLLATERAL_REQUEST' />
-   <value enum='AY' description='COLLATERAL_ASSIGNMENT' />
-   <value enum='AZ' description='COLLATERAL_RESPONSE' />
+   <value enum='AV' description='SETTLEMENTINSTRUCTIONREQUEST' />
+   <value enum='AW' description='ASSIGNMENTREPORT' />
+   <value enum='AX' description='COLLATERALREQUEST' />
+   <value enum='AY' description='COLLATERALASSIGNMENT' />
+   <value enum='AZ' description='COLLATERALRESPONSE' />
    <value enum='B' description='NEWS' />
-   <value enum="BA" description="COLLATERAL_REPORT" />
-   <value enum="BB" description="COLLATERAL_INQUIRY" />
-   <value enum="BC" description="NETWORK_STATUS_REQUEST" />
-   <value enum="BD" description="NETWORK_STATUS_RESPONSE" />
-   <value enum="BE" description="USER_REQUEST" />
-   <value enum="BF" description="USER_RESPONSE" />
-   <value enum="BG" description="COLLATERAL_INQUIRY_ACK" />
-   <value enum="BH" description="CONFIRMATION_REQUEST" />
-   <value enum='BI' description='TRADING_SESSION_LIST_REQUEST' />
-   <value enum='BJ' description='TRADING_SESSION_LIST' />
-   <value enum='BK' description='SECURITY_LIST_UPDATE_REPORT' />
-   <value enum='BL' description='ADJUSTED_POSITION_REPORT' />
-   <value enum='BM' description='ALLOCATION_INSTRUCTION_ALERT' />
-   <value enum='BN' description='EXECUTION_ACKNOWLEDGEMENT' />
-   <value enum='BO' description='CONTRARY_INTENTION_REPORT' />
-   <value enum='BP' description='SECURITY_DEFINITION_UPDATE_REPORT' />
-   <value enum='BQ' description='SETTLEMENT_OBLIGATION_REPORT' />
-   <value enum='BR' description='DERIVATIVE_SECURITY_LIST_UPDATE_REPORT' />
-   <value enum='BS' description='TRADING_SESSION_LIST_UPDATE_REPORT' />
-   <value enum='BT' description='MARKET_DEFINITION_REQUEST' />
-   <value enum='BU' description='MARKET_DEFINITION' />
-   <value enum='BV' description='MARKET_DEFINITION_UPDATE_REPORT' />
-   <value enum='BW' description='APPLICATION_MESSAGE_REQUEST' />
-   <value enum='BX' description='APPLICATION_MESSAGE_REQUEST_ACK' />
-   <value enum='BY' description='APPLICATION_MESSAGE_REPORT' />
-   <value enum='BZ' description='ORDER_MASS_ACTION_REPORT' />
+   <value enum='BA' description='COLLATERALREPORT' />
+   <value enum='BB' description='COLLATERALINQUIRY' />
+   <value enum='BC' description='NETWORKCOUNTERPARTYSYSTEMSTATUSREQUEST' />
+   <value enum='BD' description='NETWORKCOUNTERPARTYSYSTEMSTATUSRESPONSE' />
+   <value enum='BE' description='USERREQUEST' />
+   <value enum='BF' description='USERRESPONSE' />
+   <value enum='BG' description='COLLATERALINQUIRYACK' />
+   <value enum='BH' description='CONFIRMATIONREQUEST' />
+   <value enum='BI' description='TRADINGSESSIONLISTREQUEST' />
+   <value enum='BJ' description='TRADINGSESSIONLIST' />
+   <value enum='BK' description='SECURITYLISTUPDATEREPORT' />
+   <value enum='BL' description='ADJUSTEDPOSITIONREPORT' />
+   <value enum='BM' description='ALLOCATIONINSTRUCTIONALERT' />
+   <value enum='BN' description='EXECUTIONACKNOWLEDGEMENT' />
+   <value enum='BO' description='CONTRARYINTENTIONREPORT' />
+   <value enum='BP' description='SECURITYDEFINITIONUPDATEREPORT' />
+   <value enum='BQ' description='SETTLEMENTOBLIGATIONREPORT' />
+   <value enum='BR' description='DERIVATIVESECURITYLISTUPDATEREPORT' />
+   <value enum='BS' description='TRADINGSESSIONLISTUPDATEREPORT' />
+   <value enum='BT' description='MARKETDEFINITIONREQUEST' />
+   <value enum='BU' description='MARKETDEFINITION' />
+   <value enum='BV' description='MARKETDEFINITIONUPDATEREPORT' />
+   <value enum='BW' description='APPLICATIONMESSAGEREQUEST' />
+   <value enum='BX' description='APPLICATIONMESSAGEREQUESTACK' />
+   <value enum='BY' description='APPLICATIONMESSAGEREPORT' />
+   <value enum='BZ' description='ORDERMASSACTIONREPORT' />
    <value enum='C' description='EMAIL' />
-   <value enum='CA' description='ORDER_MASS_ACTION_REQUEST' />
-   <value enum='CB' description='USER_NOTIFICATION' />
-   <value enum='CC' description='STREAM_ASSIGNMENT_REQUEST' />
-   <value enum='CD' description='STREAM_ASSIGNMENT_REPORT' />
-   <value enum='CE' description='STREAM_ASSIGNMENT_REPORT_ACK' />
-   <value enum='CF' description='PARTY_DETAILS_LIST_REQUEST' />
-   <value enum='CG' description='PARTY_DETAILS_LIST_REPORT' />
-   <value enum='D' description='ORDER_SINGLE' />
-   <value enum='E' description='ORDER_LIST' />
-   <value enum='F' description='ORDER_CANCEL_REQUEST' />
-   <value enum='G' description='ORDER_CANCEL_REPLACE_REQUEST' />
-   <value enum='H' description='ORDER_STATUS_REQUEST' />
-   <value enum='J' description='ALLOCATION_INSTRUCTION' />
-   <value enum='K' description='LIST_CANCEL_REQUEST' />
-   <value enum='L' description='LIST_EXECUTE' />
-   <value enum='M' description='LIST_STATUS_REQUEST' />
-   <value enum='N' description='LIST_STATUS' />
-   <value enum='P' description='ALLOCATION_INSTRUCTION_ACK' />
-   <value enum='Q' description='DONT_KNOW_TRADE' />
-   <value enum='R' description='QUOTE_REQUEST' />
+   <value enum='CA' description='ORDERMASSACTIONREQUEST' />
+   <value enum='CB' description='USERNOTIFICATION' />
+   <value enum='CC' description='STREAMASSIGNMENTREQUEST' />
+   <value enum='CD' description='STREAMASSIGNMENTREPORT' />
+   <value enum='CE' description='STREAMASSIGNMENTREPORTACK' />
+   <value enum='CF' description='PARTYDETAILSLISTREQUEST' />
+   <value enum='CG' description='PARTYDETAILSLISTREPORT' />
+   <value enum='D' description='NEWORDERSINGLE' />
+   <value enum='E' description='NEWORDERLIST' />
+   <value enum='F' description='ORDERCANCELREQUEST' />
+   <value enum='G' description='ORDERCANCELREPLACEREQUEST' />
+   <value enum='H' description='ORDERSTATUSREQUEST' />
+   <value enum='J' description='ALLOCATIONINSTRUCTION' />
+   <value enum='K' description='LISTCANCELREQUEST' />
+   <value enum='L' description='LISTEXECUTE' />
+   <value enum='M' description='LISTSTATUSREQUEST' />
+   <value enum='N' description='LISTSTATUS' />
+   <value enum='P' description='ALLOCATIONINSTRUCTIONACK' />
+   <value enum='Q' description='DONTKNOWTRADEDK' />
+   <value enum='R' description='QUOTEREQUEST' />
    <value enum='S' description='QUOTE' />
-   <value enum='T' description='SETTLEMENT_INSTRUCTIONS' />
-   <value enum='V' description='MARKET_DATA_REQUEST' />
-   <value enum='W' description='MARKET_DATA_SNAPSHOT_FULL_REFRESH' />
-   <value enum='X' description='MARKET_DATA_INCREMENTAL_REFRESH' />
-   <value enum='Y' description='MARKET_DATA_REQUEST_REJECT' />
-   <value enum='Z' description='QUOTE_CANCEL' />
-   <value enum='a' description='QUOTE_STATUS_REQUEST' />
-   <value enum='b' description='MASS_QUOTE_ACKNOWLEDGEMENT' />
-   <value enum='c' description='SECURITY_DEFINITION_REQUEST' />
-   <value enum='d' description='SECURITY_DEFINITION' />
-   <value enum='e' description='SECURITY_STATUS_REQUEST' />
-   <value enum='f' description='SECURITY_STATUS' />
-   <value enum='g' description='TRADING_SESSION_STATUS_REQUEST' />
-   <value enum='h' description='TRADING_SESSION_STATUS' />
-   <value enum='i' description='MASS_QUOTE' />
-   <value enum='j' description='BUSINESS_MESSAGE_REJECT' />
-   <value enum='k' description='BID_REQUEST' />
-   <value enum='l' description='BID_RESPONSE' />
-   <value enum='m' description='LIST_STRIKE_PRICE' />
-   <value enum='n' description='XML_MESSAGE' />
-   <value enum='o' description='REGISTRATION_INSTRUCTIONS' />
-   <value enum='p' description='REGISTRATION_INSTRUCTIONS_RESPONSE' />
-   <value enum='q' description='ORDER_MASS_CANCEL_REQUEST' />
-   <value enum='r' description='ORDER_MASS_CANCEL_REPORT' />
-   <value enum='s' description='NEW_ORDER_CROSS' />
-   <value enum='t' description='CROSS_ORDER_CANCEL_REPLACE_REQUEST' />
-   <value enum='u' description='CROSS_ORDER_CANCEL_REQUEST' />
-   <value enum='v' description='SECURITY_TYPE_REQUEST' />
-   <value enum='w' description='SECURITY_TYPES' />
-   <value enum='x' description='SECURITY_LIST_REQUEST' />
-   <value enum='y' description='SECURITY_LIST' />
-   <value enum='z' description='DERIVATIVE_SECURITY_LIST_REQUEST' />
+   <value enum='T' description='SETTLEMENTINSTRUCTIONS' />
+   <value enum='V' description='MARKETDATAREQUEST' />
+   <value enum='W' description='MARKETDATASNAPSHOTFULLREFRESH' />
+   <value enum='X' description='MARKETDATAINCREMENTALREFRESH' />
+   <value enum='Y' description='MARKETDATAREQUESTREJECT' />
+   <value enum='Z' description='QUOTECANCEL' />
+   <value enum='a' description='QUOTESTATUSREQUEST' />
+   <value enum='b' description='MASSQUOTEACKNOWLEDGEMENT' />
+   <value enum='c' description='SECURITYDEFINITIONREQUEST' />
+   <value enum='d' description='SECURITYDEFINITION' />
+   <value enum='e' description='SECURITYSTATUSREQUEST' />
+   <value enum='f' description='SECURITYSTATUS' />
+   <value enum='g' description='TRADINGSESSIONSTATUSREQUEST' />
+   <value enum='h' description='TRADINGSESSIONSTATUS' />
+   <value enum='i' description='MASSQUOTE' />
+   <value enum='j' description='BUSINESSMESSAGEREJECT' />
+   <value enum='k' description='BIDREQUEST' />
+   <value enum='l' description='BIDRESPONSE' />
+   <value enum='m' description='LISTSTRIKEPRICE' />
+   <value enum='n' description='XML_NON_FIX' />
+   <value enum='o' description='REGISTRATIONINSTRUCTIONS' />
+   <value enum='p' description='REGISTRATIONINSTRUCTIONSRESPONSE' />
+   <value enum='q' description='ORDERMASSCANCELREQUEST' />
+   <value enum='r' description='ORDERMASSCANCELREPORT' />
+   <value enum='s' description='NEWORDERCROSS' />
+   <value enum='t' description='CROSSORDERCANCELREPLACEREQUEST' />
+   <value enum='u' description='CROSSORDERCANCELREQUEST' />
+   <value enum='v' description='SECURITYTYPEREQUEST' />
+   <value enum='w' description='SECURITYTYPES' />
+   <value enum='x' description='SECURITYLISTREQUEST' />
+   <value enum='y' description='SECURITYLIST' />
+   <value enum='z' description='DERIVATIVESECURITYLISTREQUEST' />
   </field>
   <field number='36' name='NewSeqNo' type='SEQNUM' />
   <field number='37' name='OrderID' type='STRING' />
@@ -5951,7 +5907,6 @@
    <value enum='2' description='FILLED' />
    <value enum='3' description='DONE_FOR_DAY' />
    <value enum='4' description='CANCELED' />
-   <value enum='5' description='REPLACED' />
    <value enum='6' description='PENDING_CANCEL' />
    <value enum='7' description='STOPPED' />
    <value enum='8' description='REJECTED' />
@@ -5961,6 +5916,7 @@
    <value enum='C' description='EXPIRED' />
    <value enum='D' description='ACCEPTED_FOR_BIDDING' />
    <value enum='E' description='PENDING_REPLACE' />
+   <value enum='5' description='REPLACED' />
   </field>
   <field number='40' name='OrdType' type='CHAR'>
    <value enum='1' description='MARKET' />
@@ -6328,8 +6284,6 @@
   <field number='149' name='URLLink' type='STRING' />
   <field number='150' name='ExecType' type='CHAR'>
    <value enum='0' description='NEW' />
-   <value enum="1" description="PARTIAL_FILL" />
-   <value enum="2" description="FILL" />
    <value enum='3' description='DONE_FOR_DAY' />
    <value enum='4' description='CANCELED' />
    <value enum='5' description='REPLACED' />
@@ -6718,22 +6672,7 @@
    <value enum='DISCOUNT' description='DISCOUNT_RATE' />
    <value enum='YTM' description='YIELD_TO_MATURITY' />
   </field>
-  <field number="234" name="StipulationValue" type="STRING" since="42" >
-   <value enum="CD" description="SPECIAL_CUM_DIVIDEND" />
-   <value enum="XD" description="SPECIAL_EX_DIVIDEND" />
-   <value enum="CC" description="SPECIAL_CUM_COUPON" />
-   <value enum="XC" description="SPECIAL_EX_COUPON" />
-   <value enum="CB" description="SPECIAL_CUM_BONUS" />
-   <value enum="XB" description="SPECIAL_EX_BONUS" />
-   <value enum="CR" description="SPECIAL_CUM_RIGHTS" />
-   <value enum="XR" description="SPECIAL_EX_RIGHTS" />
-   <value enum="CP" description="SPECIAL_CUM_CAPITAL_REPAYMENTS" />
-   <value enum="XP" description="SPECIAL_EX_CAPITAL_REPAYMENTS" />
-   <value enum="CS" description="CASH_SETTLEMENT" />
-   <value enum="SP" description="SPECIAL_PRICE" />
-   <value enum="TR" description="REPORT_FOR_EUROPEAN_EQUITY_MARKET_SECURITIES" />
-   <value enum="GD" description="GUARANTEED_DELIVERY" />
-  </field>
+  <field number='234' name='StipulationValue' type='STRING' />
   <field number='235' name='YieldType' type='STRING'>
    <value enum='AFTERTAX' description='AFTER_TAX_YIELD' />
    <value enum='ANNUAL' description='ANNUAL_YIELD' />
@@ -6944,14 +6883,14 @@
    <value enum='P' description='IMBALANCE_MORE_BUYERS' />
    <value enum='Q' description='IMBALANCE_MORE_SELLERS' />
    <value enum='R' description='OPENING_PRICE' />
+   <value enum='Y' description='TRADES_RESULTING_FROM_MANUAL_SLOW_QUOTE' />
+   <value enum='Z' description='TRADES_RESULTING_FROM_INTERMARKET_SWEEP' />
    <value enum='S' description='BARGAIN_CONDITION' />
    <value enum='T' description='CONVERTED_PRICE_INDICATOR' />
    <value enum='U' description='EXCHANGE_LAST' />
    <value enum='V' description='FINAL_PRICE_OF_SESSION' />
    <value enum='W' description='EX_PIT' />
    <value enum='X' description='CROSSED_X' />
-   <value enum='Y' description='TRADES_RESULTING_FROM_MANUAL_SLOW_QUOTE' />
-   <value enum='Z' description='TRADES_RESULTING_FROM_INTERMARKET_SWEEP' />
    <value enum='0' description='CANCEL' />
    <value enum='a' description='VOLUME_ONLY' />
    <value enum='b' description='DIRECT_PLUS' />
@@ -7276,12 +7215,7 @@
   <field number='344' name='TradSesCloseTime' type='UTCTIMESTAMP' />
   <field number='345' name='TradSesEndTime' type='UTCTIMESTAMP' />
   <field number='346' name='NumberOfOrders' type='INT' />
-  <field number="347" name="MessageEncoding" type="STRING">
-   <value enum="ISO-2022-JP" description="ISO_2022_JP" />
-   <value enum="EUC-JP" description="EUC_JP" />
-   <value enum="SHIFT_JIS" description="SHIFT_JIS" />
-   <value enum="UTF-8" description="UTF_8" />
-  </field>
+  <field number='347' name='MessageEncoding' type='STRING' />
   <field number='348' name='EncodedIssuerLen' type='LENGTH' />
   <field number='349' name='EncodedIssuer' type='DATA' />
   <field number='350' name='EncodedSecurityDescLen' type='LENGTH' />
@@ -7448,7 +7382,7 @@
    <value enum='R' description='RISK_TRADE' />
   </field>
   <field number='419' name='BasisPxType' type='CHAR'>
-   <value enum='2' description='CLOSING_PRICE_AT_MORNING_SESSION' />
+   <value enum='2' description='CLOSING_PRICE_AT_MORNINGN_SESSION' />
    <value enum='3' description='CLOSING_PRICE' />
    <value enum='4' description='CURRENT_PRICE' />
    <value enum='5' description='SQ' />
@@ -7724,9 +7658,9 @@
   <field number='478' name='CashDistribCurr' type='CURRENCY' />
   <field number='479' name='CommCurrency' type='CURRENCY' />
   <field number='480' name='CancellationRights' type='CHAR'>
-   <value enum="N" description="NO_EXECUTION_ONLY" />
-   <value enum="M" description="NO_WAIVER_AGREEMENT" />
-   <value enum="O" description="NO_INSTITUTIONAL" />
+   <value enum='M' description='NO_M' />
+   <value enum='N' description='NO_N' />
+   <value enum='O' description='NO_O' />
    <value enum='Y' description='YES' />
   </field>
   <field number='481' name='MoneyLaunderingStatus' type='CHAR'>
