@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-12-22
+# 2013-01-03
 # 
 # Experts
 # 
@@ -835,7 +835,7 @@ manet	269/udp	# MANET Protocols                                                 
 gist	270/udp	# Q-mode encapsulation for                                                                                                                                            [RFC5971]
 # GIST messages
 # IETF Network Endpoint
-pt-tls	271/tcp	# Assessment (NEA) Posture     [IESG]                                             [IETF_Chair]                                              2012-07-31                [draft-ietf-nea-pt-tls-06]                                     1 year TEMPORARY Assignment
+pt-tls	271/tcp	# Assessment (NEA) Posture     [IESG]                                             [IETF_Chair]                                              2012-07-31                [RFC-ietf-nea-pt-tls-08]
 # Transport Protocol over TLS
 # (PT-TLS)
 # 271        udp    Reserved
@@ -16819,6 +16819,10 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # splashsync                            SplashData Synchronization   [Justin_Cepelak]                                   [Justin_Cepelak]                                                                                                                                   Defined TXT keys: Proprietary
 # Service
 # spres                          tcp    SongPresenter                [Tobias_Hoffmann]                                  [Tobias_Hoffmann]                                         2012-10-09                                                                               Defined TXT keys: version, name
+# ss-sign                        tcp    Samsung Smart Interaction    [Samsung]                                          [Lee_HoJun]                                               2013-01-03                                                                               Defined TXT keys: None
+# for Group Network
+# ss-sign-disc                   udp    Samsung Smart Interaction    [Samsung]                                          [Lee_HoJun]                                               2013-01-03                                                                               Defined TXT keys: None
+# for Group Network Discovery
 # Defined TXT keys: txtvers=1 cport= the port for the content
 # HTTP server (secondary HTTP server used for content
 # publishing) mode= the mode in which the HMP device is
@@ -19613,6 +19617,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Lee_Breisacher]                                          Lee Breisacher                                  mailto:lbreisacher&seagullsw.com
 # [Lee_Dolson]                                              Lee Dolson                                      mailto:dolson&f-net.co.kr                                     2006-01
 # [Lee_Griffiths]                                           Lee Griffiths                                   mailto:lg&dataconnection.com                                  2004-11
+# [Lee_HoJun]                                               Lee HoJun                 Samsung               mailto:rcn95&samsung.com                                      2013-01-03
 # [Lee_Howard]                                              Lee Howard                                      mailto:iana&hylafax.org                                       2002-03
 # [Lee_VanTine]                                             Lee VanTine                                     mailto:lvantine&infiniswitc.com                               2002-09
 # [Lee_Wheat]                                               Lee Wheat                                       mailto:wheat&wg.com
@@ -20946,6 +20951,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ryuichi_Horie]                                           Ryuichi Horie                                   mailto:horie&spad.sysrap.cs.fujitsu.co.jp
 # [Ryuichi_Suzuki]                                          Ryuichi Suzuki                                  mailto:SCI00376&niftyserve.or.jp
 # [Ryusuke_Okuhara]                                         Ryusuke Okuhara           Canon Inc.            mailto:okuhara.ryuusuke&canon.co.jp                           2012-06-08
+# [Samsung]                                                                           Samsung               mailto:rcn95&samsung.com                                      2013-01-03
 # SEGGER
 # [SEGGER]                                                                            Microcontroller GmbH  mailto:info&segger.com                                        2009-01-16
 # & Co. KG
