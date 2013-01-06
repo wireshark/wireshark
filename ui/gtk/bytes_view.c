@@ -808,7 +808,6 @@ bytes_view_render(BytesView *bv, cairo_t *cr, GdkRectangle *area)
 	}
 	/* g_print("from %d to %d\n", line, lines_max); */
 
-	off = 0;
 	y = (bv->fontsize * line);
 
 	/* clear */
