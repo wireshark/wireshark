@@ -597,86 +597,83 @@ static gboolean erf_dump(
     encap = wdh->encap;
   }
 
-  switch(encap){
-    case WTAP_ENCAP_ERF:
-      alignbytes = wdh->bytes_dumped + pseudo_header->erf.phdr.rlen;
+  if(encap == WTAP_ENCAP_ERF){
+    /* We've been handed an ERF record, so there's not much to do here. */
+    alignbytes = wdh->bytes_dumped + pseudo_header->erf.phdr.rlen;
 
-      if(!erf_write_phdr(wdh, encap, pseudo_header, err)) return FALSE;
+    if(!erf_write_phdr(wdh, encap, pseudo_header, err)) return FALSE;
 
-      if(!wtap_dump_file_write(wdh, pd, phdr->caplen, err)) return FALSE;
-      wdh->bytes_dumped += phdr->caplen;
+    if(!wtap_dump_file_write(wdh, pd, phdr->caplen, err)) return FALSE;
+    wdh->bytes_dumped += phdr->caplen;
 
-      while(wdh->bytes_dumped < alignbytes){
-        if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
-        wdh->bytes_dumped++;
-      }
-      break;
-    default:  /*deal with generic wtap format*/
-      /*generate a fake header in other_phdr using data that we know*/
-      /*covert time erf timestamp format*/
-      other_phdr.erf.phdr.ts = ((guint64) phdr->ts.secs << 32) + (((guint64) phdr->ts.nsecs <<32) / 1000 / 1000 / 1000);
-      other_phdr.erf.phdr.type = wtap_wtap_encap_to_erf_encap(encap);
-      other_phdr.erf.phdr.flags = 0x4;  /*vlen flag set because we're creating variable length records*/
-      other_phdr.erf.phdr.lctr = 0;
-      /*now we work out rlen, accounting for all the different headers and missing fcs(eth)*/
-      other_phdr.erf.phdr.rlen = phdr->caplen+16;
-      other_phdr.erf.phdr.wlen = phdr->len;
-      switch(other_phdr.erf.phdr.type){
-        case ERF_TYPE_ETH:
-          other_phdr.erf.phdr.rlen += 2;  /*2 bytes for erf eth_type*/
-          if (pseudo_header->eth.fcs_len != 4) {
-            /* Either this packet doesn't include the FCS
-               (pseudo_header->eth.fcs_len = 0), or we don't
-               know whether it has an FCS (= -1).  We have to
-               synthesize an FCS.*/
+    while(wdh->bytes_dumped < alignbytes){
+      if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
+      wdh->bytes_dumped++;
+    }
+    return TRUE;
+  }
 
-            if(!(phdr->caplen < phdr->len)){ /*don't add FCS if packet has been snapped off*/
-              crc32 = crc32_ccitt_seed(pd, phdr->caplen, 0xFFFFFFFF);
-              other_phdr.erf.phdr.rlen += 4;  /*4 bytes for added checksum*/
-              other_phdr.erf.phdr.wlen += 4;
-              must_add_crc = TRUE;
-            }
-          }
-          break;
-        case ERF_TYPE_HDLC_POS:
-          /*we assume that it's missing a FCS checksum, make one up*/
-          if(!(phdr->caplen < phdr->len)){  /*unless of course, the packet has been snapped off*/
-            crc32 = crc32_ccitt_seed(pd, phdr->caplen, 0xFFFFFFFF);
-            other_phdr.erf.phdr.rlen += 4;  /*4 bytes for added checksum*/
-            other_phdr.erf.phdr.wlen += 4;
-            must_add_crc = TRUE; /* XXX - these never have an FCS? */
-          }
-          break;
-        default:
-          break;
-      }
-
-      alignbytes = (8 - (other_phdr.erf.phdr.rlen % 8)) % 8;  /*calculate how much padding will be required */
-      if(phdr->caplen < phdr->len){ /*if packet has been snapped, we need to round down what we output*/
-        round_down = (8 - (guint)alignbytes) % 8;
-        other_phdr.erf.phdr.rlen -= round_down;
-      }else{
-        other_phdr.erf.phdr.rlen += (gint16)alignbytes;
-      }
-
-      if(!erf_write_phdr(wdh, WTAP_ENCAP_ERF, &other_phdr, err)) return FALSE;
-      if(!wtap_dump_file_write(wdh, pd, phdr->caplen - round_down, err)) return FALSE;
-      wdh->bytes_dumped += phdr->caplen - round_down;
-
-      /*add the 4 byte CRC if necessary*/
-      if(must_add_crc){
-        if(!wtap_dump_file_write(wdh, &crc32, 4, err)) return FALSE;
-        wdh->bytes_dumped += 4;
-      }
-      /*records should be 8byte aligned, so we add padding*/
-      if(round_down == 0){
-        for(i = (gint16)alignbytes; i > 0; i--){
-          if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
-          wdh->bytes_dumped++;
+  /*generate a fake header in other_phdr using data that we know*/
+  /*covert time erf timestamp format*/
+  other_phdr.erf.phdr.ts = ((guint64) phdr->ts.secs << 32) + (((guint64) phdr->ts.nsecs <<32) / 1000 / 1000 / 1000);
+  other_phdr.erf.phdr.type = wtap_wtap_encap_to_erf_encap(encap);
+  other_phdr.erf.phdr.flags = 0x4;  /*vlen flag set because we're creating variable length records*/
+  other_phdr.erf.phdr.lctr = 0;
+  /*now we work out rlen, accounting for all the different headers and missing fcs(eth)*/
+  other_phdr.erf.phdr.rlen = phdr->caplen+16;
+  other_phdr.erf.phdr.wlen = phdr->len;
+  switch(other_phdr.erf.phdr.type){
+    case ERF_TYPE_ETH:
+      other_phdr.erf.phdr.rlen += 2;  /*2 bytes for erf eth_type*/
+      if (pseudo_header->eth.fcs_len != 4) {
+        /* Either this packet doesn't include the FCS
+           (pseudo_header->eth.fcs_len = 0), or we don't
+           know whether it has an FCS (= -1).  We have to
+           synthesize an FCS.*/
+         if(!(phdr->caplen < phdr->len)){ /*don't add FCS if packet has been snapped off*/
+          crc32 = crc32_ccitt_seed(pd, phdr->caplen, 0xFFFFFFFF);
+          other_phdr.erf.phdr.rlen += 4;  /*4 bytes for added checksum*/
+          other_phdr.erf.phdr.wlen += 4;
+          must_add_crc = TRUE;
         }
       }
-
       break;
+    case ERF_TYPE_HDLC_POS:
+      /*we assume that it's missing a FCS checksum, make one up*/
+      if(!(phdr->caplen < phdr->len)){  /*unless of course, the packet has been snapped off*/
+        crc32 = crc32_ccitt_seed(pd, phdr->caplen, 0xFFFFFFFF);
+        other_phdr.erf.phdr.rlen += 4;  /*4 bytes for added checksum*/
+        other_phdr.erf.phdr.wlen += 4;
+        must_add_crc = TRUE; /* XXX - these never have an FCS? */
+      }
+      break;
+    default:
+      break;
+  }
+
+  alignbytes = (8 - (other_phdr.erf.phdr.rlen % 8)) % 8;  /*calculate how much padding will be required */
+  if(phdr->caplen < phdr->len){ /*if packet has been snapped, we need to round down what we output*/
+    round_down = (8 - (guint)alignbytes) % 8;
+    other_phdr.erf.phdr.rlen -= round_down;
+  }else{
+    other_phdr.erf.phdr.rlen += (gint16)alignbytes;
+  }
+
+  if(!erf_write_phdr(wdh, WTAP_ENCAP_ERF, &other_phdr, err)) return FALSE;
+  if(!wtap_dump_file_write(wdh, pd, phdr->caplen - round_down, err)) return FALSE;
+  wdh->bytes_dumped += phdr->caplen - round_down;
+
+  /*add the 4 byte CRC if necessary*/
+  if(must_add_crc){
+    if(!wtap_dump_file_write(wdh, &crc32, 4, err)) return FALSE;
+    wdh->bytes_dumped += 4;
+  }
+  /*records should be 8byte aligned, so we add padding*/
+  if(round_down == 0){
+    for(i = (gint16)alignbytes; i > 0; i--){
+      if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
+      wdh->bytes_dumped++;
+    }
   }
 
   return TRUE;
