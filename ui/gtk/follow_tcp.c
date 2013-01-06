@@ -355,7 +355,7 @@ parse_http_header(char *data, size_t len, size_t *content_start)
   }
 
   /* skip HTTP... line*/
-  line = sgetline(tmp, &next_line);
+  /*line = */sgetline(tmp, &next_line);
 
   tmp += next_line;
   pos += next_line;
