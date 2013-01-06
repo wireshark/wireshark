@@ -3348,9 +3348,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          proto_tree_add_item(aem_tree, hf_aem_clock_source_name_string, tvb,
                CLOCK_SOURCE_OFFSET_LOCALIZED_DESCRIPTION, 2, ENC_BIG_ENDIAN);
          /* set up clock_source_flags subtree */
-         mr_item = proto_tree_add_item(aem_tree, hf_aem_clock_source_flags, tvb,
+         /*mr_item = */proto_tree_add_item(aem_tree, hf_aem_clock_source_flags, tvb,
                CLOCK_SOURCE_OFFSET_CLOCK_SOURCE_FLAGS, 2, ENC_BIG_ENDIAN);
-         mr_subtree = proto_item_add_subtree(mr_item, ett_aem_clock_source_flags);
+         /* mr_subtree = proto_item_add_subtree(mr_item, ett_aem_clock_source_flags);*/
          /* all flags reserved */
          /* end clock_source_flags subtree */
          proto_tree_add_item(aem_tree, hf_aem_clock_source_type, tvb,
