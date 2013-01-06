@@ -82,7 +82,6 @@
 #include "ui/gtk/stock_icons.h"
 
 #include "ui/gtk/old-gtk-compat.h"
-#include "ui/gtk/color_utils.h"
 #include "ui/gtk/gui_utils.h"
 
 /*define this symbol to compile with G729 and G723 codecs*/
@@ -1622,6 +1621,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 	 * the other collors are the same as in the Voip Graph analysys
 	 * to match the same calls
 	 */
+#if 0
 	static GdkColor col[MAX_NUM_COL_CONV+1] = {
 		{0,	0x00FF, 0x00FF, 0xFFFF},
 		{0,	0x90FF, 0xEEFF, 0x90FF},
@@ -1633,59 +1633,70 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 		{0,	0xE0FF, 0xFFFF, 0xFFFF},
 		{0,	0xB0FF, 0xC4FF, 0xDEFF},
 		{0,	0x87FF, 0xCEFF, 0xFAFF},
-		{0,	0xD3FF, 0xD3FF, 0xD3FF}
+	 	{0,	0xD3FF, 0xD3FF, 0xD3FF}
+	};
+#endif
+
+    static GdkRGBA col[MAX_NUM_COL_CONV+1] = {
+        /* Red, Green, Blue Alpha */
+        {0.0039, 0.0039, 1.0000, 1.0},
+        {0.5664, 0.6289, 0.5664, 1.0},
+        {1.0000, 0.6289, 0.4805, 1.0},
+        {1.0000, 0.7148, 0.7578, 1.0},
+        {0.9805, 0.9805, 0.8242, 1.0},
+        {1.0000, 1.0000, 0.2031, 1.0},
+        {0.4023, 0.8046, 0.6680, 1.0},
+        {0.8789, 1.0000, 1.0000, 1.0},
+        {0.6914, 0.7695, 0.8710, 1.0},
+        {0.8281, 0.8281, 0.8281, 1.0},
 	};
 
 #if GTK_CHECK_VERSION(2,22,0)
-	if(rci->surface){
-		cairo_surface_destroy (rci->surface);
-		rci->surface=NULL;
-	}
-	gtk_widget_get_allocation(widget, &widget_alloc);
-	rci->surface = gdk_window_create_similar_surface (gtk_widget_get_window(widget),
-			CAIRO_CONTENT_COLOR,
-			widget_alloc.width,
-			widget_alloc.height);
+    if(rci->surface){
+        cairo_surface_destroy (rci->surface);
+        rci->surface=NULL;
+    }
+    gtk_widget_get_allocation(widget, &widget_alloc);
+    rci->surface = gdk_window_create_similar_surface (gtk_widget_get_window(widget),
+            CAIRO_CONTENT_COLOR,
+            widget_alloc.width,
+            widget_alloc.height);
 
-	cr = cairo_create (rci->surface);
-	cairo_set_source_rgb (cr, 1, 1, 1);
-	cairo_rectangle (cr, 0, 0, widget_alloc.width,widget_alloc.height);
-	cairo_fill (cr);
-	cairo_destroy (cr);
+    cr = cairo_create (rci->surface);
+    cairo_set_source_rgb (cr, 1, 1, 1);
+    cairo_rectangle (cr, 0, 0, widget_alloc.width,widget_alloc.height);
+    cairo_fill (cr);
+    cairo_destroy (cr);
 #else
-	if(rci->pixmap){
-		g_object_unref(rci->pixmap);
-		rci->pixmap=NULL;
-	}
-	gtk_widget_get_allocation(widget, &widget_alloc);
-	rci->pixmap = gdk_pixmap_new(gtk_widget_get_window(widget),
-					widget_alloc.width,
-					widget_alloc.height,
-					-1);
-	if ( GDK_IS_DRAWABLE(rci->pixmap) ){
-		cr = gdk_cairo_create (rci->pixmap);
-		cairo_set_source_rgb (cr, 1, 1, 1);
-		cairo_rectangle (cr, 0, 0, widget_alloc.width,widget_alloc.height);
-		cairo_fill (cr);
-		cairo_destroy (cr);
-	}
+    if(rci->pixmap){
+        g_object_unref(rci->pixmap);
+        rci->pixmap=NULL;
+    }
+    gtk_widget_get_allocation(widget, &widget_alloc);
+    rci->pixmap = gdk_pixmap_new(gtk_widget_get_window(widget),
+                    widget_alloc.width,
+                    widget_alloc.height,
+                    -1);
+    if ( GDK_IS_DRAWABLE(rci->pixmap) ){
+        cr = gdk_cairo_create (rci->pixmap);
+        cairo_set_source_rgb (cr, 1, 1, 1);
+        cairo_rectangle (cr, 0, 0, widget_alloc.width,widget_alloc.height);
+        cairo_fill (cr);
+        cairo_destroy (cr);
+    }
 #endif
 
-	/* create gc's for the background color of each channel */
-	for (i=0; i<MAX_NUM_COL_CONV+1; i++){
-		GdkRGBA rgba_color;
+    /* create gc's for the background color of each channel */
+    for (i=0; i<MAX_NUM_COL_CONV+1; i++){
+        rci->bg_color[i].alpha=col[i].alpha;
+        rci->bg_color[i].red=col[i].red;
+        rci->bg_color[i].green=col[i].green;
+        rci->bg_color[i].blue=col[i].blue;
+    }
 
-		GdkColor_to_GdkRGBA(&rgba_color, &col[i]);
-		rci->bg_color[i].alpha=rgba_color.alpha;
-		rci->bg_color[i].red=rgba_color.red;
-		rci->bg_color[i].green=rgba_color.green;
-		rci->bg_color[i].blue=rgba_color.blue;
+    channel_draw(rci);
 
-	}
-
-	channel_draw(rci);
-
-	return TRUE;
+    return TRUE;
 }
 
 /****************************************************************************/
