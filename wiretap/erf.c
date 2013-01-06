@@ -610,7 +610,6 @@ static gboolean erf_dump(
         if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
         wdh->bytes_dumped++;
       }
-      must_add_crc = TRUE; /* XXX - not if this came from an ERF file with an FCS! */
       break;
     default:  /*deal with generic wtap format*/
       /*generate a fake header in other_phdr using data that we know*/
