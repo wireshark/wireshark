@@ -115,8 +115,8 @@ static GtkWidget *zoomout_bt;
 
 static void draw_sack_graph(struct sctp_udata *u_data)
 {
-	GdkColor red_color = {0, 65535, 0, 0};
-	GdkColor green_color = {0, 0, 65535, 0};
+	GdkRGBA red_color =    {1.0, 0.0, 0.0, 1.0}; 
+	GdkRGBA green_color =  {0.0, 1.0, 0.0, 1.0}; 
 	gint diff;
 	GPtrArray *array = NULL;
 	guint32 i, size = 0, start=0, end;
@@ -177,7 +177,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 #else
 			cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-			gdk_cairo_set_source_color (cr, &red_color);
+			gdk_cairo_set_source_rgba (cr, &red_color);
 			cairo_set_line_width (cr, 1.0);
 			cairo_move_to(cr,
 				LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5,
@@ -194,7 +194,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 #else
 				cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-				gdk_cairo_set_source_color (cr, &green_color);
+				gdk_cairo_set_source_rgba (cr, &green_color);
 				cairo_set_line_width (cr, 1.0);
 				cairo_move_to(cr,
 					LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5,

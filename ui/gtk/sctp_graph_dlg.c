@@ -146,9 +146,10 @@ draw_sack_graph(struct sctp_udata *u_data)
 	guint8 type;
 	guint32 tsnumber, dupx;
 	gint xvalue, yvalue;
-	GdkColor red_color = {0, 65535, 0, 0};
-	GdkColor green_color = {0, 0, 65535, 0};
-	GdkColor cyan_color = {0, 0, 65535, 65535};
+	GdkRGBA red_color =    {1.0, 0.0, 0.0, 1.0};
+	GdkRGBA green_color =  {0.0, 1.0, 0.0, 1.0};
+	GdkRGBA cyan_color =   {0.0, 1.0, 1.0, 1.0};
+
 	struct sack_chunk_header *sack_header;
 	struct gaps *gap;
 	guint32 /*max_num,*/ diff;
@@ -228,7 +229,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 #else
 									cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-									gdk_cairo_set_source_color (cr, &green_color);
+									gdk_cairo_set_source_rgba (cr, &green_color);
 									cairo_arc(cr,
 										xvalue,
 										yvalue,
@@ -265,7 +266,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 #else
 								cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-								gdk_cairo_set_source_color (cr, &red_color);
+								gdk_cairo_set_source_rgba (cr, &red_color);
 								cairo_arc(cr,
 									xvalue,
 									yvalue,
@@ -300,7 +301,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 #else
 									cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-									gdk_cairo_set_source_color (cr, &cyan_color);
+									gdk_cairo_set_source_rgba (cr, &cyan_color);
 									cairo_arc(cr,
 										xvalue,
 										yvalue,
@@ -337,9 +338,9 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 	guint8 type;
 	guint32 tsnumber, j;
 	gint xvalue, yvalue;
-	GdkColor red_color = {0, 65535, 0, 0};
-	GdkColor blue_color = {0, 0, 0, 65535};
-	GdkColor green_color = {0, 0, 65535, 0};
+	GdkRGBA red_color =    {1.0, 0.0, 0.0, 1.0}; 
+	GdkRGBA green_color =  {0.0, 1.0, 0.0, 1.0};
+	GdkRGBA blue_color  =  {0.0, 0.0, 1.0, 1.0};
 	struct nr_sack_chunk_header *nr_sack_header;
 	struct gaps *nr_gap;
 	guint32 /*max_num,*/ diff;
@@ -428,7 +429,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 #else
 										cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-										gdk_cairo_set_source_color (cr, &blue_color);
+										gdk_cairo_set_source_rgba (cr, &blue_color);
 										cairo_arc(cr,
 											xvalue,
 											yvalue,
@@ -449,7 +450,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 #else
 										cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-										gdk_cairo_set_source_color (cr, &green_color);
+										gdk_cairo_set_source_rgba (cr, &green_color);
 										cairo_arc(cr,
 											xvalue,
 											yvalue,
@@ -467,7 +468,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 #else
 										cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-										gdk_cairo_set_source_color (cr, &green_color);
+										gdk_cairo_set_source_rgba (cr, &green_color);
 										cairo_arc(cr,
 											xvalue,
 											yvalue,
@@ -504,7 +505,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 #else
 							cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-							gdk_cairo_set_source_color (cr, &red_color);
+							gdk_cairo_set_source_rgba (cr, &red_color);
 							cairo_arc(cr,
 								xvalue,
 								yvalue,
