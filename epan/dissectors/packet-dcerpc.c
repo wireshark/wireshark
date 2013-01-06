@@ -2541,7 +2541,6 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
                     auth_pad_len = reported_length;
                     auth_pad_offset = 0;
                     length = 0;
-                    reported_length = 0;
                 }
             } else {
                 /*
@@ -3816,7 +3815,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
 
         if (value) {
-            int length, reported_length, stub_length;
+            int length, stub_length;
             dcerpc_info *di;
             proto_item *parent_pi;
 
@@ -3849,7 +3848,6 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             }
 
             length = tvb_length_remaining(tvb, offset);
-            reported_length = tvb_reported_length_remaining(tvb, offset);
             /* as we now create a tvb in dissect_dcerpc_cn() containing only the
              * stub_data, the following calculation is no longer valid:
              * stub_length = hdr->frag_len - offset - auth_info.auth_size;
@@ -3859,8 +3857,6 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             stub_length = length;
             if (length > stub_length)
                 length = stub_length;
-            if (reported_length > stub_length)
-                reported_length = stub_length;
 
             /* If we don't have reassembly enabled, or this packet contains
                the entire PDU, or if we don't have all the data in this
@@ -4355,7 +4351,7 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     hdr.auth_len = dcerpc_tvb_get_ntohs(tvb, offset, hdr.drep);
     offset += 2;
     hdr.call_id = dcerpc_tvb_get_ntohl(tvb, offset, hdr.drep);
-    offset += 4;
+    /*offset += 4;*/
 
     if (pinfo->dcectxid == 0) {
         col_append_fstr(pinfo->cinfo, COL_DCE_CALL, "%u", hdr.call_id);
@@ -4724,7 +4720,7 @@ dissect_dcerpc_dg_auth(tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
             else
                 offset += 2;    /* 2 bytes of padding */
             proto_tree_add_item(auth_tree, hf_dcerpc_krb5_av_key_auth_verifier, tvb, offset, 16, ENC_NA);
-            offset += 16;
+            /*offset += 16;*/
             break;
 
         default:
@@ -4752,7 +4748,7 @@ dissect_dcerpc_dg_cancel_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_dcerpc_uint32(tvb, offset, pinfo, dcerpc_tree,
                                        hdr->drep, hf_dcerpc_dg_cancel_id,
                                        NULL);
-        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, dcerpc_tree,
+        /*offset = */dissect_dcerpc_uint8(tvb, offset, pinfo, dcerpc_tree,
                                       hdr->drep, hf_dcerpc_dg_server_accepting_cancels,
                                       NULL);
         break;
@@ -4774,7 +4770,7 @@ dissect_dcerpc_dg_cancel(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     case 0:
         /* The only version we know about */
-        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, dcerpc_tree,
+        /*offset = */dissect_dcerpc_uint32(tvb, offset, pinfo, dcerpc_tree,
                                        hdr->drep, hf_dcerpc_dg_cancel_id,
                                        NULL);
         /* XXX - are NDR Booleans 32 bits? */
@@ -4842,7 +4838,7 @@ dissect_dcerpc_dg_reject_fault(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     guint32 status;
 
-    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, dcerpc_tree,
+    /*offset = */dissect_dcerpc_uint32(tvb, offset, pinfo, dcerpc_tree,
                                    hdr->drep, hf_dcerpc_dg_status,
                                    &status);
 
