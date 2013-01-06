@@ -109,12 +109,12 @@ struct wtap_reader {
 	int fd;                 /* file descriptor */
 	gint64 raw_pos;         /* current position in file (just to not call lseek()) */
 	gint64 pos;             /* current position in uncompressed data */
-	guint size;          /* buffer size */
+	guint size;             /* buffer size */
 	unsigned char *in;      /* input buffer */
 	unsigned char *out;     /* output buffer (double-sized when reading) */
 	unsigned char *next;    /* next output data to deliver or write */
 
-	guint have;          /* amount of output data unused at next */
+	guint have;             /* amount of output data unused at next */
 	int eof;                /* true if end of input file reached */
 	gint64 start;           /* where the gzip data started, for rewinding */
 	gint64 raw;             /* where the raw data started, for seeking */
@@ -127,7 +127,7 @@ struct wtap_reader {
 	int err;                /* error code */
 	const char *err_info;   /* additional error information string for some errors */
 
-	unsigned int  avail_in; /* number of bytes available at next_in */
+	guint avail_in;         /* number of bytes available at next_in */
 	unsigned char *next_in; /* next input byte */
 #ifdef HAVE_LIBZ
 	/* zlib inflate stream */
@@ -176,7 +176,7 @@ fill_in_buffer(FILE_T state)
 	if (state->err)
 		return -1;
 	if (state->eof == 0) {
-		if (raw_read(state, state->in, state->size, (guint *)&(state->avail_in)) == -1)
+		if (raw_read(state, state->in, state->size, &(state->avail_in)) == -1)
 			return -1;
 		state->next_in = state->in;
 	}
