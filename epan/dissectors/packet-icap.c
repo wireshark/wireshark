@@ -123,7 +123,6 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * find header format
 		 */
 		if (is_icap_message(line, linelen, &icap_type)) {
-			is_icap = TRUE;
 			goto is_icap_header;
 		}
 
@@ -131,7 +130,6 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * if it looks like a blank line, end of header perhaps?
 		 */
 		if (linelen == 0) {
-			is_icap = TRUE;
 			goto is_icap_header;
 		}
 
@@ -201,7 +199,6 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * This ends the token; we consider this
 				 * to be a header.
 				 */
-				is_icap = TRUE;
 				goto is_icap_header;
 			}
 		}
