@@ -12,6 +12,11 @@ UNALIGNED
 Ellipsoid-Point_PDU
 EllipsoidPointWithAltitude_PDU
 HorizontalVelocity_PDU
+EllipsoidArc_PDU
+EllipsoidPointWithAltitudeAndUncertaintyEllipsoid_PDU
+Ellipsoid-PointWithUncertaintyCircle_PDU
+EllipsoidPointWithUncertaintyEllipse_PDU
+Polygon_PDU
 GNSS-ID
 GNSS-SignalID
 GNSS-SignalIDs
@@ -36,6 +41,11 @@ LPP-Message
 Ellipsoid-Point
 EllipsoidPointWithAltitude
 HorizontalVelocity
+EllipsoidArc
+EllipsoidPointWithAltitudeAndUncertaintyEllipsoid
+Ellipsoid-PointWithUncertaintyCircle
+EllipsoidPointWithUncertaintyEllipse
+Polygon
 #.END
 
 #.FN_HDR LPP-Message

@@ -1,6 +1,6 @@
 # lte-rrc.cnf
 # lte-rrc conformation file
-# Copyright 2008 Vincent Helfre 
+# Copyright 2008 Vincent Helfre, 2009-2013 Pascal Quantin
 # $Id$
 
 #.OPT
@@ -745,27 +745,15 @@ if(ue_cap_tvb){
 #.FN_BODY NeighCellConfig VAL_PTR = &neigh_cell_config_tvb
   tvbuff_t *neigh_cell_config_tvb = NULL;
 %(DEFAULT_BODY)s
+
+#.FN_FTR NeighCellConfig
   if (neigh_cell_config_tvb) {
     guint8 bits;
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_neighCellConfig);
     bits = tvb_get_bits8(neigh_cell_config_tvb, 0, 2);
-    switch (bits) {
-    case 0:
-      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "Not all neighbour cells have the same MBSFN subframe allocation as serving cell");
-      break;
-    case 1:
-      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "No MBSFN subframes are present in all neighbour cells");
-      break;
-    case 2:
-      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "The MBSFN subframe allocations of all neighbour cells are identical to or subsets of that in the serving cell");
-      break;
-    case 3:
-      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "Different UL/DL allocation in neighbouring cells for TDD compared to the serving cell");
-      break;
-    default:
-      break;
-    }
+    proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "%s",
+                        val_to_str_const(bits, lte_rrc_neighCellConfig_vals, "Unknown"));
   }
 
 #.FN_BODY LocationInfo-r10/locationCoordinates-r10/ellipsoid-Point-r10 VAL_PTR = &ellipsoid_point_tvb
@@ -780,6 +768,41 @@ if(ue_cap_tvb){
 %(DEFAULT_BODY)s
   if (ellipsoid_point_with_alt_tvb) {
     dissect_lpp_EllipsoidPointWithAltitude_PDU(ellipsoid_point_with_alt_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.FN_BODY LocationInfo-r10/locationCoordinates-r10/ellipsoidPointWithUncertaintyCircle-r11 VAL_PTR = &ellipsoid_point_with_uncert_circ_tvb
+  tvbuff_t *ellipsoid_point_with_uncert_circ_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_point_with_uncert_circ_tvb) {
+    dissect_lpp_Ellipsoid_PointWithUncertaintyCircle_PDU(ellipsoid_point_with_uncert_circ_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.FN_BODY LocationInfo-r10/locationCoordinates-r10/ellipsoidPointWithUncertaintyEllipse-r11 VAL_PTR = &ellipsoid_point_with_uncert_ellipse_tvb
+  tvbuff_t *ellipsoid_point_with_uncert_ellipse_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_point_with_uncert_ellipse_tvb) {
+    dissect_lpp_EllipsoidPointWithUncertaintyEllipse_PDU(ellipsoid_point_with_uncert_ellipse_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.FN_BODY LocationInfo-r10/locationCoordinates-r10/ellipsoidPointWithAltitudeAndUncertaintyEllipsoid-r11 VAL_PTR = &ellipsoid_point_with_alt_uncert_ellipsoid_tvb
+  tvbuff_t *ellipsoid_point_with_alt_uncert_ellipsoid_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_point_with_alt_uncert_ellipsoid_tvb) {
+    dissect_lpp_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid_PDU(ellipsoid_point_with_alt_uncert_ellipsoid_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.FN_BODY LocationInfo-r10/locationCoordinates-r10/ellipsoidArc-r11 VAL_PTR = &ellipsoid_arc_tvb
+  tvbuff_t *ellipsoid_arc_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_arc_tvb) {
+    dissect_lpp_EllipsoidArc_PDU(ellipsoid_arc_tvb, actx->pinfo, tree, NULL);
+  }
+
+#.FN_BODY LocationInfo-r10/locationCoordinates-r10/polygon-r11 VAL_PTR = &polygon_tvb
+  tvbuff_t *polygon_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (polygon_tvb) {
+    dissect_lpp_Polygon_PDU(polygon_tvb, actx->pinfo, tree, NULL);
   }
 
 #.FN_BODY LocationInfo-r10/horizontalVelocity-r10 VAL_PTR = &horizontal_velocity_tvb
@@ -798,26 +821,6 @@ if(ue_cap_tvb){
     dissect_per_constrained_integer(gnss_tod_msec_tvb, 0, &asn1_ctx, tree, hf_index, 0U, 3599999U, NULL, FALSE);
   }
 
-#.FN_BODY LocationInfo-r10/eag_1/uncertainty-r11 VAL_PTR = &uncertainty_tvb
-  tvbuff_t *uncertainty_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (uncertainty_tvb) {
-    asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, actx->pinfo);
-      offset = dissect_per_constrained_integer(uncertainty_tvb, 0, &asn1_ctx, tree, hf_index, 0U, 127U, NULL, FALSE);
-
-  }
-
-#.FN_BODY LocationInfo-r10/eag_1/confidence-r11 VAL_PTR = &confidence_tvb
-  tvbuff_t *confidence_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (confidence_tvb) {
-    asn1_ctx_t asn1_ctx;
-    asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, actx->pinfo);
-      offset = dissect_per_constrained_integer(confidence_tvb, 0, &asn1_ctx, tree, hf_index, 0U, 100U, NULL, FALSE);
-
-  }
-
 #.FN_BODY AbsoluteTimeInfo-r10 VAL_PTR = &abs_time_info_tvb
   tvbuff_t *abs_time_info_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -834,12 +837,67 @@ if(ue_cap_tvb){
 #.TYPE_ATTR
 SystemInformationBlockType9/hnb-Name TYPE=FT_STRING DISPLAY=BASE_NONE
 
-#.FN_BODY SystemInformationBlockType9/hnb-Name VAL_PTR = &hnb_name_tvb HF_INDEX = -1
+#.FN_BODY SystemInformationBlockType9/hnb-Name VAL_PTR=&hnb_name_tvb HF_INDEX=-1
   tvbuff_t *hnb_name_tvb = NULL;
 
 %(DEFAULT_BODY)s
-  proto_tree_add_unicode_string(tree, hf_index, hnb_name_tvb, 0, -1,
+  actx->created_item = proto_tree_add_unicode_string(tree, hf_index, hnb_name_tvb, 0, -1,
                                 tvb_get_ephemeral_string_enc(hnb_name_tvb, 0, tvb_length(hnb_name_tvb), ENC_UTF_8 | ENC_NA));
+
+#.FN_BODY SystemInformationBlockType16-r11/dayLightSavingTime VAL_PTR=&daylight_saving_time_tvb
+  tvbuff_t *daylight_saving_time_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType16-r11/dayLightSavingTime
+  if (daylight_saving_time_tvb) {
+    guint8 bits;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_daylightSavingTime);
+    bits = tvb_get_bits8(daylight_saving_time_tvb, 0, 2);
+    proto_tree_add_text(subtree, daylight_saving_time_tvb, 0, 1, "%s",
+                        val_to_str_const(bits, lte_rrc_daylightSavingTime_vals, "Unknown"));
+  }
+
+#.FN_BODY SystemInformationBlockType16-r11/leapSeconds
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "s");
+
+#.TYPE_ATTR
+SystemInformationBlockType16-r11/localTimeOffset DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_localTimeOffset_fmt
+
+#.FN_BODY SystemInformationBlockType16-r11/timeInfo/timeInfoGPS VAL_PTR=&time_info_gps_tvb
+  tvbuff_t *time_info_gps_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType16-r11/timeInfo/timeInfoGPS
+  if (time_info_gps_tvb) {
+    guint64 bits;
+    nstime_t ts;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
+    bits = tvb_get_bits64(time_info_gps_tvb, 0, 39, ENC_BIG_ENDIAN);
+    ts.secs = (time_t)(bits/100) + 315964800; /* GPS epoch is 00:00 (midnight) UTC on 1980-01-06 */
+    ts.nsecs = (int)(bits%100)*10000000;
+    proto_tree_add_text(subtree, time_info_gps_tvb, 0, -1, "GPS   time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
+    proto_tree_add_text(subtree, time_info_gps_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
+  }
+
+#.FN_BODY SystemInformationBlockType16-r11/timeInfo/timeInfoUTC VAL_PTR=&time_info_utc_tvb
+  tvbuff_t *time_info_utc_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType16-r11/timeInfo/timeInfoUTC
+  if (time_info_utc_tvb) {
+    guint64 bits;
+    nstime_t ts;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
+    bits = tvb_get_bits64(time_info_utc_tvb, 0, 39, ENC_BIG_ENDIAN);
+    ts.secs = (time_t)(bits/100);
+    ts.nsecs = (int)(bits%100)*10000000;
+    proto_tree_add_text(subtree, time_info_utc_tvb, 0, -1, "UTC   time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
+    proto_tree_add_text(subtree, time_info_utc_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
+  }
 
 #.FN_BODY RRCConnectionReject-r8-IEs/waitTime
 %(DEFAULT_BODY)s
@@ -860,17 +918,14 @@ SystemInformationBlockType1/cellSelectionInfo/q-RxLevMinOffset STRINGS=VALS(lte_
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dB");
 
-#.FN_BODY RLF-Report-r9/eag_1/timeConnFailure-r10 VAL_PTR=&timeConnFailure_val
-  guint32 timeConnFailure_val;
-%(DEFAULT_BODY)s
-#.FN_FTR RLF-Report-r9/eag_1/timeConnFailure-r10
-  proto_item_append_text(actx->created_item, " (%dms)", 100*timeConnFailure_val);
+#.TYPE_ATTR
+RLF-Report-r9/eag_1/timeConnFailure-r10 DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_timeConnFailure_r10_fmt
 
-#.FN_BODY RLF-Report-r9/eag_2/timeSinceFailure-r11
+#.FN_BODY LogMeasInfo-r10/relativeTimeStamp-r10
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "s");
 
-#.FN_BODY ConnEstFailReport-r11/timeSinceFailure-r11
+#.FN_BODY TimeSinceFailure-r11
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "s");
 
@@ -916,10 +971,6 @@ CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPD
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, " (multiples of shortDRX-Cycle)");
 
-#.FN_BODY DRX-Config-r11/setup/shortDRX-r11/drxShortCycleTimer
-%(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, " (multiples of shortDRX-Cycle-r11)");
-
 #.FN_BODY PDSCH-ConfigCommon/referenceSignalPower
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dBm");
@@ -937,11 +988,14 @@ CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPD
   proto_item_append_text(actx->created_item, "dB");
 
 #.TYPE_ATTR
-UplinkPowerControlCommon/deltaPreambleMsg3  STRINGS=VALS(lte_rrc_deltaPreambleMsg3_vals)
+UplinkPowerControlCommon/deltaPreambleMsg3 STRINGS=VALS(lte_rrc_deltaPreambleMsg3_vals)
 
 #.FN_BODY UplinkPowerControlCommon/p0-NominalPUSCH
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dBm");
+
+#.TYPE_ATTR
+UplinkPowerControlCommonSCell-v11x0/deltaPreambleMsg3-r11 STRINGS=VALS(lte_rrc_deltaPreambleMsg3_vals)
 
 #.FN_BODY UplinkPowerControlCommon/p0-NominalPUCCH
 %(DEFAULT_BODY)s

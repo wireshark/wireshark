@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V11.1.0 (2012-09)
+-- 3GPP TS 36.331 V11.2.0 (2012-12)
 -- $Id$
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -18,6 +18,7 @@ IMPORTS
 	MeasConfig,
 	OtherConfig-r9,
 	PhysCellId,
+	PowerPrefIndication-r11,
 	RadioResourceConfigDedicated,
 	RSRP-Range,
 	RSRQ-Range,
@@ -73,8 +74,13 @@ HandoverPreparationInformation-r8-IEs ::= SEQUENCE {
 
 HandoverPreparationInformation-v920-IEs	::= SEQUENCE {
 	ue-ConfigRelease-r9					ENUMERATED {
-										rel9, rel10, spare6, spare5, spare4, spare3,
+										rel9, rel10, rel11, spare5, spare4, spare3,
 										spare2, spare1, ...} 			OPTIONAL, 	-- Cond HO2
+	nonCriticalExtension				HandoverPreparationInformation-v9d0-IEs		OPTIONAL
+}
+
+HandoverPreparationInformation-v9d0-IEs	::= SEQUENCE {
+	lateNonCriticalExtension			OCTET STRING									OPTIONAL,
 	nonCriticalExtension				HandoverPreparationInformation-v11x0-IEs		OPTIONAL
 }
 
@@ -129,9 +135,10 @@ AS-Context ::=							SEQUENCE {
 }
 
 AS-Context-v11x0 ::=					SEQUENCE {
-	idc-Context-r11							IDC-Context-r11				OPTIONAL,	-- Cond HO
+	idc-Context-r11							IDC-Context-r11				OPTIONAL,	-- Cond HO2
 	mbmsInterestIndication-r11				OCTET STRING (CONTAINING
 											MBMSInterestIndication-r11)	OPTIONAL,	-- Cond HO2
+	powerPrefIndication-r11					PowerPrefIndication-r11		OPTIONAL,	-- Cond HO2
 	...
 }
 

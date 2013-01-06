@@ -1,8 +1,9 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V11.1.0 Release 11) packet dissection
+ * (3GPP TS 36.331 V11.1.2 Release 11) packet dissection
  * Copyright 2008, Vincent Helfre
+ * Copyright 2009-2013, Pascal Quantin
  *
  * $Id$
  *
@@ -171,6 +172,8 @@ static gint ett_lte_rrc_nas_SecurityParam = -1;
 static gint ett_lte_rrc_targetRAT_MessageContainer = -1;
 static gint ett_lte_rrc_siPsiSibContainer = -1;
 static gint ett_lte_rrc_dedicatedInfoNAS = -1;
+static gint ett_lte_rrc_daylightSavingTime = -1;
+static gint ett_lte_rrc_timeInfo = -1;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -178,8 +181,8 @@ static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *p
 int dissect_lte_rrc_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_1_val = {
-  "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; PDSCH transmission mode 5; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 & 2-2 - Supported",
-  "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; PDSCH transmission mode 5; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 & 2-2 - Not supported"
+  "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 & 2-2 - Supported",
+  "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 & 2-2 - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_2_val = {
   "Simultaneous CQI & ACK/NACK on PUCCH (format 2a/2b); Absolute TPC command for PUSCH; Resource alloc type 1 for PDSCH; Periodic CQI/PMI/RI report on PUCCH: Mode 2-0 & 2-1 - Supported",
@@ -298,8 +301,8 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_30_val = {
   "Handover between FDD and TDD - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_31_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "Mechanisms defined for cells broadcasting multi band information - Supported",
+  "Mechanisms defined for cells broadcasting multi band information - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_32_val = {
   "Undefined - Supported",
@@ -627,6 +630,12 @@ static const value_string lte_rrc_q_RxLevMinOffset_vals[] = {
   { 8, "16dB"},
   { 0, NULL}
 };
+
+static void
+lte_rrc_timeConnFailure_r10_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%ums (%u)", 100*v, v);
+}
 
 static const value_string lte_rrc_utra_q_RxLevMin_vals[] = {
   { -60, "-119dBm"},
@@ -1672,6 +1681,32 @@ static const true_false_string lte_rrc_duration_val = {
   "single"
 };
 
+static const value_string lte_rrc_daylightSavingTime_vals[] = {
+  { 0, "No adjustment for Daylight Saving Time"},
+  { 1, "+1 hour adjustment for Daylight Saving Time"},
+  { 2, "+2 hours adjustment for Daylight Saving Time"},
+  { 3, "Reserved"},
+  { 0, NULL},
+};
+
+static const value_string lte_rrc_neighCellConfig_vals[] = {
+  { 0, "Not all neighbour cells have the same MBSFN subframe allocation as serving cell"},
+  { 1, "No MBSFN subframes are present in all neighbour cells"},
+  { 2, "The MBSFN subframe allocations of all neighbour cells are identical to or subsets of that in the serving cell"},
+  { 3, "Different UL/DL allocation in neighbouring cells for TDD compared to the serving cell"},
+  { 0, NULL},
+};
+
+static void
+lte_rrc_localTimeOffset_fmt(gchar *s, guint32 v)
+{
+  gint32 time_offset = (gint32) v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "UTC time %c %dhr %dmin (%d)",
+             (time_offset < 0) ? '-':'+', abs(time_offset) >> 2,
+             (abs(time_offset) & 0x03) * 15, time_offset);
+}
+
 #include "packet-lte-rrc-fn.c"
 
 static void
@@ -2210,7 +2245,9 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_nas_SecurityParam,
     &ett_lte_rrc_targetRAT_MessageContainer,
     &ett_lte_rrc_siPsiSibContainer,
-    &ett_lte_rrc_dedicatedInfoNAS
+    &ett_lte_rrc_dedicatedInfoNAS,
+    &ett_lte_rrc_daylightSavingTime,
+    &ett_lte_rrc_timeInfo
   };
 
 
