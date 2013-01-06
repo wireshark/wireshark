@@ -105,47 +105,49 @@ wtap_get_compressed_file_extensions(void)
 /* #define GZBUFSIZE 8192 */
 #define GZBUFSIZE 4096
 
+/* values for wtap_reader compression */
+typedef enum {
+	UNKNOWN,	/* unknown - look for a gzip header */
+	UNCOMPRESSED,	/* uncompressed - copy input directly */
+#ifdef HAVE_LIBZ
+	ZLIB,		/* decompress a zlib stream */
+	GZIP_AFTER_HEADER
+#endif
+} compression_t;
+
 struct wtap_reader {
-	int fd;                 /* file descriptor */
-	gint64 raw_pos;         /* current position in file (just to not call lseek()) */
-	gint64 pos;             /* current position in uncompressed data */
-	guint size;             /* buffer size */
-	unsigned char *in;      /* input buffer */
-	unsigned char *out;     /* output buffer (double-sized when reading) */
-	unsigned char *next;    /* next output data to deliver or write */
+	int fd;                    /* file descriptor */
+	gint64 raw_pos;            /* current position in file (just to not call lseek()) */
+	gint64 pos;                /* current position in uncompressed data */
+	guint size;                /* buffer size */
+	unsigned char *in;         /* input buffer */
+	unsigned char *out;        /* output buffer (double-sized when reading) */
+	unsigned char *next;       /* next output data to deliver or write */
 
-	guint have;             /* amount of output data unused at next */
-	int eof;                /* true if end of input file reached */
-	gint64 start;           /* where the gzip data started, for rewinding */
-	gint64 raw;             /* where the raw data started, for seeking */
-	int compression;        /* 0: ?, 1: uncompressed, 2: zlib */
-	gboolean is_compressed; /* FALSE if completely uncompressed, TRUE otherwise */
+	guint have;                /* amount of output data unused at next */
+	gboolean eof;              /* TRUE if end of input file reached */
+	gint64 start;              /* where the gzip data started, for rewinding */
+	gint64 raw;                /* where the raw data started, for seeking */
+	compression_t compression; /* type of compression, if any */
+	gboolean is_compressed;    /* FALSE if completely uncompressed, TRUE otherwise */
 	/* seek request */
-	gint64 skip;            /* amount to skip (already rewound if backwards) */
-	int seek;               /* true if seek request pending */
+	gint64 skip;               /* amount to skip (already rewound if backwards) */
+	gboolean seek_pending;     /* TRUE if seek request pending */
 	/* error information */
-	int err;                /* error code */
-	const char *err_info;   /* additional error information string for some errors */
+	int err;                   /* error code */
+	const char *err_info;      /* additional error information string for some errors */
 
-	guint avail_in;         /* number of bytes available at next_in */
-	unsigned char *next_in; /* next input byte */
+	guint avail_in;            /* number of bytes available at next_in */
+	unsigned char *next_in;    /* next input byte */
 #ifdef HAVE_LIBZ
 	/* zlib inflate stream */
-	z_stream strm;          /* stream structure in-place (not a pointer) */
-	int dont_check_crc;	/* 1 if we aren't supposed to check the CRC */
+	z_stream strm;             /* stream structure in-place (not a pointer) */
+	gboolean dont_check_crc;   /* TRUE if we aren't supposed to check the CRC */
 #endif
 	/* fast seeking */
 	GPtrArray *fast_seek;
 	void *fast_seek_cur;
 };
-
-/* values for wtap_reader compression */
-#define UNKNOWN		0	/* look for a gzip header */
-#define UNCOMPRESSED	1	/* copy input directly */
-#ifdef HAVE_LIBZ
-#define ZLIB		2	/* decompress a zlib stream */
-#define GZIP_AFTER_HEADER 3
-#endif
 
 static int	/* gz_load */
 raw_read(FILE_T state, unsigned char *buf, unsigned int count, guint *have)
@@ -166,7 +168,7 @@ raw_read(FILE_T state, unsigned char *buf, unsigned int count, guint *have)
 		return -1;
 	}
 	if (ret == 0)
-		state->eof = 1;
+		state->eof = TRUE;
 	return 0;
 }
 
@@ -189,7 +191,7 @@ struct fast_seek_point {
 	gint64 out; 	/* corresponding offset in uncompressed data */
 	gint64 in;		/* offset in input file of first full byte */
 
-	int compression;
+	compression_t compression;
 	union {
 		struct {
 #ifdef HAVE_INFLATEPRIME
@@ -238,7 +240,8 @@ fast_seek_find(FILE_T file, gint64 pos)
 }
 
 static void
-fast_seek_header(FILE_T file, gint64 in_pos, gint64 out_pos, int compression)
+fast_seek_header(FILE_T file, gint64 in_pos, gint64 out_pos,
+    compression_t compression)
 {
 	struct fast_seek_point *item = NULL;
 
@@ -766,10 +769,10 @@ static void
 gz_reset(FILE_T state)
 {
 	state->have = 0;              /* no output data available */
-	state->eof = 0;               /* not at end of file */
+	state->eof = FALSE;           /* not at end of file */
 	state->compression = UNKNOWN; /* look for gzip header */
 
-	state->seek = 0;              /* no seek request pending */
+	state->seek_pending = FALSE;  /* no seek request pending */
 	state->err = 0;               /* clear error */
 	state->err_info = NULL;
 	state->pos = 0;               /* no uncompressed data yet */
@@ -845,7 +848,7 @@ file_fdopen(int fd)
 	}
 
 	/* for now, assume we should check the crc */
-	state->dont_check_crc = 0;
+	state->dont_check_crc = FALSE;
 #endif
 	/* return stream */
 	return state;
@@ -896,7 +899,7 @@ file_open(const char *path)
 	suffixp = strrchr(path, '.');
 	if (suffixp != NULL) {
 		if (g_ascii_strcasecmp(suffixp, ".caz") == 0)
-			ft->dont_check_crc = 1;
+			ft->dont_check_crc = TRUE;
 	}
 #endif
 
@@ -927,9 +930,9 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 	/* normalize offset to a SEEK_CUR specification */
 	if (whence == SEEK_SET)
 		offset -= file->pos;
-	else if (file->seek)
+	else if (file->seek_pending)
 		offset += file->skip;
-	file->seek = 0;
+	file->seek_pending = FALSE;
 
 	if (offset < 0 && file->next) {
 		/*
@@ -989,8 +992,8 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 
 		file->raw_pos = off;
 		file->have = 0;
-		file->eof = 0;
-		file->seek = 0;
+		file->eof = FALSE;
+		file->seek_pending = FALSE;
 		file->err = 0;
 		file->err_info = NULL;
 		file->avail_in = 0;
@@ -1035,7 +1038,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 		/* g_print("OK! %ld\n", offset); */
 
 		if (offset) {
-			file->seek = 1;
+			file->seek_pending = TRUE;
 			file->skip = offset;
 		}
 		return file->pos + offset;
@@ -1051,8 +1054,8 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 		}
 		file->raw_pos += (offset - file->have);
 		file->have = 0;
-		file->eof = 0;
-		file->seek = 0;
+		file->eof = FALSE;
+		file->seek_pending = FALSE;
 		file->err = 0;
 		file->err_info = NULL;
 		file->avail_in = 0;
@@ -1088,7 +1091,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 
 	/* request skip (if not zero) */
 	if (offset) {
-		file->seek = 1;
+		file->seek_pending = TRUE;
 		file->skip = offset;
 	}
 	return file->pos + offset;
@@ -1111,7 +1114,7 @@ gint64
 file_tell(FILE_T stream)
 {
 	/* return position */
-	return stream->pos + (stream->seek ? stream->skip : 0);
+	return stream->pos + (stream->seek_pending ? stream->skip : 0);
 }
 
 gint64
@@ -1147,8 +1150,8 @@ file_read(void *buf, unsigned int len, FILE_T file)
 		return 0;
 
 	/* process a skip request */
-	if (file->seek) {
-		file->seek = 0;
+	if (file->seek_pending) {
+		file->seek_pending = FALSE;
 		if (gz_skip(file, file->skip) == -1)
 			return -1;
 	}
@@ -1195,6 +1198,9 @@ file_read(void *buf, unsigned int len, FILE_T file)
 	return (int)got;
 }
 
+/*
+ * XXX - this gets a byte, not a character.
+ */
 int
 file_getc(FILE_T file)
 {
@@ -1232,8 +1238,8 @@ file_gets(char *buf, int len, FILE_T file)
 		return NULL;
 
 	/* process a skip request */
-	if (file->seek) {
-		file->seek = 0;
+	if (file->seek_pending) {
+		file->seek_pending = FALSE;
 		if (gz_skip(file, file->skip) == -1)
 			return NULL;
 	}
@@ -1312,7 +1318,7 @@ file_clearerr(FILE_T stream)
 	/* clear error and end-of-file */
 	stream->err = 0;
 	stream->err_info = NULL;
-	stream->eof = 0;
+	stream->eof = FALSE;
 }
 
 void
