@@ -2543,7 +2543,6 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 					*err = WTAP_ERR_CANT_SEEK;
 					return -1;
 				}
-				blob = (blob_info_t *)ngsniffer->current_blob->data;
 			} else {
 				/* If we also have a random stream open, add a new element,
 				   for this blob, to the list of blobs; we know the list is
