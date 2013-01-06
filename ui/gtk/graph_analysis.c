@@ -190,12 +190,12 @@ static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data)
 
 /****************************************************************************/
 #if GTK_CHECK_VERSION(2,22,0)
-static void draw_arrow(cairo_surface_t *surface, GdkColor *color, gint x, gint y, gboolean arrow_type)
+static void draw_arrow(cairo_surface_t *surface, GdkRGBA *color, gint x, gint y, gboolean arrow_type)
 {
 	cairo_t *cr;
 
 	cr = cairo_create (surface);
-	gdk_cairo_set_source_color (cr, color);
+	gdk_cairo_set_source_rgba (cr, color);
 	if (arrow_type == LEFT_ARROW)
 	{
 		cairo_move_to (cr, x + WIDTH_ARROW,      y);
@@ -214,13 +214,13 @@ static void draw_arrow(cairo_surface_t *surface, GdkColor *color, gint x, gint y
 	cairo_destroy (cr);
 }
 #else
-static void draw_arrow(GdkDrawable *pixmap, GdkColor *color, gint x, gint y, gboolean arrow_type)
+static void draw_arrow(GdkDrawable *pixmap, GdkRGBA *color, gint x, gint y, gboolean arrow_type)
 {
 	cairo_t *cr;
 
 	if (GDK_IS_DRAWABLE(pixmap)) {
 		cr = gdk_cairo_create (pixmap);
-		gdk_cairo_set_source_color (cr, color);
+		gdk_cairo_set_source_rgba (cr, color);
 		if (arrow_type == LEFT_ARROW)
 		{
 			cairo_move_to (cr, x + WIDTH_ARROW,      y);
@@ -667,6 +667,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	cairo_t *cr;
 	gchar	*time_str;
 
+#if 0
 	GdkColor *color_p, *bg_color_p;
 	GdkColor black_color = {0, 0, 0, 0};
 	GdkColor white_color = {0, 0xffff, 0xffff, 0xffff};
@@ -687,6 +688,29 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		{0,     0xB0FF, 0xC4FF, 0xDEFF},
 		{0,     0x87FF, 0xCEFF, 0xFAFF},
 		{0,     0xD3FF, 0xD3FF, 0xD3FF}
+	};
+
+#endif
+	GdkRGBA *color_p, *bg_color_p;
+
+	GdkRGBA black_color =  {0.0, 0.0, 0.0, 1.0}; /* Black */
+	GdkRGBA white_color =  {1.0, 1.0, 1.0, 1.0 };
+	/* gray and soft gray colors */
+	GdkRGBA grey_color0 = {0.3945, 0.3945, 0.3945, 1.0};
+	GdkRGBA grey_color1 = {0.1484, 0.1484, 0.1484, 1.0};
+
+	static GdkRGBA background_color[MAX_NUM_COL_CONV+1] = {
+        /* Red, Green, Blue Alpha */
+        {0.0039, 0.0039, 1.0000, 1.0},
+        {0.5664, 0.6289, 0.5664, 1.0},
+        {1.0000, 0.6289, 0.4805, 1.0},
+        {1.0000, 0.7148, 0.7578, 1.0},
+        {0.9805, 0.9805, 0.8242, 1.0},
+        {1.0000, 1.0000, 0.2031, 1.0},
+        {0.4023, 0.8046, 0.6680, 1.0},
+        {0.8789, 1.0000, 1.0000, 1.0},
+        {0.6914, 0.7695, 0.8710, 1.0},
+        {0.8281, 0.8281, 0.8281, 1.0},
 	};
 
 	/* XXX can't we just set the background color ? */
@@ -944,7 +968,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 #if GTK_CHECK_VERSION(2,22,0)
 		/* Paint background */
 		cr = cairo_create (user_data->dlg.surface_main);
-		gdk_cairo_set_source_color (cr, bg_color_p);
+		gdk_cairo_set_source_rgba (cr, bg_color_p);
 		cairo_rectangle (cr, left_x_border, top_y_border+current_item*ITEM_HEIGHT, draw_width, ITEM_HEIGHT);
 		cairo_fill (cr);
 		cairo_destroy (cr);
@@ -952,7 +976,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
 			/* Paint background */
 			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
-			gdk_cairo_set_source_color (cr, bg_color_p);
+			gdk_cairo_set_source_rgba (cr, bg_color_p);
 			cairo_rectangle (cr, left_x_border, top_y_border+current_item*ITEM_HEIGHT, draw_width, ITEM_HEIGHT);
 			cairo_fill (cr);
 			cairo_destroy (cr);
@@ -984,7 +1008,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 #if GTK_CHECK_VERSION(2,22,0)
 		/* draw the node division lines */
 		cr = cairo_create (user_data->dlg.surface_main);
-		gdk_cairo_set_source_color (cr, &grey_color0);
+		gdk_cairo_set_source_rgba (cr, &grey_color0);
 		cairo_set_line_width (cr, 1.0);
 		cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
 		cairo_set_dash(cr, dashed1, len1, 0);
@@ -996,7 +1020,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		/* draw the node division lines */
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ) {
 			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
-			gdk_cairo_set_source_color (cr, &grey_color0);
+			gdk_cairo_set_source_rgba (cr, &grey_color0);
 			cairo_set_line_width (cr, 1.0);
 			cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
 			cairo_set_dash(cr, dashed1, len1, 0);
@@ -1134,7 +1158,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 
 #if GTK_CHECK_VERSION(2,22,0)
 		cr = cairo_create (user_data->dlg.surface_main);
-		gdk_cairo_set_source_color (cr, color_p);
+		gdk_cairo_set_source_rgba (cr, color_p);
 		cairo_move_to (cr, label_x - label_width/2, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2-3);
 		pango_cairo_show_layout (cr, layout);
 		cairo_destroy (cr);
@@ -1142,7 +1166,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 #else
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
 			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
-			gdk_cairo_set_source_color (cr, color_p);
+			gdk_cairo_set_source_rgba (cr, color_p);
 			cairo_move_to (cr, label_x - label_width/2, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2-3);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
@@ -1163,11 +1187,11 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		cr = cairo_create (user_data->dlg.surface_main);
 		/* select color */
 		if ( current_item+first_item == user_data->dlg.selected_item ){
-			gdk_cairo_set_source_color (cr, &grey_color1);
+			gdk_cairo_set_source_rgba (cr, &grey_color1);
 		} else {
-			gdk_cairo_set_source_color (cr, &grey_color0);
+			gdk_cairo_set_source_rgba (cr, &grey_color0);
 		}
-		gdk_cairo_set_source_color (cr, &grey_color0);
+		gdk_cairo_set_source_rgba (cr, &grey_color0);
 		cairo_move_to (cr, src_port_x, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2);
 		pango_cairo_show_layout (cr, small_layout);
 		cairo_destroy (cr);
@@ -1176,11 +1200,11 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
 			/* select color */
 			if ( current_item+first_item == user_data->dlg.selected_item ){
-				gdk_cairo_set_source_color (cr, &grey_color1);
+				gdk_cairo_set_source_rgba (cr, &grey_color1);
 			} else {
-				gdk_cairo_set_source_color (cr, &grey_color0);
+				gdk_cairo_set_source_rgba (cr, &grey_color0);
 			}
-			gdk_cairo_set_source_color (cr, &grey_color0);
+			gdk_cairo_set_source_rgba (cr, &grey_color0);
 			cairo_move_to (cr, src_port_x, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2);
 			pango_cairo_show_layout (cr, small_layout);
 			cairo_destroy (cr);
@@ -1200,9 +1224,9 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		cr = cairo_create (user_data->dlg.surface_main);
 		/* select color */
 		if ( current_item+first_item == user_data->dlg.selected_item ){
-			gdk_cairo_set_source_color (cr, &grey_color1);
+			gdk_cairo_set_source_rgba (cr, &grey_color1);
 		} else {
-			gdk_cairo_set_source_color (cr, &grey_color0);
+			gdk_cairo_set_source_rgba (cr, &grey_color0);
 		}
 		cairo_move_to (cr, dst_port_x, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2);
 		pango_cairo_show_layout (cr, small_layout);
@@ -1212,9 +1236,9 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
 			/* select color */
 			if ( current_item+first_item == user_data->dlg.selected_item ){
-				gdk_cairo_set_source_color (cr, &grey_color1);
+				gdk_cairo_set_source_rgba (cr, &grey_color1);
 			} else {
-				gdk_cairo_set_source_color (cr, &grey_color0);
+				gdk_cairo_set_source_rgba (cr, &grey_color0);
 			}
 			cairo_move_to (cr, dst_port_x, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2);
 			pango_cairo_show_layout (cr, small_layout);
@@ -1226,7 +1250,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			for (i=0; i<user_data->num_nodes; i++){
 #if GTK_CHECK_VERSION(2,22,0)
 				cr = cairo_create (user_data->dlg.surface_main);
-				gdk_cairo_set_source_color (cr, &grey_color1);
+				gdk_cairo_set_source_rgba (cr, &grey_color1);
 				cairo_set_line_width (cr, 1.0);
 				cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
 				cairo_set_dash(cr, dashed1, len1, 0);
@@ -1237,7 +1261,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 #else
 				if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ) {
 					cr = gdk_cairo_create (user_data->dlg.pixmap_main);
-					gdk_cairo_set_source_color (cr, &grey_color1);
+					gdk_cairo_set_source_rgba (cr, &grey_color1);
 					cairo_set_line_width (cr, 1.0);
 					cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
 					cairo_set_dash(cr, dashed1, len1, 0);
