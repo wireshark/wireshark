@@ -1028,7 +1028,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                 /* Retrieve number of Status Flag bytes and setup tree */
                 if (cfg_data->num_flags == 1){
                     proto_tree_add_item(fmdata_tree, hf_selfm_fmdata_flagbyte, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
+                    /*offset += 1;*/
                 }
 
                 cnt = cfg_data->num_ai; /* actual number of analog values to available to dissect */
@@ -1493,7 +1493,6 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             offset += 2; /* 2 unknown bytes */
 
             base_addr = tvb_get_ntohs(tvb, offset); /* unknown - 16-bit field with base address to read? */
-            num_addr = tvb_get_ntohs(tvb, offset+2); /* unknown - 16-bit field with number of addresses to read? */
 
             /* Append Column Info w/ Base Address */
             if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1835,25 +1834,25 @@ dissect_selfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tvb_reported_length_remaining(selfm_tvb, offset) > 0) {
                 switch (msg_type) {
                     case CMD_RELAY_DEF:
-                        offset += dissect_relaydef_frame(selfm_tvb, selfm_tree, offset);
+                        /*offset +=*/ dissect_relaydef_frame(selfm_tvb, selfm_tree, offset);
                         break;
                     case CMD_FM_CONFIG:
                     case CMD_DFM_CONFIG:
                     case CMD_PDFM_CONFIG:
-                        offset += dissect_fmconfig_frame(selfm_tvb, selfm_tree, offset);
+                        /*offset +=*/ dissect_fmconfig_frame(selfm_tvb, selfm_tree, offset);
                         break;
                     case CMD_FM_DATA:
-                        offset += dissect_fmdata_frame(selfm_tvb, selfm_tree, pinfo, offset);
+                        /*offset +=*/ dissect_fmdata_frame(selfm_tvb, selfm_tree, pinfo, offset);
                         break;
                     case CMD_FASTOP_CONFIG:
-                        offset += dissect_foconfig_frame(selfm_tvb, selfm_tree, offset);
+                        /*offset +=*/ dissect_foconfig_frame(selfm_tvb, selfm_tree, offset);
                         break;
                     case CMD_FAST_SER:
-                        offset += dissect_fastser_frame(selfm_tvb, selfm_tree, pinfo, offset);
+                        /*offset +=*/ dissect_fastser_frame(selfm_tvb, selfm_tree, pinfo, offset);
                         break;
                     case CMD_FASTOP_RB_CTRL:
                     case CMD_FASTOP_BR_CTRL:
-                        offset += dissect_fastop_frame(selfm_tvb, selfm_tree, pinfo, offset);
+                        /*offset +=*/ dissect_fastop_frame(selfm_tvb, selfm_tree, pinfo, offset);
                         break;
                     default:
                         break;
