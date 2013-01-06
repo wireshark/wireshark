@@ -609,7 +609,6 @@ followDraw(
       {
         /* no more data */
         sc.dlen = 0;
-        chunk = G_MAXUINT32;
         goto done;
       }
       if (sc.dlen > 0)
