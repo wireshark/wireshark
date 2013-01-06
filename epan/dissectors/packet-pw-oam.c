@@ -81,7 +81,7 @@ dissect_pw_status_tlv (tvbuff_t *tvb, proto_tree *tree, gint offset)
   offset = offset + 2;
   proto_tree_add_item (pw_oam_tlv_tree, hf_pw_oam_code, tvb, offset,
                                     4, ENC_BIG_ENDIAN);
-  offset = offset + 4;
+  /*offset = offset + 4;*/
 
   return ;
 }
