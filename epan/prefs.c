@@ -2346,7 +2346,7 @@ static char *
 join_string_list(GList *sl)
 {
     GString      *joined_str = g_string_new("");
-    GList        *cur, *first = g_list_first(sl);
+    GList        *cur, *first;
     gchar        *str;
     gchar        *quoted_str;
     guint         item_count = 0;
