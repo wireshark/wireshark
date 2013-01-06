@@ -284,7 +284,7 @@ static void dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* End-of-Frame Marker */
 	if (tvb_length_remaining(tvb,offset) >= 1) {
-		proto_tree_add_item(aol_tree,hf_aol_end,tvb,offset,1,ENC_NA); offset += 1;
+		proto_tree_add_item(aol_tree,hf_aol_end,tvb,offset,1,ENC_NA);/* offset += 1;*/
 	} else {
 		/* Malformed Packet */
 		expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"[Malformed Packet] End of frame marker expected");
