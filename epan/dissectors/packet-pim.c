@@ -722,7 +722,6 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             break;
         default:
             /* PIM is available for IPv4 and IPv6 right now */
-            computed_cksum = 0; /* squelch GCC complaints */
             DISSECTOR_ASSERT_NOT_REACHED();
             break;
         }
@@ -1116,7 +1115,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         offset += 4;
 
         proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
+        /* offset += 4;*/
         break;
     }
 
@@ -1212,7 +1211,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         proto_tree_add_text(pimopt_tree, tvb, offset, 1,
                             "Interval: %u", tvb_get_guint8(tvb, offset));
-        offset += 1;
+        /*offset += 1;*/
 
         break;
     }
