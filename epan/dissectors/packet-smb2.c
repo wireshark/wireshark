@@ -176,6 +176,7 @@ static int hf_smb2_ea_name_len = -1;
 static int hf_smb2_ea_data_len = -1;
 static int hf_smb2_ea_name = -1;
 static int hf_smb2_ea_data = -1;
+static int hf_smb2_buffer_code = -1;
 static int hf_smb2_buffer_code_len = -1;
 static int hf_smb2_buffer_code_flags_dyn = -1;
 static int hf_smb2_olb_offset = -1;
@@ -397,6 +398,7 @@ static gint ett_smb2_file_name_info = -1;
 static gint ett_smb2_lock_info = -1;
 static gint ett_smb2_lock_flags = -1;
 static gint ett_smb2_transform_enc_alg = -1;
+static gint ett_smb2_buffercode = -1;
 
 static int smb2_tap = -1;
 
@@ -1994,13 +1996,20 @@ dissect_smb2_oplock(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_smb2_buffercode(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 *length)
+dissect_smb2_buffercode(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 *length)
 {
+	proto_tree *tree;
+	proto_item *item;
 	guint16 buffer_code;
 
 	/* dissect the first 2 bytes of the command PDU */
 	buffer_code = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb2_buffer_code_len, tvb, offset, 2, buffer_code&0xfffe);
+	item = proto_tree_add_uint(parent_tree, hf_smb2_buffer_code, tvb, offset, 2, buffer_code);
+	tree = proto_item_add_subtree(item, ett_smb2_buffercode);
+	proto_tree_add_uint_format(tree, hf_smb2_buffer_code_len, tvb, offset, 2,
+	                           buffer_code&0xfffe, "%s: %u",
+	                           decode_numeric_bitfield(buffer_code, 0xfffe, 16, "Fixed Part Length"),
+	                           buffer_code&0xfffe);
 	proto_tree_add_item(tree, hf_smb2_buffer_code_flags_dyn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
@@ -7341,8 +7350,12 @@ proto_register_smb2(void)
 		{ "Notify Flags", "smb2.notify.flags", FT_UINT16, BASE_HEX,
 		NULL, 0, NULL, HFILL }},
 
+	{ &hf_smb2_buffer_code,
+		{ "StructureSize", "smb2.buffer_code", FT_UINT16, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+
 	{ &hf_smb2_buffer_code_len,
-		{ "Length", "smb2.buffer_code.length", FT_UINT16, BASE_DEC,
+		{ "Fixed Part Length", "smb2.buffer_code.length", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of fixed portion of PDU", HFILL }},
 
 	{ &hf_smb2_olb_length,
@@ -7975,6 +7988,7 @@ proto_register_smb2(void)
 		&ett_smb2_dh2x_flags,
 		&ett_smb2_APP_INSTANCE_buffer,
 		&ett_smb2_transform_enc_alg,
+		&ett_smb2_buffercode,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
