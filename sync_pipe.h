@@ -25,7 +25,7 @@
 
 
 /** @file
- *  
+ *
  *  Low-level sync pipe interfaces.
  */
 
@@ -49,6 +49,10 @@
 
 /*
  * Indications sent out on the sync pipe (from child to parent).
+ * We might want to switch to something like Thrift
+ * (http://thrift.apache.org/) or Protocol Buffers
+ * (http://code.google.com/p/protobuf-c/) if we ever need to use more
+ * complex messages.
  */
 #define SP_FILE         'F'     /* the name of the recently opened file */
 #define SP_ERROR_MSG    'E'     /* error message */
@@ -66,15 +70,15 @@
 extern ssize_t
 pipe_write_header(int pipe_fd, char indicator, int length);
 
-/* write a message to the recipient pipe in the standard format 
-   (3 digit message length (excluding length and indicator field), 
+/* write a message to the recipient pipe in the standard format
+   (3 digit message length (excluding length and indicator field),
    1 byte message indicator and the rest is the message).
    If msg is NULL, the message has only a length and indicator. */
 extern void
 pipe_write_block(int pipe_fd, char indicator, const char *msg);
 
 /** the child encountered an error, notify the parent */
-extern void 
+extern void
 sync_pipe_errmsg_to_parent(int pipe_fd, const char *error_msg,
                            const char *secondary_error_msg);
 
