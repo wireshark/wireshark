@@ -234,14 +234,14 @@ static gint ett_selfm_fastser_element       = -1;
 #define FM_CONFIG_ANA_CHTYPE_INT16_LEN  2
 #define FM_CONFIG_ANA_CHTYPE_FP         0x01
 #define FM_CONFIG_ANA_CHTYPE_FP_LEN     4
-#define FM_CONFIG_ANA_CHTYPE_FPS        0x02
-#define FM_CONFIG_ANA_CHTYPE_FPS_LEN    8
+#define FM_CONFIG_ANA_CHTYPE_FPD        0x02
+#define FM_CONFIG_ANA_CHTYPE_FPD_LEN    8
 #define FM_CONFIG_ANA_CHTYPE_TS         0x03
 #define FM_CONFIG_ANA_CHTYPE_TS_LEN     8
 
 #define FM_CONFIG_ANA_SFTYPE_INT16      0x00
 #define FM_CONFIG_ANA_SFTYPE_FP         0x01
-#define FM_CONFIG_ANA_SFTYPE_FP_PH      0x02
+#define FM_CONFIG_ANA_SFTYPE_FPD        0x02
 #define FM_CONFIG_ANA_SFTYPE_TS         0x03
 #define FM_CONFIG_ANA_SFTYPE_NONE       0xFF
 
@@ -523,7 +523,7 @@ static value_string_ext selfm_relaydef_proto_vals_ext = VALUE_STRING_EXT_INIT(se
 static const value_string selfm_fmconfig_ai_chtype_vals[] = {
     { FM_CONFIG_ANA_CHTYPE_INT16,  "16-Bit Integer" },
     { FM_CONFIG_ANA_CHTYPE_FP,     "IEEE Floating Point" },
-    { FM_CONFIG_ANA_CHTYPE_FPS,    "IEEE Floating Point w/ Phasor" },
+    { FM_CONFIG_ANA_CHTYPE_FPD,    "IEEE Floating Point (Double)" },
     { FM_CONFIG_ANA_CHTYPE_TS,     "8-byte Time Stamp" },
     { 0,                           NULL }
 };
@@ -531,7 +531,7 @@ static const value_string selfm_fmconfig_ai_chtype_vals[] = {
 static const value_string selfm_fmconfig_ai_sftype_vals[] = {
     { FM_CONFIG_ANA_SFTYPE_INT16,  "16-Bit Integer" },
     { FM_CONFIG_ANA_SFTYPE_FP,     "IEEE Floating Point" },
-    { FM_CONFIG_ANA_SFTYPE_FP_PH,  "IEEE Floating Point w/ Phasor" },
+    { FM_CONFIG_ANA_SFTYPE_FPD,    "IEEE Floating Point (Double)" },
     { FM_CONFIG_ANA_SFTYPE_TS,     "8-byte Time Stamp" },
     { FM_CONFIG_ANA_SFTYPE_NONE,   "None" },
     { 0,                           NULL }
@@ -980,7 +980,7 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, int offset)
 /* Formatting depends heavily on previously-encountered Configuration Frames so search array instances for them */
 /******************************************************************************************************/
 static int
-dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint16 config_cmd_match)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item       *fmdata_item, *fmdata_ai_item=NULL, *fmdata_dig_item=NULL, *fmdata_ai_ch_item=NULL, *fmdata_dig_ch_item=NULL;
@@ -988,6 +988,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
     guint8           len, i=0, j=0, ts_mon, ts_day, ts_year, ts_hour, ts_min, ts_sec;
     guint16          config_cmd, ts_msec, ai_int16val;
     gfloat           ai_fpval, ai_sf_fp;
+    gdouble          ai_fpd_val;
     gboolean         config_found = FALSE;
     fm_conversation  *conv;
     fm_config_frame  *cfg_data;
@@ -1014,8 +1015,8 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                 config_cmd = cfg_data->cfg_cmd;
 
                 /* If the stored config_cmd matches the expected one we are looking for, mark that the config data was found */
-                if (config_cmd == CMD_FM_CONFIG) {
-                    proto_item_append_text(fmdata_item, ", using frame number %"G_GUINT32_FORMAT" as Fast Meter Configuration Frame",
+                if (config_cmd == config_cmd_match) {
+                    proto_item_append_text(fmdata_item, ", using frame number %"G_GUINT32_FORMAT" as Configuration Frame",
                                    cfg_data->fnum);
                     config_found = TRUE;
                 }
@@ -1073,7 +1074,10 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                                     ch_size = FM_CONFIG_ANA_CHTYPE_INT16_LEN; /* 2 bytes */
                                     break;
                                 case FM_CONFIG_ANA_CHTYPE_FP:
-                                    ch_size = FM_CONFIG_ANA_CHTYPE_FP_LEN; /* 4 bytes */
+                                    ch_size = FM_CONFIG_ANA_CHTYPE_FP_LEN;    /* 4 bytes */
+                                    break;
+                                case FM_CONFIG_ANA_CHTYPE_FPD:
+                                    ch_size = FM_CONFIG_ANA_CHTYPE_FPD_LEN;   /* 8 bytes */
                                     break;
                                 default:
                                     break;
@@ -1109,6 +1113,13 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                                     proto_tree_add_text(fmdata_ai_ch_tree, tvb, offset, ch_size, "Value: %f", ai_fpval);
                                     offset += ch_size;
                                     break;
+                                /* Channel type is Double IEEE Floating point */
+                                case FM_CONFIG_ANA_CHTYPE_FPD:
+                                    ai_fpd_val = tvb_get_ntohieee_double(tvb, offset);
+                                    proto_tree_add_text(fmdata_ai_ch_tree, tvb, offset, ch_size, "Value: %f", ai_fpd_val);
+                                    offset += ch_size;
+                                    break;
+
                             } /* channel type */
 
                         } /* number of analog channels */
@@ -1807,7 +1818,7 @@ dissect_selfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         p_add_proto_data(pinfo->fd, proto_selfm, conv_data);
 
-        if (CMD_FM_CONFIG == msg_type) {
+        if ((CMD_FM_CONFIG == msg_type) || (CMD_DFM_CONFIG == msg_type) || (CMD_PDFM_CONFIG == msg_type)) {
             /* Fill the fm_config_frame */
             fm_config_frame *frame_ptr = fmconfig_frame_fast(selfm_tvb);
             frame_ptr->fnum = pinfo->fd->num;
@@ -1834,25 +1845,31 @@ dissect_selfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tvb_reported_length_remaining(selfm_tvb, offset) > 0) {
                 switch (msg_type) {
                     case CMD_RELAY_DEF:
-                        /*offset +=*/ dissect_relaydef_frame(selfm_tvb, selfm_tree, offset);
+                        dissect_relaydef_frame(selfm_tvb, selfm_tree, offset);
                         break;
                     case CMD_FM_CONFIG:
                     case CMD_DFM_CONFIG:
                     case CMD_PDFM_CONFIG:
-                        /*offset +=*/ dissect_fmconfig_frame(selfm_tvb, selfm_tree, offset);
+                        dissect_fmconfig_frame(selfm_tvb, selfm_tree, offset);
                         break;
                     case CMD_FM_DATA:
-                        /*offset +=*/ dissect_fmdata_frame(selfm_tvb, selfm_tree, pinfo, offset);
+                        dissect_fmdata_frame(selfm_tvb, selfm_tree, pinfo, offset, CMD_FM_CONFIG);
+                        break;
+                    case CMD_DFM_DATA:
+                        dissect_fmdata_frame(selfm_tvb, selfm_tree, pinfo, offset, CMD_DFM_CONFIG);
+                        break;
+                    case CMD_PDFM_DATA:
+                        dissect_fmdata_frame(selfm_tvb, selfm_tree, pinfo, offset, CMD_PDFM_CONFIG);
                         break;
                     case CMD_FASTOP_CONFIG:
-                        /*offset +=*/ dissect_foconfig_frame(selfm_tvb, selfm_tree, offset);
+                        dissect_foconfig_frame(selfm_tvb, selfm_tree, offset);
                         break;
                     case CMD_FAST_SER:
-                        /*offset +=*/ dissect_fastser_frame(selfm_tvb, selfm_tree, pinfo, offset);
+                        dissect_fastser_frame(selfm_tvb, selfm_tree, pinfo, offset);
                         break;
                     case CMD_FASTOP_RB_CTRL:
                     case CMD_FASTOP_BR_CTRL:
-                        /*offset +=*/ dissect_fastop_frame(selfm_tvb, selfm_tree, pinfo, offset);
+                        dissect_fastop_frame(selfm_tvb, selfm_tree, pinfo, offset);
                         break;
                     default:
                         break;
