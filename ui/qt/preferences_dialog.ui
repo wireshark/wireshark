@@ -35,32 +35,29 @@
        <property name="text">
         <string>Appearance</string>
        </property>
-       <property name="flags">
-        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
-       </property>
        <item>
         <property name="text">
          <string>Layout</string>
         </property>
-       <property name="flags">
-        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
-       </property>
+        <property name="flags">
+         <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+        </property>
        </item>
        <item>
         <property name="text">
          <string>Columns</string>
         </property>
-       <property name="flags">
-        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
-       </property>
+        <property name="flags">
+         <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+        </property>
        </item>
        <item>
         <property name="text">
          <string>Font and Colors</string>
         </property>
-       <property name="flags">
-        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
-       </property>
+        <property name="flags">
+         <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+        </property>
        </item>
       </item>
       <item>
@@ -116,10 +113,10 @@
       <widget class="QFrame" name="appearanceFrame"/>
       <widget class="QFrame" name="layoutFrame"/>
       <widget class="QFrame" name="columnFrame"/>
-      <widget class="QFrame" name="fontColorFrame"/>
+      <widget class="QFrame" name="fontandcolorFrame"/>
       <widget class="QFrame" name="captureFrame"/>
       <widget class="QFrame" name="filterFrame"/>
-      <widget class="QFrame" name="nameResolutionFrame"/>
+      <widget class="QFrame" name="nameresolutionFrame"/>
       <widget class="QFrame" name="protocolsFrame"/>
       <widget class="QFrame" name="statisticsFrame"/>
       <widget class="QFrame" name="advancedFrame">
@@ -153,9 +150,6 @@
         </item>
         <item>
          <widget class="QTreeWidget" name="advancedTree">
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
           <property name="uniformRowHeights">
            <bool>true</bool>
           </property>

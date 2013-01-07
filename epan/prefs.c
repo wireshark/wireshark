@@ -841,6 +841,11 @@ prefs_register_uint_preference(module_t *module, const char *name,
 }
 
 /*
+ * XXX Add a prefs_register_{uint16|port}_preference which sets max_value?
+ */
+
+
+/*
  * Register a "custom" preference with a unsigned integral value.
  * XXX - This should be temporary until we can find a better way
  * to do "custom" preferences
@@ -1241,11 +1246,12 @@ static prefs_set_pref_e console_log_level_set_cb(pref_t* pref, const gchar* valu
 }
 
 static const char * console_log_level_type_name_cb(void) {
-    return "Console log level (for debugging)";
+    return "Log level";
 }
 
 static char * console_log_level_type_description_cb(void) {
     return g_strdup_printf(
+        "Console log level (for debugging)\n"
         "A bitmask of log levels:\n"
         "ERROR    = 4\n"
         "CRITICAL = 8\n"
@@ -1693,12 +1699,12 @@ static prefs_set_pref_e capture_column_set_cb(pref_t* pref, const gchar* value, 
 
 
 static const char * capture_column_type_name_cb(void) {
-    return "Capture options dialog column list";
+    return "Column list";
 }
 
 static char * capture_column_type_description_cb(void) {
     return g_strdup_printf(
-        "List of columns to be displayed.\n"
+        "List of columns to be displayed in the capture options dialog.\n"
         "Possible values: INTERFACE,LINK,PMODE,SNAPLEN,MONITOR,BUFFER,FILTER\n");
 }
 
@@ -2695,10 +2701,10 @@ pre_init_prefs(void)
 /*
  * Reset a single dissector preference.
  */
-static void
-reset_pref(gpointer data, gpointer user_data _U_)
+void
+reset_pref(pref_t *pref)
 {
-    pref_t *pref = data;
+    if (!pref) return;
 
     switch (pref->type) {
 
@@ -2756,6 +2762,13 @@ reset_pref(gpointer data, gpointer user_data _U_)
     }
 }
 
+static void
+reset_pref_cb(gpointer data, gpointer user_data _U_)
+{
+    pref_t *pref = (pref_t *) data;
+    reset_pref(pref);
+}
+
 typedef struct {
     module_t *module;
 } reset_pref_arg_t;
@@ -2769,7 +2782,7 @@ reset_module_prefs(void *value, void *data _U_)
     reset_pref_arg_t arg;
 
     arg.module = value;
-    g_list_foreach(arg.module->prefs, reset_pref, &arg);
+    g_list_foreach(arg.module->prefs, reset_pref_cb, &arg);
     return FALSE;
 }
 
@@ -3926,7 +3939,7 @@ prefs_pref_type_name(pref_t *pref)
         break;
 
     case PREF_ENUM:
-        type_name = "Enumeration";
+        type_name = "Choice";
         break;
 
     case PREF_STRING:
@@ -4057,7 +4070,7 @@ prefs_pref_type_description(pref_t *pref)
     default:
         break;
     }
-    return g_strdup_printf("%s.", type_desc);
+    return g_strdup(type_desc);
 }
 
 gboolean

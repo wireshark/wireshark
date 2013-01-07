@@ -24,7 +24,17 @@
 #ifndef PREFERENCES_DIALOG_H
 #define PREFERENCES_DIALOG_H
 
+#include "config.h"
+
+#include <glib.h>
+
+#include "color.h"
+#include "packet-range.h"
+
+#include <epan/prefs.h>
+
 #include <QDialog>
+#include <QTreeWidgetItem>
 
 namespace Ui {
 class PreferencesDialog;
@@ -42,7 +52,22 @@ protected:
     void showEvent(QShowEvent *evt);
 
 private:
+    void updateItem(QTreeWidgetItem &item);
+
     Ui::PreferencesDialog *pd_ui_;
+//    QHash<pref_t *, QTreeWidgetItem *> pref_item_hash_;
+
+private slots:
+    void on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void on_advancedSearchLineEdit_textEdited(const QString &search_str);
+    void on_advancedTree_itemActivated(QTreeWidgetItem *item, int column);
+    void uintPrefEditingFinished();
+    void enumPrefCurrentIndexChanged(int index);
+    void stringPrefEditingFinished();
+    void rangePrefTextChanged(const QString & text);
+    void rangePrefEditingFinished();
+    void on_buttonBox_helpRequested();
+    void on_advancedTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 };
 
 #endif // PREFERENCES_DIALOG_H

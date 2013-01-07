@@ -514,6 +514,12 @@ extern e_prefs *read_prefs(int *, int *, char **, int *, int *, char **);
    into "*pf_path_return", and return the errno. */
 extern int write_prefs(char **);
 
+/** Set a preference to its default value
+ *
+ * @param pref A preference.
+ */
+extern void reset_pref(pref_t *pref);
+
 /*
  * Given a string of the form "<pref name>:<pref value>", as might appear
  * as an argument to a "-o" option, parse it and set the preference in
