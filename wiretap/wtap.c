@@ -622,7 +622,7 @@ int wtap_get_num_encap_types(void) {
 }
 
 
-int wtap_register_encap_type(char* name, char* short_name) {
+int wtap_register_encap_type(const char* name, const char* short_name) {
 	struct encap_type_info e;
 	wtap_init_encap_types();
 

@@ -1180,7 +1180,7 @@ int wtap_get_num_file_types(void);
 /*** dynamically register new file types and encapsulations ***/
 void wtap_register_open_routine(wtap_open_routine_t, gboolean has_magic);
 int wtap_register_file_type(const struct file_type_info* fi);
-int wtap_register_encap_type(char* name, char* short_name);
+int wtap_register_encap_type(const char* name, const char* short_name);
 
 
 /**
