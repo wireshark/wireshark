@@ -4807,7 +4807,7 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* SERVICE REQUEST (security header type equal to 12 or greater) is not a plain NAS message */
     pd = tvb_get_guint8(tvb,offset);
-    if (pd >= 0xc0) {
+    if (((pd&0x0f) == 0x07) && ((pd&0xf0) >= 0xc0)) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service request");
         /* Security header type Security header type 9.3.1 M V 1/2 */
         proto_tree_add_item(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, ENC_BIG_ENDIAN);
