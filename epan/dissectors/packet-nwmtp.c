@@ -75,7 +75,7 @@ static void dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		const gchar *type;
 		proto_item *ti;
 		proto_item *nwmtp_tree;
-		guint64 len;
+		guint32 len;
 		tvbuff_t *next_tvb;
 
 		/* update the info column */
@@ -110,7 +110,8 @@ static void dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * safe than sorry. See
 		 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8169
 		 */
-		DISSECTOR_ASSERT(offset + len + 12 < G_MAXINT);
+		DISSECTOR_ASSERT(len < G_MAXUINT32 - 11);
+		DISSECTOR_ASSERT((guint64)offset + len + 12 < G_MAXINT);
 		offset += len + 12;
 	}
 }
