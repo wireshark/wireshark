@@ -1730,8 +1730,8 @@ static int hf_lte_rrc_sf_High_01 = -1;            /* T_sf_High_01 */
 static int hf_lte_rrc_SystemInfoListGERAN_item = -1;  /* SystemInfoListGERAN_item */
 static int hf_lte_rrc_cdma_EUTRA_Synchronisation = -1;  /* BOOLEAN */
 static int hf_lte_rrc_cdma_SystemTime = -1;       /* T_cdma_SystemTime */
-static int hf_lte_rrc_synchronousSystemTime = -1;  /* BIT_STRING_SIZE_39 */
-static int hf_lte_rrc_asynchronousSystemTime = -1;  /* BIT_STRING_SIZE_49 */
+static int hf_lte_rrc_synchronousSystemTime = -1;  /* T_synchronousSystemTime */
+static int hf_lte_rrc_asynchronousSystemTime = -1;  /* T_asynchronousSystemTime */
 static int hf_lte_rrc_locationCoordinates_r10 = -1;  /* T_locationCoordinates_r10 */
 static int hf_lte_rrc_ellipsoid_Point_r10 = -1;   /* T_ellipsoid_Point_r10 */
 static int hf_lte_rrc_ellipsoidPointWithAltitude_r10 = -1;  /* T_ellipsoidPointWithAltitude_r10 */
@@ -7762,9 +7762,24 @@ dissect_lte_rrc_SystemInformationBlockType7(tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lte_rrc_BIT_STRING_SIZE_39(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_synchronousSystemTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *sync_system_time_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     39, 39, FALSE, NULL);
+                                     39, 39, FALSE, &sync_system_time_tvb);
+
+
+
+  if (sync_system_time_tvb) {
+    guint64 bits;
+    nstime_t ts;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
+    bits = tvb_get_bits64(sync_system_time_tvb, 0, 39, ENC_BIG_ENDIAN);
+    ts.secs = (time_t)(bits/100) + 315964800; /* CDMA2000 epoch is 00:00 (midnight) UTC on 1980-01-06 */
+    ts.nsecs = (int)(bits%100)*10000000;
+    proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
+    proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
+  }
 
   return offset;
 }
@@ -7772,9 +7787,24 @@ dissect_lte_rrc_BIT_STRING_SIZE_39(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 
 static int
-dissect_lte_rrc_BIT_STRING_SIZE_49(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_asynchronousSystemTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *async_system_time_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     49, 49, FALSE, NULL);
+                                     49, 49, FALSE, &async_system_time_tvb);
+
+
+
+  if (async_system_time_tvb) {
+    guint64 bits;
+    nstime_t ts;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
+    bits = tvb_get_bits64(async_system_time_tvb, 0, 49, ENC_BIG_ENDIAN);
+    ts.secs = (time_t)((bits*8)/1228800) + 315964800; /* CDMA2000 epoch is 00:00 (midnight) UTC on 1980-01-06 */
+    ts.nsecs = (int)(((bits%153600)*8*1000000000)/1228800);
+    proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
+    proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
+  }
 
   return offset;
 }
@@ -7787,8 +7817,8 @@ static const value_string lte_rrc_T_cdma_SystemTime_vals[] = {
 };
 
 static const per_choice_t T_cdma_SystemTime_choice[] = {
-  {   0, &hf_lte_rrc_synchronousSystemTime, ASN1_NO_EXTENSIONS     , dissect_lte_rrc_BIT_STRING_SIZE_39 },
-  {   1, &hf_lte_rrc_asynchronousSystemTime, ASN1_NO_EXTENSIONS     , dissect_lte_rrc_BIT_STRING_SIZE_49 },
+  {   0, &hf_lte_rrc_synchronousSystemTime, ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_synchronousSystemTime },
+  {   1, &hf_lte_rrc_asynchronousSystemTime, ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_asynchronousSystemTime },
   { 0, NULL, 0, NULL }
 };
 
@@ -39310,11 +39340,11 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_synchronousSystemTime,
       { "synchronousSystemTime", "lte-rrc.synchronousSystemTime",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_39", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_asynchronousSystemTime,
       { "asynchronousSystemTime", "lte-rrc.asynchronousSystemTime",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_49", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_locationCoordinates_r10,
       { "locationCoordinates-r10", "lte-rrc.locationCoordinates_r10",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_locationCoordinates_r10_vals), 0,
