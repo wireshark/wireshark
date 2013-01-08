@@ -3772,13 +3772,16 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
     }
 
     offset = dissect_ber_length(pinfo, app_tree, tvb, offset, &len_field, NULL);
-    if ((offset+len_field) > apdu_len) {
+    if ((offset+len_field) != apdu_len) {
         pi = proto_tree_add_text(app_tree, tvb,
                 APDU_TAG_SIZE, offset-APDU_TAG_SIZE,
                 "Length field mismatch");
-        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "Length field mismatch");
-        return;
+        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
+            "Length field is different from the number of apdu payload bytes");
+        /* we need len_field bytes of apdu payload to call
+           ai->dissect_payload() and continue dissecting */
+        if (apdu_len < offset+len_field)
+            return;
     }
 
     ai = (apdu_info_t *)g_hash_table_lookup(apdu_table,
