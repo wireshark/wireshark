@@ -1,6 +1,6 @@
 /* packet-dvbci.c
  * Routines for DVB-CI (Common Interface) dissection
- * Copyright 2011-2012, Martin Kaiser <martin@kaiser.cx>
+ * Copyright 2011-2013, Martin Kaiser <martin@kaiser.cx>
  *
  * $Id$
  *
