@@ -13,7 +13,7 @@
  * Copyright 2011, Grzegorz Szczytowski <grzegorz.szczytowski@gmail.com>
  *
  * Updates and corrections:
- * Copyright 2011-2012, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2011-2013, Anders Broman <anders.broman@ericsson.com>
  *
  * PDCP PDU number extension header support added by Martin Isaksson <martin.isaksson@ericsson.com>
  *
@@ -7754,7 +7754,7 @@ decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
         offset = offset + 2;
 
        if (length > 2) {
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            next_tvb = tvb_new_subset(tvb, offset, length-2, length-2);
             if(!dissector_try_uint(gtp_priv_ext_dissector_table, ext_id, next_tvb, pinfo, ext_tree_priv_ext)){
                     proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_val, tvb, offset, length - 2, ENC_NA);
             }
