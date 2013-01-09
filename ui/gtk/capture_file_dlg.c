@@ -408,6 +408,58 @@ preview_new(void)
 }
 
 #ifndef USE_WIN32_FILE_DIALOGS
+
+/*
+   ------------------------------------------------
+   |top_level win                                 |
+   |  ------------------------------------------- |
+   |  |file_chooser_dialog                      | |
+   |  |  -------------------------------------- | |
+   |  |  |[file_chooser]                      | | |
+   |  |  |                                    | | |
+   |  |  |                                    | | |
+   |  |  |                                    | | |
+   |  |  -------------------------------------- | |
+   |  |                                         | |
+   |  |  -------------------------------------- | |
+   |  |  |main_hb [file_chooser_extra_widget] | | |
+   |  |  |  ------------   ----------------   | | |
+   |  |  |  |main_vb   |   |grid          |   | | |
+   |  |  |  |  item    |   |  row         |   | | |
+   |  |  |  |  item    |   |  row         |   | | |
+   |  |  |  |  item    |   |  row         |   | | |
+   |  |  |  |  item    |   |  row         |   | | |
+   |  |  |  |  item    |   |  row         |   | | |
+   |  |  |  ------------   ----------------   | | |
+   |  |  -------------------------------------- | |
+   |  |                                         | |
+   |  |  -------------------------------------- | |
+   |  |  |btn_row                             | | |
+   |  |  -------------------------------------- | |
+   |  ------------------------------------------- |
+   ------------------------------------------------
+
+    Gtk3: Expand/Fill effect
+
+      Vertical
+        (file_chooser) expands/fills.
+        main_hb does not expand/fill [explicitly set via vexpand = FALSE].
+        btn_row does not expand/fill.
+        So: vertical resize (drog lower edge down).
+            expands (file_chooser) but leaves others as is.
+        Also: grid rows are "vexpand' so grid
+               vertically epands/fills in main_hb.
+              That is: it will be the same height as
+               the main_vb.
+              Since vexpand is "inherited upwards", main_hb vexpand set to FALSE
+               to prevent vertical expansion of same.
+
+       Horizontal
+         (file_chooser) & btn_row expand/fill.
+         main_vb does not expand.
+         grid does not expand: XXX: why not ?
+*/
+
 /* Open a file */
 static gboolean
 gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
