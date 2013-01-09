@@ -108,12 +108,12 @@ static gboolean        color_selected;
 static wtap *
 preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 {
-    GtkWidget  *label;
-    wtap       *wth;
-    int         err = 0;
-    gchar      *err_info;
-    gchar       string_buff[PREVIEW_STR_MAX];
-    gint64      filesize;
+    GtkWidget *label;
+    wtap      *wth;
+    int        err = 0;
+    gchar     *err_info;
+    gchar      string_buff[PREVIEW_STR_MAX];
+    gint64     filesize;
 
 
     /* init preview labels */
@@ -128,7 +128,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
 
-    if(!cf_name) {
+    if (!cf_name) {
         return NULL;
     }
 
@@ -141,7 +141,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     wth = wtap_open_offline(cf_name, &err, &err_info, TRUE);
     if (wth == NULL) {
         label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
-        if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
+        if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
             gtk_label_set_text(GTK_LABEL(label), "unknown file format");
         } else {
             gtk_label_set_text(GTK_LABEL(label), "error opening file");
@@ -173,29 +173,29 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 static void
 preview_do(GtkWidget *prev, wtap *wth)
 {
-    GtkWidget  *label;
-    unsigned int elapsed_time;
-    time_t      time_preview;
-    time_t      time_current;
-    int         err = 0;
-    gchar      *err_info;
-    gint64      data_offset;
+    GtkWidget    *label;
+    unsigned int  elapsed_time;
+    time_t        time_preview;
+    time_t        time_current;
+    int           err        = 0;
+    gchar        *err_info;
+    gint64        data_offset;
+    double        start_time   = 0; /* seconds, with nsec resolution */
+    double        stop_time    = 0; /* seconds, with nsec resolution */
+    double        cur_time;
+    unsigned int  packets    = 0;
+    gboolean      is_breaked = FALSE;
+    gchar         string_buff[PREVIEW_STR_MAX];
+    time_t        ti_time;
+    struct tm    *ti_tm;
     const struct wtap_pkthdr *phdr;
-    double      start_time = 0; /* seconds, with nsec resolution */
-    double      stop_time = 0;  /* seconds, with nsec resolution */
-    double      cur_time;
-    unsigned int packets = 0;
-    gboolean    is_breaked = FALSE;
-    gchar       string_buff[PREVIEW_STR_MAX];
-    time_t      ti_time;
-    struct tm  *ti_tm;
 
 
     time(&time_preview);
     while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
         phdr = wtap_phdr(wth);
         cur_time = wtap_nstime_to_sec(&phdr->ts);
-        if(packets == 0) {
+        if (packets == 0) {
             start_time = cur_time;
             stop_time = cur_time;
         }
@@ -207,17 +207,17 @@ preview_do(GtkWidget *prev, wtap *wth)
         }
 
         packets++;
-        if(packets%1000 == 0) {
+        if (packets%1000 == 0) {
             /* do we have a timeout? */
             time(&time_current);
-            if(time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
+            if (time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
                 is_breaked = TRUE;
                 break;
             }
         }
     }
 
-    if(err != 0) {
+    if (err != 0) {
         g_snprintf(string_buff, PREVIEW_STR_MAX, "error after reading %u packets", packets);
         label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
         gtk_label_set_text(GTK_LABEL(label), string_buff);
@@ -226,7 +226,7 @@ preview_do(GtkWidget *prev, wtap *wth)
     }
 
     /* packet count */
-    if(is_breaked) {
+    if (is_breaked) {
         g_snprintf(string_buff, PREVIEW_STR_MAX, "more than %u packets (preview timeout)", packets);
     } else {
         g_snprintf(string_buff, PREVIEW_STR_MAX, "%u", packets);
@@ -237,7 +237,7 @@ preview_do(GtkWidget *prev, wtap *wth)
     /* first packet */
     ti_time = (long)start_time;
     ti_tm = localtime( &ti_time );
-    if(ti_tm) {
+    if (ti_tm) {
         g_snprintf(string_buff, PREVIEW_STR_MAX,
                  "%04d-%02d-%02d %02d:%02d:%02d",
                  ti_tm->tm_year + 1900,
@@ -254,14 +254,14 @@ preview_do(GtkWidget *prev, wtap *wth)
 
     /* elapsed time */
     elapsed_time = (unsigned int)(stop_time-start_time);
-    if(elapsed_time/86400) {
+    if (elapsed_time/86400) {
       g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u days %02u:%02u:%02u",
         elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
     } else {
       g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u:%02u:%02u",
         elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
     }
-    if(is_breaked) {
+    if (is_breaked) {
       g_snprintf(string_buff, PREVIEW_STR_MAX, "unknown");
     }
     label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
@@ -276,18 +276,18 @@ preview_do(GtkWidget *prev, wtap *wth)
 static void
 update_preview_cb (GtkFileChooser *file_chooser, gpointer data)
 {
-    GtkWidget *prev = GTK_WIDGET (data);
-    char *cf_name;
-    gboolean have_preview;
+    GtkWidget *prev = GTK_WIDGET(data);
+    char      *cf_name;
+    gboolean   have_preview;
 
-    cf_name = gtk_file_chooser_get_preview_filename (file_chooser);
+    cf_name = gtk_file_chooser_get_preview_filename(file_chooser);
 
     have_preview = preview_set_filename(prev, cf_name);
 
-    g_free (cf_name);
+    g_free(cf_name);
 
     have_preview = TRUE;
-    gtk_file_chooser_set_preview_widget_active (file_chooser, have_preview);
+    gtk_file_chooser_set_preview_widget_active(file_chooser, have_preview);
 }
 #endif
 
@@ -297,9 +297,9 @@ static void
 file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 {
     GtkWidget *prev = (GtkWidget *)g_object_get_data(G_OBJECT(file_sel), PREVIEW_TABLE_KEY);
-    gchar *cf_name;
-    gboolean have_preview;
-    wtap       *wth;
+    gchar     *cf_name;
+    gboolean   have_preview;
+    wtap      *wth;
 
     /* get the filename */
     cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_sel));
@@ -341,33 +341,33 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 #endif
 
     /* do the actual preview */
-    if(have_preview)
+    if (have_preview)
         preview_do(prev, wth);
 }
 
 
 /* copied from summary_dlg.c */
 static GtkWidget *
-add_string_to_table_sensitive(GtkWidget *list, guint *row, const gchar *title, const gchar *value, gboolean sensitive)
+add_string_to_grid_sensitive(GtkWidget *grid, guint *row, const gchar *title, const gchar *value, gboolean sensitive)
 {
     GtkWidget *label;
     gchar     *indent;
 
-    if(strlen(value) != 0) {
+    if (strlen(value) != 0) {
         indent = g_strdup_printf("   %s", title);
     } else {
-        indent = g_strdup(title);
+      indent = g_strdup(title);
     }
     label = gtk_label_new(indent);
     g_free(indent);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
     gtk_widget_set_sensitive(label, sensitive);
-    gtk_table_attach_defaults(GTK_TABLE(list), label, 0, 1, *row, *row+1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, *row, 1, 1);
 
     label = gtk_label_new(value);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
     gtk_widget_set_sensitive(label, sensitive);
-    gtk_table_attach_defaults(GTK_TABLE(list), label, 1, 2, *row, *row+1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 1, *row, 1, 1);
 
     *row = *row + 1;
 
@@ -375,9 +375,9 @@ add_string_to_table_sensitive(GtkWidget *list, guint *row, const gchar *title, c
 }
 
 static GtkWidget *
-add_string_to_table(GtkWidget *list, guint *row, const gchar *title, const gchar *value)
+add_string_to_grid(GtkWidget *grid, guint *row, const gchar *title, const gchar *value)
 {
-    return add_string_to_table_sensitive(list, row, title, value, TRUE);
+    return add_string_to_grid_sensitive(grid, row, title, value, TRUE);
 }
 
 
@@ -385,26 +385,26 @@ add_string_to_table(GtkWidget *list, guint *row, const gchar *title, const gchar
 static GtkWidget *
 preview_new(void)
 {
-    GtkWidget *table, *label;
-    guint         row;
+    GtkWidget *grid, *label;
+    guint      row;
 
-    table = gtk_table_new(1, 2, FALSE);
-    gtk_table_set_col_spacings(GTK_TABLE(table), 6);
-    gtk_table_set_row_spacings(GTK_TABLE(table), 3);
+    grid = ws_gtk_grid_new();
+    ws_gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
+    ws_gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
     row = 0;
 
-    label = add_string_to_table(table, &row, "Format:", "-");
-    g_object_set_data(G_OBJECT(table), PREVIEW_FORMAT_KEY, label);
-    label = add_string_to_table(table, &row, "Size:", "-");
-    g_object_set_data(G_OBJECT(table), PREVIEW_SIZE_KEY, label);
-    label = add_string_to_table(table, &row, "Packets:", "-");
-    g_object_set_data(G_OBJECT(table), PREVIEW_PACKETS_KEY, label);
-    label = add_string_to_table(table, &row, "First Packet:", "-");
-    g_object_set_data(G_OBJECT(table), PREVIEW_FIRST_KEY, label);
-    label = add_string_to_table(table, &row, "Elapsed time:", "-");
-    g_object_set_data(G_OBJECT(table), PREVIEW_ELAPSED_KEY, label);
+    label = add_string_to_grid(grid, &row, "Format:", "-");
+    g_object_set_data(G_OBJECT(grid), PREVIEW_FORMAT_KEY, label);
+    label = add_string_to_grid(grid, &row, "Size:", "-");
+    g_object_set_data(G_OBJECT(grid), PREVIEW_SIZE_KEY, label);
+    label = add_string_to_grid(grid, &row, "Packets:", "-");
+    g_object_set_data(G_OBJECT(grid), PREVIEW_PACKETS_KEY, label);
+    label = add_string_to_grid(grid, &row, "First Packet:", "-");
+    g_object_set_data(G_OBJECT(grid), PREVIEW_FIRST_KEY, label);
+    label = add_string_to_grid(grid, &row, "Elapsed time:", "-");
+    g_object_set_data(G_OBJECT(grid), PREVIEW_ELAPSED_KEY, label);
 
-    return table;
+    return grid;
 }
 
 #ifndef USE_WIN32_FILE_DIALOGS
@@ -412,9 +412,10 @@ preview_new(void)
 static gboolean
 gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
 {
-  GtkWidget     *file_open_w;
-  GtkWidget     *main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
-                *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb, *prev;
+  GtkWidget *file_open_w;
+  GtkWidget *main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te;
+  GtkWidget *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb, *prev;
+
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
@@ -462,6 +463,11 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
   }
 
   main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
+#if GTK_CHECK_VERSION(3,0,0)
+  gtk_widget_set_vexpand(main_hb, FALSE);  /* prevents "inheritance" from child VEXPAND */
+                                           /*  so hbox doesn't expand vertically even   */
+                                           /*  tho grid rows have VEXPAND.              */
+#endif
   file_selection_set_extra_widget(file_open_w, main_hb);
   gtk_widget_show(main_hb);
 
@@ -482,7 +488,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
                    G_CALLBACK(display_filter_construct_cb), &args);
   g_signal_connect(filter_bt, "destroy",
                    G_CALLBACK(filter_button_destroy_cb), NULL);
-  gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, FALSE, 0);
   gtk_widget_show(filter_bt);
   gtk_widget_set_tooltip_text(filter_bt, "Open the \"Display Filter\" dialog to edit/apply filters");
 
@@ -492,8 +498,8 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
   g_signal_connect(filter_te, "changed",
                    G_CALLBACK(filter_te_syntax_check_cb), NULL);
   g_object_set_data(G_OBJECT(filter_hbox), E_FILT_AUTOCOMP_PTR_KEY, NULL);
-  g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
-  g_signal_connect(file_open_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
+  g_signal_connect(filter_te, "key-press-event", G_CALLBACK(filter_string_te_key_pressed_cb), NULL);
+  g_signal_connect(file_open_w, "key-press-event", G_CALLBACK(filter_parent_dlg_key_pressed_cb), NULL);
   colorize_filter_te_as_empty(filter_te);
   gtk_entry_set_text(GTK_ENTRY(filter_te), display_filter->str);
   gtk_widget_show(filter_te);
@@ -591,9 +597,9 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
 static void
 file_open_cmd(capture_file *cf, GtkWidget *w _U_)
 {
-  GString   *file_name = g_string_new("");
+  GString   *file_name      = g_string_new("");
   GString   *display_filter = g_string_new("");
-  dfilter_t *rfcode = NULL;
+  dfilter_t *rfcode         = NULL;
   int        err;
 
   /*
@@ -672,9 +678,9 @@ file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 static gboolean
 gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *merge_type)
 {
-  GtkWidget     *file_merge_w;
-  GtkWidget     *main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
-                *prepend_rb, *chrono_rb, *append_rb, *prev;
+  GtkWidget *file_merge_w;
+  GtkWidget *main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te;
+  GtkWidget *prepend_rb, *chrono_rb, *append_rb, *prev;
 
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
@@ -755,8 +761,8 @@ gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *m
   g_signal_connect(filter_te, "changed",
                    G_CALLBACK(filter_te_syntax_check_cb), NULL);
   g_object_set_data(G_OBJECT(filter_hbox), E_FILT_AUTOCOMP_PTR_KEY, NULL);
-  g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
-  g_signal_connect(file_merge_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
+  g_signal_connect(filter_te, "key-press-event", G_CALLBACK(filter_string_te_key_pressed_cb), NULL);
+  g_signal_connect(file_merge_w, "key-press-event", G_CALLBACK(filter_parent_dlg_key_pressed_cb), NULL);
   colorize_filter_te_as_empty(filter_te);
   gtk_entry_set_text(GTK_ENTRY(filter_te), display_filter->str);
   gtk_widget_show(filter_te);
@@ -834,15 +840,15 @@ gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *m
 static void
 file_merge_cmd(GtkWidget *w _U_)
 {
-  GString     *file_name = g_string_new("");
+  GString     *file_name      = g_string_new("");
   GString     *display_filter = g_string_new("");
   int          merge_type;
-  dfilter_t   *rfcode = NULL;
+  dfilter_t   *rfcode         = NULL;
   int          err;
   int          file_type;
   cf_status_t  merge_status;
   char        *in_filenames[2];
-  char        *tmpname = NULL;
+  char        *tmpname        = NULL;
 
   /*
    * Loop until the user either selects a file or gives up.
@@ -1216,8 +1222,8 @@ file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
 static check_savability_t
 check_save_with_comments(capture_file *cf)
 {
-  GtkWidget     *msg_dialog;
-  gint           response;
+  GtkWidget *msg_dialog;
+  gint       response;
 
   /* Do we have any comments? */
   if (!cf_has_comments(cf)) {
@@ -1332,8 +1338,8 @@ check_save_with_comments(capture_file *cf)
 static void
 do_file_save(capture_file *cf, gboolean dont_reopen)
 {
-  char *fname;
-  gboolean discard_comments;
+  char     *fname;
+  gboolean  discard_comments;
   cf_write_status_t status;
 
   if (cf->is_tempfile) {
@@ -1441,9 +1447,9 @@ set_file_type_list(GtkWidget *combo_box, capture_file *cf,
                    gboolean must_support_comments)
 {
   GArray *savable_file_types;
-  guint i;
-  int ft;
-  int default_ft = -1;
+  guint   i;
+  int     ft;
+  int     default_ft = -1;
 
   savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes);
 
@@ -1473,8 +1479,8 @@ static void
 file_select_file_type_cb(GtkWidget *w, gpointer parent_arg)
 {
   GtkWidget *parent = parent_arg;
-  int new_file_type;
-  gpointer ptr;
+  int        new_file_type;
+  gpointer   ptr;
   GtkWidget *compressed_cb;
 
   compressed_cb = (GtkWidget *)g_object_get_data(G_OBJECT(parent), E_COMPRESSED_CB_KEY);
@@ -1499,8 +1505,8 @@ file_select_file_type_cb(GtkWidget *w, gpointer parent_arg)
 static check_savability_t
 gtk_check_save_as_with_comments(GtkWidget *w, capture_file *cf, int file_type)
 {
-  GtkWidget     *msg_dialog;
-  gint           response;
+  GtkWidget *msg_dialog;
+  gint       response;
 
   /* Do we have any comments? */
   if (!cf_has_comments(cf)) {
@@ -1622,11 +1628,11 @@ static gboolean
 gtk_save_as_file(GtkWidget *w _U_, capture_file *cf, GString *file_name, int *file_type,
                  gboolean *compressed, gboolean must_support_comments)
 {
-  GtkWidget     *file_save_as_w;
-  GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *compressed_cb;
-  int            default_ft;
-  char          *cf_name;
-  gpointer       ptr;
+  GtkWidget *file_save_as_w;
+  GtkWidget *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *compressed_cb;
+  int        default_ft;
+  char      *cf_name;
+  gpointer   ptr;
 
   if (!file_name || !file_type || !compressed)
     return FALSE;
@@ -1648,7 +1654,7 @@ gtk_save_as_file(GtkWidget *w _U_, capture_file *cf, GString *file_name, int *fi
 
   /* File type row */
   ft_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_box_pack_start(GTK_BOX (main_vb), ft_hb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), ft_hb, TRUE, TRUE, 0);
   gtk_widget_show(ft_hb);
 
   ft_lb = gtk_label_new("File type:");
@@ -1666,7 +1672,7 @@ gtk_save_as_file(GtkWidget *w _U_, capture_file *cf, GString *file_name, int *fi
   /* compressed - if the file is currently compressed, and the default
      file type supports compression, turn the checkbox on */
   compressed_cb = gtk_check_button_new_with_label("Compress with gzip");
-  gtk_box_pack_start(GTK_BOX (ft_hb), compressed_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(ft_hb), compressed_cb, TRUE, TRUE, 0);
   if (cf->iscompressed && wtap_dump_can_compress(default_ft))
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(compressed_cb), TRUE);
   gtk_widget_show(compressed_cb);
@@ -1700,10 +1706,10 @@ gtk_save_as_file(GtkWidget *w _U_, capture_file *cf, GString *file_name, int *fi
 
 static void
 file_add_extension(GString *file_name, int file_type, gboolean compressed) {
-  gchar   *file_name_lower;
-  GString *file_suffix;
-  GSList  *extensions_list, *extension;
-  gboolean add_extension;
+  gchar    *file_name_lower;
+  GString  *file_suffix;
+  GSList   *extensions_list, *extension;
+  gboolean  add_extension;
 
   /*
    * Append the default file extension if there's none given by
@@ -1711,7 +1717,7 @@ file_add_extension(GString *file_name, int file_type, gboolean compressed) {
    * extensions for the file type.
    */
   file_name_lower = g_utf8_strdown(file_name->str, -1);
-  file_suffix = g_string_new("");
+  file_suffix     = g_string_new("");
   extensions_list = wtap_get_file_extensions_list(file_type, FALSE);
   if (extensions_list != NULL) {
     /* We have one or more extensions for this file type.
@@ -1771,12 +1777,12 @@ static void
 file_save_as_cmd(capture_file *cf, gboolean must_support_comments,
                 gboolean dont_reopen)
 {
-  GString *file_name = g_string_new("");
-  int file_type;
-  gboolean compressed;
+  GString  *file_name        = g_string_new("");
+  int       file_type;
+  gboolean  compressed;
+  gchar    *dirname;
+  gboolean  discard_comments = FALSE;
   cf_write_status_t status;
-  gchar   *dirname;
-  gboolean discard_comments = FALSE;
 
   /*
    * Loop until the user either selects a file or gives up.
@@ -1886,11 +1892,11 @@ static gboolean
 gtk_export_specified_packets_file(GtkWidget *w _U_, GString *file_name, int *file_type,
                                   gboolean *compressed, packet_range_t *range)
 {
-  GtkWidget     *file_export_specified_packets_w;
-  GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *range_fr, *range_tb,
+  GtkWidget *file_export_specified_packets_w;
+  GtkWidget *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *range_fr, *range_grid,
                 *compressed_cb;
-  char          *cf_name;
-  gpointer       ptr;
+  char      *cf_name;
+  gpointer   ptr;
 
   if (!file_name || !file_type || !compressed || !range)
     return FALSE;
@@ -1915,14 +1921,14 @@ gtk_export_specified_packets_file(GtkWidget *w _U_, GString *file_name, int *fil
   gtk_box_pack_start(GTK_BOX(main_vb), range_fr, FALSE, FALSE, 0);
   gtk_widget_show(range_fr);
 
-  /* range table */
-  range_tb = range_new(range, TRUE);
-  gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
-  gtk_widget_show(range_tb);
+  /* grid table */
+  range_grid = range_new(range, TRUE);
+  gtk_container_add(GTK_CONTAINER(range_fr), range_grid);
+  gtk_widget_show(range_grid);
 
   /* File type row */
   ft_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_box_pack_start(GTK_BOX (main_vb), ft_hb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), ft_hb, TRUE, TRUE, 0);
 
   gtk_widget_show(ft_hb);
 
@@ -1939,11 +1945,11 @@ gtk_export_specified_packets_file(GtkWidget *w _U_, GString *file_name, int *fil
   g_object_set_data(G_OBJECT(file_export_specified_packets_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
 
   /* dynamic values in the range frame */
-  range_update_dynamics(range_tb);
+  range_update_dynamics(range_grid);
 
   /* compressed */
   compressed_cb = gtk_check_button_new_with_label("Compress with gzip");
-  gtk_box_pack_start(GTK_BOX (ft_hb), compressed_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(ft_hb), compressed_cb, TRUE, TRUE, 0);
   gtk_widget_show(compressed_cb);
   g_object_set_data(G_OBJECT(file_export_specified_packets_w), E_COMPRESSED_CB_KEY, compressed_cb);
 
@@ -1983,18 +1989,18 @@ gtk_export_specified_packets_file(GtkWidget *w _U_, GString *file_name, int *fil
 
 void
 file_export_specified_packets_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
-  GString *file_name = g_string_new("");
-  int file_type;
-  gboolean compressed;
-  packet_range_t range;
-  cf_write_status_t status;
-  gchar *dirname;
-  gchar *display_basename;
-  GtkWidget *msg_dialog;
+  GString           *file_name = g_string_new("");
+  int                file_type;
+  gboolean           compressed;
+  packet_range_t     range;
+  cf_write_status_t  status;
+  gchar             *dirname;
+  gchar             *display_basename;
+  GtkWidget         *msg_dialog;
 
   /* init the packet range */
   packet_range_init(&range, &cfile);
-  range.process_filtered = TRUE;
+  range.process_filtered   = TRUE;
   range.include_dependents = TRUE;
 
   /*
@@ -2107,7 +2113,7 @@ static void
 color_global_cb(GtkWidget *widget _U_, gpointer data)
 {
   GtkWidget *fs_widget = (GtkWidget *)data;
-  gchar *path;
+  gchar     *path;
 
   /* decide what file to open (from dfilter code) */
   path = get_datafile_path("colorfilters");
@@ -2124,8 +2130,8 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 #ifdef USE_WIN32_FILE_DIALOGS
   win32_import_color_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), color_filters);
 #else /* USE_WIN32_FILE_DIALOGS */
-  GtkWidget     *main_vb, *cfglobal_but;
-  gchar         *cf_name, *s;
+  GtkWidget *main_vb, *cfglobal_but;
+  gchar     *cf_name, *s;
 
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
@@ -2140,7 +2146,7 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
   gtk_widget_show(main_vb);
 
   cfglobal_but = gtk_button_new_with_label("Global Color Filter File");
-  gtk_box_pack_start(GTK_BOX (main_vb), cfglobal_but, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), cfglobal_but, TRUE, TRUE, 0);
   g_signal_connect(cfglobal_but, "clicked",
                    G_CALLBACK(color_global_cb), file_color_import_w);
   gtk_widget_show(cfglobal_but);
@@ -2206,7 +2212,7 @@ color_set_export_selected_sensitive(GtkWidget * cfselect_cb)
 static void
 color_toggle_selected_cb(GtkWidget *widget, gpointer data _U_)
 {
-  color_selected = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
+  color_selected = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
 }
 
 void
@@ -2235,7 +2241,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
   gtk_widget_show(main_vb);
 
   cfselect_cb = gtk_check_button_new_with_label("Export only selected filters");
-  gtk_box_pack_start(GTK_BOX (main_vb), cfselect_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), cfselect_cb, TRUE, TRUE, 0);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cfselect_cb), FALSE);
   g_signal_connect(cfselect_cb, "toggled",
                    G_CALLBACK(color_toggle_selected_cb), NULL);
@@ -2243,7 +2249,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
   color_set_export_selected_sensitive(cfselect_cb);
 
   cfglobal_but = gtk_button_new_with_label("Global Color Filter File");
-  gtk_box_pack_start(GTK_BOX (main_vb), cfglobal_but, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), cfglobal_but, TRUE, TRUE, 0);
   g_signal_connect(cfglobal_but, "clicked",
                    G_CALLBACK(color_global_cb), file_color_export_w);
   gtk_widget_show(cfglobal_but);
