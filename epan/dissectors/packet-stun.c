@@ -4,6 +4,7 @@
  * Copyright 2006, Marc Petit-Huguenin <marc@petit-huguenin.org>
  * Copyright 2007-2008, 8x8 Inc. <petithug@8x8.com>
  * Copyright 2008, Gael Breard <gael@breard.org>
+ * Copyright 2013, Media5 Corporation, David Bergeron <dbergeron@media5corp.com>
  *
  * $Id$
  *
@@ -31,6 +32,7 @@
  * - RFC 5780, formerly draft-ietf-behave-nat-behavior-discovery-08
  * - RFC 5766, formerly draft-ietf-behave-turn-16
  * - draft-ietf-behave-turn-ipv6-11
+ * - RFC 3489, http://www.faqs.org/rfcs/rfc3489.html  (Addition of deprecated attributes for diagnostics purpose)
  */
 
 #include "config.h"
@@ -77,6 +79,7 @@ static int stun_att_ipv4 = -1;
 static int stun_att_ipv6 = -1;
 static int stun_att_port = -1;
 static int stun_att_username = -1;
+static int stun_att_password = -1;
 static int stun_att_padding = -1;
 static int stun_att_hmac = -1;
 static int stun_att_crc32 = -1;
@@ -141,11 +144,16 @@ typedef struct _stun_conv_info_t {
 /* Attribute Types */
 /* Comprehension-required range (0x0000-0x7FFF) */
 #define MAPPED_ADDRESS		0x0001	/* draft-ietf-behave-rfc3489bis-17 */
+#define RESPONSE_ADDRESS  0x0002  /* Deprecated */
 #define CHANGE_REQUEST		0x0003	/* draft-ietf-behave-nat-behavior-discovery-03 */
+#define SOURCE_ADDRESS    0x0004  /* Deprecated */
+#define CHANGED_ADDRESS   0x0005  /* Deprecated */
 #define USERNAME		0x0006	/* draft-ietf-behave-rfc3489bis-17 */
+#define PASSWORD   0x0007  /* Deprecated */
 #define MESSAGE_INTEGRITY	0x0008	/* draft-ietf-behave-rfc3489bis-17 */
 #define ERROR_CODE		0x0009	/* draft-ietf-behave-rfc3489bis-17 */
 #define UNKNOWN_ATTRIBUTES	0x000a	/* draft-ietf-behave-rfc3489bis-17 */
+#define REFLECTED_FROM   0x000b  /* Deprecated */
 #define CHANNEL_NUMBER		0x000c	/* draft-ietf-behave-turn-10 */
 #define LIFETIME		0x000d	/* draft-ietf-behave-turn-10 */
 #define BANDWIDTH		0x0010  /* turn-07 */
@@ -218,15 +226,19 @@ static const value_string methods[] = {
 };
 
 
-
 static const value_string attributes[] = {
 	{MAPPED_ADDRESS        , "MAPPED-ADDRESS"},
 	{CHANGE_REQUEST        , "CHANGE_REQUEST"},
+  {RESPONSE_ADDRESS      , "RESPONSE_ADDRESS"},
 	{USERNAME              , "USERNAME"},
+  {SOURCE_ADDRESS        , "SOURCE_ADDRESS"},
+  {CHANGED_ADDRESS       , "CHANGED_ADDRESS"},
 	{MESSAGE_INTEGRITY     , "MESSAGE-INTEGRITY"},
+  {PASSWORD              , "PASSWORD"},
 	{ERROR_CODE            , "ERROR-CODE"},
 	{UNKNOWN_ATTRIBUTES    , "UNKNOWN-ATTRIBUTES"},
 	{CHANNEL_NUMBER        , "CHANNEL-NUMBER"},
+  {REFLECTED_FROM        , "REFLECTED-FROM"},
 	{LIFETIME              , "LIFETIME"},
 	{BANDWIDTH             , "BANDWIDTH"},
 	{XOR_PEER_ADDRESS      , "XOR-PEER-ADDRESS"},
@@ -642,6 +654,53 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 			offset += 2;
 
 			switch (att_type) {
+      
+      /* Deprecated STUN RFC3489 attributes */
+      case RESPONSE_ADDRESS:
+      case SOURCE_ADDRESS:
+      case CHANGED_ADDRESS:
+      case REFLECTED_FROM:
+				if (att_length < 1)
+					break;
+				proto_tree_add_uint(att_tree, stun_att_reserved, tvb, offset, 1, 1);
+				if (att_length < 2)
+					break;
+				proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+				if (att_length < 4)
+					break;
+				proto_tree_add_item(att_tree, stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+				switch (tvb_get_guint8(tvb, offset+1)) 
+        {
+  				case 1:
+  					if (att_length < 8)
+  						break;
+  					proto_tree_add_item(att_tree, stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+  					{
+  						const gchar *ipstr;
+  						guint32 ip;
+  						ip = tvb_get_ipv4(tvb,offset+4);
+  						ipstr = ip_to_str((guint8*)&ip);
+  						proto_item_append_text(att_tree, " (Deprecated): %s:%d", ipstr,tvb_get_ntohs(tvb,offset+2));
+  					}
+  					break;
+  
+  				case 2:
+  					if (att_length < 20)
+  						break;
+  					proto_tree_add_item(att_tree, stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
+  					break;
+  			}
+				break;
+
+      /* Deprecated STUN RFC3489 attributes */
+      case PASSWORD:
+				proto_tree_add_item(att_tree, stun_att_password, tvb, offset, att_length, ENC_ASCII|ENC_NA);
+				proto_item_append_text(att_tree, " (Deprecated): %s", tvb_get_ephemeral_string(tvb, offset, att_length));
+				if (att_length % 4 != 0)
+					proto_tree_add_uint(att_tree, stun_att_padding,
+							    tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+				break;
+
 			case MAPPED_ADDRESS:
 			case ALTERNATE_SERVER:
 			case RESPONSE_ORIGIN:
@@ -1138,6 +1197,10 @@ proto_register_stun(void)
 		},
 		{ &stun_att_username,
 		  { "Username",	"stun.att.username",	FT_STRING,
+		    BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
+		},
+    { &stun_att_password,
+		  { "Password",	"stun.att.password",	FT_STRING,
 		    BASE_NONE,	NULL,	0x0, 	NULL,	HFILL }
 		},
 		{ &stun_att_padding,
