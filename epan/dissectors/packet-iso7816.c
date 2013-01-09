@@ -443,11 +443,9 @@ dissect_iso7816(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO 7816");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        tree_ti = proto_tree_add_protocol_format(tree, proto_iso7816,
-                tvb, 0, tvb_reported_length(tvb), "ISO 7816");
-        iso7816_tree = proto_item_add_subtree(tree_ti, ett_iso7816);
-    }
+    tree_ti = proto_tree_add_protocol_format(tree, proto_iso7816,
+            tvb, 0, tvb_reported_length(tvb), "ISO 7816");
+    iso7816_tree = proto_item_add_subtree(tree_ti, ett_iso7816);
 
     /* per our definition, sent/received is from the perspective of the interface
        i.e sent is from interface to card, received is from card to interface */
@@ -456,8 +454,7 @@ dissect_iso7816(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 (int)strlen(ADDR_INTF)+1, ADDR_INTF);
         SET_ADDRESS(&pinfo->dst, AT_STRINGZ,
                 (int)strlen(ADDR_CARD)+1, ADDR_CARD);
-        if (tree_ti)
-            proto_item_append_text(tree_ti, " Command APDU");
+        proto_item_append_text(tree_ti, " Command APDU");
         offset = dissect_iso7816_cmd_apdu(tvb, pinfo, iso7816_tree);
     }
     else if (pinfo->p2p_dir==P2P_DIR_RECV) {
@@ -473,8 +470,7 @@ dissect_iso7816(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 is_atr = TRUE;
         }
         if (!is_atr) {
-            if (tree_ti)
-                proto_item_append_text(tree_ti, " Response APDU");
+            proto_item_append_text(tree_ti, " Response APDU");
             offset = dissect_iso7816_resp_apdu(tvb, pinfo, iso7816_tree);
         }
     }
