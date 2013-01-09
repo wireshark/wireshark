@@ -1706,7 +1706,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     GtkWidget *interface_frame_lb;
     GtkWidget *basic_parameters_fr;
     GtkWidget *basic_parameters_al;
-    GtkWidget *basic_parameters_tb;
+    GtkWidget *basic_parameters_grid;
     GtkWidget *channel_lb;
     GtkWidget *channel_offset_lb;
     GtkWidget *capture_type_lb;
@@ -1827,18 +1827,18 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_container_add (GTK_CONTAINER (basic_parameters_fr),basic_parameters_al);
     gtk_alignment_set_padding (GTK_ALIGNMENT (basic_parameters_al), 10, 10, 0, 0);
 
-    basic_parameters_tb = gtk_table_new (2, 3, FALSE);
-    gtk_widget_set_name (basic_parameters_tb, "basic_parameters_tb");
-    gtk_widget_show (basic_parameters_tb);
+    basic_parameters_grid = ws_gtk_grid_new ();
+    gtk_widget_set_name (basic_parameters_grid, "basic_parameters_grid");
+    gtk_widget_show (basic_parameters_grid);
     gtk_container_add (GTK_CONTAINER (basic_parameters_al),
-                       basic_parameters_tb);
-    gtk_container_set_border_width (GTK_CONTAINER (basic_parameters_tb), 5);
-    gtk_table_set_col_spacings (GTK_TABLE (basic_parameters_tb), 20);
+                       basic_parameters_grid);
+    gtk_container_set_border_width (GTK_CONTAINER (basic_parameters_grid), 5);
+	ws_gtk_grid_set_column_spacing(GTK_GRID(basic_parameters_grid), 20);
 
     channel_lb = gtk_label_new ("Channel:");
     gtk_widget_set_name (channel_lb, "channel_lb");
     gtk_widget_show (channel_lb);
-    gtk_table_attach (GTK_TABLE (basic_parameters_tb), channel_lb, 0, 1, 0, 1,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_lb, 0, 1, 0, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (channel_lb), 0, 0.5f);
@@ -1846,7 +1846,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     capture_type_lb = gtk_label_new ("Capture Type:");
     gtk_widget_set_name (capture_type_lb, "capture_type_lb");
     gtk_widget_show (capture_type_lb);
-    gtk_table_attach (GTK_TABLE (basic_parameters_tb), capture_type_lb, 0, 1, 2,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), capture_type_lb, 0, 1, 2,
                       3, (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0),
                       0, 0);
     gtk_misc_set_alignment (GTK_MISC (capture_type_lb), 0, 0.5f);
@@ -1855,7 +1855,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     channel_offset_lb = gtk_label_new ("Channel Offset:");
     gtk_widget_set_name (channel_offset_lb, "channel_offset_lb");
     gtk_widget_show (channel_offset_lb);
-    gtk_table_attach (GTK_TABLE (basic_parameters_tb), channel_offset_lb, 0, 1, 1, 2,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_offset_lb, 0, 1, 1, 2,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (channel_offset_lb), 0, 0.5f);
@@ -1869,7 +1869,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 
     gtk_widget_show(channel_offset_cb);
 
-    gtk_table_attach (GTK_TABLE (basic_parameters_tb), channel_offset_cb, 1, 2, 1, 2,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_offset_cb, 1, 2, 1, 2,
                   (GtkAttachOptions) (GTK_FILL),
                   (GtkAttachOptions) (0), 0, 0);
     /* End: Channel offset combo box */
@@ -1877,7 +1877,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     channel_cb = gtk_combo_box_text_new();
     gtk_widget_set_name (channel_cb, "channel_cb");
     gtk_widget_show (channel_cb);
-    gtk_table_attach (GTK_TABLE (basic_parameters_tb), channel_cb, 1, 2, 0, 1,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), channel_cb, 1, 2, 0, 1,
                       (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
 
@@ -1893,7 +1893,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 
     gtk_widget_set_name (capture_type_cb, "capture_type_cb");
     gtk_widget_show (capture_type_cb);
-    gtk_table_attach (GTK_TABLE (basic_parameters_tb), capture_type_cb, 1, 2, 2,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), capture_type_cb, 1, 2, 2,
                       3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
 
@@ -1923,7 +1923,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     }
 
     gtk_widget_show (fcs_ck);
-    gtk_table_attach (GTK_TABLE (basic_parameters_tb), fcs_ck, 2, 3, 0, 1,
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid), fcs_ck, 2, 3, 0, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
 
@@ -1931,7 +1931,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_widget_set_name (basic_parameters_fcs_h_box,
                          "basic_parameters_fcs_h_box");
     gtk_widget_show (basic_parameters_fcs_h_box);
-    gtk_table_attach (GTK_TABLE (basic_parameters_tb),
+    ws_gtk_grid_attach_extended (GTK_GRID (basic_parameters_grid),
                       basic_parameters_fcs_h_box, 2, 3, 2, 3,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (GTK_FILL), 3, 0);
