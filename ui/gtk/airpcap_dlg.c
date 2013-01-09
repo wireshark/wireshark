@@ -960,11 +960,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     GtkWidget *add_key_window;
     GtkWidget *add_frame;
     GtkWidget *main_v_box;
-#if GTK_CHECK_VERSION(3,2,0)
     GtkWidget *add_grid;
-#else
-    GtkWidget *add_tb;
-#endif /* GTK_CHECK_VERSION(3,2,0) */
     GtkWidget *add_frame_al;
     GtkWidget *add_type_cb;
     GtkWidget *add_key_te;
@@ -1016,55 +1012,29 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_container_add (GTK_CONTAINER (add_frame), add_frame_al);
     gtk_alignment_set_padding (GTK_ALIGNMENT (add_frame_al), 0, 0, 12, 0);
 
-#if GTK_CHECK_VERSION(3,2,0)
-    add_grid = gtk_grid_new ();
+    add_grid = ws_gtk_grid_new ();
     gtk_widget_set_name (add_grid, "add_tb");
     gtk_container_set_border_width(GTK_CONTAINER(add_grid),5);
     gtk_widget_show (add_grid);
     gtk_container_add (GTK_CONTAINER (add_frame_al), add_grid);
-#else
-    add_tb = gtk_table_new (2, 3, FALSE);
-    gtk_widget_set_name (add_tb, "add_tb");
-    gtk_container_set_border_width(GTK_CONTAINER(add_tb),5);
-    gtk_widget_show (add_tb);
-    gtk_container_add (GTK_CONTAINER (add_frame_al), add_tb);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
 
     add_type_lb = gtk_label_new ("Type");
     gtk_widget_set_name (add_type_lb, "add_type_lb");
     gtk_widget_show (add_type_lb);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (add_grid), add_type_lb, 0, 0, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (add_tb), add_type_lb, 0, 1, 0, 1,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (add_grid), add_type_lb, 0, 0, 1, 1);
     gtk_label_set_justify (GTK_LABEL (add_type_lb), GTK_JUSTIFY_CENTER);
 
     add_key_lb = gtk_label_new ("Key");
     gtk_widget_set_name (add_key_lb, "add_key_lb");
     gtk_widget_show (add_key_lb);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (add_grid), add_key_lb, 1, 0, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (add_tb), add_key_lb, 1, 2, 0, 1,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (add_grid), add_key_lb, 1, 0, 1, 1);
     gtk_label_set_justify (GTK_LABEL (add_key_lb), GTK_JUSTIFY_CENTER);
 
     add_ssid_lb = gtk_label_new ("");
     gtk_widget_set_name (add_ssid_lb, "add_ssid_lb");
     /* XXX - Decomment only when WPA and WPA_BIN will be ready */
     gtk_widget_show (add_ssid_lb);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (add_grid), add_ssid_lb, 2, 0, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (add_tb), add_ssid_lb, 2, 3, 0, 1,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (add_grid), add_ssid_lb, 2, 0, 1, 1);
     gtk_label_set_justify (GTK_LABEL (add_ssid_lb), GTK_JUSTIFY_CENTER);
 
     add_type_cb = gtk_combo_box_text_new();
@@ -1075,25 +1045,14 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_combo_box_set_active(GTK_COMBO_BOX(add_type_cb), 0);
     gtk_widget_set_name (add_type_cb, "add_type_cb");
     gtk_widget_show (add_type_cb);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (add_grid), add_type_cb, 0, 1, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (add_tb), add_type_cb, 0, 1, 1, 2,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (add_grid), add_type_cb, 0, 1, 1, 1);
     gtk_widget_set_size_request (add_type_cb, 83, -1);
 
     add_key_te = gtk_entry_new ();
     gtk_widget_set_name (add_key_te, "add_key_te");
 
     gtk_widget_show (add_key_te);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (add_grid), add_key_te, 1, 1, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (add_tb), add_key_te, 2, 1, 1, 2,
-                      (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (add_grid), add_key_te, 1, 1, 1, 1);
     gtk_widget_set_size_request (add_key_te, 178, -1);
 
     add_ssid_te = gtk_entry_new ();
@@ -1101,12 +1060,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_widget_set_sensitive(add_ssid_te,FALSE);
     /* XXX - Decomment only when WPA and WPA_BIN will be ready */
     gtk_widget_show (add_ssid_te);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (add_grid), add_ssid_te, 2, 1, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (add_tb), add_ssid_te, 2, 3, 1, 2,
-                      (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (add_grid), add_ssid_te, 2, 1, 1, 1);
     low_h_button_box = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_set_name (low_h_button_box, "low_h_button_box");
     gtk_container_set_border_width (GTK_CONTAINER (low_h_button_box), 5);
@@ -1200,11 +1154,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     GtkWidget *edit_key_window;
     GtkWidget *edit_frame;
     GtkWidget *main_v_box;
-#if GTK_CHECK_VERSION(3,2,0)
     GtkWidget *edit_grid;
-#else
-    GtkWidget *edit_tb;
-#endif /* GTK_CHECK_VERSION(3,2,0) */
     GtkWidget *edit_frame_al;
     GtkWidget *edit_type_cb;
     GtkWidget *edit_key_te;
@@ -1271,57 +1221,30 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_container_add (GTK_CONTAINER (edit_frame), edit_frame_al);
     gtk_alignment_set_padding (GTK_ALIGNMENT (edit_frame_al), 0, 0, 12, 0);
 
-#if GTK_CHECK_VERSION(3,2,0)
-    edit_grid = gtk_grid_new();
+    edit_grid = ws_gtk_grid_new();
 
     gtk_widget_set_name (edit_grid, "edit_tb");
     gtk_container_set_border_width(GTK_CONTAINER(edit_grid),5);
     gtk_widget_show (edit_grid);
     gtk_container_add (GTK_CONTAINER (edit_frame_al), edit_grid);
-#else
-    edit_tb = gtk_table_new (2, 3, FALSE);
-
-    gtk_widget_set_name (edit_tb, "edit_tb");
-    gtk_container_set_border_width(GTK_CONTAINER(edit_tb),5);
-    gtk_widget_show (edit_tb);
-    gtk_container_add (GTK_CONTAINER (edit_frame_al), edit_tb);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
 
     edit_type_lb = gtk_label_new ("Type");
     gtk_widget_set_name (edit_type_lb, "edit_type_lb");
     gtk_widget_show (edit_type_lb);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (edit_grid), edit_type_lb, 0, 0, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (edit_tb), edit_type_lb, 0, 1, 0, 1,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (edit_grid), edit_type_lb, 0, 0, 1, 1);
     gtk_label_set_justify (GTK_LABEL (edit_type_lb), GTK_JUSTIFY_CENTER);
 
     edit_key_lb = gtk_label_new ("Key");
     gtk_widget_set_name (edit_key_lb, "edit_key_lb");
     gtk_widget_show (edit_key_lb);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (edit_grid), edit_key_lb, 1, 0, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (edit_tb), edit_key_lb, 1, 2, 0, 1,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (edit_grid), edit_key_lb, 1, 0, 1, 1);
     gtk_label_set_justify (GTK_LABEL (edit_key_lb), GTK_JUSTIFY_CENTER);
 
     edit_ssid_lb = gtk_label_new ("");
     gtk_widget_set_name (edit_ssid_lb, "edit_ssid_lb");
     /* XXX - Decomment only when WPA and WPA_BIN will be ready */
     gtk_widget_show (edit_ssid_lb);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (edit_grid), edit_ssid_lb, 2, 0, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_lb, 2, 3, 0, 1,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (edit_grid), edit_ssid_lb, 2, 0, 1, 1);
     gtk_label_set_justify (GTK_LABEL (edit_ssid_lb), GTK_JUSTIFY_CENTER);
 
     edit_type_cb = gtk_combo_box_text_new();
@@ -1338,13 +1261,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     }
     gtk_widget_set_name (edit_type_cb, "edit_type_cb");
     gtk_widget_show (edit_type_cb);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (edit_grid), edit_type_cb, 0, 1, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (edit_tb), edit_type_cb, 0, 1, 1, 2,
-                      (GtkAttachOptions) (GTK_FILL),
-                      (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (edit_grid), edit_type_cb, 0, 1, 1, 1);
     gtk_widget_set_size_request (edit_type_cb, 83, -1);
 
     edit_key_te = gtk_entry_new ();
@@ -1352,12 +1269,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     /* Set current key */
     gtk_entry_set_text(GTK_ENTRY(edit_key_te),row_key);
     gtk_widget_show (edit_key_te);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (edit_grid), edit_key_te, 1, 1, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (edit_tb), edit_key_te, 1, 2, 1, 2,
-                      (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (edit_grid), edit_key_te, 1, 1, 1, 1);
     gtk_widget_set_size_request (edit_key_te, 178, -1);
 
     edit_ssid_te = gtk_entry_new ();
@@ -1376,12 +1288,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     /* XXX - Decomment only when WPA and WPA@ will be ready */
     gtk_widget_show (edit_ssid_te);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_grid_attach (GTK_GRID (edit_grid), edit_ssid_te, 2, 1, 1, 1);
-#else
-    gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_te, 2, 3, 1, 2,
-                      (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
+    ws_gtk_grid_attach_defaults (GTK_GRID (edit_grid), edit_ssid_te, 2, 1, 1, 1);
 
     low_h_button_box = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_set_name (low_h_button_box, "low_h_button_box");
@@ -2080,7 +1987,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     GtkWidget *keys_fr;
     GtkWidget *keys_al;
     GtkWidget *keys_h_sub_box;
-    GtkWidget *decryption_mode_tb;
+    GtkWidget *decryption_mode_grid;
     GtkWidget *decryption_mode_lb;
     GtkWidget *decryption_mode_cb;
     GtkWidget *keys_v_sub_box;
@@ -2164,17 +2071,17 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_widget_show (keys_h_sub_box);
     gtk_container_add (GTK_CONTAINER (keys_al), keys_h_sub_box);
 
-    decryption_mode_tb = gtk_table_new (1, 2, FALSE);
-    gtk_widget_set_name (decryption_mode_tb, "decryption_mode_tb");
-    gtk_widget_show (decryption_mode_tb);
-    gtk_box_pack_start (GTK_BOX (keys_h_sub_box), decryption_mode_tb, FALSE,
+    decryption_mode_grid = ws_gtk_grid_new ();
+    gtk_widget_set_name (decryption_mode_grid, "decryption_mode_grid");
+    gtk_widget_show (decryption_mode_grid);
+    gtk_box_pack_start (GTK_BOX (keys_h_sub_box), decryption_mode_grid, FALSE,
                         FALSE, 0);
-    gtk_table_set_col_spacings (GTK_TABLE (decryption_mode_tb), 6);
+    ws_gtk_grid_set_row_spacing(GTK_GRID(decryption_mode_grid), 6);
 
     decryption_mode_lb = gtk_label_new ("Select Decryption Mode");
     gtk_widget_set_name (decryption_mode_lb, "decryption_mode_lb");
     gtk_widget_show (decryption_mode_lb);
-    gtk_table_attach (GTK_TABLE (decryption_mode_tb), decryption_mode_lb, 1,
+    ws_gtk_grid_attach_extended (GTK_GRID (decryption_mode_grid), decryption_mode_lb, 1,
                       2, 0, 1, (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (decryption_mode_lb), 0, 0.5f);
@@ -2183,7 +2090,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     update_decryption_mode_list(decryption_mode_cb);
     gtk_widget_set_name (decryption_mode_cb, "decryption_mode_cb");
     gtk_widget_show (decryption_mode_cb);
-    gtk_table_attach (GTK_TABLE (decryption_mode_tb), decryption_mode_cb, 0,
+    ws_gtk_grid_attach_extended (GTK_GRID (decryption_mode_grid), decryption_mode_cb, 0,
                       1, 0, 1, (GtkAttachOptions) (0), (GtkAttachOptions) (0),
                       0, 0);
     gtk_widget_set_size_request (decryption_mode_cb, 83, -1);
@@ -2671,7 +2578,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     GtkWidget *keys_check_w;
     GtkWidget *main_v_box;
     GtkWidget *warning_lb;
-    GtkWidget *radio_tb;
+    GtkWidget *radio_grid;
     GtkWidget *keep_rb;
     GSList *radio_bt_group = NULL;
     GtkWidget *merge_rb;
@@ -2702,17 +2609,17 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     gtk_label_set_justify (GTK_LABEL (warning_lb), GTK_JUSTIFY_CENTER);
     gtk_label_set_line_wrap (GTK_LABEL (warning_lb), TRUE);
 
-    radio_tb = gtk_table_new (4, 2, FALSE);
-    gtk_widget_set_name (radio_tb, "radio_tb");
-    gtk_widget_show (radio_tb);
-    gtk_box_pack_start (GTK_BOX (main_v_box), radio_tb, TRUE, FALSE, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (radio_tb), 5);
-    gtk_table_set_col_spacings (GTK_TABLE (radio_tb), 8);
+    radio_grid = ws_gtk_grid_new();
+    gtk_widget_set_name (radio_grid, "radio_grid");
+    gtk_widget_show (radio_grid);
+    gtk_box_pack_start (GTK_BOX (main_v_box), radio_grid, TRUE, FALSE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (radio_grid), 5);
+    ws_gtk_grid_set_column_spacing (GTK_GRID (radio_grid), 8);
 
     keep_rb = gtk_radio_button_new_with_mnemonic (NULL, "Keep");
     gtk_widget_set_name (keep_rb, "keep_rb");
     gtk_widget_show (keep_rb);
-    gtk_table_attach (GTK_TABLE (radio_tb), keep_rb, 0, 1, 0, 1,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), keep_rb, 0, 1, 0, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (keep_rb), radio_bt_group);
@@ -2721,7 +2628,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     merge_rb = gtk_radio_button_new_with_mnemonic (NULL, "Merge");
     gtk_widget_set_name (merge_rb, "merge_rb");
     gtk_widget_show (merge_rb);
-    gtk_table_attach (GTK_TABLE (radio_tb), merge_rb, 0, 1, 1, 2,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), merge_rb, 0, 1, 1, 2,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (merge_rb), radio_bt_group);
@@ -2730,7 +2637,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     import_rb = gtk_radio_button_new_with_mnemonic (NULL, "Import");
     gtk_widget_set_name (import_rb, "import_rb");
     gtk_widget_show (import_rb);
-    gtk_table_attach (GTK_TABLE (radio_tb), import_rb, 0, 1, 2, 3,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), import_rb, 0, 1, 2, 3,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (import_rb), radio_bt_group);
@@ -2739,7 +2646,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     ignore_rb = gtk_radio_button_new_with_mnemonic (NULL, "Ignore");
     gtk_widget_set_name (ignore_rb, "ignore_rb");
     gtk_widget_show (ignore_rb);
-    gtk_table_attach (GTK_TABLE (radio_tb), ignore_rb, 0, 1, 3, 4,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), ignore_rb, 0, 1, 3, 4,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (ignore_rb), radio_bt_group);
@@ -2750,7 +2657,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
         ("Use Wireshark keys, thus overwriting AirPcap adapter(s) ones.");
     gtk_widget_set_name (keep_lb, "keep_lb");
     gtk_widget_show (keep_lb);
-    gtk_table_attach (GTK_TABLE (radio_tb), keep_lb, 1, 2, 0, 1,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), keep_lb, 1, 2, 0, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (keep_lb), 0, 0.5f);
@@ -2758,7 +2665,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     merge_lb = gtk_label_new ("Merge Wireshark and AirPcap adapter(s) keys.");
     gtk_widget_set_name (merge_lb, "merge_lb");
     gtk_widget_show (merge_lb);
-    gtk_table_attach (GTK_TABLE (radio_tb), merge_lb, 1, 2, 1, 2,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), merge_lb, 1, 2, 1, 2,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (merge_lb), 0, 0.5f);
@@ -2768,7 +2675,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
         ("Use AirPcap adapter(s) keys, thus overwriting Wireshark ones.");
     gtk_widget_set_name (import_lb, "import_lb");
     gtk_widget_show (import_lb);
-    gtk_table_attach (GTK_TABLE (radio_tb), import_lb, 1, 2, 2, 3,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), import_lb, 1, 2, 2, 3,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (import_lb), 0, 0.5f);
@@ -2778,7 +2685,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
         ("Keep using different set of keys. Remember that in this case, this dialog box will appear whenever you will attempt to modify/add/remove decryption keys.");
     gtk_widget_set_name (ignore_lb, "ignore_lb");
     gtk_widget_show (ignore_lb);
-    gtk_table_attach (GTK_TABLE (radio_tb), ignore_lb, 1, 2, 3, 4,
+    ws_gtk_grid_attach_extended (GTK_GRID (radio_grid), ignore_lb, 1, 2, 3, 4,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_label_set_line_wrap (GTK_LABEL (ignore_lb), TRUE);
