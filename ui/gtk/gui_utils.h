@@ -559,10 +559,16 @@ void gdk_cairo_set_source_rgba(cairo_t *cr, const GdkRGBA *rgba);
  *    Gtk3: wrapper functions and macros which effect calls to gtk_grid...()
  *          and other Gtk3 functions as needed.
  *
- *   The args to the ws_gtk_grid...() functions are identical to the Gtk3 gtk_grid...() functions
- *    (other than ws_gtk_attach_extended() which has no gtk_grid...() equivalent).
+ *   The args to the ws_gtk_grid...() functions are identical to the corresponding
+ *    Gtk3 gtk_grid...() functions (other than ws_gtk_attach_defaults() and
+ *    ws_gtk_attach_extended() which have no gtk_grid...() equivalent).
  *
  *     ws_gtk_grid_new()               ;; gtk_table_new()
+ *
+ *     ws_gtk_grid_attach()            ;; gtk_table_attach( , , , , , ,0, 0, 0, 0)
+ *                                     ;;   that is: same as gtk_grid_attach()
+ *                                     ;;   Gt2/Gtk3: [h|v]expand = FALSE; (FILL ignored)
+ *
  *     ws_gtk_grid_attach_defaults()   ;; gtk_table_attach_defaults()
  *                                     ;;   Gtk3: sets GTK_EXPAND/GTK_FILL as default;
  *                                     ;;         That is, the defaults used by gtk_table_attach_defaults()
@@ -592,6 +598,9 @@ typedef GtkTable GtkGrid;
 #define ws_gtk_grid_new() \
     gtk_table_new(0, 0, FALSE)
 
+#define ws_gtk_grid_attach(grid, child, left, top, width, height) \
+    gtk_table_attach(grid, child, left, left+width, top, top+height, 0, 0, 0, 0)
+
 #define ws_gtk_grid_attach_defaults(grid, child, left, top, width, height) \
     gtk_table_attach_defaults(grid, child, left, left+width, top, top+height)
 
@@ -611,6 +620,10 @@ typedef GtkTable GtkGrid;
 #else
 #define ws_gtk_grid_new() \
     gtk_grid_new()
+
+
+#define ws_gtk_grid_attach(grid, child, left, top, width, height) \
+    gtk_grid_attach(grid, child, left, top, width, height)
 
 extern void ws_gtk_grid_attach_defaults(GtkGrid *grid, GtkWidget *child,
                                         gint left, gint top, gint width, gint height);
