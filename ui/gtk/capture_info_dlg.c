@@ -115,8 +115,8 @@ capture_info    *cinfo,
 capture_options *capture_opts)
 {
   unsigned int      i;
-  GtkWidget         *main_vb, *stop_bt, *counts_tb;
-  GtkWidget         *counts_fr, *running_tb, *running_label, *bbox, *ci_help;
+  GtkWidget         *main_vb, *stop_bt, *counts_grid;
+  GtkWidget         *counts_fr, *running_grid, *running_label, *lb, *bbox, *ci_help;
   capture_info_ui_t *info;
   gchar             *cap_w_title;
   gchar             *title_iface;
@@ -165,10 +165,11 @@ capture_options *capture_opts)
    */
   str = g_string_new("");
 #ifdef _WIN32
-  if (capture_opts->ifaces->len < 2) {
+  if (capture_opts->ifaces->len < 2)
 #else
-  if (capture_opts->ifaces->len < 4) {
+  if (capture_opts->ifaces->len < 4)
 #endif
+  {
     for (i = 0; i < capture_opts->ifaces->len; i++) {
       interface_options interface_opts;
 
@@ -207,13 +208,14 @@ capture_options *capture_opts)
   gtk_widget_show(counts_fr);
 
   /* Individual statistic elements */
-  counts_tb = gtk_table_new(PACKET_COUNTS_SIZE, 4, TRUE);
-  gtk_container_add(GTK_CONTAINER(counts_fr), counts_tb);
-  gtk_container_set_border_width(GTK_CONTAINER(counts_tb), 5);
-  gtk_widget_show(counts_tb);
+  counts_grid = ws_gtk_grid_new();
+  ws_gtk_grid_set_homogeneous(GTK_GRID(counts_grid), TRUE);
+  gtk_container_add(GTK_CONTAINER(counts_fr), counts_grid);
+  gtk_container_set_border_width(GTK_CONTAINER(counts_grid), 5);
+  gtk_widget_show(counts_grid);
 
-  gtk_table_set_row_spacings(GTK_TABLE(counts_tb), 0);
-  gtk_table_set_col_spacings(GTK_TABLE(counts_tb), 5);
+  ws_gtk_grid_set_row_spacing(GTK_GRID(counts_grid), 0);
+  ws_gtk_grid_set_column_spacing(GTK_GRID(counts_grid), 5);
 
   for (i = 0; i < PACKET_COUNTS_SIZE; i++) {
     info->counts[i].label = gtk_label_new(info->counts[i].title);
@@ -233,21 +235,21 @@ capture_options *capture_opts)
 
       /* downsize the default size of this progress bar in x direction (def:150), */
       /* otherwise it will become too large and the dialog will look ugly */
-      /* XXX: use a TreeView instead of a table in order to fix this */
+      /* XXX: use a TreeView instead of a grid in order to fix this */
       gtk_widget_set_size_request(info->counts[i].percent_pb, 70, -1);
     }
 
     info->counts[i].percent_lb = gtk_label_new("0.0%");
     gtk_misc_set_alignment(GTK_MISC(info->counts[i].percent_lb), 1.0f, 0.5f);
 
-    gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                              info->counts[i].label, 0, 1, i, i + 1);
-    gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                              info->counts[i].value_lb, 1, 2, i, i + 1);
-    gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                              info->counts[i].percent_pb, 2, 3, i, i + 1);
-    gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                              info->counts[i].percent_lb, 3, 4, i, i + 1);
+    ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].label,
+                                0, i, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+    ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].value_lb,
+                                1, i, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+    ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].percent_pb,
+                                2, i, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+    ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].percent_lb,
+                                3, i, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
 
     gtk_widget_show(info->counts[i].label);
     gtk_widget_show(info->counts[i].value_lb);
@@ -259,22 +261,33 @@ capture_options *capture_opts)
   }
 
   /* Running time */
-  running_tb = gtk_table_new(1, 4, TRUE);
-  gtk_box_pack_start(GTK_BOX(main_vb), running_tb, FALSE, FALSE, 3);
-  gtk_widget_show(running_tb);
+  running_grid = ws_gtk_grid_new();
+  ws_gtk_grid_set_homogeneous(GTK_GRID(running_grid), TRUE);
 
   running_label = gtk_label_new("Running");
   gtk_misc_set_alignment(GTK_MISC(running_label), 0.0f, 0.0f);
   gtk_widget_show(running_label);
-  gtk_table_attach_defaults(GTK_TABLE(running_tb),
-                            running_label, 0, 1, 0, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(running_grid), running_label,
+                              0, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
 
   info->running_time_lb = gtk_label_new("00:00:00");
-  gtk_misc_set_alignment(GTK_MISC(info->running_time_lb), 0.0f, 0.0f);
+  gtk_misc_set_alignment(GTK_MISC(info->running_time_lb), 0.5f, 0.0f);
   gtk_widget_show(info->running_time_lb);
-  gtk_table_attach(GTK_TABLE(running_tb),
-                   info->running_time_lb,
-                   1, 2, 0, 1, 0, 0, 5, 0);  /* effect: pads *all* the columns ?? */
+  ws_gtk_grid_attach_extended(GTK_GRID(running_grid), info->running_time_lb,
+                              1, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 5, 0);  /* effect: pads *all* the columns ?? */
+
+  /* two dummy cols to match the 4 cols above */
+  lb = gtk_label_new("");
+  gtk_widget_show(lb);
+  ws_gtk_grid_attach_extended(GTK_GRID(running_grid), lb,
+                              2, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+  lb = gtk_label_new("");
+  gtk_widget_show(lb);
+  ws_gtk_grid_attach_extended(GTK_GRID(running_grid), lb,
+                              3, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
+
+  gtk_box_pack_start(GTK_BOX(main_vb), running_grid, FALSE, FALSE, 3);
+  gtk_widget_show(running_grid);
 
   /* allow user to either click a stop button, or the close button on
      the window to stop a capture in progress. */
