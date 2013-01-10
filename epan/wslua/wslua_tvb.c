@@ -1106,6 +1106,7 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
 static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
 	/* Obtain a UTF-16 encoded string from a TvbRange */
     TvbRange tvbr = checkTvbRange(L,1);
+    gchar * str;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1113,7 +1114,8 @@ static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
         return 0;
     }
 
-    lua_pushlstring(L, (gchar*)tvb_get_ephemeral_unicode_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN)), tvbr->len );
+    str = (gchar*)tvb_get_ephemeral_unicode_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN));
+    lua_pushlstring(L, str, strlen(str));
 
     return 1; /* The string */
 }
