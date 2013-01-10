@@ -408,6 +408,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     }
 
     main_w = dlg_conf_window_new(construct_args->title);
+    gtk_window_set_modal(GTK_WINDOW(main_w), TRUE);
     gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 400);
     g_object_set_data(G_OBJECT(main_w), E_FILT_CONSTRUCT_ARGS_KEY, construct_args);
 
