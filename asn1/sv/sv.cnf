@@ -15,20 +15,67 @@
 
 #.FIELD_RENAME
 
-#.FN_BODY ASDU/smpCnt
+#.FN_BODY ASDU/smpCnt VAL_PTR = &value
 	guint32 value;
-	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, &value);
+%(DEFAULT_BODY)s
 	sv_data.smpCnt = value;
 #.END
 
-#.FN_BODY ASDU/smpSynch
+#.FN_BODY UtcTime
+	guint32 len;
+	proto_item *cause;
+	guint32 seconds;
+	guint32	fraction;
+	guint32 nanoseconds;
+	nstime_t ts;
+	gchar *	ptime;
+
+	len = tvb_length_remaining(tvb, offset);
+
+	if(len != 8)
+	{
+		cause = proto_tree_add_text(tree, tvb, offset, len,
+				"BER Error: malformed UTCTime encoding, "
+				"length must be 8 bytes");
+		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding");
+		if(hf_index >= 0)
+		{
+			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
+		}
+		return offset;
+	}
+
+	seconds = tvb_get_ntohl(tvb, offset);
+	fraction = tvb_get_ntoh24(tvb, offset+4) * 0x100; /* Only 3 bytes are recommended */
+	nanoseconds = (guint32)( ((guint64)fraction * G_GINT64_CONSTANT(1000000000U)) / G_GINT64_CONSTANT(0x100000000U) ) ;
+
+	ts.secs = seconds;
+	ts.nsecs = nanoseconds;
+
+	ptime = abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, TRUE);
+
+	if(hf_index >= 0)
+	{
+		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+	}
+	offset += 8;
+	return offset;
+#.END
+
+#.TYPE_ATTR
+UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
+
+#.FN_BODY ASDU/smpSynch VAL_PTR = &value
 	guint32 value;
-	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, &value);
+%(DEFAULT_BODY)s
 	sv_data.smpSynch = value;
 #.END
 
-#.FN_BODY Data
-	offset = dissect_PhsMeas1(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
+#.FN_BODY ASDU/smpMod  VAL_PTR = &value
+	guint32 value;
+%(DEFAULT_BODY)s
+	sv_data.smpMod = value;
 #.END
 
 #.END_OF_CNF

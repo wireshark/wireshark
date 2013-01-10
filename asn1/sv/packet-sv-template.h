@@ -38,6 +38,7 @@ typedef struct _sv_frame_data {
 	guint8 smpSynch;
 	guint8 num_phsMeas;
 	sv_phs_meas phsMeas[IEC61850_SV_MAX_PHSMEAS_ENTRIES];
+	guint16 smpMod;
 } sv_frame_data;
 
 #endif /*__PACKET_SV_H__*/
