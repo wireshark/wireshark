@@ -90,6 +90,7 @@ static int hf_sv_appid = -1;
 static int hf_sv_length = -1;
 static int hf_sv_reserve1 = -1;
 static int hf_sv_reserve2 = -1;
+#if 0
 static int hf_sv_phmeas_instmag_i = -1;
 static int hf_sv_phsmeas_q = -1;
 static int hf_sv_phsmeas_q_validity = -1;
@@ -105,7 +106,7 @@ static int hf_sv_phsmeas_q_source = -1;
 static int hf_sv_phsmeas_q_test = -1;
 static int hf_sv_phsmeas_q_operatorblocked = -1;
 static int hf_sv_phsmeas_q_derived = -1;
-
+#endif
 
 /*--- Included file: packet-sv-hf.c ---*/
 #line 1 "../../asn1/sv/packet-sv-hf.c"
@@ -124,7 +125,7 @@ static int hf_sv_seqData = -1;                    /* Data */
 static int hf_sv_smpMod = -1;                     /* T_smpMod */
 
 /*--- End of included file: packet-sv-hf.c ---*/
-#line 102 "../../asn1/sv/packet-sv-template.c"
+#line 103 "../../asn1/sv/packet-sv-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sv = -1;
@@ -140,8 +141,9 @@ static gint ett_sv_SEQUENCE_OF_ASDU = -1;
 static gint ett_sv_ASDU = -1;
 
 /*--- End of included file: packet-sv-ett.c ---*/
-#line 109 "../../asn1/sv/packet-sv-template.c"
+#line 110 "../../asn1/sv/packet-sv-template.c"
 
+#if 0
 static const value_string sv_q_validity_vals[] = {
   {   0, "good" },
   {   1, "invalid" },
@@ -219,6 +221,7 @@ dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
 	return offset;
 }
 
+#endif
 
 /*--- Included file: packet-sv-fn.c ---*/
 #line 1 "../../asn1/sv/packet-sv-fn.c"
@@ -443,7 +446,7 @@ dissect_sv_SampledValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 /*--- End of included file: packet-sv-fn.c ---*/
-#line 188 "../../asn1/sv/packet-sv-template.c"
+#line 191 "../../asn1/sv/packet-sv-template.c"
 
 /*
 * Dissect SV PDUs inside a PPDU.
@@ -513,7 +516,7 @@ void proto_register_sv(void) {
 
 		{ &hf_sv_reserve2,
 		{ "Reserved 2",	"sv.reserve2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-
+#if 0
 		{ &hf_sv_phmeas_instmag_i,
 		{ "value", "sv.meas_value", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
@@ -558,7 +561,7 @@ void proto_register_sv(void) {
 
 		{ &hf_sv_phsmeas_q_derived,
 		{ "derived", "sv.meas_quality.derived", FT_BOOLEAN, 32, NULL, Q_DERIVED, NULL, HFILL}},
-
+#endif
 
 
 /*--- Included file: packet-sv-hfarr.c ---*/
@@ -617,7 +620,7 @@ void proto_register_sv(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 305 "../../asn1/sv/packet-sv-template.c"
+#line 308 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -634,7 +637,7 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 313 "../../asn1/sv/packet-sv-template.c"
+#line 316 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* Register protocol */
