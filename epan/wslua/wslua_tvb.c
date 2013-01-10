@@ -25,7 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -769,7 +769,7 @@ WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
         case 7:
         case 8: {
             UInt64 num = g_malloc(sizeof(guint64));
-            *num = tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
+            *num = tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset);
             pushUInt64(L,num);
             WSLUA_RETURN(1);
         }
@@ -896,7 +896,7 @@ WSLUA_METHOD TvbRange_le_int64(lua_State* L) {
         case 7:
         case 8: {
             Int64 num = g_malloc(sizeof(gint64));
-            *num = (gint64)tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
+            *num = (gint64)tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset);
             pushInt64(L,num);
             WSLUA_RETURN(1);
         }
@@ -1108,6 +1108,7 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
 static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
 	/* Obtain a UTF-16 encoded string from a TvbRange */
     TvbRange tvbr = checkTvbRange(L,1);
+    gchar * str;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1115,7 +1116,8 @@ static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
         return 0;
     }
 
-    lua_pushlstring(L, (gchar*)tvb_get_ephemeral_unicode_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN)), tvbr->len );
+    str = (gchar*)tvb_get_ephemeral_unicode_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN));
+    lua_pushlstring(L, str, strlen(str));
 
     return 1; /* The string */
 }
