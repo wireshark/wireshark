@@ -467,6 +467,7 @@ file_import_open(text_import_info_t *info)
     int   import_file_fd;
     char *tmpname, *capfile_name;
     int   err;
+
     /* pcapng defs */
     wtapng_section_t            *shb_hdr;
     wtapng_iface_descriptions_t *idb_inf;
@@ -829,8 +830,8 @@ static GtkWidget *
 file_import_dlg_new(void)
 {
     GtkWidget  *main_w, *main_vb,
-               *input_frm, *input_tb, *input_vb,
-               *filename_hb, *filename_lbl, *filename_te, *browse_bt,
+               *input_frm, *input_grid, *input_vb,
+               *filename_lbl, *filename_te, *browse_bt,
                *offset_lbl, *offset_rb_vb,
                *offset_hex_rb, *offset_oct_rb, *offset_dec_rb,
                *timefmt_hb, *timefmt_cb, *timefmt_lbl, *timefmt_te,
@@ -870,28 +871,25 @@ file_import_dlg_new(void)
     input_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_add(GTK_CONTAINER(input_frm), input_vb);
 
-    input_tb = gtk_table_new(2, 3, FALSE);
-    gtk_container_set_border_width(GTK_CONTAINER(input_tb), 5);
-    gtk_box_pack_start(GTK_BOX(input_vb), input_tb, FALSE, FALSE, 0);
-    gtk_table_set_row_spacings(GTK_TABLE(input_tb), 5);
-    gtk_table_set_col_spacings(GTK_TABLE(input_tb), 5);
+    input_grid = ws_gtk_grid_new();
+    gtk_container_set_border_width(GTK_CONTAINER(input_grid), 5);
+    gtk_box_pack_start(GTK_BOX(input_vb), input_grid, FALSE, FALSE, 0);
+    ws_gtk_grid_set_row_spacing(GTK_GRID(input_grid), 5);
+    ws_gtk_grid_set_column_spacing(GTK_GRID(input_grid), 5);
 
     /* Filename */
-    filename_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-    gtk_container_set_border_width(GTK_CONTAINER(filename_hb), 3);
-
     filename_lbl = gtk_label_new("Filename:");
-    gtk_table_attach(GTK_TABLE(input_tb), filename_lbl, 0, 1, 0, 1, 0, 0, 0, 0);
+    ws_gtk_grid_attach(GTK_GRID(input_grid), filename_lbl, 0, 0, 1, 1);
 
     filename_te = gtk_entry_new();
     gtk_widget_set_tooltip_text(filename_te, "Set name of text file to import");
-    gtk_table_attach_defaults(GTK_TABLE(input_tb), filename_te, 1, 2, 0, 1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(input_grid), filename_te, 1, 0, 1, 1);
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_FILENAME_TE_KEY, filename_te);
 
     browse_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
     gtk_widget_set_tooltip_text(browse_bt, "Browse for text file to import");
-    gtk_table_attach(GTK_TABLE(input_tb), browse_bt, 2, 3, 0, 1, 0, 0, 0, 0);
+    ws_gtk_grid_attach(GTK_GRID(input_grid), browse_bt, 2, 0, 1, 1);
 
     g_signal_connect(browse_bt, "clicked", G_CALLBACK(browse_file_cb), filename_te);
 
@@ -899,10 +897,10 @@ file_import_dlg_new(void)
 
     offset_lbl = gtk_label_new("Offsets:");
     gtk_misc_set_alignment(GTK_MISC(offset_lbl), 1.0f, 0.0f);
-    gtk_table_attach(GTK_TABLE(input_tb), offset_lbl, 0, 1, 1, 2, 0, 0, 0, 0);
+    ws_gtk_grid_attach(GTK_GRID(input_grid), offset_lbl, 0, 1, 1, 1);
 
     offset_rb_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-    gtk_table_attach_defaults(GTK_TABLE(input_tb), offset_rb_vb, 1, 2, 1, 2);
+    ws_gtk_grid_attach_defaults(GTK_GRID(input_grid), offset_rb_vb, 1, 1, 1, 1);
 
     /* First entry in the group */
     offset_hex_rb = gtk_radio_button_new_with_label(NULL, "Hexadecimal");
