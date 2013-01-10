@@ -413,36 +413,46 @@ preview_new(void)
    ------------------------------------------------
    |top_level win                                 |
    |  ------------------------------------------- |
-   |  |file_chooser_dialog                      | |
+   |  |file_chooser_dialog [vbox]               | |
    |  |  -------------------------------------- | |
-   |  |  |[file_chooser]                      | | |
+   |  |  |[file_browser] T/T                  | | |
    |  |  |                                    | | |
    |  |  |                                    | | |
    |  |  |                                    | | |
    |  |  -------------------------------------- | |
    |  |                                         | |
    |  |  -------------------------------------- | |
-   |  |  |main_hb [file_chooser_extra_widget] | | |
-   |  |  |  ------------   ----------------   | | |
-   |  |  |  |main_vb   |   |grid          |   | | |
-   |  |  |  |  item    |   |  row         |   | | |
-   |  |  |  |  item    |   |  row         |   | | |
-   |  |  |  |  item    |   |  row         |   | | |
-   |  |  |  |  item    |   |  row         |   | | |
-   |  |  |  |  item    |   |  row         |   | | |
-   |  |  |  ------------   ----------------   | | |
+   |  |  |[alignment] F/F                     | | |
+   |  |  |  --------------------------------  | | |
+   |  |  |  |main_hb [extra_widget]        |  | | |
+   |  |  |  |  -------------  ----------   |  | | |
+   |  |  |  |  |main_vb F/F|  |grid F/F|   |  | | |
+   |  |  |  |  |  item     |  |  row   |   |  | | |
+   |  |  |  |  |  item     |  |  row   |   |  | | |
+   |  |  |  |  |  item     |  |  row   |   |  | | |
+   |  |  |  |  |  item     |  |  row   |   |  | | |
+   |  |  |  |  |  item     |  |  row   |   |  | | |
+   |  |  |  |  -------------  ----------   |  | | |
+   |  |  |  --------------------------------  | | |
    |  |  -------------------------------------- | |
    |  |                                         | |
    |  |  -------------------------------------- | |
-   |  |  |btn_row                             | | |
+   |  |  |btn_row F/F                         | | |
    |  |  -------------------------------------- | |
    |  ------------------------------------------- |
    ------------------------------------------------
 
+    Notes:
+      1. T/T & F/F above refer to the
+          gtk_box_pack_start() 'expand'/'fill' args
+          used to pack the widget into the enclosing GtkBox.
+      2. The 'Alignment' widget is actually internal to
+          the GtkFileChooser widget.
+
     Gtk3: Expand/Fill effect
 
       Vertical
-        (file_chooser) expands/fills.
+        (file_chooser): expand/fills.
         main_hb does not expand/fill [explicitly set via vexpand = FALSE].
         btn_row does not expand/fill.
         So: vertical resize (drog lower edge down).
@@ -454,10 +464,11 @@ preview_new(void)
               Since vexpand is "inherited upwards", main_hb vexpand set to FALSE
                to prevent vertical expansion of same.
 
-       Horizontal
-         (file_chooser) & btn_row expand/fill.
-         main_vb does not expand.
-         grid does not expand: XXX: why not ?
+      Horizontal
+        (file_chooser) & btn_row: expand/fill.
+         main_vb & grid do not expand.
+        So: horizontal resize (drag right edge to the right)
+          expands all but the "extra widget".
 */
 
 /* Open a file */
@@ -588,7 +599,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
   prev = preview_new();
   g_object_set_data(G_OBJECT(file_open_w), PREVIEW_TABLE_KEY, prev);
   gtk_widget_show_all(prev);
-  gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_hb), prev, FALSE, FALSE, 0);
 
   g_signal_connect(GTK_FILE_CHOOSER(file_open_w), "selection-changed",
                    G_CALLBACK(file_open_entry_changed), file_open_w);
@@ -783,6 +794,11 @@ gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *m
   }
 
   main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
+#if GTK_CHECK_VERSION(3,0,0)
+  gtk_widget_set_vexpand(main_hb, FALSE);  /* prevents "inheritance" from child VEXPAND */
+                                           /*  so hbox doesn't expand vertically even   */
+                                           /*  tho grid rows have VEXPAND.              */
+#endif
   file_selection_set_extra_widget(file_merge_w, main_hb);
   gtk_widget_show(main_hb);
 
@@ -844,7 +860,7 @@ gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *m
   prev = preview_new();
   g_object_set_data(G_OBJECT(file_merge_w), PREVIEW_TABLE_KEY, prev);
   gtk_widget_show_all(prev);
-  gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_hb), prev, FALSE, FALSE, 0);
 
   g_signal_connect(GTK_FILE_CHOOSER(file_merge_w), "selection-changed",
                    G_CALLBACK(file_open_entry_changed), file_merge_w);
