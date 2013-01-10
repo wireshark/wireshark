@@ -1614,17 +1614,69 @@ fDeviceObjectReference (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
  *      high-limit                       [2] REAL,
  *      deadband                         [3] REAL
  *      },
- *  buffer-ready                    [7] SEQUENCE {
- *      notification-threshold           [0] Unsigned,
- *      previous-notification-count      [1] Unsigned32
- *      }
+ *  -- context tag 7 is deprecated
  *  change-of-life-safety           [8] SEQUENCE {
  *      time-delay                       [0] Unsigned,
  *      list-of-life-safety-alarm-values [1] SEQUENCE OF BACnetLifeSafetyState,
  *      list-of-alarm-values             [2] SEQUENCE OF BACnetLifeSafetyState,
  *      mode-property-reference          [3] BACnetDeviceObjectPropertyReference
- *      }
+ *      },
+ *  extended		           [9] SEQUENCE {
+ *      vendor-id			 [0] Unsigned16,
+ *      extended-event-type		 [1] Unsigned,
+ *      parameters			 [2] SEQUENCE OF CHOICE {
+ *	    null	NULL,
+ *	    real	REAL,
+ *	    integer	Unsigned,
+ *	    boolean	BOOLEAN,
+ *	    double	Double,
+ *	    octet	OCTET STRING,
+ *	    bitstring	BIT STRING,
+ *	    enum	ENUMERATED,
+ *	    reference	[0] BACnetDeviceObjectPropertyReference
+ *	    }
+ *      },
+ *  buffer-ready                    [10] SEQUENCE {
+ *      notification-threshold           [0] Unsigned,
+ *      previous-notification-count      [1] Unsigned32
+ *      },
+ * unsigned-range		    [11] SEQUENCE {
+ *      time-delay                       [0] Unsigned,
+ *      low-limit                        [1] Unsigned,
+ *      high-limit                       [2] Unsigned,
+ *	}
+ * -- context tag 12 is reserved for future addenda
+ * access-event			    [13] SEQUENCE {
+ *	list-of-access-events		 [0] SEQUENCE OF BACnetAccessEvent,
+ *	access-event-time-reference	 [1] BACnetDeviceObjectPropertyReference
+ *	}
+ * double-out-of-range		    [14] SEQUENCE {
+ *      time-delay                       [0] Unsigned,
+ *      low-limit                        [1] Double,
+ *      high-limit                       [2] Double,
+ *      deadband                         [3] Double
  *  }
+ *  signed-out-of-range		    [15] SEQUENCE {
+ *      time-delay                       [0] Unsigned,
+ *      low-limit                        [1] INTEGER,
+ *      high-limit                       [2] INTEGER,
+ *      deadband                         [3] Unsigned
+ *  }
+ *  unsigned-out-of-range	    [16] SEQUENCE {
+ *      time-delay                       [0] Unsigned,
+ *      low-limit                        [1] Unsigned,
+ *      high-limit                       [2] Unsigned,
+ *      deadband                         [3] Unsigned
+ *   }
+ *  change-of-characterstring	    [17] SEQUENCE {
+ *      time-delay                       [0] Unsigned,
+ *      list-of-alarm-values             [1] SEQUENCE OF CharacterString,
+ *   }
+ *  change-of-status-flags	    [18] SEQUENCE {
+ *      time-delay                       [0] Unsigned,
+ *      selected-flags                   [1] BACnetStatusFlags
+ *   }
+ * }
  * @param tvb
  * @param tree
  * @param offset
@@ -2355,6 +2407,69 @@ BACnetAction [] = {
     { 0, "direct"},
     { 1, "reverse"},
     { 0, NULL}
+};
+
+static const value_string
+BACnetAccessEvent [] = {
+    {  0, "none"},
+    {  1, "granted"},
+    {  2, "muster"},
+    {  3, "passback-detected"},
+    {  4, "duress"},
+    {  5, "trace"},
+    {  6, "lockout-max-attempts"},
+    {  7, "lockout-other"},
+    {  8, "lockout-relinquished"},
+    {  9, "lockout-by-higher-priority"},
+    { 10, "out-of-service"},
+    { 11, "out-of-service-relinquished"},
+    { 12, "accompaniment-by"},
+    { 13, "authentication-factor-read"},
+    { 14, "authorization-delayed"},
+    { 15, "verification-required"},
+    /* Enumerated values 128-511 are used for events 
+     * which indicate that access has been denied. */
+    { 128, "denied-deny-all"},
+    { 129, "denied-unknown-credential"},
+    { 130, "denied-authentication-unavailable"},
+    { 131, "denied-authentication-factor-timeout"},
+    { 132, "denied-incorrect-authentication-factor"},
+    { 133, "denied-zone-no-access-rights"},
+    { 134, "denied-point-no-access-rights"},
+    { 135, "denied-no-access-rights"},
+    { 136, "denied-out-of-time-range"},
+    { 137, "denied-threat-level"},
+    { 138, "denied-passback"},
+    { 139, "denied-unexpected-location-usage"},
+    { 140, "denied-max-attempts"},
+    { 141, "denied-lower-occupancy-limit"},
+    { 142, "denied-upper-occupancy-limit"},
+    { 143, "denied-authentication-factor-lost"},
+    { 144, "denied-authentication-factor-stolen"},
+    { 145, "denied-authentication-factor-damaged"},
+    { 146, "denied-authentication-factor-destroyed"},
+    { 147, "denied-authentication-factor-disabled"},
+    { 148, "denied-authentication-factor-error"},
+    { 149, "denied-credential-unassigned"},
+    { 150, "denied-credential-not-provisioned"},
+    { 151, "denied-credential-not-yet-active"},
+    { 152, "denied-credential-expired"},
+    { 153, "denied-credential-manual-disable"},
+    { 154, "denied-credential-lockout"},
+    { 155, "denied-credential-max-days"},
+    { 156, "denied-credential-max-uses"},
+    { 157, "denied-credential-inactivity"},
+    { 158, "denied-credential-disabled"},
+    { 159, "denied-no-accompaniment"},
+    { 160, "denied-incorrect-accompaniment"},
+    { 161, "denied-lockout"},
+    { 162, "denied-verification-failed"},
+    { 163, "denied-verification-timeout"},
+    { 164, "denied-other"},
+    { 0,  NULL}
+/* Enumerated values 0-512 are reserved for definition by ASHRAE.
+   Enumerated values 512-65535 may be used by others subject to
+   procedures and constraints described in Clause 23. */
 };
 
 static const value_string
@@ -7912,6 +8027,137 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
             }
         }
         break;
+    case 13: /* access-event */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+		/* TODO: [0] SEQUENCE OF BACnetAccessEvent */
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+                    lastoffset = offset;
+                    fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info)) {
+                        break;
+                    }
+                    offset = fEnumeratedTagSplit (tvb, pinfo, subtree, offset,
+                                                  "access event: ", BACnetAccessEvent, 512);
+                }
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            case 1:
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset  = fDeviceObjectPropertyReference (tvb,pinfo,subtree,offset);
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;		
+            default:
+                break;
+            }
+        }
+        break;
+    case 14: /* double-out-of-range */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset = fTimeSpan (tvb, pinfo, subtree, offset, "Time Delay");
+                break;
+            case 1:
+                offset = fDoubleTag (tvb, pinfo, subtree, offset, "low limit: ");
+                break;
+            case 2:
+                offset = fDoubleTag (tvb, pinfo, subtree, offset, "high limit: ");
+                break;
+            case 3:
+                offset = fDoubleTag (tvb, pinfo, subtree, offset, "deadband: ");
+                break;
+            default:
+                break;
+            }
+        }
+        break;	
+    case 15: /* signed-out-of-range */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset = fTimeSpan (tvb, pinfo, subtree, offset, "Time Delay");
+                break;
+            case 1:
+                offset = fSignedTag (tvb, pinfo, subtree, offset, "low limit: ");
+                break;
+            case 2:
+                offset = fSignedTag (tvb, pinfo, subtree, offset, "high limit: ");
+                break;
+            case 3:
+                offset = fUnsignedTag (tvb, pinfo, subtree, offset, "deadband: ");
+                break;
+            default:
+                break;
+            }
+        }
+        break;	
+    case 16: /* unsigned-out-of-range */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset = fTimeSpan (tvb, pinfo, subtree, offset, "Time Delay");
+                break;
+            case 1:
+                offset = fUnsignedTag (tvb, pinfo, subtree, offset, "low limit: ");
+                break;
+            case 2:
+                offset = fUnsignedTag (tvb, pinfo, subtree, offset, "high limit: ");
+                break;
+            case 3:
+                offset = fUnsignedTag (tvb, pinfo, subtree, offset, "deadband: ");
+                break;
+            default:
+                break;
+            }
+        }
+        break;	
+    case 17: /* change-of-characterstring */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset = fTimeSpan (tvb, pinfo, subtree, offset, "Time Delay");
+                break;
+            case 1: /* SEQUENCE OF CharacterString */
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+                    lastoffset = offset;
+                    fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                    if (tag_is_closing(tag_info)) {
+                        break;
+                    }
+		    offset  = fCharacterString(tvb, pinfo, tree, offset, "alarm value: ");
+                }
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            default:
+                break;
+            }
+        }
+        break;	
+    case 18: /* change-of-status-flags */
+        while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset = fTimeSpan (tvb, pinfo, subtree, offset, "Time Delay");
+                break;
+            case 1:
+                offset = fBitStringTagVS (tvb, pinfo, subtree, offset,
+                    "selected flags: ", BACnetStatusFlags);
+                break;		
+            default:
+                break;
+            }
+        }
+        break;	
         /* todo: add new event-parameter cases here */
     default:
         break;
