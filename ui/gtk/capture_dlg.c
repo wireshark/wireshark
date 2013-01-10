@@ -2609,7 +2609,6 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   }
   marked_row = atoi(gtk_tree_path_to_string(path));
   opt_edit_w = dlg_window_new("Edit Interface Settings");
-  gtk_window_set_modal(GTK_WINDOW(opt_edit_w), TRUE);
   g_object_set_data(G_OBJECT(opt_edit_w), E_OPT_EDIT_CALLER_PTR_KEY, caller);
   g_object_set_data(G_OBJECT(caller), E_OPT_EDIT_DIALOG_PTR_KEY, opt_edit_w);
 
