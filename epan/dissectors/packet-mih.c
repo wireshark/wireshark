@@ -1986,7 +1986,9 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint8 type = 0;
         proto_tree *mid_tree = NULL;
         proto_tree *tlv_tree = NULL;
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIH");
+        guint8 fragment = 0;
+
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIH");
         col_clear(pinfo->cinfo,COL_INFO);
         if (tree) 
         {       
@@ -2005,7 +2007,8 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(ver_flags_tree, hf_mih_ack_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ver_flags_tree, hf_mih_uir, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ver_flags_tree, hf_mih_more_frag, tvb, offset, 1, ENC_BIG_ENDIAN);
-                               
+                fragment = tvb_get_guint8(tvb, offset);
+                fragment = fragment << 7;
         }
         offset += 1;
         
@@ -2013,6 +2016,7 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
                 /*flags and version tree is done.....*/
                 proto_tree_add_item(mih_tree, hf_mih_frag_no, tvb, offset, 1, ENC_BIG_ENDIAN);
+                fragment = fragment + (tvb_get_guint8(tvb, offset)>>1);
                                 
                 /*for MIH message ID*/
                 item = proto_tree_add_item(mih_tree, hf_mih_mid, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
@@ -2082,7 +2086,7 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /*now the type length values list is present get them and decode it...
         loop for showing all the tlvs....*/
-        while(payload_length > 0)
+        while(payload_length > 0 && fragment==0)
         {
                 /* Adding a third case here since the 802.21 standard defines 3 cases */
                 /*extract length*/
@@ -2141,37 +2145,48 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         len_of_len = 1;
 
 
-                /*for type...*/
-                item = proto_tree_add_text(mih_tree, tvb, offset, 1 + len_of_len + (guint32)len, "MIH TLV : %s", val_to_str(tvb_get_guint8(tvb, offset), typevaluenames, "UNKNOWN"));
-                tlv_tree = proto_item_add_subtree(item, ett_tlv);
-                if(tlv_tree)
+                /*TODO: TLVs greater than the payload_length are fragmented, and currently not parsed*/
+                if(len <= (guint64)payload_length)
                 {
-                        proto_tree_add_item(tlv_tree, hf_mih_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        type = tvb_get_guint8(tvb, offset);
-
-                        /*for length...*/
-                        if(len_of_len == 1)
+                        /*for type...*/
+                        item = proto_tree_add_text(mih_tree, tvb, offset, 1 + len_of_len + (guint32)len, "MIH TLV : %s", val_to_str(tvb_get_guint8(tvb, offset), typevaluenames, "UNKNOWN"));
+                        tlv_tree = proto_item_add_subtree(item, ett_tlv);
+                        if(tlv_tree)
                         {
-                                proto_tree_add_item(tlv_tree, hf_mih_type_length, tvb, offset+1, len_of_len, ENC_BIG_ENDIAN);
-                        }
-                        else if(len_of_len>1 && len_of_len<=5)
-                        {
-                                proto_tree_add_item(tlv_tree, hf_mih_type_length_ext, tvb, offset+2, len_of_len-1, ENC_BIG_ENDIAN);
-                        }
+                                proto_tree_add_item(tlv_tree, hf_mih_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                type = tvb_get_guint8(tvb, offset);
 
+                                /*for length...*/
+                                if(len_of_len == 1)
+                                {
+                                        proto_tree_add_item(tlv_tree, hf_mih_type_length, tvb, offset+1, len_of_len, ENC_BIG_ENDIAN);
+                                }
+                                else if(len_of_len>1 && len_of_len<=5)
+                                {
+                                        proto_tree_add_item(tlv_tree, hf_mih_type_length_ext, tvb, offset+2, len_of_len-1, ENC_BIG_ENDIAN);
+                                }
+
+                        }
+                        offset += 1 + len_of_len;
+
+                        /*For Value fields*/
+                        /*TODO: this assumes the maximum value length is 2^32. Dissecting bigger data fields would require breaking the data into chunks*/
+                        if(len<(2^32)){
+                                dissect_mih_tlv(tvb, offset, tlv_tree, type, (guint32)len);
+                                offset += (guint32)len;
+                                payload_length -= (1 + len_of_len + (guint16)len);
+                                        }else{
+                                                return;
+                                        }
                 }
-                offset += 1 + len_of_len;
-
-                /*For Value fields*/
-                /*TODO: this assumes the maximum value length is 2^32. Dissecting bigger data fields would require breaking the data into chunks*/
-                if(len<(2^32)){
-                        dissect_mih_tlv(tvb, offset, tlv_tree, type, (guint32)len);
-                        offset += (guint32)len;
-                        payload_length -= (1 + len_of_len + (guint16)len);
-				}else{
-					return;
-				}
+                else
+                {
+                        proto_tree_add_text(mih_tree, tvb, offset, -1, "FRAGMENTED TLV");
+                        payload_length = 0;
+                }
         }
+        if(fragment!=0)
+                proto_tree_add_text(mih_tree, tvb, offset, -1, "FRAGMENTED TLV");
 }
 
 /*dissector initialistaion*/
