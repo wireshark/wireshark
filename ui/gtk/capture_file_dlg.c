@@ -108,64 +108,64 @@ static gboolean        color_selected;
 static wtap *
 preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 {
-    GtkWidget *label;
-    wtap      *wth;
-    int        err = 0;
-    gchar     *err_info;
-    gchar      string_buff[PREVIEW_STR_MAX];
-    gint64     filesize;
+  GtkWidget *label;
+  wtap      *wth;
+  int        err = 0;
+  gchar     *err_info;
+  gchar      string_buff[PREVIEW_STR_MAX];
+  gint64     filesize;
 
 
-    /* init preview labels */
+  /* init preview labels */
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
+  gtk_label_set_text(GTK_LABEL(label), "-");
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
+  gtk_label_set_text(GTK_LABEL(label), "-");
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
+  gtk_label_set_text(GTK_LABEL(label), "-");
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
+  gtk_label_set_text(GTK_LABEL(label), "-");
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
+  gtk_label_set_text(GTK_LABEL(label), "-");
+
+  if (!cf_name) {
+    return NULL;
+  }
+
+  if (test_for_directory(cf_name) == EISDIR) {
     label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
-    gtk_label_set_text(GTK_LABEL(label), "-");
-    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
-    gtk_label_set_text(GTK_LABEL(label), "-");
-    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
-    gtk_label_set_text(GTK_LABEL(label), "-");
-    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
-    gtk_label_set_text(GTK_LABEL(label), "-");
-    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
-    gtk_label_set_text(GTK_LABEL(label), "-");
+    gtk_label_set_text(GTK_LABEL(label), "directory");
+    return NULL;
+  }
 
-    if (!cf_name) {
-        return NULL;
-    }
-
-    if (test_for_directory(cf_name) == EISDIR) {
-        label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
-        gtk_label_set_text(GTK_LABEL(label), "directory");
-        return NULL;
-    }
-
-    wth = wtap_open_offline(cf_name, &err, &err_info, TRUE);
-    if (wth == NULL) {
-        label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
-        if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
-            gtk_label_set_text(GTK_LABEL(label), "unknown file format");
-        } else {
-            gtk_label_set_text(GTK_LABEL(label), "error opening file");
-        }
-        return NULL;
-    }
-
-    /* Find the size of the file. */
-    filesize = wtap_file_size(wth, &err);
-    if (filesize == -1) {
-        gtk_label_set_text(GTK_LABEL(label), "error getting file size");
-        wtap_close(wth);
-        return NULL;
-    }
-    g_snprintf(string_buff, PREVIEW_STR_MAX, "%" G_GINT64_MODIFIER "d bytes", filesize);
-    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
-    gtk_label_set_text(GTK_LABEL(label), string_buff);
-
-    /* type */
-    g_strlcpy(string_buff, wtap_file_type_string(wtap_file_type(wth)), PREVIEW_STR_MAX);
+  wth = wtap_open_offline(cf_name, &err, &err_info, TRUE);
+  if (wth == NULL) {
     label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
-    gtk_label_set_text(GTK_LABEL(label), string_buff);
+    if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
+      gtk_label_set_text(GTK_LABEL(label), "unknown file format");
+    } else {
+      gtk_label_set_text(GTK_LABEL(label), "error opening file");
+    }
+    return NULL;
+  }
 
-    return wth;
+  /* Find the size of the file. */
+  filesize = wtap_file_size(wth, &err);
+  if (filesize == -1) {
+    gtk_label_set_text(GTK_LABEL(label), "error getting file size");
+    wtap_close(wth);
+    return NULL;
+  }
+  g_snprintf(string_buff, PREVIEW_STR_MAX, "%" G_GINT64_MODIFIER "d bytes", filesize);
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
+  gtk_label_set_text(GTK_LABEL(label), string_buff);
+
+  /* type */
+  g_strlcpy(string_buff, wtap_file_type_string(wtap_file_type(wth)), PREVIEW_STR_MAX);
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
+  gtk_label_set_text(GTK_LABEL(label), string_buff);
+
+  return wth;
 }
 
 
@@ -173,101 +173,101 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 static void
 preview_do(GtkWidget *prev, wtap *wth)
 {
-    GtkWidget    *label;
-    unsigned int  elapsed_time;
-    time_t        time_preview;
-    time_t        time_current;
-    int           err        = 0;
-    gchar        *err_info;
-    gint64        data_offset;
-    double        start_time   = 0; /* seconds, with nsec resolution */
-    double        stop_time    = 0; /* seconds, with nsec resolution */
-    double        cur_time;
-    unsigned int  packets    = 0;
-    gboolean      is_breaked = FALSE;
-    gchar         string_buff[PREVIEW_STR_MAX];
-    time_t        ti_time;
-    struct tm    *ti_tm;
-    const struct wtap_pkthdr *phdr;
+  GtkWidget    *label;
+  unsigned int  elapsed_time;
+  time_t        time_preview;
+  time_t        time_current;
+  int           err        = 0;
+  gchar        *err_info;
+  gint64        data_offset;
+  double        start_time   = 0; /* seconds, with nsec resolution */
+  double        stop_time    = 0; /* seconds, with nsec resolution */
+  double        cur_time;
+  unsigned int  packets    = 0;
+  gboolean      is_breaked = FALSE;
+  gchar         string_buff[PREVIEW_STR_MAX];
+  time_t        ti_time;
+  struct tm    *ti_tm;
+  const struct wtap_pkthdr *phdr;
 
 
-    time(&time_preview);
-    while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
-        phdr = wtap_phdr(wth);
-        cur_time = wtap_nstime_to_sec(&phdr->ts);
-        if (packets == 0) {
-            start_time = cur_time;
-            stop_time = cur_time;
-        }
-        if (cur_time < start_time) {
-            start_time = cur_time;
-        }
-        if (cur_time > stop_time){
-            stop_time = cur_time;
-        }
-
-        packets++;
-        if (packets%1000 == 0) {
-            /* do we have a timeout? */
-            time(&time_current);
-            if (time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
-                is_breaked = TRUE;
-                break;
-            }
-        }
+  time(&time_preview);
+  while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
+    phdr = wtap_phdr(wth);
+    cur_time = wtap_nstime_to_sec(&phdr->ts);
+    if (packets == 0) {
+      start_time = cur_time;
+      stop_time = cur_time;
+    }
+    if (cur_time < start_time) {
+      start_time = cur_time;
+    }
+    if (cur_time > stop_time) {
+      stop_time = cur_time;
     }
 
-    if (err != 0) {
-        g_snprintf(string_buff, PREVIEW_STR_MAX, "error after reading %u packets", packets);
-        label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
-        gtk_label_set_text(GTK_LABEL(label), string_buff);
-        wtap_close(wth);
-        return;
+    packets++;
+    if (packets%1000 == 0) {
+      /* do we have a timeout? */
+      time(&time_current);
+      if (time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
+        is_breaked = TRUE;
+        break;
+      }
     }
+  }
 
-    /* packet count */
-    if (is_breaked) {
-        g_snprintf(string_buff, PREVIEW_STR_MAX, "more than %u packets (preview timeout)", packets);
-    } else {
-        g_snprintf(string_buff, PREVIEW_STR_MAX, "%u", packets);
-    }
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
+  if (err != 0) {
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "error after reading %u packets", packets);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
-
-    /* first packet */
-    ti_time = (long)start_time;
-    ti_tm = localtime( &ti_time );
-    if (ti_tm) {
-        g_snprintf(string_buff, PREVIEW_STR_MAX,
-                 "%04d-%02d-%02d %02d:%02d:%02d",
-                 ti_tm->tm_year + 1900,
-                 ti_tm->tm_mon + 1,
-                 ti_tm->tm_mday,
-                 ti_tm->tm_hour,
-                 ti_tm->tm_min,
-                 ti_tm->tm_sec);
-    } else {
-        g_snprintf(string_buff, PREVIEW_STR_MAX, "?");
-    }
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
-    gtk_label_set_text(GTK_LABEL(label), string_buff);
-
-    /* elapsed time */
-    elapsed_time = (unsigned int)(stop_time-start_time);
-    if (elapsed_time/86400) {
-      g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u days %02u:%02u:%02u",
-        elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
-    } else {
-      g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u:%02u:%02u",
-        elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
-    }
-    if (is_breaked) {
-      g_snprintf(string_buff, PREVIEW_STR_MAX, "unknown");
-    }
-    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
-    gtk_label_set_text(GTK_LABEL(label), string_buff);
-
     wtap_close(wth);
+    return;
+  }
+
+  /* packet count */
+  if (is_breaked) {
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "more than %u packets (preview timeout)", packets);
+  } else {
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "%u", packets);
+  }
+  label = g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
+  gtk_label_set_text(GTK_LABEL(label), string_buff);
+
+  /* first packet */
+  ti_time = (long)start_time;
+  ti_tm = localtime( &ti_time );
+  if (ti_tm) {
+    g_snprintf(string_buff, PREVIEW_STR_MAX,
+               "%04d-%02d-%02d %02d:%02d:%02d",
+               ti_tm->tm_year + 1900,
+               ti_tm->tm_mon + 1,
+               ti_tm->tm_mday,
+               ti_tm->tm_hour,
+               ti_tm->tm_min,
+               ti_tm->tm_sec);
+  } else {
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "?");
+  }
+  label = g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
+  gtk_label_set_text(GTK_LABEL(label), string_buff);
+
+  /* elapsed time */
+  elapsed_time = (unsigned int)(stop_time-start_time);
+  if (elapsed_time/86400) {
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u days %02u:%02u:%02u",
+               elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+  } else {
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u:%02u:%02u",
+               elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+  }
+  if (is_breaked) {
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "unknown");
+  }
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
+  gtk_label_set_text(GTK_LABEL(label), string_buff);
+
+  wtap_close(wth);
 }
 
 #if 0
@@ -276,18 +276,18 @@ preview_do(GtkWidget *prev, wtap *wth)
 static void
 update_preview_cb (GtkFileChooser *file_chooser, gpointer data)
 {
-    GtkWidget *prev = GTK_WIDGET(data);
-    char      *cf_name;
-    gboolean   have_preview;
+  GtkWidget *prev = GTK_WIDGET(data);
+  char      *cf_name;
+  gboolean   have_preview;
 
-    cf_name = gtk_file_chooser_get_preview_filename(file_chooser);
+  cf_name = gtk_file_chooser_get_preview_filename(file_chooser);
 
-    have_preview = preview_set_filename(prev, cf_name);
+  have_preview = preview_set_filename(prev, cf_name);
 
-    g_free(cf_name);
+  g_free(cf_name);
 
-    have_preview = TRUE;
-    gtk_file_chooser_set_preview_widget_active(file_chooser, have_preview);
+  have_preview = TRUE;
+  gtk_file_chooser_set_preview_widget_active(file_chooser, have_preview);
 }
 #endif
 
@@ -296,53 +296,53 @@ update_preview_cb (GtkFileChooser *file_chooser, gpointer data)
 static void
 file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 {
-    GtkWidget *prev = (GtkWidget *)g_object_get_data(G_OBJECT(file_sel), PREVIEW_TABLE_KEY);
-    gchar     *cf_name;
-    gboolean   have_preview;
-    wtap      *wth;
+  GtkWidget *prev = (GtkWidget *)g_object_get_data(G_OBJECT(file_sel), PREVIEW_TABLE_KEY);
+  gchar     *cf_name;
+  gboolean   have_preview;
+  wtap      *wth;
 
-    /* get the filename */
-    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_sel));
+  /* get the filename */
+  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_sel));
 
-    /* set the filename to the preview */
-    wth = preview_set_filename(prev, cf_name);
-    have_preview = (wth != NULL);
+  /* set the filename to the preview */
+  wth = preview_set_filename(prev, cf_name);
+  have_preview = (wth != NULL);
 
-    g_free(cf_name);
+  g_free(cf_name);
 
-    /* make the preview widget sensitive */
-    gtk_widget_set_sensitive(prev, have_preview);
+  /* make the preview widget sensitive */
+  gtk_widget_set_sensitive(prev, have_preview);
 
-    /*
-     * XXX - if the Open button isn't sensitive, you can't type into
-     * the location bar and select the file or directory you've typed.
-     * See
-     *
-     *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1791
-     *
-     * It's not as if allowing users to click Open when they've
-     * selected a file that's not a valid capture file will cause
-     * anything worse than an error dialog, so we'll leave the Open
-     * button sensitive for now.  Perhaps making it sensitive if
-     * cf_name is NULL would also work, although I don't know whether
-     * there are any cases where it would be non-null when you've
-     * typed in the location bar.
-     *
-     * XXX - Bug 1791 also notes that, with the line removed, Bill
-     * Meier "somehow managed to get the file chooser window somewhat
-     * wedged in that neither the cancel or open buttons were responsive".
-     * That seems a bit odd, given that, without this line, we're not
-     * monkeying with the Open button's sensitivity, but...
-     */
+  /*
+   * XXX - if the Open button isn't sensitive, you can't type into
+   * the location bar and select the file or directory you've typed.
+   * See
+   *
+   *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1791
+   *
+   * It's not as if allowing users to click Open when they've
+   * selected a file that's not a valid capture file will cause
+   * anything worse than an error dialog, so we'll leave the Open
+   * button sensitive for now.  Perhaps making it sensitive if
+   * cf_name is NULL would also work, although I don't know whether
+   * there are any cases where it would be non-null when you've
+   * typed in the location bar.
+   *
+   * XXX - Bug 1791 also notes that, with the line removed, Bill
+   * Meier "somehow managed to get the file chooser window somewhat
+   * wedged in that neither the cancel or open buttons were responsive".
+   * That seems a bit odd, given that, without this line, we're not
+   * monkeying with the Open button's sensitivity, but...
+   */
 #if 0
-    /* make the open/save/... dialog button sensitive */
+  /* make the open/save/... dialog button sensitive */
 
-    gtk_dialog_set_response_sensitive(file_sel, GTK_RESPONSE_ACCEPT, have_preview);
+  gtk_dialog_set_response_sensitive(file_sel, GTK_RESPONSE_ACCEPT, have_preview);
 #endif
 
-    /* do the actual preview */
-    if (have_preview)
-        preview_do(prev, wth);
+  /* do the actual preview */
+  if (have_preview)
+    preview_do(prev, wth);
 }
 
 
@@ -350,34 +350,34 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 static GtkWidget *
 add_string_to_grid_sensitive(GtkWidget *grid, guint *row, const gchar *title, const gchar *value, gboolean sensitive)
 {
-    GtkWidget *label;
-    gchar     *indent;
+  GtkWidget *label;
+  gchar     *indent;
 
-    if (strlen(value) != 0) {
-        indent = g_strdup_printf("   %s", title);
-    } else {
-      indent = g_strdup(title);
-    }
-    label = gtk_label_new(indent);
-    g_free(indent);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    gtk_widget_set_sensitive(label, sensitive);
-    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, *row, 1, 1);
+  if (strlen(value) != 0) {
+    indent = g_strdup_printf("   %s", title);
+  } else {
+    indent = g_strdup(title);
+  }
+  label = gtk_label_new(indent);
+  g_free(indent);
+  gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
+  gtk_widget_set_sensitive(label, sensitive);
+  ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, *row, 1, 1);
 
-    label = gtk_label_new(value);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
-    gtk_widget_set_sensitive(label, sensitive);
-    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 1, *row, 1, 1);
+  label = gtk_label_new(value);
+  gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
+  gtk_widget_set_sensitive(label, sensitive);
+  ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 1, *row, 1, 1);
 
-    *row = *row + 1;
+  *row = *row + 1;
 
-    return label;
+  return label;
 }
 
 static GtkWidget *
 add_string_to_grid(GtkWidget *grid, guint *row, const gchar *title, const gchar *value)
 {
-    return add_string_to_grid_sensitive(grid, row, title, value, TRUE);
+  return add_string_to_grid_sensitive(grid, row, title, value, TRUE);
 }
 
 
@@ -385,26 +385,26 @@ add_string_to_grid(GtkWidget *grid, guint *row, const gchar *title, const gchar 
 static GtkWidget *
 preview_new(void)
 {
-    GtkWidget *grid, *label;
-    guint      row;
+  GtkWidget *grid, *label;
+  guint      row;
 
-    grid = ws_gtk_grid_new();
-    ws_gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
-    ws_gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
-    row = 0;
+  grid = ws_gtk_grid_new();
+  ws_gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
+  ws_gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
+  row = 0;
 
-    label = add_string_to_grid(grid, &row, "Format:", "-");
-    g_object_set_data(G_OBJECT(grid), PREVIEW_FORMAT_KEY, label);
-    label = add_string_to_grid(grid, &row, "Size:", "-");
-    g_object_set_data(G_OBJECT(grid), PREVIEW_SIZE_KEY, label);
-    label = add_string_to_grid(grid, &row, "Packets:", "-");
-    g_object_set_data(G_OBJECT(grid), PREVIEW_PACKETS_KEY, label);
-    label = add_string_to_grid(grid, &row, "First Packet:", "-");
-    g_object_set_data(G_OBJECT(grid), PREVIEW_FIRST_KEY, label);
-    label = add_string_to_grid(grid, &row, "Elapsed time:", "-");
-    g_object_set_data(G_OBJECT(grid), PREVIEW_ELAPSED_KEY, label);
+  label = add_string_to_grid(grid, &row, "Format:", "-");
+  g_object_set_data(G_OBJECT(grid), PREVIEW_FORMAT_KEY, label);
+  label = add_string_to_grid(grid, &row, "Size:", "-");
+  g_object_set_data(G_OBJECT(grid), PREVIEW_SIZE_KEY, label);
+  label = add_string_to_grid(grid, &row, "Packets:", "-");
+  g_object_set_data(G_OBJECT(grid), PREVIEW_PACKETS_KEY, label);
+  label = add_string_to_grid(grid, &row, "First Packet:", "-");
+  g_object_set_data(G_OBJECT(grid), PREVIEW_FIRST_KEY, label);
+  label = add_string_to_grid(grid, &row, "Elapsed time:", "-");
+  g_object_set_data(G_OBJECT(grid), PREVIEW_ELAPSED_KEY, label);
 
-    return grid;
+  return grid;
 }
 
 #ifndef USE_WIN32_FILE_DIALOGS
@@ -506,22 +506,22 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
   } else {
     switch (prefs.gui_fileopen_style) {
 
-      case FO_STYLE_LAST_OPENED:
-        /* The user has specified that we should start out in the last directory
-           we looked in.  If we've already opened a file, use its containing
-           directory, if we could determine it, as the directory, otherwise
-           use the "last opened" directory saved in the preferences file if
-           there was one. */
-        /* This is now the default behaviour in file_selection_new() */
-        break;
+    case FO_STYLE_LAST_OPENED:
+      /* The user has specified that we should start out in the last directory
+         we looked in.  If we've already opened a file, use its containing
+         directory, if we could determine it, as the directory, otherwise
+         use the "last opened" directory saved in the preferences file if
+         there was one. */
+      /* This is now the default behaviour in file_selection_new() */
+      break;
 
-      case FO_STYLE_SPECIFIED:
-        /* The user has specified that we should always start out in a
-           specified directory; if they've specified that directory,
-           start out by showing the files in that dir. */
-        if (prefs.gui_fileopen_dir[0] != '\0')
-          file_selection_set_current_folder(file_open_w, prefs.gui_fileopen_dir);
-        break;
+    case FO_STYLE_SPECIFIED:
+      /* The user has specified that we should always start out in a
+         specified directory; if they've specified that directory,
+         start out by showing the files in that dir. */
+      if (prefs.gui_fileopen_dir[0] != '\0')
+        file_selection_set_current_folder(file_open_w, prefs.gui_fileopen_dir);
+      break;
     }
   }
 
@@ -701,21 +701,21 @@ file_open_cmd(capture_file *cf, GtkWidget *w _U_)
 
       switch (cf_read(&cfile, FALSE)) {
 
-        case CF_READ_OK:
-        case CF_READ_ERROR:
-          /* Just because we got an error, that doesn't mean we were unable
-             to read any of the file; we handle what we could get from the
-             file. */
-          break;
+      case CF_READ_OK:
+      case CF_READ_ERROR:
+        /* Just because we got an error, that doesn't mean we were unable
+           to read any of the file; we handle what we could get from the
+           file. */
+        break;
 
-        case CF_READ_ABORTED:
-          /* The user bailed out of re-reading the capture file; the
-             capture file has been closed - just free the capture file name
-             string and return (without changing the last containing
-             directory). */
-          g_string_free(file_name, TRUE);
-          g_string_free(display_filter, TRUE);
-          return;
+      case CF_READ_ABORTED:
+        /* The user bailed out of re-reading the capture file; the
+           capture file has been closed - just free the capture file name
+           string and return (without changing the last containing
+           directory). */
+        g_string_free(file_name, TRUE);
+        g_string_free(display_filter, TRUE);
+        return;
       }
       /* Save the name of the containing directory specified in the path name,
          if any; we can write over cf_name, which is a good thing, given that
