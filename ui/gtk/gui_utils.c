@@ -2064,16 +2064,20 @@ ws_gtk_grid_attach_extended(GtkGrid *grid, GtkWidget *child,
      *       Default for EXPAND is "not set".
      *         In this case "computed expand" based on any child(ren) of this widget will
      *         affect this widget.
-     *       If EXPAND is set (either TRUE or FALSE) then the value overrides any effect from children.
-     *
-     *       This wrapper currently only sets EXPAND (to TRUE) if the GTK_FILL is specified;
+     *       If EXPAND is set (either TRUE or FALSE) then the value overrides any effect
+     *         from children.
      */
+
+    /* Note: widget defaults are FALSE  */
     if (xoptions & GTK_EXPAND)
         gtk_widget_set_hexpand(child, TRUE);
     if (yoptions & GTK_EXPAND)
         gtk_widget_set_vexpand(child, TRUE);
 
-    /* Note: default is GTK_FILL */
+    /* Note: widget default is GTK_FILL */
+    /* XXX: Is an  'align' ignored if the corresponding 'fill; is FALSE ? */
+    /* XXX: don't set FILL(since is dedault) but just clear if not set ?? */
+    /*      ToDo: review effect of explicit set/clear vs explict clear only */
     gtk_widget_set_halign(child, (xoptions & GTK_FILL) ? GTK_ALIGN_FILL : GTK_ALIGN_CENTER);
     gtk_widget_set_valign(child, (yoptions & GTK_FILL) ? GTK_ALIGN_FILL : GTK_ALIGN_CENTER);
 
