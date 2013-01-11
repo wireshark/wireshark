@@ -41,6 +41,7 @@
 #include <epan/to_str.h>
 #include <epan/emem.h>
 #include <epan/reassemble.h>
+#include <epan/expert.h>
 #include <epan/aftypes.h>
 #include <epan/tap.h>
 #include <epan/tap-voip.h>
@@ -691,14 +692,15 @@ static void iax_init_hash( void )
  * transferred.
  *
  */
-static circuit_t *iax2_new_circuit_for_call(guint circuit_id, guint framenum, iax_call_data *iax_call,
-                                            gboolean reversed)
+static circuit_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item * item, 
+                                            guint circuit_id, guint framenum, 
+                                            iax_call_data *iax_call, gboolean reversed)
 {
   circuit_t *res;
 
   if ((reversed && iax_call->n_reverse_circuit_ids >= IAX_MAX_TRANSFERS) ||
       (! reversed && iax_call->n_forward_circuit_ids >= IAX_MAX_TRANSFERS)) {
-    g_warning("Too many transfers for iax_call");
+    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Too many transfers for iax_call");
     return NULL;
   }
 
@@ -746,7 +748,8 @@ static gboolean is_reverse_circuit(guint circuit_id,
 }
 
 
-static iax_call_data *iax_lookup_call_from_dest( guint src_circuit_id,
+static iax_call_data *iax_lookup_call_from_dest(packet_info *pinfo, proto_item * item,
+                                                 guint src_circuit_id,
                                                  guint dst_circuit_id,
                                                  guint framenum,
                                                  gboolean *reversed_p)
@@ -795,13 +798,13 @@ static iax_call_data *iax_lookup_call_from_dest( guint src_circuit_id,
               "new reverse circuit for this call");
 #endif
 
-      iax2_new_circuit_for_call(src_circuit_id, framenum, iax_call, TRUE);
+      iax2_new_circuit_for_call(pinfo, item, src_circuit_id, framenum, iax_call, TRUE);
 #ifdef DEBUG_HASHING
       g_debug("++ done");
 #endif
     } else if (!is_reverse_circuit(src_circuit_id, iax_call)) {
-      g_warning("IAX Packet %u from circuit ids %u->%u "
-                "conflicts with earlier call with circuit ids %u->%u",
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, 
+                "IAX Packet %u from circuit ids %u->%u conflicts with earlier call with circuit ids %u->%u",
                 framenum,
                 src_circuit_id, dst_circuit_id,
                 iax_call->forward_circuit_ids[0],
@@ -816,8 +819,8 @@ static iax_call_data *iax_lookup_call_from_dest( guint src_circuit_id,
 
     reversed = FALSE;
     if (!is_forward_circuit(src_circuit_id, iax_call)) {
-      g_warning("IAX Packet %u from circuit ids %u->%u "
-                "conflicts with earlier call with circuit ids %u->%u",
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, 
+                "IAX Packet %u from circuit ids %u->%u conflicts with earlier call with circuit ids %u->%u",
                 framenum,
                 src_circuit_id, dst_circuit_id,
                 iax_call->forward_circuit_ids[0],
@@ -870,7 +873,7 @@ static iax_call_data *iax_lookup_call( packet_info *pinfo,
     dst_circuit_id = iax_circuit_lookup(&pinfo->dst, pinfo->ptype,
                                         pinfo->destport, dcallno);
 
-    iax_call = iax_lookup_call_from_dest(src_circuit_id, dst_circuit_id,
+    iax_call = iax_lookup_call_from_dest(pinfo, NULL, src_circuit_id, dst_circuit_id,
                                          pinfo->fd->num, &reversed);
   } else {
     circuit_t *src_circuit;
@@ -956,7 +959,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   init_dir_data(&call->dirdata[0]);
   init_dir_data(&call->dirdata[1]);
 
-  iax2_new_circuit_for_call(circuit_id, pinfo->fd->num, call, FALSE);
+  iax2_new_circuit_for_call(pinfo, NULL, circuit_id, pinfo->fd->num, call, FALSE);
 
   return call;
 }
@@ -1175,8 +1178,8 @@ static proto_item *dissect_datetime_ie(tvbuff_t *tvb, guint32 offset, proto_tree
 
 
 /* dissect the information elements in an IAX frame. Returns the updated offset */
-static guint32 dissect_ies(tvbuff_t *tvb, guint32 offset,
-                           proto_tree *iax_tree,
+static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
+                           proto_tree *iax_tree, proto_item * iax_item,
                            iax2_ie_data *ie_data)
 {
   DISSECTOR_ASSERT(ie_data);
@@ -1223,7 +1226,8 @@ static guint32 dissect_ies(tvbuff_t *tvb, guint32 offset,
             break;
 
           default:
-            g_warning("Not supported in IAX dissector: peer address family of %u", apparent_addr_family);
+            expert_add_info_format(pinfo, iax_item, PI_PROTOCOL, PI_WARN, 
+                "Not supported in IAX dissector: peer address family of %u", apparent_addr_family);
             break;
         }
         break;
@@ -1460,6 +1464,7 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
 {
   guint8         csub = tvb_get_guint8(tvb, offset);
   guint8         address_data[MAX_ADDRESS];
+  proto_item*    ti;
   iax2_ie_data   ie_data;
   iax_call_data *iax_call;
 
@@ -1473,7 +1478,7 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
   iax_call                  = iax_packet -> call_data;
 
   /* add the subclass */
-  proto_tree_add_uint(tree, hf_iax2_iax_csub, tvb, offset, 1, csub);
+  ti = proto_tree_add_uint(tree, hf_iax2_iax_csub, tvb, offset, 1, csub);
   offset++;
 
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -1483,7 +1488,7 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
   if (offset >= tvb_reported_length(tvb))
     return offset;
 
-  offset = dissect_ies(tvb, offset, tree, &ie_data);
+  offset = dissect_ies(tvb, pinfo, offset, tree, ti, &ie_data);
 
   /* if this is a data call, set up a subdissector for the circuit */
   if (iax_call && ie_data.dataformat != (guint32)-1 && iax_call -> subdissector == NULL) {
@@ -1499,14 +1504,7 @@ static guint32 dissect_iax2_command(tvbuff_t *tvb, guint32 offset,
                                             ie_data.peer_port,
                                             ie_data.peer_callno);
 
-#if 0
-      g_debug("found transfer request for call %u->%u, to new id %u",
-                iax_call->forward_circuit_ids[0],
-                iax_call->reverse_circuit_ids[0],
-                tx_circuit);
-#endif
-
-      iax2_new_circuit_for_call(tx_circuit, pinfo->fd->num, iax_call, iax_packet->reversed);
+      iax2_new_circuit_for_call(pinfo, NULL, tx_circuit, pinfo->fd->num, iax_call, iax_packet->reversed);
     }
   }
 
