@@ -268,7 +268,7 @@ static const gchar *titles[7] =	 {
 
 static void on_refresh_bt_clicked(GtkWidget *bt _U_, gpointer data);
 /****************************************************************************/
-static void 
+static void
 enable_graph(dialog_graph_graph_t *dgg)
 {
 
@@ -362,7 +362,7 @@ iax2_reset(void *user_data_arg)
 }
 
 /****************************************************************************/
-static gboolean 
+static gboolean
 iax2_packet_add_graph(dialog_graph_graph_t *dgg, tap_iax2_stat_t *statinfo, packet_info *pinfo, guint32 value)
 {
 	dialog_graph_graph_item_t *it;
@@ -420,7 +420,7 @@ iax2_packet_add_graph(dialog_graph_graph_t *dgg, tap_iax2_stat_t *statinfo, pack
 /****************************************************************************/
 /* here we can redraw the output */
 /* not used yet */
-static void 
+static void
 iax2_draw(void *prs _U_)
 {
 	return;
@@ -443,7 +443,7 @@ static void iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
 
 /****************************************************************************/
 /* whenever a IAX2 packet is seen by the tap listener */
-static gboolean 
+static gboolean
 iax2_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *iax2info_arg)
 {
 	user_data_t *user_data = user_data_arg;
@@ -688,7 +688,7 @@ static int iax2_packet_add_info(GtkWidget *list, user_data_t * user_data,
 
 #define MAX_SILENCE_TICKS 1000000
 /****************************************************************************/
-static void 
+static void
 iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
 				    tap_iax2_stat_t *statinfo,
 				    packet_info *pinfo,
@@ -751,7 +751,7 @@ iax2_packet_save_payload(tap_iax2_save_info_t *saveinfo,
 
 /****************************************************************************/
 /* close the dialog window and remove the tap listener */
-static void 
+static void
 on_iax2_window_destroy(GtkWidget *win _U_, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -793,7 +793,7 @@ on_iax2_window_destroy(GtkWidget *win _U_, gpointer data)
 
 
 /****************************************************************************/
-static void 
+static void
 on_notebook_switch_page(GtkNotebook *notebook _U_,
 				    gpointer *page _U_,
 				    gint page_num,
@@ -819,7 +819,7 @@ on_list_select_row(GtkTreeSelection *selection,
 
 
 /****************************************************************************/
-static void 
+static void
 dialog_graph_set_title(user_data_t* user_data)
 {
 	char	*title;
@@ -844,7 +844,7 @@ dialog_graph_set_title(user_data_t* user_data)
 
 
 /****************************************************************************/
-static void 
+static void
 dialog_graph_reset(user_data_t* user_data)
 {
 	int i, j;
@@ -902,7 +902,7 @@ get_it_value(dialog_graph_graph_t *dgg, int idx)
 }
 
 /****************************************************************************/
-static void 
+static void
 print_time_scale_string(char *buf, int buf_len, guint32 t)
 {
 	if (t >= 10000000){
@@ -919,7 +919,7 @@ print_time_scale_string(char *buf, int buf_len, guint32 t)
 }
 
 /****************************************************************************/
-static void 
+static void
 dialog_graph_draw(user_data_t* user_data)
 {
 	int i, lwidth;
@@ -1404,7 +1404,7 @@ dialog_graph_draw(user_data_t* user_data)
 }
 
 /****************************************************************************/
-static void 
+static void
 dialog_graph_redraw(user_data_t* user_data)
 {
 	user_data->dlg.dialog_graph.needs_redraw=TRUE;
@@ -1413,7 +1413,7 @@ dialog_graph_redraw(user_data_t* user_data)
 
 /****************************************************************************/
 
-static void 
+static void
 draw_area_destroy_cb(GtkWidget *widget _U_, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -1423,7 +1423,7 @@ draw_area_destroy_cb(GtkWidget *widget _U_, gpointer data)
 
 /****************************************************************************/
 #if GTK_CHECK_VERSION(3,0,0)
-static 
+static
 gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -1438,7 +1438,7 @@ gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 	return FALSE;
 }
 #else
-static gboolean 
+static gboolean
 draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -1458,7 +1458,7 @@ draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 }
 #endif
 /****************************************************************************/
-static gboolean 
+static gboolean
 draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -1505,7 +1505,7 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
 }
 
 /****************************************************************************/
-static void 
+static void
 scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -1527,7 +1527,7 @@ scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 }
 
 /****************************************************************************/
-static void 
+static void
 create_draw_area(user_data_t* user_data, GtkWidget *box)
 {
 	user_data->dlg.dialog_graph.draw_area=gtk_drawing_area_new();
@@ -1555,7 +1555,7 @@ create_draw_area(user_data_t* user_data, GtkWidget *box)
 }
 
 /****************************************************************************/
-static void 
+static void
 disable_graph(dialog_graph_graph_t *dgg)
 {
 	if (dgg->display) {
@@ -1656,7 +1656,7 @@ create_filter_area(user_data_t* user_data, GtkWidget *box)
 }
 
 /****************************************************************************/
-static void 
+static void
 yscale_select(GtkWidget *item, gpointer data)
 {
 	int i;
@@ -1669,7 +1669,7 @@ yscale_select(GtkWidget *item, gpointer data)
 }
 
 /****************************************************************************/
-static void 
+static void
 pixels_per_tick_select(GtkWidget *item, gpointer data)
 {
 	int i;
@@ -1682,7 +1682,7 @@ pixels_per_tick_select(GtkWidget *item, gpointer data)
 }
 
 /****************************************************************************/
-static void 
+static void
 tick_interval_select(GtkWidget *item, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -1771,7 +1771,7 @@ create_tick_interval_menu_items(user_data_t *user_data)
 }
 
 /****************************************************************************/
-static void 
+static void
 create_ctrl_menu(user_data_t* user_data, GtkWidget *box, const char *name, GtkWidget *(*func)(user_data_t* user_data))
 {
 	GtkWidget *hbox;
@@ -1792,7 +1792,7 @@ create_ctrl_menu(user_data_t* user_data, GtkWidget *box, const char *name, GtkWi
 }
 
 /****************************************************************************/
-static void 
+static void
 create_ctrl_area(user_data_t* user_data, GtkWidget *box)
 {
 	GtkWidget *frame_vbox;
@@ -1832,7 +1832,7 @@ create_ctrl_area(user_data_t* user_data, GtkWidget *box)
 }
 
 /****************************************************************************/
-static void 
+static void
 dialog_graph_init_window(user_data_t* user_data)
 {
 	GtkWidget *vbox;
@@ -1875,7 +1875,7 @@ dialog_graph_init_window(user_data_t* user_data)
 
 
 /****************************************************************************/
-static void 
+static void
 on_graph_bt_clicked(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -1891,7 +1891,7 @@ on_graph_bt_clicked(GtkWidget *bt _U_, gpointer data)
 }
 
 /****************************************************************************/
-static void 
+static void
 on_goto_bt_clicked(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -1916,7 +1916,7 @@ static void draw_stat(user_data_t *user_data);
 
 /****************************************************************************/
 /* re-dissects all packets */
-static void 
+static void
 on_refresh_bt_clicked(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -1943,7 +1943,7 @@ on_refresh_bt_clicked(GtkWidget *bt _U_, gpointer data)
 }
 
 /****************************************************************************/
-static void 
+static void
 on_next_bt_clicked(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -1986,7 +1986,7 @@ try_again:
 
 /****************************************************************************/
 /* when we want to save the information */
-static gboolean 
+static gboolean
 save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
 {
 	gchar        *g_dest;
@@ -2194,12 +2194,12 @@ static void save_csv_as_destroy_cb(GtkWidget *win _U_, gpointer data)
 }
 
 /* when the user wants to save the csv information in a file */
-static void 
+static void
 save_csv_as_cb(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = data;
 	GtkWidget *vertb;
-	GtkWidget *table1;
+	GtkWidget *grid1;
 	GtkWidget *label_format;
 	GtkWidget *channels_label;
 	GtkWidget *forward_rb;
@@ -2230,43 +2230,43 @@ save_csv_as_cb(GtkWidget *bt _U_, gpointer data)
 	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), vertb);
 	gtk_widget_show (vertb);
 
-	table1 = gtk_table_new (2, 4, FALSE);
-	gtk_widget_show (table1);
-	gtk_box_pack_start (GTK_BOX (vertb), table1, FALSE, FALSE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (table1), 10);
-	gtk_table_set_row_spacings (GTK_TABLE (table1), 20);
+	grid1 = ws_gtk_grid_new ();
+	gtk_widget_show (grid1);
+	gtk_box_pack_start (GTK_BOX (vertb), grid1, FALSE, FALSE, 0);
+	gtk_container_set_border_width (GTK_CONTAINER (grid1), 10);
+	ws_gtk_grid_set_row_spacing (GTK_GRID (grid1), 20);
 
 	label_format = gtk_label_new ("Format:        Comma Separated Values");
 	gtk_widget_show (label_format);
-	gtk_table_attach (GTK_TABLE (table1), label_format, 0, 3, 0, 1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), label_format, 0, 0, 3, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5f);
 
 	channels_label = gtk_label_new ("Channels:    ");
 	gtk_widget_show (channels_label);
-	gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), channels_label, 0, 1, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
 	forward_rb = gtk_radio_button_new_with_label (NULL, "forward    ");
 	gtk_widget_show (forward_rb);
-	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), forward_rb, 1, 1, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	reversed_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "reversed    ");
 	gtk_widget_show (reversed_rb);
-	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), reversed_rb, 2, 1, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	both_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "both");
 	gtk_widget_show (both_rb);
-	gtk_table_attach (GTK_TABLE (table1), both_rb, 3, 4, 1, 2,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), both_rb, 3, 1, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(both_rb), TRUE);
 
@@ -2833,7 +2833,7 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 {
 	user_data_t *user_data = data;
 	GtkWidget *vertb;
-	GtkWidget *table1;
+	GtkWidget *grid1;
 	GtkWidget *label_format;
 	GtkWidget *channels_label;
 	GtkWidget *forward_rb;
@@ -2871,85 +2871,85 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(user_data->dlg.save_voice_as_w), vertb);
 	gtk_widget_show (vertb);
 
-	table1 = gtk_table_new (2, 4, FALSE);
-	gtk_widget_show (table1);
-	gtk_box_pack_start (GTK_BOX (vertb), table1, FALSE, FALSE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (table1), 10);
-	gtk_table_set_row_spacings (GTK_TABLE (table1), 20);
+	grid1 = ws_gtk_grid_new ();
+	gtk_widget_show (grid1);
+	gtk_box_pack_start (GTK_BOX (vertb), grid1, FALSE, FALSE, 0);
+	gtk_container_set_border_width (GTK_CONTAINER (grid1), 10);
+	ws_gtk_grid_set_row_spacing (GTK_GRID (grid1), 20);
 
 #if 0
 	label_format = gtk_label_new ("Format: .au (ulaw, 8 bit, 8000 Hz, mono) ");
 	gtk_widget_show (label_format);
-	gtk_table_attach (GTK_TABLE (table1), label_format, 0, 3, 0, 1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), label_format, 0, 0, 3, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 #endif
 
 	label_format = gtk_label_new ("Format: ");
 	gtk_widget_show (label_format);
-	gtk_table_attach (GTK_TABLE (table1), label_format, 0, 3, 0, 1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), label_format, 0, 0, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5f);
 
 	raw_rb = gtk_radio_button_new_with_label (NULL, ".raw");
 	gtk_widget_show (raw_rb);
-	gtk_table_attach (GTK_TABLE (table1), raw_rb, 1, 2, 0, 1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), raw_rb, 1, 0, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 
 	au_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), ".au");
 	gtk_widget_show (au_rb);
-	gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), au_rb, 3, 0, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 #if 0
 	/* we support .au - ulaw*/
 	wav_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), ".wav");
 	gtk_widget_show (wav_rb);
-	gtk_table_attach (GTK_TABLE (table1), wav_rb, 1, 2, 0, 1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), wav_rb, 1, 0, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	sw_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), "8 kHz, 16 bit  ");
 	gtk_widget_show (sw_rb);
-	gtk_table_attach (GTK_TABLE (table1), sw_rb, 2, 3, 0, 1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), sw_rb, 2, 0, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 	au_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), ".au");
 	gtk_widget_show (au_rb);
-	gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), au_rb, 3, 0, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 #endif
 
 	channels_label = gtk_label_new ("Channels:    ");
 	gtk_widget_show (channels_label);
-	gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), channels_label, 0, 1, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
 	forward_rb = gtk_radio_button_new_with_label (NULL, "forward    ");
 	gtk_widget_show (forward_rb);
-	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), forward_rb, 1, 1, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	reversed_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "reversed    ");
 	gtk_widget_show (reversed_rb);
-	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), reversed_rb, 2, 1, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	both_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "both");
 	gtk_widget_show (both_rb);
-	gtk_table_attach (GTK_TABLE (table1), both_rb, 3, 4, 1, 2,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), both_rb, 3, 1, 1, 1,
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(forward_rb), TRUE);
 
@@ -3010,7 +3010,7 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 
 /****************************************************************************/
 /* when we are finished with redisection, we add the label for the statistic */
-static void 
+static void
 draw_stat(user_data_t *user_data)
 {
 	gchar label_max[200];
@@ -3035,7 +3035,7 @@ draw_stat(user_data_t *user_data)
 
 /****************************************************************************/
 /* append a line to list */
-static void 
+static void
 add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number,
 			double delta, double jitter, double bandwidth, gchar *status,
 			gchar *timeStr, guint32 pkt_len, gchar *color_str, guint32 flags)
@@ -3110,7 +3110,7 @@ iax2_float_data_func (GtkTreeViewColumn *column _U_,
 
 /* Create list */
 static
-GtkWidget* 
+GtkWidget*
 create_list(user_data_t* user_data)
 {
 
@@ -3265,7 +3265,7 @@ create_list(user_data_t* user_data)
 
 /****************************************************************************/
 /* Create the dialog box with all widgets */
-static void 
+static void
 create_iax2_dialog(user_data_t* user_data)
 {
 	GtkWidget *window = NULL;
@@ -3448,7 +3448,7 @@ create_iax2_dialog(user_data_t* user_data)
 
 #if 0
 /****************************************************************************/
-static gboolean 
+static gboolean
 process_node(proto_node *ptree_node, header_field_info *hfinformation,
 							const gchar* proto_field, guint32* p_result)
 {
@@ -3494,7 +3494,7 @@ process_node(proto_node *ptree_node, header_field_info *hfinformation,
 }
 
 /****************************************************************************/
-static gboolean 
+static gboolean
 get_int_value_from_proto_tree(proto_tree *protocol_tree,
 						 const gchar* proto_name,
 						 const gchar* proto_field,
@@ -3521,7 +3521,7 @@ get_int_value_from_proto_tree(proto_tree *protocol_tree,
 #endif
 
 /****************************************************************************/
-void 
+void
 iax2_analysis(
 	address *ip_src_fwd,
 	guint16 port_src_fwd,
