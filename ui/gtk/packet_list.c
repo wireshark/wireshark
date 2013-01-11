@@ -335,7 +335,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 
 	GtkWidget *label, *field_lb, *occurrence_lb;
 	GtkWidget *title_te, *format_cmb, *field_te, *occurrence_te;
-	GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
+	GtkWidget *win, *main_grid, *main_vb, *bbox, *cancel_bt, *ok_bt;
 	char       custom_occurrence_str[8];
 	gint       cur_fmt, i;
 
@@ -348,24 +348,24 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	gtk_container_add(GTK_CONTAINER(win), main_vb);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
-	main_tb = gtk_table_new(2, 4, FALSE);
-	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
-	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 5);
+	main_grid = ws_gtk_grid_new();
+	gtk_box_pack_start(GTK_BOX(main_vb), main_grid, FALSE, FALSE, 0);
+	ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 10);
+	ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 5);
 
 	label = gtk_label_new("Title:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 0, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), label, 0, 0, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 	gtk_widget_set_tooltip_text(label, "Packet list column title.");
 
 	title_te = gtk_entry_new();
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), title_te, 1, 2, 0, 1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), title_te, 1, 0, 1, 1);
 	gtk_entry_set_text(GTK_ENTRY(title_te), unescaped_title);
 	g_free(unescaped_title);
 	gtk_widget_set_tooltip_text(title_te, "Packet list column title.");
 
 	label = gtk_label_new("Field type:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), label, 0, 1, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 	gtk_widget_set_tooltip_text(label, "Select which packet information to present in the column.");
 
@@ -374,17 +374,17 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(format_cmb), col_format_desc(i));
 	}
 	g_signal_connect(format_cmb, "changed", G_CALLBACK(col_details_format_changed_cb), NULL);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), format_cmb, 1, 2, 1, 2);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), format_cmb, 1, 1, 1, 1);
 	gtk_widget_set_tooltip_text(format_cmb, "Select which packet information to present in the column.");
 
 	field_lb = gtk_label_new("Field name:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), field_lb, 0, 1, 2, 3);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), field_lb, 0, 2, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(field_lb), 1.0f, 0.5f);
 	gtk_widget_set_tooltip_text(field_lb,
 			      "Field name used when field type is \"Custom\". "
 			      "This string has the same syntax as a display filter string.");
 	field_te = gtk_entry_new();
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), field_te, 1, 2, 2, 3);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), field_te, 1, 2, 1, 1);
 	g_object_set_data (G_OBJECT(field_te), E_FILT_FIELD_NAME_ONLY_KEY, (gpointer)"");
 	g_signal_connect(field_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
 	g_signal_connect(field_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
@@ -394,7 +394,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 			      "This string has the same syntax as a display filter string.");
 
 	occurrence_lb = gtk_label_new("Occurrence:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), occurrence_lb, 0, 1, 3, 4);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), occurrence_lb, 0, 3, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(occurrence_lb), 1.0f, 0.5f);
 	gtk_widget_set_tooltip_text (occurrence_lb,
 			      "Field occurence to use. "
@@ -402,7 +402,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 
 	occurrence_te = gtk_entry_new();
 	gtk_entry_set_max_length (GTK_ENTRY(occurrence_te), 4);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), occurrence_te, 1, 2, 3, 4);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), occurrence_te, 1, 3, 1, 1);
 	gtk_widget_set_tooltip_text (occurrence_te,
 			      "Field occurence to use. "
 			      "0=all (default), 1=first, 2=second, ..., -1=last.");
@@ -1225,7 +1225,7 @@ packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 
 	if ((selection = gtk_tree_view_get_selection(tree_view)) == NULL)
 		return;
-	
+
 	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
 		return;
 
@@ -1329,8 +1329,8 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	GdkColor fg_gdk;
 	GdkColor bg_gdk;
 
-	gtk_tree_model_get(model, iter, 
-			col_num, &cell_text, 
+	gtk_tree_model_get(model, iter,
+			col_num, &cell_text,
 			/* The last column is reserved for frame_data */
 			gtk_tree_model_get_n_columns(model)-1, &fdata,
 			-1);
@@ -1440,7 +1440,7 @@ void
 packet_list_set_font(PangoFontDescription *font)
 {
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_font(packetlist->view, font);
+	gtk_widget_override_font(packetlist->view, font);
 #else
 	gtk_widget_modify_font(packetlist->view, font);
 #endif
