@@ -22,6 +22,7 @@
  * RFC4704.txt (Client FQDN)
  * RFC5007.txt (DHCPv6 Leasequery)
  * RFC5417.txt (CAPWAP Access Controller DHCP Option)
+ * RFC5460.txt (DHCPv6 Bulk Leasequery)
  * RFC6334.txt (Dual-Stack Lite Option)
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-03.txt
  * draft-ietf-dhc-dhcpv6-opt-lifetime-00.txt
@@ -57,10 +58,15 @@
 #include <epan/strutil.h>
 #include <epan/arptypes.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
+#include "packet-tcp.h"
 #include "packet-arp.h"
 #include "packet-dns.h"                         /* for get_dns_name() */
 
+static gboolean dhcpv6_bulk_leasequery_desegment  = TRUE;
+
 static int proto_dhcpv6 = -1;
+static int proto_dhcpv6_bulk_leasequery = -1;
 static int hf_dhcpv6_msgtype = -1;
 static int hf_dhcpv6_domain = -1;
 static int hf_clientfqdn_reserved = -1;
@@ -184,6 +190,14 @@ static gint ett_dhcpv6_option = -1;
 static gint ett_dhcpv6_option_vsoption = -1;
 static gint ett_dhcpv6_vendor_option = -1;
 static gint ett_dhcpv6_pkt_option = -1;
+
+static int hf_dhcpv6_bulk_leasequery_size = -1;
+static int hf_dhcpv6_bulk_leasequery_msgtype = -1;
+static int hf_dhcpv6_bulk_leasequery_reserved = -1;
+static int hf_dhcpv6_bulk_leasequery_trans_id = -1;
+
+static gint ett_dhcpv6_bulk_leasequery = -1;
+static gint ett_dhcpv6_bulk_leasequery_options = -1;
 
 #define UDP_PORT_DHCPV6_DOWNSTREAM      546
 #define UDP_PORT_DHCPV6_UPSTREAM        547
@@ -1810,9 +1824,64 @@ dissect_dhcpv6_upstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
+static guint
+get_dhcpv6_bulk_leasequery_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+    return (tvb_get_ntohs(tvb, offset)+2);
+}
+
+static void
+dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_item *ti;
+    proto_tree *bulk_tree, *option_tree;
+    gint offset = 0, end;
+    guint16 size, trans_id;
+    guint8 msg_type;
+    gboolean at_end = FALSE;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6 BulkLease");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    ti = proto_tree_add_item(tree, proto_dhcpv6_bulk_leasequery, tvb, 0, -1, ENC_NA );
+    bulk_tree = proto_item_add_subtree(ti, ett_dhcpv6_bulk_leasequery);
+
+    size = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    msg_type = tvb_get_guint8( tvb, offset );
+    proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_msgtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    trans_id = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_trans_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, Transaction ID: %5u",
+                      val_to_str_const(msg_type, msgtype_vals, "Unknown"), trans_id);
+
+    ti = proto_tree_add_text(bulk_tree, tvb, offset, -1, "DHCPv6 Options");
+    option_tree = proto_item_add_subtree(ti, ett_dhcpv6_bulk_leasequery_options);
+    end = size+2;
+    while ((offset < end) && !at_end)
+        offset += dhcpv6_option(tvb, pinfo, option_tree, FALSE, offset, end, &at_end);
+}
+
+static void
+dissect_dhcpv6_bulk_leasequery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, dhcpv6_bulk_leasequery_desegment, 2, 
+                    get_dhcpv6_bulk_leasequery_pdu_len, dissect_dhcpv6_bulk_leasequery_pdu);
+}
+
 void
 proto_register_dhcpv6(void)
 {
+    module_t *bulkquery_module;
+
     static hf_register_info hf[] = {
 
         /* DHCPv6 header */
@@ -2062,19 +2131,46 @@ proto_register_dhcpv6(void)
         &ett_dhcpv6_pkt_option,
     };
 
+    static hf_register_info bulk_leasequery_hf[] = {
+        { &hf_dhcpv6_bulk_leasequery_size,
+          { "Message size", "dhcpv6.bulk_leasequery.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_dhcpv6_bulk_leasequery_msgtype,
+          { "Message type", "dhcpv6.bulk_leasequery.msgtype", FT_UINT8, BASE_DEC, VALS(msgtype_vals), 0x0, NULL, HFILL }},
+        { &hf_dhcpv6_bulk_leasequery_reserved,
+          { "Reserved", "dhcpv6.bulk_leasequery.reserved", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_dhcpv6_bulk_leasequery_trans_id,
+          { "Transaction ID", "dhcpv6.bulk_leasequery.trans_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    };
+
+    static gint *ett_bulk_leasequery[] = {
+        &ett_dhcpv6_bulk_leasequery,
+        &ett_dhcpv6_bulk_leasequery_options
+    };
+
     proto_dhcpv6 = proto_register_protocol("DHCPv6", "DHCPv6", "dhcpv6");
     proto_register_field_array(proto_dhcpv6, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    proto_dhcpv6_bulk_leasequery = proto_register_protocol("DHCPv6 Bulk Leasequery", "DHCPv6 Bulk Leasequery", "dhcpv6.bulk_leasequery");
+    proto_register_field_array(proto_dhcpv6_bulk_leasequery, bulk_leasequery_hf, array_length(bulk_leasequery_hf));
+    proto_register_subtree_array(ett_bulk_leasequery, array_length(ett_bulk_leasequery));
+
     /* Allow other dissectors to find this one by name.
        Just choose upstream version for now as they are identical. */
     register_dissector("dhcpv6", dissect_dhcpv6_upstream, proto_dhcpv6);
+
+    bulkquery_module = prefs_register_protocol(proto_dhcpv6_bulk_leasequery, NULL);
+    prefs_register_bool_preference(bulkquery_module, "desegment",
+                                    "Desegment all Bulk Leasequery messages spanning multiple TCP segments",
+                                    "Whether the Bulk Leasequery dissector should desegment all messages spanning multiple TCP segments",
+                                    &dhcpv6_bulk_leasequery_desegment);
+
 }
 
 void
 proto_reg_handoff_dhcpv6(void)
 {
-    dissector_handle_t dhcpv6_handle;
+    dissector_handle_t dhcpv6_handle, dhcpv6_bulkquery_handle;
 
     dhcpv6_handle = create_dissector_handle(dissect_dhcpv6_downstream,
                                             proto_dhcpv6);
@@ -2082,5 +2178,8 @@ proto_reg_handoff_dhcpv6(void)
     dhcpv6_handle = create_dissector_handle(dissect_dhcpv6_upstream,
                                             proto_dhcpv6);
     dissector_add_uint("udp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_handle);
+    dhcpv6_bulkquery_handle = create_dissector_handle(dissect_dhcpv6_bulk_leasequery,
+                                            proto_dhcpv6_bulk_leasequery);
+    dissector_add_uint("tcp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_bulkquery_handle);
 }
 
