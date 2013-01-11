@@ -2185,7 +2185,7 @@ capture_if_details_page_new(GtkWidget **grid)
     *grid = ws_gtk_grid_new();
     ws_gtk_grid_set_column_spacing(GTK_GRID(*grid), 6);
     ws_gtk_grid_set_row_spacing(GTK_GRID(*grid), 3);
-    gtk_box_pack_start(GTK_BOX (main_vb),  *grid, TRUE, TRUE, 0); // review
+    gtk_box_pack_start(GTK_BOX (main_vb),  *grid, TRUE, TRUE, 0);
     return main_vb;
 }
 
