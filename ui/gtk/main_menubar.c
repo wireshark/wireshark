@@ -5251,7 +5251,7 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
     module_t  *module = g_object_get_data (G_OBJECT(w), "module");
     gchar     *value  = NULL;
 
-    GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
+    GtkWidget *win, *main_grid, *main_vb, *bbox, *cancel_bt, *ok_bt;
     GtkWidget *entry, *label;
 
     switch (pref->type) {
@@ -5291,18 +5291,18 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
     gtk_container_add(GTK_CONTAINER(win), main_vb);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
-    main_tb = gtk_table_new(2, 2, FALSE);
-    gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-    gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
+    main_grid = ws_gtk_grid_new();
+    gtk_box_pack_start(GTK_BOX(main_vb), main_grid, FALSE, FALSE, 0);
+    ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 10);
 
     label = gtk_label_new(ep_strdup_printf("%s:", pref->title));
-    gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
+    ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), label, 0, 1, 1, 1);
     gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
     if (pref->description)
         gtk_widget_set_tooltip_text(label, pref->description);
 
     entry = gtk_entry_new();
-    gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, 1, 2);
+    ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), entry, 1, 1, 1, 1);
     gtk_entry_set_text(GTK_ENTRY(entry), value);
     if (pref->description)
         gtk_widget_set_tooltip_text(entry, pref->description);
