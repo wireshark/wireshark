@@ -330,8 +330,8 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
   tvblen = tvb_length(tvb); /* end+1 */
   if (tvblen < 5)
     return 0;
+  extra_trailer = 0;
   if (tvb_get_ntohs(tvb, tvblen-4) != ETHERTYPE_GIGAMON) {
-      extra_trailer = 0;
       if (tvb_get_ntohs(tvb, tvblen-8) == ETHERTYPE_GIGAMON) {
           extra_trailer = 4;
       } else {
