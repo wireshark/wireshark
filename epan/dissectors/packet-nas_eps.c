@@ -3187,7 +3187,7 @@ nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     curr_offset = offset;
     curr_len    = len;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len,"Up link");
+    proto_tree_add_text(tree, tvb, curr_offset, len, "Uplink");
     /* NAS key set identifier   NAS key set identifier 9.9.3.21 M   V   1/2 */
     bit_offset = curr_offset<<3;
     de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, NULL);
@@ -3220,7 +3220,7 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     curr_offset = offset;
     curr_len    = len;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len,"Down link");
+    proto_tree_add_text(tree, tvb, curr_offset, len, "Downlink");
     /* Spare half octet Spare half octet 9.9.2.7    M   V   1/2 */
     bit_offset = curr_offset<<3;
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
@@ -3265,14 +3265,21 @@ nas_emm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
             return;
         }
     }
+#if 0
     proto_tree_add_text(tree, tvb, curr_offset, len,"UL/DL not known, can't properly dissect");
     proto_tree_add_text(tree, tvb, curr_offset, len,"Trying to dissect as UE terminated detach");
     nas_emm_detach_req_DL(tvb, tree, pinfo, offset, len);
     proto_tree_add_text(tree, tvb, curr_offset, len,"Trying to dissect as UE originating detach");
     nas_emm_detach_req_UL(tvb, tree, pinfo, offset, len);
+#else
+    if (len >= 8) {
+        nas_emm_detach_req_UL(tvb, tree, pinfo, offset, len);
+    } else {
+        nas_emm_detach_req_DL(tvb, tree, pinfo, offset, len);
+    }
+#endif
 
     return;
-
 }
 
 /*
