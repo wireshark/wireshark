@@ -145,5 +145,3 @@ maxLogMeas-r10				INTEGER ::= 4060-- Maximum number of logged measurement entrie
 
 
 END
-
-

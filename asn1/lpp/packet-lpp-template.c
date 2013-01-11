@@ -1,6 +1,6 @@
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LLP) packet dissection
- * Copyright 2011, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2011-2013 Pascal Quantin <pascal.quantin@gmail.com>
  *
  * $Id$
  *
@@ -22,7 +22,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 11.0.0 Release 11
+ * Ref 3GPP TS 36.355 version 11.1.0 Release 11
  * http://www.3gpp.org
  */
 

@@ -5111,5 +5111,3 @@ maxUTRA-TDD-Carrier			INTEGER ::= 16	-- Maximum number of UTRA TDD carrier frequ
 
 
 END
-
-

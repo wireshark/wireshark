@@ -203,5 +203,3 @@ maxReestabInfo				INTEGER ::= 32	-- Maximum number of KeNB* and shortMAC-I forwa
 
 
 END
-
-
