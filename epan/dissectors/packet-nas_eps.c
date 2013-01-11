@@ -3250,10 +3250,14 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 static void
 nas_emm_detach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
+#if 0
     guint32 curr_offset;
+#endif
     /*guint curr_len;*/
 
+#if 0
     curr_offset = offset;
+#endif
     /*curr_len = len;*/
 
     if (pinfo) {
