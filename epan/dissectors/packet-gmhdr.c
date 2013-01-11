@@ -182,8 +182,6 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
         break;
       }
       case GMHDR_FTYPE_SRCPORT_H: {
-        guint32 tv = tvb_get_ntohl(tvb, offset);
-
         if (fl != 4) {
           expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
           break;
