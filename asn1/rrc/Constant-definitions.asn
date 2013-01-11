@@ -1,12 +1,6 @@
+-- 3GPP TS 25.331 V11.4.0 (2012-12)
 -- $Id$
--- Constant-definitions.asn
 --
--- 3GPP TS 25.331 V10.7.0 (2012-03)
--- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
---
--- 11.4	Constant definitions
---
-
 Constant-definitions DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
@@ -34,11 +28,14 @@ maxDPDCH-UL					INTEGER ::= 6
 maxDRACclasses				INTEGER ::= 8
 maxE-DCHMACdFlow			INTEGER ::= 8
 maxE-DCHMACdFlow-1			INTEGER ::= 7
+maxMultipleFrequencyBandsFDD	INTEGER ::= 8
+maxMultipleFrequencyBandsEUTRA	INTEGER ::= 8
 maxEUTRACellPerFreq			INTEGER ::= 16
 maxEUTRATargetFreqs			INTEGER ::= 8
 maxEDCHRL					INTEGER ::= 4
 maxEDCHRL-1					INTEGER ::= 3
 maxEDCHs					INTEGER ::= 32
+maxEDCHs-1					INTEGER ::= 31
 maxEDCHTxPattern-TDD128		INTEGER ::= 4 -- maxEDCHTxPattern-TDD128	should be 3
 maxEDCHTxPattern-TDD128-1	INTEGER ::= 3 -- maxEDCHTxPattern-TDD128-1	should be 2
 maxERNTIgroup				INTEGER ::= 32
@@ -49,8 +46,10 @@ maxFreq						INTEGER ::= 8
 maxFreqBandsEUTRA			INTEGER ::= 16
 maxFreqBandsFDD				INTEGER ::= 8
 maxFreqBandsFDD2			INTEGER ::= 22
+maxFreqBandsFDD3			INTEGER ::= 86
 maxFreqBandsFDD-ext			INTEGER ::= 15	-- maxFreqBandsFDD-ext ::= 22 - (maxFreqBandsFDD - 1)
-maxFreqBandsFDD-ext2		INTEGER ::= 64	-- maxFreqBandsFDD-ext2 ::= 86 - maxFreqBandsFDD-ext
+maxFreqBandsFDD-ext2		INTEGER ::= 64	-- maxFreqBandsFDD-ext2 ::= 86 - maxFreqBandsFDD2
+maxFreqBandsFDD-ext3		INTEGER ::= 78	-- maxFreqBandsFDD-ext3 ::= 86 - maxFreqBandsFDD
 maxFreqBandsIndicatorSupport	INTEGER ::= 2
 maxFreqBandsTDD				INTEGER ::= 4
 maxFreqBandsTDD-ext			INTEGER ::= 16
@@ -100,6 +99,7 @@ maxNumCDMA2000Freqs			INTEGER ::=  8
 maxNumE-AGCH				INTEGER ::= 4
 maxNumE-HICH				INTEGER ::= 4
 maxNumEUTRAFreqs			INTEGER ::= 8
+maxNumEUTRAFreqs-FACH		INTEGER ::= 4
 maxNumGSMCellGroup			INTEGER ::= 16
 maxNumGSMFreqRanges			INTEGER ::= 32
 maxNumFDDFreqs				INTEGER ::=  8
@@ -120,6 +120,7 @@ maxPDCPAlgoType				INTEGER ::= 8
 maxPDSCH					INTEGER ::= 8
 maxPDSCH-TFCIgroups	 		INTEGER ::= 256
 maxPRACH					INTEGER ::= 16
+maxPRACH-EUL				INTEGER ::= 16
 maxPRACH-FPACH				INTEGER ::= 8
 maxPredefConfig				INTEGER ::= 16
 maxPrio						INTEGER ::= 8

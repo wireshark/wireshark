@@ -1,12 +1,6 @@
+-- 3GPP TS 25.331 V11.4.0 (2012-12)
 -- $Id$
--- Internode-definitions.asn
 --
--- 3GPP TS 25.331 V10.7.0 (2012-03)
--- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
---
--- 11.5	RRC information between network nodes
---
-
 Internode-definitions DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
@@ -108,6 +102,7 @@ FROM PDU-definitions
 	RAB-InformationSetupList-r7,
 	RAB-InformationSetupList-r8,
 	RAB-InformationSetupList-v820ext,
+	RAB-InformationSetupList-r11,
 	RB-Identity,
 	SRB-InformationSetupList,
 	SRB-InformationSetupList-r5,
@@ -123,6 +118,8 @@ FROM PDU-definitions
 	DL-AddReconfTransChInfoList-r5,
 	DL-AddReconfTransChInfoList-r7,
 	DL-AddReconfTransChInfoList-r9,
+	DL-AddReconfTransChInfoList-TDD128-v9c0ext,
+	DL-AddReconfTransChInfoList-r11,
 	DRAC-StaticInformationList,
 	UL-CommonTransChInfo,
 	UL-CommonTransChInfo-r4,
@@ -158,6 +155,7 @@ FROM PDU-definitions
 	MeasurementType-r8,
 	MeasurementType-r9,
 	MeasurementType-r10,
+	MeasurementType-r11,
 	AdditionalMeasurementID-List,
 	AdditionalMeasurementID-List-r9,
 	PositionEstimate,
@@ -526,8 +524,11 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 									v970NonCriticalExtensions			SEQUENCE {
 										sRNC-RelocationInfo-v970ext	
 															SRNC-RelocationInfo-v970ext-IEs,
-										nonCriticalExtensions	
-															SEQUENCE {}	OPTIONAL
+										v9c0NonCriticalExtensions		SEQUENCE {
+											sRNC-RelocationInfo-v9c0ext	
+																SRNC-RelocationInfo-v9c0ext-IEs,
+											nonCriticalExtensions	SEQUENCE {}	OPTIONAL
+										}	OPTIONAL
 									}	OPTIONAL
 								}	OPTIONAL
 							},
@@ -537,7 +538,18 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 									sRNC-RelocationInfo-r10-add-ext	BIT STRING		OPTIONAL,
 									nonCriticalExtensions			SEQUENCE {}	OPTIONAL
 								},
-							criticalExtensions				SEQUENCE {}
+								criticalExtensions				CHOICE {
+									r11								SEQUENCE {
+										sRNC-RelocationInfo-r11			SRNC-RelocationInfo-r11-IEs,
+										sRNC-RelocationInfo-r11-add-ext	BIT STRING		OPTIONAL,
+									v9c0NonCriticalExtensions		SEQUENCE {
+										sRNC-RelocationInfo-v9c0ext	
+															SRNC-RelocationInfo-v9c0ext-IEs,
+										nonCriticalExtensions	SEQUENCE {}	OPTIONAL
+									}	OPTIONAL
+									},
+									criticalExtensions				SEQUENCE {}
+								}
 							}
 						}
 					}
@@ -1282,6 +1294,11 @@ SRNC-RelocationInfo-v970ext-IEs ::=		SEQUENCE {
 		ongoingMeasRepList					OngoingMeasRepList-v970ext-IE		OPTIONAL
 }
 
+SRNC-RelocationInfo-v9c0ext-IEs ::= SEQUENCE {
+	-- For 1.28Mcps TDD only
+		dl-AddReconfTransChInfoList		DL-AddReconfTransChInfoList-TDD128-v9c0ext			OPTIONAL
+}
+
 SRNC-RelocationInfo-r10-IEs ::=			SEQUENCE {
 	-- Non-RRC IEs
 		-- IE rb-IdentityForHOMessage includes the identity of the RB used by the source SRNC
@@ -1349,6 +1366,90 @@ SRNC-RelocationInfo-r10-IEs ::=			SEQUENCE {
 		ul-TransChInfoList				UL-AddReconfTransChInfoList-r8		OPTIONAL,
 		dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
 		dl-TransChInfoList				DL-AddReconfTransChInfoList-r9		OPTIONAL,
+	-- PhyCH IEs
+		tpc-CombinationInfoList			TPC-CombinationInfoList				OPTIONAL,
+		e-RGCH-CombinationInfoList		E-RGCH-CombinationInfoList			OPTIONAL,
+		storedCompressedModeInfo		StoredCompressedModeInfo-r8			OPTIONAL,
+		secondary-tpc-CombinationInfoList		TPC-CombinationInfoList-r9		OPTIONAL,
+		secondary-e-RGCH-CombinationInfoList	E-RGCH-CombinationInfoList-r9	OPTIONAL,
+	-- Measurement report
+		measurementReport				BIT STRING
+							(CONTAINING MeasurementReport)					OPTIONAL,
+	-- Other IEs
+		failureCause					FailureCauseWithProtErr				OPTIONAL,
+		ue-HistoryInformation			UE-HistoryInformation				OPTIONAL,
+	-- MBMS IEs
+		mbms-JoinedInformation			MBMS-JoinedInformation-r6			OPTIONAL,
+		mbmsSelectedServiceInfo			MBMS-SelectedServiceInfo			OPTIONAL
+}
+
+SRNC-RelocationInfo-r11-IEs ::=			SEQUENCE {
+	-- Non-RRC IEs
+		-- IE rb-IdentityForHOMessage includes the identity of the RB used by the source SRNC
+		-- to send the message contained in the IE "TargetRNC-ToSourceRNC-Container".
+		-- Only included if type is "UE involved"
+		rb-IdentityForHOMessage			RB-Identity							OPTIONAL,
+		stateOfRRC						StateOfRRC,
+		stateOfRRC-Procedure			StateOfRRC-Procedure,
+	-- Ciphering related information IEs
+		cipheringStatusList				CipheringStatusList-r4,
+		latestConfiguredCN-Domain		CN-DomainIdentity,
+		calculationTimeForCiphering		CalculationTimeForCiphering			OPTIONAL,
+		count-C-List					COUNT-C-List						OPTIONAL,
+		cipheringInfoPerRB-List			CipheringInfoPerRB-List-r4			OPTIONAL,
+	-- Integrity protection related information IEs
+		integrityProtectionStatus		IntegrityProtectionStatus,
+		srb-SpecificIntegrityProtInfo	SRB-SpecificIntegrityProtInfoList	OPTIONAL,
+		implementationSpecificParams	ImplementationSpecificParams		OPTIONAL,
+	-- User equipment IEs
+		u-RNTI							U-RNTI,
+		c-RNTI							C-RNTI								OPTIONAL,
+		-- IE 'UE-RadioAccessCapability-r6' includes the Rel-5 radio access capability extensions
+		-- and earlier. Rel-6 and later extensions are included in IE 'UE-CapabilityContainer-IEs'.
+		ue-RadioAccessCapability		UE-RadioAccessCapability-r6,
+		ue-RadioAccessCapability-ext	UE-RadioAccessCapabBandFDDList		OPTIONAL,
+		ue-Positioning-LastKnownPos		UE-Positioning-LastKnownPos			OPTIONAL,
+		uESpecificBehaviourInformation1idle
+										UESpecificBehaviourInformation1idle		OPTIONAL,
+		uESpecificBehaviourInformation1interRAT
+										UESpecificBehaviourInformation1interRAT		OPTIONAL,
+		-- IE ueCapabilityContainer is used for the transparent transfer of capability information
+		-- received from the UE
+		ueCapabilityContainer			BIT STRING
+											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
+		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
+		-- transparent transfer of capability information received from the UE that was introduced 
+		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities 
+		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION 
+		-- messages. Only the VLEC of one message needs to be included i.e. the one from these
+		-- messages that was last received.
+		-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
+		ueCapabilityContainer-RSC		BIT STRING
+							(CONTAINING RRCConnectionSetupComplete-r3-add-ext-IEs)	OPTIONAL,
+		-- Case 2: If the last received message was a UE CAPABILITY INFORMATION (UCI)
+		ueCapabilityContainer-UCI		BIT STRING
+							(CONTAINING UECapabilityInformation-r3-add-ext-IEs)		OPTIONAL,
+	-- Other IEs
+		ue-RATSpecificCapability		InterRAT-UE-RadioAccessCapabilityList-r5	OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+		srns-t-305						T-305								OPTIONAL,
+	-- Core network IEs
+		cn-CommonGSM-MAP-NAS-SysInfo	NAS-SystemInformationGSM-MAP,
+		cn-DomainInformationList		CN-DomainInformationListFull		OPTIONAL,
+	-- Measurement IEs
+		ongoingMeasRepList				OngoingMeasRepList-r11				OPTIONAL,
+		interRATCellInfoIndication		InterRATCellInfoIndication			OPTIONAL,
+	-- Radio bearer IEs
+		predefinedConfigStatusList		PredefinedConfigStatusList,
+		srb-InformationList				SRB-InformationSetupList-r8,
+		rab-InformationList				RAB-InformationSetupList-r11			OPTIONAL,
+		pdcp-ROHC-TargetMode			PDCP-ROHC-TargetMode				OPTIONAL,
+	-- Transport channel IEs
+		ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
+		ul-TransChInfoList				UL-AddReconfTransChInfoList-r8		OPTIONAL,
+		dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
+		dl-TransChInfoList				DL-AddReconfTransChInfoList-r11		OPTIONAL,
 	-- PhyCH IEs
 		tpc-CombinationInfoList			TPC-CombinationInfoList				OPTIONAL,
 		e-RGCH-CombinationInfoList		E-RGCH-CombinationInfoList			OPTIONAL,
@@ -1590,6 +1691,12 @@ MeasurementCommandWithType-r10 ::=	CHOICE {
 	release								NULL
 }
 
+MeasurementCommandWithType-r11 ::=	CHOICE {
+	setup								MeasurementType-r11,
+	modify								NULL,
+	release								NULL
+}
+
 OngoingMeasRep ::=					SEQUENCE {
 	measurementIdentity					MeasurementIdentity,
 	-- TABULAR: The CHOICE Measurement in the tabular description is included
@@ -1678,6 +1785,13 @@ OngoingMeasRep-r10 ::=				SEQUENCE {
 	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL
 }
 
+OngoingMeasRep-r11 ::=				SEQUENCE {
+	measurementIdentity					MeasurementIdentity-r9,
+	measurementCommandWithType			MeasurementCommandWithType-r11,
+	measurementReportingMode			MeasurementReportingMode			OPTIONAL,
+	additionalMeasurementID-List		AdditionalMeasurementID-List-r9		OPTIONAL
+}
+
 OngoingMeasRepList ::=				SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 										OngoingMeasRep
 
@@ -1704,6 +1818,9 @@ OngoingMeasRepList-v970ext-IE ::=	SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 
 OngoingMeasRepList-r10 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 										OngoingMeasRep-r10
+
+OngoingMeasRepList-r11 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
+										OngoingMeasRep-r11
 
 PDCP-Capability-r4 ::=				SEQUENCE {
 	losslessSRNS-RelocationSupport		BOOLEAN,

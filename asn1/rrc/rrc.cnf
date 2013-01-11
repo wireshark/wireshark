@@ -58,12 +58,14 @@ MasterInformationBlock_PDU
 # :
 # for some reason
 UE-RadioAccessCapability-v890ext
+UE-RadioAccessCapability-va60ext
 UL-PhysChCapabilityFDD-r6
 GSMCellGroupingList
 UE-Positioning-GANSS-Data
 GANSSDecipheringKeys
 GSM-CellID
 RRCConnectionRelease-CCCH-va40ext-IEs
+AdditionalDLSecCellInfoListFDD2
 #.END
 
 #.PDU_NEW
@@ -121,6 +123,8 @@ SysInfoType17                @si.sib17
 SysInfoType18                @si.sib18
 SysInfoType19                @si.sib19
 SysInfoType20                @si.sib20
+SysInfoType21                @si.sib21
+SysInfoType22                @si.sib22
 SysInfoTypeSB1               @si.sb1
 SysInfoTypeSB2               @si.sb2
 HandoverToUTRANCommand       @irat.ho_to_utran_cmd
@@ -545,6 +549,24 @@ fp_info       *fpinf ;
     add_new_data_source(actx->pinfo,gsm_message_tvb,"GSM Message(aligned)");
     call_dissector(gsm_a_dtap_handle,gsm_message_tvb,actx->pinfo, tree);
   }
+
+#.FN_BODY GERAN-SystemInfoBlock VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb){
+    guint8 byte = tvb_get_guint8(parameter_tvb, 0);
+    if (byte == 0x06) {
+      if (gsm_a_dtap_handle) {
+        call_dissector(gsm_a_dtap_handle, parameter_tvb, actx->pinfo, tree);
+      }
+    } else {
+      if (gsm_rlcmac_dl_handle) {
+        call_dissector(gsm_rlcmac_dl_handle, parameter_tvb, actx->pinfo, tree);
+      }
+    }
+  }
+
 #.FN_BODY GSM-Classmark2 VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
 
@@ -559,6 +581,14 @@ fp_info       *fpinf ;
 %(DEFAULT_BODY)s
   if (parameter_tvb){
     de_ms_cm_3(parameter_tvb, tree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+  }
+
+#.FN_BODY GSM-MS-RadioAccessCapability VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb){
+    de_gmm_ms_radio_acc_cap(parameter_tvb, tree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
   }
 
 #.FN_BODY InterRATHandoverInfoWithInterRATCapabilities-r3-IEs/interRATHandoverInfo VAL_PTR = &parameter_tvb
@@ -576,6 +606,12 @@ fp_info       *fpinf ;
     call_dissector(lte_rrc_ue_eutra_cap_handle, ue_eutra_cap_tvb, actx->pinfo, tree);
 
 #.FN_BODY HandoverFromUTRANCommand-EUTRA-r8-IEs/eutra-Message VAL_PTR = &eutra_message_tvb
+  tvbuff_t *eutra_message_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (eutra_message_tvb && lte_rrc_dl_dcch_handle)
+    call_dissector(lte_rrc_dl_dcch_handle, eutra_message_tvb, actx->pinfo, tree);
+
+#.FN_BODY HandoverFromUTRANCommand-EUTRA-r11-IEs/eutra-Message VAL_PTR = &eutra_message_tvb
   tvbuff_t *eutra_message_tvb = NULL;
 %(DEFAULT_BODY)s
   if (eutra_message_tvb && lte_rrc_dl_dcch_handle)
@@ -612,7 +648,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   tvbuff_t *hnbname_tvb = NULL;
 
 %(DEFAULT_BODY)s
-  proto_tree_add_unicode_string(tree, hf_index, hnbname_tvb, 0, -1,
+  actx->created_item = proto_tree_add_unicode_string(tree, hf_index, hnbname_tvb, 0, -1,
                                 tvb_get_ephemeral_string_enc(hnbname_tvb, 0, tvb_length(hnbname_tvb), ENC_UTF_8 | ENC_NA));
 
 #.FN_BODY CN-DomainIdentity VAL_PTR = &rrc_nas_sys_info_gsm_map_type

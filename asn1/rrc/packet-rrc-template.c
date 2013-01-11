@@ -24,7 +24,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref: 3GPP TS 25.331 V10.7.0 (2012-03)
+ * Ref: 3GPP TS 25.331 V11.4.0 (2012-12)
  */
 
 /**
@@ -74,6 +74,7 @@ static dissector_handle_t rrc_dl_dcch_handle=NULL;
 static dissector_handle_t rrc_bcch_fach_handle=NULL;
 static dissector_handle_t lte_rrc_ue_eutra_cap_handle=NULL;
 static dissector_handle_t lte_rrc_dl_dcch_handle=NULL;
+static dissector_handle_t gsm_rlcmac_dl_handle=NULL;
 
 enum nas_sys_info_gsm_map {
   RRC_NAS_SYS_INFO_CS,
@@ -90,6 +91,7 @@ static int dissect_SysInfoTypeSB2_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static int dissect_SysInfoType5_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SysInfoType11_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SysInfoType11bis_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+static int dissect_SysInfoType22_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
 /* Include constants */
 #include "packet-rrc-val.h"
@@ -124,12 +126,12 @@ static const true_false_string rrc_eutra_feat_group_ind_2_val = {
   "EUTRAN measurements and reporting in connected mode - Not supported"
 };
 static const true_false_string rrc_eutra_feat_group_ind_3_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "UTRA CELL_FACH absolute priority cell reselection for high priority layers - Supported",
+  "UTRA CELL_FACH absolute priority cell reselection for high priority layers - Not supported"
 };
 static const true_false_string rrc_eutra_feat_group_ind_4_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "UTRA CELL_FACH absolute priority cell reselection for all layers - Supported",
+  "UTRA CELL_FACH absolute priority cell reselection for all layers - Not supported"
 };
 static int flowd,type;
 
@@ -319,6 +321,7 @@ proto_reg_handoff_rrc(void)
   lte_rrc_ue_eutra_cap_handle = find_dissector("lte-rrc.ue_eutra_cap");
   lte_rrc_dl_dcch_handle = find_dissector("lte-rrc.dl.dcch");
   rrc_bcch_fach_handle = find_dissector("rrc.bcch.fach");
+  gsm_rlcmac_dl_handle = find_dissector("gsm_rlcmac_dl");
 }
 
 

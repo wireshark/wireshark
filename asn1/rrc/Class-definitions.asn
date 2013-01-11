@@ -1,10 +1,5 @@
+-- 3GPP TS 25.331 V11.4.0 (2012-12)
 -- $Id$
--- Class-definitions.asn
---
--- 3GPP TS 25.331 V10.7.0 (2012-03)
--- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
---
--- 11.1 General message structure
 --
 Class-definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -315,7 +310,9 @@ BCCH-FACH-Message ::= SEQUENCE {
 }
 
 BCCH-FACH-MessageType ::= CHOICE {
-	systemInformation					SystemInformation-FACH,
+-- dummy is not used in this version of the specification, it should
+-- not be sent and if received UE behaviour is unspecified.
+	dummy								SystemInformation-FACH,
 	systemInformationChangeIndication	SystemInformationChangeIndication,
 	spare2								NULL,
 	spare1								NULL
