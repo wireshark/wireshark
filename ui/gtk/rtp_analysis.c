@@ -277,13 +277,13 @@ static const gchar *titles[11] =  {
 
 #define SAVE_FORWARD_DIRECTION_MASK 0x01
 #define SAVE_REVERSE_DIRECTION_MASK 0x02
-#define SAVE_BOTH_DIRECTION_MASK	(SAVE_FORWARD_DIRECTION_MASK|SAVE_REVERSE_DIRECTION_MASK)
+#define SAVE_BOTH_DIRECTION_MASK    (SAVE_FORWARD_DIRECTION_MASK|SAVE_REVERSE_DIRECTION_MASK)
 
 #define SAVE_NONE_FORMAT 0
-#define SAVE_WAV_FORMAT	1
-#define SAVE_AU_FORMAT	2
-#define SAVE_SW_FORMAT	3
-#define SAVE_RAW_FORMAT	4
+#define SAVE_WAV_FORMAT	 1
+#define SAVE_AU_FORMAT	 2
+#define SAVE_SW_FORMAT	 3
+#define SAVE_RAW_FORMAT	 4
 
 
 static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data);
@@ -311,67 +311,67 @@ rtp_reset(void *user_data_arg)
 {
 	user_data_t *user_data = user_data_arg;
 
-	user_data->forward.statinfo.first_packet = TRUE;
-	user_data->reversed.statinfo.first_packet = TRUE;
-	user_data->forward.statinfo.max_delta = 0;
-	user_data->reversed.statinfo.max_delta = 0;
-	user_data->forward.statinfo.max_jitter = 0;
-	user_data->reversed.statinfo.max_jitter = 0;
-	user_data->forward.statinfo.max_skew = 0;
-	user_data->reversed.statinfo.max_skew = 0;
-	user_data->forward.statinfo.mean_jitter = 0;
-	user_data->reversed.statinfo.mean_jitter = 0;
-	user_data->forward.statinfo.delta = 0;
-	user_data->reversed.statinfo.delta = 0;
-	user_data->forward.statinfo.diff = 0;
-	user_data->reversed.statinfo.diff = 0;
-	user_data->forward.statinfo.jitter = 0;
-	user_data->reversed.statinfo.jitter = 0;
-	user_data->forward.statinfo.skew = 0;
-	user_data->reversed.statinfo.skew = 0;
-	user_data->forward.statinfo.sumt = 0;
-	user_data->reversed.statinfo.sumt = 0;
-	user_data->forward.statinfo.sumTS = 0;
-	user_data->reversed.statinfo.sumTS = 0;
-	user_data->forward.statinfo.sumt2 = 0;
-	user_data->reversed.statinfo.sumt2 = 0;
-	user_data->forward.statinfo.sumtTS = 0;
-	user_data->reversed.statinfo.sumtTS = 0;
-	user_data->forward.statinfo.bandwidth = 0;
-	user_data->reversed.statinfo.bandwidth = 0;
-	user_data->forward.statinfo.total_bytes = 0;
-	user_data->reversed.statinfo.total_bytes = 0;
-	user_data->forward.statinfo.bw_start_index = 0;
+	user_data->forward.statinfo.first_packet    = TRUE;
+	user_data->reversed.statinfo.first_packet   = TRUE;
+	user_data->forward.statinfo.max_delta       = 0;
+	user_data->reversed.statinfo.max_delta      = 0;
+	user_data->forward.statinfo.max_jitter      = 0;
+	user_data->reversed.statinfo.max_jitter     = 0;
+	user_data->forward.statinfo.max_skew        = 0;
+	user_data->reversed.statinfo.max_skew       = 0;
+	user_data->forward.statinfo.mean_jitter     = 0;
+	user_data->reversed.statinfo.mean_jitter    = 0;
+	user_data->forward.statinfo.delta           = 0;
+	user_data->reversed.statinfo.delta          = 0;
+	user_data->forward.statinfo.diff            = 0;
+	user_data->reversed.statinfo.diff           = 0;
+	user_data->forward.statinfo.jitter          = 0;
+	user_data->reversed.statinfo.jitter         = 0;
+	user_data->forward.statinfo.skew            = 0;
+	user_data->reversed.statinfo.skew           = 0;
+	user_data->forward.statinfo.sumt            = 0;
+	user_data->reversed.statinfo.sumt           = 0;
+	user_data->forward.statinfo.sumTS           = 0;
+	user_data->reversed.statinfo.sumTS          = 0;
+	user_data->forward.statinfo.sumt2           = 0;
+	user_data->reversed.statinfo.sumt2          = 0;
+	user_data->forward.statinfo.sumtTS          = 0;
+	user_data->reversed.statinfo.sumtTS         = 0;
+	user_data->forward.statinfo.bandwidth       = 0;
+	user_data->reversed.statinfo.bandwidth      = 0;
+	user_data->forward.statinfo.total_bytes     = 0;
+	user_data->reversed.statinfo.total_bytes    = 0;
+	user_data->forward.statinfo.bw_start_index  = 0;
 	user_data->reversed.statinfo.bw_start_index = 0;
-	user_data->forward.statinfo.bw_index = 0;
-	user_data->reversed.statinfo.bw_index = 0;
-	user_data->forward.statinfo.timestamp = 0;
-	user_data->reversed.statinfo.timestamp = 0;
-	user_data->forward.statinfo.max_nr = 0;
-	user_data->reversed.statinfo.max_nr = 0;
-	user_data->forward.statinfo.total_nr = 0;
-	user_data->reversed.statinfo.total_nr = 0;
-	user_data->forward.statinfo.sequence = 0;
-	user_data->reversed.statinfo.sequence = 0;
-	user_data->forward.statinfo.start_seq_nr = 0;
-	user_data->reversed.statinfo.start_seq_nr = 1; /* 1 is ok (for statistics in reversed direction) */
-	user_data->forward.statinfo.stop_seq_nr = 0;
-	user_data->reversed.statinfo.stop_seq_nr = 0;
-	user_data->forward.statinfo.cycles = 0;
-	user_data->reversed.statinfo.cycles = 0;
-	user_data->forward.statinfo.under = FALSE;
-	user_data->reversed.statinfo.under = FALSE;
-	user_data->forward.statinfo.start_time = 0;
-	user_data->reversed.statinfo.start_time = 0;
-	user_data->forward.statinfo.time = 0;
-	user_data->reversed.statinfo.time = 0;
-	user_data->forward.statinfo.reg_pt = PT_UNDEFINED;
-	user_data->reversed.statinfo.reg_pt = PT_UNDEFINED;
+	user_data->forward.statinfo.bw_index        = 0;
+	user_data->reversed.statinfo.bw_index       = 0;
+	user_data->forward.statinfo.timestamp       = 0;
+	user_data->reversed.statinfo.timestamp      = 0;
+	user_data->forward.statinfo.max_nr          = 0;
+	user_data->reversed.statinfo.max_nr         = 0;
+	user_data->forward.statinfo.total_nr        = 0;
+	user_data->reversed.statinfo.total_nr       = 0;
+	user_data->forward.statinfo.sequence        = 0;
+	user_data->reversed.statinfo.sequence       = 0;
+	user_data->forward.statinfo.start_seq_nr    = 0;
+	user_data->reversed.statinfo.start_seq_nr   = 1; /* 1 is ok (for statistics in reversed direction) */
+	user_data->forward.statinfo.stop_seq_nr     = 0;
+	user_data->reversed.statinfo.stop_seq_nr    = 0;
+	user_data->forward.statinfo.cycles          = 0;
+	user_data->reversed.statinfo.cycles         = 0;
+	user_data->forward.statinfo.under           = FALSE;
+	user_data->reversed.statinfo.under          = FALSE;
+	user_data->forward.statinfo.start_time      = 0;
+	user_data->reversed.statinfo.start_time     = 0;
+	user_data->forward.statinfo.time            = 0;
+	user_data->reversed.statinfo.time           = 0;
+	user_data->forward.statinfo.reg_pt          = PT_UNDEFINED;
+	user_data->reversed.statinfo.reg_pt         = PT_UNDEFINED;
 
-	user_data->forward.saveinfo.count = 0;
-	user_data->reversed.saveinfo.count = 0;
-	user_data->forward.saveinfo.saved = FALSE;
-	user_data->reversed.saveinfo.saved = FALSE;
+	user_data->forward.saveinfo.count           = 0;
+	user_data->reversed.saveinfo.count          = 0;
+	user_data->forward.saveinfo.saved           = FALSE;
+	user_data->reversed.saveinfo.saved          = FALSE;
 
 	/* clear the dialog box lists */
 	gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(user_data->dlg.list_fwd))));
@@ -467,8 +467,8 @@ rtp_draw(void *prs _U_)
 
 /* forward declarations */
 static void add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num, guint32 timestamp,
-			double delta, double jitter, double skew ,double bandwidth, gchar *status, gboolean marker,
-			gchar *timeStr, guint32 pkt_len,gchar *color_str, guint32 flags);
+			double delta, double jitter, double skew , double bandwidth, gchar *status, gboolean marker,
+			gchar *timeStr, guint32 pkt_len, gchar *color_str, guint32 flags);
 
 static int rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	tap_rtp_stat_t *statinfo, packet_info *pinfo,
@@ -497,10 +497,10 @@ rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		return 0;
 	/* is it the forward direction?  */
 	else if (user_data->ssrc_fwd == rtpinfo->info_sync_src
-		&& CMP_ADDRESS(&(user_data->src_fwd), &(pinfo->src)) == 0
-		&& user_data->port_src_fwd == pinfo->srcport
-		&& CMP_ADDRESS(&(user_data->dst_fwd), &(pinfo->dst)) == 0
-		&& user_data->port_dst_fwd == pinfo->destport)  {
+		 && (CMP_ADDRESS(&(user_data->src_fwd), &(pinfo->src)) == 0)
+		 && (user_data->port_src_fwd == pinfo->srcport)
+		 && (CMP_ADDRESS(&(user_data->dst_fwd), &(pinfo->dst)) == 0)
+		 && (user_data->port_dst_fwd == pinfo->destport))  {
 		rtp_packet_analyse(&(user_data->forward.statinfo), pinfo, rtpinfo);
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]),
 			&(user_data->forward.statinfo), pinfo,
@@ -519,10 +519,10 @@ rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	}
 	/* is it the reversed direction? */
 	else if (user_data->ssrc_rev == rtpinfo->info_sync_src
-		&& CMP_ADDRESS(&(user_data->src_rev), &(pinfo->src)) == 0
-		&& user_data->port_src_rev == pinfo->srcport
-		&& CMP_ADDRESS(&(user_data->dst_rev), &(pinfo->dst)) == 0
-		&& user_data->port_dst_rev == pinfo->destport)  {
+		 && (CMP_ADDRESS(&(user_data->src_rev), &(pinfo->src)) == 0)
+		 && (user_data->port_src_rev == pinfo->srcport)
+		 && (CMP_ADDRESS(&(user_data->dst_rev), &(pinfo->dst)) == 0)
+		 && (user_data->port_dst_rev == pinfo->destport))  {
 		rtp_packet_analyse(&(user_data->reversed.statinfo), pinfo, rtpinfo);
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]),
 			&(user_data->reversed.statinfo), pinfo,
@@ -544,7 +544,7 @@ rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 #ifdef HAVE_LIBPORTAUDIO
 		add_rtp_packet(rtpinfo, pinfo);
 #endif
-   }
+	}
 
 	return 0;
 }
@@ -555,7 +555,7 @@ static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
 static const GdkColor COLOR_ERROR = {0, 0xffff, 0xbfff, 0xbfff};
 static const GdkColor COLOR_WARNING = {0, 0xffff, 0xdfff, 0xbfff};
 static const GdkColor COLOR_CN = {0, 0xbfff, 0xbfff, 0xffff};
-COLOR_T_EVENT g_snprintf(color_str,sizeof(color_str),"#ef8c bfff ffff");
+COLOR_T_EVENT g_snprintf(color_str, sizeof(color_str), "#ef8c bfff ffff");
 static const GdkColor COLOR_FOREGROUND = {0, 0x0000, 0x0000, 0x0000};
 */
 /****************************************************************************/
@@ -575,7 +575,7 @@ rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	then = pinfo->fd->abs_ts.secs;
 	msecs = (guint16)(pinfo->fd->abs_ts.nsecs/1000000);
 	tm_tmp = localtime(&then);
-	g_snprintf(timeStr,sizeof(timeStr),"%02d/%02d/%04d %02d:%02d:%02d.%03d",
+	g_snprintf(timeStr, sizeof(timeStr), "%02d/%02d/%04d %02d:%02d:%02d.%03d",
 		tm_tmp->tm_mon + 1,
 		tm_tmp->tm_mday,
 		tm_tmp->tm_year + 1900,
@@ -585,56 +585,56 @@ rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 		msecs);
 
 	/* Default to using black on white text if nothing below overrides it */
-	g_snprintf(color_str,sizeof(color_str),"#ffffffffffff");
+	g_snprintf(color_str, sizeof(color_str), "#ffffffffffff");
 
 	if (statinfo->pt == PT_CN) {
-		g_snprintf(status,sizeof(status),"Comfort noise (PT=13, RFC 3389)");
+		g_snprintf(status, sizeof(status), "Comfort noise (PT=13, RFC 3389)");
 		/* color = COLOR_CN; */
-		g_snprintf(color_str,sizeof(color_str),"#bfffbfffffff");
+		g_snprintf(color_str, sizeof(color_str), "#bfffbfffffff");
 	}
 	else if (statinfo->pt == PT_CN_OLD) {
-		g_snprintf(status,sizeof(status),"Comfort noise (PT=19, reserved)");
+		g_snprintf(status, sizeof(status), "Comfort noise (PT=19, reserved)");
 		/* color = COLOR_CN; */
-		g_snprintf(color_str,sizeof(color_str),"#bfffbfffffff");
+		g_snprintf(color_str, sizeof(color_str), "#bfffbfffffff");
 	}
 	else if (statinfo->flags & STAT_FLAG_WRONG_SEQ) {
-		g_snprintf(status,sizeof(status),"Wrong sequence nr.");
+		g_snprintf(status, sizeof(status), "Wrong sequence nr.");
 		/* color = COLOR_ERROR; */
-		g_snprintf(color_str,sizeof(color_str),"#ffffbfffbfff");
+		g_snprintf(color_str, sizeof(color_str), "#ffffbfffbfff");
 	}
 	else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
 		if (statinfo->flags & STAT_FLAG_PT_T_EVENT) {
-			g_snprintf(status,sizeof(status),"Payload changed to PT=%u telephone/event", statinfo->pt);
+			g_snprintf(status, sizeof(status), "Payload changed to PT=%u telephone/event", statinfo->pt);
 		}else{
-			g_snprintf(status,sizeof(status),"Payload changed to PT=%u", statinfo->pt);
+			g_snprintf(status, sizeof(status), "Payload changed to PT=%u", statinfo->pt);
 		}
 		/* color = COLOR_WARNING; */
-		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
+		g_snprintf(color_str, sizeof(color_str), "#ffffdfffbfff");
 	}
 	else if (statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP) {
-		g_snprintf(status,sizeof(status),"Incorrect timestamp");
+		g_snprintf(status, sizeof(status), "Incorrect timestamp");
 		/* color = COLOR_WARNING; */
-		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
+		g_snprintf(color_str, sizeof(color_str), "#ffffdfffbfff");
 	}
 	else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
 		&&  !(statinfo->flags & STAT_FLAG_FIRST)
 		&&  !(statinfo->flags & STAT_FLAG_PT_CN)
 		&&  (statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)
 		&&  !(statinfo->flags & STAT_FLAG_MARKER)) {
-		g_snprintf(status,sizeof(status),"Marker missing?");
+		g_snprintf(status, sizeof(status), "Marker missing?");
 		/* color = COLOR_WARNING; */
-		g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
+		g_snprintf(color_str, sizeof(color_str), "#ffffdfffbfff");
 	}else if (statinfo->flags & STAT_FLAG_PT_T_EVENT) {
-		g_snprintf(status,sizeof(status),"PT=%u telephone/event", statinfo->pt);
+		g_snprintf(status, sizeof(status), "PT=%u telephone/event", statinfo->pt);
 		/* XXX add color? */
 		/* color = COLOR_T_EVENT; */
-		g_snprintf(color_str,sizeof(color_str),"#ef8cbfffffff");
+		g_snprintf(color_str, sizeof(color_str), "#ef8cbfffffff");
 	}else {
 		if (statinfo->flags & STAT_FLAG_MARKER) {
 			/* color = COLOR_WARNING; */
-			g_snprintf(color_str,sizeof(color_str),"#ffffdfffbfff");
+			g_snprintf(color_str, sizeof(color_str), "#ffffdfffbfff");
 		}
-		g_snprintf(status,sizeof(status),OK_TEXT);
+		g_snprintf(status, sizeof(status), OK_TEXT);
 	}
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->flags & STAT_FLAG_FIRST) {
@@ -698,8 +698,8 @@ rtp_packet_save_payload(tap_rtp_save_info_t    *saveinfo,
 
 	/* if the captured length and packet length aren't equal, we quit
 	* if also the RTP dissector thinks there is some information missing */
-	if ((pinfo->fd->pkt_len != pinfo->fd->cap_len) &&
-	    (!rtpinfo->info_all_data_present)) {
+	if ((pinfo->fd->pkt_len != pinfo->fd->cap_len)
+	    && (!rtpinfo->info_all_data_present)) {
 		saveinfo->saved = FALSE;
 		saveinfo->error_type = TAP_RTP_WRONG_LENGTH;
 		return 0;
@@ -707,24 +707,26 @@ rtp_packet_save_payload(tap_rtp_save_info_t    *saveinfo,
 
 	/* if padding bit is set, but the padding count is bigger
 	* then the whole RTP data - error with padding count */
-	if ( (rtpinfo->info_padding_set != FALSE) &&
-		(rtpinfo->info_padding_count > rtpinfo->info_payload_len) ) {
-		saveinfo->saved = FALSE;
+	if ( (rtpinfo->info_padding_set != FALSE)
+	     && (rtpinfo->info_padding_count > rtpinfo->info_payload_len) ) {
+		saveinfo->saved      = FALSE;
 		saveinfo->error_type = TAP_RTP_PADDING_ERROR;
 		return 0;
 	}
 
 	/* do we need to insert some silence? */
-	if ((rtpinfo->info_marker_set) &&
-		!(statinfo->flags & STAT_FLAG_FIRST) &&
-		!(statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP) &&
-		(statinfo->delta_timestamp > (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) )  {
+	if ((rtpinfo->info_marker_set)
+	    && ! (statinfo->flags & STAT_FLAG_FIRST)
+	    && ! (statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP)
+	    && (statinfo->delta_timestamp > (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) )  {
 		/* the amount of silence should be the difference between
 		* the last timestamp and the current one minus x
 		* x should equal the amount of information in the last frame
 		* XXX not done yet */
-		for (i = 0; i < (statinfo->delta_timestamp - rtpinfo->info_payload_len -
-				 rtpinfo->info_padding_count) && i < MAX_SILENCE_TICKS; i++) {
+		for (i = 0;
+		     (i < (statinfo->delta_timestamp - rtpinfo->info_payload_len - rtpinfo->info_padding_count))
+			     && (i < MAX_SILENCE_TICKS);
+		     i++) {
 			switch (statinfo->reg_pt) {
 			case PT_PCMU:
 				tmp = SILENCE_PCMU;
@@ -749,10 +751,10 @@ rtp_packet_save_payload(tap_rtp_save_info_t    *saveinfo,
 	}
 
 
-	if (rtpinfo->info_payload_type == PT_CN
-		|| rtpinfo->info_payload_type == PT_CN_OLD) {
+	if ((rtpinfo->info_payload_type == PT_CN)
+	    || (rtpinfo->info_payload_type == PT_CN_OLD)) {
 	}
-	/*all other payloads*/
+	/* all other payloads */
 	else {
 		if (!rtpinfo->info_all_data_present) {
 			/* Not all the data was captured. */
@@ -765,8 +767,10 @@ rtp_packet_save_payload(tap_rtp_save_info_t    *saveinfo,
 		* payload, that is, at the beginning of the RTP data
 		* plus the offset of the payload from the beginning
 		* of the RTP data */
-		data = rtpinfo->info_data + rtpinfo->info_payload_offset;
-		nchars = fwrite(data, sizeof(unsigned char), (rtpinfo->info_payload_len - rtpinfo->info_padding_count), saveinfo->fp);
+		data   = rtpinfo->info_data + rtpinfo->info_payload_offset;
+		nchars = fwrite(data, sizeof(unsigned char),
+                                (rtpinfo->info_payload_len - rtpinfo->info_padding_count),
+                                saveinfo->fp);
 		if (nchars != (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) {
 			/* Write error or short write */
 			saveinfo->saved = FALSE;
@@ -815,7 +819,8 @@ on_destroy(GtkWidget *win _U_, user_data_t *user_data)
 	if (user_data->dlg.dialog_graph.window != NULL)
 		window_destroy(user_data->dlg.dialog_graph.window);
 
-	/* disable the "switch_page" signal in the dlg, otherwise will be called when the windows is destroy and cause an exception using GTK1*/
+	/* disable the "switch_page" signal in the dlg, otherwise will be called when the windows
+         *  is destroyed and cause an exception using GTK1*/
 	g_signal_handler_disconnect(user_data->dlg.notebook, user_data->dlg.notebook_signal_id);
 
 	g_free(user_data->f_tempname);
@@ -938,15 +943,15 @@ static void
 print_time_scale_string(char *buf, int buf_len, guint32 t)
 {
 	if (t >= 10000000) {
-		g_snprintf(buf, buf_len, "%ds",t/1000000);
+		g_snprintf(buf, buf_len, "%ds", t/1000000);
 	} else if (t >= 1000000) {
-		g_snprintf(buf, buf_len, "%d.%03ds",t/1000000,(t%1000000)/1000);
+		g_snprintf(buf, buf_len, "%d.%03ds", t/1000000, (t%1000000)/1000);
 	} else if (t >= 10000) {
-		g_snprintf(buf, buf_len, "%dms",t/1000);
+		g_snprintf(buf, buf_len, "%dms", t/1000);
 	} else if (t >= 1000) {
-		g_snprintf(buf, buf_len, "%d.%03dms",t/1000,t%1000);
+		g_snprintf(buf, buf_len, "%d.%03dms", t/1000, t%1000);
 	} else {
-		g_snprintf(buf, buf_len, "%dus",t);
+		g_snprintf(buf, buf_len, "%dus", t);
 	}
 }
 
@@ -1066,17 +1071,17 @@ dialog_graph_draw(user_data_t* user_data)
 		label_height = label_height_mid;
 	}
 
-	left_x_border = 10;
-	right_x_border = label_width+20;
-	top_y_border = 10;
-	bottom_y_border = label_height+20;
+	left_x_border	= 10;
+	right_x_border	= label_width + 20;
+	top_y_border	= 10;
+	bottom_y_border = label_height + 20;
 
 
 	/*
 	 * Calculate the size of the drawing area for the actual plot
 	 */
-	draw_width = user_data->dlg.dialog_graph.surface_width-right_x_border-left_x_border;
-	draw_height = user_data->dlg.dialog_graph.surface_height-top_y_border-bottom_y_border;
+	draw_width  = user_data->dlg.dialog_graph.surface_width - right_x_border - left_x_border;
+	draw_height = user_data->dlg.dialog_graph.surface_height - top_y_border - bottom_y_border;
 
 
 	/*
@@ -1089,8 +1094,12 @@ dialog_graph_draw(user_data_t* user_data)
 	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 	cairo_set_line_width (cr, 1.0);
-	cairo_move_to(cr, user_data->dlg.dialog_graph.surface_width-right_x_border+1.5, top_y_border+0.5);
-	cairo_line_to(cr, user_data->dlg.dialog_graph.surface_width-right_x_border+1.5, user_data->dlg.dialog_graph.surface_height-bottom_y_border+0.5);
+	cairo_move_to(cr,
+		      user_data->dlg.dialog_graph.surface_width - right_x_border + 1.5,
+		      top_y_border + 0.5);
+	cairo_line_to(cr,
+		      user_data->dlg.dialog_graph.surface_width - right_x_border + 1.5,
+		      user_data->dlg.dialog_graph.surface_height - bottom_y_border + 0.5);
 	cairo_stroke(cr);
 	cairo_destroy(cr);
 
@@ -1110,12 +1119,12 @@ dialog_graph_draw(user_data_t* user_data)
 #endif
 		cairo_set_line_width (cr, 1.0);
 		cairo_move_to(cr,
-			user_data->dlg.dialog_graph.surface_width-right_x_border+1.5,
-			user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10+0.5);
+			user_data->dlg.dialog_graph.surface_width - right_x_border + 1.5,
+			user_data->dlg.dialog_graph.surface_height - bottom_y_border - draw_height*i/10 + 0.5);
 
 		cairo_line_to(cr,
-			user_data->dlg.dialog_graph.surface_width-right_x_border+1.5+xwidth,
-			user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10+0.5);
+			user_data->dlg.dialog_graph.surface_width - right_x_border + 1.5 + xwidth,
+			user_data->dlg.dialog_graph.surface_height - bottom_y_border - draw_height*i/10 + 0.5);
 		cairo_stroke(cr);
 		cairo_destroy(cr);
 		/* draw the labels */
@@ -1129,8 +1138,8 @@ dialog_graph_draw(user_data_t* user_data)
 			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 			cairo_move_to (cr,
-				user_data->dlg.dialog_graph.surface_width-right_x_border+15+label_width-lwidth,
-				user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10-label_height/2);
+				user_data->dlg.dialog_graph.surface_width - right_x_border + 15 + label_width - lwidth,
+				user_data->dlg.dialog_graph.surface_height - bottom_y_border - draw_height*i/10 - label_height/2);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
 			cr = NULL;
@@ -1145,8 +1154,8 @@ dialog_graph_draw(user_data_t* user_data)
 			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 			cairo_move_to (cr,
-				user_data->dlg.dialog_graph.surface_width-right_x_border+15+label_width-lwidth,
-				user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10-label_height/2);
+				user_data->dlg.dialog_graph.surface_width - right_x_border + 15 + label_width - lwidth,
+				user_data->dlg.dialog_graph.surface_height - bottom_y_border - draw_height*i/10 - label_height/2);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
 			cr = NULL;
@@ -1161,8 +1170,8 @@ dialog_graph_draw(user_data_t* user_data)
 			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 			cairo_move_to (cr,
-				user_data->dlg.dialog_graph.surface_width-right_x_border+15+label_width-lwidth,
-				user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10-label_height/2);
+				user_data->dlg.dialog_graph.surface_width - right_x_border + 15 + label_width - lwidth,
+				user_data->dlg.dialog_graph.surface_height - bottom_y_border - draw_height*i/10 - label_height/2);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
 			cr = NULL;
@@ -1193,21 +1202,26 @@ dialog_graph_draw(user_data_t* user_data)
 	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 	cairo_set_line_width (cr, 1.0);
-	cairo_move_to(cr, left_x_border+0.5, user_data->dlg.dialog_graph.surface_height-bottom_y_border+1.5);
-	cairo_line_to(cr, user_data->dlg.dialog_graph.surface_width-right_x_border+1.5,user_data->dlg.dialog_graph.surface_height-bottom_y_border+1.5);
+	cairo_move_to(cr,
+		      left_x_border + 0.5,
+		      user_data->dlg.dialog_graph.surface_height-bottom_y_border + 1.5);
+	cairo_line_to(cr,
+                      user_data->dlg.dialog_graph.surface_width - right_x_border + 1.5,
+                      user_data->dlg.dialog_graph.surface_height - bottom_y_border + 1.5);
 	cairo_stroke(cr);
 	cairo_destroy(cr);
 
-	if ((last_interval/user_data->dlg.dialog_graph.interval)>draw_width/user_data->dlg.dialog_graph.pixels_per_tick+1) {
-		first_interval = (last_interval/user_data->dlg.dialog_graph.interval)-draw_width/user_data->dlg.dialog_graph.pixels_per_tick+1;
+	if ((last_interval/user_data->dlg.dialog_graph.interval) > draw_width/user_data->dlg.dialog_graph.pixels_per_tick+1) {
+		first_interval = (last_interval/user_data->dlg.dialog_graph.interval)
+			- draw_width/user_data->dlg.dialog_graph.pixels_per_tick + 1;
 		first_interval *= user_data->dlg.dialog_graph.interval;
 	} else {
 		first_interval = 0;
 	}
 
-	interval_delta = 1;
+	interval_delta   = 1;
 	delta_multiplier = 5;
-	while(interval_delta<((last_interval-first_interval)/10)) {
+	while (interval_delta<((last_interval-first_interval)/10)) {
 		interval_delta*=delta_multiplier;
 		if (delta_multiplier == 5) {
 			delta_multiplier = 2;
@@ -1222,7 +1236,8 @@ dialog_graph_draw(user_data_t* user_data)
 		int x, xlen;
 
 		/* if pixels_per_tick is <5, only draw every 10 ticks */
-		if ((user_data->dlg.dialog_graph.pixels_per_tick<10) && (current_interval%(10*user_data->dlg.dialog_graph.interval))) {
+		if ((user_data->dlg.dialog_graph.pixels_per_tick<10)
+		    && (current_interval%(10*user_data->dlg.dialog_graph.interval))) {
 			continue;
 		}
 
@@ -1232,27 +1247,35 @@ dialog_graph_draw(user_data_t* user_data)
 			xlen = 17;
 		}
 
-		x = draw_width+left_x_border-((last_interval-current_interval)/user_data->dlg.dialog_graph.interval)*user_data->dlg.dialog_graph.pixels_per_tick;
+		x = draw_width+left_x_border
+			- (((last_interval-current_interval)/user_data->dlg.dialog_graph.interval)
+			   * user_data->dlg.dialog_graph.pixels_per_tick);
 #if GTK_CHECK_VERSION(2,22,0)
 		cr = cairo_create (user_data->dlg.dialog_graph.surface);
 #else
 		cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 		cairo_set_line_width (cr, 1.0);
-		cairo_move_to(cr, x-1-user_data->dlg.dialog_graph.pixels_per_tick/2+0.5, user_data->dlg.dialog_graph.surface_height-bottom_y_border+1.5);
+		cairo_move_to(cr,
+			      x - 1 - user_data->dlg.dialog_graph.pixels_per_tick/2 + 0.5,
+			      user_data->dlg.dialog_graph.surface_height-bottom_y_border + 1.5);
 		cairo_line_to(cr, x-1-user_data->dlg.dialog_graph.pixels_per_tick/2+0.5, user_data->dlg.dialog_graph.surface_height-bottom_y_border+xlen+1.5);
 		cairo_stroke(cr);
 		cairo_destroy(cr);
 
 		if (xlen == 17) {
 			if (user_data->dlg.dialog_graph.interval >= 1000) {
-				g_snprintf(label_string, sizeof(label_string), "%ds", current_interval/1000);
+				g_snprintf(label_string, sizeof(label_string),
+					   "%ds", current_interval/1000);
 			} else if (user_data->dlg.dialog_graph.interval >= 100) {
-				g_snprintf(label_string, sizeof(label_string), "%d.%1ds", current_interval/1000,(current_interval/100)%10);
+				g_snprintf(label_string, sizeof(label_string),
+					   "%d.%1ds", current_interval/1000, (current_interval/100)%10);
 			} else if (user_data->dlg.dialog_graph.interval >= 10) {
-				g_snprintf(label_string, sizeof(label_string), "%d.%2ds", current_interval/1000,(current_interval/10)%100);
+				g_snprintf(label_string, sizeof(label_string),
+					   "%d.%2ds", current_interval/1000, (current_interval/10)%100);
 			} else {
-				g_snprintf(label_string, sizeof(label_string), "%d.%3ds", current_interval/1000,current_interval%1000);
+				g_snprintf(label_string, sizeof(label_string),
+					   "%d.%3ds", current_interval/1000, current_interval%1000);
 			}
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
@@ -1262,8 +1285,8 @@ dialog_graph_draw(user_data_t* user_data)
 			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 			cairo_move_to (cr,
-				x-1-user_data->dlg.dialog_graph.pixels_per_tick/2-lwidth/2,
-				user_data->dlg.dialog_graph.surface_height-bottom_y_border+20);
+				x - 1 - user_data->dlg.dialog_graph.pixels_per_tick/2 - lwidth/2,
+				user_data->dlg.dialog_graph.surface_height-bottom_y_border + 20);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
 			cr = NULL;
@@ -1280,7 +1303,7 @@ dialog_graph_draw(user_data_t* user_data)
 	 * Draw "x" for Sequence Errors and "m" for Marks
 	 */
 	/* Draw the labels Fwd and Rev */
-	g_strlcpy(label_string, UTF8_LEFTWARDS_ARROW "Fwd",sizeof(label_string));
+	g_strlcpy(label_string, UTF8_LEFTWARDS_ARROW "Fwd", sizeof(label_string));
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &lwidth, NULL);
 #if GTK_CHECK_VERSION(2,22,0)
@@ -1289,13 +1312,13 @@ dialog_graph_draw(user_data_t* user_data)
 	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 	cairo_move_to (cr,
-		user_data->dlg.dialog_graph.surface_width-right_x_border+33-lwidth,
-		user_data->dlg.dialog_graph.surface_height-bottom_y_border+3);
+		user_data->dlg.dialog_graph.surface_width - right_x_border + 33 - lwidth,
+		user_data->dlg.dialog_graph.surface_height - bottom_y_border + 3);
 	pango_cairo_show_layout (cr, layout);
 	cairo_destroy (cr);
 	cr = NULL;
 
-	g_strlcpy(label_string, UTF8_LEFTWARDS_ARROW "Rev",sizeof(label_string));
+	g_strlcpy(label_string, UTF8_LEFTWARDS_ARROW "Rev", sizeof(label_string));
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &lwidth, NULL);
 #if GTK_CHECK_VERSION(2,22,0)
@@ -1304,8 +1327,8 @@ dialog_graph_draw(user_data_t* user_data)
 	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 	cairo_move_to (cr,
-		user_data->dlg.dialog_graph.surface_width-right_x_border+33-lwidth,
-		user_data->dlg.dialog_graph.surface_height-bottom_y_border+3+9);
+		user_data->dlg.dialog_graph.surface_width - right_x_border + 33 - lwidth,
+		user_data->dlg.dialog_graph.surface_height - bottom_y_border + 3 + 9);
 	pango_cairo_show_layout (cr, layout);
 	cairo_destroy (cr);
 	cr = NULL;
@@ -1324,16 +1347,18 @@ dialog_graph_draw(user_data_t* user_data)
 
 		for (interval = first_interval+user_data->dlg.dialog_graph.interval;
 		     interval <= last_interval;
-		     interval+=user_data->dlg.dialog_graph.interval) {
-			x_pos = draw_width - 1 -user_data->dlg.dialog_graph.pixels_per_tick *
-				((last_interval-interval)/user_data->dlg.dialog_graph.interval + 1) +
-				left_x_border;
+		     interval += user_data->dlg.dialog_graph.interval) {
+			x_pos = draw_width - 1
+				- (user_data->dlg.dialog_graph.pixels_per_tick
+				   * ((last_interval-interval)/user_data->dlg.dialog_graph.interval + 1))
+				+ left_x_border;
 
-			if (user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & (STAT_FLAG_WRONG_SEQ|STAT_FLAG_MARKER)) {
+			if (user_data->dlg.dialog_graph.graph[i]
+.items[interval/user_data->dlg.dialog_graph.interval].flags & (STAT_FLAG_WRONG_SEQ|STAT_FLAG_MARKER)) {
 				if (user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & STAT_FLAG_WRONG_SEQ) {
-					g_strlcpy(label_string,"x",sizeof(label_string));
+					g_strlcpy(label_string, "x", sizeof(label_string));
 				} else {
-					g_strlcpy(label_string,"m",sizeof(label_string));
+					g_strlcpy(label_string, "m", sizeof(label_string));
 				}
 
 				pango_layout_set_text(layout, label_string, -1);
@@ -1344,8 +1369,8 @@ dialog_graph_draw(user_data_t* user_data)
 				cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 				cairo_move_to (cr,
-					x_pos-1-lwidth/2,
-					user_data->dlg.dialog_graph.surface_height-bottom_y_border+3+7*(i/2));
+					x_pos - 1 - lwidth/2,
+					user_data->dlg.dialog_graph.surface_height - bottom_y_border + 3 + 7*(i/2));
 				pango_cairo_show_layout (cr, layout);
 				cairo_destroy (cr);
 				cr = NULL;
@@ -1364,7 +1389,7 @@ dialog_graph_draw(user_data_t* user_data)
 	for (i = MAX_GRAPHS-1; i >= 0; i--) {
 		guint32 interval;
 		guint32 x_pos, y_pos, /*prev_x_pos,*/ prev_y_pos;
-	        if (!user_data->dlg.dialog_graph.graph[i].display) {
+	        if (! user_data->dlg.dialog_graph.graph[i].display) {
 			continue;
 		}
 		/* initialize prev x/y to the low left corner of the graph */
@@ -1375,12 +1400,16 @@ dialog_graph_draw(user_data_t* user_data)
 		     interval <= last_interval;
 		     interval+=user_data->dlg.dialog_graph.interval) {
 			guint32 val;
-			x_pos = draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
-			val = get_it_value(&user_data->dlg.dialog_graph.graph[i], interval/user_data->dlg.dialog_graph.interval);
+			x_pos = draw_width - 1
+				- (user_data->dlg.dialog_graph.pixels_per_tick
+				   * ((last_interval-interval)/user_data->dlg.dialog_graph.interval+1))
+				+ left_x_border;
+			val = get_it_value(&user_data->dlg.dialog_graph.graph[i],
+					   interval/user_data->dlg.dialog_graph.interval);
 			if (val>max_y) {
 				y_pos = 0;
 			} else {
-				y_pos = draw_height-1-(val*draw_height)/max_y+top_y_border;
+				y_pos = draw_height - 1 - (val*draw_height)/max_y + top_y_border;
 			}
 
 			/* dont need to draw anything if the segment
@@ -1400,8 +1429,8 @@ dialog_graph_draw(user_data_t* user_data)
 #endif
 				gdk_cairo_set_source_rgba (cr, &user_data->dlg.dialog_graph.graph[i].rgba_color);
 				cairo_set_line_width (cr, 1.0);
-				cairo_move_to(cr, x_pos+0.5, draw_height-1+top_y_border+0.5);
-				cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
+				cairo_move_to(cr, x_pos + 0.5, draw_height - 1 + top_y_border + 0.5);
+				cairo_line_to(cr, x_pos + 0.5, y_pos + 0.5);
 				cairo_stroke(cr);
 				cairo_destroy(cr);
 			}
@@ -1418,21 +1447,30 @@ dialog_graph_draw(user_data_t* user_data)
 #else
 	gdk_cairo_set_source_pixmap (cr, user_data->dlg.dialog_graph.pixmap, 0, 0);
 #endif
-	cairo_rectangle (cr, 0, 0, user_data->dlg.dialog_graph.surface_width, user_data->dlg.dialog_graph.surface_height);
+	cairo_rectangle (cr, 0, 0,
+			 user_data->dlg.dialog_graph.surface_width,
+			 user_data->dlg.dialog_graph.surface_height);
 	cairo_fill (cr);
 
 	cairo_destroy (cr);
 
 	/* update the scrollbar */
-	gtk_adjustment_set_upper(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) user_data->dlg.dialog_graph.max_interval);
-	gtk_adjustment_set_step_increment(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) ((last_interval-first_interval)/10));
-	gtk_adjustment_set_page_increment(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) (last_interval-first_interval));
-	if ((last_interval-first_interval)*100 < user_data->dlg.dialog_graph.max_interval) {
-		gtk_adjustment_set_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) (user_data->dlg.dialog_graph.max_interval/100));
+	gtk_adjustment_set_upper(user_data->dlg.dialog_graph.scrollbar_adjustment,
+				 (gfloat) user_data->dlg.dialog_graph.max_interval);
+	gtk_adjustment_set_step_increment(user_data->dlg.dialog_graph.scrollbar_adjustment,
+					  (gfloat) ((last_interval - first_interval)/10));
+	gtk_adjustment_set_page_increment(user_data->dlg.dialog_graph.scrollbar_adjustment,
+					  (gfloat) (last_interval - first_interval));
+	if (((last_interval-first_interval)*100) < user_data->dlg.dialog_graph.max_interval) {
+		gtk_adjustment_set_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment,
+					     (gfloat) (user_data->dlg.dialog_graph.max_interval/100));
 	} else {
-		gtk_adjustment_set_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) (last_interval-first_interval));
+		gtk_adjustment_set_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment,
+					     (gfloat) (last_interval - first_interval));
 	}
-	gtk_adjustment_set_value(user_data->dlg.dialog_graph.scrollbar_adjustment, last_interval - gtk_adjustment_get_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment));
+	gtk_adjustment_set_value(user_data->dlg.dialog_graph.scrollbar_adjustment,
+				 last_interval
+				 - gtk_adjustment_get_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment));
 	gtk_adjustment_changed(user_data->dlg.dialog_graph.scrollbar_adjustment);
 	gtk_adjustment_value_changed(user_data->dlg.dialog_graph.scrollbar_adjustment);
 
@@ -1539,8 +1577,8 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 	bt_save = g_object_get_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save");
 #if GTK_CHECK_VERSION(2,22,0)
 	surface_info->surface = user_data->dlg.dialog_graph.surface;
-	surface_info->width = widget_alloc.width;
-	surface_info->height = widget_alloc.height;
+	surface_info->width   = widget_alloc.width;
+	surface_info->height  = widget_alloc.height;
 	g_object_set_data(G_OBJECT(bt_save), "surface-info", surface_info);
 	gtk_widget_set_sensitive(bt_save, TRUE);
 
@@ -1567,7 +1605,8 @@ scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 	user_data_t *user_data = (user_data_t *)data;
 	guint32	     mi;
 
-	mi = (guint32) (gtk_adjustment_get_value(user_data->dlg.dialog_graph.scrollbar_adjustment) + gtk_adjustment_get_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment));
+	mi = (guint32) (gtk_adjustment_get_value(user_data->dlg.dialog_graph.scrollbar_adjustment)
+			+ gtk_adjustment_get_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment));
 	if (user_data->dlg.dialog_graph.last_interval == mi) {
 		return TRUE;
 	}
@@ -1576,7 +1615,8 @@ scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 		return TRUE;
 	}
 
-	user_data->dlg.dialog_graph.last_interval = (mi/user_data->dlg.dialog_graph.interval)*user_data->dlg.dialog_graph.interval;
+	user_data->dlg.dialog_graph.last_interval =
+		(mi / user_data->dlg.dialog_graph.interval) * user_data->dlg.dialog_graph.interval;
 
 	dialog_graph_redraw(user_data);
 	return TRUE;
@@ -1589,7 +1629,9 @@ create_draw_area(user_data_t* user_data, GtkWidget *box)
 	user_data->dlg.dialog_graph.draw_area = gtk_drawing_area_new();
 	g_signal_connect(user_data->dlg.dialog_graph.draw_area, "destroy", G_CALLBACK(quit), user_data);
 
-	gtk_widget_set_size_request(user_data->dlg.dialog_graph.draw_area, user_data->dlg.dialog_graph.surface_width, user_data->dlg.dialog_graph.surface_height);
+	gtk_widget_set_size_request(user_data->dlg.dialog_graph.draw_area,
+				    user_data->dlg.dialog_graph.surface_width,
+				    user_data->dlg.dialog_graph.surface_height);
 
 	/* signals needed to handle backing pixmap */
 #if GTK_CHECK_VERSION(3,0,0)
@@ -1603,11 +1645,15 @@ create_draw_area(user_data_t* user_data, GtkWidget *box)
 	gtk_box_pack_start(GTK_BOX(box), user_data->dlg.dialog_graph.draw_area, TRUE, TRUE, 0);
 
 	/* create the associated scrollbar */
-	user_data->dlg.dialog_graph.scrollbar_adjustment = (GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
-	user_data->dlg.dialog_graph.scrollbar = gtk_scrollbar_new(GTK_ORIENTATION_HORIZONTAL, user_data->dlg.dialog_graph.scrollbar_adjustment);
+	user_data->dlg.dialog_graph.scrollbar_adjustment = (GtkAdjustment *)gtk_adjustment_new(0, 0, 0, 0, 0, 0);
+	user_data->dlg.dialog_graph.scrollbar = gtk_scrollbar_new(GTK_ORIENTATION_HORIZONTAL,
+								  user_data->dlg.dialog_graph.scrollbar_adjustment);
 	gtk_widget_show(user_data->dlg.dialog_graph.scrollbar);
 	gtk_box_pack_start(GTK_BOX(box), user_data->dlg.dialog_graph.scrollbar, FALSE, FALSE, 0);
-	g_signal_connect(user_data->dlg.dialog_graph.scrollbar_adjustment, "value_changed", G_CALLBACK(scrollbar_changed), user_data);
+	g_signal_connect(user_data->dlg.dialog_graph.scrollbar_adjustment,
+			 "value_changed",
+			 G_CALLBACK(scrollbar_changed),
+			 user_data);
 }
 
 /****************************************************************************/
@@ -1648,7 +1694,7 @@ create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *vbox, int num)
 	char	   str[256];
 
 	hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-        gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 	gtk_widget_show(hbox);
 
 	g_snprintf(str, sizeof(str), "Graph %d", num);
@@ -1688,7 +1734,7 @@ create_filter_area(user_data_t* user_data, GtkWidget *box)
 	GtkWidget *label;
 
 	frame = gtk_frame_new("Graphs");
-        gtk_box_pack_start(GTK_BOX(box), frame, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(box), frame, TRUE, TRUE, 0);
 	gtk_widget_show(frame);
 
 	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
@@ -1762,7 +1808,7 @@ create_yscale_max_menu_items(user_data_t* user_data)
 
 	for (i = 0; i < MAX_YSCALE; i++) {
 		if (yscale_max[i] == AUTO_MAX_YSCALE) {
-			g_strlcpy(str,"Auto",sizeof(str));
+			g_strlcpy(str, "Auto", sizeof(str));
 		} else if (yscale_max[i] < 1000000) {
 			g_snprintf(str, sizeof(str), "%u ms", yscale_max[i]/1000);
 		} else {
@@ -1834,7 +1880,7 @@ create_ctrl_menu(user_data_t* user_data, GtkWidget *vbox, const char *name, GtkW
 	GtkWidget *combo_box;
 
 	hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
-        gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 	gtk_widget_show(hbox);
 
 	label = gtk_label_new(name);
@@ -1855,7 +1901,7 @@ create_ctrl_area(user_data_t* user_data, GtkWidget *box)
 	GtkWidget *vbox;
 
 	frame_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-        gtk_box_pack_start(GTK_BOX(box), frame_vbox, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(box), frame_vbox, TRUE, TRUE, 0);
 	gtk_widget_show(frame_vbox);
 
 	frame = gtk_frame_new("X Axis");
@@ -2024,7 +2070,7 @@ on_next_bt_clicked_list(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 try_again:
 	if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
-		while (gtk_tree_model_iter_next (model,&iter)) {
+		while (gtk_tree_model_iter_next (model, &iter)) {
 			gtk_tree_model_get (model, &iter, STATUS_COLUMN, &text, -1);
 			if (strcmp(text, OK_TEXT) != 0) {
 				gtk_tree_selection_select_iter (selection, &iter);
@@ -2098,7 +2144,8 @@ save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
 	both = (GtkWidget*)g_object_get_data(G_OBJECT(fc), "both_rb");
 	user_data = (user_data_t*)g_object_get_data(G_OBJECT(fc), "user_data");
 
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(forw)) || gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(both))) {
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(forw))
+	    || gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(both))) {
 		fp = ws_fopen(g_dest, "w");
 		if (fp == NULL) {
 			open_failure_alert_box(g_dest, errno, TRUE);
@@ -2118,12 +2165,12 @@ save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
 
 		for (j = 0; j < NUM_COLS; j++) {
 			if (j == 0) {
-				fprintf(fp,"\"%s\"",titles[j]);
+				fprintf(fp, "\"%s\"", titles[j]);
 			} else {
-				fprintf(fp,",\"%s\"",titles[j]);
+				fprintf(fp, ",\"%s\"", titles[j]);
 			}
 		}
-		fprintf(fp,"\n");
+		fprintf(fp, "\n");
 		if (ferror(fp)) {
 			write_failure_alert_box(g_dest, errno);
 			fclose(fp);
@@ -2169,7 +2216,7 @@ save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
 					 return TRUE; /* we're done */
 				 }
 
-	 			 more_items = gtk_tree_model_iter_next (model,&iter);
+	 			 more_items = gtk_tree_model_iter_next (model, &iter);
 			 }
 		 }
 
@@ -2180,7 +2227,8 @@ save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
 		}
 	}
 
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rev)) || gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(both))) {
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rev))
+	    || gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(both))) {
 
 		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(both))) {
 			fp = ws_fopen(g_dest, "a");
@@ -2206,12 +2254,12 @@ save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
 		}
 		for (j = 0; j < NUM_COLS; j++) {
 			if (j == 0) {
-				fprintf(fp,"\"%s\"",titles[j]);
+				fprintf(fp, "\"%s\"", titles[j]);
 			} else {
-				fprintf(fp,",\"%s\"",titles[j]);
+				fprintf(fp, ",\"%s\"", titles[j]);
 			}
 		}
-		fprintf(fp,"\n");
+		fprintf(fp, "\n");
 		if (ferror(fp)) {
 			write_failure_alert_box(g_dest, errno);
 			fclose(fp);
@@ -2249,7 +2297,7 @@ save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
 				 fprintf(fp, ",\"%s\"",   status_str);
 				 fprintf(fp, ",\"%s\"",   date_str);
 				 fprintf(fp, ",\"%u\"",   length);
-				 fprintf(fp,"\n");
+				 fprintf(fp, "\n");
 				 g_free(status_str);
 				 g_free(date_str);
 				 if (ferror(fp)) {
@@ -2259,7 +2307,7 @@ save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *user_data*/)
 					 return TRUE; /* we're done */
 				 }
 
-				 more_items = gtk_tree_model_iter_next (model,&iter);
+				 more_items = gtk_tree_model_iter_next (model, &iter);
 			 }
 		 }
 		if (fclose(fp) == EOF) {
@@ -2305,7 +2353,7 @@ save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 								   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 								   NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), TRUE);
-	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_csv_as_w),GTK_WINDOW(user_data->dlg.window));
+	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_csv_as_w), GTK_WINDOW(user_data->dlg.window));
 
 	/* Container for each row of widgets */
 	vertb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
@@ -2322,8 +2370,8 @@ save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 	label_format = gtk_label_new ("Format: Comma Separated Values");
 	gtk_widget_show (label_format);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), label_format, 0, 0, 3, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5f);
 
@@ -2331,27 +2379,27 @@ save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 	channels_label = gtk_label_new ("Channels:    ");
 	gtk_widget_show (channels_label);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), channels_label, 0, 1, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
 	forward_rb = gtk_radio_button_new_with_label (NULL, "forward  ");
 	gtk_widget_show (forward_rb);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), forward_rb, 1, 1, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	reversed_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "reversed    ");
 	gtk_widget_show (reversed_rb);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), reversed_rb, 2, 1, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	both_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "both");
 	gtk_widget_show (both_rb);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), both_rb, 3, 1, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(both_rb), TRUE);
 
@@ -2544,18 +2592,22 @@ copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 			/* both directions */
 			case SAVE_BOTH_DIRECTION_MASK: {
 				(user_data->forward.saveinfo.count > user_data->reversed.saveinfo.count) ?
-						(progbar_count = user_data->forward.saveinfo.count) :
-							(progbar_count = user_data->reversed.saveinfo.count);
+					(progbar_count = user_data->forward.saveinfo.count) :
+					(progbar_count = user_data->reversed.saveinfo.count);
 				progbar_quantum = progbar_count/100;
 				/* since conversation in one way can start later than in the other one,
 				 * we have to write some silence information for one channel */
 				if (user_data->forward.statinfo.start_time > user_data->reversed.statinfo.start_time) {
 					f_write_silence = (guint32)
-						((user_data->forward.statinfo.start_time-user_data->reversed.statinfo.start_time)*(8000/1000));
+						((user_data->forward.statinfo.start_time
+						  - user_data->reversed.statinfo.start_time)
+						 * (8000/1000));
 				}
 				else if (user_data->forward.statinfo.start_time < user_data->reversed.statinfo.start_time) {
 					r_write_silence = (guint32)
-						((user_data->reversed.statinfo.start_time-user_data->forward.statinfo.start_time)*(8000/1000));
+						((user_data->reversed.statinfo.start_time
+						  - user_data->forward.statinfo.start_time)
+						 * (8000/1000));
 				}
 				for (;;) {
 					if (stop_flag)
@@ -2602,12 +2654,16 @@ copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 					}
 					if ((r_rawvalue == EOF) && (f_rawvalue == EOF))
 						break;
-					if ((user_data->forward.statinfo.pt == PT_PCMU) && (user_data->reversed.statinfo.pt == PT_PCMU)) {
-						sample = (ulaw2linear((unsigned char)r_rawvalue) + ulaw2linear((unsigned char)f_rawvalue)) / 2;
+					if ((user_data->forward.statinfo.pt == PT_PCMU)
+					    && (user_data->reversed.statinfo.pt == PT_PCMU)) {
+						sample = (ulaw2linear((unsigned char)r_rawvalue)
+							  + ulaw2linear((unsigned char)f_rawvalue)) / 2;
 						phtons(pd, sample);
 					}
-					else if ((user_data->forward.statinfo.pt == PT_PCMA) && (user_data->reversed.statinfo.pt == PT_PCMA)) {
-						sample = (alaw2linear((unsigned char)r_rawvalue) + alaw2linear((unsigned char)f_rawvalue)) / 2;
+					else if ((user_data->forward.statinfo.pt == PT_PCMA)
+						 && (user_data->reversed.statinfo.pt == PT_PCMA)) {
+						sample = (alaw2linear((unsigned char)r_rawvalue)
+							  + alaw2linear((unsigned char)f_rawvalue)) / 2;
 						phtons(pd, sample);
 					}
 					else
@@ -2729,22 +2785,24 @@ save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 	*/
 
 	/* we can not save in both directions */
-	if ((user_data->forward.saveinfo.saved == FALSE) && (user_data->reversed.saveinfo.saved == FALSE) && (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both)))) {
+	if ((user_data->forward.saveinfo.saved == FALSE)
+	    && (user_data->reversed.saveinfo.saved == FALSE)
+	    && (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both)))) {
 		/* there are many combinations here, we just exit when first matches */
-		if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC) ||
-			(user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC))
+		if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
+		    || (user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Unsupported codec!");
-		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_LENGTH) ||
-			(user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_LENGTH))
+		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_LENGTH)
+			 || (user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_LENGTH))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Wrong length of captured packets!");
-		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_PADDING_ERROR) ||
-			(user_data->reversed.saveinfo.error_type == TAP_RTP_PADDING_ERROR))
+		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_PADDING_ERROR)
+			 || (user_data->reversed.saveinfo.error_type == TAP_RTP_PADDING_ERROR))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: RTP data with padding!");
-		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME) ||
-			(user_data->reversed.saveinfo.error_type == TAP_RTP_SHORT_FRAME))
+		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME)
+			 || (user_data->reversed.saveinfo.error_type == TAP_RTP_SHORT_FRAME))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Not all data in all packets was captured!");
 		else
@@ -2754,8 +2812,9 @@ save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		return TRUE; /* we're done */
 	}
 	/* we can not save forward direction */
-	else if ((user_data->forward.saveinfo.saved == FALSE) && ((gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (forw))) ||
-		(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both))))) {
+	else if ((user_data->forward.saveinfo.saved == FALSE)
+		 && ((gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (forw)))
+		     || (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both))))) {
 		if (user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save forward direction in a file: Unsupported codec!");
@@ -2775,8 +2834,9 @@ save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		return TRUE; /* we're done */
 	}
 	/* we can not save reversed direction */
-	else if ((user_data->reversed.saveinfo.saved == FALSE) && ((gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rev))) ||
-		(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both))))) {
+	else if ((user_data->reversed.saveinfo.saved == FALSE)
+		 && ((gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rev)))
+		     || (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both))))) {
 		if (user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save reversed direction in a file: Unsupported codec!");
@@ -2826,20 +2886,25 @@ save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 	if (format == SAVE_AU_FORMAT)
 	{
 		/* make sure streams are alaw/ulaw */
-		if ((channels & SAVE_FORWARD_DIRECTION_MASK) && (user_data->forward.statinfo.pt != PT_PCMA) && (user_data->forward.statinfo.pt != PT_PCMU)) {
+		if ((channels & SAVE_FORWARD_DIRECTION_MASK)
+		    && (user_data->forward.statinfo.pt != PT_PCMA)
+		    && (user_data->forward.statinfo.pt != PT_PCMU)) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: saving in au format supported only for alaw/ulaw streams");
 			g_free(g_dest);
 			return TRUE; /* we're done */
 		}
-		if ((channels & SAVE_REVERSE_DIRECTION_MASK) && (user_data->reversed.statinfo.pt != PT_PCMA) && (user_data->reversed.statinfo.pt != PT_PCMU)) {
+		if ((channels & SAVE_REVERSE_DIRECTION_MASK)
+		    && (user_data->reversed.statinfo.pt != PT_PCMA)
+		    && (user_data->reversed.statinfo.pt != PT_PCMU)) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: saving in au format supported only for alaw/ulaw streams");
 			g_free(g_dest);
 			return TRUE; /* we're done */
 		}
 		/* make sure pt's don't differ */
-		if ((channels == SAVE_BOTH_DIRECTION_MASK) && (user_data->forward.statinfo.pt != user_data->reversed.statinfo.pt)) {
+		if ((channels == SAVE_BOTH_DIRECTION_MASK)
+		    && (user_data->forward.statinfo.pt != user_data->reversed.statinfo.pt)) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				"Can't save in a file: Forward and reverse direction differ in type");
 			g_free(g_dest);
@@ -2913,7 +2978,7 @@ on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 								     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 								     NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(user_data->dlg.save_voice_as_w), TRUE);
-	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_voice_as_w),GTK_WINDOW(user_data->dlg.window));
+	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_voice_as_w), GTK_WINDOW(user_data->dlg.window));
 
 	/* Container for each row of widgets */
 	vertb =ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
@@ -2931,75 +2996,75 @@ on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 	label_format = gtk_label_new ("Format: .au (ulaw, 8 bit, 8000 Hz, mono) ");
 	gtk_widget_show (label_format);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), label_format, 0, 0, 3, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 #endif
 
 	label_format = gtk_label_new ("Format: ");
 	gtk_widget_show (label_format);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), label_format, 0, 0, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5f);
 
 	raw_rb = gtk_radio_button_new_with_label (NULL, ".raw");
 	gtk_widget_show (raw_rb);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), raw_rb, 1, 0, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 
 	au_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), ".au");
 	gtk_widget_show (au_rb);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), au_rb, 3, 0, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 #if 0
 	/* we support .au - ulaw*/
 	wav_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), ".wav");
 	gtk_widget_show (wav_rb);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), wav_rb, 1, 0, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	sw_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), "8 kHz, 16 bit  ");
 	gtk_widget_show (sw_rb);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), sw_rb, 2, 0, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 	au_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), ".au");
 	gtk_widget_show (au_rb);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), au_rb, 3, 0, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 #endif
 
 	channels_label = gtk_label_new ("Channels:    ");
 	gtk_widget_show (channels_label);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), channels_label, 0, 1, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
 	forward_rb = gtk_radio_button_new_with_label (NULL, "forward    ");
 	gtk_widget_show (forward_rb);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), forward_rb, 1, 1, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	reversed_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "reversed    ");
 	gtk_widget_show (reversed_rb);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), reversed_rb, 2, 1, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 	both_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "both");
 	gtk_widget_show (both_rb);
 	ws_gtk_grid_attach_extended (GTK_GRID (grid1), both_rb, 3, 1, 1, 1,
-                                     (GtkAttachOptions) (GTK_FILL),
-                                     (GtkAttachOptions) (0), 0, 0);
+				     (GtkAttachOptions) (GTK_FILL),
+				     (GtkAttachOptions) (0), 0, 0);
 
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(forward_rb), TRUE);
@@ -3111,10 +3176,10 @@ draw_stat(user_data_t *user_data)
 		r_perc = 0;
 	}
 
-	if ((f_total_nr >0)&&(f_sumt2 > 0)) {
+	if ((f_total_nr >0) && (f_sumt2 > 0)) {
 		f_clock_drift = (f_total_nr * f_sumtTS - f_sumt * f_sumTS) / (f_total_nr * f_sumt2 - f_sumt * f_sumt);
 	}
-	if ((r_total_nr >0)&&(r_sumt2 > 0)) {
+	if ((r_total_nr >0) && (r_sumt2 > 0)) {
 		r_clock_drift = (r_total_nr * r_sumtTS - r_sumt * r_sumTS) / (r_total_nr * r_sumt2 - r_sumt * r_sumt);
 	}
 	g_snprintf(label_max, sizeof(label_max), "Max delta = %.2f ms at packet no. %u \n"
@@ -3124,14 +3189,17 @@ draw_stat(user_data_t *user_data)
 		"   Sequence errors = %u \n"
 		"Duration %.2f s (%.0f ms clock drift, corresponding to %.0f Hz (%+.2f%%)",
 		user_data->forward.statinfo.max_delta, user_data->forward.statinfo.max_nr,
-		user_data->forward.statinfo.max_jitter,user_data->forward.statinfo.mean_jitter,
+		user_data->forward.statinfo.max_jitter, user_data->forward.statinfo.mean_jitter,
 		user_data->forward.statinfo.max_skew,
 		f_expected, f_expected, f_lost, f_perc,
 		user_data->forward.statinfo.sequence,
-		f_duration/1000,f_duration*(f_clock_drift-1.0),f_clock_drift*f_clock_rate,100.0*(f_clock_drift-1.0));
+		f_duration / 1000,
+		f_duration * (f_clock_drift - 1.0),
+		f_clock_drift * f_clock_rate,
+		100.0 * (f_clock_drift - 1.0));
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_fwd), label_max);
-	gtk_label_set_selectable (GTK_LABEL(user_data->dlg.label_stats_fwd),TRUE);
+	gtk_label_set_selectable (GTK_LABEL(user_data->dlg.label_stats_fwd), TRUE);
 
 	g_snprintf(label_max, sizeof(label_max), "Max delta = %.2f ms at packet no. %u \n"
 		"Max jitter = %.2f ms. Mean jitter = %.2f ms.\n"
@@ -3140,14 +3208,17 @@ draw_stat(user_data_t *user_data)
 		"   Sequence errors = %u \n"
 		"Duration %.2f s (%.0f ms clock drift, corresponding to %.0f Hz (%+.2f%%)",
 		user_data->reversed.statinfo.max_delta, user_data->reversed.statinfo.max_nr,
-		user_data->reversed.statinfo.max_jitter,user_data->reversed.statinfo.mean_jitter,
+		user_data->reversed.statinfo.max_jitter, user_data->reversed.statinfo.mean_jitter,
 		user_data->reversed.statinfo.max_skew,
 		r_expected, r_expected, r_lost, r_perc,
 		user_data->reversed.statinfo.sequence,
-		r_duration/1000,r_duration*(r_clock_drift-1.0),r_clock_drift*r_clock_rate,100.0*(r_clock_drift-1.0));
+		r_duration / 1000,
+		r_duration * (r_clock_drift - 1.0),
+		r_clock_drift * r_clock_rate,
+		100.0 * (r_clock_drift - 1.0));
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_rev), label_max);
-	gtk_label_set_selectable (GTK_LABEL(user_data->dlg.label_stats_rev),TRUE);
+	gtk_label_set_selectable (GTK_LABEL(user_data->dlg.label_stats_rev), TRUE);
 
 	return ;
 }
@@ -3158,7 +3229,7 @@ draw_stat(user_data_t *user_data)
 /* append a line to list */
 static void
 add_to_list(GtkWidget *list, user_data_t * user_data, guint32 number, guint16 seq_num, guint32 timestamp,
-	    double delta, double jitter,double skew, double bandwidth, gchar *status, gboolean marker,
+	    double delta, double jitter, double skew, double bandwidth, gchar *status, gboolean marker,
 	    gchar *timeStr, guint32 pkt_len, gchar *color_str, guint32 flags)
 {
 	GtkListStore *list_store;
@@ -3546,7 +3617,7 @@ create_rtp_dialog(user_data_t* user_data)
 	label = gtk_label_new("     Future    ");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_help, label);
 	frame = gtk_frame_new("");
-	text = gtk_label_new("\n\nMaybe some more statistics: delta and jitter distribution,...");
+	text = gtk_label_new("\n\nMaybe some more statistics: delta and jitter distribution, ...");
 	gtk_label_set_justify(GTK_LABEL(text), GTK_JUSTIFY_LEFT);
 	gtk_container_add(GTK_CONTAINER(frame), text);
 	gtk_container_set_border_width(GTK_CONTAINER(frame), 20);
@@ -3850,7 +3921,7 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	rtp_stream_info_t *strinfo;
 
 	/* Try to compile the filter. */
-	g_strlcpy(filter_text,"rtp && rtp.version && rtp.ssrc && (ip || ipv6)",sizeof(filter_text));
+	g_strlcpy(filter_text, "rtp && rtp.version && rtp.ssrc && (ip || ipv6)", sizeof(filter_text));
 	if (!dfilter_compile(filter_text, &sfcode)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", dfilter_error_msg);
 		return;
@@ -3913,18 +3984,18 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	while (strinfo_list)
 	{
 		strinfo = (rtp_stream_info_t*)(strinfo_list->data);
-		if (ADDRESSES_EQUAL(&(strinfo->src_addr),&(src_fwd))
-			&& strinfo->src_port == port_src_fwd
-			&& ADDRESSES_EQUAL(&(strinfo->dest_addr),&(dst_fwd))
-			&& strinfo->dest_port == port_dst_fwd)
+		if (ADDRESSES_EQUAL(&(strinfo->src_addr), &(src_fwd))
+		    && (strinfo->src_port == port_src_fwd)
+		    && (ADDRESSES_EQUAL(&(strinfo->dest_addr), &(dst_fwd)))
+		    && (strinfo->dest_port == port_dst_fwd))
 		{
 			filtered_list = g_list_prepend(filtered_list, strinfo);
 		}
 
-		if (ADDRESSES_EQUAL(&(strinfo->src_addr),&(src_rev))
-			&& strinfo->src_port == port_src_rev
-			&& ADDRESSES_EQUAL(&(strinfo->dest_addr),&(dst_rev))
-			&& strinfo->dest_port == port_dst_rev)
+		if (ADDRESSES_EQUAL(&(strinfo->src_addr), &(src_rev))
+		    && (strinfo->src_port == port_src_rev)
+		    && (ADDRESSES_EQUAL(&(strinfo->dest_addr), &(dst_rev)))
+		    && (strinfo->dest_port == port_dst_rev))
 		{
 			++nfound;
 			filtered_list = g_list_append(filtered_list, strinfo);
@@ -3958,7 +4029,7 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 
 /****************************************************************************/
 static void
-rtp_analysis_init(const char *dummy _U_,void* userdata _U_)
+rtp_analysis_init(const char *dummy _U_, void *userdata _U_)
 {
 	rtp_analysis_cb(NULL, NULL);
 }
