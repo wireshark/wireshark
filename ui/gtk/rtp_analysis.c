@@ -2284,7 +2284,7 @@ static void
 save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 {
 	GtkWidget *vertb;
-	GtkWidget *table1;
+	GtkWidget *grid1;
 	GtkWidget *label_format;
 	GtkWidget *channels_label;
 	GtkWidget *forward_rb;
@@ -2313,45 +2313,45 @@ save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data)
 	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), vertb);
 	gtk_widget_show (vertb);
 
-	table1 = gtk_table_new (2, 4, FALSE);
-	gtk_widget_show (table1);
-	gtk_box_pack_start (GTK_BOX (vertb), table1, FALSE, FALSE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (table1), 10);
-	gtk_table_set_row_spacings (GTK_TABLE (table1), 20);
+	grid1 = ws_gtk_grid_new ();
+	gtk_widget_show (grid1);
+	gtk_box_pack_start (GTK_BOX (vertb), grid1, FALSE, FALSE, 0);
+	gtk_container_set_border_width (GTK_CONTAINER (grid1), 10);
+	ws_gtk_grid_set_row_spacing (GTK_GRID (grid1), 20);
 
 	label_format = gtk_label_new ("Format: Comma Separated Values");
 	gtk_widget_show (label_format);
-	gtk_table_attach (GTK_TABLE (table1), label_format, 0, 3, 0, 1,
-		(GtkAttachOptions) (GTK_FILL),
-		(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), label_format, 0, 0, 3, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 
 	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5f);
 
 
 	channels_label = gtk_label_new ("Channels:    ");
 	gtk_widget_show (channels_label);
-	gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
-		(GtkAttachOptions) (GTK_FILL),
-		(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), channels_label, 0, 1, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
 	forward_rb = gtk_radio_button_new_with_label (NULL, "forward  ");
 	gtk_widget_show (forward_rb);
-	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
-		(GtkAttachOptions) (GTK_FILL),
-		(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), forward_rb, 1, 1, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 
 	reversed_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "reversed    ");
 	gtk_widget_show (reversed_rb);
-	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
-		(GtkAttachOptions) (GTK_FILL),
-		(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), reversed_rb, 2, 1, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 
 	both_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "both");
 	gtk_widget_show (both_rb);
-	gtk_table_attach (GTK_TABLE (table1), both_rb, 3, 4, 1, 2,
-		(GtkAttachOptions) (GTK_FILL),
-		(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), both_rb, 3, 1, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(both_rb), TRUE);
 
@@ -2883,7 +2883,7 @@ static void
 on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 {
 	GtkWidget *vertb;
-	GtkWidget *table1;
+	GtkWidget *grid1;
 	GtkWidget *label_format;
 	GtkWidget *channels_label;
 	GtkWidget *forward_rb;
@@ -2921,85 +2921,85 @@ on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(user_data->dlg.save_voice_as_w), vertb);
 	gtk_widget_show (vertb);
 
-	table1 = gtk_table_new (2, 4, FALSE);
-	gtk_widget_show (table1);
-	gtk_box_pack_start (GTK_BOX (vertb), table1, FALSE, FALSE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (table1), 10);
-	gtk_table_set_row_spacings (GTK_TABLE (table1), 20);
+	grid1 = ws_gtk_grid_new ();
+	gtk_widget_show (grid1);
+	gtk_box_pack_start (GTK_BOX (vertb), grid1, FALSE, FALSE, 0);
+	gtk_container_set_border_width (GTK_CONTAINER (grid1), 10);
+	ws_gtk_grid_set_row_spacing (GTK_GRID (grid1), 20);
 
 #if 0
 	label_format = gtk_label_new ("Format: .au (ulaw, 8 bit, 8000 Hz, mono) ");
 	gtk_widget_show (label_format);
-	gtk_table_attach (GTK_TABLE (table1), label_format, 0, 3, 0, 1,
-		(GtkAttachOptions) (GTK_FILL),
-		(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), label_format, 0, 0, 3, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 #endif
 
 	label_format = gtk_label_new ("Format: ");
 	gtk_widget_show (label_format);
-	gtk_table_attach (GTK_TABLE (table1), label_format, 0, 3, 0, 1,
-		(GtkAttachOptions) (GTK_FILL),
-		(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), label_format, 0, 0, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 
 	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5f);
 
 	raw_rb = gtk_radio_button_new_with_label (NULL, ".raw");
 	gtk_widget_show (raw_rb);
-	gtk_table_attach (GTK_TABLE (table1), raw_rb, 1, 2, 0, 1,
-	(GtkAttachOptions) (GTK_FILL),
-	(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), raw_rb, 1, 0, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 
 
 	au_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), ".au");
 	gtk_widget_show (au_rb);
-	gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
-	(GtkAttachOptions) (GTK_FILL),
-	(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), au_rb, 3, 0, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 
 #if 0
 	/* we support .au - ulaw*/
 	wav_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), ".wav");
 	gtk_widget_show (wav_rb);
-	gtk_table_attach (GTK_TABLE (table1), wav_rb, 1, 2, 0, 1,
-	(GtkAttachOptions) (GTK_FILL),
-	(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), wav_rb, 1, 0, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 
 	sw_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), "8 kHz, 16 bit  ");
 	gtk_widget_show (sw_rb);
-	gtk_table_attach (GTK_TABLE (table1), sw_rb, 2, 3, 0, 1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), sw_rb, 2, 0, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 	au_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(raw_rb), ".au");
 	gtk_widget_show (au_rb);
-	gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), au_rb, 3, 0, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 #endif
 
 	channels_label = gtk_label_new ("Channels:    ");
 	gtk_widget_show (channels_label);
-	gtk_table_attach (GTK_TABLE (table1), channels_label, 0, 1, 1, 2,
-		(GtkAttachOptions) (GTK_FILL),
-		(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), channels_label, 0, 1, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5f);
 
 	forward_rb = gtk_radio_button_new_with_label (NULL, "forward    ");
 	gtk_widget_show (forward_rb);
-	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
-		(GtkAttachOptions) (GTK_FILL),
-		(GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), forward_rb, 1, 1, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 
 	reversed_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "reversed    ");
 	gtk_widget_show (reversed_rb);
-	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), reversed_rb, 2, 1, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 
 	both_rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(forward_rb), "both");
 	gtk_widget_show (both_rb);
-	gtk_table_attach (GTK_TABLE (table1), both_rb, 3, 4, 1, 2,
-			  (GtkAttachOptions) (GTK_FILL),
-			  (GtkAttachOptions) (0), 0, 0);
+	ws_gtk_grid_attach_extended (GTK_GRID (grid1), both_rb, 3, 1, 1, 1,
+                                     (GtkAttachOptions) (GTK_FILL),
+                                     (GtkAttachOptions) (0), 0, 0);
 
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(forward_rb), TRUE);
