@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -82,10 +82,10 @@ expert_init(void)
 			{ "Message", "expert.message", FT_STRING, BASE_NONE, NULL, 0, "Wireshark expert information", HFILL }
 		},
 		{ &hf_expert_group,
-			{ "Group", "expert.group", FT_UINT32, BASE_NONE, VALS(expert_group_vals), 0, "Wireshark expert group", HFILL }
+			{ "Group", "expert.group", FT_UINT32, BASE_HEX, VALS(expert_group_vals), 0, "Wireshark expert group", HFILL }
 		},
 		{ &hf_expert_severity,
-			{ "Severity level", "expert.severity", FT_UINT32, BASE_NONE, VALS(expert_severity_vals), 0, "Wireshark expert severity level", HFILL }
+			{ "Severity level", "expert.severity", FT_UINT32, BASE_HEX, VALS(expert_severity_vals), 0, "Wireshark expert severity level", HFILL }
 		}
 	};
 	static gint *ett[] = {
@@ -184,11 +184,14 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	g_vsnprintf(formatted, ITEM_LABEL_LENGTH, format, ap);
 
 	tree = expert_create_tree(pi, group, severity, formatted);
+
 	ti = proto_tree_add_string(tree, hf_expert_msg, NULL, 0, 0, formatted);
 	PROTO_ITEM_SET_GENERATED(ti);
-	ti = proto_tree_add_uint(tree, hf_expert_severity, NULL, 0, 0, severity);
+	ti = proto_tree_add_uint_format_value(tree, hf_expert_severity, NULL, 0, 0, severity,
+					      "%s", val_to_str_const(severity, expert_severity_vals, "Unknown"));
 	PROTO_ITEM_SET_GENERATED(ti);
-	ti = proto_tree_add_uint(tree, hf_expert_group, NULL, 0, 0, group);
+	ti = proto_tree_add_uint_format_value(tree, hf_expert_group, NULL, 0, 0, group,
+					      "%s", val_to_str_const(group, expert_group_vals, "Unknown"));
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	tap = have_tap_listener(expert_tap);
