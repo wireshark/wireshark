@@ -1164,6 +1164,7 @@ static const value_string pdp_type[] = {
     {0x02, "OSP:IHOSS"},
     {0x21, "IPv4"},
     {0x57, "IPv6"},
+    {0x8d, "IPv4v6"},
     {0, NULL}
 };
 
@@ -3866,6 +3867,14 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
             tvb_get_ipv6(tvb, offset + 5, &addr_ipv6);
             proto_tree_add_ipv6(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 16, (guint8 *) & addr_ipv6);
             proto_item_append_text(te, " : %s", ip6_to_str((struct e_in6_addr *) &addr_ipv6));
+            break;
+        case 0x8d:
+            addr_ipv4 = tvb_get_ipv4(tvb, offset + 5);
+            proto_tree_add_ipv4(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, addr_ipv4);
+            tvb_get_ipv6(tvb, offset + 9, &addr_ipv6);
+            proto_tree_add_ipv6(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 16, (guint8 *) & addr_ipv6);
+            proto_item_append_text(te, " : %s / %s", ip_to_str((guint8 *) & addr_ipv4),
+                                   ip6_to_str((struct e_in6_addr *) &addr_ipv6));
             break;
         }
     } else
