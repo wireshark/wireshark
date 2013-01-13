@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-01-03
+# 2013-01-08
 # 
 # Experts
 # 
@@ -3335,7 +3335,9 @@ dmdocbroker	1489/tcp	# dmdocbroker                  [Razmik_Abnous]             
 dmdocbroker	1489/udp	# dmdocbroker                  [Razmik_Abnous]                                    [Razmik_Abnous]
 insitu-conf	1490/tcp	# insitu-conf                  [Paul_Blacknell]                                   [Paul_Blacknell]
 insitu-conf	1490/udp	# insitu-conf                  [Paul_Blacknell]                                   [Paul_Blacknell]
-# 1491               Unassigned                                                                                                                                             2009-08-05
+# Unauthorized
+# 1491               Unassigned                                                                                                                                             2009-08-05                                                    Use Known on
+# port 1491
 stone-design-1	1492/tcp	# stone-design-1               [Andrew_Stone]                                     [Andrew_Stone]
 stone-design-1	1492/udp	# stone-design-1               [Andrew_Stone]                                     [Andrew_Stone]
 # netmap_lm
@@ -6136,8 +6138,12 @@ gcmonitor	2660/tcp	# GC Monitor                   [Gustavo_Rodriguez_Ri]        
 gcmonitor	2660/udp	# GC Monitor                   [Gustavo_Rodriguez_Ri]                             [Gustavo_Rodriguez_Ri]
 olhost	2661/tcp	# OLHOST                       [Robert_Ripberger]                                 [Robert_Ripberger]
 olhost	2661/udp	# OLHOST                       [Robert_Ripberger]                                 [Robert_Ripberger]
-bintec-capi	2662/tcp	# BinTec-CAPI
-bintec-capi	2662/udp	# BinTec-CAPI
+# Unauthorized
+bintec-capi	2662/tcp	# BinTec-CAPI                                                                                                                                                                                                          Use Known on
+# port 2662
+# Unauthorized
+bintec-capi	2662/udp	# BinTec-CAPI                                                                                                                                                                                                          Use Known on
+# port 2662
 bintec-tapi	2663/tcp	# BinTec-TAPI
 bintec-tapi	2663/udp	# BinTec-TAPI
 patrol-mq-gm	2664/tcp	# Patrol for MQ GM
@@ -14321,7 +14327,16 @@ netapp-icdata	11105/tcp	# NetApp Intercluster Data     [Craig_Everhart]         
 # 11105       udp    Reserved
 sgi-lk	11106/tcp	# SGI LK Licensing service     [Michel_Bourget]                                   [Michel_Bourget]                                          2009-01-06
 sgi-lk	11106/udp	# SGI LK Licensing service     [Michel_Bourget]                                   [Michel_Bourget]                                          2009-01-06
-# 11107-11110           Unassigned
+# 11107-11108           Unassigned
+# Data migration facility
+sgi-dmfmgr	11109/tcp	# Manager (DMF) is a browser   [SGI]                                              [John_Sygulla]                                            2013-01-07
+# based interface to DMF
+# 11109       udp    Reserved
+# Data migration facility
+sgi-soap	11110/tcp	# (DMF) SOAP is a web server   [SGI]                                              [John_Sygulla]                                            2013-01-07
+# protocol to support remote
+# access to DMF
+# 11110       udp    Reserved
 vce	11111/tcp	# Viral Computing Environment  [Fred_Cohen]                                       [Fred_Cohen]
 # (VCE)
 vce	11111/udp	# Viral Computing Environment  [Fred_Cohen]                                       [Fred_Cohen]
@@ -19285,6 +19300,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [John_Schilling]                                          John Schilling                                  mailto:john&jschilling.net
 # [John_Skidmore]                                           John Skidmore                                   mailto:JSkidmore&vicon-cctv.com                               2002-07
 # [John_Stephen]                                            John Stephen                                    mailto:iana&mundocani.com                                     2002-07
+# [John_Sygulla]                                            John Sygulla              SGI                   mailto:jsygulla&sgi.com                                       2013-01-07
 # [John_T_McCann]                                           John T. McCann                                  mailto:jmccann&softwaremetering.com                           2003-10
 # [John_Tafoya]                                             John Tafoya                                     mailto:johnt&microsoft.com
 # [John_Taylor]                                             John Taylor               Ingersoll Rand, Inc.  mailto:john.taylor&irco.com                                   2011-09-28
@@ -20959,6 +20975,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [SEIKO_EPSON_2]                                                                     SEIKO EPSON           mailto:Ishida.Hitoshi&exc.epson.co.jp
 # [SEIKO_EPSON_3]                                                                     SEIKO EPSON           mailto:Sato.Minoru3&exc.epson.co.jp                           2002-10
 # [SEIKO_EPSON_4]                                                                     SEIKO EPSON           mailto:ProjectorSoft&exc.epson.co.jp                          2008-11-17
+# [SGI]                                                                               SGI                   mailto:jsygulla&sgi.com                                       2013-01-07
 # [SMA_Solar_Techology]                                     SMA Solar Techology AG                          mailto:thomas.weber&sma.de                                    2011-03-08
 # [SONET_Internetworkin]                                                              SONET Internetworking mailto:bwarijsman&lucent.com
 # Forum (SIF)
