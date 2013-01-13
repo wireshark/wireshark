@@ -73,7 +73,7 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
 {
   proto_item *it;
   proto_tree *tlv_tree;
-  guint8 pos = start + 1;
+  guint16 pos = start + 1;
   guint8 type, length;
 
   it = proto_tree_add_protocol_format (tree, proto_docsis_cmstatus, tvb, 0, len, "TLV Data");
