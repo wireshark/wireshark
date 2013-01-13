@@ -303,7 +303,7 @@ time_string(time_t timer, capture_info *cf_info, gboolean want_lf)
       g_snprintf(time_string_buf, 20, "%lu%s", (unsigned long)timer, lf);
       return time_string_buf;
     } else {
-#ifdef _MSC_VER
+#if (defined _WIN32) && (_MSC_VER < 1500)
       /* calling localtime(), and thus ctime(), on MSVC 2005 with huge values causes it to crash */
       /* XXX - find the exact value that still does work */
       /* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */

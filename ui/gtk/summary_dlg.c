@@ -103,7 +103,7 @@ time_to_string(char *string_buff, gulong string_buff_size, time_t ti_time)
 {
   struct tm *ti_tm;
 
-#ifdef _MSC_VER
+#if (defined _WIN32) && (_MSC_VER < 1500)
   /* calling localtime() on MSVC 2005 with huge values causes it to crash */
   /* XXX - find the exact value that still does work */
   /* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */

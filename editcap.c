@@ -149,7 +149,7 @@ abs_time_to_str_with_sec_resolution(const struct wtap_nstime *abs_time)
     struct tm *tmp;
     gchar *buf = g_malloc(16);
 
-#ifdef _MSC_VER
+#if (defined _WIN32) && (_MSC_VER < 1500)
     /* calling localtime() on MSVC 2005 with huge values causes it to crash */
     /* XXX - find the exact value that still does work */
     /* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
