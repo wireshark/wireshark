@@ -854,7 +854,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 }
                 break;
             default:
-                pitem = proto_tree_add_item(service_tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
+                proto_tree_add_item(service_tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
                 offset += losc;
                 losc = 0;
         }
