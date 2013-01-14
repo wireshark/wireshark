@@ -114,6 +114,10 @@ function exit_error() {
         env | grep "^BUILDBOT_" >> $TMP_DIR/${ERR_FILE}.header
     fi
 
+    echo -e "\nReturn value: " $RETVAL >> $TMP_DIR/${ERR_FILE}.header
+    echo -e "\nDissector bug: " $DISSECTOR_BUG >> $TMP_DIR/${ERR_FILE}.header
+    echo -e "\nValgrind error count: " $VG_ERR_CNT >> $TMP_DIR/${ERR_FILE}.header
+
     echo -e "\n" >> $TMP_DIR/${ERR_FILE}.header
 
     if [ -d .svn ] ; then
