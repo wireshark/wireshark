@@ -4074,6 +4074,7 @@ proto_item_set_text(proto_item *pi, const char *format, ...)
 
 	if (fi->rep) {
 		ITEM_LABEL_FREE(fi->rep);
+		fi->rep = NULL;
 	}
 
 	va_start(ap, format);
