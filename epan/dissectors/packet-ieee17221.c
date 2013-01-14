@@ -3917,6 +3917,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
             proto_tree_add_item(aecp_tree, hf_aecp_msrp_failure_bridge_id, tvb,
                   AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_BRIDGE_ID, 8, ENC_NA);
          }
+         break;
       case AECP_COMMAND_SET_NAME:
       case AECP_COMMAND_GET_NAME:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
