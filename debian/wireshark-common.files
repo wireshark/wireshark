@@ -1,9 +1,12 @@
+/usr/bin/dftest    
 /usr/bin/dumpcap
 /usr/bin/capinfos
 /usr/bin/editcap
 /usr/bin/mergecap
-/usr/bin/text2pcap
+/usr/bin/randpkt     
 /usr/bin/rawshark
+/usr/bin/reordercap
+/usr/bin/text2pcap
 /usr/lib/wireshark/libwireshark.so.0
 /usr/lib/wireshark/libwireshark.so.0.0.0
 /usr/lib/wireshark/libwiretap.so.0
