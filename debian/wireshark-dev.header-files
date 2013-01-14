@@ -6,4 +6,5 @@ epan/crypt/*.h
 epan/dfilter/*.h
 epan/dissectors/*.h
 epan/ftypes/*.h
+epan/wmem/*.h
 wiretap/*.h
