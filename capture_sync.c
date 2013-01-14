@@ -957,7 +957,7 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
     char *secondary_msg_text;
     char *combined_msg;
     GString *data_buf = NULL;
-    size_t count;
+    ssize_t count;
 
     ret = sync_pipe_open_command(argv, &data_pipe_read_fd, &sync_pipe_read_fd,
                                  &fork_child, &msg);
