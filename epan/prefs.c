@@ -1365,7 +1365,7 @@ static char * column_hidden_to_str_cb(pref_t* pref, gboolean default_val) {
 
 static gboolean column_hidden_is_default_cb(pref_t* pref) {
     char *cur_hidden_str = column_hidden_to_str_cb(pref, FALSE);
-    gboolean is_default = strcmp(cur_hidden_str, pref->default_val.string) == 0;
+    gboolean is_default = g_strcmp0(cur_hidden_str, pref->default_val.string) == 0;
 
     g_free(cur_hidden_str);
     return is_default;
@@ -1557,10 +1557,10 @@ static gboolean column_format_is_default_cb(pref_t* pref) {
         while (pref_col && def_col) {
             cfmt = (fmt_data *) pref_col->data;
             def_cfmt = (fmt_data *) def_col->data;
-            if ((strcmp(cfmt->title, def_cfmt->title) != 0) ||
+            if ((g_strcmp0(cfmt->title, def_cfmt->title) != 0) ||
                     (cfmt->fmt != def_cfmt->fmt) ||
                     (((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_field)) &&
-                     ((strcmp(cfmt->custom_field, def_cfmt->custom_field) != 0) ||
+                     ((g_strcmp0(cfmt->custom_field, def_cfmt->custom_field) != 0) ||
                       (cfmt->resolved != def_cfmt->resolved)))) {
                 is_default = FALSE;
                 break;
