@@ -92,7 +92,7 @@ static const char *font_pangrams[] = {
 GtkWidget *
 font_color_prefs_show(void)
 {
-  GtkWidget *main_vb, *main_tb, *label, *combo_box;
+  GtkWidget *main_vb, *main_grid, *label, *combo_box;
   GtkWidget *font_sample, *color_sample, *colorsel;
   int        i;
   const gchar     *mt[] = {
@@ -129,20 +129,20 @@ font_color_prefs_show(void)
   main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 
-  main_tb = gtk_table_new(4, 3, FALSE);
-  gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-  gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-  gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
-  gtk_widget_show(main_tb);
+  main_grid = ws_gtk_grid_new();
+  gtk_box_pack_start(GTK_BOX(main_vb), main_grid, FALSE, FALSE, 0);
+  ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 10);
+  ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 15);
+  gtk_widget_show(main_grid);
 
   label = gtk_label_new("Main window font:");
   gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 0, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), label, 0, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0,0);
   gtk_widget_show(label);
 
   font_button = gtk_font_button_new_with_font(prefs.gui_font_name);
   gtk_font_button_set_title(GTK_FONT_BUTTON(font_button), "Wireshark: Font");
-  gtk_table_attach(GTK_TABLE(main_tb), font_button, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
+  ws_gtk_grid_attach(GTK_GRID(main_grid), font_button, 1, 0, 1, 1);
   gtk_widget_show(font_button);
 
   g_string_printf(preview_string, " %s 0123456789",
@@ -154,7 +154,7 @@ font_color_prefs_show(void)
   gtk_text_buffer_get_start_iter(buf, &iter);
   srand((unsigned int) time(NULL));
   gtk_text_buffer_insert(buf, &iter, preview_string->str, -1);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), font_sample, 2, 3, 0, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), font_sample, 2, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0,0);
   g_signal_connect(font_button, "font-set", G_CALLBACK(select_font), NULL);
   gtk_widget_show(font_sample);
 
@@ -163,7 +163,7 @@ font_color_prefs_show(void)
 
   label = gtk_label_new("Colors:");
   gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
+  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), label, 0, 1, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0,0);
   gtk_widget_show(label);
 
   /* We have to create this now, and configure it below. */
@@ -175,7 +175,7 @@ font_color_prefs_show(void)
   }
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), CFG_IDX);
   g_signal_connect(combo_box, "changed", G_CALLBACK(update_current_color), colorsel);
-  gtk_table_attach(GTK_TABLE(main_tb), combo_box, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+  ws_gtk_grid_attach(GTK_GRID(main_grid), combo_box, 1, 1, 1, 1);
 
   gtk_widget_show(combo_box);
 
@@ -204,13 +204,13 @@ font_color_prefs_show(void)
                                            "client", NULL);
   gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_SERVER_TEXT, -1,
                                            "server", NULL);
-  gtk_table_attach_defaults(GTK_TABLE(main_tb), color_sample, 2, 3, 1, 3);
+  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), color_sample, 2, 1, 1, 2, GTK_EXPAND|GTK_FILL, 0, 0,0);
   gtk_widget_show(color_sample);
 
   gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel),
                                         curcolor);
-  gtk_table_attach(GTK_TABLE(main_tb), colorsel, 0, 3, 3, 4,
-		  GTK_SHRINK, GTK_SHRINK, 0, 0);
+  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), colorsel, 1, 3, 2, 1,
+                              GTK_FILL|GTK_EXPAND, 0, 0, 0);
 
 
   g_object_set_data(G_OBJECT(combo_box), COLOR_SAMPLE_KEY, color_sample);
