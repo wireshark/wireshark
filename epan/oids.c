@@ -849,30 +849,26 @@ const char* oid_subid2string(guint32* subids, guint len) {
 
 static guint check_num_oid(const char* str) {
 	const char* r = str;
-	char c = '\0';
+	char c = '.';
 	guint n = 0;
 
 	D(8,("check_num_oid: '%s'",str));
-	if (!r || *r == '.' || *r == '\0') return 0;
+	if (!r) return 0;
 
 	do {
 		D(9,("\tcheck_num_oid: '%c' %d",*r,n));
 		switch(*r) {
-			case '.':
+            case '.': case '\0':
 				n++;
 				if (c == '.') return 0;
+				break;
 			case '1' : case '2' : case '3' : case '4' : case '5' :
 			case '6' : case '7' : case '8' : case '9' : case '0' :
 				continue;
-			case '\0':
-				n++;
-				break;
 			default:
 				return 0;
 		}
 	} while((c = *r++));
-
-	if (c == '.') return 0;
 
 	return n;
 }
