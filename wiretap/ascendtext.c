@@ -148,13 +148,7 @@ static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
     }
   }
 
-  if (byte != EOF) {
-    /* We didn't find the offset. Treat that as a "not an Ascend file"
-       indication. */
-    *err = 0;
-  } else {
-    *err = file_error(wth->fh, err_info);
-  }
+  *err = file_error(wth->fh, err_info);
   return -1;
 
 found:
