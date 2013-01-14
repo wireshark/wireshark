@@ -1275,7 +1275,7 @@ static gint16 dissect_link_det_info(tvbuff_t *tvb, gint16 offset, proto_tree *tl
                 proto_tree_add_item(tlv_tree, hf_sig_strength_per, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         else
                 proto_tree_add_item(tlv_tree, hf_sig_strength_dbm, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-        return offset+2;
+        offset += 2;
         proto_tree_add_item(tlv_tree, hf_sinr, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(tlv_tree, hf_link_data_rate, tvb, offset,4, ENC_BIG_ENDIAN);
