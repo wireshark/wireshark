@@ -924,7 +924,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ncp-nmas.c
 	dissectors/packet-ncp-sss.c
 	dissectors/packet-ncp.c
-	packet-ncp2222.c
+	dissectors/packet-ncp2222.c
 	dissectors/packet-ncs.c
 	dissectors/packet-ndmp.c
 	dissectors/packet-ndp.c
