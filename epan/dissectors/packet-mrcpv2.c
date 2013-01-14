@@ -654,7 +654,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 			/* mark whole packet as unknown and return */
 			col_add_str(pinfo->cinfo, COL_INFO, "UNKNOWN message");
-			line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Message, tvb, offset, tvb_len, ENC_UTF_8);
+			proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Message, tvb, offset, tvb_len, ENC_UTF_8);
 			return tvb_len;
 		}
 
