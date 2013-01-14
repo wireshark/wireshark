@@ -2763,7 +2763,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
 
   /* Reads the bits (and format the print buffer) */
   idx = 0;
-  for (i = 0; i < num_bits; i += 32) {
+  for (i = 0; (i < num_bits) && (idx <= num_bits) && (idx < MAX_BITMAP_SIZE-1); i += 32) {
     data = NEXT_guint32(tvb, offset, little_endian);
     offset += 4;
     for (j = 0; j < 32; ++j) {
