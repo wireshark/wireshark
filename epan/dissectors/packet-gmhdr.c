@@ -192,7 +192,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
         proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_h_gid,  tvb, offset, fl, ENC_BIG_ENDIAN);
         proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_h_bid,  tvb, offset, fl, ENC_BIG_ENDIAN);
         proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_h_sid,  tvb, offset, fl, ENC_BIG_ENDIAN);
-        ti = proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_h_pid,  tvb, offset, fl, ENC_BIG_ENDIAN);
+        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_h_pid,  tvb, offset, fl, ENC_BIG_ENDIAN);
         break;
       }
       default:
