@@ -167,19 +167,19 @@ dnd_merge_files(int in_file_count, char **in_filenames)
     if (merge_status != CF_OK) {
         /* merge failed */
         g_free(tmpname);
-	return;
+        return;
     }
 
     cf_close(&cfile);
 
     /* Try to open the merged capture file. */
     if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
-	/* We couldn't open it; don't dismiss the open dialog box,
-	   just leave it around so that the user can, after they
-	   dismiss the alert box popped up for the open error,
-	   try again. */
-	g_free(tmpname);
-	return;
+        /* We couldn't open it; don't dismiss the open dialog box,
+           just leave it around so that the user can, after they
+           dismiss the alert box popped up for the open error,
+           try again. */
+        g_free(tmpname);
+        return;
     }
     g_free(tmpname);
 
@@ -187,17 +187,17 @@ dnd_merge_files(int in_file_count, char **in_filenames)
 
     case CF_READ_OK:
     case CF_READ_ERROR:
-	/* Just because we got an error, that doesn't mean we were unable
-	   to read any of the file; we handle what we could get from the
-	   file. */
-	break;
+        /* Just because we got an error, that doesn't mean we were unable
+           to read any of the file; we handle what we could get from the
+           file. */
+        break;
 
     case CF_READ_ABORTED:
-	/* The user bailed out of re-reading the capture file; the
-	   capture file has been closed - just free the capture file name
-	   string and return (without changing the last containing
-	   directory). */
-	return;
+        /* The user bailed out of re-reading the capture file; the
+           capture file has been closed - just free the capture file name
+           string and return (without changing the last containing
+           directory). */
+        return;
     }
 }
 
@@ -251,35 +251,27 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
         in_filenames[files_work] = dnd_uri2filename(in_filenames[files_work]);
     }
 
-    switch(in_files) {
-    case(0):
-        /* shouldn't happen */
-        g_error("Drag and drop to open file, but no filenames? (%s)", cf_name ? cf_name : "null");
-        break;
-    case(1):
+    if (in_files == 1) {
         /* open and read the capture file (this will close an existing file) */
         if (cf_open(&cfile, in_filenames[0], FALSE, &err) == CF_OK) {
-          /* XXX - add this to the menu if the read fails? */
-          cf_read(&cfile, FALSE);
-          add_menu_recent_capture_file(in_filenames[0]);
-	} else {
-          /* the capture file couldn't be read (doesn't exist, file format unknown, ...) */
-	}
-        break;
-    default:
+            /* XXX - add this to the menu if the read fails? */
+            cf_read(&cfile, FALSE);
+            add_menu_recent_capture_file(in_filenames[0]);
+        } else {
+            /* the capture file couldn't be read (doesn't exist, file format unknown, ...) */
+        }
+    } else {
         /* build and show the info dialog */
         dialog_text = g_string_sized_new(200);
-        g_string_printf(dialog_text,
-            "%sMerging the following files:%s\n\n",
+        g_string_printf(dialog_text, "%sMerging the following files:%s\n\n",
             simple_dialog_primary_start(), simple_dialog_primary_end());
         for(files_work = 0; files_work < in_files; files_work++) {
             g_string_append(dialog_text, in_filenames[files_work]);
             g_string_append(dialog_text, "\n");
         }
         g_string_append(dialog_text, "\nThe packets in these files will be merged chronologically into a new temporary file.");
-        simple_dialog(ESD_TYPE_CONFIRMATION,
-                    ESD_BTN_OK, "%s",
-                    dialog_text->str);
+        simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_OK, "%s",
+                      dialog_text->str);
         g_string_free(dialog_text, TRUE);
 
         /* actually merge the files now */
