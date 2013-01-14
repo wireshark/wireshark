@@ -695,7 +695,7 @@ dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 /* Code to allow further dissection of Modbus data payload */
 /* Common to both Modbus/TCP and Modbus RTU dissectors     */
 static void
-dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 function_code, 
+dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 function_code,
                     gint payload_start, gint payload_len, guint8 register_format)
 {
     gint reported_len, data_offset, reg_num = 0;
@@ -734,8 +734,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
         case READ_HOLDING_REGS:
         case READ_INPUT_REGS:
         case WRITE_MULT_REGS:
-            while (data_offset < payload_len)
-            {
+            while (data_offset < payload_len) {
                 /* Use "Preferences" options to determine decoding format of register data, as no format is implied by the protocol itself. */
                 /* Based on a standard register size of 16-bits, use decoding format preference to step through each register and display  */
                 /* it in an appropriate fashion. */
@@ -785,7 +784,10 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                         data_offset += 4;
                         reg_num += 2;
                         break;
-
+                    default:
+                        /* Avoid any chance of an infinite loop */
+                        data_offset = payload_len;
+                        break;
                     } /* register format switch */
 
                 } /* while loop */
@@ -1791,13 +1793,13 @@ proto_reg_handoff_mbtcp(void)
         mbtcp_prefs_initialized = TRUE;
     }
 
-	if(mbtcp_port != 0 && mbtcp_port != global_mbus_tcp_port){
-		dissector_delete_uint("tcp.port", mbtcp_port, mbtcp_handle);
-	}
+    if(mbtcp_port != 0 && mbtcp_port != global_mbus_tcp_port){
+        dissector_delete_uint("tcp.port", mbtcp_port, mbtcp_handle);
+    }
 
-	if(global_mbus_tcp_port != 0 && mbtcp_port != global_mbus_tcp_port) {
-		dissector_add_uint("tcp.port", global_mbus_tcp_port, mbtcp_handle);
-	}
+    if(global_mbus_tcp_port != 0 && mbtcp_port != global_mbus_tcp_port) {
+        dissector_add_uint("tcp.port", global_mbus_tcp_port, mbtcp_handle);
+    }
 
     mbtcp_port = global_mbus_tcp_port;
 
@@ -1819,13 +1821,13 @@ proto_reg_handoff_mbrtu(void)
         mbrtu_prefs_initialized = TRUE;
     }
 
-	if(mbrtu_port != 0 && mbrtu_port != global_mbus_rtu_port){
-		dissector_delete_uint("tcp.port", mbrtu_port, mbrtu_handle);
-	}
+    if(mbrtu_port != 0 && mbrtu_port != global_mbus_rtu_port){
+        dissector_delete_uint("tcp.port", mbrtu_port, mbrtu_handle);
+    }
 
-	if(global_mbus_rtu_port != 0 && mbrtu_port != global_mbus_rtu_port) {
-		dissector_add_uint("tcp.port", global_mbus_rtu_port, mbrtu_handle);
-	}
+    if(global_mbus_rtu_port != 0 && mbrtu_port != global_mbus_rtu_port) {
+        dissector_add_uint("tcp.port", global_mbus_rtu_port, mbrtu_handle);
+    }
 
     mbrtu_port = global_mbus_rtu_port;
 
