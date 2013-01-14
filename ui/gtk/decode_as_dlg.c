@@ -1863,7 +1863,7 @@ decode_bluetooth(GtkWidget *notebook_pg)
         dissector_change_uint(table_name, value, handle);
     }
 
-    value_type = g_malloc(sizeof(value_type));
+    value_type = g_malloc(sizeof(guint));
     *value_type = value;
 
     decode_build_reset_list(g_strdup(table_name), FT_UINT32, value_type, NULL, NULL);
