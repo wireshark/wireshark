@@ -164,6 +164,12 @@ format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs) 
     return (format_size_flags_e) ((int)lhs| (int)rhs);
 }
 
+QString gchar_free_to_qstring(gchar *glib_string) {
+    QString *qt_string = new QString(glib_string);
+    g_free(glib_string);
+    return *qt_string;
+}
+
 /*
  * Editor modelines
  *

@@ -28,15 +28,18 @@
 #include <epan/prefs-int.h>
 
 #include "syntax_line_edit.h"
+#include "qt_ui_utils.h"
+
 #include <QTreeWidgetItemIterator>
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QSpacerItem>
 #include <QLineEdit>
-#include <QComboBox>
 #include <QFileDialog>
 #include <QColorDialog>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QKeyEvent>
 #include <QDebug>
 
 Q_DECLARE_METATYPE(pref_t *)
@@ -65,24 +68,22 @@ fill_advanced_prefs(module_t *module, gpointer root_ptr)
         pref_t *pref = (pref_t *) pref_l->data;
 
         if (pref->type == PREF_OBSOLETE || pref->type == PREF_STATIC_TEXT) continue;
+
         const char *type_name = prefs_pref_type_name(pref);
         if (!type_name) continue;
 
         QTreeWidgetItem *item = new QTreeWidgetItem();
         QString full_name = QString(module->name ? module->name : module->parent->name) + "." + pref->name;
-        char *type_desc = prefs_pref_type_description(pref);
-        char * default_value = prefs_pref_to_str(pref, true);
+        QString type_desc = gchar_free_to_qstring(prefs_pref_type_description(pref));
+        QString default_value = gchar_free_to_qstring(prefs_pref_to_str(pref, true));
 
         item->setData(0, Qt::UserRole, qVariantFromValue(pref));
         item->setText(0, full_name);
         item->setToolTip(0, QString("<span>%1</span>").arg(pref->description));
         item->setText(2, type_name);
         item->setToolTip(2, QString("<span>%1</span>").arg(type_desc));
-        item->setToolTip(3, QString("<span>%1</span>").arg(strlen(default_value) < 1 ? "Default value is empty" : default_value));
-
-        g_free(type_desc);
-        g_free(default_value);
-
+        item->setToolTip(3, QString("<span>%1</span>").arg(
+                             default_value.isEmpty() ? default_value : "Default value is empty"));
         tl_children << item;
     }
     tl_item->addChildren(tl_children);
@@ -93,7 +94,6 @@ fill_advanced_prefs(module_t *module, gpointer root_ptr)
     return 0;
 }
 
-
 } // extern "C"
 
 const int appearance_item_ = 0;
@@ -103,7 +103,9 @@ const int advanced_item_   = 6;
 
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
     QDialog(parent),
-    pd_ui_(new Ui::PreferencesDialog)
+    pd_ui_(new Ui::PreferencesDialog),
+    cur_line_edit_(NULL),
+    cur_combo_box_(NULL)
 {
     pd_ui_->setupUi(this);
     QTreeWidgetItem tmp_item; // Adding pre-populated top-level items is much faster
@@ -154,12 +156,56 @@ void PreferencesDialog::showEvent(QShowEvent *evt)
     pd_ui_->advancedTree->resizeColumnToContents(3);
 }
 
+void PreferencesDialog::keyPressEvent(QKeyEvent *evt)
+{
+    if (cur_line_edit_ && cur_line_edit_->hasFocus()) {
+        switch (evt->key()) {
+        case Qt::Key_Escape:
+            cur_line_edit_->setText(saved_string_pref_);
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+            switch (cur_pref_type_) {
+            case PREF_UINT:
+                uintPrefEditingFinished();
+                break;
+            case PREF_STRING:
+                stringPrefEditingFinished();
+                break;
+            case PREF_RANGE:
+                rangePrefEditingFinished();
+                break;
+            default:
+                break;
+            }
+
+            delete cur_line_edit_;
+            return;
+        default:
+            break;
+        }
+    } else if (cur_combo_box_ && cur_combo_box_->hasFocus()) {
+        switch (evt->key()) {
+        case Qt::Key_Escape:
+            cur_combo_box_->setCurrentIndex(saved_combo_idx_);
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+            // XXX The combo box eats enter and return
+            enumPrefCurrentIndexChanged(cur_combo_box_->currentIndex());
+            delete cur_combo_box_;
+            return;
+        default:
+            break;
+        }
+    }
+    QDialog::keyPressEvent(evt);
+}
+
 void PreferencesDialog::updateItem(QTreeWidgetItem &item)
 {
     pref_t *pref = item.data(0, Qt::UserRole).value<pref_t *>();
     if (!pref) return;
 
-    char *cur_value = prefs_pref_to_str(pref, false);
+    QString cur_value = gchar_free_to_qstring(prefs_pref_to_str(pref, false)).remove(QRegExp("\n\t"));
     bool is_changed = false;
     QFont font = item.font(0);
 
@@ -179,8 +225,7 @@ void PreferencesDialog::updateItem(QTreeWidgetItem &item)
     item.setFont(3, font);
 
     item.setToolTip(1, "Has this value been changed?");
-    item.setText(3, QString(cur_value).remove(QRegExp("\n\t")));
-    g_free(cur_value);
+    item.setText(3, cur_value);
 }
 
 void PreferencesDialog::on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
@@ -242,7 +287,7 @@ void PreferencesDialog::on_advancedTree_currentItemChanged(QTreeWidgetItem *curr
 void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int column)
 {
     pref_t *pref = item->data(0, Qt::UserRole).value<pref_t *>();
-    if (!pref) return;
+    if (!pref || cur_line_edit_ || cur_combo_box_) return;
 
     if (column < 3) {
         reset_pref(pref);
@@ -253,11 +298,11 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
         switch (pref->type) {
         case PREF_UINT:
         {
-            QLineEdit *line_edit = new QLineEdit();
-            line_edit->setInputMask("0000000009;");
-            line_edit->setText(*pref->varp.string);
-            connect(line_edit, SIGNAL(editingFinished()), this, SLOT(uintPrefEditingFinished()));
-            editor = line_edit;
+            cur_line_edit_ = new QLineEdit();
+//            cur_line_edit_->setInputMask("0000000009;");
+            saved_string_pref_ = QString::number(*pref->varp.uint, pref->info.base);
+            connect(cur_line_edit_, SIGNAL(editingFinished()), this, SLOT(uintPrefEditingFinished()));
+            editor = cur_line_edit_;
             break;
         }
         case PREF_BOOL:
@@ -266,23 +311,24 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
             break;
         case PREF_ENUM:
         {
-            QComboBox *combo = new QComboBox();
+            cur_combo_box_ = new QComboBox();
             const enum_val_t *ev;
             for (ev = pref->info.enum_info.enumvals; ev && ev->description; ev++) {
-                combo->addItem(ev->description, QVariant(ev->value));
+                cur_combo_box_->addItem(ev->description, QVariant(ev->value));
                 if (*pref->varp.enump == ev->value)
-                    combo->setCurrentIndex(combo->count() - 1);
+                    cur_combo_box_->setCurrentIndex(cur_combo_box_->count() - 1);
             }
-            connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(enumPrefCurrentIndexChanged(int)));
-            editor = combo;
+            saved_combo_idx_ = cur_combo_box_->currentIndex();
+            connect(cur_combo_box_, SIGNAL(currentIndexChanged(int)), this, SLOT(enumPrefCurrentIndexChanged(int)));
+            editor = cur_combo_box_;
             break;
         }
         case PREF_STRING:
         {
-            QLineEdit *line_edit = new QLineEdit();
-            line_edit->setText(*pref->varp.string);
-            connect(line_edit, SIGNAL(editingFinished()), this, SLOT(stringPrefEditingFinished()));
-            editor = line_edit;
+            cur_line_edit_ = new QLineEdit();
+            saved_string_pref_ = *pref->varp.string;
+            connect(cur_line_edit_, SIGNAL(editingFinished()), this, SLOT(stringPrefEditingFinished()));
+            editor = cur_line_edit_;
             break;
         }
         case PREF_FILENAME:
@@ -301,12 +347,11 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
         {
             SyntaxLineEdit *syntax_edit = new SyntaxLineEdit();
             char *cur_val = prefs_pref_to_str(pref, FALSE);
+            saved_string_pref_ = gchar_free_to_qstring(cur_val);
             connect(syntax_edit, SIGNAL(textChanged(QString)),
                     this, SLOT(rangePrefTextChanged(QString)));
             connect(syntax_edit, SIGNAL(editingFinished()), this, SLOT(rangePrefEditingFinished()));
-            syntax_edit->setText(cur_val);
-            g_free(cur_val);
-            editor = syntax_edit;
+            editor = cur_line_edit_ = syntax_edit;
             break;
         }
         case PREF_COLOR:
@@ -333,6 +378,14 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
         default:
             break;
         }
+        cur_pref_type_ = pref->type;
+        if (cur_line_edit_) {
+            cur_line_edit_->setText(saved_string_pref_);
+            connect(cur_line_edit_, SIGNAL(destroyed()), this, SLOT(lineEditPrefDestroyed()));
+        }
+        if (cur_combo_box_) {
+            connect(cur_combo_box_, SIGNAL(destroyed()), this, SLOT(enumPrefDestroyed()));
+        }
         if (editor) {
             QFrame *edit_frame = new QFrame();
             QHBoxLayout *hb = new QHBoxLayout();
@@ -355,52 +408,59 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
     }
 }
 
+void PreferencesDialog::lineEditPrefDestroyed()
+{
+    cur_line_edit_ = NULL;
+}
+
+void PreferencesDialog::enumPrefDestroyed()
+{
+    cur_combo_box_ = NULL;
+}
+
 void PreferencesDialog::uintPrefEditingFinished()
 {
-    QLineEdit *line_edit = qobject_cast<QLineEdit *>(QObject::sender());
     QTreeWidgetItem *item = pd_ui_->advancedTree->currentItem();
-    if (!line_edit || !item) return;
+    if (!cur_line_edit_ || !item) return;
 
     pref_t *pref = item->data(0, Qt::UserRole).value<pref_t *>();
     if (!pref) return;
 
-    *pref->varp.uint = line_edit->text().toUInt();
+    *pref->varp.uint = cur_line_edit_->text().toUInt(NULL, pref->info.base);
     pd_ui_->advancedTree->removeItemWidget(item, 3);
     updateItem(*item);
 }
 
 void PreferencesDialog::enumPrefCurrentIndexChanged(int index)
 {
-    QComboBox *combo_box = qobject_cast<QComboBox *>(QObject::sender());
     QTreeWidgetItem *item = pd_ui_->advancedTree->currentItem();
-    if (!combo_box || !item || index < 0) return;
+    if (!cur_combo_box_ || !item || index < 0) return;
 
     pref_t *pref = item->data(0, Qt::UserRole).value<pref_t *>();
     if (!pref) return;
 
-    *pref->varp.enump = combo_box->itemData(index, Qt::UserRole).toInt();
-//    pd_ui_->advancedTree->removeItemWidget(item, 3); // Crashes
+    *pref->varp.enump = cur_combo_box_->itemData(index, Qt::UserRole).toInt();
+//    pd_ui_->advancedTree->removeItemWidget(item, 3);
     updateItem(*item);
 }
 
 void PreferencesDialog::stringPrefEditingFinished()
 {
-    QLineEdit *line_edit = qobject_cast<QLineEdit *>(QObject::sender());
     QTreeWidgetItem *item = pd_ui_->advancedTree->currentItem();
-    if (!line_edit || !item) return;
+    if (!cur_line_edit_ || !item) return;
 
     pref_t *pref = item->data(0, Qt::UserRole).value<pref_t *>();
     if (!pref) return;
 
     g_free((void *)*pref->varp.string);
-    *pref->varp.string = g_strdup(line_edit->text().toUtf8().constData());
+    *pref->varp.string = g_strdup(cur_line_edit_->text().toUtf8().constData());
     pd_ui_->advancedTree->removeItemWidget(item, 3);
     updateItem(*item);
 }
 
 void PreferencesDialog::rangePrefTextChanged(const QString &text)
 {
-    SyntaxLineEdit *syntax_edit = qobject_cast<SyntaxLineEdit *>(QObject::sender());
+    SyntaxLineEdit *syntax_edit = qobject_cast<SyntaxLineEdit *>(cur_line_edit_);
     QTreeWidgetItem *item = pd_ui_->advancedTree->currentItem();
     if (!syntax_edit || !item) return;
 

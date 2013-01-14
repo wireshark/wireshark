@@ -35,6 +35,7 @@
 
 #include <QDialog>
 #include <QTreeWidgetItem>
+#include <QComboBox>
 
 namespace Ui {
 class PreferencesDialog;
@@ -50,17 +51,25 @@ public:
 
 protected:
     void showEvent(QShowEvent *evt);
+    void keyPressEvent(QKeyEvent *evt);
 
 private:
     void updateItem(QTreeWidgetItem &item);
 
     Ui::PreferencesDialog *pd_ui_;
+    int cur_pref_type_;
+    QLineEdit *cur_line_edit_;
+    QString saved_string_pref_;
+    QComboBox *cur_combo_box_;
+    int saved_combo_idx_;
 //    QHash<pref_t *, QTreeWidgetItem *> pref_item_hash_;
 
 private slots:
     void on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void on_advancedSearchLineEdit_textEdited(const QString &search_str);
     void on_advancedTree_itemActivated(QTreeWidgetItem *item, int column);
+    void lineEditPrefDestroyed();
+    void enumPrefDestroyed();
     void uintPrefEditingFinished();
     void enumPrefCurrentIndexChanged(int index);
     void stringPrefEditingFinished();

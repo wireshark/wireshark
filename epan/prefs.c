@@ -1333,7 +1333,6 @@ static char * column_hidden_to_str_cb(pref_t* pref, gboolean default_val) {
     GList       *clp;
     fmt_data    *cfmt;
     pref_t  *format_pref;
-    char *cols_hidden_str;
 
     if (default_val)
         return g_strdup(pref->default_val.string);
@@ -1361,9 +1360,7 @@ static char * column_hidden_to_str_cb(pref_t* pref, gboolean default_val) {
         clp = clp->next;
     }
 
-    cols_hidden_str = cols_hidden->str;
-    g_string_free (cols_hidden, FALSE);
-    return cols_hidden_str;
+    return g_string_free (cols_hidden, FALSE);
 }
 
 static gboolean column_hidden_is_default_cb(pref_t* pref) {
@@ -2379,9 +2376,7 @@ join_string_list(GList *sl)
 
         cur = cur->next;
     }
-    str = joined_str->str;
-    g_string_free(joined_str, FALSE);
-    return str;
+    return g_string_free(joined_str, FALSE);
 }
 
 void
@@ -4013,7 +4008,6 @@ prefs_pref_type_description(pref_t *pref)
 
     case PREF_ENUM:
     {
-        char *enum_desc;
         const enum_val_t *enum_valp = pref->info.enum_info.enumvals;
         GString *enum_str = g_string_new("One of: ");
         while (enum_valp->name != NULL) {
@@ -4023,9 +4017,7 @@ prefs_pref_type_description(pref_t *pref)
                 g_string_append(enum_str, ", ");
         }
         g_string_append(enum_str, "\n(case-insensitive).");
-        enum_desc = enum_str->str;
-        g_string_free(enum_str, FALSE);
-        return enum_desc;
+        return g_string_free(enum_str, FALSE);
         break;
     }
 
