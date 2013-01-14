@@ -128,10 +128,10 @@ else()
 endif()
 
 ADD_CUSTOM_COMMAND(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
+    OUTPUT ${CMAKE_SOURCE_DIR}/epan/dissectors/packet-ncp2222.c
     COMMAND ${PYTHON_EXECUTABLE}
       ${CMAKE_SOURCE_DIR}/tools/ncp2222.py
-      -o ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
+      -o ${CMAKE_SOURCE_DIR}/epan/dissectors/packet-ncp2222.c
     DEPENDS
       dissectors/packet-ncp2222.inc
       ${CMAKE_SOURCE_DIR}/tools/ncp2222.py
