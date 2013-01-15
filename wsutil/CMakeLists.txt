@@ -36,6 +36,7 @@ set(WSUTIL_FILES
 #		@STRNCASECMP_LO@ # strncasecmp.c
 #		@STRPTIME_LO@	# strptime.c
   airpdcap_wep.c
+  crash_info.c
   crc10.c
   crc16.c
   crc16-plain.c
