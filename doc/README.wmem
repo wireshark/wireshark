@@ -222,12 +222,12 @@ leaks.
 
 The heart of wmem is the _wmem_allocator_t structure defined in the
 wmem_allocator.h header file. This structure uses C function pointers to
-implement a common object-oriented pattern known as an interface (AKA 'abstract
-class' to those of you who are more familiar with C++).
+implement a common object-oriented design pattern known as an interface (also
+known as an abstract class to those who are more familiar with C++).
 
 Different allocator implementations can provide exactly the same interface by
-assigning their own functions (of the appropriate signature) to the members of
-an instance of the structure. The structure currently has five values:
+assigning their own functions to the members of an instance of the structure.
+The structure currently has five members:
 
  - alloc()
  - free_all()
@@ -238,9 +238,10 @@ an instance of the structure. The structure currently has five values:
 The private_data pointer is a void pointer that the implementation can use to
 store whatever internal structures it needs. The type field is an enumeration of
 type wmem_allocator_type_t (see section 3.1) set by the wmem_allocator_new()
-function and not by the implementation. The three function pointers should
-be fairly obvious - each one is called with a pointer to the private_data in
-addition to any other arguments.
+function. This field must NEVER be written to by the allocator implementation,
+although it may be read. The three function pointers should be fairly obvious;
+alloc and free_all are called with pointers to the private_data field, and
+destroy is called with a pointer to the allocator itself.
 
 4.2 Pool-Agnostic API
 
@@ -275,6 +276,7 @@ be nice if wmem did provide them:
 
  - radix tree
  - dynamic array
+ - hash table
  - realloc
 
 /*
