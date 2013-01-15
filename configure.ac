@@ -2135,7 +2135,7 @@ ifdef(_CUSTOM_AC_OUTPUT_,, define(_CUSTOM_AC_OUTPUT_, )) dnl
 sinclude(asn1/Custom.m4) dnl
 ifdef(_CUSTOM_ASN1_AC_OUTPUT_,, define(_CUSTOM_ASN1_AC_OUTPUT_, )) dnl
 
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 AC_OUTPUT(
   Makefile
   doxygen.cfg
