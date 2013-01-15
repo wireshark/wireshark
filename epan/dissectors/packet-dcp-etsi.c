@@ -291,13 +291,11 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
     /* make a list of the findex (offset) numbers of the fragments we have */
     fd = fragment_get(pinfo, seq, dcp_fragment_table);
-    for (fd_head = fd; fd_head != NULL; fd_head = fd_head->next) {
+    for (fd_head = fd; fd_head != NULL && fragments < fcount; fd_head = fd_head->next) {
       if(fd_head->data) {
         got[fragments++] = fd_head->offset; /* this is the findex of the fragment */
       }
     }
-    /* put a sentinel at the end */
-    got[fragments++] = fcount;
     /* have we got enough for Reed Solomon to try to correct ? */
     if(fragments>=rx_min) { /* yes, in theory */
       guint i,current_findex;
