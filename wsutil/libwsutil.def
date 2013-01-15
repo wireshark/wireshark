@@ -11,6 +11,9 @@ EXPORTS
 ; airpdcap.c
 AirPDcapWepDecrypt
 
+; crash_info.c
+ws_add_crash_info
+
 ; crc6.c
 update_crc6_by_bytes
 

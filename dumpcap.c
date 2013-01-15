@@ -65,6 +65,8 @@
 #include <signal.h>
 #include <errno.h>
 
+#include <wsutil/crash_info.h>
+
 #ifndef HAVE_GETOPT
 #include "wsutil/wsgetopt.h"
 #endif
@@ -510,7 +512,7 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
         "%s\n"
         "%s\n"
         "See http://www.wireshark.org for more information.\n",
-        wireshark_svnversion, get_copyright_info() ,comp_info_str->str, runtime_info_str->str);
+        wireshark_svnversion, get_copyright_info(), comp_info_str->str, runtime_info_str->str);
 }
 
 /*
@@ -4125,6 +4127,8 @@ out:
 int
 main(int argc, char *argv[])
 {
+    GString          *comp_info_str;
+    GString          *runtime_info_str;
     int               opt;
     gboolean          arg_error             = FALSE;
 
@@ -4154,6 +4158,22 @@ main(int argc, char *argv[])
     struct utsname    osinfo;
 #endif
     GString          *str;
+
+    /* Assemble the compile-time version information string */
+    comp_info_str = g_string_new("Compiled ");
+    get_compiled_version_info(comp_info_str, NULL, NULL);
+
+    /* Assemble the run-time version information string */
+    runtime_info_str = g_string_new("Running ");
+    get_runtime_version_info(runtime_info_str, NULL);
+
+    /* Add it to the information to be reported on a crash. */
+    ws_add_crash_info("Dumpcap " VERSION "%s\n"
+           "\n"
+           "%s"
+           "\n"
+           "%s",
+        wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
@@ -4458,15 +4478,6 @@ main(int argc, char *argv[])
             break;
         case 'v':        /* Show version and exit */
         {
-            GString *comp_info_str;
-            GString *runtime_info_str;
-            /* Assemble the compile-time version information string */
-            comp_info_str = g_string_new("Compiled ");
-            get_compiled_version_info(comp_info_str, NULL, NULL);
-
-            /* Assemble the run-time version information string */
-            runtime_info_str = g_string_new("Running ");
-            get_runtime_version_info(runtime_info_str, NULL);
             show_version(comp_info_str, runtime_info_str);
             g_string_free(comp_info_str, TRUE);
             g_string_free(runtime_info_str, TRUE);
