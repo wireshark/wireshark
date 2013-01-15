@@ -112,14 +112,20 @@ MSVC_VARIANT=MSVC2010
 
 # "Microsoft Visual C++ 2012 Express Edition"
 # Visual C++ 11.0, _MSC_VER 1700, msvcr110.dll
-## Note: Sep 20,2012: *Beta*: Build with VC11 (2012) succeeds; Seems OK: Minimally tested;
-##       win32.mak is apparently not part of the MS 2012EE install;
-##       To build Windows Wireshark, win32.mak must be obtained*
+## Notes:
+##    1. Sep 20,2012: *Beta*: Build with VC11 (2012) succeeds; Seems OK: Minimally tested;
+##        win32.mak is apparently not part of the MS 2012EE install;
+##        To build Windows Wireshark, win32.mak must be obtained*
 ##        and copied to a dir specified in the Windows Environment
 ##        variable 'include' (or to a dir added to the list in 'include').
-##       *One possibility: download the Windows 7 Platform SDK and copy
+##        *One possibility: download the Windows 7 Platform SDK and copy
 ##         win32.mak from ...\Microsoft SDKs\Windows\v7.[something]\include
 ##         See: http://ask.wireshark.org/questions/14343/setting-development-project-under-visual-studio-2012
+##    2. Dec 28,2012: "VS2012 Update 1" is required to use VS 2012 to build an .exe which
+##        will run on Windows XP (as well as on later versions of Windows).
+##        ToDo: It appears that some special setup is required to to do this.
+##          https://blogs.msdn.com/b/vcblog/archive/2012/10/08/10357555.aspx
+##
 #MSVC_VARIANT=MSVC2012EE
 
 # "Microsoft Visual Studio 2012"
@@ -763,6 +769,17 @@ MSC_VER_REQUIRED=1700
 MANIFEST_INFO_REQUIRED=1
 !ENDIF
 
+## VS2012 (VC11): configure subsystem version
+## See: https://blogs.msdn.com/b/vcblog/archive/2012/10/08/10357555.aspx
+## (APPVER used in win32.mak to set subsystem version)
+!IF ($(MSC_VER_REQUIRED) == 1700)
+!if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
+APPVER=5.01
+!else
+APPVER=5.02
+!endif
+!ENDIF
+
 # Compiler flags:
 # /W3                               Warning level 3 (0 less - 4 most, 1 default).
 # /Zi                               Create .pdb file for debugging.
@@ -771,6 +788,7 @@ MANIFEST_INFO_REQUIRED=1
 #                                     for Wireshark compiles.
 #                                     Warning: using /FR for Wireshark requires ~1Gig of additional disk space
 #                                     XXX: provides less functionality for VC8, ... than for previous compilers ?
+#                                     XXX: .bsc files not usable (not supported ?) with VC10 (Visual Studio 2010) ?
 # /MD                               Use "multithread- and DLL-specific version" of run-time libraries.
 #                                    msvc documentation states that /MD causes _MT and _DLL to be defined
 #                                    See: http://msdn.microsoft.com/en-us/library/2kzt1wy3%28v=VS.90%29.aspx
