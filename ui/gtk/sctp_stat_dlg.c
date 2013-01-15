@@ -562,6 +562,7 @@ gtk_sctpstat_dlg(void)
 
 	sctp_stat_dlg_w = window_new (GTK_WINDOW_TOPLEVEL, "Wireshark: SCTP Associations");
 	gtk_window_set_position (GTK_WINDOW (sctp_stat_dlg_w), GTK_WIN_POS_CENTER);
+	gtk_window_set_default_size(GTK_WINDOW(sctp_stat_dlg_w), 1000, 300);
 	g_signal_connect(sctp_stat_dlg_w, "destroy", G_CALLBACK(dlg_destroy), NULL);
 
 	/* Container for each row of widgets */
