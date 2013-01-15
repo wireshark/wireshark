@@ -9771,9 +9771,9 @@ void proto_register_camel(void) {
                                                                       "CAMEL Error (local opcode)",
                                                                       FT_UINT32, BASE_HEX);
 
-  /* Register our configuration options, particularly our ssn:s */
+  /* Register our configuration options, particularly our SSNs */
   /* Set default SSNs */
-  range_convert_str(&global_ssn_range, "6-9", MAX_SSN);
+  range_convert_str(&global_ssn_range, "146", MAX_SSN);
 
   camel_module = prefs_register_protocol(proto_camel, proto_reg_handoff_camel);
 
