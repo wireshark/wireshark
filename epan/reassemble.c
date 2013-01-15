@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -31,8 +31,6 @@
 #include <epan/packet.h>
 
 #include <epan/reassemble.h>
-
-#include <epan/emem.h>
 
 #include <epan/dissectors/packet-dcerpc.h>
 
@@ -231,30 +229,36 @@ static fragment_data *new_head(const guint32 flags)
 	return fd_head;
 }
 
+#define FD_VISITED_FREE 0xffff
+
 /*
  * For a reassembled-packet hash table entry, free the fragment data
- * to which the value refers.
+ * to which the value refers and also the key itself.
  */
 static gboolean
-free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
-				   gpointer user_data _U_)
+free_all_reassembled_fragments(gpointer key_arg, gpointer value,
+				   gpointer user_data)
 {
+	GPtrArray *allocated_fragments = (GPtrArray *) user_data;
 	fragment_data *fd_head;
 
 	for (fd_head = value; fd_head != NULL; fd_head = fd_head->next) {
-		if(fd_head->data && !(fd_head->flags&FD_NOT_MALLOCED)) {
-			g_free(fd_head->data);
-
-			/*
-			 * A reassembled packet is inserted into the
-			 * hash table once for every frame that made
-			 * up the reassembled packet; clear the data
-			 * pointer so that we only free the data the
-			 * first time we see it.
-			 */
-			fd_head->data = NULL;
+		/*
+		 * A reassembled packet is inserted into the
+		 * hash table once for every frame that made
+		 * up the reassembled packet; add first seen
+		 * fragments to array and later free them in
+		 * free_fragments()
+		 */
+		if (fd_head->flags != FD_VISITED_FREE) {
+			if (fd_head->flags & FD_NOT_MALLOCED)
+				fd_head->data = NULL;
+			g_ptr_array_add(allocated_fragments, fd_head);
+			fd_head->flags = FD_VISITED_FREE;
 		}
 	}
+
+	g_slice_free(reassembled_key, (reassembled_key *)key_arg);
 
 	return TRUE;
 }
@@ -303,8 +307,7 @@ fragment_table_init(GHashTable **fragment_table)
 		 *
 		 * Remove all entries and free fragment data for each entry.
 		 *
-		 * If slices are used (GLIB >= 2.10)
-		 * the keys are freed by calling fragment_free_key()
+		 * The keys are freed by calling fragment_free_key()
 		 * and the values are freed in free_all_fragments().
 		 *
 		 * free_all_fragments()
@@ -316,6 +319,32 @@ fragment_table_init(GHashTable **fragment_table)
 		/* The fragment table does not exist. Create it */
 		*fragment_table = g_hash_table_new_full(fragment_hash,
 							fragment_equal, fragment_free_key, NULL);
+	}
+}
+
+/*
+ * Destroy a fragment table.
+ */
+void
+frgment_table_destroy(GHashTable **fragment_table)
+{
+	if (*fragment_table != NULL) {
+		/*
+		 * The fragment hash table exists.
+		 *
+		 * Remove all entries and free fragment data for each entry.
+		 *
+		 * The keys are freed by calling fragment_free_key()
+		 * and the values are freed in free_all_fragments().
+		 *
+		 * free_all_fragments()
+		 * will free the address data associated with the key
+		 */
+		g_hash_table_foreach_remove(*fragment_table,
+				free_all_fragments, NULL);
+
+		g_hash_table_destroy(*fragment_table);
+		*fragment_table = NULL;
 	}
 }
 
@@ -344,6 +373,15 @@ dcerpc_fragment_table_init(GHashTable **fragment_table)
 	}
 }
 
+static void
+free_fragments(gpointer data, gpointer user_data _U_)
+{
+	fragment_data *fd_head = (fragment_data *) data;
+
+	g_free(fd_head->data);
+	g_slice_free(fragment_data, fd_head);
+}
+
 /*
  * Initialize a reassembled-packet table.
  */
@@ -351,18 +389,24 @@ void
 reassembled_table_init(GHashTable **reassembled_table)
 {
 	if (*reassembled_table != NULL) {
+		GPtrArray *allocated_fragments;
+
 		/*
 		 * The reassembled-packet hash table exists.
 		 *
 		 * Remove all entries and free reassembled packet
-		 * data for each entry.
+		 * data and key for each entry.
 		 */
+
+		allocated_fragments = g_ptr_array_new();
 		g_hash_table_foreach_remove(*reassembled_table,
-				free_all_reassembled_fragments, NULL);
+				free_all_reassembled_fragments, allocated_fragments);
+
+		g_ptr_array_foreach(allocated_fragments, free_fragments, NULL);
+		g_ptr_array_free(allocated_fragments, TRUE);
 	} else {
 		/* The fragment table does not exist. Create it */
-		*reassembled_table = g_hash_table_new(reassembled_hash,
-				reassembled_equal);
+		*reassembled_table = g_hash_table_new(reassembled_hash, reassembled_equal);
 	}
 }
 
@@ -481,7 +525,9 @@ fragment_set_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fra
 			 const guint32 tot_len)
 {
 	fragment_data *fd_head;
-	fragment_key key;
+	fragment_data *fd;
+	fragment_key   key;
+	guint32        max_offset = 0;
 
 	/* create key to search hash with */
 	key.src = pinfo->src;
@@ -489,13 +535,39 @@ fragment_set_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fra
 	key.id	= id;
 
 	fd_head = g_hash_table_lookup(fragment_table, &key);
+	if (!fd_head)
+		return;
 
-	if(fd_head){
-		fd_head->datalen = tot_len;
-		fd_head->flags |= FD_DATALEN_SET;
+	/* Verify that the length (or block sequence number) we're setting
+	 * doesn't conflict with values set by existing fragments.
+	 */
+	fd = fd_head;
+	if (fd_head->flags & FD_BLOCKSEQUENCE) {
+		while (fd) {
+			if (fd->offset > max_offset) {
+				max_offset = fd->offset;
+				DISSECTOR_ASSERT(max_offset <= tot_len);
+			}
+			fd = fd->next;
+		}
+	}
+	else {
+		while (fd) {
+			if (fd->offset + fd->len > max_offset) {
+				max_offset = fd->offset + fd->len;
+				DISSECTOR_ASSERT(max_offset <= tot_len);
+			}
+			fd = fd->next;
+		}
 	}
 
-	return;
+	if (fd_head->flags & FD_DEFRAGMENTED) {
+		DISSECTOR_ASSERT(max_offset == tot_len);
+	}
+
+	/* We got this far so the value is sane. */
+	fd_head->datalen = tot_len;
+	fd_head->flags |= FD_DATALEN_SET;
 }
 
 guint32
@@ -595,7 +667,7 @@ fragment_reassembled(fragment_data *fd_head, const packet_info *pinfo,
 		 * This was not fragmented, so there's no fragment
 		 * table; just hash it using the current frame number.
 		 */
-		new_key = se_alloc(sizeof(reassembled_key));
+		new_key = g_slice_new(reassembled_key);
 		new_key->frame = pinfo->fd->num;
 		new_key->id = id;
 		g_hash_table_insert(reassembled_table, new_key, fd_head);
@@ -604,7 +676,7 @@ fragment_reassembled(fragment_data *fd_head, const packet_info *pinfo,
 		 * Hash it with the frame numbers for all the frames.
 		 */
 		for (fd = fd_head->next; fd != NULL; fd = fd->next){
-			new_key = se_alloc(sizeof(reassembled_key));
+			new_key = g_slice_new(reassembled_key);
 			new_key->frame = fd->frame;
 			new_key->id = id;
 			g_hash_table_insert(reassembled_table, new_key,
@@ -941,7 +1013,7 @@ fragment_add_common(tvbuff_t *tvb, const int offset, const packet_info *pinfo, c
 
 	if (fd_head==NULL){
 		/* not found, this must be the first snooped fragment for this
-				 * packet. Create list-head.
+		 * packet. Create list-head.
 		 */
 		fd_head = new_head(0);
 
@@ -1791,7 +1863,7 @@ fragment_end_seq_next(const packet_info *pinfo, const guint32 id, GHashTable *fr
 		 */
 		fragment_reassembled(fd_head, pinfo, reassembled_table, id);
 		if (fd_head->next != NULL) {
-			new_key = se_alloc(sizeof(reassembled_key));
+			new_key = g_slice_new(reassembled_key);
 			new_key->frame = pinfo->fd->num;
 			new_key->id = id;
 			g_hash_table_insert(reassembled_table, new_key, fd_head);
@@ -2099,9 +2171,14 @@ show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 }
 
 /*
- * Local Variables:
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
  * c-basic-offset: 8
- * indent-tabs-mode: t
  * tab-width: 8
+ * indent-tabs-mode: t
  * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
  */
