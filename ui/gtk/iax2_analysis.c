@@ -385,7 +385,7 @@ iax2_packet_add_graph(dialog_graph_graph_t *dgg, tap_iax2_stat_t *statinfo, pack
 		dgg->ud->dlg.dialog_graph.start_time = statinfo->start_time;
 	}
 	rtp_time = nstime_to_msec(&pinfo->fd->rel_ts) - dgg->ud->dlg.dialog_graph.start_time;
-	if (rtp_time<0) {
+	if (rtp_time < 0) {
 		return FALSE;
 	}
 	idx = (guint32)(rtp_time)/dgg->ud->dlg.dialog_graph.interval;
@@ -531,7 +531,7 @@ int iax2_packet_analyse(tap_iax2_stat_t *statinfo,
 	statinfo->bw_history[statinfo->bw_index].bytes = iax2info->payload_len + 24;
 	statinfo->bw_history[statinfo->bw_index].time = current_time;
 	/* check if there are more than 1sec in the history buffer to calculate BW in bps. If so, remove those for the calculation */
-	while ((statinfo->bw_history[statinfo->bw_start_index].time+1)<current_time) {
+	while ((statinfo->bw_history[statinfo->bw_start_index].time+1) < current_time) {
 	 	statinfo->total_bytes -= statinfo->bw_history[statinfo->bw_start_index].bytes;
 		statinfo->bw_start_index++;
 		if (statinfo->bw_start_index == BUFF_BW) statinfo->bw_start_index = 0;
@@ -958,7 +958,7 @@ dialog_graph_draw(user_data_t* user_data)
 	}
 	num_time_intervals += 1;
 	/* XXX move this check to _packet() */
-	if (num_time_intervals>NUM_GRAPH_ITEMS) {
+	if (num_time_intervals > NUM_GRAPH_ITEMS) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "IAX2 Graph error. There are too many entries, bailing out");
 		return;
@@ -980,7 +980,7 @@ dialog_graph_draw(user_data_t* user_data)
 			val = get_it_value(&user_data->dlg.dialog_graph.graph[i], idx);
 
 			/* keep track of the max value we have encountered */
-			if (val>max_value) {
+			if (val > max_value) {
 				max_value = val;
 			}
 		}
@@ -2003,7 +2003,7 @@ try_again:
 			g_free (text);
 		}
 		/* wrap around */
-		if (user_data->dlg.number_of_nok>1) {
+		if (user_data->dlg.number_of_nok > 1) {
 			/* Get the first iter and select it before starting over */
 			gtk_tree_model_get_iter_first(model, &iter);
 			gtk_tree_selection_select_iter (selection, &iter);
@@ -3782,7 +3782,7 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	}
 
 	/* if more than one reverse streams found, we let the user choose the right one */
-	if (nfound>1) {
+	if (nfound > 1) {
 		rtpstream_dlg_show(filtered_list);
 		return;
 	}
