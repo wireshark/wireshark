@@ -28,17 +28,15 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/ipproto.h>
+#include <epan/expert.h>
 
 static int proto_etherip = -1;
 static int hf_etherip_ver = -1;
+static int hf_etherip_reserved = -1;
 
 static gint ett_etherip = -1;
 
 static dissector_handle_t eth_withoutfcs_handle;
-
-#ifndef offsetof
-#define offsetof(type, member)  ((size_t)(&((type *)0)->member))
-#endif
 
 
 /*
@@ -48,45 +46,46 @@ static dissector_handle_t eth_withoutfcs_handle;
  *      Bits 4-15: Reserved for future use
  */
 
-struct etheriphdr {
-  guint8 ver;                /* version/reserved */
-  guint8 pad;                /* required padding byte */
-};
-
-#define ETHERIP_VERS_MASK 0x0f
+#define ETHERIP_VERS_MASK    0xF000
+#define ETHERIP_RESERVE_MASK 0x0FFF
 
 
 static void
 dissect_etherip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  struct etheriphdr etheriph;
   tvbuff_t *next_tvb;
   proto_tree *etherip_tree;
   proto_item *ti;
+  guint16 field, version;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ETHERIP");
 
-  /* Copy out the etherip header to insure alignment */
-  tvb_memcpy(tvb, (guint8 *)&etheriph, 0, sizeof(etheriph));
-
-  /* mask out reserved bits */
-  etheriph.ver &= ETHERIP_VERS_MASK;
+  field = tvb_get_ntohs(tvb, 0);
+  version = (field & ETHERIP_VERS_MASK) >> 12;
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_etherip, tvb, 0,
-             sizeof(etheriph),
+             2,
              "EtherIP, Version %d",
-             etheriph.ver
+             version
              );
     etherip_tree = proto_item_add_subtree(ti, ett_etherip);
 
-    proto_tree_add_uint(etherip_tree, hf_etherip_ver, tvb,
-             offsetof(struct etheriphdr, ver), sizeof(etheriph.ver),
-             etheriph.ver);
+    ti = proto_tree_add_item(etherip_tree, hf_etherip_ver, tvb,
+             0, 2, ENC_BIG_ENDIAN);
+    if (version != 3) {
+      expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Version must be 3");
+    }
+
+    ti = proto_tree_add_item(etherip_tree, hf_etherip_reserved, tvb,
+             0, 2, ENC_BIG_ENDIAN);
+    if ((field & ETHERIP_RESERVE_MASK) != 0) {
+      expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Reserved field must be 0");
+    }
   }
 
   /* Set the tvbuff for the payload after the header */
-  next_tvb = tvb_new_subset_remaining(tvb, sizeof(etheriph));
+  next_tvb = tvb_new_subset_remaining(tvb, 2);
 
   call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
 }
@@ -96,9 +95,13 @@ proto_register_etherip(void)
 {
   static hf_register_info hf_etherip[] = {
     { &hf_etherip_ver,
-      { "Version", "etherip.ver", FT_UINT8, BASE_HEX, NULL, 0x0,
+      { "Version", "etherip.ver", FT_UINT16, BASE_DEC, NULL, ETHERIP_VERS_MASK,
         NULL, HFILL }},
+    { &hf_etherip_reserved,
+      { "Reserved", "etherip.reserved", FT_UINT16, BASE_HEX, NULL, ETHERIP_RESERVE_MASK,
+        "Reserved (must be 0)", HFILL }},
   };
+
   static gint *ett[] = {
     &ett_etherip,
   };
