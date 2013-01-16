@@ -51,16 +51,16 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/packet_list.h"
 
-#define SUM_STR_MAX     1024
-#define FILTER_SNIP_LEN 50
-#define SHB_STR_SNIP_LEN 50
+#define SUM_STR_MAX      1024
+#define FILTER_SNIP_LEN    50
+#define SHB_STR_SNIP_LEN   50
 
 static GtkWidget *summary_dlg = NULL;
 static GtkWidget *view_capture_and_pkt_comments_dlg = NULL;
 
 
 static void
-add_string_to_table_sensitive(GtkWidget *list, guint *row, const gchar *title, const gchar *value, gboolean sensitive)
+add_string_to_grid_sensitive(GtkWidget *grid, guint *row, const gchar *title, const gchar *value, gboolean sensitive)
 {
     GtkWidget *label;
     gchar     *indent;
@@ -79,20 +79,20 @@ add_string_to_table_sensitive(GtkWidget *list, guint *row, const gchar *title, c
     g_free(indent);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
     gtk_widget_set_sensitive(label, sensitive);
-    gtk_table_attach_defaults(GTK_TABLE(list), label, 0, 1, *row, *row+1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 0, *row, 1, 1);
 
     label = gtk_label_new(value);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
     gtk_widget_set_sensitive(label, sensitive);
-    gtk_table_attach_defaults(GTK_TABLE(list), label, 1, 2, *row, *row+1);
+    ws_gtk_grid_attach_defaults(GTK_GRID(grid), label, 1, *row, 1, 1);
 
     *row = *row + 1;
 }
 
 static void
-add_string_to_table(GtkWidget *list, guint *row, const gchar *title, const gchar *value)
+add_string_to_grid(GtkWidget *grid, guint *row, const gchar *title, const gchar *value)
 {
-    add_string_to_table_sensitive(list, row, title, value, TRUE);
+    add_string_to_grid_sensitive(grid, row, title, value, TRUE);
 }
 
 
@@ -173,16 +173,16 @@ summary_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 void
 summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-  summary_tally summary;
-  GtkWidget     *main_vb, *bbox, *cancel_bt, *ok_bt, *help_bt;
-  GtkWidget     *table, *scrolled_window;
-  GtkWidget     *list, *treeview;
-  GtkWidget     *comment_view, *comment_frame, *comment_vbox;
-  GtkTextBuffer *buffer = NULL;
-  gchar *buf_str;
-  GtkListStore  *store;
-  GtkTreeIter    iter;
-  GtkCellRenderer *renderer;
+  summary_tally      summary;
+  GtkWidget         *main_vb, *bbox, *cancel_bt, *ok_bt, *help_bt;
+  GtkWidget         *grid, *scrolled_window;
+  GtkWidget         *list, *treeview;
+  GtkWidget         *comment_view, *comment_frame, *comment_vbox;
+  GtkTextBuffer     *buffer = NULL;
+  gchar             *buf_str;
+  GtkListStore      *store;
+  GtkTreeIter        iter;
+  GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
   static const char *titles[] = {
     "Traffic", "Captured", "Displayed", "Displayed %", "Marked", "Marked %" };
@@ -242,48 +242,47 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window), main_vb);
 
-  /* table */
-  table = gtk_table_new(1, 2, FALSE);
-  gtk_table_set_col_spacings(GTK_TABLE(table), 6);
-  gtk_table_set_row_spacings(GTK_TABLE(table), 3);
-  gtk_box_pack_start(GTK_BOX(main_vb), table, TRUE, TRUE, 0);
+  /* grid */
+  grid = ws_gtk_grid_new();
+  ws_gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
+  ws_gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
+  gtk_box_pack_start(GTK_BOX(main_vb), grid, TRUE, TRUE, 0);
   row = 0;
 
-
   /* File */
-  add_string_to_table(table, &row, "File", "");
+  add_string_to_grid(grid, &row, "File", "");
 
   /* filename */
   g_snprintf(string_buff, SUM_STR_MAX, "%s", summary.filename);
-  add_string_to_table(table, &row, "Name:", string_buff);
+  add_string_to_grid(grid, &row, "Name:", string_buff);
 
   /* length */
   g_snprintf(string_buff, SUM_STR_MAX, "%" G_GINT64_MODIFIER "d bytes",
              summary.file_length);
-  add_string_to_table(table, &row, "Length:", string_buff);
+  add_string_to_grid(grid, &row, "Length:", string_buff);
 
   /* format */
   g_snprintf(string_buff, SUM_STR_MAX, "%s%s",
              wtap_file_type_string(summary.file_type),
              summary.iscompressed? " (gzip compressed)" : "");
-  add_string_to_table(table, &row, "Format:", string_buff);
+  add_string_to_grid(grid, &row, "Format:", string_buff);
 
   /* encapsulation */
   if (summary.file_encap_type == WTAP_ENCAP_PER_PACKET) {
     for (i = 0; i < summary.packet_encap_types->len; i++) {
       g_snprintf(string_buff, SUM_STR_MAX, "%s",
                  wtap_encap_string(g_array_index(summary.packet_encap_types, int, i)));
-      add_string_to_table(table, &row, (i == 0) ? "Encapsulation:" : "",
+      add_string_to_grid(grid, &row, (i == 0) ? "Encapsulation:" : "",
                           string_buff);
     }
   } else {
     g_snprintf(string_buff, SUM_STR_MAX, "%s", wtap_encap_string(summary.file_encap_type));
-    add_string_to_table(table, &row, "Encapsulation:", string_buff);
+    add_string_to_grid(grid, &row, "Encapsulation:", string_buff);
   }
   if (summary.has_snap) {
     /* snapshot length */
     g_snprintf(string_buff, SUM_STR_MAX, "%u bytes", summary.snap);
-    add_string_to_table(table, &row, "Packet size limit:", string_buff);
+    add_string_to_grid(grid, &row, "Packet size limit:", string_buff);
   }
 
   /* Capture file comment area */
@@ -318,16 +317,16 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   if (summary.packet_count_ts == summary.packet_count &&
       summary.packet_count >= 1) {
     /* Time */
-    add_string_to_table(table, &row, "", "");
-    add_string_to_table(table, &row, "Time", "");
+    add_string_to_grid(grid, &row, "", "");
+    add_string_to_grid(grid, &row, "Time", "");
 
     /* start time */
     time_to_string(string_buff, SUM_STR_MAX, (time_t)summary.start_time);
-    add_string_to_table(table, &row, "First packet:", string_buff);
+    add_string_to_grid(grid, &row, "First packet:", string_buff);
 
     /* stop time */
     time_to_string(string_buff, SUM_STR_MAX, (time_t)summary.stop_time);
-    add_string_to_table(table, &row, "Last packet:", string_buff);
+    add_string_to_grid(grid, &row, "Last packet:", string_buff);
 
     /*
      * We must have at least two time-stamped packets for the elapsed time
@@ -343,27 +342,27 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
           g_snprintf(string_buff, SUM_STR_MAX, "%02u:%02u:%02u",
             elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
       }
-      add_string_to_table(table, &row, "Elapsed:", string_buff);
+      add_string_to_grid(grid, &row, "Elapsed:", string_buff);
     }
   }
 
   /* Capture */
-  add_string_to_table(table, &row, "", "");
-  add_string_to_table_sensitive(table, &row, "Capture", "", (summary.ifaces->len > 0));
+  add_string_to_grid(grid, &row, "", "");
+  add_string_to_grid_sensitive(grid, &row, "Capture", "", (summary.ifaces->len > 0));
   if(summary.shb_hardware){
     /* truncate the string to a reasonable length */
     g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_hardware);
-    add_string_to_table(table, &row, "Capture HW:",string_buff);
+    add_string_to_grid(grid, &row, "Capture HW:",string_buff);
   }
   if(summary.shb_os){
     /* truncate the strings to a reasonable length */
     g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_os);
-    add_string_to_table(table, &row, "OS:", string_buff);
+    add_string_to_grid(grid, &row, "OS:", string_buff);
   }
   if(summary.shb_user_appl){
     /* truncate the string to a reasonable length */
     g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_user_appl);
-    add_string_to_table(table, &row, "Capture application:", string_buff);
+    add_string_to_grid(grid, &row, "Capture application:", string_buff);
   }
   scrolled_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 5);
@@ -426,16 +425,16 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(scrolled_window), treeview);
   gtk_box_pack_start(GTK_BOX(main_vb), scrolled_window, TRUE, TRUE, 0);
   gtk_widget_show_all(scrolled_window);
-  table = gtk_table_new(1, 2, FALSE);
-  gtk_table_set_col_spacings(GTK_TABLE(table), 6);
-  gtk_table_set_row_spacings(GTK_TABLE(table), 3);
-  gtk_box_pack_start(GTK_BOX(main_vb), table, TRUE, TRUE, 0);
+  grid = ws_gtk_grid_new();
+  ws_gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
+  ws_gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
+  gtk_box_pack_start(GTK_BOX(main_vb), grid, TRUE, TRUE, 0);
   row = 0;
 
 
   /* Data */
-  add_string_to_table(table, &row, "", "");
-  add_string_to_table(table, &row, "Display", "");
+  add_string_to_grid(grid, &row, "", "");
+  add_string_to_grid(grid, &row, "Display", "");
 
   if (summary.dfilter) {
     /* Display filter */
@@ -446,25 +445,25 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     snip = 0;
     while(strlen(str_work) > FILTER_SNIP_LEN) {
         str_work[FILTER_SNIP_LEN] = '\0';
-        add_string_to_table(table, &row, (snip == 0) ? "Display filter:" : "", str_work);
+        add_string_to_grid(grid, &row, (snip == 0) ? "Display filter:" : "", str_work);
         g_free(str_work);
         offset+=FILTER_SNIP_LEN;
         str_work = g_strdup(&str_dup[offset]);
         snip++;
     }
 
-    add_string_to_table(table, &row, (snip == 0) ? "Display filter:" : "", str_work);
+    add_string_to_grid(grid, &row, (snip == 0) ? "Display filter:" : "", str_work);
     g_free(str_work);
     g_free(str_dup);
   } else {
     /* Display filter */
-    add_string_to_table(table, &row, "Display filter:", "none");
+    add_string_to_grid(grid, &row, "Display filter:", "none");
   }
 
   /* Ignored packet count */
   g_snprintf(string_buff, SUM_STR_MAX, "%i (%.3f%%)", summary.ignored_count,
              summary.packet_count ? (100.0 * summary.ignored_count)/summary.packet_count : 0.0);
-  add_string_to_table(table, &row, "Ignored packets:", string_buff);
+  add_string_to_grid(grid, &row, "Ignored packets:", string_buff);
 
   /* Traffic */
   list = simple_list_new(6, titles);
@@ -765,7 +764,7 @@ summary_to_texbuff(GtkTextBuffer *buffer)
             elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
       }
       g_snprintf(string_buff, SUM_STR_MAX, INDENT "Elapsed: %s\n", string_buff);
-	  gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+      gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
     }
   }
 
@@ -779,17 +778,17 @@ summary_to_texbuff(GtkTextBuffer *buffer)
   if(summary.shb_hardware){
     /* truncate the string to a reasonable length */
     g_snprintf(string_buff, SUM_STR_MAX, INDENT "Capture HW: %s\n",summary.shb_hardware);
-	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
   }
   if(summary.shb_os){
     /* truncate the strings to a reasonable length */
     g_snprintf(string_buff, SUM_STR_MAX, INDENT "OS: %s\n",summary.shb_os);
-	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
   }
   if(summary.shb_user_appl){
     /* truncate the string to a reasonable length */
     g_snprintf(string_buff, SUM_STR_MAX, INDENT "Capture application: %s\n",summary.shb_user_appl);
-	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
   }
 
   /* Add empty line */
@@ -807,7 +806,7 @@ summary_to_texbuff(GtkTextBuffer *buffer)
     } else {
       g_snprintf(string_buff, SUM_STR_MAX, INDENT "Unknown interface:\n");
     }
-	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
     /* Dropped count */
     if (iface.drops_known) {
@@ -816,9 +815,9 @@ summary_to_texbuff(GtkTextBuffer *buffer)
     } else {
       g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Dropped packets: unknown\n");
     }
-	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
-	/* Capture filter */
+    /* Capture filter */
     if (iface.cfilter && iface.cfilter[0] != '\0') {
       g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Capture filter: %s\n", iface.cfilter);
     } else {
@@ -828,13 +827,13 @@ summary_to_texbuff(GtkTextBuffer *buffer)
         g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Capture filter: unknown\n");
       }
     }
-	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
-	g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Link type: %s\n", wtap_encap_string(iface.encap_type));
-	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Link type: %s\n", wtap_encap_string(iface.encap_type));
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
-	g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Packet size limit %u bytes\n", iface.snap);
-	gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
+    g_snprintf(string_buff, SUM_STR_MAX, INDENT INDENT "Packet size limit %u bytes\n", iface.snap);
+    gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
   }
 
@@ -995,3 +994,16 @@ show_packet_comment_summary_dlg (GtkAction *action _U_, gpointer data _U_)
 
   gtk_widget_show (view_capture_and_pkt_comments_dlg);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
