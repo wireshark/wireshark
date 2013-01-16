@@ -40,6 +40,8 @@
 #  include <portaudio.h>
 #endif /* HAVE_LIBPORTAUDIO */
 
+#include <wsutil/crash_info.h>
+
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <wsutil/privileges.h>
@@ -572,6 +574,24 @@ int main(int argc, char *argv[])
 
     static const char optstring[] = OPTSTRING;
 
+    /* Assemble the compile-time version information string */
+    comp_info_str = g_string_new("Compiled ");
+
+    // xxx qtshark
+    get_compiled_version_info(comp_info_str, get_qt_compiled_info, get_gui_compiled_info);
+
+    /* Assemble the run-time version information string */
+    runtime_info_str = g_string_new("Running ");
+    // xxx qtshark
+    get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
+
+    ws_add_crash_info(PACKAGE " " VERSION "%s\n"
+           "\n"
+           "%s"
+           "\n"
+           "%s",
+        wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
+
     /*
      * Get credential information for later use, and drop privileges
      * before doing anything else.
@@ -647,17 +667,6 @@ int main(int argc, char *argv[])
 #endif  /* _WIN32 */
 
     profile_store_persconffiles (TRUE);
-
-    /* Assemble the compile-time version information string */
-    comp_info_str = g_string_new("Compiled ");
-
-    // xxx qtshark
-    get_compiled_version_info(comp_info_str, get_qt_compiled_info, get_gui_compiled_info);
-
-    /* Assemble the run-time version information string */
-    runtime_info_str = g_string_new("Running ");
-    // xxx qtshark
-    get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
 
     /* Read the profile independent recent file.  We have to do this here so we can */
     /* set the profile before it can be set from the command line parameterts */
