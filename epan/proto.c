@@ -591,6 +591,7 @@ proto_tree_free_node(proto_node *node, gpointer data _U_)
 
 	/* free the field_info data. */
 	FREE_NODE_FIELD_INFO(finfo);
+	node->finfo = NULL;
 
 	/* Free the proto_node. */
 	PROTO_NODE_FREE(node);
