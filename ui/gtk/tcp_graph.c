@@ -828,7 +828,6 @@ static void create_drawing_area(struct graph *g)
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 3);
-    gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
     gtk_widget_show(hbox);
 
     create_ctrl_area(g, hbox);
