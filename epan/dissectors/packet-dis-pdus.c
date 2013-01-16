@@ -30,10 +30,13 @@
 #include "packet-dis-fields.h"
 #include "packet-dis-enums.h"
 
-#define DIS_PDU_MAX_VARIABLE_PARAMETERS 16
-#define DIS_PDU_MAX_VARIABLE_RECORDS 16
+#define DIS_PDU_MAX_VARIABLE_PARAMETERS              16
+#define DIS_PDU_MAX_VARIABLE_RECORDS                 16
 #define DIS_PDU_MAX_ELECTROMAGNETIC_EMISSION_SYSTEMS 16
-
+#define DIS_PDU_MAX_SHAFTS                           16
+#define DIS_PDU_MAX_APAS                             16
+#define DIS_PDU_MAX_UA_EMITTER_SYSTEMS               16
+#define DIS_PDU_MAX_UA_BEAMS                         32
 
 gint ettVariableParameters[DIS_PDU_MAX_VARIABLE_PARAMETERS];
 gint ettVariableRecords[DIS_PDU_MAX_VARIABLE_RECORDS];
@@ -71,6 +74,27 @@ DIS_ParserNode DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU[] =
     { DIS_FIELDTYPE_NUM_ELECTROMAGNETIC_EMISSION_SYSTEMS, "Number of Systems (N)",0,0,0,&numVariable },
     { DIS_FIELDTYPE_PAD16,                   "Padding",0,0,0,0 },
     { DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM, "Emission System",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+
+/* DIS Underwater Acoustic PDUs
+ */
+DIS_ParserNode DIS_PARSER_UNDERWATER_ACOUSTIC_PDU[] =
+{
+    { DIS_FIELDTYPE_ENTITY_ID,               "Emitting Entity ID",0,0,0,0 },
+    { DIS_FIELDTYPE_EVENT_ID,                "Event ID",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                   "State Update Indicator",0,0,0,0 },
+    { DIS_FIELDTYPE_PAD8,                    "Padding",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16,                  "Passive Parameter Index", 0,0,0,0 }, /* !! enum !! */
+    { DIS_FIELDTYPE_UINT8,                   "Propulsion Plant Configuration",0,0,0,0 }, /* !! enum !! */
+    { DIS_FIELDTYPE_NUM_OF_SHAFTS,           "Number of Shafts",0,0,0,&numShafts },
+    { DIS_FIELDTYPE_NUM_OF_APAS,             "Number of Additional Passive Activities (APA)",0,0,0,&numApas },
+    { DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEMS, "Number of UA Emitter Systems",0,0,0,&numUAEmitter },
+    { DIS_FIELDTYPE_SHAFTS,                  "Shafts",0,0,0,0 },
+    { DIS_FIELDTYPE_APA,                     "APAs",0,0,0,0 },
+    { DIS_FIELDTYPE_UA_EMITTER_SYSTEMS,      "Underwater Acoustic Emission System",0,0,0,0 },
+    { DIS_FIELDTYPE_UA_BEAMS,                "Beams",0,0,0,0 },
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
 
@@ -440,6 +464,7 @@ void initializeParsers(void)
 
     /* DIS Distributed Emission Regeneration PDUs */
     initializeParser(DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU);
+    initializeParser(DIS_PARSER_UNDERWATER_ACOUSTIC_PDU);
 
     /* DIS Radio Communications protocol (RCP) family PDUs */
     initializeParser(DIS_PARSER_TRANSMITTER_PDU);
@@ -641,6 +666,36 @@ void initializeParser(DIS_ParserNode parserNodes[])
         case DIS_FIELDTYPE_TRACK_JAM:
             parserNodes[parserIndex].children = createSubtree(
                 DIS_FIELDS_TRACK_JAM,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_SHAFTS:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_VR_UA_SHAFT,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_APA:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_VR_APA,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_UA_EMITTER_SYSTEMS:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_VR_UA_EMITTER_SYSTEM,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_UA_EMITTER_SYSTEM:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_UA_EMITTER_SYSTEM,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_UA_BEAMS:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_VR_UA_BEAM,
+                &parserNodes[parserIndex].ettVar);
+            break;
+        case DIS_FIELDTYPE_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA:
+            parserNodes[parserIndex].children = createSubtree(
+                DIS_FIELDS_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA,
                 &parserNodes[parserIndex].ettVar);
             break;
         /* Array records */
@@ -1153,6 +1208,8 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
         case DIS_FIELDTYPE_MODULATION_TYPE:
         case DIS_FIELDTYPE_EMITTER_SYSTEM:
         case DIS_FIELDTYPE_FUNDAMENTAL_PARAMETER_DATA:
+        case DIS_FIELDTYPE_UA_EMITTER_SYSTEM:
+        case DIS_FIELDTYPE_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA:
             newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
                 parserNodes[fieldIndex].fieldLabel);
             if (parserNodes[fieldIndex].children != 0)
@@ -1415,6 +1472,138 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                     }
                     proto_item_set_end(newField, tvb, offset);
                 }
+            }
+            break;
+        case DIS_FIELDTYPE_NUM_OF_SHAFTS:
+            {
+                uintVal = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(tree, hf_dis_num_shafts, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
+            }
+            break;
+        case DIS_FIELDTYPE_SHAFTS:
+            {
+                guint i;
+
+                if (numShafts > DIS_PDU_MAX_SHAFTS)
+                {
+                    numShafts = DIS_PDU_MAX_SHAFTS;
+                }
+
+                for (i = 0; i < numShafts; ++i)
+                {
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s [%d of %d]",
+                                                   parserNodes[fieldIndex].fieldLabel, i+1, numShafts);
+                    if (parserNodes[fieldIndex].children != 0)
+                    {
+                        proto_item *newSubtree =
+                            proto_item_add_subtree(newField,
+                            parserNodes[fieldIndex].ettVar);
+                        offset = parseFields(tvb, newSubtree, offset,
+                            parserNodes[fieldIndex].children);
+                    }
+                    proto_item_set_end(newField, tvb, offset);
+                }
+            }
+            break;
+        case DIS_FIELDTYPE_NUM_OF_APAS:
+            {
+                uintVal = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(tree, hf_dis_num_apas, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
+            }
+            break;
+        case DIS_FIELDTYPE_APA:
+            {
+                guint i;
+
+                if (numApas > DIS_PDU_MAX_APAS)
+                {
+                    numApas = DIS_PDU_MAX_APAS;
+                }
+
+                for (i = 0; i < numApas; ++i)
+                {
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s [%d of %d]",
+                                                   parserNodes[fieldIndex].fieldLabel, i+1, numApas);
+                    if (parserNodes[fieldIndex].children != 0)
+                    {
+                        proto_item *newSubtree =
+                            proto_item_add_subtree(newField,
+                            parserNodes[fieldIndex].ettVar);
+                        offset = parseFields(tvb, newSubtree, offset,
+                            parserNodes[fieldIndex].children);
+                    }
+                    proto_item_set_end(newField, tvb, offset);
+                }
+            }
+            break;
+        case DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEMS:
+            {
+                uintVal = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(tree, hf_dis_num_ua_emitter_systems, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
+            }
+            break;
+        case DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEM_BEAMS:
+            {
+                uintVal = tvb_get_guint8(tvb, offset);
+                offset  = parseField_UInt(tvb, tree, offset, parserNodes[fieldIndex], 1);
+                numUABeams += uintVal;
+            }
+            break;
+        case DIS_FIELDTYPE_UA_EMITTER_SYSTEMS:
+            {
+                guint i;
+                
+                if (numUAEmitter > DIS_PDU_MAX_UA_EMITTER_SYSTEMS)
+                {
+                    numUAEmitter = DIS_PDU_MAX_UA_EMITTER_SYSTEMS;
+                }
+
+                for (i = 0; i < numUAEmitter; ++i)
+                {
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s [%d of %d]",
+                                                   parserNodes[fieldIndex].fieldLabel, i+1, numUAEmitter);
+                    if (parserNodes[fieldIndex].children != 0)
+                    {
+                        proto_item *newSubtree =
+                            proto_item_add_subtree(newField,
+                            parserNodes[fieldIndex].ettVar);
+                        offset = parseFields(tvb, newSubtree, offset,
+                            parserNodes[fieldIndex].children);
+                    }
+                    proto_item_set_end(newField, tvb, offset);
+                }
+            }
+            break;
+        case DIS_FIELDTYPE_UA_BEAMS:
+            {
+                guint i;
+
+                if (numUABeams > DIS_PDU_MAX_UA_BEAMS)
+                {
+                    numUABeams = DIS_PDU_MAX_UA_BEAMS;
+                }
+
+                for (i = 0; i < numUABeams; ++i)
+                {
+                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s [%d of %d]",
+                                                   parserNodes[fieldIndex].fieldLabel, i+1, numUABeams);
+                    if (parserNodes[fieldIndex].children != 0)
+                    {
+                        proto_item *newSubtree =
+                            proto_item_add_subtree(newField,
+                            parserNodes[fieldIndex].ettVar);
+                        offset = parseFields(tvb, newSubtree, offset,
+                            parserNodes[fieldIndex].children);
+                    }
+                    proto_item_set_end(newField, tvb, offset);
+                }
+                numUABeams = 0; // reset beam count for this pdu
             }
             break;
         default:

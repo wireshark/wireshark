@@ -93,6 +93,9 @@ extern int hf_dis_mod_param_transmitter_second_mode;
 extern int hf_dis_mod_param_sync_state;
 extern int hf_dis_mod_param_network_sync_id;
 extern int hf_dis_antenna_pattern_parameter_dump;
+extern int hf_dis_num_shafts;
+extern int hf_dis_num_apas;
+extern int hf_dis_num_ua_emitter_systems;
 
 extern int ett_dis_ens;
 extern int ett_dis_crypto_key;
@@ -212,6 +215,10 @@ typedef enum
     DIS_FIELDTYPE_JTIDS_SYNC_STATE,
     DIS_FIELDTYPE_NETWORK_SYNC_ID,
     DIS_FIELDTYPE_NUM_ELECTROMAGNETIC_EMISSION_SYSTEMS,
+    DIS_FIELDTYPE_NUM_OF_SHAFTS,
+    DIS_FIELDTYPE_NUM_OF_APAS,
+    DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEMS,
+    DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEM_BEAMS,
 
         /* composite types */
     DIS_FIELDTYPE_BURST_DESCRIPTOR,
@@ -242,6 +249,12 @@ typedef enum
     DIS_FIELDTYPE_EMITTER_SYSTEM,
     DIS_FIELDTYPE_FUNDAMENTAL_PARAMETER_DATA,
     DIS_FIELDTYPE_TRACK_JAM,
+    DIS_FIELDTYPE_SHAFTS,
+    DIS_FIELDTYPE_APA,
+    DIS_FIELDTYPE_UA_EMITTER_SYSTEMS,
+    DIS_FIELDTYPE_UA_BEAMS,
+    DIS_FIELDTYPE_UA_EMITTER_SYSTEM,
+    DIS_FIELDTYPE_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA,
     
     /* arrays */
     DIS_FIELDTYPE_FIXED_DATUMS,
@@ -306,6 +319,8 @@ extern DIS_ParserNode DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS[];
 extern DIS_ParserNode DIS_FIELDS_EMITTER_SYSTEM[];
 extern DIS_ParserNode DIS_FIELDS_FUNDAMENTAL_PARAMETER_DATA[];
 extern DIS_ParserNode DIS_FIELDS_TRACK_JAM[];
+extern DIS_ParserNode DIS_FIELDS_UA_EMITTER_SYSTEM[];
+extern DIS_ParserNode DIS_FIELDS_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA[];
 
 /* Array records */
 extern DIS_ParserNode DIS_FIELDS_FIXED_DATUM[];
@@ -315,6 +330,10 @@ extern DIS_ParserNode DIS_FIELDS_VP_TYPE[];
 extern DIS_ParserNode DIS_FIELDS_VR_TYPE[];
 extern DIS_ParserNode DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM[];
 extern DIS_ParserNode DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM[];
+extern DIS_ParserNode DIS_FIELDS_VR_UA_SHAFT[];
+extern DIS_ParserNode DIS_FIELDS_VR_APA[];
+extern DIS_ParserNode DIS_FIELDS_VR_UA_EMITTER_SYSTEM[];
+extern DIS_ParserNode DIS_FIELDS_VR_UA_BEAM[];
 
 /* Bit fields */
 extern DIS_ParserNode DIS_FIELDS_NONE[];
@@ -361,6 +380,10 @@ extern guint32 numFixed;
 extern guint32 numVariable;
 extern guint32 numBeams;
 extern guint32 numTrackJamTargets;
+extern guint32 numShafts;
+extern guint32 numApas;
+extern guint32 numUAEmitter;
+extern guint32 numUABeams;
 extern guint32 variableDatumLength;
 extern guint32 variableRecordLength;
 extern guint32 majorModulation;

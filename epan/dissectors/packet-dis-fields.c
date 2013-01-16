@@ -48,6 +48,10 @@ guint32 numFixed;
 guint32 numVariable;
 guint32 numBeams;
 guint32 numTrackJamTargets;
+guint32 numShafts;
+guint32 numApas;
+guint32 numUAEmitter;
+guint32 numUABeams;
 guint32 variableDatumLength;
 guint32 variableParameterType;
 guint32 variableRecordLength;
@@ -236,6 +240,29 @@ DIS_ParserNode DIS_FIELDS_EMITTER_SYSTEM[] =
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
 
+DIS_ParserNode DIS_FIELDS_VR_UA_SHAFT[] = 
+{
+    { DIS_FIELDTYPE_INT16,                   "Current Shaft RPM",0,0,0,0 },
+    { DIS_FIELDTYPE_INT16,                   "Ordered Shaft RPM",0,0,0,0 },
+    { DIS_FIELDTYPE_INT32,                   "Shaft RPM Rate of Change",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_VR_APA[] = 
+{
+    { DIS_FIELDTYPE_INT16,                   "Parameter Index",0,0,0,0 }, //FIXME enum
+    { DIS_FIELDTYPE_INT16,                   "Value", 0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_UA_EMITTER_SYSTEM[] = 
+{
+    { DIS_FIELDTYPE_UINT16,                  "Acoustic Emitter Name",0,0,0,0 }, //FIXME enum
+    { DIS_FIELDTYPE_UINT8,                  "Function",0,0,0,0 }, //FIXME enum
+    { DIS_FIELDTYPE_UINT8,                  "Acoustic ID Number",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+    
 DIS_ParserNode DIS_FIELDS_FUNDAMENTAL_PARAMETER_DATA[] =
 {
     { DIS_FIELDTYPE_FLOAT32,            "Frequency",0,0,0,0 },
@@ -368,6 +395,37 @@ DIS_ParserNode DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM[] =
     { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
 };
 
+DIS_ParserNode DIS_FIELDS_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA[] =
+{
+    { DIS_FIELDTYPE_UINT16,                 "Active Emission Parameter Index",0,0,0,0 }, //FIXME enum!!!
+    { DIS_FIELDTYPE_UINT16,                 "Scan Pattern",0,0,0,0 }, //FIXME enum!!!
+    { DIS_FIELDTYPE_FLOAT32,                "Beam Center Azimuth (Horizontal Bearing)",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,                "Azimuthal Beamwidth (Horizontal Beamwidth)",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,                "Beam Center D/E",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32,                "D/E Beamwidth (Vertical Beamwidth)",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_VR_UA_BEAM[] =
+{
+    { DIS_FIELDTYPE_UINT8,                  "Beam Data Length",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                  "Beam ID Number",0,0,0,0 },
+    { DIS_FIELDTYPE_PAD16,                  "Padding",0,0,0,0 },
+    { DIS_FIELDTYPE_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA,
+                                            "Fundamental Data Parameters",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_VR_UA_EMITTER_SYSTEM[] =
+{
+    { DIS_FIELDTYPE_UINT8,                  "Emitter System Data Length",0,0,0,0 },
+    { DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEM_BEAMS, "Number of Beams (m)",0,0,0,0 },
+    { DIS_FIELDTYPE_PAD16,                  "Padding",0,0,0,0 },
+    { DIS_FIELDTYPE_UA_EMITTER_SYSTEM,      "Acoustic Emitter System",0,0,0,0 },
+    { DIS_FIELDTYPE_VECTOR_32,              "Location (with respect to entity)",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
+};
+
 /* Bit fields
  */
 DIS_ParserNode DIS_FIELDS_NONE[] =
@@ -439,6 +497,9 @@ void initializeFieldParsers(void)
     initializeParser(DIS_FIELDS_VR_DATA_QUERY);
     initializeParser(DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM);
     initializeParser(DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM);
+    initializeParser(DIS_FIELDS_VR_UA_SHAFT);
+    initializeParser(DIS_FIELDS_VR_UA_EMITTER_SYSTEM);
+    initializeParser(DIS_FIELDS_VR_UA_BEAM);
     initializeParser(DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS);
     initializeParser(DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS);
 

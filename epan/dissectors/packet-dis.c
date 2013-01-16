@@ -118,6 +118,9 @@ int hf_dis_mod_param_transmitter_second_mode = -1;
 int hf_dis_mod_param_sync_state = -1;
 int hf_dis_mod_param_network_sync_id = -1;
 int hf_dis_antenna_pattern_parameter_dump = -1;
+int hf_dis_num_shafts = -1;
+int hf_dis_num_apas = -1;
+int hf_dis_num_ua_emitter_systems = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dis = -1;
@@ -292,6 +295,10 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             pduParser = DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU;
             break;
 
+        case DIS_PDUTYPE_UNDERWATER_ACOUSTIC:
+            pduParser = DIS_PARSER_UNDERWATER_ACOUSTIC_PDU;
+            break;
+            
         /* DIS Radio Communications protocol (RCP) family PDUs */
         case DIS_PDUTYPE_TRANSMITTER:
             pduParser = DIS_PARSER_TRANSMITTER_PDU;
@@ -416,6 +423,15 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                      );
         break;
 
+    case DIS_PDUTYPE_UNDERWATER_ACOUSTIC:
+        col_add_fstr( pinfo->cinfo, COL_INFO,
+                      "PDUType: %s, Shafts=%d, APA=%d, Acoustic Emitter=%d",
+                      pduString,
+                      numShafts,
+                      numApas,
+                      numUAEmitter
+                     );
+        break;
     case DIS_PDUTYPE_SIGNAL:
         col_add_fstr( pinfo->cinfo, COL_INFO,
                       "PDUType: %s, RadioID=%u, Encoding Type=%s, Number of Samples=%u",
@@ -773,6 +789,21 @@ void proto_register_dis(void)
               {"Antenna Pattern Parameter", "dis.radio.antenna_parameter",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
+            },
+            { &hf_dis_num_shafts,
+              { "Number of Shafts",  "dis.ua.number_of_shafts",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_num_apas,
+              { "Number of APAs",  "dis.ua.number_of_apas",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_num_ua_emitter_systems,
+              { "Number of UA Emitter Systems",  "dis.ua.number_of_ua_emitter_systems",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
             },
         };
 
