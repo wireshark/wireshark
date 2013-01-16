@@ -3350,7 +3350,7 @@ create_iax2_dialog(user_data_t* user_data)
 
 	/* Start a notebook for flipping between sets of changes */
 	notebook = gtk_notebook_new();
-	gtk_container_add(GTK_CONTAINER(main_vb), notebook);
+	gtk_box_pack_start(GTK_BOX(main_vb), notebook, TRUE, TRUE, 0);
 	g_object_set_data(G_OBJECT(window), "notebook", notebook);
 
 	user_data->dlg.notebook_signal_id =
