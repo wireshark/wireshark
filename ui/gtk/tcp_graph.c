@@ -142,7 +142,7 @@ struct ellipse_params {
 
 struct element {
     ElementType     type;
-    GdkColor       *elment_color_p;
+    GdkRGBA        *elment_color_p;
     struct segment *parent;
     union {
         struct ellipse_params ellipse;
@@ -182,9 +182,9 @@ struct axis {
 #define RMARGIN_WIDTH   30
 
 struct style_tseq_tcptrace {
-    GdkColor seq_color;
-    GdkColor ack_color[2];
-    GdkColor sack_color[2];
+    GdkRGBA seq_color;
+    GdkRGBA ack_color[2];
+    GdkRGBA sack_color[2];
     int flags;
 };
 
@@ -439,7 +439,7 @@ static struct graph *graph_new(void);
 static void graph_destroy(struct graph * );
 static void graph_initialize_values(struct graph * );
 static void graph_init_sequence(struct graph * );
-static void draw_element_line(struct graph * , struct element * , cairo_t *cr, GdkColor *new_color);
+static void draw_element_line(struct graph * , struct element * , cairo_t *cr, GdkRGBA *new_color);
 static void draw_element_ellipse(struct graph * , struct element * , cairo_t *cr);
 static void graph_display(struct graph * );
 static void graph_pixmaps_create(struct graph * );
@@ -2276,8 +2276,8 @@ static void graph_pixmap_draw(struct graph *g)
     struct element *e;
     int       not_disp;
     cairo_t  *cr;
-    GdkColor *current_line_color = NULL;
-    GdkColor *color_to_set       = NULL;
+    GdkRGBA  *current_line_color = NULL;
+    GdkRGBA  *color_to_set       = NULL;
     gboolean  line_stroked       = TRUE;
 
     debug(DBS_FENTRY) puts("graph_pixmap_draw()");
@@ -2340,7 +2340,7 @@ static void graph_pixmap_draw(struct graph *g)
 }
 
 static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
-                              GdkColor *new_color)
+                              GdkRGBA *new_color)
 {
     int xx1, xx2, yy1, yy2;
 
@@ -2352,7 +2352,7 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     if (new_color != NULL) {
         /* First draw any previous lines with old colour */
         cairo_stroke(cr);
-        gdk_cairo_set_source_color(cr, new_color);
+        gdk_cairo_set_source_rgba(cr, new_color);
     }
 
     xx1 = (int )rint(e->p.line.dim.x1 + g->geom.x - g->wp.x);
@@ -2937,7 +2937,7 @@ static void cross_draw(struct graph *g, int x, int y)
         (y >  g->wp.y)       && (y < g->wp.y+g->wp.height)) {
 
         cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(g->drawing_area));
-        gdk_cairo_set_source_color(cr, &g->s.tseq_tcptrace.seq_color);
+        gdk_cairo_set_source_rgba(cr, &g->s.tseq_tcptrace.seq_color);
         cairo_set_line_width(cr, 1.0);
 
         /* Horizonal line */
@@ -2962,7 +2962,7 @@ static void zoomrect_draw(struct graph *g, int x, int y)
         (y >  g->wp.y)       && (y < g->wp.y+g->wp.height)) {
 
         cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(g->drawing_area));
-        gdk_cairo_set_source_color(cr, &g->s.tseq_tcptrace.seq_color);
+        gdk_cairo_set_source_rgba(cr, &g->s.tseq_tcptrace.seq_color);
         cairo_set_line_width(cr, 1.0);
 
         /* Do outline of rect */
@@ -4192,34 +4192,34 @@ static void tseq_stevens_toggle_time_origin(struct graph *g)
 static void tseq_tcptrace_read_config(struct graph *g)
 {
     /* Black */
-    g->s.tseq_tcptrace.seq_color.pixel     = 0;
-    g->s.tseq_tcptrace.seq_color.red       = 0;
-    g->s.tseq_tcptrace.seq_color.green     = 0;
-    g->s.tseq_tcptrace.seq_color.blue      = 0;
+    g->s.tseq_tcptrace.seq_color.red       = (double)0 / 65535.0;
+    g->s.tseq_tcptrace.seq_color.green     = (double)0 / 65535.0;
+    g->s.tseq_tcptrace.seq_color.blue      = (double)0 / 65535.0;
+    g->s.tseq_tcptrace.seq_color.alpha     = 1.0;
 
     /* LightSlateGray */
-    g->s.tseq_tcptrace.ack_color[0].pixel  = 0;
-    g->s.tseq_tcptrace.ack_color[0].red    = 0x7777;
-    g->s.tseq_tcptrace.ack_color[0].green  = 0x8888;
-    g->s.tseq_tcptrace.ack_color[0].blue   = 0x9999;
+    g->s.tseq_tcptrace.ack_color[0].red    = (double)0x7777 / 65535.0;
+    g->s.tseq_tcptrace.ack_color[0].green  = (double)0x8888 / 65535.0;
+    g->s.tseq_tcptrace.ack_color[0].blue   = (double)0x9999 / 65535.0;
+    g->s.tseq_tcptrace.ack_color[0].alpha  = 1.0;
 
     /* LightGray */
-    g->s.tseq_tcptrace.ack_color[1].pixel  = 0;
-    g->s.tseq_tcptrace.ack_color[1].red    = 0xd3d3;
-    g->s.tseq_tcptrace.ack_color[1].green  = 0xd3d3;
-    g->s.tseq_tcptrace.ack_color[1].blue   = 0xd3d3;
+    g->s.tseq_tcptrace.ack_color[1].red    = (double)0xd3d3 / 65535.0;
+    g->s.tseq_tcptrace.ack_color[1].green  = (double)0xd3d3 / 65535.0;
+    g->s.tseq_tcptrace.ack_color[1].blue   = (double)0xd3d3 / 65535.0;
+    g->s.tseq_tcptrace.ack_color[1].alpha  = 1.0;
 
     /* Light blue */
-    g->s.tseq_tcptrace.sack_color[0].pixel = 0;
-    g->s.tseq_tcptrace.sack_color[0].red   = 0x0;
-    g->s.tseq_tcptrace.sack_color[0].green = 0x0;
-    g->s.tseq_tcptrace.sack_color[0].blue  = 0xffff;
+    g->s.tseq_tcptrace.sack_color[0].red   = (double)0x0    / 65535.0;
+    g->s.tseq_tcptrace.sack_color[0].green = (double)0x0    / 65535.0;
+    g->s.tseq_tcptrace.sack_color[0].blue  = (double)0xffff / 65535.0;
+    g->s.tseq_tcptrace.sack_color[0].alpha = 1.0;
 
     /* Darker blue */
-    g->s.tseq_tcptrace.sack_color[1].pixel = 0;
-    g->s.tseq_tcptrace.sack_color[1].red   = 0x0;
-    g->s.tseq_tcptrace.sack_color[1].green = 0x0;
-    g->s.tseq_tcptrace.sack_color[1].blue  = 0x9888;
+    g->s.tseq_tcptrace.sack_color[1].red   = (double)0x0    / 65535.0;
+    g->s.tseq_tcptrace.sack_color[1].green = (double)0x0    / 65535.0;
+    g->s.tseq_tcptrace.sack_color[1].blue  = (double)0x9888 / 65535.0;
+    g->s.tseq_tcptrace.sack_color[1].alpha = 1.0;
 
     g->s.tseq_tcptrace.flags = 0;
 
