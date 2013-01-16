@@ -1208,36 +1208,36 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       call_dissector(sdh_handle, tvb, pinfo, tree);
     }
     else{
-      call_dissector(data_handle, tvb, pinfo, erf_tree);
+      call_dissector(data_handle, tvb, pinfo, tree);
     }
     break;
 
   case ERF_TYPE_IPV4:
     if (ipv4_handle)
-      call_dissector(ipv4_handle, tvb, pinfo, erf_tree);
+      call_dissector(ipv4_handle, tvb, pinfo, tree);
     else
-      call_dissector(data_handle, tvb, pinfo, erf_tree);
+      call_dissector(data_handle, tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_IPV6:
     if (ipv6_handle)
-      call_dissector(ipv6_handle, tvb, pinfo, erf_tree);
+      call_dissector(ipv6_handle, tvb, pinfo, tree);
     else
-      call_dissector(data_handle, tvb, pinfo, erf_tree);
+      call_dissector(data_handle, tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_INFINIBAND:
     if (infiniband_handle)
-      call_dissector(infiniband_handle, tvb, pinfo, erf_tree);
+      call_dissector(infiniband_handle, tvb, pinfo, tree);
     else
-      call_dissector(data_handle, tvb, pinfo, erf_tree);
+      call_dissector(data_handle, tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_INFINIBAND_LINK:
     if (infiniband_link_handle)
-      call_dissector(infiniband_link_handle, tvb, pinfo, erf_tree);
+      call_dissector(infiniband_link_handle, tvb, pinfo, tree);
     else
-      call_dissector(data_handle, tvb, pinfo, erf_tree);
+      call_dissector(data_handle, tvb, pinfo, tree);
     break;
 
   case ERF_TYPE_LEGACY:
