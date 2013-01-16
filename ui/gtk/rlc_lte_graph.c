@@ -49,14 +49,14 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
-#define AXIS_HORIZONTAL		0
-#define AXIS_VERTICAL		1
+#define AXIS_HORIZONTAL         0
+#define AXIS_VERTICAL           1
 
 #define WINDOW_TITLE_LENGTH 256
 
-#define MOUSE_BUTTON_LEFT	1
-#define MOUSE_BUTTON_MIDDLE	2
-#define MOUSE_BUTTON_RIGHT	3
+#define MOUSE_BUTTON_LEFT       1
+#define MOUSE_BUTTON_MIDDLE     2
+#define MOUSE_BUTTON_RIGHT      3
 
 #define MAX_PIXELS_PER_SN       90
 #define MAX_PIXELS_PER_SECOND   50000
@@ -94,9 +94,9 @@ struct irect {
 };
 
 typedef enum {
-    ELMT_NONE=0,
-    ELMT_LINE=1,
-    ELMT_ELLIPSE=2
+    ELMT_NONE    = 0,
+    ELMT_LINE    = 1,
+    ELMT_ELLIPSE = 2
 } ElementType;
 
 struct line_params {
@@ -127,7 +127,7 @@ struct element_list {
 };
 
 struct axis {
-    struct graph *g;			/* which graph we belong to */
+    struct graph *g;           /* which graph we belong to */
     GtkWidget *drawing_area;
     /* Double-buffering to avoid flicker */
 #if GTK_CHECK_VERSION(2,22,0)
@@ -137,21 +137,21 @@ struct axis {
 #endif
     /* Which of the 2 buffers we are currently showing */
     int displayed;
-#define AXIS_ORIENTATION	1 << 0
+#define AXIS_ORIENTATION    1 << 0
     int flags;
     /* dim and orig (relative to origin of window) of axis' pixmap */
     struct irect p;
     /* dim and orig (relative to origin of axis' pixmap) of scale itself */
     struct irect s;
     gdouble min, max;
-    gdouble major, minor;		/* major and minor ticks */
+    gdouble major, minor;    /* major and minor ticks */
     const char **label;
 };
 
-#define HAXIS_INIT_HEIGHT	70
-#define VAXIS_INIT_WIDTH	100
-#define TITLEBAR_HEIGHT		50
-#define RMARGIN_WIDTH	30
+#define HAXIS_INIT_HEIGHT   70
+#define VAXIS_INIT_WIDTH   100
+#define TITLEBAR_HEIGHT     50
+#define RMARGIN_WIDTH       30
 
 struct style_rlc_lte {
     GdkRGBA seq_color;
@@ -160,15 +160,15 @@ struct style_rlc_lte {
 };
 
 /* style flags */
-#define TIME_ORIGIN			0x10
+#define TIME_ORIGIN             0x10
 /* show time from beginning of capture as opposed to time from beginning
  * of the connection */
-#define TIME_ORIGIN_CAP		0x10
-#define TIME_ORIGIN_CONN	0x00
+#define TIME_ORIGIN_CAP         0x10
+#define TIME_ORIGIN_CONN        0x00
 
 struct cross {
     int x, y;
-    int draw;			/* indicates whether we should draw cross at all */
+    int draw;           /* indicates whether we should draw cross at all */
     int erase_needed;   /* indicates whether currently drawn at recorded position */
 };
 
@@ -197,9 +197,9 @@ struct grab {
 struct graph {
 #define GRAPH_DESTROYED             (1 << 0)
     int flags;
-    GtkWidget *toplevel;	/* keypress handler needs this */
+    GtkWidget *toplevel;        /* keypress handler needs this */
     GtkWidget *drawing_area;
-    PangoFontDescription *font;	/* font used for annotations etc. */
+    PangoFontDescription *font; /* font used for annotations etc. */
 
     /* Double-buffering */
 #if GTK_CHECK_VERSION(2,22,0)
@@ -209,7 +209,7 @@ struct graph {
     GdkPixmap *title_pixmap;
     GdkPixmap *pixmap[2];
 #endif
-    int displayed;			/* which of both pixmaps is on screen right now */
+    int displayed;              /* which of both pixmaps is on screen right now */
 
     /* Next 4 attribs describe the graph in natural units, before any scaling.
      * For example, if we want to display graph of TCP conversation that
@@ -244,7 +244,7 @@ struct graph {
     guint8          direction;
 
     /* Lists of elements to draw */
-    struct element_list *elists;		/* element lists */
+    struct element_list *elists;    /* element lists */
 
     /* Colours, etc to be used in drawing */
     struct style_rlc_lte style;
@@ -253,15 +253,15 @@ struct graph {
 #if !GTK_CHECK_VERSION(3,0,0)
 static GdkGC *xor_gc = NULL;
 #endif
-static int refnum=0;
+static int refnum = 0;
 
 #define debug(section) if (debugging & section)
 /* print function entry points */
-#define DBS_FENTRY			(1 << 0)
-#define DBS_AXES_TICKS		(1 << 1)
-#define DBS_AXES_DRAWING	(1 << 2)
-#define DBS_GRAPH_DRAWING	(1 << 3)
-#define DBS_TPUT_ELMTS		(1 << 4)
+#define DBS_FENTRY              (1 << 0)
+#define DBS_AXES_TICKS          (1 << 1)
+#define DBS_AXES_DRAWING        (1 << 2)
+#define DBS_GRAPH_DRAWING       (1 << 3)
+#define DBS_TPUT_ELMTS          (1 << 4)
 /*static int debugging = DBS_FENTRY;*/
 /*static int debugging = DBS_AXES_TICKS;*/
 /*static int debugging = DBS_AXES_DRAWING;*/
@@ -337,7 +337,7 @@ static void graph_read_config(struct graph *);
 static void rlc_lte_make_elmtlist(struct graph *);
 
 #if defined(_WIN32) && !defined(__MINGW32__)
-static int rint(double );	/* compiler template for Windows */
+static int rint(double );     /* compiler template for Windows */
 #endif
 
 /*
@@ -353,7 +353,7 @@ static char helptext[] =
     "   Middle Mouse Button           zooms in (towards area under cursor)\n"
     "   Right Mouse Button            moves the graph (if zoomed in)\n"
     "\n"
-	"   <Space bar>	toggles crosshairs on/off\n"
+    "   <Space bar>      toggles crosshairs on/off\n"
     "\n"
     "   'i' or '+'       zoom in (towards area under mouse pointer)\n"
     "   'o' or '-'       zoom out\n"
@@ -612,14 +612,14 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 static void get_mouse_position(GtkWidget *widget, int *pointer_x, int *pointer_y, GdkModifierType *mask)
 {
 #if GTK_CHECK_VERSION(3,0,0)
-	gdk_window_get_device_position (gtk_widget_get_window(widget),
-	                                gdk_device_manager_get_client_pointer(
-	                                  gdk_display_get_device_manager(
-	                                    gtk_widget_get_display(GTK_WIDGET(widget)))),
-	                                pointer_x, pointer_y, mask);
+    gdk_window_get_device_position (gtk_widget_get_window(widget),
+                                    gdk_device_manager_get_client_pointer(
+                                        gdk_display_get_device_manager(
+                                            gtk_widget_get_display(GTK_WIDGET(widget)))),
+                                    pointer_x, pointer_y, mask);
 
 #else
-	gdk_window_get_pointer (gtk_widget_get_window(widget), pointer_x, pointer_y, mask);
+    gdk_window_get_pointer (gtk_widget_get_window(widget), pointer_x, pointer_y, mask);
 #endif
 }
 
@@ -659,7 +659,7 @@ static void graph_initialize_values(struct graph *g)
     g->geom.height = g->wp.height = 550;
     g->geom.x = g->wp.x = VAXIS_INIT_WIDTH;
     g->geom.y = g->wp.y = TITLEBAR_HEIGHT;
-    g->flags = 0;
+    g->flags  = 0;
     g->zoom.x = g->zoom.y = 1.0;
 
     /* Zooming in step - set same for both dimensions */
@@ -740,7 +740,7 @@ static void graph_destroy(struct graph *g)
 
 
 typedef struct rlc_scan_t {
-    struct graph *g;
+    struct graph   *g;
     struct segment *last;
 } rlc_scan_t;
 
@@ -748,8 +748,8 @@ typedef struct rlc_scan_t {
 static int
 tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-    rlc_scan_t *ts=(rlc_scan_t *)pct;
-    struct graph *g = ts->g;
+    rlc_scan_t   *ts = (rlc_scan_t *)pct;
+    struct graph *g  = ts->g;
     const rlc_lte_tap_info *rlchdr = (const rlc_lte_tap_info*)vip;
 
     /* See if this one matches current channel */
@@ -807,8 +807,8 @@ tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, co
 static void graph_segment_list_get(struct graph *g, gboolean channel_known)
 {
     struct segment current;
-    GString *error_string;
-    rlc_scan_t ts;
+    GString    *error_string;
+    rlc_scan_t  ts;
 
     debug(DBS_FENTRY) puts("graph_segment_list_get()");
 
@@ -851,9 +851,9 @@ typedef struct _th_t {
 static int
 tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
-    int n;
-    gboolean is_unique = TRUE;
-    th_t *th = pct;
+    int       n;
+    gboolean  is_unique = TRUE;
+    th_t     *th        = pct;
     const rlc_lte_tap_info *header = (const rlc_lte_tap_info*)vip;
 
     /* Check new header details against any/all stored ones */
@@ -871,8 +871,8 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
     /* Add address if unique and have space for it */
     if (is_unique && (th->num_hdrs < MAX_SUPPORTED_CHANNELS)) {
         /* Copy the tap stuct in as next header */
-		/* Need to take a deep copy of the tap struct, it may not be valid
-		   to read after this function returns? */
+        /* Need to take a deep copy of the tap struct, it may not be valid
+           to read after this function returns? */
         th->rlchdrs[th->num_hdrs] = g_malloc(sizeof(rlc_lte_tap_info));
         *(th->rlchdrs[th->num_hdrs]) = *header;
 
@@ -893,11 +893,11 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
  */
 static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment *hdrs)
 {
-    frame_data *fdata;
-    epan_dissect_t edt;
-    dfilter_t *sfcode;
-    GString *error_string;
-    th_t th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
+    frame_data     *fdata;
+    epan_dissect_t  edt;
+    dfilter_t      *sfcode;
+    GString        *error_string;
+    th_t            th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
 
     if (cf->state == FILE_CLOSED) {
         return NULL;
@@ -913,7 +913,7 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
 
     /* dissect the current frame */
     if (!cf_read_frame(cf, fdata)) {
-        return NULL;	/* error reading the frame */
+        return NULL;  /* error reading the frame */
     }
 
     error_string = register_tap_listener("rlc-lte", &th, NULL, 0, NULL, tap_lte_rlc_packet, NULL);
@@ -930,7 +930,7 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
     epan_dissect_cleanup(&edt);
     remove_tap_listener(&th);
 
-    if (th.num_hdrs==0){
+    if (th.num_hdrs == 0){
         /* This "shouldn't happen", as our menu items shouldn't
          * even be enabled if the selected packet isn't an RLC PDU
          * as rlc_lte_graph_selected_packet_enabled() is used
@@ -1027,7 +1027,7 @@ static void graph_element_lists_free(struct graph *g)
         next_list = list->next;
         g_free(list);
     }
-    g->elists = NULL;	/* just to make debugging easier */
+    g->elists = NULL;  /* just to make debugging easier */
 }
 
 static void graph_title_pixmap_create(struct graph *g)
@@ -1054,9 +1054,9 @@ static void graph_title_pixmap_create(struct graph *g)
 
 static void graph_title_pixmap_draw(struct graph *g)
 {
-    gint w, h;
+    gint         w, h;
     PangoLayout *layout;
-    cairo_t *cr;
+    cairo_t     *cr;
 
 #if GTK_CHECK_VERSION(2,22,0)
     cr = cairo_create(g->title_surface);
@@ -1165,13 +1165,12 @@ static void graph_pixmap_draw(struct graph *g)
 {
     struct element_list *list;
     struct element *e;
-    int not_disp;
-    cairo_t *cr;
-
-    cairo_t *cr_elements;
-    GdkRGBA *current_color = NULL;
-    GdkRGBA *color_to_set  = NULL;
-    gboolean line_stroked  = TRUE;
+    int       not_disp;
+    cairo_t  *cr;
+    cairo_t  *cr_elements;
+    GdkRGBA  *current_color = NULL;
+    GdkRGBA  *color_to_set  = NULL;
+    gboolean  line_stroked  = TRUE;
 
     debug(DBS_FENTRY) puts("graph_display()");
     not_disp = 1 ^ g->displayed;
@@ -1272,8 +1271,8 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     yy2 = (int)rint((g->geom.height-1-e->p.line.dim.y2) + g->geom.y-g->wp.y);
 
     /* If line completely out of the area, we won't show it  */
-    if ((xx1<0 && xx2<0) || (xx1>=g->wp.width  && xx2>=g->wp.width) ||
-        (yy1<0 && yy2<0) || (yy1>=g->wp.height && yy2>=g->wp.height)) {
+    if (((xx1 < 0) && (xx2 < 0)) || ((xx1 >= g->wp.width)  && (xx2 >= g->wp.width)) ||
+        ((yy1 < 0) && (yy2 < 0)) || ((yy1 >= g->wp.height) && (yy2 >= g->wp.height))) {
         debug(DBS_GRAPH_DRAWING) printf(" refusing: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
         return;
     }
@@ -1378,12 +1377,12 @@ static void axis_display(struct axis *axis)
 static void v_axis_pixmap_draw(struct axis *axis)
 {
     struct graph *g = axis->g;
-    int i;
-    double major_tick;
-    int not_disp, offset, imin, imax;
-    double bottom, top, fl, corr;
-    PangoLayout *layout;
-    cairo_t *cr;
+    int           i;
+    double        major_tick;
+    int           not_disp, offset, imin, imax;
+    double        bottom, top, fl, corr;
+    PangoLayout  *layout;
+    cairo_t      *cr;
 
     debug(DBS_FENTRY) puts("v_axis_pixmap_draw()");
 
@@ -1429,7 +1428,7 @@ static void v_axis_pixmap_draw(struct axis *axis)
 
         debug(DBS_AXES_DRAWING) printf("%f @ %d\n",
                                                i*axis->major + fl, y);
-        if (y < 0 || y > axis->p.height)
+        if ((y < 0) || (y > axis->p.height))
             continue;
 
         cairo_move_to(cr, axis->p.width - 15, y+0.5);
@@ -1452,7 +1451,7 @@ static void v_axis_pixmap_draw(struct axis *axis)
             int y = (int) (g->geom.height-1 - (int )rint(i*minor_tick) -
                             offset + corr + axis->s.y);
 
-            if (y > 0 && y < axis->p.height) {
+            if ((y > 0) && (y < axis->p.height)) {
                 cairo_set_line_width(cr, 1.0);
                 cairo_move_to(cr, axis->s.width - 8, y+0.5);
                 cairo_line_to(cr, axis->s.width - 1, y+0.5);
@@ -1478,12 +1477,12 @@ static void v_axis_pixmap_draw(struct axis *axis)
 static void h_axis_pixmap_draw(struct axis *axis)
 {
     struct graph *g = axis->g;
-    int i;
-    double major_tick, minor_tick;
-    int not_disp, rdigits, offset, imin, imax;
-    double left, right, j, fl, corr;
-    PangoLayout *layout;
-    cairo_t *cr;
+    int           i;
+    double        major_tick, minor_tick;
+    int           not_disp, rdigits, offset, imin, imax;
+    double        left, right, j, fl, corr;
+    PangoLayout  *layout;
+    cairo_t      *cr;
 
     debug(DBS_FENTRY) puts("h_axis_pixmap_draw()");
     left = (g->wp.x-g->geom.x) / (double)g->geom.width * g->bounds.width;
@@ -1494,9 +1493,9 @@ static void h_axis_pixmap_draw(struct axis *axis)
 
     /* Work out how many decimal places should be shown */
     j = axis->major - floor(axis->major);
-    for (rdigits=0; rdigits<=6; rdigits++) {
+    for (rdigits=0; rdigits <= 6; rdigits++) {
         j *= 10;
-        if (j<=0.000001)
+        if (j <= 0.000001)
             break;
         j = j - floor(j);
     }
@@ -1533,7 +1532,7 @@ static void h_axis_pixmap_draw(struct axis *axis)
         int x = (int) (rint(i * major_tick) - offset - corr);
 
         /* printf("%f @ %d\n", i*axis->major + fl, x); */
-        if (x < 0 || x > axis->s.width)
+        if ((x < 0) || (x > axis->s.width))
             continue;
         cairo_move_to(cr, x+0.5, 0);
         cairo_line_to(cr, x+0.5, 15);
@@ -1552,7 +1551,7 @@ static void h_axis_pixmap_draw(struct axis *axis)
         imax = (int) ((offset + corr + g->wp.width) / minor_tick);
         for (i=imin; i <= imax; i++) {
             int x = (int) (rint(i * minor_tick) - offset - corr);
-            if (x > 0 && x < axis->s.width){
+            if ((x > 0) && (x < axis->s.width)){
                 cairo_move_to(cr, x+0.5, 0);
                 cairo_line_to(cr, x+0.5, 8);
             }
@@ -1594,10 +1593,10 @@ static void axis_pixmap_display(struct axis *axis)
 
 static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int dir)
 {
-    int i, j, ii, jj, ms;
-    double zoom, x, steps[3]={ 0.1, 0.5 };
-    int dim, check_needed, diminished;
-    double majthresh[2]={2.0, 3.0};
+    int    i, j, ii, jj, ms;
+    double zoom, x, steps[3] = { 0.1, 0.5 };
+    int    dim, check_needed, diminished;
+    double majthresh[2]      = {2.0, 3.0};
 
     debug((DBS_FENTRY | DBS_AXES_TICKS)) puts("axis_compute_ticks()");
     debug(DBS_AXES_TICKS)
@@ -1605,7 +1604,7 @@ static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int di
 
     zoom = axis_zoom_get(axis, dir);
     x = xmax-x0;
-    for (i=-9; i<=12; i++) {
+    for (i=-9; i <= 12; i++) {
         if (x / pow(10, i) < 1)
             break;
     }
@@ -1635,7 +1634,7 @@ static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int di
     axis_ticks_down(&ii, &jj);
 
     if ((dir == AXIS_VERTICAL) && (axis->major <= 1)) {
-        /* Ddon't subdivide whole sequence numbers */
+        /* Don't subdivide whole sequence numbers */
         axis->minor = 0;
     }
     else {
@@ -1650,7 +1649,7 @@ static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int di
     }
 
     check_needed = TRUE;
-    diminished = FALSE;
+    diminished   = FALSE;
     while (check_needed) {
         check_needed = FALSE;
         dim = get_label_dim(axis, dir, xmax);
@@ -1663,22 +1662,22 @@ static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int di
          * dimension apart, we need to use bigger ones */
         if (axis->major*zoom / dim < majthresh[dir]) {
             axis_ticks_up(&ii, &jj);
-            axis->minor = axis->major;
+            axis->minor  = axis->major;
             axis_ticks_up(&i, &j);
-            axis->major = steps[j] * pow(10, i);
+            axis->major  = steps[j] * pow(10, i);
             check_needed = TRUE;
             debug(DBS_AXES_TICKS) printf("axis->major enlarged to %.1f\n",
                                         axis->major);
         }
         /* if minor ticks are bigger than majthresh[dir] times label dimension,
          * we could  promote them to majors as well */
-        if (axis->minor*zoom / dim > majthresh[dir] && !diminished) {
+        if ((axis->minor*zoom / dim > majthresh[dir]) && !diminished) {
             axis_ticks_down(&i, &j);
-            axis->major = axis->minor;
+            axis->major  = axis->minor;
             axis_ticks_down(&ii, &jj);
-            axis->minor = steps[jj] * pow(10, ii);
+            axis->minor  = steps[jj] * pow(10, ii);
             check_needed = TRUE;
-            diminished = TRUE;
+            diminished   = TRUE;
 
             debug(DBS_AXES_TICKS) printf("axis->minor diminished to %.1f\n",
                                         axis->minor);
@@ -1700,32 +1699,32 @@ static void axis_ticks_up(int *i, int *j)
     (*j)++;
     if (*j>1) {
         (*i)++;
-        *j=0;
+        *j = 0;
     }
 }
 
 static void axis_ticks_down(int *i, int *j)
 {
     (*j)--;
-    if (*j<0) {
+    if (*j < 0) {
         (*i)--;
-        *j=1;
+        *j = 1;
     }
 }
 
 static int get_label_dim(struct axis *axis, int dir, double label)
 {
     double y;
-    char str[32];
-    int rdigits, dim;
+    char   str[32];
+    int    rdigits, dim;
     PangoLayout *layout;
 
     /* First, let's compute how many digits to the right of radix
      * we need to print */
     y = axis->major - floor(axis->major);
-    for (rdigits=0; rdigits<=6; rdigits++) {
+    for (rdigits=0; rdigits <= 6; rdigits++) {
         y *= 10;
-        if (y<=0.000001)
+        if (y <= 0.000001)
             break;
         y = y - floor(y);
     }
@@ -1769,7 +1768,7 @@ static void graph_select_segment(struct graph *g, int x, int y)
     debug(DBS_FENTRY) puts("graph_select_segment()");
 
     x -= g->geom.x;
-    y = g->geom.height-1 - (y - g->geom.y);
+    y  = g->geom.height-1 - (y - g->geom.y);
 
     set_busy_cursor(gtk_widget_get_window(g->drawing_area));
 
@@ -1823,8 +1822,8 @@ static int line_detect_collision(struct element *e, int x, int y)
      */
 
     /* N.B. won't match with diagonal lines... */
-    if ((xx1==x && xx2==x && yy1<=y && y<=yy2)|   /* lies along vertical line */
-        (yy1==y && yy2==y && xx1<=x && x<=xx2)) { /* lies along horizontal line */
+    if (((xx1 == x) && (xx2 == x) && (yy1 <= y) && (y <= yy2) )|   /* lies along vertical line */
+        ((yy1 == y) && (yy2 == y) && (xx1 <= x) && (x <= xx2))) { /* lies along horizontal line */
         return TRUE;
     }
     else {
@@ -1843,7 +1842,7 @@ static int ellipse_detect_collision(struct element *e, int x, int y)
     /*
     printf ("ellipse: (%d,%d)->(%d,%d), clicked: (%d,%d)\n", xx1, yy1, xx2, yy2, x, y);
      */
-    if (xx1<=x && x<=xx2 && yy1<=y && y<=yy2) {
+    if ((xx1 <= x) && (x <= xx2) && (yy1 <= y) && (y <= yy2)) {
         return TRUE;
     }
     else {
@@ -1862,20 +1861,20 @@ static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event,
 
     debug(DBS_FENTRY) puts("configure_event()");
 
-    cur_wp_width = g->wp.width;
+    cur_wp_width  = g->wp.width;
     cur_wp_height = g->wp.height;
-    g->wp.width = event->width - g->y_axis->p.width - RMARGIN_WIDTH;
-    g->wp.height = event->height - g->x_axis->p.height - g->wp.y;
-    g->x_axis->s.width = g->wp.width;
-    g->x_axis->p.width = g->wp.width + RMARGIN_WIDTH;
+    g->wp.width   = event->width - g->y_axis->p.width - RMARGIN_WIDTH;
+    g->wp.height  = event->height - g->x_axis->p.height - g->wp.y;
+    g->x_axis->s.width  = g->wp.width;
+    g->x_axis->p.width  = g->wp.width + RMARGIN_WIDTH;
     g->y_axis->p.height = g->wp.height + g->wp.y;
     g->y_axis->s.height = g->wp.height;
-    g->x_axis->p.y = g->y_axis->p.height;
-    new_zoom.x = (double)g->wp.width / cur_wp_width;
-    new_zoom.y = (double)g->wp.height / cur_wp_height;
-    cur_g_width = g->geom.width;
-    cur_g_height = g->geom.height;
-    g->geom.width = (int)rint(g->geom.width * new_zoom.x);
+    g->x_axis->p.y      = g->y_axis->p.height;
+    new_zoom.x     = (double)g->wp.width / cur_wp_width;
+    new_zoom.y     = (double)g->wp.height / cur_wp_height;
+    cur_g_width    = g->geom.width;
+    cur_g_height   = g->geom.height;
+    g->geom.width  = (int)rint(g->geom.width * new_zoom.x);
     g->geom.height = (int)rint(g->geom.height * new_zoom.y);
     g->zoom.x = (double)(g->geom.width - 1) / g->bounds.width;
     g->zoom.y = (double)(g->geom.height -1) / g->bounds.height;
@@ -2115,10 +2114,10 @@ static void do_key_motion(struct graph *g)
     if (g->geom.y > g->wp.y) {
         g->geom.y = g->wp.y;
     }
-    if (g->wp.x + g->wp.width > g->geom.x + g->geom.width) {
+    if ((g->wp.x + g->wp.width) > (g->geom.x + g->geom.width)) {
         g->geom.x = g->wp.width + g->wp.x - g->geom.width;
     }
-    if (g->wp.y + g->wp.height > g->geom.y + g->geom.height) {
+    if ((g->wp.y + g->wp.height) > (g->geom.y + g->geom.height)) {
         g->geom.y = g->wp.height + g->wp.y - g->geom.height;
     }
 
@@ -2362,8 +2361,8 @@ static void cross_draw(struct graph *g, int x, int y)
     }
 
     /* Draw the cross */
-    if (x >  g->wp.x && x < g->wp.x+g->wp.width &&
-        y >  g->wp.y && y < g->wp.y+g->wp.height) {
+    if ((x >  g->wp.x) && (x < g->wp.x+g->wp.width) &&
+        (y >  g->wp.y) && (y < g->wp.y+g->wp.height)) {
 
         cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(g->drawing_area));
         gdk_cairo_set_source_rgba(cr, &g->style.seq_color);
@@ -2391,8 +2390,8 @@ static void cross_erase(struct graph *g)
     int x = g->cross.x;
     int y = g->cross.y;
 
-    if (x >  g->wp.x && x < g->wp.x+g->wp.width &&
-        y >= g->wp.y && y < g->wp.y+g->wp.height) {
+    if ((x >  g->wp.x) && (x < g->wp.x+g->wp.width) &&
+        (y >= g->wp.y) && (y < g->wp.y+g->wp.height)) {
 
         /* Just redraw what is in the pixmap buffer */
         graph_pixmap_display(g);
@@ -2420,7 +2419,7 @@ static void toggle_time_origin(struct graph *g)
 
 static void restore_initial_graph_view(struct graph *g)
 {
-    g->geom.width = g->wp.width;
+    g->geom.width  = g->wp.width;
     g->geom.height = g->wp.height;
     g->geom.x = g->wp.x;
     g->geom.y = g->wp.y;
@@ -2438,8 +2437,8 @@ static void restore_initial_graph_view(struct graph *g)
 static void get_data_control_counts(struct graph *g, int *data, int *acks, int *nacks)
 {
     struct segment *tmp;
-    *data = 0;
-    *acks = 0;
+    *data  = 0;
+    *acks  = 0;
     *nacks = 0;
 
     for (tmp=g->segments; tmp; tmp=tmp->next) {
@@ -2462,19 +2461,19 @@ static void graph_get_bounds(struct graph *g)
 {
     struct segment *tmp;
     double   tim;
-    gboolean data_frame_seen=FALSE;
-    double   data_tim_low=0;
-    double   data_tim_high=0;
+    gboolean data_frame_seen = FALSE;
+    double   data_tim_low = 0;
+    double   data_tim_high = 0;
     guint32  data_seq_cur;
-    guint32  data_seq_low=0;
-    guint32  data_seq_high=0;
-    gboolean ack_frame_seen=FALSE;
+    guint32  data_seq_low = 0;
+    guint32  data_seq_high = 0;
+    gboolean ack_frame_seen = FALSE;
 
-    double   ack_tim_low=0;
-    double   ack_tim_high=0;
-	guint32  ack_seq_cur;
-    guint32  ack_seq_low=0;
-    guint32  ack_seq_high=0;
+    double   ack_tim_low = 0;
+    double   ack_tim_high = 0;
+    guint32  ack_seq_cur;
+    guint32  ack_seq_low = 0;
+    guint32  ack_seq_high = 0;
 
     /* Go through all segments to determine "bounds" */
     for (tmp=g->segments; tmp; tmp=tmp->next) {
@@ -2537,10 +2536,10 @@ static void graph_get_bounds(struct graph *g)
         }
     }
 
-    g->bounds.x0     =  ((data_tim_low <= ack_tim_low   && data_frame_seen) || (!ack_frame_seen)) ? data_tim_low  : ack_tim_low;
-    g->bounds.width  = (((data_tim_high >= ack_tim_high && data_frame_seen) || (!ack_frame_seen)) ? data_tim_high : ack_tim_high) - g->bounds.x0;
+    g->bounds.x0     =  (((data_tim_low <= ack_tim_low) && data_frame_seen) || (!ack_frame_seen)) ? data_tim_low  : ack_tim_low;
+    g->bounds.width  = ((((data_tim_high >= ack_tim_high) && data_frame_seen) || (!ack_frame_seen)) ? data_tim_high : ack_tim_high) - g->bounds.x0;
     g->bounds.y0     =  0;   /* We always want the overal bounds to go back down to SN=0 */
-    g->bounds.height = (((data_seq_high >= ack_seq_high && data_frame_seen) || (!ack_frame_seen)) ? data_seq_high : ack_seq_high);
+    g->bounds.height = (((data_seq_high >= ack_seq_high) && data_frame_seen) || (!ack_frame_seen)) ? data_seq_high : ack_seq_high;
 
     g->zoom.x = (g->geom.width - 1) / g->bounds.width;
     g->zoom.y = (g->geom.height -1) / g->bounds.height;
@@ -2581,16 +2580,16 @@ static void graph_read_config(struct graph *g)
 static void rlc_lte_make_elmtlist(struct graph *g)
 {
     struct segment *tmp;
-    struct element *elements0, *e0;		/* list of elmts showing control */
-    struct element *elements1, *e1;		/* list of elmts showing data */
+    struct element *elements0, *e0;             /* list of elmts showing control */
+    struct element *elements1, *e1;             /* list of elmts showing data */
     struct segment *last_status_segment = NULL;
-    double xx0, yy0;
+    double   xx0, yy0;
     gboolean ack_seen = FALSE;
-    guint32 seq_base;
-    guint32 seq_cur;
-    int n, data, acks, nacks;
+    guint32  seq_base;
+    guint32  seq_cur;
+    int      n, data, acks, nacks;
 
-    double previous_status_x=0.0, previous_status_y=0.0;
+    double previous_status_x = 0.0, previous_status_y = 0.0;
 
     debug(DBS_FENTRY) puts("rlc_lte_make_elmtlist()");
 
