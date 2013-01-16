@@ -173,20 +173,20 @@ typedef struct rlc_lte_common_stats {
 
 /* One row/UE in the UE table */
 typedef struct rlc_lte_ep {
-    struct rlc_lte_ep* next;
-    struct rlc_lte_row_data stats;
+    struct rlc_lte_ep *next;
+    struct rlc_lte_row_data  stats;
     GtkTreeIter iter;
-    gboolean iter_valid;
+    gboolean    iter_valid;
 } rlc_lte_ep_t;
 
 
 /* Used to keep track of whole RLC LTE statistics window */
 typedef struct rlc_lte_stat_t {
-    GtkTreeView   *ue_table;
-    rlc_lte_ep_t  *ep_list;
+    GtkTreeView  *ue_table;
+    rlc_lte_ep_t *ep_list;
     guint32       total_frames;
 
-    char          *filter;
+    char         *filter;
 
     /* Top-level dialog and labels */
     GtkWidget  *dlg_w;
@@ -209,17 +209,17 @@ typedef struct rlc_lte_stat_t {
 
     /* Common stats */
     rlc_lte_common_stats common_stats;
-    GtkWidget *common_bcch_frames;
-    GtkWidget *common_bcch_bytes;
-    GtkWidget *common_pcch_frames;
-    GtkWidget *common_pcch_bytes;
+    GtkWidget  *common_bcch_frames;
+    GtkWidget  *common_bcch_bytes;
+    GtkWidget  *common_pcch_frames;
+    GtkWidget  *common_pcch_bytes;
 
     gboolean  show_mac;
 
     /* State used to attempt to re-select chosen UE/channel */
-    guint16   reselect_ue;
-    guint16   reselect_channel_type;
-    guint16   reselect_channel_id;
+    guint16     reselect_ue;
+    guint16     reselect_channel_type;
+    guint16     reselect_channel_id;
 
     GtkTreeView   *channel_table;
 } rlc_lte_stat_t;
@@ -234,13 +234,13 @@ static void enable_filter_controls(guint8 enabled, guint8 rlcMode, rlc_lte_stat_
 {
     guint8 show_dct_errors = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb));
 
-    gtk_widget_set_sensitive(hs->ul_filter_bt, enabled);
-    gtk_widget_set_sensitive(hs->dl_filter_bt, enabled);
-    gtk_widget_set_sensitive(hs->uldl_filter_bt, enabled);
-    gtk_widget_set_sensitive(hs->ul_graph_bt, enabled);
-    gtk_widget_set_sensitive(hs->dl_graph_bt, enabled);
-    gtk_widget_set_sensitive(hs->show_mac_rach_cb, enabled);
-    gtk_widget_set_sensitive(hs->show_mac_srs_cb, enabled);
+    gtk_widget_set_sensitive(hs->ul_filter_bt,       enabled);
+    gtk_widget_set_sensitive(hs->dl_filter_bt,       enabled);
+    gtk_widget_set_sensitive(hs->uldl_filter_bt,     enabled);
+    gtk_widget_set_sensitive(hs->ul_graph_bt,        enabled);
+    gtk_widget_set_sensitive(hs->dl_graph_bt,        enabled);
+    gtk_widget_set_sensitive(hs->show_mac_rach_cb,   enabled);
+    gtk_widget_set_sensitive(hs->show_mac_srs_cb,    enabled);
     gtk_widget_set_sensitive(hs->show_dct_errors_cb, enabled);
 
     /* Enabling substring control only if errors enabled */
@@ -277,11 +277,11 @@ static void enable_filter_controls(guint8 enabled, guint8 rlcMode, rlc_lte_stat_
 /* Reset the statistics window */
 static void rlc_lte_stat_reset(void *phs)
 {
-    rlc_lte_stat_t* rlc_lte_stat = (rlc_lte_stat_t *)phs;
-    rlc_lte_ep_t* list = rlc_lte_stat->ep_list;
-    gchar *display_name;
-    gchar title[256];
-    GtkListStore *store;
+    rlc_lte_stat_t *rlc_lte_stat = (rlc_lte_stat_t *)phs;
+    rlc_lte_ep_t   *list         = rlc_lte_stat->ep_list;
+    gchar          *display_name;
+    gchar           title[256];
+    GtkListStore   *store;
 
     /* Set the title */
     if (rlc_lte_stat->dlg_w != NULL) {
@@ -314,7 +314,7 @@ static void rlc_lte_stat_reset(void *phs)
 /* Allocate a rlc_lte_ep_t struct to store info for new UE */
 static rlc_lte_ep_t* alloc_rlc_lte_ep(const struct rlc_lte_tap_info *si, packet_info *pinfo _U_)
 {
-    rlc_lte_ep_t* ep;
+    rlc_lte_ep_t *ep;
     int n;
 
     if (!si) {
@@ -380,8 +380,8 @@ static int rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *ed
                     const void *phi)
 {
     /* Get reference to stat window instance */
-    rlc_lte_stat_t *hs = (rlc_lte_stat_t *)phs;
-    rlc_lte_ep_t *tmp = NULL, *te = NULL;
+    rlc_lte_stat_t    *hs            = (rlc_lte_stat_t *)phs;
+    rlc_lte_ep_t      *tmp           = NULL, *te = NULL;
     rlc_channel_stats *channel_stats = NULL;
 
     /* Cast tap info struct */
@@ -597,10 +597,10 @@ static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 byt
 /* Draw the channels table according to the current UE selection */
 static void rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
 {
-    GtkListStore *channels_store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->channel_table));
+    GtkListStore      *channels_store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->channel_table));
     rlc_channel_stats *channel_stats;
-    char buff[32];
-    int n;
+    char               buff[32];
+    int                n;
 
     /* Clear any existing rows */
     gtk_list_store_clear(channels_store);
@@ -729,10 +729,10 @@ static void rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
 /* (Re)draw the whole dialog window */
 static void rlc_lte_stat_draw(void *phs)
 {
-    gchar   buff[32];
-    guint16 number_of_ues = 0;
-    gchar *display_name;
-    gchar title[256];
+    gchar    buff[32];
+    guint16  number_of_ues = 0;
+    gchar   *display_name;
+    gchar    title[256];
 
     /* Look up the statistics window */
     rlc_lte_stat_t *hs = (rlc_lte_stat_t *)phs;
@@ -868,7 +868,7 @@ static void rlc_lte_select_ue_cb(GtkTreeSelection *sel, gpointer data)
 {
     rlc_lte_ep_t   *ep;
     GtkTreeModel   *model;
-    GtkTreeIter    iter;
+    GtkTreeIter     iter;
     rlc_lte_stat_t *hs = (rlc_lte_stat_t*)data;
 
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
@@ -890,7 +890,7 @@ static void rlc_lte_select_ue_cb(GtkTreeSelection *sel, gpointer data)
 static void rlc_lte_select_channel_cb(GtkTreeSelection *sel, gpointer data)
 {
     GtkTreeModel   *model;
-    GtkTreeIter    iter;
+    GtkTreeIter     iter;
     rlc_lte_stat_t *hs = (rlc_lte_stat_t *)data;
 
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
@@ -949,7 +949,7 @@ static int get_channel_selection(rlc_lte_stat_t *hs,
                                  guint16 *channelType, guint16 *channelId)
 {
     GtkTreeModel *model;
-    GtkTreeIter iter;
+    GtkTreeIter   iter;
 
     /* Check UE selection */
     GtkTreeSelection *sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(hs->ue_table));
@@ -1138,11 +1138,11 @@ static void set_channel_filter_expression(guint16  ueid,
 /* Respond to UL filter button being clicked by building and using filter */
 static void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 {
-    guint16  ueid;
-    guint8   rlcMode;
-    guint16  channelType;
-    guint16  channelId;
-    int      sn = -1;
+    guint16      ueid;
+    guint8       rlcMode;
+    guint16      channelType;
+    guint16      channelId;
+    int          sn = -1;
     const gchar *sn_string;
 
     /* Read SN to filter on (if present) */
@@ -1167,11 +1167,11 @@ static void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 /* Respond to DL filter button being clicked by building and using filter */
 static void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 {
-    guint16  ueid;
-    guint8   rlcMode;
-    guint16  channelType;
-    guint16  channelId;
-    int      sn = -1;
+    guint16      ueid;
+    guint8       rlcMode;
+    guint16      channelType;
+    guint16      channelId;
+    int          sn = -1;
     const gchar *sn_string;
 
     /* Read SN to filter on (if present) */
@@ -1196,11 +1196,11 @@ static void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 /* Respond to UL/DL filter button being clicked by building and using filter */
 static void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 {
-    guint16  ueid;
-    guint8   rlcMode;
-    guint16  channelType;
-    guint16  channelId;
-    int      sn = -1;
+    guint16      ueid;
+    guint8       rlcMode;
+    guint16      channelType;
+    guint16      channelId;
+    int          sn = -1;
     const gchar *sn_string;
 
     /* Read SN to filter on (if present) */
@@ -1225,8 +1225,8 @@ static void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 /* Create a graph for the UL direction */
 static void ul_graph_clicked(GtkWidget *win _U_,  rlc_lte_stat_t* hs)
 {
-    guint16  ueid, channelType, channelId;
-    guint8   rlcMode;
+    guint16 ueid, channelType, channelId;
+    guint8  rlcMode;
 
     if (!get_channel_selection(hs, &ueid, &rlcMode, &channelType, &channelId)) {
         return;
@@ -1237,8 +1237,8 @@ static void ul_graph_clicked(GtkWidget *win _U_,  rlc_lte_stat_t* hs)
 /* Create a graph for the DL direction */
 static void dl_graph_clicked(GtkWidget *win _U_,  rlc_lte_stat_t* hs)
 {
-    guint16  ueid, channelType, channelId;
-    guint8   rlcMode;
+    guint16 ueid, channelType, channelId;
+    guint8  rlcMode;
 
     if (!get_channel_selection(hs, &ueid, &rlcMode, &channelType, &channelId)) {
         return;
@@ -1279,9 +1279,9 @@ static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
-    gchar *display_name;
-    gchar title[256];
-    gint i;
+    gchar             *display_name;
+    gchar              title[256];
+    gint               i;
 
     /* Check for a filter string */
     if (strncmp(opt_arg, "rlc-lte,stat,", 13) == 0) {
@@ -1354,22 +1354,22 @@ static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
     /* Create labels (that will hold label and counter value) */
     hs->common_bcch_frames = gtk_label_new("BCCH Frames:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_bcch_frames), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_row_hbox), hs->common_bcch_frames);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_bcch_frames, TRUE, TRUE, 0);
     gtk_widget_show(hs->common_bcch_frames);
 
     hs->common_bcch_bytes = gtk_label_new("BCCH Bytes:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_bcch_bytes), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_row_hbox), hs->common_bcch_bytes);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_bcch_bytes, TRUE, TRUE, 0);
     gtk_widget_show(hs->common_bcch_bytes);
 
     hs->common_pcch_frames = gtk_label_new("PCCH Frames:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_pcch_frames), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_row_hbox), hs->common_pcch_frames);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_pcch_frames, TRUE, TRUE, 0);
     gtk_widget_show(hs->common_pcch_frames);
 
     hs->common_pcch_bytes = gtk_label_new("PCCH Bytes:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_pcch_bytes), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_row_hbox), hs->common_pcch_bytes);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_pcch_bytes, TRUE, TRUE, 0);
     gtk_widget_show(hs->common_pcch_bytes);
 
 
@@ -1493,7 +1493,7 @@ static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
 
     /* Horizontal row of filter buttons */
     action_buttons_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6, FALSE);
-    gtk_container_add(GTK_CONTAINER(filter_vb), action_buttons_hb);
+    gtk_box_pack_start(GTK_BOX(filter_vb), action_buttons_hb, FALSE, FALSE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(action_buttons_hb), 2);
 
     /* UL only */
@@ -1539,7 +1539,7 @@ static void gtk_rlc_lte_stat_init(const char *opt_arg, void *userdata _U_)
     /* Allow filtering on specific SN number. */
     /* Row with label and text entry control  */
     sn_filter_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-    gtk_container_add(GTK_CONTAINER(filter_vb), sn_filter_hb);
+    gtk_box_pack_start(GTK_BOX(filter_vb), sn_filter_hb, FALSE, FALSE, 0);
     gtk_widget_show(sn_filter_hb);
 
     /* Allow filtering only to select status PDUs for AM */
@@ -1667,6 +1667,6 @@ register_tap_listener_rlc_lte_stat(void)
 
 void rlc_lte_stat_cb(GtkAction *action, gpointer user_data _U_)
 {
-	tap_param_dlg_cb(action, &rlc_lte_stat_dlg);
+    tap_param_dlg_cb(action, &rlc_lte_stat_dlg);
 }
 
