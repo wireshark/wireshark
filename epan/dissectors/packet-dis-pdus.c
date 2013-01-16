@@ -1603,7 +1603,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                     }
                     proto_item_set_end(newField, tvb, offset);
                 }
-                numUABeams = 0; // reset beam count for this pdu
+                numUABeams = 0; /* reset beam count for this pdu */
             }
             break;
         default:

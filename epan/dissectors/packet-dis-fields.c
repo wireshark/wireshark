@@ -250,15 +250,15 @@ DIS_ParserNode DIS_FIELDS_VR_UA_SHAFT[] =
 
 DIS_ParserNode DIS_FIELDS_VR_APA[] = 
 {
-    { DIS_FIELDTYPE_INT16,                   "Parameter Index",0,0,0,0 }, //FIXME enum
+    { DIS_FIELDTYPE_INT16,                   "Parameter Index",0,0,0,0 }, /*FIXME enum*/
     { DIS_FIELDTYPE_INT16,                   "Value", 0,0,0,0 },
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
 
 DIS_ParserNode DIS_FIELDS_UA_EMITTER_SYSTEM[] = 
 {
-    { DIS_FIELDTYPE_UINT16,                  "Acoustic Emitter Name",0,0,0,0 }, //FIXME enum
-    { DIS_FIELDTYPE_UINT8,                  "Function",0,0,0,0 }, //FIXME enum
+    { DIS_FIELDTYPE_UINT16,                  "Acoustic Emitter Name",0,0,0,0 }, /*FIXME enum*/
+    { DIS_FIELDTYPE_UINT8,                  "Function",0,0,0,0 }, /*FIXME enum*/
     { DIS_FIELDTYPE_UINT8,                  "Acoustic ID Number",0,0,0,0 },
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
@@ -397,8 +397,8 @@ DIS_ParserNode DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM[] =
 
 DIS_ParserNode DIS_FIELDS_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA[] =
 {
-    { DIS_FIELDTYPE_UINT16,                 "Active Emission Parameter Index",0,0,0,0 }, //FIXME enum!!!
-    { DIS_FIELDTYPE_UINT16,                 "Scan Pattern",0,0,0,0 }, //FIXME enum!!!
+    { DIS_FIELDTYPE_UINT16,                 "Active Emission Parameter Index",0,0,0,0 }, /*FIXME enum!!!*/
+    { DIS_FIELDTYPE_UINT16,                 "Scan Pattern",0,0,0,0 }, /*FIXME enum!!!*/
     { DIS_FIELDTYPE_FLOAT32,                "Beam Center Azimuth (Horizontal Bearing)",0,0,0,0 },
     { DIS_FIELDTYPE_FLOAT32,                "Azimuthal Beamwidth (Horizontal Beamwidth)",0,0,0,0 },
     { DIS_FIELDTYPE_FLOAT32,                "Beam Center D/E",0,0,0,0 },
