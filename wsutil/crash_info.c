@@ -116,13 +116,13 @@ __private_extern__ char *__crashreporter_info__ = NULL;
  * Dunno which versions are supported by which versions of OS X.
  */
 struct crashreporter_annotations_t {
-	uint64_t version;		// unsigned long
-	uint64_t message;		// char *
-	uint64_t signature_string;	// char *
-	uint64_t backtrace;		// char *
-	uint64_t message2;		// char *
-	uint64_t thread;		// uint64_t
-	uint64_t dialog_mode;		// unsigned int
+	uint64_t version;		/* unsigned long */
+	uint64_t message;		/* char * */
+	uint64_t signature_string;	/* char * */
+	uint64_t backtrace;		/* char * */
+	uint64_t message2;		/* char * */
+	uint64_t thread;		/* uint64_t */
+	uint64_t dialog_mode;		/* unsigned int */
 };
 
 CRASH_REPORTER_CLIENT_HIDDEN
