@@ -242,6 +242,9 @@ gboolean rs_correct_data(guint8 *deinterleaved, guint8 *output,
 
 /* Don't attempt reassembly if we have a huge number of fragments. */
 #define MAX_FRAGMENTS ((1 * 1024 * 1024) / sizeof(guint32))
+/* If we missed more than this number of consecutive fragments,
+   we don't attempt reassembly */
+#define MAX_FRAG_GAP  1000
 
 static tvbuff_t *
 dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
@@ -314,6 +317,12 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         if (next_fragment_we_have > MAX_FRAGMENTS) {
           if (tree)
             proto_tree_add_text(tree, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", next_fragment_we_have);
+          return NULL;
+        }
+        if (next_fragment_we_have-current_findex > MAX_FRAG_GAP) {
+          proto_tree_add_text(tree, tvb , 0, -1,
+              "[Missing %d consecutive packets. Don't attempt reassembly]",
+              next_fragment_we_have-current_findex);
           return NULL;
         }
         for(; current_findex<next_fragment_we_have; current_findex++) {
