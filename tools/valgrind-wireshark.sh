@@ -35,7 +35,7 @@ COMMAND_ARGS2=
 VALID=0
 PCAP=""
 
-while getopts ":2b:C:lnrtTwce" OPTCHAR ; do
+while getopts ":2b:C:lnrtTwcev" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
         b) BIN_DIR=$OPTARG ;;
@@ -54,6 +54,7 @@ while getopts ":2b:C:lnrtTwce" OPTCHAR ; do
            COMMAND_ARGS="-E 0.02"
            # We don't care about the output of editcap
            COMMAND_ARGS2="/dev/null" ;;
+        v) VERBOSE="-v --num-callers=256" ;;
         *) printf "Unknown option -$OPTARG!\n"
            exit ;;
     esac
@@ -82,4 +83,4 @@ export WIRESHARK_DEBUG_WMEM_OVERRIDE=simple
 export WIRESHARK_DEBUG_USE_SLICES=
 export G_SLICE=always-malloc # or debug-blocks
 
-libtool --mode=execute valgrind $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $BIN_DIR/$COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
+libtool --mode=execute valgrind $VERBOSE $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $BIN_DIR/$COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null
