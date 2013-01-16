@@ -1552,7 +1552,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             {
                 uintVal = tvb_get_guint8(tvb, offset);
                 offset  = parseField_UInt(tvb, tree, offset, parserNodes[fieldIndex], 1);
-                numUABeams += uintVal;
+                numUABeams += (guint32)uintVal;
             }
             break;
         case DIS_FIELDTYPE_UA_EMITTER_SYSTEMS:
