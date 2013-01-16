@@ -113,7 +113,7 @@ struct ellipse_params {
 
 struct element {
     ElementType type;
-    GdkColor *elment_color_p;
+    GdkRGBA *elment_color_p;
     struct segment *parent;
     union {
         struct line_params line;
@@ -154,8 +154,8 @@ struct axis {
 #define RMARGIN_WIDTH	30
 
 struct style_rlc_lte {
-    GdkColor seq_color;
-    GdkColor ack_color[2];
+    GdkRGBA seq_color;
+    GdkRGBA ack_color[2];
     int flags;
 };
 
@@ -284,7 +284,7 @@ static struct graph *graph_new(void);
 static void graph_destroy(struct graph * );
 static void graph_initialize_values(struct graph * );
 static void graph_init_sequence(struct graph * );
-static void draw_element_line(struct graph * , struct element * ,  cairo_t * , GdkColor *new_color);
+static void draw_element_line(struct graph * , struct element * ,  cairo_t * , GdkRGBA *new_color);
 static void draw_element_ellipse(struct graph * , struct element * , cairo_t *cr);
 static void graph_display(struct graph * );
 static void graph_pixmaps_create(struct graph * );
@@ -973,7 +973,7 @@ static int compare_headers(guint16 ueid1, guint16 channelType1, guint16 channelI
 {
     /* Same direction, data - OK. */
     if (!frameIsControl) {
-        return (direction1 == direction2) && 
+        return (direction1 == direction2) &&
                (ueid1 == ueid2) &&
                (channelType1 == channelType2) &&
                (channelId1 == channelId2) &&
@@ -1169,9 +1169,9 @@ static void graph_pixmap_draw(struct graph *g)
     cairo_t *cr;
 
     cairo_t *cr_elements;
-    GdkColor *current_color = NULL;
-    GdkColor *color_to_set = NULL;
-    gboolean line_stroked = TRUE;
+    GdkRGBA *current_color = NULL;
+    GdkRGBA *color_to_set  = NULL;
+    gboolean line_stroked  = TRUE;
 
     debug(DBS_FENTRY) puts("graph_display()");
     not_disp = 1 ^ g->displayed;
@@ -1250,7 +1250,7 @@ static void graph_pixmap_draw(struct graph *g)
 }
 
 static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
-                              GdkColor *new_color)
+                              GdkRGBA *new_color)
 {
     int xx1, xx2, yy1, yy2;
 
@@ -1262,7 +1262,7 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     /* Set our new colour (if changed) */
     if (new_color != NULL) {
         /* First draw any previous lines with old colour */
-        gdk_cairo_set_source_color(cr, new_color);
+        gdk_cairo_set_source_rgba(cr, new_color);
     }
 
     /* Map point into graph area, and round to nearest int */
@@ -1853,7 +1853,7 @@ static int ellipse_detect_collision(struct element *e, int x, int y)
 
 
 
-static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event, gpointer user_data)	 
+static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event, gpointer user_data)
 {
     struct graph *g = user_data;
     struct zoom new_zoom;
@@ -1880,7 +1880,7 @@ static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event,
     g->zoom.x = (double)(g->geom.width - 1) / g->bounds.width;
     g->zoom.y = (double)(g->geom.height -1) / g->bounds.height;
 
-    g->geom.x = (int)(g->wp.x - (double)g->geom.width/cur_g_width * (g->wp.x - g->geom.x));	 
+    g->geom.x = (int)(g->wp.x - (double)g->geom.width/cur_g_width * (g->wp.x - g->geom.x));
     g->geom.y = (int)(g->wp.y - (double)g->geom.height/cur_g_height * (g->wp.y - g->geom.y));
 #if 0
     printf("configure: graph: (%d,%d), (%d,%d); viewport: (%d,%d), (%d,%d); "
@@ -2366,7 +2366,7 @@ static void cross_draw(struct graph *g, int x, int y)
         y >  g->wp.y && y < g->wp.y+g->wp.height) {
 
         cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(g->drawing_area));
-        gdk_cairo_set_source_color(cr, &g->style.seq_color);
+        gdk_cairo_set_source_rgba(cr, &g->style.seq_color);
         cairo_set_line_width(cr, 1.0);
 
         /* Horizonal line */
@@ -2549,22 +2549,22 @@ static void graph_get_bounds(struct graph *g)
 static void graph_read_config(struct graph *g)
 {
     /* Black */
-    g->style.seq_color.pixel=0;
-    g->style.seq_color.red=0;
-    g->style.seq_color.green=0;
-    g->style.seq_color.blue=0;
+    g->style.seq_color.red   = (double)0 / 65535.0;
+    g->style.seq_color.green = (double)0 / 65535.0;
+    g->style.seq_color.blue  = (double)0 / 65535.0;
+    g->style.seq_color.alpha = 1.0;
 
     /* Blueish */
-    g->style.ack_color[0].pixel=0;
-    g->style.ack_color[0].red=0x2222;
-    g->style.ack_color[0].green=0x2222;
-    g->style.ack_color[0].blue=0xaaaa;
+    g->style.ack_color[0].red   = (double)0x2222 / 65535.0;
+    g->style.ack_color[0].green = (double)0x2222 / 65535.0;
+    g->style.ack_color[0].blue  = (double)0xaaaa / 65535.0;
+    g->style.ack_color[0].alpha = 1.0;
 
     /* Reddish */
-    g->style.ack_color[1].pixel=0;
-    g->style.ack_color[1].red=0xaaaa;
-    g->style.ack_color[1].green=0x2222;
-    g->style.ack_color[1].blue=0x2222;
+    g->style.ack_color[1].red   = (double)0xaaaa / 65535.0;
+    g->style.ack_color[1].green = (double)0x2222 / 65535.0;
+    g->style.ack_color[1].blue  = (double)0x2222 / 65535.0;
+    g->style.ack_color[1].alpha = 1.0;
 
     /* Time origin should be shown as time in capture by default */
     g->style.flags = TIME_ORIGIN_CAP;
@@ -2673,7 +2673,7 @@ static void rlc_lte_make_elmtlist(struct graph *g)
                     e1->p.line.dim.x2 = x;
                     e1->p.line.dim.y2 = previous_status_y;
                     e1++;
-    
+
                     /* Now draw up to current ACK */
                     e1->type = ELMT_LINE;
                     e1->parent = tmp;
@@ -2694,7 +2694,7 @@ static void rlc_lte_make_elmtlist(struct graph *g)
                     e1->p.line.dim.x2 = previous_status_x;
                     e1->p.line.dim.y2 = y;
                     e1++;
-    
+
                     /* Now draw up to current ACK */
                     e1->type = ELMT_LINE;
                     e1->parent = tmp;
