@@ -1547,6 +1547,12 @@ per-file memory is initialized to 0xBADDCAFE when the memory is allocated
 and is reset to 0xDEADBEEF when the memory is freed.  This functionality is
 useful mainly to developers looking for bugs in the way memory is handled.
 
+=item WIRESHARK_DEBUG_USE_SLICES
+
+Exporting this environment variable causes slab allocations to be done using
+glib's g_slice routines.  This, combined with glib's G_SLICE=always-malloc
+setting, can help developers looking for bugs in the way memory is handled.
+
 =item WIRESHARK_RUN_FROM_BUILD_DIRECTORY
 
 This environment variable causes the plugins and other data files to be loaded

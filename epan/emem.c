@@ -112,7 +112,6 @@ static int dev_zero_fd;
 typedef struct _emem_chunk_t {
 	struct _emem_chunk_t *next;
 	char		*buf;
-	char            *org;
 	size_t           size;
 	unsigned int	amount_free_init;
 	unsigned int	amount_free;
@@ -170,6 +169,14 @@ static emem_pool_t se_packet_mem;
  *  Export WIRESHARK_DEBUG_SCRUB_MEMORY to turn it on.
  */
 static gboolean debug_use_memory_scrubber = FALSE;
+
+/*
+ * Use g_slices in the slab allocator; enabling this (by putting
+ * WIRESHARK_DEBUG_USE_SLICES in the environment) together with
+ * exporting G_SLICE=always-malloc makes it easier to debug memory problems
+ * in slab-allocated memory.
+ */
+static gboolean debug_use_slices = FALSE;
 
 #if defined (_WIN32)
 static SYSTEM_INFO sysinfo;
@@ -349,6 +356,9 @@ emem_init(void)
 	if (getenv("WIRESHARK_DEBUG_SCRUB_MEMORY"))
 		debug_use_memory_scrubber  = TRUE;
 
+	if (getenv("WIRESHARK_DEBUG_USE_SLICES"))
+		debug_use_slices  = TRUE;
+
 #if defined (_WIN32)
 	/* Set up our guard page info for Win32 */
 	GetSystemInfo(&sysinfo);
@@ -367,7 +377,7 @@ emem_init(void)
 
 #elif defined(USE_GUARD_PAGES)
 	pagesize = sysconf(_SC_PAGESIZE);
-	if (pagesize == -1) 
+	if (pagesize == -1)
 		fprintf(stderr, "Warning: call to sysconf() for _SC_PAGESIZE has failed...\n");
 #ifdef NEED_DEV_ZERO
 	dev_zero_fd = ws_open("/dev/zero", O_RDWR);
@@ -686,9 +696,9 @@ emem_destroy_chunk(emem_chunk_t *npc)
 	/* we cannot recover from a munmap() failure, but we	*/
 	/* can print an informative error message to stderr	*/
 
-	if (munmap(npc->buf, npc->amount_free_init) != 0) 
+	if (munmap(npc->buf, npc->amount_free_init) != 0)
 		fprintf(stderr, "Warning: Unable to unmap memory chunk which has address %p and size %u\n",
-			npc->buf, npc->amount_free_init); 
+			npc->buf, npc->amount_free_init);
 #else
 	g_free(npc->buf);
 #endif
@@ -898,7 +908,8 @@ sl_alloc(struct ws_memory_slab *mem_chunk)
 	emem_chunk_t *chunk;
 	void *ptr;
 
-	/* XXX, debug_use_slices -> fallback to g_slice_alloc0 */
+	if (debug_use_slices)
+		return g_slice_alloc0(mem_chunk->item_size);
 
 	if ((mem_chunk->freed != NULL)) {
 		ptr = mem_chunk->freed;
@@ -929,8 +940,9 @@ sl_alloc(struct ws_memory_slab *mem_chunk)
 void
 sl_free(struct ws_memory_slab *mem_chunk, gpointer ptr)
 {
-	/* XXX, debug_use_slices -> fallback to g_slice_free1 */
-
+	if (debug_use_slices) {
+		g_slice_free1(mem_chunk->item_size, ptr);
+	} else
 	/* XXX, abort if ptr not found in emem_verify_pointer_list()? */
 	if (ptr != NULL /* && emem_verify_pointer_list(mem_chunk->chunk_list, ptr) */) {
 		memcpy(ptr, &(mem_chunk->freed), sizeof(void *));
