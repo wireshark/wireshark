@@ -1353,7 +1353,7 @@ proto_reg_handoff_stun(void)
 	dissector_add_handle("tcp.port", stun_tcp_handle);
 	dissector_add_handle("udp.port", stun_udp_handle);
 
-	heur_dissector_add("stun", dissect_stun_heur, proto_stun);
+	heur_dissector_add("udp", dissect_stun_heur, proto_stun);
 
 	data_handle = find_dissector("data");
 }
