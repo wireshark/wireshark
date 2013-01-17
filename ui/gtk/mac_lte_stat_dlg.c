@@ -1089,12 +1089,12 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     /* Create labels (that will hold label and counter value) */
     hs->ul_max_ues_per_tti = gtk_label_new("Max UL UEs/TTI:");
     gtk_misc_set_alignment(GTK_MISC(hs->ul_max_ues_per_tti), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(system_row_hbox), hs->ul_max_ues_per_tti);
+    gtk_box_pack_start(GTK_BOX(system_row_hbox), hs->ul_max_ues_per_tti, TRUE, TRUE, 0);
     gtk_widget_show(hs->ul_max_ues_per_tti);
 
     hs->dl_max_ues_per_tti = gtk_label_new("Max DL UEs/TTI:");
     gtk_misc_set_alignment(GTK_MISC(hs->dl_max_ues_per_tti), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(system_row_hbox), hs->dl_max_ues_per_tti);
+    gtk_box_pack_start(GTK_BOX(system_row_hbox), hs->dl_max_ues_per_tti, TRUE, TRUE, 0);
     gtk_widget_show(hs->dl_max_ues_per_tti);
 
 
@@ -1113,32 +1113,32 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     /* Create labels (that will hold label and counter value) */
     hs->common_bch_frames = gtk_label_new("BCH Frames:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_bch_frames), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_row_hbox), hs->common_bch_frames);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_bch_frames, TRUE, TRUE, 0);
     gtk_widget_show(hs->common_bch_frames);
 
     hs->common_bch_bytes = gtk_label_new("BCH Bytes:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_bch_bytes), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_row_hbox), hs->common_bch_bytes);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_bch_bytes, TRUE, TRUE, 0);
     gtk_widget_show(hs->common_bch_bytes);
 
     hs->common_pch_frames = gtk_label_new("PCH Frames:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_pch_frames), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_row_hbox), hs->common_pch_frames);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_pch_frames, TRUE, TRUE, 0);
     gtk_widget_show(hs->common_pch_frames);
 
     hs->common_pch_bytes = gtk_label_new("PCH Bytes:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_pch_bytes), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_row_hbox), hs->common_pch_bytes);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_pch_bytes, TRUE, TRUE, 0);
     gtk_widget_show(hs->common_pch_bytes);
 
     hs->common_rar_frames = gtk_label_new("RAR Frames:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_rar_frames), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_row_hbox), hs->common_rar_frames);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_rar_frames, TRUE, TRUE, 0);
     gtk_widget_show(hs->common_rar_frames);
 
     hs->common_rar_entries = gtk_label_new("RAR Entries:");
     gtk_misc_set_alignment(GTK_MISC(hs->common_rar_entries), 0.0f, .5f);
-    gtk_container_add(GTK_CONTAINER(common_row_hbox), hs->common_rar_entries);
+    gtk_box_pack_start(GTK_BOX(common_row_hbox), hs->common_rar_entries, TRUE, TRUE, 0);
     gtk_widget_show(hs->common_rar_entries);
 
     /**********************************************/
@@ -1173,6 +1173,7 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
         if ((i == UL_PADDING_PERCENT_COLUMN) ||
             (i == DL_PADDING_PERCENT_COLUMN)) {
             /* Show % as progress bar */
+            /* XXX: "progess" rendering doesn't seem to work for Gtk3 ?? */
             renderer = gtk_cell_renderer_progress_new();
             column = gtk_tree_view_column_new_with_attributes(ue_titles[i], renderer,
                                                               "text", i,
@@ -1219,16 +1220,16 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     /********************************/
     /* First (row titles) column    */
     selected_ue_vbox[0] = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-    gtk_container_add(GTK_CONTAINER(selected_ue_hb), selected_ue_vbox[0]);
+    gtk_box_pack_start(GTK_BOX(selected_ue_hb), selected_ue_vbox[0], TRUE, TRUE, 0);
 
     selected_ue_column_titles[0] = gtk_label_new("");
     gtk_misc_set_alignment(GTK_MISC(selected_ue_column_titles[0]), 0.0f, 0.0f);
-    gtk_container_add(GTK_CONTAINER(selected_ue_vbox[0]), selected_ue_column_titles[0]);
+    gtk_box_pack_start(GTK_BOX(selected_ue_vbox[0]), selected_ue_column_titles[0], FALSE, FALSE, 0);
 
     for (n=1; n < 5; n++) {
         selected_ue_column_titles[n] = gtk_label_new(selected_ue_row_names[n-1]);
         gtk_misc_set_alignment(GTK_MISC(selected_ue_column_titles[n]), 0.0f, 0.0f);
-        gtk_container_add(GTK_CONTAINER(selected_ue_vbox[0]), selected_ue_column_titles[n]);
+        gtk_box_pack_start(GTK_BOX(selected_ue_vbox[0]), selected_ue_column_titles[n], FALSE, FALSE, 0);
         gtk_widget_show(selected_ue_column_titles[n]);
     }
 
@@ -1237,18 +1238,18 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     /* Other columns         */
     for (i=CCCH_COLUMN; i < NUM_CHANNEL_COLUMNS; i++) {
         selected_ue_vbox[i] = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-        gtk_container_add(GTK_CONTAINER(selected_ue_hb), selected_ue_vbox[i]);
+        gtk_box_pack_start(GTK_BOX(selected_ue_hb), selected_ue_vbox[i], TRUE, TRUE, 0);
 
         /* Channel title */
         hs->selected_ue_column_entry[i][0] = gtk_label_new(channel_titles[i-1]);
         gtk_misc_set_alignment(GTK_MISC(hs->selected_ue_column_entry[i][0]), 0.5f, 0.0f);
-        gtk_container_add(GTK_CONTAINER(selected_ue_vbox[i]), hs->selected_ue_column_entry[i][0]);
+        gtk_box_pack_start(GTK_BOX(selected_ue_vbox[i]), hs->selected_ue_column_entry[i][0], FALSE, FALSE, 0);
 
         /* Counts for this channel */
         for (n=1; n < 5; n++) {
             hs->selected_ue_column_entry[i][n] = gtk_label_new("0");
             gtk_misc_set_alignment(GTK_MISC(hs->selected_ue_column_entry[i][n]), 1.0f, 0.0f);
-            gtk_container_add(GTK_CONTAINER(selected_ue_vbox[i]), hs->selected_ue_column_entry[i][n]);
+            gtk_box_pack_start(GTK_BOX(selected_ue_vbox[i]), hs->selected_ue_column_entry[i][n], FALSE, FALSE, 0);
             gtk_widget_show(hs->selected_ue_column_entry[i][n]);
         }
     }
@@ -1301,7 +1302,7 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     /* Show MAC RACH */
     hs->show_mac_rach_cb = gtk_check_button_new_with_mnemonic("Show MAC RACH");
     gtk_widget_set_sensitive(hs->show_mac_rach_cb, FALSE);
-    gtk_container_add(GTK_CONTAINER(filter_buttons_hb), hs->show_mac_rach_cb);
+    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->show_mac_rach_cb, TRUE, TRUE, 0);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_mac_rach_cb), FALSE);
     gtk_widget_set_tooltip_text(hs->show_mac_rach_cb, "When checked, generated filters will show "
                          "MAC RACH attempts for the UE");
@@ -1309,7 +1310,7 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
     /* Show MAC SRs */
     hs->show_mac_srs_cb = gtk_check_button_new_with_mnemonic("Show MAC SRs");
     gtk_widget_set_sensitive(hs->show_mac_srs_cb, FALSE);
-    gtk_container_add(GTK_CONTAINER(filter_buttons_hb), hs->show_mac_srs_cb);
+    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->show_mac_srs_cb, TRUE, TRUE, 0);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_mac_srs_cb), FALSE);
     gtk_widget_set_tooltip_text(hs->show_mac_srs_cb, "When checked, generated filters will show "
                          "MAC SRs for the UE");
@@ -1317,7 +1318,7 @@ static void gtk_mac_lte_stat_init(const char *opt_arg, void *userdata _U_)
 
     /* Allow DCT errors to be shown... */
     hs->show_dct_errors_cb = gtk_check_button_new_with_mnemonic("Show DCT2000 error strings");
-    gtk_container_add(GTK_CONTAINER(filter_buttons_hb), hs->show_dct_errors_cb);
+    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->show_dct_errors_cb, TRUE, TRUE, 0);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb), FALSE);
     g_signal_connect(hs->show_dct_errors_cb, "toggled", G_CALLBACK(mac_lte_dct_errors_cb), hs);
     gtk_widget_set_tooltip_text(hs->show_dct_errors_cb, "When checked, generated filters will "
