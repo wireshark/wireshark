@@ -1792,6 +1792,7 @@ wlanstat_dlg_create (void)
 
 	for (i = 0; i <= PROTECTION_COLUMN; i++) {
 		if (i == PERCENT_COLUMN) {
+			/* XXX: "progess" rendering doesn't seem to work for Gtk3 ?? */
 			renderer = gtk_cell_renderer_progress_new();
 			column = gtk_tree_view_column_new_with_attributes(titles[i], renderer,
 									  "text", i,
@@ -1851,6 +1852,7 @@ wlanstat_dlg_create (void)
 
 	for (i = 0; i <= COMMENT_COLUMN; i++) {
 		if (i == PERCENT_2_COLUMN) {
+			/* XXX: "progess" rendering doesn't seem to work for Gtk3 ?? */
 			renderer = gtk_cell_renderer_progress_new();
 			column = gtk_tree_view_column_new_with_attributes(detail_titles[i], renderer,
 									  "text", i,
@@ -1901,7 +1903,7 @@ wlanstat_dlg_create (void)
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 	resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
-	gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
+	gtk_box_pack_start(GTK_BOX(hbox), resolv_cb, FALSE, FALSE, 0);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
 	gtk_widget_set_tooltip_text(resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
 			     "Please note: The corresponding name resolution must be enabled.");
@@ -1909,13 +1911,13 @@ wlanstat_dlg_create (void)
 	g_signal_connect(resolv_cb, "toggled", G_CALLBACK(wlan_resolve_toggle_dest), hs);
 
 	filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
-	gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
+	gtk_box_pack_start(GTK_BOX(hbox), filter_cb, FALSE, FALSE, 0);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
 	gtk_widget_set_tooltip_text(filter_cb, "Limit the list to entries matching the current display filter.");
 	g_signal_connect(filter_cb, "toggled", G_CALLBACK(wlan_filter_toggle_dest), hs);
 
 	existing_cb = gtk_check_button_new_with_mnemonic("Only show existing networks");
-	gtk_container_add(GTK_CONTAINER(hbox), existing_cb);
+	gtk_box_pack_start(GTK_BOX(hbox), existing_cb, FALSE, FALSE, 0);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(existing_cb), FALSE);
 	gtk_widget_set_tooltip_text(existing_cb, "This option disables probe requests for "
 			     "unknown networks.");
