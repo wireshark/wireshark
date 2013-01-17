@@ -4429,16 +4429,22 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* load the airpcap interfaces */
   airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
 
-  decryption_cb = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-  update_decryption_mode_list(decryption_cb);
-
-  if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
-    g_free(err_str);
+  /* If we don't get a list don't do any thing. 
+   * If the error is AIRPCAP_NOT_LOADED it avoids a unneccessay rescan of the packet list
+   * ( see airpcap_loader.h for error codes).
+   */
+  if (airpcap_if_list == NULL) {
+    if (err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+      g_free(err_str);
+	}
+  }else{
+    decryption_cb = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+	/* XXXX update_decryption_mode_list() trigers a rescan, should only be done if the mode is changed */
+    update_decryption_mode_list(decryption_cb);
+    /* select the first as default (THIS SHOULD BE CHANGED) */
+    airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
   }
-
-  /* select the first as default (THIS SHOULD BE CHANGED) */
-  airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
 #endif
 
   main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
