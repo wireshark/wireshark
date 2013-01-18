@@ -2155,6 +2155,7 @@ proto_tree_add_text(tree,tvb,*offset-@length@, @length@, "@varname@ < @digits@, 
 """
     template_get_CDR_enum_symbolic = """\
 u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+/* coverity[returned_pointer] */
 item = proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-4, 4, u_octet4);
 """
     template_get_CDR_string = """\
@@ -2188,6 +2189,7 @@ get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
     template_get_CDR_sequence_length = """\
 u_octet4_loop_@seqname@ = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+/* coverity[returned_pointer] */
 item = proto_tree_add_uint(tree, hf_@seqname@, tvb,*offset-4, 4, u_octet4_loop_@seqname@);
 """
     template_get_CDR_sequence_loop_start = """\

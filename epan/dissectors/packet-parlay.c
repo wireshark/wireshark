@@ -2912,109 +2912,6 @@ static int hf_org_csapi_mmm_TpNewMessageArrivedInfo_Message = -1;
 static int hf_org_csapi_mmm_TpNewMessageArrivedInfo_Headers = -1;
 static int hf_org_csapi_mmm_TpNewMessageArrivedInfo_MultiMediaMessagingIdentifier = -1;
         /* User exception filters */
-static int hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation = -1;
-static int hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation = -1;
-static int hf_org_csapi_TpCommonExceptions_ExceptionType = -1;
-static int hf_org_csapi_TpCommonExceptions_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation = -1;
-static int hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation = -1;
-static int hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation = -1;
-static int hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_VERSION_ExtraInformation = -1;
-static int hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation = -1;
-static int hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation = -1;
-static int hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation = -1;
-static int hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation = -1;
-static int hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation = -1;
-static int hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation = -1;
-static int hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation = -1;
-static int hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation = -1;
-static int hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation = -1;
-static int hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation = -1;
-static int hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation = -1;
-static int hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_VPRP_ID_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_SLA_ID_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_STATUS_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_QOS_INFO_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_DSCODEPOINT_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_ILLEGAL_VPRPID_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_ILLEGAL_REF_VALUE_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_INTERFACE_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_CANT_DELETE_VPRP_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_TEMPLATES_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_MENU_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_DESCRIPTION_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_ILLEGAL_SLA_ID_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_ILLEGAL_TAG_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_ILLEGAL_VALUE_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_ILLEGAL_COMBINATION_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_SITES_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_VPRN_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_ILLEGAL_SITE_ID_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_SITE_ID_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_SAPS_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_SITE_LOCATION_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_IPSUBNET_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_SAP_ExtraInformation = -1;
-static int hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation = -1;
-static int hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation = -1;
 static int hf_org_csapi_cs_P_INVALID_USER_ExtraInformation = -1;
 static int hf_org_csapi_cs_P_INVALID_ACCOUNT_ExtraInformation = -1;
 static int hf_org_csapi_cs_P_INVALID_REQUEST_NUMBER_ExtraInformation = -1;
@@ -3066,6 +2963,109 @@ static int hf_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation = -
 static int hf_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation = -1;
 static int hf_org_csapi_mmm_P_MMM_CANNOT_CANCEL_ExtraInformation = -1;
 static int hf_org_csapi_mmm_P_MMM_INVALID_HEADER_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_DSCODEPOINT_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_ILLEGAL_VPRPID_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_ILLEGAL_REF_VALUE_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_INTERFACE_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_CANT_DELETE_VPRP_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_TEMPLATES_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_MENU_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_DESCRIPTION_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_ILLEGAL_SLA_ID_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_ILLEGAL_TAG_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_ILLEGAL_VALUE_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_ILLEGAL_COMBINATION_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_SITES_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_VPRN_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_ILLEGAL_SITE_ID_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_SITE_ID_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_SAPS_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_SITE_LOCATION_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_IPSUBNET_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_SAP_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation = -1;
+static int hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation = -1;
+static int hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_VPRP_ID_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_SLA_ID_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_STATUS_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_QOS_INFO_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO_ExtraInformation = -1;
+static int hf_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO_ExtraInformation = -1;
+static int hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation = -1;
+static int hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation = -1;
+static int hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation = -1;
+static int hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation = -1;
+static int hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation = -1;
+static int hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation = -1;
+static int hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation = -1;
+static int hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation = -1;
+static int hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation = -1;
+static int hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation = -1;
+static int hf_org_csapi_TpCommonExceptions_ExceptionType = -1;
+static int hf_org_csapi_TpCommonExceptions_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation = -1;
+static int hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation = -1;
+static int hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation = -1;
+static int hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_VERSION_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation = -1;
+static int hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation = -1;
+static int hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation = -1;
+static int hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation = -1;
         /* Union filters */
 static int hf_org_csapi_TpAoCOrder_TpAoCOrder = -1;
 static int hf_org_csapi_TpAoCOrder_ChargeAdviceInfo = -1;
@@ -6056,1028 +6056,6 @@ static const value_string org_csapi_mmm_TpMessagingError[] = {
 /*  Begin Exception Helper Functions  */
 
 
-/* Exception = IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0 */
-static void
-decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0 */
-static void
-decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_CRITERIA:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_CRITERIA(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_SESSION_ID:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_SESSION_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/TpCommonExceptions:1.0 */
-static void
-decode_ex_org_csapi_TpCommonExceptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    proto_tree_add_int(tree, hf_org_csapi_TpCommonExceptions_ExceptionType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_TpCommonExceptions_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_CURRENCY:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_CURRENCY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_AMOUNT:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_AMOUNT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0 */
-static void
-decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_ADDRESS:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_ADDRESS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0 */
-static void
-decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0 */
-static void
-decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_VERSION:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_VERSION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_VERSION_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0 */
-static void
-decode_ex_org_csapi_fw_P_SERVICE_ACCESS_DENIED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_ACCESS_DENIED:1.0 */
-static void
-decode_ex_org_csapi_fw_P_ACCESS_DENIED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0 */
-static void
-decode_ex_org_csapi_fw_P_SERVICE_NOT_ENABLED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0 */
-static void
-decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_AGREEMENT_TEXT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_SERVICE_TOKEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_SIGNATURE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_DOMAIN_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_PROPERTY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_ACCESS_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0 */
-static void
-decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0 */
-static void
-decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0 */
-static void
-decode_ex_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0 */
-static void
-decode_ex_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0 */
-static void
-decode_ex_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_CLIENT_APP_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_AUTH_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_SAG_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0 */
-static void
-decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0 */
-static void
-decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0 */
-static void
-decode_ex_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_ADDITION_TO_SAG(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0 */
-static void
-decode_ex_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0 */
-static void
-decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0 */
-static void
-decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0 */
-static void
-decode_ex_org_csapi_ui_P_ID_NOT_FOUND(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/ui/P_ILLEGAL_ID:1.0 */
-static void
-decode_ex_org_csapi_ui_P_ILLEGAL_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0 */
-static void
-decode_ex_org_csapi_ui_P_ILLEGAL_RANGE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0 */
-static void
-decode_ex_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0 */
-static void
-decode_ex_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0 */
-static void
-decode_ex_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0 */
-static void
-decode_ex_org_csapi_mm_P_INVALID_REPORTING_INTERVAL(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0 */
-static void
-decode_ex_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0 */
-static void
-decode_ex_org_csapi_termcap_P_INVALID_TERMINAL_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_INVALID_FOLDER_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_INVALID_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_MAILBOX_LOCKED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_PROPERTY_NOT_SET(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_FOLDER_IS_OPEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0 */
-static void
-decode_ex_org_csapi_gms_P_GMS_MAILBOX_OPEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_VPRP_ID:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_VPRP_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_VPRP_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SLA_ID:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_SLA_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SLA_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_STATUS:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_STATUS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_STATUS_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_QOS_INFO:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_QOS_INFO(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_QOS_INFO_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_VALIDITY_INFO:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_PIPEQOSINFO:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_DSCODEPOINT:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_DSCODEPOINT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_DSCODEPOINT_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_ILLEGAL_VPRPID:1.0 */
-static void
-decode_ex_org_csapi_cm_P_ILLEGAL_VPRPID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_VPRPID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_ILLEGAL_REF_VALUE:1.0 */
-static void
-decode_ex_org_csapi_cm_P_ILLEGAL_REF_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_REF_VALUE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_INTERFACE:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_INTERFACE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_INTERFACE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_CANT_DELETE_VPRP:1.0 */
-static void
-decode_ex_org_csapi_cm_P_CANT_DELETE_VPRP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_CANT_DELETE_VPRP_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_TEMPLATES:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_TEMPLATES(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_TEMPLATES_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_MENU:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_MENU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_MENU_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_ENTERPRISE_NETWORK:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_ENTERPRISE_NETWORK(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_TEMPLATE_TYPE:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_TEMPLATE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_DESCRIPTION:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_DESCRIPTION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_DESCRIPTION_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_ILLEGAL_SLA_ID:1.0 */
-static void
-decode_ex_org_csapi_cm_P_ILLEGAL_SLA_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_SLA_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_ILLEGAL_TAG:1.0 */
-static void
-decode_ex_org_csapi_cm_P_ILLEGAL_TAG(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_TAG_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_ILLEGAL_VALUE:1.0 */
-static void
-decode_ex_org_csapi_cm_P_ILLEGAL_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_VALUE_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_ILLEGAL_COMBINATION:1.0 */
-static void
-decode_ex_org_csapi_cm_P_ILLEGAL_COMBINATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_COMBINATION_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SITES:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_SITES(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SITES_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_VPRN:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_VPRN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_VPRN_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_ILLEGAL_SITE_ID:1.0 */
-static void
-decode_ex_org_csapi_cm_P_ILLEGAL_SITE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_SITE_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SITE_ID:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_SITE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SITE_ID_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SAPS:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_SAPS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SAPS_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SITE_LOCATION:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_SITE_LOCATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SITE_LOCATION_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SITE_DESCRIPTION:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_IPSUBNET:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_IPSUBNET(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_IPSUBNET_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SAP:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_SAP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SAP_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0 */
-static void
-decode_ex_org_csapi_cm_P_UNKNOWN_VPRP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation);
-
-}
-
-/* Exception = IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0 */
-static void
-decode_ex_org_csapi_am_P_UNAUTHORIZED_APPLICATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-    proto_item *item _U_;
-
-    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation);
-
-}
-
 /* Exception = IDL:org/csapi/cs/P_INVALID_USER:1.0 */
 static void
 decode_ex_org_csapi_cs_P_INVALID_USER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -7588,6 +6566,1028 @@ decode_ex_org_csapi_mmm_P_MMM_INVALID_HEADER(tvbuff_t *tvb _U_, packet_info *pin
 
 }
 
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_DSCODEPOINT:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_DSCODEPOINT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_DSCODEPOINT_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_ILLEGAL_VPRPID:1.0 */
+static void
+decode_ex_org_csapi_cm_P_ILLEGAL_VPRPID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_VPRPID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_ILLEGAL_REF_VALUE:1.0 */
+static void
+decode_ex_org_csapi_cm_P_ILLEGAL_REF_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_REF_VALUE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_INTERFACE:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_INTERFACE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_INTERFACE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_CANT_DELETE_VPRP:1.0 */
+static void
+decode_ex_org_csapi_cm_P_CANT_DELETE_VPRP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_CANT_DELETE_VPRP_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_TEMPLATES:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_TEMPLATES(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_TEMPLATES_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_MENU:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_MENU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_MENU_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_ENTERPRISE_NETWORK:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_ENTERPRISE_NETWORK(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_TEMPLATE_TYPE:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_TEMPLATE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_DESCRIPTION:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_DESCRIPTION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_DESCRIPTION_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_ILLEGAL_SLA_ID:1.0 */
+static void
+decode_ex_org_csapi_cm_P_ILLEGAL_SLA_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_SLA_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_ILLEGAL_TAG:1.0 */
+static void
+decode_ex_org_csapi_cm_P_ILLEGAL_TAG(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_TAG_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_ILLEGAL_VALUE:1.0 */
+static void
+decode_ex_org_csapi_cm_P_ILLEGAL_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_VALUE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_ILLEGAL_COMBINATION:1.0 */
+static void
+decode_ex_org_csapi_cm_P_ILLEGAL_COMBINATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_COMBINATION_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SITES:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_SITES(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SITES_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_VPRN:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_VPRN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_VPRN_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_ILLEGAL_SITE_ID:1.0 */
+static void
+decode_ex_org_csapi_cm_P_ILLEGAL_SITE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_ILLEGAL_SITE_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SITE_ID:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_SITE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SITE_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SAPS:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_SAPS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SAPS_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SITE_LOCATION:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_SITE_LOCATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SITE_LOCATION_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SITE_DESCRIPTION:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_IPSUBNET:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_IPSUBNET(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_IPSUBNET_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SAP:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_SAP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SAP_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_VPRP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0 */
+static void
+decode_ex_org_csapi_am_P_UNAUTHORIZED_APPLICATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_INVALID_FOLDER_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_INVALID_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_MAILBOX_LOCKED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_PROPERTY_NOT_SET(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_FOLDER_IS_OPEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0 */
+static void
+decode_ex_org_csapi_gms_P_GMS_MAILBOX_OPEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_VPRP_ID:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_VPRP_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_VPRP_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_SLA_ID:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_SLA_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_SLA_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_STATUS:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_STATUS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_STATUS_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_QOS_INFO:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_QOS_INFO(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_QOS_INFO_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_VALIDITY_INFO:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/cm/P_UNKNOWN_PIPEQOSINFO:1.0 */
+static void
+decode_ex_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0 */
+static void
+decode_ex_org_csapi_termcap_P_INVALID_TERMINAL_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0 */
+static void
+decode_ex_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0 */
+static void
+decode_ex_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0 */
+static void
+decode_ex_org_csapi_mm_P_INVALID_REPORTING_INTERVAL(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0 */
+static void
+decode_ex_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0 */
+static void
+decode_ex_org_csapi_ui_P_ID_NOT_FOUND(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/ui/P_ILLEGAL_ID:1.0 */
+static void
+decode_ex_org_csapi_ui_P_ILLEGAL_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0 */
+static void
+decode_ex_org_csapi_ui_P_ILLEGAL_RANGE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0 */
+static void
+decode_ex_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0 */
+static void
+decode_ex_org_csapi_fw_P_SERVICE_ACCESS_DENIED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_ACCESS_DENIED:1.0 */
+static void
+decode_ex_org_csapi_fw_P_ACCESS_DENIED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0 */
+static void
+decode_ex_org_csapi_fw_P_SERVICE_NOT_ENABLED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0 */
+static void
+decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_AGREEMENT_TEXT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_SERVICE_TOKEN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_SIGNATURE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_DOMAIN_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_PROPERTY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_ACCESS_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0 */
+static void
+decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0 */
+static void
+decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0 */
+static void
+decode_ex_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0 */
+static void
+decode_ex_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0 */
+static void
+decode_ex_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_CLIENT_APP_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_AUTH_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_SAG_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0 */
+static void
+decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0 */
+static void
+decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0 */
+static void
+decode_ex_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_ADDITION_TO_SAG(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0 */
+static void
+decode_ex_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0 */
+static void
+decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0 */
+static void
+decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_CRITERIA:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_CRITERIA(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_SESSION_ID:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_SESSION_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/TpCommonExceptions:1.0 */
+static void
+decode_ex_org_csapi_TpCommonExceptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    proto_tree_add_int(tree, hf_org_csapi_TpCommonExceptions_ExceptionType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_TpCommonExceptions_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_CURRENCY:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_CURRENCY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_AMOUNT:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_AMOUNT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0 */
+static void
+decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_ADDRESS:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_ADDRESS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0 */
+static void
+decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0 */
+static void
+decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_VERSION:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_VERSION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_VERSION_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0 */
+static void
+decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation);
+
+}
+
+/* Exception = IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0 */
+static void
+decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+    proto_item *item _U_;
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation);
+
+}
+
 
 /*  End Exception Helper Functions  */
 
@@ -7602,618 +7602,6 @@ decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptr
 
     if (!header->exception_id)
         return FALSE;
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CRITERIA:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_CRITERIA(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CRITERIA:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_SESSION_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_SESSION_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_SESSION_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/TpCommonExceptions:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_TpCommonExceptions(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/TpCommonExceptions:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CURRENCY:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_CURRENCY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CURRENCY:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_AMOUNT:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_AMOUNT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_AMOUNT:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ADDRESS:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_ADDRESS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ADDRESS:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_VERSION:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_VERSION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_VERSION:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_SERVICE_ACCESS_DENIED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ACCESS_DENIED:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_ACCESS_DENIED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ACCESS_DENIED:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_SERVICE_NOT_ENABLED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_AGREEMENT_TEXT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_SERVICE_TOKEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_SIGNATURE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_DOMAIN_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_PROPERTY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_ACCESS_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_CLIENT_APP_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_AUTH_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_SAG_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_ADDITION_TO_SAG(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_ui_P_ID_NOT_FOUND(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ILLEGAL_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_ui_P_ILLEGAL_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ILLEGAL_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_ui_P_ILLEGAL_RANGE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_mm_P_INVALID_REPORTING_INTERVAL(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_termcap_P_INVALID_TERMINAL_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_INVALID_FOLDER_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_INVALID_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_MAILBOX_LOCKED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_PROPERTY_NOT_SET(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_FOLDER_IS_OPEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_gms_P_GMS_MAILBOX_OPEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_VPRP_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_VPRP_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_VPRP_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SLA_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_SLA_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SLA_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_STATUS:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_STATUS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_STATUS:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_QOS_INFO:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_QOS_INFO(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_QOS_INFO:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_VALIDITY_INFO:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_VALIDITY_INFO:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_PIPEQOSINFO:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_PIPEQOSINFO:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_DSCODEPOINT:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_DSCODEPOINT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_DSCODEPOINT:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_VPRPID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_ILLEGAL_VPRPID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_VPRPID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_REF_VALUE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_ILLEGAL_REF_VALUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_REF_VALUE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_INTERFACE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_INTERFACE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_INTERFACE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_CANT_DELETE_VPRP:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_CANT_DELETE_VPRP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_CANT_DELETE_VPRP:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_TEMPLATES:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_TEMPLATES(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_TEMPLATES:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_MENU:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_MENU(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_MENU:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_ENTERPRISE_NETWORK:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_ENTERPRISE_NETWORK(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_ENTERPRISE_NETWORK:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_TEMPLATE_TYPE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_TEMPLATE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_TEMPLATE_TYPE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_DESCRIPTION:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_DESCRIPTION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_DESCRIPTION:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_SLA_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_ILLEGAL_SLA_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_SLA_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_TAG:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_ILLEGAL_TAG(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_TAG:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_VALUE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_ILLEGAL_VALUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_VALUE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_COMBINATION:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_ILLEGAL_COMBINATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_COMBINATION:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SITES:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_SITES(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SITES:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_VPRN:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_VPRN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_VPRN:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_SITE_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_ILLEGAL_SITE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_SITE_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SITE_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_SITE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SITE_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SAPS:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_SAPS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SAPS:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SITE_LOCATION:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_SITE_LOCATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SITE_LOCATION:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SITE_DESCRIPTION:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SITE_DESCRIPTION:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_IPSUBNET:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_IPSUBNET(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_IPSUBNET:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SAP:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_SAP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SAP:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_cm_P_UNKNOWN_VPRP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_am_P_UNAUTHORIZED_APPLICATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0  */
-       return TRUE;
-    }
 
     if (strcmp(header->exception_id, "IDL:org/csapi/cs/P_INVALID_USER:1.0") == 0) {
        tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -8521,6 +7909,618 @@ decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptr
        return TRUE;
     }
 
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_DSCODEPOINT:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_DSCODEPOINT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_DSCODEPOINT:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_VPRPID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_ILLEGAL_VPRPID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_VPRPID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_REF_VALUE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_ILLEGAL_REF_VALUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_REF_VALUE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_INTERFACE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_INTERFACE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_INTERFACE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_CANT_DELETE_VPRP:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_CANT_DELETE_VPRP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_CANT_DELETE_VPRP:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_TEMPLATES:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_TEMPLATES(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_TEMPLATES:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_MENU:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_MENU(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_MENU:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_ENTERPRISE_NETWORK:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_ENTERPRISE_NETWORK(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_ENTERPRISE_NETWORK:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_TEMPLATE_TYPE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_TEMPLATE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_TEMPLATE_TYPE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_DESCRIPTION:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_DESCRIPTION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_DESCRIPTION:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_SLA_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_ILLEGAL_SLA_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_SLA_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_TAG:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_ILLEGAL_TAG(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_TAG:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_VALUE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_ILLEGAL_VALUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_VALUE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_COMBINATION:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_ILLEGAL_COMBINATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_COMBINATION:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SITES:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_SITES(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SITES:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_VPRN:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_VPRN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_VPRN:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_ILLEGAL_SITE_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_ILLEGAL_SITE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_ILLEGAL_SITE_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SITE_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_SITE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SITE_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SAPS:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_SAPS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SAPS:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SITE_LOCATION:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_SITE_LOCATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SITE_LOCATION:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SITE_DESCRIPTION:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SITE_DESCRIPTION:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_IPSUBNET:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_IPSUBNET(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_IPSUBNET:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SAP:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_SAP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SAP:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_VPRP(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_VPRP:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_am_P_UNAUTHORIZED_APPLICATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/am/P_UNAUTHORIZED_APPLICATION:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_INVALID_FOLDER_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_FOLDER_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INSUFFICIENT_PRIVILEGE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_AUTHENTICATION_INFORMATION:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_INVALID_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_MAILBOX:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_INVALID_MESSAGE_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_LOCKING_LOCKED_MAILBOX:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MESSAGE_NOT_REMOVED:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_NUMBER_NOT_POSITIVE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_UNLOCKING_UNLOCKED_MAILBOX:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_MAILBOX_LOCKED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MAILBOX_LOCKED:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_CANNOT_UNLOCK_MAILBOX:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_PROPERTY_NOT_SET(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_PROPERTY_NOT_SET:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_FOLDER_IS_OPEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_FOLDER_IS_OPEN:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_gms_P_GMS_MAILBOX_OPEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/gms/P_GMS_MAILBOX_OPEN:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_VPRP_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_VPRP_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_VPRP_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_SLA_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_SLA_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_SLA_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_STATUS:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_STATUS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_STATUS:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_QOS_INFO:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_QOS_INFO(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_QOS_INFO:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_VALIDITY_INFO:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_VALIDITY_INFO:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/cm/P_UNKNOWN_PIPEQOSINFO:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/cm/P_UNKNOWN_PIPEQOSINFO:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_termcap_P_INVALID_TERMINAL_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/termcap/P_INVALID_TERMINAL_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_mm_P_INVALID_REPORTING_INTERVAL(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_INVALID_REPORTING_INTERVAL:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/mm/P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_ui_P_ID_NOT_FOUND(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ID_NOT_FOUND:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ILLEGAL_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_ui_P_ILLEGAL_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ILLEGAL_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_ui_P_ILLEGAL_RANGE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_ILLEGAL_RANGE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/ui/P_INVALID_COLLECTION_CRITERIA:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_SERVICE_ACCESS_DENIED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_ACCESS_DENIED:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ACCESS_DENIED:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_ACCESS_DENIED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ACCESS_DENIED:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_SERVICE_NOT_ENABLED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_NOT_ENABLED:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_AGREEMENT_TEXT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_AGREEMENT_TEXT:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_SERVICE_TOKEN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_TOKEN:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_SIGNATURE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SIGNATURE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SIGNING_ALGORITHM:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_DOMAIN_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_DOMAIN_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_PROPERTY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_PROPERTY:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_ACCESS_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ACCESS_TYPE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ILLEGAL_SERVICE_TYPE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_UNKNOWN_SERVICE_TYPE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_MISSING_MANDATORY_PROPERTY:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_DUPLICATE_PROPERTY_NAME:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_PROPERTY_TYPE_MISMATCH:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_CLIENT_APP_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_CLIENT_APP_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_AUTH_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_AUTH_TYPE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_SAG_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SAG_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_PROFILE_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_CONTRACT_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ACTIVITY_TEST_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_ILLEGAL_SERVICE_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_UNKNOWN_SERVICE_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_SERVICE_TYPE_UNAVAILABLE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_ADDITION_TO_SAG(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_ADDITION_TO_SAG:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_NO_ACCEPTABLE_SIGNING_ALGORITHM:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CRITERIA:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_CRITERIA(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CRITERIA:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_SESSION_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_SESSION_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_SESSION_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/TpCommonExceptions:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_TpCommonExceptions(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/TpCommonExceptions:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CURRENCY:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_CURRENCY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CURRENCY:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_AMOUNT:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_AMOUNT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_AMOUNT:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ADDRESS:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_ADDRESS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ADDRESS:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_VERSION:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_VERSION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_VERSION:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0  */
+       return TRUE;
+    }
+
 
     return FALSE;    /* user exception not found */
 }
@@ -8722,6 +8722,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess(
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess_signingAlgorithm);
 
         u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess_digitalSignature = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess_digitalSignature, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess_digitalSignature);
 
         for (i_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess_digitalSignature=0; i_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess_digitalSignature < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess_digitalSignature; i_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess_digitalSignature++) {
@@ -8835,6 +8836,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_endAccess(tvbuff_t *tv
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_endAccess_endAccessProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpAccess_endAccess_endAccessProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_endAccess_endAccessProperties);
 
         for (i_org_csapi_fw_fw_access_trust_and_security_IpAccess_endAccess_endAccessProperties=0; i_org_csapi_fw_fw_access_trust_and_security_IpAccess_endAccess_endAccessProperties < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_endAccess_endAccessProperties; i_org_csapi_fw_fw_access_trust_and_security_IpAccess_endAccess_endAccessProperties++) {
@@ -8885,6 +8887,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces(tvbuff_
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces_return);
 
             for (i_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces_return=0; i_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces_return < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces_return; i_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces_return++) {
@@ -8992,6 +8995,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess(tvbuff
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess_terminationText);
 
         u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess_digitalSignature = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess_digitalSignature, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess_digitalSignature);
 
         for (i_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess_digitalSignature=0; i_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess_digitalSignature < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess_digitalSignature; i_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess_digitalSignature++) {
@@ -9041,6 +9045,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface(tv
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface_terminationText);
 
         u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface_digitalSignature = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface_digitalSignature, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface_digitalSignature);
 
         for (i_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface_digitalSignature=0; i_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface_digitalSignature < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface_digitalSignature; i_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface_digitalSignature++) {
@@ -9088,6 +9093,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_challenge = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_challenge, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_challenge);
 
         for (i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_challenge=0; i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_challenge < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_challenge; i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_challenge++) {
@@ -9101,6 +9107,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_return);
 
             for (i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_return=0; i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_return < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_return; i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_authenticate_return++) {
@@ -9204,6 +9211,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_challenge = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_challenge, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_challenge);
 
         for (i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_challenge=0; i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_challenge < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_challenge; i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_challenge++) {
@@ -9217,6 +9225,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_return);
 
             for (i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_return=0; i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_return < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_return; i_org_csapi_fw_fw_access_trust_and_security_IpClientAPILevelAuthentication_challenge_return++) {
@@ -9291,6 +9300,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authen
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_challenge = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_challenge, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_challenge);
 
         for (i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_challenge=0; i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_challenge < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_challenge; i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_challenge++) {
@@ -9304,6 +9314,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authen
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_return);
 
             for (i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_return=0; i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_return < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_return; i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_authenticate_return++) {
@@ -9440,6 +9451,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challe
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_challenge = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_challenge, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_challenge);
 
         for (i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_challenge=0; i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_challenge < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_challenge; i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_challenge++) {
@@ -9453,6 +9465,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challe
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_return);
 
             for (i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_return=0; i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_return < u_octet4_loop_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_return; i_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_challenge_return++) {
@@ -9697,6 +9710,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwFaultReportInd(
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwFaultReportInd_fault, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -9735,6 +9749,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwFaultRecoveryIn
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwFaultRecoveryInd_fault, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -9775,6 +9790,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcUnavailableInd
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcUnavailableInd_serviceID);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcUnavailableInd_reason, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -9817,6 +9833,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsReco
         decode_org_csapi_fw_TpFaultStatsRecord_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_fw_TpFaultStatsRecord"  */
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordRes_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordRes_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordRes_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordRes_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordRes_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordRes_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordRes_serviceIDs++) {
@@ -9861,6 +9878,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwUnavailableInd(
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwUnavailableInd_reason, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -9934,9 +9952,11 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsReco
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordErr_faultStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordErr_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordErr_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordErr_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordErr_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordErr_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordErr_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsRecordErr_serviceIDs++) {
@@ -10050,6 +10070,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcAvailStatusInd
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcAvailStatusInd_serviceID);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcAvailStatusInd_reason, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -10094,6 +10115,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
         decode_org_csapi_fw_TpFaultStatsRecord_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_fw_TpFaultStatsRecord"  */
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordRes_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordRes_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordRes_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordRes_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordRes_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordRes_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordRes_serviceIDs++) {
@@ -10144,16 +10166,19 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatistics);
 
         for (i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatistics=0; i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatistics < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatistics; i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatistics++) {
 
             u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_faultStatistics, tvb, *offset-4, 4, u_octet4);
 
         }
 
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStatisticsRecordErr_serviceIDs++) {
@@ -10234,6 +10259,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwAvailStatusInd(
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppFaultManager_fwAvailStatusInd_reason, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -10307,6 +10333,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadRes(tvbuf
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadRes_loadStatistics);
 
         for (i_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadRes_loadStatistics=0; i_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadRes_loadStatistics < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadRes_loadStatistics; i_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadRes_loadStatistics++) {
@@ -10352,6 +10379,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadErr(tvbuf
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadErr_loadStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -10391,6 +10419,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_loadLevelNotificat
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppLoadManager_loadLevelNotification_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_loadLevelNotification_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppLoadManager_loadLevelNotification_loadStatistics);
 
         for (i_org_csapi_fw_fw_application_integrity_IpAppLoadManager_loadLevelNotification_loadStatistics=0; i_org_csapi_fw_fw_application_integrity_IpAppLoadManager_loadLevelNotification_loadStatistics < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppLoadManager_loadLevelNotification_loadStatistics; i_org_csapi_fw_fw_application_integrity_IpAppLoadManager_loadLevelNotification_loadStatistics++) {
@@ -10599,6 +10628,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes(
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatistics);
 
         for (i_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatistics=0; i_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatistics < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatistics; i_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsRes_loadStatistics++) {
@@ -10646,6 +10676,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsErr(
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpAppLoadManager_queryLoadStatsErr_loadStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -10684,6 +10715,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_reportLoad(tvbuff_t *
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_reportLoad_loadLevel, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -10723,6 +10755,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq(tvbuff_t
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq_serviceIDs++) {
@@ -10771,6 +10804,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadRes(tvbuf
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadRes_loadStatistics);
 
         for (i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadRes_loadStatistics=0; i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadRes_loadStatistics < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadRes_loadStatistics; i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadRes_loadStatistics++) {
@@ -10816,6 +10850,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadErr(tvbuf
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadErr_loadStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -10855,6 +10890,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotifi
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotification_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotification_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotification_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotification_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotification_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotification_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotification_serviceIDs++) {
@@ -10900,6 +10936,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotif
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotification_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotification_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotification_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotification_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotification_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotification_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotification_serviceIDs++) {
@@ -10945,6 +10982,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification(tv
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification_serviceIDs++) {
@@ -10990,6 +11028,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification(t
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification_serviceIDs++) {
@@ -11037,6 +11076,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq(tvb
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq_serviceIDs++) {
@@ -11087,6 +11127,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes(
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatistics);
 
         for (i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatistics=0; i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatistics < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatistics; i_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsRes_loadStatistics++) {
@@ -11134,6 +11175,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsErr(
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpLoadManager_queryAppLoadStatsErr_loadStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -11345,6 +11387,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordR
         decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpTimeInterval"  */
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordReq_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordReq_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordReq_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordReq_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordReq_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordReq_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordReq_serviceIDs++) {
@@ -11489,6 +11532,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordE
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordErr_faultStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -11527,6 +11571,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appAvailStatusInd(tv
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_appAvailStatusInd_reason, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -11571,6 +11616,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatist
         decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpTimeInterval"  */
         u_octet4_loop_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordReq_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordReq_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordReq_serviceIDs);
 
         for (i_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordReq_serviceIDs=0; i_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordReq_serviceIDs < u_octet4_loop_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordReq_serviceIDs; i_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordReq_serviceIDs++) {
@@ -11653,6 +11699,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatist
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatisticsRecordErr_faultStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -11956,6 +12003,7 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes_return);
 
             for (i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes_return=0; i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes_return < u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes_return; i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes_return++) {
@@ -12033,6 +12081,7 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService(
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_serviceTypeName);
 
         u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_desiredPropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_desiredPropertyList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_desiredPropertyList);
 
         for (i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_desiredPropertyList=0; i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_desiredPropertyList < u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_desiredPropertyList; i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_desiredPropertyList++) {
@@ -12049,6 +12098,7 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService(
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_return);
 
             for (i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_return=0; i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_return < u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_return; i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService_return++) {
@@ -12093,6 +12143,7 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listSubscribedSe
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listSubscribedServices_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listSubscribedServices_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listSubscribedServices_return);
 
             for (i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listSubscribedServices_return=0; i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listSubscribedServices_return < u_octet4_loop_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listSubscribedServices_return; i_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listSubscribedServices_return++) {
@@ -12143,6 +12194,7 @@ decode_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManage
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_signServiceAgreement_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_signServiceAgreement_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_signServiceAgreement_return);
 
             for (i_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_signServiceAgreement_return=0; i_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_signServiceAgreement_return < u_octet4_loop_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_signServiceAgreement_return; i_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_signServiceAgreement_return++) {
@@ -12186,6 +12238,7 @@ decode_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManage
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_terminateServiceAgreement_terminationText);
 
         u_octet4_loop_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_terminateServiceAgreement_digitalSignature = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_terminateServiceAgreement_digitalSignature, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_terminateServiceAgreement_digitalSignature);
 
         for (i_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_terminateServiceAgreement_digitalSignature=0; i_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_terminateServiceAgreement_digitalSignature < u_octet4_loop_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_terminateServiceAgreement_digitalSignature; i_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManagement_terminateServiceAgreement_digitalSignature++) {
@@ -12273,6 +12326,7 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_terminateServiceAgreement_terminationText);
 
         u_octet4_loop_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_terminateServiceAgreement_digitalSignature = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_terminateServiceAgreement_digitalSignature, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_terminateServiceAgreement_digitalSignature);
 
         for (i_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_terminateServiceAgreement_digitalSignature=0; i_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_terminateServiceAgreement_digitalSignature < u_octet4_loop_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_terminateServiceAgreement_digitalSignature; i_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagement_terminateServiceAgreement_digitalSignature++) {
@@ -12559,6 +12613,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_requestConflictInfo_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_requestConflictInfo_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_requestConflictInfo_return);
 
             for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_requestConflictInfo_return=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_requestConflictInfo_return < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_requestConflictInfo_return; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileManagement_requestConflictInfo_return++) {
@@ -12603,6 +12658,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listServiceProfiles_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listServiceProfiles_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listServiceProfiles_return);
 
             for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listServiceProfiles_return=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listServiceProfiles_return < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listServiceProfiles_return; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listServiceProfiles_return++) {
@@ -12682,6 +12738,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listAssignedMembers_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listAssignedMembers_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listAssignedMembers_return);
 
             for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listAssignedMembers_return=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listAssignedMembers_return < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listAssignedMembers_return; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfileInfoQuery_listAssignedMembers_return++) {
@@ -12860,6 +12917,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceContracts_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceContracts_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceContracts_return);
 
             for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceContracts_return=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceContracts_return < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceContracts_return; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceContracts_return++) {
@@ -12905,6 +12963,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceProfiles_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceProfiles_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceProfiles_return);
 
             for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceProfiles_return=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceProfiles_return < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceProfiles_return; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContractInfoQuery_listServiceProfiles_return++) {
@@ -12944,6 +13003,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountMa
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountManagement_modifyEntOpAccount_enterpriseOperatorProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountManagement_modifyEntOpAccount_enterpriseOperatorProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountManagement_modifyEntOpAccount_enterpriseOperatorProperties);
 
         for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountManagement_modifyEntOpAccount_enterpriseOperatorProperties=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountManagement_modifyEntOpAccount_enterpriseOperatorProperties < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountManagement_modifyEntOpAccount_enterpriseOperatorProperties; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpEntOpAccountManagement_modifyEntOpAccount_enterpriseOperatorProperties++) {
@@ -13157,6 +13217,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
         decode_org_csapi_fw_TpSag_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_fw_TpSag"  */
         u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_createSAG_clientAppIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_createSAG_clientAppIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_createSAG_clientAppIDs);
 
         for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_createSAG_clientAppIDs=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_createSAG_clientAppIDs < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_createSAG_clientAppIDs; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_createSAG_clientAppIDs++) {
@@ -13271,6 +13332,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_addSAGMembers_sagID);
 
         u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_addSAGMembers_clientAppIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_addSAGMembers_clientAppIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_addSAGMembers_clientAppIDs);
 
         for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_addSAGMembers_clientAppIDs=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_addSAGMembers_clientAppIDs < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_addSAGMembers_clientAppIDs; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_addSAGMembers_clientAppIDs++) {
@@ -13318,6 +13380,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_removeSAGMembers_sagID);
 
         u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_removeSAGMembers_clientAppIDList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_removeSAGMembers_clientAppIDList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_removeSAGMembers_clientAppIDList);
 
         for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_removeSAGMembers_clientAppIDList=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_removeSAGMembers_clientAppIDList < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_removeSAGMembers_clientAppIDList; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_removeSAGMembers_clientAppIDList++) {
@@ -13367,6 +13430,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_requestConflictInfo_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_requestConflictInfo_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_requestConflictInfo_return);
 
             for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_requestConflictInfo_return=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_requestConflictInfo_return < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_requestConflictInfo_return; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManagement_requestConflictInfo_return++) {
@@ -13445,6 +13509,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientApps_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientApps_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientApps_return);
 
             for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientApps_return=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientApps_return < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientApps_return; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientApps_return++) {
@@ -13521,6 +13586,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGs_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGs_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGs_return);
 
             for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGs_return=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGs_return < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGs_return; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGs_return++) {
@@ -13566,6 +13632,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGMembers_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGMembers_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGMembers_return);
 
             for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGMembers_return=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGMembers_return < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGMembers_return; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listSAGMembers_return++) {
@@ -13611,6 +13678,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientAppMembership_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientAppMembership_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientAppMembership_return);
 
             for (i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientAppMembership_return=0; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientAppMembership_return < u_octet4_loop_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientAppMembership_return; i_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQuery_listClientAppMembership_return++) {
@@ -13792,6 +13860,7 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes(t
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes_return);
 
             for (i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes_return=0; i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes_return < u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes_return; i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes_return++) {
@@ -13869,6 +13938,7 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService(tv
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_serviceTypeName);
 
         u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_desiredPropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_desiredPropertyList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_desiredPropertyList);
 
         for (i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_desiredPropertyList=0; i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_desiredPropertyList < u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_desiredPropertyList; i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_desiredPropertyList++) {
@@ -13885,6 +13955,7 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService(tv
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_return);
 
             for (i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_return=0; i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_return < u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_return; i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService_return++) {
@@ -13929,6 +14000,7 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listRegisteredServ
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listRegisteredServices_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listRegisteredServices_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listRegisteredServices_return);
 
             for (i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listRegisteredServices_return=0; i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listRegisteredServices_return < u_octet4_loop_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listRegisteredServices_return; i_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listRegisteredServices_return++) {
@@ -13971,6 +14043,7 @@ decode_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManag
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManager_createServiceManager_application);
 
         u_octet4_loop_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManager_createServiceManager_serviceProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManager_createServiceManager_serviceProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManager_createServiceManager_serviceProperties);
 
         for (i_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManager_createServiceManager_serviceProperties=0; i_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManager_createServiceManager_serviceProperties < u_octet4_loop_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManager_createServiceManager_serviceProperties; i_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManager_createServiceManager_serviceProperties++) {
@@ -14054,6 +14127,7 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_regi
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerService_serviceTypeName);
 
         u_octet4_loop_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerService_servicePropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerService_servicePropertyList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerService_servicePropertyList);
 
         for (i_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerService_servicePropertyList=0; i_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerService_servicePropertyList < u_octet4_loop_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerService_servicePropertyList; i_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerService_servicePropertyList++) {
@@ -14239,6 +14313,7 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_regi
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_serviceTypeName);
 
         u_octet4_loop_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_servicePropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_servicePropertyList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_servicePropertyList);
 
         for (i_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_servicePropertyList=0; i_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_servicePropertyList < u_octet4_loop_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_servicePropertyList; i_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_servicePropertyList++) {
@@ -14249,6 +14324,7 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_regi
         }
 
         u_octet4_loop_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_extendedServicePropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_extendedServicePropertyList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_extendedServicePropertyList);
 
         for (i_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_extendedServicePropertyList=0; i_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_extendedServicePropertyList < u_octet4_loop_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_extendedServicePropertyList; i_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_registerServiceSubType_extendedServicePropertyList++) {
@@ -14329,6 +14405,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadRes(tvbuff_t 
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadRes_loadStatistics);
 
         for (i_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadRes_loadStatistics=0; i_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadRes_loadStatistics < u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadRes_loadStatistics; i_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadRes_loadStatistics++) {
@@ -14374,6 +14451,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadErr(tvbuff_t 
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadErr_loadStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -14413,6 +14491,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_loadLevelNotification(
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_loadLevelNotification_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_loadLevelNotification_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_loadLevelNotification_loadStatistics);
 
         for (i_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_loadLevelNotification_loadStatistics=0; i_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_loadLevelNotification_loadStatistics < u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_loadLevelNotification_loadStatistics; i_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_loadLevelNotification_loadStatistics++) {
@@ -14621,6 +14700,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes(tvbu
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatistics);
 
         for (i_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatistics=0; i_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatistics < u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatistics; i_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsRes_loadStatistics++) {
@@ -14668,6 +14748,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsErr(tvbu
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcLoadManager_queryLoadStatsErr_loadStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -14706,6 +14787,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_reportLoad(tvbuff_t *tv
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_reportLoad_loadLevel, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -14744,6 +14826,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadReq(tvbuff_t *
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadReq_querySubject, tvb, *offset-4, 4, u_octet4);
 
         /*  Begin struct "org_csapi_TpTimeInterval"  */
@@ -14786,6 +14869,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadRes(tvbuff_
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadRes_loadStatistics);
 
         for (i_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadRes_loadStatistics=0; i_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadRes_loadStatistics < u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadRes_loadStatistics; i_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadRes_loadStatistics++) {
@@ -14831,6 +14915,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadErr(tvbuff_
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadErr_loadStatisticError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -14869,6 +14954,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_createLoadLevelNotifica
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_createLoadLevelNotification_notificationSubject, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -14907,6 +14993,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_destroyLoadLevelNotific
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_destroyLoadLevelNotification_notificationSubject, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -14945,6 +15032,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_suspendNotification(tvb
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_suspendNotification_notificationSubject, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -14983,6 +15071,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_resumeNotification(tvbu
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_resumeNotification_notificationSubject, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15023,6 +15112,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadStatsReq(tvbuf
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadStatsReq_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_queryLoadStatsReq_querySubject, tvb, *offset-4, 4, u_octet4);
 
         /*  Begin struct "org_csapi_TpTimeInterval"  */
@@ -15067,6 +15157,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes(tv
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatistics = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatistics, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatistics);
 
         for (i_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatistics=0; i_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatistics < u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatistics; i_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsRes_loadStatistics++) {
@@ -15114,6 +15205,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsErr(tv
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsErr_loadStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwLoadManager_querySvcLoadStatsErr_loadStatisticError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15220,6 +15312,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwFaultReportInd(tvbu
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwFaultReportInd_fault, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15258,6 +15351,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwFaultRecoveryInd(tv
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwFaultRecoveryInd_fault, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15296,6 +15390,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwUnavailableInd(tvbu
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwUnavailableInd_reason, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15399,6 +15494,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordRe
         decode_org_csapi_fw_TpFaultStatsRecord_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_fw_TpFaultStatsRecord"  */
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordRes_recordSubject, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15470,9 +15566,11 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordEr
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordErr_faultStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordErr_recordSubject, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15515,6 +15613,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordRe
         decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpTimeInterval"  */
         u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordReq_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordReq_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordReq_serviceIDs);
 
         for (i_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordReq_serviceIDs=0; i_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordReq_serviceIDs < u_octet4_loop_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordReq_serviceIDs; i_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordReq_serviceIDs++) {
@@ -15593,6 +15692,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_appAvailStatusInd(tvb
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_appAvailStatusInd_reason, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15636,6 +15736,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisti
         decode_org_csapi_fw_TpFaultStatsRecord_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_fw_TpFaultStatsRecord"  */
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordRes_recordSubject, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15676,9 +15777,11 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisti
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordErr_faultStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_generateFaultStatisticsRecordErr_recordSubject, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15753,6 +15856,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwAvailStatusInd(tvbu
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_fwAvailStatusInd_reason, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15793,6 +15897,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_activityTestReq(tvbuff
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_activityTestReq_activityTestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_activityTestReq_testSubject, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15900,6 +16005,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordReq
         decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpTimeInterval"  */
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordReq_recordSubject, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -15938,6 +16044,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcUnavailableInd(tvbu
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcUnavailableInd_reason, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -16013,6 +16120,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes
         decode_org_csapi_fw_TpFaultStatsRecord_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_fw_TpFaultStatsRecord"  */
         u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes_serviceIDs);
 
         for (i_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes_serviceIDs=0; i_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes_serviceIDs < u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes_serviceIDs; i_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes_serviceIDs++) {
@@ -16059,9 +16167,11 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr_faultStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr_serviceIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr_serviceIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr_serviceIDs);
 
         for (i_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr_serviceIDs=0; i_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr_serviceIDs < u_octet4_loop_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr_serviceIDs; i_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr_serviceIDs++) {
@@ -16140,6 +16250,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatsReco
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatsRecordErr_faultStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -16178,6 +16289,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcAvailStatusInd(tvbu
     switch(header->message_type) {
     case Request:
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcAvailStatusInd_reason, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -16221,6 +16333,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatistic
         decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpTimeInterval"  */
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordReq_recordSubject, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -16297,6 +16410,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatistic
         proto_tree_add_int(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordErr_faultStatsReqID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_fw_service_integrity_IpFwFaultManager_generateFaultStatisticsRecordErr_faultStatisticsError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -17022,6 +17136,7 @@ decode_org_csapi_cc_gccs_IpAppCall_callFaultDetected(tvbuff_t *tvb _U_, packet_i
         proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpAppCall_callFaultDetected_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCall_callFaultDetected_fault, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -17172,6 +17287,7 @@ decode_org_csapi_cc_gccs_IpCall_routeReq(tvbuff_t *tvb _U_, packet_info *pinfo _
         proto_tree_add_int(tree, hf_org_csapi_cc_gccs_IpCall_routeReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_gccs_IpCall_routeReq_responseRequested = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_routeReq_responseRequested, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_gccs_IpCall_routeReq_responseRequested);
 
         for (i_org_csapi_cc_gccs_IpCall_routeReq_responseRequested=0; i_org_csapi_cc_gccs_IpCall_routeReq_responseRequested < u_octet4_loop_org_csapi_cc_gccs_IpCall_routeReq_responseRequested; i_org_csapi_cc_gccs_IpCall_routeReq_responseRequested++) {
@@ -17194,6 +17310,7 @@ decode_org_csapi_cc_gccs_IpCall_routeReq(tvbuff_t *tvb _U_, packet_info *pinfo _
         decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpAddress"  */
         u_octet4_loop_org_csapi_cc_gccs_IpCall_routeReq_appInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCall_routeReq_appInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_gccs_IpCall_routeReq_appInfo);
 
         for (i_org_csapi_cc_gccs_IpCall_routeReq_appInfo=0; i_org_csapi_cc_gccs_IpCall_routeReq_appInfo < u_octet4_loop_org_csapi_cc_gccs_IpCall_routeReq_appInfo; i_org_csapi_cc_gccs_IpCall_routeReq_appInfo++) {
@@ -17725,6 +17842,7 @@ decode_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls(tvbuff_t *tv
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet);
 
         for (i_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet=0; i_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet < u_octet4_loop_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet; i_org_csapi_cc_gccs_IpAppCallControlManager_abortMultipleCalls_callReferenceSet++) {
@@ -17957,6 +18075,7 @@ decode_org_csapi_cc_gccs_IpCallControlManager_getCriteria(tvbuff_t *tvb _U_, pac
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cc_gccs_IpCallControlManager_getCriteria_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_IpCallControlManager_getCriteria_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_gccs_IpCallControlManager_getCriteria_return);
 
             for (i_org_csapi_cc_gccs_IpCallControlManager_getCriteria_return=0; i_org_csapi_cc_gccs_IpCallControlManager_getCriteria_return < u_octet4_loop_org_csapi_cc_gccs_IpCallControlManager_getCriteria_return; i_org_csapi_cc_gccs_IpCallControlManager_getCriteria_return++) {
@@ -18389,6 +18508,7 @@ decode_org_csapi_cc_mpccs_IpAppCallLeg_callLegEnded(tvbuff_t *tvb _U_, packet_in
         proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_callLegEnded_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppCallLeg_callLegEnded_cause, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -18571,6 +18691,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNotification(tvbuff_
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNotification_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNotification_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNotification_return);
 
             for (i_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNotification_return=0; i_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNotification_return < u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNotification_return; i_org_csapi_cc_mpccs_IpMultiPartyCallControlManager_getNotification_return++) {
@@ -18761,6 +18882,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_routeReq(tvbuff_t *tvb _U_, packet_info *pin
         decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpAddress"  */
         u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_routeReq_appInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_routeReq_appInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_routeReq_appInfo);
 
         for (i_org_csapi_cc_mpccs_IpCallLeg_routeReq_appInfo=0; i_org_csapi_cc_mpccs_IpCallLeg_routeReq_appInfo < u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_routeReq_appInfo; i_org_csapi_cc_mpccs_IpCallLeg_routeReq_appInfo++) {
@@ -18814,6 +18936,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_eventReportReq(tvbuff_t *tvb _U_, packet_inf
         proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_eventsRequested = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_eventsRequested, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_eventsRequested);
 
         for (i_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_eventsRequested=0; i_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_eventsRequested < u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_eventsRequested; i_org_csapi_cc_mpccs_IpCallLeg_eventReportReq_eventsRequested++) {
@@ -18861,6 +18984,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_release(tvbuff_t *tvb _U_, packet_info *pinf
         proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_release_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_release_cause, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -19250,6 +19374,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getProperties(tvbuff_t *tvb _U_, packet_info
         proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getProperties_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_getProperties_propertyNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getProperties_propertyNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_getProperties_propertyNames);
 
         for (i_org_csapi_cc_mpccs_IpCallLeg_getProperties_propertyNames=0; i_org_csapi_cc_mpccs_IpCallLeg_getProperties_propertyNames < u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_getProperties_propertyNames; i_org_csapi_cc_mpccs_IpCallLeg_getProperties_propertyNames++) {
@@ -19263,6 +19388,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getProperties(tvbuff_t *tvb _U_, packet_info
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_getProperties_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_getProperties_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_getProperties_return);
 
             for (i_org_csapi_cc_mpccs_IpCallLeg_getProperties_return=0; i_org_csapi_cc_mpccs_IpCallLeg_getProperties_return < u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_getProperties_return; i_org_csapi_cc_mpccs_IpCallLeg_getProperties_return++) {
@@ -19305,6 +19431,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_setProperties(tvbuff_t *tvb _U_, packet_info
         proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpCallLeg_setProperties_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_setProperties_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpCallLeg_setProperties_properties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_setProperties_properties);
 
         for (i_org_csapi_cc_mpccs_IpCallLeg_setProperties_properties=0; i_org_csapi_cc_mpccs_IpCallLeg_setProperties_properties < u_octet4_loop_org_csapi_cc_mpccs_IpCallLeg_setProperties_properties; i_org_csapi_cc_mpccs_IpCallLeg_setProperties_properties++) {
@@ -19577,6 +19704,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs(tvbuff_t *tvb _U_, packet
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs_return);
 
             for (i_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs_return=0; i_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs_return < u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs_return; i_org_csapi_cc_mpccs_IpMultiPartyCall_getCallLegs_return++) {
@@ -19657,6 +19785,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq(tvbuff_t *tv
         proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_eventsRequested = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_eventsRequested, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_eventsRequested);
 
         for (i_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_eventsRequested=0; i_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_eventsRequested < u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_eventsRequested; i_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_eventsRequested++) {
@@ -19673,6 +19802,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq(tvbuff_t *tv
         decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpAddress"  */
         u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_appInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_appInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_appInfo);
 
         for (i_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_appInfo=0; i_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_appInfo < u_octet4_loop_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_appInfo; i_org_csapi_cc_mpccs_IpMultiPartyCall_createAndRouteCallLegReq_appInfo++) {
@@ -19725,6 +19855,7 @@ decode_org_csapi_cc_mpccs_IpMultiPartyCall_release(tvbuff_t *tvb _U_, packet_inf
         proto_tree_add_int(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_release_callSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpMultiPartyCall_release_cause, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -19946,6 +20077,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification(t
         decode_org_csapi_cc_mpccs_TpMultiPartyCallIdentifier_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cc_mpccs_TpMultiPartyCallIdentifier"  */
         u_octet4_loop_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification_callLegReferenceSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification_callLegReferenceSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification_callLegReferenceSet);
 
         for (i_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification_callLegReferenceSet=0; i_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification_callLegReferenceSet < u_octet4_loop_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification_callLegReferenceSet; i_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_reportNotification_callLegReferenceSet++) {
@@ -20161,6 +20293,7 @@ decode_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls(t
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet);
 
         for (i_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet=0; i_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet < u_octet4_loop_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet; i_org_csapi_cc_mpccs_IpAppMultiPartyCallControlManager_abortMultipleCalls_callReferenceSet++) {
@@ -20212,6 +20345,7 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeRes(tvbuff_t *tvb _
         decode_org_csapi_cc_mmccs_TpCallSuperviseVolume_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cc_mmccs_TpCallSuperviseVolume"  */
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCall_superviseVolumeRes_qualityOfService, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -20290,6 +20424,7 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes(tvbuff_t 
         proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_streams = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_streams, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_streams);
 
         for (i_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_streams=0; i_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_streams < u_octet4_loop_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_streams; i_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_streams++) {
@@ -20300,6 +20435,7 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes(tvbuff_t 
         }
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallLeg_mediaStreamMonitorRes_type, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -20374,6 +20510,7 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow(tvbuff_t *tvb _U_
         proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList);
 
         for (i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList=0; i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList < u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList; i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamAllow_mediaStreamList++) {
@@ -20421,6 +20558,7 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq(tvbuff_t *tv
         proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_callLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_mediaStreamEventCriteria = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_mediaStreamEventCriteria, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_mediaStreamEventCriteria);
 
         for (i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_mediaStreamEventCriteria=0; i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_mediaStreamEventCriteria < u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_mediaStreamEventCriteria; i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_mediaStreamMonitorReq_mediaStreamEventCriteria++) {
@@ -20473,6 +20611,7 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams(tvbuff_t *tvb _U_,
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams_return);
 
             for (i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams_return=0; i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams_return < u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams_return; i_org_csapi_cc_mmccs_IpMultiMediaCallLeg_getMediaStreams_return++) {
@@ -20557,6 +20696,7 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotificat
         decode_org_csapi_cc_mmccs_TpMultiMediaCallIdentifier_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cc_mmccs_TpMultiMediaCallIdentifier"  */
         u_octet4_loop_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_callLegReferenceSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_callLegReferenceSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_callLegReferenceSet);
 
         for (i_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_callLegReferenceSet=0; i_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_callLegReferenceSet < u_octet4_loop_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_callLegReferenceSet; i_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_callLegReferenceSet++) {
@@ -20567,6 +20707,7 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotificat
         }
 
         u_octet4_loop_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_mediaStreams = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_mediaStreams, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_mediaStreams);
 
         for (i_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_mediaStreams=0; i_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_mediaStreams < u_octet4_loop_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_mediaStreams; i_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_mediaStreams++) {
@@ -20577,9 +20718,11 @@ decode_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotificat
         }
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_type, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_qualityOfService, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_cc_mmccs_IpAppMultiMediaCallControlManager_reportMediaNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -20733,6 +20876,7 @@ decode_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_getMediaNotification(tv
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_getMediaNotification_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_getMediaNotification_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_getMediaNotification_return);
 
             for (i_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_getMediaNotification_return=0; i_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_getMediaNotification_return < u_octet4_loop_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_getMediaNotification_return; i_org_csapi_cc_mmccs_IpMultiMediaCallControlManager_getMediaNotification_return++) {
@@ -21112,6 +21256,7 @@ decode_org_csapi_cc_cccs_IpSubConfCall_splitSubConference(tvbuff_t *tvb _U_, pac
         proto_tree_add_int(tree, hf_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_subConferenceSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList);
 
         for (i_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList=0; i_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList < u_octet4_loop_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList; i_org_csapi_cc_cccs_IpSubConfCall_splitSubConference_callLegList++) {
@@ -21414,6 +21559,7 @@ decode_org_csapi_cc_cccs_IpConfCall_getSubConferences(tvbuff_t *tvb _U_, packet_
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cc_cccs_IpConfCall_getSubConferences_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_IpConfCall_getSubConferences_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_cccs_IpConfCall_getSubConferences_return);
 
             for (i_org_csapi_cc_cccs_IpConfCall_getSubConferences_return=0; i_org_csapi_cc_cccs_IpConfCall_getSubConferences_return < u_octet4_loop_org_csapi_cc_cccs_IpConfCall_getSubConferences_return; i_org_csapi_cc_cccs_IpConfCall_getSubConferences_return++) {
@@ -21565,6 +21711,7 @@ decode_org_csapi_ui_IpAppUI_sendInfoRes(tvbuff_t *tvb _U_, packet_info *pinfo _U
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoRes_response, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -21607,6 +21754,7 @@ decode_org_csapi_ui_IpAppUI_sendInfoErr(tvbuff_t *tvb _U_, packet_info *pinfo _U
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoErr_error, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -21649,6 +21797,7 @@ decode_org_csapi_ui_IpAppUI_sendInfoAndCollectRes(tvbuff_t *tvb _U_, packet_info
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectRes_response, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectRes_collectedInfo);
@@ -21693,6 +21842,7 @@ decode_org_csapi_ui_IpAppUI_sendInfoAndCollectErr(tvbuff_t *tvb _U_, packet_info
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_sendInfoAndCollectErr_error, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -21733,6 +21883,7 @@ decode_org_csapi_ui_IpAppUI_userInteractionFaultDetected(tvbuff_t *tvb _U_, pack
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUI_userInteractionFaultDetected_userInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUI_userInteractionFaultDetected_fault, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -21775,6 +21926,7 @@ decode_org_csapi_ui_IpAppUICall_recordMessageRes(tvbuff_t *tvb _U_, packet_info 
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_recordMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_recordMessageRes_response, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_recordMessageRes_messageID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -21819,6 +21971,7 @@ decode_org_csapi_ui_IpAppUICall_recordMessageErr(tvbuff_t *tvb _U_, packet_info 
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_recordMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_recordMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -21859,6 +22012,7 @@ decode_org_csapi_ui_IpAppUICall_deleteMessageRes(tvbuff_t *tvb _U_, packet_info 
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageRes_response, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -21901,6 +22055,7 @@ decode_org_csapi_ui_IpAppUICall_deleteMessageErr(tvbuff_t *tvb _U_, packet_info 
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_deleteMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -21980,6 +22135,7 @@ decode_org_csapi_ui_IpAppUICall_abortActionErr(tvbuff_t *tvb _U_, packet_info *p
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_abortActionErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_abortActionErr_error, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -22062,6 +22218,7 @@ decode_org_csapi_ui_IpAppUICall_getMessageErr(tvbuff_t *tvb _U_, packet_info *pi
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUICall_getMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUICall_getMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -22236,6 +22393,7 @@ decode_org_csapi_ui_IpAppUIManager_abortMultipleUserInteractions(tvbuff_t *tvb _
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_ui_IpAppUIManager_abortMultipleUserInteractions_userInteractionSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIManager_abortMultipleUserInteractions_userInteractionSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_IpAppUIManager_abortMultipleUserInteractions_userInteractionSet);
 
         for (i_org_csapi_ui_IpAppUIManager_abortMultipleUserInteractions_userInteractionSet=0; i_org_csapi_ui_IpAppUIManager_abortMultipleUserInteractions_userInteractionSet < u_octet4_loop_org_csapi_ui_IpAppUIManager_abortMultipleUserInteractions_userInteractionSet; i_org_csapi_ui_IpAppUIManager_abortMultipleUserInteractions_userInteractionSet++) {
@@ -22291,6 +22449,7 @@ decode_org_csapi_ui_IpUI_sendInfoReq(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_IpUI_sendInfoReq_language);
 
         u_octet4_loop_org_csapi_ui_IpUI_sendInfoReq_variableInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_sendInfoReq_variableInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_IpUI_sendInfoReq_variableInfo);
 
         for (i_org_csapi_ui_IpUI_sendInfoReq_variableInfo=0; i_org_csapi_ui_IpUI_sendInfoReq_variableInfo < u_octet4_loop_org_csapi_ui_IpUI_sendInfoReq_variableInfo; i_org_csapi_ui_IpUI_sendInfoReq_variableInfo++) {
@@ -22352,6 +22511,7 @@ decode_org_csapi_ui_IpUI_sendInfoAndCollectReq(tvbuff_t *tvb _U_, packet_info *p
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_IpUI_sendInfoAndCollectReq_language);
 
         u_octet4_loop_org_csapi_ui_IpUI_sendInfoAndCollectReq_variableInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpUI_sendInfoAndCollectReq_variableInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_IpUI_sendInfoAndCollectReq_variableInfo);
 
         for (i_org_csapi_ui_IpUI_sendInfoAndCollectReq_variableInfo=0; i_org_csapi_ui_IpUI_sendInfoAndCollectReq_variableInfo < u_octet4_loop_org_csapi_ui_IpUI_sendInfoAndCollectReq_variableInfo; i_org_csapi_ui_IpUI_sendInfoAndCollectReq_variableInfo++) {
@@ -22837,6 +22997,7 @@ decode_org_csapi_ui_IpUIManager_getNotification(tvbuff_t *tvb _U_, packet_info *
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_ui_IpUIManager_getNotification_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpUIManager_getNotification_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_IpUIManager_getNotification_return);
 
             for (i_org_csapi_ui_IpUIManager_getNotification_return=0; i_org_csapi_ui_IpUIManager_getNotification_return < u_octet4_loop_org_csapi_ui_IpUIManager_getNotification_return; i_org_csapi_ui_IpUIManager_getNotification_return++) {
@@ -22984,6 +23145,7 @@ decode_org_csapi_ui_IpAppUIAdminManager_getMessageErr(tvbuff_t *tvb _U_, packet_
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -23024,6 +23186,7 @@ decode_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes(tvbuff_t *tvb _U_, pack
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes_response, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -23066,6 +23229,7 @@ decode_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr(tvbuff_t *tvb _U_, pack
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr_usrInteractionSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_deleteMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -23147,6 +23311,7 @@ decode_org_csapi_ui_IpAppUIAdminManager_putMessageErr(tvbuff_t *tvb _U_, packet_
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_putMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -23190,6 +23355,7 @@ decode_org_csapi_ui_IpAppUIAdminManager_getMessageListRes(tvbuff_t *tvb _U_, pac
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList);
 
         for (i_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList=0; i_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList < u_octet4_loop_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList; i_org_csapi_ui_IpAppUIAdminManager_getMessageListRes_messageIDList++) {
@@ -23240,6 +23406,7 @@ decode_org_csapi_ui_IpAppUIAdminManager_getMessageListErr(tvbuff_t *tvb _U_, pac
         proto_tree_add_int(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_IpAppUIAdminManager_getMessageListErr_error, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -23424,6 +23591,7 @@ decode_org_csapi_mm_ul_IpAppUserLocation_locationReportRes(tvbuff_t *tvb _U_, pa
         proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_locations, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_locations);
 
         for (i_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_locations=0; i_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_locations < u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_locations; i_org_csapi_mm_ul_IpAppUserLocation_locationReportRes_locations++) {
@@ -23471,9 +23639,11 @@ decode_org_csapi_mm_ul_IpAppUserLocation_locationReportErr(tvbuff_t *tvb _U_, pa
         proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_locationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_locationReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_locationReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -23515,6 +23685,7 @@ decode_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes(tvbuff_t *tvb
         proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_locations, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_locations);
 
         for (i_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_locations=0; i_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_locations < u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_locations; i_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportRes_locations++) {
@@ -23562,9 +23733,11 @@ decode_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportErr(tvbuff_t *tvb
         proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_extendedLocationReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -23606,6 +23779,7 @@ decode_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport(tvbuff_t *tvb _U
         proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_locations, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_locations);
 
         for (i_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_locations=0; i_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_locations < u_octet4_loop_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_locations; i_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReport_locations++) {
@@ -23653,9 +23827,11 @@ decode_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReportErr(tvbuff_t *tvb
         proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppUserLocation_periodicLocationReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -23697,6 +23873,7 @@ decode_org_csapi_mm_ul_IpUserLocation_locationReportReq(tvbuff_t *tvb _U_, packe
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_ul_IpUserLocation_locationReportReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpUserLocation_locationReportReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ul_IpUserLocation_locationReportReq_users);
 
         for (i_org_csapi_mm_ul_IpUserLocation_locationReportReq_users=0; i_org_csapi_mm_ul_IpUserLocation_locationReportReq_users < u_octet4_loop_org_csapi_mm_ul_IpUserLocation_locationReportReq_users; i_org_csapi_mm_ul_IpUserLocation_locationReportReq_users++) {
@@ -23745,6 +23922,7 @@ decode_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq(tvbuff_t *tvb _U
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq_users);
 
         for (i_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq_users=0; i_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq_users < u_octet4_loop_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq_users; i_org_csapi_mm_ul_IpUserLocation_extendedLocationReportReq_users++) {
@@ -23796,6 +23974,7 @@ decode_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq(tvbuff_t
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq_users);
 
         for (i_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq_users=0; i_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq_users < u_octet4_loop_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq_users; i_org_csapi_mm_ul_IpUserLocation_periodicLocationReportingStartReq_users++) {
@@ -23919,6 +24098,7 @@ decode_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReport(tvbuff
         decode_org_csapi_mm_TpUserLocationExtended_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_mm_TpUserLocationExtended"  */
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReport_criterion, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -23959,9 +24139,11 @@ decode_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReportErr(tvb
         proto_tree_add_int(tree, hf_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpAppTriggeredUserLocation_triggeredLocationReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -24005,6 +24187,7 @@ decode_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartRe
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_users);
 
         for (i_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_users=0; i_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_users < u_octet4_loop_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_users; i_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_users++) {
@@ -24018,6 +24201,7 @@ decode_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartRe
         decode_org_csapi_mm_TpLocationRequest_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_mm_TpLocationRequest"  */
         u_octet4_loop_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_triggers = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_triggers, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_triggers);
 
         for (i_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_triggers=0; i_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_triggers < u_octet4_loop_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_triggers; i_org_csapi_mm_ul_IpTriggeredUserLocation_triggeredLocationReportingStartReq_triggers++) {
@@ -24134,6 +24318,7 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes(tvbuff_t *tvb _
         proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_locations, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_locations);
 
         for (i_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_locations=0; i_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_locations < u_octet4_loop_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_locations; i_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportRes_locations++) {
@@ -24181,9 +24366,11 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportErr(tvbuff_t *tvb _
         proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_locationReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -24225,6 +24412,7 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport(tvbuff_t *
         proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_locations, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_locations);
 
         for (i_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_locations=0; i_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_locations < u_octet4_loop_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_locations; i_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReport_locations++) {
@@ -24272,9 +24460,11 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReportErr(tvbuff_
         proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_periodicLocationReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -24354,9 +24544,11 @@ decode_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReportErr(tvbuff
         proto_tree_add_int(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpAppUserLocationCamel_triggeredLocationReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -24398,6 +24590,7 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq(tvbuff_t *tvb _U_,
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq_users);
 
         for (i_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq_users=0; i_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq_users < u_octet4_loop_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq_users; i_org_csapi_mm_ulc_IpUserLocationCamel_locationReportReq_users++) {
@@ -24446,6 +24639,7 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq(tv
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq_users);
 
         for (i_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq_users=0; i_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq_users < u_octet4_loop_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq_users; i_org_csapi_mm_ulc_IpUserLocationCamel_periodicLocationReportingStartReq_users++) {
@@ -24530,6 +24724,7 @@ decode_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq(t
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq_users);
 
         for (i_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq_users=0; i_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq_users < u_octet4_loop_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq_users; i_org_csapi_mm_ulc_IpUserLocationCamel_triggeredLocationReportingStartReq_users++) {
@@ -24718,9 +24913,11 @@ decode_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReportErr(tv
         proto_tree_add_int(tree, hf_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ule_IpAppUserLocationEmergency_emergencyLocationReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -24864,6 +25061,7 @@ decode_org_csapi_mm_us_IpAppUserStatus_statusReportRes(tvbuff_t *tvb _U_, packet
         proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_statusReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_us_IpAppUserStatus_statusReportRes_status = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_statusReportRes_status, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_us_IpAppUserStatus_statusReportRes_status);
 
         for (i_org_csapi_mm_us_IpAppUserStatus_statusReportRes_status=0; i_org_csapi_mm_us_IpAppUserStatus_statusReportRes_status < u_octet4_loop_org_csapi_mm_us_IpAppUserStatus_statusReportRes_status; i_org_csapi_mm_us_IpAppUserStatus_statusReportRes_status++) {
@@ -24911,9 +25109,11 @@ decode_org_csapi_mm_us_IpAppUserStatus_statusReportErr(tvbuff_t *tvb _U_, packet
         proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_statusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_statusReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_statusReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -24990,9 +25190,11 @@ decode_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReportErr(tvbuff_t *tvb _U
         proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_triggeredStatusReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -25034,6 +25236,7 @@ decode_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes(tvbuff_t *tvb _U_
         proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_status = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_status, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_status);
 
         for (i_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_status=0; i_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_status < u_octet4_loop_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_status; i_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportRes_status++) {
@@ -25081,9 +25284,11 @@ decode_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportErr(tvbuff_t *tvb _U_
         proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extendedStatusReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -25160,9 +25365,11 @@ decode_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReportErr(tvbuff_t *tvb
         proto_tree_add_int(tree, hf_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpAppUserStatus_extTriggeredStatusReportErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -25204,6 +25411,7 @@ decode_org_csapi_mm_us_IpUserStatus_statusReportReq(tvbuff_t *tvb _U_, packet_in
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_us_IpUserStatus_statusReportReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpUserStatus_statusReportReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_us_IpUserStatus_statusReportReq_users);
 
         for (i_org_csapi_mm_us_IpUserStatus_statusReportReq_users=0; i_org_csapi_mm_us_IpUserStatus_statusReportReq_users < u_octet4_loop_org_csapi_mm_us_IpUserStatus_statusReportReq_users; i_org_csapi_mm_us_IpUserStatus_statusReportReq_users++) {
@@ -25252,6 +25460,7 @@ decode_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq(tvbuff_t *t
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq_users);
 
         for (i_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq_users=0; i_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq_users < u_octet4_loop_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq_users; i_org_csapi_mm_us_IpUserStatus_triggeredStatusReportingStartReq_users++) {
@@ -25368,6 +25577,7 @@ decode_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq(tvbuff_t *tvb _U_, p
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq_users);
 
         for (i_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq_users=0; i_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq_users < u_octet4_loop_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq_users; i_org_csapi_mm_us_IpUserStatus_extendedStatusReportReq_users++) {
@@ -25416,6 +25626,7 @@ decode_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq(tvbuff_t
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq_users);
 
         for (i_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq_users=0; i_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq_users < u_octet4_loop_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq_users; i_org_csapi_mm_us_IpUserStatus_extTriggeredStatusReportingStartReq_users++) {
@@ -25503,11 +25714,13 @@ decode_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification(tvbu
         decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_TpAddress"  */
         u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation);
 
         for (i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation=0; i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation < u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation; i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation++) {
 
             u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation);
 
             for (i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation=0; i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation < u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation; i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_contactInformation++) {
@@ -25526,11 +25739,13 @@ decode_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification(tvbu
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return);
 
             for (i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return=0; i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return < u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return; i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return++) {
 
                 u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+                /* coverity[returned_pointer] */
                 item = proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return);
 
                 for (i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return=0; i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return < u_octet4_loop_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return; i_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotification_return++) {
@@ -25576,9 +25791,11 @@ decode_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotificationStart
         proto_tree_add_int(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotificationStartErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotificationStartErr_cause, tvb, *offset-4, 4, u_octet4);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpAppUserBinding_triggeredBindingRequestNotificationStartErr_diagnostic, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -25622,6 +25839,7 @@ decode_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_users);
 
         for (i_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_users=0; i_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_users < u_octet4_loop_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_users; i_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_users++) {
@@ -25632,6 +25850,7 @@ decode_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq
         }
 
         u_octet4_loop_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_criteria = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_criteria, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_criteria);
 
         for (i_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_criteria=0; i_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_criteria < u_octet4_loop_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_criteria; i_org_csapi_mm_ub_IpUserBinding_triggeredBindingRequestNotificationStartReq_criteria++) {
@@ -25747,6 +25966,7 @@ decode_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapa
         proto_tree_add_int(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_terminals = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_terminals, tvb,*offset-4, 4, u_octet4_loop_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_terminals);
 
         for (i_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_terminals=0; i_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_terminals < u_octet4_loop_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_terminals; i_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReport_terminals++) {
@@ -25801,6 +26021,7 @@ decode_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapa
         proto_tree_add_int(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_assignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_terminals = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_terminals, tvb,*offset-4, 4, u_octet4_loop_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_terminals);
 
         for (i_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_terminals=0; i_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_terminals < u_octet4_loop_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_terminals; i_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_terminals++) {
@@ -25811,6 +26032,7 @@ decode_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapa
         }
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_termcap_IpAppExtendedTerminalCapabilities_triggeredTerminalCapabilityReportErr_cause, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -25852,6 +26074,7 @@ decode_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabil
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq_terminals = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq_terminals, tvb,*offset-4, 4, u_octet4_loop_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq_terminals);
 
         for (i_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq_terminals=0; i_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq_terminals < u_octet4_loop_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq_terminals; i_org_csapi_termcap_IpExtendedTerminalCapabilities_triggeredTerminalCapabilityStartReq_terminals++) {
@@ -26018,6 +26241,7 @@ decode_org_csapi_dsc_IpAppDataSession_superviseDataSessionRes(tvbuff_t *tvb _U_,
         decode_org_csapi_dsc_TpDataSessionSuperviseVolume_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_dsc_TpDataSessionSuperviseVolume"  */
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSession_superviseDataSessionRes_qualityOfService, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -26094,6 +26318,7 @@ decode_org_csapi_dsc_IpAppDataSession_dataSessionFaultDetected(tvbuff_t *tvb _U_
         proto_tree_add_int(tree, hf_org_csapi_dsc_IpAppDataSession_dataSessionFaultDetected_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSession_dataSessionFaultDetected_fault, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -26267,6 +26492,7 @@ decode_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions(tv
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet);
 
         for (i_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet=0; i_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet < u_octet4_loop_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet; i_org_csapi_dsc_IpAppDataSessionControlManager_abortMultipleDataSessions_dataSessionSet++) {
@@ -26314,6 +26540,7 @@ decode_org_csapi_dsc_IpDataSession_connectReq(tvbuff_t *tvb _U_, packet_info *pi
         proto_tree_add_int(tree, hf_org_csapi_dsc_IpDataSession_connectReq_dataSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_dsc_IpDataSession_connectReq_responseRequested = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSession_connectReq_responseRequested, tvb,*offset-4, 4, u_octet4_loop_org_csapi_dsc_IpDataSession_connectReq_responseRequested);
 
         for (i_org_csapi_dsc_IpDataSession_connectReq_responseRequested=0; i_org_csapi_dsc_IpDataSession_connectReq_responseRequested < u_octet4_loop_org_csapi_dsc_IpDataSession_connectReq_responseRequested; i_org_csapi_dsc_IpDataSession_connectReq_responseRequested++) {
@@ -26750,6 +26977,7 @@ decode_org_csapi_dsc_IpDataSessionControlManager_getNotifications(tvbuff_t *tvb 
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_dsc_IpDataSessionControlManager_getNotifications_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_dsc_IpDataSessionControlManager_getNotifications_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_dsc_IpDataSessionControlManager_getNotifications_return);
 
             for (i_org_csapi_dsc_IpDataSessionControlManager_getNotifications_return=0; i_org_csapi_dsc_IpDataSessionControlManager_getNotifications_return < u_octet4_loop_org_csapi_dsc_IpDataSessionControlManager_getNotifications_return; i_org_csapi_dsc_IpDataSessionControlManager_getNotifications_return++) {
@@ -26972,6 +27200,7 @@ decode_org_csapi_gms_IpAppMessagingManager_mailboxFaultDetected(tvbuff_t *tvb _U
         proto_tree_add_int(tree, hf_org_csapi_gms_IpAppMessagingManager_mailboxFaultDetected_mailboxSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpAppMessagingManager_mailboxFaultDetected_fault, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -27224,6 +27453,7 @@ decode_org_csapi_gms_IpMailbox_getInfoProperties(tvbuff_t *tvb _U_, packet_info 
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_gms_IpMailbox_getInfoProperties_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_getInfoProperties_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_gms_IpMailbox_getInfoProperties_return);
 
             for (i_org_csapi_gms_IpMailbox_getInfoProperties_return=0; i_org_csapi_gms_IpMailbox_getInfoProperties_return < u_octet4_loop_org_csapi_gms_IpMailbox_getInfoProperties_return; i_org_csapi_gms_IpMailbox_getInfoProperties_return++) {
@@ -27270,6 +27500,7 @@ decode_org_csapi_gms_IpMailbox_setInfoProperties(tvbuff_t *tvb _U_, packet_info 
         proto_tree_add_int(tree, hf_org_csapi_gms_IpMailbox_setInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_gms_IpMailbox_setInfoProperties_mailboxInfoProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailbox_setInfoProperties_mailboxInfoProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_gms_IpMailbox_setInfoProperties_mailboxInfoProperties);
 
         for (i_org_csapi_gms_IpMailbox_setInfoProperties_mailboxInfoProperties=0; i_org_csapi_gms_IpMailbox_setInfoProperties_mailboxInfoProperties < u_octet4_loop_org_csapi_gms_IpMailbox_setInfoProperties_mailboxInfoProperties; i_org_csapi_gms_IpMailbox_setInfoProperties_mailboxInfoProperties++) {
@@ -27472,6 +27703,7 @@ decode_org_csapi_gms_IpMessage_getInfoProperties(tvbuff_t *tvb _U_, packet_info 
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_gms_IpMessage_getInfoProperties_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_getInfoProperties_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_gms_IpMessage_getInfoProperties_return);
 
             for (i_org_csapi_gms_IpMessage_getInfoProperties_return=0; i_org_csapi_gms_IpMessage_getInfoProperties_return < u_octet4_loop_org_csapi_gms_IpMessage_getInfoProperties_return; i_org_csapi_gms_IpMessage_getInfoProperties_return++) {
@@ -27520,6 +27752,7 @@ decode_org_csapi_gms_IpMessage_setInfoProperties(tvbuff_t *tvb _U_, packet_info 
         proto_tree_add_int(tree, hf_org_csapi_gms_IpMessage_setInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_gms_IpMessage_setInfoProperties_messageInfoProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpMessage_setInfoProperties_messageInfoProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_gms_IpMessage_setInfoProperties_messageInfoProperties);
 
         for (i_org_csapi_gms_IpMessage_setInfoProperties_messageInfoProperties=0; i_org_csapi_gms_IpMessage_setInfoProperties_messageInfoProperties < u_octet4_loop_org_csapi_gms_IpMessage_setInfoProperties_messageInfoProperties; i_org_csapi_gms_IpMessage_setInfoProperties_messageInfoProperties++) {
@@ -27681,6 +27914,7 @@ decode_org_csapi_gms_IpMailboxFolder_getInfoProperties(tvbuff_t *tvb _U_, packet
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_gms_IpMailboxFolder_getInfoProperties_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_getInfoProperties_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_gms_IpMailboxFolder_getInfoProperties_return);
 
             for (i_org_csapi_gms_IpMailboxFolder_getInfoProperties_return=0; i_org_csapi_gms_IpMailboxFolder_getInfoProperties_return < u_octet4_loop_org_csapi_gms_IpMailboxFolder_getInfoProperties_return; i_org_csapi_gms_IpMailboxFolder_getInfoProperties_return++) {
@@ -27727,6 +27961,7 @@ decode_org_csapi_gms_IpMailboxFolder_setInfoProperties(tvbuff_t *tvb _U_, packet
         proto_tree_add_int(tree, hf_org_csapi_gms_IpMailboxFolder_setInfoProperties_firstProperty, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderInfoProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderInfoProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderInfoProperties);
 
         for (i_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderInfoProperties=0; i_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderInfoProperties < u_octet4_loop_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderInfoProperties; i_org_csapi_gms_IpMailboxFolder_setInfoProperties_folderInfoProperties++) {
@@ -27779,6 +28014,7 @@ decode_org_csapi_gms_IpMailboxFolder_putMessage(tvbuff_t *tvb _U_, packet_info *
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_gms_IpMailboxFolder_putMessage_message);
 
         u_octet4_loop_org_csapi_gms_IpMailboxFolder_putMessage_messageInfoProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_IpMailboxFolder_putMessage_messageInfoProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_gms_IpMailboxFolder_putMessage_messageInfoProperties);
 
         for (i_org_csapi_gms_IpMailboxFolder_putMessage_messageInfoProperties=0; i_org_csapi_gms_IpMailboxFolder_putMessage_messageInfoProperties < u_octet4_loop_org_csapi_gms_IpMailboxFolder_putMessage_messageInfoProperties; i_org_csapi_gms_IpMailboxFolder_putMessage_messageInfoProperties++) {
@@ -27997,6 +28233,7 @@ decode_org_csapi_cm_IpVPrP_getStatus(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cm_IpVPrP_getStatus_return, tvb, *offset-4, 4, u_octet4);
 
             break;
@@ -28162,6 +28399,7 @@ decode_org_csapi_cm_IpVPrN_getVPrPList(tvbuff_t *tvb _U_, packet_info *pinfo _U_
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cm_IpVPrN_getVPrPList_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cm_IpVPrN_getVPrPList_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cm_IpVPrN_getVPrPList_return);
 
             for (i_org_csapi_cm_IpVPrN_getVPrPList_return=0; i_org_csapi_cm_IpVPrN_getVPrPList_return < u_octet4_loop_org_csapi_cm_IpVPrN_getVPrPList_return; i_org_csapi_cm_IpVPrN_getVPrPList_return++) {
@@ -28337,6 +28575,7 @@ decode_org_csapi_cm_IpQoSMenu_getTemplateList(tvbuff_t *tvb _U_, packet_info *pi
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cm_IpQoSMenu_getTemplateList_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cm_IpQoSMenu_getTemplateList_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cm_IpQoSMenu_getTemplateList_return);
 
             for (i_org_csapi_cm_IpQoSMenu_getTemplateList_return=0; i_org_csapi_cm_IpQoSMenu_getTemplateList_return < u_octet4_loop_org_csapi_cm_IpQoSMenu_getTemplateList_return; i_org_csapi_cm_IpQoSMenu_getTemplateList_return++) {
@@ -28767,6 +29006,7 @@ decode_org_csapi_cm_IpEnterpriseNetwork_getSiteList(tvbuff_t *tvb _U_, packet_in
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cm_IpEnterpriseNetwork_getSiteList_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cm_IpEnterpriseNetwork_getSiteList_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cm_IpEnterpriseNetwork_getSiteList_return);
 
             for (i_org_csapi_cm_IpEnterpriseNetwork_getSiteList_return=0; i_org_csapi_cm_IpEnterpriseNetwork_getSiteList_return < u_octet4_loop_org_csapi_cm_IpEnterpriseNetwork_getSiteList_return; i_org_csapi_cm_IpEnterpriseNetwork_getSiteList_return++) {
@@ -28874,6 +29114,7 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList(tvbuff_t *tvb _U_, packet
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList_return);
 
             for (i_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList_return=0; i_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList_return < u_octet4_loop_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList_return; i_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList_return++) {
@@ -29110,6 +29351,7 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceRes(tvbuff_t *tvb _U_, packe
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceRes_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_am_IpAppAccountManager_queryBalanceRes_balances = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceRes_balances, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_IpAppAccountManager_queryBalanceRes_balances);
 
         for (i_org_csapi_am_IpAppAccountManager_queryBalanceRes_balances=0; i_org_csapi_am_IpAppAccountManager_queryBalanceRes_balances < u_octet4_loop_org_csapi_am_IpAppAccountManager_queryBalanceRes_balances; i_org_csapi_am_IpAppAccountManager_queryBalanceRes_balances++) {
@@ -29157,6 +29399,7 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceErr(tvbuff_t *tvb _U_, packe
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceErr_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceErr_cause, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -29198,6 +29441,7 @@ decode_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes(tvbuff_t *
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_retrievalID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_transactionHistory = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_transactionHistory, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_transactionHistory);
 
         for (i_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_transactionHistory=0; i_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_transactionHistory < u_octet4_loop_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_transactionHistory; i_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryRes_transactionHistory++) {
@@ -29245,6 +29489,7 @@ decode_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryErr(tvbuff_t *
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryErr_retrievalID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_retrieveTransactionHistoryErr_transactionHistoryError, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -29286,6 +29531,7 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes(tvbuff_t *tvb 
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_dates = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_dates, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_dates);
 
         for (i_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_dates=0; i_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_dates < u_octet4_loop_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_dates; i_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateRes_dates++) {
@@ -29333,6 +29579,7 @@ decode_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateErr(tvbuff_t *tvb 
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateErr_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryBalanceExpiryDateErr_cause, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -29409,6 +29656,7 @@ decode_org_csapi_am_IpAppAccountManager_updateBalanceErr(tvbuff_t *tvb _U_, pack
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_updateBalanceErr_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_updateBalanceErr_cause, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -29484,6 +29732,7 @@ decode_org_csapi_am_IpAppAccountManager_createVoucherErr(tvbuff_t *tvb _U_, pack
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_createVoucherErr_requestId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_createVoucherErr_cause, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -29561,6 +29810,7 @@ decode_org_csapi_am_IpAppAccountManager_destroyVoucherErr(tvbuff_t *tvb _U_, pac
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_destroyVoucherErr_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_destroyVoucherErr_cause, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -29639,6 +29889,7 @@ decode_org_csapi_am_IpAppAccountManager_queryVoucherErr(tvbuff_t *tvb _U_, packe
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryVoucherErr_voucherId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryVoucherErr_cause, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -29680,6 +29931,7 @@ decode_org_csapi_am_IpAppAccountManager_queryUserVouchersRes(tvbuff_t *tvb _U_, 
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_vouchers = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_vouchers, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_vouchers);
 
         for (i_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_vouchers=0; i_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_vouchers < u_octet4_loop_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_vouchers; i_org_csapi_am_IpAppAccountManager_queryUserVouchersRes_vouchers++) {
@@ -29727,6 +29979,7 @@ decode_org_csapi_am_IpAppAccountManager_queryUserVouchersErr(tvbuff_t *tvb _U_, 
         proto_tree_add_int(tree, hf_org_csapi_am_IpAppAccountManager_queryUserVouchersErr_queryId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAppAccountManager_queryUserVouchersErr_cause, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -29835,6 +30088,7 @@ decode_org_csapi_am_IpAccountManager_queryBalanceReq(tvbuff_t *tvb _U_, packet_i
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_am_IpAccountManager_queryBalanceReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_queryBalanceReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_IpAccountManager_queryBalanceReq_users);
 
         for (i_org_csapi_am_IpAccountManager_queryBalanceReq_users=0; i_org_csapi_am_IpAccountManager_queryBalanceReq_users < u_octet4_loop_org_csapi_am_IpAccountManager_queryBalanceReq_users; i_org_csapi_am_IpAccountManager_queryBalanceReq_users++) {
@@ -29921,6 +30175,7 @@ decode_org_csapi_am_IpAccountManager_getNotification(tvbuff_t *tvb _U_, packet_i
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_am_IpAccountManager_getNotification_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_getNotification_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_IpAccountManager_getNotification_return);
 
             for (i_org_csapi_am_IpAccountManager_getNotification_return=0; i_org_csapi_am_IpAccountManager_getNotification_return < u_octet4_loop_org_csapi_am_IpAccountManager_getNotification_return; i_org_csapi_am_IpAccountManager_getNotification_return++) {
@@ -30062,6 +30317,7 @@ decode_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq(tvbuff_t *tvb _U_
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq_users);
 
         for (i_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq_users=0; i_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq_users < u_octet4_loop_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq_users; i_org_csapi_am_IpAccountManager_queryBalanceExpiryDateReq_users++) {
@@ -30289,6 +30545,7 @@ decode_org_csapi_cs_IpAppChargingSession_creditAmountErr(tvbuff_t *tvb _U_, pack
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -30376,6 +30633,7 @@ decode_org_csapi_cs_IpAppChargingSession_creditUnitErr(tvbuff_t *tvb _U_, packet
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -30423,6 +30681,7 @@ decode_org_csapi_cs_IpAppChargingSession_creditUnitRes(tvbuff_t *tvb _U_, packet
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_creditUnitRes_creditedVolumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitRes_creditedVolumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_creditUnitRes_creditedVolumes);
 
         for (i_org_csapi_cs_IpAppChargingSession_creditUnitRes_creditedVolumes=0; i_org_csapi_cs_IpAppChargingSession_creditUnitRes_creditedVolumes < u_octet4_loop_org_csapi_cs_IpAppChargingSession_creditUnitRes_creditedVolumes; i_org_csapi_cs_IpAppChargingSession_creditUnitRes_creditedVolumes++) {
@@ -30433,6 +30692,7 @@ decode_org_csapi_cs_IpAppChargingSession_creditUnitRes(tvbuff_t *tvb _U_, packet
         }
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_creditUnitRes_reservedUnitsLeft = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_creditUnitRes_reservedUnitsLeft, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_creditUnitRes_reservedUnitsLeft);
 
         for (i_org_csapi_cs_IpAppChargingSession_creditUnitRes_reservedUnitsLeft=0; i_org_csapi_cs_IpAppChargingSession_creditUnitRes_reservedUnitsLeft < u_octet4_loop_org_csapi_cs_IpAppChargingSession_creditUnitRes_reservedUnitsLeft; i_org_csapi_cs_IpAppChargingSession_creditUnitRes_reservedUnitsLeft++) {
@@ -30484,6 +30744,7 @@ decode_org_csapi_cs_IpAppChargingSession_debitAmountErr(tvbuff_t *tvb _U_, packe
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -30571,6 +30832,7 @@ decode_org_csapi_cs_IpAppChargingSession_debitUnitErr(tvbuff_t *tvb _U_, packet_
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -30618,6 +30880,7 @@ decode_org_csapi_cs_IpAppChargingSession_debitUnitRes(tvbuff_t *tvb _U_, packet_
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_debitUnitRes_debitedVolumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitRes_debitedVolumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_debitUnitRes_debitedVolumes);
 
         for (i_org_csapi_cs_IpAppChargingSession_debitUnitRes_debitedVolumes=0; i_org_csapi_cs_IpAppChargingSession_debitUnitRes_debitedVolumes < u_octet4_loop_org_csapi_cs_IpAppChargingSession_debitUnitRes_debitedVolumes; i_org_csapi_cs_IpAppChargingSession_debitUnitRes_debitedVolumes++) {
@@ -30628,6 +30891,7 @@ decode_org_csapi_cs_IpAppChargingSession_debitUnitRes(tvbuff_t *tvb _U_, packet_
         }
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_debitUnitRes_reservedUnitsLeft = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_debitUnitRes_reservedUnitsLeft, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_debitUnitRes_reservedUnitsLeft);
 
         for (i_org_csapi_cs_IpAppChargingSession_debitUnitRes_reservedUnitsLeft=0; i_org_csapi_cs_IpAppChargingSession_debitUnitRes_reservedUnitsLeft < u_octet4_loop_org_csapi_cs_IpAppChargingSession_debitUnitRes_reservedUnitsLeft; i_org_csapi_cs_IpAppChargingSession_debitUnitRes_reservedUnitsLeft++) {
@@ -30679,6 +30943,7 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditAmountErr(tvbuff_t *tvb _U_
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -30763,6 +31028,7 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditUnitErr(tvbuff_t *tvb _U_, 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -30808,6 +31074,7 @@ decode_org_csapi_cs_IpAppChargingSession_directCreditUnitRes(tvbuff_t *tvb _U_, 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_creditedVolumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_creditedVolumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_creditedVolumes);
 
         for (i_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_creditedVolumes=0; i_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_creditedVolumes < u_octet4_loop_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_creditedVolumes; i_org_csapi_cs_IpAppChargingSession_directCreditUnitRes_creditedVolumes++) {
@@ -30859,6 +31126,7 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitAmountErr(tvbuff_t *tvb _U_,
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -30943,6 +31211,7 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitUnitErr(tvbuff_t *tvb _U_, p
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -30988,6 +31257,7 @@ decode_org_csapi_cs_IpAppChargingSession_directDebitUnitRes(tvbuff_t *tvb _U_, p
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_debitedVolumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_debitedVolumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_debitedVolumes);
 
         for (i_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_debitedVolumes=0; i_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_debitedVolumes < u_octet4_loop_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_debitedVolumes; i_org_csapi_cs_IpAppChargingSession_directDebitUnitRes_debitedVolumes++) {
@@ -31037,6 +31307,7 @@ decode_org_csapi_cs_IpAppChargingSession_extendLifeTimeErr(tvbuff_t *tvb _U_, pa
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_extendLifeTimeErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_extendLifeTimeErr_error, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -31112,6 +31383,7 @@ decode_org_csapi_cs_IpAppChargingSession_rateErr(tvbuff_t *tvb _U_, packet_info 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_rateErr_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_rateErr_error, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -31153,6 +31425,7 @@ decode_org_csapi_cs_IpAppChargingSession_rateRes(tvbuff_t *tvb _U_, packet_info 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_rateRes_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_rateRes_rates = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_rateRes_rates, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_rateRes_rates);
 
         for (i_org_csapi_cs_IpAppChargingSession_rateRes_rates=0; i_org_csapi_cs_IpAppChargingSession_rateRes_rates < u_octet4_loop_org_csapi_cs_IpAppChargingSession_rateRes_rates; i_org_csapi_cs_IpAppChargingSession_rateRes_rates++) {
@@ -31204,6 +31477,7 @@ decode_org_csapi_cs_IpAppChargingSession_reserveAmountErr(tvbuff_t *tvb _U_, pac
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveAmountErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -31290,6 +31564,7 @@ decode_org_csapi_cs_IpAppChargingSession_reserveUnitErr(tvbuff_t *tvb _U_, packe
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitErr_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitErr_error, tvb, *offset-4, 4, u_octet4);
 
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitErr_requestNumberNextRequest, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -31335,6 +31610,7 @@ decode_org_csapi_cs_IpAppChargingSession_reserveUnitRes(tvbuff_t *tvb _U_, packe
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitRes_requestNumber, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpAppChargingSession_reserveUnitRes_reservedUnits = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_reserveUnitRes_reservedUnits, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingSession_reserveUnitRes_reservedUnits);
 
         for (i_org_csapi_cs_IpAppChargingSession_reserveUnitRes_reservedUnits=0; i_org_csapi_cs_IpAppChargingSession_reserveUnitRes_reservedUnits < u_octet4_loop_org_csapi_cs_IpAppChargingSession_reserveUnitRes_reservedUnits; i_org_csapi_cs_IpAppChargingSession_reserveUnitRes_reservedUnits++) {
@@ -31386,6 +31662,7 @@ decode_org_csapi_cs_IpAppChargingSession_sessionEnded(tvbuff_t *tvb _U_, packet_
         proto_tree_add_int(tree, hf_org_csapi_cs_IpAppChargingSession_sessionEnded_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingSession_sessionEnded_report, tvb, *offset-4, 4, u_octet4);
 
         break;
@@ -31473,6 +31750,7 @@ decode_org_csapi_cs_IpChargingSession_creditUnitReq(tvbuff_t *tvb _U_, packet_in
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpApplicationDescription"  */
         u_octet4_loop_org_csapi_cs_IpChargingSession_creditUnitReq_volumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_creditUnitReq_volumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_creditUnitReq_volumes);
 
         for (i_org_csapi_cs_IpChargingSession_creditUnitReq_volumes=0; i_org_csapi_cs_IpChargingSession_creditUnitReq_volumes < u_octet4_loop_org_csapi_cs_IpChargingSession_creditUnitReq_volumes; i_org_csapi_cs_IpChargingSession_creditUnitReq_volumes++) {
@@ -31571,6 +31849,7 @@ decode_org_csapi_cs_IpChargingSession_debitUnitReq(tvbuff_t *tvb _U_, packet_inf
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpApplicationDescription"  */
         u_octet4_loop_org_csapi_cs_IpChargingSession_debitUnitReq_volumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_debitUnitReq_volumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_debitUnitReq_volumes);
 
         for (i_org_csapi_cs_IpChargingSession_debitUnitReq_volumes=0; i_org_csapi_cs_IpChargingSession_debitUnitReq_volumes < u_octet4_loop_org_csapi_cs_IpChargingSession_debitUnitReq_volumes; i_org_csapi_cs_IpChargingSession_debitUnitReq_volumes++) {
@@ -31626,6 +31905,7 @@ decode_org_csapi_cs_IpChargingSession_directCreditAmountReq(tvbuff_t *tvb _U_, p
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpApplicationDescription"  */
         u_octet4_loop_org_csapi_cs_IpChargingSession_directCreditAmountReq_chargingParameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directCreditAmountReq_chargingParameters, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_directCreditAmountReq_chargingParameters);
 
         for (i_org_csapi_cs_IpChargingSession_directCreditAmountReq_chargingParameters=0; i_org_csapi_cs_IpChargingSession_directCreditAmountReq_chargingParameters < u_octet4_loop_org_csapi_cs_IpChargingSession_directCreditAmountReq_chargingParameters; i_org_csapi_cs_IpChargingSession_directCreditAmountReq_chargingParameters++) {
@@ -31684,6 +31964,7 @@ decode_org_csapi_cs_IpChargingSession_directCreditUnitReq(tvbuff_t *tvb _U_, pac
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpApplicationDescription"  */
         u_octet4_loop_org_csapi_cs_IpChargingSession_directCreditUnitReq_chargingParameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directCreditUnitReq_chargingParameters, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_directCreditUnitReq_chargingParameters);
 
         for (i_org_csapi_cs_IpChargingSession_directCreditUnitReq_chargingParameters=0; i_org_csapi_cs_IpChargingSession_directCreditUnitReq_chargingParameters < u_octet4_loop_org_csapi_cs_IpChargingSession_directCreditUnitReq_chargingParameters; i_org_csapi_cs_IpChargingSession_directCreditUnitReq_chargingParameters++) {
@@ -31694,6 +31975,7 @@ decode_org_csapi_cs_IpChargingSession_directCreditUnitReq(tvbuff_t *tvb _U_, pac
         }
 
         u_octet4_loop_org_csapi_cs_IpChargingSession_directCreditUnitReq_volumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directCreditUnitReq_volumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_directCreditUnitReq_volumes);
 
         for (i_org_csapi_cs_IpChargingSession_directCreditUnitReq_volumes=0; i_org_csapi_cs_IpChargingSession_directCreditUnitReq_volumes < u_octet4_loop_org_csapi_cs_IpChargingSession_directCreditUnitReq_volumes; i_org_csapi_cs_IpChargingSession_directCreditUnitReq_volumes++) {
@@ -31747,6 +32029,7 @@ decode_org_csapi_cs_IpChargingSession_directDebitAmountReq(tvbuff_t *tvb _U_, pa
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpApplicationDescription"  */
         u_octet4_loop_org_csapi_cs_IpChargingSession_directDebitAmountReq_chargingParameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directDebitAmountReq_chargingParameters, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_directDebitAmountReq_chargingParameters);
 
         for (i_org_csapi_cs_IpChargingSession_directDebitAmountReq_chargingParameters=0; i_org_csapi_cs_IpChargingSession_directDebitAmountReq_chargingParameters < u_octet4_loop_org_csapi_cs_IpChargingSession_directDebitAmountReq_chargingParameters; i_org_csapi_cs_IpChargingSession_directDebitAmountReq_chargingParameters++) {
@@ -31805,6 +32088,7 @@ decode_org_csapi_cs_IpChargingSession_directDebitUnitReq(tvbuff_t *tvb _U_, pack
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpApplicationDescription"  */
         u_octet4_loop_org_csapi_cs_IpChargingSession_directDebitUnitReq_chargingParameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directDebitUnitReq_chargingParameters, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_directDebitUnitReq_chargingParameters);
 
         for (i_org_csapi_cs_IpChargingSession_directDebitUnitReq_chargingParameters=0; i_org_csapi_cs_IpChargingSession_directDebitUnitReq_chargingParameters < u_octet4_loop_org_csapi_cs_IpChargingSession_directDebitUnitReq_chargingParameters; i_org_csapi_cs_IpChargingSession_directDebitUnitReq_chargingParameters++) {
@@ -31815,6 +32099,7 @@ decode_org_csapi_cs_IpChargingSession_directDebitUnitReq(tvbuff_t *tvb _U_, pack
         }
 
         u_octet4_loop_org_csapi_cs_IpChargingSession_directDebitUnitReq_volumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_directDebitUnitReq_volumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_directDebitUnitReq_volumes);
 
         for (i_org_csapi_cs_IpChargingSession_directDebitUnitReq_volumes=0; i_org_csapi_cs_IpChargingSession_directDebitUnitReq_volumes < u_octet4_loop_org_csapi_cs_IpChargingSession_directDebitUnitReq_volumes; i_org_csapi_cs_IpChargingSession_directDebitUnitReq_volumes++) {
@@ -31969,6 +32254,7 @@ decode_org_csapi_cs_IpChargingSession_getUnitLeft(tvbuff_t *tvb _U_, packet_info
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_cs_IpChargingSession_getUnitLeft_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_getUnitLeft_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_getUnitLeft_return);
 
             for (i_org_csapi_cs_IpChargingSession_getUnitLeft_return=0; i_org_csapi_cs_IpChargingSession_getUnitLeft_return < u_octet4_loop_org_csapi_cs_IpChargingSession_getUnitLeft_return; i_org_csapi_cs_IpChargingSession_getUnitLeft_return++) {
@@ -32011,6 +32297,7 @@ decode_org_csapi_cs_IpChargingSession_rateReq(tvbuff_t *tvb _U_, packet_info *pi
         proto_tree_add_int(tree, hf_org_csapi_cs_IpChargingSession_rateReq_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_cs_IpChargingSession_rateReq_chargingParameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_rateReq_chargingParameters, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_rateReq_chargingParameters);
 
         for (i_org_csapi_cs_IpChargingSession_rateReq_chargingParameters=0; i_org_csapi_cs_IpChargingSession_rateReq_chargingParameters < u_octet4_loop_org_csapi_cs_IpChargingSession_rateReq_chargingParameters; i_org_csapi_cs_IpChargingSession_rateReq_chargingParameters++) {
@@ -32097,6 +32384,7 @@ decode_org_csapi_cs_IpChargingSession_reserveAmountReq(tvbuff_t *tvb _U_, packet
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpApplicationDescription"  */
         u_octet4_loop_org_csapi_cs_IpChargingSession_reserveAmountReq_chargingParameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_reserveAmountReq_chargingParameters, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_reserveAmountReq_chargingParameters);
 
         for (i_org_csapi_cs_IpChargingSession_reserveAmountReq_chargingParameters=0; i_org_csapi_cs_IpChargingSession_reserveAmountReq_chargingParameters < u_octet4_loop_org_csapi_cs_IpChargingSession_reserveAmountReq_chargingParameters; i_org_csapi_cs_IpChargingSession_reserveAmountReq_chargingParameters++) {
@@ -32158,6 +32446,7 @@ decode_org_csapi_cs_IpChargingSession_reserveUnitReq(tvbuff_t *tvb _U_, packet_i
         decode_org_csapi_cs_TpApplicationDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpApplicationDescription"  */
         u_octet4_loop_org_csapi_cs_IpChargingSession_reserveUnitReq_chargingParameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_reserveUnitReq_chargingParameters, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_reserveUnitReq_chargingParameters);
 
         for (i_org_csapi_cs_IpChargingSession_reserveUnitReq_chargingParameters=0; i_org_csapi_cs_IpChargingSession_reserveUnitReq_chargingParameters < u_octet4_loop_org_csapi_cs_IpChargingSession_reserveUnitReq_chargingParameters; i_org_csapi_cs_IpChargingSession_reserveUnitReq_chargingParameters++) {
@@ -32168,6 +32457,7 @@ decode_org_csapi_cs_IpChargingSession_reserveUnitReq(tvbuff_t *tvb _U_, packet_i
         }
 
         u_octet4_loop_org_csapi_cs_IpChargingSession_reserveUnitReq_volumes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingSession_reserveUnitReq_volumes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingSession_reserveUnitReq_volumes);
 
         for (i_org_csapi_cs_IpChargingSession_reserveUnitReq_volumes=0; i_org_csapi_cs_IpChargingSession_reserveUnitReq_volumes < u_octet4_loop_org_csapi_cs_IpChargingSession_reserveUnitReq_volumes; i_org_csapi_cs_IpChargingSession_reserveUnitReq_volumes++) {
@@ -32249,6 +32539,7 @@ decode_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions(tvbuff_t 
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet);
 
         for (i_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet=0; i_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet < u_octet4_loop_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet; i_org_csapi_cs_IpAppChargingManager_abortMultipleChargingSessions_chargingSessionSet++) {
@@ -32346,6 +32637,7 @@ decode_org_csapi_cs_IpChargingManager_createSplitChargingSession(tvbuff_t *tvb _
         decode_org_csapi_cs_TpMerchantAccountID_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_cs_TpMerchantAccountID"  */
         u_octet4_loop_org_csapi_cs_IpChargingManager_createSplitChargingSession_users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_IpChargingManager_createSplitChargingSession_users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_IpChargingManager_createSplitChargingSession_users);
 
         for (i_org_csapi_cs_IpChargingManager_createSplitChargingSession_users=0; i_org_csapi_cs_IpChargingManager_createSplitChargingSession_users < u_octet4_loop_org_csapi_cs_IpChargingManager_createSplitChargingSession_users; i_org_csapi_cs_IpChargingManager_createSplitChargingSession_users++) {
@@ -32434,6 +32726,7 @@ decode_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes(tvbuff_t *tvb
         proto_tree_add_int(tree, hf_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_outputVariables = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_outputVariables, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_outputVariables);
 
         for (i_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_outputVariables=0; i_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_outputVariables < u_octet4_loop_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_outputVariables; i_org_csapi_policy_evaluation_IpAppPolicyDomain_evalPolicyRes_outputVariables++) {
@@ -32521,6 +32814,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy(tvbuff_t *tvb 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_signatureName);
 
         u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_inputVariables = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_inputVariables, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_inputVariables);
 
         for (i_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_inputVariables=0; i_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_inputVariables < u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_inputVariables; i_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_inputVariables++) {
@@ -32535,6 +32829,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy(tvbuff_t *tvb 
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_return);
 
             for (i_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_return=0; i_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_return < u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_return; i_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy_return++) {
@@ -32579,6 +32874,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq(tvbuff_t *t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq_signatureName);
 
         u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq_inputVariables = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq_inputVariables, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq_inputVariables);
 
         for (i_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq_inputVariables=0; i_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq_inputVariables < u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq_inputVariables; i_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq_inputVariables++) {
@@ -32666,6 +32962,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent(tvbuff_t *t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent_eventDefinitionName);
 
         u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent_attributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent_attributes);
 
         for (i_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent_attributes=0; i_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent_attributes < u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent_attributes; i_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent_attributes++) {
@@ -32716,6 +33013,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification(tvbuff
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification_events = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification_events, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification_events);
 
         for (i_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification_events=0; i_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification_events < u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification_events; i_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification_events++) {
@@ -32763,6 +33061,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification(tvbuf
         proto_tree_add_int(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_events = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_events, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_events);
 
         for (i_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_events=0; i_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_events < u_octet4_loop_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_events; i_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification_events++) {
@@ -32878,6 +33177,7 @@ decode_org_csapi_policy_provisioning_IpPolicy_getAttributes(tvbuff_t *tvb _U_, p
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicy_getAttributes_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicy_getAttributes_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicy_getAttributes_attributeNames);
 
         for (i_org_csapi_policy_provisioning_IpPolicy_getAttributes_attributeNames=0; i_org_csapi_policy_provisioning_IpPolicy_getAttributes_attributeNames < u_octet4_loop_org_csapi_policy_provisioning_IpPolicy_getAttributes_attributeNames; i_org_csapi_policy_provisioning_IpPolicy_getAttributes_attributeNames++) {
@@ -32891,6 +33191,7 @@ decode_org_csapi_policy_provisioning_IpPolicy_getAttributes(tvbuff_t *tvb _U_, p
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicy_getAttributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicy_getAttributes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicy_getAttributes_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicy_getAttributes_return=0; i_org_csapi_policy_provisioning_IpPolicy_getAttributes_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicy_getAttributes_return; i_org_csapi_policy_provisioning_IpPolicy_getAttributes_return++) {
@@ -32931,6 +33232,7 @@ decode_org_csapi_policy_provisioning_IpPolicy_setAttributes(tvbuff_t *tvb _U_, p
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicy_setAttributes_targetAttributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicy_setAttributes_targetAttributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicy_setAttributes_targetAttributes);
 
         for (i_org_csapi_policy_provisioning_IpPolicy_setAttributes_targetAttributes=0; i_org_csapi_policy_provisioning_IpPolicy_setAttributes_targetAttributes < u_octet4_loop_org_csapi_policy_provisioning_IpPolicy_setAttributes_targetAttributes; i_org_csapi_policy_provisioning_IpPolicy_setAttributes_targetAttributes++) {
@@ -32985,6 +33287,7 @@ decode_org_csapi_policy_provisioning_IpPolicyIterator_getList(tvbuff_t *tvb _U_,
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicyIterator_getList_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyIterator_getList_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyIterator_getList_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicyIterator_getList_return=0; i_org_csapi_policy_provisioning_IpPolicyIterator_getList_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyIterator_getList_return; i_org_csapi_policy_provisioning_IpPolicyIterator_getList_return++) {
@@ -33219,9 +33522,11 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_createCondition(tvbuff_t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_provisioning_IpPolicyRepository_createCondition_conditionName);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRepository_createCondition_conditionType, tvb, *offset-4, 4, u_octet4);
 
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRepository_createCondition_conditionAttributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRepository_createCondition_conditionAttributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRepository_createCondition_conditionAttributes);
 
         for (i_org_csapi_policy_provisioning_IpPolicyRepository_createCondition_conditionAttributes=0; i_org_csapi_policy_provisioning_IpPolicyRepository_createCondition_conditionAttributes < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRepository_createCondition_conditionAttributes; i_org_csapi_policy_provisioning_IpPolicyRepository_createCondition_conditionAttributes++) {
@@ -33399,9 +33704,11 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_createAction(tvbuff_t *t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_provisioning_IpPolicyRepository_createAction_actionName);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRepository_createAction_actionType, tvb, *offset-4, 4, u_octet4);
 
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRepository_createAction_actionAttributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRepository_createAction_actionAttributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRepository_createAction_actionAttributes);
 
         for (i_org_csapi_policy_provisioning_IpPolicyRepository_createAction_actionAttributes=0; i_org_csapi_policy_provisioning_IpPolicyRepository_createAction_actionAttributes < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRepository_createAction_actionAttributes; i_org_csapi_policy_provisioning_IpPolicyRepository_createAction_actionAttributes++) {
@@ -33641,9 +33948,11 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_createCondition(tvbuff_t *tvb 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_provisioning_IpPolicyRule_createCondition_conditionName);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_createCondition_conditionType, tvb, *offset-4, 4, u_octet4);
 
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_createCondition_conditionAttributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_createCondition_conditionAttributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_createCondition_conditionAttributes);
 
         for (i_org_csapi_policy_provisioning_IpPolicyRule_createCondition_conditionAttributes=0; i_org_csapi_policy_provisioning_IpPolicyRule_createCondition_conditionAttributes < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_createCondition_conditionAttributes; i_org_csapi_policy_provisioning_IpPolicyRule_createCondition_conditionAttributes++) {
@@ -33821,9 +34130,11 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_createAction(tvbuff_t *tvb _U_
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_provisioning_IpPolicyRule_createAction_actionName);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_createAction_actionType, tvb, *offset-4, 4, u_octet4);
 
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_createAction_actionAttributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_createAction_actionAttributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_createAction_actionAttributes);
 
         for (i_org_csapi_policy_provisioning_IpPolicyRule_createAction_actionAttributes=0; i_org_csapi_policy_provisioning_IpPolicyRule_createAction_actionAttributes < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_createAction_actionAttributes; i_org_csapi_policy_provisioning_IpPolicyRule_createAction_actionAttributes++) {
@@ -34126,6 +34437,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_setConditionList(tvbuff_t *tvb
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_setConditionList_conditionList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_setConditionList_conditionList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_setConditionList_conditionList);
 
         for (i_org_csapi_policy_provisioning_IpPolicyRule_setConditionList_conditionList=0; i_org_csapi_policy_provisioning_IpPolicyRule_setConditionList_conditionList < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_setConditionList_conditionList; i_org_csapi_policy_provisioning_IpPolicyRule_setConditionList_conditionList++) {
@@ -34176,6 +34488,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getConditionList(tvbuff_t *tvb
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_getConditionList_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_getConditionList_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_getConditionList_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicyRule_getConditionList_return=0; i_org_csapi_policy_provisioning_IpPolicyRule_getConditionList_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_getConditionList_return; i_org_csapi_policy_provisioning_IpPolicyRule_getConditionList_return++) {
@@ -34216,6 +34529,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_setActionList(tvbuff_t *tvb _U
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_setActionList_actionList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_setActionList_actionList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_setActionList_actionList);
 
         for (i_org_csapi_policy_provisioning_IpPolicyRule_setActionList_actionList=0; i_org_csapi_policy_provisioning_IpPolicyRule_setActionList_actionList < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_setActionList_actionList; i_org_csapi_policy_provisioning_IpPolicyRule_setActionList_actionList++) {
@@ -34266,6 +34580,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getActionList(tvbuff_t *tvb _U
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_getActionList_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyRule_getActionList_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_getActionList_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicyRule_getActionList_return=0; i_org_csapi_policy_provisioning_IpPolicyRule_getActionList_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyRule_getActionList_return; i_org_csapi_policy_provisioning_IpPolicyRule_getActionList_return++) {
@@ -34469,6 +34784,7 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains(tvbuff_
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_matchingAttributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_matchingAttributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_matchingAttributes);
 
         for (i_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_matchingAttributes=0; i_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_matchingAttributes < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_matchingAttributes; i_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_matchingAttributes++) {
@@ -34483,6 +34799,7 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains(tvbuff_
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_return=0; i_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_return; i_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains_return++) {
@@ -35160,6 +35477,7 @@ decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_setRequiredAttribut
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_setRequiredAttributes_requiredAttributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyEventDefinition_setRequiredAttributes_requiredAttributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_setRequiredAttributes_requiredAttributes);
 
         for (i_org_csapi_policy_provisioning_IpPolicyEventDefinition_setRequiredAttributes_requiredAttributes=0; i_org_csapi_policy_provisioning_IpPolicyEventDefinition_setRequiredAttributes_requiredAttributes < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_setRequiredAttributes_requiredAttributes; i_org_csapi_policy_provisioning_IpPolicyEventDefinition_setRequiredAttributes_requiredAttributes++) {
@@ -35206,6 +35524,7 @@ decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_setOptionalAttribut
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_setOptionalAttributes_optionalAttributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyEventDefinition_setOptionalAttributes_optionalAttributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_setOptionalAttributes_optionalAttributes);
 
         for (i_org_csapi_policy_provisioning_IpPolicyEventDefinition_setOptionalAttributes_optionalAttributes=0; i_org_csapi_policy_provisioning_IpPolicyEventDefinition_setOptionalAttributes_optionalAttributes < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_setOptionalAttributes_optionalAttributes; i_org_csapi_policy_provisioning_IpPolicyEventDefinition_setOptionalAttributes_optionalAttributes++) {
@@ -35256,6 +35575,7 @@ decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_getRequiredAttribut
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_getRequiredAttributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyEventDefinition_getRequiredAttributes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_getRequiredAttributes_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicyEventDefinition_getRequiredAttributes_return=0; i_org_csapi_policy_provisioning_IpPolicyEventDefinition_getRequiredAttributes_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_getRequiredAttributes_return; i_org_csapi_policy_provisioning_IpPolicyEventDefinition_getRequiredAttributes_return++) {
@@ -35300,6 +35620,7 @@ decode_org_csapi_policy_provisioning_IpPolicyEventDefinition_getOptionalAttribut
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_getOptionalAttributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyEventDefinition_getOptionalAttributes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_getOptionalAttributes_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicyEventDefinition_getOptionalAttributes_return=0; i_org_csapi_policy_provisioning_IpPolicyEventDefinition_getOptionalAttributes_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyEventDefinition_getOptionalAttributes_return; i_org_csapi_policy_provisioning_IpPolicyEventDefinition_getOptionalAttributes_return++) {
@@ -35495,6 +35816,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables(tvbuff_
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables_inputVariables = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables_inputVariables, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables_inputVariables);
 
         for (i_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables_inputVariables=0; i_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables_inputVariables < u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables_inputVariables; i_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables_inputVariables++) {
@@ -35540,6 +35862,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables(tvbuff
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables_outputVariables = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables_outputVariables, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables_outputVariables);
 
         for (i_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables_outputVariables=0; i_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables_outputVariables < u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables_outputVariables; i_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables_outputVariables++) {
@@ -35589,6 +35912,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables(tvbuff_
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables_return=0; i_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables_return; i_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables_return++) {
@@ -35632,6 +35956,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables(tvbuff
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables_return=0; i_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables_return; i_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables_return++) {
@@ -35671,6 +35996,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames(tvbuff_t *t
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames_groupNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames_groupNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames_groupNames);
 
         for (i_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames_groupNames=0; i_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames_groupNames < u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames_groupNames; i_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames_groupNames++) {
@@ -35716,6 +36042,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles(tvbuff_t *
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles_roleNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles_roleNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles_roleNames);
 
         for (i_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles_roleNames=0; i_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles_roleNames < u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles_roleNames; i_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles_roleNames++) {
@@ -35765,6 +36092,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames(tvbuff_t *t
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames_return=0; i_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames_return; i_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames_return++) {
@@ -35808,6 +36136,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles(tvbuff_t *
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles_return=0; i_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles_return; i_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles_return++) {
@@ -36396,6 +36725,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition(tvbuff
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_eventDefinitionName);
 
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_requiredAttributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_requiredAttributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_requiredAttributes);
 
         for (i_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_requiredAttributes=0; i_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_requiredAttributes < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_requiredAttributes; i_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_requiredAttributes++) {
@@ -36405,6 +36735,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition(tvbuff
         }
 
         u_octet4_loop_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_optionalAttributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_optionalAttributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_optionalAttributes);
 
         for (i_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_optionalAttributes=0; i_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_optionalAttributes < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_optionalAttributes; i_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition_optionalAttributes++) {
@@ -36617,6 +36948,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet(tvbuff_t *tvb
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet_return);
 
             for (i_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet_return=0; i_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet_return < u_octet4_loop_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet_return; i_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet_return++) {
@@ -37138,6 +37470,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity(tvbuff_
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_identityTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_identityTypes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_identityTypes);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_identityTypes=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_identityTypes < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_identityTypes; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_identityTypes++) {
@@ -37147,6 +37480,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity(tvbuff_
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity_authToken++) {
@@ -37194,6 +37528,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity(tvbuff_
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity_authToken++) {
@@ -37241,6 +37576,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity(tvbuff_t *t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity_authToken++) {
@@ -37290,6 +37626,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity(tv
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_identityTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_identityTypes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_identityTypes);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_identityTypes=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_identityTypes < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_identityTypes; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_identityTypes++) {
@@ -37299,6 +37636,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity(tv
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity_authToken++) {
@@ -37346,6 +37684,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity(tv
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity_authToken++) {
@@ -37395,6 +37734,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup(tvbuff_t *t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup_member);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup_authToken++) {
@@ -37444,6 +37784,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup(tvbuff
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup_authToken++) {
@@ -37493,6 +37834,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers(tvbuff_t *
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_authToken++) {
@@ -37506,6 +37848,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers(tvbuff_t *
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_return=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_return; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers_return++) {
@@ -37547,6 +37890,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity(tvbuff
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity_authToken++) {
@@ -37596,6 +37940,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership(tv
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_authToken++) {
@@ -37609,6 +37954,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership(tv
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_return=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_return; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership_return++) {
@@ -37652,6 +37998,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias(tvbuff_t *tvb
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias_alias);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias_authToken++) {
@@ -37701,6 +38048,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases(tvbuff_t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases_alias);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases_authToken++) {
@@ -37750,6 +38098,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases(tvbuff_t *
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_authToken++) {
@@ -37763,6 +38112,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases(tvbuff_t *
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_return=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_return; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases_return++) {
@@ -37804,6 +38154,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias(tvbuff_t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias_alias);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias_authToken++) {
@@ -37853,6 +38204,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes(tvbuff_
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_identityTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_identityTypes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_identityTypes);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_identityTypes=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_identityTypes < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_identityTypes; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_identityTypes++) {
@@ -37862,6 +38214,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes(tvbuff_
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes_authToken++) {
@@ -37911,6 +38264,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes(tvbu
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_identityTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_identityTypes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_identityTypes);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_identityTypes=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_identityTypes < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_identityTypes; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_identityTypes++) {
@@ -37920,6 +38274,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes(tvbu
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes_authToken++) {
@@ -37969,6 +38324,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity(tv
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_authToken++) {
@@ -37982,6 +38338,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity(tv
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_return=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_return; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity_return++) {
@@ -38025,6 +38382,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType(tvbuff_t *tvb 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType_authToken++) {
@@ -38078,6 +38436,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes(
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_identityType);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_attributeNames);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_attributeNames=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_attributeNames < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_attributeNames; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_attributeNames++) {
@@ -38087,6 +38446,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes(
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_authToken++) {
@@ -38100,6 +38460,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes(
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_return=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_return; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes_return++) {
@@ -38146,6 +38507,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes(
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_identityType);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_attributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_attributes);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_attributes=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_attributes < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_attributes; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_attributes++) {
@@ -38156,6 +38518,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes(
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes_authToken++) {
@@ -38205,6 +38568,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent(tvbuff_t *tvb
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_agentTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_agentTypes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_agentTypes);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_agentTypes=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_agentTypes < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_agentTypes; i_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_agentTypes++) {
@@ -38214,6 +38578,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent(tvbuff_t *tvb
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent_authToken++) {
@@ -38261,6 +38626,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent(tvbuff_t *tvb
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent_authToken++) {
@@ -38308,6 +38674,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent(tvbuff_t *tvb _U_
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent_authToken++) {
@@ -38357,6 +38724,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities(tvbuff
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_capabilities, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_capabilities);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_capabilities=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_capabilities < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_capabilities; i_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_capabilities++) {
@@ -38366,6 +38734,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities(tvbuff
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities_authToken++) {
@@ -38415,6 +38784,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities(tvbuf
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_capabilities, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_capabilities);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_capabilities=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_capabilities < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_capabilities; i_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_capabilities++) {
@@ -38424,6 +38794,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities(tvbuf
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities_authToken++) {
@@ -38473,6 +38844,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities(t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_authToken++) {
@@ -38486,6 +38858,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities(t
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_return=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_return; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities_return++) {
@@ -38529,6 +38902,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities(tvbuf
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_authToken++) {
@@ -38542,6 +38916,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities(tvbuf
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_return=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_return; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities_return++) {
@@ -38585,6 +38960,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf(tvbuff_t *tvb
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf_capability);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf_authToken++) {
@@ -38634,6 +39010,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes(tvbuff_t *
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_agentTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_agentTypes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_agentTypes);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_agentTypes=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_agentTypes < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_agentTypes; i_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_agentTypes++) {
@@ -38643,6 +39020,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes(tvbuff_t *
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes_authToken++) {
@@ -38692,6 +39070,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes(tvbuff_
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_agentTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_agentTypes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_agentTypes);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_agentTypes=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_agentTypes < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_agentTypes; i_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_agentTypes++) {
@@ -38701,6 +39080,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes(tvbuff_
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes_authToken++) {
@@ -38750,6 +39130,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent(tvbuff_t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_authToken++) {
@@ -38763,6 +39144,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent(tvbuff_t
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_return=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_return; i_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent_return++) {
@@ -38806,6 +39188,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType(tvbuff_t *tvb _U_
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType_authToken++) {
@@ -38859,6 +39242,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes(tvbuff
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_agentType);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_attributeNames);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_attributeNames=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_attributeNames < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_attributeNames; i_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_attributeNames++) {
@@ -38868,6 +39252,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes(tvbuff
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_authToken++) {
@@ -38881,6 +39266,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes(tvbuff
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_return=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_return; i_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes_return++) {
@@ -38927,6 +39313,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes(tvbuff
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_agentType);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_attributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_attributes);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_attributes=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_attributes < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_attributes; i_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_attributes++) {
@@ -38937,6 +39324,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes(tvbuff
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes_authToken++) {
@@ -38986,6 +39374,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent(tvbuff_t *tvb
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent_authToken; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent_authToken++) {
@@ -39035,6 +39424,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent(tvbuff_t *t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent_authToken; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent_authToken++) {
@@ -39084,6 +39474,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents(tvbuff
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_authToken; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_authToken++) {
@@ -39097,6 +39488,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents(tvbuff
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_return=0; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_return; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents_return++) {
@@ -39140,6 +39532,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesO
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_agentName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_authToken; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_authToken++) {
@@ -39153,6 +39546,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesO
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_return=0; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_return; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesOfAgent_return++) {
@@ -39198,6 +39592,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapab
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_capability);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_authToken; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_authToken++) {
@@ -39211,6 +39606,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapab
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_return=0; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_return; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapability_return++) {
@@ -39254,6 +39650,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentit
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_authToken; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_authToken++) {
@@ -39267,6 +39664,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentit
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_return=0; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_return; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentity_return++) {
@@ -39310,6 +39708,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf(tvbuf
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf_capability);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf_authToken; i_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf_authToken++) {
@@ -39358,6 +39757,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityAttr
         decode_org_csapi_pam_TpPAMAttributeDef_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_pam_TpPAMAttributeDef"  */
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityAttribute_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityAttribute_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityAttribute_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityAttribute_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityAttribute_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityAttribute_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityAttribute_authToken++) {
@@ -39405,6 +39805,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttr
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttribute_attributeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttribute_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttribute_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttribute_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttribute_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttribute_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttribute_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttribute_authToken++) {
@@ -39452,6 +39853,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttribu
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttributeDefinition_attributeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttributeDefinition_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttributeDefinition_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttributeDefinition_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttributeDefinition_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttributeDefinition_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttributeDefinition_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttributeDefinition_authToken++) {
@@ -39500,6 +39902,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAtt
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_authToken++) {
@@ -39513,6 +39916,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAtt
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_return=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_return; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAttributes_return++) {
@@ -39556,6 +39960,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_attributeNames);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_attributeNames=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_attributeNames < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_attributeNames; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_attributeNames++) {
@@ -39565,6 +39970,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType_authToken++) {
@@ -39612,6 +40018,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType_authToken++) {
@@ -39659,6 +40066,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes(
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_authToken++) {
@@ -39672,6 +40080,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes(
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_return=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_return; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes_return++) {
@@ -39715,6 +40124,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAtt
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_attributeNames);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_attributeNames=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_attributeNames < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_attributeNames; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_attributeNames++) {
@@ -39724,6 +40134,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAtt
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAttributes_authToken++) {
@@ -39773,6 +40184,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityType
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_attributeNames);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_attributeNames=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_attributeNames < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_attributeNames; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_attributeNames++) {
@@ -39782,6 +40194,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityType
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityTypeAttributes_authToken++) {
@@ -39831,6 +40244,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAt
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_authToken++) {
@@ -39844,6 +40258,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAt
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_return=0; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_return; i_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAttributes_return++) {
@@ -39886,6 +40301,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentAttribute(
         decode_org_csapi_pam_TpPAMAttributeDef_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_pam_TpPAMAttributeDef"  */
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentAttribute_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentAttribute_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentAttribute_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentAttribute_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentAttribute_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentAttribute_authToken; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentAttribute_authToken++) {
@@ -39933,6 +40349,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute(
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute_attributeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute_authToken; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute_authToken++) {
@@ -39980,6 +40397,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefi
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefinition_attributeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefinition_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefinition_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefinition_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefinition_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefinition_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefinition_authToken; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefinition_authToken++) {
@@ -40028,6 +40446,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttribute
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_authToken++) {
@@ -40041,6 +40460,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttribute
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_return=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_return; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttributes_return++) {
@@ -40084,6 +40504,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType(tvbuf
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_attributeNames);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_attributeNames=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_attributeNames < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_attributeNames; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_attributeNames++) {
@@ -40093,6 +40514,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType(tvbuf
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_authToken; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType_authToken++) {
@@ -40140,6 +40562,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType(tvbuf
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType_authToken; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType_authToken++) {
@@ -40187,6 +40610,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes(tvbuff
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_authToken; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_authToken++) {
@@ -40200,6 +40624,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes(tvbuff
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_return=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_return; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes_return++) {
@@ -40243,6 +40668,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttribute
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_attributeNames);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_attributeNames=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_attributeNames < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_attributeNames; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_attributeNames++) {
@@ -40252,6 +40678,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttribute
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttributes_authToken++) {
@@ -40301,6 +40728,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttrib
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_attributeNames);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_attributeNames=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_attributeNames < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_attributeNames; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_attributeNames++) {
@@ -40310,6 +40738,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttrib
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttributes_authToken++) {
@@ -40359,6 +40788,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttribut
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_typeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_authToken++) {
@@ -40372,6 +40802,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttribut
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_return=0; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_return; i_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttributes_return++) {
@@ -40414,6 +40845,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapabilityAttr
         decode_org_csapi_pam_TpPAMAttributeDef_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_pam_TpPAMAttributeDef"  */
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapabilityAttribute_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapabilityAttribute_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapabilityAttribute_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapabilityAttribute_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapabilityAttribute_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapabilityAttribute_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapabilityAttribute_authToken++) {
@@ -40461,6 +40893,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttr
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttribute_attributeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttribute_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttribute_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttribute_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttribute_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttribute_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttribute_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttribute_authToken++) {
@@ -40508,6 +40941,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttribu
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttributeDefinition_attributeName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttributeDefinition_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttributeDefinition_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttributeDefinition_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttributeDefinition_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttributeDefinition_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttributeDefinition_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttributeDefinition_authToken++) {
@@ -40556,6 +40990,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAtt
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_authToken++) {
@@ -40569,6 +41004,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAtt
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_return=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_return; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAttributes_return++) {
@@ -40612,6 +41048,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability(tvb
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_capabilityName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_attributeNames);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_attributeNames=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_attributeNames < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_attributeNames; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_attributeNames++) {
@@ -40621,6 +41058,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability(tvb
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability_authToken++) {
@@ -40668,6 +41106,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability(tvb
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability_capabilityName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability_authToken++) {
@@ -40715,6 +41154,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities(tvb
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_authToken++) {
@@ -40728,6 +41168,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities(tvb
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_return=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_return; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities_return++) {
@@ -40771,6 +41212,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttribu
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_capabilityName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_attributeNames);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_attributeNames=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_attributeNames < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_attributeNames; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_attributeNames++) {
@@ -40780,6 +41222,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttribu
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttributes_authToken++) {
@@ -40829,6 +41272,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttr
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_capabilityName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_attributeNames);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_attributeNames=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_attributeNames < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_attributeNames; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_attributeNames++) {
@@ -40838,6 +41282,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttr
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttributes_authToken++) {
@@ -40887,6 +41332,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttrib
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_capabilityName);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_authToken++) {
@@ -40900,6 +41346,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttrib
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_return=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_return; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttributes_return++) {
@@ -40943,6 +41390,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesTo
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_agentType);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_capabilities, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_capabilities);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_capabilities=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_capabilities < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_capabilities; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_capabilities++) {
@@ -40952,6 +41400,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesTo
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesToType_authToken++) {
@@ -41001,6 +41450,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilities
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_agentType);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_capabilities, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_capabilities);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_capabilities=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_capabilities < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_capabilities; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_capabilities++) {
@@ -41010,6 +41460,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilities
         }
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilitiesFromType_authToken++) {
@@ -41059,6 +41510,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfTy
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_agentType);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_authToken=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_authToken; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_authToken++) {
@@ -41072,6 +41524,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfTy
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_return=0; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_return; i_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfType_return++) {
@@ -41113,6 +41566,7 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken(tvbuff_t
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_askerData = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_askerData, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_askerData);
 
         for (i_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_askerData=0; i_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_askerData < u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_askerData; i_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_askerData++) {
@@ -41127,6 +41581,7 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken(tvbuff_t
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_return);
 
             for (i_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_return=0; i_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_return < u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_return; i_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAuthToken_return++) {
@@ -41201,6 +41656,7 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl(tvbu
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl_identity);
 
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl_authToken=0; i_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl_authToken; i_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl_authToken++) {
@@ -41254,6 +41710,7 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl(tvbu
         decode_org_csapi_pam_TpPAMAccessControlData_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_pam_TpPAMAccessControlData"  */
         u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl_authToken);
 
         for (i_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl_authToken=0; i_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl_authToken < u_octet4_loop_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl_authToken; i_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl_authToken++) {
@@ -41305,6 +41762,7 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence(tvbuff_t *
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_identityType);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_attributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_attributes);
 
         for (i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_attributes=0; i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_attributes < u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_attributes; i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_attributes++) {
@@ -41315,6 +41773,7 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence(tvbuff_t *
         }
 
         u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_authToken);
 
         for (i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_authToken=0; i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_authToken; i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence_authToken++) {
@@ -41366,6 +41825,7 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration(
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_identityType);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_attributeNames);
 
         for (i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_attributeNames=0; i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_attributeNames < u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_attributeNames; i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_attributeNames++) {
@@ -41377,6 +41837,7 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration(
         proto_tree_add_int64(tree, hf_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_expiresIn, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_authToken);
 
         for (i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_authToken=0; i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_authToken; i_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration_authToken++) {
@@ -41430,6 +41891,7 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence(tvbuff_t *
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_identityType);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_attributeNames);
 
         for (i_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_attributeNames=0; i_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_attributeNames < u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_attributeNames; i_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_attributeNames++) {
@@ -41439,6 +41901,7 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence(tvbuff_t *
         }
 
         u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_authToken);
 
         for (i_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_authToken=0; i_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_authToken; i_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_authToken++) {
@@ -41452,6 +41915,7 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence(tvbuff_t *
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_return);
 
             for (i_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_return=0; i_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_return < u_octet4_loop_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_return; i_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence_return++) {
@@ -41498,6 +41962,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence(tvbuff_t *tvb _U
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_agentType);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_attributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_attributes);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_attributes=0; i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_attributes < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_attributes; i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_attributes++) {
@@ -41508,6 +41973,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence(tvbuff_t *tvb _U
         }
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_authToken);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_authToken=0; i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_authToken; i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence_authToken++) {
@@ -41559,6 +42025,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence(tvbuff_t *t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_capability);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_attributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_attributes);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_attributes=0; i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_attributes < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_attributes; i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_attributes++) {
@@ -41569,6 +42036,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence(tvbuff_t *t
         }
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_authToken);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_authToken=0; i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_authToken; i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence_authToken++) {
@@ -41620,6 +42088,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration(tvbuff
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_agentType);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_attributeNames);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_attributeNames=0; i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_attributeNames < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_attributeNames; i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_attributeNames++) {
@@ -41631,6 +42100,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration(tvbuff
         proto_tree_add_int64(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_expiresIn, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_authToken);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_authToken=0; i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_authToken; i_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration_authToken++) {
@@ -41682,6 +42152,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration(t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_capability);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_attributeNames);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_attributeNames=0; i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_attributeNames < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_attributeNames; i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_attributeNames++) {
@@ -41693,6 +42164,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration(t
         proto_tree_add_int64(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_expiresIn, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_authToken);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_authToken=0; i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_authToken; i_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration_authToken++) {
@@ -41746,6 +42218,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence(tvbuff_t *tvb _U
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_agentType);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_attributeNames);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_attributeNames=0; i_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_attributeNames < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_attributeNames; i_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_attributeNames++) {
@@ -41755,6 +42228,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence(tvbuff_t *tvb _U
         }
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_authToken);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_authToken=0; i_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_authToken; i_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_authToken++) {
@@ -41768,6 +42242,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence(tvbuff_t *tvb _U
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_return);
 
             for (i_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_return=0; i_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_return < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_return; i_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence_return++) {
@@ -41816,6 +42291,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence(tvbuff_t *t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_capability);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_attributeNames);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_attributeNames=0; i_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_attributeNames < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_attributeNames; i_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_attributeNames++) {
@@ -41825,6 +42301,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence(tvbuff_t *t
         }
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_authToken);
 
         for (i_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_authToken=0; i_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_authToken; i_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_authToken++) {
@@ -41838,6 +42315,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence(tvbuff_t *t
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_return);
 
             for (i_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_return=0; i_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_return < u_octet4_loop_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_return; i_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence_return++) {
@@ -41887,6 +42365,7 @@ decode_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability(tvbuff_t
         decode_org_csapi_pam_TpPAMContext_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_pam_TpPAMContext"  */
         u_octet4_loop_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_attributeNames);
 
         for (i_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_attributeNames=0; i_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_attributeNames < u_octet4_loop_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_attributeNames; i_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_attributeNames++) {
@@ -41896,6 +42375,7 @@ decode_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability(tvbuff_t
         }
 
         u_octet4_loop_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_authToken);
 
         for (i_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_authToken=0; i_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_authToken < u_octet4_loop_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_authToken; i_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_authToken++) {
@@ -41909,6 +42389,7 @@ decode_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability(tvbuff_t
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_return);
 
             for (i_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_return=0; i_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_return < u_octet4_loop_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_return; i_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability_return++) {
@@ -41958,6 +42439,7 @@ decode_org_csapi_pam_access_IpPAMAvailability_getAvailability(tvbuff_t *tvb _U_,
         decode_org_csapi_pam_TpPAMContext_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_pam_TpPAMContext"  */
         u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getAvailability_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAvailability_getAvailability_attributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getAvailability_attributeNames);
 
         for (i_org_csapi_pam_access_IpPAMAvailability_getAvailability_attributeNames=0; i_org_csapi_pam_access_IpPAMAvailability_getAvailability_attributeNames < u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getAvailability_attributeNames; i_org_csapi_pam_access_IpPAMAvailability_getAvailability_attributeNames++) {
@@ -41967,6 +42449,7 @@ decode_org_csapi_pam_access_IpPAMAvailability_getAvailability(tvbuff_t *tvb _U_,
         }
 
         u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getAvailability_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAvailability_getAvailability_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getAvailability_authToken);
 
         for (i_org_csapi_pam_access_IpPAMAvailability_getAvailability_authToken=0; i_org_csapi_pam_access_IpPAMAvailability_getAvailability_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getAvailability_authToken; i_org_csapi_pam_access_IpPAMAvailability_getAvailability_authToken++) {
@@ -41980,6 +42463,7 @@ decode_org_csapi_pam_access_IpPAMAvailability_getAvailability(tvbuff_t *tvb _U_,
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getAvailability_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAvailability_getAvailability_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getAvailability_return);
 
             for (i_org_csapi_pam_access_IpPAMAvailability_getAvailability_return=0; i_org_csapi_pam_access_IpPAMAvailability_getAvailability_return < u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getAvailability_return; i_org_csapi_pam_access_IpPAMAvailability_getAvailability_return++) {
@@ -42025,6 +42509,7 @@ decode_org_csapi_pam_access_IpPAMAvailability_getPreference(tvbuff_t *tvb _U_, p
         decode_org_csapi_pam_TpPAMContext_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_pam_TpPAMContext"  */
         u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getPreference_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAvailability_getPreference_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getPreference_authToken);
 
         for (i_org_csapi_pam_access_IpPAMAvailability_getPreference_authToken=0; i_org_csapi_pam_access_IpPAMAvailability_getPreference_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_getPreference_authToken; i_org_csapi_pam_access_IpPAMAvailability_getPreference_authToken++) {
@@ -42085,6 +42570,7 @@ decode_org_csapi_pam_access_IpPAMAvailability_setPreference(tvbuff_t *tvb _U_, p
 
         /*  End union "org_csapi_pam_TpPAMPreferenceData"  */
         u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_setPreference_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMAvailability_setPreference_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_setPreference_authToken);
 
         for (i_org_csapi_pam_access_IpPAMAvailability_setPreference_authToken=0; i_org_csapi_pam_access_IpPAMAvailability_setPreference_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMAvailability_setPreference_authToken; i_org_csapi_pam_access_IpPAMAvailability_setPreference_authToken++) {
@@ -42132,6 +42618,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken(tvbuff
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_askerData = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_askerData, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_askerData);
 
         for (i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_askerData=0; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_askerData < u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_askerData; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_askerData++) {
@@ -42146,6 +42633,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken(tvbuff
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_return);
 
             for (i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_return=0; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_return < u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_return; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAuthToken_return++) {
@@ -42220,6 +42708,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl(tv
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl_identity);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl_authToken);
 
         for (i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl_authToken=0; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl_authToken; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl_authToken++) {
@@ -42273,6 +42762,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl(tv
         decode_org_csapi_pam_TpPAMAccessControlData_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_pam_TpPAMAccessControlData"  */
         u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl_authToken);
 
         for (i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl_authToken=0; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl_authToken; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl_authToken++) {
@@ -42320,6 +42810,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService(tvb
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService_identity);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService_authToken);
 
         for (i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService_authToken=0; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService_authToken; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService_authToken++) {
@@ -42367,6 +42858,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService(t
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService_identity);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService_authToken);
 
         for (i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService_authToken=0; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService_authToken; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService_authToken++) {
@@ -42414,6 +42906,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity(tv
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity_identity);
 
         u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity_authToken);
 
         for (i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity_authToken=0; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity_authToken < u_octet4_loop_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity_authToken; i_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity_authToken++) {
@@ -42461,6 +42954,7 @@ decode_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify(tvbuff_t *tvb _U_, p
         proto_tree_add_int(tree, hf_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventInfo);
 
         for (i_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventInfo=0; i_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventInfo < u_octet4_loop_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventInfo; i_org_csapi_pam_event_IpAppPAMEventHandler_eventNotify_eventInfo++) {
@@ -42547,6 +43041,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_isRegistered(tvbuff_t *tvb _U_, pac
         proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_isRegistered_clientID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_isRegistered_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_isRegistered_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_isRegistered_authToken);
 
         for (i_org_csapi_pam_event_IpPAMEventHandler_isRegistered_authToken=0; i_org_csapi_pam_event_IpPAMEventHandler_isRegistered_authToken < u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_isRegistered_authToken; i_org_csapi_pam_event_IpPAMEventHandler_isRegistered_authToken++) {
@@ -42594,6 +43089,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface(tvbuff_t *tvb 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface_authToken);
 
         for (i_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface_authToken=0; i_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface_authToken < u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface_authToken; i_org_csapi_pam_event_IpPAMEventHandler_registerAppInterface_authToken++) {
@@ -42643,6 +43139,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_registerForEvent(tvbuff_t *tvb _U_,
         proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_clientID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_eventList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_eventList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_eventList);
 
         for (i_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_eventList=0; i_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_eventList < u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_eventList; i_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_eventList++) {
@@ -42657,6 +43154,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_registerForEvent(tvbuff_t *tvb _U_,
         proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_validFor, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_authToken);
 
         for (i_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_authToken=0; i_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_authToken < u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_authToken; i_org_csapi_pam_event_IpPAMEventHandler_registerForEvent_authToken++) {
@@ -42704,6 +43202,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface(tvbuff_t *tv
         proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_clientID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_authToken);
 
         for (i_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_authToken=0; i_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_authToken < u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_authToken; i_org_csapi_pam_event_IpPAMEventHandler_deregisterAppInterface_authToken++) {
@@ -42751,6 +43250,7 @@ decode_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent(tvbuff_t *tvb _
         proto_tree_add_int(tree, hf_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_eventID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_authToken);
 
         for (i_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_authToken=0; i_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_authToken < u_octet4_loop_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_authToken; i_org_csapi_pam_event_IpPAMEventHandler_deregisterFromEvent_authToken++) {
@@ -42798,6 +43298,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_getAuthToken(tvbuff_t *tvb _U_, pac
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_getAuthToken_askerData = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventManager_getAuthToken_askerData, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_getAuthToken_askerData);
 
         for (i_org_csapi_pam_event_IpPAMEventManager_getAuthToken_askerData=0; i_org_csapi_pam_event_IpPAMEventManager_getAuthToken_askerData < u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_getAuthToken_askerData; i_org_csapi_pam_event_IpPAMEventManager_getAuthToken_askerData++) {
@@ -42812,6 +43313,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_getAuthToken(tvbuff_t *tvb _U_, pac
         switch(header->rep_status) {
         case NO_EXCEPTION:
             u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_getAuthToken_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventManager_getAuthToken_return, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_getAuthToken_return);
 
             for (i_org_csapi_pam_event_IpPAMEventManager_getAuthToken_return=0; i_org_csapi_pam_event_IpPAMEventManager_getAuthToken_return < u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_getAuthToken_return; i_org_csapi_pam_event_IpPAMEventManager_getAuthToken_return++) {
@@ -42886,6 +43388,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_getAccessControl(tvbuff_t *tvb _U_,
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_event_IpPAMEventManager_getAccessControl_identity);
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_getAccessControl_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventManager_getAccessControl_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_getAccessControl_authToken);
 
         for (i_org_csapi_pam_event_IpPAMEventManager_getAccessControl_authToken=0; i_org_csapi_pam_event_IpPAMEventManager_getAccessControl_authToken < u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_getAccessControl_authToken; i_org_csapi_pam_event_IpPAMEventManager_getAccessControl_authToken++) {
@@ -42939,6 +43442,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_setAccessControl(tvbuff_t *tvb _U_,
         decode_org_csapi_pam_TpPAMAccessControlData_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
         /*  End struct "org_csapi_pam_TpPAMAccessControlData"  */
         u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_setAccessControl_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventManager_setAccessControl_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_setAccessControl_authToken);
 
         for (i_org_csapi_pam_event_IpPAMEventManager_setAccessControl_authToken=0; i_org_csapi_pam_event_IpPAMEventManager_setAccessControl_authToken < u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_setAccessControl_authToken; i_org_csapi_pam_event_IpPAMEventManager_setAccessControl_authToken++) {
@@ -42986,6 +43490,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_activateService(tvbuff_t *tvb _U_, 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_event_IpPAMEventManager_activateService_identity);
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_activateService_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventManager_activateService_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_activateService_authToken);
 
         for (i_org_csapi_pam_event_IpPAMEventManager_activateService_authToken=0; i_org_csapi_pam_event_IpPAMEventManager_activateService_authToken < u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_activateService_authToken; i_org_csapi_pam_event_IpPAMEventManager_activateService_authToken++) {
@@ -43033,6 +43538,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_deactivateService(tvbuff_t *tvb _U_
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_event_IpPAMEventManager_deactivateService_identity);
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_deactivateService_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventManager_deactivateService_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_deactivateService_authToken);
 
         for (i_org_csapi_pam_event_IpPAMEventManager_deactivateService_authToken=0; i_org_csapi_pam_event_IpPAMEventManager_deactivateService_authToken < u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_deactivateService_authToken; i_org_csapi_pam_event_IpPAMEventManager_deactivateService_authToken++) {
@@ -43080,6 +43586,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity(tvbuff_t *tvb _U_,
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity_identity);
 
         u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity_authToken, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity_authToken);
 
         for (i_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity_authToken=0; i_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity_authToken < u_octet4_loop_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity_authToken; i_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity_authToken++) {
@@ -43161,6 +43668,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification(tvbuff_t
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_eventInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_eventInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_eventInfo);
 
         for (i_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_eventInfo=0; i_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_eventInfo < u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_eventInfo; i_org_csapi_mmm_IpAppMultiMediaMessagingManager_reportNotification_eventInfo++) {
@@ -43305,6 +43813,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMailboxes(
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMailboxes_mailboxSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMailboxes_mailboxSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMailboxes_mailboxSet);
 
         for (i_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMailboxes_mailboxSet=0; i_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMailboxes_mailboxSet < u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMailboxes_mailboxSet; i_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMailboxes_mailboxSet++) {
@@ -43351,6 +43860,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMultiMedia
     switch(header->message_type) {
     case Request:
         u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMultiMediaMessagingSessions_multiMediaMessagingSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMultiMediaMessagingSessions_multiMediaMessagingSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMultiMediaMessagingSessions_multiMediaMessagingSet);
 
         for (i_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMultiMediaMessagingSessions_multiMediaMessagingSet=0; i_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMultiMediaMessagingSessions_multiMediaMessagingSet < u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMultiMediaMessagingSessions_multiMediaMessagingSet; i_org_csapi_mmm_IpAppMultiMediaMessagingManager_terminateMultipleMultiMediaMessagingSessions_multiMediaMessagingSet++) {
@@ -43477,6 +43987,7 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification(tvbuff_t *t
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
         u_octet4_loop_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification_eventCriteria = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification_eventCriteria, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification_eventCriteria);
 
         for (i_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification_eventCriteria=0; i_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification_eventCriteria < u_octet4_loop_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification_eventCriteria; i_org_csapi_mmm_IpMultiMediaMessagingManager_createNotification_eventCriteria++) {
@@ -43560,6 +44071,7 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification(tvbuff_t *t
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_eventCriteria = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_eventCriteria, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_eventCriteria);
 
         for (i_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_eventCriteria=0; i_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_eventCriteria < u_octet4_loop_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_eventCriteria; i_org_csapi_mmm_IpMultiMediaMessagingManager_changeNotification_eventCriteria++) {
@@ -43746,6 +44258,7 @@ decode_org_csapi_mmm_IpAppMailbox_createFolderErr(tvbuff_t *tvb _U_, packet_info
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_createFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_createFolderErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_createFolderErr_errorDetails);
@@ -43793,6 +44306,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersRes(tvbuff_t *tvb _U_, packet_info *
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getFoldersRes_folderID);
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getFoldersRes_folderNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFoldersRes_folderNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getFoldersRes_folderNames);
 
         for (i_org_csapi_mmm_IpAppMailbox_getFoldersRes_folderNames=0; i_org_csapi_mmm_IpAppMailbox_getFoldersRes_folderNames < u_octet4_loop_org_csapi_mmm_IpAppMailbox_getFoldersRes_folderNames; i_org_csapi_mmm_IpAppMailbox_getFoldersRes_folderNames++) {
@@ -43843,6 +44357,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersErr(tvbuff_t *tvb _U_, packet_info *
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getFoldersErr_folderID);
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFoldersErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getFoldersErr_errorDetails);
@@ -43922,6 +44437,7 @@ decode_org_csapi_mmm_IpAppMailbox_deleteFolderErr(tvbuff_t *tvb _U_, packet_info
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_deleteFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteFolderErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_deleteFolderErr_errorDetails);
@@ -44001,6 +44517,7 @@ decode_org_csapi_mmm_IpAppMailbox_copyFolderErr(tvbuff_t *tvb _U_, packet_info *
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_copyFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyFolderErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_copyFolderErr_errorDetails);
@@ -44080,6 +44597,7 @@ decode_org_csapi_mmm_IpAppMailbox_moveFolderErr(tvbuff_t *tvb _U_, packet_info *
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_moveFolderErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveFolderErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_moveFolderErr_errorDetails);
@@ -44161,6 +44679,7 @@ decode_org_csapi_mmm_IpAppMailbox_putMessageErr(tvbuff_t *tvb _U_, packet_info *
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_putMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_putMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_putMessageErr_errorDetails);
@@ -44240,6 +44759,7 @@ decode_org_csapi_mmm_IpAppMailbox_copyMessageErr(tvbuff_t *tvb _U_, packet_info 
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_copyMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_copyMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_copyMessageErr_errorDetails);
@@ -44319,6 +44839,7 @@ decode_org_csapi_mmm_IpAppMailbox_moveMessageErr(tvbuff_t *tvb _U_, packet_info 
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_moveMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_moveMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_moveMessageErr_errorDetails);
@@ -44398,6 +44919,7 @@ decode_org_csapi_mmm_IpAppMailbox_deleteMessageErr(tvbuff_t *tvb _U_, packet_inf
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_deleteMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_deleteMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_deleteMessageErr_errorDetails);
@@ -44443,6 +44965,7 @@ decode_org_csapi_mmm_IpAppMailbox_listMessagesRes(tvbuff_t *tvb _U_, packet_info
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_listMessagesRes_messageList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesRes_messageList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_listMessagesRes_messageList);
 
         for (i_org_csapi_mmm_IpAppMailbox_listMessagesRes_messageList=0; i_org_csapi_mmm_IpAppMailbox_listMessagesRes_messageList < u_octet4_loop_org_csapi_mmm_IpAppMailbox_listMessagesRes_messageList; i_org_csapi_mmm_IpAppMailbox_listMessagesRes_messageList++) {
@@ -44497,6 +45020,7 @@ decode_org_csapi_mmm_IpAppMailbox_listMessagesErr(tvbuff_t *tvb _U_, packet_info
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessagesErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_listMessagesErr_errorDetails);
@@ -44542,6 +45066,7 @@ decode_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes(tvbuff_t *tvb _U_, pac
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_partsList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_partsList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_partsList);
 
         for (i_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_partsList=0; i_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_partsList < u_octet4_loop_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_partsList; i_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsRes_partsList++) {
@@ -44591,6 +45116,7 @@ decode_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr(tvbuff_t *tvb _U_, pac
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr_errorDetails);
@@ -44636,6 +45162,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes(tvbuff_t *tvb _U_, pack
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_bodyParts = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_bodyParts, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_bodyParts);
 
         for (i_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_bodyParts=0; i_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_bodyParts < u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_bodyParts; i_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsRes_bodyParts++) {
@@ -44685,6 +45212,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr(tvbuff_t *tvb _U_, pack
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr_errorDetails);
@@ -44730,6 +45258,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes(tvbuff_t *tvb _U_, packet
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_headers = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_headers, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_headers);
 
         for (i_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_headers=0; i_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_headers < u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_headers; i_org_csapi_mmm_IpAppMailbox_getMessageHeadersRes_headers++) {
@@ -44781,6 +45310,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr(tvbuff_t *tvb _U_, packet
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr_errorDetails);
@@ -44830,6 +45360,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageContentRes(tvbuff_t *tvb _U_, packet
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getMessageContentRes_contentTransferEncoding);
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageContentRes_content = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentRes_content, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageContentRes_content);
 
         for (i_org_csapi_mmm_IpAppMailbox_getMessageContentRes_content=0; i_org_csapi_mmm_IpAppMailbox_getMessageContentRes_content < u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageContentRes_content; i_org_csapi_mmm_IpAppMailbox_getMessageContentRes_content++) {
@@ -44878,6 +45409,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageContentErr(tvbuff_t *tvb _U_, packet
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageContentErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getMessageContentErr_errorDetails);
@@ -44923,6 +45455,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFullMessageRes(tvbuff_t *tvb _U_, packet_in
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getFullMessageRes_message = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageRes_message, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getFullMessageRes_message);
 
         for (i_org_csapi_mmm_IpAppMailbox_getFullMessageRes_message=0; i_org_csapi_mmm_IpAppMailbox_getFullMessageRes_message < u_octet4_loop_org_csapi_mmm_IpAppMailbox_getFullMessageRes_message; i_org_csapi_mmm_IpAppMailbox_getFullMessageRes_message++) {
@@ -44971,6 +45504,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFullMessageErr(tvbuff_t *tvb _U_, packet_in
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFullMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getFullMessageErr_errorDetails);
@@ -45016,6 +45550,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes(tvbuff_t *tvb _U_,
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_returnedProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_returnedProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_returnedProperties);
 
         for (i_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_returnedProperties=0; i_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_returnedProperties < u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_returnedProperties; i_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesRes_returnedProperties++) {
@@ -45070,6 +45605,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes(tvbuff_t *tvb _U_, 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_folderID);
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_returnedProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_returnedProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_returnedProperties);
 
         for (i_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_returnedProperties=0; i_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_returnedProperties < u_octet4_loop_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_returnedProperties; i_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes_returnedProperties++) {
@@ -45124,6 +45660,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes(tvbuff_t *tvb _U_,
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_messageID);
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_returnedProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_returnedProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_returnedProperties);
 
         for (i_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_returnedProperties=0; i_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_returnedProperties < u_octet4_loop_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_returnedProperties; i_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes_returnedProperties++) {
@@ -45178,6 +45715,7 @@ decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes(tvbuff_t *tvb _U_,
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_messageID);
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_propertiesUpdated = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_propertiesUpdated, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_propertiesUpdated);
 
         for (i_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_propertiesUpdated=0; i_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_propertiesUpdated < u_octet4_loop_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_propertiesUpdated; i_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes_propertiesUpdated++) {
@@ -45232,6 +45770,7 @@ decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr(tvbuff_t *tvb _U_,
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_messageID);
 
         u_octet4_loop_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_propertiesNotUpdated = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_propertiesNotUpdated, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_propertiesNotUpdated);
 
         for (i_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_propertiesNotUpdated=0; i_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_propertiesNotUpdated < u_octet4_loop_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_propertiesNotUpdated; i_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr_propertiesNotUpdated++) {
@@ -45281,6 +45820,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr(tvbuff_t *tvb _U_,
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr_errorDetails);
@@ -45325,6 +45865,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr(tvbuff_t *tvb _U_, 
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr_errorDetails);
@@ -45369,6 +45910,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr(tvbuff_t *tvb _U_,
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr_requestID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr_errorDetails);
@@ -45626,6 +46168,7 @@ decode_org_csapi_mmm_IpMailbox_putMessageReq(tvbuff_t *tvb _U_, packet_info *pin
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_putMessageReq_folderID);
 
         u_octet4_loop_org_csapi_mmm_IpMailbox_putMessageReq_message = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_putMessageReq_message, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpMailbox_putMessageReq_message);
 
         for (i_org_csapi_mmm_IpMailbox_putMessageReq_message=0; i_org_csapi_mmm_IpMailbox_putMessageReq_message < u_octet4_loop_org_csapi_mmm_IpMailbox_putMessageReq_message; i_org_csapi_mmm_IpMailbox_putMessageReq_message++) {
@@ -45871,6 +46414,7 @@ decode_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq(tvbuff_t *tvb _U_, packet_
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_messageID);
 
         u_octet4_loop_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_partIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_partIDs, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_partIDs);
 
         for (i_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_partIDs=0; i_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_partIDs < u_octet4_loop_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_partIDs; i_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq_partIDs++) {
@@ -46134,6 +46678,7 @@ decode_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq(tvbuff_t *tvb _U_, pa
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_messageID);
 
         u_octet4_loop_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_properties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_properties);
 
         for (i_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_properties=0; i_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_properties < u_octet4_loop_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_properties; i_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq_properties++) {
@@ -46220,6 +46765,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr(tvbuff_t *tvb _U_, 
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr_errorDetails);
@@ -46299,6 +46845,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr(tvbuff_t *tvb _U_
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr_errorDetails);
@@ -46344,6 +46891,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes(tvbuff_t *tvb _U_, 
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_result = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_result, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_result);
 
         for (i_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_result=0; i_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_result < u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_result; i_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusRes_result++) {
@@ -46393,6 +46941,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr(tvbuff_t *tvb _U_, 
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr_assignmentID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr_error, tvb, *offset-4, 4, u_octet4);
 
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr_errorDetails);
@@ -46480,6 +47029,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived(tvbuff_t *tvb _U_,
         proto_tree_add_int(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_sessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
         u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_message = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_message, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_message);
 
         for (i_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_message=0; i_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_message < u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_message; i_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_message++) {
@@ -46489,6 +47039,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived(tvbuff_t *tvb _U_,
         }
 
         u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_headers = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_headers, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_headers);
 
         for (i_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_headers=0; i_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_headers < u_octet4_loop_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_headers; i_org_csapi_mmm_IpAppMultiMediaMessaging_messageReceived_headers++) {
@@ -46551,6 +47102,7 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq(tvbuff_t *tvb _U_, pac
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_deliveryType);
 
         u_octet4_loop_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_messageTreatment = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_messageTreatment, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_messageTreatment);
 
         for (i_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_messageTreatment=0; i_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_messageTreatment < u_octet4_loop_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_messageTreatment; i_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_messageTreatment++) {
@@ -46563,6 +47115,7 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq(tvbuff_t *tvb _U_, pac
         }
 
         u_octet4_loop_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_message = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_message, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_message);
 
         for (i_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_message=0; i_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_message < u_octet4_loop_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_message; i_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_message++) {
@@ -46572,6 +47125,7 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq(tvbuff_t *tvb _U_, pac
         }
 
         u_octet4_loop_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_additionalHeaders = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_additionalHeaders, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_additionalHeaders);
 
         for (i_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_additionalHeaders=0; i_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_additionalHeaders < u_octet4_loop_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_additionalHeaders; i_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq_additionalHeaders++) {
@@ -46719,6 +47273,7 @@ decode_org_csapi_TpAddress_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_TpAddress_Plan, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_TpAddress_AddrString);
@@ -46726,9 +47281,11 @@ decode_org_csapi_TpAddress_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_TpAddress_Name);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_TpAddress_Presentation, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_TpAddress_Screening, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_TpAddress_SubAddressString);
@@ -46745,6 +47302,7 @@ decode_org_csapi_TpAddressRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_TpAddressRange_Plan, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_TpAddressRange_AddrString);
@@ -46862,6 +47420,7 @@ decode_org_csapi_fw_TpFaultStats_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFaultStats_Fault, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_int(tree, hf_org_csapi_fw_TpFaultStats_Occurrences, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -46888,6 +47447,7 @@ decode_org_csapi_fw_TpFaultStatsRecord_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     decode_org_csapi_TpTimeInterval_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpTimeInterval"  */
     u_octet4_loop_org_csapi_fw_TpFaultStatsRecord_FaultStatsSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFaultStatsRecord_FaultStatsSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpFaultStatsRecord_FaultStatsSet);
 
     for (i_org_csapi_fw_TpFaultStatsRecord_FaultStatsSet=0; i_org_csapi_fw_TpFaultStatsRecord_FaultStatsSet < u_octet4_loop_org_csapi_fw_TpFaultStatsRecord_FaultStatsSet; i_org_csapi_fw_TpFaultStatsRecord_FaultStatsSet++) {
@@ -46920,6 +47480,7 @@ decode_org_csapi_fw_TpLoadStatisticData_st(tvbuff_t *tvb _U_, packet_info *pinfo
     proto_tree_add_float(tree, hf_org_csapi_fw_TpLoadStatisticData_LoadValue, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpLoadStatisticData_LoadLevel, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -46943,6 +47504,7 @@ decode_org_csapi_fw_TpLoadInitVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpLoadInitVal_LoadLevel, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin struct "org_csapi_fw_TpLoadThreshold"  */
@@ -46974,6 +47536,7 @@ decode_org_csapi_fw_TpClientAppDescription_st(tvbuff_t *tvb _U_, packet_info *pi
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpClientAppDescription_ClientAppID);
 
     u_octet4_loop_org_csapi_fw_TpClientAppDescription_ClientAppProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpClientAppDescription_ClientAppProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpClientAppDescription_ClientAppProperties);
 
     for (i_org_csapi_fw_TpClientAppDescription_ClientAppProperties=0; i_org_csapi_fw_TpClientAppDescription_ClientAppProperties < u_octet4_loop_org_csapi_fw_TpClientAppDescription_ClientAppProperties; i_org_csapi_fw_TpClientAppDescription_ClientAppProperties++) {
@@ -47002,6 +47565,7 @@ decode_org_csapi_fw_TpEntOp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpEntOp_EntOpID);
 
     u_octet4_loop_org_csapi_fw_TpEntOp_EntOpProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpEntOp_EntOpProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpEntOp_EntOpProperties);
 
     for (i_org_csapi_fw_TpEntOp_EntOpProperties=0; i_org_csapi_fw_TpEntOp_EntOpProperties < u_octet4_loop_org_csapi_fw_TpEntOp_EntOpProperties; i_org_csapi_fw_TpEntOp_EntOpProperties++) {
@@ -47037,6 +47601,7 @@ decode_org_csapi_fw_TpServiceProperty_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpServiceProperty_ServicePropertyName);
 
     u_octet4_loop_org_csapi_fw_TpServiceProperty_ServicePropertyValueList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpServiceProperty_ServicePropertyValueList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpServiceProperty_ServicePropertyValueList);
 
     for (i_org_csapi_fw_TpServiceProperty_ServicePropertyValueList=0; i_org_csapi_fw_TpServiceProperty_ServicePropertyValueList < u_octet4_loop_org_csapi_fw_TpServiceProperty_ServicePropertyValueList; i_org_csapi_fw_TpServiceProperty_ServicePropertyValueList++) {
@@ -47060,6 +47625,7 @@ decode_org_csapi_fw_TpServiceDescription_st(tvbuff_t *tvb _U_, packet_info *pinf
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpServiceDescription_ServiceTypeName);
 
     u_octet4_loop_org_csapi_fw_TpServiceDescription_ServicePropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpServiceDescription_ServicePropertyList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpServiceDescription_ServicePropertyList);
 
     for (i_org_csapi_fw_TpServiceDescription_ServicePropertyList=0; i_org_csapi_fw_TpServiceDescription_ServicePropertyList < u_octet4_loop_org_csapi_fw_TpServiceDescription_ServicePropertyList; i_org_csapi_fw_TpServiceDescription_ServicePropertyList++) {
@@ -47102,6 +47668,7 @@ decode_org_csapi_fw_TpServiceProfileDescription_st(tvbuff_t *tvb _U_, packet_inf
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpServiceProfileDescription_ServiceTypeName);
 
     u_octet4_loop_org_csapi_fw_TpServiceProfileDescription_ServiceSubscriptionProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpServiceProfileDescription_ServiceSubscriptionProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpServiceProfileDescription_ServiceSubscriptionProperties);
 
     for (i_org_csapi_fw_TpServiceProfileDescription_ServiceSubscriptionProperties=0; i_org_csapi_fw_TpServiceProfileDescription_ServiceSubscriptionProperties < u_octet4_loop_org_csapi_fw_TpServiceProfileDescription_ServiceSubscriptionProperties; i_org_csapi_fw_TpServiceProfileDescription_ServiceSubscriptionProperties++) {
@@ -47129,6 +47696,7 @@ decode_org_csapi_fw_TpServiceTypeProperty_st(tvbuff_t *tvb _U_, packet_info *pin
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpServiceTypeProperty_ServicePropertyName);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpServiceTypeProperty_ServiceTypePropertyMode, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpServiceTypeProperty_ServicePropertyTypeName);
@@ -47148,6 +47716,7 @@ decode_org_csapi_fw_TpServiceTypeDescription_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_fw_TpServiceTypeDescription_ServiceTypePropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpServiceTypeDescription_ServiceTypePropertyList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpServiceTypeDescription_ServiceTypePropertyList);
 
     for (i_org_csapi_fw_TpServiceTypeDescription_ServiceTypePropertyList=0; i_org_csapi_fw_TpServiceTypeDescription_ServiceTypePropertyList < u_octet4_loop_org_csapi_fw_TpServiceTypeDescription_ServiceTypePropertyList; i_org_csapi_fw_TpServiceTypeDescription_ServiceTypePropertyList++) {
@@ -47158,6 +47727,7 @@ decode_org_csapi_fw_TpServiceTypeDescription_st(tvbuff_t *tvb _U_, packet_info *
     }
 
     u_octet4_loop_org_csapi_fw_TpServiceTypeDescription_ServiceTypeNameList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpServiceTypeDescription_ServiceTypeNameList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpServiceTypeDescription_ServiceTypeNameList);
 
     for (i_org_csapi_fw_TpServiceTypeDescription_ServiceTypeNameList=0; i_org_csapi_fw_TpServiceTypeDescription_ServiceTypeNameList < u_octet4_loop_org_csapi_fw_TpServiceTypeDescription_ServiceTypeNameList; i_org_csapi_fw_TpServiceTypeDescription_ServiceTypeNameList++) {
@@ -47181,6 +47751,7 @@ decode_org_csapi_fw_TpSignatureAndServiceMgr_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_fw_TpSignatureAndServiceMgr_DigitalSignature = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpSignatureAndServiceMgr_DigitalSignature, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpSignatureAndServiceMgr_DigitalSignature);
 
     for (i_org_csapi_fw_TpSignatureAndServiceMgr_DigitalSignature=0; i_org_csapi_fw_TpSignatureAndServiceMgr_DigitalSignature < u_octet4_loop_org_csapi_fw_TpSignatureAndServiceMgr_DigitalSignature; i_org_csapi_fw_TpSignatureAndServiceMgr_DigitalSignature++) {
@@ -47214,6 +47785,7 @@ decode_org_csapi_fw_TpPerson_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpPerson_HomePage);
 
     u_octet4_loop_org_csapi_fw_TpPerson_PersonProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpPerson_PersonProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpPerson_PersonProperties);
 
     for (i_org_csapi_fw_TpPerson_PersonProperties=0; i_org_csapi_fw_TpPerson_PersonProperties < u_octet4_loop_org_csapi_fw_TpPerson_PersonProperties; i_org_csapi_fw_TpPerson_PersonProperties++) {
@@ -47250,6 +47822,7 @@ decode_org_csapi_fw_TpServiceContractDescription_st(tvbuff_t *tvb _U_, packet_in
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpServiceContractDescription_ServiceID);
 
     u_octet4_loop_org_csapi_fw_TpServiceContractDescription_ServiceSubscriptionProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpServiceContractDescription_ServiceSubscriptionProperties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpServiceContractDescription_ServiceSubscriptionProperties);
 
     for (i_org_csapi_fw_TpServiceContractDescription_ServiceSubscriptionProperties=0; i_org_csapi_fw_TpServiceContractDescription_ServiceSubscriptionProperties < u_octet4_loop_org_csapi_fw_TpServiceContractDescription_ServiceSubscriptionProperties; i_org_csapi_fw_TpServiceContractDescription_ServiceSubscriptionProperties++) {
@@ -47376,11 +47949,13 @@ decode_org_csapi_fw_TpServiceTypePropertyValue_st(tvbuff_t *tvb _U_, packet_info
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpServiceTypePropertyValue_ServicePropertyName);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpServiceTypePropertyValue_ServiceTypePropertyMode, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpServiceTypePropertyValue_ServicePropertyTypeName);
 
     u_octet4_loop_org_csapi_fw_TpServiceTypePropertyValue_ServicePropertyValueList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpServiceTypePropertyValue_ServicePropertyValueList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpServiceTypePropertyValue_ServicePropertyValueList);
 
     for (i_org_csapi_fw_TpServiceTypePropertyValue_ServicePropertyValueList=0; i_org_csapi_fw_TpServiceTypePropertyValue_ServicePropertyValueList < u_octet4_loop_org_csapi_fw_TpServiceTypePropertyValue_ServicePropertyValueList; i_org_csapi_fw_TpServiceTypePropertyValue_ServicePropertyValueList++) {
@@ -47416,6 +47991,7 @@ decode_org_csapi_fw_TpFwMigrationServiceAvailableInfo_st(tvbuff_t *tvb _U_, pack
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_fw_TpFwMigrationServiceAvailableInfo_MigrationDataAndTime);
 
     u_octet4_loop_org_csapi_fw_TpFwMigrationServiceAvailableInfo_MigrationAdditionalInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwMigrationServiceAvailableInfo_MigrationAdditionalInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpFwMigrationServiceAvailableInfo_MigrationAdditionalInfo);
 
     for (i_org_csapi_fw_TpFwMigrationServiceAvailableInfo_MigrationAdditionalInfo=0; i_org_csapi_fw_TpFwMigrationServiceAvailableInfo_MigrationAdditionalInfo < u_octet4_loop_org_csapi_fw_TpFwMigrationServiceAvailableInfo_MigrationAdditionalInfo; i_org_csapi_fw_TpFwMigrationServiceAvailableInfo_MigrationAdditionalInfo++) {
@@ -47475,6 +48051,7 @@ decode_org_csapi_ui_TpUIEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_TpUIEventInfo_ServiceCode);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIEventInfo_DataTypeIndication, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_TpUIEventInfo_DataString);
@@ -47528,9 +48105,11 @@ decode_org_csapi_ui_TpUIEventNotificationInfo_st(tvbuff_t *tvb _U_, packet_info 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_TpUIEventNotificationInfo_ServiceCode);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIEventNotificationInfo_DataTypeIndication, tvb, *offset-4, 4, u_octet4);
 
     u_octet4_loop_org_csapi_ui_TpUIEventNotificationInfo_UIEventData = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIEventNotificationInfo_UIEventData, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_TpUIEventNotificationInfo_UIEventData);
 
     for (i_org_csapi_ui_TpUIEventNotificationInfo_UIEventData=0; i_org_csapi_ui_TpUIEventNotificationInfo_UIEventData < u_octet4_loop_org_csapi_ui_TpUIEventNotificationInfo_UIEventData; i_org_csapi_ui_TpUIEventNotificationInfo_UIEventData++) {
@@ -47565,6 +48144,7 @@ decode_org_csapi_ui_TpUIRecognitionCriteria_st(tvbuff_t *tvb _U_, packet_info *p
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_TpUIRecognitionCriteria_SpeakerID);
 
     u_octet4_loop_org_csapi_ui_TpUIRecognitionCriteria_Properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIRecognitionCriteria_Properties, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_TpUIRecognitionCriteria_Properties);
 
     for (i_org_csapi_ui_TpUIRecognitionCriteria_Properties=0; i_org_csapi_ui_TpUIRecognitionCriteria_Properties < u_octet4_loop_org_csapi_ui_TpUIRecognitionCriteria_Properties; i_org_csapi_ui_TpUIRecognitionCriteria_Properties++) {
@@ -47598,6 +48178,7 @@ decode_org_csapi_ui_TpUICollectCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo
     proto_tree_add_int(tree, hf_org_csapi_ui_TpUICollectCriteria_InterCharTimeout, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUICollectCriteria_CollectMode, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin struct "org_csapi_ui_TpUIRecognitionCriteria"  */
@@ -47617,6 +48198,7 @@ decode_org_csapi_ui_TpUIWordOverride_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_TpUIWordOverride_Spelling);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIWordOverride_PronounceType, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_TpUIWordOverride_PronounceAs);
@@ -47635,20 +48217,25 @@ decode_org_csapi_ui_TpUISynthesisInfoData_st(tvbuff_t *tvb _U_, packet_info *pin
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUISynthesisInfoData_SpeakerGender, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUISynthesisInfoData_SpeakerAge, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUISynthesisInfoData_SpeakerRate, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUISynthesisInfoData_SpeakerRange, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_ui_TpUISynthesisInfoData_TextData);
 
     u_octet4_loop_org_csapi_ui_TpUISynthesisInfoData_WordOverrideSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUISynthesisInfoData_WordOverrideSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_TpUISynthesisInfoData_WordOverrideSet);
 
     for (i_org_csapi_ui_TpUISynthesisInfoData_WordOverrideSet=0; i_org_csapi_ui_TpUISynthesisInfoData_WordOverrideSet < u_octet4_loop_org_csapi_ui_TpUISynthesisInfoData_WordOverrideSet; i_org_csapi_ui_TpUISynthesisInfoData_WordOverrideSet++) {
@@ -47672,6 +48259,7 @@ decode_org_csapi_cc_TpCallError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_TpCallError_ErrorTime);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallError_ErrorType, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_cc_TpCallAdditionalErrorInfo"  */
@@ -47693,6 +48281,7 @@ decode_org_csapi_cc_TpCallEndedReport_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     proto_tree_add_int(tree, hf_org_csapi_cc_TpCallEndedReport_CallLegSessionID, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallEndedReport_Cause, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -47717,6 +48306,7 @@ decode_org_csapi_cc_TpCallInfoReport_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_TpCallInfoReport_CallEndTime);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallInfoReport_Cause, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -47731,6 +48321,7 @@ decode_org_csapi_cc_TpCallServiceCode_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallServiceCode_CallServiceCodeType, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_TpCallServiceCode_ServiceCodeValue);
@@ -47747,9 +48338,11 @@ decode_org_csapi_cc_TpCallTreatment_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallTreatment_CallTreatmentType, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallTreatment_ReleaseCause, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_cc_TpCallAdditionalTreatmentInfo"  */
@@ -47773,9 +48366,11 @@ decode_org_csapi_cc_TpCallChargePlan_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallChargePlan_ChargeOrderType, tvb, *offset-4, 4, u_octet4);
 
     u_octet4_loop_org_csapi_cc_TpCallChargePlan_TransparentCharge = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallChargePlan_TransparentCharge, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpCallChargePlan_TransparentCharge);
 
     for (i_org_csapi_cc_TpCallChargePlan_TransparentCharge=0; i_org_csapi_cc_TpCallChargePlan_TransparentCharge < u_octet4_loop_org_csapi_cc_TpCallChargePlan_TransparentCharge; i_org_csapi_cc_TpCallChargePlan_TransparentCharge++) {
@@ -47787,6 +48382,7 @@ decode_org_csapi_cc_TpCallChargePlan_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     proto_tree_add_int(tree, hf_org_csapi_cc_TpCallChargePlan_ChargePlan, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4_loop_org_csapi_cc_TpCallChargePlan_AdditionalInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallChargePlan_AdditionalInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpCallChargePlan_AdditionalInfo);
 
     for (i_org_csapi_cc_TpCallChargePlan_AdditionalInfo=0; i_org_csapi_cc_TpCallChargePlan_AdditionalInfo < u_octet4_loop_org_csapi_cc_TpCallChargePlan_AdditionalInfo; i_org_csapi_cc_TpCallChargePlan_AdditionalInfo++) {
@@ -47796,6 +48392,7 @@ decode_org_csapi_cc_TpCallChargePlan_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     }
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallChargePlan_PartyToCharge, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_cc_TpCallPartyToChargeAdditionalInfo"  */
@@ -47823,9 +48420,11 @@ decode_org_csapi_cc_gccs_TpCallEventCriteria_st(tvbuff_t *tvb _U_, packet_info *
     proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallEventCriteria_CallEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallEventCriteria_CallNotificationType, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallEventCriteria_MonitorMode, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -47863,11 +48462,13 @@ decode_org_csapi_cc_gccs_TpCallReport_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallReport_MonitorMode, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_gccs_TpCallReport_CallEventTime);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallReport_CallReportType, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_cc_gccs_TpCallAdditionalReportInfo"  */
@@ -47887,9 +48488,11 @@ decode_org_csapi_cc_gccs_TpCallReportRequest_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallReportRequest_MonitorMode, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallReportRequest_CallReportType, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_cc_gccs_TpCallAdditionalReportCriteria"  */
@@ -47923,6 +48526,7 @@ decode_org_csapi_cc_gccs_TpCallEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinf
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
     u_octet4_loop_org_csapi_cc_gccs_TpCallEventInfo_CallAppInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallEventInfo_CallAppInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_gccs_TpCallEventInfo_CallAppInfo);
 
     for (i_org_csapi_cc_gccs_TpCallEventInfo_CallAppInfo=0; i_org_csapi_cc_gccs_TpCallEventInfo_CallAppInfo < u_octet4_loop_org_csapi_cc_gccs_TpCallEventInfo_CallAppInfo; i_org_csapi_cc_gccs_TpCallEventInfo_CallAppInfo++) {
@@ -47937,9 +48541,11 @@ decode_org_csapi_cc_gccs_TpCallEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinf
     proto_tree_add_int(tree, hf_org_csapi_cc_gccs_TpCallEventInfo_CallEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallEventInfo_CallNotificationType, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallEventInfo_MonitorMode, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -47986,6 +48592,7 @@ decode_org_csapi_cc_gccs_TpCallTreatment_st(tvbuff_t *tvb _U_, packet_info *pinf
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallTreatment_CallTreatmentType, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin struct "org_csapi_cc_gccs_TpCallReleaseCause"  */
@@ -48045,6 +48652,7 @@ decode_org_csapi_cc_TpCallEventRequest_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallEventRequest_CallEventType, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_cc_TpAdditionalCallEventCriteria"  */
@@ -48053,6 +48661,7 @@ decode_org_csapi_cc_TpCallEventRequest_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     /*  End union "org_csapi_cc_TpAdditionalCallEventCriteria"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallEventRequest_CallMonitorMode, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -48071,6 +48680,7 @@ decode_org_csapi_cc_TpCallNotificationRequest_st(tvbuff_t *tvb _U_, packet_info 
     decode_org_csapi_cc_TpCallNotificationScope_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_cc_TpCallNotificationScope"  */
     u_octet4_loop_org_csapi_cc_TpCallNotificationRequest_CallEventsRequested = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallNotificationRequest_CallEventsRequested, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpCallNotificationRequest_CallEventsRequested);
 
     for (i_org_csapi_cc_TpCallNotificationRequest_CallEventsRequested=0; i_org_csapi_cc_TpCallNotificationRequest_CallEventsRequested < u_octet4_loop_org_csapi_cc_TpCallNotificationRequest_CallEventsRequested; i_org_csapi_cc_TpCallNotificationRequest_CallEventsRequested++) {
@@ -48104,6 +48714,7 @@ decode_org_csapi_cc_TpCallLegConnectionProperties_st(tvbuff_t *tvb _U_, packet_i
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallLegConnectionProperties_AttachMechanism, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -48118,6 +48729,7 @@ decode_org_csapi_cc_TpCallEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallEventInfo_CallEventType, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_cc_TpCallAdditionalEventInfo"  */
@@ -48126,6 +48738,7 @@ decode_org_csapi_cc_TpCallEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
     /*  End union "org_csapi_cc_TpCallAdditionalEventInfo"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallEventInfo_CallMonitorMode, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cc_TpCallEventInfo_CallEventTime);
@@ -48143,6 +48756,7 @@ decode_org_csapi_cc_TpNotificationRequestedSetEntry_st(tvbuff_t *tvb _U_, packet
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_cc_TpNotificationRequestedSetEntry_NotificationRequestSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpNotificationRequestedSetEntry_NotificationRequestSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpNotificationRequestedSetEntry_NotificationRequestSet);
 
     for (i_org_csapi_cc_TpNotificationRequestedSetEntry_NotificationRequestSet=0; i_org_csapi_cc_TpNotificationRequestedSetEntry_NotificationRequestSet < u_octet4_loop_org_csapi_cc_TpNotificationRequestedSetEntry_NotificationRequestSet; i_org_csapi_cc_TpNotificationRequestedSetEntry_NotificationRequestSet++) {
@@ -48168,6 +48782,7 @@ decode_org_csapi_cc_TpCarrier_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_cc_TpCarrier_CarrierID = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCarrier_CarrierID, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpCarrier_CarrierID);
 
     for (i_org_csapi_cc_TpCarrier_CarrierID=0; i_org_csapi_cc_TpCarrier_CarrierID < u_octet4_loop_org_csapi_cc_TpCarrier_CarrierID; i_org_csapi_cc_TpCarrier_CarrierID++) {
@@ -48177,6 +48792,7 @@ decode_org_csapi_cc_TpCarrier_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
     }
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCarrier_CarrierSelectionField, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -48195,6 +48811,7 @@ decode_org_csapi_cc_TpCallNotificationInfo_st(tvbuff_t *tvb _U_, packet_info *pi
     decode_org_csapi_cc_TpCallNotificationReportScope_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_cc_TpCallNotificationReportScope"  */
     u_octet4_loop_org_csapi_cc_TpCallNotificationInfo_CallAppInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallNotificationInfo_CallAppInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpCallNotificationInfo_CallAppInfo);
 
     for (i_org_csapi_cc_TpCallNotificationInfo_CallAppInfo=0; i_org_csapi_cc_TpCallNotificationInfo_CallAppInfo < u_octet4_loop_org_csapi_cc_TpCallNotificationInfo_CallAppInfo; i_org_csapi_cc_TpCallNotificationInfo_CallAppInfo++) {
@@ -48236,9 +48853,11 @@ decode_org_csapi_cc_TpCallLegInfoReport_st(tvbuff_t *tvb _U_, packet_info *pinfo
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallLegInfoReport_CallLegReleaseCause, tvb, *offset-4, 4, u_octet4);
 
     u_octet4_loop_org_csapi_cc_TpCallLegInfoReport_CallAppInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallLegInfoReport_CallAppInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpCallLegInfoReport_CallAppInfo);
 
     for (i_org_csapi_cc_TpCallLegInfoReport_CallAppInfo=0; i_org_csapi_cc_TpCallLegInfoReport_CallAppInfo < u_octet4_loop_org_csapi_cc_TpCallLegInfoReport_CallAppInfo; i_org_csapi_cc_TpCallLegInfoReport_CallAppInfo++) {
@@ -48298,6 +48917,7 @@ decode_org_csapi_cc_mpccs_TpAppCallLegCallBack_st(tvbuff_t *tvb _U_, packet_info
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
     u_octet4_loop_org_csapi_cc_mpccs_TpAppCallLegCallBack_AppCallLegSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_TpAppCallLegCallBack_AppCallLegSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mpccs_TpAppCallLegCallBack_AppCallLegSet);
 
     for (i_org_csapi_cc_mpccs_TpAppCallLegCallBack_AppCallLegSet=0; i_org_csapi_cc_mpccs_TpAppCallLegCallBack_AppCallLegSet < u_octet4_loop_org_csapi_cc_mpccs_TpAppCallLegCallBack_AppCallLegSet; i_org_csapi_cc_mpccs_TpAppCallLegCallBack_AppCallLegSet++) {
@@ -48329,6 +48949,7 @@ decode_org_csapi_cc_mmccs_TpMediaStreamRequest_st(tvbuff_t *tvb _U_, packet_info
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMediaStreamRequest_Direction, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest"  */
@@ -48337,9 +48958,11 @@ decode_org_csapi_cc_mmccs_TpMediaStreamRequest_st(tvbuff_t *tvb _U_, packet_info
 
     /*  End union "org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMediaStreamRequest_MediaMonitorMode, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMediaStreamRequest_EventType, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -48354,6 +48977,7 @@ decode_org_csapi_cc_mmccs_TpMediaStream_st(tvbuff_t *tvb _U_, packet_info *pinfo
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMediaStream_Direction, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest"  */
@@ -48381,6 +49005,7 @@ decode_org_csapi_cc_mmccs_TpNotificationMediaRequest_st(tvbuff_t *tvb _U_, packe
     decode_org_csapi_cc_TpCallNotificationScope_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_cc_TpCallNotificationScope"  */
     u_octet4_loop_org_csapi_cc_mmccs_TpNotificationMediaRequest_MediaStreamsRequested = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpNotificationMediaRequest_MediaStreamsRequested, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_TpNotificationMediaRequest_MediaStreamsRequested);
 
     for (i_org_csapi_cc_mmccs_TpNotificationMediaRequest_MediaStreamsRequested=0; i_org_csapi_cc_mmccs_TpNotificationMediaRequest_MediaStreamsRequested < u_octet4_loop_org_csapi_cc_mmccs_TpNotificationMediaRequest_MediaStreamsRequested; i_org_csapi_cc_mmccs_TpNotificationMediaRequest_MediaStreamsRequested++) {
@@ -48439,6 +49064,7 @@ decode_org_csapi_cc_mmccs_TpAppMultiMediaCallLegCallBack_st(tvbuff_t *tvb _U_, p
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
     u_octet4_loop_org_csapi_cc_mmccs_TpAppMultiMediaCallLegCallBack_AppCallLegSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpAppMultiMediaCallLegCallBack_AppCallLegSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_mmccs_TpAppMultiMediaCallLegCallBack_AppCallLegSet);
 
     for (i_org_csapi_cc_mmccs_TpAppMultiMediaCallLegCallBack_AppCallLegSet=0; i_org_csapi_cc_mmccs_TpAppMultiMediaCallLegCallBack_AppCallLegSet < u_octet4_loop_org_csapi_cc_mmccs_TpAppMultiMediaCallLegCallBack_AppCallLegSet; i_org_csapi_cc_mmccs_TpAppMultiMediaCallLegCallBack_AppCallLegSet++) {
@@ -48475,6 +49101,7 @@ decode_org_csapi_cc_cccs_TpJoinEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinf
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
     u_octet4_loop_org_csapi_cc_cccs_TpJoinEventInfo_CallAppInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpJoinEventInfo_CallAppInfo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_cccs_TpJoinEventInfo_CallAppInfo);
 
     for (i_org_csapi_cc_cccs_TpJoinEventInfo_CallAppInfo=0; i_org_csapi_cc_cccs_TpJoinEventInfo_CallAppInfo < u_octet4_loop_org_csapi_cc_cccs_TpJoinEventInfo_CallAppInfo; i_org_csapi_cc_cccs_TpJoinEventInfo_CallAppInfo++) {
@@ -48534,6 +49161,7 @@ decode_org_csapi_cc_cccs_TpMultiMediaConfPolicy_st(tvbuff_t *tvb _U_, packet_inf
     proto_tree_add_boolean(tree, hf_org_csapi_cc_cccs_TpMultiMediaConfPolicy_Chaired, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpMultiMediaConfPolicy_VideoHandling, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -48604,6 +49232,7 @@ decode_org_csapi_mm_TpLocationResponseTime_st(tvbuff_t *tvb _U_, packet_info *pi
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpLocationResponseTime_ResponseTime, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_int(tree, hf_org_csapi_mm_TpLocationResponseTime_TimerValue, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -48630,6 +49259,7 @@ decode_org_csapi_mm_TpLocationTrigger_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     proto_tree_add_int(tree, hf_org_csapi_mm_TpLocationTrigger_AngleOfSemiMajor, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpLocationTrigger_Criterion, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_int(tree, hf_org_csapi_mm_TpLocationTrigger_ReportingInterval, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -48653,9 +49283,11 @@ decode_org_csapi_mm_TpLocationRequest_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     proto_tree_add_boolean(tree, hf_org_csapi_mm_TpLocationRequest_AltitudeRequested, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpLocationRequest_Type, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpLocationRequest_Priority, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_TpLocationRequest_RequestedLocationMethod);
@@ -48676,6 +49308,7 @@ decode_org_csapi_mm_TpGeographicalPosition_st(tvbuff_t *tvb _U_, packet_info *pi
     proto_tree_add_float(tree, hf_org_csapi_mm_TpGeographicalPosition_Latitude, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpGeographicalPosition_TypeOfUncertaintyShape, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_float(tree, hf_org_csapi_mm_TpGeographicalPosition_UncertaintyInnerSemiMajor, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
@@ -48708,9 +49341,11 @@ decode_org_csapi_mm_TpMobilityStopAssignmentData_st(tvbuff_t *tvb _U_, packet_in
     proto_tree_add_int(tree, hf_org_csapi_mm_TpMobilityStopAssignmentData_AssignmentId, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpMobilityStopAssignmentData_StopScope, tvb, *offset-4, 4, u_octet4);
 
     u_octet4_loop_org_csapi_mm_TpMobilityStopAssignmentData_Users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpMobilityStopAssignmentData_Users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_TpMobilityStopAssignmentData_Users);
 
     for (i_org_csapi_mm_TpMobilityStopAssignmentData_Users=0; i_org_csapi_mm_TpMobilityStopAssignmentData_Users < u_octet4_loop_org_csapi_mm_TpMobilityStopAssignmentData_Users; i_org_csapi_mm_TpMobilityStopAssignmentData_Users++) {
@@ -48735,6 +49370,7 @@ decode_org_csapi_mm_TpUlExtendedData_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     decode_org_csapi_mm_TpGeographicalPosition_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_mm_TpGeographicalPosition"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUlExtendedData_TerminalType, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_boolean(tree, hf_org_csapi_mm_TpUlExtendedData_AltitudePresent, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
@@ -48764,6 +49400,7 @@ decode_org_csapi_mm_TpUserLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserLocation_StatusCode, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin struct "org_csapi_mm_TpGeographicalPosition"  */
@@ -48786,9 +49423,11 @@ decode_org_csapi_mm_TpUserLocationExtended_st(tvbuff_t *tvb _U_, packet_info *pi
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserLocationExtended_StatusCode, tvb, *offset-4, 4, u_octet4);
 
     u_octet4_loop_org_csapi_mm_TpUserLocationExtended_Locations = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserLocationExtended_Locations, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_TpUserLocationExtended_Locations);
 
     for (i_org_csapi_mm_TpUserLocationExtended_Locations=0; i_org_csapi_mm_TpUserLocationExtended_Locations < u_octet4_loop_org_csapi_mm_TpUserLocationExtended_Locations; i_org_csapi_mm_TpUserLocationExtended_Locations++) {
@@ -48824,6 +49463,7 @@ decode_org_csapi_mm_TpUserLocationCamel_st(tvbuff_t *tvb _U_, packet_info *pinfo
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserLocationCamel_StatusCode, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_boolean(tree, hf_org_csapi_mm_TpUserLocationCamel_GeographicalPositionPresent, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
@@ -48888,6 +49528,7 @@ decode_org_csapi_mm_TpUserLocationEmergency_st(tvbuff_t *tvb _U_, packet_info *p
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserLocationEmergency_StatusCode, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_boolean(tree, hf_org_csapi_mm_TpUserLocationEmergency_UserIdPresent, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
@@ -48908,6 +49549,7 @@ decode_org_csapi_mm_TpUserLocationEmergency_st(tvbuff_t *tvb _U_, packet_info *p
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_TpUserLocationEmergency_Imei);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserLocationEmergency_TriggeringEvent, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_boolean(tree, hf_org_csapi_mm_TpUserLocationEmergency_GeographicalPositionPresent, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
@@ -48942,12 +49584,15 @@ decode_org_csapi_mm_TpUserStatus_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserStatus_StatusCode, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserStatus_Status, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserStatus_TerminalType, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -48963,6 +49608,7 @@ decode_org_csapi_mm_TpTriggeredStatusRequest_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_mm_TpTriggeredStatusRequest_Users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpTriggeredStatusRequest_Users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_TpTriggeredStatusRequest_Users);
 
     for (i_org_csapi_mm_TpTriggeredStatusRequest_Users=0; i_org_csapi_mm_TpTriggeredStatusRequest_Users < u_octet4_loop_org_csapi_mm_TpTriggeredStatusRequest_Users; i_org_csapi_mm_TpTriggeredStatusRequest_Users++) {
@@ -48987,6 +49633,7 @@ decode_org_csapi_mm_TpTriggeredStatusRequestSetEntry_st(tvbuff_t *tvb _U_, packe
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_mm_TpTriggeredStatusRequestSetEntry_Requests = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpTriggeredStatusRequestSetEntry_Requests, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_TpTriggeredStatusRequestSetEntry_Requests);
 
     for (i_org_csapi_mm_TpTriggeredStatusRequestSetEntry_Requests=0; i_org_csapi_mm_TpTriggeredStatusRequestSetEntry_Requests < u_octet4_loop_org_csapi_mm_TpTriggeredStatusRequestSetEntry_Requests; i_org_csapi_mm_TpTriggeredStatusRequestSetEntry_Requests++) {
@@ -49011,6 +49658,7 @@ decode_org_csapi_mm_TpPeriodicLocationRequest_st(tvbuff_t *tvb _U_, packet_info 
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_mm_TpPeriodicLocationRequest_Users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpPeriodicLocationRequest_Users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_TpPeriodicLocationRequest_Users);
 
     for (i_org_csapi_mm_TpPeriodicLocationRequest_Users=0; i_org_csapi_mm_TpPeriodicLocationRequest_Users < u_octet4_loop_org_csapi_mm_TpPeriodicLocationRequest_Users; i_org_csapi_mm_TpPeriodicLocationRequest_Users++) {
@@ -49040,6 +49688,7 @@ decode_org_csapi_mm_TpPeriodicLocationRequestSetEntry_st(tvbuff_t *tvb _U_, pack
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_mm_TpPeriodicLocationRequestSetEntry_Requests = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpPeriodicLocationRequestSetEntry_Requests, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_TpPeriodicLocationRequestSetEntry_Requests);
 
     for (i_org_csapi_mm_TpPeriodicLocationRequestSetEntry_Requests=0; i_org_csapi_mm_TpPeriodicLocationRequestSetEntry_Requests < u_octet4_loop_org_csapi_mm_TpPeriodicLocationRequestSetEntry_Requests; i_org_csapi_mm_TpPeriodicLocationRequestSetEntry_Requests++) {
@@ -49064,6 +49713,7 @@ decode_org_csapi_mm_TpTriggeredLocationRequest_st(tvbuff_t *tvb _U_, packet_info
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_mm_TpTriggeredLocationRequest_Users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpTriggeredLocationRequest_Users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_TpTriggeredLocationRequest_Users);
 
     for (i_org_csapi_mm_TpTriggeredLocationRequest_Users=0; i_org_csapi_mm_TpTriggeredLocationRequest_Users < u_octet4_loop_org_csapi_mm_TpTriggeredLocationRequest_Users; i_org_csapi_mm_TpTriggeredLocationRequest_Users++) {
@@ -49091,6 +49741,7 @@ decode_org_csapi_mm_TpTriggeredLocationRequestSetEntry_st(tvbuff_t *tvb _U_, pac
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_mm_TpTriggeredLocationRequestSetEntry_Requests = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpTriggeredLocationRequestSetEntry_Requests, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_TpTriggeredLocationRequestSetEntry_Requests);
 
     for (i_org_csapi_mm_TpTriggeredLocationRequestSetEntry_Requests=0; i_org_csapi_mm_TpTriggeredLocationRequestSetEntry_Requests < u_octet4_loop_org_csapi_mm_TpTriggeredLocationRequestSetEntry_Requests; i_org_csapi_mm_TpTriggeredLocationRequestSetEntry_Requests++) {
@@ -49114,6 +49765,7 @@ decode_org_csapi_mm_TpUserStatusIndicatorExtended_st(tvbuff_t *tvb _U_, packet_i
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserStatusIndicatorExtended_UserStatusIndicator, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_boolean(tree, hf_org_csapi_mm_TpUserStatusIndicatorExtended_PDPContextActive, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
@@ -49145,9 +49797,11 @@ decode_org_csapi_mm_TpNetworkStatusIndicator_st(tvbuff_t *tvb _U_, packet_info *
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_TpNetworkStatusIndicator_MobileNetworkCode);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpNetworkStatusIndicator_AccessTechnology, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpNetworkStatusIndicator_RoamingStatus, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -49164,15 +49818,18 @@ decode_org_csapi_mm_TpUserStatusExtended_st(tvbuff_t *tvb _U_, packet_info *pinf
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mm_TpUserStatusExtended_UserID);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserStatusExtended_StatusCode, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin struct "org_csapi_mm_TpUserStatusIndicatorExtended"  */
     decode_org_csapi_mm_TpUserStatusIndicatorExtended_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_mm_TpUserStatusIndicatorExtended"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserStatusExtended_TerminalType, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpUserStatusExtended_AuthenticationStatus, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin struct "org_csapi_mm_TpNetworkStatusIndicator"  */
@@ -49204,6 +49861,7 @@ decode_org_csapi_mm_TpBindingNotificationCriteria_st(tvbuff_t *tvb _U_, packet_i
     proto_tree_add_int(tree, hf_org_csapi_mm_TpBindingNotificationCriteria_NotificationCriteriaType, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4_loop_org_csapi_mm_TpBindingNotificationCriteria_ContactAddressSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpBindingNotificationCriteria_ContactAddressSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mm_TpBindingNotificationCriteria_ContactAddressSet);
 
     for (i_org_csapi_mm_TpBindingNotificationCriteria_ContactAddressSet=0; i_org_csapi_mm_TpBindingNotificationCriteria_ContactAddressSet < u_octet4_loop_org_csapi_mm_TpBindingNotificationCriteria_ContactAddressSet; i_org_csapi_mm_TpBindingNotificationCriteria_ContactAddressSet++) {
@@ -49236,6 +49894,7 @@ decode_org_csapi_termcap_TpTerminalCapabilityScope_st(tvbuff_t *tvb _U_, packet_
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_termcap_TpTerminalCapabilityScope_ScopeType, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_termcap_TpTerminalCapabilityScope_Scope);
@@ -49283,6 +49942,7 @@ decode_org_csapi_dsc_TpDataSessionError_st(tvbuff_t *tvb _U_, packet_info *pinfo
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_dsc_TpDataSessionError_ErrorTime);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionError_ErrorType, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_dsc_TpDataSessionAdditionalErrorInfo"  */
@@ -49310,6 +49970,7 @@ decode_org_csapi_dsc_TpDataSessionEventCriteria_st(tvbuff_t *tvb _U_, packet_inf
     proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionEventCriteria_DataSessionEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionEventCriteria_MonitorMode, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -49332,9 +49993,11 @@ decode_org_csapi_dsc_TpDataSessionEventInfo_st(tvbuff_t *tvb _U_, packet_info *p
     proto_tree_add_int(tree, hf_org_csapi_dsc_TpDataSessionEventInfo_DataSessionEventName, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionEventInfo_MonitorMode, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionEventInfo_QoSClass, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -49360,11 +50023,13 @@ decode_org_csapi_dsc_TpDataSessionReport_st(tvbuff_t *tvb _U_, packet_info *pinf
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionReport_MonitorMode, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_dsc_TpDataSessionReport_DataSessionEventTime);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionReport_DataSessionReportType, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_dsc_TpDataSessionAdditionalReportInfo"  */
@@ -49384,9 +50049,11 @@ decode_org_csapi_dsc_TpDataSessionReportRequest_st(tvbuff_t *tvb _U_, packet_inf
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionReportRequest_MonitorMode, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionReportRequest_DataSessionReportType, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -49498,6 +50165,7 @@ decode_org_csapi_cm_TpNameDescrpTagTimeOfDay_st(tvbuff_t *tvb _U_, packet_info *
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpNameDescrpTagTimeOfDay_description);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagTimeOfDay_tag, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpNameDescrpTagTimeOfDay_value);
@@ -49518,6 +50186,7 @@ decode_org_csapi_cm_TpNameDescrpTagString_st(tvbuff_t *tvb _U_, packet_info *pin
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpNameDescrpTagString_description);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagString_tag, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpNameDescrpTagString_value);
@@ -49538,6 +50207,7 @@ decode_org_csapi_cm_TpNameDescrpTagMonth_st(tvbuff_t *tvb _U_, packet_info *pinf
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpNameDescrpTagMonth_description);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagMonth_tag, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_int(tree, hf_org_csapi_cm_TpNameDescrpTagMonth_value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -49558,6 +50228,7 @@ decode_org_csapi_cm_TpNameDescrpTagInt_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpNameDescrpTagInt_description);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagInt_tag, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_int(tree, hf_org_csapi_cm_TpNameDescrpTagInt_value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -49578,9 +50249,11 @@ decode_org_csapi_cm_TpNameDescrpTagDir_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpNameDescrpTagDir_description);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagDir_tag, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagDir_value, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -49599,6 +50272,7 @@ decode_org_csapi_cm_TpNameDescrpTagDayOfWeek_st(tvbuff_t *tvb _U_, packet_info *
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpNameDescrpTagDayOfWeek_description);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagDayOfWeek_tag, tvb, *offset-4, 4, u_octet4);
 
     proto_tree_add_int(tree, hf_org_csapi_cm_TpNameDescrpTagDayOfWeek_value, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -49619,6 +50293,7 @@ decode_org_csapi_cm_TpNameDescrpTagDateTime_st(tvbuff_t *tvb _U_, packet_info *p
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpNameDescrpTagDateTime_description);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagDateTime_tag, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpNameDescrpTagDateTime_value);
@@ -49716,6 +50391,7 @@ decode_org_csapi_cm_TpEndpoint_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpEndpoint_type, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpEndpoint_id);
@@ -49761,9 +50437,11 @@ decode_org_csapi_cm_TpNameDescrpTagExcessLoadAction_st(tvbuff_t *tvb _U_, packet
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpNameDescrpTagExcessLoadAction_description);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagExcessLoadAction_tag, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpNameDescrpTagExcessLoadAction_value, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -49868,9 +50546,11 @@ decode_org_csapi_cm_TpIPSubnet_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cm_TpIPSubnet_subnetMask);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpIPSubnet_addressType, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cm_TpIPSubnet_IPVersionSupport, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -49902,6 +50582,7 @@ decode_org_csapi_am_TpChargingEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_am_TpChargingEventInfo_ChargingEventName, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin struct "org_csapi_am_TpBalanceInfo"  */
@@ -49924,6 +50605,7 @@ decode_org_csapi_am_TpBalance_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_am_TpBalance_StatusCode, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin struct "org_csapi_am_TpBalanceInfo"  */
@@ -49958,16 +50640,19 @@ decode_org_csapi_am_TpChargingEventCriteria_st(tvbuff_t *tvb _U_, packet_info *p
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_am_TpChargingEventCriteria_ChargingEvents = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_am_TpChargingEventCriteria_ChargingEvents, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_TpChargingEventCriteria_ChargingEvents);
 
     for (i_org_csapi_am_TpChargingEventCriteria_ChargingEvents=0; i_org_csapi_am_TpChargingEventCriteria_ChargingEvents < u_octet4_loop_org_csapi_am_TpChargingEventCriteria_ChargingEvents; i_org_csapi_am_TpChargingEventCriteria_ChargingEvents++) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_am_TpChargingEventCriteria_ChargingEvents, tvb, *offset-4, 4, u_octet4);
 
     }
 
     u_octet4_loop_org_csapi_am_TpChargingEventCriteria_Users = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_am_TpChargingEventCriteria_Users, tvb,*offset-4, 4, u_octet4_loop_org_csapi_am_TpChargingEventCriteria_Users);
 
     for (i_org_csapi_am_TpChargingEventCriteria_Users=0; i_org_csapi_am_TpChargingEventCriteria_Users < u_octet4_loop_org_csapi_am_TpChargingEventCriteria_Users; i_org_csapi_am_TpChargingEventCriteria_Users++) {
@@ -50004,6 +50689,7 @@ decode_org_csapi_am_TpBalanceExpiryDate_st(tvbuff_t *tvb _U_, packet_info *pinfo
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_am_TpBalanceExpiryDate_StatusCode, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_am_TpBalanceExpiryDate_ExpiryDate);
@@ -50121,6 +50807,7 @@ decode_org_csapi_cs_TpApplicationDescription_st(tvbuff_t *tvb _U_, packet_info *
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_cs_TpApplicationDescription_Text);
 
     u_octet4_loop_org_csapi_cs_TpApplicationDescription_AppInformation = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cs_TpApplicationDescription_AppInformation, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_TpApplicationDescription_AppInformation);
 
     for (i_org_csapi_cs_TpApplicationDescription_AppInformation=0; i_org_csapi_cs_TpApplicationDescription_AppInformation < u_octet4_loop_org_csapi_cs_TpApplicationDescription_AppInformation; i_org_csapi_cs_TpApplicationDescription_AppInformation++) {
@@ -50163,6 +50850,7 @@ decode_org_csapi_policy_TpPolicyEvent_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_policy_TpPolicyEvent_TimeGenerated);
 
     u_octet4_loop_org_csapi_policy_TpPolicyEvent_Attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_policy_TpPolicyEvent_Attributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_TpPolicyEvent_Attributes);
 
     for (i_org_csapi_policy_TpPolicyEvent_Attributes=0; i_org_csapi_policy_TpPolicyEvent_Attributes < u_octet4_loop_org_csapi_policy_TpPolicyEvent_Attributes; i_org_csapi_policy_TpPolicyEvent_Attributes++) {
@@ -50202,6 +50890,7 @@ decode_org_csapi_policy_TpPolicyType_TpPolicyRecordType_st(tvbuff_t *tvb _U_, pa
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Names, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Names);
 
     for (i_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Names=0; i_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Names < u_octet4_loop_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Names; i_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Names++) {
@@ -50211,6 +50900,7 @@ decode_org_csapi_policy_TpPolicyType_TpPolicyRecordType_st(tvbuff_t *tvb _U_, pa
     }
 
     u_octet4_loop_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Types = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Types, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Types);
 
     for (i_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Types=0; i_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Types < u_octet4_loop_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Types; i_org_csapi_policy_TpPolicyType_TpPolicyRecordType_Types++) {
@@ -50235,6 +50925,7 @@ decode_org_csapi_policy_TpPolicyType_TpPolicyListType_st(tvbuff_t *tvb _U_, pack
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_policy_TpPolicyType_TpPolicyListType_ElementType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_policy_TpPolicyType_TpPolicyListType_ElementType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_policy_TpPolicyType_TpPolicyListType_ElementType);
 
     for (i_org_csapi_policy_TpPolicyType_TpPolicyListType_ElementType=0; i_org_csapi_policy_TpPolicyType_TpPolicyListType_ElementType < u_octet4_loop_org_csapi_policy_TpPolicyType_TpPolicyListType_ElementType; i_org_csapi_policy_TpPolicyType_TpPolicyListType_ElementType++) {
@@ -50384,6 +51075,7 @@ decode_org_csapi_pam_TpPAMContext_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     /*  End union "org_csapi_pam_TpPAMContextData"  */
     u_octet4_loop_org_csapi_pam_TpPAMContext_AskerData = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMContext_AskerData, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMContext_AskerData);
 
     for (i_org_csapi_pam_TpPAMContext_AskerData=0; i_org_csapi_pam_TpPAMContext_AskerData < u_octet4_loop_org_csapi_pam_TpPAMContext_AskerData; i_org_csapi_pam_TpPAMContext_AskerData++) {
@@ -50409,9 +51101,11 @@ decode_org_csapi_pam_TpPAMAccessControlData_st(tvbuff_t *tvb _U_, packet_info *p
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAccessControlData_DefaultPolicy, tvb, *offset-4, 4, u_octet4);
 
     u_octet4_loop_org_csapi_pam_TpPAMAccessControlData_AllowList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAccessControlData_AllowList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAccessControlData_AllowList);
 
     for (i_org_csapi_pam_TpPAMAccessControlData_AllowList=0; i_org_csapi_pam_TpPAMAccessControlData_AllowList < u_octet4_loop_org_csapi_pam_TpPAMAccessControlData_AllowList; i_org_csapi_pam_TpPAMAccessControlData_AllowList++) {
@@ -50421,6 +51115,7 @@ decode_org_csapi_pam_TpPAMAccessControlData_st(tvbuff_t *tvb _U_, packet_info *p
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAccessControlData_DenyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAccessControlData_DenyList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAccessControlData_DenyList);
 
     for (i_org_csapi_pam_TpPAMAccessControlData_DenyList=0; i_org_csapi_pam_TpPAMAccessControlData_DenyList < u_octet4_loop_org_csapi_pam_TpPAMAccessControlData_DenyList; i_org_csapi_pam_TpPAMAccessControlData_DenyList++) {
@@ -50442,6 +51137,7 @@ decode_org_csapi_pam_TpPAMICEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMICEventData_IdentityType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMICEventData_IdentityType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMICEventData_IdentityType);
 
     for (i_org_csapi_pam_TpPAMICEventData_IdentityType=0; i_org_csapi_pam_TpPAMICEventData_IdentityType < u_octet4_loop_org_csapi_pam_TpPAMICEventData_IdentityType; i_org_csapi_pam_TpPAMICEventData_IdentityType++) {
@@ -50463,6 +51159,7 @@ decode_org_csapi_pam_TpPAMICNotificationData_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMICNotificationData_Identities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMICNotificationData_Identities, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMICNotificationData_Identities);
 
     for (i_org_csapi_pam_TpPAMICNotificationData_Identities=0; i_org_csapi_pam_TpPAMICNotificationData_Identities < u_octet4_loop_org_csapi_pam_TpPAMICNotificationData_Identities; i_org_csapi_pam_TpPAMICNotificationData_Identities++) {
@@ -50486,6 +51183,7 @@ decode_org_csapi_pam_TpPAMIDEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMIDEventData_IdentityName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMIDEventData_IdentityName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMIDEventData_IdentityName);
 
     for (i_org_csapi_pam_TpPAMIDEventData_IdentityName=0; i_org_csapi_pam_TpPAMIDEventData_IdentityName < u_octet4_loop_org_csapi_pam_TpPAMIDEventData_IdentityName; i_org_csapi_pam_TpPAMIDEventData_IdentityName++) {
@@ -50495,6 +51193,7 @@ decode_org_csapi_pam_TpPAMIDEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMIDEventData_IdentityType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMIDEventData_IdentityType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMIDEventData_IdentityType);
 
     for (i_org_csapi_pam_TpPAMIDEventData_IdentityType=0; i_org_csapi_pam_TpPAMIDEventData_IdentityType < u_octet4_loop_org_csapi_pam_TpPAMIDEventData_IdentityType; i_org_csapi_pam_TpPAMIDEventData_IdentityType++) {
@@ -50516,6 +51215,7 @@ decode_org_csapi_pam_TpPAMIDNotificationData_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMIDNotificationData_Identities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMIDNotificationData_Identities, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMIDNotificationData_Identities);
 
     for (i_org_csapi_pam_TpPAMIDNotificationData_Identities=0; i_org_csapi_pam_TpPAMIDNotificationData_Identities < u_octet4_loop_org_csapi_pam_TpPAMIDNotificationData_Identities; i_org_csapi_pam_TpPAMIDNotificationData_Identities++) {
@@ -50539,6 +51239,7 @@ decode_org_csapi_pam_TpPAMGMCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMGMCEventData_GroupName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMGMCEventData_GroupName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMGMCEventData_GroupName);
 
     for (i_org_csapi_pam_TpPAMGMCEventData_GroupName=0; i_org_csapi_pam_TpPAMGMCEventData_GroupName < u_octet4_loop_org_csapi_pam_TpPAMGMCEventData_GroupName; i_org_csapi_pam_TpPAMGMCEventData_GroupName++) {
@@ -50548,6 +51249,7 @@ decode_org_csapi_pam_TpPAMGMCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMGMCEventData_GroupType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMGMCEventData_GroupType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMGMCEventData_GroupType);
 
     for (i_org_csapi_pam_TpPAMGMCEventData_GroupType=0; i_org_csapi_pam_TpPAMGMCEventData_GroupType < u_octet4_loop_org_csapi_pam_TpPAMGMCEventData_GroupType; i_org_csapi_pam_TpPAMGMCEventData_GroupType++) {
@@ -50569,6 +51271,7 @@ decode_org_csapi_pam_TpPAMGMCNotificationData_st(tvbuff_t *tvb _U_, packet_info 
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMGMCNotificationData_Groups = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMGMCNotificationData_Groups, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMGMCNotificationData_Groups);
 
     for (i_org_csapi_pam_TpPAMGMCNotificationData_Groups=0; i_org_csapi_pam_TpPAMGMCNotificationData_Groups < u_octet4_loop_org_csapi_pam_TpPAMGMCNotificationData_Groups; i_org_csapi_pam_TpPAMGMCNotificationData_Groups++) {
@@ -50590,6 +51293,7 @@ decode_org_csapi_pam_TpPAMACEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMACEventData_AgentType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMACEventData_AgentType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMACEventData_AgentType);
 
     for (i_org_csapi_pam_TpPAMACEventData_AgentType=0; i_org_csapi_pam_TpPAMACEventData_AgentType < u_octet4_loop_org_csapi_pam_TpPAMACEventData_AgentType; i_org_csapi_pam_TpPAMACEventData_AgentType++) {
@@ -50611,6 +51315,7 @@ decode_org_csapi_pam_TpPAMACNotificationData_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMACNotificationData_Agents = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMACNotificationData_Agents, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMACNotificationData_Agents);
 
     for (i_org_csapi_pam_TpPAMACNotificationData_Agents=0; i_org_csapi_pam_TpPAMACNotificationData_Agents < u_octet4_loop_org_csapi_pam_TpPAMACNotificationData_Agents; i_org_csapi_pam_TpPAMACNotificationData_Agents++) {
@@ -50634,6 +51339,7 @@ decode_org_csapi_pam_TpPAMADEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMADEventData_AgentName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMADEventData_AgentName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMADEventData_AgentName);
 
     for (i_org_csapi_pam_TpPAMADEventData_AgentName=0; i_org_csapi_pam_TpPAMADEventData_AgentName < u_octet4_loop_org_csapi_pam_TpPAMADEventData_AgentName; i_org_csapi_pam_TpPAMADEventData_AgentName++) {
@@ -50643,6 +51349,7 @@ decode_org_csapi_pam_TpPAMADEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMADEventData_AgentType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMADEventData_AgentType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMADEventData_AgentType);
 
     for (i_org_csapi_pam_TpPAMADEventData_AgentType=0; i_org_csapi_pam_TpPAMADEventData_AgentType < u_octet4_loop_org_csapi_pam_TpPAMADEventData_AgentType; i_org_csapi_pam_TpPAMADEventData_AgentType++) {
@@ -50664,6 +51371,7 @@ decode_org_csapi_pam_TpPAMADNotificationData_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMADNotificationData_Agents = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMADNotificationData_Agents, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMADNotificationData_Agents);
 
     for (i_org_csapi_pam_TpPAMADNotificationData_Agents=0; i_org_csapi_pam_TpPAMADNotificationData_Agents < u_octet4_loop_org_csapi_pam_TpPAMADNotificationData_Agents; i_org_csapi_pam_TpPAMADNotificationData_Agents++) {
@@ -50691,6 +51399,7 @@ decode_org_csapi_pam_TpPAMAAEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMAAEventData_IdentityName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAAEventData_IdentityName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAAEventData_IdentityName);
 
     for (i_org_csapi_pam_TpPAMAAEventData_IdentityName=0; i_org_csapi_pam_TpPAMAAEventData_IdentityName < u_octet4_loop_org_csapi_pam_TpPAMAAEventData_IdentityName; i_org_csapi_pam_TpPAMAAEventData_IdentityName++) {
@@ -50700,6 +51409,7 @@ decode_org_csapi_pam_TpPAMAAEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAAEventData_IdentityType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAAEventData_IdentityType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAAEventData_IdentityType);
 
     for (i_org_csapi_pam_TpPAMAAEventData_IdentityType=0; i_org_csapi_pam_TpPAMAAEventData_IdentityType < u_octet4_loop_org_csapi_pam_TpPAMAAEventData_IdentityType; i_org_csapi_pam_TpPAMAAEventData_IdentityType++) {
@@ -50709,6 +51419,7 @@ decode_org_csapi_pam_TpPAMAAEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAAEventData_AgentName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAAEventData_AgentName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAAEventData_AgentName);
 
     for (i_org_csapi_pam_TpPAMAAEventData_AgentName=0; i_org_csapi_pam_TpPAMAAEventData_AgentName < u_octet4_loop_org_csapi_pam_TpPAMAAEventData_AgentName; i_org_csapi_pam_TpPAMAAEventData_AgentName++) {
@@ -50718,6 +51429,7 @@ decode_org_csapi_pam_TpPAMAAEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAAEventData_AgentType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAAEventData_AgentType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAAEventData_AgentType);
 
     for (i_org_csapi_pam_TpPAMAAEventData_AgentType=0; i_org_csapi_pam_TpPAMAAEventData_AgentType < u_octet4_loop_org_csapi_pam_TpPAMAAEventData_AgentType; i_org_csapi_pam_TpPAMAAEventData_AgentType++) {
@@ -50756,6 +51468,7 @@ decode_org_csapi_pam_TpPAMAUEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMAUEventData_IdentityName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAUEventData_IdentityName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAUEventData_IdentityName);
 
     for (i_org_csapi_pam_TpPAMAUEventData_IdentityName=0; i_org_csapi_pam_TpPAMAUEventData_IdentityName < u_octet4_loop_org_csapi_pam_TpPAMAUEventData_IdentityName; i_org_csapi_pam_TpPAMAUEventData_IdentityName++) {
@@ -50765,6 +51478,7 @@ decode_org_csapi_pam_TpPAMAUEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAUEventData_IdentityType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAUEventData_IdentityType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAUEventData_IdentityType);
 
     for (i_org_csapi_pam_TpPAMAUEventData_IdentityType=0; i_org_csapi_pam_TpPAMAUEventData_IdentityType < u_octet4_loop_org_csapi_pam_TpPAMAUEventData_IdentityType; i_org_csapi_pam_TpPAMAUEventData_IdentityType++) {
@@ -50774,6 +51488,7 @@ decode_org_csapi_pam_TpPAMAUEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAUEventData_AgentName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAUEventData_AgentName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAUEventData_AgentName);
 
     for (i_org_csapi_pam_TpPAMAUEventData_AgentName=0; i_org_csapi_pam_TpPAMAUEventData_AgentName < u_octet4_loop_org_csapi_pam_TpPAMAUEventData_AgentName; i_org_csapi_pam_TpPAMAUEventData_AgentName++) {
@@ -50783,6 +51498,7 @@ decode_org_csapi_pam_TpPAMAUEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAUEventData_AgentType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAUEventData_AgentType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAUEventData_AgentType);
 
     for (i_org_csapi_pam_TpPAMAUEventData_AgentType=0; i_org_csapi_pam_TpPAMAUEventData_AgentType < u_octet4_loop_org_csapi_pam_TpPAMAUEventData_AgentType; i_org_csapi_pam_TpPAMAUEventData_AgentType++) {
@@ -50819,6 +51535,7 @@ decode_org_csapi_pam_TpPAMCCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMCCEventData_IdentityName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMCCEventData_IdentityName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMCCEventData_IdentityName);
 
     for (i_org_csapi_pam_TpPAMCCEventData_IdentityName=0; i_org_csapi_pam_TpPAMCCEventData_IdentityName < u_octet4_loop_org_csapi_pam_TpPAMCCEventData_IdentityName; i_org_csapi_pam_TpPAMCCEventData_IdentityName++) {
@@ -50828,6 +51545,7 @@ decode_org_csapi_pam_TpPAMCCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMCCEventData_IdentityType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMCCEventData_IdentityType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMCCEventData_IdentityType);
 
     for (i_org_csapi_pam_TpPAMCCEventData_IdentityType=0; i_org_csapi_pam_TpPAMCCEventData_IdentityType < u_octet4_loop_org_csapi_pam_TpPAMCCEventData_IdentityType; i_org_csapi_pam_TpPAMCCEventData_IdentityType++) {
@@ -50837,6 +51555,7 @@ decode_org_csapi_pam_TpPAMCCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMCCEventData_Capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMCCEventData_Capabilities, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMCCEventData_Capabilities);
 
     for (i_org_csapi_pam_TpPAMCCEventData_Capabilities=0; i_org_csapi_pam_TpPAMCCEventData_Capabilities < u_octet4_loop_org_csapi_pam_TpPAMCCEventData_Capabilities; i_org_csapi_pam_TpPAMCCEventData_Capabilities++) {
@@ -50860,6 +51579,7 @@ decode_org_csapi_pam_TpPAMCCNotificationData_st(tvbuff_t *tvb _U_, packet_info *
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_TpPAMCCNotificationData_Identity);
 
     u_octet4_loop_org_csapi_pam_TpPAMCCNotificationData_Capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMCCNotificationData_Capabilities, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMCCNotificationData_Capabilities);
 
     for (i_org_csapi_pam_TpPAMCCNotificationData_Capabilities=0; i_org_csapi_pam_TpPAMCCNotificationData_Capabilities < u_octet4_loop_org_csapi_pam_TpPAMCCNotificationData_Capabilities; i_org_csapi_pam_TpPAMCCNotificationData_Capabilities++) {
@@ -50887,6 +51607,7 @@ decode_org_csapi_pam_TpPAMACPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_AgentName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMACPSEventData_AgentName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_AgentName);
 
     for (i_org_csapi_pam_TpPAMACPSEventData_AgentName=0; i_org_csapi_pam_TpPAMACPSEventData_AgentName < u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_AgentName; i_org_csapi_pam_TpPAMACPSEventData_AgentName++) {
@@ -50896,6 +51617,7 @@ decode_org_csapi_pam_TpPAMACPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_AgentType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMACPSEventData_AgentType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_AgentType);
 
     for (i_org_csapi_pam_TpPAMACPSEventData_AgentType=0; i_org_csapi_pam_TpPAMACPSEventData_AgentType < u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_AgentType; i_org_csapi_pam_TpPAMACPSEventData_AgentType++) {
@@ -50905,6 +51627,7 @@ decode_org_csapi_pam_TpPAMACPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_Capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMACPSEventData_Capabilities, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_Capabilities);
 
     for (i_org_csapi_pam_TpPAMACPSEventData_Capabilities=0; i_org_csapi_pam_TpPAMACPSEventData_Capabilities < u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_Capabilities; i_org_csapi_pam_TpPAMACPSEventData_Capabilities++) {
@@ -50914,6 +51637,7 @@ decode_org_csapi_pam_TpPAMACPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_AttributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMACPSEventData_AttributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_AttributeNames);
 
     for (i_org_csapi_pam_TpPAMACPSEventData_AttributeNames=0; i_org_csapi_pam_TpPAMACPSEventData_AttributeNames < u_octet4_loop_org_csapi_pam_TpPAMACPSEventData_AttributeNames; i_org_csapi_pam_TpPAMACPSEventData_AttributeNames++) {
@@ -50941,6 +51665,7 @@ decode_org_csapi_pam_TpPAMACPSNotificationData_st(tvbuff_t *tvb _U_, packet_info
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_TpPAMACPSNotificationData_Capability);
 
     u_octet4_loop_org_csapi_pam_TpPAMACPSNotificationData_AttributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMACPSNotificationData_AttributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMACPSNotificationData_AttributeNames);
 
     for (i_org_csapi_pam_TpPAMACPSNotificationData_AttributeNames=0; i_org_csapi_pam_TpPAMACPSNotificationData_AttributeNames < u_octet4_loop_org_csapi_pam_TpPAMACPSNotificationData_AttributeNames; i_org_csapi_pam_TpPAMACPSNotificationData_AttributeNames++) {
@@ -50966,6 +51691,7 @@ decode_org_csapi_pam_TpPAMAPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMAPSEventData_AgentName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAPSEventData_AgentName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAPSEventData_AgentName);
 
     for (i_org_csapi_pam_TpPAMAPSEventData_AgentName=0; i_org_csapi_pam_TpPAMAPSEventData_AgentName < u_octet4_loop_org_csapi_pam_TpPAMAPSEventData_AgentName; i_org_csapi_pam_TpPAMAPSEventData_AgentName++) {
@@ -50975,6 +51701,7 @@ decode_org_csapi_pam_TpPAMAPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAPSEventData_AgentType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAPSEventData_AgentType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAPSEventData_AgentType);
 
     for (i_org_csapi_pam_TpPAMAPSEventData_AgentType=0; i_org_csapi_pam_TpPAMAPSEventData_AgentType < u_octet4_loop_org_csapi_pam_TpPAMAPSEventData_AgentType; i_org_csapi_pam_TpPAMAPSEventData_AgentType++) {
@@ -50984,6 +51711,7 @@ decode_org_csapi_pam_TpPAMAPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAPSEventData_AttributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAPSEventData_AttributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAPSEventData_AttributeNames);
 
     for (i_org_csapi_pam_TpPAMAPSEventData_AttributeNames=0; i_org_csapi_pam_TpPAMAPSEventData_AttributeNames < u_octet4_loop_org_csapi_pam_TpPAMAPSEventData_AttributeNames; i_org_csapi_pam_TpPAMAPSEventData_AttributeNames++) {
@@ -51009,6 +51737,7 @@ decode_org_csapi_pam_TpPAMAPSNotificationData_st(tvbuff_t *tvb _U_, packet_info 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_TpPAMAPSNotificationData_Agent);
 
     u_octet4_loop_org_csapi_pam_TpPAMAPSNotificationData_AttributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAPSNotificationData_AttributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAPSNotificationData_AttributeNames);
 
     for (i_org_csapi_pam_TpPAMAPSNotificationData_AttributeNames=0; i_org_csapi_pam_TpPAMAPSNotificationData_AttributeNames < u_octet4_loop_org_csapi_pam_TpPAMAPSNotificationData_AttributeNames; i_org_csapi_pam_TpPAMAPSNotificationData_AttributeNames++) {
@@ -51034,6 +51763,7 @@ decode_org_csapi_pam_TpPAMIPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMIPSEventData_IdentityName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMIPSEventData_IdentityName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMIPSEventData_IdentityName);
 
     for (i_org_csapi_pam_TpPAMIPSEventData_IdentityName=0; i_org_csapi_pam_TpPAMIPSEventData_IdentityName < u_octet4_loop_org_csapi_pam_TpPAMIPSEventData_IdentityName; i_org_csapi_pam_TpPAMIPSEventData_IdentityName++) {
@@ -51043,6 +51773,7 @@ decode_org_csapi_pam_TpPAMIPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMIPSEventData_IdentityType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMIPSEventData_IdentityType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMIPSEventData_IdentityType);
 
     for (i_org_csapi_pam_TpPAMIPSEventData_IdentityType=0; i_org_csapi_pam_TpPAMIPSEventData_IdentityType < u_octet4_loop_org_csapi_pam_TpPAMIPSEventData_IdentityType; i_org_csapi_pam_TpPAMIPSEventData_IdentityType++) {
@@ -51052,6 +51783,7 @@ decode_org_csapi_pam_TpPAMIPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMIPSEventData_AttributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMIPSEventData_AttributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMIPSEventData_AttributeNames);
 
     for (i_org_csapi_pam_TpPAMIPSEventData_AttributeNames=0; i_org_csapi_pam_TpPAMIPSEventData_AttributeNames < u_octet4_loop_org_csapi_pam_TpPAMIPSEventData_AttributeNames; i_org_csapi_pam_TpPAMIPSEventData_AttributeNames++) {
@@ -51077,6 +51809,7 @@ decode_org_csapi_pam_TpPAMIPSNotificationData_st(tvbuff_t *tvb _U_, packet_info 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_TpPAMIPSNotificationData_Identity);
 
     u_octet4_loop_org_csapi_pam_TpPAMIPSNotificationData_Attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMIPSNotificationData_Attributes, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMIPSNotificationData_Attributes);
 
     for (i_org_csapi_pam_TpPAMIPSNotificationData_Attributes=0; i_org_csapi_pam_TpPAMIPSNotificationData_Attributes < u_octet4_loop_org_csapi_pam_TpPAMIPSNotificationData_Attributes; i_org_csapi_pam_TpPAMIPSNotificationData_Attributes++) {
@@ -51105,6 +51838,7 @@ decode_org_csapi_pam_TpPAMAVCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_IdentityName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAVCEventData_IdentityName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_IdentityName);
 
     for (i_org_csapi_pam_TpPAMAVCEventData_IdentityName=0; i_org_csapi_pam_TpPAMAVCEventData_IdentityName < u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_IdentityName; i_org_csapi_pam_TpPAMAVCEventData_IdentityName++) {
@@ -51114,6 +51848,7 @@ decode_org_csapi_pam_TpPAMAVCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_IdentityType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAVCEventData_IdentityType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_IdentityType);
 
     for (i_org_csapi_pam_TpPAMAVCEventData_IdentityType=0; i_org_csapi_pam_TpPAMAVCEventData_IdentityType < u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_IdentityType; i_org_csapi_pam_TpPAMAVCEventData_IdentityType++) {
@@ -51123,6 +51858,7 @@ decode_org_csapi_pam_TpPAMAVCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_PAMContext = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAVCEventData_PAMContext, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_PAMContext);
 
     for (i_org_csapi_pam_TpPAMAVCEventData_PAMContext=0; i_org_csapi_pam_TpPAMAVCEventData_PAMContext < u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_PAMContext; i_org_csapi_pam_TpPAMAVCEventData_PAMContext++) {
@@ -51133,6 +51869,7 @@ decode_org_csapi_pam_TpPAMAVCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_AttributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAVCEventData_AttributeNames, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_AttributeNames);
 
     for (i_org_csapi_pam_TpPAMAVCEventData_AttributeNames=0; i_org_csapi_pam_TpPAMAVCEventData_AttributeNames < u_octet4_loop_org_csapi_pam_TpPAMAVCEventData_AttributeNames; i_org_csapi_pam_TpPAMAVCEventData_AttributeNames++) {
@@ -51158,6 +51895,7 @@ decode_org_csapi_pam_TpPAMAVCNotificationData_st(tvbuff_t *tvb _U_, packet_info 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_TpPAMAVCNotificationData_Identity);
 
     u_octet4_loop_org_csapi_pam_TpPAMAVCNotificationData_Availability = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMAVCNotificationData_Availability, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMAVCNotificationData_Availability);
 
     for (i_org_csapi_pam_TpPAMAVCNotificationData_Availability=0; i_org_csapi_pam_TpPAMAVCNotificationData_Availability < u_octet4_loop_org_csapi_pam_TpPAMAVCNotificationData_Availability; i_org_csapi_pam_TpPAMAVCNotificationData_Availability++) {
@@ -51185,16 +51923,19 @@ decode_org_csapi_pam_TpPAMWCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_pam_TpPAMWCEventData_Events = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMWCEventData_Events, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMWCEventData_Events);
 
     for (i_org_csapi_pam_TpPAMWCEventData_Events=0; i_org_csapi_pam_TpPAMWCEventData_Events < u_octet4_loop_org_csapi_pam_TpPAMWCEventData_Events; i_org_csapi_pam_TpPAMWCEventData_Events++) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMWCEventData_Events, tvb, *offset-4, 4, u_octet4);
 
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMWCEventData_IdentityName = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMWCEventData_IdentityName, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMWCEventData_IdentityName);
 
     for (i_org_csapi_pam_TpPAMWCEventData_IdentityName=0; i_org_csapi_pam_TpPAMWCEventData_IdentityName < u_octet4_loop_org_csapi_pam_TpPAMWCEventData_IdentityName; i_org_csapi_pam_TpPAMWCEventData_IdentityName++) {
@@ -51204,6 +51945,7 @@ decode_org_csapi_pam_TpPAMWCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     }
 
     u_octet4_loop_org_csapi_pam_TpPAMWCEventData_IdentityType = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMWCEventData_IdentityType, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMWCEventData_IdentityType);
 
     for (i_org_csapi_pam_TpPAMWCEventData_IdentityType=0; i_org_csapi_pam_TpPAMWCEventData_IdentityType < u_octet4_loop_org_csapi_pam_TpPAMWCEventData_IdentityType; i_org_csapi_pam_TpPAMWCEventData_IdentityType++) {
@@ -51228,14 +51970,17 @@ decode_org_csapi_pam_TpPAMWCNotificationData_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMWCNotificationData_Event, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMWCNotificationData_ChangeType, tvb, *offset-4, 4, u_octet4);
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_pam_TpPAMWCNotificationData_Identity);
 
     u_octet4_loop_org_csapi_pam_TpPAMWCNotificationData_Watchers = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMWCNotificationData_Watchers, tvb,*offset-4, 4, u_octet4_loop_org_csapi_pam_TpPAMWCNotificationData_Watchers);
 
     for (i_org_csapi_pam_TpPAMWCNotificationData_Watchers=0; i_org_csapi_pam_TpPAMWCNotificationData_Watchers < u_octet4_loop_org_csapi_pam_TpPAMWCNotificationData_Watchers; i_org_csapi_pam_TpPAMWCNotificationData_Watchers++) {
@@ -51256,6 +52001,7 @@ decode_org_csapi_pam_TpPAMErrorInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMErrorInfo_Cause, tvb, *offset-4, 4, u_octet4);
 
     /*  Begin union "org_csapi_pam_TpPAMNotificationInfo"  */
@@ -51321,6 +52067,7 @@ decode_org_csapi_mmm_TpMessageDescription_st(tvbuff_t *tvb _U_, packet_info *pin
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
     u_octet4_loop_org_csapi_mmm_TpMessageDescription_To = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageDescription_To, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpMessageDescription_To);
 
     for (i_org_csapi_mmm_TpMessageDescription_To=0; i_org_csapi_mmm_TpMessageDescription_To < u_octet4_loop_org_csapi_mmm_TpMessageDescription_To; i_org_csapi_mmm_TpMessageDescription_To++) {
@@ -51375,6 +52122,7 @@ decode_org_csapi_mmm_TpBodyPart_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
     decode_org_csapi_mmm_TpBodyPartDescription_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_mmm_TpBodyPartDescription"  */
     u_octet4_loop_org_csapi_mmm_TpBodyPart_BodyPartContent = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpBodyPart_BodyPartContent, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpBodyPart_BodyPartContent);
 
     for (i_org_csapi_mmm_TpBodyPart_BodyPartContent=0; i_org_csapi_mmm_TpBodyPart_BodyPartContent < u_octet4_loop_org_csapi_mmm_TpBodyPart_BodyPartContent; i_org_csapi_mmm_TpBodyPart_BodyPartContent++) {
@@ -51406,9 +52154,11 @@ decode_org_csapi_mmm_TpMessageInfoPropertyError_st(tvbuff_t *tvb _U_, packet_inf
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageInfoPropertyError_MessagePropertyName, tvb, *offset-4, 4, u_octet4);
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageInfoPropertyError_Error, tvb, *offset-4, 4, u_octet4);
 
 }
@@ -51441,6 +52191,7 @@ decode_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_st(tvbuff_t *tvb _U_, packet
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_FolderID);
 
     u_octet4_loop_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_MessageDescription = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_MessageDescription, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_MessageDescription);
 
     for (i_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_MessageDescription=0; i_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_MessageDescription < u_octet4_loop_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_MessageDescription; i_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_MessageDescription++) {
@@ -51451,6 +52202,7 @@ decode_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_st(tvbuff_t *tvb _U_, packet
     }
 
     u_octet4_loop_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_ExtendedHeaderInformation = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_ExtendedHeaderInformation, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_ExtendedHeaderInformation);
 
     for (i_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_ExtendedHeaderInformation=0; i_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_ExtendedHeaderInformation < u_octet4_loop_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_ExtendedHeaderInformation; i_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_ExtendedHeaderInformation++) {
@@ -51491,6 +52243,7 @@ decode_org_csapi_mmm_TpTerminatingAddressList_st(tvbuff_t *tvb _U_, packet_info 
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_mmm_TpTerminatingAddressList_ToAddressList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpTerminatingAddressList_ToAddressList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpTerminatingAddressList_ToAddressList);
 
     for (i_org_csapi_mmm_TpTerminatingAddressList_ToAddressList=0; i_org_csapi_mmm_TpTerminatingAddressList_ToAddressList < u_octet4_loop_org_csapi_mmm_TpTerminatingAddressList_ToAddressList; i_org_csapi_mmm_TpTerminatingAddressList_ToAddressList++) {
@@ -51501,6 +52254,7 @@ decode_org_csapi_mmm_TpTerminatingAddressList_st(tvbuff_t *tvb _U_, packet_info 
     }
 
     u_octet4_loop_org_csapi_mmm_TpTerminatingAddressList_CcAddressList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpTerminatingAddressList_CcAddressList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpTerminatingAddressList_CcAddressList);
 
     for (i_org_csapi_mmm_TpTerminatingAddressList_CcAddressList=0; i_org_csapi_mmm_TpTerminatingAddressList_CcAddressList < u_octet4_loop_org_csapi_mmm_TpTerminatingAddressList_CcAddressList; i_org_csapi_mmm_TpTerminatingAddressList_CcAddressList++) {
@@ -51511,6 +52265,7 @@ decode_org_csapi_mmm_TpTerminatingAddressList_st(tvbuff_t *tvb _U_, packet_info 
     }
 
     u_octet4_loop_org_csapi_mmm_TpTerminatingAddressList_BccAddressList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpTerminatingAddressList_BccAddressList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpTerminatingAddressList_BccAddressList);
 
     for (i_org_csapi_mmm_TpTerminatingAddressList_BccAddressList=0; i_org_csapi_mmm_TpTerminatingAddressList_BccAddressList < u_octet4_loop_org_csapi_mmm_TpTerminatingAddressList_BccAddressList; i_org_csapi_mmm_TpTerminatingAddressList_BccAddressList++) {
@@ -51548,6 +52303,7 @@ decode_org_csapi_mmm_TpMessagingNotificationRequested_st(tvbuff_t *tvb _U_, pack
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_mmm_TpMessagingNotificationRequested_EventCriteria = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessagingNotificationRequested_EventCriteria, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpMessagingNotificationRequested_EventCriteria);
 
     for (i_org_csapi_mmm_TpMessagingNotificationRequested_EventCriteria=0; i_org_csapi_mmm_TpMessagingNotificationRequested_EventCriteria < u_octet4_loop_org_csapi_mmm_TpMessagingNotificationRequested_EventCriteria; i_org_csapi_mmm_TpMessagingNotificationRequested_EventCriteria++) {
@@ -51574,6 +52330,7 @@ decode_org_csapi_mmm_TpMessagingNotificationRequestedSetEntry_st(tvbuff_t *tvb _
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_org_csapi_mmm_TpMessagingNotificationRequestedSetEntry_MessagingNotificationRequestedSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessagingNotificationRequestedSetEntry_MessagingNotificationRequestedSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpMessagingNotificationRequestedSetEntry_MessagingNotificationRequestedSet);
 
     for (i_org_csapi_mmm_TpMessagingNotificationRequestedSetEntry_MessagingNotificationRequestedSet=0; i_org_csapi_mmm_TpMessagingNotificationRequestedSetEntry_MessagingNotificationRequestedSet < u_octet4_loop_org_csapi_mmm_TpMessagingNotificationRequestedSetEntry_MessagingNotificationRequestedSet; i_org_csapi_mmm_TpMessagingNotificationRequestedSetEntry_MessagingNotificationRequestedSet++) {
@@ -51605,6 +52362,7 @@ decode_org_csapi_mmm_TpNewMessageArrivedInfo_st(tvbuff_t *tvb _U_, packet_info *
     decode_org_csapi_TpAddress_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "org_csapi_TpAddress"  */
     u_octet4_loop_org_csapi_mmm_TpNewMessageArrivedInfo_DestinationAddressSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpNewMessageArrivedInfo_DestinationAddressSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpNewMessageArrivedInfo_DestinationAddressSet);
 
     for (i_org_csapi_mmm_TpNewMessageArrivedInfo_DestinationAddressSet=0; i_org_csapi_mmm_TpNewMessageArrivedInfo_DestinationAddressSet < u_octet4_loop_org_csapi_mmm_TpNewMessageArrivedInfo_DestinationAddressSet; i_org_csapi_mmm_TpNewMessageArrivedInfo_DestinationAddressSet++) {
@@ -51615,6 +52373,7 @@ decode_org_csapi_mmm_TpNewMessageArrivedInfo_st(tvbuff_t *tvb _U_, packet_info *
     }
 
     u_octet4_loop_org_csapi_mmm_TpNewMessageArrivedInfo_Message = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpNewMessageArrivedInfo_Message, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpNewMessageArrivedInfo_Message);
 
     for (i_org_csapi_mmm_TpNewMessageArrivedInfo_Message=0; i_org_csapi_mmm_TpNewMessageArrivedInfo_Message < u_octet4_loop_org_csapi_mmm_TpNewMessageArrivedInfo_Message; i_org_csapi_mmm_TpNewMessageArrivedInfo_Message++) {
@@ -51624,6 +52383,7 @@ decode_org_csapi_mmm_TpNewMessageArrivedInfo_st(tvbuff_t *tvb _U_, packet_info *
     }
 
     u_octet4_loop_org_csapi_mmm_TpNewMessageArrivedInfo_Headers = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpNewMessageArrivedInfo_Headers, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpNewMessageArrivedInfo_Headers);
 
     for (i_org_csapi_mmm_TpNewMessageArrivedInfo_Headers=0; i_org_csapi_mmm_TpNewMessageArrivedInfo_Headers < u_octet4_loop_org_csapi_mmm_TpNewMessageArrivedInfo_Headers; i_org_csapi_mmm_TpNewMessageArrivedInfo_Headers++) {
@@ -51656,6 +52416,7 @@ decode_org_csapi_TpAoCOrder_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_TpAoCOrder_TpAoCOrder, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -51707,6 +52468,7 @@ decode_org_csapi_TpSimpleAttributeValue_un(tvbuff_t *tvb _U_, packet_info *pinfo
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_TpSimpleAttributeValue_TpSimpleAttributeValue, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -51843,6 +52605,7 @@ decode_org_csapi_TpAttributeValue_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_TpAttributeValue_TpAttributeValue, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -51908,6 +52671,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwEventCriteria_TpFwEventCriteria, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -51926,6 +52690,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
     if (disc_s_TpFwEventCriteria == 1 ) {
 
         u_octet4_loop_org_csapi_fw_TpFwEventCriteria_ServiceTypeNameList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwEventCriteria_ServiceTypeNameList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpFwEventCriteria_ServiceTypeNameList);
 
         for (i_org_csapi_fw_TpFwEventCriteria_ServiceTypeNameList=0; i_org_csapi_fw_TpFwEventCriteria_ServiceTypeNameList < u_octet4_loop_org_csapi_fw_TpFwEventCriteria_ServiceTypeNameList; i_org_csapi_fw_TpFwEventCriteria_ServiceTypeNameList++) {
@@ -51940,6 +52705,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
     if (disc_s_TpFwEventCriteria == 2 ) {
 
         u_octet4_loop_org_csapi_fw_TpFwEventCriteria_UnavailableServiceTypeNameList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwEventCriteria_UnavailableServiceTypeNameList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpFwEventCriteria_UnavailableServiceTypeNameList);
 
         for (i_org_csapi_fw_TpFwEventCriteria_UnavailableServiceTypeNameList=0; i_org_csapi_fw_TpFwEventCriteria_UnavailableServiceTypeNameList < u_octet4_loop_org_csapi_fw_TpFwEventCriteria_UnavailableServiceTypeNameList; i_org_csapi_fw_TpFwEventCriteria_UnavailableServiceTypeNameList++) {
@@ -51954,6 +52720,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
     if (disc_s_TpFwEventCriteria == 3 ) {
 
         u_octet4_loop_org_csapi_fw_TpFwEventCriteria_CompatibleServiceTypeNameList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwEventCriteria_CompatibleServiceTypeNameList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpFwEventCriteria_CompatibleServiceTypeNameList);
 
         for (i_org_csapi_fw_TpFwEventCriteria_CompatibleServiceTypeNameList=0; i_org_csapi_fw_TpFwEventCriteria_CompatibleServiceTypeNameList < u_octet4_loop_org_csapi_fw_TpFwEventCriteria_CompatibleServiceTypeNameList; i_org_csapi_fw_TpFwEventCriteria_CompatibleServiceTypeNameList++) {
@@ -51968,6 +52735,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
     if (disc_s_TpFwEventCriteria == 4 ) {
 
         u_octet4_loop_org_csapi_fw_TpFwEventCriteria_SessionCreatedList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwEventCriteria_SessionCreatedList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpFwEventCriteria_SessionCreatedList);
 
         for (i_org_csapi_fw_TpFwEventCriteria_SessionCreatedList=0; i_org_csapi_fw_TpFwEventCriteria_SessionCreatedList < u_octet4_loop_org_csapi_fw_TpFwEventCriteria_SessionCreatedList; i_org_csapi_fw_TpFwEventCriteria_SessionCreatedList++) {
@@ -51982,6 +52750,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
     if (disc_s_TpFwEventCriteria == 5 ) {
 
         u_octet4_loop_org_csapi_fw_TpFwEventCriteria_SessionTerminatedList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwEventCriteria_SessionTerminatedList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpFwEventCriteria_SessionTerminatedList);
 
         for (i_org_csapi_fw_TpFwEventCriteria_SessionTerminatedList=0; i_org_csapi_fw_TpFwEventCriteria_SessionTerminatedList < u_octet4_loop_org_csapi_fw_TpFwEventCriteria_SessionTerminatedList; i_org_csapi_fw_TpFwEventCriteria_SessionTerminatedList++) {
@@ -51996,6 +52765,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
     if (disc_s_TpFwEventCriteria == 6 ) {
 
         u_octet4_loop_org_csapi_fw_TpFwEventCriteria_AgreementSignedList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwEventCriteria_AgreementSignedList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpFwEventCriteria_AgreementSignedList);
 
         for (i_org_csapi_fw_TpFwEventCriteria_AgreementSignedList=0; i_org_csapi_fw_TpFwEventCriteria_AgreementSignedList < u_octet4_loop_org_csapi_fw_TpFwEventCriteria_AgreementSignedList; i_org_csapi_fw_TpFwEventCriteria_AgreementSignedList++) {
@@ -52010,6 +52780,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
     if (disc_s_TpFwEventCriteria == 7 ) {
 
         u_octet4_loop_org_csapi_fw_TpFwEventCriteria_AgreementEndedList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwEventCriteria_AgreementEndedList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpFwEventCriteria_AgreementEndedList);
 
         for (i_org_csapi_fw_TpFwEventCriteria_AgreementEndedList=0; i_org_csapi_fw_TpFwEventCriteria_AgreementEndedList < u_octet4_loop_org_csapi_fw_TpFwEventCriteria_AgreementEndedList; i_org_csapi_fw_TpFwEventCriteria_AgreementEndedList++) {
@@ -52039,6 +52810,7 @@ decode_org_csapi_fw_TpLoadStatisticEntityID_un(tvbuff_t *tvb _U_, packet_info *p
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpLoadStatisticEntityID_TpLoadStatisticEntityID, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52086,6 +52858,7 @@ decode_org_csapi_fw_TpLoadStatisticInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpLoadStatisticInfo_TpLoadStatisticInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52105,6 +52878,7 @@ decode_org_csapi_fw_TpLoadStatisticInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo
     if (disc_s_TpLoadStatisticInfo == 1 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpLoadStatisticInfo_LoadStatisticError, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -52128,6 +52902,7 @@ decode_org_csapi_fw_TpDomainID_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpDomainID_TpDomainID, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52189,6 +52964,7 @@ decode_org_csapi_fw_TpMigrationAdditionalInfo_un(tvbuff_t *tvb _U_, packet_info 
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpMigrationAdditionalInfo_TpMigrationAdditionalInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52226,6 +53002,7 @@ decode_org_csapi_fw_TpFwEventInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwEventInfo_TpFwEventInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52244,6 +53021,7 @@ decode_org_csapi_fw_TpFwEventInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     if (disc_s_TpFwEventInfo == 1 ) {
 
         u_octet4_loop_org_csapi_fw_TpFwEventInfo_ServiceIDList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwEventInfo_ServiceIDList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpFwEventInfo_ServiceIDList);
 
         for (i_org_csapi_fw_TpFwEventInfo_ServiceIDList=0; i_org_csapi_fw_TpFwEventInfo_ServiceIDList < u_octet4_loop_org_csapi_fw_TpFwEventInfo_ServiceIDList; i_org_csapi_fw_TpFwEventInfo_ServiceIDList++) {
@@ -52258,6 +53036,7 @@ decode_org_csapi_fw_TpFwEventInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     if (disc_s_TpFwEventInfo == 2 ) {
 
         u_octet4_loop_org_csapi_fw_TpFwEventInfo_UnavailableServiceIDList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_fw_TpFwEventInfo_UnavailableServiceIDList, tvb,*offset-4, 4, u_octet4_loop_org_csapi_fw_TpFwEventInfo_UnavailableServiceIDList);
 
         for (i_org_csapi_fw_TpFwEventInfo_UnavailableServiceIDList=0; i_org_csapi_fw_TpFwEventInfo_UnavailableServiceIDList < u_octet4_loop_org_csapi_fw_TpFwEventInfo_UnavailableServiceIDList; i_org_csapi_fw_TpFwEventInfo_UnavailableServiceIDList++) {
@@ -52325,6 +53104,7 @@ decode_org_csapi_ui_TpUIVariableInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIVariableInfo_TpUIVariableInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52394,6 +53174,7 @@ decode_org_csapi_ui_TpUIInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIInfo_TpUIInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52426,6 +53207,7 @@ decode_org_csapi_ui_TpUIInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
     if (disc_s_TpUIInfo == 3 ) {
 
         u_octet4_loop_org_csapi_ui_TpUIInfo_InfoBinData = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIInfo_InfoBinData, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_TpUIInfo_InfoBinData);
 
         for (i_org_csapi_ui_TpUIInfo_InfoBinData=0; i_org_csapi_ui_TpUIInfo_InfoBinData < u_octet4_loop_org_csapi_ui_TpUIInfo_InfoBinData; i_org_csapi_ui_TpUIInfo_InfoBinData++) {
@@ -52447,6 +53229,7 @@ decode_org_csapi_ui_TpUIInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
     if (disc_s_TpUIInfo == 5 ) {
 
         u_octet4_loop_org_csapi_ui_TpUIInfo_InfoMimeData = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIInfo_InfoMimeData, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_TpUIInfo_InfoMimeData);
 
         for (i_org_csapi_ui_TpUIInfo_InfoMimeData=0; i_org_csapi_ui_TpUIInfo_InfoMimeData < u_octet4_loop_org_csapi_ui_TpUIInfo_InfoMimeData; i_org_csapi_ui_TpUIInfo_InfoMimeData++) {
@@ -52461,6 +53244,7 @@ decode_org_csapi_ui_TpUIInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
     if (disc_s_TpUIInfo == 6 ) {
 
         u_octet4_loop_org_csapi_ui_TpUIInfo_InfoWaveData = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIInfo_InfoWaveData, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_TpUIInfo_InfoWaveData);
 
         for (i_org_csapi_ui_TpUIInfo_InfoWaveData=0; i_org_csapi_ui_TpUIInfo_InfoWaveData < u_octet4_loop_org_csapi_ui_TpUIInfo_InfoWaveData; i_org_csapi_ui_TpUIInfo_InfoWaveData++) {
@@ -52475,6 +53259,7 @@ decode_org_csapi_ui_TpUIInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
     if (disc_s_TpUIInfo == 7 ) {
 
         u_octet4_loop_org_csapi_ui_TpUIInfo_InfoAuData = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUIInfo_InfoAuData, tvb,*offset-4, 4, u_octet4_loop_org_csapi_ui_TpUIInfo_InfoAuData);
 
         for (i_org_csapi_ui_TpUIInfo_InfoAuData=0; i_org_csapi_ui_TpUIInfo_InfoAuData < u_octet4_loop_org_csapi_ui_TpUIInfo_InfoAuData; i_org_csapi_ui_TpUIInfo_InfoAuData++) {
@@ -52519,6 +53304,7 @@ decode_org_csapi_cc_TpCallAdditionalErrorInfo_un(tvbuff_t *tvb _U_, packet_info 
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAdditionalErrorInfo_TpCallAdditionalErrorInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52530,6 +53316,7 @@ decode_org_csapi_cc_TpCallAdditionalErrorInfo_un(tvbuff_t *tvb _U_, packet_info 
     if (disc_s_TpCallAdditionalErrorInfo == 1 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAdditionalErrorInfo_CallErrorInvalidAddress, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -52560,6 +53347,7 @@ decode_org_csapi_cc_TpCallLoadControlMechanism_un(tvbuff_t *tvb _U_, packet_info
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallLoadControlMechanism_TpCallLoadControlMechanism, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52593,6 +53381,7 @@ decode_org_csapi_cc_TpCallAdditionalTreatmentInfo_un(tvbuff_t *tvb _U_, packet_i
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAdditionalTreatmentInfo_TpCallAdditionalTreatmentInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52636,6 +53425,7 @@ decode_org_csapi_cc_TpCallPartyToChargeAdditionalInfo_un(tvbuff_t *tvb _U_, pack
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallPartyToChargeAdditionalInfo_TpCallPartyToChargeAdditionalInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52677,6 +53467,7 @@ decode_org_csapi_cc_gccs_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo 
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAppInfo_TpCallAppInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52695,6 +53486,7 @@ decode_org_csapi_cc_gccs_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo 
     if (disc_s_TpCallAppInfo == 2 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAppInfo_CallAppNetworkAccessType, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -52703,6 +53495,7 @@ decode_org_csapi_cc_gccs_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo 
     if (disc_s_TpCallAppInfo == 3 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAppInfo_CallAppTeleService, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -52711,6 +53504,7 @@ decode_org_csapi_cc_gccs_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo 
     if (disc_s_TpCallAppInfo == 4 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAppInfo_CallAppBearerService, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -52719,6 +53513,7 @@ decode_org_csapi_cc_gccs_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo 
     if (disc_s_TpCallAppInfo == 5 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAppInfo_CallAppPartyCategory, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -52772,6 +53567,7 @@ decode_org_csapi_cc_gccs_TpCallAdditionalReportInfo_un(tvbuff_t *tvb _U_, packet
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAdditionalReportInfo_TpCallAdditionalReportInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52860,6 +53656,7 @@ decode_org_csapi_cc_gccs_TpCallAdditionalReportCriteria_un(tvbuff_t *tvb _U_, pa
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_gccs_TpCallAdditionalReportCriteria_TpCallAdditionalReportCriteria, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52908,6 +53705,7 @@ decode_org_csapi_cc_TpCallAdditionalEventInfo_un(tvbuff_t *tvb _U_, packet_info 
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAdditionalEventInfo_TpCallAdditionalEventInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -52943,6 +53741,7 @@ decode_org_csapi_cc_TpCallAdditionalEventInfo_un(tvbuff_t *tvb _U_, packet_info 
     if (disc_s_TpCallAdditionalEventInfo == 6 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAdditionalEventInfo_OriginatingReleaseCause, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -52951,6 +53750,7 @@ decode_org_csapi_cc_TpCallAdditionalEventInfo_un(tvbuff_t *tvb _U_, packet_info 
     if (disc_s_TpCallAdditionalEventInfo == 11 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAdditionalEventInfo_TerminatingReleaseCause, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -53005,6 +53805,7 @@ decode_org_csapi_cc_TpAdditionalCallEventCriteria_un(tvbuff_t *tvb _U_, packet_i
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpAdditionalCallEventCriteria_TpAdditionalCallEventCriteria, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53023,6 +53824,7 @@ decode_org_csapi_cc_TpAdditionalCallEventCriteria_un(tvbuff_t *tvb _U_, packet_i
     if (disc_s_TpAdditionalCallEventCriteria == 5 ) {
 
         u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingServiceCode = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingServiceCode, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingServiceCode);
 
         for (i_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingServiceCode=0; i_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingServiceCode < u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingServiceCode; i_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingServiceCode++) {
@@ -53038,11 +53840,13 @@ decode_org_csapi_cc_TpAdditionalCallEventCriteria_un(tvbuff_t *tvb _U_, packet_i
     if (disc_s_TpAdditionalCallEventCriteria == 6 ) {
 
         u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingReleaseCauseSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingReleaseCauseSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingReleaseCauseSet);
 
         for (i_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingReleaseCauseSet=0; i_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingReleaseCauseSet < u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingReleaseCauseSet; i_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingReleaseCauseSet++) {
 
             u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpAdditionalCallEventCriteria_OriginatingReleaseCauseSet, tvb, *offset-4, 4, u_octet4);
 
         }
@@ -53053,11 +53857,13 @@ decode_org_csapi_cc_TpAdditionalCallEventCriteria_un(tvbuff_t *tvb _U_, packet_i
     if (disc_s_TpAdditionalCallEventCriteria == 11 ) {
 
         u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingReleaseCauseSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingReleaseCauseSet, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingReleaseCauseSet);
 
         for (i_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingReleaseCauseSet=0; i_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingReleaseCauseSet < u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingReleaseCauseSet; i_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingReleaseCauseSet++) {
 
             u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingReleaseCauseSet, tvb, *offset-4, 4, u_octet4);
 
         }
@@ -53068,6 +53874,7 @@ decode_org_csapi_cc_TpAdditionalCallEventCriteria_un(tvbuff_t *tvb _U_, packet_i
     if (disc_s_TpAdditionalCallEventCriteria == 13 ) {
 
         u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingServiceCode = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingServiceCode, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingServiceCode);
 
         for (i_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingServiceCode=0; i_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingServiceCode < u_octet4_loop_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingServiceCode; i_org_csapi_cc_TpAdditionalCallEventCriteria_TerminatingServiceCode++) {
@@ -53107,6 +53914,7 @@ decode_org_csapi_cc_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAppInfo_TpCallAppInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53125,6 +53933,7 @@ decode_org_csapi_cc_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     if (disc_s_TpCallAppInfo == 2 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAppInfo_CallAppNetworkAccessType, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -53133,6 +53942,7 @@ decode_org_csapi_cc_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     if (disc_s_TpCallAppInfo == 3 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAppInfo_CallAppTeleService, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -53141,6 +53951,7 @@ decode_org_csapi_cc_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     if (disc_s_TpCallAppInfo == 4 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAppInfo_CallAppBearerService, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -53149,6 +53960,7 @@ decode_org_csapi_cc_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     if (disc_s_TpCallAppInfo == 5 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAppInfo_CallAppPartyCategory, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -53203,6 +54015,7 @@ decode_org_csapi_cc_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     if (disc_s_TpCallAppInfo == 12 ) {
 
         u_octet4_loop_org_csapi_cc_TpCallAppInfo_CallAppCarrier = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cc_TpCallAppInfo_CallAppCarrier, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cc_TpCallAppInfo_CallAppCarrier);
 
         for (i_org_csapi_cc_TpCallAppInfo_CallAppCarrier=0; i_org_csapi_cc_TpCallAppInfo_CallAppCarrier < u_octet4_loop_org_csapi_cc_TpCallAppInfo_CallAppCarrier; i_org_csapi_cc_TpCallAppInfo_CallAppCarrier++) {
@@ -53240,6 +54053,7 @@ decode_org_csapi_cc_mpccs_TpAppMultiPartyCallBack_un(tvbuff_t *tvb _U_, packet_i
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_mpccs_TpAppMultiPartyCallBack_TpAppMultiPartyCallBack, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53295,6 +54109,7 @@ decode_org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest_un(tvbuff_t *tvb _U_, pac
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpMediaStreamDataTypeRequest_TpMediaStreamDataTypeRequest, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53342,6 +54157,7 @@ decode_org_csapi_cc_mmccs_TpAppMultiMediaCallBack_un(tvbuff_t *tvb _U_, packet_i
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_mmccs_TpAppMultiMediaCallBack_TpAppMultiMediaCallBack, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53397,6 +54213,7 @@ decode_org_csapi_cc_cccs_TpConfPolicy_un(tvbuff_t *tvb _U_, packet_info *pinfo _
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cc_cccs_TpConfPolicy_TpConfPolicy, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53446,6 +54263,7 @@ decode_org_csapi_ui_TpUITargetObject_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_ui_TpUITargetObject_TpUITargetObject, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53496,6 +54314,7 @@ decode_org_csapi_mm_TpBindingEntry_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mm_TpBindingEntry_TpBindingEntry, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53551,6 +54370,7 @@ decode_org_csapi_dsc_TpDataSessionChargeOrder_un(tvbuff_t *tvb _U_, packet_info 
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionChargeOrder_TpDataSessionChargeOrder, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53592,6 +54412,7 @@ decode_org_csapi_dsc_TpDataSessionAdditionalErrorInfo_un(tvbuff_t *tvb _U_, pack
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionAdditionalErrorInfo_TpDataSessionAdditionalErrorInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53603,6 +54424,7 @@ decode_org_csapi_dsc_TpDataSessionAdditionalErrorInfo_un(tvbuff_t *tvb _U_, pack
     if (disc_s_TpDataSessionAdditionalErrorInfo == 1 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionAdditionalErrorInfo_DataSessionErrorInvalidAddress, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -53633,6 +54455,7 @@ decode_org_csapi_dsc_TpDataSessionAdditionalReportInfo_un(tvbuff_t *tvb _U_, pac
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_dsc_TpDataSessionAdditionalReportInfo_TpDataSessionAdditionalReportInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53674,6 +54497,7 @@ decode_org_csapi_gms_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_gms_TpMessageInfoProperty_TpMessageInfoProperty, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53759,6 +54583,7 @@ decode_org_csapi_gms_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
     if (disc_s_TpMessageInfoProperty == 11 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_TpMessageInfoProperty_MessagingMessagePriority, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -53767,6 +54592,7 @@ decode_org_csapi_gms_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
     if (disc_s_TpMessageInfoProperty == 12 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_TpMessageInfoProperty_MessagingMessageFormat, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -53782,6 +54608,7 @@ decode_org_csapi_gms_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
     if (disc_s_TpMessageInfoProperty == 14 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_gms_TpMessageInfoProperty_MessagingMessageStatus, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -53812,6 +54639,7 @@ decode_org_csapi_gms_TpMailboxInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_gms_TpMailboxInfoProperty_TpMailboxInfoProperty, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53881,6 +54709,7 @@ decode_org_csapi_gms_TpMessagingEventInfo_un(tvbuff_t *tvb _U_, packet_info *pin
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_gms_TpMessagingEventInfo_TpMessagingEventInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53922,6 +54751,7 @@ decode_org_csapi_gms_TpMessagingEventCriteria_un(tvbuff_t *tvb _U_, packet_info 
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_gms_TpMessagingEventCriteria_TpMessagingEventCriteria, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -53963,6 +54793,7 @@ decode_org_csapi_gms_TpFolderInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pin
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_gms_TpFolderInfoProperty_TpFolderInfoProperty, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54033,6 +54864,7 @@ decode_org_csapi_cs_TpChargingParameterValue_un(tvbuff_t *tvb _U_, packet_info *
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cs_TpChargingParameterValue_TpChargingParameterValue, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54072,6 +54904,7 @@ decode_org_csapi_cs_TpChargingParameterValue_un(tvbuff_t *tvb _U_, packet_info *
     if (disc_s_TpChargingParameterValue == 4 ) {
 
         u_octet4_loop_org_csapi_cs_TpChargingParameterValue_OctetValue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_cs_TpChargingParameterValue_OctetValue, tvb,*offset-4, 4, u_octet4_loop_org_csapi_cs_TpChargingParameterValue_OctetValue);
 
         for (i_org_csapi_cs_TpChargingParameterValue_OctetValue=0; i_org_csapi_cs_TpChargingParameterValue_OctetValue < u_octet4_loop_org_csapi_cs_TpChargingParameterValue_OctetValue; i_org_csapi_cs_TpChargingParameterValue_OctetValue++) {
@@ -54101,6 +54934,7 @@ decode_org_csapi_cs_TpAppInformation_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_cs_TpAppInformation_TpAppInformation, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54134,6 +54968,7 @@ decode_org_csapi_policy_TpPolicyType_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_policy_TpPolicyType_TpPolicyType, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54145,6 +54980,7 @@ decode_org_csapi_policy_TpPolicyType_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
     if (disc_s_TpPolicyType == 0 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_policy_TpPolicyType_SimpleType, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -54198,6 +55034,7 @@ decode_org_csapi_pam_TpPAMContextData_un(tvbuff_t *tvb _U_, packet_info *pinfo _
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMContextData_TpPAMContextData, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54239,6 +55076,7 @@ decode_org_csapi_pam_TpPAMEventInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMEventInfo_TpPAMEventInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54369,6 +55207,7 @@ decode_org_csapi_pam_TpPAMNotificationInfo_un(tvbuff_t *tvb _U_, packet_info *pi
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMNotificationInfo_TpPAMNotificationInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54499,6 +55338,7 @@ decode_org_csapi_pam_TpPAMPreferenceData_un(tvbuff_t *tvb _U_, packet_info *pinf
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_pam_TpPAMPreferenceData_TpPAMPreferenceData, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54539,6 +55379,7 @@ decode_org_csapi_mmm_TpFolderInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pin
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpFolderInfoProperty_TpFolderInfoProperty, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54600,6 +55441,7 @@ decode_org_csapi_mmm_TpMailboxInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMailboxInfoProperty_TpMailboxInfoProperty, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54661,6 +55503,7 @@ decode_org_csapi_mmm_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageInfoProperty_TpMessageInfoProperty, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54700,6 +55543,7 @@ decode_org_csapi_mmm_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
     if (disc_s_TpMessageInfoProperty == 5 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageInfoProperty_MessageStatus, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -54746,6 +55590,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageHeaderField_TpMessageHeaderField, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -54764,6 +55609,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
     if (disc_s_TpMessageHeaderField == 1 ) {
 
         u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_From = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageHeaderField_From, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_From);
 
         for (i_org_csapi_mmm_TpMessageHeaderField_From=0; i_org_csapi_mmm_TpMessageHeaderField_From < u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_From; i_org_csapi_mmm_TpMessageHeaderField_From++) {
@@ -54787,6 +55633,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
     if (disc_s_TpMessageHeaderField == 3 ) {
 
         u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_ReplyTo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageHeaderField_ReplyTo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_ReplyTo);
 
         for (i_org_csapi_mmm_TpMessageHeaderField_ReplyTo=0; i_org_csapi_mmm_TpMessageHeaderField_ReplyTo < u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_ReplyTo; i_org_csapi_mmm_TpMessageHeaderField_ReplyTo++) {
@@ -54802,6 +55649,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
     if (disc_s_TpMessageHeaderField == 4 ) {
 
         u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_To = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageHeaderField_To, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_To);
 
         for (i_org_csapi_mmm_TpMessageHeaderField_To=0; i_org_csapi_mmm_TpMessageHeaderField_To < u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_To; i_org_csapi_mmm_TpMessageHeaderField_To++) {
@@ -54817,6 +55665,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
     if (disc_s_TpMessageHeaderField == 5 ) {
 
         u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_Cc = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageHeaderField_Cc, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_Cc);
 
         for (i_org_csapi_mmm_TpMessageHeaderField_Cc=0; i_org_csapi_mmm_TpMessageHeaderField_Cc < u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_Cc; i_org_csapi_mmm_TpMessageHeaderField_Cc++) {
@@ -54832,6 +55681,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
     if (disc_s_TpMessageHeaderField == 6 ) {
 
         u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_Bcc = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageHeaderField_Bcc, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_Bcc);
 
         for (i_org_csapi_mmm_TpMessageHeaderField_Bcc=0; i_org_csapi_mmm_TpMessageHeaderField_Bcc < u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_Bcc; i_org_csapi_mmm_TpMessageHeaderField_Bcc++) {
@@ -54854,6 +55704,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
     if (disc_s_TpMessageHeaderField == 8 ) {
 
         u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_InReplyTo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageHeaderField_InReplyTo, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_InReplyTo);
 
         for (i_org_csapi_mmm_TpMessageHeaderField_InReplyTo=0; i_org_csapi_mmm_TpMessageHeaderField_InReplyTo < u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_InReplyTo; i_org_csapi_mmm_TpMessageHeaderField_InReplyTo++) {
@@ -54868,6 +55719,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
     if (disc_s_TpMessageHeaderField == 9 ) {
 
         u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_References = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageHeaderField_References, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_References);
 
         for (i_org_csapi_mmm_TpMessageHeaderField_References=0; i_org_csapi_mmm_TpMessageHeaderField_References < u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_References; i_org_csapi_mmm_TpMessageHeaderField_References++) {
@@ -54896,6 +55748,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
     if (disc_s_TpMessageHeaderField == 12 ) {
 
         u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_Keywords = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageHeaderField_Keywords, tvb,*offset-4, 4, u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_Keywords);
 
         for (i_org_csapi_mmm_TpMessageHeaderField_Keywords=0; i_org_csapi_mmm_TpMessageHeaderField_Keywords < u_octet4_loop_org_csapi_mmm_TpMessageHeaderField_Keywords; i_org_csapi_mmm_TpMessageHeaderField_Keywords++) {
@@ -54984,6 +55837,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
     if (disc_s_TpMessageHeaderField == 23 ) {
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageHeaderField_Priority, tvb, *offset-4, 4, u_octet4);
 
         return;     /* End Compare for this discriminant type */
@@ -55007,6 +55861,7 @@ decode_org_csapi_mmm_TpDeliveryTime_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpDeliveryTime_TpDeliveryTime, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -55047,6 +55902,7 @@ decode_org_csapi_mmm_TpMessageTreatment_un(tvbuff_t *tvb _U_, packet_info *pinfo
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessageTreatment_TpMessageTreatment, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -55104,6 +55960,7 @@ decode_org_csapi_mmm_TpMessagingEventCriteria_un(tvbuff_t *tvb _U_, packet_info 
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessagingEventCriteria_TpMessagingEventCriteria, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -55153,6 +56010,7 @@ decode_org_csapi_mmm_TpMessagingEventInfo_un(tvbuff_t *tvb _U_, packet_info *pin
      */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_org_csapi_mmm_TpMessagingEventInfo_TpMessagingEventInfo, tvb, *offset-4, 4, u_octet4);
 
     /*
@@ -64980,109 +65838,6 @@ void proto_register_giop_parlay(void)
         {&hf_org_csapi_mmm_TpNewMessageArrivedInfo_Message, {"Seq length of TpNewMessageArrivedInfo_Message","giop-parlay.TpNewMessageArrivedInfo.Message",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_mmm_TpNewMessageArrivedInfo_Headers, {"Seq length of TpNewMessageArrivedInfo_Headers","giop-parlay.TpNewMessageArrivedInfo.Headers",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         /* User exception filters */
-        {&hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation, {"P_INVALID_ASSIGNMENT_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_ASSIGNMENT_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation, {"P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation","giop-parlay.csapi.P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation, {"P_INVALID_EVENT_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_EVENT_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation, {"P_INVALID_INTERFACE_NAME_ExtraInformation","giop-parlay.csapi.P_INVALID_INTERFACE_NAME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation, {"P_INVALID_INTERFACE_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_INTERFACE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation, {"P_UNKNOWN_SUBSCRIBER_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SUBSCRIBER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation, {"P_INFORMATION_NOT_AVAILABLE_ExtraInformation","giop-parlay.csapi.P_INFORMATION_NOT_AVAILABLE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation, {"P_INVALID_CRITERIA_ExtraInformation","giop-parlay.csapi.P_INVALID_CRITERIA_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation, {"P_INVALID_SESSION_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SESSION_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_TpCommonExceptions_ExceptionType, {"TpCommonExceptions_ExceptionType","giop-parlay.csapi.TpCommonExceptions_ExceptionType",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_TpCommonExceptions_ExtraInformation, {"TpCommonExceptions_ExtraInformation","giop-parlay.csapi.TpCommonExceptions_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation, {"P_INVALID_CURRENCY_ExtraInformation","giop-parlay.csapi.P_INVALID_CURRENCY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation, {"P_INVALID_AMOUNT_ExtraInformation","giop-parlay.csapi.P_INVALID_AMOUNT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation, {"P_APPLICATION_NOT_ACTIVATED_ExtraInformation","giop-parlay.csapi.P_APPLICATION_NOT_ACTIVATED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation, {"P_INVALID_ADDRESS_ExtraInformation","giop-parlay.csapi.P_INVALID_ADDRESS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation, {"P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation","giop-parlay.csapi.P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation, {"P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation","giop-parlay.csapi.P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_VERSION_ExtraInformation, {"P_INVALID_VERSION_ExtraInformation","giop-parlay.csapi.P_INVALID_VERSION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation, {"P_INVALID_NETWORK_STATE_ExtraInformation","giop-parlay.csapi.P_INVALID_NETWORK_STATE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation, {"P_INVALID_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation, {"P_SERVICE_ACCESS_DENIED_ExtraInformation","giop-parlay.csapi.P_SERVICE_ACCESS_DENIED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation, {"P_ACCESS_DENIED_ExtraInformation","giop-parlay.csapi.P_ACCESS_DENIED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation, {"P_SERVICE_NOT_ENABLED_ExtraInformation","giop-parlay.csapi.P_SERVICE_NOT_ENABLED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation, {"P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation, {"P_INVALID_AGREEMENT_TEXT_ExtraInformation","giop-parlay.csapi.P_INVALID_AGREEMENT_TEXT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation, {"P_INVALID_SERVICE_TOKEN_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_TOKEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation, {"P_INVALID_SIGNATURE_ExtraInformation","giop-parlay.csapi.P_INVALID_SIGNATURE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation, {"P_INVALID_SIGNING_ALGORITHM_ExtraInformation","giop-parlay.csapi.P_INVALID_SIGNING_ALGORITHM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation, {"P_INVALID_DOMAIN_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_DOMAIN_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation, {"P_INVALID_PROPERTY_ExtraInformation","giop-parlay.csapi.P_INVALID_PROPERTY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation, {"P_INVALID_ACCESS_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_ACCESS_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation, {"P_ILLEGAL_SERVICE_TYPE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SERVICE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation, {"P_UNKNOWN_SERVICE_TYPE_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SERVICE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation, {"P_MISSING_MANDATORY_PROPERTY_ExtraInformation","giop-parlay.csapi.P_MISSING_MANDATORY_PROPERTY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation, {"P_DUPLICATE_PROPERTY_NAME_ExtraInformation","giop-parlay.csapi.P_DUPLICATE_PROPERTY_NAME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation, {"P_PROPERTY_TYPE_MISMATCH_ExtraInformation","giop-parlay.csapi.P_PROPERTY_TYPE_MISMATCH_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation, {"P_INVALID_CLIENT_APP_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_CLIENT_APP_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation, {"P_INVALID_AUTH_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_AUTH_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation, {"P_INVALID_SAG_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SAG_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation, {"P_INVALID_SERVICE_PROFILE_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_PROFILE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation, {"P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation, {"P_INVALID_ACTIVITY_TEST_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_ACTIVITY_TEST_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation, {"P_ILLEGAL_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation, {"P_UNKNOWN_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation, {"P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation","giop-parlay.csapi.P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation, {"P_INVALID_ADDITION_TO_SAG_ExtraInformation","giop-parlay.csapi.P_INVALID_ADDITION_TO_SAG_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation, {"P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation","giop-parlay.csapi.P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation, {"P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation, {"P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation, {"P_ID_NOT_FOUND_ExtraInformation","giop-parlay.csapi.P_ID_NOT_FOUND_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation, {"P_ILLEGAL_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation, {"P_ILLEGAL_RANGE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_RANGE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation, {"P_INVALID_COLLECTION_CRITERIA_ExtraInformation","giop-parlay.csapi.P_INVALID_COLLECTION_CRITERIA_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation, {"P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation","giop-parlay.csapi.P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation, {"P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation","giop-parlay.csapi.P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation, {"P_INVALID_REPORTING_INTERVAL_ExtraInformation","giop-parlay.csapi.P_INVALID_REPORTING_INTERVAL_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation, {"P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation","giop-parlay.csapi.P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation, {"P_INVALID_TERMINAL_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_TERMINAL_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation, {"P_GMS_INVALID_FOLDER_ID_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_FOLDER_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation, {"P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation","giop-parlay.csapi.P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation, {"P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation, {"P_GMS_INVALID_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation, {"P_GMS_INVALID_MESSAGE_ID_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_MESSAGE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation, {"P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation, {"P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation","giop-parlay.csapi.P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation, {"P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation","giop-parlay.csapi.P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation, {"P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation, {"P_GMS_MAILBOX_LOCKED_ExtraInformation","giop-parlay.csapi.P_GMS_MAILBOX_LOCKED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation, {"P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation, {"P_GMS_PROPERTY_NOT_SET_ExtraInformation","giop-parlay.csapi.P_GMS_PROPERTY_NOT_SET_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation, {"P_GMS_FOLDER_IS_OPEN_ExtraInformation","giop-parlay.csapi.P_GMS_FOLDER_IS_OPEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation, {"P_GMS_MAILBOX_OPEN_ExtraInformation","giop-parlay.csapi.P_GMS_MAILBOX_OPEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_VPRP_ID_ExtraInformation, {"P_UNKNOWN_VPRP_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VPRP_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_SLA_ID_ExtraInformation, {"P_UNKNOWN_SLA_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SLA_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_STATUS_ExtraInformation, {"P_UNKNOWN_STATUS_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_STATUS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_QOS_INFO_ExtraInformation, {"P_UNKNOWN_QOS_INFO_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_QOS_INFO_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO_ExtraInformation, {"P_UNKNOWN_VALIDITY_INFO_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VALIDITY_INFO_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO_ExtraInformation, {"P_UNKNOWN_PIPEQOSINFO_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_PIPEQOSINFO_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_DSCODEPOINT_ExtraInformation, {"P_UNKNOWN_DSCODEPOINT_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_DSCODEPOINT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_ILLEGAL_VPRPID_ExtraInformation, {"P_ILLEGAL_VPRPID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_VPRPID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_ILLEGAL_REF_VALUE_ExtraInformation, {"P_ILLEGAL_REF_VALUE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_REF_VALUE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_INTERFACE_ExtraInformation, {"P_UNKNOWN_INTERFACE_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_INTERFACE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_CANT_DELETE_VPRP_ExtraInformation, {"P_CANT_DELETE_VPRP_ExtraInformation","giop-parlay.csapi.P_CANT_DELETE_VPRP_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_TEMPLATES_ExtraInformation, {"P_UNKNOWN_TEMPLATES_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_TEMPLATES_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_MENU_ExtraInformation, {"P_UNKNOWN_MENU_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_MENU_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation, {"P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation, {"P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_DESCRIPTION_ExtraInformation, {"P_UNKNOWN_DESCRIPTION_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_DESCRIPTION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_ILLEGAL_SLA_ID_ExtraInformation, {"P_ILLEGAL_SLA_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SLA_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_ILLEGAL_TAG_ExtraInformation, {"P_ILLEGAL_TAG_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_TAG_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_ILLEGAL_VALUE_ExtraInformation, {"P_ILLEGAL_VALUE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_VALUE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_ILLEGAL_COMBINATION_ExtraInformation, {"P_ILLEGAL_COMBINATION_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_COMBINATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_SITES_ExtraInformation, {"P_UNKNOWN_SITES_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SITES_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_VPRN_ExtraInformation, {"P_UNKNOWN_VPRN_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VPRN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_ILLEGAL_SITE_ID_ExtraInformation, {"P_ILLEGAL_SITE_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SITE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_SITE_ID_ExtraInformation, {"P_UNKNOWN_SITE_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SITE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_SAPS_ExtraInformation, {"P_UNKNOWN_SAPS_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SAPS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_SITE_LOCATION_ExtraInformation, {"P_UNKNOWN_SITE_LOCATION_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SITE_LOCATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation, {"P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_IPSUBNET_ExtraInformation, {"P_UNKNOWN_IPSUBNET_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_IPSUBNET_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_SAP_ExtraInformation, {"P_UNKNOWN_SAP_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SAP_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation, {"P_UNKNOWN_VPRP_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VPRP_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation, {"P_UNAUTHORIZED_APPLICATION_ExtraInformation","giop-parlay.csapi.P_UNAUTHORIZED_APPLICATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cs_P_INVALID_USER_ExtraInformation, {"P_INVALID_USER_ExtraInformation","giop-parlay.csapi.P_INVALID_USER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cs_P_INVALID_ACCOUNT_ExtraInformation, {"P_INVALID_ACCOUNT_ExtraInformation","giop-parlay.csapi.P_INVALID_ACCOUNT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_cs_P_INVALID_REQUEST_NUMBER_ExtraInformation, {"P_INVALID_REQUEST_NUMBER_ExtraInformation","giop-parlay.csapi.P_INVALID_REQUEST_NUMBER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -65134,6 +65889,109 @@ void proto_register_giop_parlay(void)
         {&hf_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation, {"P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation","giop-parlay.csapi.P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_mmm_P_MMM_CANNOT_CANCEL_ExtraInformation, {"P_MMM_CANNOT_CANCEL_ExtraInformation","giop-parlay.csapi.P_MMM_CANNOT_CANCEL_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_org_csapi_mmm_P_MMM_INVALID_HEADER_ExtraInformation, {"P_MMM_INVALID_HEADER_ExtraInformation","giop-parlay.csapi.P_MMM_INVALID_HEADER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_DSCODEPOINT_ExtraInformation, {"P_UNKNOWN_DSCODEPOINT_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_DSCODEPOINT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_ILLEGAL_VPRPID_ExtraInformation, {"P_ILLEGAL_VPRPID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_VPRPID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_ILLEGAL_REF_VALUE_ExtraInformation, {"P_ILLEGAL_REF_VALUE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_REF_VALUE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_INTERFACE_ExtraInformation, {"P_UNKNOWN_INTERFACE_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_INTERFACE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_CANT_DELETE_VPRP_ExtraInformation, {"P_CANT_DELETE_VPRP_ExtraInformation","giop-parlay.csapi.P_CANT_DELETE_VPRP_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_TEMPLATES_ExtraInformation, {"P_UNKNOWN_TEMPLATES_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_TEMPLATES_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_MENU_ExtraInformation, {"P_UNKNOWN_MENU_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_MENU_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation, {"P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation, {"P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_DESCRIPTION_ExtraInformation, {"P_UNKNOWN_DESCRIPTION_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_DESCRIPTION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_ILLEGAL_SLA_ID_ExtraInformation, {"P_ILLEGAL_SLA_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SLA_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_ILLEGAL_TAG_ExtraInformation, {"P_ILLEGAL_TAG_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_TAG_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_ILLEGAL_VALUE_ExtraInformation, {"P_ILLEGAL_VALUE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_VALUE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_ILLEGAL_COMBINATION_ExtraInformation, {"P_ILLEGAL_COMBINATION_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_COMBINATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_SITES_ExtraInformation, {"P_UNKNOWN_SITES_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SITES_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_VPRN_ExtraInformation, {"P_UNKNOWN_VPRN_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VPRN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_ILLEGAL_SITE_ID_ExtraInformation, {"P_ILLEGAL_SITE_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SITE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_SITE_ID_ExtraInformation, {"P_UNKNOWN_SITE_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SITE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_SAPS_ExtraInformation, {"P_UNKNOWN_SAPS_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SAPS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_SITE_LOCATION_ExtraInformation, {"P_UNKNOWN_SITE_LOCATION_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SITE_LOCATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation, {"P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_IPSUBNET_ExtraInformation, {"P_UNKNOWN_IPSUBNET_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_IPSUBNET_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_SAP_ExtraInformation, {"P_UNKNOWN_SAP_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SAP_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_VPRP_ExtraInformation, {"P_UNKNOWN_VPRP_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VPRP_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_am_P_UNAUTHORIZED_APPLICATION_ExtraInformation, {"P_UNAUTHORIZED_APPLICATION_ExtraInformation","giop-parlay.csapi.P_UNAUTHORIZED_APPLICATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_INVALID_FOLDER_ID_ExtraInformation, {"P_GMS_INVALID_FOLDER_ID_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_FOLDER_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation, {"P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation","giop-parlay.csapi.P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation, {"P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_INVALID_MAILBOX_ExtraInformation, {"P_GMS_INVALID_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID_ExtraInformation, {"P_GMS_INVALID_MESSAGE_ID_ExtraInformation","giop-parlay.csapi.P_GMS_INVALID_MESSAGE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation, {"P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation, {"P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation","giop-parlay.csapi.P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation, {"P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation","giop-parlay.csapi.P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation, {"P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_MAILBOX_LOCKED_ExtraInformation, {"P_GMS_MAILBOX_LOCKED_ExtraInformation","giop-parlay.csapi.P_GMS_MAILBOX_LOCKED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation, {"P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation","giop-parlay.csapi.P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_PROPERTY_NOT_SET_ExtraInformation, {"P_GMS_PROPERTY_NOT_SET_ExtraInformation","giop-parlay.csapi.P_GMS_PROPERTY_NOT_SET_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_FOLDER_IS_OPEN_ExtraInformation, {"P_GMS_FOLDER_IS_OPEN_ExtraInformation","giop-parlay.csapi.P_GMS_FOLDER_IS_OPEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_gms_P_GMS_MAILBOX_OPEN_ExtraInformation, {"P_GMS_MAILBOX_OPEN_ExtraInformation","giop-parlay.csapi.P_GMS_MAILBOX_OPEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_VPRP_ID_ExtraInformation, {"P_UNKNOWN_VPRP_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VPRP_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_SLA_ID_ExtraInformation, {"P_UNKNOWN_SLA_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SLA_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_STATUS_ExtraInformation, {"P_UNKNOWN_STATUS_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_STATUS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_QOS_INFO_ExtraInformation, {"P_UNKNOWN_QOS_INFO_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_QOS_INFO_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO_ExtraInformation, {"P_UNKNOWN_VALIDITY_INFO_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_VALIDITY_INFO_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO_ExtraInformation, {"P_UNKNOWN_PIPEQOSINFO_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_PIPEQOSINFO_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_termcap_P_INVALID_TERMINAL_ID_ExtraInformation, {"P_INVALID_TERMINAL_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_TERMINAL_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation, {"P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation","giop-parlay.csapi.P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation, {"P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation","giop-parlay.csapi.P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mm_P_INVALID_REPORTING_INTERVAL_ExtraInformation, {"P_INVALID_REPORTING_INTERVAL_ExtraInformation","giop-parlay.csapi.P_INVALID_REPORTING_INTERVAL_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation, {"P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation","giop-parlay.csapi.P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_ui_P_ID_NOT_FOUND_ExtraInformation, {"P_ID_NOT_FOUND_ExtraInformation","giop-parlay.csapi.P_ID_NOT_FOUND_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_ui_P_ILLEGAL_ID_ExtraInformation, {"P_ILLEGAL_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_ui_P_ILLEGAL_RANGE_ExtraInformation, {"P_ILLEGAL_RANGE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_RANGE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA_ExtraInformation, {"P_INVALID_COLLECTION_CRITERIA_ExtraInformation","giop-parlay.csapi.P_INVALID_COLLECTION_CRITERIA_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SERVICE_ID_ExtraInformation, {"P_INVALID_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_SERVICE_ACCESS_DENIED_ExtraInformation, {"P_SERVICE_ACCESS_DENIED_ExtraInformation","giop-parlay.csapi.P_SERVICE_ACCESS_DENIED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_ACCESS_DENIED_ExtraInformation, {"P_ACCESS_DENIED_ExtraInformation","giop-parlay.csapi.P_ACCESS_DENIED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_SERVICE_NOT_ENABLED_ExtraInformation, {"P_SERVICE_NOT_ENABLED_ExtraInformation","giop-parlay.csapi.P_SERVICE_NOT_ENABLED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation, {"P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_AGREEMENT_TEXT_ExtraInformation, {"P_INVALID_AGREEMENT_TEXT_ExtraInformation","giop-parlay.csapi.P_INVALID_AGREEMENT_TEXT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SERVICE_TOKEN_ExtraInformation, {"P_INVALID_SERVICE_TOKEN_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_TOKEN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SIGNATURE_ExtraInformation, {"P_INVALID_SIGNATURE_ExtraInformation","giop-parlay.csapi.P_INVALID_SIGNATURE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM_ExtraInformation, {"P_INVALID_SIGNING_ALGORITHM_ExtraInformation","giop-parlay.csapi.P_INVALID_SIGNING_ALGORITHM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_DOMAIN_ID_ExtraInformation, {"P_INVALID_DOMAIN_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_DOMAIN_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_PROPERTY_ExtraInformation, {"P_INVALID_PROPERTY_ExtraInformation","giop-parlay.csapi.P_INVALID_PROPERTY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_ACCESS_TYPE_ExtraInformation, {"P_INVALID_ACCESS_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_ACCESS_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE_ExtraInformation, {"P_ILLEGAL_SERVICE_TYPE_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SERVICE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE_ExtraInformation, {"P_UNKNOWN_SERVICE_TYPE_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SERVICE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY_ExtraInformation, {"P_MISSING_MANDATORY_PROPERTY_ExtraInformation","giop-parlay.csapi.P_MISSING_MANDATORY_PROPERTY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME_ExtraInformation, {"P_DUPLICATE_PROPERTY_NAME_ExtraInformation","giop-parlay.csapi.P_DUPLICATE_PROPERTY_NAME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH_ExtraInformation, {"P_PROPERTY_TYPE_MISMATCH_ExtraInformation","giop-parlay.csapi.P_PROPERTY_TYPE_MISMATCH_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_CLIENT_APP_ID_ExtraInformation, {"P_INVALID_CLIENT_APP_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_CLIENT_APP_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_AUTH_TYPE_ExtraInformation, {"P_INVALID_AUTH_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_AUTH_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SAG_ID_ExtraInformation, {"P_INVALID_SAG_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SAG_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID_ExtraInformation, {"P_INVALID_SERVICE_PROFILE_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_PROFILE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation, {"P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID_ExtraInformation, {"P_INVALID_ACTIVITY_TEST_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_ACTIVITY_TEST_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_ILLEGAL_SERVICE_ID_ExtraInformation, {"P_ILLEGAL_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_ILLEGAL_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_UNKNOWN_SERVICE_ID_ExtraInformation, {"P_UNKNOWN_SERVICE_ID_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SERVICE_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation, {"P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation","giop-parlay.csapi.P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_ADDITION_TO_SAG_ExtraInformation, {"P_INVALID_ADDITION_TO_SAG_ExtraInformation","giop-parlay.csapi.P_INVALID_ADDITION_TO_SAG_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation, {"P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation","giop-parlay.csapi.P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation, {"P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation, {"P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation","giop-parlay.csapi.P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_CRITERIA_ExtraInformation, {"P_INVALID_CRITERIA_ExtraInformation","giop-parlay.csapi.P_INVALID_CRITERIA_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_SESSION_ID_ExtraInformation, {"P_INVALID_SESSION_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_SESSION_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_TpCommonExceptions_ExceptionType, {"TpCommonExceptions_ExceptionType","giop-parlay.csapi.TpCommonExceptions_ExceptionType",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_TpCommonExceptions_ExtraInformation, {"TpCommonExceptions_ExtraInformation","giop-parlay.csapi.TpCommonExceptions_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_CURRENCY_ExtraInformation, {"P_INVALID_CURRENCY_ExtraInformation","giop-parlay.csapi.P_INVALID_CURRENCY_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_AMOUNT_ExtraInformation, {"P_INVALID_AMOUNT_ExtraInformation","giop-parlay.csapi.P_INVALID_AMOUNT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_APPLICATION_NOT_ACTIVATED_ExtraInformation, {"P_APPLICATION_NOT_ACTIVATED_ExtraInformation","giop-parlay.csapi.P_APPLICATION_NOT_ACTIVATED_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_ADDRESS_ExtraInformation, {"P_INVALID_ADDRESS_ExtraInformation","giop-parlay.csapi.P_INVALID_ADDRESS_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation, {"P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation","giop-parlay.csapi.P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation, {"P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation","giop-parlay.csapi.P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_VERSION_ExtraInformation, {"P_INVALID_VERSION_ExtraInformation","giop-parlay.csapi.P_INVALID_VERSION_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_NETWORK_STATE_ExtraInformation, {"P_INVALID_NETWORK_STATE_ExtraInformation","giop-parlay.csapi.P_INVALID_NETWORK_STATE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_ASSIGNMENT_ID_ExtraInformation, {"P_INVALID_ASSIGNMENT_ID_ExtraInformation","giop-parlay.csapi.P_INVALID_ASSIGNMENT_ID_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation, {"P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation","giop-parlay.csapi.P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_EVENT_TYPE_ExtraInformation, {"P_INVALID_EVENT_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_EVENT_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_INTERFACE_NAME_ExtraInformation, {"P_INVALID_INTERFACE_NAME_ExtraInformation","giop-parlay.csapi.P_INVALID_INTERFACE_NAME_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INVALID_INTERFACE_TYPE_ExtraInformation, {"P_INVALID_INTERFACE_TYPE_ExtraInformation","giop-parlay.csapi.P_INVALID_INTERFACE_TYPE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_UNKNOWN_SUBSCRIBER_ExtraInformation, {"P_UNKNOWN_SUBSCRIBER_ExtraInformation","giop-parlay.csapi.P_UNKNOWN_SUBSCRIBER_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_org_csapi_P_INFORMATION_NOT_AVAILABLE_ExtraInformation, {"P_INFORMATION_NOT_AVAILABLE_ExtraInformation","giop-parlay.csapi.P_INFORMATION_NOT_AVAILABLE_ExtraInformation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Union filters */
         {&hf_org_csapi_TpAoCOrder_TpAoCOrder, {"TpAoCOrder","giop-parlay.org.csapi.TpAoCOrder",FT_UINT32,BASE_DEC,VALS(org_csapi_TpCallAoCOrderCategory),0x0,NULL,HFILL}},
         {&hf_org_csapi_TpAoCOrder_NetworkCharge, {"TpAoCOrder_NetworkCharge","giop-parlay.org.csapi.TpAoCOrder.NetworkCharge",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
