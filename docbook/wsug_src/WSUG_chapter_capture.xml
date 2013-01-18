@@ -1,4 +1,4 @@
-<!-- WSUG Chapter Capture -->
+﻿<!-- WSUG Chapter Capture -->
 <!-- $Id$ -->
 
 <chapter id="ChapterCapture">
@@ -1459,15 +1459,11 @@ tcp port 23 and not src host 10.0.0.5
     </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry>
-	  <term><command>SESSIONNAME</command> (terminal server)</term>
-	  <listitem>
-    <para>	
-   	&lt;remote name>
-    </para>
-	  </listitem>
-	</varlistentry>
       </variablelist>
+  <para>
+  On Windows it asks the operating system if it's running in a Remote Desktop Services
+  environment.
+  </para>
   </section>
   </section>
 
