@@ -140,11 +140,10 @@ val_repr_len(fvalue_t *fv, ftrepr_t rtype)
 }
 
 static void
-val_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
+val_to_repr(fvalue_t *fv, ftrepr_t rtype, char * volatile buf)
 {
 	guint length;
 	const guint8 *c;
-	char *write_cursor;
 	unsigned int i;
 
 	g_assert(rtype == FTREPR_DFILTER);
@@ -152,16 +151,15 @@ val_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 	TRY {
 		length = tvb_length(fv->value.tvb);
 		c = tvb_get_ptr(fv->value.tvb, 0, length);
-		write_cursor = buf;
 
 		for (i = 0; i < length; i++) {
 			if (i == 0) {
-				sprintf(write_cursor, "%02x", *c++);
-				write_cursor += 2;
+				sprintf((char *)buf, "%02x", *c++);
+				buf += 2;
 			}
 			else {
-				sprintf(write_cursor, ":%02x", *c++);
-				write_cursor += 3;
+				sprintf((char *)buf, ":%02x", *c++);
+				buf += 3;
 			}
 		}
 	}

@@ -187,7 +187,7 @@ typedef void (*LogFunc)(const char*,...);
 
 typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, char*, gboolean, LogFunc);
 typedef gboolean (*FvalueFromString)(fvalue_t*, char*, LogFunc);
-typedef void (*FvalueToStringRepr)(fvalue_t*, ftrepr_t, char*);
+typedef void (*FvalueToStringRepr)(fvalue_t*, ftrepr_t, char*volatile);
 typedef int (*FvalueStringReprLen)(fvalue_t*, ftrepr_t);
 
 typedef void (*FvalueSetFunc)(fvalue_t*, gpointer, gboolean);
