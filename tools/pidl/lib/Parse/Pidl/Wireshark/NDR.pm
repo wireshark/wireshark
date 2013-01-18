@@ -1017,6 +1017,8 @@ sub Parse($$$$$)
 	It is maintained by the Samba team, not the Wireshark team.
 	Instructions on how to download and install Pidl can be 
 	found at http://wiki.wireshark.org/Pidl
+
+	\$Id\$
 */
 
 ";
@@ -1024,9 +1026,7 @@ sub Parse($$$$$)
 	$self->pidl_hdr($notice);
 
 	$self->{res}->{headers} = "\n";
-	$self->{res}->{headers} .= "#ifdef HAVE_CONFIG_H\n";
 	$self->{res}->{headers} .= "#include \"config.h\"\n";
-	$self->{res}->{headers} .= "#endif\n\n";
 
 	$self->{res}->{headers} .= "#ifdef _MSC_VER\n";
 	$self->{res}->{headers} .= "#pragma warning(disable:4005)\n";
