@@ -543,6 +543,14 @@ endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
 
+set( configure_input "Built with ${CMAKE_COMMAND}" )
+set( VERSION ${PROJECT_VERSION} )
+
+configure_file(
+	${CMAKE_SOURCE_DIR}/packaging/macosx/Info.plist.in
+	${CMAKE_SOURCE_DIR}/packaging/macosx/Info.plist
+	@ONLY)
+
 include(FeatureSummary)
 #SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ]
 #FEATURE_SUMMARY(WHAT ALL) Requires removal of our local copy of FeatureSummary

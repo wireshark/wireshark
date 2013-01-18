@@ -32,8 +32,7 @@ QT += core gui
 TARGET = qtshark
 TEMPLATE = app
 
-# XXX - Need to autogenerate Info.plist from Info.plist.in
-# QMAKE_INFO_PLIST = ../../packaging/macosx/Info.plist
+QMAKE_INFO_PLIST = ../../packaging/macosx/Info.plist
 
 xxx {
     message( )
