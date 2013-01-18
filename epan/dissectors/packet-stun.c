@@ -719,20 +719,14 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 					if (att_length < 8)
 						break;
 					proto_tree_add_item(att_tree, stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-					{
-						const gchar *ipstr;
-						guint32 ip;
-						ip = tvb_get_ipv4(tvb,offset+4);
-						ipstr = ip_to_str((guint8*)&ip);
-						proto_item_append_text(att_tree, ": %s:%d", ipstr,tvb_get_ntohs(tvb,offset+2));
-						col_append_fstr(
-							pinfo->cinfo, COL_INFO,
-							" %s: %s:%d",
-							val_to_str_const(att_type, attributes, "Unknown"),
-							ipstr,
-							tvb_get_ntohs(tvb,offset+2)
-							);
-					}
+					proto_item_append_text(att_tree, ": %s:%d", tvb_ip_to_str(tvb,offset+4),tvb_get_ntohs(tvb,offset+2));
+					col_append_fstr(
+						pinfo->cinfo, COL_INFO,
+						" %s: %s:%d",
+						val_to_str_const(att_type, attributes, "Unknown"),
+						tvb_ip_to_str(tvb,offset+4),
+						tvb_get_ntohs(tvb,offset+2)
+						);
 					break;
 
 				case 2:
