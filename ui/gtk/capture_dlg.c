@@ -1576,7 +1576,7 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
 
   /* Port row */
   port_lb = gtk_label_new("Port:");
-  ws_gtk_grid_attach_defaults(GTK_GRID (host_grid), host_te, 0, 1, 1, 1);
+  ws_gtk_grid_attach_defaults(GTK_GRID (host_grid), port_lb, 0, 1, 1, 1);
 
   port_te = gtk_entry_new();
   gtk_widget_set_tooltip_text(port_te, "Enter the TCP port number used by RPCAP server at remote host "
@@ -1860,7 +1860,7 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
                         1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   samp_timer_sb = gtk_spin_button_new(samp_timer_adj, 0, 0);
   gtk_spin_button_set_wrap(GTK_SPIN_BUTTON(samp_timer_sb), TRUE);
-  gtk_table_attach_defaults(GTK_TABLE(sampling_grid), samp_timer_sb, 1, 2, 2, 3);
+  ws_gtk_grid_attach_defaults(GTK_GRID(sampling_grid), samp_timer_sb, 1, 2, 1, 1);
 
   sampling_lb = gtk_label_new("milliseconds");
   gtk_misc_set_alignment(GTK_MISC(sampling_lb), 0, 0.5f);
