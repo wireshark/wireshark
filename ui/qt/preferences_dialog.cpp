@@ -625,6 +625,14 @@ void PreferencesDialog::on_buttonBox_accepted()
 
     prefs_main_write();
 
+#ifdef HAVE_AIRPCAP
+  /*
+   * Load the Wireshark decryption keys (just set) and save
+   * the changes to the adapters' registry
+   */
+  //airpcap_load_decryption_keys(airpcap_if_list);
+#endif
+
     /* Fill in capture options with values from the preferences */
     prefs_to_capture_opts();
 
