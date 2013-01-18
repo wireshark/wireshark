@@ -528,7 +528,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* request ID */
             str_len = (gint)strlen(field4);
             proto_tree_add_item(request_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
-            offset += str_len + 2; /* add CRLF */
+            /*offset += str_len + 2;*/ /* add CRLF */
         }
         break;
         case RESPONSE_LINE:
@@ -558,7 +558,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) %s", field4, field5);
             str_len = (gint)strlen(field5);
             proto_tree_add_item(response_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
-            offset += str_len + 2; /* add CRLF */
+            /*offset += str_len + 2;*/ /* add CRLF */
         }
         break;
         case EVENT_LINE:
@@ -586,7 +586,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* request state */
             str_len = (gint)strlen(field5);
             proto_tree_add_item(event_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
-            offset += str_len + 2; /* add CRLF */
+            /*offset += str_len + 2;*/ /* add CRLF */
         }
         break;
         default:
