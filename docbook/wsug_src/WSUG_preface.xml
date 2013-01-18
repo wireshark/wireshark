@@ -11,7 +11,7 @@
   </para>
   <para>
     This document is part of an effort by the Wireshark team to improve the 
-	usability of Wireshark.
+    usability of Wireshark.
   </para>
   <para>
     We hope that you find it useful, and look forward to your comments.
@@ -48,71 +48,71 @@
   <title>Acknowledgements</title>
   <para>
     The authors would like to thank the whole Wireshark team for their 
-	assistance. In particular, the authors would like to thank:
+    assistance. In particular, the authors would like to thank:
     <itemizedlist>
       <listitem>
-	<para>
-	  Gerald Combs, for initiating the Wireshark project and funding to 
-	  do this documentation.
-	</para>
+    <para>
+      Gerald Combs, for initiating the Wireshark project and funding to 
+      do this documentation.
+    </para>
       </listitem>
       <listitem>
-	<para>
-	  Guy Harris, for many helpful hints and a great deal of patience 
-	  in reviewing this document.
-	</para>
+    <para>
+      Guy Harris, for many helpful hints and a great deal of patience 
+      in reviewing this document.
+    </para>
       </listitem>
       <listitem>
-	<para>
-	  Gilbert Ramirez, for general encouragement and helpful hints along 
-	  the way.
-	</para>
+    <para>
+      Gilbert Ramirez, for general encouragement and helpful hints along 
+      the way.
+    </para>
       </listitem>
     </itemizedlist>
   </para>
   <para>
     The authors would also like to thank the following people for their 
-	helpful feedback on this document:
+    helpful feedback on this document:
     <itemizedlist>
       <listitem>
-	<para>
-	  Pat Eyler, for his suggestions on improving the example on 
-	  generating a backtrace.
-	</para>
+    <para>
+      Pat Eyler, for his suggestions on improving the example on 
+      generating a backtrace.
+    </para>
       </listitem>
       <listitem>
-	<para>
-	  Martin Regner, for his various suggestions and corrections.
-	</para>
+    <para>
+      Martin Regner, for his various suggestions and corrections.
+    </para>
       </listitem>
       <listitem>
-	<para>
-	  Graeme Hewson, for a lot of grammatical corrections.
-	</para>
+    <para>
+      Graeme Hewson, for a lot of grammatical corrections.
+    </para>
       </listitem>
     </itemizedlist>
   </para>
   <para>
     The authors would like to acknowledge those man page and README authors 
-	for the Wireshark project from who sections of this document borrow heavily:
+    for the Wireshark project from who sections of this document borrow heavily:
     <itemizedlist>
       <listitem>
-	<para>
-	  Scott Renfro from whose <command>mergecap</command> man page 
-	  <xref linkend="AppToolsmergecap"/> is derived.
-	</para>
+    <para>
+      Scott Renfro from whose <command>mergecap</command> man page 
+      <xref linkend="AppToolsmergecap"/> is derived.
+    </para>
       </listitem>
       <listitem>
-	<para>
-	  Ashok Narayanan from whose <command>text2pcap</command> man page 
-	  <xref linkend="AppToolstext2pcap"/> is derived.
-	</para>
+    <para>
+      Ashok Narayanan from whose <command>text2pcap</command> man page 
+      <xref linkend="AppToolstext2pcap"/> is derived.
+    </para>
       </listitem>
       <listitem>
-	<para>
-	  Frank Singleton from whose <filename>README.idl2wrs</filename> 
-	  <xref linkend="AppToolsidl2wrs"/> is derived. 
-	</para>
+    <para>
+      Frank Singleton from whose <filename>README.idl2wrs</filename> 
+      <xref linkend="AppToolsidl2wrs"/> is derived. 
+    </para>
       </listitem>
     </itemizedlist>
   </para>
@@ -124,31 +124,31 @@
       This book was originally developed by 
       <ulink url="mailto:&AuthorEmail2;">Richard Sharpe</ulink> with 
       funds provided from the Wireshark Fund. It was updated by 
-	  <ulink url="mailto:&AuthorEmail3;">Ed Warnicke</ulink> and more recently 
-	  redesigned and updated by <ulink url="mailto:&AuthorEmail;">Ulf 
-	  Lamping</ulink>.
+      <ulink url="mailto:&AuthorEmail3;">Ed Warnicke</ulink> and more recently 
+      redesigned and updated by <ulink url="mailto:&AuthorEmail;">Ulf 
+      Lamping</ulink>.
     </para>
     <para>
       It is written in DocBook/XML.
     </para>
     <para>
-	You will find some specially marked parts in this book:
+    You will find some specially marked parts in this book:
     </para>
     <warning><title>This is a warning!</title>
-	<para>
-	You should pay attention to a warning, as otherwise data loss might occur.
-	</para>
+    <para>
+    You should pay attention to a warning, as otherwise data loss might occur.
+    </para>
     </warning>
     <note><title>This is a note!</title>
-	<para>
-	A note will point you to common mistakes and things that might not be 
-	obvious.
-	</para>
+    <para>
+    A note will point you to common mistakes and things that might not be 
+    obvious.
+    </para>
     </note>
     <tip><title>This is a tip!</title>
-	<para>
-	Tips will be helpful for your everyday work using Wireshark.
-	</para>
+    <para>
+    Tips will be helpful for your everyday work using Wireshark.
+    </para>
     </tip>
   </section>
   

@@ -7,10 +7,10 @@
   <section id="AppToolsIntroduction">
     <title>Introduction</title>
     <para>
-	Besides the Wireshark GUI application, there are some command line tools
-	which can be helpful for doing some more specialized things. These tools
-	will be described in this chapter.
-	</para>
+    Besides the Wireshark GUI application, there are some command line tools
+    which can be helpful for doing some more specialized things. These tools
+    will be described in this chapter.
+    </para>
   </section>
 
   <section id="AppToolstshark">
@@ -121,7 +121,7 @@ Miscellaneous:
 
   <section id="AppToolstcpdump">
     <title><command>tcpdump</command>: Capturing with tcpdump for viewing
-	with Wireshark</title>
+    with Wireshark</title>
     <para>
       There are occasions when you want to capture packets using
       <command>tcpdump</command> rather than <command>wireshark</command>,
@@ -145,33 +145,33 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
       you will have to terminate the capture with ^C when you believe you
       have captured enough packets.
     </para>
-	<note><title>Note!</title>
-	<para>
-	tcpdump is not part of the Wireshark distribution. You can get it from:
-	<ulink url="&TcpdumpWebsite;">&TcpdumpWebsite;</ulink> for various
-	platforms.
-	</para>
-	</note>
+    <note><title>Note!</title>
+    <para>
+    tcpdump is not part of the Wireshark distribution. You can get it from:
+    <ulink url="&TcpdumpWebsite;">&TcpdumpWebsite;</ulink> for various
+    platforms.
+    </para>
+    </note>
   </section>
 
   <section id="AppToolsdumpcap">
     <title><command>dumpcap</command>: Capturing with dumpcap for viewing
-	with Wireshark</title>
+    with Wireshark</title>
     <para>
-	<application>Dumpcap</application> is a network traffic dump tool.
-	It captures packet data from a live network and writes the
-	packets to a file.
-	Dumpcap's native capture file format is libpcap format, which is also
-	the format used by Wireshark, tcpdump and various other tools.
+    <application>Dumpcap</application> is a network traffic dump tool.
+    It captures packet data from a live network and writes the
+    packets to a file.
+    Dumpcap's native capture file format is libpcap format, which is also
+    the format used by Wireshark, tcpdump and various other tools.
     </para>
     <para>
-	Without any options set it will use the pcap library to capture traffic
-	from the first available network interface and write the received raw
-	packet data, along with the packets' time stamps into a libpcap file.
+    Without any options set it will use the pcap library to capture traffic
+    from the first available network interface and write the received raw
+    packet data, along with the packets' time stamps into a libpcap file.
     </para>
     <para>
-	Packet capturing is performed with the pcap library.
-	The capture filter syntax follows the rules of the pcap library.
+    Packet capturing is performed with the pcap library.
+    The capture filter syntax follows the rules of the pcap library.
     </para>
     <para>
     <example id="AppToolsdumpcapEx">
@@ -233,17 +233,17 @@ Example: dumpcap -i eth0 -a duration:60 -w output.pcapng
 
 Use Ctrl-C to stop capturing at any time.
       </programlisting>
-	</example>
+    </example>
     </para>
   </section>
 
   <section id="AppToolscapinfos">
     <title><command>capinfos</command>: Print information about capture files
-	</title>
+    </title>
     <para>
       Included with Wireshark is a small utility called
       <command>capinfos</command>, which is a command-line utility to
-	  print information about binary capture files.
+      print information about binary capture files.
     </para>
     <para>
     <example id="AppToolscapinfosEx">
@@ -306,7 +306,7 @@ or adding to earlier options.
 If no options are given the default is to display all infos in long report
 output format.
       </programlisting>
-	</example>
+    </example>
     </para>
   </section>
 
@@ -753,7 +753,7 @@ Miscellaneous:
 
   <section id="AppToolstext2pcap" >
     <title><command>text2pcap</command>: Converting ASCII hexdumps to network
-	captures
+    captures
     </title>
     <para>
       There may be some occasions when you wish to convert a hex dump of some
@@ -911,221 +911,221 @@ Miscellaneous:
     <section>
       <title>What is it?</title>
       <para>
-	As you have probably guessed from the name,
-	<command>idl2wrs</command> takes a
-	user specified IDL file and attempts to build a dissector that
-	can decode the IDL traffic over GIOP. The resulting file is
-	"C" code, that should compile okay as a Wireshark dissector.
+    As you have probably guessed from the name,
+    <command>idl2wrs</command> takes a
+    user specified IDL file and attempts to build a dissector that
+    can decode the IDL traffic over GIOP. The resulting file is
+    "C" code, that should compile okay as a Wireshark dissector.
       </para>
       <para>
-	<command>idl2wrs</command> basically parses the data struct given to
-	it by the omniidl compiler, and using the GIOP API available in
-	packet-giop.[ch], generates  get_CDR_xxx calls to decode the
-	CORBA traffic on the wire.
+    <command>idl2wrs</command> basically parses the data struct given to
+    it by the omniidl compiler, and using the GIOP API available in
+    packet-giop.[ch], generates  get_CDR_xxx calls to decode the
+    CORBA traffic on the wire.
       </para>
       <para>It consists of 4 main files.</para>
       <variablelist>
-	<varlistentry><term><filename>README.idl2wrs</filename></term>
-	  <listitem>
-	    <para>This document</para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><filename>wireshark_be.py</filename></term>
-	  <listitem>
-	    <para>The main compiler backend</para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><filename>wireshark_gen.py</filename></term>
-	  <listitem>
-	    <para>A helper class, that generates the C code.</para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><filename>idl2wrs</filename></term>
-	  <listitem>
-	    <para> A simple shell script wrapper that the end user should
-	      use to generate the dissector from the IDL file(s).</para>
-	  </listitem>
-	</varlistentry>
+    <varlistentry><term><filename>README.idl2wrs</filename></term>
+      <listitem>
+        <para>This document</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry><term><filename>wireshark_be.py</filename></term>
+      <listitem>
+        <para>The main compiler backend</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry><term><filename>wireshark_gen.py</filename></term>
+      <listitem>
+        <para>A helper class, that generates the C code.</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry><term><filename>idl2wrs</filename></term>
+      <listitem>
+        <para> A simple shell script wrapper that the end user should
+          use to generate the dissector from the IDL file(s).</para>
+      </listitem>
+    </varlistentry>
       </variablelist>
     </section>
     <section>
       <title>Why do this?</title>
       <para>
-	It is important to understand what CORBA traffic looks
-	like over GIOP/IIOP, and to help build a tool that can assist
-	in troubleshooting CORBA interworking. This was especially the
-	case after seeing a lot of discussions about how particular
-	IDL types are represented inside an octet stream.
+    It is important to understand what CORBA traffic looks
+    like over GIOP/IIOP, and to help build a tool that can assist
+    in troubleshooting CORBA interworking. This was especially the
+    case after seeing a lot of discussions about how particular
+    IDL types are represented inside an octet stream.
       </para>
       <para>
-	I have also had comments/feedback that this tool would be good for say
-	a CORBA class when teaching students what CORBA traffic looks like
-	"on the wire".
+    I have also had comments/feedback that this tool would be good for say
+    a CORBA class when teaching students what CORBA traffic looks like
+    "on the wire".
       </para>
       <para>
-	It is also COOL to work on a great Open Source project such as
-	the case with "Wireshark" (
-	<ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>
-	)
+    It is also COOL to work on a great Open Source project such as
+    the case with "Wireshark" (
+    <ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>
+    )
       </para>
     </section>
     <section><title>How to use idl2wrs</title>
       <para>
-	To use the idl2wrs to generate Wireshark dissectors, you
-	need the following:
+    To use the idl2wrs to generate Wireshark dissectors, you
+    need the following:
       </para>
       <orderedlist>
-	<title>Prerequisites to using idl2wrs</title>
-	<listitem>
-	  <para>
-	    Python must be installed.  See
-	    <ulink url="http://python.org/"/>
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    omniidl from the omniORB package must be available. See
-	    <ulink url="http://omniorb.sourceforge.net/"/>
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Of course you need Wireshark installed to compile the
-	    code and tweak it if required. idl2wrs is part of the
-	    standard Wireshark distribution
-	  </para>
-	</listitem>
+    <title>Prerequisites to using idl2wrs</title>
+    <listitem>
+      <para>
+        Python must be installed.  See
+        <ulink url="http://python.org/"/>
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        omniidl from the omniORB package must be available. See
+        <ulink url="http://omniorb.sourceforge.net/"/>
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Of course you need Wireshark installed to compile the
+        code and tweak it if required. idl2wrs is part of the
+        standard Wireshark distribution
+      </para>
+    </listitem>
       </orderedlist>
       <para>
-	To use idl2wrs to generate an Wireshark dissector from an idl file
-	use the following procedure:
+    To use idl2wrs to generate an Wireshark dissector from an idl file
+    use the following procedure:
       </para>
       <orderedlist>
-	<title>
-	  Procedure for converting a CORBA idl file into a Wireshark
-	  dissector
-	</title>
-	<listitem>
-	  <para>
-	    To write the C code to stdout.
-	    <programlisting>idl2wrs  &lt;your_file.idl&gt;</programlisting>
-	    e.g.: <programlisting>idl2wrs echo.idl</programlisting>
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    To write to a file, just redirect the output.
-	    <programlisting>idl2wrs echo.idl > packet-test-idl.c</programlisting>
-	    You may wish to comment out the register_giop_user_module() code
-	    and that will leave you with heuristic dissection.
-	  </para>
-	</listitem>
+    <title>
+      Procedure for converting a CORBA idl file into a Wireshark
+      dissector
+    </title>
+    <listitem>
+      <para>
+        To write the C code to stdout.
+        <programlisting>idl2wrs  &lt;your_file.idl&gt;</programlisting>
+        e.g.: <programlisting>idl2wrs echo.idl</programlisting>
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        To write to a file, just redirect the output.
+        <programlisting>idl2wrs echo.idl > packet-test-idl.c</programlisting>
+        You may wish to comment out the register_giop_user_module() code
+        and that will leave you with heuristic dissection.
+      </para>
+    </listitem>
       </orderedlist>
       <para>
-	If you don't want to use the shell script wrapper, then try
-	steps 3 or 4 instead.</para>
+    If you don't want to use the shell script wrapper, then try
+    steps 3 or 4 instead.</para>
       <orderedlist continuation="continues">
-	<listitem>
-	  <para>To write the C code to stdout.
-	    <programlisting>Usage: omniidl  -p ./ -b wireshark_be &lt;your file.idl&gt;</programlisting>
-	    e.g.:
-	    <programlisting>omniidl  -p ./ -b wireshark_be echo.idl</programlisting>
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    To write to a file, just redirect the output.
-	    <programlisting>omniidl  -p ./ -b wireshark_be echo.idl > packet-test-idl.c</programlisting>
-	    You may wish to comment out the register_giop_user_module() code
-	    and that will leave you with heuristic dissection.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Copy the resulting C code to subdirectory epan/dissectors/ inside your
-	    Wireshark source directory.
-	    <programlisting>cp packet-test-idl.c /dir/where/wireshark/lives/epan/dissectors/</programlisting>
-	    The new dissector has to be added to Makefile.common in the same
-	    directory. Look for the declaration CLEAN_DISSECTOR_SRC and add
-	    the new dissector there. For example,
-	    <programlisting>
+    <listitem>
+      <para>To write the C code to stdout.
+        <programlisting>Usage: omniidl  -p ./ -b wireshark_be &lt;your file.idl&gt;</programlisting>
+        e.g.:
+        <programlisting>omniidl  -p ./ -b wireshark_be echo.idl</programlisting>
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        To write to a file, just redirect the output.
+        <programlisting>omniidl  -p ./ -b wireshark_be echo.idl > packet-test-idl.c</programlisting>
+        You may wish to comment out the register_giop_user_module() code
+        and that will leave you with heuristic dissection.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Copy the resulting C code to subdirectory epan/dissectors/ inside your
+        Wireshark source directory.
+        <programlisting>cp packet-test-idl.c /dir/where/wireshark/lives/epan/dissectors/</programlisting>
+        The new dissector has to be added to Makefile.common in the same
+        directory. Look for the declaration CLEAN_DISSECTOR_SRC and add
+        the new dissector there. For example,
+        <programlisting>
 CLEAN_DISSECTOR_SRC = \
         packet-2dparityfec.c    \
         packet-3com-njack.c     \
         ...
             </programlisting>
             becomes
-	    <programlisting>
+        <programlisting>
 CLEAN_DISSECTOR_SRC = \
         packet-test-idl.c       \
         packet-2dparityfec.c    \
         packet-3com-njack.c     \
         ...
             </programlisting>
-	  </para>
+      </para>
           <para>
           For the next steps, go up to the top of your Wireshark source directory.
           </para>
-	</listitem>
-	<listitem>
-	  <para>Run configure
-	    <programlisting>./configure (or ./autogen.sh)</programlisting>
-	  </para>
-	</listitem>
-	<listitem>
-	  <para> Compile the code
-	    <programlisting>make</programlisting>
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>Good Luck !!</para>
-	</listitem>
+    </listitem>
+    <listitem>
+      <para>Run configure
+        <programlisting>./configure (or ./autogen.sh)</programlisting>
+      </para>
+    </listitem>
+    <listitem>
+      <para> Compile the code
+        <programlisting>make</programlisting>
+      </para>
+    </listitem>
+    <listitem>
+      <para>Good Luck !!</para>
+    </listitem>
       </orderedlist>
     </section>
     <section><title>TODO</title>
       <orderedlist>
-	<listitem>
-	  <para>
-	    Exception code not generated  (yet), but can be added manually.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Enums not converted to symbolic values (yet), but can be added
-	    manually.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>Add command line options etc</para>
-	</listitem>
-	<listitem>
-	  <para>More I am sure :-)</para>
-	</listitem>
+    <listitem>
+      <para>
+        Exception code not generated  (yet), but can be added manually.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Enums not converted to symbolic values (yet), but can be added
+        manually.
+      </para>
+    </listitem>
+    <listitem>
+      <para>Add command line options etc</para>
+    </listitem>
+    <listitem>
+      <para>More I am sure :-)</para>
+    </listitem>
       </orderedlist>
     </section>
     <section><title>Limitations</title>
       <para>
-	See the TODO list inside <filename>packet-giop.c</filename>
+    See the TODO list inside <filename>packet-giop.c</filename>
       </para>
     </section>
     <section><title>Notes</title>
       <orderedlist>
-	<listitem>
-	  <para>
-	    The "-p ./" option passed to omniidl indicates that the
-	    wireshark_be.py and wireshark_gen.py are residing in the
-	    current directory. This may need
-	    tweaking if you place these files somewhere else.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    If it complains about being unable to find some modules
-	    (e.g. tempfile.py),
-	    you may want to check if PYTHONPATH is set correctly.
-	    On my Linux box, it is  PYTHONPATH=/usr/lib/python2.4/
-	  </para>
-	</listitem>
+    <listitem>
+      <para>
+        The "-p ./" option passed to omniidl indicates that the
+        wireshark_be.py and wireshark_gen.py are residing in the
+        current directory. This may need
+        tweaking if you place these files somewhere else.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        If it complains about being unable to find some modules
+        (e.g. tempfile.py),
+        you may want to check if PYTHONPATH is set correctly.
+        On my Linux box, it is  PYTHONPATH=/usr/lib/python2.4/
+      </para>
+    </listitem>
       </orderedlist>
     </section>
   </section>

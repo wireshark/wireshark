@@ -6,51 +6,51 @@
   <section id="ChTelIntroduction">
   <title>Introduction</title>
     <para>
-	Wireshark provides a wide range of telephony related network statistics
-	which can be accessed via the <command>Telephony</command> menu.
+    Wireshark provides a wide range of telephony related network statistics
+    which can be accessed via the <command>Telephony</command> menu.
     </para>
     <para>
-	These statistics range from specific signaling protocols, to analysis of
-	signaling and media flows. If encoded in a compatible encoding the media
-	flow can even be played.
+    These statistics range from specific signaling protocols, to analysis of
+    signaling and media flows. If encoded in a compatible encoding the media
+    flow can even be played.
     </para>
   </section>
   
   <section id="ChTelRTPAnalysis">
     <title>RTP Analysis</title>
     <para>
-	The RTP analysis function takes the selected RTP stream (and the reverse
-	stream, if possible) and generates a list of statistics on it.
+    The RTP analysis function takes the selected RTP stream (and the reverse
+    stream, if possible) and generates a list of statistics on it.
     </para>
     <figure><title>The "RTP Stream Analysis" window</title>
     <graphic entityref="WiresharkTelRTPStreamAnalysis" format="PNG"/>
     </figure>
     <para>
-	Starting with basic data as packet number and sequence number, further
-	statistics are created based on arrival time, delay, jitter, packet size,
-	etc.
+    Starting with basic data as packet number and sequence number, further
+    statistics are created based on arrival time, delay, jitter, packet size,
+    etc.
     </para>
     <para>
-	Besides the per packet statistics, the lower pane shows the overall
-	statistics, with minimums and maximums for delta, jitter and clock skew.
-	Also an indication of lost packets is included.
+    Besides the per packet statistics, the lower pane shows the overall
+    statistics, with minimums and maximums for delta, jitter and clock skew.
+    Also an indication of lost packets is included.
     </para>
     <para>
-	The RTP Stream Analysis window further provides the option to save the RTP
-	payload (as raw data or, if in a PCM encoding, in an Audio file). Other
-	options a to export and plot various statistics on the RTP streams.
+    The RTP Stream Analysis window further provides the option to save the RTP
+    payload (as raw data or, if in a PCM encoding, in an Audio file). Other
+    options a to export and plot various statistics on the RTP streams.
     </para>
   </section>
 
   <section id="ChTelVoipCalls">
     <title>VoIP Calls</title>
     <para>
-	The VoIP Calls window shows a list of all detected VoIP calls in the
-	captured traffic. It finds calls by their signaling.
+    The VoIP Calls window shows a list of all detected VoIP calls in the
+    captured traffic. It finds calls by their signaling.
     </para>
     <para>
-	More details are described at the
-	<ulink url="&WiresharkWikiPage;/VoIP_calls"/> page.
+    More details are described at the
+    <ulink url="&WiresharkWikiPage;/VoIP_calls"/> page.
     </para>
   </section>
   
@@ -109,13 +109,13 @@
   <section id="ChTelXXX">
     <title>The protocol specific statistics windows</title>
     <para>
-	The protocol specific statistics windows display detailed information
-	of specific protocols and might be described in a later
-	version of this document.
+    The protocol specific statistics windows display detailed information
+    of specific protocols and might be described in a later
+    version of this document.
     </para>
     <para>
-	Some of these statistics are described at the
-	<ulink url="&WiresharkWikiPage;/Statistics"/> pages.
+    Some of these statistics are described at the
+    <ulink url="&WiresharkWikiPage;/Statistics"/> pages.
     </para>
   </section>
 
