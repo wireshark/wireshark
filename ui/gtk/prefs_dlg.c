@@ -28,7 +28,6 @@
 
 #include <string.h>
 
-#include <epan/filesystem.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
@@ -37,6 +36,7 @@
 
 #include "../file.h"
 #include "../print.h"
+#include "ui/preference_utils.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
@@ -120,25 +120,6 @@ pref_exists(pref_t *pref _U_, gpointer user_data _U_)
   return 1;
 }
 
-static const char*
-get_pref_type_string(pref_type_t t)
-{
-  switch (t)
-    {
-#define CASE(T) case PREF_##T: return #T
-      CASE(UINT);
-      CASE(BOOL);
-      CASE(ENUM);
-      CASE(STRING);
-      CASE(RANGE);
-      CASE(STATIC_TEXT);
-      CASE(UAT);
-      CASE(OBSOLETE);
-    default:
-      return "UNKNOWN";
-    }
-}
-
 /* show a single preference on the GtkTable of a preference page */
 static guint
 pref_show(pref_t *pref, gpointer user_data)
@@ -146,6 +127,7 @@ pref_show(pref_t *pref, gpointer user_data)
   GtkWidget  *main_tb = user_data;
   module_t  *module  = g_object_get_data(G_OBJECT(main_tb), E_TABLE_MODULE_KEY);
   const char *title;
+  const char *type_name = prefs_pref_type_name(pref);
   char       *label_string;
   size_t      label_len;
   char        uint_str[10+1];
@@ -161,7 +143,7 @@ pref_show(pref_t *pref, gpointer user_data)
   tooltip_txt = pref->description? g_strdup_printf("%s.%s: %s\n%s",
                                                    module->name,
                                                    pref->name,
-                                                   get_pref_type_string(pref->type),
+                                                   type_name ? type_name : "Unknown",
                                                    pref->description): NULL;
 
   /*
@@ -171,14 +153,14 @@ pref_show(pref_t *pref, gpointer user_data)
   if (pref->type != PREF_STATIC_TEXT)
     g_strlcat(label_string, ":", label_len);
 
+  pref_stash(pref, NULL);
+  
   /* Save the current value of the preference, so that we can revert it if
      the user does "Apply" and then "Cancel", and create the control for
      editing the preference. */
   switch (pref->type) {
 
   case PREF_UINT:
-    pref->saved_val.uint = *pref->varp.uint;
-
     /* XXX - there are no uint spinbuttons, so we can't use a spinbutton.
        Even more annoyingly, even if there were, GLib doesn't define
        G_MAXUINT - but I think ANSI C may define UINT_MAX, so we could
@@ -186,15 +168,15 @@ pref_show(pref_t *pref, gpointer user_data)
     switch (pref->info.base) {
 
     case 10:
-      g_snprintf(uint_str, sizeof(uint_str), "%u", pref->saved_val.uint);
+      g_snprintf(uint_str, sizeof(uint_str), "%u", pref->stashed_val.uint);
       break;
 
     case 8:
-      g_snprintf(uint_str, sizeof(uint_str), "%o", pref->saved_val.uint);
+      g_snprintf(uint_str, sizeof(uint_str), "%o", pref->stashed_val.uint);
       break;
 
     case 16:
-      g_snprintf(uint_str, sizeof(uint_str), "%x", pref->saved_val.uint);
+      g_snprintf(uint_str, sizeof(uint_str), "%x", pref->stashed_val.uint);
       break;
     }
     pref->control = create_preference_entry(main_tb, pref->ordinal,
@@ -203,52 +185,44 @@ pref_show(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_BOOL:
-    pref->saved_val.boolval = *pref->varp.boolp;
     pref->control = create_preference_check_button(main_tb, pref->ordinal,
                                                    label_string, tooltip_txt,
-                                                   pref->saved_val.boolval);
+                                                   pref->stashed_val.boolval);
     break;
 
   case PREF_ENUM:
-    pref->saved_val.enumval = *pref->varp.enump;
     if (pref->info.enum_info.radio_buttons) {
       /* Show it as radio buttons. */
       pref->control = create_preference_radio_buttons(main_tb, pref->ordinal,
                                                       label_string, tooltip_txt,
                                                       pref->info.enum_info.enumvals,
-                                                      pref->saved_val.enumval);
+                                                      pref->stashed_val.enumval);
     } else {
       /* Show it as an option menu. */
       pref->control = create_preference_option_menu(main_tb, pref->ordinal,
                                                     label_string, tooltip_txt,
                                                     pref->info.enum_info.enumvals,
-                                                    pref->saved_val.enumval);
+                                                    pref->stashed_val.enumval);
     }
     break;
 
   case PREF_STRING:
-    g_free(pref->saved_val.string);
-    pref->saved_val.string = g_strdup(*pref->varp.string);
     pref->control = create_preference_entry(main_tb, pref->ordinal,
                                             label_string, tooltip_txt,
-                                            pref->saved_val.string);
+                                            pref->stashed_val.string);
     break;
 
   case PREF_FILENAME:
-    g_free(pref->saved_val.string);
-    pref->saved_val.string = g_strdup(*pref->varp.string);
     pref->control = create_preference_filename_entry(main_tb, pref->ordinal,
                                                      label_string,
                                                      tooltip_txt,
-                                                     pref->saved_val.string);
+                                                     pref->stashed_val.string);
     break;
 
   case PREF_RANGE:
   {
     char *range_str_p;
 
-    g_free(pref->saved_val.range);
-    pref->saved_val.range = range_copy(*pref->varp.range);
     range_str_p = range_convert_range(*pref->varp.range);
     pref->control = create_preference_entry(main_tb, pref->ordinal,
                                             label_string, tooltip_txt,
@@ -1230,51 +1204,7 @@ prefs_airpcap_update(void)
 #endif
 
 static guint
-pref_clean(pref_t *pref, gpointer user_data _U_)
-{
-  switch (pref->type) {
-
-  case PREF_UINT:
-    break;
-
-  case PREF_BOOL:
-    break;
-
-  case PREF_ENUM:
-    break;
-
-  case PREF_STRING:
-  case PREF_FILENAME:
-    if (pref->saved_val.string != NULL) {
-      g_free(pref->saved_val.string);
-      pref->saved_val.string = NULL;
-    }
-    break;
-
-  case PREF_RANGE:
-    if (pref->saved_val.range != NULL) {
-      g_free(pref->saved_val.range);
-      pref->saved_val.range = NULL;
-    }
-    break;
-
-  case PREF_STATIC_TEXT:
-  case PREF_UAT:
-    break;
-
-  case PREF_COLOR:
-  case PREF_CUSTOM:
-      /* currently not supported */
-
-  case PREF_OBSOLETE:
-    g_assert_not_reached();
-    break;
-  }
-  return 0;
-}
-
-static guint
-module_prefs_clean(module_t *module, gpointer user_data _U_)
+module_prefs_clean_stash(module_t *module, gpointer user_data _U_)
 {
   /* Ignore any preferences with their own interface */
   if (!module->use_gui) {
@@ -1283,7 +1213,7 @@ module_prefs_clean(module_t *module, gpointer user_data _U_)
 
   /* For all preferences in this module, clean up any cruft allocated for
      use by the GUI code. */
-  prefs_pref_foreach(module, pref_clean, NULL);
+  prefs_pref_foreach(module, pref_clean_stash, NULL);
   return 0;     /* keep cleaning modules */
 }
 
@@ -1414,51 +1344,7 @@ prefs_main_destroy_all(GtkWidget *dlg)
 
   /* Free up the saved preferences (both for "prefs" and for registered
      preferences). */
-  prefs_modules_foreach(module_prefs_clean, NULL);
-}
-
-
-static guint
-pref_copy(pref_t *pref, gpointer user_data _U_)
-{
-  switch (pref->type) {
-
-  case PREF_UINT:
-    pref->saved_val.uint = *pref->varp.uint;
-    break;
-
-  case PREF_BOOL:
-    pref->saved_val.boolval = *pref->varp.boolp;
-    break;
-
-  case PREF_ENUM:
-    pref->saved_val.enumval = *pref->varp.enump;
-    break;
-
-  case PREF_STRING:
-  case PREF_FILENAME:
-    g_free(pref->saved_val.string);
-    pref->saved_val.string = g_strdup(*pref->varp.string);
-    break;
-
-  case PREF_RANGE:
-    g_free(pref->saved_val.range);
-    pref->saved_val.range = range_copy(*pref->varp.range);
-    break;
-
-  case PREF_STATIC_TEXT:
-  case PREF_UAT:
-    break;
-
-  case PREF_COLOR:
-  case PREF_CUSTOM:
-      /* currently not supported */
-
-  case PREF_OBSOLETE:
-    g_assert_not_reached();
-    break;
-  }
-  return 0;
+  prefs_modules_foreach(module_prefs_clean_stash, NULL);
 }
 
 static guint
@@ -1470,7 +1356,7 @@ module_prefs_copy(module_t *module, gpointer user_data _U_)
   }
 
   /* For all preferences in this module, (re)save current value */
-  prefs_pref_foreach(module, pref_copy, NULL);
+  prefs_pref_foreach(module, pref_stash, NULL);
   return 0;     /* continue making copies */
 }
 
@@ -1479,42 +1365,6 @@ module_prefs_copy(module_t *module, gpointer user_data _U_)
 static void prefs_copy(void) {
   prefs_modules_foreach(module_prefs_copy, NULL);
 }
-
-
-void
-prefs_main_write(void)
-{
-  int   err;
-  char *pf_dir_path;
-  char *pf_path;
-
-  /* Create the directory that holds personal configuration files, if
-     necessary.  */
-  if (create_persconffile_dir(&pf_dir_path) == -1) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                  "Can't create directory\n\"%s\"\nfor preferences file: %s.", pf_dir_path,
-                  g_strerror(errno));
-    g_free(pf_dir_path);
-  } else {
-    /* Write the preferencs out. */
-    err = write_prefs(&pf_path);
-    if (err != 0) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "Can't open preferences file\n\"%s\": %s.", pf_path,
-                    g_strerror(err));
-      g_free(pf_path);
-    }
-  }
-
-#ifdef HAVE_AIRPCAP
-  /*
-   * Load the Wireshark decryption keys (just set) and save
-   * the changes to the adapters' registry
-   */
-  airpcap_load_decryption_keys(airpcap_if_list);
-#endif
-}
-
 
 static void
 prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
@@ -1614,67 +1464,6 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 }
 
 static guint
-pref_revert(pref_t *pref, gpointer user_data)
-{
-  gboolean *pref_changed_p = user_data;
-
-  /* Revert the preference to its saved value. */
-  switch (pref->type) {
-
-  case PREF_UINT:
-    if (*pref->varp.uint != pref->saved_val.uint) {
-      *pref_changed_p = TRUE;
-      *pref->varp.uint = pref->saved_val.uint;
-    }
-    break;
-
-  case PREF_BOOL:
-    if (*pref->varp.boolp != pref->saved_val.boolval) {
-      *pref_changed_p = TRUE;
-      *pref->varp.boolp = pref->saved_val.boolval;
-    }
-    break;
-
-  case PREF_ENUM:
-    if (*pref->varp.enump != pref->saved_val.enumval) {
-      *pref_changed_p = TRUE;
-      *pref->varp.enump = pref->saved_val.enumval;
-    }
-    break;
-
-  case PREF_STRING:
-  case PREF_FILENAME:
-    if (strcmp(*pref->varp.string, pref->saved_val.string) != 0) {
-      *pref_changed_p = TRUE;
-      g_free((void *)*pref->varp.string);
-      *pref->varp.string = g_strdup(pref->saved_val.string);
-    }
-    break;
-
-  case PREF_RANGE:
-    if (!ranges_are_equal(*pref->varp.range, pref->saved_val.range)) {
-      *pref_changed_p = TRUE;
-      g_free(*pref->varp.range);
-      *pref->varp.range = range_copy(pref->saved_val.range);
-    }
-    break;
-
-  case PREF_STATIC_TEXT:
-  case PREF_UAT:
-    break;
-
-  case PREF_COLOR:
-  case PREF_CUSTOM:
-      /* currently not supported */
-
-  case PREF_OBSOLETE:
-    g_assert_not_reached();
-    break;
-  }
-  return 0;
-}
-
-static guint
 module_prefs_revert(module_t *module, gpointer user_data)
 {
   gboolean *must_redissect_p = user_data;
@@ -1688,7 +1477,7 @@ module_prefs_revert(module_t *module, gpointer user_data)
      it had when we popped up the Preferences dialog.  Find out whether
      this changes any of them. */
   module->prefs_changed = FALSE;        /* assume none of them changed */
-  prefs_pref_foreach(module, pref_revert, &module->prefs_changed);
+  prefs_pref_foreach(module, pref_unstash, &module->prefs_changed);
 
   /* If any of them changed, indicate that we must redissect and refilter
      the current capture (if we have one), as the preference change

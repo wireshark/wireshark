@@ -738,7 +738,6 @@ prefs_module_has_submodules
 prefs_modules_foreach
 prefs_modules_foreach_submodules
 prefs_pref_foreach
-prefs_pref_is_default
 prefs_pref_to_str
 prefs_pref_type_description
 prefs_pref_type_name
@@ -947,7 +946,6 @@ report_open_failure
 report_read_failure
 report_write_failure
 req_resp_hdrs_do_reassembly
-reset_pref
 reset_tap_listeners
 reset_tcp_reassembly
 rose_ctx_clean_data

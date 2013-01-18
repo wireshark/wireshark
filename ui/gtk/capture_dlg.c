@@ -46,6 +46,7 @@
 
 #include "ui/capture_globals.h"
 #include "ui/iface_lists.h"
+#include "ui/preference_utils.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
@@ -4429,7 +4430,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* load the airpcap interfaces */
   airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
 
-  /* If we don't get a list don't do any thing. 
+  /* If we don't get a list don't do any thing.
    * If the error is AIRPCAP_NOT_LOADED it avoids a unneccessay rescan of the packet list
    * ( see airpcap_loader.h for error codes).
    */

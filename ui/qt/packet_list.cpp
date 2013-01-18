@@ -746,7 +746,7 @@ void PacketList::ignoreFrame()
     fdata = packet_list_model_->getRowFdata(row);
 
     setFrameIgnore(!fdata->flags.ignored, fdata);
-    emit packetsChanged();
+    emit packetDissectionChanged();
 }
 
 void PacketList::ignoreAllDisplayedFrames(bool set)
@@ -761,7 +761,7 @@ void PacketList::ignoreAllDisplayedFrames(bool set)
         if (!set || fdata->flags.passed_dfilter)
             setFrameIgnore(set, fdata);
     }
-    emit packetsChanged();
+    emit packetDissectionChanged();
 }
 
 void PacketList::setTimeReference()

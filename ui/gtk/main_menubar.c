@@ -54,6 +54,7 @@
 
 #include "ui/iface_lists.h"
 #include "ui/main_statusbar.h"
+#include "ui/preference_utils.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"

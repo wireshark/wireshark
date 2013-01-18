@@ -929,7 +929,7 @@ register_string_like_preference(module_t *module, const char *name,
     }
     preference->varp.string = var;
     preference->default_val.string = varcopy;
-    preference->saved_val.string = NULL;
+    preference->stashed_val.string = NULL;
 
     return preference;
 }
@@ -1004,7 +1004,7 @@ prefs_register_range_preference(module_t *module, const char *name,
         *var = range_empty();
     preference->varp.range = var;
     preference->default_val.range = range_copy(*var);
-    preference->saved_val.range = NULL;
+    preference->stashed_val.range = NULL;
 }
 
 /*
@@ -1043,7 +1043,7 @@ void prefs_register_color_preference(module_t *module, const char *name,
 {
     pref_t* preference = register_preference(module, name, title, description, PREF_COLOR);
 
-    preference->varp.color = color;
+    preference->varp.colorp = color;
     preference->default_val.color = *color;
 }
 
@@ -2696,7 +2696,7 @@ pre_init_prefs(void)
 /*
  * Reset a single dissector preference.
  */
-void
+static void
 reset_pref(pref_t *pref)
 {
     if (!pref) return;
@@ -2739,7 +2739,7 @@ reset_pref(pref_t *pref)
         break;
 
     case PREF_COLOR:
-        *pref->varp.color = pref->default_val.color;
+        *pref->varp.colorp = pref->default_val.color;
         break;
 
     case PREF_CUSTOM:
@@ -3867,14 +3867,14 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
     case PREF_COLOR:
     {
       cval = strtoul(value, NULL, 16);
-      pref->varp.color->pixel = 0;
-      if ((pref->varp.color->red != RED_COMPONENT(cval)) ||
-          (pref->varp.color->green != GREEN_COMPONENT(cval)) ||
-          (pref->varp.color->blue != BLUE_COMPONENT(cval))) {
+      pref->varp.colorp->pixel = 0;
+      if ((pref->varp.colorp->red != RED_COMPONENT(cval)) ||
+          (pref->varp.colorp->green != GREEN_COMPONENT(cval)) ||
+          (pref->varp.colorp->blue != BLUE_COMPONENT(cval))) {
           module->prefs_changed = TRUE;
-          pref->varp.color->red   = RED_COMPONENT(cval);
-          pref->varp.color->green = GREEN_COMPONENT(cval);
-          pref->varp.color->blue  = BLUE_COMPONENT(cval);
+          pref->varp.colorp->red   = RED_COMPONENT(cval);
+          pref->varp.colorp->green = GREEN_COMPONENT(cval);
+          pref->varp.colorp->blue  = BLUE_COMPONENT(cval);
       }
       break;
     }
@@ -4065,7 +4065,7 @@ prefs_pref_type_description(pref_t *pref)
     return g_strdup(type_desc);
 }
 
-gboolean
+static gboolean
 prefs_pref_is_default(pref_t *pref) {
     if (!pref) return FALSE;
 
@@ -4088,7 +4088,7 @@ prefs_pref_is_default(pref_t *pref) {
 
     case PREF_STRING:
     case PREF_FILENAME:
-        if (!(strcmp(pref->default_val.string, *pref->varp.string)))
+        if (!(g_strcmp0(pref->default_val.string, *pref->varp.string)))
             return TRUE;
         break;
 
@@ -4101,9 +4101,9 @@ prefs_pref_is_default(pref_t *pref) {
 
     case PREF_COLOR:
     {
-        if ((pref->default_val.color.red == pref->varp.color->red) &&
-            (pref->default_val.color.green == pref->varp.color->green) &&
-            (pref->default_val.color.blue == pref->varp.color->blue))
+        if ((pref->default_val.color.red == pref->varp.colorp->red) &&
+            (pref->default_val.color.green == pref->varp.colorp->green) &&
+            (pref->default_val.color.blue == pref->varp.colorp->blue))
             return TRUE;
         break;
     }
@@ -4122,7 +4122,7 @@ prefs_pref_is_default(pref_t *pref) {
 }
 
 char *
-prefs_pref_to_str(pref_t *pref, gboolean default_val) {
+prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     const char *pref_text = "[Unknown]";
     guint pref_uint;
     gboolean pref_boolval;
@@ -4132,24 +4132,38 @@ prefs_pref_to_str(pref_t *pref, gboolean default_val) {
     color_t *pref_color;
 
     if (!pref) {
-        return g_strdup(pref_text); /* ...or maybe assert? */
+        return g_strdup(pref_text);
     }
 
-    if (default_val) {
-        pref_uint = pref->default_val.uint;
-        pref_boolval = pref->default_val.boolval;
-        pref_enumval = pref->default_val.enumval;
-        pref_string = pref->default_val.string;
-        pref_range = pref->default_val.range;
-        pref_color = &pref->default_val.color;
-    } else {
-        pref_uint = *pref->varp.uint;
-        pref_boolval = *pref->varp.boolp;
-        pref_enumval = *pref->varp.enump;
-        pref_string = *pref->varp.string;
-        pref_range = *pref->varp.range;
-        pref_color = pref->varp.color;
+    switch (source) {
+        case pref_default:
+            pref_uint = pref->default_val.uint;
+            pref_boolval = pref->default_val.boolval;
+            pref_enumval = pref->default_val.enumval;
+            pref_string = pref->default_val.string;
+            pref_range = pref->default_val.range;
+            pref_color = &pref->default_val.color;
+            break;
+        case pref_stashed:
+            pref_uint = pref->stashed_val.uint;
+            pref_boolval = pref->stashed_val.boolval;
+            pref_enumval = pref->stashed_val.enumval;
+            pref_string = pref->stashed_val.string;
+            pref_range = pref->stashed_val.range;
+            pref_color = &pref->stashed_val.color;
+            break;
+        case pref_current:
+            pref_uint = *pref->varp.uint;
+            pref_boolval = *pref->varp.boolp;
+            pref_enumval = *pref->varp.enump;
+            pref_string = *pref->varp.string;
+            pref_range = *pref->varp.range;
+            pref_color = pref->varp.colorp;
+            break;
+        default:
+            return g_strdup(pref_text);
     }
+
     switch (pref->type) {
 
     case PREF_UINT:
@@ -4209,7 +4223,7 @@ prefs_pref_to_str(pref_t *pref, gboolean default_val) {
 
     case PREF_CUSTOM:
         if (pref->custom_cbs.to_str_cb)
-            return pref->custom_cbs.to_str_cb(pref, default_val);
+            return pref->custom_cbs.to_str_cb(pref, source == pref_default ? TRUE : FALSE);
         pref_text = "[Custom]";
         break;
 
@@ -4300,7 +4314,7 @@ write_pref(gpointer data, gpointer user_data)
         g_strfreev(desc_lines);
         g_free(type_desc);
 
-        pref_text = prefs_pref_to_str(pref, FALSE);
+        pref_text = prefs_pref_to_str(pref, pref_current);
         fprintf(arg->pf, "%s%s.%s: ", def_prefix, name_prefix, pref->name);
         desc_lines = g_strsplit(pref_text,"\n",0);
         for (i = 0; desc_lines[i] != NULL; ++i) {

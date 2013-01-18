@@ -962,7 +962,8 @@ int main(int argc, char *argv[])
     /* Notify all registered modules that have had any of their preferences
        changed either from one of the preferences file or from the command
        line that their preferences have changed. */
-    wsApp->applyAllPreferences();
+    prefs_apply_all();
+    wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
 
 #ifdef HAVE_LIBPCAP
     if ((global_capture_opts.num_selected == 0) &&

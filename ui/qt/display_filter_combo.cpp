@@ -76,7 +76,7 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
             );
     completer()->setCompletionMode(QCompleter::PopupCompletion);
 
-    connect(wsApp, SIGNAL(updatePreferences()), this, SLOT(updateMaxCount()));
+    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updateMaxCount()));
 }
 
 extern "C" void dfilter_recent_combo_write_all(FILE *rf) {

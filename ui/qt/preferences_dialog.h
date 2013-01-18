@@ -54,6 +54,7 @@ protected:
     void keyPressEvent(QKeyEvent *evt);
 
 private:
+    bool stashedPrefIsDefault(pref_t *pref);
     void updateItem(QTreeWidgetItem &item);
 
     Ui::PreferencesDialog *pd_ui_;
@@ -62,7 +63,6 @@ private:
     QString saved_string_pref_;
     QComboBox *cur_combo_box_;
     int saved_combo_idx_;
-//    QHash<pref_t *, QTreeWidgetItem *> pref_item_hash_;
 
 private slots:
     void on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
@@ -75,8 +75,11 @@ private slots:
     void stringPrefEditingFinished();
     void rangePrefTextChanged(const QString & text);
     void rangePrefEditingFinished();
-    void on_buttonBox_helpRequested();
+
     void on_advancedTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+
+    void on_buttonBox_accepted();
+    void on_buttonBox_helpRequested();
 };
 
 #endif // PREFERENCES_DIALOG_H

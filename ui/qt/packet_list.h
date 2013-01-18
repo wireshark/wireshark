@@ -71,7 +71,7 @@ private:
     void setFrameReftime(gboolean set, frame_data *fdata);
 
 signals:
-    void packetsChanged();
+    void packetDissectionChanged();
 
 public slots:
     void setCaptureFile(capture_file *cf);

@@ -41,8 +41,9 @@
 #include "../globals.h"
 
 #include "ui/alert_box.h"
-#include "ui/simple_dialog.h"
 #include "ui/main_statusbar.h"
+#include "ui/preference_utils.h"
+#include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
 
 #include "ui/gtk/gui_utils.h"
@@ -227,7 +228,7 @@ filter_expression_save_dlg(gpointer data)
 		    *filter_save_type_vb, *filter_save_type_hb, *entry_hb,
 		    *bbox, *ok_bt, *cancel_bt, *help_bt, *filter_text_box,
 		    *label_text_box;
- 
+
 	const char *expr;
 
 	/* The filter requested */

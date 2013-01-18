@@ -113,6 +113,12 @@ typedef enum {
     version_neither
 } version_info_e;
 
+typedef enum {
+    pref_default,
+    pref_stashed,
+    pref_current
+} pref_source_t;
+
 
 typedef struct _e_prefs {
   gint          pr_format;
@@ -474,15 +480,6 @@ const char *prefs_pref_type_name(pref_t *pref);
  */
 char *prefs_pref_type_description(pref_t *pref);
 
-/** Check if a preference differs from its default value
- *
- * @param pref A preference.
- *
- * @return TRUE if the current value of the preference is the same as
- * its default value or FALSE if they differ.
- */
-gboolean prefs_pref_is_default(pref_t *pref);
-
 /** Fetch a string representation of the preference.
  *
  * @param pref A preference.
@@ -491,7 +488,7 @@ gboolean prefs_pref_is_default(pref_t *pref);
  *
  * @return A string representation of the preference. Must be g_free()d.
  */
-char *prefs_pref_to_str(pref_t *pref, gboolean default_val);
+char *prefs_pref_to_str(pref_t *pref, pref_source_t source);
 
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
@@ -513,12 +510,6 @@ extern e_prefs *read_prefs(int *, int *, char **, int *, int *, char **);
    If we got an error, stuff a pointer to the path of the preferences file
    into "*pf_path_return", and return the errno. */
 extern int write_prefs(char **);
-
-/** Set a preference to its default value
- *
- * @param pref A preference.
- */
-extern void reset_pref(pref_t *pref);
 
 /*
  * Given a string of the form "<pref name>:<pref value>", as might appear

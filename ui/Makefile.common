@@ -51,6 +51,7 @@ WIRESHARK_UI_SRC = \
 	export_object_smb.c	\
 	iface_lists.c		\
 	help_url.c		\
+	preference_utils.c	\
 	profile.c		\
 	ssl_key_export.c	\
 	text_import.c		\
@@ -66,6 +67,7 @@ noinst_HEADERS = \
 	help_url.h		\
 	iface_lists.h		\
 	main_statusbar.h	\
+	preference_utils.h	\
 	profile.h		\
 	progress_dlg.h		\
 	recent.h		\

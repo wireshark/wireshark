@@ -42,6 +42,7 @@
 #include <epan/emem.h>
 
 #include "ui/main_statusbar.h"
+#include "ui/preference_utils.h"
 #include "ui/progress_dlg.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"

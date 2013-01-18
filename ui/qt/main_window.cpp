@@ -191,6 +191,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(captureFileClosing(const capture_file*)));
     connect(wsApp, SIGNAL(captureFileClosed(const capture_file*)),
             this, SLOT(captureFileClosed(const capture_file*)));
+    connect(wsApp, SIGNAL(packetDissectionChanged()),
+            this, SLOT(redissectPackets()));
 
     connect(main_welcome_, SIGNAL(startCapture()),
             this, SLOT(startCapture()));
@@ -224,7 +226,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(packet_list_->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(setMenusForSelectedPacket()));
-    connect(packet_list_, SIGNAL(packetsChanged()),
+    connect(packet_list_, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
 
     connect(proto_tree_, SIGNAL(protoItemSelected(QString&)),

@@ -119,7 +119,7 @@ struct preference {
         const char **string;
         range_t **range;
         void* uat;
-        color_t *color;
+        color_t *colorp;
         GList** list;
     } varp;                          /**< pointer to variable storing the value */
     union {
@@ -130,7 +130,7 @@ struct preference {
         range_t *range;
         color_t color;
         GList* list;
-    } saved_val;                     /**< original value, when editing from the GUI */
+    } stashed_val;                     /**< original value, when editing from the GUI */
     union {
         guint uint;
         gboolean boolval;

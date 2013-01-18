@@ -355,9 +355,6 @@ extern void create_console(void);
 extern void reset_tap_update_timer(void);
 #endif
 
-/** Fill in capture options with values from the preferences */
-extern void prefs_to_capture_opts(void);
-
 /** Change configuration profile */
 extern void change_configuration_profile(const gchar *profile_name);
 

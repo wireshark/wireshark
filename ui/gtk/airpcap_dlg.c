@@ -41,6 +41,7 @@
 
 #include <pcap.h>
 
+#include "ui/preference_utils.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"

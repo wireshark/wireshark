@@ -523,6 +523,20 @@ void WiresharkApplication::registerUpdate(register_action_e action, const char *
     emit splashUpdate(action, message);
 }
 
+void WiresharkApplication::emitAppSignal(AppSignal signal)
+{
+    switch (signal) {
+    case PreferencesChanged:
+        emit preferencesChanged();
+        break;
+    case PacketDissectionChanged:
+        emit packetDissectionChanged();
+        break;
+    default:
+        break;
+    }
+}
+
 void WiresharkApplication::allSystemsGo()
 {
     initialized_ = true;
@@ -531,12 +545,6 @@ void WiresharkApplication::allSystemsGo()
         emit openCaptureFile(pending_open_files_.front());
         pending_open_files_.pop_front();
     }
-}
-
-void WiresharkApplication::applyAllPreferences()
-{
-    prefs_apply_all();
-    emit updatePreferences();
 }
 
 e_prefs * WiresharkApplication::readConfigurationFiles(char **gdp_path, char **dp_path)
