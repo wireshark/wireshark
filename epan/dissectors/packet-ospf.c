@@ -55,7 +55,9 @@
  * Added support for OSPFv2 & OSPFv3 Router Information (RI) Opaque LSA (RFC4970); RI Capabilities TLV
  * Added support for OSPFv2 & OSPFv3 Dynamic Hostname TLV in RI Opaque LSA (RFC5642)
  *   - (c) 2011 Salil Kanitkar <sskanitk@ncsu.edu>, North Carolina State University
- *  
+ *
+ * Added support for Type Classification of Experimental and Reserved sub-TLVs (RFC3630)
+ *   - (c) 2013 Kaushal Shah <kshah3@ncsu.edu>, North Carolina State University    
  */
 
 #include "config.h"
@@ -1835,6 +1837,20 @@ static const value_string mpls_link_stlv_str[] = {
     {0, NULL},
 };
 
+static const range_string mpls_te_tlv_rvals[] = {
+    { 3,     32767, "(Assigned via Standards Action)"},
+    { 32768, 32777, "(For Experimental Use)"},
+    { 32778, 65535, "(Not to be Assigned)"},
+    { 0,         0, NULL}
+};
+
+static const range_string mpls_te_sub_tlv_rvals[] = {
+    { 10,     32767, "(Assigned via Standards Action)"},
+    { 32768, 32777, "(For Experimental Use)"},
+    { 32778, 65535, "(Not to be Assigned)"},
+    { 0,         0, NULL}
+};
+
 static const value_string oif_stlv_str[] = {
     {OIF_TNA_IPv4_ADDRESS, "TNA address"},
     {OIF_NODE_ID, "Node ID"},
@@ -1942,7 +1958,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                 case MPLS_LINK_LOCAL_IF:
                 case MPLS_LINK_REMOTE_IF:
                     ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "%s", stlv_name);
+                                             "%s: %s", stlv_name, tvb_ip_to_str(tvb, stlv_offset + 4));
                     stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
                     proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
                                         "TLV Type: %u: %s", stlv_type, stlv_name);
@@ -2237,10 +2253,12 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                     break;
                 default:
                     ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-                                             "Unknown Link sub-TLV: %u", stlv_type);
+                                             "Unknown Link sub-TLV: %u %s", stlv_type,
+                                             rval_to_str(stlv_type, mpls_te_sub_tlv_rvals, "Unknown"));
                     stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
                     proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
-                                        "TLV Type: %u: %s", stlv_type, stlv_name);
+                                        "TLV Type: %u: %s %s", stlv_type, stlv_name,
+                                        rval_to_str(stlv_type, mpls_te_sub_tlv_rvals, "Unknown"));
                     proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
                                         stlv_len);
                     proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, stlv_len,
@@ -2332,10 +2350,11 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
             break;
         default:
             ti = proto_tree_add_text(mpls_tree, tvb, offset, tlv_length+4,
-                                     "Unknown LSA: %u", tlv_type);
+                                     "Unknown LSA: %u %s", tlv_type,
+                                     rval_to_str(tlv_type, mpls_te_tlv_rvals, "Unknown"));
             tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link);
-            proto_tree_add_text(tlv_tree, tvb, offset, 2, "TLV Type: %u - Unknown",
-                                tlv_type);
+            proto_tree_add_text(tlv_tree, tvb, offset, 2, "TLV Type: %u - Unknown %s",
+                                tlv_type, rval_to_str(tlv_type, mpls_te_tlv_rvals, "Unknown"));
             proto_tree_add_text(tlv_tree, tvb, offset+2, 2, "TLV Length: %u",
                                 tlv_length);
             proto_tree_add_text(tlv_tree, tvb, offset+4, tlv_length, "TLV Data");
@@ -2600,7 +2619,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
             break;
 
         case OSPF_LSA_OPAQUE_RI:
-           ls_ri_opaque_field = tvb_get_guint8(tvb, offset + 5);	
+           ls_ri_opaque_field = tvb_get_guint8(tvb, offset + 5);        
            if ( ls_ri_opaque_field != 0 ) 
                 ls_id_type = OSPF_LSA_UNKNOWN;
            else
