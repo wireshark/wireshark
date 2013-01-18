@@ -43,7 +43,6 @@
 guint
 pref_stash(pref_t *pref, gpointer unused _U_)
 {
-    g_log(NULL,G_LOG_LEVEL_INFO, "=stashing %s", pref->name);
   switch (pref->type) {
 
   case PREF_UINT:
@@ -70,10 +69,9 @@ pref_stash(pref_t *pref, gpointer unused _U_)
     break;
 
   case PREF_COLOR:
-    g_log(NULL,G_LOG_LEVEL_INFO, "=stashing %s", pref->name);
     pref->stashed_val.color = *pref->varp.colorp;
     break;
-  
+
   case PREF_STATIC_TEXT:
   case PREF_UAT:
   case PREF_CUSTOM:

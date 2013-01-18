@@ -629,7 +629,7 @@ void PreferencesDialog::on_buttonBox_accepted()
     prefs_to_capture_opts();
 
 #ifdef HAVE_AIRPCAP
-    prefs_airpcap_update();
+//    prefs_airpcap_update();
 #endif
 
     wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
