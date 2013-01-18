@@ -543,7 +543,7 @@ endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
 
-set( configure_input "Built with ${CMAKE_COMMAND}" )
+set( configure_input "Built with CMake ${CMAKE_VERSION}" )
 set( VERSION ${PROJECT_VERSION} )
 
 configure_file(
