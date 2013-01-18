@@ -27,11 +27,11 @@
     <example id="AppToolstsharkEx">
       <title>Help information available from tshark</title>
       <programlisting>
-TShark 1.9.0 (SVN Rev 46869 from /trunk)
+TShark 1.9.0 (SVN Rev 47047 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
-Copyright 1998-2012 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
+Copyright 1998-2013 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
 This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -42,6 +42,7 @@ Capture interface:
   -f &lt;capture filter&gt;      packet filter in libpcap filter syntax
   -s &lt;snaplen&gt;             packet snapshot length (def: 65535)
   -p                       don't capture in promiscuous mode
+  -I                       capture in monitor mode, if available
   -B &lt;buffer size&gt;         size of kernel buffer (def: 1MB)
   -y &lt;link type&gt;           link layer type (def: first appropriate)
   -D                       print list of interfaces and exit
@@ -176,7 +177,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 1.9.0 (SVN Rev 46869 from /trunk)
+Dumpcap 1.9.0 (SVN Rev 47047 from /trunk)
 Capture network packets and dump them into a pcapng file.
 See http://www.wireshark.org for more information.
 
@@ -190,6 +191,7 @@ Capture interface:
   -f &lt;capture filter&gt;      packet filter in libpcap filter syntax
   -s &lt;snaplen&gt;             packet snapshot length (def: 65535)
   -p                       don't capture in promiscuous mode
+  -I                       capture in monitor mode, if available
   -B &lt;buffer size&gt;         size of kernel buffer (def: 1MB)
   -y &lt;link type&gt;           link layer type (def: first appropriate)
   -D                       print list of interfaces and exit
@@ -247,7 +249,7 @@ Use Ctrl-C to stop capturing at any time.
     <example id="AppToolscapinfosEx">
       <title>Help information available from capinfos</title>
       <programlisting>
-Capinfos 1.9.0 (SVN Rev 46869 from /trunk)
+Capinfos 1.9.0 (SVN Rev 47047 from /trunk)
 Prints various information (infos) about capture files.
 See http://www.wireshark.org for more information.
 
@@ -319,11 +321,11 @@ output format.
     <example id="AppToolsrawsharkEx">
       <title>Help information available from rawshark</title>
       <programlisting>
-Rawshark 1.9.0 (SVN Rev 46869 from /trunk)
+Rawshark 1.9.0 (SVN Rev 47047 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
-Copyright 1998-2012 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
+Copyright 1998-2013 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
 This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -373,7 +375,7 @@ Miscellaneous:
       <title>Help information available from editcap</title>
       <para>
       <programlisting>
-Editcap 1.9.0 (SVN Rev 46869 from /trunk)
+Editcap 1.9.0 (SVN Rev 47047 from /trunk)
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -430,7 +432,7 @@ Output File(s):
   -i &lt;seconds per file&gt;  split the packet output to different files
                          based on uniform time intervals
                          with a maximum of &lt;seconds per file&gt; each.
-  -F &lt;capture type&gt;      set the output file type; default is libpcap.
+  -F &lt;capture type&gt;      set the output file type; default is pcapng.
                          an empty "-F" option will list the file types.
   -T &lt;encap type&gt;        set the output file encapsulation type;
                          default is the same as the input file.
@@ -715,7 +717,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     <example id="AppToolsmergecapEx">
       <title>Help information available from mergecap</title>
       <programlisting>
-Mergecap 1.9.0 (SVN Rev 46869 from /trunk)
+Mergecap 1.9.0 (SVN Rev 47047 from /trunk)
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 
@@ -819,7 +821,7 @@ Miscellaneous:
     <example id="AppToolstext2pcapEx">
       <title>Help information available from text2pcap</title>
       <programlisting>
-Text2pcap 1.9.0 (SVN Rev 46869 from /trunk)
+Text2pcap 1.9.0 (SVN Rev 47047 from /trunk)
 Generate a capture file from an ASCII hexdump of packets.
 See http://www.wireshark.org for more information.
 
