@@ -56,207 +56,207 @@
 /*   total = 10 + 1 + 19 = 30 */
 
 /* min length to determine MRCPv2 version */
-#define MRCPV2_MIN_LENGTH	10
+#define MRCPV2_MIN_LENGTH    10
 /* min length to determine MRCPv2 PDU length */
-#define MRCPV2_MIN_PDU_LEN	30
+#define MRCPV2_MIN_PDU_LEN   30
 
 /* line type */
 typedef enum {
-	REQUEST_LINE,
-	RESPONSE_LINE,
-	EVENT_LINE,
-	UNKNOWN_LINE
+    REQUEST_LINE,
+    RESPONSE_LINE,
+    EVENT_LINE,
+    UNKNOWN_LINE
 } LINE_TYPE;
 
 /* header type */
 typedef enum {
-	UNKNOWN =					0,
-	ABORT_MODEL =					1,
-	ABORT_PHRASE_ENROLLMENT =			2,
-	ABORT_VERIFICATION =				3,
-	ACCEPT =					4,
-	ACCEPT_CHARSET =				5,
-	ACTIVE_REQUEST_ID_LIST =			6,
-	ADAPT_MODEL =					7,
-	AUDIO_FETCH_HINT =				8,
-	CACHE_CONTROL =					9,
-	CANCEL_IF_QUEUE =				10,
-	CAPTURE_ON_SPEECH =				11,
-	CHANNEL_IDENTIFIER =				12,
-	CLASH_THRESHOLD =				13,
-	CLEAR_DTMF_BUFFER =				14,
-	COMPLETION_CAUSE =				15,
-	COMPLETION_REASON =				16,
-	CONFIDENCE_THRESHOLD =				17,
-	CONFUSABLE_PHRASES_URI =			18,
-	CONSISTENCY_THRESHOLD =				19,
-	CONTENT_BASE =					20,
-	CONTENT_ENCODING =				21,
-	CONTENT_ID =					22,
-	CONTENT_LENGTH =				23,
-	CONTENT_LOCATION =				24,
-	CONTENT_TYPE =					25,
-	DTMF_BUFFER_TIME =				26,
-	DTMF_INTERDIGIT_TIMEOUT =			27,
-	DTMF_TERM_CHAR =				28,
-	DTMF_TERM_TIMEOUT =				29,
-	EARLY_NO_MATCH =				30,
-	ENROLL_UTTERANCE =				31,
-	FAILED_URI =					32,
-	FAILED_URI_CAUSE =				33,
-	FETCH_HINT =					34,
-	FETCH_TIMEOUT =					35,
-	FINAL_SILENCE =					36,
-	HOTWORD_MAX_DURATION =				37,
-	HOTWORD_MIN_DURATION =				38,
-	INPUT_TYPE =					39,
-	INPUT_WAVEFORM_URI =				40,
-	INTERPRET_TEXT =				41,
-	JUMP_SIZE =					42,
-	KILL_ON_BARGE_IN =				43,
-	LEXICON_SEARCH_ORDER =				44,
-	LOAD_LEXICON =					45,
-	LOGGING_TAG =					46,
-	MAX_TIME =					47,
-	MEDIA_TYPE =					48,
-	MIN_VERIFICATION_SCORE =			49,
-	N_BEST_LIST_LENGTH =				50,
-	NEW_AUDIO_CHANNEL =				51,
-	NEW_PHRASE_ID =					52,
-	NO_INPUT_TIMEOUT =				53,
-	NUM_MAX_VERIFICATION_PHRASES =			54,
-	NUM_MIN_CONSISTENT_PRONUNCIATIONS =		55,
-	NUM_MIN_VERIFICATION_PHRASES =			56,
-	PERSONAL_GRAMMAR_URI =				57,
-	PHRASE_ID =					58,
-	PHRASE_NL =					59,
-	PROSODY_PARAMETER =				60,
-	PROXY_SYNC_ID =					61,
-	RECOGNITION_MODE =				62,
-	RECOGNITION_TIMEOUT =				63,
-	RECOGNIZER_CONTEXT_BLOCK =			64,
-	RECORD_URI =					65,
-	REPOSITORY_URI =				66,
-	SAVE_BEST_WAVEFORM =				67,
-	SAVE_WAVEFORM =					68,
-	SENSITIVITY_LEVEL =				69,
-	SET_COOKIE =					70,
-	SPEAK_LENGTH =					71,
-	SPEAK_RESTART =					72,
-	SPEAKER_PROFILE =				73,
-	SPEECH_COMPLETE_TIMEOUT =			74,
-	SPEECH_INCOMPLETE_TIMEOUT =			75,
-	SPEECH_LANGUAGE =				76,
-	SPEECH_MARKER =					77,
-	SPEED_VS_ACCURACY =				78,
-	START_INPUT_TIMERS =				79,
-	TRIM_LENGTH =					80,
-	VENDOR_SPECIFIC_PARAMETERS =			81,
-	VER_BUFFER_UTTERANCE =				82,
-	VERIFICATION_MODE =				83,
-	VOICE_AGE =					84,
-	VOICE_GENDER =					85,
-	VOICE_NAME =					86,
-	VOICE_VARIANT =					87,
-	VOICEPRINT_EXISTS =				88,
-	VOICEPRINT_IDENTIFIER =				89,
-	WAVEFORM_URI =					90,
-	WEIGHT =					91
+    UNKNOWN =                               0,
+    ABORT_MODEL =                           1,
+    ABORT_PHRASE_ENROLLMENT =               2,
+    ABORT_VERIFICATION =                    3,
+    ACCEPT =                                4,
+    ACCEPT_CHARSET =                        5,
+    ACTIVE_REQUEST_ID_LIST =                6,
+    ADAPT_MODEL =                           7,
+    AUDIO_FETCH_HINT =                      8,
+    CACHE_CONTROL =                         9,
+    CANCEL_IF_QUEUE =                       10,
+    CAPTURE_ON_SPEECH =                     11,
+    CHANNEL_IDENTIFIER =                    12,
+    CLASH_THRESHOLD =                       13,
+    CLEAR_DTMF_BUFFER =                     14,
+    COMPLETION_CAUSE =                      15,
+    COMPLETION_REASON =                     16,
+    CONFIDENCE_THRESHOLD =                  17,
+    CONFUSABLE_PHRASES_URI =                18,
+    CONSISTENCY_THRESHOLD =                 19,
+    CONTENT_BASE =                          20,
+    CONTENT_ENCODING =                      21,
+    CONTENT_ID =                            22,
+    CONTENT_LENGTH =                        23,
+    CONTENT_LOCATION =                      24,
+    CONTENT_TYPE =                          25,
+    DTMF_BUFFER_TIME =                      26,
+    DTMF_INTERDIGIT_TIMEOUT =               27,
+    DTMF_TERM_CHAR =                        28,
+    DTMF_TERM_TIMEOUT =                     29,
+    EARLY_NO_MATCH =                        30,
+    ENROLL_UTTERANCE =                      31,
+    FAILED_URI =                            32,
+    FAILED_URI_CAUSE =                      33,
+    FETCH_HINT =                            34,
+    FETCH_TIMEOUT =                         35,
+    FINAL_SILENCE =                         36,
+    HOTWORD_MAX_DURATION =                  37,
+    HOTWORD_MIN_DURATION =                  38,
+    INPUT_TYPE =                            39,
+    INPUT_WAVEFORM_URI =                    40,
+    INTERPRET_TEXT =                        41,
+    JUMP_SIZE =                             42,
+    KILL_ON_BARGE_IN =                      43,
+    LEXICON_SEARCH_ORDER =                  44,
+    LOAD_LEXICON =                          45,
+    LOGGING_TAG =                           46,
+    MAX_TIME =                              47,
+    MEDIA_TYPE =                            48,
+    MIN_VERIFICATION_SCORE =                49,
+    N_BEST_LIST_LENGTH =                    50,
+    NEW_AUDIO_CHANNEL =                     51,
+    NEW_PHRASE_ID =                         52,
+    NO_INPUT_TIMEOUT =                      53,
+    NUM_MAX_VERIFICATION_PHRASES =          54,
+    NUM_MIN_CONSISTENT_PRONUNCIATIONS =     55,
+    NUM_MIN_VERIFICATION_PHRASES =          56,
+    PERSONAL_GRAMMAR_URI =                  57,
+    PHRASE_ID =                             58,
+    PHRASE_NL =                             59,
+    PROSODY_PARAMETER =                     60,
+    PROXY_SYNC_ID =                         61,
+    RECOGNITION_MODE =                      62,
+    RECOGNITION_TIMEOUT =                   63,
+    RECOGNIZER_CONTEXT_BLOCK =              64,
+    RECORD_URI =                            65,
+    REPOSITORY_URI =                        66,
+    SAVE_BEST_WAVEFORM =                    67,
+    SAVE_WAVEFORM =                         68,
+    SENSITIVITY_LEVEL =                     69,
+    SET_COOKIE =                            70,
+    SPEAK_LENGTH =                          71,
+    SPEAK_RESTART =                         72,
+    SPEAKER_PROFILE =                       73,
+    SPEECH_COMPLETE_TIMEOUT =               74,
+    SPEECH_INCOMPLETE_TIMEOUT =             75,
+    SPEECH_LANGUAGE =                       76,
+    SPEECH_MARKER =                         77,
+    SPEED_VS_ACCURACY =                     78,
+    START_INPUT_TIMERS =                    79,
+    TRIM_LENGTH =                           80,
+    VENDOR_SPECIFIC_PARAMETERS =            81,
+    VER_BUFFER_UTTERANCE =                  82,
+    VERIFICATION_MODE =                     83,
+    VOICE_AGE =                             84,
+    VOICE_GENDER =                          85,
+    VOICE_NAME =                            86,
+    VOICE_VARIANT =                         87,
+    VOICEPRINT_EXISTS =                     88,
+    VOICEPRINT_IDENTIFIER =                 89,
+    WAVEFORM_URI =                          90,
+    WEIGHT =                                91
 } HEADER_TYPE;
 
 static const value_string header_type_vals[] = {
-	{ ABORT_MODEL,						"abort-model" },
-	{ ABORT_PHRASE_ENROLLMENT,				"abort-phrase-enrollment" },
-	{ ABORT_VERIFICATION,					"abort-verification" },
-	{ ACCEPT,						"accept" },
-	{ ACCEPT_CHARSET,					"accept-charset" },
-	{ ACTIVE_REQUEST_ID_LIST,				"active-request-id-list" },
-	{ ADAPT_MODEL,						"adapt-model" },
-	{ AUDIO_FETCH_HINT,					"audio-fetch-hint" },
-	{ CACHE_CONTROL,					"cache-control" },
-	{ CANCEL_IF_QUEUE,					"cancel-if-queue" },
-	{ CAPTURE_ON_SPEECH,					"capture-on-speech" },
-	{ CHANNEL_IDENTIFIER,					"channel-identifier" },
-	{ CLASH_THRESHOLD,					"clash-threshold" },
-	{ CLEAR_DTMF_BUFFER,					"clear-dtmf-buffer" },
-	{ COMPLETION_CAUSE,					"completion-cause" },
-	{ COMPLETION_REASON,					"completion-reason" },
-	{ CONFIDENCE_THRESHOLD,					"confidence-threshold" },
-	{ CONFUSABLE_PHRASES_URI,				"confusable-phrases-uri" },
-	{ CONSISTENCY_THRESHOLD,				"consistency-threshold" },
-	{ CONTENT_BASE,						"content-base" },
-	{ CONTENT_ENCODING,					"content-encoding" },
-	{ CONTENT_ID,						"content-id" },
-	{ CONTENT_LENGTH,					"content-length" },
-	{ CONTENT_LOCATION,					"content-location" },
-	{ CONTENT_TYPE,						"content-type" },
-	{ DTMF_BUFFER_TIME,					"dtmf-buffer-time" },
-	{ DTMF_INTERDIGIT_TIMEOUT,				"dtmf-interdigit-timeout" },
-	{ DTMF_TERM_CHAR,					"dtmf-term-char" },
-	{ DTMF_TERM_TIMEOUT,					"dtmf-term-timeout" },
-	{ EARLY_NO_MATCH,					"early-no-match" },
-	{ ENROLL_UTTERANCE,					"enroll-utterance" },
-	{ FAILED_URI,						"failed-uri" },
-	{ FAILED_URI_CAUSE,					"failed-uri-cause" },
-	{ FETCH_HINT,						"fetch-hint" },
-	{ FETCH_TIMEOUT,					"fetch-timeout" },
-	{ FINAL_SILENCE,					"final-silence" },
-	{ HOTWORD_MAX_DURATION,					"hotword-max-duration" },
-	{ HOTWORD_MIN_DURATION,					"hotword-min-duration" },
-	{ INPUT_TYPE,						"input-type" },
-	{ INPUT_WAVEFORM_URI,					"input-waveform-uri" },
-	{ INTERPRET_TEXT,					"interpret-text" },
-	{ JUMP_SIZE,						"jump-size" },
-	{ KILL_ON_BARGE_IN,					"kill-on-barge-in" },
-	{ LEXICON_SEARCH_ORDER,					"lexicon-search-order" },
-	{ LOAD_LEXICON,						"load-lexicon" },
-	{ LOGGING_TAG,						"logging-tag" },
-	{ MAX_TIME,						"max-time" },
-	{ MEDIA_TYPE,						"media-type" },
-	{ MIN_VERIFICATION_SCORE,				"min-verification-score" },
-	{ N_BEST_LIST_LENGTH,					"n-best-list-length" },
-	{ NEW_AUDIO_CHANNEL,					"new-audio-channel" },
-	{ NEW_PHRASE_ID,					"new-phrase-id" },
-	{ NO_INPUT_TIMEOUT,					"no-input-timeout" },
-	{ NUM_MAX_VERIFICATION_PHRASES,				"num-max-verification-phrases" },
-	{ NUM_MIN_CONSISTENT_PRONUNCIATIONS,			"num-min-consistent-pronunciations" },
-	{ NUM_MIN_VERIFICATION_PHRASES,				"num-min-verification-phrases" },
-	{ PERSONAL_GRAMMAR_URI,					"personal-grammar-uri" },
-	{ PHRASE_ID,						"phrase-id" },
-	{ PHRASE_NL,						"phrase-nl" },
-	{ PROSODY_PARAMETER,					"prosody-" },
-	{ PROXY_SYNC_ID,					"proxy-sync-id" },
-	{ RECOGNITION_MODE,					"recognition-mode" },
-	{ RECOGNITION_TIMEOUT,					"recognition-timeout" },
-	{ RECOGNIZER_CONTEXT_BLOCK,				"recognizer-context-block" },
-	{ RECORD_URI,						"record-uri" },
-	{ REPOSITORY_URI,					"repository-uri" },
-	{ SAVE_BEST_WAVEFORM,					"save-best-waveform" },
-	{ SAVE_WAVEFORM,					"save-waveform" },
-	{ SENSITIVITY_LEVEL,					"sensitivity-level" },
-	{ SET_COOKIE,						"set-cookie" },
-	{ SPEAK_LENGTH,						"speak-length" },
-	{ SPEAK_RESTART,					"speak-restart" },
-	{ SPEAKER_PROFILE,					"speaker-profile" },
-	{ SPEECH_COMPLETE_TIMEOUT,				"speech-complete-timeout" },
-	{ SPEECH_INCOMPLETE_TIMEOUT,				"speech-incomplete-timeout" },
-	{ SPEECH_LANGUAGE,					"speech-language" },
-	{ SPEECH_MARKER,					"speech-marker" },
-	{ SPEED_VS_ACCURACY,					"speed-vs-accuracy" },
-	{ START_INPUT_TIMERS,					"start-input-timers" },
-	{ TRIM_LENGTH,						"trim-length" },
-	{ VENDOR_SPECIFIC_PARAMETERS,				"vendor-specific-parameters" },
-	{ VER_BUFFER_UTTERANCE,					"ver-buffer-utterance" },
-	{ VERIFICATION_MODE,					"verification-mode" },
-	{ VOICE_AGE,						"voice-age" },
-	{ VOICE_GENDER,						"voice-gender" },
-	{ VOICE_NAME,						"voice-name" },
-	{ VOICE_VARIANT,					"voice-variant" },
-	{ VOICEPRINT_EXISTS,					"voiceprint-exists" },
-	{ VOICEPRINT_IDENTIFIER,				"voiceprint-identifier" },
-	{ WAVEFORM_URI,						"waveform-uri" },
-	{ WEIGHT,						"weight" },
-	{ 0,	NULL }
+    { ABORT_MODEL,                          "abort-model" },
+    { ABORT_PHRASE_ENROLLMENT,              "abort-phrase-enrollment" },
+    { ABORT_VERIFICATION,                   "abort-verification" },
+    { ACCEPT,                               "accept" },
+    { ACCEPT_CHARSET,                       "accept-charset" },
+    { ACTIVE_REQUEST_ID_LIST,               "active-request-id-list" },
+    { ADAPT_MODEL,                          "adapt-model" },
+    { AUDIO_FETCH_HINT,                     "audio-fetch-hint" },
+    { CACHE_CONTROL,                        "cache-control" },
+    { CANCEL_IF_QUEUE,                      "cancel-if-queue" },
+    { CAPTURE_ON_SPEECH,                    "capture-on-speech" },
+    { CHANNEL_IDENTIFIER,                   "channel-identifier" },
+    { CLASH_THRESHOLD,                      "clash-threshold" },
+    { CLEAR_DTMF_BUFFER,                    "clear-dtmf-buffer" },
+    { COMPLETION_CAUSE,                     "completion-cause" },
+    { COMPLETION_REASON,                    "completion-reason" },
+    { CONFIDENCE_THRESHOLD,                 "confidence-threshold" },
+    { CONFUSABLE_PHRASES_URI,               "confusable-phrases-uri" },
+    { CONSISTENCY_THRESHOLD,                "consistency-threshold" },
+    { CONTENT_BASE,                         "content-base" },
+    { CONTENT_ENCODING,                     "content-encoding" },
+    { CONTENT_ID,                           "content-id" },
+    { CONTENT_LENGTH,                       "content-length" },
+    { CONTENT_LOCATION,                     "content-location" },
+    { CONTENT_TYPE,                         "content-type" },
+    { DTMF_BUFFER_TIME,                     "dtmf-buffer-time" },
+    { DTMF_INTERDIGIT_TIMEOUT,              "dtmf-interdigit-timeout" },
+    { DTMF_TERM_CHAR,                       "dtmf-term-char" },
+    { DTMF_TERM_TIMEOUT,                    "dtmf-term-timeout" },
+    { EARLY_NO_MATCH,                       "early-no-match" },
+    { ENROLL_UTTERANCE,                     "enroll-utterance" },
+    { FAILED_URI,                           "failed-uri" },
+    { FAILED_URI_CAUSE,                     "failed-uri-cause" },
+    { FETCH_HINT,                           "fetch-hint" },
+    { FETCH_TIMEOUT,                        "fetch-timeout" },
+    { FINAL_SILENCE,                        "final-silence" },
+    { HOTWORD_MAX_DURATION,                 "hotword-max-duration" },
+    { HOTWORD_MIN_DURATION,                 "hotword-min-duration" },
+    { INPUT_TYPE,                           "input-type" },
+    { INPUT_WAVEFORM_URI,                   "input-waveform-uri" },
+    { INTERPRET_TEXT,                       "interpret-text" },
+    { JUMP_SIZE,                            "jump-size" },
+    { KILL_ON_BARGE_IN,                     "kill-on-barge-in" },
+    { LEXICON_SEARCH_ORDER,                 "lexicon-search-order" },
+    { LOAD_LEXICON,                         "load-lexicon" },
+    { LOGGING_TAG,                          "logging-tag" },
+    { MAX_TIME,                             "max-time" },
+    { MEDIA_TYPE,                           "media-type" },
+    { MIN_VERIFICATION_SCORE,               "min-verification-score" },
+    { N_BEST_LIST_LENGTH,                   "n-best-list-length" },
+    { NEW_AUDIO_CHANNEL,                    "new-audio-channel" },
+    { NEW_PHRASE_ID,                        "new-phrase-id" },
+    { NO_INPUT_TIMEOUT,                     "no-input-timeout" },
+    { NUM_MAX_VERIFICATION_PHRASES,         "num-max-verification-phrases" },
+    { NUM_MIN_CONSISTENT_PRONUNCIATIONS,    "num-min-consistent-pronunciations" },
+    { NUM_MIN_VERIFICATION_PHRASES,         "num-min-verification-phrases" },
+    { PERSONAL_GRAMMAR_URI,                 "personal-grammar-uri" },
+    { PHRASE_ID,                            "phrase-id" },
+    { PHRASE_NL,                            "phrase-nl" },
+    { PROSODY_PARAMETER,                    "prosody-" },
+    { PROXY_SYNC_ID,                        "proxy-sync-id" },
+    { RECOGNITION_MODE,                     "recognition-mode" },
+    { RECOGNITION_TIMEOUT,                  "recognition-timeout" },
+    { RECOGNIZER_CONTEXT_BLOCK,             "recognizer-context-block" },
+    { RECORD_URI,                           "record-uri" },
+    { REPOSITORY_URI,                       "repository-uri" },
+    { SAVE_BEST_WAVEFORM,                   "save-best-waveform" },
+    { SAVE_WAVEFORM,                        "save-waveform" },
+    { SENSITIVITY_LEVEL,                    "sensitivity-level" },
+    { SET_COOKIE,                           "set-cookie" },
+    { SPEAK_LENGTH,                         "speak-length" },
+    { SPEAK_RESTART,                        "speak-restart" },
+    { SPEAKER_PROFILE,                      "speaker-profile" },
+    { SPEECH_COMPLETE_TIMEOUT,              "speech-complete-timeout" },
+    { SPEECH_INCOMPLETE_TIMEOUT,            "speech-incomplete-timeout" },
+    { SPEECH_LANGUAGE,                      "speech-language" },
+    { SPEECH_MARKER,                        "speech-marker" },
+    { SPEED_VS_ACCURACY,                    "speed-vs-accuracy" },
+    { START_INPUT_TIMERS,                   "start-input-timers" },
+    { TRIM_LENGTH,                          "trim-length" },
+    { VENDOR_SPECIFIC_PARAMETERS,           "vendor-specific-parameters" },
+    { VER_BUFFER_UTTERANCE,                 "ver-buffer-utterance" },
+    { VERIFICATION_MODE,                    "verification-mode" },
+    { VOICE_AGE,                            "voice-age" },
+    { VOICE_GENDER,                         "voice-gender" },
+    { VOICE_NAME,                           "voice-name" },
+    { VOICE_VARIANT,                        "voice-variant" },
+    { VOICEPRINT_EXISTS,                    "voiceprint-exists" },
+    { VOICEPRINT_IDENTIFIER,                "voiceprint-identifier" },
+    { WAVEFORM_URI,                         "waveform-uri" },
+    { WEIGHT,                               "weight" },
+    { 0,    NULL }
 };
 
 /* Forward declaration we need below (if using proto_reg_handoff... as a prefs callback) */
@@ -380,1170 +380,1122 @@ static gint ett_Event_Line = -1;
 static gint ett_Status_Code = -1;
 
 /* format status code description */
-void
-get_status_code_description(gint status_code, gchar *text, int size)
-{
-	switch(status_code)
-	{
-		case 200:
-			g_snprintf(text, size, "Success");
-			break;
-		case 201:
-			g_snprintf(text, size, "Success with some optional header fields ignored");
-			break;
-		case 401:
-			g_snprintf(text, size, "Client Failure:\n"
-						"\tMethod not allowed");
-			break;
-		case 402:
-			g_snprintf(text, size, "Client Failure:\n"
-						"\tMethod not valid in this state");
-			break;
-		case 403:
-			g_snprintf(text, size, "Client Failure:\n"
-						"\tUnsupported header field");
-			break;
-		case 404:
-			g_snprintf(text, size, "Client Failure:\n"
-						"\tIllegal value for header field. This is the error\n"
-						"\tfor a syntax violation.");
-			break;
-		case 405:
-			g_snprintf(text, size, "Client Failure:\n"
-						"\tResource not allocated for this session or does not exist");
-			break;
-		case 406:
-			g_snprintf(text, size, "Client Failure:\n"
-						"\tMandatory Header Field Missing");
-			break;
-		case 407:
-			g_snprintf(text, size, "Client Failure:\n"
-						"\tMethod or Operation Failed (e.g., Grammar\n"
-						"\tcompilation failed in the recognizer. Detailed\n"
-						"\tcause codes might be available through a resource\n"
-						"\tspecific header.)");
-			break;
-		case 408:
-			g_snprintf(text, size, "Client Failure:\n"
-						"\tUnrecognized or unsupported message entity");
-			break;
-		case 409:
-			g_snprintf(text, size, "Client Failure:\n"
-						"\tUnsupported Header Field Value. This is a value\n"
-						"\tthat is syntactically legal but exceeds the\n"
-						"\timplementation's capabilities or expectations.");
-			break;
-		case 410:
-			g_snprintf(text, size, "Client Failure:\n"
-						"\tNon-Monotonic or Out of order sequence number in request.\n");
-			break;
-		case 501:
-			g_snprintf(text, size, "Server Failure:\n"
-						"\tServer Internal Error");
-			break;
-		case 502:
-			g_snprintf(text, size, "Server Failure:\n"
-						"\tProtocol Version not supported");
-			break;
-		case 503:
-			g_snprintf(text, size, "Server Failure:\n"
-						"\tReserved for future assignment");
-			break;
-		case 504:
-			g_snprintf(text, size, "Server Failure:\n"
-						"\tMessage too large");
-			break;
-		default:
-			g_snprintf(text, size, "Unknown status code");
-			break;
-	}
-}
+static const string_string status_code_vals[] = { 
+    { "200", "Success" },
+    { "201", "Success with some optional header fields ignored" },
+    { "401", "Client Failure: Method not allowed" },
+    { "402", "Client Failure: Method not valid in this state" },
+    { "403", "Client Failure: Unsupported header field" },
+    { "404", "Client Failure: Illegal value for header field. This is the error for a syntax violation." },
+    { "405", "Client Failure: Resource not allocated for this session or does not exist" },
+    { "406", "Client Failure: Mandatory Header Field Missing" },
+    { "407", "Client Failure: Method or Operation Failed (e.g., Grammar compilation failed in the recognizer. Detailed cause codes might be available through a resource specific header.)" },
+    { "408", "Client Failure: Unrecognized or unsupported message entity" },
+    { "409", "Client Failure: Unsupported Header Field Value. This is a value that is syntactically legal but exceeds the implementation's capabilities or expectations." },
+    { "410", "Client Failure: Non-Monotonic or Out of order sequence number in request." },
+    { "501", "Server Failure: Server Internal Error" },
+    { "502", "Server Failure: Protocol Version not supported" },
+    { "503", "Server Failure: Reserved for future assignment" },
+    { "504", "Server Failure: Message too large" },
+    { "", NULL }
+};
 
 /* Code to actually dissect the packets */
 static int
 dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	/* Set up structures needed to add the protocol subtree and manage it */
-	proto_item *ti;
-	proto_tree *mrcpv2_tree;
-	gint next_offset, linelen;
-	gint tvb_len;
-	gint pdu_size;
-	gint offset;
-	gint value_offset;
-	gint str_len;
-	gchar helper_str[256];
-	gchar *header_name;
-	gchar *header_value;
-	LINE_TYPE line_type = UNKNOWN_LINE;
-	HEADER_TYPE header_type;
-	gint colon_offset;
-	gint content_length;
-	const value_string *p = NULL;
-	proto_item *line_item = NULL;
-	proto_item *request_line_item = NULL;
-	proto_item *response_line_item = NULL;
-	proto_item *event_line_item = NULL;
-	proto_item *status_code_line = NULL;
-	proto_item *status_code_item = NULL;
+    /* Set up structures needed to add the protocol subtree and manage it */
+    proto_item *ti;
+    proto_tree *mrcpv2_tree;
+    gint next_offset, linelen;
+    gint tvb_len;
+    gint pdu_size;
+    gint offset;
+    gint value_offset;
+    gint str_len;
+    gchar helper_str[256];
+    gchar *header_name;
+    gchar *header_value;
+    LINE_TYPE line_type = UNKNOWN_LINE;
+    HEADER_TYPE header_type;
+    gint colon_offset;
+    gint content_length;
+    const value_string *p = NULL;
+    proto_item *line_item = NULL;
+    proto_item *request_line_item = NULL;
+    proto_item *response_line_item = NULL;
+    proto_item *event_line_item = NULL;
+    proto_item *status_code_item = NULL;
 
-	gint sp_start;
-	gint sp_end;
-	guint8 *field1;
-	guint8 *field2;
-	guint8 *field3;
-	guint8 *field4;
-	guint8 *field5 = NULL;
+    gint sp_start;
+    gint sp_end;
+    guint8 *field1;
+    guint8 *field2;
+    guint8 *field3;
+    guint8 *field4;
+    guint8 *field5 = NULL;
 
-	/* Make entries in Protocol column and Info column on summary display */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRCPv2");
+    /* Make entries in Protocol column and Info column on summary display */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRCPv2");
 
-	offset = 0;
-	if (tree) {
-		tvb_len = tvb_length(tvb);
+    offset = 0;
+    if (tree) {
+        tvb_len = tvb_length(tvb);
 
-		ti = proto_tree_add_item(tree, proto_mrcpv2, tvb, 0, -1, ENC_UTF_8);
-		mrcpv2_tree = proto_item_add_subtree(ti, ett_mrcpv2);
+        ti = proto_tree_add_item(tree, proto_mrcpv2, tvb, 0, -1, ENC_UTF_8);
+        mrcpv2_tree = proto_item_add_subtree(ti, ett_mrcpv2);
 
-		/* get first line */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        /* get first line */
+        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
-		/*  find out MRCP message type:
+        /*  find out MRCP message type:
 
-			request-line	= mrcp-version SP message-length SP method-name SP request-id CRLF
-			response-line	= mrcp-version SP message-length SP request-id  SP status-code SP request-state CRLF
-			event-line	= mrcp-version SP message-length SP event-name  SP request-id  SP request-state CRLF
-		*/
-		/* version */
-		sp_end = tvb_find_guint8(tvb, 0, linelen, ' ');
-		if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
-			return -1;
-		field1 = tvb_get_ephemeral_string(tvb, 0, sp_end);
-		sp_start = sp_end + 1;
+            request-line    = mrcp-version SP message-length SP method-name SP request-id CRLF
+            response-line    = mrcp-version SP message-length SP request-id  SP status-code SP request-state CRLF
+            event-line    = mrcp-version SP message-length SP event-name  SP request-id  SP request-state CRLF
+        */
+        /* version */
+        sp_end = tvb_find_guint8(tvb, 0, linelen, ' ');
+        if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
+            return -1;
+        field1 = tvb_get_ephemeral_string(tvb, 0, sp_end);
+        sp_start = sp_end + 1;
 
-		/* length */
-		sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
-		if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
-			return -1;
-		field2 = tvb_get_ephemeral_string(tvb, sp_start, sp_end - sp_start);
-		sp_start = sp_end + 1;
+        /* length */
+        sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
+        if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
+            return -1;
+        field2 = tvb_get_ephemeral_string(tvb, sp_start, sp_end - sp_start);
+        sp_start = sp_end + 1;
 
-		/* method, request ID or event */
-		sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
-		if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
-			return -1;
-		field3 = tvb_get_ephemeral_string(tvb, sp_start, sp_end - sp_start);
-		sp_start = sp_end + 1;
+        /* method, request ID or event */
+        sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
+        if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
+            return -1;
+        field3 = tvb_get_ephemeral_string(tvb, sp_start, sp_end - sp_start);
+        sp_start = sp_end + 1;
 
-		/* request ID or status code */
-		sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
-		if (sp_end == -1)
-		{
-			field4 = tvb_get_ephemeral_string(tvb, sp_start, linelen - sp_start);
-			line_type = REQUEST_LINE; /* only request line has 4 parameters */
-		}
-		else
-		{
-			if ((sp_end > tvb_len) || (sp_end > linelen))
-				return -1;
-			field4 = tvb_get_ephemeral_string(tvb, sp_start, sp_end - sp_start);
+        /* request ID or status code */
+        sp_end = tvb_find_guint8(tvb, sp_start, linelen - sp_start, ' ');
+        if (sp_end == -1)
+        {
+            field4 = tvb_get_ephemeral_string(tvb, sp_start, linelen - sp_start);
+            line_type = REQUEST_LINE; /* only request line has 4 parameters */
+        }
+        else
+        {
+            if ((sp_end > tvb_len) || (sp_end > linelen))
+                return -1;
+            field4 = tvb_get_ephemeral_string(tvb, sp_start, sp_end - sp_start);
 
-			if (isdigit(field3[0])) /* request ID is number, so it has to be response */
-				line_type = RESPONSE_LINE;
-			else
-				line_type = EVENT_LINE;
+            if (isdigit(field3[0])) /* request ID is number, so it has to be response */
+                line_type = RESPONSE_LINE;
+            else
+                line_type = EVENT_LINE;
 
-			sp_start = sp_end + 1;
-			sp_end = linelen;
-			if ((sp_end > tvb_len) || (sp_end > linelen))
-				return -1;
-			field5 = tvb_get_ephemeral_string(tvb, sp_start, sp_end - sp_start);
-		}
+            sp_start = sp_end + 1;
+            sp_end = linelen;
+            if ((sp_end > tvb_len) || (sp_end > linelen))
+                return -1;
+            field5 = tvb_get_ephemeral_string(tvb, sp_start, sp_end - sp_start);
+        }
 
-		/* check pdu size */
-		pdu_size = atoi(field2);
-		if (pdu_size > tvb_len)
-			return -1;
+        /* check pdu size */
+        pdu_size = atoi(field2);
+        if (pdu_size > tvb_len)
+            return -1;
 
-		/* process MRCP header line */
-		if (line_type == REQUEST_LINE)
-		{
-			col_add_str(pinfo->cinfo, COL_INFO, "Request: ");
-			line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Request_Line, tvb, offset, linelen, ENC_UTF_8);
-			request_line_item = proto_item_add_subtree(line_item, ett_Request_Line);
-			/* version */
-			str_len = (gint)strlen(field1);
-			proto_tree_add_item(request_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 1; /* add SP */
-			/* message length */
-			str_len = (gint)strlen(field2);
-			proto_tree_add_item(request_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 1; /* add SP */
-			/* method name */
-			col_append_str(pinfo->cinfo, COL_INFO, field3);
-			str_len = (gint)strlen(field3);
-			proto_tree_add_item(request_line_item, hf_mrcpv2_Method, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 1; /* add SP */
-			/* request ID */
-			str_len = (gint)strlen(field4);
-			proto_tree_add_item(request_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 2; /* add CRLF */
-		}
-		else if (line_type == RESPONSE_LINE)
-		{
-			col_add_str(pinfo->cinfo, COL_INFO, "Response: ");
-			line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Response_Line, tvb, offset, linelen, ENC_UTF_8);
-			response_line_item = proto_item_add_subtree(line_item, ett_Response_Line);
-			/* version */
-			str_len = (gint)strlen(field1);
-			proto_tree_add_item(response_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 1; /* add SP */
-			/* message length */
-			str_len = (gint)strlen(field2);
-			proto_tree_add_item(response_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 1; /* add SP */
-			/* request ID */
-			str_len = (gint)strlen(field3);
-			proto_tree_add_item(response_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 1; /* add SP */
-			/* status code */
-			str_len = (gint)strlen(field4);
-			status_code_line = proto_tree_add_item(response_line_item, hf_mrcpv2_status_code, tvb, offset,
-				str_len, ENC_UTF_8);
-			status_code_item = proto_item_add_subtree(status_code_line, ett_Request_Line);
-			/* add status code description into the tree */
-			get_status_code_description(atoi(field4), helper_str, sizeof(helper_str));
-			proto_tree_add_string_format(status_code_item, hf_mrcpv2_status_code, tvb, offset, str_len,
-				helper_str, "%s", helper_str);
-			offset += str_len + 1; /* add SP */
-			/* request state */
-			g_snprintf(helper_str, sizeof(helper_str), "(%s) %s", field4, field5);
-			col_append_str(pinfo->cinfo, COL_INFO, helper_str);
-			str_len = (gint)strlen(field5);
-			proto_tree_add_item(response_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 2; /* add CRLF */
-		}
-		else if (line_type == EVENT_LINE)
-		{
-			col_add_str(pinfo->cinfo, COL_INFO, "Event: ");
-			line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Event_Line, tvb, offset, linelen, ENC_UTF_8);
-			event_line_item = proto_item_add_subtree(line_item, ett_Event_Line);
-			/* version */
-			str_len = (gint)strlen(field1);
-			proto_tree_add_item(event_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 1; /* add SP */
-			/* message length */
-			str_len = (gint)strlen(field2);
-			proto_tree_add_item(event_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 1; /* add SP */
-			/* event name */
-			col_append_str(pinfo->cinfo, COL_INFO, field3);
-			str_len = (gint)strlen(field3);
-			proto_tree_add_item(event_line_item, hf_mrcpv2_Event, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 1; /* add SP */
-			/* request ID */
-			str_len = (gint)strlen(field4);
-			proto_tree_add_item(event_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 1; /* add SP */
-			/* request state */
-			str_len = (gint)strlen(field5);
-			proto_tree_add_item(event_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
-			offset += str_len + 2; /* add CRLF */
-		}
-		else
-		{
-			/* mark whole packet as unknown and return */
-			col_add_str(pinfo->cinfo, COL_INFO, "UNKNOWN message");
-			proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Message, tvb, offset, tvb_len, ENC_UTF_8);
-			return tvb_len;
-		}
+        /* process MRCP header line */
+        switch(line_type){
+        case REQUEST_LINE:
+        {
+            col_add_str(pinfo->cinfo, COL_INFO, "Request: ");
+            line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Request_Line, tvb, offset, linelen, ENC_UTF_8);
+            request_line_item = proto_item_add_subtree(line_item, ett_Request_Line);
+            /* version */
+            str_len = (gint)strlen(field1);
+            proto_tree_add_item(request_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 1; /* add SP */
+            /* message length */
+            str_len = (gint)strlen(field2);
+            proto_tree_add_item(request_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 1; /* add SP */
+            /* method name */
+            col_append_str(pinfo->cinfo, COL_INFO, field3);
+            str_len = (gint)strlen(field3);
+            proto_tree_add_item(request_line_item, hf_mrcpv2_Method, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 1; /* add SP */
+            /* request ID */
+            str_len = (gint)strlen(field4);
+            proto_tree_add_item(request_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 2; /* add CRLF */
+        }
+        break;
+        case RESPONSE_LINE:
+        {
+            col_add_str(pinfo->cinfo, COL_INFO, "Response: ");
+            line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Response_Line, tvb, offset, linelen, ENC_UTF_8);
+            response_line_item = proto_item_add_subtree(line_item, ett_Response_Line);
+            /* version */
+            str_len = (gint)strlen(field1);
+            proto_tree_add_item(response_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 1; /* add SP */
+            /* message length */
+            str_len = (gint)strlen(field2);
+            proto_tree_add_item(response_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 1; /* add SP */
+            /* request ID */
+            str_len = (gint)strlen(field3);
+            proto_tree_add_item(response_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 1; /* add SP */
+            /* status code */
+            str_len = (gint)strlen(field4);
+            status_code_item = proto_tree_add_item(response_line_item, hf_mrcpv2_status_code, tvb, offset,
+                str_len, ENC_UTF_8);
+            proto_item_append_text(status_code_item, " %s", str_to_str(field4, status_code_vals, "Unknown Status Code"));
+            offset += str_len + 1; /* add SP */
+            /* request state */
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) %s", field4, field5);
+            str_len = (gint)strlen(field5);
+            proto_tree_add_item(response_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 2; /* add CRLF */
+        }
+        break;
+        case EVENT_LINE:
+        {
+            col_add_str(pinfo->cinfo, COL_INFO, "Event: ");
+            line_item = proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Event_Line, tvb, offset, linelen, ENC_UTF_8);
+            event_line_item = proto_item_add_subtree(line_item, ett_Event_Line);
+            /* version */
+            str_len = (gint)strlen(field1);
+            proto_tree_add_item(event_line_item, hf_mrcpv2_version, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 1; /* add SP */
+            /* message length */
+            str_len = (gint)strlen(field2);
+            proto_tree_add_item(event_line_item, hf_mrcpv2_message_length, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 1; /* add SP */
+            /* event name */
+            col_append_str(pinfo->cinfo, COL_INFO, field3);
+            str_len = (gint)strlen(field3);
+            proto_tree_add_item(event_line_item, hf_mrcpv2_Event, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 1; /* add SP */
+            /* request ID */
+            str_len = (gint)strlen(field4);
+            proto_tree_add_item(event_line_item, hf_mrcpv2_request_id, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 1; /* add SP */
+            /* request state */
+            str_len = (gint)strlen(field5);
+            proto_tree_add_item(event_line_item, hf_mrcpv2_request_state, tvb, offset, str_len, ENC_UTF_8);
+            offset += str_len + 2; /* add CRLF */
+        }
+        break;
+        default:
+        {
+            /* mark whole packet as unknown and return */
+            col_add_str(pinfo->cinfo, COL_INFO, "UNKNOWN message");
+            proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Message, tvb, offset, tvb_len, ENC_UTF_8);
+            return tvb_len;
+        }
+        }
 
-		/* process the rest of the header lines here */
-		content_length = 0;
-		while (next_offset < tvb_len)
-		{
-			/* get next line */
-			offset = next_offset;
-			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        /* process the rest of the header lines here */
+        content_length = 0;
+        while (next_offset < tvb_len)
+        {
+            /* get next line */
+            offset = next_offset;
+            linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
-			/* blank line separates msg header and msg body */
-			if (linelen == 0)
-			{
-				if (content_length > 0)
-				{ /* content length > 0 and CRLF detected, this has to be msg body */
-					offset += 2; /* skip separating CRLF */
-					proto_tree_add_string_format(mrcpv2_tree, hf_mrcpv2_Data, tvb, offset, tvb_len - offset,
-						helper_str, "Message data: %s", tvb_format_text(tvb, offset, tvb_len - offset));
-					next_offset = tvb_len; /* we are done */
-				}
-				continue;
-			}
+            /* blank line separates msg header and msg body */
+            if (linelen == 0)
+            {
+                if (content_length > 0)
+                { /* content length > 0 and CRLF detected, this has to be msg body */
+                    offset += 2; /* skip separating CRLF */
+                    proto_tree_add_string_format(mrcpv2_tree, hf_mrcpv2_Data, tvb, offset, tvb_len - offset,
+                        helper_str, "Message data: %s", tvb_format_text(tvb, offset, tvb_len - offset));
+                    next_offset = tvb_len; /* we are done */
+                }
+                continue;
+            }
 
-			/* get header type and its value */
-			colon_offset = tvb_find_guint8(tvb, offset, linelen, ':');
-			if (colon_offset == -1)
-			{ /* header type should end with ':' */
-				proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Header, tvb, offset, linelen, ENC_UTF_8);
-				continue;
-			}
-			header_name = tvb_get_ephemeral_string(tvb, offset, colon_offset - offset);
-			ascii_strdown_inplace(header_name);
-			value_offset = tvb_skip_wsp(tvb, colon_offset + 1, offset + linelen - (colon_offset + 1));
-			header_value = tvb_get_ephemeral_string(tvb, value_offset, offset + linelen - value_offset);
+            /* get header type and its value */
+            colon_offset = tvb_find_guint8(tvb, offset, linelen, ':');
+            if (colon_offset == -1)
+            { /* header type should end with ':' */
+                proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Header, tvb, offset, linelen, ENC_UTF_8);
+                continue;
+            }
+            header_name = tvb_get_ephemeral_string(tvb, offset, colon_offset - offset);
+            ascii_strdown_inplace(header_name);
+            value_offset = tvb_skip_wsp(tvb, colon_offset + 1, offset + linelen - (colon_offset + 1));
+            header_value = tvb_get_ephemeral_string(tvb, value_offset, offset + linelen - value_offset);
 
-			/* find out header type */
-			header_type = UNKNOWN;
-			for (p = header_type_vals; p->strptr != NULL; ++p)
-			{
-				if (strncmp(p->strptr, header_name, strlen(p->strptr)) == 0)
-				{
-					header_type = p->value;
-					break;
-				}
-			}
+            /* find out header type */
+            header_type = UNKNOWN;
+            for (p = header_type_vals; p->strptr != NULL; ++p)
+            {
+                if (strncmp(p->strptr, header_name, strlen(p->strptr)) == 0)
+                {
+                    header_type = p->value;
+                    break;
+                }
+            }
 
-			/* add header type and value into the tree */
-			switch (header_type)
-			{
-				case ABORT_MODEL:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Abort_Model, tvb, offset, linelen, header_value);
-					break;
-				case ABORT_PHRASE_ENROLLMENT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Abort_Phrase_Enrollment, tvb, offset, linelen, header_value);
-					break;
-				case ABORT_VERIFICATION:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Abort_Verification, tvb, offset, linelen, header_value);
-					break;
-				case ACCEPT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Accept, tvb, offset, linelen, header_value);
-					break;
-				case ACCEPT_CHARSET:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Accept_Charset, tvb, offset, linelen, header_value);
-					break;
-				case ACTIVE_REQUEST_ID_LIST:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Active_Request_Id_List, tvb, offset, linelen, header_value);
-					break;
-				case ADAPT_MODEL:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Adapt_Model, tvb, offset, linelen, header_value);
-					break;
-				case AUDIO_FETCH_HINT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Audio_Fetch_Hint, tvb, offset, linelen, header_value);
-					break;
-				case CACHE_CONTROL:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Cache_Control, tvb, offset, linelen, header_value);
-					break;
-				case CANCEL_IF_QUEUE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Cancel_If_Queue, tvb, offset, linelen, header_value);
-					break;
-				case CAPTURE_ON_SPEECH:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Capture_On_Speech, tvb, offset, linelen, header_value);
-					break;
-				case CHANNEL_IDENTIFIER:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Channel_Identifier, tvb, offset, linelen, header_value);
-					break;
-				case CLASH_THRESHOLD:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Clash_Threshold, tvb, offset, linelen, header_value);
-					break;
-				case CLEAR_DTMF_BUFFER:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Clear_Dtmf_Buffer, tvb, offset, linelen, header_value);
-					break;
-				case COMPLETION_CAUSE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Completion_Cause, tvb, offset, linelen, header_value);
-					break;
-				case COMPLETION_REASON:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Completion_Reason, tvb, offset, linelen, header_value);
-					break;
-				case CONFIDENCE_THRESHOLD:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Confidence_Threshold, tvb, offset, linelen, header_value);
-					break;
-				case CONFUSABLE_PHRASES_URI:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Confusable_Phrases_URI, tvb, offset, linelen, header_value);
-					break;
-				case CONSISTENCY_THRESHOLD:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Consistency_Threshold, tvb, offset, linelen, header_value);
-					break;
-				case CONTENT_BASE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Base, tvb, offset, linelen, header_value);
-					break;
-				case CONTENT_ENCODING:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Encoding, tvb, offset, linelen, header_value);
-					break;
-				case CONTENT_ID:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_ID, tvb, offset, linelen, header_value);
-					break;
-				case CONTENT_LENGTH:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Length, tvb, offset, linelen, header_value);
-					/* if content length is > 0, then there are some data after the headers */
-					content_length = atoi(header_value);
-					break;
-				case CONTENT_LOCATION:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Location, tvb, offset, linelen, header_value);
-					break;
-				case CONTENT_TYPE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Type, tvb, offset, linelen, header_value);
-					break;
-				case DTMF_BUFFER_TIME:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Dtmf_Buffer_Time, tvb, offset, linelen, header_value);
-					break;
-				case DTMF_INTERDIGIT_TIMEOUT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Dtmf_Interdigit_Timeout, tvb, offset, linelen, header_value);
-					break;
-				case DTMF_TERM_CHAR:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Dtmf_Term_Char, tvb, offset, linelen, header_value);
-					break;
-				case DTMF_TERM_TIMEOUT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Dtmf_Term_Timeout, tvb, offset, linelen, header_value);
-					break;
-				case EARLY_NO_MATCH:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Early_No_Match, tvb, offset, linelen, header_value);
-					break;
-				case ENROLL_UTTERANCE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Enroll_Utterance, tvb, offset, linelen, header_value);
-					break;
-				case FAILED_URI:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Failed_URI, tvb, offset, linelen, header_value);
-					break;
-				case FAILED_URI_CAUSE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Failed_URI_Cause, tvb, offset, linelen, header_value);
-					break;
-				case FETCH_HINT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Fetch_Hint, tvb, offset, linelen, header_value);
-					break;
-				case FETCH_TIMEOUT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Fetch_Timeout, tvb, offset, linelen, header_value);
-					break;
-				case FINAL_SILENCE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Final_Silence, tvb, offset, linelen, header_value);
-					break;
-				case HOTWORD_MAX_DURATION:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Hotword_Max_Duration, tvb, offset, linelen, header_value);
-					break;
-				case HOTWORD_MIN_DURATION:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Hotword_Min_Duration, tvb, offset, linelen, header_value);
-					break;
-				case INPUT_TYPE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Input_Type, tvb, offset, linelen, header_value);
-					break;
-				case INPUT_WAVEFORM_URI:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Input_Waveform_URI, tvb, offset, linelen, header_value);
-					break;
-				case INTERPRET_TEXT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Interpret_Text, tvb, offset, linelen, header_value);
-					break;
-				case JUMP_SIZE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Jump_Size, tvb, offset, linelen, header_value);
-					break;
-				case KILL_ON_BARGE_IN:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Kill_On_Barge_In, tvb, offset, linelen, header_value);
-					break;
-				case LEXICON_SEARCH_ORDER:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Lexicon_Search_Order, tvb, offset, linelen, header_value);
-					break;
-				case LOAD_LEXICON:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Load_Lexicon, tvb, offset, linelen, header_value);
-					break;
-				case LOGGING_TAG:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Logging_Tag, tvb, offset, linelen, header_value);
-					break;
-				case MAX_TIME:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Max_Time, tvb, offset, linelen, header_value);
-					break;
-				case MEDIA_TYPE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Media_Type, tvb, offset, linelen, header_value);
-					break;
-				case MIN_VERIFICATION_SCORE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Min_Verification_Score, tvb, offset, linelen, header_value);
-					break;
-				case N_BEST_LIST_LENGTH:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_N_Best_List_Length, tvb, offset, linelen, header_value);
-					break;
-				case NEW_AUDIO_CHANNEL:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_New_Audio_Channel, tvb, offset, linelen, header_value);
-					break;
-				case NEW_PHRASE_ID:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_New_Phrase_ID, tvb, offset, linelen, header_value);
-					break;
-				case NO_INPUT_TIMEOUT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_No_Input_Timeout, tvb, offset, linelen, header_value);
-					break;
-				case NUM_MAX_VERIFICATION_PHRASES:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Num_Max_Verification_Phrases, tvb, offset, linelen, header_value);
-					break;
-				case NUM_MIN_CONSISTENT_PRONUNCIATIONS:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Num_Min_Consistent_Pronunciations, tvb, offset, linelen, header_value);
-					break;
-				case NUM_MIN_VERIFICATION_PHRASES:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Num_Min_Verification_Phrases, tvb, offset, linelen, header_value);
-					break;
-				case PERSONAL_GRAMMAR_URI:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Personal_Grammar_URI, tvb, offset, linelen, header_value);
-					break;
-				case PHRASE_ID:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Phrase_ID, tvb, offset, linelen, header_value);
-					break;
-				case PHRASE_NL:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Phrase_NL, tvb, offset, linelen, header_value);
-					break;
-				case PROSODY_PARAMETER:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Prosody_Parameter, tvb, offset, linelen, header_value);
-					break;
-				case PROXY_SYNC_ID:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Proxy_Sync_Id, tvb, offset, linelen, header_value);
-					break;
-				case RECOGNITION_MODE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Recognition_Mode, tvb, offset, linelen, header_value);
-					break;
-				case RECOGNITION_TIMEOUT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Recognition_Timeout, tvb, offset, linelen, header_value);
-					break;
-				case RECOGNIZER_CONTEXT_BLOCK:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Recognizer_Context_Block, tvb, offset, linelen, header_value);
-					break;
-				case RECORD_URI:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Record_URI, tvb, offset, linelen, header_value);
-					break;
-				case REPOSITORY_URI:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Repository_URI, tvb, offset, linelen, header_value);
-					break;
-				case SAVE_BEST_WAVEFORM:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Save_Best_Waveform, tvb, offset, linelen, header_value);
-					break;
-				case SAVE_WAVEFORM:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Save_Waveform, tvb, offset, linelen, header_value);
-					break;
-				case SENSITIVITY_LEVEL:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Sensitivity_Level, tvb, offset, linelen, header_value);
-					break;
-				case SET_COOKIE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Set_Cookie, tvb, offset, linelen, header_value);
-					break;
-				case SPEAK_LENGTH:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speak_Length, tvb, offset, linelen, header_value);
-					break;
-				case SPEAK_RESTART:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speak_Restart, tvb, offset, linelen, header_value);
-					break;
-				case SPEAKER_PROFILE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speaker_Profile, tvb, offset, linelen, header_value);
-					break;
-				case SPEECH_COMPLETE_TIMEOUT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speech_Complete_Timeout, tvb, offset, linelen, header_value);
-					break;
-				case SPEECH_INCOMPLETE_TIMEOUT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speech_Incomplete_Timeout, tvb, offset, linelen, header_value);
-					break;
-				case SPEECH_LANGUAGE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speech_Language, tvb, offset, linelen, header_value);
-					break;
-				case SPEECH_MARKER:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speech_Marker, tvb, offset, linelen, header_value);
-					break;
-				case SPEED_VS_ACCURACY:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speed_Vs_Accuracy, tvb, offset, linelen, header_value);
-					break;
-				case START_INPUT_TIMERS:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Start_Input_Timers, tvb, offset, linelen, header_value);
-					break;
-				case TRIM_LENGTH:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Trim_Length, tvb, offset, linelen, header_value);
-					break;
-				case VENDOR_SPECIFIC_PARAMETERS:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Vendor_Specific_Parameters, tvb, offset, linelen, header_value);
-					break;
-				case VER_BUFFER_UTTERANCE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Ver_Buffer_Utterance, tvb, offset, linelen, header_value);
-					break;
-				case VERIFICATION_MODE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Verification_Mode, tvb, offset, linelen, header_value);
-					break;
-				case VOICE_AGE:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voice_Age, tvb, offset, linelen, header_value);
-					break;
-				case VOICE_GENDER:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voice_Gender, tvb, offset, linelen, header_value);
-					break;
-				case VOICE_NAME:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voice_Name, tvb, offset, linelen, header_value);
-					break;
-				case VOICE_VARIANT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voice_Variant, tvb, offset, linelen, header_value);
-					break;
-				case VOICEPRINT_EXISTS:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voiceprint_Exists, tvb, offset, linelen, header_value);
-					break;
-				case VOICEPRINT_IDENTIFIER:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voiceprint_Identifier, tvb, offset, linelen, header_value);
-					break;
-				case WAVEFORM_URI:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Waveform_URI, tvb, offset, linelen, header_value);
-					break;
-				case WEIGHT:
-					proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Weight, tvb, offset, linelen, header_value);
-					break;
-				default:
-					proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Header, tvb, offset, linelen, ENC_UTF_8);
-					break;
-			}
-		}
-	}
+            /* add header type and value into the tree */
+            switch (header_type)
+            {
+                case ABORT_MODEL:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Abort_Model, tvb, offset, linelen, header_value);
+                    break;
+                case ABORT_PHRASE_ENROLLMENT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Abort_Phrase_Enrollment, tvb, offset, linelen, header_value);
+                    break;
+                case ABORT_VERIFICATION:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Abort_Verification, tvb, offset, linelen, header_value);
+                    break;
+                case ACCEPT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Accept, tvb, offset, linelen, header_value);
+                    break;
+                case ACCEPT_CHARSET:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Accept_Charset, tvb, offset, linelen, header_value);
+                    break;
+                case ACTIVE_REQUEST_ID_LIST:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Active_Request_Id_List, tvb, offset, linelen, header_value);
+                    break;
+                case ADAPT_MODEL:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Adapt_Model, tvb, offset, linelen, header_value);
+                    break;
+                case AUDIO_FETCH_HINT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Audio_Fetch_Hint, tvb, offset, linelen, header_value);
+                    break;
+                case CACHE_CONTROL:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Cache_Control, tvb, offset, linelen, header_value);
+                    break;
+                case CANCEL_IF_QUEUE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Cancel_If_Queue, tvb, offset, linelen, header_value);
+                    break;
+                case CAPTURE_ON_SPEECH:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Capture_On_Speech, tvb, offset, linelen, header_value);
+                    break;
+                case CHANNEL_IDENTIFIER:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Channel_Identifier, tvb, offset, linelen, header_value);
+                    break;
+                case CLASH_THRESHOLD:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Clash_Threshold, tvb, offset, linelen, header_value);
+                    break;
+                case CLEAR_DTMF_BUFFER:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Clear_Dtmf_Buffer, tvb, offset, linelen, header_value);
+                    break;
+                case COMPLETION_CAUSE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Completion_Cause, tvb, offset, linelen, header_value);
+                    break;
+                case COMPLETION_REASON:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Completion_Reason, tvb, offset, linelen, header_value);
+                    break;
+                case CONFIDENCE_THRESHOLD:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Confidence_Threshold, tvb, offset, linelen, header_value);
+                    break;
+                case CONFUSABLE_PHRASES_URI:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Confusable_Phrases_URI, tvb, offset, linelen, header_value);
+                    break;
+                case CONSISTENCY_THRESHOLD:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Consistency_Threshold, tvb, offset, linelen, header_value);
+                    break;
+                case CONTENT_BASE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Base, tvb, offset, linelen, header_value);
+                    break;
+                case CONTENT_ENCODING:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Encoding, tvb, offset, linelen, header_value);
+                    break;
+                case CONTENT_ID:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_ID, tvb, offset, linelen, header_value);
+                    break;
+                case CONTENT_LENGTH:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Length, tvb, offset, linelen, header_value);
+                    /* if content length is > 0, then there are some data after the headers */
+                    content_length = atoi(header_value);
+                    break;
+                case CONTENT_LOCATION:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Location, tvb, offset, linelen, header_value);
+                    break;
+                case CONTENT_TYPE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Content_Type, tvb, offset, linelen, header_value);
+                    break;
+                case DTMF_BUFFER_TIME:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Dtmf_Buffer_Time, tvb, offset, linelen, header_value);
+                    break;
+                case DTMF_INTERDIGIT_TIMEOUT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Dtmf_Interdigit_Timeout, tvb, offset, linelen, header_value);
+                    break;
+                case DTMF_TERM_CHAR:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Dtmf_Term_Char, tvb, offset, linelen, header_value);
+                    break;
+                case DTMF_TERM_TIMEOUT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Dtmf_Term_Timeout, tvb, offset, linelen, header_value);
+                    break;
+                case EARLY_NO_MATCH:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Early_No_Match, tvb, offset, linelen, header_value);
+                    break;
+                case ENROLL_UTTERANCE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Enroll_Utterance, tvb, offset, linelen, header_value);
+                    break;
+                case FAILED_URI:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Failed_URI, tvb, offset, linelen, header_value);
+                    break;
+                case FAILED_URI_CAUSE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Failed_URI_Cause, tvb, offset, linelen, header_value);
+                    break;
+                case FETCH_HINT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Fetch_Hint, tvb, offset, linelen, header_value);
+                    break;
+                case FETCH_TIMEOUT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Fetch_Timeout, tvb, offset, linelen, header_value);
+                    break;
+                case FINAL_SILENCE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Final_Silence, tvb, offset, linelen, header_value);
+                    break;
+                case HOTWORD_MAX_DURATION:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Hotword_Max_Duration, tvb, offset, linelen, header_value);
+                    break;
+                case HOTWORD_MIN_DURATION:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Hotword_Min_Duration, tvb, offset, linelen, header_value);
+                    break;
+                case INPUT_TYPE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Input_Type, tvb, offset, linelen, header_value);
+                    break;
+                case INPUT_WAVEFORM_URI:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Input_Waveform_URI, tvb, offset, linelen, header_value);
+                    break;
+                case INTERPRET_TEXT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Interpret_Text, tvb, offset, linelen, header_value);
+                    break;
+                case JUMP_SIZE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Jump_Size, tvb, offset, linelen, header_value);
+                    break;
+                case KILL_ON_BARGE_IN:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Kill_On_Barge_In, tvb, offset, linelen, header_value);
+                    break;
+                case LEXICON_SEARCH_ORDER:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Lexicon_Search_Order, tvb, offset, linelen, header_value);
+                    break;
+                case LOAD_LEXICON:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Load_Lexicon, tvb, offset, linelen, header_value);
+                    break;
+                case LOGGING_TAG:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Logging_Tag, tvb, offset, linelen, header_value);
+                    break;
+                case MAX_TIME:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Max_Time, tvb, offset, linelen, header_value);
+                    break;
+                case MEDIA_TYPE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Media_Type, tvb, offset, linelen, header_value);
+                    break;
+                case MIN_VERIFICATION_SCORE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Min_Verification_Score, tvb, offset, linelen, header_value);
+                    break;
+                case N_BEST_LIST_LENGTH:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_N_Best_List_Length, tvb, offset, linelen, header_value);
+                    break;
+                case NEW_AUDIO_CHANNEL:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_New_Audio_Channel, tvb, offset, linelen, header_value);
+                    break;
+                case NEW_PHRASE_ID:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_New_Phrase_ID, tvb, offset, linelen, header_value);
+                    break;
+                case NO_INPUT_TIMEOUT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_No_Input_Timeout, tvb, offset, linelen, header_value);
+                    break;
+                case NUM_MAX_VERIFICATION_PHRASES:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Num_Max_Verification_Phrases, tvb, offset, linelen, header_value);
+                    break;
+                case NUM_MIN_CONSISTENT_PRONUNCIATIONS:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Num_Min_Consistent_Pronunciations, tvb, offset, linelen, header_value);
+                    break;
+                case NUM_MIN_VERIFICATION_PHRASES:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Num_Min_Verification_Phrases, tvb, offset, linelen, header_value);
+                    break;
+                case PERSONAL_GRAMMAR_URI:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Personal_Grammar_URI, tvb, offset, linelen, header_value);
+                    break;
+                case PHRASE_ID:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Phrase_ID, tvb, offset, linelen, header_value);
+                    break;
+                case PHRASE_NL:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Phrase_NL, tvb, offset, linelen, header_value);
+                    break;
+                case PROSODY_PARAMETER:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Prosody_Parameter, tvb, offset, linelen, header_value);
+                    break;
+                case PROXY_SYNC_ID:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Proxy_Sync_Id, tvb, offset, linelen, header_value);
+                    break;
+                case RECOGNITION_MODE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Recognition_Mode, tvb, offset, linelen, header_value);
+                    break;
+                case RECOGNITION_TIMEOUT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Recognition_Timeout, tvb, offset, linelen, header_value);
+                    break;
+                case RECOGNIZER_CONTEXT_BLOCK:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Recognizer_Context_Block, tvb, offset, linelen, header_value);
+                    break;
+                case RECORD_URI:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Record_URI, tvb, offset, linelen, header_value);
+                    break;
+                case REPOSITORY_URI:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Repository_URI, tvb, offset, linelen, header_value);
+                    break;
+                case SAVE_BEST_WAVEFORM:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Save_Best_Waveform, tvb, offset, linelen, header_value);
+                    break;
+                case SAVE_WAVEFORM:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Save_Waveform, tvb, offset, linelen, header_value);
+                    break;
+                case SENSITIVITY_LEVEL:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Sensitivity_Level, tvb, offset, linelen, header_value);
+                    break;
+                case SET_COOKIE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Set_Cookie, tvb, offset, linelen, header_value);
+                    break;
+                case SPEAK_LENGTH:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speak_Length, tvb, offset, linelen, header_value);
+                    break;
+                case SPEAK_RESTART:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speak_Restart, tvb, offset, linelen, header_value);
+                    break;
+                case SPEAKER_PROFILE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speaker_Profile, tvb, offset, linelen, header_value);
+                    break;
+                case SPEECH_COMPLETE_TIMEOUT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speech_Complete_Timeout, tvb, offset, linelen, header_value);
+                    break;
+                case SPEECH_INCOMPLETE_TIMEOUT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speech_Incomplete_Timeout, tvb, offset, linelen, header_value);
+                    break;
+                case SPEECH_LANGUAGE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speech_Language, tvb, offset, linelen, header_value);
+                    break;
+                case SPEECH_MARKER:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speech_Marker, tvb, offset, linelen, header_value);
+                    break;
+                case SPEED_VS_ACCURACY:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Speed_Vs_Accuracy, tvb, offset, linelen, header_value);
+                    break;
+                case START_INPUT_TIMERS:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Start_Input_Timers, tvb, offset, linelen, header_value);
+                    break;
+                case TRIM_LENGTH:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Trim_Length, tvb, offset, linelen, header_value);
+                    break;
+                case VENDOR_SPECIFIC_PARAMETERS:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Vendor_Specific_Parameters, tvb, offset, linelen, header_value);
+                    break;
+                case VER_BUFFER_UTTERANCE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Ver_Buffer_Utterance, tvb, offset, linelen, header_value);
+                    break;
+                case VERIFICATION_MODE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Verification_Mode, tvb, offset, linelen, header_value);
+                    break;
+                case VOICE_AGE:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voice_Age, tvb, offset, linelen, header_value);
+                    break;
+                case VOICE_GENDER:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voice_Gender, tvb, offset, linelen, header_value);
+                    break;
+                case VOICE_NAME:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voice_Name, tvb, offset, linelen, header_value);
+                    break;
+                case VOICE_VARIANT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voice_Variant, tvb, offset, linelen, header_value);
+                    break;
+                case VOICEPRINT_EXISTS:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voiceprint_Exists, tvb, offset, linelen, header_value);
+                    break;
+                case VOICEPRINT_IDENTIFIER:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Voiceprint_Identifier, tvb, offset, linelen, header_value);
+                    break;
+                case WAVEFORM_URI:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Waveform_URI, tvb, offset, linelen, header_value);
+                    break;
+                case WEIGHT:
+                    proto_tree_add_string(mrcpv2_tree, hf_mrcpv2_Weight, tvb, offset, linelen, header_value);
+                    break;
+                default:
+                    proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Header, tvb, offset, linelen, ENC_UTF_8);
+                    break;
+            }
+        }
+    }
 
-	/* Return the amount of data this dissector was able to dissect */
-	return tvb_length(tvb);
+    /* Return the amount of data this dissector was able to dissect */
+    return tvb_length(tvb);
 }
 
 /* get the length of the MRCP message */
 static guint
 get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-	gint len_start;
-	gint len_end;
-	guint8 *msg_len;
-	guint num_msg_len;
+    gint len_start;
+    gint len_end;
+    guint8 *msg_len;
+    guint num_msg_len;
 
-	/* first string is version */
-	len_start = tvb_find_guint8(tvb, offset, MRCPV2_MIN_PDU_LEN, ' ');
-	if (len_start == -1)
-		return 0;
-	len_start += 1; /* skip whitespace */
+    /* first string is version */
+    len_start = tvb_find_guint8(tvb, offset, MRCPV2_MIN_PDU_LEN, ' ');
+    if (len_start == -1)
+        return 0;
+    len_start += 1; /* skip whitespace */
 
-	/* second string is message length */
-	len_end = tvb_find_guint8(tvb, len_start, MRCPV2_MIN_PDU_LEN - len_start, ' ');
-	if (len_end == -1)
-		msg_len = tvb_get_ephemeral_string(tvb, len_start, MRCPV2_MIN_PDU_LEN - len_start);
-	else
-		msg_len = tvb_get_ephemeral_string(tvb, len_start, len_end - len_start);
+    /* second string is message length */
+    len_end = tvb_find_guint8(tvb, len_start, MRCPV2_MIN_PDU_LEN - len_start, ' ');
+    if (len_end == -1)
+        msg_len = tvb_get_ephemeral_string(tvb, len_start, MRCPV2_MIN_PDU_LEN - len_start);
+    else
+        msg_len = tvb_get_ephemeral_string(tvb, len_start, len_end - len_start);
 
-	num_msg_len = atoi(msg_len);
-	return num_msg_len;
+    num_msg_len = atoi(msg_len);
+    return num_msg_len;
 }
 
 static void
 dissect_mrcpv2_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_mrcpv2_common(tvb, pinfo, tree);
+    dissect_mrcpv2_common(tvb, pinfo, tree);
 }
 
 static int
 dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	gint len;
-	gint value_size;
-	guint8 *version;
-	guint8 *major;
-	guint8 *minor;
-	gint slash_offset;
-	gint dot_offset;
-	gint sp_offset;
-	int value;
+    gint len;
+    gint value_size;
+    guint8 *version;
+    guint8 *major;
+    guint8 *minor;
+    gint slash_offset;
+    gint dot_offset;
+    gint sp_offset;
+    int value;
 
-	len = tvb_length(tvb);
-	if (len < MRCPV2_MIN_LENGTH) /* too short, can't conclude if it's mrcp */
-		return 0;
+    len = tvb_length(tvb);
+    if (len < MRCPV2_MIN_LENGTH) /* too short, can't conclude if it's mrcp */
+        return 0;
 
-	/* we are looking for MRCP string */
-	slash_offset = tvb_find_guint8(tvb, 0, MRCPV2_MIN_LENGTH, '/');
-	if (slash_offset != 4)
-		return 0;
-	version = tvb_get_ephemeral_string(tvb, 0, slash_offset);
-	if (strcmp(version, "MRCP") != 0)
-		return 0;
+    /* we are looking for MRCP string */
+    slash_offset = tvb_find_guint8(tvb, 0, MRCPV2_MIN_LENGTH, '/');
+    if (slash_offset != 4)
+        return 0;
+    version = tvb_get_ephemeral_string(tvb, 0, slash_offset);
+    if (strcmp(version, "MRCP") != 0)
+        return 0;
 
-	/* get first digit after the '/'; it should be 2 */
-	dot_offset = tvb_find_guint8(tvb, slash_offset + 1, MRCPV2_MIN_LENGTH - slash_offset - 1, '.');
-	if (dot_offset == -1)
-		return 0;
-	value_size = dot_offset - slash_offset - 1;
-	if ((value_size != 1) && (value_size != 2))
-		return 0;
-	major = tvb_get_ephemeral_string(tvb, slash_offset + 1, dot_offset - 1);
-	value = atoi(major);
-	if (value != 2)
-		return 0;
+    /* get first digit after the '/'; it should be 2 */
+    dot_offset = tvb_find_guint8(tvb, slash_offset + 1, MRCPV2_MIN_LENGTH - slash_offset - 1, '.');
+    if (dot_offset == -1)
+        return 0;
+    value_size = dot_offset - slash_offset - 1;
+    if ((value_size != 1) && (value_size != 2))
+        return 0;
+    major = tvb_get_ephemeral_string(tvb, slash_offset + 1, dot_offset - 1);
+    value = atoi(major);
+    if (value != 2)
+        return 0;
 
-	/* get second digit, it should be 0 */
-	sp_offset = tvb_find_guint8(tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - dot_offset - 1, ' ');
-	if (sp_offset == -1)
-	{
-		minor = tvb_get_ephemeral_string(tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - dot_offset - 1);
-		len = MRCPV2_MIN_LENGTH;
-	}
-	else
-	{
-		minor = tvb_get_ephemeral_string(tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - sp_offset - 1);
-		len = sp_offset;
-	}
-	value = atoi(minor);
-	if (value != 0)
-		return 0;
+    /* get second digit, it should be 0 */
+    sp_offset = tvb_find_guint8(tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - dot_offset - 1, ' ');
+    if (sp_offset == -1)
+    {
+        minor = tvb_get_ephemeral_string(tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - dot_offset - 1);
+        len = MRCPV2_MIN_LENGTH;
+    }
+    else
+    {
+        minor = tvb_get_ephemeral_string(tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - sp_offset - 1);
+        len = sp_offset;
+    }
+    value = atoi(minor);
+    if (value != 0)
+        return 0;
 
-	/* if we are here, then we have MRCP v 2.0 protocol, so proceed with the dissection */
-	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MRCPV2_MIN_PDU_LEN,
-					get_mrcpv2_pdu_len,
-					dissect_mrcpv2_tcp_pdu);
-	return len;
+    /* if we are here, then we have MRCP v 2.0 protocol, so proceed with the dissection */
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MRCPV2_MIN_PDU_LEN,
+                    get_mrcpv2_pdu_len,
+                    dissect_mrcpv2_tcp_pdu);
+    return len;
 }
 
 void
 proto_register_mrcpv2(void)
 {
-	module_t *mrcpv2_module;
+    module_t *mrcpv2_module;
 
-	static hf_register_info hf[] = {
-		{ &hf_mrcpv2_Request_Line,
-			{ "Request-Line", "mrcpv2.Request-Line",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_Response_Line,
-			{ "Response-Line", "mrcpv2.Response-Line",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_Event_Line,
-			{ "Event-Line", "mrcpv2.Event-Line",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_Unknown_Message,
-			{ "Unknown Message", "mrcpv2.Unknown-Message",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_Unknown_Header,
-			{ "Unknown Header", "mrcpv2.Unknown-Header",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_Data,
-			{ "Data", "mrcpv2.Data",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_Method,
-			{ "Method", "mrcpv2.Method",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_Event,
-			{ "Event", "mrcpv2.Event",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_version,
-			{ "Version", "mrcpv2.Version",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_message_length,
-			{ "Message Length", "mrcpv2.msg_len",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_request_id,
-			{ "Request ID", "mrcpv2.reqID",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_status_code,
-			{ "Status Code", "mrcpv2.status_code",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_request_state,
-			{ "Request State", "mrcpv2.request_state",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
-		},
-		{ &hf_mrcpv2_Abort_Model,
-			{ "Abort-Model", "mrcpv2.Abort-Model",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Abort_Phrase_Enrollment,
-			{ "Abort-Phrase-Enrollment", "mrcpv2.Abort-Phrase-Enrollment",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Abort_Verification,
-			{ "Abort-Verification", "mrcpv2.Abort-Verification",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Accept,
-			{ "Accept", "mrcpv2.Accept",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Accept_Charset,
-			{ "Accept-Charset", "mrcpv2.Accept-Charset",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Active_Request_Id_List,
-			{ "Active-Request-Id-List", "mrcpv2.Active-Request-Id-List",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Adapt_Model,
-			{ "Adapt-Model", "mrcpv2.Adapt-Model",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Audio_Fetch_Hint,
-			{ "Audio-Fetch-Hint", "mrcpv2.Audio-Fetch-Hint",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Cache_Control,
-			{ "Cache-Control", "mrcpv2.Cache-Control",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Cancel_If_Queue,
-			{ "Cancel-If-Queue", "mrcpv2.Cancel-If-Queue",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Capture_On_Speech,
-			{ "Capture-On-Speech", "mrcpv2.Capture-On-Speech",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Channel_Identifier,
-			{ "Channel-Identifier", "mrcpv2.Channel-Identifier",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Clash_Threshold,
-			{ "Clash-Threshold", "mrcpv2.Clash-Threshold",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Clear_Dtmf_Buffer,
-			{ "Clear-Dtmf-Buffer", "mrcpv2.Clear-Dtmf-Buffer",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Completion_Cause,
-			{ "Completion-Cause", "mrcpv2.Completion-Cause",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Completion_Reason,
-			{ "Completion-Reason", "mrcpv2.Completion-Reason",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Confidence_Threshold,
-			{ "Confidence-Threshold", "mrcpv2.Confidence-Threshold",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Confusable_Phrases_URI,
-			{ "Confusable-Phrases-URI", "mrcpv2.Confusable-Phrases-URI",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Consistency_Threshold,
-			{ "Consistency-Threshold", "mrcpv2.Consistency-Threshold",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Content_Base,
-			{ "Content-Base", "mrcpv2.Content-Base",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Content_Encoding,
-			{ "Content-Encoding", "mrcpv2.Content-Encoding",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Content_ID,
-			{ "Content-ID", "mrcpv2.Content-ID",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Content_Length,
-			{ "Content-Length", "mrcpv2.Content-Length",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Content_Location,
-			{ "Content-Location", "mrcpv2.Content-Location",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Content_Type,
-			{ "Content-Type", "mrcpv2.Content-Type",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Dtmf_Buffer_Time,
-			{ "Dtmf-Buffer-Time", "mrcpv2.Dtmf-Buffer-Time",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Dtmf_Interdigit_Timeout,
-			{ "Dtmf-Interdigit-Timeout", "mrcpv2.Dtmf-Interdigit-Timeout",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Dtmf_Term_Char,
-			{ "Dtmf-Term-Char", "mrcpv2.Dtmf-Term-Char",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Dtmf_Term_Timeout,
-			{ "Dtmf-Term-Timeout", "mrcpv2.Dtmf-Term-Timeout",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Early_No_Match,
-			{ "Early-No-Match", "mrcpv2.Early-No-Match",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Enroll_Utterance,
-			{ "Enroll-Utterance", "mrcpv2.Enroll-Utterance",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Failed_URI,
-			{ "Failed-URI", "mrcpv2.Failed-URI",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Failed_URI_Cause,
-			{ "Failed-URI-Cause", "mrcpv2.Failed-URI-Cause",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Fetch_Hint,
-			{ "Fetch-Hint", "mrcpv2.Fetch-Hint",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Fetch_Timeout,
-			{ "Fetch-Timeout", "mrcpv2.Fetch-Timeout",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Final_Silence,
-			{ "Final-Silence", "mrcpv2.Final-Silence",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Hotword_Max_Duration,
-			{ "Hotword-Max-Duration", "mrcpv2.Hotword-Max-Duration",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Hotword_Min_Duration,
-			{ "Hotword-Min-Duration", "mrcpv2.Hotword-Min-Duration",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Input_Type,
-			{ "Input-Type", "mrcpv2.Input-Type",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Input_Waveform_URI,
-			{ "Input-Waveform-URI", "mrcpv2.Input-Waveform-URI",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Interpret_Text,
-			{ "Interpret-Text", "mrcpv2.Interpret-Text",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Jump_Size,
-			{ "Jump-Size", "mrcpv2.Jump-Size",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Kill_On_Barge_In,
-			{ "Kill-On-Barge-In", "mrcpv2.Kill-On-Barge-In",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Lexicon_Search_Order,
-			{ "Lexicon-Search-Order", "mrcpv2.Lexicon-Search-Order",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Load_Lexicon,
-			{ "Load-Lexicon", "mrcpv2.Load-Lexicon",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Logging_Tag,
-			{ "Logging-Tag", "mrcpv2.Logging-Tag",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Max_Time,
-			{ "Max-Time", "mrcpv2.Max-Time",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Media_Type,
-			{ "Media-Type", "mrcpv2.Media-Type",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Min_Verification_Score,
-			{ "Min-Verification-Score", "mrcpv2.Min-Verification-Score",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_N_Best_List_Length,
-			{ "N-Best-List-Length", "mrcpv2.N-Best-List-Length",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_New_Audio_Channel,
-			{ "New-Audio-Channel", "mrcpv2.New-Audio-Channel",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_New_Phrase_ID,
-			{ "New-Phrase-ID", "mrcpv2.New-Phrase-ID",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_No_Input_Timeout,
-			{ "No-Input-Timeout", "mrcpv2.No-Input-Timeout",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Num_Max_Verification_Phrases,
-			{ "Num-Max-Verification-Phrases", "mrcpv2.Num-Max-Verification-Phrases",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Num_Min_Consistent_Pronunciations,
-			{ "Num-Min-Consistent-Pronunciations", "mrcpv2.Num-Min-Consistent-Pronunciations",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Num_Min_Verification_Phrases,
-			{ "Num-Min-Verification-Phrases", "mrcpv2.Num-Min-Verification-Phrases",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Personal_Grammar_URI,
-			{ "Personal-Grammar-URI", "mrcpv2.Personal-Grammar-URI",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Phrase_ID,
-			{ "Phrase-ID", "mrcpv2.Phrase-ID",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Phrase_NL,
-			{ "Phrase-NL", "mrcpv2.Phrase-NL",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Prosody_Parameter,
-			{ "Prosody-Parameter", "mrcpv2.Prosody-Parameter",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Proxy_Sync_Id,
-			{ "Proxy-Sync-Id", "mrcpv2.Proxy-Sync-Id",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Recognition_Mode,
-			{ "Recognition-Mode", "mrcpv2.Recognition-Mode",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Recognition_Timeout,
-			{ "Recognition-Timeout", "mrcpv2.Recognition-Timeout",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Recognizer_Context_Block,
-			{ "Recognizer-Context-Block", "mrcpv2.Recognizer-Context-Block",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Record_URI,
-			{ "Record-URI", "mrcpv2.Record-URI",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Repository_URI,
-			{ "Repository-URI", "mrcpv2.Repository-URI",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Save_Best_Waveform,
-			{ "Save-Best-Waveform", "mrcpv2.Save-Best-Waveform",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Save_Waveform,
-			{ "Save-Waveform", "mrcpv2.Save-Waveform",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Sensitivity_Level,
-			{ "Sensitivity-Level", "mrcpv2.Sensitivity-Level",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Set_Cookie,
-			{ "Set-Cookie", "mrcpv2.Set-Cookie",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Speak_Length,
-			{ "Speak-Length", "mrcpv2.Speak-Length",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Speak_Restart,
-			{ "Speak-Restart", "mrcpv2.Speak-Restart",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Speaker_Profile,
-			{ "Speaker-Profile", "mrcpv2.Speaker-Profile",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Speech_Complete_Timeout,
-			{ "Speech-Complete-Timeout", "mrcpv2.Speech-Complete-Timeout",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Speech_Incomplete_Timeout,
-			{ "Speech-Incomplete-Timeout", "mrcpv2.Speech-Incomplete-Timeout",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Speech_Language,
-			{ "Speech-Language", "mrcpv2.Speech-Language",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Speech_Marker,
-			{ "Speech-Marker", "mrcpv2.Speech-Marker",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Speed_Vs_Accuracy,
-			{ "Speed-Vs-Accuracy", "mrcpv2.Speed-Vs-Accuracy",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Start_Input_Timers,
-			{ "Start-Input-Timers", "mrcpv2.Start-Input-Timers",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Trim_Length,
-			{ "Trim-Length", "mrcpv2.Trim-Length",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Vendor_Specific_Parameters,
-			{ "Vendor-Specific-Parameters", "mrcpv2.Vendor-Specific-Parameters",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Ver_Buffer_Utterance,
-			{ "Ver-Buffer-Utterance", "mrcpv2.Ver-Buffer-Utterance",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Verification_Mode,
-			{ "Verification-Mode", "mrcpv2.Verification-Mode",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Voice_Age,
-			{ "Voice-Age", "mrcpv2.Voice-Age",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Voice_Gender,
-			{ "Voice-Gender", "mrcpv2.Voice-Gender",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Voice_Name,
-			{ "Voice-Name", "mrcpv2.Voice-Name",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Voice_Variant,
-			{ "Voice-Variant", "mrcpv2.Voice-Variant",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Voiceprint_Exists,
-			{ "Voiceprint-Exists", "mrcpv2.Voiceprint-Exists",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Voiceprint_Identifier,
-			{ "Voiceprint-Identifier", "mrcpv2.Voiceprint-Identifier",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Waveform_URI,
-			{ "Waveform-URI", "mrcpv2.Waveform-URI",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		},
-		{ &hf_mrcpv2_Weight,
-			{ "Weight", "mrcpv2.Weight",
-			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
-		}
-	};
+    static hf_register_info hf[] = {
+        { &hf_mrcpv2_Request_Line,
+            { "Request-Line", "mrcpv2.Request-Line",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_Response_Line,
+            { "Response-Line", "mrcpv2.Response-Line",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_Event_Line,
+            { "Event-Line", "mrcpv2.Event-Line",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_Unknown_Message,
+            { "Unknown Message", "mrcpv2.Unknown-Message",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_Unknown_Header,
+            { "Unknown Header", "mrcpv2.Unknown-Header",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_Data,
+            { "Data", "mrcpv2.Data",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_Method,
+            { "Method", "mrcpv2.Method",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_Event,
+            { "Event", "mrcpv2.Event",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_version,
+            { "Version", "mrcpv2.Version",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_message_length,
+            { "Message Length", "mrcpv2.msg_len",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_request_id,
+            { "Request ID", "mrcpv2.reqID",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_status_code,
+            { "Status Code", "mrcpv2.status_code",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_request_state,
+            { "Request State", "mrcpv2.request_state",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_mrcpv2_Abort_Model,
+            { "Abort-Model", "mrcpv2.Abort-Model",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Abort_Phrase_Enrollment,
+            { "Abort-Phrase-Enrollment", "mrcpv2.Abort-Phrase-Enrollment",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Abort_Verification,
+            { "Abort-Verification", "mrcpv2.Abort-Verification",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Accept,
+            { "Accept", "mrcpv2.Accept",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Accept_Charset,
+            { "Accept-Charset", "mrcpv2.Accept-Charset",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Active_Request_Id_List,
+            { "Active-Request-Id-List", "mrcpv2.Active-Request-Id-List",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Adapt_Model,
+            { "Adapt-Model", "mrcpv2.Adapt-Model",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Audio_Fetch_Hint,
+            { "Audio-Fetch-Hint", "mrcpv2.Audio-Fetch-Hint",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Cache_Control,
+            { "Cache-Control", "mrcpv2.Cache-Control",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Cancel_If_Queue,
+            { "Cancel-If-Queue", "mrcpv2.Cancel-If-Queue",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Capture_On_Speech,
+            { "Capture-On-Speech", "mrcpv2.Capture-On-Speech",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Channel_Identifier,
+            { "Channel-Identifier", "mrcpv2.Channel-Identifier",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Clash_Threshold,
+            { "Clash-Threshold", "mrcpv2.Clash-Threshold",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Clear_Dtmf_Buffer,
+            { "Clear-Dtmf-Buffer", "mrcpv2.Clear-Dtmf-Buffer",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Completion_Cause,
+            { "Completion-Cause", "mrcpv2.Completion-Cause",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Completion_Reason,
+            { "Completion-Reason", "mrcpv2.Completion-Reason",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Confidence_Threshold,
+            { "Confidence-Threshold", "mrcpv2.Confidence-Threshold",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Confusable_Phrases_URI,
+            { "Confusable-Phrases-URI", "mrcpv2.Confusable-Phrases-URI",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Consistency_Threshold,
+            { "Consistency-Threshold", "mrcpv2.Consistency-Threshold",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Content_Base,
+            { "Content-Base", "mrcpv2.Content-Base",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Content_Encoding,
+            { "Content-Encoding", "mrcpv2.Content-Encoding",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Content_ID,
+            { "Content-ID", "mrcpv2.Content-ID",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Content_Length,
+            { "Content-Length", "mrcpv2.Content-Length",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Content_Location,
+            { "Content-Location", "mrcpv2.Content-Location",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Content_Type,
+            { "Content-Type", "mrcpv2.Content-Type",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Dtmf_Buffer_Time,
+            { "Dtmf-Buffer-Time", "mrcpv2.Dtmf-Buffer-Time",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Dtmf_Interdigit_Timeout,
+            { "Dtmf-Interdigit-Timeout", "mrcpv2.Dtmf-Interdigit-Timeout",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Dtmf_Term_Char,
+            { "Dtmf-Term-Char", "mrcpv2.Dtmf-Term-Char",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Dtmf_Term_Timeout,
+            { "Dtmf-Term-Timeout", "mrcpv2.Dtmf-Term-Timeout",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Early_No_Match,
+            { "Early-No-Match", "mrcpv2.Early-No-Match",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Enroll_Utterance,
+            { "Enroll-Utterance", "mrcpv2.Enroll-Utterance",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Failed_URI,
+            { "Failed-URI", "mrcpv2.Failed-URI",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Failed_URI_Cause,
+            { "Failed-URI-Cause", "mrcpv2.Failed-URI-Cause",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Fetch_Hint,
+            { "Fetch-Hint", "mrcpv2.Fetch-Hint",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Fetch_Timeout,
+            { "Fetch-Timeout", "mrcpv2.Fetch-Timeout",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Final_Silence,
+            { "Final-Silence", "mrcpv2.Final-Silence",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Hotword_Max_Duration,
+            { "Hotword-Max-Duration", "mrcpv2.Hotword-Max-Duration",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Hotword_Min_Duration,
+            { "Hotword-Min-Duration", "mrcpv2.Hotword-Min-Duration",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Input_Type,
+            { "Input-Type", "mrcpv2.Input-Type",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Input_Waveform_URI,
+            { "Input-Waveform-URI", "mrcpv2.Input-Waveform-URI",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Interpret_Text,
+            { "Interpret-Text", "mrcpv2.Interpret-Text",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Jump_Size,
+            { "Jump-Size", "mrcpv2.Jump-Size",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Kill_On_Barge_In,
+            { "Kill-On-Barge-In", "mrcpv2.Kill-On-Barge-In",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Lexicon_Search_Order,
+            { "Lexicon-Search-Order", "mrcpv2.Lexicon-Search-Order",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Load_Lexicon,
+            { "Load-Lexicon", "mrcpv2.Load-Lexicon",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Logging_Tag,
+            { "Logging-Tag", "mrcpv2.Logging-Tag",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Max_Time,
+            { "Max-Time", "mrcpv2.Max-Time",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Media_Type,
+            { "Media-Type", "mrcpv2.Media-Type",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Min_Verification_Score,
+            { "Min-Verification-Score", "mrcpv2.Min-Verification-Score",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_N_Best_List_Length,
+            { "N-Best-List-Length", "mrcpv2.N-Best-List-Length",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_New_Audio_Channel,
+            { "New-Audio-Channel", "mrcpv2.New-Audio-Channel",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_New_Phrase_ID,
+            { "New-Phrase-ID", "mrcpv2.New-Phrase-ID",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_No_Input_Timeout,
+            { "No-Input-Timeout", "mrcpv2.No-Input-Timeout",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Num_Max_Verification_Phrases,
+            { "Num-Max-Verification-Phrases", "mrcpv2.Num-Max-Verification-Phrases",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Num_Min_Consistent_Pronunciations,
+            { "Num-Min-Consistent-Pronunciations", "mrcpv2.Num-Min-Consistent-Pronunciations",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Num_Min_Verification_Phrases,
+            { "Num-Min-Verification-Phrases", "mrcpv2.Num-Min-Verification-Phrases",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Personal_Grammar_URI,
+            { "Personal-Grammar-URI", "mrcpv2.Personal-Grammar-URI",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Phrase_ID,
+            { "Phrase-ID", "mrcpv2.Phrase-ID",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Phrase_NL,
+            { "Phrase-NL", "mrcpv2.Phrase-NL",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Prosody_Parameter,
+            { "Prosody-Parameter", "mrcpv2.Prosody-Parameter",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Proxy_Sync_Id,
+            { "Proxy-Sync-Id", "mrcpv2.Proxy-Sync-Id",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Recognition_Mode,
+            { "Recognition-Mode", "mrcpv2.Recognition-Mode",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Recognition_Timeout,
+            { "Recognition-Timeout", "mrcpv2.Recognition-Timeout",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Recognizer_Context_Block,
+            { "Recognizer-Context-Block", "mrcpv2.Recognizer-Context-Block",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Record_URI,
+            { "Record-URI", "mrcpv2.Record-URI",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Repository_URI,
+            { "Repository-URI", "mrcpv2.Repository-URI",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Save_Best_Waveform,
+            { "Save-Best-Waveform", "mrcpv2.Save-Best-Waveform",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Save_Waveform,
+            { "Save-Waveform", "mrcpv2.Save-Waveform",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Sensitivity_Level,
+            { "Sensitivity-Level", "mrcpv2.Sensitivity-Level",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Set_Cookie,
+            { "Set-Cookie", "mrcpv2.Set-Cookie",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Speak_Length,
+            { "Speak-Length", "mrcpv2.Speak-Length",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Speak_Restart,
+            { "Speak-Restart", "mrcpv2.Speak-Restart",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Speaker_Profile,
+            { "Speaker-Profile", "mrcpv2.Speaker-Profile",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Speech_Complete_Timeout,
+            { "Speech-Complete-Timeout", "mrcpv2.Speech-Complete-Timeout",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Speech_Incomplete_Timeout,
+            { "Speech-Incomplete-Timeout", "mrcpv2.Speech-Incomplete-Timeout",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Speech_Language,
+            { "Speech-Language", "mrcpv2.Speech-Language",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Speech_Marker,
+            { "Speech-Marker", "mrcpv2.Speech-Marker",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Speed_Vs_Accuracy,
+            { "Speed-Vs-Accuracy", "mrcpv2.Speed-Vs-Accuracy",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Start_Input_Timers,
+            { "Start-Input-Timers", "mrcpv2.Start-Input-Timers",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Trim_Length,
+            { "Trim-Length", "mrcpv2.Trim-Length",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Vendor_Specific_Parameters,
+            { "Vendor-Specific-Parameters", "mrcpv2.Vendor-Specific-Parameters",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Ver_Buffer_Utterance,
+            { "Ver-Buffer-Utterance", "mrcpv2.Ver-Buffer-Utterance",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Verification_Mode,
+            { "Verification-Mode", "mrcpv2.Verification-Mode",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Voice_Age,
+            { "Voice-Age", "mrcpv2.Voice-Age",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Voice_Gender,
+            { "Voice-Gender", "mrcpv2.Voice-Gender",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Voice_Name,
+            { "Voice-Name", "mrcpv2.Voice-Name",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Voice_Variant,
+            { "Voice-Variant", "mrcpv2.Voice-Variant",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Voiceprint_Exists,
+            { "Voiceprint-Exists", "mrcpv2.Voiceprint-Exists",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Voiceprint_Identifier,
+            { "Voiceprint-Identifier", "mrcpv2.Voiceprint-Identifier",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Waveform_URI,
+            { "Waveform-URI", "mrcpv2.Waveform-URI",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        },
+        { &hf_mrcpv2_Weight,
+            { "Weight", "mrcpv2.Weight",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL },
+        }
+    };
 
-	static gint *ett[] = {
-		&ett_mrcpv2,
-		&ett_Request_Line,
-		&ett_Response_Line,
-		&ett_Event_Line,
-		&ett_Status_Code
-	};
+    static gint *ett[] = {
+        &ett_mrcpv2,
+        &ett_Request_Line,
+        &ett_Response_Line,
+        &ett_Event_Line,
+        &ett_Status_Code
+    };
 
-	proto_mrcpv2 = proto_register_protocol(
-		"Media Resource Control Protocol Version 2 (MRCPv2)",
-		"MRCPv2",
-		"mrcpv2");
+    proto_mrcpv2 = proto_register_protocol(
+        "Media Resource Control Protocol Version 2 (MRCPv2)",
+        "MRCPv2",
+        "mrcpv2");
 
-	proto_register_field_array(proto_mrcpv2, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_register_field_array(proto_mrcpv2, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-	mrcpv2_module = prefs_register_protocol(proto_mrcpv2, proto_reg_handoff_mrcpv2);
+    mrcpv2_module = prefs_register_protocol(proto_mrcpv2, proto_reg_handoff_mrcpv2);
 
-	prefs_register_uint_preference(mrcpv2_module, "tcp.port", "MRCPv2 TCP Port",
-	     "MRCPv2 TCP port if other than the default",
-	     10, &global_mrcpv2_tcp_port);
+    prefs_register_uint_preference(mrcpv2_module, "tcp.port", "MRCPv2 TCP Port",
+         "MRCPv2 TCP port if other than the default",
+         10, &global_mrcpv2_tcp_port);
 }
 
 void
 proto_reg_handoff_mrcpv2(void)
 {
-	static gboolean initialized = FALSE;
-	static dissector_handle_t mrcpv2_handle;
-	static int TCPPort;
+    static gboolean initialized = FALSE;
+    static dissector_handle_t mrcpv2_handle;
+    static int TCPPort;
 
-	if (!initialized) {
-		mrcpv2_handle = new_create_dissector_handle(dissect_mrcpv2_tcp, proto_mrcpv2);
-		initialized = TRUE;
-	} else {
-		dissector_delete_uint("tcp.port", TCPPort, mrcpv2_handle);
-	}
+    if (!initialized) {
+        mrcpv2_handle = new_create_dissector_handle(dissect_mrcpv2_tcp, proto_mrcpv2);
+        initialized = TRUE;
+    } else {
+        dissector_delete_uint("tcp.port", TCPPort, mrcpv2_handle);
+    }
 
-	TCPPort = global_mrcpv2_tcp_port;
-	dissector_add_uint("tcp.port", TCPPort, mrcpv2_handle);
+    TCPPort = global_mrcpv2_tcp_port;
+    dissector_add_uint("tcp.port", TCPPort, mrcpv2_handle);
 }
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
