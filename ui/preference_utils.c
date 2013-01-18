@@ -271,14 +271,6 @@ prefs_main_write(void)
       g_free(pf_path);
     }
   }
-
-#ifdef HAVE_AIRPCAP
-  /*
-   * Load the Wireshark decryption keys (just set) and save
-   * the changes to the adapters' registry
-   */
-  airpcap_load_decryption_keys(airpcap_if_list);
-#endif
 }
 
 /*
