@@ -60,6 +60,7 @@
 #include "packet-gtpv2.h"
 #include "packet-e164.h"
 #include "packet-e212.h"
+#include "packet-gsm_a_common.h"
 
 #define UDP_PORT_PMIP6_CNTL 5436
 
@@ -1692,7 +1693,7 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 */
 static void
 dissect_mip6_opt_vsm_3gpp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
-             guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
+             guint optlen, packet_info *pinfo, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     int    len = optlen;
     guint8 sub_type, m_flag;
@@ -1727,6 +1728,10 @@ dissect_mip6_opt_vsm_3gpp(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
      *     de_sm_pco(tvb, tree, pinfo, 0, length, NULL, 0);
      *     Note needs pinfo->link_dir ?
      */
+	case 1:
+		/* pinfo->link_dir == P2P_DIR_UNKNOWN */
+		de_sm_pco(tvb, opt_tree, pinfo, offset, len, NULL, 0);
+		break;
     /*  2, 3GPP Specific PMIPv6 Error Code */
     case 2:
         proto_tree_add_item(opt_tree, hf_mip6_opt_3gpp_spec_pmipv6_err_code, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3489,6 +3494,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case MIP6_BU:
         /* 5 Binding Update */
+		pinfo->link_dir = P2P_DIR_UL;
         offset = dissect_mip6_bu(tvb, mip6_tree, pinfo);
         if (proto_nemo == 1) {
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "NEMO");
@@ -3496,6 +3502,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case MIP6_BA:
         /* 6 Binding Acknowledgement */
+		pinfo->link_dir = P2P_DIR_DL;
         offset = dissect_mip6_ba(tvb, mip6_tree, pinfo);
         if (proto_nemo == 1) {
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "NEMO");
