@@ -139,7 +139,7 @@ wmem_allocator_type_t enumeration defined in wmem_core.h.
 The currently available allocators are:
  - WMEM_ALLOCATOR_SIMPLE (wmem_allocator_simple.*)
         A trivial allocator that g_allocs requested memory and tracks
-        allocations via a simple linked list.
+        allocations via a GHashTable.
  - WMEM_ALLOCATOR_BLOCK (wmem_allocator_block.*)
         A block allocator that grabs large chunks of memory at a time
         (8 MB currently) and serves allocations out of those chunks.

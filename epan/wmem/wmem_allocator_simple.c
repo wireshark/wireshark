@@ -27,51 +27,94 @@
 
 #include <glib.h>
 
+#include "config.h"
+
 #include "wmem_core.h"
 #include "wmem_allocator.h"
 
-/* In this trivial allocator, we just store a GSList of g_malloc()ed
- * blocks in the private_data pointer. */
+/* In this trivial allocator, we just store a GHashTable of g_malloc()ed
+ * blocks in the private_data pointer. We could just set the private_data
+ * pointer directly to the GHashTable, but we use a separate structure here
+ * to demonstrate the pattern that most other allocators should follow. */
 typedef struct _wmem_simple_allocator_t {
-    GSList *block_list;
+    GHashTable *block_table;
 } wmem_simple_allocator_t;
 
 static void *
 wmem_simple_alloc(void *private_data, const size_t size)
 {
     void *buf;
-    wmem_simple_allocator_t *allocator = (wmem_simple_allocator_t*) private_data;
+    wmem_simple_allocator_t *allocator;
+
+    allocator = (wmem_simple_allocator_t*) private_data;
     
     buf = g_malloc(size);
 
-    allocator->block_list = g_slist_prepend(allocator->block_list, buf);
+    g_hash_table_insert(allocator->block_table, buf, buf);
 
     return buf;
+}
+
+static void *
+wmem_simple_realloc(void *private_data, void *ptr, const size_t size)
+{
+    void *newptr;
+    wmem_simple_allocator_t *allocator;
+
+    allocator = (wmem_simple_allocator_t*) private_data;
+    
+    newptr = g_realloc(ptr, size);
+
+    if (ptr != newptr) {
+        /* realloc actually moved the memory block. We have to steal()
+         * instead of remove() because realloc has already reclaimed the old
+         * block, and remove()ing it would call g_free() which we don't want. */
+        g_hash_table_steal(allocator->block_table, ptr);
+        g_hash_table_insert(allocator->block_table, newptr, newptr);
+    }
+
+    return newptr;
+}
+
+static void
+wmem_simple_free(void *private_data, void *ptr)
+{
+    wmem_simple_allocator_t *allocator;
+
+    allocator = (wmem_simple_allocator_t*) private_data;
+
+    /* remove() takes care of calling g_free() for us since we set up the hash
+     * table with g_hash_table_new_full() */
+    g_hash_table_remove(allocator->block_table, ptr);
 }
 
 static void
 wmem_simple_free_all(void *private_data)
 {
-    wmem_simple_allocator_t *allocator = (wmem_simple_allocator_t*) private_data;
-    GSList                  *tmp;
+    wmem_simple_allocator_t *allocator;
+    
+    allocator = (wmem_simple_allocator_t*) private_data;
 
-    /* We can't use g_slist_free_full() as it was only introduced in GLIB 2.28
-     * while we support way back to 2.14. So loop through and manually free
-     * each block, then call g_slist_free(). */
-    tmp = allocator->block_list;
-    while (tmp) {
-        g_free(tmp->data);
-        tmp = tmp->next;
-    }
-    g_slist_free(allocator->block_list);
+    /* remove_all() takes care of calling g_free() for us since we set up the
+     * hash table with g_hash_table_new_full() */
+    g_hash_table_remove_all(allocator->block_table);
+}
 
-    allocator->block_list = NULL;
+static void
+wmem_simple_gc(void *private_data _U_)
+{
+    /* In this simple allocator, there is nothing to garbage-collect */
 }
 
 static void
 wmem_simple_allocator_destroy(wmem_allocator_t *allocator)
 {
-    g_free(allocator->private_data);
+    wmem_simple_allocator_t *private_allocator;
+    
+    private_allocator = (wmem_simple_allocator_t*) allocator->private_data;
+
+    g_hash_table_destroy(private_allocator->block_table);
+    g_free(private_allocator);
     g_free(allocator);
 }
 
@@ -84,17 +127,18 @@ wmem_simple_allocator_new(void)
     allocator        = g_new(wmem_allocator_t, 1);
     simple_allocator = g_new(wmem_simple_allocator_t, 1);
 
-    allocator->alloc        = &wmem_simple_alloc;
-    allocator->free_all     = &wmem_simple_free_all;
-    allocator->destroy      = &wmem_simple_allocator_destroy;
     allocator->private_data = (void*) simple_allocator;
 
-    /* TODO */
-    allocator->realloc = NULL;
-    allocator->free    = NULL;
-    allocator->gc      = NULL;
+    allocator->alloc   = &wmem_simple_alloc;
+    allocator->realloc = &wmem_simple_realloc;
+    allocator->free    = &wmem_simple_free;
 
-    simple_allocator->block_list = NULL;
+    allocator->free_all = &wmem_simple_free_all;
+    allocator->gc       = &wmem_simple_gc;
+    allocator->destroy  = &wmem_simple_allocator_destroy;
+
+    simple_allocator->block_table = g_hash_table_new_full(
+            &g_direct_hash, &g_direct_equal, NULL, &g_free);
 
     return allocator;
 }
