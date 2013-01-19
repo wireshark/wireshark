@@ -34,13 +34,22 @@ extern "C" {
 
 enum _wmem_allocator_type_t;
 
+/* See section "4. Internal Design" of doc/README.wmem for details
+ * on this structure */
 struct _wmem_allocator_t {
-    void *(*alloc)(void *private_data, const size_t size);
-    void  (*free_all)(void *private_data);
-    void  (*destroy)(struct _wmem_allocator_t *allocator);
-
+    /* Implementation details */
     void                        *private_data;
     enum _wmem_allocator_type_t  type;
+
+    /* Consumer functions */
+    void *(*alloc)(void *private_data, const size_t size);
+    void *(*realloc)(void *private_data, void *ptr, const size_t size);
+    void  (*free)(void *private_data, void *ptr);
+
+    /* Producer/Manager functions */
+    void  (*free_all)(void *private_data);
+    void  (*gc)(void *private_data);
+    void  (*destroy)(struct _wmem_allocator_t *allocator);
 };
 
 #ifdef __cplusplus

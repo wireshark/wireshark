@@ -194,12 +194,16 @@ wmem_block_allocator_new(void)
     allocator->destroy      = &wmem_block_allocator_destroy;
     allocator->private_data = (void*) block_allocator;
 
+    /* TODO */
+    allocator->realloc = NULL;
+    allocator->free    = NULL;
+    allocator->gc      = NULL;
+
     block_allocator->free_list = NULL;
     block_allocator->full_list = NULL;
 
     return allocator;
 }
-
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
