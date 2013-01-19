@@ -151,9 +151,11 @@ decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet_info *pinfo
     /* Operation specific Variable declarations End */
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_NotFound_why, tvb, *offset-4, 4, u_octet4);
 
     u_octet4_loop_CosNaming_NamingContext_NotFound_rest_of_name = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_NotFound_rest_of_name, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_NotFound_rest_of_name);
 
     for (i_CosNaming_NamingContext_NotFound_rest_of_name=0; i_CosNaming_NamingContext_NotFound_rest_of_name < u_octet4_loop_CosNaming_NamingContext_NotFound_rest_of_name; i_CosNaming_NamingContext_NotFound_rest_of_name++) {
@@ -179,6 +181,7 @@ decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, packet_info *
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
     u_octet4_loop_CosNaming_NamingContext_CannotProceed_rest_of_name = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_CannotProceed_rest_of_name, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_CannotProceed_rest_of_name);
 
     for (i_CosNaming_NamingContext_CannotProceed_rest_of_name=0; i_CosNaming_NamingContext_CannotProceed_rest_of_name < u_octet4_loop_CosNaming_NamingContext_CannotProceed_rest_of_name; i_CosNaming_NamingContext_CannotProceed_rest_of_name++) {
@@ -235,6 +238,7 @@ decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     switch(header->message_type) {
     case Request:
         u_octet4_loop_CosNaming_NamingContext_bind_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_n);
 
         for (i_CosNaming_NamingContext_bind_n=0; i_CosNaming_NamingContext_bind_n < u_octet4_loop_CosNaming_NamingContext_bind_n; i_CosNaming_NamingContext_bind_n++) {
@@ -283,6 +287,7 @@ decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     switch(header->message_type) {
     case Request:
         u_octet4_loop_CosNaming_NamingContext_rebind_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_rebind_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_rebind_n);
 
         for (i_CosNaming_NamingContext_rebind_n=0; i_CosNaming_NamingContext_rebind_n < u_octet4_loop_CosNaming_NamingContext_rebind_n; i_CosNaming_NamingContext_rebind_n++) {
@@ -331,6 +336,7 @@ decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinf
     switch(header->message_type) {
     case Request:
         u_octet4_loop_CosNaming_NamingContext_bind_context_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_context_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_context_n);
 
         for (i_CosNaming_NamingContext_bind_context_n=0; i_CosNaming_NamingContext_bind_context_n < u_octet4_loop_CosNaming_NamingContext_bind_context_n; i_CosNaming_NamingContext_bind_context_n++) {
@@ -379,6 +385,7 @@ decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pi
     switch(header->message_type) {
     case Request:
         u_octet4_loop_CosNaming_NamingContext_rebind_context_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_rebind_context_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_rebind_context_n);
 
         for (i_CosNaming_NamingContext_rebind_context_n=0; i_CosNaming_NamingContext_rebind_context_n < u_octet4_loop_CosNaming_NamingContext_rebind_context_n; i_CosNaming_NamingContext_rebind_context_n++) {
@@ -427,6 +434,7 @@ decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     switch(header->message_type) {
     case Request:
         u_octet4_loop_CosNaming_NamingContext_resolve_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_resolve_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_resolve_n);
 
         for (i_CosNaming_NamingContext_resolve_n=0; i_CosNaming_NamingContext_resolve_n < u_octet4_loop_CosNaming_NamingContext_resolve_n; i_CosNaming_NamingContext_resolve_n++) {
@@ -473,6 +481,7 @@ decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     switch(header->message_type) {
     case Request:
         u_octet4_loop_CosNaming_NamingContext_unbind_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_unbind_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_unbind_n);
 
         for (i_CosNaming_NamingContext_unbind_n=0; i_CosNaming_NamingContext_unbind_n < u_octet4_loop_CosNaming_NamingContext_unbind_n; i_CosNaming_NamingContext_unbind_n++) {
@@ -550,6 +559,7 @@ decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *
     switch(header->message_type) {
     case Request:
         u_octet4_loop_CosNaming_NamingContext_bind_new_context_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+        /* coverity[returned_pointer] */
         item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_new_context_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_new_context_n);
 
         for (i_CosNaming_NamingContext_bind_new_context_n=0; i_CosNaming_NamingContext_bind_new_context_n < u_octet4_loop_CosNaming_NamingContext_bind_new_context_n; i_CosNaming_NamingContext_bind_new_context_n++) {
@@ -635,6 +645,7 @@ decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
             /* Function returns void */
 
             u_octet4_loop_CosNaming_NamingContext_list_bl = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_list_bl, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_list_bl);
 
             for (i_CosNaming_NamingContext_list_bl=0; i_CosNaming_NamingContext_list_bl < u_octet4_loop_CosNaming_NamingContext_list_bl; i_CosNaming_NamingContext_list_bl++) {
@@ -719,6 +730,7 @@ decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U
             proto_tree_add_boolean(tree, hf_CosNaming_BindingIterator_next_n_return, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
             u_octet4_loop_CosNaming_BindingIterator_next_n_bl = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+            /* coverity[returned_pointer] */
             item = proto_tree_add_uint(tree, hf_CosNaming_BindingIterator_next_n_bl, tvb,*offset-4, 4, u_octet4_loop_CosNaming_BindingIterator_next_n_bl);
 
             for (i_CosNaming_BindingIterator_next_n_bl=0; i_CosNaming_BindingIterator_next_n_bl < u_octet4_loop_CosNaming_BindingIterator_next_n_bl; i_CosNaming_BindingIterator_next_n_bl++) {
@@ -799,6 +811,7 @@ decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
     /* Operation specific Variable declarations End */
 
     u_octet4_loop_CosNaming_Binding_binding_name = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_CosNaming_Binding_binding_name, tvb,*offset-4, 4, u_octet4_loop_CosNaming_Binding_binding_name);
 
     for (i_CosNaming_Binding_binding_name=0; i_CosNaming_Binding_binding_name < u_octet4_loop_CosNaming_Binding_binding_name; i_CosNaming_Binding_binding_name++) {
@@ -809,6 +822,7 @@ decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
     }
 
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
+    /* coverity[returned_pointer] */
     item = proto_tree_add_uint(tree, hf_CosNaming_Binding_binding_type, tvb, *offset-4, 4, u_octet4);
 
 }
