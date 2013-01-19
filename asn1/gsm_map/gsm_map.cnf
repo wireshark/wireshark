@@ -463,7 +463,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 #.FN_BODY USSD-String VAL_PTR = &parameter_tvb
 
   tvbuff_t	*parameter_tvb;
-  int			length;
+  guint		length;
   guint8		out_len;
   /* XXX - The maximum item label length is 240.  Does this really need to be 1024?
    * use ep_alloc ?
@@ -477,7 +477,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
   if (!parameter_tvb)
      return offset;
 
-  length = tvb_length_remaining(parameter_tvb,0);
+  length = tvb_ensure_length_remaining(parameter_tvb,0);
   switch(sms_encoding){
     case SMS_ENCODING_7BIT:
     case SMS_ENCODING_7BIT_LANG:

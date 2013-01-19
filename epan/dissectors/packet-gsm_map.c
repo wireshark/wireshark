@@ -4599,7 +4599,7 @@ dissect_gsm_map_ss_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 #line 464 "../../asn1/gsm_map/gsm_map.cnf"
 
   tvbuff_t	*parameter_tvb;
-  int			length;
+  guint		length;
   guint8		out_len;
   /* XXX - The maximum item label length is 240.  Does this really need to be 1024?
    * use ep_alloc ?
@@ -4615,7 +4615,7 @@ dissect_gsm_map_ss_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   if (!parameter_tvb)
      return offset;
 
-  length = tvb_length_remaining(parameter_tvb,0);
+  length = tvb_ensure_length_remaining(parameter_tvb,0);
   switch(sms_encoding){
     case SMS_ENCODING_7BIT:
     case SMS_ENCODING_7BIT_LANG:
