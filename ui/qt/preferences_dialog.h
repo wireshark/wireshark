@@ -37,6 +37,8 @@
 #include <QTreeWidgetItem>
 #include <QComboBox>
 
+extern pref_t *prefFromPrefPtr(void *pref_ptr);
+
 namespace Ui {
 class PreferencesDialog;
 }

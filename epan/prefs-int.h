@@ -112,7 +112,7 @@ struct preference {
     const char *description;         /**< human-readable description of preference */
     int ordinal;                     /**< ordinal number of this preference */
     pref_type_t type;                /**< type of that preference */
-    union {
+    union {                          /* The Qt preference code assumes that these will all be pointers (and unique) */
         guint *uint;
         gboolean *boolp;
         gint *enump;

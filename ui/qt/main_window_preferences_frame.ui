@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindowPreferencesFrame</class>
+ <widget class="QFrame" name="MainWindowPreferencesFrame">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>425</width>
+    <height>301</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Frame</string>
+  </property>
+  <property name="frameShape">
+   <enum>QFrame::NoFrame</enum>
+  </property>
+  <property name="frameShadow">
+   <enum>QFrame::Plain</enum>
+  </property>
+  <property name="lineWidth">
+   <number>0</number>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QCheckBox" name="geometryCheckBox">
+     <property name="toolTip">
+      <string>Checking this will save the size, position, and maximized state of the main window.</string>
+     </property>
+     <property name="text">
+      <string>Remember main window size and placement</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Open files in</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="0">
+      <widget class="QRadioButton" name="foStyleSpecifiedRadioButton">
+       <property name="text">
+        <string>This folder:</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">openInButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="foStyleSpecifiedLineEdit"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="foStyleSpecifiedPushButton">
+       <property name="text">
+        <string>Choose...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="3">
+      <widget class="QRadioButton" name="foStyleLastOpenedRadioButton">
+       <property name="text">
+        <string>The most recently used folder</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">openInButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Show up to</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,1">
+     <item>
+      <widget class="QLineEdit" name="maxFilterLineEdit"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>filter entries</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,1">
+     <item>
+      <widget class="QLineEdit" name="maxRecentLineEdit"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>recent files</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="confirmUnsavedCheckBox">
+     <property name="text">
+      <string>Confirm unsaved capture files</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="autoScrollCheckBox">
+     <property name="toolTip">
+      <string>If checked the packet detail items will be automatically scrolled when they are expanded.</string>
+     </property>
+     <property name="text">
+      <string>Automatically scroll packet details</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,1">
+     <item>
+      <widget class="QLabel" name="autoScrollPercentageLabel">
+       <property name="toolTip">
+        <string>Percentage distance from the top to scroll packet details.</string>
+       </property>
+       <property name="text">
+        <string>Packet detail scroll percentage:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="autoScrollPercentageLineEdit">
+       <property name="toolTip">
+        <string>Percentage distance from the top to scroll packet details.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+ <buttongroups>
+  <buttongroup name="openInButtonGroup"/>
+ </buttongroups>
+</ui>

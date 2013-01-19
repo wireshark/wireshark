@@ -20,6 +20,12 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <widget class="QTreeWidget" name="prefsTree">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="uniformRowHeights">
        <bool>true</bool>
       </property>
@@ -107,10 +113,16 @@
       </item>
      </widget>
      <widget class="QStackedWidget" name="stackedWidget">
-      <property name="currentIndex">
-       <number>9</number>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <widget class="QFrame" name="appearanceFrame"/>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="MainWindowPreferencesFrame" name="appearanceFrame"/>
       <widget class="QFrame" name="layoutFrame"/>
       <widget class="QFrame" name="columnFrame"/>
       <widget class="QFrame" name="fontandcolorFrame"/>
@@ -192,6 +204,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MainWindowPreferencesFrame</class>
+   <extends>QFrame</extends>
+   <header>main_window_preferences_frame.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

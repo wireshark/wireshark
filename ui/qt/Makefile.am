@@ -93,6 +93,8 @@ main_welcome.cpp main_welcome.h: ui_main_welcome.h
 
 main_window.cpp main_window.h: ui_main_window.h
 
+main_window_preferences_frame.cpp main_window_preferences_frame.h: ui_main_window_preferences_frame.h
+
 packet_comment_dialog.cpp packet_comment_dialog.h: ui_packet_comment_dialog.h
 
 packet_format_group_box.cpp packet_format_group_box.h: ui_packet_format_group_box.h
@@ -169,6 +171,7 @@ EXTRA_DIST = \
 	Makefile_custom.common		\
 	main_welcome.ui			\
 	main_window.ui			\
+	main_window_preferences_frame.ui	\
 	packet_format_group_box.ui	\
 	packet_range_group_box.ui	\
 	packet_comment_dialog.ui	\

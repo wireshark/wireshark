@@ -36,6 +36,7 @@ GENERATED_NODIST_HEADER_FILES = \
 	ui_import_text_dialog.h \
 	ui_main_welcome.h \
 	ui_main_window.h \
+	ui_main_window_preferences_frame.h \
 	ui_packet_comment_dialog.h \
 	ui_packet_format_group_box.h \
 	ui_packet_range_group_box.h \
@@ -98,6 +99,7 @@ MOC_HDRS = \
 	main_status_bar.h \
 	main_welcome.h \
 	main_window.h \
+	main_window_preferences_frame.h \
 	monospace_font.h \
 	packet_comment_dialog.h \
 	packet_format_group_box.h \
@@ -181,6 +183,7 @@ WIRESHARK_QT_SRC = \
 	main_status_bar.cpp \
 	main_welcome.cpp \
 	main_window.cpp \
+	main_window_preferences_frame.cpp \
 	main_window_slots.cpp \
 	monospace_font.cpp \
 	packet_comment_dialog.cpp \

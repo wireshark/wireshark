@@ -277,7 +277,7 @@ gui_prefs_show(void)
 
 	/* Number of recent entries in the display filter list ... */
 	recent_df_entries_max_te = create_preference_entry(main_tb, pos++,
-	    "Filter display max. list entries:",
+	    "Maximum recent filters:",
 	    "Maximum number of recent entries in filter display list.",
 	    recent_df_entries_max_str);
 	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_recent_df_entries_max);
@@ -287,7 +287,7 @@ gui_prefs_show(void)
 
 	/* Number of entries in the recent_files list ... */
 	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
-	    "\"Open Recent\" max. list entries:",
+	    "Maximum recent files:",
 	    "Maximum number of entries in the \"File/Open Recent\" list.",
 	    recent_files_count_max_str);
 	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_recent_files_count_max);
@@ -299,7 +299,7 @@ gui_prefs_show(void)
 
 	/* ask for unsaved capture files? */
 	ask_unsaved_cb = create_preference_check_button(main_tb, pos++,
-	    "Ask for unsaved capture files:",
+	    "Confirm unsaved capture files:",
 	    "Whether a dialog should pop up in case of an unsaved capture file.",
 	    prefs.gui_ask_unsaved);
 	g_object_set_data(G_OBJECT(main_vb), GUI_ASK_UNSAVED_KEY, ask_unsaved_cb);

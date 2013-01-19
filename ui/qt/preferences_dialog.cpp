@@ -46,6 +46,13 @@
 
 Q_DECLARE_METATYPE(pref_t *)
 
+// XXX Should we move this to ui/preference_utils?
+static QHash<void *, pref_t *> pref_ptr_to_pref_;
+pref_t *prefFromPrefPtr(void *pref_ptr)
+{
+    return pref_ptr_to_pref_[pref_ptr];
+}
+
 extern "C" {
 // Callbacks prefs routines
 
@@ -90,6 +97,11 @@ fill_advanced_prefs(module_t *module, gpointer root_ptr)
         item->setToolTip(3, QString("<span>%1</span>").arg(
                              default_value.isEmpty() ? default_value : "Default value is empty"));
         tl_children << item;
+
+        // .uat is a void * so it wins the "useful key value" prize.
+        if (pref->varp.uat) {
+            pref_ptr_to_pref_[pref->varp.uat] = pref;
+        }
     }
     tl_item->addChildren(tl_children);
 
@@ -161,11 +173,10 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     cur_line_edit_(NULL),
     cur_combo_box_(NULL)
 {
-    pd_ui_->setupUi(this);
     QTreeWidgetItem tmp_item; // Adding pre-populated top-level items is much faster
-
     prefs_modules_foreach_submodules(NULL, fill_advanced_prefs, (gpointer) &tmp_item);
 
+    pd_ui_->setupUi(this);
     pd_ui_->advancedTree->invisibleRootItem()->addChildren(tmp_item.takeChildren());
     QTreeWidgetItemIterator pref_it(pd_ui_->advancedTree, QTreeWidgetItemIterator::NoChildren);
     while (*pref_it) {
@@ -179,7 +190,15 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     pd_ui_->splitter->setStretchFactor(1, 5);
 
     pd_ui_->prefsTree->invisibleRootItem()->child(appearance_item_)->setExpanded(true);
-    pd_ui_->prefsTree->setCurrentItem(pd_ui_->prefsTree->invisibleRootItem()->child(advanced_item_));
+    pd_ui_->prefsTree->setCurrentItem(pd_ui_->prefsTree->invisibleRootItem()->child(appearance_item_));
+
+    // This assumes that the prefs tree and stacked widget contents exactly
+    // correspond to each other.
+    QTreeWidgetItem *item = pd_ui_->prefsTree->itemAt(0,0);
+    for (int i = 0; i < pd_ui_->stackedWidget->count() && item; i++) {
+        item->setData(0, Qt::UserRole, qVariantFromValue(pd_ui_->stackedWidget->widget(i)));
+        item = pd_ui_->prefsTree->itemBelow(item);
+    }
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -341,10 +360,18 @@ void PreferencesDialog::updateItem(QTreeWidgetItem &item)
 void PreferencesDialog::on_prefsTree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
 {
     Q_UNUSED(previous)
-    QString frame_name = current->text(0).remove(" ").toLower().append("Frame");
-    QFrame *frame = pd_ui_->stackedWidget->findChild<QFrame *>(frame_name);
-    if (frame) {
-        pd_ui_->stackedWidget->setCurrentWidget(frame);
+
+    if (!current) return;
+    QWidget *new_item = current->data(0, Qt::UserRole).value<QWidget *>();
+    if (new_item) {
+        pd_ui_->stackedWidget->setCurrentWidget(new_item);
+        if (new_item == pd_ui_->advancedFrame) {
+            QTreeWidgetItemIterator it(pd_ui_->advancedTree, QTreeWidgetItemIterator::NoChildren);
+            while (*it) {
+                updateItem(*(*it));
+                ++it;
+            }
+        }
     }
 }
 
