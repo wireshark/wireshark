@@ -41,6 +41,7 @@
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
@@ -890,7 +891,7 @@ again:
     }
 
     if (!vs) {
-        vs = g_malloc((num_sd + 1) * sizeof(value_string));
+        vs = wmem_alloc(wmem_epan_scope(), (num_sd + 1) * sizeof(value_string));
         goto again;
     }
 
