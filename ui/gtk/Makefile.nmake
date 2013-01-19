@@ -66,6 +66,14 @@ WIRESHARK_LIBGTKUI_OBJECTS = \
 libgtkui.lib: ..\..\config.h $(WIRESHARK_LIBGTKUI_OBJECTS)
 	link /lib /out:libgtkui.lib $(WIRESHARK_LIBGTKUI_OBJECTS) winmm.lib
 
+
+layouts.h:
+	echo /* This file was automatically generated. DO NOT EDIT. */ > $@
+	echo. $@
+	for %n in (1 2 3 4 5 6) do \
+	gdk-pixbuf-csource --raw --name=layout_%n_pb_data ../../image/layout_%n.png >> $@
+
+
 # The shell script runs slowly, as multiple greps and seds are run
 # for each input file; this is especially slow on Windows.  Therefore,
 # if Python is present (as indicated by PYTHON being defined), we run
