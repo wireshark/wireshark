@@ -145,7 +145,7 @@ toolbar_icons.h:
 layouts.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
-	for layout_num in 1 2 3 4 5 6 wireless ; do \
+	for layout_num in 1 2 3 4 5 6 ; do \
 		gdk-pixbuf-csource --raw --name=layout_$${layout_num}_pb_data $(top_srcdir)/image/layout_$${layout_num}.png >> $@ ;\
 	done
 
