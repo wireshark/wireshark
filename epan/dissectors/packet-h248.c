@@ -37,6 +37,7 @@
 
 #include "packet-h248.h"
 #include <epan/tap.h>
+#include <epan/wmem/wmem.h>
 #include "packet-tpkt.h"
 #include <ctype.h>
 #include "packet-mtp3.h"
@@ -1386,7 +1387,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
 		while (base_package_name_vals[i].strptr != NULL) {
 			pkg_found = g_new0(h248_package_t, 1); /* create a h248 package structure */
 			pkg_found->id = base_package_name_vals[i].value;
-			vst = g_new0(value_string,2);
+			vst = wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*2);
 			vst[0].strptr = base_package_name_vals[i].strptr;
 			pkg_found->param_names = vst;
 			pkg_found->hfid = &hf_h248_pkg_name;
@@ -1399,7 +1400,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
 					j++; 
 				};
 				if (idx < j) {
-					vst = g_new0(value_string,j-idx+1);
+					vst = wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*(j-idx+1));
 					for (k=0;idx<j;k++) {
 						vst[k].strptr = base_event_name_vals[idx].strptr;
 						vst[k].value = (base_event_name_vals[idx].value & 0xffff);
@@ -1423,7 +1424,7 @@ void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action)
 					pkg_found->signal_names = vst;
 				}
 			};
-			s_pkg = g_new0(s_h248_package_t,1);
+			s_pkg = wmem_new0(wmem_epan_scope(), s_h248_package_t);
 			s_pkg->is_default = TRUE;
 			s_pkg->pkg = pkg_found;
 			g_tree_insert(packages, GINT_TO_POINTER(pkg_found->id), (gpointer)s_pkg);
