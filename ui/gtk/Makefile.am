@@ -142,6 +142,13 @@ toolbar_icons.h:
 		gdk-pixbuf-csource --raw --name=toolbar_$${icon24}_24_pb_data $(top_srcdir)/image/toolbar/toolbar_$${icon24}_24.png >> $@ ;\
 	done
 
+layouts.h:
+	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
+	echo >> $@
+	for layout_num in 1 2 3 4 5 6 wireless ; do \
+		gdk-pixbuf-csource --raw --name=layout_$${layout_num}_pb_data $(top_srcdir)/image/layout_$${layout_num}.png >> $@ ;\
+	done
+
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
 	airpcap_dlg.c			\

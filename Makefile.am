@@ -738,12 +738,12 @@ EXTRA_DIST = \
 	image/hi16-app-wireshark.png	\
 	image/hi32-app-wireshark.png	\
 	image/hi48-app-wireshark.png	\
-	image/icon_layout_1.xpm \
-	image/icon_layout_2.xpm \
-	image/icon_layout_3.xpm \
-	image/icon_layout_4.xpm \
-	image/icon_layout_5.xpm \
-	image/icon_layout_6.xpm \
+	image/layout_1.png		\
+	image/layout_2.png		\
+	image/layout_3.png		\
+	image/layout_4.png		\
+	image/layout_5.png		\
+	image/layout_6.png		\
 	image/libwireshark.rc.in	\
 	image/libwsutil.rc.in		\
 	image/lo16-app-wireshark.png	\

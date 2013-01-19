@@ -146,6 +146,7 @@ about_dlg.c main_welcome.c: ../../image/wssplash.xpm ../../image/wssplash-dev.xp
 main_statusbar.c: expert_indicators.h capture_comment_icons.h
 capture_if_dlg.c: network_icons.h remote_icons.h pipe_icon.h
 stock_icons.c: toolbar_icons.h
+prefs_layout.c: layouts.h
 
 WIRESHARK_TAP_SRC = \
 	afp_stat.c	\
@@ -283,6 +284,7 @@ noinst_HEADERS = \
 	hostlist_table.h \
 	iax2_analysis.h	\
 	keys.h		\
+	layouts.h	\
 	macros_dlg.h	\
 	main.h		\
 	main_airpcap_toolbar.h	\

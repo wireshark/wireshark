@@ -38,13 +38,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/dlg_utils.h"
 
-#include "../../image/icon_layout_1.xpm"
-#include "../../image/icon_layout_2.xpm"
-#include "../../image/icon_layout_3.xpm"
-#include "../../image/icon_layout_4.xpm"
-#include "../../image/icon_layout_5.xpm"
-#include "../../image/icon_layout_6.xpm"
-
+#include "layouts.h"
 
 #define LAYOUT_QTY (layout_type_max - 1)
 
@@ -299,10 +293,8 @@ layout_prefs_show(void)
     GtkWidget	*filter_toolbar_placement_om;
     GtkWidget	*window_title_te;
 
-    const char ** inline_txt [LAYOUT_QTY] = {
-		icon_layout_5_xpm, icon_layout_2_xpm, icon_layout_1_xpm,
-		icon_layout_4_xpm, icon_layout_3_xpm, icon_layout_6_xpm };
     GtkWidget ** layout_type_buttons = g_malloc (sizeof(GtkWidget*) * LAYOUT_QTY);
+    GtkWidget *layout_pixbufs[LAYOUT_QTY];
 
     int        pos = 0;
     int i;
@@ -329,13 +321,19 @@ layout_prefs_show(void)
     gtk_box_pack_start (GTK_BOX(pane_vb), button_hb, FALSE, FALSE, 0);
 
     /* pane layout */
+    layout_pixbufs[0] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_1_pb_data, FALSE, NULL));
+    layout_pixbufs[1] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_2_pb_data, FALSE, NULL));
+    layout_pixbufs[2] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_3_pb_data, FALSE, NULL));
+    layout_pixbufs[3] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_4_pb_data, FALSE, NULL));
+    layout_pixbufs[4] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_5_pb_data, FALSE, NULL));
+    layout_pixbufs[5] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_6_pb_data, FALSE, NULL));
     for (i=0; i<LAYOUT_QTY; ++i)
     {
 	type_tb = gtk_toggle_button_new ();
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(type_tb),
 	    (layout_type_e)(i + 1) == prefs.gui_layout_type);
 
-	gtk_container_add (GTK_CONTAINER(type_tb), xpm_to_widget(inline_txt[i]));
+	gtk_container_add (GTK_CONTAINER(type_tb), layout_pixbufs[i]);
 
 	g_signal_connect(type_tb, "toggled", G_CALLBACK(layout_type_changed_cb), layout_type_buttons);
 	layout_type_buttons[i] = type_tb;
