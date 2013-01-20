@@ -139,7 +139,7 @@ void TimeShiftDialog::checkFrameNumber(SyntaxLineEdit &frame_le)
         if (cap_file_) {
             syntax_err_ = QString(tr("Frame numbers must be between 1 and %1.").arg(cap_file_->count));
         } else {
-            syntax_err_ = "Invalid frame number.";
+            syntax_err_ = tr("Invalid frame number.");
         }
     } else {
         frame_le.setSyntaxState(SyntaxLineEdit::Valid);
@@ -251,7 +251,7 @@ void TimeShiftDialog::applyTimeShift()
 
     syntax_err_.clear();
     if (cap_file_->state == FILE_READ_IN_PROGRESS) {
-        syntax_err_ = "Time shifting is not available capturing packets.";
+        syntax_err_ = tr("Time shifting is not available capturing packets.");
     } else if (ts_ui_->shiftAllButton->isChecked()) {
         err_str = time_shift_all(cap_file_,
                                  ts_ui_->shiftAllTimeLineEdit->text().toUtf8().constData());

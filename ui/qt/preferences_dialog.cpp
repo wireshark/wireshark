@@ -91,11 +91,11 @@ fill_advanced_prefs(module_t *module, gpointer root_ptr)
         item->setData(0, Qt::UserRole, qVariantFromValue(pref));
         item->setText(0, full_name);
         item->setToolTip(0, QString("<span>%1</span>").arg(pref->description));
-        item->setToolTip(1, "Has this preference been changed?");
+        item->setToolTip(1, QObject::tr("Has this preference been changed?"));
         item->setText(2, type_name);
         item->setToolTip(2, QString("<span>%1</span>").arg(type_desc));
         item->setToolTip(3, QString("<span>%1</span>").arg(
-                             default_value.isEmpty() ? default_value : "Default value is empty"));
+                             default_value.isEmpty() ? default_value : QObject::tr("Default value is empty")));
         tl_children << item;
 
         // .uat is a void * so it wins the "useful key value" prize.
@@ -340,11 +340,11 @@ void PreferencesDialog::updateItem(QTreeWidgetItem &item)
     QFont font = item.font(0);
 
     if (pref->type == PREF_UAT || pref->type == PREF_CUSTOM) {
-        item.setText(1, "Unknown");
+        item.setText(1, tr("Unknown"));
     } else if (stashedPrefIsDefault(pref)) {
-        item.setText(1, "Default");
+        item.setText(1, tr("Default"));
     } else {
-        item.setText(1, "Changed");
+        item.setText(1, tr("Changed"));
         is_changed = true;
     }
     font.setBold(is_changed);

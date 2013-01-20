@@ -667,10 +667,10 @@ QString PacketList::allPacketComments()
     for (framenum = 1; framenum <= cap_file_->count ; framenum++) {
         fdata = frame_data_sequence_find(cap_file_->frames, framenum);
         if (fdata->opt_comment) {
-            buf_str.append(QString("Frame %1: %2 \n\n").arg(framenum).arg(fdata->opt_comment));
+            buf_str.append(QString(tr("Frame %1: %2 \n\n")).arg(framenum).arg(fdata->opt_comment));
         }
         if (buf_str.length() > max_comments_to_fetch_) {
-            buf_str.append(QString("[ Comment text exceeds %1. Stopping. ]")
+            buf_str.append(QString(tr("[ Comment text exceeds %1. Stopping. ]"))
                            .arg(format_size(max_comments_to_fetch_, format_size_unit_bytes|format_size_prefix_si)));
             return buf_str;
         }

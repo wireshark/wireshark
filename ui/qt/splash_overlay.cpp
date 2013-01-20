@@ -132,40 +132,40 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
 
     switch(action) {
     case RA_DISSECTORS:
-        action_msg = "Initializing dissectors";
+        action_msg = tr("Initializing dissectors");
         break;
     case RA_LISTENERS:
-        action_msg = "Initializing tap listeners";
+        action_msg = tr("Initializing tap listeners");
         break;
     case RA_REGISTER:
-        action_msg = "Registering dissector";
+        action_msg = tr("Registering dissector");
         break;
     case RA_PLUGIN_REGISTER:
-        action_msg = "Registering plugins";
+        action_msg = tr("Registering plugins");
         break;
     case RA_PYTHON_REGISTER:
-        action_msg = "Registering Python dissectors";
+        action_msg = tr("Registering Python dissectors");
         break;
     case RA_HANDOFF:
-        action_msg = "Handing off dissector";
+        action_msg = tr("Handing off dissector");
         break;
     case RA_PLUGIN_HANDOFF:
-        action_msg = "Handing off plugins";
+        action_msg = tr("Handing off plugins");
         break;
     case RA_PYTHON_HANDOFF:
-        action_msg = "Handing off Python dissectors";
+        action_msg = tr("Handing off Python dissectors");
         break;
     case RA_LUA_PLUGINS:
-        action_msg = "Loading Lua plugins";
+        action_msg = tr("Loading Lua plugins");
         break;
     case RA_PREFERENCES:
-        action_msg = "Loading module preferences";
+        action_msg = tr("Loading module preferences");
         break;
     case RA_CONFIGURATION:
-        action_msg = "Loading configuration files";
+        action_msg = tr("Loading configuration files");
         break;
     default:
-        action_msg = "(Unknown action)";
+        action_msg = tr("(Unknown action)");
         break;
     }
 
