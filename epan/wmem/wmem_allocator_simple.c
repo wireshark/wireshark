@@ -50,7 +50,11 @@ wmem_simple_alloc(void *private_data, const size_t size)
     
     buf = g_malloc(size);
 
-    g_hash_table_insert(allocator->block_table, buf, buf);
+    /* alloc is allowed to return NULL if the requested size is 0, in
+     * which case we don't need to add it to the hash table */
+    if (buf) {
+        g_hash_table_insert(allocator->block_table, buf, buf);
+    }
 
     return buf;
 }
@@ -71,7 +75,7 @@ wmem_simple_realloc(void *private_data, void *ptr, const size_t size)
          * block, and remove()ing it would call g_free() which we don't want. */
         g_hash_table_steal(allocator->block_table, ptr);
         /* realloc is allowed to return NULL if the requested size is 0, in
-         * which case we don't want to add back to the hash table */
+         * which case we don't need to add it to the hash table */
         if (newptr) {
             g_hash_table_insert(allocator->block_table, newptr, newptr);
         }
