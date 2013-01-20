@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-01-08
+# 2013-01-18
 # 
 # Experts
 # 
@@ -886,10 +886,10 @@ pip	321/tcp	# PIP                          [Gordon_Mohr]                        
 pip	321/udp	# PIP                          [Gordon_Mohr]                                      [Gordon_Mohr]
 rtsps	322/tcp	# RTSPS                        [Anders_Klemets]                                   [Anders_Klemets]
 rtsps	322/udp	# RTSPS                        [Anders_Klemets]                                   [Anders_Klemets]
-rpki-rtr	323/tcp	# Resource PKI to Router       [IESG]                                             [IETF_Chair]                                                                        [RFC-ietf-sidr-rpki-rtr-26]
+rpki-rtr	323/tcp	# Resource PKI to Router       [IESG]                                             [IETF_Chair]                                                                        [RFC6810]
 # Protocol
 # 323        udp    Reserved
-rpki-rtr-tls	324/tcp	# Resource PKI to Router       [IESG]                                             [IETF_Chair]                                                                        [RFC-ietf-sidr-rpki-rtr-26]
+rpki-rtr-tls	324/tcp	# Resource PKI to Router       [IESG]                                             [IETF_Chair]                                                                        [RFC6810]
 # Protocol over TLS
 # 324        udp    Reserved
 # 325-332             Unassigned
@@ -10475,7 +10475,11 @@ ifsp	4744/udp	# Internet File                [Alex_White]                       
 # Synchronization Protocol
 fmp	4745/tcp	# Funambol Mobile Push         [Andrea_Gazzaniga]                                 [Andrea_Gazzaniga]                                        2007-01
 fmp	4745/udp	# Funambol Mobile Push         [Andrea_Gazzaniga]                                 [Andrea_Gazzaniga]                                        2007-01
-# 4746-4748            Unassigned
+# 4746               Unassigned
+buschtrommel	4747/udp	# peer-to-peer file exchange   [None]                                             [Tobias_Sturm]                                            2013-01-14
+# protocol
+# 4747        tcp    Reserved
+# 4748-4748            Unassigned
 profilemac	4749/tcp	# Profile for Mac              [David_Sinclair]                                   [David_Sinclair]                                          2006-05
 profilemac	4749/udp	# Profile for Mac              [David_Sinclair]                                   [David_Sinclair]                                          2006-05
 ssad	4750/tcp	# Simple Service Auto          [Dr_Horst_Herb]                                    [Dr_Horst_Herb]                                           2005-12
@@ -13540,7 +13544,9 @@ openqueue	8764/tcp	# OPENQUEUE                    [Matt_Jensen]                 
 openqueue	8764/udp	# OPENQUEUE                    [Matt_Jensen]                                      [Matt_Jensen]
 ultraseek-http	8765/tcp	# Ultraseek HTTP               [Walter_Underwood]                                 [Walter_Underwood]
 ultraseek-http	8765/udp	# Ultraseek HTTP               [Walter_Underwood]                                 [Walter_Underwood]
-# 8766-8769            Unassigned
+amcs	8766/tcp	# Agilent Connectivity Service [Agilent_Technologies_Inc]                         [Tom_Fay]                                                 2013-01-16
+amcs	8766/udp	# Agilent Connectivity Service [Agilent_Technologies_Inc]                         [Tom_Fay]                                                 2013-01-16
+# 8767-8769            Unassigned
 dpap	8770/tcp	# Digital Photo Access         [Amandeep_Jawa_2]                                  [Amandeep_Jawa_2]                                         2004-11                                                                                  Defined TXT keys: txtvers, Version, iPSh Version, Machine ID,
 # Protocol (iPhoto)                                                                                                                                                                                                                  Machine Name, Password
 dpap	8770/udp	# Digital Photo Access         [Amandeep_Jawa_2]                                  [Amandeep_Jawa_2]                                         2004-11                                                                                  Defined TXT keys: txtvers, Version, iPSh Version, Machine ID,
@@ -14598,7 +14604,10 @@ scotty-ft	14000/udp	# SCOTTY High-Speed            [Patrick_Verbeek]            
 sua	14001/tcp	# SUA                          [Miguel_Angel_Garcia]                              [Miguel_Angel_Garcia]
 sua	14001/udp	# De-Registered                [Miguel_Angel_Garcia]                              [Miguel_Angel_Garcia]                                     2001-06-06
 sua	14001/sctp	# SUA                          [Miguel_Angel_Garcia]                              [Miguel_Angel_Garcia]
-# 14002-14032           Unassigned
+scotty-disc	14002/udp	# Discovery of a SCOTTY        [SCOTTY_Group_SE]                                  [Patrick_Verbeek_2]                                       2013-01-14
+# hardware codec board
+# 14002       tcp    Reserved
+# 14003-14032           Unassigned
 sage-best-com1	14033/tcp	# sage Best! Config Server 1   [Christian_Rubach]                                 [Christian_Rubach]
 sage-best-com1	14033/udp	# sage Best! Config Server 1   [Christian_Rubach]                                 [Christian_Rubach]
 sage-best-com2	14034/tcp	# sage Best! Config Server 2   [Christian_Rubach]                                 [Christian_Rubach]
@@ -15271,7 +15280,10 @@ kopek-httphead	27504/udp	# Kopek HTTP Head Port         [Sten_H_Danielsen]      
 # 27505-27781           Unassigned
 ars-vista	27782/tcp	# ARS VISTA Application        [Spencer_Teran_2]                                  [Spencer_Teran_2]                                         2004-11
 ars-vista	27782/udp	# ARS VISTA Application        [Spencer_Teran_2]                                  [Spencer_Teran_2]                                         2004-11
-# 27783-27998           Unassigned
+# 27783-27875           Unassigned
+astrolink	27876/tcp	# Astrolink Protocol           [Alanax_Technologies_Inc]                          [Wesley_Eddy]                                             2013-01-14
+# 27876       udp    Reserved
+# 27877-27998           Unassigned
 tw-auth-key	27999/tcp	# TW Authentication/Key        [Alex_Duncan_2]                                    [Alex_Duncan_2]
 # Distribution and
 tw-auth-key	27999/udp	# Attribute Certificate        [Alex_Duncan_2]                                    [Alex_Duncan_2]
@@ -17041,6 +17053,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # xcodedistcc                           Xcode Distributed Compiler   [Scott_Tooker]                                     [Scott_Tooker]                                                                                                                                     Defined TXT keys: None
 # xgate-rmi                             xGate Remote Management      [Tim_Jobling]                                      [Tim_Jobling]                                                                                                                                      Defined TXT keys: tech=value (string) model=value (string)
 # Interface                                                                                                                                                                                                                          version=value (string)
+# xmiserver                      tcp    XMI Systems home terminal    [XMI_Systems_SA]                                   [CLAUDE_MALLY]                                            2013-01-18                                                                               Defined TXT keys: coucou
+# local connection
 # xmp                                   Xperientia Mobile Protocol   [Henric_Bergh]                                     [Henric_Bergh]                                            2007-01                                                                                  Defined TXT keys: txtvers, user, system, nodeid, desc
 # xsanclient                            Xsan Client                  [Jeff_Albouze]                                     [Jeff_Albouze]                                                                                                                                     Defined TXT keys: None
 # xsanserver                            Xsan Server                  [Jeff_Albouze]                                     [Jeff_Albouze]                                                                                                                                     Defined TXT keys: None
@@ -17111,6 +17125,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Afkham_Azeez]                                            Afkham Azeez                                    mailto:azeez&wso2.com                                         2006-06
 # [Afshin_Jafari]                                           Afshin Jafari             iConstruct (Aus) Pty  mailto:jafari&pdcwa.com.au                                    2012-12-21
 # Ltd
+# [Agilent_Technologies_Inc]                                                          Agilent Technologies, mailto:tom_fay&agilent.com                                    2013-01-16
+# Inc.
 # [Agri_Datalog]                                            Agri Datalog                                    mailto:contact&agri-datalog.com
 # [Ahmad_Tajuddin_Samsu]                                    Ahmad Tajuddin Samsudin                         mailto:tajuddin&tmrnd.com.my                                  2007-02
 # [Ahti_Heinla]                                             Ahti Heinla                                     mailto:ahti&ahti.bluemoon.ee                                  2002-06
@@ -17142,6 +17158,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Alan_Sandell]                                            Alan Sandell                                    mailto:alan.sandell&ist.co.uk                                 2008-05-01
 # [Alan_Ungar]                                              Alan Ungar                                      mailto:aungar&farradyne.com
 # [Alan_Yates]                                              Alan Yates                                      mailto:alany&ay.com.au
+# [Alanax_Technologies_Inc]                                                           Alanax Technologies,  mailto:brian.barritt&alanax.com                               2013-01-14
+# Inc
 # [Albert_Berlovitch]                                       Albert Berlovitch                               mailto:albertb&voltaire.com                                   2009-12-17
 # [Albert_C_Yang]                                           Albert C. Yang                                  mailto:albert.yang&ezmeeting.com                              2002-03
 # [Albert_Cester]                                           Albert Cester                                   mailto:albert.cester&assyst-intl.com                          2008-08-26
@@ -17861,6 +17879,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [CityDisc]                                                                          CityDisc              mailto:citydisc&euronet.nl
 # [Claes_Fredrik_Mannby]                                    Claes-Fredrik Mannby                            mailto:cf&mannby.com
 # [Clark_Williams]                                          Clark Williams                                  mailto:clark&wirespeed.com
+# [CLAUDE_MALLY]                                            CLAUDE MALLY              XMI Systems SA        mailto:cma&xmisystems.com                                     2013-01-18
 # [Claudio_Lastrucci]                                       Claudio Lastrucci         POWERSOFT S.R.L.      mailto:claudio.lastrucci&powersoft.it                         2012-01-03
 # [Claudio_Procida]                                         Claudio Procida                                 mailto:claudio&emeraldion.it                                  2007-05
 # [Claus_Broch]                                             Claus Broch               NextDay Aps           mailto:nextday&infinite-loop.dk                               2012-04-24
@@ -17919,7 +17938,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Craig_Rogers]                                            Craig Rogers                                    mailto:Rogers&isi.edu
 # [Craig_Steffen]                                           Craig Steffen                                   mailto:csteffen&ncsa.uiuc.edu                                 2005-08
 # [Craig_Weeks]                                             Craig Weeks                                     mailto:cweeks&syspace.co.uk
-# [Crestron_Electronics]                                                              Crestron Electronics, mailto:mtalreja@crestron.com>                                 2012-06-27
+# [Crestron_Electronics]                                                              Crestron Electronics, mailto:mtalreja&crestron.com                                  2012-06-27
 # Inc.
 # [Cristian_Petculescu]                                     Cristian Petculescu                             mailto:cristp&microsoft.com
 # [Cristian_Petculescu_2]                                   Cristian Petculescu                             mailto:cristp&hotmail.com                                     2003-04
@@ -20377,6 +20396,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Patrick_Robinson]                                        Patrick Robinson                                mailto:probinson&plosive.com
 # [Patrick_Stein]                                           Patrick Stein                                   mailto:Patrick.Stein&jinx.eu                                  2011-10-24
 # [Patrick_Verbeek]                                         Patrick Verbeek                                 mailto:p.verbeek&scottygroup.com                              2007-05
+# [Patrick_Verbeek_2]                                       Patrick Verbeek           SCOTTY Group SE       mailto:p.verbeek&scottygroup.com                              2013-01-14
 # [Patti_Jo_Newsom]                                         Patti Jo Newsom                                 mailto:pjn&mcsdallas.com
 # [Patty_Ho]                                                Patty Ho                                        mailto:rimf&core.rose.hp.com                                  2007-05
 # [Paul_A_Suhler]                                           Paul A. Suhler                                  mailto:paul.suhler&quantum.com                                2009-02-06
@@ -21052,6 +21072,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Scott_St_Clair]                                          Scott St. Clair                                 mailto:stclair&ntc.adaptec.com
 # [Scott_Tarone]                                            Scott Tarone                                    mailto:starone&proactivethought.com                           2003-04
 # [Scott_Tooker]                                            Scott Tooker                                    mailto:tooker&apple.com
+# [SCOTTY_Group_SE]                                                                   SCOTTY Group SE       mailto:p.verbeek&scottygroup.com                              2013-01-14
 # [Sean_Adams]                                              Sean Adams                                      mailto:sean&slimdevices.com                                   2002-05
 # [Sean_D_Solle]                                            Sean D. Solle             VSN International     mailto:sean&vsni.co.uk                                        2011-09-28
 # Ltd.
@@ -21514,6 +21535,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [TiVo_Inc]                                                                          TiVo Inc.             mailto:devsupport&tivo.com                                    2011-10-18
 # [Tobias_Erichsen]                                         Tobias Erichsen                                 mailto:erichsen&te-systems.de
 # [Tobias_Hoffmann]                                         Tobias Hoffmann                                 mailto:th55&gmx.de                                            2012-10-09
+# [Tobias_Sturm]                                            Tobias Sturm                                    mailto:tobias.sturm&student.kit.edu                           2013-01-14
 # [Tobias_Wegner]                                           Tobias Wegner                                   mailto:wegner&novagate.de
 # [Tobin_Schuster]                                          Tobin Schuster                                  mailto:tobin.j.schuster&jci.com
 # [Toby_Hosterman]                                          Toby Hosterman                                  mailto:root&netspeak.com
@@ -21535,6 +21557,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Tom_Bougan]                                              Tom Bougan                                      mailto:tomb&apptechsys.com
 # [Tom_Boyle]                                               Tom Boyle                                       mailto:tboyle&vormetric.com                                   2005-06
 # [Tom_Emberson]                                            Tom Emberson                                    mailto:tom&lanworks.com
+# [Tom_Fay]                                                 Tom Fay                   Agilent Technologies, mailto:tom_fay&agilent.com                                    2013-01-16
+# Inc.
 # [Tom_Findley]                                             Tom Findley                                     mailto:tom.findley&networksciences.net
 # [Tom_Friend]                                              Tom Friend                                      mailto:tomfr&microsoft.com
 # [Tom_Haapanen]                                            Tom Haapanen                                    mailto:tomh&metrics.com
@@ -21735,6 +21759,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Wes_Doonan]                                              Wes Doonan
 # [Wes_Peters]                                              Wes Peters                                      mailto:wes&softweyr.com                                       2007-04
 # [Wes_Wilson]                                              Wes Wilson                                      mailto:wwilson&iss.net                                        2003-10
+# [Wesley_Eddy]                                             Wesley Eddy               Alanax Technologies,  mailto:wesley.eddy&alanax.com                                 2013-01-14
+# Inc
 # [Westell]                                                                           Westell, Inc.         mailto:jronk&westell.com
 # [Western_Digital]                                                                   Western Digital Inc.  mailto:rajesh.batra&wdc.com                                   2012-07-11
 # [Whamb]                                                   Whamb                                           mailto:support&whamb.com
@@ -21790,6 +21816,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [www_nsovocal_com]                                                                  www.nsovocal.com      mailto:ben&nsovocal.com                                       2011-10-18
 # [Wyatt_Williams]                                          Wyatt Williams                                  mailto:wyattw&icall.com
 # [Xavier_Roques]                                           Xavier Roques                                   mailto:xroques&infovista.fr
+# [XMI_Systems_SA]                                                                    XMI Systems SA        mailto:cma&xmisystems.com                                     2013-01-18
 # [XMPP_Registrar]                                          XMPP Registrar                                  mailto:registrar&xmpp.org
 # [Xnet_Communications]                                     Xnet Communications                             mailto:croco&xdsnet.de
 # [XuiS_Software_Ltd]                                       XuiS Software Ltd.                              mailto:100322.2376&compuserve.com
