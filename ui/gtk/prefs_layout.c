@@ -321,11 +321,11 @@ layout_prefs_show(void)
     gtk_box_pack_start (GTK_BOX(pane_vb), button_hb, FALSE, FALSE, 0);
 
     /* pane layout */
-    layout_pixbufs[0] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_1_pb_data, FALSE, NULL));
+    layout_pixbufs[0] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_5_pb_data, FALSE, NULL));
     layout_pixbufs[1] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_2_pb_data, FALSE, NULL));
-    layout_pixbufs[2] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_3_pb_data, FALSE, NULL));
+    layout_pixbufs[2] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_1_pb_data, FALSE, NULL));
     layout_pixbufs[3] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_4_pb_data, FALSE, NULL));
-    layout_pixbufs[4] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_5_pb_data, FALSE, NULL));
+    layout_pixbufs[4] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_3_pb_data, FALSE, NULL));
     layout_pixbufs[5] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_6_pb_data, FALSE, NULL));
     for (i=0; i<LAYOUT_QTY; ++i)
     {
