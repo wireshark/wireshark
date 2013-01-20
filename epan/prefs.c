@@ -1338,7 +1338,7 @@ static char * column_hidden_to_str_cb(pref_t* pref, gboolean default_val) {
         return g_strdup(pref->default_val.string);
 
     format_pref = prefs_find_preference(gui_column_module, PRS_COL_FMT);
-    clp = *format_pref->varp.list;
+    clp = (format_pref) ? *format_pref->varp.list : NULL;
     while (clp) {
         gchar *prefs_fmt;
         cfmt = (fmt_data *) clp->data;
@@ -1551,7 +1551,7 @@ static gboolean column_format_is_default_cb(pref_t* pref) {
 
     /* See if the column data has changed from the default */
     col_num_pref = prefs_find_preference(gui_column_module, PRS_COL_NUM);
-    if (*col_num_pref->varp.uint != col_num_pref->default_val.uint) {
+    if (col_num_pref && *col_num_pref->varp.uint != col_num_pref->default_val.uint) {
         is_default = FALSE;
     } else {
         while (pref_col && def_col) {
