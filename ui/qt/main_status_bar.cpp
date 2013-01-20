@@ -41,11 +41,6 @@
 
 #include "tango_colors.h"
 
-#ifdef HAVE_LIBPCAP
-#define DEF_READY_MESSAGE tr("Ready to load or capture")
-#else
-#define DEF_READY_MESSAGE tr("Ready to load file")
-#endif
 
 // XXX - The GTK+ code assigns priorities to these and pushes/pops accordingly.
 
@@ -99,7 +94,11 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     delete_action_(NULL)
 {
     QSplitter *splitter = new QSplitter(this);
-    QString ready_msg(DEF_READY_MESSAGE);
+    #ifdef HAVE_LIBPCAP
+    QString ready_msg(tr("Ready to load or capture"));
+    #else
+    QString ready_msg(tr("Ready to load file"));
+    #endif
     QWidget *info_progress = new QWidget(this);
     QHBoxLayout *info_progress_hb = new QHBoxLayout(info_progress);
     QAction *action;
