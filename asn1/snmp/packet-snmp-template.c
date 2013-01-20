@@ -1644,7 +1644,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ber_identifier(pinfo, 0, tvb, offset, &ber_class, &pc, &tag);
 	/*Get the total octet length of the SNMP data*/
 	offset = dissect_ber_length(pinfo, 0, tvb, offset, &len, &ind);
-	message_length = len + 2;
+	message_length = len + offset;
 
 	/*Get the SNMP version data*/
 	offset = dissect_ber_integer(FALSE, &asn1_ctx, 0, tvb, offset, -1, &version);
