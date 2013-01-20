@@ -1051,16 +1051,7 @@ Index: file.h
 	<orderedlist>
 	<listitem>
 	<para>
-	Add the Wireshark boilerplate to the new file(s).
-	</para>
-	</listitem>
-	<listitem>
-	<para>
-	Add a line to each new file containing the following text (case is
-	important, so don't write ID or id or iD):
-<programlisting>
-$Id&#36;
-</programlisting>
+	Verify that that file is complete (has Wireshark boilerplate, $Id$, etc).
 	</para>
 	</listitem>
 	<listitem>
