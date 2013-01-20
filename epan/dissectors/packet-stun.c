@@ -670,18 +670,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     break;
                 proto_tree_add_item(att_tree, stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                 switch (tvb_get_guint8(tvb, offset+1)) 
-        {
+                {
                   case 1:
                       if (att_length < 8)
                           break;
                       proto_tree_add_item(att_tree, stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                      {
-                          const gchar *ipstr;
-                          guint32 ip;
-                          ip = tvb_get_ipv4(tvb,offset+4);
-                          ipstr = ip_to_str((guint8*)&ip);
-                          proto_item_append_text(att_tree, " (Deprecated): %s:%d", ipstr,tvb_get_ntohs(tvb,offset+2));
-                      }
+                      proto_item_append_text(att_tree, " (Deprecated): %s:%d", tvb_ip_to_str(tvb, offset+4),tvb_get_ntohs(tvb,offset+2));
+
                       break;
   
                   case 2:
@@ -689,7 +684,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                           break;
                       proto_tree_add_item(att_tree, stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
                       break;
-              }
+                }
                 break;
 
       /* Deprecated STUN RFC3489 attributes */
