@@ -2943,7 +2943,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
   if ((global_capture_opts.num_selected == 0) &&
-      (prefs.capture_device != NULL) && (*prefs_p->capture_device != '\0')) {
+      ((prefs.capture_device != NULL) && (*prefs_p->capture_device != '\0'))) {
     guint i;
     interface_t device;
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
