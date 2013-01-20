@@ -776,18 +776,16 @@ if(ue_cap_tvb){
     call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, subtree);
   }
 
-#.FN_BODY NeighCellConfig VAL_PTR = &neigh_cell_config_tvb
+#.TYPE_ATTR
+NeighCellConfig TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_neighCellConfig_vals)
+
+#.FN_BODY NeighCellConfig VAL_PTR = &neigh_cell_config_tvb HF_INDEX=-1
   tvbuff_t *neigh_cell_config_tvb = NULL;
 %(DEFAULT_BODY)s
 
 #.FN_FTR NeighCellConfig
   if (neigh_cell_config_tvb) {
-    guint8 bits;
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_neighCellConfig);
-    bits = tvb_get_bits8(neigh_cell_config_tvb, 0, 2);
-    proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "%s",
-                        val_to_str_const(bits, lte_rrc_neighCellConfig_vals, "Unknown"));
+    actx->created_item = proto_tree_add_uint(tree, hf_index, neigh_cell_config_tvb, 0, 1, tvb_get_bits8(neigh_cell_config_tvb, 0, 2));
   }
 
 #.FN_BODY LocationInfo-r10/locationCoordinates-r10/ellipsoid-Point-r10 VAL_PTR = &ellipsoid_point_tvb
@@ -878,18 +876,190 @@ SystemInformationBlockType9/hnb-Name TYPE=FT_STRING DISPLAY=BASE_NONE
   actx->created_item = proto_tree_add_unicode_string(tree, hf_index, hnb_name_tvb, 0, -1,
                                 tvb_get_ephemeral_string_enc(hnb_name_tvb, 0, tvb_length(hnb_name_tvb), ENC_UTF_8 | ENC_NA));
 
-#.FN_BODY SystemInformationBlockType16-r11/dayLightSavingTime VAL_PTR=&daylight_saving_time_tvb
+#.TYPE_ATTR
+SystemInformationBlockType10/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_messageIdentifier_vals_ext
+
+#.FN_BODY SystemInformationBlockType10/messageIdentifier VAL_PTR=&msg_id_tvb HF_INDEX=-1
+  tvbuff_t *msg_id_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType10/messageIdentifier
+  if (msg_id_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SystemInformationBlockType10/serialNumber VAL_PTR=&serial_nb_tvb
+  tvbuff_t *serial_nb_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType10/serialNumber
+  if (serial_nb_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_upd_nb, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SystemInformationBlockType10/warningType VAL_PTR=&warning_type_tvb
+  tvbuff_t *warning_type_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType10/warningType
+  if (warning_type_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningType);
+    proto_tree_add_item(subtree, hf_lte_rrc_warningType_value, warning_type_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_warningType_emergency_user_alert, warning_type_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_warningType_popup, warning_type_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SystemInformationBlockType10/warningSecurityInfo VAL_PTR=&warning_sec_info_tvb
+  tvbuff_t *warning_sec_info_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType10/warningSecurityInfo
+  if (warning_sec_info_tvb) {
+    guint8 oct, tz;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningSecurityInfo);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 0);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_yr, warning_sec_info_tvb, 0, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 1);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_mo, warning_sec_info_tvb, 1, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 2);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_day, warning_sec_info_tvb, 2, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 3);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_hr, warning_sec_info_tvb, 3, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 4);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_min, warning_sec_info_tvb, 4, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 5);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_sec, warning_sec_info_tvb, 5, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 6);
+    if (oct == 0xff) {
+      proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_tz, warning_sec_info_tvb, 6, 1, oct, "Unknown (0x%02x)", oct);
+    } else {
+      tz = (oct >> 4) + (oct & 0x07) * 10;
+      proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_tz, warning_sec_info_tvb, 6, 1, oct, "GMT %c %d hr %d min (0x%02x)",
+      (oct & 0x08)?'-':'+', tz/4, (tz%4)*15, oct);
+    }
+    proto_tree_add_item(subtree, hf_lte_rrc_warningSecurityInfo_digital_signature, warning_sec_info_tvb, 7, 43, ENC_NA);
+  }
+
+#.TYPE_ATTR
+SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_messageIdentifier_vals_ext
+
+#.FN_BODY SystemInformationBlockType11/messageIdentifier VAL_PTR=&msg_id_tvb HF_INDEX=-1
+  tvbuff_t *msg_id_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType11/messageIdentifier
+  if (msg_id_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SystemInformationBlockType11/serialNumber VAL_PTR=&serial_nb_tvb
+  tvbuff_t *serial_nb_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType11/serialNumber
+  if (serial_nb_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_upd_nb, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SystemInformationBlockType11/dataCodingScheme VAL_PTR=&data_coding_scheme_tvb
+  tvbuff_t *data_coding_scheme_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType11/dataCodingScheme
+  if (data_coding_scheme_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
+    lte_rrc_etws_dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
+  }
+
+#.FN_BODY SystemInformationBlockType11/warningMessageSegment VAL_PTR=&warning_msg_seg_tvb
+  tvbuff_t *warning_msg_seg_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType11/warningMessageSegment
+  if (warning_msg_seg_tvb && (lte_rrc_etws_dataCodingScheme != SMS_ENCODING_NOT_SET)) {
+    proto_tree *subtree;
+    tvbuff_t *cb_data_tvb;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
+    cb_data_tvb = dissect_cbs_data(lte_rrc_etws_dataCodingScheme, warning_msg_seg_tvb, subtree, actx->pinfo, 0);
+    if (cb_data_tvb) {
+      proto_tree_add_unicode_string(subtree, hf_lte_rrc_warningMessageSegment_decoded, cb_data_tvb, 0, -1,
+                                    tvb_get_ephemeral_string_enc(cb_data_tvb, 0, tvb_length(cb_data_tvb), ENC_UTF_8 | ENC_NA));
+    }
+  }
+
+#.TYPE_ATTR
+SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_messageIdentifier_vals_ext
+
+#.FN_BODY SystemInformationBlockType12-r9/messageIdentifier-r9 VAL_PTR=&msg_id_tvb HF_INDEX=-1
+  tvbuff_t *msg_id_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType12-r9/messageIdentifier-r9
+  if (msg_id_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SystemInformationBlockType12-r9/serialNumber-r9 VAL_PTR=&serial_nb_tvb
+  tvbuff_t *serial_nb_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType12-r9/serialNumber-r9
+  if (serial_nb_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_upd_nb, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY SystemInformationBlockType12-r9/dataCodingScheme-r9 VAL_PTR=&data_coding_scheme_tvb
+  tvbuff_t *data_coding_scheme_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType12-r9/dataCodingScheme-r9
+  if (data_coding_scheme_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
+    lte_rrc_cmas_dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
+  }
+
+#.FN_BODY SystemInformationBlockType12-r9/warningMessageSegment-r9 VAL_PTR=&warning_msg_seg_tvb
+  tvbuff_t *warning_msg_seg_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SystemInformationBlockType12-r9/warningMessageSegment-r9
+  if (warning_msg_seg_tvb && (lte_rrc_cmas_dataCodingScheme != SMS_ENCODING_NOT_SET)) {
+    proto_tree *subtree;
+    tvbuff_t *cb_data_tvb;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
+    cb_data_tvb = dissect_cbs_data(lte_rrc_cmas_dataCodingScheme, warning_msg_seg_tvb, subtree, actx->pinfo, 0);
+    if (cb_data_tvb) {
+      proto_tree_add_unicode_string(subtree, hf_lte_rrc_warningMessageSegment_decoded, cb_data_tvb, 0, -1,
+                                    tvb_get_ephemeral_string_enc(cb_data_tvb, 0, tvb_length(cb_data_tvb), ENC_UTF_8 | ENC_NA));
+    }
+  }
+
+#.TYPE_ATTR
+SystemInformationBlockType16-r11/dayLightSavingTime TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_daylightSavingTime_vals)
+
+#.FN_BODY SystemInformationBlockType16-r11/dayLightSavingTime VAL_PTR=&daylight_saving_time_tvb HF_INDEX=-1
   tvbuff_t *daylight_saving_time_tvb = NULL;
 %(DEFAULT_BODY)s
 
 #.FN_FTR SystemInformationBlockType16-r11/dayLightSavingTime
   if (daylight_saving_time_tvb) {
-    guint8 bits;
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_daylightSavingTime);
-    bits = tvb_get_bits8(daylight_saving_time_tvb, 0, 2);
-    proto_tree_add_text(subtree, daylight_saving_time_tvb, 0, 1, "%s",
-                        val_to_str_const(bits, lte_rrc_daylightSavingTime_vals, "Unknown"));
+    actx->created_item = proto_tree_add_uint(tree, hf_index, daylight_saving_time_tvb, 0, 1, tvb_get_bits8(daylight_saving_time_tvb, 0, 2));
   }
 
 #.FN_BODY SystemInformationBlockType16-r11/leapSeconds

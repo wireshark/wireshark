@@ -39,6 +39,8 @@
 #include "packet-rrc.h"
 #include "packet-gsm_a_common.h"
 #include "packet-lpp.h"
+#include "packet-gsm_map.h"
+#include "packet-cell_broadcast.h"
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
 #define PSNAME "LTE RRC"
@@ -52,6 +54,8 @@ static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
 static guint32 lte_rrc_rat_type_value = -1;
 static guint32 lte_rrc_ho_target_rat_type_value = -1;
 static gint lte_rrc_si_or_psi_geran_val = -1;
+static guint8 lte_rrc_etws_dataCodingScheme = SMS_ENCODING_NOT_SET;
+static guint8 lte_rrc_cmas_dataCodingScheme = SMS_ENCODING_NOT_SET;
 
 /* Include constants */
 #include "packet-lte-rrc-val.h"
@@ -157,6 +161,21 @@ static int hf_lte_rrc_eutra_cap_feat_group_ind_129 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_130 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_131 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_132 = -1;
+static int hf_lte_rrc_serialNumber_gs = -1;
+static int hf_lte_rrc_serialNumber_msg_code = -1;
+static int hf_lte_rrc_serialNumber_upd_nb = -1;
+static int hf_lte_rrc_warningType_value = -1;
+static int hf_lte_rrc_warningType_emergency_user_alert = -1;
+static int hf_lte_rrc_warningType_popup = -1;
+static int hf_lte_rrc_warningSecurityInfo_yr = -1;
+static int hf_lte_rrc_warningSecurityInfo_mo = -1;
+static int hf_lte_rrc_warningSecurityInfo_day = -1;
+static int hf_lte_rrc_warningSecurityInfo_hr = -1;
+static int hf_lte_rrc_warningSecurityInfo_min = -1;
+static int hf_lte_rrc_warningSecurityInfo_sec = -1;
+static int hf_lte_rrc_warningSecurityInfo_tz = -1;
+static int hf_lte_rrc_warningSecurityInfo_digital_signature = -1;
+static int hf_lte_rrc_warningMessageSegment_decoded = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -166,14 +185,17 @@ static int ett_lte_rrc = -1;
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
 static gint ett_lte_rrc_featureGroupIndRel10 = -1;
-static gint ett_lte_rrc_neighCellConfig = -1;
 static gint ett_lte_rrc_absTimeInfo = -1;
 static gint ett_lte_rrc_nas_SecurityParam = -1;
 static gint ett_lte_rrc_targetRAT_MessageContainer = -1;
 static gint ett_lte_rrc_siPsiSibContainer = -1;
 static gint ett_lte_rrc_dedicatedInfoNAS = -1;
-static gint ett_lte_rrc_daylightSavingTime = -1;
 static gint ett_lte_rrc_timeInfo = -1;
+static gint ett_lte_rrc_serialNumber = -1;
+static gint ett_lte_rrc_warningType = -1;
+static gint ett_lte_rrc_warningSecurityInfo = -1;
+static gint ett_lte_rrc_dataCodingScheme = -1;
+static gint ett_lte_rrc_warningMessageSegment = -1;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -1697,6 +1719,62 @@ static const value_string lte_rrc_neighCellConfig_vals[] = {
   { 0, NULL},
 };
 
+static const value_string lte_rrc_messageIdentifier_vals[] = {
+  { 0x1100, "ETWS Identifier for earthquake warning message"},
+  { 0x1101, "ETWS Identifier for tsunami warning message"},
+  { 0x1102, "ETWS Identifier for earthquake and tsunami combined warning message"},
+  { 0x1103, "ETWS Identifier for test message"},
+  { 0x1104, "ETWS Identifier for messages related to other emergency types"},
+  { 0x1105, "ETWS Identifier for future extension"},
+  { 0x1106, "ETWS Identifier for future extension"},
+  { 0x1107, "ETWS Identifier for future extension"},
+  { 0x1112, "CMAS Identifier for CMAS Presidential Level Alerts"},
+  { 0x1113, "CMAS Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Observed"},
+  { 0x1114, "CMAS Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Likely"},
+  { 0x1115, "CMAS Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Observed"},
+  { 0x1116, "CMAS Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Likely"},
+  { 0x1117, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Observed"},
+  { 0x1118, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Likely"},
+  { 0x1119, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Observed"},
+  { 0x111a, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Likely"},
+  { 0x111b, "CMAS Identifier for Child Abduction Emergency (or Amber Alert)"},
+  { 0x111c, "CMAS Identifier for the Required Monthly Test"},
+  { 0x111d, "CMAS Identifier for CMAS Exercise"},
+  { 0x111e, "CMAS Identifier for operator defined use"},
+  { 0x111f, "CMAS Identifier for CMAS Presidential Level Alerts for additional languages"},
+  { 0x1120, "CMAS Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Observed for additional languages"},
+  { 0x1121, "CMAS Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Likely for additional languages"},
+  { 0x1122, "CMAS Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Observed for additional languages"},
+  { 0x1123, "CMAS Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Likely for additional languages"},
+  { 0x1124, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Observed for additional languages"},
+  { 0x1125, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Likely for additional languages"},
+  { 0x1126, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Observed for additional languages"},
+  { 0x1127, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Likely for additional languages"},
+  { 0x1128, "CMAS Identifier for Child Abduction Emergency (or Amber Alert) for additional languages"},
+  { 0x1129, "CMAS Identifier for the Required Monthly Test for additional languages"},
+  { 0x112a, "CMAS Identifier for CMAS Exercise for additional languages"},
+  { 0x112b, "CMAS Identifier for operator defined use for additional languages"},
+  {      0, NULL},
+};
+static value_string_ext lte_rrc_messageIdentifier_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_messageIdentifier_vals);
+
+static const value_string lte_rrc_serialNumber_gs_vals[] = {
+  { 0, "Display mode immediate, cell wide"},
+  { 1, "Display mode normal, PLMN wide"},
+  { 2, "Display mode normal, tracking area wide"},
+  { 3, "Display mode normal, cell wide"},
+  { 0, NULL},
+};
+
+static const value_string lte_rrc_warningType_vals[] = {
+  { 0, "Earthquake"},
+  { 1, "Tsunami"},
+  { 2, "Earthquake and Tsunami"},
+  { 3, "Test"},
+  { 4, "Other"},
+  { 0, NULL},
+};
+
 static void
 lte_rrc_localTimeOffset_fmt(gchar *s, guint32 v)
 {
@@ -2230,6 +2308,66 @@ void proto_register_lte_rrc(void) {
       { "Indicator 132", "lte-rrc.eutra_cap_feat_group_ind_132",
         FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_132_val), 0,
         "EUTRA Feature Group Indicator 132", HFILL }},
+    { &hf_lte_rrc_serialNumber_gs,
+      { "Geographical Scope", "lte-rrc.serialNumber.gs",
+        FT_UINT16, BASE_DEC, VALS(lte_rrc_serialNumber_gs_vals), 0xc000,
+        NULL, HFILL }},
+    { &hf_lte_rrc_serialNumber_msg_code,
+      { "Message Code", "lte-rrc.serialNumber.msg_code",
+        FT_UINT16, BASE_DEC, NULL, 0x3ff0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_serialNumber_upd_nb,
+      { "Update Number", "lte-rrc.serialNumber.upd_nb",
+        FT_UINT16, BASE_DEC, NULL, 0x000f,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningType_value,
+      { "Warning Type Value", "lte-rrc.warningType.value",
+        FT_UINT16, BASE_DEC, VALS(lte_rrc_warningType_vals), 0xfe00,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningType_emergency_user_alert,
+      { "Emergency User Alert", "lte-rrc.warningType.emergency_user_alert",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningType_popup,
+      { "Popup", "lte-rrc.warningType.popup",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0080,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_yr,
+      { "Year", "lte-rrc.warningSecurityInfo.yr",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_mo,
+      { "Month", "lte-rrc.warningSecurityInfo.mo",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_day,
+      { "Day", "lte-rrc.warningSecurityInfo.day",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_hr,
+      { "Hours", "lte-rrc.warningSecurityInfo.hr",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_min,
+      { "Minutes", "lte-rrc.warningSecurityInfo.min",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_sec,
+      { "Seconds", "lte-rrc.warningSecurityInfo.sec",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_tz,
+      { "Time Zone", "lte-rrc.warningSecurityInfo.tz",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_digital_signature,
+      { "Digital Signature", "lte-rrc.warningSecurityInfo.digital_signature",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningMessageSegment_decoded,
+      { "Decoded Segment", "lte-rrc.warningMessageSegment.decoded",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
   };
 
   /* List of subtrees */
@@ -2240,14 +2378,17 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
     &ett_lte_rrc_featureGroupIndRel10,
-    &ett_lte_rrc_neighCellConfig,
     &ett_lte_rrc_absTimeInfo,
     &ett_lte_rrc_nas_SecurityParam,
     &ett_lte_rrc_targetRAT_MessageContainer,
     &ett_lte_rrc_siPsiSibContainer,
     &ett_lte_rrc_dedicatedInfoNAS,
-    &ett_lte_rrc_daylightSavingTime,
-    &ett_lte_rrc_timeInfo
+    &ett_lte_rrc_timeInfo,
+    &ett_lte_rrc_serialNumber,
+    &ett_lte_rrc_warningType,
+    &ett_lte_rrc_warningSecurityInfo,
+    &ett_lte_rrc_dataCodingScheme,
+    &ett_lte_rrc_warningMessageSegment
   };
 
 

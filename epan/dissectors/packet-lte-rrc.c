@@ -47,6 +47,8 @@
 #include "packet-rrc.h"
 #include "packet-gsm_a_common.h"
 #include "packet-lpp.h"
+#include "packet-gsm_map.h"
+#include "packet-cell_broadcast.h"
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
 #define PSNAME "LTE RRC"
@@ -60,6 +62,8 @@ static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
 static guint32 lte_rrc_rat_type_value = -1;
 static guint32 lte_rrc_ho_target_rat_type_value = -1;
 static gint lte_rrc_si_or_psi_geran_val = -1;
+static guint8 lte_rrc_etws_dataCodingScheme = SMS_ENCODING_NOT_SET;
+static guint8 lte_rrc_cmas_dataCodingScheme = SMS_ENCODING_NOT_SET;
 
 /* Include constants */
 
@@ -153,7 +157,7 @@ typedef enum _RAT_Type_enum {
 } RAT_Type_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 58 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 62 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -1017,20 +1021,22 @@ static int hf_lte_rrc_ac_BarringConfig1XRTT_r11 = -1;  /* AC_BarringConfig1XRTT_
 static int hf_lte_rrc_csfb_SupportForDualRxUEs_r11 = -1;  /* BOOLEAN */
 static int hf_lte_rrc_csfb_DualRxTxSupport_r11 = -1;  /* T_csfb_DualRxTxSupport_r11 */
 static int hf_lte_rrc_hnb_Name = -1;              /* T_hnb_Name */
-static int hf_lte_rrc_messageIdentifier = -1;     /* BIT_STRING_SIZE_16 */
-static int hf_lte_rrc_serialNumber = -1;          /* BIT_STRING_SIZE_16 */
-static int hf_lte_rrc_warningType = -1;           /* OCTET_STRING_SIZE_2 */
-static int hf_lte_rrc_warningSecurityInfo = -1;   /* OCTET_STRING_SIZE_50 */
+static int hf_lte_rrc_messageIdentifier = -1;     /* T_messageIdentifier */
+static int hf_lte_rrc_serialNumber = -1;          /* T_serialNumber */
+static int hf_lte_rrc_warningType = -1;           /* T_warningType */
+static int hf_lte_rrc_warningSecurityInfo = -1;   /* T_warningSecurityInfo */
+static int hf_lte_rrc_messageIdentifier_01 = -1;  /* T_messageIdentifier_01 */
+static int hf_lte_rrc_serialNumber_01 = -1;       /* T_serialNumber_01 */
 static int hf_lte_rrc_warningMessageSegmentType = -1;  /* T_warningMessageSegmentType */
 static int hf_lte_rrc_warningMessageSegmentNumber = -1;  /* INTEGER_0_63 */
-static int hf_lte_rrc_warningMessageSegment = -1;  /* OCTET_STRING */
-static int hf_lte_rrc_dataCodingScheme = -1;      /* OCTET_STRING_SIZE_1 */
-static int hf_lte_rrc_messageIdentifier_r9 = -1;  /* BIT_STRING_SIZE_16 */
-static int hf_lte_rrc_serialNumber_r9 = -1;       /* BIT_STRING_SIZE_16 */
+static int hf_lte_rrc_warningMessageSegment = -1;  /* T_warningMessageSegment */
+static int hf_lte_rrc_dataCodingScheme = -1;      /* T_dataCodingScheme */
+static int hf_lte_rrc_messageIdentifier_r9 = -1;  /* T_messageIdentifier_r9 */
+static int hf_lte_rrc_serialNumber_r9 = -1;       /* T_serialNumber_r9 */
 static int hf_lte_rrc_warningMessageSegmentType_r9 = -1;  /* T_warningMessageSegmentType_r9 */
 static int hf_lte_rrc_warningMessageSegmentNumber_r9 = -1;  /* INTEGER_0_63 */
-static int hf_lte_rrc_warningMessageSegment_r9 = -1;  /* OCTET_STRING */
-static int hf_lte_rrc_dataCodingScheme_r9 = -1;   /* OCTET_STRING_SIZE_1 */
+static int hf_lte_rrc_warningMessageSegment_r9 = -1;  /* T_warningMessageSegment_r9 */
+static int hf_lte_rrc_dataCodingScheme_r9 = -1;   /* T_dataCodingScheme_r9 */
 static int hf_lte_rrc_mbsfn_AreaInfoList_r9 = -1;  /* MBSFN_AreaInfoList_r9 */
 static int hf_lte_rrc_notificationConfig_r9 = -1;  /* MBMS_NotificationConfig_r9 */
 static int hf_lte_rrc_eab_Param_r11 = -1;         /* T_eab_Param_r11 */
@@ -2227,7 +2233,7 @@ static int hf_lte_rrc_CandidateCellInfoList_r10_item = -1;  /* CandidateCellInfo
 static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */ 
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 63 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 67 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -2325,6 +2331,21 @@ static int hf_lte_rrc_eutra_cap_feat_group_ind_129 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_130 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_131 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_132 = -1;
+static int hf_lte_rrc_serialNumber_gs = -1;
+static int hf_lte_rrc_serialNumber_msg_code = -1;
+static int hf_lte_rrc_serialNumber_upd_nb = -1;
+static int hf_lte_rrc_warningType_value = -1;
+static int hf_lte_rrc_warningType_emergency_user_alert = -1;
+static int hf_lte_rrc_warningType_popup = -1;
+static int hf_lte_rrc_warningSecurityInfo_yr = -1;
+static int hf_lte_rrc_warningSecurityInfo_mo = -1;
+static int hf_lte_rrc_warningSecurityInfo_day = -1;
+static int hf_lte_rrc_warningSecurityInfo_hr = -1;
+static int hf_lte_rrc_warningSecurityInfo_min = -1;
+static int hf_lte_rrc_warningSecurityInfo_sec = -1;
+static int hf_lte_rrc_warningSecurityInfo_tz = -1;
+static int hf_lte_rrc_warningSecurityInfo_digital_signature = -1;
+static int hf_lte_rrc_warningMessageSegment_decoded = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -3369,19 +3390,22 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 165 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 184 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
 static gint ett_lte_rrc_featureGroupIndRel10 = -1;
-static gint ett_lte_rrc_neighCellConfig = -1;
 static gint ett_lte_rrc_absTimeInfo = -1;
 static gint ett_lte_rrc_nas_SecurityParam = -1;
 static gint ett_lte_rrc_targetRAT_MessageContainer = -1;
 static gint ett_lte_rrc_siPsiSibContainer = -1;
 static gint ett_lte_rrc_dedicatedInfoNAS = -1;
-static gint ett_lte_rrc_daylightSavingTime = -1;
 static gint ett_lte_rrc_timeInfo = -1;
+static gint ett_lte_rrc_serialNumber = -1;
+static gint ett_lte_rrc_warningType = -1;
+static gint ett_lte_rrc_warningSecurityInfo = -1;
+static gint ett_lte_rrc_dataCodingScheme = -1;
+static gint ett_lte_rrc_warningMessageSegment = -1;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -4902,6 +4926,62 @@ static const value_string lte_rrc_neighCellConfig_vals[] = {
   { 1, "No MBSFN subframes are present in all neighbour cells"},
   { 2, "The MBSFN subframe allocations of all neighbour cells are identical to or subsets of that in the serving cell"},
   { 3, "Different UL/DL allocation in neighbouring cells for TDD compared to the serving cell"},
+  { 0, NULL},
+};
+
+static const value_string lte_rrc_messageIdentifier_vals[] = {
+  { 0x1100, "ETWS Identifier for earthquake warning message"},
+  { 0x1101, "ETWS Identifier for tsunami warning message"},
+  { 0x1102, "ETWS Identifier for earthquake and tsunami combined warning message"},
+  { 0x1103, "ETWS Identifier for test message"},
+  { 0x1104, "ETWS Identifier for messages related to other emergency types"},
+  { 0x1105, "ETWS Identifier for future extension"},
+  { 0x1106, "ETWS Identifier for future extension"},
+  { 0x1107, "ETWS Identifier for future extension"},
+  { 0x1112, "CMAS Identifier for CMAS Presidential Level Alerts"},
+  { 0x1113, "CMAS Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Observed"},
+  { 0x1114, "CMAS Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Likely"},
+  { 0x1115, "CMAS Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Observed"},
+  { 0x1116, "CMAS Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Likely"},
+  { 0x1117, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Observed"},
+  { 0x1118, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Likely"},
+  { 0x1119, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Observed"},
+  { 0x111a, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Likely"},
+  { 0x111b, "CMAS Identifier for Child Abduction Emergency (or Amber Alert)"},
+  { 0x111c, "CMAS Identifier for the Required Monthly Test"},
+  { 0x111d, "CMAS Identifier for CMAS Exercise"},
+  { 0x111e, "CMAS Identifier for operator defined use"},
+  { 0x111f, "CMAS Identifier for CMAS Presidential Level Alerts for additional languages"},
+  { 0x1120, "CMAS Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Observed for additional languages"},
+  { 0x1121, "CMAS Identifier for CMAS Extreme Alerts with Severity of Extreme, Urgency of Immediate, and Certainty of Likely for additional languages"},
+  { 0x1122, "CMAS Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Observed for additional languages"},
+  { 0x1123, "CMAS Identifier for CMAS Severe Alerts with Severity of Extreme, Urgency of Expected, and Certainty of Likely for additional languages"},
+  { 0x1124, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Observed for additional languages"},
+  { 0x1125, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Immediate, and Certainty of Likely for additional languages"},
+  { 0x1126, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Observed for additional languages"},
+  { 0x1127, "CMAS Identifier for CMAS Severe Alerts with Severity of Severe, Urgency of Expected, and Certainty of Likely for additional languages"},
+  { 0x1128, "CMAS Identifier for Child Abduction Emergency (or Amber Alert) for additional languages"},
+  { 0x1129, "CMAS Identifier for the Required Monthly Test for additional languages"},
+  { 0x112a, "CMAS Identifier for CMAS Exercise for additional languages"},
+  { 0x112b, "CMAS Identifier for operator defined use for additional languages"},
+  {      0, NULL},
+};
+static value_string_ext lte_rrc_messageIdentifier_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_messageIdentifier_vals);
+
+static const value_string lte_rrc_serialNumber_gs_vals[] = {
+  { 0, "Display mode immediate, cell wide"},
+  { 1, "Display mode normal, PLMN wide"},
+  { 2, "Display mode normal, tracking area wide"},
+  { 3, "Display mode normal, cell wide"},
+  { 0, NULL},
+};
+
+static const value_string lte_rrc_warningType_vals[] = {
+  { 0, "Earthquake"},
+  { 1, "Tsunami"},
+  { 2, "Earthquake and Tsunami"},
+  { 3, "Test"},
+  { 4, "Other"},
   { 0, NULL},
 };
 
@@ -6870,18 +6950,13 @@ dissect_lte_rrc_PresenceAntennaPort1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_lte_rrc_NeighCellConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *neigh_cell_config_tvb = NULL;
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      2, 2, FALSE, &neigh_cell_config_tvb);
 
 
 
   if (neigh_cell_config_tvb) {
-    guint8 bits;
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_neighCellConfig);
-    bits = tvb_get_bits8(neigh_cell_config_tvb, 0, 2);
-    proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "%s",
-                        val_to_str_const(bits, lte_rrc_neighCellConfig_vals, "Unknown"));
+    actx->created_item = proto_tree_add_uint(tree, hf_index, neigh_cell_config_tvb, 0, 1, tvb_get_bits8(neigh_cell_config_tvb, 0, 2));
   }
 
   return offset;
@@ -8585,9 +8660,16 @@ dissect_lte_rrc_SystemInformationBlockType9(tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lte_rrc_OCTET_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       2, 2, FALSE, NULL);
+dissect_lte_rrc_T_messageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *msg_id_tvb = NULL;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
+                                     16, 16, FALSE, &msg_id_tvb);
+
+
+
+  if (msg_id_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
 
   return offset;
 }
@@ -8595,19 +8677,91 @@ dissect_lte_rrc_OCTET_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static int
-dissect_lte_rrc_OCTET_STRING_SIZE_50(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_serialNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *serial_nb_tvb = NULL;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     16, 16, FALSE, &serial_nb_tvb);
+
+
+
+  if (serial_nb_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_upd_nb, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_warningType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *warning_type_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       50, 50, FALSE, NULL);
+                                       2, 2, FALSE, &warning_type_tvb);
+
+
+
+  if (warning_type_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningType);
+    proto_tree_add_item(subtree, hf_lte_rrc_warningType_value, warning_type_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_warningType_emergency_user_alert, warning_type_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_warningType_popup, warning_type_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_warningSecurityInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *warning_sec_info_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       50, 50, FALSE, &warning_sec_info_tvb);
+
+
+
+  if (warning_sec_info_tvb) {
+    guint8 oct, tz;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningSecurityInfo);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 0);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_yr, warning_sec_info_tvb, 0, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 1);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_mo, warning_sec_info_tvb, 1, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 2);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_day, warning_sec_info_tvb, 2, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 3);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_hr, warning_sec_info_tvb, 3, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 4);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_min, warning_sec_info_tvb, 4, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 5);
+    proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_sec, warning_sec_info_tvb, 5, 1, oct, "%u (0x%02x)", 10*(oct&0x0f)+(oct>>4), oct);
+    oct = tvb_get_guint8(warning_sec_info_tvb, 6);
+    if (oct == 0xff) {
+      proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_tz, warning_sec_info_tvb, 6, 1, oct, "Unknown (0x%02x)", oct);
+    } else {
+      tz = (oct >> 4) + (oct & 0x07) * 10;
+      proto_tree_add_uint_format_value(subtree, hf_lte_rrc_warningSecurityInfo_tz, warning_sec_info_tvb, 6, 1, oct, "GMT %c %d hr %d min (0x%02x)",
+      (oct & 0x08)?'-':'+', tz/4, (tz%4)*15, oct);
+    }
+    proto_tree_add_item(subtree, hf_lte_rrc_warningSecurityInfo_digital_signature, warning_sec_info_tvb, 7, 43, ENC_NA);
+  }
 
   return offset;
 }
 
 
 static const per_sequence_t SystemInformationBlockType10_sequence[] = {
-  { &hf_lte_rrc_messageIdentifier, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_16 },
-  { &hf_lte_rrc_serialNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_16 },
-  { &hf_lte_rrc_warningType , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_OCTET_STRING_SIZE_2 },
-  { &hf_lte_rrc_warningSecurityInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING_SIZE_50 },
+  { &hf_lte_rrc_messageIdentifier, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_messageIdentifier },
+  { &hf_lte_rrc_serialNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_serialNumber },
+  { &hf_lte_rrc_warningType , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_warningType },
+  { &hf_lte_rrc_warningSecurityInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_warningSecurityInfo },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
   { NULL, 0, 0, NULL }
 };
@@ -8616,6 +8770,44 @@ static int
 dissect_lte_rrc_SystemInformationBlockType10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType10, SystemInformationBlockType10_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_messageIdentifier_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *msg_id_tvb = NULL;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
+                                     16, 16, FALSE, &msg_id_tvb);
+
+
+
+  if (msg_id_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_serialNumber_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *serial_nb_tvb = NULL;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     16, 16, FALSE, &serial_nb_tvb);
+
+
+
+  if (serial_nb_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_upd_nb, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
 
   return offset;
 }
@@ -8639,21 +8831,54 @@ dissect_lte_rrc_T_warningMessageSegmentType(tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lte_rrc_OCTET_STRING_SIZE_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_warningMessageSegment(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *warning_msg_seg_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 1, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, FALSE, &warning_msg_seg_tvb);
+
+
+
+  if (warning_msg_seg_tvb && (lte_rrc_etws_dataCodingScheme != SMS_ENCODING_NOT_SET)) {
+    proto_tree *subtree;
+    tvbuff_t *cb_data_tvb;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
+    cb_data_tvb = dissect_cbs_data(lte_rrc_etws_dataCodingScheme, warning_msg_seg_tvb, subtree, actx->pinfo, 0);
+    if (cb_data_tvb) {
+      proto_tree_add_unicode_string(subtree, hf_lte_rrc_warningMessageSegment_decoded, cb_data_tvb, 0, -1,
+                                    tvb_get_ephemeral_string_enc(cb_data_tvb, 0, tvb_length(cb_data_tvb), ENC_UTF_8 | ENC_NA));
+    }
+  }
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_dataCodingScheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *data_coding_scheme_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 1, FALSE, &data_coding_scheme_tvb);
+
+
+
+  if (data_coding_scheme_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
+    lte_rrc_etws_dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
+  }
 
   return offset;
 }
 
 
 static const per_sequence_t SystemInformationBlockType11_sequence[] = {
-  { &hf_lte_rrc_messageIdentifier, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_16 },
-  { &hf_lte_rrc_serialNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_16 },
+  { &hf_lte_rrc_messageIdentifier_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_messageIdentifier_01 },
+  { &hf_lte_rrc_serialNumber_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_serialNumber_01 },
   { &hf_lte_rrc_warningMessageSegmentType, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_warningMessageSegmentType },
   { &hf_lte_rrc_warningMessageSegmentNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_63 },
-  { &hf_lte_rrc_warningMessageSegment, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_dataCodingScheme, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING_SIZE_1 },
+  { &hf_lte_rrc_warningMessageSegment, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_warningMessageSegment },
+  { &hf_lte_rrc_dataCodingScheme, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_dataCodingScheme },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
   { NULL, 0, 0, NULL }
 };
@@ -8662,6 +8887,44 @@ static int
 dissect_lte_rrc_SystemInformationBlockType11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SystemInformationBlockType11, SystemInformationBlockType11_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_messageIdentifier_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *msg_id_tvb = NULL;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
+                                     16, 16, FALSE, &msg_id_tvb);
+
+
+
+  if (msg_id_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_serialNumber_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *serial_nb_tvb = NULL;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     16, 16, FALSE, &serial_nb_tvb);
+
+
+
+  if (serial_nb_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_upd_nb, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
 
   return offset;
 }
@@ -8683,13 +8946,56 @@ dissect_lte_rrc_T_warningMessageSegmentType_r9(tvbuff_t *tvb _U_, int offset _U_
 }
 
 
+
+static int
+dissect_lte_rrc_T_warningMessageSegment_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *warning_msg_seg_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &warning_msg_seg_tvb);
+
+
+
+  if (warning_msg_seg_tvb && (lte_rrc_cmas_dataCodingScheme != SMS_ENCODING_NOT_SET)) {
+    proto_tree *subtree;
+    tvbuff_t *cb_data_tvb;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
+    cb_data_tvb = dissect_cbs_data(lte_rrc_cmas_dataCodingScheme, warning_msg_seg_tvb, subtree, actx->pinfo, 0);
+    if (cb_data_tvb) {
+      proto_tree_add_unicode_string(subtree, hf_lte_rrc_warningMessageSegment_decoded, cb_data_tvb, 0, -1,
+                                    tvb_get_ephemeral_string_enc(cb_data_tvb, 0, tvb_length(cb_data_tvb), ENC_UTF_8 | ENC_NA));
+    }
+  }
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_dataCodingScheme_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *data_coding_scheme_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 1, FALSE, &data_coding_scheme_tvb);
+
+
+
+  if (data_coding_scheme_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
+    lte_rrc_cmas_dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
+  }
+
+  return offset;
+}
+
+
 static const per_sequence_t SystemInformationBlockType12_r9_sequence[] = {
-  { &hf_lte_rrc_messageIdentifier_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_16 },
-  { &hf_lte_rrc_serialNumber_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_BIT_STRING_SIZE_16 },
+  { &hf_lte_rrc_messageIdentifier_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_messageIdentifier_r9 },
+  { &hf_lte_rrc_serialNumber_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_serialNumber_r9 },
   { &hf_lte_rrc_warningMessageSegmentType_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_warningMessageSegmentType_r9 },
   { &hf_lte_rrc_warningMessageSegmentNumber_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_63 },
-  { &hf_lte_rrc_warningMessageSegment_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_dataCodingScheme_r9, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING_SIZE_1 },
+  { &hf_lte_rrc_warningMessageSegment_r9, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_warningMessageSegment_r9 },
+  { &hf_lte_rrc_dataCodingScheme_r9, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_dataCodingScheme_r9 },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
   { NULL, 0, 0, NULL }
 };
@@ -9131,18 +9437,13 @@ dissect_lte_rrc_T_timeInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_lte_rrc_T_dayLightSavingTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *daylight_saving_time_tvb = NULL;
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      2, 2, FALSE, &daylight_saving_time_tvb);
 
 
 
   if (daylight_saving_time_tvb) {
-    guint8 bits;
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_daylightSavingTime);
-    bits = tvb_get_bits8(daylight_saving_time_tvb, 0, 2);
-    proto_tree_add_text(subtree, daylight_saving_time_tvb, 0, 1, "%s",
-                        val_to_str_const(bits, lte_rrc_daylightSavingTime_vals, "Unknown"));
+    actx->created_item = proto_tree_add_uint(tree, hf_index, daylight_saving_time_tvb, 0, 1, tvb_get_bits8(daylight_saving_time_tvb, 0, 2));
   }
 
   return offset;
@@ -10098,6 +10399,16 @@ static int
 dissect_lte_rrc_TMGI_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_TMGI_r9, TMGI_r9_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_OCTET_STRING_SIZE_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 1, FALSE, NULL);
 
   return offset;
 }
@@ -23136,6 +23447,16 @@ dissect_lte_rrc_TraceReference_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 
 static int
+dissect_lte_rrc_OCTET_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       2, 2, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_lte_rrc_AbsoluteTimeInfo_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *abs_time_info_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -32921,7 +33242,7 @@ static int dissect_MBMSInterestIndication_r11_PDU(tvbuff_t *tvb _U_, packet_info
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 1711 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1789 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -35991,7 +36312,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_neighCellConfig,
       { "neighCellConfig", "lte-rrc.neighCellConfig",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT8, BASE_DEC, VALS(lte_rrc_neighCellConfig_vals), 0,
         NULL, HFILL }},
     { &hf_lte_rrc_t_ReselectionEUTRA,
       { "t-ReselectionEUTRA", "lte-rrc.t_ReselectionEUTRA",
@@ -36487,20 +36808,28 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_messageIdentifier,
       { "messageIdentifier", "lte-rrc.messageIdentifier",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_16", HFILL }},
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &lte_rrc_messageIdentifier_vals_ext, 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_serialNumber,
       { "serialNumber", "lte-rrc.serialNumber",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_16", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_warningType,
       { "warningType", "lte-rrc.warningType",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_2", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_warningSecurityInfo,
       { "warningSecurityInfo", "lte-rrc.warningSecurityInfo",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_50", HFILL }},
+        NULL, HFILL }},
+    { &hf_lte_rrc_messageIdentifier_01,
+      { "messageIdentifier", "lte-rrc.messageIdentifier",
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &lte_rrc_messageIdentifier_vals_ext, 0,
+        "T_messageIdentifier_01", HFILL }},
+    { &hf_lte_rrc_serialNumber_01,
+      { "serialNumber", "lte-rrc.serialNumber",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_serialNumber_01", HFILL }},
     { &hf_lte_rrc_warningMessageSegmentType,
       { "warningMessageSegmentType", "lte-rrc.warningMessageSegmentType",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_warningMessageSegmentType_vals), 0,
@@ -36512,19 +36841,19 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_warningMessageSegment,
       { "warningMessageSegment", "lte-rrc.warningMessageSegment",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_dataCodingScheme,
       { "dataCodingScheme", "lte-rrc.dataCodingScheme",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_1", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_messageIdentifier_r9,
       { "messageIdentifier-r9", "lte-rrc.messageIdentifier_r9",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_16", HFILL }},
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &lte_rrc_messageIdentifier_vals_ext, 0,
+        NULL, HFILL }},
     { &hf_lte_rrc_serialNumber_r9,
       { "serialNumber-r9", "lte-rrc.serialNumber_r9",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_16", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_warningMessageSegmentType_r9,
       { "warningMessageSegmentType-r9", "lte-rrc.warningMessageSegmentType_r9",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_warningMessageSegmentType_r9_vals), 0,
@@ -36536,11 +36865,11 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_warningMessageSegment_r9,
       { "warningMessageSegment-r9", "lte-rrc.warningMessageSegment_r9",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        "T_warningMessageSegment_r9", HFILL }},
     { &hf_lte_rrc_dataCodingScheme_r9,
       { "dataCodingScheme-r9", "lte-rrc.dataCodingScheme_r9",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_1", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_mbsfn_AreaInfoList_r9,
       { "mbsfn-AreaInfoList-r9", "lte-rrc.mbsfn_AreaInfoList_r9",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -36611,7 +36940,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_dayLightSavingTime,
       { "dayLightSavingTime", "lte-rrc.dayLightSavingTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT8, BASE_DEC, VALS(lte_rrc_daylightSavingTime_vals), 0,
         NULL, HFILL }},
     { &hf_lte_rrc_leapSeconds,
       { "leapSeconds", "lte-rrc.leapSeconds",
@@ -41315,7 +41644,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 1848 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1926 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -41701,6 +42030,66 @@ void proto_register_lte_rrc(void) {
       { "Indicator 132", "lte-rrc.eutra_cap_feat_group_ind_132",
         FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_132_val), 0,
         "EUTRA Feature Group Indicator 132", HFILL }},
+    { &hf_lte_rrc_serialNumber_gs,
+      { "Geographical Scope", "lte-rrc.serialNumber.gs",
+        FT_UINT16, BASE_DEC, VALS(lte_rrc_serialNumber_gs_vals), 0xc000,
+        NULL, HFILL }},
+    { &hf_lte_rrc_serialNumber_msg_code,
+      { "Message Code", "lte-rrc.serialNumber.msg_code",
+        FT_UINT16, BASE_DEC, NULL, 0x3ff0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_serialNumber_upd_nb,
+      { "Update Number", "lte-rrc.serialNumber.upd_nb",
+        FT_UINT16, BASE_DEC, NULL, 0x000f,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningType_value,
+      { "Warning Type Value", "lte-rrc.warningType.value",
+        FT_UINT16, BASE_DEC, VALS(lte_rrc_warningType_vals), 0xfe00,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningType_emergency_user_alert,
+      { "Emergency User Alert", "lte-rrc.warningType.emergency_user_alert",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningType_popup,
+      { "Popup", "lte-rrc.warningType.popup",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0080,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_yr,
+      { "Year", "lte-rrc.warningSecurityInfo.yr",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_mo,
+      { "Month", "lte-rrc.warningSecurityInfo.mo",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_day,
+      { "Day", "lte-rrc.warningSecurityInfo.day",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_hr,
+      { "Hours", "lte-rrc.warningSecurityInfo.hr",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_min,
+      { "Minutes", "lte-rrc.warningSecurityInfo.min",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_sec,
+      { "Seconds", "lte-rrc.warningSecurityInfo.sec",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_tz,
+      { "Time Zone", "lte-rrc.warningSecurityInfo.tz",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningSecurityInfo_digital_signature,
+      { "Digital Signature", "lte-rrc.warningSecurityInfo.digital_signature",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningMessageSegment_decoded,
+      { "Decoded Segment", "lte-rrc.warningMessageSegment.decoded",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
   };
 
   /* List of subtrees */
@@ -42746,19 +43135,22 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2239 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2377 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
     &ett_lte_rrc_featureGroupIndRel10,
-    &ett_lte_rrc_neighCellConfig,
     &ett_lte_rrc_absTimeInfo,
     &ett_lte_rrc_nas_SecurityParam,
     &ett_lte_rrc_targetRAT_MessageContainer,
     &ett_lte_rrc_siPsiSibContainer,
     &ett_lte_rrc_dedicatedInfoNAS,
-    &ett_lte_rrc_daylightSavingTime,
-    &ett_lte_rrc_timeInfo
+    &ett_lte_rrc_timeInfo,
+    &ett_lte_rrc_serialNumber,
+    &ett_lte_rrc_warningType,
+    &ett_lte_rrc_warningSecurityInfo,
+    &ett_lte_rrc_dataCodingScheme,
+    &ett_lte_rrc_warningMessageSegment
   };
 
 
@@ -42796,7 +43188,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2273 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2414 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 }
 

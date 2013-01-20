@@ -249,7 +249,7 @@ guint16 dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint16 
    return 2;
 }
 
-static tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 offset )
+tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 offset )
 {
    tvbuff_t * tvb_out = NULL;
    guint8		out_len;
