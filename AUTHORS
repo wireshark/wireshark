@@ -3489,6 +3489,10 @@ Kaushal Shah		<kshah3[AT]ncsu.edu> {
     and Reserved sub-TLVs as per Section 6 of RFC3630
 }
 
+Subramanian Ramachandran <sramach6[AT]ncsu.edu> {
+    Support for BFD for MPLS LSP's as per RFC 5884
+}
+
 and by:
 
 Pavel Roskin		<proski[AT]gnu.org>

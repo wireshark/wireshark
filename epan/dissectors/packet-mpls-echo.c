@@ -14,6 +14,8 @@
  *                     - Support for LSP Ping extensions as per RFC 6426
  *                     Mayuresh Raut    <msraut@ncsu.edu>
  *                     - Support for LSP ping over MPLS as per RFC 6424
+ * (c) Copyright 2012, Subramanian Ramachandran <sramach6@ncsu.edu>
+ *                     - Support for BFD for MPLS as per RFC 5884
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -206,6 +208,7 @@ static int hf_mpls_echo_tlv_responder_indent_type = -1;
 static int hf_mpls_echo_tlv_responder_indent_len = -1;
 static int hf_mpls_echo_tlv_responder_indent_ipv4 = -1;
 static int hf_mpls_echo_tlv_responder_indent_ipv6 = -1;
+static int hf_mpls_echo_tlv_bfd = -1;
 
 static gint ett_mpls_echo = -1;
 static gint ett_mpls_echo_gflags = -1;
@@ -277,6 +280,8 @@ static value_string_ext mpls_echo_returncode_ext = VALUE_STRING_EXT_INIT(mpls_ec
 /* As per RFC 6426 http://tools.ietf.org/html/rfc6426 Section: 2.2.1 */
 #define TLV_SRC_IDENTIFIER         0x000D
 #define TLV_DST_IDENTIFIER         0x000E
+/* As per RFC 5884 http://tools.ietf.org/html/rfc5884 Section: 6.1 */
+#define TLV_BFD_DISCRIMINATOR      0x000F
 /* As per RFC 6426 http://tools.ietf.org/html/rfc6426 Section: 7.3 */
 #define TLV_REVERSE_PATH_FEC_STACK 0x0010
 #define TLV_DETAILED_DOWNSTREAM    0x0014 /* [RFC6424] */
@@ -303,6 +308,7 @@ static const value_string mpls_echo_tlv_type_names[] = {
     { TLV_P2MP_ECHO_JITTER,          "P2MP Echo Jitter" },
     { TLV_SRC_IDENTIFIER,            "Source Identifier TLV" },
     { TLV_DST_IDENTIFIER,            "Destination Identifier TLV" },
+    { TLV_BFD_DISCRIMINATOR,         "BFD Discriminator TLV" },
     { TLV_REVERSE_PATH_FEC_STACK,    "Reverse-path Target FEC Stack" },
     { TLV_DETAILED_DOWNSTREAM,       "Detailed Downstream Mapping"},
     { TLV_VENDOR_PRIVATE_START,      "Vendor Private" },
@@ -1633,6 +1639,10 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_lspping_tlv_src_addr_nid,
                             tvb, (offset + 8), 4, ENC_BIG_ENDIAN);
         break;
+    case TLV_BFD_DISCRIMINATOR:
+        proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_bfd,
+                            tvb, (offset + 4), 4, ENC_BIG_ENDIAN);
+        break;
     case TLV_REVERSE_PATH_FEC_STACK:
         dissect_mpls_echo_tlv_fec (tvb, pinfo, (offset + 4), mpls_echo_tlv_tree, length);
         break ;
@@ -2413,6 +2423,10 @@ proto_register_mpls_echo(void)
         { &hf_mpls_echo_tlv_echo_jitter,
           { "Echo Jitter time", "mpls_echo.tlv.echo_jitter",
             FT_UINT32, BASE_DEC, NULL, 0x0, "MPLS ECHO Jitter time", HFILL}
+        },
+        { &hf_mpls_echo_tlv_bfd,
+          { "BFD Discriminator", "mpls_echo.bfd_discriminator",
+            FT_UINT32, BASE_HEX, NULL, 0x0, "MPLS ECHO BFD Discriminator", HFILL}
         },
     };
 
