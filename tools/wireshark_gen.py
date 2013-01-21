@@ -1908,7 +1908,9 @@ class wireshark_gen_C:
     template_helper_function_start = """\
 static void
 decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{"""
+{
+    (void)item; /* Avoid coverity param_set_but_unused parse warning */
+"""
 
     template_helper_function_end = """\
 }
@@ -2548,6 +2550,7 @@ decode_ex_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
 static void
 decode_@sname@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
+    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 """
 
     template_struct_helper_function_end = """\
