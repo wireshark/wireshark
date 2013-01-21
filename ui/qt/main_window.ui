@@ -1057,7 +1057,7 @@
     <string>Ignore or unignore this packet</string>
    </property>
    <property name="shortcut">
-    <string>Meta+X</string>
+    <string>Ctrl+D</string>
    </property>
   </action>
   <action name="actionEditIgnoreAllDisplayed">
@@ -1068,7 +1068,7 @@
     <string>Ignore all displayed packets</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Alt+Shift+X</string>
+    <string>Ctrl+Alt+Shift+D</string>
    </property>
   </action>
   <action name="actionEditUnignoreAllDisplayed">
@@ -1079,7 +1079,7 @@
     <string>Unignore all displayed packets</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Shift+X</string>
+    <string>Ctrl+Shift+D</string>
    </property>
   </action>
   <action name="actionEditSetTimeReference">
