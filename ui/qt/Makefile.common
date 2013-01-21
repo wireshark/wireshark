@@ -122,6 +122,28 @@ MOC_HDRS = \
 	time_shift_dialog.h \
 	wireshark_application.h
 
+
+#
+# .ui files.
+#
+UI_FILES = \
+	export_object_dialog.ui		\
+	file_set_dialog.ui		\
+	import_text_dialog.ui		\
+	layout_preferences_frame.ui	\
+	main_welcome.ui			\
+	main_window.ui			\
+	main_window_preferences_frame.ui	\
+	packet_format_group_box.ui	\
+	packet_range_group_box.ui	\
+	packet_comment_dialog.ui	\
+	preferences_dialog.ui		\
+	print_dialog.ui			\
+	profile_dialog.ui		\
+	search_frame.ui			\
+	splash_overlay.ui		\
+	time_shift_dialog.ui
+
 #
 # The .moc.cpp files generated from them.
 # We do *not* include these in the distribution; if you have the Qt SDK

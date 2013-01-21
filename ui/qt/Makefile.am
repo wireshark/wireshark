@@ -160,30 +160,15 @@ remote_icons.h:
 #	Makefile.nmake
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
+	$(UI_FILES)			\
 	$(QRC_FILES)			\
 	$(TS_FILES)			\
 	$(QM_FILES)			\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
-	export_object_dialog.ui		\
-	file_set_dialog.ui		\
-	import_text_dialog.ui		\
-	layout_preferences_frame.ui	\
 	main.cpp			\
 	Makefile.common			\
 	Makefile_custom.common		\
-	main_welcome.ui			\
-	main_window.ui			\
-	main_window_preferences_frame.ui	\
-	packet_format_group_box.ui	\
-	packet_range_group_box.ui	\
-	packet_comment_dialog.ui	\
-	preferences_dialog.ui		\
-	print_dialog.ui			\
-	profile_dialog.ui		\
 	QtShark.pro			\
-	search_frame.ui			\
-	splash_overlay.ui		\
-	time_shift_dialog.ui		\
 	display_filter_16.svg		\
 	gpl-template.txt
