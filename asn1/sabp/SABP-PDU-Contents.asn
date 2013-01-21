@@ -1,6 +1,6 @@
 -- SABP-PDU-Contents.asn
 --
--- Taken from 3GPP TS 25.419 V9.0.0 (2009-12)
+-- Taken from 3GPP TS 25.419 V11.0.0 (2012-09)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.419/25419-700.zip/25419-700.DOC
 --
 -- 9.3.3	PDU Definitions
@@ -68,7 +68,7 @@ FROM SABP-Containers
 	id-Number-of-Broadcasts-Completed-List,
 	id-Number-of-Broadcasts-Requested,
 	id-Old-Serial-Number,
-	id-Paging-EWTS-Indicator,
+	id-Paging-ETWS-Indicator,
 	id-Radio-Resource-Loading-List,
 	id-Recovery-Indication,
 	id-Repetition-Period,
@@ -534,3 +534,4 @@ Error-Indication-Extensions SABP-PROTOCOL-EXTENSION ::= {
 }
 
 END
+

@@ -307,7 +307,7 @@ dissect_sabp_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 59 "../../asn1/sabp/sabp.cnf"
+#line 58 "../../asn1/sabp/sabp.cnf"
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str_ext(ProcedureCode, &sabp_ProcedureCode_vals_ext,
                               "unknown message"));
@@ -360,7 +360,7 @@ dissect_sabp_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 46 "../../asn1/sabp/sabp.cnf"
+#line 45 "../../asn1/sabp/sabp.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &sabp_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
@@ -478,7 +478,7 @@ dissect_sabp_Available_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_sabp_Broadcast_Message_Content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 212 "../../asn1/sabp/sabp.cnf"
+#line 211 "../../asn1/sabp/sabp.cnf"
  tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -662,7 +662,7 @@ dissect_sabp_MessageStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_sabp_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 173 "../../asn1/sabp/sabp.cnf"
+#line 172 "../../asn1/sabp/sabp.cnf"
  tvbuff_t *parameter_tvb=NULL;
  proto_tree *subtree;
 
@@ -684,7 +684,7 @@ dissect_sabp_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_sabp_T_pLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 161 "../../asn1/sabp/sabp.cnf"
+#line 160 "../../asn1/sabp/sabp.cnf"
   tvbuff_t *parameter_tvb=NULL;
  proto_tree *subtree;
 
@@ -761,7 +761,7 @@ dissect_sabp_Failure_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_sabp_Message_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 184 "../../asn1/sabp/sabp.cnf"
+#line 183 "../../asn1/sabp/sabp.cnf"
  tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -780,7 +780,7 @@ dissect_sabp_Message_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_sabp_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 192 "../../asn1/sabp/sabp.cnf"
+#line 191 "../../asn1/sabp/sabp.cnf"
  tvbuff_t *parameter_tvb=NULL;
  proto_tree *subtree;
 
@@ -801,7 +801,7 @@ dissect_sabp_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_sabp_New_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 202 "../../asn1/sabp/sabp.cnf"
+#line 201 "../../asn1/sabp/sabp.cnf"
  tvbuff_t *parameter_tvb=NULL;
  proto_tree *subtree;
 
