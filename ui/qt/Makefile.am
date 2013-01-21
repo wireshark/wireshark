@@ -168,6 +168,7 @@ EXTRA_DIST = \
 	export_object_dialog.ui		\
 	file_set_dialog.ui		\
 	import_text_dialog.ui		\
+	layout_preferences_frame.ui	\
 	main.cpp			\
 	Makefile.common			\
 	Makefile_custom.common		\
