@@ -142,6 +142,7 @@ set(QTSHARK_UI
 
 set(QTSHARK_QRC
 	../../image/display_filter.qrc
+	../../image/layout.qrc
 	../../image/status.qrc
 	../../image/toolbar.qrc
 	i18n.qrc
