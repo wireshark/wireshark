@@ -194,7 +194,8 @@ FORMS += main_window.ui \
     time_shift_dialog.ui \
     profile_dialog.ui \
     preferences_dialog.ui \
-    main_window_preferences_frame.ui
+    main_window_preferences_frame.ui \
+    layout_preferences_frame.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -229,7 +230,8 @@ HEADERS += $$HEADERS_WS_C \
     tango_colors.h \
     profile_dialog.h \
     preferences_dialog.h \
-    main_window_preferences_frame.h
+    main_window_preferences_frame.h \
+    layout_preferences_frame.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -339,7 +341,8 @@ RESOURCES += \
     ../../image/status.qrc \
     ../../image/toolbar.qrc \
     welcome.qrc \
-    i18n.qrc
+    i18n.qrc \
+    ../../image/layout.qrc
 
 TRANSLATIONS = \
         qtshark_de.ts	\
@@ -449,4 +452,5 @@ SOURCES += \
     wireshark_application.cpp \
     profile_dialog.cpp \
     preferences_dialog.cpp \
-    main_window_preferences_frame.cpp
+    main_window_preferences_frame.cpp \
+    layout_preferences_frame.cpp

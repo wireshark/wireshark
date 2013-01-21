@@ -40,6 +40,7 @@ set(QTSHARK_H_SRC
 	import_text_dialog.h
 	interface_tree.h
 	label_stack.h
+	layout_preferences_frame.h
 	main_status_bar.h
 	main_welcome.h
 	main_window.h
@@ -86,6 +87,7 @@ set(QTSHARK_CPP_SRC
 	import_text_dialog.cpp
 	interface_tree.cpp
 	label_stack.cpp
+	layout_preferences_frame.cpp
 	main.cpp
 	main_status_bar.cpp
 	main_welcome.cpp
@@ -123,6 +125,7 @@ set(QTSHARK_UI
 	export_object_dialog.ui
 	file_set_dialog.ui
 	import_text_dialog.ui
+	layout_preferences_frame.ui
 	main_welcome.ui
 	main_window.ui
 	main_window_preferences_frame.ui

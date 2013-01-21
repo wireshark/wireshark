@@ -34,6 +34,7 @@ GENERATED_NODIST_HEADER_FILES = \
 	ui_export_object_dialog.h \
 	ui_file_set_dialog.h \
 	ui_import_text_dialog.h \
+	ui_layout_preferences_frame.h \
 	ui_main_welcome.h \
 	ui_main_window.h \
 	ui_main_window_preferences_frame.h \
@@ -96,6 +97,7 @@ MOC_HDRS = \
 	import_text_dialog.h \
 	interface_tree.h \
 	label_stack.h \
+	layout_preferences_frame.h \
 	main_status_bar.h \
 	main_welcome.h \
 	main_window.h \
@@ -179,6 +181,7 @@ WIRESHARK_QT_SRC = \
 	import_text_dialog.cpp \
 	interface_tree.cpp \
 	label_stack.cpp \
+	layout_preferences_frame.cpp \
 	main.cpp \
 	main_status_bar.cpp \
 	main_welcome.cpp \

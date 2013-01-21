@@ -89,6 +89,8 @@ file_set_dialog.cpp file_set_dialog.h: ui_file_set_dialog.h
 
 import_text_dialog.cpp import_text_dialog.h: ui_import_text_dialog.h
 
+layout_preferences_frame.cpp layout_preferences_frame.h: ui_layout_preferences_frame.h
+
 main_welcome.cpp main_welcome.h: ui_main_welcome.h
 
 main_window.cpp main_window.h: ui_main_window.h

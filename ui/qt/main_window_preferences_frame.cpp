@@ -1,6 +1,6 @@
 /* main_window_preferences_frame.cpp
  *
- * $Id: preferences_dialog.cpp 47142 2013-01-18 01:36:37Z gerald $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

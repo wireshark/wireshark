@@ -160,6 +160,7 @@ module_prefs_clean_stash(module_t *module, gpointer unused)
 
 // Preference tree items
 const int appearance_item_ = 0;
+const int layout_item_     = 1;
 const int protocols_item_  = 4;
 const int statistics_item_ = 5;
 const int advanced_item_   = 6;
@@ -176,6 +177,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     QTreeWidgetItem tmp_item; // Adding pre-populated top-level items is much faster
     prefs_modules_foreach_submodules(NULL, fill_advanced_prefs, (gpointer) &tmp_item);
 
+    // Some classes depend on pref_ptr_to_pref_ so this MUST be called after
+    // fill_advanced_prefs.
     pd_ui_->setupUi(this);
     pd_ui_->advancedTree->invisibleRootItem()->addChildren(tmp_item.takeChildren());
     QTreeWidgetItemIterator pref_it(pd_ui_->advancedTree, QTreeWidgetItemIterator::NoChildren);

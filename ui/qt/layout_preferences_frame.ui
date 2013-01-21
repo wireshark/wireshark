@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LayoutPreferencesFrame</class>
+ <widget class="QFrame" name="LayoutPreferencesFrame">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>414</width>
+    <height>259</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Frame</string>
+  </property>
+  <property name="frameShape">
+   <enum>QFrame::NoFrame</enum>
+  </property>
+  <property name="frameShadow">
+   <enum>QFrame::Plain</enum>
+  </property>
+  <property name="lineWidth">
+   <number>0</number>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QToolButton" name="layout5ToolButton">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../image/layout.qrc">
+         <normaloff>:/layout/layout_5.png</normaloff>:/layout/layout_5.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">layoyutButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="layout2ToolButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../image/layout.qrc">
+         <normaloff>:/layout/layout_2.png</normaloff>:/layout/layout_2.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">layoyutButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="layout1ToolButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../image/layout.qrc">
+         <normaloff>:/layout/layout_1.png</normaloff>:/layout/layout_1.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">layoyutButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="layout4ToolButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../image/layout.qrc">
+         <normaloff>:/layout/layout_4.png</normaloff>:/layout/layout_4.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">layoyutButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="layout3ToolButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../image/layout.qrc">
+         <normaloff>:/layout/layout_3.png</normaloff>:/layout/layout_3.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">layoyutButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="layout6ToolButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../image/layout.qrc">
+         <normaloff>:/layout/layout_6.png</normaloff>:/layout/layout_6.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <attribute name="buttonGroup">
+        <string notr="true">layoyutButtonGroup</string>
+       </attribute>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Pane 1:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane1PacketListRadioButton">
+         <property name="text">
+          <string>Packet List</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane1ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane1PacketDetailsRadioButton">
+         <property name="text">
+          <string>Packet Details</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane1ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane1PacketBytesRadioButton">
+         <property name="text">
+          <string>Packet Bytes</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane1ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane1NoneRadioButton">
+         <property name="text">
+          <string>None</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane1ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Pane 2:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane2PacketListRadioButton">
+         <property name="text">
+          <string>Packet List</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane2ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane2PacketDetailsRadioButton">
+         <property name="text">
+          <string>Packet Details</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane2ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane2PacketBytesRadioButton">
+         <property name="text">
+          <string>Packet Bytes</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane2ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane2NoneRadioButton">
+         <property name="text">
+          <string>None</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane2ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Pane 3:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane3PacketListRadioButton">
+         <property name="text">
+          <string>Packet List</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane3ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane3PacketDetailsRadioButton">
+         <property name="text">
+          <string>Packet Details</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane3ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane3PacketBytesRadioButton">
+         <property name="text">
+          <string>Packet Bytes</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane3ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pane3NoneRadioButton">
+         <property name="text">
+          <string>None</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">pane3ButtonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>68</width>
+       <height>13</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="restoreButtonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::RestoreDefaults</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../image/layout.qrc"/>
+ </resources>
+ <connections/>
+ <buttongroups>
+  <buttongroup name="layoyutButtonGroup"/>
+  <buttongroup name="pane2ButtonGroup"/>
+  <buttongroup name="pane3ButtonGroup"/>
+  <buttongroup name="pane1ButtonGroup"/>
+ </buttongroups>
+</ui>

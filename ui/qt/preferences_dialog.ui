@@ -45,9 +45,6 @@
         <property name="text">
          <string>Layout</string>
         </property>
-        <property name="flags">
-         <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
-        </property>
        </item>
        <item>
         <property name="text">
@@ -123,7 +120,7 @@
        <number>0</number>
       </property>
       <widget class="MainWindowPreferencesFrame" name="appearanceFrame"/>
-      <widget class="QFrame" name="layoutFrame"/>
+      <widget class="LayoutPreferencesFrame" name="layoutFrame"/>
       <widget class="QFrame" name="columnFrame"/>
       <widget class="QFrame" name="fontandcolorFrame"/>
       <widget class="QFrame" name="captureFrame"/>
@@ -209,6 +206,12 @@
    <class>MainWindowPreferencesFrame</class>
    <extends>QFrame</extends>
    <header>main_window_preferences_frame.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LayoutPreferencesFrame</class>
+   <extends>QFrame</extends>
+   <header>layout_preferences_frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/layout">
+        <file>layout_1.png</file>
+        <file>layout_2.png</file>
+        <file>layout_3.png</file>
+        <file>layout_4.png</file>
+        <file>layout_5.png</file>
+        <file>layout_6.png</file>
+    </qresource>
+</RCC>
