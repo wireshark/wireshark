@@ -1511,12 +1511,12 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/FindNextMark",              NULL,               "Next Mark",                            "<shift><control>N",    NULL,           G_CALLBACK(find_next_mark_cb) },
    { "/Edit/FindPreviousMark",          NULL,               "Previous Mark",                        "<shift><control>B",    NULL,           G_CALLBACK(find_prev_mark_cb) },
 
-   { "/Edit/IgnorePacket",              NULL,               "_Ignore/Unignore Packet",              "<control>X",           NULL,           G_CALLBACK(packet_list_ignore_frame_cb) },
+   { "/Edit/IgnorePacket",              NULL,               "_Ignore/Unignore Packet",              "<control>D",           NULL,           G_CALLBACK(packet_list_ignore_frame_cb) },
     /*
      * XXX - this next one overrides /Edit/Copy/Description
      */
-   { "/Edit/IgnoreAllDisplayedPackets", NULL,               "Ignore All Displayed Packets",         "<alt><shift><control>X",  NULL,           G_CALLBACK(packet_list_ignore_all_displayed_frames_cb) },
-   { "/Edit/Un-IgnoreAllPackets",       NULL,               "U_nignore All Packets",                "<shift><control>X",        NULL,           G_CALLBACK(packet_list_unignore_all_frames_cb) },
+   { "/Edit/IgnoreAllDisplayedPackets", NULL,               "Ignore All Displayed Packets",         "<alt><shift><control>D",  NULL,           G_CALLBACK(packet_list_ignore_all_displayed_frames_cb) },
+   { "/Edit/Un-IgnoreAllPackets",       NULL,               "U_nignore All Packets",                "<shift><control>D",        NULL,           G_CALLBACK(packet_list_unignore_all_frames_cb) },
    { "/Edit/SetTimeReference",          WIRESHARK_STOCK_TIME,   "Set/Unset Time Reference",         "<control>T",           NULL,           G_CALLBACK(set_reftime_cb) },
    { "/Edit/Un-TimeReferenceAllPackets",NULL,               "Unset All Time References",            "<alt><control>T",          NULL,           G_CALLBACK(packet_list_untime_reference_all_frames_cb) },
    { "/Edit/FindNextTimeReference",     NULL,               "Next Time Reference",                  "<alt><control>N",          NULL,           G_CALLBACK(find_next_ref_time_cb) },
