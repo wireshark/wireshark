@@ -44,7 +44,7 @@
 #include <epan/dissectors/packet-ssl.h>
 
 /* RFC 2821 */
-#define TCP_PORT_SMTP 25
+#define TCP_PORT_SMTP      25
 #define TCP_PORT_SSL_SMTP 465
 
 /* RFC 4409 */
@@ -81,12 +81,12 @@ static int ett_smtp_cmdresp = -1;
 static gint ett_smtp_data_fragment = -1;
 static gint ett_smtp_data_fragments = -1;
 
-static gboolean stmp_decryption_enabled  = FALSE;
+static gboolean    stmp_decryption_enabled     = FALSE;
 /* desegmentation of SMTP command and response lines */
-static gboolean smtp_desegment = TRUE;
-static gboolean smtp_data_desegment = TRUE;
+static gboolean    smtp_desegment              = TRUE;
+static gboolean    smtp_data_desegment         = TRUE;
 
-static GHashTable *smtp_data_segment_table = NULL;
+static GHashTable *smtp_data_segment_table     = NULL;
 static GHashTable *smtp_data_reassembled_table = NULL;
 
 static const fragment_items smtp_data_frag_items = {
@@ -150,19 +150,19 @@ typedef enum {
 } smtp_auth_state_t;
 
 struct smtp_session_state {
-  smtp_state_t smtp_state;    /* Current state */
-  smtp_auth_state_t auth_state;  /* Current authentication state */
+  smtp_state_t smtp_state;      /* Current state */
+  smtp_auth_state_t auth_state; /* Current authentication state */
   /* Values that need to be saved because state machine can't be used during tree dissection */
-  guint32  first_auth_frame;  /* First frame involving authentication. */
-  guint32  username_frame;    /* Frame containing client username */
-  guint32  password_frame;    /* Frame containing client password */
-  guint32  last_auth_frame;   /* Last frame involving authentication. */
-  gboolean crlf_seen;         /* Have we seen a CRLF on the end of a packet */
-  gboolean data_seen;         /* Have we seen a DATA command yet */
-  guint32  msg_read_len;      /* Length of BDAT message read so far */
-  guint32  msg_tot_len;       /* Total length of BDAT message */
-  gboolean msg_last;          /* Is this the last BDAT chunk */
-  guint32  last_nontls_frame; /* last non-TLS frame; 0 if not known or no TLS */
+  guint32  first_auth_frame;    /* First frame involving authentication. */
+  guint32  username_frame;      /* Frame containing client username */
+  guint32  password_frame;      /* Frame containing client password */
+  guint32  last_auth_frame;     /* Last frame involving authentication. */
+  gboolean crlf_seen;           /* Have we seen a CRLF on the end of a packet */
+  gboolean data_seen;           /* Have we seen a DATA command yet */
+  guint32  msg_read_len;        /* Length of BDAT message read so far */
+  guint32  msg_tot_len;         /* Total length of BDAT message */
+  gboolean msg_last;            /* Is this the last BDAT chunk */
+  guint32  last_nontls_frame;   /* last non-TLS frame; 0 if not known or no TLS */
 };
 
 /*
@@ -218,7 +218,7 @@ static const value_string response_codes_vs[] = {
   { 554, "Transaction failed" },
   { 0, NULL }
 };
-
+static value_string_ext response_codes_vs_ext = VALUE_STRING_EXT_INIT(response_codes_vs);
 
 static gboolean
 line_is_smtp_command(const guchar *command, int commandlen)
@@ -287,22 +287,22 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree                *smtp_tree = NULL;
   proto_tree                *cmdresp_tree;
   proto_item                *ti, *hidden_item;
-  int                       offset = 0;
-  int                       request = 0;
+  int                        offset    = 0;
+  int                        request   = 0;
   conversation_t            *conversation;
   struct smtp_session_state *session_state;
   const guchar              *line, *linep, *lineend;
-  guint32                   code;
-  int                       linelen = 0;
-  gint                      length_remaining;
-  gboolean                  eom_seen = FALSE;
-  gint                      next_offset;
-  gint                      loffset = 0;
-  int                       cmdlen;
-  fragment_data             *frag_msg = NULL;
+  guint32                    code;
+  int                        linelen   = 0;
+  gint                       length_remaining;
+  gboolean                   eom_seen  = FALSE;
+  gint                       next_offset;
+  gint                       loffset   = 0;
+  int                        cmdlen;
+  fragment_data             *frag_msg  = NULL;
   tvbuff_t                  *next_tvb;
-  guint8                    *decrypt = NULL;
-  guint8                    line_code[3];
+  guint8                    *decrypt   = NULL;
+  guint8                     line_code[3];
 
   /* As there is no guarantee that we will only see frames in the
    * the SMTP conversation once, and that we will see them in
@@ -336,18 +336,18 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * No - create one and attach it.
      */
-    session_state = wmem_alloc(wmem_file_scope(), sizeof(struct smtp_session_state));
-    session_state->smtp_state = SMTP_STATE_READING_CMDS;
-    session_state->auth_state = SMTP_AUTH_STATE_NONE;
-    session_state->first_auth_frame = 0;
-    session_state->last_auth_frame = 0;
-    session_state->username_frame = 0;
-    session_state->password_frame = 0;
-    session_state->crlf_seen = FALSE;
-    session_state->data_seen = FALSE;
-    session_state->msg_read_len = 0;
-    session_state->msg_tot_len = 0;
-    session_state->msg_last = TRUE;
+    session_state                    = wmem_alloc(wmem_file_scope(), sizeof(struct smtp_session_state));
+    session_state->smtp_state        = SMTP_STATE_READING_CMDS;
+    session_state->auth_state        = SMTP_AUTH_STATE_NONE;
+    session_state->first_auth_frame  = 0;
+    session_state->last_auth_frame   = 0;
+    session_state->username_frame    = 0;
+    session_state->password_frame    = 0;
+    session_state->crlf_seen         = FALSE;
+    session_state->data_seen         = FALSE;
+    session_state->msg_read_len      = 0;
+    session_state->msg_tot_len       = 0;
+    session_state->msg_last          = TRUE;
     session_state->last_nontls_frame = 0;
 
     conversation_add_proto_data(conversation, proto_smtp, session_state);
@@ -362,7 +362,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 save_last_nontls_frame;
 
     /* This is TLS, not raw SMTP. TLS can desegment */
-    save_can_desegment = pinfo->can_desegment;
+    save_can_desegment   = pinfo->can_desegment;
     pinfo->can_desegment = pinfo->saved_can_desegment;
 
     /* Make sure the SSL dissector will not be called again after decryption */
@@ -389,7 +389,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * No frame data.
      */
-    if(request) {
+    if (request) {
 
       /*
        * Create a frame data structure and attach it to the packet.
@@ -585,9 +585,9 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                * This is a command, but everything that comes after it,
                * until an EOM, is data.
                */
-              spd_frame_data->pdu_type = SMTP_PDU_CMD;
-              session_state->smtp_state = SMTP_STATE_READING_CMDS;
-              session_state->auth_state = SMTP_AUTH_STATE_START;
+              spd_frame_data->pdu_type        = SMTP_PDU_CMD;
+              session_state->smtp_state       = SMTP_STATE_READING_CMDS;
+              session_state->auth_state       = SMTP_AUTH_STATE_START;
               session_state->first_auth_frame = pinfo->fd->num;
             } else if (g_ascii_strncasecmp(line, "STARTTLS", 8) == 0) {
               /*
@@ -720,7 +720,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         linelen = tvb_find_line_end(tvb, loffset, -1, &next_offset, FALSE);
 
         /* Column Info */
-        if(loffset == offset)
+        if (loffset == offset)
             col_append_str(pinfo->cinfo, COL_INFO, "C: ");
         else
             col_append_str(pinfo->cinfo, COL_INFO, " | ");
@@ -796,7 +796,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled SMTP",
                                           frag_msg, &smtp_data_frag_items, NULL, smtp_tree);
       if (next_tvb) {
-        /* XXX: this is presumptious - we may have negotiated something else */
+        /* XXX: this is presumptuous - we may have negotiated something else */
         if (imf_handle) {
           call_dissector(imf_handle, next_tvb, pinfo, tree);
         } else {
@@ -920,7 +920,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
                                       offset + 4, linelen - 4, ENC_ASCII|ENC_NA);
 
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%d %s", code, tvb_get_ephemeral_string(tvb, offset + 4, linelen - 4));
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "%d %s", code,
+                                    tvb_get_ephemeral_string(tvb, offset + 4, linelen - 4));
                 }
             } else {
                col_append_str(pinfo->cinfo, COL_INFO, tvb_get_ephemeral_string(tvb, offset, linelen));
@@ -936,10 +937,11 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-static void smtp_data_reassemble_init (void)
+static void
+smtp_data_reassemble_init (void)
 {
-        fragment_table_init (&smtp_data_segment_table);
-        reassembled_table_init (&smtp_data_reassembled_table);
+  fragment_table_init (&smtp_data_segment_table);
+  reassembled_table_init (&smtp_data_reassembled_table);
 }
 
 
@@ -979,7 +981,7 @@ proto_register_smtp(void)
 
     { &hf_smtp_rsp_code,
       { "Response code", "smtp.response.code",
-        FT_UINT32, BASE_DEC, VALS(response_codes_vs), 0x0, NULL, HFILL }},
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &response_codes_vs_ext, 0x0, NULL, HFILL }},
 
     { &hf_smtp_rsp_parameter,
       { "Response parameter", "smtp.rsp.parameter",
@@ -1057,23 +1059,23 @@ proto_register_smtp(void)
   /* Preferences */
   smtp_module = prefs_register_protocol(proto_smtp, NULL);
   prefs_register_bool_preference(smtp_module, "desegment_lines",
-    "Reassemble SMTP command and response lines\nspanning multiple TCP segments",
-    "Whether the SMTP dissector should reassemble command and response lines"
-    " spanning multiple TCP segments. To use this option, you must also enable "
-    "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-    &smtp_desegment);
+                                 "Reassemble SMTP command and response lines\nspanning multiple TCP segments",
+                                 "Whether the SMTP dissector should reassemble command and response lines"
+                                 " spanning multiple TCP segments. To use this option, you must also enable "
+                                 "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                                 &smtp_desegment);
 
   prefs_register_bool_preference(smtp_module, "desegment_data",
-    "Reassemble SMTP DATA commands spanning multiple TCP segments",
-    "Whether the SMTP dissector should reassemble DATA command and lines"
-    " spanning multiple TCP segments. To use this option, you must also enable "
-    "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-    &smtp_data_desegment);
+                                 "Reassemble SMTP DATA commands spanning multiple TCP segments",
+                                 "Whether the SMTP dissector should reassemble DATA command and lines"
+                                 " spanning multiple TCP segments. To use this option, you must also enable "
+                                 "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                                 &smtp_data_desegment);
 
   prefs_register_bool_preference(smtp_module, "decryption",
-    "Decrypt AUTH parameters",
-    "Whether the SMTP dissector should cecrypt AUTH parameters",
-    &stmp_decryption_enabled);
+                                 "Decrypt AUTH parameters",
+                                 "Whether the SMTP dissector should cecrypt AUTH parameters",
+                                 &stmp_decryption_enabled);
 }
 
 /* The registration hand-off routine */
@@ -1093,3 +1095,16 @@ proto_reg_handoff_smtp(void)
   /* find the SSL dissector */
   ssl_handle = find_dissector("ssl");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true
+ */
