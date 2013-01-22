@@ -38,7 +38,6 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/reassemble.h>
 
 #include "packet-usb.h"
 #include "packet-usb-hid.h"
