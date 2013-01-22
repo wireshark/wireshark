@@ -1903,6 +1903,8 @@ class wireshark_gen_C:
 
     template_helper_function_vars_end = """\
 /* Operation specific Variable declarations End */
+
+(void)item; /* Avoid coverity param_set_but_unused parse warning */
 """
 
     template_helper_function_start = """\
