@@ -8,7 +8,87 @@
 # http://nplab.fh-muenster.de/groups/wiki/wiki/fb7a4/Building_Wireshark_on_SnowLeopard.html
 #
 
-MACOSX_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
+DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
+
+#
+# To make this work on Leopard will take a lot of work.
+#
+# First of all, Leopard's /usr/X11/lib/libXdamage.la claims, at least
+# with all software updates applied, that the Xdamage shared library
+# is libXdamage.1.0.0.dylib, but it is, in fact, libXdamage.1.1.0.dylib.
+# This causes problems when building GTK+, so the script would have to
+# fix that file.
+#
+# Second of all, the version of fontconfig that comes with Leopard
+# doesn't support FC_WEIGHT_EXTRABLACK, so we can't use any version
+# of Pango newer than 1.22.4.
+#
+# However, Pango 1.22.4 doesn't work with versions of GLib after
+# 2.29.6, because Pango 1.22.4 uses G_CONST_RETURN and GLib 2.29.8
+# and later deprecate it (there doesn't appear to be a GLib 2.29.7).
+# That means we'd either have to patch Pango not to use it (just
+# use "const"; G_CONST_RETURN was there to allow code to choose whether
+# to use "const" or not), or use GLib 2.29.6 or earlier.
+#
+# GLib 2.29.6 includes an implementation of g_bit_lock() that, on x86
+# (32-bit and 64-bit), uses asms in a fashion ("asm volatile goto") that
+# doesn't work with the Apple version of GCC 4.0.1, which is the compiler
+# you get with Leopard+updates.  Apparently, that requires GCC 4.5 or
+# later; recent versions of GLib check for that, but 2.29.6 doesn't.
+# Therefore, we would have to patch glib/gbitlock.c to do what the
+# newer versions of GLib do:
+#
+#  define a USE_ASM_GOTO macro that indicates whether "asm goto"
+#  can be used:
+#    #if (defined (i386) || defined (__amd64__))
+#      #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
+#        #define USE_ASM_GOTO 1
+#      #endif
+#    #endif
+#
+#  replace all occurrences of
+#
+#    #if defined (__GNUC__) && (defined (i386) || defined (__amd64__))
+#
+#  with
+#
+#    #ifdef USE_ASM_GOTO
+#
+# Using GLib 2.29.6 or earlier, however, would mean that we can't
+# use a version of ATK later than 2.3.93, as those versions don't
+# work with GLib 2.29.6.  The same applies to gdk-pixbuf; versions
+# of gdk-pixbuf after 2.24.1 won't work with GLib 2.29.6.
+#
+# Once you've set this script up to use the older versions of the
+# libraries, and built and installed them, you find that Wireshark,
+# when built with them, crashes the X server that comes with Leopard,
+# at least with all updates from Apple.  Maybe patching Pango rather
+# than going with an older version of Pango would work.
+#
+# The Leopard Wireshark buildbot uses GTK+ 2.12.9, Cairo 1.6.4,
+# Pango 1.20.2, and GLib 2.16.3, with an unknown version of ATK,
+# and, I think, without gdk-pixbuf, as it hadn't been made a
+# separate library from GTK+ as of GTK+ 2.12.9.  Its binaries
+# don't crash the X server.
+#
+# However, if you try various older versions of Cairo, including
+# 1.6.4 and at least some 1.8.x versions, when you try to build
+# it, the build fails because it can't find png_set_longjmp_fn().
+# I vaguely remember dealing with that, ages ago, but don't
+# remember what I did; fixing *that* is left as an exercise for
+# the reader.
+#
+# Oh, and if you're building with a version of GTK+ that doesn't
+# have the gdk-pixbuf stuff in a separate library, you probably
+# don't want to bother downloading or installing the gdk-pixbuf
+# library, *and* you will need to configure GTK+ with
+# --without-libtiff and --without-libjpeg (as we currently do
+# with gdk-pixbuf).
+#
+if [[ $DARWIN_MAJOR_VERSION -le 9 ]]; then
+	echo "This script does not support any versions of OS X before Snow Leopard" 1>&2 
+	exit 1
+fi
 
 # To set up a GTK3 environment
 # GTK3=1
@@ -28,7 +108,7 @@ GLIB_VERSION=2.32.3
 PKG_CONFIG_VERSION=0.26
 ATK_VERSION=2.4.0
 PANGO_VERSION=1.30.0
-PNG_VERSION=1.5.12
+PNG_VERSION=1.5.13
 PIXMAN_VERSION=0.26.0
 CAIRO_VERSION=1.12.2
 GDK_PIXBUF_VERSION=2.26.1
@@ -219,10 +299,16 @@ cd ..
 # 10.6, so we build Cairo if we are using GTK+ 3.
 # In 10.6 and 10.7, it's an X11 library; if we build with "native" GTK+
 # rather than X11 GTK+, we might have to build and install Cairo.
+# The major version number of Darwin in 10.5 is 9.
 #
-if [[ -n "$GTK3" || $MACOSX_VERSION = "9" ]]; then
+if [[ -n "$GTK3" || $DARWIN_MAJOR_VERSION = "9" ]]; then
   #
   # Requirements for Cairo first
+  #
+  # The libpng that comes with the X11 for leopard has a bogus
+  # pkg-config file that lies about where the header files are,
+  # which causes other packages not to be able to find its
+  # headers.
   #
   echo "Downloading, building, and installing libpng:"
   curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$PNG_VERSION.tar.xz
@@ -233,6 +319,11 @@ if [[ -n "$GTK3" || $MACOSX_VERSION = "9" ]]; then
   $DO_MAKE_INSTALL || exit 1
   cd ..
 
+  #
+  # The libpixman that comes with the X11 for Leopard is too old
+  # to support Cairo's image surface backend feature (which requires
+  # pixman-1 >= 0.22.0).
+  #
   echo "Downloading, building, and installing pixman:"
   curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
   gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
@@ -246,13 +337,35 @@ if [[ -n "$GTK3" || $MACOSX_VERSION = "9" ]]; then
   # And now Cairo itself.
   #
   echo "Downloading, building, and installing Cairo:"
-  curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
-  xzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
+  CAIRO_MAJOR_VERSION="`expr $CAIRO_VERSION : '\([0-9][0-9]*\).*'`"
+  CAIRO_MINOR_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+  CAIRO_DOTDOT_VERSION="`expr $CAIRO_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+  if [[ $CAIRO_MAJOR_VERSION -gt 1 ||
+        $CAIRO_MINOR_VERSION -gt 12 ||
+        ($CAIRO_MINOR_VERSION -eq 12 && $CAIRO_DOTDOT_VERSION -ge 2) ]]
+  then
+	#
+	# Starting with Cairo 1.12.2, the tarballs are compressed with
+	# xz rather than gzip.
+	#
+	curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
+	xzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
+  else
+	curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
+	tar xf cairo-$CAIRO_VERSION.tar.gz || exit 1
+  fi
   cd cairo-$CAIRO_VERSION
   #./configure --enable-quartz=no || exit 1
   # Maybe follow http://cairographics.org/end_to_end_build_for_mac_os_x/
   ./configure --enable-quartz=yes || exit 1
-  make -j 3 || exit 1
+  #
+  # We must avoid the version of libpng that comes with X11; the
+  # only way I've found to force that is to forcibly set INCLUDES
+  # when we do the build, so that this comes before CAIRO_CFLAGS,
+  # which has -I/usr/X11/include added to it before anything
+  # connected to libpng is.
+  #
+  INCLUDES="-I/usr/local/include/libpng15" make -j 3 || exit 1
   $DO_MAKE_INSTALL || exit 1
   cd ..
 fi
@@ -269,8 +382,21 @@ cd ..
 
 echo "Downloading, building, and installing Pango:"
 pango_dir=`expr $PANGO_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.xz
-xzcat pango-$PANGO_VERSION.tar.xz | tar xf - || exit 1
+PANGO_MAJOR_VERSION="`expr $PANGO_VERSION : '\([0-9][0-9]*\).*'`"
+PANGO_MINOR_VERSION="`expr $PANGO_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+if [[ $PANGO_MAJOR_VERSION -gt 1 ||
+      $PANGO_MINOR_VERSION -ge 29 ]]
+then
+	#
+	# Starting with Pango 1.29, the tarballs are compressed with
+	# xz rather than bzip2.
+	#
+	curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.xz
+	xzcat pango-$PANGO_VERSION.tar.xz | tar xf - || exit 1
+else
+	curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.bz2
+	tar xf pango-$PANGO_VERSION.tar.bz2 || exit 1
+fi
 cd pango-$PANGO_VERSION
 ./configure || exit 1
 make -j 3 || exit 1
@@ -289,18 +415,36 @@ cd ..
 
 echo "Downloading, building, and installing GTK+:"
 gtk_dir=`expr $GTK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.xz
-xzcat gtk+-$GTK_VERSION.tar.xz | tar xf - || exit 1
-cd gtk+-$GTK_VERSION
-#
-# GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the CUPS
-# printing backend - either the CUPS API changed incompatibly or the
-# backend was depending on non-API implementation details.
-#
-# Configure it out for now.
-#
-if [ $MACOSX_VERSION -ge "12" ]
+GTK_MAJOR_VERSION="`expr $GTK_VERSION : '\([0-9][0-9]*\).*'`"
+GTK_MINOR_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+GTK_DOTDOT_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+if [[ $GTK_MAJOR_VERSION -gt 2 ||
+      $GTK_MINOR_VERSION -gt 24 ||
+      ($GTK_MINOR_VERSION -eq 24 && $GTK_DOTDOT_VERSION -ge 25) ]]
 then
+	#
+	# Starting with GTK+ 2.24.5, the tarballs are compressed with
+	# xz rather than gzip, in addition to bzip2; use xz, as we've
+	# built and installed it, and as xz compresses better than
+	# bzip2 so the tarballs take less time to download.
+	#
+	curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.xz
+	xzcat gtk+-$GTK_VERSION.tar.xz | tar xf - || exit 1
+else
+	curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.bz2
+	tar xf gtk+-$GTK_VERSION.tar.bz2 || exit 1
+fi
+cd gtk+-$GTK_VERSION
+if [ $DARWIN_MAJOR_VERSION -ge "12" ]
+then
+	#
+	# GTK+ 2.24.10, at least, doesn't build on Mountain Lion with the
+	# CUPS printing backend - either the CUPS API changed incompatibly
+	# or the backend was depending on non-API implementation details.
+	#
+	# Configure it out, on Mountain Lion and later, for now.
+	# (12 is the Darwin major version number in Mountain Lion.)
+	#
 	./configure --disable-cups || exit 1
 else
 	./configure || exit 1
