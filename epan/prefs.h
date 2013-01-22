@@ -128,9 +128,6 @@ typedef struct _e_prefs {
   GList       *col_list;
   gint         num_cols;
   color_t      st_client_fg, st_client_bg, st_server_fg, st_server_bg;
-  gboolean     gui_scrollbar_on_right;
-  gboolean     gui_plist_sel_browse;
-  gboolean     gui_ptree_sel_browse;
   gboolean     gui_altern_colors;
   gboolean     gui_expert_composite_eyecandy;
   gboolean     filter_toolbar_show_in_statusbar;

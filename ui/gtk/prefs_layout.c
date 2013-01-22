@@ -43,7 +43,7 @@
 #define LAYOUT_QTY (layout_type_max - 1)
 
 
-static void layout_validate_cb(GtkWidget *w _U_, gpointer data);
+static void layout_validate_cb(GtkWidget *rb, gpointer data);
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
 
 
@@ -64,6 +64,8 @@ typedef struct {
 #define LAYOUT_CONTENT2_VB_KEY      "layout_content2_vbox"
 #define LAYOUT_CONTENT3_VB_KEY      "layout_content3_vbox"
 
+#define LAYOUT_PANE_KEY             "layout_pane"
+
 
 static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, int i, layout_pane_content_e content) {
     GtkWidget	*radio_vb, *radio_lb;
@@ -80,35 +82,40 @@ static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, int i, layout_pa
     gtk_misc_set_alignment(GTK_MISC(radio_lb), 0.0f, 0.5f);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_lb);
 
-    radio_none_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "None");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_none_rb), content == layout_pane_content_none);
-    gtk_widget_set_tooltip_text (radio_none_rb, "Put nothing in this pane.");
-    gtk_container_add(GTK_CONTAINER(radio_vb), radio_none_rb);
-
-    radio_plist_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet List");
+    radio_plist_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "Packet List");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_plist_rb), content == layout_pane_content_plist);
     gtk_widget_set_tooltip_text (radio_plist_rb, "Put the packet list in this pane.");
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_plist_rb);
 
-    radio_pdetails_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet Details");
+    radio_pdetails_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_plist_rb), "Packet Details");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_pdetails_rb), content == layout_pane_content_pdetails);
     gtk_widget_set_tooltip_text (radio_pdetails_rb, "Put the packet details tree in this pane.");
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_pdetails_rb);
 
-    radio_pbytes_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet Bytes");
+    radio_pbytes_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_plist_rb), "Packet Bytes");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_pbytes_rb), content == layout_pane_content_pbytes);
     gtk_widget_set_tooltip_text (radio_pbytes_rb, "Put the packet bytes dump in this pane.");
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_pbytes_rb);
 
-    g_object_set_data(G_OBJECT(radio_vb), LAYOUT_NONE_RB_KEY,       radio_none_rb);
+    radio_none_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_plist_rb), "None");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_none_rb), content == layout_pane_content_none);
+    gtk_widget_set_tooltip_text (radio_none_rb, "Put nothing in this pane.");
+    gtk_container_add(GTK_CONTAINER(radio_vb), radio_none_rb);
+
     g_object_set_data(G_OBJECT(radio_vb), LAYOUT_PLIST_RB_KEY,      radio_plist_rb);
     g_object_set_data(G_OBJECT(radio_vb), LAYOUT_PDETAILS_RB_KEY,   radio_pdetails_rb);
     g_object_set_data(G_OBJECT(radio_vb), LAYOUT_PBYTES_RB_KEY,     radio_pbytes_rb);
+    g_object_set_data(G_OBJECT(radio_vb), LAYOUT_NONE_RB_KEY,       radio_none_rb);
 
-    g_signal_connect(radio_none_rb,       "toggled", G_CALLBACK(layout_validate_cb), main_vb);
+    g_object_set_data(G_OBJECT(radio_plist_rb),    LAYOUT_PANE_KEY, GINT_TO_POINTER(i));
+    g_object_set_data(G_OBJECT(radio_pdetails_rb), LAYOUT_PANE_KEY, GINT_TO_POINTER(i));
+    g_object_set_data(G_OBJECT(radio_pbytes_rb),   LAYOUT_PANE_KEY, GINT_TO_POINTER(i));
+    g_object_set_data(G_OBJECT(radio_none_rb),     LAYOUT_PANE_KEY, GINT_TO_POINTER(-1));
+
     g_signal_connect(radio_plist_rb,      "toggled", G_CALLBACK(layout_validate_cb), main_vb);
     g_signal_connect(radio_pdetails_rb,   "toggled", G_CALLBACK(layout_validate_cb), main_vb);
     g_signal_connect(radio_pbytes_rb,     "toggled", G_CALLBACK(layout_validate_cb), main_vb);
+    g_signal_connect(radio_none_rb,       "toggled", G_CALLBACK(layout_validate_cb), main_vb);
 
     return radio_vb;
 }
@@ -205,22 +212,47 @@ static void layout_get(GtkWidget * main_vb, layout_t *layout_out) {
     layout_out->content[2] = layout_pane_get_content(radio_vb);
 }
 
-static void layout_validate(layout_t *layout) {
+static void layout_validate(layout_t *layout, int pane) {
 
-    if(layout->content[1] == layout->content[0]) {
-        layout->content[1] = layout_pane_content_none;
+    switch (pane) {
+	case 1:
+	    if(layout->content[1] == layout->content[0]) {
+		layout->content[1] = layout_pane_content_none;
+	    }
+	    if(layout->content[2] == layout->content[0]) {
+		layout->content[2] = layout_pane_content_none;
+	    }
+	    break;
+	case 2:
+	    if(layout->content[0] == layout->content[1]) {
+		layout->content[0] = layout_pane_content_none;
+	    }
+	    if(layout->content[2] == layout->content[1]) {
+		layout->content[2] = layout_pane_content_none;
+	    }
+	    break;
+	case 3:
+	    if(layout->content[0] == layout->content[2]) {
+		layout->content[0] = layout_pane_content_none;
+	    }
+	    if(layout->content[1] == layout->content[2]) {
+		layout->content[1] = layout_pane_content_none;
+	    }
+	    break;
+	default:
+	    /* If the user selects "None" we're not going to intervene. */
+	    break;
     }
-    if(layout->content[2] == layout->content[0] || layout->content[2] == layout->content[1]) {
-        layout->content[2] = layout_pane_content_none;
-    }
+
 }
 
 
-static void layout_validate_cb(GtkWidget *w _U_, gpointer data) {
+static void layout_validate_cb(GtkWidget *rb, gpointer data) {
+    int pane = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(rb), LAYOUT_PANE_KEY));
     layout_t    layout;
 
     layout_get(data, &layout);
-    layout_validate(&layout);
+    layout_validate(&layout, pane);
     layout_set(data, &layout);
 }
 
@@ -239,7 +271,6 @@ layout_defaults_cb (GtkWidget * w _U_, gpointer data)
     layout_set(data, &default_layout);
 }
 
-#define SCROLLBAR_PLACEMENT_KEY         "scrollbar_placement"
 #define ALTERN_COLORS_KEY               "altern_colors"
 #define HEX_DUMP_HIGHLIGHT_STYLE_KEY	"hex_dump_highlight_style"
 #define FILTER_TOOLBAR_PLACEMENT_KEY    "filter_toolbar_show_in_statusbar"
@@ -250,11 +281,6 @@ layout_defaults_cb (GtkWidget * w _U_, gpointer data)
 
 #define GUI_TABLE_ROWS 6
 
-static const enum_val_t scrollbar_placement_vals[] = {
-    { "FALSE", "Left", FALSE },
-    { "TRUE",  "Right", TRUE },
-    { NULL,    NULL,    0 }
-};
 static const enum_val_t altern_colors_vals[] = {
     { "FALSE", "No",  FALSE },
     { "TRUE",  "Yes", TRUE },
@@ -285,7 +311,6 @@ layout_prefs_show(void)
     GtkWidget	*radio_hb, *radio_vb;
     GtkWidget	*default_vb, *default_bt;
     GtkWidget   *main_tb, *hbox;
-    GtkWidget	*scrollbar_om;
     GtkWidget	*altern_colors_om;
     GtkWidget	*highlight_style_om;
     GtkWidget	*toolbar_style_om;
@@ -380,13 +405,6 @@ layout_prefs_show(void)
     gtk_table_set_row_spacings( GTK_TABLE(main_tb), 10 );
     gtk_table_set_col_spacings( GTK_TABLE(main_tb), 15 );
 
-    /* Scrollbar placement */
-    scrollbar_om = create_preference_option_menu(main_tb, pos++,
-        "Vertical scrollbar placement:",
-        "Select where the vertical scrollbar will be displayed in the panes.",
-        scrollbar_placement_vals, prefs.gui_scrollbar_on_right);
-    g_object_set_data(G_OBJECT(main_vb), SCROLLBAR_PLACEMENT_KEY, scrollbar_om);
-
     /* Alternating row colors in list and tree views */
     altern_colors_om = create_preference_option_menu(main_tb, pos++,
         "Alternating row colors in lists and trees:",
@@ -453,10 +471,6 @@ layout_prefs_fetch(GtkWidget *w)
     prefs.gui_layout_content_1 = layout_fetched.content[0];
     prefs.gui_layout_content_2 = layout_fetched.content[1];
     prefs.gui_layout_content_3 = layout_fetched.content[2];
-
-    prefs.gui_scrollbar_on_right = fetch_enum_value(
-        g_object_get_data(G_OBJECT(w), SCROLLBAR_PLACEMENT_KEY),
-        scrollbar_placement_vals);
 
     prefs.gui_altern_colors = fetch_enum_value(
         g_object_get_data(G_OBJECT(w), ALTERN_COLORS_KEY), altern_colors_vals);

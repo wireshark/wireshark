@@ -56,6 +56,8 @@ private:
     pref_t *pref_ask_unsaved_;
     pref_t *pref_auto_scroll_on_expand_;
     pref_t *pref_auto_scroll_percentage_;
+    pref_t *pref_toolbar_main_style_;
+    pref_t *pref_toolbar_filter_style_;
 
     void updateWidgets();
 
@@ -70,6 +72,8 @@ private slots:
     void on_confirmUnsavedCheckBox_toggled(bool checked);
     void on_autoScrollCheckBox_toggled(bool checked);
     void on_autoScrollPercentageLineEdit_textEdited(const QString &new_pct);
+    void on_mainToolbarComboBox_currentIndexChanged(int index);
+    void on_filterToolbarComboBox_currentIndexChanged(int index);
 };
 
 #endif // MAIN_WINDOW_PREFERENCES_FRAME_H

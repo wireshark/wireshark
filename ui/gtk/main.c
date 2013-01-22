@@ -3668,7 +3668,11 @@ top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_dat
 }
 
 static void
-create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
+create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p
+#if !defined(HAVE_IGE_MAC_INTEGRATION) && !defined (HAVE_GTKOSXAPPLICATION)
+                    _U_
+#endif
+                    )
 {
     GtkAccelGroup *accel;
 
@@ -3719,7 +3723,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
     gtk_widget_show_all(pkt_scrollw);
 
     /* Tree view */
-    tv_scrollw = proto_tree_view_new(prefs_p, &tree_view_gbl);
+    tv_scrollw = proto_tree_view_new(&tree_view_gbl);
     gtk_widget_set_size_request(tv_scrollw, -1, tv_size);
     gtk_widget_show(tv_scrollw);
 

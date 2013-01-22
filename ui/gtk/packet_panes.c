@@ -1071,37 +1071,6 @@ forget_ptree_widget(GtkWidget *ptreew, gpointer data _U_)
     ptree_widgets = g_list_remove(ptree_widgets, ptreew);
 }
 
-/* Set the selection mode of a given packet tree window. */
-static void
-set_ptree_sel_browse(GtkWidget *tree, gboolean val)
-{
-    GtkTreeSelection *selection;
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
-    /* Yeah, GTK uses "browse" in the case where we do not, but oh well.
-       I think "browse" in Wireshark makes more sense than "SINGLE" in
-       GTK+ */
-    if (val) {
-        gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
-    }
-    else {
-        gtk_tree_selection_set_mode(selection, GTK_SELECTION_BROWSE);
-    }
-}
-
-static void
-set_ptree_sel_browse_cb(gpointer data, gpointer user_data)
-{
-    set_ptree_sel_browse((GtkWidget *)data, *(gboolean *)user_data);
-}
-
-/* Set the selection mode of all packet tree windows. */
-void
-set_ptree_sel_browse_all(gboolean val)
-{
-    g_list_foreach(ptree_widgets, set_ptree_sel_browse_cb, &val);
-}
-
 static void
 set_ptree_font_cb(gpointer data, gpointer user_data)
 {
@@ -1271,7 +1240,7 @@ tree_cell_renderer(GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *cell,
 }
 
 GtkWidget *
-proto_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
+proto_tree_view_new(GtkWidget **tree_view_p)
 {
     GtkWidget *tv_scrollw, *tree_view;
     ProtoTreeModel *store;
@@ -1303,7 +1272,6 @@ proto_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
     g_signal_connect(tree_view, "row-expanded", G_CALLBACK(expand_tree), NULL);
     g_signal_connect(tree_view, "row-collapsed", G_CALLBACK(collapse_tree), NULL);
     gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
-    set_ptree_sel_browse(tree_view, prefs_p->gui_ptree_sel_browse);
 #if GTK_CHECK_VERSION(3,0,0)
     gtk_widget_override_font(tree_view, user_font_get_regular());
 #else

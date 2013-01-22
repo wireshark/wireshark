@@ -45,6 +45,8 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     pref_ask_unsaved_ = prefFromPrefPtr(&prefs.gui_ask_unsaved);
     pref_auto_scroll_on_expand_ = prefFromPrefPtr(&prefs.gui_auto_scroll_on_expand);
     pref_auto_scroll_percentage_ = prefFromPrefPtr(&prefs.gui_auto_scroll_percentage);
+    pref_toolbar_main_style_ = prefFromPrefPtr(&prefs.gui_toolbar_main_style);
+    pref_toolbar_filter_style_ = prefFromPrefPtr(&prefs.gui_toolbar_filter_style);
 
     QStyleOption style_opt;
     QString indent_ss = QString(
@@ -98,6 +100,9 @@ void MainWindowPreferencesFrame::updateWidgets()
 
     ui->autoScrollCheckBox->setChecked(pref_auto_scroll_on_expand_->stashed_val.boolval);
     ui->autoScrollPercentageLineEdit->setText(QString::number(pref_auto_scroll_on_expand_->stashed_val.uint));
+
+    ui->mainToolbarComboBox->setCurrentIndex(pref_toolbar_main_style_->stashed_val.enumval);
+    ui->filterToolbarComboBox->setCurrentIndex(pref_toolbar_filter_style_->stashed_val.enumval);
 }
 
 void MainWindowPreferencesFrame::on_geometryCheckBox_toggled(bool checked)
@@ -167,6 +172,16 @@ void MainWindowPreferencesFrame::on_autoScrollPercentageLineEdit_textEdited(cons
     pref_auto_scroll_percentage_->stashed_val.uint = new_pct.toUInt();
     pref_auto_scroll_on_expand_->stashed_val.boolval = TRUE;
     ui->autoScrollCheckBox->setChecked(true);
+}
+
+void MainWindowPreferencesFrame::on_mainToolbarComboBox_currentIndexChanged(int index)
+{
+    pref_toolbar_main_style_->stashed_val.enumval = index;
+}
+
+void MainWindowPreferencesFrame::on_filterToolbarComboBox_currentIndexChanged(int index)
+{
+    pref_toolbar_filter_style_->stashed_val.enumval = index;
 }
 
 /*

@@ -1838,20 +1838,9 @@ prefs_register_modules(void)
     gui_module = prefs_register_module(NULL, "gui", "User Interface",
         "User Interface", &gui_callback, FALSE);
 
-    prefs_register_bool_preference(gui_module, "scrollbar_on_right",
-                                   "Vertical scrollbars on right side",
-                                   "Vertical scrollbars should be on right side?",
-                                   &prefs.gui_scrollbar_on_right);
-
-    prefs_register_bool_preference(gui_module, "packet_list_sel_browse",
-                                   "Packet-list selection bar browse",
-                                   "Packet-list selection bar can be used to browse w/o selecting?",
-                                   &prefs.gui_plist_sel_browse);
-
-    prefs_register_bool_preference(gui_module, "protocol_tree_sel_browse",
-                                   "Protocol-tree selection bar browse",
-                                   "Protocol-tree selection bar can be used to browse w/o selecting?",
-                                   &prefs.gui_ptree_sel_browse);
+    prefs_register_obsolete_preference(gui_module, "scrollbar_on_right");
+    prefs_register_obsolete_preference(gui_module, "packet_list_sel_browse");
+    prefs_register_obsolete_preference(gui_module, "protocol_tree_sel_browse");
 
     prefs_register_bool_preference(gui_module, "tree_view_altern_colors",
                                    "Alternating colors in TreeViews",
@@ -2573,9 +2562,6 @@ pre_init_prefs(void)
   prefs.pr_file    = "wireshark.out";
   prefs.pr_cmd     = "lpr";
 
-  prefs.gui_scrollbar_on_right = TRUE;
-  prefs.gui_plist_sel_browse = FALSE;
-  prefs.gui_ptree_sel_browse = FALSE;
   prefs.gui_altern_colors = FALSE;
   prefs.gui_expert_composite_eyecandy = FALSE;
   prefs.gui_ptree_line_style = 0;

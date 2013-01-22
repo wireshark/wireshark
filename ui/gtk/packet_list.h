@@ -140,12 +140,4 @@ void packet_list_return_all_comments(GtkTextBuffer *buffer);
 GtkWidget * packet_list_get_widget(void);
 void packet_list_colorize_packets(void);
 
-/** Set the selection mode of the packet list window.
- *
- * @param val TRUE for GTK_SELECTION_SINGLE, FALSE for GTK_SELECTION_BROWSE
- * @param force_set TRUE to force setting of the selection mode even if it
- *                  was already set (used within packet_list_recreate).
- */
-extern void packet_list_set_sel_browse(gboolean val, gboolean force_set);
-
 #endif /* __PACKET_LIST_H__ */

@@ -179,11 +179,10 @@ extern GtkTreePath *tree_find_by_field_info(GtkTreeView *tree_view, field_info *
 
 /** Create a new tree view (packet details).
  *
- * @param prefs current preferences
  * @param tree_view_p fill in the new tree view
  * @return the new scrolled window (parent of the tree view)
  */
-extern GtkWidget * proto_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p);
+extern GtkWidget * proto_tree_view_new(GtkWidget **tree_view_p);
 
 /** Clear and redraw the whole tree view.
  *
@@ -215,12 +214,6 @@ extern void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view);
  * @return TRUE if could be selected
  */
 extern gboolean tree_view_select(GtkWidget *widget, GdkEventButton *event);
-
-/** Set the selection mode of all packet tree windows.
- *
- * @param val GTK_SELECTION_SINGLE if TRUE, GTK_SELECTION_BROWSE if FALSE
- */
-extern void set_ptree_sel_browse_all(gboolean val);
 
 typedef enum {
   BYTES_HEX,

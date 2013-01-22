@@ -59,8 +59,6 @@ static gboolean recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 					     GdkEvent *event _U_, gpointer parent_w);
 static gint scroll_percent_changed_cb(GtkWidget *recent_df_entry _U_,
 					  GdkEvent *event _U_, gpointer parent_w);
-#define PLIST_SEL_BROWSE_KEY		"plist_sel_browse"
-#define PTREE_SEL_BROWSE_KEY		"ptree_sel_browse"
 #define GEOMETRY_POSITION_KEY		"geometry_position"
 #define GEOMETRY_SIZE_KEY		"geometry_size"
 #define GEOMETRY_MAXIMIZED_KEY		"geometry_maximized"
@@ -81,24 +79,6 @@ static gint scroll_percent_changed_cb(GtkWidget *recent_df_entry _U_,
 #define GUI_EXPERT_EYECANDY_KEY		"expert_eyecandy"
 #define GUI_AUTO_SCROLL_KEY		"auto_scroll_on_expand"
 #define GUI_SCROLL_PERCENT_KEY		"scroll_percent_on_expand"
-
-static const enum_val_t scrollbar_placement_vals[] _U_ = {
-	{ "FALSE", "Left", FALSE },
-	{ "TRUE",  "Right", TRUE },
-	{ NULL,    NULL,    0 }
-};
-
-static const enum_val_t selection_mode_vals[] = {
-	{ "FALSE", "Selects", FALSE },
-	{ "TRUE",  "Browses", TRUE },
-	{ NULL,    NULL,      0 }
-};
-
-static const enum_val_t altern_colors_vals[] _U_ = {
-	{ "FALSE", "No",  FALSE },
-	{ "TRUE",  "Yes", TRUE },
-	{ NULL,    NULL,  0 }
-};
 
 static const enum_val_t filter_toolbar_placement_vals[] _U_ = {
 	{ "FALSE", "Below the main toolbar", FALSE },
@@ -161,8 +141,6 @@ GtkWidget*
 gui_prefs_show(void)
 {
 	GtkWidget *main_tb, *main_vb;
-	GtkWidget *plist_browse_om;
-	GtkWidget *ptree_browse_om;
 #ifdef _WIN32
 	GtkWidget *console_open_om;
 #endif
@@ -193,20 +171,6 @@ gui_prefs_show(void)
 	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
 	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
-
-	/* Packet list selection browseable */
-	plist_browse_om = create_preference_option_menu(main_tb, pos++,
-	    "Packet list selection mode:",
-	    "Choose to browse or select a packet for detailed dissection.",
-	    selection_mode_vals, prefs.gui_plist_sel_browse);
-	g_object_set_data(G_OBJECT(main_vb), PLIST_SEL_BROWSE_KEY, plist_browse_om);
-
-	/* Proto tree selection browseable */
-	ptree_browse_om = create_preference_option_menu(main_tb, pos++,
-	    "Protocol tree selection mode:",
-	    "Choose to browse or select.",
-	    selection_mode_vals, prefs.gui_ptree_sel_browse);
-	g_object_set_data(G_OBJECT(main_vb), PTREE_SEL_BROWSE_KEY, ptree_browse_om);
 
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_tb, pos++,
@@ -376,10 +340,6 @@ fetch_enum_value(gpointer control, const enum_val_t *enumvals)
 void
 gui_prefs_fetch(GtkWidget *w)
 {
-	prefs.gui_plist_sel_browse = fetch_enum_value(
-		g_object_get_data(G_OBJECT(w), PLIST_SEL_BROWSE_KEY), selection_mode_vals);
-	prefs.gui_ptree_sel_browse = fetch_enum_value(
-		g_object_get_data(G_OBJECT(w), PTREE_SEL_BROWSE_KEY), selection_mode_vals);
 	prefs.gui_geometry_save_position =
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_POSITION_KEY));
 	prefs.gui_geometry_save_size =
@@ -456,9 +416,6 @@ gui_prefs_apply(GtkWidget *w _U_)
 	/* XXX: redraw the toolbar only, if style changed */
 	toolbar_redraw_all();
 
-	set_scrollbar_placement_all();
-	packet_list_set_sel_browse(prefs.gui_plist_sel_browse, FALSE);
-	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
 	set_tree_styles_all();
 	main_widgets_rearrange();
 }

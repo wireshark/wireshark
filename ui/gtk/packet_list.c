@@ -106,8 +106,6 @@ static gint row_number_from_iter(GtkTreeIter *iter);
 static void scroll_to_current(void);
 static gboolean query_packet_list_tooltip_cb(GtkWidget *widget, gint x, gint y, gboolean keyboard_tip, GtkTooltip *tooltip, gpointer data _U_);
 
-void packet_list_set_sel_browse(gboolean val, gboolean force_set);
-
 GtkWidget *
 packet_list_create(void)
 {
@@ -116,8 +114,6 @@ packet_list_create(void)
 	scrollwin = scrolled_window_new(NULL, NULL);
 
 	view = create_view_and_model();
-
-	packet_list_set_sel_browse(prefs.gui_plist_sel_browse, FALSE);
 
 	gtk_container_add(GTK_CONTAINER(scrollwin), view);
 
@@ -1395,46 +1391,6 @@ packet_list_queue_draw(void)
 		return;
 	row = row_number_from_iter(&iter);
 	cf_select_packet(&cfile, row);
-}
-
-/* Set the selection mode of the packet list window. */
-void
-packet_list_set_sel_browse(gboolean val, gboolean force_set)
-{
-	GtkSelectionMode new_mode;
-	/* initialize with a mode we don't use, so that the mode == new_mode
-	 * test will fail the first time */
-	static GtkSelectionMode mode = GTK_SELECTION_MULTIPLE;
-
-	/* Yeah, GTK uses "browse" in the case where we do not, but oh well. I
-	 * think "browse" in Wireshark makes more sense than "SINGLE" in GTK+ */
-	new_mode = val ? GTK_SELECTION_SINGLE : GTK_SELECTION_BROWSE;
-
-	if ((mode == new_mode) && !force_set) {
-		/*
-		 * The mode isn't changing, so don't do anything.
-		 * In particular, don't gratuitiously unselect the
-		 * current packet.
-		 *
-		 * XXX - Copied code from "old" packet list
-		 *  - I don't know if the comment below is still true...
-		 * XXX - why do we have to unselect the current packet
-		 * ourselves?  The documentation for the GtkCList at
-		 *
-		 *      http://developer.gnome.org/doc/API/gtk/gtkclist.html
-		 *
-		 * says "Note that setting the widget's selection mode to
-		 * one of GTK_SELECTION_BROWSE or GTK_SELECTION_SINGLE will
-		 * cause all the items in the GtkCList to become deselected."
-		 */
-		return;
-	}
-
-	if (cfile.finfo_selected)
-		cf_unselect_field(&cfile);
-
-	mode = new_mode;
-	gtk_tree_selection_set_mode (gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view)), mode);
 }
 
 void

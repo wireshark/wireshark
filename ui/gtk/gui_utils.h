@@ -207,10 +207,6 @@ extern void bad_dfilter_alert_box(GtkWidget *parent, const char *dftext);
 extern GtkWidget *scrolled_window_new(GtkAdjustment *hadjustment,
 			       GtkAdjustment *vadjustment);
 
-/** Set the scrollbar placement of all scrolled windows based on user
-   preference. */
-extern void set_scrollbar_placement_all(void);
-
 /** Create a GtkTreeView, give it the right styles, and remember it.
  *
  * @param model The model (the data) of this tree view.

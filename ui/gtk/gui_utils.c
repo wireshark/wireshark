@@ -881,7 +881,6 @@ static GList *scrolled_windows;
 
 static void setup_scrolled_window(GtkWidget *scrollw);
 static void forget_scrolled_window(GtkWidget *scrollw, gpointer data);
-static void set_scrollbar_placement_scrollw(GtkWidget *scrollw);
 
 /* Create a GtkScrolledWindow, set its scrollbar placement appropriately,
    and remember it. */
@@ -901,8 +900,6 @@ scrolled_window_new(GtkAdjustment *hadjustment,
 static void
 setup_scrolled_window(GtkWidget *scrollw)
 {
-    set_scrollbar_placement_scrollw(scrollw);
-
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollw),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
@@ -919,35 +916,6 @@ forget_scrolled_window(GtkWidget *scrollw,
                        gpointer   data _U_)
 {
     scrolled_windows = g_list_remove(scrolled_windows, scrollw);
-}
-
-/* Set the scrollbar placement of a GtkScrolledWindow based upon user
-   preference. */
-static void
-set_scrollbar_placement_scrollw(GtkWidget *scrollw)
-{
-    if (prefs.gui_scrollbar_on_right) {
-        gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scrollw),
-                                          GTK_CORNER_TOP_LEFT);
-    } else {
-        gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scrollw),
-                                          GTK_CORNER_TOP_RIGHT);
-    }
-}
-
-static void
-set_scrollbar_placement_cb(gpointer data,
-                           gpointer user_data _U_)
-{
-    set_scrollbar_placement_scrollw((GtkWidget *)data);
-}
-
-/* Set the scrollbar placement of all GtkScrolledWindows based on
-   user preference. */
-void
-set_scrollbar_placement_all(void)
-{
-    g_list_foreach(scrolled_windows, set_scrollbar_placement_cb, NULL);
 }
 
 /* List of all CTrees/TreeViews, so we can globally set the line and

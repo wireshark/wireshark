@@ -131,14 +131,6 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
                                    GTK_SHADOW_IN);
   gtk_box_pack_start(GTK_BOX(dfilter_vb), txt_scrollw, TRUE, TRUE, 0);
   dfilter_text = gtk_text_view_new();
-  if (prefs.gui_scrollbar_on_right) {
-    gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(txt_scrollw),
-                                      GTK_CORNER_TOP_LEFT);
-  }
-  else {
-    gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(txt_scrollw),
-                                      GTK_CORNER_TOP_RIGHT);
-  }
   gtk_text_view_set_editable(GTK_TEXT_VIEW(dfilter_text), FALSE);
   set_supported_text(dfilter_text, DFILTER_SUPPORTED);
   gtk_container_add(GTK_CONTAINER(txt_scrollw), dfilter_text);
