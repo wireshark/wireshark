@@ -420,7 +420,7 @@ GTK_MINOR_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
 GTK_DOTDOT_VERSION="`expr $GTK_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
 if [[ $GTK_MAJOR_VERSION -gt 2 ||
       $GTK_MINOR_VERSION -gt 24 ||
-      ($GTK_MINOR_VERSION -eq 24 && $GTK_DOTDOT_VERSION -ge 25) ]]
+      ($GTK_MINOR_VERSION -eq 24 && $GTK_DOTDOT_VERSION -ge 5) ]]
 then
 	#
 	# Starting with GTK+ 2.24.5, the tarballs are compressed with
