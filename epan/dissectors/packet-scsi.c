@@ -3562,7 +3562,8 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
         dissect_modepage = dissect_scsi_spc_modepage;
     }
 
-    ti = proto_tree_add_text(scsi_tree, tvb, offset, plen + spf ? 4 : 2, "%s Mode Page",
+    ti = proto_tree_add_text(scsi_tree, tvb, offset, plen + (spf ? 4 : 2),
+                             "%s Mode Page",
                              val_to_str(pcode & SCSI_MS_PCODE_BITS,
                                         modepage_val, "Unknown (0x%08x)"));
     tree = proto_item_add_subtree(ti, ett_scsi_page);
