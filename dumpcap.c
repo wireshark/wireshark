@@ -231,32 +231,32 @@ typedef struct _pcap_options {
     guint32                      dropped;
     pcap_t                      *pcap_h;
 #ifdef MUST_DO_SELECT
-    int                          pcap_fd;                /* pcap file descriptor */
+    int                          pcap_fd;                /**< pcap file descriptor */
 #endif
     gboolean                     pcap_err;
     guint                        interface_id;
     GThread                     *tid;
     int                          snaplen;
     int                          linktype;
-    gboolean                     ts_nsec;                /* TRUE if we're using nanosecond precision. */
-                                                         /* capture pipe (unix only "input file") */
-    gboolean                     from_cap_pipe;          /* TRUE if we are capturing data from a capture pipe */
-    gboolean                     from_cap_socket;        /* TRUE if we're capturing from socket */
-    struct pcap_hdr              cap_pipe_hdr;           /* Pcap header when capturing from a pipe */
-    struct pcaprec_modified_hdr  cap_pipe_rechdr;        /* Pcap record header when capturing from a pipe */
+    gboolean                     ts_nsec;                /**< TRUE if we're using nanosecond precision. */
+                                                         /**< capture pipe (unix only "input file") */
+    gboolean                     from_cap_pipe;          /**< TRUE if we are capturing data from a capture pipe */
+    gboolean                     from_cap_socket;        /**< TRUE if we're capturing from socket */
+    struct pcap_hdr              cap_pipe_hdr;           /**< Pcap header when capturing from a pipe */
+    struct pcaprec_modified_hdr  cap_pipe_rechdr;        /**< Pcap record header when capturing from a pipe */
 #ifdef _WIN32
-    HANDLE                       cap_pipe_h;             /* The handle of the capture pipe */
+    HANDLE                       cap_pipe_h;             /**< The handle of the capture pipe */
 #endif
-    int                          cap_pipe_fd;            /* the file descriptor of the capture pipe */
-    gboolean                     cap_pipe_modified;      /* TRUE if data in the pipe uses modified pcap headers */
-    gboolean                     cap_pipe_byte_swapped;  /* TRUE if data in the pipe is byte swapped */
+    int                          cap_pipe_fd;            /**< the file descriptor of the capture pipe */
+    gboolean                     cap_pipe_modified;      /**< TRUE if data in the pipe uses modified pcap headers */
+    gboolean                     cap_pipe_byte_swapped;  /**< TRUE if data in the pipe is byte swapped */
 #if defined(_WIN32)
-    char *                       cap_pipe_buf;           /* Pointer to the data buffer we read into */
-    DWORD                        cap_pipe_bytes_to_read; /* Used by cap_pipe_dispatch */
-    DWORD                        cap_pipe_bytes_read;    /* Used by cap_pipe_dispatch */
+    char *                       cap_pipe_buf;           /**< Pointer to the data buffer we read into */
+    DWORD                        cap_pipe_bytes_to_read; /**< Used by cap_pipe_dispatch */
+    DWORD                        cap_pipe_bytes_read;    /**< Used by cap_pipe_dispatch */
 #else
-    size_t                       cap_pipe_bytes_to_read; /* Used by cap_pipe_dispatch */
-    size_t                       cap_pipe_bytes_read;    /* Used by cap_pipe_dispatch */
+    size_t                       cap_pipe_bytes_to_read; /**< Used by cap_pipe_dispatch */
+    size_t                       cap_pipe_bytes_read;    /**< Used by cap_pipe_dispatch */
 #endif
     enum {
         STATE_EXPECT_REC_HDR,
@@ -273,13 +273,13 @@ typedef struct _pcap_options {
 
 typedef struct _loop_data {
     /* common */
-    gboolean  go;               /* TRUE as long as we're supposed to keep capturing */
-    int       err;              /* if non-zero, error seen while capturing */
-    gint      packet_count;     /* Number of packets we have already captured */
-    gint      packet_max;       /* Number of packets we're supposed to capture - 0 means infinite */
-    guint     inpkts_to_sync_pipe; /* Packets not already send out to the sync_pipe */
+    gboolean  go;               /**< TRUE as long as we're supposed to keep capturing */
+    int       err;              /**< if non-zero, error seen while capturing */
+    gint      packet_count;     /**< Number of packets we have already captured */
+    gint      packet_max;       /**< Number of packets we're supposed to capture - 0 means infinite */
+    guint     inpkts_to_sync_pipe; /**< Packets not already send out to the sync_pipe */
 #ifdef SIGINFO
-    gboolean  report_packet_count; /* Set by SIGINFO handler; print packet count */
+    gboolean  report_packet_count; /**< Set by SIGINFO handler; print packet count */
 #endif
     GArray   *pcaps;
     /* output file(s) */
