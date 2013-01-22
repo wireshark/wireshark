@@ -70,13 +70,19 @@ wmem_simple_realloc(void *private_data, void *ptr, const size_t size)
     newptr = g_realloc(ptr, size);
 
     if (ptr != newptr) {
-        /* realloc actually moved the memory block. We have to steal()
-         * instead of remove() because realloc has already reclaimed the old
-         * block, and remove()ing it would call g_free() which we don't want. */
-        g_hash_table_steal(allocator->block_table, ptr);
-        /* realloc is allowed to return NULL if the requested size is 0, in
-         * which case we don't need to add it to the hash table */
+        /* realloc actually moved the memory block. */
+        if (ptr) {
+            /* ptr is allowed to be NULL in which case it is assumed to have 0
+             * length. If it is non-NULL we need to remove it from the hash
+             * table, as realloc reclaimed it during the move, however calling
+             * g_hash_table_remove() would trigger a double-free (because we
+             * registered g_free() as the destructor function for the hash
+             * table) so we use g_hash_table_steal() instead. */
+            g_hash_table_steal(allocator->block_table, ptr);
+        }
         if (newptr) {
+            /* realloc is allowed to return NULL if the requested size is 0, in
+             * which case we don't need to add it to the hash table */
             g_hash_table_insert(allocator->block_table, newptr, newptr);
         }
     }
@@ -91,9 +97,12 @@ wmem_simple_free(void *private_data, void *ptr)
 
     allocator = (wmem_simple_allocator_t*) private_data;
 
-    /* remove() takes care of calling g_free() for us since we set up the hash
-     * table with g_hash_table_new_full() */
-    g_hash_table_remove(allocator->block_table, ptr);
+    /* free is a no-op on a NULL pointer */
+    if (ptr) {
+        /* remove() takes care of calling g_free() for us since we set up the
+         * hash table with g_hash_table_new_full() */
+        g_hash_table_remove(allocator->block_table, ptr);
+    }
 }
 
 static void
