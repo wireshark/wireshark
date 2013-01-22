@@ -586,6 +586,7 @@ DISSECTOR_SRC = \
 	packet-gprs-llc.c	\
 	packet-gre.c		\
 	packet-gsm_a_bssmap.c	\
+	packet-gsm_a_common.c	\
 	packet-gsm_a_dtap.c	\
 	packet-gsm_a_gm.c	\
 	packet-gsm_a_rp.c	\
@@ -1207,7 +1208,6 @@ DISSECTOR_SRC = \
 # Files that create warnings while building
 #
 DIRTY_DISSECTOR_SRC = \
-	packet-gsm_a_common.c	\
 	packet-x11.c
 
 #
