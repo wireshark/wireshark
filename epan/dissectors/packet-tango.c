@@ -595,8 +595,6 @@ decode_get_Tango_Device_adm_name_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static void
 decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     switch(header->message_type) {
     case Request:
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_command_inout_command);
@@ -632,8 +630,6 @@ decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 static void
 decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_get_attribute_config_names;
     guint32   i_Tango_Device_get_attribute_config_names;
@@ -691,8 +687,6 @@ decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _
 static void
 decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_set_attribute_config_new_conf;
     guint32   i_Tango_Device_set_attribute_config_new_conf;
@@ -740,8 +734,6 @@ decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _
 static void
 decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_read_attributes_names;
     guint32   i_Tango_Device_read_attributes_names;
@@ -799,8 +791,6 @@ decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static void
 decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_write_attributes_values;
     guint32   i_Tango_Device_write_attributes_values;
@@ -848,8 +838,6 @@ decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 static void
 decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     switch(header->message_type) {
     case Request:
         break;
@@ -881,8 +869,6 @@ decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
 static void
 decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_black_box_return;
     guint32   i_Tango_Device_black_box_return;
@@ -929,8 +915,6 @@ decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 static void
 decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     switch(header->message_type) {
     case Request:
         break;
@@ -963,8 +947,6 @@ decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
 static void
 decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_command_list_query_return;
     guint32   i_Tango_Device_command_list_query_return;
@@ -1010,8 +992,6 @@ decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static void
 decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     switch(header->message_type) {
     case Request:
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_command_query_command);
@@ -1046,8 +1026,6 @@ decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 static void
 decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4;
     /* Operation specific Variable declarations End */
@@ -1091,8 +1069,6 @@ decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static void
 decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_2_read_attributes_2_names;
     guint32   i_Tango_Device_2_read_attributes_2_names;
@@ -1155,8 +1131,6 @@ decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static void
 decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_2_get_attribute_config_2_names;
     guint32   i_Tango_Device_2_get_attribute_config_2_names;
@@ -1214,8 +1188,6 @@ decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, packet_info *pin
 static void
 decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_2_command_list_query_2_return;
     guint32   i_Tango_Device_2_command_list_query_2_return;
@@ -1261,8 +1233,6 @@ decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet_info *pinfo
 static void
 decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     switch(header->message_type) {
     case Request:
         giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_Device_2_command_query_2_command);
@@ -1297,8 +1267,6 @@ decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static void
 decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_2_command_inout_history_2_return;
     guint32   i_Tango_Device_2_command_inout_history_2_return;
@@ -1348,8 +1316,6 @@ decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, packet_info *pi
 static void
 decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_2_read_attribute_history_2_return;
     guint32   i_Tango_Device_2_read_attribute_history_2_return;
@@ -1399,8 +1365,6 @@ decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, packet_info *p
 static void
 decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_3_read_attributes_3_names;
     guint32   i_Tango_Device_3_read_attributes_3_names;
@@ -1463,8 +1427,6 @@ decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static void
 decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_3_write_attributes_3_values;
     guint32   i_Tango_Device_3_write_attributes_3_values;
@@ -1512,8 +1474,6 @@ decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _
 static void
 decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_3_read_attribute_history_3_return;
     guint32   i_Tango_Device_3_read_attribute_history_3_return;
@@ -1563,8 +1523,6 @@ decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, packet_info *p
 static void
 decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     switch(header->message_type) {
     case Request:
         break;
@@ -1597,8 +1555,6 @@ decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 static void
 decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_3_get_attribute_config_3_names;
     guint32   i_Tango_Device_3_get_attribute_config_3_names;
@@ -1656,8 +1612,6 @@ decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pin
 static void
 decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
-
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_Device_3_set_attribute_config_3_new_conf;
     guint32   i_Tango_Device_3_set_attribute_config_3_new_conf;
@@ -1703,7 +1657,6 @@ decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pin
 static void
 decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_DevVarLongStringArray_lvalue;
@@ -1738,7 +1691,6 @@ decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 static void
 decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue;
@@ -1773,7 +1725,6 @@ decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
 static void
 decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     proto_tree_add_int(tree, hf_Tango_TimeVal_tv_sec, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
@@ -1787,7 +1738,6 @@ decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
 static void
 decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevCmdInfo_cmd_name);
 
@@ -1807,7 +1757,6 @@ decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 static void
 decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4;
@@ -1835,7 +1784,6 @@ decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 static void
 decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4;
@@ -1857,7 +1805,6 @@ decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
 static void
 decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_NamedDevError_err_list;
@@ -1885,7 +1832,6 @@ decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 static void
 decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4;
@@ -1947,7 +1893,6 @@ decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 static void
 decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4;
@@ -2013,7 +1958,6 @@ decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 static void
 decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4;
@@ -2040,7 +1984,6 @@ decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 static void
 decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     proto_tree_add_int(tree, hf_Tango_AttributeDim_dim_x, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
@@ -2052,7 +1995,6 @@ decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 static void
 decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4;
@@ -2094,7 +2036,6 @@ decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static void
 decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_ChangeEventProp_extensions;
@@ -2121,7 +2062,6 @@ decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 static void
 decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_PeriodicEventProp_extensions;
@@ -2146,7 +2086,6 @@ decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 static void
 decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_ArchiveEventProp_extensions;
@@ -2175,7 +2114,6 @@ decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static void
 decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /*  Begin struct "Tango_ChangeEventProp"  */
     decode_Tango_ChangeEventProp_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
@@ -2192,7 +2130,6 @@ decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 static void
 decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_AttributeAlarm_extensions;
@@ -2227,7 +2164,6 @@ decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 static void
 decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4;
@@ -2307,7 +2243,6 @@ decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 static void
 decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_dev_class);
 
@@ -2325,7 +2260,6 @@ decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
 static void
 decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevInfo_3_dev_class);
 
@@ -2345,7 +2279,6 @@ decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
 static void
 decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_DevCmdHistory_errors;
@@ -2376,7 +2309,6 @@ decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 static void
 decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_DevAttrHistory_errors;
@@ -2405,7 +2337,6 @@ decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 static void
 decode_Tango_DevAttrHistory_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     proto_tree_add_boolean(tree, hf_Tango_DevAttrHistory_3_attr_failed, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
 
