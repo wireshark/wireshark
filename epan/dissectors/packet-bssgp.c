@@ -3270,12 +3270,12 @@ const value_string bssgp_elem_strings[] = {
     { 0x28, "Packet Flow Identifier (PFI)" },                       /* 11.3.42  Packet Flow Identifier (PFI) GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID*/
                                                                     /* 11.3.42a (void) */
     { 0x29, "GPRS Timer" },                                         /* 11.3.44  GPRS Timer */
-    { 0x3a, "Aggregate BSS QoS Profile" },                          /* 11.3.43  Aggregate BSS QoS Profile GSM_A_PDU_TYPE_GM, DE_QOS*/
-    { 0x3b, "Feature Bitmap" },                                     /* 11.3.45  Feature Bitmap */
-    { 0x3c, "Bucket Full Ratio" },                                  /* 11.3.46  Bucket Full Ratio */
-    { 0x3d, "Service UTRAN CCO" },                                  /* 11.3.47  Service UTRAN CCO */
-    { 0x3e, "NSEI (Network Service Entity Identifier)" },           /* 11.3.48  NSEI (Network Service Entity Identifier) */
-    { 0x00, "RRLP APDU" },                                          /* 11.3.49 RRLP APDU */
+    { 0x2a, "Aggregate BSS QoS Profile" },                          /* 11.3.43  Aggregate BSS QoS Profile GSM_A_PDU_TYPE_GM, DE_QOS*/
+    { 0x2b, "Feature Bitmap" },                                     /* 11.3.45  Feature Bitmap */
+    { 0x2c, "Bucket Full Ratio" },                                  /* 11.3.46  Bucket Full Ratio */
+    { 0x2d, "Service UTRAN CCO" },                                  /* 11.3.47  Service UTRAN CCO */
+    { 0x2e, "NSEI (Network Service Entity Identifier)" },           /* 11.3.48  NSEI (Network Service Entity Identifier) */
+    { 0x2f, "RRLP APDU" },                                          /* 11.3.49 RRLP APDU */
                                                                     /* 11.3.50  LCS QoS BSSGP_IEI_LCS_QOS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCSQOS*/
                                                                     /* 11.3.51  LCS Client Type BSSGP_IEI_LCS_CLIENT_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE*/
                                                                     /* 11.3.52  Requested GPS Assistance Data BSSGP_IEI_REQUESTED_GPS_ASSISTANCE_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_REQ_GPS_ASSIST_D*/
@@ -3286,86 +3286,86 @@ const value_string bssgp_elem_strings[] = {
                                                                     /* 11.3.57  LCS Priority BSSGP_IEI_LCS_PRIORITY, GSM_A_PDU_TYPE_BSSMAP, BE_LCS_PRIO;*/
                                                                     /* 11.3.58  LCS Cause BSSGP_IEI_LCS_CAUSE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAUSE */
                                                                     /* 11.3.59  LCS Capability 0x49 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP*/
-    { 0x00, "RRLP Flags" },                                         /* 11.3.60  RRLP Flags */
-    { 0x00, "RIM Application Identity" },                           /* 11.3.61  RIM Application Identity */
-    { 0x00, "RIM Sequence Number" },                                /* 11.3.62  RIM Sequence Number */
+    { 0x30, "RRLP Flags" },                                         /* 11.3.60  RRLP Flags */
+    { 0x31, "RIM Application Identity" },                           /* 11.3.61  RIM Application Identity */
+    { 0x32, "RIM Sequence Number" },                                /* 11.3.62  RIM Sequence Number */
  /* 11.3.62a    RIM Container */
  /* 11.3.62a.0  General */
-    { 0x00, "RAN-INFORMATION-REQUEST RIM Container" },              /* 11.3.62a.1   RAN-INFORMATION-REQUEST RIM Container */
-    { 0x00, "RAN-INFORMATION RIM Container" },                      /* 11.3.62a.2   RAN-INFORMATION RIM Container */
-    { 0x00, "RAN-INFORMATION-ACK RIM Container" },                  /* 11.3.62a.3   RAN-INFORMATION-ACK RIM Container */
-    { 0x00, "RAN-INFORMATION-ERROR RIM Container" },                /* 11.3.62a.4   RAN-INFORMATION-ERROR RIM Container */
-    { 0x00, "RAN-INFORMATION-APPLICATION-ERROR RIM Container" },    /* 11.3.62a.5   RAN-INFORMATION-APPLICATION-ERROR RIM Container */
+    { 0x33, "RAN-INFORMATION-REQUEST RIM Container" },              /* 11.3.62a.1   RAN-INFORMATION-REQUEST RIM Container */
+    { 0x34, "RAN-INFORMATION RIM Container" },                      /* 11.3.62a.2   RAN-INFORMATION RIM Container */
+    { 0x35, "RAN-INFORMATION-ACK RIM Container" },                  /* 11.3.62a.3   RAN-INFORMATION-ACK RIM Container */
+    { 0x36, "RAN-INFORMATION-ERROR RIM Container" },                /* 11.3.62a.4   RAN-INFORMATION-ERROR RIM Container */
+    { 0x37, "RAN-INFORMATION-APPLICATION-ERROR RIM Container" },    /* 11.3.62a.5   RAN-INFORMATION-APPLICATION-ERROR RIM Container */
  /* 11.3.63 Application Container */
-    { 0x00, "RAN-INFORMATION-REQUEST Application Container" },      /* 11.3.63.1    RAN-INFORMATION-REQUEST Application Container */
+    { 0x38, "RAN-INFORMATION-REQUEST Application Container" },      /* 11.3.63.1    RAN-INFORMATION-REQUEST Application Container */
  /* 11.3.63.1.0 General */
  /* 11.3.63.1.1 RAN-INFORMATION-REQUEST Application Container for the NACC Application */
  /* 11.3.63.1.2 RAN-INFORMATION-REQUEST Application Container for the SI3 Application */
  /* 11.3.63.1.3 RAN-INFORMATION-REQUEST Application Container for the MBMS data channel Application */
  /* 11.3.63.1.4 RAN-INFORMATION-REQUEST Application Container for the SON Transfer Application */
-    { 0x00, "RAN-INFORMATION Application Container Unit" },         /* 11.3.63.2    RAN-INFORMATION Application Container Unit */
+    { 0x39, "RAN-INFORMATION Application Container Unit" },         /* 11.3.63.2    RAN-INFORMATION Application Container Unit */
  /* 11.3.63.2.0 General */
  /* 11.3.63.2.1 RAN-INFORMATION Application Container for the NACC Application */
  /* 11.3.63.2.2 RAN-INFORMATION Application Container for the SI3 Application */
  /* 11.3.63.2.3 RAN-INFORMATION Application Container for the MBMS data channel Application */
  /* 11.3.63.2.4 RAN-INFORMATION Application Container for the SON Transfer Application */
-    { 0x00, "Application Error Container" },                        /* 11.3.64  Application Error Container */
+    { 0x3a, "Application Error Container" },                        /* 11.3.64  Application Error Container */
  /* 11.3.64.1   Application Error Container layout for the NACC application */
  /* 11.3.64.2   Application Error Container for the SI3 application */
  /* 11.3.64.3   Application Error Container for the MBMS data channel application */
  /* 11.3.64.4   Application Error Container for the SON Transfer Application */
-    { 0x00, "RIM PDU Indications" },                                /* 11.3.65  RIM PDU Indications */
+    { 0x3b, "RIM PDU Indications" },                                /* 11.3.65  RIM PDU Indications */
  /* 11.3.65.0   General */
  /* 11.3.65.1   RAN-INFORMATION-REQUEST RIM PDU Indications */
  /* 11.3.65.2   RAN-INFORMATION RIM PDU Indications */
  /* 11.3.65.3   RAN-INFORMATION-APPLICATION-ERROR RIM PDU Indications */
  /* 11.3.66 (void) */
-    { 0x00, "RIM Protocol Version Number" },                            /* 11.3.67  RIM Protocol Version Number */
-    { 0x00, "PFC Flow Control parameters" },                        /* 11.3.68  PFC Flow Control parameters */
+    { 0x3c, "RIM Protocol Version Number" },                            /* 11.3.67  RIM Protocol Version Number */
+    { 0x3d, "PFC Flow Control parameters" },                        /* 11.3.68  PFC Flow Control parameters */
  /* 0x53, SGSAP_PDU_TYPE, DE_SGSAP_GLOBAL_CN_ID */                  /* 11.3.69  Global CN-Id */
-    { 0x00, "RIM Routing Information" },                            /* 11.3.70  RIM Routing Information */
-    { 0x00, "MBMS Session Identity" },                              /* 11.3.71 MBMS Session Identity */
-    { 0x00, "MBMS Session Duration" },                              /* 11.3.72  MBMS Session Duration */
-    { 0x00, "MBMS Service Area Identity List" },                    /* 11.3.73  MBMS Service Area Identity List */
-    { 0x00, "MBMS Response" },                                      /* 11.3.74  MBMS Response */
-    { 0x00, "MBMS Routing Area List" },                             /* 11.3.75  MBMS Routing Area List */
-    { 0x00, "MBMS Session Information" },                           /* 11.3.76  MBMS Session Information */
-    { 0x00, "TMGI" },                                               /* 11.3.77  TMGI (Temporary Mobile Group Identity) */
-    { 0x00, "MBMS Stop Cause" },                                    /* 11.3.78  MBMS Stop Cause */
-    { 0x00, "Source BSS to Target BSS Transparent Container" },     /* 11.3.79  Source BSS to Target BSS Transparent Container */
-    { 0x00, "Target BSS to Source BSS Transparent Container" },     /* 11.3.80  Target BSS to Source BSS Transparent Container */
+    { 0x3e, "RIM Routing Information" },                            /* 11.3.70  RIM Routing Information */
+    { 0x3f, "MBMS Session Identity" },                              /* 11.3.71 MBMS Session Identity */
+    { 0x40, "MBMS Session Duration" },                              /* 11.3.72  MBMS Session Duration */
+    { 0x41, "MBMS Service Area Identity List" },                    /* 11.3.73  MBMS Service Area Identity List */
+    { 0x42, "MBMS Response" },                                      /* 11.3.74  MBMS Response */
+    { 0x43, "MBMS Routing Area List" },                             /* 11.3.75  MBMS Routing Area List */
+    { 0x44, "MBMS Session Information" },                           /* 11.3.76  MBMS Session Information */
+    { 0x45, "TMGI" },                                               /* 11.3.77  TMGI (Temporary Mobile Group Identity) */
+    { 0x46, "MBMS Stop Cause" },                                    /* 11.3.78  MBMS Stop Cause */
+    { 0x47, "Source BSS to Target BSS Transparent Container" },     /* 11.3.79  Source BSS to Target BSS Transparent Container */
+    { 0x48, "Target BSS to Source BSS Transparent Container" },     /* 11.3.80  Target BSS to Source BSS Transparent Container */
  /* 11.3.81 NAS container for PS Handover */
-    { 0x00, "PFCs to be set-up list" },                             /* 11.3.82  PFCs to be set-up list */
-    { 0x00, "List of set-up PFCs" },                                /* 11.3.83  List of set-up PFCs */
-    { 0x00, "Extended Feature Bitmap" },                            /* 11.3.84  Extended Feature Bitmap */
-    { 0x00, "Source to Target Transparent Container" },             /* 11.3.85  Source to Target Transparent Container */
-    { 0x00, "Target to Source Transparent Container" },             /* 11.3.86  Target to Source Transparent Container */
-    { 0x00, "RNC Identifier" },                                     /* 11.3.87  RNC Identifier */
-    { 0x00, "Page Mode" },                                          /* 11.3.88  Page Mode */
-    { 0x00, "Container ID" },                                       /* 11.3.89  Container ID */
-    { 0x00, "Global TFI" },                                         /* 11.3.90  Global TFI */
+    { 0x49, "PFCs to be set-up list" },                             /* 11.3.82  PFCs to be set-up list */
+    { 0x4a, "List of set-up PFCs" },                                /* 11.3.83  List of set-up PFCs */
+    { 0x4b, "Extended Feature Bitmap" },                            /* 11.3.84  Extended Feature Bitmap */
+    { 0x4c, "Source to Target Transparent Container" },             /* 11.3.85  Source to Target Transparent Container */
+    { 0x4d, "Target to Source Transparent Container" },             /* 11.3.86  Target to Source Transparent Container */
+    { 0x4e, "RNC Identifier" },                                     /* 11.3.87  RNC Identifier */
+    { 0x4f, "Page Mode" },                                          /* 11.3.88  Page Mode */
+    { 0x50, "Container ID" },                                       /* 11.3.89  Container ID */
+    { 0x51, "Global TFI" },                                         /* 11.3.90  Global TFI */
  /* 11.3.91 IMEI */
-    { 0x00, "Time to MBMS Data Transfer" },                         /* 11.3.92  Time to MBMS Data Transfer */
-    { 0x00, "MBMS Session Repetition Number" },                     /* 11.3.93  MBMS Session Repetition Number */
-    { 0x00, "Inter RAT Handover Info" },                            /* 11.3.94  Inter RAT Handover Info */
-    { 0x00, "PS Handover Command" },                                /* 11.3.95  PS Handover Command */
-    { 0x00, "PS Handover Indications" },                            /* 11.3.95a PS Handover Indications */
-    { 0x00, "SI/PSI Container" },                                   /* 11.3.95b SI/PSI Container */
-    { 0x00, "Active PFCs List" },                                   /* 11.3.95c Active PFCs List */
-    { 0x00, "Velocity Data" },                                      /* 11.3.96  Velocity Data */
-    { 0x00, "DTM Handover Command" },                               /* 11.3.97  DTM Handover Command */
-    { 0x00, "PS Handover Indications" },                            /* 11.3.98  CS Indication */
+    { 0x52, "Time to MBMS Data Transfer" },                         /* 11.3.92  Time to MBMS Data Transfer */
+    { 0x53, "MBMS Session Repetition Number" },                     /* 11.3.93  MBMS Session Repetition Number */
+    { 0x54, "Inter RAT Handover Info" },                            /* 11.3.94  Inter RAT Handover Info */
+    { 0x55, "PS Handover Command" },                                /* 11.3.95  PS Handover Command */
+    { 0x56, "PS Handover Indications" },                            /* 11.3.95a PS Handover Indications */
+    { 0x57, "SI/PSI Container" },                                   /* 11.3.95b SI/PSI Container */
+    { 0x58, "Active PFCs List" },                                   /* 11.3.95c Active PFCs List */
+    { 0x59, "Velocity Data" },                                      /* 11.3.96  Velocity Data */
+    { 0x5a, "DTM Handover Command" },                               /* 11.3.97  DTM Handover Command */
+    { 0x5b, "PS Handover Indications" },                            /* 11.3.98  CS Indication */
                                                                     /* 11.3.99  Requested GANSS Assistance Data 0x7b, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_ASS_DTA*/
                                                                     /* 11.3.100     GANSS Location Type 0x7c, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_LOC_TYP*/
                                                                     /* 11.3.101     GANSS Positioning Data ENC_BIG_ENDIAN);*/
-    { 0x00, "Flow Control Granularity" },                           /* 11.3.102     Flow Control Granularity */
-    { 0x00, "eNB Identifier" },                                     /* 11.3.103     eNB Identifier */
-    { 0x00, "E-UTRAN Inter RAT Handover Info" },                    /* 11.3.104     E-UTRAN Inter RAT Handover Info */
-    { 0x00, "Subscriber Profile ID for RAT/Frequency priority" },   /* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
-    { 0x00, "Request for Inter-RAT Handover Info" },                /* 11.3.106 Request for Inter-RAT Handover Info */
-    { 0x00, "Reliable Inter-RAT Handover Info" },                   /* 11.3.107 Reliable Inter-RAT Handover Info */
-    { 0x00, "Son transfer application identity" },                  /* 11.3.108 SON Transfer Application Identity */
-    { 0x00, "CSG Identifier" },                                     /* 11.3.109 CSG Identifier */
+    { 0x5c, "Flow Control Granularity" },                           /* 11.3.102     Flow Control Granularity */
+    { 0x5d, "eNB Identifier" },                                     /* 11.3.103     eNB Identifier */
+    { 0x5e, "E-UTRAN Inter RAT Handover Info" },                    /* 11.3.104     E-UTRAN Inter RAT Handover Info */
+    { 0x5f, "Subscriber Profile ID for RAT/Frequency priority" },   /* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
+    { 0x60, "Request for Inter-RAT Handover Info" },                /* 11.3.106 Request for Inter-RAT Handover Info */
+    { 0x61, "Reliable Inter-RAT Handover Info" },                   /* 11.3.107 Reliable Inter-RAT Handover Info */
+    { 0x62, "Son transfer application identity" },                  /* 11.3.108 SON Transfer Application Identity */
+    { 0x63, "CSG Identifier" },                                     /* 11.3.109 CSG Identifier */
 /* 11.3.110 Tracking Area Code */
 
     { 0, NULL }

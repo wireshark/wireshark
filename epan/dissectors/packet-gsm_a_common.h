@@ -182,9 +182,6 @@ extern int hf_gsm_a_gm_rac;
 extern int hf_gsm_a_spare_bits;
 extern int hf_gsm_a_lac;
 
-/* for the nasty hack below */
-#define GSM_BSSMAP_APDU_IE  0x49
-
 /* flags for the packet-gsm_a_common routines */
 #define GSM_A_PDU_TYPE_BSSMAP       0  /* BSSAP_PDU_TYPE_BSSMAP i.e. 0 - until split complete at least! */
 #define GSM_A_PDU_TYPE_DTAP         1  /* BSSAP_PDU_TYPE_DTAP i.e. 1   - until split complete at least! */
@@ -784,6 +781,7 @@ common_elem_idx_t;
 
 typedef enum
 {
+    BE_UDEF_0,                          /* Undefined */
     BE_CIC,                             /* Circuit Identity Code */
     BE_RSVD_1,                          /* Reserved */
     BE_RES_AVAIL,                       /* Resource Available */
@@ -834,8 +832,8 @@ typedef enum
     BE_RES_SIT,                         /* Resource Situation */
     BE_CURR_CHAN_1,                     /* Current Channel Type 1 */
     BE_QUE_IND,                         /* Queueing Indicator */
-    BE_SPEECH_VER,                      /* Speech Version */
     BE_ASS_REQ,                         /* Assignment Requirement */
+    BE_UDEF_52,                         /* Undefined */
     BE_TALKER_FLAG,                     /* Talker Flag */
     BE_CONN_REL_REQ,                    /* Connection Release Requested */
     BE_GROUP_CALL_REF,                  /* Group Call Reference */
@@ -847,6 +845,9 @@ typedef enum
     BE_LSA_INFO,                        /* LSA Information */
     BE_LCS_QOS,                         /* LCS QoS */
     BE_LSA_ACC_CTRL,                    /* LSA access control suppression */
+    BE_SPEECH_VER,                      /* Speech Version */
+    BE_UDEF_65,                         /* Undefined */
+    BE_UDEF_66,                         /* Undefined */
     BE_LCS_PRIO,                        /* LCS Priority */
     BE_LOC_TYPE,                        /* Location Type */
     BE_LOC_EST,                         /* Location Estimate */
@@ -865,14 +866,26 @@ typedef enum
     BE_SRC_RNC_TO_TAR_RNC_CDMA,         /* Source RNC to target RNC transparent information (cdma2000) */
     BE_GERAN_CLS_M,                     /* GERAN Classmark */
     BE_GERAN_BSC_CONT,                  /* GERAN BSC Container */
+    BE_VEL_EST,                         /* Velocity Estimate */
+    BE_UDEF_86,                         /* Undefined */
+    BE_UDEF_87,                         /* Undefined */
+    BE_UDEF_88,                         /* Undefined */
+    BE_UDEF_89,                         /* Undefined */
+    BE_UDEF_90,                         /* Undefined */
+    BE_UDEF_91,                         /* Undefined */
+    BE_UDEF_92,                         /* Undefined */
+    BE_UDEF_93,                         /* Undefined */
+    BE_UDEF_94,                         /* Undefined */
+    BE_UDEF_95,                         /* Undefined */
+    BE_UDEF_96,                         /* Undefined */
     BE_NEW_BSS_TO_OLD_BSS_INF,          /* New BSS to Old BSS Information */
+    BE_UDEF_98,                         /* Undefined */
     BE_INTER_SYS_INF,                   /* Inter-System Information */
     BE_SNA_ACC_INF,                     /* SNA Access Information */
     BE_VSTK_RAND_INF,                   /* VSTK_RAND Information */
     BE_VSTK_INF,                        /* VSTK Information */
     BE_PAGING_INF,                      /* Paging Information */
     BE_IMEI,                            /* IMEI */
-    BE_VEL_EST,                         /* Velocity Estimate */
     BE_VGCS_FEAT_FLG,                   /* VGCS Feature Flags */
     BE_TALKER_PRI,                      /* Talker Priority */
     BE_EMRG_SET_IND,                    /* Emergency Set Indication */
@@ -898,9 +911,10 @@ typedef enum
     BE_CALL_ID,                         /* Call Identifier */
     BE_CALL_ID_LST,                     /* Call Identifier List */
     BE_A_ITF_SEL_FOR_RESET,             /* A-Interface Selector for RESET */
+    BE_UDEF_130,                        /* Undefined */
     BE_KC128,                           /* Kc128 */
     BE_CSG_ID,                          /* CSG Identifier */
-    BE_NONE /* NONE */
+    BE_NONE                             /* NONE */
 }
 bssmap_elem_idx_t;
 
@@ -1358,8 +1372,8 @@ typedef enum
     DE_SGSAP_EPS_LOC_UPD_TYPE,                      /* 9.4.2 EPS location update type*/
     DE_SGSAP_GLOBAL_CN_ID,                          /* 9.4.4 Global CN-Id*/
 
+    DE_SGSAP_UDEF_11,                               /* Undefined */
     DE_SGSAP_UDEF_12,                               /* Undefined */
-    DE_SGSAP_UDEF_13,                               /* Undefined */
 
     DE_SGSAP_MID,                                   /* 9.4.14 Mobile identity*/
     DE_SGSAP_REJ_CAUSE,                             /* 9.4.16 Reject cause */
@@ -1370,9 +1384,9 @@ typedef enum
     DE_SGSAP_NAS_MSG_CONTAINER,                     /* 9.4.15 NAS message container*/
     DE_SGSAP_MM_INFO,                               /* 9.4.12 MM information*/
 
-    DE_SGSAP_UDEF_24,                               /* Undefined */
-    DE_SGSAP_UDEF_25,                               /* Undefined */
-    DE_SGSAP_UDEF_26,                               /* Undefined */
+    DE_SGSAP_UDEF_20,                               /* Undefined */
+    DE_SGSAP_UDEF_21,                               /* Undefined */
+    DE_SGSAP_UDEF_22,                               /* Undefined */
 
     DE_SGSAP_ERR_MSG,                               /* 9.4.3 Erroneous message*/
     DE_SGSAP_CLI,                                   /* 9.4.1 CLI */

@@ -95,38 +95,38 @@ enum gmr1_ie_rr_idx {
 };
 
 const value_string gmr1_ie_rr_strings[] = {
-	{ 0, "Channel Description" },		/* [1] 11.5.2.5   */
-	{ 0, "Channel Mode" },			/* [1] 11.5.2.6   */
-	{ 0, "Cipher Mode Setting" },		/* [4] 10.5.2.9   */
-	{ 0, "Cipher Response" },		/* [4] 10.5.2.10  */
-	{ 0, "L2 Pseudo Length" },		/* [1] 11.5.2.19  */
-	{ 0, "Page Mode" },			/* [1] 11.5.2.26  */
-	{ 0, "Request Reference" },		/* [1] 11.5.2.30  */
-	{ 0, "RR Cause" },			/* [1] 11.5.2.31  */
-	{ 0, "Timing Offset" },			/* [1] 11.5.2.40  */
-	{ 0, "TMSI/P-TMSI" },			/* [4] 10.5.2.42  */
-	{ 0, "Wait Indication" },		/* [4] 10.5.2.43  */
-	{ 0, "MES Information Flag" },		/* [1] 11.5.2.44  */
-	{ 0, "Frequency Offset" },		/* [1] 11.5.2.49  */
-	{ 0, "Paging Information" },		/* [1] 11.5.2.51  */
-	{ 0, "Position Display" },		/* [1] 11.5.2.52  */
-	{ 0, "Position Update Information" },	/* [1] 11.5.2.54  */
-	{ 0, "BCCH Carrier Specification"},	/* [1] 11.5.2.55  */
-	{ 0, "Reject Cause" },			/* [1] 11.5.2.56  */
-	{ 0, "GPS timestamp" },			/* [1] 11.5.2.57  */
-	{ 0, "Power Control Params" },		/* [1] 11.5.2.60  */
-	{ 0, "TMSI Availability Mask" },	/* [1] 11.5.2.62  */
-	{ 0, "GPS Almanac Data" },		/* [1] 11.5.2.63  */
-	{ 0, "MSC ID" },			/* [1] 11.5.2.100 */
-	{ 0, "GPS Discriminator" },		/* [1] 11.5.2.101 */
-	{ 0, "Packet Imm. Ass. Type 3 Params" },/* [3] 11.5.2.105 */
-	{ 0, "Packet Frequency Parameters" },	/* [3] 11.5.2.106 */
-	{ 0, "Packet Imm. Ass. Type 2 Params" },/* [3] 11.5.2.107 */
-	{ 0, "USF" },				/* [3] 11.5.2.110 */
-	{ 0, "Timing Advance Index" },		/* [3] 10.1.18.3.4 */
-	{ 0, "TLLI" },				/* [5] 12.16      */
-	{ 0, "Packet Power Control Params" },	/* [3] 10.1.18.3.3 */
-	{ 0, "Persistence Level" },		/* [3] 10.1.18.4.2 */
+	{ 0x00, "Channel Description" },		/* [1] 11.5.2.5   */
+	{ 0x01, "Channel Mode" },			/* [1] 11.5.2.6   */
+	{ 0x02, "Cipher Mode Setting" },		/* [4] 10.5.2.9   */
+	{ 0x03, "Cipher Response" },		/* [4] 10.5.2.10  */
+	{ 0x04, "L2 Pseudo Length" },		/* [1] 11.5.2.19  */
+	{ 0x05, "Page Mode" },			/* [1] 11.5.2.26  */
+	{ 0x06, "Request Reference" },		/* [1] 11.5.2.30  */
+	{ 0x07, "RR Cause" },			/* [1] 11.5.2.31  */
+	{ 0x08, "Timing Offset" },			/* [1] 11.5.2.40  */
+	{ 0x09, "TMSI/P-TMSI" },			/* [4] 10.5.2.42  */
+	{ 0x0a, "Wait Indication" },		/* [4] 10.5.2.43  */
+	{ 0x0b, "MES Information Flag" },		/* [1] 11.5.2.44  */
+	{ 0x0c, "Frequency Offset" },		/* [1] 11.5.2.49  */
+	{ 0x0d, "Paging Information" },		/* [1] 11.5.2.51  */
+	{ 0x0e, "Position Display" },		/* [1] 11.5.2.52  */
+	{ 0x0f, "Position Update Information" },	/* [1] 11.5.2.54  */
+	{ 0x10, "BCCH Carrier Specification"},	/* [1] 11.5.2.55  */
+	{ 0x11, "Reject Cause" },			/* [1] 11.5.2.56  */
+	{ 0x12, "GPS timestamp" },			/* [1] 11.5.2.57  */
+	{ 0x13, "Power Control Params" },		/* [1] 11.5.2.60  */
+	{ 0x14, "TMSI Availability Mask" },	/* [1] 11.5.2.62  */
+	{ 0x15, "GPS Almanac Data" },		/* [1] 11.5.2.63  */
+	{ 0x16, "MSC ID" },			/* [1] 11.5.2.100 */
+	{ 0x17, "GPS Discriminator" },		/* [1] 11.5.2.101 */
+	{ 0x18, "Packet Imm. Ass. Type 3 Params" },/* [3] 11.5.2.105 */
+	{ 0x19, "Packet Frequency Parameters" },	/* [3] 11.5.2.106 */
+	{ 0x1a, "Packet Imm. Ass. Type 2 Params" },/* [3] 11.5.2.107 */
+	{ 0x1b, "USF" },				/* [3] 11.5.2.110 */
+	{ 0x1c, "Timing Advance Index" },		/* [3] 10.1.18.3.4 */
+	{ 0x1d, "TLLI" },				/* [5] 12.16      */
+	{ 0x1e, "Packet Power Control Params" },	/* [3] 10.1.18.3.3 */
+	{ 0x1f, "Persistence Level" },		/* [3] 10.1.18.4.2 */
 	{ 0, NULL },
 };
 

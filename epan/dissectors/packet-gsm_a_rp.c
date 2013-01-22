@@ -58,10 +58,10 @@ static const value_string gsm_rp_msg_strings[] = {
 const value_string gsm_rp_elem_strings[] = {
 	/* Short Message Service RP Information Elements [5] 8.2 */
 	{ 0x00,	"RP-Message Reference" },
-	{ 0x00,	"RP-Originator Address" },
-	{ 0x00,	"RP-Destination Address" },
-	{ 0x00,	"RP-User Data" },
-	{ 0x00,	"RP-Cause" },
+	{ 0x01,	"RP-Originator Address" },
+	{ 0x02,	"RP-Destination Address" },
+	{ 0x03,	"RP-User Data" },
+	{ 0x04,	"RP-Cause" },
 	{ 0, NULL }
 };
 

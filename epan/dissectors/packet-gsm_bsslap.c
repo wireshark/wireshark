@@ -87,38 +87,38 @@ static int ett_bsslap_cell_list = -1;
 #define BSSLAP_PARAM_STARTING_TIME                   0x2D
 
 const value_string gsm_bsslap_elem_strings[] = {
-	{  0x00,								"Reserved" },
-	{  BSSLAP_PARAM_TIMING_ADVANCE,			"Timing Advance" },
-	{  BSSLAP_PARAM_RESERVED_01,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_CELL_IDENTITY,			"Cell Identity" },
-	{  BSSLAP_PARAM_RESERVED_02,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_RESERVED_03,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_RESERVED_04,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_CHANNEL_DESCRIPTION,	"Channel Description" },
-	{  BSSLAP_PARAM_RESERVED_05,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_RESERVED_06,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_RESERVED_07,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_MEASUREMENT_REPORT,		"Measurement Report" },
-	{  BSSLAP_PARAM_RESERVED_08,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_CAUSE,					"Cause" },
-	{  BSSLAP_PARAM_RRLP_FLAG,				"RRLP Flag" },
-	{  BSSLAP_PARAM_RRLP_IE,				"RRLP IE" },
-	{  BSSLAP_PARAM_CELL_IDENTITY_LIST,		"Cell Identity List" },
-	{  BSSLAP_PARAM_ENHANCED_MEASUREMENT_REPORT,	"Enhanced Measurement Report" },
-	{  BSSLAP_PARAM_LOCATION_AREA_CODE,				"Location Area Code" },
-	{  BSSLAP_PARAM_FREQUENCY_LIST,					"Frequency List" },
-	{  BSSLAP_PARAM_MS_POWER,						"MS Power" },
-	{  BSSLAP_PARAM_DELTA_TIMER,					"Delta Timer" },
-	{  BSSLAP_PARAM_SERVING_CELL_IDENTIFIER,		"Serving Cell Identifier" },
-	{  BSSLAP_PARAM_ENCRYPTION_KEY,					"Encryption Key (Kc)" },
-	{  BSSLAP_PARAM_CIPHER_MODE_SETTING,			"Cipher Mode Setting" },
-	{  BSSLAP_PARAM_CHANNEL_MODE,					"Channel Mode" },
-	{  BSSLAP_PARAM_MULTIRATE_CONFIGURATION,		"MultiRate Configuration" },
-	{  BSSLAP_PARAM_POLLING_REPETITION,				"Polling Repetition" },
-	{  BSSLAP_PARAM_PACKET_CHANNEL_DESCRIPTION,		"Packet Channel Description" },
-	{  BSSLAP_PARAM_TLLI,							"TLLI" },
-	{  BSSLAP_PARAM_TFI,							"TFI" },
-	{  BSSLAP_PARAM_STARTING_TIME,					"Starting Time" },
+	{  0x00,	"Reserved" },
+	{  0x01,	"Timing Advance" },
+	{  0x02,	"Reserved" },			/* (note) */
+	{  0x03,	"Cell Identity" },
+	{  0x04,	"Reserved" },			/* (note) */
+	{  0x05,	"Reserved" },			/* (note) */
+	{  0x06,	"Reserved" },			/* (note) */
+	{  0x07,	"Channel Description" },
+	{  0x08,	"Reserved" },			/* (note) */
+	{  0x09,	"Reserved" },			/* (note) */
+	{  0x0a,	"Reserved" },			/* (note) */
+	{  0x0b,	"Measurement Report" },
+	{  0x0c,	"Reserved" },			/* (note) */
+	{  0x0d,	"Cause" },
+	{  0x0e,	"RRLP Flag" },
+	{  0x0f,	"RRLP IE" },
+	{  0x10,	"Cell Identity List" },
+	{  0x11,	"Enhanced Measurement Report" },
+	{  0x12,	"Location Area Code" },
+	{  0x13,	"Frequency List" },
+	{  0x14,	"MS Power" },
+	{  0x15,	"Delta Timer" },
+	{  0x16,	"Serving Cell Identifier" },
+	{  0x17,	"Encryption Key (Kc)" },
+	{  0x18,	"Cipher Mode Setting" },
+	{  0x19,	"Channel Mode" },
+	{  0x1a,	"MultiRate Configuration" },
+	{  0x1b,	"Polling Repetition" },
+	{  0x1c,	"Packet Channel Description" },
+	{  0x1d,	"TLLI" },
+	{  0x1e,	"TFI" },
+	{  0x1f,	"Starting Time" },
 	{ 0,		NULL },
 };
 

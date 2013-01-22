@@ -101,36 +101,36 @@ static const value_string gsm_bssmap_le_msg_strings[] = {
 #define BSSMAP_LE_IMEI                                       128
 
 const value_string gsm_bssmap_le_elem_strings[] = {
-	{ BSSMAP_LE_LCS_QOS, "LCS QoS" },
-	{ BSSMAP_LE_LCS_PRIORITY, "LCS Priority" },
-	{ BSSMAP_LE_LOCATION_TYPE, "Location Type" },
-	{ BSSMAP_LE_GANSS_LOCATION_TYPE, "GANSS Location Type" },
-	{ BSSMAP_LE_GEOGRAPHIC_LOCATION, "Geographic Location" },
-	{ BSSMAP_LE_POSITIONING_DATA, "Positioning Data" },
-	{ BSSMAP_LE_GANSS_POSITIONING_DATA, "GANSS Positioning Data" },
-	{ BSSMAP_LE_VELOCITY_DATA, "Velocity Data" },
-	{ BSSMAP_LE_LCS_CAUSE, "LCS Cause" },
-	{ BSSMAP_LE_LCS_CLIENT_TYPE, "LCS Client Type" },
-	{ BSSMAP_LE_APDU, "APDU" },
-	{ BSSMAP_LE_NETWORK_ELEMENT_IDENTITY, "Network Element Identity" },
-	{ BSSMAP_LE_REQUESTED_GPS_ASSISTANCE_DATA, "Requested GPS Assistance Data" },
-	{ BSSMAP_LE_REQUESTED_GANSS_ASSISTANCE_DATA, "Requested GANSS Assistance Data" },
-	{ BSSMAP_LE_DECIPHERING_KEYS, "Deciphering Keys" },
-	{ BSSMAP_LE_RETURN_ERROR_REQUEST, "Return Error Request" },
-	{ BSSMAP_LE_RETURN_ERROR_CAUSE, "Return Error Cause" },
-	{ BSSMAP_LE_SEGMENTATION, "Segmentation" },
-	{ BSSMAP_LE_CLASSMARK_INFORMATION_TYPE_3, "Classmark Information Type 3" },
-	{ BSSMAP_LE_CAUSE, "Cause" },
-	{ BSSMAP_LE_CELL_IDENTIFIER, "Cell Identifier" },
-	{ BSSMAP_LE_CHOSEN_CHANNEL, "Chosen Channel" },
-	{ BSSMAP_LE_IMSI, "IMSI" },
-	{ BSSMAP_LE_RESERVED_NOTE1, "Reserved" },
-	{ BSSMAP_LE_RESERVED_NOTE2, "Reserved" },
-	{ BSSMAP_LE_RESERVED_NOTE3, "Reserved" },
-	{ BSSMAP_LE_LCS_CAPABILITY, "LCS Capability" },
-	{ BSSMAP_LE_PACKET_MEASUREMENT_REPORT, "Packet Measurement Report" },
-	{ BSSMAP_LE_CELL_IDENTITY_LIST, "Cell Identity List" },
-	{ BSSMAP_LE_IMEI, "IMEI" },
+	{ 0x00, "LCS QoS" },
+	{ 0x01, "LCS Priority" },
+	{ 0x02, "Location Type" },
+	{ 0x03, "GANSS Location Type" },
+	{ 0x04, "Geographic Location" },
+	{ 0x05, "Positioning Data" },
+	{ 0x06, "GANSS Positioning Data" },
+	{ 0x07, "Velocity Data" },
+	{ 0x08, "LCS Cause" },
+	{ 0x09, "LCS Client Type" },
+	{ 0x0a, "APDU" },
+	{ 0x0b, "Network Element Identity" },
+	{ 0x0c, "Requested GPS Assistance Data" },
+	{ 0x0d, "Requested GANSS Assistance Data" },
+	{ 0x0e, "Deciphering Keys" },
+	{ 0x0f, "Return Error Request" },
+	{ 0x10, "Return Error Cause" },
+	{ 0x11, "Segmentation" },
+	{ 0x12, "Classmark Information Type 3" },
+	{ 0x13, "Cause" },
+	{ 0x14, "Cell Identifier" },
+	{ 0x15, "Chosen Channel" },
+	{ 0x16, "IMSI" },
+	{ 0x17, "Reserved" },
+	{ 0x18, "Reserved" },
+	{ 0x19, "Reserved" },
+	{ 0x20, "LCS Capability" },
+	{ 0x21, "Packet Measurement Report" },
+	{ 0x22, "Cell Identity List" },
+	{ 0x23, "IMEI" },
 	{ 0, NULL }
 };
 
@@ -758,37 +758,37 @@ bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	curr_len = len;
 
 	/* Location Type 9.1.1 M 3-n */
-	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_LOC_TYPE].value, GSM_A_PDU_TYPE_BSSMAP, BE_LOC_TYPE, NULL)
+	ELEM_MAND_TLV(BSSMAP_LE_LOCATION_TYPE, GSM_A_PDU_TYPE_BSSMAP, BE_LOC_TYPE, NULL)
 	/* Cell Identifier 9.1.2 O 5-10 */
-	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL);
+	ELEM_MAND_TLV(BSSMAP_LE_CELL_IDENTIFIER, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL);
 	/* Classmark Information Type 3 9.1.3 O 3-14 */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_CM_INFO_3].value, GSM_A_PDU_TYPE_BSSMAP, BE_CM_INFO_3, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_CLASSMARK_INFORMATION_TYPE_3, GSM_A_PDU_TYPE_BSSMAP, BE_CM_INFO_3, NULL);
 	/* LCS Client Type 9.1.4 C (note 3) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_LCS_CLIENT_TYPE].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_LCS_CLIENT_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE, NULL);
 	/* Chosen Channel 9.1.5 O 2 */
-	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_CHOSEN_CHAN].value, GSM_A_PDU_TYPE_BSSMAP, BE_CHOSEN_CHAN, NULL);
+	ELEM_OPT_TV(BSSMAP_LE_CHOSEN_CHANNEL, GSM_A_PDU_TYPE_BSSMAP, BE_CHOSEN_CHAN, NULL);
 	/* LCS Priority 9.1.6 O 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_LCS_PRIO].value, GSM_A_PDU_TYPE_BSSMAP, BE_LCS_PRIO, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_LCS_PRIORITY, GSM_A_PDU_TYPE_BSSMAP, BE_LCS_PRIO, NULL);
 	/* LCS QoS 9.1.6a C (note 1) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_LCSQOS].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCSQOS, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_LCS_QOS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCSQOS, NULL);
 	/* GPS Assistance Data 9.1.7 C (note 2) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_GPS_ASSIST_DATA].value, GSM_A_PDU_TYPE_BSSMAP, BE_GPS_ASSIST_DATA, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_REQUESTED_GPS_ASSISTANCE_DATA, GSM_A_PDU_TYPE_BSSMAP, BE_GPS_ASSIST_DATA, NULL);
 	/* APDU 9.1.8 O 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_APDU].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
 	/* LCS Capability 9.1.9 O */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_LCS_CAPABILITY].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAPABILITY, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_LCS_CAPABILITY, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAPABILITY, NULL);
 	/* Packet Measurement Report 9.1.10 O*/
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_PACKET_MEAS_REP].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_PACKET_MEAS_REP, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_PACKET_MEASUREMENT_REPORT, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_PACKET_MEAS_REP, NULL);
 	/* Measured Cell Identity List 9.1.11 O*/
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_MEAS_CELL_ID].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_MEAS_CELL_ID, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_CELL_IDENTITY_LIST, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_MEAS_CELL_ID, NULL);
 	/* IMSI	9.1.12	O (note 4)	5-10 */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_IMSI].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_IMSI, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_IMSI, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_IMSI, NULL);
 	/* IMEI	9.1.13	O (note 4)	10 (use same decode as IMSI) */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_IMEI].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_IMEI, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_IMEI, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_IMEI, NULL);
 	/* GANSS Location Type	9.1.14	C	3 */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_GANSS_LOC_TYPE].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_LOC_TYPE, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_GANSS_LOCATION_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_LOC_TYPE, NULL);
 	/* GANSS Assistance Data	9.1.15	C (note 5)	3-n */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_REQ_GNSS_ASSIST_D].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_REQ_GNSS_ASSIST_D, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_REQUESTED_GANSS_ASSISTANCE_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_REQ_GNSS_ASSIST_D, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -808,17 +808,17 @@ bssmap_le_perf_loc_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	curr_len = len;
 
 	/* Location Estimate 9.2.1 C (note 1) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_LOC_EST].value, BSSAP_PDU_TYPE_BSSMAP, BE_LOC_EST, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_GEOGRAPHIC_LOCATION, BSSAP_PDU_TYPE_BSSMAP, BE_LOC_EST, NULL);
 	/* Positioning Data 9.2.2 O 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_POS_DATA].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_POS_DATA, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_POSITIONING_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_POS_DATA, NULL);
 	/* Deciphering Keys 9.2.3 C (note 2) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_DECIPH_KEYS].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_DECIPH_KEYS, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_DECIPHERING_KEYS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_DECIPH_KEYS, NULL);
 	/* LCS Cause 9.2.4 C (note 3) 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_LCS_CAUSE].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAUSE, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_LCS_CAUSE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAUSE, NULL);
 	/* Velocity Estimate	9.2.5	O	3-n */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_VEL_EST].value, BSSAP_PDU_TYPE_BSSMAP, BE_VEL_EST, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_VELOCITY_DATA, BSSAP_PDU_TYPE_BSSMAP, BE_VEL_EST, NULL);
 	/* GANSS Positioning Data	9.2.6	O	3-n */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_GANSS_POS_DATA].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_POS_DATA, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_GANSS_POSITIONING_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_POS_DATA, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -837,9 +837,9 @@ bssmap_le_connection_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 	curr_len = len;
 
 	/* APDU 9.8.1 M 3-n */
-	ELEM_MAND_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_APDU].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
+	ELEM_MAND_TLV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
 	/* Segmentation 9.8.2 */
-	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_SEG].value, BSSAP_PDU_TYPE_BSSMAP, BE_SEG, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_SEGMENTATION, BSSAP_PDU_TYPE_BSSMAP, BE_SEG, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -874,9 +874,9 @@ bssmap_le_perf_loc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	curr_len = len;
 
 	/* Cell Identifier 9.12.1 M */
-	ELEM_MAND_TLV(gsm_bssmap_elem_strings[BE_CELL_ID].value, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL);
+	ELEM_MAND_TLV(BSSMAP_LE_CELL_IDENTIFIER, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL);
 	/* APDU 9.1.8 O 3-n */
-	ELEM_OPT_TLV(gsm_bssmap_le_elem_strings[DE_BMAPLE_APDU].value, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }

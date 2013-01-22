@@ -318,17 +318,17 @@ static value_string_ext security_header_type_vals_ext = VALUE_STRING_EXT_INIT(se
 
 const value_string nas_eps_common_elem_strings[] = {
     { 0x00, "Additional information" },                 /* 9.9.2.0  Additional information */
-    { 0x00, "Device properties" },                      /* 9.9.2.0A Device properties */
-    { 0x00, "EPS bearer context status" },              /* 9.9.2.1  EPS bearer context status */
-    { 0x00, "Location area identification" },           /* 9.9.2.2  Location area identification */
-    { 0x00, "Mobile identity" },                        /* 9.9.2.3  Mobile identity */
-    { 0x00, "Mobile station classmark 2" },             /* 9.9.2.4  Mobile station classmark 2 */
-    { 0x00, "Mobile station classmark 3" },             /* 9.9.2.5  Mobile station classmark 3 */
-    { 0x00, "NAS security parameters from E-UTRA" },    /* 9.9.2.6  NAS security parameters from E-UTRA */
-    { 0x00, "NAS security parameters to E-UTRA" },      /* 9.9.2.7  NAS security parameters to E-UTRA */
-    { 0x00, "PLMN list" },                              /* 9.9.2.8  PLMN list   */
+    { 0x01, "Device properties" },                      /* 9.9.2.0A Device properties */
+    { 0x02, "EPS bearer context status" },              /* 9.9.2.1  EPS bearer context status */
+    { 0x03, "Location area identification" },           /* 9.9.2.2  Location area identification */
+    { 0x04, "Mobile identity" },                        /* 9.9.2.3  Mobile identity */
+    { 0x05, "Mobile station classmark 2" },             /* 9.9.2.4  Mobile station classmark 2 */
+    { 0x06, "Mobile station classmark 3" },             /* 9.9.2.5  Mobile station classmark 3 */
+    { 0x07, "NAS security parameters from E-UTRA" },    /* 9.9.2.6  NAS security parameters from E-UTRA */
+    { 0x08, "NAS security parameters to E-UTRA" },      /* 9.9.2.7  NAS security parameters to E-UTRA */
+    { 0x09, "PLMN list" },                              /* 9.9.2.8  PLMN list   */
                                                         /* 9.9.2.9  Spare half octet */
-    { 0x00, "Supported codec list" },                   /* 9.9.2.10 Supported codec list */
+    { 0x0a, "Supported codec list" },                   /* 9.9.2.10 Supported codec list */
     { 0, NULL }
 };
 
@@ -603,57 +603,57 @@ guint16 (*nas_eps_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_inf
 const value_string nas_emm_elem_strings[] = {
     /* 9.9.3    EPS Mobility Management (EMM) information elements */
     { 0x00, "Additional update result" },           /* 9.9.3.0A Additional update result */
-    { 0x00, "Additional update type" },             /* 9.9.3.0B Additional update type */
-    { 0x00, "Authentication failure parameter" },   /* 9.9.3.1  Authentication failure parameter */
-    { 0x00, "Authentication parameter AUTN" },      /* 9.9.3.2  Authentication parameter AUTN */
-    { 0x00, "Authentication parameter RAND" },      /* 9.9.3.3  Authentication parameter RAND */
-    { 0x00, "Authentication response parameter" },  /* 9.9.3.4  Authentication response parameter */
-    { 0x00, "CSFB response" },                      /* 9.9.3.5  CSFB response */
-    { 0x00, "Daylight saving time" },               /* 9.9.3.6  Daylight saving time */
-    { 0x00, "Detach type" },                        /* 9.9.3.7  Detach type */
-    { 0x00, "DRX parameter" },                      /* 9.9.3.8  DRX parameter */
-    { 0x00, "EMM cause" },                          /* 9.9.3.9  EMM cause */
-    { 0x00, "EPS attach result" },                  /* 9.9.3.10 EPS attach result */
-    { 0x00, "EPS attach type" },                    /* 9.9.3.11 EPS attach type */
-    { 0x00, "EPS mobile identity" },                /* 9.9.3.12 EPS mobile identity */
-    { 0x00, "EPS network feature support" },        /* 9.9.3.12 EPS mobile identity */
-    { 0x00, "EPS update result" },                  /* 9.9.3.13 EPS update result */
-    { 0x00, "EPS update type" },                    /* 9.9.3.14 EPS update type */
-    { 0x00, "ESM message container" },              /* 9.9.3.15 ESM message conta */
-    { 0x00, "GPRS timer" },                         /* 9.9.3.16 GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
-    { 0x00, "GPRS timer 2" },                       /* 9.9.3.16A GPRS timer 2, See subclause 10.5.7.4 in 3GPP TS 24.008. */
-    { 0x00, "GPRS timer 3" },                       /* 9.9.3.16B GPRS timer 3, See subclause 10.5.7.4a in 3GPP TS 24.008. */
-    { 0x00, "Identity type 2" },                    /* 9.9.3.17 Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
-    { 0x00, "IMEISV request" },                     /* 9.9.3.18 IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
-    { 0x00, "KSI and sequence number" },            /* 9.9.3.19 KSI and sequence number */
-    { 0x00, "MS network capability" },              /* 9.9.3.20 MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
-    { 0x00, "MS network feature support" },         /* 9.9.3.20A MS network feature support, See subclause 10.5.1.15 in 3GPP TS 24.008. */
-    { 0x00, "NAS key set identifier" },             /* 9.9.3.21 NAS key set identifier */
-    { 0x00, "NAS message container" },              /* 9.9.3.22 NAS message container */
-    { 0x00, "NAS security algorithms" },            /* 9.9.3.23 NAS security algorithms */
-    { 0x00, "Network name" },                       /* 9.9.3.24 Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
-    { 0x00, "Nonce" },                              /* 9.9.3.25 Nonce */
-    { 0x00, "Paging identity" },                    /* 9.9.3.25A Paging identity */
-    { 0x00, "P-TMSI signature" },                   /* 9.9.3.26 P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
-    { 0x00, "Service type" },                       /* 9.9.3.27 Service type ,See subclause 10.5.5.15 in 3GPP TS 24.008 [6]. */
-    { 0x00, "Short MAC" },                          /* 9.9.3.28 Short MAC */
-    { 0x00, "Time zone" },                          /* 9.9.3.29 Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
-    { 0x00, "Time zone and time" },                 /* 9.9.3.30 Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
-    { 0x00, "TMSI status" },                        /* 9.9.3.31 TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
-    { 0x00, "Tracking area identity" },             /* 9.9.3.32 Tracking area identity */
-    { 0x00, "Tracking area identity list" },        /* 9.9.3.33 Tracking area identity list */
-    { 0x00, "UE network capability" },              /* 9.9.3.34 UE network capability */
-    { 0x00, "UE radio capability information update needed" },  /* 9.9.3.35 UE radio capability information update needed */
-    { 0x00, "UE security capability" },             /* 9.9.3.36 UE security capability */
-    { 0x00, "Emergency Number List" },              /* 9.9.3.37 Emergency Number List */
-    { 0x00, "CLI" },                                /* 9.9.3.38 CLI */
-    { 0x00, "SS Code" },                            /* 9.9.3.39 SS Code */
-    { 0x00, "LCS indicator" },                      /* 9.9.3.40 LCS indicator */
-    { 0x00, "LCS client identity" },                /* 9.9.3.41 LCS client identity */
-    { 0x00, "Generic message container type" },     /* 9.9.3.42 Generic message container type */
-    { 0x00, "Generic message container" },          /* 9.9.3.43 Generic message container */
-    { 0x00, "Voice domain preference and UEs usage setting" }, /* 9.9.3.44 Voice domain preference and UEs usage setting */
-    { 0x00, "GUTI type" },                          /* 9.9.3.45 GUTI type */
+    { 0x01, "Additional update type" },             /* 9.9.3.0B Additional update type */
+    { 0x02, "Authentication failure parameter" },   /* 9.9.3.1  Authentication failure parameter */
+    { 0x03, "Authentication parameter AUTN" },      /* 9.9.3.2  Authentication parameter AUTN */
+    { 0x04, "Authentication parameter RAND" },      /* 9.9.3.3  Authentication parameter RAND */
+    { 0x05, "Authentication response parameter" },  /* 9.9.3.4  Authentication response parameter */
+    { 0x06, "CSFB response" },                      /* 9.9.3.5  CSFB response */
+    { 0x07, "Daylight saving time" },               /* 9.9.3.6  Daylight saving time */
+    { 0x08, "Detach type" },                        /* 9.9.3.7  Detach type */
+    { 0x09, "DRX parameter" },                      /* 9.9.3.8  DRX parameter */
+    { 0x0a, "EMM cause" },                          /* 9.9.3.9  EMM cause */
+    { 0x0b, "EPS attach result" },                  /* 9.9.3.10 EPS attach result */
+    { 0x0c, "EPS attach type" },                    /* 9.9.3.11 EPS attach type */
+    { 0x0d, "EPS mobile identity" },                /* 9.9.3.12 EPS mobile identity */
+    { 0x0e, "EPS network feature support" },        /* 9.9.3.12 EPS mobile identity */
+    { 0x0f, "EPS update result" },                  /* 9.9.3.13 EPS update result */
+    { 0x10, "EPS update type" },                    /* 9.9.3.14 EPS update type */
+    { 0x11, "ESM message container" },              /* 9.9.3.15 ESM message conta */
+    { 0x12, "GPRS timer" },                         /* 9.9.3.16 GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
+    { 0x13, "GPRS timer 2" },                       /* 9.9.3.16A GPRS timer 2, See subclause 10.5.7.4 in 3GPP TS 24.008. */
+    { 0x14, "GPRS timer 3" },                       /* 9.9.3.16B GPRS timer 3, See subclause 10.5.7.4a in 3GPP TS 24.008. */
+    { 0x15, "Identity type 2" },                    /* 9.9.3.17 Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
+    { 0x16, "IMEISV request" },                     /* 9.9.3.18 IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
+    { 0x17, "KSI and sequence number" },            /* 9.9.3.19 KSI and sequence number */
+    { 0x18, "MS network capability" },              /* 9.9.3.20 MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
+    { 0x19, "MS network feature support" },         /* 9.9.3.20A MS network feature support, See subclause 10.5.1.15 in 3GPP TS 24.008. */
+    { 0x1a, "NAS key set identifier" },             /* 9.9.3.21 NAS key set identifier */
+    { 0x1b, "NAS message container" },              /* 9.9.3.22 NAS message container */
+    { 0x1c, "NAS security algorithms" },            /* 9.9.3.23 NAS security algorithms */
+    { 0x1d, "Network name" },                       /* 9.9.3.24 Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
+    { 0x1e, "Nonce" },                              /* 9.9.3.25 Nonce */
+    { 0x1f, "Paging identity" },                    /* 9.9.3.25A Paging identity */
+    { 0x20, "P-TMSI signature" },                   /* 9.9.3.26 P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
+    { 0x21, "Service type" },                       /* 9.9.3.27 Service type ,See subclause 10.5.5.15 in 3GPP TS 24.008 [6]. */
+    { 0x22, "Short MAC" },                          /* 9.9.3.28 Short MAC */
+    { 0x23, "Time zone" },                          /* 9.9.3.29 Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
+    { 0x24, "Time zone and time" },                 /* 9.9.3.30 Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
+    { 0x25, "TMSI status" },                        /* 9.9.3.31 TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
+    { 0x26, "Tracking area identity" },             /* 9.9.3.32 Tracking area identity */
+    { 0x27, "Tracking area identity list" },        /* 9.9.3.33 Tracking area identity list */
+    { 0x28, "UE network capability" },              /* 9.9.3.34 UE network capability */
+    { 0x29, "UE radio capability information update needed" },  /* 9.9.3.35 UE radio capability information update needed */
+    { 0x2a, "UE security capability" },             /* 9.9.3.36 UE security capability */
+    { 0x2b, "Emergency Number List" },              /* 9.9.3.37 Emergency Number List */
+    { 0x2c, "CLI" },                                /* 9.9.3.38 CLI */
+    { 0x2d, "SS Code" },                            /* 9.9.3.39 SS Code */
+    { 0x2e, "LCS indicator" },                      /* 9.9.3.40 LCS indicator */
+    { 0x2f, "LCS client identity" },                /* 9.9.3.41 LCS client identity */
+    { 0x30, "Generic message container type" },     /* 9.9.3.42 Generic message container type */
+    { 0x31, "Generic message container" },          /* 9.9.3.43 Generic message container */
+    { 0x32, "Voice domain preference and UEs usage setting" }, /* 9.9.3.44 Voice domain preference and UEs usage setting */
+    { 0x33, "GUTI type" },                          /* 9.9.3.45 GUTI type */
     { 0, NULL }
 };
 #define NUM_NAS_EMM_ELEM (sizeof(nas_emm_elem_strings)/sizeof(value_string))
@@ -2802,24 +2802,24 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 /* 9.9.4 EPS Session Management (ESM) information elements */
 const value_string nas_esm_elem_strings[] = {
     { 0x00, "Access point name" },                      /* 9.9.4.1 Access point name */
-    { 0x00, "APN aggregate maximum bit rate" },         /* 9.9.4.2 APN aggregate maximum bit rate */
-    { 0x00, "Connectivity type" },                      /* 9.9.4.2A Connectivity type */
-    { 0x00, "EPS quality of service" },                 /* 9.9.4.3 EPS quality of service */
-    { 0x00, "ESM cause" },                              /* 9.9.4.4 ESM cause */
-    { 0x00, "ESM information transfer flag" },          /* 9.9.4.5 ESM information transfer flag */
-    { 0x00, "Linked EPS bearer identity" },             /* 9.9.4.6 Linked EPS bearer identity */
-    { 0x00, "LLC service access point identifier" },    /* 9.9.4.7 LLC service access point identifier */
-    { 0x00, "Notification indicator" },                 /* 9.9.4.7a Notification indicator */
-    { 0x00, "Packet flow identifier" },                 /* 9.9.4.8 Packet flow identifier */
-    { 0x00, "PDN address" },                            /* 9.9.4.9 PDN address */
-    { 0x00, "PDN type" },                               /* 9.9.4.10 PDN type */
-    { 0x00, "Protocol configuration options" },         /* 9.9.4.11 Protocol configuration options */
-    { 0x00, "Quality of service" },                     /* 9.9.4.12 Quality of service */
-    { 0x00, "Radio priority" },                         /* 9.9.4.13 Radio priority */
-    { 0x00, "Request type" },                           /* 9.9.4.14 Request type */
-    { 0x00, "Traffic flow aggregate description" },     /* 9.9.4.15 Traffic flow aggregate description */
-    { 0x00, "Traffic flow templat" },                   /* 9.9.4.16 Traffic flow template */
-    { 0x00, "Transaction identifier" },                 /* 9.9.4.17 Transaction identifier */
+    { 0x01, "APN aggregate maximum bit rate" },         /* 9.9.4.2 APN aggregate maximum bit rate */
+    { 0x02, "Connectivity type" },                      /* 9.9.4.2A Connectivity type */
+    { 0x03, "EPS quality of service" },                 /* 9.9.4.3 EPS quality of service */
+    { 0x04, "ESM cause" },                              /* 9.9.4.4 ESM cause */
+    { 0x05, "ESM information transfer flag" },          /* 9.9.4.5 ESM information transfer flag */
+    { 0x06, "Linked EPS bearer identity" },             /* 9.9.4.6 Linked EPS bearer identity */
+    { 0x07, "LLC service access point identifier" },    /* 9.9.4.7 LLC service access point identifier */
+    { 0x08, "Notification indicator" },                 /* 9.9.4.7a Notification indicator */
+    { 0x09, "Packet flow identifier" },                 /* 9.9.4.8 Packet flow identifier */
+    { 0x0a, "PDN address" },                            /* 9.9.4.9 PDN address */
+    { 0x0b, "PDN type" },                               /* 9.9.4.10 PDN type */
+    { 0x0c, "Protocol configuration options" },         /* 9.9.4.11 Protocol configuration options */
+    { 0x0d, "Quality of service" },                     /* 9.9.4.12 Quality of service */
+    { 0x0e, "Radio priority" },                         /* 9.9.4.13 Radio priority */
+    { 0x0f, "Request type" },                           /* 9.9.4.14 Request type */
+    { 0x10, "Traffic flow aggregate description" },     /* 9.9.4.15 Traffic flow aggregate description */
+    { 0x11, "Traffic flow template" },                  /* 9.9.4.16 Traffic flow template */
+    { 0x12, "Transaction identifier" },                 /* 9.9.4.17 Transaction identifier */
     { 0, NULL }
 };
 
