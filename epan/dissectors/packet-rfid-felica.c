@@ -5,6 +5,7 @@
  * http://www.sony.net/Products/felica/business/tech-support/data/fl_usmnl_1.2.pdf
  * http://www.sony.net/Products/felica/business/tech-support/data/fp_usmnl_1.11.pdf
  * http://www.sony.net/Products/felica/business/tech-support/data/format_sequence_guidelines_1.1.pdf
+ * http://www.sony.net/Products/felica/business/tech-support/data/card_usersmanual_2.0.pdf 
  * http://code.google.com/u/101410204121169118393/updates
  * https://github.com/codebutler/farebot/wiki/Suica
  *
@@ -41,9 +42,8 @@
 
 static int proto_felica = -1;
 
-/* Commmand and response */
-static int hf_felica_command = -1;
-static int hf_felica_response = -1;
+/* Opcodes */
+static int hf_felica_opcode = -1;
 
 /* System Code */
 static int hf_felica_sys_code = -1;
@@ -77,13 +77,47 @@ static int hf_felica_status_flag2 = -1;
 
 /* - Commands - */
 #define CMD_POLLING 0x00
+#define CMD_REQ_SVC 0x02
+#define CMD_REQ_RES 0x04
 #define CMD_READ_WO_ENCRYPTION 0x06
 #define CMD_WRITE_WO_ENCRYPTION 0x08
+#define CMD_SEARCH_SVC_CODE 0x0A
+#define CMD_REQ_SYS_CODE 0x0C
+#define CMD_AUTH_1 0x10
+#define CMD_AUTH_2 0x12
+#define CMD_READ 0x14
+#define CMD_WRITE 0x16
+#define CMD_REQ_SVC_V2 0x32
+#define CMD_REQ_SYS_STATUS 0x38
+#define CMD_REQ_SPEC_VER 0x3C
+#define CMD_RESET_MODE 0x3E
+#define CMD_AUTH1_V2 0x40
+#define CMD_AUTH2_V2 0x42
+#define CMD_READ_V2 0x44
+#define CMD_WRITE_V2 0x46
+#define CMD_REQ_UPDATE_RAND_ID 0x4C
 
 /* - Responses - */
 #define RES_POLLING 0x01
+#define RES_REQ_SVC 0x03
+#define RES_REQ_RES 0x05
 #define RES_READ_WO_ENCRYPTION 0x07
 #define RES_WRITE_WO_ENCRYPTION 0x09
+#define RES_SEARCH_SVC_CODE 0x0B
+#define RES_REQ_SYS_CODE 0x0D
+#define RES_AUTH_1 0x11
+#define RES_AUTH_2 0x13
+#define RES_READ 0x15
+#define RES_WRITE 0x17
+#define RES_REQ_SVC_V2 0x33
+#define RES_REQ_SYS_STATUS 0x39
+#define RES_REQ_SPEC_VER 0x3D
+#define RES_RESET_MODE 0x3F
+#define RES_AUTH1_V2 0x41
+#define RES_AUTH2_V2 0x43
+#define RES_READ_V2 0x45
+#define RES_WRITE_V2 0x47
+#define RES_REQ_UPDATE_RAND_ID 0x4D
 
 /* - Request Codes - */
 #define RC_NO_REQ 0x00
@@ -112,27 +146,53 @@ static int hf_felica_status_flag2 = -1;
 
 #define SC_DOUBLE_WILDCARD 0xffff
 
-/* TODO: Since commands and responses do not have any overlapping values,
- * consider a single felica_opcodes[] value_string array encompassing both.
- * This would simplify the column update by only calling it in one place, i.e.:
- *      col_set_str(pinfo->cinfo, COL_INFO,
- *          val_to_str_const(opcode, felica_opcodes, "Unknown"));
- */
-static const value_string felica_commands[] = {
+static const value_string felica_opcodes[] = {
+    /* Commands */    
     {CMD_POLLING,             "Polling"},
+    {CMD_REQ_SVC,             "Request Service"},
+    {CMD_REQ_RES,             "Request Response"},
     {CMD_READ_WO_ENCRYPTION,  "Read Without Encryption"},
     {CMD_WRITE_WO_ENCRYPTION, "Write Without Encryption"},
-
+    {CMD_SEARCH_SVC_CODE,     "Search Service Code"},
+    {CMD_REQ_SYS_CODE,        "Request System Code"},
+    {CMD_AUTH_1, "Authentication1"},  
+    {CMD_AUTH_2, "Authentication2"},
+    {CMD_READ, "Read"},
+    {CMD_WRITE, "Write"},
+    {CMD_REQ_SVC_V2, "Request Service v2"},
+    {CMD_REQ_SYS_STATUS, "Get System Status"},
+    {CMD_REQ_SPEC_VER, "Request Specification Version"},
+    {CMD_RESET_MODE, "Reset Mode"},
+    {CMD_AUTH1_V2, "Authentication1 v2"},
+    {CMD_AUTH2_V2, "Authentication2 v2"},
+    {CMD_READ_V2, "Read v2"},
+    {CMD_WRITE_V2, "Write v2"},
+    {CMD_REQ_UPDATE_RAND_ID, "Update Random ID"},
     /* End of commands */
-    {0x00, NULL}
-};
-
-static const value_string felica_responses[] = {
-    {RES_POLLING,             "Polling"},
-    {RES_READ_WO_ENCRYPTION,  "Read Without Encryption"},
-    {RES_WRITE_WO_ENCRYPTION, "Write Without Encryption"},
-
+    
+    /* Responses */
+    {RES_POLLING,             "Polling (Response)"},
+    {RES_REQ_SVC,             "Request Service (Response)"},
+    {RES_REQ_RES,             "Request Response (Response)"},        
+    {RES_READ_WO_ENCRYPTION,  "Read Without Encryption (Response)"},
+    {RES_WRITE_WO_ENCRYPTION, "Write Without Encryption (Response)"},
+    {RES_SEARCH_SVC_CODE,     "Search Service Code (Response)"},
+    {RES_REQ_SYS_CODE,        "Request System Code (Response)"},
+    {RES_AUTH_1, "Authentication1 (Response)"},  
+    {RES_AUTH_2, "Authentication2 (Response)"},
+    {RES_READ, "Read (Response)"},
+    {RES_WRITE, "Write (Response)"},
+    {RES_REQ_SVC_V2, "Request Service v2 (Response)"},
+    {RES_REQ_SYS_STATUS, "Get System Status (Response)"},
+    {RES_REQ_SPEC_VER, "Request Specification Version (Response)"},
+    {RES_RESET_MODE, "Reset Mode (Response)"},
+    {RES_AUTH1_V2, "Authentication1 v2 (Response)"},
+    {RES_AUTH2_V2, "Authentication2 v2 (Response)"},
+    {RES_READ_V2, "Read v2 (Response)"},
+    {RES_WRITE_V2, "Write v2 (Response)"},
+    {RES_REQ_UPDATE_RAND_ID, "Update Random ID"},
     /* End of responses */
+    
     {0x00, NULL}
 };
 
@@ -176,7 +236,6 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t   *rwe_resp_data_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FeliCa");
-    col_set_str(pinfo->cinfo, COL_INFO, "FeliCa Packet");
 
     if (tree) {
         /* Start with a top-level item to add everything else to */
@@ -184,13 +243,17 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         felica_tree = proto_item_add_subtree(item, ett_felica);
     }
     opcode = tvb_get_guint8(tvb, 0);
+    col_set_str(pinfo->cinfo, COL_INFO,
+      val_to_str_const(opcode, felica_opcodes, "Unknown"));
+
+    if (tree) {
+        proto_tree_add_item(felica_tree, hf_felica_opcode,  tvb, 0, 1, ENC_NA);
+    }
 
     switch (opcode) {
-
+      
     case CMD_POLLING:
-        col_set_str(pinfo->cinfo, COL_INFO, "Polling Request");
         if (tree) {
-            proto_tree_add_item(felica_tree, hf_felica_command,  tvb, 0, 1, ENC_NA);
             proto_tree_add_item(felica_tree, hf_felica_sys_code, tvb, 1, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(felica_tree, hf_felica_req_code, tvb, 3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(felica_tree, hf_felica_timeslot, tvb, 4, 1, ENC_BIG_ENDIAN);
@@ -198,9 +261,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case RES_POLLING:
-        col_set_str(pinfo->cinfo, COL_INFO, "Polling Response");
         if (tree) {
-            proto_tree_add_item(felica_tree, hf_felica_response, tvb, 0, 1, ENC_NA);
             proto_tree_add_item(felica_tree, hf_felica_idm,      tvb, 1, 8, ENC_BIG_ENDIAN);
             proto_tree_add_item(felica_tree, hf_felica_pnm,      tvb, 9, 8, ENC_BIG_ENDIAN);
 
@@ -215,10 +276,24 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         break;
 
+    case CMD_REQ_SVC:
+        /* TODO */
+        break;
+
+    case RES_REQ_SVC:
+        /* TODO */
+        break;
+
+    case CMD_REQ_RES:
+        /* TODO */
+        break;
+
+    case RES_REQ_RES:
+        /* TODO */
+        break;
+
     case CMD_READ_WO_ENCRYPTION:
-        col_set_str(pinfo->cinfo, COL_INFO, "Read Without Encryption Request");
         if (tree) {
-            proto_tree_add_item(felica_tree, hf_felica_command,     tvb, 0, 1, ENC_NA);
             proto_tree_add_item(felica_tree, hf_felica_idm,         tvb, 1, 8, ENC_BIG_ENDIAN);
             proto_tree_add_item(felica_tree, hf_felica_nbr_of_svcs, tvb, 9, 1, ENC_BIG_ENDIAN);
 
@@ -239,9 +314,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case RES_READ_WO_ENCRYPTION:
-        col_set_str(pinfo->cinfo, COL_INFO, "Read Without Encryption Response");
         if (tree) {
-            proto_tree_add_item(felica_tree, hf_felica_response,      tvb,  0, 1, ENC_NA);
             proto_tree_add_item(felica_tree, hf_felica_idm,           tvb,  1, 8, ENC_BIG_ENDIAN);
             proto_tree_add_item(felica_tree, hf_felica_status_flag1,  tvb,  9, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(felica_tree, hf_felica_status_flag2,  tvb, 10, 1, ENC_BIG_ENDIAN);
@@ -252,17 +325,134 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     case CMD_WRITE_WO_ENCRYPTION:
-        col_set_str(pinfo->cinfo, COL_INFO, "Write Without Encryption Request");
         /* TODO */
         break;
 
     case RES_WRITE_WO_ENCRYPTION:
-        col_set_str(pinfo->cinfo, COL_INFO, "Write Without Encryption Response");
         /* TODO */
         break;
 
+    case CMD_SEARCH_SVC_CODE:
+        /* TODO */
+        break;
+
+    case RES_SEARCH_SVC_CODE:
+        /* TODO */
+        break;
+
+    case CMD_REQ_SYS_CODE:
+        /* TODO */
+        break;
+
+    case RES_REQ_SYS_CODE:
+        /* TODO */
+        break;
+
+    case CMD_AUTH_1:
+        /* TODO */
+        break;
+
+    case RES_AUTH_1:
+        /* TODO */
+        break;
+
+    case CMD_AUTH_2:
+        /* TODO */
+        break;
+
+    case RES_AUTH_2:
+        /* TODO */
+        break;
+
+    case CMD_READ:
+        /* TODO */
+        break;
+
+    case RES_READ:
+        /* TODO */
+        break;
+                
+    case CMD_WRITE:
+        /* TODO */
+        break;
+
+    case RES_WRITE:
+        /* TODO */
+        break;
+                    
+    case CMD_REQ_SVC_V2:
+        /* TODO */
+        break;
+
+    case RES_REQ_SVC_V2:
+        /* TODO */
+        break;
+                    
+    case CMD_REQ_SYS_STATUS:
+        /* TODO */
+        break;
+
+    case RES_REQ_SYS_STATUS:
+        /* TODO */
+        break;
+                    
+    case CMD_REQ_SPEC_VER:
+        /* TODO */
+        break;
+
+    case RES_REQ_SPEC_VER:
+        /* TODO */
+        break;
+                    
+    case CMD_RESET_MODE:
+        /* TODO */
+        break;
+
+    case RES_RESET_MODE:
+        /* TODO */
+        break;
+                    
+    case CMD_AUTH1_V2:
+        /* TODO */
+        break;
+
+    case RES_AUTH1_V2:
+        /* TODO */
+        break;
+
+    case CMD_AUTH2_V2:
+        /* TODO */
+        break;
+
+    case RES_AUTH2_V2:
+        /* TODO */
+        break;
+
+    case CMD_READ_V2:
+        /* TODO */
+        break;
+
+    case RES_READ_V2:
+        /* TODO */
+        break;
+
+    case CMD_WRITE_V2:
+        /* TODO */
+        break;
+
+    case RES_WRITE_V2:
+        /* TODO */
+        break;
+
+    case CMD_REQ_UPDATE_RAND_ID:
+        /* TODO */
+        break;
+
+    case RES_REQ_UPDATE_RAND_ID:
+        /* TODO */
+        break;
+                    
     default:
-        col_set_str(pinfo->cinfo, COL_INFO, "Unknown");
         break;
     }
 }
@@ -272,16 +462,10 @@ proto_register_felica(void)
 {
     static hf_register_info hf[] = {
 
-    {&hf_felica_command,
-     { "Command", "felica.cmd",
-       FT_UINT8, BASE_HEX, VALS(felica_commands), 0x0,
+    {&hf_felica_opcode,
+     { "Opcode", "felica.opcode",
+       FT_UINT8, BASE_HEX, VALS(felica_opcodes), 0x0,
        NULL, HFILL }
-    },
-    {&hf_felica_response,
-        { "Response", "felica.res",
-          FT_UINT8, BASE_HEX,
-        VALS(felica_responses), 0x0,
-          NULL, HFILL }
     },
 
     /* Request Code */
