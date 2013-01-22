@@ -474,9 +474,11 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
         addrValue_item = proto_tree_add_ether(addr_tree, hf_packetbb_addr_value[addressType],
             tvb, mid_index, block_index + block_length - mid_index, addr);
         break;
-      default:
+      case 3:
         addrValue_item = proto_tree_add_bytes(addr_tree, hf_packetbb_addr_value[addressType],
             tvb, mid_index, block_index + block_length - mid_index, addr);
+        break;
+      default:
         break;
     }
     addrValue_tree = proto_item_add_subtree(addrValue_item, ett_packetbb_addr_value);
