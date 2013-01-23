@@ -27,6 +27,8 @@
 
 #include <glib.h>
 
+#include "config.h"
+
 #include "wmem_core.h"
 #include "wmem_allocator.h"
 
@@ -44,9 +46,6 @@
 #define WMEM_POSTFILL 0x1A
 
 typedef struct _wmem_strict_allocator_block_t {
-    /* Simple manual singly-linked list of allocations */
-    struct _wmem_strict_allocator_block_t *next;
-
     /* Just the length of real_data, not counting the canaries */
     gsize   data_len;
 
@@ -56,9 +55,69 @@ typedef struct _wmem_strict_allocator_block_t {
 } wmem_strict_allocator_block_t;
 
 typedef struct _wmem_strict_allocator_t {
-    wmem_strict_allocator_block_t *block_list;
+    GHashTable *block_table;
 } wmem_strict_allocator_t;
 
+/*
+ * some internal helper functions
+ */
+static void
+wmem_strict_block_check_canaries(wmem_strict_allocator_block_t *block)
+{
+    guint i;
+
+    for (i=0; i<WMEM_CANARY_SIZE; i++) {
+        g_assert(block->leading_canary[i]  == WMEM_CANARY_VALUE);
+        g_assert(block->trailing_canary[i] == WMEM_CANARY_VALUE);
+    }
+}
+
+/* wrapper for use with g_hash_table_foreach() */
+static void
+wmem_strict_ghash_check_canaries(gpointer key _U_, gpointer value,
+        gpointer user_data _U_)
+{
+    wmem_strict_block_check_canaries(value);
+}
+
+static void
+wmem_strict_block_free(wmem_strict_allocator_block_t *block)
+{
+    memset(block->real_data, WMEM_POSTFILL, block->data_len);
+
+    g_free(block->leading_canary);
+    g_free(block);
+}
+
+/* wrapper for use with g_hash_table_new_full() */
+static void
+wmem_strict_ghash_block_free(gpointer data)
+{
+    wmem_strict_block_free(data);
+}
+
+static wmem_strict_allocator_block_t *
+wmem_strict_block_new(const size_t size)
+{
+    wmem_strict_allocator_block_t *block;
+    
+    block = g_new(wmem_strict_allocator_block_t, 1);
+
+    block->data_len        = size;
+    block->leading_canary  = g_malloc(block->data_len + (2 * WMEM_CANARY_SIZE));
+    block->real_data       = block->leading_canary + WMEM_CANARY_SIZE;
+    block->trailing_canary = block->real_data + block->data_len;
+
+    memset(block->leading_canary,  WMEM_CANARY_VALUE, WMEM_CANARY_SIZE);
+    memset(block->real_data,       WMEM_PREFILL,      block->data_len);
+    memset(block->trailing_canary, WMEM_CANARY_VALUE, WMEM_CANARY_SIZE);
+
+    return block;
+}
+
+/*
+ * public API functions
+ */
 static void *
 wmem_strict_alloc(void *private_data, const size_t size)
 {
@@ -67,82 +126,110 @@ wmem_strict_alloc(void *private_data, const size_t size)
     
     allocator = (wmem_strict_allocator_t*) private_data;
 
-    block = g_new(wmem_strict_allocator_block_t, 1);
+    block = wmem_strict_block_new(size);
 
-    block->data_len        = size;
-    block->leading_canary  = g_malloc(block->data_len + (2 * WMEM_CANARY_SIZE));
-    block->real_data       = block->leading_canary + WMEM_CANARY_SIZE;
-    block->trailing_canary = block->real_data + block->data_len;
-    block->next            = allocator->block_list;
-    allocator->block_list  = block;
-
-    memset(block->leading_canary,  WMEM_CANARY_VALUE, WMEM_CANARY_SIZE);
-    memset(block->real_data,       WMEM_PREFILL,      block->data_len);
-    memset(block->trailing_canary, WMEM_CANARY_VALUE, WMEM_CANARY_SIZE);
+    /* we store a pointer to our header, keyed by a pointer to the actual
+     * block we return to the user */
+    g_hash_table_insert(allocator->block_table, block->real_data, block);
     
     return block->real_data;
 }
 
 static void
-wmem_strict_real_check_canaries(wmem_strict_allocator_t *allocator)
+wmem_strict_free(void *private_data, void *ptr)
 {
-    guint i;
+    wmem_strict_allocator_t       *allocator;
     wmem_strict_allocator_block_t *block;
+    
+    allocator = (wmem_strict_allocator_t*) private_data;
 
-    block = allocator->block_list;
+    block = g_hash_table_lookup(allocator->block_table, ptr);
 
-    while (block) {
-        for (i=0; i<WMEM_CANARY_SIZE; i++) {
-            g_assert(block->leading_canary[i]  == WMEM_CANARY_VALUE);
-            g_assert(block->trailing_canary[i] == WMEM_CANARY_VALUE);
-        }
-        block = block->next;
+    g_assert(block);
+
+    wmem_strict_block_check_canaries(block);
+
+    g_hash_table_remove(allocator->block_table, ptr);
+}
+
+static void *
+wmem_strict_realloc(void *private_data, void *ptr, const size_t size)
+{
+    gsize                          copy_len;
+    wmem_strict_allocator_t       *allocator;
+    wmem_strict_allocator_block_t *block, *newblock;
+    
+    allocator = (wmem_strict_allocator_t*) private_data;
+
+    /* retrieve and check the old block */
+    block = g_hash_table_lookup(allocator->block_table, ptr);
+    g_assert(block);
+    wmem_strict_block_check_canaries(block);
+    
+    /* create a new block */
+    newblock = wmem_strict_block_new(size);
+
+    /* copy from the old block to the new */
+    if (block->data_len > newblock->data_len) {
+        copy_len = newblock->data_len;
     }
+    else {
+        copy_len = block->data_len;
+    }
+
+    memcpy(newblock->real_data, block->real_data, copy_len);
+
+    /* update the hash table */
+    g_hash_table_remove(allocator->block_table, ptr);
+    g_hash_table_insert(allocator->block_table, newblock->real_data, newblock);
+    
+    return newblock->real_data;
 }
 
 void
 wmem_strict_check_canaries(wmem_allocator_t *allocator)
 {
-    /* XXX: Should this be a g_assert() instead? This is more of a general API
-     * issue - should allocator-specific functions be safe to call with an
-     * allocator of the wrong type or not? And how should they interact with the
-     * WIRESHARK_DEBUG_WMEM_OVERRIDE environment variable? */
+    wmem_strict_allocator_t *private_allocator;
+
     if (allocator->type != WMEM_ALLOCATOR_STRICT) {
         return;
     }
+    
+    private_allocator = (wmem_strict_allocator_t*) allocator->private_data;
 
-    wmem_strict_real_check_canaries(allocator->private_data);
+    g_hash_table_foreach(private_allocator->block_table,
+            &wmem_strict_ghash_check_canaries, NULL);
 }
 
 static void
 wmem_strict_free_all(void *private_data)
 {
     wmem_strict_allocator_t       *allocator;
-    wmem_strict_allocator_block_t *block, *tmp;
 
     allocator = (wmem_strict_allocator_t*) private_data;
 
-    wmem_strict_real_check_canaries(allocator);
+    g_hash_table_foreach(allocator->block_table,
+            &wmem_strict_ghash_check_canaries, NULL);
 
-    block = allocator->block_list;
+    g_hash_table_remove_all(allocator->block_table);
+}
 
-    while (block) {
-        memset(block->real_data, WMEM_POSTFILL, block->data_len);
-
-        g_free(block->leading_canary);
-
-        tmp = block;
-        block = block->next;
-        g_free(tmp);
-    }
-
-    allocator->block_list = NULL;
+static void
+wmem_strict_gc(void *private_data _U_)
+{
+    /* We don't really have anything to garbage-collect, but it might be worth
+     * checking our canaries at this point? */
 }
 
 static void
 wmem_strict_allocator_destroy(wmem_allocator_t *allocator)
 {
-    g_free(allocator->private_data);
+    wmem_strict_allocator_t *private_allocator;
+    
+    private_allocator = (wmem_strict_allocator_t*) allocator->private_data;
+
+    g_hash_table_destroy(private_allocator->block_table);
+    g_free(private_allocator);
     g_free(allocator);
 }
 
@@ -155,17 +242,19 @@ wmem_strict_allocator_new(void)
     allocator        = g_new(wmem_allocator_t, 1);
     strict_allocator = g_new(wmem_strict_allocator_t, 1);
 
-    allocator->alloc        = &wmem_strict_alloc;
-    allocator->free_all     = &wmem_strict_free_all;
-    allocator->destroy      = &wmem_strict_allocator_destroy;
+    allocator->alloc   = &wmem_strict_alloc;
+    allocator->realloc = &wmem_strict_realloc;
+    allocator->free    = &wmem_strict_free;
+
+    allocator->free_all = &wmem_strict_free_all;
+    allocator->gc       = &wmem_strict_gc;
+    allocator->destroy  = &wmem_strict_allocator_destroy;
+
     allocator->private_data = (void*) strict_allocator;
 
-    /* TODO */
-    allocator->realloc = NULL;
-    allocator->free    = NULL;
-    allocator->gc      = NULL;
-
-    strict_allocator->block_list = NULL;
+    strict_allocator->block_table = g_hash_table_new_full(
+            &g_direct_hash, &g_direct_equal,
+            NULL, &wmem_strict_ghash_block_free);
 
     return allocator;
 }
