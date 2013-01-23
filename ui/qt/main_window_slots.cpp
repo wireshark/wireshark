@@ -925,17 +925,15 @@ void MainWindow::redissectPackets()
 
 void MainWindow::recreatePacketList()
 {
-    if (!cap_file_) return;
-
     prefs.num_cols = g_list_length(prefs.col_list);
 
-    col_cleanup(&cap_file_->cinfo);
-    build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
+    col_cleanup(&cfile.cinfo);
+    build_column_format_array(&cfile.cinfo, prefs.num_cols, FALSE);
 
     packet_list_->hide();
     packet_list_->show();
 
-    cap_file_->columns_changed = FALSE; /* Reset value */
+    cfile.columns_changed = FALSE; /* Reset value */
 }
 
 // File Menu
