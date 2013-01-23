@@ -50,10 +50,28 @@ wmem_alloc0(wmem_allocator_t *allocator, const size_t size)
     return memset(buf, 0, size);
 }
 
+void *
+wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
+{
+    return allocator->realloc(allocator->private_data, ptr, size);
+}
+
+void
+wmem_free(wmem_allocator_t *allocator, void *ptr)
+{
+    allocator->free(allocator->private_data, ptr);
+}
+
 void
 wmem_free_all(wmem_allocator_t *allocator)
 {
     allocator->free_all(allocator->private_data);
+}
+
+void
+wmem_gc(wmem_allocator_t *allocator)
+{
+    allocator->gc(allocator->private_data);
 }
 
 void
