@@ -205,7 +205,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	bit;
 	guint8		i, ones = 0, data[MAX_LAPD_PACKET_LEN];
 	int		data_len = 0;
-	guint		offset = 0, available;
+	gint		offset = 0, available;
 	guint8		*buff;
 	tvbuff_t	*new_tvb;
 
