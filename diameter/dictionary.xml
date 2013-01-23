@@ -29,7 +29,7 @@
 	<!ENTITY AlcatelLucent		SYSTEM "AlcatelLucent.xml">
 	<!ENTITY Nokia			      SYSTEM "Nokia.xml">
   <!ENTITY NokiaSiemensNetworks	SYSTEM "NokiaSiemensNetworks.xml">
-  <!ENTITY SKT              SYSTEM "SKT.xml">
+  <!ENTITY SKT	            SYSTEM "SKT.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -3195,6 +3195,7 @@
 				<gavp name="3GPP-PDP Type"/>
 				<gavp name="PDP-Address"/>
 				<gavp name="Dynamic-Address-Flag"/>
+        <gavp name="Dynamic-Address-Flag-Extension"/>
 				<gavp name="3GPP-GPRS-Negotiated-QoS-Profile"/> <!-- ??-->
 				<gavp name="QoS-Information"/>
 				<gavp name="SGSN-Address"/>
@@ -6322,6 +6323,6 @@
 	&Vodafone;
 	&AlcatelLucent;
 	&Nokia;
-	&NokiaSiemensNetworks;
+  &NokiaSiemensNetworks;
   &SKT;
 </dictionary>
