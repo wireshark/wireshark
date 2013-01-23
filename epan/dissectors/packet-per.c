@@ -783,6 +783,13 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 
 	return offset;
 }
+guint32
+dissect_per_UTF8String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_)
+{
+	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree,
+		hf_index, min_len, max_len, has_extension, NULL, 256, NULL);
+	return offset;
+}
 
 guint32
 dissect_per_object_descriptor(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
