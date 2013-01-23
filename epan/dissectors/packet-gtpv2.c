@@ -1,7 +1,7 @@
 /* packet-gtpv2.c
  *
  * Routines for GTPv2 dissection
- * Copyright 2009 - 2011, Anders Broman <anders.broman [at] ericcsson.com>
+ * Copyright 2009 - 2012, Anders Broman <anders.broman [at] ericcsson.com>
  *
  * $Id$
  *
@@ -3040,7 +3040,7 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset += 1;
     /* Octet 7 Spare Used Cipher */
     proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits, tvb, ((offset << 3)), 5, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(flag_tree, hf_gtpv2_mm_context_used_cipher, tvb, (offset << 3) + 7, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(flag_tree, hf_gtpv2_mm_context_used_cipher, tvb, (offset << 3) + 5, 3, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Octet 8 to 23  CK */
