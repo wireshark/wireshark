@@ -174,6 +174,7 @@ private slots:
     void setMenusForSelectedTreeRow(field_info *fi = NULL);
     void interfaceSelectionChanged();
     void redissectPackets();
+    void recreatePacketList();
 
     // We should probably move these to main_window_actions.cpp similar to
     // gtk/main_menubar.c

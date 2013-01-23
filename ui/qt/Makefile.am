@@ -83,6 +83,8 @@ ui_%.h: %.ui
 #moc_%.cpp: %.h
 #	moc $< -o $@
 
+column_preferences_frame.cpp column_preferences_frame.h: ui_column_preferences_frame.h
+
 export_object_dialog.cpp export_object_dialog.h: ui_export_object_dialog.h
 
 file_set_dialog.cpp file_set_dialog.h: ui_file_set_dialog.h

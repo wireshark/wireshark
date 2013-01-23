@@ -527,6 +527,9 @@ void WiresharkApplication::registerUpdate(register_action_e action, const char *
 void WiresharkApplication::emitAppSignal(AppSignal signal)
 {
     switch (signal) {
+    case ColumnsChanged:
+        emit columnsChanged();
+        break;
     case PreferencesChanged:
         emit preferencesChanged();
         break;

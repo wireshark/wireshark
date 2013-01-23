@@ -80,6 +80,28 @@ extern void prefs_to_capture_opts(void);
  */
 extern void prefs_main_write(void);
 
+/** Add a custom column.
+ *
+ * @param fmt column format
+ * @param title column title
+ * @param custom_field column custom field
+ */
+void column_prefs_add_custom(gint fmt, const gchar *title,
+			     const gchar *custom_field,
+			     gint custom_occurrence);
+
+/** Remove a column.
+ *
+ * @param col_link Column list entry
+ */
+void column_prefs_remove_link(GList* col_link);
+
+/** Remove a column.
+ *
+ * @param col Column number
+ */
+void column_prefs_remove_nth(gint col);
+
 
 #ifdef __cplusplus
 }

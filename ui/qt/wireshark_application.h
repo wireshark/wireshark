@@ -61,6 +61,7 @@ public:
     explicit WiresharkApplication(int &argc,  char **argv);
 
     enum AppSignal {
+        ColumnsChanged,
         PacketDissectionChanged,
         PreferencesChanged
     };
@@ -100,6 +101,7 @@ signals:
     void splashUpdate(register_action_e action, const char *message);
     void configurationProfileChanged(const gchar *profile_name);
 
+    void columnsChanged();
     void packetDissectionChanged();
     void preferencesChanged();
 

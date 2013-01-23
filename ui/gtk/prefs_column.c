@@ -33,7 +33,9 @@
 #include <epan/column.h>
 #include <epan/strutil.h>
 
-#include "../globals.h"
+#include "globals.h"
+
+#include "ui/preference_utils.h"
 
 #include "ui/gtk/prefs_column.h"
 #include "ui/gtk/gtkglobals.h"
@@ -333,52 +335,6 @@ column_prefs_show(GtkWidget *prefs_window) {
     return(main_vb);
 }
 
-void
-column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field, gint custom_occurrence)
-{
-    GList *clp;
-    fmt_data *cfmt, *last_cfmt;
-
-    cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
-    /*
-     * Because a single underscore is interpreted as a signal that the next character
-     * is going to be marked as accelerator for this header (i.e. is going to be
-     * shown underlined), escape it be inserting a second consecutive underscore.
-     */
-    cfmt->title = g_strdup(title);
-    cfmt->fmt = fmt;
-    cfmt->custom_field = g_strdup(custom_field);
-    cfmt->custom_occurrence = custom_occurrence;
-    cfmt->resolved = TRUE;
-
-    if (custom_field) {
-        cfmt->visible = TRUE;
-        clp = g_list_last(prefs.col_list);
-        last_cfmt = (fmt_data *) clp->data;
-        if (last_cfmt->fmt == COL_INFO) {
-            /* Last column is COL_INFO, add custom column before this */
-            prefs.col_list = g_list_insert(prefs.col_list, cfmt, g_list_length(prefs.col_list)-1);
-        } else {
-            prefs.col_list = g_list_append(prefs.col_list, cfmt);
-        }
-    } else {
-        cfmt->visible = FALSE;  /* Will be set to TRUE in visible_toggled() when added to list */
-        prefs.col_list = g_list_append(prefs.col_list, cfmt);
-    }
-}
-
-void
-column_prefs_remove(gint col)
-{
-    GList    *clp = g_list_nth(prefs.col_list, col);
-    fmt_data *cfmt = (fmt_data *) clp->data;
-
-    g_free(cfmt->title);
-    g_free(cfmt->custom_field);
-    g_free(cfmt);
-    prefs.col_list = g_list_remove_link(prefs.col_list, clp);
-}
-
 /* To do: add input checking to each of these callbacks */
 
 static void
@@ -424,7 +380,6 @@ static void
 column_list_delete_cb(GtkWidget *w _U_, gpointer data) {
     GtkTreeView      *column_l = GTK_TREE_VIEW(data);
     GList            *clp;
-    fmt_data         *cfmt;
     GtkTreeSelection *sel;
     GtkTreeModel     *model;
     GtkTreeIter       iter;
@@ -434,12 +389,7 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data) {
     if (gtk_tree_selection_get_selected(sel, &model, &iter))
     {
         gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
-
-        cfmt = (fmt_data *) clp->data;
-        g_free(cfmt->title);
-        g_free(cfmt->custom_field);
-        g_free(cfmt);
-        prefs.col_list = g_list_remove_link(prefs.col_list, clp);
+	column_prefs_remove_link(clp);
 
         /* Change the row selection to the next row (if available) or    */
         /*  the previous row (if available). If there's only one row     */

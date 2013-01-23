@@ -597,7 +597,7 @@ packet_list_set_all_columns_visible (void)
 static void
 packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
 {
-	column_prefs_remove(col_id);
+	column_prefs_remove_nth(col_id);
 
 	if (!prefs.gui_use_pref_save) {
 		prefs_main_write();

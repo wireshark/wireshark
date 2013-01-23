@@ -28,6 +28,8 @@
 
 #include <glib.h>
 
+#include <epan/column_info.h>
+#include <epan/column.h>
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
@@ -269,6 +271,61 @@ prefs_main_write(void)
       g_free(pf_path);
     }
   }
+}
+
+void
+column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field, gint custom_occurrence)
+{
+    GList *clp;
+    fmt_data *cfmt, *last_cfmt;
+
+    cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+    /*
+     * Because a single underscore is interpreted as a signal that the next character
+     * is going to be marked as accelerator for this header (i.e. is going to be
+     * shown underlined), escape it be inserting a second consecutive underscore.
+     */
+    cfmt->title = g_strdup(title);
+    cfmt->fmt = fmt;
+    cfmt->custom_field = g_strdup(custom_field);
+    cfmt->custom_occurrence = custom_occurrence;
+    cfmt->resolved = TRUE;
+
+    if (custom_field) {
+        cfmt->visible = TRUE;
+        clp = g_list_last(prefs.col_list);
+        last_cfmt = (fmt_data *) clp->data;
+        if (last_cfmt->fmt == COL_INFO) {
+            /* Last column is COL_INFO, add custom column before this */
+            prefs.col_list = g_list_insert(prefs.col_list, cfmt, g_list_length(prefs.col_list)-1);
+        } else {
+            prefs.col_list = g_list_append(prefs.col_list, cfmt);
+        }
+    } else {
+        cfmt->visible = FALSE;  /* Will be set to TRUE in visible_toggled() when added to list */
+        prefs.col_list = g_list_append(prefs.col_list, cfmt);
+    }
+}
+
+void
+column_prefs_remove_link(GList *col_link)
+{
+    fmt_data *cfmt;
+
+    if (!col_link || !col_link->data) return;
+    
+    cfmt = (fmt_data *) col_link->data;
+
+    g_free(cfmt->title);
+    g_free(cfmt->custom_field);
+    g_free(cfmt);
+    prefs.col_list = g_list_remove_link(prefs.col_list, col_link);
+}
+
+void
+column_prefs_remove_nth(gint col)
+{
+    column_prefs_remove_link(g_list_nth(prefs.col_list, col));
 }
 
 /*

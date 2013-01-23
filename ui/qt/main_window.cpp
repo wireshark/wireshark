@@ -191,6 +191,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(captureFileClosing(const capture_file*)));
     connect(wsApp, SIGNAL(captureFileClosed(const capture_file*)),
             this, SLOT(captureFileClosed(const capture_file*)));
+    connect(wsApp, SIGNAL(columnsChanged()),
+            this, SLOT(recreatePacketList()));
     connect(wsApp, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
 

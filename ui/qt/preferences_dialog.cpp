@@ -160,7 +160,6 @@ module_prefs_clean_stash(module_t *module, gpointer unused)
 
 // Preference tree items
 const int appearance_item_ = 0;
-const int layout_item_     = 1;
 const int protocols_item_  = 4;
 const int statistics_item_ = 5;
 const int advanced_item_   = 6;
@@ -198,6 +197,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     // This assumes that the prefs tree and stacked widget contents exactly
     // correspond to each other.
     QTreeWidgetItem *item = pd_ui_->prefsTree->itemAt(0,0);
+    item->setSelected(true);
+    pd_ui_->stackedWidget->setCurrentIndex(0);
     for (int i = 0; i < pd_ui_->stackedWidget->count() && item; i++) {
         item->setData(0, Qt::UserRole, qVariantFromValue(pd_ui_->stackedWidget->widget(i)));
         item = pd_ui_->prefsTree->itemBelow(item);
@@ -521,6 +522,7 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
         cur_pref_type_ = pref->type;
         if (cur_line_edit_) {
             cur_line_edit_->setText(saved_string_pref_);
+            cur_line_edit_->selectAll();
             connect(cur_line_edit_, SIGNAL(destroyed()), this, SLOT(lineEditPrefDestroyed()));
         }
         if (cur_combo_box_) {
@@ -652,6 +654,8 @@ void PreferencesDialog::on_buttonBox_accepted()
 //    if (!prefs_main_fetch_all(parent_w, &must_redissect))
 //        return; /* Errors in some preference setting - already reported */
     prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (gpointer) &must_redissect);
+
+    pd_ui_->columnFrame->unstash();
 
     prefs_main_write();
 

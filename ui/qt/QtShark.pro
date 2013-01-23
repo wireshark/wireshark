@@ -195,7 +195,8 @@ FORMS += main_window.ui \
     profile_dialog.ui \
     preferences_dialog.ui \
     main_window_preferences_frame.ui \
-    layout_preferences_frame.ui
+    layout_preferences_frame.ui \
+    column_preferences_frame.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -231,7 +232,8 @@ HEADERS += $$HEADERS_WS_C \
     profile_dialog.h \
     preferences_dialog.h \
     main_window_preferences_frame.h \
-    layout_preferences_frame.h
+    layout_preferences_frame.h \
+    column_preferences_frame.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -453,4 +455,5 @@ SOURCES += \
     profile_dialog.cpp \
     preferences_dialog.cpp \
     main_window_preferences_frame.cpp \
-    layout_preferences_frame.cpp
+    layout_preferences_frame.cpp \
+    column_preferences_frame.cpp

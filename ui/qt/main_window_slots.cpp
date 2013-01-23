@@ -52,6 +52,8 @@
 
 #include "wsutil/file_util.h"
 
+#include "epan/column.h"
+
 #include "ui/alert_box.h"
 #include "ui/capture_globals.h"
 #include "ui/help_url.h"
@@ -357,8 +359,7 @@ void MainWindow::configurationProfileChanged(const gchar *profile_name) {
 //    welcome_if_panel_reload();
 
     /* Recreate the packet list according to new preferences */
-//    packet_list_recreate ();
-    if (cap_file_) cap_file_->columns_changed = FALSE; /* Reset value */
+    recreatePacketList();
 
     /* Reload pane geometry, must be done after recreating the list */
 //    main_pane_load_window_geometry();
@@ -920,6 +921,21 @@ void MainWindow::redissectPackets()
     if (cap_file_)
         cf_redissect_packets(cap_file_);
     main_ui_->statusBar->expertUpdate();
+}
+
+void MainWindow::recreatePacketList()
+{
+    if (!cap_file_) return;
+
+    prefs.num_cols = g_list_length(prefs.col_list);
+
+    col_cleanup(&cap_file_->cinfo);
+    build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
+
+    packet_list_->hide();
+    packet_list_->show();
+
+    cap_file_->columns_changed = FALSE; /* Reset value */
 }
 
 // File Menu
