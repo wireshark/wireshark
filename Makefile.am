@@ -112,7 +112,7 @@ dtds_DATA = \
 #
 radiusdir = $(pkgdatadir)/radius
 -include radius/Custom.make
-radius_DATA = $(_CUSTOM_radius_dict_)\
+radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/README.radius_dictionary  \
 	radius/custom.includes  \
 	radius/Custom.make  \
