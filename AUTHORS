@@ -3485,7 +3485,7 @@ Wido Kelling		<kellingwido[At]aol.com> {
 }
 
 Kaushal Shah		<kshah3[AT]ncsu.edu> {
-    Support for Type Classification of Experimental 
+    Support for Type Classification of Experimental
     and Reserved sub-TLVs as per Section 6 of RFC3630
 }
 
@@ -3495,7 +3495,6 @@ Subramanian Ramachandran <sramach6[AT]ncsu.edu> {
 
 and by:
 
-Pavel Roskin		<proski[AT]gnu.org>
 Georgi Guninski		<guninski[AT]guninski.com>
 Jason Copenhaver	<jcopenha[AT]typedef.org>
 Eric Perie		<eric.perie[AT]colubris.com>
