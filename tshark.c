@@ -1452,6 +1452,12 @@ main(int argc, char *argv[])
       show_version(comp_info_str, runtime_info_str);
       g_string_free(comp_info_str, TRUE);
       g_string_free(runtime_info_str, TRUE);
+      /* We don't really have to cleanup here, but it's a convenient way to test
+       * start-up and shut-down of the epan library without any UI-specific
+       * cruft getting in the way. Makes the results of running
+       * $ ./tools/valgrind-wireshark -n
+       * much more useful. */
+      epan_cleanup();
       return 0;
     }
     case 'O':        /* Only output these protocols */
