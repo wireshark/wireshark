@@ -37,6 +37,10 @@
 void *
 wmem_alloc(wmem_allocator_t *allocator, const size_t size)
 {
+    if (size == 0) {
+        return NULL;
+    }
+
     return allocator->alloc(allocator->private_data, size);
 }
 
@@ -44,22 +48,39 @@ void *
 wmem_alloc0(wmem_allocator_t *allocator, const size_t size)
 {
     void *buf;
+
+    if (size == 0) {
+        return NULL;
+    }
     
     buf = wmem_alloc(allocator, size);
 
     return memset(buf, 0, size);
 }
 
-void *
-wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
-{
-    return allocator->realloc(allocator->private_data, ptr, size);
-}
-
 void
 wmem_free(wmem_allocator_t *allocator, void *ptr)
 {
+    if (ptr == NULL) {
+        return;
+    }
+
     allocator->free(allocator->private_data, ptr);
+}
+
+void *
+wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
+{
+    if (ptr == NULL) {
+        return wmem_alloc(allocator, size);
+    }
+
+    if (size == 0) {
+        wmem_free(allocator, ptr);
+        return NULL;
+    }
+
+    return allocator->realloc(allocator->private_data, ptr, size);
 }
 
 void

@@ -50,11 +50,7 @@ wmem_simple_alloc(void *private_data, const size_t size)
     
     buf = g_malloc(size);
 
-    /* alloc is allowed to return NULL if the requested size is 0, in
-     * which case we don't need to add it to the hash table */
-    if (buf) {
-        g_hash_table_insert(allocator->block_table, buf, buf);
-    }
+    g_hash_table_insert(allocator->block_table, buf, buf);
 
     return buf;
 }
@@ -70,21 +66,12 @@ wmem_simple_realloc(void *private_data, void *ptr, const size_t size)
     newptr = g_realloc(ptr, size);
 
     if (ptr != newptr) {
-        /* realloc actually moved the memory block. */
-        if (ptr) {
-            /* ptr is allowed to be NULL in which case it is assumed to have 0
-             * length. If it is non-NULL we need to remove it from the hash
-             * table, as realloc reclaimed it during the move, however calling
-             * g_hash_table_remove() would trigger a double-free (because we
-             * registered g_free() as the destructor function for the hash
-             * table) so we use g_hash_table_steal() instead. */
-            g_hash_table_steal(allocator->block_table, ptr);
-        }
-        if (newptr) {
-            /* realloc is allowed to return NULL if the requested size is 0, in
-             * which case we don't need to add it to the hash table */
-            g_hash_table_insert(allocator->block_table, newptr, newptr);
-        }
+        /* Realloc actually moved the memory block, so we need to replace the
+         * value in our hash table. Calling g_hash_table_remove() would trigger
+         * a g_free() which is incorrect since realloc already reclaimed the old
+         * block, so use g_hash_table_steal() instead. */
+        g_hash_table_steal(allocator->block_table, ptr);
+        g_hash_table_insert(allocator->block_table, newptr, newptr);
     }
 
     return newptr;
@@ -97,12 +84,9 @@ wmem_simple_free(void *private_data, void *ptr)
 
     allocator = (wmem_simple_allocator_t*) private_data;
 
-    /* free is a no-op on a NULL pointer */
-    if (ptr) {
-        /* remove() takes care of calling g_free() for us since we set up the
-         * hash table with g_hash_table_new_full() */
-        g_hash_table_remove(allocator->block_table, ptr);
-    }
+    /* remove() takes care of calling g_free() for us since we set up the
+     * hash table with g_hash_table_new_full() */
+    g_hash_table_remove(allocator->block_table, ptr);
 }
 
 static void
