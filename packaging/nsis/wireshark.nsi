@@ -445,6 +445,7 @@ SetOutPath $INSTDIR
 ;
 SetOutPath $INSTDIR\radius
 File "..\..\radius\README.radius_dictionary"
+File "..\..\radius\custom.includes"
 File "..\..\radius\dictionary"
 File "..\..\radius\dictionary.3com"
 File "..\..\radius\dictionary.3gpp"
@@ -588,6 +589,7 @@ File "..\..\radius\dictionary.wimax.wichorus"
 File "..\..\radius\dictionary.wispr"
 File "..\..\radius\dictionary.xedia"
 File "..\..\radius\dictionary.zyxel"
+!include "custom_radius_dict.txt"
 SetOutPath $INSTDIR
 
 ;

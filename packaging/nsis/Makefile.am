@@ -16,4 +16,5 @@ EXTRA_DIST = \
 	Custom.nmake \
 	custom_plugins.txt	\
 	custom_mibs.txt	\
+	custom_radius_dict.txt	\
 	x64.nsh

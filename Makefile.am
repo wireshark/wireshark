@@ -113,6 +113,7 @@ dtds_DATA = \
 radiusdir = $(pkgdatadir)/radius
 radius_DATA = \
 	radius/README.radius_dictionary  \
+	radius/custom.includes  \
 	radius/dictionary  \
 	radius/dictionary.3com  \
 	radius/dictionary.3gpp  \

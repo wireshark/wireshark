@@ -212,6 +212,7 @@ $INCLUDE dictionary.wichorus
 $INCLUDE dictionary.wimax
 $INCLUDE dictionary.wispr
 $INCLUDE dictionary.xedia
+$INCLUDE custom.includes
 
 #
 #	And finally the server internal attributes.
