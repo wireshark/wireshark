@@ -28,7 +28,8 @@
 	<!ENTITY Vodafone		      SYSTEM "Vodafone.xml">
 	<!ENTITY AlcatelLucent		SYSTEM "AlcatelLucent.xml">
 	<!ENTITY Nokia			      SYSTEM "Nokia.xml">
-	<!ENTITY NokiaSiemensNetworks	SYSTEM "NokiaSiemensNetworks.xml">
+  <!ENTITY NokiaSiemensNetworks	SYSTEM "NokiaSiemensNetworks.xml">
+  <!ENTITY SKT              SYSTEM "SKT.xml">
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc3588.txt">
@@ -2595,7 +2596,38 @@
 		584 Key-Lifetime [RFC-ietf-dime-local-keytran-14]
 		585 Key-SPI [RFC-ietf-dime-local-keytran-14]
 		586 Key-Name [RFC-ietf-dime-local-keytran-14]
-		587-0xffffff Unassigned -->
+    587 IKEv2-Nonces [RFC6738] 
+    588 Ni [RFC6738] 
+    589 Nr [RFC6738] 
+    590 IKEv2-Identity [RFC6738] 
+    591 Initiator-Identity [RFC6738] 
+    592 ID-Type [RFC6738] 
+    593 Identification-Data [RFC6738] 
+    594 Responder-Identity [RFC6738] 
+    595 NC-Request-Type [RFC6736] 
+    596 NAT-Control-Install [RFC6736] 
+    597 NAT-Control-Remove [RFC6736] 
+    598 NAT-Control-Definition [RFC6736] 
+    599 NAT-Internal-Address [RFC6736] 
+    600 NAT-External-Address [RFC6736] 
+    601 Max-NAT-Bindings [RFC6736] 
+    602 NAT-Control-Binding-Template [RFC6736] 
+    603 Duplicate-Session-Id [RFC6736] 
+    604 NAT-External-Port-Style [RFC6736] 
+    605 NAT-Control-Record [RFC6736] 
+    606 NAT-Control-Binding-Status [RFC6736] 
+    607 Current-NAT-Bindings [RFC6736] 
+    608 Dual-Priority [RFC6735] 
+    609 Preemption-Priority [RFC6735] 
+    610 Defending-Priority [RFC6735] 
+    611 Admission-Priority [RFC6735] 
+    612 SIP-Resource-Priority [RFC6735] 
+    613 SIP-Resource-Priority-Namespace [RFC6735] 
+    614 SIP-Resource-Priority-Value [RFC6735] 
+    615 Application-Level-Resource-Priority [RFC6735] 
+    616 ALRP-Namespace [RFC6735] 
+    617 ALRP-Value [RFC6735] 
+    618-0xffffff Unassigned  -->
 
 		<!-- **************************************************************************** -->
 		<!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
@@ -6291,4 +6323,5 @@
 	&AlcatelLucent;
 	&Nokia;
 	&NokiaSiemensNetworks;
+  &SKT;
 </dictionary>
