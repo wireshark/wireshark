@@ -54,8 +54,9 @@ static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
 static guint32 lte_rrc_rat_type_value = -1;
 static guint32 lte_rrc_ho_target_rat_type_value = -1;
 static gint lte_rrc_si_or_psi_geran_val = -1;
-static guint8 lte_rrc_etws_dataCodingScheme = SMS_ENCODING_NOT_SET;
-static guint8 lte_rrc_cmas_dataCodingScheme = SMS_ENCODING_NOT_SET;
+static guint32 lte_rrc_etws_cmas_dcs_key = -1;
+
+static GHashTable *lte_rrc_etws_cmas_dcs_hash = NULL;
 
 /* Include constants */
 #include "packet-lte-rrc-val.h"
@@ -1916,6 +1917,15 @@ dissect_lte_rrc_MCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+static void
+lte_rrc_init_protocol(void)
+{
+  if (lte_rrc_etws_cmas_dcs_hash) {
+    g_hash_table_destroy(lte_rrc_etws_cmas_dcs_hash);
+  }
+  lte_rrc_etws_cmas_dcs_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+}
+
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_lte_rrc(void) {
 
@@ -2412,6 +2422,7 @@ void proto_register_lte_rrc(void) {
   /* Register the dissectors defined in lte-rrc.conf */
 #include "packet-lte-rrc-dis-reg.c"
 
+  register_init_routine(&lte_rrc_init_protocol);
 }
 
 

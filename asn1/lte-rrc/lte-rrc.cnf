@@ -955,6 +955,7 @@ SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
 
 #.FN_FTR SystemInformationBlockType11/messageIdentifier
   if (msg_id_tvb) {
+    lte_rrc_etws_cmas_dcs_key = tvb_get_ntohs(msg_id_tvb, 0) << 16;
     actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
@@ -965,6 +966,7 @@ SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
 #.FN_FTR SystemInformationBlockType11/serialNumber
   if (serial_nb_tvb) {
     proto_tree *subtree;
+    lte_rrc_etws_cmas_dcs_key |= tvb_get_ntohs(serial_nb_tvb, 0);
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -978,20 +980,25 @@ SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
 #.FN_FTR SystemInformationBlockType11/dataCodingScheme
   if (data_coding_scheme_tvb) {
     proto_tree *subtree;
+    guint8 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
-    lte_rrc_etws_dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
+    dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
+    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER(lte_rrc_etws_cmas_dcs_key),
+                        GUINT_TO_POINTER(dataCodingScheme));
   }
 
 #.FN_BODY SystemInformationBlockType11/warningMessageSegment VAL_PTR=&warning_msg_seg_tvb
   tvbuff_t *warning_msg_seg_tvb = NULL;
+  gpointer p_dcs;
 %(DEFAULT_BODY)s
 
 #.FN_FTR SystemInformationBlockType11/warningMessageSegment
-  if (warning_msg_seg_tvb && (lte_rrc_etws_dataCodingScheme != SMS_ENCODING_NOT_SET)) {
+  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER(lte_rrc_etws_cmas_dcs_key));
+  if (warning_msg_seg_tvb && p_dcs) {
     proto_tree *subtree;
     tvbuff_t *cb_data_tvb;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-    cb_data_tvb = dissect_cbs_data(lte_rrc_etws_dataCodingScheme, warning_msg_seg_tvb, subtree, actx->pinfo, 0);
+    cb_data_tvb = dissect_cbs_data(GPOINTER_TO_UINT(p_dcs), warning_msg_seg_tvb, subtree, actx->pinfo, 0);
     if (cb_data_tvb) {
       proto_tree_add_unicode_string(subtree, hf_lte_rrc_warningMessageSegment_decoded, cb_data_tvb, 0, -1,
                                     tvb_get_ephemeral_string_enc(cb_data_tvb, 0, tvb_length(cb_data_tvb), ENC_UTF_8 | ENC_NA));
@@ -1007,6 +1014,7 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
 
 #.FN_FTR SystemInformationBlockType12-r9/messageIdentifier-r9
   if (msg_id_tvb) {
+    lte_rrc_etws_cmas_dcs_key = tvb_get_ntohs(msg_id_tvb, 0) << 16;
     actx->created_item = proto_tree_add_item(tree, hf_index, msg_id_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
@@ -1017,6 +1025,7 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
 #.FN_FTR SystemInformationBlockType12-r9/serialNumber-r9
   if (serial_nb_tvb) {
     proto_tree *subtree;
+    lte_rrc_etws_cmas_dcs_key |= tvb_get_ntohs(serial_nb_tvb, 0);
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_serialNumber);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_gs, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lte_rrc_serialNumber_msg_code, serial_nb_tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -1030,20 +1039,25 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
 #.FN_FTR SystemInformationBlockType12-r9/dataCodingScheme-r9
   if (data_coding_scheme_tvb) {
     proto_tree *subtree;
+    guint8 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
-    lte_rrc_cmas_dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
+    dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
+    g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER(lte_rrc_etws_cmas_dcs_key),
+                        GUINT_TO_POINTER(dataCodingScheme));
   }
 
 #.FN_BODY SystemInformationBlockType12-r9/warningMessageSegment-r9 VAL_PTR=&warning_msg_seg_tvb
   tvbuff_t *warning_msg_seg_tvb = NULL;
+  gpointer p_dcs;
 %(DEFAULT_BODY)s
 
 #.FN_FTR SystemInformationBlockType12-r9/warningMessageSegment-r9
-  if (warning_msg_seg_tvb && (lte_rrc_cmas_dataCodingScheme != SMS_ENCODING_NOT_SET)) {
+  p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER(lte_rrc_etws_cmas_dcs_key));
+  if (warning_msg_seg_tvb && p_dcs) {
     proto_tree *subtree;
     tvbuff_t *cb_data_tvb;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-    cb_data_tvb = dissect_cbs_data(lte_rrc_cmas_dataCodingScheme, warning_msg_seg_tvb, subtree, actx->pinfo, 0);
+    cb_data_tvb = dissect_cbs_data(GPOINTER_TO_UINT(p_dcs), warning_msg_seg_tvb, subtree, actx->pinfo, 0);
     if (cb_data_tvb) {
       proto_tree_add_unicode_string(subtree, hf_lte_rrc_warningMessageSegment_decoded, cb_data_tvb, 0, -1,
                                     tvb_get_ephemeral_string_enc(cb_data_tvb, 0, tvb_length(cb_data_tvb), ENC_UTF_8 | ENC_NA));
