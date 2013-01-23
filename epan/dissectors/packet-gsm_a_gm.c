@@ -4401,6 +4401,9 @@ qos_calc_ext2_bitrate(guint8 oct)
 	return 10000;
 }
 
+/*
+ * 10.5.6.5 Quality of service
+ */
 guint16
 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -4652,6 +4655,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset += 1;
+	NO_MORE_DATA_CHECK(len);
 
 	/* Maximum bit rate for downlink (extended-2) Octet 19 */
 	oct = tvb_get_guint8(tvb, curr_offset);
