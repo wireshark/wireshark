@@ -135,12 +135,10 @@ static char open_file_preview_str[128] = "";
 /* Used to contain the string from the Auto Scroll Percentage pref item */
 static char scroll_percent_preview_str[128] = "";
 
-#define GUI_TABLE_ROWS 4
-
 GtkWidget*
 gui_prefs_show(void)
 {
-	GtkWidget *main_tb, *main_vb;
+	GtkWidget *main_grid, *main_vb;
 #ifdef _WIN32
 	GtkWidget *console_open_om;
 #endif
@@ -166,33 +164,33 @@ gui_prefs_show(void)
 	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 7, FALSE);
 	gtk_container_set_border_width( GTK_CONTAINER(main_vb), 5 );
 
-	/* Main table */
-	main_tb = gtk_table_new(GUI_TABLE_ROWS, 2, FALSE);
-	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+	/* Main grid */
+	main_grid = ws_gtk_grid_new();
+	gtk_box_pack_start(GTK_BOX(main_vb), main_grid, FALSE, FALSE, 0);
+	ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 10);
+	ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 15);
 
 	/* Geometry prefs */
-	save_position_cb = create_preference_check_button(main_tb, pos++,
+	save_position_cb = create_preference_check_button(main_grid, pos++,
 	    "Save window position:",
 	    "Whether to save the position of the main window.",
 	    prefs.gui_geometry_save_position);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_POSITION_KEY, save_position_cb);
 
-	save_size_cb = create_preference_check_button(main_tb, pos++,
+	save_size_cb = create_preference_check_button(main_grid, pos++,
 	    "Save window size:",
 	    "Whether to save the size of the main window.",
 	    prefs.gui_geometry_save_size);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_SIZE_KEY, save_size_cb);
 
-	save_maximized_cb = create_preference_check_button(main_tb, pos++,
+	save_maximized_cb = create_preference_check_button(main_grid, pos++,
 	    "Save maximized state:",
 	    "Whether to save the maximized state of the main window.",
 	    prefs.gui_geometry_save_maximized);
 	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
 
 #if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
-	macosx_style_cb = create_preference_check_button(main_tb, pos++,
+	macosx_style_cb = create_preference_check_button(main_grid, pos++,
 	    "Mac OS X style",
 	    "Whether to create a Mac OS X look and feel. Checking this box will move the "
 	    "menu bar to the top of the screen instead of the top of the Wireshark window. "
@@ -203,7 +201,7 @@ gui_prefs_show(void)
 
 #ifdef _WIN32
 	/* How the console window should be opened */
-	console_open_om = create_preference_option_menu(main_tb, pos++,
+	console_open_om = create_preference_option_menu(main_grid, pos++,
 	    "Open a console window",
 	    "Whether to open a console window "
 	    "(Automatic will open a console if messages appear).",
@@ -213,13 +211,13 @@ gui_prefs_show(void)
 
 	/* Allow user to select where they want the File Open dialog to open to
 	 * by default */
-	fileopen_rb = create_preference_radio_buttons(main_tb, pos++,
+	fileopen_rb = create_preference_radio_buttons(main_grid, pos++,
 	    "\"File Open\" dialog behavior:",
 	    "Which directory the \"File Open\" dialog should start with.",
 	    gui_fileopen_vals, prefs.gui_fileopen_style);
 
 	/* Directory to default File Open dialog to */
-	fileopen_dir_te = create_preference_entry(main_tb, pos++,
+	fileopen_dir_te = create_preference_entry(main_grid, pos++,
 	    "Directory:",
 	    "The \"File Open\" dialog defaults always to this directory.",
 	    prefs.gui_fileopen_dir);
@@ -230,7 +228,7 @@ gui_prefs_show(void)
 	    G_CALLBACK(fileopen_dir_changed_cb), main_vb);
 
 	/* File Open dialog preview timeout */
-	fileopen_preview_te = create_preference_entry(main_tb, pos++,
+	fileopen_preview_te = create_preference_entry(main_grid, pos++,
 	    "\"File Open\" preview timeout:",
 	    "Reading preview data in the \"File Open\" dialog will be stopped after given seconds.",
 	    open_file_preview_str);
@@ -240,7 +238,7 @@ gui_prefs_show(void)
 	g_signal_connect(fileopen_preview_te, "focus_out_event", G_CALLBACK(fileopen_preview_changed_cb), main_vb);
 
 	/* Number of recent entries in the display filter list ... */
-	recent_df_entries_max_te = create_preference_entry(main_tb, pos++,
+	recent_df_entries_max_te = create_preference_entry(main_grid, pos++,
 	    "Maximum recent filters:",
 	    "Maximum number of recent entries in filter display list.",
 	    recent_df_entries_max_str);
@@ -250,7 +248,7 @@ gui_prefs_show(void)
 	g_signal_connect(recent_df_entries_max_te, "focus_out_event", G_CALLBACK(recent_df_entries_changed_cb), main_vb);
 
 	/* Number of entries in the recent_files list ... */
-	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
+	recent_files_count_max_te = create_preference_entry(main_grid, pos++,
 	    "Maximum recent files:",
 	    "Maximum number of entries in the \"File/Open Recent\" list.",
 	    recent_files_count_max_str);
@@ -262,21 +260,21 @@ gui_prefs_show(void)
 	fileopen_selected_cb(NULL, main_vb);
 
 	/* ask for unsaved capture files? */
-	ask_unsaved_cb = create_preference_check_button(main_tb, pos++,
+	ask_unsaved_cb = create_preference_check_button(main_grid, pos++,
 	    "Confirm unsaved capture files:",
 	    "Whether a dialog should pop up in case of an unsaved capture file.",
 	    prefs.gui_ask_unsaved);
 	g_object_set_data(G_OBJECT(main_vb), GUI_ASK_UNSAVED_KEY, ask_unsaved_cb);
 
 	/* do we want to wrap when searching for data? */
-	find_wrap_cb = create_preference_check_button(main_tb, pos++,
+	find_wrap_cb = create_preference_check_button(main_grid, pos++,
 	    "Wrap to end/beginning of file during a find:",
 	    "Whether a search should wrap in a capture file.",
 	    prefs.gui_find_wrap);
 	g_object_set_data(G_OBJECT(main_vb), GUI_FIND_WRAP_KEY, find_wrap_cb);
 
 	/* show an explicit Save button for settings dialogs (preferences and alike)? */
-	use_pref_save_cb = create_preference_check_button(main_tb, pos++,
+	use_pref_save_cb = create_preference_check_button(main_grid, pos++,
 	    "Settings dialogs show a save button:",
 	    "Whether the various settings dialogs (e.g. Preferences) should "
 	    "use an explicit save button - for advanced users.",
@@ -284,21 +282,21 @@ gui_prefs_show(void)
 	g_object_set_data(G_OBJECT(main_vb), GUI_USE_PREF_SAVE_KEY, use_pref_save_cb);
 
 	/* Show version in welcome and/or title screen */
-	show_version_om = create_preference_option_menu(main_tb, pos++,
+	show_version_om = create_preference_option_menu(main_grid, pos++,
 	    "Welcome screen and title bar shows version",
 	    "Whether version should be shown in the start page and/or main screen's title bar.",
 	    gui_version_placement_vals, prefs.gui_version_placement);
 	g_object_set_data(G_OBJECT(main_vb), GUI_SHOW_VERSION_KEY, show_version_om);
 
 	/* Whether to auto scroll when expanding items */
-	auto_scroll_cb = create_preference_check_button(main_tb, pos++,
+	auto_scroll_cb = create_preference_check_button(main_grid, pos++,
 		"Auto scroll on expansion:",
 	    "Whether the details view should be automatically scrolled up when expanding an item.",
 	    prefs.gui_auto_scroll_on_expand );
 	g_object_set_data(G_OBJECT(main_vb), GUI_AUTO_SCROLL_KEY, auto_scroll_cb);
 
 	/* Where to auto scroll to when expanding items */
-	scroll_percent_te = create_preference_entry(main_tb, pos++,
+	scroll_percent_te = create_preference_entry(main_grid, pos++,
 		"Auto scroll percentage:",
 	    "Where to scroll the expanded item to within the view e.g. 0% = top of view, 50% = center of view.",
 	    scroll_percent_preview_str);
@@ -309,7 +307,7 @@ gui_prefs_show(void)
 
 	/* Webbrowser */
 	if (browser_needs_pref()) {
-	    webbrowser_te = create_preference_entry(main_tb, pos++,
+	    webbrowser_te = create_preference_entry(main_grid, pos++,
 						    "Web browser command:",
 						    "Command line to desired browser.",
 						    prefs.gui_webbrowser);
@@ -318,7 +316,7 @@ gui_prefs_show(void)
 	}
 
 	/* Enable Expert Infos Dialog Tab Label "eye-candy" */
-	expert_info_eyecandy_cb = create_preference_check_button(main_tb, pos++,
+	expert_info_eyecandy_cb = create_preference_check_button(main_grid, pos++,
 	    "Display icons in the Expert Infos dialog tab labels:",
 	    "Whether icon images should be displayed in the Expert Infos dialog tab labels.",
 	    prefs.gui_expert_composite_eyecandy );
@@ -373,7 +371,7 @@ gui_prefs_fetch(GtkWidget *w)
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_USE_PREF_SAVE_KEY));
 
 	prefs.gui_version_placement =
-        fetch_enum_value(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY), gui_version_placement_vals);
+		fetch_enum_value(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY), gui_version_placement_vals);
 
 	prefs.gui_auto_scroll_on_expand =
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_AUTO_SCROLL_KEY));
@@ -541,21 +539,25 @@ static gboolean
 scroll_percent_changed_cb(GtkWidget *recent_files_entry _U_,
 			  GdkEvent *event _U_, gpointer parent_w)
 {
-  GtkWidget *scroll_percent_te;
-  guint newval;
+	GtkWidget *scroll_percent_te;
+	guint newval;
 
-  scroll_percent_te = (GtkWidget*)g_object_get_data(G_OBJECT(parent_w), GUI_SCROLL_PERCENT_KEY);
+	scroll_percent_te = (GtkWidget*)g_object_get_data(G_OBJECT(parent_w), GUI_SCROLL_PERCENT_KEY);
 
-  /*
-   * Now, just convert the string to a number and store it in the prefs field ...
-   */
+	/*
+	 * Now, just convert the string to a number and store it in the prefs field ...
+	 */
 
-  newval = (guint)strtol(gtk_entry_get_text(GTK_ENTRY(scroll_percent_te)), NULL, 10);
+	newval = (guint)strtol(gtk_entry_get_text(GTK_ENTRY(scroll_percent_te)), NULL, 10);
 
-  if (newval <= 100) {
-    prefs.gui_auto_scroll_percentage = newval;
-  }
+	if (newval <= 100) {
+		prefs.gui_auto_scroll_percentage = newval;
+	}
 
-  /* We really should pop up a dialog box is newval < 0 or > 100 */
-  return FALSE;
+	if (newval <= 100) {
+		prefs.gui_auto_scroll_percentage = newval;
+	}
+
+	/* We really should pop up a dialog box is newval < 0 or > 100 */
+	return FALSE;
 }

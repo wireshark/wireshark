@@ -56,14 +56,11 @@
 #define AUTO_SCROLL_KEY		"auto_scroll"
 #define SHOW_INFO_KEY           "show_info"
 
-#define CAPTURE_TABLE_ROWS 6
-
 #define IFOPTS_CALLER_PTR_KEY	"ifopts_caller_ptr"
 #define IFOPTS_DIALOG_PTR_KEY	"ifopts_dialog_ptr"
-#define IFOPTS_TABLE_ROWS 2
-#define IFOPTS_LIST_TEXT_COLS  4
-#define IFOPTS_MAX_DESCR_LEN 128
-#define IFOPTS_IF_NOSEL -1
+#define IFOPTS_LIST_TEXT_COLS   4
+#define IFOPTS_MAX_DESCR_LEN  128
+#define IFOPTS_IF_NOSEL        -1
 #define COLOPTS_CALLER_PTR_KEY	"colopts_caller_ptr"
 #define COLOPTS_DIALOG_PTR_KEY	"colopts_dialog_ptr"
 
@@ -113,7 +110,7 @@ static void colopts_edit_ok_cb(GtkWidget *w, gpointer parent_w);
 GtkWidget*
 capture_prefs_show(void)
 {
-	GtkWidget	*main_tb, *main_vb;
+	GtkWidget	*main_grid, *main_vb;
 	GtkWidget	*if_cbxe, *if_lb, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
 	GtkWidget	*ifopts_lb, *ifopts_bt, *colopts_lb, *colopts_bt;
 	GList		*if_list, *combo_list;
@@ -125,16 +122,16 @@ capture_prefs_show(void)
 	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 7, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 
-	/* Main table */
-	main_tb = gtk_table_new(CAPTURE_TABLE_ROWS, 2, FALSE);
-	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
-	gtk_widget_show(main_tb);
+	/* Main grid */
+	main_grid = ws_gtk_grid_new();
+	gtk_box_pack_start(GTK_BOX(main_vb), main_grid, FALSE, FALSE, 0);
+	ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 10);
+	ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 15);
+	gtk_widget_show(main_grid);
 
 	/* Default device */
 	if_lb = gtk_label_new("Default interface:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_lb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_lb, 0, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_lb);
 
@@ -160,7 +157,7 @@ capture_prefs_show(void)
 	}
 	free_capture_combo_list(combo_list);
 
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cbxe, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_cbxe, 1, row, 1, 1);
 	tooltips_text = "The default interface to be captured from.";
 	gtk_widget_set_tooltip_text(if_lb, tooltips_text);
 	gtk_widget_set_tooltip_text(gtk_bin_get_child(GTK_BIN(if_cbxe)), tooltips_text);
@@ -170,7 +167,7 @@ capture_prefs_show(void)
 
 	/* Interface properties */
 	ifopts_lb = gtk_label_new("Interfaces:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_lb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), ifopts_lb, 0, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(ifopts_lb), 1.0f, 0.5f);
 	gtk_widget_show(ifopts_lb);
 
@@ -179,11 +176,11 @@ capture_prefs_show(void)
 	gtk_widget_set_tooltip_text(ifopts_lb, tooltips_text);
 	gtk_widget_set_tooltip_text(ifopts_bt, tooltips_text);
 	g_signal_connect(ifopts_bt, "clicked", G_CALLBACK(ifopts_edit_cb), NULL);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_bt, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), ifopts_bt, 1, row, 1, 1);
 	row++;
 
 	/* Promiscuous mode */
-	promisc_cb = create_preference_check_button(main_tb, row++,
+	promisc_cb = create_preference_check_button(main_grid, row++,
 	    "Capture packets in promiscuous mode:",
 	    "Usually a network card will only capture the traffic sent to its own network address. "
 	    "If you want to capture all traffic that the network card can \"see\", mark this option. "
@@ -192,14 +189,14 @@ capture_prefs_show(void)
 	g_object_set_data(G_OBJECT(main_vb), PROM_MODE_KEY, promisc_cb);
 
 	/* Pcap-NG format */
-	pcap_ng_cb = create_preference_check_button(main_tb, row++,
+	pcap_ng_cb = create_preference_check_button(main_grid, row++,
 	    "Capture packets in pcap-ng format:",
 	    "Capture packets in the next-generation capture file format.",
 	    prefs.capture_pcap_ng);
 	g_object_set_data(G_OBJECT(main_vb), PCAP_NG_KEY, pcap_ng_cb);
 
 	/* Real-time capture */
-	sync_cb = create_preference_check_button(main_tb, row++,
+	sync_cb = create_preference_check_button(main_grid, row++,
 	    "Update list of packets in real time:",
 	    "Update the list of packets while capture is in progress. "
 	    "Don't use this option if you notice packet drops.",
@@ -207,14 +204,14 @@ capture_prefs_show(void)
 	g_object_set_data(G_OBJECT(main_vb), CAPTURE_REAL_TIME_KEY, sync_cb);
 
 	/* Auto-scroll real-time capture */
-	auto_scroll_cb = create_preference_check_button(main_tb, row++,
+	auto_scroll_cb = create_preference_check_button(main_grid, row++,
 	    "Automatic scrolling in live capture:",
 	    "Automatic scrolling of the packet list while live capture is in progress. ",
 	    prefs.capture_auto_scroll);
 	g_object_set_data(G_OBJECT(main_vb), AUTO_SCROLL_KEY, auto_scroll_cb);
 
 	/* Show capture info dialog */
-	show_info_cb = create_preference_check_button(main_tb, row++,
+	show_info_cb = create_preference_check_button(main_grid, row++,
 	    "Hide capture info dialog:",
 	    "Hide the capture info dialog while capturing. ",
 	    !prefs.capture_show_info);
@@ -222,7 +219,7 @@ capture_prefs_show(void)
 
 	/* Column properties */
 	colopts_lb = gtk_label_new("Columns:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), colopts_lb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), colopts_lb, 0, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(colopts_lb), 1.0f, 0.5f);
 	gtk_widget_show(colopts_lb);
 
@@ -231,7 +228,7 @@ capture_prefs_show(void)
 	gtk_widget_set_tooltip_text(colopts_lb, tooltips_text);
 	gtk_widget_set_tooltip_text(colopts_bt, tooltips_text);
 	g_signal_connect(colopts_bt, "clicked", G_CALLBACK(colopts_edit_cb), NULL);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), colopts_bt, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), colopts_bt, 1, row, 1, 1);
 	row++;
 
 	/* Show 'em what we got */
@@ -335,7 +332,7 @@ enum
 static void
 colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 {
-	GtkWidget	*colopts_edit_dlg, *main_hb, *main_tb,
+	GtkWidget	*colopts_edit_dlg, *main_hb, *main_grid,
 						*ed_opts_fr, *main_vb,
 						*bbox, *ok_bt, *cancel_bt, *help_bt, *column_lb,
 						*col_interface_lb, *col_link_lb,
@@ -380,22 +377,22 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_container_add(GTK_CONTAINER(ed_opts_fr), main_hb);
 	gtk_widget_show(main_hb);
 
-	/* table to hold description text entry and hide button */
-	main_tb = gtk_table_new(IFOPTS_TABLE_ROWS, 4, FALSE);
-	gtk_box_pack_start(GTK_BOX(main_hb), main_tb, TRUE, FALSE, 10);
-	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
-	gtk_widget_show(main_tb);
+	/* grid to hold description text entry and hide button */
+	main_grid = ws_gtk_grid_new();
+	gtk_box_pack_start(GTK_BOX(main_hb), main_grid, TRUE, FALSE, 10);
+	ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 10);
+	ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 10);
+	gtk_widget_show(main_grid);
 
 	column_lb = gtk_label_new("Select the columns to be displayed");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), column_lb, 0, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), column_lb, 0, row, 2, 1);
 	gtk_misc_set_alignment(GTK_MISC(column_lb), 0, 0.5f);
 	gtk_widget_show(column_lb);
 	row++;
 
 	/* create "Interface" label and button */
 	col_interface_cb = gtk_check_button_new();
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_interface_cb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_interface_cb, 0, row, 1, 1);
 	if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("INTERFACE"))
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_interface_cb), TRUE);
 	else
@@ -403,14 +400,14 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(col_interface_cb);
 
 	col_interface_lb = gtk_label_new("Interface and its addresses");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_interface_lb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_interface_lb, 1, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(col_interface_lb), 0, 0.5f);
 	gtk_widget_show(col_interface_lb);
 	row++;
 
 	/* create "Link Layer" label and button */
 	col_link_cb = gtk_check_button_new();
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_link_cb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_link_cb, 0, row, 1, 1);
 	if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("LINK"))
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_link_cb), TRUE);
 	else
@@ -418,14 +415,14 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(col_link_cb);
 
 	col_link_lb = gtk_label_new("Link layer header");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_link_lb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_link_lb, 1, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(col_link_lb), 0, 0.5f);
 	gtk_widget_show(col_link_lb);
 	row++;
 
 	/* create "Promiscous Mode" label and button */
 	col_pmode_cb = gtk_check_button_new();
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_pmode_cb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_pmode_cb, 0, row, 1, 1);
 	if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("PMODE"))
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_pmode_cb), TRUE);
 	else
@@ -433,14 +430,14 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(col_pmode_cb);
 
 	col_pmode_lb = gtk_label_new("Promiscous Mode");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_pmode_lb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_pmode_lb, 1, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(col_pmode_lb), 0, 0.5f);
 	gtk_widget_show(col_pmode_lb);
 	row++;
 
 	/* create "Snap length in Bytes" label and button */
 	col_snap_cb = gtk_check_button_new();
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_snap_cb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_snap_cb, 0, row, 1, 1);
 	if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("SNAPLEN"))
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_snap_cb), TRUE);
 	else
@@ -448,7 +445,7 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(col_snap_cb);
 
 	col_snap_lb = gtk_label_new("Snap length in Bytes");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_snap_lb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_snap_lb, 1, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(col_snap_lb), 0, 0.5f);
 	gtk_widget_show(col_snap_lb);
 	row++;
@@ -456,7 +453,7 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 	/* create "Buffer in Megabytes" label and button */
 	col_buf_cb = gtk_check_button_new();
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_buf_cb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_buf_cb, 0, row, 1, 1);
 	if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("BUFFER"))
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_buf_cb), TRUE);
 	else
@@ -464,7 +461,7 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(col_buf_cb);
 
 	col_buf_lb = gtk_label_new("Buffer in Megabytes");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_buf_lb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_buf_lb, 1, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(col_buf_lb), 0, 0.5f);
 	gtk_widget_show(col_buf_lb);
 	row++;
@@ -473,12 +470,12 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 #ifdef HAVE_PCAP_CREATE
 	/* create "monitor mode" label and button */
 	col_monitor_lb = gtk_label_new("Monitor mode");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_monitor_lb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_monitor_lb, 1, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(col_monitor_lb), 0, 0.5f);
 	gtk_widget_show(col_monitor_lb);
-	
+
 	col_monitor_cb = gtk_check_button_new();
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_monitor_cb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_monitor_cb, 0, row, 1, 1);
 	if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("MONITOR"))
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_monitor_cb), TRUE);
 	else
@@ -490,12 +487,12 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	/* create "Capture Filter" label and button */
 	col_filter_lb = gtk_label_new("Capture filter");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_filter_lb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_filter_lb, 1, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(col_filter_lb), 0, 0.5f);
 	gtk_widget_show(col_filter_lb);
 
 	col_filter_cb = gtk_check_button_new();
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), col_filter_cb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_filter_cb, 0, row, 1, 1);
 	if (!prefs.capture_columns || prefs_capture_options_dialog_column_is_visible("FILTER"))
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(col_filter_cb), TRUE);
 	else
@@ -543,7 +540,7 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 static void
 ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 {
-	GtkWidget	  *ifopts_edit_dlg, *cur_scr_win, *main_hb, *main_tb,
+	GtkWidget	  *ifopts_edit_dlg, *cur_scr_win, *main_hb, *main_grid,
 			  *cur_opts_fr, *ed_opts_fr, *main_vb,
 			  *if_descr_lb,
 			  *if_hide_lb,
@@ -728,31 +725,31 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_container_add(GTK_CONTAINER(ed_opts_fr), main_hb);
 	gtk_widget_show(main_hb);
 
-	/* table to hold description text entry and hide button */
-	main_tb = gtk_table_new(IFOPTS_TABLE_ROWS, 4, FALSE);
-	gtk_box_pack_start(GTK_BOX(main_hb), main_tb, TRUE, FALSE, 10);
-	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
-	gtk_widget_show(main_tb);
+	/* grid to hold description text entry and hide button */
+	main_grid = ws_gtk_grid_new();
+	gtk_box_pack_start(GTK_BOX(main_hb), main_grid, TRUE, FALSE, 10);
+	ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 10);
+	ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 10);
+	gtk_widget_show(main_grid);
 
 	if_dev_lb = gtk_label_new("Device:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_dev_lb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_dev_lb, 0, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_dev_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_dev_lb);
 
 	if_dev_lb = gtk_label_new("");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_dev_lb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_dev_lb, 1, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_dev_lb), 0.0f, 0.5f);
 	gtk_widget_show(if_dev_lb);
 	row++;
 
 	if_name_lb = gtk_label_new("Description:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_name_lb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_name_lb, 0, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_name_lb);
 
 	if_name_lb = gtk_label_new("");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_name_lb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_name_lb, 1, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 0.0f, 0.5f);
 	gtk_widget_show(if_name_lb);
 	row++;
@@ -760,20 +757,20 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 #ifdef HAVE_PCAP_CREATE
 	/* create "monitor mode" label and button */
 	if_monitor_lb = gtk_label_new("Monitor mode:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_monitor_lb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_monitor_lb, 0, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_monitor_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_monitor_lb);
 
 	if_monitor_cb = gtk_check_button_new();
 	g_signal_connect(if_monitor_cb, "toggled", G_CALLBACK(ifopts_edit_monitor_changed_cb),
 			cur_list);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_monitor_cb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_monitor_cb, 1, row, 1, 1);
 	gtk_widget_show(if_monitor_cb);
         row++;
 #endif
 
 	if_linktype_lb = gtk_label_new("Default link-layer header type:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_linktype_lb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_linktype_lb, 0, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_linktype_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_linktype_lb);
 
@@ -782,13 +779,13 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	interfaces_info_nochange = FALSE;
 	g_signal_connect(if_linktype_cb, "changed", G_CALLBACK(ifopts_edit_linktype_changed_cb),
 			cur_list);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_linktype_cb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_linktype_cb, 1, row, 1, 1);
 	gtk_widget_show(if_linktype_cb);
 	row++;
 
 	/* create interface description label and text entry */
 	if_descr_lb = gtk_label_new("Comment:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_descr_lb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_descr_lb, 0, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_descr_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_descr_lb);
 
@@ -796,24 +793,24 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	g_signal_connect(if_descr_te, "changed", G_CALLBACK(ifopts_edit_descr_changed_cb),
 			cur_list);
 	gtk_entry_set_max_length(GTK_ENTRY(if_descr_te), IFOPTS_MAX_DESCR_LEN);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_descr_te, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_descr_te, 1, row, 1, 1);
 	gtk_widget_show(if_descr_te);
 	row++;
 
 	/* create "hide interface" label and button */
 	if_hide_lb = gtk_label_new("Hide interface?:");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_lb, 0, 1, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_hide_lb, 0, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_hide_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_hide_lb);
 
 	if_hide_cb = gtk_check_button_new();
 	g_signal_connect(if_hide_cb, "toggled", G_CALLBACK(ifopts_edit_hide_changed_cb),
 			cur_list);
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_cb, 1, 2, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_hide_cb, 1, row, 1, 1);
 	gtk_widget_show(if_hide_cb);
 
 	if_default_if_lb = gtk_label_new("(Default interface cannot be hidden)");
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_default_if_lb, 1, 3, row, row+1);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_default_if_lb, 1, row, 2, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_default_if_lb), 0.15f, 0.5f);
 	row++;
 
@@ -858,7 +855,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
  */
 static void
 colopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
-{ 
+{
 	g_list_free(prefs.capture_columns);
 	prefs.capture_columns = NULL;
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(col_interface_cb))) {

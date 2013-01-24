@@ -278,9 +278,6 @@ layout_defaults_cb (GtkWidget * w _U_, gpointer data)
 #define GUI_FILTER_TOOLBAR_STYLE_KEY    "filter_toolbar_style"
 #define GUI_WINDOW_TITLE_KEY            "window_title"
 
-
-#define GUI_TABLE_ROWS 6
-
 static const enum_val_t altern_colors_vals[] = {
     { "FALSE", "No",  FALSE },
     { "TRUE",  "Yes", TRUE },
@@ -310,7 +307,7 @@ layout_prefs_show(void)
     GtkWidget	*pane_fr, *pane_vb;
     GtkWidget	*radio_hb, *radio_vb;
     GtkWidget	*default_vb, *default_bt;
-    GtkWidget   *main_tb, *hbox;
+    GtkWidget   *main_grid, *hbox;
     GtkWidget	*altern_colors_om;
     GtkWidget	*highlight_style_om;
     GtkWidget	*toolbar_style_om;
@@ -395,53 +392,53 @@ layout_prefs_show(void)
     gtk_box_pack_end(GTK_BOX(radio_hb), default_vb, FALSE, FALSE, 0);
 
     /* Main horizontal box  */
-    /* XXX - Is there a better way to center the table? */
+    /* XXX - Is there a better way to center the grid ? */
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 7, FALSE);
     gtk_box_pack_start (GTK_BOX(main_vb), hbox, TRUE, FALSE, 0);
 
-    /* Main table */
-    main_tb = gtk_table_new(GUI_TABLE_ROWS, 2, FALSE);
-    gtk_box_pack_start( GTK_BOX(hbox), main_tb, FALSE, FALSE, 0 );
-    gtk_table_set_row_spacings( GTK_TABLE(main_tb), 10 );
-    gtk_table_set_col_spacings( GTK_TABLE(main_tb), 15 );
+    /* Main grid */
+    main_grid = ws_gtk_grid_new();
+    gtk_box_pack_start( GTK_BOX(hbox), main_grid, FALSE, FALSE, 0 );
+    ws_gtk_grid_set_row_spacing( GTK_GRID(main_grid), 10 );
+    ws_gtk_grid_set_column_spacing( GTK_GRID(main_grid), 15 );
 
     /* Alternating row colors in list and tree views */
-    altern_colors_om = create_preference_option_menu(main_tb, pos++,
+    altern_colors_om = create_preference_option_menu(main_grid, pos++,
         "Alternating row colors in lists and trees:",
         "Select whether or not the rows of lists and trees have alternating color.",
         altern_colors_vals, prefs.gui_altern_colors);
     g_object_set_data(G_OBJECT(main_vb), ALTERN_COLORS_KEY, altern_colors_om);
 
     /* Packet Bytes Dump highlight style */
-    highlight_style_om = create_preference_option_menu(main_tb, pos++,
+    highlight_style_om = create_preference_option_menu(main_grid, pos++,
         "Packet bytes highlight style:",
         "Select the style in which the packet bytes dump will be displayed.",
         highlight_style_vals, prefs.gui_hex_dump_highlight_style);
     g_object_set_data(G_OBJECT(main_vb), HEX_DUMP_HIGHLIGHT_STYLE_KEY, highlight_style_om);
 
     /* Toolbar prefs */
-    toolbar_style_om = create_preference_option_menu(main_tb, pos++,
+    toolbar_style_om = create_preference_option_menu(main_grid, pos++,
         "Toolbar style:",
         "Select the style in which the toolbar will be displayed.",
         toolbar_style_vals, prefs.gui_toolbar_main_style);
     g_object_set_data(G_OBJECT(main_vb), GUI_TOOLBAR_STYLE_KEY, toolbar_style_om);
 
     /* Filter toolbar prefs */
-    filter_toolbar_style_om = create_preference_option_menu(main_tb, pos++,
+    filter_toolbar_style_om = create_preference_option_menu(main_grid, pos++,
         "Filter toolbar style:",
         "Select the style in which the filter toolbar will be displayed.",
         toolbar_style_vals, prefs.gui_toolbar_filter_style);
     g_object_set_data(G_OBJECT(main_vb), GUI_FILTER_TOOLBAR_STYLE_KEY, filter_toolbar_style_om);
 
     /* Placement of Filter toolbar */
-    filter_toolbar_placement_om = create_preference_option_menu(main_tb, pos++,
+    filter_toolbar_placement_om = create_preference_option_menu(main_grid, pos++,
         "Filter toolbar placement:",
         "Select where the filter toolbar will be displayed.",
         filter_toolbar_placement_vals, prefs.filter_toolbar_show_in_statusbar);
     g_object_set_data(G_OBJECT(main_vb), FILTER_TOOLBAR_PLACEMENT_KEY, filter_toolbar_placement_om);
 
     /* Window title */
-    window_title_te = create_preference_entry(main_tb, pos++,
+    window_title_te = create_preference_entry(main_grid, pos++,
         "Custom window title (appended to existing titles):",
         "Enter the text to be appended to the window title.",
         prefs.gui_window_title);
