@@ -304,7 +304,7 @@ proto_register_mdshdr(void)
                                    "Decode as MDS Header if Ethertype == 0",
                                    "A frame is considered for decoding as MDSHDR if either "
                                    "ethertype is 0xFCFC or zero. Turn this flag off if you "
-                                   "you don't want ethertype zero to be decoded as MDSHDR. "
+                                   "don't want ethertype zero to be decoded as MDSHDR. "
                                    "This might be useful to avoid problems with test frames.",
                                    &decode_if_zero_etype);
 }
