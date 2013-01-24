@@ -187,6 +187,7 @@
     <addaction name="actionEditUnsetAllTimeReferences"/>
     <addaction name="actionEditNextTimeReference"/>
     <addaction name="actionEditPreviousTimeReference"/>
+    <addaction name="separator"/>
     <addaction name="actionEditTimeShift"/>
     <addaction name="separator"/>
     <addaction name="actionEditPacketComment"/>

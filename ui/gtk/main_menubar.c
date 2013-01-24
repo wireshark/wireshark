@@ -996,6 +996,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='Un-TimeReferenceAllPackets' action='/Edit/Un-TimeReferenceAllPackets'/>\n"
 "        <menuitem name='FindNextTimeReference' action='/Edit/FindNextTimeReference'/>\n"
 "        <menuitem name='FindPreviousTimeReference' action='/Edit/FindPreviousTimeReference'/>\n"
+"        <separator/>\n"
 "        <menuitem name='TimeShift' action='/Edit/TimeShift'/>\n"
 "        <separator/>\n"
 "        <menuitem name='EditPacket' action='/Edit/EditPacket'/>\n"
