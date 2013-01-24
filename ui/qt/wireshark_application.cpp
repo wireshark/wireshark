@@ -309,7 +309,6 @@ void WiresharkApplication::helpTopicAction(topic_action_e action)
     }
 }
 
-
 void WiresharkApplication::setMonospaceFont(const char *font_string) {
 
     if (font_string && strlen(font_string) > 0) {
@@ -333,13 +332,14 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
     // Try to pick the latest, shiniest fixed-width font for our OS.
 #if defined(Q_WS_WIN)
     const char *default_font = win_default_font;
+    substitutes << win_alt_font << osx_default_font << osx_alt_font << x11_default_font << x11_alt_fonts << fallback_fonts;
     font_size_adjust = 2;
-    substitutes = QStringList() << win_alt_font << osx_default_font << osx_alt_font << x11_default_font << x11_alt_fonts << fallback_fonts;
 #elif defined(Q_WS_MAC)
     const char *default_font = osx_default_font;
-    substitutes = QStringList() << osx_alt_font << win_default_font << win_alt_font << x11_default_font << x11_alt_fonts << fallback_fonts;
+    substitutes << osx_alt_font << win_default_font << win_alt_font << x11_default_font << x11_alt_fonts << fallback_fonts;
 #else
     const char *default_font = x11_default_font;
+    substitutes << x11_alt_fonts << win_default_font << win_alt_font << osx_default_font << osx_alt_font << fallback_fonts;
 #endif
 
     mono_regular_font_.setFamily(default_font);
