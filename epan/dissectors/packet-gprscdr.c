@@ -1286,6 +1286,7 @@ static const value_string gprscdr_CauseForRecClosingV651_vals[] = {
   {  21, "intraSGSNIntersystemChange" },
   {  22, "rATChange" },
   {  23, "mSTimeZoneChange" },
+  {  24, "sGSNPLMNIDChange" },
   {  52, "unauthorizedRequestingNetwork" },
   {  53, "unauthorizedLCSClient" },
   {  54, "positionMethodFailure" },

@@ -471,6 +471,7 @@ CauseForRecClosingV651	::= INTEGER
 	intraSGSNIntersystemChange		(21),
 	rATChange						(22),
 	mSTimeZoneChange				(23),
+	sGSNPLMNIDChange 				(24), -- Copied from V8e0
 	unauthorizedRequestingNetwork	(52),
 	unauthorizedLCSClient			(53),
 	positionMethodFailure			(54),
