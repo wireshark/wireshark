@@ -14,6 +14,10 @@ working on Analyzer. The specification can be found at:
 
 http://analyzer.polito.it/30alpha/docs/dissectors/PDMLSpec.htm
 
+That URL is not functioning any more, but a copy can be found at:
+
+http://gd.tuwien.ac.at/.vhost/analyzer.polito.it/docs/dissectors/PDMLSpec.htm
+
 A related XML format, the Packet Summary Markup Language (PSML), is
 also defined by the Analyzer group to provide packet summary information.
 The PSML format is not documented in a publicly-available HTML document,
@@ -151,8 +155,12 @@ import WiresharkXML
 def my_callback(packet):
 	# do something
 
+# If the PDML is stored in a file, you can:
 fh = open(xml_filename)
 WiresharkXML.parse_fh(fh, my_callback)
+
+# or, if the PDML is contained within a string, you can:
+WiresharkXML.parse_string(my_string, my_callback)
 
 # Now that the script has the packet data, do something.
 ------------------------------------------------------------

@@ -1,7 +1,7 @@
 """
-Baseclass for reading PDML produced from TShark.
+Routines for reading PDML produced from TShark.
 
-Copyright (c) 2003 by Gilbert Ramirez <gram@alumni.rice.edu>
+Copyright (c) 2003, 2013 by Gilbert Ramirez <gram@alumni.rice.edu>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,14 +19,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
 import sys
-from xml.sax import saxlib
-from xml.sax import saxexts
-from xml.sax import saxutils
+import xml.sax
+from xml.sax.saxutils import quoteattr
+import cStringIO as StringIO
 
 class CaptureFile:
     pass
 
 class FoundItException(Exception):
+    """Used internally for exiting a tree search"""
     pass
 
 class PacketList:
@@ -43,22 +44,24 @@ class PacketList:
         """We act like a list."""
         return self.children[index]
 
+    def __len__(self):
+        return len(self.children)
 
     def item_exists(self, name):
         """Does an item with name 'name' exist in this
-        PacketList?"""
+        PacketList? Returns True or False."""
         for child in self.children:
             if child.name == name:
-                return 1
+                return True
 
         try:
             for child in self.children:
                 child._item_exists(name)
 
         except FoundItException:
-            return 1
+            return True
 
-        return 0
+        return False
 
     def _item_exists(self, name):
         for child in self.children:
@@ -147,30 +150,30 @@ class ProtoTreeItem(PacketList):
     def get_hide(self):
         return self.hide
 
-    def dump(self, fh):
+    def dump(self, fh=sys.stdout):
         if self.name:
-            print >> fh, " name=%s" % (saxutils.quoteattr(self.name),),
+            print >> fh, " name=%s" % (quoteattr(self.name),),
 
         if self.showname:
-            print >> fh, "showname=%s" % (saxutils.quoteattr(self.showname),),
+            print >> fh, "showname=%s" % (quoteattr(self.showname),),
 
         if self.pos:
-            print >> fh, "pos=%s" % (saxutils.quoteattr(self.pos),),
+            print >> fh, "pos=%s" % (quoteattr(self.pos),),
 
         if self.size:
-            print >> fh, "size=%s" % (saxutils.quoteattr(self.size),),
+            print >> fh, "size=%s" % (quoteattr(self.size),),
 
         if self.value:
-            print >> fh, "value=%s" % (saxutils.quoteattr(self.value),),
+            print >> fh, "value=%s" % (quoteattr(self.value),),
 
         if self.show:
-            print >> fh, "show=%s" % (saxutils.quoteattr(self.show),),
+            print >> fh, "show=%s" % (quoteattr(self.show),),
 
         if self.hide:
-            print >> fh, "hide=%s" % (saxutils.quoteattr(self.hide),),
+            print >> fh, "hide=%s" % (quoteattr(self.hide),),
 
 class Packet(ProtoTreeItem, PacketList):
-    def dump(self, fh, indent=0):
+    def dump(self, fh=sys.stdout, indent=0):
         print >> fh, "  " * indent, "<packet>"
         indent += 1
         for child in self.children:
@@ -180,7 +183,7 @@ class Packet(ProtoTreeItem, PacketList):
 
 class Protocol(ProtoTreeItem):
 
-    def dump(self, fh, indent=0):
+    def dump(self, fh=sys.stdout, indent=0):
         print >> fh, "%s<proto " %  ("  " * indent,),
        
         ProtoTreeItem.dump(self, fh)
@@ -195,13 +198,10 @@ class Protocol(ProtoTreeItem):
 
 class Field(ProtoTreeItem):
 
-    def dump(self, fh, indent=0):
+    def dump(self, fh=sys.stdout, indent=0):
         print >> fh, "%s<field " % ("  " * indent,),
 
         ProtoTreeItem.dump(self, fh)
-
-        if self.label:
-            print >> fh, "label=%s" % (saxutils.quoteattr(self.label),),
 
         if self.children:
             print >> fh, ">"
@@ -214,7 +214,7 @@ class Field(ProtoTreeItem):
             print >> fh, "/>"
 
 
-class ParseXML(saxlib.HandlerBase):
+class ParseXML(xml.sax.handler.ContentHandler):
 
     ELEMENT_FILE        = "pdml"
     ELEMENT_FRAME       = "packet"
@@ -272,26 +272,43 @@ class ParseXML(saxlib.HandlerBase):
         if isinstance(elem, Packet):
             self.cb(elem)
 
-    def characters(self, chars, start, length):
-        self.chars = self.chars + chars[start:start+length]
+    def characters(self, chars):
+        self.chars = self.chars + chars
 
 
-def parse_fh(fh, cb):
+def _create_parser(cb):
+    """Internal function for setting up the SAX parser."""
 
     # Create a parser
-    parser = saxexts.make_parser()
+    parser = xml.sax.make_parser()
 
     # Create the handler
-    ch = ParseXML(cb)
+    handler = ParseXML(cb)
 
     # Tell the parser to use our handler
-    parser.setDocumentHandler(ch)
+    parser.setContentHandler(handler)
+
+    # Don't fetch the DTD, in case it is listed
+    parser.setFeature(xml.sax.handler.feature_external_ges, False)
+
+    return parser
+
+def parse_fh(fh, cb):
+    """Parse a PDML file, given filehandle, and call the callback function (cb),
+    once for each Packet object."""
+
+    parser = _create_parser(cb)
 
     # Parse the file
-    parser.parseFile(fh)
+    parser.parse(fh)
 
-    # Close the parser
-    parser.close()
+    # Close the parser ; this is erroring out, but I'm not sure why.
+    #parser.close()
+
+def parse_string(text, cb):
+    """Parse the PDML contained in a string."""
+    stream = StringIO.StringIO(text)
+    parse_fh(stream, cb)
 
 def _test():
     import sys
