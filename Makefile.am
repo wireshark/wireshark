@@ -116,7 +116,6 @@ radiusdir = $(pkgdatadir)/radius
 radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/README.radius_dictionary  \
 	radius/custom.includes  \
-	radius/Custom.make  \
 	radius/dictionary  \
 	radius/dictionary.3com  \
 	radius/dictionary.3gpp  \
@@ -381,7 +380,7 @@ wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 # Unfortunately that check is done by automake and not configure.
 # We do the following to try to avoid using c++ to link Wireshark at
 # all times.
-nodist_EXTRA_wireshark_cxx_SOURCES = dummy.cpp 	 
+nodist_EXTRA_wireshark_cxx_SOURCES = dummy.cpp
 wireshark_cxx_SOURCES =
 
 if HAVE_WIRESHARK_CXX
