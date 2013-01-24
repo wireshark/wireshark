@@ -30,6 +30,9 @@
 #include "atm.h"
 #include "iptrace.h"
 
+#define IPTRACE_IFT_HF	0x3d    /* Support for PERCS IP-HFI*/
+#define IPTRACE_IFT_IB  0xc7    /* IP over Infiniband. Number by IANA */
+
 static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
@@ -425,12 +428,21 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.ts.secs = pntohl(&header[32]);
 	wth->phdr.ts.nsecs = pntohl(&header[36]);
 
+/* We used to error out if the interface in iptrace was unknown/unhandled,
+ * but an iptrace may contain packets from a variety of interfaces, ome known,
+ * and others unknown. It is better to display the data even for unknown interface
+ * types, isntead of erroring out. In the future, it would be nice to be able to
+ * flag which frames are shown as data because their interface type is unknown,
+ * and also preset the interface type number to the user so that it can be
+ * reported easily back to the Wireshark develoer.
+
 	if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("iptrace: interface type IFT=0x%02x unknown or unsupported",
 		    pkt_hdr.if_type);
 		return FALSE;
 	}
+*/
 
 	/* Fill in the pseudo-header. */
 	fill_in_pseudo_header(wth->phdr.pkt_encap, data_ptr, wth->phdr.caplen,
@@ -669,6 +681,28 @@ wtap_encap_ift(unsigned int  ift)
 		return ift_encap[ift];
 	}
 	else {
-		return WTAP_ENCAP_UNKNOWN;
+		switch(ift) {
+			/* Infiniband*/
+			case IPTRACE_IFT_IB:
+				return WTAP_ENCAP_INFINIBAND;
+				break;
+
+			/* Host Fabric Interface */
+			case IPTRACE_IFT_HF:
+				/* The HFI interface on AIX provides raw IP
+				in the packet trace. It's unclear if the HFI
+				can be configured for any other protocol, and if
+				any field in the iptrace header indicates what
+				that protocol is. For now, we are hard-coding
+				this as RAW_IP, but if we find another iptrace file
+				using HFI that provides another protocol, we will
+				have to figure out which field in the iptrace file
+				encodes it. */
+				return WTAP_ENCAP_RAW_IP;
+				break;
+
+			default:
+				return WTAP_ENCAP_UNKNOWN;
+		}
 	}
 }

@@ -7509,6 +7509,7 @@ void proto_register_infiniband(void)
 void proto_reg_handoff_infiniband(void)
 {
     dissector_handle_t roce_handle;
+    dissector_handle_t ib_handle;
 
     ipv6_handle               = find_dissector("ipv6");
     data_handle               = find_dissector("data");
@@ -7518,4 +7519,7 @@ void proto_reg_handoff_infiniband(void)
     /* create and announce an anonymous RoCE dissector */
     roce_handle = create_dissector_handle(dissect_roce, proto_infiniband);
     dissector_add_uint("ethertype", ETHERTYPE_ROCE, roce_handle);
+
+    ib_handle = create_dissector_handle(dissect_infiniband, proto_infiniband);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_INFINIBAND, ib_handle);
 }
