@@ -8869,7 +8869,7 @@ dissect_lte_rrc_T_dataCodingScheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   if (data_coding_scheme_tvb) {
     proto_tree *subtree;
-    guint8 dataCodingScheme;
+    guint32 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
     g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER(lte_rrc_etws_cmas_dcs_key),
@@ -8993,7 +8993,7 @@ dissect_lte_rrc_T_dataCodingScheme_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   if (data_coding_scheme_tvb) {
     proto_tree *subtree;
-    guint8 dataCodingScheme;
+    guint32 dataCodingScheme;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dataCodingScheme);
     dataCodingScheme = dissect_cbs_data_coding_scheme(data_coding_scheme_tvb, actx->pinfo, subtree, 0);
     g_hash_table_insert(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER(lte_rrc_etws_cmas_dcs_key),
@@ -23485,7 +23485,7 @@ dissect_lte_rrc_AbsoluteTimeInfo_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
     str = tvb_bcd_dig_to_ep_str(abs_time_info_tvb, 0, 6, NULL, FALSE);
     proto_tree_add_text(subtree, abs_time_info_tvb, 0, 6, "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1],
                         str[2], str[3], str[4], str[5], str[6], str[7], str[8], str[9], str[10], str[11]);
-  } 
+  }
 
   return offset;
 }
