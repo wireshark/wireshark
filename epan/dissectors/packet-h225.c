@@ -611,7 +611,7 @@ static int hf_h225_standard = -1;                 /* T_standard */
 static int hf_h225_oid = -1;                      /* T_oid */
 static int hf_h225_genericIdentifier_nonStandard = -1;  /* GloballyUniqueID */
 static int hf_h225_content = -1;                  /* Content */
-static int hf_h225_raw = -1;                      /* OCTET_STRING */
+static int hf_h225_raw = -1;                      /* T_raw */
 static int hf_h225_text = -1;                     /* IA5String */
 static int hf_h225_unicode = -1;                  /* BMPString */
 static int hf_h225_bool = -1;                     /* BOOLEAN */
@@ -1892,7 +1892,7 @@ dissect_h225_PartyNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_h225_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 706 "../../asn1/h225/h225.cnf"
+#line 718 "../../asn1/h225/h225.cnf"
   int min_len, max_len;
   gboolean has_extension;
 
@@ -3749,9 +3749,20 @@ dissect_h225_GenericIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static int
-dissect_h225_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h225_T_raw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 701 "../../asn1/h225/h225.cnf"
+  tvbuff_t *value_tvb;
+  gef_ctx_t *gefx;
+
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, FALSE, &value_tvb);
+
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) {
+    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
+    dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, actx->pinfo, tree);
+  }
+
 
   return offset;
 }
@@ -3822,7 +3833,7 @@ static const value_string h225_Content_vals[] = {
 };
 
 static const per_choice_t Content_choice[] = {
-  {   0, &hf_h225_raw            , ASN1_EXTENSION_ROOT    , dissect_h225_OCTET_STRING },
+  {   0, &hf_h225_raw            , ASN1_EXTENSION_ROOT    , dissect_h225_T_raw },
   {   1, &hf_h225_text           , ASN1_EXTENSION_ROOT    , dissect_h225_IA5String },
   {   2, &hf_h225_unicode        , ASN1_EXTENSION_ROOT    , dissect_h225_BMPString },
   {   3, &hf_h225_bool           , ASN1_EXTENSION_ROOT    , dissect_h225_BOOLEAN },
@@ -4914,6 +4925,16 @@ dissect_h225_T_tunnelledSignallingMessage(tvbuff_t *tvb _U_, int offset _U_, asn
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_T_tunnelledSignallingMessage, T_tunnelledSignallingMessage_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_h225_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
 
   return offset;
 }
@@ -9608,7 +9629,7 @@ void proto_register_h225(void) {
     { &hf_h225_raw,
       { "raw", "h225.raw",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_h225_text,
       { "text", "h225.text",
         FT_STRING, BASE_NONE, NULL, 0,
