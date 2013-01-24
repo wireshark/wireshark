@@ -243,6 +243,9 @@ gboolean rs_correct_data(guint8 *deinterleaved, guint8 *output,
 
 /* Don't attempt reassembly if we have a huge number of fragments. */
 #define MAX_FRAGMENTS ((1 * 1024 * 1024) / sizeof(guint32))
+/* If we missed more than this number of consecutive fragments,
+   we don't attempt reassembly */
+#define MAX_FRAG_GAP  1000
 
 static tvbuff_t *
 dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
@@ -292,13 +295,11 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
     /* make a list of the findex (offset) numbers of the fragments we have */
     fd = fragment_get(pinfo, seq, dcp_fragment_table);
-    for (fd_head = fd; fd_head != NULL; fd_head = fd_head->next) {
+    for (fd_head = fd; fd_head != NULL && fragments < fcount; fd_head = fd_head->next) {
       if(fd_head->data) {
         got[fragments++] = fd_head->offset; /* this is the findex of the fragment */
       }
     }
-    /* put a sentinel at the end */
-    got[fragments++] = fcount;
     /* have we got enough for Reed Solomon to try to correct ? */
     if(fragments>=rx_min) { /* yes, in theory */
       guint i,current_findex;
@@ -315,8 +316,13 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       for(i=0; i<fragments; i++) {
         guint next_fragment_we_have = got[i];
         if (next_fragment_we_have > MAX_FRAGMENTS) {
-          if (tree)
-            proto_tree_add_text(tree, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", next_fragment_we_have);
+          proto_tree_add_text(tree, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", next_fragment_we_have);
+          return NULL;
+        }
+        if (next_fragment_we_have-current_findex > MAX_FRAG_GAP) {
+          proto_tree_add_text(tree, tvb , 0, -1,
+              "[Missing %d consecutive packets. Don't attempt reassembly]",
+              next_fragment_we_have-current_findex);
           return NULL;
         }
         for(; current_findex<next_fragment_we_have; current_findex++) {
