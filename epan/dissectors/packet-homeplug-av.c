@@ -293,8 +293,12 @@ static int hf_homeplug_av_nw_info_net_info       = -1;
 static int hf_homeplug_av_nw_info_sta_da         = -1;
 static int hf_homeplug_av_nw_info_sta_tei        = -1;
 static int hf_homeplug_av_nw_info_sta_bda        = -1;
-static int hf_homeplug_av_nw_info_sta_phy_dr_tx  = -1;
-static int hf_homeplug_av_nw_info_sta_phy_dr_rx  = -1;
+static int hf_homeplug_av10_nw_info_sta_phy_dr_tx= -1;
+static int hf_homeplug_av10_nw_info_sta_phy_dr_rx= -1;
+static int hf_homeplug_av11_nw_info_sta_phy_dr_tx= -1;
+static int hf_homeplug_av11_nw_info_sta_cpling_tx = -1;
+static int hf_homeplug_av11_nw_info_sta_phy_dr_rx= -1;
+static int hf_homeplug_av11_nw_info_sta_cpling_rx = -1;
 
 static int hf_homeplug_av_cp_rpt_req             = -1;
 static int hf_homeplug_av_cp_rpt_req_session_id  = -1;
@@ -1077,6 +1081,14 @@ static const value_string homeplug_av_tone_map_status_vals[] = {
    { 0, NULL }
 };
 
+#define HOMEPLUG_AV_COUPLING_MASK		0x0F
+
+static const value_string homeplug_av_coupling_vals[] = {
+   { 0x00, "Primary" },
+   { 0x01, "Alternate" },
+   { 0, NULL }
+};
+
 #define TVB_LEN_GREATEST  1
 #define TVB_LEN_UNDEF     0
 #define TVB_LEN_SHORTEST -1
@@ -1099,15 +1111,14 @@ static inline unsigned int homeplug_av_mmtype_msb_is_vendor(guint8 msb)
 }
 
 /* Dissection of MMHDR */
-static guint16
-dissect_homeplug_av_mmhdr(ptvcursor_t *cursor)
+static void
+dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, guint8 *homeplug_av_mmver, guint16 *homeplug_av_mmtype)
 {
    proto_item *ti;
    proto_tree *ti_mmtype;
    proto_tree *ti_vendor;
    proto_tree *ti_public;
    guint8 lsb, msb, mmv;
-   guint16 homeplug_av_mmtype;
 
    mmv = tvb_get_guint8(ptvcursor_tvbuff(cursor),
                         ptvcursor_current_offset(cursor));
@@ -1116,7 +1127,8 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor)
    msb = tvb_get_guint8(ptvcursor_tvbuff(cursor),
                         ptvcursor_current_offset(cursor) + 2);
 
-   homeplug_av_mmtype = (msb << 8) | lsb;
+   *homeplug_av_mmver = mmv;
+   *homeplug_av_mmtype = (msb << 8) | lsb;
 
    /* Header in HomePlug AV 1.1 is 2 bytes larger (Fragmentation information) */
    if (mmv)
@@ -1129,7 +1141,7 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor)
    }
 
    if (!ptvcursor_tree(cursor))
-      return homeplug_av_mmtype;
+      return;
 
    ptvcursor_push_subtree(cursor, ti, ett_homeplug_av_mmhdr);
    {
@@ -1146,15 +1158,15 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor)
       /* Fragmentation information is part of the header in HomePlug AV 1.1 */
       if (mmv)
       {
-		ti_public = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr_fmi, 2, ENC_LITTLE_ENDIAN);
+         ti_public = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr_fmi, 2, ENC_LITTLE_ENDIAN);
 
-		ptvcursor_push_subtree(cursor, ti_public, ett_homeplug_av_fmi);
-		{
-		  ptvcursor_add_no_advance(cursor, hf_homeplug_av_public_frag_count, 1, ENC_BIG_ENDIAN);
-		  ptvcursor_add(cursor, hf_homeplug_av_public_frag_index, 1, ENC_BIG_ENDIAN);
-		  ptvcursor_add(cursor, hf_homeplug_av_public_frag_seqnum, 1, ENC_BIG_ENDIAN);
-		}
-		ptvcursor_pop_subtree(cursor);		
+         ptvcursor_push_subtree(cursor, ti_public, ett_homeplug_av_fmi);
+         {
+            ptvcursor_add_no_advance(cursor, hf_homeplug_av_public_frag_count, 1, ENC_BIG_ENDIAN);
+            ptvcursor_add(cursor, hf_homeplug_av_public_frag_index, 1, ENC_BIG_ENDIAN);
+            ptvcursor_add(cursor, hf_homeplug_av_public_frag_seqnum, 1, ENC_BIG_ENDIAN);
+         }
+         ptvcursor_pop_subtree(cursor);
       }
    }
    ptvcursor_pop_subtree(cursor);
@@ -1183,8 +1195,6 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor)
       }
       ptvcursor_pop_subtree(cursor);
    }
-
-   return homeplug_av_mmtype;
 }
 
 /* Beacon body */
@@ -1260,7 +1270,7 @@ dissect_homeplug_av_frame_control(ptvcursor_t *cursor)
 }
 
 static void
-dissect_homeplug_av_nw_info_sta(ptvcursor_t *cursor, gboolean vendor)
+dissect_homeplug_av_nw_info_sta(ptvcursor_t *cursor, gboolean vendor, guint homeplug_av_mmver)
 {
    proto_item *it;
 
@@ -1274,16 +1284,32 @@ dissect_homeplug_av_nw_info_sta(ptvcursor_t *cursor, gboolean vendor)
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_da, 6, ENC_NA);
       if (vendor) {
          ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_tei, 1, ENC_BIG_ENDIAN);
+
+         if (homeplug_av_mmver == 1)
+            ptvcursor_add(cursor, hf_homeplug_av_reserved, 3, ENC_NA);
+
          ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_bda, 6, ENC_NA);
       }
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_phy_dr_tx, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_phy_dr_rx, 1, ENC_BIG_ENDIAN);
+      if (!homeplug_av_mmver)
+      {
+         ptvcursor_add(cursor, hf_homeplug_av10_nw_info_sta_phy_dr_tx, 1, ENC_BIG_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av10_nw_info_sta_phy_dr_rx, 1, ENC_BIG_ENDIAN);
+      }
+      else if (homeplug_av_mmver == 1)
+      {
+         ptvcursor_add(cursor, hf_homeplug_av11_nw_info_sta_phy_dr_tx, 2, ENC_LITTLE_ENDIAN);
+         ptvcursor_add_no_advance(cursor, hf_homeplug_av11_nw_info_sta_cpling_tx, 1, ENC_BIG_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av11_nw_info_sta_cpling_rx, 1, ENC_BIG_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av11_nw_info_sta_phy_dr_rx, 2, ENC_LITTLE_ENDIAN);
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+      }
    }
    ptvcursor_pop_subtree(cursor);
 }
 
 static void
-dissect_homeplug_av_nw_info_net(ptvcursor_t *cursor, gboolean vendor)
+dissect_homeplug_av_nw_info_net(ptvcursor_t *cursor, gboolean vendor, guint8 homeplug_av_mmver)
 {
    proto_item *it;
 
@@ -1295,12 +1321,23 @@ dissect_homeplug_av_nw_info_net(ptvcursor_t *cursor, gboolean vendor)
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_nw_info_net_info);
    {
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, ENC_NA);
+
+      if (homeplug_av_mmver == 1)
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 2, ENC_NA);
+
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, ENC_BIG_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_tei, 1, ENC_BIG_ENDIAN);
+
+      if (homeplug_av_mmver == 1)
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, ENC_NA);
+
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_role, 1, ENC_BIG_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_mac, 6, ENC_NA);
       if (vendor) {
          ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_tei, 1, ENC_BIG_ENDIAN);
+
+         if (homeplug_av_mmver == 1)
+            ptvcursor_add(cursor, hf_homeplug_av_reserved, 3, ENC_NA);
       }
       else
       {
@@ -1586,7 +1623,7 @@ dissect_homeplug_av_get_brg_infos_cnf(ptvcursor_t *cursor)
 }
 
 static void
-dissect_homeplug_av_nw_infos_cnf(ptvcursor_t *cursor)
+dissect_homeplug_av_nw_infos_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
 {
    proto_item *it;
    guint8      num_avlns;
@@ -1599,19 +1636,22 @@ dissect_homeplug_av_nw_infos_cnf(ptvcursor_t *cursor)
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cm_nw_infos_cnf);
    {
+      if (homeplug_av_mmver == 1)
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 5, ENC_NA);
+
       num_avlns = tvb_get_guint8(ptvcursor_tvbuff(cursor),
                                  ptvcursor_current_offset(cursor));
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_avlns, 1, ENC_BIG_ENDIAN);
 
       for (net = 0; net < num_avlns; net++) {
-         dissect_homeplug_av_nw_info_net(cursor, FALSE);
+         dissect_homeplug_av_nw_info_net(cursor, FALSE, homeplug_av_mmver);
       }
    }
    ptvcursor_pop_subtree(cursor);
 }
 
 static void
-dissect_homeplug_av_nw_stats_cnf(ptvcursor_t *cursor)
+dissect_homeplug_av_nw_stats_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
 {
    proto_item *it;
    guint8      num_stas;
@@ -1629,7 +1669,7 @@ dissect_homeplug_av_nw_stats_cnf(ptvcursor_t *cursor)
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_stas, 1, ENC_BIG_ENDIAN);
 
       for (sta = 0; sta < num_stas; sta++) {
-         dissect_homeplug_av_nw_info_sta(cursor, FALSE);
+         dissect_homeplug_av_nw_info_sta(cursor, FALSE, homeplug_av_mmver);
       }
    }
    ptvcursor_pop_subtree(cursor);
@@ -2197,7 +2237,7 @@ dissect_homeplug_av_sniffer_ind(ptvcursor_t *cursor)
 }
 
 static void
-dissect_homeplug_av_nw_info_cnf(ptvcursor_t *cursor)
+dissect_homeplug_av_nw_info_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
 {
    proto_item *it;
    guint8      num_avlns;
@@ -2211,18 +2251,24 @@ dissect_homeplug_av_nw_info_cnf(ptvcursor_t *cursor)
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_nw_info_cnf);
    {
+      if (homeplug_av_mmver == 1)
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 5, ENC_NA);
+
       num_avlns = tvb_get_guint8(ptvcursor_tvbuff(cursor),
                                  ptvcursor_current_offset(cursor));
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_avlns, 1, ENC_BIG_ENDIAN);
 
       if (num_avlns) {
-         dissect_homeplug_av_nw_info_net(cursor, TRUE);
+         dissect_homeplug_av_nw_info_net(cursor, TRUE, homeplug_av_mmver);
          num_stas = tvb_get_guint8(ptvcursor_tvbuff(cursor),
                                    ptvcursor_current_offset(cursor));
          ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_stas, 1, ENC_BIG_ENDIAN);
 
+         if (homeplug_av_mmver == 1)
+            ptvcursor_add(cursor, hf_homeplug_av_reserved, 5, ENC_NA);
+
          for (sta = 0; sta < num_stas; sta++) {
-            dissect_homeplug_av_nw_info_sta(cursor, TRUE);
+            dissect_homeplug_av_nw_info_sta(cursor, TRUE, homeplug_av_mmver);
          }
       }
    }
@@ -2704,7 +2750,7 @@ dissect_homeplug_av_tone_map_cnf(ptvcursor_t *cursor)
 }
 
 static void
-dissect_homeplug_av_mme(ptvcursor_t *cursor, guint16 homeplug_av_mmtype)
+dissect_homeplug_av_mme(ptvcursor_t *cursor, guint8 homeplug_av_mmver, guint16 homeplug_av_mmtype)
 {
 
    switch (homeplug_av_mmtype) {
@@ -2734,10 +2780,10 @@ dissect_homeplug_av_mme(ptvcursor_t *cursor, guint16 homeplug_av_mmtype)
       dissect_homeplug_av_get_brg_infos_cnf(cursor);
       break;
    case HOMEPLUG_AV_MMTYPE_CM_NW_INFO_CNF:
-      dissect_homeplug_av_nw_infos_cnf(cursor);
+      dissect_homeplug_av_nw_infos_cnf(cursor, homeplug_av_mmver);
       break;
    case HOMEPLUG_AV_MMTYPE_CM_NW_STATS_CNF:
-      dissect_homeplug_av_nw_stats_cnf(cursor);
+      dissect_homeplug_av_nw_stats_cnf(cursor, homeplug_av_mmver);
       break;
 
       /* Intellon Vendor-specific MMEs */
@@ -2811,7 +2857,7 @@ dissect_homeplug_av_mme(ptvcursor_t *cursor, guint16 homeplug_av_mmtype)
       dissect_homeplug_av_sniffer_ind(cursor);
       break;
    case HOMEPLUG_AV_MMTYPE_NW_INFO_CNF:
-      dissect_homeplug_av_nw_info_cnf(cursor);
+      dissect_homeplug_av_nw_info_cnf(cursor, homeplug_av_mmver);
       break;
    case HOMEPLUG_AV_MMTYPE_CP_RPT_REQ:
       dissect_homeplug_av_cp_rpt_req(cursor);
@@ -2883,6 +2929,7 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_item  *ti               = NULL;
    proto_tree  *homeplug_av_tree = NULL;
    ptvcursor_t *cursor;
+   guint8	homeplug_av_mmver;
    guint16      homeplug_av_mmtype;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HomePlug AV");
@@ -2898,14 +2945,14 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    /* Check if we have enough data to process the header */
    if (check_tvb_length(cursor, HOMEPLUG_AV_MMHDR_LEN) != TVB_LEN_SHORTEST) {
 
-      homeplug_av_mmtype = dissect_homeplug_av_mmhdr(cursor);
+      dissect_homeplug_av_mmhdr(cursor, &homeplug_av_mmver, &homeplug_av_mmtype);
 
       if (check_col(pinfo->cinfo, COL_INFO)) {
          col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
                             val_to_str_ext(homeplug_av_mmtype, &homeplug_av_mmtype_vals_ext, "Unknown 0x%x"));
       }
 
-      dissect_homeplug_av_mme(cursor, homeplug_av_mmtype);
+      dissect_homeplug_av_mme(cursor, homeplug_av_mmver, homeplug_av_mmtype);
    }
 
    ptvcursor_free(cursor);
@@ -2942,7 +2989,7 @@ proto_register_homeplug_av(void)
       },
       { &hf_homeplug_av_mmhdr_fmi,
         { "Fragmentation Info", "homeplug_av.mmhdr.fmi",
-	      FT_UINT16, BASE_HEX, NULL, 0x0000, "Reserved", HFILL },
+          FT_UINT16, BASE_HEX, NULL, 0x0000, "Reserved", HFILL },
       },
       /* Public MME */
       { &hf_homeplug_av_public,
@@ -3787,13 +3834,29 @@ proto_register_homeplug_av(void)
         { "MAC Address of first Node Bridged by Station", "homeplug_av.nw_info_cnf.sta_indo.bda",
           FT_ETHER, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_homeplug_av_nw_info_sta_phy_dr_tx,
+      { &hf_homeplug_av10_nw_info_sta_phy_dr_tx,
         { "Average PHY Tx data Rate (Mbits/sec)", "homeplug_av.nw_info_cnf.sta_indo.phy_dr_tx",
           FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_homeplug_av_nw_info_sta_phy_dr_rx,
+      { &hf_homeplug_av10_nw_info_sta_phy_dr_rx,
         { "Average PHY Rx data Rate (Mbits/sec)", "homeplug_av.nw_info_cnf.sta_indo.phy_dr_rx",
           FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av11_nw_info_sta_phy_dr_tx,
+        { "Average PHY Tx data Rate (Mbits/sec)", "homeplug_av.nw_info_cnf.sta_indo.phy_dr_tx",
+          FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av11_nw_info_sta_phy_dr_rx,
+        { "Average PHY Rx data Rate (Mbits/sec)", "homeplug_av.nw_info_cnf.sta_indo.phy_dr_rx",
+          FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av11_nw_info_sta_cpling_tx,
+        { "PHY Tx Coupling", "homeplug_av.nw_info_cnf.sta_info.phy_coupling_tx",
+          FT_UINT8, BASE_DEC, VALS(homeplug_av_coupling_vals), HOMEPLUG_AV_COUPLING_MASK, "Unknown", HFILL }
+      },
+      { &hf_homeplug_av11_nw_info_sta_cpling_rx,
+        { "PHY Rx Coupling", "homeplug_av.nw_info_cnf.sta_info.phy_coupling_rx",
+          FT_UINT8, BASE_DEC, VALS(homeplug_av_coupling_vals), HOMEPLUG_AV_COUPLING_MASK << 4, "Unknown", HFILL }
       },
       /* Check Points Request */
       { &hf_homeplug_av_cp_rpt_req,
