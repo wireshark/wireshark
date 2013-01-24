@@ -2623,8 +2623,9 @@ Authesserre Samuel	<sauthess[AT]gmail.com> {
 	DTLS
 }
 
-Balint Reczey		<balint.reczey[AT]ericsson.com> {
+Balint Reczey		<balint[AT]balintreczey.hu> {
 	Lua fixes and enhancements
+	Miscellaneous enhancements and fixes
 }
 
 Stephen Fisher		<stephenfisher-wireshark[AT]outlook.com> {
