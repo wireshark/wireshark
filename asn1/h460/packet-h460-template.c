@@ -139,9 +139,9 @@ static h460_feature_t h460_feature_tab[] = {
   { GD|FD,  "8/2", "Call Termination Cause", NULL, FFILL },
   /* H.460.9 */
   { GD|FD,  "9",   "QoS-monitoring Reporting", NULL, FFILL },
-  { GD|FD,  "9/1", "qosMonitoringFinalOnly", NULL, FFILL },
-  { GD|FD,  "9/2", "qosMonitoringReportData", dissect_h460_9_QosMonitoringReportData_PDU, FFILL },
-  { GD|FD,  "9/3", "qosMonitoringExtendedRTPMetrics", dissect_h460_9_ExtendedRTPMetrics_PDU, FFILL },
+  { GD|FD,  "9/0", "qosMonitoringFinalOnly", NULL, FFILL },
+  { GD|FD,  "9/1", "qosMonitoringReportData", dissect_h460_9_QosMonitoringReportData_PDU, FFILL },
+  { GD|FD,  "9/2", "qosMonitoringExtendedRTPMetrics", dissect_h460_9_ExtendedRTPMetrics_PDU, FFILL },
   /* H.460.10 */
   { GD|FD, "10",   "Call Party Category", NULL, FFILL },
   { GD|FD, "10/1", "Call party category info", dissect_h460_10_CallPartyCategoryInfo_PDU, FFILL },
