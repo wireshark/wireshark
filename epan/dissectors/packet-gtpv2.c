@@ -3928,13 +3928,22 @@ dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
  * -The Selected PLMN identity consists of 3 digits from MCC followed by
  * either -a filler digit plus 2 digits from MNC (in case of 2 digit MNC) or
  * -3 digits from MNC (in case of a 3 digit MNC).
+ *
+ *         8  7  6  5  4  3  2  1
+ *         +--+--+--+--+--+--+--+--+
+ * Octet 5 |MCC digit 2|MCC digit 1|
+ *         +--+--+--+--+--+--+--+--+
+ * Octet 6 |MNC digit 1|MCC digit 3|
+ *         +--+--+--+--+--+--+--+--+
+ * Octet 7 |MNC digit 3|MNC digit 2|
+ *         +--+--+--+--+--+--+--+--+
  */
 static void
 dissect_gtpv2_sel_plmn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     gchar *mcc_mnc_str;
 
-    mcc_mnc_str = dissect_e212_mcc_mnc_ep_str(tvb, pinfo, tree, 0, TRUE);
+    mcc_mnc_str = dissect_e212_mcc_mnc_ep_str(tvb, pinfo, tree, 0, FALSE);
     proto_item_append_text(item, "%s", mcc_mnc_str);
 }
 
@@ -4397,12 +4406,14 @@ dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
  * 8.67 Private Extension
  */
 static void
-dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance)
 {
     int       offset = 0;
     tvbuff_t *next_tvb;
     guint16   ext_id;
+	void *save_private_data = pinfo->private_data;
 
+	pinfo->private_data =  GUINT_TO_POINTER(instance);
     /* oct 5 -7 Enterprise ID */
     ext_id = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_enterprise_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4411,8 +4422,10 @@ dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_item_append_text(item, "%s (%u)", val_to_str_ext_const(ext_id, &sminmpec_values_ext, "Unknown"), ext_id);
 
     next_tvb = tvb_new_subset(tvb, offset, length-2, length-2);
-    if (dissector_try_uint(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree))
+    if (dissector_try_uint(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree)){
+		pinfo->private_data = save_private_data;
         return;
+	}
 
     proto_tree_add_text(tree, tvb, offset, length-2, "Proprietary value");
 }
