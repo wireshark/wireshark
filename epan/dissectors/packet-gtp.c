@@ -228,6 +228,7 @@ static int hf_gtp_cksn_ksi = -1;
 static int hf_gtp_cksn = -1;
 static int hf_gtp_ksi = -1;
 static int hf_gtp_ext_length = -1;
+static int hf_gtp_utran_field = -1;
 static int hf_gtp_ext_apn_res = -1;
 static int hf_gtp_ext_rat_type = -1;
 static int hf_gtp_ext_geo_loc_type = -1;
@@ -5183,18 +5184,15 @@ decode_gtp_utran_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
     guint16     length;
     proto_item *te;
     proto_tree *ext_tree;
-    tvbuff_t   *next_tvb;
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "UTRAN transparent field");
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "UTRAN transparent Container");
     ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_UTRAN_CONT]);
     offset = offset + 1;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    next_tvb = tvb_new_subset(tvb, offset, length, length);
-    if (data_handle)
-        call_dissector(data_handle, next_tvb, pinfo, ext_tree);
+    proto_tree_add_item(ext_tree, hf_gtp_utran_field, tvb, offset, length, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -6177,9 +6175,8 @@ decode_gtp_sel_plmn_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
 
+    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, FALSE);
     return 3 + length;
 
 }
@@ -7745,7 +7742,7 @@ decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  */
 
 static int
-decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16     length, ext_id;
@@ -7753,7 +7750,7 @@ decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     proto_item *te;
     tvbuff_t   *next_tvb;
 
-    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_ext_const(GTP_EXT_PRIV_EXT, &gtp_val_ext, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 1, "%s : ", val_to_str_ext_const(GTP_EXT_PRIV_EXT, &gtp_val_ext, "Unknown message"));
     ext_tree_priv_ext = proto_item_add_subtree(te, ett_gtp_ext);
 
     offset++;
@@ -7763,6 +7760,7 @@ decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     if (length >= 2) {
         ext_id = tvb_get_ntohs(tvb, offset);
         proto_tree_add_uint(ext_tree_priv_ext, hf_gtp_ext_id, tvb, offset, 2, ext_id);
+		proto_item_append_text(te, "%s (%u)", val_to_str_ext_const(ext_id, &sminmpec_values_ext, "Unknown"), ext_id);
         offset = offset + 2;
 
        if (length > 2) {
@@ -8343,7 +8341,7 @@ proto_register_gtp(void)
         {&hf_gtp_ext_id,
          { "Extension identifier", "gtp.ext_id",
            FT_UINT16, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0,
-           NULL, HFILL}
+           "Private Enterprise number", HFILL}
         },
         {&hf_gtp_ext_val,
          { "Extension value", "gtp.ext_val",
@@ -8936,6 +8934,11 @@ proto_register_gtp(void)
          { "Length", "gtp.ext_length",
            FT_UINT16, BASE_DEC, NULL, 0x0,
            "IE Length", HFILL}
+        },
+        {&hf_gtp_utran_field,
+         { "UTRAN Transparent Field", "gtp.utran_field",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
         },
         {&hf_gtp_ext_apn_res,
          { "Restriction Type", "gtp.ext_apn_res",
