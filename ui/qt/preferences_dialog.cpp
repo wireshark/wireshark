@@ -220,6 +220,7 @@ void PreferencesDialog::showEvent(QShowEvent *evt)
 
     pd_ui_->prefsTree->resizeColumnToContents(0);
     new_prefs_tree_width += pd_ui_->prefsTree->columnWidth(0);
+    pd_ui_->prefsTree->setMinimumWidth(new_prefs_tree_width);
     sizes[1] += sizes[0] - new_prefs_tree_width;
     sizes[0] = new_prefs_tree_width;
     pd_ui_->splitter->setSizes(sizes);
@@ -674,6 +675,7 @@ void PreferencesDialog::on_buttonBox_accepted()
 //    prefs_airpcap_update();
 #endif
 
+    wsApp->setMonospaceFont(prefs.gui_qt_font_name);
     wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
 
     /* Now destroy the "Preferences" dialog. */

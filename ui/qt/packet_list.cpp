@@ -33,8 +33,8 @@
 #include <epan/packet.h>
 
 #include "packet_list.h"
-#include "monospace_font.h"
 #include "proto_tree.h"
+#include "wireshark_application.h"
 
 #include "qt_ui_utils.h"
 
@@ -395,9 +395,9 @@ void PacketList::showEvent (QShowEvent *event) {
         fmt = get_column_format(i);
         long_str = get_column_width_string(fmt, i);
         if (long_str) {
-            col_width = get_monospace_text_size(long_str, TRUE);
+            col_width = wsApp->monospaceTextSize(long_str);
         } else {
-            col_width = get_monospace_text_size(MIN_COL_WIDTH_STR, TRUE);
+            col_width = wsApp->monospaceTextSize(MIN_COL_WIDTH_STR);
         }
         setColumnWidth(i, col_width);
     }

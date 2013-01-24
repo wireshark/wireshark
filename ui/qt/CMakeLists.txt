@@ -38,6 +38,7 @@ set(QTSHARK_H_SRC
 	export_dissection_dialog.h
 	export_object_dialog.h
 	file_set_dialog.h
+	font_color_preferences_frame.h
 	import_text_dialog.h
 	interface_tree.h
 	label_stack.h
@@ -46,7 +47,6 @@ set(QTSHARK_H_SRC
 	main_welcome.h
 	main_window.h
 	main_window_preferences_frame.h
-	monospace_font.h
 	packet_comment_dialog.h
 	packet_format_group_box.h
 	packet_list.h
@@ -86,6 +86,7 @@ set(QTSHARK_CPP_SRC
 	export_dissection_dialog.cpp
 	export_object_dialog.cpp
 	file_set_dialog.cpp
+	font_color_preferences_frame.cpp
 	import_text_dialog.cpp
 	interface_tree.cpp
 	label_stack.cpp
@@ -96,7 +97,6 @@ set(QTSHARK_CPP_SRC
 	main_window.cpp
 	main_window_preferences_frame.cpp
 	main_window_slots.cpp
-	monospace_font.cpp
 	packet_comment_dialog.cpp
 	packet_format_group_box.cpp
 	packet_list.cpp
@@ -127,6 +127,7 @@ set(QTSHARK_UI
 	column_preferences_frame.ui
 	export_object_dialog.ui
 	file_set_dialog.ui
+	font_color_preferences_frame.ui
 	import_text_dialog.ui
 	layout_preferences_frame.ui
 	main_welcome.ui

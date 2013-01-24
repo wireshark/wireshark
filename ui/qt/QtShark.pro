@@ -196,7 +196,8 @@ FORMS += main_window.ui \
     preferences_dialog.ui \
     main_window_preferences_frame.ui \
     layout_preferences_frame.ui \
-    column_preferences_frame.ui
+    column_preferences_frame.ui \
+    font_color_preferences_frame.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -233,7 +234,8 @@ HEADERS += $$HEADERS_WS_C \
     preferences_dialog.h \
     main_window_preferences_frame.h \
     layout_preferences_frame.h \
-    column_preferences_frame.h
+    column_preferences_frame.h \
+    font_color_preferences_frame.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -395,7 +397,6 @@ HEADERS += \
     main_status_bar.h \
     main_welcome.h \
     main_window.h \
-    monospace_font.h \
     packet_list.h \
     packet_list_model.h \
     packet_list_record.h \
@@ -433,7 +434,6 @@ SOURCES += \
     main_welcome.cpp \
     main_window.cpp \
     main_window_slots.cpp \
-    monospace_font.cpp \
     packet_comment_dialog.cpp \
     packet_format_group_box.cpp \
     packet_list.cpp \
@@ -456,4 +456,5 @@ SOURCES += \
     preferences_dialog.cpp \
     main_window_preferences_frame.cpp \
     layout_preferences_frame.cpp \
-    column_preferences_frame.cpp
+    column_preferences_frame.cpp \
+    font_color_preferences_frame.cpp

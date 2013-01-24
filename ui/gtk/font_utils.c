@@ -215,7 +215,7 @@ user_font_apply(void) {
     PangoFontDescription *old_r_font = NULL;
 
     /* convert font name to reflect the zoom level */
-    gui_font_name = font_zoom(prefs.gui_font_name);
+    gui_font_name = font_zoom(prefs.gui_gtk2_font_name);
     if (gui_font_name == NULL) {
         /*
          * This means the font name isn't an XLFD font name.
@@ -359,18 +359,18 @@ void font_init(void)
 #endif
 
     /* Try to load the regular fixed-width font */
-    m_r_font = pango_font_description_from_string(prefs.gui_font_name);
+    m_r_font = pango_font_description_from_string(prefs.gui_gtk2_font_name);
     if (m_r_font == NULL) {
         /* XXX - pop this up as a dialog box? no */
         fprintf(stderr, "wireshark: Warning: font %s not found - defaulting to Monospace 9\n",
-                prefs.gui_font_name);
+                prefs.gui_gtk2_font_name);
         if ((m_r_font = pango_font_description_from_string("Monospace 9")) == NULL)
         {
             fprintf(stderr, "wireshark: Error: font Monospace 9 not found\n");
             exit(1);
         }
-        g_free(prefs.gui_font_name);
-        prefs.gui_font_name = g_strdup("Monospace 9");
+        g_free(prefs.gui_gtk2_font_name);
+        prefs.gui_gtk2_font_name = g_strdup("Monospace 9");
     }
 
     /* Call this for the side-effects that set_fonts() produces */

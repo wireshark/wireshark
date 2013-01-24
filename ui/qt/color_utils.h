@@ -24,13 +24,22 @@
 #ifndef COLOR_UTILS_H
 #define COLOR_UTILS_H
 
-#include <QWidget>
+#include "config.h"
 
-class ColorUtils : public QWidget
+#include <glib.h>
+
+#include "color.h"
+
+#include <QObject>
+#include <QColor>
+
+class ColorUtils : public QObject
 {
     Q_OBJECT
 public:
-    explicit ColorUtils(QWidget *parent = 0);
+    explicit ColorUtils(QObject *parent = 0);
+
+    static QColor fromColorT(color_t *color);
 
 signals:
 

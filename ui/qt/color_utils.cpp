@@ -21,13 +21,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
-
-#include <glib.h>
 
 #include "color_utils.h"
 
-#include "color.h"
 
 /*
  * Initialize a color with R, G, and B values, including any toolkit-dependent
@@ -51,10 +47,14 @@ initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue)
     return TRUE;
 }
 
-// XXX - We probably don't need a class.
-ColorUtils::ColorUtils(QWidget *parent) :
-    QWidget(parent)
+ColorUtils::ColorUtils(QObject *parent) :
+    QObject(parent)
 {
+}
+
+QColor ColorUtils::fromColorT (color_t *color) {
+    if (!color) return QColor();
+    return QColor(color->red >> 8, color->green >> 8, color->blue >> 8);
 }
 
 /*

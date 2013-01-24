@@ -119,8 +119,6 @@
 
 #include <epan/crypt/airpdcap_ws.h>
 
-#include "monospace_font.h"
-
 #include <QDebug>
 #include <QDateTime>
 #include <QTextCodec>
@@ -1002,7 +1000,7 @@ int main(int argc, char *argv[])
 //  #endif
 //    g_free(rc_file);
 
-    font_init();
+    wsApp->setMonospaceFont(prefs.gui_qt_font_name);
 
 ////////
 
@@ -1022,25 +1020,25 @@ int main(int argc, char *argv[])
 
 ////////
 
-    switch (user_font_apply()) {
-    case FA_SUCCESS:
-        break;
-    case FA_FONT_NOT_RESIZEABLE:
-        /* "user_font_apply()" popped up an alert box. */
-        /* turn off zooming - font can't be resized */
-    case FA_FONT_NOT_AVAILABLE:
-        /* XXX - did we successfully load the un-zoomed version earlier?
-        If so, this *probably* means the font is available, but not at
-        this particular zoom level, but perhaps some other failure
-        occurred; I'm not sure you can determine which is the case,
-        however. */
-        /* turn off zooming - zoom level is unavailable */
-    default:
-        /* in any other case than FA_SUCCESS, turn off zooming */
-//        recent.gui_zoom_level = 0;
-        /* XXX: would it be a good idea to disable zooming (insensitive GUI)? */
-        break;
-    }
+//    switch (user_font_apply()) {
+//    case FA_SUCCESS:
+//        break;
+//    case FA_FONT_NOT_RESIZEABLE:
+//        /* "user_font_apply()" popped up an alert box. */
+//        /* turn off zooming - font can't be resized */
+//    case FA_FONT_NOT_AVAILABLE:
+//        /* XXX - did we successfully load the un-zoomed version earlier?
+//        If so, this *probably* means the font is available, but not at
+//        this particular zoom level, but perhaps some other failure
+//        occurred; I'm not sure you can determine which is the case,
+//        however. */
+//        /* turn off zooming - zoom level is unavailable */
+//    default:
+//        /* in any other case than FA_SUCCESS, turn off zooming */
+////        recent.gui_zoom_level = 0;
+//        /* XXX: would it be a good idea to disable zooming (insensitive GUI)? */
+//        break;
+//    }
 
 ////////
     color_filters_init();

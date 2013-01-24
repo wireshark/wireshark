@@ -1915,7 +1915,10 @@ prefs_register_modules(void)
     prefs_register_obsolete_preference(gui_font_module, "font_name");
 
     prefs_register_string_preference(gui_font_module, "gtk2.font_name", "Font name",
-        "Font name for packet list, protocol tree, and hex dump panes.", (const char**)(&prefs.gui_font_name));
+        "Font name for packet list, protocol tree, and hex dump panes. (GTK+)", (const char**)(&prefs.gui_gtk2_font_name));
+
+    prefs_register_string_preference(gui_font_module, "qt.font_name", "Font name",
+        "Font name for packet list, protocol tree, and hex dump panes. (Qt)", (const char**)(&prefs.gui_qt_font_name));
 
     /* User Interface : Colors */
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
@@ -2571,12 +2574,13 @@ pre_init_prefs(void)
   prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
   prefs.gui_toolbar_filter_style = TB_STYLE_TEXT;
   /* This can be g_freed, so it must be g_mallocated. */
-  /* XXX - are these the right font names for Qt? */
 #ifdef _WIN32
-  prefs.gui_font_name              = g_strdup("Lucida Console 10");
+  prefs.gui_gtk2_font_name              = g_strdup("Lucida Console 10");
 #else
-  prefs.gui_font_name              = g_strdup("Monospace 10");
+  prefs.gui_gtk2_font_name              = g_strdup("Monospace 10");
 #endif
+  /* We try to find the best font in the Qt code */
+  prefs.gui_qt_font_name              = g_strdup("");
   prefs.gui_marked_fg.pixel        =     65535;
   prefs.gui_marked_fg.red          =     65535;
   prefs.gui_marked_fg.green        =     65535;

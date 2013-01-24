@@ -44,16 +44,17 @@
 #  include "ui/win32/console_win32.h"
 #endif /* _WIN32 */
 
+#include <QDesktopServices>
 #include <QDir>
-#include <QTimer>
 #include <QEvent>
 #include <QFileOpenEvent>
-#include <QDesktopServices>
+#include <QFontMetrics>
+#include <QTimer>
 #include <QUrl>
 
 #ifdef Q_WS_WIN
-#include <QLibrary>
 #include <QDebug>
+#include <QLibrary>
 #endif
 
 WiresharkApplication *wsApp = NULL;
@@ -150,6 +151,8 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
         }
     }
 }
+
+
 
 extern gboolean main_do_quit(void) {
     WiresharkApplication::quit();
@@ -304,6 +307,70 @@ void WiresharkApplication::helpTopicAction(topic_action_e action)
         QDesktopServices::openUrl(QUrl(url));
         g_free(url);
     }
+}
+
+// http://en.wikipedia.org/wiki/Category:Monospaced_typefaces
+#define WIN_DEF_FONT "Consolas"
+#define WIN_ALT_FONTS "Lucida Console"
+#define OSX_DEF_FONT "Menlo"
+#define OSX_ALT_FONTS "Monaco"
+#define X11_DEF_FONT "Bitstream Vera Sans Mono"
+#define X11_ALT_FONTS "Liberation Mono" << "DejaVu Sans Mono"
+#define FALLBACK_FONTS "Lucida Sans Typewriter" << "Inconsolata" << "Droid Sans Mono" << "Andale Mono" << "Courier New" << "monospace"
+
+void WiresharkApplication::setMonospaceFont(const char *font_string) {
+
+    if (font_string && strlen(font_string) > 0) {
+        mono_regular_font_.fromString(font_string);
+        mono_bold_font_ = QFont(mono_regular_font_);
+        mono_bold_font_.setBold(true);
+        return;
+    }
+
+    QStringList substitutes;
+
+    // Try to pick the latest, shiniest fixed-width font for our OS.
+#if defined(Q_WS_WIN)
+#define DEF_FONT WIN_DEF_FONT
+#define FONT_SIZE_ADJUST 2
+    substitutes = QStringList() << WIN_ALT_FONTS << OSX_DEF_FONT << OSX_ALT_FONTS << X11_DEF_FONT << X11_ALT_FONTS << FALLBACK_FONTS;
+#elif defined(Q_WS_MAC)
+#define DEF_FONT OSX_DEF_FONT
+#define FONT_SIZE_ADJUST 0
+    substitutes = QStringList() << OSX_ALT_FONTS << WIN_DEF_FONT << WIN_ALT_FONTS << X11_DEF_FONT << X11_ALT_FONTS << FALLBACK_FONTS;
+#else
+#define DEF_FONT X11_DEF_FONT
+#define FONT_SIZE_ADJUST 0
+    substitutes = QStringList() << X11_ALT_FONTS << WIN_DEF_FONT << WIN_ALT_FONTS << OSX_DEF_FONT << OSX_ALT_FONTS << FALLBACK_FONTS;
+#endif
+
+    mono_regular_font_.setFamily(DEF_FONT);
+    mono_regular_font_.insertSubstitutions(DEF_FONT, substitutes);
+    mono_regular_font_.setPointSize(wsApp->font().pointSize() + FONT_SIZE_ADJUST);
+    mono_regular_font_.setBold(false);
+
+    mono_bold_font_ = QFont(mono_regular_font_);
+    mono_bold_font_.setBold(true);
+
+    g_free(prefs.gui_qt_font_name);
+    prefs.gui_qt_font_name = g_strdup(mono_regular_font_.toString().toUtf8().constData());
+}
+
+int WiresharkApplication::monospaceTextSize(const char *str, bool bold)
+{
+    QFontMetrics *fm;
+
+    if (bold)
+        fm = new QFontMetrics(mono_bold_font_);
+    else
+        fm = new QFontMetrics(mono_regular_font_);
+
+    return fm->width(str);
+}
+
+QFont WiresharkApplication::monospaceFont(bool bold)
+{
+    return bold ? mono_bold_font_ : mono_regular_font_;
 }
 
 void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)

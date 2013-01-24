@@ -45,8 +45,8 @@
 
 #define SAMPLE_MARKED_TEXT  "Sample marked packet text\n"
 #define SAMPLE_IGNORED_TEXT "Sample ignored packet text\n"
-#define SAMPLE_CLIENT_TEXT  "Sample TCP stream client text\n"
-#define SAMPLE_SERVER_TEXT  "Sample TCP stream server text\n"
+#define SAMPLE_CLIENT_TEXT  "Sample stream client text\n"
+#define SAMPLE_SERVER_TEXT  "Sample stream server text\n"
 #define MFG_IDX 0
 #define MBG_IDX 1
 #define IFG_IDX 2
@@ -96,14 +96,14 @@ font_color_prefs_show(void)
   GtkWidget *font_sample, *color_sample, *colorsel;
   int        i;
   const gchar     *mt[] = {
-	  "Marked packet foreground",		/* MFG_IDX 0*/
-	  "Marked packet background",		/* MBG_IDX 1*/
-	  "Ignored packet foreground",		/* IFG_IDX 2*/
-	  "Ignored packet background",		/* IBG_IDX 3*/
-	  "TCP stream client foreground",	/* CFG_IDX 4*/
-	  "TCP stream client background",	/* CBG_IDX 5*/
-	  "TCP stream server foreground",	/* SFG_IDX 6*/
-	  "TCP stream server background"	/* SBG_IDX 7*/
+	  "Marked packet foreground",	/* MFG_IDX 0*/
+	  "Marked packet background",	/* MBG_IDX 1*/
+	  "Ignored packet foreground",	/* IFG_IDX 2*/
+	  "Ignored packet background",	/* IBG_IDX 3*/
+	  "Stream client foreground",	/* CFG_IDX 4*/
+	  "Stream client background",	/* CBG_IDX 5*/
+	  "Stream server foreground",	/* SFG_IDX 6*/
+	  "Stream server background"	/* SBG_IDX 7*/
   };
   int mcount = sizeof(mt) / sizeof (gchar *);
   GtkTextBuffer *buf;
@@ -140,7 +140,7 @@ font_color_prefs_show(void)
   ws_gtk_grid_attach_extended(GTK_GRID(main_grid), label, 0, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0,0);
   gtk_widget_show(label);
 
-  font_button = gtk_font_button_new_with_font(prefs.gui_font_name);
+  font_button = gtk_font_button_new_with_font(prefs.gui_gtk2_font_name);
   gtk_font_button_set_title(GTK_FONT_BUTTON(font_button), "Wireshark: Font");
   ws_gtk_grid_attach(GTK_GRID(main_grid), font_button, 1, 0, 1, 1);
   gtk_widget_show(font_button);
@@ -343,10 +343,10 @@ font_color_prefs_fetch(GtkWidget *w _U_)
    * places where there *can* be a bad preference value.
    */
   if (font_fetch()) {
-    if (strcmp(new_font_name, prefs.gui_font_name) != 0) {
+    if (strcmp(new_font_name, prefs.gui_gtk2_font_name) != 0) {
       font_changed = TRUE;
-      g_free(prefs.gui_font_name);
-      prefs.gui_font_name = g_strdup(new_font_name);
+      g_free(prefs.gui_gtk2_font_name);
+      prefs.gui_gtk2_font_name = g_strdup(new_font_name);
     }
   }
 }

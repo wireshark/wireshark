@@ -55,9 +55,6 @@
         <property name="text">
          <string>Font and Colors</string>
         </property>
-        <property name="flags">
-         <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
-        </property>
        </item>
       </item>
       <item>
@@ -119,7 +116,7 @@
       <widget class="MainWindowPreferencesFrame" name="appearanceFrame"/>
       <widget class="LayoutPreferencesFrame" name="layoutFrame"/>
       <widget class="ColumnPreferencesFrame" name="columnFrame"/>
-      <widget class="QFrame" name="fontandcolorFrame"/>
+      <widget class="FontColorPreferencesFrame" name="fontandcolorFrame"/>
       <widget class="QFrame" name="captureFrame"/>
       <widget class="QFrame" name="filterFrame"/>
       <widget class="QFrame" name="nameresolutionFrame"/>
@@ -215,6 +212,12 @@
    <class>ColumnPreferencesFrame</class>
    <extends>QFrame</extends>
    <header>column_preferences_frame.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FontColorPreferencesFrame</class>
+   <extends>QFrame</extends>
+   <header>font_color_preferences_frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

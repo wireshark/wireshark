@@ -37,8 +37,9 @@
 #include "ui/help_url.h"
 
 #include <QApplication>
-#include <QList>
 #include <QFileInfo>
+#include <QFont>
+#include <QList>
 #include <QThread>
 
 // Recent items:
@@ -81,6 +82,8 @@ public:
     void setLastOpenDir(QString *dir_str);
     void helpTopicAction(topic_action_e action);
     QFont monospaceFont(bool bold = false);
+    void setMonospaceFont(const char *font_string);
+    int monospaceTextSize(const char *str, bool bold = false);
     void setConfigurationProfile(const gchar *profile_name);
 
 
@@ -88,6 +91,8 @@ private:
     void prefsToCaptureOpts();
 
     bool initialized_;
+    QFont mono_regular_font_;
+    QFont mono_bold_font_;
     QTimer *recent_timer_;
     QList<QString> pending_open_files_;
 

@@ -2663,8 +2663,8 @@ main(int argc, char *argv[])
 #endif
         break;
       case 'm':        /* Fixed-width font for the display */
-        g_free(prefs_p->gui_font_name);
-        prefs_p->gui_font_name = g_strdup(optarg);
+        g_free(prefs_p->gui_gtk2_font_name);
+        prefs_p->gui_gtk2_font_name = g_strdup(optarg);
         break;
       case 'n':        /* No name resolution */
         gbl_resolv_flags.mac_name = FALSE;
