@@ -75,48 +75,48 @@
 # define BUTTON_SIZE_Y -1
 
 struct _uat_rep_t {
-	GtkWidget* window;
-	GtkWidget* vbox;
-	GtkWidget* scrolledwindow;
-	GtkTreeView* list;
+	GtkWidget    *window;
+	GtkWidget    *vbox;
+	GtkWidget    *scrolledwindow;
+	GtkTreeView  *list;
 	GtkListStore *list_store;
-	GtkWidget* bbox;
-	GtkWidget* bt_new;
-	GtkWidget* bt_edit;
-	GtkWidget* bt_copy;
-	GtkWidget* bt_delete;
-	GtkWidget* bt_refresh;
-	GtkWidget* bt_clear;
-	GtkWidget* bt_up;
-	GtkWidget* bt_down;
-	GtkWidget* bt_apply;
-	GtkWidget* bt_cancel;
-	GtkWidget* bt_ok;
-	GtkWidget* unsaved_window;
+	GtkWidget    *bbox;
+	GtkWidget    *bt_new;
+	GtkWidget    *bt_edit;
+	GtkWidget    *bt_copy;
+	GtkWidget    *bt_delete;
+	GtkWidget    *bt_refresh;
+	GtkWidget    *bt_clear;
+	GtkWidget    *bt_up;
+	GtkWidget    *bt_down;
+	GtkWidget    *bt_apply;
+	GtkWidget    *bt_cancel;
+	GtkWidget    *bt_ok;
+	GtkWidget    *unsaved_window;
 
-	gint selected;
+	gint          selected;
 };
 
 struct _str_pair {
-	const char* ptr;
-	guint len;
+	const char *ptr;
+	guint	    len;
 };
 
 struct _uat_dlg_data {
-	GtkWidget* win;
-	GPtrArray* entries;
-	uat_t* uat;
-	void* rec;
-	gboolean is_new;
-	gint row;
-	GPtrArray* tobe_freed;
+	GtkWidget *win;
+	GPtrArray *entries;
+	uat_t     *uat;
+	void      *rec;
+	gboolean   is_new;
+	gint	   row;
+	GPtrArray *tobe_freed;
 };
 
 
-static gboolean unsaved_dialog(GtkWindow *w, GdkEvent* e, gpointer u);
-static gboolean uat_window_delete_event_cb(GtkWindow *w, GdkEvent* e, gpointer u);
+static gboolean unsaved_dialog(GtkWindow *w, GdkEvent *e, gpointer u);
+static gboolean uat_window_delete_event_cb(GtkWindow *w, GdkEvent *e, gpointer u);
 
-static void set_buttons(uat_t* uat, gint row) {
+static void set_buttons(uat_t *uat, gint row) {
 
 	if (!uat->rep) return;
 
@@ -149,29 +149,29 @@ static void set_buttons(uat_t* uat, gint row) {
 	}
 }
 
-static char* fld_tostr(void* rec, uat_field_t* f) {
-	guint len;
-	const char* ptr;
-	char* out;
+static char *fld_tostr(void *rec, uat_field_t *f) {
+	guint	    len;
+	const char *ptr;
+	char       *out;
 
-	f->cb.tostr(rec,&ptr,&len,f->cbdata.tostr,f->fld_data);
+	f->cb.tostr(rec, &ptr, &len, f->cbdata.tostr, f->fld_data);
 
 	switch(f->mode) {
 		case PT_TXTMOD_STRING:
 		case PT_TXTMOD_ENUM:
 		case PT_TXTMOD_FILENAME:
 		case PT_TXTMOD_DIRECTORYNAME:
-			out = ep_strndup(ptr,len);
+			out = ep_strndup(ptr, len);
 			break;
 		case PT_TXTMOD_HEXBYTES: {
-			GString* s = g_string_sized_new( len*2 + 1 );
+			GString *s = g_string_sized_new( len*2 + 1 );
 			guint i;
 
-			for (i=0; i<len;i++) g_string_append_printf(s,"%.2X",((guint8*)ptr)[i]);
+			for (i=0; i<len;i++) g_string_append_printf(s, "%.2X", ((guint8*)ptr)[i]);
 
 			out = ep_strdup(s->str);
 
-			g_string_free(s,TRUE);
+			g_string_free(s, TRUE);
 			break;
 		}
 		default:
@@ -185,30 +185,30 @@ static char* fld_tostr(void* rec, uat_field_t* f) {
 
 
 
-static void append_row(uat_t* uat, guint idx) {
-	GPtrArray* a = g_ptr_array_new();
-	void* rec = UAT_INDEX_PTR(uat,idx);
-	uat_field_t* f = uat->fields;
-	guint colnum;
-	GtkTreeIter iter;
+static void append_row(uat_t *uat, guint idx) {
+	GPtrArray   *a	 = g_ptr_array_new();
+	void	    *rec = UAT_INDEX_PTR(uat, idx);
+	uat_field_t *f	 = uat->fields;
+	guint	     colnum;
+	GtkTreeIter  iter;
 
 	if (! uat->rep) return;
 
 	gtk_list_store_insert_before(uat->rep->list_store, &iter, NULL);
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
-		g_ptr_array_add(a,fld_tostr(rec,&(f[colnum])));
-		gtk_list_store_set(uat->rep->list_store, &iter, colnum, fld_tostr(rec,&(f[colnum])), -1);
+		g_ptr_array_add(a, fld_tostr(rec, &(f[colnum])));
+		gtk_list_store_set(uat->rep->list_store, &iter, colnum, fld_tostr(rec, &(f[colnum])), -1);
 	}
 
-	g_ptr_array_free(a,TRUE);
+	g_ptr_array_free(a, TRUE);
 }
 
-static void reset_row(uat_t* uat, guint idx) {
-	void* rec = UAT_INDEX_PTR(uat,idx);
-	uat_field_t* f = uat->fields;
-	guint colnum;
+static void reset_row(uat_t *uat, guint idx) {
+	void	    *rec = UAT_INDEX_PTR(uat, idx);
+	uat_field_t *f	 = uat->fields;
+	guint	     colnum;
 	GtkTreePath *path;
-	GtkTreeIter iter;
+	GtkTreeIter  iter;
 
 	if (! uat->rep) return;
 
@@ -218,18 +218,18 @@ static void reset_row(uat_t* uat, guint idx) {
 	}
 
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
-		gtk_list_store_set(uat->rep->list_store, &iter, colnum, fld_tostr(rec,&(f[colnum])), -1);
+		gtk_list_store_set(uat->rep->list_store, &iter, colnum, fld_tostr(rec, &(f[colnum])), -1);
 	}
 }
 
-static guint8* unhexbytes(const char* si, guint len, guint* len_p, const char** err) {
-	guint8* buf;
-	guint8* p;
-	const guint8* s = (void*)si;
-	guint i;
+static guint8 *unhexbytes(const char *si, guint len, guint *len_p, const char** err) {
+	guint8	     *buf;
+	guint8	     *p;
+	const guint8 *s = (void*)si;
+	guint	      i;
 
 	if (len % 2) {
-		*err = ep_strdup_printf("Uneven number of chars hex string %u \n'%s'",len, si);
+		*err = ep_strdup_printf("Uneven number of chars hex string %u \n'%s'", len, si);
 		return NULL;
 	}
 
@@ -283,14 +283,14 @@ on_error:
 
 
 static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
-	struct _uat_dlg_data* dd = user_data;
-	guint ncols = dd->uat->ncols;
-	uat_field_t* f = dd->uat->fields;
-	const char* err = NULL;
-	guint colnum;
+	struct _uat_dlg_data *dd    = user_data;
+	guint		      ncols = dd->uat->ncols;
+	uat_field_t          *f	    = dd->uat->fields;
+	const char           *err   = NULL;
+	guint		      colnum;
 
 	for ( colnum = 0; colnum < ncols; colnum++ ) {
-		void* e = g_ptr_array_index(dd->entries,colnum);
+		void *e = g_ptr_array_index(dd->entries, colnum);
 		const char *text = NULL;
 		char *text_free = NULL;
 		guint len = 0;
@@ -317,7 +317,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 				text = (void*) unhexbytes(text, (guint) strlen(text), &len, &err);
 
 				if (err) {
-					err = ep_strdup_printf("error in field '%s': %s",f[colnum].title,err);
+					err = ep_strdup_printf("error in field '%s': %s", f[colnum].title, err);
 					goto on_failure;
 				}
 
@@ -336,27 +336,27 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 
 		if (f[colnum].cb.chk) {
 			if (! f[colnum].cb.chk(dd->rec, text, len, f[colnum].cbdata.chk, f[colnum].fld_data, &err)) {
-				err = ep_strdup_printf("error in column '%s': %s",f[colnum].title,err);
+				err = ep_strdup_printf("error in column '%s': %s", f[colnum].title, err);
 				goto on_failure;
 			}
 		}
 
-		f[colnum].cb.set(dd->rec,text,len, f[colnum].cbdata.set, f[colnum].fld_data);
+		f[colnum].cb.set(dd->rec, text, len, f[colnum].cbdata.set, f[colnum].fld_data);
 
 		g_free(text_free);
 	}
 
 	if (dd->uat->update_cb) {
-		dd->uat->update_cb(dd->rec,&err);
+		dd->uat->update_cb(dd->rec, &err);
 
 		if (err) {
-			err = ep_strdup_printf("error updating record: %s",err);
+			err = ep_strdup_printf("error updating record: %s", err);
 			goto on_failure;
 		}
 	}
 
 	if (dd->is_new) {
-		void* rec_tmp = dd->rec;
+		void *rec_tmp = dd->rec;
 		dd->rec = uat_add_record(dd->uat, dd->rec);
 
 		if (dd->uat->free_cb) {
@@ -373,10 +373,10 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	if (dd->is_new) {
 		append_row(dd->uat, (*dd->uat->nrows_p) - 1 );
 	} else {
-		reset_row(dd->uat,dd->row);
+		reset_row(dd->uat, dd->row);
 	}
 
-	g_ptr_array_free(dd->entries,TRUE);
+	g_ptr_array_free(dd->entries, TRUE);
 	window_destroy(GTK_WIDGET(dd->win));
 
 	if (dd->uat->rep)
@@ -389,18 +389,18 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	return TRUE;
 on_failure:
 
-	report_failure("%s",err);
+	report_failure("%s", err);
 	return FALSE;
 }
 
 static gboolean uat_cancel_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
-	struct _uat_dlg_data* dd = user_data;
+	struct _uat_dlg_data *dd = user_data;
 
 	if (dd->uat->rep)
 		window_present(GTK_WIDGET(dd->uat->rep->window));
 
 	if (dd->is_new) g_free(dd->rec);
-	g_ptr_array_free(dd->entries,TRUE);
+	g_ptr_array_free(dd->entries, TRUE);
 	window_destroy(GTK_WIDGET(dd->win));
 
 	while (dd->tobe_freed->len) g_free( g_ptr_array_remove_index_fast(dd->tobe_freed, dd->tobe_freed->len - 1 ) );
@@ -411,15 +411,16 @@ static gboolean uat_cancel_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 }
 
 static void fld_combo_box_changed_cb(GtkComboBox *combo_box, gpointer user_data) {
-	int* valptr = user_data;
+	int *valptr = user_data;
+
 	*valptr = gtk_combo_box_get_active(combo_box);
 }
 
-static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
-	GtkWidget *win, *main_tb, *main_vb, *bbox, *bt_cancel, *bt_ok;
-	struct _uat_dlg_data* dd = g_malloc(sizeof(struct _uat_dlg_data));
-	uat_field_t* f = uat->fields;
-	guint colnum;
+static void uat_edit_dialog(uat_t *uat, gint row, gboolean copy) {
+	GtkWidget	     *win, *main_grid, *main_vb, *bbox, *bt_cancel, *bt_ok;
+	struct _uat_dlg_data *dd = g_malloc(sizeof(struct _uat_dlg_data));
+	uat_field_t	     *f	 = uat->fields;
+	guint		      colnum;
 
 	dd->entries = g_ptr_array_new();
 	dd->win = dlg_conf_window_new(ep_strdup_printf("%s: %s", uat->name, (row == -1 ? "New" : "Edit")));
@@ -427,11 +428,11 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 	if (copy && row >= 0) {
 	  dd->rec = g_malloc0(uat->record_size);
 	  if (uat->copy_cb) {
-	    uat->copy_cb (dd->rec, UAT_INDEX_PTR(uat,row), uat->record_size);
+	    uat->copy_cb (dd->rec, UAT_INDEX_PTR(uat, row), uat->record_size);
 	  }
 	  dd->is_new = TRUE;
 	} else if (row >= 0) {
-	  dd->rec = UAT_INDEX_PTR(uat,row);
+	  dd->rec = UAT_INDEX_PTR(uat, row);
 	  dd->is_new = FALSE;
 	} else {
 	  dd->rec = g_malloc0(uat->record_size);
@@ -442,19 +443,19 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 
 	win = dd->win;
 
-	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
-	gtk_window_resize(GTK_WINDOW(win),400, 30*(uat->ncols+2));
+	gtk_window_set_resizable(GTK_WINDOW(win), FALSE);
+	gtk_window_resize(GTK_WINDOW(win), 400, 30*(uat->ncols+2));
 
 	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
 	gtk_container_add(GTK_CONTAINER(win), main_vb);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
-	main_tb = gtk_table_new(uat->ncols+1, 2, FALSE);
-	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 5);
-	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
+	main_grid = ws_gtk_grid_new();
+	gtk_box_pack_start(GTK_BOX(main_vb), main_grid, FALSE, FALSE, 0);
+	ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 5);
+	ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 10);
 
-	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
+	bbox = dlg_button_row_new(GTK_STOCK_CANCEL, GTK_STOCK_OK, NULL);
 	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
 	bt_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
@@ -466,7 +467,7 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		GtkWidget *entry, *label, *event_box;
-		char* text = fld_tostr(dd->rec,&(f[colnum]));
+		char *text = fld_tostr(dd->rec, &(f[colnum]));
 
 		event_box = gtk_event_box_new();
 
@@ -475,7 +476,7 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 			gtk_widget_set_tooltip_text(event_box, f[colnum].desc);
 
 		gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-		gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box, 0, 1, colnum+1, colnum + 2);
+		ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), event_box, 0, colnum, 1, 1);
 		gtk_container_add(GTK_CONTAINER(event_box), label);
 
 		switch(f[colnum].mode) {
@@ -486,32 +487,32 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 				if (! dd->is_new || copy) {
 					gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(entry), text);
 				}
-				g_ptr_array_add(dd->entries,entry);
-				gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, colnum+1, colnum + 2);
+				g_ptr_array_add(dd->entries, entry);
+				ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), entry, 1, colnum, 1, 1);
 				break;
 
 			case PT_TXTMOD_STRING:
 			case PT_TXTMOD_HEXBYTES:
 				entry = gtk_entry_new();
 				if (! dd->is_new || copy) {
-					gtk_entry_set_text(GTK_ENTRY(entry),text);
+					gtk_entry_set_text(GTK_ENTRY(entry), text);
 				}
-				g_ptr_array_add(dd->entries,entry);
-				gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, colnum+1, colnum + 2);
+				g_ptr_array_add(dd->entries, entry);
+				ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), entry, 1, colnum, 1, 1);
 				dlg_set_activate(entry, bt_ok);
 				break;
 
 			case PT_TXTMOD_ENUM: {
 				GtkWidget *combo_box;
 				int idx;
-				const value_string* enum_vals = f[colnum].fld_data;
-				int* valptr = g_malloc(sizeof(int));	/* A place to store the index of the    */
+				const value_string *enum_vals = f[colnum].fld_data;
+				int *valptr = g_malloc(sizeof(int));	/* A place to store the index of the    */
 									/*  "active" fld_data array entry       */
 									/* -1 means "nothing selected (active)" */
 				combo_box = gtk_combo_box_text_new();
 				*valptr = -1;
 				for (idx = 0; enum_vals[idx].strptr != NULL; idx++) {
-					const char* str = enum_vals[idx].strptr;
+					const char *str = enum_vals[idx].strptr;
 					 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combo_box), str);
 
 					if ( g_str_equal(str, text) ) {
@@ -519,14 +520,14 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 					}
 				}
 
-				g_ptr_array_add(dd->entries,valptr);
-				g_ptr_array_add(dd->tobe_freed,valptr);
+				g_ptr_array_add(dd->entries, valptr);
+				g_ptr_array_add(dd->tobe_freed, valptr);
 
 				if (*valptr != -1)
 					gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), *valptr);
 
 				g_signal_connect(combo_box, "changed", G_CALLBACK(fld_combo_box_changed_cb), valptr);
-				gtk_table_attach_defaults(GTK_TABLE(main_tb), combo_box, 1, 2, colnum+1, colnum + 2);
+				ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), combo_box, 1, colnum, 1, 1);
 
 				break;
 			}
@@ -542,14 +543,14 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 
 struct _uat_del {
 	GtkWidget *win;
-	uat_t* uat;
-	gint idx;
+	uat_t	  *uat;
+	gint	   idx;
 };
 
 static void uat_del_cb(GtkButton *button _U_, gpointer u) {
-	struct _uat_del* ud = u;
-	GtkTreeIter iter;
-	GtkTreePath *path;
+	struct _uat_del *ud = u;
+	GtkTreeIter	 iter;
+	GtkTreePath	*path;
 
 	uat_remove_record_idx(ud->uat, ud->idx);
 
@@ -561,7 +562,7 @@ static void uat_del_cb(GtkButton *button _U_, gpointer u) {
 	}
 
 	ud->uat->changed = TRUE;
-	set_buttons(ud->uat,-1);
+	set_buttons(ud->uat, -1);
 
 	window_destroy(GTK_WIDGET(ud->win));
 
@@ -572,7 +573,8 @@ static void uat_del_cb(GtkButton *button _U_, gpointer u) {
 }
 
 static void uat_cancel_del_cb(GtkButton *button _U_, gpointer u) {
-	struct _uat_del* ud = u;
+	struct _uat_del *ud = u;
+
 	window_destroy(GTK_WIDGET(ud->win));
 
 	if (ud->uat->rep)
@@ -580,46 +582,46 @@ static void uat_cancel_del_cb(GtkButton *button _U_, gpointer u) {
 	g_free(ud);
 }
 
-static void uat_del_dlg(uat_t* uat, int idx) {
-	GtkWidget *win, *main_tb, *main_vb, *bbox, *bt_cancel, *bt_ok;
-	uat_field_t* f = uat->fields;
-	guint colnum;
-	void* rec = UAT_INDEX_PTR(uat,idx);
-	struct _uat_del* ud = g_malloc(sizeof(struct _uat_del));
+static void uat_del_dlg(uat_t *uat, int idx) {
+	GtkWidget	*win, *main_grid, *main_vb, *bbox, *bt_cancel, *bt_ok;
+	uat_field_t	*f   = uat->fields;
+	guint		 colnum;
+	void		*rec = UAT_INDEX_PTR(uat, idx);
+	struct _uat_del *ud  = g_malloc(sizeof(struct _uat_del));
 
 	ud->uat = uat;
 	ud->idx = idx;
 	ud->win = win = dlg_conf_window_new(ep_strdup_printf("%s: Confirm Delete", uat->name));
 
-	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
-	gtk_window_resize(GTK_WINDOW(win),400,25*(uat->ncols+2));
+	gtk_window_set_resizable(GTK_WINDOW(win), FALSE);
+	gtk_window_resize(GTK_WINDOW(win), 400, 25*(uat->ncols+2));
 
 	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
 	gtk_container_add(GTK_CONTAINER(win), main_vb);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
-	main_tb = gtk_table_new(uat->ncols+1, 2, FALSE);
-	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+	main_grid = ws_gtk_grid_new();
+	gtk_box_pack_start(GTK_BOX(main_vb), main_grid, FALSE, FALSE, 0);
+	ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 10);
+	ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 15);
 
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		GtkWidget *label;
-		char* text = fld_tostr(rec,&(f[colnum]));
+		char *text = fld_tostr(rec, &(f[colnum]));
 
 		label = gtk_label_new(ep_strdup_printf("%s:", f[colnum].title));
 		gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-		gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
+		ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), label, 0, colnum, 1, 1);
 
 		label = gtk_label_new(text);
 		gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-		gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 1, 2, colnum+1, colnum + 2);
+		ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), label, 1, colnum, 1, 1);
 	}
 
-	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_DELETE, NULL);
+	bbox = dlg_button_row_new(GTK_STOCK_CANCEL, GTK_STOCK_DELETE, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-	bt_ok = g_object_get_data(G_OBJECT(bbox),GTK_STOCK_DELETE);
+	bt_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_DELETE);
 	g_signal_connect(bt_ok, "clicked", G_CALLBACK(uat_del_cb), ud);
 
 	bt_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
@@ -630,7 +632,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 }
 
 static void uat_new_cb(GtkButton *button _U_, gpointer u) {
-	uat_t* uat = u;
+	uat_t *uat = u;
 
 	if (! uat->rep) return;
 
@@ -638,7 +640,7 @@ static void uat_new_cb(GtkButton *button _U_, gpointer u) {
 }
 
 static void uat_edit_cb(GtkWidget *button _U_, gpointer u) {
-	uat_t* uat = u;
+	uat_t *uat = u;
 
 	if (! uat->rep) return;
 
@@ -646,7 +648,7 @@ static void uat_edit_cb(GtkWidget *button _U_, gpointer u) {
 }
 
 static void uat_copy_cb(GtkWidget *button _U_, gpointer u) {
-	uat_t* uat = u;
+	uat_t *uat = u;
 
 	if (! uat->rep) return;
 
@@ -658,18 +660,18 @@ static void uat_double_click_cb(GtkWidget *tv, GtkTreePath *path _U_, GtkTreeVie
 }
 
 static void uat_delete_cb(GtkButton *button _U_, gpointer u) {
-	uat_t* uat = u;
+	uat_t *uat = u;
 
 	if (! uat->rep) return;
 
-	uat_del_dlg(uat,uat->rep->selected);
+	uat_del_dlg(uat, uat->rep->selected);
 }
 
-static gboolean uat_window_delete_event_cb(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
-	uat_t* uat = u;
+static gboolean uat_window_delete_event_cb(GtkWindow *w _U_, GdkEvent *e _U_, gpointer u) {
+	uat_t *uat = u;
 
 	if (uat->rep) {
-		void* rep = uat->rep;
+		void *rep = uat->rep;
 
 		g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
 		g_signal_handlers_disconnect_by_func(uat->rep->window, unsaved_dialog, uat);
@@ -683,45 +685,45 @@ static gboolean uat_window_delete_event_cb(GtkWindow *w _U_, GdkEvent* e _U_, gp
 }
 
 static void uat_up_cb(GtkButton *button _U_, gpointer u) {
-	uat_t* uat = u;
-	gint row = uat->rep->selected;
+	uat_t *uat = u;
+	gint   row = uat->rep->selected;
 
 	g_assert(row > 0);
 
-	uat_swap(uat,row,row-1);
+	uat_swap(uat, row, row-1);
 	tree_view_list_store_move_selection(uat->rep->list, TRUE);
 
 	uat->changed = TRUE;
 
 	row -= 1;
 	uat->rep->selected = row;
-	set_buttons(uat,row);
+	set_buttons(uat, row);
 }
 
 static void uat_down_cb(GtkButton *button _U_, gpointer u) {
-	uat_t* uat = u;
-	gint row = uat->rep->selected;
+	uat_t *uat = u;
+	gint   row = uat->rep->selected;
 
 	g_assert(row >= 0 && (guint) row < *uat->nrows_p - 1);
 
-	uat_swap(uat,row,row+1);
+	uat_swap(uat, row, row+1);
 	tree_view_list_store_move_selection(uat->rep->list, FALSE);
 
 	uat->changed = TRUE;
 
 	row += 1;
 	uat->rep->selected = row;
-	set_buttons(uat,row);
+	set_buttons(uat, row);
 }
 
 static void uat_apply_changes(uat_t *uat) {
-	if(uat->flags & UAT_AFFECTS_FIELDS) {
+	if (uat->flags & UAT_AFFECTS_FIELDS) {
 		/* Recreate list with new fields and redissect packets */
 		packet_list_recreate ();
 	} else {
-		if(uat->flags & UAT_AFFECTS_DISSECTION) {
+		if (uat->flags & UAT_AFFECTS_DISSECTION) {
 			/* Just redissect packets if we have any */
-			if(cfile.state != FILE_CLOSED) {
+			if (cfile.state != FILE_CLOSED) {
 				redissect_packets ();
 			}
 		}
@@ -729,15 +731,15 @@ static void uat_apply_changes(uat_t *uat) {
 }
 
 static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
-	uat_t* uat = u;
-	gchar* err = NULL;
+	uat_t *uat = u;
+	gchar *err = NULL;
 
 	if (uat->changed) {
 		uat_clear(uat);
-		uat_load(uat,&err);
+		uat_load(uat, &err);
 
 		if (err) {
-			report_failure("Error while loading %s: %s",uat->name,err);
+			report_failure("Error while loading %s: %s", uat->name, err);
 		}
 
 		uat_apply_changes (uat);
@@ -751,7 +753,7 @@ static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
 }
 
 static void uat_apply_cb(GtkButton *button _U_, gpointer u) {
-	uat_t* uat = u;
+	uat_t *uat = u;
 
 	if (uat->changed) {
 		if (uat->post_update_cb) uat->post_update_cb();
@@ -760,14 +762,14 @@ static void uat_apply_cb(GtkButton *button _U_, gpointer u) {
 }
 
 static void uat_ok_cb(GtkButton *button _U_, gpointer u) {
-	uat_t* uat = u;
-	gchar* err = NULL;
+	uat_t *uat = u;
+	gchar *err = NULL;
 
 	if (uat->changed) {
-		uat_save(uat,&err);
+		uat_save(uat, &err);
 
 		if (err) {
-			report_failure("Error while saving %s: %s",uat->name,err);
+			report_failure("Error while saving %s: %s", uat->name, err);
 		}
 
 		if (uat->post_update_cb) uat->post_update_cb();
@@ -792,17 +794,17 @@ static void uat_clear_cb(GtkButton *button _U_, gpointer u) {
 static void uat_refresh_cb(GtkButton *button _U_, gpointer u) {
 	uat_t *uat = u;
 	gchar *err = NULL;
-	guint i;
+	guint  i;
 
 	uat_clear_cb(button, u);
 
 	uat->from_global = TRUE;
-	uat_load(uat,&err);
+	uat_load(uat, &err);
 	uat->from_global = FALSE;
 	uat->changed = TRUE;
 
 	if (err) {
-		report_failure("Error while loading %s: %s",uat->name,err);
+		report_failure("Error while loading %s: %s", uat->name, err);
 	}
 
 	for (i = 0 ; i < *(uat->nrows_p); i++) {
@@ -812,8 +814,8 @@ static void uat_refresh_cb(GtkButton *button _U_, gpointer u) {
 
 
 static void remember_selected_row(GtkWidget *w _U_, gpointer u) {
-	uat_t* uat = u;
-	gint row;
+	uat_t *uat = u;
+	gint   row;
 
 	row = tree_view_list_store_get_selected_row(uat->rep->list);
 	uat->rep->selected = row;
@@ -822,19 +824,19 @@ static void remember_selected_row(GtkWidget *w _U_, gpointer u) {
 	gtk_widget_set_sensitive (uat->rep->bt_copy, uat->copy_cb ? TRUE : FALSE);
 	gtk_widget_set_sensitive(uat->rep->bt_delete, TRUE);
 
-	set_buttons(uat,row);
+	set_buttons(uat, row);
 }
 
-static void uat_yessave_cb(GtkWindow *w _U_, void* u) {
-	uat_t* uat = u;
-	gchar* err = NULL;
+static void uat_yessave_cb(GtkWindow *w _U_, void *u) {
+	uat_t *uat = u;
+	gchar *err = NULL;
 
-	window_delete_event_cb(uat->rep->unsaved_window,NULL,NULL);
+	window_delete_event_cb(uat->rep->unsaved_window, NULL, NULL);
 
-	uat_save(uat,&err);
+	uat_save(uat, &err);
 
 	if (err) {
-		report_failure("Error while saving %s: %s",uat->name,err);
+		report_failure("Error while saving %s: %s", uat->name, err);
 	}
 
 	g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
@@ -846,9 +848,10 @@ static void uat_yessave_cb(GtkWindow *w _U_, void* u) {
 }
 
 
-static void uat_nosave_cb(GtkWindow *w _U_, void* u) {
-	uat_t* uat = u;
-	window_delete_event_cb(uat->rep->unsaved_window,NULL,NULL);
+static void uat_nosave_cb(GtkWindow *w _U_, void *u) {
+	uat_t *uat = u;
+
+	window_delete_event_cb(uat->rep->unsaved_window, NULL, NULL);
 	g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
 	g_signal_handlers_disconnect_by_func(uat->rep->window, unsaved_dialog, uat);
 	window_destroy(uat->rep->window);
@@ -857,11 +860,11 @@ static void uat_nosave_cb(GtkWindow *w _U_, void* u) {
 	uat->rep = NULL;
 }
 
-static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
+static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent *e _U_, gpointer u) {
 	GtkWidget *win, *vbox, *label, *bbox;
 	GtkWidget *yes_bt, *no_bt;
-	gchar* message;
-	uat_t* uat  = u;
+	gchar	  *message;
+	uat_t	  *uat = u;
 
 	if (uat->rep->unsaved_window) {
 		window_present(uat->rep->unsaved_window);
@@ -881,7 +884,7 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 
 	label = gtk_label_new(message);
 
-	bbox = dlg_button_row_new(GTK_STOCK_YES,GTK_STOCK_NO, NULL);
+	bbox = dlg_button_row_new(GTK_STOCK_YES, GTK_STOCK_NO, NULL);
 
 	yes_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_YES);
 	no_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_NO);
@@ -898,10 +901,10 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 	return TRUE;
 }
 
-static void uat_help_cb(GtkWidget* w _U_, gpointer u) {
+static void uat_help_cb(GtkWidget *w _U_, gpointer u) {
 	gchar *help_page, *url;
 
-	help_page = g_strdup_printf("%s.html",((uat_t*)u)->help);
+	help_page = g_strdup_printf("%s.html", ((uat_t*)u)->help);
 	url = user_guide_url(help_page);
 	if (url) {
 		browser_open_url(url);
@@ -910,19 +913,19 @@ static void uat_help_cb(GtkWidget* w _U_, gpointer u) {
 	g_free(url);
 }
 
-static GtkWidget* uat_window(void* u) {
-	uat_t* uat = u;
-	uat_field_t* f = uat->fields;
-	uat_rep_t* rep;
-	guint i;
-	guint colnum;
-	GType *col_types;
-	GtkWidget *hbox, *vbox, *move_hbox, *edit_hbox, *refresh_hbox;
+static GtkWidget *uat_window(void *u) {
+	uat_t		  *uat = u;
+	uat_field_t	  *f   = uat->fields;
+	uat_rep_t	  *rep;
+	guint		   i;
+	guint		   colnum;
+	GType		  *col_types;
+	GtkWidget	  *hbox, *vbox, *move_hbox, *edit_hbox, *refresh_hbox;
 	GtkTreeViewColumn *column;
-	GtkCellRenderer *renderer;
-	GtkTreeSelection *selection;
-	gchar *global_fname;
-	gboolean global_file_exists;
+	GtkCellRenderer	  *renderer;
+	GtkTreeSelection  *selection;
+	gchar		  *global_fname;
+	gboolean	   global_file_exists;
 
 	if (uat->rep) {
 		window_present(uat->rep->window);
@@ -937,8 +940,7 @@ static GtkWidget* uat_window(void* u) {
 
 	rep->window = dlg_conf_window_new(uat->name);
 
-	gtk_window_set_resizable(GTK_WINDOW(rep->window),TRUE);
-	gtk_window_resize(GTK_WINDOW(rep->window), 720, 512);
+	gtk_window_set_default_size(GTK_WINDOW(rep->window), 720, 512);
 	gtk_window_set_position(GTK_WINDOW(rep->window), GTK_WIN_POS_CENTER_ON_PARENT);
 
 	gtk_container_set_border_width(GTK_CONTAINER(rep->window), 6);
@@ -958,14 +960,14 @@ static GtkWidget* uat_window(void* u) {
 	rep->scrolledwindow = scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(rep->scrolledwindow), GTK_SHADOW_IN);
 
-	col_types = g_malloc(sizeof(GType) * uat->ncols);
+	col_types = g_malloc(sizeof(GType)  *uat->ncols);
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		col_types[colnum] = G_TYPE_STRING;
 	}
 	rep->list_store = gtk_list_store_newv(uat->ncols, col_types);
 	g_free(col_types);
 
-	rep->list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(rep->list_store))); /* uat->ncols */
+	rep->list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(rep->list_store))); /*uat->ncols */
 	gtk_container_add(GTK_CONTAINER(rep->scrolledwindow), GTK_WIDGET(rep->list));
 	gtk_box_pack_start(GTK_BOX(hbox), rep->scrolledwindow, TRUE, TRUE, 0);
 
@@ -976,8 +978,8 @@ static GtkWidget* uat_window(void* u) {
 		renderer = gtk_cell_renderer_text_new();
 		column = gtk_tree_view_column_new_with_attributes(f[colnum].title,
 			renderer, "text", colnum, NULL);
-		gtk_tree_view_column_set_resizable (column,TRUE);
-		gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+		gtk_tree_view_column_set_resizable (column, TRUE);
+		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 		gtk_tree_view_append_column (rep->list, column);
 		if (f[colnum].desc != NULL)
 			gtk_widget_set_tooltip_text(gtk_tree_view_column_get_button(column), f[colnum].desc);
@@ -987,10 +989,10 @@ static GtkWidget* uat_window(void* u) {
 		append_row(uat, i);
 	}
 
-	if(uat->help) {
-		GtkWidget* help_btn;
+	if (uat->help) {
+		GtkWidget *help_btn;
 		rep->bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
-		help_btn = g_object_get_data(G_OBJECT(rep->bbox),GTK_STOCK_HELP);
+		help_btn = g_object_get_data(G_OBJECT(rep->bbox), GTK_STOCK_HELP);
 		g_signal_connect(help_btn, "clicked", G_CALLBACK(uat_help_cb), uat);
 	} else {
 
@@ -1044,9 +1046,9 @@ static GtkWidget* uat_window(void* u) {
 	gtk_box_pack_end(GTK_BOX(refresh_hbox), rep->bt_clear, TRUE, FALSE, 5);
 
 
-	rep->bt_apply = g_object_get_data(G_OBJECT(rep->bbox),GTK_STOCK_APPLY);
-	rep->bt_cancel = g_object_get_data(G_OBJECT(rep->bbox),GTK_STOCK_CANCEL);
-	rep->bt_ok = g_object_get_data(G_OBJECT(rep->bbox),GTK_STOCK_OK);
+	rep->bt_apply = g_object_get_data(G_OBJECT(rep->bbox), GTK_STOCK_APPLY);
+	rep->bt_cancel = g_object_get_data(G_OBJECT(rep->bbox), GTK_STOCK_CANCEL);
+	rep->bt_ok = g_object_get_data(G_OBJECT(rep->bbox), GTK_STOCK_OK);
 
 	gtk_box_pack_end(GTK_BOX(rep->vbox), rep->bbox, FALSE, FALSE, 0);
 
@@ -1076,7 +1078,7 @@ static GtkWidget* uat_window(void* u) {
 	g_signal_connect(rep->bt_cancel, "clicked", G_CALLBACK(uat_cancel_cb), uat);
 	g_signal_connect(rep->bt_ok, "clicked", G_CALLBACK(uat_ok_cb), uat);
 
-	window_set_cancel_button(rep->window, rep->bt_cancel, NULL);  /* set esc to activate cancel button */
+	window_set_cancel_button(rep->window, rep->bt_cancel, NULL);  /*set esc to activate cancel button */
 
 	if (uat->changed) {
 		g_signal_connect(GTK_WINDOW(rep->window), "delete_event", G_CALLBACK(unsaved_dialog), uat);
@@ -1094,6 +1096,6 @@ static GtkWidget* uat_window(void* u) {
 	return rep->window;
 }
 
-void uat_window_cb(GtkWidget* u _U_, void* uat) {
+void uat_window_cb(GtkWidget *u _U_, void *uat) {
 	uat_window(uat);
 }
