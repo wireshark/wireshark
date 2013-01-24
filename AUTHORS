@@ -21,11 +21,11 @@ Gilbert Ramirez         <gram[AT]alumni.rice.edu> {
 }
 
 Thomas Bottom           <tom.bottom[AT]labxtechnologies.com> {
-   IEEE 1722.1 support
+	IEEE 1722.1 support
 }
 
 Chris Pane              <chris.pane[AT]labxtechnologies.com> {
-   IEEE 1722.1 support
+	IEEE 1722.1 support
 }
 
 Hannes R. Boehm         <hannes[AT]boehm.org> {
@@ -2278,7 +2278,7 @@ Roberto Morro		<roberto.morro[AT]telecomitalia.it> {
 	    new TLVs for IF_ID (RFC4920), Path Key subobj in ERO (RFC5520),
 	    new ASSOCIATION obj c-type 4 (oif2008.389),
 	    new LSP_ATTRIBUTES and LSP_REQUIRED_ATTRIBUTES objects (RFC5420),
-            and various changes/improvements
+	    and various changes/improvements
 
 }
 
@@ -2686,9 +2686,9 @@ Davide Schiera		<davide.schiera[AT]riverbed.com> {
 }
 
 Sebastien Tandel	<sebastien[AT]tandel.be> {
-        embedding python in *shark
-        subtrees management for ptvcursor
-        gcc warning hunter
+	embedding python in *shark
+	subtrees management for ptvcursor
+	gcc warning hunter
 	Homeplug support
 }
 
@@ -2810,8 +2810,8 @@ Sake Blok		<sake[AT]euronet.nl> {
 	Ignore all packets functionality
 	Enable printing of all occurrences of fields
 	Follow TCP stream enhancements
-        Export SSL Session Keys
-        VSS-Monitoring dissector
+	Export SSL Session Keys
+	VSS-Monitoring dissector
 	Miscellaneous enhancements and fixes
 }
 
@@ -3004,7 +3004,7 @@ Harald Welte		<laforge[AT]gnumonks.org> {
 
 Chris Costa		<chcosta75[AT]hotmail.com> {
 	Add defragmentation code to NDMP dissectot
-        Properly decode SMB2 error response
+	Properly decode SMB2 error response
 }
 
 Bruno Prémont		<bonbons[AT]linux-vserver.org> {
@@ -3016,10 +3016,10 @@ Florian Forster		<octo[AT]verplant.org> {
 }
 
 Ivan Sy Jr.		<ivan_jr[AT]yahoo.com> {
-        Added DNS RRs: DLV, SSHFP, SPF, HIP, DHCID, NSEC3PARAM, APL, PX,
-                       GPOS, NSAP, NSAP-PTR, AFSDB, RP, X25, ISDN, RT, RR
-        Allow some network control block addresses with ttl != 1.
-        Miscellaneous IPv6 enhancements.
+	Added DNS RRs: DLV, SSHFP, SPF, HIP, DHCID, NSEC3PARAM, APL, PX,
+	               GPOS, NSAP, NSAP-PTR, AFSDB, RP, X25, ISDN, RT, RR
+	Allow some network control block addresses with ttl != 1.
+	Miscellaneous IPv6 enhancements.
 }
 
 Matthieu Patou		<mat[AT]matws.net> {
@@ -3055,7 +3055,7 @@ Tobias Erichsen 	<t.erichsen[AT]gmx.de> {
 }
 
 Erwin van Eijk		<erwin.vaneijk[AT]gmail.com> {
-      	ETSI ts 101 671 dissector
+	ETSI ts 101 671 dissector
 }
 
 Venkateshwaran Dorai	<venkateshwaran.d[AT]gmail.com> {
@@ -3225,7 +3225,7 @@ Srinivasa Pradeep	<sippyemail-wireshark[AT]yahoo.com> {
 
 Lori Tribble		<ljtconsulting[AT]gmail.com> {
 	Support for vendor-specific subdissectors for
-        BACnet Private Transfer Messages
+	BACnet Private Transfer Messages
 }
 
 Thomas Boehne		<TBoehne[AT]ADwin.de> {
@@ -3328,15 +3328,15 @@ Andrew Kampjes		<andrew.kampjes[AT]endace.com> {
 }
 
 Kurnia Hendrawan	<kurnia.hendrawan[AT]consistec.de> {
-        Saving User Specified Decodes into profile
+	Saving User Specified Decodes into profile
 }
 
 Leonard Tracy		<letracy[AT]cisco.com> {
-        Cisco FabricPath protocol dissector
+	Cisco FabricPath protocol dissector
 }
 
 Elliott Aldrich		<elliott[AT]aldrichart.com> {
-        Various icons
+	Various icons
 }
 
 Glenn Matthews		<glenn.matthews[AT]cisco.com> {
@@ -3420,11 +3420,11 @@ Bill Schiller		<bill.schiller[AT]emerson.com> {
 }
 
 Aditya Ambadkar		<arambadk[AT]ncsu.edu> {
-    Support for flow label sub-tlv according to RFC 6391
+	Support for flow label sub-tlv according to RFC 6391
 }
 
 Diana Chris		<dvchris[AT]ncsu.edu> {
-    Support for flow label sub-tlv according to RFC 6391
+	Support for flow label sub-tlv according to RFC 6391
 }
 
 Guy Martin		<gmsoft[AT]tuxicoman.be> {
@@ -3485,13 +3485,18 @@ Wido Kelling		<kellingwido[At]aol.com> {
 }
 
 Kaushal Shah		<kshah3[AT]ncsu.edu> {
-    Support for Type Classification of Experimental
-    and Reserved sub-TLVs as per Section 6 of RFC3630
+	Support for Type Classification of Experimental
+	and Reserved sub-TLVs as per Section 6 of RFC3630
 }
 
 Subramanian Ramachandran <sramach6[AT]ncsu.edu> {
-    Support for BFD for MPLS LSP's as per RFC 5884
+	Support for BFD for MPLS LSP's as per RFC 5884
 }
+
+Manuel Hofer		<manuel[At]mnlhfr.at> {
+	OpenVPN dissector
+}
+
 
 and by:
 
