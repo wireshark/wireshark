@@ -356,10 +356,10 @@ static int hf_homeplug_av_cblock_img_addr        = -1;
 static int hf_homeplug_av_cblock_img_len         = -1;
 static int hf_homeplug_av_cblock_img_chksum      = -1;
 static int hf_homeplug_av_cblock_entry_point     = -1;
-static int hf_homeplug_av_cblock_hdr_minor	 = -1;
-static int hf_homeplug_av_cblock_hdr_img_type	 = -1;
+static int hf_homeplug_av_cblock_hdr_minor       = -1;
+static int hf_homeplug_av_cblock_hdr_img_type    = -1;
 static int hf_homeplug_av_cblock_hdr_ignore_mask = -1;
-static int hf_homeplug_av_cblock_hdr_module_id	 = -1;
+static int hf_homeplug_av_cblock_hdr_module_id   = -1;
 static int hf_homeplug_av_cblock_hdr_module_subid= -1;
 static int hf_homeplug_av_cblock_next_hdr        = -1;
 static int hf_homeplug_av_cblock_hdr_chksum      = -1;
@@ -508,150 +508,150 @@ static gint ett_homeplug_av_tone_map_req         = -1;
 static gint ett_homeplug_av_tone_map_cnf         = -1;
 static gint ett_homeplug_av_tone_map_carrier     = -1;
 
-#define HOMEPLUG_AV_MMHDR_LEN			3	/* MM version (1) + MM type (2) */
+#define HOMEPLUG_AV_MMHDR_LEN                   3 /* MM version (1) + MM type (2) */
 
-#define HOMEPLUG_AV_PUBLIC_FRAG_COUNT_MASK	0x0F
-#define HOMEPLUG_AV_PUBLIC_FRAG_INDEX_MASK	0xF0
+#define HOMEPLUG_AV_PUBLIC_FRAG_COUNT_MASK  0x0F
+#define HOMEPLUG_AV_PUBLIC_FRAG_INDEX_MASK  0xF0
 
-#define HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_REQ	0x0014
-#define HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_CNF	0x0015
-#define HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_IND	0x6004
-#define HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_RSP	0x6005
-#define HOMEPLUG_AV_MMTYPE_CM_SET_KEY_REQ	0x6008
-#define HOMEPLUG_AV_MMTYPE_CM_SET_KEY_CNF	0x6009
-#define HOMEPLUG_AV_MMTYPE_CM_GET_KEY_REQ	0x600C
-#define HOMEPLUG_AV_MMTYPE_CM_GET_KEY_CNF	0x600D
-#define HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_REQ	0x6020
-#define HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_CNF	0x6021
-#define HOMEPLUG_AV_MMTYPE_CM_NW_INFO_REQ	0x6038
-#define HOMEPLUG_AV_MMTYPE_CM_NW_INFO_CNF	0x6039
-#define HOMEPLUG_AV_MMTYPE_CM_NW_STATS_REQ	0x6048
-#define HOMEPLUG_AV_MMTYPE_CM_NW_STATS_CNF	0x6049
-#define HOMEPLUG_AV_MMTYPE_GET_SW_REQ		0xA000
-#define HOMEPLUG_AV_MMTYPE_GET_SW_CNF		0xA001
-#define HOMEPLUG_AV_MMTYPE_WR_MEM_REQ		0xA004
-#define HOMEPLUG_AV_MMTYPE_WR_MEM_CNF		0xA005
-#define HOMEPLUG_AV_MMTYPE_RD_MEM_REQ		0xA008
-#define HOMEPLUG_AV_MMTYPE_RD_MEM_CNF		0xA009
-#define HOMEPLUG_AV_MMTYPE_ST_MAC_REQ		0xA00C
-#define HOMEPLUG_AV_MMTYPE_ST_MAC_CNF		0xA00D
-#define HOMEPLUG_AV_MMTYPE_GET_NVM_REQ		0xA010
-#define HOMEPLUG_AV_MMTYPE_GET_NVM_CNF		0xA011
-#define HOMEPLUG_AV_MMTYPE_RS_DEV_REQ		0xA01C
-#define HOMEPLUG_AV_MMTYPE_RS_DEV_CNF		0xA01D
-#define HOMEPLUG_AV_MMTYPE_WR_MOD_REQ		0xA020
-#define HOMEPLUG_AV_MMTYPE_WR_MOD_CNF		0xA021
-#define HOMEPLUG_AV_MMTYPE_WR_MOD_IND		0xA022
-#define HOMEPLUG_AV_MMTYPE_RD_MOD_REQ		0xA024
-#define HOMEPLUG_AV_MMTYPE_RD_MOD_CNF		0xA025
-#define HOMEPLUG_AV_MMTYPE_NVM_MOD_REQ		0xA028
-#define HOMEPLUG_AV_MMTYPE_NVM_MOD_CNF		0xA029
-#define HOMEPLUG_AV_MMTYPE_WD_RPT_REQ		0xA02C
-#define HOMEPLUG_AV_MMTYPE_WD_RPT_IND		0xA02E
-#define HOMEPLUG_AV_MMTYPE_LNK_STATS_REQ	0xA030
-#define HOMEPLUG_AV_MMTYPE_LNK_STATS_CNF	0xA031
-#define HOMEPLUG_AV_MMTYPE_SNIFFER_REQ		0xA034
-#define HOMEPLUG_AV_MMTYPE_SNIFFER_CNF		0xA035
-#define HOMEPLUG_AV_MMTYPE_SNIFFER_IND		0xA036
-#define HOMEPLUG_AV_MMTYPE_NW_INFO_REQ		0xA038
-#define HOMEPLUG_AV_MMTYPE_NW_INFO_CNF		0xA039
-#define HOMEPLUG_AV_MMTYPE_CP_RPT_REQ		0xA040
-#define HOMEPLUG_AV_MMTYPE_CP_RPT_IND		0xA042
-#define HOMEPLUG_AV_MMTYPE_FR_LBK_REQ		0xA048
-#define HOMEPLUG_AV_MMTYPE_FR_LBK_CNF		0xA049
-#define HOMEPLUG_AV_MMTYPE_LBK_STAT_REQ		0xA04C
-#define HOMEPLUG_AV_MMTYPE_LBK_STAT_CNF		0xA04D
-#define HOMEPLUG_AV_MMTYPE_SET_KEY_REQ		0xA050
-#define HOMEPLUG_AV_MMTYPE_SET_KEY_CNF		0xA051
-#define HOMEPLUG_AV_MMTYPE_MFG_STRING_REQ	0xA054
-#define HOMEPLUG_AV_MMTYPE_MFG_STRING_CNF	0xA055
-#define HOMEPLUG_AV_MMTYPE_RD_CBLOCK_REQ	0xA058
-#define HOMEPLUG_AV_MMTYPE_RD_CBLOCK_CNF	0xA059
-#define HOMEPLUG_AV_MMTYPE_SET_SDRAM_REQ	0xA05C
-#define HOMEPLUG_AV_MMTYPE_SET_SDRAM_CNF	0xA05D
-#define HOMEPLUG_AV_MMTYPE_HOST_ACTION_IND	0xA062
-#define HOMEPLUG_AV_MMTYPE_HOST_ACTION_RSP	0xA063
-#define HOMEPLUG_AV_MMTYPE_OP_ATTR_REQ		0xA068
-#define HOMEPLUG_AV_MMTYPE_OP_ATTR_CNF		0xA069
-#define HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_REQ	0xA06C
-#define HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_CNF	0xA06D
-#define HOMEPLUG_AV_MMTYPE_TONE_MAP_REQ		0xA070
-#define HOMEPLUG_AV_MMTYPE_TONE_MAP_CNF		0xA071
+#define HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_REQ 0x0014
+#define HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_CNF 0x0015
+#define HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_IND   0x6004
+#define HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_RSP   0x6005
+#define HOMEPLUG_AV_MMTYPE_CM_SET_KEY_REQ   0x6008
+#define HOMEPLUG_AV_MMTYPE_CM_SET_KEY_CNF   0x6009
+#define HOMEPLUG_AV_MMTYPE_CM_GET_KEY_REQ   0x600C
+#define HOMEPLUG_AV_MMTYPE_CM_GET_KEY_CNF   0x600D
+#define HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_REQ  0x6020
+#define HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_CNF  0x6021
+#define HOMEPLUG_AV_MMTYPE_CM_NW_INFO_REQ   0x6038
+#define HOMEPLUG_AV_MMTYPE_CM_NW_INFO_CNF   0x6039
+#define HOMEPLUG_AV_MMTYPE_CM_NW_STATS_REQ  0x6048
+#define HOMEPLUG_AV_MMTYPE_CM_NW_STATS_CNF  0x6049
+#define HOMEPLUG_AV_MMTYPE_GET_SW_REQ       0xA000
+#define HOMEPLUG_AV_MMTYPE_GET_SW_CNF       0xA001
+#define HOMEPLUG_AV_MMTYPE_WR_MEM_REQ       0xA004
+#define HOMEPLUG_AV_MMTYPE_WR_MEM_CNF       0xA005
+#define HOMEPLUG_AV_MMTYPE_RD_MEM_REQ       0xA008
+#define HOMEPLUG_AV_MMTYPE_RD_MEM_CNF       0xA009
+#define HOMEPLUG_AV_MMTYPE_ST_MAC_REQ       0xA00C
+#define HOMEPLUG_AV_MMTYPE_ST_MAC_CNF       0xA00D
+#define HOMEPLUG_AV_MMTYPE_GET_NVM_REQ      0xA010
+#define HOMEPLUG_AV_MMTYPE_GET_NVM_CNF      0xA011
+#define HOMEPLUG_AV_MMTYPE_RS_DEV_REQ       0xA01C
+#define HOMEPLUG_AV_MMTYPE_RS_DEV_CNF       0xA01D
+#define HOMEPLUG_AV_MMTYPE_WR_MOD_REQ       0xA020
+#define HOMEPLUG_AV_MMTYPE_WR_MOD_CNF       0xA021
+#define HOMEPLUG_AV_MMTYPE_WR_MOD_IND       0xA022
+#define HOMEPLUG_AV_MMTYPE_RD_MOD_REQ       0xA024
+#define HOMEPLUG_AV_MMTYPE_RD_MOD_CNF       0xA025
+#define HOMEPLUG_AV_MMTYPE_NVM_MOD_REQ      0xA028
+#define HOMEPLUG_AV_MMTYPE_NVM_MOD_CNF      0xA029
+#define HOMEPLUG_AV_MMTYPE_WD_RPT_REQ       0xA02C
+#define HOMEPLUG_AV_MMTYPE_WD_RPT_IND       0xA02E
+#define HOMEPLUG_AV_MMTYPE_LNK_STATS_REQ    0xA030
+#define HOMEPLUG_AV_MMTYPE_LNK_STATS_CNF    0xA031
+#define HOMEPLUG_AV_MMTYPE_SNIFFER_REQ      0xA034
+#define HOMEPLUG_AV_MMTYPE_SNIFFER_CNF      0xA035
+#define HOMEPLUG_AV_MMTYPE_SNIFFER_IND      0xA036
+#define HOMEPLUG_AV_MMTYPE_NW_INFO_REQ      0xA038
+#define HOMEPLUG_AV_MMTYPE_NW_INFO_CNF      0xA039
+#define HOMEPLUG_AV_MMTYPE_CP_RPT_REQ       0xA040
+#define HOMEPLUG_AV_MMTYPE_CP_RPT_IND       0xA042
+#define HOMEPLUG_AV_MMTYPE_FR_LBK_REQ       0xA048
+#define HOMEPLUG_AV_MMTYPE_FR_LBK_CNF       0xA049
+#define HOMEPLUG_AV_MMTYPE_LBK_STAT_REQ     0xA04C
+#define HOMEPLUG_AV_MMTYPE_LBK_STAT_CNF     0xA04D
+#define HOMEPLUG_AV_MMTYPE_SET_KEY_REQ      0xA050
+#define HOMEPLUG_AV_MMTYPE_SET_KEY_CNF      0xA051
+#define HOMEPLUG_AV_MMTYPE_MFG_STRING_REQ   0xA054
+#define HOMEPLUG_AV_MMTYPE_MFG_STRING_CNF   0xA055
+#define HOMEPLUG_AV_MMTYPE_RD_CBLOCK_REQ    0xA058
+#define HOMEPLUG_AV_MMTYPE_RD_CBLOCK_CNF    0xA059
+#define HOMEPLUG_AV_MMTYPE_SET_SDRAM_REQ    0xA05C
+#define HOMEPLUG_AV_MMTYPE_SET_SDRAM_CNF    0xA05D
+#define HOMEPLUG_AV_MMTYPE_HOST_ACTION_IND  0xA062
+#define HOMEPLUG_AV_MMTYPE_HOST_ACTION_RSP  0xA063
+#define HOMEPLUG_AV_MMTYPE_OP_ATTR_REQ      0xA068
+#define HOMEPLUG_AV_MMTYPE_OP_ATTR_CNF      0xA069
+#define HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_REQ 0xA06C
+#define HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_CNF 0xA06D
+#define HOMEPLUG_AV_MMTYPE_TONE_MAP_REQ     0xA070
+#define HOMEPLUG_AV_MMTYPE_TONE_MAP_CNF     0xA071
 
 static const value_string homeplug_av_mmtype_vals[] = {
     /* Public MMEs */
-    { HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_REQ,	"Central Coordination Discovery List Request" },
-    { HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_CNF,	"Central Coordination Discovery List Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_IND,	"Encrypted Payload Indicate" },
-    { HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_RSP,	"Encrypted Payload Respons" },
-    { HOMEPLUG_AV_MMTYPE_CM_SET_KEY_REQ,	"Set Key Request" },
-    { HOMEPLUG_AV_MMTYPE_CM_SET_KEY_CNF,	"Set Key Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CM_GET_KEY_REQ,	"Get Key Request" },
-    { HOMEPLUG_AV_MMTYPE_CM_GET_KEY_CNF,	"Get Key Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_REQ,	"Get Bridge Informations Request" },
-    { HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_CNF,	"Get Bridge Informations Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CM_NW_INFO_REQ,	"Get Network Informations Request" },
-    { HOMEPLUG_AV_MMTYPE_CM_NW_INFO_CNF,	"Get Network Informations Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CM_NW_STATS_REQ,	"Get Network Statistics Request" },
-    { HOMEPLUG_AV_MMTYPE_CM_NW_STATS_CNF,	"Get Network Statistics Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_REQ,  "Central Coordination Discovery List Request" },
+    { HOMEPLUG_AV_MMTYPE_CC_DISC_LIST_CNF,  "Central Coordination Discovery List Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_IND,    "Encrypted Payload Indicate" },
+    { HOMEPLUG_AV_MMTYPE_CM_ENC_PLD_RSP,    "Encrypted Payload Respons" },
+    { HOMEPLUG_AV_MMTYPE_CM_SET_KEY_REQ,    "Set Key Request" },
+    { HOMEPLUG_AV_MMTYPE_CM_SET_KEY_CNF,    "Set Key Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_CM_GET_KEY_REQ,    "Get Key Request" },
+    { HOMEPLUG_AV_MMTYPE_CM_GET_KEY_CNF,    "Get Key Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_REQ,   "Get Bridge Informations Request" },
+    { HOMEPLUG_AV_MMTYPE_CM_BRG_INFO_CNF,   "Get Bridge Informations Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_CM_NW_INFO_REQ,    "Get Network Informations Request" },
+    { HOMEPLUG_AV_MMTYPE_CM_NW_INFO_CNF,    "Get Network Informations Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_CM_NW_STATS_REQ,   "Get Network Statistics Request" },
+    { HOMEPLUG_AV_MMTYPE_CM_NW_STATS_CNF,   "Get Network Statistics Confirmation" },
 
     /* Intellon vendor-specific MMEs */
-    { HOMEPLUG_AV_MMTYPE_GET_SW_REQ, 		"Get Device/SW Version Request" },
-    { HOMEPLUG_AV_MMTYPE_GET_SW_CNF, 		"Get Device/SW Version Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_WR_MEM_REQ,		"Write MAC Memory Request" },
-    { HOMEPLUG_AV_MMTYPE_WR_MEM_CNF,		"Write MAC Memory Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_RD_MEM_REQ,		"Read MAC Memory Request" },
-    { HOMEPLUG_AV_MMTYPE_RD_MEM_CNF,		"Read MAC Memory Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_ST_MAC_REQ,		"Start MAC Request" },
-    { HOMEPLUG_AV_MMTYPE_ST_MAC_CNF,		"Start MAC Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_GET_NVM_REQ,		"Get NVM Parameters Request" },
-    { HOMEPLUG_AV_MMTYPE_GET_NVM_CNF,		"Get NVM Parameters Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_RS_DEV_REQ,		"Reset Device Request" },
-    { HOMEPLUG_AV_MMTYPE_RS_DEV_CNF,		"Reset Device Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_WR_MOD_REQ,		"Write Module Data Request" },
-    { HOMEPLUG_AV_MMTYPE_WR_MOD_CNF,		"Write Module Data Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_WR_MOD_IND,		"Write Module Data Indicate" },
-    { HOMEPLUG_AV_MMTYPE_RD_MOD_REQ,		"Read Module Data Request" },
-    { HOMEPLUG_AV_MMTYPE_RD_MOD_CNF,		"Read Module Data Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_NVM_MOD_REQ,		"Write Module Data to NVM Request" },
-    { HOMEPLUG_AV_MMTYPE_NVM_MOD_CNF,		"Write Module Data to NVM Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_WD_RPT_REQ,		"Get Watchdog Report Request" },
-    { HOMEPLUG_AV_MMTYPE_WD_RPT_IND,		"Get Watchdog Report Indicate" },
-    { HOMEPLUG_AV_MMTYPE_LNK_STATS_REQ,		"Link Statistics Request" },
-    { HOMEPLUG_AV_MMTYPE_LNK_STATS_CNF,		"Link Statistics Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_SNIFFER_REQ,		"Sniffer Request" },
-    { HOMEPLUG_AV_MMTYPE_SNIFFER_CNF,		"Sniffer Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_SNIFFER_IND,		"Sniffer Indicate" },
-    { HOMEPLUG_AV_MMTYPE_NW_INFO_REQ,		"Network Info Request" },
-    { HOMEPLUG_AV_MMTYPE_NW_INFO_CNF,		"Network Info Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_CP_RPT_REQ,		"Check Points Request" },
-    { HOMEPLUG_AV_MMTYPE_CP_RPT_IND,		"Check Points Indicate" },
-    { HOMEPLUG_AV_MMTYPE_FR_LBK_REQ,		"Loopback Request" },
-    { HOMEPLUG_AV_MMTYPE_FR_LBK_CNF,		"Loopback Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_LBK_STAT_REQ,		"Loopback Status Request" },
-    { HOMEPLUG_AV_MMTYPE_LBK_STAT_CNF,		"Loopback Status Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_SET_KEY_REQ,		"Set Encryption Key Request" },
-    { HOMEPLUG_AV_MMTYPE_SET_KEY_CNF,		"Set Encryption Key Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_MFG_STRING_REQ,	"Get Manufacturer String Request" },
-    { HOMEPLUG_AV_MMTYPE_MFG_STRING_CNF,	"Get Manufacturer String Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_RD_CBLOCK_REQ,		"Read Configuration Block Request" },
-    { HOMEPLUG_AV_MMTYPE_RD_CBLOCK_CNF,		"Read Configuration Block Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_SET_SDRAM_REQ,		"Set SDRAM Configuration Request" },
-    { HOMEPLUG_AV_MMTYPE_SET_SDRAM_CNF,		"Set SDRAM Configuration Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_HOST_ACTION_IND,	"Embedded Host Action Required Indication" },
-    { HOMEPLUG_AV_MMTYPE_HOST_ACTION_RSP,	"Embedded Host Action Required Respons" },
-    { HOMEPLUG_AV_MMTYPE_OP_ATTR_REQ,		"Get Device Attributes Request" },
-    { HOMEPLUG_AV_MMTYPE_OP_ATTR_CNF,		"Get Device Attributes Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_REQ,	"Get Ethernet PHY Settings Request" },
-    { HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_CNF,	"Get Ethernet PHY Settings Confirmation" },
-    { HOMEPLUG_AV_MMTYPE_TONE_MAP_REQ,		"Tone Map Characteristics Request" },
-    { HOMEPLUG_AV_MMTYPE_TONE_MAP_CNF,		"Tone Map Characteristics Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_GET_SW_REQ,        "Get Device/SW Version Request" },
+    { HOMEPLUG_AV_MMTYPE_GET_SW_CNF,        "Get Device/SW Version Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_WR_MEM_REQ,        "Write MAC Memory Request" },
+    { HOMEPLUG_AV_MMTYPE_WR_MEM_CNF,        "Write MAC Memory Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_RD_MEM_REQ,        "Read MAC Memory Request" },
+    { HOMEPLUG_AV_MMTYPE_RD_MEM_CNF,        "Read MAC Memory Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_ST_MAC_REQ,        "Start MAC Request" },
+    { HOMEPLUG_AV_MMTYPE_ST_MAC_CNF,        "Start MAC Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_GET_NVM_REQ,       "Get NVM Parameters Request" },
+    { HOMEPLUG_AV_MMTYPE_GET_NVM_CNF,       "Get NVM Parameters Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_RS_DEV_REQ,        "Reset Device Request" },
+    { HOMEPLUG_AV_MMTYPE_RS_DEV_CNF,        "Reset Device Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_WR_MOD_REQ,        "Write Module Data Request" },
+    { HOMEPLUG_AV_MMTYPE_WR_MOD_CNF,        "Write Module Data Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_WR_MOD_IND,        "Write Module Data Indicate" },
+    { HOMEPLUG_AV_MMTYPE_RD_MOD_REQ,        "Read Module Data Request" },
+    { HOMEPLUG_AV_MMTYPE_RD_MOD_CNF,        "Read Module Data Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_NVM_MOD_REQ,       "Write Module Data to NVM Request" },
+    { HOMEPLUG_AV_MMTYPE_NVM_MOD_CNF,       "Write Module Data to NVM Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_WD_RPT_REQ,        "Get Watchdog Report Request" },
+    { HOMEPLUG_AV_MMTYPE_WD_RPT_IND,        "Get Watchdog Report Indicate" },
+    { HOMEPLUG_AV_MMTYPE_LNK_STATS_REQ,     "Link Statistics Request" },
+    { HOMEPLUG_AV_MMTYPE_LNK_STATS_CNF,     "Link Statistics Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_SNIFFER_REQ,       "Sniffer Request" },
+    { HOMEPLUG_AV_MMTYPE_SNIFFER_CNF,       "Sniffer Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_SNIFFER_IND,       "Sniffer Indicate" },
+    { HOMEPLUG_AV_MMTYPE_NW_INFO_REQ,       "Network Info Request" },
+    { HOMEPLUG_AV_MMTYPE_NW_INFO_CNF,       "Network Info Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_CP_RPT_REQ,        "Check Points Request" },
+    { HOMEPLUG_AV_MMTYPE_CP_RPT_IND,        "Check Points Indicate" },
+    { HOMEPLUG_AV_MMTYPE_FR_LBK_REQ,        "Loopback Request" },
+    { HOMEPLUG_AV_MMTYPE_FR_LBK_CNF,        "Loopback Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_LBK_STAT_REQ,      "Loopback Status Request" },
+    { HOMEPLUG_AV_MMTYPE_LBK_STAT_CNF,      "Loopback Status Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_SET_KEY_REQ,       "Set Encryption Key Request" },
+    { HOMEPLUG_AV_MMTYPE_SET_KEY_CNF,       "Set Encryption Key Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_MFG_STRING_REQ,    "Get Manufacturer String Request" },
+    { HOMEPLUG_AV_MMTYPE_MFG_STRING_CNF,    "Get Manufacturer String Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_RD_CBLOCK_REQ,     "Read Configuration Block Request" },
+    { HOMEPLUG_AV_MMTYPE_RD_CBLOCK_CNF,     "Read Configuration Block Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_SET_SDRAM_REQ,     "Set SDRAM Configuration Request" },
+    { HOMEPLUG_AV_MMTYPE_SET_SDRAM_CNF,     "Set SDRAM Configuration Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_HOST_ACTION_IND,   "Embedded Host Action Required Indication" },
+    { HOMEPLUG_AV_MMTYPE_HOST_ACTION_RSP,   "Embedded Host Action Required Respons" },
+    { HOMEPLUG_AV_MMTYPE_OP_ATTR_REQ,       "Get Device Attributes Request" },
+    { HOMEPLUG_AV_MMTYPE_OP_ATTR_CNF,       "Get Device Attributes Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_REQ,  "Get Ethernet PHY Settings Request" },
+    { HOMEPLUG_AV_MMTYPE_GET_ENET_PHY_CNF,  "Get Ethernet PHY Settings Confirmation" },
+    { HOMEPLUG_AV_MMTYPE_TONE_MAP_REQ,      "Tone Map Characteristics Request" },
+    { HOMEPLUG_AV_MMTYPE_TONE_MAP_CNF,      "Tone Map Characteristics Confirmation" },
     { 0, NULL }
 };
 static value_string_ext homeplug_av_mmtype_vals_ext = VALUE_STRING_EXT_INIT(homeplug_av_mmtype_vals);
 
 /* Versions */
-#define HOMEPLUG_AV_MMVER_MASK			0x01
+#define HOMEPLUG_AV_MMVER_MASK 0x01
 
 static const value_string homeplug_av_mmver_vals[] = {
     { 0x00, "1.0" },
@@ -660,7 +660,7 @@ static const value_string homeplug_av_mmver_vals[] = {
 };
 
 /* MMTYPE LSB Values */
-#define HOMEPLUG_AV_MMTYPE_LSB_MASK		0x03
+#define HOMEPLUG_AV_MMTYPE_LSB_MASK 0x03
 
 static const value_string homeplug_av_mmtype_lsb_vals[] = {
     { 0x00, "Request" },
@@ -671,15 +671,15 @@ static const value_string homeplug_av_mmtype_lsb_vals[] = {
 };
 
 /* MMTYPE MSB Values */
-#define HOMEPLUG_AV_MMTYPE_MSB_STA_CCO		0x00
-#define HOMEPLUG_AV_MMTYPE_MSB_PROXY		0x01
-#define HOMEPLUG_AV_MMTYPE_MSB_CCO_CCO		0x02
-#define HOMEPLUG_AV_MMTYPE_MSB_STA_STA		0x03
-#define HOMEPLUG_AV_MMTYPE_MSB_MANUF		0x04
-#define HOMEPLUG_AV_MMTYPE_MSB_VENDOR		0x05
-#define HOMEPLUG_AV_MMTYPE_MSB_RSV		0x06
-#define HOMEPLUG_AV_MMTYPE_MSB_MASK		0x06
-#define HOMEPLUG_AV_MMTYPE_MSB_SHIFT		(5)
+#define HOMEPLUG_AV_MMTYPE_MSB_STA_CCO    0x00
+#define HOMEPLUG_AV_MMTYPE_MSB_PROXY      0x01
+#define HOMEPLUG_AV_MMTYPE_MSB_CCO_CCO    0x02
+#define HOMEPLUG_AV_MMTYPE_MSB_STA_STA    0x03
+#define HOMEPLUG_AV_MMTYPE_MSB_MANUF      0x04
+#define HOMEPLUG_AV_MMTYPE_MSB_VENDOR     0x05
+#define HOMEPLUG_AV_MMTYPE_MSB_RSV        0x06
+#define HOMEPLUG_AV_MMTYPE_MSB_MASK       0x06
+#define HOMEPLUG_AV_MMTYPE_MSB_SHIFT      (5)
 
 static const value_string homeplug_av_mmtype_msb_vals[] = {
    { HOMEPLUG_AV_MMTYPE_MSB_STA_CCO, "STA - Central Coordinator" },
@@ -691,7 +691,7 @@ static const value_string homeplug_av_mmtype_msb_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_CC_STA_NET_MASK	0x01
+#define HOMEPLUG_AV_CC_STA_NET_MASK 0x01
 
 static const value_string homeplug_av_cc_sta_net_type_vals[] = {
    { 0x00, "Different network" },
@@ -700,27 +700,27 @@ static const value_string homeplug_av_cc_sta_net_type_vals[] = {
 };
 
 static const value_string homeplug_av_sig_level_vals[] = {
-   { 0x00,	"N/A" },
-   { 0x01,	"> - 10 dB, but <= 0 dB" },
-   { 0x02,	"> - 15 dB, but <= -10 dB" },
-   { 0x03,	"> - 20 dB, but <= -15 dB" },
-   { 0x04,	"> - 25 dB, but <= -20 dB" },
-   { 0x05,	"> - 30 dB, but <= -25 dB" },
-   { 0x06,	"> - 35 dB, but <= -30 dB" },
-   { 0x07,	"> - 40 dB, but <= -35 dB" },
-   { 0x08,	"> - 45 dB, but <= -40 dB" },
-   { 0x09,	"> - 50 dB, but <= -45 dB" },
-   { 0x0A,	"> - 55 dB, but <= -50 dB" },
-   { 0x0B,	"> - 60 dB, but <= -55 dB" },
-   { 0x0C,	"> - 65 dB, but <= -60 dB" },
-   { 0x0D,	"> - 70 dB, but <= -65 dB" },
-   { 0x0E,	"> - 75 dB, but <= -70 dB" },
-   { 0x0F,	"<= -75 dB" },
+   { 0x00,    "N/A" },
+   { 0x01,    "> - 10 dB, but <= 0 dB" },
+   { 0x02,    "> - 15 dB, but <= -10 dB" },
+   { 0x03,    "> - 20 dB, but <= -15 dB" },
+   { 0x04,    "> - 25 dB, but <= -20 dB" },
+   { 0x05,    "> - 30 dB, but <= -25 dB" },
+   { 0x06,    "> - 35 dB, but <= -30 dB" },
+   { 0x07,    "> - 40 dB, but <= -35 dB" },
+   { 0x08,    "> - 45 dB, but <= -40 dB" },
+   { 0x09,    "> - 50 dB, but <= -45 dB" },
+   { 0x0A,    "> - 55 dB, but <= -50 dB" },
+   { 0x0B,    "> - 60 dB, but <= -55 dB" },
+   { 0x0C,    "> - 65 dB, but <= -60 dB" },
+   { 0x0D,    "> - 70 dB, but <= -65 dB" },
+   { 0x0E,    "> - 75 dB, but <= -70 dB" },
+   { 0x0F,    "<= -75 dB" },
    { 0, NULL }
 };
 static value_string_ext homeplug_av_sig_level_vals_ext = VALUE_STRING_EXT_INIT(homeplug_av_sig_level_vals);
 
-#define HOMEPLUG_AV_CCO_STATUS_MASK		0x07
+#define HOMEPLUG_AV_CCO_STATUS_MASK 0x07
 
 static const value_string homeplug_av_cco_status_vals[] = {
    { 0x00, "Unknown" },
@@ -731,7 +731,7 @@ static const value_string homeplug_av_cco_status_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_NW_INFO_ROLE_MASK	0x03
+#define HOMEPLUG_AV_NW_INFO_ROLE_MASK 0x03
 
 static const value_string homeplug_av_nw_info_role_vals[] = {
    { 0x00, "Station" },
@@ -740,7 +740,7 @@ static const value_string homeplug_av_nw_info_role_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_NW_INFO_NID_MASK	0x01
+#define HOMEPLUG_AV_NW_INFO_NID_MASK 0x01
 
 static const value_string homeplug_nw_info_access_vals[] = {
    { 0x00, "In-home" },
@@ -748,7 +748,7 @@ static const value_string homeplug_nw_info_access_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_PEKS_MASK		0x0F
+#define HOMEPLUG_AV_PEKS_MASK 0x0F
 
 static const value_string homeplug_av_peks_vals[] = {
    { 0x00, "Destination STA's DAK" },
@@ -771,7 +771,7 @@ static const value_string homeplug_av_peks_vals[] = {
 };
 static value_string_ext homeplug_av_peks_vals_ext = VALUE_STRING_EXT_INIT(homeplug_av_peks_vals);
 
-#define HOMEPLUG_AV_AVLN_STATUS_MASK	0x0F
+#define HOMEPLUG_AV_AVLN_STATUS_MASK 0x0F
 
 static const value_string homeplug_av_avln_status_vals[] = {
    { 0x00, "Unassociated and Level-0 CCo capable" },
@@ -786,41 +786,41 @@ static const value_string homeplug_av_avln_status_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_PID_AUTH_STA	0x00
-#define HOMEPLUG_AV_PID_PROV_AUTH_NEK	0x01
-#define HOMEPLUG_AV_PID_PROV_AUTH_DAK	0x02
-#define HOMEPLUG_AV_PID_PROV_AUTH_UKE	0x03
-#define HOMEPLUG_AV_PID_HLE		0x04
-#define HOMEPLUG_AV_PID_MASK		0x07
+#define HOMEPLUG_AV_PID_AUTH_STA       0x00
+#define HOMEPLUG_AV_PID_PROV_AUTH_NEK  0x01
+#define HOMEPLUG_AV_PID_PROV_AUTH_DAK  0x02
+#define HOMEPLUG_AV_PID_PROV_AUTH_UKE  0x03
+#define HOMEPLUG_AV_PID_HLE            0x04
+#define HOMEPLUG_AV_PID_MASK           0x07
 
 static const value_string homeplug_av_pid_vals[] = {
-   { HOMEPLUG_AV_PID_AUTH_STA,		"Authentication request by new STA" },
-   { HOMEPLUG_AV_PID_PROV_AUTH_NEK,	"Provision authenticated STA with new NEK by CCo" },
-   { HOMEPLUG_AV_PID_PROV_AUTH_DAK,	"Provision STA with NMK using DAK" },
-   { HOMEPLUG_AV_PID_PROV_AUTH_UKE,	"Provision STA with NMK using UKE" },
-   { HOMEPLUG_AV_PID_HLE,		"HLE" },
+   { HOMEPLUG_AV_PID_AUTH_STA,        "Authentication request by new STA" },
+   { HOMEPLUG_AV_PID_PROV_AUTH_NEK,   "Provision authenticated STA with new NEK by CCo" },
+   { HOMEPLUG_AV_PID_PROV_AUTH_DAK,   "Provision STA with NMK using DAK" },
+   { HOMEPLUG_AV_PID_PROV_AUTH_UKE,   "Provision STA with NMK using UKE" },
+   { HOMEPLUG_AV_PID_HLE,             "HLE" },
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_KEY_TYPE_DAK	0x00
-#define HOMEPLUG_AV_KEY_TYPE_NMK	0x01
-#define HOMEPLUG_AV_KEY_TYPE_NEK	0x02
-#define HOMEPLUG_AV_KEY_TYPE_TEK	0x03
-#define HOMEPLUG_AV_KEY_TYPE_HASH	0x04
-#define HOMEPLUG_AV_KEY_TYPE_NONE	0x05
-#define HOMEPLUG_AV_KEY_TYPE_MASK	0x07
+#define HOMEPLUG_AV_KEY_TYPE_DAK    0x00
+#define HOMEPLUG_AV_KEY_TYPE_NMK    0x01
+#define HOMEPLUG_AV_KEY_TYPE_NEK    0x02
+#define HOMEPLUG_AV_KEY_TYPE_TEK    0x03
+#define HOMEPLUG_AV_KEY_TYPE_HASH   0x04
+#define HOMEPLUG_AV_KEY_TYPE_NONE   0x05
+#define HOMEPLUG_AV_KEY_TYPE_MASK   0x07
 
 static const value_string homeplug_av_key_type_vals[] = {
-   { HOMEPLUG_AV_KEY_TYPE_DAK,	"DAK" },
-   { HOMEPLUG_AV_KEY_TYPE_NMK,	"NMK" },
-   { HOMEPLUG_AV_KEY_TYPE_NEK,	"NEK" },
-   { HOMEPLUG_AV_KEY_TYPE_TEK,	"TEK" },
-   { HOMEPLUG_AV_KEY_TYPE_HASH,	"Hash Key" },
-   { HOMEPLUG_AV_KEY_TYPE_NONE,	"Nonce only (no key)" },
+   { HOMEPLUG_AV_KEY_TYPE_DAK,    "DAK" },
+   { HOMEPLUG_AV_KEY_TYPE_NMK,    "NMK" },
+   { HOMEPLUG_AV_KEY_TYPE_NEK,    "NEK" },
+   { HOMEPLUG_AV_KEY_TYPE_TEK,    "TEK" },
+   { HOMEPLUG_AV_KEY_TYPE_HASH,   "Hash Key" },
+   { HOMEPLUG_AV_KEY_TYPE_NONE,   "Nonce only (no key)" },
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_DEV_ID_MASK		0xff
+#define HOMEPLUG_AV_DEV_ID_MASK 0xff
 
 static const value_string homeplug_av_dev_id_vals[] = {
    { 0x00, "Unknown" },
@@ -835,7 +835,7 @@ static const value_string homeplug_av_dev_id_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_REQ_TYPE_MASK	0x01
+#define HOMEPLUG_AV_REQ_TYPE_MASK 0x01
 
 static const value_string homeplug_av_req_type_vals[] = {
    { 0x00, "Direct" },
@@ -843,7 +843,7 @@ static const value_string homeplug_av_req_type_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_KEY_RESULT_MASK	0x03
+#define HOMEPLUG_AV_KEY_RESULT_MASK 0x03
 
 static const value_string homeplug_av_key_result_vals[] = {
    { 0x00, "Key granted" },
@@ -852,7 +852,7 @@ static const value_string homeplug_av_key_result_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_LINEFREQ_MASK	0x03
+#define HOMEPLUG_AV_LINEFREQ_MASK 0x03
 
 static const value_string homeplug_av_linefreq_vals[] = {
    { 0x00, "Unknown frequency" },
@@ -861,7 +861,7 @@ static const value_string homeplug_av_linefreq_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_ZEROCROSS_MASK	0x03
+#define HOMEPLUG_AV_ZEROCROSS_MASK 0x03
 
 static const value_string homeplug_av_zerocrossing_vals[] = {
    { 0x00, "Not yet detected" },
@@ -870,7 +870,7 @@ static const value_string homeplug_av_zerocrossing_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_ENET_PHY_SPEED_MASK	0x03
+#define HOMEPLUG_AV_ENET_PHY_SPEED_MASK 0x03
 
 static const value_string homeplug_av_enet_phy_speed_vals[] = {
    { 0x00, "10 Mbits/sec" },
@@ -887,7 +887,7 @@ static const value_string homeplug_av_enet_phy_duplex_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_ENET_PHY_MCONTROL_MASK	0x01
+#define HOMEPLUG_AV_ENET_PHY_MCONTROL_MASK 0x01
 
 static const value_string homeplug_av_enet_phy_mcontrol_vals[] = {
    { 0x00, "Read" },
@@ -956,7 +956,7 @@ static const value_string homeplug_av_mod_nvm_status_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_RPT_CLR_MASK		0x01
+#define HOMEPLUG_AV_RPT_CLR_MASK 0x01
 
 static const value_string homeplug_av_rpt_clr_vals[] = {
    { 0x00, "Get Report" },
@@ -964,7 +964,7 @@ static const value_string homeplug_av_rpt_clr_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_GEN_STATUS_MASK		0x03
+#define HOMEPLUG_AV_GEN_STATUS_MASK 0x03
 
 static const value_string homeplug_av_generic_status_vals[] = {
    { 0x00, "Success" },
@@ -973,7 +973,7 @@ static const value_string homeplug_av_generic_status_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_LNK_STATS_MCTL_MASK		0x01
+#define HOMEPLUG_AV_LNK_STATS_MCTL_MASK 0x01
 
 static const value_string homeplug_av_lnk_stats_mctrl_vals[] = {
    { 0x00, "Read" },
@@ -981,10 +981,10 @@ static const value_string homeplug_av_lnk_stats_mctrl_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_LNK_STATS_DIR_TX		0x00
-#define HOMEPLUG_AV_LNK_STATS_DIR_RX		0x01
-#define HOMEPLUG_AV_LNK_STATS_DIR_TX_RX		0x02
-#define HOMEPLUG_AV_LNK_STATS_DIR_MASK		0x03
+#define HOMEPLUG_AV_LNK_STATS_DIR_TX    0x00
+#define HOMEPLUG_AV_LNK_STATS_DIR_RX    0x01
+#define HOMEPLUG_AV_LNK_STATS_DIR_TX_RX 0x02
+#define HOMEPLUG_AV_LNK_STATS_DIR_MASK  0x03
 
 static const value_string homeplug_av_lnk_stats_dir_vals[] = {
    { HOMEPLUG_AV_LNK_STATS_DIR_TX, "Tx" },
@@ -1004,22 +1004,22 @@ static const value_string homeplug_av_lnk_stats_lid_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_LNK_STATS_STATUS_SUCCESS	0x00
-#define HOMEPLUG_AV_LNK_STATS_STATUS_INV_CTRL	0x01
-#define HOMEPLUG_AV_LNK_STATS_STATUS_INV_DIR	0x02
-#define HOMEPLUG_AV_LNK_STATS_STATUS_INV_LID	0x10
-#define HOMEPLUG_AV_LNK_STATS_STATUS_INV_MAC	0x20
+#define HOMEPLUG_AV_LNK_STATS_STATUS_SUCCESS  0x00
+#define HOMEPLUG_AV_LNK_STATS_STATUS_INV_CTRL 0x01
+#define HOMEPLUG_AV_LNK_STATS_STATUS_INV_DIR  0x02
+#define HOMEPLUG_AV_LNK_STATS_STATUS_INV_LID  0x10
+#define HOMEPLUG_AV_LNK_STATS_STATUS_INV_MAC  0x20
 
 static const value_string homeplug_av_lnk_status_vals[] = {
-   { HOMEPLUG_AV_LNK_STATS_STATUS_SUCCESS,	"Success" },
-   { HOMEPLUG_AV_LNK_STATS_STATUS_INV_CTRL,	"Invalid Control" },
-   { HOMEPLUG_AV_LNK_STATS_STATUS_INV_DIR,	"Invalid Direction" },
-   { HOMEPLUG_AV_LNK_STATS_STATUS_INV_LID,	"Invalid Link ID" },
-   { HOMEPLUG_AV_LNK_STATS_STATUS_INV_MAC,	"Invalid MAC Address" },
+   { HOMEPLUG_AV_LNK_STATS_STATUS_SUCCESS,    "Success" },
+   { HOMEPLUG_AV_LNK_STATS_STATUS_INV_CTRL,   "Invalid Control" },
+   { HOMEPLUG_AV_LNK_STATS_STATUS_INV_DIR,    "Invalid Direction" },
+   { HOMEPLUG_AV_LNK_STATS_STATUS_INV_LID,    "Invalid Link ID" },
+   { HOMEPLUG_AV_LNK_STATS_STATUS_INV_MAC,    "Invalid MAC Address" },
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_SNIFFER_CTRL_MASK		0x03
+#define HOMEPLUG_AV_SNIFFER_CTRL_MASK 0x03
 
 static const value_string homeplug_av_sniffer_ctrl_vals[] = {
    { 0x00, "Disable" },
@@ -1039,7 +1039,7 @@ static const value_string homeplug_av_sniffer_type_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_LBK_STATUS_MASK		0x01
+#define HOMEPLUG_AV_LBK_STATUS_MASK 0x01
 
 static const value_string homeplug_av_lbk_status_vals[] = {
    { 0x00, "Done" },
@@ -1069,7 +1069,7 @@ static const value_string homeplug_av_cblock_status_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_NVM_IMG_TYPE_MASK		0x1F
+#define HOMEPLUG_AV_NVM_IMG_TYPE_MASK 0x1F
 
 static const value_string homeplug_av_nvm_img_type_vals[] = {
    { 0x00, "Generic Image" },
@@ -1093,7 +1093,7 @@ static const value_string homeplug_av_nvm_img_type_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_NVM_IGNORE_MASK_MASK	0x1FF
+#define HOMEPLUG_AV_NVM_IGNORE_MASK_MASK 0x1FF
 
 static const value_string homeplug_av_nvm_ignore_mask_vals[] = {
    { 0x00, "INT6000" },
@@ -1104,18 +1104,18 @@ static const value_string homeplug_av_nvm_ignore_mask_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_HOST_ACTION_SOFT_LDR	0x00
-#define HOMEPLUG_AV_HOST_ACTION_FW_UPG_RDY	0x01
-#define HOMEPLUG_AV_HOST_ACTION_PIB_UP_RDY	0x02
-#define HOMEPLUG_AV_HOST_ACTION_FW_PIB_UP_RDY	0x03
-#define HOMEPLUG_AV_HOST_ACTION_BOOT_LDR	0x04
+#define HOMEPLUG_AV_HOST_ACTION_SOFT_LDR       0x00
+#define HOMEPLUG_AV_HOST_ACTION_FW_UPG_RDY     0x01
+#define HOMEPLUG_AV_HOST_ACTION_PIB_UP_RDY     0x02
+#define HOMEPLUG_AV_HOST_ACTION_FW_PIB_UP_RDY  0x03
+#define HOMEPLUG_AV_HOST_ACTION_BOOT_LDR       0x04
 
 static const value_string homeplug_av_host_action_vals[] = {
-   { HOMEPLUG_AV_HOST_ACTION_SOFT_LDR,		"Loader (Soft/Bootloader)" },
-   { HOMEPLUG_AV_HOST_ACTION_FW_UPG_RDY,	"Firmware Upgrade Ready" },
-   { HOMEPLUG_AV_HOST_ACTION_PIB_UP_RDY,	"PIB Update Ready" },
-   { HOMEPLUG_AV_HOST_ACTION_FW_PIB_UP_RDY,	"Firmware Upgrade and PIB Update Ready" },
-   { HOMEPLUG_AV_HOST_ACTION_BOOT_LDR,		"Loader (Bootloader)" },
+   { HOMEPLUG_AV_HOST_ACTION_SOFT_LDR,        "Loader (Soft/Bootloader)" },
+   { HOMEPLUG_AV_HOST_ACTION_FW_UPG_RDY,      "Firmware Upgrade Ready" },
+   { HOMEPLUG_AV_HOST_ACTION_PIB_UP_RDY,      "PIB Update Ready" },
+   { HOMEPLUG_AV_HOST_ACTION_FW_PIB_UP_RDY,   "Firmware Upgrade and PIB Update Ready" },
+   { HOMEPLUG_AV_HOST_ACTION_BOOT_LDR,        "Loader (Bootloader)" },
    { 0, NULL }
 };
 
@@ -1125,7 +1125,7 @@ static const value_string homeplug_av_op_attr_report_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_TONE_MAP_MASK		0x07
+#define HOMEPLUG_AV_TONE_MAP_MASK 0x07
 
 static const value_string homeplug_av_tone_map_vals[] = {
    { 0x00, "No modulation" },
@@ -1139,7 +1139,7 @@ static const value_string homeplug_av_tone_map_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_TONE_MAP_STATUS_MASK	0x03
+#define HOMEPLUG_AV_TONE_MAP_STATUS_MASK 0x03
 
 static const value_string homeplug_av_tone_map_status_vals[] = {
    { 0x00, "Success" },
@@ -1148,7 +1148,7 @@ static const value_string homeplug_av_tone_map_status_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_COUPLING_MASK		0x0F
+#define HOMEPLUG_AV_COUPLING_MASK 0x0F
 
 static const value_string homeplug_av_coupling_vals[] = {
    { 0x00, "Primary" },
@@ -3005,7 +3005,7 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_item  *ti               = NULL;
    proto_tree  *homeplug_av_tree = NULL;
    ptvcursor_t *cursor;
-   guint8	homeplug_av_mmver;
+   guint8       homeplug_av_mmver;
    guint16      homeplug_av_mmtype;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HomePlug AV");
