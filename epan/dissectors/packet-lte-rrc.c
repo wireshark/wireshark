@@ -49,6 +49,7 @@
 #include "packet-lpp.h"
 #include "packet-gsm_map.h"
 #include "packet-cell_broadcast.h"
+#include <epan/expert.h>
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
 #define PSNAME "LTE RRC"
@@ -158,7 +159,7 @@ typedef enum _RAT_Type_enum {
 } RAT_Type_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 63 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 64 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -2234,7 +2235,7 @@ static int hf_lte_rrc_CandidateCellInfoList_r10_item = -1;  /* CandidateCellInfo
 static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */ 
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 68 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 69 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -2346,7 +2347,8 @@ static int hf_lte_rrc_warningSecurityInfo_min = -1;
 static int hf_lte_rrc_warningSecurityInfo_sec = -1;
 static int hf_lte_rrc_warningSecurityInfo_tz = -1;
 static int hf_lte_rrc_warningSecurityInfo_digital_signature = -1;
-static int hf_lte_rrc_warningMessageSegment_decoded = -1;
+static int hf_lte_rrc_warningMessageSegment_nb_pages = -1;
+static int hf_lte_rrc_warningMessageSegment_decoded_page = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -3391,7 +3393,7 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 185 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 187 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -4994,6 +4996,35 @@ lte_rrc_localTimeOffset_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "UTC time %c %dhr %dmin (%d)",
              (time_offset < 0) ? '-':'+', abs(time_offset) >> 2,
              (abs(time_offset) & 0x03) * 15, time_offset);
+}
+
+static void
+dissect_lte_rrc_warningMessageSegment(tvbuff_t *warning_msg_seg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dataCodingScheme)
+{
+  guint32 offset;
+  guint8 nb_of_pages, length, *str;
+  proto_item *ti;
+  tvbuff_t *cb_data_page_tvb, *cb_data_tvb;
+  int i;
+
+  nb_of_pages = tvb_get_guint8(warning_msg_seg_tvb, 0);
+  ti = proto_tree_add_uint(tree, hf_lte_rrc_warningMessageSegment_nb_pages, warning_msg_seg_tvb, 0, 1, nb_of_pages);
+  if (nb_of_pages > 15) {
+    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                           "Number of pages should be <=15 (found %u)", nb_of_pages);
+    nb_of_pages = 15;
+  }
+  for (i = 0, offset = 1; i < nb_of_pages; i++) {
+    length = tvb_get_guint8(warning_msg_seg_tvb, offset+82);
+    cb_data_page_tvb = tvb_new_subset(warning_msg_seg_tvb, offset, length, length);
+    cb_data_tvb = dissect_cbs_data(dataCodingScheme, cb_data_page_tvb, tree, pinfo, 0);
+    if (cb_data_tvb) {
+      str = tvb_get_ephemeral_string(cb_data_tvb, 0, tvb_length(cb_data_tvb));
+      proto_tree_add_string_format(tree, hf_lte_rrc_warningMessageSegment_decoded_page, warning_msg_seg_tvb, offset, 83,
+                                   str, "Decoded Page %u: %s", i+1, str);
+    }
+    offset += 83;
+  }
 }
 
 
@@ -8845,13 +8876,8 @@ dissect_lte_rrc_T_warningMessageSegment(tvbuff_t *tvb _U_, int offset _U_, asn1_
   p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER(lte_rrc_etws_cmas_dcs_key));
   if (warning_msg_seg_tvb && p_dcs) {
     proto_tree *subtree;
-    tvbuff_t *cb_data_tvb;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-    cb_data_tvb = dissect_cbs_data(GPOINTER_TO_UINT(p_dcs), warning_msg_seg_tvb, subtree, actx->pinfo, 0);
-    if (cb_data_tvb) {
-      proto_tree_add_unicode_string(subtree, hf_lte_rrc_warningMessageSegment_decoded, cb_data_tvb, 0, -1,
-                                    tvb_get_ephemeral_string_enc(cb_data_tvb, 0, tvb_length(cb_data_tvb), ENC_UTF_8 | ENC_NA));
-    }
+    dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
   }
 
   return offset;
@@ -8969,13 +8995,8 @@ dissect_lte_rrc_T_warningMessageSegment_r9(tvbuff_t *tvb _U_, int offset _U_, as
   p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER(lte_rrc_etws_cmas_dcs_key));
   if (warning_msg_seg_tvb && p_dcs) {
     proto_tree *subtree;
-    tvbuff_t *cb_data_tvb;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-    cb_data_tvb = dissect_cbs_data(GPOINTER_TO_UINT(p_dcs), warning_msg_seg_tvb, subtree, actx->pinfo, 0);
-    if (cb_data_tvb) {
-      proto_tree_add_unicode_string(subtree, hf_lte_rrc_warningMessageSegment_decoded, cb_data_tvb, 0, -1,
-                                    tvb_get_ephemeral_string_enc(cb_data_tvb, 0, tvb_length(cb_data_tvb), ENC_UTF_8 | ENC_NA));
-    }
+    dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
   }
 
   return offset;
@@ -33257,7 +33278,7 @@ static int dissect_MBMSInterestIndication_r11_PDU(tvbuff_t *tvb _U_, packet_info
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 1790 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1821 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -41668,7 +41689,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 1936 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1967 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -42110,8 +42131,12 @@ void proto_register_lte_rrc(void) {
       { "Digital Signature", "lte-rrc.warningSecurityInfo.digital_signature",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_warningMessageSegment_decoded,
-      { "Decoded Segment", "lte-rrc.warningMessageSegment.decoded",
+    { &hf_lte_rrc_warningMessageSegment_nb_pages,
+      { "Number of Pages", "lte-rrc.warningMessageSegment.nb_pages",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningMessageSegment_decoded_page,
+      { "Decoded Page", "lte-rrc.warningMessageSegment.decoded_page",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
   };
@@ -43159,7 +43184,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2387 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2422 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -43212,7 +43237,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2424 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2459 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }

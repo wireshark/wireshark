@@ -996,13 +996,8 @@ SystemInformationBlockType11/messageIdentifier TYPE=FT_UINT16 DISPLAY=BASE_DEC|B
   p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER(lte_rrc_etws_cmas_dcs_key));
   if (warning_msg_seg_tvb && p_dcs) {
     proto_tree *subtree;
-    tvbuff_t *cb_data_tvb;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-    cb_data_tvb = dissect_cbs_data(GPOINTER_TO_UINT(p_dcs), warning_msg_seg_tvb, subtree, actx->pinfo, 0);
-    if (cb_data_tvb) {
-      proto_tree_add_unicode_string(subtree, hf_lte_rrc_warningMessageSegment_decoded, cb_data_tvb, 0, -1,
-                                    tvb_get_ephemeral_string_enc(cb_data_tvb, 0, tvb_length(cb_data_tvb), ENC_UTF_8 | ENC_NA));
-    }
+    dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
   }
 
 #.TYPE_ATTR
@@ -1055,13 +1050,8 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
   p_dcs = g_hash_table_lookup(lte_rrc_etws_cmas_dcs_hash, GUINT_TO_POINTER(lte_rrc_etws_cmas_dcs_key));
   if (warning_msg_seg_tvb && p_dcs) {
     proto_tree *subtree;
-    tvbuff_t *cb_data_tvb;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
-    cb_data_tvb = dissect_cbs_data(GPOINTER_TO_UINT(p_dcs), warning_msg_seg_tvb, subtree, actx->pinfo, 0);
-    if (cb_data_tvb) {
-      proto_tree_add_unicode_string(subtree, hf_lte_rrc_warningMessageSegment_decoded, cb_data_tvb, 0, -1,
-                                    tvb_get_ephemeral_string_enc(cb_data_tvb, 0, tvb_length(cb_data_tvb), ENC_UTF_8 | ENC_NA));
-    }
+    dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
   }
 
 #.TYPE_ATTR

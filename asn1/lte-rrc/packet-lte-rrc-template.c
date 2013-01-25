@@ -41,6 +41,7 @@
 #include "packet-lpp.h"
 #include "packet-gsm_map.h"
 #include "packet-cell_broadcast.h"
+#include <epan/expert.h>
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
 #define PSNAME "LTE RRC"
@@ -176,7 +177,8 @@ static int hf_lte_rrc_warningSecurityInfo_min = -1;
 static int hf_lte_rrc_warningSecurityInfo_sec = -1;
 static int hf_lte_rrc_warningSecurityInfo_tz = -1;
 static int hf_lte_rrc_warningSecurityInfo_digital_signature = -1;
-static int hf_lte_rrc_warningMessageSegment_decoded = -1;
+static int hf_lte_rrc_warningMessageSegment_nb_pages = -1;
+static int hf_lte_rrc_warningMessageSegment_decoded_page = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -1786,6 +1788,35 @@ lte_rrc_localTimeOffset_fmt(gchar *s, guint32 v)
              (abs(time_offset) & 0x03) * 15, time_offset);
 }
 
+static void
+dissect_lte_rrc_warningMessageSegment(tvbuff_t *warning_msg_seg_tvb, proto_tree *tree, packet_info *pinfo, guint8 dataCodingScheme)
+{
+  guint32 offset;
+  guint8 nb_of_pages, length, *str;
+  proto_item *ti;
+  tvbuff_t *cb_data_page_tvb, *cb_data_tvb;
+  int i;
+
+  nb_of_pages = tvb_get_guint8(warning_msg_seg_tvb, 0);
+  ti = proto_tree_add_uint(tree, hf_lte_rrc_warningMessageSegment_nb_pages, warning_msg_seg_tvb, 0, 1, nb_of_pages);
+  if (nb_of_pages > 15) {
+    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                           "Number of pages should be <=15 (found %u)", nb_of_pages);
+    nb_of_pages = 15;
+  }
+  for (i = 0, offset = 1; i < nb_of_pages; i++) {
+    length = tvb_get_guint8(warning_msg_seg_tvb, offset+82);
+    cb_data_page_tvb = tvb_new_subset(warning_msg_seg_tvb, offset, length, length);
+    cb_data_tvb = dissect_cbs_data(dataCodingScheme, cb_data_page_tvb, tree, pinfo, 0);
+    if (cb_data_tvb) {
+      str = tvb_get_ephemeral_string(cb_data_tvb, 0, tvb_length(cb_data_tvb));
+      proto_tree_add_string_format(tree, hf_lte_rrc_warningMessageSegment_decoded_page, warning_msg_seg_tvb, offset, 83,
+                                   str, "Decoded Page %u: %s", i+1, str);
+    }
+    offset += 83;
+  }
+}
+
 #include "packet-lte-rrc-fn.c"
 
 static void
@@ -2374,8 +2405,12 @@ void proto_register_lte_rrc(void) {
       { "Digital Signature", "lte-rrc.warningSecurityInfo.digital_signature",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_warningMessageSegment_decoded,
-      { "Decoded Segment", "lte-rrc.warningMessageSegment.decoded",
+    { &hf_lte_rrc_warningMessageSegment_nb_pages,
+      { "Number of Pages", "lte-rrc.warningMessageSegment.nb_pages",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_warningMessageSegment_decoded_page,
+      { "Decoded Page", "lte-rrc.warningMessageSegment.decoded_page",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
   };
