@@ -88,7 +88,7 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
-static void disscet_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 #include "packet-sabp-fn.c"
 
@@ -122,7 +122,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
  * 9.4.2.2.5 CB Data
  */
 static void
-disscet_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *item, *cbs_page_item;
 	proto_tree *subtree;
@@ -146,7 +146,7 @@ disscet_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	for (n = 0; n < nr_pages; n++) {
 		item = proto_tree_add_text(tree, tvb, offset, 83, "CB page %u data",  n+1);
 		subtree = proto_item_add_subtree(item, ett_sabp_cbs_page);
-		/* octet 2 – 83 CBS-Message-Information-Page 1  */
+		/* octet 2 - 83 CBS-Message-Information-Page 1  */
 		cbs_page_item = proto_tree_add_item(subtree, hf_sabp_cb_msg_inf_page, tvb, offset, 82, ENC_BIG_ENDIAN);
 		cb_inf_msg_len = tvb_get_guint8(tvb,offset+82);
 		page_tvb = tvb_new_subset(tvb, offset, cb_inf_msg_len, cb_inf_msg_len);
