@@ -109,7 +109,6 @@ static nstime_t prev_dis_ts;
 static nstime_t prev_cap_ts;
 
 static gboolean print_packet_info;      /* TRUE if we're to print packet information */
-static const char* prev_display_dissector_name = NULL;
 
 static gboolean perform_two_pass_analysis;
 
@@ -370,11 +369,7 @@ static void
 display_dissector_table_names(const char *table_name, const char *ui_name,
                               gpointer output)
 {
-  if ((prev_display_dissector_name == NULL) ||
-      (strcmp(prev_display_dissector_name, table_name) != 0)) {
-     fprintf((FILE *)output, "\t%s (%s)\n", table_name, ui_name);
-     prev_display_dissector_name = table_name;
-  }
+  fprintf((FILE *)output, "\t%s (%s)\n", table_name, ui_name);
 }
 
 /*
@@ -397,13 +392,9 @@ display_dissector_names(const gchar *table _U_, gpointer handle, gpointer output
     g_assert(proto_filter_name != NULL);
     g_assert(proto_ui_name != NULL);
 
-    if ((prev_display_dissector_name == NULL) ||
-        (strcmp(prev_display_dissector_name, proto_filter_name) != 0)) {
-      fprintf((FILE *)output, "\t%s (%s)\n",
-              proto_filter_name,
-              proto_ui_name);
-       prev_display_dissector_name = proto_filter_name;
-    }
+    fprintf((FILE *)output, "\t%s (%s)\n",
+            proto_filter_name,
+            proto_ui_name);
   }
 }
 
@@ -455,16 +446,6 @@ find_protocol_name_func(const gchar *table _U_, gpointer handle, gpointer user_d
 }
 
 /*
- * Allow dissector key names to be sorted alphabetically
- */
-
-static gint
-compare_dissector_key_name(gconstpointer dissector_a, gconstpointer dissector_b)
-{
-  return strcmp((const char*)dissector_a, (const char*)dissector_b);
-}
-
-/*
  * Print all layer type names supported.
  * We send the output to the stream described by the handle output.
  */
@@ -473,8 +454,7 @@ static void
 fprint_all_layer_types(FILE *output)
 
 {
-  prev_display_dissector_name = NULL;
-  dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)output, (GCompareFunc)compare_dissector_key_name);
+  dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)output);
 }
 
 /*
@@ -487,7 +467,6 @@ static void
 fprint_all_protocols_for_layer_types(FILE *output, gchar *table_name)
 
 {
-  prev_display_dissector_name = NULL;
   dissector_table_foreach_handle(table_name,
                                  display_dissector_names,
                                  (gpointer)output);

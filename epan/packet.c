@@ -1241,28 +1241,6 @@ dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry)
 	return dtbl_entry->current;
 }
 
-gint
-dissector_compare_filter_name(gconstpointer dissector_a, gconstpointer dissector_b)
-{
-	dissector_handle_t a = (dissector_handle_t)dissector_a;
-	dissector_handle_t b = (dissector_handle_t)dissector_b;
-	const char *a_name, *b_name;
-	gint ret;
-
-	if (a->protocol == NULL)
-		a_name = "";
-	else
-		a_name = proto_get_protocol_filter_name(proto_get_id(a->protocol));
-
-	if (b->protocol == NULL)
-		b_name = "";
-	else
-		b_name = proto_get_protocol_filter_name(proto_get_id(b->protocol));
-
-	ret = strcmp(a_name, b_name); 
-	return ret;
-}
-
 /* Add a handle to the list of handles that *could* be used with this
    table.  That list is used by code in the UI. */
 void
@@ -1295,7 +1273,7 @@ dissector_add_handle(const char *name, dissector_handle_t handle)
 
 	/* Add it to the list. */
 	sub_dissectors->dissector_handles =
-		g_slist_insert_sorted(sub_dissectors->dissector_handles, (gpointer)handle, (GCompareFunc)dissector_compare_filter_name);
+		g_slist_append(sub_dissectors->dissector_handles, (gpointer)handle);
 }
 
 dissector_handle_t
@@ -1491,26 +1469,12 @@ typedef struct dissector_foreach_table_info {
 static void
 dissector_all_tables_foreach_table_func (gpointer key, const gpointer value, const gpointer user_data)
 {
-	dissector_table_t               table;
-	dissector_foreach_table_info_t *info;
+       dissector_table_t               table;
+       dissector_foreach_table_info_t *info;
 
-	table = value;
-	info = user_data;
-	(*info->caller_func)((gchar*)key, table->ui_name, info->caller_data);
-}
-
-/*
- * Called for each key in the table of all dissector tables.
- */
-static void
-dissector_all_tables_foreach_list_func (gpointer key, gpointer user_data)
-{
-	dissector_table_t               table;
-	dissector_foreach_table_info_t *info;
-
-	table = g_hash_table_lookup( dissector_tables, key );
-	info = user_data;
-	(*info->caller_func)((gchar*)key, table->ui_name, info->caller_data);
+       table = value;
+       info = user_data;
+       (*info->caller_func)((gchar*)key, table->ui_name, info->caller_data);
 }
 
 /*
@@ -1519,25 +1483,13 @@ dissector_all_tables_foreach_list_func (gpointer key, gpointer user_data)
  */
 void
 dissector_all_tables_foreach_table (DATFunc_table func,
-					gpointer      user_data,
-					GCompareFunc compare_key_func)
+				    gpointer      user_data)
 {
 	dissector_foreach_table_info_t info;
-	GList* list;
 
 	info.caller_data = user_data;
 	info.caller_func = func;
-	if (compare_key_func != NULL)
-	{
-		list = g_hash_table_get_keys(dissector_tables);
-		list = g_list_sort(list, compare_key_func);
-		g_list_foreach(list, dissector_all_tables_foreach_list_func, &info);
-		g_list_free(list);
-	}
-	else
-	{
-		g_hash_table_foreach(dissector_tables, dissector_all_tables_foreach_table_func, &info);
-	}
+	g_hash_table_foreach(dissector_tables, dissector_all_tables_foreach_table_func, &info);
 }
 
 dissector_table_t
