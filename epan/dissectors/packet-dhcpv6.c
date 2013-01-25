@@ -219,6 +219,8 @@ static gint ett_dhcpv6_bulk_leasequery_options = -1;
 #define RELAY_REPLY             13
 #define LEASEQUERY              14
 #define LEASEQUERY_REPLY        15
+#define LEASEQUERY_DONE         16
+#define LEASEQUERY_DATA         17
 
 #define OPTION_CLIENTID          1
 #define OPTION_SERVERID          2
@@ -268,6 +270,7 @@ static gint ett_dhcpv6_bulk_leasequery_options = -1;
 #define OPTION_LQ_RELAY_DATA    47
 #define OPTION_LQ_CLIENT_LINK   48
 #define OPTION_CAPWAP_AC_V6     52
+#define OPTION_RELAYID          53
 #define OPTION_AFTR_NAME        64
 
 /* temporary value until defined by IETF */
@@ -296,6 +299,8 @@ static const value_string msgtype_vals[] = {
     { RELAY_REPLY,             "Relay-reply" },
     { LEASEQUERY,              "Leasequery" },
     { LEASEQUERY_REPLY,        "Leasequery-reply" },
+    { LEASEQUERY_DONE,         "Leasequery-done" },
+    { LEASEQUERY_DATA,         "Leasequery-data" },
     { 0, NULL }
 };
 
@@ -368,6 +373,7 @@ static const value_string statuscode_vals[] =
     {8, "MalformedQuery" },
     {9, "NotConfigured" },
     {10, "NotAllowed" },
+    {11, "QueryTerminated" },
     {0, NULL }
 };
 
@@ -395,9 +401,18 @@ static const true_false_string fqdn_s = {
     "Server should not perform forward DNS updates"
 };
 
+#define LQ_QUERY_ADDRESS        1
+#define LQ_QUERY_CLIENTID       2
+#define LQ_QUERY_RELAYID        3
+#define LQ_QUERY_LINK_ADDRESS   4
+#define LQ_QUERY_REMOTEID       5
+
 static const value_string lq_query_vals[] = {
-    { 1, "by-address" },
-    { 2, "by-clientID" },
+    { LQ_QUERY_ADDRESS,      "by-address" },
+    { LQ_QUERY_CLIENTID,     "by-clientID" },
+    { LQ_QUERY_RELAYID,      "by-relayID" },
+    { LQ_QUERY_LINK_ADDRESS, "by-linkAddress" },
+    { LQ_QUERY_REMOTEID,     "by-remoteID" },
     { 0, NULL },
 };
 
@@ -1174,7 +1189,7 @@ dhcpv6_domain(proto_tree * subtree, proto_item *v_item, packet_info *pinfo, tvbu
 /* Returns the number of bytes consumed by this option. */
 static int
 dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
-              gboolean downstream, int off, int eoff, gboolean *at_end)
+              gboolean downstream, int off, int eoff, gboolean *at_end, int protocol)
 {
     guint16     opttype, optlen, hwtype;
     guint16     temp_optlen = 0;
@@ -1217,6 +1232,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         col_append_fstr(pinfo->cinfo, COL_INFO, "CID: %s ", tvb_bytes_to_str(tvb, off, optlen));
         /* Fall through */
     case OPTION_SERVERID:
+    case OPTION_RELAYID:
         if (optlen < 2) {
             expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "DUID: malformed option");
             break;
@@ -1303,7 +1319,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         temp_optlen = 12;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
-                                         off+temp_optlen, off + optlen, at_end);
+                                         off+temp_optlen, off + optlen, at_end, protocol);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -1320,7 +1336,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         temp_optlen = 4;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
-                                         off+temp_optlen, off + optlen, at_end);
+                                         off+temp_optlen, off + optlen, at_end, protocol);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -1360,7 +1376,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         temp_optlen = 24;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
-                                         off+temp_optlen, off + optlen, at_end);
+                                         off+temp_optlen, off + optlen, at_end, protocol);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -1633,30 +1649,41 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             proto_tree_add_item(subtree, hf_opt_tzdb, tvb, off, optlen, ENC_ASCII|ENC_NA);
         break;
     case OPTION_LQ_QUERY:
+    {
+        guint8 query_type;
         if (optlen < 17) {
-            expert_add_info_format(pinfo, option_item, PI_PROTOCOL, PI_ERROR, "LQ-QUERY: malformed option");
+            expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "LQ-QUERY: malformed option");
             break;
         }
+        query_type = tvb_get_guint8(tvb, off);
+        ti = proto_tree_add_item(subtree, hf_lq_query, tvb, off, 1, ENC_BIG_ENDIAN);
+        if ((protocol == proto_dhcpv6) &&
+            ((query_type == LQ_QUERY_RELAYID) ||
+             (query_type == LQ_QUERY_LINK_ADDRESS) ||
+             (query_type == LQ_QUERY_REMOTEID))) {
+            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, 
+                "LQ-QUERY: Query types only supported by Bulk Leasequery");
+        }
 
-        proto_tree_add_item(subtree, hf_lq_query, tvb, off, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_lq_query_link_address, tvb, off+1, 16, ENC_BIG_ENDIAN);
         temp_optlen = 17;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
                                          downstream, off + temp_optlen,
-                                         off + optlen, at_end);
+                                         off + optlen, at_end, protocol);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
             }
         }
-        break;
+    }
+    break;
     case OPTION_CLIENT_DATA:
         temp_optlen = 0;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
                                          downstream, off + temp_optlen,
-                                         off + optlen, at_end);
+                                         off + optlen, at_end, protocol);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -1675,6 +1702,10 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         if (optlen < 16) {
             expert_add_info_format(pinfo, option_item, PI_MALFORMED, PI_ERROR, "LQ_RELAY_DATA: malformed option");
             break;
+        }
+
+        if (protocol == proto_dhcpv6_bulk_leasequery) {
+            expert_add_info_format(pinfo, option_item, PI_PROTOCOL, PI_WARN, "LQ_RELAY_DATA: Not allowed in Bulk Leasequery");
         }
 
         proto_tree_add_item(subtree, hf_lq_relay_data_peer_addr, tvb, off, 16, ENC_BIG_ENDIAN);
@@ -1728,7 +1759,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         temp_optlen = 25;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
-                                         off+temp_optlen, off + optlen, at_end);
+                                         off+temp_optlen, off + optlen, at_end, protocol);
             if (*at_end) {
                 /* Bad option - just skip to the end */
                 temp_optlen = optlen;
@@ -1804,7 +1835,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     at_end = FALSE;
     while (off < eoff && !at_end)
-        off += dhcpv6_option(tvb, pinfo, bp_tree, downstream, off, eoff, &at_end);
+        off += dhcpv6_option(tvb, pinfo, bp_tree, downstream, off, eoff, &at_end, proto_dhcpv6);
 }
 
 static void
@@ -1851,7 +1882,14 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     offset += 2;
 
     msg_type = tvb_get_guint8( tvb, offset );
-    proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_msgtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_msgtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if ((msg_type != LEASEQUERY) &&
+        (msg_type != LEASEQUERY_REPLY) &&
+        (msg_type != LEASEQUERY_DONE) &&
+        (msg_type != LEASEQUERY_DATA))
+        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, 
+            "Message Type %d not allowed by DHCPv6 Bulk Leasequery", msg_type);
+
     offset++;
     proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -1867,7 +1905,8 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     option_tree = proto_item_add_subtree(ti, ett_dhcpv6_bulk_leasequery_options);
     end = size+2;
     while ((offset < end) && !at_end)
-        offset += dhcpv6_option(tvb, pinfo, option_tree, FALSE, offset, end, &at_end);
+        offset += dhcpv6_option(tvb, pinfo, option_tree, FALSE, offset,
+                                end, &at_end, proto_dhcpv6_bulk_leasequery);
 }
 
 static void
