@@ -104,6 +104,9 @@ typedef enum _ProtocolIE_ID_enum {
 static int proto_sabp = -1;
 
 static int hf_sabp_no_of_pages = -1;
+static int hf_sabp_cb_inf_len = -1;
+static int hf_sabp_cb_msg_inf_page = -1;
+static int hf_sabp_cbs_page_content = -1;
 
 /*--- Included file: packet-sabp-hf.c ---*/
 #line 1 "../../asn1/sabp/packet-sabp-hf.c"
@@ -188,7 +191,7 @@ static int hf_sabp_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_sabp_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sabp-hf.c ---*/
-#line 54 "../../asn1/sabp/packet-sabp-template.c"
+#line 57 "../../asn1/sabp/packet-sabp-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sabp = -1;
@@ -197,6 +200,8 @@ static int ett_sabp_cbs_data_coding = -1;
 static int ett_sabp_bcast_msg = -1;
 static int ett_sabp_cbs_serial_number = -1;
 static int ett_sabp_cbs_new_serial_number = -1;
+static int ett_sabp_cbs_page = -1;
+static int ett_sabp_cbs_page_content = -1;
 
 
 /*--- Included file: packet-sabp-ett.c ---*/
@@ -242,7 +247,7 @@ static gint ett_sabp_SuccessfulOutcome = -1;
 static gint ett_sabp_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sabp-ett.c ---*/
-#line 64 "../../asn1/sabp/packet-sabp-template.c"
+#line 69 "../../asn1/sabp/packet-sabp-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -265,6 +270,7 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+static void disscet_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 
 /*--- Included file: packet-sabp-fn.c ---*/
@@ -486,7 +492,7 @@ dissect_sabp_Broadcast_Message_Content(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 	if (!parameter_tvb)
 		return offset;
-        dissect_umts_cell_broadcast_message(parameter_tvb, actx->pinfo, proto_tree_get_root(tree));
+    disscet_sabp_cb_data(parameter_tvb, actx->pinfo, tree);
 
 
   return offset;
@@ -1721,7 +1727,7 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-sabp-fn.c ---*/
-#line 88 "../../asn1/sabp/packet-sabp-template.c"
+#line 94 "../../asn1/sabp/packet-sabp-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1746,6 +1752,57 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return (dissector_try_uint(sabp_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+}
+
+
+/* 3GPP TS 23.041 version 11.4.0
+ * 9.4.2.2.5 CB Data
+ */
+static void
+disscet_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *item, *cbs_page_item;
+	proto_tree *subtree;
+	tvbuff_t *page_tvb, *unpacked_tvb;
+	int offset = 0;
+	int n;
+	guint8 nr_pages, len, cb_inf_msg_len;
+
+
+	/* Octet 1 Number-of-Pages */
+	nr_pages = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_sabp_no_of_pages, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	/*  
+	 * NOTE: n equal to or less than 15
+	 */
+	if(nr_pages > 15){
+		/* Error */
+		return;
+	}
+	for (n = 0; n < nr_pages; n++) {
+		item = proto_tree_add_text(tree, tvb, offset, 83, "CB page %u data",  n+1);
+		subtree = proto_item_add_subtree(item, ett_sabp_cbs_page);
+		/* octet 2 – 83 CBS-Message-Information-Page 1  */
+		cbs_page_item = proto_tree_add_item(subtree, hf_sabp_cb_msg_inf_page, tvb, offset, 82, ENC_BIG_ENDIAN);
+		cb_inf_msg_len = tvb_get_guint8(tvb,offset+82);
+		page_tvb = tvb_new_subset(tvb, offset, cb_inf_msg_len, cb_inf_msg_len);
+		unpacked_tvb = dissect_cbs_data(sms_encoding, page_tvb, subtree, pinfo, 0);
+		len = tvb_length(unpacked_tvb);
+		if (unpacked_tvb != NULL){
+			if (tree != NULL){
+				proto_tree *cbs_page_subtree = proto_item_add_subtree(cbs_page_item, ett_sabp_cbs_page_content);
+				proto_tree_add_string(cbs_page_subtree, hf_sabp_cbs_page_content, unpacked_tvb, 0, len, tvb_get_ephemeral_string(unpacked_tvb, 0, len));
+			}
+		}
+
+		offset = offset+82;
+		/* 84 CBS-Message-Information-Length 1 */
+		proto_tree_add_item(subtree, hf_sabp_cb_inf_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+	}
+
+	
 }
 
 static guint
@@ -1808,6 +1865,18 @@ void proto_register_sabp(void) {
   static hf_register_info hf[] = {
     { &hf_sabp_no_of_pages,
       { "Number-of-Pages", "sabp.no_of_pages",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sabp_cb_msg_inf_page,
+      { "CBS-Message-Information-Page", "sabp.cb_msg_inf_page",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sabp_cbs_page_content,
+      { "CBS Page Content", "sabp.cb_page_content",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sabp_cb_inf_len,
+      { "CBS-Message-Information-Length", "sabp.cb_inf_len",
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }},
 
@@ -2132,7 +2201,7 @@ void proto_register_sabp(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 178 "../../asn1/sabp/packet-sabp-template.c"
+#line 247 "../../asn1/sabp/packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -2143,6 +2212,8 @@ void proto_register_sabp(void) {
 		  &ett_sabp_bcast_msg,
           &ett_sabp_cbs_serial_number,
           &ett_sabp_cbs_new_serial_number,
+		  &ett_sabp_cbs_page,
+		  &ett_sabp_cbs_page_content,
 
 /*--- Included file: packet-sabp-ettarr.c ---*/
 #line 1 "../../asn1/sabp/packet-sabp-ettarr.c"
@@ -2187,7 +2258,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 189 "../../asn1/sabp/packet-sabp-template.c"
+#line 260 "../../asn1/sabp/packet-sabp-template.c"
   };
 
 
@@ -2270,7 +2341,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 226 "../../asn1/sabp/packet-sabp-template.c"
+#line 297 "../../asn1/sabp/packet-sabp-template.c"
 
 }
 
