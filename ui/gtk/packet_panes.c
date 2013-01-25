@@ -205,7 +205,7 @@ expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
     /* scroll the expanded item to reduce the need to do a manual scroll down
      * and provide faster navigation of deeper trees */
 
-    if(prefs.gui_auto_scroll_on_expand) 
+    if(prefs.gui_auto_scroll_on_expand)
         gtk_tree_view_scroll_to_cell(tree_view, path, NULL, TRUE, (prefs.gui_auto_scroll_percentage/100.0f), 0.0f);
 
     /*
@@ -877,12 +877,12 @@ packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	bytes_view_set_encoding(BYTES_VIEW(bv), encoding);
 	bytes_view_set_format(BYTES_VIEW(bv), recent.gui_bytes_view);
 	bytes_view_set_data(BYTES_VIEW(bv), pd, len);
- 
+
 	bytes_view_set_highlight_style(BYTES_VIEW(bv), prefs.gui_hex_dump_highlight_style);
- 
+
 	bytes_view_set_highlight(BYTES_VIEW(bv), bstart, bend, bmask, bmask_le);
 	bytes_view_set_highlight_appendix(BYTES_VIEW(bv), astart, aend);
- 
+
 	if (bstart != -1 && bend != -1)
 		bytes_view_scroll_to_byte(BYTES_VIEW(bv), bstart);
 	bytes_view_refresh(BYTES_VIEW(bv));
@@ -906,7 +906,14 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
             /* In the hex view, only highlight the target bytes or string. The entire
                field can then be displayed by clicking on any of the bytes in the field. */
             if (cfile.hex) {
-                blen = (int)strlen(cfile.sfilter)/2;
+                char *p = cfile.sfilter;
+
+                blen = 0;
+                while (*p) {
+                    if (g_ascii_isxdigit(*p++))
+                        blen++;
+                }
+                blen = (blen + 1) / 2;
             } else {
                 blen = (int)strlen(cfile.sfilter);
             }
@@ -1379,7 +1386,7 @@ expand_finfos(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointe
     return FALSE;
 }
 
-void 
+void
 proto_tree_draw_resolve(proto_tree *protocol_tree, GtkWidget *tree_view, const e_addr_resolve *resolv)
 {
     ProtoTreeModel *model;
