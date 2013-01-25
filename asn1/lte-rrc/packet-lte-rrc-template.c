@@ -41,7 +41,6 @@
 #include "packet-lpp.h"
 #include "packet-gsm_map.h"
 #include "packet-cell_broadcast.h"
-#include <epan/expert.h>
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
 #define PSNAME "LTE RRC"

@@ -49,7 +49,6 @@
 #include "packet-lpp.h"
 #include "packet-gsm_map.h"
 #include "packet-cell_broadcast.h"
-#include <epan/expert.h>
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
 #define PSNAME "LTE RRC"
@@ -159,7 +158,7 @@ typedef enum _RAT_Type_enum {
 } RAT_Type_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 64 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 63 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -2235,7 +2234,7 @@ static int hf_lte_rrc_CandidateCellInfoList_r10_item = -1;  /* CandidateCellInfo
 static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */ 
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 69 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 68 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -3393,7 +3392,7 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 187 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 186 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -33278,7 +33277,7 @@ static int dissect_MBMSInterestIndication_r11_PDU(tvbuff_t *tvb _U_, packet_info
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 1821 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1820 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -41689,7 +41688,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 1967 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1966 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -43184,7 +43183,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2422 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2421 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -43237,7 +43236,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2459 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2458 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }
