@@ -610,6 +610,7 @@ proto_tree_free_node(proto_node *node, gpointer data _U_)
 		/* This is a child node. Don't free the per-tree data, but
 		 * do free the field_info data. */
 		FREE_NODE_FIELD_INFO(finfo);
+		node->finfo = NULL;
 	}
 
 #if 0
