@@ -1814,7 +1814,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     if (flags & GTPv2_ULI_CGI_MASK)
     {
         proto_item_append_text(item, "CGI ");
-        fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "Cell Global Identity (CGI)");
+        fi = proto_tree_add_text(tree, tvb, offset, 7, "Cell Global Identity (CGI)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
         dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
@@ -1830,7 +1830,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     if (flags & GTPv2_ULI_SAI_MASK)
     {
         proto_item_append_text(item, "SAI ");
-        fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "Service Area Identity (SAI)");
+        fi = proto_tree_add_text(tree, tvb, offset, 7, "Service Area Identity (SAI)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
         dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
@@ -1845,7 +1845,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     if (flags & GTPv2_ULI_RAI_MASK)
     {
         proto_item_append_text(item, "RAI ");
-        fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "Routeing Area Identity (RAI)");
+        fi = proto_tree_add_text(tree, tvb, offset, 7, "Routeing Area Identity (RAI)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
         dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
@@ -1860,7 +1860,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     if (flags & GTPv2_ULI_TAI_MASK)
     {
         proto_item_append_text(item, "TAI ");
-        fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "Tracking Area Identity (TAI)");
+        fi = proto_tree_add_text(tree, tvb, offset, 5, "Tracking Area Identity (TAI)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
         dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
@@ -1878,7 +1878,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
         guint32 ECGI;
 
         proto_item_append_text(item, "ECGI ");
-        fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "E-UTRAN Cell Global Identifier (ECGI)");
+        fi = proto_tree_add_text(tree, tvb, offset, 7, "E-UTRAN Cell Global Identifier (ECGI)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
         dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
@@ -1906,7 +1906,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
     if (flags & GTPv2_ULI_LAI_MASK)
     {
         proto_item_append_text(item, "LAI ");
-        fi = proto_tree_add_text(tree, tvb, offset + 1, 5, "LAI (Location Area Identifier)");
+        fi = proto_tree_add_text(tree, tvb, offset, 5, "LAI (Location Area Identifier)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
         dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
@@ -6113,12 +6113,12 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_uli_ecgi_eci,
          {"ECI (E-UTRAN Cell Identifier)", "gtpv2.uli_ecgi_eci",
-          FT_UINT32, BASE_HEX, NULL, 0x0,
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_uli_lai_lac,
          {"Location Area Code (LAC)", "gtpv2.uli_lai_lac",
-          FT_UINT16, BASE_HEX, NULL, 0x0,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_uli_ecgi_eci_spare,

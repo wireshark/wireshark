@@ -1894,7 +1894,7 @@ apply_selected_filter_cb(GtkAction *action, gpointer user_data)
 		/* Use different callbacks depending action path */
         match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
 	} else {
-		match_selected_ptree_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+        match_selected_ptree_cb(user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
 	}
 }
 
@@ -5548,4 +5548,3 @@ void set_menus_for_profiles(gboolean default_profile)
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

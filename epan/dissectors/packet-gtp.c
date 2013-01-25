@@ -254,6 +254,7 @@ static int hf_gtp_cmn_flg_mbs_cnt_inf = -1;
 static int hf_gtp_cmn_flg_nrsn = -1;
 static int hf_gtp_cmn_flg_no_qos_neg = -1;
 static int hf_gtp_cmn_flg_upgrd_qos_sup = -1;
+static int hf_gtp_cmn_flg_dual_addr_bearer_flg = -1;
 static int hf_gtp_tmgi = -1;
 static int hf_gtp_mbms_ses_dur_days = -1;
 static int hf_gtp_mbms_ses_dur_s = -1;
@@ -5465,22 +5466,24 @@ decode_gtp_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_COMMON_FLGS]);
 
     offset++;
-    proto_tree_add_item(ext_tree, hf_gtp_ext_length,              tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length,                   tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
+    /* Dual Address Bearer Flag */
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_dual_addr_bearer_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Upgrade QoS Supported */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_upgrd_qos_sup,   tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_upgrd_qos_sup,        tvb, offset, 1, ENC_BIG_ENDIAN);
     /* NRSN bit field */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_nrsn,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_nrsn,                 tvb, offset, 1, ENC_BIG_ENDIAN);
     /* No QoS negotiation */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_no_qos_neg,      tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_no_qos_neg,           tvb, offset, 1, ENC_BIG_ENDIAN);
     /* MBMS Counting Information bi */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_cnt_inf,     tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_cnt_inf,          tvb, offset, 1, ENC_BIG_ENDIAN);
     /* RAN Procedures Ready */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_ran_pcd_rdy, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_ran_pcd_rdy,      tvb, offset, 1, ENC_BIG_ENDIAN);
     /* MBMS Service Type */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_srv_type,    tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_srv_type,         tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Prohibit Payload Compression */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_ppc,             tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_ppc,                  tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -9016,6 +9019,11 @@ proto_register_gtp(void)
         {&hf_gtp_cmn_flg_upgrd_qos_sup,
          { "Upgrade QoS Supported", "gtp.cmn_flg.upgrd_qos_sup",
            FT_BOOLEAN, 8, NULL, 0x40,
+           NULL, HFILL}
+        },
+        {&hf_gtp_cmn_flg_dual_addr_bearer_flg,
+         { "Dual Address Bearer Flag", "gtp.cmn_flg.dual_addr_bearer_flg",
+           FT_BOOLEAN, 8, NULL, 0x80,
            NULL, HFILL}
         },
         {&hf_gtp_tmgi,

@@ -72,6 +72,138 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Wrong decoding of gtp.target identification.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3974">Bug
+          3974</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Reassemble.c leaks memory for GLIB &gt; 2.8.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4141">Bug
+          4141</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes when starting due to out-of-date plugin left behind from earlier installation.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7401">Bug
+          7401</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Failed to dissect TLS handshake packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7435">Bug
+          7435</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ISUP dissector problem with empty Generic Number.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7632">Bug
+          7632</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Lua code crashes wireshark after update to 1.8.3.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7976">Bug
+          7976</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Timestamp info is not saved correctly when writing DOS Sniffer files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7998">Bug
+          7998</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          1.8.3 Wireshark User's Guide version is 1.6.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8009">Bug
+          8009</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Core dumped when the file is closed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8022">Bug
+          8022</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          LPP is misspelled in APDU parameter in e-CIDMeasurementInitiation request for LPPA message.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8023">Bug
+          8023</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wrong packet bytes are selected for ISUP CUG binary code.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8035">Bug
+          8035</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Decodes FCoE Group Multicast MAC address as Broadcom MAC address.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8046">Bug
+          8046</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Display Filter Macros crash.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8073">Bug
+          8073</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The SSL dissector stops decrypting the SSL conversation with Malformed Packet:SSL error messages.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8075">Bug
+          8075</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Unable to Save/Apply [Unistim Port] in Preferences.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8078">Bug
+          8078</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Some Information Elements in GTPv2 are not dissected correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8079">Bug
+          8079</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          3GPP ULI AVP. SAI  is not correctly decoded.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8098">Bug
+          8098</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark does not show &quot;Start and End Time&quot; information for Cisco Netflow/IPFIX with type 154 to 157.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8105">Bug
+          8105</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          GPRS Tunnel Protocoll GTP Version 1 does not decode DAF flag in Common Flags IE.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8193">Bug
+          8193</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wrong parcing of ULI of gtpv2 messages - errors in SAC, RAC &amp; ECI.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8208">Bug
+          8208</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Version Number in EtherIP dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8211">Bug
+          8211</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Electromagnetic Emission Parser parses field Event Id as Entity Id.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8227">Bug
+          8227</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -98,7 +230,35 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+ANSI IS-637-A,
+ASN.1 PER,
+AX.25,
+Bluetooth HCI,
+DCP-ETSI,
+DIAMETER,
+DIS PDU,
+DOCSIS CM-STATUS,
+DTLS,
+DTN,
+EtherIP,
+Fibre Channel,
+GPRS,
+GTP,
+GTPv2,
+HomePlug AV,
+IEEE 802.3 Slow,
+IEEE 802.15.4,
+ISUP,
+LPPa,
+MPLS,
+MS-MMC,
+NAS-EPS,
+ROHC,
+RSL,
+RTPS,
+SDP,
+SIP,
+SSL
 
     </para>
     </section>
@@ -106,7 +266,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+DOS Sniffer
 
     </para>
     </section>
