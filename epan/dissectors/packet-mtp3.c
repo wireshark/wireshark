@@ -46,6 +46,7 @@
 #include <epan/tap.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include "packet-q708.h"
 #include "packet-sccp.h"
 #include "packet-frame.h"
@@ -752,8 +753,8 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
     }
 
-    mtp3_addr_opc = ep_alloc0(sizeof(mtp3_addr_pc_t));
-    mtp3_addr_dpc = ep_alloc0(sizeof(mtp3_addr_pc_t));
+    mtp3_addr_opc = wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
+    mtp3_addr_dpc = wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
 
     /* Dissect the packet (even if !tree so can call sub-dissectors and update
      * the source and destination address columns) */
