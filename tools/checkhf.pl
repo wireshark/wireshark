@@ -152,12 +152,16 @@ while (<>) {
 	}
 
 	# Read input
-	if (/static\s+.*int\s+(hf_\w*)\s*=\s*-1\s*;/) {
+	if (/^\s*(?:static\s+)?.*int\s+(hf_\w*)\s*=\s*-1\s*;/) {
 		$element = $1;
 		$debug && print "t_declaration for $element$D\n";
 		$type = "t_declaration";
-		# ignore: declarations without any use are detected by the compiler
-		next;
+		if (/^\s*static/) {
+			# ignore: static declarations without any use are detected by the compiler
+			next;
+                }
+		$debug && print "extern declaration: t_usage for $element$D\n";
+                $type = "t_usage";  # hack: decl is extern so pretend we've seen a usage
 	# Skip function parameter declarations with hf_ names
 	} elsif (/(int\s+?|int\s*?\*\s*?|header_field_info\s+?|header_field_info\s*?\*\s*?|hf_register_info\s+?|hf_register_info\s*?\*\s*?|->\s*?)(hf_\w*)\W(.*)/) {
 		$element = $2;
