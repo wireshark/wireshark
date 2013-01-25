@@ -356,6 +356,11 @@ static int hf_homeplug_av_cblock_img_addr        = -1;
 static int hf_homeplug_av_cblock_img_len         = -1;
 static int hf_homeplug_av_cblock_img_chksum      = -1;
 static int hf_homeplug_av_cblock_entry_point     = -1;
+static int hf_homeplug_av_cblock_hdr_minor	 = -1;
+static int hf_homeplug_av_cblock_hdr_img_type	 = -1;
+static int hf_homeplug_av_cblock_hdr_ignore_mask = -1;
+static int hf_homeplug_av_cblock_hdr_module_id	 = -1;
+static int hf_homeplug_av_cblock_hdr_module_subid= -1;
 static int hf_homeplug_av_cblock_next_hdr        = -1;
 static int hf_homeplug_av_cblock_hdr_chksum      = -1;
 
@@ -398,6 +403,11 @@ static int hf_homeplug_av_op_attr_data_sw_sub    = -1;
 static int hf_homeplug_av_op_attr_data_sw_num    = -1;
 static int hf_homeplug_av_op_attr_data_sw_date   = -1;
 static int hf_homeplug_av_op_attr_data_sw_rel    = -1;
+static int hf_homeplug_av_op_attr_data_sw_sdram_type = -1;
+static int hf_homeplug_av_op_attr_data_sw_linefreq = -1;
+static int hf_homeplug_av_op_attr_data_sw_zerocross = -1;
+static int hf_homeplug_av_op_attr_data_sw_sdram_size = -1;
+static int hf_homeplug_av_op_attr_data_sw_auth_mode = -1;
 
 static int hf_homeplug_av_enet_phy_req           = -1;
 static int hf_homeplug_av_enet_phy_req_mcontrol  = -1;
@@ -842,6 +852,24 @@ static const value_string homeplug_av_key_result_vals[] = {
    { 0, NULL }
 };
 
+#define HOMEPLUG_AV_LINEFREQ_MASK	0x03
+
+static const value_string homeplug_av_linefreq_vals[] = {
+   { 0x00, "Unknown frequency" },
+   { 0x01, "50Hz" },
+   { 0x02, "60Hz" },
+   { 0, NULL }
+};
+
+#define HOMEPLUG_AV_ZEROCROSS_MASK	0x03
+
+static const value_string homeplug_av_zerocrossing_vals[] = {
+   { 0x00, "Not yet detected" },
+   { 0x01, "Detected" },
+   { 0x02, "Missing" },
+   { 0, NULL }
+};
+
 #define HOMEPLUG_AV_ENET_PHY_SPEED_MASK	0x03
 
 static const value_string homeplug_av_enet_phy_speed_vals[] = {
@@ -1038,6 +1066,41 @@ static const value_string homeplug_av_cblock_status_vals[] = {
    { 0x10, "No Flash" },
    { 0x30, "Invalid Checksum" },
    { 0x34, "BIST Failed" },
+   { 0, NULL }
+};
+
+#define HOMEPLUG_AV_NVM_IMG_TYPE_MASK		0x1F
+
+static const value_string homeplug_av_nvm_img_type_vals[] = {
+   { 0x00, "Generic Image" },
+   { 0x01, "Synopsis configuration" },
+   { 0x02, "Denali configuration" },
+   { 0x03, "Denali applet" },
+   { 0x04, "Runtime firmware" },
+   { 0x05, "OAS client" },
+   { 0x06, "Custom image" },
+   { 0x07, "Memory control applet" },
+   { 0x08, "Power management applet" },
+   { 0x09, "OAS client IP stack" },
+   { 0x0A, "OAS client TR069" },
+   { 0x0B, "SoftLoader" },
+   { 0x0C, "Flash layout" },
+   { 0x0D, "Unknown" },
+   { 0x0E, "Chain manifest" },
+   { 0x0F, "Runtime parameters" },
+   { 0x10, "Custom module in scratch" },
+   { 0x11, "Custom module update applet" },
+   { 0, NULL }
+};
+
+#define HOMEPLUG_AV_NVM_IGNORE_MASK_MASK	0x1FF
+
+static const value_string homeplug_av_nvm_ignore_mask_vals[] = {
+   { 0x00, "INT6000" },
+   { 0x01, "INT6300" },
+   { 0x04, "INT6400" },
+   { 0x10, "AR7400" },
+   { 0x100, "AR7420" },
    { 0, NULL }
 };
 
@@ -2457,7 +2520,11 @@ dissect_homeplug_av_cblock_hdr(ptvcursor_t *cursor)
       ptvcursor_add(cursor, hf_homeplug_av_cblock_img_len, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_cblock_img_chksum, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_cblock_entry_point, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 12, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_hdr_minor, 1, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_hdr_img_type, 1, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_hdr_ignore_mask, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_hdr_module_id, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_hdr_module_subid, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_cblock_next_hdr, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_cblock_hdr_chksum, 4, ENC_LITTLE_ENDIAN);
    }
@@ -2613,9 +2680,15 @@ dissect_homeplug_av_op_attr_bin_report(ptvcursor_t *cursor)
       ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_minor, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_sub, 4, ENC_LITTLE_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_num, 4, ENC_LITTLE_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 8, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, ENC_NA);
       ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_date, 8, ENC_ASCII|ENC_NA);
       ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_rel, 12, ENC_ASCII|ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_sdram_type, 1, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+      ptvcursor_add_no_advance(cursor, hf_homeplug_av_op_attr_data_sw_linefreq, 1, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_zerocross, 1, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_sdram_size, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_auth_mode, 1, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -4054,6 +4127,26 @@ proto_register_homeplug_av(void)
         { "Entry Point", "homeplug_av.cblock_hdr.entry_point",
           FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
+      { &hf_homeplug_av_cblock_hdr_minor,
+        { "Header minor version", "homeplug_av.cblock_hdr.minor",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_cblock_hdr_img_type,
+        { "Header image type", "homeplug_av.cblock_hdr.img_type",
+          FT_UINT8, BASE_DEC, VALS(homeplug_av_nvm_img_type_vals), HOMEPLUG_AV_NVM_IMG_TYPE_MASK, "Unknown", HFILL }
+      },
+      { &hf_homeplug_av_cblock_hdr_ignore_mask,
+        { "Header ignore mask", "homeplug_av.cblock_hdr.ignore_mask",
+          FT_UINT16, BASE_HEX, VALS(homeplug_av_nvm_ignore_mask_vals), HOMEPLUG_AV_NVM_IGNORE_MASK_MASK, "Unknown", HFILL }
+      },
+      { &hf_homeplug_av_cblock_hdr_module_id,
+        { "Header module ID", "homeplug_av.cblock_hdr.module_id",
+          FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_cblock_hdr_module_subid,
+        { "Header module sub ID", "homeplug_av.cblock_hdr.module_subid",
+          FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+      },
       { &hf_homeplug_av_cblock_next_hdr,
         { "Address of next header in NVM", "homeplug_av.cblock_hdr.next_hdr",
           FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
@@ -4193,6 +4286,26 @@ proto_register_homeplug_av(void)
       { &hf_homeplug_av_op_attr_data_sw_rel,
         { "Release type", "homeplug_av.op_attr_cnf.data.sw_rel",
           FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_op_attr_data_sw_sdram_type,
+        { "SDRAM type", "homeplug_av.op_attr_cnf.data.sw_sdram_type",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_op_attr_data_sw_linefreq,
+        { "Line frequency (Hz)", "homeplug_av.op_attr_cnf.data.sw_linefreq",
+          FT_UINT8, BASE_DEC, VALS(homeplug_av_linefreq_vals), HOMEPLUG_AV_LINEFREQ_MASK, "Unknown", HFILL }
+      },
+      { &hf_homeplug_av_op_attr_data_sw_zerocross,
+        { "Zero-crossing", "homeplug_av.op_attr_cnf.data.sw_zerocross",
+          FT_UINT8, BASE_DEC, VALS(homeplug_av_zerocrossing_vals), HOMEPLUG_AV_ZEROCROSS_MASK << 2, "Unknown", HFILL }
+      },
+      { &hf_homeplug_av_op_attr_data_sw_sdram_size,
+        { "SDRAM size (Mbytes)", "homeplug_av.op_attr_cnf.data.sw_sdram_size",
+          FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_homeplug_av_op_attr_data_sw_auth_mode,
+        { "Authorization mode", "homeplug_av.op_attr_cnf.data.sw_auth_mode",
+          FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       /* Get Ethernet PHY Settings Request */
       { &hf_homeplug_av_enet_phy_req,
