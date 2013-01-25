@@ -1623,7 +1623,7 @@ dissect_homeplug_av_get_brg_infos_cnf(ptvcursor_t *cursor)
 }
 
 static void
-dissect_homeplug_av_nw_infos_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
+dissect_homeplug_av_nw_infos_cnf(ptvcursor_t *cursor)
 {
    proto_item *it;
    guint8      num_avlns;
@@ -1636,22 +1636,20 @@ dissect_homeplug_av_nw_infos_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cm_nw_infos_cnf);
    {
-      if (homeplug_av_mmver == 1)
-         ptvcursor_add(cursor, hf_homeplug_av_reserved, 5, ENC_NA);
-
       num_avlns = tvb_get_guint8(ptvcursor_tvbuff(cursor),
                                  ptvcursor_current_offset(cursor));
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_avlns, 1, ENC_BIG_ENDIAN);
 
       for (net = 0; net < num_avlns; net++) {
-         dissect_homeplug_av_nw_info_net(cursor, FALSE, homeplug_av_mmver);
+         /* Force HomePlug AV 1.0 layout here */
+         dissect_homeplug_av_nw_info_net(cursor, FALSE, 0);
       }
    }
    ptvcursor_pop_subtree(cursor);
 }
 
 static void
-dissect_homeplug_av_nw_stats_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
+dissect_homeplug_av_nw_stats_cnf(ptvcursor_t *cursor)
 {
    proto_item *it;
    guint8      num_stas;
@@ -1669,7 +1667,8 @@ dissect_homeplug_av_nw_stats_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_stas, 1, ENC_BIG_ENDIAN);
 
       for (sta = 0; sta < num_stas; sta++) {
-         dissect_homeplug_av_nw_info_sta(cursor, FALSE, homeplug_av_mmver);
+         /* Force HomePlug AV 1.0 layout here */
+         dissect_homeplug_av_nw_info_sta(cursor, FALSE, 0);
       }
    }
    ptvcursor_pop_subtree(cursor);
@@ -2780,10 +2779,10 @@ dissect_homeplug_av_mme(ptvcursor_t *cursor, guint8 homeplug_av_mmver, guint16 h
       dissect_homeplug_av_get_brg_infos_cnf(cursor);
       break;
    case HOMEPLUG_AV_MMTYPE_CM_NW_INFO_CNF:
-      dissect_homeplug_av_nw_infos_cnf(cursor, homeplug_av_mmver);
+      dissect_homeplug_av_nw_infos_cnf(cursor);
       break;
    case HOMEPLUG_AV_MMTYPE_CM_NW_STATS_CNF:
-      dissect_homeplug_av_nw_stats_cnf(cursor, homeplug_av_mmver);
+      dissect_homeplug_av_nw_stats_cnf(cursor);
       break;
 
       /* Intellon Vendor-specific MMEs */
