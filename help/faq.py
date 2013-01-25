@@ -1353,14 +1353,16 @@ packets to a temporary file, which will probably be in <tt>/tmp</tt> or
 <tt>/var/tmp</tt> on UNIX-flavored OSes, <tt>\TEMP</tt> on the main system disk
 (normally <tt>C:</tt>) on Windows 9x/Me/NT 4.0,
 <tt>\Documents and Settings\</tt><var>your login name</var>
-<tt>\Local Settings\Temp</tt> on the main system disk on Windows 
+<tt>\Local Settings\Temp</tt> on the main system disk on Windows
 2000/Windows XP/Windows Server 2003, and
 <tt>\Users\<var>your login name</var>\AppData\Local\Temp</tt> on the main
 system disk on Windows 7, so the capture file will probably be there.  If you
 are capturing on a single interface, it will have a name of the form,
-<tt>wireshark_iface_YYYYmmddHHMMSS_XXXXXX</tt>; otherwise, if you are capturing
-on multiple interfaces, it will have a name of the form,
-<tt>wireshark_&lt;N&gt;_interfaces_YYYYmmddHHMMSS_XXXXXX</tt>, where &lt;N&gt;
+<tt>wireshark_&lt;fmt&gt_&lt;iface&gt;_YYYYmmddHHMMSS_XXXXXX</tt>; otherwise,
+if you are capturing on multiple interfaces, it will have a name of the form,
+<tt>wireshark_&lt;fmt&gt_&lt;N&gt;_interfaces_YYYYmmddHHMMSS_XXXXXX</tt>,
+where &lt;fmt&gt; is the capture file format (pcap or pcapng), &lt;iface&gt; is
+the actual name of the interface you are capturing on, and &lt;N&gt;
 is the number of simultaneous interfaces you are capturing on.  Please don't
 send a trace file greater than 1 MB when compressed; instead, make it available
 via FTP or HTTP, or say it's available but leave it up to a developer to ask
