@@ -810,14 +810,18 @@ static const value_string homeplug_av_key_type_vals[] = {
    { 0, NULL }
 };
 
-#define HOMEPLUG_AV_DEV_ID_MASK		0x07
+#define HOMEPLUG_AV_DEV_ID_MASK		0xff
 
 static const value_string homeplug_av_dev_id_vals[] = {
    { 0x00, "Unknown" },
    { 0x01, "INT6000" },
    { 0x02, "INT6300" },
    { 0x03, "INT6400" },
-   { 0x04, "INT7400" },
+   { 0x04, "AR7400" },
+   { 0x05, "AR6405" },
+   { 0x20, "QCA7450/QCA7420" },
+   { 0x21, "QCA6410/QCA6411" },
+   { 0x22, "QCA7000" },
    { 0, NULL }
 };
 
