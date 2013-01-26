@@ -63,12 +63,12 @@ static int hf_pvfs_magic_nr = -1;
 static int hf_pvfs_mode = -1;
 static int hf_pvfs_tag = -1;
 static int hf_pvfs_size = -1;
-static int hf_pvfs_release_number = -1;
+/* static int hf_pvfs_release_number = -1; */
 static int hf_pvfs_encoding = -1;
 static int hf_pvfs_server_op = -1;
-static int hf_pvfs_handle = -1;
+/* static int hf_pvfs_handle = -1; */
 static int hf_pvfs_fs_id = -1;
-static int hf_pvfs_attrmask = -1;
+/* static int hf_pvfs_attrmask = -1; */
 static int hf_pvfs_attr = -1;
 static int hf_pvfs_ds_type = -1;
 static int hf_pvfs_error = -1;
@@ -90,7 +90,7 @@ static int hf_pvfs_parent_mtime_nsec = -1;
 static int hf_pvfs_parent_ctime = -1;
 static int hf_pvfs_parent_ctime_sec = -1;
 static int hf_pvfs_parent_ctime_nsec = -1;
-static int hf_pvfs_dirent_count = -1;
+/* static int hf_pvfs_dirent_count = -1; */
 static int hf_pvfs_directory_version = -1;
 static int hf_pvfs_path = -1;
 static int hf_pvfs_total_completed = -1;
@@ -100,7 +100,7 @@ static int hf_pvfs_io_type = -1;
 static int hf_pvfs_flowproto_type = -1;
 static int hf_pvfs_server_param = -1;
 static int hf_pvfs_prev_value = -1;
-static int hf_pvfs_ram_free_bytes = -1;
+/* static int hf_pvfs_ram_free_bytes = -1; */
 static int hf_pvfs_bytes_available = -1;
 static int hf_pvfs_bytes_total = -1;
 static int hf_pvfs_ram_bytes_total = -1;
@@ -3251,9 +3251,11 @@ proto_register_pvfs(void)
 			{ "Size", "pvfs.size", FT_UINT64, BASE_DEC,
 				NULL, 0, NULL, HFILL }},
 
+/**
 		{ &hf_pvfs_release_number,
 			{ "Release Number", "pvfs.release_number", FT_UINT32, BASE_DEC,
 				NULL, 0, NULL, HFILL }},
+**/
 
 		{ &hf_pvfs_encoding,
 			{ "Encoding", "pvfs.encoding", FT_UINT32, BASE_DEC,
@@ -3263,17 +3265,21 @@ proto_register_pvfs(void)
 			{ "Server Operation", "pvfs.server_op", FT_UINT32, BASE_DEC,
 				VALS(names_pvfs_server_op), 0, NULL, HFILL }},
 
+/**
 		{ &hf_pvfs_handle,
 			{ "Handle", "pvfs.handle", FT_BYTES, BASE_NONE,
 				NULL, 0, NULL, HFILL }},
+**/
 
 		{ &hf_pvfs_fs_id,
 			{ "fs_id", "pvfs.fs_id", FT_UINT32, BASE_HEX,
 				NULL, 0, "File System ID", HFILL }},
 
+/**
 		{ &hf_pvfs_attrmask,
 			{ "attrmask", "pvfs.attrmask", FT_UINT32, BASE_HEX,
 				NULL, 0, "Attribute Mask", HFILL }},
+**/
 
 		{ &hf_pvfs_attr,
 			{ "attr", "pvfs.attribute", FT_UINT32, BASE_HEX,
@@ -3359,9 +3365,11 @@ proto_register_pvfs(void)
 			{ "microseconds", "pvfs.parent_ctime.usec", FT_UINT32, BASE_DEC,
 				NULL, 0, "Creation Time (microseconds)", HFILL }},
 
+/**
 		{ &hf_pvfs_dirent_count,
 			{ "Dir Entry Count", "pvfs.dirent_count", FT_UINT64, BASE_DEC,
 				NULL, 0, "Directory Entry Count", HFILL }},
+**/
 
 		{ &hf_pvfs_directory_version,
 			{ "Directory Version", "pvfs.directory_version", FT_UINT64, BASE_HEX,
@@ -3399,9 +3407,11 @@ proto_register_pvfs(void)
 			{ "Previous Value", "pvfs.prev_value", FT_UINT64, BASE_DEC,
 				NULL, 0, NULL, HFILL }},
 
+/**
 		{ &hf_pvfs_ram_free_bytes,
 			{ "RAM Free Bytes", "pvfs.ram.free_bytes", FT_UINT64, BASE_DEC,
 				NULL, 0, NULL, HFILL }},
+**/
 
 		{ &hf_pvfs_bytes_available,
 			{ "Bytes Available", "pvfs.bytes_available", FT_UINT64, BASE_DEC,

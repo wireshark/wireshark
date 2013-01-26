@@ -161,8 +161,8 @@ static int hf_pgm_spm_pathafi = -1;
 static int hf_pgm_spm_res = -1;
 static int hf_pgm_spm_path = -1;
 static int hf_pgm_spm_path6 = -1;
-static int hf_pgm_data_sqn = -1;
-static int hf_pgm_data_trail = -1;
+/* static int hf_pgm_data_sqn = -1; */
+/* static int hf_pgm_data_trail = -1; */
 static int hf_pgm_nak_sqn = -1;
 static int hf_pgm_nak_srcafi = -1;
 static int hf_pgm_nak_srcres = -1;
@@ -1158,12 +1158,16 @@ proto_register_pgm(void)
     { &hf_pgm_spm_path6,
       { "Path NLA", "pgm.spm.path", FT_IPv6, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL }},
+/**
     { &hf_pgm_data_sqn,
       { "Data Packet Sequence Number", "pgm.data.sqn", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},
+**/
+/**
     { &hf_pgm_data_trail,
       { "Trailing Edge Sequence Number", "pgm.data.trail", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},
+**/
     { &hf_pgm_nak_sqn,
       { "Requested Sequence Number", "pgm.nak.sqn", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},

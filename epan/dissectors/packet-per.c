@@ -72,7 +72,7 @@ static int hf_per_single_ASN1_type = -1;          /* T_single_ASN1_type */
 static int hf_per_octet_aligned = -1;             /* T_octet_aligned */
 static int hf_per_arbitrary = -1;                 /* T_arbitrary */
 static int hf_per_integer_length = -1;			  /* Show integer length if "show internal per fields" */
-static int hf_per_debug_pos = -1;
+/* static int hf_per_debug_pos = -1; */
 
 static gint ett_per_open_type = -1;
 static gint ett_per_containing = -1;
@@ -2543,10 +2543,12 @@ proto_register_per(void)
       { "integer length", "per.integer_length",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+/**
 	{ &hf_per_debug_pos,
       { "Current bit offset", "per.debug_pos",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+**/
 	};
 	static gint *ett[] =
 	{

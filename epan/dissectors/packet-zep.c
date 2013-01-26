@@ -66,7 +66,6 @@ void proto_reg_handoff_zep(void);
 /*  Initialize protocol and registered fields. */
 static int proto_zep = -1;
 static int hf_zep_version = -1;
-static int hf_zep_type = -1;
 static int hf_zep_channel_id = -1;
 static int hf_zep_device_id = -1;
 static int hf_zep_lqi_mode = -1;
@@ -265,10 +264,6 @@ void proto_register_zep(void)
         { &hf_zep_version,
         { "Protocol Version",           "zep.version", FT_UINT8, BASE_DEC, NULL, 0x0,
             "The version of the sniffer.", HFILL }},
-
-        { &hf_zep_type,
-        { "Type",                       "zep.type", FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
 
         { &hf_zep_channel_id,
         { "Channel ID",                 "zep.channel_id", FT_UINT8, BASE_DEC, NULL, 0x0,

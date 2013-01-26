@@ -67,7 +67,7 @@ static int hf_scsi_sbc_ssu_pwr_cond		= -1;
 static int hf_scsi_sbc_ssu_loej			= -1;
 static int hf_scsi_sbc_ssu_start		= -1;
 static int hf_scsi_sbc_bytchk			= -1;
-static int hf_scsi_sbc_verify_reladdr		= -1;
+/* static int hf_scsi_sbc_verify_reladdr		= -1; */
 static int hf_scsi_sbc_verify_lba		= -1;
 static int hf_scsi_sbc_verify_lba64		= -1;
 static int hf_scsi_sbc_verify_vlen		= -1;
@@ -76,7 +76,7 @@ static int hf_scsi_sbc_wrverify_lba		= -1;
 static int hf_scsi_sbc_wrverify_xferlen		= -1;
 static int hf_scsi_sbc_wrverify_lba64		= -1;
 static int hf_scsi_sbc_wrverify_xferlen32	= -1;
-static int hf_scsi_sbc_readcapacity_flags	= -1;
+/* static int hf_scsi_sbc_readcapacity_flags	= -1; */
 static int hf_scsi_sbc_readdefdata_flags	= -1;
 static int hf_scsi_sbc_reassignblks_flags	= -1;
 static int hf_scsi_sbc_read_flags		= -1;
@@ -1818,9 +1818,11 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_bytchk,
           {"BYTCHK", "scsi_sbc.bytchk", FT_BOOLEAN, 8,
            NULL, 0x02, NULL, HFILL}},
+/**
         { &hf_scsi_sbc_verify_reladdr,
           {"RELADDR", "scsi_sbc.verify.reladdr", FT_BOOLEAN, 8, NULL,
            0x1, NULL, HFILL}},
+**/
         { &hf_scsi_sbc_verify_lba,
           {"LBA", "scsi_sbc.verify.lba", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
            HFILL}},
@@ -1845,9 +1847,11 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_wrverify_xferlen32,
           {"Transfer Length", "scsi_sbc.wrverify.xferlen32", FT_UINT32,
            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+/**
         { &hf_scsi_sbc_readcapacity_flags,
           {"Flags", "scsi_sbc.readcapacity.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
+**/
         { &hf_scsi_sbc_readdefdata_flags,
           {"Flags", "scsi_sbc.readdefdata.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
            HFILL}},

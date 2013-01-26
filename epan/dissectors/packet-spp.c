@@ -41,7 +41,7 @@ static int hf_spp_dst_id = -1;
 static int hf_spp_seq_nr = -1;
 static int hf_spp_ack_nr = -1;
 static int hf_spp_all_nr = -1;
-static int hf_spp_rexmt_frame = -1;
+/* static int hf_spp_rexmt_frame = -1; */
 
 static gint ett_spp = -1;
 static gint ett_spp_connctrl = -1;
@@ -254,10 +254,12 @@ proto_register_spp(void)
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
 		  NULL, HFILL }},
 
+/**
 		{ &hf_spp_rexmt_frame,
 		{ "Retransmitted Frame Number",	"spp.rexmt_frame",
 		  FT_FRAMENUM,	BASE_NONE,	NULL,	0x0,
 		  NULL, HFILL }},
+**/
 	};
 
 	static gint *ett[] = {

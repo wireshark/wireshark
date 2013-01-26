@@ -80,7 +80,7 @@ static int hf_ppi_gps_lat = -1;
 static int hf_ppi_gps_alt = -1;
 static int hf_ppi_gps_alt_gnd = -1;
 static int hf_ppi_gps_gpstime = -1;
-static int hf_ppi_gps_fractime = -1;
+/* static int hf_ppi_gps_fractime = -1; */
 static int hf_ppi_gps_eph = -1;
 static int hf_ppi_gps_epv = -1;
 static int hf_ppi_gps_ept = -1;
@@ -533,10 +533,12 @@ proto_register_ppi_gps(void) {
           { "GPSTimestamp", "ppi_gps.gpstime",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             "GPSTimestamp packet was received at", HFILL } },
+/**
         { &hf_ppi_gps_fractime,
           { "fractional Timestamp", "ppi_gps.fractime",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "fractional GPSTimestamp packet was received at", HFILL } },
+**/
         { &hf_ppi_gps_eph,
           { "Horizontal Error (m)", "ppi_gps.eph",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,

@@ -102,7 +102,7 @@ static int hf_initack_chunk_number_of_outbound_streams = -1;
 static int hf_initack_chunk_number_of_inbound_streams  = -1;
 static int hf_initack_chunk_initial_tsn    = -1;
 
-static int hf_cumulative_tsn_ack = -1;
+/* static int hf_cumulative_tsn_ack = -1; */
 
 static int hf_data_chunk_tsn = -1;
 static int hf_data_chunk_stream_id = -1;
@@ -143,7 +143,7 @@ static int hf_nr_sack_chunk_nr_gap_block_end = -1;
 static int hf_nr_sack_chunk_nr_gap_block_start_tsn = -1;
 static int hf_nr_sack_chunk_nr_gap_block_end_tsn = -1;
 static int hf_nr_sack_chunk_number_tsns_nr_gap_acked = -1;
-static int hf_nr_sack_chunk_duplicate_tsn = -1;
+/* static int hf_nr_sack_chunk_duplicate_tsn = -1; */
 
 static int hf_shutdown_chunk_cumulative_tsn_ack = -1;
 static int hf_cookie = -1;
@@ -4064,7 +4064,9 @@ proto_register_sctp(void)
     { &hf_initack_chunk_number_of_outbound_streams, { "Number of outbound streams",                     "sctp.initack_nr_out_streams",                          FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_initack_chunk_number_of_inbound_streams,  { "Number of inbound streams",                      "sctp.initack_nr_in_streams",                           FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_initack_chunk_initial_tsn,                { "Initial TSN",                                    "sctp.initack_initial_tsn",                             FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+/**
     { &hf_cumulative_tsn_ack,                       { "Cumulative TSN Ack",                             "sctp.cumulative_tsn_ack",                              FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+**/
     { &hf_data_chunk_tsn,                           { "TSN",                                            "sctp.data_tsn",                                        FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_data_chunk_stream_id,                     { "Stream Identifier",                              "sctp.data_sid",                                        FT_UINT16,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_data_chunk_stream_seq_number,             { "Stream sequence number",                         "sctp.data_ssn",                                        FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
@@ -4101,7 +4103,9 @@ proto_register_sctp(void)
     { &hf_nr_sack_chunk_nr_gap_block_end,           { "End",                                            "sctp.nr_sack_nr_gap_block_end",                        FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_nr_sack_chunk_nr_gap_block_end_tsn,       { "End TSN",                                        "sctp.nr_sack_nr_gap_block_end_tsn",                    FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_nr_sack_chunk_number_tsns_nr_gap_acked,   { "Number of TSNs in nr-gap acknowledgement blocks","sctp.nr_sack_number_of_tsns_nr_gap_acked",             FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+/**
     { &hf_nr_sack_chunk_duplicate_tsn,              { "Duplicate TSN",                                  "sctp.nr_sack_duplicate_tsn",                           FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+**/
     { &hf_shutdown_chunk_cumulative_tsn_ack,        { "Cumulative TSN Ack",                             "sctp.shutdown_cumulative_tsn_ack",                     FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_ecne_chunk_lowest_tsn,                    { "Lowest TSN",                                     "sctp.ecne_lowest_tsn",                                 FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_cwr_chunk_lowest_tsn,                     { "Lowest TSN",                                     "sctp.cwr_lowest_tsn",                                  FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },

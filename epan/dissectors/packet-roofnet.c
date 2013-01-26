@@ -92,7 +92,7 @@ static int hf_roofnet_flags = -1;
 static int hf_roofnet_data_length = -1;
 static int hf_roofnet_query_dst = -1;
 static int hf_roofnet_seq = -1;
-static int hf_roofnet_links = -1;
+/* static int hf_roofnet_links = -1; */
 static int hf_roofnet_link_src = -1;
 static int hf_roofnet_link_forward = -1;
 static int hf_roofnet_link_rev = -1;
@@ -294,10 +294,12 @@ void proto_register_roofnet(void)
 	FT_UINT32, BASE_DEC, NULL, 0x0, "Roofnet Sequential Number", HFILL }
     },
 
+/**
     { &hf_roofnet_links,
       { "Links", "roofnet.links",
       FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
+**/
 
     { &hf_roofnet_link_src,
       { "Source IP", "roofnet.link.src",

@@ -273,7 +273,7 @@ static int hf_80211n_mac_phy_evm3 = -1;
 
 /* 802.11n-Extensions A-MPDU fragments */
 static int hf_ampdu_reassembled_in = -1;
-static int hf_ampdu_segments = -1;
+/* static int hf_ampdu_segments = -1; */
 static int hf_ampdu_segment = -1;
 static int hf_ampdu_count  = -1;
 
@@ -1259,9 +1259,11 @@ proto_register_ppi(void)
     { &hf_ampdu_segment,
         { "A-MPDU", "ppi.80211n-mac.ampdu",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0, "802.11n Aggregated MAC Protocol Data Unit (A-MPDU)", HFILL }},
+/**
     { &hf_ampdu_segments,
         { "Reassembled A-MPDU", "ppi.80211n-mac.ampdu.reassembled",
             FT_NONE, BASE_NONE, NULL, 0x0, "Reassembled Aggregated MAC Protocol Data Unit (A-MPDU)", HFILL }},
+**/
     { &hf_ampdu_reassembled_in,
         { "Reassembled A-MPDU in frame", "ppi.80211n-mac.ampdu.reassembled_in",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,

@@ -79,7 +79,7 @@ static int hf_nsrp_ifnum         = -1;
 /* Dada defined for HA Message */
 static int hf_nsrp_msglen      = -1;
 static int hf_nsrp_encflag      = -1;
-static int hf_nsrp_notused = -1;
+/* static int hf_nsrp_notused = -1; */
 
 static int hf_nsrp_total_size = -1;
 
@@ -430,11 +430,13 @@ proto_register_nsrp(void)
 	    FT_UINT8, BASE_DEC, VALS(nsrp_encflag_vals), 0,
 	    "NSRP ENCRYPT FLAG", HFILL }
 	},
+/**
 		{ &hf_nsrp_notused,
 	  { "Not Used", "nsrp.notused",
 	    FT_UINT8, BASE_DEC, NULL, 0,
 	    NULL, HFILL }
 	},
+**/
 		{ &hf_nsrp_total_size,
 	  { "Total Size", "nsrp.totalsize",
 	    FT_UINT32, BASE_DEC, NULL, 0,

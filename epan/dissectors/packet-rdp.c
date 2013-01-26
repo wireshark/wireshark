@@ -242,8 +242,8 @@ static int hf_rdp_Pad2 = -1;
 static int hf_rdp_Pad3 = -1;
 
 /* BitmapCache Persistent List Entry */
-static int hf_rdp_Key1 = -1;
-static int hf_rdp_Key2 = -1;
+/* static int hf_rdp_Key1 = -1; */
+/* static int hf_rdp_Key2 = -1; */
 
 /* FontList */
 #if 0
@@ -266,10 +266,10 @@ static int hf_rdp_lengthCapability = -1;
 static int hf_rdp_capabilityData = -1;
 static int hf_rdp_sessionId = -1;
 
-static int hf_rdp_unknownData = -1;
+/* static int hf_rdp_unknownData = -1; */
 static int hf_rdp_notYetImplemented = -1;
 static int hf_rdp_encrypted = -1;
-static int hf_rdp_compressed = -1;
+/* static int hf_rdp_compressed = -1; */
 
 static int hf_rdp_channelDefArray = -1;
 static int hf_rdp_channelDef = -1;
@@ -2470,14 +2470,18 @@ proto_register_rdp(void) {
       { "Pad3", "rdp.Pad3",
         FT_UINT16, BASE_HEX, NULL, 0,
         NULL, HFILL }},
+/**
     { &hf_rdp_Key1,
       { "Key1", "rdp.Key1",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
+**/
+/**
     { &hf_rdp_Key2,
       { "Key2", "rdp.Key2",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
+**/
     { &hf_rdp_originatorId,
       { "originatorId", "rdp.OriginatorId",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2518,10 +2522,12 @@ proto_register_rdp(void) {
       { "capabilityData", "rdp.capabilityData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+/**
     { &hf_rdp_unknownData,
       { "unknownData", "rdp.unknownData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+**/
     { &hf_rdp_notYetImplemented,
       { "notYetImplemented", "rdp.notYetImplemented",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2530,10 +2536,12 @@ proto_register_rdp(void) {
       { "encryptedData", "rdp.encryptedData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+/**
     { &hf_rdp_compressed,
       { "compressedData", "rdp.compressedData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+**/
     { &hf_rdp_sessionId,
       { "sessionId", "rdp.sessionId",
         FT_UINT32, BASE_HEX, NULL, 0,

@@ -170,13 +170,13 @@ static int hf_ntlmssp_negotiate_flags_10000000 = -1;
 static int hf_ntlmssp_negotiate_flags_20000000 = -1;
 static int hf_ntlmssp_negotiate_flags_40000000 = -1;
 static int hf_ntlmssp_negotiate_flags_80000000 = -1;
-static int hf_ntlmssp_negotiate_workstation_strlen = -1;
-static int hf_ntlmssp_negotiate_workstation_maxlen = -1;
-static int hf_ntlmssp_negotiate_workstation_buffer = -1;
+/* static int hf_ntlmssp_negotiate_workstation_strlen = -1; */
+/* static int hf_ntlmssp_negotiate_workstation_maxlen = -1; */
+/* static int hf_ntlmssp_negotiate_workstation_buffer = -1; */
 static int hf_ntlmssp_negotiate_workstation = -1;
-static int hf_ntlmssp_negotiate_domain_strlen = -1;
-static int hf_ntlmssp_negotiate_domain_maxlen = -1;
-static int hf_ntlmssp_negotiate_domain_buffer = -1;
+/* static int hf_ntlmssp_negotiate_domain_strlen = -1; */
+/* static int hf_ntlmssp_negotiate_domain_maxlen = -1; */
+/* static int hf_ntlmssp_negotiate_domain_buffer = -1; */
 static int hf_ntlmssp_negotiate_domain = -1;
 static int hf_ntlmssp_ntlm_server_challenge = -1;
 static int hf_ntlmssp_ntlm_client_challenge = -1;
@@ -243,7 +243,7 @@ static int hf_ntlmssp_verf_randompad = -1;
 static int hf_ntlmssp_verf_hmacmd5 = -1;
 static int hf_ntlmssp_verf_crc32 = -1;
 static int hf_ntlmssp_verf_sequence = -1;
-static int hf_ntlmssp_decrypted_payload = -1;
+/* static int hf_ntlmssp_decrypted_payload = -1; */
 
 static int hf_ntlmssp_ntlmv2_response = -1;
 static int hf_ntlmssp_ntlmv2_response_hmac = -1;
@@ -2901,41 +2901,53 @@ proto_register_ntlmssp(void)
         FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_NEGOTIATE_56,
         "56-bit encryption is supported", HFILL }
     },
+/**
     { &hf_ntlmssp_negotiate_workstation_strlen,
       { "Calling workstation name length", "ntlmssp.negotiate.callingworkstation.strlen",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+**/
+/**
     { &hf_ntlmssp_negotiate_workstation_maxlen,
       { "Calling workstation name max length", "ntlmssp.negotiate.callingworkstation.maxlen",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+**/
+/**
     { &hf_ntlmssp_negotiate_workstation_buffer,
       { "Calling workstation name buffer", "ntlmssp.negotiate.callingworkstation.buffer",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+**/
     { &hf_ntlmssp_negotiate_workstation,
       { "Calling workstation name", "ntlmssp.negotiate.callingworkstation",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+/**
     { &hf_ntlmssp_negotiate_domain_strlen,
       { "Calling workstation domain length", "ntlmssp.negotiate.domain.strlen",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+**/
+/**
     { &hf_ntlmssp_negotiate_domain_maxlen,
       { "Calling workstation domain max length", "ntlmssp.negotiate.domain.maxlen",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+**/
+/**
     { &hf_ntlmssp_negotiate_domain_buffer,
       { "Calling workstation domain buffer", "ntlmssp.negotiate.domain.buffer",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+**/
     { &hf_ntlmssp_negotiate_domain,
       { "Calling workstation domain", "ntlmssp.negotiate.domain",
         FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3224,11 +3236,13 @@ proto_register_ntlmssp(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+/**
     { &hf_ntlmssp_decrypted_payload,
       { "NTLM Decrypted Payload", "ntlmssp.decrypted_payload",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+**/
     { &hf_ntlmssp_verf_randompad,
       { "Random Pad", "ntlmssp.verf.randompad",
         FT_UINT32, BASE_HEX, NULL, 0x0,

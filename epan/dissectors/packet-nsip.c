@@ -47,8 +47,8 @@ static int hf_nsip_ns_vci = -1;
 static int hf_nsip_pdu_type = -1;
 static int hf_nsip_bvci = -1;
 static int hf_nsip_nsei = -1;
-static int hf_nsip_ip4_elements = -1;
-static int hf_nsip_ip6_elements = -1;
+/* static int hf_nsip_ip4_elements = -1; */
+/* static int hf_nsip_ip6_elements = -1; */
 static int hf_nsip_max_num_ns_vc = -1;
 static int hf_nsip_num_ip4_endpoints = -1;
 static int hf_nsip_num_ip6_endpoints = -1;
@@ -63,8 +63,8 @@ static int hf_nsip_control_bits_r = -1;
 static int hf_nsip_control_bits_c = -1;
 static int hf_nsip_control_bits_spare = -1;
 static int hf_nsip_transaction_id = -1;
-static int hf_nsip_ip_element_ip_address_ipv4 = -1;
-static int hf_nsip_ip_element_ip_address_ipv6 = -1;
+/* static int hf_nsip_ip_element_ip_address_ipv4 = -1; */
+/* static int hf_nsip_ip_element_ip_address_ipv6 = -1; */
 static int hf_nsip_ip_element_udp_port = -1;
 static int hf_nsip_ip_element_signalling_weight = -1;
 static int hf_nsip_ip_element_data_weight = -1;
@@ -1050,16 +1050,20 @@ proto_register_nsip(void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Network Service Entity Identifier", HFILL }
     },
+/**
     { &hf_nsip_ip4_elements,
       { "IP4 elements", "nsip.ip4_elements",
         FT_NONE, BASE_NONE, NULL, 0x0,
         "List of IP4 elements", HFILL }
     },
+**/
+/**
     { &hf_nsip_ip6_elements,
       { "IP6 elements", "nsip.ip6_elements",
         FT_NONE, BASE_NONE, NULL, 0x0,
         "List of IP6 elements", HFILL }
     },
+**/
     { &hf_nsip_max_num_ns_vc,
       { "Maximum number of NS-VCs", "nsip.max_num_ns_vc",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -1130,16 +1134,20 @@ proto_register_nsip(void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
     },
+/**
     { &hf_nsip_ip_element_ip_address_ipv4,
       { "IP Address", "nsip.ip_element.ipv4_address",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+**/
+/**
     { &hf_nsip_ip_element_ip_address_ipv6,
       { "IP Address", "nsip.ip_element.ipv6_address",
         FT_IPv6, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+**/
     { &hf_nsip_ip_element_udp_port,
       { "UDP Port", "nsip.ip_element.udp_port",
         FT_UINT16, BASE_DEC, NULL, 0x0,

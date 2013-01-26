@@ -74,7 +74,7 @@ static int hf_usb_hid_globalitem_pop = -1;
 
 static int hf_usb_hid_localitem_usage = -1;
 static int hf_usb_hid_localitem_usage_min = -1;
-static int hf_usb_hid_localitem_usage_max = -1;
+/* static int hf_usb_hid_localitem_usage_max = -1; */
 static int hf_usb_hid_localitem_desig_index = -1;
 static int hf_usb_hid_localitem_desig_min = -1;
 static int hf_usb_hid_localitem_desig_max = -1;
@@ -965,9 +965,11 @@ proto_register_usb_hid(void)
 			{ "Usage minimum", "usbhid.item.local.usage_min", FT_UINT8, BASE_HEX,
 				NULL, 0, NULL, HFILL }},
 
+/**
 		{ &hf_usb_hid_localitem_usage_max,
 			{ "Usage maximum", "usbhid.item.local.usage_max", FT_UINT8, BASE_HEX,
 				NULL, 0, NULL, HFILL }},
+**/
 
 		{ &hf_usb_hid_localitem_desig_index,
 			{ "Designator index", "usbhid.item.local.desig_index", FT_UINT8, BASE_HEX,

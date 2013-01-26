@@ -41,14 +41,14 @@
 /* Initialize the protocol and registered fields */
 static int proto_tte_pcf = -1;
 
-static int hf_tte_pcf = -1;
+/* static int hf_tte_pcf = -1; */
 static int hf_tte_pcf_ic = -1;
 static int hf_tte_pcf_mn = -1;
-static int hf_tte_pcf_res0 = -1;
+/* static int hf_tte_pcf_res0 = -1; */
 static int hf_tte_pcf_sp = -1;
 static int hf_tte_pcf_sd = -1;
 static int hf_tte_pcf_type = -1;
-static int hf_tte_pcf_res1 = -1;
+/* static int hf_tte_pcf_res1 = -1; */
 static int hf_tte_pcf_tc = -1;
 
 /* Initialize the subtree pointers */
@@ -145,11 +145,13 @@ proto_register_tte_pcf(void)
 {
     static hf_register_info hf[] = {
 
+/**
         { &hf_tte_pcf,
             { "Protocol Control Frame", "tte.pcf",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+**/
         { &hf_tte_pcf_ic,
             { "Integration Cycle", "tte.pcf.ic",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -160,11 +162,13 @@ proto_register_tte_pcf(void)
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+/**
             { &hf_tte_pcf_res0,
             { "Reserved 0", "tte.pcf.res0",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+**/
         { &hf_tte_pcf_sp,
             { "Sync Priority", "tte.pcf.sp",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -180,11 +184,13 @@ proto_register_tte_pcf(void)
             FT_UINT8, BASE_HEX, VALS(pcf_type_str_vals), 0x0F,
             NULL, HFILL }
         },
+/**
         { &hf_tte_pcf_res1,
             { "Reserved 1", "tte.pcf.res1",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+**/
         { &hf_tte_pcf_tc,
             { "Transparent Clock", "tte.pcf.tc",
             FT_UINT64, BASE_HEX, NULL, 0x0,

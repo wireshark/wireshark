@@ -308,7 +308,7 @@ static int hf_amf_header_count = -1;
 static int hf_amf_header_name = -1;
 static int hf_amf_header_must_understand = -1;
 static int hf_amf_header_length = -1;
-static int hf_amf_header_value_type = -1;
+/* static int hf_amf_header_value_type = -1; */
 static int hf_amf_message_count = -1;
 static int hf_amf_message_target_uri = -1;
 static int hf_amf_message_response_uri = -1;
@@ -324,7 +324,7 @@ static int hf_amf_string = -1;
 static int hf_amf_string_reference = -1;
 static int hf_amf_object_reference = -1;
 static int hf_amf_date = -1;
-static int hf_amf_longstringlength = -1;
+/* static int hf_amf_longstringlength = -1; */
 static int hf_amf_longstring = -1;
 static int hf_amf_xml_doc = -1;
 static int hf_amf_xmllength = -1;
@@ -2723,9 +2723,11 @@ proto_register_amf(void)
                   { "Length", "amf.header.length", FT_UINT32, BASE_DEC,
                     NULL, 0x0, NULL, HFILL }},
 
+/**
                 { &hf_amf_header_value_type,
                   { "Value type", "amf.header.value_type", FT_UINT32, BASE_HEX,
-                    /*VALS(rtmpt_type_vals)*/NULL, 0x0, NULL, HFILL }},
+                    VALS(rtmpt_type_vals), 0x0, NULL, HFILL }},
+**/
 
                 { &hf_amf_message_count,
                   { "Message count", "amf.message_count", FT_UINT16, BASE_DEC,
@@ -2785,9 +2787,11 @@ proto_register_amf(void)
                   { "Date", "amf.date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
                     NULL, 0x0, "AMF date", HFILL }},
 
+                /**
                 { &hf_amf_longstringlength,
                   { "String length", "amf.longstringlength", FT_UINT32, BASE_DEC,
                     NULL, 0x0, "AMF long string length", HFILL }},
+                **/
 
                 { &hf_amf_longstring,
                   { "Long string", "amf.longstring", FT_STRING, BASE_NONE,

@@ -72,7 +72,7 @@ static int hf_wassp_flags = -1;
 static int hf_wassp_sessionid = -1;
 static int hf_wassp_length = -1;
 /* tunnel data */
-static int hf_data = -1;
+/* static int hf_data = -1; */
 /* tunnel tlvs */
 static int hf_status = -1;
 static int hf_ru_soft_version = -1;
@@ -1068,9 +1068,11 @@ proto_register_wassp(void)
 			0x0, NULL, HFILL }},
 
 	/* Data: Embedded IEEE 802.11 Frame */
+/**
 		{ &hf_data,
 		{ "DATA", "wassp.data", FT_NONE, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
+**/
 
 	/* WASSP tunnel data */
 		{ &hf_status,

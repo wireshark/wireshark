@@ -404,7 +404,7 @@ static int hf_rtcp_ssrc_high_cycles = -1;
 static int hf_rtcp_ssrc_jitter = -1;
 static int hf_rtcp_ssrc_lsr = -1;
 static int hf_rtcp_ssrc_dlsr = -1;
-static int hf_rtcp_ssrc_csrc = -1;
+/* static int hf_rtcp_ssrc_csrc = -1; */
 static int hf_rtcp_sdes_type = -1;
 static int hf_rtcp_sdes_length = -1;
 static int hf_rtcp_sdes_text = -1;
@@ -3386,6 +3386,7 @@ proto_register_rtcp(void)
                 NULL, HFILL
             }
         },
+/**
         {
             &hf_rtcp_ssrc_csrc,
             {
@@ -3398,6 +3399,7 @@ proto_register_rtcp(void)
                 NULL, HFILL
             }
         },
+**/
         {
             &hf_rtcp_sdes_type,
             {

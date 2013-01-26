@@ -87,11 +87,11 @@ static gint    hf_rdt_stre_stream_id            = -1;
 static gint    hf_rdt_stre_packet_sent          = -1;
 static gint    hf_rdt_stre_ext_flag             = -1;
 
-static gint    hf_rdt_rtt_request_flags         = -1;
-static gint    hf_rdt_rtt_response_flags        = -1;
-static gint    hf_rdt_congestion_flags          = -1;
+/* static gint    hf_rdt_rtt_request_flags         = -1; */
+/* static gint    hf_rdt_rtt_response_flags        = -1; */
+/* static gint    hf_rdt_congestion_flags          = -1; */
 static gint    hf_rdt_report_flags              = -1;
-static gint    hf_rdt_tirq_flags                = -1;
+/* static gint    hf_rdt_tirq_flags                = -1; */
 static gint    hf_rdt_tirp_flags                = -1;
 static gint    hf_rdt_bw_probing_flags          = -1;
 
@@ -1520,6 +1520,7 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
+/**
         {
             &hf_rdt_rtt_request_flags,
             {
@@ -1532,6 +1533,8 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
+**/
+/**
         {
             &hf_rdt_rtt_response_flags,
             {
@@ -1544,6 +1547,8 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
+**/
+/**
         {
             &hf_rdt_congestion_flags,
             {
@@ -1556,6 +1561,7 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
+**/
         {
             &hf_rdt_report_flags,
             {
@@ -1568,6 +1574,7 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
+/**
         {
             &hf_rdt_tirq_flags,
             {
@@ -1580,6 +1587,7 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
+**/
         {
             &hf_rdt_tirp_flags,
             {

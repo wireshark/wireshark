@@ -90,7 +90,7 @@ static int hf_election_desire_flags_master = -1;
 static int hf_election_desire_flags_domain_master = -1;
 static int hf_election_desire_flags_wins = -1;
 static int hf_election_desire_flags_nt = -1;
-static int hf_election_revision = -1;
+/* static int hf_election_revision = -1; */
 static int hf_election_os = -1;
 static int hf_election_os_wfw = -1;
 static int hf_election_os_ntw = -1;
@@ -1126,9 +1126,11 @@ proto_register_smb_browse(void)
 			{ "NT", "browser.election.desire.nt", FT_BOOLEAN, 8,
 			TFS(&tfs_desire_nt), 1<<DESIRE_NT, "Is this a NT server", HFILL }},
 
+/**
 		{ &hf_election_revision,
 			{ "Election Revision", "browser.election.revision", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
+**/
 
 		{ &hf_election_os,
 			{ "Election OS", "browser.election.os", FT_UINT8, BASE_HEX,

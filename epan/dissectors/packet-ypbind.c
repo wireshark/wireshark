@@ -38,7 +38,7 @@ static int hf_ypbind_procedure_v1 = -1;
 static int hf_ypbind_procedure_v2 = -1;
 static int hf_ypbind_domain = -1;
 static int hf_ypbind_resp_type = -1;
-static int hf_ypbind_error = -1;
+/* static int hf_ypbind_error = -1; */
 static int hf_ypbind_addr = -1;
 static int hf_ypbind_port = -1;
 static int hf_ypbind_setdom_version = -1;
@@ -64,6 +64,7 @@ static const value_string resp_type_vals[] = {
 	{0, NULL}
 };
 
+#if 0
 #define YPBIND_ERROR_ERR	1
 #define YPBIND_ERROR_NOSERV	2
 #define YPBIND_ERROR_RESC	3
@@ -73,6 +74,7 @@ static const value_string error_vals[] = {
 	{YPBIND_ERROR_RESC,	"System resource allocation failure"},
 	{0, NULL}
 };
+#endif
 
 static int
 dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
@@ -181,10 +183,10 @@ proto_register_ypbind(void)
 			"Response Type", "ypbind.resp_type", FT_UINT32, BASE_DEC,
 			VALS(resp_type_vals), 0, NULL, HFILL }},
 
-		{ &hf_ypbind_error, {
+/**		{ &hf_ypbind_error, {
 			"Error", "ypbind.error", FT_UINT32, BASE_DEC,
 			VALS(error_vals), 0, "YPBIND Error code", HFILL }},
-
+**/
 		{ &hf_ypbind_addr, {
 			"IP Addr", "ypbind.addr", FT_IPv4, BASE_NONE,
 			NULL, 0, "IP Address of server", HFILL }},

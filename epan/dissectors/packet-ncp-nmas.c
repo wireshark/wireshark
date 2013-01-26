@@ -35,8 +35,8 @@
 static gint ett_nmas = -1;
 
 static int proto_nmas = -1;
-static int hf_func = -1;
-static int hf_subfunc = -1;
+/* static int hf_func = -1; */
+/* static int hf_subfunc = -1; */
 static int hf_ping_version = -1;
 static int hf_ping_flags = -1;
 static int hf_frag_handle = -1;
@@ -48,7 +48,7 @@ static int hf_nmas_version = -1;
 static int hf_msg_version = -1;
 static int hf_session_ident = -1;
 static int hf_msg_verb = -1;
-static int hf_attribute = -1;
+/* static int hf_attribute = -1; */
 static int hf_clearance = -1;
 static int hf_login_sequence = -1;
 static int hf_opaque = -1;
@@ -652,13 +652,17 @@ void
 proto_register_nmas(void)
 {
     static hf_register_info hf_nmas[] = {
+/**
         { &hf_func,
         { "Function", "nmas.func", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
+**/
 
+/**
         { &hf_subfunc,
         { "Subfunction", "nmas.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
+**/
 
         { &hf_ping_version,
         { "Ping Version", "nmas.ping_version", FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -707,9 +711,11 @@ proto_register_nmas(void)
         { "Message Verb",        "nmas.msg_verb", FT_UINT8, BASE_HEX, VALS(nmas_msgverb_enum), 0x0,
             NULL, HFILL }},
 
+/**
         { &hf_attribute,
         { "Attribute Type",        "nmas.attribute", FT_UINT32, BASE_DEC, VALS(nmas_attribute_enum), 0x0,
             NULL, HFILL }},
+**/
 
         { &hf_clearance,
         { "Requested Clearance",    "nmas.clearance",

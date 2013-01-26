@@ -48,8 +48,8 @@ static int proto_ses          = -1;
 static int hf_ses_type        = -1;
 static int hf_ses_type_0      = -1;
 static int hf_ses_length      = -1;
-static int hf_ses_version     = -1;
-static int hf_ses_reserved    = -1;
+/* static int hf_ses_version     = -1; */
+/* static int hf_ses_reserved    = -1; */
 
 static int hf_ses_segment_data = -1;
 static int hf_ses_segments = -1;
@@ -1267,6 +1267,7 @@ proto_register_ses(void)
 			}
 		},
 
+/**
 		{
 			&hf_ses_version,
 			{
@@ -1279,6 +1280,8 @@ proto_register_ses(void)
 				NULL, HFILL
 			}
 		},
+**/
+/**
 		{
 			&hf_ses_reserved,
 			{
@@ -1291,6 +1294,7 @@ proto_register_ses(void)
 				NULL, HFILL
 			}
 		},
+**/
 		{
 			&hf_called_ss_user_reference,
 			{

@@ -52,7 +52,7 @@ static int hf_scsi_smc_inv2			= -1;
 static int hf_scsi_smc_range_flags		= -1;
 static int hf_scsi_smc_fast			= -1;
 static int hf_scsi_smc_range			= -1;
-static int hf_scsi_smc_sea			= -1;
+/* static int hf_scsi_smc_sea			= -1; */
 static int hf_scsi_smc_num_elements		= -1;
 static int hf_scsi_smc_invert			= -1;
 static int hf_scsi_smc_ea			= -1;
@@ -908,9 +908,11 @@ proto_register_scsi_smc(void)
 	{ &hf_scsi_smc_range,
           {"RANGE", "scsi_smc.range", FT_BOOLEAN, 8,
            NULL, 0x01, NULL, HFILL}},
+/**
         { &hf_scsi_smc_sea,
           {"Starting Element Address", "scsi_smc.sea", FT_UINT16, BASE_DEC,
            NULL, 0x0, NULL, HFILL}},
+**/
         { &hf_scsi_smc_num_elements,
           {"Number of Elements", "scsi_smc.num_elements", FT_UINT16, BASE_DEC,
            NULL, 0x0, NULL, HFILL}},

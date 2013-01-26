@@ -51,7 +51,7 @@ static int hf_slsk_byte = -1;
 static int hf_slsk_message_length = -1;
 static int hf_slsk_message_code = -1;
 static int hf_slsk_client_ip = -1;
-static int hf_slsk_server_ip = -1;
+/* static int hf_slsk_server_ip = -1; */
 static int hf_slsk_string_length = -1;
 static int hf_slsk_username = -1;
 static int hf_slsk_password = -1;
@@ -82,7 +82,7 @@ static int hf_slsk_number_of_rooms = -1;
 static int hf_slsk_filename = -1;
 static int hf_slsk_directory = -1;
 static int hf_slsk_size = -1;
-static int hf_slsk_checksum = -1;
+/* static int hf_slsk_checksum = -1; */
 static int hf_slsk_code = -1;
 static int hf_slsk_number_of_users = -1;
 static int hf_slsk_number_of_days = -1;
@@ -90,7 +90,7 @@ static int hf_slsk_transfer_direction = -1;
 static int hf_slsk_user_description = -1;
 static int hf_slsk_picture_exists = -1;
 static int hf_slsk_picture = -1;
-static int hf_slsk_user_uploads = -1;
+/* static int hf_slsk_user_uploads = -1; */
 static int hf_slsk_total_uploads = -1;
 static int hf_slsk_queued_uploads = -1;
 static int hf_slsk_slots_available = -1;
@@ -2419,9 +2419,11 @@ proto_register_slsk(void)
     { &hf_slsk_client_ip,
       { "Client IP", "slsk.client.ip",
       FT_IPv4, BASE_NONE, NULL, 0, "Client IP Address", HFILL } },
+/**
     { &hf_slsk_server_ip,
       { "SoulSeek Server IP", "slsk.server.ip",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+**/
     { &hf_slsk_string_length,
       { "String Length", "slsk.string.length",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2512,9 +2514,11 @@ proto_register_slsk(void)
     { &hf_slsk_size,
       { "Size", "slsk.size",
       FT_UINT32, BASE_DEC, NULL, 0, "File Size", HFILL } },
+/**
     { &hf_slsk_checksum,
       { "Checksum", "slsk.checksum",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+**/
     { &hf_slsk_code,
       { "Code", "slsk.code",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2536,9 +2540,11 @@ proto_register_slsk(void)
     { &hf_slsk_picture,
       { "Picture", "slsk.user.picture",
       FT_STRING, BASE_NONE, NULL, 0, "User Picture", HFILL } },
+/**
     { &hf_slsk_user_uploads,
       { "User uploads", "slsk.uploads.user",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+**/
     { &hf_slsk_total_uploads,
       { "Total uploads allowed", "slsk.uploads.total",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },

@@ -78,7 +78,7 @@ static int hf_olsr_interface_addr = -1;
 static int hf_olsr_netmask = -1;
 static int hf_olsr_network_addr = -1;
 
-static int hf_olsr_neighbor6 = -1;
+/* static int hf_olsr_neighbor6 = -1; */
 static int hf_olsr_origin6_addr = -1;
 static int hf_olsr_neighbor6_addr = -1;
 static int hf_olsr_interface6_addr = -1;
@@ -825,12 +825,14 @@ void proto_register_olsr(void) {
       }
     },
 
+/**
     { &hf_olsr_neighbor6,
       { "Neighbor Address", "olsr.neighbor6",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL
       }
     },
+**/
 
     { &hf_olsr_origin6_addr,
       { "Originator Address", "olsr.origin6_addr",

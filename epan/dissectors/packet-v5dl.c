@@ -43,7 +43,7 @@
 
 static int proto_v5dl = -1;
 static int hf_v5dl_direction = -1;
-static int hf_v5dl_address = -1;
+/* static int hf_v5dl_address = -1; */
 static int hf_v5dl_ef = -1;
 static int hf_v5dl_eah = -1;
 static int hf_v5dl_cr = -1;
@@ -324,9 +324,11 @@ proto_register_v5dl(void)
 	  { "Direction", "v5dl.direction", FT_UINT8, BASE_DEC, VALS(v5dl_direction_vals), 0x0,
 	  	NULL, HFILL }},
 
+/**
 	{ &hf_v5dl_address,
 	  { "Address Field", "v5dl.address", FT_UINT16, BASE_HEX, NULL, 0x0,
 	  	"Address", HFILL }},
+**/
 
 	{ &hf_v5dl_ef,
 	  { "EF", "v5dl.ef", FT_UINT16, BASE_DEC, VALS(v5dl_addr_vals), 0x0,

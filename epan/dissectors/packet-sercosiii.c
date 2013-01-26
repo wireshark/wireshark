@@ -111,11 +111,11 @@ static gint hf_siii_at_svch_info = -1;
 static gint hf_siii_mdt_svch_idn = -1;
 static gint hf_siii_mdt_svch_ctrl = -1;
 static gint hf_siii_at_svch_stat = -1;
-static gint hf_siii_svch_data_telofs_telno = -1;
-static gint hf_siii_svch_data_telofs_mdt_at = -1;
-static gint hf_siii_svch_data_telofs_offset = -1;
-static gint hf_siii_svch_data_proccmd_proccmdexec = -1;
-static gint hf_siii_svch_data_proccmd_proccmd = -1;
+/* static gint hf_siii_svch_data_telofs_telno = -1; */
+/* static gint hf_siii_svch_data_telofs_mdt_at = -1; */
+/* static gint hf_siii_svch_data_telofs_offset = -1; */
+/* static gint hf_siii_svch_data_proccmd_proccmdexec = -1; */
+/* static gint hf_siii_svch_data_proccmd_proccmd = -1; */
 static gint hf_siii_at_dev_status = -1;
 static gint hf_siii_at_dev_status_commwarning = -1;
 static gint hf_siii_at_dev_status_change_topology = -1;
@@ -1379,32 +1379,41 @@ proto_register_sercosiii(void)
       FT_UINT16, BASE_DEC, NULL, 0x01,
       NULL, HFILL }
     },
+/**
     { &hf_siii_svch_data_telofs_telno,
       {"Telegram Number", "siii.mdt.svch.data.telassign.telno",
       FT_UINT16, BASE_DEC, NULL, 0xF000,
       NULL, HFILL }
     },
+**/
+/**
     { &hf_siii_svch_data_telofs_mdt_at,
       {"Telegram Type", "siii.mdt.svch.data.telassign.mdt_at",
       FT_UINT16, BASE_DEC, VALS(siii_svch_data_mdt_at_text), 0x0800,
       NULL, HFILL }
     },
+**/
+/**
     { &hf_siii_svch_data_telofs_offset,
       {"Telegram Offset", "siii.mdt.svch.data.telassign.offset",
       FT_UINT16, BASE_DEC, NULL, 0x07FF,
       NULL, HFILL }
     },
+**/
+/**
     { &hf_siii_svch_data_proccmd_proccmdexec,
       {"Procedure Command Execution", "siii.mdt.svch.data.proccmd.interrupt",
       FT_UINT16, BASE_DEC, VALS(siii_svch_data_proccmd_proccmdexec_text), 0x0002,
       NULL, HFILL }
     },
+**/
+/**
     { &hf_siii_svch_data_proccmd_proccmd,
       {"Procedure Command", "siii.mdt.svch.data.proccmd.set",
       FT_UINT16, BASE_DEC, VALS(siii_svch_data_proccmd_proccmd_text), 0x0001,
       NULL, HFILL }
     },
-
+**/
     { &hf_siii_mst_channel,
       { "Channel", "siii.channel",
         FT_UINT8, BASE_DEC, VALS(siii_mst_channel_text), 0x80,

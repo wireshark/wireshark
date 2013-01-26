@@ -85,7 +85,7 @@ static int hf_nisplus_entry = -1;
 static int hf_nisplus_entry_type = -1;
 static int hf_nisplus_entry_cols = -1;
 static int hf_nisplus_entry_col = -1;
-static int hf_nisplus_entry_flags = -1;
+/* static int hf_nisplus_entry_flags = -1; */
 static int hf_nisplus_entry_val = -1;
 static int hf_nisplus_entry_mask = -1;
 static int hf_nisplus_entry_mask_binary = -1;
@@ -1561,9 +1561,11 @@ proto_register_nis(void)
 			"column", "nisplus.entry.col", FT_NONE, BASE_NONE,
 			NULL, 0, "Entry Column", HFILL }},
 
+/**
 		{ &hf_nisplus_entry_flags, {
 			"flags", "nisplus.entry.flags", FT_UINT32, BASE_HEX,
 			NULL, 0, "Entry Col Flags", HFILL }},
+**/
 
 		{ &hf_nisplus_entry_val, {
 			"val", "nisplus.entry.val", FT_STRING, BASE_NONE,

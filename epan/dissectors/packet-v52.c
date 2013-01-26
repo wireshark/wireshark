@@ -43,8 +43,8 @@ static int hf_v52_discriminator                = -1;
 static gint ett_v52                            = -1;
 static gint ett_v52_info                       = -1;
 
-static int hf_v52_address                      = -1;
-static int hf_v52_low_address                  = -1;
+/* static int hf_v52_address                      = -1; */
+/* static int hf_v52_low_address                  = -1; */
 
 static int hf_v52_msg_type                     = -1;
 static int hf_v52_info_element                 = -1;
@@ -59,8 +59,8 @@ static int hf_v52_bcc_address                  = -1;
 static int hf_v52_bcc_low_address              = -1;
 static int hf_v52_prot_address                 = -1;
 static int hf_v52_prot_low_address             = -1;
-static int hf_v52_ctrl_address                 = -1;
-static int hf_v52_ctrl_low_address             = -1;
+/* static int hf_v52_ctrl_address                 = -1; */
+/* static int hf_v52_ctrl_low_address             = -1; */
 static int hf_v52_cadenced_ring                = -1;
 static int hf_v52_pulse_notification           = -1;
 static int hf_v52_info_length                  = -1;
@@ -188,78 +188,78 @@ dissect_v52_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
 #define LINK_CONTROL_ACK       0x31
 
 static const value_string msg_type_values [] = {
-    { ESTABLISH,             "Establish" },
-    { ESTABLISH_ACK,         "Establish Ack" },
-    { SIGNAL,                "Signal" },
-    { SIGNAL_ACK,            "Signal Ack" },
-    { DISCONNECT,            "Disconnect" },
-    { DISCONNECT_COMPLETE,   "Disconnect Complete" },
-    { STATUS_ENQUIRY,        "Status Enqury" },
-    { STATUS,                "Status" },
-    { PROTOCOL_PARAMETER,    "Protocol Parameter" },
-    { PORT_CONTROL,          "Port Control" },
-    { PORT_CONTROL_ACK,      "Port Control Ack" },
-    { COMMON_CONTROL,        "Common Control" },
-    { COMMON_CONTROL_ACK,    "Common Control Ack" },
-    { SWITCH_OVER_REQ,       "Switch-Over Request" },
-    { SWITCH_OVER_COM,       "Switch-Over Com" },
-    { OS_SWITCH_OVER_COM,    "OS-Switch-Over Com" },
-    { SWITCH_OVER_ACK,       "Switch-Over Ack" },
-    { SWITCH_OVER_REJECT,    "Switch-Over Reject" },
-    { PROT_PROTOCOL_ERROR,   "Protocol Error" },
-    { RESET_SN_COM,          "Reset SN Com" },
-    { RESET_SN_ACK,          "Reset SN Ack" },
-    { ALLOCATION,            "Allocation" },
-    { ALLOCATION_COMPLETE,   "Allocation Complete" },
-    { ALLOCATION_REJECT,     "Allocation Reject" },
-    { DE_ALLOCATION,         "DE Allocation" },
-    { DE_ALLOCATION_COMPLETE,"DE Allocation Complete" },
-    { DE_ALLOCATION_REJECT,  "DE Allocation Reject" },
-    { AUDIT,                 "Audit" },
-    { AUDIT_COMPLETE,        "Audit Complete" },
-    { AN_FAULT,              "AN Fault" },
-    { AN_FAULT_ACKNOWLEDGE,  "AN Fault Ack" },
-    { BCC_PROTOCOL_ERROR,    "Protocol Error" },
-    { LINK_CONTROL,          "Link Control" },
-    { LINK_CONTROL_ACK,      "Link Control Ack" },
+    { ESTABLISH,              "Establish" },
+    { ESTABLISH_ACK,          "Establish Ack" },
+    { SIGNAL,                 "Signal" },
+    { SIGNAL_ACK,             "Signal Ack" },
+    { DISCONNECT,             "Disconnect" },
+    { DISCONNECT_COMPLETE,    "Disconnect Complete" },
+    { STATUS_ENQUIRY,         "Status Enqury" },
+    { STATUS,                 "Status" },
+    { PROTOCOL_PARAMETER,     "Protocol Parameter" },
+    { PORT_CONTROL,           "Port Control" },
+    { PORT_CONTROL_ACK,       "Port Control Ack" },
+    { COMMON_CONTROL,         "Common Control" },
+    { COMMON_CONTROL_ACK,     "Common Control Ack" },
+    { SWITCH_OVER_REQ,        "Switch-Over Request" },
+    { SWITCH_OVER_COM,        "Switch-Over Com" },
+    { OS_SWITCH_OVER_COM,     "OS-Switch-Over Com" },
+    { SWITCH_OVER_ACK,        "Switch-Over Ack" },
+    { SWITCH_OVER_REJECT,     "Switch-Over Reject" },
+    { PROT_PROTOCOL_ERROR,    "Protocol Error" },
+    { RESET_SN_COM,           "Reset SN Com" },
+    { RESET_SN_ACK,           "Reset SN Ack" },
+    { ALLOCATION,             "Allocation" },
+    { ALLOCATION_COMPLETE,    "Allocation Complete" },
+    { ALLOCATION_REJECT,      "Allocation Reject" },
+    { DE_ALLOCATION,          "DE Allocation" },
+    { DE_ALLOCATION_COMPLETE, "DE Allocation Complete" },
+    { DE_ALLOCATION_REJECT,   "DE Allocation Reject" },
+    { AUDIT,                  "Audit" },
+    { AUDIT_COMPLETE,         "Audit Complete" },
+    { AN_FAULT,               "AN Fault" },
+    { AN_FAULT_ACKNOWLEDGE,   "AN Fault Ack" },
+    { BCC_PROTOCOL_ERROR,     "Protocol Error" },
+    { LINK_CONTROL,           "Link Control" },
+    { LINK_CONTROL_ACK,       "Link Control Ack" },
     { 0,                     NULL } };
 
 /* SHORT */
 static const value_string msg_type_values_short [] = {
-    { ESTABLISH,             "Establish" },
-    { ESTABLISH_ACK,         "Establish Ack" },
-    { SIGNAL,                "Signal" },
-    { SIGNAL_ACK,            "Signal Ack" },
-    { DISCONNECT,            "Disconnect" },
-    { DISCONNECT_COMPLETE,   "Disconnect Com" },
-    { STATUS_ENQUIRY,        "Status Enq" },
-    { STATUS,                "Status" },
-    { PROTOCOL_PARAMETER,    "Prot Para" },
-    { PORT_CONTROL,          "PortCtrl" },
-    { PORT_CONTROL_ACK,      "PortCtrl Ack" },
-    { COMMON_CONTROL,        "CCtrl" },
-    { COMMON_CONTROL_ACK,    "CCtrl Ack" },
-    { SWITCH_OVER_REQ,       "SO Req" },
-    { SWITCH_OVER_COM,       "SO Com" },
-    { OS_SWITCH_OVER_COM,    "OS SO Com" },
-    { SWITCH_OVER_ACK,       "SO Ack" },
-    { SWITCH_OVER_REJECT,    "SO Rej" },
-    { PROT_PROTOCOL_ERROR,   "Prot Err" },
-    { RESET_SN_COM,          "Res SN Com" },
-    { RESET_SN_ACK,          "Res SN Ack" },
-    { ALLOCATION,            "BCC Alloc" },
-    { ALLOCATION_COMPLETE,   "BCC Alloc Comp" },
-    { ALLOCATION_REJECT,     "BCC Allo Rej" },
-    { DE_ALLOCATION,         "BCC DE-Alloc" },
-    { DE_ALLOCATION_COMPLETE,"BCC DE-Alloc Comp" },
-    { DE_ALLOCATION_REJECT,  "BCC DE-Alloc Rej" },
-    { AUDIT,                 "BCC Audit" },
-    { AUDIT_COMPLETE,        "BCC Audit Comp" },
-    { AN_FAULT,              "BCC AN Fault" },
-    { AN_FAULT_ACKNOWLEDGE,  "BCC AN Fault Ack" },
-    { BCC_PROTOCOL_ERROR,    "BCC Prot Error" },
-    { LINK_CONTROL,          "LinkCtrl" },
-    { LINK_CONTROL_ACK,      "LinkCtrl Ack" },
+    { ESTABLISH,              "Establish" },
+    { ESTABLISH_ACK,          "Establish Ack" },
+    { SIGNAL,                 "Signal" },
+    { SIGNAL_ACK,             "Signal Ack" },
+    { DISCONNECT,             "Disconnect" },
+    { DISCONNECT_COMPLETE,    "Disconnect Com" },
+    { STATUS_ENQUIRY,         "Status Enq" },
+    { STATUS,                 "Status" },
+    { PROTOCOL_PARAMETER,     "Prot Para" },
+    { PORT_CONTROL,           "PortCtrl" },
+    { PORT_CONTROL_ACK,       "PortCtrl Ack" },
+    { COMMON_CONTROL,         "CCtrl" },
+    { COMMON_CONTROL_ACK,     "CCtrl Ack" },
+    { SWITCH_OVER_REQ,        "SO Req" },
+    { SWITCH_OVER_COM,        "SO Com" },
+    { OS_SWITCH_OVER_COM,     "OS SO Com" },
+    { SWITCH_OVER_ACK,        "SO Ack" },
+    { SWITCH_OVER_REJECT,     "SO Rej" },
+    { PROT_PROTOCOL_ERROR,    "Prot Err" },
+    { RESET_SN_COM,           "Res SN Com" },
+    { RESET_SN_ACK,           "Res SN Ack" },
+    { ALLOCATION,             "BCC Alloc" },
+    { ALLOCATION_COMPLETE,    "BCC Alloc Comp" },
+    { ALLOCATION_REJECT,      "BCC Allo Rej" },
+    { DE_ALLOCATION,          "BCC DE-Alloc" },
+    { DE_ALLOCATION_COMPLETE, "BCC DE-Alloc Comp" },
+    { DE_ALLOCATION_REJECT,   "BCC DE-Alloc Rej" },
+    { AUDIT,                  "BCC Audit" },
+    { AUDIT_COMPLETE,         "BCC Audit Comp" },
+    { AN_FAULT,               "BCC AN Fault" },
+    { AN_FAULT_ACKNOWLEDGE,   "BCC AN Fault Ack" },
+    { BCC_PROTOCOL_ERROR,     "BCC Prot Error" },
+    { LINK_CONTROL,           "LinkCtrl" },
+    { LINK_CONTROL_ACK,       "LinkCtrl Ack" },
     { 0,                     NULL } };
 
 static const value_string pulse_type_values [] = {
@@ -589,81 +589,81 @@ static const value_string cause_type_values [] = {
 #define PROTOCOL_ERROR           0x53
 
 static const value_string info_element_values [] = {
-    { PULSE_NOTIFICATION,      "Pulse notification" },
-    { LINE_INFORMATION,        "Line information" },
-    { STATE,                   "State" },
-    { AUTO_SIG_SEQUENCE,       "Autonomous signal sequence" },
-    { SEQUENCE_RESPONSE,       "Sequence response" },
-    { PSTN_SEQUENCE_NUMBER,    "Sequence number" },
-    { CADENCED_RINGING,        "Cadenced ringing" },
-    { PULSED_SIGNAL,           "Pulsed signal" },
-    { STEADY_SIGNAL,           "Steady signal" },
-    { DIGIT_SIGNAL,            "Digit signal" },
-    { RECOGNITION_TIME,        "Recognition time" },
-    { ENABLE_AUTO_ACK,         "Enable autonomous acknowledge" },
-    { DISABLE_AUTO_ACK,        "Disable autonomous acknowledge" },
-    { CAUSE,                   "Cause" },
-    { RESOURCE_UNAVAILABLE,    "Resource unavailable" },
-    { ENABLE_METERING,         "Enable metering" },
-    { METERING_REPORT,         "Metering report" },
-    { ATTENUATION,             "Attenuation" },
-    { PERFORMANCE_GRADING,     "Performance grading" },
-    { CP_REJECTION_CAUSE,      "Rejection cause" },
-    { CONTROL_FUNCTION_ELEMENT,"Control function element" },
-    { CONTROL_FUNCTION_ID,     "Control function ID" },
-    { VARIANT,                 "Variant" },
-    { INTERFACE_ID,            "Interface ID" },
-    { LINK_CONTROL_FUNCTION,   "Link control function" },
-    { USER_PORT_ID,            "User port ID" },
-    { ISDN_PORT_TS_ID,         "ISDN port TS ID" },
-    { V5_TIME_SLOT_ID,         "V5 TS ID" },
-    { MULTI_SLOT_MAP,          "Multi-Slot map" },
-    { BCC_REJECT_CAUSE,        "Reject cause" },
-    { BCC_PROTOCOL_ERROR_CAUSE,"Protocol error cause" },
-    { CONNECTION_INCOMPLETE,   "Connection incomplete" },
-    { SEQUENCE_NUMBER,         "Sequence number" },
-    { C_CHANNEL_ID,            "Physical C-Channel ID" },
-    { PP_REJECTION_CAUSE,      "Rejection cause" },
-    { PROTOCOL_ERROR,          "Protocol error cause" },
+    { PULSE_NOTIFICATION,       "Pulse notification" },
+    { LINE_INFORMATION,         "Line information" },
+    { STATE,                    "State" },
+    { AUTO_SIG_SEQUENCE,        "Autonomous signal sequence" },
+    { SEQUENCE_RESPONSE,        "Sequence response" },
+    { PSTN_SEQUENCE_NUMBER,     "Sequence number" },
+    { CADENCED_RINGING,         "Cadenced ringing" },
+    { PULSED_SIGNAL,            "Pulsed signal" },
+    { STEADY_SIGNAL,            "Steady signal" },
+    { DIGIT_SIGNAL,             "Digit signal" },
+    { RECOGNITION_TIME,         "Recognition time" },
+    { ENABLE_AUTO_ACK,          "Enable autonomous acknowledge" },
+    { DISABLE_AUTO_ACK,         "Disable autonomous acknowledge" },
+    { CAUSE,                    "Cause" },
+    { RESOURCE_UNAVAILABLE,     "Resource unavailable" },
+    { ENABLE_METERING,          "Enable metering" },
+    { METERING_REPORT,          "Metering report" },
+    { ATTENUATION,              "Attenuation" },
+    { PERFORMANCE_GRADING,      "Performance grading" },
+    { CP_REJECTION_CAUSE,       "Rejection cause" },
+    { CONTROL_FUNCTION_ELEMENT, "Control function element" },
+    { CONTROL_FUNCTION_ID,      "Control function ID" },
+    { VARIANT,                  "Variant" },
+    { INTERFACE_ID,             "Interface ID" },
+    { LINK_CONTROL_FUNCTION,    "Link control function" },
+    { USER_PORT_ID,             "User port ID" },
+    { ISDN_PORT_TS_ID,          "ISDN port TS ID" },
+    { V5_TIME_SLOT_ID,          "V5 TS ID" },
+    { MULTI_SLOT_MAP,           "Multi-Slot map" },
+    { BCC_REJECT_CAUSE,         "Reject cause" },
+    { BCC_PROTOCOL_ERROR_CAUSE, "Protocol error cause" },
+    { CONNECTION_INCOMPLETE,    "Connection incomplete" },
+    { SEQUENCE_NUMBER,          "Sequence number" },
+    { C_CHANNEL_ID,             "Physical C-Channel ID" },
+    { PP_REJECTION_CAUSE,       "Rejection cause" },
+    { PROTOCOL_ERROR,           "Protocol error cause" },
     { 0,                       NULL } };
 
 static const value_string info_element_values_short [] = {
-    { PULSE_NOTIFICATION,      "PN" },
-    { LINE_INFORMATION,        "LI" },
-    { STATE,                   "ST" },
-    { AUTO_SIG_SEQUENCE,       "ASS" },
-    { SEQUENCE_RESPONSE,       "SR" },
-    { PSTN_SEQUENCE_NUMBER,    "SN" },
-    { CADENCED_RINGING,        "CR" },
-    { PULSED_SIGNAL,           "PS" },
-    { STEADY_SIGNAL,           "SS" },
-    { DIGIT_SIGNAL,            "DS" },
-    { RECOGNITION_TIME,        "RT" },
-    { ENABLE_AUTO_ACK,         "EAA" },
-    { DISABLE_AUTO_ACK,        "DAA" },
-    { CAUSE,                   "CA" },
-    { RESOURCE_UNAVAILABLE,    "RU" },
-    { ENABLE_METERING,         "EM" },
-    { METERING_REPORT,         "MR" },
-    { ATTENUATION,             "ATT" },
-    { PERFORMANCE_GRADING,     "PG" },
-    { CP_REJECTION_CAUSE,      "RC" },
-    { CONTROL_FUNCTION_ELEMENT,"CF element" },
-    { CONTROL_FUNCTION_ID,     "CF ID" },
-    { VARIANT,                 "Var" },
-    { INTERFACE_ID,            "Interface ID" },
-    { LINK_CONTROL_FUNCTION,   "LC F" },
-    { USER_PORT_ID,            "UP ID" },
-    { ISDN_PORT_TS_ID,         "ISDNP TS ID" },
-    { V5_TIME_SLOT_ID,         "V5 TS ID" },
-    { MULTI_SLOT_MAP,          "MS map" },
-    { BCC_REJECT_CAUSE,        "RC" },
-    { BCC_PROTOCOL_ERROR_CAUSE,"PEC" },
-    { CONNECTION_INCOMPLETE,   "CI" },
-    { SEQUENCE_NUMBER,         "SN" },
-    { C_CHANNEL_ID,            "Phy CChannel ID" },
-    { PP_REJECTION_CAUSE,      "RC" },
-    { PROTOCOL_ERROR,          "PEC" },
+    { PULSE_NOTIFICATION,       "PN" },
+    { LINE_INFORMATION,         "LI" },
+    { STATE,                    "ST" },
+    { AUTO_SIG_SEQUENCE,        "ASS" },
+    { SEQUENCE_RESPONSE,        "SR" },
+    { PSTN_SEQUENCE_NUMBER,     "SN" },
+    { CADENCED_RINGING,         "CR" },
+    { PULSED_SIGNAL,            "PS" },
+    { STEADY_SIGNAL,            "SS" },
+    { DIGIT_SIGNAL,             "DS" },
+    { RECOGNITION_TIME,         "RT" },
+    { ENABLE_AUTO_ACK,          "EAA" },
+    { DISABLE_AUTO_ACK,         "DAA" },
+    { CAUSE,                    "CA" },
+    { RESOURCE_UNAVAILABLE,     "RU" },
+    { ENABLE_METERING,          "EM" },
+    { METERING_REPORT,          "MR" },
+    { ATTENUATION,              "ATT" },
+    { PERFORMANCE_GRADING,      "PG" },
+    { CP_REJECTION_CAUSE,       "RC" },
+    { CONTROL_FUNCTION_ELEMENT, "CF element" },
+    { CONTROL_FUNCTION_ID,      "CF ID" },
+    { VARIANT,                  "Var" },
+    { INTERFACE_ID,             "Interface ID" },
+    { LINK_CONTROL_FUNCTION,    "LC F" },
+    { USER_PORT_ID,             "UP ID" },
+    { ISDN_PORT_TS_ID,          "ISDNP TS ID" },
+    { V5_TIME_SLOT_ID,          "V5 TS ID" },
+    { MULTI_SLOT_MAP,           "MS map" },
+    { BCC_REJECT_CAUSE,         "RC" },
+    { BCC_PROTOCOL_ERROR_CAUSE, "PEC" },
+    { CONNECTION_INCOMPLETE,    "CI" },
+    { SEQUENCE_NUMBER,          "SN" },
+    { C_CHANNEL_ID,             "Phy CChannel ID" },
+    { PP_REJECTION_CAUSE,       "RC" },
+    { PROTOCOL_ERROR,           "PEC" },
     { 0,                       NULL } };
 
 
@@ -680,15 +680,15 @@ static const value_string info_element_values_short [] = {
 static void
 dissect_pstn_sequence_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
     guint8      pstn_sequence_number_tmp = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -715,14 +715,14 @@ dissect_pstn_sequence_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static void
 dissect_cadenced_ring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
-    guint8      cadenced_ring_tmp = 0;
-    guint16 data_length;
-    tvbuff_t *info_tvb;
-    int info_offset = 0;
+    guint8      info_element        = 0;
+    guint8      cadenced_ring_tmp   = 0;
+    guint16     data_length;
+    tvbuff_t   *info_tvb;
+    int         info_offset         = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -752,14 +752,14 @@ dissect_cadenced_ring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 static void
 dissect_pulsed_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -799,15 +799,14 @@ dissect_pulsed_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 static void
 dissect_steady_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
+    guint8      info_element        = 0;
 
-    guint8      info_element = 0;
-
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -836,15 +835,15 @@ dissect_steady_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 static void
 dissect_digit_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      buffer = 0;
+    guint8      buffer              = 0;
     guint8      info_element = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -885,15 +884,15 @@ dissect_digit_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 static void
 dissect_recognition_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      buffer = 0;
+    guint8      buffer              = 0;
     guint8      info_element = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -928,15 +927,15 @@ dissect_recognition_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 static void
 dissect_enable_auto_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      buffer = 0;
+    guint8      buffer              = 0;
     guint8      info_element = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -984,15 +983,15 @@ dissect_enable_auto_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 static void
 dissect_disable_auto_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      buffer = 0;
+    guint8      buffer              = 0;
     guint8      info_element = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1024,14 +1023,14 @@ dissect_disable_auto_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 static void
 dissect_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1064,14 +1063,14 @@ dissect_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 static void
 dissect_resource_unavailable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1097,14 +1096,14 @@ dissect_resource_unavailable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static void
 dissect_pulse_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1128,14 +1127,14 @@ dissect_pulse_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void
 dissect_line_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1159,14 +1158,14 @@ dissect_line_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 static void
 dissect_state(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1190,14 +1189,14 @@ dissect_state(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 static void
 dissect_auto_sig_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1221,14 +1220,14 @@ dissect_auto_sig_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 static void
 dissect_sequence_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1252,14 +1251,14 @@ dissect_sequence_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 static void
 dissect_control_function_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1288,14 +1287,14 @@ dissect_control_function_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static void
 dissect_control_function_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1324,15 +1323,15 @@ dissect_control_function_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_variant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
     guint8      variantValue = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1358,15 +1357,15 @@ dissect_variant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 static void
 dissect_interface_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
     guint8      interfaceAllIdValue = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1396,19 +1395,19 @@ dissect_interface_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 static void
 dissect_sequence_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
-    guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
+    guint8      info_element_length        = 1;
+    guint8      info_element               = 0;
     guint8      hf_v52_sequence_number_tmp = 0;
-    guint16 data_length;
-    tvbuff_t *info_tvb;
-    int info_offset = 0;
+    guint16     data_length;
+    tvbuff_t   *info_tvb;
+    int         info_offset                = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
-    data_length = tvb_get_guint8(tvb, offset+1)+2;
-    info_tvb    = tvb_new_subset(tvb, offset, data_length, data_length);
+    data_length  = tvb_get_guint8(tvb, offset+1)+2;
+    info_tvb     = tvb_new_subset(tvb, offset, data_length, data_length);
 
     if (tree) {
         ti_info = proto_tree_add_text(tree, info_tvb, info_offset, -1, "Info Element:");
@@ -1434,16 +1433,16 @@ dissect_sequence_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 static void
 dissect_physical_c_channel_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
-    guint8      info_element_length = 1;
-    guint8      info_element = 0;
-    guint8      hf_v52_v5_link_id_cc_tmp = 0;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
+    guint8      info_element_length        = 1;
+    guint8      info_element               = 0;
+    guint8      hf_v52_v5_link_id_cc_tmp   = 0;
     guint8      hf_v52_v5_time_slot_cc_tmp = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1472,14 +1471,14 @@ dissect_physical_c_channel_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void
 dissect_pp_rejection_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1505,14 +1504,14 @@ dissect_pp_rejection_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void
 dissect_protocol_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1541,14 +1540,14 @@ dissect_protocol_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 static void
 dissect_performance_grading(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1573,14 +1572,14 @@ dissect_performance_grading(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_cp_rejection_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1604,17 +1603,17 @@ dissect_cp_rejection_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void
 dissect_user_port_identification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     int         hf_v52_pstn_user_port_tmp = 0;
     int         hf_v52_isdn_user_port_tmp = 0;
-    guint8      info_element_length = 1;
-    guint8      buffer = 0;
-    guint8      info_element = 0;
+    guint8      info_element_length       = 1;
+    guint8      buffer                    = 0;
+    guint8      info_element              = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1655,15 +1654,15 @@ dissect_user_port_identification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static void
 dissect_isdn_port_time_slot_identification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
-    guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
+    guint8      info_element_length       = 1;
+    guint8      info_element              = 0;
     guint8      isdn_user_port_ts_num_tmp = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1690,16 +1689,16 @@ dissect_isdn_port_time_slot_identification(tvbuff_t *tvb, packet_info *pinfo, pr
 static void
 dissect_v5_time_slot_identification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
-    guint8      v5_link_id_tmp = 0;
-    guint8      v5_time_slot_tmp = 0;
+    guint8      info_element        = 0;
+    guint8      v5_link_id_tmp      = 0;
+    guint8      v5_time_slot_tmp    = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1737,14 +1736,14 @@ dissect_v5_time_slot_identification(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static void
 dissect_multi_slot_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1786,14 +1785,14 @@ dissect_multi_slot_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 static void
 dissect_bcc_rejct_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1819,14 +1818,14 @@ dissect_bcc_rejct_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 static void
 dissect_bcc_protocol_error_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1857,14 +1856,14 @@ dissect_bcc_protocol_error_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static void
 dissect_connection_incomplete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1897,14 +1896,14 @@ dissect_connection_incomplete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void
 dissect_link_control_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_tree  *info_tree = NULL;
-    proto_item  *ti_info;
+    proto_tree *info_tree = NULL;
+    proto_item *ti_info;
     guint8      info_element_length = 1;
-    guint8      info_element = 0;
+    guint8      info_element        = 0;
 
-    guint16 data_length;
+    guint16   data_length;
     tvbuff_t *info_tvb;
-    int info_offset = 0;
+    int       info_offset = 0;
 
     info_element = tvb_get_guint8(tvb, offset);
 
@@ -1935,10 +1934,10 @@ dissect_link_control_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void
 dissect_v52_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int     offset = 4;
-    guint8  info_element, info_element_length;
-    /*int     old_offset;*/
-    int     singleoctet;
+    int    offset = 4;
+    guint8 info_element, info_element_length;
+    /*int    old_offset;*/
+    int    singleoctet;
 
     while(tvb_length_remaining(tvb,offset) > 0){
         singleoctet = 0;
@@ -2124,12 +2123,13 @@ dissect_v52_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_v52_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int     offset = 0;
-    proto_tree  *v52_tree = NULL;
-    proto_item  *ti;
-    gboolean    addr = FALSE;
+    int         offset   = 0;
+    proto_tree *v52_tree = NULL;
+    proto_item *ti;
+    gboolean    addr     = FALSE;
     guint8      bcc_all_address_tmp_up = -1;
-    guint16     pstn_all_address_tmp, isdn_all_address_tmp, bcc_all_address_tmp, prot_all_address_tmp, link_all_address_tmp;
+    guint16     pstn_all_address_tmp, isdn_all_address_tmp, bcc_all_address_tmp;
+    guint16     prot_all_address_tmp, link_all_address_tmp;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "V52");
 
@@ -2252,14 +2252,18 @@ proto_register_v52(void)
         { &hf_v52_discriminator,
           { "Protocol discriminator", "v52.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
+/**
         { &hf_v52_address,
           { "Address",    "v52.address",
              FT_UINT8,    BASE_HEX, NULL,                               0xff,
              NULL, HFILL } },
+**/
+/**
         { &hf_v52_low_address,
           { "Address Low",    "v52.low_address",
              FT_UINT8,    BASE_HEX, NULL,                               0xff,
              NULL, HFILL } },
+**/
 /* ISDN */
         { &hf_v52_isdn_address,
           { "Address isdn",    "v52.isdn_address",
@@ -2306,14 +2310,18 @@ proto_register_v52(void)
           FT_UINT8,    BASE_HEX, NULL,                                  0xff,
           NULL, HFILL } },
 /* CONTROL */
+/**
         { &hf_v52_ctrl_address,
           { "Address ctrl",    "v52.ctrl_address",
           FT_UINT8,    BASE_HEX, NULL,                                  0xff,
           NULL, HFILL } },
+**/
+/**
         { &hf_v52_ctrl_low_address,
           { "Address ctrl Low",    "v52.ctrl_low_address",
           FT_UINT8,    BASE_HEX, NULL,                                  0xff,
           NULL, HFILL } },
+**/
 /* OTHER */
         {&hf_v52_msg_type,
           { "Message type",   "v52.msg_type",

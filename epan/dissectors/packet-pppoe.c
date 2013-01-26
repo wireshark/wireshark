@@ -101,8 +101,8 @@ static gint hf_pppoed_tag_generic_error = -1;
 
 /* Session protocol fields */
 static gint hf_pppoes_tags = -1;
-static gint hf_pppoes_tag = -1;
-static gint hf_pppoes_tag_credits = -1;
+/* static gint hf_pppoes_tag = -1; */
+/* static gint hf_pppoes_tag_credits = -1; */
 static gint hf_pppoes_tag_credits_fcn = -1;
 static gint hf_pppoes_tag_credits_bcn = -1;
 
@@ -1214,16 +1214,20 @@ void proto_register_pppoes(void)
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
+/**
 		{ &hf_pppoes_tag,
 			{ "Tag", "pppoes.tag", FT_UINT16, BASE_HEX,
 				 VALS(tag_vals), 0x0, NULL, HFILL
 			}
 		},
+**/
+/**
 		{ &hf_pppoes_tag_credits,
 			{ "Credits", "pppoes.tags.credits", FT_BYTES, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
+**/
 		{ &hf_pppoes_tag_credits_fcn,
 			{ "FCN", "pppoes.tags.credits.fcn", FT_UINT16, BASE_DEC,
 				 NULL, 0x0, NULL, HFILL

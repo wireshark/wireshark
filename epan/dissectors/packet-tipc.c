@@ -123,7 +123,7 @@ static int hf_tipcv2_opt_p = -1;
 static int hf_tipcv2_broadcast_ack_no = -1;
 static int hf_tipcv2_link_level_ack_no = -1;
 static int hf_tipcv2_link_level_seq_no = -1;
-static int hf_tipcv2_bcast_seq_no = -1;
+/* static int hf_tipcv2_bcast_seq_no = -1; */
 static int hf_tipcv2_prev_node = -1;
 static int hf_tipcv2_orig_node = -1;
 static int hf_tipcv2_dest_node = -1;
@@ -2655,11 +2655,13 @@ proto_register_tipc(void)
 				FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 				NULL, HFILL }
 		},
+/**
 		{ &hf_tipcv2_bcast_seq_no,
 			{ "Broadcast Sequence Number", "tipcv2.bcast_seq_no",
 				FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 				NULL, HFILL }
 		},
+**/
 		{ &hf_tipcv2_prev_node,
 			{ "Previous Node", "tipcv2.prev_node",
 				FT_STRING, BASE_NONE, NULL, 0x0,

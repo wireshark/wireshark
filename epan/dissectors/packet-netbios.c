@@ -102,7 +102,7 @@ static int hf_netb_termination_indicator = -1;
 static int hf_netb_num_data_bytes_accepted = -1;
 static int hf_netb_local_ses_no = -1;
 static int hf_netb_remote_ses_no = -1;
-static int hf_netb_data1 = -1;
+/* static int hf_netb_data1 = -1; */
 static int hf_netb_data2 = -1;
 static int hf_netb_data2_frame = -1;
 static int hf_netb_data2_user = -1;
@@ -1355,20 +1355,22 @@ void proto_register_netbios(void)
 		{ "Remote Session No.", "netbios.remote_session", FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
+/**
 		{ &hf_netb_data1,
 		{ "DATA1 value", "netbios.data1", FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
+**/
 
 		{ &hf_netb_data2,
 		{ "DATA2 value", "netbios.data2", FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_netb_data2_frame,
-		{ "Data length exceeds maximum frame size", "netbios.data2.frame", FT_BOOLEAN, 16, 
+		{ "Data length exceeds maximum frame size", "netbios.data2.frame", FT_BOOLEAN, 16,
 			TFS(&tfs_yes_no), 0x8000, NULL, HFILL }},
 
 		{ &hf_netb_data2_user,
-		{ "Data length exceeds user's buffer", "netbios.data2.user", FT_BOOLEAN, 16, 
+		{ "Data length exceeds user's buffer", "netbios.data2.user", FT_BOOLEAN, 16,
 			TFS(&tfs_yes_no), 0x4000, NULL, HFILL }},
 
 		{ &hf_netb_data2_status,

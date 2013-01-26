@@ -102,7 +102,7 @@ static int hf_rtps_nature_type                  = -1;
 static int hf_rtps_guid_prefix                  = -1;
 static int hf_rtps_host_id                      = -1;
 static int hf_rtps_app_id                       = -1;
-static int hf_rtps_counter                      = -1;
+/* static int hf_rtps_counter                      = -1; */
 
 static int hf_rtps_sm_id                        = -1;
 static int hf_rtps_sm_flags                     = -1;
@@ -110,8 +110,8 @@ static int hf_rtps_sm_octets_to_next_header     = -1;
 static int hf_rtps_sm_guid_prefix               = -1;
 static int hf_rtps_sm_host_id                   = -1;
 static int hf_rtps_sm_app_id                    = -1;
-static int hf_rtps_sm_instance_id               = -1;
-static int hf_rtps_sm_app_kind                  = -1;
+/* static int hf_rtps_sm_instance_id               = -1; */
+/* static int hf_rtps_sm_app_kind                  = -1; */
 static int hf_rtps_sm_counter                   = -1;
 static int hf_rtps_sm_entity_id                 = -1;
 static int hf_rtps_sm_entity_id_key             = -1;
@@ -9095,7 +9095,8 @@ void proto_register_rtps2(void) {
     },
 
     /* Counter ------------------------------------------------------------- */
-    { &hf_rtps_counter, {               /* HIDDEN */
+/**
+    { &hf_rtps_counter, {               / * HIDDEN * /
         "counter",
         "rtps2.counter",
         FT_UINT32,
@@ -9105,7 +9106,7 @@ void proto_register_rtps2(void) {
         "Sub-component 'counter' of the GuidPrefix of the RTPS packet",
         HFILL }
     },
-
+**/
 
     /* Submessage ID ------------------------------------------------------- */
     { &hf_rtps_sm_id, {
@@ -9176,6 +9177,7 @@ void proto_register_rtps2(void) {
         "AppId component of the rtps2.sm.guidPrefix",
         HFILL }
     },
+/**
     { &hf_rtps_sm_instance_id, {
         "instanceId",
         "rtps2.sm.guidPrefix.appId.instanceId",
@@ -9186,6 +9188,8 @@ void proto_register_rtps2(void) {
         "instanceId component of the AppId of the rtps2.sm.guidPrefix",
         HFILL }
     },
+**/
+    /**
     { &hf_rtps_sm_app_kind, {
         "appKind",
         "rtps2.sm.guidPrefix.appId.appKind",
@@ -9196,6 +9200,7 @@ void proto_register_rtps2(void) {
         "appKind component of the AppId of the rtps2.sm.guidPrefix",
         HFILL }
     },
+    **/
 
     { &hf_rtps_sm_counter, {
         "counter",

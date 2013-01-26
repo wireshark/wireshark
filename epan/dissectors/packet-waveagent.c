@@ -91,9 +91,9 @@ static int hf_waveagent_rx3pl = -1;
 static int hf_waveagent_rx4pl = -1;
 static int hf_waveagent_rx5pl = -1;
 static int hf_waveagent_rxoospkts = -1;
-static int hf_waveagent_rxmeanlatency = -1;
-static int hf_waveagent_rxminlatency = -1;
-static int hf_waveagent_rxmaxlatency = -1;
+/* static int hf_waveagent_rxmeanlatency = -1; */
+/* static int hf_waveagent_rxminlatency = -1; */
+/* static int hf_waveagent_rxmaxlatency = -1; */
 static int hf_waveagent_latencysum = -1;
 static int hf_waveagent_latencycount = -1;
 static int hf_waveagent_txflowstop = -1;
@@ -1467,20 +1467,26 @@ void proto_register_waveagent(void)
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
 
+/**
         { &hf_waveagent_rxmeanlatency,
         { "Rx Mean latency", "waveagent.rxmeanlatency",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
+**/
 
+/**
         { &hf_waveagent_rxminlatency,
         { "Rx Minimum latency", "waveagent.rxminlatency",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
+**/
 
+/**
         { &hf_waveagent_rxmaxlatency,
         { "Rx Maximum latency", "waveagent.rxmaxlatency",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
+**/
 
         { &hf_waveagent_jitter,
         { "Jitter (microseconds)", "waveagent.jitter",

@@ -122,7 +122,7 @@ static int hf_fp_edch_macis_flag = -1;
 
 static int hf_fp_frame_seq_nr = -1;
 static int hf_fp_hsdsch_pdu_block_header = -1;
-static int hf_fp_hsdsch_pdu_block = -1;
+/* static int hf_fp_hsdsch_pdu_block = -1; */
 static int hf_fp_flush = -1;
 static int hf_fp_fsn_drt_reset = -1;
 static int hf_fp_drt_indicator = -1;
@@ -4847,12 +4847,14 @@ void proto_register_fp(void)
                 "HS-DSCH type 2 PDU block header", HFILL
               }
             },
+/**
             { &hf_fp_hsdsch_pdu_block,
               { "PDU block",
                 "fp.hsdsch.pdu-block", FT_STRING, BASE_NONE, NULL, 0x0,
                 "HS-DSCH type 2 PDU block data", HFILL
               }
             },
+**/
             { &hf_fp_flush,
               { "Flush",
                 "fp.flush", FT_UINT8, BASE_DEC, 0, 0x04,

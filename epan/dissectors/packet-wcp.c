@@ -148,14 +148,14 @@ static int hf_wcp_alg_a = -1;
 static int hf_wcp_alg_b = -1;
 static int hf_wcp_alg_c = -1;
 static int hf_wcp_alg_d = -1;
-static int hf_wcp_rexmit = -1;
+/* static int hf_wcp_rexmit = -1; */
 
 static int hf_wcp_hist_size = -1;
 static int hf_wcp_ppc = -1;
 static int hf_wcp_pib = -1;
 
 static int hf_wcp_comp_bits = -1;
-static int hf_wcp_comp_marker = -1;
+/* static int hf_wcp_comp_marker = -1; */
 static int hf_wcp_short_len = -1;
 static int hf_wcp_long_len = -1;
 static int hf_wcp_short_run = -1;
@@ -647,9 +647,11 @@ proto_register_wcp(void)
 	{ &hf_wcp_alg,
 	  { "Alg", "wcp.alg", FT_UINT8, BASE_DEC, NULL, 0,
 	  	"Algorithm", HFILL }},
+/**
 	{ &hf_wcp_rexmit,
 	  { "Rexmit", "wcp.rexmit", FT_UINT8, BASE_DEC, NULL, 0,
 	  	"Retransmit", HFILL }},
+**/
 	{ &hf_wcp_hist_size,
 	  { "History", "wcp.hist", FT_UINT8, BASE_DEC, NULL, 0,
 	  	"History Size", HFILL }},
@@ -662,9 +664,11 @@ proto_register_wcp(void)
 	{ &hf_wcp_comp_bits,
 	  { "Compress Flag", "wcp.flag", FT_UINT8, BASE_HEX, NULL, 0,
 	  	"Compressed byte flag", HFILL }},
+/**
 	{ &hf_wcp_comp_marker,
 	  { "Compress Marker", "wcp.mark", FT_UINT8, BASE_DEC, NULL, 0,
 	  	"Compressed marker", HFILL }},
+**/
 	{ &hf_wcp_offset,
 	  { "Source offset", "wcp.off", FT_UINT16, BASE_HEX, NULL, WCP_OFFSET_MASK,
 	  	"Data source offset", HFILL }},

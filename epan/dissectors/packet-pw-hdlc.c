@@ -50,7 +50,7 @@ static gint proto_pw_hdlc_nocw_hdlc_ppp = -1;
 
 static gint ett_pw_hdlc = -1;
 
-static int hf_pw_hdlc = -1;
+/* static int hf_pw_hdlc = -1; */
 static int hf_pw_hdlc_address_field = -1;
 static int hf_pw_hdlc_address = -1;
 static int hf_pw_hdlc_cr_bit = -1;
@@ -182,12 +182,14 @@ static void dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, 
 void proto_register_pw_hdlc(void)
 {
 	static hf_register_info hf[] = {
+/**
 		{
 			&hf_pw_hdlc,
 			{
 				"PW HDLC", "pw_hdlc", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
+**/
 		{
 			&hf_pw_hdlc_address_field,
 			{

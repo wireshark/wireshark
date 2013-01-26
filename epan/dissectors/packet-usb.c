@@ -67,7 +67,7 @@ static int hf_usb_request_unknown_class = -1;
 static int hf_usb_value = -1;
 static int hf_usb_index = -1;
 static int hf_usb_length = -1;
-static int hf_usb_data_len = -1;
+/* static int hf_usb_data_len = -1; */
 static int hf_usb_capdata = -1;
 static int hf_usb_wFeatureSelector = -1;
 static int hf_usb_wInterface = -1;
@@ -3103,10 +3103,12 @@ proto_register_usb(void)
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
     /* --------------------------------- */
+/**
         { &hf_usb_data_len,
           {"Application Data Length", "usb.data.length",
            FT_UINT32, BASE_DEC, NULL, 0x0,
            NULL, HFILL }},
+**/
 
         { &hf_usb_capdata,
           {"Leftover Capture Data", "usb.capdata",

@@ -96,7 +96,7 @@ static int hf_rohc_rtp_id = -1;
 static int hf_rohc_rtp_df = -1;
 static int hf_rohc_rtp_rnd = -1;
 static int hf_rohc_rtp_nbo = -1;
-static int hf_rohc_rtp_checksum = -1;
+/* static int hf_rohc_rtp_checksum = -1; */
 static int hf_rohc_dynamic_udp_checksum = -1;
 static int hf_rohc_dynamic_rtp =-1;
 static int hf_rohc_rtp_v = -1;
@@ -2092,12 +2092,14 @@ proto_register_rohc(void)
                 "Whether the IP-ID is in Network Byte Order" , HFILL
               }
             },
+/**
             { &hf_rohc_rtp_checksum,
               { "Checksum","rohc.rtp.checksum",
                 FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL , HFILL
               }
             },
+**/
             { &hf_rohc_dynamic_udp_checksum,
               { "UDP Checksum", "rohc.dynamic.udp.checksum",
                 FT_UINT16, BASE_HEX, NULL, 0x0,

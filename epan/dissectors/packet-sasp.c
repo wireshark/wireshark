@@ -82,7 +82,7 @@ static int hf_sasp_gmd_cnt = -1;
 /*dereg req*/
 static int hf_sasp_dereg_req_sz = -1;
 static int hf_dereg_req_lbflag = -1;
-static int hf_dereg_req_reason = -1;
+/* static int hf_dereg_req_reason = -1; */
 static int hf_dereg_req_reason_flag = -1;
 
 /*dereg reply*/
@@ -100,7 +100,7 @@ static int hf_setmemstate_req_lbflag = -1;
 static int hf_sasp_setmemstate_req_gmsd_cnt = -1;
 
 /*setmemstate reply*/
-static int hf_sasp_setmemstate_rep = -1;
+/* static int hf_sasp_setmemstate_rep = -1; */
 static int hf_sasp_setmemstate_rep_rcode = -1;
 static int hf_sasp_setmemstate_rep_sz = -1;
 
@@ -142,13 +142,13 @@ static int hf_sasp_setlbstate_req_LB_uid_len  = -1;
 static int hf_sasp_setlbstate_req_LB_uid  = -1;
 static int hf_sasp_setlbstate_req_LB_health  = -1;
 /*static int hf_sasp_setlbstate_req_LB_flag = -1;*/
-static int hf_lbstate_flag = -1;
+/* static int hf_lbstate_flag = -1; */
 static int hf_sasp_pushflag = -1;
 static int hf_sasp_trustflag = -1;
 static int hf_sasp_nochangeflag = -1;
 
 /*setlbstate reply*/
-static int hf_sasp_setlbstate_rep = -1;
+/* static int hf_sasp_setlbstate_rep = -1; */
 static int hf_sasp_setlbstate_rep_rcode = -1;
 static int hf_sasp_setlbstate_rep_sz = -1;
 
@@ -167,7 +167,7 @@ static int hf_sasp_memstatedatacomp_quiesce_flag = -1;
 static int hf_sasp_weight_entry_data_comp_type = -1;
 static int hf_sasp_weight_entry_data_comp_sz = -1;
 static int hf_sasp_weight_entry_data_comp_state = -1;
-static int hf_wtstate_flag = -1;
+/* static int hf_wtstate_flag = -1; */
 static int hf_sasp_wed_contactsuccess_flag = -1;
 static int hf_sasp_wed_quiesce_flag = -1;
 static int hf_sasp_wed_registration_flag = -1;
@@ -1312,10 +1312,12 @@ void proto_register_sasp(void)
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL } },
 
+/**
 		{ &hf_dereg_req_reason,
 	 	  { "Dereg Req-Reason", "sasp.dereg-req.reason",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    "SASP Dereg Req Reason", HFILL } },
+**/
 
 		/* Dereg Rep */
 		{ &hf_sasp_dereg_rep_sz,
@@ -1358,10 +1360,12 @@ void proto_register_sasp(void)
 		    "Group Of Member State Data Count", HFILL } },
 
 		/* Set Mem State Reply */
+/**
 		{ &hf_sasp_setmemstate_rep,
 		  { "Set Memstate Reply", "sasp.setmemstate-rep",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    "SASP Set Memstate Reply", HFILL } },
+**/
 
 		{ &hf_sasp_setmemstate_rep_sz,
 		  { "Set Memstate Rep-Size", "sasp.setmemstate-rep.size",
@@ -1446,10 +1450,12 @@ void proto_register_sasp(void)
 
 		/*Set LB State Rep */
 
+/**
 		{ &hf_sasp_setlbstate_rep,
 		  { "Set Lbstate Rep", "sasp.msg.type",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    "SASP Set Lbstate Rep", HFILL } },
+**/
 
 		{ &hf_sasp_setlbstate_rep_sz,
 		  { "Set Lbstate Rep-Size", "sasp.setlbstate-rep.size",
@@ -1535,10 +1541,12 @@ void proto_register_sasp(void)
 		    FT_UINT8, BASE_HEX, VALS(lbstate_healthtable), 0x0,
 		    "SASP Set LB State Req LB Health", HFILL } },
 
+/**
 		{ &hf_lbstate_flag,
 		  { "Flags", "sasp.flags.lbstate",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL } },
+**/
 
 		{ &hf_sasp_pushflag,
 		  { "PUSH", "sasp.flags.push",
@@ -1614,10 +1622,12 @@ void proto_register_sasp(void)
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    "SASP Wt Entry Data Comp State", HFILL } },
 
+/**
 		{ &hf_wtstate_flag,
 		  { "Flags", "sasp.flags.wtstate",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL } },
+**/
 
 		{ &hf_sasp_wed_contactsuccess_flag,
 		  { "Contact Success", "sasp.flags.contactsuccess",

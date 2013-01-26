@@ -1339,7 +1339,7 @@ static int      hf_cflow_transport_rtp_jitter_max_string     = -1;      /* ID: 3
 static int      hf_cflow_transport_rtp_payload_type          = -1;      /* ID: 37041 */
 static int      hf_cflow_transport_rtp_payload_type_string   = -1;      /* ID: 37041 */
 static int      hf_cflow_transport_bytes_out_of_order        = -1;      /* ID: 37071 */
-static int      hf_cflow_transport_packets_out_of_order      = -1;      /* ID: 37074 */
+/* static int      hf_cflow_transport_packets_out_of_order      = -1; */      /* ID: 37074 */
 static int      hf_cflow_transport_packets_out_of_order_string      = -1;      /* ID: 37074 */
 static int      hf_cflow_transport_tcp_window_size_min       = -1;      /* ID: 37083 */
 static int      hf_cflow_transport_tcp_window_size_min_string = -1;      /* ID: 37083 */
@@ -7449,12 +7449,14 @@ proto_register_netflow(void)
           FT_UINT64, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
+/**
         {&hf_cflow_transport_packets_out_of_order,
          {"Transport Packets Out of Order",
           "cflow.transport_packets_out_of_order",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
+**/
         {&hf_cflow_transport_packets_out_of_order_string,
          {"Transport Packets Out of Order",
           "cflow.transport_packets_out_of_order",

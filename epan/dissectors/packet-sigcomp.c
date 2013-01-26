@@ -59,7 +59,7 @@ static int hf_sigcomp_udvm_instr                    = -1;
 static int hf_udvm_multitype_bytecode               = -1;
 static int hf_udvm_reference_bytecode               = -1;
 static int hf_udvm_literal_bytecode                 = -1;
-static int hf_udvm_operand                          = -1;
+/* static int hf_udvm_operand                          = -1; */
 static int hf_udvm_length                           = -1;
 static int hf_udvm_addr_length                      = -1;
 static int hf_udvm_destination                      = -1;
@@ -2327,11 +2327,13 @@ proto_register_sigcomp(void)
             FT_UINT8, BASE_HEX, VALS(display_lit_bytecode_vals), 0x0,
             NULL, HFILL }
         },
+/**
         { &hf_udvm_operand,
             { "UDVM operand", "sigcomp.udvm.operand",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+**/
         { &hf_udvm_length,
             { "%Length", "sigcomp.udvm.length",
             FT_UINT16, BASE_DEC, NULL, 0x0,

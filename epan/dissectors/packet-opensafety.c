@@ -356,7 +356,7 @@ static int hf_oss_msg_network = -1;
 static int hf_oss_msg_sender = -1;
 static int hf_oss_msg_receiver = -1;
 static int hf_oss_length= -1;
-static int hf_oss_data = -1;
+/* static int hf_oss_data = -1; */
 static int hf_oss_crc = -1;
 
 static int hf_oss_crc_valid = -1;
@@ -374,18 +374,18 @@ static int hf_oss_snmt_error_code    = -1;
 
 static int hf_oss_ssdo_server        = -1;
 static int hf_oss_ssdo_client        = -1;
-static int hf_oss_ssdo_sano          = -1;
+/* static int hf_oss_ssdo_sano          = -1; */
 static int hf_oss_ssdo_sacmd         = -1;
 static int hf_oss_ssdo_sod_index     = -1;
 static int hf_oss_ssdo_sod_subindex  = -1;
 static int hf_oss_ssdo_payload       = -1;
 static int hf_oss_ssdo_payload_size  = -1;
-static int hf_oss_ssdo_segment_size  = -1;
-static int hf_oss_ssdo_inhibit_time  = -1;
+/* static int hf_oss_ssdo_segment_size  = -1; */
+/* static int hf_oss_ssdo_inhibit_time  = -1; */
 static int hf_oss_ssdo_abort_code    = -1;
 
 static int hf_oss_ssdo_sacmd_access_type     = -1;
-static int hf_oss_ssdo_sacmd_reserved        = -1;
+/* static int hf_oss_ssdo_sacmd_reserved        = -1; */
 static int hf_oss_ssdo_sacmd_abort_transfer  = -1;
 static int hf_oss_ssdo_sacmd_segmentation    = -1;
 static int hf_oss_ssdo_sacmd_toggle          = -1;
@@ -1734,9 +1734,11 @@ proto_register_opensafety(void)
         { &hf_oss_length,
           { "Length",    "opensafety.length",
             FT_UINT8,   BASE_DEC, NULL,     0x0, NULL, HFILL } },
+/**
         { &hf_oss_data,
           { "Data",      "opensafety.data",
             FT_BYTES,   BASE_NONE, NULL,    0x0, NULL, HFILL } },
+**/
         { &hf_oss_crc,
           { "CRC",       "opensafety.crc.data",
             FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
@@ -1784,9 +1786,11 @@ proto_register_opensafety(void)
         { &hf_oss_ssdo_client,
           { "SSDO Client", "opensafety.ssdo.client",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+/**
         { &hf_oss_ssdo_sano,
           { "SOD Access Request Number", "opensafety.ssdo.sano",
             FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
+**/
         { &hf_oss_ssdo_sacmd,
           { "SOD Access Command", "opensafety.ssdo.sacmd",
             FT_UINT8,  BASE_HEX, VALS(ssdo_sacmd_values),    0x0, NULL, HFILL } },
@@ -1802,12 +1806,16 @@ proto_register_opensafety(void)
         { &hf_oss_ssdo_payload_size,
           { "SOD Payload Size", "opensafety.ssdo.payloadsize",
             FT_UINT32,  BASE_DEC, NULL,    0x0, NULL, HFILL } },
+/**
         { &hf_oss_ssdo_segment_size,
           { "SOD Segment Size", "opensafety.ssdo.segmentsize",
             FT_UINT32,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
+**/
+/**
         { &hf_oss_ssdo_inhibit_time,
           { "Inhibit Time", "opensafety.ssdo.inhibittime",
             FT_UINT32,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
+**/
         { &hf_oss_ssdo_abort_code,
           { "Abort Code", "opensafety.ssdo.abortcode", FT_UINT32,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
 
@@ -1815,9 +1823,11 @@ proto_register_opensafety(void)
         { &hf_oss_ssdo_sacmd_access_type,
           { "Access Type", "opensafety.ssdo.sacmd.access",
             FT_BOOLEAN,  8, TFS(&opensafety_sacmd_acc), OPENSAFETY_SSDO_SACMD_ACC, NULL, HFILL } },
+/**
         { &hf_oss_ssdo_sacmd_reserved,
           { "Reserved", "opensafety.ssdo.sacmd.reserved",
             FT_BOOLEAN,  8, TFS(&opensafety_sacmd_res), OPENSAFETY_SSDO_SACMD_RES, NULL, HFILL } },
+**/
         { &hf_oss_ssdo_sacmd_abort_transfer,
           { "Abort Transfer", "opensafety.ssdo.sacmd.abort_transfer",
             FT_BOOLEAN,  8, TFS(&opensafety_sacmd_abrt), OPENSAFETY_SSDO_SACMD_ABRT, NULL, HFILL } },

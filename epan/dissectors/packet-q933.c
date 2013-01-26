@@ -48,9 +48,9 @@ static int hf_q933_extension_ind			= -1;
 static int hf_q933_calling_party_number 		= -1;
 static int hf_q933_called_party_number 			= -1;
 static int hf_q933_connected_number 			= -1;
-static int hf_q933_redirecting_number 			= -1;
-static int hf_q933_screening_ind				= -1;
-static int hf_q933_presentation_ind				= -1;
+/* static int hf_q933_redirecting_number 			= -1; */
+static int hf_q933_screening_ind			= -1;
+static int hf_q933_presentation_ind			= -1;
 static int hf_q933_report_type				= -1;
 static int hf_q933_link_verf_txseq		       	= -1;
 static int hf_q933_link_verf_rxseq		       	= -1;
@@ -2243,9 +2243,11 @@ proto_register_q933(void)
 		  { "Connected party number digits", "q933.connected_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
+/**
 		{ &hf_q933_redirecting_number,
 		  { "Redirecting party number digits", "q933.redirecting_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
+**/
 		{ &hf_q933_report_type,
 		  { "Report type", "q933.report_type", FT_UINT8, BASE_DEC, VALS(q933_report_type_vals), 0x0,
 			NULL, HFILL }},

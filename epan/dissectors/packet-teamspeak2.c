@@ -234,7 +234,7 @@ static int hf_ts2_crc32 = -1;
 static int hf_ts2_ackto = -1;
 static int hf_ts2_seqnum = -1;
 static int hf_ts2_protocol_string = -1;
-static int hf_ts2_string = -1;
+/* static int hf_ts2_string = -1; */
 static int hf_ts2_registeredlogin = -1;
 static int hf_ts2_name = -1;
 static int hf_ts2_password = -1;
@@ -435,7 +435,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		fragment_number = tvb_get_letohs(tvb, 18);
 		frag_msg = fragment_add_seq_check(tvb, 24, pinfo, type,	msg_fragment_table, msg_reassembled_table, frag->frag_num, tvb_length_remaining(tvb, 24), fragment_number);
 		new_tvb = process_reassembled_data(tvb, 24, pinfo,"Reassembled TeamSpeak2", frag_msg, &msg_frag_items, NULL, ts2_tree);
-		if (frag_msg)
+		if (frag_msg) /* XXX: should be if (new_tvb) ?? */
 		{ /* Reassembled */
 			col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
 		}
@@ -903,12 +903,14 @@ void proto_register_ts2(void)
 		    NULL, 0x0,
 		    NULL, HFILL }
 		},
+/**
 		{ &hf_ts2_string,
 		  { "String", "ts2.string",
 		    FT_STRING, BASE_NONE,
 		    NULL, 0x0,
 		    NULL, HFILL }
 		},
+**/
 		{ &hf_ts2_registeredlogin,
 		  { "Registered Login", "ts2.registeredlogin",
 		    FT_BOOLEAN, BASE_NONE,

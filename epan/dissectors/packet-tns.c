@@ -120,7 +120,7 @@ static int hf_tns_abort_data = -1;
 static int hf_tns_marker = -1;
 static int hf_tns_marker_type = -1;
 static int hf_tns_marker_data_byte = -1;
-static int hf_tns_marker_data = -1;
+/* static int hf_tns_marker_data = -1; */
 
 static int hf_tns_redirect = -1;
 static int hf_tns_redirect_data_length = -1;
@@ -1224,9 +1224,11 @@ void proto_register_tns(void)
 		{ &hf_tns_marker_data_byte, {
 			"Marker Data Byte", "tns.marker.databyte", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
+/**
 		{ &hf_tns_marker_data, {
 			"Marker Data", "tns.marker.data", FT_UINT16, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
+**/
 
 		{ &hf_tns_control, {
 			"Control", "tns.control", FT_BOOLEAN, BASE_NONE,

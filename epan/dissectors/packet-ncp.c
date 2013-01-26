@@ -94,7 +94,7 @@ static int hf_ncp_completion_code = -1;
 static int hf_ncp_connection_status = -1;
 static int hf_ncp_slot = -1;
 static int hf_ncp_control_code = -1;
-static int hf_ncp_fragment_handle = -1;
+/* static int hf_ncp_fragment_handle = -1; */
 static int hf_lip_echo = -1;
 static int hf_ncp_burst_command = -1;
 static int hf_ncp_burst_file_handle = -1;
@@ -1022,10 +1022,12 @@ proto_register_ncp(void)
           { "Control Code",                     "ncp.control_code",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
+/**
         { &hf_ncp_fragment_handle,
           { "Fragment Handle",                  "ncp.fragger_hndl",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
+**/
         { &hf_lip_echo,
           { "Large Internet Packet Echo",       "ncp.lip_echo",
             FT_STRING, BASE_NONE, NULL, 0x0,

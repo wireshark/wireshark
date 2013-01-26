@@ -137,10 +137,10 @@ static int hf_ndmp_execute_cdb_flags_data_out = -1;
 static int hf_ndmp_execute_cdb_timeout = -1;
 static int hf_ndmp_execute_cdb_datain_len = -1;
 static int hf_ndmp_execute_cdb_cdb_len = -1;
-static int hf_ndmp_execute_cdb_dataout = -1;
+/* static int hf_ndmp_execute_cdb_dataout = -1; */
 static int hf_ndmp_execute_cdb_status = -1;
 static int hf_ndmp_execute_cdb_dataout_len = -1;
-static int hf_ndmp_execute_cdb_datain = -1;
+/* static int hf_ndmp_execute_cdb_datain = -1; */
 static int hf_ndmp_execute_cdb_sns_len = -1;
 static int hf_ndmp_tape_invalid_file_num = -1;
 static int hf_ndmp_tape_invalid_soft_errors = -1;
@@ -3869,9 +3869,11 @@ proto_register_ndmp(void)
 		"CDB length", "ndmp.execute_cdb.cdb_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of CDB", HFILL }},
 
+/**
 	{ &hf_ndmp_execute_cdb_dataout, {
 		"Data out", "ndmp.execute_cdb.dataout", FT_BYTES, BASE_NONE,
 		NULL, 0, "Data to be transferred to the SCSI device", HFILL }},
+**/
 
 	{ &hf_ndmp_execute_cdb_status, {
 		"Status", "ndmp.execute_cdb.status", FT_UINT8, BASE_DEC,
@@ -3881,9 +3883,11 @@ proto_register_ndmp(void)
 		"Data out length", "ndmp.execute_cdb.dataout_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes transferred to the device", HFILL }},
 
+/**
 	{ &hf_ndmp_execute_cdb_datain, {
 		"Data in", "ndmp.execute_cdb.datain", FT_BYTES, BASE_NONE,
 		NULL, 0, "Data transferred from the SCSI device", HFILL }},
+**/
 
 	{ &hf_ndmp_execute_cdb_sns_len, {
 		"Sense data length", "ndmp.execute_cdb.sns_len", FT_UINT32, BASE_DEC,
