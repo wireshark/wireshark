@@ -39,7 +39,7 @@ CONFIG_PROFILE=
 
 # These may be set to your liking
 # Stop the child process if it's running longer than x seconds
-MAX_CPU_TIME=900
+MAX_CPU_TIME=300
 # Stop the child process if it's using more than y * 1024 bytes
 MAX_VMEM=500000
 # Stop the child process if its stack is larger than than z * 1024 bytes
@@ -80,11 +80,6 @@ CAPINFOS="$BIN_DIR/capinfos"
 if [ "$BIN_DIR" = "." ]; then
     export WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1
 fi
-
-# set some limits to the child processes, e.g. stop it if it's running longer then MAX_CPU_TIME seconds
-# (ulimit is not supported well on cygwin and probably other platforms, e.g. cygwin shows some warnings)
-ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM -s $MAX_STACK
-ulimit -c unlimited
 
 ### usually you won't have to change anything below this line ###
 
@@ -229,8 +224,16 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 	    fi
 	fi
 
-	"$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
-	    > /dev/null 2>> $TMP_DIR/$ERR_FILE
+        # Run TShark in a child process with limits, e.g. stop it if it's
+        # running longer then MAX_CPU_TIME seconds. ulimit is not supported
+        # well on cygwin and probably other platforms, e.g. cygwin shows
+        # some warnings)
+        (
+            ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM -s $MAX_STACK
+            ulimit -c unlimited
+            "$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
+                > /dev/null 2>> $TMP_DIR/$ERR_FILE
+        )
 	RETVAL=$?
 	# Uncomment the next two lines to enable dissector bug
 	# checking.
@@ -247,7 +250,6 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 	fi
 
 	echo " OK"
-        ps -p $$ -o pcpu,time
 	rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE
     done
 done
