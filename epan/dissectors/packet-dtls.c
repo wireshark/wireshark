@@ -1093,11 +1093,11 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 	    /* Don't pass the reassembly code data that doesn't exist */
             tvb_ensure_bytes_exist(tvb, offset, fragment_length);
 
-            fragment_set_tot_len(pinfo, message_seq, dtls_fragment_table,
-                                 length);
             frag_msg = fragment_add(tvb, offset+12, pinfo, message_seq,
                                     dtls_fragment_table,
                                     fragment_offset, fragment_length, TRUE);
+            fragment_set_tot_len(pinfo, message_seq, dtls_fragment_table,
+                                 length);
 
             if (frag_msg && (fragment_length + fragment_offset) == length)
               {
