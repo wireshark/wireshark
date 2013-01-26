@@ -389,32 +389,40 @@ void proto_register_pw_cesopsn(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_cw	,{"Control Word"		,"pwcesopsn.cw"
-				,FT_NONE			,BASE_NONE		,NULL
-				,0				,NULL			,HFILL }}
-		,{&hf_cw_bits03,{"Bits 0 to 3"			,"pwcesopsn.cw.bits03"
+				  ,FT_NONE			,BASE_NONE		,NULL
+				  ,0				,NULL			,HFILL }},
+
+		{&hf_cw_bits03,{"Bits 0 to 3"			,"pwcesopsn.cw.bits03"
 				,FT_UINT8			,BASE_DEC		,NULL
-				,0xf0				,NULL			,HFILL }}
-		,{ &hf_cw_lm, 	{"L+M bits"			,"pwcesopsn.cw.lm"
-				,FT_UINT8			,BASE_HEX		,VALS(vals_cw_lm)
-				,0x0b	  			,NULL 			,HFILL }}
-		,{&hf_cw_r,	{"R bit: Local CE-bound IWF"	,"pwcesopsn.cw.rbit"
-				,FT_UINT8			,BASE_DEC		,VALS(pwc_vals_cw_r_bit)
-				,0x04				,NULL			,HFILL }}
-		,{&hf_cw_frg,	{"Fragmentation"		,"pwcesopsn.cw.frag"
-				,FT_UINT8			,BASE_DEC		,VALS(pwc_vals_cw_frag)
-				,0xc0				,NULL			,HFILL }}
-		,{&hf_cw_len,	{"Length"			,"pwcesopsn.cw.length"
-				,FT_UINT8			,BASE_DEC		,NULL
-				,0x3f				,NULL			,HFILL }}
-		,{&hf_cw_seq,	{"Sequence number"		,"pwcesopsn.cw.seqno"
-				,FT_UINT16			,BASE_DEC		,NULL
-				,0				,NULL			,HFILL }}
-		,{&hf_payload	,{"TDM payload"			,"pwcesopsn.payload"
-				,FT_BYTES			,BASE_NONE		,NULL
-				,0				,NULL			,HFILL }}
-		,{&hf_payload_l	,{"TDM payload length"		,"pwcesopsn.payload.len"
-				,FT_INT32			,BASE_DEC		,NULL
-				,0				,NULL			,HFILL }}
+				,0xf0				,NULL			,HFILL }},
+
+		{ &hf_cw_lm, 	{"L+M bits"			,"pwcesopsn.cw.lm"
+				 ,FT_UINT8			,BASE_HEX		,VALS(vals_cw_lm)
+				 ,0x0b	  			,NULL 			,HFILL }},
+
+		{&hf_cw_r,	{"R bit: Local CE-bound IWF"	,"pwcesopsn.cw.rbit"
+				 ,FT_UINT8			,BASE_DEC		,VALS(pwc_vals_cw_r_bit)
+				 ,0x04				,NULL			,HFILL }},
+
+		{&hf_cw_frg,	{"Fragmentation"		,"pwcesopsn.cw.frag"
+				 ,FT_UINT8			,BASE_DEC		,VALS(pwc_vals_cw_frag)
+				 ,0xc0				,NULL			,HFILL }},
+
+		{&hf_cw_len,	{"Length"			,"pwcesopsn.cw.length"
+				 ,FT_UINT8			,BASE_DEC		,NULL
+				 ,0x3f				,NULL			,HFILL }},
+
+		{&hf_cw_seq,	{"Sequence number"		,"pwcesopsn.cw.seqno"
+				 ,FT_UINT16			,BASE_DEC		,NULL
+				 ,0				,NULL			,HFILL }},
+
+		{&hf_payload	,{"TDM payload"			,"pwcesopsn.payload"
+				  ,FT_BYTES			,BASE_NONE		,NULL
+				  ,0				,NULL			,HFILL }},
+
+		{&hf_payload_l	,{"TDM payload length"		,"pwcesopsn.payload.len"
+				  ,FT_INT32			,BASE_DEC		,NULL
+				  ,0				,NULL			,HFILL }}
 	};
 
 	static gint *ett_array[] = {

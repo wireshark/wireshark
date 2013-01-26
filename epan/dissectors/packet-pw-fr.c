@@ -42,7 +42,7 @@
 static gint proto_encaps = -1;
 static gint ett_encaps = -1;
 
-/*static int hf_pw_fr = -1;*/
+/* static int hf_pw_fr = -1; */
 static int hf_cw_bits03 = -1;
 static int hf_cw_fecn = -1;
 static int hf_cw_becn = -1;
@@ -72,12 +72,12 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 	gint payload_padding;
 	const int encaps_size = 4; /*encapsulation consists of mandatory CW only*/
 	enum {
-		PQ_CW_BAD				= 0x001
-		    ,PQ_CW_BAD_BITS03 			= 0x002
-		    ,PQ_CW_BAD_LEN_GT_PACKET		= 0x004
-		    ,PQ_CW_BAD_LEN_MUST_BE_ZERO		= 0x008
-		    ,PQ_CW_BAD_LEN_MUST_BE_NONZERO	= 0x010
-		,PQ_PAYLOAD_SIZE_ZERO			= 0x020
+		PQ_CW_BAD		       = 0x001
+		,PQ_CW_BAD_BITS03 	       = 0x002
+		,PQ_CW_BAD_LEN_GT_PACKET       = 0x004
+		,PQ_CW_BAD_LEN_MUST_BE_ZERO    = 0x008
+		,PQ_CW_BAD_LEN_MUST_BE_NONZERO = 0x010
+		,PQ_PAYLOAD_SIZE_ZERO	       = 0x020
 	} packet_quality;
 
 	packet_size = tvb_reported_length_remaining(tvb, 0);
@@ -248,32 +248,39 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 void
 proto_register_pw_fr(void)
 {
-	static hf_register_info hf[] = {
-		{&hf_cw_bits03	,{"Bits 0 to 3"		,"pwfr.bits03"	,FT_UINT8	,BASE_HEX
-				  ,NULL			,0xf0		,NULL
-				  ,HFILL }}
-		,{&hf_cw_fecn	,{"FR FECN"		,"pwfr.fecn"	,FT_UINT8	,BASE_DEC
-				  ,NULL			,0x08		,"FR Forward Explicit Congestion Notification bit"
-				  ,HFILL}}
-		,{&hf_cw_becn	,{"FR BECN"		,"pwfr.becn"	,FT_UINT8	,BASE_DEC
-				  ,NULL			,0x04		,"FR Backward Explicit Congestion Notification bit"
-				  ,HFILL}}
-		,{&hf_cw_de	,{"FR DE bit"		,"pwfr.de"	,FT_UINT8	,BASE_DEC
-				  ,NULL			,0x02		,"FR Discard Eligibility bit"
-				  ,HFILL}}
-		,{&hf_cw_cr	,{"FR Frame C/R"	,"pwfr.cr"	,FT_UINT8	,BASE_DEC
-				  ,NULL			,0x01		,"FR frame Command/Response bit"
-				  ,HFILL}}
-		,{&hf_cw_frg	,{"Fragmentation"	,"pwfr.frag"	,FT_UINT8	,BASE_DEC
-				  ,vals_frg		,0xc0		,NULL
-				  ,HFILL}}
-		,{&hf_cw_len	,{"Length"		,"pwfr.length"	,FT_UINT8	,BASE_DEC
-				  ,NULL			,0x3f		,NULL
-				  ,HFILL}}
-		,{&hf_cw_seq	,{"Sequence number"	,"pwfr.length"	,FT_UINT16	,BASE_DEC
-				  ,NULL			,0		,NULL
-				  ,HFILL}}
-	};
+static hf_register_info hf[] = {
+	{&hf_cw_bits03	,{"Bits 0 to 3"		,"pwfr.bits03"	,FT_UINT8	,BASE_HEX
+			  ,NULL			,0xf0		,NULL
+			  ,HFILL }},
+
+	{&hf_cw_fecn	,{"FR FECN"		,"pwfr.fecn"	,FT_UINT8	,BASE_DEC
+			  ,NULL			,0x08		,"FR Forward Explicit Congestion Notification bit"
+			  ,HFILL}},
+
+	{&hf_cw_becn	,{"FR BECN"		,"pwfr.becn"	,FT_UINT8	,BASE_DEC
+			  ,NULL			,0x04		,"FR Backward Explicit Congestion Notification bit"
+			  ,HFILL}},
+
+	{&hf_cw_de	,{"FR DE bit"		,"pwfr.de"	,FT_UINT8	,BASE_DEC
+			  ,NULL			,0x02		,"FR Discard Eligibility bit"
+			  ,HFILL}},
+
+	{&hf_cw_cr	,{"FR Frame C/R"	,"pwfr.cr"	,FT_UINT8	,BASE_DEC
+			  ,NULL			,0x01		,"FR frame Command/Response bit"
+			  ,HFILL}},
+
+	{&hf_cw_frg	,{"Fragmentation"	,"pwfr.frag"	,FT_UINT8	,BASE_DEC
+			  ,vals_frg		,0xc0		,NULL
+			  ,HFILL}},
+
+	{&hf_cw_len	,{"Length"		,"pwfr.length"	,FT_UINT8	,BASE_DEC
+			  ,NULL			,0x3f		,NULL
+			  ,HFILL}},
+
+	{&hf_cw_seq	,{"Sequence number"	,"pwfr.length"	,FT_UINT16	,BASE_DEC
+			  ,NULL			,0		,NULL
+			  ,HFILL}}
+};
 
 	static gint *ett[] = {
 		&ett_encaps

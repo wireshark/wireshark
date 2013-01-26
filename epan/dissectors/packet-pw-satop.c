@@ -404,32 +404,41 @@ void proto_register_pw_satop(void)
 	static hf_register_info hf[] = {
 		{ &hf_cw	,{"Control Word"		,"pwsatop.cw"
 				,FT_NONE			,BASE_NONE		,NULL
-				,0				,NULL			,HFILL }}
-		,{&hf_cw_bits03,{"Bits 0 to 3"			,"pwsatop.cw.bits03"
+				,0				,NULL			,HFILL }},
+
+		{&hf_cw_bits03,{"Bits 0 to 3"			,"pwsatop.cw.bits03"
 				,FT_UINT8			,BASE_DEC		,NULL
-				,0xf0				,NULL			,HFILL }}
-		,{&hf_cw_l,	{"L bit: TDM payload state"	,"pwsatop.cw.lbit"
+				,0xf0				,NULL			,HFILL }},
+
+		{&hf_cw_l,	{"L bit: TDM payload state"	,"pwsatop.cw.lbit"
 				,FT_UINT8			,BASE_DEC		,VALS(pwc_vals_cw_l_bit)
-				,0x08				,NULL			,HFILL }}
-		,{&hf_cw_r,	{"R bit: Local CE-bound IWF"	,"pwsatop.cw.rbit"
+				,0x08				,NULL			,HFILL }},
+
+		{&hf_cw_r,	{"R bit: Local CE-bound IWF"	,"pwsatop.cw.rbit"
 				,FT_UINT8			,BASE_DEC		,VALS(pwc_vals_cw_r_bit)
-				,0x04				,NULL			,HFILL }}
-		,{&hf_cw_rsv,	{"Reserved"			,"pwsatop.cw.rsv"
+				,0x04				,NULL			,HFILL }},
+
+		{&hf_cw_rsv,	{"Reserved"			,"pwsatop.cw.rsv"
 				,FT_UINT8			,BASE_DEC		,NULL
-				,0x03				,NULL			,HFILL }}
-		,{&hf_cw_frg,	{"Fragmentation"		,"pwsatop.cw.frag"
+				,0x03				,NULL			,HFILL }},
+
+		{&hf_cw_frg,	{"Fragmentation"		,"pwsatop.cw.frag"
 				,FT_UINT8			,BASE_DEC		,VALS(pwc_vals_cw_frag)
-				,0xc0				,NULL			,HFILL }}
-		,{&hf_cw_len,	{"Length"			,"pwsatop.cw.length"
+				,0xc0				,NULL			,HFILL }},
+
+		{&hf_cw_len,	{"Length"			,"pwsatop.cw.length"
 				,FT_UINT8			,BASE_DEC		,NULL
-				,0x3f				,NULL			,HFILL }}
-		,{&hf_cw_seq,	{"Sequence number"		,"pwsatop.cw.seqno"
+				,0x3f				,NULL			,HFILL }},
+
+		{&hf_cw_seq,	{"Sequence number"		,"pwsatop.cw.seqno"
 				,FT_UINT16			,BASE_DEC		,NULL
-				,0				,NULL			,HFILL }}
-		,{&hf_payload	,{"TDM payload"			,"pwsatop.payload"
+				,0				,NULL			,HFILL }},
+
+		{&hf_payload	,{"TDM payload"			,"pwsatop.payload"
 				,FT_BYTES			,BASE_NONE		,NULL
-				,0				,NULL			,HFILL }}
-		,{&hf_payload_l	,{"TDM payload length"		,"pwsatop.payload.len"
+				,0				,NULL			,HFILL }},
+
+		{&hf_payload_l	,{"TDM payload length"		,"pwsatop.payload.len"
 				,FT_INT32			,BASE_DEC		,NULL
 				,0				,NULL			,HFILL }}
 	};

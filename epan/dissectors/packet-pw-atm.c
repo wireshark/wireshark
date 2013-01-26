@@ -1690,75 +1690,84 @@ proto_register_pw_atm_ata(void)
 	};
 	static hf_register_info hfa_cell_header[] = {
 		{ &hf_cell_h_vpi	,{"VPI"				,"atm.vpi"
-					,FT_UINT16	,BASE_DEC	,NULL           ,0
-					,NULL						,HFILL }}
-		,{ &hf_cell_h_vci	,{"VCI"				,"atm.vci"
-					,FT_UINT16	,BASE_DEC	,NULL		,0
-					,NULL						,HFILL }}
-		,{ &hf_cell_h_pti	,{"Payload Type"		,"atm.pti"
-					,FT_UINT8	,BASE_DEC	,VALS(atm_pt_vals),0x0e
-					,"The 3-bit Payload Type Identifier (PTI) incorporates ATM Layer"
-					" PTI coding of the cell.  These bits are set to the value of the"
-					" PTI of the encapsulated ATM cell."
-											,HFILL }}
-		,{ &hf_cell_h_clp	,{"Cell Loss Priority"		,"atm.clp"
-					,FT_UINT8	,BASE_DEC	,VALS(clp_vals)	,0x01
-					,"The Cell Loss Priority (CLP) field indicates CLP value"
-					" of the encapsulated cell."
-											,HFILL }}
-		,{ &hf_cell_h_m		,{"Transport Mode"		,"atm.pw_control_byte.m"
-					,FT_UINT8	,BASE_DEC	,VALS(m_vals)	,0x80
-					,"Bit (M) of the control byte indicates  whether the packet"
-					" contains an ATM cell or a frame payload. If set to 0,"
-					" the packet contains an ATM cell. If set to 1, the PDU"
-					" contains an AAL5 payload."
-											,HFILL }}
-		,{ &hf_cell_h_v		,{"VCI Present"			,"atm.pw_control_byte.v"
-					,FT_BOOLEAN	,8		,TFS(&tfs_yes_no),0x40
-					,"Bit (V) of the control byte indicates whether the VCI field"
-					" is present in the packet. If set to 1, the VCI field is present"
-					" for the cell. If set to 0, no VCI field is present."
-											,HFILL }}
-		,{ &hf_cell_h_rsv	,{"Reserved bits"		,"atm.pw_control_byte.rsv"
-					,FT_UINT8	,BASE_DEC	,NULL		,0x30
-					,"The reserved bits should be set to 0 at the transmitter and"
-					" ignored upon reception."
-											,HFILL }}
-		,{ &hf_aal5_pdu_rsv	,{"Reserved bits"		,"atm.pw_control_byte.rsv"
-					,FT_UINT8	,BASE_DEC	,NULL		,0x38
-					,"The reserved bits should be set to 0 at the transmitter and"
-					" ignored upon reception."
-											,HFILL }}
-		,{ &hf_aal5_pdu_u	,{"U bit"			,"atm.pw_control_byte.u"
-					,FT_UINT8	,BASE_DEC	,VALS(u_vals)	,0x04
-					,"Indicates whether this frame contains the last cell of"
-					" an AAL5 PDU and represents the value of the ATM User-to-User"
-					" bit for the last ATM cell of the PSN frame. Note: The ATM"
-					" User-to-User bit is the least significant bit of the PTI"
-					" in the ATM header."
-											,HFILL }}
-		,{ &hf_aal5_pdu_e	,{"EFCI"			,"atm.pw_control_byte.efci"
-					,FT_UINT8	,BASE_DEC	,VALS(e_vals)	,0x02
-					,"EFCI is set to the EFCI state of the last cell of the"
-					" AAL5 PDU or AAL5 fragment. Note: The EFCI state is"
-					" indicated in the middle bit of each ATM cell's PTI."
-											,HFILL }}
+					  ,FT_UINT16	,BASE_DEC	,NULL           ,0
+					  ,NULL						,HFILL }},
+
+		{ &hf_cell_h_vci	,{"VCI"				,"atm.vci"
+					  ,FT_UINT16	,BASE_DEC	,NULL		,0
+					  ,NULL						,HFILL }},
+
+		{ &hf_cell_h_pti	,{"Payload Type"		,"atm.pti"
+					  ,FT_UINT8	,BASE_DEC	,VALS(atm_pt_vals),0x0e
+					  ,"The 3-bit Payload Type Identifier (PTI) incorporates ATM Layer"
+					  " PTI coding of the cell.  These bits are set to the value of the"
+					  " PTI of the encapsulated ATM cell."
+					  ,HFILL }},
+
+		{ &hf_cell_h_clp	,{"Cell Loss Priority"		,"atm.clp"
+					  ,FT_UINT8	,BASE_DEC	,VALS(clp_vals)	,0x01
+					  ,"The Cell Loss Priority (CLP) field indicates CLP value"
+					  " of the encapsulated cell."
+					  ,HFILL }},
+
+		{ &hf_cell_h_m		,{"Transport Mode"		,"atm.pw_control_byte.m"
+					  ,FT_UINT8	,BASE_DEC	,VALS(m_vals)	,0x80
+					  ,"Bit (M) of the control byte indicates  whether the packet"
+					  " contains an ATM cell or a frame payload. If set to 0,"
+					  " the packet contains an ATM cell. If set to 1, the PDU"
+					  " contains an AAL5 payload."
+					  ,HFILL }},
+
+		{ &hf_cell_h_v		,{"VCI Present"			,"atm.pw_control_byte.v"
+					  ,FT_BOOLEAN	,8		,TFS(&tfs_yes_no),0x40
+					  ,"Bit (V) of the control byte indicates whether the VCI field"
+					  " is present in the packet. If set to 1, the VCI field is present"
+					  " for the cell. If set to 0, no VCI field is present."
+					  ,HFILL }},
+
+		{ &hf_cell_h_rsv	,{"Reserved bits"		,"atm.pw_control_byte.rsv"
+					  ,FT_UINT8	,BASE_DEC	,NULL		,0x30
+					  ,"The reserved bits should be set to 0 at the transmitter and"
+					  " ignored upon reception."
+					  ,HFILL }},
+
+		{ &hf_aal5_pdu_rsv	,{"Reserved bits"		,"atm.pw_control_byte.rsv"
+					  ,FT_UINT8	,BASE_DEC	,NULL		,0x38
+					  ,"The reserved bits should be set to 0 at the transmitter and"
+					  " ignored upon reception."
+					  ,HFILL }},
+
+		{ &hf_aal5_pdu_u	,{"U bit"			,"atm.pw_control_byte.u"
+					  ,FT_UINT8	,BASE_DEC	,VALS(u_vals)	,0x04
+					  ,"Indicates whether this frame contains the last cell of"
+					  " an AAL5 PDU and represents the value of the ATM User-to-User"
+					  " bit for the last ATM cell of the PSN frame. Note: The ATM"
+					  " User-to-User bit is the least significant bit of the PTI"
+					  " in the ATM header."
+					  ,HFILL }},
+
+		{ &hf_aal5_pdu_e	,{"EFCI"			,"atm.pw_control_byte.efci"
+					  ,FT_UINT8	,BASE_DEC	,VALS(e_vals)	,0x02
+					  ,"EFCI is set to the EFCI state of the last cell of the"
+					  " AAL5 PDU or AAL5 fragment. Note: The EFCI state is"
+					  " indicated in the middle bit of each ATM cell's PTI."
+					  ,HFILL }}
 	};
-static hf_register_info hfa_cell[] = {
-	{&hf_cell_payload_len	,{"Length"			,"atm.cell.len"
-					,FT_INT32	,BASE_DEC	,NULL		,0
-					,NULL						,HFILL }}
+	static hf_register_info hfa_cell[] = {
+		{&hf_cell_payload_len	,{"Length"			,"atm.cell.len"
+					  ,FT_INT32	,BASE_DEC	,NULL		,0
+					  ,NULL						,HFILL }}
 	};
 
-	#define HF_INITIALIZER_NCELLS(hf_handle)\
-		{&(hf_handle)		,{"Number of good encapsulated cells","pw.atm.cells"\
-					,FT_INT32	,BASE_DEC	,NULL		,0\
-					,NULL						,HFILL }}
+#define HF_INITIALIZER_NCELLS(hf_handle)				\
+	{ &(hf_handle)		,{"Number of good encapsulated cells","pw.atm.cells" \
+				,FT_INT32	,BASE_DEC	,NULL		,0 \
+				,NULL						,HFILL }}
 
-	#define HF_INITIALIZER_PWTYPE(hf_handle,name)\
-		{ &hf_handle		,{name				,name\
-					,FT_BOOLEAN	,0		,NULL		,0x0\
-					,"Identifies type of ATM PW. May be used for filtering.",HFILL}}
+#define HF_INITIALIZER_PWTYPE(hf_handle,name)				\
+	{ &hf_handle		,{name				,name	\
+				,FT_BOOLEAN	,0		,NULL		,0x0 \
+				,"Identifies type of ATM PW. May be used for filtering.",HFILL}}
 
 
 	static hf_register_info hfa_n1_nocw[] = {
@@ -1796,59 +1805,70 @@ static hf_register_info hfa_cell[] = {
 
 	static hf_register_info hfa_cw[] = {
 		{ &hf_cw_bits03		,{"Bits 0 to 3"			,"pw.cw.bits03"
-					,FT_UINT8 	,BASE_HEX 	,NULL		,0xf0
-					,NULL						,HFILL }}
-		,{ &hf_pref_cw_flags	,{"Flags"			,"pw.cw.flags"
-					,FT_UINT8	,BASE_HEX	,NULL		,0x0f
-					,NULL 						,HFILL }}
-		,{ &hf_pref_cw_a5s_t	,{"Payload type"		,"atm.pt"
-					,FT_UINT8	,BASE_DEC	,VALS(a5s_t_vals),0x08
-					,"Bit (T) of the control word indicates whether the packet contains"
-					" an ATM admin cell or an AAL5 payload. If T = 1, the packet"
-					" contains an ATM admin cell, encapsulated according to the N:1"
-					" cell relay encapsulation. If not set, the PDU"
-					" contains an AAL5 payload."
-											,HFILL }}
-		,{ &hf_pref_cw_a5s_e	,{"EFCI bit"			,"atm.efci"
-					,FT_UINT8	,BASE_DEC	,VALS(a5s_e_vals),0x04
-					,"The ingress router sets this bit to 1 if the EFCI bit"
-					" of the final cell of those that transported the AAL5 CPCS-SDU is"
-					" set to 1, or if the EFCI bit of the single ATM cell to be"
-					" transported in the packet is set to 1. Otherwise, this bit"
-					" is set to 0."
-											,HFILL }}
-		,{ &hf_pref_cw_a5s_c	,{"CLP bit"			,"atm.clp"
-					,FT_UINT8	,BASE_DEC	,VALS(clp_vals)	,0x02
-					,"The ingress router sets this bit to 1 if the CLP bit"
-					" of any of the ATM cells that transported the AAL5 CPCS-SDU is set"
-					" to 1, or if the CLP bit of the single ATM cell to be transported"
-					" in the packet is set to 1. Otherwise this bit is set to 0."
-											,HFILL }}
-		,{ &hf_pref_cw_a5s_u	,{"U bit (Command/Response)"	,"pw.cw.aal5sdu.u"
-					,FT_UINT8	,BASE_DEC	,NULL		,0x01
-					,"When FRF.8.1 Frame Relay/ATM PVC Service Interworking [RFC3916]"
-					" traffic is being transported, the Least-Significant Bit of CPCS-UU"
-					" of the AAL5 CPCS-PDU may contain the Frame Relay C/R bit."
-					" The ingress router copies this bit here."
-											,HFILL }}
-		,{ &hf_pref_cw_rsv	,{"Reserved bits"		,"pw.cw.rsv"
-					,FT_UINT8	,BASE_DEC	,NULL		,0xc0
-					,NULL						,HFILL }}
-		,{ &hf_generic_cw_rsv	,{"Reserved bits"		,"pw.cw.rsv"
-					,FT_UINT8	,BASE_DEC	,NULL		,0x0f
-					,NULL						,HFILL }}
-		,{ &hf_pref_cw_len	,{"Length"			,"pw.cw.length"
-					,FT_UINT8	,BASE_DEC	,NULL		,0x3f
-					,NULL						,HFILL }}
-		,{ &hf_pref_cw_rsvlen	,{"Length (extended)"		,"pw.cw.length"
-					,FT_UINT8	,BASE_DEC	,NULL		,0xff
-					,NULL						,HFILL }}
-		,{ &hf_cw_seq		,{"Sequence number"		,"pw.cw.seqno"
-					,FT_UINT16	,BASE_DEC	,NULL		,0
-					,NULL						,HFILL }}
-		,{ &hf_gen_cw_atmbyte	,{"ATM-specific byte"		,"pw.cw.3rd_byte"
-					,FT_UINT8	,BASE_HEX	,NULL		,0xFF
-					,NULL						,HFILL }}
+					  ,FT_UINT8	,BASE_HEX	,NULL		,0xf0
+					  ,NULL						,HFILL }},
+
+		{ &hf_pref_cw_flags	,{"Flags"			,"pw.cw.flags"
+					  ,FT_UINT8	,BASE_HEX	,NULL		,0x0f
+					  ,NULL							,HFILL }},
+
+		{ &hf_pref_cw_a5s_t	,{"Payload type"		,"atm.pt"
+					  ,FT_UINT8	,BASE_DEC	,VALS(a5s_t_vals),0x08
+					  ,"Bit (T) of the control word indicates whether the packet contains"
+					  " an ATM admin cell or an AAL5 payload. If T = 1, the packet"
+					  " contains an ATM admin cell, encapsulated according to the N:1"
+					  " cell relay encapsulation. If not set, the PDU"
+					  " contains an AAL5 payload."
+					  ,HFILL }},
+
+		{ &hf_pref_cw_a5s_e	,{"EFCI bit"			,"atm.efci"
+					  ,FT_UINT8	,BASE_DEC	,VALS(a5s_e_vals),0x04
+					  ,"The ingress router sets this bit to 1 if the EFCI bit"
+					  " of the final cell of those that transported the AAL5 CPCS-SDU is"
+					  " set to 1, or if the EFCI bit of the single ATM cell to be"
+					  " transported in the packet is set to 1. Otherwise, this bit"
+					  " is set to 0."
+					  ,HFILL }},
+
+		{ &hf_pref_cw_a5s_c	,{"CLP bit"			,"atm.clp"
+					  ,FT_UINT8	,BASE_DEC	,VALS(clp_vals)	,0x02
+					  ,"The ingress router sets this bit to 1 if the CLP bit"
+					  " of any of the ATM cells that transported the AAL5 CPCS-SDU is set"
+					  " to 1, or if the CLP bit of the single ATM cell to be transported"
+					  " in the packet is set to 1. Otherwise this bit is set to 0."
+					  ,HFILL }},
+
+		{ &hf_pref_cw_a5s_u	,{"U bit (Command/Response)"	,"pw.cw.aal5sdu.u"
+					  ,FT_UINT8	,BASE_DEC	,NULL		,0x01
+					  ,"When FRF.8.1 Frame Relay/ATM PVC Service Interworking [RFC3916]"
+					  " traffic is being transported, the Least-Significant Bit of CPCS-UU"
+					  " of the AAL5 CPCS-PDU may contain the Frame Relay C/R bit."
+					  " The ingress router copies this bit here."
+					  ,HFILL }},
+
+		{ &hf_pref_cw_rsv	,{"Reserved bits"		,"pw.cw.rsv"
+					  ,FT_UINT8	,BASE_DEC	,NULL		,0xc0
+					  ,NULL						,HFILL }},
+
+		{ &hf_generic_cw_rsv	,{"Reserved bits"		,"pw.cw.rsv"
+					  ,FT_UINT8	,BASE_DEC	,NULL		,0x0f
+					  ,NULL						,HFILL }},
+
+		{ &hf_pref_cw_len	,{"Length"			,"pw.cw.length"
+					  ,FT_UINT8	,BASE_DEC	,NULL		,0x3f
+					  ,NULL						,HFILL }},
+
+		{ &hf_pref_cw_rsvlen	,{"Length (extended)"		,"pw.cw.length"
+					  ,FT_UINT8	,BASE_DEC	,NULL		,0xff
+					  ,NULL						,HFILL }},
+
+		{ &hf_cw_seq		,{"Sequence number"		,"pw.cw.seqno"
+					  ,FT_UINT16	,BASE_DEC	,NULL		,0
+					  ,NULL						,HFILL }},
+
+		{ &hf_gen_cw_atmbyte	,{"ATM-specific byte"		,"pw.cw.3rd_byte"
+					  ,FT_UINT8	,BASE_HEX	,NULL		,0xFF
+					  ,NULL						,HFILL }}
 	};
 	static gint *ett_array[] = {
 		&ett_encaps
