@@ -39,7 +39,7 @@
 
 #include "airpdcap_interop.h"
 
-void print_debug_line(CHAR *function, CHAR *msg, INT level);
+void print_debug_line(const CHAR *function, const CHAR *msg, const INT level);
 
 #ifdef	_DEBUG
 #ifdef	__FUNCTION__
