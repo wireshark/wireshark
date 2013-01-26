@@ -30,7 +30,7 @@ MAX_PASSES=0
 
 # These may be set to your liking
 # Stop the child process if it's running longer than x seconds
-MAX_CPU_TIME=900
+MAX_CPU_TIME=300
 # Stop the child process if it's using more than y * 1024 bytes
 MAX_VMEM=500000
 # Stop the child process if its stack is larger than than z * 1024 bytes
@@ -52,12 +52,6 @@ RANDPKT="$BIN_DIR/randpkt"
 if [ "$BIN_DIR" = "." ]; then
     export WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1
 fi
-
-# set some limits to the child processes, e.g. stop it if it's running longer then MAX_CPU_TIME seconds
-# (ulimit is not supported well on cygwin and probably other platforms, e.g. cygwin shows some warnings)
-ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM -s $MAX_STACK
-ulimit -c unlimited
-
 
 ##############################################################################
 ### Set up environment variables for fuzz testing			   ###

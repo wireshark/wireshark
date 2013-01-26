@@ -81,8 +81,16 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 	for ARGS in "${TSHARK_ARGS[@]}" ; do
             echo -n "($ARGS) "
 	    echo -e "Command and args: $TSHARK $ARGS\n" > $TMP_DIR/$ERR_FILE
-            "$TSHARK" $ARGS $TMP_DIR/$TMP_FILE \
-                > /dev/null 2>> $TMP_DIR/$ERR_FILE
+
+            # Run in a child process with limits, e.g. stop it if it's running
+            # longer then MAX_CPU_TIME seconds. (ulimit may not be supported
+            # well on some platforms, particularly cygwin.)
+            (
+                ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM -s $MAX_STACK
+                ulimit -c unlimited
+                "$TSHARK" $ARGS $TMP_DIR/$TMP_FILE \
+                    > /dev/null 2>> $TMP_DIR/$ERR_FILE
+            )
             RETVAL=$?
 	    if [ $RETVAL -ne 0 ] ; then break ; fi
         done
