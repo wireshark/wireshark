@@ -76,6 +76,35 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Core dumped when the file is closed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8022">Bug
+          8022</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wrong packet bytes are selected for ISUP CUG binary code.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8035">Bug
+          8035</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Decodes FCoE Group Multicast MAC address as Broadcom MAC address.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8046">Bug
+          8046</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The SSL dissector stops decrypting the SSL conversation with Malformed Packet:SSL error messages.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8075">Bug
+          8075</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Electromagnetic Emission Parser parses field Event Id as Entity Id.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8227">Bug
+          8227</ulink>)
+        </para></listitem>
 
      </itemizedlist>
 
@@ -103,7 +132,21 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+Bluetooth HCI,
+CLNP,
+DCP-ETSI,
+DIS PDU,
+DOCSIS CM-STATUS,
+DTLS,
+DTN,
+Fibre Channel,
+ISUP,
+MPLS,
+MS-MMC,
+NTLMSSP,
+R3,
+RTPS,
+
 
     </para>
     </section>

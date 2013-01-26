@@ -4130,7 +4130,7 @@ dissect_isup_closed_user_group_interlock_code_parameter(tvbuff_t *parameter_tvb,
   NI_digits[4] = '\0';
   proto_tree_add_text(parameter_tree, parameter_tvb, 0, 2, "Network Identity: %s", NI_digits);
   bin_code = tvb_get_ntohs(parameter_tvb, 2);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 3, 2, "Binary Code: 0x%x", bin_code);
+  proto_tree_add_text(parameter_tree, parameter_tvb, 2, 2, "Binary Code: 0x%x", bin_code);
   proto_item_set_text(parameter_item, "Closed user group interlock code: NI = %s, Binary code = 0x%x", NI_digits, bin_code);
 }
 /* ------------------------------------------------------------------

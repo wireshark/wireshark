@@ -68,7 +68,7 @@ DIS_ParserNode DIS_PARSER_ENTITY_STATE_PDU[] =
 DIS_ParserNode DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU[] =
 {
     { DIS_FIELDTYPE_ENTITY_ID,               "Emitting Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Event ID",0,0,0,0 },
+    { DIS_FIELDTYPE_EVENT_ID,                "Event ID",0,0,0,0 },
     { DIS_FIELDTYPE_UINT8,                   "State Update Indicator",0,0,0,0 },
     { DIS_FIELDTYPE_NUM_ELECTROMAGNETIC_EMISSION_SYSTEMS, "Number of Systems (N)",0,0,0,&numVariable },
     { DIS_FIELDTYPE_PAD16,                   "Padding",0,0,0,0 },
