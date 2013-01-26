@@ -272,9 +272,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   decoded_size = fcount*plen;
   c_max = fcount*plen/(rsk+PFT_RS_P);  /* rounded down */
-  rx_min = c_max*rsk/plen;
-  if(rx_min*plen<c_max*rsk)
-    rx_min++;
+  rx_min = fcount - (c_max*PFT_RS_P/plen);
   if (fdx)
     new_tvb = process_reassembled_data (tvb, offset, pinfo,
                                         "Reassembled DCP (ETSI)",
