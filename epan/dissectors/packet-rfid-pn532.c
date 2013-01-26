@@ -32,6 +32,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 
 static int proto_pn532 = -1;
 
@@ -150,6 +151,17 @@ static int hf_pn532_14443b_proto_info = -1;
 #define NO_ERROR                   0x00
 #define UNACCEPTABLE_CMD           0x27
 
+/* Table of payload types - adapted from the I2C dissector */
+enum {
+    SUB_DATA = 0,
+    SUB_FELICA,
+
+    SUB_MAX
+};
+
+static dissector_handle_t sub_handles[SUB_MAX];
+static gint sub_selected = SUB_DATA;
+
 /* XXX: re-arranged from defs above to be in ascending order by value */
 static const value_string pn532_commands[] = {
     {DIAGNOSE_REQ,               "Diagnose"},
@@ -265,8 +277,6 @@ static const value_string pn532_brtypes[] = {
     {0x00, NULL}
 };
 
-static dissector_handle_t data_handle;
-static dissector_handle_t felica_handle;
 
 static dissector_table_t pn532_dissector_table;
 
@@ -379,7 +389,7 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
         if ((tvb_get_guint8(tvb, 3) == FELICA_212) || (tvb_get_guint8(tvb, 3) == FELICA_424)) {
 
             next_tvb = tvb_new_subset_remaining(tvb, 4);
-            call_dissector(felica_handle, next_tvb, pinfo, tree);
+            call_dissector(sub_handles[SUB_FELICA], next_tvb, pinfo, tree);
 
         }
 
@@ -440,7 +450,7 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
 
             /* Use the length value (20?) at position 4, and skip the Status Word (9000) at the end */
             next_tvb = tvb_new_subset(tvb, 5, tvb_get_guint8(tvb, 4) - 1, 19);
-            call_dissector(felica_handle, next_tvb, pinfo, tree);
+            call_dissector(sub_handles[SUB_FELICA], next_tvb, pinfo, tree);
         }
 
         break;
@@ -458,8 +468,32 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
         break;
 
     case IN_COMMUNICATE_THRU_REQ:
+      
+       if (sub_selected == SUB_FELICA) {
+            
+        /* Alleged payload length for FeliCa */
+            proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 2, 1, ENC_BIG_ENDIAN);
+
+        /* Attempt to dissect FeliCa payloads */
+            next_tvb = tvb_new_subset_remaining(tvb, 3);
+            call_dissector(sub_handles[SUB_FELICA], next_tvb, pinfo, tree);
+            }
+      
         break;
 
+    case IN_COMMUNICATE_THRU_RSP:
+       if (sub_selected == SUB_FELICA) {
+            
+        /* Alleged payload length for FeliCa */
+            proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 3, 1, ENC_BIG_ENDIAN);
+
+        /* Attempt to dissect FeliCa payloads */
+            next_tvb = tvb_new_subset_remaining(tvb, 4);
+            call_dissector(sub_handles[SUB_FELICA], next_tvb, pinfo, tree);
+            }
+      
+        break;
+	
     /* Deselect a token */
     case IN_DESELECT_REQ:
         /* Logical target number */
@@ -591,10 +625,22 @@ void proto_register_pn532(void)
     static gint *ett[] = {
         &ett_pn532
     };
-
+    
+    module_t *pref_mod;
+    
+    static const enum_val_t sub_enum_vals[] = {
+        { "data", "Data", SUB_DATA },
+        { "felica", "Sony FeliCa", SUB_FELICA },
+        { NULL, NULL, 0 }
+    };
+    
     proto_pn532 = proto_register_protocol("NXP PN532", "PN532", "pn532");
     proto_register_field_array(proto_pn532, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    
+    pref_mod = prefs_register_protocol(proto_pn532, NULL);
+    prefs_register_enum_preference(pref_mod, "prtype532", "Payload Type", "Protocol payload type",
+        &sub_selected, sub_enum_vals, FALSE);
 
     pn532_dissector_table = register_dissector_table("pn532.payload", "PN532 Payload", FT_UINT8, BASE_DEC);
 
@@ -604,8 +650,9 @@ void proto_register_pn532(void)
 /* Handler registration */
 void proto_reg_handoff_pn532(void)
 {
-    data_handle   = find_dissector("data");
-    felica_handle = find_dissector("felica");
+    
+    sub_handles[SUB_DATA] = find_dissector("data");
+    sub_handles[SUB_FELICA] = find_dissector("felica");
 }
 
 /*
