@@ -2023,6 +2023,16 @@ proto_register_mpls_echo(void)
                         { "Return Subcode", "mpls_echo.tlv.dd_map.return_subcode",
                         FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Detailed Downstream Map Return Subcode", HFILL}
                 },
+                { &hf_mpls_echo_tlv_dd_map_ingress_if_num,
+                        { "Ingress Interface Number", "mpls_echo.tlv.dd_map.ingress.if.num",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        "MPLS ECHO TLV Detailed DownStream Map Ingress Interface Number", HFILL}
+                },
+                { &hf_mpls_echo_tlv_dd_map_egress_if_num,
+                        { "Egress Interface Number", "mpls_echo.tlv.dd_map.egress.if.num",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        "MPLS ECHO TLV Detailed DownStream Map Egress Interface Number", HFILL}
+                },
                 { &hf_mpls_echo_tlv_dd_map_subtlv_len,
                         { "Subtlv Length", "mpls_echo.tlv.dd_map.subtlv_len",
                         FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Detailed Downstream Map Subtlv Length", HFILL}
