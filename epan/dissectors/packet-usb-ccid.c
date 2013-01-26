@@ -186,7 +186,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text(ccid_tree, tvb, 8, 2, "Reserved for Future Use");
 
         next_tvb = tvb_new_subset_remaining(tvb, 10);
-        call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, ccid_tree);
+        call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
 
         col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Set Parameters");
         break;
@@ -332,7 +332,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* If the user has opted to use the PN532 dissector for PC -> Reader comms, then use it here */
         if (sub_selected == SUB_PN532_ACS_PSEUDO_APDU && tvb_get_guint8(tvb, 10) == 0xD5) {
-            call_dissector(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, ccid_tree);
+            call_dissector(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, tree);
         }
 
         else if (sub_selected == SUB_ISO7816) {
@@ -341,7 +341,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         else {
-            call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, ccid_tree);
+            call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
         }
 
         break;
