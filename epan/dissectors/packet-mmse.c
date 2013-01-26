@@ -222,7 +222,7 @@ static int hf_mmse_sender_visibility	= -1;
 static int hf_mmse_status		= -1;
 static int hf_mmse_subject		= -1;
 static int hf_mmse_to			= -1;
-static int hf_mmse_content_type		= -1;
+/* static int hf_mmse_content_type		= -1; */
 static int hf_mmse_ffheader		= -1;
 /* MMSE 1.1 */
 static int hf_mmse_read_report		= -1;
@@ -1521,6 +1521,7 @@ proto_register_mmse(void)
 		HFILL
 	    }
 	},
+/**
 	{   &hf_mmse_content_type,
 	    {   "Data", "mmse.content_type",
 		FT_NONE, BASE_NONE, NULL, 0x00,
@@ -1528,6 +1529,7 @@ proto_register_mmse(void)
 		HFILL
 	    }
 	},
+**/
 	{   &hf_mmse_ffheader,
 	    {   "Free format (not encoded) header", "mmse.ffheader",
 		FT_STRING, BASE_NONE, NULL, 0x00,

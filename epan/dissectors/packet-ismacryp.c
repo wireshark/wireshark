@@ -124,20 +124,20 @@ static const value_string modetypenames[] = {
 * proto_register_field_array() in proto_register_ismacryp()
 */
 /** Kts attempt at defining the protocol */
-static gint hf_ismacryp = -1;
+/* static gint hf_ismacryp = -1; */
 static gint hf_ismacryp_header = -1;
 static gint hf_ismacryp_au_headers_length = -1;
-static gint hf_ismacryp_header_length = -1;
+/* static gint hf_ismacryp_header_length = -1; */
 static gint hf_ismacryp_header_byte = -1;
-static gint hf_ismacryp_version = -1;
-static gint hf_ismacryp_length = -1;
+/* static gint hf_ismacryp_version = -1; */
+/* static gint hf_ismacryp_length = -1; */
 /* static gint hf_ismacryp_message_type = -1; */
-static gint hf_ismacryp_message_length = -1;
+/* static gint hf_ismacryp_message_length = -1; */
 static gint hf_ismacryp_message = -1;
-static gint hf_ismacryp_parameter = -1;
+/* static gint hf_ismacryp_parameter = -1; */
 /* static gint hf_ismacryp_parameter_type = -1; */
-static gint hf_ismacryp_parameter_length = -1;
-static gint hf_ismacryp_parameter_value = -1;
+/* static gint hf_ismacryp_parameter_length = -1; */
+/* static gint hf_ismacryp_parameter_value = -1; */
 static gint hf_ismacryp_iv = -1;
 static gint hf_ismacryp_delta_iv = -1;
 static gint hf_ismacryp_key_indicator = -1;
@@ -708,21 +708,27 @@ void proto_register_ismacryp (void)
 	* {&(field id), {name, abbrev, type, display, strings, bitmask, blurb, HFILL}}.
 	*/
 	static hf_register_info hf[] = {
+/**
 		{ &hf_ismacryp,
 		  { "Data", "ismacryp.data", FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
+**/
 
+/**
 		{ &hf_ismacryp_length,
-		  { "Total Length", "ismacryp.len", FT_UINT16, BASE_DEC, NULL, 0x0,	/* length 2 bytes, print as decimal value */
+		  { "Total Length", "ismacryp.len", FT_UINT16, BASE_DEC, NULL, 0x0,	/-* length 2 bytes, print as decimal value *-/
 		    NULL, HFILL }},
+**/
 
 		{ &hf_ismacryp_header,
 		  { "AU Header", "ismacryp.header", FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
+/**
 		{ &hf_ismacryp_header_length,
 		  { "Header Length", "ismacryp.header.length", FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
+**/
 
 		{ &hf_ismacryp_au_headers_length,
 		  { "AU Headers Length", "ismacryp.au_headers.length", FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -732,25 +738,33 @@ void proto_register_ismacryp (void)
 		  { "Header Byte", "ismacryp.header.byte", FT_NONE, BASE_NONE, NULL, 0x0, /* 1 byte */
 		    NULL, HFILL }},
 
+/**
 		{ &hf_ismacryp_version,
-		  { "Version", "ismacryp.version", FT_UINT8, BASE_HEX, NULL, 0x0, 	/* version 1 byte */
+		  { "Version", "ismacryp.version", FT_UINT8, BASE_HEX, NULL, 0x0, 	/-* version 1 byte *-/
 		    NULL, HFILL }},
+**/
 
 		{ &hf_ismacryp_message,
 		  { "Message", "ismacryp.message", FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
+/**
 		{ &hf_ismacryp_message_length,
-		  { "Message Length", "ismacryp.message.len", FT_UINT16, BASE_DEC, NULL, 0x0,	/* length 2 bytes, print as decimal value */
+		  { "Message Length", "ismacryp.message.len", FT_UINT16, BASE_DEC, NULL, 0x0,	/-* length 2 bytes, print as decimal value *-/
 		    NULL, HFILL }},
+**/
 
+/**
 		{ &hf_ismacryp_parameter,
 		  { "Parameter", "ismacryp.parameter", FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
+**/
 
+/**
 		{ &hf_ismacryp_parameter_length,
-		  { "Parameter Length", "ismacryp.parameter.len", FT_UINT16, BASE_DEC, NULL, 0x0, /* length 2 bytes, print as decimal value */
+		  { "Parameter Length", "ismacryp.parameter.len", FT_UINT16, BASE_DEC, NULL, 0x0, /-* length 2 bytes, print as decimal value *-/
 		    NULL, HFILL }},
+**/
 
 		{ &hf_ismacryp_iv,
 		  { "IV", "ismacryp.iv", FT_BYTES, BASE_NONE, NULL, 0x0, /* variable length */
@@ -764,9 +778,11 @@ void proto_register_ismacryp (void)
 		  { "Key Indicator", "ismacryp.key_indicator", FT_BYTES, BASE_NONE, NULL, 0x0, /* variable length */
 		    NULL, HFILL }},
 
+/**
 		{ &hf_ismacryp_parameter_value,
 		  { "Parameter Value", "ismacryp.parameter.value", FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
+**/
 
 		{ &hf_ismacryp_au_size,
 		  { "AU size", "ismacryp.au.size", FT_UINT64, BASE_DEC, NULL, 0x0,

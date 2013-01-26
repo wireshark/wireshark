@@ -109,7 +109,7 @@ static int hf_linx_nack_seqno      = -1;
 /* RLNH */
 static int hf_linx_rlnh_msg_type32    = -1;
 static int hf_linx_rlnh_msg_type8     = -1;
-static int hf_linx_rlnh_linkaddr      = -1;
+/* static int hf_linx_rlnh_linkaddr      = -1; */
 static int hf_linx_rlnh_src_linkaddr  = -1;
 static int hf_linx_rlnh_version       = -1;
 static int hf_linx_rlnh_status        = -1;
@@ -119,7 +119,7 @@ static int hf_linx_rlnh_feat_neg_str  = -1;
 static int hf_linx_rlnh_msg_reserved  = -1;
 
 /* TCP CM */
-static int hf_linx_tcp_reserved           = -1;
+/* static int hf_linx_tcp_reserved           = -1; */
 static int hf_linx_tcp_oob                = -1;
 static int hf_linx_tcp_version            = -1;
 static int hf_linx_tcp_type               = -1;
@@ -128,7 +128,7 @@ static int hf_linx_tcp_dst                = -1;
 static int hf_linx_tcp_size               = -1;
 static int hf_linx_tcp_rlnh_msg_type32    = -1;
 static int hf_linx_tcp_rlnh_msg_type8     = -1;
-static int hf_linx_tcp_rlnh_linkaddr      = -1;
+/* static int hf_linx_tcp_rlnh_linkaddr      = -1; */
 static int hf_linx_tcp_rlnh_src_linkaddr  = -1;
 static int hf_linx_tcp_rlnh_version       = -1;
 static int hf_linx_tcp_rlnh_status        = -1;
@@ -773,9 +773,11 @@ proto_register_linx(void)
 		{ &hf_linx_rlnh_msg_reserved, /* in RLNH */
 		        { "RLNH msg reserved", "linx.rlnh_msg_reserved", FT_UINT32, BASE_DEC, NULL, 0xffffff00, "RLNH message reserved", HFILL },
 		},
-		{ &hf_linx_rlnh_linkaddr, /* in RLNH */
+/**
+		{ &hf_linx_rlnh_linkaddr, /-* in RLNH *-/
 			{ "RLNH linkaddr", "linx.rlnh_linkaddr", FT_UINT32, BASE_DEC, NULL, 0xffffffff, "RLNH linkaddress", HFILL },
 		},
+**/
 		{ &hf_linx_rlnh_src_linkaddr, /* in RLNH */
 			{ "RLNH src linkaddr", "linx.rlnh_src_linkaddr", FT_UINT32, BASE_DEC, NULL, 0xffffffff, "RLNH source linkaddress", HFILL },
 		},
@@ -977,9 +979,11 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 proto_register_linx_tcp(void)
 {
 	static hf_register_info hf[] = {
+/**
 		{ &hf_linx_tcp_reserved,
 			{ "Reserved", "linxtcp.reserved", FT_UINT32, BASE_DEC, NULL, 0x00007FFF, "TCP CM reserved", HFILL },
 		},
+**/
 		{ &hf_linx_tcp_oob,
 			{ "Out-of-band", "linxtcp.oob", FT_UINT32, BASE_DEC, NULL, 0x00008000, "TCP CM oob", HFILL },
 		},
@@ -1009,9 +1013,11 @@ proto_register_linx_tcp(void)
 		{ &hf_linx_tcp_rlnh_msg_reserved,
 			{ "RLNH msg reserved", "linxtcp.rlnh_msg_reserved", FT_UINT32, BASE_DEC, NULL, 0xffffff00, "RLNH message reserved", HFILL },
 		},
+/**
 		{ &hf_linx_tcp_rlnh_linkaddr,
 			{ "RLNH linkaddr", "linxtcp.rlnh_linkaddr", FT_UINT32, BASE_DEC, NULL, 0xffffffff, "RLNH linkaddress", HFILL },
 		},
+**/
 		{ &hf_linx_tcp_rlnh_src_linkaddr,
 		        { "RLNH src linkaddr", "linxtcp.rlnh_src_linkaddr", FT_UINT32, BASE_DEC, NULL, 0xffffffff, "RLNH source linkaddress", HFILL },
 		},

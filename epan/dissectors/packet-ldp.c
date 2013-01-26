@@ -54,8 +54,8 @@ void proto_reg_handoff_ldp(void);
 static int proto_ldp = -1;
 
 /* Delete the following if you do not use it, or add to it if you need */
-static int hf_ldp_req = -1;
-static int hf_ldp_rsp = -1;
+/* static int hf_ldp_req = -1; */
+/* static int hf_ldp_rsp = -1; */
 static int hf_ldp_version = -1;
 static int hf_ldp_pdu_len = -1;
 static int hf_ldp_lsr = -1;
@@ -215,7 +215,7 @@ static int hf_ldp_tlv_set_prio = -1;
 static int hf_ldp_tlv_hold_prio = -1;
 static int hf_ldp_tlv_route_pinning = -1;
 static int hf_ldp_tlv_resource_class = -1;
-static int hf_ldp_tlv_diffserv = -1;
+/* static int hf_ldp_tlv_diffserv = -1; */
 static int hf_ldp_tlv_diffserv_type = -1;
 static int hf_ldp_tlv_diffserv_mapnb = -1;
 static int hf_ldp_tlv_diffserv_map = -1;
@@ -3063,14 +3063,18 @@ void
 proto_register_ldp(void)
 {
     static hf_register_info hf[] = {
+/**
         { &hf_ldp_req,
-          /* Change the following to the type you need */
+          /-* Change the following to the type you need *-/
           { "Request", "ldp.req", FT_BOOLEAN, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
+**/
 
+/**
         { &hf_ldp_rsp,
           { "Response", "ldp.rsp", FT_BOOLEAN, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
+**/
 
         { &hf_ldp_version,
           { "Version", "ldp.hdr.version", FT_UINT16, BASE_DEC,
@@ -3705,9 +3709,11 @@ proto_register_ldp(void)
           { "Resource Class", "ldp.msg.tlv.resource_class", FT_UINT32, BASE_HEX,
             NULL, 0, "Resource Class (Color)", HFILL}},
 
+/**
         { &hf_ldp_tlv_diffserv,
           { "Diff-Serv TLV", "ldp.msg.tlv.diffserv", FT_NONE, BASE_NONE,
             NULL, 0, "Diffserv TLV", HFILL}},
+**/
 
         { &hf_ldp_tlv_diffserv_type,
           { "LSP Type", "ldp.msg.tlv.diffserv.type", FT_UINT8, BASE_DEC,

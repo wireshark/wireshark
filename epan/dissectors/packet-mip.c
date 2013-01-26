@@ -65,10 +65,10 @@ static int hf_mip_rext_tstamp = -1;
 static int hf_mip_rev_reserved = -1;
 static int hf_mip_rev_a = -1;
 static int hf_mip_rev_i = -1;
-static int hf_mip_rev_reserved2 = -1;
+/* static int hf_mip_rev_reserved2 = -1; */
 static int hf_mip_ack_reserved = -1;
 static int hf_mip_ack_i = -1;
-static int hf_mip_ack_reserved2 = -1;
+/* static int hf_mip_ack_reserved2 = -1; */
 static int hf_mip_hda = -1;
 static int hf_mip_fda = -1;
 static int hf_mip_revid = -1;
@@ -1050,10 +1050,12 @@ void proto_register_mip(void)
         FT_BOOLEAN, 16, NULL, 16384,
         "Inform Mobile Node", HFILL }
     },
+/**
     { &hf_mip_rev_reserved2,
       { "Reserved",                 "mip.rev.reserved2",
         FT_UINT16, BASE_HEX, NULL, 0x3fff,
         NULL, HFILL}},
+**/
     { &hf_mip_hda,
       { "Home Domain Address",      "mip.rev.hda",
         FT_IPv4, BASE_NONE, NULL, 0,
@@ -1079,10 +1081,12 @@ void proto_register_mip(void)
         FT_BOOLEAN, 16, NULL, 32768,
         "Inform Mobile Node", HFILL }
     },
+/**
     { &hf_mip_ack_reserved2,
       { "Reserved",                 "mip.ack.reserved2",
         FT_UINT16, BASE_HEX, NULL, 0x7fff,
         NULL, HFILL}},
+**/
     { &hf_mip_dhaext_stype,
       { "DynHA Ext SubType",        "mip.ext.dynha.subtype",
         FT_UINT8, BASE_DEC, VALS(mip_dhaext_stypes), 0,

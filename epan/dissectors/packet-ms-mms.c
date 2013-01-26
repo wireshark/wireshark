@@ -47,7 +47,7 @@ static gint               proto_msmms                      = -1;
 /* Command fields */
 static gint   hf_msmms_command                             = -1;
 static gint   hf_msmms_command_common_header               = -1;
-static gint   hf_msmms_command_version                     = -1;
+/* static gint   hf_msmms_command_version                     = -1; */
 static gint   hf_msmms_command_signature                   = -1;
 static gint   hf_msmms_command_length                      = -1;
 static gint   hf_msmms_command_protocol_type               = -1;
@@ -1211,6 +1211,7 @@ void proto_register_msmms(void)
             }
         },
 
+/**
         {
             &hf_msmms_command_version,
             {
@@ -1223,6 +1224,7 @@ void proto_register_msmms(void)
                 NULL, HFILL
             }
         },
+**/
         {
             &hf_msmms_command_signature,
             {

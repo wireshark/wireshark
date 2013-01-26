@@ -124,7 +124,7 @@ static int hf_mq_id_unknown5 = -1;
 static int hf_mq_id_ccsid = -1;
 static int hf_mq_id_queuemanager = -1;
 static int hf_mq_id_heartbeatinterval = -1;
-static int hf_mq_id_unknown6 = -1;
+/* static int hf_mq_id_unknown6 = -1; */
 static int hf_mq_id_icf_msgseq = -1;
 static int hf_mq_id_icf_convcap = -1;
 static int hf_mq_id_icf_splitmsg = -1;
@@ -2634,8 +2634,10 @@ proto_register_mq(void)
         { &hf_mq_id_heartbeatinterval,
           { "Heartbeat interval", "mq.id.hbint", FT_UINT32, BASE_DEC, NULL, 0x0, "ID Heartbeat interval", HFILL }},
 
+/**
         { &hf_mq_id_unknown6,
           { "Unknown6", "mq.id.unknown6", FT_UINT16, BASE_HEX, NULL, 0x0, "ID unknown6", HFILL }},
+**/
 
         { &hf_mq_id_ief_ccsid,
           { "Invalid CCSID", "mq.id.ief.ccsid", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF_CCSID, "ID invalid CCSID", HFILL }},

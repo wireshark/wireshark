@@ -932,7 +932,7 @@ static int hf_mip6_hot_token = -1;
 
 static int hf_mip6_cot_nindex = -1;
 static int hf_mip6_cot_cookie = -1;
-static int hf_mip6_cot_token = -1;
+/* static int hf_mip6_cot_token = -1; */
 
 static int hf_mip6_bu_seqnr = -1;
 static int hf_mip6_bu_a_flag = -1;
@@ -3657,11 +3657,13 @@ proto_register_mip6(void)
         FT_UINT64, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
+/**
     { &hf_mip6_cot_token,
       { "Care-of Keygen Token", "mip6.cot.token",
         FT_UINT64, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
+**/
 
     { &hf_mip6_bu_seqnr,
       { "Sequence number", "mip6.bu.seqnr",

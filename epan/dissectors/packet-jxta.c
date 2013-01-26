@@ -132,7 +132,7 @@ static int hf_jxta_element_type = -1;
 static int hf_jxta_element_encoding = -1;
 static int hf_jxta_element_content_len = -1;
 static int hf_jxta_element_content_len64 = -1;
-static int hf_jxta_element_content = -1;
+/* static int hf_jxta_element_content = -1; */
 
 /**
 *    JXTA Protocol subtree handles
@@ -2267,10 +2267,12 @@ void proto_register_jxta(void)
          {"Element Content Length", "jxta.message.element.content.length", FT_UINT64, BASE_DEC, NULL, 0x0,
           "JXTA Message Element Content Length", HFILL}
          },
+/**
         {&hf_jxta_element_content,
          {"Element Content", "jxta.message.element.content", FT_BYTES, BASE_NONE, NULL, 0x0,
           "JXTA Message Element Content", HFILL}
          },
+**/
     };
 
     proto_jxta = proto_register_protocol("JXTA P2P", "JXTA", "jxta");

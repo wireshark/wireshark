@@ -65,7 +65,7 @@ static int hf_ltp_data_offset   = -1;
 static int hf_ltp_data_length   = -1;
 static int hf_ltp_data_chkp     = -1;
 static int hf_ltp_data_rpt      = -1;
-static int hf_ltp_data_clidata  = -1;
+/* static int hf_ltp_data_clidata  = -1; */
 
 /* LTP Report Segment variable */
 static int hf_ltp_rpt_sno       = -1;
@@ -836,10 +836,12 @@ proto_register_ltp(void)
 		  {"Report serial number","ltp.data.rpt",
 		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
 	  },
+/**
 	  {&hf_ltp_data_clidata,
 		  {"Client service data","ltp.data.data",
 		  FT_BYTES,BASE_NONE,NULL, 0x0, NULL, HFILL}
 	  },
+**/
 	  {&hf_ltp_rpt_sno,
 		  {"Report serial number","ltp.rpt.sno",
 		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}

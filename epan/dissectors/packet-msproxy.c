@@ -68,7 +68,7 @@ static int hf_msproxy_clntport = -1;
 
 static int hf_msproxy_dstaddr = -1;
 
-static int hf_msproxy_srcport = -1;
+/* static int hf_msproxy_srcport = -1; */
 static int hf_msproxy_dstport = -1;
 static int hf_msproxy_serverport = -1;
 static int hf_msproxy_serveraddr = -1;
@@ -1162,11 +1162,13 @@ proto_register_msproxy( void){
 			}
 		},
 
+/**
 		{ &hf_msproxy_srcport,
 			{ "Source Port", "msproxy.srcport", FT_UINT16,
 				BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+**/
 		{ &hf_msproxy_dstport,
 			{ "Destination Port", "msproxy.dstport", FT_UINT16,
 				BASE_DEC, NULL, 0x0, NULL, HFILL

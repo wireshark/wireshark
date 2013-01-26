@@ -134,7 +134,7 @@ static int hf_realnamelen = -1;
 static int hf_realname = -1;
 
 
-static int hf_a_record = -1;
+/* static int hf_a_record = -1; */
 static int hf_a_rec_len = -1;
 static int hf_srv_prio = -1;
 static int hf_srv_weight = -1;
@@ -1107,9 +1107,11 @@ proto_register_lwres(void)
           { "Real doname name", "lwres.realname", FT_STRING, BASE_NONE, NULL, 0x0,
             "lwres realname", HFILL }},
 
+/**
         { &hf_a_record,
           { "IPv4 Address", "lwres.arecord", FT_UINT32, BASE_DEC, NULL, 0x0,
             "lwres arecord", HFILL }},
+**/
 
         { &hf_a_rec_len,
           { "Length", "lwres.areclen", FT_UINT16, BASE_DEC, NULL, 0x0,

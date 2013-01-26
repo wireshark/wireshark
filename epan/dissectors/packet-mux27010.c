@@ -151,7 +151,7 @@ static int hf_mux27010_extended_header_flag_ended_III = -1;
 static int hf_mux27010_dlciaddressflag = -1;
 static int hf_mux27010_eaaddressflag = -1;
 static int hf_mux27010_craddressflag = -1;
-static int hf_mux27010_addressdirection = -1;
+/* static int hf_mux27010_addressdirection = -1; */
 /*Control*/
 static int hf_mux27010_controlframetype = -1;
 static int hf_mux27010_controlframetypens = -1;
@@ -173,7 +173,7 @@ static int hf_mux27010_controlchannelvalue = -1;
 static int hf_mux27010_controlchanneldetailedvalue = -1;
 static int hf_mux27010_controlchanneldetailedvaluetestcommandversion = -1;
 static int hf_mux27010_controlchanneldetailedvaluemscdlci = -1;
-static int hf_mux27010_controlchanneldetailedvaluemscv24 = -1;
+/* static int hf_mux27010_controlchanneldetailedvaluemscv24 = -1; */
 static int hf_mux27010_controlchanneldetailedvaluemscv24fc = -1;
 static int hf_mux27010_controlchanneldetailedvaluemscv24rtc = -1;
 static int hf_mux27010_controlchanneldetailedvaluemscv24rtr = -1;
@@ -1275,9 +1275,11 @@ proto_register_mux27010 (void)
           { "C/R Address Flag", "mux27010.address.craddress",
             FT_BOOLEAN, 8, NULL, MUX27010_CR_ADDRESS_FLAG, NULL, HFILL }},
 
+/**
         { &hf_mux27010_addressdirection,
           { "Direction", "mux27010.address.direction",
             FT_UINT8, BASE_HEX, NULL, MUX27010_CR_ADDRESS_FLAG, NULL, HFILL }},
+**/
 
         /*Control frame*/
 
@@ -1380,9 +1382,11 @@ proto_register_mux27010 (void)
           { "DLCI number (decimal)", "mux27010.controlchannel.value.detailedvaluemscdlci",
             FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_DCLI, NULL, HFILL }},
 
+/**
         { &hf_mux27010_controlchanneldetailedvaluemscv24,
           { "V.24 Signal", "mux27010.controlchannel.value.detailedvaluemscv24",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+**/
 
         { &hf_mux27010_controlchanneldetailedvaluemscv24fc,
           { "FC", "mux27010.controlchannel.value.detailedvaluemscv24.fc",

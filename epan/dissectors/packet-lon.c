@@ -166,7 +166,7 @@ static gint hf_lon_app			= -1;
 static gint hf_lon_nm			= -1;
 static gint hf_lon_nd			= -1;
 static gint hf_lon_ff			= -1;
-static gint hf_lon_checksum		= -1;
+/* static gint hf_lon_checksum		= -1; */
 static gint proto_lon			= -1;
 
 
@@ -678,11 +678,13 @@ proto_register_lon(void)
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
+/**
 		{&hf_lon_checksum,
 			{"Checksum", "lon.chksum",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		}
+**/
 	};
 
 	static gint *ett[] =

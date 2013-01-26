@@ -56,7 +56,7 @@ static gint hf_lwapp_fragment_id = -1;
 static gint hf_lwapp_length = -1;
 static gint hf_lwapp_rssi = -1;
 static gint hf_lwapp_snr = -1;
-static gint hf_lwapp_control = -1;
+/* static gint hf_lwapp_control = -1; */
 static gint hf_lwapp_control_mac = -1;
 static gint hf_lwapp_control_type = -1;
 static gint hf_lwapp_control_seq_no = -1;
@@ -496,9 +496,11 @@ proto_register_lwapp(void)
         { &hf_lwapp_snr,
           { "SNR","lwapp.snr", FT_UINT8, BASE_HEX,
             NULL, 0x0, NULL, HFILL }},
+/**
         { &hf_lwapp_control,
           { "Control Data (not dissected yet)","lwapp.control", FT_BYTES, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
+**/
         { &hf_lwapp_control_mac,
           { "AP Identity", "lwapp.apid", FT_ETHER, BASE_NONE, NULL, 0x0,
               "Access Point Identity", HFILL }},

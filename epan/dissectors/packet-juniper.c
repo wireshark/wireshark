@@ -355,7 +355,7 @@ static const value_string juniper_ifle_vals[] = {
 
 static int proto_juniper = -1;
 
-static int hf_juniper_magic = -1;
+/* static int hf_juniper_magic = -1; */
 static int hf_juniper_direction = -1;
 static int hf_juniper_l2hdr_presence = -1;
 static int hf_juniper_ext_total_len = -1;
@@ -1362,9 +1362,11 @@ void
 proto_register_juniper(void)
 {
   static hf_register_info hf[] = {
+/**
     { &hf_juniper_magic,
       { "Magic Number", "juniper.magic-number", FT_UINT24, BASE_HEX,
         NULL, 0x0, NULL, HFILL }},
+**/
     { &hf_juniper_direction,
       { "Direction", "juniper.direction", FT_UINT8, BASE_HEX,
         VALS(juniper_direction_vals), 0x0, NULL, HFILL }},

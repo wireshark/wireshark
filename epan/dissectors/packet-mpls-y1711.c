@@ -49,7 +49,7 @@
 static gint proto_mpls_y1711 = -1;
 
 static int hf_mpls_y1711_function_type = -1;
-static int hf_mpls_y1711_ttsi = -1;
+/* static int hf_mpls_y1711_ttsi = -1; */
 static int hf_mpls_y1711_frequency = -1;
 static int hf_mpls_y1711_defect_type = -1;
 static int hf_mpls_y1711_defect_location = -1;
@@ -360,6 +360,7 @@ proto_register_mpls_y1711(void)
                 0x0, "Function Type codepoint", HFILL
             }
         },
+/**
         {
             &hf_mpls_y1711_ttsi,
             {
@@ -368,6 +369,7 @@ proto_register_mpls_y1711(void)
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
+**/
         {
             &hf_mpls_y1711_frequency,
             {

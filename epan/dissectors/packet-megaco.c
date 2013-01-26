@@ -74,7 +74,7 @@ static int hf_megaco_version        = -1;
 static int hf_megaco_transaction    = -1;
 static int hf_megaco_transid        = -1;
 static int hf_megaco_Context        = -1;
-static int hf_megaco_command_line   = -1;
+/* static int hf_megaco_command_line   = -1; */
 static int hf_megaco_command        = -1;
 static int hf_megaco_termid         = -1;
 
@@ -83,20 +83,20 @@ static int hf_megaco_termid         = -1;
 /* Define headers in subtree for megaco */
 static int hf_megaco_modem_descriptor           = -1;
 static int hf_megaco_multiplex_descriptor       = -1;
-static int hf_megaco_media_descriptor           = -1;
-static int hf_megaco_events_descriptor          = -1;
-static int hf_megaco_signal_descriptor          = -1;
+/* static int hf_megaco_media_descriptor           = -1; */
+/* static int hf_megaco_events_descriptor          = -1; */
+/* static int hf_megaco_signal_descriptor          = -1; */
 static int hf_megaco_audit_descriptor           = -1;
-static int hf_megaco_servicechange_descriptor   = -1;
+/* static int hf_megaco_servicechange_descriptor   = -1; */
 static int hf_megaco_digitmap_descriptor        = -1;
 static int hf_megaco_statistics_descriptor      = -1;
-static int hf_megaco_observedevents_descriptor  = -1;
+/* static int hf_megaco_observedevents_descriptor  = -1; */
 static int hf_megaco_topology_descriptor        = -1;
 static int hf_megaco_error_descriptor           = -1;
-static int hf_megaco_TerminationState_descriptor= -1;
-static int hf_megaco_Remote_descriptor          = -1;
-static int hf_megaco_Local_descriptor           = -1;
-static int hf_megaco_LocalControl_descriptor    = -1;
+/* static int hf_megaco_TerminationState_descriptor= -1; */
+/* static int hf_megaco_Remote_descriptor          = -1; */
+/* static int hf_megaco_Local_descriptor           = -1; */
+/* static int hf_megaco_LocalControl_descriptor    = -1; */
 static int hf_megaco_packages_descriptor        = -1;
 static int hf_megaco_error_Frame                = -1;
 static int hf_megaco_Service_State              = -1;
@@ -112,7 +112,7 @@ static int hf_megaco_streamid                   = -1;
 static int hf_megaco_requestid                  = -1;
 static int hf_megaco_pkgdname                   = -1;
 static int hf_megaco_mId                        = -1;
-static int hf_megaco_h245                       = -1;
+/* static int hf_megaco_h245                       = -1; */
 static int hf_megaco_h223Capability             = -1;
 static int hf_megaco_audititem                  = -1;
 
@@ -3375,9 +3375,11 @@ proto_register_megaco(void)
         { &hf_megaco_audit_descriptor,
           { "Audit Descriptor", "megaco.audit", FT_NONE, BASE_NONE, NULL, 0x0,
             "Audit Descriptor of the megaco Command", HFILL }},
+/**
         { &hf_megaco_command_line,
           { "Command line", "megaco.command_line", FT_STRING, BASE_NONE, NULL, 0x0,
             "Commands of this message", HFILL }},
+**/
         { &hf_megaco_command,
           { "Command", "megaco.command", FT_STRING, BASE_NONE, NULL, 0x0,
             "Command of this message", HFILL }},
@@ -3396,18 +3398,26 @@ proto_register_megaco(void)
         { &hf_megaco_Event_Buffer_Control,
           { "Event Buffer Control", "megaco.eventbuffercontrol", FT_STRING, BASE_NONE, NULL, 0x0,
             "Event Buffer Control in Termination State Descriptor", HFILL }},
+/**
         { &hf_megaco_events_descriptor,
           { "Events Descriptor", "megaco.events", FT_STRING, BASE_NONE, NULL, 0x0,
             "Events Descriptor of the megaco Command", HFILL }},
+**/
+/**
         { &hf_megaco_Local_descriptor,
           { "Local Descriptor", "megaco.localdescriptor", FT_STRING, BASE_NONE, NULL, 0x0,
             "Local Descriptor in Media Descriptor", HFILL }},
+**/
+/**
         { &hf_megaco_LocalControl_descriptor,
           { "Local Control Descriptor", "megaco.localcontroldescriptor", FT_STRING, BASE_NONE, NULL, 0x0,
             "Local Control Descriptor in Media Descriptor", HFILL }},
+**/
+/**
         { &hf_megaco_media_descriptor,
           { "Media Descriptor", "megaco.media", FT_STRING, BASE_NONE, NULL, 0x0,
             "Media Descriptor of the megaco Command", HFILL }},
+**/
         { &hf_megaco_modem_descriptor,
           { "Modem Descriptor", "megaco.modem", FT_STRING, BASE_NONE, NULL, 0x0,
             "Modem Descriptor of the megaco Command", HFILL }},
@@ -3417,18 +3427,22 @@ proto_register_megaco(void)
         { &hf_megaco_multiplex_descriptor,
           { "Multiplex Descriptor", "megaco.multiplex", FT_STRING, BASE_NONE, NULL, 0x0,
             "Multiplex Descriptor of the megaco Command", HFILL }},
+/**
         { &hf_megaco_observedevents_descriptor,
           { "Observed Events Descriptor", "megaco.observedevents", FT_STRING, BASE_NONE, NULL, 0x0,
             "Observed Events Descriptor of the megaco Command", HFILL }},
+**/
         { &hf_megaco_packages_descriptor,
           { "Packages Descriptor", "megaco.packagesdescriptor", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_megaco_pkgdname,
           { "pkgdName", "megaco.pkgdname", FT_STRING, BASE_NONE, NULL, 0x0,
             "PackageName SLASH ItemID", HFILL }},
+/**
         { &hf_megaco_Remote_descriptor,
           { "Remote Descriptor", "megaco.remotedescriptor", FT_STRING, BASE_NONE, NULL, 0x0,
             "Remote Descriptor in Media Descriptor", HFILL }},
+**/
         { &hf_megaco_reserve_group,
           { "Reserve Group", "megaco.reservegroup", FT_STRING, BASE_NONE, NULL, 0x0,
             "Reserve Group on or off", HFILL }},
@@ -3450,15 +3464,19 @@ proto_register_megaco(void)
         { &hf_megaco_requestid,
           { "RequestID", "megaco.requestid", FT_STRING, BASE_NONE, NULL, 0x0,
             "RequestID in Events or Observedevents Descriptor", HFILL }},
+/**
         { &hf_megaco_servicechange_descriptor,
           { "Service Change Descriptor", "megaco.servicechange", FT_STRING, BASE_NONE, NULL, 0x0,
             "Service Change Descriptor of the megaco Command", HFILL }},
+**/
         { &hf_megaco_Service_State,
           { "Service State", "megaco.servicestates", FT_STRING, BASE_NONE, NULL, 0x0,
             "Service States in Termination State Descriptor", HFILL }},
+/**
         { &hf_megaco_signal_descriptor,
           { "Signal Descriptor", "megaco.signal", FT_STRING, BASE_NONE, NULL, 0x0,
             "Signal Descriptor of the megaco Command", HFILL }},
+**/
         { &hf_megaco_statistics_descriptor,
           { "Statistics Descriptor", "megaco.statistics", FT_STRING, BASE_NONE, NULL, 0x0,
             "Statistics Descriptor of the megaco Command", HFILL }},
@@ -3468,9 +3486,11 @@ proto_register_megaco(void)
         { &hf_megaco_termid,
           { "Termination ID", "megaco.termid", FT_STRING, BASE_NONE, NULL, 0x0,
             "Termination ID of this Command", HFILL }},
+/**
         { &hf_megaco_TerminationState_descriptor,
           { "Termination State Descriptor", "megaco.terminationstate", FT_STRING, BASE_NONE, NULL, 0x0,
             "Termination State Descriptor in Media Descriptor", HFILL }},
+**/
         { &hf_megaco_topology_descriptor,
           { "Topology Descriptor", "megaco.topology", FT_STRING, BASE_NONE, NULL, 0x0,
             "Topology Descriptor of the megaco Command", HFILL }},
@@ -3486,9 +3506,11 @@ proto_register_megaco(void)
         { &hf_megaco_version,
           { "Version", "megaco.version", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
+/**
         { &hf_megaco_h245,
           { "h245", "megaco.h245", FT_STRING, BASE_NONE, NULL, 0x0,
             "Embedded H.245 message", HFILL }},
+**/
         { &hf_megaco_h223Capability,
           { "h223Capability", "megaco.h245.h223Capability", FT_NONE, BASE_NONE, NULL, 0,
             "megaco.h245.H223Capability", HFILL }},

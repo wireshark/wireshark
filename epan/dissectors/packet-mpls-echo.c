@@ -139,10 +139,10 @@ static int hf_mpls_echo_sub_tlv_multipath_length = -1;
 static int hf_mpls_echo_sub_tlv_multipath_value = -1;
 static int hf_mpls_echo_sub_tlv_resv = -1;
 static int hf_mpls_echo_sub_tlv_multipath_info = -1;
-static int hf_mpls_echo_tlv_ddstlv_map_mp_label = -1;
+/* static int hf_mpls_echo_tlv_ddstlv_map_mp_label = -1; */
 static int hf_mpls_echo_tlv_ddstlv_map_mp_proto = -1;
-static int hf_mpls_echo_tlv_ddstlv_map_mp_exp = -1;
-static int hf_mpls_echo_tlv_ddstlv_map_mp_bos = -1;
+/* static int hf_mpls_echo_tlv_ddstlv_map_mp_exp = -1; */
+/* static int hf_mpls_echo_tlv_ddstlv_map_mp_bos = -1; */
 static int hf_mpls_echo_sub_tlv_multipath_ip = -1;
 static int hf_mpls_echo_sub_tlv_mp_ip_low = -1;
 static int hf_mpls_echo_sub_tlv_mp_ip_high = -1;
@@ -190,9 +190,9 @@ static int hf_mpls_echo_lspping_tlv_src_addr_nid=-1;
 static int hf_mpls_echo_lspping_tlv_pw_serv_identifier = -1;
 static int hf_mpls_echo_lspping_tlv_pw_src_ac_id = -1;
 static int hf_mpls_echo_lspping_tlv_pw_dst_ac_id = -1;
-static int hf_mpls_echo_lspping_tlv_pw_agi_type = -1;
-static int hf_mpls_echo_lspping_tlv_pw_agi_len = -1;
-static int hf_mpls_echo_lspping_tlv_pw_agi_val = -1;
+/* static int hf_mpls_echo_lspping_tlv_pw_agi_type = -1; */
+/* static int hf_mpls_echo_lspping_tlv_pw_agi_len = -1; */
+/* static int hf_mpls_echo_lspping_tlv_pw_agi_val = -1; */
 static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_p2mp_id = -1;
 static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz1 = -1;
 static int hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_tunnel_id = -1;
@@ -207,7 +207,7 @@ static int hf_mpls_echo_tlv_echo_jitter = -1;
 static int hf_mpls_echo_tlv_responder_indent_type = -1;
 static int hf_mpls_echo_tlv_responder_indent_len = -1;
 static int hf_mpls_echo_tlv_responder_indent_ipv4 = -1;
-static int hf_mpls_echo_tlv_responder_indent_ipv6 = -1;
+/* static int hf_mpls_echo_tlv_responder_indent_ipv6 = -1; */
 static int hf_mpls_echo_tlv_bfd = -1;
 
 static gint ett_mpls_echo = -1;
@@ -2209,18 +2209,24 @@ proto_register_mpls_echo(void)
           { "DST AC ID", "mpls_echo.lspping.tlv.pw.dst.ac.id",
             FT_UINT32, BASE_DEC, NULL, 0x0, "PW FEC DST AC ID", HFILL}
         },
+/**
         { &hf_mpls_echo_lspping_tlv_pw_agi_type,
           { "AGI TYPE", "mpls_echo.lspping.tlv.pw.agi.type",
             FT_UINT8, BASE_DEC, NULL, 0x0, "PW AGI TYPE", HFILL}
         },
+**/
+/**
         { &hf_mpls_echo_lspping_tlv_pw_agi_len,
           { "AGI Length", "mpls_echo.lspping.tlv.pw.agi.len",
             FT_UINT8, BASE_DEC, NULL, 0x0, "PW AGI LENGTH", HFILL}
         },
+**/
+/**
         { &hf_mpls_echo_lspping_tlv_pw_agi_val,
           { "AGI VALUE", "mpls_echo.lspping.tlv.pw.agi.val",
             FT_STRING, BASE_NONE, NULL, 0x0, "PW AGI VALUE", HFILL}
         },
+**/
         { &hf_mpls_echo_tlv_dd_map_mtu,
           { "MTU", "mpls_echo.lspping.tlv.dd_map.mtu",
             FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Detailed Downstream Map MTU", HFILL}
@@ -2303,23 +2309,29 @@ proto_register_mpls_echo(void)
           { "Multipath Information", "mpls_echo.subtlv.dd_map.multipath_info",
             FT_BYTES, BASE_NONE, NULL, 0x0, "Detailed Downstream Mapping TLV Multipath Data Sub-TLV Value", HFILL}
         },
+/**
         { &hf_mpls_echo_tlv_ddstlv_map_mp_label,
           { "Downstream Label", "mpls_echo.tlv.ddstlv_map.mp_label",
             FT_UINT24, BASE_DEC, VALS(special_labels), 0x0, "MPLS ECHO TLV Detailed Downstream Map Downstream Label", HFILL}
         },
+**/
         { &hf_mpls_echo_tlv_ddstlv_map_mp_proto,
           { "Downstream Protocol", "mpls_echo.tlv.ddstlv_map.mp_proto",
             FT_UINT8, BASE_DEC, VALS(mpls_echo_tlv_ds_map_mp_proto), 0x0,
             "MPLS ECHO TLV Detailed Downstream Map Downstream Protocol", HFILL}
         },
+/**
         { &hf_mpls_echo_tlv_ddstlv_map_mp_exp,
           { "Downstream Experimental", "mpls_echo.tlv.ddstlv_map.mp_exp",
             FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Detailed Downstream Map Downstream Experimental", HFILL}
         },
+**/
+/**
         { &hf_mpls_echo_tlv_ddstlv_map_mp_bos,
           { "Downstream BOS", "mpls_echo.tlv.ddstlv_map.mp_bos",
             FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Detailed Downstream Map Downstream BOS", HFILL}
         },
+**/
         { &hf_mpls_echo_sub_tlv_multipath_ip,
           { "IP Address", "mpls_echo.tlv.ddstlv_map_mp.ip",
             FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV Detailed Downstream Map Multipath IP Address", HFILL}
@@ -2426,10 +2438,12 @@ proto_register_mpls_echo(void)
           { "Target IPv4 Address", "mpls_echo.tlv.resp_id.ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0, "P2MP Responder ID TLV IPv4 Address", HFILL}
         },
+/**
         { &hf_mpls_echo_tlv_responder_indent_ipv6,
           { "Target IPv6 Address", "mpls_echo.tlv.resp_id.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0, "P2MP Responder ID TLV IPv6 Address", HFILL}
         },
+**/
         { &hf_mpls_echo_tlv_echo_jitter,
           { "Echo Jitter time", "mpls_echo.tlv.echo_jitter",
             FT_UINT32, BASE_DEC, NULL, 0x0, "MPLS ECHO Jitter time", HFILL}
