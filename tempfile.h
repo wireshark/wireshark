@@ -43,7 +43,7 @@ extern "C" {
  * @param pfx A prefix for the temporary file.
  * @return The file descriptor of the new tempfile, from mkstemp().
  */
-int create_tempfile(char **namebuf, char *pfx);
+int create_tempfile(char **namebuf, const char *pfx);
 
 /**
  * Create a directory with the given prefix (e.g. "wireshark"). The path
