@@ -2282,7 +2282,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
       /* Setup the buffer to decrypt to */
       tvb_memcpy(tvb, packet_ntlmssp_info->verifier,
-                 offset, encrypted_block_length);
+                 offset, MIN(encrypted_block_length, sizeof(packet_ntlmssp_info->verifier)));
 
       /*if( !(NTLMSSP_NEGOTIATE_KEY_EXCH & packet_ntlmssp_info->flags)) {*/
       if( conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY ) {
