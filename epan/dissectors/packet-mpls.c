@@ -220,11 +220,11 @@ static const enum_val_t mpls_default_payload_defs[] = {
 /* For RFC6391 - Flow aware transport of pseudowire over a mpls PSN*/
 static gboolean mpls_bos_flowlabel = FALSE;
 
-static int hf_mpls_label;
-static int hf_mpls_label_special;
-static int hf_mpls_exp;
-static int hf_mpls_bos;
-static int hf_mpls_ttl;
+static int hf_mpls_label = -1;
+static int hf_mpls_label_special = -1;
+static int hf_mpls_exp = -1;
+static int hf_mpls_bos = -1;
+static int hf_mpls_ttl = -1;
 
 static gint mpls_default_payload = 0;
 
