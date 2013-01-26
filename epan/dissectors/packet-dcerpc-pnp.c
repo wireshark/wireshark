@@ -33,7 +33,7 @@
 
 static int proto_dcerpc_pnp = -1;
 
-static int hf_pnp_opnum = 0;
+static int hf_pnp_opnum = -1;
 
 static gint ett_dcerpc_pnp = -1;
 

@@ -33,7 +33,7 @@
 
 static int proto_dcerpc_rras = -1;
 
-static int hf_rras_opnum = 0;
+static int hf_rras_opnum = -1;
 
 static gint ett_dcerpc_rras = -1;
 

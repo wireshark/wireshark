@@ -285,7 +285,7 @@ static int hf_rdp_optionsPriLow = -1;
 static int hf_rdp_optionsCompressRDP = -1;
 static int hf_rdp_optionsCompress = -1;
 static int hf_rdp_optionsShowProtocol= -1;
-static int hf_rdp_optionsRemoteControlPersistent;
+static int hf_rdp_optionsRemoteControlPersistent = -1;
 
 static int hf_rdp_channelPDUHeader = -1;
 static int hf_rdp_channelFlags = -1;

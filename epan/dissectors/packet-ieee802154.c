@@ -221,7 +221,7 @@ static int hf_ieee802154_src64_origin = -1;
 static int hf_ieee802154_fcs = -1;
 static int hf_ieee802154_rssi = -1;
 static int hf_ieee802154_fcs_ok = -1;
-static int hf_ieee802154_correlation;
+static int hf_ieee802154_correlation = -1;
 
 /*  Registered fields for Command Packets */
 static int hf_ieee802154_cmd_id = -1;

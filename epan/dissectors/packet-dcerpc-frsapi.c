@@ -1,5 +1,5 @@
 /* packet-dcerpc-frsapi.c
- * Routines for the frs API (File Replication Service) MSRPC interface 
+ * Routines for the frs API (File Replication Service) MSRPC interface
  * Copyright 2004 Jean-Baptiste Marchand <jbm@hsc.fr>
  *
  * $Id$
@@ -33,7 +33,7 @@
 
 static int proto_dcerpc_frsapi = -1;
 
-static int hf_frsapi_opnum = 0;
+static int hf_frsapi_opnum = -1;
 
 static gint ett_dcerpc_frsapi = -1;
 
@@ -49,7 +49,7 @@ static e_uuid_t uuid_dcerpc_frsapi = {
 	{ 0x9a, 0x3c, 0x00, 0xc0, 0x4f, 0xc9, 0xb2, 0x32 }
 };
 
-static guint16 ver_dcerpc_frsapi = 1; 
+static guint16 ver_dcerpc_frsapi = 1;
 
 
 static dcerpc_sub_dissector dcerpc_frsapi_dissectors[] = {
@@ -72,9 +72,9 @@ proto_register_dcerpc_frsapi(void)
 
         static hf_register_info hf[] = {
 
-		{ &hf_frsapi_opnum, 
+		{ &hf_frsapi_opnum,
 		  { "Operation", "frsapi.opnum", FT_UINT16, BASE_DEC,
-		   NULL, 0x0, NULL, HFILL }},	
+		   NULL, 0x0, NULL, HFILL }},
 	};
 
 

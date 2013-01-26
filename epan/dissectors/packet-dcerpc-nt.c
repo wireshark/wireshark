@@ -1646,7 +1646,7 @@ dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static int hf_logonhours_unknown_char;
+static int hf_logonhours_unknown_char = -1;
 
 static int
 dissect_LOGON_HOURS_entry(tvbuff_t *tvb, int offset,
