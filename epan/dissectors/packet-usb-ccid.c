@@ -168,7 +168,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO,     "CCID Packet");
 
     /* Start with a top-level item to add everything else to */
-    item = proto_tree_add_item(tree, proto_ccid, tvb, 0, -1, ENC_NA);
+    item = proto_tree_add_item(tree, proto_ccid, tvb, 0, 10, ENC_NA);
     ccid_tree = proto_item_add_subtree(item, ett_ccid);
 
     proto_tree_add_item(ccid_tree, hf_ccid_bMessageType, tvb, 0, 1, ENC_NA);
