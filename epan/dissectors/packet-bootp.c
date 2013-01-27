@@ -4132,7 +4132,7 @@ static const value_string docsis_cm_cap_type_vals[] = {
 	{ DOCSIS_CM_CAP_USFREQRNG_SUP,		"Upstream Frequency Range Support" },
 	{ DOCSIS_CM_CAP_USSYMRATE_SUP,		"Upstream Symbol Rate Support" },
 	{ DOCSIS_CM_CAP_SACM2_SUP,		"Selectable Active Code Mode 2 Support" },
-	{ DOCSIS_CM_CAP_SACM2HOP_SUP,		"Code Hopping Mode 2 Suppor" },
+	{ DOCSIS_CM_CAP_SACM2HOP_SUP,		"Code Hopping Mode 2 Support" },
 	{ DOCSIS_CM_CAP_MULTTXCHAN_SUP,		"Multiple Transmit Channel Support" },
 	{ DOCSIS_CM_CAP_512USTXCHAN_SUP,	"5.12 Msps Upstream Transmit Channel Support" },
 	{ DOCSIS_CM_CAP_256USTXCHAN_SUP,	"2.56 Msps Upstream Transmit Channel Support" },
