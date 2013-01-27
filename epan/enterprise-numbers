@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2013-01-20)
+(last updated 2013-01-27)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -122069,9 +122069,9 @@ Decentralization / Helenic Public Administra
     John Betts
       john&globalholdings.org
 30622
-  Centre Informatique de l'Etat , Luxembourg
+  Centre des technologies de l'information  de l'Etat , Luxembourg (previous was 'Centre Informatique de l'Etat , Luxembourg')
     Daniel Nickels
-      cie.oid&cie.etat.lu
+      cie.oid&ctie.etat.lu
 30623
   Federal Signal Corporation, Integrated Systems
     Tim Morten
@@ -141939,9 +141939,9 @@ Decentralization / Helenic Public Administra
     Alexander Tsvyashchenko
       ndl&ndl.kiev.ua
 35589
-  Partido PIRATA
+  Confederación Pirata (previous was 'Partido PIRATA')
     Rafa Couto
-      rafacouto&gmail.com
+      rafacouto&confederacionpirata.org
 35590
   Convergent Communications, Inc
     Mike Knoblock
@@ -149768,8 +149768,8 @@ Decentralization / Helenic Public Administra
       christophe.dupre&gfisolutions.com
 37546
   BNP Paribas Fortis group
-    Bruno-Louis MATUZ
-      bruno-louis.matuz&bnpparibasfortis.com
+    Patrick GUSTOT
+      patrick.gustot&bnpparibasfortis.com
 37547
   Europapier International GmbH
     Daniel Masek
@@ -162189,7 +162189,7 @@ Decentralization / Helenic Public Administra
 40651
   Beijing Huasun Unicreate Technology LTD.
     Bo Yang
-      yangbo&bhuwireless.com
+      yangbo&bhunetworks.com
 40652
   Illinois Wesleyan University
     Michael Zehr
@@ -164230,6 +164230,118 @@ Decentralization / Helenic Public Administra
   Bentsen Electronics
     Morten Bentsen
       spam&bentsen.org
+41162
+  Software Daten Service
+    Wolfgang Brandl
+      wolfgang.brandl&sds.at
+41163
+  INVAP S.E.
+    Ignacio Ginestet
+      iginestet&invap.com.ar
+41164
+  Tulsa Technology Center
+    Ryan Dahlgren
+      mib&tulsatech.edu
+41165
+  SKYERA Inc
+    Suresh Dussa
+      sdussa&skyera.com
+41166
+  streibelt.net
+    Florian Streibelt
+      iana-pen&streibelt.net
+41167
+  Pomona Valley Hospital Medical Center
+    Cris Tran
+      cris.tran&pvhmc.org
+41168
+  Excelitas
+    Thomas Osbrink
+      thomas.osbrink&excelitas.com
+41169
+  Scorpio IT
+    Christian Wittmer
+      info&scorpio-it.net
+41170
+  NOVXTEL
+    Emmanuel CHAUVEAU
+      e.chauveau&novxtel.com
+41171
+  MECC CO., LTD.
+    Masaya Suzuki
+      m-suzuki&mecc.co.jp
+41172
+  HEC Paris
+    Marcelo Moreira
+      sysrxadm&hec.fr
+41173
+  Dream Chip Technologies GmbH
+    Stefan Stürke
+      mibs&dreamchip.de
+41174
+  Mount Vernon Hospital Physics (UK)
+    Gerry Lowe
+      gerry.lowe&nhs.net
+41175
+  Aartesys AG
+    Andreas Grossenbacher
+      andreas.grossenbacher&aartesys.ch
+41176
+  Energy X Systems Ltd.
+    H. R. Coles
+      ianaoid.1&energy-x.com
+41177
+  Ocean Interactive (Beijing) Technology Co. Ltd
+    Shaolin Zheng
+      zhengshaolin&omusic.cc
+41178
+  Proftal Oy
+    Vesa Haimi
+      contact&proftal.com
+41179
+  DirectTrust.org Inc.
+    Scott Rea
+      Scott.Rea&DirectTrust.org
+41180
+  Process Query Systems, LLC
+    Vincent Berk
+      vberk&proquesys.com
+41181
+  conversis technologies GmbH
+    Lukas Loesche
+      l.loesche&conversis.de
+41182
+  Digital Imaging Lab.
+    Shunsaku Otsuka
+      otsuka&diljapan.com
+41183
+  Contim Automação de Sistemas Ltda
+    Thiago Ragozo Contim
+      thiago&contim.eng.br
+41184
+  FreedomVoice Systems
+    Jeremiah Gowdy
+      jeremiah.gowdy&freedomvoice.com
+41185
+  Norwia AS
+    Baard Nossum
+      bnossum&norwia.no
+41186
+  QuantuMatriX Technologies
+    Matthew Schultz
+      matt&qmxtech.com
+41187
+  Video Tech Laboratories
+    HIroshi Fujimoto
+      fujimoto&videotech.co.jp
+41188
+  University of California Hastings College of the Law
+    Ronald Proschan
+      proschan&uchastings.edu
+41189
+  Sika Informationssysteme AG
+    Oliver von Wartburg
+      vonwartburg.oliver&ch.sika.com
 
 
 End of Document

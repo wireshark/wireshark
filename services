@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-01-18
+# 2013-01-24
 # 
 # Experts
 # 
@@ -9951,9 +9951,9 @@ publiqare-sync	4329/tcp	# Environment Synchronisation  [Tom_Maaswinkel]         
 gaia	4340/tcp	# Gaia Connector Protocol      [Philippe_Detournay]                               [Philippe_Detournay]                                      2007-11-12
 gaia	4340/udp	# Gaia Connector Protocol      [Philippe_Detournay]                               [Philippe_Detournay]                                      2007-11-12
 lisp-data	4341/tcp	# LISP Data Packets            [Dino_Farinacci]                                   [Dino_Farinacci]                                          2007-11-12
-lisp-data	4341/udp	# LISP Data Packets            [IESG]                                             [IETF_Chair]                                              2007-11-12   2012-04-26   [RFC-ietf-lisp-24]
+lisp-data	4341/udp	# LISP Data Packets            [IESG]                                             [IETF_Chair]                                              2007-11-12   2012-04-26   [RFC6830]
 lisp-cons	4342/tcp	# LISP-CONS Control
-lisp-control	4342/udp	# LISP Data-Triggered Control  [IESG]                                             [IETF_Chair]                                              2007-05      2012-04-26   [RFC-ietf-lisp-24]
+lisp-control	4342/udp	# LISP Control Packets         [IESG]                                             [IETF_Chair]                                              2007-05      2012-04-26   [RFC6830]
 unicall	4343/tcp	# UNICALL                      [James_Powell_2]                                   [James_Powell_2]
 unicall	4343/udp	# UNICALL                      [James_Powell_2]                                   [James_Powell_2]
 vinainstall	4344/tcp	# VinaInstall                  [Jay_Slupesky]                                     [Jay_Slupesky]
@@ -14123,7 +14123,10 @@ odnsp	9966/tcp	# OKI Data Network Setting     [Masato_Sato]                     
 # Protocol
 odnsp	9966/udp	# OKI Data Network Setting     [Masato_Sato]                                      [Masato_Sato]                                             2006-05
 # Protocol
-# 9967-9986            Unassigned
+# 9967-9977            Unassigned
+xybrid-rt	9978/tcp	# XYBRID RT Server             [Rx_Networks_Inc]                                  [Drew_Davies]                                             2013-01-24
+# 9978        udp    Reserved
+# 9979-9986            Unassigned
 dsm-scm-target	9987/tcp	# DSM/SCM Target Interface     [Mike_Dyslin]                                      [Mike_Dyslin]                                             2006-08
 dsm-scm-target	9987/udp	# DSM/SCM Target Interface     [Mike_Dyslin]                                      [Mike_Dyslin]                                             2006-08
 nsesrvr	9988/tcp	# Software Essentials Secure   [Narayanan_Raju]                                   [Narayanan_Raju]                                          2009-02-05
@@ -16512,6 +16515,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # at thezaz.com>
 # ncdirect                              Network Clipboard Direct     [Thom_McGrath]                                     [Thom_McGrath]                                                                                                                                     Defined TXT keys: Contact The ZAZ Software <networkclipboard
 # Transfers                                                                                                                                                                                                                          at thezaz.com>
+# The issuer service in the
+# ncount-issuer                  tcp    n-Count electronic value     [n-Count_Technology_BV]                            [Eduard_de_Jong]                                          2013-01-22                                                                               Defined TXT keys: None
+# transfer system
 # ncsyncserver                          Network Clipboard Sync       [Thom_McGrath]                                     [Thom_McGrath]                                                                                                                                     Defined TXT keys: Contact The ZAZ Software <networkclipboard
 # Server                                                                                                                                                                                                                             at thezaz.com>
 # neoriders                      udp    NeoRiders Client Discovery   [Jesse_W_Towner]                                   [Jesse_W_Towner]                                                                                                                                   Defined TXT keys: None
@@ -18347,6 +18353,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Dr_Yair_Shapira]                                         Dr. Yair Shapira                                mailto:yair&flashnetworks.com
 # [Dragos_Pop]                                              Dragos Pop                                      mailto:dragos&cs.ubbcluj.ro
 # [Drake_Bankston]                                          Drake Bankston                                  mailto:IANA.KingdomsOnline&gmail.com                          2009-08-18
+# [Drew_Davies]                                             Drew Davies               Rx Networks Inc.      mailto:ddavies&rxnetworks.com                                 2013-01-24
 # [Drew_Wolff]                                              Drew Wolff                                      mailto:dwolff&centra.net
 # [Dror_Gill]                                               Dror Gill                                       mailto:drorgi&vnet.ibm.com
 # [Dror_Harari]                                             Dror Harari                                     mailto:Dror.Harari&isgsoft.com
@@ -18379,6 +18386,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Edgar_Blum]                                              Edgar Blum                                      mailto:edgar.blum&swx.ch
 # [Edgar_Circenis]                                          Edgar Circenis                                  mailto:ec&fc.hp.com
 # [Edo_Yahav]                                               Edo Yahav                                       mailto:standards&expand.com
+# [Eduard_de_Jong]                                          Eduard de Jong            n-Count Technology    mailto:domains&dejongfrz.nl                                   2013-01-22
+# B.V.
 # [Eduardo_Fernandez]                                       Eduardo Fernandez                               mailto:eduardo.fernandez&avocent.com                          2003-08
 # [Eduardo_Rosenberg_de]                                    Eduardo Rosenberg de                            mailto:eduardor&spacenet.com.br
 # Moura
@@ -20221,6 +20230,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Myk_Willis]                                              Myk Willis                                      mailto:myk.willis&citrix.com
 # [Myron_Hattig]                                            Myron Hattig                                    mailto:Myron_Hattig&ccm.jf.intel.com
 # [NLnet_Labs_Support]                                      NLnet Labs Support        NLnet Labs            mailto:support&nlnetlabs.nl                                   2011-07-11
+# [n-Count_Technology_BV]                                                             n-Count Technology    mailto:ncount&dejongfrz.nl                                    2013-01-22
+# B.V.
 # [Nancy_Davoust]                                           Nancy Davoust                                   mailto:n.davoust&cablelabs.com
 # [Nand_Kumar]                                              Nand Kumar                                      mailto:nkumar&triquest-da.com
 # [Naoki_Hayashi]                                           Naoki Hayashi                                   mailto:ha&fjh.se.fujitsu.co.jp
@@ -20974,6 +20985,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Russell_Thrasher]                                        Russell Thrasher                                mailto:rthrashe&veritas.com
 # [Ruth_Slater]                                             Ruth Slater                                     mailto:ruth.slater&ideagen.co.uk
 # [Ruwan_Linton]                                            Ruwan Linton                                    mailto:ruwan&wso2.com                                         2008-08-20
+# [Rx_Networks_Inc]                                                                   Rx Networks Inc.      mailto:ddavies&rxnetworks.com                                 2013-01-24
 # [Ryan_Bolz]                                               Ryan Bolz                                       mailto:ryanbo&microsoft.com
 # [Ryan_Columbus]                                           Ryan Columbus                                   mailto:IANA_Contact&agilent.com                               2002-10
 # [Ryan_Finnie]                                             Ryan Finnie                                     mailto:ryan&finnie.org                                        2010-10-06
