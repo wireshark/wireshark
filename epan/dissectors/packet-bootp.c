@@ -59,6 +59,8 @@
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
  * DOCSIS(TM) 2.0 Radio Frequency Interface Specification
  *     http://www.cablelabs.com/specifications/CM-SP-RFI2.0-I11-060602.pdf
+ * DOCSIS(TM) 3.0 MAC and Upper Layer Protocols Interface Specification
+ *     http://www.cablelabs.com/specifications/CM-SP-MULPIv3.0-I20-121113.pdf
  * PacketCable(TM) 1.0 MTA Device Provisioning Specification
  *     http://www.cablelabs.com/packetcable/downloads/specs/PKT-SP-PROV-I11-050812.pdf
  *     http://www.cablelabs.com/specifications/archives/PKT-SP-PROV-I05-021127.pdf (superseded by above)
@@ -4070,7 +4072,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 #define DOCSIS_CM_CAP_IGMP_SUP		0x05
 #define DOCSIS_CM_CAP_PRIV_SUP		0x06
 #define DOCSIS_CM_CAP_DSAID_SUP		0x07
-#define DOCSIS_CM_CAP_USID_SUP		0x08
+#define DOCSIS_CM_CAP_USSF_SUP		0x08
 #define DOCSIS_CM_CAP_FILT_SUP		0x09
 #define DOCSIS_CM_CAP_TET_MI		0x0a
 #define DOCSIS_CM_CAP_TET		0x0b
@@ -4102,16 +4104,20 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 #define DOCSIS_CM_CAP_MAPUCDRECEIPT_SUP	0x25
 #define DOCSIS_CM_CAP_USDROPCLASSIF_SUP	0x26
 #define DOCSIS_CM_CAP_IPV6_SUP		0x27
+#define DOCSIS_CM_CAP_ExUsTrPow		0x28
+#define DOCSIS_CM_CAP_Opt802MPLSSup		0x29
+#define DOCSIS_CM_CAP_DounEnc		0x2a
+#define DOCSIS_CM_CAP_EnrgMang		0x2c
 
 static const value_string docsis_cm_cap_type_vals[] = {
 	{ DOCSIS_CM_CAP_CONCAT_SUP,		"Concatenation Support" },
 	{ DOCSIS_CM_CAP_DOCSIS_VER,		"DOCSIS Version" },
 	{ DOCSIS_CM_CAP_FRAG_SUP,		"Fragmentation Support" },
-	{ DOCSIS_CM_CAP_PHS_SUP,		"PHS Support" },
+	{ DOCSIS_CM_CAP_PHS_SUP,		"Payload Header Suppression Support" },
 	{ DOCSIS_CM_CAP_IGMP_SUP,		"IGMP Support" },
 	{ DOCSIS_CM_CAP_PRIV_SUP,		"Privacy Support" },
 	{ DOCSIS_CM_CAP_DSAID_SUP,		"Downstream SAID Support" },
-	{ DOCSIS_CM_CAP_USID_SUP,		"Upstream SID Support" },
+	{ DOCSIS_CM_CAP_USSF_SUP,		"Upstream Service Flow Support" },
 	{ DOCSIS_CM_CAP_FILT_SUP,		"Optional Filtering Support" },
 	{ DOCSIS_CM_CAP_TET_MI,			"Transmit Equalizer Taps per Modulation Interval" },
 	{ DOCSIS_CM_CAP_TET,			"Number of Transmit Equalizer Taps" },
@@ -4121,12 +4127,12 @@ static const value_string docsis_cm_cap_type_vals[] = {
 	{ DOCSIS_CM_CAP_EXPUNI_SPACE,		"Expanded Unicast SID Space" },
 	{ DOCSIS_CM_CAP_RNGHLDOFF_SUP,		"Ranging Hold-Off Support" },
 	{ DOCSIS_CM_CAP_L2VPN_SUP,		"L2VPN Capability" },
-	{ DOCSIS_CM_CAP_L2VPN_HOST_SUP,		"eSAFE Host Capability" },
-	{ DOCSIS_CM_CAP_DUTFILT_SUP,		"DUT Filtering" },
+	{ DOCSIS_CM_CAP_L2VPN_HOST_SUP,		"L2VPN eSAFE Host Capability" },
+	{ DOCSIS_CM_CAP_DUTFILT_SUP,		"Downstream Unencrypted Traffic (DUT) Filtering" },
 	{ DOCSIS_CM_CAP_USFREQRNG_SUP,		"Upstream Frequency Range Support" },
 	{ DOCSIS_CM_CAP_USSYMRATE_SUP,		"Upstream Symbol Rate Support" },
 	{ DOCSIS_CM_CAP_SACM2_SUP,		"Selectable Active Code Mode 2 Support" },
-	{ DOCSIS_CM_CAP_SACM2HOP_SUP,		"Code Hopping SAC Mode 2 is supported" },
+	{ DOCSIS_CM_CAP_SACM2HOP_SUP,		"Code Hopping Mode 2 Suppor" },
 	{ DOCSIS_CM_CAP_MULTTXCHAN_SUP,		"Multiple Transmit Channel Support" },
 	{ DOCSIS_CM_CAP_512USTXCHAN_SUP,	"5.12 Msps Upstream Transmit Channel Support" },
 	{ DOCSIS_CM_CAP_256USTXCHAN_SUP,	"2.56 Msps Upstream Transmit Channel Support" },
@@ -4143,6 +4149,10 @@ static const value_string docsis_cm_cap_type_vals[] = {
 	{ DOCSIS_CM_CAP_MAPUCDRECEIPT_SUP,	"MAP and UCD Receipt Support" },
 	{ DOCSIS_CM_CAP_USDROPCLASSIF_SUP,	"Upstream Drop Classifier Support" },
 	{ DOCSIS_CM_CAP_IPV6_SUP,		"IPv6 Support" },
+	{ DOCSIS_CM_CAP_ExUsTrPow,		"Extended Upstream Transmit Power Capability (1/4 dB)" },
+	{ DOCSIS_CM_CAP_Opt802MPLSSup,		"Optional 802.1ad, 802.1ah, MPLS Classification Support" },
+	{ DOCSIS_CM_CAP_DounEnc, 		"D-ONU Capabilities Encoding" },
+	{ DOCSIS_CM_CAP_EnrgMang, 		"Energy Management Capabilities" },
 	{ 0, NULL }
 };
 
@@ -4181,9 +4191,42 @@ static const value_string docsis_cm_cap_l2vpn_vals[] = {
 };
 
 static const value_string docsis_cm_cap_filt_vals[] = {
-	{ 0x00,	"None" },
-	{ 0x01,	"802.1p Filtering" },
+	{ 0x00,	"802.1P Filtering" },
 	{ 0x01,	"802.1Q Filtering" },
+	{ 0,		NULL }
+};
+
+static const value_string docsis_cm_cap_mpls_vals[] = {
+	{ 1 << 0,	"[IEEE 802.1ad] S-TPID" },
+	{ 1 << 1,	"[IEEE 802.1ad] S-VID" },
+	{ 1 << 2,	"[IEEE 802.1ad] S-PCP" },
+	{ 1 << 3, "[IEEE 802.1ad] S-DEI" },
+	{ 1 << 4,	"[IEEE 802.1ad] C-TPID" },
+	{ 1 << 5,	"[IEEE 802.1ad] C-VID" },
+	{ 1 << 6,	"[IEEE 802.1ad] C-PCP" },
+	{ 1 << 7,	"[IEEE 802.1ad] C-CFI" },
+	{ 1 << 8,	"[IEEE 802.1ad] S-TCI" },
+	{ 1 << 9,	"[IEEE 802.1ad] C-TCI" },
+	{ 1 << 10,	"[IEEE 802.1ah] I-TPID" },
+	{ 1 << 11,	"[IEEE 802.1ah] I-SID" },
+	{ 1 << 12,	"[IEEE 802.1ah] I-TCI" },
+	{ 1 << 13,	"[IEEE 802.1ah] I-PCP" },
+	{ 1 << 14,	"[IEEE 802.1ah] I-DEI" },
+	{ 1 << 15,	"[IEEE 802.1ah] I-UCA" },
+	{ 1 << 16,	"[IEEE 802.1ah] B-TPID" },
+	{ 1 << 17,	"[IEEE 802.1ah] B-TCI" },
+	{ 1 << 18,	"[IEEE 802.1ah] B-PCP" },
+	{ 1 << 19,	"[IEEE 802.1ah] B-DEI" },
+	{ 1 << 20,	"[IEEE 802.1ah] B-VID" },
+	{ 1 << 21,	"[IEEE 802.1ah] B-DA" },
+	{ 1 << 22,	"[IEEE 802.1ah] B-SA" },
+	{ 1 << 23,	"MPLS TC" },
+	{ 1 << 24,	"MPLS Label" },
+	{ 0,		NULL }
+};
+
+static const value_string docsis_cm_cap_enrgmang_vals[] = {
+	{ 0x00,	"Energy Management 1x1 Feature" },
 	{ 0,		NULL }
 };
 
@@ -4201,7 +4244,7 @@ static const value_string docsis_cm_cap_map_ucd_receipt_vals[] = {
 
 static const value_string docsis_cm_cap_map_dpv_support_vals[] = {
 	{ 0x00,	"U1 supported as a Start Reference Point for DPV per Path" },
-	{ 0x01,	"U1 supported as a Start Reference Point for DPV per Path" },
+	{ 0x01,	"U1 supported as a Start Reference Point for DPV per Packet" },
 	{ 0,		NULL }
 };
 
@@ -4453,10 +4496,8 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		case DOCSIS_CM_CAP_TOTALSIDCLU_SUP:
 		case DOCSIS_CM_CAP_MULTRXCHAN_SUP:
 		case DOCSIS_CM_CAP_UGSPERUSFLOW_SUP:
+		case DOCSIS_CM_CAP_USSF_SUP:
 			display_uint_with_range_checking(ti, val_byte, val_uint16, 0, 255);
-			break;
-		case DOCSIS_CM_CAP_USID_SUP:
-			display_uint_with_range_checking(ti, val_byte, val_uint16,1, 255);
 			break;
 		case DOCSIS_CM_CAP_RESEQDSID_SUP:
 		case DOCSIS_CM_CAP_MULTDSID_SUP:
@@ -4466,7 +4507,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 			display_uint_with_range_checking(ti, val_byte, val_uint16, 2, 8);
 			break;
 		case DOCSIS_CM_CAP_TOTALDSID_SUP:
-			display_uint_with_range_checking(ti, val_byte, val_uint16, 3, 255);
+			display_uint_with_range_checking(ti, val_byte, val_uint16, 32, 255);
 			break;
 		case DOCSIS_CM_CAP_TET:
 			display_uint_with_range_checking(ti, val_byte, val_uint16, 8, 64);
@@ -4493,6 +4534,27 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 			break;
 		case DOCSIS_CM_CAP_LLCFILT_SUP:
 			display_uint_with_range_checking(ti, val_byte, val_uint16, 10, 65535);
+			break;
+		case DOCSIS_CM_CAP_ExUsTrPow:
+			if (val_byte == 0)
+			{
+				proto_item_append_text(ti, "%i", val_byte);
+			}
+			else 
+			{
+				display_uint_with_range_checking(ti, val_byte, val_uint16, 205, 244);
+			}
+			break;
+		case DOCSIS_CM_CAP_Opt802MPLSSup:
+			proto_item_append_text(ti,
+					       "0x%02x", val_byte);
+		case DOCSIS_CM_CAP_DounEnc:
+			/* TODO: add D-ONU Capabilities Encoding according DPoE-SP-MULPIv1.0-I02-120607 */
+			break;
+		case DOCSIS_CM_CAP_EnrgMang:
+			proto_item_append_text(ti,
+					       "%s",
+					       val_to_str_const(val_byte, docsis_cm_cap_enrgmang_vals, "Reserved"));
 			break;
 		case DOCSIS_CM_CAP_RNGHLDOFF_SUP:
 			proto_item_append_text(ti,
@@ -4529,7 +4591,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 						      (val_other[2] << sizeof(guint8)) + val_other[3],
 						      docsis_cm_cap_ranging_hold_off_vals[i].value,
 						      16);
-				proto_tree_add_text(subtree, tvb, off + 1, 4, "%s%s",
+				proto_tree_add_text(subtree, tvb, off + 2, 4, "%s%s",
 						    bit_fld, docsis_cm_cap_ranging_hold_off_vals[i].strptr);
 			}
 		}
@@ -4537,10 +4599,22 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		{
 			for (i = 0 ; i < 6; i++)
 			{
-				decode_bitfield_value(bit_fld, val_byte,docsis_cm_cap_ussymrate_vals[i].value, 16);
-				proto_tree_add_text(subtree, tvb, off + 1, 4, "%s%s",
+				decode_bitfield_value(bit_fld, val_byte,docsis_cm_cap_ussymrate_vals[i].value, 8);
+				proto_tree_add_text(subtree, tvb, off + 2, 1, "%s%s",
 						    bit_fld, docsis_cm_cap_ussymrate_vals[i].strptr);
 
+			}
+		}
+		if (tlv_type == DOCSIS_CM_CAP_Opt802MPLSSup)
+		{
+			for (i = 0 ; i < 25; i++)
+			{
+				decode_bitfield_value(bit_fld,
+						      (val_other[2] << sizeof(guint8)) + val_other[3],
+						      docsis_cm_cap_mpls_vals[i].value,
+						      32);
+				proto_tree_add_text(subtree, tvb, off + 2, 4, "%s%s",
+						    bit_fld, docsis_cm_cap_mpls_vals[i].strptr);
 			}
 		}
 		if (opt125)
