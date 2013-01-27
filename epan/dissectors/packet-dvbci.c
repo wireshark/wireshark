@@ -108,11 +108,16 @@
 #define ML_MORE 0x80
 #define ML_LAST 0x00
 
-/* sequence id for reassembly of fragmented lpdus
-   this can be an arbitrary constant value since lpdus must arrive in order */
-#define SEQ_ID_LINK_LAYER  4
-/* the same goes for the transport layer */
-#define SEQ_ID_TRANSPORT_LAYER  7
+/* base values of sequence ids for reassembly of fragmented tpdus
+   if there's two open transport connections, their tpdu fragments may be
+    interleaved, we must add the tcid to the base value in order to
+    distinguish between different transport connections
+   TPDU_SEQ_ID_BASE and SPDU_SEQ_ID_BASE can be arbitrary 32bit values, they
+    must be more than 256 apart since we add the 8bit tcid */
+#define TPDU_SEQ_ID_BASE       123
+/* same as above, the spdu fragments are also demultiplexed based on the
+    t_c_id field */
+#define SPDU_SEQ_ID_BASE      2417
 
 /* transport layer */
 #define NO_TAG        0x00
@@ -4229,8 +4234,9 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            to work around this issue, we use a dedicated body_tvb as
             input to reassembly routines */
         body_tvb = tvb_new_subset(tvb, offset, body_len, body_len);
+        /* dissect_dvbci_tpdu_hdr() checked that lpdu_tcid==t_c_id */
         frag_msg = fragment_add_seq_next(body_tvb, 0, pinfo,
-                SEQ_ID_TRANSPORT_LAYER,
+                SPDU_SEQ_ID_BASE+lpdu_tcid,
                 spdu_fragment_table,
                 spdu_reassembled_table,
                 body_len,
@@ -4317,7 +4323,7 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     frag_msg = fragment_add_seq_next(tvb, 2, pinfo,
-            SEQ_ID_LINK_LAYER,
+            TPDU_SEQ_ID_BASE+tcid,
             tpdu_fragment_table,
             tpdu_reassembled_table,
             tvb_reported_length_remaining(tvb, 2),
