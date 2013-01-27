@@ -2176,7 +2176,7 @@ de_rr_chnl_req_desc2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
         bit_offset += 2;
         if (gsm_rr_csn_HL_flag(tvb, tree, (offset+len)<<3, bit_offset++, "Additions in Rel-9", "Present", "Not present")) {
             proto_tree_add_bits_item(tree, hf_gsm_a_rr_emst_ms_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-            bit_offset += 1;
+            /*bit_offset += 1;*/
         }
     }
 
@@ -2335,7 +2335,7 @@ de_rr_dtm_info_details(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
             proto_tree_add_bits_item(tree, hf_gsm_a_rr_dedicated_mode_mbms_notification_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             bit_offset += 1;
             proto_tree_add_bits_item(tree, hf_gsm_a_rr_mnci_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-            bit_offset += 1;
+            /*bit_offset += 1;*/
         }
     }
 

@@ -1276,12 +1276,12 @@ dissect_gtpv2_tgt_rnc_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 
     subtree = proto_item_add_subtree(rai_item, ett_gtpv2_rai);
     dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, TRUE);
-	curr_offset+=3;
+    curr_offset+=3;
 
     proto_tree_add_item(subtree, hf_gtpv2_lac,    tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-	curr_offset+=2;
+    curr_offset+=2;
     proto_tree_add_item(subtree, hf_gtpv2_rnc_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-	curr_offset+=2;
+    /*curr_offset+=2;*/
 
     /* no length check possible */
 
