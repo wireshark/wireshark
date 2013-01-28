@@ -2023,7 +2023,7 @@ snmp_users_update_cb(void* p _U_, const char** err)
 
 
 		if ( u->user.userName.len == ue->user.userName.len
-			&& u->engine.len == ue->engine.len ) {
+			&& u->engine.len == ue->engine.len && (u != ue)) {
 
 			if (u->engine.len > 0 && memcmp( u->engine.data,   ue->engine.data,  u->engine.len ) == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
