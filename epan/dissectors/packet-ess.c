@@ -1482,7 +1482,7 @@ void proto_register_ess(void) {
                                   TRUE,
                                   (void*) &ess_category_attributes,
                                   &num_ess_category_attributes,
-                                  UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
+                                  UAT_CAT_PORTS,
                                   "ChEssCategoryAttributes",
                                   ess_copy_cb,
                                   NULL,

@@ -2283,9 +2283,7 @@ void proto_register_ldap(void) {
                            TRUE,
                            (void*) &attribute_types,
                            &num_attribute_types,
-                           /* specifies named fields, so affects dissection
-                              and the set of named fields */
-                           UAT_AFFECTS_DISSECTION|UAT_AFFECTS_FIELDS,
+                           UAT_CAT_FIELDS,
                            NULL,
                            attribute_types_copy_cb,
                            attribute_types_update_cb,

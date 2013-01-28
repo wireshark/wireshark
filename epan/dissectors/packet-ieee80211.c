@@ -16575,7 +16575,7 @@ proto_register_ieee80211 (void)
             TRUE,                       /* from_profile */
             (void*) &uat_wep_key_records,  /* data_ptr */
             &num_wepkeys_uat,           /* numitems_ptr */
-            UAT_AFFECTS_DISSECTION,     /* affects dissection of packets, but not set of named fields */
+            UAT_CAT_CRYPTO,             /* category */
             NULL,                       /* help */
             uat_wep_key_record_copy_cb,        /* copy callback */
             uat_wep_key_record_update_cb,      /* update callback */

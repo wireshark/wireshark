@@ -716,16 +716,11 @@ static void uat_down_cb(GtkButton *button _U_, gpointer u) {
 }
 
 static void uat_apply_changes(uat_t *uat) {
-	if(uat->flags & UAT_AFFECTS_FIELDS) {
+	if(strcmp(uat->category, UAT_CAT_FIELDS) == 0) {
 		/* Recreate list with new fields and redissect packets */
 		new_packet_list_recreate ();
-	} else {
-		if(uat->flags & UAT_AFFECTS_DISSECTION) {
-			/* Just redissect packets if we have any */
-			if(cfile.state != FILE_CLOSED) {
-				redissect_packets ();
-			}
-		}
+	} else if(cfile.state != FILE_CLOSED) {
+		redissect_packets ();
 	}
 }
 

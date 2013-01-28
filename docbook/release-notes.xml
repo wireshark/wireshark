@@ -334,12 +334,6 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          Display Filter Macros crash.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8073">Bug
-          8073</ulink>)
-        </para></listitem>
-
-        <listitem><para>
           The SSL dissector stops decrypting the SSL conversation with Malformed Packet:SSL error messages.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8075">Bug
           8075</ulink>)

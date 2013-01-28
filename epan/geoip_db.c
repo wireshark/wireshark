@@ -157,14 +157,12 @@ geoip_db_init(void) {
             FALSE,
             (void*)&geoip_db_paths,
             &num_geoip_db_paths,
-            /* affects dissection of packets (as the GeoIP database is
-               used when dissecting), but not set of named fields */
-            UAT_AFFECTS_DISSECTION,
+            UAT_CAT_GENERAL,
             "ChGeoIPDbPaths",
             geoip_db_path_copy_cb,
             NULL,
             geoip_db_path_free_cb,
-            NULL,
+                        NULL,
             geoip_db_paths_fields);
 
     uat_load(geoip_db_paths_uat, &geoip_load_error);

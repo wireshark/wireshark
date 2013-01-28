@@ -221,13 +221,12 @@ typedef struct _uat_field_t {
 #define FLDFILL NULL
 #define UAT_END_FIELDS {NULL,NULL,PT_TXTMOD_NONE,{0,0,0},{0,0,0},0,0,FLDFILL}
 
-/*
- * Flags to indicate what the settings in this UAT affect.
- * This is used when UATs are changed interactively, to indicate what needs
- * to be redone when the UAT is changed.
- */
-#define UAT_AFFECTS_DISSECTION	0x00000001	/* affects packet dissection */
-#define UAT_AFFECTS_FIELDS	0x00000002	/* affects what named fields exist */
+
+#define UAT_CAT_GENERAL "General"
+#define UAT_CAT_PORTS "Port Assignments"
+#define UAT_CAT_CRYPTO "Decryption"
+#define UAT_CAT_FFMT "File Formats"
+#define UAT_CAT_FIELDS "Header Fields"
 
 /** Create a new uat
  *
@@ -237,7 +236,7 @@ typedef struct _uat_field_t {
  * @param from_profile TRUE if profile directory to be used
  * @param data_ptr A pointer to a null terminated array of pointers to the data
  * @param num_items_ptr
- * @param flags flags indicating what this UAT affects
+ * @param category
  * @param help A pointer to help text
  * @param copy_cb A function that copies the data in the struct
  * @param update_cb Will be called when a record is updated
@@ -253,7 +252,7 @@ uat_t* uat_new(const char* name,
 			   gboolean from_profile,
 			   void** data_ptr,
 			   guint* num_items_ptr,
-			   guint flags,
+			   const char* category,
 			   const char* help,
 			   uat_copy_cb_t copy_cb,
 			   uat_update_cb_t update_cb,

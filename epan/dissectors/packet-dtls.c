@@ -2696,7 +2696,7 @@ proto_register_dtls(void)
                               TRUE,                           /* from_profile */
                               (void*) &dtlskeylist_uats,      /* data_ptr */
                               &ndtlsdecrypt,                  /* numitems_ptr */
-                              UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
+                              UAT_CAT_FFMT,                   /* category */
                               "ChK12ProtocolsSection",        /* TODO, need revision - help */
                               dtlsdecrypt_copy_cb,
                               NULL, /* dtlsdecrypt_update_cb? */

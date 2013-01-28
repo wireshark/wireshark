@@ -6440,7 +6440,7 @@ proto_register_bootp(void)
 			TRUE,			    /* from_profile          */
 			(void*) &uat_bootp_records, /* data_ptr              */
 			&num_bootp_records_uat,	    /* numitems_ptr          */
-			UAT_AFFECTS_DISSECTION,     /* affects dissection of packets, but not set of named fields */
+			UAT_CAT_GENERAL,	    /* category              */
 			NULL,			    /* help                  */
 			uat_bootp_record_copy_cb,   /* copy callback         */
 			uat_bootp_record_update_cb, /* update callback       */

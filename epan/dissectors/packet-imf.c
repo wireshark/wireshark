@@ -1216,9 +1216,7 @@ proto_register_imf(void)
                                TRUE,
                                (void*) &header_fields,
                                &num_header_fields,
-                               /* specifies named fields, so affects dissection
-                                  and the set of named fields */
-                               UAT_AFFECTS_DISSECTION|UAT_AFFECTS_FIELDS,
+                               UAT_CAT_FIELDS,
                                NULL,
                                header_fields_copy_cb,
                                header_fields_update_cb,

@@ -616,7 +616,7 @@ proto_register_vcdu(void)
       TRUE,
       (void*)&uat_bitchannels,
       &num_channels_uat,
-      UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
+      UAT_CAT_GENERAL,
       NULL,
       NULL,
       vcdu_uat_data_update_cb,

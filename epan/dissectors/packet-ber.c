@@ -4937,7 +4937,7 @@ proto_register_ber(void)
                                FALSE,
                                (void*) &oid_users,
                                &num_oid_users,
-                               UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
+                               UAT_CAT_GENERAL,
                                "ChObjectIdentifiers",
                                oid_copy_cb,
                                NULL,
