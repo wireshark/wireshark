@@ -5,11 +5,17 @@
 # check if Wireshark's ABI has been changes since last release (tag)
 set -e
 
-if test -z "$1"; then
-	echo "Usage:"
-	echo "$0 \"<build commands>\""
-	echo "e.g. $0 \"./autogen.sh && ./configure && make -j3 && make dumpabi\""
-	exit 1
+CORE_COUNT=4
+if [ -r /proc/cpuinfo ] ; then
+	CORE_COUNT=`grep -c ^processor /proc/cpuinfo`
+fi
+
+BUILD_COMMAND="$1"
+
+if [ -z "$BUILD_COMMAND" ]; then
+	BUILD_COMMAND="./autogen.sh && ./configure && make -j$CORE_COUNT && make dumpabi"
+	echo "No build command provided. Using"
+	echo "    $BUILD_COMMAND"
 fi
 
 # build current version
@@ -31,7 +37,6 @@ mkdir $LAST_TAG_DIR
 git archive $LAST_TAG | tar -x -C $LAST_TAG_DIR
 
 # build latest tag
-(cd $LAST_TAG_DIR && bash -c "$1")
+(cd $LAST_TAG_DIR && bash -c "$BUILD_COMMAND")
 
 exec tools/compare-abis.sh `pwd`/$LAST_TAG_DIR `pwd`
-
