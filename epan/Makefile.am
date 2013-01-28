@@ -328,7 +328,7 @@ dumpabi: all abi-descriptor.xml
 		abi-check-headers/dissectors/packet-idmp.h
 	mkdir abi-check-headers/ftypes
 	cp ftypes/*.h abi-check-headers/ftypes
-	abi-compliance-checker -l libwireshark -v1 `ls  .libs/libwireshark.so.?.?.?|sed 's/.*\.so\.//'` \
+	abi-compliance-checker -l libwireshark -v1 `ls  .libs/libwireshark.so.*.*.*|sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
 		cat logs/libwireshark/[0-9]*/log.txt
 	cp -f abi_dumps/libwireshark/libwireshark_* .libs/

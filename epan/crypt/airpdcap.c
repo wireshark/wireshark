@@ -1198,7 +1198,7 @@ AirPDcapRsna4WHandshake(
     PAIRPDCAP_KEY_ITEM key,
     INT offset)
 {
-    AIRPDCAP_KEY_ITEM *tmp_key, pkt_key;
+    AIRPDCAP_KEY_ITEM *tmp_key, *tmp_pkt_key, pkt_key;
     AIRPDCAP_SEC_ASSOCIATION *tmp_sa;
     INT key_index;
     INT ret_value=1;
@@ -1307,12 +1307,14 @@ AirPDcapRsna4WHandshake(
                              pkt_key.UserPwd.SsidLen = ctx->pkt_ssid_len;
                             AirPDcapRsnaPwd2Psk(pkt_key.UserPwd.Passphrase, pkt_key.UserPwd.Ssid,
                                 pkt_key.UserPwd.SsidLen, pkt_key.KeyData.Wpa.Psk);
-                            tmp_key = &pkt_key;
+                            tmp_pkt_key = &pkt_key;
+                        } else {
+                            tmp_pkt_key = tmp_key;
                         }
 
                         /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
                         AirPDcapRsnaPrfX(sa,                            /* authenticator nonce, bssid, station mac */
-                                         tmp_key->KeyData.Wpa.Pmk,      /* PMK */
+                                         tmp_pkt_key->KeyData.Wpa.Pmk,      /* PMK */
                                          data+offset+12,                /* supplicant nonce */
                                          512,
                                          sa->wpa.ptk);

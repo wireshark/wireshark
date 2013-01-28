@@ -152,11 +152,14 @@ mkdtemp (char *template)
 
 /**
  * Create a tempfile with the given prefix (e.g. "wireshark").
- * 
+ *
  * @param namebuf If not NULL, receives the full path of the temp file.
  *                Should NOT be freed.
  * @param pfx A prefix for the temporary file.
  * @return The file descriptor of the new tempfile, from mkstemp().
+ * @todo Switch from mkstemp() to something like mkstemps(), so the caller
+ *       can optionally indicate that part of the pfx is actually a suffix,
+ *       such as "pcap" or "pcapng".
  */
 int
 create_tempfile(char **namebuf, const char *pfx)
@@ -173,10 +176,24 @@ create_tempfile(char **namebuf, const char *pfx)
 	time_t current_time;
 	char timestr[14 + 1];
 	gchar *tmp_file;
+	gchar *safe_pfx;
 	gchar sep[2] = {0, 0};
 
+	/* The characters in "delimiters" come from:
+	 * http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx.
+	 * Add to the list as necessary for other OS's.
+	 */
+	const gchar *delimiters = "<>:\"/\\|?*"
+		"\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a"
+		"\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14"
+		"\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
+
+	/* Sanitize the pfx to resolve bug 7877 */
+	safe_pfx = g_strdup(pfx);
+	safe_pfx = g_strdelimit(safe_pfx, delimiters, '-');
+
 	idx = (idx + 1) % MAX_TEMPFILES;
-	
+
 	/*
 	 * Allocate the buffer if it's not already allocated.
 	 */
@@ -196,7 +213,8 @@ create_tempfile(char **namebuf, const char *pfx)
 	current_time = time(NULL);
 	strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
 	sep[0] = G_DIR_SEPARATOR;
-	tmp_file = g_strconcat(tmp_dir, sep, pfx, "_", timestr, "_", TMP_FILE_SUFFIX, NULL);
+	tmp_file = g_strconcat(tmp_dir, sep, safe_pfx, "_", timestr, "_", TMP_FILE_SUFFIX, NULL);
+	g_free(safe_pfx);
 	if (strlen(tmp_file) > tf[idx].len) {
 		tf[idx].len = (int)strlen(tmp_file) + 1;
 		tf[idx].path = (char *)g_realloc(tf[idx].path, tf[idx].len);
@@ -222,8 +240,8 @@ create_tempfile(char **namebuf, const char *pfx)
 /**
  * Create a directory with the given prefix (e.g. "wireshark"). The path
  * is created using g_get_tmp_dir and mkdtemp.
- * 
- * @param namebuf 
+ *
+ * @param namebuf
  * @param pfx A prefix for the temporary directory.
  * @return The temporary directory path on success, or NULL on failure.
  *         Must NOT be freed.
@@ -237,7 +255,7 @@ create_tempdir(char **namebuf, const char *pfx)
 	const char *tmp_dir;
 
 	idx = (idx + 1) % 3;
-	
+
 	/*
 	 * Allocate the buffer if it's not already allocated.
 	 */

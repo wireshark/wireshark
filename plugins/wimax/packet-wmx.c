@@ -638,6 +638,10 @@ proto_tree *add_tlv_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hf
 	size_of_tlv_length_field = get_tlv_size_of_length(this);
 	tlv_type = get_tlv_type(this);
 
+	/* Make sure we're dealing with a valid TLV here */
+	if (get_tlv_type(this) < 0)
+		return tree;
+
 	/* display the TLV name and display the value in hex. Highlight type, length, and value. */
 	tlv_item = proto_tree_add_item(tree, hfindex, tvb, start, tlv_value_length, little_endian);
 
@@ -723,6 +727,10 @@ proto_tree *add_protocol_subtree(tlv_info_t *this, gint idx, proto_tree *tree, i
 	gchar *message = NULL;
 	gchar *hex_fmt;
 
+	/* Make sure we're dealing with a valid TLV here */
+	if (get_tlv_type(this) < 0)
+		return tree;
+    
 	/* Retrieve the necessary TLV information */
 	tlv_val_offset = get_tlv_value_offset(this);
 	start_of_tlv = start - tlv_val_offset;

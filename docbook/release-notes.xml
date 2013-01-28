@@ -262,6 +262,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          SNMPv3 Engine ID registration.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2426">Bug
+          2426</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wrong decoding of gtp.target identification.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3974">Bug
           3974</ulink>)
@@ -289,6 +295,12 @@ Wireshark Info
           ISUP dissector problem with empty Generic Number.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7632">Bug
           7632</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Illegal character is used in temporary capture file name.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7877">Bug
+          7877</ulink>)
         </para></listitem>
 
         <listitem><para>
