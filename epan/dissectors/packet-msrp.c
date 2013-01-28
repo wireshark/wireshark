@@ -23,7 +23,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * References:
- * http://www.ietf.org/internet-drafts/draft-ietf-simple-message-sessions-10.txt
+ * https://tools.ietf.org/html/rfc4975
  */
 
 #include "config.h"
