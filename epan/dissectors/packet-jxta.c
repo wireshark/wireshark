@@ -1066,9 +1066,15 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
      */
     if (tree) {
         guint tree_offset = 0;
-        proto_item *framing_tree_item =
+        proto_item *framing_tree_item;
+        proto_tree *framing_tree;
+
+        /* Disable speed optimization because of use of append_text */
+        proto_tree_set_visible(tree, TRUE);
+        
+        framing_tree_item =
             proto_tree_add_none_format(tree, hf_jxta_framing, tvb, tree_offset, -1, "JXTA Message Framing Headers");
-        proto_tree *framing_tree = proto_item_add_subtree(framing_tree_item, ett_jxta_framing);
+        framing_tree = proto_item_add_subtree(framing_tree_item, ett_jxta_framing);
 
         /* parse framing headers */
         do {

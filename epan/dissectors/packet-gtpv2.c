@@ -1300,9 +1300,10 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
         dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset+=3;
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_sai_lac, tvb, offset, 2, FALSE);
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_sai_sac, tvb, offset, 2, FALSE);
-        offset+=4;
+        proto_tree_add_item(part_tree, hf_gtpv2_uli_sai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(part_tree, hf_gtpv2_uli_sai_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
         if(offset==length)
             return;
     }
@@ -1314,9 +1315,10 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
         dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset+=3;
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_rai_lac, tvb, offset, 2, FALSE);
-        proto_tree_add_item(part_tree, hf_gtpv2_uli_rai_rac, tvb, offset, 2, FALSE);
-        offset+=4;
+        proto_tree_add_item(part_tree, hf_gtpv2_uli_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(part_tree, hf_gtpv2_uli_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
         if(offset==length)
             return;
     }

@@ -1632,7 +1632,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ber_identifier(pinfo, 0, tvb, offset, &class, &pc, &tag);
 	/*Get the total octet length of the SNMP data*/
 	offset = dissect_ber_length(pinfo, 0, tvb, offset, &len, &ind);
-	message_length = len + 2;
+	message_length = len + offset;
 
 	/*Get the SNMP version data*/
 	offset = dissect_ber_integer(FALSE, &asn1_ctx, 0, tvb, offset, -1, &version);
@@ -2011,7 +2011,7 @@ snmp_users_update_cb(void* p _U_, const char** err)
 
 
 		if ( u->user.userName.len == ue->user.userName.len
-			&& u->engine.len == ue->engine.len ) {
+			&& u->engine.len == ue->engine.len && (u != ue)) {
 
 			if (u->engine.len > 0 && memcmp( u->engine.data,   ue->engine.data,  u->engine.len ) == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {

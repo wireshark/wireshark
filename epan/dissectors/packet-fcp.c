@@ -440,10 +440,10 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         se_tree_insert32(fcp_conv_data->luns, lun, itl);
     }
 
-    proto_tree_add_item(tree, hf_fcp_crn, tvb, offset+8, 1, 0);
-    proto_tree_add_item(tree, hf_fcp_taskattr, tvb, offset+9, 1, 0);
+    proto_tree_add_item(tree, hf_fcp_crn, tvb, offset+8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_fcp_taskattr, tvb, offset+9, 1, ENC_BIG_ENDIAN);
     dissect_task_mgmt_flags(pinfo, tree, tvb, offset+10);
-    proto_tree_add_item(tree, hf_fcp_addlcdblen, tvb, offset+11, 1, 0);
+    proto_tree_add_item(tree, hf_fcp_addlcdblen, tvb, offset+11, 1, ENC_BIG_ENDIAN);
     rwflags=tvb_get_guint8(tvb, offset+11);
     if(fchdr->itlq){
 	if(rwflags&0x02){

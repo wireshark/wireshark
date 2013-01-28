@@ -37,7 +37,7 @@ extern "C" {
 /**
  * Create a tempfile with the given prefix (e.g. "wireshark"). The path
  * is created using g_get_tmp_dir and mkstemp.
- * 
+ *
  * @param namebuf If not NULL, receives the full path of the temp file.
  *                Must NOT be freed.
  * @param pfx A prefix for the temporary file.
@@ -48,7 +48,7 @@ int create_tempfile(char **namebuf, const char *pfx);
 /**
  * Create a directory with the given prefix (e.g. "wireshark"). The path
  * is created using g_get_tmp_dir and mkdtemp.
- * 
+ *
  * @param namebuf If not NULL, receives the full path of the temp directory.
  *                Must NOT be freed.
  * @param pfx A prefix for the temporary directory.
