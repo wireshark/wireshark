@@ -37,70 +37,70 @@
 /****************************************************************************/
 /* type for storing rtp frame information */
 typedef struct st_rtp_sample_header {
-	guint32 rec_time;	/* milliseconds since start of recording */
-	guint16 frame_length;   /* number of bytes in *frame */
+    guint32 rec_time;	    /**< milliseconds since start of recording */
+    guint16 frame_length;   /**< number of bytes in *frame */
 } rtp_sample_header_t;
 
-/* type for storing rtp frame information */
+/** type for storing rtp frame information */
 typedef struct st_rtp_sample {
-	rtp_sample_header_t header;  /* date and size */
-	const guint8 *frame;                 /* data bytes */
+    rtp_sample_header_t header;          /**< date and size */
+    const guint8 *frame;                 /**< data bytes */
 } rtp_sample_t;
 
 typedef rtp_sample_t* rtp_sample_p;
 
 
-/* defines an rtp stream */
+/** Defines an rtp stream */
 typedef struct _rtp_stream_info {
-	address src_addr;
-	guint32 src_port;
-	address dest_addr;
-	guint32 dest_port;
-	guint32 ssrc;
-	guint8  pt;
-	gchar	*info_payload_type_str;
-	guint32 npackets;
+    address src_addr;
+    guint32 src_port;
+    address dest_addr;
+    guint32 dest_port;
+    guint32 ssrc;
+    guint8  pt;
+    gchar	*info_payload_type_str;
+    guint32 npackets;
 
-	guint32 first_frame_num; /* frame number of first frame */
-	guint32 setup_frame_number; /* frame number of setup message */
-	/* start of recording (GMT) of this stream */
-	guint32 start_sec;         /* seconds */
-	guint32 start_usec;        /* microseconds */
-	gboolean tag_vlan_error;
-	guint32 start_rel_sec;         /* start stream rel seconds */
-	guint32 start_rel_usec;        /* start stream rel microseconds */
-	guint32 stop_rel_sec;         /* stop stream rel seconds */
-	guint32 stop_rel_usec;        /* stop stream rel microseconds */
-	gboolean tag_diffserv_error;
-	guint16 vlan_id;
+    guint32 first_frame_num;		/**< frame number of first frame */
+    guint32 setup_frame_number;		/**< frame number of setup message */
+    /* start of recording (GMT) of this stream */
+    guint32 start_sec;				/**< seconds */
+    guint32 start_usec;				/**< microseconds */
+    gboolean tag_vlan_error;
+    guint32 start_rel_sec;          /**< start stream rel seconds */
+    guint32 start_rel_usec;         /**< start stream rel microseconds */
+    guint32 stop_rel_sec;           /**< stop stream rel seconds */
+    guint32 stop_rel_usec;          /**< stop stream rel microseconds */
+    gboolean tag_diffserv_error;
+    guint16 vlan_id;
 
-	tap_rtp_stat_t rtp_stats;  /* here goes the RTP statistics info */
-	gboolean problem; /* if the streams had wrong sequence numbers or wrong timerstamps */
+    tap_rtp_stat_t rtp_stats;       /**< here goes the RTP statistics info */
+    gboolean problem;               /**< if the streams had wrong sequence numbers or wrong timerstamps */
 } rtp_stream_info_t;
 
 
-/* tapping modes */
+/** tapping modes */
 typedef enum
 {
-	TAP_ANALYSE,
-	TAP_SAVE,
-	TAP_MARK
+    TAP_ANALYSE,
+    TAP_SAVE,
+    TAP_MARK
 } tap_mode_t;
 
 
 /* structure that holds the information about all detected streams */
-/* struct holding all information of the tap */
+/** struct holding all information of the tap */
 typedef struct _rtpstream_tapinfo {
-	int     nstreams;       /* number of streams in the list */
-	GList*  strinfo_list;   /* list with all streams */
-	int     npackets;       /* total number of rtp packets of all streams */
-	/* used while tapping. user shouldnt modify these */
-	tap_mode_t mode;
-	rtp_stream_info_t* filter_stream_fwd;  /* used as filter in some tap modes */
-	rtp_stream_info_t* filter_stream_rev;  /* used as filter in some tap modes */
-	FILE*   save_file;
-	guint32 launch_count;   /* number of times the tap has been run */
-	gboolean is_registered; /* if the tap listener is currently registered or not */
+    int     nstreams;                      /**< number of streams in the list */
+    GList*  strinfo_list;                  /**< list with all streams */
+    int     npackets;                      /**< total number of rtp packets of all streams */
+    /* used while tapping. user shouldnt modify these */
+    tap_mode_t mode;
+    rtp_stream_info_t* filter_stream_fwd;  /**< used as filter in some tap modes */
+    rtp_stream_info_t* filter_stream_rev;  /**< used as filter in some tap modes */
+    FILE*   save_file;
+    guint32 launch_count;                  /**< number of times the tap has been run */
+    gboolean is_registered;                /**< if the tap listener is currently registered or not */
 } rtpstream_tapinfo_t;
 
 /****************************************************************************/
