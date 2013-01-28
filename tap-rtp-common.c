@@ -450,6 +450,10 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 
 	/*  Is this the first packet we got in this direction? */
 	if (statinfo->first_packet) {
+		/* Save the MAC address of the first RTP frame */
+		if( pinfo->dl_src.type == AT_ETHER){
+			COPY_ADDRESS(&(statinfo->first_packet_mac_addr), &(pinfo->dl_src));
+		}
 		statinfo->start_seq_nr = rtpinfo->info_seq_num;
 		statinfo->stop_seq_nr = rtpinfo->info_seq_num;
 		statinfo->seq_num = rtpinfo->info_seq_num;
@@ -481,6 +485,15 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 
 	/* Reset flags */
 	statinfo->flags = 0;
+
+	/* Chek for duplicates (src mac differs from first_packet_mac_addr) */
+	if( pinfo->dl_src.type == AT_ETHER){
+		if(!ADDRESSES_EQUAL(&(statinfo->first_packet_mac_addr), &(pinfo->dl_src))){
+			statinfo->flags |= STAT_FLAG_DUP_PKT;
+			statinfo->delta = current_time-(statinfo->time);
+			return 0;
+		}
+	}
 
 	/* When calculating expected rtp packets the seq number can wrap around
 	 * so we have to count the number of cycles

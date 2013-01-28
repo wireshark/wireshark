@@ -555,6 +555,7 @@ static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
 static const GdkColor COLOR_ERROR = {0, 0xffff, 0xbfff, 0xbfff};
 static const GdkColor COLOR_WARNING = {0, 0xffff, 0xdfff, 0xbfff};
 static const GdkColor COLOR_CN = {0, 0xbfff, 0xbfff, 0xffff};
+GdkColor yellow = {0, 0xffff, 0xffff, 0x0000};
 COLOR_T_EVENT g_snprintf(color_str, sizeof(color_str), "#ef8c bfff ffff");
 static const GdkColor COLOR_FOREGROUND = {0, 0x0000, 0x0000, 0x0000};
 */
@@ -569,7 +570,7 @@ rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	gchar	   timeStr[32];
 	struct tm *tm_tmp;
 	time_t	   then;
-	gchar	   status[40];
+	gchar	   status[80];
 	gchar	   color_str[14];
 
 	then = pinfo->fd->abs_ts.secs;
@@ -601,6 +602,11 @@ rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 		g_snprintf(status, sizeof(status), "Wrong sequence nr.");
 		/* color = COLOR_ERROR; */
 		g_snprintf(color_str, sizeof(color_str), "#ffffbfffbfff");
+	}
+	else if (statinfo->flags & STAT_FLAG_DUP_PKT) {
+		g_snprintf(status, sizeof(status), "Suspected duplicate(MAC address) only delta time calculated");
+		/* color = Yellow; */
+		g_snprintf(color_str, sizeof(color_str), "#ffffffff0000");
 	}
 	else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
 		if (statinfo->flags & STAT_FLAG_PT_T_EVENT) {
@@ -1353,9 +1359,10 @@ dialog_graph_draw(user_data_t* user_data)
 				   * ((last_interval-interval)/user_data->dlg.dialog_graph.interval + 1))
 				+ left_x_border;
 
-			if (user_data->dlg.dialog_graph.graph[i]
-.items[interval/user_data->dlg.dialog_graph.interval].flags & (STAT_FLAG_WRONG_SEQ|STAT_FLAG_MARKER)) {
-				if (user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & STAT_FLAG_WRONG_SEQ) {
+			if (user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & 
+				(STAT_FLAG_WRONG_SEQ|STAT_FLAG_MARKER|STAT_FLAG_DUP_PKT)) {
+				if (user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & 
+					(STAT_FLAG_WRONG_SEQ|STAT_FLAG_DUP_PKT)) {
 					g_strlcpy(label_string, "x", sizeof(label_string));
 				} else {
 					g_strlcpy(label_string, "m", sizeof(label_string));
@@ -3547,7 +3554,8 @@ create_rtp_dialog(user_data_t* user_data)
 		str_src, user_data->port_src_fwd, str_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 	g_snprintf(label_forward_tree, sizeof(label_forward_tree),
-		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
+		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X \n"
+		"Note many things affects the accurasy of the analysis, use with caution",
 		str_src, user_data->port_src_fwd, str_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 
@@ -3555,7 +3563,8 @@ create_rtp_dialog(user_data_t* user_data)
 	g_strlcpy(str_dst, get_addr_name(&(user_data->dst_rev)), sizeof(str_dst));
 
 	g_snprintf(label_reverse, sizeof(label_reverse),
-		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
+		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X \n"
+		"Note many things affects the accurasy of the analysis, use with caution",
 		str_src, user_data->port_src_rev, str_dst, user_data->port_dst_rev, user_data->ssrc_rev);
 
 	/* Start a notebook for flipping between sets of changes */
