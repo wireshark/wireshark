@@ -1,4 +1,4 @@
-Wireshark 1.8.4 Release Notes
+Wireshark 1.8.5 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,134 +14,151 @@ What's New
 
    The following vulnerabilities have been fixed.
 
-     o wnpa-sec-2012-30
+     o wnpa-sec-2013-01
 
-       Wireshark could leak potentially sensitive host name
-       resolution information when working with multiple pcap-ng
-       files. Discovered by Laura Chappell.
+       Infinite and large loops in the Bluetooth HCI, CSN.1, DCP-ETSI
+       DOCSIS CM-STAUS, IEEE 802.3 Slow Protocols, MPLS, R3, RTPS,
+       SDP, and SIP dissectors. Reported by Laurent Butti. (Bugs
+       8036, 8037, 8038, 8040, 8041, 8042, 8043, 8198, 8199, 8222)
 
-       Versions affected: 1.8.0 to 1.8.3.
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-     o wnpa-sec-2012-31
+       GENERIC-MAP-NOMATCH
 
-       The USB dissector could go into an infinite loop. (Bug 7787)
+     o wnpa-sec-2013-02
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+       The CLNP dissector could crash. Discovered independently by
+       Laurent Butti and the Wireshark development team. (Bug 7871)
 
-     o wnpa-sec-2012-32
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-       The sFlow dissector could go into an infinite loop. (Bug 7789)
+       GENERIC-MAP-NOMATCH
 
-       Versions affected: 1.8.0 to 1.8.3.
+     o wnpa-sec-2013-03
 
-     o wnpa-sec-2012-33
+       The DTN dissector could crash. (Bug 7945)
 
-       The SCTP dissector could go into an infinite loop. (Bug 7802)
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-       Versions affected: 1.8.0 to 1.8.3.
+       GENERIC-MAP-NOMATCH
 
-     o wnpa-sec-2012-34
+     o wnpa-sec-2013-04
 
-       The EIGRP dissector could go into an infinite loop. (Bug 7800)
+       The MS-MMC dissector (and possibly others) could crash. (Bug
+       8112)
 
-       Versions affected: 1.8.0 to 1.8.3.
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-     o wnpa-sec-2012-35
+       GENERIC-MAP-NOMATCH
 
-       The ISAKMP dissector could crash. (Bug 7855)
+     o wnpa-sec-2013-05
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+       The DTLS dissector could crash. Discovered by Laurent Butti.
+       (Bug 8111)
 
-     o wnpa-sec-2012-36
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-       The iSCSI dissector could go into an infinite loop. (Bug 7858)
+       GENERIC-MAP-NOMATCH
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+     o wnpa-sec-2013-06
 
-     o wnpa-sec-2012-37
+       The ROHC dissector could crash. (Bug 7679)
 
-       The WTP dissector could go into an infinite loop. (Bug 7869)
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+       GENERIC-MAP-NOMATCH
 
-     o wnpa-sec-2012-38
+     o wnpa-sec-2013-07
 
-       The RTCP dissector could go into an infinite loop. (Bug 7879)
+       The DCP-ETSI dissector could corrupt memory. Discovered by
+       Laurent Butti. (Bug 8213)
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-     o wnpa-sec-2012-39
+       GENERIC-MAP-NOMATCH
 
-       The 3GPP2 A11 dissector could go into an infinite loop. (Bug
-       7801)
+     o wnpa-sec-2013-08
 
-       Versions affected: 1.8.0 to 1.8.3.
+       The Wireshark dissection engine could crash. Discovered by
+       Laurent Butti. (Bug 8197)
 
-     o wnpa-sec-2012-40
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-       The ICMPv6 dissector could go into an infinite loop. (Bug
-       7844)
+       GENERIC-MAP-NOMATCH
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+     o wnpa-sec-2013-09
+
+       The NTLMSSP dissector could overflow a buffer. Discovered by
+       Ulf Härnhammar. (Bug X)
+
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+
+       GENERIC-MAP-NOMATCH
 
    The following bugs have been fixed:
 
-     o Menu and Title bars inaccessible using GTK2 (non-legacy) with
-       two monitors. (Bug 553)
+     o SNMPv3 Engine ID registration. (Bug 2426)
 
-     o 802.11 Probe Response fails to parse. (Bug 1284)
+     o Wrong decoding of gtp.target identification. (Bug 3974)
 
-     o Tshark - decimal symbol. (Bug 2880)
+     o Reassemble.c leaks memory for GLIB > 2.8. (Bug 4141)
 
-     o Malformed tpncp.dat file can crash Wireshark. (Bug 6665)
+     o Wireshark crashes when starting due to out-of-date plugin left
+       behind from earlier installation. (Bug 7401)
 
-     o SSL decryption not work even with example capture file and
-       key. (Bug 6869)
+     o Failed to dissect TLS handshake packets. (Bug 7435)
 
-     o Info line is incorrect on SIP message containing another SIP
-       message in body. (Bug 7780)
+     o ISUP dissector problem with empty Generic Number. (Bug 7632)
 
-     o OOPS: dissector table "sctp.ppi" doesn't exist Protocol being
-       registered is "Datagram Transport Layer Security". (Bug 7784)
-
-     o Dissection of IEEE 802.11 Channel Switch Announcement element
-       fails. (Bug 7797)
-
-     o Invalid memory accesses when loading RADIUS captures. (Bug
-       7803)
-
-     o ISUP CIC should have format BASE_DEC, not BASE_HEX. (Bug 7848)
-
-     o We don't handle pcap-ng files with IDBs that come after packet
-       blocks. (Bug 7851)
-
-     o '*' wildcard in the 'Src IP' or 'Dest IP' field of the ESP SA
-       dialog does not work. (Bug 7866)
-
-     o nas_eps dissector does not decode some esm message. (Bug 7912)
-
-     o WLAN decryption status not updated after updating WEP/WPA
-       keys. (Bug 7921)
-
-     o IPv6 Option Pad1 Incorrect dissection. (Bug 7938)
-
-     o Print GNUTLS error message if PEM import fails. (Bug 7948)
-
-     o GSM classmark3 8-PSK decode error. (Bug 7964)
-
-     o Parsing the Server Name Indication extension in SSL/TLS
-       traffic reads some fields incorrectly. (Bug 7967)
+     o Illegal character is used in temporary capture file name. (Bug
+       7877)
 
      o Lua code crashes wireshark after update to 1.8.3. (Bug 7976)
 
-     o 2 bugs in Ran-Information-Error Rim Container. (Bug 8000)
+     o Timestamp info is not saved correctly when writing DOS Sniffer
+       files. (Bug 7998)
 
-     o Misspelling (typo) in IPv6 display filter field name. (Bug
-       8006)
+     o 1.8.3 Wireshark User's Guide version is 1.6. (Bug 8009)
 
-     o Two BSSGP dissector bugs. (Bug 8008)
+     o Core dumped when the file is closed. (Bug 8022)
 
-     o Core dump during SCTP association analysis. (Bug 8011)
+     o LPP is misspelled in APDU parameter in
+       e-CIDMeasurementInitiation request for LPPA message. (Bug
+       8023)
+
+     o Wrong packet bytes are selected for ISUP CUG binary code. (Bug
+       8035)
+
+     o Decodes FCoE Group Multicast MAC address as Broadcom MAC
+       address. (Bug 8046)
+
+     o The SSL dissector stops decrypting the SSL conversation with
+       Malformed Packet:SSL error messages. (Bug 8075)
+
+     o Unable to Save/Apply [Unistim Port] in Preferences. (Bug 8078)
+
+     o Some Information Elements in GTPv2 are not dissected
+       correctly. (Bug 8079)
+
+     o Wrong bytes highlighted with "Find Packet...". (Bug 8085)
+
+     o 3GPP ULI AVP. SAI is not correctly decoded. (Bug 8098)
+
+     o Wireshark does not show "Start and End Time" information for
+       Cisco Netflow/IPFIX with type 154 to 157. (Bug 8105)
+
+     o GPRS Tunnel Protocoll GTP Version 1 does not decode DAF flag
+       in Common Flags IE. (Bug 8193)
+
+     o Wrong parcing of ULI of gtpv2 messages - errors in SAC, RAC &
+       ECI. (Bug 8208)
+
+     o Version Number in EtherIP dissector. (Bug 8211)
+
+     o Warn Dissector bug, protocol JXTA. (Bug 8212)
+
+     o Electromagnetic Emission Parser parses field Event Id as
+       Entity Id. (Bug 8227)
 
   New and Updated Features
 
@@ -153,13 +170,15 @@ What's New
 
   Updated Protocol Support
 
-   3GPP2 A11, BSSGP, EIGRP, FMP/NOTIFY, GSM A, ICMP, ICMPv6, IEEE
-   802.11, IPsec, IPv6, ISAKMP, iSCSI, LTE RRC, NAS EPS, NDPS, Prism,
-   RADIUS, RRC, RTCP, SCTP, sFlow, SIP, SMB2, SSL/TLS, TPNCP, USB
+   ANSI IS-637-A, ASN.1 PER, AX.25, Bluetooth HCI, CLNP, CSN.1,
+   DCP-ETSI, DIAMETER, DIS PDU, DOCSIS CM-STATUS, DTLS, DTN, EtherIP,
+   Fibre Channel, GPRS, GTP, GTPv2, HomePlug AV, IEEE 802.3 Slow,
+   IEEE 802.15.4, ISUP, JXTA, LAPD, LPPa, MPLS, MS-MMC, NAS-EPS,
+   NTLMSSP, ROHC, RSL, RTPS, SDP, SIP, SNMP, SSL
 
   New and Updated Capture File Support
 
-   CommView NCF, iSeries, pcap-ng.
+   DOS Sniffer
 
 Getting Wireshark
 
