@@ -130,7 +130,7 @@ dumpabi: all abi-descriptor.xml
 	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz
 	mkdir abi-check-headers
 	cp ../config.h *.h abi-check-headers/
-	abi-compliance-checker -l libwsutil -v1 `ls  .libs/libwsutil.so.*.*.*|sed 's/.*\.so\.//'` \
+	abi-compliance-checker -l libwsutil -v1 `readlink .libs/libwsutil.so | sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
 		cat logs/libwsutil/[0-9]*/log.txt
 	cp -f abi_dumps/libwsutil/libwsutil_* .libs/
