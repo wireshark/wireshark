@@ -1238,7 +1238,7 @@ dissect_gtpv2_srvcc_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 }
 
-/* 
+/*
  * 3GPP TS 29.280 version 10.3.0
  * 6.8 Target RNC ID
  */
@@ -4660,7 +4660,7 @@ dissect_gtpv2_rfsp_index(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
     int offset = 0;
 
-	proto_tree_add_item(tree, hf_gtpv2_rfsp_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_rfsp_index, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 }
 
@@ -5429,7 +5429,7 @@ void proto_register_gtpv2(void)
            FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_ext_rnc_id,
+        { &hf_gtpv2_ext_rnc_id,
           {"Extended RNC-ID", "gtpv2.ext_rnc_id",
            FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
@@ -6627,6 +6627,11 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_bss_con_xid_len,
           {"XiD parameters length", "gtpv2.bss_cont.xid_len",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_bss_con_xid,
+          {"XiD parameters", "gtpv2.bss_cont.xid",
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
@@ -6781,7 +6786,7 @@ void proto_register_gtpv2(void)
           NULL, HFILL}
         },
         { &hf_gtpv2_mm_context_higher_br_16mb_flg,
-          {"Higher bitrates than 16 Mbps flag", "gtpv2.mm_context_higher_br_16mb_flg_len",
+          {"Higher bitrates than 16 Mbps flag", "gtpv2.mm_context_higher_br_16mb_flg",
           FT_UINT8, BASE_DEC, VALS(gtpv2_mm_context_higher_br_16mb_flg_vals), 0x0,
           NULL, HFILL}
         },
@@ -6838,7 +6843,7 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_ms_network_capability,
         &ett_gtpv2_vd_pref,
         &ett_gtpv2_access_rest_data,
-        &ett_gtpv2_qua, 
+        &ett_gtpv2_qua,
         &ett_gtpv2_qui,
     };
 
