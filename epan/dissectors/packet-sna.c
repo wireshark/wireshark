@@ -2512,14 +2512,11 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16		length;
 	guint16		type;
 	int		cont;
-	int		offset;
+	int		offset = 0;
 	proto_tree	*gds_tree;
 	proto_item	*gds_item;
 
-	offset = 0;
-	cont   = 1;
-
-	while (cont) {
+	do {
 		length = tvb_get_ntohs(tvb, offset) & 0x7fff;
 		cont   = (tvb_get_ntohs(tvb, offset) & 0x8000) ? 1 : 0;
 		type   = tvb_get_ntohs(tvb, offset+2);
@@ -2540,7 +2537,7 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    offset+2, 2, type);
 		}
 		offset += length;
-	}
+	} while(cont);
 	if (tvb_offset_exists(tvb, offset))
 		call_dissector(data_handle,
 		    tvb_new_subset_remaining(tvb, offset), pinfo, parent_tree);
