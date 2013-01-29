@@ -2518,7 +2518,6 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	offset = 0;
 	cont   = 1;
-	type   = tvb_get_ntohs(tvb, offset+2);
 
 	while (cont) {
 		length = tvb_get_ntohs(tvb, offset) & 0x7fff;
