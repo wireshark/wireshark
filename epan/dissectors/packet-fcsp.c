@@ -171,10 +171,9 @@ static void dissect_fcsp_dhchap_auth_param(tvbuff_t *tvb, proto_tree *tree,
                                      int offset, gint32 total_len)
 {
     guint16 auth_param_tag;
-    guint16 param_len = 0, i;
+    guint16 param_len, i;
 
     if (tree) {
-        auth_param_tag = tvb_get_ntohs(tvb, offset);
         total_len -= 4;
 
         while (total_len > 0) {
