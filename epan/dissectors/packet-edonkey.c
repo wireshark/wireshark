@@ -5,11 +5,12 @@
  * Copyright 2008, Stefan Monhof <stefan.monhof@stud.uni-due.de>
  *
  * eDonkey dissector based on protocol descriptions from mldonkey:
- *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/edonkey-protocol.txt
- *  http://savannah.nongnu.org/download/mldonkey/docs/Edonkey-Overnet/overnet-protocol.txt
+ *  ftp://ftp.chatnfiles.com/gnu-mirror/savannah/files/mldonkey/docs/Edonkey-Overnet/edonkey-protocol.txt
+ *  ftp://ftp.chatnfiles.com/gnu-mirror/savannah/files/mldonkey/docs/Edonkey-Overnet/overnet-protocol.txt
  *
  * Kademlia dissector based on source code inspection of aMule 2.1.3 and eMule 0.48a
- * Modified and added on the basis of information and names from the eMule 0.49a source code
+ * Modified and added on the basis of information and names from the eMule 0.50 source code
+ * found at http://www.emule-project.net
  *
  * $Id$
  *
@@ -2108,8 +2109,6 @@ static int dissect_edonkey_udp_message(guint8 msg_type,
                     chal = tvb_get_letohl(tvb, offset);
                     proto_tree_add_text(tree, tvb, offset, 4, "Challenge: 0x%08x", chal);
                     offset += 4;
-                } else {
-                    offset = dissect_edonkey_string(tvb, pinfo, offset, tree);
                 }
             }
             break;
