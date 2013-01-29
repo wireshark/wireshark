@@ -1,4 +1,4 @@
-Wireshark 1.6.12 Release Notes
+Wireshark 1.6.13 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,76 +14,108 @@ What's New
 
    The following vulnerability has been fixed.
 
-     o wnpa-sec-2012-31
+     o wnpa-sec-2013-01
 
-       The USB dissector could go into an infinite loop. (Bug 7787)
+       Infinite and large loops in the Bluetooth HCI, CSN.1, DCP-ETSI
+       DOCSIS CM-STAUS, IEEE 802.3 Slow Protocols, MPLS, R3, RTPS,
+       SDP, and SIP dissectors. Reported by Laurent Butti. (Bugs
+       8036, 8037, 8038, 8040, 8041, 8042, 8043, 8198, 8199, 8222)
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-     o wnpa-sec-2012-35
+       GENERIC-MAP-NOMATCH
 
-       The ISAKMP dissector could crash. (Bug 7855)
+     o wnpa-sec-2013-02
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+       The CLNP dissector could crash. Discovered independently by
+       Laurent Butti and the Wireshark development team. (Bug 7871)
 
-     o wnpa-sec-2012-36
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-       The iSCSI dissector could go into an infinite loop. (Bug 7858)
+       GENERIC-MAP-NOMATCH
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+     o wnpa-sec-2013-03
 
-     o wnpa-sec-2012-37
+       The DTN dissector could crash. (Bug 7945)
 
-       The WTP dissector could go into an infinite loop. (Bug 7869)
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+       GENERIC-MAP-NOMATCH
 
-     o wnpa-sec-2012-38
+     o wnpa-sec-2013-04
 
-       The RTCP dissector could go into an infinite loop. (Bug 7879)
+       The MS-MMC dissector (and possibly others) could crash. (Bug
+       8112)
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
 
-     o wnpa-sec-2012-40
+       GENERIC-MAP-NOMATCH
 
-       The ICMPv6 dissector could go into an infinite loop. (Bug
-       7844)
+     o wnpa-sec-2013-05
 
-       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.11.
+       The DTLS dissector could crash. Discovered by Laurent Butti.
+       (Bug 8111)
+
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+
+       GENERIC-MAP-NOMATCH
+
+     o wnpa-sec-2013-07
+
+       The DCP-ETSI dissector could corrupt memory. Discovered by
+       Laurent Butti. (Bug 8213)
+
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+
+       GENERIC-MAP-NOMATCH
+
+     o wnpa-sec-2013-08
+
+       The Wireshark dissection engine could crash. Discovered by
+       Laurent Butti. (Bug 8197)
+
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+
+       GENERIC-MAP-NOMATCH
+
+     o wnpa-sec-2013-09
+
+       The NTLMSSP dissector could overflow a buffer. Discovered by
+       Ulf Härnhammar. (Bug X)
+
+       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+
+       GENERIC-MAP-NOMATCH
 
    The following bugs have been fixed:
 
      o The HTTP dissector does not reassemble headers when the first
        TCP segment does not contain a full header line.
 
-     o Menu and Title bars inaccessible using GTK2 (non-legacy) with
-       two monitors. (Bug 553)
+     o SNMPv3 Engine ID registration. (Bug 2426)
 
-     o 802.11 Probe Response fails to parse. (Bug 1284)
+     o Illegal character is used in temporary capture file name. (Bug
+       7877)
 
-     o Corrupted tpncp.dat file that crashes Wireshark. (Bug 6665)
+     o Core dumped when the file is closed. (Bug 8022)
 
-     o SMB 2.x Read Request parsing is wrong starting at Channel.
-       (Bug 7790)
+     o Wrong packet bytes are selected for ISUP CUG binary code. (Bug
+       8035)
 
-     o Dissection of IEEE 802.11 Channel Switch Announcement element
-       fails. (Bug 7797)
+     o Decodes FCoE Group Multicast MAC address as Broadcom MAC
+       address. (Bug 8046)
 
-     o Invalid memory accesses when loading radius captures. (Bug
-       7803)
+     o The SSL dissector stops decrypting the SSL conversation with
+       Malformed Packet:SSL error messages. (Bug 8075)
 
-     o ISUP CIC should have format BASE_DEC, not BASE_HEX. (Bug 7848)
+     o Wrong bytes highlighted with "Find Packet...". (Bug 8085)
 
-     o Error in AUXILIARY SECURITY HEADER Parsing for 802.15.4 in
-       dissect_ieee802154_common function. (Bug 7864)
+     o 3GPP ULI AVP. SAI is not correctly decoded. (Bug 8098)
 
-     o When cancelling creation of new coloring rule, old one is
-       deleted. (Bug 7913)
+     o Warn Dissector bug, protocol JXTA. (Bug 8212)
 
-     o Misspelling (typo) in IPv6 display filter field name. (Bug
-       8006)
-
-     o Core dumped during sctp association analysis. (Bug 8011)
+     o Electromagnetic Emission Parser parses field Event Id as
+       Entity Id. (Bug 8227)
 
   New and Updated Features
 
@@ -95,12 +127,13 @@ What's New
 
   Updated Protocol Support
 
-   FMP/NOTIFY, ICMPv6, IEEE 802.11, IEEE 802.15.4, ISAKMP, iSCSI,
-   ISUP, NDPS, Prism, RADIUS, RTCP, SMB2, TPNCP, USB, WTP
+   Bluetooth HCI, CLNP, DCP-ETSI, DIS PDU, DOCSIS CM-STATUS, DTLS,
+   DTN, Fibre Channel, GTPv2, ISUP, JXTA, MPLS, MS-MMC, NTLMSSP, R3,
+   RTPS, SNMP
 
   New and Updated Capture File Support
 
-   CommView NCF
+   No new or updated capture file support.
 
 Getting Wireshark
 
