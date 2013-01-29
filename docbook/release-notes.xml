@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.6.13">
+<!ENTITY WiresharkCurrentVersion "1.6.14">
 
 ]>
 
@@ -36,193 +36,22 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-01.html">wnpa-sec-2013-01</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-10.html">wnpa-sec-2013-10</ulink>
           </para>
           <para>
-	    Infinite and large loops in the Bluetooth HCI, CSN.1, DCP-ETSI
-	    DOCSIS CM-STAUS, IEEE 802.3 Slow Protocols, MPLS, R3, RTPS, SDP, and
-	    SIP dissectors. Reported by Laurent Butti.
-	    <!-- BTHCI -->
-            <!-- Fixed in trunk: r46345 -->
-            <!-- Fixed in trunk-1.8: r46424 -->
-            <!-- Fixed in trunk-1.6: r46425 -->
-	    <!-- CM-STATUS -->
-            <!-- Fixed in trunk: r47045 -->
-            <!-- Fixed in trunk-1.8: r47054 -->
-            <!-- Fixed in trunk-1.6: r47056 -->
-	    <!-- CSN.1 -->
-            <!-- Fixed in trunk: r46335 -->
-            <!-- Fixed in trunk-1.8: r46409 -->
-	    <!-- DCP-ETSI -->
-            <!-- Fixed in trunk: r47123, r47125 -->
-            <!-- Fixed in trunk-1.8: r47245 -->
-            <!-- Fixed in trunk-1.6: r47246 -->
-	    <!-- 802.3 Slow -->
-            <!-- Fixed in trunk: r46336 -->
-            <!-- Fixed in trunk-1.8: r46667 -->
-            <!-- Fixed in trunk-1.6: r47288 -->
-	    <!-- MPLS -->
-            <!-- Fixed in trunk: r46421 -->
-            <!-- Fixed in trunk-1.8: r46421 -->
-            <!-- Fixed in trunk-1.6: r46422 -->
-	    <!-- R3 -->
-            <!-- Fixed in trunk: r46415 -->
-            <!-- Fixed in trunk-1.8: r46416 -->
-            <!-- Fixed in trunk-1.6: r46417 -->
-	    <!-- RTPS -->
-            <!-- Fixed in trunk: r47046 -->
-            <!-- Fixed in trunk-1.8: r47055 -->
-            <!-- Fixed in trunk-1.6: r47057 -->
-	    <!-- SDP -->
-            <!-- Fixed in trunk: r46344, r46346 -->
-            <!-- Fixed in trunk-1.8: r46423 -->
-	    <!-- SIP -->
-            <!-- Fixed in trunk: r46340 -->
-            <!-- Fixed in trunk-1.8: r46419 -->
-            (Bugs
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8036">8036</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8037">8037</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8038">8038</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8040">8040</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8041">8041</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8041">8042</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8043">8043</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8198">8198</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8199">8199</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8222">8222</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-02.html">wnpa-sec-2013-02</ulink>
-          </para>
-          <para>
-	    The CLNP dissector could crash. Discovered independently by Laurent
-	    Butti and the Wireshark development team.
-            <!-- Fixed in trunk: r45646, r46645, r46646 -->
-            <!-- Fixed in trunk-1.8: r46659  -->
-            <!-- Fixed in trunk-1.6: r46726 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7871">Bug
-            7871</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-03.html">wnpa-sec-2013-03</ulink>
-          </para>
-          <para>
-	    The DTN dissector could crash.
-            <!-- Fixed in trunk: r46577, 46579 -->
-            <!-- Fixed in trunk-1.8: r46578, r46580 -->
-            <!-- Fixed in trunk-1.6: r46581 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7945">Bug
-            7945</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-04.html">wnpa-sec-2013-04</ulink>
-          </para>
-          <para>
-	    The MS-MMC dissector (and possibly others) could crash.
-            <!-- Fixed in trunk: r46705 -->
-            <!-- Fixed in trunk-1.8: r46760 -->
-            <!-- Fixed in trunk-1.6: r46813 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8112">Bug
-            8112</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-05.html">wnpa-sec-2013-05</ulink>
-          </para>
-          <para>
-	    The DTLS dissector could crash. Discovered by Laurent Butti.
-            <!-- Fixed in trunk: r46739, r46999, r47000 -->
-            <!-- Fixed in trunk-1.8: r46840, r47279 -->
-            <!-- Fixed in trunk-1.6: r46841, r47289 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8111">Bug
-            8111</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-07.html">wnpa-sec-2013-07</ulink>
-          </para>
-          <para>
-	    The DCP-ETSI dissector could corrupt memory. Discovered by Laurent Butti.
-            <!-- Fixed in trunk: r47098 -->
-            <!-- Fixed in trunk-1.8: r47245 -->
-            <!-- Fixed in trunk-1.6: r47246 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8213">Bug
-            8213</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-08.html">wnpa-sec-2013-08</ulink>
-          </para>
-          <para>
-	    The Wireshark dissection engine could crash. Discovered by Laurent Butti.
-            <!-- Fixed in trunk: r47114 -->
-            <!-- Fixed in trunk-1.8: r47281 -->
-            <!-- Fixed in trunk-1.6: r47290 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8197">Bug
-            8197</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-09.html">wnpa-sec-2013-09</ulink>
-          </para>
-          <para>
-	    The NTLMSSP dissector could overflow a buffer. Discovered by Ulf Härnhammar.
-            <!-- Fixed in trunk: 47248 -->
-            <!-- Fixed in trunk-1.8: r47282 -->
-            <!-- Fixed in trunk-1.6: 47291 -->
+	    .
+            <!-- Fixed in trunk: r? -->
+            <!-- Fixed in trunk-1.8: r?  -->
+            <!-- Fixed in trunk-1.6: r? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=X">Bug
-            X</ulink>)
+            ></ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.</para>
+          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
           </para>
         </listitem>
+
       </itemizedlist>
 
     </para>
@@ -233,10 +62,6 @@ Wireshark Info
 
       <itemizedlist>
 
-        <listitem><para>
-	  The HTTP dissector does not reassemble headers when the first TCP segment does not contain a full header line.
-        </para></listitem>
-
 <!-- Sort by bug # -->
 <!--
         <listitem><para>
@@ -246,66 +71,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-          SNMPv3 Engine ID registration.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2426">Bug
-          2426</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Illegal character is used in temporary capture file name.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7877">Bug
-          7877</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Core dumped when the file is closed.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8022">Bug
-          8022</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong packet bytes are selected for ISUP CUG binary code.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8035">Bug
-          8035</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Decodes FCoE Group Multicast MAC address as Broadcom MAC address.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8046">Bug
-          8046</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The SSL dissector stops decrypting the SSL conversation with Malformed Packet:SSL error messages.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8075">Bug
-          8075</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong bytes highlighted with &quot;Find Packet...&quot;.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8085">Bug
-          8085</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          3GPP ULI AVP. SAI  is not correctly decoded.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8098">Bug
-          8098</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Warn Dissector bug, protocol JXTA.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8212">Bug
-          8212</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Electromagnetic Emission Parser parses field Event Id as Entity Id.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8227">Bug
-          8227</ulink>)
-        </para></listitem>
 
      </itemizedlist>
 
@@ -333,23 +98,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-Bluetooth HCI,
-CLNP,
-DCP-ETSI,
-DIS PDU,
-DOCSIS CM-STATUS,
-DTLS,
-DTN,
-Fibre Channel,
-GTPv2,
-ISUP,
-JXTA,
-MPLS,
-MS-MMC,
-NTLMSSP,
-R3,
-RTPS,
-SNMP
+.
 
     </para>
     </section>
