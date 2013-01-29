@@ -64,7 +64,6 @@ typedef enum {
 
 typedef struct _address {
   address_type  type;		/* type of address */
-  int           hf;		/* the specific field that this addr is */
   int           len;		/* length of address, in bytes */
   const void	*data;		/* pointer to address data */
 } address;
@@ -72,7 +71,6 @@ typedef struct _address {
 #define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) { \
 	(addr)->data = (addr_data); \
 	(addr)->type = (addr_type); \
-	(addr)->hf   = -1;          \
 	(addr)->len  = (addr_len);  \
 	}
 
@@ -86,28 +84,6 @@ typedef struct _address {
 #define	TVB_SET_ADDRESS(addr, addr_type, tvb, offset, addr_len) { \
 	(addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
 	(addr)->type = (addr_type); \
-	(addr)->hf   = -1;          \
-	(addr)->len  = (addr_len);  \
-	}
-
-#define	SET_ADDRESS_HF(addr, addr_type, addr_len, addr_data, addr_hf) { \
-	(addr)->data = (addr_data); \
-	(addr)->type = (addr_type); \
-	(addr)->hf   = (addr_hf);   \
-	(addr)->len  = (addr_len);  \
-	}
-
-/* Same as SET_ADDRESS_HF but it takes a TVB and an offset instead of
- * (frequently) a pointer into a TVB.  This allow us to get the tvb_get_ptr()
- * call out of the dissectors.
- *
- * Call tvb_get_ptr() first in case it throws an exception: then we won't
- * modify the address at all.
- */
-#define	TVB_SET_ADDRESS_HF(addr, addr_type, tvb, offset, addr_len, addr_hf) { \
-	(addr)->data = tvb_get_ptr(tvb, offset, addr_len); \
-	(addr)->type = (addr_type); \
-	(addr)->hf   = (addr_hf);   \
 	(addr)->len  = (addr_len);  \
 	}
 
@@ -150,7 +126,6 @@ typedef struct _address {
 	guint8 *COPY_ADDRESS_data; \
 	(to)->type = (from)->type; \
 	(to)->len = (from)->len; \
-	(to)->hf = (from)->hf; \
 	COPY_ADDRESS_data = g_malloc((from)->len); \
 	memcpy(COPY_ADDRESS_data, (from)->data, (from)->len); \
 	(to)->data = COPY_ADDRESS_data; \
@@ -162,14 +137,12 @@ typedef struct _address {
 #define COPY_ADDRESS_SHALLOW(to, from) \
 	(to)->type = (from)->type; \
 	(to)->len = (from)->len; \
-	(to)->hf = (from)->hf; \
 	(to)->data = (from)->data;
 
 #define SE_COPY_ADDRESS(to, from) { \
 	guint8 *SE_COPY_ADDRESS_data; \
 	(to)->type = (from)->type; \
 	(to)->len = (from)->len; \
-	(to)->hf = (from)->hf; \
 	SE_COPY_ADDRESS_data = se_alloc((from)->len); \
 	memcpy(SE_COPY_ADDRESS_data, (from)->data, (from)->len); \
 	(to)->data = SE_COPY_ADDRESS_data; \
