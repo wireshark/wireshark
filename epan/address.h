@@ -55,11 +55,8 @@ typedef enum {
   AT_URI,                /* URI/URL/URN */
   AT_TIPC,               /* TIPC Address Zone,Subnetwork,Processor */
   AT_IB,                 /* Infiniband GID/LID */
-  AT_USB,                /* USB Device address
+  AT_USB                 /* USB Device address
                           * (0xffffffff represents the host) */
-  AT_AX25,               /* AX.25 */
-  AT_IEEE_802_15_4_SHORT /* IEEE 802.15.4 16-bit short address */
-                         /* (the long addresses are EUI-64's */
 } address_type;
 
 typedef struct _address {
