@@ -790,7 +790,7 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 		temp = tvb_get_guint8(tvb, offset + 1);
 						/* skip past auth methods */
-		offset = hash_info->connect_offset = offset + 1 + temp;
+		hash_info->connect_offset = offset + 1 + temp;
 	}
 	else if ( hash_info->state == Connecting){
 
