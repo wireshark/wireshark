@@ -125,14 +125,14 @@ static int hf_scsi_paramlen                     = -1;
 static int hf_scsi_paramlen16                   = -1;
 static int hf_scsi_modesel_flags                = -1;
 static int hf_scsi_modesns_pc                   = -1;
-static int hf_scsi_modepage_ps			= -1;
-static int hf_scsi_modepage_spf			= -1;
-static int hf_scsi_modepage_plen		= -1;
-static int hf_scsi_modepage_tcmos		= -1;
-static int hf_scsi_modepage_scsip		= -1;
-static int hf_scsi_modepage_ialuae		= -1;
-static int hf_scsi_modepage_icp			= -1;
-static int hf_scsi_modepage_msdl		= -1;
+static int hf_scsi_modepage_ps                  = -1;
+static int hf_scsi_modepage_spf                 = -1;
+static int hf_scsi_modepage_plen                = -1;
+static int hf_scsi_modepage_tcmos               = -1;
+static int hf_scsi_modepage_scsip               = -1;
+static int hf_scsi_modepage_ialuae              = -1;
+static int hf_scsi_modepage_icp                 = -1;
+static int hf_scsi_modepage_msdl                = -1;
 static int hf_scsi_spc_pagecode                 = -1;
 static int hf_scsi_spc_subpagecode              = -1;
 static int hf_scsi_sbcpagecode                  = -1;
@@ -1953,7 +1953,6 @@ static const value_string scsi_asc_val[] = {
     {0x6500,  "Voltage Fault"},
     {0, NULL},
 };
-
 value_string_ext scsi_asc_val_ext = VALUE_STRING_EXT_INIT(scsi_asc_val);
 
 /* SCSI Status Codes */
@@ -2270,11 +2269,11 @@ dissect_spc_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *tree, int versi
         break;
     case 4: /* SPC-2 */
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_sccsflags, ett_scsi_inq_sccsflags,  sccs_fields_spc2, ENC_BIG_ENDIAN);
-	break;
+        break;
     case 5: /* SPC-3 */
     case 6: /* SPC-4 */
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_sccsflags, ett_scsi_inq_sccsflags,  sccs_fields_spc3, ENC_BIG_ENDIAN);
-	break;
+        break;
     default: /* including version 0 : claims conformance to no standard */
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_sccsflags, ett_scsi_inq_sccsflags,  sccs_fields_spc3, ENC_BIG_ENDIAN);
     }
@@ -2502,25 +2501,25 @@ dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo,
         offset_v+=1;
 
         /* Version */
-	version = tvb_get_guint8(tvb, offset_v);
+        version = tvb_get_guint8(tvb, offset_v);
         proto_tree_add_item(tree, hf_scsi_inq_version, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
         offset_v+=1;
 
         /* aca flags */
-	switch (version) {
-	case 3: /* SPC */
-	        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc, ENC_BIG_ENDIAN);
-		break;
-	case 4: /* SPC-2 */
-	        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc2, ENC_BIG_ENDIAN);
-		break;
-	case 5: /* SPC-3 */
-	case 6: /* SPC-4 */
-	        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc3, ENC_BIG_ENDIAN);
-		break;
-	default: /* including version 0 : claims conformance to no standard */
-	        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc3, ENC_BIG_ENDIAN);
-	}
+        switch (version) {
+        case 3: /* SPC */
+            proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc, ENC_BIG_ENDIAN);
+            break;
+        case 4: /* SPC-2 */
+            proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc2, ENC_BIG_ENDIAN);
+            break;
+        case 5: /* SPC-3 */
+        case 6: /* SPC-4 */
+            proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc3, ENC_BIG_ENDIAN);
+            break;
+        default: /* including version 0 : claims conformance to no standard */
+            proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields_spc3, ENC_BIG_ENDIAN);
+        }
         offset_v+=1;
 
         /* Additional Length */
@@ -2882,15 +2881,15 @@ dissect_scsi_spc_modepage(tvbuff_t *tvb, packet_info *pinfo _U_,
                 /* control extension subpage */
                 proto_item_append_text(tree, " Control Extension");
 
-		/* TCMOS SCSIP IALUAE */
+                /* TCMOS SCSIP IALUAE */
                 proto_tree_add_item(tree, hf_scsi_modepage_tcmos, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tree, hf_scsi_modepage_scsip, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tree, hf_scsi_modepage_ialuae, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
 
-		/* Initial Command Priority */
+                /* Initial Command Priority */
                 proto_tree_add_item(tree, hf_scsi_modepage_icp, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
 
-		/* Maximum Sense Data Length */
+                /* Maximum Sense Data Length */
                 proto_tree_add_item(tree, hf_scsi_modepage_msdl, tvb, offset + 6, 1, ENC_BIG_ENDIAN);
 
                 break;
@@ -3496,7 +3495,7 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
                       scsi_device_type devtype)
 {
     guint16             plen;
-    guint8		pcode, spf, subpcode = 0;
+    guint8              pcode, spf, subpcode = 0;
     proto_tree         *tree;
     proto_item         *ti;
     const value_string *modepage_val;
@@ -4035,7 +4034,7 @@ dissect_spc_preventallowmediaremoval(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         flags = tvb_get_guint8(tvb, offset + 3);
         if (flags & 0x01) {
             col_append_str(pinfo->cinfo, COL_INFO, " PREVENT");
-	} else {
+        } else {
             col_append_str(pinfo->cinfo, COL_INFO, " ALLOW");
         }
 
@@ -4330,11 +4329,11 @@ dissect_scsi_sense(tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
     case 0x70:
     case 0x71:
         dissect_scsi_fix_snsinfo(tvb, sns_tree, offset);
-	break;
+        break;
     case 0x72:
     case 0x73:
         dissect_scsi_descriptor_snsinfo(tvb, sns_tree, offset);
-	break;
+        break;
     }
 }
 
@@ -5336,6 +5335,9 @@ proto_register_scsi(void)
         { &hf_scsi_persresv_control_aptpl,
           {"aptpl", "scsi.persresv.control.aptpl", FT_BOOLEAN, 8,
            TFS(&scsi_aptpl_tfs), 0x01, NULL, HFILL}},
+        { &hf_scsi_persresv_control_unreg,                             /* XXX: originally missing; OK ? */
+            {"unreg", "scsi.persresv.control.unreg", FT_BOOLEAN, 8,
+           NULL, 0x02, NULL, HFILL}},
         { &hf_scsi_release_flags,
           {"Release Flags", "scsi.release.flags", FT_UINT8, BASE_HEX, NULL,
            0x0, NULL, HFILL}},
@@ -5867,21 +5869,21 @@ proto_register_scsi(void)
         { &hf_scsi_modepage_plen,
           {"Page Length", "scsi.spc.modepage.plen", FT_UINT16, BASE_DEC, NULL, 0,
            NULL, HFILL}},
-	{ &hf_scsi_modepage_tcmos,
+        { &hf_scsi_modepage_tcmos,
           {"TCMOS", "scsi.spc.modepage.tcmos", FT_BOOLEAN, 8, NULL, 0x04,
            NULL, HFILL}},
-	{ &hf_scsi_modepage_scsip,
+        { &hf_scsi_modepage_scsip,
           {"SCSIP", "scsi.spc.modepage.scsip", FT_BOOLEAN, 8, NULL, 0x02,
            NULL, HFILL}},
-	{ &hf_scsi_modepage_ialuae,
+        { &hf_scsi_modepage_ialuae,
           {"IALUAE", "scsi.spc.modepage.ialuae", FT_BOOLEAN, 8, NULL, 0x01,
            NULL, HFILL}},
         { &hf_scsi_modepage_icp,
           {"Initial Command Priority", "scsi.spc.modepage.icp", FT_UINT8, BASE_DEC,
-	   NULL, 0x0f, NULL, HFILL}},
+           NULL, 0x0f, NULL, HFILL}},
         { &hf_scsi_modepage_msdl,
           {"Maximum Sense Data Length", "scsi.spc.modepage.msdl", FT_UINT8, BASE_DEC,
-	   NULL, 0, NULL, HFILL}},
+           NULL, 0, NULL, HFILL}},
         { &hf_scsi_lun,
           { "LUN", "scsi.lun", FT_UINT16, BASE_DEC,
             NULL, 0, "Logical Unit Number", HFILL }},
@@ -5891,7 +5893,7 @@ proto_register_scsi(void)
         { &hf_scsi_lun_address_mode,
           { "Address Mode", "scsi.lun.address_mode", FT_UINT8, BASE_DEC,
           VALS(scsi_lun_address_mode_vals), 0xc0, "Addressing mode for the LUN", HFILL }},
-	{ &hf_scsi_prevent_allow_flags,
+        { &hf_scsi_prevent_allow_flags,
           {"Prevent Allow Flags", "scsi.prevent_allow.flags", FT_UINT8, BASE_HEX, NULL, 0,
            NULL, HFILL}},
         { &hf_scsi_prevent_allow_prevent,
