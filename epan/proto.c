@@ -2607,12 +2607,12 @@ proto_tree_set_ax25(field_info *fi, const guint8* value)
 {
 	fvalue_set(&fi->value, (gpointer) value, FALSE);
 }
-#endif
 static void
 proto_tree_set_ax25_tvb(field_info *fi, tvbuff_t *tvb, gint start)
 {
 	proto_tree_set_ax25(fi, tvb_get_ptr(tvb, start, 7));
 }
+#endif
 
 
 /* Add a FT_ETHER to a proto_tree */
