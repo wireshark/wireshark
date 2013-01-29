@@ -240,6 +240,11 @@ proto_register_fw1(void)
     { &hf_fw1_type,
       { "Type", "fw1.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
         NULL, HFILL }},
+
+    { &hf_fw1_trailer,
+      { "Trailer", "fw1.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    }
   };
   /* Setup protocol subtree array */
   static gint *ett[] = {
