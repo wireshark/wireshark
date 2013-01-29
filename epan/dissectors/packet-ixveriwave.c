@@ -947,6 +947,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
     /* If we had an in-header FCS, check it. */
     if (hdr_fcs_ti) {
+        /* XXX: 'hdr_fcs_ti' is never set so the following code will never be executed ? */
+        /*      Also: 'sent fcs' always 0 ?                      */
+        /*            'hf_radiotap_fcs_bad' has no entry in hf[] */
         /* It would be very strange for the header to have an FCS for the
          * frame *and* the frame to have the FCS at the end, but it's possible, so
          * take that into account by using the FCS length recorded in pinfo. */
