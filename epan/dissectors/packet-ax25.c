@@ -324,42 +324,42 @@ proto_register_ax25(void)
 			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Source callsign", HFILL }
 		},
-		{ &(hf_ax25_via[ 0 ]),
+		{ &hf_ax25_via[ 0 ],
 			{ "Via 1",			"ax25.via1",
 			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 1", HFILL }
 		},
-		{ &(hf_ax25_via[ 1 ]),
+		{ &hf_ax25_via[ 1 ],
 			{ "Via 2",			"ax25.via2",
 			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 2", HFILL }
 		},
-		{ &(hf_ax25_via[ 2 ]),
+		{ &hf_ax25_via[ 2 ],
 			{ "Via 3",			"ax25.via3",
 			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 3", HFILL }
 		},
-		{ &(hf_ax25_via[ 3 ]),
+		{ &hf_ax25_via[ 3 ],
 			{ "Via 4",			"ax25.via4",
 			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 4", HFILL }
 		},
-		{ &(hf_ax25_via[ 4 ]),
+		{ &hf_ax25_via[ 4 ],
 			{ "Via 5",			"ax25.via5",
 			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 5", HFILL }
 		},
-		{ &(hf_ax25_via[ 5 ]),
+		{ &hf_ax25_via[ 5 ],
 			{ "Via 6",			"ax25.via6",
 			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 6", HFILL }
 		},
-		{ &(hf_ax25_via[ 6 ]),
+		{ &hf_ax25_via[ 6 ],
 			{ "Via 7",			"ax25.via7",
 			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 7", HFILL }
 		},
-		{ &(hf_ax25_via[ 7 ]),
+		{ &hf_ax25_via[ 7 ],
 			{ "Via 8",			"ax25.via8",
 			FT_AX25, BASE_NONE, NULL, 0x0,
 			"Via callsign 8", HFILL }
