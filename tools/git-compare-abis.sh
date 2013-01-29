@@ -8,8 +8,8 @@ set -e
 CORE_COUNT=4
 if [ -r /proc/cpuinfo ] ; then
 	CORE_COUNT=`grep -c ^processor /proc/cpuinfo`
-elif sysctl machdep.cpu.thread_count > /dev/null 2>&1 ; then
-        CORE_COUNT=`sysctl -n machdep.cpu.thread_count`
+elif sysctl hw.ncpu > /dev/null 2>&1 ; then
+        CORE_COUNT=`sysctl -n hw.ncpu`
 fi
 
 BUILD_COMMAND="$1"
