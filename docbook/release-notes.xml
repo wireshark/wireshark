@@ -181,7 +181,7 @@ Wireshark Info
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7679">Bug
             7679</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.</para>
+          <para>Versions affected: 1.8.0 to 1.8.4.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
           </para>
@@ -232,8 +232,6 @@ Wireshark Info
             <!-- Fixed in trunk: 47248 -->
             <!-- Fixed in trunk-1.8: r47282 -->
             <!-- Fixed in trunk-1.6: 47291 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=X">Bug
-            X</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.</para>
           <para>
