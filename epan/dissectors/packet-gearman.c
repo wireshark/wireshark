@@ -422,7 +422,9 @@ dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   {
     for (i=0; i<GEARMAN_MGR_CMDS_COUNT; i++)
     {
-      cmdlen = strlen(GEARMAN_MGR_CMDS[i]);
+      /* the array is a const and clearly none of the elements are longer than
+       * MAX_SIGNED_INT so this is a safe cast */
+      cmdlen = (int)strlen(GEARMAN_MGR_CMDS[i]);
 
       if (cmdlen == linelen && 0 == tvb_strneql(tvb, offset, GEARMAN_MGR_CMDS[i], cmdlen))
       {
