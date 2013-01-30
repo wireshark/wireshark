@@ -391,12 +391,6 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_item *ti;
    proto_tree *daap_tree;
    guint first_tag = 0;
-   /*
-    * XXX - we now go by media type rather than TCP port,
-    * so is there another way to determine whether this
-    * is a request or response?
-    */
-   gboolean is_request = (pinfo->destport == TCP_PORT_DAAP);
 
    first_tag = tvb_get_ntohl(tvb, 0);
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAAP");
@@ -412,17 +406,13 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       return;
    }
 
-   if (is_request) {
-      col_set_str(pinfo->cinfo, COL_INFO, "DAAP Request");
-   } else {
-      /* This is done in two functions on purpose. If the tvb_get_xxx()
-       * functions fail, at least something will be in the info column
-       */
-      col_set_str(pinfo->cinfo, COL_INFO, "DAAP Response");
-      col_append_fstr(pinfo->cinfo, COL_INFO, " [first tag: %s, size: %d]",
-                      tvb_format_text(tvb, 0, 4),
-                      tvb_get_ntohl(tvb, 4));
-   }
+   /* This is done in two functions on purpose. If the tvb_get_xxx()
+    * functions fail, at least something will be in the info column
+    */
+   col_set_str(pinfo->cinfo, COL_INFO, "DAAP Response");
+   col_append_fstr(pinfo->cinfo, COL_INFO, " [first tag: %s, size: %d]",
+                   tvb_format_text(tvb, 0, 4),
+                   tvb_get_ntohl(tvb, 4));
 
    if (tree) {
       ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, ENC_NA);
