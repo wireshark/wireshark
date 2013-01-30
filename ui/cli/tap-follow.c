@@ -948,21 +948,21 @@ followUdp(
 
 static void
 followSsl(
-  const char *  optarg,
+  const char *  optargp,
   void *        userdata _U_
   )
 {
   follow_t *    fp;
   GString *     errp;
 
-  optarg += strlen(STR_FOLLOW_SSL);
+  optargp += strlen(STR_FOLLOW_SSL);
 
   fp = followAlloc(type_SSL);
 
-  followArgMode(&optarg, fp);
-  followArgFilter(&optarg, fp);
-  followArgRange(&optarg, fp);
-  followArgDone(optarg);
+  followArgMode(&optargp, fp);
+  followArgFilter(&optargp, fp);
+  followArgRange(&optargp, fp);
+  followArgDone(optargp);
 
   if (fp->index == G_MAXUINT32)
   {
