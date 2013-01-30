@@ -206,6 +206,7 @@
 #define dacp_canp       0x63616e70
 
 #define daap_png        0x89504e47
+#define daap_FPLY       0x46504c59
 /* date/time */
 /* TODO:
 #define daap_mstc 0xMMSSTTCC utctime
@@ -324,6 +325,7 @@ static const value_string vals_tag_code[] = {
    { dacp_cmsr, "status revision" },
    { dacp_cmst, "control container" },
    { dacp_cmvo, "volume" },
+   { daap_FPLY, "FairPlay negotiation" },
    { daap_mbcl, "bag (mbcl)" },
    { daap_mccr, "content codes response" },
    { daap_mcna, "content codes name" },
@@ -413,15 +415,26 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * functions fail, at least something will be in the info column
        */
       col_set_str(pinfo->cinfo, COL_INFO, "DAAP Response");
-      col_append_fstr(pinfo->cinfo, COL_INFO, " [first tag: %s, size: %d]",
-                      tvb_format_text(tvb, 0, 4),
-                      tvb_get_ntohl(tvb, 4));
+      /* This catches FairPlay negotiation */
+      if (first_tag == daap_FPLY) {
+          col_append_fstr(pinfo->cinfo, COL_INFO, " [first tag: %s]",
+                          tvb_format_text(tvb, 0, 4));
+      } else {
+          col_append_fstr(pinfo->cinfo, COL_INFO, " [first tag: %s, size: %d]",
+                          tvb_format_text(tvb, 0, 4),
+                          tvb_get_ntohl(tvb, 4));
+      }
    }
 
    if (tree) {
       ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, ENC_NA);
       daap_tree = proto_item_add_subtree(ti, ett_daap);
-      dissect_daap_one_tag(daap_tree, tvb);
+      /* This catches FairPlay negotiation */
+      if (first_tag == daap_FPLY) {
+          proto_tree_add_item(tree, hf_daap_name, tvb, 0, 4, ENC_ASCII|ENC_NA);
+          proto_tree_add_text(tree, tvb, 4, -1, "FPLY data");
+      } else
+          dissect_daap_one_tag(daap_tree, tvb);
    }
 }
 
