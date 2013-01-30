@@ -73,16 +73,16 @@ static const guint8 jpeg_jfif_magic[] = { 0xFF, 0xD8, /* SOF */
 
 /* <?xml */
 static const guint8 xml_magic[]    = { '<', '?', 'x', 'm', 'l' };
-static const guint8 png_magic[]    = { 137, 80, 78, 71, 13, 10, 26, 10 };
+static const guint8 png_magic[]    = { 0x89, 'P', 'N', 'G', '\r', '\n', 0x1A, '\n' };
 static const guint8 gif87a_magic[] = { 'G', 'I', 'F', '8', '7', 'a'};
 static const guint8 gif89a_magic[] = { 'G', 'I', 'F', '8', '9', 'a'};
 
 static const mime_files_t magic_files[] = {
 	{ jpeg_jfif_magic, sizeof(jpeg_jfif_magic) },
 	{ xml_magic, sizeof(xml_magic) },
-    { png_magic, sizeof(png_magic) },
-    { gif87a_magic, sizeof(gif87a_magic) },
-    { gif89a_magic, sizeof(gif89a_magic) }
+	{ png_magic, sizeof(png_magic) },
+	{ gif87a_magic, sizeof(gif87a_magic) },
+	{ gif89a_magic, sizeof(gif89a_magic) }
 };
 
 #define	N_MAGIC_TYPES	(sizeof(magic_files) / sizeof(magic_files[0]))
