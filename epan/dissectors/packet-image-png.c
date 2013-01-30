@@ -435,4 +435,5 @@ proto_reg_handoff_png(void)
 	dissector_handle_t png_handle = new_create_dissector_handle(dissect_png, proto_png);
 	dissector_add_string("media_type", "image/png", png_handle);
 	heur_dissector_add("http", dissect_png_heur, proto_png);
+    heur_dissector_add("wtap_file", dissect_png_heur, proto_png);
 }
