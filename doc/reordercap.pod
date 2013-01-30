@@ -45,7 +45,7 @@ B<Reordercap> is part of the B<Wireshark> distribution.  The latest version
 of B<Wireshark> can be found at L<http://www.wireshark.org>.
 
 It may make sense to move this functionality into B<Editcap>, or perhaps
-B<Mergecap>, in which B<reordercap> could be retired.
+B<Mergecap>, in which case B<reordercap> could be retired.
 
 HTML versions of the Wireshark project man pages are available at:
 L<http://www.wireshark.org/docs/man-pages>.
