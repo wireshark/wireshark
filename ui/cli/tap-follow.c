@@ -352,7 +352,7 @@ followSslPacket(
   )
 {
   follow_t *            fp      = contextp;
-  SslPacketInfo *       spip    = p_get_proto_data(pip->fd, (size_t)datap);
+  SslPacketInfo *       spip    = p_get_proto_data(pip->fd, GPOINTER_TO_INT(datap));
   SslDataInfo *         sdip;
   gint                  length;
   tcp_stream_chunk      sc;
