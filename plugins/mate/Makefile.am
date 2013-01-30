@@ -136,12 +136,13 @@ EXTRA_DIST = \
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 
-mate_parser_lex.h : mate_parser.c
-
 LEMON = $(top_builddir)/tools/lemon
 
-mate_grammar.h : mate_grammar.c
-mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
+mate_parser_lex.h : mate_parser.c
+
+mate_parser.c : mate_grammar.h
+
+mate_grammar.c mate_grammar.h : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
 	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/mate_grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
 
