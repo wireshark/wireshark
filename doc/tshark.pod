@@ -887,6 +887,7 @@ data sent by the first node.
 I<prot> specifies the transport protocol.  It can be one of:
   B<tcp>   TCP
   B<udp>   UDP
+  B<ssl>   SSL
 
 I<mode> specifies the output mode.  It can be one of:
   B<ascii> ASCII output with dots for non-printable characters
