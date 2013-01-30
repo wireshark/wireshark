@@ -530,3 +530,16 @@ proto_reg_handoff_gearman(void)
   gearman_handle = create_dissector_handle(dissect_gearman, proto_gearman);
   dissector_add_uint("tcp.port", GEARMAN_PORT, gearman_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
