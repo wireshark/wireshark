@@ -206,7 +206,6 @@
 #define dacp_canp       0x63616e70
 
 #define daap_png        0x89504e47
-#define daap_FPLY       0x46504c59
 /* date/time */
 /* TODO:
 #define daap_mstc 0xMMSSTTCC utctime
@@ -325,7 +324,6 @@ static const value_string vals_tag_code[] = {
    { dacp_cmsr, "status revision" },
    { dacp_cmst, "control container" },
    { dacp_cmvo, "volume" },
-   { daap_FPLY, "FairPlay negotiation" },
    { daap_mbcl, "bag (mbcl)" },
    { daap_mccr, "content codes response" },
    { daap_mcna, "content codes name" },
@@ -393,21 +391,27 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_item *ti;
    proto_tree *daap_tree;
    guint first_tag = 0;
+   /*
+    * XXX - we now go by media type rather than TCP port,
+    * so is there another way to determine whether this
+    * is a request or response?
+    */
    gboolean is_request = (pinfo->destport == TCP_PORT_DAAP);
 
    first_tag = tvb_get_ntohl(tvb, 0);
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAAP");
 
-   /* This catches album art coming back from iTunes */
+   /*
+    * This catches album art coming back from iTunes.
+    * XXX - will those have a media type of image/png
+    * rather than application/x-dmap-tagged?  If so,
+    * this is no longer necessary.
+    */
    if (first_tag == daap_png) {
       call_dissector(png_handle, tvb, pinfo, tree);
       return;
    }
 
-   /*
-    * XXX - what if the body is gzipped?  This isn't the only protocol
-    * running atop HTTP that might have a problem with that....
-    */
    if (is_request) {
       col_set_str(pinfo->cinfo, COL_INFO, "DAAP Request");
    } else {
@@ -415,26 +419,15 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * functions fail, at least something will be in the info column
        */
       col_set_str(pinfo->cinfo, COL_INFO, "DAAP Response");
-      /* This catches FairPlay negotiation */
-      if (first_tag == daap_FPLY) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, " [first tag: %s]",
-                          tvb_format_text(tvb, 0, 4));
-      } else {
-          col_append_fstr(pinfo->cinfo, COL_INFO, " [first tag: %s, size: %d]",
-                          tvb_format_text(tvb, 0, 4),
-                          tvb_get_ntohl(tvb, 4));
-      }
+      col_append_fstr(pinfo->cinfo, COL_INFO, " [first tag: %s, size: %d]",
+                      tvb_format_text(tvb, 0, 4),
+                      tvb_get_ntohl(tvb, 4));
    }
 
    if (tree) {
       ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, ENC_NA);
       daap_tree = proto_item_add_subtree(ti, ett_daap);
-      /* This catches FairPlay negotiation */
-      if (first_tag == daap_FPLY) {
-          proto_tree_add_item(tree, hf_daap_name, tvb, 0, 4, ENC_ASCII|ENC_NA);
-          proto_tree_add_text(tree, tvb, 4, -1, "FPLY data");
-      } else
-          dissect_daap_one_tag(daap_tree, tvb);
+      dissect_daap_one_tag(daap_tree, tvb);
    }
 }
 
@@ -751,7 +744,8 @@ proto_reg_handoff_daap(void)
    dissector_handle_t daap_handle;
 
    daap_handle = create_dissector_handle(dissect_daap, proto_daap);
-   http_dissector_add(TCP_PORT_DAAP, daap_handle);
+   http_port_add(TCP_PORT_DAAP);
+   dissector_add_string("media_type", "application/x-dmap-tagged", daap_handle);
 
    png_handle = find_dissector("png");
 }

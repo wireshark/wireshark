@@ -224,8 +224,6 @@ static gboolean http_decompress_body = TRUE;
 static gboolean http_decompress_body = FALSE;
 #endif
 
-#define TCP_PORT_DAAP			3689
-
 /* Simple Service Discovery Protocol
  * SSDP is implemented atop HTTP (yes, it really *does* run over UDP).
  * SSDP is the discovery protocol of Universal Plug and Play
@@ -695,10 +693,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
 		proto_tag = "SSDP";
-		break;
-
-	case TCP_PORT_DAAP:
-		proto_tag = "DAAP";
 		break;
 
 	default:
@@ -2863,6 +2857,17 @@ http_dissector_add(guint32 port, dissector_handle_t handle)
 	 * And register them in *our* table for that port.
 	 */
 	dissector_add_uint("http.port", port, handle);
+}
+
+void
+http_port_add(guint32 port)
+{
+	/*
+	 * Register ourselves as the handler for that port number
+	 * over TCP.  We rely on our caller having registered
+	 * themselves for the appropriate media type.
+	 */
+	dissector_add_uint("tcp.port", port, http_handle);
 }
 
 void

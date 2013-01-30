@@ -27,6 +27,7 @@
 #include <epan/packet.h>
 
 void http_dissector_add(guint32 port, dissector_handle_t handle);
+void http_port_add(guint32 port);
 
 /* Used for HTTP statistics */
 typedef struct _http_info_value_t {
