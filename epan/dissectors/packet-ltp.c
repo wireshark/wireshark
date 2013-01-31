@@ -836,12 +836,12 @@ proto_register_ltp(void)
 		  {"Report serial number","ltp.data.rpt",
 		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
 	  },
-/**
+#if 0
 	  {&hf_ltp_data_clidata,
 		  {"Client service data","ltp.data.data",
 		  FT_BYTES,BASE_NONE,NULL, 0x0, NULL, HFILL}
 	  },
-**/
+#endif
 	  {&hf_ltp_rpt_sno,
 		  {"Report serial number","ltp.rpt.sno",
 		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}

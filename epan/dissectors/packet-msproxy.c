@@ -1162,13 +1162,13 @@ proto_register_msproxy( void){
 			}
 		},
 
-/**
+#if 0
 		{ &hf_msproxy_srcport,
 			{ "Source Port", "msproxy.srcport", FT_UINT16,
 				BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
-**/
+#endif
 		{ &hf_msproxy_dstport,
 			{ "Destination Port", "msproxy.dstport", FT_UINT16,
 				BASE_DEC, NULL, 0x0, NULL, HFILL

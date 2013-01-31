@@ -537,13 +537,13 @@ proto_register_ismp(void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
-/**
+#if 0
 		{ &hf_ismp,
 			{ "ISMP", "ismp",
 			FT_PROTOCOL, BASE_NONE, NULL, 0x0,
 			"Inter Switch Message Protocol", HFILL }
 		},
-**/
+#endif
 		{ &hf_ismp_version,
 			{ "Version",           "ismp.version",
 			FT_UINT16, BASE_DEC, NULL, 0x0,

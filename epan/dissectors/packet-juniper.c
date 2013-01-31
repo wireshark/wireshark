@@ -1362,11 +1362,11 @@ void
 proto_register_juniper(void)
 {
   static hf_register_info hf[] = {
-/**
+#if 0
     { &hf_juniper_magic,
       { "Magic Number", "juniper.magic-number", FT_UINT24, BASE_HEX,
         NULL, 0x0, NULL, HFILL }},
-**/
+#endif
     { &hf_juniper_direction,
       { "Direction", "juniper.direction", FT_UINT8, BASE_HEX,
         VALS(juniper_direction_vals), 0x0, NULL, HFILL }},

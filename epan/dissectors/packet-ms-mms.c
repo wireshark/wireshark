@@ -1211,7 +1211,7 @@ void proto_register_msmms(void)
             }
         },
 
-/**
+#if 0
         {
             &hf_msmms_command_version,
             {
@@ -1224,7 +1224,7 @@ void proto_register_msmms(void)
                 NULL, HFILL
             }
         },
-**/
+#endif
         {
             &hf_msmms_command_signature,
             {

@@ -360,7 +360,7 @@ proto_register_mpls_y1711(void)
                 0x0, "Function Type codepoint", HFILL
             }
         },
-/**
+#if 0
         {
             &hf_mpls_y1711_ttsi,
             {
@@ -369,7 +369,7 @@ proto_register_mpls_y1711(void)
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
         },
-**/
+#endif
         {
             &hf_mpls_y1711_frequency,
             {

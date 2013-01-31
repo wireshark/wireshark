@@ -2634,10 +2634,10 @@ proto_register_mq(void)
         { &hf_mq_id_heartbeatinterval,
           { "Heartbeat interval", "mq.id.hbint", FT_UINT32, BASE_DEC, NULL, 0x0, "ID Heartbeat interval", HFILL }},
 
-/**
+#if 0
         { &hf_mq_id_unknown6,
           { "Unknown6", "mq.id.unknown6", FT_UINT16, BASE_HEX, NULL, 0x0, "ID unknown6", HFILL }},
-**/
+#endif
 
         { &hf_mq_id_ief_ccsid,
           { "Invalid CCSID", "mq.id.ief.ccsid", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF_CCSID, "ID invalid CCSID", HFILL }},

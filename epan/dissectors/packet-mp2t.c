@@ -1338,13 +1338,13 @@ proto_register_mp2t(void)
 			"Continuity Counter Drops", "mp2t.cc.drop",
 			FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL
 		} } ,
-/**
+#if 0
 		{ &hf_mp2t_analysis_flags, {
 			"MPEG2-TS Analysis Flags", "mp2t.analysis.flags",
 			FT_NONE, BASE_NONE, NULL, 0x0,
 			"This frame has some of the MPEG2 analysis flags set", HFILL
 		} } ,
-**/
+#endif
 		{ &hf_mp2t_analysis_skips, {
 			"TS Continuity Counter Skips", "mp2t.analysis.skips",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1487,12 +1487,12 @@ proto_register_mp2t(void)
 			"Marker Bit", "mp2t.af.e.m_3",
 			FT_UINT16, BASE_DEC, NULL, 0x0001, NULL, HFILL
 		} } ,
-/**
+#if 0
 		{ &hf_mp2t_payload, {
 			"Payload", "mp2t.payload",
 			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 		} } ,
-**/
+#endif
 		{ &hf_mp2t_stuff_bytes, {
 			"Stuffing", "mp2t.stuff_bytes",
 			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL

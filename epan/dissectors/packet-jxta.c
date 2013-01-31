@@ -2267,12 +2267,12 @@ void proto_register_jxta(void)
          {"Element Content Length", "jxta.message.element.content.length", FT_UINT64, BASE_DEC, NULL, 0x0,
           "JXTA Message Element Content Length", HFILL}
          },
-/**
+#if 0
         {&hf_jxta_element_content,
          {"Element Content", "jxta.message.element.content", FT_BYTES, BASE_NONE, NULL, 0x0,
           "JXTA Message Element Content", HFILL}
          },
-**/
+#endif
     };
 
     proto_jxta = proto_register_protocol("JXTA P2P", "JXTA", "jxta");

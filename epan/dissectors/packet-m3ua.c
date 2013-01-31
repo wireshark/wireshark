@@ -1985,9 +1985,9 @@ proto_register_m3ua(void)
     { &hf_parameter_length,                 { "Parameter length",             "m3ua.parameter_length",                      FT_UINT16, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
     { &hf_parameter_value,                  { "Parameter value",              "m3ua.parameter_value",                       FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
     { &hf_parameter_padding,                { "Padding",                      "m3ua.parameter_padding",                     FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
-/**
+#if 0
     { &hf_parameter_trailer,                { "Trailer",                      "m3ua.paramter_trailer",                      FT_BYTES,  BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
-**/
+#endif
     { &hf_network_appearance,               { "Network appearance",           "m3ua.network_appearance",                    FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },
     { &hf_info_string,                      { "Info string",                  "m3ua.info_string",                           FT_STRING, BASE_NONE, NULL,                                         0x0, NULL,				HFILL } },
     { &hf_routing_context,                  { "Routing context",              "m3ua.routing_context",                       FT_UINT32, BASE_DEC,  NULL,                                         0x0, NULL,				HFILL } },

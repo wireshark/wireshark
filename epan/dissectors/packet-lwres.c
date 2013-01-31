@@ -1107,11 +1107,11 @@ proto_register_lwres(void)
           { "Real doname name", "lwres.realname", FT_STRING, BASE_NONE, NULL, 0x0,
             "lwres realname", HFILL }},
 
-/**
+#if 0
         { &hf_a_record,
           { "IPv4 Address", "lwres.arecord", FT_UINT32, BASE_DEC, NULL, 0x0,
             "lwres arecord", HFILL }},
-**/
+#endif
 
         { &hf_a_rec_len,
           { "Length", "lwres.areclen", FT_UINT16, BASE_DEC, NULL, 0x0,

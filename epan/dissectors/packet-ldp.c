@@ -3063,18 +3063,18 @@ void
 proto_register_ldp(void)
 {
     static hf_register_info hf[] = {
-/**
+#if 0
         { &hf_ldp_req,
-          /-* Change the following to the type you need *-/
+          /* Change the following to the type you need */
           { "Request", "ldp.req", FT_BOOLEAN, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
-**/
+#endif
 
-/**
+#if 0
         { &hf_ldp_rsp,
           { "Response", "ldp.rsp", FT_BOOLEAN, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
-**/
+#endif
 
         { &hf_ldp_version,
           { "Version", "ldp.hdr.version", FT_UINT16, BASE_DEC,
@@ -3709,11 +3709,11 @@ proto_register_ldp(void)
           { "Resource Class", "ldp.msg.tlv.resource_class", FT_UINT32, BASE_HEX,
             NULL, 0, "Resource Class (Color)", HFILL}},
 
-/**
+#if 0
         { &hf_ldp_tlv_diffserv,
           { "Diff-Serv TLV", "ldp.msg.tlv.diffserv", FT_NONE, BASE_NONE,
             NULL, 0, "Diffserv TLV", HFILL}},
-**/
+#endif
 
         { &hf_ldp_tlv_diffserv_type,
           { "LSP Type", "ldp.msg.tlv.diffserv.type", FT_UINT8, BASE_DEC,

@@ -1275,11 +1275,11 @@ proto_register_mux27010 (void)
           { "C/R Address Flag", "mux27010.address.craddress",
             FT_BOOLEAN, 8, NULL, MUX27010_CR_ADDRESS_FLAG, NULL, HFILL }},
 
-/**
+#if 0
         { &hf_mux27010_addressdirection,
           { "Direction", "mux27010.address.direction",
             FT_UINT8, BASE_HEX, NULL, MUX27010_CR_ADDRESS_FLAG, NULL, HFILL }},
-**/
+#endif
 
         /*Control frame*/
 
@@ -1382,11 +1382,11 @@ proto_register_mux27010 (void)
           { "DLCI number (decimal)", "mux27010.controlchannel.value.detailedvaluemscdlci",
             FT_UINT8, BASE_DEC, NULL, MUX27010_VALUE_CONTROLCHANNEL_MSC_DCLI, NULL, HFILL }},
 
-/**
+#if 0
         { &hf_mux27010_controlchanneldetailedvaluemscv24,
           { "V.24 Signal", "mux27010.controlchannel.value.detailedvaluemscv24",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-**/
+#endif
 
         { &hf_mux27010_controlchanneldetailedvaluemscv24fc,
           { "FC", "mux27010.controlchannel.value.detailedvaluemscv24.fc",

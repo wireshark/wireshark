@@ -678,13 +678,13 @@ proto_register_lon(void)
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-/**
+#if 0
 		{&hf_lon_checksum,
 			{"Checksum", "lon.chksum",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		}
-**/
+#endif
 	};
 
 	static gint *ett[] =

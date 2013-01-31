@@ -1521,7 +1521,7 @@ proto_register_mmse(void)
 		HFILL
 	    }
 	},
-/**
+#if 0
 	{   &hf_mmse_content_type,
 	    {   "Data", "mmse.content_type",
 		FT_NONE, BASE_NONE, NULL, 0x00,
@@ -1529,7 +1529,7 @@ proto_register_mmse(void)
 		HFILL
 	    }
 	},
-**/
+#endif
 	{   &hf_mmse_ffheader,
 	    {   "Free format (not encoded) header", "mmse.ffheader",
 		FT_STRING, BASE_NONE, NULL, 0x00,

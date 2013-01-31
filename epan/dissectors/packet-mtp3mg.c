@@ -1425,24 +1425,24 @@ proto_register_mtp3mg(void)
 	    { "Affected Point Code", "mtp3mg.ansi_apc",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
 	      NULL, HFILL }},
-/**
+#if 0
 	{ &hf_mtp3mg_upu_apc_member,
 	    { "Affected Point Code member", "mtp3mg.apc.member",
 	      FT_UINT24, BASE_DEC, NULL, ANSI_MEMBER_MASK,
 	      NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
 	{ &hf_mtp3mg_upu_apc_cluster,
 	    { "Affected Point Code cluster", "mtp3mg.apc.cluster",
 	      FT_UINT24, BASE_DEC, NULL, ANSI_CLUSTER_MASK,
 	      NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
 	{ &hf_mtp3mg_upu_apc_network,
 	    { "Affected Point Code network", "mtp3mg.apc.network",
 	      FT_UINT24, BASE_DEC, NULL, ANSI_NETWORK_MASK,
 	      NULL, HFILL }},
-**/
+#endif
 	{ &hf_mtp3mg_upu_itu_apc,
 	    { "Affected Point Code", "mtp3mg.apc",
 	      FT_UINT16, BASE_DEC, NULL, ITU_PC_MASK,
