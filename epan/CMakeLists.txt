@@ -354,6 +354,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-aruba-adp.c
 	dissectors/packet-aruba-erm.c
 	dissectors/packet-aruba-papi.c
+	dissectors/packet-ar_drone.c
 	dissectors/packet-asap.c
 	dissectors/packet-ascend.c
 	dissectors/packet-asf.c
