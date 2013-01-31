@@ -2587,8 +2587,8 @@ pre_init_prefs(void)
   prefs.gui_marked_fg.blue         =     65535;
   prefs.gui_marked_bg.pixel        =         0;
   prefs.gui_marked_bg.red          =         0;
-  prefs.gui_marked_bg.green        =         0;
-  prefs.gui_marked_bg.blue         =         0;
+  prefs.gui_marked_bg.green        =      8224;
+  prefs.gui_marked_bg.blue         =     10794;
   prefs.gui_ignored_fg.pixel       =     32767;
   prefs.gui_ignored_fg.red         =     32767;
   prefs.gui_ignored_fg.green       =     32767;
