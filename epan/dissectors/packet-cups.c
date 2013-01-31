@@ -120,9 +120,9 @@ static const guint8* get_unquoted_string(tvbuff_t *tvb, gint offset,
 static void
 dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*cups_tree = 0;
-	proto_tree	*ptype_subtree = 0;
-	proto_item	*ti = 0;
+	proto_tree	*cups_tree = NULL;
+	proto_tree	*ptype_subtree = NULL;
+	proto_item	*ti = NULL;
 	gint		offset = 0;
 	gint		next_offset;
 	guint		len;
@@ -133,11 +133,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_CUPS);
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_cups, tvb, offset, -1,
-		    ENC_NA);
-		cups_tree = proto_item_add_subtree(ti, ett_cups);
-	}
+   ti = proto_tree_add_item(tree, proto_cups, tvb, offset, -1, ENC_NA);
+   cups_tree = proto_item_add_subtree(ti, ett_cups);
 
 	/* Format (1450 bytes max.):  */
 	/* type state uri ["location" ["info" ["make-and-model"]]]\n */
@@ -145,29 +142,27 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ptype = get_hex_uint(tvb, offset, &next_offset);
 	len = next_offset - offset;
 	if (len != 0) {
-		if (cups_tree) {
-			ti = proto_tree_add_uint(cups_tree, hf_cups_ptype, tvb, offset, len, ptype);
-			ptype_subtree = proto_item_add_subtree(ti, ett_cups_ptype);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_default, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_implicit, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_variable, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_large, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_medium, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_small, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_sort, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_bind, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_cover, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_punch, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_collate, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_copies, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_staple, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_duplex, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_color, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_bw, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_remote, tvb, offset, len, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ptype_subtree, hf_cups_ptype_class, tvb, offset, len, ENC_BIG_ENDIAN);
-		}
-	}
+      ti = proto_tree_add_uint(cups_tree, hf_cups_ptype, tvb, offset, len, ptype);
+      ptype_subtree = proto_item_add_subtree(ti, ett_cups_ptype);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_default, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_implicit, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_variable, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_large, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_medium, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_small, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_sort, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_bind, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_cover, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_punch, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_collate, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_copies, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_staple, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_duplex, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_color, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_bw, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_remote, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(ptype_subtree, hf_cups_ptype_class, tvb, offset, len, ENC_BIG_ENDIAN);
+   }
 	offset = next_offset;
 
 	if (!skip_space(tvb, offset, &next_offset))
@@ -190,11 +185,10 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	str = get_unquoted_string(tvb, offset, &next_offset, &len);
 	if (str == NULL)
 		return;	/* separator/terminator not found */
-	if (cups_tree)
-		proto_tree_add_text(cups_tree, tvb, offset, len,
-		    "URI: %.*s",
-		    (guint16) len, str);
-	col_add_fstr(pinfo->cinfo, COL_INFO,
+   proto_tree_add_text(cups_tree, tvb, offset, len,
+         "URI: %.*s",
+         (guint16) len, str);
+   col_add_fstr(pinfo->cinfo, COL_INFO,
 	    "%.*s (%s)",
 	    (guint16) len, str,
 	    val_to_str(state, cups_state_values, "0x%x"));
@@ -237,9 +231,6 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_text(cups_tree, tvb, offset+1, len,
 	    "Make and model: \"%.*s\"",
 	    (guint16) len, str);
-	offset = next_offset;
-
-	return;
 }
 
 static guint
