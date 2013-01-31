@@ -3062,6 +3062,14 @@ to the DISSECTOR_SRC section of epan/CMakeLists.txt
     as follows:
     perl <wireshark_root>/tools/checkAPIs.pl <source-filename(s)>
 
+  - VERIFY that your dissector code does not contain any header field related
+    problems:
+    perl <wireshark_root>/tools/checkhf.pl <source-filename(s)>
+
+  - VERIFY that your dissector code does not contain any display filter related
+    problems:
+    perl <wireshark_root>/tools/checkfiltername.pl <source-filename(s)>
+
   - TEST YOUR DISSECTOR BEFORE SUBMITTING IT.
     Use fuzz-test.sh and/or randpkt against your dissector.  These are
     described at <http://wiki.wireshark.org/FuzzTesting>.
