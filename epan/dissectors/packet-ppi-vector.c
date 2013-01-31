@@ -286,8 +286,8 @@ annotate_vector_chars(guint32 chars, proto_tree *my_pt)
 static void
 dissect_ppi_vector_v1(tvbuff_t *tvb, int offset, gint length_remaining, proto_tree *ppi_vector_tree)
 {
-    proto_tree *vectorflags_tree = NULL;
-    proto_tree *vectorchars_tree = NULL;
+    proto_tree *vectorflags_tree          = NULL;
+    proto_tree *vectorchars_tree          = NULL;
     proto_tree *my_pt, *pt, *present_tree = NULL;
     proto_item *ti;
 
@@ -313,30 +313,30 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
                                  tvb, offset + 4, 4, present);
         present_tree = proto_item_add_subtree(pt, ett_ppi_vector_present);
 
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vflags, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vchars, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_x, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_y, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_z, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_r, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_f, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_u, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_r, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_f, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_u, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_t, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_r, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_f, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_u, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_t, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_rot, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_off, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_vel, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_acc, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_descstr, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_presenappsecific_num, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vflags,           tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vchars,           tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_x,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_y,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_z,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_r,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_f,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_u,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_r,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_f,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_u,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vel_t,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_r,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_f,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_u,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_acc_t,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_rot,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_off,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_vel,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_acc,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_descstr,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_presenappsecific_num,     tvb, 4, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(present_tree, hf_ppi_vector_present_appspecific_data, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_ext, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_ext,              tvb, 4, 4, ENC_LITTLE_ENDIAN);
     }
     offset += PPI_GEOBASE_MIN_HEADER_LEN;
     length_remaining -= PPI_GEOBASE_MIN_HEADER_LEN;
@@ -661,8 +661,8 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
 static void
 dissect_ppi_vector_v2(tvbuff_t *tvb, int offset, gint length_remaining, proto_tree *ppi_vector_tree, proto_item *vector_line)
 {
-    proto_tree *vectorflags_tree = NULL;
-    proto_tree *vectorchars_tree = NULL;
+    proto_tree *vectorflags_tree          = NULL;
+    proto_tree *vectorchars_tree          = NULL;
     proto_tree *my_pt, *pt, *present_tree = NULL;
     proto_item *ti;
 
@@ -694,20 +694,20 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
                                  tvb, offset + 4, 4, present);
         present_tree = proto_item_add_subtree(pt, ett_ppi_vector_present);
 
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vflags, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_vchars, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_x, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_y, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_z, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_x, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_y, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_z, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_rot, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_off, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_descstr, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_presenappsecific_num, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vflags,           tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_vchars,           tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_x,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_y,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_val_z,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_x,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_y,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_off_z,            tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_rot,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_err_off,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_descstr,          tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_presenappsecific_num,     tvb, 4, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(present_tree, hf_ppi_vector_present_appspecific_data, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(present_tree, hf_ppi_vector_present_ext, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_vector_present_ext,              tvb, 4, 4, ENC_LITTLE_ENDIAN);
     }
     offset += PPI_GEOBASE_MIN_HEADER_LEN;
     length_remaining -= PPI_GEOBASE_MIN_HEADER_LEN;
@@ -955,10 +955,10 @@ static void
 dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *ppi_vector_tree = NULL;
-    proto_item *ti = NULL;
-    proto_item *vector_line = NULL;
-    gint length_remaining;
-    int offset = 0;
+    proto_item *ti              = NULL;
+    proto_item *vector_line     = NULL;
+    gint        length_remaining;
+    int         offset          = 0;
 
     /* values actually read out, for displaying */
     guint32 version;
@@ -1201,15 +1201,15 @@ proto_register_ppi_vector(void)
             FT_UINT32, BASE_HEX, NULL, 0x0,
             "Bitmask indicating if vector tracks antenna, vehicle, motion, etc", HFILL } },
         { &hf_ppi_vector_rot_x,
-          { "Pitch   ", "ppi_vector.pitch", /*extra spaces intentional. casuses field values to align*/
+          { "Pitch", "ppi_vector.pitch",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Pitch (Rotation x) packet was received at", HFILL } },
         { &hf_ppi_vector_rot_y,
-          { "Roll    ", "ppi_vector.roll", /*extra spaces intentional. casuses field values to align*/
+          { "Roll", "ppi_vector.roll",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Roll (Rotation y) packet was received at", HFILL } },
         { &hf_ppi_vector_rot_z,
-          { "Heading ", "ppi_vector.heading", /*extra spaces intentional. casuses field values to align*/
+          { "Heading", "ppi_vector.heading",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Heading (Rotation z) packet was received at", HFILL } },
 
