@@ -1347,17 +1347,17 @@ proto_register_umts_mac(void)
             FT_UINT16, BASE_DEC, VALS(mac_logical_channel_vals), 0, NULL, HFILL }
         },
 
-/**
+#if 0
          { &hf_mac_channel_str,
           { "Logical Channel", "mac.logical_channel",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
-**/
-/**
+#endif
+#if 0
         { &hf_mac_channel_hsdsch,
             { "MACd-FlowID", "mac.macd_flowid", FT_UINT16, BASE_DEC, NULL, 0x0,  NULL, HFILL }
         },
-**/
+#endif
         { &hf_mac_macdflowd_id,
             { "MACd-FlowID", "mac.macd_flowid", FT_UINT16, BASE_DEC, NULL, 0x0,  NULL, HFILL }
         },
@@ -1367,38 +1367,38 @@ proto_register_umts_mac(void)
         { &hf_mac_trch_id,
             { "Transport Channel ID", "mac.transport_channel_id", FT_UINT16, BASE_DEC, NULL, 0x0,  NULL, HFILL }
         },
-/**
+#if 0
         { &hf_mac_edch_type2_descriptors,
           { "MAC-is Descriptors",
             "mac.edch.type2.descriptors", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL
           }
         },
-**/
-/**
+#endif
+#if 0
         { &hf_mac_edch_type2_lchid,
           { "LCH-ID",
             "mac.logical_channel_id", FT_UINT8, BASE_HEX, NULL, 0xf0,
             NULL, HFILL
           }
         },
-**/
-/**
+#endif
+#if 0
         { &hf_mac_edch_type2_length,
           { "Length",
             "mac.edch.type2.length", FT_UINT16, BASE_DEC, NULL, 0x0ffe,
             NULL, HFILL
           }
         },
-**/
-/**
+#endif
+#if 0
         { &hf_mac_edch_type2_flag,
           { "Flag",
             "mac.edch.type2.lchid", FT_UINT8, BASE_HEX, NULL, 0x01,
             "Indicates if another entry follows", HFILL
           }
         },
-**/
+#endif
         { &hf_mac_edch_type2_ss,
           { "SS",
             /* TODO: VALS */
@@ -1424,14 +1424,14 @@ proto_register_umts_mac(void)
             NULL, HFILL
           }
         },
-/**
+#if 0
         { &hf_mac_edch_type2_subframe_header,
           { "Subframe header",
             "mac.edch.type2.subframeheader", FT_STRING, BASE_NONE, NULL, 0x0,
             "EDCH Subframe header", HFILL
           }
         },
-**/
+#endif
         { &hf_mac_is_reasmin,
           { "Reassembled in frame", "mac.is.reasmin",
             FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL }

@@ -1561,11 +1561,11 @@ proto_register_nis(void)
 			"column", "nisplus.entry.col", FT_NONE, BASE_NONE,
 			NULL, 0, "Entry Column", HFILL }},
 
-/**
+#if 0
 		{ &hf_nisplus_entry_flags, {
 			"flags", "nisplus.entry.flags", FT_UINT32, BASE_HEX,
 			NULL, 0, "Entry Col Flags", HFILL }},
-**/
+#endif
 
 		{ &hf_nisplus_entry_val, {
 			"val", "nisplus.entry.val", FT_STRING, BASE_NONE,

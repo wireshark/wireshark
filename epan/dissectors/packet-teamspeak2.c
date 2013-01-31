@@ -903,14 +903,14 @@ void proto_register_ts2(void)
 		    NULL, 0x0,
 		    NULL, HFILL }
 		},
-/**
+#if 0
 		{ &hf_ts2_string,
 		  { "String", "ts2.string",
 		    FT_STRING, BASE_NONE,
 		    NULL, 0x0,
 		    NULL, HFILL }
 		},
-**/
+#endif
 		{ &hf_ts2_registeredlogin,
 		  { "Registered Login", "ts2.registeredlogin",
 		    FT_BOOLEAN, BASE_NONE,

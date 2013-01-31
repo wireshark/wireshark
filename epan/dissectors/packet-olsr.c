@@ -825,14 +825,14 @@ void proto_register_olsr(void) {
       }
     },
 
-/**
+#if 0
     { &hf_olsr_neighbor6,
       { "Neighbor Address", "olsr.neighbor6",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL
       }
     },
-**/
+#endif
 
     { &hf_olsr_origin6_addr,
       { "Originator Address", "olsr.origin6_addr",

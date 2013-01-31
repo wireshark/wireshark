@@ -1267,7 +1267,7 @@ proto_register_ses(void)
 			}
 		},
 
-/**
+#if 0
 		{
 			&hf_ses_version,
 			{
@@ -1280,8 +1280,8 @@ proto_register_ses(void)
 				NULL, HFILL
 			}
 		},
-**/
-/**
+#endif
+#if 0
 		{
 			&hf_ses_reserved,
 			{
@@ -1294,7 +1294,7 @@ proto_register_ses(void)
 				NULL, HFILL
 			}
 		},
-**/
+#endif
 		{
 			&hf_called_ss_user_reference,
 			{

@@ -908,11 +908,11 @@ proto_register_scsi_smc(void)
 	{ &hf_scsi_smc_range,
           {"RANGE", "scsi_smc.range", FT_BOOLEAN, 8,
            NULL, 0x01, NULL, HFILL}},
-/**
+#if 0
         { &hf_scsi_smc_sea,
           {"Starting Element Address", "scsi_smc.sea", FT_UINT16, BASE_DEC,
            NULL, 0x0, NULL, HFILL}},
-**/
+#endif
         { &hf_scsi_smc_num_elements,
           {"Number of Elements", "scsi_smc.num_elements", FT_UINT16, BASE_DEC,
            NULL, 0x0, NULL, HFILL}},

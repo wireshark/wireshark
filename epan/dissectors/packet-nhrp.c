@@ -1177,13 +1177,13 @@ proto_register_nhrp(void)
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-/**
+#if 0
         { &hf_nhrp_src_nbma_saddr,
           { "Source NBMA Sub Address", "nhrp.src.nbma.saddr",
             FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_nhrp_src_prot_addr,
           { "Source Protocol Address", "nhrp.src.prot.addr",
             FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -1265,13 +1265,13 @@ proto_register_nhrp(void)
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-/**
+#if 0
         { &hf_nhrp_client_nbma_saddr,
           { "Client NBMA Sub Address", "nhrp.client.nbma.saddr",
             FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_nhrp_client_prot_addr,
           { "Client Protocol Address", "nhrp.client.prot.addr",
             FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -1293,13 +1293,13 @@ proto_register_nhrp(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-/**
+#if 0
         { &hf_nhrp_ext_value,
           { "Extension Value", "nhrp.ext.val",
             FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-**/
+#endif
 
         { &hf_nhrp_error_code,
           { "Error Code", "nhrp.err.code",
@@ -1311,13 +1311,13 @@ proto_register_nhrp(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-/**
+#if 0
         { &hf_nhrp_error_packet,
           { "Errored Packet", "nhrp.err.pkt",
             FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_nhrp_auth_ext_reserved,
           { "Reserved", "nhrp.auth_ext.reserved",
             FT_UINT16, BASE_DEC, NULL, 0x0,

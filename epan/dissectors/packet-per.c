@@ -2543,12 +2543,12 @@ proto_register_per(void)
       { "integer length", "per.integer_length",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-/**
+#if 0
 	{ &hf_per_debug_pos,
       { "Current bit offset", "per.debug_pos",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-**/
+#endif
 	};
 	static gint *ett[] =
 	{

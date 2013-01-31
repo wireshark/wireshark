@@ -2972,17 +2972,17 @@ proto_register_sna(void)
                 { "Received Sequence Number", "sna.nlp.thdr.optional.0e.rseq",
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-/**
+#if 0
                 { &hf_sna_nlp_opti_0e_abspbeg,
                 { "ABSP Begin", "sna.nlp.thdr.optional.0e.abspbeg",
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-**/
+#endif
 
-/**
+#if 0
                 { &hf_sna_nlp_opti_0e_abspend,
                 { "ABSP End", "sna.nlp.thdr.optional.0e.abspend",
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-**/
+#endif
 
                 { &hf_sna_nlp_opti_0f_bits,
                 { "Client Bits", "sna.nlp.thdr.optional.0f.bits",
@@ -3257,11 +3257,11 @@ proto_register_sna(void)
 		{ "Type of Variable", "sna.gds.type", FT_UINT16, BASE_HEX,
 		    VALS(sna_gds_var_vals), 0x0, NULL, HFILL }},
 
-/**
+#if 0
 		{ &hf_sna_xid,
 		{ "XID", "sna.xid", FT_NONE, BASE_NONE, NULL, 0x0,
 		    "XID Frame", HFILL }},
-**/
+#endif
 
 		{ &hf_sna_xid_0,
 		{ "XID Byte 0", "sna.xid.0", FT_UINT8, BASE_HEX, NULL, 0x0,

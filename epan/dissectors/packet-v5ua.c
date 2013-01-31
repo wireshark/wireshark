@@ -1516,12 +1516,12 @@ proto_register_v5ua(void)
 			{ "Message Type",           "v5ua.msg_type",
 			   FT_UINT8,    BASE_DEC, NULL,                             0x0,
 			   NULL, HFILL } },
-/**
+#if 0
 		{ &hf_msg_type_id,
 			{ "Message Type ID",        "v5ua.msg_type_id",
 			   FT_UINT8,    BASE_DEC, VALS(msg_class_type_values),      0x0,
 			   NULL, HFILL } },
-**/
+#endif
 		{ &hf_msg_length,
 			{ "Message length",         "v5ua.msg_length",
 			   FT_UINT32,   BASE_DEC, NULL,                             0x0,
@@ -1579,12 +1579,12 @@ proto_register_v5ua(void)
 			{ "Envelope Function Address","v5ua.efa",
 			   FT_UINT16,   BASE_DEC, VALS(efa_values),                 0x0,
 			   NULL, HFILL } },
-/**
+#if 0
 		{ &hf_spare_efa,
 			{ "Envelope Function Address (spare)","v5ua.efa",
 			   FT_UINT16,   BASE_DEC, NULL,                              ~7,
 			   NULL, HFILL } },
-**/
+#endif
 		{ &hf_asp_reason,
 			{ "Reason",                 "v5ua.asp_reason",
 			   FT_UINT32,   BASE_HEX, VALS(asp_reason_values),          0x0,

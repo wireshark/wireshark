@@ -2252,18 +2252,18 @@ proto_register_v52(void)
         { &hf_v52_discriminator,
           { "Protocol discriminator", "v52.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
-/**
+#if 0
         { &hf_v52_address,
           { "Address",    "v52.address",
              FT_UINT8,    BASE_HEX, NULL,                               0xff,
              NULL, HFILL } },
-**/
-/**
+#endif
+#if 0
         { &hf_v52_low_address,
           { "Address Low",    "v52.low_address",
              FT_UINT8,    BASE_HEX, NULL,                               0xff,
              NULL, HFILL } },
-**/
+#endif
 /* ISDN */
         { &hf_v52_isdn_address,
           { "Address isdn",    "v52.isdn_address",
@@ -2310,18 +2310,18 @@ proto_register_v52(void)
           FT_UINT8,    BASE_HEX, NULL,                                  0xff,
           NULL, HFILL } },
 /* CONTROL */
-/**
+#if 0
         { &hf_v52_ctrl_address,
           { "Address ctrl",    "v52.ctrl_address",
           FT_UINT8,    BASE_HEX, NULL,                                  0xff,
           NULL, HFILL } },
-**/
-/**
+#endif
+#if 0
         { &hf_v52_ctrl_low_address,
           { "Address ctrl Low",    "v52.ctrl_low_address",
           FT_UINT8,    BASE_HEX, NULL,                                  0xff,
           NULL, HFILL } },
-**/
+#endif
 /* OTHER */
         {&hf_v52_msg_type,
           { "Message type",   "v52.msg_type",

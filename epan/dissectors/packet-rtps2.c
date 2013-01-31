@@ -9095,7 +9095,7 @@ void proto_register_rtps2(void) {
     },
 
     /* Counter ------------------------------------------------------------- */
-/**
+#if 0
     { &hf_rtps_counter, {               / * HIDDEN * /
         "counter",
         "rtps2.counter",
@@ -9106,7 +9106,7 @@ void proto_register_rtps2(void) {
         "Sub-component 'counter' of the GuidPrefix of the RTPS packet",
         HFILL }
     },
-**/
+#endif
 
     /* Submessage ID ------------------------------------------------------- */
     { &hf_rtps_sm_id, {
@@ -9177,7 +9177,7 @@ void proto_register_rtps2(void) {
         "AppId component of the rtps2.sm.guidPrefix",
         HFILL }
     },
-/**
+#if 0
     { &hf_rtps_sm_instance_id, {
         "instanceId",
         "rtps2.sm.guidPrefix.appId.instanceId",
@@ -9188,8 +9188,8 @@ void proto_register_rtps2(void) {
         "instanceId component of the AppId of the rtps2.sm.guidPrefix",
         HFILL }
     },
-**/
-    /**
+#endif
+#if 0
     { &hf_rtps_sm_app_kind, {
         "appKind",
         "rtps2.sm.guidPrefix.appId.appKind",
@@ -9200,7 +9200,7 @@ void proto_register_rtps2(void) {
         "appKind component of the AppId of the rtps2.sm.guidPrefix",
         HFILL }
     },
-    **/
+#endif
 
     { &hf_rtps_sm_counter, {
         "counter",

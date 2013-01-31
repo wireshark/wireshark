@@ -7449,14 +7449,14 @@ proto_register_netflow(void)
           FT_UINT64, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
-/**
+#if 0
         {&hf_cflow_transport_packets_out_of_order,
          {"Transport Packets Out of Order",
           "cflow.transport_packets_out_of_order",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
-**/
+#endif
         {&hf_cflow_transport_packets_out_of_order_string,
          {"Transport Packets Out of Order",
           "cflow.transport_packets_out_of_order",

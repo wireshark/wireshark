@@ -3869,11 +3869,11 @@ proto_register_ndmp(void)
 		"CDB length", "ndmp.execute_cdb.cdb_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of CDB", HFILL }},
 
-/**
+#if 0
 	{ &hf_ndmp_execute_cdb_dataout, {
 		"Data out", "ndmp.execute_cdb.dataout", FT_BYTES, BASE_NONE,
 		NULL, 0, "Data to be transferred to the SCSI device", HFILL }},
-**/
+#endif
 
 	{ &hf_ndmp_execute_cdb_status, {
 		"Status", "ndmp.execute_cdb.status", FT_UINT8, BASE_DEC,
@@ -3883,11 +3883,11 @@ proto_register_ndmp(void)
 		"Data out length", "ndmp.execute_cdb.dataout_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes transferred to the device", HFILL }},
 
-/**
+#if 0
 	{ &hf_ndmp_execute_cdb_datain, {
 		"Data in", "ndmp.execute_cdb.datain", FT_BYTES, BASE_NONE,
 		NULL, 0, "Data transferred from the SCSI device", HFILL }},
-**/
+#endif
 
 	{ &hf_ndmp_execute_cdb_sns_len, {
 		"Sense data length", "ndmp.execute_cdb.sns_len", FT_UINT32, BASE_DEC,

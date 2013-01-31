@@ -2655,13 +2655,13 @@ proto_register_tipc(void)
 				FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 				NULL, HFILL }
 		},
-/**
+#if 0
 		{ &hf_tipcv2_bcast_seq_no,
 			{ "Broadcast Sequence Number", "tipcv2.bcast_seq_no",
 				FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 				NULL, HFILL }
 		},
-**/
+#endif
 		{ &hf_tipcv2_prev_node,
 			{ "Previous Node", "tipcv2.prev_node",
 				FT_STRING, BASE_NONE, NULL, 0x0,

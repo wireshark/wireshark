@@ -439,19 +439,19 @@ proto_register_tzsp(void)
 		{ &hf_tzsp_encap, {
 			"Encapsulation", "tzsp.encap", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
-/**
+#if 0
 		{ &hf_status_field, {
 			"Status", "tzsp.wlan.status", FT_UINT16, BASE_HEX,
 				NULL, 0, NULL, HFILL }},
-**/
+#endif
 		{ &hf_status_msg_type, {
 			"Type", "tzsp.wlan.status.msg_type", FT_UINT8, BASE_HEX,
 			VALS(msg_type), 0, "Message type", HFILL }},
-/**
+#if 0
 		{ &hf_status_mac_port, {
 			"Port", "tzsp.wlan.status.mac_port", FT_UINT8, BASE_DEC,
 			NULL, 0, "MAC port", HFILL }},
-**/
+#endif
 		{ &hf_status_pcf, {
 			"PCF", "tzsp.wlan.status.pcf", FT_BOOLEAN, BASE_NONE,
 			TFS (&pcf_flag), 0x0, "Point Coordination Function", HFILL }},

@@ -4103,13 +4103,13 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         /*parameterlength > 0*/
-/**
+#if 0
         { &hf_ptp_mm_messageparameters,
           { "messageParameters",           "ptp.mm.messageparameters",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-**/
+#endif
         /*ptp_mm_clock_identity (parameterlength = 64)*/
         { &hf_ptp_mm_clock_identity_clockcommunicationtechnology,
           { "clockCommunicationTechnology",           "ptp.mm.clock.identity.clockcommunicationtechnology",
@@ -4511,13 +4511,13 @@ proto_register_ptp(void)
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-/**
+#if 0
         { &hf_ptp_mm_update_global_time_properties_epochnumber,
           { "epochNumber",           "ptp.mm.update.global.time.properties.epochnumber",
             FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-**/
+#endif
         /*ptp_mm_get_foreign_data_set (parameterlength = 4)*/
         { &hf_ptp_mm_get_foreign_data_set_recordkey,
           { "recordKey",           "ptp.mm.get.foreign.data.set.recordkey",
@@ -4721,13 +4721,13 @@ proto_register_ptp(void)
         },
 
         /*Fields for PTP_Announce (=an) messages*/
-/**
+#if 0
         { &hf_ptp_v2_an_origintimestamp,
           { "originTimestamp",           "ptp.v2.an.origintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_ptp_v2_an_origintimestamp_seconds,
           { "originTimestamp (seconds)",           "ptp.v2.an.origintimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
@@ -4878,13 +4878,13 @@ proto_register_ptp(void)
         },
 
         /*Fields for PTP_Sync AND PTP_DelayRequest (=sdr) messages*/
-/**
+#if 0
         { &hf_ptp_v2_sdr_origintimestamp,
           { "originTimestamp",           "ptp.v2.sdr.origintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_ptp_v2_sdr_origintimestamp_seconds,
           { "originTimestamp (seconds)",           "ptp.v2.sdr.origintimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
@@ -4897,13 +4897,13 @@ proto_register_ptp(void)
         },
 
         /*Fields for PTP_Follow_Up (=fu) messages*/
-/**
+#if 0
         { &hf_ptp_v2_fu_preciseorigintimestamp,
           { "preciseOriginTimestamp",           "ptp.v2.fu.preciseorigintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_ptp_v2_fu_preciseorigintimestamp_seconds,
           { "preciseOriginTimestamp (seconds)",           "ptp.v2.fu.preciseorigintimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
@@ -4957,13 +4957,13 @@ proto_register_ptp(void)
         },
 
         /*Fields for PTP_DelayResponse (=dr) messages*/
-/**
+#if 0
         { &hf_ptp_v2_dr_receivetimestamp,
           { "receiveTimestamp",           "ptp.v2.dr.receivetimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_ptp_v2_dr_receivetimestamp_seconds,
           { "receiveTimestamp (seconds)",           "ptp.v2.dr.receivetimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
@@ -4986,13 +4986,13 @@ proto_register_ptp(void)
         },
 
         /*Fields for PTP_PDelayRequest (=pdrq) messages*/
-/**
+#if 0
         { &hf_ptp_v2_pdrq_origintimestamp,
           { "originTimestamp",           "ptp.v2.pdrq.origintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_ptp_v2_pdrq_origintimestamp_seconds,
           { "originTimestamp (seconds)",           "ptp.v2.pdrq.origintimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
@@ -5005,13 +5005,13 @@ proto_register_ptp(void)
         },
 
         /*Fields for PTP_PDelayResponse (=pdrs) messages*/
-/**
+#if 0
         { &hf_ptp_v2_pdrs_requestreceipttimestamp,
           { "requestreceiptTimestamp",           "ptp.v2.pdrs.requestreceipttimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_ptp_v2_pdrs_requestreceipttimestamp_seconds,
           { "requestreceiptTimestamp (seconds)",           "ptp.v2.pdrs.requestreceipttimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
@@ -5034,13 +5034,13 @@ proto_register_ptp(void)
         },
 
         /*Fields for PTP_PDelayResponseFollowUp (=pdfu) messages*/
-/**
+#if 0
         { &hf_ptp_v2_pdfu_responseorigintimestamp,
           { "responseOriginTimestamp",           "ptp.v2.pdfu.responseorigintimestamp",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_ptp_v2_pdfu_responseorigintimestamp_seconds,
           { "responseOriginTimestamp (seconds)",           "ptp.v2.pdfu.responseorigintimestamp.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,
@@ -5304,13 +5304,13 @@ proto_register_ptp(void)
             FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-/**
+#if 0
         { &hf_ptp_v2_mm_faultRecord,
           { "fault record",  "ptp.v2.mm.faultRecord",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_ptp_v2_mm_faultRecordLength,
           { "fault record length",           "ptp.v2.mm.faultRecordLength",
             FT_UINT16, BASE_DEC, NULL, 0x00,
@@ -5351,13 +5351,13 @@ proto_register_ptp(void)
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-/**
+#if 0
         { &hf_ptp_v2_mm_faultTime,
           { "Fault time", "ptp.v2.mm.faultTime",
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-**/
+#endif
         { &hf_ptp_v2_mm_faultTime_s,
           { "Fault time (seconds)", "ptp.v2.mm.faultTime.seconds",
             FT_UINT64, BASE_DEC, NULL, 0x00,

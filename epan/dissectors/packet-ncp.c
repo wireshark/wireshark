@@ -1022,12 +1022,12 @@ proto_register_ncp(void)
           { "Control Code",                     "ncp.control_code",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
-/**
+#if 0
         { &hf_ncp_fragment_handle,
           { "Fragment Handle",                  "ncp.fragger_hndl",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
-**/
+#endif
         { &hf_lip_echo,
           { "Large Internet Packet Echo",       "ncp.lip_echo",
             FT_STRING, BASE_NONE, NULL, 0x0,

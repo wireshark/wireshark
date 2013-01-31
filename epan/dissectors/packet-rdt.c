@@ -1520,7 +1520,7 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
-/**
+#if 0
         {
             &hf_rdt_rtt_request_flags,
             {
@@ -1533,8 +1533,8 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
-**/
-/**
+#endif
+#if 0
         {
             &hf_rdt_rtt_response_flags,
             {
@@ -1547,8 +1547,8 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
-**/
-/**
+#endif
+#if 0
         {
             &hf_rdt_congestion_flags,
             {
@@ -1561,7 +1561,7 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
-**/
+#endif
         {
             &hf_rdt_report_flags,
             {
@@ -1574,7 +1574,7 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
-/**
+#if 0
         {
             &hf_rdt_tirq_flags,
             {
@@ -1587,7 +1587,7 @@ void proto_register_rdt(void)
                 NULL, HFILL
             }
         },
-**/
+#endif
         {
             &hf_rdt_tirp_flags,
             {

@@ -294,12 +294,12 @@ void proto_register_roofnet(void)
 	FT_UINT32, BASE_DEC, NULL, 0x0, "Roofnet Sequential Number", HFILL }
     },
 
-/**
+#if 0
     { &hf_roofnet_links,
       { "Links", "roofnet.links",
       FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-**/
+#endif
 
     { &hf_roofnet_link_src,
       { "Source IP", "roofnet.link.src",

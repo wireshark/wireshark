@@ -2470,18 +2470,18 @@ proto_register_rdp(void) {
       { "Pad3", "rdp.Pad3",
         FT_UINT16, BASE_HEX, NULL, 0,
         NULL, HFILL }},
-/**
+#if 0
     { &hf_rdp_Key1,
       { "Key1", "rdp.Key1",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
     { &hf_rdp_Key2,
       { "Key2", "rdp.Key2",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }},
-**/
+#endif
     { &hf_rdp_originatorId,
       { "originatorId", "rdp.OriginatorId",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2522,12 +2522,12 @@ proto_register_rdp(void) {
       { "capabilityData", "rdp.capabilityData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-/**
+#if 0
     { &hf_rdp_unknownData,
       { "unknownData", "rdp.unknownData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-**/
+#endif
     { &hf_rdp_notYetImplemented,
       { "notYetImplemented", "rdp.notYetImplemented",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2536,12 +2536,12 @@ proto_register_rdp(void) {
       { "encryptedData", "rdp.encryptedData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-/**
+#if 0
     { &hf_rdp_compressed,
       { "compressedData", "rdp.compressedData",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-**/
+#endif
     { &hf_rdp_sessionId,
       { "sessionId", "rdp.sessionId",
         FT_UINT32, BASE_HEX, NULL, 0,

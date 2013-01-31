@@ -2100,45 +2100,45 @@ proto_register_sbus(void)
                      "Availability of PGU baud switch feature", HFILL }
               },
 
-/**
+#if 0
               { &hf_sbus_sysinfo_length,
                      { "System information length",           "sbus.sysinfo_length",
                      FT_UINT8, BASE_HEX, NULL, 0,
                      "System information length in response", HFILL }
               },
-**/
+#endif
 
-/**
+#if 0
               { &hf_sbus_f_module_type,
                      { "F-module type",      "sbus.fmodule_type",
                      FT_STRING, BASE_NONE, NULL, 0,
                      "Module type mounted on B1/2 slot", HFILL }
               },
-**/
+#endif
 
-/**
+#if 0
               { &hf_sbus_harware_version,
                      { "Hardware version",      "sbus.hw_version",
                      FT_STRING, BASE_NONE, NULL, 0,
                      "Hardware version of the PCD or the module", HFILL }
               },
-**/
+#endif
 
-/**
+#if 0
               { &hf_sbus_hardware_modification,
                      { "Hardware modification",      "sbus.hw_modification",
                      FT_UINT8, BASE_DEC, NULL, 0,
                      "Hardware modification of the PCD or module", HFILL }
               },
-**/
+#endif
 
-/**
+#if 0
               { &hf_sbus_various,
                      { "Various data",      "sbus.various",
                      FT_NONE, BASE_NONE, NULL, 0,
                      "Various data contained in telegrams but nobody will search for it", HFILL }
               },
-**/
+#endif
 
               { &hf_sbus_acknackcode,
                      { "ACK/NAK code",      "sbus.nakcode",

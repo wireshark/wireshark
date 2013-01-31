@@ -652,17 +652,17 @@ void
 proto_register_nmas(void)
 {
     static hf_register_info hf_nmas[] = {
-/**
+#if 0
         { &hf_func,
         { "Function", "nmas.func", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
-**/
+#endif
 
-/**
+#if 0
         { &hf_subfunc,
         { "Subfunction", "nmas.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
-**/
+#endif
 
         { &hf_ping_version,
         { "Ping Version", "nmas.ping_version", FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -711,11 +711,11 @@ proto_register_nmas(void)
         { "Message Verb",        "nmas.msg_verb", FT_UINT8, BASE_HEX, VALS(nmas_msgverb_enum), 0x0,
             NULL, HFILL }},
 
-/**
+#if 0
         { &hf_attribute,
         { "Attribute Type",        "nmas.attribute", FT_UINT32, BASE_DEC, VALS(nmas_attribute_enum), 0x0,
             NULL, HFILL }},
-**/
+#endif
 
         { &hf_clearance,
         { "Requested Clearance",    "nmas.clearance",

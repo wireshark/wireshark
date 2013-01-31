@@ -455,13 +455,13 @@ proto_register_vcdu(void)
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "SMEX Ground Sequence Counter", HFILL }
         },
-/**
+#if 0
         { &hf_smex_unused,
           { "Unused",  "vcdu.smex.unused",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "SMEX Unused", HFILL }
         },
-**/
+#endif
         { &hf_smex_version,
           { "Version",           "vcdu.smex.version",
             FT_UINT16, BASE_DEC, NULL, SMEX_VERSION,
@@ -542,13 +542,13 @@ proto_register_vcdu(void)
             FT_UINT16, BASE_DEC, NULL, PB5_MILLISECONDS_MASK,
             "SMEX Milliseconds", HFILL }
         },
-/**
+#if 0
         { &hf_smex_spare,
           { "Spare",           "vcdu.smex.spare",
             FT_UINT16, BASE_DEC, NULL, 0x03f,
             "SMEX Spare", HFILL }
         },
-**/
+#endif
 
         { &hf_vcdu_version,
           { "Version",           "vcdu.version",

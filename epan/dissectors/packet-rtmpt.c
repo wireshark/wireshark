@@ -2723,11 +2723,11 @@ proto_register_amf(void)
                   { "Length", "amf.header.length", FT_UINT32, BASE_DEC,
                     NULL, 0x0, NULL, HFILL }},
 
-/**
+#if 0
                 { &hf_amf_header_value_type,
                   { "Value type", "amf.header.value_type", FT_UINT32, BASE_HEX,
                     VALS(rtmpt_type_vals), 0x0, NULL, HFILL }},
-**/
+#endif
 
                 { &hf_amf_message_count,
                   { "Message count", "amf.message_count", FT_UINT16, BASE_DEC,
@@ -2787,11 +2787,11 @@ proto_register_amf(void)
                   { "Date", "amf.date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
                     NULL, 0x0, "AMF date", HFILL }},
 
-                /**
+#if 0
                 { &hf_amf_longstringlength,
                   { "String length", "amf.longstringlength", FT_UINT32, BASE_DEC,
                     NULL, 0x0, "AMF long string length", HFILL }},
-                **/
+#endif
 
                 { &hf_amf_longstring,
                   { "Long string", "amf.longstring", FT_STRING, BASE_NONE,

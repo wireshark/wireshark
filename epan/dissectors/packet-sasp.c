@@ -1312,12 +1312,12 @@ void proto_register_sasp(void)
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL } },
 
-/**
+#if 0
 		{ &hf_dereg_req_reason,
 	 	  { "Dereg Req-Reason", "sasp.dereg-req.reason",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    "SASP Dereg Req Reason", HFILL } },
-**/
+#endif
 
 		/* Dereg Rep */
 		{ &hf_sasp_dereg_rep_sz,
@@ -1360,12 +1360,12 @@ void proto_register_sasp(void)
 		    "Group Of Member State Data Count", HFILL } },
 
 		/* Set Mem State Reply */
-/**
+#if 0
 		{ &hf_sasp_setmemstate_rep,
 		  { "Set Memstate Reply", "sasp.setmemstate-rep",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    "SASP Set Memstate Reply", HFILL } },
-**/
+#endif
 
 		{ &hf_sasp_setmemstate_rep_sz,
 		  { "Set Memstate Rep-Size", "sasp.setmemstate-rep.size",
@@ -1450,12 +1450,12 @@ void proto_register_sasp(void)
 
 		/*Set LB State Rep */
 
-/**
+#if 0
 		{ &hf_sasp_setlbstate_rep,
 		  { "Set Lbstate Rep", "sasp.msg.type",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    "SASP Set Lbstate Rep", HFILL } },
-**/
+#endif
 
 		{ &hf_sasp_setlbstate_rep_sz,
 		  { "Set Lbstate Rep-Size", "sasp.setlbstate-rep.size",
@@ -1541,12 +1541,12 @@ void proto_register_sasp(void)
 		    FT_UINT8, BASE_HEX, VALS(lbstate_healthtable), 0x0,
 		    "SASP Set LB State Req LB Health", HFILL } },
 
-/**
+#if 0
 		{ &hf_lbstate_flag,
 		  { "Flags", "sasp.flags.lbstate",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL } },
-**/
+#endif
 
 		{ &hf_sasp_pushflag,
 		  { "PUSH", "sasp.flags.push",
@@ -1622,12 +1622,12 @@ void proto_register_sasp(void)
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    "SASP Wt Entry Data Comp State", HFILL } },
 
-/**
+#if 0
 		{ &hf_wtstate_flag,
 		  { "Flags", "sasp.flags.wtstate",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL } },
-**/
+#endif
 
 		{ &hf_sasp_wed_contactsuccess_flag,
 		  { "Contact Success", "sasp.flags.contactsuccess",

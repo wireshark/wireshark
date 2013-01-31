@@ -1063,11 +1063,11 @@ proto_register_p2p(void)
       { "Attribute Length", "wifi_p2p.length",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-/**
+#if 0
     { &hf_p2p_attr_capab,
       { "P2P Capability", "wifi_p2p.p2p_capability",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-**/
+#endif
     { &hf_p2p_attr_capab_device,
       { "Device Capability Bitmap",
         "wifi_p2p.p2p_capability.device_capability",
@@ -1160,11 +1160,11 @@ proto_register_p2p(void)
       { "Group Owner Intent Tie Breaker", "wifi_p2p.go_intent_tie_breaker",
         FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
 
-/**
+#if 0
     { &hf_p2p_attr_listen_channel,
       { "Listen Channel", "wifi_p2p.listen_channel",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-**/
+#endif
     { &hf_p2p_attr_listen_channel_country,
       { "Country String", "wifi_p2p.listen_channel.country_string",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1175,11 +1175,11 @@ proto_register_p2p(void)
       { "Channel Number", "wifi_p2p.listen_channel.channel_number",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-/**
+#if 0
     { &hf_p2p_attr_operating_channel,
       { "Operating Channel", "wifi_p2p.operating_channel",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-**/
+#endif
     { &hf_p2p_attr_operating_channel_country,
       { "Country String", "wifi_p2p.operating_channel.country_string",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1190,11 +1190,11 @@ proto_register_p2p(void)
       { "Channel Number", "wifi_p2p.channel.channel_number",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-/**
+#if 0
     { &hf_p2p_attr_channel_list,
       { "Channel List", "wifi_p2p.channel_list",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-**/
+#endif
     { &hf_p2p_attr_channel_list_country,
       { "Country String", "wifi_p2p.channel_list.country_string",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1207,11 +1207,11 @@ proto_register_p2p(void)
     { &hf_p2p_attr_channel_list_chan,
       { "Channel List", "wifi_p2p.channel_list.channel_list",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-/**
+#if 0
     { &hf_p2p_attr_dev_info,
       { "Device Info", "wifi_p2p.dev_info",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-**/
+#endif
     { &hf_p2p_attr_dev_info_p2p_dev_addr,
       { "P2P Device address", "wifi_p2p.dev_info.p2p_dev_addr",
         FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1325,11 +1325,11 @@ proto_register_p2p(void)
       { "Start Time", "wifi_p2p.noa.start_time",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-/**
+#if 0
     { &hf_p2p_attr_gi,
       { "Device Info", "wifi_p2p.group_info",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-**/
+#endif
     { &hf_p2p_attr_gi_length,
       { "P2P Client Info Descriptor Length", "wifi_p2p.group_info.length",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -1369,13 +1369,13 @@ proto_register_p2p(void)
       { "P2P Device Limit",
         "wifi_p2p.group_info.device_capability.device_limit",
         FT_UINT8, BASE_HEX, NULL, P2P_DEV_CAPAB_P2P_DEVICE_LIMIT, NULL, HFILL }},
-/**
+#if 0
     { &hf_p2p_attr_gi_dev_capab_invitation_procedure,
       { "P2P Invitation Procedure",
         "wifi_p2p.group_info.device_capability.invitation_procedure",
         FT_UINT8, BASE_HEX, NULL, P2P_DEV_CAPAB_P2P_INVITATION_PROCEDURE, NULL,
         HFILL }},
-**/
+#endif
     { &hf_p2p_attr_gi_pri_dev_type,
       { "Primary Device Type", "wifi_p2p.group_info.pri_dev_type",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1408,53 +1408,53 @@ proto_register_p2p(void)
     { &hf_p2p_attr_gi_config_methods,
       { "Config Methods", "wifi_p2p.group_info.config_methods",
         FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-/**
+#if 0
     { &hf_p2p_attr_gi_config_methods_usba,
       { "USBA (Flash Drive)", "wifi_p2p.group_info.config_methods.usba",
         FT_UINT16, BASE_HEX, NULL, WPS_CONF_METH_USBA, NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
     { &hf_p2p_attr_gi_config_methods_ethernet,
       { "Ethernet", "wifi_p2p.group_info.config_methods.ethernet",
         FT_UINT16, BASE_HEX, NULL, WPS_CONF_METH_ETHERNET, NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
     { &hf_p2p_attr_gi_config_methods_label,
       { "Label", "wifi_p2p.group_info.config_methods.label",
         FT_UINT16, BASE_HEX, NULL, WPS_CONF_METH_LABEL, NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
     { &hf_p2p_attr_gi_config_methods_display,
       { "Display", "wifi_p2p.group_info.config_methods.display",
         FT_UINT16, BASE_HEX, NULL, WPS_CONF_METH_DISPLAY, NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
     { &hf_p2p_attr_gi_config_methods_ext_nfc_token,
       { "External NFC Token",
         "wifi_p2p.group_info.config_methods.ext_nfc_token",
         FT_UINT16, BASE_HEX, NULL, WPS_CONF_METH_EXT_NFC_TOKEN, NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
     { &hf_p2p_attr_gi_config_methods_int_nfc_token,
       { "Integrated NFC Token",
         "wifi_p2p.group_info.config_methods.int_nfc_token",
         FT_UINT16, BASE_HEX, NULL, WPS_CONF_METH_INT_NFC_TOKEN, NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
     { &hf_p2p_attr_gi_config_methods_nfc_interface,
       { "NFC Interface", "wifi_p2p.group_info.config_methods.nfc_interface",
         FT_UINT16, BASE_HEX, NULL, WPS_CONF_METH_NFC_INTERFACE, NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
     { &hf_p2p_attr_gi_config_methods_pushbutton,
       { "PushButton", "wifi_p2p.group_info.config_methods.pushbutton",
         FT_UINT16, BASE_HEX, NULL, WPS_CONF_METH_PUSHBUTTON, NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
     { &hf_p2p_attr_gi_config_methods_keypad,
       { "Keypad", "wifi_p2p.group_info.config_methods.keypad",
         FT_UINT16, BASE_HEX, NULL, WPS_CONF_METH_KEYPAD, NULL, HFILL }},
-**/
+#endif
 
     { &hf_p2p_attr_invitation_flags,
       { "Invitation Flags", "wifi_p2p.invitation_flags",

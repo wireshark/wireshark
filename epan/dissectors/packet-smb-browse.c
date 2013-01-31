@@ -1126,11 +1126,11 @@ proto_register_smb_browse(void)
 			{ "NT", "browser.election.desire.nt", FT_BOOLEAN, 8,
 			TFS(&tfs_desire_nt), 1<<DESIRE_NT, "Is this a NT server", HFILL }},
 
-/**
+#if 0
 		{ &hf_election_revision,
 			{ "Election Revision", "browser.election.revision", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
-**/
+#endif
 
 		{ &hf_election_os,
 			{ "Election OS", "browser.election.os", FT_UINT8, BASE_HEX,

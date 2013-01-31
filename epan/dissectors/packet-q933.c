@@ -2243,11 +2243,11 @@ proto_register_q933(void)
 		  { "Connected party number digits", "q933.connected_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-/**
+#if 0
 		{ &hf_q933_redirecting_number,
 		  { "Redirecting party number digits", "q933.redirecting_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-**/
+#endif
 		{ &hf_q933_report_type,
 		  { "Report type", "q933.report_type", FT_UINT8, BASE_DEC, VALS(q933_report_type_vals), 0x0,
 			NULL, HFILL }},

@@ -1068,11 +1068,11 @@ proto_register_wassp(void)
 			0x0, NULL, HFILL }},
 
 	/* Data: Embedded IEEE 802.11 Frame */
-/**
+#if 0
 		{ &hf_data,
 		{ "DATA", "wassp.data", FT_NONE, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
-**/
+#endif
 
 	/* WASSP tunnel data */
 		{ &hf_status,

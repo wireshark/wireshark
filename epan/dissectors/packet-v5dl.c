@@ -324,11 +324,11 @@ proto_register_v5dl(void)
 	  { "Direction", "v5dl.direction", FT_UINT8, BASE_DEC, VALS(v5dl_direction_vals), 0x0,
 	  	NULL, HFILL }},
 
-/**
+#if 0
 	{ &hf_v5dl_address,
 	  { "Address Field", "v5dl.address", FT_UINT16, BASE_HEX, NULL, 0x0,
 	  	"Address", HFILL }},
-**/
+#endif
 
 	{ &hf_v5dl_ef,
 	  { "EF", "v5dl.ef", FT_UINT16, BASE_DEC, VALS(v5dl_addr_vals), 0x0,

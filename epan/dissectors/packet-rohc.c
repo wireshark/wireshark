@@ -2092,14 +2092,14 @@ proto_register_rohc(void)
                 "Whether the IP-ID is in Network Byte Order" , HFILL
               }
             },
-/**
+#if 0
             { &hf_rohc_rtp_checksum,
               { "Checksum","rohc.rtp.checksum",
                 FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL , HFILL
               }
             },
-**/
+#endif
             { &hf_rohc_dynamic_udp_checksum,
               { "UDP Checksum", "rohc.dynamic.udp.checksum",
                 FT_UINT16, BASE_HEX, NULL, 0x0,

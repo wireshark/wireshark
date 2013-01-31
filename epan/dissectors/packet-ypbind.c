@@ -183,10 +183,11 @@ proto_register_ypbind(void)
 			"Response Type", "ypbind.resp_type", FT_UINT32, BASE_DEC,
 			VALS(resp_type_vals), 0, NULL, HFILL }},
 
-/**		{ &hf_ypbind_error, {
+#if 0
+		{ &hf_ypbind_error, {
 			"Error", "ypbind.error", FT_UINT32, BASE_DEC,
 			VALS(error_vals), 0, "YPBIND Error code", HFILL }},
-**/
+#endif
 		{ &hf_ypbind_addr, {
 			"IP Addr", "ypbind.addr", FT_IPv4, BASE_NONE,
 			NULL, 0, "IP Address of server", HFILL }},

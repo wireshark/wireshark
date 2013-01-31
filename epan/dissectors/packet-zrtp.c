@@ -43,6 +43,7 @@ static int proto_zrtp = -1;
 static int hf_zrtp_rtpversion = -1;
 static int hf_zrtp_rtppadding = -1;
 static int hf_zrtp_rtpextension = -1;
+/* static int hf_zrtp_id = -1; */
 static int hf_zrtp_sequence = -1;
 static int hf_zrtp_cookie = -1;
 static int hf_zrtp_source_id = -1;
@@ -767,6 +768,17 @@ proto_register_zrtp(void)
        NULL, HFILL
      }
     },
+
+#if 0
+    {&hf_zrtp_id,
+     {
+       "ID", "zrtp.id",
+       FT_UINT8, BASE_HEX,
+       NULL, 0x0,
+       NULL, HFILL
+     }
+    },
+#endif
 
     {&hf_zrtp_sequence,
      {

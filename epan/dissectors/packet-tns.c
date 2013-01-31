@@ -1224,11 +1224,11 @@ void proto_register_tns(void)
 		{ &hf_tns_marker_data_byte, {
 			"Marker Data Byte", "tns.marker.databyte", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
-/**
+#if 0
 		{ &hf_tns_marker_data, {
 			"Marker Data", "tns.marker.data", FT_UINT16, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
-**/
+#endif
 
 		{ &hf_tns_control, {
 			"Control", "tns.control", FT_BOOLEAN, BASE_NONE,

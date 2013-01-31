@@ -3313,27 +3313,27 @@ proto_register_wlccp(void)
 		    0x0, "Node which relayed this message", HFILL }
 		},
 
-/**
+#if 0
 		{ &hf_wlccp_priority,
 		  { "WDS priority", "wlccp.priority",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    "WDS priority of this access point", HFILL }
 		},
-**/
-/**
+#endif
+#if 0
 		{ &hf_wlccp_age,
 		  { "Age", "wlccp.age",
 		    FT_UINT32, BASE_DEC, NULL, 0,
 		    "Time since AP became a WDS master", HFILL }
 		},
-**/
-/**
+#endif
+#if 0
 		{ &hf_wlccp_period,
 		  { "Period", "wlccp.period",
 		    FT_UINT8, BASE_DEC, NULL, 0,
 		    "Interval between announcements (seconds)", HFILL }
 		},
-**/
+#endif
 		{ &hf_wlccp_ipv4_address,
 		  { "IPv4 Address", "wlccp.ipv4_address",
 		    FT_IPv4, BASE_NONE, NULL, 0,

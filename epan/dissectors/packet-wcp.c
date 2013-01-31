@@ -647,11 +647,11 @@ proto_register_wcp(void)
 	{ &hf_wcp_alg,
 	  { "Alg", "wcp.alg", FT_UINT8, BASE_DEC, NULL, 0,
 	  	"Algorithm", HFILL }},
-/**
+#if 0
 	{ &hf_wcp_rexmit,
 	  { "Rexmit", "wcp.rexmit", FT_UINT8, BASE_DEC, NULL, 0,
 	  	"Retransmit", HFILL }},
-**/
+#endif
 	{ &hf_wcp_hist_size,
 	  { "History", "wcp.hist", FT_UINT8, BASE_DEC, NULL, 0,
 	  	"History Size", HFILL }},
@@ -664,11 +664,11 @@ proto_register_wcp(void)
 	{ &hf_wcp_comp_bits,
 	  { "Compress Flag", "wcp.flag", FT_UINT8, BASE_HEX, NULL, 0,
 	  	"Compressed byte flag", HFILL }},
-/**
+#if 0
 	{ &hf_wcp_comp_marker,
 	  { "Compress Marker", "wcp.mark", FT_UINT8, BASE_DEC, NULL, 0,
 	  	"Compressed marker", HFILL }},
-**/
+#endif
 	{ &hf_wcp_offset,
 	  { "Source offset", "wcp.off", FT_UINT16, BASE_HEX, NULL, WCP_OFFSET_MASK,
 	  	"Data source offset", HFILL }},

@@ -1,11 +1,11 @@
 /* This dissector is based on the SBC2 specification.
- * TODO  
- * parts of opcodes 
+ * TODO
+ * parts of opcodes
  * 0x7f
  * 0xa3
  * 0xa4
  * 0x9e
- * are still missing. 
+ * are still missing.
  * Some DATA IN/OUT PDUs are missing as well.
  */
 /* packet-scsi-sbc.c
@@ -1573,7 +1573,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x3f*/{dissect_sbc_writelong10},
 /*SBC 0x40*/{NULL},
 /*SBC 0x41*/{dissect_sbc_writesame10},
-/*SBC 0x42*/{dissect_sbc_unmap}, 
+/*SBC 0x42*/{dissect_sbc_unmap},
 /*SBC 0x43*/{NULL},
 /*SBC 0x44*/{NULL},
 /*SBC 0x45*/{NULL},
@@ -1818,11 +1818,11 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_bytchk,
           {"BYTCHK", "scsi_sbc.bytchk", FT_BOOLEAN, 8,
            NULL, 0x02, NULL, HFILL}},
-/**
+#if 0
         { &hf_scsi_sbc_verify_reladdr,
           {"RELADDR", "scsi_sbc.verify.reladdr", FT_BOOLEAN, 8, NULL,
            0x1, NULL, HFILL}},
-**/
+#endif
         { &hf_scsi_sbc_verify_lba,
           {"LBA", "scsi_sbc.verify.lba", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
            HFILL}},
@@ -1847,11 +1847,11 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_wrverify_xferlen32,
           {"Transfer Length", "scsi_sbc.wrverify.xferlen32", FT_UINT32,
            BASE_DEC, NULL, 0x0, NULL, HFILL}},
-/**
+#if 0
         { &hf_scsi_sbc_readcapacity_flags,
           {"Flags", "scsi_sbc.readcapacity.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
-**/
+#endif
         { &hf_scsi_sbc_readdefdata_flags,
           {"Flags", "scsi_sbc.readdefdata.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
            HFILL}},

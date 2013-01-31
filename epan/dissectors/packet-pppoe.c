@@ -1214,20 +1214,20 @@ void proto_register_pppoes(void)
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
-/**
+#if 0
 		{ &hf_pppoes_tag,
 			{ "Tag", "pppoes.tag", FT_UINT16, BASE_HEX,
 				 VALS(tag_vals), 0x0, NULL, HFILL
 			}
 		},
-**/
-/**
+#endif
+#if 0
 		{ &hf_pppoes_tag_credits,
 			{ "Credits", "pppoes.tags.credits", FT_BYTES, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
-**/
+#endif
 		{ &hf_pppoes_tag_credits_fcn,
 			{ "FCN", "pppoes.tags.credits.fcn", FT_UINT16, BASE_DEC,
 				 NULL, 0x0, NULL, HFILL

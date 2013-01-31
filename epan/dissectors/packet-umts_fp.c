@@ -4847,14 +4847,14 @@ void proto_register_fp(void)
                 "HS-DSCH type 2 PDU block header", HFILL
               }
             },
-/**
+#if 0
             { &hf_fp_hsdsch_pdu_block,
               { "PDU block",
                 "fp.hsdsch.pdu-block", FT_STRING, BASE_NONE, NULL, 0x0,
                 "HS-DSCH type 2 PDU block data", HFILL
               }
             },
-**/
+#endif
             { &hf_fp_flush,
               { "Flush",
                 "fp.flush", FT_UINT8, BASE_DEC, 0, 0x04,

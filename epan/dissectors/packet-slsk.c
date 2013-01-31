@@ -2419,11 +2419,11 @@ proto_register_slsk(void)
     { &hf_slsk_client_ip,
       { "Client IP", "slsk.client.ip",
       FT_IPv4, BASE_NONE, NULL, 0, "Client IP Address", HFILL } },
-/**
+#if 0
     { &hf_slsk_server_ip,
       { "SoulSeek Server IP", "slsk.server.ip",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
-**/
+#endif
     { &hf_slsk_string_length,
       { "String Length", "slsk.string.length",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2514,11 +2514,11 @@ proto_register_slsk(void)
     { &hf_slsk_size,
       { "Size", "slsk.size",
       FT_UINT32, BASE_DEC, NULL, 0, "File Size", HFILL } },
-/**
+#if 0
     { &hf_slsk_checksum,
       { "Checksum", "slsk.checksum",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
-**/
+#endif
     { &hf_slsk_code,
       { "Code", "slsk.code",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2540,11 +2540,11 @@ proto_register_slsk(void)
     { &hf_slsk_picture,
       { "Picture", "slsk.user.picture",
       FT_STRING, BASE_NONE, NULL, 0, "User Picture", HFILL } },
-/**
+#if 0
     { &hf_slsk_user_uploads,
       { "User uploads", "slsk.uploads.user",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
-**/
+#endif
     { &hf_slsk_total_uploads,
       { "Total uploads allowed", "slsk.uploads.total",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },

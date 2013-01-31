@@ -3103,12 +3103,12 @@ proto_register_usb(void)
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
     /* --------------------------------- */
-/**
+#if 0
         { &hf_usb_data_len,
           {"Application Data Length", "usb.data.length",
            FT_UINT32, BASE_DEC, NULL, 0x0,
            NULL, HFILL }},
-**/
+#endif
 
         { &hf_usb_capdata,
           {"Leftover Capture Data", "usb.capdata",

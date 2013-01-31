@@ -8353,12 +8353,12 @@ proto_register_ndps(void)
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
-/**
+#if 0
         { &hf_ndps_error,
           { "NDPS Error",    "spx.ndps_error",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
-**/
+#endif
 
         { &hf_ndps_other_error_string,
           { "Extended Error String",    "ndps.ext_err_string",
@@ -8405,19 +8405,19 @@ proto_register_ndps(void)
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
 
-/**
+#if 0
         { &hf_ndps_sbuffer,
           { "Server",    "ndps.sbuffer",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
-**/
+#endif
 
-/**
+#if 0
         { &hf_ndps_rbuffer,
           { "Connection",    "ndps.rbuffer",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
-**/
+#endif
 
         { &hf_ndps_user_name,
           { "Trustee Name",    "ndps.user_name",
@@ -8604,12 +8604,12 @@ proto_register_ndps(void)
             FT_UINT32,    BASE_HEX,   VALS(qualified_name_enum),   0x0,
             NULL, HFILL }},
 
-/**
+#if 0
         { &hf_ndps_qualified_name2,
           { "Qualified Name Type",    "ndps.qual_name_type2",
             FT_UINT32,    BASE_HEX,   VALS(qualified_name_enum2),   0x0,
             NULL, HFILL }},
-**/
+#endif
 
         { &hf_ndps_item_count,
           { "Number of Items",    "ndps.item_count",
@@ -9146,19 +9146,19 @@ proto_register_ndps(void)
             FT_UINT32,    BASE_HEX,   VALS(ndps_filter_enum),   0x0,
             NULL, HFILL }},
 
-/**
+#if 0
         { &hf_ndps_item_filter,
           { "Filter Item Operation",    "ndps.filter_item",
             FT_UINT32,    BASE_HEX,   VALS(ndps_filter_item_enum),   0x0,
             NULL, HFILL }},
-**/
+#endif
 
-/**
+#if 0
         { &hf_ndps_substring_match,
           { "Substring Match",    "ndps.substring_match",
             FT_UINT32,    BASE_HEX,   VALS(ndps_match_criteria_enum),   0x0,
             NULL, HFILL }},
-**/
+#endif
 
         { &hf_ndps_time_limit,
           { "Time Limit",    "ndps.time_limit",
@@ -9270,12 +9270,12 @@ proto_register_ndps(void)
             FT_UINT32,    BASE_HEX,   VALS(ndps_error_types),   0x0,
             NULL, HFILL }},
 
-/**
+#if 0
         { &hf_ndps_banner_count,
           { "Number of Banners",    "ndps.banner_count",
             FT_UINT32,    BASE_DEC,   NULL,   0x0,
             NULL, HFILL }},
-**/
+#endif
 
         { &hf_ndps_banner_name,
           { "Banner Name",    "ndps.banner_name",
@@ -9423,12 +9423,12 @@ proto_register_ndps(void)
             FT_UINT32,    BASE_DEC,   VALS(ndps_doc_content_enum),   0x0,
             NULL, HFILL }},
 
-/**
+#if 0
         { &hf_ndps_doc_name,
           { "Document Name",    "ndps.doc_name",
             FT_STRING,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
-**/
+#endif
 
         { &hf_local_id,
           { "Local ID",    "ndps.local_id",
@@ -9585,12 +9585,12 @@ proto_register_ndps(void)
             FT_STRING,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
 
-/**
+#if 0
         { &hf_info_bytes,
           { "Byte Value",    "ndps.info_bytes",
             FT_BYTES,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
-**/
+#endif
 
         { &hf_ndps_list_local_servers_type,
           { "Server Type",    "ndps.list_local_server_type",
@@ -9717,12 +9717,12 @@ proto_register_ndps(void)
             FT_NONE,    BASE_NONE,   NULL,
             0x0, NULL, HFILL }},
 
-/**
+#if 0
         { &hf_ndps_attribute_time,
           { "Time",    "ndps.attribute_time",
             FT_ABSOLUTE_TIME,    ABSOLUTE_TIME_LOCAL,   NULL,   0x0,
             NULL, HFILL }},
-**/
+#endif
 
         { &hf_print_security,
           { "Printer Security",    "ndps.print_security",

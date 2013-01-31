@@ -107,6 +107,7 @@ static int hf_zbee_zcl_attr_int16 = -1;
 static int hf_zbee_zcl_attr_int24 = -1;
 static int hf_zbee_zcl_attr_int32 = -1;
 static int hf_zbee_zcl_attr_int64 = -1;
+/* static int hf_zbee_zcl_attr_semi = -1; */
 static int hf_zbee_zcl_attr_float = -1;
 static int hf_zbee_zcl_attr_double = -1;
 static int hf_zbee_zcl_attr_bytes = -1;
@@ -2100,6 +2101,12 @@ void proto_register_zbee_zcl(void)
         { &hf_zbee_zcl_attr_int64,
             { "Int64",  "zbee_zcl.attr.int64", FT_INT64, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
+
+#if 0
+        { &hf_zbee_zcl_attr_semi,
+            { "Semi Float", "zbee_zcl.attr.float", FT_FLOAT, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+#endif
 
         { &hf_zbee_zcl_attr_float,
             { "Float", "zbee_zcl.attr.float", FT_FLOAT, BASE_NONE, NULL, 0x0,

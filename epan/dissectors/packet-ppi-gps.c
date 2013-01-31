@@ -533,12 +533,12 @@ proto_register_ppi_gps(void) {
           { "GPSTimestamp", "ppi_gps.gpstime",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             "GPSTimestamp packet was received at", HFILL } },
-/**
+#if 0
         { &hf_ppi_gps_fractime,
           { "fractional Timestamp", "ppi_gps.fractime",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "fractional GPSTimestamp packet was received at", HFILL } },
-**/
+#endif
         { &hf_ppi_gps_eph,
           { "Horizontal Error (m)", "ppi_gps.eph",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,

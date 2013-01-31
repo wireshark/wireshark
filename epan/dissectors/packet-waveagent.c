@@ -1467,26 +1467,26 @@ void proto_register_waveagent(void)
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
 
-/**
+#if 0
         { &hf_waveagent_rxmeanlatency,
         { "Rx Mean latency", "waveagent.rxmeanlatency",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-**/
+#endif
 
-/**
+#if 0
         { &hf_waveagent_rxminlatency,
         { "Rx Minimum latency", "waveagent.rxminlatency",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-**/
+#endif
 
-/**
+#if 0
         { &hf_waveagent_rxmaxlatency,
         { "Rx Maximum latency", "waveagent.rxmaxlatency",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-**/
+#endif
 
         { &hf_waveagent_jitter,
         { "Jitter (microseconds)", "waveagent.jitter",

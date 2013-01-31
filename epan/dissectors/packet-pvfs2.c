@@ -3251,11 +3251,11 @@ proto_register_pvfs(void)
 			{ "Size", "pvfs.size", FT_UINT64, BASE_DEC,
 				NULL, 0, NULL, HFILL }},
 
-/**
+#if 0
 		{ &hf_pvfs_release_number,
 			{ "Release Number", "pvfs.release_number", FT_UINT32, BASE_DEC,
 				NULL, 0, NULL, HFILL }},
-**/
+#endif
 
 		{ &hf_pvfs_encoding,
 			{ "Encoding", "pvfs.encoding", FT_UINT32, BASE_DEC,
@@ -3265,21 +3265,21 @@ proto_register_pvfs(void)
 			{ "Server Operation", "pvfs.server_op", FT_UINT32, BASE_DEC,
 				VALS(names_pvfs_server_op), 0, NULL, HFILL }},
 
-/**
+#if 0
 		{ &hf_pvfs_handle,
 			{ "Handle", "pvfs.handle", FT_BYTES, BASE_NONE,
 				NULL, 0, NULL, HFILL }},
-**/
+#endif
 
 		{ &hf_pvfs_fs_id,
 			{ "fs_id", "pvfs.fs_id", FT_UINT32, BASE_HEX,
 				NULL, 0, "File System ID", HFILL }},
 
-/**
+#if 0
 		{ &hf_pvfs_attrmask,
 			{ "attrmask", "pvfs.attrmask", FT_UINT32, BASE_HEX,
 				NULL, 0, "Attribute Mask", HFILL }},
-**/
+#endif
 
 		{ &hf_pvfs_attr,
 			{ "attr", "pvfs.attribute", FT_UINT32, BASE_HEX,
@@ -3365,11 +3365,11 @@ proto_register_pvfs(void)
 			{ "microseconds", "pvfs.parent_ctime.usec", FT_UINT32, BASE_DEC,
 				NULL, 0, "Creation Time (microseconds)", HFILL }},
 
-/**
+#if 0
 		{ &hf_pvfs_dirent_count,
 			{ "Dir Entry Count", "pvfs.dirent_count", FT_UINT64, BASE_DEC,
 				NULL, 0, "Directory Entry Count", HFILL }},
-**/
+#endif
 
 		{ &hf_pvfs_directory_version,
 			{ "Directory Version", "pvfs.directory_version", FT_UINT64, BASE_HEX,
@@ -3407,11 +3407,11 @@ proto_register_pvfs(void)
 			{ "Previous Value", "pvfs.prev_value", FT_UINT64, BASE_DEC,
 				NULL, 0, NULL, HFILL }},
 
-/**
+#if 0
 		{ &hf_pvfs_ram_free_bytes,
 			{ "RAM Free Bytes", "pvfs.ram.free_bytes", FT_UINT64, BASE_DEC,
 				NULL, 0, NULL, HFILL }},
-**/
+#endif
 
 		{ &hf_pvfs_bytes_available,
 			{ "Bytes Available", "pvfs.bytes_available", FT_UINT64, BASE_DEC,

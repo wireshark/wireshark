@@ -485,11 +485,11 @@ void proto_register_ppcap(void)
 	{ &hf_ppcap_address_type,
 	{ "Address Type",         "ppcap.address_type",    FT_UINT16,
 		BASE_DEC,    VALS(address_type_values),         0x00 , NULL, HFILL}},
-/**
+#if 0
 	{ &hf_ppcap_source_address_type,
 	{ "Source Address Type",         "ppcap.source_address_type",    FT_UINT16,
 		BASE_DEC,    VALS(address_type_values),         0x00 , NULL, HFILL}},
-**/
+#endif
 	{ &hf_ppcap_ssn,
 	{ "SSN",     "ppcap.ssn",   FT_UINT16,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},
@@ -508,11 +508,11 @@ void proto_register_ppcap(void)
 	{ &hf_ppcap_destreserved,
 	{ "Reserved",         "ppcap.destreserved",    FT_UINT16,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},
-/**
+#if 0
 	{ &hf_ppcap_destination_address_type,
 	{ "Destination Address Type",         "ppcap.destination_address_type",    FT_UINT16,
 		BASE_DEC,      VALS(address_type_values),   0x00,   NULL,     HFILL}},
-**/
+#endif
 	{ &hf_ppcap_ssn1,
 	{ "SSN",     "ppcap.ssn1",   FT_UINT8,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},

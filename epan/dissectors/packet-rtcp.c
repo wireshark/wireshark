@@ -3386,7 +3386,7 @@ proto_register_rtcp(void)
                 NULL, HFILL
             }
         },
-/**
+#if 0
         {
             &hf_rtcp_ssrc_csrc,
             {
@@ -3399,7 +3399,7 @@ proto_register_rtcp(void)
                 NULL, HFILL
             }
         },
-**/
+#endif
         {
             &hf_rtcp_sdes_type,
             {

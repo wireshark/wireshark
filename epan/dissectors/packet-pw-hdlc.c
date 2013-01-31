@@ -182,14 +182,14 @@ static void dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, 
 void proto_register_pw_hdlc(void)
 {
 	static hf_register_info hf[] = {
-/**
+#if 0
 		{
 			&hf_pw_hdlc,
 			{
 				"PW HDLC", "pw_hdlc", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
-**/
+#endif
 		{
 			&hf_pw_hdlc_address_field,
 			{

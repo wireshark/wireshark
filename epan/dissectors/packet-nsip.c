@@ -1050,20 +1050,20 @@ proto_register_nsip(void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Network Service Entity Identifier", HFILL }
     },
-/**
+#if 0
     { &hf_nsip_ip4_elements,
       { "IP4 elements", "nsip.ip4_elements",
         FT_NONE, BASE_NONE, NULL, 0x0,
         "List of IP4 elements", HFILL }
     },
-**/
-/**
+#endif
+#if 0
     { &hf_nsip_ip6_elements,
       { "IP6 elements", "nsip.ip6_elements",
         FT_NONE, BASE_NONE, NULL, 0x0,
         "List of IP6 elements", HFILL }
     },
-**/
+#endif
     { &hf_nsip_max_num_ns_vc,
       { "Maximum number of NS-VCs", "nsip.max_num_ns_vc",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -1134,20 +1134,20 @@ proto_register_nsip(void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
     },
-/**
+#if 0
     { &hf_nsip_ip_element_ip_address_ipv4,
       { "IP Address", "nsip.ip_element.ipv4_address",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-**/
-/**
+#endif
+#if 0
     { &hf_nsip_ip_element_ip_address_ipv6,
       { "IP Address", "nsip.ip_element.ipv6_address",
         FT_IPv6, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-**/
+#endif
     { &hf_nsip_ip_element_udp_port,
       { "UDP Port", "nsip.ip_element.udp_port",
         FT_UINT16, BASE_DEC, NULL, 0x0,

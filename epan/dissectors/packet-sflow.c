@@ -2795,12 +2795,12 @@ proto_register_sflow(void) {
             { "Flow data length (byte)", "sflow_5.flow_data_length",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "sFlow flow data length", HFILL}},
-/**
+#if 0
         { &hf_sflow_5_counters_data_length,
             { "Counters data length (byte)", "sflow_5.counter_data_length",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "sFlow counters data length", HFILL}},
-**/
+#endif
         { &hf_sflow_245_seqnum,
             { "Sequence number", "sflow_245.sequence_number",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2817,18 +2817,18 @@ proto_register_sflow(void) {
             { "sFlow sample type", "sflow_245.sampletype",
                 FT_UINT32, BASE_DEC, VALS(sflow_245_sampletype), 0x0,
                 "Type of sFlow sample", HFILL}},
-/**
+#if 0
         { &hf_sflow_5_ieee80211_version,
             { "Version", "sflow_245.ieee80211_version",
                 FT_UINT32, BASE_DEC, VALS(sflow_5_ieee80211_versions), 0x0,
                 "IEEE 802.11 Version", HFILL}},
-**/
-/**
+#endif
+#if 0
         { &hf_sflow_245_ipv4_precedence_type,
             { "Precedence", "sflow_245.ipv4_precedence_type",
                 FT_UINT8, BASE_DEC, VALS(sflow_245_ipv4_precedence_types), 0x0,
                 "IPv4 Precedence Type", HFILL}},
-**/
+#endif
         { &hf_sflow_5_flow_record_format,
             { "Format", "sflow_245.flow_record_format",
                 FT_UINT32, BASE_DEC, VALS(sflow_5_flow_record_type), 0x0,
@@ -2930,12 +2930,12 @@ proto_register_sflow(void) {
             { "Gateway Communities", "sflow_245.communityEntries",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL}},
-/**
+#if 0
         { &hf_sflow_245_community,
             { "Gateway Community", "sflow_245.community",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "Gateway Communities", HFILL}},
-**/
+#endif
         { &hf_sflow_245_localpref,
             { "localpref", "sflow_245.localpref",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2949,18 +2949,18 @@ proto_register_sflow(void) {
             { "Interface Speed", "sflow_245.ifspeed",
                 FT_UINT64, BASE_DEC, NULL, 0x0,
                 NULL, HFILL}},
-/**
+#if 0
         { &hf_sflow_245_ifdirection,
             { "Interface Direction", "sflow_245.ifdirection",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL}},
-**/
-/**
+#endif
+#if 0
         { &hf_sflow_245_ifstatus,
             { "Interface Status", "sflow_245.ifstatus",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL}},
-**/
+#endif
         { &hf_sflow_245_ifinoct,
             { "Input Octets", "sflow_245.ifinoct",
                 FT_UINT64, BASE_DEC, NULL, 0x0,

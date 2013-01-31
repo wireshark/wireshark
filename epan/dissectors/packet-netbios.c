@@ -1355,11 +1355,11 @@ void proto_register_netbios(void)
 		{ "Remote Session No.", "netbios.remote_session", FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
-/**
+#if 0
 		{ &hf_netb_data1,
 		{ "DATA1 value", "netbios.data1", FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
-**/
+#endif
 
 		{ &hf_netb_data2,
 		{ "DATA2 value", "netbios.data2", FT_UINT16, BASE_HEX, NULL, 0x0,

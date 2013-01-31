@@ -1158,16 +1158,16 @@ proto_register_pgm(void)
     { &hf_pgm_spm_path6,
       { "Path NLA", "pgm.spm.path", FT_IPv6, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL }},
-/**
+#if 0
     { &hf_pgm_data_sqn,
       { "Data Packet Sequence Number", "pgm.data.sqn", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},
-**/
-/**
+#endif
+#if 0
     { &hf_pgm_data_trail,
       { "Trailing Edge Sequence Number", "pgm.data.trail", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},
-**/
+#endif
     { &hf_pgm_nak_sqn,
       { "Requested Sequence Number", "pgm.nak.sqn", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL }},

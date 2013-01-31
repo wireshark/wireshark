@@ -254,12 +254,12 @@ proto_register_spp(void)
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
 		  NULL, HFILL }},
 
-/**
+#if 0
 		{ &hf_spp_rexmt_frame,
 		{ "Retransmitted Frame Number",	"spp.rexmt_frame",
 		  FT_FRAMENUM,	BASE_NONE,	NULL,	0x0,
 		  NULL, HFILL }},
-**/
+#endif
 	};
 
 	static gint *ett[] = {
