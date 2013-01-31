@@ -85,23 +85,25 @@ static gint ett_ANIM = -1;
 static gint ett_CTRL = -1;
 
 /* Value String */
+#if 0 /* TODO: Delete these?  Or make use of them? */
 static const value_string REF_types_vs[] = {
     { 0x38323038, "FLYING MODE" },
     { 0x37393532, "EMERGENCY LANDING" },
     { 0x37363936, "LANDING MODE" },
-    { 0, NULL },
+    { 0, NULL }
 };
 static const value_string PCMD_flag_vs[] = {
     { 0x30 , "DO NOT ALLOW ROLL/PITCH" },
     { 0x31 , "ALLOW ROLL/PITCH" },
-    { 0 , NULL },
+    { 0 , NULL }
 };
+#endif
 
 static const string_string CTRL_mode_vs[] = {
     { "4" , " (CFG_GET_CONTROL_MODE)" },
     { "5" , " (ACK_CONTROL_MODE)" },
     { "6" , " (CUSTOM_CFG_GET_CONTROL_MODE)" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 /* ********************************************** */
@@ -110,8 +112,8 @@ static const string_string CTRL_mode_vs[] = {
 static int
 dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint offset, length,
-         master_offset = 0;
+    gint offset, length;
+    gint master_offset = 0;
     proto_item *ti, *sub_item;
     proto_tree *ar_tree, *sub_tree;
     char* command;
@@ -138,12 +140,11 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             return master_offset;
 
         command = tvb_get_ephemeral_string(tvb, master_offset, offset-master_offset);
-        sub_item = proto_tree_add_string(ar_tree, hf_command, tvb, master_offset, -1, 
-                        tvb_get_ephemeral_string(tvb, master_offset+3, offset-master_offset-3));
-
+        sub_item = proto_tree_add_string(ar_tree, hf_command, tvb, master_offset, -1,
+            tvb_get_ephemeral_string(tvb, master_offset+3, offset-master_offset-3));
 
         if(!strncmp(command,"AT*PCMD",7))
-        { 
+        {
             /** Parse according the PCMD layout: */
             guint8 PCMD_byte;
             const char *PCMD_str;
@@ -167,18 +168,18 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             ti = proto_tree_add_item(sub_tree, hf_PCMD_roll, tvb, offset, length, ENC_ASCII|ENC_NA);
 
             PCMD_byte = tvb_get_guint8(tvb, offset);
-            if (PCMD_byte == 0x30) 
+            if (PCMD_byte == 0x30)
             {
                 PCMD_str = " (NO CHANGE)";
             }
             else if(PCMD_byte == 0x2d)
             {
                 PCMD_byte = tvb_get_guint8(tvb, offset + 1);
-                if(PCMD_byte == 0x30) 
+                if(PCMD_byte == 0x30)
                 {
                     PCMD_str = " (NO CHANGE)";
-                } 
-                else 
+                }
+                else
                 {
                     PCMD_str = " (ROLL LEFT)";
                 }
@@ -195,18 +196,18 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             ti = proto_tree_add_item(sub_tree, hf_PCMD_pitch, tvb, offset, length, ENC_ASCII|ENC_NA);
 
             PCMD_byte = tvb_get_guint8(tvb, offset);
-            if (PCMD_byte == 0x30) 
+            if (PCMD_byte == 0x30)
             {
                 PCMD_str = " (NO CHANGE)";
             }
             else if(PCMD_byte == 0x2d)
             {
                 PCMD_byte = tvb_get_guint8(tvb, offset + 1);
-                if(PCMD_byte == 0x30) 
+                if(PCMD_byte == 0x30)
                 {
                     PCMD_str = " (NO CHANGE)";
-                } 
-                else 
+                }
+                else
                 {
                     PCMD_str = " (PITCH FORWARD)";
                 }
@@ -223,18 +224,18 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             ti = proto_tree_add_item(sub_tree, hf_PCMD_gaz, tvb, offset, length, ENC_ASCII|ENC_NA);
 
             PCMD_byte = tvb_get_guint8(tvb, offset);
-            if (PCMD_byte == 0x30) 
+            if (PCMD_byte == 0x30)
             {
                 PCMD_str = " (NO CHANGE)";
             }
             else if(PCMD_byte == 0x2d)
             {
                 PCMD_byte = tvb_get_guint8(tvb, offset + 1);
-                if(PCMD_byte == 0x30) 
+                if(PCMD_byte == 0x30)
                 {
                     PCMD_str = " (NO CHANGE)";
-                } 
-                else 
+                }
+                else
                 {
                     PCMD_str = " (DECREASE VERT SPEED)";
                 }
@@ -251,18 +252,18 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             ti = proto_tree_add_item(sub_tree, hf_PCMD_yaw, tvb, offset, length, ENC_ASCII|ENC_NA);
 
             PCMD_byte = tvb_get_guint8(tvb, offset);
-            if (PCMD_byte == 0x30) 
+            if (PCMD_byte == 0x30)
             {
                 PCMD_str = " (NO CHANGE)";
             }
             else if(PCMD_byte == 0x2d)
             {
                 PCMD_byte = tvb_get_guint8(tvb, offset + 1);
-                if(PCMD_byte == 0x30) 
+                if(PCMD_byte == 0x30)
                 {
                     PCMD_str = " (NO CHANGE)";
-                } 
-                else 
+                }
+                else
                 {
                     PCMD_str = " (ROTATE LEFT)";
                 }
@@ -273,7 +274,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             }
             proto_item_append_string(ti, PCMD_str);
             offset += (length + 1);
-        } 
+        }
         else if(!strncmp(command, "AT*REF",6))
         {
             /** Parse according to the REF layout: */
@@ -349,9 +350,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add sequence number */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
-            ti = proto_tree_add_text(sub_tree, tvb, master_offset, length, "(Sets the reference for the horizontal plane)");
+            proto_tree_add_text(sub_tree, tvb, master_offset, length, "(Sets the reference for the horizontal plane)");
             proto_tree_add_item(sub_tree, hf_FTRIM_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
-            offset += (length + 1);\
+            offset += (length + 1);
         } else if(!strncmp(command, "AT*CONFIG", 9))
         {
             /** Parse according to the CONFIG layout: */
@@ -428,7 +429,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             /* Add Mode */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
             ti = proto_tree_add_item(sub_tree, hf_CTRL_mode, tvb, offset, length, ENC_ASCII|ENC_NA);
-            proto_item_append_text(ti, "%s", 
+            proto_item_append_text(ti, "%s",
                     str_to_str(tvb_get_ephemeral_string(tvb, offset, length), CTRL_mode_vs, " (Unknown Mode)"));
             offset += (length + 1);
 
@@ -436,7 +437,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
             proto_tree_add_item(sub_tree, hf_CTRL_fsize, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
-        } 
+        }
         else
         {
             /* Unknown command, just abort */
@@ -641,7 +642,6 @@ proto_register_ar_drone(void)
 
     module_t *drone_module;
 
-
     /* Setup protocol info */
     proto_ar_drone = proto_register_protocol (
         "AR Drone Packet", /* name       */
@@ -659,7 +659,6 @@ proto_register_ar_drone(void)
                                    "AR Drone UDP port",
                                    10,
                                    &ar_drone_port);
-
 }
 
 void
@@ -669,7 +668,8 @@ proto_reg_handoff_ar_drone(void)
     static guint old_port = 0;
     static gboolean initialized = FALSE;
 
-    if (initialized == FALSE) {
+    if (initialized == FALSE)
+    {
         ar_drone_handle = new_create_dissector_handle(dissect_ar_drone, proto_ar_drone);
 
         heur_dissector_add("udp", dissect_ar_drone, proto_ar_drone);
@@ -678,16 +678,19 @@ proto_reg_handoff_ar_drone(void)
     }
 
     /* Register UDP port for dissection */
-    if(old_port != 0 && old_port != ar_drone_port){
-    dissector_delete_uint("udp.port", old_port, ar_drone_handle);
+    if(old_port != 0 && old_port != ar_drone_port)
+    {
+        dissector_delete_uint("udp.port", old_port, ar_drone_handle);
     }
 
-    if(ar_drone_port != 0 && old_port != ar_drone_port) {
+    if(ar_drone_port != 0 && old_port != ar_drone_port)
+    {
         dissector_add_uint("udp.port", ar_drone_port, ar_drone_handle);
     }
 
     old_port = ar_drone_port;
 }
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
