@@ -19712,6 +19712,7 @@ void proto_reg_handoff_gsm_map(void) {
         dtap_handle = find_dissector("gsm_a_dtap");
 
         map_handle = find_dissector("gsm_map");
+		oid_add_from_string("itu(0) administration(2) japan(440)","0.2.440" );
         register_ber_oid_dissector_handle("0.4.0.0.1.0.1.3", map_handle, proto_gsm_map,"networkLocUpContext-v3");
         register_ber_oid_dissector_handle("0.4.0.0.1.0.1.2", map_handle, proto_gsm_map,"networkLocUpContext-v2" );
         register_ber_oid_dissector_handle("0.4.0.0.1.0.1.1", map_handle, proto_gsm_map,"networkLocUpContext-v1" );
@@ -26002,7 +26003,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2612 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2613 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -26636,7 +26637,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ericsson_EnhancedCheckIMEI_Arg,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2643 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2644 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static const enum_val_t application_context_modes[] = {
@@ -26729,7 +26730,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2674 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2675 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

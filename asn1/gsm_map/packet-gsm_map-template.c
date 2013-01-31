@@ -2217,6 +2217,7 @@ void proto_reg_handoff_gsm_map(void) {
         dtap_handle = find_dissector("gsm_a_dtap");
 
         map_handle = find_dissector("gsm_map");
+		oid_add_from_string("itu(0) administration(2) japan(440)","0.2.440" );
         register_ber_oid_dissector_handle("0.4.0.0.1.0.1.3", map_handle, proto_gsm_map,"networkLocUpContext-v3");
         register_ber_oid_dissector_handle("0.4.0.0.1.0.1.2", map_handle, proto_gsm_map,"networkLocUpContext-v2" );
         register_ber_oid_dissector_handle("0.4.0.0.1.0.1.1", map_handle, proto_gsm_map,"networkLocUpContext-v1" );
