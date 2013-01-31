@@ -29,7 +29,12 @@
 
 QT += core gui
 
-TARGET = qtshark
+macx {
+    TARGET = Wireshark
+} else {
+    TARGET = qtshark
+}
+
 TEMPLATE = app
 
 QMAKE_INFO_PLIST = ../../packaging/macosx/Info.plist
