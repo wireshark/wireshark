@@ -146,7 +146,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         { 
             /** Parse according the PCMD layout: */
             guint8 PCMD_byte;
-            char *PCMD_str;
+            const char *PCMD_str;
 
             sub_tree = proto_item_add_subtree(sub_item, ett_PCMD);
 
