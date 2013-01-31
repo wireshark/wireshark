@@ -49,9 +49,9 @@ static int proto_beep = -1;
 
 static int hf_beep_req = -1;
 static int hf_beep_req_chan = -1;
-static int hf_beep_rsp_chan = -1;
+/* static int hf_beep_rsp_chan = -1; */
 static int hf_beep_seq_chan = -1;
-static int hf_beep_rsp = -1;
+/* static int hf_beep_rsp = -1; */
 static int hf_beep_seq = -1;
 static int hf_beep_end = -1;
 static int hf_beep_proto_viol = -1;
@@ -62,8 +62,10 @@ static int hf_beep_ansno = -1;
 static int hf_beep_seqno = -1;
 static int hf_beep_size = -1;
 static int hf_beep_channel = -1;
+#if 0
 static int hf_beep_positive = -1;
 static int hf_beep_negative = -1;
+#endif
 static int hf_beep_ackno = -1;
 static int hf_beep_window = -1;
 
@@ -993,11 +995,15 @@ proto_register_beep(void)
     { &hf_beep_req_chan,
       { "Request Channel Number", "beep.req.channel", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
+#if 0
     { &hf_beep_rsp,
       { "Response", "beep.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#endif
 
+#if 0
     { &hf_beep_rsp_chan,
       { "Response Channel Number", "beep.rsp.channel", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+#endif
 
     { &hf_beep_seq,
       { "Sequence", "beep.seq", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1029,11 +1035,13 @@ proto_register_beep(void)
     { &hf_beep_channel,
       { "Channel", "beep.channel", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
+#if 0
     { &hf_beep_negative,
       { "Negative", "beep.status.negative", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_beep_positive,
       { "Positive", "beep.status.positive", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#endif
 
     { &hf_beep_ackno,
       { "Ackno", "beep.seq.ackno", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

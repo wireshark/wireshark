@@ -51,8 +51,8 @@ static int hf_h263P_tid = -1;
 static int hf_h263P_trun = -1;
 static int hf_h263P_s = -1;
 static int hf_h263P_extra_hdr = -1;
-static int hf_h263P_PSC = -1;
-static int hf_h263P_TR = -1;
+/* static int hf_h263P_PSC = -1; */
+/* static int hf_h263P_TR = -1; */
 
 
 /* H.263-1998 fields defining a sub tree */
@@ -352,6 +352,7 @@ proto_register_h263P(void)
 				NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_h263P_PSC,
 			{
@@ -364,6 +365,8 @@ proto_register_h263P(void)
 				"Picture Start Code(PSC)", HFILL
 			}
 		},
+#endif
+#if 0
 		{
 			&hf_h263P_TR,
 			{
@@ -376,6 +379,7 @@ proto_register_h263P(void)
 				"Temporal Reference, TR", HFILL
 			}
 		},
+#endif
 
 	};
 

@@ -257,8 +257,10 @@ static int hf_dlr_lanp1_dev_physical_address = -1;
 static int hf_dlr_lanp2_dev_ip_addr = -1;
 static int hf_dlr_lanp2_dev_physical_address = -1;
 static int hf_dlr_ring_protocol_participants_count = -1;
+#if 0
 static int hf_dlr_rppl_dev_ip_addr = -1;
 static int hf_dlr_rppl_dev_physical_address = -1;
+#endif
 static int hf_dlr_asa_supervisor_ip_addr = -1;
 static int hf_dlr_asa_supervisor_physical_address = -1;
 static int hf_dlr_active_supervisor_precedence = -1;
@@ -3017,6 +3019,7 @@ proto_register_enip(void)
           FT_UINT16, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
+#if 0
       { &hf_dlr_rppl_dev_ip_addr,
         { "Device IP Address", "cip.dlr.rppl.ip_addr",
           FT_IPv4, BASE_NONE, NULL, 0,
@@ -3026,6 +3029,7 @@ proto_register_enip(void)
         { "Device Physical Address", "cip.dlr.rppl.physical_address",
           FT_ETHER, BASE_NONE, NULL, 0,
           NULL, HFILL }},
+#endif
 
       { &hf_dlr_asa_supervisor_ip_addr,
         { "Supervisor IP Address", "cip.dlr.asa.ip_addr",

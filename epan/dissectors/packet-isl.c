@@ -55,7 +55,7 @@ static int hf_isl_hsa = -1;
 static int hf_isl_vlan_id = -1;
 static int hf_isl_bpdu = -1;
 static int hf_isl_index = -1;
-static int hf_isl_crc = -1;
+/* static int hf_isl_crc = -1; */
 static int hf_isl_src_vlan_id = -1;
 static int hf_isl_explorer = -1;
 static int hf_isl_dst_route_descriptor = -1;
@@ -364,9 +364,11 @@ proto_register_isl(void)
 	{ &hf_isl_index,
 	{ "Index",		"isl.index", FT_UINT16, BASE_DEC, NULL, 0x0,
 		"Port index of packet source", HFILL }},
+#if 0
 	{ &hf_isl_crc,
 	{ "CRC",		"isl.crc", FT_UINT32, BASE_HEX, NULL, 0x0,
 		"CRC field of encapsulated frame", HFILL }},
+#endif
 	{ &hf_isl_src_vlan_id,
 	{ "Source VLAN ID",	"isl.src_vlan_id", FT_UINT16, BASE_DEC, NULL,
 		0xFFFE, "Source Virtual LAN ID (Color)", HFILL }},

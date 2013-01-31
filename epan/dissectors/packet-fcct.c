@@ -44,11 +44,13 @@ static int hf_fcct_options      = -1;
 static int hf_fcct_server       = -1; /* derived field */
 
 /* Extended preamble fields */
+#if 0
 static int hf_fcct_ext_said     = -1;
 static int hf_fcct_ext_tid      = -1;
 static int hf_fcct_ext_reqname  = -1;
 static int hf_fcct_ext_tstamp   = -1;
 static int hf_fcct_ext_authblk  = -1;
+#endif
 
 /* Initialize the subtree pointers */
 static gint ett_fcct = -1;
@@ -244,6 +246,7 @@ proto_register_fcct(void)
         { &hf_fcct_options,
           {"Options", "fcct.options", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
            HFILL}},
+#if 0
         { &hf_fcct_ext_said,
           {"Auth SAID", "fcct.ext_said", FT_UINT32, BASE_HEX, NULL, 0x0, NULL,
            HFILL}},
@@ -259,6 +262,7 @@ proto_register_fcct(void)
         { &hf_fcct_ext_authblk,
           {"Auth Hash Blk", "fcct.ext_authblk", FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
+#endif
     };
 
     /* Setup protocol subtree array */

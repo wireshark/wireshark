@@ -262,6 +262,7 @@ static int hf_smb_file_attr_directory_16bit = -1;
 static int hf_smb_file_attr_directory_8bit = -1;
 static int hf_smb_file_attr_archive_16bit = -1;
 static int hf_smb_file_attr_archive_8bit = -1;
+#if 0
 static int hf_smb_file_attr_device = -1;
 static int hf_smb_file_attr_normal = -1;
 static int hf_smb_file_attr_temporary = -1;
@@ -271,6 +272,7 @@ static int hf_smb_file_attr_compressed = -1;
 static int hf_smb_file_attr_offline = -1;
 static int hf_smb_file_attr_not_content_indexed = -1;
 static int hf_smb_file_attr_encrypted = -1;
+#endif
 static int hf_smb_file_size = -1;
 static int hf_smb_search_attribute_read_only = -1;
 static int hf_smb_search_attribute_hidden = -1;
@@ -294,7 +296,7 @@ static int hf_smb_mac_root_file_count = -1;
 static int hf_smb_mac_root_dir_count = -1;
 static int hf_smb_mac_file_count = -1;
 static int hf_smb_mac_dir_count = -1;
-static int hf_smb_mac_support_flags = -1;
+/* static int hf_smb_mac_support_flags = -1; */
 static int hf_smb_mac_sup_access_ctrl = -1;
 static int hf_smb_mac_sup_getset_comments = -1;
 static int hf_smb_mac_sup_desktopdb_calls = -1;
@@ -313,7 +315,7 @@ static int hf_smb_offset = -1;
 static int hf_smb_remaining = -1;
 static int hf_smb_padding = -1;
 static int hf_smb_file_data = -1;
-static int hf_smb_raw_ea_data = -1;
+/* static int hf_smb_raw_ea_data = -1; */
 static int hf_smb_total_data_len = -1;
 static int hf_smb_data_len = -1;
 static int hf_smb_data_len_low = -1;
@@ -564,7 +566,7 @@ static int hf_smb_number_of_links = -1;
 static int hf_smb_delete_pending = -1;
 static int hf_smb_index_number = -1;
 static int hf_smb_position = -1;
-static int hf_smb_current_offset = -1;
+/* static int hf_smb_current_offset = -1; */
 static int hf_smb_t2_alignment = -1;
 static int hf_smb_t2_stream_name_length = -1;
 static int hf_smb_t2_stream_size = -1;
@@ -18884,6 +18886,7 @@ proto_register_smb(void)
 		{ "Archive", "smb.file_attribute.archive", FT_BOOLEAN, 8,
 		TFS(&tfs_file_attribute_archive), SMB_FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE file attribute", HFILL }},
 
+#if 0
 	{ &hf_smb_file_attr_device,
 		{ "Device", "smb.file_attribute.device", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_device), SMB_FILE_ATTRIBUTE_DEVICE, "Is this file a device?", HFILL }},
@@ -18919,6 +18922,7 @@ proto_register_smb(void)
 	{ &hf_smb_file_attr_encrypted,
 		{ "Encrypted", "smb.file_attribute.encrypted", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_encrypted), SMB_FILE_ATTRIBUTE_ENCRYPTED, "Is this file encrypted?", HFILL }},
+#endif
 
 	{ &hf_smb_file_size,
 		{ "File Size", "smb.file_size", FT_UINT32, BASE_DEC,
@@ -19008,9 +19012,11 @@ proto_register_smb(void)
 	  { "Root Directory Count", "smb.dir.count", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Directory Count", HFILL}},
 
+#if 0
 	{ &hf_smb_mac_support_flags,
 	  { "Mac Support Flags", "smb.mac.support.flags", FT_UINT32, BASE_DEC,
 	    NULL, 0, NULL, HFILL}},
+#endif
 
 	{ &hf_smb_mac_sup_access_ctrl,
 	  { "Mac Access Control", "smb.mac.access_control", FT_BOOLEAN, 32,
@@ -19072,9 +19078,11 @@ proto_register_smb(void)
 		{ "File Data", "smb.file_data", FT_BYTES, BASE_NONE,
 		NULL, 0, "Data read/written to the file", HFILL }},
 
+#if 0
 	{ &hf_smb_raw_ea_data,
 		{ "EA Data", "smb.ea_data", FT_BYTES, BASE_NONE,
 		NULL, 0, "Data in EA list", HFILL }},
+#endif
 
 	{ &hf_smb_mac_fndrinfo,
 	        { "Finder Info", "smb.mac.finderinfo", FT_BYTES, BASE_NONE,
@@ -20098,9 +20106,11 @@ proto_register_smb(void)
 		{ "Position", "smb.position", FT_UINT64, BASE_DEC,
 		NULL, 0, "File position", HFILL }},
 
+#if 0
 	{ &hf_smb_current_offset,
 		{ "Current Offset", "smb.offset", FT_UINT64, BASE_DEC,
 		NULL, 0, "Current offset in the file", HFILL }},
+#endif
 
 	{ &hf_smb_t2_alignment,
 		{ "Alignment", "smb.alignment", FT_UINT32, BASE_DEC,

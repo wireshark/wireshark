@@ -129,7 +129,7 @@ static const struct amp_message amp_messages[] = {
 static dissector_handle_t dissector_handle;
 static int proto_bittorrent = -1;
 
-static gint hf_bittorrent_field_length  = -1;
+/* static gint hf_bittorrent_field_length  = -1; */
 static gint hf_bittorrent_prot_name_len = -1;
 static gint hf_bittorrent_prot_name     = -1;
 static gint hf_bittorrent_reserved      = -1;
@@ -848,9 +848,11 @@ void
 proto_register_bittorrent(void)
 {
    static hf_register_info hf[] = {
+#if 0
       { &hf_bittorrent_field_length,
         { "Field Length", "bittorrent.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
+#endif
       { &hf_bittorrent_prot_name_len,
         { "Protocol Name Length", "bittorrent.protocol.name.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },

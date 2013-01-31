@@ -940,7 +940,7 @@ static int hf_amqp_0_10_struct_delivery_properties_resume_ttl = -1;
 static int hf_amqp_0_10_struct_fragment_properties_first = -1;
 static int hf_amqp_0_10_struct_fragment_properties_last = -1;
 static int hf_amqp_0_10_struct_fragment_properties_size = -1;
-static int hf_amqp_0_10_struct_message_properties = -1;
+/* static int hf_amqp_0_10_struct_message_properties = -1; */
 static int hf_amqp_0_10_struct_message_properties_content_len = -1;
 static int hf_amqp_0_10_struct_message_properties_message_id = -1;
 static int hf_amqp_0_10_struct_message_properties_correlation = -1;
@@ -1069,7 +1069,7 @@ static int hf_amqp_0_10_method_file_reject_delivery_tag = -1;
 static int hf_amqp_0_10_method_file_reject_requeue = -1;
 static int hf_amqp_0_10_method_stream_qos_prefetch_size = -1;
 static int hf_amqp_0_10_method_stream_qos_prefetch_count = -1;
-static int hf_amqp_0_10_method_stream_qos_consume_rate = -1;
+/* static int hf_amqp_0_10_method_stream_qos_consume_rate = -1; */
 static int hf_amqp_0_10_method_stream_qos_global = -1;
 static int hf_amqp_0_10_method_stream_consumer_tag = -1;
 static int hf_amqp_0_10_method_stream_consume_no_local = -1;
@@ -8873,10 +8873,12 @@ proto_register_amqp(void)
             "Fragment-size", "amqp.message.fragment-properties.fragment-size",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Size of the message fragment", HFILL}},
+#if 0
         {&hf_amqp_0_10_struct_message_properties, {
             "message.message-properties", "amqp.message.message-properties",
             FT_NONE, BASE_NONE, NULL, 0x0,
             "Message properties struct", HFILL}},
+#endif
         {&hf_amqp_0_10_struct_message_properties_content_len, {
             "Content-length", "amqp.message.message-properties.content-length",
             FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -9397,10 +9399,12 @@ proto_register_amqp(void)
             "Prefetch-count", "amqp.stream.qos.prefetch-count",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "Pre-fetch window size in messages", HFILL}},
+#if 0
         {&hf_amqp_0_10_method_stream_qos_consume_rate, {
             "Prefetch-size", "amqp.stream.qos.consume_rate",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "Desired transfer rate in octets/second", HFILL}},
+#endif
         {&hf_amqp_0_10_method_stream_qos_global, {
             "Global", "amqp.stream.qos.global",
             FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08,

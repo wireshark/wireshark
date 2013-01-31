@@ -117,9 +117,9 @@ static int hf_bundle_procflags_application_ack = -1;
 
 /* Additions for Version 5 */
 static int hf_bundle_control_flags = -1;
-static int hf_bundle_procflags_general = -1;
-static int hf_bundle_procflags_cos = -1;
-static int hf_bundle_procflags_status = -1;
+/* static int hf_bundle_procflags_general = -1; */
+/* static int hf_bundle_procflags_cos = -1; */
+/* static int hf_bundle_procflags_status = -1; */
 
 /* Primary Header COS Flag Variables */
 static int hf_bundle_cosflags = -1;
@@ -135,7 +135,7 @@ static int hf_bundle_srrflags_report_deletion = -1;
 static int hf_bundle_srrflags_report_ack = -1;
 
 /* Primary Header Length Fields*/
-static int hf_bundle_primary_header_len = -1;
+/* static int hf_bundle_primary_header_len = -1; */
 static int hf_bundle_dest_scheme_offset = -1;
 static int hf_bundle_dest_ssp_offset = -1;
 static int hf_bundle_source_scheme_offset = -1;
@@ -195,6 +195,7 @@ static int hf_bundle_admin_forwarded = -1;
 static int hf_bundle_admin_delivered = -1;
 static int hf_bundle_admin_deleted = -1;
 static int hf_bundle_admin_acked = -1;
+#if 0
 static int hf_bundle_admin_receipt_time = -1;
 static int hf_bundle_admin_accept_time = -1;
 static int hf_bundle_admin_forward_time = -1;
@@ -203,6 +204,7 @@ static int hf_bundle_admin_delete_time = -1;
 static int hf_bundle_admin_ack_time = -1;
 static int hf_bundle_admin_timestamp_copy = -1;
 static int hf_bundle_admin_signal_time = -1;
+#endif
 static int hf_bundle_status_report_reason_code = -1;
 static int hf_bundle_custody_trf_succ_flg = -1;
 static int hf_bundle_custody_signal_reason = -1;
@@ -2572,18 +2574,24 @@ proto_register_bundle(void)
          {"Bundle Processing Control Flags", "bundle.primary.proc.flag",
           FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
+#if 0
         {&hf_bundle_procflags_general,
          {"General Flags", "bundle.primary.proc.gen",
           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
+#endif
+#if 0
         {&hf_bundle_procflags_cos,
          {"Cloass of Service Flags", "bundle.primary.proc.cos",
           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
+#endif
+#if 0
         {&hf_bundle_procflags_status,
          {"Status Report Flags", "bundle.primary.proc.status",
           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
+#endif
         {&hf_bundle_cosflags,
          {"Primary Header COS Flags", "bundle.primary.cos.flags",
           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -2620,10 +2628,12 @@ proto_register_bundle(void)
          {"Request Report of Application Ack", "bundle.primary.srr.ack",
           FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_ACK_MASK, NULL, HFILL}
         },
+#if 0
         {&hf_bundle_primary_header_len,
          {"Bundle Header Length", "bundle.primary.len",
           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
+#endif
         {&hf_bundle_dest_scheme_offset,
          {"Destination Scheme Offset", "bundle.primary.destschemeoff",
           FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
@@ -2744,6 +2754,7 @@ proto_register_bundle(void)
          {"Acknowledged by Application", "bundle.admin.status.ack",
           FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_ACKNOWLEDGED, NULL, HFILL}
         },
+#if 0
         {&hf_bundle_admin_receipt_time,
          {"Time of Receipt", "bundle.admin.status.receipttime",
           FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -2776,6 +2787,7 @@ proto_register_bundle(void)
          {"Time of Signal", "bundle.admin.signal.time",
           FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
+#endif
         {&hf_block_control_flags,
          {"Block Processing Control Flags", "bundle.block.control.flags",
           FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}

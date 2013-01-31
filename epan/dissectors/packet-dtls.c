@@ -127,8 +127,8 @@ static gint hf_dtls_handshake_cert_types_count  = -1;
 static gint hf_dtls_handshake_cert_types        = -1;
 static gint hf_dtls_handshake_cert_type         = -1;
 static gint hf_dtls_handshake_finished          = -1;
-static gint hf_dtls_handshake_md5_hash          = -1;
-static gint hf_dtls_handshake_sha_hash          = -1;
+/* static gint hf_dtls_handshake_md5_hash          = -1; */
+/* static gint hf_dtls_handshake_sha_hash          = -1; */
 static gint hf_dtls_handshake_session_id_len    = -1;
 static gint hf_dtls_handshake_dnames_len        = -1;
 static gint hf_dtls_handshake_dnames            = -1;
@@ -2540,6 +2540,7 @@ proto_register_dtls(void)
         FT_NONE, BASE_NONE, NULL, 0x0,
         "Opaque verification data", HFILL }
     },
+#if 0
     { &hf_dtls_handshake_md5_hash,
       { "MD5 Hash", "dtls.handshake.md5_hash",
         FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2550,6 +2551,7 @@ proto_register_dtls(void)
         FT_NONE, BASE_NONE, NULL, 0x0,
         "Hash of messages, master_secret, etc.", HFILL }
     },
+#endif
     { &hf_dtls_handshake_session_id_len,
       { "Session ID Length", "dtls.handshake.session_id_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,

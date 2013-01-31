@@ -360,8 +360,8 @@ static int hf_giop_type_id = -1;
 static int hf_giop_iiop_v_maj = -1;
 static int hf_giop_iiop_v_min = -1;
 static int hf_giop_endianness = -1; /* esp encapsulations */
-static int hf_giop_compressed = -1;
-static int hf_giop_IOR_tag = -1;
+/* static int hf_giop_compressed = -1; */
+/* static int hf_giop_IOR_tag = -1; */
 static int hf_giop_IIOP_tag = -1;
 static int hf_giop_locale_status = -1;
 static int hf_giop_addressing_disposition = -1;
@@ -5019,10 +5019,12 @@ proto_register_giop (void)
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
+#if 0
     { &hf_giop_compressed,
       { "ZIOP", "giop.compressed",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
+#endif
 
     { &hf_giop_endianness,
       { "Endianness", "giop.endianness",
@@ -5099,10 +5101,12 @@ proto_register_giop (void)
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
+#if 0
     { &hf_giop_IOR_tag,
       { "IOR Profile TAG", "giop.iortag",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
+#endif
 
     { &hf_giop_TCKind,
       { "TypeCode enum", "giop.TCKind",

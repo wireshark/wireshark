@@ -37,7 +37,7 @@ static int proto_ISystemActivator = -1;
 static gint ett_isystemactivator = -1;
 static int hf_opnum = -1;
 static int hf_sysact_actproperties = -1;
-static int hf_sysact_unknown = -1;
+/* static int hf_sysact_unknown = -1; */
 
 static gint ett_actproperties = -1;
 static int hf_sysact_totalsize = -1;
@@ -50,9 +50,9 @@ static int hf_sysact_customhdrsize = -1;
 static int hf_sysact_dstctx = -1;
 static int hf_sysact_actpropnumber = -1;
 static int hf_sysact_actpropclsinfoid = -1;
-static int hf_sysact_actpropclsids = -1;
+/* static int hf_sysact_actpropclsids = -1; */
 static int hf_sysact_actpropclsid = -1;
-static int hf_sysact_actpropsizes = -1;
+/* static int hf_sysact_actpropsizes = -1; */
 static int hf_sysact_actpropsize = -1;
 
 
@@ -67,8 +67,8 @@ static int hf_sysact_spsysprop_partition = -1;
 static int hf_sysact_spsysprop_procrqstflgs = -1;
 static int hf_sysact_spsysprop_origclsctx = -1;
 static int hf_sysact_spsysprop_flags = -1;
-static int hf_sysact_spsysprop_procid = -1;
-static int hf_sysact_spsysprop_hwnd = -1;
+/* static int hf_sysact_spsysprop_procid = -1; */
+/* static int hf_sysact_spsysprop_hwnd = -1; */
 
 static gint ett_dcom_instantianinfo = -1;
 static int hf_sysact_instninfo_clsid = -1;
@@ -1148,8 +1148,10 @@ proto_register_ISystemActivator (void)
           { "Operation", "isystemactivator.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sysact_actproperties,
         { "IActProperties", "isystemactivator.actproperties", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#if 0
         { &hf_sysact_unknown,
         { "IUnknown", "isystemactivator.unknown", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#endif
     };
 
     static hf_register_info hf_actproperties[] = {
@@ -1166,12 +1168,16 @@ proto_register_ISystemActivator (void)
         { "NumActivationPropertyStructs", "isystemactivator.customhdr.actpropnumber", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sysact_actpropclsinfoid,
         { "ClassInfoClsid", "isystemactivator.customhdr.clsinfoid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#if 0
         { &hf_sysact_actpropclsids,
         { "PropertyGuids", "isystemactivator.customhdr.clsids", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#endif
         { &hf_sysact_actpropclsid,
         { "PropertyStructGuid", "isystemactivator.customhdr.clsid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#if 0
         { &hf_sysact_actpropsizes,
         { "PropertyDataSizes", "isystemactivator.customhdr.datasizes", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#endif
         { &hf_sysact_actpropsize,
         { "PropertyDataSize", "isystemactivator.customhdr.datasize", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
@@ -1194,10 +1200,14 @@ proto_register_ISystemActivator (void)
         { "OriginalClassContext", "isystemactivator.properties.spcl.origclsctx", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_sysact_spsysprop_flags,
         { "Flags", "isystemactivator.properties.spcl.flags", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+#if 0
         { &hf_sysact_spsysprop_procid,
         { "ProcessID", "isystemactivator.properties.spcl.procid", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+#endif
+#if 0
         { &hf_sysact_spsysprop_hwnd,
         { "hWnd", "isystemactivator.properties.spcl.hwnd", FT_UINT64, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+#endif
 
         /*InstantiationInfo*/
         { &hf_sysact_instninfo_clsid,

@@ -115,7 +115,7 @@ static gint ett_etch_value = -1;
 static int hf_etch_sig = -1;
 static int hf_etch_length = -1;
 static int hf_etch_version = -1;
-static int hf_etch_typecode = -1;
+/* static int hf_etch_typecode = -1; */
 static int hf_etch_value = -1;
 static int hf_etch_bytes = -1;
 static int hf_etch_byte = -1;
@@ -124,7 +124,7 @@ static int hf_etch_int = -1;
 static int hf_etch_long = -1;
 static int hf_etch_float = -1;
 static int hf_etch_double = -1;
-static int hf_etch_key = -1;
+/* static int hf_etch_key = -1; */
 static int hf_etch_valuename = -1;
 static int hf_etch_keyname = -1;
 static int hf_etch_string = -1;
@@ -825,12 +825,14 @@ void proto_register_etch(void)
       NULL, 0x0,
       NULL, HFILL}
     },
+#if 0
     {&hf_etch_typecode,
      {"Etch TypeCode", "etch.typecode",
       FT_STRING, BASE_NONE,    /* FT_INT8 */
       NULL, 0x0,
       NULL, HFILL}
     },
+#endif
     {&hf_etch_value,
      {"Etch Value", "etch.value",
       FT_UINT64, BASE_DEC,
@@ -885,12 +887,14 @@ void proto_register_etch(void)
       NULL, 0x0,
       NULL, HFILL}
     },
+#if 0
     {&hf_etch_key,
      {"Etch key", "etch.key",
       FT_BYTES, BASE_NONE,
       NULL, 0x0,
       NULL, HFILL}
     },
+#endif
     {&hf_etch_symbol,
      {"Etch symbol", "etch.symbol",
       FT_UINT32, BASE_HEX,

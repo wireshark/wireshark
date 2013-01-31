@@ -58,7 +58,7 @@ static int hf_edcp_min = -1;
 static int hf_edcp_pt = -1;
 static int hf_edcp_crc = -1;
 static int hf_edcp_crc_ok = -1;
-static int hf_edcp_pft_pt = -1;
+/* static int hf_edcp_pft_pt = -1; */
 static int hf_edcp_pseq = -1;
 static int hf_edcp_findex = -1;
 static int hf_edcp_fcount = -1;
@@ -71,14 +71,14 @@ static int hf_edcp_source = -1;
 static int hf_edcp_dest = -1;
 static int hf_edcp_hcrc = -1;
 static int hf_edcp_hcrc_ok = -1;
-static int hf_edcp_c_max = -1;
-static int hf_edcp_rx_min = -1;
-static int hf_edcp_rs_corrected = -1;
+/* static int hf_edcp_c_max = -1; */
+/* static int hf_edcp_rx_min = -1; */
+/* static int hf_edcp_rs_corrected = -1; */
 static int hf_edcp_rs_ok = -1;
 static int hf_edcp_pft_payload = -1;
 
 static int hf_tpl_tlv = -1;
-static int hf_tpl_ptr = -1;
+/* static int hf_tpl_ptr = -1; */
 
 static int hf_edcp_fragments = -1;
 static int hf_edcp_fragment = -1;
@@ -731,11 +731,13 @@ proto_register_dcp_etsi (void)
     };
 
   static hf_register_info hf_pft[] = {
+#if 0
     {&hf_edcp_pft_pt,
      {"Sub-protocol", "dcp-pft.pt",
       FT_UINT8, BASE_DEC, NULL, 0,
       "Always AF", HFILL}
      },
+#endif
     {&hf_edcp_pseq,
      {"Sequence No", "dcp-pft.seq",
       FT_UINT16, BASE_DEC, NULL, 0,
@@ -828,6 +830,7 @@ proto_register_dcp_etsi (void)
     {&hf_edcp_reassembled_length,
      {"Reassembled DCP (ETSI) length", "dcp-pft.reassembled.length",
       FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL}},
+#if 0
     {&hf_edcp_c_max,
      {"C max", "dcp-pft.cmax",
       FT_UINT16, BASE_DEC, NULL, 0,
@@ -843,6 +846,7 @@ proto_register_dcp_etsi (void)
       FT_INT16, BASE_DEC, NULL, 0,
       "Number of symbols corrected by RS decode or -1 for failure", HFILL}
      },
+#endif
     {&hf_edcp_rs_ok,
      {"RS decode OK", "dcp-pft.rs_ok",
       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -861,11 +865,13 @@ proto_register_dcp_etsi (void)
       FT_BYTES, BASE_NONE, NULL, 0,
       "Tag Packet", HFILL}
      },
+#if 0
     {&hf_tpl_ptr,
      {"Type", "dcp-tpl.ptr",
       FT_STRING, BASE_NONE, NULL, 0,
       "Protocol Type & Revision", HFILL}
      }
+#endif
     };
 
 /* Setup protocol subtree array */

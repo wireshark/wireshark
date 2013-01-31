@@ -50,7 +50,7 @@ static gint hf_ecp_pid = -1;
 static gint hf_ecp_subtype = -1;
 static gint hf_ecp_mode = -1;
 static gint hf_ecp_sequence = -1;
-static gint hf_ecp_vdp_oui = -1;
+/* static gint hf_ecp_vdp_oui = -1; */
 static gint hf_ecp_vdp_mode = -1;
 static gint hf_ecp_vdp_response = -1;
 static gint hf_ecp_vdp_mgrid = -1;
@@ -346,10 +346,12 @@ void proto_register_ecp_oui(void)
 			{ "sequence number", "ecp.seq", FT_UINT16, BASE_HEX,
 				NULL, 0x0, NULL, HFILL },
 		},
+#if 0
 		{ &hf_ecp_vdp_oui,
 			{ "Organization Unique Code",	"ecp.vdp.oui", FT_UINT24, BASE_HEX,
 			VALS(tlv_oui_subtype_vals), 0x0, NULL, HFILL }
 		},
+#endif
 		{ &hf_ecp_vdp_mode,
 			{ "mode", "ecp.vdp.mode", FT_UINT8, BASE_HEX,
 				VALS(ecp_vdp_modes), 0x0, NULL, HFILL },

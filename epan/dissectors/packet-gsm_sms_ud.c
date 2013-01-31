@@ -87,11 +87,11 @@ static int hf_gsm_sms_ud_reassembled_length = -1;
  */
 static int hf_gsm_sms_udh_length = -1;
 static int hf_gsm_sms_udh_iei = -1;
-static int hf_gsm_sms_udh_multiple_messages = -1;
+/* static int hf_gsm_sms_udh_multiple_messages = -1; */
 static int hf_gsm_sms_udh_multiple_messages_msg_id = -1;
 static int hf_gsm_sms_udh_multiple_messages_msg_parts = -1;
 static int hf_gsm_sms_udh_multiple_messages_msg_part = -1;
-static int hf_gsm_sms_udh_ports = -1;
+/* static int hf_gsm_sms_udh_ports = -1; */
 static int hf_gsm_sms_udh_ports_src = -1;
 static int hf_gsm_sms_udh_ports_dst = -1;
 
@@ -468,6 +468,7 @@ proto_register_gsm_sms_ud(void)
                 HFILL
             }
         },
+#if 0
         {   &hf_gsm_sms_udh_multiple_messages,
             {   "Multiple messages UDH", "gsm_sms_ud.udh.mm",
                 FT_NONE, BASE_NONE, NULL, 0x00,
@@ -475,6 +476,7 @@ proto_register_gsm_sms_ud(void)
                 HFILL
             }
         },
+#endif
         {   &hf_gsm_sms_udh_multiple_messages_msg_id,
             {   "Message identifier", "gsm_sms_ud.udh.mm.msg_id",
                 FT_UINT16, BASE_DEC, NULL, 0x00,
@@ -496,6 +498,7 @@ proto_register_gsm_sms_ud(void)
                 HFILL
             }
         },
+#if 0
         {   &hf_gsm_sms_udh_ports,
             {   "Port number UDH", "gsm_sms_ud.udh.ports",
                 FT_NONE, BASE_NONE, NULL, 0x00,
@@ -503,6 +506,7 @@ proto_register_gsm_sms_ud(void)
                 HFILL
             }
         },
+#endif
         {   &hf_gsm_sms_udh_ports_src,
             {   "Source port", "gsm_sms_ud.udh.ports.src",
                 FT_UINT8, BASE_DEC, NULL, 0x00,

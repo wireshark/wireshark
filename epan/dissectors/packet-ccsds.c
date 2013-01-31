@@ -68,14 +68,14 @@ static int hf_ccsds_vid = -1;
 static int hf_ccsds_dcc = -1;
 
 /* core specific ccsds secondary header */
-static int hf_ccsds_spare1 = -1;
+/* static int hf_ccsds_spare1 = -1; */
 static int hf_ccsds_packet_type = -1;
-static int hf_ccsds_spare2 = -1;
+/* static int hf_ccsds_spare2 = -1; */
 static int hf_ccsds_element_id = -1;
 static int hf_ccsds_cmd_data_packet = -1;
 static int hf_ccsds_format_version_id = -1;
 static int hf_ccsds_extended_format_id = -1;
-static int hf_ccsds_spare3 = -1;
+/* static int hf_ccsds_spare3 = -1; */
 static int hf_ccsds_frame_id = -1;
 
 /* ccsds checkword (checksum) */
@@ -587,21 +587,25 @@ proto_register_ccsds(void)
 
 
                 /* core specific ccsds secondary header flags */
+#if 0
 		{ &hf_ccsds_spare1,
 			{ "Spare Bit 1",           "ccsds.spare1",
 			FT_UINT8, BASE_DEC, NULL, 0x10,
 			"unused spare bit 1", HFILL }
 		},
+#endif
 		{ &hf_ccsds_packet_type,
 			{ "Packet Type",       "ccsds.packet_type",
 			FT_UINT8, BASE_DEC, VALS(ccsds_secondary_header_packet_type), 0x0f,
 			NULL, HFILL }
 		},
+#if 0
 		{ &hf_ccsds_spare2,
 			{ "Spare Bit 2",           "ccsds.spare2",
 			FT_UINT16, BASE_DEC, NULL, 0x8000,
 			NULL, HFILL }
 		},
+#endif
 		{ &hf_ccsds_element_id,
 			{ "Element ID",           "ccsds.element_id",
 			FT_UINT16, BASE_DEC, VALS(ccsds_secondary_header_element_id), 0x7800,
@@ -622,11 +626,13 @@ proto_register_ccsds(void)
 			FT_UINT16, BASE_DEC, VALS(ccsds_secondary_header_format_id), 0x003f,
 			NULL, HFILL }
 		},
+#if 0
 		{ &hf_ccsds_spare3,
 			{ "Spare Bits 3",         "ccsds.spare3",
 			FT_UINT8, BASE_DEC, NULL, 0xff,
 			NULL, HFILL }
 		},
+#endif
 		{ &hf_ccsds_frame_id,
 			{ "Frame ID",             "ccsds.frame_id",
 			FT_UINT8, BASE_DEC, NULL, 0xff,

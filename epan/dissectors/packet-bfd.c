@@ -130,7 +130,7 @@ static gint proto_bfd = -1;
 static gint hf_bfd_version = -1;
 static gint hf_bfd_diag = -1;
 static gint hf_bfd_sta = -1;
-static gint hf_bfd_flags = -1;
+/* static gint hf_bfd_flags = -1; */
 static gint hf_bfd_flags_h = -1;
 static gint hf_bfd_flags_p = -1;
 static gint hf_bfd_flags_f = -1;
@@ -163,7 +163,7 @@ static gint hf_mep_type = -1;
 static gint hf_mep_len = -1;
 static gint hf_mep_global_id = -1;
 static gint hf_mep_node_id = -1;
-static gint hf_mep_interface_no = -1;
+/* static gint hf_mep_interface_no = -1; */
 static gint hf_mep_tunnel_no = -1;
 static gint hf_mep_lsp_no = -1;
 static gint hf_mep_ac_id = -1;
@@ -701,11 +701,13 @@ proto_register_bfd(void)
             FT_UINT8, BASE_HEX, VALS(bfd_control_sta_values), 0xc0,
             "The BFD state as seen by the transmitting system", HFILL }
         },
+#if 0
         { &hf_bfd_flags,
           { "Message Flags", "bfd.flags",
             FT_UINT8, BASE_HEX, NULL, 0xf0,
             NULL, HFILL }
         },
+#endif
         { &hf_bfd_flags_h,
           { "I hear you", "bfd.flags.h",
             FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
@@ -838,11 +840,13 @@ proto_register_bfd(void)
             FT_IPv4, BASE_NONE, NULL , 0x0,
             "MPLS-TP Node Identifier", HFILL }
         },
+#if 0
         { &hf_mep_interface_no,
           { "Interface  Number", "bfd.mep.interface.no",
             FT_UINT32, BASE_DEC, NULL , 0x0,
             "MPLS-TP Interface Number", HFILL }
         },
+#endif
         { &hf_mep_tunnel_no,
           { "Tunnel Number", "bfd.mep.tunnel.no",
             FT_UINT16, BASE_DEC, NULL , 0x0,

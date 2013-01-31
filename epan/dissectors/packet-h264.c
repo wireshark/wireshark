@@ -116,7 +116,7 @@ static int hf_h264_par_profile_h                           = -1;
 static int hf_h264_par_profile_h10                         = -1;
 static int hf_h264_par_profile_h4_2_2                      = -1;
 static int hf_h264_par_profile_h4_4_4                      = -1;
-static int hf_h264_par_add_mode_sup                        = -1;
+/* static int hf_h264_par_add_mode_sup                        = -1; */
 static int hf_h264_par_AdditionalModesSupported            = -1;
 static int hf_h264_par_add_mode_sup_rcdo                   = -1;
 static int hf_h264_par_ProfileIOP                          = -1;
@@ -173,7 +173,7 @@ static int hf_h264_slice_type                              = -1;
 static int hf_h264_slice_id                                = -1;
 static int hf_h264_payloadsize                             = -1;
 static int hf_h264_payloadtype                             = -1;
-static int hf_h264_frame_num                               = -1;
+/* static int hf_h264_frame_num                               = -1; */
 
 /* Initialize the subtree pointers */
 static int ett_h264                                        = -1;
@@ -2692,11 +2692,13 @@ proto_register_h264(void)
             FT_UINT32, BASE_DEC, VALS(h264_sei_payload_vals), 0x0,
             NULL, HFILL }
         },
+#if 0
         { &hf_h264_frame_num,
             { "frame_num",           "h264.frame_num",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+#endif
         { &hf_h264_par_profile,
                 { "Profile", "h264.profile",
                 FT_UINT8, BASE_HEX, NULL, 0x00,
@@ -2733,10 +2735,12 @@ proto_register_h264(void)
                 { "AdditionalModesSupported", "h264.AdditionalModesSupported",
             FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL}},
+#if 0
         { &hf_h264_par_add_mode_sup,
                 { "Additional Modes Supported", "h264.add_mode_sup",
             FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL}},
+#endif
         { &hf_h264_par_add_mode_sup_rcdo,
                 { "Reduced Complexity Decoding Operation (RCDO) support", "h264.add_mode_sup.rcdo",
             FT_BOOLEAN, 8, NULL, 0x40,

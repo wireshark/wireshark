@@ -41,7 +41,7 @@ static int hf_remunk_opnum = -1;
 static int hf_remunk_refs = -1;
 static int hf_remunk_iids = -1;
 
-static int hf_remunk_flags = -1;
+/* static int hf_remunk_flags = -1; */
 static int hf_remunk_qiresult = -1;
 
 static gint ett_remunk_reminterfaceref = -1;
@@ -328,8 +328,10 @@ proto_register_remunk (void)
           { "IIDs", "remunk.iids", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_remunk_qiresult,
           { "QIResult", "remunk.qiresult", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#if 0
         { &hf_remunk_flags,
           { "Flags", "remunk.flags",  FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+#endif
         { &hf_remunk_public_refs,
           { "PublicRefs", "remunk.public_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_remunk_reminterfaceref,

@@ -282,7 +282,7 @@ static int hf_bssap_extension = -1;
 static int hf_bssap_type_of_number = -1;
 static int hf_bssap_numbering_plan_id = -1;
 static int hf_bssap_sgsn_number = -1;
-static int hf_bssap_vlr_number = -1;
+/* static int hf_bssap_vlr_number = -1; */
 static int hf_bssap_call_priority = -1;
 static int hf_bssap_gprs_loc_upd_type_ie = -1;
 static int hf_bssap_Gs_cause_ie = -1;
@@ -2262,10 +2262,12 @@ proto_register_bssap(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }},
 
+#if 0
         { &hf_bssap_vlr_number,
           { "VLR number", "bssap.vlr_number",
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }},
+#endif
 
         { &hf_bssap_cell_global_id_ie,
           { "Cell global identity IE", "bssap.cell_global_id_ie",

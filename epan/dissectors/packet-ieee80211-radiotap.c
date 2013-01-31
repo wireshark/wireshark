@@ -51,7 +51,7 @@ static int hf_radiotap_pad = -1;
 static int hf_radiotap_length = -1;
 static int hf_radiotap_present = -1;
 static int hf_radiotap_mactime = -1;
-static int hf_radiotap_channel = -1;
+/* static int hf_radiotap_channel = -1; */
 static int hf_radiotap_channel_frequency = -1;
 static int hf_radiotap_channel_flags = -1;
 static int hf_radiotap_channel_flags_turbo = -1;
@@ -2177,10 +2177,12 @@ void proto_register_radiotap(void)
 		  FT_UINT32, BASE_HEX, NULL, 0x0,
 		  "Frame check sequence of this frame", HFILL}},
 
+#if 0
 		{&hf_radiotap_channel,
 		 {"Channel", "radiotap.channel",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "802.11 channel number that this frame was sent/received on", HFILL}},
+#endif
 
 		{&hf_radiotap_channel_frequency,
 		 {"Channel frequency", "radiotap.channel.freq",

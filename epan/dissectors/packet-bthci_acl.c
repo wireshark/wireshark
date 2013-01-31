@@ -44,7 +44,7 @@ static int hf_bthci_acl_chandle = -1;
 static int hf_bthci_acl_pb_flag = -1;
 static int hf_bthci_acl_bc_flag = -1;
 static int hf_bthci_acl_length = -1;
-static int hf_bthci_acl_data = -1;
+/* static int hf_bthci_acl_data = -1; */
 static int hf_bthci_acl_continuation_to = -1;
 static int hf_bthci_acl_reassembled_in = -1;
 
@@ -381,11 +381,13 @@ proto_register_bthci_acl(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+#if 0
         { &hf_bthci_acl_data,
           { "Data",                                          "bthci_acl.data",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+#endif
         { &hf_bthci_acl_continuation_to,
           { "This is a continuation to the PDU in frame",    "bthci_acl.continuation_to",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,

@@ -43,7 +43,7 @@ static int proto_agentx = -1;
 
 static int hf_version = -1;
 static int hf_type   = -1;
-static int hf_flags  = -1;
+/* static int hf_flags  = -1; */
 static int hf_flags_register  = -1;
 static int hf_flags_newindex  = -1;
 static int hf_flags_anyindex  = -1;
@@ -982,9 +982,11 @@ proto_register_agentx(void)
 		  { "Type", "agentx.type", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &type_values_ext, 0x0,
 		    "header type", HFILL }},
 
+#if 0
 		{ &hf_flags,
 		  { "Flags", "agentx.flags", FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "header type", HFILL }},
+#endif
 
 		{ &hf_flags_register,
 		  { "Register", "agentx.flags.register", FT_BOOLEAN, 8, TFS(&tfs_agentx_register),

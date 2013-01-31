@@ -555,7 +555,7 @@ static gint hf_cops_obj_c_num = -1;
 static gint hf_cops_obj_c_type = -1;
 
 static gint hf_cops_obj_s_num = -1;
-static gint hf_cops_obj_s_type = -1;
+/* static gint hf_cops_obj_s_type = -1; */
 
 static gint hf_cops_r_type_flags = -1;
 static gint hf_cops_m_type_flags = -1;
@@ -657,7 +657,7 @@ static gint hf_cops_pc_token_bucket_rate = -1;
 static gint hf_cops_pc_token_bucket_size = -1;
 static gint hf_cops_pc_transaction_id = -1;
 static gint hf_cops_pc_bcid_ts = -1;
-static gint hf_cops_pc_bcid = -1;
+/* static gint hf_cops_pc_bcid = -1; */
 static gint hf_cops_pc_bcid_ev = -1;
 static gint hf_cops_pc_dfcdc_ip = -1;
 static gint hf_cops_pc_dfccc_ip = -1;
@@ -1668,11 +1668,13 @@ void proto_register_cops(void)
             FT_UINT8, BASE_DEC, VALS(cops_s_num_vals), 0x0,
             "S-Num in COPS-PR Object Header", HFILL }
         },
+#if 0
         { &hf_cops_obj_s_type,
           { "S-Type",           "cops.s_type",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "S-Type in COPS-PR Object Header", HFILL }
         },
+#endif
 
         { &hf_cops_r_type_flags,
           { "R-Type",           "cops.context.r_type",
@@ -2066,11 +2068,13 @@ void proto_register_cops(void)
             FT_FLOAT, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+#if 0
         { &hf_cops_pc_bcid,
           { "Billing Correlation ID", "cops.pc_bcid",
             FT_UINT32, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
+#endif
         { &hf_cops_pc_bcid_ts,
           { "BDID Timestamp", "cops.pc_bcid_ts",
             FT_UINT32, BASE_HEX, NULL, 0x00,

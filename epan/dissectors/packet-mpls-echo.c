@@ -170,8 +170,10 @@ static int hf_mpls_echo_tlv_ilso_label = -1;
 static int hf_mpls_echo_tlv_ilso_exp = -1;
 static int hf_mpls_echo_tlv_ilso_bos = -1;
 static int hf_mpls_echo_tlv_ilso_ttl = -1;
+#if 0
 static int hf_mpls_echo_tlv_rto_ipv4 = -1;
 static int hf_mpls_echo_tlv_rto_ipv6 = -1;
+#endif
 static int hf_mpls_echo_tlv_reply_tos = -1;
 static int hf_mpls_echo_tlv_reply_tos_mbz = -1;
 static int hf_mpls_echo_tlv_errored_type = -1;
@@ -2126,6 +2128,7 @@ proto_register_mpls_echo(void)
           { "TTL", "mpls_echo.tlv.ilso_ipv4.ttl",
             FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Interface and Label Stack TTL", HFILL}
         },
+#if 0
         { &hf_mpls_echo_tlv_rto_ipv4,
           { "Reply-to IPv4 Address", "mpls_echo.tlv.rto.ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV IPv4 Reply-To Object", HFILL}
@@ -2134,6 +2137,7 @@ proto_register_mpls_echo(void)
           { "Reply-to IPv6 Address", "mpls_echo.tlv.rto.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV IPv6 Reply-To Object", HFILL}
         },
+#endif
         { &hf_mpls_echo_tlv_reply_tos,
           { "Reply-TOS Byte", "mpls_echo.tlv.reply.tos",
             FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Reply-TOS Byte", HFILL}
@@ -2209,24 +2213,24 @@ proto_register_mpls_echo(void)
           { "DST AC ID", "mpls_echo.lspping.tlv.pw.dst.ac.id",
             FT_UINT32, BASE_DEC, NULL, 0x0, "PW FEC DST AC ID", HFILL}
         },
-/**
+#if 0
         { &hf_mpls_echo_lspping_tlv_pw_agi_type,
           { "AGI TYPE", "mpls_echo.lspping.tlv.pw.agi.type",
             FT_UINT8, BASE_DEC, NULL, 0x0, "PW AGI TYPE", HFILL}
         },
-**/
-/**
+#endif
+#if 0
         { &hf_mpls_echo_lspping_tlv_pw_agi_len,
           { "AGI Length", "mpls_echo.lspping.tlv.pw.agi.len",
             FT_UINT8, BASE_DEC, NULL, 0x0, "PW AGI LENGTH", HFILL}
         },
-**/
-/**
+#endif
+#if 0
         { &hf_mpls_echo_lspping_tlv_pw_agi_val,
           { "AGI VALUE", "mpls_echo.lspping.tlv.pw.agi.val",
             FT_STRING, BASE_NONE, NULL, 0x0, "PW AGI VALUE", HFILL}
         },
-**/
+#endif
         { &hf_mpls_echo_tlv_dd_map_mtu,
           { "MTU", "mpls_echo.lspping.tlv.dd_map.mtu",
             FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Detailed Downstream Map MTU", HFILL}
@@ -2309,29 +2313,29 @@ proto_register_mpls_echo(void)
           { "Multipath Information", "mpls_echo.subtlv.dd_map.multipath_info",
             FT_BYTES, BASE_NONE, NULL, 0x0, "Detailed Downstream Mapping TLV Multipath Data Sub-TLV Value", HFILL}
         },
-/**
+#if 0
         { &hf_mpls_echo_tlv_ddstlv_map_mp_label,
           { "Downstream Label", "mpls_echo.tlv.ddstlv_map.mp_label",
             FT_UINT24, BASE_DEC, VALS(special_labels), 0x0, "MPLS ECHO TLV Detailed Downstream Map Downstream Label", HFILL}
         },
-**/
+#endif
         { &hf_mpls_echo_tlv_ddstlv_map_mp_proto,
           { "Downstream Protocol", "mpls_echo.tlv.ddstlv_map.mp_proto",
             FT_UINT8, BASE_DEC, VALS(mpls_echo_tlv_ds_map_mp_proto), 0x0,
             "MPLS ECHO TLV Detailed Downstream Map Downstream Protocol", HFILL}
         },
-/**
+#if 0
         { &hf_mpls_echo_tlv_ddstlv_map_mp_exp,
           { "Downstream Experimental", "mpls_echo.tlv.ddstlv_map.mp_exp",
             FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Detailed Downstream Map Downstream Experimental", HFILL}
         },
-**/
-/**
+#endif
+#if 0
         { &hf_mpls_echo_tlv_ddstlv_map_mp_bos,
           { "Downstream BOS", "mpls_echo.tlv.ddstlv_map.mp_bos",
             FT_UINT8, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Detailed Downstream Map Downstream BOS", HFILL}
         },
-**/
+#endif
         { &hf_mpls_echo_sub_tlv_multipath_ip,
           { "IP Address", "mpls_echo.tlv.ddstlv_map_mp.ip",
             FT_IPv4, BASE_NONE, NULL, 0x0, "MPLS ECHO TLV Detailed Downstream Map Multipath IP Address", HFILL}
@@ -2438,12 +2442,12 @@ proto_register_mpls_echo(void)
           { "Target IPv4 Address", "mpls_echo.tlv.resp_id.ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0, "P2MP Responder ID TLV IPv4 Address", HFILL}
         },
-/**
+#if 0
         { &hf_mpls_echo_tlv_responder_indent_ipv6,
           { "Target IPv6 Address", "mpls_echo.tlv.resp_id.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0, "P2MP Responder ID TLV IPv6 Address", HFILL}
         },
-**/
+#endif
         { &hf_mpls_echo_tlv_echo_jitter,
           { "Echo Jitter time", "mpls_echo.tlv.echo_jitter",
             FT_UINT32, BASE_DEC, NULL, 0x0, "MPLS ECHO Jitter time", HFILL}

@@ -74,7 +74,7 @@ static int hf_aim_fnac_subtype_ssi_gid = -1;
 static int hf_aim_fnac_subtype_ssi_bid = -1;
 static int hf_aim_fnac_subtype_ssi_type = -1;
 static int hf_aim_fnac_subtype_ssi_tlvlen = -1;
-static int hf_aim_fnac_subtype_ssi_data = -1;
+/* static int hf_aim_fnac_subtype_ssi_data = -1; */
 static int hf_aim_fnac_subtype_ssi_reason_str_len = -1;
 static int hf_aim_fnac_subtype_ssi_reason_str = -1;
 static int hf_aim_fnac_subtype_ssi_grant_auth_unkn = -1;
@@ -356,9 +356,11 @@ proto_register_aim_ssi(void)
 		{ &hf_aim_fnac_subtype_ssi_tlvlen,
 			{ "SSI TLV Len", "aim_ssi.fnac.tlvlen", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
+#if 0
 		{ &hf_aim_fnac_subtype_ssi_data,
 			{ "SSI Buddy Data", "aim_ssi.fnac.data", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
+#endif
 		{ &hf_aim_fnac_subtype_ssi_buddyname_len8,
 			{ "SSI Buddy Name length", "aim_ssi.fnac.buddyname_len8", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},

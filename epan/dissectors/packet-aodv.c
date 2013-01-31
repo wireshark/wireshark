@@ -108,7 +108,7 @@ typedef struct v6_ext {
 /* Initialize the protocol and registered fields */
 static int proto_aodv = -1;
 static int hf_aodv_type = -1;
-static int hf_aodv_flags = -1;
+/* static int hf_aodv_flags = -1; */
 static int hf_aodv_prefix_sz = -1;
 static int hf_aodv_hopcount = -1;
 static int hf_aodv_rreq_id = -1;
@@ -122,7 +122,7 @@ static int hf_aodv_lifetime = -1;
 static int hf_aodv_destcount = -1;
 static int hf_aodv_unreach_dest_ip = -1;
 static int hf_aodv_unreach_dest_ipv6 = -1;
-static int hf_aodv_unreach_dest_seqno = -1;
+/* static int hf_aodv_unreach_dest_seqno = -1; */
 static int hf_aodv_flags_rreq_join = -1;
 static int hf_aodv_flags_rreq_repair = -1;
 static int hf_aodv_flags_rreq_gratuitous = -1;
@@ -131,8 +131,8 @@ static int hf_aodv_flags_rreq_unknown = -1;
 static int hf_aodv_flags_rrep_repair = -1;
 static int hf_aodv_flags_rrep_ack = -1;
 static int hf_aodv_flags_rerr_nodelete = -1;
-static int hf_aodv_ext_type = -1;
-static int hf_aodv_ext_length = -1;
+/* static int hf_aodv_ext_type = -1; */
+/* static int hf_aodv_ext_length = -1; */
 static int hf_aodv_ext_interval = -1;
 static int hf_aodv_ext_timestamp = -1;
 
@@ -829,11 +829,13 @@ proto_register_aodv(void)
 	    FT_UINT8, BASE_DEC, VALS(type_vals), 0x0,
 	    "AODV packet type", HFILL }
 	},
+#if 0
 	{ &hf_aodv_flags,
 	  { "Flags", "aodv.flags",
 	    FT_UINT16, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }
 	},
+#endif
 	{ &hf_aodv_flags_rreq_join,
 	  { "RREQ Join", "aodv.flags.rreq_join",
 	    FT_BOOLEAN, 8, TFS(&tfs_set_notset), RREQ_JOIN,
@@ -939,6 +941,7 @@ proto_register_aodv(void)
 	    FT_IPv6, BASE_NONE, NULL, 0x0,
 	    "Unreachable Destination IPv6 Address", HFILL}
 	},
+#if 0
 	{ &hf_aodv_unreach_dest_seqno,
 	  { "Unreachable Destination Sequence Number", "aodv.unreach_dest_seqno",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -954,6 +957,7 @@ proto_register_aodv(void)
 	    FT_UINT8, BASE_DEC, NULL, 0x0,
 	    "Extension Data Length", HFILL}
 	},
+#endif
 	{ &hf_aodv_ext_interval,
 	  { "Hello Interval", "aodv.hello_interval",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,

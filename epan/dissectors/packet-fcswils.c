@@ -81,7 +81,7 @@ static int hf_swils_efp_rec_type          = -1;
 static int hf_swils_efp_dom_id            = -1;
 static int hf_swils_efp_switch_name       = -1;
 static int hf_swils_efp_mcast_grpno       = -1;
-static int hf_swils_efp_alias_token       = -1;
+/* static int hf_swils_efp_alias_token       = -1; */
 static int hf_swils_efp_record_len        = -1;
 static int hf_swils_efp_payload_len       = -1;
 static int hf_swils_efp_pswitch_pri       = -1;
@@ -89,7 +89,7 @@ static int hf_swils_efp_pswitch_name      = -1;
 static int hf_swils_dia_switch_name       = -1;
 static int hf_swils_rdi_payload_len       = -1;
 static int hf_swils_rdi_req_sname         = -1;
-static int hf_swils_fspfh_cmd             = -1;
+/* static int hf_swils_fspfh_cmd             = -1; */
 static int hf_swils_fspfh_rev             = -1;
 static int hf_swils_fspfh_ar_num          = -1;
 static int hf_swils_fspfh_auth_type       = -1;
@@ -2036,10 +2036,12 @@ proto_register_fcswils(void)
            FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
 
+#if 0
         { &hf_swils_efp_alias_token,
           {"Alias Token", "swils.efp.aliastok",
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
+#endif
 
         { &hf_swils_efp_record_len,
           {"Record Len", "swils.efp.recordlen",
@@ -2076,10 +2078,12 @@ proto_register_fcswils(void)
            FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
+#if 0
         { &hf_swils_fspfh_cmd,
           {"Command:", "swils.fspf.cmd",
            FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
+#endif
 
         { &hf_swils_fspfh_rev,
           {"Version", "swils.fspf.ver",

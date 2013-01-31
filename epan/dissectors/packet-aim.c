@@ -386,15 +386,15 @@ static int hf_aim_channel = -1;
 static int hf_aim_seqno = -1;
 static int hf_aim_data = -1;
 static int hf_aim_data_len = -1;
-static int hf_aim_signon_challenge_len = -1;
-static int hf_aim_signon_challenge = -1;
+/* static int hf_aim_signon_challenge_len = -1; */
+/* static int hf_aim_signon_challenge = -1; */
 static int hf_aim_fnac_family = -1;
 static int hf_aim_fnac_subtype = -1;
 static int hf_aim_fnac_flags = -1;
 static int hf_aim_fnac_flag_next_is_related = -1;
 static int hf_aim_fnac_flag_contains_version = -1;
 static int hf_aim_fnac_id = -1;
-static int hf_aim_infotype = -1;
+/* static int hf_aim_infotype = -1; */
 static int hf_aim_buddyname_len = -1;
 static int hf_aim_buddyname = -1;
 static int hf_aim_userinfo_warninglevel = -1;
@@ -1527,12 +1527,14 @@ proto_register_aim(void)
 		{ &hf_aim_data,
 		  { "Data", "aim.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
+#if 0
 		{ &hf_aim_signon_challenge_len,
 		  { "Signon challenge length", "aim.signon.challengelen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_signon_challenge,
 		  { "Signon challenge", "aim.signon.challenge", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
+#endif
 		{ &hf_aim_fnac_family,
 		  { "FNAC Family ID", "aim.fnac.family", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
@@ -1545,9 +1547,11 @@ proto_register_aim(void)
 		{ &hf_aim_fnac_id,
 		  { "FNAC ID", "aim.fnac.id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
+#if 0
 		{ &hf_aim_infotype,
 		  { "Infotype", "aim.infotype", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
+#endif
 		{ &hf_aim_buddyname_len,
 		  { "Buddyname len", "aim.buddynamelen", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},

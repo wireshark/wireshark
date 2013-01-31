@@ -67,7 +67,7 @@ static int hf_gsm_cbch_sched_type = -1;
 static int hf_gsm_cbch_sched_begin_slot = -1;
 static int hf_gsm_cbch_sched_spare = -1;
 static int hf_gsm_cbch_sched_end_slot = -1;
-static int hf_gsm_cbch_sched_msg_id = -1;
+/* static int hf_gsm_cbch_sched_msg_id = -1; */
 
 /* These fields are used when reassembling cbch fragments
  */
@@ -474,11 +474,13 @@ proto_register_gsm_cbch(void)
                 FT_UINT8, BASE_DEC, NULL, 0x3F,
                 NULL, HFILL}
             },
+#if 0
             { &hf_gsm_cbch_sched_msg_id,
               { "GSM CBCH Schedule Message ID", "gsm_cbch.sched_msg_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL}
             },
+#endif
             /* Fragment fields
              */
             { &hf_cbch_fragment_overlap,

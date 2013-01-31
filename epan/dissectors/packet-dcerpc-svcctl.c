@@ -62,8 +62,8 @@ static int hf_svcctl_service_type_win32_share_process = -1;
 static int hf_svcctl_service_type_interactive_process = -1;
 static int hf_svcctl_service_state = -1;
 static int hf_svcctl_buffer = -1;
-static int hf_svcctl_bytes_needed = -1;
-static int hf_svcctl_services_returned = -1;
+/* static int hf_svcctl_bytes_needed = -1; */
+/* static int hf_svcctl_services_returned = -1; */
 static int hf_svcctl_resume = -1;
 static int hf_svcctl_service_name = -1;
 static int hf_svcctl_display_name = -1;
@@ -959,12 +959,14 @@ proto_register_dcerpc_svcctl(void)
 	  { &hf_svcctl_buffer,
 	    { "Buffer", "svcctl.buffer", FT_UINT32, BASE_DEC,
 	      NULL, 0x0, "SVCCTL buffer", HFILL }},
+#if 0
 	  { &hf_svcctl_bytes_needed,
 	    { "Bytes Needed", "svcctl.bytes_needed", FT_UINT32, BASE_DEC,
 	      NULL, 0x0, "SVCCTL bytes needed", HFILL }},
 	  { &hf_svcctl_services_returned,
 	    { "Services Returned", "svcctl.services_returned", FT_UINT32, BASE_DEC,
 	      NULL, 0x0, "SVCCTL services returned", HFILL }},
+#endif
 	  { &hf_svcctl_service_name,
 	    { "Service Name", "svcctl.servicename", FT_STRING, BASE_NONE,
 	      NULL, 0x0, "SVCCTL name of service", HFILL }},

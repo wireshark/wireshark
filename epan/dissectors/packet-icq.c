@@ -47,7 +47,7 @@ static int hf_icq_client_cmd = -1;
 static int hf_icq_server_cmd = -1;
 static int hf_icq_sessionid = -1;
 static int hf_icq_checkcode = -1;
-static int hf_icq_decode = -1;
+/* static int hf_icq_decode = -1; */
 static int hf_icq_type = -1;
 
 static gint ett_icq = -1;
@@ -1745,8 +1745,10 @@ proto_register_icq(void)
 	  {"Server command", "icq.server_cmd", FT_UINT16, BASE_DEC, VALS(serverCmdCode), 0x0, NULL, HFILL }},
 	{ &hf_icq_checkcode,
 	  {"Checkcode", "icq.checkcode", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+#if 0
 	{ &hf_icq_decode,
 	  {"Decode", "icq.decode", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }}
+#endif
     };
     static gint *ett[] = {
         &ett_icq,

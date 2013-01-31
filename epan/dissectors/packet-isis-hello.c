@@ -54,7 +54,7 @@ static int hf_isis_hello_lan_id = -1;
 static int hf_isis_hello_local_circuit_id = -1;
 static int hf_isis_hello_clv_ipv4_int_addr = -1;
 static int hf_isis_hello_clv_ipv6_int_addr = -1;
-static int hf_isis_hello_clv_ptp_adj = -1;
+/* static int hf_isis_hello_clv_ptp_adj = -1; */
 static int hf_isis_hello_clv_mt = -1;
 static int hf_isis_hello_clv_restart_flags = -1;
 static int hf_isis_hello_clv_restart_flags_rr = -1;
@@ -579,11 +579,11 @@ dissect_hello_restart_clv(tvbuff_t *tvb,
 	    restart_flags_item = proto_tree_add_uint ( tree, hf_isis_hello_clv_restart_flags,
 		    tvb, offset, 1, restart_options);
 	    flags_tree = proto_item_add_subtree(restart_flags_item, ett_isis_hello_clv_restart_flags);
-	    proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_sa, 
+	    proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_sa,
 		    tvb, offset, 1, restart_options );
-	    proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_ra, 
+	    proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_ra,
 		    tvb, offset, 1, restart_options );
-	    proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_rr, 
+	    proto_tree_add_boolean (flags_tree, hf_isis_hello_clv_restart_flags_rr,
 		    tvb, offset, 1, restart_options );
 
 	    /* Append an indication of which flags are set in the restart
@@ -726,7 +726,7 @@ dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb,
  *
  * Description:
  *	Decode for a hello packets authenticaion clv.
- *      Calls into the CLV common one. 
+ *      Calls into the CLV common one.
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
@@ -750,7 +750,7 @@ dissect_hello_authentication_clv(tvbuff_t *tvb,
  *
  * Description:
  *	Decode for a hello packets IP authenticaion clv.
- *      Calls into the CLV common one. 
+ *      Calls into the CLV common one.
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
@@ -798,14 +798,14 @@ dissect_hello_checksum_clv(tvbuff_t *tvb,
                         return;
                 }
 
-    		checksum = tvb_get_ntohs(tvb, offset);    		
+    		checksum = tvb_get_ntohs(tvb, offset);
 
                 /* the check_and_get_checksum() function needs to know how big
                  * the packet is. we can either pass through the pdu-len through several layers
                  * of dissectors and wrappers or extract the PDU length field from the PDU specific header
                  * which is offseted 17 bytes in IIHs (relative to the beginning of the IS-IS packet) */
 
-    		pdu_length = tvb_get_ntohs(tvb, 17);   
+    		pdu_length = tvb_get_ntohs(tvb, 17);
 
                 /* unlike the LSP checksum verification which starts at an offset of 12 we start at offset 0*/
 		switch (check_and_get_checksum(tvb, 0, pdu_length, checksum, offset, &cacl_checksum))
@@ -896,7 +896,7 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
             proto_tree_add_text ( tree, tvb, offset+1, 4,
                                   "Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+1) );
             proto_tree_add_text ( tree, tvb, offset+5, id_length,
-                                  "Neighbor SystemID: %s", 
+                                  "Neighbor SystemID: %s",
 				  print_system_id( tvb_get_ptr(tvb, offset+5, id_length), id_length ) );
 	    break;
 	  case 15:
@@ -905,10 +905,10 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
             proto_tree_add_text ( tree, tvb, offset+1, 4,
                                   "Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+1) );
             proto_tree_add_text ( tree, tvb, offset+5, id_length,
-                                  "Neighbor SystemID: %s", 
+                                  "Neighbor SystemID: %s",
 				  print_system_id( tvb_get_ptr(tvb, offset+5, id_length), id_length ) );
             proto_tree_add_text ( tree, tvb, offset+5+id_length, 4,
-                                  "Neighbor Extended Local circuit ID: 0x%08x", 
+                                  "Neighbor Extended Local circuit ID: 0x%08x",
 				  tvb_get_ntohl(tvb, offset+5+id_length) );
 	    break;
 	  default:
@@ -1034,7 +1034,7 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		source_id = tvb_get_ptr(tvb, offset, id_length);
 		proto_tree_add_bytes_format(hello_tree, hf_isis_hello_source_id, tvb,
 			            offset, id_length, source_id,
-			            "System-ID {Sender of PDU} : %s", 
+			            "System-ID {Sender of PDU} : %s",
 			            print_system_id( source_id, id_length ) );
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1161,9 +1161,11 @@ isis_register_hello(int proto_isis) {
 		{ "IPv6 interface address", "isis.hello.clv_ipv6_int_addr",
 			FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+#if 0
 		{ &hf_isis_hello_clv_ptp_adj,
 		{ "Point-to-point Adjacency", "isis.hello.clv_ptp_adj",
 			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+#endif
 
 		{ &hf_isis_hello_clv_mt,
 		{ "MT-ID", "isis.hello.clv_mt",
@@ -1175,27 +1177,27 @@ isis_register_hello(int proto_isis) {
 
 		{ &hf_isis_hello_clv_restart_flags_rr,
 		{ "Restart Request", "isis.hello.clv_restart_flags.rr",
-			FT_BOOLEAN, 8, TFS(&tfs_true_false), ISIS_RESTART_RR, 
+			FT_BOOLEAN, 8, TFS(&tfs_true_false), ISIS_RESTART_RR,
 			"When set, the router is beginning a graceful restart", HFILL }},
 
 		{ &hf_isis_hello_clv_restart_flags_ra,
 		{ "Restart Acknowledgment", "isis.hello.clv_restart_flags.ra",
-			FT_BOOLEAN, 8, TFS(&tfs_true_false), ISIS_RESTART_RA, 
+			FT_BOOLEAN, 8, TFS(&tfs_true_false), ISIS_RESTART_RA,
 			"When set, the router is willing to enter helper mode", HFILL }},
 
 		{ &hf_isis_hello_clv_restart_flags_sa,
 		{ "Suppress Adjacency", "isis.hello.clv_restart_flags.sa",
-			FT_BOOLEAN, 8, TFS(&tfs_true_false), ISIS_RESTART_SA, 
+			FT_BOOLEAN, 8, TFS(&tfs_true_false), ISIS_RESTART_SA,
 			"When set, the router is starting as opposed to restarting", HFILL }},
 
 		{ &hf_isis_hello_clv_restart_remain_time,
 		{ "Remaining holding time", "isis.hello.clv_restart.remain_time",
-			FT_UINT16, BASE_DEC, NULL, 0x0, 
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"How long the helper router will maintain the existing adjacency", HFILL }},
 
 		{ &hf_isis_hello_clv_restart_neighbor,
 		{ "Restarting Neighbor ID", "isis.hello.clv_restart.neighbor",
-			FT_BYTES, BASE_NONE, NULL, 0x0, 
+			FT_BYTES, BASE_NONE, NULL, 0x0,
 			"The System ID of the restarting neighbor", HFILL }}
 	};
 	static gint *ett[] = {

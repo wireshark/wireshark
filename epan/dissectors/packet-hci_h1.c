@@ -29,7 +29,7 @@
 #include "packet-bluetooth-hci.h"
 
 static int proto_hci_h1 = -1;
-static int hf_hci_h1_type = -1;
+/* static int hf_hci_h1_type = -1; */
 static int hf_hci_h1_direction = -1;
 
 static gint ett_hci_h1 = -1;
@@ -131,10 +131,12 @@ void
 proto_register_hci_h1(void)
 {
 	static hf_register_info hf[] = {
+#if 0
 	{ &hf_hci_h1_type,
 		{ "HCI Packet Type",           "hci_h1.type",
 		FT_UINT8, BASE_HEX, VALS(hci_h1_type_vals), 0x0,
 		NULL, HFILL }},
+#endif
 
 	{ &hf_hci_h1_direction,
 		{ "Direction",           "hci_h1.direction",

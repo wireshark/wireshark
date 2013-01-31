@@ -39,7 +39,7 @@ static int hf_rpriv_opnum = -1;
 static int hf_rpriv_get_eptgt_rqst_authn_svc = -1;
 static int hf_rpriv_get_eptgt_rqst_authz_svc = -1;
 static int hf_rpriv_get_eptgt_rqst_var1 = -1;
-static int hf_rpriv_get_eptgt_rqst_key_size = -1;
+/* static int hf_rpriv_get_eptgt_rqst_key_size = -1; */
 static int hf_rpriv_get_eptgt_rqst_key_size2 = -1;
 static int hf_rpriv_get_eptgt_rqst_key_t = -1;
 static int hf_rpriv_get_eptgt_rqst_key_t2 = -1;
@@ -115,8 +115,10 @@ proto_register_rpriv (void)
 		  { "Authn_Svc", "rpriv.get_eptgt_rqst_authn_svc", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_rpriv_get_eptgt_rqst_authz_svc,
 		  { "Authz_Svc", "rpriv.get_eptgt_rqst_authz_svc", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+#if 0
 		{ &hf_rpriv_get_eptgt_rqst_key_size,
 		  { "Key_Size", "rpriv.get_eptgt_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+#endif
 		{ &hf_rpriv_get_eptgt_rqst_var1,
 		  { "Var1", "rpriv.get_eptgt_rqst_var1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_rpriv_get_eptgt_rqst_key_size2,

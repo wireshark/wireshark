@@ -138,15 +138,15 @@ static int hf_netlogon_sensitive_data = -1;
 static int hf_netlogon_security_information = -1;
 static int hf_netlogon_dummy = -1;
 static int hf_netlogon_neg_flags = -1;
-static int hf_netlogon_neg_flags_80000000 = -1;
+/* static int hf_netlogon_neg_flags_80000000 = -1; */
 static int hf_netlogon_neg_flags_40000000 = -1;
 static int hf_netlogon_neg_flags_20000000 = -1;
-static int hf_netlogon_neg_flags_10000000 = -1;
-static int hf_netlogon_neg_flags_8000000 = -1;
-static int hf_netlogon_neg_flags_4000000 = -1;
-static int hf_netlogon_neg_flags_2000000 = -1;
+/* static int hf_netlogon_neg_flags_10000000 = -1; */
+/* static int hf_netlogon_neg_flags_8000000 = -1; */
+/* static int hf_netlogon_neg_flags_4000000 = -1; */
+/* static int hf_netlogon_neg_flags_2000000 = -1; */
 static int hf_netlogon_neg_flags_1000000 = -1;
-static int hf_netlogon_neg_flags_800000 = -1;
+/* static int hf_netlogon_neg_flags_800000 = -1; */
 static int hf_netlogon_neg_flags_400000 = -1;
 static int hf_netlogon_neg_flags_200000 = -1;
 static int hf_netlogon_neg_flags_100000 = -1;
@@ -176,10 +176,10 @@ static int hf_netlogon_pagedpoollimit = -1;
 static int hf_netlogon_pagefilelimit = -1;
 static int hf_netlogon_timelimit = -1;
 static int hf_netlogon_nonpagedpoollimit = -1;
-static int hf_netlogon_pac_size = -1;
-static int hf_netlogon_pac_data = -1;
-static int hf_netlogon_auth_size = -1;
-static int hf_netlogon_auth_data = -1;
+/* static int hf_netlogon_pac_size = -1; */
+/* static int hf_netlogon_pac_data = -1; */
+/* static int hf_netlogon_auth_size = -1; */
+/* static int hf_netlogon_auth_data = -1; */
 static int hf_netlogon_cipher_len = -1;
 static int hf_netlogon_cipher_maxlen = -1;
 static int hf_netlogon_cipher_current_data = -1;
@@ -196,8 +196,8 @@ static int hf_netlogon_tc_connection_status = -1;
 static int hf_netlogon_restart_state = -1;
 static int hf_netlogon_attrs = -1;
 static int hf_netlogon_lsapolicy_len = -1;
-static int hf_netlogon_lsapolicy_referentid = -1;
-static int hf_netlogon_lsapolicy_pointer = -1;
+/* static int hf_netlogon_lsapolicy_referentid = -1; */
+/* static int hf_netlogon_lsapolicy_pointer = -1; */
 static int hf_netlogon_count = -1;
 static int hf_netlogon_entries = -1;
 static int hf_netlogon_minpasswdlen = -1;
@@ -250,7 +250,7 @@ static int hf_netlogon_pwd_age = -1;
 static int hf_netlogon_pwd_last_set_time = -1;
 static int hf_netlogon_pwd_can_change_time = -1;
 static int hf_netlogon_pwd_must_change_time = -1;
-static int hf_netlogon_nt_chal_resp = -1;
+/* static int hf_netlogon_nt_chal_resp = -1; */
 static int hf_netlogon_lm_chal_resp = -1;
 static int hf_netlogon_credential = -1;
 static int hf_netlogon_acct_name = -1;
@@ -271,7 +271,7 @@ static int hf_netlogon_user_rid = -1;
 static int hf_netlogon_alias_rid = -1;
 static int hf_netlogon_group_rid = -1;
 static int hf_netlogon_logon_srv = -1;
-static int hf_netlogon_principal = -1;
+/* static int hf_netlogon_principal = -1; */
 static int hf_netlogon_logon_dom = -1;
 static int hf_netlogon_resourcegroupcount = -1;
 static int hf_netlogon_downlevel_domain_name = -1;
@@ -407,7 +407,7 @@ static int hf_netlogon_dc_flags_ndnc_flag = -1;
 static int hf_netlogon_dc_flags_dns_controller_flag = -1;
 static int hf_netlogon_dc_flags_dns_domain_flag = -1;
 static int hf_netlogon_dc_flags_dns_forest_flag = -1;
-static int hf_netlogon_dnsdomaininfo = -1;
+/* static int hf_netlogon_dnsdomaininfo = -1; */
 static int hf_netlogon_s4u2proxytarget = -1;
 static int hf_netlogon_transitedlistsize = -1;
 static int hf_netlogon_transited_service = -1;
@@ -6645,31 +6645,34 @@ static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,guint32 f
                                   tvb, offset, 4,flags);
         negotiate_flags_tree = proto_item_add_subtree (tf,ett_authenticate_flags);
 
-        /*proto_tree_add_boolean (negotiate_flags_tree,
-          hf_netlogon_neg_flags_80000000,
-          tvb, offset, 4, flags);*/
+#if 0
+        proto_tree_add_boolean (negotiate_flags_tree,
+                                hf_netlogon_neg_flags_80000000,
+                                tvb, offset, 4, flags);
+#endif
         proto_tree_add_boolean (negotiate_flags_tree,
                                 hf_netlogon_neg_flags_40000000,
                                 tvb, offset, 4, flags);
         proto_tree_add_boolean (negotiate_flags_tree,
                                 hf_netlogon_neg_flags_20000000,
                                 tvb, offset, 4, flags);
-        /*
-          proto_tree_add_boolean (negotiate_flags_tree,
-          hf_netlogon_neg_flags_10000000,
-          tvb, offset, 4, flags);
-          proto_tree_add_boolean (negotiate_flags_tree,
-          hf_netlogon_neg_flags_8000000,
-          tvb, offset, 4, flags);
-          proto_tree_add_boolean (negotiate_flags_tree,
-          hf_netlogon_neg_flags_4000000,
-          tvb, offset, 4, flags);
-          proto_tree_add_boolean (negotiate_flags_tree,
-          hf_netlogon_neg_flags_2000000,
-          tvb, offset, 4, flags);
-          proto_tree_add_boolean (negotiate_flags_tree,
-          hf_netlogon_neg_flags_800000,
-          tvb, offset, 4, flags);*/
+#if 0
+        proto_tree_add_boolean (negotiate_flags_tree,
+                                hf_netlogon_neg_flags_10000000,
+                                tvb, offset, 4, flags);
+        proto_tree_add_boolean (negotiate_flags_tree,
+                                hf_netlogon_neg_flags_8000000,
+                                tvb, offset, 4, flags);
+        proto_tree_add_boolean (negotiate_flags_tree,
+                                hf_netlogon_neg_flags_4000000,
+                                tvb, offset, 4, flags);
+        proto_tree_add_boolean (negotiate_flags_tree,
+                                hf_netlogon_neg_flags_2000000,
+                                tvb, offset, 4, flags);
+        proto_tree_add_boolean (negotiate_flags_tree,
+                                hf_netlogon_neg_flags_800000,
+                                tvb, offset, 4, flags);
+#endif
         proto_tree_add_boolean (negotiate_flags_tree,
                                 hf_netlogon_neg_flags_1000000,
                                 tvb, offset, 4, flags);
@@ -8228,17 +8231,21 @@ proto_register_dcerpc_netlogon(void)
                 "Attributes", "netlogon.attrs", FT_UINT32, BASE_HEX,
                 NULL, 0, NULL, HFILL }},
 
+#if 0
         { &hf_netlogon_lsapolicy_referentid,
           { "Referent ID", "netlogon.lsapolicy.referentID", FT_UINT32, BASE_HEX,
             NULL, 0x0, NULL, HFILL }},
+#endif
 
         { &hf_netlogon_lsapolicy_len,
           { "Length", "netlogon.lsapolicy.length", FT_UINT32, BASE_DEC,
             NULL, 0x0, "Length of the policy buffer", HFILL }},
 
+#if 0
         { &hf_netlogon_lsapolicy_pointer,
           { "Pointer", "netlogon.lsapolicy.pointer", FT_BYTES, BASE_NONE,
             NULL, 0x0, "Pointer to LSA POLICY", HFILL }},
+#endif
 
         { &hf_netlogon_unknown_string,
           { "Unknown string", "netlogon.unknown_string", FT_STRING, BASE_NONE,
@@ -8412,9 +8419,11 @@ proto_register_dcerpc_netlogon(void)
           { "Length", "netlogon.sensitive_data_len", FT_UINT32, BASE_DEC,
             NULL, 0x0, "Length of sensitive data", HFILL }},
 
+#if 0
         { &hf_netlogon_nt_chal_resp,
           { "NT Chal resp", "netlogon.nt_chal_resp", FT_BYTES, BASE_NONE,
             NULL, 0, "Challenge response for NT authentication", HFILL }},
+#endif
 
         { &hf_netlogon_lm_chal_resp,
           { "LM Chal resp", "netlogon.lm_chal_resp", FT_BYTES, BASE_NONE,
@@ -8428,17 +8437,21 @@ proto_register_dcerpc_netlogon(void)
           { "Cipher Max Len", "netlogon.cipher_maxlen", FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }},
 
+#if 0
         { &hf_netlogon_pac_data,
           { "Pac Data", "netlogon.pac.data", FT_BYTES, BASE_NONE,
             NULL, 0, NULL, HFILL }},
+#endif
 
         { &hf_netlogon_sensitive_data,
           { "Data", "netlogon.sensitive_data", FT_BYTES, BASE_NONE,
             NULL, 0, "Sensitive Data", HFILL }},
 
+#if 0
         { &hf_netlogon_auth_data,
           { "Auth Data", "netlogon.auth.data", FT_BYTES, BASE_NONE,
             NULL, 0, NULL, HFILL }},
+#endif
 
         { &hf_netlogon_cipher_current_data,
           { "Cipher Current Data", "netlogon.cipher_current_data", FT_BYTES, BASE_NONE,
@@ -8492,9 +8505,11 @@ proto_register_dcerpc_netlogon(void)
           { "Server", "netlogon.server", FT_STRING, BASE_NONE,
             NULL, 0, NULL, HFILL }},
 
+#if 0
         { &hf_netlogon_principal,
           { "Principal", "netlogon.principal", FT_STRING, BASE_NONE,
             NULL, 0, NULL, HFILL }},
+#endif
 
         { &hf_netlogon_logon_dom,
           { "Domain", "netlogon.domain", FT_STRING, BASE_NONE,
@@ -8748,13 +8763,17 @@ proto_register_dcerpc_netlogon(void)
           { "Max Log Size", "netlogon.max_log_size", FT_UINT32, BASE_DEC,
             NULL, 0x0, "Max Size of log", HFILL }},
 
+#if 0
         { &hf_netlogon_pac_size,
           { "Pac Size", "netlogon.pac.size", FT_UINT32, BASE_DEC,
             NULL, 0x0, "Size of PacData in bytes", HFILL }},
+#endif
 
+#if 0
         { &hf_netlogon_auth_size,
           { "Auth Size", "netlogon.auth.size", FT_UINT32, BASE_DEC,
             NULL, 0x0, "Size of AuthData in bytes", HFILL }},
+#endif
 
         { &hf_netlogon_num_deltas,
           { "Num Deltas", "netlogon.num_deltas", FT_UINT32, BASE_DEC,
@@ -8796,8 +8815,10 @@ proto_register_dcerpc_netlogon(void)
           { "Negotiation options", "netlogon.neg_flags", FT_UINT32, BASE_HEX,
             NULL, 0x0, "Negotiation Flags", HFILL }},
 
+#if 0
         { &hf_netlogon_neg_flags_80000000,
           { "Not used 80000000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80000000, "Not used", HFILL }},
+#endif
 
         { &hf_netlogon_neg_flags_40000000,
           { "Authenticated RPC supported", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40000000, NULL, HFILL }},
@@ -8805,23 +8826,33 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_neg_flags_20000000,
           { "Authenticated RPC via lsass supported", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_20000000, "rpc via lsass", HFILL }},
 
+#if 0
         { &hf_netlogon_neg_flags_10000000,
           { "Not used 10000000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_10000000, "Not used", HFILL }},
+#endif
 
+#if 0
         { &hf_netlogon_neg_flags_8000000,
           { "Not used 8000000", "ntlmssp.neg_flags.na800000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_8000000, "Not used", HFILL }},
+#endif
 
+#if 0
         { &hf_netlogon_neg_flags_4000000,
           { "Not used 4000000", "ntlmssp.neg_flags.na400000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_4000000, "Not used", HFILL }},
+#endif
 
+#if 0
         { &hf_netlogon_neg_flags_2000000,
           { "Not used 2000000", "ntlmssp.neg_flags.na200000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2000000, "Not used", HFILL }},
+#endif
 
         { &hf_netlogon_neg_flags_1000000,
           { "AES supported", "ntlmssp.neg_flags.na100000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1000000, "AES", HFILL }},
 
+#if 0
         { &hf_netlogon_neg_flags_800000,
           { "Not used 800000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800000, "Not used", HFILL }},
+#endif
 
         { &hf_netlogon_neg_flags_400000,
           { "AES & SHA2 supported", "ntlmssp.neg_flags.na400000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_USEAES, "AES&SHA2", HFILL }},
@@ -9427,9 +9458,11 @@ proto_register_dcerpc_netlogon(void)
             FT_BOOLEAN, 32, TFS(&user_account_control_account_disabled), 0x00000001,
             "The user account control account_disabled flag", HFILL }},
 
+#if 0
         { &hf_netlogon_dnsdomaininfo,
           { "DnsDomainInfo", "netlogon.dnsdomaininfo", FT_NONE, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
+#endif
 
         { &DnsDomainInfo_sid,
           { "Sid", "lsarpc.lsa_DnsDomainInfo.sid", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},

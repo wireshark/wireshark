@@ -517,7 +517,7 @@ static gint hf_epl_soa_svtg      = -1;
 static gint hf_epl_soa_eplv      = -1;
 
 static gint hf_epl_asnd_svid     = -1;
-static gint hf_epl_asnd_data     = -1;
+/* static gint hf_epl_asnd_data     = -1; */
 
 /*IdentResponse*/
 static gint hf_epl_asnd_identresponse_en             = -1;
@@ -570,7 +570,7 @@ static gint hf_epl_asnd_statusresponse_pr            = -1;
 static gint hf_epl_asnd_statusresponse_rs            = -1;
 static gint hf_epl_asnd_statusresponse_stat_ms       = -1;
 static gint hf_epl_asnd_statusresponse_stat_cs       = -1;
-static gint hf_epl_asnd_statusresponse_seb           = -1;
+/* static gint hf_epl_asnd_statusresponse_seb           = -1; */
 
 /*StaticErrorBitField */
 static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit0 = -1;
@@ -583,8 +583,8 @@ static gint hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit7 = -1;
 static gint hf_epl_asnd_statusresponse_seb_devicespecific_err        = -1;
 
 /*List of Errors/Events*/
-static gint hf_epl_asnd_statusresponse_el                    = -1;
-static gint hf_epl_asnd_statusresponse_el_entry              = -1;
+/* static gint hf_epl_asnd_statusresponse_el                    = -1; */
+/* static gint hf_epl_asnd_statusresponse_el_entry              = -1; */
 static gint hf_epl_asnd_statusresponse_el_entry_type         = -1;
 static gint hf_epl_asnd_statusresponse_el_entry_type_profile = -1;
 static gint hf_epl_asnd_statusresponse_el_entry_type_mode    = -1;
@@ -1870,11 +1870,13 @@ proto_register_epl(void)
             FT_UINT8, BASE_DEC, VALS(asnd_svid_vals), 0x00,
             NULL, HFILL }
         },
+#if 0
         { &hf_epl_asnd_data,
           { "Data", "epl.asnd.data",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+#endif
 
 /* ASnd-->IdentResponse */
         { &hf_epl_asnd_identresponse_en,
@@ -2120,11 +2122,13 @@ proto_register_epl(void)
             FT_UINT8, BASE_HEX, VALS(epl_nmt_cs_vals), 0x00,
             NULL, HFILL }
         },
+#if 0
         { &hf_epl_asnd_statusresponse_seb,
           { "StaticErrorBitField", "epl.asnd.sres.seb",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+#endif
 
 /*StaticErrorBitField */
         { &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit0,
@@ -2168,16 +2172,20 @@ proto_register_epl(void)
             NULL, HFILL }
         },
 
+#if 0
         { &hf_epl_asnd_statusresponse_el,
           { "ErrorCodesList", "epl.asnd.sres.el",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+#endif
+#if 0
         { &hf_epl_asnd_statusresponse_el_entry,
           { "Entry", "epl.asnd.sres.el.entry",
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+#endif
 
 /*List of Errors/Events*/
         { &hf_epl_asnd_statusresponse_el_entry_type,

@@ -59,7 +59,7 @@ static int hf_componentstatusreport_location         = -1;
 static int hf_componentstatusreport_status           = -1;
 static int hf_componentstatusreport_workload         = -1;
 static int hf_componentstatusreport_associations     = -1;
-static int hf_componentstatusreport_associationarray = -1;
+/* static int hf_componentstatusreport_associationarray = -1; */
 static int hf_componentassociation_receiverid        = -1;
 static int hf_componentassociation_duration          = -1;
 static int hf_componentassociation_flags             = -1;
@@ -266,7 +266,9 @@ proto_register_componentstatusprotocol(void)
     { &hf_componentstatusreport_status,           { "Status",           "componentstatusprotocol.componentstatusreport_status",           FT_STRING, BASE_NONE, NULL,                     0x0, NULL, HFILL } },
     { &hf_componentstatusreport_workload,         { "Workload",         "componentstatusprotocol.componentstatusreport_workload",         FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_componentstatusreport_associations,     { "Associations",     "componentstatusprotocol.componentstatusreport_associations",     FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+#if 0
     { &hf_componentstatusreport_associationarray, { "AssociationArray", "componentstatusprotocol.componentstatusreport_AssociationArray", FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+#endif
     { &hf_componentassociation_receiverid,        { "ReceiverID",       "componentstatusprotocol.componentassociation_receiverid",        FT_UINT64, BASE_HEX, NULL,                      0x0, NULL, HFILL } },
     { &hf_componentassociation_duration,          { "Duration",         "componentstatusprotocol.componentassociation_duration",          FT_UINT64, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_componentassociation_flags,             { "Flags",            "componentstatusprotocol.componentassociation_flags",             FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },

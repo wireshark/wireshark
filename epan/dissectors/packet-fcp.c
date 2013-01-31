@@ -81,10 +81,10 @@ static int hf_fcp_rsp_flags_res_vld = -1;
 static int hf_fcp_request_in = -1;
 static int hf_fcp_response_in = -1;
 static int hf_fcp_time = -1;
-static int hf_fcp_srr_op = -1;
+/* static int hf_fcp_srr_op = -1; */
 static int hf_fcp_srr_ox_id = -1;
 static int hf_fcp_srr_rx_id = -1;
-static int hf_fcp_srr_r_ctl = -1;
+/* static int hf_fcp_srr_r_ctl = -1; */
 
 /* Initialize the subtree pointers */
 static gint ett_fcp = -1;
@@ -99,9 +99,9 @@ typedef struct fcp_request_data {
    guint32 request_frame;
    guint32 response_frame;
    nstime_t request_time;
-   /* XXX - keep for "backwards compatility", but not sure it really 
+   /* XXX - keep for "backwards compatility", but not sure it really
       needs to be part of the persistent data */
-   itl_nexus_t *itl; 
+   itl_nexus_t *itl;
 } fcp_request_data_t;
 
 static dissector_table_t fcp_dissector;
@@ -986,10 +986,12 @@ proto_register_fcp(void)
             FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
             "Time since the FCP_CMND frame", HFILL }},
 
+#if 0
         { &hf_fcp_srr_op,
           {"Opcode", "fcp.els.op",
            FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
+#endif
 
         { &hf_fcp_srr_ox_id,
           {"OX_ID", "fcp.els.srr.ox_id",
@@ -1001,10 +1003,12 @@ proto_register_fcp(void)
            FT_UINT16, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
 
+#if 0
         { &hf_fcp_srr_r_ctl,
           {"R_CTL", "fcp.els.srr.r_ctl",
            FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
+#endif
     };
 
     /* Setup protocol subtree array */

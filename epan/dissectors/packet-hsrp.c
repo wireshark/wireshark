@@ -172,7 +172,7 @@ static gint hf_hsrp2_state = -1;
 static gint hf_hsrp2_group_state_tlv = -1;
 static gint hf_hsrp2_interface_state_tlv = -1;
 static gint hf_hsrp2_text_auth_tlv = -1;
-static gint hf_hsrp2_md5_auth_tlv = -1;
+/* static gint hf_hsrp2_md5_auth_tlv = -1; */
 static gint hf_hsrp2_ipversion = -1;
 static gint hf_hsrp2_hellotime = -1;
 static gint hf_hsrp2_holdtime = -1;
@@ -720,10 +720,12 @@ void proto_register_hsrp(void)
                     FT_UINT8, BASE_DEC, NULL, 0x0,
                     NULL, HFILL }},
 
+#if 0
                 { &hf_hsrp2_md5_auth_tlv,
                   { "MD5 Authentication TLV", "hsrp2.md5_auth_tlv",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
                     NULL, HFILL }},
+#endif
 
                 { &hf_hsrp2_ipversion,
                   { "IP Ver.", "hsrp2.ipversion",

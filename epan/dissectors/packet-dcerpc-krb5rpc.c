@@ -53,7 +53,7 @@ static int hf_krb5rpc_sendto_kdc_resp_len = -1;
 static int hf_krb5rpc_sendto_kdc_resp_max = -1;
 static int hf_krb5rpc_sendto_kdc_resp_spare1 = -1;
 static int hf_krb5rpc_sendto_kdc_resp_keysize = -1;
-static int hf_krb5rpc_sendto_kdc_resp_st = -1;
+/* static int hf_krb5rpc_sendto_kdc_resp_st = -1; */
 static int hf_krb5rpc_krb5 = -1;
 static gint ett_krb5rpc_krb5 = -1;
 
@@ -176,9 +176,11 @@ proto_register_krb5rpc (void)
      {"Response key size",
       "krb5rpc.sendto_kdc_resp_keysize", FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL}},
+#if 0
     {&hf_krb5rpc_sendto_kdc_resp_st,
      {"Response st", "krb5rpc.sendto_kdc_resp_st",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+#endif
     {&hf_krb5rpc_krb5,
      {"krb5", "krb5rpc.krb5", FT_BYTES, BASE_NONE, NULL, 0x0,
       "krb5 blob", HFILL}},

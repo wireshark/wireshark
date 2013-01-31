@@ -106,7 +106,7 @@ static gint hf_image_height = -1;
 static gint hf_local_color_map_present = -1;
 static gint hf_local_color_resolution = -1;
 static gint hf_local_color_map_ordered = -1; /* GIF89a */
-static gint hf_local_image_bpp = -1;
+/* static gint hf_local_image_bpp = -1; */
 static gint hf_local_color_map = -1;
 
 static gint hf_extension = -1;
@@ -555,6 +555,7 @@ proto_register_gif(void)
                 HFILL
             }
         },
+#if 0
         { &hf_local_image_bpp,
             {   "Image bits per pixel minus 1",
                 IMG_GIF ".local.bpp",
@@ -563,6 +564,7 @@ proto_register_gif(void)
                 HFILL
             }
         },
+#endif
         { &hf_local_color_map,
             {   "Local color map",
                 IMG_GIF ".local.color_map",

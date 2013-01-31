@@ -83,7 +83,7 @@ static int hf_fc_fctl_transfer_seq_initiative = -1;
 static int hf_fc_fctl_rexmitted_seq = -1;
 static int hf_fc_fctl_rel_offset = -1;
 static int hf_fc_fctl_abts_ack = -1;
-static int hf_fc_fctl_abts_not_ack = -1;
+/* static int hf_fc_fctl_abts_not_ack = -1; */
 static int hf_fc_fctl_last_data_frame = -1;
 static int hf_fc_fctl_ack_0_1 = -1;
 static int hf_fc_seqid = -1;
@@ -1448,9 +1448,11 @@ proto_register_fc(void)
         { &hf_fc_fctl_abts_ack,
           {"AA", "fc.fctl.abts_ack", FT_UINT24, BASE_HEX, VALS(abts_ack_vals),
            FC_FCTL_ABTS_MASK, "ABTS ACK values", HFILL}},
+#if 0
         { &hf_fc_fctl_abts_not_ack,
           {"AnA", "fc.fctl.abts_not_ack", FT_UINT24, BASE_HEX, VALS(abts_not_ack_vals),
            FC_FCTL_ABTS_MASK, "ABTS not ACK vals", HFILL}},
+#endif
         { &hf_fc_exchange_first_frame,
           { "Exchange First In", "fc.exchange_first_frame", FT_FRAMENUM, BASE_NONE, NULL,
            0, "The first frame of this exchange is in this frame", HFILL }},

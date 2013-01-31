@@ -44,7 +44,7 @@ static int hf_homeplug_mehdr                  = -1;
 static int hf_homeplug_mehdr_mev              = -1;
 static int hf_homeplug_mehdr_metype           = -1;
 static int hf_homeplug_melen                  = -1;
-static int hf_homeplug_mme                    = -1;
+/* static int hf_homeplug_mme                    = -1; */
   /* Request Channel Estimation */
 static int hf_homeplug_rce                    = -1;
 static int hf_homeplug_rce_cev                = -1;
@@ -165,7 +165,7 @@ static int hf_homeplug_ns_bytes40             = -1;
 static int hf_homeplug_ns_fails               = -1;
 static int hf_homeplug_ns_drops               = -1;
     /* Extended */
-static int hf_homeplug_ns_tx_bfr_state        = -1;
+/* static int hf_homeplug_ns_tx_bfr_state        = -1; */
 static int hf_homeplug_ns_buf_in_use          = -1;
 static int hf_homeplug_ns_prio                = -1;
 static int hf_homeplug_ns_msdu_len            = -1;
@@ -1412,10 +1412,12 @@ proto_register_homeplug(void)
     },
 
     /* MAC Management Entry */
+#if 0
     { &hf_homeplug_mme,
       { "MAC Management Entry Data", "homeplug.mmentry",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
+#endif
 
     /* Request Channel Estimation */
     { &hf_homeplug_rce,
@@ -1949,10 +1951,12 @@ proto_register_homeplug(void)
     },
 
     /* ... Extended */
+#if 0
     { &hf_homeplug_ns_tx_bfr_state,
       { "Transmit Buffer State", "homeplug.ns.tx_bfr_state",
       FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
+#endif
 
     { &hf_homeplug_ns_buf_in_use,
       { "Buffer in use", "homeplug.ns.buf_in_use",

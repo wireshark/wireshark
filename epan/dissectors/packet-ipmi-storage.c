@@ -93,8 +93,10 @@ static gint hf_ipmi_stor_25_inprogress = -1;
 static gint hf_ipmi_stor_25_data = -1;
 static gint hf_ipmi_stor_25_added_rec_id = -1;
 
+#if 0
 static gint hf_ipmi_stor_26_rsrv_id = -1;
 static gint hf_ipmi_stor_26_rec_id = -1;
+#endif
 static gint hf_ipmi_stor_26_del_rec_id = -1;
 
 static gint hf_ipmi_stor_27_rsrv_id = -1;
@@ -145,8 +147,10 @@ static gint hf_ipmi_stor_45_inprogress = -1;
 static gint hf_ipmi_stor_45_data = -1;
 static gint hf_ipmi_stor_45_added_rec_id = -1;
 
+#if 0
 static gint hf_ipmi_stor_46_rsrv_id = -1;
 static gint hf_ipmi_stor_46_rec_id = -1;
+#endif
 static gint hf_ipmi_stor_46_del_rec_id = -1;
 
 static gint hf_ipmi_stor_47_rsrv_id = -1;
@@ -882,12 +886,15 @@ ipmi_register_storage(gint proto_ipmi)
 			{ "Record ID for added record",
 				"ipmi.st25.added_rec_id", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
+#if 0
 		{ &hf_ipmi_stor_26_rsrv_id,
 			{ "Reservation ID",
 				"ipmi.st26.rsrv_id", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
 		{ &hf_ipmi_stor_26_rec_id,
 			{ "Record ID",
 				"ipmi.st26.rec_id", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+#endif
 		{ &hf_ipmi_stor_26_del_rec_id,
 			{ "Deleted Record ID",
 				"ipmi.st26.del_rec_id", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -1016,12 +1023,15 @@ ipmi_register_storage(gint proto_ipmi)
 			{ "Record ID for added record",
 				"ipmi.st45.added_rec_id", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
+#if 0
 		{ &hf_ipmi_stor_46_rsrv_id,
 			{ "Reservation ID",
 				"ipmi.st46.rsrv_id", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
 		{ &hf_ipmi_stor_46_rec_id,
 			{ "Record ID",
 				"ipmi.st46.rec_id", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+#endif
 		{ &hf_ipmi_stor_46_del_rec_id,
 			{ "Deleted Record ID",
 				"ipmi.st46.del_rec_id", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},

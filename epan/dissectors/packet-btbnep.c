@@ -66,7 +66,7 @@ static int hf_btbnep_network_type_end                                      = -1;
 static int hf_btbnep_multicast_address_start                               = -1;
 static int hf_btbnep_multicast_address_end                                 = -1;
 
-static int hf_btbnep_data                                                  = -1;
+/* static int hf_btbnep_data                                                  = -1; */
 
 static gint ett_btbnep                                                     = -1;
 static gint ett_addr                                                       = -1;
@@ -507,11 +507,13 @@ proto_register_btbnep(void)
             "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }
         },
 
+#if 0
         { &hf_btbnep_data,
             { "Data",                              "btbnep.data",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+#endif
     };
 
     static gint *ett[] = {

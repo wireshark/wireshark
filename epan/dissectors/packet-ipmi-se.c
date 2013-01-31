@@ -132,7 +132,7 @@ static gint hf_ipmi_se_cp05_num_evfilters = -1;
 static gint hf_ipmi_se_cp06_filter = -1;
 static gint hf_ipmi_se_cp06_data = -1;
 static gint hf_ipmi_se_cp07_filter = -1;
-static gint hf_ipmi_se_cp07_data = -1;
+/* static gint hf_ipmi_se_cp07_data = -1; */
 static gint hf_ipmi_se_cp08_policies = -1;
 static gint hf_ipmi_se_cp09_entry = -1;
 static gint hf_ipmi_se_cp09_data = -1;
@@ -3037,9 +3037,11 @@ ipmi_register_se(gint proto_ipmi)
 		{ &hf_ipmi_se_cp07_filter,
 			{ "Filter number (set selector)",
 				"ipmi.cp07.filter", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
+#if 0
 		{ &hf_ipmi_se_cp07_data,
 			{ "Filter data (byte 1)",
 				"ipmi.cp07.data", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+#endif
 		{ &hf_ipmi_se_cp08_policies,
 			{ "Number of Alert Policy Entries",
 				"ipmi.cp08.policies", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},

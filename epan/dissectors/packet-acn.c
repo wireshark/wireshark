@@ -227,13 +227,13 @@ static gint ett_acn_dmx_pdu = -1;
 static int hf_acn_association = -1;
 static int hf_acn_channel_number = -1;
 static int hf_acn_cid = -1;
-static int hf_acn_client_protocol_id = -1;
+/* static int hf_acn_client_protocol_id = -1; */
 static int hf_acn_data = -1;
 static int hf_acn_data8 = -1;
 static int hf_acn_data16 = -1;
 static int hf_acn_data24 = -1;
 static int hf_acn_data32 = -1;
-static int hf_acn_dmp_adt = -1; /* address and data type*/
+/* static int hf_acn_dmp_adt = -1; */ /* address and data type*/
 static int hf_acn_dmp_adt_a = -1;
 static int hf_acn_dmp_adt_v = -1;
 static int hf_acn_dmp_adt_r = -1;
@@ -275,7 +275,7 @@ static int hf_acn_reliable_sequence_number = -1;
 /* static int hf_acn_sdt_pdu = -1; */
 static int hf_acn_sdt_vector = -1;
 static int hf_acn_dmx_vector = -1;
-static int hf_acn_session_count = -1;
+/* static int hf_acn_session_count = -1; */
 static int hf_acn_total_sequence_number = -1;
 static int hf_acn_dmx_source_name = -1;
 static int hf_acn_dmx_priority = -1;
@@ -2794,11 +2794,13 @@ proto_register_acn(void)
         NULL, HFILL }
     },
     /* Client Protocol ID */
+#if 0
     { &hf_acn_client_protocol_id,
       { "Client Protocol ID", "acn.client_protocol_id",
         FT_UINT32, BASE_DEC, VALS(acn_protocol_id_vals), 0x0,
         NULL, HFILL }
     },
+#endif
     /* DMP data */
     { &hf_acn_data,
       { "Data", "acn.dmp_data",
@@ -2827,11 +2829,13 @@ proto_register_acn(void)
     },
 
     /* DMP Address type*/
+#if 0
     { &hf_acn_dmp_adt,
       { "Address and Data Type", "acn.dmp_adt",
         FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+#endif
     { &hf_acn_dmp_adt_a,
       { "Size", "acn.dmp_adt_a",
         FT_UINT8, BASE_DEC, VALS(acn_dmp_adt_a_vals), 0x03,
@@ -3150,11 +3154,13 @@ proto_register_acn(void)
     },
 
     /* Session Count */
+#if 0
     { &hf_acn_session_count,
       { "Session Count", "acn.session_count",
         FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+#endif
     /* Total Sequence Number */
     { &hf_acn_total_sequence_number,
       { "Total Sequence Number", "acn.total_sequence_number",

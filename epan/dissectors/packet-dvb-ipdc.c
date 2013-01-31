@@ -33,7 +33,7 @@
 /* Initialize the protocol and registered fields */
 static int proto_ipdc = -1;
 
-static int hf_ipdc_esg_bootstrap_xml = -1;
+/* static int hf_ipdc_esg_bootstrap_xml = -1; */
 
 /* Initialize the subtree pointers */
 static gint ett_ipdc = -1;
@@ -75,11 +75,13 @@ dissect_ipdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_dvb_ipdc(void)
 {
+#if 0
     static hf_register_info hf[] = {
         {&hf_ipdc_esg_bootstrap_xml,
          {"ESG Provider Discovery", "ipdc.bootstrap",
           FT_STRING, BASE_NONE, NULL, 0x0, "List of ESG Providers", HFILL}}
     };
+#endif
 
     static gint *ett[] = {
         &ett_ipdc,
@@ -87,7 +89,9 @@ proto_register_dvb_ipdc(void)
 
     proto_ipdc = proto_register_protocol("ETSI IPDC Bootstrap",
                                          "ESG Bootstrap", "dvb_ipdc");
+#if 0
     proto_register_field_array(proto_ipdc, hf, array_length(hf));
+#endif
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector("dvb_ipdc", dissect_ipdc, proto_ipdc);

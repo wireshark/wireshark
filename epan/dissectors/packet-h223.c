@@ -57,7 +57,7 @@ static int proto_h223 = -1;
  * our header fields; they are filled out when we call
  * proto_register_field_array() in proto_register_h223()
  */
-static int hf_h223_non_h223_data = -1;
+/* static int hf_h223_non_h223_data = -1; */
 static int hf_h223_mux_stuffing_pdu = -1;
 static int hf_h223_mux_pdu = -1;
 static int hf_h223_mux_header = -1;
@@ -1406,9 +1406,11 @@ void proto_register_h223 (void)
      */
 
     static hf_register_info hf[] = {
+#if 0
         { &hf_h223_non_h223_data,
           { "Non-H.223 data", "h223.non-h223", FT_NONE, BASE_NONE, NULL, 0x0,
             "Initial data in stream, not a PDU", HFILL }},
+#endif
 
         { &hf_h223_mux_stuffing_pdu,
           { "H.223 stuffing PDU", "h223.mux.stuffing", FT_NONE, BASE_NONE, NULL, 0x0,

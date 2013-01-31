@@ -73,8 +73,8 @@ static int hf_auth_rjt_code = -1;
 static int hf_auth_rjt_codedet = -1;
 static int hf_auth_responder_wwn = -1;
 static int hf_auth_responder_name = -1;
-static int hf_auth_dhchap_groupid = -1;
-static int hf_auth_dhchap_hashid = -1;
+/* static int hf_auth_dhchap_groupid = -1; */
+/* static int hf_auth_dhchap_hashid = -1; */
 static int hf_auth_dhchap_chal_len = -1;
 static int hf_auth_dhchap_val_len = -1;
 static int hf_auth_dhchap_rsp_len  = -1;
@@ -517,15 +517,19 @@ proto_register_fcsp(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}},
 
+#if 0
         { &hf_auth_dhchap_hashid,
           { "Hash Identifier", "fcsp.dhchap.hashid",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL}},
+#endif
 
+#if 0
         { &hf_auth_dhchap_groupid,
           { "DH Group Identifier", "fcsp.dhchap.groupid",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL}},
+#endif
 
         { &hf_auth_dhchap_chal_len,
           { "Challenge Value Length", "fcsp.dhchap.challen",

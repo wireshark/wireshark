@@ -59,10 +59,12 @@ static int hf_fcels_reloffset           = -1;
 static int hf_fcels_edtov               = -1;
 static int hf_fcels_npname              = -1;
 static int hf_fcels_fnname              = -1;
+#if 0
 static int hf_fcels_cls1param           = -1;
 static int hf_fcels_cls2param           = -1;
 static int hf_fcels_cls3param           = -1;
 static int hf_fcels_cls4param           = -1;
+#endif
 static int hf_fcels_vendorvers          = -1;
 static int hf_fcels_svcavail            = -1;
 static int hf_fcels_clsflags            = -1;
@@ -2263,6 +2265,7 @@ proto_register_fcels (void)
         { &hf_fcels_fnname,
           {"Fabric/Node Name", "fcels.fnname", FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
+#if 0
         { &hf_fcels_cls1param,
           {"Class 1 Svc Param", "fcels.logi.cls1param", FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
@@ -2275,6 +2278,7 @@ proto_register_fcels (void)
         { &hf_fcels_cls4param,
           {"Class 4 Svc Param", "fcels.logi.cls4param", FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
+#endif
         { &hf_fcels_vendorvers,
           {"Vendor Version", "fcels.logi.vendvers", FT_BYTES, BASE_NONE, NULL, 0x0, NULL,
            HFILL}},

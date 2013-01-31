@@ -74,7 +74,7 @@ static int hf_hdfs_params = -1;
 static int hf_hdfs_paramtype = -1;
 static int hf_hdfs_paramval = -1;
 static int hf_hdfs_paramvalnum = -1;
-static int hf_hdfs_rest = -1;
+/* static int hf_hdfs_rest = -1; */
 static int hf_hdfs_fileperm = -1;
 static int hf_hdfs_blockloc = -1;
 static int hf_hdfs_endblockloc = -1;
@@ -748,12 +748,14 @@ proto_register_hdfs(void)
             NULL, 0x0,
             NULL, HFILL }
         },
+#if 0
         { &hf_hdfs_rest,
           { "HDFS value", "hdfs.rest",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
         },
+#endif
         { &hf_hdfs_blockloc,
           { "HDFS block location", "hdfs.blockloc",
             FT_UINT64, BASE_DEC,

@@ -36,7 +36,7 @@
 
 static int proto_dcerpc_trksvr = -1;
 static int hf_trksvr_opnum = -1;
-static int hf_trksvr_rc = -1;
+/* static int hf_trksvr_rc = -1; */
 
 static gint ett_dcerpc_trksvr = -1;
 
@@ -68,9 +68,11 @@ static hf_register_info hf[] = {
 	{ &hf_trksvr_opnum, {
 		"Operation", "trksvr.opnum", FT_UINT16, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
+#if 0
 	{ &hf_trksvr_rc, {
 		"Return code", "trksvr.rc", FT_UINT32, BASE_HEX,
 		VALS(NT_errors), 0x0, "TRKSVR return code", HFILL }},
+#endif
 	};
 
         static gint *ett[] = {

@@ -658,7 +658,7 @@ const ext_value_string_t *ansi_a_elem_1_strings = NULL;
 
 static int ansi_a_tap = -1;
 
-static int hf_ansi_a_none = -1;
+/* static int hf_ansi_a_none = -1; */
 static int hf_ansi_a_bsmap_msgtype = -1;
 static int hf_ansi_a_dtap_msgtype = -1;
 static int hf_ansi_a_length = -1;
@@ -11945,11 +11945,13 @@ proto_register_ansi_a(void)
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
+#if 0
         { &hf_ansi_a_none,
             { "Sub tree",       "ansi_a_bsmap.none",
             FT_NONE, BASE_NONE, 0, 0,
             NULL, HFILL }
         },
+#endif
         { &hf_ansi_a_esn,
             { "ESN",    "ansi_a_bsmap.esn",
             FT_UINT32, BASE_HEX, 0, 0x0,

@@ -259,7 +259,7 @@ static gint hf_ipmi_trn_serial16_ndest = -1;
 static gint hf_ipmi_trn_serial17_dest_sel = -1;
 static gint hf_ipmi_trn_serial17_ack = -1;
 static gint hf_ipmi_trn_serial17_dest_type = -1;
-static gint hf_ipmi_trn_serial17_ack_timeout = -1;
+/* static gint hf_ipmi_trn_serial17_ack_timeout = -1; */
 static gint hf_ipmi_trn_serial17_alert_retries = -1;
 static gint hf_ipmi_trn_serial17_call_retries = -1;
 static gint hf_ipmi_trn_serial17_alert_ack_timeout = -1;
@@ -2475,9 +2475,11 @@ ipmi_register_transport(gint proto_ipmi)
 		{ &hf_ipmi_trn_serial17_dest_type,
 			{ "Destination Type",
 				"ipmi.serial17.dest_type", FT_UINT8, BASE_HEX, serial17_dest_type_vals, 0x0f, NULL, HFILL }},
+#if 0
 		{ &hf_ipmi_trn_serial17_ack_timeout,
 			{ "Alert Acknowledge Timeout",
 				"ipmi.serial17.ack_timeout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+#endif
 		{ &hf_ipmi_trn_serial17_alert_retries,
 			{ "Alert retries",
 				"ipmi.serial17.alert_retries", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL }},

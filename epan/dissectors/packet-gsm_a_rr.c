@@ -782,7 +782,7 @@ static int hf_gsm_a_rr_eutran_qrxlevmin = -1;
 static int hf_gsm_a_rr_eutran_pcid = -1;
 static int hf_gsm_a_rr_eutran_pcid_bitmap_group = -1;
 static int hf_gsm_a_rr_eutran_pcid_pattern_length = -1;
-static int hf_gsm_a_rr_eutran_pcid_pattern = -1;
+/* static int hf_gsm_a_rr_eutran_pcid_pattern = -1; */
 static int hf_gsm_a_rr_eutran_pcid_pattern_sense = -1;
 static int hf_gsm_a_rr_eutran_frequency_index = -1;
 static int hf_gsm_a_rr_psc = -1;
@@ -12394,11 +12394,13 @@ proto_register_gsm_a_rr(void)
                 FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pcid_psc_pattern_length), 0x00,
                 NULL, HFILL }
             },
+#if 0
             { &hf_gsm_a_rr_eutran_pcid_pattern,
               { "PCID_Pattern", "gsm_a.rr.pcid_pattern",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
                 NULL, HFILL }
             },
+#endif
             { &hf_gsm_a_rr_eutran_pcid_pattern_sense,
               { "PCID_pattern_sense", "gsm_a.rr.pcid_pattern_sense",
                 FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_pcid_pattern_sense), 0x00,

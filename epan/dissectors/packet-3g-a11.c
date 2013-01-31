@@ -138,7 +138,7 @@ static int hf_a11_fqi_entry_flag_flow_state = -1;
 static int hf_a11_fqi_flowcount = -1;
 static int hf_a11_fqi_flowid = -1;
 static int hf_a11_fqi_entrylen = -1;
-static int hf_a11_fqi_flowstate = -1;
+/* static int hf_a11_fqi_flowstate = -1; */
 static int hf_a11_fqi_requested_qoslen = -1;
 static int hf_a11_fqi_flow_priority = -1;
 static int hf_a11_fqi_num_qos_attribute_set = -1;
@@ -156,7 +156,7 @@ static int hf_a11_rqi_flowid = -1;
 static int hf_a11_rqi_entrylen = -1;
 static int hf_a11_rqi_entry_flag = -1;
 static int hf_a11_rqi_entry_flag_flow_state = -1;
-static int hf_a11_rqi_flowstate = -1;
+/* static int hf_a11_rqi_flowstate = -1; */
 static int hf_a11_rqi_requested_qoslen = -1;
 static int hf_a11_rqi_flow_priority = -1;
 static int hf_a11_rqi_num_qos_attribute_set = -1;
@@ -165,9 +165,9 @@ static int hf_a11_rqi_qos_attribute_setid = -1;
 static int hf_a11_rqi_qos_granted_attribute_setid = -1;
 static int hf_a11_rqi_verbose = -1;
 static int hf_a11_rqi_flow_profileid = -1;
-static int hf_a11_rqi_requested_qos = -1;
+/* static int hf_a11_rqi_requested_qos = -1; */
 static int hf_a11_rqi_granted_qoslen = -1;
-static int hf_a11_rqi_granted_qos = -1;
+/* static int hf_a11_rqi_granted_qos = -1; */
 
 /* QoS Update Information */
 static int hf_a11_fqui_flowcount = -1;
@@ -177,7 +177,7 @@ static int hf_a11_fqui_updated_qos = -1;
 static int hf_a11_rqui_updated_qoslen = -1;
 static int hf_a11_rqui_updated_qos = -1;
 static int hf_a11_subsciber_profile = -1;
-static int hf_a11_subsciber_profile_len = -1;
+/* static int hf_a11_subsciber_profile_len = -1; */
 
 /* Initialize the subtree pointers */
 static gint ett_a11 = -1;
@@ -2050,11 +2050,13 @@ proto_register_a11(void)
             FT_UINT8, BASE_DEC, NULL, 0,
             "Forward Entry Length", HFILL }
         },
+#if 0
         { &hf_a11_fqi_flowstate,
           { "Forward Flow State",   "a11.ext.fqi.flowstate",
             FT_UINT8, BASE_HEX, NULL, 0,
             NULL, HFILL }
         },
+#endif
         { &hf_a11_fqi_requested_qoslen,
           { "Requested QoS Length",   "a11.ext.fqi.reqqoslen",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -2165,31 +2167,37 @@ proto_register_a11(void)
             FT_BOOLEAN, 8, TFS(&tfs_active_inactive), 0x01,
             NULL, HFILL }
         },
+#if 0
         { &hf_a11_rqi_flowstate,
           { "Flow State",   "a11.ext.rqi.flowstate",
             FT_UINT8, BASE_HEX, NULL, 0,
             "Reverse Flow State", HFILL }
         },
+#endif
         { &hf_a11_rqi_requested_qoslen,
           { "Requested QoS Length",   "a11.ext.rqi.reqqoslen",
             FT_UINT8, BASE_DEC, NULL, 0,
             "Reverse Requested QoS Length", HFILL }
         },
+#if 0
         { &hf_a11_rqi_requested_qos,
           { "Requested QoS",   "a11.ext.rqi.reqqos",
             FT_BYTES, BASE_NONE, NULL, 0,
             "Reverse Requested QoS", HFILL }
         },
+#endif
         { &hf_a11_rqi_granted_qoslen,
           { "Granted QoS Length",   "a11.ext.rqi.graqoslen",
             FT_UINT8, BASE_DEC, NULL, 0,
             "Reverse Granted QoS Length", HFILL }
         },
+#if 0
         { &hf_a11_rqi_granted_qos,
           { "Granted QoS",   "a11.ext.rqi.graqos",
             FT_BYTES, BASE_NONE, NULL, 0,
             "Reverse Granted QoS", HFILL }
         },
+#endif
         { &hf_a11_fqui_flowcount,
           { "Forward QoS Update Flow Count",   "a11.ext.fqui.flowcount",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -2220,11 +2228,13 @@ proto_register_a11(void)
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+#if 0
         { &hf_a11_subsciber_profile_len,
           { "Subscriber QoS Profile Length",   "a11.ext.sqp.profilelen",
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+#endif
         { &hf_a11_subsciber_profile,
           { "Subscriber QoS Profile",   "a11.ext.sqp.profile",
             FT_BYTES, BASE_NONE, NULL, 0,

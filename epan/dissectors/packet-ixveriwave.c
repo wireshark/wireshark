@@ -149,7 +149,7 @@ static int hf_ixveriwave_vw_l4id = -1;
 /*veriwave note:  i know the below method seems clunky, but
 they didn't have a item_format at the time to dynamically add the appropriate decode text*/
 static int hf_ixveriwave_vw_info_retryCount = -1;
-static int hf_ixveriwave_vw_info_tx_bit15 = -1;
+/* static int hf_ixveriwave_vw_info_tx_bit15 = -1; */
 
 static int hf_ixveriwave_vw_info_rx_1_bit8 = -1;
 static int hf_ixveriwave_vw_info_rx_1_bit9 = -1;
@@ -209,6 +209,7 @@ static int hf_radiotap_vw_info_rx_2_bit13 = -1;
 static int hf_radiotap_vw_info_rx_2_bit14 = -1;
 static int hf_radiotap_vw_info_rx_2_bit15 = -1;
 
+#if 0
 static int hf_radiotap_vw_errors_rx_1_bit0 = -1;
 static int hf_radiotap_vw_errors_rx_1_bit1 = -1;
 static int hf_radiotap_vw_errors_rx_1_bit2 = -1;
@@ -225,6 +226,7 @@ static int hf_radiotap_vw_errors_rx_1_bit12 = -1;
 static int hf_radiotap_vw_errors_rx_1_bit13 = -1;
 static int hf_radiotap_vw_errors_rx_1_bit14 = -1;
 static int hf_radiotap_vw_errors_rx_1_bit15 = -1;
+#endif
 
 static int hf_radiotap_vw_errors_rx_2_bit0 = -1;
 static int hf_radiotap_vw_errors_rx_2_bit1 = -1;
@@ -1120,9 +1122,11 @@ void proto_register_ixveriwave(void)
    the frame was impressed on the enet tx media with one or more octets having tx_en
    framing signal deasserted.  this is caused by software setting the drain all register bit.
 */
+#if 0
         { &hf_ixveriwave_vw_info_tx_bit15,
           { "Info bit 15-frame was impressed on the ent tx media with one or more octets having tx_en framing signal deasserted.", "ixveriwave.info.bit15",
             FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL } },
+#endif
 
         /* rx info decodes for fpga ver VW510024 */
         /*all are reserved*/
@@ -1312,6 +1316,7 @@ void proto_register_ixveriwave(void)
           { "Errors", "ixveriwave.errors",
             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
+#if 0
         /* rx error decodes for fpga ver VW510006 */
         { &hf_radiotap_vw_errors_rx_1_bit0,
           { "L1 error", "ixveriwave.errors.bit0",
@@ -1376,6 +1381,7 @@ void proto_register_ixveriwave(void)
         { &hf_radiotap_vw_errors_rx_1_bit15,
           { "Reserved", "ixveriwave.errors.bit15",
             FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL } },
+#endif
         /* All other enumerations are reserved.*/
 
         /* rx error decodes for fpga ver VW510021 */

@@ -47,7 +47,7 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_fcdns              = -1;
-static int hf_fcdns_gssubtype       = -1;
+/* static int hf_fcdns_gssubtype       = -1; */
 static int hf_fcdns_opcode          = -1;
 static int hf_fcdns_reason          = -1;
 static int hf_fcdns_vendor          = -1;
@@ -1730,9 +1730,11 @@ proto_register_fcdns (void)
 {
 
     static hf_register_info hf[] = {
+#if 0
         { &hf_fcdns_gssubtype,
           {"GS_Subtype", "fcdns.gssubtype", FT_UINT8, BASE_HEX,
            VALS (fc_dns_subtype_val), 0x0, NULL, HFILL}},
+#endif
         {&hf_fcdns_opcode,
          {"Opcode", "fcdns.opcode", FT_UINT16, BASE_HEX, VALS (fc_dns_opcode_val),
           0x0, NULL, HFILL}},

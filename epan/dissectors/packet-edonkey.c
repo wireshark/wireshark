@@ -91,7 +91,7 @@ static int hf_kademlia = -1;
 static int hf_kademlia_search_condition = -1;
 static int hf_kademlia_search_condition_argument_uint32 = -1;
 static int hf_kademlia_search_condition_argument_uint64 = -1;
-static int hf_kademlia_unparsed_data_length = -1;
+/* static int hf_kademlia_unparsed_data_length = -1; */
 static int hf_kademlia_peer = -1;
 static int hf_kademlia_peer_id = -1;
 static int hf_kademlia_hash = -1;
@@ -3317,9 +3317,11 @@ void proto_register_edonkey(void) {
         { &hf_kademlia_tcp_port,
             { "TCP Port", "edonkey.kademlia.tcp_port",
                 FT_UINT16, BASE_DEC, NULL, 0, "Kademlia TCP Port", HFILL } },
+#if 0
         { &hf_kademlia_unparsed_data_length,
             { "Kademlia unparsed data length", "edonkey.kademlia.unparsed",
                 FT_UINT16, BASE_DEC, NULL, 0, "Kademlia trailing data length", HFILL } },
+#endif
         { &hf_kademlia_tag_name,
             { "Tag Name", "edonkey.kademlia.tag.name",
                 FT_UINT8, BASE_HEX, NULL, 0, "Kademlia Tag Name String", HFILL } },

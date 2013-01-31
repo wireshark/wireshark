@@ -126,9 +126,9 @@ static int hf_imf_message_text = -1;
 
 static int hf_imf_display_name = -1;
 static int hf_imf_address = -1;
-static int hf_imf_mailbox_list = -1;
+/* static int hf_imf_mailbox_list = -1; */
 static int hf_imf_mailbox_list_item = -1;
-static int hf_imf_address_list = -1;
+/* static int hf_imf_address_list = -1; */
 static int hf_imf_address_list_item = -1;
 
 /* draft-zeilenga-email-seclabel-04 */
@@ -1149,15 +1149,19 @@ proto_register_imf(void)
     { &hf_imf_address,
       { "Address", "imf.address", FT_STRING,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+#if 0
     { &hf_imf_address_list,
       { "Address List", "imf.address_list", FT_UINT32,  BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
+#endif
     { &hf_imf_address_list_item,
       { "Item", "imf.address_list.item", FT_STRING,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+#if 0
     { &hf_imf_mailbox_list,
       { "Mailbox List", "imf.mailbox_list", FT_UINT32,  BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
+#endif
     { &hf_imf_mailbox_list_item,
       { "Item", "imf.mailbox_list.item", FT_STRING,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},

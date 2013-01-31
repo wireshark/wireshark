@@ -51,7 +51,7 @@ static int hf_fcfzs_zonename               = -1;
 static int hf_fcfzs_nummbrs                = -1;
 static int hf_fcfzs_nummbrentries          = -1;
 static int hf_fcfzs_mbrid                  = -1;
-static int hf_fcfzs_mbridlen               = -1;
+/* static int hf_fcfzs_mbridlen               = -1; */
 static int hf_fcfzs_mbrtype                = -1;
 static int hf_fcfzs_reason                 = -1;
 static int hf_fcfzs_rjtdetail              = -1;
@@ -855,10 +855,12 @@ proto_register_fcfzs(void)
            FT_UINT8, BASE_HEX, VALS(fc_fzs_zonembr_type_val), 0x0,
            NULL, HFILL}},
 
+#if 0
         { &hf_fcfzs_mbridlen,
           {"Zone Member Identifier Length", "fcfzs.zonembr.idlen",
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL}},
+#endif
 
         { &hf_fcfzs_mbrid,
           {"Zone Member Identifier", "fcfzs.zone.mbrid",

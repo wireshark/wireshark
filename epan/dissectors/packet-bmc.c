@@ -42,8 +42,8 @@ static int proto_bmc = -1;
 static int hf_bmc_message_type = -1;
 static int hf_bmc_message_id = -1;
 static int hf_bmc_serial_number = -1;
-static int hf_bmc_data_coding_scheme = -1;
-static int hf_bmc_cb_data = -1;
+/* static int hf_bmc_data_coding_scheme = -1; */
+/* static int hf_bmc_cb_data = -1; */
 static int hf_bmc_offset_to_begin_ctch_bs_index = -1;
 static int hf_bmc_length_of_cbs_schedule_period = -1;
 static int hf_bmc_new_message_bitmap = -1;
@@ -270,6 +270,7 @@ proto_register_bmc(void)
             FT_UINT16, BASE_HEX, NULL, 0,
             NULL, HFILL }
         },
+#if 0
         { &hf_bmc_data_coding_scheme,
             { "Data Coding Scheme", "bmc.data_coding_scheme",
             FT_UINT8, BASE_HEX, NULL, 0,
@@ -280,6 +281,7 @@ proto_register_bmc(void)
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+#endif
         { &hf_bmc_offset_to_begin_ctch_bs_index,
             { "Offset to Begin CTCH Block Set Index", "bmc.offset_to_begin_ctch_bs_index",
             FT_UINT8, BASE_DEC, NULL, 0,

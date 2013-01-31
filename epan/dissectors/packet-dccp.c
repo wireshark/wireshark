@@ -169,7 +169,7 @@ static int hf_dccp_data3 = -1;
 static int hf_dccp_options = -1;
 static int hf_dccp_option_type = -1;
 static int hf_dccp_feature_number = -1;
-static int hf_dccp_ndp_count = -1;
+/* static int hf_dccp_ndp_count = -1; */
 static int hf_dccp_timestamp = -1;
 static int hf_dccp_timestamp_echo = -1;
 static int hf_dccp_elapsed_time = -1;
@@ -1318,6 +1318,7 @@ proto_register_dccp(void)
                 NULL, HFILL
             }
         },
+#if 0
         {
             &hf_dccp_ndp_count,
             {
@@ -1326,6 +1327,7 @@ proto_register_dccp(void)
                 NULL, HFILL
             }
         },
+#endif
         {
             &hf_dccp_timestamp,
             {

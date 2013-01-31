@@ -47,7 +47,7 @@ static int hf_epm_max_ents = -1;
 static int hf_epm_num_ents = -1;
 static int hf_epm_uuid = -1;
 static int hf_epm_tower_length = -1;
-static int hf_epm_tower_data = -1;
+/* static int hf_epm_tower_data = -1; */
 static int hf_epm_max_towers = -1;
 static int hf_epm_num_towers = -1;
 static int hf_epm_rc = -1;
@@ -728,8 +728,10 @@ proto_register_epm (void)
           { "NetBIOS Name", "epm.proto.netbios_name", FT_STRING, BASE_NONE, NULL, 0x0, "NetBIOS name where this service can be found", HFILL }},
         { &hf_epm_tower_length,
           { "Length", "epm.tower.len", FT_UINT32, BASE_DEC, NULL, 0x0, "Length of tower data", HFILL }},
+#if 0
         { &hf_epm_tower_data,
           { "Tower", "epm.tower", FT_BYTES, BASE_NONE, NULL, 0x0, "Tower data", HFILL }},
+#endif
         { &hf_epm_max_towers,
           { "Max Towers", "epm.max_towers", FT_UINT32, BASE_DEC, NULL, 0x0, "Maximum number of towers to return", HFILL }},
         { &hf_epm_num_towers,

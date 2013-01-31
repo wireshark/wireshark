@@ -926,9 +926,9 @@ static int hf_cigi3_3_ig_control_ig_mode = -1;
 static int hf_cigi3_3_ig_control_timestamp_valid = -1;
 static int hf_cigi3_3_ig_control_extrapolation_enable = -1;
 static int hf_cigi3_3_ig_control_minor_version = -1;
-static int hf_cigi3_3_ig_control_host_frame_number = -1;
-static int hf_cigi3_3_ig_control_timestamp = -1;
-static int hf_cigi3_3_ig_control_last_ig_frame_number = -1;
+/* static int hf_cigi3_3_ig_control_host_frame_number = -1; */
+/* static int hf_cigi3_3_ig_control_timestamp = -1; */
+/* static int hf_cigi3_3_ig_control_last_ig_frame_number = -1; */
 
 static const value_string cigi3_3_ig_control_ig_mode_vals[] = {
     {0, "Reset/Standby"},
@@ -1007,7 +1007,7 @@ static const value_string cigi3_entity_control_animation_state_vals[] = {
 };
 
 /* CIGI3_3 Entity Control */
-static int hf_cigi3_3_entity_control = -1;
+/* static int hf_cigi3_3_entity_control = -1; */
 static int hf_cigi3_3_entity_control_entity_id = -1;
 static int hf_cigi3_3_entity_control_entity_state = -1;
 static int hf_cigi3_3_entity_control_attach_state = -1;
@@ -1069,7 +1069,7 @@ static const value_string cigi3_component_control_component_class_vals[] = {
 };
 
 /* CIGI3_3 Component Control */
-static int hf_cigi3_3_component_control = -1;
+/* static int hf_cigi3_3_component_control = -1; */
 static int hf_cigi3_3_component_control_component_id = -1;
 static int hf_cigi3_3_component_control_instance_id = -1;
 static int hf_cigi3_3_component_control_component_class = -1;
@@ -1130,7 +1130,7 @@ static const value_string cigi3_short_component_control_component_class_vals[] =
 };
 
 /* CIGI3_3 Short Component Control */
-static int hf_cigi3_3_short_component_control = -1;
+/* static int hf_cigi3_3_short_component_control = -1; */
 static int hf_cigi3_3_short_component_control_component_id = -1;
 static int hf_cigi3_3_short_component_control_instance_id = -1;
 static int hf_cigi3_3_short_component_control_component_class = -1;
@@ -1867,7 +1867,7 @@ static const true_false_string cigi3_3_symbol_surface_definition_billboard_tfs =
 
 /* CIGI3_3 Symbol Text Definition */
 #define CIGI3_PACKET_SIZE_SYMBOL_TEXT_DEFINITION 56
-static int hf_cigi3_3_symbol_text_definition = -1;
+/* static int hf_cigi3_3_symbol_text_definition = -1; */
 static int hf_cigi3_3_symbol_text_definition_symbol_id = -1;
 static int hf_cigi3_3_symbol_text_definition_orientation = -1;
 static int hf_cigi3_3_symbol_text_definition_alignment = -1;
@@ -1919,7 +1919,7 @@ static const value_string cigi3_3_symbol_text_definition_font_ident_vals[] = {
 
 /* CIGI3_3 Symbol Circle Definition */
 #define CIGI3_PACKET_SIZE_SYMBOL_CIRCLE_DEFINITION 56
-static int hf_cigi3_3_symbol_circle_definition = -1;
+/* static int hf_cigi3_3_symbol_circle_definition = -1; */
 static int hf_cigi3_3_symbol_circle_definition_symbol_id = -1;
 static int hf_cigi3_3_symbol_circle_definition_drawing_style = -1;
 static int hf_cigi3_3_symbol_circle_definition_stipple_pattern = -1;
@@ -1939,7 +1939,7 @@ static const true_false_string cigi3_3_symbol_circle_definition_drawing_style_tf
 
 /* CIGI3_3 Symbol Line Definition */
 #define CIGI3_PACKET_SIZE_SYMBOL_LINE_DEFINITION 56
-static int hf_cigi3_3_symbol_line_definition = -1;
+/* static int hf_cigi3_3_symbol_line_definition = -1; */
 static int hf_cigi3_3_symbol_line_definition_symbol_id = -1;
 static int hf_cigi3_3_symbol_line_definition_primitive_type = -1;
 static int hf_cigi3_3_symbol_line_definition_stipple_pattern = -1;
@@ -1961,7 +1961,7 @@ static const value_string cigi3_3_symbol_line_definition_primitive_type_vals[] =
 
 /* CIGI3_3 Symbol Clone */
 #define CIGI3_PACKET_SIZE_SYMBOL_CLONE_DEFINITION 8
-static int hf_cigi3_3_symbol_clone = -1;
+/* static int hf_cigi3_3_symbol_clone = -1; */
 static int hf_cigi3_3_symbol_clone_symbol_id = -1;
 static int hf_cigi3_3_symbol_clone_source_type = -1;
 static int hf_cigi3_3_symbol_clone_source_id = -1;
@@ -1973,7 +1973,7 @@ static const true_false_string cigi3_3_symbol_clone_source_type_tfs = {
 
 /* CIGI3_3 Symbol Control */
 #define CIGI3_PACKET_SIZE_SYMBOL_CONTROL_DEFINITION 40
-static int hf_cigi3_3_symbol_control = -1;
+/* static int hf_cigi3_3_symbol_control = -1; */
 static int hf_cigi3_3_symbol_control_symbol_id = -1;
 static int hf_cigi3_3_symbol_control_symbol_state = -1;
 static int hf_cigi3_3_symbol_control_attach_state = -1;
@@ -2018,7 +2018,7 @@ static const true_false_string cigi3_3_symbol_control_inherit_color_tfs = {
 
 /* CIGI3_3 Short Symbol Control */
 #define CIGI3_PACKET_SIZE_SHORT_SYMBOL_CONTROL_DEFINITION 32
-static int hf_cigi3_3_short_symbol_control = -1;
+/* static int hf_cigi3_3_short_symbol_control = -1; */
 static int hf_cigi3_3_short_symbol_control_symbol_id = -1;
 static int hf_cigi3_3_short_symbol_control_inherit_color = -1;
 static int hf_cigi3_3_short_symbol_control_flash_control = -1;
@@ -6611,6 +6611,7 @@ proto_register_cigi(void)
                 FT_UINT8, BASE_DEC, NULL, 0xF0,
                 "Indicates the minor version of the CIGI interface", HFILL }
         },
+#if 0
         { &hf_cigi3_3_ig_control_host_frame_number,
             { "Host Frame Number", "cigi.ig_control.host_frame_number",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -6626,6 +6627,7 @@ proto_register_cigi(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "Contains the value of the IG Frame Number parameter in the last Start of Frame packet received from the IG", HFILL }
         },
+#endif
 
            /* CIGI2 Entity Control */
         { &hf_cigi2_entity_control,
@@ -6807,11 +6809,13 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_3 Entity Control */
+#if 0
         { &hf_cigi3_3_entity_control,
             { "Entity Control", "cigi.entity_control",
                 FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 "Entity Control Packet", HFILL }
         },
+#endif
         { &hf_cigi3_3_entity_control_entity_id,
             { "Entity ID", "cigi.entity_control.entity_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -7030,11 +7034,13 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_3 Component Control */
+#if 0
         { &hf_cigi3_3_component_control,
             { "Component Control", "cigi.component_control",
                 FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 "Component Control Packet", HFILL }
         },
+#endif
         { &hf_cigi3_3_component_control_component_id,
             { "Component ID", "cigi.component_control.component_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -7124,11 +7130,13 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_3 Short Component Control */
+#if 0
         { &hf_cigi3_3_short_component_control,
             { "Short Component Control", "cigi.short_component_control",
                 FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 "Short Component Control Packet", HFILL }
         },
+#endif
         { &hf_cigi3_3_short_component_control_component_id,
             { "Component ID", "cigi.short_component_control.component_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -9792,11 +9800,13 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_3 Symbol Text Definition */
+#if 0
         { &hf_cigi3_3_symbol_text_definition,
             { "Symbol Text Definition", "cigi.symbol_text_def",
                 FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 "Symbol Text Definition Packet", HFILL }
         },
+#endif
         { &hf_cigi3_3_symbol_text_definition_symbol_id,
             { "Symbol ID", "cigi.symbol_text_def.symbol_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -9829,11 +9839,13 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_3 Symbol Circle Definition */
+#if 0
         { &hf_cigi3_3_symbol_circle_definition,
             { "Symbol Circle Definition", "cigi.symbol_circle_def",
                 FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 "Symbol Circle Definition Packet", HFILL }
         },
+#endif
         { &hf_cigi3_3_symbol_circle_definition_symbol_id,
             { "Symbol ID", "cigi.symbol_circle_def.symbol_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -10131,11 +10143,13 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_3 Symbol Line Definition */
+#if 0
         { &hf_cigi3_3_symbol_line_definition,
             { "Symbol Line Definition", "cigi.symbol_line_def",
                 FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 "Symbol Line Definition Packet", HFILL }
         },
+#endif
         { &hf_cigi3_3_symbol_line_definition_symbol_id,
             { "Symbol ID", "cigi.symbol_line_def.symbol_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -10453,11 +10467,13 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_3 Symbol Clone */
+#if 0
         { &hf_cigi3_3_symbol_clone,
             { "Symbol Surface Definition", "cigi.symbol_clone",
                 FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 "Symbol Clone Packet", HFILL }
         },
+#endif
         { &hf_cigi3_3_symbol_clone_symbol_id,
             { "Symbol ID", "cigi.symbol_clone.symbol_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -10475,11 +10491,13 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_3 Symbol Control */
+#if 0
         { &hf_cigi3_3_symbol_control,
             { "Symbol Control", "cigi.symbol_control",
                 FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 "Symbol Control Packet", HFILL }
         },
+#endif
         { &hf_cigi3_3_symbol_control_symbol_id,
             { "Symbol ID", "cigi.symbol_control.symbol_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -10577,11 +10595,13 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_3 Short Symbol Control */
+#if 0
         { &hf_cigi3_3_short_symbol_control,
             { "Short Symbol Control", "cigi.short_symbol_control",
                 FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 "Short Symbol Control Packet", HFILL }
         },
+#endif
         { &hf_cigi3_3_short_symbol_control_symbol_id,
             { "Symbol ID", "cigi.short_symbol_control.symbol_id",
                 FT_UINT16, BASE_DEC, NULL, 0x0,

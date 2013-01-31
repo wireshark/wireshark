@@ -166,8 +166,8 @@ static int hf_wtp_header_Inv_flag_UP          = HF_EMPTY;
 static int hf_wtp_header_Inv_Reserved         = HF_EMPTY;
 static int hf_wtp_header_Inv_TransactionClass = HF_EMPTY;
 
-static int hf_wtp_header_variable_part = HF_EMPTY;
-static int hf_wtp_data                 = HF_EMPTY;
+/* static int hf_wtp_header_variable_part = HF_EMPTY; */
+/* static int hf_wtp_data                 = HF_EMPTY; */
 
 static int hf_wtp_tpi_type   = HF_EMPTY;
 static int hf_wtp_tpi_psn    = HF_EMPTY;
@@ -926,6 +926,7 @@ proto_register_wtp(void)
                 NULL, HFILL
             }
         },
+#if 0
         { &hf_wtp_header_variable_part,
             { "Header: Variable part", "wtp.header_variable_part",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -938,6 +939,7 @@ proto_register_wtp(void)
                 NULL, HFILL
             }
         },
+#endif
         { &hf_wtp_tpi_type,
             { "TPI", "wtp.tpi",
                 FT_UINT8, BASE_HEX, VALS(vals_tpi_type), 0x00,

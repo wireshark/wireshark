@@ -54,8 +54,10 @@ static e_uuid_t uuid_fldb =
 };
 static guint16 ver_fldb = 4;
 
+#if 0
 static int hf_fldb_getentrybyname_rqst_var1 = -1;
 static int hf_fldb_getentrybyname_rqst_key_size = -1;
+#endif
 static int hf_fldb_releaselock_rqst_fsid_high = -1;
 static int hf_fldb_releaselock_rqst_fsid_low = -1;
 static int hf_fldb_releaselock_rqst_voltype = -1;
@@ -64,12 +66,15 @@ static int hf_fldb_setlock_rqst_fsid_high = -1;
 static int hf_fldb_setlock_rqst_fsid_low = -1;
 static int hf_fldb_setlock_rqst_voltype = -1;
 static int hf_fldb_setlock_rqst_voloper = -1;
+#if 0
 static int hf_fldb_setlock_resp_st = -1;
 static int hf_fldb_setlock_resp_st2 = -1;
+#endif
 static int hf_fldb_listentry_rqst_previous_index = -1;
 static int hf_fldb_listentry_rqst_var1 = -1;
 static int hf_fldb_listentry_resp_count = -1;
 static int hf_fldb_listentry_resp_next_index = -1;
+#if 0
 static int hf_fldb_listentry_resp_key_t = -1;
 static int hf_fldb_listentry_resp_key_size = -1;
 static int hf_fldb_listentry_resp_key_t2 = -1;
@@ -77,21 +82,27 @@ static int hf_fldb_listentry_resp_key_size2 = -1;
 static int hf_fldb_listentry_resp_voltype = -1;
 static int hf_fldb_createentry_rqst_key_t = -1;
 static int hf_fldb_createentry_rqst_key_size = -1;
+#endif
 static int hf_fldb_deleteentry_rqst_fsid_high = -1;
 static int hf_fldb_deleteentry_rqst_fsid_low = -1;
 static int hf_fldb_deleteentry_rqst_voltype = -1;
 static int hf_fldb_deleteentry_rqst_voloper = -1;
+#if 0
 static int hf_fldb_getentrybyid_rqst_fsid_high = -1;
 static int hf_fldb_getentrybyid_rqst_fsid_low = -1;
 static int hf_fldb_getentrybyid_rqst_voltype = -1;
 static int hf_fldb_getentrybyid_rqst_voloper = -1;
+#endif
 static int hf_fldb_replaceentry_rqst_fsid_high = -1;
 static int hf_fldb_replaceentry_rqst_fsid_low = -1;
 static int hf_fldb_replaceentry_rqst_voltype = -1;
+#if 0
 static int hf_fldb_replaceentry_rqst_key_size = -1;
 static int hf_fldb_replaceentry_rqst_key_t = -1;
 static int hf_fldb_replaceentry_resp_st = -1;
 static int hf_fldb_replaceentry_resp_st2 = -1;
+#endif
+#if 0
 static int hf_fldb_getentrybyname_resp_volumetype = -1;
 static int hf_fldb_getentrybyname_resp_numservers = -1;
 static int hf_fldb_getentrybyname_resp_sitecookies = -1;
@@ -118,6 +129,7 @@ static int hf_fldb_getentrybyname_resp_key_t = -1;
 static int hf_fldb_getentrybyname_resp_key_size = -1;
 static int hf_fldb_getentrybyname_resp_test = -1;
 static int hf_dcerpc_error_status = -1;
+#endif
 static int hf_fldb_vldbentry_volumename = -1;
 static int hf_fldb_vldbentry_volumetype = -1;
 static int hf_fldb_vldbentry_nservers = -1;
@@ -161,13 +173,13 @@ static int hf_fldb_flagsp = -1;
 static int hf_fldb_nextstartp = -1;
 static int hf_fldb_afsNameString_t_principalName_string = -1;
 static int hf_fldb_afsNameString_t_principalName_size = -1;
-static int hf_fldb_afsNameString_t_principalName_size2 = -1;
+/* static int hf_fldb_afsNameString_t_principalName_size2 = -1; */
 static int hf_fldb_namestring = -1;
 static int hf_error_st = -1;
 static int hf_fldb_creationquota = -1;
 static int hf_fldb_creationuses = -1;
 static int hf_fldb_deletedflag = -1;
-static int hf_fldb_namestring_size = -1;
+/* static int hf_fldb_namestring_size = -1; */
 static int hf_fldb_numwanted = -1;
 static int hf_fldb_spare2 = -1;
 static int hf_fldb_spare3 = -1;
@@ -1710,12 +1722,14 @@ proto_register_fldb (void)
     {&hf_fldb_setlock_rqst_voloper,
      {"voloper", "fldb.setlock_rqst_voloper", FT_UINT32, BASE_DEC, NULL,
       0x0, NULL, HFILL}},
+#if 0
     {&hf_fldb_setlock_resp_st,
      {"Error", "fldb.setlock_resp_st", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
       HFILL}},
     {&hf_fldb_setlock_resp_st2,
      {"Error", "fldb.setlock_resp_st2", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
       HFILL}},
+#endif
     {&hf_fldb_listentry_rqst_previous_index,
      {"Previous Index", "fldb.listentry_rqst_previous_index", FT_UINT32,
       BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -1728,6 +1742,7 @@ proto_register_fldb (void)
     {&hf_fldb_listentry_resp_next_index,
      {"Next Index", "fldb.listentry_resp_next_index", FT_UINT32, BASE_DEC,
       NULL, 0x0, NULL, HFILL}},
+#if 0
     {&hf_fldb_listentry_resp_key_size,
      {"Key Size", "fldb.listentry_resp_key_size", FT_UINT32, BASE_DEC,
       NULL, 0x0, NULL, HFILL}},
@@ -1749,6 +1764,7 @@ proto_register_fldb (void)
     {&hf_fldb_createentry_rqst_key_size,
      {"Volume Size", "fldb.createentry_rqst_key_size", FT_UINT32, BASE_DEC,
       NULL, 0x0, NULL, HFILL}},
+#endif
     {&hf_fldb_deleteentry_rqst_fsid_high,
      {"FSID deleteentry Hi", "fldb.deleteentry_rqst_fsid_high", FT_UINT32,
       BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -1761,6 +1777,7 @@ proto_register_fldb (void)
     {&hf_fldb_deleteentry_rqst_voloper,
      {"voloper", "fldb.deleteentry_rqst_voloper", FT_UINT32, BASE_DEC,
       NULL, 0x0, NULL, HFILL}},
+#if 0
     {&hf_fldb_getentrybyid_rqst_fsid_high,
      {"FSID deleteentry Hi", "fldb.getentrybyid_rqst_fsid_high", FT_UINT32,
       BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -1773,6 +1790,7 @@ proto_register_fldb (void)
     {&hf_fldb_getentrybyid_rqst_voloper,
      {"voloper", "fldb.getentrybyid_rqst_voloper", FT_UINT32, BASE_DEC,
       NULL, 0x0, NULL, HFILL}},
+#endif
     {&hf_fldb_replaceentry_rqst_fsid_high,
      {"FSID replaceentry Hi", "fldb.replaceentry_rqst_fsid_high",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -1782,6 +1800,7 @@ proto_register_fldb (void)
     {&hf_fldb_replaceentry_rqst_voltype,
      {"voltype", "fldb.replaceentry_rqst_voltype", FT_UINT32, BASE_DEC,
       NULL, 0x0, NULL, HFILL}},
+#if 0
     {&hf_fldb_replaceentry_rqst_key_t,
      {"Key", "fldb.replaceentry_rqst_key_t", FT_STRING, BASE_NONE, NULL,
       0x0, NULL, HFILL}},
@@ -1893,6 +1912,7 @@ proto_register_fldb (void)
     {&hf_fldb_getentrybyname_resp_test,
      {"fldb_getentrybyname_resp_test", "fldb.getentrybyname_resp_test",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+#endif
     {&hf_fldb_releaselock_rqst_fsid_high,
      {"FSID releaselock Hi", "fldb.releaselock_rqst_fsid_high", FT_UINT32,
       BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -2017,18 +2037,22 @@ proto_register_fldb (void)
     {&hf_fldb_afsNameString_t_principalName_size,
      {"Principal Name Size", "fldb.principalName_size", FT_UINT32, BASE_DEC,
       NULL, 0x0, NULL, HFILL}},
+#if 0
     {&hf_fldb_afsNameString_t_principalName_size2,
      {"Principal Name Size2", "fldb.principalName_size2", FT_UINT32, BASE_DEC,
       NULL, 0x0, NULL, HFILL}},
+#endif
     {&hf_fldb_afsNameString_t_principalName_string,
      {"Principal Name", "fldb.NameString_principal", FT_STRING, BASE_NONE,
       NULL, 0x0, NULL, HFILL}},
     {&hf_fldb_namestring,
      {"Name string", "fldb.NameString_principal", FT_STRING, BASE_NONE, NULL,
       0x0, NULL, HFILL}},
+#if 0
     {&hf_dcerpc_error_status,
      {"Error Status", "fldb.NameString_principal", FT_UINT32, BASE_DEC, NULL,
       0x0, NULL, HFILL}},
+#endif
     {&hf_error_st,
      {"Error Status 2", "fldb.error_st", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
       HFILL}},
@@ -2041,6 +2065,7 @@ proto_register_fldb (void)
     {&hf_fldb_deletedflag,
      {"deletedflag", "fldb.deletedflag", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
       HFILL}},
+#if 0
     {&hf_fldb_getentrybyname_rqst_key_size,
      {"getentrybyname", "fldb.getentrybyname_rqst_key_size", FT_UINT32,
       BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -2050,6 +2075,7 @@ proto_register_fldb (void)
     {&hf_fldb_namestring_size,
      {"namestring size", "fldb.namestring_size", FT_UINT32, BASE_DEC, NULL,
       0x0, NULL, HFILL}},
+#endif
     {&hf_fldb_numwanted,
      {"number wanted", "fldb.numwanted", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
       HFILL}},

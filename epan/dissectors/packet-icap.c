@@ -47,7 +47,7 @@ static int hf_icap_response = -1;
 static int hf_icap_reqmod = -1;
 static int hf_icap_respmod = -1;
 static int hf_icap_options = -1;
-static int hf_icap_other = -1;
+/* static int hf_icap_other = -1; */
 
 static gint ett_icap = -1;
 
@@ -310,10 +310,12 @@ proto_register_icap(void)
 	      { "Options",		"icap.options",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"TRUE if ICAP options", HFILL }},
+#if 0
 	    { &hf_icap_other,
 	      { "Other",		"icap.other",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"TRUE if ICAP other", HFILL }},
+#endif
 	};
 	static gint *ett[] = {
 		&ett_icap,

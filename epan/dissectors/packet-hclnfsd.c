@@ -37,7 +37,7 @@ static int proto_hclnfsd = -1;
 static int hf_hclnfsd_procedure_v1 = -1;
 static int hf_hclnfsd_request_type = -1;
 static int hf_hclnfsd_device = -1;
-static int hf_hclnfsd_login = -1;
+/* static int hf_hclnfsd_login = -1; */
 static int hf_hclnfsd_lockname = -1;
 static int hf_hclnfsd_unknown_data = -1;
 static int hf_hclnfsd_lockowner = -1;
@@ -723,9 +723,11 @@ proto_register_hclnfsd(void)
 			"Device", "hclnfsd.device", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
+#if 0
 		{ &hf_hclnfsd_login, {
 			"Login Text", "hclnfsd.logintext", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
+#endif
 
 		{ &hf_hclnfsd_lockname, {
 			"Lockname", "hclnfsd.lockname", FT_STRING, BASE_NONE,

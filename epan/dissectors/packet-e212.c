@@ -2258,7 +2258,7 @@ static value_string_ext mcc_mnc_codes_ext = VALUE_STRING_EXT_INIT(mcc_mnc_codes)
 static int proto_e212   = -1;
 static int hf_E212_mcc  = -1;
 static int hf_E212_mnc  = -1;
-static int hf_E212_msin = -1;
+/* static int hf_E212_msin = -1; */
 
 /*
  * MCC/MNC dissection - little endian MNC encoding
@@ -2516,10 +2516,12 @@ proto_register_e212(void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Mobile network code", HFILL }
     },
+#if 0
     { &hf_E212_msin,
         { "Mobile Subscriber Identification Number (MSIN)", "e212.msin",
         FT_STRING, BASE_NONE, NULL, 0,
         "Mobile Subscriber Identification Number(MSIN)", HFILL }},
+#endif
     };
 
     /*

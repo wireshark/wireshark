@@ -53,7 +53,7 @@ static int hf_netmon_802_11_op_mode_sta = -1;
 static int hf_netmon_802_11_op_mode_ap = -1;
 static int hf_netmon_802_11_op_mode_sta_ext = -1;
 static int hf_netmon_802_11_op_mode_mon = -1;
-static int hf_netmon_802_11_flags = -1;
+/* static int hf_netmon_802_11_flags = -1; */
 static int hf_netmon_802_11_phy_type = -1;
 static int hf_netmon_802_11_channel = -1;
 static int hf_netmon_802_11_frequency = -1;
@@ -197,8 +197,10 @@ proto_register_netmon_802_11(void)
                           BASE_HEX, NULL, OP_MODE_STA_EXT, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode_mon, { "Monitor mode", "netmon_802_11.op_mode.on", FT_UINT32,
                           BASE_HEX, NULL, OP_MODE_MON, NULL, HFILL } },
+#if 0
     { &hf_netmon_802_11_flags, { "Flags", "netmon_802_11.flags", FT_UINT32,
                           BASE_HEX, NULL, 0x0, NULL, HFILL } },
+#endif
     { &hf_netmon_802_11_phy_type, { "PHY type", "netmon_802_11.phy_type", FT_UINT32,
                           BASE_DEC, VALS(phy_type), 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_channel, { "Channel", "netmon_802_11.channel", FT_UINT32,

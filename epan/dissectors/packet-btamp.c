@@ -48,8 +48,8 @@ static int hf_btamp_controller_id = -1;
 static int hf_btamp_controller_type = -1;
 static int hf_btamp_controller_status = -1;
 static int hf_btamp_status = -1;
-static int hf_btamp_create_status = -1;
-static int hf_btamp_disc_status = -1;
+/* static int hf_btamp_create_status = -1; */
+/* static int hf_btamp_disc_status = -1; */
 static int hf_btamp_total_bw = -1;
 static int hf_btamp_max_guaran_bw = -1;
 static int hf_btamp_min_latency = -1;
@@ -580,6 +580,7 @@ proto_register_btamp(void)
                 FT_UINT8, BASE_DEC, VALS(status_vals), 0x0,
                 NULL, HFILL }
         },
+#if 0
         { &hf_btamp_create_status,
             { "Status",           "btamp.create_status",
                 FT_UINT8, BASE_DEC, VALS(create_status_vals), 0x0,
@@ -590,6 +591,7 @@ proto_register_btamp(void)
                 FT_UINT8, BASE_DEC, VALS(disc_status_vals), 0x0,
                 NULL, HFILL }
         },
+#endif
         { &hf_btamp_pal_caps_mask,
             { "PAL Capabilities Mask",           "btamp.pal_caps_mask",
                 FT_NONE, BASE_NONE, NULL, 0x0,

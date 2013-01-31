@@ -373,7 +373,7 @@ static int hf_afs_prot_maxgid = -1;
 
 static int hf_afs_backup_errcode = -1;
 
-static int hf_afs_ubik_errcode = -1;
+/* static int hf_afs_ubik_errcode = -1; */
 static int hf_afs_ubik_version_epoch = -1;
 static int hf_afs_ubik_version_counter = -1;
 static int hf_afs_ubik_votestart = -1;
@@ -384,8 +384,8 @@ static int hf_afs_ubik_file = -1;
 static int hf_afs_ubik_pos = -1;
 static int hf_afs_ubik_length = -1;
 static int hf_afs_ubik_locktype = -1;
-static int hf_afs_ubik_voteend = -1;
-static int hf_afs_ubik_votetype = -1;
+/* static int hf_afs_ubik_voteend = -1; */
+/* static int hf_afs_ubik_votetype = -1; */
 
 static int hf_afs_ubik_now = -1;
 static int hf_afs_ubik_lastyestime = -1;
@@ -3537,8 +3537,10 @@ proto_register_afs(void)
 		FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
 
 /* UBIK Fields */
+#if 0
 	{ &hf_afs_ubik_errcode, { "Error Code", "afs.ubik.errcode",
 		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
+#endif
 	{ &hf_afs_ubik_state, { "State", "afs.ubik.state",
 		FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
 	{ &hf_afs_ubik_version_epoch, { "Epoch", "afs.ubik.version.epoch",
@@ -3547,8 +3549,10 @@ proto_register_afs(void)
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_ubik_votestart, { "Vote Started", "afs.ubik.votestart",
 		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, 0, 0, NULL, HFILL }},
+#if 0
 	{ &hf_afs_ubik_voteend, { "Vote Ends", "afs.ubik.voteend",
 		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, 0, 0, NULL, HFILL }},
+#endif
 	{ &hf_afs_ubik_file, { "File", "afs.ubik.file",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_ubik_pos, { "Position", "afs.ubik.position",
@@ -3557,8 +3561,10 @@ proto_register_afs(void)
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_ubik_locktype, { "Lock Type", "afs.ubik.locktype",
 		FT_UINT32, BASE_DEC, VALS(ubik_lock_types), 0, NULL, HFILL }},
+#if 0
 	{ &hf_afs_ubik_votetype, { "Vote Type", "afs.ubik.votetype",
 		FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
+#endif
 	{ &hf_afs_ubik_site, { "Site", "afs.ubik.site",
 		FT_IPv4, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_ubik_interface, { "Interface Address", "afs.ubik.interface",

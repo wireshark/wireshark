@@ -102,8 +102,8 @@ gboolean dcom_prefs_display_unmarshalling_details = FALSE;
 
 
 static gint ett_dcom_this = -1;
-static int hf_dcom_this_version_major = -1;
-static int hf_dcom_this_version_minor = -1;
+/* static int hf_dcom_this_version_major = -1; */
+/* static int hf_dcom_this_version_minor = -1; */
 static int hf_dcom_this_flags = -1;
 static int hf_dcom_this_res = -1;
 static int hf_dcom_this_cid = -1;
@@ -132,7 +132,7 @@ static gint ett_dcom_lpwstr = -1;
 static int hf_dcom_max_count = -1;
 static int hf_dcom_offset = -1;
 static int hf_dcom_byte_length = -1;
-static int hf_dcom_actual_count = -1;
+/* static int hf_dcom_actual_count = -1; */
 
 static gint ett_dcom_objref = -1;
 static int hf_dcom_objref = -1;
@@ -199,7 +199,7 @@ static int hf_dcom_sa_features_dispatch = -1;
 static int hf_dcom_sa_features_variant = -1;
 
 static gint ett_dcom_variant = -1;
-static int hf_dcom_variant = -1;
+/* static int hf_dcom_variant = -1; */
 static int hf_dcom_variant_type = -1;
 static int hf_dcom_variant_size = -1;
 static int hf_dcom_variant_rpc_res = -1;
@@ -2199,10 +2199,14 @@ void
 proto_register_dcom (void)
 {
 	static hf_register_info hf_dcom_this_array[] = {
+#if 0
 		{ &hf_dcom_this_version_major,
 		{ "VersionMajor", "dcom.this.version_major", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+#endif
+#if 0
 		{ &hf_dcom_this_version_minor,
 		{ "VersionMinor", "dcom.this.version_minor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+#endif
 		{ &hf_dcom_this_flags,
 		{ "Flags", "dcom.this.flags", FT_UINT32, BASE_HEX, VALS(dcom_thisthat_flag_vals), 0x0, NULL, HFILL }},
 		{ &hf_dcom_this_res,
@@ -2242,14 +2246,18 @@ proto_register_dcom (void)
 		{ "Offset", "dcom.offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_dcom_byte_length,
 		{ "ByteLength", "dcom.byte_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+#if 0
 		{ &hf_dcom_actual_count,
 		{ "ActualCount", "dcom.actual_count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+#endif
 		{ &hf_dcom_tobedone,
 		{ "To Be Done", "dcom.tobedone", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_dcom_nospec,
 		{ "No Specification Available", "dcom.nospec", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#if 0
 		{ &hf_dcom_variant,
 		{ "Variant", "dcom.variant", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#endif
 		{ &hf_dcom_variant_type,
 		{ "VarType", "dcom.variant_type", FT_UINT16, BASE_HEX, VALS(dcom_variant_type_vals), 0x0, NULL, HFILL }},
 		{ &hf_dcom_variant_type32,

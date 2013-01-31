@@ -148,7 +148,7 @@ static int hf_zip_network = -1;
 static int hf_zip_network_start = -1;
 static int hf_zip_network_end = -1;
 
-static int hf_zip_flags = -1;
+/* static int hf_zip_flags = -1; */
 
 static int hf_zip_flags_zone_invalid  = -1;
 static int hf_zip_flags_use_broadcast = -1;
@@ -2279,9 +2279,11 @@ proto_register_atalk(void)
       { "Network end",  "zip.network_end", FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
+#if 0
     { &hf_zip_flags,
       { "Flags",        "zip.flags", FT_BOOLEAN, 8, NULL, 0xC0,
         NULL, HFILL }},
+#endif
 
     { &hf_zip_last_flag,
       { "Last Flag",    "zip.last_flag", FT_BOOLEAN, BASE_NONE, NULL, 0x0,

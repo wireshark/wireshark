@@ -48,13 +48,13 @@ static int hf_ehs_ph_second = -1;
 static int hf_ehs_ph_tenths = -1;
 
 static int hf_ehs_ph_new_data_flag = -1;   /* indicates the time has changed */
-static int hf_ehs_ph_pad1 = -1;
+/* static int hf_ehs_ph_pad1 = -1; */
 static int hf_ehs_ph_hold_flag = -1;       /* indicates a hold condition */
 static int hf_ehs_ph_sign_flag = -1;       /* indicates pre-mission, i.e. countdown, time */
 
-static int hf_ehs_ph_pad2 = -1;
-static int hf_ehs_ph_pad3 = -1;
-static int hf_ehs_ph_pad4 = -1;
+/* static int hf_ehs_ph_pad2 = -1; */
+/* static int hf_ehs_ph_pad3 = -1; */
+/* static int hf_ehs_ph_pad4 = -1; */
 
 static int hf_ehs_ph_hosc_packet_size = -1;
 
@@ -75,9 +75,9 @@ static int hf_ehs_sh_packet_sequence_error = -1;    /* data status bit 1 */
 /* common ehs secondary header values */
 static int hf_ehs_sh_vcdu_sequence_number = -1;
 static int hf_ehs_sh_data_stream_id = -1;
-static int hf_ehs_sh_pdss_reserved_1 = -1;
-static int hf_ehs_sh_pdss_reserved_2 = -1;
-static int hf_ehs_sh_pdss_reserved_3 = -1;
+/* static int hf_ehs_sh_pdss_reserved_1 = -1; */
+/* static int hf_ehs_sh_pdss_reserved_2 = -1; */
+/* static int hf_ehs_sh_pdss_reserved_3 = -1; */
 static int hf_ehs_sh_gse_pkt_id = -1;
 static int hf_ehs_sh_payload_vs_core_id = -1;
 static int hf_ehs_sh_apid = -1;
@@ -106,7 +106,7 @@ static int hf_ehs_sh_tdm_idq = -1;
 static int hf_ehs_sh_tdm_cdq = -1;
 static int hf_ehs_sh_tdm_adq = -1;
 static int hf_ehs_sh_tdm_data_dq = -1;
-static int hf_ehs_sh_tdm_unused = -1;
+/* static int hf_ehs_sh_tdm_unused = -1; */
 static int hf_ehs_sh_tdm_format_id = -1;
 
 static int hf_ehs_sh_tdm_major_frame_packet_index = -1;
@@ -116,7 +116,7 @@ static int hf_ehs_sh_tdm_num_minor_frames_per_packet = -1;
 static int hf_ehs_sh_tdm_cntmet_present = -1;
 static int hf_ehs_sh_tdm_obt_present = -1;
 static int hf_ehs_sh_tdm_major_frame_status_present = -1;
-static int hf_ehs_sh_tdm_reserved = -1;
+/* static int hf_ehs_sh_tdm_reserved = -1; */
 
 static int hf_ehs_sh_tdm_cnt_year = -1;            /* numeric year as years since 1900 */
 static int hf_ehs_sh_tdm_cnt_jday = -1;            /* julian day of year */
@@ -135,12 +135,12 @@ static int hf_ehs_sh_tdm_obt_tenths = -1;
 static int hf_ehs_sh_tdm_obt_delta_time_flag = -1;
 static int hf_ehs_sh_tdm_obt_computed_flag = -1;
 static int hf_ehs_sh_tdm_obt_not_retrieved_flag = -1;
-static int hf_ehs_sh_tdm_obt_reserved = -1;
+/* static int hf_ehs_sh_tdm_obt_reserved = -1; */
 static int hf_ehs_sh_tdm_obt_source_apid = -1;
 
 static int hf_ehs_sh_tdm_num_major_frame_status_words = -1;
 
-static int hf_ehs_sh_tdm_mjfs_reserved = -1;
+/* static int hf_ehs_sh_tdm_mjfs_reserved = -1; */
 static int hf_ehs_sh_tdm_mjfs_parent_frame_error = -1;
 static int hf_ehs_sh_tdm_mjfs_checksum_error = -1;
 static int hf_ehs_sh_tdm_mjfs_fixed_value_error = -1;
@@ -155,7 +155,7 @@ static int hf_ehs_sh_tdm_mnfs_bit_slip_error = -1;
 static int hf_ehs_sh_tdm_mnfs_sync_error = -1;
 
 /* pseudo ehs secondary header values */
-static int hf_ehs_sh_pseudo_unused = -1;
+/* static int hf_ehs_sh_pseudo_unused = -1; */
 static int hf_ehs_sh_pseudo_workstation_id = -1;
 static int hf_ehs_sh_pseudo_user_id = -1;
 static int hf_ehs_sh_pseudo_comp_id = -1;
@@ -165,11 +165,11 @@ static int hf_ehs_dz_aoslos_indicator = -1;
 
 /* data zone values for well known protocol UDSM */
 static int hf_ehs_dz_udsm_ccsds_vs_bpdu = -1;
-static int hf_ehs_dz_udsm_unused1 = -1;
+/* static int hf_ehs_dz_udsm_unused1 = -1; */
 
-static int hf_ehs_dz_udsm_unused2 = -1;
+/* static int hf_ehs_dz_udsm_unused2 = -1; */
 
-static int hf_ehs_dz_udsm_unused3 = -1;
+/* static int hf_ehs_dz_udsm_unused3 = -1; */
 static int hf_ehs_dz_udsm_gse_pkt_id = -1;
 static int hf_ehs_dz_udsm_payload_vs_core = -1;
 static int hf_ehs_dz_udsm_apid = -1;
@@ -186,7 +186,7 @@ static int hf_ehs_dz_udsm_stop_time_hour = -1;
 static int hf_ehs_dz_udsm_stop_time_minute = -1;
 static int hf_ehs_dz_udsm_stop_time_second = -1;
 
-static int hf_ehs_dz_udsm_unused4 = -1;
+/* static int hf_ehs_dz_udsm_unused4 = -1; */
 
 static int hf_ehs_dz_udsm_num_pkts_xmtd = -1;
 
@@ -1265,11 +1265,13 @@ proto_register_ehs(void)
           FT_BOOLEAN, 8, NULL, 0x08,
           NULL, HFILL }
       },
+#if 0
       { &hf_ehs_ph_pad1,
         { "Pad1", "ehs.pad1",
           FT_UINT8, BASE_DEC, NULL, 0x04,
           NULL, HFILL }
       },
+#endif
       { &hf_ehs_ph_hold_flag,
         { "Hold Flag", "ehs.hold_flag",
           FT_BOOLEAN, 8, NULL, 0x02,
@@ -1281,6 +1283,7 @@ proto_register_ehs(void)
           NULL, HFILL }
       },
 
+#if 0
       { &hf_ehs_ph_pad2,
         { "Pad2", "ehs.pad2",
           FT_UINT8, BASE_DEC, NULL, 0xff,
@@ -1298,6 +1301,7 @@ proto_register_ehs(void)
           FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },
+#endif
 
       { &hf_ehs_ph_hosc_packet_size,
         { "HOSC Packet Size", "ehs.hosc_packet_size",
@@ -1374,6 +1378,7 @@ proto_register_ehs(void)
           FT_UINT8, BASE_DEC, VALS(ehs_secondary_header_data_stream_id), 0x80,
           NULL, HFILL }
       },
+#if 0
       { &hf_ehs_sh_pdss_reserved_1,
         { "Pdss Reserved 1", "ehs2.pdss_reserved_1",
           FT_UINT8, BASE_DEC, NULL, 0x7f,
@@ -1391,6 +1396,7 @@ proto_register_ehs(void)
           FT_UINT16, BASE_DEC, NULL, 0xe000,
           NULL, HFILL }
       },
+#endif
       { &hf_ehs_sh_gse_pkt_id,
         { "GSE Packet ID (1=GSE)", "ehs2.gse_pkt_id",
           FT_UINT16, BASE_DEC, NULL, 0x1000,
@@ -1518,11 +1524,13 @@ proto_register_ehs(void)
           NULL, HFILL }
       },
 
+#if 0
       { &hf_ehs_sh_tdm_unused,
         { "Unused", "ehs2.tdm_unused",
           FT_UINT16, BASE_DEC, NULL, 0xffff,
           NULL, HFILL }
       },
+#endif
 
       { &hf_ehs_sh_tdm_format_id,
         { "Format ID", "ehs2.tdm_format_id",
@@ -1563,11 +1571,13 @@ proto_register_ehs(void)
           FT_BOOLEAN, 8, NULL, 0x20,
           NULL, HFILL }
       },
+#if 0
       { &hf_ehs_sh_tdm_reserved,
         { "Reserved", "ehs2.tdm_reserved",
           FT_UINT8, BASE_DEC, NULL, 0x1f,
           NULL, HFILL }
       },
+#endif
 
       { &hf_ehs_sh_tdm_cnt_year,
         { "CNT Years since 1900", "ehs2.tdm_cnt_year",
@@ -1646,11 +1656,13 @@ proto_register_ehs(void)
           FT_BOOLEAN, 16, NULL, 0x2000,
           NULL, HFILL }
       },
+#if 0
       { &hf_ehs_sh_tdm_obt_reserved,
         { "OBT Reserved", "ehs2.tdm_obt_reserved",
           FT_BOOLEAN, 16, NULL, 0x1800,
           NULL, HFILL }
       },
+#endif
       { &hf_ehs_sh_tdm_obt_source_apid,
         { "OBT Source APID", "ehs2.tdm_obt_source_apid",
           FT_UINT16, BASE_DEC, NULL, 0x07ff,
@@ -1663,11 +1675,13 @@ proto_register_ehs(void)
           NULL, HFILL }
       },
 
+#if 0
       { &hf_ehs_sh_tdm_mjfs_reserved,
         { "Reserved", "ehs2.tdm_mjfs_reserved",
           FT_UINT8, BASE_DEC, NULL, 0xf8,
           NULL, HFILL }
       },
+#endif
       { &hf_ehs_sh_tdm_mjfs_parent_frame_error,
         { "Parent Frame Error", "ehs2.tdm_mjfs_parent_frame_error",
           FT_BOOLEAN, 8, NULL, 0x04,
@@ -1727,11 +1741,13 @@ proto_register_ehs(void)
 
 
       /* pseudo secondary header */
+#if 0
       { &hf_ehs_sh_pseudo_unused,
         { "Unused", "ehs2.pseudo_unused",
           FT_UINT16, BASE_DEC, NULL, 0xffff,
           NULL, HFILL }
       },
+#endif
       { &hf_ehs_sh_pseudo_workstation_id,
         { "Workstation ID", "ehs2.pseudo_workstation_id",
           FT_UINT16, BASE_DEC, NULL, 0xffff,
@@ -1763,6 +1779,7 @@ proto_register_ehs(void)
           FT_UINT8, BASE_DEC, VALS(ehs_data_zone_udsm_ccsds_vs_bpdu), 0x80,
           NULL, HFILL }
       },
+#if 0
       { &hf_ehs_dz_udsm_unused1,
         { "Unused 1", "ehs.dz.udsm_unused1",
           FT_UINT8, BASE_DEC, NULL, 0x7f,
@@ -1780,6 +1797,7 @@ proto_register_ehs(void)
           FT_UINT16, BASE_DEC, NULL, 0xe000,
           NULL, HFILL }
       },
+#endif
       { &hf_ehs_dz_udsm_gse_pkt_id,
         { "GSE Pkt ID", "ehs.dz.udsm_gse_pkt_id",
           FT_BOOLEAN, 16, NULL, 0x1000,
@@ -1848,11 +1866,13 @@ proto_register_ehs(void)
           NULL, HFILL }
       },
 
+#if 0
       { &hf_ehs_dz_udsm_unused4,
         { "Unused 4", "ehs.dz.udsm_unused4",
           FT_UINT16, BASE_DEC, NULL, 0xffff,
           NULL, HFILL }
       },
+#endif
 
       { &hf_ehs_dz_udsm_num_pkts_xmtd,
         { "Num Pkts Transmitted", "ehs.dz.udsm_num_pkts_xmtd",

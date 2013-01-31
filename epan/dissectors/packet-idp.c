@@ -33,8 +33,8 @@
 static int proto_idp = -1;
 static int hf_idp_checksum = -1;
 static int hf_idp_len = -1;
-static int hf_idp_src = -1;
-static int hf_idp_dst = -1;
+/* static int hf_idp_src = -1; */
+/* static int hf_idp_dst = -1; */
 static int hf_idp_hops = -1;
 static int hf_idp_packet_type = -1;
 static int hf_idp_dnet = -1;
@@ -139,13 +139,17 @@ proto_register_idp(void)
 		    { "Checksum",	"idp.checksum", FT_UINT16, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
 
+#if 0
 		{ &hf_idp_src,
 		    { "Source Address",	"idp.src", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+#endif
 
+#if 0
 		{ &hf_idp_dst,
 		    { "Destination Address",	"idp.dst", FT_STRING, BASE_NONE,
 			NULL, 0x0,  NULL, HFILL }},
+#endif
 
 		{ &hf_idp_len,
 		    { "Length",		"idp.len", FT_UINT16, BASE_DEC,

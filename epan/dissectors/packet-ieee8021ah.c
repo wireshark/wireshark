@@ -65,7 +65,7 @@ static int hf_ieee8021ah_c_daddr = -1;  /* encapsulated customer dest addr */
 static int hf_ieee8021ah_c_saddr = -1;  /* encapsulated customer src addr */
 
 static int hf_ieee8021ah_etype = -1;
-static int hf_ieee8021ah_len = -1;
+/* static int hf_ieee8021ah_len = -1; */
 static int hf_ieee8021ah_trailer = -1;
 
 static gint ett_ieee8021ah = -1;
@@ -364,9 +364,11 @@ proto_register_ieee8021ah(void)
 	{ &hf_ieee8021ah_etype, {
 		"Type", "ieee8021ah.etype", FT_UINT16, BASE_HEX,
 		VALS(etype_vals), 0x0, NULL, HFILL }},
+#if 0
 	{ &hf_ieee8021ah_len, {
 		"Length", "ieee8021ah.len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
+#endif
 	{ &hf_ieee8021ah_trailer, {
 		"Trailer", "ieee8021ah.trailer", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "802.1ah Trailer", HFILL }}

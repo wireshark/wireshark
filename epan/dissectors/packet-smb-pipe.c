@@ -101,7 +101,7 @@ static int hf_aux_data_desc = -1;
 static int hf_detail_level = -1;
 static int hf_recv_buf_len = -1;
 static int hf_send_buf_len = -1;
-static int hf_continuation_from = -1;
+/* static int hf_continuation_from = -1; */
 static int hf_status = -1;
 static int hf_convert = -1;
 static int hf_ecount = -1;
@@ -2948,9 +2948,11 @@ proto_register_pipe_lanman(void)
 			{ "Send Buffer Length", "lanman.send_buf_len", FT_UINT16, BASE_DEC,
 			NULL, 0, "LANMAN Send Buffer Length", HFILL }},
 
+#if 0
 		{ &hf_continuation_from,
 			{ "Continuation from message in frame", "lanman.continuation_from", FT_UINT32, BASE_DEC,
 			NULL, 0, "This is a LANMAN continuation from the message in the frame in question", HFILL }},
+#endif
 
 		{ &hf_status,
 			{ "Status", "lanman.status", FT_UINT16, BASE_DEC,

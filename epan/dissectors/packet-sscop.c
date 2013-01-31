@@ -40,7 +40,7 @@ static int hf_sscop_s = -1;
 static int hf_sscop_ps = -1;
 static int hf_sscop_r = -1;
 static int hf_sscop_stat_s = -1;
-static int hf_sscop_stat_count = -1;
+/* static int hf_sscop_stat_count = -1; */
 
 static gint ett_sscop = -1;
 static gint ett_stat = -1;
@@ -436,7 +436,9 @@ proto_register_sscop(void)
 		{ &hf_sscop_ps, { "N(PS)", "sscop.ps", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sscop_r, { "N(R)", "sscop.r", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sscop_stat_s, { "N(S)", "sscop.stat.s", FT_UINT24, BASE_DEC, NULL, 0x0,NULL, HFILL }},
+#if 0
 		{ &hf_sscop_stat_count, { "Number of NACKed pdus", "sscop.stat.count", FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }}
+#endif
 	};
 
   static gint *ett[] = {
