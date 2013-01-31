@@ -1302,14 +1302,14 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     if (type == L3_INF_CCCH)
     {
        /* L3 PDUs carried on CCCH have L2 PSEUDO LENGTH octet or are RR Short PD format */
-       proto_tree_add_text(ie_tree, tvb,offset,length,"Link Layer Service Data Unit ( L3 Message)(SACCH)");
+       proto_tree_add_text(ie_tree, tvb,offset,length,"Link Layer Service Data Unit (L3 Message)(CCCH)");
        next_tvb = tvb_new_subset(tvb, offset, length, length);
        call_dissector(gsm_a_ccch_handle, next_tvb, pinfo, top_tree);
     }
     else if (type == L3_INF_SACCH)
     {
        /* L3 PDUs carried on SACCH are normal format or are RR Short PD format */
-       proto_tree_add_text(ie_tree, tvb,offset,length,"Link Layer Service Data Unit ( L3 Message)(SACCH)");
+       proto_tree_add_text(ie_tree, tvb,offset,length,"Link Layer Service Data Unit (L3 Message)(SACCH)");
        next_tvb = tvb_new_subset(tvb, offset, length, length);
        call_dissector(gsm_a_sacch_handle, next_tvb, pinfo, top_tree);
     }
@@ -1318,7 +1318,7 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
        /* Link Layer Service Data Unit (i.e. a layer 3 message
         * as defined in 3GPP TS 24.008 or 3GPP TS 44.018)
         */
-       proto_tree_add_text(ie_tree, tvb,offset,length,"Link Layer Service Data Unit ( L3 Message)");
+       proto_tree_add_text(ie_tree, tvb,offset,length,"Link Layer Service Data Unit (L3 Message)");
        next_tvb = tvb_new_subset(tvb, offset, length, length);
        call_dissector(gsm_a_dtap_handle, next_tvb, pinfo, top_tree);
     }
@@ -2049,7 +2049,8 @@ static value_string_ext rsl_sys_info_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_s
 
 
 static int
-dissect_rsl_ie_sys_info_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+dissect_rsl_ie_sys_info_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
+                             gboolean is_mandatory, guint8 *sys_info_type)
 {
     proto_item *ti;
     proto_tree *ie_tree;
@@ -2057,8 +2058,10 @@ dissect_rsl_ie_sys_info_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     if (is_mandatory == FALSE) {
         ie_id = tvb_get_guint8(tvb,offset);
-        if (ie_id != RSL_IE_SYS_INFO_TYPE)
+        if (ie_id != RSL_IE_SYS_INFO_TYPE) {
+            *sys_info_type = 0xff;
             return offset;
+        }
     }
 
     ti = proto_tree_add_text(tree, tvb,offset,2,"System Info Type IE");
@@ -2068,6 +2071,7 @@ dissect_rsl_ie_sys_info_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Message Type */
+    *sys_info_type = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_rsl_sys_info_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -3236,7 +3240,7 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 static int
 dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint8  msg_disc, msg_type;
+    guint8 msg_disc, msg_type, sys_info_type;
 
     msg_disc = tvb_get_guint8(tvb, offset++) >> 1;
     msg_type = tvb_get_guint8(tvb,offset) & 0x7f;
@@ -3340,7 +3344,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /*  Channel number          9.3.1   M TV 2 */
         offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         /*  System Info Type        9.3.30  M TV 2 */
-        offset = dissect_rsl_ie_sys_info_type(tvb, pinfo, tree, offset, TRUE);
+        offset = dissect_rsl_ie_sys_info_type(tvb, pinfo, tree, offset, TRUE, &sys_info_type);
         /*  Full BCCH Info (SYS INFO) 9.3.39 O 1) TLV 25 */
         if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_full_bcch_inf(tvb, pinfo, tree, offset, TRUE);
@@ -3418,10 +3422,11 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     /* 8.6.2 SACCH FILLING */
     case RSL_MSG_SACCH_FILL:    /*  25   8.6.2 */
         /* System Info Type         9.3.30  M TV 2 */
-        offset = dissect_rsl_ie_sys_info_type(tvb, pinfo, tree, offset, TRUE);
+        offset = dissect_rsl_ie_sys_info_type(tvb, pinfo, tree, offset, TRUE, &sys_info_type);
         /* L3 Info (SYS INFO)       9.3.11 O 1) TLV 22 */
         if (tvb_length_remaining(tvb,offset) > 0)
-           offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_CCCH);
+           offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE,
+                                          (sys_info_type == 0x48) ? L3_INF_SACCH : L3_INF_OTHER);
         /* Starting Time            9.3.23 O 2) TV 3 */
         if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_starting_time(tvb, pinfo, tree, offset, FALSE);
@@ -3596,14 +3601,14 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             offset = dissect_rsl_ie_l1_inf(tvb, pinfo, tree, offset, FALSE);
         /* L3 Info (MEAS REP, EXT MEAS REP or ENH MEAS REP) 9.3.11 O 1) TLV 21 */
         if (tvb_length_remaining(tvb,offset) > 0){
-			/* Try to figure out of we have (MEAS REP, EXT MEAS REP or ENH MEAS REP) */
-			if ( ( tvb_get_guint8(tvb, offset+3) & 0xFE ) == 0x10 ) {
-				/* ENH MEAS REP */
-	            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_SACCH);
-			}else{
-	            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_OTHER);
-			}
-		}
+            /* Try to figure out of we have (MEAS REP, EXT MEAS REP or ENH MEAS REP) */
+            if ( ( tvb_get_guint8(tvb, offset+3) & 0xFE ) == 0x10 ) {
+                /* ENH MEAS REP */
+                offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_SACCH);
+            }else{
+                offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_OTHER);
+            }
+        }
         /* MS Timing Offset         9.3.37 O 2) TV 2        */
         if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_ms_timing_offset(tvb, pinfo, tree, offset, FALSE);
@@ -3708,10 +3713,11 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Channel number           9.3.1   M TV 2 */
         offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         /* System Info Type         9.3.30  M TV 2 */
-        offset = dissect_rsl_ie_sys_info_type(tvb, pinfo, tree, offset, TRUE);
+        offset = dissect_rsl_ie_sys_info_type(tvb, pinfo, tree, offset, TRUE, &sys_info_type);
         /* L3 Info                  9.3.11  O 1) TLV 22 */
         if (tvb_length_remaining(tvb,offset) > 0)
-            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE, L3_INF_SACCH);
+            offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE,
+                                           (sys_info_type == 0x48) ? L3_INF_SACCH : L3_INF_OTHER);
         /* Starting Time            9.3.23  O 2) TV 3 */
         if (tvb_length_remaining(tvb,offset) > 0)
             offset = dissect_rsl_ie_starting_time(tvb, pinfo, tree, offset, FALSE);
