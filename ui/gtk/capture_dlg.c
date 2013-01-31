@@ -2490,7 +2490,10 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   g_assert(filter_text != NULL);
   device.cfilter = filter_text;
 #ifdef HAVE_PCAP_CREATE
-  device.monitor_mode_enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor_cb));
+  /* if dumpcap reported that the interface does not support monitor
+     mode, we disable monitor mode even if the user explicitly selected it */
+  device.monitor_mode_enabled = device.monitor_mode_supported ?
+     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor_cb)) : FALSE;
 #endif
   g_array_insert_val(global_capture_opts.all_ifaces, marked_interface, device);
   window_destroy(opt_edit_w);
