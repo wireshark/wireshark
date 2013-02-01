@@ -337,7 +337,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   start_opcode_offset = offset;
   if (match_strval(opcode, opcode_vals) != NULL)
   {
-    opcode_ti = proto_tree_add_text(pcp_tree, tvb, offset, 0, op_str);
+    opcode_ti = proto_tree_add_text(pcp_tree, tvb, offset, 0, "%s", op_str);
     opcode_tree = proto_item_add_subtree (opcode_ti, ett_opcode);
   }
 
