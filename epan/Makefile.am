@@ -304,7 +304,7 @@ endif		# HAVE_PLUGINS
 
 doxygen:
 if HAVE_DOXYGEN
-	$(DOXYGEN) doxygen.cfg
+	$(AM_V_GEN)$(DOXYGEN) doxygen.cfg
 endif		# HAVE_DOXYGEN
 
 # ABI compliance checker can be obtained from
@@ -339,4 +339,4 @@ dumpabi: all abi-descriptor.xml
 	cd .libs && ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz
 
 checkapi:
-	$(PERL) ../tools/checkAPIs.pl -g termoutput -build $(LIBWIRESHARK_SRC)
+	$(AM_V_GEN)$(PERL) ../tools/checkAPIs.pl -g termoutput -build $(LIBWIRESHARK_SRC)

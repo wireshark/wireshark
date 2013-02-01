@@ -90,12 +90,12 @@ pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 # Build the short version of the authors file for the about dialog
 #
 AUTHORS-SHORT: $(top_srcdir)/AUTHORS $(srcdir)/make-authors-short.pl
-	$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-short.pl < $(top_srcdir)/AUTHORS > AUTHORS-SHORT
+	$(AM_V_GEN)$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-short.pl < $(top_srcdir)/AUTHORS > AUTHORS-SHORT
 
 # Put a copy in the top-level directory so Help->About, when run from the
 # build directory, can find it.
 ../AUTHORS-SHORT: AUTHORS-SHORT
-	cp AUTHORS-SHORT ..
+	$(AM_V_GEN)cp AUTHORS-SHORT ..
 
 #
 # Build the short version of the authors file with formatting codes for the
@@ -104,10 +104,10 @@ AUTHORS-SHORT: $(top_srcdir)/AUTHORS $(srcdir)/make-authors-short.pl
 # down there.)
 #
 AUTHORS-SHORT-FORMAT: ../AUTHORS-SHORT $(srcdir)/make-authors-format.pl
-	$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
+	$(AM_V_GEN)$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
 
 wireshark.pod: $(srcdir)/wireshark.pod.template AUTHORS-SHORT-FORMAT
-	cat $(srcdir)/wireshark.pod.template AUTHORS-SHORT-FORMAT > wireshark.pod
+	$(AM_V_GEN)cat $(srcdir)/wireshark.pod.template AUTHORS-SHORT-FORMAT > wireshark.pod
 
 wireshark.1: wireshark.pod ../config.h
 	$(AM_V_GEN)$(POD2MAN)				\

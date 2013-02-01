@@ -24,12 +24,12 @@
 AUTOMAKE_OPTIONS = -Wno-portability
 
 .l.c:
-	$(RUNLEX) "$(LEX)" -o$@ $<
+	$(AM_V_GEN)$(RUNLEX) "$(LEX)" -o$@ $<
 
 .def.sym:
-	$(AWK) '/^EXPORTS$$/ {next;}; ${def_sym_filter_symbols} /^[^;]/ { print $$1;}' < $< > $@
+	$(AM_V_GEN)$(AWK) '/^EXPORTS$$/ {next;}; ${def_sym_filter_symbols} /^[^;]/ { print $$1;}' < $< > $@
 
 # abi-compliance-checker descriptor
 INCLUDE_DIRS = $(subst -I,NEWLINE,$(filter -I%, $(CFLAGS) -I$(abs_top_srcdir) -I$(abs_srcdir)))
 abi-descriptor.xml: ../abi-descriptor.template
-	sed "s|INCLUDE_DIRS|$(INCLUDE_DIRS)|g;s/NEWLINE/\n    /g" $< > $@
+	$(AM_V_GEN)sed "s|INCLUDE_DIRS|$(INCLUDE_DIRS)|g;s/NEWLINE/\n    /g" $< > $@

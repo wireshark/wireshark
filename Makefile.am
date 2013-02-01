@@ -982,7 +982,7 @@ SUBDIRS = tools wsutil wiretap epan packaging help ui @wireshark_SUBDIRS@ ui/cli
 endif
 
 help/faq.txt: $(srcdir)/help/faq.py
-	(cd help ; \
+	$(AM_V_GEN)(cd help ; \
 	$(MAKE) faq.txt ;)
 
 libtool: $(LIBTOOL_DEPS)
