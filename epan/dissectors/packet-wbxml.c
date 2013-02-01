@@ -7068,7 +7068,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* String table: read string table length in bytes */
-	str_tbl_len = tvb_get_guintvar (tvb, offset, &str_tbl_len_len);
+	tvb_get_guintvar (tvb, offset, &str_tbl_len_len);
 	str_tbl = offset + str_tbl_len_len; /* Start of 1st string in string table */
 
 	/* Compose the summary line */
