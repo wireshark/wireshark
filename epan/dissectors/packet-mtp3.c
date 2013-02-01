@@ -651,7 +651,6 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector(data_handle, payload_tvb, pinfo, tree);
 }
 
-#define HEURISTIC_FAILED_STANDARD 0xffff
 static guint
 heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, guint8 si)
 {
@@ -721,7 +720,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    mtp3_standard = heuristic_standard;
 
 	    /* Register a frame-end routine to ensure mtp3_standard is set
-	     * back, even if an exception is thrown.
+	     * back even if an exception is thrown.
 	     */
 	    register_frame_end_routine(pinfo, reset_mtp3_standard);
 	}

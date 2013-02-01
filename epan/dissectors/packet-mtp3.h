@@ -29,6 +29,7 @@ typedef enum {
   CHINESE_ITU_STANDARD = 3,
   JAPAN_STANDARD = 4
 } Standard_Type;
+#define HEURISTIC_FAILED_STANDARD 0xffff
 
 extern gint mtp3_standard;
 extern gboolean mtp3_heuristic_standard;
