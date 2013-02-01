@@ -216,11 +216,8 @@ static int hf_cip_cco_iomap_attribute = -1;
 static int hf_cip_cco_safety = -1;
 static int hf_cip_cco_change_type = -1;
 
-/* static int hf_cip_vendor = -1; */
-/* static int hf_cip_devtype = -1; */
 static int hf_cip_path_segment = -1;
 static int hf_cip_path_segment_type = -1;
-/* static int hf_cip_port_segment = -1; */
 static int hf_cip_port_ex_link_addr = -1;
 static int hf_cip_port = -1;
 static int hf_cip_link_address_size = -1;
@@ -243,7 +240,6 @@ static int hf_cip_attribute32 = -1;
 static int hf_cip_conpoint8 = -1;
 static int hf_cip_conpoint16 = -1;
 static int hf_cip_conpoint32 = -1;
-/* static int hf_cip_ekey = -1; */
 static int hf_cip_ekey_format = -1;
 static int hf_cip_ekey_vendor = -1;
 static int hf_cip_ekey_devtype = -1;
@@ -6290,9 +6286,6 @@ proto_register_cip(void)
 
       { &hf_cip_path_segment, { "Path Segment", "cip.path_segment", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_path_segment_type, { "Path Segment Type", "cip.path_segment.type", FT_UINT8, BASE_DEC, VALS(cip_path_seg_vals), CI_SEGMENT_TYPE_MASK, NULL, HFILL }},
-#if 0
-      { &hf_cip_port_segment, { "Port Segment", "cip.port_segment", FT_UINT8, BASE_HEX, NULL, CI_SEGMENT_TYPE_MASK, NULL, HFILL }},
-#endif
       { &hf_cip_port_ex_link_addr, { "Extended Link Address", "cip.ex_linkaddress", FT_BOOLEAN, 8, TFS(&tfs_true_false), CI_PORT_SEG_EX_LINK_ADDRESS, NULL, HFILL }},
       { &hf_cip_port, { "Port", "cip.port", FT_UINT8, BASE_DEC, NULL, CI_PORT_SEG_PORT_ID_MASK, "Port Identifier", HFILL }},
       { &hf_cip_link_address_byte, { "Link Address", "cip.linkaddress", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -6315,9 +6308,6 @@ proto_register_cip(void)
       { &hf_cip_conpoint8, { "Connection Point", "cip.connpoint", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_conpoint16, { "Connection Point", "cip.connpoint", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_conpoint32, { "Connection Point", "cip.connpoint", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-#if 0
-      { &hf_cip_ekey, { "Electronic Key Segment", "cip.ekey", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-#endif
       { &hf_cip_ekey_format, { "Key Format", "cip.ekey.format", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_ekey_vendor, { "Vendor ID", "cip.ekey.vendor", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_ekey_devtype, { "Device Type", "cip.ekey.devtype", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &cip_devtype_vals_ext, 0, NULL, HFILL }},
@@ -6369,13 +6359,6 @@ proto_register_cip(void)
       { &hf_cip_seg_safety_init_timestamp, { "Initial Timestamp", "cip.safety_segment.init_timestamp", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_init_rollover, { "Initial Rollover Value", "cip.safety_segment.init_rollover", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_data, { "Safety Data", "cip.safety_segment.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-
-#if 0
-      { &hf_cip_vendor, { "Vendor ID", "cip.vendor", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, NULL, HFILL }},
-#endif
-#if 0
-      { &hf_cip_devtype, { "Device Type", "cip.devtype", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &cip_devtype_vals_ext, 0, NULL, HFILL }},
-#endif
       { &hf_cip_class_rev, { "Class Revision", "cip.class.rev", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_class_max_inst32, { "Max Instance", "cip.class.max_inst", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_class_num_inst32, { "Number of Instances", "cip.class.num_inst", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
