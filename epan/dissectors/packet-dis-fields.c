@@ -1,7 +1,7 @@
 /* packet-dis-fields.c
  * Routines and definitions for DIS field parsing.
  * Copyright 2005, Scientific Research Corporation
- * Initial implementation by Jeremy Ouellette <jouellet@scires.com>
+ * Initial implementation by Jeremy Ouellette <jouellet[AT]scires.com>
  *
  * $Id$
  *
@@ -240,7 +240,7 @@ DIS_ParserNode DIS_FIELDS_EMITTER_SYSTEM[] =
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
 
-DIS_ParserNode DIS_FIELDS_VR_UA_SHAFT[] = 
+DIS_ParserNode DIS_FIELDS_VR_UA_SHAFT[] =
 {
     { DIS_FIELDTYPE_INT16,                   "Current Shaft RPM",0,0,0,0 },
     { DIS_FIELDTYPE_INT16,                   "Ordered Shaft RPM",0,0,0,0 },
@@ -248,21 +248,21 @@ DIS_ParserNode DIS_FIELDS_VR_UA_SHAFT[] =
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
 
-DIS_ParserNode DIS_FIELDS_VR_APA[] = 
+DIS_ParserNode DIS_FIELDS_VR_APA[] =
 {
     { DIS_FIELDTYPE_INT16,                   "Parameter Index",0,0,0,0 }, /*FIXME enum*/
     { DIS_FIELDTYPE_INT16,                   "Value", 0,0,0,0 },
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
 
-DIS_ParserNode DIS_FIELDS_UA_EMITTER_SYSTEM[] = 
+DIS_ParserNode DIS_FIELDS_UA_EMITTER_SYSTEM[] =
 {
     { DIS_FIELDTYPE_UINT16,                  "Acoustic Emitter Name",0,0,0,0 }, /*FIXME enum*/
     { DIS_FIELDTYPE_UINT8,                  "Function",0,0,0,0 }, /*FIXME enum*/
     { DIS_FIELDTYPE_UINT8,                  "Acoustic ID Number",0,0,0,0 },
     { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
-    
+
 DIS_ParserNode DIS_FIELDS_FUNDAMENTAL_PARAMETER_DATA[] =
 {
     { DIS_FIELDTYPE_FLOAT32,            "Frequency",0,0,0,0 },
@@ -651,23 +651,23 @@ gint parseField_UInt(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
  */
 gint parseField_Int(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode, guint numBytes)
 {
-    guint64 uintVal = 0;
+    gint64 intVal = 0;
 
     offset = alignOffset(offset, numBytes);
 
     switch(numBytes)
     {
     case 1:
-        uintVal = tvb_get_guint8(tvb, offset);
+        intVal = (gint8)tvb_get_guint8(tvb, offset);
         break;
     case 2:
-        uintVal = tvb_get_ntohs(tvb, offset);
+        intVal = (gint16)tvb_get_ntohs(tvb, offset);
         break;
     case 4:
-        uintVal = tvb_get_ntohl(tvb, offset);
+        intVal = (gint32)tvb_get_ntohl(tvb, offset);
         break;
     case 8:
-        uintVal = tvb_get_ntoh64(tvb, offset);
+        intVal = (gint64)tvb_get_ntoh64(tvb, offset);
         break;
     default:
         /* assert */
@@ -675,7 +675,7 @@ gint parseField_Int(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode
     }
 
     proto_tree_add_text(tree, tvb, offset, numBytes, "%s = %" G_GINT64_MODIFIER "d",
-        parserNode.fieldLabel, uintVal);
+        parserNode.fieldLabel, intVal);
 
     offset += numBytes;
 
