@@ -182,6 +182,7 @@ capture_prefs_show(void)
 	/* Promiscuous mode */
 	promisc_cb = create_preference_check_button(main_grid, row++,
 	    "Capture packets in promiscuous mode:",
+	    "You probably want to enable this. "
 	    "Usually a network card will only capture the traffic sent to its own network address. "
 	    "If you want to capture all traffic that the network card can \"see\", mark this option. "
 	    "See the FAQ for some more details of capturing packets from a switched network. ",
@@ -199,14 +200,14 @@ capture_prefs_show(void)
 	sync_cb = create_preference_check_button(main_grid, row++,
 	    "Update list of packets in real time:",
 	    "Update the list of packets while capture is in progress. "
-	    "Don't use this option if you notice packet drops.",
+	    "This can result in dropped packets on high-speed networks.",
 	    prefs.capture_real_time);
 	g_object_set_data(G_OBJECT(main_vb), CAPTURE_REAL_TIME_KEY, sync_cb);
 
 	/* Auto-scroll real-time capture */
 	auto_scroll_cb = create_preference_check_button(main_grid, row++,
 	    "Automatic scrolling in live capture:",
-	    "Automatic scrolling of the packet list while live capture is in progress. ",
+	    "Keep the packet list scrolled to the bottom while capturing.",
 	    prefs.capture_auto_scroll);
 	g_object_set_data(G_OBJECT(main_vb), AUTO_SCROLL_KEY, auto_scroll_cb);
 
