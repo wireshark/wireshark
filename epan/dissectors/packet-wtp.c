@@ -458,8 +458,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     };
     if (fRID) {
-        returned_length = g_snprintf(&szInfo[str_index], SZINFO_SIZE-str_index, " R" );
-        str_index += MIN(returned_length, SZINFO_SIZE-str_index);
+        /*returned_length =*/ g_snprintf(&szInfo[str_index], SZINFO_SIZE-str_index, " R" );
+        /*str_index += MIN(returned_length, SZINFO_SIZE-str_index);*/
     };
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */
