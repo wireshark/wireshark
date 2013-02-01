@@ -140,7 +140,7 @@ LEMON = $(top_builddir)/tools/lemon
 
 mate_parser_lex.h : mate_parser.c
 
-mate_parser.o : mate_grammar.h
+mate_parser.lo : mate_grammar.h
 
 mate_grammar.c mate_grammar.h : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
 	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/mate_grammar.lemon || \

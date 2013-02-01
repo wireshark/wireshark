@@ -72,7 +72,7 @@ EXTRA_DIST = \
 RUNLEX=$(top_srcdir)/tools/runlex.sh
 
 scanner_lex.h : scanner.c
-scanner.o: grammar.h
+scanner.lo: grammar.h
 
 LEMON=../../tools/lemon
 
