@@ -169,7 +169,7 @@ diam_dict_lex.h: diam_dict.c
 
 dtd_parse_lex.h: dtd_parse.c
 
-dtd_parse.c: dtd_grammar.h
+dtd_parse.o: dtd_grammar.h
 
 dtd_preparse_lex.h: dtd_preparse.c
 
@@ -181,6 +181,8 @@ LEMON=../tools/lemon
 
 dtd_grammar.c dtd_grammar.h: $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
 	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
+
+dtd_grammar.h: dtd_grammar.c
 
 tvbtest.o exntest.o: exceptions.h
 

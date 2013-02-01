@@ -72,14 +72,14 @@ EXTRA_DIST = \
 RUNLEX=$(top_srcdir)/tools/runlex.sh
 
 scanner_lex.h : scanner.c
-scanner.c: grammar.h
+scanner.o: grammar.h
 
 LEMON=../../tools/lemon
 
-grammar.h : grammar.c
-grammar.c : $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon
+grammar.c grammar.h : $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon
 	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
+grammar.h : grammar.c
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
