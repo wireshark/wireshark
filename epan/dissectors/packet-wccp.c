@@ -326,7 +326,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 			offset += HASH_INFO_SIZE;
 			proto_tree_add_item(wccp_tree, hf_recvd_id, tvb, offset,
 			    4, ENC_BIG_ENDIAN);
-			offset += 4;
+			/*offset += 4;*/
 			break;
 
 		case WCCP_I_SEE_YOU:
