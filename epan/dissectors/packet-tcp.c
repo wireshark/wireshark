@@ -166,13 +166,9 @@ static int hf_tcp_option_sack_sle = -1;
 static int hf_tcp_option_sack_sre = -1;
 static int hf_tcp_option_sack_range_count = -1;
 static int hf_tcp_option_echo = -1;
-static int hf_tcp_option_echo_reply = -1;
 static int hf_tcp_option_timestamp_tsval = -1;
 static int hf_tcp_option_timestamp_tsecr = -1;
 static int hf_tcp_option_cc = -1;
-static int hf_tcp_option_ccnew = -1;
-static int hf_tcp_option_ccecho = -1;
-static int hf_tcp_option_md5 = -1;
 static int hf_tcp_option_qs = -1;
 static int hf_tcp_option_exp = -1;
 static int hf_tcp_option_exp_data = -1;
@@ -303,16 +299,16 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
  * from one PDU to the next PDU and require that they are called in sequence.
  * These protocols would not be able to handle PDUs coming out of order
  * or for example when a PDU is seen twice, like for retransmissions.
- * This preference can be set for such protocols to make sure that we dont invoke
- * the subdissectors for retransmitted or out-of-order segments.
+ * This preference can be set for such protocols to make sure that we don't
+ * invoke the subdissectors for retransmitted or out-of-order segments.
  */
 static gboolean tcp_no_subdissector_on_error = FALSE;
 
-/* 
+/*
  * FF: (draft-ietf-tcpm-experimental-options-03)
- * With this flag set we assume the option structure for experimental 
- * codepoints (253, 254) has a magic number field (first field after the 
- * Kind and Length).  The magic number is used to differentiate different 
+ * With this flag set we assume the option structure for experimental
+ * codepoints (253, 254) has a magic number field (first field after the
+ * Kind and Length).  The magic number is used to differentiate different
  * experiments and thus will be used in data dissection.
  */
 static gboolean tcp_exp_options_with_magic = TRUE;
@@ -398,7 +394,7 @@ static const value_string tcp_option_kind_vs[] = {
 };
 
 /* not all of the hf_fields below make sense for TCP but we have to provide
-   them anyways to comply with the api (which was aimed for ip fragment
+   them anyways to comply with the API (which was aimed for IP fragment
    reassembly) */
 static const fragment_items tcp_segment_items = {
     &ett_tcp_segment,
@@ -2389,12 +2385,12 @@ dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             if ((optlen - 2) == 2) {
                 /* Fast Open Cookie Request */
-                proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie_request, 
+                proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie_request,
                                     tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " TFO=R");
             } else if ((optlen - 2) > 2) {
                 /* Fast Open Cookie */
-                proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie, 
+                proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie,
                                     tvb, offset + 4, optlen - 4, ENC_NA);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " TFO=C");
             }
@@ -3896,8 +3892,6 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
     }
 
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-
     if (tcp_no_subdissector_on_error && tcpd && tcpd->ta && tcpd->ta->flags & (TCP_A_RETRANSMISSION | TCP_A_OUT_OF_ORDER)) {
         /* Don't try to dissect a retransmission high chance that it will mess
          * subdissectors for protocols that require in-order delivery of the
@@ -3905,6 +3899,8 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
          */
         return FALSE;
     }
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
+
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
 
@@ -3963,13 +3959,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         low_port = src_port;
         high_port = dst_port;
     }
-    if (tcp_no_subdissector_on_error && tcpd && tcpd->ta && tcpd->ta->flags & (TCP_A_RETRANSMISSION | TCP_A_OUT_OF_ORDER)) {
-        /* Don't try to dissect a retransmission high chance that it will mess
-         * subdissectors for protocols that require in-order delivery of the
-         * PDUs. (i.e. DCE/RPCoverHTTP and encryption)
-         */
-        return FALSE;
-    }
+
     if (low_port != 0 &&
         dissector_try_uint(subdissector_table, low_port, next_tvb, pinfo, tree)) {
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
@@ -4189,6 +4179,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (pinfo->layer_names != NULL && pinfo->layer_names->str != NULL) {
             /*  use strstr because g_strrstr is only present in glib2.0 and
              *  g_str_has_suffix in glib2.2
+             *
+             * TODO: Both g_strrstr and g_str_has_suffix could be used now, so
+             *       should we use one of them?  And if g_str_has_suffix, then
+             *       the needle probably needs to be "icmp:ip:tcp", doesn't it?
              */
             if (strstr(pinfo->layer_names->str, "icmp:ip") != NULL)
                 proto_tree_add_item(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
@@ -4458,7 +4452,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     scaled_pi = proto_tree_add_int_format(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2,
                                                           win_scale, "Window size scaling factor: %d (%s)",
                                                           win_scale,
-                                                          (override_with_pref) ? "missing - taken from preference" : "unkown");
+                                                          (override_with_pref) ? "missing - taken from preference" : "unknown");
                     PROTO_ITEM_SET_GENERATED(scaled_pi);
                 }
                 break;
@@ -5198,11 +5192,6 @@ proto_register_tcp(void)
           { "TCP Echo Option", "tcp.options.echo", FT_BOOLEAN,
             BASE_NONE, NULL, 0x0, "TCP Sack Echo", HFILL}},
 
-        { &hf_tcp_option_echo_reply,
-          { "TCP Echo Reply Option", "tcp.options.echo_reply",
-            FT_BOOLEAN,
-            BASE_NONE, NULL, 0x0, NULL, HFILL}},
-
         { &hf_tcp_option_timestamp_tsval,
           { "Timestamp value", "tcp.options.timestamp.tsval", FT_UINT32,
             BASE_DEC, NULL, 0x0, "Value of sending machine's timestamp clock", HFILL}},
@@ -5321,18 +5310,6 @@ proto_register_tcp(void)
 
         { &hf_tcp_option_cc,
           { "TCP CC Option", "tcp.options.cc", FT_BOOLEAN, BASE_NONE,
-            NULL, 0x0, NULL, HFILL}},
-
-        { &hf_tcp_option_ccnew,
-          { "TCP CC New Option", "tcp.options.ccnew", FT_BOOLEAN,
-            BASE_NONE, NULL, 0x0, NULL, HFILL}},
-
-        { &hf_tcp_option_ccecho,
-          { "TCP CC Echo Option", "tcp.options.ccecho", FT_BOOLEAN,
-            BASE_NONE, NULL, 0x0, NULL, HFILL}},
-
-        { &hf_tcp_option_md5,
-          { "TCP MD5 Option", "tcp.options.md5", FT_BOOLEAN, BASE_NONE,
             NULL, 0x0, NULL, HFILL}},
 
         { &hf_tcp_option_qs,
