@@ -199,7 +199,7 @@ static gint xdmcp_add_authorization_names(proto_tree *tree,
  * xc/programs/xdm/xdmcp.c and xc/programs/Xserver/os/xdmcp.c.
  */
 
-static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   gint version = -1, opcode = -1;
   gint offset = 0;
@@ -209,7 +209,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   version = tvb_get_ntohs(tvb, offset);
   if (version != XDMCP_PROTOCOL_VERSION) {
     /* Only version 1 exists, so this probably is not XDMCP at all... */
-    return;
+    return offset;
   }
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "XDMCP");
@@ -238,211 +238,215 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     proto_tree_add_item(xdmcp_tree, hf_xdmcp_length, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    switch (opcode) {
-      case XDMCP_FORWARD_QUERY:
-      {
-        gint alen, plen;
-        alen = tvb_get_ntohs(tvb, offset);
-        /* I have never seen anything except IPv4 addresses here,
-         * but in theory the protocol should support other address
-         * families. */
-        if (alen == 4) {
-      proto_tree_add_item(xdmcp_tree, hf_xdmcp_client_address_ipv4, tvb, offset+2, alen, ENC_BIG_ENDIAN);
-          offset += 6;
-        } else if (alen == 16) {
-      proto_tree_add_item(xdmcp_tree, hf_xdmcp_client_address_ipv6, tvb, offset+2, alen, ENC_BIG_ENDIAN);
-          offset += 18;
-        } else {
-          offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_client_address_bytes, hf_xdmcp_client_address_bytes_len,
-                                tvb, offset);
-        }
-
-        plen = tvb_get_ntohs(tvb, offset);
-        if (plen == 2) {
-      proto_tree_add_item(xdmcp_tree, hf_xdmcp_client_port_u16, tvb, offset+2, plen, ENC_BIG_ENDIAN);
-          offset += 4;
-        } else {
-          offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_client_port_bytes, hf_xdmcp_client_port_len,
-                    tvb, offset);
-        }
-      }
-      /* fall-through */
-
-      case XDMCP_BROADCAST_QUERY:
-      case XDMCP_QUERY:
-      case XDMCP_INDIRECT_QUERY:
-        offset += xdmcp_add_authentication_names(xdmcp_tree, tvb, offset);
-        break;
-
-      case XDMCP_WILLING:
-        offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
-                                   tvb, offset);
-        offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_hostname,
-                                   tvb, offset);
-        offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
-                                   tvb, offset);
-        break;
-
-      case XDMCP_UNWILLING:
-        offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_hostname,
-                                   tvb, offset);
-        offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
-                                   tvb, offset);
-        break;
-
-      case XDMCP_REQUEST:
-      {
-        proto_tree *clist_tree;
-        proto_item *clist_ti;
-        gint ctypes_len, caddrs_len, n;
-        gint ctypes_start_offset, caddrs_offset;
-
-        ti = proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
-                            offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        ctypes_len = tvb_get_guint8(tvb, offset);
-        ctypes_start_offset = offset;
-        caddrs_offset = offset + 1 + 2*ctypes_len;
-        caddrs_len = tvb_get_guint8(tvb, caddrs_offset);
-        if (ctypes_len != caddrs_len) {
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error: Connection type/address arrays don't match");
-          return;
-        }
-
-        clist_ti = proto_tree_add_text(xdmcp_tree,
-                                       tvb, ctypes_start_offset, -1,
-                                       "Connections (%d)",
-                                       ctypes_len);
-        clist_tree = proto_item_add_subtree(clist_ti, ett_xdmcp_connections);
-
-        offset++;
-        caddrs_offset++;
-
-        n = 1;
-        while (ctypes_len > 0) {
-          proto_item *connection_ti;
-          proto_tree *connection_tree;
-
-          gint alen;
-          gint ctype = tvb_get_ntohs(tvb, offset);
-          offset += 2;
-          alen = tvb_get_ntohs(tvb, caddrs_offset);
-          caddrs_offset += 2;
-
-          connection_ti = proto_tree_add_text(clist_tree, NULL, 0, 0,
-                                              "Connection %d", n);
-          connection_tree = proto_item_add_subtree(connection_ti,
-                                                   ett_xdmcp_connection);
-
-      proto_tree_add_item(connection_tree, hf_xdmcp_connection_type, tvb, offset-2, 2, ENC_BIG_ENDIAN);
-
-          if ((ctype == 0) && (alen == 4)) {
-          proto_tree_add_item(connection_tree, hf_xdmcp_connection_address_ipv4, tvb, caddrs_offset, alen, ENC_BIG_ENDIAN);
-          proto_item_append_text(connection_ti, ": %s", tvb_ip_to_str(tvb, caddrs_offset));
-      } else if ((ctype == 6) && (alen == 16)) {
-          proto_tree_add_item(connection_tree, hf_xdmcp_connection_address_ipv6, tvb, caddrs_offset, alen, ENC_BIG_ENDIAN);
-          proto_item_append_text(connection_ti, ": %s", tvb_ip6_to_str(tvb, caddrs_offset));
-      } else {
-          proto_tree_add_item(connection_tree, hf_xdmcp_connection_address_bytes, tvb, caddrs_offset, alen, ENC_NA);
-      }
-
-      caddrs_offset += alen;
-          ctypes_len--;
-          n++;
-        }
-        offset = caddrs_offset;
-        proto_item_set_len(clist_ti, offset - ctypes_start_offset);
-
-        offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
-                                   tvb, offset);
-        offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len, 
-                                   tvb, offset);
-
-        offset += xdmcp_add_authorization_names(xdmcp_tree, tvb, offset);
-
-        offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_manufacturer_display_id, hf_xdmcp_manufacturer_display_id_len,
-                                 tvb, offset);
-        break;
-      }
-
-      case XDMCP_ACCEPT:
-        proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-        offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
-                                   tvb, offset);
-        offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len, 
-                                   tvb, offset);
-        offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authorization_name,
-                                   tvb, offset);
-        offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authorization_data, hf_xdmcp_authorization_data_len, 
-                                   tvb, offset);
-        break;
-
-      case XDMCP_DECLINE:
-        offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
-                                   tvb, offset);
-        offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
-                                   tvb, offset);
-        offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len, 
-                                   tvb, offset);
-        break;
-
-      case XDMCP_MANAGE:
-        proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
-                            offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_display_class, hf_xdmcp_display_class_len,
-                                 tvb, offset);
-        break;
-
-      case XDMCP_REFUSE:
-        proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-        break;
-
-      case XDMCP_FAILED:
-        proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
-                                   tvb, offset);
-        break;
-
-      case XDMCP_KEEPALIVE:
-        proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
-                            offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-        break;
-
-      case XDMCP_ALIVE:
-      {
-        guint8 session_running = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint_format(xdmcp_tree, hf_xdmcp_session_running, tvb,
-                            offset, 1, session_running, "Session running: %s", session_running ? "Yes" : "No");
-        offset++;
-
-        proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-      }
-        break;
-    }
   }
+  offset += 2;
+
+  switch (opcode) {
+    case XDMCP_FORWARD_QUERY:
+    {
+      gint alen, plen;
+      alen = tvb_get_ntohs(tvb, offset);
+      /* I have never seen anything except IPv4 addresses here,
+       * but in theory the protocol should support other address
+       * families. */
+      if (alen == 4) {
+    proto_tree_add_item(xdmcp_tree, hf_xdmcp_client_address_ipv4, tvb, offset+2, alen, ENC_BIG_ENDIAN);
+        offset += 6;
+      } else if (alen == 16) {
+    proto_tree_add_item(xdmcp_tree, hf_xdmcp_client_address_ipv6, tvb, offset+2, alen, ENC_BIG_ENDIAN);
+        offset += 18;
+      } else {
+        offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_client_address_bytes, hf_xdmcp_client_address_bytes_len,
+                              tvb, offset);
+      }
+
+      plen = tvb_get_ntohs(tvb, offset);
+      if (plen == 2) {
+    proto_tree_add_item(xdmcp_tree, hf_xdmcp_client_port_u16, tvb, offset+2, plen, ENC_BIG_ENDIAN);
+        offset += 4;
+      } else {
+        offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_client_port_bytes, hf_xdmcp_client_port_len,
+                  tvb, offset);
+      }
+    }
+    /* fall-through */
+
+    case XDMCP_BROADCAST_QUERY:
+    case XDMCP_QUERY:
+    case XDMCP_INDIRECT_QUERY:
+      offset += xdmcp_add_authentication_names(xdmcp_tree, tvb, offset);
+      break;
+
+    case XDMCP_WILLING:
+      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
+                                 tvb, offset);
+      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_hostname,
+                                 tvb, offset);
+      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
+                                 tvb, offset);
+      break;
+
+    case XDMCP_UNWILLING:
+      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_hostname,
+                                 tvb, offset);
+      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
+                                 tvb, offset);
+      break;
+
+    case XDMCP_REQUEST:
+    {
+      proto_tree *clist_tree;
+      proto_item *clist_ti;
+      gint ctypes_len, caddrs_len, n;
+      gint ctypes_start_offset, caddrs_offset;
+
+      ti = proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
+                          offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+
+      ctypes_len = tvb_get_guint8(tvb, offset);
+      ctypes_start_offset = offset;
+      caddrs_offset = offset + 1 + 2*ctypes_len;
+      caddrs_len = tvb_get_guint8(tvb, caddrs_offset);
+      if (ctypes_len != caddrs_len) {
+        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Error: Connection type/address arrays don't match");
+        return offset;
+      }
+
+      clist_ti = proto_tree_add_text(xdmcp_tree,
+                                     tvb, ctypes_start_offset, -1,
+                                     "Connections (%d)",
+                                     ctypes_len);
+      clist_tree = proto_item_add_subtree(clist_ti, ett_xdmcp_connections);
+
+      offset++;
+      caddrs_offset++;
+
+      n = 1;
+      while (ctypes_len > 0) {
+        proto_item *connection_ti;
+        proto_tree *connection_tree;
+
+        gint alen;
+        gint ctype = tvb_get_ntohs(tvb, offset);
+        offset += 2;
+        alen = tvb_get_ntohs(tvb, caddrs_offset);
+        caddrs_offset += 2;
+
+        connection_ti = proto_tree_add_text(clist_tree, NULL, 0, 0,
+                                            "Connection %d", n);
+        connection_tree = proto_item_add_subtree(connection_ti,
+                                                 ett_xdmcp_connection);
+
+    proto_tree_add_item(connection_tree, hf_xdmcp_connection_type, tvb, offset-2, 2, ENC_BIG_ENDIAN);
+
+        if ((ctype == 0) && (alen == 4)) {
+        proto_tree_add_item(connection_tree, hf_xdmcp_connection_address_ipv4, tvb, caddrs_offset, alen, ENC_BIG_ENDIAN);
+        proto_item_append_text(connection_ti, ": %s", tvb_ip_to_str(tvb, caddrs_offset));
+    } else if ((ctype == 6) && (alen == 16)) {
+        proto_tree_add_item(connection_tree, hf_xdmcp_connection_address_ipv6, tvb, caddrs_offset, alen, ENC_BIG_ENDIAN);
+        proto_item_append_text(connection_ti, ": %s", tvb_ip6_to_str(tvb, caddrs_offset));
+    } else {
+        proto_tree_add_item(connection_tree, hf_xdmcp_connection_address_bytes, tvb, caddrs_offset, alen, ENC_NA);
+    }
+
+    caddrs_offset += alen;
+        ctypes_len--;
+        n++;
+      }
+      offset = caddrs_offset;
+      proto_item_set_len(clist_ti, offset - ctypes_start_offset);
+
+      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
+                                 tvb, offset);
+      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len, 
+                                 tvb, offset);
+
+      offset += xdmcp_add_authorization_names(xdmcp_tree, tvb, offset);
+
+      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_manufacturer_display_id, hf_xdmcp_manufacturer_display_id_len,
+                               tvb, offset);
+      break;
+    }
+
+    case XDMCP_ACCEPT:
+      proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
+                          offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
+                                 tvb, offset);
+      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len, 
+                                 tvb, offset);
+      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authorization_name,
+                                 tvb, offset);
+      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authorization_data, hf_xdmcp_authorization_data_len, 
+                                 tvb, offset);
+      break;
+
+    case XDMCP_DECLINE:
+      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
+                                 tvb, offset);
+      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
+                                 tvb, offset);
+      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_authentication_data, hf_xdmcp_authentication_data_len, 
+                                 tvb, offset);
+      break;
+
+    case XDMCP_MANAGE:
+      proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
+                          offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+
+      proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
+                          offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+
+      offset += xdmcp_add_bytes(xdmcp_tree, hf_xdmcp_display_class, hf_xdmcp_display_class_len,
+                               tvb, offset);
+      break;
+
+    case XDMCP_REFUSE:
+      proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
+                          offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      break;
+
+    case XDMCP_FAILED:
+      proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
+                          offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+
+      offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
+                                 tvb, offset);
+      break;
+
+    case XDMCP_KEEPALIVE:
+      proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
+                          offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+
+      proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
+                          offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      break;
+
+    case XDMCP_ALIVE:
+    {
+      guint8 session_running = tvb_get_guint8(tvb, offset);
+      proto_tree_add_uint_format(xdmcp_tree, hf_xdmcp_session_running, tvb,
+                          offset, 1, session_running, "Session running: %s", session_running ? "Yes" : "No");
+      offset++;
+
+      proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
+                          offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+    }
+      break;
+    default:
+      break;
+  }
+  return offset;
+
 }
 
 /* Register the protocol with Wireshark */
@@ -623,7 +627,7 @@ proto_reg_handoff_xdmcp(void)
 {
   dissector_handle_t xdmcp_handle;
 
-  xdmcp_handle = create_dissector_handle(dissect_xdmcp, proto_xdmcp);
+  xdmcp_handle = new_create_dissector_handle(dissect_xdmcp, proto_xdmcp);
   dissector_add_uint("udp.port", UDP_PORT_XDMCP, xdmcp_handle);
 }
 /*
