@@ -416,12 +416,12 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_item (wtls_msg_type_tree, hf_wtls_alert_level,
 							tvb,offset,1,ENC_BIG_ENDIAN);
 					offset+=1;
-					count = tvb_get_ntohs (tvb, offset);
 					proto_tree_add_item (wtls_msg_type_tree, hf_wtls_alert_description,
 							tvb,offset,1,ENC_BIG_ENDIAN);
-					offset+=1;
+					/*offset+=1;*/
+					break;
 				default:
-					offset+=count;
+					/*offset+=count;*/
 					break;
 			}
 		}
@@ -441,7 +441,7 @@ add_text_identifier(tvbuff_t *tvb, int offset, int hf_charset,
 	proto_tree_add_item(tree, hf_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	proto_tree_add_item(tree, hf_str, tvb, offset, size, ENC_BIG_ENDIAN);
-	offset+=size;
+	/*offset+=size;*/
 	client_size+=size+3;
 #ifdef DEBUG
 	fprintf(stderr, "text id size = %d, client_size = %d\n",
@@ -881,7 +881,6 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 					hf_wtls_hands_serv_hello_cipher_bulk,
 					tvb,offset,1,ENC_BIG_ENDIAN);
 			offset++;
-			value = tvb_get_guint8 (tvb, offset);
 			proto_tree_add_item(wtls_msg_type_item_sub_tree,
 				hf_wtls_hands_serv_hello_cipher_mac,
 				tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1067,7 +1066,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			}
 			break;
 		default:
-			offset+=count;
+			/*offset+=count;*/
 			break;
 	}
 }
