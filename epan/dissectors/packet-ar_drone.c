@@ -116,7 +116,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     gint master_offset = 0;
     proto_item *ti, *sub_item;
     proto_tree *ar_tree, *sub_tree;
-    char* command;
+    char *command;
 
     if (!tvb_bytes_exist(tvb, 0, 3))
         return 0;
@@ -155,16 +155,25 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add PCMD ID */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_PCMD_id, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add PCMD Flag */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_PCMD_flag, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add PCMD Roll */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_roll, tvb, offset, length, ENC_ASCII|ENC_NA);
 
             PCMD_byte = tvb_get_guint8(tvb, offset);
@@ -193,6 +202,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add PCMD Pitch */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_pitch, tvb, offset, length, ENC_ASCII|ENC_NA);
 
             PCMD_byte = tvb_get_guint8(tvb, offset);
@@ -221,6 +233,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add PCMD Gaz */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_gaz, tvb, offset, length, ENC_ASCII|ENC_NA);
 
             PCMD_byte = tvb_get_guint8(tvb, offset);
@@ -249,6 +264,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add PCMD Yaw */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             ti = proto_tree_add_item(sub_tree, hf_PCMD_yaw, tvb, offset, length, ENC_ASCII|ENC_NA);
 
             PCMD_byte = tvb_get_guint8(tvb, offset);
@@ -284,11 +302,17 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add REF ID */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_REF_id, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add REF ctrl */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_REF_ctrl, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
@@ -301,21 +325,33 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add Sequence Number */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_CONFIG_ID_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add Session ID */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_CONFIG_ID_session, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add User ID */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_CONFIG_ID_user, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add Application ID */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_CONFIG_ID_app, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
@@ -328,16 +364,25 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add sequence */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_ANIM_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add Animation */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_ANIM_anim, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add animation time(sec) */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_ANIM_sec, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
@@ -350,6 +395,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add sequence number */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_text(sub_tree, tvb, master_offset, length, "(Sets the reference for the horizontal plane)");
             proto_tree_add_item(sub_tree, hf_FTRIM_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
@@ -362,16 +410,25 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add sequence */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_CONFIG_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add Name */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_CONFIG_name, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add Value */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_CONFIG_val, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
@@ -384,25 +441,37 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add sequence */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_LED_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add animation to play */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_LED_anim, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add frequency */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_LED_freq, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add Time to play in sec  */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_LED_sec, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
-        }else if(!strncmp(command, "AT*COMWDG", 9))
+        } else if(!strncmp(command, "AT*COMWDG", 9))
         {
             /** Parse according to the COMWDG layout: */
             sub_tree = proto_item_add_subtree(sub_item, ett_COMWDG);
@@ -411,6 +480,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add sequence number */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_COMWDG, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
@@ -423,11 +495,17 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add sequence */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_CTRL_seq, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
 
             /* Add Mode */
             length = tvb_find_guint8(tvb, offset, -1, ',') - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             ti = proto_tree_add_item(sub_tree, hf_CTRL_mode, tvb, offset, length, ENC_ASCII|ENC_NA);
             proto_item_append_text(ti, "%s",
                     str_to_str(tvb_get_ephemeral_string(tvb, offset, length), CTRL_mode_vs, " (Unknown Mode)"));
@@ -435,6 +513,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             /* Add File Size */
             length = tvb_find_guint8(tvb, offset, -1, 0x0d) - offset;
+            if (length < 0) {
+                THROW(ReportedBoundsError);
+            }
             proto_tree_add_item(sub_tree, hf_CTRL_fsize, tvb, offset, length, ENC_ASCII|ENC_NA);
             offset += (length + 1);
         }
