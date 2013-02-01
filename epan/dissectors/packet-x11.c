@@ -3875,7 +3875,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PolyText8:
             UNUSED(1);
-            v16 = REQUEST_LENGTH();
+            REQUEST_LENGTH();
             DRAWABLE(drawable);
             GCONTEXT(gc);
             INT16(x);
@@ -3886,7 +3886,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_PolyText16:
             UNUSED(1);
-            v16 = REQUEST_LENGTH();
+            REQUEST_LENGTH();
             DRAWABLE(drawable);
             GCONTEXT(gc);
             INT16(x);
@@ -4904,7 +4904,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   REPLY(reply);
                   CARD8(format);
                   SEQUENCENUMBER_REPLY(sequencenumber);
-                  length = REPLYLENGTH(replylength);
+                  REPLYLENGTH(replylength);
                   ATOM(get_property_type);
                   CARD32(bytes_after);
                   CARD32(valuelength);
