@@ -110,170 +110,170 @@ wireshark.pod: $(srcdir)/wireshark.pod.template AUTHORS-SHORT-FORMAT
 	cat $(srcdir)/wireshark.pod.template AUTHORS-SHORT-FORMAT > wireshark.pod
 
 wireshark.1: wireshark.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	wireshark.pod  > wireshark.1
 
 wireshark.html: wireshark.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)						\
+	$(AM_V_GEN)$(POD2HTML)					\
 	--title="The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css			\
 	--noindex						\
 	wireshark.pod > wireshark.html
 
 tshark.1: tshark.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/tshark.pod > tshark.1
 
 tshark.html: tshark.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)							\
+	$(AM_V_GEN)$(POD2HTML)						\
 	--title="tshark - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/tshark.pod > tshark.html
 
 wireshark-filter.4: wireshark-filter.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--section=4					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/wireshark-filter.pod > wireshark-filter.4
 
 wireshark-filter.html: wireshark-filter.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)								\
+	$(AM_V_GEN)$(POD2HTML)							\
 	--title="wireshark-filter - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css					\
 	--noindex								\
 	$(srcdir)/wireshark-filter.pod > wireshark-filter.html
 
 capinfos.1: capinfos.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/capinfos.pod > capinfos.1
 
 capinfos.html: capinfos.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)							\
+	$(AM_V_GEN)$(POD2HTML)						\
 	--title="capinfos - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/capinfos.pod > capinfos.html
 
 editcap.1: editcap.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/editcap.pod > editcap.1
 
 editcap.html: editcap.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)							\
+	$(AM_V_GEN)$(POD2HTML)						\
 	--title="editcap - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/editcap.pod > editcap.html
 
 idl2wrs.1: idl2wrs.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/idl2wrs.pod > idl2wrs.1
 
 idl2wrs.html: idl2wrs.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)							\
+	$(AM_V_GEN)$(POD2HTML)						\
 	--title="idl2wrs - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/idl2wrs.pod > idl2wrs.html
 
 mergecap.1: mergecap.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/mergecap.pod > mergecap.1
 
 mergecap.html: mergecap.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)							\
+	$(AM_V_GEN)$(POD2HTML)						\
 	--title="mergecap - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/mergecap.pod > mergecap.html
 
 reordercap.1: reordercap.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/reordercap.pod > reordercap.1
 
 reordercap.html: reordercap.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)							\
+	$(AM_V_GEN)$(POD2HTML)						\
 	--title="reordercap - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/reordercap.pod > reordercap.html
 
 text2pcap.1: text2pcap.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/text2pcap.pod > text2pcap.1
 
 text2pcap.html: text2pcap.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)                     \
+	$(AM_V_GEN)$(POD2HTML)                     \
 	--title="text2pcap - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/text2pcap.pod > text2pcap.html
 
 dumpcap.1: dumpcap.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/dumpcap.pod > dumpcap.1
 
 dumpcap.html: dumpcap.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)                     \
+	$(AM_V_GEN)$(POD2HTML)                     \
 	--title="dumpcap - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/dumpcap.pod > dumpcap.html
 
 rawshark.1: rawshark.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/rawshark.pod > rawshark.1
 
 rawshark.html: rawshark.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)                     \
+	$(AM_V_GEN)$(POD2HTML)                     \
 	--title="rawshark - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/rawshark.pod > rawshark.html
 
 dftest.1: dftest.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/dftest.pod > dftest.1
 
 dftest.html: dftest.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)                     \
+	$(AM_V_GEN)$(POD2HTML)                     \
 	--title="dftest - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/dftest.pod > dftest.html
 
 randpkt.1: randpkt.pod ../config.h
-	$(POD2MAN)					\
+	$(AM_V_GEN)$(POD2MAN)				\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	$(srcdir)/randpkt.pod > randpkt.1
 
 randpkt.html: randpkt.pod ../config.h $(top_srcdir)/docbook/ws.css
-	$(POD2HTML)                     \
+	$(AM_V_GEN)$(POD2HTML)                     \
 	--title="randpkt - The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
