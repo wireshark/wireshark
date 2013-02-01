@@ -202,7 +202,8 @@ FORMS += main_window.ui \
     main_window_preferences_frame.ui \
     layout_preferences_frame.ui \
     column_preferences_frame.ui \
-    font_color_preferences_frame.ui
+    font_color_preferences_frame.ui \
+    capture_preferences_frame.ui
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -240,7 +241,8 @@ HEADERS += $$HEADERS_WS_C \
     main_window_preferences_frame.h \
     layout_preferences_frame.h \
     column_preferences_frame.h \
-    font_color_preferences_frame.h
+    font_color_preferences_frame.h \
+    capture_preferences_frame.h
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -462,4 +464,5 @@ SOURCES += \
     main_window_preferences_frame.cpp \
     layout_preferences_frame.cpp \
     column_preferences_frame.cpp \
-    font_color_preferences_frame.cpp
+    font_color_preferences_frame.cpp \
+    capture_preferences_frame.cpp

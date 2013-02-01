@@ -61,9 +61,6 @@
        <property name="text">
         <string>Capture</string>
        </property>
-       <property name="flags">
-        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
-       </property>
       </item>
       <item>
        <property name="text">
@@ -110,14 +107,11 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
       <widget class="MainWindowPreferencesFrame" name="appearanceFrame"/>
       <widget class="LayoutPreferencesFrame" name="layoutFrame"/>
       <widget class="ColumnPreferencesFrame" name="columnFrame"/>
       <widget class="FontColorPreferencesFrame" name="fontandcolorFrame"/>
-      <widget class="QFrame" name="captureFrame"/>
+      <widget class="CapturePreferencesFrame" name="captureFrame"/>
       <widget class="QFrame" name="filterFrame"/>
       <widget class="QFrame" name="nameresolutionFrame"/>
       <widget class="QFrame" name="protocolsFrame"/>
@@ -218,6 +212,12 @@
    <class>FontColorPreferencesFrame</class>
    <extends>QFrame</extends>
    <header>font_color_preferences_frame.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CapturePreferencesFrame</class>
+   <extends>QFrame</extends>
+   <header>capture_preferences_frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

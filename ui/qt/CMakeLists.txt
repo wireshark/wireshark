@@ -32,6 +32,7 @@ set(QTSHARK_H_SRC
 	capture_interface_dialog.h
 	color_dialog.h
 	color_utils.h
+	capture_preferences_frame.h
 	column_preferences_frame.h
 	display_filter_combo.h
 	display_filter_edit.h
@@ -80,6 +81,7 @@ set(QTSHARK_CPP_SRC
 	capture_interface_dialog.cpp
 	color_dialog.cpp
 	color_utils.cpp
+	capture_preferences_frame.cpp
 	column_preferences_frame.cpp
 	display_filter_combo.cpp
 	display_filter_edit.cpp
@@ -124,6 +126,7 @@ set(QTSHARK_SRC
 )
 
 set(QTSHARK_UI
+	capture_preferences_frame.ui
 	column_preferences_frame.ui
 	export_object_dialog.ui
 	file_set_dialog.ui

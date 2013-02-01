@@ -31,6 +31,7 @@ GENERATED_HEADER_FILES =
 
 # Generated header files that we don't want in the distribution.
 GENERATED_NODIST_HEADER_FILES = \
+	ui_capture_preferences_frame.h \
 	ui_column_preferences_frame.h \
 	ui_export_object_dialog.h \
 	ui_file_set_dialog.h \
@@ -91,6 +92,7 @@ MOC_HDRS = \
 	capture_interface_dialog.h \
 	color_dialog.h \
 	color_utils.h \
+	capture_preferences_frame.h \
 	column_preferences_frame.h \
 	display_filter_combo.h \
 	display_filter_edit.h \
@@ -130,6 +132,7 @@ MOC_HDRS = \
 # .ui files.
 #
 UI_FILES = \
+	capture_preferences_frame.ui	\
 	column_preferences_frame.ui	\
 	export_object_dialog.ui		\
 	file_set_dialog.ui		\
@@ -201,6 +204,7 @@ WIRESHARK_QT_SRC = \
 	capture_interface_dialog.cpp \
 	color_dialog.cpp \
 	color_utils.cpp \
+	capture_preferences_frame.cpp \
 	column_preferences_frame.cpp \
 	display_filter_combo.cpp \
 	display_filter_edit.cpp \

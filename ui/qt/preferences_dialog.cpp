@@ -218,6 +218,9 @@ void PreferencesDialog::showEvent(QShowEvent *evt)
     int new_prefs_tree_width =  pd_ui_->prefsTree->style()->subElementRect(QStyle::SE_TreeViewDisclosureItem, &style_opt).left();
     QList<int> sizes = pd_ui_->splitter->sizes();
 
+#ifdef Q_WS_WIN
+    new_prefs_tree_width *= 2;
+#endif
     pd_ui_->prefsTree->resizeColumnToContents(0);
     new_prefs_tree_width += pd_ui_->prefsTree->columnWidth(0);
     pd_ui_->prefsTree->setMinimumWidth(new_prefs_tree_width);
