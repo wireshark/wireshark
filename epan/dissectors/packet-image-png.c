@@ -96,30 +96,21 @@ static const value_string interlace_method_vals[] = {
 static void
 dissect_png_ihdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	int offset=0;
 
-	proto_tree_add_item(tree, hf_png_ihdr_width, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset+=4;
+	proto_tree_add_item(tree, hf_png_ihdr_width, tvb, 0, 4, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_height, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset+=4;
+	proto_tree_add_item(tree, hf_png_ihdr_height, tvb, 4, 4, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_bitdepth, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset+=1;
+	proto_tree_add_item(tree, hf_png_ihdr_bitdepth, tvb, 8, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_colour_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset+=1;
+	proto_tree_add_item(tree, hf_png_ihdr_colour_type, tvb, 9, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_compression_method, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset+=1;
+	proto_tree_add_item(tree, hf_png_ihdr_compression_method, tvb, 10, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_filter_method, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset+=1;
+	proto_tree_add_item(tree, hf_png_ihdr_filter_method, tvb, 11, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_png_ihdr_interlace_method, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset+=1;
+	proto_tree_add_item(tree, hf_png_ihdr_interlace_method, tvb, 12, 1, ENC_BIG_ENDIAN);
 
-	return;
 }
 
 static void
