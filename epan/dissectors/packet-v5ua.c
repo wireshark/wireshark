@@ -161,7 +161,6 @@ dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *
   number_of_ids= (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / INT_INTERFACE_ID_LENGTH;
 
   offset = INT_IF_ID_LINK_OFFSET;
-  identifier = tvb_get_ntohl(parameter_tvb,INT_IF_ID_LINK_OFFSET)>>5;
   proto_item_append_text(parameter_item, "(");
   for (id_number = 0; id_number < number_of_ids; id_number++) {
     proto_tree_add_item(parameter_tree, hf_link_id, parameter_tvb, offset, INT_IF_ID_LINK_LENGTH, ENC_BIG_ENDIAN);
