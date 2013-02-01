@@ -221,7 +221,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    VRRP_AUTH_DATA_LEN,
 					    "Authentication string: `%s'",
 					    auth_buf);
-		offset+=8;
+		/*offset+=8;*/
 	}
 }
 
