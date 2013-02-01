@@ -81,7 +81,7 @@ void FontColorPreferencesFrame::updateWidgets()
     int margin = style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
 
     ui->fontPushButton->setText(
-                cur_font_.family() + " " + cur_font_.styleName() + " " +
+                cur_font_.family() + " "/* + cur_font_.styleName() + " "*/ +
                 QString::number(cur_font_.pointSizeF(), 'f', 1));
     ui->fontSampleLineEdit->setFont(cur_font_);
 
