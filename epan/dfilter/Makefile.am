@@ -77,7 +77,7 @@ scanner.lo: grammar.h
 LEMON=../../tools/lemon
 
 grammar.c grammar.h : $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon
-	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
+	$(AM_V_GEN)$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
 grammar.h : grammar.c
 

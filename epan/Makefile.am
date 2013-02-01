@@ -180,7 +180,7 @@ uat_load_lex.h: uat_load.c
 LEMON=../tools/lemon
 
 dtd_grammar.c dtd_grammar.h: $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
-	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
+	$(AM_V_GEN)$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
 
 dtd_grammar.h: dtd_grammar.c
 
