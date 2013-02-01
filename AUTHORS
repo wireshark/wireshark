@@ -3498,6 +3498,9 @@ Manuel Hofer		<manuel[At]mnlhfr.at> {
 	OpenVPN dissector
 }
 
+Gaurav Patwardhan <gspatwar[AT]ncsu.edu> {
+	Support for GTSM Flag as per RFC 6720
+}
 
 and by:
 

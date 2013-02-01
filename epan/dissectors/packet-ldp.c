@@ -14,6 +14,9 @@
  * (c) Copyright 2012, Aditya Ambadkar and Diana Chris <arambadk,dvchris@ncsu.edu>
  *   -  support for the flowlabel sub-tlv as per RFC 6391
  *
+ * (c) Copyright 2013, Gaurav Patwardhan <gspatwar@ncsu.edu>
+ *   -  support for the GTSM flag as per RFC 6720
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
@@ -41,6 +44,7 @@
 #include <epan/prefs.h>
 #include <epan/afn.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 #include "packet-frame.h"
 #include "packet-diffserv-mpls-common.h"
@@ -74,6 +78,7 @@ static int hf_ldp_tlv_val_hold = -1;
 static int hf_ldp_tlv_val_target = -1;
 static int hf_ldp_tlv_val_request = -1;
 static int hf_ldp_tlv_val_res = -1;
+static int hf_ldp_tlv_val_gtsm_flag = -1;
 static int hf_ldp_tlv_ipv4_taddr = -1;
 static int hf_ldp_tlv_config_seqno = -1;
 static int hf_ldp_tlv_ipv6_taddr = -1;
@@ -1516,16 +1521,17 @@ dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 
 static void
 #if 0
-dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_common_hello_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 #else
-dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_tlv_common_hello_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 #endif
 {
 #if 0
     proto_tree *ti;
 #endif
     proto_tree *val_tree;
-
+    proto_item *gtsm_flag_item;
+    guint16 gtsm_flag_buffer;
 #if 0
     ti = proto_tree_add_item(tree, hf_ldp_tlv_value, tvb, offset, rem, ENC_NA);
     val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
@@ -1535,6 +1541,24 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree)
     proto_tree_add_item(val_tree, hf_ldp_tlv_val_hold, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(val_tree, hf_ldp_tlv_val_target, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(val_tree, hf_ldp_tlv_val_request, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    gtsm_flag_item = proto_tree_add_item(val_tree, hf_ldp_tlv_val_gtsm_flag, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+
+    gtsm_flag_buffer = tvb_get_bits16(tvb, ((offset+2)*8), 16, ENC_BIG_ENDIAN);
+
+    if ( gtsm_flag_buffer & 0x2000 ) {
+        if ( gtsm_flag_buffer & 0x8000 ) {
+            expert_add_info_format(pinfo, gtsm_flag_item, PI_PROTOCOL, PI_WARN,"ERROR - Both GTSM and Target Flag are enabled.");
+        } else {
+            expert_add_info_format(pinfo, gtsm_flag_item, PI_PROTOCOL, PI_CHAT,"GTSM is supported by the source"); 	
+        }
+    } else {
+        if ( gtsm_flag_buffer & 0x8000 ) {
+                expert_add_info_format(pinfo, gtsm_flag_item, PI_PROTOCOL, PI_WARN,"GTSM is not supported by the source, since basic discovery is not enabled");
+        } else {
+                expert_add_info_format(pinfo, gtsm_flag_item, PI_PROTOCOL, PI_CHAT,"GTSM is not supported by the source");
+        }
+    }
+
     proto_tree_add_item(val_tree, hf_ldp_tlv_val_res, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
@@ -2096,10 +2120,10 @@ dissect_tlv_diffserv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 
 static int
-dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
+dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem);
 
 static void
-dissect_tlv_er(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv_er(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     proto_tree *ti, *val_tree;
     int len;
@@ -2109,7 +2133,7 @@ dissect_tlv_er(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
     if(val_tree != NULL) {
         while (rem > 0) {
-            len = dissect_tlv (tvb, offset, val_tree, rem);
+            len = dissect_tlv (tvb, pinfo, offset, val_tree, rem);
             offset += len;
             rem -= len;
         }
@@ -2126,7 +2150,7 @@ dissect_tlv_pw_grouping(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
 /* Dissect a TLV and return the number of bytes consumed ... */
 
 static int
-dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, int rem)
 {
     guint16 type, typebak;
     int length;
@@ -2264,9 +2288,9 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
         case TLV_COMMON_HELLO_PARMS:
 #if 0
-            dissect_tlv_common_hello_parms(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_common_hello_parms(tvb, pinfo, offset + 4, tlv_tree, length);
 #else
-            dissect_tlv_common_hello_parms(tvb, offset + 4, tlv_tree);
+            dissect_tlv_common_hello_parms(tvb, pinfo, offset + 4, tlv_tree);
 #endif
             break;
 
@@ -2352,7 +2376,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
             break;
 
         case TLV_ER:
-            dissect_tlv_er(tvb, offset + 4, tlv_tree, length);
+            dissect_tlv_er(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_ER_HOP_IPV4:
@@ -2622,7 +2646,7 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         while ( (length-ao) > 0 ) {
-            co = dissect_tlv(tvb, offset, msg_tree, length-ao);
+            co = dissect_tlv(tvb, pinfo, offset, msg_tree, length-ao);
             offset += co;
             ao += co;
         }
@@ -3144,9 +3168,13 @@ proto_register_ldp(void)
           { "Hello Requested", "ldp.msg.tlv.hello.requested", FT_BOOLEAN, 16,
             TFS(&hello_requested_vals), 0x4000, "Hello Common Parameters Hello Requested Bit", HFILL }},
 
+        { &hf_ldp_tlv_val_gtsm_flag,
+          { "GTSM Flag", "ldp.msg.tlv.hello.gtsm", FT_BOOLEAN, 16,
+            TFS(&tfs_set_notset), 0x2000, "Hello Common Parameters GTSM bit", HFILL }},
+
         { &hf_ldp_tlv_val_res,
           { "Reserved", "ldp.msg.tlv.hello.res", FT_UINT16, BASE_HEX,
-            NULL, 0x3FFF, "Hello Common Parameters Reserved Field", HFILL }},
+            NULL, 0x1FFF, "Hello Common Parameters Reserved Field", HFILL }},
 
         { &hf_ldp_tlv_ipv4_taddr,
           { "IPv4 Transport Address", "ldp.msg.tlv.ipv4.taddr", FT_IPv4, BASE_NONE,
