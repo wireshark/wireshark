@@ -697,7 +697,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 lenx)
                 offset += dissect_multiple_certificate(tvb, offset, data_tree);
             }
 
-            offset += dissect_signature(tvb, offset, data_tree, "AE Signature");
+            dissect_signature(tvb, offset, data_tree, "AE Signature");
             break;
         }
         case WAI_SUB_CERT_AUTH_REQ:
@@ -711,7 +711,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 lenx)
             offset += dissect_challenge(tvb, offset, data_tree, "ASUE ");
             offset += dissect_certificate(tvb, offset, data_tree, "STE ASUE ");
             offset += dissect_certificate(tvb, offset, data_tree, "STE AE ");
-            offset += dissect_multiple_certificate(tvb, offset, data_tree);
+            dissect_multiple_certificate(tvb, offset, data_tree);
             break;
         }
         case WAI_SUB_CERT_AUTH_RESP:
@@ -723,7 +723,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 lenx)
             offset += 12;
             offset += dissect_multiple_certificate(tvb, offset, data_tree);
             offset += dissect_signature(tvb, offset, data_tree, "Server Signature trusted by ASUE");
-            offset += dissect_signature(tvb, offset, data_tree, "Server Signature trusted by AE");
+            dissect_signature(tvb, offset, data_tree, "Server Signature trusted by AE");
             break;
         }
         case WAI_SUB_UNICAST_KEY_REQ:
