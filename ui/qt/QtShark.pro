@@ -164,7 +164,6 @@ SOURCES_WS_C = \
     ../../print.c \
     ../../proto_hier_stats.c      \
     ../../ps.c    \
-    ../../recent.c \
     ../../summary.c       \
     ../../sync_pipe_write.c       \
     ../../tap-megaco-common.c     \
