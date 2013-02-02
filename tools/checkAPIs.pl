@@ -1654,6 +1654,88 @@ sub check_hf_entries($$)
         return $errorCount;
 }
 
+
+# -------------
+# action:  remove '#if 0'd code from the input string
+# args     codeRef, fileName
+# returns: codeRef
+#
+# Essentially: Use s//patsub/meg to pass each line to patsub.
+#              patsub monitors #if/#if 0/etc and determines
+#               if a particular code line should be removed.
+# XXX: This is probably pretty inefficient;
+#      I could imagine using another approach such as converting
+#       the input string to an array of lines and then making
+#       a pass through the array deleting lines as needed.
+
+{  # block begin
+my ($if_lvl, $if0_lvl, $if0); # shared vars
+my $debug = 0;
+
+    sub remove_if0_code {
+        my ($codeRef, $fileName)  = @_;
+
+        my ($preprocRegEx) = qr {
+                                    (                                    # $1 [complete line)
+                                        ^
+                                        (?:                              # non-capturing
+                                            \s* \# \s*
+                                            (if \s 0| if | else | endif) # $2 (only if #...)
+                                        ) ?
+                                        .*
+                                        $
+                                    )
+                            }xom;
+
+        ($if_lvl, $if0_lvl, $if0) = (0,0,0);
+        $$codeRef =~ s{ $preprocRegEx }{patsub($1,$2)}xegm;
+
+        ($debug == 2) && print "==> After Remove if0: code: [$fileName]\n$$codeRef\n===<\n";
+        return $codeRef;
+    }
+
+    sub patsub {
+        if ($debug == 99) {
+            print "-->$_[0]\n";
+            (defined $_[1]) && print "  >$_[1]<\n";
+        }
+
+        # #if/#if 0/#else/#ndif processing
+        if (defined $_[1]) {
+            my ($if) = $_[1];
+            if ($if eq 'if') {
+                $if_lvl += 1;
+            } elsif ($if eq 'if 0') {
+                $if_lvl += 1;
+                if ($if0_lvl == 0) {
+                    $if0_lvl = $if_lvl;
+                    $if0     = 1;  # inside #if 0
+                }
+            } elsif ($if eq 'else') {
+                if ($if0_lvl == $if_lvl) {
+                    $if0 = 0;
+                }
+            } elsif ($if eq 'endif') {
+                if ($if0_lvl == $if_lvl) {
+                    $if0     = 0;
+                    $if0_lvl = 0;
+                }
+                $if_lvl -= 1;
+                if ($if_lvl < 0) {
+                    die "patsub: #if/#endif mismatch"
+                }
+            }
+            return $_[0];  # don't remove preprocessor lines themselves
+        }
+
+        # not preprocessor line: See if under #if 0: If so, remove
+        if ($if0 == 1) {
+            return '';  # remove
+        }
+        return $_[0];
+    }
+}  # block end
+
 # The below Regexp are based on those from:
 # http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
 # They are in the public domain.
@@ -1682,7 +1764,7 @@ my $SingleQuotedStr = qr{ (?: \' (?: \\. | [^\'\\])* [']) }x;
 # 4. Wireshark is strictly a C program so don't take out C++ style comments
 #    since they shouldn't be there anyway...
 #    Also: capturing the comment isn't necessary.
-my $commentAndStringRegex = qr{ (?: $DoubleQuotedStr | $SingleQuotedStr | $CComment) }x;
+## my $commentAndStringRegex = qr{ (?: $DoubleQuotedStr | $SingleQuotedStr | $CComment) }x;
 
 #### Regex for use when searching for value-string definitions
 my $StaticRegex             = qr/ static \s+                                                            /xs;
@@ -1701,8 +1783,8 @@ my @apiSummaryGroups = ();
 my $check_value_string_array_null_termination = 1;      # default: enabled
 my $machine_readable_output = 0;                        # default: disabled
 my $check_hf = 1;                                       # default: enabled
+my $buildbot_flag = 0;                                  # default: no
 my $debug_flag = 0;
-my $buildbot_flag = 0;
 
 my $result = GetOptions(
                         'group=s' => \@apiGroups,
@@ -1780,13 +1862,16 @@ while ($_ = $ARGV[0])
                 print STDERR "Warning: ".$filename." does not have an SVN Id tag.\n";
         }
 
-        # optionally check the hf entries
+        # Remove all the C-comments
+        $fileContents =~ s{ $CComment } []xog;
+
+        # optionally check the hf entries (including those under #if 0)
         if ($check_hf) {
-                $errorCount += check_hf_entries(\$fileContents, $filename);
+            $errorCount += check_hf_entries(\$fileContents, $filename);
         }
 
-        # Remove all the C-comments and strings
-        $fileContents =~ s {$commentAndStringRegex} []xog;
+        # Remove all the quoted strings
+        $fileContents =~ s{ $DoubleQuotedStr | $SingleQuotedStr } []xog;
 
         #$errorCount += check_ett_registration(\$fileContents, $filename);
 
@@ -1795,6 +1880,12 @@ while ($_ = $ARGV[0])
                 print STDERR "Error: Found C++ style comments in " .$filename."\n";
                 $errorCount++;
         }
+
+        # Remove all blank lines
+        $fileContents =~ s{ ^ \s* $ } []xog;
+
+        # Remove all '#if 0'd' code
+        remove_if0_code(\$fileContents, $filename);
 
         #checkAPIsCalledWithTvbGetPtr(\@TvbPtrAPIs, \$fileContents, \@foundAPIs);
         #if (@foundAPIs) {
