@@ -82,21 +82,6 @@ gboolean
 capture_remote_combo_add_recent(const gchar *s);
 #endif
 
-/** Read in a single geometry key value pair from the recent file.
- *
- * @param name the geom_name of the window
- * @param key the subkey of this pair (e.g. "x")
- * @param value the new value (e.g. "123")
- */
-extern void window_geom_recent_read_pair(const char *name, const char *key, const char *value);
-
-/** Write all geometry values of all windows to the recent file.
- * Will call write_recent_geom() for every existing window type.
- *
- * @param rf recent file handle from caller
- */
-extern void window_geom_recent_write_all(gpointer rf);
-
 /** Write all packet list geometry values to the recent file.
  *
  *  @param rf recent file handle from caller

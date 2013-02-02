@@ -33,6 +33,7 @@ extern "C" {
 #include <glib.h>
 
 #include "epan/timestamp.h"
+#include "ui/ui_util.h"
 
 /** @file
  *  Recent user interface settings.
@@ -138,14 +139,6 @@ extern void recent_read_profile_static(char **rf_path_return, int *rf_errno_retu
  */
 extern void recent_read_dynamic(char **rf_path_return, int *rf_errno_return);
 
-/** Write the geometry values of a single window to the recent file.
- *
- * @param key unused
- * @param value the geometry values
- * @param rf recent file handle (FILE)
- */
-extern void write_recent_geom(gpointer key, gpointer value, gpointer rf);
-
 /**
  * Given a -o command line string, parse it and set the recent value in
  * question.  Return an indication of whether it succeeded or failed
@@ -182,6 +175,12 @@ extern gchar recent_get_column_xalign(gint col);
  * @param xalign column alignment
  */
 extern void recent_set_column_xalign(gint col, gchar xalign);
+
+/* save the window and its current geometry into the geometry hashtable */
+extern void window_geom_save(const gchar *name, window_geometry_t *geom);
+
+/* load the desired geometry for this window from the geometry hashtable */
+extern gboolean window_geom_load(const gchar *name, window_geometry_t *geom);
 
 #ifdef __cplusplus
 }
