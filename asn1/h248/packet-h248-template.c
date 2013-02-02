@@ -449,7 +449,7 @@ static const value_string base_event_name_vals[] = {
     {   0x0006001b, "dd/b, DTMF character B" },
     {   0x0006001c, "dd/c, DTMF character C" },
     {   0x0006001d, "dd/d, DTMF character D" },
-    {   0x00060020, "dd/*, DTMF character *" },
+    {   0x00060020, "dd/" "*, DTMF character *" },   /* XXX: hack so checkAPIs & etc won't see a 'start of comment' */
     {   0x00060021, "dd/#, DTMF character #" },
     {   0x00080030, "cd, Dial Tone" },
     {   0x00080031, "cd, Ringing Tone" },

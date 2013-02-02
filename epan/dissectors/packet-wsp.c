@@ -793,8 +793,9 @@ static value_string_ext vals_bearer_types_ext = VALUE_STRING_EXT_INIT(vals_beare
 
 static const value_string vals_content_types[] = {
     /* Well-known media types */
-    { 0x00, "*/*" },
-    { 0x01, "text/*" },
+    /* XXX: hack: "..." "..." used to define several strings so that checkAPIs & etc won't see a 'start of comment' */
+    { 0x00, "*" "/" "*" },
+    { 0x01, "text/" "*" },
     { 0x02, "text/html" },
     { 0x03, "text/plain" },
     { 0x04, "text/x-hdml" },
@@ -804,12 +805,12 @@ static const value_string vals_content_types[] = {
     { 0x08, "text/vnd.wap.wml" },
     { 0x09, "text/vnd.wap.wmlscript" },
     { 0x0A, "text/vnd.wap.channel" },
-    { 0x0B, "multipart/*" },
+    { 0x0B, "multipart/" "*" },
     { 0x0C, "multipart/mixed" },
     { 0x0D, "multipart/form-data" },
     { 0x0E, "multipart/byteranges" },
     { 0x0F, "multipart/alternative" },
-    { 0x10, "application/*" },
+    { 0x10, "application/" "*" },
     { 0x11, "application/java-vm" },
     { 0x12, "application/x-www-form-urlencoded" },
     { 0x13, "application/x-hdmlc" },
@@ -821,7 +822,7 @@ static const value_string vals_content_types[] = {
     { 0x19, "application/vnd.wap.wtls-user-certificate" },
     { 0x1A, "application/x-x509-ca-cert" },
     { 0x1B, "application/x-x509-user-cert" },
-    { 0x1C, "image/*" },
+    { 0x1C, "image/" "*" },
     { 0x1D, "image/gif" },
     { 0x1E, "image/jpeg" },
     { 0x1F, "image/tiff" },
