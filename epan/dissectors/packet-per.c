@@ -1853,7 +1853,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			guint32 new_offset;
 			guint32 difference;
 			guint32 extension_index;
-			guint32 j,k;
+			guint32 k;
 
 			if(!((1L<<(num_extensions-1-i))&extension_mask)){
 				/* this extension is not encoded in this PDU */
