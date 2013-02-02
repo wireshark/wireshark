@@ -126,12 +126,12 @@ void proto_register_h248_dot2(void) {
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
+#endif
 		{ &hf_h248_2_dtone_dtt_obs_evt,
 			{ "Discriminating Tone Type(dtt)", "h248.2.dtt",
 			FT_BYTES, BASE_NONE, NULL, 0,
                           NULL, HFILL },
 		},
-#endif
 		{ &hf_h248_2_dtone_dtt_obs_evt_val,
 			{ "call type", "h248.2.dtt.val",
 			FT_UINT32, BASE_DEC, VALS(hf_h248_2_dtone_dtt_obs_evt_val_values) , 0,
