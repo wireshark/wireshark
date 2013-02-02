@@ -121,7 +121,9 @@
 
 #include <QDebug>
 #include <QDateTime>
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include <QTextCodec>
+#endif
 #include <qtranslator.h>
 #include <qlocale.h>
 #include <qlibraryinfo.h>
@@ -538,10 +540,15 @@ int main(int argc, char *argv[])
     qtTranslator.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     ws_app.installTranslator(&qtTranslator);
 
+    // In Qt 5, C strings are treated always as UTF-8 when converted to
+    // QStrings; in Qt 4, the codec must be set to make that happen
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
     // Hopefully we won't have to use QString::fromUtf8() in as many places.
     QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
     QTextCodec::setCodecForCStrings(utf8codec);
+    // XXX - QObject doesn't *have* a tr method in 5.0, as far as I can see...
     QTextCodec::setCodecForTr(utf8codec);
+#endif
 
     main_w = new(MainWindow);
 //    w->setEnabled(false);
