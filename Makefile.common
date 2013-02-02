@@ -117,7 +117,6 @@ wireshark_SOURCES =	\
 	iface_monitor.c \
 	merge.c	\
 	proto_hier_stats.c	\
-	recent.c	\
 	summary.c	\
 	tempfile.c	\
 	u3.c		\
