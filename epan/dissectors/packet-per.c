@@ -116,6 +116,8 @@ static const true_false_string tfs_optional_field_bit = {
 
 #define BYTE_ALIGN_OFFSET(offset) if(offset&0x07){offset=(offset&0xfffffff8)+8;}
 
+#define SEQ_MAX_COMPONENTS 128
+
 static void per_check_value(guint32 value, guint32 min_len, guint32 max_len, asn1_ctx_t *actx, proto_item *item, gboolean is_signed)
 {
 	if ((is_signed == FALSE) && (value > max_len)) {
@@ -1725,8 +1727,8 @@ dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
 	proto_item *item;
 	proto_tree *tree;
 	guint32 old_offset=offset;
-	guint32 i, num_opts;
-	guint64 optional_mask;
+	guint32 i, j, num_opts;
+	guint32 optional_mask[SEQ_MAX_COMPONENTS>>5];
 
 DEBUG_ENTRY("dissect_per_sequence");
 
@@ -1753,11 +1755,11 @@ DEBUG_ENTRY("dissect_per_sequence");
 			num_opts++;
 		}
 	}
-	if (num_opts > 64) {
-		PER_NOT_DECODED_YET("more than 64 optional/default components");
-	} 
+	if (num_opts > SEQ_MAX_COMPONENTS) {
+		PER_NOT_DECODED_YET("too many optional/default components");
+	}
 
-	optional_mask=0;
+	memset(optional_mask, 0, sizeof(optional_mask));
 	for(i=0;i<num_opts;i++){
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_optional_field_bit, &optional_field_flag);
 		if (tree) {
@@ -1765,15 +1767,14 @@ DEBUG_ENTRY("dissect_per_sequence");
 				index_get_optional_name(sequence, i), optional_field_flag?"is":"is NOT");
 		}
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
-		optional_mask<<=1;
 		if(optional_field_flag){
-			optional_mask|=0x01;
+			optional_mask[i>>5]|=0x80000000>>(i&0x1f);
 		}
 	}
 
 
 	/* 18.4 */
-	for(i=0;sequence[i].p_id;i++){
+	for(i=0,j=0;sequence[i].p_id;i++){
 		if( (sequence[i].extension==ASN1_NO_EXTENSIONS)
 		||  (sequence[i].extension==ASN1_EXTENSION_ROOT) ){
 			if(sequence[i].optional==ASN1_OPTIONAL){
@@ -1781,8 +1782,9 @@ DEBUG_ENTRY("dissect_per_sequence");
 				if (num_opts == 0){
 					continue;
 				}
-				is_present=(((guint64)1<<(num_opts-1))&optional_mask) ? TRUE : FALSE;
+				is_present=(0x80000000>>(j&0x1f))&optional_mask[j>>5];
 				num_opts--;
+				j++;
 				if(!is_present){
 					continue;
 				}
@@ -1820,6 +1822,9 @@ DEBUG_ENTRY("dissect_per_sequence");
 		   then it won't get fixed!
 		*/
 		num_extensions+=1;
+		if (num_extensions > 32) {
+			PER_NOT_DECODED_YET("too many extensions");
+		}
 
 		extension_mask=0;
 		for(i=0;i<num_extensions;i++){
@@ -1904,8 +1909,8 @@ guint32
 dissect_per_sequence_eag(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, const per_sequence_t *sequence)
 {
 	gboolean optional_field_flag;
-	guint32 i, num_opts;
-	guint64 optional_mask;
+	guint32 i, j, num_opts;
+	guint32 optional_mask[SEQ_MAX_COMPONENTS>>5];
 
 DEBUG_ENTRY("dissect_per_sequence_eag");
 
@@ -1915,11 +1920,11 @@ DEBUG_ENTRY("dissect_per_sequence_eag");
 			num_opts++;
 		}
 	}
-	if (num_opts > 64) {
-		PER_NOT_DECODED_YET("more than 64 optional/default components");
-	} 
+	if (num_opts > SEQ_MAX_COMPONENTS) {
+		PER_NOT_DECODED_YET("too many optional/default components");
+	}
 
-	optional_mask=0;
+	memset(optional_mask, 0, sizeof(optional_mask));
 	for(i=0;i<num_opts;i++){
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_optional_field_bit, &optional_field_flag);
 		if (tree) {
@@ -1927,20 +1932,20 @@ DEBUG_ENTRY("dissect_per_sequence_eag");
 				index_get_optional_name(sequence, i), optional_field_flag?"is":"is NOT");
 		}
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
-		optional_mask<<=1;
 		if(optional_field_flag){
-			optional_mask|=0x01;
+			optional_mask[i>>5]|=0x80000000>>(i&0x1f);
 		}
 	}
 
-	for(i=0;sequence[i].p_id;i++){
+	for(i=0,j=0;sequence[i].p_id;i++){
 		if(sequence[i].optional==ASN1_OPTIONAL){
 			gboolean is_present;
 			if (num_opts == 0){
 				continue;
 			}
-			is_present=(((guint64)1<<(num_opts-1))&optional_mask) ? TRUE : FALSE;
+			is_present=(0x80000000>>(j&0x1f))&optional_mask[j>>5];
 			num_opts--;
+			j++;
 			if(!is_present){
 				continue;
 			}
