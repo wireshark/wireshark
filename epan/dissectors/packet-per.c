@@ -1751,7 +1751,7 @@ dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
 	proto_tree *tree;
 	guint32 old_offset=offset;
 	guint32 i, num_opts;
-	guint32 optional_mask;
+	guint64 optional_mask;
 
 DEBUG_ENTRY("dissect_per_sequence");
 
@@ -1778,6 +1778,9 @@ DEBUG_ENTRY("dissect_per_sequence");
 			num_opts++;
 		}
 	}
+	if (num_opts > 64) {
+		PER_NOT_DECODED_YET("more than 64 optional/default components");
+	} 
 
 	optional_mask=0;
 	for(i=0;i<num_opts;i++){
@@ -1803,7 +1806,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 				if (num_opts == 0){
 					continue;
 				}
-				is_present=(1<<(num_opts-1))&optional_mask;
+				is_present=(((guint64)1<<(num_opts-1))&optional_mask) ? TRUE : FALSE;
 				num_opts--;
 				if(!is_present){
 					continue;
@@ -1927,7 +1930,7 @@ dissect_per_sequence_eag(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_
 {
 	gboolean optional_field_flag;
 	guint32 i, num_opts;
-	guint32 optional_mask;
+	guint64 optional_mask;
 
 DEBUG_ENTRY("dissect_per_sequence_eag");
 
@@ -1937,6 +1940,9 @@ DEBUG_ENTRY("dissect_per_sequence_eag");
 			num_opts++;
 		}
 	}
+	if (num_opts > 64) {
+		PER_NOT_DECODED_YET("more than 64 optional/default components");
+	} 
 
 	optional_mask=0;
 	for(i=0;i<num_opts;i++){
@@ -1958,7 +1964,7 @@ DEBUG_ENTRY("dissect_per_sequence_eag");
 			if (num_opts == 0){
 				continue;
 			}
-			is_present=(1<<(num_opts-1))&optional_mask;
+			is_present=(((guint64)1<<(num_opts-1))&optional_mask) ? TRUE : FALSE;
 			num_opts--;
 			if(!is_present){
 				continue;
