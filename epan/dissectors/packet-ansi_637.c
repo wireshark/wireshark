@@ -185,7 +185,7 @@ static int hf_ansi_637_tele_msg_status = -1;
 static int hf_ansi_637_tele_msg_rsvd = -1;
 static int hf_ansi_637_tele_subparam_id = -1;
 static int hf_ansi_637_tele_user_data_text = -1;
-static int hf_ansi_637_trans_msg_type = -1;
+/* static int hf_ansi_637_trans_msg_type = -1; */
 static int hf_ansi_637_trans_param_id = -1;
 
 /* Initialize the subtree pointers */
@@ -2120,11 +2120,13 @@ proto_register_ansi_637(void)
     /* Setup list of header fields */
     static hf_register_info hf_trans[] =
     {
+#if 0
 	{ &hf_ansi_637_trans_msg_type,
 	  { "Message Type",
 	    "ansi_637_trans.msg_type",
 	    FT_UINT24, BASE_DEC, VALS(ansi_trans_msg_type_strings), 0xf00000,
 	    NULL, HFILL }},
+#endif
 	{ &hf_ansi_637_trans_param_id,
 	    { "Transport Param ID", "ansi_637_trans.param_id",
 	    FT_UINT8, BASE_DEC, VALS(ansi_trans_param_strings), 0,
