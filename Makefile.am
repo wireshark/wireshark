@@ -370,6 +370,8 @@ wireshark_LDADD = \
 	@PORTAUDIO_LIBS@		\
 	@GTK_LIBS@			\
 	@Qt_LIBS@			\
+	@QtWidgets_LIBS@		\
+	@QtPrintSupport_LIBS@		\
 	@GLIB_LIBS@			\
 	-lm
 
