@@ -751,7 +751,6 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		iface_monitor.c
 		merge.c
 		proto_hier_stats.c
-		recent.c
 		summary.c
 		tempfile.c
 		u3.c
