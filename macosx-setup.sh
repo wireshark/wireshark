@@ -97,15 +97,11 @@ fi
 #
 # Versions to download and install.
 #
-# The following libraries are required.
+# The following libraries and tools are required.
 #
 GETTEXT_VERSION=0.18.1.1
 GLIB_VERSION=2.32.3
-#
-# pkg-config 0.26 appears to have broken the "we have our own GLib"
-# stuff, even if you explicitly set GLIB_CFLAGS and GLIB_LIBS.
-#
-PKG_CONFIG_VERSION=0.26
+PKG_CONFIG_VERSION=0.27
 ATK_VERSION=2.4.0
 PANGO_VERSION=1.30.0
 PNG_VERSION=1.5.13
