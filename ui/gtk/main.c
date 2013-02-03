@@ -2291,6 +2291,7 @@ main(int argc, char *argv[])
 #endif
   }
 #endif /* HAVE_AIRPCAP */
+#endif  /* _WIN32 */
 
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
@@ -2301,6 +2302,7 @@ main(int argc, char *argv[])
   runtime_info_str = g_string_new("Running ");
   get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
 
+#ifdef _WIN32
   ws_add_crash_info(PACKAGE " " VERSION "%s\n"
          "\n"
          "%s"
