@@ -2218,21 +2218,6 @@ main(int argc, char *argv[])
 
   static const char optstring[] = OPTSTRING;
 
-  /* Assemble the compile-time version information string */
-  comp_info_str = g_string_new("Compiled ");
-
-  get_compiled_version_info(comp_info_str, get_gtk_compiled_info, get_gui_compiled_info);
-
-  /* Assemble the run-time version information string */
-  runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
-
-  ws_add_crash_info(PACKAGE " " VERSION "%s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-      wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
 
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");
@@ -2306,6 +2291,22 @@ main(int argc, char *argv[])
 #endif
   }
 #endif /* HAVE_AIRPCAP */
+
+  /* Assemble the compile-time version information string */
+  comp_info_str = g_string_new("Compiled ");
+
+  get_compiled_version_info(comp_info_str, get_gtk_compiled_info, get_gui_compiled_info);
+
+  /* Assemble the run-time version information string */
+  runtime_info_str = g_string_new("Running ");
+  get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
+
+  ws_add_crash_info(PACKAGE " " VERSION "%s\n"
+         "\n"
+         "%s"
+         "\n"
+         "%s",
+      wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
 
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
