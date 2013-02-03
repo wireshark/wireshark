@@ -295,6 +295,10 @@ the default snapshot length is used if provided.
 
 Print statistics for each interface once every second.
 
+=item -t
+
+Use a separate thread per interface.
+
 =item -v
 
 Print the version and exit.
