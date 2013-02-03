@@ -33,6 +33,14 @@
 ##         the number of false positives which occurred with the
 ##         original checkhf.pl
 ##
+##       This program can be used to scan original .c source files or source
+##        files which have been passed through a C pre-processor.
+##       Operating on pre-prosessed source files is optimal; There should be
+##        minimal false positives.
+##       If the .c input is an original source file there may very well be
+##        false positives/negatives due to the fact that the hf_... variables & etc
+##        may have been created via macros.
+##
 ## ----- (The following is extracted from the original checkhf.pl with thanks to Joerg) -------
 ## Example:
 ## ~/work/wireshark/trunk/epan/dissectors> ../../tools/checkhf.pl packet-afs.c
@@ -57,7 +65,7 @@
 # Main
 #
 # Logic:
-# 1. Clean the input: remove comments and code under '#if 0'.
+# 1. Clean the input: remove blank lines, comments, quoted strings and code under '#if 0'.
 # 2. hfDefs:
 #            Find (and remove from input) list of static hf_ variable
 #            definitions ('static int hf_... ;')
@@ -88,23 +96,25 @@ if (!$sts || $helpFlag || !$ARGV[0]) {
     usage();
 }
 
+my $error = 0;
+
 while (my $fileName = $ARGV[0]) {
     shift;
 
-    my ($fileContents, $fileCleanedContents);
+    my ($fileContents);
     my ($hfDefHRef, $hfArrayEntryHRef, $hfUsageHRef);
     my ($unUsedHRef, $noArrayHRef);
 
     read_file(\$fileName, \$fileContents);
 
-    $fileCleanedContents = $fileContents;
+    remove_blank_lines   (\$fileContents, $fileName);
+    remove_comments      (\$fileContents, $fileName);
+    remove_quoted_strings(\$fileContents, $fileName);
+    remove_if0_code      (\$fileContents, $fileName);
 
-    remove_comments(\$fileCleanedContents, $fileName);
-    remove_if0_code(\$fileCleanedContents, $fileName);
-
-    $hfDefHRef        = find_remove_hf_defs(\$fileCleanedContents, $fileName);
-    $hfArrayEntryHRef = find_remove_hf_array_entries(\$fileCleanedContents, $fileName);
-    $hfUsageHRef      = find_hf_usage(\$fileCleanedContents);
+    $hfDefHRef        = find_remove_hf_defs(\$fileContents, $fileName);
+    $hfArrayEntryHRef = find_remove_hf_array_entries(\$fileContents, $fileName);
+    $hfUsageHRef      = find_hf_usage(\$fileContents);
 
 # Tests (See above)
 # 1. Are all the hfDef entries in hfUsage ?
@@ -120,7 +130,14 @@ while (my $fileName = $ARGV[0]) {
     $noArrayHRef  = diff_hash($hfDefHRef, $hfArrayEntryHRef);
     $noArrayHRef  = diff_hash($noArrayHRef, $unUsedHRef);     # Remove "unused" hf_... from noArray list
     print_list("ERROR: NO ARRAY: $fileName, ", $noArrayHRef);
+
+    if ((keys %$noArrayHRef) != 0) {
+        $error += 1;
+    }
 }
+
+exit (($error == 0) ? 0 : 1);  # exit 1 if ERROR
+
 
 # ---------------------------------------------------------------------
 #
@@ -184,6 +201,19 @@ sub print_list {
 }
 
 # ------------
+# action:  remove blank lines from input string
+# arg:     codeRef, fileName
+# returns: codeRef
+
+sub remove_blank_lines {
+    my ($codeRef, $fileName) = @_;
+
+    $$codeRef =~ s { ^ \s* $ } []xog;
+
+    return $codeRef;
+}
+
+# ------------
 # action:  remove comments from input string
 # arg:     codeRef, fileName
 # returns: codeRef
@@ -197,11 +227,34 @@ sub remove_comments {
     # A complicated regex which matches C-style comments.
     my $CCommentRegEx = qr{ / [*] [^*]* [*]+ (?: [^/*] [^*]* [*]+ )* / }xo;
 
-    $$codeRef =~ s {$CCommentRegEx} []xg;
+    $$codeRef =~ s { $CCommentRegEx } []xog;
 
     ($debug == 1) && print "==> After Remove Comments: code: [$fileName]\n$$codeRef\n===<\n";
 
     return $codeRef
+}
+
+# ------------
+# action:  remove quoted strings from input string
+# arg:     codeRef, fileName
+# returns: codeRef
+
+sub remove_quoted_strings {
+    my ($codeRef, $fileName) = @_;
+
+    # A regex which matches double-quoted strings.
+    #    ?s added so that strings containing a 'line continuation'
+    #    ( \ followed by a new-line) will match.
+    my $DoubleQuotedStr = qr{ (?: ["] (?s: \\. | [^\"\\])* ["]) }x;
+
+    # A regex which matches single-quoted strings.
+    my $SingleQuotedStr = qr{ (?: \' (?: \\. | [^\'\\])* [']) }x;
+
+    $$codeRef =~ s{ $DoubleQuotedStr | $SingleQuotedStr } []xog;
+
+    ($debug == 1) && print "==> After Remove quoted strings: code: [$fileName]\n$$codeRef\n===<\n";
+
+    return $codeRef;
 }
 
 # -------------
@@ -355,7 +408,7 @@ sub find_remove_hf_array_entries {
     my ($codeRef, $fileName) = @_;
 
 #    hf[] entry regex (to extract an hf_index_name and associated field type)
-    my $hfArrayEntryRegEx = qr {
+    my $hfArrayEntryRegEx = qr /
                                    \{
                                    \s*
                                    & \s* ( [a-zA-Z0-9_]+ )   # &hf
@@ -363,16 +416,21 @@ sub find_remove_hf_array_entries {
                                        \s* \[ [^]]+ \]       # optional array ref
                                    ) ?
                                    \s* , \s*
-                                   \{ \s*
-                                   .+?                       # Fix: (a bit dangerous)
-                                   \s* , \s*
+                                   \{
+                                   [^}]+
+                                   , \s*
                                    (FT_[a-zA-Z0-9_]+)        # field type
-                                   \s* , \s*
-                                   .+?                       # Fix: (also a bit dangerous)
-                                   \s* , \s*
-                                   HFILL ,?                  # HFILL
-                                   \s* \}
-                           }xos;
+                                   \s* ,
+                                   [^}]+
+                                   , \s*
+                                   (?:
+                                       HFILL | HF_REF_TYPE_NONE
+                                   )
+                                   [^}]*
+                                   }
+                                   [\s,]*
+                                   }
+                           /xos;
 
     # find all the hf[] entries (searching $$codeRef).
     # Create a hash keyed by the hf_... string
