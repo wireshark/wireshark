@@ -34,7 +34,7 @@
 static int proto_gdsdb = -1;
 static gint ett_gdsdb = -1;
 static int hf_gdsdb_opcode = -1;
-static gint ett_gdsdb_opcode = -1;
+/* static gint ett_gdsdb_opcode = -1; */
 
 /* gdsdb_dummy */
 /* gdsdb_connect */
@@ -87,7 +87,9 @@ static int hf_gdsdb_response_status = -1;
 /* gdsdb_transact */
 static int hf_gdsdb_transact_database = -1;
 static int hf_gdsdb_transact_transaction = -1;
+#if 0
 static int hf_gdsdb_transact_messages = -1;
+#endif
 /* gdsdb_transact_response */
 static int hf_gdsdb_transactresponse_messages = -1;
 /* gdsdb_open_blob2 */
@@ -95,6 +97,7 @@ static int hf_gdsdb_openblob2_bpb = -1;
 /* gdsdb_open_blob */
 static int hf_gdsdb_openblob_transaction = -1;
 static int hf_gdsdb_openblob_id = -1;
+#if 0
 /* gdsdb_segment */
 static int hf_gdsdb_segment_blob = -1;
 static int hf_gdsdb_segment_length = -1;
@@ -104,11 +107,13 @@ static int hf_gdsdb_seekblob_blob = -1;
 static int hf_gdsdb_seekblob_mode = -1;
 /* gdsdb_reconnect */
 static int hf_gdsdb_reconnect_database = -1;
+#endif
 /* gdsdb_info & gdsdb_service_start */
 static int hf_gdsdb_info_object = -1;
 static int hf_gdsdb_info_incarnation = -1;
 static int hf_gdsdb_info_items = -1;
 static int hf_gdsdb_info_buffer_length = -1;
+#if 0
 /* gdsdb_release */
 static int hf_gdsdb_release_object = -1;
 /* gdsdb_prepare2 */
@@ -144,6 +149,7 @@ static int hf_gdsdb_prepare2_number = -1;
 static int hf_gdsdb_prepare2_messages = -1;
 static int hf_gdsdb_prepare2_outblr = -1;
 static int hf_gdsdb_prepare2_outmsgnr = -1;
+#endif
 /* gdsdb_prepare */
 static int hf_gdsdb_prepare_transaction = -1;
 static int hf_gdsdb_prepare_statement = -1;
@@ -151,6 +157,7 @@ static int hf_gdsdb_prepare_dialect = -1;
 static int hf_gdsdb_prepare_querystr = -1;
 static int hf_gdsdb_prepare_items = -1;
 static int hf_gdsdb_prepare_bufferlength = -1;
+#if 0
 /* gdsdb_fetch */
 static int hf_gdsdb_fetch_statement = -1;
 static int hf_gdsdb_fetch_message_number = -1;
@@ -170,6 +177,7 @@ static int hf_gdsdb_cursor_statement = -1;
 static int hf_gdsdb_cursor_type = -1;
 /* gdsdb_sql_response */
 static int hf_gdsdb_sqlresponse_messages = -1;
+#endif
 
 enum
 {
@@ -264,106 +272,106 @@ enum
 };
 
 static const value_string gdsdb_opcode[] = {
-	{ op_void, "Void" },
-	{ op_connect, "Connect" },
-	{ op_exit, "Exit" },
-	{ op_accept, "Accept" },
-	{ op_reject, "Reject" },
-	{ op_protocol, "Protocol" },
-	{ op_disconnect, "Disconnect" },
-	{ op_credit, "Credit" },
-	{ op_continuation, "Continuation" },
-	{ op_response, "Response" },
-	{ op_open_file, "Open file" },
-	{ op_create_file, "Create file" },
-	{ op_close_file, "Close file" },
-	{ op_read_page, "Read page" },
-	{ op_write_page, "Write page" },
-	{ op_lock, "Lock" },
-	{ op_convert_lock, "Convert lock" },
-	{ op_release_lock, "Release lock" },
-	{ op_blocking, "Blocking" },
-	{ op_attach, "Attach" },
-	{ op_create, "Create" },
-	{ op_detach, "Detach" },
-	{ op_compile, "Compile" },
-	{ op_start, "Start" },
-	{ op_start_and_send, "Start and send" },
-	{ op_send, "Send" },
-	{ op_receive, "Receive" },
-	{ op_unwind, "Unwind" },
-	{ op_release, "Release" },
-	{ op_transaction, "Transaction" },
-	{ op_commit, "Commit" },
-	{ op_rollback, "Rollback" },
-	{ op_prepare, "Prepare" },
-	{ op_reconnect, "Reconnect" },
-	{ op_create_blob, "Create blob" },
-	{ op_open_blob, "Open blob" },
-	{ op_get_segment, "Get segment" },
-	{ op_put_segment, "Put segment" },
-	{ op_cancel_blob, "Cancel blob" },
-	{ op_close_blob, "Close blob" },
-	{ op_info_database, "Info database" },
-	{ op_info_request, "Info request" },
-	{ op_info_transaction, "Info transaction" },
-	{ op_info_blob, "Info blob" },
-	{ op_batch_segments, "Batch segments" },
-	{ op_mgr_set_affinity, "Mgr set affinity" },
-	{ op_mgr_clear_affinity, "Mgr clear affinity" },
-	{ op_mgr_report, "Mgr report" },
-	{ op_que_events, "Que events" },
-	{ op_cancel_events, "Cancel events" },
-	{ op_commit_retaining, "Commit retaining" },
-	{ op_prepare2, "Prepare 2" },
-	{ op_event, "Event" },
-	{ op_connect_request, "Connect request" },
-	{ op_aux_connect, "Aux connect" },
-	{ op_ddl, "DDl" },
-	{ op_open_blob2, "Open blob 2" },
-	{ op_create_blob2, "Create blob 2" },
-	{ op_get_slice, "Get slice" },
-	{ op_put_slice, "Put slice" },
-	{ op_slice, "Slice" },
-	{ op_seek_blob, "Seek blob" },
-	{ op_allocate_statement, "Allocate statement" },
-	{ op_execute, "Execute" },
-	{ op_exec_immediate, "Exec immediate" },
-	{ op_fetch, "Fetch" },
-	{ op_fetch_response, "Fetch response" },
-	{ op_free_statement, "Free statement" },
-	{ op_prepare_statement, "Prepare statement" },
-	{ op_set_cursor, "Set cursor" },
-	{ op_info_sql, "Info sql" },
-	{ op_dummy, "Dummy" },
-	{ op_response_piggyback, "Response piggyback" },
-	{ op_start_and_receive, "Start and receive" },
+	{ op_void,                   "Void" },
+	{ op_connect,                "Connect" },
+	{ op_exit,                   "Exit" },
+	{ op_accept,                 "Accept" },
+	{ op_reject,                 "Reject" },
+	{ op_protocol,               "Protocol" },
+	{ op_disconnect,             "Disconnect" },
+	{ op_credit,                 "Credit" },
+	{ op_continuation,           "Continuation" },
+	{ op_response,               "Response" },
+	{ op_open_file,              "Open file" },
+	{ op_create_file,            "Create file" },
+	{ op_close_file,             "Close file" },
+	{ op_read_page,              "Read page" },
+	{ op_write_page,             "Write page" },
+	{ op_lock,                   "Lock" },
+	{ op_convert_lock,           "Convert lock" },
+	{ op_release_lock,           "Release lock" },
+	{ op_blocking,               "Blocking" },
+	{ op_attach,                 "Attach" },
+	{ op_create,                 "Create" },
+	{ op_detach,                 "Detach" },
+	{ op_compile,                "Compile" },
+	{ op_start,                  "Start" },
+	{ op_start_and_send,         "Start and send" },
+	{ op_send,                   "Send" },
+	{ op_receive,                "Receive" },
+	{ op_unwind,                 "Unwind" },
+	{ op_release,                "Release" },
+	{ op_transaction,            "Transaction" },
+	{ op_commit,                 "Commit" },
+	{ op_rollback,               "Rollback" },
+	{ op_prepare,                "Prepare" },
+	{ op_reconnect,              "Reconnect" },
+	{ op_create_blob,            "Create blob" },
+	{ op_open_blob,              "Open blob" },
+	{ op_get_segment,            "Get segment" },
+	{ op_put_segment,            "Put segment" },
+	{ op_cancel_blob,            "Cancel blob" },
+	{ op_close_blob,             "Close blob" },
+	{ op_info_database,          "Info database" },
+	{ op_info_request,           "Info request" },
+	{ op_info_transaction,       "Info transaction" },
+	{ op_info_blob,              "Info blob" },
+	{ op_batch_segments,         "Batch segments" },
+	{ op_mgr_set_affinity,       "Mgr set affinity" },
+	{ op_mgr_clear_affinity,     "Mgr clear affinity" },
+	{ op_mgr_report,             "Mgr report" },
+	{ op_que_events,             "Que events" },
+	{ op_cancel_events,          "Cancel events" },
+	{ op_commit_retaining,       "Commit retaining" },
+	{ op_prepare2,               "Prepare 2" },
+	{ op_event,                  "Event" },
+	{ op_connect_request,        "Connect request" },
+	{ op_aux_connect,            "Aux connect" },
+	{ op_ddl,                    "DDl" },
+	{ op_open_blob2,             "Open blob 2" },
+	{ op_create_blob2,           "Create blob 2" },
+	{ op_get_slice,              "Get slice" },
+	{ op_put_slice,              "Put slice" },
+	{ op_slice,                  "Slice" },
+	{ op_seek_blob,              "Seek blob" },
+	{ op_allocate_statement,     "Allocate statement" },
+	{ op_execute,                "Execute" },
+	{ op_exec_immediate,         "Exec immediate" },
+	{ op_fetch,                  "Fetch" },
+	{ op_fetch_response,         "Fetch response" },
+	{ op_free_statement,         "Free statement" },
+	{ op_prepare_statement,      "Prepare statement" },
+	{ op_set_cursor,             "Set cursor" },
+	{ op_info_sql,               "Info sql" },
+	{ op_dummy,                  "Dummy" },
+	{ op_response_piggyback,     "Response piggyback" },
+	{ op_start_and_receive,      "Start and receive" },
 	{ op_start_send_and_receive, "Start send and receive" },
-	{ op_exec_immediate2, "Exec immediate 2" },
-	{ op_execute2, "Execute 2" },
-	{ op_insert, "Insert" },
-	{ op_sql_response, "Sql response" },
-	{ op_transact, "Transact" },
-	{ op_transact_response, "Transact response" },
-	{ op_drop_database, "Drop database" },
-	{ op_service_attach, "Service attach" },
-	{ op_service_detach, "Service detach" },
-	{ op_service_info, "Service info" },
-	{ op_service_start, "Service start" },
-	{ op_rollback_retaining, "Rollback retaining" },
+	{ op_exec_immediate2,        "Exec immediate 2" },
+	{ op_execute2,               "Execute 2" },
+	{ op_insert,                 "Insert" },
+	{ op_sql_response,           "Sql response" },
+	{ op_transact,               "Transact" },
+	{ op_transact_response,      "Transact response" },
+	{ op_drop_database,          "Drop database" },
+	{ op_service_attach,         "Service attach" },
+	{ op_service_detach,         "Service detach" },
+	{ op_service_info,           "Service info" },
+	{ op_service_start,          "Service start" },
+	{ op_rollback_retaining,     "Rollback retaining" },
 	{ 0, NULL }
 };
 
 static const value_string gdsdb_architectures[] = {
-	{ 1, "Generic" },
-	{ 2, "Apollo" },
-	{ 3, "Sun" },
-	{ 4, "Vms" },
-	{ 5, "Ultrix" },
-	{ 6, "Alliant" },
-	{ 7, "MS-Dos" },
-	{ 8, "Sun 4" },
-	{ 9, "Sun 386" },
+	{  1, "Generic" },
+	{  2, "Apollo" },
+	{  3, "Sun" },
+	{  4, "Vms" },
+	{  5, "Ultrix" },
+	{  6, "Alliant" },
+	{  7, "MS-Dos" },
+	{  8, "Sun 4" },
+	{  9, "Sun 386" },
 	{ 10, "HP-UX" },
 	{ 11, "HP MPE/xl" },
 	{ 12, "Mac" },
@@ -692,7 +700,6 @@ gdsdb_transact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static int
 gdsdb_transact_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-
 	int offset;
 
 	if (tvb_length(tvb) < 8) {
@@ -721,7 +728,7 @@ gdsdb_open_blob2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		proto_tree_add_item(tree, hf_gdsdb_openblob2_bpb, tvb, offset,
 								4, ENC_ASCII|ENC_NA);
 		length = tvb_get_ntohl(tvb, offset);
-                offset += length + 6;
+		offset += length + 6;
 		proto_tree_add_item(tree, hf_gdsdb_openblob_transaction, tvb,
 							offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
@@ -803,8 +810,8 @@ gdsdb_reconnect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static int
 gdsdb_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	int offset;
-	int length;
+	int   offset;
+	int   length;
 	guint opcode;
 
 	if (tvb_length(tvb) < 20) {
@@ -1037,7 +1044,7 @@ gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		proto_tree_add_uint_format_value(tree,
 			hf_gdsdb_prepare_items, tvb, offset, 4 + length,
 					length, "%i data bytes", length);
-        	offset += tvb_get_ntohl(tvb, offset) + 6;
+		offset += tvb_get_ntohl(tvb, offset) + 6;
 		proto_tree_add_item(tree, hf_gdsdb_prepare_bufferlength, tvb,
 							offset, 2, ENC_BIG_ENDIAN);
 	}
@@ -1143,102 +1150,102 @@ gdsdb_sql_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static int (*gdsdb_handle_opcode[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) = {
-	gdsdb_dummy,	/* op_void */
-	gdsdb_connect,	/* op_connect */
-	gdsdb_dummy,	/* op_exit */
-	gdsdb_accept,	/* op_accept */
-	gdsdb_dummy,	/* op_reject */
-	gdsdb_dummy,	/* op_protocol */
-	gdsdb_dummy,	/* op_disconnect */
-	gdsdb_dummy,	/* op_credit */
-	gdsdb_dummy,	/* op_continuation */
-	gdsdb_response,	/* op_response */
-	gdsdb_dummy,	/* op_open_file */
-	gdsdb_dummy,	/* op_create_file */
-	gdsdb_dummy,	/* op_close_file */
-	gdsdb_dummy,	/* op_read_page */
-	gdsdb_dummy,	/* op_write_page */
-	gdsdb_dummy,	/* op_lock */
-	gdsdb_dummy,	/* op_convert_lock */
-	gdsdb_dummy,	/* op_release_lock */
-	gdsdb_dummy,	/* op_blocking */
-	gdsdb_attach,	/* op_attach */
-	gdsdb_attach,	/* op_create */
-	gdsdb_release,	/* op_detach */
-	gdsdb_compile,	/* op_compile */
-	gdsdb_receive,	/* op_start */
-	gdsdb_send,	/* op_start_and_send */
-	gdsdb_send,	/* op_send */
-	gdsdb_receive,	/* op_receive */
-	gdsdb_release,	/* op_unwind */
-	gdsdb_release,	/* op_release */
-	gdsdb_reconnect,	/* op_transaction */
-	gdsdb_release,	/* op_commit */
-	gdsdb_release,	/* op_rollback */
-	gdsdb_release,	/* op_prepare */
-	gdsdb_reconnect,	/* op_reconnect */
-	gdsdb_open_blob2,	/* op_create_blob */
-	gdsdb_open_blob,	/* op_open_blob */
-	gdsdb_segment,	/* op_get_segment */
-	gdsdb_segment,	/* op_put_segment */
-	gdsdb_release,	/* op_cancel_blob */
-	gdsdb_release,	/* op_close_blob */
-	gdsdb_info,	/* op_info_database */
-	gdsdb_info,	/* op_info_request */
-	gdsdb_info,	/* op_info_transaction */
-	gdsdb_info,	/* op_info_blob */
-	gdsdb_segment,	/* op_batch_segments */
-	gdsdb_dummy,	/* op_mgr_set_affinity */
-	gdsdb_dummy,	/* op_mgr_clear_affinity */
-	gdsdb_dummy,	/* op_mgr_report */
-	gdsdb_event,	/* op_que_events */
-	gdsdb_cancel_events,	/* op_cancel_events */
-	gdsdb_release,	/* op_commit_retaining */
-	gdsdb_release,	/* op_prepare */
-	gdsdb_event,	/* op_event */
-	gdsdb_request,	/* op_connect_request */
-	gdsdb_request,	/* op_aux_connect */
-	gdsdb_ddl,	/* op_ddl */
-	gdsdb_open_blob2,	/* op_open_blob2 */
-	gdsdb_open_blob2,	/* op_create_blob2 */
-	gdsdb_slice,	/* op_get_slice */
-	gdsdb_slice,	/* op_put_slice */
-	gdsdb_slice_response,	/* op_slice */
-	gdsdb_seek_blob,	/* op_seek_blob */
-	gdsdb_release,	/* op_allocate_statement */
-	gdsdb_execute,	/* op_execute */
-	gdsdb_prepare,	/* op_exec_immediate */
-	gdsdb_fetch,	/* op_fetch */
-	gdsdb_fetch_response,	/* op_fetch_response */
-	gdsdb_free_statement,	/* op_free_statement */
-	gdsdb_prepare,	/* op_prepare_statement */
-	gdsdb_cursor,	/* op_set_cursor */
-	gdsdb_info,	/* op_info_sql */
-	gdsdb_dummy,	/* op_dummy */
-	gdsdb_response,	/* op_response_piggyback */
-	gdsdb_receive,	/* op_start_and_receive */
-	gdsdb_send,	/* op_start_send_and_receive */
-	gdsdb_exec_immediate2,	/* op_exec_immediate2 */
-	gdsdb_execute,	/* op_execute2 */
-	gdsdb_insert,	/* op_insert */
-	gdsdb_sql_response,	/* op_sql_response */
-	gdsdb_transact,	/* op_transact */
-	gdsdb_transact_response,	/* op_transact_response */
-	gdsdb_release,	/* op_drop_database */
-	gdsdb_attach,	/* op_service_attach */
-	gdsdb_release,	/* op_service_detach */
-	gdsdb_info,	/* op_service_info */
-	gdsdb_service_start,	/* op_service_start */
-	gdsdb_release	/* op_rollback_retaining */
+	gdsdb_dummy,             /* op_void */
+	gdsdb_connect,           /* op_connect */
+	gdsdb_dummy,             /* op_exit */
+	gdsdb_accept,            /* op_accept */
+	gdsdb_dummy,             /* op_reject */
+	gdsdb_dummy,             /* op_protocol */
+	gdsdb_dummy,             /* op_disconnect */
+	gdsdb_dummy,             /* op_credit */
+	gdsdb_dummy,             /* op_continuation */
+	gdsdb_response,          /* op_response */
+	gdsdb_dummy,             /* op_open_file */
+	gdsdb_dummy,             /* op_create_file */
+	gdsdb_dummy,             /* op_close_file */
+	gdsdb_dummy,             /* op_read_page */
+	gdsdb_dummy,             /* op_write_page */
+	gdsdb_dummy,             /* op_lock */
+	gdsdb_dummy,             /* op_convert_lock */
+	gdsdb_dummy,             /* op_release_lock */
+	gdsdb_dummy,             /* op_blocking */
+	gdsdb_attach,            /* op_attach */
+	gdsdb_attach,            /* op_create */
+	gdsdb_release,           /* op_detach */
+	gdsdb_compile,           /* op_compile */
+	gdsdb_receive,           /* op_start */
+	gdsdb_send,              /* op_start_and_send */
+	gdsdb_send,              /* op_send */
+	gdsdb_receive,           /* op_receive */
+	gdsdb_release,           /* op_unwind */
+	gdsdb_release,           /* op_release */
+	gdsdb_reconnect,         /* op_transaction */
+	gdsdb_release,           /* op_commit */
+	gdsdb_release,           /* op_rollback */
+	gdsdb_release,           /* op_prepare */
+	gdsdb_reconnect,         /* op_reconnect */
+	gdsdb_open_blob2,        /* op_create_blob */
+	gdsdb_open_blob,         /* op_open_blob */
+	gdsdb_segment,           /* op_get_segment */
+	gdsdb_segment,           /* op_put_segment */
+	gdsdb_release,           /* op_cancel_blob */
+	gdsdb_release,           /* op_close_blob */
+	gdsdb_info,              /* op_info_database */
+	gdsdb_info,              /* op_info_request */
+	gdsdb_info,              /* op_info_transaction */
+	gdsdb_info,              /* op_info_blob */
+	gdsdb_segment,           /* op_batch_segments */
+	gdsdb_dummy,             /* op_mgr_set_affinity */
+	gdsdb_dummy,             /* op_mgr_clear_affinity */
+	gdsdb_dummy,             /* op_mgr_report */
+	gdsdb_event,             /* op_que_events */
+	gdsdb_cancel_events,     /* op_cancel_events */
+	gdsdb_release,           /* op_commit_retaining */
+	gdsdb_release,           /* op_prepare */
+	gdsdb_event,             /* op_event */
+	gdsdb_request,           /* op_connect_request */
+	gdsdb_request,           /* op_aux_connect */
+	gdsdb_ddl,               /* op_ddl */
+	gdsdb_open_blob2,        /* op_open_blob2 */
+	gdsdb_open_blob2,        /* op_create_blob2 */
+	gdsdb_slice,             /* op_get_slice */
+	gdsdb_slice,             /* op_put_slice */
+	gdsdb_slice_response,    /* op_slice */
+	gdsdb_seek_blob,         /* op_seek_blob */
+	gdsdb_release,           /* op_allocate_statement */
+	gdsdb_execute,           /* op_execute */
+	gdsdb_prepare,           /* op_exec_immediate */
+	gdsdb_fetch,             /* op_fetch */
+	gdsdb_fetch_response,    /* op_fetch_response */
+	gdsdb_free_statement,    /* op_free_statement */
+	gdsdb_prepare,           /* op_prepare_statement */
+	gdsdb_cursor,            /* op_set_cursor */
+	gdsdb_info,              /* op_info_sql */
+	gdsdb_dummy,             /* op_dummy */
+	gdsdb_response,          /* op_response_piggyback */
+	gdsdb_receive,           /* op_start_and_receive */
+	gdsdb_send,              /* op_start_send_and_receive */
+	gdsdb_exec_immediate2,   /* op_exec_immediate2 */
+	gdsdb_execute,           /* op_execute2 */
+	gdsdb_insert,            /* op_insert */
+	gdsdb_sql_response,      /* op_sql_response */
+	gdsdb_transact,          /* op_transact */
+	gdsdb_transact_response, /* op_transact_response */
+	gdsdb_release,           /* op_drop_database */
+	gdsdb_attach,            /* op_service_attach */
+	gdsdb_release,           /* op_service_detach */
+	gdsdb_info,              /* op_service_info */
+	gdsdb_service_start,     /* op_service_start */
+	gdsdb_release            /* op_rollback_retaining */
 };
 
 static int
 dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	proto_item *ti;
-	proto_tree *gdsdb_tree;
-	guint opcode;
-	packet_info nopi;
+	proto_item  *ti;
+	proto_tree  *gdsdb_tree;
+	guint        opcode;
+	packet_info  nopi;
 
 	gdsdb_tree = NULL; /* So the opcode functions can check on if(tree) */
 	nopi.cinfo = NULL;
@@ -1489,11 +1496,13 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#if 0
 		{ &hf_gdsdb_transact_messages,
 			{ "Messages", "gdsdb.transact.messages",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#endif
 		/* gdsdb_transact_response */
 		{ &hf_gdsdb_transactresponse_messages,
 			{ "Messages", "gdsdb.transactresponse.messages",
@@ -1517,6 +1526,7 @@ proto_register_gdsdb(void)
 			FT_UINT64, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
+#if 0
 		/* gdsdb_segment */
 		{ &hf_gdsdb_segment_blob,
 			{ "Blob", "gdsdb.segment.blob",
@@ -1550,6 +1560,7 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#endif
 		/* gdsdb_info & gdsdb_service_start */
 		{ &hf_gdsdb_info_object,
 			{ "Object", "gdsdb.info.object",
@@ -1571,6 +1582,7 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#if 0
 		/* gdsdb_release */
 		{ &hf_gdsdb_release_object,
 			{ "Object", "gdsdb.release.object",
@@ -1710,6 +1722,7 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#endif
 		/* gdsdb_prepare */
 		{ &hf_gdsdb_prepare_transaction,
 			{ "Prepare, Transaction", "gdsdb.prepare.transaction",
@@ -1741,6 +1754,7 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+#if 0
 		/* gdsdb_fetch */
 		{ &hf_gdsdb_fetch_statement,
 			{ "Statement", "gdsdb.fetch.statement",
@@ -1812,11 +1826,12 @@ proto_register_gdsdb(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		}
+#endif
 	};
 
 	static gint *ett[] = {
 		&ett_gdsdb,
-		&ett_gdsdb_opcode,
+		/* &ett_gdsdb_opcode, */
 		&ett_gdsdb_connect_pref
 	};
 
@@ -1824,8 +1839,8 @@ proto_register_gdsdb(void)
 		"Firebird SQL Database Remote Protocol",
 		"FB/IB GDS DB", "gdsdb");
 
-        proto_register_field_array(proto_gdsdb, hf, array_length(hf));
-        proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_gdsdb, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void

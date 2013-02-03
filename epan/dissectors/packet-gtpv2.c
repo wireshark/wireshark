@@ -164,7 +164,7 @@ static int hf_gtpv2_ip_address_ipv6= -1;
 static int hf_gtpv2_mei= -1;
 
 /* Trace Information */
-static int hf_gtpv2_tra_info = -1;
+/* static int hf_gtpv2_tra_info = -1; */
 static int hf_gtpv2_tra_info_msc_momt_calls = -1;
 static int hf_gtpv2_tra_info_msc_momt_sms = -1;
 static int hf_gtpv2_tra_info_msc_lu_imsi_ad = -1;
@@ -5588,11 +5588,13 @@ void proto_register_gtpv2(void)
            FT_UINT8, BASE_DEC, VALS(gtpv2_pdn_type_vals), 0x07,
            NULL, HFILL}
         },
+#if 0
         { &hf_gtpv2_tra_info,
           {"Trace ID", "gtpv2.tra_info",
            FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
+#endif
         { &hf_gtpv2_tra_info_msc_momt_calls,
           {"MO and MT calls", "gtpv2.tra_info_msc_momt_calls",
            FT_UINT8, BASE_DEC, NULL, 0x01,

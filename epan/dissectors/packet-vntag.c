@@ -30,7 +30,7 @@
 static int proto_vntag = -1;
 
 static int hf_vntag_etype = -1;
-static int hf_vntag_len = -1;
+/* static int hf_vntag_len = -1; */
 static int hf_vntag_trailer = -1;
 
 static gint ett_vntag = -1;
@@ -99,9 +99,11 @@ proto_register_vntag(void)
 		{ &hf_vntag_etype,
 			{ "Type", "vntag.etype", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0, NULL, HFILL }
 		},
+#if 0
 		{ &hf_vntag_len,
 			{ "Length", "vntag.len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
+#endif
 		{ &hf_vntag_trailer,
 			{ "Trailer", "vntag.trailer", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		}

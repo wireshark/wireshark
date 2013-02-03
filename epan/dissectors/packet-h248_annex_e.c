@@ -690,7 +690,7 @@ static h248_package_t h248_pkg_cd = {
 static int hf_h248_pkg_al = -1;
 static int hf_h248_pkg_al_sig_cadence = -1;
 static int hf_h248_pkg_al_sig_cadence_on_off = -1;
-static int hf_h248_pkg_al_sig_freq = -1;
+/* static int hf_h248_pkg_al_sig_freq = -1; */
 static int hf_h248_pkg_al_evt_onhook = -1;
 static int hf_h248_pkg_al_evt_offhook = -1;
 static int hf_h248_pkg_al_evt_flashhook = -1;
@@ -1029,7 +1029,9 @@ void proto_register_h248_annex_e(void) {
 		{ &hf_h248_pkg_al, { "Analog Line Supervision Package", "h248.pkg.al", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_al_sig_cadence, { "Cadence", "h248.pkg.al.sig.cadence", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_al_sig_cadence_on_off, { "On/Off Cadence", "h248.pkg.al.sig.cadence_on_off", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+#if 0
 		{ &hf_h248_pkg_al_sig_freq, { "Ring Frequency", "h248.pkg.al.sig.freq", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+#endif
 		{ &hf_h248_pkg_al_evt_onhook, { "onhook", "h248.pkg.al.onhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_al_evt_offhook, { "offhook", "h248.pkg.al.offhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_al_evt_flashhook, { "flashhook", "h248.pkg.al.flashhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},

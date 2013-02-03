@@ -874,7 +874,7 @@ static int hf_packet_non_gprs_cell_opt_max_retrans = -1;
 static int hf_packet_non_gprs_cell_opt_tx_int = -1;
 static int hf_packet_non_gprs_cell_opt_ec = -1;
 static int hf_packet_non_gprs_cell_opt_ms_txpwr_max_ccch = -1;
-static int hf_packet_non_gprs_cell_opt_ext_len = -1;
+/* static int hf_packet_non_gprs_cell_opt_ext_len = -1; */
 /* <End Packet System Information Type 2> */
 
 
@@ -11875,12 +11875,14 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
+#if 0
     { &hf_packet_non_gprs_cell_opt_ext_len,
       { "Extention_Length",        "gsm_rlcmac.dl.non_gprs_cell_opt_extention_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
+#endif
     { &hf_packet_system_info_type2_ref_freq_num,
       { "RFL_NUMBER",        "gsm_rlcmac.dl.psi2_ref_freq_number",
         FT_UINT8, BASE_DEC, NULL, 0x0,

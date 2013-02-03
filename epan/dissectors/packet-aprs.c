@@ -64,7 +64,7 @@ static int hf_aprs_mdhm			= -1;
 static int hf_aprs_tz			= -1;
 
 /* aprs position items */
-static int hf_aprs_position		= -1;
+/* static int hf_aprs_position		= -1; */
 static int hf_aprs_lat			= -1;
 static int hf_aprs_long			= -1;
 
@@ -1544,11 +1544,13 @@ proto_register_aprs( void )
 		},
 
 /* Position */
+#if 0
 		{ &hf_aprs_position,
 			{ "Position",		"aprs.position",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
+#endif
 		{ &hf_aprs_lat,
 			{ "Latitude",		"aprs.position.lat",
 			FT_STRING, BASE_NONE, NULL, 0x0,

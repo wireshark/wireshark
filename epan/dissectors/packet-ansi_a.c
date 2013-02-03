@@ -668,7 +668,9 @@ static int hf_ansi_a_imsi = -1;
 static int hf_ansi_a_min = -1;
 static int hf_ansi_a_meid = -1;
 static int hf_ansi_a_cld_party_bcd_num = -1;
+#ifdef MAYBE_USED_FOR_OLDER_CODECS
 static int hf_ansi_a_clg_party_bcd_num = -1;
+#endif
 static int hf_ansi_a_cld_party_ascii_num = -1;
 static int hf_ansi_a_clg_party_ascii_num = -1;
 static int hf_ansi_a_cell_ci = -1;
@@ -11977,11 +11979,13 @@ proto_register_ansi_a(void)
             FT_STRING, BASE_NONE, 0, 0,
             NULL, HFILL }
         },
+#ifdef MAYBE_USED_FOR_OLDER_CODECS
         { &hf_ansi_a_clg_party_bcd_num,
             { "Calling Party BCD Number",       "ansi_a_bsmap.clg_party_bcd_num",
             FT_STRING, BASE_NONE, 0, 0,
             NULL, HFILL }
         },
+#endif
         { &hf_ansi_a_cld_party_ascii_num,
             { "Called Party ASCII Number",      "ansi_a_bsmap.cld_party_ascii_num",
             FT_STRING, BASE_NONE, 0, 0,

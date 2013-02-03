@@ -63,14 +63,15 @@ static int hf_v5dl_u_modifier_resp = -1;
 static int hf_v5dl_ftype_i = -1;
 static int hf_v5dl_ftype_s_u = -1;
 static int hf_v5dl_ftype_s_u_ext = -1;
+#if 0
 static int hf_v5dl_checksum = -1;
 static int hf_v5dl_checksum_good = -1;
 static int hf_v5dl_checksum_bad = -1;
-
+#endif
 static gint ett_v5dl = -1;
 static gint ett_v5dl_address = -1;
 static gint ett_v5dl_control = -1;
-static gint ett_v5dl_checksum = -1;
+/* static gint ett_v5dl_checksum = -1; */
 
 static dissector_handle_t v52_handle;
 
@@ -406,6 +407,7 @@ proto_register_v5dl(void)
 	  { "Frame type", "v5dl.control.ftype", FT_UINT16, BASE_HEX,
 		VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 
+#if 0
 	{ &hf_v5dl_checksum,
 	  { "Checksum", "v5dl.checksum", FT_UINT16, BASE_HEX,
 		NULL, 0x0, "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
@@ -417,13 +419,14 @@ proto_register_v5dl(void)
 	{ &hf_v5dl_checksum_bad,
 	  { "Bad Checksum", "v5dl.checksum_bad", FT_BOOLEAN, BASE_NONE,
 		NULL, 0x0, "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }}
+#endif
 	};
 
 	static gint *ett[] = {
 		&ett_v5dl,
 		&ett_v5dl_address,
 		&ett_v5dl_control,
-		&ett_v5dl_checksum
+		/* &ett_v5dl_checksum */
 	};
 
 	proto_v5dl = proto_register_protocol("V5 Data Link Layer",

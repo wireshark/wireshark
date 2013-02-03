@@ -56,7 +56,7 @@ static int proto_fmp_notify = -1;
 static int hf_fmp_handleListLen = -1;
 static int hf_fmp_notify_procedure = -1;
 static int hf_fmp_fsID = -1;
-static int hf_fmp_fsBlkSz = -1;
+/* static int hf_fmp_fsBlkSz = -1; */
 static int hf_fmp_sessionHandle = -1;
 static int hf_fmp_fmpFHandle = -1;
 static int hf_fmp_msgNum = -1;
@@ -562,9 +562,11 @@ proto_register_fmp_notify(void)
                         "File System ID", "fmp_notify.fsID", FT_UINT32, BASE_HEX,
                         NULL, 0, NULL, HFILL }},
 
+#if 0
                 { &hf_fmp_fsBlkSz, {
                         "FS Block Size", "fmp_notify.fsBlkSz", FT_UINT32, BASE_DEC,
                         NULL, 0, "File System Block Size", HFILL }},
+#endif
 
 
                 { &hf_fmp_numBlksReq, {
