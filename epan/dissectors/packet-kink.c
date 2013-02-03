@@ -528,7 +528,6 @@ dissect_payload_kink_tgt_req(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 
   proto_tree_add_text(payload_kink_tgt_req_tree, tvb, offset, realm_name_length, "RealmName: %s",
                       tvb_format_text(tvb, offset, realm_name_length));
-  offset += realm_name_length;
 
   /* This part consider the padding. Payload_length don't contain the padding. */
   if(payload_length % PADDING != 0){
