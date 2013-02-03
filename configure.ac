@@ -960,6 +960,35 @@ if test "x$enable_wireshark" = "xyes"; then
 		AC_MSG_NOTICE([QtPrintSupport not found. Assuming Qt4]))
 
 		#
+		# OK, maybe uic is called uic, or maybe it's called
+		# uic-qt4 (yay, Fedora 16).
+		#
+		AC_PATH_PROG(UIC, uic)
+		if test "x$UIC" = x
+		then
+			AC_PATH_PROG(UIC, uic-qt4)
+			if test "x$UIC" = x
+			then
+				AC_MSG_ERROR(I couldn't find uic or uic-qt4; make sure it's installed and in your path)
+			fi
+		fi
+		AC_SUBST(UIC)
+
+		#
+		# And the same applies to moc.
+		#
+		AC_PATH_PROG(MOC, moc)
+		if test "x$MOC" = x
+		then
+			AC_PATH_PROG(MOC, moc-qt4)
+			if test "x$MOC" = x
+			then
+				AC_MSG_ERROR(I couldn't find moc or moc-qt4; make sure it's installed and in your path)
+			fi
+		fi
+		AC_SUBST(MOC)
+
+		#
 		# We don't know whether we have GTK+, but we
 		# won't be using it, so it's as if we don't
 		# have it.

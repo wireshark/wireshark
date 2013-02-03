@@ -71,17 +71,17 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBG
 SUFFIXES = .moc.cpp .qrc .rcc.cpp
 
 .h.moc.cpp:
-	moc -I.. -I../.. -o $@ $<
+	$(MOC) -I.. -I../.. -o $@ $<
 
 .qrc.rcc.cpp:
 	rcc -name `basename $< .qrc` -o $@ $<
 
 ui_%.h: %.ui
-	uic $< -o $@
+	$(UIC) $< -o $@
 
 # The Qt toolchain uses the naming convention moc_FOO.cpp. Should we do the same?
 #moc_%.cpp: %.h
-#	moc $< -o $@
+#	$(MOC) $< -o $@
 
 capture_preferences_frame.cpp capture_preferences_frame.h: ui_capture_preferences_frame.h
 
