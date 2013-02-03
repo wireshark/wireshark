@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-01-24
+# 2013-02-01
 # 
 # Experts
 # 
@@ -2769,8 +2769,10 @@ lpcp	1298/tcp	# lpcp                         [Christian_Stredicke]              
 lpcp	1298/udp	# lpcp                         [Christian_Stredicke]                              [Christian_Stredicke]
 hp-sci	1299/tcp	# hp-sci                       [Kim_Scott]                                        [Kim_Scott]
 hp-sci	1299/udp	# hp-sci                       [Kim_Scott]                                        [Kim_Scott]
-h323hostcallsc	1300/tcp	# H323 Host Call Secure        [Jim_Toga]                                         [Jim_Toga]
-h323hostcallsc	1300/udp	# H323 Host Call Secure        [Jim_Toga]                                         [Jim_Toga]
+h323hostcallsc	1300/tcp	# H.323 Secure Call Control    [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Signalling
+h323hostcallsc	1300/udp	# H.323 Secure Call Control    [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Signalling
 ci3-software-1	1301/tcp	# CI3-Software-1
 ci3-software-1	1301/udp	# CI3-Software-1
 ci3-software-2	1302/tcp	# CI3-Software-2               [Kelli_Watson]                                     [Kelli_Watson]
@@ -3895,12 +3897,18 @@ xmsg	1716/tcp	# xmsg                         [Mark_E_Fogle]                     
 xmsg	1716/udp	# xmsg                         [Mark_E_Fogle]                                     [Mark_E_Fogle]
 fj-hdnet	1717/tcp	# fj-hdnet                     [Manabu_Makino]                                    [Manabu_Makino]
 fj-hdnet	1717/udp	# fj-hdnet                     [Manabu_Makino]                                    [Manabu_Makino]
-h323gatedisc	1718/tcp	# h323gatedisc
-h323gatedisc	1718/udp	# h323gatedisc
-h323gatestat	1719/tcp	# h323gatestat
-h323gatestat	1719/udp	# h323gatestat
-h323hostcall	1720/tcp	# h323hostcall                 [Jim_Toga_2]                                       [Jim_Toga_2]
-h323hostcall	1720/udp	# h323hostcall                 [Jim_Toga_2]                                       [Jim_Toga_2]
+h323gatedisc	1718/tcp	# H.323 Multicast Gatekeeper   [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Discover
+h323gatedisc	1718/udp	# H.323 Multicast Gatekeeper   [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Discover
+h323gatestat	1719/tcp	# H.323 Unicast Gatekeeper     [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Signaling
+h323gatestat	1719/udp	# H.323 Unicast Gatekeeper     [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Signaling
+h323hostcall	1720/tcp	# H.323 Call Control           [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Signalling
+h323hostcall	1720/udp	# H.323 Call Control           [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Signalling
 caicci	1721/tcp	# caicci                       [Sylvia_Scheuren]                                  [Sylvia_Scheuren]
 caicci	1721/udp	# caicci                       [Sylvia_Scheuren]                                  [Sylvia_Scheuren]
 hks-lm	1722/tcp	# HKS License Manager          [Michael_Wood]                                     [Michael_Wood]
@@ -4739,8 +4747,8 @@ jetformpreview	2097/tcp	# Jet Form Preview             [Zygmunt_Wiercioch]      
 jetformpreview	2097/udp	# Jet Form Preview             [Zygmunt_Wiercioch]                                [Zygmunt_Wiercioch]
 dialog-port	2098/tcp	# Dialog Port                  [Joseph_Mathew]                                    [Joseph_Mathew]
 dialog-port	2098/udp	# Dialog Port                  [Joseph_Mathew]                                    [Joseph_Mathew]
-h2250-annex-g	2099/tcp	# H.225.0 Annex G              [Gur_Kimchi_2]                                     [Gur_Kimchi_2]
-h2250-annex-g	2099/udp	# H.225.0 Annex G              [Gur_Kimchi_2]                                     [Gur_Kimchi_2]
+h2250-annex-g	2099/tcp	# H.225.0 Annex G Signalling   [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+h2250-annex-g	2099/udp	# H.225.0 Annex G Signalling   [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
 amiganetfs	2100/tcp	# Amiga Network Filesystem     [Rudi_Chiarito]                                    [Rudi_Chiarito]
 amiganetfs	2100/udp	# Amiga Network Filesystem     [Rudi_Chiarito]                                    [Rudi_Chiarito]
 rtcm-sc104	2101/tcp	# rtcm-sc104                   [Wolfgang_Rupprecht]                               [Wolfgang_Rupprecht]
@@ -5796,10 +5804,10 @@ facsys-router	2515/tcp	# Facsys Router                [Jeff_Hoffman]            
 facsys-router	2515/udp	# Facsys Router                [Jeff_Hoffman]                                     [Jeff_Hoffman]
 maincontrol	2516/tcp	# Main Control                 [Nathan_Sadia]                                     [Nathan_Sadia]
 maincontrol	2516/udp	# Main Control                 [Nathan_Sadia]                                     [Nathan_Sadia]
-call-sig-trans	2517/tcp	# H.323 Annex E call signaling [Gur_Kimchi_2]                                     [Gur_Kimchi_2]
-# transport
-call-sig-trans	2517/udp	# H.323 Annex E call signaling [Gur_Kimchi_2]                                     [Gur_Kimchi_2]
-# transport
+call-sig-trans	2517/tcp	# H.323 Annex E Call Control   [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Signalling Transport
+call-sig-trans	2517/udp	# H.323 Annex E Call Control   [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Signalling Transport
 willy	2518/tcp	# Willy                        [Carl_Johan_Wik]                                   [Carl_Johan_Wik]
 willy	2518/udp	# Willy                        [Carl_Johan_Wik]                                   [Carl_Johan_Wik]
 globmsgsvc	2519/tcp	# globmsgsvc                   [David_Wiltz]                                      [David_Wiltz]
@@ -13102,7 +13110,10 @@ ssp-client	7801/tcp	# Secure Server Protocol -     [Rick_Macchio]               
 # client
 ssp-client	7801/udp	# Secure Server Protocol -     [Rick_Macchio]                                     [Rick_Macchio]                                            2006-11
 # client
-# 7802-7809            Unassigned
+vns-tp	7802/udp	# Virtualized Network Services [Juniper_Networks]                                 [Bruno_Rijsman]                                           2013-02-01
+# Tunnel Protocol
+# 7802        tcp    Reserved
+# 7803-7809            Unassigned
 rbt-wanopt	7810/tcp	# Riverbed WAN Optimization    [Vladimir_Legalov_2]                               [Vladimir_Legalov_2]                                      2007-09-04
 # Protocol
 rbt-wanopt	7810/udp	# Riverbed WAN Optimization    [Vladimir_Legalov_2]                               [Vladimir_Legalov_2]                                      2007-09-04
@@ -14420,8 +14431,10 @@ asgcypresstcps	11489/tcp	# ASG Cypress Secure Only      [David_Luxford]         
 tempest-port	11600/tcp	# Tempest Protocol Port        [Francis_Cianfrocca]                               [Francis_Cianfrocca]
 tempest-port	11600/udp	# Tempest Protocol Port        [Francis_Cianfrocca]                               [Francis_Cianfrocca]
 # 11601-11719           Unassigned
-h323callsigalt	11720/tcp	# h323 Call Signal Alternate   [Chris_White]                                      [Chris_White]
-h323callsigalt	11720/udp	# h323 Call Signal Alternate   [Chris_White]                                      [Chris_White]
+h323callsigalt	11720/tcp	# H.323 Call Control           [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Signalling Alternate
+h323callsigalt	11720/udp	# H.323 Call Control           [ITU-T]                                            [ITU-T_TSB]                                                            2013-01-31
+# Signalling Alternate
 # 11721-11750           Unassigned
 intrepid-ssl	11751/tcp	# Intrepid SSL                 [Robert_Eden]                                      [Robert_Eden]                                             2003-03
 intrepid-ssl	11751/udp	# Intrepid SSL                 [Robert_Eden]                                      [Robert_Eden]                                             2003-03
@@ -15537,7 +15550,10 @@ neckar	37475/tcp	# science + computing's Venus  [Ralf_Allrutz]                  
 # Administration Port
 neckar	37475/udp	# science + computing's Venus  [Ralf_Allrutz]                                     [Ralf_Allrutz]                                            2002-02
 # Administration Port
-# 37476-37653           Unassigned
+# 37476-37482           Unassigned
+gdrive-sync	37483/tcp	# Google Drive Sync            [Google]                                           [Fil_Zembowicz]                                           2013-02-01
+# 37483       udp    Reserved
+# 37484-37653           Unassigned
 unisys-eportal	37654/tcp	# Unisys ClearPath ePortal     [Sung_U_Ro]                                        [Sung_U_Ro]                                               2006-01
 unisys-eportal	37654/udp	# Unisys ClearPath ePortal     [Sung_U_Ro]                                        [Sung_U_Ro]                                               2006-01
 # 37655-38200           Unassigned
@@ -17675,6 +17691,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Bruce_Vander_Werf]                                       Bruce Vander Werf                               mailto:bvanderwerf&crownintl.com                              2004-02
 # [Bruce_Wells]                                             Bruce Wells                                     mailto:brwells&us.ibm.com                                     2010-10-04
 # [Bruce_Wilson]                                            Bruce Wilson                                    tel:+1-905-771-6161
+# [Bruno_Rijsman]                                           Bruno Rijsman             Juniper Networks      mailto:brijsman&juniper.net                                   2013-02-01
 # [Bryan_Alvord]                                            Bryan Alvord                                    mailto:bryan&vaticor.com                                      2003-04
 # [Bryan_Cole]                                              Bryan Cole                                      mailto:bryan.cole&teraview.com
 # [Bryan_Otey]                                              Bryan Otey                                      mailto:bwo&softdesk.com
@@ -17811,7 +17828,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Chris_Thornhill]                                         Chris Thornhill                                 mailto:port_contact&cjt.ca
 # [Chris_Vertonghen]                                        Chris Vertonghen                                mailto:chrisv&pearldoc.com
 # [Chris_Wells]                                             Chris Wells                                     mailto:chris_wells&lansource.com
-# [Chris_White]                                             Chris White                                     mailto:cjwhite&cisco.com
 # [Chris_Wilcox]                                            Chris Wilcox                                    mailto:cwilcox&cd3o.com                                       2002-10
 # [Chris_Wilson]                                            Chris Wilson                                    mailto:chris+iana&qwirx.com                                   2008-09-11
 # [Christer_Gunnarsson]                                     Christer Gunnarsson                             mailto:christer.gunnarsson&ascom.se                           2009-03-26
@@ -18517,6 +18533,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ferruccio_Barletta]                                      Ferruccio Barletta                              mailto:ferruccio.barletta&compaq.com
 # [Festo_AG]                                                                          Festo AG & Co. KG     mailto:Software-Support&de.festo.com                          2012-07-26
 # [Fieldbus_Foundation]                                     Fieldbus Foundation                             mailto:dave.glanzer&fieldbus.org                              2002-10
+# [Fil_Zembowicz]                                           Fil Zembowicz             Google, Inc           mailto:fil&google.com                                         2013-02-01
 # [Filip_Zawadiak]                                          Filip Zawadiak            DOMIQ Sp. z o.o.      mailto:fzawadiak&domiq.pl                                     2011-08-29
 # [Filippo_Fadda]                                           Filippo Fadda                                   mailto:fadda&osway.com                                        2003-08
 # [FLIR_Systems_AB]                                                                   FLIR Systems AB       mailto:bjorn.roth&flir.se                                     2011-10-20
@@ -18702,6 +18719,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Global_Relay]                                                                      Global Relay          mailto:Michael.Sample&GlobalRelay.net                         2012-11-28
 # Communications Inc
 # [Gobby_0x539]                                                                       0x539 dev group       http://darcs.0x539.de/trac/obby/cgi-bin/trac.cgi
+# [Google]                                                                            Google, Inc           mailto:fil&google.com                                         2013-02-01
 # [Gopikrishna_Sandra]                                      Gopikrishna Sandra                              mailto:v-gosand&microsoft.com                                 2005-02
 # [Goran_Runfeldt]                                          Goeran Runfeldt                                 mailto:goran&netadmin.se                                      2006-12
 # [Gord_Peters]                                             Gord Peters               Dialectro Software    mailto:g&dialectro.com                                        2011-10-20
@@ -18757,7 +18775,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Guhan_Suriyanarayana]                                    Guhan Suriyanarayanan                           mailto:guhans&microsoft.com                                   2006-03
 # [Guido_Kiener]                                            Guido Kiener                                    mailto:Guido.Kiener&rohde-schwarz.com                         2008-12-04
 # [Gur_Kimchi]                                              Gur Kimchi                                      mailto:gkimchi&microsoft.com                                  2008-05-20
-# [Gur_Kimchi_2]                                            Gur Kimchi                                      mailto:gur.kimchi&vocaltec.com
 # [Gus_McNaughton]                                          Gus McNaughton                                  mailto:gus&chevin.com
 # [Gustavo_Rodriguez_Ri]                                    Gustavo Rodriguez-Rivera                        mailto:grr&geodesic.com
 # [Guus_Sliepen]                                            Guus Sliepen                                    mailto:guus&warande3094.warande.uu.nl
@@ -18888,6 +18905,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [IRdg]                                                                              IRdg, Inc.            mailto:jtaylor&irdg.com
 # [ISHII_AKIO]                                              ISHII AKIO                                      mailto:ishii.akio&jp.fujitsu.com                              2006-01
 # [ITGroup]                                                                           ITGroup               mailto:itgroup&stillsecure.com                                2008-06-30
+# [ITU-T]                                                                             ITU-T                 mailto:tsbsg16&itu.int                                        2013-01-31
+# [ITU-T_TSB]                                               ITU-T TSB                 ITU-T                 mailto:tsbsg16&itu.int                                        2013-01-31
 # ITU TSB, Place des
 # [ITU_TSB]                                                                           Nations, CH-1211      mailto:tsbmail&itu.int                                        2006-06
 # Geneva 20
@@ -19209,8 +19228,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jim_Taylor]                                              Jim Taylor                                      mailto:taylor&heart.epps.kodak.com
 # [Jim_Teague]                                              Jim Teague                                      mailto:teague&zso.dec.com
 # [Jim_Thompson]                                            Jim Thompson                                    mailto:jim.thompson&powerware.com
-# [Jim_Toga]                                                Jim Toga                                        mailto:jtoga&ideal.jf.intel.com
-# [Jim_Toga_2]                                              Jim Toga                                        mailto:jtoga&ibeam.jf.intel.com
 # [Jim_Trek]                                                Jim Trek                                        mailto:jtrek&rochester.rr.com
 # [Jim_Trocki]                                              Jim Trocki                                      mailto:trockij&transmeta.com
 # [Jim_Turner]                                              Jim Turner                                      mailto:Jim.Turner&asg.com
@@ -19432,6 +19449,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Julien_VALIENTE]                                         Julien VALIENTE                                 mailto:j.valiente&objectif-software.com                       2006-05
 # [Jun_Nakamura]                                            Jun Nakamura                                    mailto:jnakamur&cp10.es.xerox.com
 # [Jun_Yoshii]                                              Jun Yoshii                                      mailto:yoshii&ael.fujitsu.co.jp
+# [Juniper_Networks]                                                                  Juniper Networks      mailto:brijsman&juniper.net                                   2013-02-01
 # [Juraj_Zopp]                                              Juraj Zopp                                      mailto:juraj.zopp&pianoforce.com
 # [Justin_Cepelak]                                          Justin Cepelak                                  mailto:jcepelak&splashdata.com
 # [Justin_Ko]                                               Justin Ko                 Apple                 mailto:justin.ko&apple.com                                    2011-10-20
