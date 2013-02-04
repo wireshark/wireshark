@@ -605,6 +605,48 @@ void get_os_version_info(GString *str)
 
 
 /*
+ * Get the CPU info, and append it to the GString
+ */
+void get_cpu_info(GString *str)
+{
+#if defined(_WIN32)
+	int CPUInfo[4];
+	char CPUBrandString[0x40];
+	unsigned    nExIds;
+
+	MEMORYSTATUSEX statex;
+
+	/* http://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx */
+
+	/* Calling __cpuid with 0x80000000 as the InfoType argument*/
+    /* gets the number of valid extended IDs.*/
+    __cpuid(CPUInfo, 0x80000000);
+    nExIds = CPUInfo[0];
+
+	if( nExIds<0x80000005)
+		return;
+    memset(CPUBrandString, 0, sizeof(CPUBrandString));
+
+    /* Interpret CPU brand string.*/
+    __cpuid(CPUInfo, 0x80000002);
+    memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
+    __cpuid(CPUInfo, 0x80000003);
+    memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
+    __cpuid(CPUInfo, 0x80000004);
+    memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
+
+	g_string_append_printf(str, "\n%s", CPUBrandString);
+
+	statex.dwLength = sizeof (statex);
+	
+	if(GlobalMemoryStatusEx (&statex))
+		g_string_append_printf(str, ", with ""%" G_GINT64_MODIFIER "d" "MB of physical memory.\n", statex.ullTotalPhys/(1024*1024));
+
+#endif
+
+}
+
+/*
  * Get various library run-time versions, and the OS version, and append
  * them to the specified GString.
  */
@@ -641,6 +683,9 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 		(*additional_info)(str);
 
 	g_string_append(str, ".");
+
+	/* CPU Info */
+	get_cpu_info(str);
 
 	/* Compiler info */
 
