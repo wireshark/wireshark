@@ -2002,7 +2002,7 @@ dissect_bthci_evt_num_completed_data_blocks(tvbuff_t *tvb, int offset, packet_in
         offset+=2;
         proto_tree_add_item(tree, hf_bthci_evt_num_compl_blocks, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
-    }  
+    }
     return offset;
 }
 
@@ -2160,6 +2160,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
         /* This is a list of Commands that all return status and BD_ADDR */
         case 0x1009: /* Read BD_ADDR */
             local_addr = TRUE;
+            /* FALLTHROUGH */
         case 0x0408: /* Create Connection Cancel */
         case 0x040b: /* Link Key Request Reply */
         case 0x040c: /* Link Key Request Negative Reply */
