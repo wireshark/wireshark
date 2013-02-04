@@ -687,8 +687,10 @@ cygwin*)
 esac
 AC_SUBST(LDFLAGS_SHAREDLIB)
 
-# Control silent compiling
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([no])])
+# Enable silent builds by default
+# Verbose builds can be enabled with "./configure 
+# --enable-silent-rules ..." or "make V=1 ..."
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 #
 # On "Darwin", which we assume to mean "OS X" rather than "iOS" or
