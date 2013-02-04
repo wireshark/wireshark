@@ -23,13 +23,33 @@
 
 AUTOMAKE_OPTIONS = -Wno-portability
 
+AM_V_AWK = $(am__v_AWK_$(V))
+am__v_AWK_ = $(am__v_AWK_$(AM_DEFAULT_VERBOSITY))
+am__v_AWK_0 = @echo "  AWK     " $@;
+am__v_AWK_1 = 
+
+AM_V_LEMON = $(am__v_LEMON_$(V))
+am__v_LEMON_ = $(am__v_LEMON_$(AM_DEFAULT_VERBOSITY))
+am__v_LEMON_0 = @echo "  LEMON   " $@;
+am__v_LEMON_1 = 
+
+AM_V_RUNLEX = $(am__v_RUNLEX_$(V))
+am__v_RUNLEX_ = $(am__v_RUNLEX_$(AM_DEFAULT_VERBOSITY))
+am__v_RUNLEX_0 = @echo "  RUNLEX  " $@;
+am__v_RUNLEX_1 = 
+
+AM_V_SED = $(am__v_SED_$(V))
+am__v_SED_ = $(am__v_SED_$(AM_DEFAULT_VERBOSITY))
+am__v_SED_0 = @echo "  SED     " $@;
+am__v_SED_1 = 
+
 .l.c:
-	$(AM_V_GEN)$(RUNLEX) "$(LEX)" -o$@ $<
+	$(AM_V_RUNLEX)$(RUNLEX) "$(LEX)" -o$@ $<
 
 .def.sym:
-	$(AM_V_GEN)$(AWK) '/^EXPORTS$$/ {next;}; ${def_sym_filter_symbols} /^[^;]/ { print $$1;}' < $< > $@
+	$(AM_V_AWK)$(AWK) '/^EXPORTS$$/ {next;}; ${def_sym_filter_symbols} /^[^;]/ { print $$1;}' < $< > $@
 
 # abi-compliance-checker descriptor
 INCLUDE_DIRS = $(subst -I,NEWLINE,$(filter -I%, $(CFLAGS) -I$(abs_top_srcdir) -I$(abs_srcdir)))
 abi-descriptor.xml: ../abi-descriptor.template
-	$(AM_V_GEN)sed "s|INCLUDE_DIRS|$(INCLUDE_DIRS)|g;s/NEWLINE/\n    /g" $< > $@
+	$(AM_V_SED)sed "s|INCLUDE_DIRS|$(INCLUDE_DIRS)|g;s/NEWLINE/\n    /g" $< > $@

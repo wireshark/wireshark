@@ -138,11 +138,6 @@ RUNLEX = $(top_srcdir)/tools/runlex.sh
 
 LEMON = $(top_builddir)/tools/lemon
 
-AM_V_LEMON = $(am__v_LEMON_$(V))
-am__v_LEMON_ = $(am__v_LEMON_$(AM_DEFAULT_VERBOSITY))
-am__v_LEMON_0 = @echo "  LEMON   " $@;
-am__v_LEMON_1 = 
-
 mate_parser_lex.h : mate_parser.c
 
 mate_parser.lo : mate_grammar.h

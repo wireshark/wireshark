@@ -1,25 +1,17 @@
-# Makefile.am
-#
-# $Id$
-#
-# Wireshark - Network traffic analyzer
-# By Gerald Combs <gerald@wireshark.org>
-# Copyright 2001 Gerald Combs
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
+# Makefile.am # # $Id$ #
+# Wireshark - Network traffic analyzer # By Gerald Combs
+<gerald@wireshark.org> # Copyright 2001 Gerald Combs # # This program is
+free software; you can redistribute it and/or # modify it under the
+terms of the GNU General Public License # as published by the Free
+Software Foundation; either version 2 # of the License, or (at your
+option) any later version.  # # This program is distributed in the hope
+that it will be useful, # but WITHOUT ANY WARRANTY; without even the
+implied warranty of # MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the # GNU General Public License for more details.  # #
+You should have received a copy of the GNU General Public License #
+along with this program; if not, write to the Free Software #
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+02110-1301, USA.  #
 
 include ../../Makefile.am.inc
 
@@ -75,11 +67,6 @@ scanner_lex.h : scanner.c
 scanner.lo: grammar.h
 
 LEMON=../../tools/lemon
-
-AM_V_LEMON = $(am__v_LEMON_$(V))
-am__v_LEMON_ = $(am__v_LEMON_$(AM_DEFAULT_VERBOSITY))
-am__v_LEMON_0 = @echo "  LEMON   " $@;
-am__v_LEMON_1 = 
 
 grammar.c grammar.h : $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon
 	$(AM_V_LEMON)$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
