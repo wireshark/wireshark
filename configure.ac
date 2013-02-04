@@ -963,35 +963,6 @@ if test "x$enable_wireshark" = "xyes"; then
 		AC_MSG_NOTICE([QtPrintSupport not found. Assuming Qt4]))
 
 		#
-		# OK, maybe uic is called uic, or maybe it's called
-		# uic-qt4 (yay, Fedora 16).
-		#
-		AC_PATH_PROG(UIC, uic)
-		if test "x$UIC" = x
-		then
-			AC_PATH_PROG(UIC, uic-qt4)
-			if test "x$UIC" = x
-			then
-				AC_MSG_ERROR(I couldn't find uic or uic-qt4; make sure it's installed and in your path)
-			fi
-		fi
-		AC_SUBST(UIC)
-
-		#
-		# And the same applies to moc.
-		#
-		AC_PATH_PROG(MOC, moc)
-		if test "x$MOC" = x
-		then
-			AC_PATH_PROG(MOC, moc-qt4)
-			if test "x$MOC" = x
-			then
-				AC_MSG_ERROR(I couldn't find moc or moc-qt4; make sure it's installed and in your path)
-			fi
-		fi
-		AC_SUBST(MOC)
-
-		#
 		# We don't know whether we have GTK+, but we
 		# won't be using it, so it's as if we don't
 		# have it.
@@ -1122,6 +1093,67 @@ else
 		CPPFLAGS="-DGSEAL_ENABLE $CPPFLAGS"
 	fi
 fi
+
+#
+# "make dist" requires that we have the Qt build tools.
+#
+# Annoyingly, at least on Fedora 16, uic and moc are named XXX-qt4
+# rather than just XXX, perhaps to allow Qt 3 and Qt 4 tools to be
+# installed; if they're still doing that in current Fedora releases,
+# perhaps there will also be XXX-qt5 when they pick up Qt 5.
+#
+AC_PATH_PROG(UIC, uic)
+if test "x$UIC" = x
+then
+	AC_PATH_PROG(UIC, uic-qt4)
+	if test "x$UIC" = x
+	then
+		if test "x$with_qt" = "xyes"; then
+			#
+			# If you want to build with Qt, you'd better
+			# have uic.
+			#
+			AC_MSG_ERROR(I couldn't find uic or uic-qt4; make sure it's installed and in your path)
+		else
+			#
+			# We shouldn't fail here, as the user's not
+			# building with Qt, and we shouldn't force them
+			# to have Qt installed if they're not doing so.
+			# "make dist" will fail if they do that, but
+			# we don't know whether they'll be doing that,
+			# so this is the best we can do.
+			#
+			UIC=uic
+		fi
+	fi
+fi
+AC_SUBST(UIC)
+AC_PATH_PROG(MOC, moc)
+if test "x$MOC" = x
+then
+	AC_PATH_PROG(MOC, moc-qt4)
+	if test "x$MOC" = x
+	then
+		if test "x$with_qt" = "xyes"; then
+			#
+			# If you want to build with Qt, you'd better
+			# have moc.
+			#
+			AC_MSG_ERROR(I couldn't find moc or moc-qt4; make sure it's installed and in your path)
+		else
+			#
+			# We shouldn't fail here, as the user's not
+			# building with Qt, and we shouldn't force them
+			# to have Qt installed if they're not doing so.
+			# "make dist" will fail if they do that, but
+			# we don't know whether they'll be doing that,
+			# so this is the best we can do.
+			#
+			MIC=moc
+		fi
+	fi
+fi
+AC_SUBST(MOC)
 
 # Error out if a glib header other than a "top level" header
 #  (glib.h, glib-object.h, gio.h) or certain other headers( e.g.,gmodule.h)
