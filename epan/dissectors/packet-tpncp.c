@@ -91,30 +91,30 @@ static gint bits[] = {0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80};
 static gint bitindex = 0;
 
 /* TPNCP packet header fields. */
-static gint proto_tpncp = -1,
-            hf_tpncp_version = -1,
-            hf_tpncp_length = -1,
-            hf_tpncp_seq_number = -1,
-            hf_tpncp_old_event_seq_number = -1,
-            hf_tpncp_reserved = -1,
-            hf_tpncp_command_id = -1,
-            hf_tpncp_old_command_id = -1,
-            hf_tpncp_event_id = -1,
-            hf_tpncp_cid = -1;
+static gint proto_tpncp = -1;
+static gint hf_tpncp_version = -1;
+static gint hf_tpncp_length = -1;
+static gint hf_tpncp_seq_number = -1;
+/* static gint hf_tpncp_old_event_seq_number = -1; */
+static gint hf_tpncp_reserved = -1;
+static gint hf_tpncp_command_id = -1;
+/* static gint hf_tpncp_old_command_id = -1; */
+static gint hf_tpncp_event_id = -1;
+static gint hf_tpncp_cid = -1;
 
 /* TPNCP fields defining a subtree. */
-static gint ett_tpncp = -1,
-            ett_tpncp_body = -1;
+static gint ett_tpncp = -1;
+static gint ett_tpncp_body = -1;
 
-static guint global_tpncp_trunkpack_tcp_port = TCP_PORT_TPNCP_TRUNKPACK,
-             global_tpncp_trunkpack_udp_port = UDP_PORT_TPNCP_TRUNKPACK,
-             global_tpncp_host_tcp_port = TCP_PORT_TPNCP_HOST,
-             global_tpncp_host_udp_port = UDP_PORT_TPNCP_HOST;
+static guint global_tpncp_trunkpack_tcp_port = TCP_PORT_TPNCP_TRUNKPACK;
+static guint global_tpncp_trunkpack_udp_port = UDP_PORT_TPNCP_TRUNKPACK;
+static guint global_tpncp_host_tcp_port = TCP_PORT_TPNCP_HOST;
+static guint global_tpncp_host_udp_port = UDP_PORT_TPNCP_HOST;
 
-static guint trunkpack_tcp_port = 0,
-             trunkpack_udp_port = 0,
-             host_tcp_port = 0,
-             host_udp_port = 0;
+static guint trunkpack_tcp_port = 0;
+static guint trunkpack_udp_port = 0;
+static guint host_tcp_port = 0;
+static guint host_udp_port = 0;
 
 /* XXX: ToDo: allocate at runtime as needed */
 /*      The following allocates something on the order of 2M of static memory ! */
@@ -494,6 +494,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 NULL, HFILL
             }
         },
+#if 0
         {
             &hf_tpncp_old_event_seq_number,
             {
@@ -506,6 +507,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 NULL, HFILL
             }
         },
+#endif
         {
             &hf_tpncp_reserved,
             {
@@ -530,6 +532,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 NULL, HFILL
             }
         },
+#if 0
         {
             &hf_tpncp_old_command_id,
             {
@@ -542,6 +545,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 NULL, HFILL
             }
         },
+#endif
         {
             &hf_tpncp_event_id,
             {
