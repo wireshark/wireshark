@@ -76,8 +76,13 @@ scanner.lo: grammar.h
 
 LEMON=../../tools/lemon
 
+AM_V_LEMON = $(am__v_LEMON_$(V))
+am__v_LEMON_ = $(am__v_LEMON_$(AM_DEFAULT_VERBOSITY))
+am__v_LEMON_0 = @echo "  LEMON   " $@;
+am__v_LEMON_1 = 
+
 grammar.c grammar.h : $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon
-	$(AM_V_GEN)$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
+	$(AM_V_LEMON)$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
 grammar.h : grammar.c
 

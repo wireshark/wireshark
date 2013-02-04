@@ -179,8 +179,13 @@ uat_load_lex.h: uat_load.c
 
 LEMON=../tools/lemon
 
+AM_V_LEMON = $(am__v_LEMON_$(V))
+am__v_LEMON_ = $(am__v_LEMON_$(AM_DEFAULT_VERBOSITY))
+am__v_LEMON_0 = @echo "  LEMON   " $@;
+am__v_LEMON_1 = 
+
 dtd_grammar.c dtd_grammar.h: $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
-	$(AM_V_GEN)$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
+	$(AM_V_LEMON)$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
 
 dtd_grammar.h: dtd_grammar.c
 
