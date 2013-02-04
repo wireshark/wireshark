@@ -39,7 +39,7 @@
 ##        minimal false positives.
 ##       If the .c input is an original source file there may very well be
 ##        false positives/negatives due to the fact that the hf_... variables & etc
-##        may have been created via macros.
+##        may be created via macros.
 ##
 ## ----- (The following is extracted from the original checkhf.pl with thanks to Joerg) -------
 ## Example:
@@ -67,8 +67,8 @@
 # Logic:
 # 1. Clean the input: remove blank lines, comments, quoted strings and code under '#if 0'.
 # 2. hfDefs:
-#            Find (and remove from input) list of static hf_ variable
-#            definitions ('static int hf_... ;')
+#            Find (and remove from input) list of hf_... variable
+#            definitions ('static? g?int hf_... ;')
 # 2. hfArrayEntries:
 #            Find (and remove from input) list of hf_... variables
 #            referenced in the hf[] entries;
@@ -77,7 +77,7 @@
 #             (which may include strings which are not actually valid
 #              hf_... variable references).
 # 4. Checks:
-#            If entries in hfDefs not in hfUsage then "unused";
+#            If entries in hfDefs not in hfUsage then "unused" (or static hfDefs only)
 #            If entries in hfDefs not in hfArrayEntries then "ERROR: NO ARRAY";
 
 use strict;
@@ -86,7 +86,7 @@ use warnings;
 use Getopt::Long;
 
 my $helpFlag  = '';
-my $debug     = 0;  # default: off; 1=cmt; 2=#if0; 3=hfDefs; 4=hfArrayEntry; 5=hfusage (See code)
+my $debug     = 0;  # default: off; 1=cmt; 2=#if0; 3=hfDefs; 4=hfArrayEntries; 5=hfusage (See code)
 
 my $sts = GetOptions(
                      'debug=i' => \$debug,
@@ -102,7 +102,7 @@ while (my $fileName = $ARGV[0]) {
     shift;
 
     my ($fileContents);
-    my ($hfDefHRef, $hfArrayEntryHRef, $hfUsageHRef);
+    my (%hfDefs, %hfStaticDefs, %hfArrayEntries, %hfUsage);
     my ($unUsedHRef, $noArrayHRef);
 
     read_file(\$fileName, \$fileContents);
@@ -112,22 +112,29 @@ while (my $fileName = $ARGV[0]) {
     remove_quoted_strings(\$fileContents, $fileName);
     remove_if0_code      (\$fileContents, $fileName);
 
-    $hfDefHRef        = find_remove_hf_defs(\$fileContents, $fileName);
-    $hfArrayEntryHRef = find_remove_hf_array_entries(\$fileContents, $fileName);
-    $hfUsageHRef      = find_hf_usage(\$fileContents);
+    find_remove_hf_defs         (\$fileContents, $fileName, \%hfDefs);
+    find_remove_hf_array_entries(\$fileContents, $fileName, \%hfArrayEntries);
+    find_hf_usage               (\$fileContents, $fileName, \%hfUsage);
 
 # Tests (See above)
-# 1. Are all the hfDef entries in hfUsage ?
+# 1. Are all the static hfDefs entries in hfUsage ?
 #    if not: "Unused entry:"
 #
-    $unUsedHRef = diff_hash($hfDefHRef, $hfUsageHRef);
+
+    # create a hash containing entries just for the static definitions
+    @hfStaticDefs{grep {$hfDefs{$_} == 0} keys %hfDefs} = ();  # All values in the new hash will be undef
+
+    $unUsedHRef = diff_hash(\%hfStaticDefs, \%hfUsage);
     print_list("Unused entry: $fileName, ", $unUsedHRef);
 
-# 2. Are all the hfDef entries in hfArrayEntry ?
-#    (Note: if hfDef is "unused", don't check for same in hfArrayEntry)
+# 2. Are all the hfDefs entries (static and global) in hfArrayEntries ?
+#    (Note: if a static hfDef is "unused", don't check for same in hfArrayEntries)
 #    if not: "ERROR: NO ARRAY"
 
-    $noArrayHRef  = diff_hash($hfDefHRef, $hfArrayEntryHRef);
+##    Checking for missing global defs currently gives false positives
+##    So: only check static defs for now.
+##    $noArrayHRef  = diff_hash(\%hfDefs, \%hfArrayEntries);
+    $noArrayHRef  = diff_hash(\%hfStaticDefs, \%hfArrayEntries);
     $noArrayHRef  = diff_hash($noArrayHRef, $unUsedHRef);     # Remove "unused" hf_... from noArray list
     print_list("ERROR: NO ARRAY: $fileName, ", $noArrayHRef);
 
@@ -142,14 +149,13 @@ exit (($error == 0) ? 0 : 1);  # exit 1 if ERROR
 # ---------------------------------------------------------------------
 #
 sub usage {
-    print "Usage: $0 [--debug=n] Filename [...] #debug: 1=cmt; 2=#if0; 3=hfDefs; 4=hfArrayEntry; 5=hfUsage\n";
+    print "Usage: $0 [--debug=n] Filename [...] #debug: 1=cmt; 2=#if0; 3=hfDefs; 4=hfArrayEntries; 5=hfUsage\n";
     exit(1);
 }
 
 # ---------------------------------------------------------------------
 # action:  read contents of a file to specified string
 # arg:     fileNameRef, fileContentsRef
-# returns: fileContentsRef (containing the contents of the file)
 
 sub read_file {
     my ($fileNameRef, $fileContentsRef) = @_;
@@ -167,7 +173,7 @@ sub read_file {
     }
     close(FCI);
 
-    return $fileContentsRef;
+    return;
 }
 
 # ---------------------------------------------------------------------
@@ -180,8 +186,7 @@ sub diff_hash {
 
     my %diffs;
 
-    @diffs{grep {! exists $$bHRef{$_}} keys %$aHRef} = {};  # each key in the new hash
-                                                            #  will have value 'undef'
+    @diffs{grep {! exists $$bHRef{$_}} keys %$aHRef} = ();  # All values in the new hash will be undef
 
     return \%diffs;
 }
@@ -189,7 +194,6 @@ sub diff_hash {
 # ---------------------------------------------------------------------
 # action:  print a list
 # arg:     hdr, listHRef
-# returns: nothing
 
 sub print_list {
     my ($hdr, $listHRef) = @_;
@@ -198,25 +202,25 @@ sub print_list {
       map {"$hdr$_\n"}
         sort
           keys %$listHRef;
+
+    return;
 }
 
 # ------------
 # action:  remove blank lines from input string
 # arg:     codeRef, fileName
-# returns: codeRef
 
 sub remove_blank_lines {
     my ($codeRef, $fileName) = @_;
 
     $$codeRef =~ s { ^ \s* $ } []xog;
 
-    return $codeRef;
+    return;
 }
 
 # ------------
 # action:  remove comments from input string
 # arg:     codeRef, fileName
-# returns: codeRef
 
 sub remove_comments {
     my ($codeRef, $fileName) = @_;
@@ -231,13 +235,12 @@ sub remove_comments {
 
     ($debug == 1) && print "==> After Remove Comments: code: [$fileName]\n$$codeRef\n===<\n";
 
-    return $codeRef
+    return;
 }
 
 # ------------
 # action:  remove quoted strings from input string
 # arg:     codeRef, fileName
-# returns: codeRef
 
 sub remove_quoted_strings {
     my ($codeRef, $fileName) = @_;
@@ -254,13 +257,12 @@ sub remove_quoted_strings {
 
     ($debug == 1) && print "==> After Remove quoted strings: code: [$fileName]\n$$codeRef\n===<\n";
 
-    return $codeRef;
+    return;
 }
 
 # -------------
 # action:  remove '#if 0'd code from the input string
 # args     codeRef, fileName
-# returns: codeRef
 #
 # Essentially: Use s//patsub/meg to pass each line to patsub.
 #              patsub monitors #if/#if 0/etc and determines
@@ -292,7 +294,7 @@ my ($if_lvl, $if0_lvl, $if0); # shared vars
         $$codeRef =~ s{ $preprocRegEx }{patsub($1,$2)}xegm;
 
         ($debug == 2) && print "==> After Remove if0: code: [$fileName]\n$$codeRef\n===<\n";
-        return $codeRef;
+        return;
     }
 
     sub patsub {
@@ -338,27 +340,28 @@ my ($if_lvl, $if0_lvl, $if0); # shared vars
 }  # block end
 
 # ---------------------------------------------------------------------
-# action:  Create a hash containing an entry (hf_... => 1) for each
-#             'static g?int hf_...' definition (including array names)
+# action:  Add to hash an entry for each
+#             'static? g?int hf_...' definition (including array names)
 #             in the input string.
+#          The entry value will be 0 for 'static' definitions and 1 for 'global' definitions;
 #          Remove each definition found from the input string.
-# args:    codeRef, fileName
+# args:    codeRef, fileName, hfDefsHRef
 # returns: ref to the hash
 
 sub find_remove_hf_defs {
-    my ($codeRef, $fileName) = @_;
+    my ($codeRef, $fileName, $hfDefsHRef) = @_;
 
     # Build pattern to match any of the following
-    #  static g?int hf_foo = -1;
-    #  static g?int hf_foo = HF_EMPTY;
-    #  static g?int hf_foo[xxx];
-    #  static g?int hf_foo[xxx] = {
+    #  static? g?int hf_foo = -1;
+    #  static? g?int hf_foo = HF_EMPTY;
+    #  static? g?int hf_foo[xxx];
+    #  static? g?int hf_foo[xxx] = {
 
-    # p1: 'static g?int hf_foo'
+    # p1: 'static? g?int hf_foo'
     my $p1RegEx = qr {
                           ^
                           \s*
-                          static
+                          (static)?
                           \s+
                           g?int
                           \s+
@@ -384,28 +387,26 @@ sub find_remove_hf_defs {
 
     my $hfDefRegEx = qr { $p1RegEx (?: $p2aRegEx | $p2bRegEx ) }xom;
 
-    my %hfDefs;
     while ($$codeRef =~ m{ $hfDefRegEx }xogm) {
-        #print "$1\n";
-        $hfDefs{$1} = 1;
+        #print ">%s< >$2<\n", (defined $1) ? $1 ; "";
+        $$hfDefsHRef{$2} = (defined $1) ? 0 : 1;
     }
-    ($debug == 3) && print_hash("VD: $fileName", \%hfDefs); # VariableDefinition
+    ($debug == 3) && debug_print_hash("VD: $fileName", $hfDefsHRef); # VariableDefinition
 
     # remove all
     $$codeRef =~ s{ $hfDefRegEx }{}xiogm;
     ($debug == 3) && print "==> After remove hfDefs: code: [$fileName]\n$$codeRef\n===<\n";
 
-    return \%hfDefs;
+    return;
 }
 
 # ---------------------------------------------------------------------
-# action:  Create a hash containing an entry (hf_...) for each hf[] entry.
-#          Remove each hf[] entry found from the input string.
-# args:    codeRef, fileName
-# returns: ref to the hfArrayEntry hash
+# action:  Add to hash an entry (hf_...) for each hf[] entry.
+#          Remove each hf[] entries found from the input string.
+# args:    codeRef, fileName, hfArrayEntriesHRef
 
 sub find_remove_hf_array_entries {
-    my ($codeRef, $fileName) = @_;
+    my ($codeRef, $fileName, $hfArrayEntriesHRef) = @_;
 
 #    hf[] entry regex (to extract an hf_index_name and associated field type)
     my $hfArrayEntryRegEx = qr /
@@ -433,25 +434,23 @@ sub find_remove_hf_array_entries {
                            /xos;
 
     # find all the hf[] entries (searching $$codeRef).
-    # Create a hash keyed by the hf_... string
-    my %hfArrayEntry;
     while ($$codeRef =~ m{ $hfArrayEntryRegEx }xgos) {
         ($debug == 98) && print "+++ $1 $2\n";
-        $hfArrayEntry{$1} = 1;
+        $$hfArrayEntriesHRef{$1} = 1;
     }
 
-    ($debug == 4) && print_hash("AE: $fileName", \%hfArrayEntry);  # ArrayEntry
+    ($debug == 4) && debug_print_hash("AE: $fileName", $hfArrayEntriesHRef);  # ArrayEntry
 
     # now remove all
     $$codeRef =~ s{ $hfArrayEntryRegEx }{}xgois;
-    ($debug == 4) && print "==> After remove hfArrayEntry: code: [$fileName]\n$$codeRef\n===<\n";
+    ($debug == 4) && print "==> After remove hfArrayEntries: code: [$fileName]\n$$codeRef\n===<\n";
 
-    return \%hfArrayEntry;
+    return;
 }
 
 # ---------------------------------------------------------------------
-# action: create hash of all hf_... strings remaining in input string.
-# arga:   codeRef, fileName
+# action: Add to hash all hf_... strings remaining in input string.
+# arga:   codeRef, fileName, hfUsageHRef
 # return: ref to hfUsage hash
 #
 # The hash will include *all* strings of form hf_...
@@ -461,29 +460,28 @@ sub find_remove_hf_array_entries {
 #   known valid vars against these strings.
 
 sub find_hf_usage {
-    my ($codeRef, $fileName) = @_;
+    my ($codeRef, $fileName, $hfUsageHRef) = @_;
 
     my $hfUsageRegEx = qr {
                               \b ( hf_[a-zA-Z0-9_]+ )      # hf_...
                       }ox;
-    my %hfUsage;
 
     while ($$codeRef =~ m{ $hfUsageRegEx }xog) {
         #print "$1\n";
-        $hfUsage{$1} += 1;
+        $$hfUsageHRef{$1} += 1;
     }
 
-    ($debug == 5) && print_hash("VU: $fileName", \%hfUsage); # VariableUsage
+    ($debug == 5) && debug_print_hash("VU: $fileName", $hfUsageHRef); # VariableUsage
 
-    return \%hfUsage;
+    return;
 }
 
 # ---------------------------------------------------------------------
-sub print_hash {
+sub debug_print_hash {
     my ($title, $HRef) = @_;
 
     ##print "==> $title\n";
     for my $k (sort keys %$HRef) {
-        printf "%-40.40s %s\n", $title, $k;
+        printf "%-40.40s %5.5s %s\n", $title, defined($$HRef{$k}) ? $$HRef{$k} : "undef", $k;
     }
 }
