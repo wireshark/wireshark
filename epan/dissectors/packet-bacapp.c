@@ -5044,13 +5044,24 @@ static guint
 fDevice_Instance (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, int hf)
 {
     guint8      tag_no, tag_info;
-    guint32     lvt;
+    guint32     lvt, safe_lvt;
     guint       tag_len;
     proto_item *ti;
     proto_tree *subtree;
 
     tag_len = fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-    ti = proto_tree_add_item(tree, hf, tvb, offset+tag_len, lvt, ENC_BIG_ENDIAN);
+
+    if (lvt > 4)
+        safe_lvt = 4;
+    else
+        safe_lvt = lvt;
+
+    ti = proto_tree_add_item(tree, hf, tvb, offset+tag_len, safe_lvt, ENC_BIG_ENDIAN);
+
+    if (lvt != safe_lvt)
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                "This field claims to be an impossible %u bytes, while the max is %u", lvt, safe_lvt);
+
     subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
     fTagHeaderTree (tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
 
