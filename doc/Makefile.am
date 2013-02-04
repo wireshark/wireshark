@@ -109,13 +109,13 @@ AUTHORS-SHORT-FORMAT: ../AUTHORS-SHORT $(srcdir)/make-authors-format.pl
 wireshark.pod: $(srcdir)/wireshark.pod.template AUTHORS-SHORT-FORMAT
 	$(AM_V_GEN)cat $(srcdir)/wireshark.pod.template AUTHORS-SHORT-FORMAT > wireshark.pod
 
-AM_V_POD2MAN = $(am__v_POD2MAN_$(V))
-am__v_POD2MAN_ = $(am__v_POD2MAN_$(AM_DEFAULT_VERBOSITY))
+AM_V_POD2MAN = $(am__v_POD2MAN_@AM_V@)
+am__v_POD2MAN_ = $(am__v_POD2MAN_@AM_DEFAULT_V@)
 am__v_POD2MAN_0 = @echo "  POD2MAN " $@;
 am__v_POD2MAN_1 = 
 
-AM_V_POD2HTML = $(am__v_POD2HTML_$(V))
-am__v_POD2HTML_ = $(am__v_POD2HTML_$(AM_DEFAULT_VERBOSITY))
+AM_V_POD2HTML = $(am__v_POD2HTML_@AM_V@)
+am__v_POD2HTML_ = $(am__v_POD2HTML_@AM_DEFAULT_V@)
 am__v_POD2HTML_0 = @echo "  POD2HTML" $@;
 am__v_POD2HTML_1 = 
 

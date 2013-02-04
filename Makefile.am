@@ -545,8 +545,8 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
 # FORCE is the portable version of .PHONY
 FORCE:
 
-AM_V_PERL = $(am__v_PERL_$(V))
-am__v_PERL_ = $(am__v_PERL_$(AM_DEFAULT_VERBOSITY))
+AM_V_PERL = $(am__v_PERL_@AM_V@)
+am__v_PERL_ = $(am__v_PERL_@AM_DEFAULT_V@)
 am__v_PERL_0 = @echo "  PERL    " $@;
 am__v_PERL_1 = 
 
