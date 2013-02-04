@@ -23,23 +23,23 @@
 
 AUTOMAKE_OPTIONS = -Wno-portability
 
-AM_V_AWK = $(am__v_AWK_$(V))
-am__v_AWK_ = $(am__v_AWK_$(AM_DEFAULT_VERBOSITY))
+AM_V_AWK = $(am__v_AWK_@AM_V@)
+am__v_AWK_ = $(am__v_AWK_@AM_DEFAULT_V@)
 am__v_AWK_0 = @echo "  AWK     " $@;
 am__v_AWK_1 = 
 
-AM_V_LEMON = $(am__v_LEMON_$(V))
-am__v_LEMON_ = $(am__v_LEMON_$(AM_DEFAULT_VERBOSITY))
+AM_V_LEMON = $(am__v_LEMON_@AM_V@)
+am__v_LEMON_ = $(am__v_LEMON_@AM_DEFAULT_V@)
 am__v_LEMON_0 = @echo "  LEMON   " $@;
 am__v_LEMON_1 = 
 
-AM_V_RUNLEX = $(am__v_RUNLEX_$(V))
-am__v_RUNLEX_ = $(am__v_RUNLEX_$(AM_DEFAULT_VERBOSITY))
+AM_V_RUNLEX = $(am__v_RUNLEX_@AM_V@)
+am__v_RUNLEX_ = $(am__v_RUNLEX_@AM_DEFAULT_V@)
 am__v_RUNLEX_0 = @echo "  RUNLEX  " $@;
 am__v_RUNLEX_1 = 
 
-AM_V_SED = $(am__v_SED_$(V))
-am__v_SED_ = $(am__v_SED_$(AM_DEFAULT_VERBOSITY))
+AM_V_SED = $(am__v_SED_@AM_V@)
+am__v_SED_ = $(am__v_SED_@AM_DEFAULT_V@)
 am__v_SED_0 = @echo "  SED     " $@;
 am__v_SED_1 = 
 
