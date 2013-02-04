@@ -158,7 +158,6 @@ static gint
 get_utp_version(tvbuff_t *tvb) {
   guint8 v0_flags, v0_ext;
   guint8 v1_ver_type, v1_ext;
-  gint   version;
   guint  len;
 
   /* Simple heuristics inspired by code from utp.cpp */
@@ -178,31 +177,18 @@ get_utp_version(tvbuff_t *tvb) {
   if (((v1_ver_type & 0x0f) == 1)             &&
       ((v1_ver_type>>4)     < ST_NUM_STATES) &&
       (v1_ext               < EXT_NUM_EXT)) {
-    version = 1;  /* V1 */
+    if (len < V1_FIXED_HDR_SIZE)
+      return -1;
+    return 1;
   }
   else if ((v0_flags < ST_NUM_STATES) ||
            (v0_ext   < EXT_NUM_EXT)) {
-    version = 0;  /* V0 */
+    if (len < V0_FIXED_HDR_SIZE)
+      return -1;
+    return 0;
   }
   else
     return -1;
-
-  switch(version) {
-  case 0:
-    if (len < V0_FIXED_HDR_SIZE)
-      return -1;
-    break;
-
-  case 1:
-    if (len < V1_FIXED_HDR_SIZE)
-      return -1;
-    break;
-
-  default:
-    return -1;
-  }
-
-  return version;
 }
 
 static int
