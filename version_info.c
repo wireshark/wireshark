@@ -607,7 +607,7 @@ void get_os_version_info(GString *str)
 /*
  * Get the CPU info, and append it to the GString
  */
-void get_cpu_info(GString *str)
+void get_cpu_info(GString *str _U_)
 {
 #if defined(_WIN32)
 	int CPUInfo[4];
