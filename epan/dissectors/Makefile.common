@@ -161,6 +161,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-qsig.c \
 	packet-ranap.c		\
 	packet-ros.c \
+	packet-rpki-rtr.c \
 	packet-rrc.c \
 	packet-rrlp.c \
 	packet-rtse.c \

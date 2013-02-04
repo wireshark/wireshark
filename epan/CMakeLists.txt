@@ -247,6 +247,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-qsig.c
 	dissectors/packet-ranap.c
 	dissectors/packet-ros.c
+	dissectors/packet-rpki-rtr.c
 	dissectors/packet-rrc.c
 	dissectors/packet-rrlp.c
 	dissectors/packet-rtse.c
