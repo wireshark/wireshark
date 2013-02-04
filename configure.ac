@@ -177,6 +177,7 @@ then
        CC_FOR_BUILD=$CC
 fi
 AC_SUBST(CC_FOR_BUILD)
+AC_SUBST(CFLAGS_FOR_BUILD)
 
 # Check for doxygen
 AC_PATH_PROG(DOXYGEN, doxygen)
@@ -639,6 +640,7 @@ else
 		# documentation I can find online.
 		#
 		CFLAGS="-Ae +O2 $CFLAGS"
+		CFLAGS_FOR_BUILD="-Ae +O2 $CFLAGS"
 		CXXFLAGS="+O2 $CFLAGS"
 		AC_MSG_RESULT(HP ANSI C compiler - added -Ae +O2)
 		;;

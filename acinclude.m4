@@ -1657,6 +1657,11 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                             # the saved value plus just the new option.
                             #
                             CFLAGS="$CFLAGS_saved $GCC_OPTION"
+                            #
+                            # Add it to the flags we use when building
+                            # build tools.
+                            #
+                            CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
                             if test "$2" != C ; then
                               #
                               # Add it to the C++ flags as well.
@@ -1675,6 +1680,11 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                         # the saved value plus just the new option.
                         #
                         CFLAGS="$CFLAGS_saved $GCC_OPTION"
+                        #
+                        # Add it to the flags we use when building
+                        # build tools.
+                        #
+                        CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
                         if test "$2" != C ; then
                           #
                           # Add it to the C++ flags as well.
