@@ -252,59 +252,58 @@ static int proto_dcm = -1;
 
 static int dicom_eo_tap = -1;
 
-static int hf_dcm_pdu = -1,
-    hf_dcm_pdu_len = -1,
-    hf_dcm_pdu_type = -1,
-    hf_dcm_assoc_version = -1,
-    hf_dcm_assoc_called = -1,
-    hf_dcm_assoc_calling = -1,
-    hf_dcm_assoc_reject_result = -1,
-    hf_dcm_assoc_reject_source = -1,
-    hf_dcm_assoc_reject_reason = -1,
-    hf_dcm_assoc_abort_source = -1,
-    hf_dcm_assoc_abort_reason = -1,
-    hf_dcm_assoc_item_type = -1,
-    hf_dcm_assoc_item_len = -1,
-    hf_dcm_actx = -1,
-    hf_dcm_pctx_id = -1,
-    hf_dcm_pctx_result = -1,
-    hf_dcm_pctx_abss_syntax = -1,
-    hf_dcm_pctx_xfer_syntax = -1,
-    hf_dcm_info_uid = -1,
-    hf_dcm_info_version = -1,
-    hf_dcm_pdu_maxlen = -1,
-    hf_dcm_pdv_len = -1,
-    hf_dcm_pdv_ctx = -1,
-    hf_dcm_pdv_flags = -1,
-    hf_dcm_data_tag = -1,
-    hf_dcm_tag = -1,
-    hf_dcm_tag_vr = -1,
-    hf_dcm_tag_vl = -1,
-    hf_dcm_tag_value_str = -1,
-    hf_dcm_tag_value_16u = -1,
-    hf_dcm_tag_value_16s = -1,
-    hf_dcm_tag_value_32s = -1,
-    hf_dcm_tag_value_32u = -1,
-    hf_dcm_tag_value_byte = -1;
+static int hf_dcm_pdu = -1;
+static int hf_dcm_pdu_len = -1;
+/* static int hf_dcm_pdu_type = -1; */
+static int hf_dcm_assoc_version = -1;
+static int hf_dcm_assoc_called = -1;
+static int hf_dcm_assoc_calling = -1;
+static int hf_dcm_assoc_reject_result = -1;
+static int hf_dcm_assoc_reject_source = -1;
+static int hf_dcm_assoc_reject_reason = -1;
+static int hf_dcm_assoc_abort_source = -1;
+static int hf_dcm_assoc_abort_reason = -1;
+static int hf_dcm_assoc_item_type = -1;
+static int hf_dcm_assoc_item_len = -1;
+static int hf_dcm_actx = -1;
+static int hf_dcm_pctx_id = -1;
+static int hf_dcm_pctx_result = -1;
+static int hf_dcm_pctx_abss_syntax = -1;
+static int hf_dcm_pctx_xfer_syntax = -1;
+static int hf_dcm_info_uid = -1;
+static int hf_dcm_info_version = -1;
+static int hf_dcm_pdu_maxlen = -1;
+static int hf_dcm_pdv_len = -1;
+static int hf_dcm_pdv_ctx = -1;
+static int hf_dcm_pdv_flags = -1;
+static int hf_dcm_data_tag = -1;
+static int hf_dcm_tag = -1;
+static int hf_dcm_tag_vr = -1;
+static int hf_dcm_tag_vl = -1;
+static int hf_dcm_tag_value_str = -1;
+static int hf_dcm_tag_value_16u = -1;
+static int hf_dcm_tag_value_16s = -1;
+static int hf_dcm_tag_value_32s = -1;
+static int hf_dcm_tag_value_32u = -1;
+static int hf_dcm_tag_value_byte = -1;
 
 
 /* Initialize the subtree pointers */
-static gint
-    ett_dcm = -1,
-    ett_assoc = -1,
-    ett_assoc_header = -1,
-    ett_assoc_actx = -1,
-    ett_assoc_pctx = -1,
-    ett_assoc_pctx_abss = -1,
-    ett_assoc_pctx_xfer = -1,
-    ett_assoc_info = -1,
-    ett_assoc_info_uid = -1,
-    ett_assoc_info_version = -1,
-    ett_dcm_data = -1,
-    ett_dcm_data_pdv = -1,
-    ett_dcm_data_tag = -1,
-    ett_dcm_data_seq = -1,
-    ett_dcm_data_item = -1;
+static gint ett_dcm = -1;
+static gint ett_assoc = -1;
+static gint ett_assoc_header = -1;
+static gint ett_assoc_actx = -1;
+static gint ett_assoc_pctx = -1;
+static gint ett_assoc_pctx_abss = -1;
+static gint ett_assoc_pctx_xfer = -1;
+static gint ett_assoc_info = -1;
+static gint ett_assoc_info_uid = -1;
+static gint ett_assoc_info_version = -1;
+static gint ett_dcm_data = -1;
+static gint ett_dcm_data_pdv = -1;
+static gint ett_dcm_data_tag = -1;
+static gint ett_dcm_data_seq = -1;
+static gint ett_dcm_data_item = -1;
 
 static dissector_handle_t dcm_handle;
 
@@ -6663,14 +6662,15 @@ static void dcm_apply_settings(void) {
 void
 proto_register_dcm(void)
 {
-/* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
     { &hf_dcm_pdu, { "PDU Type", "dicom.pdu.type",
 	FT_UINT8, BASE_HEX, VALS(dcm_pdu_ids), 0, NULL, HFILL } },
     { &hf_dcm_pdu_len, { "PDU Length", "dicom.pdu.len",
 	FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+#if 0
     { &hf_dcm_pdu_type, { "PDU Detail", "dicom.pdu.detail",
 	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+#endif
 
     { &hf_dcm_assoc_version, { "Protocol Version", "dicom.assoc.version",
 	FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -6867,11 +6867,6 @@ proto_register_dcm(void)
     register_init_routine(&dcm_init);
 }
 
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_dcm(void)
 {
