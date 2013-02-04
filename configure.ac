@@ -690,7 +690,8 @@ AC_SUBST(LDFLAGS_SHAREDLIB)
 # Enable silent builds by default
 # Verbose builds can be enabled with "./configure 
 # --enable-silent-rules ..." or "make V=1 ..."
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])],
+  [AC_SUBST([AM_DEFAULT_VERBOSITY], [1])])
 
 #
 # On "Darwin", which we assume to mean "OS X" rather than "iOS" or
