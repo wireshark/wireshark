@@ -176,7 +176,7 @@ static int hf_radiotap_flags = -1;
 static int hf_radiotap_datarate = -1;
 static int hf_radiotap_dbm_antsignal = -1;
 static int hf_radiotap_txpower = -1;
-static int hf_radiotap_fcs_bad = -1;
+/* static int hf_radiotap_fcs_bad = -1; */
 
 static int hf_radiotap_flags_cfp = -1;
 static int hf_radiotap_flags_preamble = -1;
@@ -704,9 +704,9 @@ static void
 wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree)
 {
     proto_tree *ft, *flags_tree = NULL;
-    proto_item *hdr_fcs_ti      = NULL;
+/*    proto_item *hdr_fcs_ti      = NULL; */
     int         align_offset, offset;
-    guint32     calc_fcs;
+/*    guint32     calc_fcs; */
     tvbuff_t   *next_tvb;
     guint       length;
     guint32     rate;
@@ -947,10 +947,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     /* Grab the rest of the frame. */
     next_tvb = tvb_new_subset(tvb, length, -1, -1);
 
+#if 0  /* XXX: 'hdr_fcs_ti' is never set so the following code will never be executed ? */
     /* If we had an in-header FCS, check it. */
     if (hdr_fcs_ti) {
-        /* XXX: 'hdr_fcs_ti' is never set so the following code will never be executed ? */
-        /*      Also: 'sent fcs' always 0 ?                      */
+        /* XXX: Also: 'sent fcs' always 0 ?                      */
         /*            'hf_radiotap_fcs_bad' has no entry in hf[] */
         /* It would be very strange for the header to have an FCS for the
          * frame *and* the frame to have the FCS at the end, but it's possible, so
@@ -978,6 +978,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
                 " [cannot verify - not enough data]");
         }
     }
+#endif
 
     /* dissect the 802.11 header next */
     call_dissector((rflags & IEEE80211_RADIOTAP_F_DATAPAD) ?
