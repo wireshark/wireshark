@@ -1760,7 +1760,7 @@ proto_register_pw_atm_ata(void)
 	};
 
 #define HF_INITIALIZER_NCELLS(hf_handle)				\
-	{ &(hf_handle)		,{"Number of good encapsulated cells","pw.atm.cells" \
+	{ &hf_handle		,{"Number of good encapsulated cells","pw.atm.cells" \
 				,FT_INT32	,BASE_DEC	,NULL		,0 \
 				,NULL						,HFILL }}
 
