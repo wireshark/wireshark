@@ -1721,11 +1721,9 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
     if (tag!= T_CONNECTION_DESCRIPTOR)
         return 0;
 
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb,
-                        offset_start, -1, "Connection descriptor");
-        conn_desc_tree = proto_item_add_subtree(ti, ett_dvbci_lsc_conn_desc);
-    }
+    ti = proto_tree_add_text(tree, tvb,
+            offset_start, -1, "Connection descriptor");
+    conn_desc_tree = proto_item_add_subtree(ti, ett_dvbci_lsc_conn_desc);
 
     proto_tree_add_item(conn_desc_tree, hf_dvbci_apdu_tag,
             tvb, offset, APDU_TAG_SIZE, ENC_BIG_ENDIAN);
@@ -1848,11 +1846,11 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
 
     offset_start = offset;
     dat_id = tvb_get_guint8(tvb, offset);
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset_start, -1, "CC data item: %s",
-                val_to_str_const(dat_id, dvbci_cc_dat_id, "unknown"));
-        cc_item_tree = proto_item_add_subtree(ti, ett_dvbci_cc_item);
-    }
+
+    ti = proto_tree_add_text(tree, tvb, offset_start, -1, "CC data item: %s",
+            val_to_str_const(dat_id, dvbci_cc_dat_id, "unknown"));
+    cc_item_tree = proto_item_add_subtree(ti, ett_dvbci_cc_item);
+
     proto_tree_add_item(cc_item_tree, hf_dvbci_cc_dat_id,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -2169,11 +2167,10 @@ dissect_ca_desc(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 "The ca_pmt shall only contain ca descriptors (tag 0x9)");
         return 0;
     }
-    if (tree) {
-        ti = proto_tree_add_text(
-                tree, tvb, offset_start, -1, "Conditional Access descriptor");
-        ca_desc_tree = proto_item_add_subtree(ti, ett_dvbci_ca_desc);
-    }
+
+    ti = proto_tree_add_text(
+            tree, tvb, offset_start, -1, "Conditional Access descriptor");
+    ca_desc_tree = proto_item_add_subtree(ti, ett_dvbci_ca_desc);
     offset++;
 
     len_byte = tvb_get_guint8(tvb,offset);
@@ -2211,11 +2208,8 @@ dissect_es(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 
     offset_start = offset;
 
-    if (tree) {
-        ti = proto_tree_add_text(
-                tree, tvb, offset_start, -1, "Elementary Stream");
-        es_tree = proto_item_add_subtree(ti, ett_dvbci_application);
-    }
+    ti = proto_tree_add_text(tree, tvb, offset_start, -1, "Elementary Stream");
+    es_tree = proto_item_add_subtree(ti, ett_dvbci_application);
 
     proto_tree_add_item(
             es_tree, hf_dvbci_stream_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2323,22 +2317,20 @@ dissect_res_id(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 RES_VER(res_id));
     }
 
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, tvb_data_len,
-                "Resource ID: 0x%04x", res_id);
-        res_tree = proto_item_add_subtree(ti, ett_dvbci_res);
+    ti = proto_tree_add_text(tree, tvb, offset, tvb_data_len,
+            "Resource ID: 0x%04x", res_id);
+    res_tree = proto_item_add_subtree(ti, ett_dvbci_res);
 
-        /* parameter "value" == complete resource id,
-           RES_..._MASK will be applied by the hf definition */
-        proto_tree_add_uint(res_tree, hf_dvbci_res_id_type,
-                  tvb, offset, tvb_data_len, res_id);
-        proto_tree_add_uint(res_tree, hf_dvbci_res_class,
-                  tvb, offset, tvb_data_len, res_id);
-        proto_tree_add_uint(res_tree, hf_dvbci_res_type,
-                  tvb, offset, tvb_data_len, res_id);
-        proto_tree_add_uint(res_tree, hf_dvbci_res_ver,
-                  tvb, offset, tvb_data_len, res_id);
-    }
+    /* parameter "value" == complete resource id,
+       RES_..._MASK will be applied by the hf definition */
+    proto_tree_add_uint(res_tree, hf_dvbci_res_id_type,
+            tvb, offset, tvb_data_len, res_id);
+    proto_tree_add_uint(res_tree, hf_dvbci_res_class,
+            tvb, offset, tvb_data_len, res_id);
+    proto_tree_add_uint(res_tree, hf_dvbci_res_type,
+            tvb, offset, tvb_data_len, res_id);
+    proto_tree_add_uint(res_tree, hf_dvbci_res_ver,
+            tvb, offset, tvb_data_len, res_id);
 
     return ti;
 }
@@ -3756,10 +3748,8 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
 
     apdu_len = tvb_reported_length(tvb);
 
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, apdu_len, "Application Layer");
-        app_tree = proto_item_add_subtree(ti, ett_dvbci_application);
-    }
+    ti = proto_tree_add_text(tree, tvb, 0, apdu_len, "Application Layer");
+    app_tree = proto_item_add_subtree(ti, ett_dvbci_application);
 
     tag = tvb_get_ntoh24(tvb, 0);
     tag_str = match_strval(tag, dvbci_apdu_tag);
@@ -3886,10 +3876,8 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     spdu_len = tvb_reported_length(tvb);
 
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, -1, "Session Layer");
-        sess_tree = proto_item_add_subtree(ti, ett_dvbci_session);
-    }
+    ti = proto_tree_add_text(tree, tvb, 0, -1, "Session Layer");
+    sess_tree = proto_item_add_subtree(ti, ett_dvbci_session);
 
     tag = tvb_get_guint8(tvb,0);
     tag_str = match_strval(tag, dvbci_spdu_tag);
@@ -4217,10 +4205,8 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, -1, "Transport Layer");
-        trans_tree = proto_item_add_subtree(ti, ett_dvbci_transport);
-    }
+    ti = proto_tree_add_text(tree, tvb, 0, -1, "Transport Layer");
+    trans_tree = proto_item_add_subtree(ti, ett_dvbci_transport);
 
     offset = dissect_dvbci_tpdu_hdr(tvb, pinfo, trans_tree, direction,
             lpdu_tcid, tpdu_len, &hdr_tag, &body_len);
@@ -4296,10 +4282,8 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_add_str(pinfo->cinfo, COL_INFO, "LPDU");
 
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb, 0, 2, "Link Layer");
-        link_tree = proto_item_add_subtree(ti, ett_dvbci_link);
-    }
+    ti = proto_tree_add_text(tree, tvb, 0, 2, "Link Layer");
+    link_tree = proto_item_add_subtree(ti, ett_dvbci_link);
 
     tcid = tvb_get_guint8(tvb, 0);
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "tcid %d", tcid);
