@@ -39,7 +39,7 @@
  * 3GUP Package
  * 3GPP TS 29.232 -- 15.1.1
  */
-static int hf_h248_package_3GUP = -1;
+static int proto_h248_package_3GUP = -1;
 
 static int hf_h248_package_3GUP_Mode = -1;
 static int hf_h248_package_3GUP_UPversions = -1;
@@ -126,7 +126,7 @@ static const h248_pkg_param_t h248_package_3GUP_properties[] = {
 
 static const h248_package_t h248_package_3GUP = {
 	0x002f,
-	&hf_h248_package_3GUP,
+	&proto_h248_package_3GUP,
 	&ett_h248_package_3GUP,
 	h248_3GUP_properties_vals,
 	NULL,
@@ -581,9 +581,9 @@ void proto_register_h248_3gpp(void) {
 		&ett_pkg_3GCSD_sig_actprot
 	};
 
-	hf_h248_package_3GUP = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_h248_package_3GUP = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-	proto_register_field_array(hf_h248_package_3GUP, hf, array_length(hf));
+	proto_register_field_array(proto_h248_package_3GUP, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
 
