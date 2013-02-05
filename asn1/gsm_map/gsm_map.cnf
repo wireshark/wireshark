@@ -144,6 +144,7 @@ SS-Code
 SS-Status
 SS-Info
 SS-ForBS-Code
+TBCD-STRING
 UnauthorizedLCSClient-Diagnostic
 USSD-DataCodingScheme
 USSD-String
