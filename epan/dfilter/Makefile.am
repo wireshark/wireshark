@@ -40,13 +40,12 @@ CLEANFILES = \
 
 DISTCLEANFILES = \
 	grammar.out	\
-	grammar.c	\
-	grammar.h
+	$(GENERATED_NODIST_FILES)
 
 MAINTAINERCLEANFILES = \
-	Makefile.in	\
-	scanner.c	\
-	scanner_lex.h
+	$(GENERATED_FILES)	\
+	$(GENERATED_NODIST_FILES)	\
+	Makefile.in
 
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. -I$(srcdir)/$(LEMON)
 
@@ -60,6 +59,10 @@ libdfilter_la_CFLAGS = $(AM_NON_GENERATED_CFLAGS)
 libdfilter_generated_la_SOURCES = \
 	$(GENERATED_C_FILES)	\
 	$(GENERATED_HEADER_FILES)
+
+nodist_libdfilter_generated_la_SOURCES = \
+	$(GENERATED_NODIST_C_FILES)	\
+	$(GENERATED_NODIST_HEADER_FILES)
 
 libdfilter_la_LIBADD = libdfilter_generated.la
 libdfilter_la_DEPENDENCIES = libdfilter_generated.la

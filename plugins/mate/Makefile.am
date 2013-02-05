@@ -39,6 +39,11 @@ mate_la_SOURCES = \
 	$(DISSECTOR_SUPPORT_SRC)	\
 	$(DISSECTOR_INCLUDES)
 
+nodist_mate_la_SOURCES = \
+	$(DISSECTOR_NODIST_SRC) \
+	$(DISSECTOR_SUPPORT_NODIST_SRC) \
+	$(DISSECTOR_NODIST_INCLUDES)
+
 mate_la_LDFLAGS = -module -avoid-version
 mate_la_LIBADD = @PLUGIN_LIBS@
 
