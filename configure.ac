@@ -1,6 +1,5 @@
 # $Id$
 #
-AC_PREREQ(2.60)
 
 m4_define([version_major], [1])
 m4_define([version_minor], [9])
@@ -9,6 +8,12 @@ m4_define([version_micro_extra], version_micro)
 m4_append([version_micro_extra], [])
 
 AC_INIT(wireshark, [version_major.version_minor.version_micro_extra], http://bugs.wireshark.org/, , http://www.wireshark.org/)
+
+# Minimum autoconf version we require.
+AC_PREREQ(2.60)
+# Variable expansion doesn't work in AC_PREREQ()
+AC_MIN_VERSION=2.60
+AC_SUBST(AC_MIN_VERSION)
 
 dnl Check for CPU / vendor / OS
 dnl The user is encouraged to use either `AC_CANONICAL_BUILD', or
@@ -690,7 +695,7 @@ esac
 AC_SUBST(LDFLAGS_SHAREDLIB)
 
 # Enable silent builds by default
-# Verbose builds can be enabled with "./configure 
+# Verbose builds can be enabled with "./configure
 # --enable-silent-rules ..." or "make V=1 ..."
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])],
   [AC_SUBST([AM_DEFAULT_VERBOSITY], [1])])
@@ -898,9 +903,14 @@ docdir=`(
 )`
 AC_DEFINE_UNQUOTED(DOC_DIR, "$docdir", [Directory for docs])
 
-# GTK+ and Qt checks; we require GTK+ 2.12 or later, and, for now,
-# don't require any particular version of Qt (except perhaps by
-# implication, as older versions might not support pkgconfig).
+GTK2_MIN_VERSION=2.12.0
+AC_SUBST(GTK2_MIN_VERSION)
+GTK3_MIN_VERSION=3.0.0
+AC_SUBST(GTK3_MIN_VERSION)
+# GTK+ and Qt checks; we require GTK+ $GTK2_MIN_VERSION or later or
+# GTK3_MIN_VERSION or later, and, for now, don't require any particular
+# version of Qt (except perhaps by implication, as older versions might not
+# support pkgconfig).
 #
 # We only do those if we're going to be building Wireshark;
 # otherwise, we don't have any GUI to build, so we don't use
@@ -985,7 +995,7 @@ if test "x$enable_wireshark" = "xyes"; then
 			], have_gtk=no)
 
 		else
-			AM_PATH_GTK_2_0(2.12.0,
+			AM_PATH_GTK_2_0($GTK2_MIN_VERSION,
 			[
 				CFLAGS="$CFLAGS $GTK_CFLAGS"
 				CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
@@ -1000,7 +1010,9 @@ else
 	have_gtk=no
 fi
 
-# GLib checks; we require GLib 2.14 or later, and require gmodule
+GLIB_MIN_VERSION=2.14.0
+AC_SUBST(GLIB_MIN_VERSION)
+# GLib checks; we require GLib $GLIB_MIN_VERSION or later, and require gmodule
 # support, as we need that for dynamically loading plugins.
 # If we found GTK+, this doesn't add GLIB_CFLAGS to CFLAGS, because
 # AM_PATH_GTK will add GTK_CFLAGS to CFLAGS, and GTK_CFLAGS is a
@@ -1056,20 +1068,20 @@ if test "$have_gtk" = "no" ; then
 		#
 		if test "x$enable_wireshark" = "xyes"; then
 			if test "x$with_gtk3" = "xyes"; then
-				AC_MSG_ERROR([GTK+ 3.0 or later isn't available, so Wireshark can't be compiled])
+				AC_MSG_ERROR([GTK+ $GTK3_MIN_VERSION or later isn't available, so Wireshark can't be compiled])
 			else
-				AC_MSG_ERROR([Neither Qt nor GTK+ 2.12 or later are available, so Wireshark can't be compiled])
+				AC_MSG_ERROR([Neither Qt nor GTK+ $GTK2_MIN_VERSION or later are available, so Wireshark can't be compiled])
 			fi
 		fi
 		wireshark_bin=""
 		wireshark_man=""
 	fi
 	# Use GLIB_CFLAGS
-	AM_PATH_GLIB_2_0(2.14.0,
+	AM_PATH_GLIB_2_0($GLIB_MIN_VERSION,
 	[
 		CFLAGS="$CFLAGS $GLIB_CFLAGS"
 		CXXFLAGS="$CXXFLAGS $GLIB_CFLAGS"
-	], AC_MSG_ERROR(GLib 2.14 or later distribution not found.), gthread gmodule)
+	], AC_MSG_ERROR(GLib $GLIB_MIN_VERSION or later distribution not found.), gthread gmodule)
 else
 	#
 	# We have GTK+, and thus will be building Wireshark (if the user
@@ -1080,7 +1092,7 @@ else
 	wireshark_man="wireshark.1"
 	wireshark_SUBDIRS="codecs ui/gtk"
 	# Don't use GLIB_CFLAGS
-	AM_PATH_GLIB_2_0(2.14.0, , AC_MSG_ERROR(GLib 2.14 or later distribution not found.), gthread gmodule)
+	AM_PATH_GLIB_2_0($GLIB_MIN_VERSION, , AC_MSG_ERROR(GLib $GLIB_MIN_VERSION or later distribution not found.), gthread gmodule)
 
 	CPPFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $CPPFLAGS"
 	## Define GTK_DISABLE_DEPRECATED only if GTK lt 3.2
