@@ -142,10 +142,15 @@ maintainer-clean: distclean
 
 RUNLEX = ..\..\tools\runlex.sh
 
+#
+# In order to generate mate_parser_lex.h, we need to run Flex on
+# mate_parser.l; that's done by generating mate_parser.c.
+#
 mate_parser_lex.h : mate_parser.c
+
 mate_parser.obj : mate_grammar.h
 mate_parser.obj : mate_parser.c
-	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c mate_parser.c
 
 mate_grammar.h : mate_grammar.c
 mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
