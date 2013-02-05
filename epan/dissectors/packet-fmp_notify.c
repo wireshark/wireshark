@@ -487,12 +487,30 @@ proto_register_fmp_notify(void)
                         "Status", "fmp_notify.status", FT_UINT32, BASE_DEC,
                         VALS(fmp_status_vals), 0, "Reply Status", HFILL }},
 
+               { &hf_fmp_extentList_len, {
+                       "Extent List length", "fmp_notify.extentListLength",
+                       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+               { &hf_fmp_numBlks, {
+                       "Number Blocks", "fmp_notify.numBlks", FT_UINT32,
+                       BASE_DEC, NULL, 0, NULL, HFILL }},
+
+               { &hf_fmp_volID, {
+                       "Volume ID", "fmp_notify.volID", FT_UINT32,
+                       BASE_DEC, NULL, 0, NULL, HFILL }},
+
+               { &hf_fmp_startOffset, {
+                       "Start Offset", "fmp_notify.startOffset", FT_UINT32,
+                       BASE_DEC, NULL, 0, NULL, HFILL }},
+
+               { &hf_fmp_extent_state, {
+                       "Extent State", "fmp_notify.extentState", FT_UINT32,
+                       BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_fmp_handleListLen, {
 			"Number File Handles", "fmp_notify.handleListLength",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			"Number of File Handles", HFILL }},
-
 
 		{ &hf_fmp_sessionHandle, {
                         "Session Handle", "fmp_notify.sessHandle", FT_BYTES, BASE_NONE,
