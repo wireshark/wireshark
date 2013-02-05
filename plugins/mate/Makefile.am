@@ -35,14 +35,12 @@ plugin_LTLIBRARIES = mate.la
 mate_la_SOURCES = \
 	plugin.c	\
 	moduleinfo.h	\
-	$(DISSECTOR_SRC)	\
-	$(DISSECTOR_SUPPORT_SRC)	\
-	$(DISSECTOR_INCLUDES)
+	$(SRC_FILES)	\
+	$(HEADER_FILES)
 
 nodist_mate_la_SOURCES = \
-	$(DISSECTOR_NODIST_SRC) \
-	$(DISSECTOR_SUPPORT_NODIST_SRC) \
-	$(DISSECTOR_NODIST_INCLUDES)
+	$(NODIST_SRC_FILES) \
+	$(NODIST_HEADER_FILES)
 
 mate_la_LDFLAGS = -module -avoid-version
 mate_la_LIBADD = @PLUGIN_LIBS@
@@ -67,7 +65,8 @@ LIBS =
 # preceded only by "void " starting in column zero, and must not be
 # inside #if.
 #
-# DISSECTOR_SRC is assumed to have all the files that need to be scanned.
+# DISSECTOR_SRC_FILES and NODIST_DISSECTOR_SRC_FILES are assumed to have
+# all the files that need to be scanned.
 #
 # For some unknown reason, having a big "for" loop in the Makefile
 # to scan all the files doesn't work with some "make"s; they seem to
@@ -85,16 +84,16 @@ LIBS =
 # a plugin.c file for a plugin.
 # All subsequent arguments are the files to scan.
 #
-plugin.c: $(DISSECTOR_SRC) Makefile.common $(top_srcdir)/tools/make-dissector-reg \
+plugin.c: $(DISSECTOR_SRC_FILES) $(NODIST_DISSECTOR_SRC_FILES) Makefile.common $(top_srcdir)/tools/make-dissector-reg \
     $(top_srcdir)/tools/make-dissector-reg.py
 	@if test -n "$(PYTHON)"; then \
 		echo Making plugin.c with python ; \
 		$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
-		    plugin $(DISSECTOR_SRC) ; \
+		    plugin $(DISSECTOR_SRC_FILES) $(NODIST_DISSECTOR_SRC_FILES) ; \
 	else \
 		echo Making plugin.c with shell script ; \
 		$(top_srcdir)/tools/make-dissector-reg $(srcdir) \
-		    $(plugin_src) plugin $(DISSECTOR_SRC) ; \
+		    $(plugin_src) plugin $(DISSECTOR_SRC_FILES) $(NODIST_DISSECTOR_SRC_FILES) ; \
 	fi
 
 #
@@ -120,14 +119,14 @@ CLEANFILES = \
 	*~
 
 DISTCLEANFILES = \
-	mate_grammar.out	\
-	mate_grammar.c		\
-	mate_grammar.h
+	mate_grammar.out \
+	$(NODIST_GENERATED_SRC_FILES) \
+	$(NODIST_GENERATED_HEADER_FILES)
 
 MAINTAINERCLEANFILES = \
-	Makefile.in		\
-	mate_parser.c		\
-	mate_parser_lex.h	\
+	Makefile.in \
+	$(GENERATED_SRC_FILES) \
+	$(GENERATED_HEADER_FILES) \
 	plugin.c
 
 EXTRA_DIST = \
@@ -154,4 +153,5 @@ mate_grammar.c mate_grammar.h : mate_grammar.lemon mate.h mate_util.h $(LEMON)/l
 mate_grammar.h : mate_grammar.c
 
 checkapi:
-	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build $(DISSECTOR_SRC) $(DISSECTOR_INCLUDES)
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
+		$(SRC_FILES) $(NODIST_SRC_FILES) $(HEADER_FILES)
