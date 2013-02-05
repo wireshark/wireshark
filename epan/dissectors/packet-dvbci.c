@@ -156,6 +156,9 @@
 #define SESS_CLOSED       0x00
 #define SESS_NB_NOT_ALLOC 0xF0
 
+/* circuit id from session number (16bit) and transport connection id * (8bit) */
+#define CT_ID(s,t) ((guint32)(s<<8|t))
+
 /* resource id */
 #define RES_ID_TYPE_MASK 0xC0000000
 #define RES_CLASS_MASK   0x3FFF0000
@@ -3861,7 +3864,7 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
 
 static void
 dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint8 direction)
+        guint8 direction, guint8 tcid)
 {
     guint32            spdu_len;
     proto_item        *ti          = NULL;
@@ -3956,7 +3959,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             }
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Session opened");
-            circuit = circuit_new(CT_DVBCI, (guint32)ssnb, pinfo->fd->num);
+            circuit = circuit_new(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->fd->num);
             if (circuit) {
                 /* we always add the resource id immediately after the circuit
                    was created */
@@ -3980,7 +3983,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ssnb = tvb_get_ntohs(tvb, offset+1);
             proto_tree_add_item(sess_tree, hf_dvbci_sess_nb,
                     tvb, offset+1, 2, ENC_BIG_ENDIAN);
-            circuit = find_circuit(CT_DVBCI, (guint32)ssnb, pinfo->fd->num);
+            circuit = find_circuit(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->fd->num);
             if (circuit)
                 close_circuit(circuit, pinfo->fd->num);
             break;
@@ -3998,7 +4001,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (ssnb && !circuit)
-        circuit = find_circuit(CT_DVBCI, (guint32)ssnb, pinfo->fd->num);
+        circuit = find_circuit(CT_DVBCI, CT_ID(ssnb, tcid), pinfo->fd->num);
 
     /* if the packet contains no resource id, we add the cached id from
        the circuit so that each packet has a resource id that can be
@@ -4272,7 +4275,7 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (payload_tvb)
-        dissect_dvbci_spdu(payload_tvb, pinfo, tree, direction);
+        dissect_dvbci_spdu(payload_tvb, pinfo, tree, direction, lpdu_tcid);
 }
 
 
