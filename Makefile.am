@@ -1060,19 +1060,19 @@ rpm-package: dist
 
 # Install some desktop files (for use with GNOME and/or freedesktop.org-compliant desktops?)
 install_desktop_files:
-	mkdir -p $(datarootdir)/{icons/gnome/{16x16,32x32,48x48,256x256}/mimetypes,mime/packages}
-	install -m 644 -T wireshark-mime-package.xml $(datarootdir)/mime/packages/wireshark.xml
-	install -m 644 -T wireshark.desktop $(datarootdir)/applications
-	mkdir -p $(datarootdir)/icons/hicolor/{16x16,32x32,48x48,64x64,256x256}/apps
-	install -m 644 image/wsicon16.png  $(datarootdir)/icons/hicolor/16x16/apps/wireshark.png
-	install -m 644 image/wsicon32.png  $(datarootdir)/icons/hicolor/32x32/apps/wireshark.png
-	install -m 644 image/wsicon48.png  $(datarootdir)/icons/hicolor/48x48/apps/wireshark.png
-	install -m 644 image/wsicon64.png  $(datarootdir)/icons/hicolor/64x64/apps/wireshark.png
-	install -m 644 image/wsicon256.png $(datarootdir)/icons/hicolor/256x256/apps/wireshark.png
-	install -m 644 -T image/WiresharkDoc-16.png  $(datarootdir)/icons/gnome/16x16/mimetypes/application-wireshark-doc.png
-	install -m 644 -T image/WiresharkDoc-32.png  $(datarootdir)/icons/gnome/32x32/mimetypes/application-wireshark-doc.png
-	install -m 644 -T image/WiresharkDoc-48.png  $(datarootdir)/icons/gnome/48x48/mimetypes/application-wireshark-doc.png
-	install -m 644 -T image/WiresharkDoc-256.png $(datarootdir)/icons/gnome/256x256/mimetypes/application-wireshark-doc.png
+	mkdir -p $(DESTDIR)/$(datarootdir)/{icons/gnome/{16x16,32x32,48x48,256x256}/mimetypes,mime/packages}
+	install -m 644 -T wireshark-mime-package.xml $(DESTDIR)/$(datarootdir)/mime/packages/wireshark.xml
+	install -m 644 -T wireshark.desktop $(DESTDIR)/$(datarootdir)/applications/wireshark.desktop
+	mkdir -p $(DESTDIR)/$(datarootdir)/icons/hicolor/{16x16,32x32,48x48,64x64,256x256}/apps
+	install -m 644 image/wsicon16.png  $(DESTDIR)/$(datarootdir)/icons/hicolor/16x16/apps/wireshark.png
+	install -m 644 image/wsicon32.png  $(DESTDIR)/$(datarootdir)/icons/hicolor/32x32/apps/wireshark.png
+	install -m 644 image/wsicon48.png  $(DESTDIR)/$(datarootdir)/icons/hicolor/48x48/apps/wireshark.png
+	install -m 644 image/wsicon64.png  $(DESTDIR)/$(datarootdir)/icons/hicolor/64x64/apps/wireshark.png
+	install -m 644 image/wsicon256.png $(DESTDIR)/$(datarootdir)/icons/hicolor/256x256/apps/wireshark.png
+	install -m 644 -T image/WiresharkDoc-16.png  $(DESTDIR)/$(datarootdir)/icons/gnome/16x16/mimetypes/application-wireshark-doc.png
+	install -m 644 -T image/WiresharkDoc-32.png  $(DESTDIR)/$(datarootdir)/icons/gnome/32x32/mimetypes/application-wireshark-doc.png
+	install -m 644 -T image/WiresharkDoc-48.png  $(DESTDIR)/$(datarootdir)/icons/gnome/48x48/mimetypes/application-wireshark-doc.png
+	install -m 644 -T image/WiresharkDoc-256.png $(DESTDIR)/$(datarootdir)/icons/gnome/256x256/mimetypes/application-wireshark-doc.png
 	@echo "Don't forget to run \"update-desktop-database\" and \"update-mime-database $(datarootdir)/mime\""
 
 srpm-package: dist
