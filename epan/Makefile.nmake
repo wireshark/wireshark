@@ -323,7 +323,7 @@ diam_dict.obj : diam_dict.c
 	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 dtd_parse_lex.h: dtd_parse.c
-dtd_parse.obj : dtd_parse.c
+dtd_parse.obj : dtd_parse.c dtd_grammar.h
 	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 dtd_preparse_lex.h: dtd_preparse.c
