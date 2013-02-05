@@ -7415,7 +7415,7 @@ static const value_string jpn_isup_type_2_add_mobile_serv_inf_vals[] = {
 };
 
 
-static void
+void
 dissect_japan_isup_additonal_user_cat(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
     int offset = 0;
