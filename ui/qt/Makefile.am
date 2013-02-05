@@ -64,6 +64,21 @@ libqtui_a_DEPENDENCIES =
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBGNUTLS_CFLAGS) $(PORTAUDIO_INCLUDES)
 
+AM_V_MOC = $(am__v_MOC_@AM_V@)
+am__v_MOC_ = $(am__v_MOC_@AM_DEFAULT_V@)
+am__v_MOC_0 = @echo "  MOC     " $@;
+am__v_MOC_1 = 
+
+AM_V_RCC = $(am__v_RCC_@AM_V@)
+am__v_RCC_ = $(am__v_RCC_@AM_DEFAULT_V@)
+am__v_RCC_0 = @echo "  RCC     " $@;
+am__v_RCC_1 = 
+
+AM_V_UIC = $(am__v_UIC_@AM_V@)
+am__v_UIC_ = $(am__v_UIC_@AM_DEFAULT_V@)
+am__v_UIC_0 = @echo "  UIC     " $@;
+am__v_UIC_1 = 
+
 #
 # For building .moc.cpp files from .h files by running moc
 # and building .rcc.cpp files from .qrc files by running rcc
@@ -71,13 +86,13 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBG
 SUFFIXES = .moc.cpp .qrc .rcc.cpp
 
 .h.moc.cpp:
-	$(MOC) -I.. -I../.. -o $@ $<
+	$(AM_V_MOC)$(MOC) -I.. -I../.. -o $@ $<
 
 .qrc.rcc.cpp:
-	rcc -name `basename $< .qrc` -o $@ $<
+	$(AM_V_RCC)rcc -name `basename $< .qrc` -o $@ $<
 
 ui_%.h: %.ui
-	$(UIC) $< -o $@
+	$(AM_V_UIC)$(UIC) $< -o $@
 
 # The Qt toolchain uses the naming convention moc_FOO.cpp. Should we do the same?
 #moc_%.cpp: %.h
