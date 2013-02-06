@@ -144,11 +144,12 @@ GENERATED_SRC_FILES = \
 #
 # All "clean" source files; they can be compiled with the regular
 # warning options, including -Werror with GCC-compatible compilers,
-# and can be run through checkAPI.
+# and can be run through checkAPI.  Neither Flex-generated nor
+# Lemon-generated files can be guaranteed to be clean.
 #
 CLEAN_SRC_FILES = \
 	$(DISSECTOR_SRC_FILES) \
-	$(LEMON_GENERATED_SRC_FILES)
+	$(SUPPORT_C_FILES)
 
 #
 # All C source files.
