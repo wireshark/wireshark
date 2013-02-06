@@ -80,7 +80,8 @@ static int hf_pn532_14443b_proto_info = -1;
 #define READ_GPIO                  0x0C
 #define WRITE_GPIO                 0x0E
 #define SET_SERIAL_BAUD_RATE       0x10
-#define SET_PARAMETERS             0x12
+#define SET_PARAMETERS_REQ         0x12
+#define SET_PARAMETERS_RSP         0x13
 #define SAM_CONFIGURATION          0x14
 #define POWER_DOWN                 0x16
 
@@ -155,7 +156,8 @@ static int hf_pn532_14443b_proto_info = -1;
 enum {
     SUB_DATA = 0,
     SUB_FELICA,
-
+    SUB_MIFARE,
+    
     SUB_MAX
 };
 
@@ -184,7 +186,11 @@ static const value_string pn532_commands[] = {
     {READ_GPIO,                  "ReadGPIO"},
     {WRITE_GPIO,                 "WriteGPIO"},
     {SET_SERIAL_BAUD_RATE,       "SetSerialBaudRate"},
-    {SET_PARAMETERS,             "SetParameters"},
+    
+    /* Set Parameters */
+    {SET_PARAMETERS_REQ,         "SetParameters"},
+    {SET_PARAMETERS_RSP,         "SetParameters (Response)"},
+    
     {SAM_CONFIGURATION,          "SAMConfiguration"},
     {POWER_DOWN,                 "PowerDown"},
 
@@ -352,7 +358,10 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
     case SET_SERIAL_BAUD_RATE:
         break;
 
-    case SET_PARAMETERS:
+    case SET_PARAMETERS_REQ:
+        break;
+
+    case SET_PARAMETERS_RSP:
         break;
 
     case SAM_CONFIGURATION:
@@ -462,6 +471,19 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
         break;
 
     case IN_DATA_EXCHANGE_REQ:
+      
+            if (sub_selected == SUB_MIFARE) {
+            /* Logical target number */
+            proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
+
+            /* Seems to work for payloads from LibNFC's "nfc-mfultralight" command */
+            next_tvb = tvb_new_subset_remaining(tvb, 3);
+            call_dissector(sub_handles[SUB_MIFARE], next_tvb, pinfo, tree);
+            } 
+            
+            else {
+            }
+            
         break;
 
     case IN_DATA_EXCHANGE_RSP:
@@ -478,6 +500,10 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
             next_tvb = tvb_new_subset_remaining(tvb, 3);
             call_dissector(sub_handles[SUB_FELICA], next_tvb, pinfo, tree);
             }
+            
+            /* MiFare transmissions may identify as spurious FeliCa packets, in some cases */
+            else {
+            }
       
         break;
 
@@ -490,6 +516,10 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
         /* Attempt to dissect FeliCa payloads */
             next_tvb = tvb_new_subset_remaining(tvb, 4);
             call_dissector(sub_handles[SUB_FELICA], next_tvb, pinfo, tree);
+            }
+            
+            /* MiFare transmissions may identify as spurious FeliCa packets, in some cases */
+            else {
             }
       
         break;
@@ -631,6 +661,7 @@ void proto_register_pn532(void)
     static const enum_val_t sub_enum_vals[] = {
         { "data", "Data", SUB_DATA },
         { "felica", "Sony FeliCa", SUB_FELICA },
+        { "mifare", "NXP MiFare", SUB_MIFARE },        
         { NULL, NULL, 0 }
     };
     
@@ -653,6 +684,7 @@ void proto_reg_handoff_pn532(void)
     
     sub_handles[SUB_DATA] = find_dissector("data");
     sub_handles[SUB_FELICA] = find_dissector("felica");
+    sub_handles[SUB_MIFARE] = find_dissector("mifare");    
 }
 
 /*
