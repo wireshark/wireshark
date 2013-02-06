@@ -25,6 +25,10 @@
 #ifndef __FILTER_EXPRESSIONS_H__
 #define __FILTER_EXPRESSIONS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct filter_expression {
 	gpointer button;	/* Filter toolbar */
 	gchar	*label;
@@ -43,5 +47,9 @@ struct filter_expression *filter_expression_new(const gchar *label,
     const gchar *expr, const gboolean enabled);
 
 void filter_expression_init(gboolean prefs);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __FILTER_EXPRESSIONS_H__ */
