@@ -44,8 +44,6 @@
 #include <QLineEdit>
 #include <QKeyEvent>
 
-#include <QDebug>
-
 const int visible_col_           = 0;
 const int title_col_             = 1;
 const int type_col_              = 2;
@@ -61,8 +59,8 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->setupUi(this);
 
     int one_em = ui->columnTreeWidget->fontMetrics().height();
-    ui->columnTreeWidget->setColumnWidth(3, one_em * 10);
-    ui->columnTreeWidget->setColumnWidth(4, one_em * 5);
+    ui->columnTreeWidget->setColumnWidth(custom_field_col_, one_em * 10);
+    ui->columnTreeWidget->setColumnWidth(custom_occurrence_col_, one_em * 5);
 
     ui->columnTreeWidget->setMinimumWidth(one_em * 20);
     ui->columnTreeWidget->setMinimumHeight(one_em * 12);
@@ -128,11 +126,6 @@ void ColumnPreferencesFrame::unstash()
     if (changed) {
         wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged);
     }
-}
-
-void ColumnPreferencesFrame::showEvent(QShowEvent *evt)
-{
-    Q_UNUSED(evt);
 }
 
 void ColumnPreferencesFrame::keyPressEvent(QKeyEvent *evt)
@@ -368,7 +361,7 @@ void ColumnPreferencesFrame::customFieldTextChanged(QString)
     const char *field_text = syntax_edit->text().toUtf8().constData();
     if (strlen(field_text) < 1) {
         syntax_edit->setSyntaxState(SyntaxLineEdit::Empty);
-    } else if (proto_check_field_name(field_text) != 0 || !dfilter_compile(field_text, &dfp)) {
+    } else if (!dfilter_compile(field_text, &dfp)) {
         syntax_edit->setSyntaxState(SyntaxLineEdit::Invalid);
     } else {
         syntax_edit->setSyntaxState(SyntaxLineEdit::Valid);

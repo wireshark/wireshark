@@ -1,4 +1,4 @@
-/* column_preferences_frame.h
+/* filter_expressions_preferences_frame.h
  *
  * $Id$
  *
@@ -21,55 +21,49 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef COLUMN_PREFERENCES_FRAME_H
-#define COLUMN_PREFERENCES_FRAME_H
+#ifndef FILTER_EXPRESSIONS_PREFERENCES_FRAME_H
+#define FILTER_EXPRESSIONS_PREFERENCES_FRAME_H
 
 #include <QFrame>
-#include <QComboBox>
+#include <QLineEdit>
 #include <QTreeWidgetItem>
 
 namespace Ui {
-class ColumnPreferencesFrame;
+class FilterExpressionsPreferencesFrame;
 }
 
-class ColumnPreferencesFrame : public QFrame
+class FilterExpressionsPreferencesFrame : public QFrame
 {
     Q_OBJECT
     
 public:
-    explicit ColumnPreferencesFrame(QWidget *parent = 0);
-    ~ColumnPreferencesFrame();
+    explicit FilterExpressionsPreferencesFrame(QWidget *parent = 0);
+    ~FilterExpressionsPreferencesFrame();
 
     void unstash();
-    
+
 protected:
     void keyPressEvent(QKeyEvent *evt);
 
 private:
-    Ui::ColumnPreferencesFrame *ui;
+    Ui::FilterExpressionsPreferencesFrame *ui;
 
     int cur_column_;
     QLineEdit *cur_line_edit_;
     QString saved_col_string_;
-    QComboBox *cur_combo_box_;
-    int saved_combo_idx_;
 
-    void addColumn(bool visible, const char *title, int fmt, const char *custom_field, int custom_occurrence);
-    void updateWidgets(void);
+    void addExpression(bool enabled, const char *label, char *expression);
 
 private slots:
-    void on_columnTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
-    void on_columnTreeWidget_itemActivated(QTreeWidgetItem *item, int column);
+    void updateWidgets(void);
+    void on_expressionTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+    void on_expressionTreeWidget_itemActivated(QTreeWidgetItem *item, int column);
     void lineEditDestroyed();
-    void comboDestroyed();
-    void columnTitleEditingFinished();
-    void columnTypeCurrentIndexChanged(int index);
-    void customFieldTextChanged(QString);
-    void customFieldEditingFinished();
-    void customOccurrenceTextChanged(QString);
-    void customOccurrenceEditingFinished();
+    void labelEditingFinished();
+    void expressionTextChanged(QString);
+    void expressionEditingFinished();
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
 };
 
-#endif // COLUMN_PREFERENCES_FRAME_H
+#endif // FILTER_EXPRESSIONS_PREFERENCES_FRAME_H

@@ -53,11 +53,13 @@
 #include "wsutil/file_util.h"
 
 #include "epan/column.h"
+#include "epan/filter_expressions.h"
 
 #include "ui/alert_box.h"
 #include "ui/capture_globals.h"
 #include "ui/help_url.h"
 #include "ui/main_statusbar.h"
+#include "ui/preference_utils.h"
 #include "ui/ssl_key_export.h"
 
 #include "capture_file_dialog.h"
@@ -67,16 +69,19 @@
 #include "preferences_dialog.h"
 #include "print_dialog.h"
 #include "profile_dialog.h"
+#include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
-#include <QMessageBox>
 #include <QClipboard>
+#include <QMessageBox>
 
 #include <QDebug>
 
 //
 // Public slots
 //
+
+const char *dfe_property_ = "display filter expression";
 
 void MainWindow::openCaptureFile(QString &cf_path, QString &display_filter)
 {
@@ -352,7 +357,7 @@ void MainWindow::configurationProfileChanged(const gchar *profile_name) {
     Q_UNUSED(profile_name);
     /* Update window view and redraw the toolbar */
 //    main_titlebar_update();
-//    filter_expression_reinit(FILTER_EXPRESSION_REINIT_CREATE);
+    filterExpressionsChanged();
 //    toolbar_redraw_all();
 
     /* Reload list of interfaces on welcome page */
@@ -362,7 +367,29 @@ void MainWindow::configurationProfileChanged(const gchar *profile_name) {
     recreatePacketList();
 
     /* Reload pane geometry, must be done after recreating the list */
-//    main_pane_load_window_geometry();
+    //    main_pane_load_window_geometry();
+}
+
+void MainWindow::filterExpressionsChanged()
+{
+    // Recreate filter buttons
+    foreach (QAction *act, main_ui_->displayFilterToolBar->actions()) {
+        // Permanent actions shouldn't have data
+        if (act->property(dfe_property_).isValid()) {
+            main_ui_->displayFilterToolBar->removeAction(act);
+            delete act;
+        }
+    }
+
+    for (struct filter_expression *fe = *pfilter_expression_head; fe != NULL; fe = fe->next) {
+        if (!fe->enabled) continue;
+        QAction *dfb_action = new QAction(fe->label, main_ui_->displayFilterToolBar);
+        dfb_action->setToolTip(fe->expression);
+        dfb_action->setData(fe->expression);
+        dfb_action->setProperty(dfe_property_, true);
+        main_ui_->displayFilterToolBar->addAction(dfb_action);
+        connect(dfb_action, SIGNAL(triggered()), this, SLOT(displayFilterButtonClicked()));
+    }
 }
 
 //
@@ -934,6 +961,47 @@ void MainWindow::recreatePacketList()
     packet_list_->show();
 
     cfile.columns_changed = FALSE; /* Reset value */
+}
+
+// On Qt4 + OS X with unifiedTitleAndToolBarOnMac set it's possible to make
+// the main window obnoxiously wide.
+
+// We might want to do something different here. We should probably merge
+// the dfilter and gui.filter_expressions code first.
+void MainWindow::addDisplayFilterButton(QString df_text)
+{
+    struct filter_expression *cur_fe = *pfilter_expression_head;
+    struct filter_expression *fe = g_new0(struct filter_expression, 1);
+
+    QFontMetrics fm = main_ui_->displayFilterToolBar->fontMetrics();
+    QString label = fm.elidedText(df_text, Qt::ElideMiddle, fm.height() * 15);
+
+    fe->enabled = TRUE;
+    fe->label = qstring_strdup(label);
+    fe->expression = qstring_strdup(df_text);
+
+    if (!cur_fe) {
+        *pfilter_expression_head = fe;
+    } else {
+        while (cur_fe->next) {
+            cur_fe = cur_fe->next;
+        }
+        cur_fe->next = fe;
+    }
+
+    prefs_main_write();
+    filterExpressionsChanged();
+}
+
+void MainWindow::displayFilterButtonClicked()
+{
+    QAction *dfb_action = qobject_cast<QAction*>(sender());
+
+    if (dfb_action) {
+        df_combo_box_->lineEdit()->setText(dfb_action->data().toString());
+        df_combo_box_->applyDisplayFilter();
+        df_combo_box_->lineEdit()->setFocus();
+    }
 }
 
 // File Menu

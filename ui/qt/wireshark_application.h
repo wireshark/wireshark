@@ -63,6 +63,7 @@ public:
 
     enum AppSignal {
         ColumnsChanged,
+        FilterExpressionsChanged,
         PacketDissectionChanged,
         PreferencesChanged
     };
@@ -107,6 +108,7 @@ signals:
     void configurationProfileChanged(const gchar *profile_name);
 
     void columnsChanged();
+    void filterExpressionsChanged();
     void packetDissectionChanged();
     void preferencesChanged();
 

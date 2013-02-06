@@ -25,8 +25,6 @@
 #ifndef __FILTER_EXPRESSIONS_H__
 #define __FILTER_EXPRESSIONS_H__
 
-#include "globals.h"
-
 struct filter_expression {
 	gpointer button;	/* Filter toolbar */
 	gchar	*label;
@@ -34,7 +32,7 @@ struct filter_expression {
 
 	gint	index;
 	gboolean enabled;	/* Can be set to FALSE by Preferences Dialog */
-	gboolean deleted;	/* Can be set to TRUE by Preferences Dialog */
+	gboolean deleted;	/* Can be set to TRUE by Preferences Dialog (GTK+ only) */
 
 	struct filter_expression *next;
 };

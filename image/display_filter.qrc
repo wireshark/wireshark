@@ -12,5 +12,7 @@
         <file>dfilter_apply_hover.png</file>
         <file>dfilter_apply_normal.png</file>
         <file>dfilter_apply_pressed.png</file>
+        <file>dfilter_apply_disabled.png</file>
+        <file>dfilter_bookmark_disabled.png</file>
     </qresource>
 </RCC>

@@ -184,25 +184,28 @@ win32:SOURCES_WS_C += \
 HEADERS_WS_C  = \
     ../../wsutil/privileges.h
 
-FORMS += main_window.ui \
+FORMS += \
+    capture_preferences_frame.ui \
+    column_preferences_frame.ui \
     export_object_dialog.ui \
     file_set_dialog.ui \
+    filter_expressions_preferences_frame.ui \
+    font_color_preferences_frame.ui \
     import_text_dialog.ui \
+    layout_preferences_frame.ui \
     main_welcome.ui \
+    main_window.ui \
+    main_window_preferences_frame.ui \
     packet_comment_dialog.ui \
     packet_format_group_box.ui \
     packet_range_group_box.ui \
+    preferences_dialog.ui \
     print_dialog.ui \
+    profile_dialog.ui \
     search_frame.ui \
     splash_overlay.ui \
     time_shift_dialog.ui \
-    profile_dialog.ui \
-    preferences_dialog.ui \
-    main_window_preferences_frame.ui \
-    layout_preferences_frame.ui \
-    column_preferences_frame.ui \
-    font_color_preferences_frame.ui \
-    capture_preferences_frame.ui
+
 
 win32 { ## These should be in config.pri ??
     !isEmpty(PORTAUDIO_DIR) {
@@ -227,21 +230,23 @@ win32 { ## These should be in config.pri ??
 
 HEADERS += $$HEADERS_WS_C \
     accordion_frame.h \
+    capture_preferences_frame.h \
+    column_preferences_frame.h \
     export_dissection_dialog.h \
     export_object_dialog.h \
+    filter_expressions_preferences_frame.h \
+    font_color_preferences_frame.h \
+    layout_preferences_frame.h \
+    main_window_preferences_frame.h \
     packet_comment_dialog.h \
     packet_format_group_box.h \
+    preferences_dialog.h \
     print_dialog.h \
+    profile_dialog.h \
     search_frame.h \
     splash_overlay.h \
     tango_colors.h \
-    profile_dialog.h \
-    preferences_dialog.h \
-    main_window_preferences_frame.h \
-    layout_preferences_frame.h \
-    column_preferences_frame.h \
-    font_color_preferences_frame.h \
-    capture_preferences_frame.h
+
 
 win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
@@ -348,11 +353,12 @@ win32 {
 
 RESOURCES += \
     ../../image/display_filter.qrc \
+    ../../image/layout.qrc \
     ../../image/status.qrc \
     ../../image/toolbar.qrc \
-    welcome.qrc \
     i18n.qrc \
-    ../../image/layout.qrc
+    welcome.qrc \
+
 
 TRANSLATIONS = \
         qtshark_de.ts	\
@@ -416,7 +422,8 @@ HEADERS += \
     sparkline_delegate.h \
     syntax_line_edit.h \
     time_shift_dialog.h \
-    wireshark_application.h
+    wireshark_application.h \
+
 
 SOURCES += \
     accordion_frame.cpp \
@@ -425,20 +432,26 @@ SOURCES += \
     capture_file_dialog.cpp \
     capture_info_dialog.cpp \
     capture_interface_dialog.cpp \
+    capture_preferences_frame.cpp \
     color_dialog.cpp \
     color_utils.cpp \
+    column_preferences_frame.cpp \
     display_filter_combo.cpp \
     display_filter_edit.cpp \
     export_dissection_dialog.cpp \
     export_object_dialog.cpp \
     file_set_dialog.cpp \
+    filter_expressions_preferences_frame.cpp \
+    font_color_preferences_frame.cpp \
     import_text_dialog.cpp \
     interface_tree.cpp \
     label_stack.cpp \
+    layout_preferences_frame.cpp \
     main.cpp \
     main_status_bar.cpp \
     main_welcome.cpp \
     main_window.cpp \
+    main_window_preferences_frame.cpp \
     main_window_slots.cpp \
     packet_comment_dialog.cpp \
     packet_format_group_box.cpp \
@@ -446,7 +459,9 @@ SOURCES += \
     packet_list_model.cpp \
     packet_list_record.cpp \
     packet_range_group_box.cpp \
+    preferences_dialog.cpp \
     print_dialog.cpp \
+    profile_dialog.cpp \
     progress_bar.cpp \
     proto_tree.cpp \
     qt_ui_utils.cpp \
@@ -457,11 +472,4 @@ SOURCES += \
     splash_overlay.cpp \
     syntax_line_edit.cpp \
     time_shift_dialog.cpp \
-    wireshark_application.cpp \
-    profile_dialog.cpp \
-    preferences_dialog.cpp \
-    main_window_preferences_frame.cpp \
-    layout_preferences_frame.cpp \
-    column_preferences_frame.cpp \
-    font_color_preferences_frame.cpp \
-    capture_preferences_frame.cpp
+    wireshark_application.cpp

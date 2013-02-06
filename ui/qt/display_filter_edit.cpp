@@ -104,7 +104,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     //     DispalyFilterEdit
     //     Clear button
     //     Apply (right arrow) + Cancel (x) + Reload (arrowed circle)
-    //     Down Arrow
+    //     Combo drop-down
 
     // XXX - Move bookmark and apply buttons to the toolbar a la Firefox, Chrome & Safari?
     // XXX - Use native buttons on OS X?
@@ -131,11 +131,14 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
             "QToolButton:pressed {"
             "  image: url(:/dfilter/dfilter_bookmark_pressed.png) center;"
             "}"
+            "QToolButton:disabled {"
+            "  image: url(:/dfilter/dfilter_bookmark_disabled.png) center;"
+            "}"
 
 
             ).arg(plain_ ? 0 : 1)
             );
-    connect(bookmark_button_, SIGNAL(clicked()), this, SLOT(showDisplayFilterDialog()));
+    connect(bookmark_button_, SIGNAL(clicked()), this, SLOT(bookmarkClicked()));
 
     clear_button_ = new QToolButton(this);
     clear_button_->setCursor(Qt::ArrowCursor);
@@ -174,6 +177,9 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
                 "}"
                 "QToolButton:pressed {"
                 "  image: url(:/dfilter/dfilter_apply_pressed.png) center;"
+                "}"
+                "QToolButton:disabled {"
+                "  image: url(:/dfilter/dfilter_apply_disabled.png) center;"
                 "}"
                 );
         connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyDisplayFilter()));
@@ -290,14 +296,15 @@ void DisplayFilterEdit::checkFilter(const QString& text)
         emit pushFilterSyntaxStatus(invalidMsg);
     }
 
+    bookmark_button_->setEnabled(syntaxState() == Valid || syntaxState() == Deprecated);
     if (apply_button_) {
-        apply_button_->setEnabled(SyntaxState() == Empty || syntaxState() == Valid);
+        apply_button_->setEnabled(SyntaxState() != Invalid);
     }
 }
 
-void DisplayFilterEdit::showDisplayFilterDialog()
+void DisplayFilterEdit::bookmarkClicked()
 {
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: implement display filter dialog for \"%s\"", this->text().toUtf8().constData());
+    emit addBookmark(text());
 }
 
 void DisplayFilterEdit::applyDisplayFilter()

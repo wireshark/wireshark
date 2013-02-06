@@ -36,11 +36,17 @@ format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs) 
     return (format_size_flags_e) ((int)lhs| (int)rhs);
 }
 
+
 /*
  * We might want to create our own "wsstring" class with convenience
  * methods for handling g_malloc()ed strings, GStrings, and a shortcut
  * to .toUtf8().constData().
  */
+
+gchar *qstring_strdup(QString q_string) {
+    return g_strdup(q_string.toUtf8().constData());
+}
+
 QString gchar_free_to_qstring(gchar *glib_string) {
     QString *qt_string = new QString(glib_string);
     g_free(glib_string);

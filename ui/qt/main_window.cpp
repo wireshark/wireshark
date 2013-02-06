@@ -99,7 +99,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
     connect(df_edit, SIGNAL(pushFilterSyntaxWarning(QString&)), main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
     connect(df_edit, SIGNAL(filterPackets(QString&,bool)), this, SLOT(filterPackets(QString&,bool)));
-    connect (this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
+    connect(df_edit, SIGNAL(addBookmark(QString)), this, SLOT(addDisplayFilterButton(QString)));
+    connect(this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
 
     // http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
     // http://qt-project.org/doc/qt-4.8/qstyle.html#StandardPixmap-enum
@@ -195,6 +196,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(recreatePacketList()));
     connect(wsApp, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
+    connect(wsApp, SIGNAL(appInitialized()),
+            this, SLOT(filterExpressionsChanged()));
+    connect(wsApp, SIGNAL(filterExpressionsChanged()),
+            this, SLOT(filterExpressionsChanged()));
 
     connect(main_welcome_, SIGNAL(startCapture()),
             this, SLOT(startCapture()));

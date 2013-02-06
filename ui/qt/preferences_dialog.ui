@@ -64,10 +64,7 @@
       </item>
       <item>
        <property name="text">
-        <string>Filter Expressions</string>
-       </property>
-       <property name="flags">
-        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
+        <string>Filter Bookmarks</string>
        </property>
       </item>
       <item>
@@ -112,7 +109,7 @@
       <widget class="ColumnPreferencesFrame" name="columnFrame"/>
       <widget class="FontColorPreferencesFrame" name="fontandcolorFrame"/>
       <widget class="CapturePreferencesFrame" name="captureFrame"/>
-      <widget class="QFrame" name="filterFrame"/>
+      <widget class="FilterExpressionsPreferencesFrame" name="filterExpressonsFrame"/>
       <widget class="QFrame" name="nameresolutionFrame"/>
       <widget class="QFrame" name="protocolsFrame"/>
       <widget class="QFrame" name="statisticsFrame"/>
@@ -218,6 +215,12 @@
    <class>CapturePreferencesFrame</class>
    <extends>QFrame</extends>
    <header>capture_preferences_frame.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FilterExpressionsPreferencesFrame</class>
+   <extends>QFrame</extends>
+   <header>filter_expressions_preferences_frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

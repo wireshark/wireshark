@@ -660,6 +660,7 @@ void PreferencesDialog::on_buttonBox_accepted()
     prefs_modules_foreach_submodules(NULL, module_prefs_unstash, (gpointer) &must_redissect);
 
     pd_ui_->columnFrame->unstash();
+    pd_ui_->filterExpressonsFrame->unstash();
 
     prefs_main_write();
 

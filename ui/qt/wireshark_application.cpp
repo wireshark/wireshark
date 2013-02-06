@@ -422,7 +422,6 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     /* Set profile name and update the status bar */
     set_profile_name (profile_name);
     emit configurationProfileChanged(profile_name);
-//    filter_expression_reinit(FILTER_EXPRESSION_REINIT_DESTROY);
 
     /* Reset current preferences and apply the new */
     prefs_reset();
@@ -444,8 +443,10 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     timestamp_set_seconds_type (recent.gui_seconds_format);
     color_filters_enable(recent.packet_list_colorize);
 
+
     prefsToCaptureOpts();
     prefs_apply_all();
+    emit filterExpressionsChanged();
 //    macros_post_update();
 
     /* Enable all protocols and disable from the disabled list */
@@ -595,6 +596,8 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
     case ColumnsChanged:
         emit columnsChanged();
         break;
+    case FilterExpressionsChanged:
+        emit filterExpressionsChanged();
     case PreferencesChanged:
         emit preferencesChanged();
         break;

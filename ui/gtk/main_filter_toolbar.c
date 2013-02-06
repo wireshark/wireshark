@@ -232,7 +232,7 @@ filter_toolbar_new(void)
                        filter_save,
                        -1);
 
-    gtk_widget_set_tooltip_text(GTK_WIDGET(filter_save), "Save this filter string");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(filter_save), "Create a button based on the current display filter");
 
     /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
      * of any widget that ends up calling a callback which needs
@@ -432,4 +432,3 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

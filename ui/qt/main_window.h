@@ -159,6 +159,7 @@ public slots:
     void captureFileClosed(const capture_file *cf);
 
     void configurationProfileChanged(const gchar *profile_name);
+    void filterExpressionsChanged();
 
 private slots:
     // in main_window_slots.cpp
@@ -175,6 +176,9 @@ private slots:
     void interfaceSelectionChanged();
     void redissectPackets();
     void recreatePacketList();
+
+    void addDisplayFilterButton(QString df_text);
+    void displayFilterButtonClicked();
 
     // We should probably move these to main_window_actions.cpp similar to
     // gtk/main_menubar.c
