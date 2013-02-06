@@ -154,4 +154,4 @@ mate_grammar.h : mate_grammar.c
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
-		$(CLEAN_SRC_FILES) $(HEADER_FILES)
+		$(CLEAN_SRC_FILES) $(CLEAN_HEADER_FILES)

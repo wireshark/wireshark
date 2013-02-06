@@ -153,4 +153,4 @@ $(LEMON)\lemon.exe:
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput -build \
-		$(CLEAN_SRC_FILES) $(HEADER_FILES)
+		$(CLEAN_SRC_FILES) $(CLEAN_HEADER_FILES)
