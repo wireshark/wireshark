@@ -548,7 +548,7 @@ FORCE:
 AM_V_PERL = $(am__v_PERL_@AM_V@)
 am__v_PERL_ = $(am__v_PERL_@AM_DEFAULT_V@)
 am__v_PERL_0 = @echo "  PERL    " $@;
-am__v_PERL_1 = 
+am__v_PERL_1 =
 
 svnversion.h: FORCE
 	$(AM_V_PERL)$(PERL) $(srcdir)/make-version.pl $(srcdir)
@@ -1060,7 +1060,7 @@ rpm-package: dist
 
 # Install some desktop files (for use with GNOME and/or freedesktop.org-compliant desktops?)
 install_desktop_files:
-	mkdir -p $(DESTDIR)/$(datarootdir)/{icons/gnome/{16x16,32x32,48x48,256x256}/mimetypes,mime/packages}
+	mkdir -p $(DESTDIR)/$(datarootdir)/{icons/gnome/{16x16,32x32,48x48,256x256}/mimetypes,mime/packages,applications}
 	install -m 644 -T wireshark-mime-package.xml $(DESTDIR)/$(datarootdir)/mime/packages/wireshark.xml
 	install -m 644 -T wireshark.desktop $(DESTDIR)/$(datarootdir)/applications/wireshark.desktop
 	mkdir -p $(DESTDIR)/$(datarootdir)/icons/hicolor/{16x16,32x32,48x48,64x64,256x256}/apps
