@@ -67,17 +67,14 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBG
 AM_V_MOC = $(am__v_MOC_@AM_V@)
 am__v_MOC_ = $(am__v_MOC_@AM_DEFAULT_V@)
 am__v_MOC_0 = @echo "  MOC     " $@;
-am__v_MOC_1 = 
 
 AM_V_RCC = $(am__v_RCC_@AM_V@)
 am__v_RCC_ = $(am__v_RCC_@AM_DEFAULT_V@)
 am__v_RCC_0 = @echo "  RCC     " $@;
-am__v_RCC_1 = 
 
 AM_V_UIC = $(am__v_UIC_@AM_V@)
 am__v_UIC_ = $(am__v_UIC_@AM_DEFAULT_V@)
 am__v_UIC_0 = @echo "  UIC     " $@;
-am__v_UIC_1 = 
 
 #
 # For building .moc.cpp files from .h files by running moc
