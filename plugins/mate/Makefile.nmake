@@ -13,13 +13,13 @@ include Makefile.common
 
 LEMON=..\..\tools\lemon
 
-# We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
-GENERATED_CFLAGS=\
+# We use DIRTY_CFLAGS to get around flex's non-LLP64-compliant output
+DIRTY_CFLAGS=\
 	$(STANDARD_CFLAGS) \
 	/I../.. $(GLIB_CFLAGS) /I$(LEMON) \
 	/I$(PCAP_DIR)\include
 
-CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(DIRTY_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS) -Fd.\ -c $<
@@ -30,28 +30,7 @@ LDFLAGS = $(PLUGIN_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib ..\..\wsutil\libwsutil.lib
 CFLAGS=/D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-DISSECTOR_OBJECTS = \
-	$(DISSECTOR_C_FILES:.c=.obj) \
-	$(DISSECTOR_CPP_FILES:.cpp=.obj)
-
-NODIST_DISSECTOR_OBJECTS = \
-	$(NODIST_DISSECTOR_C_FILES:.c=.obj) \
-	$(NODIST_DISSECTOR_CPP_FILES:.cpp=.obj)
-
-SUPPORT_OBJECTS = \
-	$(SUPPORT_C_FILES:.c=.obj) \
-	$(SUPPORT_CPP_FILES:.cpp=.obj)
-
-NODIST_SUPPORT_OBJECTS = \
-	$(NODIST_SUPPORT_C_FILES:.c=.obj) \
-	$(NODIST_SUPPORT_CPP_FILES:.cpp=.obj)
-
-OBJECTS = \
-	$(DISSECTOR_OBJECTS) \
-	$(NODIST_DISSECTOR_OBJECTS) \
-	$(SUPPORT_OBJECTS) \
-	$(NODIST_SUPPORT_OBJECTS) \
-	plugin.obj
+OBJECTS = $(C_FILES:.c=.obj) $(CPP_FILES:.cpp=.obj) plugin.obj
 
 RESOURCE=$(PLUGIN_NAME).res
 
@@ -148,9 +127,20 @@ RUNLEX = ..\..\tools\runlex.sh
 #
 mate_parser_lex.h : mate_parser.c
 
+#
+# We compile this specially because it's Flex-generated and thus
+# "warnings are errors" will fail because there's a bunch of
+# warnings we can't eliminate.
+#
+# It depends on mate_grammar.h to force mate_grammar.h to be
+# built before we try to compile it, as mate_parser.c includes
+# mate_grammar.h, and mate_grammar.h is not distributed with
+# the source (it's generated with Lemon).  That means we can't
+# use $?, as that would make it try to compile mate_grammar.h.
+#
 mate_parser.obj : mate_grammar.h
 mate_parser.obj : mate_parser.c
-	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c mate_parser.c
+	$(CC) $(DIRTY_CFLAGS) -Fd.\ -c mate_parser.c
 
 mate_grammar.h : mate_grammar.c
 mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
@@ -163,4 +153,4 @@ $(LEMON)\lemon.exe:
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput -build \
-		$(SRC_FILES) $(NODIST_SRC_FILES) $(HEADER_FILES)
+		$(CLEAN_SRC_FILES) $(HEADER_FILES)

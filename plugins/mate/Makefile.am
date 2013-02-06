@@ -89,11 +89,11 @@ plugin.c: $(DISSECTOR_SRC_FILES) $(NODIST_DISSECTOR_SRC_FILES) Makefile.common $
 	@if test -n "$(PYTHON)"; then \
 		echo Making plugin.c with python ; \
 		$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
-		    plugin $(DISSECTOR_SRC_FILES) $(NODIST_DISSECTOR_SRC_FILES) ; \
+		    plugin $(DISSECTOR_SRC_FILES) $(GENERATED_DISSECTOR_SRC_FILES) ; \
 	else \
 		echo Making plugin.c with shell script ; \
 		$(top_srcdir)/tools/make-dissector-reg $(srcdir) \
-		    $(plugin_src) plugin $(DISSECTOR_SRC_FILES) $(NODIST_DISSECTOR_SRC_FILES) ; \
+		    $(plugin_src) plugin $(DISSECTOR_SRC_FILES) $(GENERATED_DISSECTOR_SRC_FILES) ; \
 	fi
 
 #
@@ -120,8 +120,8 @@ CLEANFILES = \
 
 DISTCLEANFILES = \
 	mate_grammar.out \
-	$(NODIST_GENERATED_SRC_FILES) \
-	$(NODIST_GENERATED_HEADER_FILES)
+	$(NODIST_SRC_FILES) \
+	$(NODIST_HEADER_FILES)
 
 MAINTAINERCLEANFILES = \
 	Makefile.in \
@@ -154,4 +154,4 @@ mate_grammar.h : mate_grammar.c
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
-		$(SRC_FILES) $(NODIST_SRC_FILES) $(HEADER_FILES)
+		$(CLEAN_SRC_FILES) $(HEADER_FILES)
