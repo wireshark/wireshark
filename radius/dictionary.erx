@@ -218,8 +218,14 @@ ATTRIBUTE	ERX-Dhcp-Option-82			159	octets
 ATTRIBUTE	ERX-Vlan-Map-Id				160	integer
 ATTRIBUTE	ERX-IPv6-Delegated-Pool-Name		161	string
 
-ATTRIBUTE	Juniper-Redirect-GW-Address		162	ipaddr
-ATTRIBUTE	Juniper-APN-Name			163	string
+ATTRIBUTE	Juniper-Tx-Connect-Speed	162	integer
+ATTRIBUTE	Juniper-Rx-Connect-Speed	163 integer
+
+# ATTRIBUTE 164 - 173 RESERVED
+
+ATTRIBUTE	Unisphere-Client-Profile-Name	174 string
+ATTRIBUTE	Juniper-Redirect-GW-Address		175	ipaddr
+ATTRIBUTE	Juniper-APN-Name			176	string
 
 #
 #  Values	Attribute		Name			Number
