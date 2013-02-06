@@ -494,7 +494,7 @@ static int ws80211_create_on_demand_interface(const char *name)
 
 	devidx = if_nametoindex(name);
 	if (devidx)
-		return 0;
+		return ws80211_iface_up(name);
 
 	if (sscanf(name, "phy%d.mon", &phyidx) != 1)
 		return -EINVAL;
