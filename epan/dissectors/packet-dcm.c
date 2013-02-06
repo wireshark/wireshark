@@ -270,8 +270,16 @@ static int hf_dcm_pctx_id = -1;
 static int hf_dcm_pctx_result = -1;
 static int hf_dcm_pctx_abss_syntax = -1;
 static int hf_dcm_pctx_xfer_syntax = -1;
+static int hf_dcm_info = -1;
 static int hf_dcm_info_uid = -1;
 static int hf_dcm_info_version = -1;
+static int hf_dcm_info_extneg = -1;
+static int hf_dcm_info_extneg_sopclassuid_len = -1;
+static int hf_dcm_info_extneg_sopclassuid = -1;
+static int hf_dcm_info_extneg_relational_query = -1;
+static int hf_dcm_info_extneg_date_time_matching = -1;
+static int hf_dcm_info_extneg_fuzzy_semantic_matching = -1;
+static int hf_dcm_info_extneg_timezone_query_adjustment = -1;
 static int hf_dcm_pdu_maxlen = -1;
 static int hf_dcm_pdv_len = -1;
 static int hf_dcm_pdv_ctx = -1;
@@ -287,7 +295,6 @@ static int hf_dcm_tag_value_32s = -1;
 static int hf_dcm_tag_value_32u = -1;
 static int hf_dcm_tag_value_byte = -1;
 
-
 /* Initialize the subtree pointers */
 static gint ett_dcm = -1;
 static gint ett_assoc = -1;
@@ -299,6 +306,7 @@ static gint ett_assoc_pctx_xfer = -1;
 static gint ett_assoc_info = -1;
 static gint ett_assoc_info_uid = -1;
 static gint ett_assoc_info_version = -1;
+static gint ett_assoc_info_extneg = -1;
 static gint ett_dcm_data = -1;
 static gint ett_dcm_data_pdv = -1;
 static gint ett_dcm_data_tag = -1;
@@ -328,6 +336,7 @@ static const value_string dcm_assoc_item_type[] = {
     { 0x51, "Max Length" },
     { 0x52, "Implementation Class UID" },
     { 0x55, "Implementation Version" },
+    { 0x56, "SOP Class Extended Negotiation" },
     { 0, NULL }
 };
 
@@ -3401,8 +3410,19 @@ typedef struct dcm_uid {
     const gchar *type;
 } dcm_uid_t;
 
+#define DCM_UID_SOP_CLASS_VERIFICATION "1.2.840.10008.1.1"
+#define DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_FIND "1.2.840.10008.5.1.4.1.2.1.1"
+#define DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_MOVE "1.2.840.10008.5.1.4.1.2.1.2"
+#define DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_GET "1.2.840.10008.5.1.4.1.2.1.3"
+#define DCM_UID_SOP_CLASS_STUDY_ROOT_QR_FIND "1.2.840.10008.5.1.4.1.2.2.1"
+#define DCM_UID_SOP_CLASS_STUDY_ROOT_QR_MOVE "1.2.840.10008.5.1.4.1.2.2.2"
+#define DCM_UID_SOP_CLASS_STUDY_ROOT_QR_GET "1.2.840.10008.5.1.4.1.2.2.3"
+#define DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_FIND "1.2.840.10008.5.1.4.1.2.3.1"
+#define DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_MOVE "1.2.840.10008.5.1.4.1.2.3.2"
+#define DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_GET "1.2.840.10008.5.1.4.1.2.3.3"
+
 static dcm_uid_t dcm_uid_data[] = {
-    { "1.2.840.10008.1.1", "Verification SOP Class", "SOP Class"},
+    { DCM_UID_SOP_CLASS_VERIFICATION, "Verification SOP Class", "SOP Class"},
     { "1.2.840.10008.1.2", "Implicit VR Little Endian", "Transfer Syntax"},
     { "1.2.840.10008.1.2.1", "Explicit VR Little Endian", "Transfer Syntax"},
     { "1.2.840.10008.1.2.1.99", "Deflated Explicit VR Little Endian", "Transfer Syntax"},
@@ -3599,15 +3619,15 @@ static dcm_uid_t dcm_uid_data[] = {
     { "1.2.840.10008.5.1.4.1.1.481.7", "RT Treatment Summary Record Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.481.8", "RT Ion Plan Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.481.9", "RT Ion Beams Treatment Record Storage", "SOP Class"},
-    { "1.2.840.10008.5.1.4.1.2.1.1", "Patient Root Query/Retrieve Information Model - FIND", "SOP Class"},
-    { "1.2.840.10008.5.1.4.1.2.1.2", "Patient Root Query/Retrieve Information Model - MOVE", "SOP Class"},
-    { "1.2.840.10008.5.1.4.1.2.1.3", "Patient Root Query/Retrieve Information Model - GET", "SOP Class"},
-    { "1.2.840.10008.5.1.4.1.2.2.1", "Study Root Query/Retrieve Information Model - FIND", "SOP Class"},
-    { "1.2.840.10008.5.1.4.1.2.2.2", "Study Root Query/Retrieve Information Model - MOVE", "SOP Class"},
-    { "1.2.840.10008.5.1.4.1.2.2.3", "Study Root Query/Retrieve Information Model - GET", "SOP Class"},
-    { "1.2.840.10008.5.1.4.1.2.3.1", "Patient/Study Only Query/Retrieve Information Model - FIND (Retired)", "SOP Class"},
-    { "1.2.840.10008.5.1.4.1.2.3.2", "Patient/Study Only Query/Retrieve Information Model - MOVE (Retired)", "SOP Class"},
-    { "1.2.840.10008.5.1.4.1.2.3.3", "Patient/Study Only Query/Retrieve Information Model - GET (Retired)", "SOP Class"},
+    { DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_FIND, "Patient Root Query/Retrieve Information Model - FIND", "SOP Class"},
+    { DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_MOVE, "Patient Root Query/Retrieve Information Model - MOVE", "SOP Class"},
+    { DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_GET, "Patient Root Query/Retrieve Information Model - GET", "SOP Class"},
+    { DCM_UID_SOP_CLASS_STUDY_ROOT_QR_FIND, "Study Root Query/Retrieve Information Model - FIND", "SOP Class"},
+    { DCM_UID_SOP_CLASS_STUDY_ROOT_QR_MOVE, "Study Root Query/Retrieve Information Model - MOVE", "SOP Class"},
+    { DCM_UID_SOP_CLASS_STUDY_ROOT_QR_GET, "Study Root Query/Retrieve Information Model - GET", "SOP Class"},
+    { DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_FIND, "Patient/Study Only Query/Retrieve Information Model - FIND (Retired)", "SOP Class"},
+    { DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_MOVE, "Patient/Study Only Query/Retrieve Information Model - MOVE (Retired)", "SOP Class"},
+    { DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_GET, "Patient/Study Only Query/Retrieve Information Model - GET (Retired)", "SOP Class"},
     { "1.2.840.10008.5.1.4.31", "Modality Worklist Information Model - FIND", "SOP Class"},
     { "1.2.840.10008.5.1.4.32.1", "General Purpose Worklist Information Model - FIND", "SOP Class"},
     { "1.2.840.10008.5.1.4.32.2", "General Purpose Scheduled Procedure Step SOP Class", "SOP Class"},
@@ -3705,6 +3725,7 @@ static guint32  dissect_dcm_assoc_detail(tvbuff_t *tvb, packet_info *pinfo, prot
 static void	dissect_dcm_pctx	(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_assoc_t *assoc, guint32 offset, guint32 len, const gchar *pitem_prefix, gboolean request);
 static void	dissect_dcm_assoc_item  (tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gchar *pitem_prefix, int item_value_type, gchar **item_value, const gchar **item_description, int *hf_type, int *hf_len, int *hf_value, int ett_subtree);
 static void	dissect_dcm_userinfo    (tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 len, const gchar *pitem_prefix);
+static void dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 
 static guint32  dissect_dcm_pdu_data	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_assoc_t *assoc, guint32 offset, guint32 pdu_len, gchar **pdu_data_description);
 static guint32  dissect_dcm_pdv_header	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_assoc_t *assoc, guint32 offset, dcm_state_pdv_t **pdv);
@@ -4729,6 +4750,110 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     }
 }
 
+static void
+dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+{
+    /*
+     *	Decode the SOP Class Extended Negotiation Sub-Item Fields in a association request or response.
+     *	Lookup UIDs if requested
+     */
+
+    proto_tree *assoc_item_extneg_tree = NULL;	/* Tree for item details */
+    proto_item *assoc_item_extneg_item = NULL;
+
+    guint16 item_len  = 0;
+    guint16 sop_class_uid_len  = 0;
+    gint32 cnt = 0;
+
+    gchar *buf_desc = NULL;		/* Used for item text */
+    dcm_uid_t *sopclassuid=NULL;
+    gchar *sopclassuid_str = NULL;
+
+    buf_desc = (gchar *)ep_alloc0(MAX_BUF_LEN);	/* Valid for this packet */
+
+    item_len  = tvb_get_ntohs(tvb, offset+2);
+    sop_class_uid_len  = tvb_get_ntohs(tvb, offset+4);
+
+    assoc_item_extneg_item = proto_tree_add_item(tree, hf_dcm_info_extneg, tvb, offset, item_len+4, ENC_NA);
+    proto_item_set_text(assoc_item_extneg_item, "Ext. Neg.: ");
+    assoc_item_extneg_tree = proto_item_add_subtree(assoc_item_extneg_item, ett_assoc_info_extneg);
+
+    proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_assoc_item_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_assoc_item_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_sopclassuid_len, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+
+    sopclassuid_str = (gchar *)tvb_get_ephemeral_string(tvb, offset+6, sop_class_uid_len);
+    sopclassuid = (dcm_uid_t *)g_hash_table_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
+
+    if (sopclassuid) {
+        g_snprintf(buf_desc, MAX_BUF_LEN, "%s (%s)", sopclassuid->name, sopclassuid->value);
+    }
+    else {
+        g_snprintf(buf_desc, MAX_BUF_LEN, "%s", sopclassuid_str);
+    }
+
+    proto_item_append_text(assoc_item_extneg_item, "%s", buf_desc);
+    proto_tree_add_string(assoc_item_extneg_tree, hf_dcm_info_extneg_sopclassuid, tvb, offset+6, sop_class_uid_len, buf_desc);
+
+    /* Count how many fields are following. */
+    cnt = item_len - 2 - sop_class_uid_len;
+
+    /*
+     * The next field contains Service Class specific information identified by the SOP Class UID.
+     */
+    if (0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_FIND) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QR_FIND) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_FIND) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_MOVE) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QR_MOVE) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_MOVE) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_GET) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QR_GET) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_GET))
+    {
+        if (cnt<=0)
+        {
+            return;
+        }
+
+        /* Support for Relational queries. */
+        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_relational_query, tvb, offset+6+sop_class_uid_len, 1, ENC_NA);
+        --cnt;
+    }
+
+    /* More sub-items are only allowed for the C-FIND SOP Classes. */
+    if (0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_FIND) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_STUDY_ROOT_QR_FIND) ||
+        0 == strcmp(sopclassuid_str, DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_FIND))
+    {
+        if (cnt<=0)
+        {
+            return;
+        }
+
+        /* Combined Date-Time matching. */
+        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_date_time_matching, tvb, offset+7+sop_class_uid_len, 1, ENC_NA);
+        --cnt;
+
+        if (cnt<=0)
+        {
+            return;
+        }
+
+        /* Fuzzy semantic matching of person names. */
+        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_fuzzy_semantic_matching, tvb, offset+8+sop_class_uid_len, 1, ENC_NA);
+        --cnt;
+
+        if (cnt<=0)
+        {
+            return;
+        }
+
+        /* Timezone query adjustment. */
+        proto_tree_add_item(assoc_item_extneg_tree, hf_dcm_info_extneg_timezone_query_adjustment, tvb, offset+9+sop_class_uid_len, 1, ENC_NA);
+        --cnt;
+    }
+}
 
 static void
 dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -4952,7 +5077,8 @@ dissect_dcm_userinfo(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 le
     item_type = tvb_get_guint8(tvb, offset-4);
     item_len  = tvb_get_ntohs(tvb, offset-2);
 
-    userinfo_pitem = proto_tree_add_text(tree, tvb, offset-4, item_len+4, "%s", pitem_prefix);
+    userinfo_pitem = proto_tree_add_item(tree, hf_dcm_info, tvb, offset-4, item_len+4, ENC_NA);
+    proto_item_set_text(userinfo_pitem, "%s", pitem_prefix);
     userinfo_ptree = proto_item_add_subtree(userinfo_pitem, ett_assoc_info);
 
     proto_tree_add_uint(userinfo_ptree, hf_dcm_assoc_item_type, tvb, offset-4, 2, item_type);
@@ -4998,7 +5124,7 @@ dissect_dcm_userinfo(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 le
 
 	case 0x55:		/* version */
 
-    	    dissect_dcm_assoc_item(tvb, userinfo_ptree, offset-4,
+	    dissect_dcm_assoc_item(tvb, userinfo_ptree, offset-4,
 		"Implementation Version: ", DCM_ITEM_VALUE_TYPE_STRING, &info_impl_version, &dummy,
 		&hf_dcm_assoc_item_type, &hf_dcm_assoc_item_len, &hf_dcm_info_version, ett_assoc_info_version);
 
@@ -5013,6 +5139,13 @@ dissect_dcm_userinfo(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 le
 
 	case 0x53:		/* async negotiation */
 	    /* hf_dcm_async */
+	    offset += item_len;
+	    break;
+
+	case 0x56:		/* extended negotiation */
+
+	    dissect_dcm_assoc_sopclass_extneg(tvb, userinfo_ptree, offset-4);
+
 	    offset += item_len;
 	    break;
 
@@ -6703,10 +6836,26 @@ proto_register_dcm(void)
 	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pctx_xfer_syntax, { "Transfer Syntax", "dicom.pctx.xfer.syntax",
 	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_info, { "User Info", "dicom.userinfo",
+	FT_NONE, BASE_NONE, NULL, 0, "This field contains the ACSE User Information Item of the A-ASSOCIATErequest.", HFILL } },
     { &hf_dcm_info_uid, { "Implementation Class UID", "dicom.userinfo.uid",
 	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_info_version, { "Implementation Version", "dicom.userinfo.version",
 	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+    { &hf_dcm_info_extneg, { "Extended Negotiation", "dicom.userinfo.extneg",
+	FT_NONE, BASE_NONE, NULL, 0, "This field contains the optional SOP Class Extended Negotiation Sub-Item of the ACSE User Information Item of the A-ASSOCIATErequest.", HFILL } },
+    { &hf_dcm_info_extneg_sopclassuid_len, { "SOP Class UID Length", "dicom.userinfo.extneg.sopclassuid.len",
+	FT_UINT16, BASE_DEC, NULL, 0, "This field contains the length of the SOP Class UID in the Extended Negotiation Sub-Item.", HFILL } },
+    { &hf_dcm_info_extneg_sopclassuid, { "SOP Class UID", "dicom.userinfo.extneg.sopclassuid",
+	FT_STRING, BASE_NONE, NULL, 0, "This field contains the SOP Class UID in the Extended Negotiation Sub-Item.", HFILL } },
+    { &hf_dcm_info_extneg_relational_query, { "Relational-queries", "dicom.userinfo.extneg.relational",
+	FT_UINT8, BASE_HEX, NULL, 0, "This field indicates, if relational queries are supported.", HFILL } },
+    { &hf_dcm_info_extneg_date_time_matching, { "Combined Date-Time matching", "dicom.userinfo.extneg.datetimematching",
+	FT_UINT8, BASE_HEX, NULL, 0, "This field indicates, if combined date-time matching is supported.", HFILL } },
+    { &hf_dcm_info_extneg_fuzzy_semantic_matching, { "Fuzzy semantic matching", "dicom.userinfo.extneg.fuzzymatching",
+	FT_UINT8, BASE_HEX, NULL, 0, "This field indicates, if fuzzy semantic matching of person names is supported.", HFILL } },
+    { &hf_dcm_info_extneg_timezone_query_adjustment, { "Timezone query adjustment", "dicom.userinfo.extneg.timezone",
+	FT_UINT8, BASE_HEX, NULL, 0, "This field indicates, if timezone query adjustment is supported.", HFILL } },
     { &hf_dcm_pdu_maxlen, { "Max PDU Length", "dicom.max_pdu_len",
 	FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdv_len, { "PDV Length", "dicom.pdv.len",
@@ -6790,6 +6939,7 @@ proto_register_dcm(void)
 	    &ett_assoc_info,
 	    &ett_assoc_info_uid,
 	    &ett_assoc_info_version,
+	    &ett_assoc_info_extneg,
 	    &ett_dcm_data,
 	    &ett_dcm_data_pdv,
 	    &ett_dcm_data_tag,
