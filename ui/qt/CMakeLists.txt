@@ -39,6 +39,7 @@ set(QTSHARK_H_SRC
 	export_dissection_dialog.h
 	export_object_dialog.h
 	file_set_dialog.h
+	filter_expressions_preferences_frame.h
 	font_color_preferences_frame.h
 	import_text_dialog.h
 	interface_tree.h
@@ -88,6 +89,7 @@ set(QTSHARK_CPP_SRC
 	export_dissection_dialog.cpp
 	export_object_dialog.cpp
 	file_set_dialog.cpp
+	filter_expressions_preferences_frame.cpp
 	font_color_preferences_frame.cpp
 	import_text_dialog.cpp
 	interface_tree.cpp
@@ -130,6 +132,7 @@ set(QTSHARK_UI
 	column_preferences_frame.ui
 	export_object_dialog.ui
 	file_set_dialog.ui
+	filter_expressions_preferences_frame.ui
 	font_color_preferences_frame.ui
 	import_text_dialog.ui
 	layout_preferences_frame.ui
