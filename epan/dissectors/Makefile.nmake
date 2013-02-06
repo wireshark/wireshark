@@ -57,7 +57,7 @@ packet-rrc.obj : packet-rrc.c
 # preceded only by "void " starting in column zero, and must not be
 # inside #if.
 #
-# DISSECTOR_SRC is assumed to have all the files that need to be scanned.
+# ALL_DISSECTORS_SRC is assumed to have all the files that need to be scanned.
 #
 # For some unknown reason, having a big "for" loop in the Makefile
 # to scan all the files doesn't work with some "make"s; they seem to
