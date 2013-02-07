@@ -1049,13 +1049,12 @@ rpm-package: dist
 		mkdir -p BUILD RPMS SOURCES ; \
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.bz2 ; \
-		ln -s ../../../wireshark.desktop ; \
-		ln -s ../../../image/wsicon64.png wireshark.png ; \
 		cd .. ; \
 		rpmbuild --define "_topdir `cd . && pwd`" -bb SPECS/wireshark.spec && \
 			echo "Package successfully built in `pwd`/RPMS." ; \
 	else \
 		echo "Error: RPM executable and/or source directory not found." ; \
+		false; \
 	fi
 
 # Install some desktop files (for use with GNOME and/or freedesktop.org-compliant desktops?)
