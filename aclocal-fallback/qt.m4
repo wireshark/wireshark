@@ -8,7 +8,7 @@ dnl
 AC_DEFUN([AM_PATH_QT],
 [
 
-  pkg_config_module=Qt
+  pkg_config_module=QtCore
 
   no_qt=""
 
