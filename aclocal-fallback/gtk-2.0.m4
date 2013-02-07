@@ -1,5 +1,6 @@
 # Configure paths for GTK+
 # Owen Taylor     1997-2001
+# $Id$
 
 dnl AM_PATH_GTK_2_0([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND [, MODULES]]]])
 dnl Test for GTK+, and define GTK_CFLAGS and GTK_LIBS, if gthread is specified in MODULES,
@@ -12,7 +13,7 @@ dnl
 AC_ARG_ENABLE(gtktest, [  --disable-gtktest       do not try to compile and run a test GTK+ program],
 		    , enable_gtktest=yes)
 
-  pkg_config_args=gtk+-2.0
+  pkg_config_module=gtk+-2.0
   for module in . $4
   do
       # No modules to check for now
@@ -40,12 +41,12 @@ AC_ARG_ENABLE(gtktest, [  --disable-gtktest       do not try to compile and run 
 
   if test x$PKG_CONFIG != xno ; then
     ## don't try to run the test against uninstalled libtool libs
-    if $PKG_CONFIG --uninstalled $pkg_config_args; then
+    if $PKG_CONFIG --uninstalled $pkg_config_module; then
 	  echo "Will use uninstalled version of GTK+ found in PKG_CONFIG_PATH"
 	  enable_gtktest=no
     fi
 
-    if $PKG_CONFIG --atleast-version $min_gtk_version $pkg_config_args; then
+    if $PKG_CONFIG --atleast-version $min_gtk_version $pkg_config_module; then
 	  :
     else
 	  no_gtk=yes
@@ -53,13 +54,13 @@ AC_ARG_ENABLE(gtktest, [  --disable-gtktest       do not try to compile and run 
   fi
 
   if test x"$no_gtk" = x ; then
-    GTK_CFLAGS=`$PKG_CONFIG --cflags $pkg_config_args`
-    GTK_LIBS=`$PKG_CONFIG --libs $pkg_config_args`
-    gtk_config_major_version=`$PKG_CONFIG --modversion gtk+-2.0 | \
+    GTK_CFLAGS=`$PKG_CONFIG --cflags $pkg_config_module`
+    GTK_LIBS=`$PKG_CONFIG --libs $pkg_config_module`
+    gtk_config_major_version=`$PKG_CONFIG --modversion $pkg_config_module | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
-    gtk_config_minor_version=`$PKG_CONFIG --modversion gtk+-2.0 | \
+    gtk_config_minor_version=`$PKG_CONFIG --modversion $pkg_config_module | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
-    gtk_config_micro_version=`$PKG_CONFIG --modversion gtk+-2.0 | \
+    gtk_config_micro_version=`$PKG_CONFIG --modversion $pkg_config_module | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
     if test "x$enable_gtktest" = "xyes" ; then
       ac_save_CFLAGS="$CFLAGS"
@@ -95,7 +96,7 @@ main ()
       (gtk_minor_version != $gtk_config_minor_version) ||
       (gtk_micro_version != $gtk_config_micro_version))
     {
-      printf("\n*** 'pkg-config --modversion gtk+-2.0' returned %d.%d.%d, but GTK+ (%d.%d.%d)\n",
+      printf("\n*** 'pkg-config --modversion $pkg_config_module' returned %d.%d.%d, but GTK+ (%d.%d.%d)\n",
              $gtk_config_major_version, $gtk_config_minor_version, $gtk_config_micro_version,
              gtk_major_version, gtk_minor_version, gtk_micro_version);
       printf ("*** was found! If pkg-config was correct, then it is best\n");
