@@ -2,24 +2,105 @@
 # $Id$
 # @configure_input@
 
-%define ver      @VERSION@
-%define rel      2
-%define prefix   /usr
+# Set these to 1 if you want to ensure your package inclues support for them:
+%global with_adns 0
+%global with_lua  1
+%global with_portaudio 0
+
+# Set to 1 if you want GTK3 instead of GTK2:
+%global with_gtk3 0
+
+# Set at most one of these two:
+# Note that setcap requires rpmbuild 4.7.0 or later.
+%global setuid_dumpcap 0
+%global setcap_dumpcap 1
+
+# Set to 1 if you want a group called 'wireshark' which users must be a member
+# of in order to run dumpcap.  Only used if setuid_dumpcap or setcap_dumpcap
+# are set.
+%global use_wireshark_group 1
+
 
 Summary:	Network protocol analyzer
 Name:		wireshark
-Version:	%ver
-Release:	%rel
-License:	GPL
-Group:		Networking/Utilities
-Source:		http://wireshark.org/download/automated/src/%{name}-%{version}.tar.bz2
-Source1:	%{name}.desktop
-Source2:	%{name}.png
+Version:	@VERSION@
+Release:	1
+License:	GPL+
+Group:		Applications/Internet
+Source:		http://wireshark.org/download/src/%{name}-%{version}.tar.bz2
+# Or this URL for automated builds:
+#Source:	http://wireshark.org/download/automated/src/%{name}-%{version}.tar.bz2
 URL:		http://www.wireshark.org/
 BuildRoot:	/tmp/wireshark-%{PACKAGE_VERSION}-root
 Packager:	Gerald Combs <gerald[AT]wireshark.org>
-Requires:	gtk2
-Requires:	libpcap openssl
+
+BuildRequires:  autoconf >= @AC_MIN_VERSION@
+BuildRequires:	flex, bison
+BuildRequires:	python
+
+BuildRequires:	glib2-devel >= @GLIB_MIN_VERSION@
+Requires:	glib2 >= @GLIB_MIN_VERSION@
+BuildRequires:	libpcap-devel
+Requires:	libpcap
+BuildRequires:	zlib-devel
+Requires:	zlib
+
+%if %{with_adns}
+BuildRequires:	adns-devel
+Requires:	adns
+%endif
+%if %{with_lua}
+BuildRequires:	lua-devel
+Requires:	lua
+%endif
+
+# Uncomment these if you want to be sure you get them...
+#BuildRequires:	krb5-devel
+#BuildRequires:	libsmi-devel
+#BuildRequires:	pcre-devel
+#BuildRequires:	libselinux
+#BuildRequires:	gnutls-devel
+#BuildRequires:	libcap-devel
+#BuildRequires:	c-ares-devel
+#Requires:	c-ares
+
+%if %{use_wireshark_group}
+Requires(pre):	shadow-utils
+%endif
+Requires(post):	desktop-file-utils
+
+%if %{setcap_dumpcap}
+BuildRequires: rpm-build >= 4.7.0
+%endif
+
+# Some distributions create a wireshark-devel package; get rid of it
+Obsoletes:      wireshark-devel
+
+
+%package	gnome
+Summary:	Gnome desktop integration for wireshark
+Group:		Applications/Internet
+%if %{with_gtk3}
+Requires:	gtk3 >= @GTK3_MIN_VERSION@
+BuildRequires:  gtk3-devel >= @GTK3_MIN_VERSION@
+%else
+Requires:	gtk2 >= @GTK2_MIN_VERSION@
+BuildRequires:  gtk2-devel >= @GTK2_MIN_VERSION@
+%endif
+Requires:	wireshark = %{version}-%{release}
+Requires:	xdg-utils
+Requires:	hicolor-icon-theme
+%if %{with_portaudio}
+BuildRequires:	portaudio-devel
+Requires:	portaudio
+%endif
+
+# Uncomment these if you want to be sure you get them...
+#BuildRequires:	GeoIP-devel
+#Requires:	GeoIP
+# Add this for more readable fonts on some distributions/versions
+#Requires:	dejavu-sans-mono-fonts
+
 
 %description
 Wireshark is a free network protocol analyzer for Unix and Windows. It
@@ -29,28 +110,139 @@ and detail information for each packet. Wireshark has several powerful
 features, including a rich display filter language and the ability to
 view the reconstructed stream of a TCP session.
 
+This package contains command-line utilities, plugins, and documentation for
+Wireshark. A GTK+ graphical user interface is packaged separately.
+
+%description gnome
+Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
+
 %prep
-%setup
-CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%prefix --with-ssl=/usr --with-krb5
-make
+%setup -q -n %{name}-%{version}
+
+%configure \
+   --libdir=%{_libdir} \
+  --with-gnu-ld \
+%if %{with_adns}
+  --with-adns \
+%endif
+%if %{with_lua}
+  --with-lua \
+%endif
+%if %{with_portaudio}
+  --with-portaudio \
+%endif
+%if %{with_gtk3}
+  --with-gtk3 \
+%endif
+  --disable-warnings-as-errors
+
+make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
+make DESTDIR=$RPM_BUILD_ROOT install_desktop_files
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%if %{use_wireshark_group}
+%pre
+getent group wireshark >/dev/null || groupadd -r wireshark
+%endif
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%post gnome
+update-desktop-database &> /dev/null ||:
+update-mime-database %{_datadir}/mime &> /dev/null || :
+touch --no-create %{_datadir}/icons/gnome &>/dev/null || :
+touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
+
+%postun gnome
+update-desktop-database &> /dev/null ||:
+update-mime-database %{_datadir}/mime &> /dev/null || :
+if [ $1 -eq 0 ] ; then
+	touch --no-create %{_datadir}/icons/gnome &>/dev/null
+	gtk-update-icon-cache %{_datadir}/icons/gnome &>/dev/null || :
+
+	touch --no-create %{_datadir}/icons/hicolor &>/dev/null
+	gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+fi
+
+# Is this really needed?
+%posttrans
+gtk-update-icon-cache %{_datadir}/icons/gnome &>/dev/null || :
+gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+
+
 %files
-%defattr(-, root, root)
-%doc AUTHORS COPYING ChangeLog INSTALL NEWS README*
-%prefix/bin/*
-%prefix/lib/*
-%prefix/share/wireshark/*
-%prefix/share/wireshark/*/*
-%prefix/share/man/*/*
+%defattr(-,root,root)
+%doc AUTHORS COPYING ChangeLog INSTALL INSTALL.configure NEWS README*
+# Don't pick up the wireshark (GUI) binary here
+%exclude %{_bindir}/wireshark
+%{_bindir}/*
+
+# This generates a warning because dumpcap is listed twice. That's
+# probably preferable to listing each program (and keeping the list up to
+# date)...  Maybe if we can find a way to get the toplevel Makefile.am's
+# bin_PROGRAMS in here?
+%if %{use_wireshark_group} && %{setuid_dumpcap}
+# Setuid but only executable by members of the 'wireshark' group
+%attr(4750, root, wireshark) %{_bindir}/dumpcap
+%else
+%if %{use_wireshark_group} && %{setcap_dumpcap}
+# Setcap but only executable by members of the 'wireshark' group
+%attr(0750, root, wireshark) %caps(cap_net_raw,cap_net_admin=eip) %{_bindir}/dumpcap
+%else
+%if %{setuid_dumpcap}
+# Setuid and executable by all
+%attr(4755, root, root) %{_bindir}/dumpcap
+%else
+%if %{setcap_dumpcap}
+# Setcap and executable by all
+%attr(0755, root, root) %caps(cap_net_raw,cap_net_admin=eip) %{_bindir}/dumpcap
+%else
+# Executable by all but with no special permissions
+%attr(0755, root, root) %{_bindir}/dumpcap
+%endif
+%endif
+%endif
+%endif
+
+%{_libdir}/lib*.so*
+%exclude %{_libdir}/%{name}/plugins/%{version}/*.la
+%exclude %{_libdir}/*.la
+%{_libdir}/wireshark
+# Don't pick up the wireshark (GUI) man page
+%exclude %{_mandir}/man1/wireshark.*
+%{_mandir}/man1/*
+%{_mandir}/man4/*
+%{_datadir}/wireshark
+
+%files gnome
+%defattr(-,root,root)
+%{_datadir}/applications/wireshark.desktop
+%{_datadir}/icons/hicolor/*/apps/*
+%{_datadir}/icons/gnome/*/mimetypes/*
+%{_datadir}/mime/packages/wireshark.xml
+%{_bindir}/wireshark
+%{_mandir}/man1/wireshark.*
 
 %changelog
+* Mon Feb  6 2013 Jeff Morriss
+- Overhaul to make this file more useful/up to date.  Many changes are based
+  on Fedora's .spec file.  Changes include:
+  - Create a separate wireshark-gnome package (like Redhat).
+  - Control some things with variables set at the top of the file.
+    - Allow the user to configure how dumpcap is installed.
+    - Allow the user to choose some options including GTK2 or GTK3.
+  - Greatly expand the BuildRequires entries; get the minimum versions of some
+    things from 'configure'.
+  - Install freedesktop files for better (free)desktop integration.
+
 * Thu Aug 10 2006 Joerg Mayer
 - Starting with X.org 7.x X11R6 is being phased out. Install wireshark
   and manpage into the standard path.
