@@ -907,10 +907,10 @@ GTK2_MIN_VERSION=2.12.0
 AC_SUBST(GTK2_MIN_VERSION)
 GTK3_MIN_VERSION=3.0.0
 AC_SUBST(GTK3_MIN_VERSION)
+QT_MIN_VERSION=4.6.0
+AC_SUBST(QT_MIN_VERSION)
 # GTK+ and Qt checks; we require GTK+ $GTK2_MIN_VERSION or later or
-# GTK3_MIN_VERSION or later, and, for now, don't require any particular
-# version of Qt (except perhaps by implication, as older versions might not
-# support pkgconfig).
+# GTK3_MIN_VERSION or later or Qt $QT_MIN_VERSION or later.
 #
 # We only do those if we're going to be building Wireshark;
 # otherwise, we don't have any GUI to build, so we don't use
@@ -973,6 +973,10 @@ if test "x$enable_wireshark" = "xyes"; then
 			CXXFLAGS="$CXXFLAGS $QtPrintSupport_CFLAGS"
 		],
 		AC_MSG_NOTICE([QtPrintSupport not found. Assuming Qt4]))
+
+		# Check for the minimum Qt version
+		# XXX the above checks should be moved into AM_PATH_QT.
+		AM_PATH_QT($QT_MIN_VERSION, , [AC_MSG_ERROR([Qt is not available])])
 
 		#
 		# We don't know whether we have GTK+, but we
