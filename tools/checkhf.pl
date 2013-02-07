@@ -125,6 +125,8 @@ while (my $fileName = $ARGV[0]) {
     @hfStaticDefs{grep {$hfDefs{$_} == 0} keys %hfDefs} = ();  # All values in the new hash will be undef
 
     $unUsedHRef = diff_hash(\%hfStaticDefs, \%hfUsage);
+    remove_hf_pid_from_unused_if_add_oui_call(\$fileContents, $fileName, $unUsedHRef);
+
     print_list("Unused entry: $fileName, ", $unUsedHRef);
 
 # 2. Are all the hfDefs entries (static and global) in hfArrayEntries ?
@@ -472,6 +474,36 @@ sub find_hf_usage {
     }
 
     ($debug == 5) && debug_print_hash("VU: $fileName", $hfUsageHRef); # VariableUsage
+
+    return;
+}
+
+# ---------------------------------------------------------------------
+# action: Remove from 'unused' hash an instance of a variable named hf_..._pid
+#          if the source has a call to llc_add_oui() or ieee802a_add_oui().
+#          (This is rather a bit of a hack).
+# arga:   codeRef, fileName, unUsedHRef
+
+sub remove_hf_pid_from_unused_if_add_oui_call {
+    my ($codeRef, $fileName, $unUsedHRef) = @_;
+
+    if ((keys %$unUsedHRef) == 0) {
+        return;
+    }
+
+    my @hfvars = grep { / ^ hf_ [a-zA-Z0-9_]+ _pid $ /xo} keys $unUsedHRef;
+
+    if ((@hfvars == 0) || (@hfvars > 1)) {
+        return;  # if multiple unused hf_..._pid
+    }
+
+    if ($$codeRef !~ / llc_add_oui | ieee802a_add_oui /xo) {
+        return;
+    }
+
+    # hf_...pid unused var && a call to ..._add_oui(); delete entry from unused
+    # XXX: maybe hf_..._pid should really be added to hfUsed ?
+    delete @$unUsedHRef{@hfvars};
 
     return;
 }
