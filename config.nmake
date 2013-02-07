@@ -135,6 +135,8 @@ PROCESSOR_ARCHITECTURE=amd64
 ##        will run on Windows XP (as well as on later versions of Windows).
 ##        ToDo: It appears that some special setup is required to to do this.
 ##          https://blogs.msdn.com/b/vcblog/archive/2012/10/08/10357555.aspx
+##    3. Feb 07,2013: [WMeier] I've noted no problems to date with Wireshark built with VS2012
+##        based upon a fair amount of use while doing Wireshark testing and debugging.
 ##
 #MSVC_VARIANT=MSVC2012EE
 
