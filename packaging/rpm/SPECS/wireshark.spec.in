@@ -33,10 +33,13 @@ Source:		http://wireshark.org/download/src/%{name}-%{version}.tar.bz2
 URL:		http://www.wireshark.org/
 BuildRoot:	/tmp/wireshark-%{PACKAGE_VERSION}-root
 Packager:	Gerald Combs <gerald[AT]wireshark.org>
+# Some distributions create a wireshark-devel package; get rid of it
+Obsoletes:      wireshark-devel
 
 BuildRequires:  autoconf >= @AC_MIN_VERSION@
 BuildRequires:	flex, bison
 BuildRequires:	python
+BuildRequires:	perl
 
 BuildRequires:	glib2-devel >= @GLIB_MIN_VERSION@
 Requires:	glib2 >= @GLIB_MIN_VERSION@
@@ -72,9 +75,6 @@ Requires(post):	desktop-file-utils
 %if %{setcap_dumpcap}
 BuildRequires: rpm-build >= 4.7.0
 %endif
-
-# Some distributions create a wireshark-devel package; get rid of it
-Obsoletes:      wireshark-devel
 
 
 %package	gnome
