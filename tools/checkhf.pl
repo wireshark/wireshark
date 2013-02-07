@@ -112,9 +112,10 @@ while (my $fileName = $ARGV[0]) {
     remove_quoted_strings(\$fileContents, $fileName);
     remove_if0_code      (\$fileContents, $fileName);
 
-    find_remove_hf_defs         (\$fileContents, $fileName, \%hfDefs);
-    find_remove_hf_array_entries(\$fileContents, $fileName, \%hfArrayEntries);
-    find_hf_usage               (\$fileContents, $fileName, \%hfUsage);
+    find_remove_hf_defs                    (\$fileContents, $fileName, \%hfDefs);
+    find_remove_hf_array_entries           (\$fileContents, $fileName, \%hfArrayEntries);
+    find_remove_proto_get_id_hf_assignments(\$fileContents, $fileName, \%hfArrayEntries);
+    find_hf_usage                          (\$fileContents, $fileName, \%hfUsage);
 
 # Tests (See above)
 # 1. Are all the static hfDefs entries in hfUsage ?
@@ -438,7 +439,7 @@ sub find_remove_hf_array_entries {
     # find all the hf[] entries (searching $$codeRef).
     while ($$codeRef =~ m{ $hfArrayEntryRegEx }xosg) {
         ($debug == 98) && print "+++ $1 $2\n";
-        $hfArrayEntriesHRef->{$1} = 1;
+        $hfArrayEntriesHRef->{$1} = undef;
     }
 
     ($debug == 4) && debug_print_hash("AE: $fileName", $hfArrayEntriesHRef);  # ArrayEntry
@@ -446,6 +447,47 @@ sub find_remove_hf_array_entries {
     # now remove all
     $$codeRef =~ s{ $hfArrayEntryRegEx }{}xosg;
     ($debug == 4) && print "==> After remove hfArrayEntries: code: [$fileName]\n$$codeRef\n===<\n";
+
+    return;
+}
+
+# ---------------------------------------------------------------------
+# action:  Add to hash an entry (hf_...) for each hf_... var
+#          found in statements of the form:
+#            'hf_...  = proto_registrar_get_id_byname ...'
+#            'hf_...  = proto_get_id_by_filtername ...'
+#          Remove each such statement found from the input string.
+# args:    codeRef, fileName, hfArrayEntriesHRef
+
+sub find_remove_proto_get_id_hf_assignments {
+    my ($codeRef, $fileName, $hfArrayEntriesHRef) = @_;
+
+    my $RegEx = qr / ( hf_ [a-zA-Z0-9_]+ )
+                     \s* = \s*
+                     (?: proto_registrar_get_id_byname | proto_get_id_by_filter_name )
+                   /xo;
+
+    my @hfvars = $$codeRef =~ / $RegEx /xog;
+
+    if (@hfvars == 0) {
+        return;
+    }
+
+    # found:
+    #  Sanity check: hf_vars shouldn't already be in hfArrayEntries
+    if (defined @$hfArrayEntriesHRef{@hfvars}) {
+        printf "? one or more of [@hfvars] initialized via proto_registrar_get_by_name() also in hf[] ??\n";
+    }
+
+    #  Now: add to hfArrayEntries
+    @$hfArrayEntriesHRef{@hfvars} = ();
+
+    ($debug == 4) && debug_print_hash("PR: $fileName", $hfArrayEntriesHRef);
+
+    # remove from input (so not considered as 'usage')
+    $$codeRef =~ s/ $RegEx //xog;
+
+    ($debug == 4) && print "==> After remove proto_registrar_by_name: code: [$fileName]\n$$codeRef\n===<\n";
 
     return;
 }
