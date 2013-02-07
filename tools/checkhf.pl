@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 # Copyright 2013, William Meier (See AUTHORS file)
 #
@@ -186,7 +186,7 @@ sub diff_hash {
 
     my %diffs;
 
-    @diffs{grep {! exists $$bHRef{$_}} keys %$aHRef} = ();  # All values in the new hash will be undef
+    @diffs{grep {! exists $bHRef->{$_}} keys %$aHRef} = ();  # All values in the new hash will be undef
 
     return \%diffs;
 }
@@ -213,7 +213,7 @@ sub print_list {
 sub remove_blank_lines {
     my ($codeRef, $fileName) = @_;
 
-    $$codeRef =~ s { ^ \s* $ } []xog;
+    $$codeRef =~ s { ^ \s* $ } []xomg;
 
     return;
 }
@@ -248,10 +248,10 @@ sub remove_quoted_strings {
     # A regex which matches double-quoted strings.
     #    ?s added so that strings containing a 'line continuation'
     #    ( \ followed by a new-line) will match.
-    my $DoubleQuotedStr = qr{ (?: ["] (?s: \\. | [^\"\\])* ["]) }x;
+    my $DoubleQuotedStr = qr{ (?: ["] (?s: \\. | [^\"\\])* ["]) }xo;
 
     # A regex which matches single-quoted strings.
-    my $SingleQuotedStr = qr{ (?: \' (?: \\. | [^\'\\])* [']) }x;
+    my $SingleQuotedStr = qr{ (?: \' (?: \\. | [^\'\\])* [']) }xo;
 
     $$codeRef =~ s{ $DoubleQuotedStr | $SingleQuotedStr } []xog;
 
@@ -291,7 +291,7 @@ my ($if_lvl, $if0_lvl, $if0); # shared vars
                             }xom;
 
         ($if_lvl, $if0_lvl, $if0) = (0,0,0);
-        $$codeRef =~ s{ $preprocRegEx }{patsub($1,$2)}xegm;
+        $$codeRef =~ s{ $preprocRegEx }{patsub($1,$2)}xoemg;
 
         ($debug == 2) && print "==> After Remove if0: code: [$fileName]\n$$codeRef\n===<\n";
         return;
@@ -387,14 +387,14 @@ sub find_remove_hf_defs {
 
     my $hfDefRegEx = qr { $p1RegEx (?: $p2aRegEx | $p2bRegEx ) }xom;
 
-    while ($$codeRef =~ m{ $hfDefRegEx }xogm) {
+    while ($$codeRef =~ m{ $hfDefRegEx }xomg) {
         #print ">%s< >$2<\n", (defined $1) ? $1 ; "";
-        $$hfDefsHRef{$2} = (defined $1) ? 0 : 1;
+        $hfDefsHRef->{$2} = (defined $1) ? 0 : 1;  # 'static' if $1 is defined.
     }
     ($debug == 3) && debug_print_hash("VD: $fileName", $hfDefsHRef); # VariableDefinition
 
     # remove all
-    $$codeRef =~ s{ $hfDefRegEx }{}xiogm;
+    $$codeRef =~ s{ $hfDefRegEx }{}xogm;
     ($debug == 3) && print "==> After remove hfDefs: code: [$fileName]\n$$codeRef\n===<\n";
 
     return;
@@ -434,15 +434,15 @@ sub find_remove_hf_array_entries {
                            /xos;
 
     # find all the hf[] entries (searching $$codeRef).
-    while ($$codeRef =~ m{ $hfArrayEntryRegEx }xgos) {
+    while ($$codeRef =~ m{ $hfArrayEntryRegEx }xosg) {
         ($debug == 98) && print "+++ $1 $2\n";
-        $$hfArrayEntriesHRef{$1} = 1;
+        $hfArrayEntriesHRef->{$1} = 1;
     }
 
     ($debug == 4) && debug_print_hash("AE: $fileName", $hfArrayEntriesHRef);  # ArrayEntry
 
     # now remove all
-    $$codeRef =~ s{ $hfArrayEntryRegEx }{}xgois;
+    $$codeRef =~ s{ $hfArrayEntryRegEx }{}xosg;
     ($debug == 4) && print "==> After remove hfArrayEntries: code: [$fileName]\n$$codeRef\n===<\n";
 
     return;
@@ -464,11 +464,11 @@ sub find_hf_usage {
 
     my $hfUsageRegEx = qr {
                               \b ( hf_[a-zA-Z0-9_]+ )      # hf_...
-                      }ox;
+                      }xo;
 
     while ($$codeRef =~ m{ $hfUsageRegEx }xog) {
         #print "$1\n";
-        $$hfUsageHRef{$1} += 1;
+        $hfUsageHRef->{$1} += 1;
     }
 
     ($debug == 5) && debug_print_hash("VU: $fileName", $hfUsageHRef); # VariableUsage
@@ -482,6 +482,6 @@ sub debug_print_hash {
 
     ##print "==> $title\n";
     for my $k (sort keys %$HRef) {
-        printf "%-40.40s %5.5s %s\n", $title, defined($$HRef{$k}) ? $$HRef{$k} : "undef", $k;
+        printf "%-40.40s %5.5s %s\n", $title, $HRef->{$k} // "undef", $k;
     }
 }
