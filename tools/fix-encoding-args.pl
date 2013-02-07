@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 #
 # Copyright 2011, William Meier <wmeier[AT]newsguy.com>
 #
@@ -41,6 +41,8 @@
 #
 
 use strict;
+use warnings;
+
 use Getopt::Long;
 
 # Conversion "Requests"
