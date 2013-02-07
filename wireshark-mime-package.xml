@@ -7,18 +7,38 @@
     <generic-icon name="application-wireshark-doc"/>
     <alias type="application/x-pcap"/>
     <alias type="application/pcap"/>
+    <magic>
+      <!-- standard PCAP file -->
+      <match type="big32"    offset="0" value="0xa1b2c3d4"/>
+      <match type="little32" offset="0" value="0xa1b2c3d4"/>
+      <!-- extended (Alexey-Kuznetsov's-patches) PCAP file -->
+      <match type="big32"    offset="0" value="0xa1b2cd34"/>
+      <match type="little32" offset="0" value="0xa1b2cd34"/>
+    </magic>
     <glob pattern="*.pcap"/>
   </mime-type>
 
   <mime-type type="application/x-pcapng">
     <comment>Packet Capture (PCAPNG)</comment>
     <generic-icon name="application-wireshark-doc"/>
+    <magic>
+      <match type="big32"      offset="0" value="0x0a0d0d0a">
+	<match type="big32"    offset="8" value="0x1a2b3c4d"/>
+      </match>
+      <match type="little32"   offset="0" value="0x0a0d0d0a">
+	<match type="little32" offset="8" value="0x1a2b3c4d"/>
+      </match>
+    </magic>
     <glob pattern="*.pcapng"/>
+    <glob pattern="*.ntar"/>
   </mime-type>
 
   <mime-type type="application/x-snoop">
     <comment>Packet Capture (Snoop)</comment>
     <generic-icon name="application-wireshark-doc"/>
+    <magic>
+      <match type="string"      offset="0" value="snoop"/>
+    </magic>
     <glob pattern="*.snoop"/>
   </mime-type>
 </mime-info>
