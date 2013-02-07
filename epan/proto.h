@@ -359,10 +359,10 @@ struct _header_field_info {
 	const char		*blurb;          /**< [FIELDDESCR] Brief description of field */
 
 	/* ------- set by proto routines (prefilled by HFILL macro, see below) ------ */
-	int					 id;             /**< Field ID */
-	int					 parent;         /**< parent protocol tree */
-	hf_ref_type			 ref_type;       /**< is this field referenced by a filter */
-	int					 bitshift;       /**< bits to shift */
+	int			 id;             /**< Field ID */
+	int			 parent;         /**< parent protocol tree */
+	hf_ref_type		 ref_type;       /**< is this field referenced by a filter */
+	int			 bitshift;       /**< bits to shift */
 	header_field_info	*same_name_next; /**< Link to next hfinfo with same abbrev */
 	header_field_info	*same_name_prev; /**< Link to previous hfinfo with same abbrev */
 };
@@ -1703,6 +1703,11 @@ extern header_field_info* proto_registrar_get_nth(guint hfindex);
  @param field_name the field name to search for
  @return the registered item */
 extern header_field_info* proto_registrar_get_byname(const char *field_name);
+
+/** Get the header_field id based upon a field name.
+ @param field_name the field name to search for
+ @return the field id for the registered item */
+extern int proto_registrar_get_id_byname(const char *field_name);
 
 /** Get enum ftenum FT_ of registered header_field number n.
  @param n item # n (0-indexed)

@@ -777,6 +777,19 @@ proto_registrar_get_byname(const char *field_name)
 	return g_tree_lookup(gpa_name_tree, field_name);
 }
 
+int
+proto_registrar_get_id_byname(const char *field_name)
+{
+	header_field_info *hfinfo;
+
+	hfinfo = proto_registrar_get_byname(field_name);
+
+	if (!hfinfo)
+		return -1;
+
+	return hfinfo->id;
+}
+
 
 static void
 ptvcursor_new_subtree_levels(ptvcursor_t *ptvc)
