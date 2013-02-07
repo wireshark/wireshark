@@ -39,9 +39,11 @@
 #include <epan/dissectors/packet-smb.h>
 #include "packet-smb-sidsnooping.h"
 
+#if 0
 static int hf_lsa = -1;
-static int hf_lsa_info_level = -1;
 static int hf_lsa_opnum = -1;
+#endif
+static int hf_lsa_info_level = -1;
 static int hf_lsa_domain = -1;
 static int hf_nt_domain_sid = -1;
 static int hf_samr_hnd = -1;
@@ -325,7 +327,6 @@ ctx_handle_hash(gconstpointer k)
 static void
 sid_snooping_init(void)
 {
-	header_field_info *hfi;
 	GString *error_string;
 
 	if(lsa_policy_information_tap_installed){
@@ -363,44 +364,17 @@ sid_name_snooping=0;
 	ctx_handle_table=g_hash_table_new(ctx_handle_hash, ctx_handle_equal);
 
 
-	hf_lsa=proto_get_id_by_filter_name("lsa");
-
-	hfi=proto_registrar_get_byname("lsa.opnum");
-	if(hfi){
-		hf_lsa_opnum=hfi->id;
-	}
-
-	hfi=proto_registrar_get_byname("nt.domain_sid");
-	if(hfi){
-		hf_nt_domain_sid=hfi->id;
-	}
-
-	hfi=proto_registrar_get_byname("lsa.domain");
-	if(hfi){
-		hf_lsa_domain=hfi->id;
-	}
-
-	hfi=proto_registrar_get_byname("lsa.info.level");
-	if(hfi){
-		hf_lsa_info_level=hfi->id;
-	}
-
-	hfi=proto_registrar_get_byname("samr.handle");
-	if(hfi){
-		hf_samr_hnd=hfi->id;
-	}
-	hfi=proto_registrar_get_byname("samr.rid");
-	if(hfi){
-		hf_samr_rid=hfi->id;
-	}
-	hfi=proto_registrar_get_byname("samr.acct_name");
-	if(hfi){
-		hf_samr_acct_name=hfi->id;
-	}
-	hfi=proto_registrar_get_byname("samr.level");
-	if(hfi){
-		hf_samr_level=hfi->id;
-	}
+#if 0
+	hf_lsa		  = proto_get_id_by_filter_name("lsa");
+	hf_lsa_opnum	  = proto_registrar_get_id_byname("lsa.opnum");
+#endif
+	hf_nt_domain_sid  = proto_registrar_get_id_byname("nt.domain_sid");
+	hf_lsa_domain	  = proto_registrar_get_id_byname("lsa.domain");
+	hf_lsa_info_level = proto_registrar_get_id_byname("lsa.info.level");
+	hf_samr_hnd	  = proto_registrar_get_id_byname("samr.handle");
+	hf_samr_rid	  = proto_registrar_get_id_byname("samr.rid");
+	hf_samr_acct_name = proto_registrar_get_id_byname("samr.acct_name");
+	hf_samr_level	  = proto_registrar_get_id_byname("samr.level");
 
 
 	error_string=register_tap_listener("dcerpc",

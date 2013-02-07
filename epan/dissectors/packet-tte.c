@@ -179,7 +179,7 @@ proto_reg_handoff_tte(void)
 {
     heur_dissector_add("eth", dissect_tte, proto_tte);
 
-    hf_eth_dst  = proto_registrar_get_byname ("eth.dst")->id;
-    hf_eth_src  = proto_registrar_get_byname ("eth.src")->id;
-    hf_eth_type = proto_registrar_get_byname ("eth.type")->id;
+    hf_eth_dst  = proto_registrar_get_id_byname ("eth.dst");
+    hf_eth_src  = proto_registrar_get_id_byname ("eth.src");
+    hf_eth_type = proto_registrar_get_id_byname ("eth.type");
 }
