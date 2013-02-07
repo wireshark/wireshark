@@ -37,8 +37,37 @@
     <comment>Packet Capture (Snoop)</comment>
     <generic-icon name="application-wireshark-doc"/>
     <magic>
-      <match type="string"      offset="0" value="snoop"/>
+      <match type="string" offset="0" value="snoop"/>
     </magic>
     <glob pattern="*.snoop"/>
+  </mime-type>
+
+  <mime-type type="application/x-iptrace">
+    <comment>Packet Capture (AIX iptrace)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <magic>
+      <match type="string" offset="0" value="iptrace 1.0"/>
+      <match type="string" offset="0" value="iptrace 2.0"/>
+    </magic>
+  </mime-type>
+
+  <mime-type type="application/x-lanalyzer">
+    <comment>Packet Capture (Novell LANalyzer)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <magic>
+      <match type="little16" offset="0" value="0x1001"/>
+      <match type="little16" offset="0" value="0x1007"/>
+    </magic>
+    <glob pattern="*.tr1"/>
+  </mime-type>
+
+  <mime-type type="application/x-nettl">
+    <comment>Packet Capture (HP-UX nettl)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <magic>
+      <match type="string" offset="0" value="\x54\x52\x00\x64\x00"/>
+    </magic>
+    <glob pattern="*.trc0"/>
+    <glob pattern="*.trc1"/>
   </mime-type>
 </mime-info>
