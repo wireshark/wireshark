@@ -54,7 +54,7 @@
 #include "dtd_parse_lex.h"
 
 	struct _proto_xmlpi_attr {
-		gchar* name;
+		const gchar* name;
 		void (*act)(gchar*);
 	};
 
