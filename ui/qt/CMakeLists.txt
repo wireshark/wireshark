@@ -49,6 +49,7 @@ set(QTSHARK_H_SRC
 	main_welcome.h
 	main_window.h
 	main_window_preferences_frame.h
+	module_preferences_scroll_area.h
 	packet_comment_dialog.h
 	packet_format_group_box.h
 	packet_list.h
@@ -101,6 +102,7 @@ set(QTSHARK_CPP_SRC
 	main_window.cpp
 	main_window_preferences_frame.cpp
 	main_window_slots.cpp
+	module_preferences_scroll_area.cpp
 	packet_comment_dialog.cpp
 	packet_format_group_box.cpp
 	packet_list.cpp
@@ -139,6 +141,7 @@ set(QTSHARK_UI
 	main_welcome.ui
 	main_window.ui
 	main_window_preferences_frame.ui
+	module_preferences_scroll_area.ui
 	packet_comment_dialog.ui
 	packet_format_group_box.ui
 	packet_range_group_box.ui

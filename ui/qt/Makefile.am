@@ -117,6 +117,8 @@ main_window.cpp main_window.h: ui_main_window.h
 
 main_window_preferences_frame.cpp main_window_preferences_frame.h: ui_main_window_preferences_frame.h
 
+module_preferences_scroll_area.cpp module_preferences_scroll_area.h: ui_module_preferences_scroll_area.h
+
 packet_comment_dialog.cpp packet_comment_dialog.h: ui_packet_comment_dialog.h
 
 packet_format_group_box.cpp packet_format_group_box.h: ui_packet_format_group_box.h
