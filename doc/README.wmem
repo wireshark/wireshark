@@ -79,6 +79,8 @@ to the lifetime of the pinfo struct.
  - wmem_alloc0
  - wmem_new
  - wmem_new0
+ - wmem_realloc
+ - wmem_free
 
 2.3 String Utilities
 
@@ -247,8 +249,8 @@ read-only by the allocator implementation.
 4.1.2 Consumer Functions
 
  - alloc()
- - realloc()
  - free()
+ - realloc()
 
 These function pointers should be set to functions with semantics obviously
 similar to their standard-library namesakes. Each one takes an extra parameter
@@ -321,7 +323,6 @@ be nice if wmem did provide them:
  - radix tree
  - dynamic array
  - hash table
- - realloc
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
