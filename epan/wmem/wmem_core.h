@@ -44,14 +44,25 @@ typedef struct _wmem_allocator_t wmem_allocator_t;
 
 void *
 wmem_alloc(wmem_allocator_t *allocator, const size_t size);
-#define wmem_new(allocator, type) ((type*)wmem_alloc((allocator), sizeof(type)))
+#define wmem_new(allocator, type) \
+    ((type*)wmem_alloc((allocator), sizeof(type)))
 
 void *
 wmem_alloc0(wmem_allocator_t *allocator, const size_t size);
-#define wmem_new0(allocator, type) ((type*)wmem_alloc0((allocator), sizeof(type)))
+#define wmem_new0(allocator, type) \
+    ((type*)wmem_alloc0((allocator), sizeof(type)))
+
+void
+wmem_free(wmem_allocator_t *allocator, void *ptr);
+
+void *
+wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size);
 
 void
 wmem_free_all(wmem_allocator_t *allocator);
+
+void
+wmem_gc(wmem_allocator_t *allocator);
 
 void
 wmem_destroy_allocator(wmem_allocator_t *allocator);

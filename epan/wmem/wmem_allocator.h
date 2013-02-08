@@ -43,8 +43,8 @@ struct _wmem_allocator_t {
 
     /* Consumer functions */
     void *(*alloc)(void *private_data, const size_t size);
-    void *(*realloc)(void *private_data, void *ptr, const size_t size);
     void  (*free)(void *private_data, void *ptr);
+    void *(*realloc)(void *private_data, void *ptr, const size_t size);
 
     /* Producer/Manager functions */
     void  (*free_all)(void *private_data);

@@ -55,6 +55,18 @@ wmem_simple_alloc(void *private_data, const size_t size)
     return buf;
 }
 
+static void
+wmem_simple_free(void *private_data, void *ptr)
+{
+    wmem_simple_allocator_t *allocator;
+
+    allocator = (wmem_simple_allocator_t*) private_data;
+
+    /* remove() takes care of calling g_free() for us since we set up the
+     * hash table with g_hash_table_new_full() */
+    g_hash_table_remove(allocator->block_table, ptr);
+}
+
 static void *
 wmem_simple_realloc(void *private_data, void *ptr, const size_t size)
 {
@@ -75,18 +87,6 @@ wmem_simple_realloc(void *private_data, void *ptr, const size_t size)
     }
 
     return newptr;
-}
-
-static void
-wmem_simple_free(void *private_data, void *ptr)
-{
-    wmem_simple_allocator_t *allocator;
-
-    allocator = (wmem_simple_allocator_t*) private_data;
-
-    /* remove() takes care of calling g_free() for us since we set up the
-     * hash table with g_hash_table_new_full() */
-    g_hash_table_remove(allocator->block_table, ptr);
 }
 
 static void
