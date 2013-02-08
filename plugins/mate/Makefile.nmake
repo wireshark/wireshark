@@ -65,8 +65,7 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 # preceded only by "void " starting in column zero, and must not be
 # inside #if.
 #
-# DISSECTOR_SRC_FILES and NODIST_DISSECTOR_SRC_FILES are assumed to have
-# all the files that need to be scanned.
+# REGISTER_SRC_FILES is assumed to have all the files that need to be scanned.
 #
 # For some unknown reason, having a big "for" loop in the Makefile
 # to scan all the files doesn't work with some "make"s; they seem to
@@ -85,13 +84,13 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 # All subsequent arguments are the files to scan.
 #
 !IFDEF PYTHON
-plugin.c: $(DISSECTOR_SRC_FILES) moduleinfo.h Makefile.common ../../tools/make-dissector-reg.py
+plugin.c: $(REGISTER_SRC_FILES) moduleinfo.h Makefile.common ../../tools/make-dissector-reg.py
 	@echo Making plugin.c (using python)
-	@$(PYTHON) "../../tools/make-dissector-reg.py" . plugin $(DISSECTOR_SRC_FILES) $(NODIST_DISSECTOR_SRC_FILES)
+	@$(PYTHON) "../../tools/make-dissector-reg.py" . plugin $(REGISTER_SRC_FILES) $(NODIST_REGISTER_SRC_FILES)
 !ELSE
-plugin.c: $(DISSECTOR_SRC_FILES) moduleinfo.h Makefile.common ../../tools/make-dissector-reg
+plugin.c: $(REGISTER_SRC_FILES) moduleinfo.h Makefile.common ../../tools/make-dissector-reg
 	@echo Making plugin.c (using sh)
-	@$(SH) ../../tools/make-dissector-reg . plugin $(DISSECTOR_SRC_FILES) $(NODIST_DISSECTOR_SRC_FILES)
+	@$(SH) ../../tools/make-dissector-reg . plugin $(REGISTER_SRC_FILES) $(NODIST_REGISTER_SRC_FILES)
 !ENDIF
 
 !ENDIF

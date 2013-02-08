@@ -27,8 +27,8 @@
 # C vs. C++ - this is used on Windows to generated lists of object files
 # with .c=.obj or .cpp=.obj
 #
-# Dissector vs. non-dissector - dissector files are scanned for
-# registration functions, non-dissector files aren't.
+# Register vs. non-register - register files are scanned for registration
+# functions, non-register files aren't.
 #
 # Flex-generated, Lemon-generated, and non-generated:
 #
@@ -58,117 +58,47 @@
 #
 
 #
-# All Flex-generated dissector source files.
+# All source files to be scanned for registration routines.
 #
-FLEX_GENERATED_DISSECTOR_SRC_FILES = \
-	$(FLEX_GENERATED_DISSECTOR_C_FILES) \
-	$(FLEX_GENERATED_DISSECTOR_CPP_FILES)
-
-#
-# All Flex-generated non-dissector source files.
-#
-FLEX_GENERATED_SUPPORT_SRC_FILES = \
-	$(FLEX_GENERATED_SUPPORT_C_FILES) \
-	$(FLEX_GENERATED_SUPPORT_CPP_FILES)
-
-#
-# All Flex-generated source files.
-#
-FLEX_GENERATED_SRC_FILES = \
-	$(FLEX_GENERATED_DISSECTOR_SRC_FILES) \
-	$(FLEX_GENERATED_SUPPORT_SRC_FILES)
-
-#
-# All Lemon-generated dissector source files.
-#
-LEMON_GENERATED_DISSECTOR_SRC_FILES = \
-	$(LEMON_GENERATED_DISSECTOR_C_FILES) \
-	$(LEMON_GENERATED_DISSECTOR_CPP_FILES)
-
-#
-# All Lemon-generated non-dissector source files.
-#
-LEMON_GENERATED_SUPPORT_SRC_FILES = \
-	$(LEMON_GENERATED_SUPPORT_C_FILES) \
-	$(LEMON_GENERATED_SUPPORT_CPP_FILES)
-
-#
-# All Lemon-generated source files.
-#
-LEMON_GENERATED_SRC_FILES = \
-	$(LEMON_GENERATED_DISSECTOR_SRC_FILES) \
-	$(LEMON_GENERATED_SUPPORT_SRC_FILES)
-
-#
-# All non-generated dissector source files.
-#
-DISSECTOR_SRC_FILES = \
-	$(DISSECTOR_C_FILES) \
-	$(DISSECTOR_CPP_FILES)
-
-#
-# All generated dissector source files.
-#
-GENERATED_DISSECTOR_SRC_FILES = \
-	$(FLEX_GENERATED_DISSECTOR_SRC_FILES) \
-	$(LEMON_GENERATED_DISSECTOR_SRC_FILES)
-
-#
-# All non-generated non-dissector source files.
-#
-SUPPORT_SRC_FILES = \
-	$(SUPPORT_C_FILES) \
-	$(SUPPORT_CPP_FILES)
+REGISTER_SRC_FILES = \
+	$(FLEX_GENERATED_REGISTER_C_FILES) \
+	$(FLEX_GENERATED_REGISTER_CPP_FILES) \
+	$(LEMON_GENERATED_REGISTER_C_FILES) \
+	$(LEMON_GENERATED_REGISTER_CPP_FILES) \
+	$(REGISTER_C_FILES) \
+	$(REGISTER_CPP_FILES)
 
 #
 # All distributed source files.
 #
 SRC_FILES = \
-	$(DISSECTOR_SRC_FILES) \
-	$(SUPPORT_SRC_FILES) \
-	$(FLEX_GENERATED_SRC_FILES)
+	$(FLEX_GENERATED_C_FILES) \
+	$(FLEX_GENERATED_CPP_FILES) \
+	$(C_FILES) \
+	$(CPP_FILES)
 
 #
 # All non-distributed source files.
 #
 NODIST_SRC_FILES = \
-	$(LEMON_GENERATED_SRC_FILES)
+	$(LEMON_GENERATED_C_FILES) \
+	$(LEMON_GENERATED_CPP_FILES)
 
 #
 # All generated source files.
 #
 GENERATED_SRC_FILES = \
-	$(FLEX_GENERATED_SRC_FILES) \
-	$(LEMON_GENERATED_SRC_FILES)
+	$(FLEX_GENERATED_C_FILES) \
+	$(FLEX_GENERATED_CPP_FILES) \
+	$(LEMON_GENERATED_C_FILES) \
+	$(LEMON_GENERATED_CPP_FILES)
 
 #
 # All "clean" source files; they can be compiled with the regular
 # warning options, including -Werror with GCC-compatible compilers,
 # and can be run through checkAPI.  Neither Flex-generated nor
-# Lemon-generated files can be guaranteed to be clean.
+# Lemon-generated files can currently be guaranteed to be clean.
 #
 CLEAN_SRC_FILES = \
-	$(DISSECTOR_SRC_FILES) \
-	$(SUPPORT_C_FILES)
-
-#
-# All C source files.
-#
-C_FILES = \
-	$(FLEX_GENERATED_DISSECTOR_C_FILES) \
-	$(FLEX_GENERATED_SUPPORT_C_FILES) \
-	$(LEMON_GENERATED_DISSECTOR_C_FILES) \
-	$(LEMON_GENERATED_SUPPORT_C_FILES) \
-	$(DISSECTOR_C_FILES) \
-	$(SUPPORT_C_FILES)
-
-#
-# All C++ source files.
-#
-CPP_FILES = \
-	$(FLEX_GENERATED_DISSECTOR_CPP_FILES) \
-	$(FLEX_GENERATED_SUPPORT_CPP_FILES) \
-	$(LEMON_GENERATED_DISSECTOR_CPP_FILES) \
-	$(LEMON_GENERATED_SUPPORT_CPP_FILES) \
-	$(DISSECTOR_CPP_FILES) \
-	$(SUPPORT_CPP_FILES)
+	$(C_FILES) \
+	$(CPP_FILES)
