@@ -1922,6 +1922,18 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
   }
 }
 
+void setup_sdp_transport_resend(int current_frame, int request_frame)
+{
+  transport_info_t* transport_info = NULL;
+
+  if (request_frame != 0) {
+    transport_info = (transport_info_t*)se_tree_lookup32( sdp_transport_reqs, request_frame );
+    if (transport_info != NULL) {
+        se_tree_insert32(sdp_transport_reqs, current_frame, (void *)transport_info);
+    }
+  }
+}
+
 static void
 dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {

@@ -3146,6 +3146,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							(stat_info->response_code == 200) ? SDP_EXCHANGE_ANSWER_ACCEPT : SDP_EXCHANGE_ANSWER_REJECT, 
 							request_for_response);
 					}
+				} else {
+					setup_sdp_transport_resend(pinfo->fd->num, resend_for_packet);
 				}
 			}
 
