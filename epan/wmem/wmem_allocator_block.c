@@ -462,6 +462,9 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     extra->prev = (guint32) (aligned_size + sizeof(wmem_block_chunk_t));
     extra->used = FALSE;
 
+    /* merge it to its right if possible (it can't be merged left, obviously) */
+    wmem_block_merge_free(allocator, extra);
+
     /* add it to the free list */
     wmem_block_add_to_free_list(allocator, extra);
 }
