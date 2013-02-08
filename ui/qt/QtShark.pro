@@ -196,6 +196,7 @@ FORMS += \
     main_welcome.ui \
     main_window.ui \
     main_window_preferences_frame.ui \
+    module_preferences_scroll_area.ui \
     packet_comment_dialog.ui \
     packet_format_group_box.ui \
     packet_range_group_box.ui \
@@ -238,6 +239,7 @@ HEADERS += $$HEADERS_WS_C \
     font_color_preferences_frame.h \
     layout_preferences_frame.h \
     main_window_preferences_frame.h \
+    module_preferences_scroll_area.h \
     packet_comment_dialog.h \
     packet_format_group_box.h \
     preferences_dialog.h \
@@ -453,6 +455,7 @@ SOURCES += \
     main_window.cpp \
     main_window_preferences_frame.cpp \
     main_window_slots.cpp \
+    module_preferences_scroll_area.cpp \
     packet_comment_dialog.cpp \
     packet_format_group_box.cpp \
     packet_list.cpp \
@@ -472,4 +475,4 @@ SOURCES += \
     splash_overlay.cpp \
     syntax_line_edit.cpp \
     time_shift_dialog.cpp \
-    wireshark_application.cpp
+    wireshark_application.cpp \

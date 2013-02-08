@@ -69,30 +69,6 @@
       </item>
       <item>
        <property name="text">
-        <string>Name Resolution</string>
-       </property>
-       <property name="flags">
-        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Protocols</string>
-       </property>
-       <property name="flags">
-        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Statistics</string>
-       </property>
-       <property name="flags">
-        <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
-       </property>
-      </item>
-      <item>
-       <property name="text">
         <string>Advanced</string>
        </property>
       </item>
@@ -104,15 +80,15 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
       <widget class="MainWindowPreferencesFrame" name="appearanceFrame"/>
       <widget class="LayoutPreferencesFrame" name="layoutFrame"/>
       <widget class="ColumnPreferencesFrame" name="columnFrame"/>
       <widget class="FontColorPreferencesFrame" name="fontandcolorFrame"/>
       <widget class="CapturePreferencesFrame" name="captureFrame"/>
       <widget class="FilterExpressionsPreferencesFrame" name="filterExpressonsFrame"/>
-      <widget class="QFrame" name="nameresolutionFrame"/>
-      <widget class="QFrame" name="protocolsFrame"/>
-      <widget class="QFrame" name="statisticsFrame"/>
       <widget class="QFrame" name="advancedFrame">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>

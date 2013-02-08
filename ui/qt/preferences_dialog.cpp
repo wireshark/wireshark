@@ -23,28 +23,39 @@
 
 #include "preferences_dialog.h"
 #include "ui_preferences_dialog.h"
+
+#include "module_preferences_scroll_area.h"
 #include "wireshark_application.h"
+
+#ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+#include "capture-wpcap.h"
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
 
 #include <epan/prefs-int.h>
 
 #include <ui/preference_utils.h>
 
+#include "module_preferences_scroll_area.h"
 #include "syntax_line_edit.h"
 #include "qt_ui_utils.h"
 
-#include <QTreeWidgetItemIterator>
+#include <QColorDialog>
+#include <QFileDialog>
 #include <QFrame>
 #include <QHBoxLayout>
-#include <QSpacerItem>
+#include <QKeyEvent>
 #include <QLineEdit>
-#include <QFileDialog>
-#include <QColorDialog>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QKeyEvent>
+#include <QSpacerItem>
+#include <QTreeWidgetItemIterator>
+
 #include <QDebug>
 
 Q_DECLARE_METATYPE(pref_t *)
+Q_DECLARE_METATYPE(QStackedWidget *)
 
 // XXX Should we move this to ui/preference_utils?
 static QHash<void *, pref_t *> pref_ptr_to_pref_;
@@ -55,6 +66,91 @@ pref_t *prefFromPrefPtr(void *pref_ptr)
 
 extern "C" {
 // Callbacks prefs routines
+
+static guint
+pref_exists(pref_t *pref, gpointer user_data)
+{
+    Q_UNUSED(pref)
+    Q_UNUSED(user_data)
+    return 1;
+}
+
+static guint
+module_prefs_show(module_t *module, gpointer ti_ptr)
+{
+    QTreeWidgetItem *item = static_cast<QTreeWidgetItem *>(ti_ptr);
+
+    if (!item) return 0;
+
+    QStackedWidget *stacked_widget = item->data(0, Qt::UserRole).value<QStackedWidget *>();
+
+    if (!stacked_widget) return 0;
+
+    if (!module->use_gui) {
+        /* This module uses its own GUI interface to modify its
+         * preferences, so ignore it
+         */
+        return 0;
+    }
+
+    /*
+     * Is this module an interior node, with modules underneath it?
+     */
+    if (!prefs_module_has_submodules(module)) {
+        /*
+         * No.
+         * Does it have any preferences (other than possibly obsolete ones)?
+         */
+        if (prefs_pref_foreach(module, pref_exists, NULL) == 0) {
+            /*
+             * No.  Don't put the module into the preferences window,
+             * as there's nothing to show.
+             *
+             * XXX - we should do the same for interior ndes; if the module
+             * has no non-obsolete preferences *and* nothing under it has
+             * non-obsolete preferences, don't put it into the window.
+             */
+            return 0;
+        }
+    }
+
+    /*
+     * Add this module to the tree.
+     */
+    QTreeWidgetItem *new_item = new QTreeWidgetItem(item);
+    new_item->setText(0, module->title);
+    new_item->setData(0, Qt::UserRole, item->data(0, Qt::UserRole));
+
+    /*
+     * Is this an interior node?
+     */
+    if (prefs_module_has_submodules(module)) {
+        /*
+         * Yes. Walk the subtree and attach stuff to it.
+         */
+        prefs_modules_foreach_submodules(module, module_prefs_show, (gpointer) new_item);
+    }
+
+    /*
+     * We create pages for interior nodes even if they don't have
+     * preferences, so that we at least have something to show
+     * if the user clicks on them, even if it's empty.
+     */
+
+    /* Scrolled window */
+    ModulePreferencesScrollArea *mpsa = new ModulePreferencesScrollArea(module);
+
+//    /* Associate this module with the page's frame. */
+//    g_object_set_data(G_OBJECT(frame), E_PAGE_MODULE_KEY, module);
+
+    /* Add the page to the notebook */
+    stacked_widget->addWidget(mpsa);
+
+    /* Attach the page to the tree item */
+    new_item->setData(0, Qt::UserRole, qVariantFromValue(qobject_cast<QWidget *>(mpsa)));
+
+    return 0;
+}
 
 static guint
 fill_advanced_prefs(module_t *module, gpointer root_ptr)
@@ -160,9 +256,7 @@ module_prefs_clean_stash(module_t *module, gpointer unused)
 
 // Preference tree items
 const int appearance_item_ = 0;
-const int protocols_item_  = 4;
-const int statistics_item_ = 5;
-const int advanced_item_   = 6;
+const int capture_item_    = 1;
 
 // We store the saved and current preference values in the "Advanced" tree columns
 const int pref_ptr_col_ = 0;
@@ -194,6 +288,19 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     pd_ui_->prefsTree->invisibleRootItem()->child(appearance_item_)->setExpanded(true);
     pd_ui_->prefsTree->setCurrentItem(pd_ui_->prefsTree->invisibleRootItem()->child(appearance_item_));
 
+    bool disable_capture = true;
+#ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+    /* Is WPcap loaded? */
+    if (has_wpcap) {
+#endif /* _WIN32 */
+        disable_capture = false;
+#ifdef _WIN32
+    }
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
+    pd_ui_->prefsTree->invisibleRootItem()->child(capture_item_)->setDisabled(disable_capture);
+
     // This assumes that the prefs tree and stacked widget contents exactly
     // correspond to each other.
     QTreeWidgetItem *item = pd_ui_->prefsTree->itemAt(0,0);
@@ -203,6 +310,19 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
         item->setData(0, Qt::UserRole, qVariantFromValue(pd_ui_->stackedWidget->widget(i)));
         item = pd_ui_->prefsTree->itemBelow(item);
     }
+
+    // Printing prefs don't apply here.
+    module_t *print_module = prefs_find_module("print");
+    if (print_module) print_module->use_gui = FALSE;
+
+    // We called takeChildren above so this shouldn't be necessary.
+    while (tmp_item.childCount() > 0) {
+        tmp_item.removeChild(tmp_item.child(0));
+    }
+    tmp_item.setData(0, Qt::UserRole, qVariantFromValue(pd_ui_->stackedWidget));
+    prefs_modules_foreach_submodules(NULL, module_prefs_show, (gpointer) &tmp_item);
+    pd_ui_->prefsTree->invisibleRootItem()->insertChildren(
+                pd_ui_->prefsTree->invisibleRootItem()->childCount() - 1, tmp_item.takeChildren());
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -483,7 +603,7 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
                                                             pref->stashed_val.string);
             if (!filename.isEmpty()) {
                 g_free((void *)pref->stashed_val.string);
-                pref->stashed_val.string = g_strdup(filename.toUtf8().constData());
+                pref->stashed_val.string = qstring_strdup(filename);
                 updateItem(*item);
             }
             break;
@@ -588,7 +708,7 @@ void PreferencesDialog::enumPrefCurrentIndexChanged(int index)
     pref_t *pref = item->data(pref_ptr_col_, Qt::UserRole).value<pref_t *>();
     if (!pref) return;
 
-    pref->stashed_val.enumval = cur_combo_box_->itemData(index, Qt::UserRole).toInt();
+    pref->stashed_val.enumval = cur_combo_box_->itemData(index).toInt();
     updateItem(*item);
 }
 
@@ -601,7 +721,7 @@ void PreferencesDialog::stringPrefEditingFinished()
     if (!pref) return;
 
     g_free((void *)pref->stashed_val.string);
-    pref->stashed_val.string = g_strdup(cur_line_edit_->text().toUtf8().constData());
+    pref->stashed_val.string = qstring_strdup(cur_line_edit_->text());
     pd_ui_->advancedTree->removeItemWidget(item, 3);
     updateItem(*item);
 }

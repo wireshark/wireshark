@@ -2394,27 +2394,27 @@ void
 addr_resolve_pref_init(module_t *nameres)
 {
     prefs_register_bool_preference(nameres, "mac_name",
-                                   "Enable MAC name resolution",
+                                   "Resolve MAC addresses",
                                    "Resolve Ethernet MAC address to manufacturer names",
                                    &gbl_resolv_flags.mac_name);
 
     prefs_register_bool_preference(nameres, "transport_name",
-                                   "Enable transport name resolution",
+                                   "Resolve transport names",
                                    "Resolve TCP/UDP ports into service names",
                                    &gbl_resolv_flags.transport_name);
 
     prefs_register_bool_preference(nameres, "network_name",
-                                   "Enable network name resolution",
-                                   "Resolve IP addresses into host names."
+                                   "Resolve network (IP) addresses",
+                                   "Resolve IPv4, IPv6, and IPX addresses into host names."
                                    " Next set of check boxes determines how name resolution should be performed"
                                    " If unchecked name resolution is made from Wiresharks host file,"
                                    " name resolution block and DNS packets in the capture",
                                    &gbl_resolv_flags.network_name);
 
     prefs_register_bool_preference(nameres, "use_external_name_resolver",
-                                   "Use external network name resolver",
+                                   "Use an external network name resolver",
                                    "Use the (system's) configured name resolver"
-                                   " (e.g., DNS) to resolve network names."
+                                   " (usually DNS) to resolve network names."
                                    " Only applies when network name resolution"
                                    " is enabled",
                                    &gbl_resolv_flags.use_external_net_name_resolver);
@@ -2422,14 +2422,17 @@ addr_resolve_pref_init(module_t *nameres)
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
     prefs_register_bool_preference(nameres, "concurrent_dns",
                                    "Enable concurrent DNS name resolution",
-                                   "Enable concurrent DNS name resolution.  Only"
+                                   "Enable concurrent DNS name resolution. Only"
                                    " applies when network name resolution is"
-                                   " enabled",
+                                   " enabled. You probably want to enable this.",
                                   &gbl_resolv_flags.concurrent_dns);
 
     prefs_register_uint_preference(nameres, "name_resolve_concurrency",
                                    "Maximum concurrent requests",
-                                   "Maximum parallel running DNS requests",
+                                   "The maximum number of DNS requests that may"
+				   " be active at any time. A large value (many"
+				   " thousands) might overload the network or make"
+				   " your DNS server behave badly.",
                                    10,
                                    &name_resolve_concurrency);
 #else
@@ -2440,10 +2443,9 @@ addr_resolve_pref_init(module_t *nameres)
 #endif
 
     prefs_register_bool_preference(nameres, "hosts_file_handling",
-                                   "Use hosts file from profile dir only",
-                                   "By default hosts file(s) will be loaded from multiple sources"
-                                   " by checking this box only the hostfile for the current profile will be loaded"
-                                   " if the default profile is used the hosts file must be in the same dir as preferences",
+                                   "Only use the profile \"hosts\" file",
+                                   "By default \"hosts\" files will be loaded from multiple sources."
+                                   " Checking this box only loads the \"hosts\" in the current profile.",
                                    &gbl_resolv_flags.load_hosts_file_from_profile_only);
 
 }
