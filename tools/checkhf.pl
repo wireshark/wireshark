@@ -139,6 +139,7 @@ while (my $fileName = $ARGV[0]) {
 ##    $noArrayHRef  = diff_hash(\%hfDefs, \%hfArrayEntries);
     $noArrayHRef  = diff_hash(\%hfStaticDefs, \%hfArrayEntries);
     $noArrayHRef  = diff_hash($noArrayHRef, $unUsedHRef);     # Remove "unused" hf_... from noArray list
+
     print_list("ERROR: NO ARRAY: $fileName, ", $noArrayHRef);
 
     if ((keys %$noArrayHRef) != 0) {
@@ -168,13 +169,12 @@ sub read_file {
     # delete leading './'
     $$fileNameRef =~ s{ ^ \. / } {}xo;
 
-    $$fileContentsRef = '';
     # Read in the file (ouch, but it's easier that way)
-    open(FCI, "<", $$fileNameRef) || die("Couldn't open $$fileNameRef");
-    while (<FCI>) {
-        $$fileContentsRef .= $_;
-    }
-    close(FCI);
+    open(my $fci, "<:crlf", $$fileNameRef) || die("Couldn't open $$fileNameRef");
+
+    $$fileContentsRef = do { local( $/ ) ; <$fci> } ;
+
+    close($fci);
 
     return;
 }
@@ -216,7 +216,7 @@ sub print_list {
 sub remove_blank_lines {
     my ($codeRef, $fileName) = @_;
 
-    $$codeRef =~ s { ^ \s* $ } []xomg;
+    $$codeRef =~ s { ^ \s* \n  } []xomg;
 
     return;
 }
