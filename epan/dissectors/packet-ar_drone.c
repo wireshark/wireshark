@@ -754,7 +754,7 @@ proto_register_ar_drone(void)
     /* Setup protocol info */
     proto_ar_drone = proto_register_protocol (
         "AR Drone Packet", /* name       */
-        "ar drone",      /* short name */
+        "AR Drone",      /* short name */
         "ar_drone"       /* abbrev     */
     );
 
