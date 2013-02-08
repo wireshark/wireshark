@@ -934,6 +934,17 @@ AC_SUBST(QT_MIN_VERSION)
 
 if test "x$enable_wireshark" = "xyes"; then
 	if test "x$with_qt" = "xyes"; then
+
+		AC_MSG_CHECKING(whether we have a working C++ compiler)
+		AC_LANG_PUSH([C++])
+		AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])],
+			[AC_MSG_RESULT(yes)],
+			[
+			 AC_MSG_RESULT(no)
+			 AC_MSG_ERROR(Need a working C++ compiler to build Wireshark with Qt)
+			])
+		AC_LANG_POP([C++])
+
 		PKG_CHECK_MODULES([Qt], [QtCore QtGui],
 		[
 			CFLAGS="$CFLAGS $Qt_CFLAGS"
