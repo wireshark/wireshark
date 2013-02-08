@@ -945,49 +945,19 @@ if test "x$enable_wireshark" = "xyes"; then
 			])
 		AC_LANG_POP([C++])
 
-		PKG_CHECK_MODULES([Qt], [QtCore QtGui],
+		AM_PATH_QT($QT_MIN_VERSION,
 		[
 			CFLAGS="$CFLAGS $Qt_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $Qt_CFLAGS"
-			#
-			# XXX - greasy hack to make ui/gtk/recent.c
-			# compile.
-			#
-			CPPFLAGS="-DQT_GUI_LIB $CPPFLAGS"
 			have_qt=yes
-		],
-		[
-			AC_MSG_ERROR([Qt is not available])
-		])
+		]
+		, [AC_MSG_ERROR([Qt is not available])])
 
 		#
-		# Qt 5.0 appears to move the widgets out of Qt GUI
-		# to Qt Widgets; look for QtWidgets and, if we find
-		# it, add its flags to CFLAGS and CXXFLAGS, so that
-		# we find the include files for the widgets.  (If
-		# we don't find it, we assume it's Qt 4.)
+		# XXX - greasy hack to make ui/gtk/recent.c
+		# compile.
 		#
-		PKG_CHECK_MODULES([QtWidgets], [QtWidgets],
-		[
-			CFLAGS="$CFLAGS $QtWidgets_CFLAGS"
-			CXXFLAGS="$CXXFLAGS $QtWidgets_CFLAGS"
-		],
-		AC_MSG_NOTICE([QtWidgets not found. Assuming Qt4]))
-
-		#
-		# It also appears to move the printing support into
-		# the QtPrintSupport module.
-		#
-		PKG_CHECK_MODULES([QtPrintSupport], [QtPrintSupport],
-		[
-			CFLAGS="$CFLAGS $QtPrintSupport_CFLAGS"
-			CXXFLAGS="$CXXFLAGS $QtPrintSupport_CFLAGS"
-		],
-		AC_MSG_NOTICE([QtPrintSupport not found. Assuming Qt4]))
-
-		# Check for the minimum Qt version
-		# XXX the above checks should be moved into AM_PATH_QT.
-		AM_PATH_QT($QT_MIN_VERSION, , [AC_MSG_ERROR([Qt is not available])])
+		CPPFLAGS="-DQT_GUI_LIB"
 
 		#
 		# We don't know whether we have GTK+, but we
