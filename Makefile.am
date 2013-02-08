@@ -616,8 +616,12 @@ EXTRA_DIST = \
 	README.vmware		\
 	README.windows		\
 	abi-descriptor.template	\
+	aclocal-fallback/libsmi.m4 \
+	aclocal-fallback/libgcrypt.m4 \
 	aclocal-fallback/glib-2.0.m4 \
 	aclocal-fallback/gtk-2.0.m4 \
+	aclocal-fallback/gtk-3.0.m4 \
+	aclocal-fallback/qt.m4 \
 	aclocal-flags		\
 	adns_dll.dep		\
 	adns_dll.rc		\
