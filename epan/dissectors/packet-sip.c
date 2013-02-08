@@ -55,6 +55,9 @@
 #include "packet-isup.h"
 #include "packet-sip.h"
 
+#include "packet-sdp.h"  /* SDP needs a transport layer to determine request/response */
+
+
 #define TCP_PORT_SIP 5060
 #define UDP_PORT_SIP 5060
 #define TLS_PORT_SIP 5061
@@ -3076,6 +3079,32 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	col_append_str(pinfo->cinfo, COL_INFO, " | ");
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
+	/* Find the total setup time, Must be done before checking for resend
+	 * As that will overwrite the "Request packet no".
+	 */
+	if ((line_type == REQUEST_LINE)&&(strcmp(cseq_method, "ACK") == 0))
+	{
+		request_for_response = sip_find_invite(pinfo, cseq_method, call_id,
+		                                        cseq_number_set, cseq_number,
+		                                        &response_time);
+		stat_info->setup_time = response_time;
+	}
+
+	/* Check if this packet is a resend. */
+	resend_for_packet = sip_is_packet_resend(pinfo, cseq_method, call_id,
+	                                         cseq_number_set, cseq_number,
+	                                         line_type);
+	/* Mark whether this is a resend for the tap */
+	stat_info->resend = (resend_for_packet > 0);
+
+	/* For responses, try to link back to request frame */
+	if (line_type == STATUS_LINE)
+	{
+		request_for_response = sip_find_request(pinfo, cseq_method, call_id,
+		                                        cseq_number_set, cseq_number,
+		                                        &response_time);
+	}
+
 	if (datalen > 0) {
 		/*
 		 * There's a message body starting at "offset".
@@ -3105,6 +3134,21 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		if ( media_type_str_lower_case != NULL ) {
 			void *save_private_data = pinfo->private_data;
 			pinfo->private_data = content_type_parameter_str;
+
+			/* SDP needs a transport layer to determine request/response */
+			if (!strcmp(media_type_str_lower_case, "application/sdp")) {
+				/* Resends don't count */
+				if (resend_for_packet == 0) {
+					if (line_type == REQUEST_LINE) {
+						setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_OFFER, pinfo->fd->num);
+					} else if (line_type == STATUS_LINE) {
+						setup_sdp_transport(next_tvb, pinfo, 
+							(stat_info->response_code == 200) ? SDP_EXCHANGE_ANSWER_ACCEPT : SDP_EXCHANGE_ANSWER_REJECT, 
+							request_for_response);
+					}
+				}
+			}
+
 			found_match = dissector_try_string(media_type_dissector_table,
 			                                   media_type_str_lower_case,
 			                                   next_tvb, pinfo,
@@ -3140,25 +3184,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		offset += datalen;
 	}
 
-
-	/* Find the total setup time, Must be done before checking for resend
-	 * As that will overwrite the "Request packet no".
-	 */
-	if ((line_type == REQUEST_LINE)&&(strcmp(cseq_method, "ACK") == 0))
-	{
-		request_for_response = sip_find_invite(pinfo, cseq_method, call_id,
-		                                        cseq_number_set, cseq_number,
-		                                        &response_time);
-		stat_info->setup_time = response_time;
-	}
-
-	/* Check if this packet is a resend. */
-	resend_for_packet = sip_is_packet_resend(pinfo, cseq_method, call_id,
-	                                         cseq_number_set, cseq_number,
-	                                         line_type);
-	/* Mark whether this is a resend for the tap */
-	stat_info->resend = (resend_for_packet > 0);
-
 	/* And add the filterable field to the request/response line */
 	if (reqresp_tree)
 	{
@@ -3172,19 +3197,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			                           tvb, orig_offset, 0, resend_for_packet);
 			PROTO_ITEM_SET_GENERATED(item);
 		}
-	}
 
-	/* For responses, try to link back to request frame */
-	if (line_type == STATUS_LINE)
-	{
-		request_for_response = sip_find_request(pinfo, cseq_method, call_id,
-		                                        cseq_number_set, cseq_number,
-		                                        &response_time);
-	}
-
-	if (reqresp_tree)
-	{
-		proto_item *item;
 		if (request_for_response > 0)
 		{
 			item = proto_tree_add_uint(reqresp_tree, hf_sip_matching_request_frame,
