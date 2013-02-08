@@ -103,7 +103,7 @@ static char** attr_str;
 static unsigned* attr_uint;
 
 static void ddict_debug(const char* fmt, ...);
-static void append_to_buffer(char* txt, int len);
+static void append_to_buffer(const char* txt, int len);
 static FILE* ddict_open(const char*, const char*);
 
 %}
@@ -550,7 +550,7 @@ void ddict_unused(void) {
 	yy_top_state();
 }
 
-static void append_to_buffer(char* txt, int len) {
+static void append_to_buffer(const char* txt, int len) {
 
 	if (strbuf == NULL) {
 		read_ptr = write_ptr = strbuf = g_malloc(size_strbuf);
