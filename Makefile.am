@@ -726,9 +726,11 @@ EXTRA_DIST = \
 	image/clist_ascend.xpm			\
 	image/clist_descend.xpm			\
 	image/copy-8.png			\
+	image/dfilter_apply_disabled.png	\
 	image/dfilter_apply_hover.png		\
 	image/dfilter_apply_normal.png		\
 	image/dfilter_apply_pressed.png		\
+	image/dfilter_bookmark_disabled.png	\
 	image/dfilter_bookmark_hover.png	\
 	image/dfilter_bookmark_normal.png	\
 	image/dfilter_bookmark_pressed.png	\
