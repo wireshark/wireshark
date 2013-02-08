@@ -1050,12 +1050,13 @@ rpm_topdir=`cd $(top_builddir) && pwd`/packaging/rpm
 rpm-package: dist
 	if test x$(HAVE_RPM) = xyes ; then \
 		cd $(rpm_topdir) ; \
-		mkdir -p BUILD RPMS SOURCES ; \
+		mkdir -p BUILD RPMS SOURCES SRPMS; \
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.bz2 ; \
 		cd .. ; \
-		rpmbuild --define "_topdir `cd . && pwd`" -bb SPECS/wireshark.spec && \
+		rpmbuild --define "_topdir `cd . && pwd`" --clean -ba SPECS/wireshark.spec && \
 			echo "Package successfully built in `pwd`/RPMS." ; \
+		rm -f SOURCES/$(distdir).tar.bz2; \
 	else \
 		echo "Error: RPM executable and/or source directory not found." ; \
 		false; \
