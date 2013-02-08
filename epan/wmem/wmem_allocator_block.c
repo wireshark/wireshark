@@ -358,7 +358,7 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     available = chunk->len;
 
     /* set new values for chunk */
-    chunk->len  = aligned_size + sizeof(wmem_block_chunk_t);
+    chunk->len  = (guint32) (aligned_size + sizeof(wmem_block_chunk_t));
     chunk->last = FALSE;
 
     /* with chunk's values set, we can use the standard macro to calculate
@@ -410,9 +410,9 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
 
     /* Now that we've copied over the free-list stuff (which may have overlapped
      * with our new chunk header) we can safely write our new chunk header. */
-    extra->len  = available;
+    extra->len  = (guint32) available;
     extra->last = last;
-    extra->prev = aligned_size + sizeof(wmem_block_chunk_t);
+    extra->prev = (guint32) (aligned_size + sizeof(wmem_block_chunk_t));
     extra->used = FALSE;
 }
 
@@ -448,7 +448,7 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     available = chunk->len;
 
     /* set new values for chunk */
-    chunk->len  = aligned_size + sizeof(wmem_block_chunk_t);
+    chunk->len  = (guint32) (aligned_size + sizeof(wmem_block_chunk_t));
     chunk->last = FALSE;
 
     /* with chunk's values set, we can use the standard macro to calculate
@@ -457,9 +457,9 @@ wmem_block_split_used_chunk(wmem_block_allocator_t *allocator,
     available -= (aligned_size + sizeof(wmem_block_chunk_t));
 
     /* set the new values for the chunk */
-    extra->len  = available;
+    extra->len  = (guint32) available;
     extra->last = last;
-    extra->prev = aligned_size + sizeof(wmem_block_chunk_t);
+    extra->prev = (guint32) (aligned_size + sizeof(wmem_block_chunk_t));
     extra->used = FALSE;
 
     /* add it to the free list */
