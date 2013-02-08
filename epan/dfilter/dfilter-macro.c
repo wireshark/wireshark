@@ -615,7 +615,7 @@ void dfilter_macro_init(void) {
 				    TRUE,
 				    (void*) &macros,
 				    &num_macros,
-				    NULL,
+				    UAT_CAT_GENERAL,
 				    "ChDisplayFilterMacrosSection",
 				    macro_copy,
 				    macro_update,
