@@ -76,7 +76,7 @@ static const gchar* dtd_dirname;
 static const gchar* filename;
 static guint linenum;
 
-static gchar* replace_entity(gchar* s);
+static const gchar* replace_entity(gchar* s);
 static const gchar* location(void);
 
 /*
@@ -159,7 +159,7 @@ newline    \n
 
 %%
 
-static gchar* replace_entity(gchar* entity) {
+static const gchar* replace_entity(gchar* entity) {
 	GString* replacement;
 
 	*entity = '%';
