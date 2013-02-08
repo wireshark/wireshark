@@ -8834,6 +8834,28 @@ dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, gboolean wlan_broken_fc,
 }
 
 static void
+dissect_durid(proto_tree *hdr_tree, tvbuff_t *tvb, guint16 fts, gint offset)
+{
+  guint16 durid = tvb_get_letohs(tvb, offset);
+
+  if (durid < 0x8000) {
+    proto_tree_add_uint_format_value(hdr_tree, hf_ieee80211_did_duration, tvb,
+      offset, 2, durid, "%u microseconds", durid);
+  } else if (((durid & 0xC000) == 0xC000) &&
+             ((durid & 0x3FFF) > 0) && ((durid & 0x3FFF) <= 2007) &&
+             (fts == CTRL_PS_POLL)) {
+    proto_tree_add_item(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, offset,
+      ENC_LITTLE_ENDIAN);
+  } else if (durid == 0x8000) {
+    proto_tree_add_uint_format(hdr_tree, hf_ieee80211_did_duration, tvb,
+      offset, 2, durid, "Duration/ID: %u", durid);
+  } else {
+    proto_tree_add_uint_format(hdr_tree, hf_ieee80211_did_duration, tvb,
+      offset, 2, durid, "Duration/ID: %u (reserved)", durid & 0x3FFF);
+  }
+}
+
+static void
 dissect_vendor_ie_ht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     guint offset, proto_item *item, proto_item *ti_len, gint tag_len)
 {
@@ -11412,20 +11434,15 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   if (datapad)
     hdr_len = roundup2(hdr_len, 4);
 
-  /* Add the FC to the current tree */
+  /* Add the FC and duration/id to the current tree */
   if (tree)
     {
       ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
-          "IEEE 802.11 %s", fts_str);
+                                           "IEEE 802.11 %s", fts_str);
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
 
       dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0);
-
-      if (frame_type_subtype == CTRL_PS_POLL)
-        proto_tree_add_item(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
-      else
-        proto_tree_add_uint (hdr_tree, hf_ieee80211_did_duration, tvb, 2, 2,
-            tvb_get_letohs (tvb, 2));
+      dissect_durid(hdr_tree, tvb, frame_type_subtype, 2);
     }
 
   /*
@@ -13219,7 +13236,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_did_duration,
      {"Duration", "wlan.duration",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC, NULL, 0x7FFF,
       "Duration field", HFILL }},
 
     {&hf_ieee80211_addr_da,
