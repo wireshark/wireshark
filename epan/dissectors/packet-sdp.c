@@ -1211,7 +1211,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     next_offset =  next_offset + 1;
     offset = next_offset;
     while (length-1 >= next_offset) {
-      if (!isdigit(tvb_get_guint8(tvb, next_offset)))
+      if (!g_ascii_isdigit(tvb_get_guint8(tvb, next_offset)))
         break;
       next_offset++;
     }
