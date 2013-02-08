@@ -45,12 +45,12 @@ LEMON_GENERATED_HEADER_FILES = \
 	mate_grammar.h
 
 # Non-generated sources to be scanned for registration routines
-REGISTER_C_FILES = \
+NONGENERATED_REGISTER_C_FILES = \
 	packet-mate.c
 
 # Non-generated sources
-C_FILES = \
-	$(REGISTER_C_FILES) \
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES) \
 	mate_setup.c \
 	mate_runtime.c \
 	mate_util.c
