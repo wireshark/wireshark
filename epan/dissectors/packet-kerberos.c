@@ -5420,7 +5420,7 @@ proto_register_kerberos(void)
         "keytab file is installed as well.",
         &krb_decrypt);
 
-    prefs_register_string_preference(krb_module, "file",
+    prefs_register_filename_preference(krb_module, "file",
         "Kerberos keytab file",
         "The keytab file containing all the secrets",
         &keytab_filename);
