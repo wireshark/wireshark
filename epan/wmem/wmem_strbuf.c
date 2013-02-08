@@ -101,7 +101,6 @@ static void
 wmem_strbuf_grow(wmem_strbuf_t *strbuf, const gsize to_add)
 {
     gsize  new_alloc_len, new_len;
-    gchar *new_str;
     
     new_alloc_len = strbuf->alloc_len;
     new_len = strbuf->len + to_add;
@@ -120,11 +119,8 @@ wmem_strbuf_grow(wmem_strbuf_t *strbuf, const gsize to_add)
         return;
     }
 
-    new_str = wmem_alloc(strbuf->allocator, new_alloc_len);
+    strbuf->str = wmem_realloc(strbuf->allocator, strbuf->str, new_alloc_len);
 
-    g_strlcpy(new_str, strbuf->str, new_alloc_len);
-
-    strbuf->str       = new_str;
     strbuf->alloc_len = new_alloc_len;
 }
 
