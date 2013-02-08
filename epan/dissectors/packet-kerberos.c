@@ -384,7 +384,7 @@ call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 gboolean krb_decrypt = FALSE;
 
 /* keytab filename */
-static const char *keytab_filename = "insert filename here";
+static const char *keytab_filename = "";
 
 void read_keytab_file(const char *);
 

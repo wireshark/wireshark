@@ -32,6 +32,7 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -152,6 +153,29 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         vb->addLayout(hb);
         break;
     }
+    case PREF_FILENAME:
+    case PREF_DIRNAME:
+    {
+        vb->addWidget(new QLabel(pref->title));
+        QHBoxLayout *hb = new QHBoxLayout();
+        QLineEdit *path_le = new QLineEdit();
+        QStyleOption style_opt;
+        path_le->setProperty(pref_prop_, qVariantFromValue(pref));
+        path_le->setMinimumWidth(path_le->fontMetrics().height() * 20);
+        path_le->setStyleSheet(QString(
+                              "QLineEdit {"
+                              "  margin-left: %1px;"
+                              "}"
+                              )
+                          .arg(path_le->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left()));
+        hb->addWidget(path_le);
+        QPushButton *path_pb = new QPushButton("Browse...");
+        path_pb->setProperty(pref_prop_, qVariantFromValue(pref));
+        hb->addWidget(path_pb);
+        hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        vb->addLayout(hb);
+        break;
+    }
     case PREF_COLOR:
     {
         // XXX - Not needed yet. When it is needed we can add a label + QFrame which pops up a
@@ -182,12 +206,20 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
         pref_t *pref = le->property(pref_prop_).value<pref_t *>();
         if (!pref) continue;
 
-        if (pref->type == PREF_UINT) {
+        switch (pref->type) {
+        case PREF_UINT:
             connect(le, SIGNAL(textEdited(QString)), this, SLOT(uintLineEditTextEdited(QString)));
-        } else if (pref->type == PREF_STRING) {
+            break;
+        case PREF_STRING:
+        case PREF_FILENAME:
+        case PREF_DIRNAME:
             connect(le, SIGNAL(textEdited(QString)), this, SLOT(stringLineEditTextEdited(QString)));
-        } else if (pref->type == PREF_RANGE) {
+            break;
+        case PREF_RANGE:
             connect(le, SIGNAL(textEdited(QString)), this, SLOT(rangeSyntaxLineEditTextEdited(QString)));
+            break;
+        default:
+            break;
         }
     }
 
@@ -200,30 +232,34 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
         }
     }
 
-    foreach (QRadioButton *enum_rb, findChildren<QRadioButton *>()) {
-        pref_t *pref = enum_rb->property(pref_prop_).value<pref_t *>();
+    foreach (QRadioButton *rb, findChildren<QRadioButton *>()) {
+        pref_t *pref = rb->property(pref_prop_).value<pref_t *>();
         if (!pref) continue;
 
         if (pref->type == PREF_ENUM && pref->info.enum_info.radio_buttons) {
-            connect(enum_rb, SIGNAL(toggled(bool)), this, SLOT(enumRadioButtonToggled(bool)));
+            connect(rb, SIGNAL(toggled(bool)), this, SLOT(enumRadioButtonToggled(bool)));
         }
     }
 
-    foreach (QComboBox *enum_cb, findChildren<QComboBox *>()) {
-        pref_t *pref = enum_cb->property(pref_prop_).value<pref_t *>();
+    foreach (QComboBox *combo, findChildren<QComboBox *>()) {
+        pref_t *pref = combo->property(pref_prop_).value<pref_t *>();
         if (!pref) continue;
 
         if (pref->type == PREF_ENUM && !pref->info.enum_info.radio_buttons) {
-            connect(enum_cb, SIGNAL(currentIndexChanged(int)), this, SLOT(enumComboBoxCurrentIndexChanged(int)));
+            connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(enumComboBoxCurrentIndexChanged(int)));
         }
     }
 
-    foreach (QPushButton *uat_pb, findChildren<QPushButton *>()) {
-        pref_t *pref = uat_pb->property(pref_prop_).value<pref_t *>();
+    foreach (QPushButton *pb, findChildren<QPushButton *>()) {
+        pref_t *pref = pb->property(pref_prop_).value<pref_t *>();
         if (!pref) continue;
 
         if (pref->type == PREF_UAT) {
-            connect(uat_pb, SIGNAL(pressed()), this, SLOT(uatPushButtonPressed()));
+            connect(pb, SIGNAL(pressed()), this, SLOT(uatPushButtonPressed()));
+        } else if (pref->type == PREF_FILENAME) {
+            connect(pb, SIGNAL(pressed()), this, SLOT(filenamePushButtonPressed()));
+        } else if (pref->type == PREF_DIRNAME) {
+            connect(pb, SIGNAL(pressed()), this, SLOT(dirnamePushButtonPressed()));
         }
     }
 
@@ -398,6 +434,44 @@ void ModulePreferencesScrollArea::uatPushButtonPressed()
     if (!pref) return;
 
     qDebug() << "FIX Implement UATs:" << pref->title;
+}
+
+void ModulePreferencesScrollArea::filenamePushButtonPressed()
+{
+    QPushButton *filename_pb = qobject_cast<QPushButton*>(sender());
+    if (!filename_pb) return;
+
+    pref_t *pref = filename_pb->property(pref_prop_).value<pref_t *>();
+    if (!pref) return;
+
+    QString filename = QFileDialog::getSaveFileName(this,
+                                            QString("Wireshark: ") + pref->description,
+                                            pref->stashed_val.string);
+
+    if (!filename.isEmpty()) {
+        g_free((void *)pref->stashed_val.string);
+        pref->stashed_val.string = qstring_strdup(filename);
+        updateWidgets();
+    }
+}
+
+void ModulePreferencesScrollArea::dirnamePushButtonPressed()
+{
+    QPushButton *dirname_pb = qobject_cast<QPushButton*>(sender());
+    if (!dirname_pb) return;
+
+    pref_t *pref = dirname_pb->property(pref_prop_).value<pref_t *>();
+    if (!pref) return;
+
+    QString dirname = QFileDialog::getExistingDirectory(this,
+                                                 QString("Wireshark: ") + pref->description,
+                                                 pref->stashed_val.string);
+
+    if (!dirname.isEmpty()) {
+        g_free((void *)pref->stashed_val.string);
+        pref->stashed_val.string = qstring_strdup(dirname);
+        updateWidgets();
+    }
 }
 
 /*

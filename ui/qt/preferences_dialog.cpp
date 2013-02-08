@@ -48,7 +48,6 @@
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QMessageBox>
-#include <QPushButton>
 #include <QSpacerItem>
 #include <QTreeWidgetItemIterator>
 
@@ -427,6 +426,7 @@ bool PreferencesDialog::stashedPrefIsDefault(pref_t *pref)
 
     case PREF_STRING:
     case PREF_FILENAME:
+    case PREF_DIRNAME:
         if (!(g_strcmp0(pref->default_val.string, pref->stashed_val.string)))
             return true;
         break;
@@ -597,10 +597,19 @@ void PreferencesDialog::on_advancedTree_itemActivated(QTreeWidgetItem *item, int
             break;
         }
         case PREF_FILENAME:
+        case PREF_DIRNAME:
         {
-            QString filename = QFileDialog::getSaveFileName(this,
-                                                            QString("Wireshark: ") + pref->description,
-                                                            pref->stashed_val.string);
+            QString filename;
+
+            if (pref->type == PREF_FILENAME) {
+                filename = QFileDialog::getSaveFileName(this,
+                                                        QString("Wireshark: ") + pref->description,
+                                                        pref->stashed_val.string);
+            } else {
+                filename = QFileDialog::getExistingDirectory(this,
+                                                             QString("Wireshark: ") + pref->description,
+                                                             pref->stashed_val.string);
+            }
             if (!filename.isEmpty()) {
                 g_free((void *)pref->stashed_val.string);
                 pref->stashed_val.string = qstring_strdup(filename);

@@ -76,8 +76,8 @@ static gboolean prefs_main_delete_event_cb(GtkWidget *, GdkEvent *, gpointer);
 static void     prefs_main_destroy_cb(GtkWidget *, gpointer);
 static void     prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 
-static GtkWidget *create_preference_filename_entry(GtkWidget *, int,
-   const gchar *, const gchar *, char *);
+static GtkWidget *create_preference_path_entry(GtkWidget *, int,
+   const gchar *, const gchar *, char *, gboolean);
 
 #define E_PREFSW_SCROLLW_KEY          "prefsw_scrollw"
 #define E_PREFSW_TREE_KEY             "prefsw_tree"
@@ -213,10 +213,17 @@ pref_show(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_FILENAME:
-    pref->control = create_preference_filename_entry(main_grid, pref->ordinal,
+    pref->control = create_preference_path_entry(main_grid, pref->ordinal,
                                                      label_string,
                                                      tooltip_txt,
-                                                     pref->stashed_val.string);
+                                                     pref->stashed_val.string, FALSE);
+    break;
+
+  case PREF_DIRNAME:
+    pref->control = create_preference_path_entry(main_grid, pref->ordinal,
+                                                     label_string,
+                                                     tooltip_txt,
+                                                     pref->stashed_val.string, TRUE);
     break;
 
   case PREF_RANGE:
@@ -839,13 +846,21 @@ static void
 preference_filename_entry_cb(GtkWidget *button, GtkWidget *filename_te)
 {
     /* XXX - use a better browser dialog title */
-    file_selection_browse(button, filename_te, "Wireshark: file preference",
+    file_selection_browse(button, filename_te, "Wireshark: File preference",
                           FILE_SELECTION_READ_BROWSE);
 }
 
+static void
+preference_dirname_entry_cb(GtkWidget *button, GtkWidget *filename_te)
+{
+    /* XXX - use a better browser dialog title */
+    file_selection_browse(button, filename_te, "Wireshark: Directory preference",
+                          FILE_SELECTION_CREATE_FOLDER);
+}
+
 static GtkWidget *
-create_preference_filename_entry(GtkWidget *main_grid, int grid_position,
-    const gchar *label_text, const gchar *tooltip_text, char *value)
+create_preference_path_entry(GtkWidget *main_grid, int grid_position,
+    const gchar *label_text, const gchar *tooltip_text, char *value, gboolean dir_only)
 {
   GtkWidget *entry;
   GtkWidget *button, *file_bt_hb;
@@ -867,8 +882,11 @@ create_preference_filename_entry(GtkWidget *main_grid, int grid_position,
     gtk_widget_set_tooltip_text(entry, tooltip_text);
   gtk_widget_show(entry);
 
-  g_signal_connect(button, "clicked", G_CALLBACK(preference_filename_entry_cb), entry);
-
+  if (dir_only) {
+    g_signal_connect(button, "clicked", G_CALLBACK(preference_dirname_entry_cb), entry);
+  } else {
+    g_signal_connect(button, "clicked", G_CALLBACK(preference_filename_entry_cb), entry);
+  }
 
   return entry;
 }
@@ -956,6 +974,7 @@ pref_check(pref_t *pref, gpointer user_data)
 
   case PREF_STRING:
   case PREF_FILENAME:
+  case PREF_DIRNAME:
     /* Value can't be bad. */
     break;
 
@@ -1054,6 +1073,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
 
   case PREF_STRING:
   case PREF_FILENAME:
+  case PREF_DIRNAME:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
     if (strcmp(*pref->varp.string, str_val) != 0) {
       *pref_changed_p = TRUE;

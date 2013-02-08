@@ -61,6 +61,7 @@ pref_stash(pref_t *pref, gpointer unused _U_)
 
   case PREF_STRING:
   case PREF_FILENAME:
+  case PREF_DIRNAME:
     g_free(pref->stashed_val.string);
     pref->stashed_val.string = g_strdup(*pref->varp.string);
     break;
@@ -117,6 +118,7 @@ pref_unstash(pref_t *pref, gpointer changed_p)
 
   case PREF_STRING:
   case PREF_FILENAME:
+  case PREF_DIRNAME:
     if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
       *pref_changed_p = TRUE;
       g_free((void *)*pref->varp.string);
@@ -166,6 +168,7 @@ reset_stashed_pref(pref_t *pref) {
 
   case PREF_STRING:
   case PREF_FILENAME:
+  case PREF_DIRNAME:
     g_free(pref->stashed_val.string);
     pref->stashed_val.string = g_strdup(pref->default_val.string);
     break;
@@ -206,6 +209,7 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
 
   case PREF_STRING:
   case PREF_FILENAME:
+  case PREF_DIRNAME:
     if (pref->stashed_val.string != NULL) {
       g_free(pref->stashed_val.string);
       pref->stashed_val.string = NULL;

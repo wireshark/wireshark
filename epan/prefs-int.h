@@ -102,7 +102,8 @@ typedef enum {
     PREF_FILENAME,
     PREF_COLOR,     /* XXX - These are only supported for "internal" (non-protocol) */
     PREF_CUSTOM,    /* use and not as a generic protocol preference */
-    PREF_OBSOLETE
+    PREF_OBSOLETE,
+    PREF_DIRNAME
 } pref_type_t;
 
 /** Struct to hold preference data */

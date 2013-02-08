@@ -387,6 +387,15 @@ extern void prefs_register_filename_preference(module_t *module, const char *nam
     const char *title, const char *description, const char **var);
 
 /*
+ * Register a preference with a directory name (string) value.
+ * Directory name preferences are basically like string preferences
+ * except that the GUI gives the user the ability to browse for a
+ * directory.
+ */
+extern void prefs_register_directory_preference(module_t *module, const char *name,
+    const char *title, const char *description, const char **var);
+
+/*
  * Register a preference with a ranged value.
  */
 extern void prefs_register_range_preference(module_t *module, const char *name,

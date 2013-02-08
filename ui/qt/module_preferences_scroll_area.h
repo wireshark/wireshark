@@ -65,6 +65,8 @@ private slots:
     void stringLineEditTextEdited(const QString &new_str);
     void rangeSyntaxLineEditTextEdited(const QString &new_str);
     void uatPushButtonPressed();
+    void filenamePushButtonPressed();
+    void dirnamePushButtonPressed();
 };
 
 #endif // MODULE_PREFERENCES_SCROLL_AREA_H

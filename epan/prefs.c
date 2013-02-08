@@ -186,6 +186,7 @@ free_pref(gpointer data, gpointer user_data _U_)
         break;
     case PREF_STRING:
     case PREF_FILENAME:
+    case PREF_DIRNAME:
         g_free((char *)*pref->varp.string);
         *pref->varp.string = NULL;
         g_free(pref->default_val.string);
@@ -975,6 +976,18 @@ prefs_register_filename_preference(module_t *module, const char *name,
 {
     register_string_like_preference(module, name, title, description, var,
                                     PREF_FILENAME);
+}
+
+/*
+ * Register a preference with a directory name (string) value.
+ */
+void
+prefs_register_directory_preference(module_t *module, const char *name,
+                                   const char *title, const char *description,
+                                   const char **var)
+{
+    register_string_like_preference(module, name, title, description, var,
+                                    PREF_DIRNAME);
 }
 
 /*
@@ -1989,7 +2002,7 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.gui_recent_df_entries_max);
 
-    prefs_register_string_preference(gui_module, "fileopen.dir", "Start Directory",
+    prefs_register_directory_preference(gui_module, "fileopen.dir", "Start Directory",
         "Directory to start in when opening File Open dialog.", (const char**)(&prefs.gui_fileopen_dir));
 
     prefs_register_obsolete_preference(gui_module, "fileopen.remembered_dir");
@@ -2714,6 +2727,7 @@ reset_pref(pref_t *pref)
 
     case PREF_STRING:
     case PREF_FILENAME:
+    case PREF_DIRNAME:
         g_free((void *)*pref->varp.string);
         *pref->varp.string = g_strdup(pref->default_val.string);
         break;
@@ -3828,6 +3842,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
 
     case PREF_STRING:
     case PREF_FILENAME:
+    case PREF_DIRNAME:
       if (strcmp(*pref->varp.string, value) != 0) {
         module->prefs_changed = TRUE;
         g_free((void *)*pref->varp.string);
@@ -3935,6 +3950,10 @@ prefs_pref_type_name(pref_t *pref)
         type_name = "Filename";
         break;
 
+    case PREF_DIRNAME:
+        type_name = "Directory";
+        break;
+
     case PREF_RANGE:
         type_name = "Range";
         break;
@@ -4019,6 +4038,10 @@ prefs_pref_type_description(pref_t *pref)
         type_desc = "A path to a file";
         break;
 
+    case PREF_DIRNAME:
+        type_desc = "A path to a directory";
+        break;
+
     case PREF_RANGE:
     {
         type_desc = "A string denoting an positive integer range (e.g., \"1-20,30-40\")";
@@ -4078,6 +4101,7 @@ prefs_pref_is_default(pref_t *pref) {
 
     case PREF_STRING:
     case PREF_FILENAME:
+    case PREF_DIRNAME:
         if (!(g_strcmp0(pref->default_val.string, *pref->varp.string)))
             return TRUE;
         break;
@@ -4197,6 +4221,7 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
 
     case PREF_STRING:
     case PREF_FILENAME:
+    case PREF_DIRNAME:
         return g_strdup(pref_string);
         break;
 
