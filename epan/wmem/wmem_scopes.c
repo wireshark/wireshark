@@ -126,6 +126,10 @@ wmem_leave_file_scope(void)
 
     wmem_free_all(file_scope);
     in_file_scope = FALSE;
+
+    /* this seems like a good time to do garbage collection */
+    wmem_gc(file_scope);
+    wmem_gc(packet_scope);
 }
 
 /* Epan Scope */
