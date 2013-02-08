@@ -732,7 +732,7 @@ static void uat_apply_changes(uat_t *uat) {
 
 static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
 	uat_t *uat = u;
-	gchar *err = NULL;
+	const gchar *err = NULL;
 
 	if (uat->changed) {
 		uat_clear(uat);
@@ -793,7 +793,7 @@ static void uat_clear_cb(GtkButton *button _U_, gpointer u) {
 
 static void uat_refresh_cb(GtkButton *button _U_, gpointer u) {
 	uat_t *uat = u;
-	gchar *err = NULL;
+	const gchar *err = NULL;
 	guint  i;
 
 	uat_clear_cb(button, u);

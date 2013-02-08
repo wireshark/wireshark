@@ -268,7 +268,7 @@ uat_t* uat_new(const char* name,
  *
  * @return TRUE on success, FALSE on failure.
  */
-gboolean uat_load(uat_t* uat_in, char** err);
+gboolean uat_load(uat_t* uat_in, const char** err);
 
 /** Create or update a single uat entry using a string.
  *

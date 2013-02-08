@@ -373,7 +373,7 @@ void uat_foreach_table(uat_cb_t cb,void* user_data) {
 
 void uat_load_all(void) {
     guint i;
-    gchar* err;
+    const gchar* err;
 
     for (i=0; i < all_uats->len; i++) {
         uat_t* u = g_ptr_array_index(all_uats,i);

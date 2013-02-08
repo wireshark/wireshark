@@ -273,7 +273,7 @@ comment #[^\n]*\n
 
 
 gboolean
-uat_load(uat_t *uat_in, char **errx)
+uat_load(uat_t *uat_in, const char **errx)
 {
 	gchar *fname = uat_get_actual_filename(uat_in, FALSE);
 
