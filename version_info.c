@@ -607,20 +607,56 @@ void get_os_version_info(GString *str)
 /*
  * Get the CPU info, and append it to the GString
  */
+
+#if defined(_MSC_VER)
+static void
+do_cpuid(int *CPUInfo, guint32 selector){
+	__cpuid(CPUInfo, selector);
+}
+#elif defined(__GNUC__)
+#if defined(__x86_64__)  
+static inline void
+do_cpuid(guint32 *CPUInfo, int selector)
+{
+	__asm__ __volatile__("cpuid"
+						: "=a" (CPUInfo[0]),
+							"=b" (CPUInfo[1]),
+							"=c" (CPUInfo[2]),
+							"=d" (CPUInfo[3])
+						: "a"(selector));
+}
+#else /* (__i386__) */
+/* would need a test if older proccesors have the cpuid instruction */
+static void
+do_cpuid(guint32 *CPUInfo, int selector _U_){
+	CPUInfo[0] = 0;
+}
+
+#endif /* defined(__x86_64__)*/
+#else /* Other compilers */
+static void
+do_cpuid(guint32 *CPUInfo, int selector _U_){
+	CPUInfo[0] = 0;
+}
+#endif
+
+/*
+ * Get CPU info on platforms where the cpuid instruction can be used skip 32 bit versions for GCC
+ * 	http://www.intel.com/content/dam/www/public/us/en/documents/application-notes/processor-identification-cpuid-instruction-note.pdf
+ * the get_cpuid() routine will return 0 in CPUInfo[0] if cpuinfo isn't available.
+ */
+
 void get_cpu_info(GString *str _U_)
 {
-#if defined(_WIN32)
 	int CPUInfo[4];
 	char CPUBrandString[0x40];
 	unsigned    nExIds;
-
-	MEMORYSTATUSEX statex;
 
 	/* http://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx */
 
 	/* Calling __cpuid with 0x80000000 as the InfoType argument*/
     /* gets the number of valid extended IDs.*/
-    __cpuid(CPUInfo, 0x80000000);
+    do_cpuid(CPUInfo, 0x80000000);
     nExIds = CPUInfo[0];
 
 	if( nExIds<0x80000005)
@@ -628,20 +664,26 @@ void get_cpu_info(GString *str _U_)
     memset(CPUBrandString, 0, sizeof(CPUBrandString));
 
     /* Interpret CPU brand string.*/
-    __cpuid(CPUInfo, 0x80000002);
+    do_cpuid(CPUInfo, 0x80000002);
     memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
-    __cpuid(CPUInfo, 0x80000003);
+    do_cpuid(CPUInfo, 0x80000003);
     memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
-    __cpuid(CPUInfo, 0x80000004);
+    do_cpuid(CPUInfo, 0x80000004);
     memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
 
 	g_string_append_printf(str, "\n%s", CPUBrandString);
+
+}
+
+void get_mem_info(GString *str _U_)
+{
+#if defined(_WIN32)
+	MEMORYSTATUSEX statex;
 
 	statex.dwLength = sizeof (statex);
 	
 	if(GlobalMemoryStatusEx (&statex))
 		g_string_append_printf(str, ", with ""%" G_GINT64_MODIFIER "d" "MB of physical memory.\n", statex.ullTotalPhys/(1024*1024));
-
 #endif
 
 }
@@ -686,6 +728,9 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 
 	/* CPU Info */
 	get_cpu_info(str);
+
+	/* Get info about installed memory Windows only */
+	get_mem_info(str);
 
 	/* Compiler info */
 
