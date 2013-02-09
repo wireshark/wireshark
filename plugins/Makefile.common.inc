@@ -85,13 +85,25 @@ NODIST_SRC_FILES = \
 	$(LEMON_GENERATED_CPP_FILES)
 
 #
+# All Flex-generated source files.
+#
+FLEX_GENERATED_SRC_FILES = \
+	$(FLEX_GENERATED_C_FILES) \
+	$(FLEX_GENERATED_CPP_FILES)
+
+#
+# All Lemon-generated source files.
+#
+LEMON_GENERATED_SRC_FILES = \
+	$(LEMON_GENERATED_C_FILES) \
+	$(LEMON_GENERATED_CPP_FILES)
+
+#
 # All generated source files.
 #
 GENERATED_SRC_FILES = \
-	$(FLEX_GENERATED_C_FILES) \
-	$(FLEX_GENERATED_CPP_FILES) \
-	$(LEMON_GENERATED_C_FILES) \
-	$(LEMON_GENERATED_CPP_FILES)
+	$(FLEX_GENERATED_SRC_FILES) \
+	$(LEMON_GENERATED_SRC_FILES)
 
 #
 # All "clean" source files; they can be compiled with the regular
