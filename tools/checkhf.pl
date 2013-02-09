@@ -107,8 +107,8 @@ while (my $filename = $ARGV[0]) {
 
     read_file(\$filename, \$file_contents);
 
-    remove_blank_lines   (\$file_contents, $filename);
     remove_comments      (\$file_contents, $filename);
+    remove_blank_lines   (\$file_contents, $filename);
     remove_quoted_strings(\$file_contents, $filename);
     remove_if0_code      (\$file_contents, $filename);
 
@@ -232,8 +232,7 @@ sub remove_comments {
     # http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
     # It is in the public domain.
     # A complicated regex which matches C-style comments.
-    # (Added: include trailing \n (if any) in deletion)
-    my $c_comment_regex = qr{ / [*] [^*]* [*]+ (?: [^/*] [^*]* [*]+ )* / \n ? }xmso;
+    my $c_comment_regex = qr{ / [*] [^*]* [*]+ (?: [^/*] [^*]* [*]+ )* / }xmso;
 
     ${$code_ref} =~ s{ $c_comment_regex } {}xmsog;
 
