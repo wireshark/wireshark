@@ -269,7 +269,20 @@ macx:QMAKE_LFLAGS += \
     -framework CoreFoundation \
     -framework SystemConfiguration
 
-unix:LIBS += -L../../lib -Wl,-rpath ../../lib -lwireshark -lwiretap -lwsutil -lui \
+unix {
+    exists(../../epan/.libs/libw*) {
+        message( "Assuming Autotools library paths" )
+        LIBS += \
+            -L.. \
+            -L../../epan/.libs -Wl,-rpath ../../epan/.libs \
+            -L../../wiretap/.libs -Wl,-rpath ../../wiretap/.libs \
+            -L../../wsutil/.libs -Wl,-rpath ../../wsutil/.libs
+    } else:exists(../../lib/libw*) {
+        message( "Assuming CMake library path" )
+        LIBS += -L../../lib -Wl,-rpath ../../lib
+    }
+}
+unix:LIBS += -lwireshark -lwiretap -lwsutil -lui \
     -lpcap -lui_dirty
 macx:LIBS += -Wl,-macosx_version_min,10.5 -liconv -lz
 
@@ -280,8 +293,17 @@ EXTRA_BINFILES = \
 # http://stackoverflow.com/questions/3984104/qmake-how-to-copy-a-file-to-the-output
 unix: {
     EXTRA_BINFILES += \
-        ../../dumpcap \
-        ../../lib/*.so  \
+        ../../dumpcap
+
+    exists(../../epan/.libs/libw*) {
+        EXTRA_BINFILES += \
+            ../../epan/.libs/libwireshark.* \
+            ../../wiretap/.libs/libwiretap.* \
+            ../../wsutil/.libs/libwsutil.*
+    } else:exists(../../lib/libw*) {
+        EXTRA_BINFILES += ../../lib/libw*.so
+    }
+
 }
 unix:!macx {
     for(FILE,EXTRA_BINFILES){
