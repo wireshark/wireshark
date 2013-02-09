@@ -26,8 +26,8 @@
 # the name of the plugin
 PLUGIN_NAME = ethercat
 
-# the dissector sources (without any helpers)
-DISSECTOR_SRC = \
+# Non-generated sources to be scanned for registration routines
+NONGENERATED_REGISTER_C_FILES = \
 	packet-ams.c \
 	packet-ecatmb.c \
 	packet-esl.c \
@@ -36,11 +36,20 @@ DISSECTOR_SRC = \
 	packet-ioraw.c \
 	packet-nv.c
 
-# corresponding headers
-DISSECTOR_INCLUDES =	\
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES)
+
+# Headers.
+CLEAN_HEADER_FILES = \
 	packet-ams.h \
 	packet-ecatmb.h \
 	packet-ethercat-datagram.h \
 	packet-ethercat-frame.h \
 	packet-ioraw.h \
 	packet-nv.h
+
+HEADER_FILES = \
+	$(CLEAN_HEADER_FILES)
+
+include ../Makefile.common.inc

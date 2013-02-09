@@ -26,12 +26,21 @@
 # the name of the plugin
 PLUGIN_NAME = irda
 
-# the dissector sources (without any helpers)
-DISSECTOR_SRC = \
+# Non-generated sources to be scanned for registration routines
+NONGENERATED_REGISTER_C_FILES = \
 	packet-ircomm.c \
 	packet-irda.c \
 	packet-sir.c
 
-# corresponding headers
-DISSECTOR_INCLUDES =	\
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES)
+
+# Headers.
+CLEAN_HEADER_FILES = \
 	irda-appl.h
+
+HEADER_FILES = \
+	$(CLEAN_HEADER_FILES)
+
+include ../Makefile.common.inc

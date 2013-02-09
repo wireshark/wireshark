@@ -22,6 +22,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+include $(top_srcdir)/Makefile.am.inc
+
 INCLUDES = -I$(top_srcdir)
 
 include Makefile.common
@@ -33,7 +35,11 @@ endif
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = stats_tree.la
-stats_tree_la_SOURCES = $(TAP_SRC) $(TAP_INCLUDES)
+
+stats_tree_la_SOURCES = \
+	$(SRC_FILES)	\
+	$(HEADER_FILES)
+
 stats_tree_la_LDFLAGS = -module -avoid-version
 stats_tree_la_LIBADD = @PLUGIN_LIBS@
 
@@ -47,8 +53,7 @@ CLEANFILES = \
 	*~
 
 MAINTAINERCLEANFILES = \
-	Makefile.in	\
-	plugin.c
+	Makefile.in
 
 EXTRA_DIST = \
 	Makefile.common		\
@@ -58,4 +63,5 @@ EXTRA_DIST = \
 	CMakeLists.txt
 
 checkapi:
-	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build $(TAP_SRC) $(TAP_INCLUDES)
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
+		$(CLEAN_SRC_FILES) $(CLEAN_HEADER_FILES)

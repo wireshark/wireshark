@@ -26,11 +26,17 @@
 # the name of the plugin
 PLUGIN_NAME = stats_tree
 
-# the tap sources 
-TAP_SRC = \
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES) \
 	stats_tree_plugin.c	\
 	pinfo_stats_tree.c
 
-TAP_INCLUDES = \
+# Headers.
+CLEAN_HEADER_FILES = \
 	pinfo_stats_tree.h
 
+HEADER_FILES = \
+	$(CLEAN_HEADER_FILES)
+
+include ../Makefile.common.inc

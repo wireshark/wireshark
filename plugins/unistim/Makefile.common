@@ -27,11 +27,16 @@
 # the name of the plugin
 PLUGIN_NAME = unistim
 
-# the dissector sources (without any helpers)
-DISSECTOR_SRC = \
+# Non-generated sources to be scanned for registration routines
+NONGENERATED_REGISTER_C_FILES = \
 	packet-unistim.c
 
-DISSECTOR_INCLUDES =   \
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES)
+
+# Headers.
+CLEAN_HEADER_FILES = \
 	audio.h        \
 	basic.h        \
 	broadcast.h    \
@@ -42,3 +47,8 @@ DISSECTOR_INCLUDES =   \
 	network.h      \
 	uftp.h         \
 	packet-unistim.h
+
+HEADER_FILES = \
+	$(CLEAN_HEADER_FILES)
+
+include ../Makefile.common.inc

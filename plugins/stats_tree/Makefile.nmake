@@ -5,6 +5,8 @@
 #
 
 include ..\..\config.nmake
+include ..\..\Makefile.nmake.inc
+
 include moduleinfo.nmake
 
 include Makefile.common
@@ -22,9 +24,7 @@ LDFLAGS = $(PLUGIN_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
 CFLAGS=/D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-TAP_OBJECTS = $(TAP_SRC:.c=.obj)
-
-OBJECTS=$(TAP_OBJECTS)
+OBJECTS = $(C_FILES:.c=.obj) $(CPP_FILES:.cpp=.obj) plugin.obj
 
 RESOURCE=$(PLUGIN_NAME).res
 
@@ -47,12 +47,14 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).exp \
-	    $(RESOURCE) $(PLUGIN_NAME).rc $(PLUGIN_NAME).lib *.pdb *.sbr
+	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb *.sbr \
+	    $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
+	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc
 
 distclean: clean
 
 maintainer-clean: distclean
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput -build $(TAP_SRC) $(TAP_INCLUDES)
+	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput -build \
+		$(CLEAN_SRC_FILES) $(CLEAN_HEADER_FILES)

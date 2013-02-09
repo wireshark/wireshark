@@ -27,12 +27,26 @@
 # the name of the plugin
 PLUGIN_NAME = opcua
 
-# the dissector sources (without any helpers)
-DISSECTOR_SRC = \
+# Non-generated sources to be scanned for registration routines
+NONGENERATED_REGISTER_C_FILES = \
 	opcua.c 
 
-# corresponding headers
-DISSECTOR_INCLUDES =	\
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES) \
+	opcua_transport_layer.c \
+	opcua_security_layer.c \
+	opcua_application_layer.c \
+	opcua_serviceparser.c \
+	opcua_complextypeparser.c \
+	opcua_enumparser.c \
+	opcua_simpletypes.c \
+	opcua_servicetable.c \
+	opcua_extensionobjecttable.c \
+	opcua_hfindeces.c
+
+# Headers.
+CLEAN_HEADER_FILES = \
 	opcua_complextypeparser.h \
 	opcua_enumparser.h \
 	opcua_hfindeces.h \
@@ -45,15 +59,7 @@ DISSECTOR_INCLUDES =	\
 	opcua_extensionobjectids.h \
 	opcua_serviceids.h
 
-# other sources
-DISSECTOR_SUPPORT_SRC = \
-	opcua_transport_layer.c \
-	opcua_security_layer.c \
-	opcua_application_layer.c \
-	opcua_serviceparser.c \
-	opcua_complextypeparser.c \
-	opcua_enumparser.c \
-	opcua_simpletypes.c \
-	opcua_servicetable.c \
-	opcua_extensionobjecttable.c \
-	opcua_hfindeces.c
+HEADER_FILES = \
+	$(CLEAN_HEADER_FILES)
+
+include ../Makefile.common.inc

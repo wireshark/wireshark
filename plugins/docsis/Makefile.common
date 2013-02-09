@@ -26,8 +26,8 @@
 # the name of the plugin
 PLUGIN_NAME = docsis
 
-# the dissector sources (without any helpers)
-DISSECTOR_SRC = \
+# Non-generated sources to be scanned for registration routines
+NONGENERATED_REGISTER_C_FILES = \
 	packet-bintrngreq.c \
 	packet-bpkmattr.c \
 	packet-bpkmreq.c \
@@ -73,6 +73,19 @@ DISSECTOR_SRC = \
 	packet-ucd.c \
 	packet-vendor.c
 
-# corresponding headers
-DISSECTOR_INCLUDES =	\
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES)
+
+# Headers.
+CLEAN_HEADER_FILES =	\
 	packet-tlv.h
+
+HEADER_FILES = \
+	$(FLEX_GENERATED_HEADER_FILES) \
+	$(CLEAN_HEADER_FILES)
+
+NODIST_HEADER_FILES = \
+	$(LEMON_GENERATED_HEADER_FILES)
+
+include ../Makefile.common.inc

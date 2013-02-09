@@ -26,22 +26,13 @@
 # the name of the plugin
 PLUGIN_NAME = wimax
 
-# the dissector sources (without any helpers)
-DISSECTOR_SRC = \
+# Non-generated sources to be scanned for registration routines
+NONGENERATED_REGISTER_C_FILES = \
 	packet-wmx.c
 
-# corresponding headers
-DISSECTOR_INCLUDES =	\
-	crc.h		\
-	wimax_bits.h	\
-	wimax_mac.h	\
-	wimax_tlv.h	\
-	wimax_utils.h
-
-# Dissector helpers.  They're included in the source files in this
-# directory, but they're not dissectors themselves, i.e. they're not
-# used to generate "register.c").
-DISSECTOR_SUPPORT_SRC =	\
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES) \
 	wimax_ffb_decoder.c	\
 	wimax_fch_decoder.c	\
 	wimax_pdu_decoder.c	\
@@ -83,3 +74,16 @@ DISSECTOR_SUPPORT_SRC =	\
 	crc.c	\
 	crc_data.c	\
 	wimax_tlv.c
+
+# Headers.
+CLEAN_HEADER_FILES = \
+	crc.h		\
+	wimax_bits.h	\
+	wimax_mac.h	\
+	wimax_tlv.h	\
+	wimax_utils.h
+
+HEADER_FILES = \
+	$(CLEAN_HEADER_FILES)
+
+include ../Makefile.common.inc

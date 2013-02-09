@@ -1,4 +1,4 @@
-# Makefile.common for stats tree plugin
+# Makefile.common for Easy codec plugin
 #     Contains the stuff from Makefile.am and Makefile.nmake that is
 #     a) common to both files and
 #     b) portable between both files
@@ -26,17 +26,24 @@
 # the name of the plugin
 PLUGIN_NAME = easy_codec
 
-# the codec sources 
-CODEC_SRC = \
+# Non-generated sources
+NONGENERATED_C_FILES = \
 	easy_codec_plugin.c	\
 	codec-g729a.c \
 	codec-g7231.c \
 	codec-g722.c
 
-CODEC_INCLUDES = \
+# Headers.
+CLEAN_HEADER_FILES = \
 	codec-g729a.h \
 	codec-g7231.h \
 	codec-g722.h
 
+HEADER_FILES = \
+	$(FLEX_GENERATED_HEADER_FILES) \
+	$(CLEAN_HEADER_FILES)
 
+NODIST_HEADER_FILES = \
+	$(LEMON_GENERATED_HEADER_FILES)
 
+include ../Makefile.common.inc

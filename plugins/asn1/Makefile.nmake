@@ -1,10 +1,12 @@
 # Makefile.nmake
-# nmake file for Wireshark plugin
+# nmake file for ASN.1 plugin
 #
 # $Id$
 #
 
 include ..\..\config.nmake
+include ..\..\Makefile.nmake.inc
+
 include moduleinfo.nmake
 
 include Makefile.common
@@ -22,11 +24,7 @@ LDFLAGS = $(PLUGIN_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib ..\..\wsutil\libwsutil.lib
 CFLAGS=/D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
-
-DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
-
-OBJECTS = $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) plugin.obj
+OBJECTS = $(C_FILES:.c=.obj) $(CPP_FILES:.cpp=.obj) plugin.obj
 
 RESOURCE=$(PLUGIN_NAME).res
 
@@ -61,7 +59,7 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 # preceded only by "void " starting in column zero, and must not be
 # inside #if.
 #
-# DISSECTOR_SRC is assumed to have all the files that need to be scanned.
+# REGISTER_SRC_FILES is assumed to have all the files that need to be scanned.
 #
 # For some unknown reason, having a big "for" loop in the Makefile
 # to scan all the files doesn't work with some "make"s; they seem to
@@ -80,13 +78,13 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 # All subsequent arguments are the files to scan.
 #
 !IFDEF PYTHON
-plugin.c: $(DISSECTOR_SRC) moduleinfo.h Makefile.common ../../tools/make-dissector-reg.py
+plugin.c: $(REGISTER_SRC_FILES) moduleinfo.h Makefile.common ../../tools/make-dissector-reg.py
 	@echo Making plugin.c (using python)
-	@$(PYTHON) "../../tools/make-dissector-reg.py" . plugin $(DISSECTOR_SRC)
+	@$(PYTHON) "../../tools/make-dissector-reg.py" . plugin $(REGISTER_SRC_FILES)
 !ELSE
-plugin.c: $(DISSECTOR_SRC) moduleinfo.h Makefile.common ../../tools/make-dissector-reg
+plugin.c: $(REGISTER_SRC_FILES) moduleinfo.h Makefile.common ../../tools/make-dissector-reg
 	@echo Making plugin.c (using sh)
-	@$(SH) ../../tools/make-dissector-reg . plugin $(DISSECTOR_SRC)
+	@$(SH) ../../tools/make-dissector-reg . plugin $(REGISTER_SRC_FILES)
 !ENDIF
 
 !ENDIF
@@ -102,4 +100,5 @@ maintainer-clean: distclean
 
 checkapi:
 # TODO: Fix api's :)
-#	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput -build $(DISSECTOR_SRC) $(DISSECTOR_INCLUDES)
+	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput -build \
+		$(CLEAN_SRC_FILES) $(CLEAN_HEADER_FILES)

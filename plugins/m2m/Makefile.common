@@ -27,14 +27,13 @@
 PLUGIN_NAME = m2m
 
 # the dissector sources (without any helpers)
-DISSECTOR_SRC = \
+# Non-generated sources to be scanned for registration routines
+NONGENERATED_REGISTER_C_FILES = \
 	packet-m2m.c
 
-# corresponding headers
-DISSECTOR_INCLUDES =
-
-# Dissector helpers.  They're included in the source files in this
-# directory, but they're not dissectors themselves, i.e. they're not
-# used to generate "register.c").
-DISSECTOR_SUPPORT_SRC =	\
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES) \
 	wimax_tlv.c
+
+include ../Makefile.common.inc

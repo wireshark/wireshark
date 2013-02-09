@@ -24,7 +24,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-INCLUDES = -I$(top_srcdir) -I$(includedir)
+include $(top_srcdir)/Makefile.am.inc
+
+INCLUDES = -I$(top_srcdir)
 
 include Makefile.common
 
@@ -35,12 +37,13 @@ endif
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = gryphon.la
+
 gryphon_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
-	$(DISSECTOR_SRC) \
-	$(DISSECTOR_SUPPORT_SRC) \
-	$(DISSECTOR_INCLUDES)
+	$(SRC_FILES)	\
+	$(HEADER_FILES)
+
 gryphon_la_LDFLAGS = -module -avoid-version
 gryphon_la_LIBADD = @PLUGIN_LIBS@
 
@@ -64,7 +67,7 @@ LIBS =
 # preceded only by "void " starting in column zero, and must not be
 # inside #if.
 #
-# DISSECTOR_SRC is assumed to have all the files that need to be scanned.
+# REGISTER_SRC_FILES is assumed to have all the files that need to be scanned.
 #
 # For some unknown reason, having a big "for" loop in the Makefile
 # to scan all the files doesn't work with some "make"s; they seem to
@@ -82,16 +85,16 @@ LIBS =
 # a plugin.c file for a plugin.
 # All subsequent arguments are the files to scan.
 #
-plugin.c: $(DISSECTOR_SRC) Makefile.common $(top_srcdir)/tools/make-dissector-reg \
+plugin.c: $(REGISTER_SRC_FILES) Makefile.common $(top_srcdir)/tools/make-dissector-reg \
     $(top_srcdir)/tools/make-dissector-reg.py
 	@if test -n "$(PYTHON)"; then \
 		echo Making plugin.c with python ; \
 		$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
-		    plugin $(DISSECTOR_SRC) ; \
+		    plugin $(REGISTER_SRC_FILES) ; \
 	else \
 		echo Making plugin.c with shell script ; \
 		$(top_srcdir)/tools/make-dissector-reg $(srcdir) \
-		    $(plugin_src) plugin $(DISSECTOR_SRC) ; \
+		    $(plugin_src) plugin $(REGISTER_SRC_FILES) ; \
 	fi
 
 #
@@ -128,4 +131,5 @@ EXTRA_DIST = \
 	CMakeLists.txt
 
 checkapi:
-	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build $(DISSECTOR_SRC) $(DISSECTOR_INCLUDES)
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
+		$(CLEAN_SRC_FILES) $(CLEAN_HEADER_FILES)

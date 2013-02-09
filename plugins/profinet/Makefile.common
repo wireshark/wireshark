@@ -26,8 +26,8 @@
 # the name of the plugin
 PLUGIN_NAME = profinet
 
-# the dissector sources (without any helpers)
-DISSECTOR_SRC = \
+# Non-generated sources to be scanned for registration routines
+NONGENERATED_REGISTER_C_FILES = \
 	packet-dcerpc-pn-io.c \
 	packet-dcom-cba.c \
 	packet-dcom-cba-acco.c \
@@ -37,13 +37,17 @@ DISSECTOR_SRC = \
 	packet-pn-ptcp.c \
 	packet-pn-rt.c
 
-# corresponding headers
-DISSECTOR_INCLUDES =	\
+# Non-generated sources
+NONGENERATED_C_FILES = \
+	$(NONGENERATED_REGISTER_C_FILES) \
+	packet-pn.c
+
+# Headers.
+CLEAN_HEADER_FILES = \
 	packet-dcom-cba-acco.h	\
 	packet-pn.h
 
-# Dissector helpers.  They're included in the source files in this
-# directory, but they're not dissectors themselves, i.e. they're not
-# used to generate "register.c").
-DISSECTOR_SUPPORT_SRC =	\
-	packet-pn.c
+HEADER_FILES = \
+	$(CLEAN_HEADER_FILES)
+
+include ../Makefile.common.inc

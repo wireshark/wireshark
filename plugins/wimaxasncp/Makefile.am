@@ -22,26 +22,29 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-# lex rules
 include $(top_srcdir)/Makefile.am.inc
 
-INCLUDES = -I$(top_srcdir) -I$(includedir)
+INCLUDES = -I$(top_srcdir)
 
 include Makefile.common
 
-if HAVE_WARNINGS_AS_ERRORS
-# AM_CFLAGS = -Werror
-endif
+#
+# XXX - how to make this apply only to clean files?
+#
+#if HAVE_WARNINGS_AS_ERRORS
+#AM_CFLAGS = -Werror
+#endif
 
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = wimaxasncp.la
+
 wimaxasncp_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
-	$(DISSECTOR_SRC) \
-	$(DISSECTOR_SUPPORT_SRC) \
-	$(DISSECTOR_INCLUDES)
+	$(SRC_FILES)	\
+	$(HEADER_FILES)
+
 wimaxasncp_la_LDFLAGS = -module -avoid-version
 wimaxasncp_la_LIBADD = @PLUGIN_LIBS@
 
@@ -65,7 +68,7 @@ LIBS =
 # preceded only by "void " starting in column zero, and must not be
 # inside #if.
 #
-# DISSECTOR_SRC is assumed to have all the files that need to be scanned.
+# REGISTER_SRC_FILES is assumed to have all the files that need to be scanned.
 #
 # For some unknown reason, having a big "for" loop in the Makefile
 # to scan all the files doesn't work with some "make"s; they seem to
@@ -83,16 +86,16 @@ LIBS =
 # a plugin.c file for a plugin.
 # All subsequent arguments are the files to scan.
 #
-plugin.c: $(DISSECTOR_SRC) Makefile.common $(top_srcdir)/tools/make-dissector-reg \
+plugin.c: $(REGISTER_SRC_FILES) Makefile.common $(top_srcdir)/tools/make-dissector-reg \
     $(top_srcdir)/tools/make-dissector-reg.py
 	@if test -n "$(PYTHON)"; then \
 		echo Making plugin.c with python ; \
 		$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
-		    plugin $(DISSECTOR_SRC) ; \
+		    plugin $(REGISTER_SRC_FILES) ; \
 	else \
 		echo Making plugin.c with shell script ; \
 		$(top_srcdir)/tools/make-dissector-reg $(srcdir) \
-		    $(plugin_src) plugin $(DISSECTOR_SRC) ; \
+		    $(plugin_src) plugin $(REGISTER_SRC_FILES) ; \
 	fi
 
 #
@@ -119,16 +122,16 @@ CLEANFILES = \
 
 MAINTAINERCLEANFILES = \
 	Makefile.in	      \
-	wimaxasncp_dict.c     \
-	wimaxasncp_dict_lex.h \
+	$(GENERATED_SRC_FILES) \
+	$(GENERATED_HEADER_FILES) \
 	plugin.c
 
 EXTRA_DIST = \
-	wimaxasncp_dict.l	\
 	Makefile.common		\
 	Makefile.nmake		\
 	moduleinfo.nmake	\
 	plugin.rc.in		\
+	wimaxasncp_dict.l	\
 	CMakeLists.txt
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
@@ -141,9 +144,8 @@ wimaxasncp_dict.c:	wimaxasncp_dict.h
 # Install the wimaxasncp DTD and XML files in the "wimaxasncp"
 # subdirectory of $(pkgdatadir)
 #
-
 wimaxasncpdir = $(pkgdatadir)/wimaxasncp
 
-
 checkapi:
-	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build $(DISSECTOR_SRC) $(DISSECTOR_INCLUDES)
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
+		$(CLEAN_SRC_FILES) $(CLEAN_HEADER_FILES)
