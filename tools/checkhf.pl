@@ -539,7 +539,7 @@ sub remove_hf_pid_from_unused_if_add_oui_call {
         return;
     }
 
-    my @hfvars = grep { m/ ^ hf_ [a-zA-Z0-9_]+ _pid $ /xmso} keys $unUsedHRef;
+    my @hfvars = grep { m/ ^ hf_ [a-zA-Z0-9_]+ _pid $ /xmso} keys %$unUsedHRef;
 
     if ((@hfvars == 0) || (@hfvars > 1)) {
         return;  # if multiple unused hf_..._pid
