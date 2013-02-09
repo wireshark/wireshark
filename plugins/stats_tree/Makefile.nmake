@@ -24,7 +24,7 @@ LDFLAGS = $(PLUGIN_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
 CFLAGS=/D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-OBJECTS = $(C_FILES:.c=.obj) $(CPP_FILES:.cpp=.obj) plugin.obj
+OBJECTS = $(C_FILES:.c=.obj) $(CPP_FILES:.cpp=.obj)
 
 RESOURCE=$(PLUGIN_NAME).res
 
@@ -47,7 +47,7 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb *.sbr \
+	rm -f $(OBJECTS) $(RESOURCE) *.pdb *.sbr \
 	    $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
 	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc
 
