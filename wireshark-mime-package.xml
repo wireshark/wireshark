@@ -70,4 +70,49 @@
     <glob pattern="*.trc0"/>
     <glob pattern="*.trc1"/>
   </mime-type>
+
+  <mime-type type="application/x-radcom">
+    <comment>Packet Capture (Radcom WAN/LAN Analyzer)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <magic>
+      <match type="string" offset="0" value="\x42\xd2\x00\x34\x12\x66\x22\x88"/>
+    </magic>
+  </mime-type>
+
+  <mime-type type="application/x-etherpeek">
+    <comment>Packet Capture (Wildpackets/Etherpeek/Airopeek tagged/v9)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <magic>
+      <match type="string" offset="0" value="\177ver"/>
+    </magic>
+    <glob pattern="*.tpc"/>
+    <glob pattern="*.apc"/>
+    <glob pattern="*.wpz"/>
+  </mime-type>
+
+  <mime-type type="application/x-visualnetworks">
+    <comment>Packet Capture (Visual Networks)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <magic>
+      <match type="string" offset="0" value="\x05VNF"/>
+    </magic>
+  </mime-type>
+
+  <mime-type type="application/x-netinstobserver">
+    <comment>Packet Capture (Network Instruments Observer)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <magic>
+      <match type="string" offset="0" value="ObserverPktBuffe"/>
+    </magic>
+    <glob pattern="*.bfr"/>
+  </mime-type>
+
+  <mime-type type="application/x-5view">
+    <comment>Packet Capture (Accellent/InfoVista 5view)</comment>
+    <generic-icon name="application-wireshark-doc"/>
+    <magic>
+      <match type="string" offset="0" value="\xaa\xaa\xaa\xaa"/>
+    </magic>
+    <glob pattern="*.5vw"/>
+  </mime-type>
 </mime-info>
