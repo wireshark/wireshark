@@ -85,6 +85,12 @@ NODIST_SRC_FILES = \
 	$(LEMON_GENERATED_CPP_FILES)
 
 #
+# All non-distributed header files.
+#
+NODIST_HEADER_FILES = \
+	$(LEMON_GENERATED_HEADER_FILES)
+
+#
 # All Flex-generated source files.
 #
 FLEX_GENERATED_SRC_FILES = \
