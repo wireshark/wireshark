@@ -4471,7 +4471,7 @@ showstack(statestack *pos, char *txt, int n)
 	if (typef & TBL_SEQUENCE_choice)sch  = "[seq-chs]";
 	if (typef & TBL_CONSTRUCTED)    con  = "[constr]";
 
-	i = g_snprintf(buf, sizeof(buf) - i, "%s sp=%d,pos=%p,%s%s%s%s%s%s%s%s%s%s:%s,%d", txt, PDUstatec,
+	i = g_snprintf(buf, sizeof(buf), "%s sp=%d,pos=%p,%s%s%s%s%s%s%s%s%s%s:%s,%d", txt, PDUstatec,
 		    (void *)pos->node, stype, rep, chs, done, ref, pop, chr, rch, sch, con,
 		    pos->name, pos->offset);
 
