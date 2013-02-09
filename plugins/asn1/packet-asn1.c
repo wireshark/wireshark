@@ -1118,7 +1118,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		cls = BER_CLASS_UNI;
 		tag = BER_UNI_TAG_GeneralString;
 		oname = g_malloc(strlen(name) + 32);
-		g_snprintf(oname, strlen(name) + 32, "%s ** nesting cut off **", name);
+		g_snprintf(oname, (int)strlen(name) + 32, "%s ** nesting cut off **", name);
 		name = oname;
 	  }
 	  switch(cls) {
@@ -3659,7 +3659,7 @@ tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sourc
 }
 
 static void
-PDUtext(char *txt, size_t txt_size, PDUinfo *info) /* say everything we know about this entry */
+PDUtext(char *txt, int txt_size, PDUinfo *info) /* say everything we know about this entry */
 {
 	PDUinfo *rinfo;
 	const char *tt, *nn, *tn, *fn, *oo, *ii, *an, *tr, *ty;
