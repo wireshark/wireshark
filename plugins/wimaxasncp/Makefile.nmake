@@ -110,6 +110,8 @@ distclean: clean
 		$(FLEX_GENERATED_HEADER_FILES)
 
 maintainer-clean: distclean
+	rm -f $(GENERATED_SRC_FILES) \
+		$(GENERATED_HEADER_FILES)
 
 RUNLEX = ..\..\tools\runlex.sh
 
