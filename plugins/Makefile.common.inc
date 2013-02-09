@@ -106,6 +106,13 @@ GENERATED_SRC_FILES = \
 	$(LEMON_GENERATED_SRC_FILES)
 
 #
+# All generated header files.
+#
+GENERATED_HEADER_FILES = \
+	$(FLEX_GENERATED_HEADER_FILES) \
+	$(LEMON_GENERATED_HEADER_FILES) 
+
+#
 # All "clean" source files; they can be compiled with the regular
 # warning options, including -Werror with GCC-compatible compilers,
 # and can be run through checkAPI.  Neither Flex-generated nor
