@@ -301,7 +301,7 @@ unix: {
             ../../wiretap/.libs/libwiretap.* \
             ../../wsutil/.libs/libwsutil.*
     } else:exists(../../lib/libw*) {
-        EXTRA_BINFILES += ../../lib/libw*.so
+        EXTRA_BINFILES += ../../lib/lib{wireshark,wiretap,wsutil}.*
     }
 
 }
