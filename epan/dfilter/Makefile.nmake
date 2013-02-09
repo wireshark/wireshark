@@ -25,7 +25,7 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 OBJECTS=\
 	$(NONGENERATED_C_FILES:.c=.obj) \
 	$(GENERATED_C_FILES:.c=.obj) \
-	$(GENERATED_NODIST_C_FILES:.c=.obj)
+	$(NODIST_GENERATED_C_FILES:.c=.obj)
 
 dfilter.lib	: $(OBJECTS)
 	link /lib /out:dfilter.lib $(OBJECTS)
@@ -51,9 +51,9 @@ clean:
 #
 distclean: clean
 	rm -f $(GENERATED_C_FILES) \
-		$(GENERATED_NODIST_C_FILES) \
+		$(NODIST_GENERATED_C_FILES) \
 		$(GENERATED_HEADER_FILES) \
-		$(GENERATED_NODIST_HEADER_FILES) \
+		$(NODIST_GENERATED_HEADER_FILES) \
 		grammar.out
 
 maintainer-clean: distclean

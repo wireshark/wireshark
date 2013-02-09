@@ -30,7 +30,7 @@ include Makefile_custom.common
 GENERATED_HEADER_FILES =
 
 # Generated header files that we don't want in the distribution.
-GENERATED_NODIST_HEADER_FILES = \
+NODIST_GENERATED_HEADER_FILES = \
 	ui_capture_preferences_frame.h \
 	ui_column_preferences_frame.h \
 	ui_export_object_dialog.h \
@@ -57,13 +57,13 @@ GENERATED_NODIST_HEADER_FILES = \
 GENERATED_C_FILES =
 
 # Generated C source files that we don't want in the distribution.
-GENERATED_NODIST_C_FILES =
+NODIST_GENERATED_C_FILES =
 
 # Generated C++ source files that we want in the distribution.
 GENERATED_CPP_FILES =
 
 # Generated C++ source files that we don't want in the distribution.
-GENERATED_NODIST_CPP_FILES = \
+NODIST_GENERATED_CPP_FILES = \
 	$(MOC_SRC) \
 	$(QRC_SRC)
 
@@ -74,10 +74,10 @@ GENERATED_FILES = \
 	$(GENERATED_CPP_FILES)
 
 # All the generated files we don't want in the distribution.
-GENERATED_NODIST_FILES = \
-	$(GENERATED_NODIST_HEADER_FILES) \
-	$(GENERATED_NODIST_C_FILES) \
-	$(GENERATED_NODIST_CPP_FILES)
+NODIST_GENERATED_FILES = \
+	$(NODIST_GENERATED_HEADER_FILES) \
+	$(NODIST_GENERATED_C_FILES) \
+	$(NODIST_GENERATED_CPP_FILES)
 
 # Files that generate compileable files
 GENERATOR_FILES =

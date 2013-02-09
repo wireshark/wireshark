@@ -40,11 +40,11 @@ CLEANFILES = \
 
 DISTCLEANFILES = \
 	grammar.out	\
-	$(GENERATED_NODIST_FILES)
+	$(NODIST_GENERATED_FILES)
 
 MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
-	$(GENERATED_NODIST_FILES)	\
+	$(NODIST_GENERATED_FILES)	\
 	Makefile.in
 
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. -I$(srcdir)/$(LEMON)
@@ -61,8 +61,8 @@ libdfilter_generated_la_SOURCES = \
 	$(GENERATED_HEADER_FILES)
 
 nodist_libdfilter_generated_la_SOURCES = \
-	$(GENERATED_NODIST_C_FILES)	\
-	$(GENERATED_NODIST_HEADER_FILES)
+	$(NODIST_GENERATED_C_FILES)	\
+	$(NODIST_GENERATED_HEADER_FILES)
 
 libdfilter_la_LIBADD = libdfilter_generated.la
 libdfilter_la_DEPENDENCIES = libdfilter_generated.la

@@ -142,8 +142,8 @@ clean:  clean-local
 #
 distclean-local: clean-local
 	rm -f config.h register.c mkstemp.c \
-		$(LIBWIRESHARK_GENERATED_NODIST_C_FILES) \
-		$(LIBWIRESHARK_GENERATED_NODIST_HEADER_FILES) \
+		$(NODIST_LIBWIRESHARK_GENERATED_C_FILES) \
+		$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES) \
 		$(LIBWIRESHARK_GENERATED_C_FILES) \
 		$(LIBWIRESHARK_GENERATED_HEADER_FILES) \
 		dtd_grammar.out	sminmpec.c
