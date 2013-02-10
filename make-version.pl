@@ -97,7 +97,7 @@ my %version_pref = (
 	#"pkg_format" => "",
 	);
 my $srcdir = ".";
-my $svn_info_cmd = "";
+my $info_cmd = "";
 
 # Ensure we run with correct locale
 $ENV{LANG} = "C";
@@ -127,10 +127,10 @@ sub read_repo_info {
 		$version_pref{"git_client"} = 1;
 	} elsif (-d "$srcdir/.svn" or -d "$srcdir/../.svn") {
 		$info_source = "Command line (svn info)";
-		$svn_info_cmd = "svn info $srcdir";
+		$info_cmd = "svn info $srcdir";
 	} elsif (-d "$srcdir/.git/svn") {
 		$info_source = "Command line (git-svn)";
-		$svn_info_cmd = "(cd $srcdir; git svn info)";
+		$info_cmd = "(cd $srcdir; git svn info)";
 	}
 
 	#Git can give us:
@@ -156,6 +156,7 @@ sub read_repo_info {
 	# Refs: git ls-remote code.wireshark.org:wireshark
 	# 5e212d72ce098a7fec4332cbe6c22fcda796a018	refs/tags/wireshark-1.8
 	# 94b4b51b942280d4f67ab711ba5df8d0d4519efc	refs/tags/wireshark-1.8.0
+	# 9204b5544247045854349db091c0597e4dd86bb4	refs/tags/v1.8.0-rc1
 
 	if ($version_pref{"git_client"}) {
 		eval {
@@ -169,7 +170,7 @@ sub read_repo_info {
 
 			# Commits in current (master-1.8) branch. We may want to use
 			# a different number.
-			chomp($line = qx{git --git-dir=$srcdir/.git describe --long --tags 5e212d72ce098a7fec4332cbe6c22fcda796a018});
+			chomp($line = qx{git --git-dir=$srcdir/.git describe --long --match v1.8.0-rc1});
 			if ($? == 0 && length($line) > 1) {
 				my @parts = split(/-/, $line);
 				$num_commits = $parts[-2];
@@ -181,8 +182,9 @@ sub read_repo_info {
 				$repo_url = $line;
 			}
 
-			# Probably not quite what we're looking for
-			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --abbrev-ref --symbolic-full-name origin});
+			# This will break in some cases. Hopefully not during
+			# official package builds.
+			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
 			if ($? == 0 && length($line) > 1) {
 				$repo_branch = basename($line);
 			}
@@ -202,7 +204,7 @@ sub read_repo_info {
 		eval {
 			use warnings "all";
 			no warnings "all";
-			$line = qx{$svn_info_cmd};
+			$line = qx{$info_cmd};
 			if (defined($line)) {
 				if ($line =~ /Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
 					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
@@ -231,8 +233,8 @@ sub read_repo_info {
 		close(TORTOISE);
 
 		$info_source = "Command line (SubWCRev)";
-		$svn_info_cmd = "SubWCRev $srcdir $tortoise_file $version_file";
-		my $tortoise = system($svn_info_cmd);
+		$info_cmd = "SubWCRev $srcdir $tortoise_file $version_file";
+		my $tortoise = system($info_cmd);
 		if ($tortoise == 0) {
 			$do_hack = 0;
 		}
@@ -255,33 +257,39 @@ sub read_repo_info {
 		}
 		close (CFGNMAKE);
 	}
-	if ($revision == 0) {
+	if ($num_commits == 0 and -d "$srcdir/.git") {
 
 		# Try git...
 		eval {
 			use warnings "all";
 			no warnings "all";
-			$svn_info_cmd = "(cd $srcdir; git log --format='commit: %h%ndate: %ad' -n 1 --date=iso)";
-			$line = qx{$svn_info_cmd};
+			# If someone had properly tagged 1.9.0 we could also use
+			# "git describe --abbrev=1 --tags HEAD"
+			
+			$info_cmd = "(cd $srcdir; git log --format='%b' -n 1)";
+			$line = qx{$info_cmd};
 			if (defined($line)) {
-				if ($line =~ /date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
-					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
-				}
-				if ($line =~ /commit: (\S+)/) {
-					$revision = $1;
+				if ($line =~ /svn path=.*; revision=(\d+)/) {
+					$num_commits = $1;
 				}
 			}
-			$svn_info_cmd = "(cd $srcdir; git branch)";
-			$line = qx{$svn_info_cmd};
+			$info_cmd = "(cd $srcdir; git log --format='%ad' -n 1 --date=iso)";
+			$line = qx{$info_cmd};
+			if (defined($line)) {
+				if ($line =~ /(\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
+					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
+				}
+			}
+			$info_cmd = "(cd $srcdir; git branch)";
+			$line = qx{$info_cmd};
 			if (defined($line)) {
 				if ($line =~ /\* (\S+)/) {
-					$repo_path = $1;
+					$repo_branch = $1;
 				}
 			}
 			1;
 			};
 	}
-
 
 	# 'svn info' failed or the user really wants us to dig around in .svn/entries
 	if ($do_hack) {
@@ -688,3 +696,17 @@ make-version.pl [options] [source directory]
 
 Options can be used in any combination. If none are specified B<--set-svn>
 is assumed.
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#
+#
