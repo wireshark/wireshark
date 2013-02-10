@@ -54,11 +54,11 @@
 ## NOTE: This tool currently generates false positives!
 ##
 ## The "NO ARRAY" messages - if accurate - points to an error that will
-## cause (t|wire)shark to terminate with an assertion when a packet containing
+## cause (t|wire)shark to report a DISSECTOR_BUG when a packet containing
 ## this particular element is being dissected.
 ##
 ## The "Unused entry" message indicates the opposite: We define an entry but
-## never use it in a proto_...add... function.
+## never use it (e.g., in a proto_...add... function).
 ## ------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------------
@@ -372,8 +372,7 @@ sub find_remove_hf_defs {
     my $p1_regex = qr{
                          ^
                          \s*
-                         (static)?
-                         \s+
+                         (static \s+)?
                          g?int
                          \s+
                          (hf_[a-zA-Z0-9_]+)          # hf_..
