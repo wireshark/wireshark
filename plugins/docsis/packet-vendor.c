@@ -61,7 +61,7 @@ static int proto_docsis_vsif = -1;
 static int hf_docsis_vsif_vendorid = -1;
 static int hf_docsis_vsif_vendor_unknown = -1;
 static int hf_docsis_vsif_cisco_numphones = -1;
-static int hf_docsis_vsif_cisco_ipprec = -1;
+/* static int hf_docsis_vsif_cisco_ipprec = -1; */
 static int hf_docsis_vsif_cisco_ipprec_val = -1;
 static int hf_docsis_vsif_cisco_ipprec_bw = -1;
 static int hf_docsis_vsif_cisco_config_file = -1;
@@ -241,11 +241,13 @@ proto_register_docsis_vsif (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
      },
+#if 0
     {&hf_docsis_vsif_cisco_ipprec,
      {"IP Precedence Encodings", "docsis_vsif.cisco.ipprec",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL}
      },
+#endif
     {&hf_docsis_vsif_cisco_ipprec_val,
      {"IP Precedence Value", "docsis_vsif.cisco.ipprec.value",
       FT_UINT8, BASE_DEC, NULL, 0x0,

@@ -67,7 +67,7 @@ static int hf_docsis_bpkmattr_serial_num = -1;
 static int hf_docsis_bpkmattr_manf_id = -1;
 static int hf_docsis_bpkmattr_mac_addr = -1;
 static int hf_docsis_bpkmattr_rsa_pub_key = -1;
-static int hf_docsis_bpkmattr_cm_id = -1;
+/* static int hf_docsis_bpkmattr_cm_id = -1; */
 static int hf_docsis_bpkmattr_display_str = -1;
 static int hf_docsis_bpkmattr_auth_key = -1;
 static int hf_docsis_bpkmattr_tek = -1;
@@ -75,22 +75,22 @@ static int hf_docsis_bpkmattr_key_life = -1;
 static int hf_docsis_bpkmattr_key_seq = -1;
 static int hf_docsis_bpkmattr_hmac_digest = -1;
 static int hf_docsis_bpkmattr_said = -1;
-static int hf_docsis_bpkmattr_tek_params = -1;
+/* static int hf_docsis_bpkmattr_tek_params = -1; */
 static int hf_docsis_bpkmattr_cbc_iv = -1;
 static int hf_docsis_bpkmattr_error_code = -1;
 static int hf_docsis_bpkmattr_vendor_def = -1;
 static int hf_docsis_bpkmattr_ca_cert = -1;
 static int hf_docsis_bpkmattr_cm_cert = -1;
-static int hf_docsis_bpkmattr_security_cap = -1;
+/* static int hf_docsis_bpkmattr_security_cap = -1; */
 static int hf_docsis_bpkmattr_crypto_suite = -1;
 static int hf_docsis_bpkmattr_crypto_suite_list = -1;
 static int hf_docsis_bpkmattr_bpi_version = -1;
-static int hf_docsis_bpkmattr_sa_descr = -1;
+/* static int hf_docsis_bpkmattr_sa_descr = -1; */
 static int hf_docsis_bpkmattr_sa_type = -1;
-static int hf_docsis_bpkmattr_sa_query = -1;
+/* static int hf_docsis_bpkmattr_sa_query = -1; */
 static int hf_docsis_bpkmattr_sa_query_type = -1;
 static int hf_docsis_bpkmattr_ip_address = -1;
-static int hf_docsis_bpkmattr_download_param = -1;
+/* static int hf_docsis_bpkmattr_download_param = -1; */
 
 
 
@@ -408,11 +408,13 @@ proto_register_docsis_bpkmattr (void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "RSA Public Key", HFILL}
      },
+#if 0
     {&hf_docsis_bpkmattr_cm_id,
      {"5 CM Identification", "docsis_bpkmattr.cmid",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "CM Identification", HFILL}
      },
+#endif
     {&hf_docsis_bpkmattr_display_str,
      {"6 Display String", "docsis_bpkmattr.dispstr",
       FT_STRING, BASE_NONE, NULL, 0x0,
@@ -448,11 +450,13 @@ proto_register_docsis_bpkmattr (void)
       FT_UINT16, BASE_DEC, NULL, 0x0,
       "Security Association ID", HFILL}
      },
+#if 0
     {&hf_docsis_bpkmattr_tek_params,
      {"13 TEK Parameters", "docsis_bpkmattr.tekparams",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "TEK Parameters", HFILL}
      },
+#endif
     {&hf_docsis_bpkmattr_cbc_iv,
      {"14 CBC IV", "docsis_bpkmattr.cbciv",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -478,11 +482,13 @@ proto_register_docsis_bpkmattr (void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "CM Certificate", HFILL}
      },
+#if 0
     {&hf_docsis_bpkmattr_security_cap,
      {"19 Security Capabilities", "docsis_bpkmattr.seccap",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Security Capabilities", HFILL}
      },
+#endif
     {&hf_docsis_bpkmattr_crypto_suite,
      {"20 Cryptographic Suite", "docsis_bpkmattr.cryptosuite",
       FT_UINT16, BASE_HEX, VALS(crypto_suite_attr_vals), 0x0,
@@ -498,21 +504,25 @@ proto_register_docsis_bpkmattr (void)
       FT_UINT8, BASE_DEC, VALS (bpi_ver_vals), 0x0,
       "BPKM Attributes", HFILL}
      },
+#if 0
     {&hf_docsis_bpkmattr_sa_descr,
      {"23 SA Descriptor", "docsis_bpkmattr.sadescr",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "SA Descriptor", HFILL}
      },
+#endif
     {&hf_docsis_bpkmattr_sa_type,
      {"24 SA Type", "docsis_bpkmattr.satype",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "SA Type", HFILL}
      },
+#if 0
     {&hf_docsis_bpkmattr_sa_query,
      {"25 SA Query", "docsis_bpkmattr.saquery",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "SA Query", HFILL}
      },
+#endif
     {&hf_docsis_bpkmattr_sa_query_type,
      {"26 SA Query Type", "docsis_bpkmattr.saquery_type",
       FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -523,11 +533,13 @@ proto_register_docsis_bpkmattr (void)
       FT_IPv4, BASE_NONE, NULL, 0x0,
       "IP Address", HFILL}
      },
+#if 0
     {&hf_docsis_bpkmattr_download_param,
      {"28 Download Parameters", "docsis_bpkmattr.dnld_params",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Download Parameters", HFILL}
      },
+#endif
   };
 
 /* Setup protocol subtree array */

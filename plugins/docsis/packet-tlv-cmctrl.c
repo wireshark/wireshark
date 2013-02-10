@@ -47,7 +47,7 @@ static int hf_cmctrl_tlv_mute_timeout = -1;
 static int hf_cmctrl_tlv_reinit = -1;
 static int hf_cmctrl_tlv_disable_fwd = -1;
 static int hf_cmctrl_tlv_ds_event = -1;
-static int hf_cmctrl_tlv_us_event = -1;
+/* static int hf_cmctrl_tlv_us_event = -1; */
 static int hf_cmctrl_tlv_event = -1;
 
 static int hf_ds_event_ch_id = -1;
@@ -297,11 +297,13 @@ proto_register_cmctrl_tlv (void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Downstream Status Event Enable Bitmask", HFILL}
      },
+#if 0
     {&hf_cmctrl_tlv_us_event,
      {"6 Override Upstream Events", "cmctrl_tlv.us_event",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Override Downstream Events", HFILL}
      },
+#endif
     {&hf_us_event_ch_id,
      {".1 Upstream Channel ID", "cmctrl_tlv.us_event.chid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
