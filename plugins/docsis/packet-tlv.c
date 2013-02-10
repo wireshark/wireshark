@@ -4952,6 +4952,11 @@ proto_register_docsis_tlv (void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Channel Block Range", HFILL}
      },
+    {&hf_docsis_rcv_mod_enc_ctr_freq_asgn,
+     {"..4 First Channel Center Frequency Assignment", "docsis_tlv.rcv_mod_enc.ctr_freq_asgn",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "First Channel Center Frequency Assignment", HFILL}
+     },
     {&hf_docsis_ch_bl_rng_min_ctr_freq,
      {"...1 Minimum Center Frequency", "docsis_tlv.rcp.rcv_mod_enc.ch_bl_rng.min_ctr_freq",
       FT_UINT32, BASE_DEC, NULL, 0x0,
