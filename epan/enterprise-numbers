@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2013-02-02)
+(last updated 2013-02-10)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -3987,8 +3987,8 @@ Decimal
       herrt&smtplink.sra.com
 993
   University of Florida
-    Todd Hester
-      todd&circa.ufl.edu
+    Daniel Crisman
+      namsirc&ufl.edu
 994
   Dantel, Inc.
     John Litster
@@ -38718,9 +38718,9 @@ Decimal
     Adam Hull
       adam&terralab.com
 9691
-  The Children's Hospital of Denver
-    Louis B. Moore
-      moore.louis&tchden.org
+  Children's Hospital Colorado (previous was 'The Children's Hospital of Denver')
+    Nobuo Matsushita
+      nobuo.matsushita&childrenscolorado.org
 9692
   Tool Object
     Guillaume Cardoner
@@ -89960,9 +89960,9 @@ Limited
     Rodolfo Xavier
       rodolfo.xavier&informatec-sp.com.br
 22600
-  CapRock Communications
+  Harris CapRock Communications (previous was 'CapRock Communications')
     Raymond P Chudzinski
-      rchudzinski&cprk.com
+      rchudzin&harris.com
 22601
   Tachometry Corporation
     Tom Evans
@@ -122023,7 +122023,7 @@ Decentralization / Helenic Public Administra
 30610
   UVT Unternehmensberatung für Verkehr und Technik GmbH
     Volkmar Klos
-      pen.iana.reg&uvt.de
+      peniana.reg&uvt.de
 30611
   Maessa Telecontrol
     Andreu Palou
@@ -148735,9 +148735,9 @@ Decentralization / Helenic Public Administra
     christopher d del riesgo
       christopher&delriesgo.com
 37288
-  AXAN Networks Co.,LTD. (previous was 'AegisLAB Co.,LTD.')
+  AXGATE CO., LTD (previous was 'AXAN Networks Co.,LTD.')
     Jack H. Lee
-      pen-manager&axan.com
+      pen-manager&axgate.com
 37289
   Inco-Service Ltd.
     Kozak Ivan
@@ -156224,8 +156224,8 @@ Decentralization / Helenic Public Administra
       jrhodes&redpointsoftware.com.au
 39160
   PointRed Telecom Ltd.
-    Vijayakumar Perumal
-      vijayakumar&pointred.co
+    Shajee Lawrence
+      shajee&pointred.co
 39161
   Precision Infomatic
     Charan Narayanan
@@ -164470,6 +164470,190 @@ Decentralization / Helenic Public Administra
   IMDIT GmbH
     Marc Bergner
       info&imdit.de
+41222
+  Jnsys
+    Jay Kim
+      jay&jnsys.co.kr
+41223
+  ASC-TEC AG
+    Wojciech Eliasz
+      W.Eliasz&asc-tec.de
+41224
+  CloudVaults, LLC
+    Gyle Iverson
+      Gyle&CloudVaults.com
+41225
+  JSC Volga
+    Alexander Kollegaev
+      kaj&volga-paper.ru
+41226
+  Ennetix
+    Jonathan Symons
+      jon&ennetix.com
+41227
+  Voice Conferencing Systems for Misson Control Centers (vocsmcc)
+    Markus Toepfer
+      openmail&vocsMCC.com
+41228
+  CoreMeda
+    Eray Tavukcu
+      etavukcu&gmail.com
+41229
+  Friulia SPA
+    Massimiliano Viola
+      massimiliano.viola&friulia.it
+41230
+  Usharesoft
+    german parente
+      german.parente&usharesoft.com
+41231
+  IntelliMagic B.V.
+    Gilbert Houtekamer
+      administratormail&intellimagic.net
+41232
+  ZFSoft
+    Francesco Zerra
+      francesco.zerra&gmail.com
+41233
+  HubSpot, Inc.
+    Josh Russell
+      jrussell&hubspot.com
+41234
+  RNelson Consulting
+    Robert Nelson
+      iana&rnelson.ca
+41235
+  Schalter Eletrônica
+    Peter Gabriel
+      peter&schalter.com.br
+41236
+  Telepoint Global Hosting Services, LLC.
+    Russell Bierschbach
+      rbierschbach&telepointglobal.com
+41237
+  Great Lakes Data Systems Inc.
+    Saulius Vabalas
+      savas&glds.com
+41238
+  Shane Spinuzzi
+    Shane Spinuzzi
+      shane&shanespinuzzi.com
+41239
+  Charles County Goverment 
+    Matthew Goddard
+      goddardm&charlescountymd.gov
+41240
+  Mijares Consultoría y Sistemas SL
+    Alberto Mijares
+      amijares&mcs.com.ve
+41241
+  ARC Document Solutions, Inc
+    Chaitanya Garlapati
+      chaitanya&e-arc.com
+41242
+  Shanghai PPLive Media Tech. Co.,Ltd
+    Wang kun
+      morhaimeren&pptv.com
+41243
+  Desoma GmbH
+    Christoph Knott
+      ck&desoma.de
+41244
+  ABAK Systèmes
+    Jean Luc Levionois
+      levionnois&abaksystemes.fr
+41245
+  Sadara Internet
+    Dharmacari Sadara
+      admin&sadarainternet.com
+41246
+  2600hz
+    Karl Anderson
+      sales&2600hz.com
+41247
+  Rakennusliitto ry
+    Jukka Kylliäinen
+      jukka.kylliainen&canon.fi
+41248
+  IETFNG.org
+    Nathaniel Filardo
+      GEMSE3TED2LEIPE02M01LVAPATUNTPVN&cmx.ietfng.org
+41249
+  Silent Circle LLC
+    Louis Kowolowski
+      louisk&silentcircle.com
+41250
+  Globosat Programadora LTDA
+    Marcelo Rezende Módolo
+      modolo&globosat.com.br
+41251
+  Simple Software Solutions
+    John Battersby
+      johnbatty&ssspgh.com
+41252
+  Wicked Software
+    Tony Roy
+      tonyroy&wcksoft.com
+41253
+  Millry Telephone Co
+    Gene Brown
+      geneb&millry.net
+41254
+  Wroclaw School of Applied Informatics "Horyzont"
+    Jarek Szablowski
+      admin&horyzont.eu
+41255
+  Maui Systems Ltd
+    Marty Lee
+      contact&maui-systems.co.uk
+41256
+  NormanStudios
+    julien Bastidon
+      systeme&normanstudios.fr
+41257
+  SignOn
+    James Burton
+      james.burton&signon.org.uk
+41258
+  Jason R. Gonsalves
+    Jason R. Gonsalves
+      jason&gonsalves.ws
+41259
+  Lullabot Consulting, Inc.
+    Ben Chavet
+      ben.chavet&lullabot.com
+41260
+  Critical Link, LLC
+    Dominic Giambo
+      dominic&criticallink.com
+41261
+  TraceVector
+    Brandon McIntyre
+      brandon&tracevector.com
+41262
+  Institut National de Physique Nucléaire et de Physique des Particules
+    Jean-Pierre Cachemiche
+      cachemi&cppm.in2p3.fr
+41263
+  Nutanix Inc.
+    Binny Gill
+      binny&nutanix.com
+41264
+  Kent and Essex Police IT Directorate
+    Mark Williams
+      mark.williams&kent.pnn.police.uk
+41265
+  infOpen
+    Alexandre Chaussier
+      alexandre.chaussier&infopen.pro
+41266
+  Igor Posledov
+    Igor Posledov
+      i.posledov&gmail.com
+41267
+  Benbro Electronics Pty Ltd
+    John Bennett
+      pben&ozemail.com.au
 
 
 End of Document

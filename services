@@ -14,9 +14,9 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-02-01
+# 2013-02-08
 # 
-# Experts
+# Expert(s)
 # 
 # Joe Touch; Markku Kojo, Eliot Lear, Allison Mankin, Kumiko Ono, Martin Stiemerling and Lars Eggert
 # 
@@ -8370,8 +8370,8 @@ echonet	3610/tcp	# ECHONET                      [Takeshi_Saito]                 
 echonet	3610/udp	# ECHONET                      [Takeshi_Saito]                                    [Takeshi_Saito]                                           2002-09
 six-degrees	3611/tcp	# Six Degrees Port             [Zach_Nies]                                        [Zach_Nies]                                               2002-09
 six-degrees	3611/udp	# Six Degrees Port             [Zach_Nies]                                        [Zach_Nies]                                               2002-09
-hp-dataprotect	3612/tcp	# HP Data Protector            [Stephen_Gold]                                     [Stephen_Gold]                                            2002-09
-hp-dataprotect	3612/udp	# HP Data Protector            [Stephen_Gold]                                     [Stephen_Gold]                                            2002-09
+hp-dataprotect	3612/tcp	# HP Data Protector            [Hewlett_Packard_2]                                [Oliver_Breyel]                                           2002-09      2013-02-07
+hp-dataprotect	3612/udp	# HP Data Protector            [Hewlett_Packard_2]                                [Oliver_Breyel]                                           2002-09      2013-02-07
 alaris-disc	3613/tcp	# Alaris Device Discovery      [Chris_Dern]                                       [Chris_Dern]                                              2004-06
 alaris-disc	3613/udp	# Alaris Device Discovery      [Chris_Dern]                                       [Chris_Dern]                                              2004-06
 sigma-port	3614/tcp	# Satchwell Sigma              [Dave_Chapman]                                     [Dave_Chapman]                                            2011-06-06
@@ -12916,7 +12916,9 @@ oracleas-https	7443/udp	# Oracle Application Server    [David_McMarlin]         
 # 7444-7472            Unassigned
 rise	7473/tcp	# Rise: The Vieneo Province    [Jason_Reskin]                                     [Jason_Reskin]                                            2007-03
 rise	7473/udp	# Rise: The Vieneo Province    [Jason_Reskin]                                     [Jason_Reskin]                                            2007-03
-# 7474-7490            Unassigned
+neo4j	7474/tcp	# Neo4j Graph Database         [Neo_Technology_Inc]                               [Julian_Simpson]                                          2013-02-08
+# 7474        udp    Reserved
+# 7475-7490            Unassigned
 telops-lmd	7491/tcp	# telops-lmd                   [David_Spencer]                                    [David_Spencer]
 telops-lmd	7491/udp	# telops-lmd                   [David_Spencer]                                    [David_Spencer]
 # 7492-7499            Unassigned
@@ -15339,7 +15341,9 @@ iuhsctpassoc	29169/sctp	# HNBAP and RUA Common         [John_Meredith]          
 bingbang	29999/tcp	# IEC61850 in wind power       [DEIF_AS]                                          [Armin_Solies]                                            2012-10-15
 # plants
 # 29999       udp    Reserved
-# 30000              Unassigned
+ndmps	30000/tcp	# Secure Network Data          [None]                                             [Alioune_Thiam]                                           2013-02-05
+# Management Protocol
+# 30000       udp    Reserved
 pago-services1	30001/tcp	# Pago Services 1              [Balduin_Mueller_Plat]                             [Balduin_Mueller_Plat]                                    2002-03
 pago-services1	30001/udp	# Pago Services 1              [Balduin_Mueller_Plat]                             [Balduin_Mueller_Plat]                                    2002-03
 pago-services2	30002/tcp	# Pago Services 2              [Balduin_Mueller_Plat]                             [Balduin_Mueller_Plat]                                    2002-03
@@ -16058,6 +16062,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # of protocol in use by by this application>
 # bluevertise                    udp    BlueVertise Network Protocol [Fabrizio_Guglielmino]                             [Fabrizio_Guglielmino]                                                                                                                             Defined TXT keys: role=<master or slave>
 # (BNP)
+# boardplus                      tcp    board plus application       [CX5_SOFTWARE]                                     [Yohei_Yoshihara]                                         2013-02-04                                                                               Defined TXT keys: None
+# transfer protocol
 # bookworm                              Bookworm Client Discovery    [Arne_Dirks]                                       [Arne_Dirks]                                                                                                                                       Defined TXT keys: flavors
 # boundaryscan                   udp    Proprietary                  [Uwe_Ziegler]                                      [Uwe_Ziegler]                                                                                                                                      Defined TXT keys: blocked=<name of the device>,
 # version=<firmware/instrument controller version>
@@ -16223,6 +16229,10 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # fjork                                 Fjork                        [John_Schilling]                                   [John_Schilling]                                                                                                                                   Defined TXT keys: None
 # fl-purr                        udp    FilmLight Cluster Power      [Darrin_Smart]                                     [Darrin_Smart]                                                                                                                                     Defined TXT keys: Proprietary
 # Control Service
+# flightdmp                      tcp    Flight Data Monitoring       [Brad_Head]                                        [Brad_Head]                                               2013-02-07                                                                               Defined TXT keys: None
+# Protocol
+# flightdmp                      udp    Flight Data Monitoring       [Brad_Head]                                        [Brad_Head]                                               2013-02-07                                                                               Defined TXT keys: None
+# Protocol
 # flir-ircam                     tcp    FLIR Infrared Camera         [FLIR_Systems_AB]                                  [Bjorn_Roth][Klas_Malmborg]                               2011-10-20                                                                               Defined TXT keys: Proprietary
 # FileMaker Server
 # fmserver-admin                        Administration Communication [Eric_Jacobson]                                    [Eric_Jacobson]                                                                                                                                    Defined TXT keys: None
@@ -16536,6 +16546,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # transfer system
 # ncsyncserver                          Network Clipboard Sync       [Thom_McGrath]                                     [Thom_McGrath]                                                                                                                                     Defined TXT keys: Contact The ZAZ Software <networkclipboard
 # Server                                                                                                                                                                                                                             at thezaz.com>
+# Lightweight event based
+# nodel                          tcp    control protocol utilising   [Lumicom]                                          [Michael_Cartmel]                                         2013-02-07                                                                               Defined TXT keys: None
+# JavaScript Object Notation
 # neoriders                      udp    NeoRiders Client Discovery   [Jesse_W_Towner]                                   [Jesse_W_Towner]                                                                                                                                   Defined TXT keys: None
 # Protocol
 # netrestore                            NetRestore                   [Mike_Bombich]                                     [Mike_Bombich]                                                                                                                                     Defined TXT keys: message, status, progress
@@ -17243,6 +17256,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ali_Fracyon]                                             Ali Fracyon                                     mailto:sxdev&modulardreams.com
 # [Ali_Jelveh]                                              Ali Jelveh                                      mailto:ali&protonet.info
 # [Ali_Saleh]                                               Ali Saleh                                       mailto:scomm&cerf.net
+# [Alioune_Thiam]                                           Alioune Thiam                                   mailto:alioune_thiam&symantec.com                             2013-02-05
 # [Allan_Miller]                                            Allan Miller                                    mailto:amiller&handsfreenetworks.com
 # [Allan_Panitch]                                           Allan Panitch                                   mailto:allanp&tcosoft.com
 # [Allan_Stanley]                                           Allan Stanley                                   mailto:allan&hummingbird.com
@@ -17599,6 +17613,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [borja_lopez_urkidi]                                      borja lopez urkidi        NEGU Soft             mailto:lopezurkidi&gmail.com                                  2012-09-10
 # [Brad_Hamilton]                                           Brad Hamilton                                   mailto:bh&picksys.com
 # [Brad_Hamilton_2]                                         Brad Hamilton                                   mailto:brad_hamilton&kofax.com                                2002-08
+# [Brad_Head]                                               Brad Head                                       mailto:brad.head&latitudetech.com                             2013-02-07
 # [Brad_Johanson]                                           Brad Johanson                                   mailto:bradj&tidebreak.com                                    2005-08
 # [Brad_Parker]                                             Brad Parker                                     mailto:brad&american.com
 # [Brad_Pedersen]                                           Brad Pedersen                                   mailto:bradp&citrix.com
@@ -17976,6 +17991,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Curtis_Bray]                                             Curtis Bray                                     mailto:CurtisB&creativedesign.com
 # [Curtis_Smith]                                            Curtis Smith                                    mailto:curtis.smith&vsin.com
 # [Curtiss_Howard]                                          Curtiss Howard                                  mailto:cjhoward&unity.ncsu.edu                                2004-11
+# [CX5_SOFTWARE]                                                                      CX5 SOFTWARE          mailto:contact&cx5software.com                                2013-02-04
 # [DARcorp]                                                                                                 mailto:DARcorp&aol.com
 # [d_b_audiotechnik]                                                                  d&b audiotechnik      mailto:software.support&dbaudio.com                           2011-10-06
 # [D_J_Bernstein]                                           D. J. Bernstein                                 mailto:djb&silverton.berkeley.edu
@@ -18851,6 +18867,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Herbert_Falk]                                            Herbert Falk                                    mailto:herb&sisconet.com                                      2003-06
 # [Hesham_Soliman]                                          Hesham Soliman                                  mailto:H.Soliman&flarion.com                                  2005-11
 # [Hewlett_Packard]                                                                   Hewlett Packard
+# [Hewlett_Packard_2]                                                                 Hewlett Packard       mailto:oliver.breyel&hp.com                                   2013-02-07
 # [Hideki_Hatta]                                            Hideki Hatta                                    mailto:ponum&canon-is.co.jp                                   2007-09-27
 # [Hideki_Kiriyama]                                         Hideki Kiriyama                                 mailto:kiriyama&cp10.es.xerox.com
 # [Hideo_Wakabayashi]                                       Hideo Wakabayashi                               mailto:hiwaka&alles.or.jp
@@ -19442,6 +19459,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Julian_Biddle]                                           Julian Biddle                                   mailto:julian_biddle&technologyonecorp.com
 # [Julian_Mehnle]                                           Julian Mehnle                                   mailto:julian&mehnle.net
 # [Julian_Satran]                                           Julian Satran                                   mailto:Julian_Satran&il.ibm.com
+# [Julian_Simpson]                                          Julian Simpson            Neo Technology, Inc   mailto:julian.simpson&neotechnology.com                       2013-02-08
 # [Julian_Smith]                                            Julian Smith                                    mailto:jsmith&undo-software.com                               2010-04-19
 # [Juliana_Hsu]                                             Juliana Hsu                                     mailto:jhsu&ca.ibm.com
 # [Julien_Danjou]                                           Julien Danjou                                   mailto:acid&debian.org                                        2006-07
@@ -19737,6 +19755,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Luke_Dion]                                               Luke Dion                                       mailto:ldion&tapeware.com                                     2004-04
 # [Luke_Steffen]                                            Luke Steffen                                    mailto:lukesteffen&deusty.com
 # [Luma_Code]                                               Luma Code                                       mailto:support&lumacode.com
+# [Lumicom]                                                                           Lumicom               mailto:support&lumicom.com.au                                 2013-02-07
 # [Lumis]                                                                             Lumis                 mailto:rterra&lumis.com.br                                    2011-10-24
 # [Lutz_Karras]                                             Lutz Karras                                     mailto:karras&zeiss.de
 # [Lyndon_Nerenberg]                                        Lyndon Nerenberg                                mailto:lyndon&execmail.ca
@@ -20041,6 +20060,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Michael_Bishop]                                          Michael Bishop                                  mailto:mbishop&fishnetsecurity.com
 # [Michael_Boyle]                                           Michael Boyle                                   mailto:michaelboyle&smarttech.com
 # [Michael_Cahill]                                          Michael Cahill                                  mailto:Michael.Cahill&bullant.net
+# [Michael_Cartmel]                                         Michael Cartmel           Lumicom               mailto:michael.cartmel&lumicom.com.au                         2013-02-07
 # [Michael_Chapman]                                         Michael Chapman                                 mailto:mchapman&fortresstech.com                              2004-11
 # [Michael_Chirila]                                         Michael Chirila                                 mailto:Michael.Chirila&softwareag.com                         2006-01
 # [Michael_Collins]                                         Michael Collins                                 mailto:UBMCollins&aol.com
@@ -20274,6 +20294,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [NEGU_Soft]                                                                         NEGU Soft             mailto:info&negusoft.com                                      2012-09-10
 # [Neil_Coggins]                                            Neil Coggins                                    mailto:neil.coggins&6thsight.com                              2006-07
 # [Neil_Salter]                                             Neil Salter                                     mailto:neil&indigo2.mvel.demon.co.uk
+# [Neo_Technology_Inc]                                                                Neo Technology, Inc   mailto:admins&neotechnology.com                               2013-02-08
 # [Nestor_A_Diaz]                                           Nestor A. Diaz                                  mailto:nestor&tiendalinux.com                                 2009-05-12
 # [NetOp_Technical_Supp]                                    NetOp Technical Support                         mailto:support&danware.dk
 # [Nevil_Brownlee]                                          Nevil Brownlee                                  mailto:n.brownlee&auckland.ac.nz                              2006-10
@@ -21267,7 +21288,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Stephen_Dunne]                                           Stephen Dunne                                   mailto:sdun&isma.co.uk
 # [Stephen_Egbert]                                          Stephen Egbert                                  mailto:egbert&ra.timeplex.com
 # [Stephen_Gildea]                                          Stephen Gildea                                  mailto:gildea&lcs.mit.edu
-# [Stephen_Gold]                                            Stephen Gold                                    mailto:stephen_gold&hp.com                                    2003-01
 # [Stephen_Hanna]                                           Stephen Hanna                                   mailto:hanna&world.std.com
 # [Stephen_Hanna_2]                                         Stephen Hanna                                   mailto:steve.hanna&sun.com
 # [Stephen_Harrison]                                        Stephen Harrison                                mailto:sharrison&nimbusdb.com                                 2011-01-24
@@ -21872,6 +21892,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Yochai_Cohen]                                            Yochai Cohen                                    mailto:yochai&combox.co.il
 # [Yogesh_P_Gajjar]                                         Yogesh P. Gajjar                                mailto:yogesh&cytel.com
 # [Yohann_Sulaiman]                                         Yohann Sulaiman                                 mailto:ports&shaperai.com                                     2012-06-22
+# [Yohei_Yoshihara]                                         Yohei Yoshihara           CX5 SOFTWARE          mailto:yohei_yoshihara&cx5software.com                        2013-02-04
 # [Yoneda_Terumasa]                                         Yoneda Terumasa                                 mailto:yonedat&pfu.co.jp
 # [Yong_Cai]                                                Yong Cai                                        mailto:ycai&emc.com
 # [YoonSoo_Kim]                                             YoonSoo Kim                                     mailto:ys71.kim&samsung.com                                   2006-05
