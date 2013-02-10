@@ -72,7 +72,6 @@ static int hf_opcua_fragment_error = -1;
 static int hf_opcua_fragment_count = -1;
 static int hf_opcua_reassembled_in = -1;
 static int hf_opcua_reassembled_length = -1;
-static int hf_opcua_reassembled_data = -1;
 
 static const fragment_items opcua_frag_items = {
     /* Fragment subtrees */
@@ -92,7 +91,7 @@ static const fragment_items opcua_frag_items = {
     /* Reassembled length field */
     &hf_opcua_reassembled_length,
     /* Reassembled data field */
-    &hf_opcua_reassembled_data,
+    NULL,
     /* Tag */
     "Message fragments"
 };
