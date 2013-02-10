@@ -58,8 +58,8 @@
 /* SSH Version 1 definition , from openssh ssh1.h */
 #define SSH1_MSG_NONE				0	/* no message */
 #define SSH1_MSG_DISCONNECT			1	/* cause (string) */
-#define SSH1_SMSG_PUBLIC_KEY			2	/* ck,msk,srvk,hostk */
-#define SSH1_CMSG_SESSION_KEY			3	/* key (BIGNUM) */
+#define SSH1_SMSG_PUBLIC_KEY		2	/* ck,msk,srvk,hostk */
+#define SSH1_CMSG_SESSION_KEY		3	/* key (BIGNUM) */
 #define SSH1_CMSG_USER				4	/* user (string) */
 
 
@@ -105,6 +105,7 @@ static int hf_ssh_encrypted_packet= -1;
 static int hf_ssh_padding_string= -1;
 static int hf_ssh_mac_string= -1;
 static int hf_ssh_msg_code = -1;
+static int hf_ssh2_msg_code = -1;
 static int hf_ssh_cookie = -1;
 static int hf_ssh_mpint_g= -1;
 static int hf_ssh_mpint_p= -1;
@@ -339,19 +340,17 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	version = global_data->version;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		switch(version) {
-			case SSH_VERSION_UNKNOWN:
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSH");
-				break;
-			case SSH_VERSION_1:
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSHv1");
-				break;
-			case SSH_VERSION_2:
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSHv2");
-				break;
+	switch(version) {
+		case SSH_VERSION_UNKNOWN:
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSH");
+			break;
+		case SSH_VERSION_1:
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSHv1");
+			break;
+		case SSH_VERSION_2:
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSHv2");
+			break;
 
-		}
 	}
 
 	if(this_data->counter != 0 && version == SSH_VERSION_UNKNOWN) {
@@ -530,10 +529,8 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 		}
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: ",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: ",
 			is_response?"Server":"Client");
-	}
 
 	if(plen >= 0xffff) {
 		if (ssh1_tree && plen > 0) {
@@ -565,22 +562,15 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 	if(number == 1 ) {
 		msg_code = tvb_get_guint8(tvb, offset);
 		if (tree) {
-		  	proto_tree_add_uint_format(ssh1_tree, hf_ssh_msg_code, tvb,
-		    		offset, 1, msg_code,"Msg code: %s (%u)",
-				val_to_str(msg_code, ssh1_msg_vals, "Unknown (%u)"),
-				msg_code);
+			proto_tree_add_item(ssh1_tree, hf_ssh_msg_code, tvb, offset, 1, ENC_NA);
 		}
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO,
+		col_append_str(pinfo->cinfo, COL_INFO,
 			val_to_str(msg_code, ssh1_msg_vals, "Unknown (%u)"));
-		}
 		offset += 1;
 		len = plen -1;
 	} else {
 		len = plen;
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Encrypted packet len=%d", len);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Encrypted packet len=%d", len);
 	}
 	/* payload */
 	if (ssh1_tree ) {
@@ -718,25 +708,22 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	/* msg_code */
 	msg_code = tvb_get_guint8(tvb, offset);
 	if (tree) {
-		  proto_tree_add_uint_format(key_ex_tree, hf_ssh_msg_code, tvb,
-		    offset, 1, msg_code,"Msg code: %s (%u)",
-			val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"),
-			msg_code);
+		proto_tree_add_item(key_ex_tree, hf_ssh2_msg_code, tvb, offset, 1, ENC_NA);
 
 	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_str(pinfo->cinfo, COL_INFO,
-			val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
-	}
+	col_append_str(pinfo->cinfo, COL_INFO,
+		val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
 	offset += 1;
 
 	/* 16 bytes cookie  */
-	if(number == 1) {
+	if ((msg_code != SSH_MSG_IGNORE) && (number == 1)) {
 		offset = ssh_dissect_key_init(tvb, offset, key_ex_tree, is_response, global_data);
 	}
 	else {
+		switch(msg_code)
+		{
 		/* DH GEX Request (min/nbits/max) */
-		if (msg_code == 34) {
+		case SSH_MSG_KEX_DH_GEX_REQUEST:
 			ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_min,
 			    tvb, offset, 4, ENC_NA);
 			offset+=4;
@@ -746,21 +733,23 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 			ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_max,
 			    tvb, offset, 4, ENC_NA);
 			offset+=4;
-		}
+			break;
 		/* DH Key Exchange Reply (g/p) */
-		if (msg_code == 31) {
+		case SSH_MSG_KEXDH_REPLY:
 			offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_p);
 			offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_g);
-		}
+			break;
+
 		/* DH GEX Init (e) */
-		if (msg_code == 32) {
+		case SSH_MSG_KEX_DH_GEX_INIT:
 			offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_e);
-		}
+			break;
 		/* DH GEX Reply (f) */
-		if (msg_code == 33) {
+		case SSH_MSG_KEX_DH_GEX_REPLY:
 			offset+=ssh_tree_add_string(tvb,offset,key_ex_tree,hf_ssh_kexdh_host_key,hf_ssh_kexdh_host_key_length);
 			offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_f);
 			offset+=ssh_tree_add_string(tvb,offset,key_ex_tree,hf_ssh_kexdh_h_sig,hf_ssh_kexdh_h_sig_length);
+			break;
 		}
 	}
 
@@ -800,10 +789,9 @@ ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 	gint len;
 
 	len = tvb_reported_length_remaining(tvb,offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Encrypted %s packet len=%d",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Encrypted %s packet len=%d",
 			is_response?"response":"request",len);
-	}
+
 	if (tree ) {
 		gint encrypted_len = len;
 
@@ -1103,7 +1091,12 @@ proto_register_ssh(void)
 
 		{ &hf_ssh_msg_code,
 		  { "Message Code",  "ssh.message_code",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    FT_UINT8, BASE_DEC, VALS(ssh1_msg_vals), 0x0,
+		    "SSH Message Code", HFILL }},
+
+		{ &hf_ssh2_msg_code,
+		  { "Message Code",  "ssh.message_code",
+		    FT_UINT8, BASE_DEC, VALS(ssh2_msg_vals), 0x0,
 		    "SSH Message Code", HFILL }},
 
 		{ &hf_ssh_mpint_g,
