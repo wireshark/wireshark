@@ -1,6 +1,11 @@
 /* -*-mode: flex-*- */
 
 /*
+ * We don't use input, so don't generate code for it.
+ */
+%option noinput
+
+/*
  * We don't use unput, so don't generate code for it.
  */
 %option nounput
