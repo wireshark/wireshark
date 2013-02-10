@@ -301,6 +301,7 @@ DISSECTOR_SRC = \
 	packet-bfcp.c		\
 	packet-bfd.c		\
 	packet-bgp.c		\
+	packet-bitcoin.c	\
 	packet-bittorrent.c	\
 	packet-bjnp.c		\
 	packet-bmc.c		\

@@ -382,6 +382,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bfcp.c
 	dissectors/packet-bfd.c
 	dissectors/packet-bgp.c
+	dissectors/packet-bitcoin.c
 	dissectors/packet-bittorrent.c
 	dissectors/packet-bjnp.c
 	dissectors/packet-bmc.c
