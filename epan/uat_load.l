@@ -1,4 +1,9 @@
 /*
+ * We don't use input, so don't generate code for it.
+ */
+%option noinput
+
+/*
  * We don't use unput, so don't generate code for it.
  */
 %option nounput
@@ -165,7 +170,7 @@ comment #[^\n]*\n
 }
 
 <START_OF_LINE,NEXT_FIELD>{newline}   {
-	ptrx = "";
+	ptrx = g_strdup("");
 	len = 0;
 
 	BEGIN END_OF_RECORD;
