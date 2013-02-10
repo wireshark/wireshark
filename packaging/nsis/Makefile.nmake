@@ -211,8 +211,8 @@ NSIS_FLAGS=\
 !IFDEF HHC_DIR
 	/DHHC_DIR="$(HHC_DIR)" \
 !ENDIF
-!IF EXIST("..\..\wireshark-qt\qtshark.exe")
-	/DQT_DIR="..\..\wireshark-qt" \
+!IF EXIST("..\..\wireshark-qt-release\qtshark.exe")
+	/DQT_DIR="..\..\wireshark-qt-release" \
 !ENDIF
 
 $(STAGING_DIR)\uninstall.exe : $(NSI)

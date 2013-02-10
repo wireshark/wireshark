@@ -25,8 +25,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-
-
 QT += core gui
 
 macx {
@@ -37,7 +35,16 @@ macx {
 
 TEMPLATE = app
 
-QMAKE_INFO_PLIST = ../../packaging/macosx/Info.plist
+TOP_SRCDIR = "$$PWD/../.."
+
+CONFIG(debug, debug|release) {
+    DESTDIR = "$${TOP_SRCDIR}/wireshark-qt-debug"
+}
+CONFIG(release, debug|release) {
+    DESTDIR = "$${TOP_SRCDIR}/wireshark-qt-release"
+}
+
+QMAKE_INFO_PLIST = "$$PWD/../../packaging/macosx/Info.plist"
 
 xxx {
     message( )
@@ -121,8 +128,6 @@ win32 {
     !include( config.pri ) {
         error("Can't find config.pri. Have you run 'nmake -f Makefile.nmake' two directories up?")
     }
-
-    DESTDIR = ../../wireshark-qt
 
     !wireshark_manifest_info_required {
         CONFIG -= embed_manifest_dll
@@ -313,7 +318,7 @@ unix:!macx {
 # qmake 2.01a / Qt 4.7.0 doesn't set DESTDIR on OS X.
 macx {
     for(FILE,EXTRA_BINFILES){
-        QMAKE_POST_LINK += $$quote(cp $${FILE} $${TARGET}.app/Contents/MacOS$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cp $${FILE} $${DESTDIR}/$${TARGET}.app/Contents/MacOS$$escape_expand(\\n\\t))
     }
 }
 
