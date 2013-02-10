@@ -436,7 +436,7 @@ static gint hf_sfe_harq_channel_mapping_index = -1;
 static gint hf_sfe_fsn_size = -1;
 static gint hf_sfe_unsolicited_grant_interval = -1;
 static gint hf_sfe_unsolicited_polling_interval = -1;
-static gint hf_sfe_harq_channel_mapping = -1;
+/* static gint hf_sfe_harq_channel_mapping = -1; */
 static gint hf_sfe_global_service_class_name = -1;
 static gint hf_sfe_reserved_36 = -1;
 static gint hf_sfe_reserved_34 = -1;
@@ -458,7 +458,7 @@ static gint hf_sfe_arq_block_size_cor2 = -1;
 static gint hf_sfe_arq_min_block_size = -1;
 static gint hf_sfe_arq_max_block_size = -1;
 
-static gint hf_sfe_cid_alloc_for_active_bs = -1;
+/* static gint hf_sfe_cid_alloc_for_active_bs = -1; */
 static gint hf_sfe_cid_alloc_for_active_bs_cid = -1;
 static gint hf_sfe_pdu_sn_ext_subheader_reorder = -1;
 static gint hf_sfe_mbs_contents_ids = -1;
@@ -669,11 +669,11 @@ static gint hf_pkm_config_settings_rekey_wait_timeout = -1;
 static gint hf_pkm_config_settings_tek_grace_time = -1;
 static gint hf_pkm_config_settings_authorize_reject_wait_timeout = -1;
 
-static gint hf_pkm_attr_pak_ak_seq_number = -1;
+/* static gint hf_pkm_attr_pak_ak_seq_number = -1; */
 static gint hf_pkm_attr_associated_gkek_seq_number = -1;
-static gint hf_pkm_attr_gkek_params = -1;
+/* static gint hf_pkm_attr_gkek_params = -1; */
 
-static gint hf_common_tlv_unknown_type = -1;
+/* static gint hf_common_tlv_unknown_type = -1; */
 static gint hf_common_tlv_mac_version = -1;
 static gint hf_common_tlv_vendor_id = -1;
 static gint hf_common_tlv_vendor_specific_type = -1;
@@ -921,10 +921,12 @@ void proto_register_wimax_utility_decoders(void)
 			&hf_sfe_fsn_size,
 			{"FSN Size", "wmx.sfe.fsn_size", FT_UINT8, BASE_DEC, VALS(vals_fsn_size), 0x0, NULL, HFILL}
 		},
+#if 0
 		{	/* 39 CID allocation for Active BSs */
 			&hf_sfe_cid_alloc_for_active_bs,
 			{"CID Allocation For Active BSs", "wmx.sfe.cid_alloc_for_active_bs", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
+#endif
 		{	/* 39.1 */
 			&hf_sfe_cid_alloc_for_active_bs_cid,
 			{"CID", "wmx.sfe.cid_alloc_for_active_bs_cid", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
@@ -957,10 +959,12 @@ void proto_register_wimax_utility_decoders(void)
 			&hf_sfe_authorization_token,
 			{"Authorization Token", "wmx.sfe.authorization_token", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
+#if 0
 			{	/* 46 HARQ Channel Mapping */
 			&hf_sfe_harq_channel_mapping,
 			{"HARQ Channel Mapping", "wmx.sfe.harq_channel_mapping", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
+#endif
 			{	/* 46.1 HARQ Channel Index*/
 			&hf_sfe_harq_channel_mapping_index,
 			{"HARQ Channel Index", "wmx.sfe.harq_channel_mapping.index", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
@@ -1537,7 +1541,7 @@ void proto_register_wimax_utility_decoders(void)
 			&hf_pkm_attr_pre_pak,
 			{"Pre-PAK", "wmx.pkm_msg.pkm_attr.pre_pak", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
-#if 1	/* no definition */
+#if 0	/* no definition */
 		{	/* 11.9.?? - type 36 */
 			&hf_pkm_attr_pak_ak_seq_number,
 			{"PAK/AK Sequence Number", "wmx.pkm_msg.pkm_attr.pak_ak_seq_number", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
@@ -1609,11 +1613,13 @@ void proto_register_wimax_utility_decoders(void)
 			&hf_pkm_attr_frame_number,
 			{"Frame Number", "wmx.pkm_msg.pkm_attr.frame_number", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
-#if 1	/* no definitions */
+#if 1	/* no definitions [??] */
 		{	/* 11.9.?? - type 46 */
 			&hf_pkm_attr_associated_gkek_seq_number,
 			{"Associated GKEK Sequence Number", "wmx.pkm_msg.pkm_attr.associated_gkek_seq_number",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
+#endif
+#if 0
 		{	/* 11.9.?? - type 47 */
 			&hf_pkm_attr_gkek_params,
 			{"GKEK Parameters", "wmx.pkm_msg.pkm_attr.gkek_params",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
@@ -1656,16 +1662,19 @@ void proto_register_wimax_utility_decoders(void)
 			&hf_common_tlv_vendor_specific_value,
 			{ "Vendor Specific Value", "wmx.common_tlv.vendor_specific_value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
+#if 0
 		{
 			&hf_common_tlv_unknown_type,
 			{"Unknown Common TLV Type", "wmx.common_tlv.unknown_type", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		}
+#endif
 	};
 
 	if(proto_wimax_utility_decoders == -1)
 	{
 		proto_wimax_utility_decoders = proto_register_protocol (
-							"WiMax Sub-TLV Messages", /* name */
+							"WiMax Sub-TLV Messages",
+ /* name */
 							"WiMax Sub-TLV (sub)", /* short name */
 							"wmx.sub" /* abbrev */
 							);

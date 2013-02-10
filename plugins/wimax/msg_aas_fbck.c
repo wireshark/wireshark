@@ -76,7 +76,7 @@ static const value_string vals_resolutions_1[] =
 
 /* fix fields */
 static int hf_aas_fbck_message_type = -1;
-static int hf_aas_fbck_unknown_type = -1;
+/* static int hf_aas_fbck_unknown_type = -1; */
 static int hf_aas_fbck_frame_number = -1;
 static int hf_aas_fbck_number_of_frames = -1;
 static int hf_aas_fbck_req_data_type = -1;
@@ -280,6 +280,7 @@ void proto_register_mac_mgmt_msg_aas_fbck(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_aas_fbck_unknown_type,
 			{
@@ -287,6 +288,7 @@ void proto_register_mac_mgmt_msg_aas_fbck(void)
 				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_aas_fbck_req_data_type,
 			{

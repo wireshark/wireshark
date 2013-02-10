@@ -61,7 +61,7 @@ static gint *ett[] =
 /* DREG fields */
 static gint hf_dreg_cmd_message_type = -1;
 static gint hf_dreg_req_message_type = -1;
-static gint hf_ack_type_reserved = -1;
+/* static gint hf_ack_type_reserved = -1; */
 static gint hf_dreg_cmd_action = -1;
 static gint hf_dreg_cmd_action_cor2 = -1;
 static gint hf_dreg_cmd_reserved = -1;
@@ -354,6 +354,7 @@ void proto_register_mac_mgmt_msg_dreg_req(void)
 				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_ack_type_reserved,
 			{
@@ -361,10 +362,12 @@ void proto_register_mac_mgmt_msg_dreg_req(void)
 				FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL
 			}
 		}
+#endif
 	};
 
 	proto_mac_mgmt_msg_dreg_req_decoder = proto_register_protocol (
-		"WiMax DREG-REQ/CMD Messages", /* name */
+		"WiMax DREG-REQ/CMD Messages",
+ /* name */
 		"WiMax DREG-REQ/CMD (dreg)", /* short name */
 		"wmx.dreg" /* abbrev */
 		);

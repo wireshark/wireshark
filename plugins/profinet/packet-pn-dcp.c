@@ -53,7 +53,7 @@ static int hf_pn_dcp_block = -1;
 static int hf_pn_dcp_block_error = -1;
 
 static int hf_pn_dcp_option = -1;
-static int hf_pn_dcp_suboption = -1;
+/* static int hf_pn_dcp_suboption = -1; */
 static int hf_pn_dcp_block_info = -1;
 static int hf_pn_dcp_block_qualifier = -1;
 
@@ -1038,10 +1038,12 @@ proto_register_pn_dcp (void)
             FT_UINT8, BASE_DEC, VALS(pn_dcp_option), 0x0,
             NULL, HFILL }},
 
+#if 0
         { &hf_pn_dcp_suboption,
           { "Suboption", "pn_dcp.suboption",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
+#endif
 
         { &hf_pn_dcp_block_error,
           { "BlockError", "pn_dcp.block_error",

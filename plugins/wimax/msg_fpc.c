@@ -48,7 +48,7 @@ static gint hf_fpc_number_of_stations = -1;
 static gint hf_fpc_basic_cid = -1;
 static gint hf_fpc_power_adjust = -1;
 static gint hf_fpc_power_measurement_frame = -1;
-static gint hf_fpc_invalid_tlv = -1;
+/* static gint hf_fpc_invalid_tlv = -1; */
 
 
 /* Decode FPC messages. */
@@ -132,6 +132,7 @@ void proto_register_mac_mgmt_msg_fpc(void)
 				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_fpc_invalid_tlv,
 			{
@@ -139,6 +140,7 @@ void proto_register_mac_mgmt_msg_fpc(void)
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_fpc_number_of_stations,
 			{

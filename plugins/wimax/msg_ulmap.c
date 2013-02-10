@@ -204,9 +204,9 @@ static gint hf_ulmap_reserved = -1;
 static gint hf_ulmap_ucd_count = -1;
 static gint hf_ulmap_alloc_start_time = -1;
 static gint hf_ulmap_ofdma_sym = -1;
-static gint hf_ulmap_fch_expected = -1;
+/* static gint hf_ulmap_fch_expected = -1; */
 
-static gint hf_ulmap_ie = -1;
+/* static gint hf_ulmap_ie = -1; */
 
 static gint hf_ulmap_ie_cid      = -1;
 static gint hf_ulmap_ie_uiuc     = -1;
@@ -228,12 +228,12 @@ static gint hf_ulmap_uiuc14_sym  = -1;
 static gint hf_ulmap_uiuc14_sub  = -1;
 static gint hf_ulmap_uiuc14_bwr  = -1;
 
-static gint hf_ulmap_uiuc11_ext = -1;
-static gint hf_ulmap_uiuc11_len = -1;
-static gint hf_ulmap_uiuc11_data = -1;
-static gint hf_ulmap_uiuc15_ext = -1;
-static gint hf_ulmap_uiuc15_len = -1;
-static gint hf_ulmap_uiuc15_data = -1;
+/* static gint hf_ulmap_uiuc11_ext = -1; */
+/* static gint hf_ulmap_uiuc11_len = -1; */
+/* static gint hf_ulmap_uiuc11_data = -1; */
+/* static gint hf_ulmap_uiuc15_ext = -1; */
+/* static gint hf_ulmap_uiuc15_len = -1; */
+/* static gint hf_ulmap_uiuc15_data = -1; */
 
 static gint hf_ulmap_uiuc0_symofs = -1;
 static gint hf_ulmap_uiuc0_subofs = -1;
@@ -1652,12 +1652,12 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         proto_tree_add_uint(tree, hf_ulmap_ie_uiuc, tvb, NIBHI(nibble, 1), uiuc);
         nibble += 1;
 
-        /*
+#if 0
         proto_tree_add_uint(tree, hf_ulmap_uiuc11_ext, tvb, NIBHI(nibble, 1), ext2_uiuc);
         nibble += 1;
         proto_tree_add_uint(tree, hf_ulmap_uiuc11_len, tvb, NIBHI(nibble, 2), len);
         nibble += 2;
-        */
+#endif
 
         len = 3 + BYTE_TO_NIB(len); /* length in nibbles */
 
@@ -1801,12 +1801,12 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
         proto_tree_add_uint(tree, hf_ulmap_ie_uiuc, tvb, NIBHI(nibble,1), uiuc);
         nibble += 1;
 
-        /*
+#if 0
         ti = proto_tree_add_uint(tree, hf_ulmap_uiuc11_ext, tvb, NIBHI(nibble,1), ext_uiuc);
         nibble += 1;
         proto_tree_add_uint(tree, hf_ulmap_uiuc11_len, tvb, NIBHI(nibble,1), len);
         nibble += 1;
-        */
+#endif
 
         len = 2 + BYTE_TO_NIB(len); /* length in nibbles */
 
@@ -2075,6 +2075,7 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_ulmap_fch_expected,
 			{
@@ -2082,6 +2083,8 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#endif
+#if 0
 		{
 			&hf_ulmap_ie,
 			{
@@ -2089,6 +2092,7 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_ulmap_ie_cid,
 			{
@@ -2166,6 +2170,7 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 				FT_UINT32,	BASE_DEC, NULL, 0xff000000, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_ulmap_uiuc11_data,
 			{
@@ -2187,6 +2192,7 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_ulmap_uiuc12_dri,
 			{
@@ -2348,6 +2354,7 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 				FT_UINT16, BASE_DEC, NULL, 0x03c0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_ulmap_uiuc15_data,
 			{
@@ -2369,6 +2376,7 @@ void proto_register_mac_mgmt_msg_ulmap(void)
 				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		}
+#endif
 	};
 
 	/* Setup protocol subtree array */

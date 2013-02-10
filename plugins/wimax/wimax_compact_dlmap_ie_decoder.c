@@ -206,7 +206,7 @@ static gint hf_cdlmap_allocation_mode_1 = -1;
 static gint hf_cdlmap_allocation_mode_rsvd_1 = -1;
 static gint hf_cdlmap_num_subchannels_1 = -1;
 
-static gint hf_cdlmap_reserved_type = -1;
+/* static gint hf_cdlmap_reserved_type = -1; */
 static gint hf_cdlmap_reserved_type_1 = -1;
 
 /* display indexies */
@@ -1716,10 +1716,12 @@ void proto_register_wimax_compact_dlmap_ie(void)
 			&hf_cdlmap_num_subchannels_1,
 			{"Number Of Subchannels", "wmx.compact_dlmap.num_subchannels", FT_UINT16, BASE_DEC, NULL, 0x0FF0, NULL, HFILL}
 		},
+#if 0
 		{
 			&hf_cdlmap_reserved_type,
 			{"DL-MAP Reserved Type", "wmx.compact_dlmap.reserved_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK, NULL, HFILL}
 		},
+#endif
 		{
 			&hf_cdlmap_reserved_type_1,
 			{"DL-MAP Reserved Type", "wmx.compact_dlmap.reserved_type", FT_UINT8, BASE_DEC, NULL, DL_MAP_TYPE_MASK_1, NULL, HFILL}

@@ -114,7 +114,7 @@ static int hf_ecat_mailbox_coe_sdoccsds_toggle = -1;
 static int hf_ecat_mailbox_coe_sdoccsus = -1;
 static int hf_ecat_mailbox_coe_sdoccsus_toggle = -1;
 static int hf_ecat_mailbox_coe_sdoccsiu = -1;
-static int hf_ecat_mailbox_coe_sdoccsiu_complete = -1;
+/* static int hf_ecat_mailbox_coe_sdoccsiu_complete = -1; */
 static int hf_ecat_mailbox_coe_sdoidx = -1;
 static int hf_ecat_mailbox_coe_sdosub = -1;
 static int hf_ecat_mailbox_coe_sdodata = -1;
@@ -122,7 +122,7 @@ static int hf_ecat_mailbox_coe_sdodata1 = -1;
 static int hf_ecat_mailbox_coe_sdodata2 = -1;
 static int hf_ecat_mailbox_coe_sdoldata = -1;
 static int hf_ecat_mailbox_coe_sdolength = -1;
-static int hf_ecat_mailbox_coe_sdoerror = -1;
+/* static int hf_ecat_mailbox_coe_sdoerror = -1; */
 static int hf_ecat_mailbox_coe_sdores = -1;
 static int hf_ecat_mailbox_coe_sdoscsds = -1;
 static int hf_ecat_mailbox_coe_sdoscsds_toggle = -1;
@@ -1673,11 +1673,13 @@ void proto_register_ecat_mailbox(void)
       FT_UINT8, BASE_HEX, NULL, 0x0,
       NULL, HFILL }
       },
+#if 0
       { &hf_ecat_mailbox_coe_sdoccsiu_complete,
       { "Toggle Bit", "ecat_mailbox.coe.sdoccsiu_complete",
       FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000010,
       NULL, HFILL }
       },
+#endif
       { &hf_ecat_mailbox_coe_sdoccsus,
       { "Upload Segment", "ecat_mailbox.coe.sdoccsus",
       FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -1724,11 +1726,13 @@ void proto_register_ecat_mailbox(void)
       FT_UINT32, BASE_HEX, NULL, 0x0,
       NULL, HFILL }
       },
+#if 0
       { &hf_ecat_mailbox_coe_sdoerror,
       { "SDO Error", "ecat_mailbox.coe.sdoerror",
       FT_UINT32, BASE_HEX, NULL, 0x0,
       NULL, HFILL }
       },
+#endif
       { &hf_ecat_mailbox_coe_sdores,
       { "SDO Res", "ecat_mailbox.coe.sdores",
       FT_UINT8, BASE_DEC, NULL, 0x0,

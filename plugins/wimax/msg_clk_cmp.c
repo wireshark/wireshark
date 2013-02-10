@@ -44,7 +44,7 @@ static gint hf_clk_cmp_clock_count = -1;
 static gint hf_clk_cmp_clock_id = -1;
 static gint hf_clk_cmp_seq_number = -1;
 static gint hf_clk_cmp_comparison_value = -1;
-static gint hf_clk_cmp_invalid_tlv = -1;
+/* static gint hf_clk_cmp_invalid_tlv = -1; */
 
 
 /* Decode CLK_CMP messages. */
@@ -127,6 +127,7 @@ void proto_register_mac_mgmt_msg_clk_cmp(void)
 				FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_clk_cmp_invalid_tlv,
 			{
@@ -134,6 +135,7 @@ void proto_register_mac_mgmt_msg_clk_cmp(void)
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_clk_cmp_seq_number,
 			{

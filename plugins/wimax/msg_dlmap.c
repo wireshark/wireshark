@@ -246,11 +246,11 @@ static gint hf_dlmap_phy_fdur = -1;
 static gint hf_dlmap_phy_fdur_ms = -1;
 static gint hf_dlmap_phy_fdur_per_sec = -1;
 static gint hf_dlmap_phy_fnum = -1;
-static gint hf_dlmap_fch_expected = -1;
+/* static gint hf_dlmap_fch_expected = -1; */
 static gint hf_dlmap_dcd = -1;
 static gint hf_dlmap_bsid = -1;
 static gint hf_dlmap_ofdma_sym = -1;
-static gint hf_dlmap_ie = -1;
+/* static gint hf_dlmap_ie = -1; */
 static gint hf_dlmap_ie_diuc = -1;
 static gint hf_dlmap_ie_ncid = -1;
 static gint hf_dlmap_ie_cid = -1;
@@ -267,14 +267,14 @@ static gint hf_dlmap_ie_numsym2 = -1;
 static gint hf_dlmap_ie_numsub2 = -1;
 static gint hf_dlmap_ie_rep2 = -1;
 
-static gint hf_dlmap_xie_diuc = -1;
-static gint hf_dlmap_xie_len = -1;
+/* static gint hf_dlmap_xie_diuc = -1; */
+/* static gint hf_dlmap_xie_len = -1; */
 
 static gint hf_dlmapc_compr = -1;
 static gint hf_dlmapc_ulmap = -1;
 static gint hf_dlmapc_rsv = -1;
 static gint hf_dlmapc_len = -1;
-static gint hf_dlmapc_sync = -1;
+/* static gint hf_dlmapc_sync = -1; */
 static gint hf_dlmapc_opid = -1;
 static gint hf_dlmapc_secid = -1;
 static gint hf_dlmapc_count = -1;
@@ -2476,6 +2476,7 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_dlmap_fch_expected,
 			{
@@ -2490,6 +2491,7 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_dlmap_ie_boosting,
 			{
@@ -2673,6 +2675,7 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_dlmapc_sync,
 			{
@@ -2680,6 +2683,7 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 				FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_dlmapc_ulmap,
 			{
@@ -2687,6 +2691,7 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 				FT_UINT16, BASE_DEC, NULL, 0x1000, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_dlmap_xie_diuc,
 			{
@@ -2701,6 +2706,7 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_109x_cmi,
 			{

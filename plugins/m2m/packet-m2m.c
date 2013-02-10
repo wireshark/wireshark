@@ -137,7 +137,7 @@ static gint hf_m2m_tlv_count = -1;
 static gint hf_m2m_type = -1;
 static gint hf_m2m_len = -1;
 static gint hf_m2m_len_size = -1;
-static gint hf_m2m_value_bytes = -1;
+/* static gint hf_m2m_value_bytes = -1; */
 static gint hf_wimax_invalid_tlv = -1;
 static gint hf_m2m_value_protocol_vers_uint8 = -1;
 static gint hf_m2m_value_burst_num_uint8 = -1;
@@ -631,6 +631,7 @@ void proto_register_m2m(void)
 				NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_m2m_value_bytes,
 			{
@@ -639,6 +640,7 @@ void proto_register_m2m(void)
 				NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_m2m_value_protocol_vers_uint8,
 			{

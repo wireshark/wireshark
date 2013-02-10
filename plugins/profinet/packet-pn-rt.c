@@ -71,7 +71,7 @@ static int hf_pn_rt_sf_crc16_ok = -1;
 static int hf_pn_rt_sf_crc16_null = -1;
 static int hf_pn_rt_sf = -1;
 static int hf_pn_rt_sf_position = -1;
-static int hf_pn_rt_sf_position_control = -1;
+/* static int hf_pn_rt_sf_position_control = -1; */
 static int hf_pn_rt_sf_data_length = -1;
 static int hf_pn_rt_sf_cycle_counter = -1;
 
@@ -898,10 +898,12 @@ proto_register_pn_rt(void)
             FT_UINT8, BASE_DEC, NULL, 0x7F,
             NULL, HFILL }},
 
+#if 0
         { &hf_pn_rt_sf_position_control,
           { "Control", "pn_rt.sf.position_control",
             FT_UINT8, BASE_DEC, VALS(pn_rt_position_control), 0x80,
             NULL, HFILL }},
+#endif
 
         { &hf_pn_rt_sf_data_length,
           { "DataLength", "pn_rt.sf.data_length",

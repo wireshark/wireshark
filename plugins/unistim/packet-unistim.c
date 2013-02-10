@@ -112,7 +112,7 @@ static const true_false_string basic_bit_yn={
 static int hf_basic_switch_cmd=-1;
 static int hf_basic_phone_cmd=-1;
 static int hf_broadcast_switch_cmd=-1;
-static int hf_broadcast_phone_cmd=-1;
+/* static int hf_broadcast_phone_cmd=-1; */
 static int hf_audio_switch_cmd=-1;
 static int hf_audio_phone_cmd=-1;
 static int hf_display_switch_cmd=-1;
@@ -2781,10 +2781,12 @@ proto_register_unistim(void){
             {"Broadcast Cmd (switch)","unistim.broadcast.switch",FT_UINT8,
                BASE_HEX,VALS(broadcast_switch_msgs),0x0,NULL,HFILL}
          },
+#if 0
          { &hf_broadcast_phone_cmd ,
             {"Broadcast Cmd (phone)","unistim.broadcast.phone",FT_UINT8,
                BASE_HEX,VALS(broadcast_phone_msgs),0x0,NULL,HFILL}
          },
+#endif
          { &hf_audio_switch_cmd ,
             {"Audio Cmd (switch)","unistim.audio.switch",FT_UINT8,
                BASE_HEX,VALS(audio_switch_msgs),0x0,NULL,HFILL}

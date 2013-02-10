@@ -52,7 +52,7 @@ static const value_string vals_values[] =
     {0, NULL}
 };
 
-static gint hf_hack_burst = -1;
+/* static gint hf_hack_burst = -1; */
 static gint hf_hack_num_of_hacks = -1;
 static gint hf_hack_half_slot_flag = -1;
 static gint hf_hack_subchannel = -1;
@@ -98,10 +98,12 @@ void proto_register_wimax_hack(void)
 	/* HARQ ACK display */
 	static hf_register_info hf[] =
 	{
+#if 0
 		{
 			&hf_hack_burst,
 			{"HARQ ACK Burst", "wmx.hack.burst", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
+#endif
 		{
 			&hf_hack_num_of_hacks,
 			{"Number Of HARQ ACKs/NACKs", "wmx.hack.num_of_hacks", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}

@@ -173,8 +173,8 @@ static gint hf_culmap_uiuc_ranging_method_1 = -1;
 static gint hf_culmap_uiuc_reserved_1 = -1;
 static gint hf_culmap_uiuc_repetition_coding_indication = -1;
 static gint hf_culmap_uiuc_repetition_coding_indication_1 = -1;
-static gint hf_culmap_uiuc_reserved1 = -1;
-static gint hf_culmap_uiuc_reserved11_1 = -1;
+/* static gint hf_culmap_uiuc_reserved1 = -1; */
+/* static gint hf_culmap_uiuc_reserved11_1 = -1; */
 static gint hf_culmap_uiuc_subchannel_offset = -1;
 static gint hf_culmap_uiuc_subchannel_offset_1 = -1;
 static gint hf_culmap_uiuc_num_of_ofdma_symbols = -1;
@@ -197,7 +197,7 @@ static gint hf_culmap_allocation_mode_1 = -1;
 static gint hf_culmap_allocation_mode_rsvd_1 = -1;
 static gint hf_culmap_num_subchannels_1 = -1;
 
-static gint hf_culmap_reserved_type = -1;
+/* static gint hf_culmap_reserved_type = -1; */
 static gint hf_culmap_reserved_type_1 = -1;
 
 /* display indexies */
@@ -264,10 +264,10 @@ static gint hf_culmap_extension_type_1 = -1;
 static gint hf_culmap_extension_subtype_1 = -1;
 static gint hf_culmap_extension_length_1 = -1;
 
-static gint hf_culmap_extension_time_diversity_mbs = -1;
+/* static gint hf_culmap_extension_time_diversity_mbs = -1; */
 static gint hf_culmap_extension_harq_mode = -1;
 static gint hf_culmap_extension_unknown_sub_type = -1;
-static gint hf_culmap_extension_time_diversity_mbs_1 = -1;
+/* static gint hf_culmap_extension_time_diversity_mbs_1 = -1; */
 static gint hf_culmap_extension_harq_mode_1 = -1;
 static gint hf_culmap_extension_unknown_sub_type_1 = -1;
 
@@ -1666,14 +1666,18 @@ void proto_register_wimax_compact_ulmap_ie(void)
 			&hf_culmap_uiuc_repetition_coding_indication_1,
 			{"Repetition Coding Indication", "wmx.compact_ulmap.uiuc_repetition_coding_indication", FT_UINT8, BASE_DEC, VALS(vals_repetitions), ALLOCATION_MODE_MASK_1, NULL, HFILL}
 		},
+#if 0
 		{
 			&hf_culmap_uiuc_reserved1,
 			{"Reserved", "wmx.compact_ulmap.uiuc_reserved1", FT_UINT8, BASE_HEX, NULL, 0x30, NULL, HFILL}
 		},
+#endif
+#if 0
 		{
 			&hf_culmap_uiuc_reserved11_1,
 			{"Reserved", "wmx.compact_ulmap.uiuc_reserved1", FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL}
 		},
+#endif
 
 		{
 			&hf_culmap_uiuc_subchannel_offset,
@@ -1715,10 +1719,12 @@ void proto_register_wimax_compact_ulmap_ie(void)
 			&hf_culmap_cqi_region_change_indication_1,
 			{"CQI Region Change Indication", "wmx.compact_ulmap.cqi_region_change_indication", FT_BOOLEAN, 8, TFS(&tfs_region_change), 0x01, NULL, HFILL}
 		},
+#if 0
 		{
 			&hf_culmap_reserved_type,
 			{"UL-MAP Reserved Type", "wmx.compact_ulmap.reserved_type", FT_UINT8, BASE_DEC, NULL, UL_MAP_TYPE_MASK, NULL, HFILL}
 		},
+#endif
 		{
 			&hf_culmap_reserved_type_1,
 			{"UL-MAP Reserved Type", "wmx.compact_ulmap.reserved_type", FT_UINT8, BASE_DEC, NULL, UL_MAP_TYPE_MASK_1, NULL, HFILL}
@@ -1849,14 +1855,18 @@ void proto_register_wimax_compact_ulmap_ie(void)
 			&hf_culmap_extension_length_1,
 			{"Extension Length", "wmx.extension_type.length", FT_UINT16, BASE_DEC, NULL, EXTENSION_LENGTH_MASK_1, NULL, HFILL}
 		},
+#if 0
 		{
 			&hf_culmap_extension_time_diversity_mbs,
 			{"Time Diversity MBS", "wmx.extension_type.time_diversity_mbs", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
+#endif
+#if 0
 		{
 			&hf_culmap_extension_time_diversity_mbs_1,
 			{"Time Diversity MBS", "wmx.extension_type.time_diversity_mbs", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
+#endif
 		{
 			&hf_culmap_extension_harq_mode_1,
 			{"HARQ Mode Switch", "wmx.extension_type.harq_mode", FT_UINT16, BASE_HEX, NULL, 0x000F, NULL, HFILL}

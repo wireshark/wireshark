@@ -129,9 +129,9 @@ static dissector_handle_t data_handle;
 
 static int proto_ircomm = -1;
 static int hf_ircomm_param = -1;
-static int hf_param_pi = -1;
-static int hf_param_pl = -1;
-static int hf_param_pv = -1;
+/* static int hf_param_pi = -1; */
+/* static int hf_param_pl = -1; */
+/* static int hf_param_pv = -1; */
 static int hf_control = -1;
 static int hf_control_len = -1;
 
@@ -377,6 +377,7 @@ void proto_register_ircomm(void)
             { "IrCOMM Parameter", "ircomm.parameter",
                 FT_NONE, BASE_NONE, NULL, 0,
                 NULL, HFILL }},
+#if 0
         { &hf_param_pi,
             { "Parameter Identifier", "ircomm.pi",
                 FT_UINT8, BASE_HEX, NULL, 0,
@@ -389,6 +390,7 @@ void proto_register_ircomm(void)
             { "Parameter Value", "ircomm.pv",
                 FT_BYTES, BASE_NONE, NULL, 0,
                 NULL, HFILL }},
+#endif
         { &hf_control,
             { "Control Channel", "ircomm.control",
                 FT_NONE, BASE_NONE, NULL, 0,

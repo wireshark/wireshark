@@ -39,7 +39,7 @@ int proto_ioraw  = -1;
 
 static int ett_ioraw = -1;
 
-static int hf_ioraw_summary = -1;
+/* static int hf_ioraw_summary = -1; */
 static int hf_ioraw_header = -1;
 static int hf_ioraw_data = -1;
 
@@ -84,11 +84,13 @@ void proto_register_ioraw(void)
 {
    static hf_register_info hf[] =
    {
+#if 0
       { &hf_ioraw_summary,
       { "Summary of the IoRaw Packet", "ioraw.summary",
       FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
       },
+#endif
       { &hf_ioraw_header, { "Header", "ioraw.header",
       FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }

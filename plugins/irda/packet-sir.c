@@ -54,7 +54,7 @@ static dissector_handle_t irda_handle;
 static int proto_sir = -1;
 static int ett_sir = -1;
 static int hf_sir_bof = -1;
-static int hf_sir_ce = -1;
+/* static int hf_sir_ce = -1; */
 static int hf_sir_eof = -1;
 static int hf_sir_fcs = -1;
 static int hf_sir_fcs_bad = -1;
@@ -198,10 +198,12 @@ proto_register_irsir(void)
 			{ "Beginning of frame", "sir.bof",
 				FT_UINT8, BASE_HEX, NULL, 0,
 				NULL, HFILL }},
+#if 0
 		{ &hf_sir_ce,
 			{ "Command escape", "sir.ce",
 				FT_UINT8, BASE_HEX, NULL, 0,
 				NULL, HFILL }},
+#endif
 		{ &hf_sir_eof,
 			{ "End of frame", "sir.eof",
 				FT_UINT8, BASE_HEX, NULL, 0,

@@ -53,10 +53,10 @@ static gint hf_ucd_res_timeout = -1;
 static gint hf_ucd_bw_req_size = -1;
 static gint hf_ucd_ranging_req_size = -1;
 static gint hf_ucd_freq = -1;
-static gint hf_ucd_subchan_params_num_chan = -1;
+/* static gint hf_ucd_subchan_params_num_chan = -1; */
 static gint hf_ucd_ul_allocated_subchannles_bitmap = -1;
-static gint hf_ucd_subchan_params_num_sym = -1;
-static gint hf_ucd_subchan_codes = -1;
+/* static gint hf_ucd_subchan_params_num_sym = -1; */
+/* static gint hf_ucd_subchan_codes = -1; */
 
 static gint hf_ucd_ul_burst_reserved = -1;
 static gint hf_ucd_ul_burst_uiuc = -1;
@@ -91,7 +91,7 @@ static gint hf_ucd_tlv_t_192_min_level_power_offset_adjustment = -1;
 static gint hf_ucd_tlv_t_193_max_level_power_offset_adjustment = -1;
 static gint hf_ucd_tlv_t_194_handover_ranging_codes = -1;
 static gint hf_ucd_tlv_t_195_initial_ranging_interval = -1;
-static gint hf_ucd_tlv_t_196_tx_power_report = -1;
+/* static gint hf_ucd_tlv_t_196_tx_power_report = -1; */
 static gint hf_ucd_tlv_t_196_tx_power_report_threshold = -1;
 static gint hf_ucd_tlv_t_196_tx_power_report_interval = -1;
 static gint hf_ucd_tlv_t_196_tx_power_report_a_p_avg = -1;
@@ -114,7 +114,7 @@ static gint hf_ucd_tlv_t_152_bandwidth_request_codes = -1;
 static gint hf_ucd_tlv_t_155_start_of_ranging_codes_group = -1;
 static gint hf_ucd_tlv_t_156_permutation_base = -1;
 
-static gint hf_ucd_unknown_type = -1;
+/* static gint hf_ucd_unknown_type = -1; */
 static gint hf_ucd_invalid_tlv = -1;
 
 static const value_string vals_dcd_burst_tcs[] =
@@ -1040,6 +1040,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_ucd_subchan_codes,
 			{
@@ -1068,6 +1069,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 				FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_ucd_tlv_t_196_tx_power_report_a_p_avg,
 			{
@@ -1110,6 +1112,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_ucd_unknown_type,
 			{
@@ -1117,6 +1120,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_ucd_tlv_t_202_uplink_burst_profile_for_multiple_fec_types,
 			{

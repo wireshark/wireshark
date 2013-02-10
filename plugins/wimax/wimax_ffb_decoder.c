@@ -38,7 +38,7 @@ extern gint proto_wimax;
 static gint proto_wimax_ffb_decoder = -1;
 static gint ett_wimax_ffb_decoder = -1;
 
-static gint hf_ffb_burst = -1;
+/* static gint hf_ffb_burst = -1; */
 static gint hf_ffb_num_of_ffbs = -1;
 static gint hf_ffb_type = -1;
 static gint hf_ffb_subchannel = -1;
@@ -85,10 +85,12 @@ void proto_register_wimax_ffb(void)
 	/* FFB display */
 	static hf_register_info hf[] =
 	{
+#if 0
 		{
 			&hf_ffb_burst,
 			{"Fast Feedback Burst", "wmx.ffb.burst", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
+#endif
 		{
 			&hf_ffb_num_of_ffbs,
 			{"Number Of Fast Feedback", "wmx.ffb.num_of_ffbs", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}

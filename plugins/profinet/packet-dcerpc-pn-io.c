@@ -101,7 +101,7 @@ static int hf_pn_io_cminitiator_activitytimeoutfactor = -1;
 static int hf_pn_io_cminitiator_udprtport = -1;
 static int hf_pn_io_station_name_length = -1;
 static int hf_pn_io_cminitiator_station_name = -1;
-static int hf_pn_io_responder_station_name = -1;
+/* static int hf_pn_io_responder_station_name = -1; */
 static int hf_pn_io_arproperties_StartupMode = -1;
 
 static int hf_pn_io_parameter_server_station_name = -1;
@@ -115,8 +115,8 @@ static int hf_pn_io_iocr_type = -1;
 static int hf_pn_io_iocr_reference = -1;
 static int hf_pn_io_iocr_SubframeOffset = -1;
 static int hf_pn_io_iocr_SubframeData =-1;
-static int hf_pn_io_iocr_txports_port = -1;
-static int hf_pn_io_iocr_txports_redundantport = -1;
+/* static int hf_pn_io_iocr_txports_port = -1; */
+/* static int hf_pn_io_iocr_txports_redundantport = -1; */
 static int hf_pn_io_sr_properties_Reserved_1 = -1;
 static int hf_pn_io_sr_properties_Reserved_2 = -1;
 static int hf_pn_io_RedundancyDataHoldFactor = -1;
@@ -239,7 +239,7 @@ static int hf_pn_io_control_block_properties = -1;
 static int hf_pn_io_control_block_properties_applready = -1;
 static int hf_pn_io_control_block_properties_applready0 = -1;
 
-static int hf_pn_io_AlarmSequenceNumber = -1;
+/* static int hf_pn_io_AlarmSequenceNumber = -1; */
 static int hf_pn_io_control_command_reserved = -1;
 static int hf_pn_io_SubmoduleListEntries = -1;
 static int hf_pn_io_error_code = -1;
@@ -459,23 +459,23 @@ static int hf_pn_io_green_period_begin_tx = -1;
 static int hf_pn_io_red_orange_period_begin_rx = -1;
 static int hf_pn_io_orange_period_begin_rx = -1;
 static int hf_pn_io_green_period_begin_rx = -1;
-static int hf_pn_io_tx_phase_assignment = -1;
+/* static int hf_pn_io_tx_phase_assignment = -1; */
 static int hf_pn_ir_tx_phase_assignment = -1;
 static int hf_pn_ir_rx_phase_assignment = -1;
 static int hf_pn_io_tx_phase_assignment_begin_value = -1;
 static int hf_pn_io_tx_phase_assignment_orange_begin = -1;
 static int hf_pn_io_tx_phase_assignment_end_reserved = -1;
 static int hf_pn_io_tx_phase_assignment_reserved = -1;
-static int hf_pn_io_rx_phase_assignment = -1;
+/* static int hf_pn_io_rx_phase_assignment = -1; */
 
 static int hf_pn_io_slot = -1;
 static int hf_pn_io_subslot = -1;
 static int hf_pn_io_number_of_slots = -1;
 static int hf_pn_io_number_of_subslots = -1;
 
-static int hf_pn_io_maintenance_required_drop_budget = -1;
-static int hf_pn_io_maintenance_demanded_drop_budget = -1;
-static int hf_pn_io_error_drop_budget = -1;
+/* static int hf_pn_io_maintenance_required_drop_budget = -1; */
+/* static int hf_pn_io_maintenance_demanded_drop_budget = -1; */
+/* static int hf_pn_io_error_drop_budget = -1; */
 
 static int hf_pn_io_maintenance_required_power_budget = -1;
 static int hf_pn_io_maintenance_demanded_power_budget = -1;
@@ -617,7 +617,7 @@ static int hf_pn_io_profidrive_param_format = -1;
 static int hf_pn_io_profidrive_param_no_of_values = -1;
 static int hf_pn_io_profidrive_param_value = -1;
 
-static int hf_pn_io_packedframe_SFCRC = -1;
+/* static int hf_pn_io_packedframe_SFCRC = -1; */
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
 static gint ett_pn_io_block_header = -1;
@@ -9675,11 +9675,13 @@ proto_register_pn_io (void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+#if 0
     { &hf_pn_io_responder_station_name,
       { "CMResponderrStationName", "pn_io.cmresponder_station_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+#endif
     { &hf_pn_io_parameter_server_station_name,
       { "ParameterServerStationName", "pn_io.parameter_server_station_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
@@ -9717,16 +9719,20 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+#if 0
     { &hf_pn_io_iocr_txports_port,
       { "IOCRTxPorts.Port", "pn_io.iocr_txports_port",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+#endif
+#if 0
     { &hf_pn_io_iocr_txports_redundantport,
       { "IOCRTxPorts.RedundantPort", "pn_io.iocr_txports_redundantport",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+#endif
 
     { &hf_pn_io_iocr_SubframeOffset,
       { "SubframeOffset", "pn_io.subframe_offset",
@@ -10254,11 +10260,13 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_application_ready_vals), 0x0001,
         NULL, HFILL }
     },
+#if 0
     { &hf_pn_io_AlarmSequenceNumber,
       { "AlarmSequenceNumber", "pn_io.AlarmSequenceNumber",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+#endif
     { &hf_pn_io_SubmoduleListEntries,
       { "NumberOfEntries", "pn_io.SubmoduleListEntries",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -11300,11 +11308,13 @@ proto_register_pn_io (void)
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+#if 0
     { &hf_pn_io_tx_phase_assignment,
       { "TXPhaseAssignment", "pn_io.tx_phase_assignment",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+#endif
     { &hf_pn_ir_tx_phase_assignment,
       { "TXPhaseAssignment", "pn_io.tx_phase_assignment_sub",
         FT_NONE, BASE_NONE, NULL, 0x0,
@@ -11335,11 +11345,13 @@ proto_register_pn_io (void)
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+#if 0
     { &hf_pn_io_rx_phase_assignment,
       { "RXPhaseAssignment", "pn_io.rx_phase_assignment",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+#endif
 
     { &hf_pn_io_slot,
       { "Slot", "pn_io.slot",
@@ -11362,21 +11374,27 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
 
+#if 0
     { &hf_pn_io_maintenance_required_drop_budget,
       { "MaintenanceRequiredDropBudget", "pn_io.maintenance_required_drop_budget",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+#endif
+#if 0
     { &hf_pn_io_maintenance_demanded_drop_budget,
       { "MaintenanceDemandedDropBudget", "pn_io.maintenance_demanded_drop_budget",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+#endif
+#if 0
     { &hf_pn_io_error_drop_budget,
       { "ErrorDropBudget", "pn_io.error_drop_budget",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+#endif
 
     { &hf_pn_io_maintenance_required_power_budget,
       { "MaintenanceRequiredPowerBudget", "pn_io.maintenance_required_power_budget",
@@ -11992,11 +12010,13 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
+#if 0
     { &hf_pn_io_packedframe_SFCRC,
       { "SFCRC16", "pn_io.packedframe.sfcrc",
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     }
+#endif
     };
 
     static gint *ett[] = {

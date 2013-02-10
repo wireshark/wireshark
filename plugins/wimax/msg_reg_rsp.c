@@ -58,7 +58,7 @@ static gint ett_reg_rsp_message_tree           = -1;
 static gint hf_reg_rsp_message_type                      = -1;
 static gint hf_reg_rsp_status                            = -1;
 static gint hf_tlv_type                                  = -1;
-static gint hf_tlv_value                                 = -1;
+/* static gint hf_tlv_value                                 = -1; */
 static gint hf_reg_rsp_secondary_mgmt_cid		 = -1;
 static gint hf_reg_invalid_tlv                           = -1;
 static gint hf_reg_rsp_new_cid_after_ho                  = -1;
@@ -301,7 +301,7 @@ void proto_register_mac_mgmt_msg_reg_rsp(void)
 		{
 			&hf_reg_invalid_tlv,
 			{
-				"Invalid TLV", "wmx.reg_rsp.invalid_tlv", 
+				"Invalid TLV", "wmx.reg_rsp.invalid_tlv",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
@@ -315,7 +315,7 @@ void proto_register_mac_mgmt_msg_reg_rsp(void)
 		{
 			&hf_reg_rsp_status,
 			{
-				"Response", "wmx.reg_rsp.response", 
+				"Response", "wmx.reg_rsp.response",
 				FT_UINT8, BASE_HEX, VALS(vals_reg_rsp_status), 0x0, NULL, HFILL
 			}
 		},
@@ -350,17 +350,19 @@ void proto_register_mac_mgmt_msg_reg_rsp(void)
 		{
 			&hf_tlv_type,
 			{
-				"Unknown TLV Type", "wmx.reg_rsp.unknown_tlv_type", 
+				"Unknown TLV Type", "wmx.reg_rsp.unknown_tlv_type",
 				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_tlv_value,
 			{
-				"Value", "wmx.reg_rsp.tlv_value", 
+				"Value", "wmx.reg_rsp.tlv_value",
 				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		}
+#endif
 	};
 
 	/* Setup protocol subtree array */

@@ -94,7 +94,7 @@ static gint hf_sbc_ss_demodulator_cc_with_optional_interleaver = -1;
 static gint hf_sbc_ss_demodulator_harq_chase = -1;
 static gint hf_sbc_ss_demodulator_harq_ctc_ir = -1;
 static gint hf_sbc_ss_demodulator_reserved = -1;
-static gint hf_sbc_ss_demodulator_reserved1 = -1;
+/* static gint hf_sbc_ss_demodulator_reserved1 = -1; */
 static gint hf_sbc_ss_demodulator_64qam_2 = -1;
 static gint hf_sbc_ss_demodulator_btc_2 = -1;
 static gint hf_sbc_ss_demodulator_ctc_2 = -1;
@@ -156,7 +156,7 @@ static gint hf_sbc_ofdma_ss_uplink_power_control_support = -1;
 static gint hf_sbc_ofdma_ss_uplink_power_control_support_open_loop = -1;
 static gint hf_sbc_ofdma_ss_uplink_power_control_support_aas_preamble = -1;
 static gint hf_sbc_ofdma_ss_uplink_power_control_support_rsvd = -1;
-static gint hf_sbc_ofdm_ss_minimum_num_of_frames = -1;
+/* static gint hf_sbc_ofdm_ss_minimum_num_of_frames = -1; */
 static gint hf_sbc_tlv_t_27_extension_capability = -1;
 static gint hf_sbc_tlv_t_27_extension_capability_bit0 = -1;
 static gint hf_sbc_tlv_t_27_extension_capability_reserved = -1;
@@ -2901,6 +2901,7 @@ void proto_register_mac_mgmt_msg_sbc(void)
 				FT_UINT16, BASE_HEX, NULL, 0x800, NULL, HFILL
 			}
 		},
+#if 0
 		{	/* if the number of DL H-ARQ channels > 7 but tlv length = 1 */
 			&hf_sbc_ss_demodulator_reserved1,
 			{
@@ -2908,6 +2909,7 @@ void proto_register_mac_mgmt_msg_sbc(void)
 				FT_UINT16, BASE_HEX, NULL, 0xFFFF, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_sbc_ss_demodulator_stc,
 			{
@@ -2979,6 +2981,7 @@ void proto_register_mac_mgmt_msg_sbc(void)
 				FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_sbc_ofdm_ss_minimum_num_of_frames,
 			{
@@ -2986,6 +2989,7 @@ void proto_register_mac_mgmt_msg_sbc(void)
 				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_sbc_ss_mimo_uplink_support_rsvd,
 			{

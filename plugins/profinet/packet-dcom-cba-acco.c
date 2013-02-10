@@ -78,7 +78,7 @@ static int hf_cba_disconnectme_in = -1;
 static int hf_cba_data_first_in = -1;
 static int hf_cba_data_last_in = -1;
 
-static int hf_cba_acco_server_pICBAAccoCallback = -1;
+/* static int hf_cba_acco_server_pICBAAccoCallback = -1; */
 
 static int hf_cba_acco_server_first_connect = -1;
 
@@ -91,7 +91,7 @@ static int hf_cba_acco_serversrt_cr_flags = -1;
 static int hf_cba_acco_serversrt_cr_flags_timestamped = -1;
 static int hf_cba_acco_serversrt_cr_flags_reconfigure = -1;
 static int hf_cba_acco_serversrt_record_length = -1;
-static int hf_cba_acco_serversrt_action = -1;
+/* static int hf_cba_acco_serversrt_action = -1; */
 static int hf_cba_acco_serversrt_last_connect = -1;
 
 static int hf_cba_getprovconnout = -1;
@@ -4726,11 +4726,13 @@ proto_register_dcom_cba_acco (void)
     };
 
     static hf_register_info hf_cba_acco_server[] = {
+#if 0
         { &hf_cba_acco_server_pICBAAccoCallback,
           { "pICBAAccoCallback", "cba.acco.server_pICBAAccoCallback",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+#endif
         { &hf_cba_acco_server_first_connect,
           { "FirstConnect", "cba.acco.server_first_connect",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -4786,11 +4788,13 @@ proto_register_dcom_cba_acco (void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+#if 0
         { &hf_cba_acco_serversrt_action,
           { "Action", "cba.acco.serversrt_action",
             FT_UINT32, BASE_DEC, VALS(cba_acco_serversrt_action_vals), 0x0,
             NULL, HFILL }
         },
+#endif
         { &hf_cba_acco_serversrt_last_connect,
           { "LastConnect", "cba.acco.serversrt_last_connect",
             FT_UINT8, BASE_DEC, VALS(cba_acco_serversrt_last_connect_vals), 0x0,

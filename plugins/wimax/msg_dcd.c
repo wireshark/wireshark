@@ -76,8 +76,8 @@ static gint hf_dcd_h_arq_ack_delay = -1;
 static gint hf_dcd_mac_version = -1;
 static gint hf_dcd_restart_count = -1;
 
-static gint hf_dl_burst_reserved = -1;
-static gint hf_dl_burst_diuc = -1;
+/* static gint hf_dl_burst_reserved = -1; */
+/* static gint hf_dl_burst_diuc = -1; */
 static gint hf_dcd_burst_freq = -1;
 static gint hf_dcd_burst_fec = -1;
 static gint hf_dcd_burst_diuc_exit_threshold = -1;
@@ -117,7 +117,7 @@ static gint hf_dcd_tlv_t_52_time_to_trigger_duration = -1;
 static gint hf_dcd_tlv_t_60_noise_interference = -1;
 static gint hf_dcd_tlv_t_153_downlink_burst_profile_for_mutiple_fec_types = -1;
 
-static gint hf_dcd_tlv_t_541_type_function_action       = -1;
+/* static gint hf_dcd_tlv_t_541_type_function_action       = -1; */
 static gint hf_dcd_tlv_t_541_type = -1;
 static gint hf_dcd_tlv_t_541_function = -1;
 static gint hf_dcd_tlv_t_541_action = -1;
@@ -855,6 +855,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_dl_burst_diuc,
 			{
@@ -862,6 +863,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_dcd_burst_diuc_entry_threshold,
 			{
@@ -890,6 +892,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_dl_burst_reserved,
 			{
@@ -897,6 +900,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 				FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_dcd_burst_tcs,
 			{
@@ -1270,6 +1274,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 				FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL
 			}
 		},
+#if 0
 			{
 			&hf_dcd_tlv_t_541_type_function_action,
 			{
@@ -1277,6 +1282,7 @@ void proto_register_mac_mgmt_msg_dcd(void)
 				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
+#endif
 			{
 			&hf_dcd_tlv_t_541_action,
 			{

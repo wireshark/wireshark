@@ -3,15 +3,15 @@
 **
 ** Copyright (C) 2006-2009 ascolab GmbH. All Rights Reserved.
 ** Web: http://www.ascolab.com
-** 
+**
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public License
 ** as published by the Free Software Foundation; either version 2
 ** of the License, or (at your option) any later version.
-** 
+**
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-** 
+**
 ** Project: OpcUa Wireshark Plugin
 **
 ** Description: OpcUa Transport Layer Decoder.
@@ -36,7 +36,7 @@ static int hf_opcua_transport_chunk = -1;
 static int hf_opcua_transport_size = -1;
 static int hf_opcua_transport_ver = -1;
 static int hf_opcua_transport_scid = -1;
-static int hf_opcua_transport_lifetime = -1;
+/* static int hf_opcua_transport_lifetime = -1; */
 static int hf_opcua_transport_rbs = -1;
 static int hf_opcua_transport_sbs = -1;
 static int hf_opcua_transport_mms = -1;
@@ -75,9 +75,11 @@ void registerTransportLayerTypes(int proto)
         { &hf_opcua_transport_scid,
         {  "SecureChannelId",     "transport.scid",     FT_UINT32, BASE_DEC, NULL, 0x0,    NULL,    HFILL }
         },
+#if 0
         { &hf_opcua_transport_lifetime,
         {  "Lifetime",            "transport.lifetime", FT_UINT32, BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
+#endif
         { &hf_opcua_transport_rbs,
         {  "ReceiveBufferSize",   "transport.rbs",      FT_UINT32, BASE_DEC,  NULL, 0x0,    NULL,    HFILL }
         },
@@ -203,7 +205,7 @@ int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     proto_tree *encobj_tree;
     proto_tree *nodeid_tree;
     int ServiceId = 0;
-    
+
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, ENC_ASCII|ENC_NA); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, ENC_ASCII|ENC_NA); *pOffset+=1;
     proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
@@ -213,7 +215,7 @@ int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     parseByteString(tree, tvb, pOffset, hf_opcua_transport_rcthumb);
     proto_tree_add_item(tree, hf_opcua_transport_seq, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_rqid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
-    
+
     /* add encodeable object subtree */
     ti = proto_tree_add_text(tree, tvb, 0, -1, "Message : Encodeable Object");
     encobj_tree = proto_item_add_subtree(ti, ett_opcua_extensionobject);

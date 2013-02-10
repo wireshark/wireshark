@@ -57,32 +57,32 @@ static int hf_wimaxasncp_version                = -1;
 static int hf_wimaxasncp_flags                  = -1;
 static int hf_wimaxasncp_function_type          = -1;
 static int hf_wimaxasncp_op_id                  = -1;
-static int hf_wimaxasncp_message_type           = -1;
-static int hf_wimaxasncp_qos_msg                = -1;
-static int hf_wimaxasncp_ho_control_msg         = -1;
-static int hf_wimaxasncp_data_path_control_msg  = -1;
-static int hf_wimaxasncp_context_delivery_msg   = -1;
-static int hf_wimaxasncp_r3_mobility_msg        = -1;
-static int hf_wimaxasncp_paging_msg             = -1;
-static int hf_wimaxasncp_rrm_msg                = -1;
-static int hf_wimaxasncp_authentication_msg     = -1;
-static int hf_wimaxasncp_ms_state_msg           = -1;
-static int hf_wimaxasncp_reauthentication_msg   = -1;
-static int hf_wimaxasncp_session_msg            = -1;
+/* static int hf_wimaxasncp_message_type           = -1; */
+/* static int hf_wimaxasncp_qos_msg                = -1; */
+/* static int hf_wimaxasncp_ho_control_msg         = -1; */
+/* static int hf_wimaxasncp_data_path_control_msg  = -1; */
+/* static int hf_wimaxasncp_context_delivery_msg   = -1; */
+/* static int hf_wimaxasncp_r3_mobility_msg        = -1; */
+/* static int hf_wimaxasncp_paging_msg             = -1; */
+/* static int hf_wimaxasncp_rrm_msg                = -1; */
+/* static int hf_wimaxasncp_authentication_msg     = -1; */
+/* static int hf_wimaxasncp_ms_state_msg           = -1; */
+/* static int hf_wimaxasncp_reauthentication_msg   = -1; */
+/* static int hf_wimaxasncp_session_msg            = -1; */
 static int hf_wimaxasncp_length                 = -1;
 static int hf_wimaxasncp_msid                   = -1;
 static int hf_wimaxasncp_reserved1              = -1;
 static int hf_wimaxasncp_transaction_id         = -1;
 static int hf_wimaxasncp_reserved2              = -1;
-static int hf_wimaxasncp_tlv                    = -1;
+/* static int hf_wimaxasncp_tlv                    = -1; */
 static int hf_wimaxasncp_tlv_type               = -1;
 static int hf_wimaxasncp_tlv_length             = -1;
 static int hf_wimaxasncp_tlv_value_bytes        = -1;
 static int hf_wimaxasncp_tlv_value_bitflags8    = -1;
 static int hf_wimaxasncp_tlv_value_bitflags16   = -1;
 static int hf_wimaxasncp_tlv_value_bitflags32   = -1;
-static int hf_wimaxasncp_tlv_value_protocol     = -1;
-static int hf_wimaxasncp_tlv_value_vendor_id    = -1;
+/* static int hf_wimaxasncp_tlv_value_protocol     = -1; */
+/* static int hf_wimaxasncp_tlv_value_vendor_id    = -1; */
 
 /* Preferences */
 static gboolean show_transaction_id_d_bit      = FALSE;
@@ -2880,6 +2880,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#if 0
             {
                 &hf_wimaxasncp_message_type,
                 {
@@ -2893,6 +2894,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_qos_msg,
                 {
@@ -2906,6 +2909,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_ho_control_msg,
                 {
@@ -2919,6 +2924,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_data_path_control_msg,
                 {
@@ -2932,6 +2939,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_context_delivery_msg,
                 {
@@ -2945,6 +2954,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_r3_mobility_msg,
                 {
@@ -2958,6 +2969,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_paging_msg,
                 {
@@ -2971,6 +2984,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_rrm_msg,
                 {
@@ -2984,6 +2999,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_authentication_msg,
                 {
@@ -2997,6 +3014,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_ms_state_msg,
                 {
@@ -3010,6 +3029,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_reauthentication_msg,
                 {
@@ -3023,6 +3044,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_session_msg,
                 {
@@ -3036,6 +3059,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
             {
                 &hf_wimaxasncp_length,
                 {
@@ -3101,6 +3125,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#if 0
             {
                 &hf_wimaxasncp_tlv,
                 {
@@ -3114,6 +3139,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
             {
                 &hf_wimaxasncp_tlv_type,
                 {
@@ -3192,6 +3218,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#if 0
             {
                 &hf_wimaxasncp_tlv_value_protocol,
                 {
@@ -3205,6 +3232,8 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             },
+#endif
+#if 0
             {
                 &hf_wimaxasncp_tlv_value_vendor_id,
                 {
@@ -3218,6 +3247,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     HFILL
                 }
             }
+#endif
         };
 
     /* ------------------------------------------------------------------------

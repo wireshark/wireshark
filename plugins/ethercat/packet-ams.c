@@ -107,24 +107,24 @@ static int hf_ams_adsadddnresponse = -1;
 static int hf_ams_adsdeldnrequest = -1;
 static int hf_ams_adsdeldnresponse = -1;
 static int hf_ams_adsdnrequest = -1;
-static int hf_ams_adsdnresponse = -1;
-static int hf_ams_adsnoteattrib = -1;
-static int hf_ams_adsnoteblocks = -1;
-static int hf_ams_adsversion = -1;
+/* static int hf_ams_adsdnresponse = -1; */
+/* static int hf_ams_adsnoteattrib = -1; */
+/* static int hf_ams_adsnoteblocks = -1; */
+/* static int hf_ams_adsversion = -1; */
 static int hf_ams_adsdevicename = -1;
 static int hf_ams_adsversionversion = -1;
 static int hf_ams_adsversionrevision = -1;
 static int hf_ams_adsversionbuild = -1;
 static int hf_ams_adsnoteblocksstamps = -1;
-static int hf_ams_adsnoteblocksstamp = -1;
-static int hf_ams_adstimestamp = -1;
-static int hf_ams_adssamplecnt = -1;
-static int hf_ams_adsnoteblockssample = -1;
+/* static int hf_ams_adsnoteblocksstamp = -1; */
+/* static int hf_ams_adstimestamp = -1; */
+/* static int hf_ams_adssamplecnt = -1; */
+/* static int hf_ams_adsnoteblockssample = -1; */
 static int hf_ams_adstransmode = -1;
 static int hf_ams_adsmaxdelay = -1;
 static int hf_ams_adscycletime = -1;
-static int hf_ams_adscmpmax = -1;
-static int hf_ams_adscmpmin = -1;
+/* static int hf_ams_adscmpmax = -1; */
+/* static int hf_ams_adscmpmin = -1; */
 
 static const value_string TransMode[] =
 {
@@ -1098,6 +1098,7 @@ void proto_register_ams(void)
       FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
       },
+#if 0
       { &hf_ams_adsdnresponse,
       { "ADS Device Notification Response", "ams.ads_dn_res",
       FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1118,6 +1119,7 @@ void proto_register_ams(void)
       FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
       },
+#endif
       { &hf_ams_adsdevicename,
       { "Device Name","ams.ads_devicename",
       FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1143,6 +1145,7 @@ void proto_register_ams(void)
       FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
       },
+#if 0
       { &hf_ams_adsnoteblocksstamp,
       { "Notification Stamp", "ams.ads_noteblocksstamp",
       FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1163,6 +1166,7 @@ void proto_register_ams(void)
       FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
       },
+#endif
       { &hf_ams_adstransmode,
       { "Trans Mode", "ams.ads_transmode",
       FT_UINT32, BASE_DEC, VALS(TransMode), 0x0,
@@ -1178,6 +1182,7 @@ void proto_register_ams(void)
       FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
       },
+#if 0
       { &hf_ams_adscmpmax,
       { "Cmp Mad", "ams.ads_cmpmax",
       FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1188,6 +1193,7 @@ void proto_register_ams(void)
       FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
       }
+#endif
    };
 
    static gint *ett[] =

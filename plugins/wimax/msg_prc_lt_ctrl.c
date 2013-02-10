@@ -46,7 +46,7 @@ static gint ett_mac_mgmt_msg_prc_lt_ctrl_decoder = -1;
 static gint hf_prc_lt_ctrl_message_type = -1;
 static gint hf_prc_lt_ctrl_precoding = -1;
 static gint hf_prc_lt_ctrl_precoding_delay = -1;
-static gint hf_prc_lt_ctrl_invalid_tlv = -1;
+/* static gint hf_prc_lt_ctrl_invalid_tlv = -1; */
 
 static const value_string vals_turn_on[] = {
     {0,					"Turn off"},
@@ -107,6 +107,7 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_prc_lt_ctrl_invalid_tlv,
 			{
@@ -114,6 +115,7 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_prc_lt_ctrl_precoding,
 			{

@@ -72,7 +72,7 @@ static const value_string vals_resolution_parameter[] =
 
 /* fix fields */
 static gint hf_aas_beam_message_type = -1;
-static gint hf_aas_beam_unknown_type = -1;
+/* static gint hf_aas_beam_unknown_type = -1; */
 static gint hf_aas_beam_select_index = -1;
 static gint hf_aas_beam_select_reserved = -1;
 #ifdef OFDM
@@ -330,6 +330,7 @@ void proto_register_mac_mgmt_msg_aas_beam(void)
 			}
 		},
 #endif
+#if 0
 		{
 			&hf_aas_beam_unknown_type,
 			{
@@ -337,6 +338,7 @@ void proto_register_mac_mgmt_msg_aas_beam(void)
 				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		}
+#endif
 	};
 
 	/* Setup protocol subtree array */

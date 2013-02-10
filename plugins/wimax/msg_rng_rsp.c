@@ -52,7 +52,7 @@ static gint ett_rng_rsp_message_tree           = -1;
 /* RNG-RSP fields */
 static gint hf_rng_rsp_message_type				= -1;
 static gint hf_rng_req_reserved					= -1;
-static gint hf_rng_rsp_ul_channel_id				= -1;
+/* static gint hf_rng_rsp_ul_channel_id				= -1; */
 static gint hf_rng_rsp_timing_adjust				= -1;
 static gint hf_rng_rsp_power_level_adjust			= -1;
 static gint hf_rng_rsp_offset_freq_adjust			= -1;
@@ -107,7 +107,7 @@ static gint hf_rng_rsp_subchannel_reference			= -1;
 static gint hf_rng_rsp_ranging_code_index			= -1;
 static gint hf_rng_rsp_frame_number2				= -1;
 static gint hf_tlv_type						= -1;
-static gint hf_tlv_value					= -1;
+/* static gint hf_tlv_value					= -1; */
 static gint hf_rng_invalid_tlv					= -1;
 
 /* STRING RESOURCES */
@@ -935,6 +935,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 				FT_FLOAT, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_rng_rsp_ul_channel_id,
 			{
@@ -942,6 +943,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_rng_rsp_ul_chan_id_override,
 			{
@@ -956,6 +958,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_tlv_value,
 			{
@@ -963,6 +966,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
 			}
 		}
+#endif
 	};
 
 	/* Setup protocol subtree array */

@@ -42,7 +42,7 @@ static int ett_nv_header = -1;
 static int ett_nv_var = -1;
 static int ett_nv_varheader = -1;
 
-static int hf_nv_summary = -1;
+/* static int hf_nv_summary = -1; */
 static int hf_nv_header = -1;
 static int hf_nv_publisher = -1;
 static int hf_nv_count = -1;
@@ -165,11 +165,13 @@ void proto_register_nv(void)
 {
    static hf_register_info hf[] =
    {
+#if 0
       { &hf_nv_summary,
       { "Summary of the Nv Packet", "tc_nv.summary",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
       },
+#endif
       { &hf_nv_header, { "Header", "tc_nv.header",
       FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }

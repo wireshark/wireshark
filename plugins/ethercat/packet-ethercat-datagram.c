@@ -63,7 +63,7 @@ static int hf_ecat_sub_ado[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 static int hf_ecat_sub_adp[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 static int hf_ecat_sub_lad[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
-static int hf_ecat_header = -1;
+/* static int hf_ecat_header = -1; */
 static int hf_ecat_data = -1;
 static int hf_ecat_cnt = -1;
 static int hf_ecat_cmd = -1;
@@ -71,7 +71,7 @@ static int hf_ecat_idx = -1;
 static int hf_ecat_adp = -1;
 static int hf_ecat_ado = -1;
 static int hf_ecat_lad = -1;
-static int hf_ecat_len = -1;
+/* static int hf_ecat_len = -1; */
 static int hf_ecat_int = -1;
 static int hf_ecat_syncman = -1;
 static int hf_ecat_syncman_start = -1;
@@ -876,10 +876,12 @@ void proto_register_ecat(void)
       { "EtherCAT Frame", "ecat.sub", FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
       },
+#if 0
       { &hf_ecat_header,
       { "eader", "ecat.header",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
+#endif
       { &hf_ecat_sub_data[0],
       {  "Data", "ecat.sub1.data",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
@@ -1232,11 +1234,13 @@ void proto_register_ecat(void)
       FT_UINT32, BASE_HEX, NULL, 0x0,
       NULL, HFILL }
       },
+#if 0
       { &hf_ecat_len,
       { "Length", "ecat.len",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }
       },
+#endif
       { &hf_ecat_int,
       { "Interrupt", "ecat.int",
       FT_UINT16, BASE_HEX, NULL, 0x0,
