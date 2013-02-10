@@ -295,7 +295,7 @@ static struct ws_memory_slab item_label_slab =
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo)						\
 	if((guint)hfindex >= gpa_hfinfo.len && getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG"))	\
 		g_error("Unregistered hf! index=%d", hfindex);					\
-	DISSECTOR_ASSERT((guint)hfindex < gpa_hfinfo.len);					\
+	DISSECTOR_ASSERT_HINT((guint)hfindex < gpa_hfinfo.len, "Unregistered hf!");	\
 	hfinfo = gpa_hfinfo.hfi[hfindex];
 
 /* List which stores protocols and fields that have been registered */
