@@ -1290,12 +1290,16 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(btl2cap_tree, hf_btl2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    acl_data            = (bthci_acl_data_t *)pinfo->private_data;
-    l2cap_data          = ep_alloc(sizeof(btl2cap_data_t));
-    l2cap_data->chandle = (acl_data)? acl_data->chandle : 0;
-    l2cap_data->cid     = cid;
-    l2cap_data->psm     = 0;
+    acl_data = (bthci_acl_data_t *)pinfo->private_data;
+    l2cap_data = ep_alloc(sizeof(btl2cap_data_t));
+
+    l2cap_data->interface_id     = acl_data->interface_id;
+    l2cap_data->adapter_id       = acl_data->adapter_id;
+    l2cap_data->chandle          = (acl_data)? acl_data->chandle : 0;
+    l2cap_data->cid              = cid;
+    l2cap_data->psm              = 0;
     l2cap_data->first_scid_frame = 0;
+
     pd_save             = pinfo->private_data;
     pinfo->private_data = l2cap_data;
 

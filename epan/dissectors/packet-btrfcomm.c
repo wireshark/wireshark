@@ -715,9 +715,12 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         l2cap_data = pinfo->private_data;
         pinfo->private_data = &rfcomm_data;
-        rfcomm_data.chandle = l2cap_data->chandle;
-        rfcomm_data.cid = l2cap_data->cid;
-        rfcomm_data.dlci = dlci;
+
+        rfcomm_data.interface_id = l2cap_data->interface_id;
+        rfcomm_data.adapter_id   = l2cap_data->adapter_id;
+        rfcomm_data.chandle      = l2cap_data->chandle;
+        rfcomm_data.cid          = l2cap_data->cid;
+        rfcomm_data.dlci         = dlci;
 
         decode_by_dissector = find_proto_by_channel(dlci >> 1);
         if (rfcomm_channels_enabled && decode_by_dissector) {

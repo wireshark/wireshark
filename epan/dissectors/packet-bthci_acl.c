@@ -129,11 +129,14 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
 
     hci_data = (hci_data_t *) pinfo->private_data;
+    acl_data = ep_alloc(sizeof(bthci_acl_data_t));
 
-    acl_data            = ep_alloc(sizeof(bthci_acl_data_t));
-    acl_data->chandle   = flags & 0x0fff;
-    pd_save             = pinfo->private_data;
-    pinfo->private_data = acl_data;
+    acl_data->interface_id = hci_data->interface_id;
+    acl_data->adapter_id   = hci_data->adapter_id;
+    acl_data->chandle      = flags & 0x0fff;
+
+    pd_save                = pinfo->private_data;
+    pinfo->private_data    = acl_data;
 
     k_interface_id      = hci_data->interface_id;
     k_adapter_id        = hci_data->adapter_id;
