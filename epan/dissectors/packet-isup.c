@@ -2846,6 +2846,7 @@ static int hf_isup_UUI_req_service3                         = -1;
 static int hf_isup_UUI_res_service1                         = -1;
 static int hf_isup_UUI_res_service2                         = -1;
 static int hf_isup_UUI_res_service3                         = -1;
+static int hf_isup_notification_indicator                   = -1;
 static int hf_isup_UUI_network_discard_ind                  = -1;
 static int hf_isup_access_delivery_ind                      = -1;
 
@@ -5748,15 +5749,41 @@ to
 1 1 1 1 1 0 0
 reserved
  */
+static const value_string q763_generic_notification_indicator_vals[] = {
+    { 0x0 , "User Suspended" },
+    { 0x1 , "User Resumed" },
+    { 0x2 , "Bearer service change" },
+    { 0x3 , "Discriminator for extension to ASN.1 encoded component (used in DSS1)" },
+    { 0x4 , "Call completion delay" },
+    { 0x42 , "Conference established" },
+    { 0x43 , "Conference disconnected" },
+    { 0x44 , "Other party added" },
+    { 0x45 , "Isolated" },
+    { 0x46 , "Reattached" },
+    { 0x47 , "Other party isolated" },
+    { 0x48 , "Other party reattached" },
+    { 0x49 , "Other party split" },
+    { 0x4A , "Other party disconnected" },
+    { 0x4B , "Conference floating" },
+    { 0x60 , "Call is a waiting call" },
+    { 0x68 , "Diversion activated (used in DSS1)" },
+    { 0x69 , "Call transfer, alerting" },
+    { 0x6A , "Call transfer, active" },
+    { 0x79 , "Remote hold" },
+    { 0x7A , "Remote retrieval" },
+    { 0x7B , "Call is diverting" },
+};
+
 static void
 dissect_isup_generic_notification_indicator_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 indicators;
 
   indicators = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, GENERIC_NOTIFICATION_IND_LENGTH,
-                      "Generic notification indicator: 0x%x (refer to 3.25/Q.763 for detailed decoding)", indicators);
-  proto_item_set_text(parameter_item,"Generic notification indicator: 0x%x", indicators);
+  proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_isup_notification_indicator, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  proto_item_set_text(parameter_item,"Generic notification indicator: %s", 
+	  val_to_str((indicators&0x7f),q763_generic_notification_indicator_vals,"Reserved (0x%X)"));
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Call history information
@@ -11180,6 +11207,11 @@ proto_register_isup(void)
     { &hf_isup_UUI_res_service3,
       { "User-to-User response service 3",  "isup.UUI_res_service3",
         FT_UINT8, BASE_DEC, VALS(isup_UUI_response_service_values), GF_8BIT_MASK,
+        NULL, HFILL }},
+
+    { &hf_isup_notification_indicator,
+      { "Notification indicator",  "isup.notification_indicator",
+        FT_UINT8, BASE_DEC, VALS(q763_generic_notification_indicator_vals), 0x7f,
         NULL, HFILL }},
 
     { &hf_isup_UUI_network_discard_ind,
