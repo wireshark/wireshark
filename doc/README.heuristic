@@ -65,7 +65,7 @@ SCTP, TCP, TIPC and UDP dissectors all provide this capability via their
 option enabled by default.
 
 Once a packet for a particular "connection" has been identified as belonging
-to a particular protocol, wireshark should then be set up to always directly
+to a particular protocol, Wireshark should then be set up to always directly
 call the dissector for that protocol. This removes the overhead of having
 to identify each packet of the connection heuristically.
 
@@ -99,7 +99,7 @@ that it's not good enough to distinguish between two given protocols.
 
 Heuristic Code Example
 ----------------------
-You can find a lot of code examples in the wireshark sources, e.g.:
+You can find a lot of code examples in the Wireshark sources, e.g.:
 grep -l heur_dissector_add epan/dissectors/*.c
 returns 132 files (Feb 2013).
 
@@ -149,7 +149,7 @@ dissect_PROTOABBREV_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, PROTOABBREV_handle);
 
-    /*   and do the dissection 8/
+    /*   and do the dissection */
     dissect_PROTOABBREV(tvb, pinfo, tree, data);
 
     return (TRUE);
@@ -159,8 +159,8 @@ dissect_PROTOABBREV_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 void
 proto_reg_handoff_PROTOABBREV(void)
 {
-    PROABBREV_handle = create_dissector_handle(dissect_PROTOABBREV,
-                                                    proto_PROTOABBREV);
+    PROTOABBREV_handle = create_dissector_handle(dissect_PROTOABBREV,
+                                                 proto_PROTOABBREV);
 
     /* register as heuristic dissector for both TCP and UDP */
     heur_dissector_add("tcp", dissect_PROTOABBREV, proto_PROTOABBREV);
