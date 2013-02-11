@@ -5772,6 +5772,7 @@ static const value_string q763_generic_notification_indicator_vals[] = {
     { 0x79 , "Remote hold" },
     { 0x7A , "Remote retrieval" },
     { 0x7B , "Call is diverting" },
+    { 0 , NULL },
 };
 
 static void
