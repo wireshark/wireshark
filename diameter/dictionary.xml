@@ -6289,7 +6289,9 @@
 	<application id="3"		name="Diameter Base Accounting"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="16777216"	name="3GPP Cx"			uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="16777224"	name="3GPP Gx"			uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm"></application>
-	<application id="16777232"	name="Ericsson Charging-CIP"	uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm"></application>
+  <application id="16777227" name="Ericsson MSI" uri="http://www.lmera.ericsson.se/~snmp/diameter-assignments.html"></application>
+  <application id="16777228" name="Ericsson Zx" uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm"></application>
+  <application id="16777232"	name="Ericsson Charging-CIP"	uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm"></application>
 	<application id="16777238"	name="3GPP Gx"			uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"></application>
 	<application id="16777250"	name="3GPP STa"			uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm"></application>
 	<application id="16777251"	name="3GPP S6a/S6d"		uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516"></application>
