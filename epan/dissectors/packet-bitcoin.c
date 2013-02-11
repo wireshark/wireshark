@@ -460,18 +460,29 @@ static guint32 dissect_bitcoin_msg_getdata(tvbuff_t *tvb, packet_info *pinfo _U_
   add_varint_item(tree, tvb, offset, length, hf_msg_getdata_count8, hf_msg_getdata_count16, 
                   hf_msg_getdata_count32, hf_msg_getdata_count64);
 
-  for(; count > 0; count--)
+  /* The if (tree) check is necessary, as otherwise very large values for
+   * 'count' will result in an effectively (but not really) infinite loop.
+   * When tree is defined this can't happen, as the proto_ calls will throw an
+   * exception when the tvb is used up, which should only take a few-hundred
+   * loops at most.
+   *
+   * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8312
+   */
+  if (tree)
   {
-    proto_tree *subtree;
+    for(; count > 0; count--)
+    {
+      proto_tree *subtree;
 
-    ti = proto_tree_add_text(tree, tvb, offset, 36, "Inventory vector");
-    subtree = proto_item_add_subtree(ti, ett_getdata_list);
+      ti = proto_tree_add_text(tree, tvb, offset, 36, "Inventory vector");
+      subtree = proto_item_add_subtree(ti, ett_getdata_list);
 
-    proto_tree_add_item(subtree, hf_msg_getdata_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
+      proto_tree_add_item(subtree, hf_msg_getdata_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
 
-    proto_tree_add_item(subtree, hf_msg_getdata_hash, tvb, offset, 32, ENC_NA);
-    offset += 32;
+      proto_tree_add_item(subtree, hf_msg_getdata_hash, tvb, offset, 32, ENC_NA);
+      offset += 32;
+    }
   }
 
   return offset;
