@@ -341,7 +341,7 @@ gtk_osx_openFile (GtkosxApplication *app _U_, gchar *path, gpointer user_data _U
 {
     GtkSelectionData selection_data;
     gchar* selection_path;
-    int length = strlen(path);
+    size_t length = strlen(path);
 
     selection_path = g_malloc(length + 3);
     memcpy(selection_path, path, length);
@@ -352,7 +352,7 @@ gtk_osx_openFile (GtkosxApplication *app _U_, gchar *path, gpointer user_data _U
 
     memset(&selection_data, 0, sizeof(selection_data));
 
-    gtk_selection_data_set(&selection_data, gdk_atom_intern_static_string ("text/uri-list"), 8, (guchar*) selection_path, length + 2);
+    gtk_selection_data_set(&selection_data, gdk_atom_intern_static_string ("text/uri-list"), 8, (guchar*) selection_path, (gint)(length + 2));
     dnd_data_received(NULL, NULL, 0, 0, &selection_data, DND_TARGET_URL, 0, 0);
 
     return TRUE;
