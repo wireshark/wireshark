@@ -1711,7 +1711,7 @@ static guint16
 de_bssgp_ran_information_request_app_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t *new_tvb = NULL;
-    guint32 curr_offset;
+    int curr_offset, bit_offset;
 
     curr_offset = offset;
 
@@ -1739,9 +1739,9 @@ de_bssgp_ran_information_request_app_cont(tvbuff_t *tvb, proto_tree *tree, packe
             /* 11.3.63.1.4  RAN-INFORMATION-REQUEST Application Container for the SON Transfer Application */
             /* Reporting Cell Identifier */
             /* convert to bit offset */
-            curr_offset = curr_offset<<3;
-            curr_offset = dissect_s1ap_Global_ENB_ID(tvb, curr_offset<<3, &asn1_ctx, tree, hf_bssgp_Global_ENB_ID_PDU);
-            curr_offset = dissect_s1ap_SONtransferRequestContainer(tvb, curr_offset, &asn1_ctx, tree, hf_bssgp_SONtransferRequestContainer_PDU);
+            bit_offset = curr_offset<<3;
+            bit_offset = dissect_s1ap_Global_ENB_ID(tvb, bit_offset, &asn1_ctx, tree, hf_bssgp_Global_ENB_ID_PDU);
+            bit_offset = dissect_s1ap_SONtransferRequestContainer(tvb, bit_offset, &asn1_ctx, tree, hf_bssgp_SONtransferRequestContainer_PDU);
             curr_offset += 7; curr_offset >>= 3;
             }
             break;
