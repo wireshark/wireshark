@@ -66,12 +66,10 @@ static int hf_btbnep_network_type_end                                      = -1;
 static int hf_btbnep_multicast_address_start                               = -1;
 static int hf_btbnep_multicast_address_end                                 = -1;
 
-/* static int hf_btbnep_data                                                  = -1; */
-
 static gint ett_btbnep                                                     = -1;
 static gint ett_addr                                                       = -1;
 
-static gboolean top_dissect                                                = TRUE;
+static gboolean top_dissect                                              = TRUE;
 
 static dissector_handle_t eth_handle;
 static dissector_handle_t data_handle;
@@ -139,19 +137,18 @@ static const value_string filter_multi_addr_response_message_vals[] = {
     { 0, NULL }
 };
 
-
 static int
 dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    proto_item   *pitem = NULL;
-    guint control_type;
-    guint8 unknown_control_type;
-    guint8 uuid_size;
-    guint16 uuid_dst;
-    guint16 uuid_src;
-    guint16 response_message;
-    guint list_length;
-    guint i_item;
+    proto_item  *pitem = NULL;
+    guint        control_type;
+    guint8       unknown_control_type;
+    guint8       uuid_size;
+    guint16      uuid_dst;
+    guint16      uuid_src;
+    guint16      response_message;
+    guint        list_length;
+    guint        i_item;
 
     proto_tree_add_item(tree, hf_btbnep_control_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     control_type = tvb_get_guint8(tvb, offset);
@@ -243,10 +240,10 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 static int
 dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint8 extension_flag;
-    guint8 extension_type;
+    guint8  extension_flag;
+    guint8  extension_type;
     guint16 extension_length;
-    guint8 type;
+    guint8  type;
 
     proto_tree_add_item(tree, hf_btbnep_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_btbnep_extension_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -276,10 +273,10 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item   *pi;
     proto_tree   *btbnep_tree;
-    int offset = 0;
-    guint bnep_type;
-    guint extension_flag;
-    guint type = 0;
+    gint          offset = 0;
+    guint         bnep_type;
+    guint         extension_flag;
+    guint         type = 0;
     proto_item   *addr_item;
     proto_tree   *addr_tree = NULL;
     const guint8 *src_addr;
@@ -305,7 +302,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     default:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
-            pinfo->p2p_dir);
+                pinfo->p2p_dir);
         break;
     }
 
@@ -320,7 +317,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 1;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(bnep_type, bnep_type_vals,  "Unknown type"));
-    if (extension_flag)  col_append_fstr(pinfo->cinfo, COL_INFO, "+E");
+    if (extension_flag) col_append_fstr(pinfo->cinfo, COL_INFO, "+E");
 
     if (bnep_type == BNEP_TYPE_GENERAL_ETHERNET || bnep_type == BNEP_TYPE_COMPRESSED_ETHERNET_DESTINATION_ONLY) {
         dst_addr = tvb_get_ptr(tvb, offset, 6);
@@ -346,7 +343,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             addr_tree = proto_item_add_subtree(addr_item, ett_addr);
             if (tvb_get_guint8(tvb, offset) & 0x01) {
                 expert_add_info_format(pinfo, addr_item, PI_PROTOCOL, PI_WARN,
-                    "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)");
+                        "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)");
             }
         }
         proto_tree_add_ether(addr_tree, hf_btbnep_addr, tvb, offset, 6, src_addr);
@@ -373,12 +370,12 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (bnep_type != BNEP_TYPE_CONTROL) {
         /* dissect normal network */
        if (top_dissect) {
-            ethertype(type, tvb, offset, pinfo, tree, btbnep_tree, hf_btbnep_type,
-            0, 0);
+            ethertype(type, tvb, offset, pinfo, tree, btbnep_tree,
+                    hf_btbnep_type, 0, 0);
        } else {
             next_tvb = tvb_new_subset(tvb, offset,
-                tvb_length_remaining(tvb, offset),
-                tvb_length_remaining(tvb, offset));
+                    tvb_length_remaining(tvb, offset),
+                    tvb_length_remaining(tvb, offset));
             call_dissector(data_handle, next_tvb, pinfo, tree);
        }
     }
@@ -505,20 +502,12 @@ proto_register_btbnep(void)
             { "IG bit",                            "btbnep.ig",
             FT_BOOLEAN, 24, TFS(&ig_tfs), 0x010000,
             "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }
-        },
-
-#if 0
-        { &hf_btbnep_data,
-            { "Data",                              "btbnep.data",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-#endif
+        }
     };
 
     static gint *ett[] = {
         &ett_btbnep,
-        &ett_addr,
+        &ett_addr
     };
 
     proto_btbnep = proto_register_protocol("Bluetooth BNEP Potocol", "BNEP", "btbnep");
@@ -543,8 +532,8 @@ proto_reg_handoff_btbnep(void)
     dissector_handle_t btbnep_handle;
 
     btbnep_handle = find_dissector("btbnep");
-    eth_handle = find_dissector("eth");
-    data_handle    = find_dissector("data");
+    eth_handle    = find_dissector("eth");
+    data_handle   = find_dissector("data");
 
     dissector_add_uint("btl2cap.service", BTSDP_PAN_GN_SERVICE_UUID, btbnep_handle);
     dissector_add_uint("btl2cap.service", BTSDP_PAN_NAP_SERVICE_UUID, btbnep_handle);
