@@ -210,6 +210,20 @@ static void after_array(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 	ep_stack_pop(data->stack);
 }
 
+/*
+ * defines for helping with UTF-16 surrogate pairs
+ */
+
+#define LEAD_SURROGATE_START    0xd800
+#define LEAD_SURROGATE_END      0xdbff
+#define TRAIL_SURROGATE_START   0xdc00
+#define TRAIL_SURROGATE_END     0xdfff
+
+#define IS_LEAD_SURROGATE(l)    (((l)>=LEAD_SURROGATE_START)&&((l)<=LEAD_SURROGATE_END))
+#define IS_TRAIL_SURROGATE(t)   (((t)>=TRAIL_SURROGATE_START)&&((t)<=TRAIL_SURROGATE_END))
+
+#define GET_UNICHAR_FROM_SURROGATES(l,t)    (0x10000+(((l-LEAD_SURROGATE_START)<<10)|(t-TRAIL_SURROGATE_START)))
+
 static char *json_string_unescape(tvbparse_elem_t *tok)
 {
 	char *str = ep_alloc(tok->len - 1);
@@ -249,7 +263,7 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 
 				case 'u':
 				{
-					guint16 unicode_hex = 0;
+					guint32 unicode_hex = 0;
 					gboolean valid = TRUE;
 					int k;
 
@@ -270,7 +284,51 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 						}
 					}
 
-					if (valid) {
+					if ((IS_LEAD_SURROGATE(unicode_hex))) {
+						ch = tvb_get_guint8(tok->tvb, tok->offset + i + 1);
+
+						if (ch == '\\') {
+							i++;
+							ch = tvb_get_guint8(tok->tvb, tok->offset + i + 1);
+							if (ch == 'u') {
+								guint16 lead_surrogate = unicode_hex;
+								guint16 trail_surrogate = 0;
+								i++;
+
+								for (k = 0; k < 4; k++) {
+									i++;
+									trail_surrogate <<= 4;
+
+									ch = tvb_get_guint8(tok->tvb, tok->offset + i);
+									if (ch >= '0' && ch <= '9')
+										trail_surrogate |= (ch - '0');
+									else if (ch >= 'a' && ch <= 'f')
+										trail_surrogate |= (10 + (ch - 'a'));
+									else if (ch >= 'A' && ch <= 'F')
+										trail_surrogate |= (10 + (ch - 'A'));
+									else {
+										valid = FALSE;
+										break;
+									}
+								}
+
+								if ((IS_TRAIL_SURROGATE(trail_surrogate))) {
+									unicode_hex = GET_UNICHAR_FROM_SURROGATES(lead_surrogate,trail_surrogate);
+								} else {
+									valid = FALSE;
+								}
+							} else {
+								valid = FALSE;
+							}
+						} else {
+							valid = FALSE;
+						}
+					} else if ((IS_TRAIL_SURROGATE(unicode_hex))) {
+						i++;
+						valid = FALSE;
+					}
+
+					if (valid && g_unichar_validate(unicode_hex) && g_unichar_isprint(unicode_hex)) {
 						/* \uXXXX => 6 bytes */
 						int charlen = g_unichar_to_utf8(unicode_hex, &str[j]);
 						j += charlen;
