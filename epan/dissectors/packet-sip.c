@@ -3143,7 +3143,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_OFFER, pinfo->fd->num);
 					} else if (line_type == STATUS_LINE) {
 						setup_sdp_transport(next_tvb, pinfo, 
-							(stat_info->response_code == 200) ? SDP_EXCHANGE_ANSWER_ACCEPT : SDP_EXCHANGE_ANSWER_REJECT, 
+							((stat_info->response_code == 200)||(stat_info->response_code == 180)) ? SDP_EXCHANGE_ANSWER_ACCEPT : SDP_EXCHANGE_ANSWER_REJECT, 
 							request_for_response);
 					}
 				} else {
