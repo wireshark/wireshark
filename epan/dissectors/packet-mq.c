@@ -1,7 +1,7 @@
 /* packet-mq.c
  * Routines for IBM WebSphere MQ packet dissection
  *
- * metatech <metatech@flashmail.com>
+ * metatech <metatechbe@gmail.com>
  *
  * $Id$
  *
@@ -79,6 +79,8 @@
 static int proto_mq = -1;
 static int hf_mq_tsh_structid = -1;
 static int hf_mq_tsh_packetlength = -1;
+static int hf_mq_tsh_convid = -1;
+static int hf_mq_tsh_requestid = -1;
 static int hf_mq_tsh_byteorder = -1;
 static int hf_mq_tsh_opcode = -1;
 static int hf_mq_tsh_controlflags = -1;
@@ -395,6 +397,8 @@ static GHashTable *mq_reassembled_table = NULL;
 #define MQ_STRUCTID_TM            0x544D2020
 #define MQ_STRUCTID_TMC2          0x544D4332
 #define MQ_STRUCTID_TSH           0x54534820
+#define MQ_STRUCTID_TSHC          0x54534843
+#define MQ_STRUCTID_TSHM          0x5453484D
 #define MQ_STRUCTID_UID           0x55494420
 #define MQ_STRUCTID_WIH           0x57494820
 #define MQ_STRUCTID_XQH           0x58514820
@@ -414,6 +418,8 @@ static GHashTable *mq_reassembled_table = NULL;
 #define MQ_STRUCTID_TM_EBCDIC     0xE3D44040
 #define MQ_STRUCTID_TMC2_EBCDIC   0xE3D4C3F2
 #define MQ_STRUCTID_TSH_EBCDIC    0xE3E2C840
+#define MQ_STRUCTID_TSHC_EBCDIC   0xE3E2C843
+#define MQ_STRUCTID_TSHM_EBCDIC   0xE3E2C854
 #define MQ_STRUCTID_UID_EBCDIC    0xE4C9C440
 #define MQ_STRUCTID_WIH_EBCDIC    0xE6C9C840
 #define MQ_STRUCTID_XQH_EBCDIC    0xE7D8C840
@@ -452,6 +458,12 @@ static GHashTable *mq_reassembled_table = NULL;
 #define MQ_TST_PING               0x07
 #define MQ_TST_USERID             0x08
 #define MQ_TST_HEARTBEAT          0x09
+#define MQ_TST_CONAUTH_INFO       0x0A
+#define MQ_TST_RENEGOTIATE_DATA   0x0B
+#define MQ_TST_SOCKET_ACTION      0x0C
+#define MQ_TST_ASYNC_MESSAGE      0x0D
+#define MQ_TST_REQUEST_MSGS       0x0E
+#define MQ_TST_NOTIFICATION       0x0F
 #define MQ_TST_MQCONN             0x81
 #define MQ_TST_MQDISC             0x82
 #define MQ_TST_MQOPEN             0x83
@@ -464,6 +476,9 @@ static GHashTable *mq_reassembled_table = NULL;
 #define MQ_TST_MQCMIT             0x8A
 #define MQ_TST_MQBACK             0x8B
 #define MQ_TST_SPI                0x8C
+#define MQ_TST_MQSTAT             0x8D
+#define MQ_TST_MQSUB              0x8E
+#define MQ_TST_MQSUBRQ            0x8F
 #define MQ_TST_MQCONN_REPLY       0x91
 #define MQ_TST_MQDISC_REPLY       0x92
 #define MQ_TST_MQOPEN_REPLY       0x93
@@ -476,6 +491,9 @@ static GHashTable *mq_reassembled_table = NULL;
 #define MQ_TST_MQCMIT_REPLY       0x9A
 #define MQ_TST_MQBACK_REPLY       0x9B
 #define MQ_TST_SPI_REPLY          0x9C
+#define MQ_TST_MQSTAT_REPLY       0x9D
+#define MQ_TST_MQSUB_REPLY        0x9E
+#define MQ_TST_MQSUBRQ_REPLY      0x9F
 #define MQ_TST_XA_START           0xA1
 #define MQ_TST_XA_END             0xA2
 #define MQ_TST_XA_OPEN            0xA3
@@ -540,20 +558,38 @@ static GHashTable *mq_reassembled_table = NULL;
 #define MQ_CONN_VERSION        0x01
 #define MQ_CONNX_VERSION       0x03
 
-#define MQ_STATUS_E_REMOTE_CHANNEL_NOT_FOUND   0x01
-#define MQ_STATUS_E_BAD_REMOTE_CHANNEL_TYPE    0x02
-#define MQ_STATUS_E_REMOTE_QM_UNAVAILABLE      0x03
-#define MQ_STATUS_E_MSG_SEQUENCE_ERROR         0x04
-#define MQ_STATUS_E_REMOTE_QM_TERMINATING      0x05
-#define MQ_STATUS_E_MSG_NOT_RECEIVED           0x06
-#define MQ_STATUS_I_CHANNEL_CLOSED             0x07
-#define MQ_STATUS_I_DISCINTERVAL_EXPIRED       0x08
-#define MQ_STATUS_E_REMOTE_PROTOCOL_ERROR      0x0A
-#define MQ_STATUS_E_BIND_FAILED                0x14
-#define MQ_STATUS_E_MSGWRAP_DIFFERENT          0x15
-#define MQ_STATUS_E_REMOTE_CHANNEL_UNAVAILABLE 0x16
-#define MQ_STATUS_E_TERMINATED_BY_REMOTE_EXIT  0x17
-#define MQ_STATUS_E_SSL_REMOTE_BAD_CIPHER      0x18
+#define MQ_STATUS_ERR_NO_CHANNEL              0x01
+#define MQ_STATUS_ERR_CHANNEL_WRONG_TYPE      0x02
+#define MQ_STATUS_ERR_QM_UNAVAILABLE          0x03
+#define MQ_STATUS_ERR_MSG_SEQUENCE_ERROR      0x04
+#define MQ_STATUS_ERR_QM_TERMINATING          0x05
+#define MQ_STATUS_ERR_CAN_NOT_STORE           0x06
+#define MQ_STATUS_ERR_USER_CLOSED             0x07
+#define MQ_STATUS_ERR_TIMEOUT_EXPIRED         0x08
+#define MQ_STATUS_ERR_TARGET_Q_UNKNOWN        0x09
+#define MQ_STATUS_ERR_PROTOCOL_SEGMENT_TYPE   0x0A
+#define MQ_STATUS_ERR_PROTOCOL_LENGTH_ERROR   0x0B
+#define MQ_STATUS_ERR_PROTOCOL_INVALID_DATA   0x0C
+#define MQ_STATUS_ERR_PROTOCOL_SEGMENT_ERROR  0x0D
+#define MQ_STATUS_ERR_PROTOCOL_ID_ERROR       0x0E
+#define MQ_STATUS_ERR_PROTOCOL_MSH_ERROR      0x0F
+#define MQ_STATUS_ERR_PROTOCOL_GENERAL        0x10
+#define MQ_STATUS_ERR_BATCH_FAILURE           0x11
+#define MQ_STATUS_ERR_MESSAGE_LENGTH_ERROR    0x12
+#define MQ_STATUS_ERR_SEGMENT_NUMBER_ERROR    0x13
+#define MQ_STATUS_ERR_SECURITY_FAILURE        0x14
+#define MQ_STATUS_ERR_WRAP_VALUE_ERROR        0x15
+#define MQ_STATUS_ERR_CHANNEL_UNAVAILABLE     0x16
+#define MQ_STATUS_ERR_CLOSED_BY_EXIT          0x17
+#define MQ_STATUS_ERR_CIPHER_SPEC             0x18
+#define MQ_STATUS_ERR_PEER_NAME               0x19
+#define MQ_STATUS_ERR_SSL_CLIENT_CERTIFICATE  0x1A
+#define MQ_STATUS_ERR_RMT_RSRCS_IN_RECOVERY   0x1B
+#define MQ_STATUS_ERR_SSL_REFRESHING          0x1C
+#define MQ_STATUS_ERR_INVALID_HOBJ            0x1D
+#define MQ_STATUS_ERR_CONV_ID_ERROR           0x1E
+#define MQ_STATUS_ERR_SOCKET_ACTION_TYPE      0x1F
+#define MQ_STATUS_ERR_STANDBY_Q_MGR           0x20
 
 /* These errors codes are documented in javax.transaction.xa.XAException */
 #define MQ_XA_RBROLLBACK   100
@@ -602,6 +638,8 @@ static GHashTable *mq_reassembled_table = NULL;
 /* MQ structures */
 /* Undocumented structures */
 #define MQ_TEXT_TSH   "Transmission Segment Header"
+#define MQ_TEXT_TSHC  "Transmission Segment Header Common"
+#define MQ_TEXT_TSHM  "Transmission Segment Header Multiplexed"
 #define MQ_TEXT_API   "API Header"
 #define MQ_TEXT_ID    "Initial Data"
 #define MQ_TEXT_UID   "User Id Data"
@@ -650,6 +688,12 @@ static const value_string mq_opcode_vals[] = {
     { MQ_TST_PING,              "PING_DATA" },
     { MQ_TST_USERID,            "USERID_DATA" },
     { MQ_TST_HEARTBEAT,         "HEARTBEAT" },
+    { MQ_TST_CONAUTH_INFO,      "CONAUTH_INFO" },
+    { MQ_TST_RENEGOTIATE_DATA,  "RENEGOTIATE_DATA" },
+    { MQ_TST_SOCKET_ACTION,     "SOCKET_ACTION" },
+    { MQ_TST_ASYNC_MESSAGE,     "ASYNC_MESSAGE" },
+    { MQ_TST_REQUEST_MSGS,      "REQUEST_MSGS" },
+    { MQ_TST_NOTIFICATION,      "NOTIFICATION" },
     { MQ_TST_MQCONN,            "MQCONN" },
     { MQ_TST_MQDISC,            "MQDISC" },
     { MQ_TST_MQOPEN,            "MQOPEN" },
@@ -662,6 +706,9 @@ static const value_string mq_opcode_vals[] = {
     { MQ_TST_MQCMIT,            "MQCMIT" },
     { MQ_TST_MQBACK,            "MQBACK" },
     { MQ_TST_SPI,               "SPI" },
+    { MQ_TST_MQSTAT,            "MQSTAT" },
+    { MQ_TST_MQSUB,             "MQSUB" },
+    { MQ_TST_MQSUBRQ,           "MQSUBRQ" },
     { MQ_TST_MQCONN_REPLY,      "MQCONN_REPLY" },
     { MQ_TST_MQDISC_REPLY,      "MQDISC_REPLY" },
     { MQ_TST_MQOPEN_REPLY,      "MQOPEN_REPLY" },
@@ -674,6 +721,9 @@ static const value_string mq_opcode_vals[] = {
     { MQ_TST_MQCMIT_REPLY,      "MQCMIT_REPLY" },
     { MQ_TST_MQBACK_REPLY,      "MQBACK_REPLY" },
     { MQ_TST_SPI_REPLY,         "SPI_REPLY" },
+    { MQ_TST_MQSTAT_REPLY,      "MQSTAT_REPLY" },
+    { MQ_TST_MQSUB_REPLY,       "MQSUB_REPLY" },
+    { MQ_TST_MQSUBRQ_REPLY,     "MQSUBRQ_REPLY" },
     { MQ_TST_XA_START,          "XA_START" },
     { MQ_TST_XA_END,            "XA_END" },
     { MQ_TST_XA_OPEN,           "XA_OPEN" },
@@ -697,6 +747,8 @@ static const value_string mq_opcode_vals[] = {
     { 0,          NULL }
 };
 
+static value_string_ext mq_opcode_vals_ext = VALUE_STRING_EXT_INIT(mq_opcode_vals);
+
 static const value_string mq_spi_verbs_vals[] = {
     { MQ_SPI_QUERY,      "QUERY" },
     { MQ_SPI_PUT,        "PUT" },
@@ -712,20 +764,35 @@ static const value_string mq_spi_activate_vals[] = {
 };
 
 static const value_string mq_status_vals[] = {
-    { MQ_STATUS_E_REMOTE_CHANNEL_NOT_FOUND,    "REMOTE_CHANNEL_NOT_FOUND" },
-    { MQ_STATUS_E_BAD_REMOTE_CHANNEL_TYPE,     "BAD_REMOTE_CHANNEL_TYPE" },
-    { MQ_STATUS_E_REMOTE_QM_UNAVAILABLE,       "REMOTE_QM_UNAVAILABLE" },
-    { MQ_STATUS_E_MSG_SEQUENCE_ERROR,          "MSG_SEQUENCE_ERROR" },
-    { MQ_STATUS_E_REMOTE_QM_TERMINATING,       "REMOTE_QM_TERMINATING" },
-    { MQ_STATUS_E_MSG_NOT_RECEIVED,            "MSG_NOT_RECEIVED" },
-    { MQ_STATUS_I_CHANNEL_CLOSED,              "CHANNEL_CLOSED" },
-    { MQ_STATUS_I_DISCINTERVAL_EXPIRED,        "DISCINTERVAL_EXPIRED" },
-    { MQ_STATUS_E_REMOTE_PROTOCOL_ERROR,       "REMOTE_PROTOCOL_ERROR" },
-    { MQ_STATUS_E_BIND_FAILED,                 "BIND_FAILED" },
-    { MQ_STATUS_E_MSGWRAP_DIFFERENT,           "MSGWRAP_DIFFERENT" },
-    { MQ_STATUS_E_REMOTE_CHANNEL_UNAVAILABLE,  "REMOTE_CHANNEL_UNAVAILABLE" },
-    { MQ_STATUS_E_TERMINATED_BY_REMOTE_EXIT,   "TERMINATED_BY_REMOTE_EXIT" },
-    { MQ_STATUS_E_SSL_REMOTE_BAD_CIPHER,       "SSL_REMOTE_BAD_CIPHER" },
+    { MQ_STATUS_ERR_NO_CHANNEL,            "NO_CHANNEL" },
+    { MQ_STATUS_ERR_CHANNEL_WRONG_TYPE,    "CHANNEL_WRONG_TYPE" },
+    { MQ_STATUS_ERR_QM_UNAVAILABLE,        "QM_UNAVAILABLE" },
+    { MQ_STATUS_ERR_MSG_SEQUENCE_ERROR,    "MSG_SEQUENCE_ERROR" },
+    { MQ_STATUS_ERR_QM_TERMINATING,        "QM_TERMINATING" },
+    { MQ_STATUS_ERR_CAN_NOT_STORE,         "CAN_NOT_STORE" },
+    { MQ_STATUS_ERR_USER_CLOSED,           "USER_CLOSED" },
+    { MQ_STATUS_ERR_PROTOCOL_SEGMENT_TYPE, "REMOTE_PROTOCOL_ERROR" },
+    { MQ_STATUS_ERR_PROTOCOL_LENGTH_ERROR, "BIND_FAILED" },
+    { MQ_STATUS_ERR_PROTOCOL_INVALID_DATA, "MSGWRAP_DIFFERENT" },
+    { MQ_STATUS_ERR_PROTOCOL_ID_ERROR,     "REMOTE_CHANNEL_UNAVAILABLE" },
+    { MQ_STATUS_ERR_PROTOCOL_MSH_ERROR,    "TERMINATED_BY_REMOTE_EXIT" },
+    { MQ_STATUS_ERR_PROTOCOL_GENERAL,      "PROTOCOL_GENERAL" },
+    { MQ_STATUS_ERR_BATCH_FAILURE,         "BATCH_FAILURE" },
+    { MQ_STATUS_ERR_MESSAGE_LENGTH_ERROR,  "MESSAGE_LENGTH_ERROR" },
+    { MQ_STATUS_ERR_SEGMENT_NUMBER_ERROR,  "SEGMENT_NUMBER_ERROR" },
+    { MQ_STATUS_ERR_SECURITY_FAILURE,      "SECURITY_FAILURE" },
+    { MQ_STATUS_ERR_WRAP_VALUE_ERROR,      "WRAP_VALUE_ERROR" },
+    { MQ_STATUS_ERR_CHANNEL_UNAVAILABLE,   "CHANNEL_UNAVAILABLE" },
+    { MQ_STATUS_ERR_CLOSED_BY_EXIT,        "CLOSED_BY_EXIT" },
+    { MQ_STATUS_ERR_CIPHER_SPEC,           "CIPHER_SPEC" },
+    { MQ_STATUS_ERR_PEER_NAME,             "PEER_NAME" },
+    { MQ_STATUS_ERR_SSL_CLIENT_CERTIFICATE,"SSL_CLIENT_CERTIFICATE" },
+    { MQ_STATUS_ERR_RMT_RSRCS_IN_RECOVERY, "RMT_RSRCS_IN_RECOVERY" },
+    { MQ_STATUS_ERR_SSL_REFRESHING,        "SSL_REFRESHING" },
+    { MQ_STATUS_ERR_INVALID_HOBJ,          "INVALID_HOBJ" },
+    { MQ_STATUS_ERR_CONV_ID_ERROR,         "CONV_ID_ERROR" },
+    { MQ_STATUS_ERR_SOCKET_ACTION_TYPE,    "SOCKET_ACTION_TYPE" },
+    { MQ_STATUS_ERR_STANDBY_Q_MGR,         "STANDBY_Q_MGR" },
     { 0,          NULL }
 };
 
@@ -773,6 +840,8 @@ static const value_string mq_structid_vals[] = {
     { MQ_STRUCTID_TM,          MQ_TEXT_TM },
     { MQ_STRUCTID_TMC2,        MQ_TEXT_TMC2 },
     { MQ_STRUCTID_TSH,         MQ_TEXT_TSH },
+    { MQ_STRUCTID_TSHC,        MQ_TEXT_TSHC },
+    { MQ_STRUCTID_TSHM,        MQ_TEXT_TSHM },
     { MQ_STRUCTID_UID,         MQ_TEXT_UID },
     { MQ_STRUCTID_WIH,         MQ_TEXT_WIH },
     { MQ_STRUCTID_XQH,         MQ_TEXT_XQH },
@@ -790,6 +859,8 @@ static const value_string mq_structid_vals[] = {
     { MQ_STRUCTID_TM_EBCDIC,   MQ_TEXT_TM },
     { MQ_STRUCTID_TMC2_EBCDIC, MQ_TEXT_TMC2 },
     { MQ_STRUCTID_TSH_EBCDIC,  MQ_TEXT_TSH },
+    { MQ_STRUCTID_TSHC_EBCDIC,  MQ_TEXT_TSHC },
+    { MQ_STRUCTID_TSHM_EBCDIC,  MQ_TEXT_TSHM },
     { MQ_STRUCTID_UID_EBCDIC,  MQ_TEXT_UID },
     { MQ_STRUCTID_WIH_EBCDIC,  MQ_TEXT_WIH },
     { MQ_STRUCTID_XQH_EBCDIC,  MQ_TEXT_XQH },
@@ -1244,39 +1315,42 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean bEBCDIC = FALSE;
     gint iDistributionListSize = 0;
     struct mq_msg_properties tMsgProps;
-    static guint iPreviousFrameNumber = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        /* This is a trick to know whether this is the first PDU in this packet or not */
-        if (iPreviousFrameNumber != pinfo->fd->num)
-            col_clear(pinfo->cinfo, COL_INFO);
-        else
-            col_append_str(pinfo->cinfo, COL_INFO, " | ");
-    }
-    iPreviousFrameNumber = pinfo->fd->num;
+	
     tMsgProps.iOffsetFormat = 0;
     if (tvb_length(tvb) >= 4)
     {
         structId = tvb_get_ntohl(tvb, offset);
-        if ((structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC) && tvb_length_remaining(tvb, offset) >= 28)
+        if ((structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC 
+            || structId == MQ_STRUCTID_TSHC || structId == MQ_STRUCTID_TSHC_EBCDIC 
+            || structId == MQ_STRUCTID_TSHM || structId == MQ_STRUCTID_TSHM_EBCDIC)
+            && tvb_length_remaining(tvb, offset) >= 28)
         {
             /* An MQ packet always starts with this structure*/
             gint iSizeTSH = 28;
+            gint iSizeMultiplexFields = 0;
             guint8 iControlFlags = 0;
-            if (structId == MQ_STRUCTID_TSH_EBCDIC) {
+            if (structId == MQ_STRUCTID_TSH_EBCDIC || structId == MQ_STRUCTID_TSHC_EBCDIC || structId == MQ_STRUCTID_TSHM_EBCDIC) {
                 bEBCDIC = TRUE;
                 string_rep = ENC_EBCDIC|ENC_NA;
             }
-            opcode = tvb_get_guint8(tvb, offset + 9);
-            int_rep = (tvb_get_guint8(tvb, offset + 8) == MQ_LITTLE_ENDIAN ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
             iSegmentLength = tvb_get_ntohl(tvb, offset + 4);
-            iControlFlags = tvb_get_guint8(tvb, offset + 10);
+            if (structId == MQ_STRUCTID_TSHM || structId == MQ_STRUCTID_TSHM_EBCDIC) 
+            {
+                if (tvb_length_remaining(tvb, offset) < 36) return;
+                iSizeMultiplexFields += 8;
+                iSizeTSH = 36;
+            }
+            opcode = tvb_get_guint8(tvb, offset + iSizeMultiplexFields + 9);
+            int_rep = (tvb_get_guint8(tvb, offset + iSizeMultiplexFields + 8) == MQ_LITTLE_ENDIAN ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+            iControlFlags = tvb_get_guint8(tvb, offset + iSizeMultiplexFields + 10);
 
             if (check_col(pinfo->cinfo, COL_INFO))
             {
-                col_append_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
+                col_clear(pinfo->cinfo, COL_INFO);
+                col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", val_to_str_ext(opcode, &mq_opcode_vals_ext, "Unknown (0x%02x)"));
+                col_set_fence(pinfo->cinfo, COL_INFO);
             }
 
             if (tree)
@@ -1292,32 +1366,38 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(mq_tree, hf_mq_tsh_structid, tvb, offset + 0, 4, string_rep);
                 proto_tree_add_item(mq_tree, hf_mq_tsh_packetlength, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item(mq_tree, hf_mq_tsh_byteorder, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
+                if (iSizeTSH == 36)
+                {
+                    proto_tree_add_item(mq_tree, hf_mq_tsh_convid, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(mq_tree, hf_mq_tsh_requestid, tvb, offset + 12, 4, ENC_BIG_ENDIAN);				
+                }
 
-                proto_tree_add_item(mq_tree, hf_mq_tsh_opcode, tvb, offset + 9, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(mq_tree, hf_mq_tsh_byteorder, tvb, offset + iSizeMultiplexFields + 8, 1, ENC_BIG_ENDIAN);
 
+                proto_tree_add_item(mq_tree, hf_mq_tsh_opcode, tvb, offset + iSizeMultiplexFields + 9, 1, ENC_BIG_ENDIAN);
+				
                 /* Control flags */
                 {
                     proto_tree  *mq_tree_sub = NULL;
 
-                    ti = proto_tree_add_item(mq_tree, hf_mq_tsh_controlflags, tvb, offset + 10, 1, ENC_BIG_ENDIAN);
+                    ti = proto_tree_add_item(mq_tree, hf_mq_tsh_controlflags, tvb, offset + iSizeMultiplexFields + 10, 1, ENC_BIG_ENDIAN);
                     mq_tree_sub = proto_item_add_subtree(ti, ett_mq_tsh_tcf);
 
-                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_dlq, tvb, offset + 10, 1, iControlFlags);
-                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_reqacc, tvb, offset + 10, 1, iControlFlags);
-                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_last, tvb, offset + 10, 1, iControlFlags);
-                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_first, tvb, offset + 10, 1, iControlFlags);
-                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_closechann, tvb, offset + 10, 1, iControlFlags);
-                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_reqclose, tvb, offset + 10, 1, iControlFlags);
-                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_error, tvb, offset + 10, 1, iControlFlags);
-                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_confirmreq, tvb, offset + 10, 1, iControlFlags);
+                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_dlq, tvb, offset + iSizeMultiplexFields + 10, 1, iControlFlags);
+                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_reqacc, tvb, offset + iSizeMultiplexFields + 10, 1, iControlFlags);
+                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_last, tvb, offset + iSizeMultiplexFields + 10, 1, iControlFlags);
+                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_first, tvb, offset + iSizeMultiplexFields + 10, 1, iControlFlags);
+                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_closechann, tvb, offset + iSizeMultiplexFields + 10, 1, iControlFlags);
+                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_reqclose, tvb, offset + iSizeMultiplexFields + 10, 1, iControlFlags);
+                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_error, tvb, offset + iSizeMultiplexFields + 10, 1, iControlFlags);
+                    proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_confirmreq, tvb, offset + iSizeMultiplexFields + 10, 1, iControlFlags);
                 }
 
-                proto_tree_add_item(mq_tree, hf_mq_tsh_reserved, tvb, offset + 11, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(mq_tree, hf_mq_tsh_luwid, tvb, offset + 12, 8, ENC_NA);
-                proto_tree_add_item(mq_tree, hf_mq_tsh_encoding, tvb, offset + 20, 4, int_rep);
-                proto_tree_add_item(mq_tree, hf_mq_tsh_ccsid, tvb, offset + 24, 2, int_rep);
-                proto_tree_add_item(mq_tree, hf_mq_tsh_padding, tvb, offset + 26, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(mq_tree, hf_mq_tsh_reserved, tvb, offset + iSizeMultiplexFields + 11, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(mq_tree, hf_mq_tsh_luwid, tvb, offset + iSizeMultiplexFields + 12, 8, ENC_NA);
+                proto_tree_add_item(mq_tree, hf_mq_tsh_encoding, tvb, offset + iSizeMultiplexFields + 20, 4, int_rep);
+                proto_tree_add_item(mq_tree, hf_mq_tsh_ccsid, tvb, offset + iSizeMultiplexFields + 24, 2, int_rep);
+                proto_tree_add_item(mq_tree, hf_mq_tsh_padding, tvb, offset + iSizeMultiplexFields + 26, 2, ENC_BIG_ENDIAN);
             }
             offset += iSizeTSH;
 
@@ -2320,7 +2400,9 @@ reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint32 structId;
         structId = tvb_get_ntohl(tvb, 0);
 
-        if (structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC)
+        if (structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC
+            || structId == MQ_STRUCTID_TSHC || structId == MQ_STRUCTID_TSHC_EBCDIC
+            || structId == MQ_STRUCTID_TSHM || structId == MQ_STRUCTID_TSHM_EBCDIC)
         {
             guint8 iControlFlags = 0;
             guint32 iSegmentLength = 0;
@@ -2400,7 +2482,9 @@ get_mq_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     if (tvb_length_remaining(tvb, offset) >= 8)
     {
-        if ((tvb_get_ntohl(tvb, 0) == MQ_STRUCTID_TSH || tvb_get_ntohl(tvb, 0) == MQ_STRUCTID_TSH_EBCDIC))
+        if (tvb_get_ntohl(tvb, 0) == MQ_STRUCTID_TSH || tvb_get_ntohl(tvb, 0) == MQ_STRUCTID_TSH_EBCDIC
+            || tvb_get_ntohl(tvb, 0) == MQ_STRUCTID_TSHC || tvb_get_ntohl(tvb, 0) == MQ_STRUCTID_TSHC_EBCDIC
+            || tvb_get_ntohl(tvb, 0) == MQ_STRUCTID_TSHM || tvb_get_ntohl(tvb, 0) == MQ_STRUCTID_TSHM_EBCDIC)
             return tvb_get_ntohl(tvb, offset + 4);
     }
     return 0;
@@ -2426,11 +2510,16 @@ dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint iProto
     {
         guint32 structId;
         guint8 cEndian;
+        guint8 cEndian2;
         structId = tvb_get_ntohl(tvb, 0);
         cEndian = tvb_get_guint8(tvb, 8);
+        cEndian2 = tvb_get_guint8(tvb, 16);
 
-        if ((structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC)
+        if (((structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC
+             || structId == MQ_STRUCTID_TSHC || structId == MQ_STRUCTID_TSHC_EBCDIC)
             && (cEndian == MQ_LITTLE_ENDIAN || cEndian == MQ_BIG_ENDIAN))
+        || ((structId == MQ_STRUCTID_TSHM || structId == MQ_STRUCTID_TSHM_EBCDIC)
+            && (cEndian2 == MQ_LITTLE_ENDIAN || cEndian2 == MQ_BIG_ENDIAN)))
         {
             /* Register this dissector for this conversation */
             conversation_t  *conversation;
@@ -2481,6 +2570,12 @@ proto_register_mq(void)
         { &hf_mq_tsh_packetlength,
           { "MQ Segment length", "mq.tsh.seglength", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH MQ Segment length", HFILL }},
 
+        { &hf_mq_tsh_convid,
+          { "Conversation ID", "mq.tsh.convid", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Conversation ID", HFILL }},
+		  
+        { &hf_mq_tsh_requestid,
+          { "Request ID", "mq.tsh.requestid", FT_UINT32, BASE_DEC, NULL, 0x0, "TSH Request ID", HFILL }},
+		  		  
         { &hf_mq_tsh_byteorder,
           { "Byte order", "mq.tsh.byteorder", FT_UINT8, BASE_HEX, VALS(mq_byteorder_vals), 0x0, "TSH Byte order", HFILL }},
 
