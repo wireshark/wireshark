@@ -617,7 +617,7 @@ static const char* stat_group_name(register_stat_group_t group) {
 }
 
 static void register_menu_cb(const char *name,
-                             register_stat_group_t group _U_,
+                             register_stat_group_t group,
                              void (*callback)(gpointer),
                              gpointer callback_data,
                              gboolean retap) {
