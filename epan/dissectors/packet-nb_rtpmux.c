@@ -180,7 +180,7 @@ proto_register_nb_rtpmux(void)
         },
         { &hf_nb_rtpmux_dstport,
             { "Dst port", "nb_rtpmux.dstport",
-             FT_UINT16, BASE_DEC, NULL, 0x7FFF,
+             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nb_rtpmux_length,
@@ -195,7 +195,7 @@ proto_register_nb_rtpmux(void)
         },
         { &hf_nb_rtpmux_srcport,
             { "Src port", "nb_rtpmux.srcport",
-             FT_UINT16, BASE_DEC, NULL, 0x7FFF,
+             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nb_rtpmux_data,
