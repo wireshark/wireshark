@@ -5080,7 +5080,7 @@ proto_register_17221(void)
 
       /* READ_DESCRIPTOR */
       { &hf_aecp_configuration,
-         { "Configuration", "ieee17221._configuration",
+         { "Configuration", "ieee17221.configuration",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
 

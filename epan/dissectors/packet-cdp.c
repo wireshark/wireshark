@@ -1288,7 +1288,7 @@ proto_register_cdp(void)
         },
 
         { &hf_cdp_spare_poe_tlv_poe,
-        { "PSE Four-Wire PoE", "csp.spare_poe_tlv.poe", FT_BOOLEAN, 8,
+        { "PSE Four-Wire PoE", "cdp.spare_poe_tlv.poe", FT_BOOLEAN, 8,
                 TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }
         },
 
