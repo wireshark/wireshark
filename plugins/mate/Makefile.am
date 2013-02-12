@@ -152,11 +152,11 @@ mate_parser_lex.h : mate_parser.c
 
 mate_parser.lo : mate_grammar.h
 
-mate_grammar.c mate_grammar.h : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
+mate_grammar.h : mate_grammar.c
+mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
 	$(AM_V_LEMON)$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/mate_grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
 
-mate_grammar.h : mate_grammar.c
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
