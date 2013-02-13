@@ -124,16 +124,20 @@ static gint hf_msg_tx_in_script32 = -1;
 static gint hf_msg_tx_in_script64 = -1;
 static gint hf_msg_tx_in = -1;
 static gint hf_msg_tx_in_prev_output = -1;
+static gint hf_msg_tx_in_prev_outp_hash = -1;
+static gint hf_msg_tx_in_prev_outp_index = -1;
 static gint hf_msg_tx_in_sig_script = -1;
 static gint hf_msg_tx_in_seq = -1;
 static gint hf_msg_tx_out_count8 = -1;
 static gint hf_msg_tx_out_count16 = -1;
 static gint hf_msg_tx_out_count32 = -1;
 static gint hf_msg_tx_out_count64 = -1;
-static gint hf_msg_tx_outp_hash = -1;
-static gint hf_msg_tx_outp_index = -1;
 static gint hf_msg_tx_out = -1;
 static gint hf_msg_tx_out_value = -1;
+static gint hf_msg_tx_out_script8 = -1;
+static gint hf_msg_tx_out_script16 = -1;
+static gint hf_msg_tx_out_script32 = -1;
+static gint hf_msg_tx_out_script64 = -1;
 static gint hf_msg_tx_out_script = -1;
 static gint hf_msg_tx_lock_time = -1;
 
@@ -183,7 +187,8 @@ static const value_string inv_types[] =
   { 0, NULL }
 };
 
-static guint get_bitcoin_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint
+get_bitcoin_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint32 length;
   length = BITCOIN_HEADER_LENGTH;
@@ -204,7 +209,8 @@ static guint get_bitcoin_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int o
 /**
  * Create a services sub-tree for bit-by-bit display
  */
-static proto_tree *create_services_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
+static proto_tree *
+create_services_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
 {
   proto_tree *tree;
   guint64 services;
@@ -230,7 +236,8 @@ static proto_tree *create_services_tree(tvbuff_t *tvb, proto_item *ti, guint32 o
 /**
  * Create a sub-tree and fill it with a net_addr structure
  */
-static proto_tree *create_address_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
+static proto_tree *
+create_address_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
 {
   proto_tree *tree;
 
@@ -254,14 +261,12 @@ static proto_tree *create_address_tree(tvbuff_t *tvb, proto_item *ti, guint32 of
 /**
  * Extract a variable length integer from a tvbuff
  */
-static gint get_varint(tvbuff_t *tvb, const gint offset, gint *length, guint64 *ret)
+static void
+get_varint(tvbuff_t *tvb, const gint offset, gint *length, guint64 *ret)
 {
   guint value;
-  gint remain;
 
-  remain = tvb_reported_length_remaining(tvb, offset);
-  if (remain < 1)
-    return -1;
+  /* Note: just throw an exception if not enough  bytes are available in the tvbuff */
 
   /* calculate variable length */
   value = tvb_get_guint8(tvb, offset);
@@ -269,30 +274,26 @@ static gint get_varint(tvbuff_t *tvb, const gint offset, gint *length, guint64 *
   {
     *length = 1;
     *ret = value;
-    return 0;
+    return;
   }
 
-  if (value == 0xfd && remain >= 3)
+  if (value == 0xfd)
   {
     *length = 3;
     *ret = tvb_get_letohs(tvb, offset+1);
-    return 0;
+    return;
   }
-  if (value == 0xfe && remain >= 5)
+  if (value == 0xfe)
   {
     *length = 5;
     *ret = tvb_get_letohl(tvb, offset+1);
-    return 0;
-  }
-  if (remain >= 9)
-  {
-    *length = 9;
-    *ret = tvb_get_letoh64(tvb, offset+1);
-    return 0;
+    return;
   }
 
-  /* could not get varint */
-  return -1;
+  *length = 9;
+  *ret = tvb_get_letoh64(tvb, offset+1);
+  return;
+
 }
 
 static void add_varint_item(proto_tree *tree, tvbuff_t *tvb, const gint offset, gint length,
@@ -315,18 +316,46 @@ static void add_varint_item(proto_tree *tree, tvbuff_t *tvb, const gint offset, 
   }
 }
 
+/* Note: A number of the following message handlers include code of the form:
+ *          ...
+ *          guint64     count;
+ *          ...
+ *          for (; count > 0; count--)
+ *          {
+ *            proto_tree_add_item9...);
+ *            offset += ...;
+ *            proto_tree_add_item9...);
+ *            offset += ...;
+ *            ...
+ *          }
+ *          ...
+ *
+ * Issue if 'count' is a very large number:
+ *    If 'tree' is NULL, then the result will be effectively (but not really)
+ *    an infinite loop. This is true because if 'tree' is NULL then
+ *    proto_tree_add_item(tree, ...) is effectively a no-op and will not throw
+ *    an exception.
+ *    So: the loop should be executed only when 'tree' is defined so that the
+ *        proto_ calls will throw an exception when the tvb is used up;
+ *        This should only take a few-hundred loops at most.
+ *           https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8312
+ */
+
 /**
  * Handler for version messages
  */
-static guint32 dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_,
-    proto_tree *tree)
+static void
+dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *ti;
-  gint subver_length;
-  guint32 version;
-  guint32 offset = 0;
+  gint        subver_length;
+  guint32     version;
+  guint32     offset = 0;
 
-  ti = proto_tree_add_item(tree, hf_bitcoin_msg_version, tvb, offset, -1, ENC_NA);
+  if (!tree)
+    return;
+
+  ti   = proto_tree_add_item(tree, hf_bitcoin_msg_version, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
   version = tvb_get_letohl(tvb, offset);
@@ -363,29 +392,29 @@ static guint32 dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_
     if (version >= 209)
     {
       proto_tree_add_item(tree, hf_msg_version_start_height, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      offset += 4;
+      /* offset += 4; */
     }
   }
-
-  return offset;
 }
 
 /**
  * Handler for address messages
  */
-static guint32 dissect_bitcoin_msg_addr(tvbuff_t *tvb, packet_info *pinfo _U_,
-    proto_tree *tree)
+static void
+dissect_bitcoin_msg_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *ti;
-  gint length;
-  guint64 count;
-  guint32 offset = 0;
+  gint        length;
+  guint64     count;
+  guint32     offset = 0;
 
-  ti = proto_tree_add_item(tree, hf_bitcoin_msg_addr, tvb, offset, -1, ENC_NA);
+  if (!tree)
+    return;
+
+  ti   = proto_tree_add_item(tree, hf_bitcoin_msg_addr, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
-  if (get_varint(tvb, offset, &length, &count))
-      return offset;
+  get_varint(tvb, offset, &length, &count);
   add_varint_item(tree, tvb, offset, length, hf_msg_addr_count8, hf_msg_addr_count16,
                   hf_msg_addr_count32, hf_msg_addr_count64);
   offset += length;
@@ -401,28 +430,30 @@ static guint32 dissect_bitcoin_msg_addr(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 26;
     offset += 4;
   }
-
-  return offset;
 }
 
 /**
  * Handler for inventory messages
  */
-static guint32 dissect_bitcoin_msg_inv(tvbuff_t *tvb, packet_info *pinfo _U_,
-    proto_tree *tree)
+static void
+dissect_bitcoin_msg_inv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *ti;
-  gint length;
-  guint64 count;
-  guint32 offset = 0;
+  gint        length;
+  guint64     count;
+  guint32     offset = 0;
 
-  ti = proto_tree_add_item(tree, hf_bitcoin_msg_inv, tvb, offset, -1, ENC_NA);
+  if (!tree)
+    return;
+
+  ti   = proto_tree_add_item(tree, hf_bitcoin_msg_inv, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
-  if (get_varint(tvb, offset, &length, &count))
-      return offset;
+  get_varint(tvb, offset, &length, &count);
   add_varint_item(tree, tvb, offset, length, hf_msg_inv_count8, hf_msg_inv_count16,
                   hf_msg_inv_count32, hf_msg_inv_count64);
+
+  offset += length;
 
   for (; count > 0; count--)
   {
@@ -437,79 +468,72 @@ static guint32 dissect_bitcoin_msg_inv(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item(subtree, hf_msg_inv_hash, tvb, offset, 32, ENC_NA);
     offset += 32;
   }
-
-  return offset;
 }
 
 /**
  * Handler for getdata messages
  */
-static guint32 dissect_bitcoin_msg_getdata(tvbuff_t *tvb, packet_info *pinfo _U_,
-    proto_tree *tree)
+static void
+dissect_bitcoin_msg_getdata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *ti;
-  gint length;
-  guint64 count;
-  guint32 offset = 0;
+  gint        length;
+  guint64     count;
+  guint32     offset = 0;
 
-  ti = proto_tree_add_item(tree, hf_bitcoin_msg_getdata, tvb, offset, -1, ENC_NA);
+  if (!tree)
+    return;
+
+  ti   = proto_tree_add_item(tree, hf_bitcoin_msg_getdata, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
-  if (get_varint(tvb, offset, &length, &count))
-      return offset;
+  get_varint(tvb, offset, &length, &count);
   add_varint_item(tree, tvb, offset, length, hf_msg_getdata_count8, hf_msg_getdata_count16,
                   hf_msg_getdata_count32, hf_msg_getdata_count64);
 
-  /* The if (tree) check is necessary, as otherwise very large values for
-   * 'count' will result in an effectively (but not really) infinite loop.
-   * When tree is defined this can't happen, as the proto_ calls will throw an
-   * exception when the tvb is used up, which should only take a few-hundred
-   * loops at most.
-   *
-   * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8312
-   */
-  if (tree)
+  offset += length;
+
+  for (; count > 0; count--)
   {
-    for (; count > 0; count--)
-    {
-      proto_tree *subtree;
+    proto_tree *subtree;
 
-      ti = proto_tree_add_text(tree, tvb, offset, 36, "Inventory vector");
-      subtree = proto_item_add_subtree(ti, ett_getdata_list);
+    ti = proto_tree_add_text(tree, tvb, offset, 36, "Inventory vector");
+    subtree = proto_item_add_subtree(ti, ett_getdata_list);
 
-      proto_tree_add_item(subtree, hf_msg_getdata_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      offset += 4;
+    proto_tree_add_item(subtree, hf_msg_getdata_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
 
-      proto_tree_add_item(subtree, hf_msg_getdata_hash, tvb, offset, 32, ENC_NA);
-      offset += 32;
-    }
+    proto_tree_add_item(subtree, hf_msg_getdata_hash, tvb, offset, 32, ENC_NA);
+    offset += 32;
   }
-
-  return offset;
 }
 
 /**
  * Handler for getblocks messages
  */
-static guint32 dissect_bitcoin_msg_getblocks(tvbuff_t *tvb, packet_info *pinfo _U_,
-    proto_tree *tree)
+static void
+dissect_bitcoin_msg_getblocks(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *ti;
-  gint length;
-  guint64 count;
-  guint32 offset = 0;
+  gint        length;
+  guint64     count;
+  guint32     offset = 0;
 
-  ti = proto_tree_add_item(tree, hf_bitcoin_msg_getblocks, tvb, offset, -1, ENC_NA);
+  if (!tree)
+    return;
+
+  ti   = proto_tree_add_item(tree, hf_bitcoin_msg_getblocks, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
   /* why the protcol version is sent here nobody knows */
   proto_tree_add_item(tree, hf_msg_version_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  if (get_varint(tvb, offset, &length, &count))
-      return offset;
+  get_varint(tvb, offset, &length, &count);
   add_varint_item(tree, tvb, offset, length, hf_msg_getblocks_count8, hf_msg_getblocks_count16,
                   hf_msg_getblocks_count32, hf_msg_getblocks_count64);
+
+  offset += length;
 
   for (; count > 0; count--)
   {
@@ -518,28 +542,31 @@ static guint32 dissect_bitcoin_msg_getblocks(tvbuff_t *tvb, packet_info *pinfo _
   }
 
   proto_tree_add_item(tree, hf_msg_getblocks_stop, tvb, offset, 32, ENC_NA);
-  return offset + 32;
 }
 
 /**
  * Handler for getheaders messages
  * UNTESTED
  */
-static guint32 dissect_bitcoin_msg_getheaders(tvbuff_t *tvb, packet_info *pinfo _U_,
-    proto_tree *tree)
+static void
+dissect_bitcoin_msg_getheaders(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *ti;
-  gint length;
-  guint64 count;
-  guint32 offset = 0;
+  gint        length;
+  guint64     count;
+  guint32     offset = 0;
 
-  ti = proto_tree_add_item(tree, hf_bitcoin_msg_getheaders, tvb, offset, -1, ENC_NA);
+  if (!tree)
+    return;
+
+  ti   = proto_tree_add_item(tree, hf_bitcoin_msg_getheaders, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
-  if (get_varint(tvb, offset, &length, &count))
-      return offset;
+  get_varint(tvb, offset, &length, &count);
   add_varint_item(tree, tvb, offset, length, hf_msg_getheaders_count8, hf_msg_getheaders_count16,
                   hf_msg_getheaders_count32, hf_msg_getheaders_count64);
+
+  offset += length;
 
   for (; count > 0; count--)
   {
@@ -548,62 +575,83 @@ static guint32 dissect_bitcoin_msg_getheaders(tvbuff_t *tvb, packet_info *pinfo 
   }
 
   proto_tree_add_item(tree, hf_msg_getheaders_stop, tvb, offset, 32, ENC_NA);
-  return offset + 32;
+  return;
 }
 
 /**
- * Handler for tx messages
+ * Handler for tx message body
  */
-static guint32 dissect_bitcoin_msg_tx(tvbuff_t *tvb, packet_info *pinfo _U_,
-    proto_tree *tree)
+static guint32
+dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, guint msgnum)
 {
   proto_item *rti;
-  gint count_length;
-  guint64 in_count;
-  guint64 out_count;
-  guint32 offset = 0;
+  gint        count_length;
+  guint64     in_count;
+  guint64     out_count;
 
-  rti = proto_tree_add_item(tree, hf_bitcoin_msg_tx, tvb, offset, -1, ENC_NA);
+  DISSECTOR_ASSERT(tree != NULL);
+
+  if (msgnum == 0) {
+    rti  = proto_tree_add_item(tree, hf_bitcoin_msg_tx, tvb, offset, -1, ENC_NA);
+  } else {
+    rti  = proto_tree_add_none_format(tree, hf_bitcoin_msg_tx, tvb, offset, -1, "Tx message [ %4d ]", msgnum);
+  }
   tree = proto_item_add_subtree(rti, ett_bitcoin_msg);
 
   proto_tree_add_item(tree, hf_msg_tx_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  if (get_varint(tvb, offset, &count_length, &in_count))
-      return offset;
+  /* TxIn[] */
+  get_varint(tvb, offset, &count_length, &in_count);
   add_varint_item(tree, tvb, offset, count_length, hf_msg_tx_in_count8, hf_msg_tx_in_count16,
                   hf_msg_tx_in_count32, hf_msg_tx_in_count64);
 
+  offset += count_length;
+
+  /* TxIn
+   *   [36]  previous_output    outpoint
+   *   [1+]  script length      var_int
+   *   [ ?]  signature script   uchar[]
+   *   [ 4]  sequence           uint32_t
+   *
+   * outpoint (aka previous output)
+   *   [32]  hash               char[32
+   *   [ 4]  index              uint32_t
+   *
+   */
   for (; in_count > 0; in_count--)
   {
     proto_tree *subtree;
     proto_tree *prevtree;
     proto_item *ti;
     proto_item *pti;
-    guint64 script_length;
+    guint64     script_length;
 
-    if (get_varint(tvb, offset, &count_length, &script_length))
-        return offset;
+    get_varint(tvb, offset+36, &count_length, &script_length);
 
+    /* A funny script_length won't cause an exception since the field type is FT_NONE */
     ti = proto_tree_add_item(tree, hf_msg_tx_in, tvb, offset,
-        40+count_length+(guint)script_length, ENC_NA);
+        36 + count_length + (guint)script_length + 4, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_tx_in_list);
-
-    add_varint_item(subtree, tvb, offset, count_length, hf_msg_tx_in_script8, hf_msg_tx_in_script16,
-                    hf_msg_tx_in_script32, hf_msg_tx_in_script64);
 
     /* previous output */
     pti = proto_tree_add_item(subtree, hf_msg_tx_in_prev_output, tvb, offset, 36, ENC_NA);
     prevtree = proto_item_add_subtree(pti, ett_tx_in_outp);
 
-    proto_tree_add_item(prevtree, hf_msg_tx_outp_hash, tvb, offset, 32, ENC_NA);
+    proto_tree_add_item(prevtree, hf_msg_tx_in_prev_outp_hash, tvb, offset, 32, ENC_NA);
     offset += 32;
 
-    proto_tree_add_item(prevtree, hf_msg_tx_outp_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(prevtree, hf_msg_tx_in_prev_outp_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     /* end previous output */
 
+    add_varint_item(subtree, tvb, offset, count_length, hf_msg_tx_in_script8, hf_msg_tx_in_script16,
+                    hf_msg_tx_in_script32, hf_msg_tx_in_script64);
+
     offset += count_length;
+
+    if ((offset + script_length) > G_MAXINT)
+      THROW(ReportedBoundsError);  /* special check since script_length is guint64 */
 
     proto_tree_add_item(subtree, hf_msg_tx_in_sig_script, tvb, offset, (guint)script_length, ENC_NA);
     offset += (guint)script_length;
@@ -612,29 +660,44 @@ static guint32 dissect_bitcoin_msg_tx(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 4;
   }
 
-  if (get_varint(tvb, offset, &count_length, &out_count))
-      return offset;
+  /* TxOut[] */
+  get_varint(tvb, offset, &count_length, &out_count);
   add_varint_item(tree, tvb, offset, count_length, hf_msg_tx_out_count8, hf_msg_tx_out_count16,
                   hf_msg_tx_out_count32, hf_msg_tx_out_count64);
 
+  offset += count_length;
+
+  /*  TxOut
+   *    [ 8] value
+   *    [1+] script length [var_int]
+   *    [ ?] script
+   */
   for (; out_count > 0; out_count--)
   {
     proto_item *ti;
     proto_tree *subtree;
-    /* XXX - currently isn't read, may need to be a 64-bit value */
-    guint script_length = 0;
+    guint64     script_length;
 
+    get_varint(tvb, offset+8, &count_length, &script_length);
+
+    /* A funny script_length won't cause an exception since the field type is FT_NONE */
     ti = proto_tree_add_item(tree, hf_msg_tx_out, tvb, offset,
-        8+script_length+count_length, ENC_NA);
+                             8 + count_length + (guint)script_length , ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_tx_out_list);
 
     proto_tree_add_item(subtree, hf_msg_tx_out_value, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
 
+    add_varint_item(subtree, tvb, offset, count_length, hf_msg_tx_out_script8, hf_msg_tx_out_script16,
+                    hf_msg_tx_out_script32, hf_msg_tx_out_script64);
+
     offset += count_length;
 
-    proto_tree_add_item(subtree, hf_msg_tx_out_script, tvb, offset, script_length, ENC_NA);
-    offset += script_length;
+    if ((offset + script_length) > G_MAXINT)
+      THROW(ReportedBoundsError);  /* special check since script_length is guint64 */
+
+    proto_tree_add_item(subtree, hf_msg_tx_out_script, tvb, offset, (guint)script_length, ENC_NA);
+    offset += (guint)script_length;
   }
 
   proto_tree_add_item(tree, hf_msg_tx_lock_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -647,71 +710,90 @@ static guint32 dissect_bitcoin_msg_tx(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 /**
+ * Handler for tx message
+ */
+static void
+dissect_bitcoin_msg_tx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  if (!tree)
+    return;
+
+  dissect_bitcoin_msg_tx_common(tvb, 0, pinfo, tree, 0);
+}
+
+
+/**
  * Handler for block messages
  */
-static guint32 dissect_bitcoin_msg_block(tvbuff_t *tvb, packet_info *pinfo _U_,
-    proto_tree *tree)
+
+static void
+dissect_bitcoin_msg_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
-  gint length;
-  guint64 count;
-  guint32 offset = 0;
+  gint        length;
+  guint64     count;
+  guint       msgnum;
+  guint32     offset = 0;
 
-  ti = proto_tree_add_item(tree, hf_bitcoin_msg_block, tvb, offset, -1, ENC_NA);
+  if (!tree)
+    return;
+
+  /*  Block
+   *    [ 4] version         uint32_t
+   *    [32] prev_block      char[32]
+   *    [32] merkle_root     char[32]
+   *    [ 4] timestamp       uint32_t  A unix timestamp ... (Currently limited to dates before the year 2106!)
+   *    [ 4] bits            uint32_t
+   *    [ 4] nonce           uint32_t
+   *    [ ?] txn_count       var_int
+   *    [ ?] txns            tx[]      Block transactions, in format of "tx" command
+   */
+
+  ti   = proto_tree_add_item(tree, hf_bitcoin_msg_block, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
-  proto_tree_add_item(tree, hf_msg_block_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_msg_block_version,     tvb, offset,  4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  proto_tree_add_item(tree, hf_msg_block_prev_block, tvb, offset, 32, ENC_NA);
+  proto_tree_add_item(tree, hf_msg_block_prev_block,  tvb, offset, 32, ENC_NA);
   offset += 32;
 
   proto_tree_add_item(tree, hf_msg_block_merkle_root, tvb, offset, 32, ENC_NA);
   offset += 32;
 
-  proto_tree_add_item(tree, hf_msg_block_time, tvb, offset, 4, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_msg_block_time,        tvb, offset,  4, ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  proto_tree_add_item(tree, hf_msg_block_bits, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_msg_block_bits,        tvb, offset,  4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  proto_tree_add_item(tree, hf_msg_block_nonce, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_msg_block_nonce,       tvb, offset,  4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  if (get_varint(tvb, offset, &length, &count))
-      return offset;
+  get_varint(tvb, offset, &length, &count);
   add_varint_item(tree, tvb, offset, length, hf_msg_block_transactions8, hf_msg_block_transactions16,
                   hf_msg_block_transactions32, hf_msg_block_transactions64);
 
+  offset += length;
+
+  msgnum = 0;
   for (; count > 0; count--)
   {
-    tvbuff_t *tvb_sub;
-    guint32 tx_offset;
-
-    tvb_sub = tvb_new_subset_remaining(tvb, offset);
-    tx_offset = dissect_bitcoin_msg_tx(tvb_sub, pinfo, tree);
-
-    /* check for errors */
-    if (tx_offset == (guint32)-1)
-      return -1;
-
-    offset += tx_offset;
+    msgnum += 1;
+    offset = dissect_bitcoin_msg_tx_common(tvb, offset, pinfo, tree, msgnum);
   }
-
-  return offset;
 }
 
 /**
  * Handler for unimplemented or payload-less messages
  */
-static guint32 dissect_bitcoin_msg_empty(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
-    proto_tree *tree _U_)
+static void
+dissect_bitcoin_msg_empty(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
-  return 0;
+  return;
 }
 
-typedef guint32 (*msg_dissector_func_t)(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree);
+typedef void (*msg_dissector_func_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 typedef struct msg_dissector
 {
@@ -733,7 +815,6 @@ static msg_dissector_t msg_dissectors[] =
   /* messages with no payload */
   {"verack",      dissect_bitcoin_msg_empty},
   {"getaddr",     dissect_bitcoin_msg_empty},
-  {"block",       dissect_bitcoin_msg_empty},
   {"ping",        dissect_bitcoin_msg_empty},
 
   /* messages not implemented */
@@ -747,18 +828,18 @@ static msg_dissector_t msg_dissectors[] =
 static void dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
-  guint32 i;
-  guint32 offset = 0;
+  guint32     i;
+  guint32     offset = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Bitcoin");
 
-  ti = proto_tree_add_item(tree, proto_bitcoin, tvb, 0, -1, ENC_NA);
+  ti   = proto_tree_add_item(tree, proto_bitcoin, tvb, 0, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin);
 
   /* add basic protocol data */
-  proto_tree_add_item(tree, hf_bitcoin_magic, tvb, 0, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(tree, hf_bitcoin_command, tvb, 4, 12, ENC_ASCII|ENC_NA);
-  proto_tree_add_item(tree, hf_bitcoin_length, tvb, 16, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_bitcoin_magic,   tvb,  0,  4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_bitcoin_command, tvb,  4, 12, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_bitcoin_length,  tvb, 16,  4, ENC_LITTLE_ENDIAN);
 
   offset = 20;
 
@@ -988,6 +1069,15 @@ proto_register_bitcoin(void)
     },
 
     /* tx message */
+    { &hf_bitcoin_msg_tx,
+      { "Tx message", "bitcoin.tx", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+
+    { &hf_msg_tx_version,
+      { "Transaction version", "bitcoin.tx.version", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
+
+    /* tx message - input */
     { &hf_msg_tx_in_count8,
       { "Input Count", "bitcoin.tx.input_count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
@@ -1000,13 +1090,21 @@ proto_register_bitcoin(void)
     { &hf_msg_tx_in_count64,
       { "Input Count", "bitcoin.tx.input_count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &hf_bitcoin_msg_tx,
-      { "Tx message", "bitcoin.tx", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+
+    { &hf_msg_tx_in,
+      { "Transaction input", "bitcoin.tx.in", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &hf_msg_tx_version,
-      { "Transaction version", "bitcoin.tx.version", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    { &hf_msg_tx_in_prev_output,
+      { "Previous output", "bitcoin.tx.in.prev_output", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    /* tx message - input */
+
+    { &hf_msg_tx_in_prev_outp_hash,
+      { "Hash", "bitcoin.tx.in.prev_output.hash", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_msg_tx_in_prev_outp_index,
+      { "Index", "bitcoin.tx.in.prev_output.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
+
     { &hf_msg_tx_in_script8,
       { "Script Length", "bitcoin.tx.in.script_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
@@ -1019,12 +1117,14 @@ proto_register_bitcoin(void)
     { &hf_msg_tx_in_script64,
       { "Script Length", "bitcoin.tx.in.script_length", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &hf_msg_tx_in,
-      { "Transaction input", "bitcoin.tx.in", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    { &hf_msg_tx_in_sig_script,
+      { "Signature script", "bitcoin.tx.in.sig_script", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
-    { &hf_msg_tx_in_prev_output,
-      { "Previous output", "bitcoin.tx.in.prev_output", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    { &hf_msg_tx_in_seq,
+      { "Sequence", "bitcoin.tx.in.seq", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
+
+    /* tx message - output */
     { &hf_msg_tx_out_count8,
       { "Output Count", "bitcoin.tx.output_count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
@@ -1037,28 +1137,28 @@ proto_register_bitcoin(void)
     { &hf_msg_tx_out_count64,
       { "Output Count", "bitcoin.tx.output_count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
-    { &hf_msg_tx_outp_hash,
-      { "Hash", "bitcoin.tx.in.prev_output.hash", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-    },
-    { &hf_msg_tx_outp_index,
-      { "Index", "bitcoin.tx.in.prev_output.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-    },
-    { &hf_msg_tx_in_sig_script,
-      { "Signature script", "bitcoin.tx.in.sig_script", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
-    },
-    { &hf_msg_tx_in_seq,
-      { "Sequence", "bitcoin.tx.in.seq", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-    },
-    /* tx message - output */
     { &hf_msg_tx_out,
       { "Transaction output", "bitcoin.tx.out", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_msg_tx_out_value,
       { "Value", "bitcoin.tx.out.value", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
+    { &hf_msg_tx_out_script8,
+      { "Script Length", "bitcoin.tx.out.script_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_msg_tx_out_script16,
+      { "Script Length", "bitcoin.tx.out.script_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_msg_tx_out_script32,
+      { "Script Length", "bitcoin.tx.out.script_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_msg_tx_out_script64,
+      { "Script Length", "bitcoin.tx.out.script_length", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }
+    },
     { &hf_msg_tx_out_script,
       { "Script", "bitcoin.tx.out.script", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
+
     { &hf_msg_tx_lock_time,
       { "Block lock time or block ID", "bitcoin.tx.lock_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
