@@ -7188,7 +7188,7 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 ta
           }
           break;
         }
-        case 3:   /* WME TSPEC Element */
+        case 2:   /* WME TSPEC Element */
         {
 
             proto_item *tsinfo_item;
