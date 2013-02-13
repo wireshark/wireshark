@@ -947,9 +947,9 @@ dissect_connparamrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
     proto_item_append_text(item, " LL Connection Events");
     slave_latency = tvb_get_letohs(tvb, offset);
 
-    if(slave_latency >= 500 || slave_latency > 10.0*tvb_get_letohs(tvb, offset+2)/(max_interval *1.25)) 
+    if(slave_latency >= 500 || slave_latency > 10.0*tvb_get_letohs(tvb, offset+2)/(max_interval *1.25))
         expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Parameter mismatch");
-    
+
     offset += 2;
     item = proto_tree_add_item(tree, hf_btl2cap_timeout_multiplier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_item_append_text(item, " (%g sec)",  tvb_get_letohs(tvb, offset)*0.01);
@@ -969,7 +969,7 @@ dissect_connparamresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
                     val_to_str_const(result, conn_param_result_vals, "Unknown result"));
-    
+
     return offset;
 }
 
@@ -1293,8 +1293,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     acl_data = (bthci_acl_data_t *)pinfo->private_data;
     l2cap_data = ep_alloc(sizeof(btl2cap_data_t));
 
-    l2cap_data->interface_id     = acl_data->interface_id;
-    l2cap_data->adapter_id       = acl_data->adapter_id;
+    l2cap_data->interface_id     = (acl_data)? acl_data->interface_id : 0;
+    l2cap_data->adapter_id       = (acl_data)? acl_data->adapter_id : 0;
     l2cap_data->chandle          = (acl_data)? acl_data->chandle : 0;
     l2cap_data->cid              = cid;
     l2cap_data->psm              = 0;
@@ -1410,7 +1410,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case 0x13: /* Connection Parameter Response */
                 offset  = dissect_connparamresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
                 break;
-                
+
             default:
                 proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_data, tvb, offset, -1, ENC_NA);
                 offset += tvb_reported_length_remaining(tvb, offset);
