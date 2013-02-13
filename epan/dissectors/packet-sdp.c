@@ -1903,12 +1903,22 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     }
 
     /* Free the remaining hash tables not used */
-    for (n = transport_info->media_count; n < SDP_MAX_RTP_CHANNELS; n++)
+    if (transport_info->media_count == -1)
     {
-      rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+      for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++)
+      {
+        rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+      }
     }
-
+    else
+    {
+      for (n = transport_info->media_count; n < SDP_MAX_RTP_CHANNELS; n++)
+      {
+        rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+      }
+    }
     transport_info->sdp_status = SDP_EXCHANGE_ANSWER_ACCEPT;
+
   } else if ((exchange_type == SDP_EXCHANGE_ANSWER_REJECT) &&
              (transport_info->sdp_status != SDP_EXCHANGE_ANSWER_REJECT)){
 
