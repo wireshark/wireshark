@@ -33,6 +33,7 @@
 #define LINUX_SLL_P_PPPHDLC	0x0007	/* PPP HDLC frames */
 #define LINUX_SLL_P_CAN		0x000C	/* Controller Area Network */
 #define LINUX_SLL_P_IRDA_LAP	0x0017	/* IrDA Link Access Protocol */
+#define LINUX_SLL_P_IEEE802154	0x00f6	/* 802.15.4 on monitor inteface */
 
 void capture_sll(const guchar *, int, packet_counts *);
 

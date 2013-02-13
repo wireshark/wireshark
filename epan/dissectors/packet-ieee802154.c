@@ -83,6 +83,7 @@
 
 #include "packet-ieee802154.h"
 #include "packet-frame.h"   /* For Exception Handling */
+#include "packet-sll.h"
 
 /* Dissection Options for dissect_ieee802154_common */
 #define DISSECT_IEEE802154_OPTION_CC24xx    0x00000001  /* FCS field contains a TI CC24xx style FCS. */
@@ -2798,6 +2799,7 @@ void proto_reg_handoff_ieee802154(void)
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NONASK_PHY, ieee802154_nonask_phy_handle);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NOFCS, ieee802154_nofcs_handle);
+        dissector_add_uint("sll.ltype", LINUX_SLL_P_IEEE802154, ieee802154_handle);
 
         prefs_initialized = TRUE;
     } else {
