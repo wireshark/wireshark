@@ -37,6 +37,10 @@
 void *
 wmem_alloc(wmem_allocator_t *allocator, const size_t size)
 {
+    if (allocator == NULL) {
+        return g_malloc(size);
+    }
+
     if (size == 0) {
         return NULL;
     }
@@ -61,6 +65,11 @@ wmem_alloc0(wmem_allocator_t *allocator, const size_t size)
 void
 wmem_free(wmem_allocator_t *allocator, void *ptr)
 {
+    if (allocator == NULL) {
+        g_free(ptr);
+        return;
+    }
+
     if (ptr == NULL) {
         return;
     }
@@ -71,6 +80,10 @@ wmem_free(wmem_allocator_t *allocator, void *ptr)
 void *
 wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
 {
+    if (allocator == NULL) {
+        return g_realloc(ptr, size);
+    }
+
     if (ptr == NULL) {
         return wmem_alloc(allocator, size);
     }
