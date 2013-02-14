@@ -1905,12 +1905,11 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             /* Print "Count", "On Time" and "Off Time" to tree */
             proto_tree_add_text(point_tree, tvb, data_pos - 9, 9,
                "[Count: %u] [On-Time: %u] [Off-Time: %u]",
-                   al_ctlobj_count, al_ctlobj_on, al_ctlobj_off, ctl_status_str);
+                   al_ctlobj_count, al_ctlobj_on, al_ctlobj_off);
 
             /* Get "Control Status" Field */
             al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
             proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
-            ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
             data_pos += 1;
 
 
