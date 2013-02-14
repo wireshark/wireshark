@@ -23,6 +23,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include <glib.h>
 
@@ -34,13 +35,14 @@ typedef struct _wmem_slab_chunk_t {
 } wmem_slab_chunk_t;
 
 struct _wmem_slab_t {
+    gboolean           debug;
     size_t             chunk_size;
     wmem_slab_chunk_t *free_list;
 
     wmem_allocator_t  *allocator;
 };
 
-/* arbitrary, nice round value */
+/* arbitrary, nice power-of-two value */
 #define WMEM_CHUNKS_PER_ALLOC 8
 
 static void
@@ -68,6 +70,10 @@ wmem_slab_alloc(wmem_slab_t *slab)
 {
     wmem_slab_chunk_t *chunk;
 
+    if (slab->debug) {
+        return wmem_alloc(slab->allocator, slab->chunk_size);
+    }
+
     if (slab->free_list == NULL) {
         wmem_slab_alloc_chunks(slab);
     }
@@ -83,6 +89,11 @@ wmem_slab_free(wmem_slab_t *slab, void *object)
 {
     wmem_slab_chunk_t *chunk;
     chunk = (wmem_slab_chunk_t *) object;
+
+    if (slab->debug) {
+        wmem_free(slab->allocator, chunk);
+        return;
+    }
 
     chunk->next = slab->free_list;
     slab->free_list = chunk;
@@ -100,6 +111,7 @@ wmem_slab_new(wmem_allocator_t *allocator, const size_t chunk_size)
                             sizeof(wmem_slab_chunk_t);
     slab->free_list  = NULL;
     slab->allocator  = allocator;
+    slab->debug      = getenv("WIRESHARK_DEBUG_WMEM_SLAB") ? TRUE : FALSE;
 
     return slab;
 }

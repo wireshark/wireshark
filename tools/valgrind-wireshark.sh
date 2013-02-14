@@ -80,6 +80,7 @@ fi
 export WIRESHARK_DEBUG_EP_NO_CHUNKS=
 export WIRESHARK_DEBUG_SE_NO_CHUNKS=
 export WIRESHARK_DEBUG_WMEM_OVERRIDE=simple
+export WIRESHARK_DEBUG_WMEM_SLAB=
 export WIRESHARK_DEBUG_USE_SLICES=
 export G_SLICE=always-malloc # or debug-blocks
 

@@ -67,6 +67,7 @@ export WIRESHARK_EP_VERIFY_POINTERS=
 export WIRESHARK_SE_VERIFY_POINTERS=
 # Use the Wmem strict allocator which does canaries and scrubbing etc.
 export WIRESHARK_DEBUG_WMEM_OVERRIDE=strict
+export WIRESHARK_DEBUG_WMEM_SLAB=
 
 # Turn on GLib memory debugging (since 2.13)
 export G_SLICE=debug-blocks
