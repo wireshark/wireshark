@@ -7131,11 +7131,11 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 ta
       subtype = tvb_get_guint8(tvb, offset);
       proto_item_append_text(tree, ": %s", val_to_str(subtype, ieee802111_wfa_ie_wme_type, "Unknown %d"));
       offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_version, tvb, offset, 1, ENC_NA);
+      offset += 1;
       switch (subtype) {
         case 0: /* WME Information Element */
         {
-          proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_version, tvb, offset, 1, ENC_NA);
-          offset += 1;
           /* WME QoS Info Field */
           offset = dissect_qos_info(tree, tvb, offset, ftype);
           break;
@@ -7143,8 +7143,6 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 ta
         case 1: /* WME Parameter Element */
         {
           int i;
-          proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_version, tvb, offset, 1, ENC_NA);
-          offset += 1;
           /* WME QoS Info Field */
           offset = dissect_qos_info(tree, tvb, offset, ftype);
           proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_reserved, tvb, offset, 1, ENC_NA);
