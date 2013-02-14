@@ -1740,6 +1740,12 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
   if (exchange_type != SDP_EXCHANGE_OFFER)
     se_tree_insert32(sdp_transport_rsps, pinfo->fd->num, (void *)transport_info);
 
+  /* Offer has already been rejected and hash tables freed, so
+   * don't try to add to it 
+   * XXX - Need to support "modified offers" */
+  if (transport_info->sdp_status == SDP_EXCHANGE_ANSWER_REJECT)
+      return;
+
   if (transport_info->media_count > 0)
     start_transport_info_count = transport_info->media_count;
 
@@ -2150,7 +2156,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (transport_info == &local_transport_info)
     convert_disposable_media(transport_info, &media_info, 0);
 
-  for (n = 0; n < transport_info->media_count; n++)
+  for (n = 0; n < local_transport_info.media_count; n++)
   {
     set_rtp = FALSE;
 

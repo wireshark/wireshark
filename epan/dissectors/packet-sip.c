@@ -3142,9 +3142,14 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					if (line_type == REQUEST_LINE) {
 						setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_OFFER, pinfo->fd->num);
 					} else if (line_type == STATUS_LINE) {
-						setup_sdp_transport(next_tvb, pinfo, 
-							((stat_info->response_code == 200)||(stat_info->response_code == 180)||(stat_info->response_code == 183)) ? SDP_EXCHANGE_ANSWER_ACCEPT : SDP_EXCHANGE_ANSWER_REJECT, 
-							request_for_response);
+						if (stat_info->response_code > 400) {
+							/* SIP client request failed, so SDP offer should fail */
+							setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_REJECT, request_for_response);
+						}
+						else if ((stat_info->response_code >= 200) && (stat_info->response_code <= 299)) {
+							/* SIP success request, so SDP offer should be accepted */
+							setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_ACCEPT, request_for_response);
+						}
 					}
 				} else {
 					setup_sdp_transport_resend(pinfo->fd->num, resend_for_packet);
