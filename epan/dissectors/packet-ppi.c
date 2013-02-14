@@ -536,7 +536,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     ptvcursor_add(csr, hf_80211_common_fhss_pattern, 1, ENC_LITTLE_ENDIAN);
 
     if (check_col(pinfo->cinfo, COL_RSSI)) {
-        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d",
+        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm",
             (gint8) tvb_get_guint8(tvb, ptvcursor_current_offset(csr)));
     }
     ptvcursor_add_invalid_check(csr, hf_80211_common_dbm_antsignal, 1, 0x80); /* -128 */
