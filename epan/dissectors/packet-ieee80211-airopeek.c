@@ -72,8 +72,7 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(airopeek_tree, hf_channel, tvb, 1, 1, ENC_NA);
 
   signal_level = tvb_get_guint8(tvb, 2);
-  /* XX - this is a percentage, not a dBm or normalized or raw RSSI */
-  col_add_fstr(pinfo->cinfo, COL_RSSI, "%u", signal_level);
+  col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%", signal_level);
   if (tree) {
     proto_tree_add_uint_format(airopeek_tree, hf_signal_strength, tvb, 2, 1,
                                signal_level,

@@ -59,8 +59,7 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
         pinfo->pseudo_header->ieee_802_11.data_rate / 2,
         pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
-    /* XX - this is a percentage, not a dBm or normalized or raw RSSI */
-  col_add_fstr(pinfo->cinfo, COL_RSSI, "%u",
+  col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%",
         pinfo->pseudo_header->ieee_802_11.signal_level);
 
   if (tree) {
