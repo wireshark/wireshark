@@ -60,9 +60,19 @@ extern const value_string bthci_cmd_page_scan_period_modes[];
 extern const value_string bthci_cmd_notification_types[];
 
 
+/* We support Bluetooth over various interfaces, interface_id and adapter_id
+   is used to decode further payload. Case: there is a host. Host has X
+   interfaces. Each interface has Y adapter. Each adapter has ACL handle or
+   L2CAP CID. ACL handle has L2CAP CID and/or L2CAP PSM. L2CAP CID or
+   L2CAP PSM has RFCOMM channel or other end-protocol like OBEX, AVRCP, HID,
+   AVDTP, BNEP etc. RFCOMM channel has end-protocol like OBEX, HFP, etc.
+   Important note: correct payload decoding should store needed data using
+   key contain interface_id, adapter_id, ..., last_channel_type (for example
+   RFCOMM channel, transaction_id, frame number etc. ) */
 #define HCI_INTERFACE_H1   0
 #define HCI_INTERFACE_H4   1
 #define HCI_INTERFACE_USB  2
+#define HCI_INTERFACE_AMP  3
 
 #define HCI_ADAPTER_DEFAULT 0
 

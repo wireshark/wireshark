@@ -33,6 +33,7 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 
+#include "packet-bluetooth-hci.h"
 #include "packet-bthci_acl.h"
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
@@ -1293,8 +1294,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     acl_data = (bthci_acl_data_t *)pinfo->private_data;
     l2cap_data = ep_alloc(sizeof(btl2cap_data_t));
 
-    l2cap_data->interface_id     = (acl_data)? acl_data->interface_id : 0;
-    l2cap_data->adapter_id       = (acl_data)? acl_data->adapter_id : 0;
+    l2cap_data->interface_id     = (acl_data)? acl_data->interface_id : HCI_INTERFACE_AMP;
+    l2cap_data->adapter_id       = (acl_data)? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
     l2cap_data->chandle          = (acl_data)? acl_data->chandle : 0;
     l2cap_data->cid              = cid;
     l2cap_data->psm              = 0;
