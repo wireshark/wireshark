@@ -113,7 +113,7 @@ layout_preferences_frame.cpp layout_preferences_frame.h: ui_layout_preferences_f
 
 main_welcome.cpp main_welcome.h: ui_main_welcome.h
 
-main_window.cpp main_window.h: ui_main_window.h
+main_window.cpp main_window_slots.cpp main_window.h: ui_main_window.h
 
 main_window_preferences_frame.cpp main_window_preferences_frame.h: ui_main_window_preferences_frame.h
 
