@@ -285,15 +285,15 @@
 #define AL_OBJCTLC_CODE4   0x04    /* xxxx0100 Latch Off */
                         /* 0x05-0x15  Reserved */
 
-#define AL_OBJCTLC_QUEUE   0x10    /* xxx1xxxx for Control Code, Clear Field 'Queue' */
-#define AL_OBJCTLC_CLEAR   0x20    /* xx1xxxxx for Control Code, Clear Field 'Clear' */
-#define AL_OBJCTLC_NOTSET  0x00    /* xxxxxxxx for Control Code, Clear and Queue not set */
-#define AL_OBJCTLC_BOTHSET 0x30    /* xx11xxxx for Control Code, Clear and Queue both set */
+#define AL_OBJCTLC_NOTSET  0x00    /* xx00xxxx for Control Code, Clear and Queue not set */
+#define AL_OBJCTLC_QUEUE   0x01    /* xxx1xxxx for Control Code, Clear Field 'Queue' */
+#define AL_OBJCTLC_CLEAR   0x02    /* xx1xxxxx for Control Code, Clear Field 'Clear' */
+#define AL_OBJCTLC_BOTHSET 0x03    /* xx11xxxx for Control Code, Clear and Queue both set */
 
 #define AL_OBJCTLC_TC0     0x00    /* 00xxxxxx NUL */
-#define AL_OBJCTLC_TC1     0x40    /* 01xxxxxx Close */
-#define AL_OBJCTLC_TC2     0x80    /* 10xxxxxx Trip */
-#define AL_OBJCTLC_TC3     0xC0    /* 11xxxxxx Reserved */
+#define AL_OBJCTLC_TC1     0x01    /* 01xxxxxx Close */
+#define AL_OBJCTLC_TC2     0x02    /* 10xxxxxx Trip */
+#define AL_OBJCTLC_TC3     0x03    /* 11xxxxxx Reserved */
 
 #define AL_OBJCTL_STAT0    0x00    /* Request Accepted, Initiated or Queued */
 #define AL_OBJCTL_STAT1    0x01    /* Request Not Accepted; Arm-timer expired */
@@ -1873,6 +1873,13 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                                                                          dnp3_al_ctlc_code_vals,
                                                                          "Invalid Operation"));
 
+            /* Add Trip/Close qualifier (if applicable) to previously appended quick visual reference */
+            proto_item_append_text(point_item, " [%s]", val_to_str_const((al_tcc_code & AL_OBJCTLC_TC) >> 6,
+                                                                         dnp3_al_ctlc_tc_vals,
+                                                                         "Invalid Qualifier"));
+
+
+
             /* Control Code 'Operation Type' */
             proto_tree_add_item(tcc_tree, hf_dnp3_ctlobj_code_c, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
 
@@ -1881,11 +1888,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
             /* Control Code 'Trip Close Code' */
             proto_tree_add_item(tcc_tree, hf_dnp3_ctlobj_code_tc, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
-            data_pos += 1;
-
-            al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
-            proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
-            ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
             data_pos += 1;
 
             /* Get "Count" Field */
@@ -1900,9 +1902,17 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             al_ctlobj_off = tvb_get_letohl(tvb, data_pos);
             data_pos += 4;
 
+            /* Print "Count", "On Time" and "Off Time" to tree */
             proto_tree_add_text(point_tree, tvb, data_pos - 9, 9,
-               "  [Count: %u] [On-Time: %u] [Off-Time: %u] [Status: %s (0x%02x)]",
-                   al_ctlobj_count, al_ctlobj_on, al_ctlobj_off, ctl_status_str, al_ctlobj_stat);
+               "[Count: %u] [On-Time: %u] [Off-Time: %u]",
+                   al_ctlobj_count, al_ctlobj_on, al_ctlobj_off, ctl_status_str);
+
+            /* Get "Control Status" Field */
+            al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
+            proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+            ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
+            data_pos += 1;
+
 
             proto_item_set_len(point_item, data_pos - offset);
 
