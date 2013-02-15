@@ -434,7 +434,7 @@ WSLUA_METHOD Column_append(lua_State *L) {
     return 0;
 }
 
-WSLUA_METHOD Column_preppend(lua_State *L) {
+WSLUA_METHOD Column_prepend(lua_State *L) {
 	/* Prepends text to a Column */
 #define WSLUA_ARG_Column_prepend_TEXT 2 /* The text to prepend to the Column */
     Column c = checkColumn(L,1);
@@ -455,7 +455,8 @@ WSLUA_METHODS Column_methods[] = {
     {"clear", Column_clear },
     {"set", Column_set },
     {"append", Column_append },
-    {"preppend", Column_preppend },
+    {"prepend", Column_prepend },
+    {"preppend", Column_prepend },
     {0,0}
 };
 
