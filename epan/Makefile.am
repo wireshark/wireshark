@@ -168,6 +168,8 @@ diam_dict_lex.h: diam_dict.c
 
 dtd_parse_lex.h: dtd_parse.c
 
+dtd_parse.lo: dtd_grammar.h
+
 dtd_preparse_lex.h: dtd_preparse.c
 
 radius_dict_lex.h: radius_dict.c

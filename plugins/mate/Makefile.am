@@ -136,9 +136,11 @@ EXTRA_DIST = \
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 
+LEMON = $(top_builddir)/tools/lemon
+
 mate_parser_lex.h : mate_parser.c
 
-LEMON = $(top_builddir)/tools/lemon
+mate_parser.lo : mate_grammar.h
 
 mate_grammar.h : mate_grammar.c
 mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
