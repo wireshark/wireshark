@@ -5797,8 +5797,8 @@ static int hf_ncp_message_size = -1;
 static int hf_ncp_nds_flag = -1;
 static int hf_ncp_nds_verb = -1;
 static int hf_ping_version = -1;
-static int hf_nds_version = -1;
-static int hf_nds_flags = -1;
+/* static int hf_nds_version = -1; */
+/* static int hf_nds_flags = -1; */
 static int hf_nds_reply_depth = -1;
 static int hf_nds_reply_rev = -1;
 static int hf_nds_reply_flags = -1;
@@ -6050,9 +6050,9 @@ static int hf_replica_number = -1;
 static int hf_min_nds_ver = -1;
 static int hf_nds_ver_include = -1;
 static int hf_nds_ver_exclude = -1;
-static int hf_nds_es = -1;
+/* static int hf_nds_es = -1; */
 static int hf_es_type = -1;
-static int hf_delim_string = -1;
+/* static int hf_delim_string = -1; */
 static int hf_rdn_string = -1;
 static int hf_nds_revent = -1;
 static int hf_nds_rnum = -1;
@@ -6091,10 +6091,10 @@ static int hf_sub_count = -1;
 static int hf_nds_revision = -1;
 static int hf_nds_base_class = -1;
 static int hf_nds_relative_dn = -1;
-static int hf_nds_root_dn = -1;
-static int hf_nds_parent_dn = -1;
+/* static int hf_nds_root_dn = -1; */
+/* static int hf_nds_parent_dn = -1; */
 static int hf_deref_base = -1;
-static int hf_nds_entry_info = -1;
+/* static int hf_nds_entry_info = -1; */
 static int hf_nds_base = -1;
 static int hf_nds_privileges = -1;
 static int hf_nds_vflags = -1;
@@ -6237,7 +6237,7 @@ static int hf_ndsprot15flag = -1;
 static int hf_ndsprot16flag = -1;
 static int hf_nds_svr_dst_name = -1;
 static int hf_nds_tune_mark = -1;
-static int hf_nds_create_time = -1;
+/* static int hf_nds_create_time = -1; */
 static int hf_srvr_param_number = -1;
 static int hf_srvr_param_boolean = -1;
 static int hf_srvr_param_string = -1;
@@ -6260,7 +6260,7 @@ static int hf_nds_entry_privilege_not_defined = -1;
 static int hf_nds_iterator = -1;
 static int hf_ncp_nds_iterverb = -1;
 static int hf_iter_completion_code = -1;
-static int hf_nds_iterobj = -1;
+/* static int hf_nds_iterobj = -1; */
 static int hf_iter_verb_completion_code = -1;
 static int hf_iter_ans = -1;
 static int hf_positionable = -1;
@@ -6269,7 +6269,7 @@ static int hf_num_to_skip = -1;
 static int hf_timelimit = -1;
 static int hf_iter_index = -1;
 static int hf_num_to_get = -1;
-static int hf_ret_info_type = -1;
+/* static int hf_ret_info_type = -1; */
 static int hf_data_size = -1;
 static int hf_this_count = -1;
 static int hf_max_entries = -1;
@@ -6768,8 +6768,10 @@ proto_register_ncp2222(void)
 	{ &hf_ping_version,
 	{ "NDS Version", "ncp.ping_version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
+#if 0 /* Unused ? */
 	{ &hf_nds_version,
 	{ "NDS Version", "ncp.nds_version", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+#endif
 
 	{ &hf_nds_tree_name,
 	{ "Tree Name", "ncp.nds_tree_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -6806,8 +6808,10 @@ proto_register_ncp2222(void)
 	{ &hf_ncp_req_frame_time,
 	{ "Time from Request", "ncp.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, "Time between request and response in seconds", HFILL }},
 
+#if 0 /* Unused ? */
 	{ &hf_nds_flags,
 	{ "NDS Return Flags", "ncp.nds_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+#endif
 
 	{ &hf_nds_reply_depth,
 	{ "Distance from Root", "ncp.ndsdepth", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7602,8 +7606,10 @@ proto_register_ncp2222(void)
 	{ &hf_nds_ver_exclude,
 	{ "Exclude NDS Version", "ncp.exc_nds_ver", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+#if 0 /* Unused ? */
 	{ &hf_nds_es,
 	{ "Input Entry Specifier", "ncp.nds_es", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+#endif
 
  	{ &hf_es_type,
 	{ "Entry Specifier Type", "ncp.nds_es_type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -7611,8 +7617,10 @@ proto_register_ncp2222(void)
  	{ &hf_rdn_string,
 	{ "RDN", "ncp.nds_rdn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+#if 0 /* Unused ? */
  	{ &hf_delim_string,
 	{ "Delimiter", "ncp.nds_delim", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#endif
 
 	{ &hf_nds_dn_output_type,
 	{ "Output Entry Specifier Type", "ncp.nds_out_es_type", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -7686,11 +7694,15 @@ proto_register_ncp2222(void)
 	{ &hf_nds_relative_dn,
 	{ "Relative Distinguished Name", "ncp.nds_relative_dn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+#if 0 /* Unused ? */
 	{ &hf_nds_root_dn,
 	{ "Root Distinguished Name", "ncp.nds_root_dn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#endif
 
+#if 0 /* Unused ? */
 	{ &hf_nds_parent_dn,
 	{ "Parent Distinguished Name", "ncp.nds_parent_dn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+#endif
 
 	{ &hf_deref_base,
 	{ "Dereference Base Class", "ncp.nds_deref_base", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -7701,8 +7713,10 @@ proto_register_ncp2222(void)
 	{ &hf_nds_super,
 	{ "Super Class", "ncp.nds_super", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+#if 0 /* Unused ? */
 	{ &hf_nds_entry_info,
 	{ "Entry Information", "ncp.nds_entry_info", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+#endif
 
 	{ &hf_nds_privileges,
 	{ "Privileges", "ncp.nds_privileges", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -8171,8 +8185,10 @@ proto_register_ncp2222(void)
 	{ &hf_nds_tune_mark,
 	{ "Tune Mark",	"ncp.ndstunemark", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+#if 0 /* Unused ? */
 	{ &hf_nds_create_time,
 	{ "NDS Creation Time",	"ncp.ndscreatetime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
+#endif
 
 	{ &hf_srvr_param_string,
 	{ "Set Parameter Value", "ncp.srvr_param_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -8192,8 +8208,10 @@ proto_register_ncp2222(void)
    	{ &hf_iter_completion_code,
 	{ "Iteration Completion Code", "ncp.iter_completion_code", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+#if 0 /* Unused ? */
 	{ &hf_nds_iterobj,
 	{ "Iterator Object", "ncp.ndsiterobj", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+#endif
 
    	{ &hf_iter_verb_completion_code,
 	{ "Completion Code", "ncp.iter_verb_completion_code", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -8219,8 +8237,10 @@ proto_register_ncp2222(void)
 	{ &hf_num_to_get,
 	{ "Number to Get", "ncp.iternumtoget", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+#if 0 /* Unused ? */
 	{ &hf_ret_info_type,
 	{ "Return Information Type", "ncp.iterretinfotype", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+#endif
 
 	{ &hf_data_size,
 	{ "Data Size", "ncp.iterdatasize", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
