@@ -1506,7 +1506,6 @@ dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
 {
     proto_item *item       = NULL;
     proto_tree *tree       = NULL;
-    int         old_offset = offset;
     guint8      bLength;
 
     if (parent_tree) {
@@ -1514,31 +1513,12 @@ dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
         tree = proto_item_add_subtree(item, ett_descriptor_device);
     }
 
-    /* bLength */
-    proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     bLength = tvb_get_guint8(tvb, offset);
-    offset += 1;
-    if (bLength < 3) {
-        if (item) {
-            proto_item_set_len(item, offset-old_offset);
-        }
-
-        item = proto_tree_add_text(parent_tree, tvb, offset - 1, 1,
-            "Invalid bLength: %u",  bLength);
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-            "Invalid bLength: %u",  bLength);
-
-        return offset;
-    }
-
-    /* bDescriptorType */
-    proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset += 1;
-
-    offset += bLength - 2;
+    dissect_usb_descriptor_header(tree, tvb, offset);
+    offset += bLength;
 
     if (item) {
-        proto_item_set_len(item, offset-old_offset);
+        proto_item_set_len(item, bLength);
     }
 
     return offset;
@@ -1572,6 +1552,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     guint8      flags;
     proto_item *power_item;
     guint8      power;
+    gboolean    truncation_expected;
 
     usb_conv_info->interfaceClass    = IF_CLASS_UNKNOWN;
     usb_conv_info->interfaceSubclass = IF_SUBCLASS_UNKNOWN;
@@ -1623,14 +1604,38 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     /* initialize interface_info to NULL */
     usb_trans_info->interface_info = NULL;
 
+    truncation_expected = (usb_trans_info->setup.wLength < len);
+
     /* decode any additional interface and endpoint descriptors */
     while(len>(offset-old_offset)) {
         guint8 next_type;
+        guint8 next_len = 0;
+        gint remaining_tvb, remaining_len;
         tvbuff_t *next_tvb = NULL;
 
-        if (tvb_length_remaining(tvb, offset)<2) {
+        /* Handle truncated descriptors appropriately */
+        remaining_tvb = tvb_length_remaining(tvb, offset);
+        if (remaining_tvb > 0) {
+            next_len  = tvb_get_guint8(tvb, offset);
+            remaining_len = len - (offset - old_offset);
+            if ((next_len < 3) || (next_len > remaining_len)) {
+                item = proto_tree_add_text(parent_tree, tvb, offset, 1,
+                    "Invalid descriptor length: %u",  next_len);
+                proto_item_set_len(item, 1);
+                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+                    "Invalid descriptor length: %u",  next_len);
+                item = NULL;
+                break;
+            }
+        }
+
+        if ((remaining_tvb == 0) || (next_len > remaining_tvb)) {
+            if (!truncation_expected) {
+                THROW(ReportedBoundsError);
+            }
             break;
         }
+
         next_type = tvb_get_guint8(tvb, offset+1);
         switch(next_type) {
         case USB_DT_INTERFACE:
@@ -1645,7 +1650,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
         default:
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             if (dissector_try_uint(usb_descriptor_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent_tree)) {
-                offset += tvb_get_guint8(next_tvb, 0);
+                offset += next_len;
             } else {
                 offset = dissect_usb_unknown_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
             }
@@ -2491,6 +2496,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 usb_trans_info->setup.request = tvb_get_guint8(tvb, offset);
                 usb_trans_info->setup.wValue  = tvb_get_letohs(tvb, offset+1);
                 usb_trans_info->setup.wIndex  = tvb_get_letohs(tvb, offset+3);
+                usb_trans_info->setup.wLength = tvb_get_letohs(tvb, offset+5);
 
                 if (type_2 != RQT_SETUP_TYPE_CLASS) {
                     tap_queue_packet(usb_tap, pinfo, tap_data);

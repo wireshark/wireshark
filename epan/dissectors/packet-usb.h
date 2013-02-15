@@ -51,6 +51,7 @@ typedef struct _usb_trans_info_t {
         guint8 request;
         guint16 wValue;
         guint16 wIndex;
+        guint16 wLength;
     } setup;
 
     /* Valid only during GET DESCRIPTOR transactions */
