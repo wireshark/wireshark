@@ -59,6 +59,7 @@ static int hf_catapult_dct2000_direction = -1;
 static int hf_catapult_dct2000_encap = -1;
 static int hf_catapult_dct2000_unparsed_data = -1;
 static int hf_catapult_dct2000_comment = -1;
+static int hf_catapult_dct2000_sprint = -1;
 static int hf_catapult_dct2000_error_comment = -1;
 static int hf_catapult_dct2000_tty = -1;
 static int hf_catapult_dct2000_tty_line = -1;
@@ -2102,7 +2103,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissector_handle_t  heur_protocol_handle = 0;
     int                 sub_dissector_result = 0;
     const char         *protocol_name;
-    gboolean            is_comment;
+    gboolean            is_comment, is_sprint = FALSE;
 
     /* Set Protocol */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCT2000");
@@ -2155,12 +2156,15 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             offset, protocol_length, ENC_ASCII|ENC_NA);
     }
     is_comment = (strcmp(protocol_name, "comment") == 0);
+    if (!is_comment) {
+        is_sprint = (strcmp(protocol_name, "sprint") == 0);
+    }
     offset += protocol_length;
 
 
     /* Protocol Variant */
     variant_string = tvb_get_const_stringz(tvb, offset, &variant_length);
-    if (!is_comment) {
+    if (!is_comment && !is_sprint) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
                             offset, variant_length, ENC_ASCII|ENC_NA);
     }
@@ -2168,7 +2172,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Outhdr (shown as string) */
     outhdr_string = tvb_get_const_stringz(tvb, offset, &outhdr_length);
-    if (!is_comment && (outhdr_length > 1)) {
+    if (!is_comment && !is_sprint && (outhdr_length > 1)) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_outhdr, tvb,
                             offset, outhdr_length, ENC_ASCII|ENC_NA);
     }
@@ -2184,7 +2188,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset++;
 
     /* Read frame encapsulation set by wiretap */
-    if (!is_comment) {
+    if (!is_comment && !is_sprint) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_encap, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     encap = tvb_get_guint8(tvb, offset);
@@ -2472,6 +2476,19 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     expert_add_info_format(pinfo, string_ti, PI_SEQUENCE, PI_ERROR,
                                           "%s", string);
                 }
+
+                return;
+            }
+
+            else
+            if (strcmp(protocol_name, "sprint") == 0) {
+                /* Extract & add the string. */
+                char *string = (char*)tvb_get_ephemeral_string(tvb, offset, tvb_length_remaining(tvb, offset));
+
+                /* Show sprint string */
+                proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_sprint, tvb,
+                                                offset, -1, ENC_ASCII|ENC_NA);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", string);
 
                 return;
             }
@@ -2920,6 +2937,12 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_comment,
             { "Comment",
               "dct2000.comment", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_sprint,
+            { "Sprint text",
+              "dct2000.sprint", FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },

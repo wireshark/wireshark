@@ -128,7 +128,7 @@ static gboolean parse_line(char *linebuff, gint line_length,
                            long *data_offset,
                            gint *data_chars,
                            packet_direction_t *direction,
-                           int *encap, int *is_comment,
+                           int *encap, int *is_comment, int *is_sprint,
                            gchar *aal_header_chars,
                            gchar *context_name, guint8 *context_portp,
                            gchar *protocol_name, gchar *variant_name,
@@ -357,6 +357,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
     while (1) {
         int line_length, seconds, useconds, data_chars;
         int is_comment = FALSE;
+        int is_sprint = FALSE;
         gint64 this_offset = offset;
         static gchar linebuff[MAX_LINE_LENGTH+1];
         gchar aal_header_chars[AAL_HEADER_CHARS];
@@ -385,7 +386,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
         if (parse_line(linebuff, line_length, &seconds, &useconds,
                        &before_time_offset, &after_time_offset,
                        &dollar_offset,
-                       &data_chars, &direction, &encap, &is_comment,
+                       &data_chars, &direction, &encap, &is_comment, &is_sprint,
                        aal_header_chars,
                        context_name, &context_port,
                        protocol_name, variant_name, outhdr_name)) {
@@ -520,6 +521,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     gchar variant_name[MAX_VARIANT_DIGITS+1];
     gchar outhdr_name[MAX_OUTHDR_NAME+1];
     int  is_comment = FALSE;
+    int  is_sprint = FALSE;
     packet_direction_t direction;
     int encap;
     int seconds, useconds, data_chars;
@@ -551,7 +553,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     if (parse_line(linebuff, length, &seconds, &useconds,
                    &before_time_offset, &after_time_offset,
                    &dollar_offset,
-                   &data_chars, &direction, &encap, &is_comment,
+                   &data_chars, &direction, &encap, &is_comment, &is_sprint,
                    aal_header_chars,
                    context_name, &context_port,
                    protocol_name, variant_name, outhdr_name)) {
@@ -685,6 +687,7 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     line_prefix_info_t *prefix = NULL;
     gchar time_string[16];
     gboolean is_comment;
+    gboolean is_sprint = FALSE;
     dct2000_dump_t *dct2000;
     int consecutive_slashes=0;
     char *p_c;
@@ -803,6 +806,9 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     n++;
 
     /* Protocol name */
+    if (is_comment) {
+        is_sprint = strcmp(pd+n, "sprint") == 0;
+    }
     for (; pd[n] != '\0'; n++);
     n++;
 
@@ -820,7 +826,7 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /**************************************/
     /* Remainder is encapsulated protocol */
-    if (!wtap_dump_file_write(wdh, "$", 1, err)) {
+    if (!wtap_dump_file_write(wdh, is_sprint ? " " : "$", 1, err)) {
         return FALSE;
     }
 
@@ -913,7 +919,7 @@ parse_line(gchar *linebuff, gint line_length,
            long *before_time_offset, long *after_time_offset,
            long *data_offset, gint *data_chars,
            packet_direction_t *direction,
-           int *encap, int *is_comment,
+           int *encap, int *is_comment, int *is_sprint,
            gchar *aal_header_chars,
            gchar *context_name, guint8 *context_portp,
            gchar *protocol_name, gchar *variant_name,
@@ -935,6 +941,7 @@ parse_line(gchar *linebuff, gint line_length,
     gboolean atm_header_present = FALSE;
 
     *is_comment = FALSE;
+    *is_sprint = FALSE;
 
     /* Read context name until find '.' */
     for (n=0; (linebuff[n] != '.') && (n < MAX_CONTEXT_NAME) && (n+1 < line_length); n++) {
@@ -1306,16 +1313,26 @@ parse_line(gchar *linebuff, gint line_length,
         return FALSE;
     }
 
-    *after_time_offset = n;
+    *after_time_offset = n++;
 
-    /* Now skip ahead to find start of data (marked by '$') */
-    /* Want to avoid matching with normal sprint command output at the moment... */
-    for (; (linebuff[n] != '$') && (linebuff[n] != '\'') && (n+1 < line_length); n++);
-    if ((linebuff[n] == '\'') || (n+1 >= line_length)) {
-        return FALSE;
+    /* If we have a string message, it could either be a comment (with '$') or
+       a sprint line (no '$') */
+    if (*is_comment) {
+        if (strncmp(linebuff+n, "l $", 3) != 0) {
+            *is_sprint = TRUE;
+            g_strlcpy(protocol_name, "sprint", MAX_PROTOCOL_NAME);
+        }
     }
-    /* Skip it */
-    n++;
+    
+    if (!(*is_sprint)) {
+        /* Now skip ahead to find start of data (marked by '$') */
+        for (; (linebuff[n] != '$') && (linebuff[n] != '\'') && (n+1 < line_length); n++);
+        if ((linebuff[n] == '\'') || (n+1 >= line_length)) {
+            return FALSE;
+        }
+        /* Skip it */
+        n++;
+    }
 
     /* Set offset to data start within line */
     *data_offset = n;
