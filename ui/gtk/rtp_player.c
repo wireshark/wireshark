@@ -995,22 +995,26 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 		rci->cursor_pixbuf = gdk_pixbuf_get_from_drawable(NULL, rci->pixmap, NULL, (int) (idx/MULT), 0, 0, 0, 1, widget_alloc.height-HEIGHT_TIME_LABEL);
 		cr = gdk_cairo_create (rci->pixmap);
 #endif
-		cairo_set_line_width (cr, 1.0);
-		cairo_move_to(cr, idx/MULT, 0);
-		cairo_line_to(cr, idx/MULT, widget_alloc.height-HEIGHT_TIME_LABEL);
-		cairo_stroke(cr);
-		cairo_destroy(cr);
+		if (cr != NULL) {
+			cairo_set_line_width (cr, 1.0);
+			cairo_move_to(cr, idx/MULT, 0);
+			cairo_line_to(cr, idx/MULT, widget_alloc.height-HEIGHT_TIME_LABEL);
+			cairo_stroke(cr);
+			cairo_destroy(cr);
+		}
 
 		cr = gdk_cairo_create (gtk_widget_get_window(rci->draw_area));
+		if (cr != NULL) {
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, rci->surface, idx/MULT, 0);
+			cairo_set_source_surface (cr, rci->surface, idx/MULT, 0);
 #else
-		gdk_cairo_set_source_pixmap (cr, rci->pixmap, idx/MULT, 0);
+			gdk_cairo_set_source_pixmap (cr, rci->pixmap, idx/MULT, 0);
 #endif
-		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
-		cairo_rectangle (cr, idx/MULT, 0, 1, widget_alloc.height-HEIGHT_TIME_LABEL);
-		cairo_fill (cr);
-		cairo_destroy (cr);
+			cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
+			cairo_rectangle (cr, idx/MULT, 0, 1, widget_alloc.height-HEIGHT_TIME_LABEL);
+			cairo_fill (cr);
+			cairo_destroy (cr);
+		}
 	}
 
 	/* Disconnect the scroll bar "value" signal to not be called */
