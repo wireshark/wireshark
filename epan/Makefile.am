@@ -184,8 +184,6 @@ dtd_grammar.h: dtd_grammar.c
 dtd_grammar.c: $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
 	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
 
-dtd_grammar.h: dtd_grammar.c
-
 tvbtest.o exntest.o: exceptions.h
 
 sminmpec.c: enterprise-numbers ../tools/make-sminmpec.pl
