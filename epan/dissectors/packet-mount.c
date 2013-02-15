@@ -169,7 +169,7 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if(civ->request && (civ->proc==1)){
 			const gchar *host;
 			unsigned char *name;
-			int len;
+			guint32 len;
 			unsigned char *ptr;
 
 			host=ip_to_str(pinfo->dst.data);
