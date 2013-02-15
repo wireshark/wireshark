@@ -72,6 +72,16 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(airopeek_tree, hf_channel, tvb, 1, 1, ENC_NA);
 
   signal_level = tvb_get_guint8(tvb, 2);
+  /*
+   * This is signal strength as a percentage of the maximum, i.e.
+   * (RXVECTOR RSSI/RXVECTOR RSSI_Max)*100, or, at least, that's
+   * what I infer it is, given what the WildPackets note "Converting
+   * Signal Strength Percentage to dBm Values" says.
+   *
+   * It also says that the conversion the percentage to a dBm value is
+   * an adapter-dependent process, so, as we don't know what type of
+   * adapter was used to do the capture, we can't do the conversion.
+   */
   col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%", signal_level);
   if (tree) {
     proto_tree_add_uint_format(airopeek_tree, hf_signal_strength, tvb, 2, 1,
