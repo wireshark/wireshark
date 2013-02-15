@@ -6086,7 +6086,7 @@ fCharacterString (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         lvt -= (extra);
 
         do {
-            inbytesleft = l = MIN(lvt, 255);
+            inbytesleft = l = MIN(lvt, 256);
             /*
              * XXX - are we guaranteed that these encoding
              * names correspond, on *all* platforms with
