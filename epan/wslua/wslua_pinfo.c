@@ -433,22 +433,22 @@ static int Address_tipc(lua_State* L) {
 #endif
 
 WSLUA_METHODS Address_methods[] = {
-	{"ip", Address_ip },
-	{"ipv4", Address_ip },
+    WSLUA_CLASS_FNREG(Address,ip),
+    WSLUA_CLASS_FNREG_ALIAS(Address,ipv4,ip),
 #if 0
-    {"ipv6", Address_ipv6 },
-    {"ss7pc", Address_ss7 },
-    {"eth", Address_eth },
-    {"sna", Address_sna },
-    {"atalk", Address_atalk },
-    {"vines", Address_vines },
-    {"osi", Address_osi },
-    {"arcnet", Address_arcnet },
-    {"fc", Address_fc },
-    {"string", Address_string },
-    {"eui64", Address_eui64 },
-    {"uri", Address_uri },
-    {"tipc", Address_tipc },
+    WSLUA_CLASS_FNREG(Address,ipv6),
+    WSLUA_CLASS_FNREG_ALIAS(Address,ss7pc,ss7),
+    WSLUA_CLASS_FNREG(Address,eth),
+    WSLUA_CLASS_FNREG(Address,sna},
+    WSLUA_CLASS_FNREG(Address,atalk),
+    WSLUA_CLASS_FNREG(Address,vines),
+    WSLUA_CLASS_FNREG(Address,osi),
+    WSLUA_CLASS_FNREG(Address,arcnet),
+    WSLUA_CLASS_FNREG(Address,fc),
+    WSLUA_CLASS_FNREG(Address,string),
+    WSLUA_CLASS_FNREG(Address,eui64),
+    WSLUA_CLASS_FNREG(Address,uri),
+    WSLUA_CLASS_FNREG(Address,tipc),
 #endif
     {0,0}
 };
@@ -674,7 +674,7 @@ WSLUA_METHOD Column_append(lua_State *L) {
     return 0;
 }
 
-WSLUA_METHOD Column_preppend(lua_State *L) {
+WSLUA_METHOD Column_prepend(lua_State *L) {
 	/* Prepends text to a Column */
 #define WSLUA_ARG_Column_prepend_TEXT 2 /* The text to prepend to the Column */
     Column c = checkColumn(L,1);
@@ -692,10 +692,11 @@ WSLUA_METHOD Column_preppend(lua_State *L) {
 }
 
 WSLUA_METHODS Column_methods[] = {
-    {"clear", Column_clear },
-    {"set", Column_set },
-    {"append", Column_append },
-    {"preppend", Column_preppend },
+    WSLUA_CLASS_FNREG(Column,clear),
+    WSLUA_CLASS_FNREG(Column,set),
+    WSLUA_CLASS_FNREG(Column,append),
+    WSLUA_CLASS_FNREG(Column,prepend),
+    WSLUA_CLASS_FNREG_ALIAS(Column,preppend,prepend),
     {0,0}
 };
 

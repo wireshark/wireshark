@@ -224,12 +224,12 @@ static int Pref_gc(lua_State* L) {
 }
 
 WSLUA_METHODS Pref_methods[] = {
-    {"bool",   Pref_bool},
-    {"uint",   Pref_uint},
-    {"string", Pref_string},
-    {"enum",   Pref_enum},
-    {"range",  Pref_range},
-    {"statictext",  Pref_statictext},
+    WSLUA_CLASS_FNREG(Pref,bool),
+    WSLUA_CLASS_FNREG(Pref,uint),
+    WSLUA_CLASS_FNREG(Pref,string),
+    WSLUA_CLASS_FNREG(Pref,enum),
+    WSLUA_CLASS_FNREG(Pref,range),
+    WSLUA_CLASS_FNREG(Pref,statictext),
     {0,0}
 };
 

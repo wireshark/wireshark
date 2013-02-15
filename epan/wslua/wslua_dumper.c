@@ -417,12 +417,12 @@ static int Dumper__gc(lua_State* L) {
 
 
 WSLUA_METHODS Dumper_methods[] = {
-    {"new",       Dumper_new},
-    {"new_for_current",       Dumper_new_for_current},
-    {"close",       Dumper_close},
-    {"flush",       Dumper_flush},
-    {"dump",       Dumper_dump},
-    {"dump_current",       Dumper_dump_current},
+    WSLUA_CLASS_FNREG(Dumper,new),
+    WSLUA_CLASS_FNREG(Dumper,new_for_current),
+    WSLUA_CLASS_FNREG(Dumper,close),
+    WSLUA_CLASS_FNREG(Dumper,flush),
+    WSLUA_CLASS_FNREG(Dumper,dump),
+    WSLUA_CLASS_FNREG(Dumper,dump_current),
     {0, 0}
 };
 

@@ -387,10 +387,10 @@ static int ProgDlg__gc(lua_State* L) {
 
 
 WSLUA_METHODS ProgDlg_methods[] = {
-    {"new",ProgDlg_new},
-    {"update",ProgDlg_update},
-    {"stopped",ProgDlg_stopped},
-    {"close",ProgDlg_close},
+    WSLUA_CLASS_FNREG(ProgDlg,new),
+    WSLUA_CLASS_FNREG(ProgDlg,update),
+    WSLUA_CLASS_FNREG(ProgDlg,stopped),
+    WSLUA_CLASS_FNREG(ProgDlg,close),
     {0, 0}
 };
 
