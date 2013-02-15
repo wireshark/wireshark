@@ -192,6 +192,32 @@ static const value_string g_VariantTypes[] = {
     { 0x80+23, "Array of DataValue" },
     { 0x80+24, "Array of Variant" },
     { 0x80+25, "Array of DiagnosticInfo" },
+    { 0xC0,   "Matrix of Null" },
+    { 0xC0+1, "Matrix of Boolean" },
+    { 0xC0+2, "Matrix of SByte" },
+    { 0xC0+3, "Matrix of Byte" },
+    { 0xC0+4, "Matrix of Int16" },
+    { 0xC0+5, "Matrix of UInt16" },
+    { 0xC0+6, "Matrix of Int32" },
+    { 0xC0+7, "Matrix of UInt32" },
+    { 0xC0+8, "Matrix of Int64" },
+    { 0xC0+9, "Matrix of UInt64" },
+    { 0xC0+10, "Matrix of Float" },
+    { 0xC0+11, "Matrix of Double" },
+    { 0xC0+12, "Matrix of String" },
+    { 0xC0+13, "Matrix of DateTime" },
+    { 0xC0+14, "Matrix of Guid" },
+    { 0xC0+15, "Matrix of ByteString" },
+    { 0xC0+16, "Matrix of XmlElement" },
+    { 0xC0+17, "Matrix of NodeId" },
+    { 0xC0+18, "Matrix of ExpandedNodeId" },
+    { 0xC0+19, "Matrix of StatusCode" },
+    { 0xC0+20, "Matrix of QualifiedName" },
+    { 0xC0+21, "Matrix of LocalizedText" },
+    { 0xC0+22, "Matrix of ExtensionObject" },
+    { 0xC0+23, "Matrix of DataValue" },
+    { 0xC0+24, "Matrix of Variant" },
+    { 0xC0+25, "Matrix of DiagnosticInfo" },
     { 0, NULL }
 };
 #define VARIANT_ARRAYDIMENSIONS 0x40
@@ -345,24 +371,27 @@ void parseString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 
     if (iLen == -1)
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_ASCII|ENC_NA);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 0, ENC_NA);
         proto_item_append_text(item, "[OpcUa Null String]");
+        proto_item_set_end(item, tvb, *pOffset + 4);
     }
     else if (iLen == 0)
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_ASCII|ENC_NA);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 0, ENC_NA);
         proto_item_append_text(item, "[OpcUa Empty String]");
+        proto_item_set_end(item, tvb, *pOffset + 4);
     }
     else if (iLen > 0)
     {
-        proto_tree_add_item(tree, hfIndex, tvb, iOffset, iLen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hfIndex, tvb, iOffset, iLen, ENC_UTF_8|ENC_NA);
         iOffset += iLen; /* eat the whole string */
     }
     else
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_ASCII|ENC_NA);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 0, ENC_NA);
         szValue = ep_strdup_printf("[Invalid String] Invalid length: %d", iLen);
         proto_item_append_text(item, "%s", szValue);
+        proto_item_set_end(item, tvb, *pOffset + 4);
     }
 
     *pOffset = iOffset;
@@ -381,14 +410,15 @@ void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const ch
     proto_tree *mask_tree;
     proto_tree *subtree;
     proto_item *ti;
+    proto_item *ti_inner;
 
-    ti = proto_tree_add_text(tree, tvb, 0, -1, "%s: LocalizedText", szFieldName);
+    ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: LocalizedText", szFieldName);
     subtree = proto_item_add_subtree(ti, ett_opcua_localizedtext);
 
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    ti = proto_tree_add_text(subtree, tvb, 0, -1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti, ett_opcua_localizedtext);
+    ti_inner = proto_tree_add_text(subtree, tvb, iOffset, 1, "EncodingMask");
+    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_localizedtext);
     proto_tree_add_item(mask_tree, hf_opcua_loctext_mask_localeflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_loctext_mask_textflag,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
@@ -403,6 +433,7 @@ void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const ch
         parseString(subtree, tvb, &iOffset, hf_opcua_localizedtext_text);
     }
 
+    proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
 }
 
@@ -420,13 +451,15 @@ void parseByteString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex
 
     if (iLen == -1)
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_NA);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 0, ENC_NA);
         proto_item_append_text(item, "[OpcUa Null ByteString]");
+        proto_item_set_end(item, tvb, *pOffset + 4);
     }
     else if (iLen == 0)
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_NA);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 0, ENC_NA);
         proto_item_append_text(item, "[OpcUa Empty ByteString]");
+        proto_item_set_end(item, tvb, *pOffset + 4);
     }
     else if (iLen > 0)
     {
@@ -435,9 +468,10 @@ void parseByteString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex
     }
     else
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_NA);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 0, ENC_NA);
         szValue = ep_strdup_printf("[Invalid ByteString] Invalid length: %d", iLen);
         proto_item_append_text(item, "%s", szValue);
+        proto_item_set_end(item, tvb, *pOffset + 4);
     }
 
     *pOffset = iOffset;
@@ -472,14 +506,15 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const c
     proto_tree *mask_tree;
     proto_tree *subtree;
     proto_item *ti;
+    proto_item *ti_inner;
 
-    ti = proto_tree_add_text(tree, tvb, 0, -1, "%s: DiagnosticInfo", szFieldName);
+    ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: DiagnosticInfo", szFieldName);
     subtree = proto_item_add_subtree(ti, ett_opcua_diagnosticinfo);
 
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    ti = proto_tree_add_text(subtree, tvb, 0, -1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti, ett_opcua_diagnosticinfo);
+    ti_inner = proto_tree_add_text(subtree, tvb, iOffset, 1, "EncodingMask");
+    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_diagnosticinfo);
     proto_tree_add_item(mask_tree, hf_opcua_diag_mask_symbolicflag,        tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_diag_mask_namespaceflag,       tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_diag_mask_localizedtextflag,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
@@ -513,29 +548,33 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const c
         parseDiagnosticInfo(subtree, tvb, &iOffset, "Inner DiagnosticInfo");
     }
 
+    proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
 }
 
 void parseQualifiedName(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s: QualifiedName", szFieldName);
+    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: QualifiedName", szFieldName);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_qualifiedname);
 
     parseUInt16(subtree, tvb, pOffset, hf_opcua_qualifiedname_id);
     parseString(subtree, tvb, pOffset, hf_opcua_qualifiedname_name);
+
+    proto_item_set_end(ti, tvb, *pOffset);
 }
 
 void parseDataValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s: DataValue", szFieldName);
+    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: DataValue", szFieldName);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_datavalue);
     proto_tree *mask_tree;
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
+    proto_item *ti_inner;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    ti = proto_tree_add_text(subtree, tvb, 0, -1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti, ett_opcua_datavalue);
+    ti_inner = proto_tree_add_text(subtree, tvb, iOffset, 1, "EncodingMask");
+    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_datavalue);
     proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_valueflag,           tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_statuscodeflag,      tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_sourcetimestampflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
@@ -569,16 +608,17 @@ void parseDataValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *
         parseUInt16(subtree, tvb, &iOffset, hf_opcua_ServerPicoseconds);
     }
 
+    proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
 }
 
 void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s: Variant", szFieldName);
+    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: Variant", szFieldName);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_variant);
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
-    gint32  ArrayLength = 0;
+    gint32  ArrayDimensions = 0;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     proto_tree_add_item(subtree, hf_opcua_variant_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
@@ -586,8 +626,6 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *sz
 
     if (EncodingMask & VARIANT_ARRAYMASK)
     {
-        ArrayLength = tvb_get_letohl(tvb, iOffset);
-
         /* type is encoded in bits 0-5 */
         switch(EncodingMask & 0x3f)
         {
@@ -621,24 +659,28 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *sz
 
         if (EncodingMask & VARIANT_ARRAYDIMENSIONS)
         {
-            proto_item *ti_2 = proto_tree_add_text(tree, tvb, 0, -1, "Array Dimensions");
+            proto_item *ti_2 = proto_tree_add_text(subtree, tvb, iOffset, -1, "ArrayDimensions");
             proto_tree *subtree_2 = proto_item_add_subtree(ti_2, ett_opcua_array);
             int i;
 
-            if (ArrayLength < MAX_ARRAY_LEN)
-            {
-                for (i=0; i<ArrayLength; i++)
-                {
-                    parseInt32(subtree_2, tvb, pOffset, hf_opcua_Int32);
-                }
-            }
-            else
+            /* read array length */
+            ArrayDimensions = tvb_get_letohl(tvb, iOffset);
+            proto_tree_add_item(subtree_2, hf_opcua_ArraySize, tvb, iOffset, 4, ENC_LITTLE_ENDIAN);
+
+            if (ArrayDimensions > MAX_ARRAY_LEN)
             {
                 proto_item *pi;
-                /* XXX - This should be expert_add_info_format, but we need pinfo for that */
-                pi = proto_tree_add_text(tree, tvb, iOffset, 4, "Array length %d too large to process", ArrayLength);
+                pi = proto_tree_add_text(subtree_2, tvb, iOffset, 4, "ArrayDimensions length %d too large to process", ArrayDimensions);
                 PROTO_ITEM_SET_GENERATED(pi);
+                return;
             }
+
+            iOffset += 4;
+            for (i=0; i<ArrayDimensions; i++)
+            {
+                parseInt32(subtree_2, tvb, &iOffset, hf_opcua_Int32);
+            }
+            proto_item_set_end(ti_2, tvb, iOffset);
         }
     }
     else
@@ -675,6 +717,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *sz
         }
     }
 
+    proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
 }
 
@@ -685,7 +728,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *sz
 void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex, fctSimpleTypeParser pParserFunction)
 {
     static const char szFieldName[] = "Array of Simple Type";
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s", szFieldName);
+    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s", szFieldName);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_array);
     int i;
     gint32 iLen;
@@ -696,9 +739,9 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfInde
 
     if (iLen > MAX_ARRAY_LEN)
     {
-	proto_item *pi;
+        proto_item *pi;
         pi = proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
-	PROTO_ITEM_SET_GENERATED(pi);
+        PROTO_ITEM_SET_GENERATED(pi);
         return;
     }
 
@@ -707,6 +750,7 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfInde
     {
         (*pParserFunction)(subtree, tvb, pOffset, hfIndex);
     }
+    proto_item_set_end(ti, tvb, *pOffset);
 }
 
 /** General parsing function for arrays of enums.
@@ -716,7 +760,7 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfInde
 void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, fctEnumParser pParserFunction)
 {
     static const char szFieldName[] = "Array of Enum Type";
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s", szFieldName);
+    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s", szFieldName);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_array);
     int i;
     gint32 iLen;
@@ -727,9 +771,9 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, fctEnumParse
 
     if (iLen > MAX_ARRAY_LEN)
     {
-	proto_item *pi;
+        proto_item *pi;
         pi = proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
-	PROTO_ITEM_SET_GENERATED(pi);
+        PROTO_ITEM_SET_GENERATED(pi);
         return;
     }
 
@@ -738,6 +782,7 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, fctEnumParse
     {
         (*pParserFunction)(subtree, tvb, pOffset);
     }
+    proto_item_set_end(ti, tvb, *pOffset);
 }
 
 /** General parsing function for arrays of complex types.
@@ -746,7 +791,7 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, fctEnumParse
  */
 void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName, fctComplexTypeParser pParserFunction)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "Array of %s", szFieldName);
+    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "Array of %s", szFieldName);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_array);
     int i;
     gint32 iLen;
@@ -757,9 +802,9 @@ void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const cha
 
     if (iLen > MAX_ARRAY_LEN)
     {
-	proto_item *pi;
+        proto_item *pi;
         pi = proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
-	PROTO_ITEM_SET_GENERATED(pi);
+        PROTO_ITEM_SET_GENERATED(pi);
         return;
     }
 
@@ -770,11 +815,12 @@ void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const cha
         g_snprintf(szNum, 20, "[%i]", i);
         (*pParserFunction)(subtree, tvb, pOffset, szNum);
     }
+    proto_item_set_end(ti, tvb, *pOffset);
 }
 
 void parseNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s: NodeId", szFieldName);
+    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: NodeId", szFieldName);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_nodeid);
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
@@ -818,6 +864,7 @@ void parseNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szF
         break;
     };
 
+    proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
 }
 
@@ -829,9 +876,10 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const 
     proto_tree *extobj_tree;
     proto_tree *mask_tree;
     proto_item *ti;
+    proto_item *ti_inner;
 
     /* add extension object subtree */
-    ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ExtensionObject", szFieldName);
+    ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s : ExtensionObject", szFieldName);
     extobj_tree = proto_item_add_subtree(ti, ett_opcua_extensionobject);
 
     /* add nodeid subtree */
@@ -840,8 +888,8 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const 
 
     /* parse encoding mask */
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    ti = proto_tree_add_text(extobj_tree, tvb, 0, -1, "EncodingMask");
-    mask_tree = proto_item_add_subtree(ti, ett_opcua_extobj_encodingmask);
+    ti_inner = proto_tree_add_text(extobj_tree, tvb, iOffset, 1, "EncodingMask");
+    mask_tree = proto_item_add_subtree(ti_inner, ett_opcua_extobj_encodingmask);
     proto_tree_add_item(mask_tree, hf_opcua_extobj_mask_binbodyflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mask_tree, hf_opcua_extobj_mask_xmlbodyflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
@@ -851,12 +899,13 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const 
         dispatchExtensionObjectType(extobj_tree, tvb, &iOffset, TypeId);
     }
 
+    proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
 }
 
 void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
-    proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s: ExpandedNodeId", szFieldName);
+    proto_item *ti = proto_tree_add_text(tree, tvb, *pOffset, -1, "%s: ExpandedNodeId", szFieldName);
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_nodeid);
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
@@ -909,6 +958,7 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const c
         parseUInt32(subtree, tvb, &iOffset, hf_opcua_ServerIndex);
     }
 
+    proto_item_set_end(ti, tvb, iOffset);
     *pOffset = iOffset;
 }
 
