@@ -59,6 +59,19 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
         pinfo->pseudo_header->ieee_802_11.data_rate / 2,
         pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
+  /*
+   * For tagged Peek files, this is presumably signal strength as a
+   * percentage of the maximum, as it is for classic Peek files,
+   * i.e. (RXVECTOR RSSI/RXVECTOR RSSI_Max)*100, or, at least, that's
+   * what I infer it is, given what the WildPackets note "Converting
+   * Signal Strength Percentage to dBm Values" says.
+   *
+   * It also says that the conversion the percentage to a dBm value is
+   * an adapter-dependent process, so, as we don't know what type of
+   * adapter was used to do the capture, we can't do the conversion.
+   *
+   * It's *probably* something similar for other capture file formats.
+   */
   col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%",
         pinfo->pseudo_header->ieee_802_11.signal_level);
 
