@@ -913,8 +913,8 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       }
       break;
     case ACN_DMP_ADT_D_RE:
-      if (adt->data_length == adt->count) {
-        ok_to_process = TRUE;
+      if (adt->count == 0) {
+        break;
       }
       if (adt->data_length <= adt->count + 4) {
         ok_to_process = TRUE;
