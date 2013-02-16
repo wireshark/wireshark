@@ -73,6 +73,7 @@ struct segment {
 
     gboolean        isControlPDU;
     guint16         SN;
+    guint16         isResegmented;
     guint16         ACKNo;
     #define MAX_NACKs 128
     guint16         noOfNACKs;
@@ -155,6 +156,7 @@ struct axis {
 
 struct style_rlc_lte {
     GdkRGBA seq_color;
+    GdkRGBA seq_resegmented_color;
     GdkRGBA ack_color[2];
     int flags;
 };
@@ -285,7 +287,7 @@ static void graph_destroy(struct graph * );
 static void graph_initialize_values(struct graph * );
 static void graph_init_sequence(struct graph * );
 static void draw_element_line(struct graph * , struct element * ,  cairo_t * , GdkRGBA *new_color);
-static void draw_element_ellipse(struct graph * , struct element * , cairo_t *cr);
+static void draw_element_ellipse(struct graph * , struct element * , cairo_t *cr , GdkRGBA *new_color);
 static void graph_display(struct graph * );
 static void graph_pixmaps_create(struct graph * );
 static void graph_pixmaps_switch(struct graph * );
@@ -775,9 +777,12 @@ tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, co
         segment->isControlPDU = rlchdr->isControlPDU;
 
         if (!rlchdr->isControlPDU) {
+            /* Data */
             segment->SN = rlchdr->sequenceNumber;
+            segment->isResegmented = rlchdr->isResegmented;
         }
         else {
+            /* Status PDU */
             gint n;
             segment->ACKNo = rlchdr->ACKNo;
             segment->noOfNACKs = rlchdr->noOfNACKs;
@@ -1204,20 +1209,20 @@ static void graph_pixmap_draw(struct graph *g)
     /* Draw all elements */
     for (list=g->elists; list; list=list->next) {
         for (e=list->elements; e->type != ELMT_NONE; e++) {
+
+            /* Work out if we need to change colour */
+            if (current_color == e->elment_color_p) {
+                /* No change needed */
+                color_to_set = NULL;
+            }
+            else {
+                /* Changing colour */
+                current_color = color_to_set = e->elment_color_p;
+                cairo_stroke(cr_elements);
+            }
+
             switch (e->type) {
                 case ELMT_LINE:
-
-                    /* Work out if we need to change colour */
-                    if (current_color == e->elment_color_p) {
-                        /* No change needed */
-                        color_to_set = NULL;
-                    }
-                    else {
-                        /* Changing colour */
-                        current_color = color_to_set = e->elment_color_p;
-                        cairo_stroke(cr_elements);
-                    }
-
                     /* Draw the line */
                     draw_element_line(g, e, cr_elements, color_to_set);
                     line_stroked = FALSE;
@@ -1228,10 +1233,9 @@ static void graph_pixmap_draw(struct graph *g)
                         cairo_stroke(cr_elements);
                         line_stroked = TRUE;
                     }
-
-                    draw_element_ellipse(g, e, cr_elements);
+                    /* Draw the ellipse */
+                    draw_element_ellipse(g, e, cr_elements, color_to_set);
                     break;
-
 
                 default:
                     /* No other element types supported at the moment */
@@ -1260,7 +1264,6 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
 
     /* Set our new colour (if changed) */
     if (new_color != NULL) {
-        /* First draw any previous lines with old colour */
         gdk_cairo_set_source_rgba(cr, new_color);
     }
 
@@ -1287,7 +1290,8 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     cairo_line_to(cr, xx2+0.5, yy2+0.5);
 }
 
-static void draw_element_ellipse(struct graph *g, struct element *e, cairo_t *cr)
+static void draw_element_ellipse(struct graph *g, struct element *e, cairo_t *cr,
+                                 GdkRGBA *new_color)
 {
     gdouble w = e->p.ellipse.dim.width;
     gdouble h = e->p.ellipse.dim.height;
@@ -1296,8 +1300,12 @@ static void draw_element_ellipse(struct graph *g, struct element *e, cairo_t *cr
 
     debug(DBS_GRAPH_DRAWING) printf ("ellipse: (x, y) -> (w, h): (%f, %f) -> (%f, %f)\n", x, y, w, h);
 
+    /* Set our new colour (if changed) */
+    if (new_color != NULL) {
+        gdk_cairo_set_source_rgba(cr, new_color);
+    }
+
     cairo_save(cr);
-    cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_translate(cr, x + w/2.0, y + h/2.0);
     cairo_scale(cr, w/2.0, h/2.0);
     cairo_arc(cr, 0.0, 0.0, 1.0, 0.0, 2*G_PI);
@@ -2547,11 +2555,17 @@ static void graph_get_bounds(struct graph *g)
 
 static void graph_read_config(struct graph *g)
 {
-    /* Black */
+    /* Black for PDUs */
     g->style.seq_color.red   = (double)0 / 65535.0;
     g->style.seq_color.green = (double)0 / 65535.0;
     g->style.seq_color.blue  = (double)0 / 65535.0;
     g->style.seq_color.alpha = 1.0;
+
+    /* Grey for resegmentations */
+    g->style.seq_resegmented_color.red =   (double)0x7777 / 65535.0;
+    g->style.seq_resegmented_color.green = (double)0x7777 / 65535.0;
+    g->style.seq_resegmented_color.blue =  (double)0x7777 / 65535.0;
+    g->style.seq_resegmented_color.alpha = 1.0;
 
     /* Blueish */
     g->style.ack_color[0].red   = (double)0x2222 / 65535.0;
@@ -2643,7 +2657,13 @@ static void rlc_lte_make_elmtlist(struct graph *g)
             /* Circle for data point */
             e0->type = ELMT_ELLIPSE;
             e0->parent = tmp;
-            e0->elment_color_p = &g->style.seq_color;
+            if (!tmp->isResegmented) {
+                e0->elment_color_p = &g->style.seq_color;
+            }
+            else {
+                e0->elment_color_p = &g->style.seq_resegmented_color;
+            }
+            
             e0->p.ellipse.dim.width = DATA_BLOB_SIZE;
             e0->p.ellipse.dim.height = DATA_BLOB_SIZE;
             e0->p.ellipse.dim.x = x;
