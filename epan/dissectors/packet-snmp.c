@@ -3839,8 +3839,8 @@ void proto_register_snmp(void) {
 
 #ifdef HAVE_LIBGCRYPT
   prefs_register_enum_preference(snmp_module, "decrypt",
-                                 "Decyption algorithm",
-                                 "Decyption algorithm",
+                                 "Decryption algorithm",
+                                 "Decryption algorithm",
                                  &snmp_decryption_algo,
                                  snmp_decryption_algo_type,
                                  FALSE);
