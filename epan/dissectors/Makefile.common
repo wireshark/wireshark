@@ -1049,6 +1049,7 @@ DISSECTOR_SRC = \
 	packet-smb-sidsnooping.c	\
 	packet-smb.c		\
 	packet-smb2.c		\
+	packet-sml.c		\
 	packet-smpp.c		\
 	packet-smtp.c		\
 	packet-sna.c		\

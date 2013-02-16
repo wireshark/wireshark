@@ -1128,6 +1128,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-smb-sidsnooping.c
 	dissectors/packet-smb.c
 	dissectors/packet-smb2.c
+	dissectors/packet-sml.c
 	dissectors/packet-smpp.c
 	dissectors/packet-smtp.c
 	dissectors/packet-sna.c
