@@ -113,6 +113,9 @@ static int proto_smux = -1;
 
 static gboolean display_oid = TRUE;
 static gboolean snmp_var_in_tree = TRUE;
+#ifdef HAVE_LIBGCRYPT
+static gint snmp_decryption_algo = 0;
+#endif
 
 static gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 static gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
@@ -142,6 +145,14 @@ static const value_string priv_types[] = {
 	{0,NULL}
 };
 static snmp_usm_decoder_t priv_protos[] = {snmp_usm_priv_des, snmp_usm_priv_aes};
+
+#ifdef HAVE_LIBGCRYPT
+static const enum_val_t snmp_decryption_algo_type[] = {
+  { "aes"   , "AES",    0 },
+  { "aes256", "AES256", 1 },
+  { NULL, NULL, 0 }
+};
+#endif
 
 static snmp_ue_assoc_t* ueas = NULL;
 static guint num_ueas = 0;
@@ -293,7 +304,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 219 "../../asn1/snmp/packet-snmp-template.c"
+#line 230 "../../asn1/snmp/packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -336,7 +347,7 @@ static gint ett_snmp_SimpleOpen_U = -1;
 static gint ett_snmp_RReqPDU_U = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 238 "../../asn1/snmp/packet-snmp-template.c"
+#line 249 "../../asn1/snmp/packet-snmp-template.c"
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -1548,6 +1559,7 @@ snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 #ifdef HAVE_LIBGCRYPT
 	gcry_error_t err;
 	gcry_cipher_hd_t hd = NULL;
+    int gcry_algo = GCRY_CIPHER_AES;
 
 	guint8* cleartext;
 	guint8* aes_key = p->user_assoc->user.privKey.data; /* first 16 bytes */
@@ -1583,7 +1595,17 @@ snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 
 	cleartext = (guint8*)ep_alloc(cryptgrm_len);
 
-	err = gcry_cipher_open(&hd, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CFB, 0);
+    switch(snmp_decryption_algo)
+    {
+    case 0:
+        gcry_algo = GCRY_CIPHER_AES;
+        break;
+    case 1:
+        gcry_algo = GCRY_CIPHER_AES256;
+        break;
+    }
+
+	err = gcry_cipher_open(&hd, gcry_algo, GCRY_CIPHER_MODE_CFB, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
 
 	err = gcry_cipher_setiv(hd, iv, 16);
@@ -2771,7 +2793,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1551 "../../asn1/snmp/packet-snmp-template.c"
+#line 1573 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3686,7 +3708,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2201 "../../asn1/snmp/packet-snmp-template.c"
+#line 2223 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3726,7 +3748,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2217 "../../asn1/snmp/packet-snmp-template.c"
+#line 2239 "../../asn1/snmp/packet-snmp-template.c"
   };
   module_t *snmp_module;
 
@@ -3814,6 +3836,15 @@ void proto_register_snmp(void) {
 				"Enterprise Specific Trap Types",
 				"Table of enterprise specific-trap type descriptions",
 				specific_traps_uat);
+
+#ifdef HAVE_LIBGCRYPT
+  prefs_register_enum_preference(snmp_module, "decrypt",
+                                 "Decyption algorithm",
+                                 "Decyption algorithm",
+                                 &snmp_decryption_algo,
+                                 snmp_decryption_algo_type,
+                                 FALSE);
+#endif
 
 #ifdef HAVE_LIBSMI
   prefs_register_static_text_preference(snmp_module, "info_mibs",
