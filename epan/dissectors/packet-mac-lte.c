@@ -144,6 +144,7 @@ static int hf_mac_lte_rar_extension = -1;
 static int hf_mac_lte_rar_t = -1;
 static int hf_mac_lte_rar_bi = -1;
 static int hf_mac_lte_rar_rapid = -1;
+static int hf_mac_lte_rar_no_of_rapids = -1;
 static int hf_mac_lte_rar_reserved = -1;
 static int hf_mac_lte_rar_body = -1;
 static int hf_mac_lte_rar_reserved2 = -1;
@@ -1724,6 +1725,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
     /* Append summary to headers root */
     proto_item_append_text(rar_headers_ti, " (%u RARs", number_of_rars);
+    ti = proto_tree_add_uint(rar_headers_tree, hf_mac_lte_rar_no_of_rapids, tvb, 0, 0, number_of_rars);
+    PROTO_ITEM_SET_GENERATED(ti);
     if (backoff_indicator_seen) {
         proto_item_append_text(rar_headers_ti, ", BI=%sms)",
                                val_to_str_const(backoff_indicator, rar_bi_vals, "Illegal-value "));
@@ -4253,8 +4256,9 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Info column */
                 write_pdu_label_and_info(pdu_ti, preamble_ti, pinfo,
-                                         "RACH Preamble sent for UE %u (RAPID=%u, attempt=%u)",
-                                         p_mac_lte_info->ueid, p_mac_lte_info->rapid, p_mac_lte_info->rach_attempt_number);
+                                         "RACH Preamble chosen for UE %u (RAPID=%u, attempt=%u)",
+                                         p_mac_lte_info->ueid, p_mac_lte_info->rapid,
+                                         p_mac_lte_info->rach_attempt_number);
 
                 /* Add expert info (a note, unless attempt > 1) */
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE,
@@ -5269,6 +5273,12 @@ void proto_register_mac_lte(void)
             { "RAPID",
               "mac-lte.rar.rapid", FT_UINT8, BASE_HEX_DEC, 0, 0x3f,
               "Random Access Preamble IDentifier", HFILL
+            }
+        },
+        { &hf_mac_lte_rar_no_of_rapids,
+            { "Number of RAPIDs",
+              "mac-lte.rar.no-of-rapids", FT_UINT8, BASE_DEC, 0, 0x0,
+              "Number of RAPIDs in RAR PDU", HFILL
             }
         },
         { &hf_mac_lte_rar_reserved,
