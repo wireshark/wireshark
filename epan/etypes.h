@@ -85,7 +85,7 @@
 #endif
 
 #ifndef ETHERTYPE_BPQ
-#define ETHERTYPE_BPQ			0x08ff	/* AX.25 over ethernet (not officially registered) */
+#define ETHERTYPE_BPQ			0x08FF	/* AX.25 over ethernet (not officially registered) */
 #endif
 
 #ifndef ETHERTYPE_VINES_IP
@@ -456,9 +456,13 @@
 
 #ifndef ETHERTYPE_PTP
 #define ETHERTYPE_PTP			0x88F7	/* IEEE1588v2 (PTPv2) over Ethernet */
-#endif									/* in particular for the information exchange between IED's in a power */
-										/* transmission or distribution substation. */
-										/*  There are three types of application services */
+#endif						/* in particular for the information exchange between IED's in a power */
+						/* transmission or distribution substation. */
+						/*  There are three types of application services */
+
+#ifndef ETHERTYPE_NCSI
+#define ETHERTYPE_NCSI			0x88F8	/*  DMTF NC-SI: Network Controller Sideband Interface */
+#endif
 
 #ifndef ETHERTYPE_PRP
 #define ETHERTYPE_PRP			0x88FB  /* Parallel Redundancy Protocol (IEC62439 Part 3) */
@@ -493,7 +497,7 @@
 #endif
 
 #ifndef ETHERTYPE_MIH
-#define ETHERTYPE_MIH 			0x8917	/* Media Independent Handover Protocol */
+#define ETHERTYPE_MIH			0x8917	/* Media Independent Handover Protocol */
 #endif
 
 #ifndef ETHERTYPE_TTE_PCF

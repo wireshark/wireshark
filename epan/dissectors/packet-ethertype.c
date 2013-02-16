@@ -167,6 +167,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_MIH,                  "Media Independent Handover Protocol" },
 	{ ETHERTYPE_ELMI,                 "Ethernet Local Management Interface (MEF16)" },
 	{ ETHERTYPE_PTP,                  "PTPv2 over Ethernet (IEEE1588)" },
+	{ ETHERTYPE_NCSI,                 "Network Controller Sideband Interface" },
 	{ ETHERTYPE_PRP,                  "Parallel Redundancy Protocol (PRP) and HSR Supervision (IEC62439 Part 3)" },
 	{ ETHERTYPE_FLIP,                 "Flow Layer Internal Protocol" },
 	{ ETHERTYPE_ROCE,                 "RDMA over Converged Ethernet" },
