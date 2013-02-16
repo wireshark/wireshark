@@ -41,7 +41,7 @@ Short description of the SML protocol on the SML Wireshark Wiki page:  http://wi
 #define TCP_PORT_SML 0
 #define UDP_PORT_SML 0
 
-#define ESC_SEQ_END		0x1b1b1b1b1a
+#define ESC_SEQ_END		G_GUINT64_CONSTANT(0x1b1b1b1b1a)
 #define ESC_SEQ			0x1b1b1b1b
 
 #define OPEN_REQ		0x0100
