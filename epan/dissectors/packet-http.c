@@ -52,6 +52,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include <epan/wmem/wmem.h>
 
 typedef enum _http_type {
 	HTTP_REQUEST,
@@ -109,6 +110,13 @@ static int hf_http_sec_websocket_version = -1;
 static int hf_http_set_cookie = -1;
 static int hf_http_last_modified = -1;
 static int hf_http_x_forwarded_for = -1;
+static int hf_http_request_in = -1;
+static int hf_http_response_in = -1;
+static int hf_http_next_request_in = -1;
+static int hf_http_next_response_in = -1;
+static int hf_http_prev_request_in = -1;
+static int hf_http_prev_response_in = -1;
+static int hf_http_response_ts = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -590,13 +598,67 @@ get_http_conversation_data(packet_info *pinfo)
 	conv_data = conversation_get_proto_data(conversation, proto_http);
 	if(!conv_data) {
 		/* Setup the conversation structure itself */
-		conv_data = se_alloc0(sizeof(http_conv_t));
+		conv_data = wmem_alloc0(wmem_file_scope(), sizeof(http_conv_t));
 
 		conversation_add_proto_data(conversation, proto_http,
 					    conv_data);
 	}
 
 	return conv_data;
+}
+
+/**
+ * create a new http_req_res_t and add it to the conversation.
+ * @return the new allocated object which is already added to the linked list
+ */
+static http_req_res_t* push_req_res(http_conv_t *conv_data)
+{
+	http_req_res_t *req_res = wmem_alloc0(wmem_file_scope(), sizeof(http_req_res_t));
+	nstime_set_unset(&(req_res->req_ts));
+	req_res->number = ++conv_data->req_res_num;
+
+	if (! conv_data->req_res_tail) {
+		conv_data->req_res_tail = req_res;
+	} else {
+		req_res->prev = conv_data->req_res_tail;
+		conv_data->req_res_tail->next = req_res;
+		conv_data->req_res_tail = req_res;
+	}
+
+	return req_res;
+}
+
+/**
+ * push a request frame number and its time stamp to the conversation data.
+ */
+static void push_req(http_conv_t *conv_data, packet_info *pinfo)
+{
+	/* a request will always create a new http_req_res_t object */
+	http_req_res_t *req_res = push_req_res(conv_data);
+
+	req_res->req_framenum = pinfo->fd->num;
+	req_res->req_ts = pinfo->fd->abs_ts;
+
+	p_add_proto_data(pinfo->fd, proto_http, req_res);
+}
+
+/**
+ * push a response frame number to the conversation data.
+ */
+static void push_res(http_conv_t *conv_data, packet_info *pinfo)
+{
+	/* a response will create a new http_req_res_t object: if no
+	   object exists, or if one exists for another response. In
+	   both cases the corresponding request was not
+	   detected/included in the conversation. In all other cases
+	   the http_req_res_t object created by the request is
+	   used. */
+	http_req_res_t *req_res = conv_data->req_res_tail;
+	if (!req_res || req_res->res_framenum > 0) {
+		req_res = push_req_res(conv_data);
+	}
+	req_res->res_framenum = pinfo->fd->num;
+	p_add_proto_data(pinfo->fd, proto_http, req_res);
 }
 
 /*
@@ -945,7 +1007,20 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		PROTO_ITEM_SET_GENERATED(e_ti);
 	}
 
+	if (!PINFO_FD_VISITED(pinfo)) {
+		if (http_type == HTTP_REQUEST) {
+			push_req(conv_data, pinfo);
+		} else if (http_type == HTTP_RESPONSE) {
+			push_res(conv_data, pinfo);
+		}
+	}
+
 	if (tree) {
+		proto_item *pi;
+		http_req_res_t *curr = p_get_proto_data(pinfo->fd, proto_http);
+		http_req_res_t *prev = curr ? curr->prev : NULL;
+		http_req_res_t *next = curr ? curr->next : NULL;
+
 		switch (http_type) {
 
 		case HTTP_NOTIFICATION:
@@ -958,12 +1033,64 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hidden_item = proto_tree_add_boolean(http_tree,
 					    hf_http_response, tvb, 0, 0, 1);
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+			if (curr) {
+				nstime_t delta;
+
+				pi = proto_tree_add_text(http_tree, tvb, 0, 0, "HTTP response %u/%u", curr->number, conv_data->req_res_num);
+				PROTO_ITEM_SET_GENERATED(pi);
+
+				if (! nstime_is_unset(&(curr->req_ts))) {
+					nstime_delta(&delta, &pinfo->fd->abs_ts, &(curr->req_ts));
+					pi = proto_tree_add_time(http_tree, hf_http_response_ts, tvb, 0, 0, &delta);
+					PROTO_ITEM_SET_GENERATED(pi);
+				}
+			}
+			if (prev && prev->req_framenum) {
+				pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
+				PROTO_ITEM_SET_GENERATED(pi);
+			}
+			if (prev && prev->res_framenum) {
+				pi = proto_tree_add_uint(http_tree, hf_http_prev_response_in, tvb, 0, 0, prev->res_framenum);
+				PROTO_ITEM_SET_GENERATED(pi);
+			}
+			if (curr && curr->req_framenum) {
+				pi = proto_tree_add_uint(http_tree, hf_http_request_in, tvb, 0, 0, curr->req_framenum);
+				PROTO_ITEM_SET_GENERATED(pi);
+			}
+			if (next && next->req_framenum) {
+				pi = proto_tree_add_uint(http_tree, hf_http_next_request_in, tvb, 0, 0, next->req_framenum);
+				PROTO_ITEM_SET_GENERATED(pi);
+			}
+			if (next && next->res_framenum) {
+				pi = proto_tree_add_uint(http_tree, hf_http_next_response_in, tvb, 0, 0, next->res_framenum);
+				PROTO_ITEM_SET_GENERATED(pi);
+			}
+
 			break;
 
 		case HTTP_REQUEST:
 			hidden_item = proto_tree_add_boolean(http_tree,
 					    hf_http_request, tvb, 0, 0, 1);
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+			if (curr) {
+				pi = proto_tree_add_text(http_tree, tvb, 0, 0, "HTTP request %u/%u", curr->number, conv_data->req_res_num);
+				PROTO_ITEM_SET_GENERATED(pi);
+			}
+			if (prev && prev->req_framenum) {
+				pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
+				PROTO_ITEM_SET_GENERATED(pi);
+			}
+			if (curr && curr->res_framenum) {
+				pi = proto_tree_add_uint(http_tree, hf_http_response_in, tvb, 0, 0, curr->res_framenum);
+				PROTO_ITEM_SET_GENERATED(pi);
+			}
+			if (next && next->req_framenum) {
+				pi = proto_tree_add_uint(http_tree, hf_http_next_request_in, tvb, 0, 0, next->req_framenum);
+				PROTO_ITEM_SET_GENERATED(pi);
+			}
+
 			break;
 
 		case HTTP_OTHERS:
@@ -2713,7 +2840,35 @@ proto_register_http(void)
 	    { &hf_http_x_forwarded_for,
 	      { "X-Forwarded-For",	"http.x_forwarded_for",
 		FT_STRING, BASE_NONE, NULL, 0x0,
-		"HTTP X-Forwarded-For", HFILL }}
+		"HTTP X-Forwarded-For", HFILL }},
+	    { &hf_http_request_in,
+	      { "Request in frame", "http.request_in",
+		FT_FRAMENUM, BASE_NONE, NULL, 0,
+		"This packet is a response to the packet with this number", HFILL }},
+	    { &hf_http_response_in,
+	      { "Response in frame","http.response_in",
+		FT_FRAMENUM, BASE_NONE, NULL, 0,
+		"This packet will be responded in the packet with this number", HFILL }},
+	    { &hf_http_next_request_in,
+	      { "Next request in frame", "http.next_request_in",
+		FT_FRAMENUM, BASE_NONE, NULL, 0,
+		"The next HTTP request starts in packet number", HFILL }},
+	    { &hf_http_next_response_in,
+	      { "Next response in frame","http.next_response_in",
+		FT_FRAMENUM, BASE_NONE, NULL, 0,
+		"The next HTTP response starts in packet number", HFILL }},
+	    { &hf_http_prev_request_in,
+	      { "Prev request in frame", "http.prev_request_in",
+		FT_FRAMENUM, BASE_NONE, NULL, 0,
+		"The previous HTTP request starts in packet number", HFILL }},
+	    { &hf_http_prev_response_in,
+	      { "Prev response in frame","http.prev_response_in",
+		FT_FRAMENUM, BASE_NONE, NULL, 0,
+		"The previous HTTP response starts in packet number", HFILL }},
+	    { &hf_http_response_ts,
+	      { "Time since request", "http.response_ts",
+		FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
+		"Time since the request was send", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
@@ -2954,3 +3109,16 @@ proto_reg_handoff_message_http(void)
 
 	reinit_http();
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: true
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8:
+ * :indentSize=8:tabSize=8:
+ */

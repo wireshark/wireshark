@@ -48,7 +48,23 @@ typedef struct _http_eo_t {
 	const guint8 *payload_data;
 } http_eo_t;
 
-/* Conversation data - used for the http_payload_subdissector() function. */
+/** information about a request and response on a HTTP conversation. */
+typedef struct _http_req_res_t {
+	/** the running number on the conversation */
+	guint32 number;
+	/** frame number of the request */
+	guint32 req_framenum;
+	/** frame number of the corresponding response */
+	guint32 res_framenum;
+	/** timestamp of the request */
+	nstime_t req_ts;
+	/** pointer to the next element in the linked list, NULL for the tail node */
+	struct _http_req_res_t *next;
+	/** pointer to the previous element in the linked list, NULL for the head node */
+	struct _http_req_res_t *prev;
+} http_req_res_t;
+
+/** Conversation data of a HTTP connection. */
 typedef struct _http_conv_t {
 	guint    response_code;
 	gchar   *http_host;
@@ -56,6 +72,10 @@ typedef struct _http_conv_t {
 	gchar   *request_uri;
 	guint8   upgrade;
 	guint32	startframe;	/* First frame of proxied connection */
+	/** the tail node of req_res */
+	http_req_res_t *req_res_tail;
+	/** the number of requests on the conversation. */
+	guint32 req_res_num;
 } http_conv_t;
 
 #endif /* __PACKET_HTTP_H__ */
