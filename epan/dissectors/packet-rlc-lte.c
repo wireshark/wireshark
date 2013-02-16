@@ -56,12 +56,13 @@
 #define SEQUENCE_ANALYSIS_MAC_ONLY 1
 #define SEQUENCE_ANALYSIS_RLC_ONLY 2
 
-/* By default don't try to analyse the sequence of messages for AM/UM channels */
-static gint global_rlc_lte_am_sequence_analysis = FALSE;
-static gint global_rlc_lte_um_sequence_analysis = FALSE;
+/* By default do try to analyse the sequence of messages for AM/UM channels
+   using MAC PDUs */
+static gint global_rlc_lte_am_sequence_analysis = SEQUENCE_ANALYSIS_MAC_ONLY;
+static gint global_rlc_lte_um_sequence_analysis = SEQUENCE_ANALYSIS_MAC_ONLY;
 
-/* By default don't call PDCP/RRC dissectors for SDU data */
-static gboolean global_rlc_lte_call_pdcp_for_srb = FALSE;
+/* By default do call PDCP/RRC dissectors for SDU data */
+static gboolean global_rlc_lte_call_pdcp_for_srb = TRUE;
 
 enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_7, PDCP_drb_SN_12, PDCP_drb_SN_signalled, PDCP_drb_SN_15};
 static const enum_val_t pdcp_drb_col_vals[] = {
@@ -72,10 +73,10 @@ static const enum_val_t pdcp_drb_col_vals[] = {
     {"pdcp-drb-sn-signalling", "Use signalled value", PDCP_drb_SN_signalled},
     {NULL, NULL, -1}
 };
-static gint global_rlc_lte_call_pdcp_for_drb = (gint)PDCP_drb_off;
+static gint global_rlc_lte_call_pdcp_for_drb = (gint)PDCP_drb_SN_12;
 static gint signalled_pdcp_sn_bits = 12;
 
-static gboolean global_rlc_lte_call_rrc_for_ccch = FALSE;
+static gboolean global_rlc_lte_call_rrc_for_ccch = TRUE;
 static gboolean global_rlc_lte_call_rrc_for_mcch = FALSE;
 static gboolean global_rlc_lte_call_ip_for_mtch = FALSE;
 
@@ -86,7 +87,7 @@ static gboolean global_rlc_lte_headers_expected = FALSE;
 static gboolean global_rlc_lte_heur = FALSE;
 
 /* Re-assembly of segments */
-static gboolean global_rlc_lte_reassembly = FALSE;
+static gboolean global_rlc_lte_reassembly = TRUE;
 
 /**************************************************/
 /* Initialize the protocol and registered fields. */
