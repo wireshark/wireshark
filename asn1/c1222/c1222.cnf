@@ -23,7 +23,7 @@ Calling-authentication-value-c1222/_untag/iv-element  BLURB="c1222.iv-element"
 Calling-authentication-value-c1222/_untag/key-id-element BLURB = "c1222.key-id-element"
 
 #.FN_BODY User-information
-  gint8 class;
+  gint8 end_device_class;
   gboolean pc, ind;
   gint32 tag;
   guint32 len;
@@ -32,11 +32,11 @@ Calling-authentication-value-c1222/_untag/key-id-element BLURB = "c1222.key-id-e
   FILL_START;
   
   /* get Tag and Length */
-  offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+  offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &end_device_class, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
   FILL_TABLE_TRUNCATE(user_information, len+offset-start_offset);
   if (tag == 0x8) {  /* BER_TAG_EXTERNAL */
-    offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+    offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &end_device_class, &pc, &tag);
     offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
     if (tag == 0x1) { /* implicit octet string */
       tf = proto_tree_add_item(tree, hf_c1222_user_information, tvb, offset, len, ENC_NA);

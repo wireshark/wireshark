@@ -27,7 +27,6 @@
 
 #include <glib.h>
 #include <epan/conversation.h>
-#include <wsutil/crc16.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -115,7 +114,6 @@ static int hf_c1222_epsem_total = -1;
 static int hf_c1222_cmd = -1;
 static int hf_c1222_err = -1;
 static int hf_c1222_data = -1;
-static int hf_c1222_crc = -1;
 /* individual epsem fields */
 static int hf_c1222_logon_id = -1;
 static int hf_c1222_logon_user = -1;
@@ -286,11 +284,11 @@ static uat_t *c1222_uat;
 #define FILL_START int length, start_offset = offset;
 #define FILL_TABLE(fieldname)  \
   length = offset - start_offset; \
-  fieldname = tvb_memdup(tvb, start_offset, length); \
+  fieldname = (guint8 *)tvb_memdup(tvb, start_offset, length); \
   fieldname##_len = length;
 #define FILL_TABLE_TRUNCATE(fieldname, len)  \
   length = 1 + 2*(offset - start_offset); \
-  fieldname = tvb_memdup(tvb, start_offset, length); \
+  fieldname = (guint8 *)tvb_memdup(tvb, start_offset, length); \
   fieldname##_len = len;
 #else /* HAVE_LIBGCRYPT */
 #define FILL_TABLE(fieldname)
@@ -669,7 +667,7 @@ encode_ber_len(guint8 *ptr, guint32 n, int maxsize)
 static void
 c1222_uat_data_update_cb(void* n, const char** err)
 {
-  c1222_uat_data_t* new_rec = n;
+  c1222_uat_data_t* new_rec = (c1222_uat_data_t *)n;
 
   if (new_rec->keynum > 0xff) {
     *err = "Invalid key number; must be less than 256";
@@ -889,7 +887,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
         return offset;
       encrypted = TRUE;
       if (c1222_decrypt) {
-	buffer = tvb_memdup(tvb, offset, len2);
+	buffer = (guchar *)tvb_memdup(tvb, offset, len2);
 	if (!decrypt_packet(buffer, len2, TRUE)) {
 	  g_free(buffer);
 	  crypto_bad = TRUE;
@@ -908,7 +906,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       len2 = tvb_length_remaining(tvb, offset);
       if (len2 <= 0)
         return offset;
-      buffer = tvb_memdup(tvb, offset, len2);
+      buffer = (guchar *)tvb_memdup(tvb, offset, len2);
       epsem_buffer = tvb_new_subset(tvb, offset, -1, -1);
       if (c1222_decrypt) {
 	if (!decrypt_packet(buffer, len2, FALSE)) {
@@ -1249,12 +1247,6 @@ void proto_register_c1222(void) {
     NULL, 0x0,
     NULL, HFILL }
    },
-   { &hf_c1222_crc,
-    { "C12.22 CRC", "c1222.crc",
-    FT_UINT16, BASE_HEX,
-    NULL, 0x0,
-    NULL, HFILL }
-   },
    { &hf_c1222_epsem_crypto_good,
     { "Crypto good", "c1222.crypto_good",
     FT_BOOLEAN, BASE_NONE,
@@ -1310,7 +1302,7 @@ void proto_register_c1222(void) {
       sizeof(c1222_uat_data_t),		/* record size */
       "c1222_decryption_table",		/* filename */
       TRUE,				/* from_profile */
-      (void*)&c1222_uat_data,		/* data_ptr */
+      (void**)&c1222_uat_data,		/* data_ptr */
       &num_c1222_uat_data,		/* numitems_ptr */
       UAT_AFFECTS_DISSECTION,		/* affects dissection of packets, but not set of named fields */
       NULL,				/* help */

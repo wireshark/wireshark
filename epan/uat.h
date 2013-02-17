@@ -421,12 +421,12 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  */
 #define UAT_BUFFER_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* u1 _U_, const void* u2 _U_) {\
-        char* new_buf = len ? g_memdup(buf,len) : NULL; \
+        char* new_buf = len ? (char *)g_memdup(buf,len) : NULL; \
 	g_free((((rec_t*)rec)->ptr_element)); \
 	(((rec_t*)rec)->ptr_element) = new_buf; \
 	(((rec_t*)rec)->len_element) = len; } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) {\
-	*out_ptr = ((rec_t*)rec)->ptr_element ? ep_memdup(((rec_t*)rec)->ptr_element,((rec_t*)rec)->len_element) : ""; \
+	*out_ptr = ((rec_t*)rec)->ptr_element ? (const char*)ep_memdup(((rec_t*)rec)->ptr_element,((rec_t*)rec)->len_element) : ""; \
 	*out_len = ((rec_t*)rec)->len_element; }
 
 #define UAT_FLD_BUFFER(basename,field_name,title,desc) \

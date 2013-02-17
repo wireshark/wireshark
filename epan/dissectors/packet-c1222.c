@@ -35,7 +35,6 @@
 
 #include <glib.h>
 #include <epan/conversation.h>
-#include <wsutil/crc16.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -121,7 +120,7 @@ static int hf_c1222_c1221_auth_request = -1;      /* OCTET_STRING_SIZE_1_255 */
 static int hf_c1222_c1221_auth_response = -1;     /* OCTET_STRING_SIZE_CONSTR002 */
 
 /*--- End of included file: packet-c1222-hf.c ---*/
-#line 91 "../../asn1/c1222/packet-c1222-template.c"
+#line 90 "../../asn1/c1222/packet-c1222-template.c"
 /* These are the EPSEM pieces */
 /* first, the flag components */
 static int hf_c1222_epsem_flags = -1;
@@ -149,7 +148,6 @@ static int hf_c1222_epsem_total = -1;
 static int hf_c1222_cmd = -1;
 static int hf_c1222_err = -1;
 static int hf_c1222_data = -1;
-static int hf_c1222_crc = -1;
 /* individual epsem fields */
 static int hf_c1222_logon_id = -1;
 static int hf_c1222_logon_user = -1;
@@ -225,7 +223,7 @@ static gint ett_c1222_Calling_authentication_value_c1222_U = -1;
 static gint ett_c1222_Calling_authentication_value_c1221_U = -1;
 
 /*--- End of included file: packet-c1222-ett.c ---*/
-#line 184 "../../asn1/c1222/packet-c1222-template.c"
+#line 182 "../../asn1/c1222/packet-c1222-template.c"
 
 
 /*------------------------------
@@ -331,11 +329,11 @@ static uat_t *c1222_uat;
 #define FILL_START int length, start_offset = offset;
 #define FILL_TABLE(fieldname)  \
   length = offset - start_offset; \
-  fieldname = tvb_memdup(tvb, start_offset, length); \
+  fieldname = (guint8 *)tvb_memdup(tvb, start_offset, length); \
   fieldname##_len = length;
 #define FILL_TABLE_TRUNCATE(fieldname, len)  \
   length = 1 + 2*(offset - start_offset); \
-  fieldname = tvb_memdup(tvb, start_offset, length); \
+  fieldname = (guint8 *)tvb_memdup(tvb, start_offset, length); \
   fieldname##_len = len;
 #else /* HAVE_LIBGCRYPT */
 #define FILL_TABLE(fieldname)
@@ -714,7 +712,7 @@ encode_ber_len(guint8 *ptr, guint32 n, int maxsize)
 static void
 c1222_uat_data_update_cb(void* n, const char** err)
 {
-  c1222_uat_data_t* new_rec = n;
+  c1222_uat_data_t* new_rec = (c1222_uat_data_t *)n;
 
   if (new_rec->keynum > 0xff) {
     *err = "Invalid key number; must be less than 256";
@@ -934,7 +932,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
         return offset;
       encrypted = TRUE;
       if (c1222_decrypt) {
-	buffer = tvb_memdup(tvb, offset, len2);
+	buffer = (guchar *)tvb_memdup(tvb, offset, len2);
 	if (!decrypt_packet(buffer, len2, TRUE)) {
 	  g_free(buffer);
 	  crypto_bad = TRUE;
@@ -953,7 +951,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       len2 = tvb_length_remaining(tvb, offset);
       if (len2 <= 0)
         return offset;
-      buffer = tvb_memdup(tvb, offset, len2);
+      buffer = (guchar *)tvb_memdup(tvb, offset, len2);
       epsem_buffer = tvb_new_subset(tvb, offset, -1, -1);
       if (c1222_decrypt) {
 	if (!decrypt_packet(buffer, len2, FALSE)) {
@@ -1388,7 +1386,7 @@ dissect_c1222_Calling_authentication_value(gboolean implicit_tag _U_, tvbuff_t *
 static int
 dissect_c1222_User_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 26 "../../asn1/c1222/c1222.cnf"
-  gint8 class;
+  gint8 end_device_class;
   gboolean pc, ind;
   gint32 tag;
   guint32 len;
@@ -1397,11 +1395,11 @@ dissect_c1222_User_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   FILL_START;
   
   /* get Tag and Length */
-  offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+  offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &end_device_class, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
   FILL_TABLE_TRUNCATE(user_information, len+offset-start_offset);
   if (tag == 0x8) {  /* BER_TAG_EXTERNAL */
-    offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+    offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &end_device_class, &pc, &tag);
     offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
     if (tag == 0x1) { /* implicit octet string */
       tf = proto_tree_add_item(tree, hf_c1222_user_information, tvb, offset, len, ENC_NA);
@@ -1458,7 +1456,7 @@ static void dissect_C1222_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 989 "../../asn1/c1222/packet-c1222-template.c"
+#line 987 "../../asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1722,12 +1720,6 @@ void proto_register_c1222(void) {
     NULL, 0x0,
     NULL, HFILL }
    },
-   { &hf_c1222_crc,
-    { "C12.22 CRC", "c1222.crc",
-    FT_UINT16, BASE_HEX,
-    NULL, 0x0,
-    NULL, HFILL }
-   },
    { &hf_c1222_epsem_crypto_good,
     { "Crypto good", "c1222.crypto_good",
     FT_BOOLEAN, BASE_NONE,
@@ -1829,7 +1821,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1271 "../../asn1/c1222/packet-c1222-template.c"
+#line 1263 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1850,7 +1842,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1281 "../../asn1/c1222/packet-c1222-template.c"
+#line 1273 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   module_t *c1222_module;
@@ -1883,7 +1875,7 @@ void proto_register_c1222(void) {
       sizeof(c1222_uat_data_t),		/* record size */
       "c1222_decryption_table",		/* filename */
       TRUE,				/* from_profile */
-      (void*)&c1222_uat_data,		/* data_ptr */
+      (void**)&c1222_uat_data,		/* data_ptr */
       &num_c1222_uat_data,		/* numitems_ptr */
       UAT_AFFECTS_DISSECTION,		/* affects dissection of packets, but not set of named fields */
       NULL,				/* help */
