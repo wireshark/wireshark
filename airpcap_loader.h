@@ -35,9 +35,9 @@ extern "C" {
 #endif
 
 /* Error values from "get_airpcap_interface_list()". */
-#define	CANT_GET_AIRPCAP_INTERFACE_LIST	0	/* error getting list */
-#define	NO_AIRPCAP_INTERFACES_FOUND	1	/* list is empty */
-#define AIRPCAP_NOT_LOADED		2	/* Airpcap DLL not loaded */
+#define CANT_GET_AIRPCAP_INTERFACE_LIST 0    /* error getting list */
+#define NO_AIRPCAP_INTERFACES_FOUND     1    /* list is empty */
+#define AIRPCAP_NOT_LOADED              2    /* Airpcap DLL not loaded */
 
 #define AIRPCAP_CHANNEL_ANY_NAME "ANY"
 
@@ -48,10 +48,10 @@ extern "C" {
 #define AIRPCAP_WPA_PWD_KEY_STRING  "WPA-PWD"
 #define AIRPCAP_WPA_BIN_KEY_STRING  "WPA-PSK"
 
-#define AIRPCAP_DLL_OK			0
-#define AIRPCAP_DLL_OLD			1
-#define AIRPCAP_DLL_ERROR		2
-#define AIRPCAP_DLL_NOT_FOUND	3
+#define AIRPCAP_DLL_OK        0
+#define AIRPCAP_DLL_OLD       1
+#define AIRPCAP_DLL_ERROR     2
+#define AIRPCAP_DLL_NOT_FOUND 3
 
 typedef gchar * (*AirpcapGetLastErrorHandler)(PAirpcapHandle AdapterHandle);
 typedef gboolean (*AirpcapGetDeviceListHandler)(PAirpcapDeviceDescription *PPAllDevs, gchar * Ebuf);
@@ -89,16 +89,16 @@ typedef gboolean (*AirpcapSetDeviceChannelExHandler)(PAirpcapHandle AdapterHandl
 typedef gboolean (*AirpcapGetDeviceChannelExHandler)(PAirpcapHandle AdapterHandle, PAirpcapChannelInfo PChannelInfo);
 typedef gboolean (*AirpcapGetDeviceSupportedChannelsHandler)(PAirpcapHandle AdapterHandle, AirpcapChannelInfo **ppChannelInfo, guint32 * pNumChannelInfo);
 
-#define FLAG_CAN_BE_LOW		0x00000001
-#define FLAG_CAN_BE_HIGH	0x00000002
-#define FLAG_IS_BG_CHANNEL	0x00000004
-#define FLAG_IS_A_CHANNEL	0x00000008
+#define FLAG_CAN_BE_LOW    0x00000001
+#define FLAG_CAN_BE_HIGH   0x00000002
+#define FLAG_IS_BG_CHANNEL 0x00000004
+#define FLAG_IS_A_CHANNEL  0x00000008
 
 typedef struct _Dot11Channel
 {
-	guint  Channel;
-	guint32 Frequency;
-	guint32 Flags;
+    guint  Channel;
+    guint32 Frequency;
+    guint32 Flags;
 } Dot11Channel;
 
 /*
@@ -106,23 +106,23 @@ typedef struct _Dot11Channel
  * a list of these structures.
  */
 typedef struct {
-	char					*name;				/* e.g. "eth0" */
-	char					*description;		/* from OS, e.g. "Local Area Connection" or NULL */
-	GSList					*ip_addr;			/* containing address values of if_addr_t */
-	gboolean				loopback;			/* TRUE if loopback, FALSE otherwise */
-	AirpcapLinkType			linkType;			/* The link layer type */
-	AirpcapChannelInfo		channelInfo;		/* Channel Information */
-	gboolean					IsFcsPresent;		/* Include 802.11 CRC in frames */
-	AirpcapValidationType	CrcValidationOn;	/* Capture Frames with Wrong CRC */
-	AirpcapDecryptionState  DecryptionOn;		/* TRUE if decryption is on, FALSE otherwise */
-	PAirpcapKeysCollection  keysCollection;		/* WEP Key collection for the adapter */
-	guint					keysCollectionSize;	/* Size of the key collection */
-	gboolean				blinking;			/* TRUE if is blinkng, FALSE otherwise */
-	gboolean				led;				/* TRUE if on, FALSE if off */
-	gboolean				saved;				/* TRUE if current configuration has been saved, FALSE otherwise */
-	gint					tag;				/* int for the gtk blinking callback */
-	Dot11Channel			*pSupportedChannels;
-	guint32					numSupportedChannels;
+    char                    *name;              /* e.g. "eth0" */
+    char                    *description;       /* from OS, e.g. "Local Area Connection" or NULL */
+    GSList                  *ip_addr;           /* containing address values of if_addr_t */
+    gboolean                loopback;           /* TRUE if loopback, FALSE otherwise */
+    AirpcapLinkType         linkType;           /* The link layer type */
+    AirpcapChannelInfo      channelInfo;        /* Channel Information */
+    gboolean                IsFcsPresent;       /* Include 802.11 CRC in frames */
+    AirpcapValidationType   CrcValidationOn;    /* Capture Frames with Wrong CRC */
+    AirpcapDecryptionState  DecryptionOn;       /* TRUE if decryption is on, FALSE otherwise */
+    PAirpcapKeysCollection  keysCollection;     /* WEP Key collection for the adapter */
+    guint                   keysCollectionSize; /* Size of the key collection */
+    gboolean                blinking;           /* TRUE if is blinkng, FALSE otherwise */
+    gboolean                led;                /* TRUE if on, FALSE if off */
+    gboolean                saved;              /* TRUE if current configuration has been saved, FALSE otherwise */
+    gint                    tag;                /* int for the gtk blinking callback */
+    Dot11Channel            *pSupportedChannels;
+    guint32                 numSupportedChannels;
 } airpcap_if_info_t;
 
 /*
