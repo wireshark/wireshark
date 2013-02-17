@@ -169,13 +169,13 @@ AirpcapMacAddress, *PAirpcapMacAddress;
 /*!
   \brief This structure is used to store a collection of WEP keys.
   Note that the definition of the structure doesn't contain any key, so be careful to allocate a buffer
-  with the size of the key, like in the following example:
+  with the size of the set of keys, as per the following example:
 
   \code
     PAirpcapKeysCollection KeysCollection;
     guint KeysCollectionSize;
 
-    KeysCollectionSize = sizeof(AirpcapKeysCollection) + NumKeys * sizeof(AirpcapKey);
+    KeysCollectionSize = AirpcapKeysCollectionSize(NumKeys);
 
     KeysCollection = (PAirpcapKeysCollection)malloc(KeysCollectionSize);
     if(!KeysCollection)
@@ -189,6 +189,8 @@ typedef struct _AirpcapKeysCollection
     guint nKeys;                    /* < Number of keys in the collection */
     AirpcapKey Keys[0];             /* < Array of nKeys keys. */
 } AirpcapKeysCollection, *PAirpcapKeysCollection;
+
+#define AirpcapKeysCollectionSize(nKeys) (sizeof(AirpcapKeysCollection) + ((nKeys) * sizeof(AirpcapKey)))
 
 /*!
   \brief Packet header.

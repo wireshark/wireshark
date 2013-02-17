@@ -350,7 +350,7 @@ write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list)
     /*
      * Calculate the size of the keys collection
      */
-    KeysCollectionSize = (guint)(sizeof(AirpcapKeysCollection) + keys_in_list * sizeof(AirpcapKey));
+    KeysCollectionSize = (guint)AirpcapKeysCollectionSize(keys_in_list);
 
     /*
      * Allocate the collection
@@ -449,7 +449,7 @@ write_wlan_driver_wep_keys_to_registry(GList* key_list)
     /*
      * Calculate the size of the keys collection
      */
-    KeysCollectionSize = (guint)(sizeof(AirpcapKeysCollection) + keys_in_list * sizeof(AirpcapKey));
+    KeysCollectionSize = (guint)AirpcapKeysCollectionSize(keys_in_list);
 
     /*
      * Allocate the collection

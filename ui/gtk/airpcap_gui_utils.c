@@ -715,7 +715,7 @@ airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_in
     /*
      * Calculate the size of the keys collection
      */
-    KeysCollectionSize = (guint) (sizeof(AirpcapKeysCollection) + keys_in_list * sizeof(AirpcapKey));
+    KeysCollectionSize = (guint)AirpcapKeysCollectionSize(keys_in_list);
 
     /*
      * Allocate the collection
