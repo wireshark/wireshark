@@ -51,8 +51,10 @@ static int hf_isdn_sup_operation = -1;
 
 /* Global variables */
 
+#if 0
 /* ROSE context */
 static rose_ctx_t isdn_sup_rose_ctx;
+#endif
 
 typedef struct _isdn_sup_op_t {
   gint32 opcode;
@@ -78,7 +80,7 @@ static const value_string isdn_sup_str_operation[] = {
   {  19, "divertingLegInformation3" },
 
 /*--- End of included file: packet-isdn-sup-table10.c ---*/
-#line 57 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 59 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   {   0, NULL}
 };
 
@@ -90,7 +92,7 @@ static const value_string isdn_sup_str_error[] = {
 /* Unknown or empty loop list ERROR */
 
 /*--- End of included file: packet-isdn-sup-table20.c ---*/
-#line 63 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 65 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   {   0, NULL}
 };
 #endif
@@ -171,7 +173,7 @@ static int hf_isdn_sup_allNumbers = -1;           /* NULL */
 static int hf_isdn_sup_ServedUserNumberList_item = -1;  /* PartyNumber */
 
 /*--- End of included file: packet-isdn-sup-hf.c ---*/
-#line 69 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 71 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 
 /* Initialize the subtree pointers */
@@ -208,7 +210,7 @@ static gint ett_isdn_sup_ServedUserNr = -1;
 static gint ett_isdn_sup_ServedUserNumberList = -1;
 
 /*--- End of included file: packet-isdn-sup-ett.c ---*/
-#line 75 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 77 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 
 /* Preference settings default */
@@ -492,71 +494,7 @@ dissect_isdn_sup_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const value_string isdn_sup_PresentedAddressUnscreened_vals[] = {
-  {   0, "presentationAllowedAddress" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueToInterworking" },
-  {   3, "presentationRestrictedAddress" },
-  { 0, NULL }
-};
 
-static const ber_choice_t PresentedAddressUnscreened_choice[] = {
-  {   0, &hf_isdn_sup_presentationAllowedAddress_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Address },
-  {   1, &hf_isdn_sup_presentationRestricted, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
-  {   2, &hf_isdn_sup_numberNotAvailableDueToInterworking, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
-  {   3, &hf_isdn_sup_presentationRestrictedAddress_01, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Address },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_isdn_sup_PresentedAddressUnscreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PresentedAddressUnscreened_choice, hf_index, ett_isdn_sup_PresentedAddressUnscreened,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t NumberScreened_sequence[] = {
-  { &hf_isdn_sup_partyNumber, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_PartyNumber },
-  { &hf_isdn_sup_screeningIndicator, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_ScreeningIndicator },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_isdn_sup_NumberScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   NumberScreened_sequence, hf_index, ett_isdn_sup_NumberScreened);
-
-  return offset;
-}
-
-
-static const value_string isdn_sup_PresentedNumberScreened_vals[] = {
-  {   0, "presentationAllowedNumber" },
-  {   1, "presentationRestricted" },
-  {   2, "numberNotAvailableDueToInterworking" },
-  {   3, "presentationRestrictedNumber" },
-  { 0, NULL }
-};
-
-static const ber_choice_t PresentedNumberScreened_choice[] = {
-  {   0, &hf_isdn_sup_presentationAllowedNumber, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NumberScreened },
-  {   1, &hf_isdn_sup_presentationRestricted, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
-  {   2, &hf_isdn_sup_numberNotAvailableDueToInterworking, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
-  {   3, &hf_isdn_sup_presentationRestrictedNumber, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NumberScreened },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_isdn_sup_PresentedNumberScreened(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PresentedNumberScreened_choice, hf_index, ett_isdn_sup_PresentedNumberScreened,
-                                 NULL);
-
-  return offset;
-}
 
 
 static const value_string isdn_sup_PresentedNumberUnscreened_vals[] = {
@@ -1078,7 +1016,7 @@ static int dissect_DivertingLegInformation3Arg_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-isdn-sup-fn.c ---*/
-#line 82 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 84 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 static const isdn_sup_op_t isdn_sup_op_tab[] = {
 
@@ -1098,7 +1036,7 @@ static const isdn_sup_op_t isdn_sup_op_tab[] = {
   /* divertingLegInformation3 */ {  19, dissect_DivertingLegInformation3Arg_PDU, NULL },
 
 /*--- End of included file: packet-isdn-sup-table11.c ---*/
-#line 85 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 87 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
 #if 0
@@ -1109,7 +1047,7 @@ static const isdn_sup_err_t isdn_sup_err_tab[] = {
 /* Unknown or empty loop list ERROR */
 
 /*--- End of included file: packet-isdn-sup-table21.c ---*/
-#line 90 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 92 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 #endif
 
@@ -1538,7 +1476,7 @@ void proto_register_isdn_sup(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-isdn-sup-hfarr.c ---*/
-#line 234 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 236 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* List of subtrees */
@@ -1576,7 +1514,7 @@ void proto_register_isdn_sup(void) {
     &ett_isdn_sup_ServedUserNumberList,
 
 /*--- End of included file: packet-isdn-sup-ettarr.c ---*/
-#line 241 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 243 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* Register fields and subtrees */

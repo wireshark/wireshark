@@ -43,8 +43,10 @@ static int hf_isdn_sup_operation = -1;
 
 /* Global variables */
 
+#if 0
 /* ROSE context */
 static rose_ctx_t isdn_sup_rose_ctx;
+#endif
 
 typedef struct _isdn_sup_op_t {
   gint32 opcode;

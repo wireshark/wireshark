@@ -24,6 +24,12 @@ OPERATION.&ResultType
 
 #.END
 
+#.NO_EMIT
+PresentedAddressUnscreened
+PresentedNumberScreened
+NumberScreened
+#.END
+
 #.TYPE_RENAME
 #.END                           
 
