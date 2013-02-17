@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-02-08
+# 2013-02-12
 # 
 # Expert(s)
 # 
@@ -15341,7 +15341,7 @@ iuhsctpassoc	29169/sctp	# HNBAP and RUA Common         [John_Meredith]          
 bingbang	29999/tcp	# IEC61850 in wind power       [DEIF_AS]                                          [Armin_Solies]                                            2012-10-15
 # plants
 # 29999       udp    Reserved
-ndmps	30000/tcp	# Secure Network Data          [None]                                             [Alioune_Thiam]                                           2013-02-05
+ndmps	30000/tcp	# Secure Network Data          [Alioune_Thiam]                                    [Alioune_Thiam]                                           2013-02-05
 # Management Protocol
 # 30000       udp    Reserved
 pago-services1	30001/tcp	# Pago Services 1              [Balduin_Mueller_Plat]                             [Balduin_Mueller_Plat]                                    2002-03
