@@ -117,14 +117,14 @@ static heur_dissector_list_t heur_subdissector_list;
 
 #define MAX_UNMASKED_LEN (1024 * 64)
 tvbuff_t *
-tvb_unmasked(tvbuff_t *tvb, const int offset, int payload_length, const guint8 *masking_key)
+tvb_unmasked(tvbuff_t *tvb, const guint offset, guint payload_length, const guint8 *masking_key)
 {
 
   gchar *data_unmask;
   tvbuff_t *tvb_unmask = NULL;
-  int i;
+  guint i;
   const guint8 *data_mask;
-  int unmasked_length = payload_length > MAX_UNMASKED_LEN ? MAX_UNMASKED_LEN : payload_length;
+  guint unmasked_length = payload_length > MAX_UNMASKED_LEN ? MAX_UNMASKED_LEN : payload_length;
 
   data_unmask = g_malloc(unmasked_length);
   data_mask = tvb_get_ptr(tvb, offset, unmasked_length);
@@ -139,9 +139,9 @@ tvb_unmasked(tvbuff_t *tvb, const int offset, int payload_length, const guint8 *
 }
 
 static int
-dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ws_tree, guint8 opcode, int payload_length, guint8 mask, const guint8* masking_key)
+dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ws_tree, guint8 opcode, guint payload_length, guint8 mask, const guint8* masking_key)
 {
-  int offset = 0;
+  guint offset = 0;
   proto_item *ti_unmask, *ti;
   dissector_handle_t handle;
   proto_tree *pl_tree, *mask_tree = NULL;
@@ -153,7 +153,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
   if(mask){
     payload_tvb = tvb_unmasked(tvb, offset, payload_length, masking_key);
     tvb_set_child_real_data_tvbuff(tvb, payload_tvb);
-    add_new_data_source(pinfo, payload_tvb, payload_length > (int) tvb_length(payload_tvb) ? "Unmasked Data (truncated)" : "Unmasked Data");
+    add_new_data_source(pinfo, payload_tvb, payload_length > tvb_length(payload_tvb) ? "Unmasked Data (truncated)" : "Unmasked Data");
     ti = proto_tree_add_item(ws_tree, hf_ws_payload_unmask, payload_tvb, offset, payload_length, ENC_NA);
     mask_tree = proto_item_add_subtree(ti, ett_ws_mask);
   }else{
@@ -272,8 +272,8 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
   proto_item *ti, *ti_len;
   guint8 fin, opcode, mask;
-  int length, short_length, payload_length, recurse_length;
-  int payload_offset, mask_offset, recurse_offset;
+  guint length, short_length, payload_length, recurse_length;
+  guint payload_offset, mask_offset, recurse_offset;
   proto_tree *ws_tree = NULL;
   const guint8 *masking_key = NULL;
   tvbuff_t *tvb_payload = NULL;
@@ -298,8 +298,8 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
       pinfo->desegment_len = 2+8;
       return 0;
     }
-	/* warning C4244: '=' : conversion from 'guint64' to 'int ', possible loss of data */
-    payload_length = (int)tvb_get_ntoh64(tvb, 2);
+	/* warning C4244: '=' : conversion from 'guint64' to 'guint ', possible loss of data */
+    payload_length = (guint)tvb_get_ntoh64(tvb, 2);
     mask_offset = 2+8;
   }
   else{
@@ -410,7 +410,7 @@ proto_register_websocket(void)
       "The length (16 bits) of the Payload data", HFILL }
     },
     { &hf_ws_payload_length_ext_64,
-      { "Extended Payload length (16 bits)", "websocket.payload_length_ext_64",
+      { "Extended Payload length (64 bits)", "websocket.payload_length_ext_64",
       FT_UINT64, BASE_DEC, NULL, 0x0,
       "The length (64 bits) of the Payload data", HFILL }
     },
