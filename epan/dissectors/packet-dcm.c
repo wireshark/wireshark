@@ -38,6 +38,14 @@
  * - Read private tags from configuration and parse in capture
  * - dissect_dcm_heuristic() to return proper data type
  *
+ * February 2013 - Stefan Allers
+ *
+ * - Support for dissection of Extended Negotiation (Query/Retrieve
+ * - Support for dissection of SCP/SCU Role Selection
+ * - Support for dissection of Async Operations Window Negotiation
+ * - Fixed: Unproper calculation of length for Association Header
+ * - Missing UIDs (Transfer Syntax, SOP Class...) added acc. PS 3.x-2011
+ *
  * Jul 11, 2010 - David Aggeler
  *
  * - Finally, better reassembly using fragment_add_seq_next().
@@ -280,6 +288,14 @@ static int hf_dcm_info_extneg_relational_query = -1;
 static int hf_dcm_info_extneg_date_time_matching = -1;
 static int hf_dcm_info_extneg_fuzzy_semantic_matching = -1;
 static int hf_dcm_info_extneg_timezone_query_adjustment = -1;
+static int hf_dcm_info_rolesel = -1;
+static int hf_dcm_info_rolesel_sopclassuid_len = -1;
+static int hf_dcm_info_rolesel_sopclassuid = -1;
+static int hf_dcm_info_rolesel_scurole = -1;
+static int hf_dcm_info_rolesel_scprole = -1;
+static int hf_dcm_info_async_neg = -1;
+static int hf_dcm_info_async_neg_max_num_ops_inv = -1;
+static int hf_dcm_info_async_neg_max_num_ops_per = -1;
 static int hf_dcm_pdu_maxlen = -1;
 static int hf_dcm_pdv_len = -1;
 static int hf_dcm_pdv_ctx = -1;
@@ -307,6 +323,8 @@ static gint ett_assoc_info = -1;
 static gint ett_assoc_info_uid = -1;
 static gint ett_assoc_info_version = -1;
 static gint ett_assoc_info_extneg = -1;
+static gint ett_assoc_info_rolesel = -1;
+static gint ett_assoc_info_async_neg = -1;
 static gint ett_dcm_data = -1;
 static gint ett_dcm_data_pdv = -1;
 static gint ett_dcm_data_tag = -1;
@@ -335,6 +353,8 @@ static const value_string dcm_assoc_item_type[] = {
     { 0x50, "User Info" },
     { 0x51, "Max Length" },
     { 0x52, "Implementation Class UID" },
+    { 0x53, "Asynchronous Operations Window Negotiation" },
+    { 0x54, "SCP/SCU Role Selection" },
     { 0x55, "Implementation Version" },
     { 0x56, "SOP Class Extended Negotiation" },
     { 0, NULL }
@@ -3410,7 +3430,79 @@ typedef struct dcm_uid {
     const gchar *type;
 } dcm_uid_t;
 
+#define DCM_UID_TRANSFER_SYNTAX_IMPLICIT_VR_LITTLE_ENDIAN "1.2.840.10008.1.2"
+#define DCM_UID_TRANSFER_SYNTAX_EXPLICIT_VR_LITTLE_ENDIAN "1.2.840.10008.1.2.1"
+#define DCM_UID_TRANSFER_SYNTAX_DEFLATED_EXPLICIT_VR_LITTLE_ENDIAN "1.2.840.10008.1.2.1.99"
+#define DCM_UID_TRANSFER_SYNTAX_DEFLATED_EXPLICIT_VR_BIG_ENDIAN "1.2.840.10008.1.2.2"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_BASELINE_PROCESS_1_LOSSY_8_BIT "1.2.840.10008.1.2.4.50"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_EXTENDED_PROCESS_2_4_LOSSY_12_BIT "1.2.840.10008.1.2.4.51"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_EXTENDED_PROCESS_3_5_RETIRED "1.2.840.10008.1.2.4.52"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_SPECTRAL_SELECTION_NON_HIERARCHICAL_PROCESS_6_8_RETIRED "1.2.840.10008.1.2.4.53"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_SPECTRAL_SELECTION_NON_HIERARCHICAL_PROCESS_7_9_RETIRED "1.2.840.10008.1.2.4.54"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_FULL_PROGRESSION_NON_HIERARCHICAL_PROCESS_10_12_RETIRED "1.2.840.10008.1.2.4.55"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_FULL_PROGRESSION_NON_HIERARCHICAL_PROCESS_11_13_RETIRED "1.2.840.10008.1.2.4.56"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_LOSSLESS_NON_HIERARCHICAL_PROCESS_14_RETIRED "1.2.840.10008.1.2.4.57"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_LOSSLESS_NON_HIERARCHICAL_PROCESS_15_RETIRED "1.2.840.10008.1.2.4.58"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_EXTENDED_HIERARCHICAL_PROCESS_16_18_RETIRED "1.2.840.10008.1.2.4.59"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_EXTENDED_HIERARCHICAL_PROCESS_17_19_RETIRED "1.2.840.10008.1.2.4.60"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_SPECTRAL_SELECTION_HIERARCHICAL_PROCESS_20_22_RETIRED "1.2.840.10008.1.2.4.61"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_SPECTRAL_SELECTION_HIERARCHICAL_PROCESS_21_23_RETIRED "1.2.840.10008.1.2.4.62"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_FULL_PROGRESSION_HIERARCHICAL_PROCESS_24_26_RETIRED "1.2.840.10008.1.2.4.63"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_FULL_PROGRESSION_HIERARCHICAL_PROCESS_25_27_RETIRED "1.2.840.10008.1.2.4.64"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_LOSSLESS_HIERARCHICAL_PROCESS_28_RETIRED "1.2.840.10008.1.2.4.65"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_LOSSLESS_HIERARCHICAL_PROCESS_29_RETIRED "1.2.840.10008.1.2.4.66"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_LOSSLESS_NON_HIERARCHICAL_FIRST_ORDER_PREDICTION_PROCESS_14 "1.2.840.10008.1.2.4.70"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_LS_LOSSLESS "1.2.840.10008.1.2.4.80"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_LS_LOSSY "1.2.840.10008.1.2.4.81"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_2000_LOSSLESS_ONLY "1.2.840.10008.1.2.4.90"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_2000 "1.2.840.10008.1.2.4.91"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_2000_PART_2_MULTI_COMPONENT_LOSSLESS_ONLY "1.2.840.10008.1.2.4.92"
+#define DCM_UID_TRANSFER_SYNTAX_JPEG_2000_PART_2_MULTI_COMPONENT "1.2.840.10008.1.2.4.93"
+#define DCM_UID_TRANSFER_SYNTAX_JPIP_REFERENCED "1.2.840.10008.1.2.4.94"
+#define DCM_UID_TRANSFER_SYNTAX_JPIP_REFERENCED_DEFLATE "1.2.840.10008.1.2.4.95"
+#define DCM_UID_TRANSFER_SYNTAX_MPEG2_MAIN_PROFILE_MAIN_LEVEL "1.2.840.10008.1.2.4.100"
+#define DCM_UID_TRANSFER_SYNTAX_MPEG2_MAIN_PROFILE_HIGH_LEVEL "1.2.840.10008.1.2.4.101"
+#define DCM_UID_TRANSFER_SYNTAX_MPEG4_AVC_H264_HIGH_PROFILE_LEVEL_4_1 "1.2.840.10008.1.2.4.102"
+#define DCM_UID_TRANSFER_SYNTAX_MPEG4_AVC_H264_BD_COMPATIBLE_HIGH_PROFILE_LEVEL_4_1 "1.2.840.10008.1.2.4.103"
+#define DCM_UID_TRANSFER_SYNTAX_RLE_LOSSLESS "1.2.840.10008.1.2.5"
+#define DCM_UID_TRANSFER_SYNTAX_RFC_2557_MIME_ENCAPSULATION "1.2.840.10008.1.2.6.1"
+#define DCM_UID_TRANSFER_SYNTAX_XML_ENCODING "1.2.840.10008.1.2.6.2"
+
+#define DCM_UID_SERVICE_CLASS_UNIFIED_WORKLIST_AND_PROCEDURE_STEP "1.2.840.10008.5.1.4.34.6"
+
 #define DCM_UID_SOP_CLASS_VERIFICATION "1.2.840.10008.1.1"
+#define DCM_UID_SOP_CLASS_MEDIA_STORAGE_DIRECTORY_STORAGE "1.2.840.10008.1.3.10"
+#define DCM_UID_SOP_CLASS_ENHANCED_MR_COLOR_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.4.3"
+#define DCM_UID_SOP_CLASS_ENHANCED_US_VOLUME_STORAGE "1.2.840.10008.5.1.4.1.1.6.2"
+#define DCM_UID_SOP_CLASS_GENERAL_AUDIO_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.4.2"
+#define DCM_UID_SOP_CLASS_ARTERIAL_PULSE_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.5.1"
+#define DCM_UID_SOP_CLASS_RESPIRATORY_WAVEFORM_STORAGE "1.2.840.10008.5.1.4.1.1.9.6.1"
+#define DCM_UID_SOP_CLASS_XA_XRF_GRAYSCALE_SOFTCOPY_PRESENTATION_STATE_STORAGE "1.2.840.10008.5.1.4.1.1.11.5"
+#define DCM_UID_SOP_CLASS_BREAST_TOMOSYNTHESIS_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.13.1.3"
+#define DCM_UID_SOP_CLASS_INTRAVASCULAR_OPTICAL_COHERENCE_TOMOGRAPHY_IMAGE_STORAGE_FOR_PRESENTATION "1.2.840.10008.5.1.4.1.1.14.1"
+#define DCM_UID_SOP_CLASS_INTRAVASCULAR_OPTICAL_COHERENCE_TOMOGRAPHY_IMAGE_STORAGE_FOR_PROCESSING "1.2.840.10008.5.1.4.1.1.14.2"
+#define DCM_UID_SOP_CLASS_SURFACE_SEGMENTATION_STORAGE "1.2.840.10008.5.1.4.1.1.66.5"
+#define DCM_UID_SOP_CLASS_VL_WHOLE_SLIDE_MICROSCOPY_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.77.1.6"
+#define DCM_UID_SOP_CLASS_LENSOMETRY_MEASUREMENTS_STORAGE "1.2.840.10008.5.1.4.1.1.78.1"
+#define DCM_UID_SOP_CLASS_AUTOREFRACTION_MEASUREMENTS_STORAGE "1.2.840.10008.5.1.4.1.1.78.2"
+#define DCM_UID_SOP_CLASS_KERATOMETRY_MEASUREMENTS_STORAGE "1.2.840.10008.5.1.4.1.1.78.3"
+#define DCM_UID_SOP_CLASS_SUBJECTIVE_REFRACTION_MEASUREMENTS_STORAGE "1.2.840.10008.5.1.4.1.1.78.4"
+#define DCM_UID_SOP_CLASS_VISUAL_ACUITY_MEASUREMENTS_STORAGE "1.2.840.10008.5.1.4.1.1.78.5"
+#define DCM_UID_SOP_CLASS_SPECTACLE_PRESCRIPTION_REPORT_STORAGE "1.2.840.10008.5.1.4.1.1.78.6"
+#define DCM_UID_SOP_CLASS_OPHTHALMIC_AXIAL_MEASUREMENTS_STORAGE "1.2.840.10008.5.1.4.1.1.78.7"
+#define DCM_UID_SOP_CLASS_INTRAOCULAR_LENS_CALCULATIONS_STORAGE "1.2.840.10008.5.1.4.1.1.78.8"
+#define DCM_UID_SOP_CLASS_MACULAR_GRID_THICKNESS_AND_VOLUME_REPORT_STORAGE "1.2.840.10008.5.1.4.1.1.79.1"
+#define DCM_UID_SOP_CLASS_OPHTHALMIC_VISUAL_FIELD_STATIC_PERIMETRY_MEASUREMENTS_STORAGE "1.2.840.10008.5.1.4.1.1.80.1"
+#define DCM_UID_SOP_CLASS_COLON_CAD_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.69"
+#define DCM_UID_SOP_CLASS_IMPLEMENTATION_PLAN_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.70"
+#define DCM_UID_SOP_CLASS_ENHANCED_PET_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.130"
+#define DCM_UID_SOP_CLASS_BASIC_STRUCTURED_DISPLAY_STORAGE "1.2.840.10008.5.1.4.1.1.131"
+#define DCM_UID_SOP_CLASS_DICOS_CT_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.501.1"
+#define DCM_UID_SOP_CLASS_DICOS_DIGITAL_XRAY_IMAGE_STORAGE_FOR_PRESENTATION "1.2.840.10008.5.1.4.1.1.501.2.1"
+#define DCM_UID_SOP_CLASS_DICOS_DIGITAL_XRAY_IMAGE_STORAGE_FOR_PROCESSING "1.2.840.10008.5.1.4.1.1.501.2.2"
+#define DCM_UID_SOP_CLASS_DICOS_THREAT_DETECTION_REPORT_STORAGE "1.2.840.10008.5.1.4.1.1.501.3"
+#define DCM_UID_SOP_CLASS_EDDY_CURRENT_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.601.1"
+#define DCM_UID_SOP_CLASS_EDDY_CURRENT_MULTIFRAME_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.601.2"
 #define DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_FIND "1.2.840.10008.5.1.4.1.2.1.1"
 #define DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_MOVE "1.2.840.10008.5.1.4.1.2.1.2"
 #define DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_GET "1.2.840.10008.5.1.4.1.2.1.3"
@@ -3420,49 +3512,92 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_FIND "1.2.840.10008.5.1.4.1.2.3.1"
 #define DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_MOVE "1.2.840.10008.5.1.4.1.2.3.2"
 #define DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_GET "1.2.840.10008.5.1.4.1.2.3.3"
+#define DCM_UID_SOP_CLASS_COMPOSITE_INSTANCE_ROOT_RETRIEVE_MOVE "1.2.840.10008.5.1.4.1.2.4.2"
+#define DCM_UID_SOP_CLASS_COMPOSITE_INSTANCE_ROOT_RETRIEVE_GET "1.2.840.10008.5.1.4.1.2.4.3"
+#define DCM_UID_SOP_CLASS_COMPOSITE_INSTANCE_RETRIEVE_WITHOUT_BULK_DATA_GET "1.2.840.10008.5.1.4.1.2.5.3"
+#define DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_PUSH "1.2.840.10008.5.1.4.34.6.1"
+#define DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_WATCH "1.2.840.10008.5.1.4.34.6.2"
+#define DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_PULL "1.2.840.10008.5.1.4.34.6.3"
+#define DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_EVENT "1.2.840.10008.5.1.4.34.6.4"
+#define DCM_UID_SOP_CLASS_RT_BEAMS_DELIVERY_INSTRUCTION_STORAGE "1.2.840.10008.5.1.4.34.7"
+#define DCM_UID_SOP_CLASS_RT_CONVENTIONAL_MACHINE_VERIFICATION "1.2.840.10008.5.1.4.34.8"
+#define DCM_UID_SOP_CLASS_RT_ION_MACHINE_VERIFICATION "1.2.840.10008.5.1.4.34.9"
+#define DCM_UID_SOP_CLASS_COLOR_PALETTE_STORAGE "1.2.840.10008.5.1.4.39.1"
+#define DCM_UID_SOP_CLASS_COLOR_PALETTE_INFORMATION_MODEL_FIND "1.2.840.10008.5.1.4.39.2"
+#define DCM_UID_SOP_CLASS_COLOR_PALETTE_INFORMATION_MODEL_MOVE "1.2.840.10008.5.1.4.39.3"
+#define DCM_UID_SOP_CLASS_COLOR_PALETTE_INFORMATION_MODEL_GET "1.2.840.10008.5.1.4.39.4"
+#define DCM_UID_SOP_CLASS_GENERIC_IMPLANT_TEMPLATE_STORAGE "1.2.840.10008.5.1.4.43.1"
+#define DCM_UID_SOP_CLASS_GENERIC_IMPLANT_TEMPLATE_INFORMATION_MODEL_FIND "1.2.840.10008.5.1.4.43.2"
+#define DCM_UID_SOP_CLASS_GENERIC_IMPLANT_TEMPLATE_INFORMATION_MODEL_MOVE "1.2.840.10008.5.1.4.43.3"
+#define DCM_UID_SOP_CLASS_GENERIC_IMPLANT_TEMPLATE_INFORMATION_MODEL_GET "1.2.840.10008.5.1.4.43.4"
+#define DCM_UID_SOP_CLASS_IMPLANT_ASSEMBLY_TEMPLATE_STORAGE "1.2.840.10008.5.1.4.44.1"
+#define DCM_UID_SOP_CLASS_IMPLANT_ASSEMBLY_TEMPLATE_INFORMATION_MODEL_FIND "1.2.840.10008.5.1.4.44.2"
+#define DCM_UID_SOP_CLASS_IMPLANT_ASSEMBLY_TEMPLATE_INFORMATION_MODEL_MOVE "1.2.840.10008.5.1.4.44.3"
+#define DCM_UID_SOP_CLASS_IMPLANT_ASSEMBLY_TEMPLATE_INFORMATION_MODEL_GET "1.2.840.10008.5.1.4.44.4"
+#define DCM_UID_SOP_CLASS_IMPLANT_TEMPLATE_GROUP_STORAGE "1.2.840.10008.5.1.4.45.1"
+#define DCM_UID_SOP_CLASS_IMPLANT_TEMPLATE_GROUP_INFORMATION_MODEL_FIND "1.2.840.10008.5.1.4.45.2"
+#define DCM_UID_SOP_CLASS_IMPLANT_TEMPLATE_GROUP_INFORMATION_MODEL_MOVE "1.2.840.10008.5.1.4.45.3"
+#define DCM_UID_SOP_CLASS_IMPLANT_TEMPLATE_GROUP_INFORMATION_MODEL_GET "1.2.840.10008.5.1.4.45.4"
+
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_TALAIRACH_BARIN_ATLAS "1.2.840.10008.1.4.1.1"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_T1 "1.2.840.10008.1.4.1.2"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_T2 "1.2.840.10008.1.4.1.3"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_PD "1.2.840.10008.1.4.1.4"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_EPI "1.2.840.10008.1.4.1.5"
+
+#define DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_IRON_COLOR_PALETTE "1.2.840.10008.1.5.1"
+#define DCM_UID_WELL_KNOWN_SOP_INSTANCE_PET_COLOR_PALETTE "1.2.840.10008.1.5.2"
+#define DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_METAL_BLUE_COLOR_PALETTE "1.2.840.10008.1.5.3"
+#define DCM_UID_WELL_KNOWN_SOP_INSTANCE_PET_20_STEP_COLOR_PALETTE "1.2.840.10008.1.5.4"
+
+#define DCM_UID_APP_HOST_MODEL_NATIVE_DICOM_MODEL "1.2.840.10008.7.1.1"
+#define DCM_UID_APP_HOST_MODEL_ABSTRACT_MULTI_DIMENSIONAL_IMAGE_MODEL "1.2.840.10008.7.1.2"
 
 static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_VERIFICATION, "Verification SOP Class", "SOP Class"},
-    { "1.2.840.10008.1.2", "Implicit VR Little Endian", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.1", "Explicit VR Little Endian", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.1.99", "Deflated Explicit VR Little Endian", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.2", "Explicit VR Big Endian", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.50", "JPEG Baseline (Process 1): Default Transfer Syntax for Lossy JPEG 8 Bit Image Compression", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.51", "JPEG Extended (Process 2 & 4): Default Transfer Syntax for Lossy JPEG 12 Bit Image Compression (Process 4 only)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.52", "JPEG Extended (Process 3 & 5) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.53", "JPEG Spectral Selection, Non-Hierarchical (Process 6 & 8) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.54", "JPEG Spectral Selection, Non-Hierarchical (Process 7 & 9) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.55", "JPEG Full Progression, Non-Hierarchical (Process 10 & 12) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.56", "JPEG Full Progression, Non-Hierarchical (Process 11 & 13) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.57", "JPEG Lossless, Non-Hierarchical (Process 14)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.58", "JPEG Lossless, Non-Hierarchical (Process 15) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.59", "JPEG Extended, Hierarchical (Process 16 & 18) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.60", "JPEG Extended, Hierarchical (Process 17 & 19) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.61", "JPEG Spectral Selection, Hierarchical (Process 20 & 22) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.62", "JPEG Spectral Selection, Hierarchical (Process 21 & 23) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.63", "JPEG Full Progression, Hierarchical (Process 24 & 26) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.64", "JPEG Full Progression, Hierarchical (Process 25 & 27) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.65", "JPEG Lossless, Hierarchical (Process 28) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.66", "JPEG Lossless, Hierarchical (Process 29) (Retired)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.70", "JPEG Lossless, Non-Hierarchical, First-Order Prediction (Process 14 [Selection Value 1]): Default Transfer Syntax for Lossless JPEG Image Compression", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.80", "JPEG-LS Lossless Image Compression", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.81", "JPEG-LS Lossy (Near-Lossless) Image Compression", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.90", "JPEG 2000 Image Compression (Lossless Only)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.91", "JPEG 2000 Image Compression", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.92", "JPEG 2000 Part 2 Multi-component Image Compression (Lossless Only)", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.93", "JPEG 2000 Part 2 Multi-component Image Compression", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.94", "JPIP Referenced", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.95", "JPIP Referenced Deflate", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.4.100", "MPEG2 Main Profile @ Main Level", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.5", "RLE Lossless", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.6.1", "RFC 2557 MIME encapsulation", "Transfer Syntax"},
-    { "1.2.840.10008.1.2.6.2", "XML Encoding", "Transfer Syntax"},
-    { "1.2.840.10008.1.3.10", "Media Storage Directory Storage", "SOP Class"},
-    { "1.2.840.10008.1.4.1.1", "Talairach Brain Atlas Frame of Reference", "Well-known frame of reference"},
-    { "1.2.840.10008.1.4.1.2", "SPM2 T1 Frame of Reference", "Well-known frame of reference"},
-    { "1.2.840.10008.1.4.1.3", "SPM2 T2 Frame of Reference", "Well-known frame of reference"},
-    { "1.2.840.10008.1.4.1.4", "SPM2 PD Frame of Reference", "Well-known frame of reference"},
-    { "1.2.840.10008.1.4.1.5", "SPM2 EPI Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_TRANSFER_SYNTAX_IMPLICIT_VR_LITTLE_ENDIAN, "Implicit VR Little Endian", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_EXPLICIT_VR_LITTLE_ENDIAN, "Explicit VR Little Endian", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_DEFLATED_EXPLICIT_VR_LITTLE_ENDIAN, "Deflated Explicit VR Little Endian", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_DEFLATED_EXPLICIT_VR_BIG_ENDIAN, "Explicit VR Big Endian", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_BASELINE_PROCESS_1_LOSSY_8_BIT, "JPEG Baseline (Process 1): Default Transfer Syntax for Lossy JPEG 8 Bit Image Compression", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_EXTENDED_PROCESS_2_4_LOSSY_12_BIT, "JPEG Extended (Process 2 & 4): Default Transfer Syntax for Lossy JPEG 12 Bit Image Compression (Process 4 only)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_EXTENDED_PROCESS_3_5_RETIRED, "JPEG Extended (Process 3 & 5) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_SPECTRAL_SELECTION_NON_HIERARCHICAL_PROCESS_6_8_RETIRED, "JPEG Spectral Selection, Non-Hierarchical (Process 6 & 8) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_SPECTRAL_SELECTION_NON_HIERARCHICAL_PROCESS_7_9_RETIRED, "JPEG Spectral Selection, Non-Hierarchical (Process 7 & 9) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_FULL_PROGRESSION_NON_HIERARCHICAL_PROCESS_10_12_RETIRED, "JPEG Full Progression, Non-Hierarchical (Process 10 & 12) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_FULL_PROGRESSION_NON_HIERARCHICAL_PROCESS_11_13_RETIRED, "JPEG Full Progression, Non-Hierarchical (Process 11 & 13) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_LOSSLESS_NON_HIERARCHICAL_PROCESS_14_RETIRED, "JPEG Lossless, Non-Hierarchical (Process 14)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_LOSSLESS_NON_HIERARCHICAL_PROCESS_15_RETIRED, "JPEG Lossless, Non-Hierarchical (Process 15) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_EXTENDED_HIERARCHICAL_PROCESS_16_18_RETIRED, "JPEG Extended, Hierarchical (Process 16 & 18) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_EXTENDED_HIERARCHICAL_PROCESS_17_19_RETIRED, "JPEG Extended, Hierarchical (Process 17 & 19) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_SPECTRAL_SELECTION_HIERARCHICAL_PROCESS_20_22_RETIRED, "JPEG Spectral Selection, Hierarchical (Process 20 & 22) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_SPECTRAL_SELECTION_HIERARCHICAL_PROCESS_21_23_RETIRED, "JPEG Spectral Selection, Hierarchical (Process 21 & 23) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_FULL_PROGRESSION_HIERARCHICAL_PROCESS_24_26_RETIRED, "JPEG Full Progression, Hierarchical (Process 24 & 26) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_FULL_PROGRESSION_HIERARCHICAL_PROCESS_25_27_RETIRED, "JPEG Full Progression, Hierarchical (Process 25 & 27) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_LOSSLESS_HIERARCHICAL_PROCESS_28_RETIRED, "JPEG Lossless, Hierarchical (Process 28) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_LOSSLESS_HIERARCHICAL_PROCESS_29_RETIRED, "JPEG Lossless, Hierarchical (Process 29) (Retired)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_LOSSLESS_NON_HIERARCHICAL_FIRST_ORDER_PREDICTION_PROCESS_14, "JPEG Lossless, Non-Hierarchical, First-Order Prediction (Process 14 [Selection Value 1]): Default Transfer Syntax for Lossless JPEG Image Compression", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_LS_LOSSLESS, "JPEG-LS Lossless Image Compression", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_LS_LOSSY, "JPEG-LS Lossy (Near-Lossless) Image Compression", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_2000_LOSSLESS_ONLY, "JPEG 2000 Image Compression (Lossless Only)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_2000, "JPEG 2000 Image Compression", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_2000_PART_2_MULTI_COMPONENT_LOSSLESS_ONLY, "JPEG 2000 Part 2 Multi-component Image Compression (Lossless Only)", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPEG_2000_PART_2_MULTI_COMPONENT, "JPEG 2000 Part 2 Multi-component Image Compression", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPIP_REFERENCED, "JPIP Referenced", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_JPIP_REFERENCED_DEFLATE, "JPIP Referenced Deflate", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_MPEG2_MAIN_PROFILE_MAIN_LEVEL, "MPEG2 Main Profile @ Main Level", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_MPEG2_MAIN_PROFILE_HIGH_LEVEL, "MPEG2 Main Profile @ High Level", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_MPEG4_AVC_H264_HIGH_PROFILE_LEVEL_4_1, "MPEG-4 AVC/H.264 High Profile / Level 4.1", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_MPEG4_AVC_H264_BD_COMPATIBLE_HIGH_PROFILE_LEVEL_4_1, "MPEG-4 AVC/H.264 BD-compatible High Profile / Level 4.1", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_RLE_LOSSLESS, "RLE Lossless", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_RFC_2557_MIME_ENCAPSULATION, "RFC 2557 MIME encapsulation", "Transfer Syntax"},
+    { DCM_UID_TRANSFER_SYNTAX_XML_ENCODING, "XML Encoding", "Transfer Syntax"},
+    { DCM_UID_SOP_CLASS_MEDIA_STORAGE_DIRECTORY_STORAGE, "Media Storage Directory Storage", "SOP Class"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_TALAIRACH_BARIN_ATLAS, "Talairach Brain Atlas Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_T1, "SPM2 T1 Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_T1, "SPM2 T2 Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_PD, "SPM2 PD Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SPM2_EPI, "SPM2 EPI Frame of Reference", "Well-known frame of reference"},
     { "1.2.840.10008.1.4.1.6", "SPM2 FIL T1 Frame of Reference", "Well-known frame of reference"},
     { "1.2.840.10008.1.4.1.7", "SPM2 PET Frame of Reference", "Well-known frame of reference"},
     { "1.2.840.10008.1.4.1.8", "SPM2 TRANSM Frame of Reference", "Well-known frame of reference"},
@@ -3478,6 +3613,10 @@ static dcm_uid_t dcm_uid_data[] = {
     { "1.2.840.10008.1.4.1.18", "SPM2 SINGLESUBJT1 Frame of Reference", "Well-known frame of reference"},
     { "1.2.840.10008.1.4.2.1", "ICBM 452 T1 Frame of Reference", "Well-known frame of reference"},
     { "1.2.840.10008.1.4.2.2", "ICBM Single Subject MRI Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_IRON_COLOR_PALETTE, "Hot Iron Color Palette SOP Instance", "Well-known SOP Instance"},
+    { DCM_UID_WELL_KNOWN_SOP_INSTANCE_PET_COLOR_PALETTE, "PET Color Palette SOP Instance", "Well-known SOP Instance"},
+    { DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_METAL_BLUE_COLOR_PALETTE ,"Hot Metal Blue Color Palette SOP Instance", "Well-known SOP Instance"},
+    { DCM_UID_WELL_KNOWN_SOP_INSTANCE_PET_20_STEP_COLOR_PALETTE ,"PET 20 Step Color Palette SOP Instance", "Well-known SOP Instance"},
     { "1.2.840.10008.1.9", "Basic Study Content Notification SOP Class (Retired)", "SOP Class"},
     { "1.2.840.10008.1.20.1", "Storage Commitment Push Model SOP Class", "SOP Class"},
     { "1.2.840.10008.1.20.1.1", "Storage Commitment Push Model SOP Instance", "Well-known SOP Instance"},
@@ -3544,9 +3683,11 @@ static dcm_uid_t dcm_uid_data[] = {
     { "1.2.840.10008.5.1.4.1.1.4", "MR Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.4.1", "Enhanced MR Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.4.2", "MR Spectroscopy Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ENHANCED_MR_COLOR_IMAGE_STORAGE, "Enhanced MR Color Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.5", "Nuclear Medicine Image Storage (Retired)", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.6", "Ultrasound Image Storage (Retired)", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.6.1", "Ultrasound Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ENHANCED_US_VOLUME_STORAGE, "Enhanced US Volume Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.7", "Secondary Capture Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.7.1", "Multi-frame Single Bit Secondary Capture Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.7.2", "Multi-frame Grayscale Byte Secondary Capture Image Storage", "SOP Class"},
@@ -3561,28 +3702,36 @@ static dcm_uid_t dcm_uid_data[] = {
     { "1.2.840.10008.5.1.4.1.1.9.2.1", "Hemodynamic Waveform Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.9.3.1", "Cardiac Electrophysiology Waveform Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.9.4.1", "Basic Voice Audio Waveform Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_GENERAL_AUDIO_WAVEFORM_STORAGE, "General Audio Waveform Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ARTERIAL_PULSE_WAVEFORM_STORAGE, "Arterial Pulse Waveform Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_RESPIRATORY_WAVEFORM_STORAGE ,"Respiratory Waveform Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.10", "Standalone Modality LUT Storage (Retired)", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.11", "Standalone VOI LUT Storage (Retired)", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.11.1", "Grayscale Softcopy Presentation State Storage SOP Class", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.11.2", "Color Softcopy Presentation State Storage SOP Class", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.11.3", "Pseudo-Color Softcopy Presentation State Storage SOP Class", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.11.4", "Blending Softcopy Presentation State Storage SOP Class", "SOP Class"},
+    { DCM_UID_SOP_CLASS_XA_XRF_GRAYSCALE_SOFTCOPY_PRESENTATION_STATE_STORAGE, "XA/XRF Grayscale Softcopy Presentation State Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.12.1", "X-Ray Angiographic Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.12.1.1", "Enhanced XA Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.12.2", "X-Ray Radiofluoroscopic Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.12.2.1", "Enhanced XRF Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.13.1.1", "X-Ray 3D Angiographic Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.13.1.2", "X-Ray 3D Craniofacial Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_BREAST_TOMOSYNTHESIS_IMAGE_STORAGE, "Breast Tomosynthesis Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.12.3", "X-Ray Angiographic Bi-Plane Image Storage (Retired)", "SOP Class"},
+    { DCM_UID_SOP_CLASS_INTRAVASCULAR_OPTICAL_COHERENCE_TOMOGRAPHY_IMAGE_STORAGE_FOR_PRESENTATION, "Intravascular Optical Coherence Tomography Image Storage - For Presentation", "SOP Class"},
+    { DCM_UID_SOP_CLASS_INTRAVASCULAR_OPTICAL_COHERENCE_TOMOGRAPHY_IMAGE_STORAGE_FOR_PROCESSING, "Intravascular Optical Coherence Tomography Image Storage - For Processing", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.20", "Nuclear Medicine Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.66", "Raw Data Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.66.1", "Spatial Registration Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.66.2", "Spatial Fiducials Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.66.3", "Deformable Spatial Registration Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.66.4", "Segmentation Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_SURFACE_SEGMENTATION_STORAGE, "Surface Segmentation Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.67", "Real World Value Mapping Storage", "SOP Class"},
-    { "1.2.840.10008.5.1.4.1.1.77.1", "VL Image Storage - Trial (Retired)", ""},
-    { "1.2.840.10008.5.1.4.1.1.77.2", "VL Multi-frame Image Storage - Trial (Retired)", ""},
+    { "1.2.840.10008.5.1.4.1.1.77.1", "VL Image Storage - Trial (Retired)", "SOP Class"},
+    { "1.2.840.10008.5.1.4.1.1.77.2", "VL Multi-frame Image Storage - Trial (Retired)", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.77.1.1", "VL Endoscopic Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.77.1.1.1", "Video Endoscopic Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.77.1.2", "VL Microscopic Image Storage", "SOP Class"},
@@ -3594,6 +3743,17 @@ static dcm_uid_t dcm_uid_data[] = {
     { "1.2.840.10008.5.1.4.1.1.77.1.5.2", "Ophthalmic Photography 16 Bit Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.77.1.5.3", "Stereometric Relationship Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.77.1.5.4", "Ophthalmic Tomography Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_VL_WHOLE_SLIDE_MICROSCOPY_IMAGE_STORAGE, "VL Whole Slide Microscopy Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_LENSOMETRY_MEASUREMENTS_STORAGE, "Lensometry Measurements Storage", "SOP CLass"},
+    { DCM_UID_SOP_CLASS_AUTOREFRACTION_MEASUREMENTS_STORAGE, "Autorefraction Measurements Storage", "SOP CLass"},
+    { DCM_UID_SOP_CLASS_KERATOMETRY_MEASUREMENTS_STORAGE, "Keratometry Measurements Storage", "SOP CLass"},
+    { DCM_UID_SOP_CLASS_SUBJECTIVE_REFRACTION_MEASUREMENTS_STORAGE, "Subjective Refraction Measurements Storage", "SOP CLass"},
+    { DCM_UID_SOP_CLASS_VISUAL_ACUITY_MEASUREMENTS_STORAGE, "Visual Acuity Measurements Storage", "SOP CLass"},
+    { DCM_UID_SOP_CLASS_SPECTACLE_PRESCRIPTION_REPORT_STORAGE, "Spectacle Prescription Report Storage", "SOP CLass"},
+    { DCM_UID_SOP_CLASS_OPHTHALMIC_AXIAL_MEASUREMENTS_STORAGE, "Ophthalmic Axial Measurements Storage", "SOP CLass"},
+    { DCM_UID_SOP_CLASS_INTRAOCULAR_LENS_CALCULATIONS_STORAGE, "Intraocular Lens Calculations Storage", "SOP CLass"},
+    { DCM_UID_SOP_CLASS_MACULAR_GRID_THICKNESS_AND_VOLUME_REPORT_STORAGE, "Macular Grid Thickness and Volume Report Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_OPHTHALMIC_VISUAL_FIELD_STATIC_PERIMETRY_MEASUREMENTS_STORAGE, "Ophthalmic Visual Field Static Perimetry Measurements Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.88.1", "Text SR Storage - Trial (Retired)", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.88.2", "Audio SR Storage - Trial (Retired)", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.88.3", "Detail SR Storage - Trial (Retired)", "SOP Class"},
@@ -3606,10 +3766,14 @@ static dcm_uid_t dcm_uid_data[] = {
     { "1.2.840.10008.5.1.4.1.1.88.59", "Key Object Selection Document Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.88.65", "Chest CAD SR Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.88.67", "X-Ray Radiation Dose SR Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_COLON_CAD_SR_STORAGE, "Colon CAD SR Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_IMPLEMENTATION_PLAN_SR_STORAGE, "Implantation Plan SR Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.104.1", "Encapsulated PDF Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.104.2", "Encapsulated CDA Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.128", "Positron Emission Tomography Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.129", "Standalone PET Curve Storage (Retired)", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ENHANCED_PET_IMAGE_STORAGE, "Enhanced PET Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_BASIC_STRUCTURED_DISPLAY_STORAGE, "Basic Structured Display Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.481.1", "RT Image Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.481.2", "RT Dose Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.481.3", "RT Structure Set Storage", "SOP Class"},
@@ -3619,6 +3783,12 @@ static dcm_uid_t dcm_uid_data[] = {
     { "1.2.840.10008.5.1.4.1.1.481.7", "RT Treatment Summary Record Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.481.8", "RT Ion Plan Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.1.1.481.9", "RT Ion Beams Treatment Record Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_DICOS_CT_IMAGE_STORAGE, "DICOS CT Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_DICOS_DIGITAL_XRAY_IMAGE_STORAGE_FOR_PRESENTATION, "DICOS Digital X-Ray Image Storage - For Presentation", "SOP Class"},
+    { DCM_UID_SOP_CLASS_DICOS_DIGITAL_XRAY_IMAGE_STORAGE_FOR_PROCESSING, "DICOS Digital X-Ray Image Storage - For Processing", "SOP Class"},
+    { DCM_UID_SOP_CLASS_DICOS_THREAT_DETECTION_REPORT_STORAGE, "DICOS Threat Detection Report Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_EDDY_CURRENT_IMAGE_STORAGE, "Eddy Current Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_EDDY_CURRENT_MULTIFRAME_IMAGE_STORAGE, "Eddy Current Multi-frame Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_FIND, "Patient Root Query/Retrieve Information Model - FIND", "SOP Class"},
     { DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_MOVE, "Patient Root Query/Retrieve Information Model - MOVE", "SOP Class"},
     { DCM_UID_SOP_CLASS_PATIENT_ROOT_QR_GET, "Patient Root Query/Retrieve Information Model - GET", "SOP Class"},
@@ -3628,29 +3798,59 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_FIND, "Patient/Study Only Query/Retrieve Information Model - FIND (Retired)", "SOP Class"},
     { DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_MOVE, "Patient/Study Only Query/Retrieve Information Model - MOVE (Retired)", "SOP Class"},
     { DCM_UID_SOP_CLASS_PATIENT_STUDY_ONLY_QR_GET, "Patient/Study Only Query/Retrieve Information Model - GET (Retired)", "SOP Class"},
+    { DCM_UID_SOP_CLASS_COMPOSITE_INSTANCE_ROOT_RETRIEVE_MOVE, "Composite Instance Root Retrieve - MOVE", "SOP Class"},
+    { DCM_UID_SOP_CLASS_COMPOSITE_INSTANCE_ROOT_RETRIEVE_GET, "Composite Instance Root Retrieve - GET", "SOP Class"},
+    { DCM_UID_SOP_CLASS_COMPOSITE_INSTANCE_RETRIEVE_WITHOUT_BULK_DATA_GET, "Composite Instance Retrieve Without Bulk Data - GET", "SOP Class"},
     { "1.2.840.10008.5.1.4.31", "Modality Worklist Information Model - FIND", "SOP Class"},
     { "1.2.840.10008.5.1.4.32.1", "General Purpose Worklist Information Model - FIND", "SOP Class"},
     { "1.2.840.10008.5.1.4.32.2", "General Purpose Scheduled Procedure Step SOP Class", "SOP Class"},
     { "1.2.840.10008.5.1.4.32.3", "General Purpose Performed Procedure Step SOP Class", "SOP Class"},
     { "1.2.840.10008.5.1.4.32", "General Purpose Worklist Management Meta SOP Class", "Meta SOP Class"},
     { "1.2.840.10008.5.1.4.33", "Instance Availability Notification SOP Class", "SOP Class"},
-    { "1.2.840.10008.5.1.4.34.1", "RT Beams Delivery Instruction Storage (Supplement 74 Frozen Draft)", "SOP Class"},
-    { "1.2.840.10008.5.1.4.34.2", "RT Conventional Machine Verification (Supplement 74 Frozen Draft)", "SOP Class"},
-    { "1.2.840.10008.5.1.4.34.3", "RT Ion Machine Verification (Supplement 74 Frozen Draft)", "SOP Class"},
-    { "1.2.840.10008.5.1.4.34.4", "Unified Worklist and Procedure Step Service Class", "Service Class"},
-    { "1.2.840.10008.5.1.4.34.4.1", "Unified Procedure Step - Push SOP Class", "SOP Class"},
-    { "1.2.840.10008.5.1.4.34.4.2", "Unified Procedure Step - Watch SOP Class", "SOP Class"},
-    { "1.2.840.10008.5.1.4.34.4.3", "Unified Procedure Step - Pull SOP Class", "SOP Class"},
-    { "1.2.840.10008.5.1.4.34.4.4", "Unified Procedure Step - Event SOP Class", "SOP Class"},
+    { "1.2.840.10008.5.1.4.34.1", "RT Beams Delivery Instruction Storage - Trial (Retired)", "SOP Class"},
+    { "1.2.840.10008.5.1.4.34.2", "RT Conventional Machine Verification - Trial (Retired)", "SOP Class"},
+    { "1.2.840.10008.5.1.4.34.3", "RT Ion Machine Verification - Trial (Retried)", "SOP Class"},
+    { "1.2.840.10008.5.1.4.34.4", "Unified Worklist and Procedure Step Service Class - Trial (Retired)", "Service Class"},
+    { "1.2.840.10008.5.1.4.34.4.1", "Unified Procedure Step - Push SOP Class - Trial (Retired)", "SOP Class"},
+    { "1.2.840.10008.5.1.4.34.4.2", "Unified Procedure Step - Watch SOP Class - Trial (Retired)", "SOP Class"},
+    { "1.2.840.10008.5.1.4.34.4.3", "Unified Procedure Step - Pull SOP Class - Trial (Retired)", "SOP Class"},
+    { "1.2.840.10008.5.1.4.34.4.4", "Unified Procedure Step - Event SOP Class - Trial (Retired)", "SOP Class"},
     { "1.2.840.10008.5.1.4.34.5", "Unified Worklist and Procedure Step SOP Instance", "Well-known SOP Instance"},
+    { DCM_UID_SERVICE_CLASS_UNIFIED_WORKLIST_AND_PROCEDURE_STEP, "Unified Worklist and Procedure Step Service Class", "Service Class"},
+    { DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_PUSH, "Unified Procedure Step - Push SOP Class", "SOP Class"},
+    { DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_WATCH, "Unified Procedure Step - Watch SOP Class", "SOP Class"},
+    { DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_PULL, "Unified Procedure Step - Pull SOP Class", "SOP Class"},
+    { DCM_UID_SOP_CLASS_UNIFIED_PROCEDURE_STEP_EVENT, "Unified Procedure Step - Event SOP Class", "SOP Class"},
+    { DCM_UID_SOP_CLASS_RT_BEAMS_DELIVERY_INSTRUCTION_STORAGE, "RT Beams Delivery Instruction Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_RT_CONVENTIONAL_MACHINE_VERIFICATION, "RT Conventional Machine Verification", "SOP Class"},
+    { DCM_UID_SOP_CLASS_RT_ION_MACHINE_VERIFICATION, "RT Ion Machine Verification", "SOP Class"},
     { "1.2.840.10008.5.1.4.37.1", "General Relevant Patient Information Query", "SOP Class"},
     { "1.2.840.10008.5.1.4.37.2", "Breast Imaging Relevant Patient Information Query", "SOP Class"},
     { "1.2.840.10008.5.1.4.37.3", "Cardiac Relevant Patient Information Query", "SOP Class"},
     { "1.2.840.10008.5.1.4.38.1", "Hanging Protocol Storage", "SOP Class"},
     { "1.2.840.10008.5.1.4.38.2", "Hanging Protocol Information Model - FIND", "SOP Class"},
     { "1.2.840.10008.5.1.4.38.3", "Hanging Protocol Information Model - MOVE", "SOP Class"},
+    { "1.2.840.10008.5.1.4.38.4", "Hanging Protocol Information Model - GET", "SOP Class"},
+    { DCM_UID_SOP_CLASS_COLOR_PALETTE_STORAGE, "Color Palette Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_COLOR_PALETTE_INFORMATION_MODEL_FIND, "Color Palette Information Model - FIND", "SOP Class"},
+    { DCM_UID_SOP_CLASS_COLOR_PALETTE_INFORMATION_MODEL_MOVE, "Color Palette Information Model - MOVE", "SOP Class"},
+    { DCM_UID_SOP_CLASS_COLOR_PALETTE_INFORMATION_MODEL_GET, "Color Palette Information Model - GET", "SOP Class"},
     { "1.2.840.10008.5.1.4.41", "Product Characteristics Query SOP Class", "SOP Class"},
     { "1.2.840.10008.5.1.4.42", "Substance Approval Query SOP Class", "SOP Class"},
+    { DCM_UID_SOP_CLASS_GENERIC_IMPLANT_TEMPLATE_STORAGE, "Generic Implant Template Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_GENERIC_IMPLANT_TEMPLATE_INFORMATION_MODEL_FIND, "Generic Implant Template Information Model - FIND", "SOP Class"},
+    { DCM_UID_SOP_CLASS_GENERIC_IMPLANT_TEMPLATE_INFORMATION_MODEL_MOVE, "Generic Implant Template Information Model - MOVE", "SOP Class"},
+    { DCM_UID_SOP_CLASS_GENERIC_IMPLANT_TEMPLATE_INFORMATION_MODEL_GET, "Generic Implant Template Information Model - GET", "SOP Class"},
+    { DCM_UID_SOP_CLASS_IMPLANT_ASSEMBLY_TEMPLATE_STORAGE, "Implant Assembly Template Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_IMPLANT_ASSEMBLY_TEMPLATE_INFORMATION_MODEL_FIND, "Implant Assembly Template Information Model - FIND", "SOP Class"},
+    { DCM_UID_SOP_CLASS_IMPLANT_ASSEMBLY_TEMPLATE_INFORMATION_MODEL_MOVE, "Implant Assembly Template Information Model - MOVE", "SOP Class"},
+    { DCM_UID_SOP_CLASS_IMPLANT_ASSEMBLY_TEMPLATE_INFORMATION_MODEL_GET, "Implant Assembly Template Information Model - GET", "SOP Class"},
+    { DCM_UID_SOP_CLASS_IMPLANT_TEMPLATE_GROUP_STORAGE, "Implant Template Group Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_IMPLANT_TEMPLATE_GROUP_INFORMATION_MODEL_FIND, "Implant Template Group Information Model - FIND", "SOP Class"},
+    { DCM_UID_SOP_CLASS_IMPLANT_TEMPLATE_GROUP_INFORMATION_MODEL_MOVE, "Implant Template Group Information Model - MOVE", "SOP Class"},
+    { DCM_UID_SOP_CLASS_IMPLANT_TEMPLATE_GROUP_INFORMATION_MODEL_GET, "Implant Template Group Information Model - GET", "SOP Class"},
+    { DCM_UID_APP_HOST_MODEL_NATIVE_DICOM_MODEL, "Native DICOM Model", "Application Hosting Model"},
+    { DCM_UID_APP_HOST_MODEL_ABSTRACT_MULTI_DIMENSIONAL_IMAGE_MODEL, "Abstract Multi-Dimensional Image Model", "Application Hosting Model"},
     { "1.2.840.10008.15.0.3.1", "dicomDeviceName", "LDAP OID"},
     { "1.2.840.10008.15.0.3.2", "dicomDescription", "LDAP OID"},
     { "1.2.840.10008.15.0.3.3", "dicomManufacturer", "LDAP OID"},
@@ -3690,6 +3890,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { "1.2.840.10008.15.0.4.6", "dicomNetworkConnection", "LDAP OID"},
     { "1.2.840.10008.15.0.4.7", "dicomUniqueAETitle", "LDAP OID"},
     { "1.2.840.10008.15.0.4.8", "dicomTransferCapability", "LDAP OID"},
+    { "1.2.840.10008.15.1.1", "Universal Coordinated Time", "Synchronization Frame of Reference"},
 
     { "1.2.840.113619.5.2", "Implicit VR Little Endian, Big Endian Pixels, GE Private", "Transfer Syntax"},
 
@@ -3726,6 +3927,8 @@ static void	dissect_dcm_pctx	(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void	dissect_dcm_assoc_item  (tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gchar *pitem_prefix, int item_value_type, gchar **item_value, const gchar **item_description, int *hf_type, int *hf_len, int *hf_value, int ett_subtree);
 static void	dissect_dcm_userinfo    (tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 len, const gchar *pitem_prefix);
 static void dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
+static void dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
+static void dissect_dcm_assoc_async_negotiation(tvbuff_t *tvb, proto_tree *tree, guint32 offset);
 
 static guint32  dissect_dcm_pdu_data	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_assoc_t *assoc, guint32 offset, guint32 pdu_len, gchar **pdu_data_description);
 static guint32  dissect_dcm_pdv_header	    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_assoc_t *assoc, guint32 offset, dcm_state_pdv_t **pdv);
@@ -4473,7 +4676,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     guint8  abort_source;
     guint8  abort_reason;
 
-    assoc_header_pitem = proto_tree_add_text(tree, tvb, offset, pdu_len-6, "Association Header");
+    assoc_header_pitem = proto_tree_add_text(tree, tvb, offset, pdu_len, "Association Header");
     assoc_header_ptree = proto_item_add_subtree(assoc_header_pitem, ett_assoc_header);
 
     switch (pdu_type) {
@@ -4856,6 +5059,100 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 }
 
 static void
+dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+{
+    /*
+     *  Decode the SCP/SCU Role Selection Sub-Item Fields in a association request or response.
+     *  Lookup UIDs if requested
+     */
+
+    proto_tree *assoc_item_rolesel_tree; /* Tree for item details */
+    proto_item *assoc_item_rolesel_item;
+
+    guint16 item_len, sop_class_uid_len;
+    guint8 scp_role, scu_role;
+    
+    gchar *buf_desc = (gchar *)ep_alloc0(MAX_BUF_LEN);     /* Used for item text */
+    dcm_uid_t *sopclassuid;
+    gchar *sopclassuid_str;
+
+    item_len  = tvb_get_ntohs(tvb, offset+2);
+    sop_class_uid_len  = tvb_get_ntohs(tvb, offset+4);
+
+    assoc_item_rolesel_item = proto_tree_add_item(tree, hf_dcm_info_rolesel, tvb, offset, item_len+4, ENC_NA);
+    proto_item_set_text(assoc_item_rolesel_item, "Role Selection: ");
+    assoc_item_rolesel_tree = proto_item_add_subtree(assoc_item_rolesel_item, ett_assoc_info_rolesel);
+
+    proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_assoc_item_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_assoc_item_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_sopclassuid_len, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+
+    sopclassuid_str = (gchar *)tvb_get_ephemeral_string(tvb, offset+6, sop_class_uid_len);
+    sopclassuid = (dcm_uid_t *)g_hash_table_lookup(dcm_uid_table, (gpointer) sopclassuid_str);
+
+    scu_role = tvb_get_guint8(tvb, offset+6+sop_class_uid_len);
+    scp_role = tvb_get_guint8(tvb, offset+7+sop_class_uid_len);
+    
+    if (scu_role) {
+        proto_item_append_text(assoc_item_rolesel_item, "%s", "SCU-role: yes");
+    }
+    else {
+        proto_item_append_text(assoc_item_rolesel_item, "%s", "SCU-role: no");
+    }
+    
+    if (scp_role) {
+        proto_item_append_text(assoc_item_rolesel_item, ", %s", "SCP-role: yes");
+    }
+    else {
+        proto_item_append_text(assoc_item_rolesel_item, ", %s", "SCP-role: no");
+    }
+    
+    if (sopclassuid) {
+        g_snprintf(buf_desc, MAX_BUF_LEN, "%s (%s)", sopclassuid->name, sopclassuid->value);
+    }
+    else {
+        g_snprintf(buf_desc, MAX_BUF_LEN, "%s", sopclassuid_str);
+    }
+    
+    proto_tree_add_string(assoc_item_rolesel_tree, hf_dcm_info_rolesel_sopclassuid, tvb, offset+6, sop_class_uid_len, buf_desc);
+
+    proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_scurole, tvb, offset+6+sop_class_uid_len, 1, ENC_NA);
+    proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_scprole, tvb, offset+7+sop_class_uid_len, 1, ENC_NA);
+}
+
+static void
+dissect_dcm_assoc_async_negotiation(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+{
+    /*
+     *  Decode the Asynchronous operations (and sub-operations) Window Negotiation Sub-Item Fields in a association request or response.
+     */
+
+    proto_tree *assoc_item_asyncneg_tree; /* Tree for item details */
+    proto_item *assoc_item_asyncneg_item;
+
+    guint16 item_len, max_num_ops_inv, max_num_ops_per = 0;
+
+    item_len  = tvb_get_ntohs(tvb, offset+2);
+
+    assoc_item_asyncneg_item = proto_tree_add_item(tree, hf_dcm_info_async_neg, tvb, offset, item_len+4, ENC_NA);
+    proto_item_set_text(assoc_item_asyncneg_item, "Async Negotiation: ");
+    assoc_item_asyncneg_tree = proto_item_add_subtree(assoc_item_asyncneg_item, ett_assoc_info_async_neg);
+
+    proto_tree_add_item(assoc_item_asyncneg_tree, hf_dcm_assoc_item_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(assoc_item_asyncneg_tree, hf_dcm_assoc_item_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(assoc_item_asyncneg_tree, hf_dcm_info_async_neg_max_num_ops_inv, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(assoc_item_asyncneg_tree, hf_dcm_info_async_neg_max_num_ops_per, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+
+    max_num_ops_inv = tvb_get_ntohs(tvb, offset+4);
+    max_num_ops_per = tvb_get_ntohs(tvb, offset+6);
+
+    proto_item_append_text(assoc_item_asyncneg_item, "%s%d", "Maximum Number Operations Invoked: ", max_num_ops_inv);
+    if (max_num_ops_inv==0) proto_item_append_text(assoc_item_asyncneg_item, "%s", " (unlimited)");
+    proto_item_append_text(assoc_item_asyncneg_item, ", %s%d", "Maximum Number Operations Performed: ", max_num_ops_per);
+    if (max_num_ops_per==0) proto_item_append_text(assoc_item_asyncneg_item, "%s", " (unlimited)");
+}
+
+static void
 dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 dcm_state_assoc_t *assoc, guint32 offset, guint32 len,
 		 const gchar *pitem_prefix, gboolean is_assoc_request)
@@ -5138,10 +5435,19 @@ dissect_dcm_userinfo(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 le
 	    break;
 
 	case 0x53:		/* async negotiation */
-	    /* hf_dcm_async */
+	
+	    dissect_dcm_assoc_async_negotiation(tvb, userinfo_ptree, offset-4);
+	    
 	    offset += item_len;
 	    break;
 
+	case 0x54:      /* scp/scu role selection */
+	
+	   dissect_dcm_assoc_role_selection(tvb, userinfo_ptree, offset-4);
+	   
+	   offset += item_len;
+	   break;
+	
 	case 0x56:		/* extended negotiation */
 
 	    dissect_dcm_assoc_sopclass_extneg(tvb, userinfo_ptree, offset-4);
@@ -6843,7 +7149,7 @@ proto_register_dcm(void)
     { &hf_dcm_info_version, { "Implementation Version", "dicom.userinfo.version",
 	FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_info_extneg, { "Extended Negotiation", "dicom.userinfo.extneg",
-	FT_NONE, BASE_NONE, NULL, 0, "This field contains the optional SOP Class Extended Negotiation Sub-Item of the ACSE User Information Item of the A-ASSOCIATErequest.", HFILL } },
+	FT_NONE, BASE_NONE, NULL, 0, "This field contains the optional SOP Class Extended Negotiation Sub-Item of the ACSE User Information Item of the A-ASSOCIATE-RQ/RSP.", HFILL } },
     { &hf_dcm_info_extneg_sopclassuid_len, { "SOP Class UID Length", "dicom.userinfo.extneg.sopclassuid.len",
 	FT_UINT16, BASE_DEC, NULL, 0, "This field contains the length of the SOP Class UID in the Extended Negotiation Sub-Item.", HFILL } },
     { &hf_dcm_info_extneg_sopclassuid, { "SOP Class UID", "dicom.userinfo.extneg.sopclassuid",
@@ -6856,6 +7162,22 @@ proto_register_dcm(void)
 	FT_UINT8, BASE_HEX, NULL, 0, "This field indicates, if fuzzy semantic matching of person names is supported.", HFILL } },
     { &hf_dcm_info_extneg_timezone_query_adjustment, { "Timezone query adjustment", "dicom.userinfo.extneg.timezone",
 	FT_UINT8, BASE_HEX, NULL, 0, "This field indicates, if timezone query adjustment is supported.", HFILL } },
+    { &hf_dcm_info_rolesel, { "SCP/SCU Role Selection", "dicom.userinfo.rolesel",
+	FT_NONE, BASE_NONE, NULL, 0, "This field contains the optional SCP/SCU Role Selection Sub-Item of the ACSE User Information Item of the A-ASSOCIATE-RQ/RSP.", HFILL } },
+    { &hf_dcm_info_rolesel_sopclassuid_len, { "SOP Class UID Length", "dicom.userinfo.rolesel.sopclassuid.len",
+	FT_UINT16, BASE_DEC, NULL, 0, "This field contains the length of the SOP Class UID in the SCP/SCU Role Selection Sub-Item.", HFILL } },
+    { &hf_dcm_info_rolesel_sopclassuid, { "SOP Class UID", "dicom.userinfo.rolesel.sopclassuid",
+	FT_STRING, BASE_NONE, NULL, 0, "This field contains the SOP Class UID in the SCP/SCU Role Selection Sub-Item.", HFILL } },
+    { &hf_dcm_info_rolesel_scurole, { "SCU-role", "dicom.userinfo.rolesel.scurole",
+	FT_UINT8, BASE_HEX, NULL, 0, "This field contains the SCU-role as defined for the Association-requester.", HFILL } },
+    { &hf_dcm_info_rolesel_scprole, { "SCP-role", "dicom.userinfo.rolesel.scprole",
+	FT_UINT8, BASE_HEX, NULL, 0, "This field contains the SCP-role as defined for the Association-requester.", HFILL } },
+    { &hf_dcm_info_async_neg, { "Asynchronous Operations (and sub-operations) Window Negotiation", "dicom.userinfo.asyncneg",
+	FT_NONE, BASE_NONE, NULL, 0, "This field contains the optional Asynchronous Operations (and sub-operations) Window Negotiation Sub-Item of the ACSE User Information Item of the A-ASSOCIATE-RQ/RSP.", HFILL } },
+    { &hf_dcm_info_async_neg_max_num_ops_inv, { "Maximum-number-operations-invoked", "dicom.userinfo.asyncneg.maxnumopsinv",
+	FT_UINT16, BASE_DEC, NULL, 0, "This field contains the maximum-number-operations-invoked in the Asynchronous Operations (and sub-operations) Window Negotiation Sub-Item.", HFILL } },
+    { &hf_dcm_info_async_neg_max_num_ops_per, { "Maximum-number-operations-performed", "dicom.userinfo.asyncneg.maxnumopsper",
+	FT_UINT16, BASE_DEC, NULL, 0, "This field contains the maximum-number-operations-performed in the Asynchronous Operations (and sub-operations) Window Negotiation Sub-Item.", HFILL } },
     { &hf_dcm_pdu_maxlen, { "Max PDU Length", "dicom.max_pdu_len",
 	FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pdv_len, { "PDV Length", "dicom.pdv.len",
@@ -6940,6 +7262,8 @@ proto_register_dcm(void)
 	    &ett_assoc_info_uid,
 	    &ett_assoc_info_version,
 	    &ett_assoc_info_extneg,
+	    &ett_assoc_info_rolesel,
+	    &ett_assoc_info_async_neg,
 	    &ett_dcm_data,
 	    &ett_dcm_data_pdv,
 	    &ett_dcm_data_tag,
