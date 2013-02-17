@@ -3,7 +3,7 @@
  * supplementary services
  * Copyright 2013, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-camel-template.c 47097 2013-01-15 16:44:02Z morriss $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

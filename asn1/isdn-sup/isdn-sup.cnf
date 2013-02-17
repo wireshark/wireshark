@@ -2,7 +2,7 @@
 # isdn_sup conformation file
 # 2013  Anders Broman
 
-# $Id: qsig.cnf 36108 2011-03-01 13:01:26Z kukosa $
+# $Id$
 
 #.OPT
 BER
