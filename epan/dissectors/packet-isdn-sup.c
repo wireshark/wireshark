@@ -1162,11 +1162,15 @@ dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 void proto_reg_handoff_isdn_sup(void) {
   int i;
+#if 0
   dissector_handle_t q931_handle;
+#endif
   dissector_handle_t isdn_sup_arg_handle;
   dissector_handle_t isdn_sup_res_handle;
 
+#if 0
   q931_handle = find_dissector("q931");
+#endif
 
   isdn_sup_arg_handle = new_create_dissector_handle(dissect_isdn_sup_arg, proto_isdn_sup);
   isdn_sup_res_handle = new_create_dissector_handle(dissect_isdn_sup_res, proto_isdn_sup);
@@ -1476,7 +1480,7 @@ void proto_register_isdn_sup(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-isdn-sup-hfarr.c ---*/
-#line 236 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 240 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* List of subtrees */
@@ -1514,7 +1518,7 @@ void proto_register_isdn_sup(void) {
     &ett_isdn_sup_ServedUserNumberList,
 
 /*--- End of included file: packet-isdn-sup-ettarr.c ---*/
-#line 243 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 247 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* Register fields and subtrees */

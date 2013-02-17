@@ -203,11 +203,15 @@ dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 void proto_reg_handoff_isdn_sup(void) {
   int i;
+#if 0
   dissector_handle_t q931_handle;
+#endif
   dissector_handle_t isdn_sup_arg_handle;
   dissector_handle_t isdn_sup_res_handle;
 
+#if 0
   q931_handle = find_dissector("q931");
+#endif
 
   isdn_sup_arg_handle = new_create_dissector_handle(dissect_isdn_sup_arg, proto_isdn_sup);
   isdn_sup_res_handle = new_create_dissector_handle(dissect_isdn_sup_res, proto_isdn_sup);
