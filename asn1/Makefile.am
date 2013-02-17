@@ -63,6 +63,7 @@ SUBDIRS = 		\
 	hnbap		\
 	idmp		\
 	inap		\
+	isdn-sup	\
 	kerberos	\
 	lcsap		\
 	ldap		\

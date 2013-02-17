@@ -69,6 +69,7 @@ BER_LIST= \
 	HI2Operations		\
 	idmp			\
 	inap			\
+	isdn-sup		\
 ###	kerberos		\
 	ldap 			\
 	logotypecertextn	\
