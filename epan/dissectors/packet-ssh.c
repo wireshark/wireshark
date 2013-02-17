@@ -54,6 +54,7 @@
 
 #include "packet-tcp.h"
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 /* SSH Version 1 definition , from openssh ssh1.h */
 #define SSH1_MSG_NONE				0	/* no message */
@@ -69,27 +70,26 @@
 
 /* proto data */
 
-struct ssh_pdu_data{
-	guint	counter;
-	guint	number;
-};
-
 struct ssh_flow_data {
-	guint 	req_counter;
+	guint	req_counter;
 	guint	rsp_counter;
-	guint 	version;
+	guint	version;
+	guint32	frame_version_start;
+	guint32	frame_version_end;
+	guint32	frame_key_start;
+	guint32	frame_key_end;
 
-	gchar*  mac_client_request;
-	gchar*  mac_server_offer;
+	gchar*	mac_client_request;
+	gchar*	mac_server_offer;
 	gchar*	mac;
 	gint	mac_length;
 
-	gchar*  enc_client_request;
-	gchar*  enc_server_offer;
+	gchar*	enc_client_request;
+	gchar*	enc_server_offer;
 	gchar*	enc;
 
-	gchar*  comp_client_request;
-	gchar*  comp_server_offer;
+	gchar*	comp_client_request;
+	gchar*	comp_server_offer;
 	gchar*	comp;
 };
 
@@ -140,10 +140,10 @@ static int hf_ssh_kex_first_packet_follows = -1;
 static int hf_ssh_kex_reserved = -1;
 
 static gint ett_ssh = -1;
-static gint ett_key_exchange= -1;
-static gint ett_key_init= -1;
-static gint ett_ssh1= -1;
-static gint ett_ssh2= -1;
+static gint ett_key_exchange = -1;
+static gint ett_key_init = -1;
+static gint ett_ssh1 = -1;
+static gint ett_ssh2 = -1;
 
 static gboolean ssh_desegment = TRUE;
 
@@ -155,10 +155,10 @@ static gboolean ssh_desegment = TRUE;
 /* Transport layer protocol: generic (1-19) */
 #define SSH_MSG_DISCONNECT			1
 #define SSH_MSG_IGNORE				2
-#define SSH_MSG_UNIMPLEMENTED			3
+#define SSH_MSG_UNIMPLEMENTED		3
 #define SSH_MSG_DEBUG				4
-#define SSH_MSG_SERVICE_REQUEST			5
-#define SSH_MSG_SERVICE_ACCEPT			6
+#define SSH_MSG_SERVICE_REQUEST		5
+#define SSH_MSG_SERVICE_ACCEPT		6
 
 /* Transport layer protocol: Algorithm negotiation (20-29) */
 #define SSH_MSG_KEXINIT				20
@@ -167,15 +167,15 @@ static gboolean ssh_desegment = TRUE;
 /* Transport layer: Key exchange method specific (reusable) (30-49) */
 #define SSH_MSG_KEXDH_INIT			30
 #define SSH_MSG_KEXDH_REPLY			31
-#define SSH_MSG_KEX_DH_GEX_INIT			32
-#define SSH_MSG_KEX_DH_GEX_REPLY		33
-#define SSH_MSG_KEX_DH_GEX_REQUEST		34
+#define SSH_MSG_KEX_DH_GEX_INIT		32
+#define SSH_MSG_KEX_DH_GEX_REPLY	33
+#define SSH_MSG_KEX_DH_GEX_REQUEST	34
 
 /* User authentication protocol: generic (50-59) */
-#define SSH_MSG_USERAUTH_REQUEST		50
-#define SSH_MSG_USERAUTH_FAILURE		51
-#define SSH_MSG_USERAUTH_SUCCESS		52
-#define SSH_MSG_USERAUTH_BANNER			53
+#define SSH_MSG_USERAUTH_REQUEST	50
+#define SSH_MSG_USERAUTH_FAILURE	51
+#define SSH_MSG_USERAUTH_SUCCESS	52
+#define SSH_MSG_USERAUTH_BANNER		53
 
 /* User authentication protocol: method specific (reusable) (50-79) */
 
@@ -185,17 +185,17 @@ static gboolean ssh_desegment = TRUE;
 #define SSH_MSG_REQUEST_FAILURE			82
 
 /* Connection protocol: channel related messages (90-127) */
-#define SSH_MSG_CHANNEL_OPEN			90
+#define SSH_MSG_CHANNEL_OPEN				90
 #define SSH_MSG_CHANNEL_OPEN_CONFIRMATION	91
 #define SSH_MSG_CHANNEL_OPEN_FAILURE		92
 #define SSH_MSG_CHANNEL_WINDOW_ADJUST		93
-#define SSH_MSG_CHANNEL_DATA			94
+#define SSH_MSG_CHANNEL_DATA				94
 #define SSH_MSG_CHANNEL_EXTENDED_DATA		95
-#define SSH_MSG_CHANNEL_EOF			96
-#define SSH_MSG_CHANNEL_CLOSE			97
-#define SSH_MSG_CHANNEL_REQUEST			98
-#define SSH_MSG_CHANNEL_SUCCESS			99
-#define SSH_MSG_CHANNEL_FAILURE			100
+#define SSH_MSG_CHANNEL_EOF					96
+#define SSH_MSG_CHANNEL_CLOSE				97
+#define SSH_MSG_CHANNEL_REQUEST				98
+#define SSH_MSG_CHANNEL_SUCCESS				99
+#define SSH_MSG_CHANNEL_FAILURE				100
 
 /* 128-191 reserved for client protocols */
 /* 192-255 local extensions */
@@ -244,11 +244,6 @@ static const value_string ssh1_msg_vals[] = {
 	{0, NULL}
 };
 
-
-static const value_string ssh_opcode_vals[] _U_ = {
-	{ 0, NULL }
-};
-
 static int ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 		int is_response,
 		struct ssh_flow_data *global_data);
@@ -256,15 +251,15 @@ static int ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 static int ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
 		int offset, proto_tree *tree,int is_response,
-		int number, gboolean *need_desegmentation);
+		gboolean *need_desegmentation);
 static int ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
 		int offset, proto_tree *tree,int is_response,
-		int number, gboolean *need_desegmentation );
+		gboolean *need_desegmentation );
 static int ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
 		int offset, proto_tree *tree,int is_response,
-		int number, gboolean *need_desegmentation );
+		gboolean *need_desegmentation );
 static int ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
 		int offset, proto_tree *tree,int is_response,guint *version,
@@ -283,23 +278,14 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree	*ssh_tree = NULL;
 	proto_item	*ti;
-	conversation_t  *conversation=NULL;
-	gint		remain_length;
-	int		last_offset;
-	guint		this_number,number;
+	conversation_t *conversation;
+	int		last_offset, offset = 0;
 
-	int		offset = 0;
-
-	gboolean	is_response;
-	gboolean 	is_newdata;
-	gboolean 	need_desegmentation;
+	gboolean	is_response = (pinfo->destport != pinfo->match_uint), 
+				need_desegmentation;
 	guint		version;
 
-	struct ssh_pdu_data *this_data=NULL;
 	struct ssh_flow_data *global_data=NULL;
-
-	is_newdata = FALSE;
-	this_data = p_get_proto_data(pinfo->fd, proto_ssh);
 
 	conversation = find_or_create_conversation(pinfo);
 
@@ -312,31 +298,10 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		conversation_add_proto_data(conversation,proto_ssh,global_data);
 	}
 
-/*
- *	end of attaching data
- */
-	if (pinfo->destport == pinfo->match_uint) {
-	  	is_response=FALSE;
-		if(!this_data) {
-			this_data = se_alloc(sizeof(struct ssh_pdu_data));
-			this_data->counter = global_data->req_counter++;
-			p_add_proto_data(pinfo->fd, proto_ssh, this_data);
-			is_newdata = TRUE;
-		}
-	}else {
-		is_response=TRUE;
-		if(!this_data) {
-			this_data = se_alloc(sizeof(struct ssh_flow_data));
-			this_data->counter = global_data->rsp_counter++;
-			p_add_proto_data(pinfo->fd, proto_ssh, this_data);
-			is_newdata = TRUE;
-		}
-	}
 	if(tree) {
 		  ti = proto_tree_add_item(tree, proto_ssh, tvb, offset, -1, ENC_NA);
 		  ssh_tree = proto_item_add_subtree(ti, ett_ssh);
 	}
-	number = 0;
 
 	version = global_data->version;
 
@@ -353,71 +318,59 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	}
 
-	if(this_data->counter != 0 && version == SSH_VERSION_UNKNOWN) {
-		offset = ssh_dissect_encrypted_packet(tvb, pinfo,
-			global_data,
-			offset,ssh_tree,is_response);
-		return;
-	}
-
 	while(tvb_reported_length_remaining(tvb,offset)> 0 ) {
 		need_desegmentation = FALSE;
 		last_offset = offset;
-		this_number = this_data->counter+number;
 
-		if(number > 1 && is_newdata) {
-			/* update the this_data and flow_data */
-			if(is_response) {
-				global_data->rsp_counter++;
-			} else {
-				global_data->req_counter++;
-			}
+		/* update the this_data and flow_data */
+		if(is_response) {
+			global_data->rsp_counter++;
+		} else {
+			global_data->req_counter++;
 		}
 
-		number++;
-		if(this_number == 0)  {
+		if (((global_data->frame_version_start == 0) ||
+			((pinfo->fd->num >= global_data->frame_version_start) &&
+			 ((global_data->frame_version_end == 0) || (pinfo->fd->num <= global_data->frame_version_end)))) &&
+			 (tvb_strncaseeql(tvb,offset,"SSH-",4) == 0)) {
 			offset = ssh_dissect_protocol(tvb, pinfo,
 					global_data,
 					offset,ssh_tree, is_response,
 					&version, &need_desegmentation);
-			if(!is_response) {
-				global_data->version= version;
+			if(!pinfo->fd->flags.visited) {
+				if(!is_response) {
+					global_data->frame_version_end = pinfo->fd->num;
+					global_data->version = version;
+				} else {
+					/* Server initiates the protocol string, so technically it's the request */
+					if (global_data->frame_version_start == 0)
+						global_data->frame_version_start = pinfo->fd->num;
+				}
 			}
 		} else {
 			switch(version) {
 
 			case SSH_VERSION_UNKNOWN:
-				/*
-				 * We use "tvb_ensure_length_remaining()"
-				 * to make sure there actually *is* data
-				 * remaining.
-				 *
-				 * This means we're guaranteed that
-				 * "remain_length" is positive.
-				 */
-				remain_length = tvb_ensure_length_remaining(tvb,
-				    offset);
-				proto_tree_add_text(ssh_tree, tvb, offset,
-						remain_length,
-						"Unknown SSH version data");
-				offset += remain_length;
+				offset = ssh_dissect_encrypted_packet(tvb, pinfo,
+						global_data, offset,ssh_tree,is_response);
 				break;
 
 			case SSH_VERSION_1:
 				offset = ssh_dissect_ssh1(tvb, pinfo, global_data,
-						offset,ssh_tree,is_response,this_number,
+						offset,ssh_tree,is_response,
 						&need_desegmentation);
 				break;
 
 			case SSH_VERSION_2:
 				offset = ssh_dissect_ssh2(tvb, pinfo, global_data,
-						offset,ssh_tree,is_response,this_number,
+						offset,ssh_tree,is_response,
 						&need_desegmentation);
 				break;
 			}
 		}
 
-		if(need_desegmentation) return;
+		if(need_desegmentation)
+			return;
 		if(offset <= last_offset)
 			THROW(ReportedBoundsError);
 	}
@@ -426,7 +379,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-	       	int offset, proto_tree *tree,int is_response, int this_number,
+		int offset, proto_tree *tree,int is_response,
 		gboolean *need_desegmentation)
 {
 	proto_item *ti;
@@ -456,23 +409,25 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 		ssh2_tree = proto_item_add_subtree(ti ,ett_ssh2);
 	}
 
-	if((is_response && this_number > 3) || (!is_response && this_number>4)) {
+	if ((global_data->frame_key_start == 0) ||
+		((global_data->frame_key_start <= pinfo->fd->num) && 
+		((global_data->frame_key_end == 0) || (pinfo->fd->num <= global_data->frame_key_end)))) {
+		offset = ssh_dissect_key_exchange(tvb,pinfo, global_data,
+			offset,ssh2_tree,is_response,
+			need_desegmentation);
+	} else {
 		offset = ssh_dissect_encrypted_packet(tvb, pinfo,
 				global_data,
 				offset,ssh2_tree,is_response);
-	} else {
-		offset = ssh_dissect_key_exchange(tvb,pinfo, global_data,
-			offset,ssh2_tree,is_response,this_number,
-			need_desegmentation);
 	}
 
 	return offset;
 }
 static int
 ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
-		struct ssh_flow_data *global_data _U_,
-	       	int offset, proto_tree *tree,int is_response,
-		int number, gboolean *need_desegmentation)
+		struct ssh_flow_data *global_data,
+		int offset, proto_tree *tree, int is_response,
+		gboolean *need_desegmentation)
 {
 	guint 	plen, padding_length,len;
 	guint8 	msg_code;
@@ -552,22 +507,22 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 		    offset, padding_length, padding_length);
 	}
 	offset += padding_length;
-/*
-	if(tree) {
-		tf=proto_tree_add_text(tree,tvb,offset,-1,"SSH Version 1");
-		ssh1_tree = proto_item_add_subtree(tf ,ett_ssh1);
-	}
-*/
+
 	/* msg_code */
-	if(number == 1 ) {
+	if ((global_data->frame_key_start == 0) ||
+		((global_data->frame_key_start >= pinfo->fd->num) && (pinfo->fd->num <= global_data->frame_key_end))) {
 		msg_code = tvb_get_guint8(tvb, offset);
-		if (tree) {
-			proto_tree_add_item(ssh1_tree, hf_ssh_msg_code, tvb, offset, 1, ENC_NA);
-		}
+
+		proto_tree_add_item(ssh1_tree, hf_ssh_msg_code, tvb, offset, 1, ENC_NA);
 		col_append_str(pinfo->cinfo, COL_INFO,
 			val_to_str(msg_code, ssh1_msg_vals, "Unknown (%u)"));
 		offset += 1;
 		len = plen -1;
+		if(!pinfo->fd->flags.visited) {
+			if (global_data->frame_key_start == 0)
+				global_data->frame_key_start = pinfo->fd->num;
+			global_data->frame_key_end = pinfo->fd->num;
+		}
 	} else {
 		len = plen;
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Encrypted packet len=%d", len);
@@ -619,7 +574,7 @@ ssh_tree_add_string(tvbuff_t *tvb, int offset, proto_tree *tree,
 static int
 ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-	       	int offset, proto_tree *tree,int is_response,int number,
+		int offset, proto_tree *tree,int is_response,
 		gboolean *need_desegmentation)
 {
 	guint 	plen,len;
@@ -628,7 +583,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	int 	last_offset=offset;
 	guint 	msg_code;
 
-	proto_item *tf;
+	proto_item *tf, *ti;
 	proto_item *key_ex_tree =NULL;
 
 	/*
@@ -674,107 +629,89 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	/*
 	 * Need to check plen > 0x80000000 here
 	 */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: ", is_response?"Server":"Client");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: ",
-			is_response?"Server":"Client");
-	}
-
-	if(plen >= 0xffff) {
-		if (tree) {
-		  	proto_tree_add_uint_format(tree, hf_ssh_packet_length, tvb,
-		    		offset, 4, plen,"Overly large number 0x%x",plen);
-		}
+	ti = proto_tree_add_uint(tree, hf_ssh_packet_length, tvb,
+					offset, 4, plen);
+	if (plen >= 0xffff) {
+		expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Overly large number %d",plen);
 		plen = remain_length-4;
-	} else {
-		if (tree) {
-		  	proto_tree_add_uint(tree, hf_ssh_packet_length, tvb,
-		    		offset, 4, plen);
-		}
 	}
 	offset+=4;
-/* padding length */
+
+	/* padding length */
 	padding_length = tvb_get_guint8(tvb, offset);
-	if (tree) {
-		  proto_tree_add_uint(tree, hf_ssh_padding_length, tvb,
-		    offset, 1, padding_length);
-	}
+	proto_tree_add_uint(tree, hf_ssh_padding_length, tvb, offset, 1, padding_length);
 	offset += 1;
 
-	if(tree) {
-		tf=proto_tree_add_text(tree,tvb,offset,-1,"Key Exchange");
-		key_ex_tree = proto_item_add_subtree(tf ,ett_key_exchange);
-	}
+	tf=proto_tree_add_text(tree,tvb,offset,-1,"Key Exchange");
+	key_ex_tree = proto_item_add_subtree(tf, ett_key_exchange);
+
 	/* msg_code */
 	msg_code = tvb_get_guint8(tvb, offset);
-	if (tree) {
-		proto_tree_add_item(key_ex_tree, hf_ssh2_msg_code, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(key_ex_tree, hf_ssh2_msg_code, tvb, offset, 1, ENC_NA);
 
-	}
 	col_append_str(pinfo->cinfo, COL_INFO,
 		val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
 	offset += 1;
 
 	/* 16 bytes cookie  */
-	if ((msg_code != SSH_MSG_IGNORE) && (number == 1)) {
-		offset = ssh_dissect_key_init(tvb, offset, key_ex_tree, is_response, global_data);
-	}
-	else {
-		switch(msg_code)
-		{
-		/* DH GEX Request (min/nbits/max) */
-		case SSH_MSG_KEX_DH_GEX_REQUEST:
-			ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_min,
-			    tvb, offset, 4, ENC_NA);
-			offset+=4;
-			ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_nbits,
-			    tvb, offset, 4, ENC_NA);
-			offset+=4;
-			ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_max,
-			    tvb, offset, 4, ENC_NA);
-			offset+=4;
-			break;
-		/* DH Key Exchange Reply (g/p) */
-		case SSH_MSG_KEXDH_REPLY:
-			offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_p);
-			offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_g);
-			break;
-
-		/* DH GEX Init (e) */
-		case SSH_MSG_KEX_DH_GEX_INIT:
-			offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_e);
-			break;
-		/* DH GEX Reply (f) */
-		case SSH_MSG_KEX_DH_GEX_REPLY:
-			offset+=ssh_tree_add_string(tvb,offset,key_ex_tree,hf_ssh_kexdh_host_key,hf_ssh_kexdh_host_key_length);
-			offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_f);
-			offset+=ssh_tree_add_string(tvb,offset,key_ex_tree,hf_ssh_kexdh_h_sig,hf_ssh_kexdh_h_sig_length);
-			break;
+	switch(msg_code)
+	{
+	case SSH_MSG_KEXINIT:
+		if ((global_data->frame_key_start == 0) || (global_data->frame_key_start == pinfo->fd->num)) {
+			offset = ssh_dissect_key_init(tvb, offset, key_ex_tree, is_response, global_data);
+			global_data->frame_key_start = pinfo->fd->num;
 		}
+		break;
+	case SSH_MSG_NEWKEYS:
+		if ((global_data->frame_key_end == 0) && (!is_response))
+			global_data->frame_key_end = pinfo->fd->num;
+		break;
+	/* DH GEX Request (min/nbits/max) */
+	case SSH_MSG_KEX_DH_GEX_REQUEST:
+		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_min,
+			tvb, offset, 4, ENC_NA);
+		offset+=4;
+		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_nbits,
+			tvb, offset, 4, ENC_NA);
+		offset+=4;
+		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_max,
+			tvb, offset, 4, ENC_NA);
+		offset+=4;
+		break;
+	/* DH Key Exchange Reply (g/p) */
+	case SSH_MSG_KEXDH_REPLY:
+		offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_p);
+		offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_g);
+		break;
+
+	/* DH GEX Init (e) */
+	case SSH_MSG_KEX_DH_GEX_INIT:
+		offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_e);
+		break;
+	/* DH GEX Reply (f) */
+	case SSH_MSG_KEX_DH_GEX_REPLY:
+		offset+=ssh_tree_add_string(tvb,offset,key_ex_tree,hf_ssh_kexdh_host_key,hf_ssh_kexdh_host_key_length);
+		offset+=ssh_tree_add_mpint(tvb,offset,key_ex_tree,hf_ssh_mpint_f);
+		offset+=ssh_tree_add_string(tvb,offset,key_ex_tree,hf_ssh_kexdh_h_sig,hf_ssh_kexdh_h_sig_length);
+		break;
 	}
 
 	len = plen+4-padding_length-(offset-last_offset);
-	if (tree ) {
-		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_payload,
-		    tvb, offset, len, ENC_NA);
-	}
+	ssh_proto_tree_add_item(key_ex_tree, hf_ssh_payload, tvb, offset, len, ENC_NA);
 	offset +=len;
 
 	/* padding */
-	if(tree) {
-		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_padding_string,
-		    		tvb, offset, padding_length, ENC_NA);
-	}
+	ssh_proto_tree_add_item(key_ex_tree, hf_ssh_padding_string, tvb, offset, padding_length, ENC_NA);
 	offset+= padding_length;
 
-	/* MAC , if there is still bytes, treat it as 16bytes MAC*/
+	/* MAC, if there is still bytes, treat it as 16bytes MAC */
 	if(msg_code == SSH_MSG_KEX_DH_GEX_REPLY) {
 		len = tvb_reported_length_remaining(tvb,offset);
 		if(len == 16) {
-			if(tree) {
-				proto_tree_add_item(key_ex_tree, hf_ssh_mac_string,
-		    			tvb, offset, len , ENC_NA);
-			}
+			proto_tree_add_item(key_ex_tree, hf_ssh_mac_string,
+						tvb, offset, len , ENC_NA);
 			offset+=len;
 		}
 	}
@@ -784,7 +721,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 static int
 ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-	       	int offset, proto_tree *tree,int is_response)
+		int offset, proto_tree *tree,int is_response)
 {
 	gint len;
 
@@ -799,7 +736,7 @@ ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 			encrypted_len -= global_data->mac_length;
 
 		ssh_proto_tree_add_item(tree, hf_ssh_encrypted_packet,
-		    		tvb, offset, encrypted_len, ENC_NA);
+					tvb, offset, encrypted_len, ENC_NA);
 
 		if (global_data && global_data->mac_length>0)
 			ssh_proto_tree_add_item(tree, hf_ssh_mac_string,
@@ -813,7 +750,7 @@ ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 static int
 ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 		struct ssh_flow_data *global_data,
-	       	int offset, proto_tree *tree, int is_response, guint * version,
+		int offset, proto_tree *tree, int is_response, guint * version,
 		gboolean *need_desegmentation)
 {
 	guint	remain_length;
@@ -831,13 +768,13 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	if(!is_response) {
-	       	if(tvb_strncaseeql(tvb,offset,"SSH-2.",6) == 0 ) {
+		if(tvb_strncaseeql(tvb,offset,"SSH-2.",6) == 0 ) {
 			*(version) = SSH_VERSION_2;
-		}else if(tvb_strncaseeql(tvb,offset,"SSH-1.99-",9) == 0 ) {
+		} else if(tvb_strncaseeql(tvb,offset,"SSH-1.99-",9) == 0 ) {
 			*(version) = SSH_VERSION_2;
-	       	}else if(tvb_strncaseeql(tvb,offset,"SSH-1.",6) == 0 ) {
+		}else if(tvb_strncaseeql(tvb,offset,"SSH-1.",6) == 0 ) {
 			*(version) = SSH_VERSION_1;
-	       }
+		}
 	}
 
 	/*
@@ -868,15 +805,12 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 		protolen = linelen - 1;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Protocol: %s",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s Protocol: %s",
 			is_response?"Server":"Client",
 			tvb_format_text(tvb,offset,protolen));
-	}
-	if (tree ) {
-		ssh_proto_tree_add_item(tree, hf_ssh_protocol,
-		    		tvb, offset, linelen, ENC_ASCII|ENC_NA);
-	}
+
+	ssh_proto_tree_add_item(tree, hf_ssh_protocol,
+					tvb, offset, linelen, ENC_ASCII|ENC_NA);
 	offset+=linelen;
 	return offset;
 }
@@ -1001,21 +935,17 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 		tf=proto_tree_add_text(tree,tvb,offset,-1,"Algorithms");
 		key_init_tree = proto_item_add_subtree(tf, ett_key_init);
 		proto_tree_add_item(key_init_tree, hf_ssh_cookie,
-		    tvb, offset, 16, ENC_NA);
+			tvb, offset, 16, ENC_NA);
 	}
 	offset += 16;
 
 	for (i = 0; ssh_proposals[i].value; i++) {
 		len = tvb_get_ntohl(tvb, offset);
-		if (key_init_tree) {
-			proto_tree_add_uint(key_init_tree,
+		proto_tree_add_uint(key_init_tree,
 				*ssh_proposals[i].length, tvb, offset, 4, len);
-		}
 		offset+=4;
-		if (key_init_tree) {
-			ssh_proto_tree_add_item(key_init_tree,
+		ssh_proto_tree_add_item(key_init_tree,
 				*ssh_proposals[i].value, tvb, offset, len, ENC_ASCII|ENC_NA);
-		}
 		/* record negotiations */
 		if (global_data) {
 			/* figure out MAC */
@@ -1052,11 +982,11 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 	}
 
 	ssh_proto_tree_add_item(key_init_tree, hf_ssh_kex_first_packet_follows,
-	    tvb, offset, 1, ENC_BIG_ENDIAN);
+		tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset+=1;
 
 	ssh_proto_tree_add_item(key_init_tree, hf_ssh_kex_reserved,
-	    tvb, offset, 4, ENC_NA);
+		tvb, offset, 4, ENC_NA);
 	offset+=4;
 
 	if (tf != NULL) {
