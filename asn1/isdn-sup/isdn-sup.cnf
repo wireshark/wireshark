@@ -1,0 +1,50 @@
+# isdn-sup.cnf
+# isdn_sup conformation file
+# 2013  Anders Broman
+
+# $Id: qsig.cnf 36108 2011-03-01 13:01:26Z kukosa $
+
+#.OPT
+BER
+GROUP_BY_PROT
+-o isdn-sup
+#.END
+
+#.EXPORTS  EXTERN VALS_WITH_TABLE
+
+
+#.MODULE
+Diversion-Operations                         isdn-sup
+
+#.PDU_NEW
+
+OPERATION.&ArgumentType
+OPERATION.&ResultType
+#ERROR.&ParameterType
+
+#.END
+
+#.TYPE_RENAME
+#.END                           
+
+#.FIELD_RENAME
+#.END                                
+
+#.TABLE10_BODY OPERATION
+  { %(&operationCode)3s, "%(_name)s" },
+#.END
+
+#.TABLE11_BODY OPERATION
+  /* %(_name)-24s */ { %(&operationCode)3s, %(_argument_pdu)s, %(_result_pdu)s },
+#.END
+
+#.TABLE20_BODY ERROR
+  { %(&errorCode)4s, "%(_name)s" },
+#.END
+
+#.TABLE21_BODY ERROR
+  /* %(_name)-24s */ { %(&errorCode)4s, %(_parameter_pdu)s },
+#.END
+
+#.TYPE_ATTR
+#.END

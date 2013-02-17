@@ -1,0 +1,11 @@
+Embedded-Q931-Types {itu-t identified-organization etsi(0) 196 embedded-q931-types(7)}
+
+DEFINITIONS EXPLICIT TAGS ::=
+
+BEGIN
+
+EXPORTS                 Q931InformationElement;
+
+Q931InformationElement  ::= [APPLICATION 0] IMPLICIT OCTET STRING
+
+END -- of Embedded-Q931-Types
