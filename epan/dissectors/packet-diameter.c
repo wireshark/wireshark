@@ -55,6 +55,7 @@
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
+#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
@@ -1159,13 +1160,13 @@ reginfo(int *hf_ptr, const char *name, const char *abbr, const char *desc,
 	guint32 mask)
 {
 	hf_register_info hf = { hf_ptr, {
-				name ? g_strdup(name) : g_strdup(abbr),
-				g_strdup(abbr),
+				name ? wmem_strdup(wmem_epan_scope(), name) : wmem_strdup(wmem_epan_scope(), abbr),
+				wmem_strdup(wmem_epan_scope(), abbr),
 				ft,
 				base,
 				NULL,
 				mask,
-				g_strdup(desc),
+				wmem_strdup(wmem_epan_scope(), desc),
 				HFILL }};
 
 	if(vs_ext) {
@@ -1183,14 +1184,14 @@ basic_avp_reginfo(diam_avp_t *a, const char *name, enum ftenum ft,
 	hf_register_info hf[] = { { &(a->hf_value),
 				  { NULL, NULL, ft, base, NULL, 0x0,
 				  a->vendor->code ?
-				  g_strdup_printf("vendor=%d code=%d", a->vendor->code, a->code)
-				  : g_strdup_printf("code=%d", a->code),
+				  wmem_strdup_printf(wmem_epan_scope(), "vendor=%d code=%d", a->vendor->code, a->code)
+				  : wmem_strdup_printf(wmem_epan_scope(), "code=%d", a->code),
 				  HFILL }}
 	};
 	gint *ettp = &(a->ett);
 
-	hf->hfinfo.name = g_strdup_printf("%s",name);
-	hf->hfinfo.abbrev = alnumerize(g_strdup_printf("diameter.%s",name));
+	hf->hfinfo.name = wmem_strdup_printf(wmem_epan_scope(), "%s",name);
+	hf->hfinfo.abbrev = alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s",name));
 	if(vs_ext) {
 		hf->hfinfo.strings = vs_ext;
 	}
@@ -1330,11 +1331,11 @@ build_simple_avp(const avp_type_t *type, guint32 code, const diam_vnd_t *vendor,
 		while (vs[i].strptr) {
 		  i++;
 		}
-		vs_ext = value_string_ext_new((void *)vs, i+1, g_strdup_printf("%s_vals_ext",name));
+		vs_ext = value_string_ext_new((void *)vs, i+1, wmem_strdup_printf(wmem_epan_scope(), "%s_vals_ext",name));
 		base = base|BASE_EXT_STRING;
 	}
 
-	a = g_malloc0(sizeof(diam_avp_t));
+	a = wmem_alloc0(wmem_epan_scope(), sizeof(diam_avp_t));
 	a->code = code;
 	a->vendor = vendor;
 	a->dissector_v16 = type->v16;
