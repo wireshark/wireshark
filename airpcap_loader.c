@@ -568,7 +568,7 @@ save_wlan_driver_wep_keys(void)
 
     /* Number of keys in key list */
     if (fake_info_if->keysCollectionSize != 0)
-        keys_in_list = (guint)((fake_info_if->keysCollectionSize -  sizeof(AirpcapKeysCollection))/sizeof(AirpcapKey));
+        keys_in_list = AirpcapKeysCollectionSizeToKeyCount(fake_info_if->keysCollectionSize);
     else
         keys_in_list = 0;
 
@@ -1775,7 +1775,7 @@ get_airpcap_device_keys(airpcap_if_info_t* info_if)
 
     /* Number of keys in key list */
     if (info_if->keysCollectionSize != 0)
-        keys_in_list = (guint)((info_if->keysCollectionSize -  sizeof(AirpcapKeysCollection))/sizeof(AirpcapKey));
+        keys_in_list = AirpcapKeysCollectionSizeToKeyCount(info_if->keysCollectionSize);
     else
         keys_in_list = 0;
 
@@ -1847,7 +1847,7 @@ get_airpcap_driver_keys(void)
 
     /* Number of keys in key list */
     if (fake_info_if->keysCollectionSize != 0)
-        keys_in_list = (guint)((fake_info_if->keysCollectionSize -  sizeof(AirpcapKeysCollection))/sizeof(AirpcapKey));
+        keys_in_list = AirpcapKeysCollectionSizeToKeyCount(fake_info_if->keysCollectionSize);
     else
         keys_in_list = 0;
 

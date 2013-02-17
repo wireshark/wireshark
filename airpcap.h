@@ -190,7 +190,10 @@ typedef struct _AirpcapKeysCollection
     AirpcapKey Keys[0];             /* < Array of nKeys keys. */
 } AirpcapKeysCollection, *PAirpcapKeysCollection;
 
-#define AirpcapKeysCollectionSize(nKeys) (sizeof(AirpcapKeysCollection) + ((nKeys) * sizeof(AirpcapKey)))
+#define AirpcapKeysCollectionSize(nKeys) \
+	(sizeof(AirpcapKeysCollection) + ((nKeys) * sizeof(AirpcapKey)))
+#define AirpcapKeysCollectionSizeToKeyCount(size) \
+	(guint)(((size) - AirpcapKeysCollectionSize(0))/sizeof(AirpcapKey))
 
 /*!
   \brief Packet header.
