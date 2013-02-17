@@ -217,6 +217,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-hnbap.c
 	dissectors/packet-idmp.c
 	dissectors/packet-inap.c
+	dissectors/packet-isdn-sup.c
 	dissectors/packet-lcsap.c
 	dissectors/packet-logotypecertextn.c
 	dissectors/packet-lpp.c
