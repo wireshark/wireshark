@@ -2242,7 +2242,7 @@ AC_OUTPUT(
   asn1/hnbap/Makefile
   asn1/idmp/Makefile
   asn1/inap/Makefile
-  asn1/isdn-sup
+  asn1/isdn-sup/Makefile
   asn1/kerberos/Makefile
   asn1/lcsap/Makefile
   asn1/ldap/Makefile
