@@ -767,7 +767,7 @@ static const value_string ieee80211_supported_rates_vals[] = {
 static value_string_ext ieee80211_supported_rates_vals_ext = VALUE_STRING_EXT_INIT(ieee80211_supported_rates_vals);
 
 /* ************************************************************************* */
-/*                         7.3.1.7 Reason Code field                         */
+/*                         8.4.1.7 Reason Code field                         */
 /* ************************************************************************* */
 static const value_string ieee80211_reason_code[] = {
   {  1, "Unspecified reason" },
@@ -794,6 +794,8 @@ static const value_string ieee80211_reason_code[] = {
   { 22, "Invalid RSN information element capabilities" },
   { 23, "IEEE 802.1X authentication failed" },
   { 24, "Cipher suite rejected because of the security policy" },
+  { 25, "TDLS direct-link teardown due to TDLS peer STA unreachable via the TDLS direct link" },
+  { 26, "TDLS direct-link teardown for unspecified reason" },
   { 27, "Disassociated because session terminated by SSP request" },
   { 28, "Disassociated because of lack of SSP roaming agreement" },
   { 29, "Requested service rejected because of SSP cipher suite or AKM requirement " },
@@ -810,6 +812,10 @@ static const value_string ieee80211_reason_code[] = {
   { 45, "Peer STA does not support the requested cipher suite" },
   { 46, "Disassociated because authorized access limit reached" },
   { 47, "Disassociated due to external service requirements" },
+  { 48, "Invalid FT Action frame count" },
+  { 49, "Invalid pairwise master key identifier (PMKI)" },
+  { 50, "Invalid MDE" },
+  { 51, "Invalid FTE" },
   { 52, "SME cancels the mesh peering instance with the reason other than reaching the maximum number of peer mesh STAs" },
   { 53, "The mesh STA has reached the supported maximum number of peer mesh STAs" },
   { 54, "The received information violates the Mesh Configuration policy configured in the mesh STA profile" },
@@ -830,16 +836,19 @@ static const value_string ieee80211_reason_code[] = {
 static value_string_ext ieee80211_reason_code_ext = VALUE_STRING_EXT_INIT(ieee80211_reason_code);
 
 /* ************************************************************************* */
-/*                         7.3.1.9 Status Code field                         */
+/*                         8.4.1.9 Status Code field                         */
 /* ************************************************************************* */
 static const value_string ieee80211_status_code[] = {
   {  0, "Successful" },
   {  1, "Unspecified failure" },
   {  2, "TDLS wakeup schedule rejected but alternative schedule provided" },
   {  3, "TDLS wakeup schedule rejected" },
+  {  4, "Reserved" },
   {  5, "Security disabled" },
   {  6, "Unacceptable lifetime" },
   {  7, "Not in same BSS" },
+  {  8, "Reserved" },
+  {  9, "Reserved" },
   { 10, "Cannot support all requested capabilities in the Capability Information field" },
   { 11, "Reassociation denied due to inability to confirm that association exists" },
   { 12, "Association denied due to reason outside the scope of this standard" },
@@ -886,6 +895,9 @@ static const value_string ieee80211_status_code[] = {
   { 53, "Invalid pairwise master key identifier (PMKID)" },
   { 54, "Invalid MDIE" },
   { 55, "Invalid FTIE" },
+  { 56, "Requested TCLAS processing is not supported by the AP" },
+  { 57, "The AP has insufficient TCLAS processing resources to satisfy the request" },
+  { 58, "The TS has not been created because the request cannot be honored; however, the HC suggests the STA transitions to other BSSs to setup the TS" },
   { 59, "GAS Advertisement Protocol not supported" },
   { 60, "No outstanding GAS request" },
   { 61, "GAS Response not received from the Advertisement Server" },
@@ -894,12 +906,34 @@ static const value_string ieee80211_status_code[] = {
   { 64, "Request refused because home network does not support request" },
   { 65, "Advertisement Server in the network is not currently reachable" },
   { 67, "Request refused due to permissions received via SSPN interface" },
+  { 66, "Reserved" },
   { 68, "Request refused because AP does not support unauthenticated access" },
+  { 69, "Reserved" },
+  { 70, "Reserved" },
+  { 61, "Reserved" },
   { 72, "Invalid contents of RSNIE" },
+  { 73, "U-APSD Coexistence is not supported" },
+  { 74, "Requested U-APSD Coexistence mode is not supported" },
+  { 75, "Requested Interval/Duration value cannot be supported with U-APSD Coexistence" },
   { 76, "Authentication is rejected because an Anti-Clogging Token is required" },
   { 77, "Authentication is rejected because the offered finite cyclic group is not supported" },
   { 78, "The TBTT adjustment request has not been successful because the STA could not find an alternative TBTT" },
   { 79, "Transmission failure" },
+  { 80, "Requested TCLAS Not Supported" },
+  { 81, "TCLAS Resources Exhausted" },
+  { 82, "Rejected with Suggested BSS Transition" },
+  { 83, "Reserved" },
+  { 92, "(Re)association refused for some external reason" },
+  { 93, "(Re)association refused because of memory limits at the AP" },
+  { 94, "(Re)association refused because emergency services are not supported at the AP" },
+  { 95, "GAS query response not yet received" },
+  { 96, "Reserved" },
+  { 97, "Reserved" },
+  { 98, "Reserved" },
+  { 99, "Reserved" },
+  { 100, "The request failed due to a reservation conflict" },
+  { 101, "The request failed due to exceeded MAF limit" },
+  { 102, "The request failed due to exceeded MCCA track limit" },
   { 0,    NULL}
 };
 static value_string_ext ieee80211_status_code_ext = VALUE_STRING_EXT_INIT(ieee80211_status_code);
