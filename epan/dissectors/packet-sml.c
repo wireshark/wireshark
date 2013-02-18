@@ -74,6 +74,7 @@ Short description of the SML protocol on the SML Wireshark Wiki page:  http://wi
 
 #define LIST_6_ELEMENTS		0x76
 #define ZERO			0x00
+#define MSB             0x80
 
 static guint tcp_port_pref = TCP_PORT_SML;
 static guint udp_port_pref = UDP_PORT_SML;
@@ -250,8 +251,6 @@ static const range_string bools[]={
 	{0,0, NULL}
 };
 
-static dissector_handle_t data_handle;
-
 /* Initialize the subtree pointers */
 static gint ett_sml = -1;
 static gint ett_sml_mainlist = -1;
@@ -362,8 +361,8 @@ static void get_length(tvbuff_t *tvb, guint *offset, guint *data, guint *length)
 	if (check == OPTIONAL){
 		*length = 1;
 	}
-	else if ((check & 0x80) == 0x80){
-		while ((check & 0x80) == 0x80){
+	else if ((check & 0x80) == MSB){
+		while ((check & 0x80) == MSB){
 			check = check & 0x0F;
 
 			*data = *data + check;
@@ -380,7 +379,6 @@ static void get_length(tvbuff_t *tvb, guint *offset, guint *data, guint *length)
 		*data = *data - *length;
 	}
 	else{
-		check = tvb_get_guint8(tvb, temp_offset);
 		check = check & 0x0F;
 		*length+=1;
 		*data = check - *length;
@@ -397,8 +395,8 @@ static void sml_value(tvbuff_t *tvb,proto_tree *insert_tree,guint *offset, guint
 
 	if (tvb_get_guint8(tvb, *offset) != OPTIONAL){
 		value_tree = proto_item_add_subtree (value, ett_sml_value);
-		if ((tvb_get_guint8(tvb, *offset) & 0x80) == 0x80 || (tvb_get_guint8(tvb, *offset) & 0xF0) == 0){
-			proto_tree_add_text (value_tree, tvb, *offset, *length, "Length: %d %s", *data, plurality(*data, "ocet", "octets"));
+		if ((tvb_get_guint8(tvb, *offset) & 0x80) == MSB || (tvb_get_guint8(tvb, *offset) & 0xF0) == ZERO){
+			proto_tree_add_text (value_tree, tvb, *offset, *length, "Length: %d %s", *data, plurality(*data, "octet", "octets"));
 			*offset+= *length;
 		}
 		else {
@@ -2272,6 +2270,9 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 			return;
 		}
 	}
+	else if (!pinfo->can_desegment){
+		expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_NOTE, "probably segment needed");
+	}
 
 	while(!close1 && !close2){
 		if (sml_reassemble){
@@ -2466,9 +2467,13 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 			*offset+=data;
 
 			if (sml_crc_enabled) {
-				crc_msg_len = *offset - crc_msg_len - 3;
-				crc_check = crc16_ccitt_tvb_offset(tvb, *offset - crc_msg_len - 3, crc_msg_len);
+				crc_msg_len = (*offset - crc_msg_len - data - 1);
+				crc_check = crc16_ccitt_tvb_offset(tvb, (*offset - crc_msg_len - data - 1), crc_msg_len);
 				crc_ref = tvb_get_letohs(tvb, *offset-2);
+
+				if (data == 1){
+					crc_ref = crc_ref & 0xFF00;
+				}
 
 				if (crc_check == crc_ref) {
 					proto_tree_add_text (crc16_tree, tvb, *offset, 0, "[CRC Okay]");
@@ -2476,8 +2481,8 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 				else {
 					/*(little to big endian convert) to disply in correct order*/
 					crc_check = ((crc_check >> 8) & 0xFF) + ((crc_check << 8 & 0xFF00));
-					proto_tree_add_text (crc16_tree, tvb, *offset, 0, "[CRC Bad %X]", crc_check);
-					expert_add_info_format(pinfo, crc16, PI_PROTOCOL, PI_WARN, "CRC error");
+					proto_tree_add_text (crc16_tree, tvb, *offset, 0, "[CRC Bad 0x%X]", crc_check);
+					expert_add_info_format(pinfo, crc16, PI_CHECKSUM, PI_WARN, "CRC error");
 				}
 			}
 			else {
@@ -2558,8 +2563,8 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 			else{
 				/*(little to big endian convert) to disply in correct order*/
 				crc_check = ((crc_check >> 8) & 0xFF) + ((crc_check << 8) & 0xFF00);
-				proto_tree_add_text (msgend_tree, tvb, *offset, 0, "[CRC Bad %X]", crc_check);
-				expert_add_info_format(pinfo, msgend, PI_PROTOCOL, PI_WARN, "CRC error (messages not reassembled ?)");
+				proto_tree_add_text (msgend_tree, tvb, *offset, 0, "[CRC Bad 0x%X]", crc_check);
+				expert_add_info_format(pinfo, msgend, PI_CHECKSUM, PI_WARN, "CRC error (messages not reassembled ?)");
 			}
 		}
 		else {
@@ -2860,8 +2865,6 @@ void proto_reg_handoff_sml(void) {
 	static int old_udp_port;
 	static dissector_handle_t sml_handle;
 
-	data_handle = find_dissector("data");
-
 	if (!initialized) {
 		sml_handle = create_dissector_handle(dissect_sml, proto_sml);
 		initialized = TRUE;
@@ -2880,11 +2883,11 @@ void proto_reg_handoff_sml(void) {
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 4
+ * c-basic-offset: 8
  * tab-width: 8
- * indent-tabs-mode: nil
+ * indent-tabs-mode: t
  * End:
  *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
  */
