@@ -9684,7 +9684,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       offset += 2;
 
       proto_tree_add_item(tree, hf_ieee80211_tag_power_constraint_local, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(ti, " :%d", tvb_get_guint8(tvb, offset));
+      proto_item_append_text(ti, ": %d", tvb_get_guint8(tvb, offset));
       offset += 1;
 
       break;
@@ -16097,7 +16097,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_power_constraint_local,
      {"Local Power Constraint", "wlan_mgt.powercon.local",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       "Value that allows the mitigation requirements to be satisfied in the current channel", HFILL }},
 
     {&hf_ieee80211_tag_power_capability_min,
