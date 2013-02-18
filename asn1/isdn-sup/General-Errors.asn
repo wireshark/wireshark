@@ -1,0 +1,66 @@
+--
+-- $Id$
+--
+-- EN 300 196-1 Ver. 1.3.2
+--
+
+General-Errors {itu-t identified-organization etsi(0) 196 general-errors(2)}
+
+DEFINITIONS EXPLICIT TAGS ::=
+
+BEGIN
+
+EXPORTS                 notSubscribed, notAvailable, notImplemented, invalidServedUserNr,
+                        invalidCallState, basicServiceNotProvided, notIncomingCall,
+                        supplementaryServiceInteractionNotAllowed, resourceUnavailable;
+
+IMPORTS                 ERROR
+                        FROM Remote-Operation-Notation
+                            {joint-iso-itu-t remote-operations(4) notation(0)};
+
+notSubscribed ERROR                             ::= 0
+
+        -- The requested service or function has not been subscribed for the basic service, and
+        -- optionally the served user's ISDN number, included in the activation invoke component.
+        -- Alternatively the basic service may not have been subscribed.
+
+
+notAvailable ERROR                              ::= 3
+
+        -- The requested supplementary service or function is not available for the basic service,
+        -- and optionally the served user's ISDN number (e.g. temporary fault).
+
+notImplemented ERROR                            ::= 4
+
+        -- The supplementary service or function requested is not implemented for the basic
+        -- service, and optionally the served user's ISDN number (e.g. service not provided).
+
+invalidServedUserNr ERROR                       ::= 6
+
+        -- The served user's number provided is not a valid number.
+
+invalidCallState ERROR                          ::= 7
+
+        -- The supplementary service or function cannot be requested in the current basic call state
+        -- or auxiliary state.
+
+basicServiceNotProvided ERROR                   ::= 8
+
+        -- The served user has not subscribed to the basic service (bearer and/or teleservice) for
+        -- which the supplementary service or function was requested.
+
+notIncomingCall ERROR                           ::= 9
+
+        -- The supplementary service or function was not requested for an incoming call.
+
+supplementaryServiceInteractionNotAllowed ERROR ::= 10
+
+        -- The performance of the requested supplementary service or function is prohibited
+        -- by another supplementary service or function.
+
+resourceUnavailable ERROR                       ::= 11
+
+        -- The resources required to perform adequately the requested supplementary service or
+        -- function are not available.
+
+END -- of General-Errors
