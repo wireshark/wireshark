@@ -1551,23 +1551,23 @@ void write_fields_preamble(output_fields_t* fields, FILE *fh)
 
 static void format_field_values(output_fields_t* fields, gpointer field_index, const gchar* value)
 {
-    guint index;
+    guint idx;
     GPtrArray* fv_p;
 
     if (NULL == value || '\0' == *value)
         return;
 
     /* Unwrap change made to disambiguiate zero / null */
-    index = GPOINTER_TO_UINT(field_index) - 1;
+    idx = GPOINTER_TO_UINT(field_index) - 1;
 
-    if (fields->field_values[index] == NULL) {
-        fields->field_values[index] = g_ptr_array_new();
+    if (fields->field_values[idx] == NULL) {
+        fields->field_values[idx] = g_ptr_array_new();
     }
 
-    /* Essentially: fieldvalues[index] is an array of (ghar *) with each entry */
+    /* Essentially: fieldvalues[idx] is an array of (ghar *) with each entry */
     /*  pointing to a string which is (part of) the final output string.       */
 
-    fv_p = fields->field_values[index];
+    fv_p = fields->field_values[idx];
 
     switch (fields->occurrence) {
     case 'f':
