@@ -1168,7 +1168,7 @@ static void child_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *insert_tre
 	check = tvb_get_guint8(tvb, *offset);
 
 	if (check == OPTIONAL){
-		child = proto_tree_add_text (insert_tree, tvb, *offset, 1, "Child List: NOT SET");
+		proto_tree_add_text (insert_tree, tvb, *offset, 1, "Child List: NOT SET");
 		*offset+=1;
 	}
 	else if ((check & 0x0F) != 0){
