@@ -73,6 +73,17 @@ IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects
 	   ARGUMENT       ActivationDiversionArg 
 	   RETURN RESULT     FALSE 
 	   ALWAYS RESPONDS  FALSE 
+	   ERRORS {
+			notSubscribed,
+			notAvailable,
+			invalidServedUserNr,
+			supplementaryServiceInteractionNotAllowed,
+			basicServiceNotProvided,
+			resourceUnavailable,
+			invalidDivertedToNr,
+			specialServiceNr,
+			diversionToServedUserNr,
+			invalidNoReplyTimerValue}
 	   CODE        local:  7} 
 
     ActivationDiversionArg ::= SEQUENCE {
@@ -84,17 +95,7 @@ IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects
 	}
 
 
---                            ERRORS {
---                              notSubscribed,
---                                notAvailable,
---                                invalidServedUserNr,
---                                supplementaryServiceInteractionNotAllowed,
---                                basicServiceNotProvided,
---                                resourceUnavailable,
---                                InvalidDivertedToNr,
---                                SpecialServiceNr,
---                                DiversionToServedUserNr,
---										InvalidNoReplyTimerValue}
+
 
 -- End of ActivationDiversion operation definition
 
@@ -102,6 +103,11 @@ IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects
 	   ARGUMENT       DeactivationDiversionArg 
 	   RETURN RESULT     FALSE 
 	   ALWAYS RESPONDS  FALSE 
+       ERRORS {
+        notSubscribed |
+        notAvailable |
+        invalidServedUserNr |
+        NotActivated}
 	   CODE        local:  8} 
 
 	DeactivationDiversionArg   ::=  SEQUENCE {   
@@ -110,12 +116,7 @@ IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects
         servedUserNr            ServedUserNr
 	}
 
---                            ERRORS {
---                                notSubscribed,
---                                notAvailable,
---                                invalidServedUserNr,
---                                NotActivated}
---
+
 -- End of DeactivationDiversion operation definition
 
 	activationStatusNotificationDiv OPERATION ::= {
@@ -202,13 +203,13 @@ IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects
 	   ERRORS {
 			notSubscribed |
 			notAvailable |
-			InvalidDivertedToNr |
-			SpecialServiceNr |
-			DiversionToServedUserNr |
-			IncomingCallAccepted |
-			NumberOfDiversionsExceeded |
+			invalidDivertedToNr |
+			specialServiceNr |
+			diversionToServedUserNr |
+			incomingCallAccepted |
+			numberOfDiversionsExceeded |
 			supplementaryServiceInteractionNotAllowed |
-			RequestAlreadyAccepted}
+			requestAlreadyAccepted}
 	   CODE        local:  13} 
 
     CallDeflectionArg ::= SEQUENCE {
@@ -222,6 +223,15 @@ IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects
 	   ARGUMENT      CallRerouteingArg 
 	   RETURN RESULT     FALSE 
 	   ALWAYS RESPONDS  FALSE 
+       ERRORS {
+        notSubscribed |
+        notAvailable |
+        supplementaryServiceInteractionNotAllowed |
+        resourceUnavailable |
+        invalidDivertedToNr |
+        specialServiceNr |
+        diversionToServedUserNr |
+        numberOfDiversionsExceeded}
 	   CODE        local:  14} 
 
     CallRerouteingArg ::= SEQUENCE {
@@ -239,15 +249,6 @@ IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects
 -- element (optional) as specified in EN 300 403-1 [11] clause 4.5 shall be embedded in the 
 -- q931InfoElement.
 
---    ERRORS {
---        notSubscribed,
---        notAvailable,
---        supplementaryServiceInteractionNotAllowed,
---        resourceUnavailable,
---        InvalidDivertedToNr,
---        SpecialServiceNr,
---        DiversionToServedUserNr,
---        NumberOfDiversionsExceeded}
 
 -- End of CallRerouteing operation definition
 
@@ -320,13 +321,28 @@ DiversionReason             ::= ENUMERATED {unknown     (0),
 NoReplyTimer						::= INTEGER (1..180)
 
 InvalidDivertedToNr         ::= ERROR
+invalidDivertedToNr  ERROR ::= { CODE  local: 12}
+
 SpecialServiceNr            ::= ERROR
+specialServiceNr  ERROR ::= { CODE  local: 14}
+
 DiversionToServedUserNr     ::= ERROR
+diversionToServedUserNr  ERROR ::= { CODE  local: 15}
+
 IncomingCallAccepted        ::= ERROR
+incomingCallAccepted  ERROR ::= { CODE  local: 23}
+
 NumberOfDiversionsExceeded  ::= ERROR
+numberOfDiversionsExceeded  ERROR ::= { CODE  local: 24}
+
 NotActivated                ::= ERROR
+notActivated  ERROR ::= { CODE  local: 46}
+
 RequestAlreadyAccepted      ::= ERROR
+requestAlreadyAccepted  ERROR ::= { CODE  local: 48}
+
 InvalidNoReplyTimerValue    ::= ERROR
+--invalidNoReplyTimerValue  ERROR ::= { CODE  local: xx}
 
 --deactivationDiversion               DeactivationDiversion               ::= localValue  8
 --activationStatusNotificationDiv     ActivationStatusNotificationDiv     ::= localValue  9

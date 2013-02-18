@@ -15,12 +15,14 @@ GROUP_BY_PROT
 
 #.MODULE
 Diversion-Operations                         isdn-sup
-
+MCID-Operations								 isdn-sup
+Closed-User-Group-Service-Operations		 isdn-sup
+Advice-of-Charge-Operations					 isdn-sup
 #.PDU_NEW
 
 OPERATION.&ArgumentType
 OPERATION.&ResultType
-#ERROR.&ParameterType
+ERROR.&ParameterType
 
 #.END
 

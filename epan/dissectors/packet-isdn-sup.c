@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-isdn-sup.c                                                          */
-/* ../../tools/asn2wrs.py -b -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn Diversion-Operations.asn */
+/* ../../tools/asn2wrs.py -b -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn */
 
 /* Input file: packet-isdn-sup-template.c */
 
@@ -48,6 +48,7 @@
 /* Initialize the protocol and registered fields */
 static int proto_isdn_sup = -1;
 static int hf_isdn_sup_operation = -1;
+static int hf_isdn_sup_error = -1;
 
 /* Global variables */
 
@@ -62,10 +63,31 @@ typedef struct _isdn_sup_op_t {
   new_dissector_t res_pdu;
 } isdn_sup_op_t;
 
+
+typedef struct isdn_sup_err_t {
+  gint32 errcode;
+  new_dissector_t err_pdu;
+} isdn_sup_err_t;
+
 static const value_string isdn_sup_str_operation[] = {
 
 /*--- Included file: packet-isdn-sup-table10.c ---*/
 #line 1 "../../asn1/isdn-sup/packet-isdn-sup-table10.c"
+  {  30, "chargingRequest" },
+  {  31, "aOCSCurrency" },
+  {  32, "aOCSSpecialArr" },
+  {  33, "aOCDCurrency" },
+  {  34, "aOCDChargingUnit" },
+  {  35, "aOCECurrency" },
+  {  36, "aOCEChargingUnit" },
+  {   2, "cUGcall" },
+  {  40, "beginCONF" },
+  {  41, "addCONF" },
+  {  42, "splitCONF" },
+  {  43, "dropCONF" },
+  {  44, "isolateCONF" },
+  {  45, "reattachCONF" },
+  {  46, "partyDISC" },
   {   7, "activationDiversion" },
   {   8, "deactivationDiversion" },
   {   9, "activationStatusNotificationDiv" },
@@ -78,29 +100,75 @@ static const value_string isdn_sup_str_operation[] = {
   {  18, "divertingLegInformation1" },
   {  15, "divertingLegInformation2" },
   {  19, "divertingLegInformation3" },
+  {   3, "mCIDRequest" },
 
 /*--- End of included file: packet-isdn-sup-table10.c ---*/
-#line 59 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 66 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   {   0, NULL}
 };
 
-#if 0
+
 static const value_string isdn_sup_str_error[] = {
 
 /*--- Included file: packet-isdn-sup-table20.c ---*/
 #line 1 "../../asn1/isdn-sup/packet-isdn-sup-table20.c"
-/* Unknown or empty loop list ERROR */
+  {    0, "notSubscribed" },
+  {    3, "notAvailable" },
+  {    4, "notImplemented" },
+  {    6, "invalidServedUserNr" },
+  {    7, "invalidCallState" },
+  {    8, "basicServiceNotProvided" },
+  {    9, "notIncomingCall" },
+  {   10, "supplementaryServiceInteractionNotAllowed" },
+  {   11, "resourceUnavailable" },
+  {   26, "noChargingInfoAvailable" },
+  {   16, "invalidOrUnregisteredCUGIndex" },
+  {   17, "requestedBasicServiceViolatesCUGConstraints" },
+  {   18, "outgoingCallsBarredWithinCUG" },
+  {   19, "incomingCallsBarredWithinCUG" },
+  {   20, "userNotMemberOfCUG" },
+  {   21, "inconsistencyInDesignatedFacilityAndSubscriberClass" },
+  {   28, "illConferenceId" },
+  {   29, "illPartyId" },
+  {   30, "numberOfPartiesExceeded" },
+  {   31, "notActive" },
+  {   32, "notAllowed" },
+  {   12, "invalidDivertedToNr" },
+  {   14, "specialServiceNr" },
+  {   15, "diversionToServedUserNr" },
+  {   23, "incomingCallAccepted" },
+  {   24, "numberOfDiversionsExceeded" },
+  {   46, "notActivated" },
+  {   48, "requestAlreadyAccepted" },
 
 /*--- End of included file: packet-isdn-sup-table20.c ---*/
-#line 65 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 72 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   {   0, NULL}
 };
-#endif
+
 static int hf_isdn_sup = -1;
 
 
 /*--- Included file: packet-isdn-sup-hf.c ---*/
 #line 1 "../../asn1/isdn-sup/packet-isdn-sup-hf.c"
+static int hf_isdn_sup_ChargingRequestArg_PDU = -1;  /* ChargingRequestArg */
+static int hf_isdn_sup_ChargingRequestRes_PDU = -1;  /* ChargingRequestRes */
+static int hf_isdn_sup_AOCSCurrencyArg_PDU = -1;  /* AOCSCurrencyArg */
+static int hf_isdn_sup_AOCSSpecialArrArg_PDU = -1;  /* AOCSSpecialArrArg */
+static int hf_isdn_sup_AOCDCurrencyArg_PDU = -1;  /* AOCDCurrencyArg */
+static int hf_isdn_sup_AOCDChargingUnitArg_PDU = -1;  /* AOCDChargingUnitArg */
+static int hf_isdn_sup_AOCECurrencyArg_PDU = -1;  /* AOCECurrencyArg */
+static int hf_isdn_sup_AOCEChargingUnitArg_PDU = -1;  /* AOCEChargingUnitArg */
+static int hf_isdn_sup_CUGcallArg_PDU = -1;       /* CUGcallArg */
+static int hf_isdn_sup_BeginCONFArg_PDU = -1;     /* BeginCONFArg */
+static int hf_isdn_sup_BeginCONFRes_PDU = -1;     /* BeginCONFRes */
+static int hf_isdn_sup_AddCONFArg_PDU = -1;       /* AddCONFArg */
+static int hf_isdn_sup_AddCONFRes_PDU = -1;       /* AddCONFRes */
+static int hf_isdn_sup_SplitCONFArg_PDU = -1;     /* SplitCONFArg */
+static int hf_isdn_sup_DropCONFArg_PDU = -1;      /* DropCONFArg */
+static int hf_isdn_sup_IsolateCONFArg_PDU = -1;   /* IsolateCONFArg */
+static int hf_isdn_sup_ReattachCONFArg_PDU = -1;  /* ReattachCONFArg */
+static int hf_isdn_sup_PartyDISCArg_PDU = -1;     /* PartyDISCArg */
 static int hf_isdn_sup_ActivationDiversionArg_PDU = -1;  /* ActivationDiversionArg */
 static int hf_isdn_sup_DeactivationDiversionArg_PDU = -1;  /* DeactivationDiversionArg */
 static int hf_isdn_sup_ActivationStatusNotificationDivArg_PDU = -1;  /* ActivationStatusNotificationDivArg */
@@ -142,6 +210,63 @@ static int hf_isdn_sup_userSpecifiedSubaddress = -1;  /* UserSpecifiedSubaddress
 static int hf_isdn_sup_nSAPSubaddress = -1;       /* NSAPSubaddress */
 static int hf_isdn_sup_subaddressInformation = -1;  /* SubaddressInformation */
 static int hf_isdn_sup_oddCountIndicator = -1;    /* BOOLEAN */
+static int hf_isdn_sup_aOCSCurrencyInfoList = -1;  /* AOCSCurrencyInfoList */
+static int hf_isdn_sup_aOCSSpecialArrInfo = -1;   /* AOCSSpecialArrInfo */
+static int hf_isdn_sup_chargingInfoFollows = -1;  /* NULL */
+static int hf_isdn_sup_chargeNotAvailable = -1;   /* NULL */
+static int hf_isdn_sup_aOCDCurrencyInfo = -1;     /* AOCDCurrencyInfo */
+static int hf_isdn_sup_aOCDChargingUnitInfo = -1;  /* AOCDChargingUnitInfo */
+static int hf_isdn_sup_aOCECurrencyInfo = -1;     /* AOCECurrencyInfo */
+static int hf_isdn_sup_aOCEChargingUnitInfo = -1;  /* AOCEChargingUnitInfo */
+static int hf_isdn_sup_AOCSCurrencyInfoList_item = -1;  /* AOCSCurrencyInfo */
+static int hf_isdn_sup_chargedItem = -1;          /* ChargedItem */
+static int hf_isdn_sup_chargingtype = -1;         /* T_chargingtype */
+static int hf_isdn_sup_specificCurrency = -1;     /* T_specificCurrency */
+static int hf_isdn_sup_durationCurrency = -1;     /* DurationCurrency */
+static int hf_isdn_sup_flatRateCurrency = -1;     /* FlatRateCurrency */
+static int hf_isdn_sup_volumeRateCurrency = -1;   /* VolumeRateCurrency */
+static int hf_isdn_sup_specialChargingCode = -1;  /* SpecialChargingCode */
+static int hf_isdn_sup_freeOfCharge = -1;         /* NULL */
+static int hf_isdn_sup_currencyInfoNotAvailable = -1;  /* NULL */
+static int hf_isdn_sup_dCurrency = -1;            /* Currency */
+static int hf_isdn_sup_dAmount = -1;              /* Amount */
+static int hf_isdn_sup_dChargingType = -1;        /* ChargingType */
+static int hf_isdn_sup_dTime = -1;                /* Time */
+static int hf_isdn_sup_dGranularity = -1;         /* Time */
+static int hf_isdn_sup_fRCurrency = -1;           /* Currency */
+static int hf_isdn_sup_fRAmount = -1;             /* Amount */
+static int hf_isdn_sup_vRCurrency = -1;           /* Currency */
+static int hf_isdn_sup_vRAmount = -1;             /* Amount */
+static int hf_isdn_sup_vRVolumeUnit = -1;         /* VolumeUnit */
+static int hf_isdn_sup_specificCurrency_01 = -1;  /* T_specificCurrency_01 */
+static int hf_isdn_sup_recordedCurrency = -1;     /* RecordedCurrency */
+static int hf_isdn_sup_typeOfChargingInfo = -1;   /* TypeOfChargingInfo */
+static int hf_isdn_sup_aOCDBillingId = -1;        /* AOCDBillingId */
+static int hf_isdn_sup_specificChargingUnits = -1;  /* T_specificChargingUnits */
+static int hf_isdn_sup_recordedUnitsList = -1;    /* RecordedUnitsList */
+static int hf_isdn_sup_rCurrency = -1;            /* Currency */
+static int hf_isdn_sup_rAmount = -1;              /* Amount */
+static int hf_isdn_sup_RecordedUnitsList_item = -1;  /* RecordedUnits */
+static int hf_isdn_sup_cc = -1;                   /* T_cc */
+static int hf_isdn_sup_recordedNumberOfUnits = -1;  /* NumberOfUnits */
+static int hf_isdn_sup_notAvailable = -1;         /* NULL */
+static int hf_isdn_sup_recordedTypeOfUnits = -1;  /* TypeOfUnit */
+static int hf_isdn_sup_cc_01 = -1;                /* T_cc_01 */
+static int hf_isdn_sup_specificCurrency_02 = -1;  /* T_specificCurrency_02 */
+static int hf_isdn_sup_aOCEBillingId = -1;        /* AOCEBillingId */
+static int hf_isdn_sup_chargingAssociation = -1;  /* ChargingAssociation */
+static int hf_isdn_sup_cc_02 = -1;                /* T_cc_02 */
+static int hf_isdn_sup_specificChargingUnits_01 = -1;  /* T_specificChargingUnits_01 */
+static int hf_isdn_sup_currencyAmount = -1;       /* CurrencyAmount */
+static int hf_isdn_sup_multiplier = -1;           /* Multiplier */
+static int hf_isdn_sup_lengthOfTimeUnit = -1;     /* LengthOfTimeUnit */
+static int hf_isdn_sup_scale = -1;                /* Scale */
+static int hf_isdn_sup_chargeNumber = -1;         /* PartyNumber */
+static int hf_isdn_sup_chargeIdentifier = -1;     /* ChargeIdentifier */
+static int hf_isdn_sup_oARequested = -1;          /* OARequested */
+static int hf_isdn_sup_cUGIndex = -1;             /* CUGIndex */
+static int hf_isdn_sup_conferenceId = -1;         /* ConferenceId */
+static int hf_isdn_sup_partyId = -1;              /* PartyId */
 static int hf_isdn_sup_procedure = -1;            /* Procedure */
 static int hf_isdn_sup_basicService = -1;         /* BasicService */
 static int hf_isdn_sup_forwardedToAddress = -1;   /* Address */
@@ -173,7 +298,7 @@ static int hf_isdn_sup_allNumbers = -1;           /* NULL */
 static int hf_isdn_sup_ServedUserNumberList_item = -1;  /* PartyNumber */
 
 /*--- End of included file: packet-isdn-sup-hf.c ---*/
-#line 71 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 78 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 
 /* Initialize the subtree pointers */
@@ -194,6 +319,40 @@ static gint ett_isdn_sup_PublicPartyNumber = -1;
 static gint ett_isdn_sup_PrivatePartyNumber = -1;
 static gint ett_isdn_sup_PartySubaddress = -1;
 static gint ett_isdn_sup_UserSpecifiedSubaddress = -1;
+static gint ett_isdn_sup_ChargingRequestRes = -1;
+static gint ett_isdn_sup_AOCSCurrencyArg = -1;
+static gint ett_isdn_sup_AOCSSpecialArrArg = -1;
+static gint ett_isdn_sup_AOCDCurrencyArg = -1;
+static gint ett_isdn_sup_AOCDChargingUnitArg = -1;
+static gint ett_isdn_sup_AOCECurrencyArg = -1;
+static gint ett_isdn_sup_AOCEChargingUnitArg = -1;
+static gint ett_isdn_sup_AOCSCurrencyInfoList = -1;
+static gint ett_isdn_sup_AOCSCurrencyInfo = -1;
+static gint ett_isdn_sup_T_chargingtype = -1;
+static gint ett_isdn_sup_T_specificCurrency = -1;
+static gint ett_isdn_sup_DurationCurrency = -1;
+static gint ett_isdn_sup_FlatRateCurrency = -1;
+static gint ett_isdn_sup_VolumeRateCurrency = -1;
+static gint ett_isdn_sup_AOCDCurrencyInfo = -1;
+static gint ett_isdn_sup_T_specificCurrency_01 = -1;
+static gint ett_isdn_sup_AOCDChargingUnitInfo = -1;
+static gint ett_isdn_sup_T_specificChargingUnits = -1;
+static gint ett_isdn_sup_RecordedCurrency = -1;
+static gint ett_isdn_sup_RecordedUnitsList = -1;
+static gint ett_isdn_sup_RecordedUnits = -1;
+static gint ett_isdn_sup_T_cc = -1;
+static gint ett_isdn_sup_AOCECurrencyInfo = -1;
+static gint ett_isdn_sup_T_cc_01 = -1;
+static gint ett_isdn_sup_T_specificCurrency_02 = -1;
+static gint ett_isdn_sup_AOCEChargingUnitInfo = -1;
+static gint ett_isdn_sup_T_cc_02 = -1;
+static gint ett_isdn_sup_T_specificChargingUnits_01 = -1;
+static gint ett_isdn_sup_Amount = -1;
+static gint ett_isdn_sup_Time = -1;
+static gint ett_isdn_sup_ChargingAssociation = -1;
+static gint ett_isdn_sup_CUGcallArg = -1;
+static gint ett_isdn_sup_BeginCONFRes = -1;
+static gint ett_isdn_sup_SplitCONFArg = -1;
 static gint ett_isdn_sup_ActivationDiversionArg = -1;
 static gint ett_isdn_sup_DeactivationDiversionArg = -1;
 static gint ett_isdn_sup_ActivationStatusNotificationDivArg = -1;
@@ -210,7 +369,7 @@ static gint ett_isdn_sup_ServedUserNr = -1;
 static gint ett_isdn_sup_ServedUserNumberList = -1;
 
 /*--- End of included file: packet-isdn-sup-ett.c ---*/
-#line 77 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 84 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 
 /* Preference settings default */
@@ -583,6 +742,1010 @@ dissect_isdn_sup_Q931InformationElement(gboolean implicit_tag _U_, tvbuff_t *tvb
 }
 
 
+static const value_string isdn_sup_ChargingCase_vals[] = {
+  {   0, "chargingInformationAtCallSetup" },
+  {   1, "chargingDuringACall" },
+  {   2, "chargingAtTheEndOfACall" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_ChargingCase(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_ChargingRequestArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_ChargingCase(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_ChargedItem_vals[] = {
+  {   0, "basicCommunication" },
+  {   1, "callAttempt" },
+  {   2, "callSetup" },
+  {   3, "userToUserInfo" },
+  {   4, "operationOfSupplementaryServ" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_ChargedItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_Currency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_CurrencyAmount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_Multiplier_vals[] = {
+  {   0, "oneThousandth" },
+  {   1, "oneHundredth" },
+  {   2, "oneTenth" },
+  {   3, "one" },
+  {   4, "ten" },
+  {   5, "hundred" },
+  {   6, "thousand" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_Multiplier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Amount_sequence[] = {
+  { &hf_isdn_sup_currencyAmount, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_CurrencyAmount },
+  { &hf_isdn_sup_multiplier , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Multiplier },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_Amount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Amount_sequence, hf_index, ett_isdn_sup_Amount);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_ChargingType_vals[] = {
+  {   0, "continuousCharging" },
+  {   1, "stepFunction" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_ChargingType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_LengthOfTimeUnit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_Scale_vals[] = {
+  {   0, "oneHundredthSecond" },
+  {   1, "oneTenthSecond" },
+  {   2, "oneSecond" },
+  {   3, "tenSeconds" },
+  {   4, "oneMinute" },
+  {   5, "oneHour" },
+  {   6, "twentyFourHours" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_Scale(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Time_sequence[] = {
+  { &hf_isdn_sup_lengthOfTimeUnit, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_LengthOfTimeUnit },
+  { &hf_isdn_sup_scale      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Scale },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Time_sequence, hf_index, ett_isdn_sup_Time);
+
+  return offset;
+}
+
+
+static const ber_sequence_t DurationCurrency_sequence[] = {
+  { &hf_isdn_sup_dCurrency  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Currency },
+  { &hf_isdn_sup_dAmount    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Amount },
+  { &hf_isdn_sup_dChargingType, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_isdn_sup_ChargingType },
+  { &hf_isdn_sup_dTime      , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Time },
+  { &hf_isdn_sup_dGranularity, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_isdn_sup_Time },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_DurationCurrency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DurationCurrency_sequence, hf_index, ett_isdn_sup_DurationCurrency);
+
+  return offset;
+}
+
+
+static const ber_sequence_t FlatRateCurrency_sequence[] = {
+  { &hf_isdn_sup_fRCurrency , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Currency },
+  { &hf_isdn_sup_fRAmount   , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Amount },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_FlatRateCurrency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   FlatRateCurrency_sequence, hf_index, ett_isdn_sup_FlatRateCurrency);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_VolumeUnit_vals[] = {
+  {   0, "octet" },
+  {   1, "segment" },
+  {   2, "message" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_VolumeUnit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t VolumeRateCurrency_sequence[] = {
+  { &hf_isdn_sup_vRCurrency , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Currency },
+  { &hf_isdn_sup_vRAmount   , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Amount },
+  { &hf_isdn_sup_vRVolumeUnit, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_isdn_sup_VolumeUnit },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_VolumeRateCurrency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   VolumeRateCurrency_sequence, hf_index, ett_isdn_sup_VolumeRateCurrency);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_T_specificCurrency_vals[] = {
+  {   1, "durationCurrency" },
+  {   2, "flatRateCurrency" },
+  {   3, "volumeRateCurrency" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_specificCurrency_choice[] = {
+  {   1, &hf_isdn_sup_durationCurrency, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_DurationCurrency },
+  {   2, &hf_isdn_sup_flatRateCurrency, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_FlatRateCurrency },
+  {   3, &hf_isdn_sup_volumeRateCurrency, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_isdn_sup_VolumeRateCurrency },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_T_specificCurrency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_specificCurrency_choice, hf_index, ett_isdn_sup_T_specificCurrency,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_SpecialChargingCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_T_chargingtype_vals[] = {
+  {   0, "specificCurrency" },
+  {   1, "specialChargingCode" },
+  {   2, "freeOfCharge" },
+  {   3, "currencyInfoNotAvailable" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_chargingtype_choice[] = {
+  {   0, &hf_isdn_sup_specificCurrency, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_T_specificCurrency },
+  {   1, &hf_isdn_sup_specialChargingCode, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_SpecialChargingCode },
+  {   2, &hf_isdn_sup_freeOfCharge, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
+  {   3, &hf_isdn_sup_currencyInfoNotAvailable, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_T_chargingtype(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_chargingtype_choice, hf_index, ett_isdn_sup_T_chargingtype,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AOCSCurrencyInfo_sequence[] = {
+  { &hf_isdn_sup_chargedItem, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_ChargedItem },
+  { &hf_isdn_sup_chargingtype, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_T_chargingtype },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_AOCSCurrencyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AOCSCurrencyInfo_sequence, hf_index, ett_isdn_sup_AOCSCurrencyInfo);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AOCSCurrencyInfoList_sequence_of[1] = {
+  { &hf_isdn_sup_AOCSCurrencyInfoList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCSCurrencyInfo },
+};
+
+static int
+dissect_isdn_sup_AOCSCurrencyInfoList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      AOCSCurrencyInfoList_sequence_of, hf_index, ett_isdn_sup_AOCSCurrencyInfoList);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_AOCSSpecialArrInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_ChargingRequestRes_vals[] = {
+  {   0, "aOCSCurrencyInfoList" },
+  {   1, "aOCSSpecialArrInfo" },
+  {   2, "chargingInfoFollows" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ChargingRequestRes_choice[] = {
+  {   0, &hf_isdn_sup_aOCSCurrencyInfoList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCSCurrencyInfoList },
+  {   1, &hf_isdn_sup_aOCSSpecialArrInfo, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCSSpecialArrInfo },
+  {   2, &hf_isdn_sup_chargingInfoFollows, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_NULL },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_ChargingRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ChargingRequestRes_choice, hf_index, ett_isdn_sup_ChargingRequestRes,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_AOCSCurrencyArg_vals[] = {
+  {   0, "chargeNotAvailable" },
+  {   1, "aOCSCurrencyInfoList" },
+  { 0, NULL }
+};
+
+static const ber_choice_t AOCSCurrencyArg_choice[] = {
+  {   0, &hf_isdn_sup_chargeNotAvailable, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_NULL },
+  {   1, &hf_isdn_sup_aOCSCurrencyInfoList, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCSCurrencyInfoList },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_AOCSCurrencyArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 AOCSCurrencyArg_choice, hf_index, ett_isdn_sup_AOCSCurrencyArg,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_AOCSSpecialArrArg_vals[] = {
+  {   0, "chargeNotAvailable" },
+  {   1, "aOCSSpecialArrInfo" },
+  { 0, NULL }
+};
+
+static const ber_choice_t AOCSSpecialArrArg_choice[] = {
+  {   0, &hf_isdn_sup_chargeNotAvailable, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_NULL },
+  {   1, &hf_isdn_sup_aOCSSpecialArrInfo, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCSSpecialArrInfo },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_AOCSSpecialArrArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 AOCSSpecialArrArg_choice, hf_index, ett_isdn_sup_AOCSSpecialArrArg,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RecordedCurrency_sequence[] = {
+  { &hf_isdn_sup_rCurrency  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Currency },
+  { &hf_isdn_sup_rAmount    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_Amount },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_RecordedCurrency(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RecordedCurrency_sequence, hf_index, ett_isdn_sup_RecordedCurrency);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_TypeOfChargingInfo_vals[] = {
+  {   0, "subTotal" },
+  {   1, "total" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_TypeOfChargingInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_AOCDBillingId_vals[] = {
+  {   0, "normalCharging" },
+  {   1, "reverseCharging" },
+  {   2, "creditCardCharging" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_AOCDBillingId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t T_specificCurrency_01_sequence[] = {
+  { &hf_isdn_sup_recordedCurrency, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_RecordedCurrency },
+  { &hf_isdn_sup_typeOfChargingInfo, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_TypeOfChargingInfo },
+  { &hf_isdn_sup_aOCDBillingId, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_isdn_sup_AOCDBillingId },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_T_specificCurrency_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_specificCurrency_01_sequence, hf_index, ett_isdn_sup_T_specificCurrency_01);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_AOCDCurrencyInfo_vals[] = {
+  {   0, "specificCurrency" },
+  {   1, "freeOfCharge" },
+  { 0, NULL }
+};
+
+static const ber_choice_t AOCDCurrencyInfo_choice[] = {
+  {   0, &hf_isdn_sup_specificCurrency_01, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_T_specificCurrency_01 },
+  {   1, &hf_isdn_sup_freeOfCharge, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_AOCDCurrencyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 AOCDCurrencyInfo_choice, hf_index, ett_isdn_sup_AOCDCurrencyInfo,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_AOCDCurrencyArg_vals[] = {
+  {   0, "chargeNotAvailable" },
+  {   1, "aOCDCurrencyInfo" },
+  { 0, NULL }
+};
+
+static const ber_choice_t AOCDCurrencyArg_choice[] = {
+  {   0, &hf_isdn_sup_chargeNotAvailable, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_NULL },
+  {   1, &hf_isdn_sup_aOCDCurrencyInfo, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCDCurrencyInfo },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_AOCDCurrencyArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 AOCDCurrencyArg_choice, hf_index, ett_isdn_sup_AOCDCurrencyArg,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_NumberOfUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_T_cc_vals[] = {
+  {   0, "recordedNumberOfUnits" },
+  {   1, "notAvailable" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_cc_choice[] = {
+  {   0, &hf_isdn_sup_recordedNumberOfUnits, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_NumberOfUnits },
+  {   1, &hf_isdn_sup_notAvailable, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_NULL },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_T_cc(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_cc_choice, hf_index, ett_isdn_sup_T_cc,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_TypeOfUnit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RecordedUnits_sequence[] = {
+  { &hf_isdn_sup_cc         , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_T_cc },
+  { &hf_isdn_sup_recordedTypeOfUnits, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_isdn_sup_TypeOfUnit },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_RecordedUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RecordedUnits_sequence, hf_index, ett_isdn_sup_RecordedUnits);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RecordedUnitsList_sequence_of[1] = {
+  { &hf_isdn_sup_RecordedUnitsList_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_RecordedUnits },
+};
+
+static int
+dissect_isdn_sup_RecordedUnitsList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      RecordedUnitsList_sequence_of, hf_index, ett_isdn_sup_RecordedUnitsList);
+
+  return offset;
+}
+
+
+static const ber_sequence_t T_specificChargingUnits_sequence[] = {
+  { &hf_isdn_sup_recordedUnitsList, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_RecordedUnitsList },
+  { &hf_isdn_sup_typeOfChargingInfo, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_isdn_sup_TypeOfChargingInfo },
+  { &hf_isdn_sup_aOCDBillingId, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_isdn_sup_AOCDBillingId },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_T_specificChargingUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_specificChargingUnits_sequence, hf_index, ett_isdn_sup_T_specificChargingUnits);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_AOCDChargingUnitInfo_vals[] = {
+  {   0, "specificChargingUnits" },
+  {   1, "freeOfCharge" },
+  { 0, NULL }
+};
+
+static const ber_choice_t AOCDChargingUnitInfo_choice[] = {
+  {   0, &hf_isdn_sup_specificChargingUnits, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_T_specificChargingUnits },
+  {   1, &hf_isdn_sup_freeOfCharge, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_AOCDChargingUnitInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 AOCDChargingUnitInfo_choice, hf_index, ett_isdn_sup_AOCDChargingUnitInfo,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_AOCDChargingUnitArg_vals[] = {
+  {   0, "chargeNotAvailable" },
+  {   1, "aOCDChargingUnitInfo" },
+  { 0, NULL }
+};
+
+static const ber_choice_t AOCDChargingUnitArg_choice[] = {
+  {   0, &hf_isdn_sup_chargeNotAvailable, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_NULL },
+  {   1, &hf_isdn_sup_aOCDChargingUnitInfo, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCDChargingUnitInfo },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_AOCDChargingUnitArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 AOCDChargingUnitArg_choice, hf_index, ett_isdn_sup_AOCDChargingUnitArg,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_AOCEBillingId_vals[] = {
+  {   0, "normalCharging" },
+  {   1, "reverseCharging" },
+  {   2, "creditCardCharging" },
+  {   3, "callForwardingUnconditional" },
+  {   4, "callForwardingBusy" },
+  {   5, "callForwardingNoReply" },
+  {   6, "callDeflection" },
+  {   7, "callTransfer" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_isdn_sup_AOCEBillingId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t T_specificCurrency_02_sequence[] = {
+  { &hf_isdn_sup_recordedCurrency, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_RecordedCurrency },
+  { &hf_isdn_sup_aOCEBillingId, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_isdn_sup_AOCEBillingId },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_T_specificCurrency_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_specificCurrency_02_sequence, hf_index, ett_isdn_sup_T_specificCurrency_02);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_T_cc_01_vals[] = {
+  {   0, "specificCurrency" },
+  {   1, "freeOfCharge" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_cc_01_choice[] = {
+  {   0, &hf_isdn_sup_specificCurrency_02, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_T_specificCurrency_02 },
+  {   1, &hf_isdn_sup_freeOfCharge, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_T_cc_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_cc_01_choice, hf_index, ett_isdn_sup_T_cc_01,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_ChargeIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_ChargingAssociation_vals[] = {
+  {   0, "chargeNumber" },
+  {   1, "chargeIdentifier" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ChargingAssociation_choice[] = {
+  {   0, &hf_isdn_sup_chargeNumber, BER_CLASS_CON, 0, 0, dissect_isdn_sup_PartyNumber },
+  {   1, &hf_isdn_sup_chargeIdentifier, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_ChargeIdentifier },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_ChargingAssociation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ChargingAssociation_choice, hf_index, ett_isdn_sup_ChargingAssociation,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AOCECurrencyInfo_sequence[] = {
+  { &hf_isdn_sup_cc_01      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_T_cc_01 },
+  { &hf_isdn_sup_chargingAssociation, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_ChargingAssociation },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_AOCECurrencyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AOCECurrencyInfo_sequence, hf_index, ett_isdn_sup_AOCECurrencyInfo);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_AOCECurrencyArg_vals[] = {
+  {   0, "chargeNotAvailable" },
+  {   1, "aOCECurrencyInfo" },
+  { 0, NULL }
+};
+
+static const ber_choice_t AOCECurrencyArg_choice[] = {
+  {   0, &hf_isdn_sup_chargeNotAvailable, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_NULL },
+  {   1, &hf_isdn_sup_aOCECurrencyInfo, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCECurrencyInfo },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_AOCECurrencyArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 AOCECurrencyArg_choice, hf_index, ett_isdn_sup_AOCECurrencyArg,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t T_specificChargingUnits_01_sequence[] = {
+  { &hf_isdn_sup_recordedUnitsList, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_RecordedUnitsList },
+  { &hf_isdn_sup_aOCEBillingId, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_isdn_sup_AOCEBillingId },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_T_specificChargingUnits_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_specificChargingUnits_01_sequence, hf_index, ett_isdn_sup_T_specificChargingUnits_01);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_T_cc_02_vals[] = {
+  {   0, "specificChargingUnits" },
+  {   1, "freeOfCharge" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_cc_02_choice[] = {
+  {   0, &hf_isdn_sup_specificChargingUnits_01, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_T_specificChargingUnits_01 },
+  {   1, &hf_isdn_sup_freeOfCharge, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_isdn_sup_NULL },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_T_cc_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_cc_02_choice, hf_index, ett_isdn_sup_T_cc_02,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AOCEChargingUnitInfo_sequence[] = {
+  { &hf_isdn_sup_cc_02      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_T_cc_02 },
+  { &hf_isdn_sup_chargingAssociation, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_isdn_sup_ChargingAssociation },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_AOCEChargingUnitInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AOCEChargingUnitInfo_sequence, hf_index, ett_isdn_sup_AOCEChargingUnitInfo);
+
+  return offset;
+}
+
+
+static const value_string isdn_sup_AOCEChargingUnitArg_vals[] = {
+  {   0, "chargeNotAvailable" },
+  {   1, "aOCEChargingUnitInfo" },
+  { 0, NULL }
+};
+
+static const ber_choice_t AOCEChargingUnitArg_choice[] = {
+  {   0, &hf_isdn_sup_chargeNotAvailable, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_NULL },
+  {   1, &hf_isdn_sup_aOCEChargingUnitInfo, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_AOCEChargingUnitInfo },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_AOCEChargingUnitArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 AOCEChargingUnitArg_choice, hf_index, ett_isdn_sup_AOCEChargingUnitArg,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_OARequested(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_CON, 1, TRUE, dissect_isdn_sup_BOOLEAN);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_INTEGER_0_32767(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_CUGIndex(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_CON, 2, TRUE, dissect_isdn_sup_INTEGER_0_32767);
+
+  return offset;
+}
+
+
+static const ber_sequence_t CUGcallArg_sequence[] = {
+  { &hf_isdn_sup_oARequested, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_isdn_sup_OARequested },
+  { &hf_isdn_sup_cUGIndex   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_isdn_sup_CUGIndex },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_CUGcallArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CUGcallArg_sequence, hf_index, ett_isdn_sup_CUGcallArg);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_ConfSize(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_BeginCONFArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_ConfSize(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_ConferenceId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_PartyId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t BeginCONFRes_sequence[] = {
+  { &hf_isdn_sup_conferenceId, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_ConferenceId },
+  { &hf_isdn_sup_partyId    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_isdn_sup_PartyId },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_BeginCONFRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   BeginCONFRes_sequence, hf_index, ett_isdn_sup_BeginCONFRes);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_AddCONFArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_ConferenceId(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_AddCONFRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_PartyId(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SplitCONFArg_sequence[] = {
+  { &hf_isdn_sup_conferenceId, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_ConferenceId },
+  { &hf_isdn_sup_partyId    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_isdn_sup_PartyId },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_isdn_sup_SplitCONFArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   SplitCONFArg_sequence, hf_index, ett_isdn_sup_SplitCONFArg);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_DropCONFArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_PartyId(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_IsolateCONFArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_PartyId(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_ReattachCONFArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_PartyId(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_isdn_sup_PartyDISCArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_isdn_sup_PartyId(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
 static const value_string isdn_sup_Procedure_vals[] = {
   {   0, "cfu" },
   {   1, "cfb" },
@@ -922,6 +2085,132 @@ dissect_isdn_sup_DivertingLegInformation3Arg(gboolean implicit_tag _U_, tvbuff_t
 
 /*--- PDUs ---*/
 
+static int dissect_ChargingRequestArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_ChargingRequestArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_ChargingRequestArg_PDU);
+  return offset;
+}
+static int dissect_ChargingRequestRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_ChargingRequestRes(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_ChargingRequestRes_PDU);
+  return offset;
+}
+static int dissect_AOCSCurrencyArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_AOCSCurrencyArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_AOCSCurrencyArg_PDU);
+  return offset;
+}
+static int dissect_AOCSSpecialArrArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_AOCSSpecialArrArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_AOCSSpecialArrArg_PDU);
+  return offset;
+}
+static int dissect_AOCDCurrencyArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_AOCDCurrencyArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_AOCDCurrencyArg_PDU);
+  return offset;
+}
+static int dissect_AOCDChargingUnitArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_AOCDChargingUnitArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_AOCDChargingUnitArg_PDU);
+  return offset;
+}
+static int dissect_AOCECurrencyArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_AOCECurrencyArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_AOCECurrencyArg_PDU);
+  return offset;
+}
+static int dissect_AOCEChargingUnitArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_AOCEChargingUnitArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_AOCEChargingUnitArg_PDU);
+  return offset;
+}
+static int dissect_CUGcallArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_CUGcallArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_CUGcallArg_PDU);
+  return offset;
+}
+static int dissect_BeginCONFArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_BeginCONFArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_BeginCONFArg_PDU);
+  return offset;
+}
+static int dissect_BeginCONFRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_BeginCONFRes(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_BeginCONFRes_PDU);
+  return offset;
+}
+static int dissect_AddCONFArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_AddCONFArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_AddCONFArg_PDU);
+  return offset;
+}
+static int dissect_AddCONFRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_AddCONFRes(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_AddCONFRes_PDU);
+  return offset;
+}
+static int dissect_SplitCONFArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_SplitCONFArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_SplitCONFArg_PDU);
+  return offset;
+}
+static int dissect_DropCONFArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_DropCONFArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_DropCONFArg_PDU);
+  return offset;
+}
+static int dissect_IsolateCONFArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_IsolateCONFArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_IsolateCONFArg_PDU);
+  return offset;
+}
+static int dissect_ReattachCONFArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_ReattachCONFArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_ReattachCONFArg_PDU);
+  return offset;
+}
+static int dissect_PartyDISCArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_isdn_sup_PartyDISCArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_PartyDISCArg_PDU);
+  return offset;
+}
 static int dissect_ActivationDiversionArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -1016,12 +2305,27 @@ static int dissect_DivertingLegInformation3Arg_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-isdn-sup-fn.c ---*/
-#line 84 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 91 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 static const isdn_sup_op_t isdn_sup_op_tab[] = {
 
 /*--- Included file: packet-isdn-sup-table11.c ---*/
 #line 1 "../../asn1/isdn-sup/packet-isdn-sup-table11.c"
+  /* chargingRequest          */ {  30, dissect_ChargingRequestArg_PDU, dissect_ChargingRequestRes_PDU },
+  /* aOCSCurrency             */ {  31, dissect_AOCSCurrencyArg_PDU, NULL },
+  /* aOCSSpecialArr           */ {  32, dissect_AOCSSpecialArrArg_PDU, NULL },
+  /* aOCDCurrency             */ {  33, dissect_AOCDCurrencyArg_PDU, NULL },
+  /* aOCDChargingUnit         */ {  34, dissect_AOCDChargingUnitArg_PDU, NULL },
+  /* aOCECurrency             */ {  35, dissect_AOCECurrencyArg_PDU, NULL },
+  /* aOCEChargingUnit         */ {  36, dissect_AOCEChargingUnitArg_PDU, NULL },
+  /* cUGcall                  */ {   2, dissect_CUGcallArg_PDU, NULL },
+  /* beginCONF                */ {  40, dissect_BeginCONFArg_PDU, dissect_BeginCONFRes_PDU },
+  /* addCONF                  */ {  41, dissect_AddCONFArg_PDU, dissect_AddCONFRes_PDU },
+  /* splitCONF                */ {  42, dissect_SplitCONFArg_PDU, NULL },
+  /* dropCONF                 */ {  43, dissect_DropCONFArg_PDU, NULL },
+  /* isolateCONF              */ {  44, dissect_IsolateCONFArg_PDU, NULL },
+  /* reattachCONF             */ {  45, dissect_ReattachCONFArg_PDU, NULL },
+  /* partyDISC                */ {  46, dissect_PartyDISCArg_PDU, NULL },
   /* activationDiversion      */ {   7, dissect_ActivationDiversionArg_PDU, NULL },
   /* deactivationDiversion    */ {   8, dissect_DeactivationDiversionArg_PDU, NULL },
   /* activationStatusNotificationDiv */ {   9, dissect_ActivationStatusNotificationDivArg_PDU, NULL },
@@ -1034,22 +2338,50 @@ static const isdn_sup_op_t isdn_sup_op_tab[] = {
   /* divertingLegInformation1 */ {  18, dissect_DivertingLegInformation1Arg_PDU, NULL },
   /* divertingLegInformation2 */ {  15, dissect_DivertingLegInformation2Arg_PDU, NULL },
   /* divertingLegInformation3 */ {  19, dissect_DivertingLegInformation3Arg_PDU, NULL },
+  /* mCIDRequest              */ {   3, NULL, NULL },
 
 /*--- End of included file: packet-isdn-sup-table11.c ---*/
-#line 87 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 94 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
-#if 0
+
 static const isdn_sup_err_t isdn_sup_err_tab[] = {
 
 /*--- Included file: packet-isdn-sup-table21.c ---*/
 #line 1 "../../asn1/isdn-sup/packet-isdn-sup-table21.c"
-/* Unknown or empty loop list ERROR */
+  /* notSubscribed            */ {    0, NULL },
+  /* notAvailable             */ {    3, NULL },
+  /* notImplemented           */ {    4, NULL },
+  /* invalidServedUserNr      */ {    6, NULL },
+  /* invalidCallState         */ {    7, NULL },
+  /* basicServiceNotProvided  */ {    8, NULL },
+  /* notIncomingCall          */ {    9, NULL },
+  /* supplementaryServiceInteractionNotAllowed */ {   10, NULL },
+  /* resourceUnavailable      */ {   11, NULL },
+  /* noChargingInfoAvailable  */ {   26, NULL },
+  /* invalidOrUnregisteredCUGIndex */ {   16, NULL },
+  /* requestedBasicServiceViolatesCUGConstraints */ {   17, NULL },
+  /* outgoingCallsBarredWithinCUG */ {   18, NULL },
+  /* incomingCallsBarredWithinCUG */ {   19, NULL },
+  /* userNotMemberOfCUG       */ {   20, NULL },
+  /* inconsistencyInDesignatedFacilityAndSubscriberClass */ {   21, NULL },
+  /* illConferenceId          */ {   28, NULL },
+  /* illPartyId               */ {   29, NULL },
+  /* numberOfPartiesExceeded  */ {   30, NULL },
+  /* notActive                */ {   31, NULL },
+  /* notAllowed               */ {   32, NULL },
+  /* invalidDivertedToNr      */ {   12, NULL },
+  /* specialServiceNr         */ {   14, NULL },
+  /* diversionToServedUserNr  */ {   15, NULL },
+  /* incomingCallAccepted     */ {   23, NULL },
+  /* numberOfDiversionsExceeded */ {   24, NULL },
+  /* notActivated             */ {   46, NULL },
+  /* requestAlreadyAccepted   */ {   48, NULL },
 
 /*--- End of included file: packet-isdn-sup-table21.c ---*/
-#line 92 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 99 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
-#endif
+
 
 static const isdn_sup_op_t *get_op(gint32 opcode) {
   int i;
@@ -1058,6 +2390,16 @@ static const isdn_sup_op_t *get_op(gint32 opcode) {
   for (i = array_length(isdn_sup_op_tab) - 1; i >= 0; i--)
     if (isdn_sup_op_tab[i].opcode == opcode)
       return &isdn_sup_op_tab[i];
+  return NULL;
+}
+
+static const isdn_sup_err_t *get_err(gint32 errcode) {
+  int i;
+
+  /* search from the end to get the last occurence if the operation is redefined in some newer specification */
+  for (i = array_length(isdn_sup_err_tab) - 1; i >= 0; i--)
+    if (isdn_sup_err_tab[i].errcode == errcode)
+      return &isdn_sup_err_tab[i];
   return NULL;
 }
 
@@ -1156,6 +2498,51 @@ dissect_isdn_sup_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 }
 
 
+/*--- dissect_isdn_sup_err ------------------------------------------------------*/
+static int
+dissect_isdn_sup_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+  int offset;
+  rose_ctx_t *rctx;
+  gint32 errcode;
+  const isdn_sup_err_t *err_ptr;
+  const gchar *p;
+  proto_item *ti;
+  proto_tree *isdn_sup_tree;
+
+  offset = 0;
+  rctx = get_rose_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(rctx);
+  if (rctx->d.pdu != 3)  /* returnError */
+    return offset;
+  if (rctx->d.code != 0)  /* local */
+    return offset;
+  errcode = rctx->d.code_local;
+  err_ptr = get_err(errcode);
+  if (!err_ptr)
+    return offset;
+
+  ti = proto_tree_add_item(tree, proto_isdn_sup, tvb, offset, tvb_length(tvb), ENC_NA);
+  isdn_sup_tree = proto_item_add_subtree(ti, ett_isdn_sup);
+
+  proto_tree_add_uint(isdn_sup_tree, hf_isdn_sup_error, tvb, 0, 0, errcode);
+  p = match_strval(errcode, VALS(isdn_sup_str_error));
+  if (p) {
+    proto_item_append_text(ti, ": %s", p);
+    proto_item_append_text(rctx->d.code_item, " - %s", p);
+    if (rctx->apdu_depth >= 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rctx->apdu_depth), " %s", p);
+  }
+
+  if (err_ptr->err_pdu)
+    offset = err_ptr->err_pdu(tvb, pinfo, isdn_sup_tree, NULL);
+  else
+    if (tvb_length_remaining(tvb, offset) > 0) {
+      proto_tree_add_text(isdn_sup_tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (ETSI sup)");
+      offset += tvb_length_remaining(tvb, offset);
+    }
+
+  return offset;
+}
 
 
 /*--- proto_reg_handoff_isdn_sup ---------------------------------------*/
@@ -1167,6 +2554,7 @@ void proto_reg_handoff_isdn_sup(void) {
 #endif
   dissector_handle_t isdn_sup_arg_handle;
   dissector_handle_t isdn_sup_res_handle;
+  dissector_handle_t isdn_sup_err_handle;
 
 #if 0
   q931_handle = find_dissector("q931");
@@ -1178,6 +2566,13 @@ void proto_reg_handoff_isdn_sup(void) {
     dissector_add_uint("q932.ros.etsi.local.arg", isdn_sup_op_tab[i].opcode, isdn_sup_arg_handle);
     dissector_add_uint("q932.ros.etsi.local.res", isdn_sup_op_tab[i].opcode, isdn_sup_res_handle);
   }
+
+  isdn_sup_err_handle = new_create_dissector_handle(dissect_isdn_sup_err, proto_isdn_sup);
+
+  for (i=0; i<(int)array_length(isdn_sup_err_tab); i++) {
+    dissector_add_uint("q932.ros.etsi.local.err", isdn_sup_err_tab[i].errcode, isdn_sup_err_handle);
+  }
+
 
 }
 
@@ -1195,9 +2590,87 @@ void proto_register_isdn_sup(void) {
         FT_UINT8, BASE_DEC, VALS(isdn_sup_str_operation), 0x0,
         NULL, HFILL }
 	},
+    { &hf_isdn_sup_error,
+	  { "Error", "isdn_sup.error",
+        FT_UINT8, BASE_DEC, VALS(isdn_sup_str_error), 0x0,
+        NULL, HFILL }
+	},
+
 
 /*--- Included file: packet-isdn-sup-hfarr.c ---*/
 #line 1 "../../asn1/isdn-sup/packet-isdn-sup-hfarr.c"
+    { &hf_isdn_sup_ChargingRequestArg_PDU,
+      { "ChargingRequestArg", "isdn-sup.ChargingRequestArg",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_ChargingCase_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_ChargingRequestRes_PDU,
+      { "ChargingRequestRes", "isdn-sup.ChargingRequestRes",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_ChargingRequestRes_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_AOCSCurrencyArg_PDU,
+      { "AOCSCurrencyArg", "isdn-sup.AOCSCurrencyArg",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCSCurrencyArg_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_AOCSSpecialArrArg_PDU,
+      { "AOCSSpecialArrArg", "isdn-sup.AOCSSpecialArrArg",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCSSpecialArrArg_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_AOCDCurrencyArg_PDU,
+      { "AOCDCurrencyArg", "isdn-sup.AOCDCurrencyArg",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCDCurrencyArg_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_AOCDChargingUnitArg_PDU,
+      { "AOCDChargingUnitArg", "isdn-sup.AOCDChargingUnitArg",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCDChargingUnitArg_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_AOCECurrencyArg_PDU,
+      { "AOCECurrencyArg", "isdn-sup.AOCECurrencyArg",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCECurrencyArg_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_AOCEChargingUnitArg_PDU,
+      { "AOCEChargingUnitArg", "isdn-sup.AOCEChargingUnitArg",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCEChargingUnitArg_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_CUGcallArg_PDU,
+      { "CUGcallArg", "isdn-sup.CUGcallArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_BeginCONFArg_PDU,
+      { "BeginCONFArg", "isdn-sup.BeginCONFArg",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_BeginCONFRes_PDU,
+      { "BeginCONFRes", "isdn-sup.BeginCONFRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_AddCONFArg_PDU,
+      { "AddCONFArg", "isdn-sup.AddCONFArg",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_AddCONFRes_PDU,
+      { "AddCONFRes", "isdn-sup.AddCONFRes",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_SplitCONFArg_PDU,
+      { "SplitCONFArg", "isdn-sup.SplitCONFArg",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_DropCONFArg_PDU,
+      { "DropCONFArg", "isdn-sup.DropCONFArg",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_IsolateCONFArg_PDU,
+      { "IsolateCONFArg", "isdn-sup.IsolateCONFArg",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_ReattachCONFArg_PDU,
+      { "ReattachCONFArg", "isdn-sup.ReattachCONFArg",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_PartyDISCArg_PDU,
+      { "PartyDISCArg", "isdn-sup.PartyDISCArg",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_isdn_sup_ActivationDiversionArg_PDU,
       { "ActivationDiversionArg", "isdn-sup.ActivationDiversionArg",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1362,6 +2835,234 @@ void proto_register_isdn_sup(void) {
       { "oddCountIndicator", "isdn-sup.oddCountIndicator",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_isdn_sup_aOCSCurrencyInfoList,
+      { "aOCSCurrencyInfoList", "isdn-sup.aOCSCurrencyInfoList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_aOCSSpecialArrInfo,
+      { "aOCSSpecialArrInfo", "isdn-sup.aOCSSpecialArrInfo",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_chargingInfoFollows,
+      { "chargingInfoFollows", "isdn-sup.chargingInfoFollows",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_chargeNotAvailable,
+      { "chargeNotAvailable", "isdn-sup.chargeNotAvailable",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_aOCDCurrencyInfo,
+      { "aOCDCurrencyInfo", "isdn-sup.aOCDCurrencyInfo",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCDCurrencyInfo_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_aOCDChargingUnitInfo,
+      { "aOCDChargingUnitInfo", "isdn-sup.aOCDChargingUnitInfo",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCDChargingUnitInfo_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_aOCECurrencyInfo,
+      { "aOCECurrencyInfo", "isdn-sup.aOCECurrencyInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_aOCEChargingUnitInfo,
+      { "aOCEChargingUnitInfo", "isdn-sup.aOCEChargingUnitInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_AOCSCurrencyInfoList_item,
+      { "AOCSCurrencyInfo", "isdn-sup.AOCSCurrencyInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_chargedItem,
+      { "chargedItem", "isdn-sup.chargedItem",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_ChargedItem_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_chargingtype,
+      { "chargingtype", "isdn-sup.chargingtype",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_T_chargingtype_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_specificCurrency,
+      { "specificCurrency", "isdn-sup.specificCurrency",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_T_specificCurrency_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_durationCurrency,
+      { "durationCurrency", "isdn-sup.durationCurrency",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_flatRateCurrency,
+      { "flatRateCurrency", "isdn-sup.flatRateCurrency",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_volumeRateCurrency,
+      { "volumeRateCurrency", "isdn-sup.volumeRateCurrency",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_specialChargingCode,
+      { "specialChargingCode", "isdn-sup.specialChargingCode",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_freeOfCharge,
+      { "freeOfCharge", "isdn-sup.freeOfCharge",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_currencyInfoNotAvailable,
+      { "currencyInfoNotAvailable", "isdn-sup.currencyInfoNotAvailable",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_dCurrency,
+      { "dCurrency", "isdn-sup.dCurrency",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Currency", HFILL }},
+    { &hf_isdn_sup_dAmount,
+      { "dAmount", "isdn-sup.dAmount",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Amount", HFILL }},
+    { &hf_isdn_sup_dChargingType,
+      { "dChargingType", "isdn-sup.dChargingType",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_ChargingType_vals), 0,
+        "ChargingType", HFILL }},
+    { &hf_isdn_sup_dTime,
+      { "dTime", "isdn-sup.dTime",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Time", HFILL }},
+    { &hf_isdn_sup_dGranularity,
+      { "dGranularity", "isdn-sup.dGranularity",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Time", HFILL }},
+    { &hf_isdn_sup_fRCurrency,
+      { "fRCurrency", "isdn-sup.fRCurrency",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Currency", HFILL }},
+    { &hf_isdn_sup_fRAmount,
+      { "fRAmount", "isdn-sup.fRAmount",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Amount", HFILL }},
+    { &hf_isdn_sup_vRCurrency,
+      { "vRCurrency", "isdn-sup.vRCurrency",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Currency", HFILL }},
+    { &hf_isdn_sup_vRAmount,
+      { "vRAmount", "isdn-sup.vRAmount",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Amount", HFILL }},
+    { &hf_isdn_sup_vRVolumeUnit,
+      { "vRVolumeUnit", "isdn-sup.vRVolumeUnit",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_VolumeUnit_vals), 0,
+        "VolumeUnit", HFILL }},
+    { &hf_isdn_sup_specificCurrency_01,
+      { "specificCurrency", "isdn-sup.specificCurrency",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_specificCurrency_01", HFILL }},
+    { &hf_isdn_sup_recordedCurrency,
+      { "recordedCurrency", "isdn-sup.recordedCurrency",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_typeOfChargingInfo,
+      { "typeOfChargingInfo", "isdn-sup.typeOfChargingInfo",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_TypeOfChargingInfo_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_aOCDBillingId,
+      { "aOCDBillingId", "isdn-sup.aOCDBillingId",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCDBillingId_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_specificChargingUnits,
+      { "specificChargingUnits", "isdn-sup.specificChargingUnits",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_recordedUnitsList,
+      { "recordedUnitsList", "isdn-sup.recordedUnitsList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_rCurrency,
+      { "rCurrency", "isdn-sup.rCurrency",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Currency", HFILL }},
+    { &hf_isdn_sup_rAmount,
+      { "rAmount", "isdn-sup.rAmount",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Amount", HFILL }},
+    { &hf_isdn_sup_RecordedUnitsList_item,
+      { "RecordedUnits", "isdn-sup.RecordedUnits",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_cc,
+      { "cc", "isdn-sup.cc",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_T_cc_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_recordedNumberOfUnits,
+      { "recordedNumberOfUnits", "isdn-sup.recordedNumberOfUnits",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "NumberOfUnits", HFILL }},
+    { &hf_isdn_sup_notAvailable,
+      { "notAvailable", "isdn-sup.notAvailable",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_recordedTypeOfUnits,
+      { "recordedTypeOfUnits", "isdn-sup.recordedTypeOfUnits",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "TypeOfUnit", HFILL }},
+    { &hf_isdn_sup_cc_01,
+      { "cc", "isdn-sup.cc",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_T_cc_01_vals), 0,
+        "T_cc_01", HFILL }},
+    { &hf_isdn_sup_specificCurrency_02,
+      { "specificCurrency", "isdn-sup.specificCurrency",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_specificCurrency_02", HFILL }},
+    { &hf_isdn_sup_aOCEBillingId,
+      { "aOCEBillingId", "isdn-sup.aOCEBillingId",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_AOCEBillingId_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_chargingAssociation,
+      { "chargingAssociation", "isdn-sup.chargingAssociation",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_ChargingAssociation_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_cc_02,
+      { "cc", "isdn-sup.cc",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_T_cc_02_vals), 0,
+        "T_cc_02", HFILL }},
+    { &hf_isdn_sup_specificChargingUnits_01,
+      { "specificChargingUnits", "isdn-sup.specificChargingUnits",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_specificChargingUnits_01", HFILL }},
+    { &hf_isdn_sup_currencyAmount,
+      { "currencyAmount", "isdn-sup.currencyAmount",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_multiplier,
+      { "multiplier", "isdn-sup.multiplier",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_Multiplier_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_lengthOfTimeUnit,
+      { "lengthOfTimeUnit", "isdn-sup.lengthOfTimeUnit",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_scale,
+      { "scale", "isdn-sup.scale",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_Scale_vals), 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_chargeNumber,
+      { "chargeNumber", "isdn-sup.chargeNumber",
+        FT_UINT32, BASE_DEC, VALS(isdn_sup_PartyNumber_vals), 0,
+        "PartyNumber", HFILL }},
+    { &hf_isdn_sup_chargeIdentifier,
+      { "chargeIdentifier", "isdn-sup.chargeIdentifier",
+        FT_INT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_oARequested,
+      { "oARequested", "isdn-sup.oARequested",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_cUGIndex,
+      { "cUGIndex", "isdn-sup.cUGIndex",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_conferenceId,
+      { "conferenceId", "isdn-sup.conferenceId",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_isdn_sup_partyId,
+      { "partyId", "isdn-sup.partyId",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_isdn_sup_procedure,
       { "procedure", "isdn-sup.procedure",
         FT_UINT32, BASE_DEC, VALS(isdn_sup_Procedure_vals), 0,
@@ -1480,7 +3181,7 @@ void proto_register_isdn_sup(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-isdn-sup-hfarr.c ---*/
-#line 240 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 316 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* List of subtrees */
@@ -1502,6 +3203,40 @@ void proto_register_isdn_sup(void) {
     &ett_isdn_sup_PrivatePartyNumber,
     &ett_isdn_sup_PartySubaddress,
     &ett_isdn_sup_UserSpecifiedSubaddress,
+    &ett_isdn_sup_ChargingRequestRes,
+    &ett_isdn_sup_AOCSCurrencyArg,
+    &ett_isdn_sup_AOCSSpecialArrArg,
+    &ett_isdn_sup_AOCDCurrencyArg,
+    &ett_isdn_sup_AOCDChargingUnitArg,
+    &ett_isdn_sup_AOCECurrencyArg,
+    &ett_isdn_sup_AOCEChargingUnitArg,
+    &ett_isdn_sup_AOCSCurrencyInfoList,
+    &ett_isdn_sup_AOCSCurrencyInfo,
+    &ett_isdn_sup_T_chargingtype,
+    &ett_isdn_sup_T_specificCurrency,
+    &ett_isdn_sup_DurationCurrency,
+    &ett_isdn_sup_FlatRateCurrency,
+    &ett_isdn_sup_VolumeRateCurrency,
+    &ett_isdn_sup_AOCDCurrencyInfo,
+    &ett_isdn_sup_T_specificCurrency_01,
+    &ett_isdn_sup_AOCDChargingUnitInfo,
+    &ett_isdn_sup_T_specificChargingUnits,
+    &ett_isdn_sup_RecordedCurrency,
+    &ett_isdn_sup_RecordedUnitsList,
+    &ett_isdn_sup_RecordedUnits,
+    &ett_isdn_sup_T_cc,
+    &ett_isdn_sup_AOCECurrencyInfo,
+    &ett_isdn_sup_T_cc_01,
+    &ett_isdn_sup_T_specificCurrency_02,
+    &ett_isdn_sup_AOCEChargingUnitInfo,
+    &ett_isdn_sup_T_cc_02,
+    &ett_isdn_sup_T_specificChargingUnits_01,
+    &ett_isdn_sup_Amount,
+    &ett_isdn_sup_Time,
+    &ett_isdn_sup_ChargingAssociation,
+    &ett_isdn_sup_CUGcallArg,
+    &ett_isdn_sup_BeginCONFRes,
+    &ett_isdn_sup_SplitCONFArg,
     &ett_isdn_sup_ActivationDiversionArg,
     &ett_isdn_sup_DeactivationDiversionArg,
     &ett_isdn_sup_ActivationStatusNotificationDivArg,
@@ -1518,7 +3253,7 @@ void proto_register_isdn_sup(void) {
     &ett_isdn_sup_ServedUserNumberList,
 
 /*--- End of included file: packet-isdn-sup-ettarr.c ---*/
-#line 247 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 323 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* Register fields and subtrees */

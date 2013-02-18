@@ -1,0 +1,79 @@
+--
+-- $Id$
+--
+-- EN 300 138-1 Ver. 1.3.4
+--
+Closed-User-Group-Service-Operations {ccitt identified-organization etsi (0) 138 operations-and-errors (1)}
+
+DEFINITIONS ::=
+BEGIN
+
+EXPORTS			CUGCall,
+				InvalidOrUnregisteredCUGIndex,
+				RequestedBasicServiceViolatesCUGConstraints,
+				OutgoingCallsBarredWithinCUG,
+				IncomingCallsBarredWithinCUG,
+				UserNotMemeberOfCUG,
+				InconsistencyInDesignatedFacilityAndSubscriberClass;
+
+IMPORTS  OPERATION, ERROR FROM Remote-Operations-Information-Objects 
+    {joint-iso-itu-t (2) remote-operations (4) informationObjects(5) version1(0)} 
+				notSubscribed,
+				basicServiceNotProvided
+				FROM General-Errors
+					{ccitt identified-organization etsi(0) 196 general-errors};
+
+
+	cUGcall OPERATION ::= {
+				-- in Facility information element. Invoked from calling user to originating
+				-- network side. Also from destination network side to called user
+				ARGUMENT	CUGcallArg 
+				-- in SETUP message
+                RETURN RESULT     FALSE 
+
+				ERRORS {
+					invalidOrUnregisteredCUGIndex |
+					requestedBasicServiceViolatesCUGConstraints |
+					outgoingCallsBarredWithinCUG |
+					incomingCallsBarredWithinCUG |
+					userNotMemberOfCUG |
+					basicServiceNotProvided |
+					inconsistencyInDesignatedFacilityAndSubscriberClass |
+					notSubscribed
+				}
+				-- in clearing message to calling user. Also to destination network side.
+		CODE        local:  2}
+
+
+CUGcallArg ::= SEQUENCE{
+						oARequested		OARequested	DEFAULT FALSE,
+						cUGIndex		CUGIndex	OPTIONAL
+						}
+
+OARequested	::=	[1] IMPLICIT BOOLEAN
+CUGIndex	::=	[2] IMPLICIT INTEGER (0..32767)
+
+InvalidOrUnregisteredCUGIndex							::= ERROR
+invalidOrUnregisteredCUGIndex  ERROR ::= { CODE  local: 16}
+RequestedBasicServiceViolatesCUGConstraints				::= ERROR
+requestedBasicServiceViolatesCUGConstraints  ERROR ::= { CODE  local: 17}
+OutgoingCallsBarredWithinCUG							::= ERROR
+outgoingCallsBarredWithinCUG  ERROR ::= { CODE  local: 18}
+IncomingCallsBarredWithinCUG							::= ERROR
+incomingCallsBarredWithinCUG  ERROR ::= { CODE  local: 19}
+UserNotMemberOfCUG										::= ERROR
+userNotMemberOfCUG  ERROR ::= { CODE  local: 20}
+InconsistencyInDesignatedFacilityAndSubscriberClass		::= ERROR
+inconsistencyInDesignatedFacilityAndSubscriberClass  ERROR ::= { CODE  local: 21}
+
+-- cUGCall		CUGCall		::= localValue 2
+
+--invalidOrUnregisteredCUGIndex	InvalidOrUnregisteredCUGIndex				::= localValue 16
+--requestedBasicServiceViolatesCUGConstraints RequestedBasicServiceViolatesCUGConstraints			::= localValue 17
+--outgoingCallsBarredWithinCUG	OutgoingCallsBarredWithinCUG				::= localValue 18
+--incomingCallsBarredWithinCUG	IncomingCallsBarredWithinCUG				::= localValue 19
+--userNotMemberOfCUG				UserNotMemberOfCUG							::= localValue 20
+--inconsistencyInDesignatedFacilityAndSubscriberClass InconsistencyInDesignatedFacilityAndSubscriberClass	::= localValue 21
+
+END -- Closed-User-Group-Service-Operations
+
