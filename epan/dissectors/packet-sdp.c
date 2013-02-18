@@ -1,4 +1,4 @@
- /* packet-sdp.c
+/* packet-sdp.c
  * Routines for SDP packet disassembly (RFC 2327)
  *
  * Jason Lango <jal@netapp.com>
@@ -223,6 +223,7 @@ typedef struct {
   gint32 pt[SDP_MAX_RTP_PAYLOAD_TYPES];
   gint8 pt_count;
   GHashTable *rtp_dyn_payload;
+  gboolean set_rtp;
 } transport_media_pt_t;
 
 typedef struct {
@@ -1710,7 +1711,6 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
   transport_info_t* transport_info = NULL;
   disposable_media_info_t media_info;
 
-  gboolean    set_rtp      = FALSE;
   struct srtp_info *srtp_info = NULL;
 
   /* Only do this once during first pass */
@@ -1731,6 +1731,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++) {
       transport_info->media[n].rtp_dyn_payload =
           g_hash_table_new(g_int_hash, g_int_equal);
+      transport_info->media[n].set_rtp = FALSE;
     }
 
     if (request_frame != 0)
@@ -1833,7 +1834,6 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
       (transport_info->sdp_status == SDP_EXCHANGE_OFFER)) {
     for (n = 0; n <= transport_info->media_count; n++) {
 
-      set_rtp = FALSE;
       /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
       if ((transport_info->media_port[n] != 0) && 
           (transport_info->proto_bitmask[n] & (SDP_RTP_PROTO|SDP_SRTP_PROTO)) && 
@@ -1856,7 +1856,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
                             (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                             transport_info->media[n].rtp_dyn_payload);
           }
-          set_rtp = TRUE;
+          transport_info->media[n].set_rtp = TRUE;
           /* SPRT might use the same port... */
           p_add_proto_data(pinfo->fd, proto_sprt, &transport_info->media_port[n]);
         }
@@ -1885,7 +1885,8 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
       }
 
       /* Add t38 conversation, if available and only if no rtp */
-      if ((transport_info->media_port[n] != 0) && !set_rtp &&
+      if ((transport_info->media_port[n] != 0) &&
+          !transport_info->media[n].set_rtp &&
           (transport_info->proto_bitmask[n] & SDP_T38_PROTO) && 
           (transport_info->proto_bitmask[n] & SDP_IPv4) &&
           t38_handle) {
@@ -1902,7 +1903,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
       }
 
       /* Free the hash table if we did't assigned it to a conv use it */
-      if (set_rtp == FALSE)
+      if (!transport_info->media[n].set_rtp)
       {
           rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
           transport_info->media[n].rtp_dyn_payload = NULL;
@@ -1914,14 +1915,22 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     {
       for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++)
       {
-        rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+        if (!transport_info->media[n].set_rtp)
+        {
+          rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+          transport_info->media[n].rtp_dyn_payload = NULL;
+        }
       }
     }
     else
     {
       for (n = transport_info->media_count; n < SDP_MAX_RTP_CHANNELS; n++)
       {
-        rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+        if (!transport_info->media[n].set_rtp)
+        {
+          rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+          transport_info->media[n].rtp_dyn_payload = NULL;
+        }
       }
     }
     transport_info->sdp_status = SDP_EXCHANGE_ANSWER_ACCEPT;
@@ -1932,7 +1941,11 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     /* Free the hash tables, since they won't be put to use */
     for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++)
     {
-      rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+      if (!transport_info->media[n].set_rtp)
+      {
+        rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+        transport_info->media[n].rtp_dyn_payload = NULL;
+      }
     }
 
     transport_info->sdp_status = SDP_EXCHANGE_ANSWER_REJECT;
@@ -1967,7 +1980,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   transport_info_t* transport_info = NULL;
   disposable_media_info_t media_info;
 
-  gboolean    set_rtp      = FALSE;
   sdp_packet_info  *sdp_pi;
   struct srtp_info *srtp_info = NULL;
 
@@ -1998,6 +2010,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++) {
     local_transport_info.media[n].rtp_dyn_payload =
         g_hash_table_new(g_int_hash, g_int_equal);
+    local_transport_info.media[n].set_rtp = FALSE;
   }
 
   memset(&media_info, 0, sizeof(media_info));
@@ -2159,8 +2172,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   for (n = 0; n < local_transport_info.media_count; n++)
   {
-    set_rtp = FALSE;
-
     /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
     /* XXX - This is a placeholder for higher layer protocols that haven't implemented the proper
      * OFFER/ANSWER functionality using setup_sdp_transport().  Once all of the higher layers
@@ -2187,7 +2198,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                           (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                           transport_info->media[n].rtp_dyn_payload);
         }
-        set_rtp = TRUE;
+        transport_info->media[n].set_rtp = TRUE;
         /* SPRT might use the same port... */
         p_add_proto_data(pinfo->fd, proto_sprt, &transport_info->media_port[n]);
       }
@@ -2220,7 +2231,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Add t38 conversation, if available and only if no rtp */
     /* XXX - more placeholder functionality */
     if ((!pinfo->fd->flags.visited) && (transport_info == &local_transport_info) &&
-        (transport_info->media_port[n] != 0) && !set_rtp &&
+        (transport_info->media_port[n] != 0) &&
+        !transport_info->media[n].set_rtp &&
         (transport_info->proto_bitmask[n] & SDP_T38_PROTO) && 
         (transport_info->proto_bitmask[n] & SDP_IPv4) &&
         t38_handle) {
@@ -2270,8 +2282,12 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Free the hash table if we did't assigned it to a conv use it */
     /* XXX - more placeholder functionality */
-    if ((transport_info == &local_transport_info) && (set_rtp == FALSE))
+    if ((transport_info == &local_transport_info) &&
+        !transport_info->media[n].set_rtp)
+    {
       rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+      transport_info->media[n].rtp_dyn_payload = NULL;
+    }
 
     /* Create the T38 summary str for the Voip Call analysis
      * XXX - Currently this is based only on the current packet
@@ -2289,7 +2305,11 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (transport_info == &local_transport_info) {
     for (n = transport_info->media_count; n < SDP_MAX_RTP_CHANNELS; n++)
     {
-      rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+      if (!transport_info->media[n].set_rtp)
+      {
+        rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+        transport_info->media[n].rtp_dyn_payload = NULL;
+      }
     }
   }
 
