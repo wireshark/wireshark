@@ -1890,7 +1890,9 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
     sub_tree = proto_item_add_subtree(item, ett_tds_type_varbyte);
 
     if(plp) {
-        enum { PLP_TERMINATOR = 0x00000000UL, UNKNOWN_PLP_LEN = 0xFFFFFFFFFFFFFFFEULL, PLP_NULL = 0xFFFFFFFFFFFFFFFFULL };
+#define PLP_TERMINATOR  G_GINT64_CONSTANT(0x0000000000000000U)
+#define UNKNOWN_PLP_LEN G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFEU)
+#define PLP_NULL        G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFFU)
         guint64 plp_length = tvb_get_letoh64(tvb, *offset);
         length_item = proto_tree_add_item(sub_tree, hf_tds_type_varbyte_plp_len, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
         *offset += 8;
