@@ -379,9 +379,9 @@ static gchar *print_tsap(const guchar *tsap, int length)
 } /* print_tsap */
 
 static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
-						int vp_length, int class_option, int tpdu_len,
-						packet_info *pinfo,
-						proto_tree *tree)
+				      int vp_length, int class_option, int tpdu_len,
+				      packet_info *pinfo,
+				      proto_tree *tree)
 {
   guint8  code, length;
   guint8  c1;
@@ -395,7 +395,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
   gboolean checksum_ok = FALSE;
   guint32 pref_max_tpdu_size;
   proto_item *hidden_item;
-	
+
   while (vp_length != 0) {
     code = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 1,
@@ -2082,7 +2082,8 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-  if (dissector_try_heuristic(cltp_heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
+  if (dissector_try_heuristic(cltp_heur_subdissector_list, next_tvb,
+                              pinfo, tree, NULL)) {
     *subdissector_found = TRUE;
   } else {
     call_dissector(data_handle,next_tvb, pinfo, tree);
