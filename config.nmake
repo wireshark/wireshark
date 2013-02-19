@@ -665,6 +665,13 @@ SMI_PKG=svn-40773
 #
 GEOIP_PKG=1.4.8-2
 
+#
+# Optional: WinSparkle, software updates
+#
+# Used for automatic software updates
+#
+WINSPARKLE_PKG=0.3-44-g2c8d9d3-win64ws
+
 !endif
 # win32 / win64
 

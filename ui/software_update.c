@@ -66,12 +66,10 @@ static const char *get_appcast_update_url(software_update_channel_e chan) {
         update_url_str = g_string_new("");
     }
     
-#if 0
     /* XXX Add WOW64 checks similar to version_info.c? */
     if (sizeof(arch) != 4) {
         arch = "x86-64";
     }
-#endif
     
     switch (chan) {
         case UPDATE_CHANNEL_DEVELOPMENT:

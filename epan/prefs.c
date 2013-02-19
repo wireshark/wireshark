@@ -2080,7 +2080,7 @@ prefs_register_modules(void)
     prefs_register_enum_preference(gui_module, "update.channel",
                        "Update channel",
                        "The type of update to fetch",
-                       (gint*)(void*)(&prefs.gui_update_channel), gui_version_placement_type, FALSE);
+                       (gint*)(void*)(&prefs.gui_update_channel), gui_update_channel, FALSE);
 
     prefs_register_string_preference(gui_module, "window_title", "Custom window title",
         "Custom window title. (Appended to existing titles.)", (const char**)(&prefs.gui_window_title));
