@@ -1,5 +1,6 @@
 /* packet-ositp.c
- * Routines for ISO/OSI transport protocol packet disassembly
+ * Routines for ISO/OSI transport protocol (connection-oriented
+ * and connectionless) packet disassembly
  *
  * $Id$
  * Laurent Deniel <laurent.deniel@free.fr>
@@ -25,7 +26,9 @@
  */
 
 #include "config.h"
+
 #include <ctype.h>
+
 #include <glib.h>
 #include <epan/prefs.h>
 #include <epan/packet.h>
@@ -688,7 +691,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
 
     case VP_CHECKSUM:
       offset_iso8073_checksum = offset; /* save ISO 8073 checksum offset for ATN extended checksum calculation */
-      cksum_status = calc_checksum(tvb, 0, tpdu_len + 1, tvb_get_ntohs(tvb, offset));
+      cksum_status = calc_checksum(tvb, 0, tpdu_len, tvb_get_ntohs(tvb, offset));
       switch (cksum_status) {
 
       default:
@@ -829,11 +832,14 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint16 dst_ref, src_ref;
   guchar  reason;
   const char *str;
-  guint tpdu_len = li + tvb_length_remaining(tvb, li ); /* according to ISO/IEC 8073 13.5.1 DR may have up to 64 octects of user data  */
+  guint   tpdu_len;
 
   /* ATN TPDU's tend to be larger than normal OSI, so nothing to do with respect to LI checks */
   if (li < LI_MIN_DR)
     return -1;
+
+  /* DR TPDUs can have user data, so they run to the end of the containing PDU */
+  tpdu_len = tvb_reported_length_remaining(tvb, offset);
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
 
@@ -922,7 +928,10 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   tvbuff_t *next_tvb;
   fragment_data *fd_head;
   conversation_t *conv;
-  guint tpdu_len = li  + tvb_length_remaining(tvb, offset + li ); /* DT always has user data */
+  guint     tpdu_len;
+
+  /* DT TPDUs have user data, so they run to the end of the containing PDU */
+  tpdu_len = tvb_reported_length_remaining(tvb, offset);
 
   /* The fixed part is 2 octets long, not including the length indicator,
      for classes 0 and 1; it is at least 4 octets long, not including
@@ -1240,7 +1249,10 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint16  dst_ref;
   guint    tpdu_nr;
   tvbuff_t *next_tvb;
-  guint tpdu_len = li  + tvb_length_remaining(tvb, li ); /* ED always has user data: tpdu_length = header + user data size */
+  guint    tpdu_len;
+
+  /* ED TPDUs have user data, so they run to the end of the containing PDU */
+  tpdu_len = tvb_reported_length_remaining(tvb, offset);
 
   /* note: in the ATN the user is up to chose between 3 different checksums: */
   /* standard OSI, 2 or 4 octet extended checksum. */
@@ -1526,13 +1538,16 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint16 dst_ref, src_ref;
   guint8  class_option;
   tvbuff_t *next_tvb;
-  guint tpdu_len = li + tvb_length_remaining(tvb, li ); /* according to ISO/IEC 8073 13.4.1 CC may have user data: header + user data size */
+  guint   tpdu_len;
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
   class_option = tvb_get_guint8(tvb, offset + P_CLASS_OPTION);
   if (((class_option & 0xF0) >> 4) > 4) /* class 0..4 allowed */
     return -1;
+
+  /* CR and CC TPDUs can have user data, so they run to the end of the containing PDU */
+  tpdu_len = tvb_reported_length_remaining(tvb, offset);
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   pinfo->clnp_srcref = src_ref;
@@ -1642,7 +1657,7 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   proto_item *ti;
   proto_item *item = NULL;
   guint16 dst_ref, src_ref;
-  guint tpdu_len = li + 1; /* according to ISO/IEC 8073 13.6.1  DC has no user data  */
+  guint   tpdu_len;
 
   /* ATN may use checksums different from OSI */
   /* which may result in different TPDU header length. */
@@ -1653,6 +1668,9 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     if (li > LI_ATN_MAX_DC)
       return -1;
   }
+
+  /* DC TPDUs have no user data, so the length indicator determines the length */
+  tpdu_len = li + 1;
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
@@ -1707,7 +1725,7 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint16    dst_ref;
   guint      tpdu_nr;
   gushort    cdt_in_ak;
-  guint tpdu_len = li + 1; /* according to ISO/IEC 8073 13.9.1  AK does not have user data */
+  guint      tpdu_len;
 
   if (!cotp_decode_atn) {
     if (li > LI_MAX_AK)
@@ -1716,6 +1734,9 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     if (li > LI_ATN_MAX_AK)
       return -1;
   }
+
+  /* AK TPDUs have no user data, so the length indicator determines the length */
+  tpdu_len = li + 1;
 
   /* is_LI_NORMAL_AK() works for normal ATN AK's, */
   /* for the TPDU header size may be enlarged by 2 octets */
@@ -1821,7 +1842,7 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   gboolean is_extended;
   guint16  dst_ref;
   guint    tpdu_nr;
-  guint tpdu_len = li +1; /* according to ISO/IEC 8073 13.10.1 EA does not have user data */
+  guint    tpdu_len;
 
   /* Due to different checksums in the ATN the TPDU header sizes */
   /* as well as the checksum parameters may be different than plain OSI EA.*/
@@ -1942,6 +1963,10 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         return -1;
     }
   }
+
+  /* ER TPDUs have no user data, so the length indicator determines the length */
+  tpdu_len = li + 1;
+
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   pinfo->clnp_dstref = dst_ref;
 
@@ -1998,7 +2023,7 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   proto_item *ti;
   const char *str;
   guint16 dst_ref;
-  guint8 tpdu_len = li + 1;  /* according to ISO/IEC 8073 13.12.1 ER does not have user data */
+  guint8 tpdu_len;
 
   /* ATN: except for modified LI checking nothing to be done here */
   if (!cotp_decode_atn) {
@@ -2008,6 +2033,9 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     if (li > LI_ATN_MAX_ER)
       return -1;
   }
+
+  /* ER TPDUs have no user data, so the length indicator determines the length */
+  tpdu_len = li + 1;
 
   switch(tvb_get_guint8(tvb, offset + P_REJECT_ER)) {
     case 0 :
@@ -2059,7 +2087,10 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   proto_item *ti;
   proto_tree *cltp_tree = NULL;
   tvbuff_t   *next_tvb;
-  guint8 tpdu_len = li + 1;
+  guint      tpdu_len;
+
+  /* UD TPDUs have user data, so they run to the end of the containing PDU */
+  tpdu_len = tvb_reported_length_remaining(tvb, offset);
 
   col_append_str(pinfo->cinfo, COL_INFO, "UD TPDU");
 
