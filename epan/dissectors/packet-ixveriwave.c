@@ -694,7 +694,7 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     }
 
     /* Grab the rest of the frame. */
-    next_tvb = tvb_new_subset(tvb, length, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, length);
 
     /* dissect the ethernet header next */
     call_dissector(ethernet_handle, next_tvb, pinfo, tree);
@@ -945,7 +945,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         pinfo->pseudo_header->ieee_802_11.fcs_len = 0;
 
     /* Grab the rest of the frame. */
-    next_tvb = tvb_new_subset(tvb, length, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, length);
 
 #if 0  /* XXX: 'hdr_fcs_ti' is never set so the following code will never be executed ? */
     /* If we had an in-header FCS, check it. */

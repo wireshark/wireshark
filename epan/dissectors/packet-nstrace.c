@@ -212,7 +212,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   
 	/* Dissect as Ethernet */
 	offset = pnstr->eth_offset;
-	next_tvb_eth_client = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+	next_tvb_eth_client = tvb_new_subset_remaining(tvb, offset);
 	call_dissector(eth_withoutfcs_handle, next_tvb_eth_client, pinfo, tree);  
 }
 

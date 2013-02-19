@@ -129,7 +129,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_text(gvrp_tree, tvb, GARP_PROTOCOL_ID, (int)sizeof(guint16),
                 "   (Warning: this version of Wireshark only knows about protocol id = 1)");
             call_dissector(data_handle,
-                tvb_new_subset(tvb, GARP_PROTOCOL_ID + (int)sizeof(guint16), -1, -1),
+                tvb_new_subset_remaining(tvb, GARP_PROTOCOL_ID + (int)sizeof(guint16)),
                 pinfo, tree);
             return;
         }

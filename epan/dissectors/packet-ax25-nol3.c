@@ -198,7 +198,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 		ax25_nol3_tree = proto_item_add_subtree( ti, ett_ax25_nol3 );
 
 		saved_private_data = pinfo->private_data;
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		dissected = FALSE;
 		if ( gPREF_APRS )

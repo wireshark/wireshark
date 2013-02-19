@@ -303,7 +303,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	if ( kiss_type == KISS_DATA_FRAME )
 		{
 		saved_private_data = pinfo->private_data;
-		next_tvb = tvb_new_subset( tvb, offset, -1, -1 );
+		next_tvb = tvb_new_subset_remaining( tvb, offset );
 		call_dissector( ax25_handle, next_tvb, pinfo, parent_tree );
 		pinfo->private_data = saved_private_data;
 		}

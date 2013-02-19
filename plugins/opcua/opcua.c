@@ -403,7 +403,7 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 {
                     /* only show transport header */
                     bParseService = FALSE;
-                    next_tvb = tvb_new_subset(tvb, 0, -1, -1);
+                    next_tvb = tvb_new_subset_remaining(tvb, 0);
                 }
 
                 pinfo->fragmented = bSaveFragmented;

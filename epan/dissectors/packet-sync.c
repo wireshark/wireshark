@@ -160,7 +160,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 offset += 2;
 
                 /* XXX - The payload may not always be present? */
-                next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
                 /* XXX - The payload may not always be IP? */
                 call_dissector(ip_handle, next_tvb, pinfo, tree);
                 break;

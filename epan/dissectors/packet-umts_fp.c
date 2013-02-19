@@ -3028,7 +3028,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
             /* Call MAC for this PDU if configured to */
             if (preferences_call_mac_dissectors) {
                 p_add_proto_data(pinfo->fd, proto_umts_mac, mac_is_info);
-                call_dissector(mac_fdd_edch_type2_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, top_level_tree);
+                call_dissector(mac_fdd_edch_type2_handle, tvb_new_subset_remaining(tvb, offset), pinfo, top_level_tree);
             }
             else {
                 /* Still show data if not decoding as MAC PDU */

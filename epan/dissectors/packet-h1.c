@@ -237,7 +237,7 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	    THROW(ReportedBoundsError);
 	position += tvb_get_guint8(tvb,offset + position + 1);	/* Goto next section */
     }			/* ..while */
-  next_tvb = tvb_new_subset(tvb, offset+tvb_get_guint8(tvb,offset+2), -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset+tvb_get_guint8(tvb,offset+2));
   call_dissector(data_handle,next_tvb, pinfo, tree);
 
   return TRUE;

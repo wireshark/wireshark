@@ -865,10 +865,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             break;
 
         case DIS_FIELDTYPE_RADIO_DATA:
-            newtvb = tvb_new_subset(tvb, offset,
-                                    tvb_length_remaining(tvb, offset),
-                                    tvb_reported_length_remaining(tvb, offset)
-                );
+            newtvb = tvb_new_subset_remaining(tvb, offset);
             proto_tree_add_item(tree, hf_dis_signal_data, newtvb, 0, -1, ENC_NA );
             /* ****ck******* need to look for padding bytes */
             break;
@@ -1029,10 +1026,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             break;
         case DIS_FIELDTYPE_ANTENNA_PATTERN_PARAMETERS:
             /* just dump the bytes for now.  Need to do finish */
-            newtvb = tvb_new_subset(tvb, offset,
-                                    tvb_length_remaining(tvb, offset),
-                                    tvb_reported_length_remaining(tvb, offset)
-                );
+            newtvb = tvb_new_subset_remaining(tvb, offset);
             proto_tree_add_item(tree, hf_dis_antenna_pattern_parameter_dump, newtvb, 0, -1, ENC_NA );
             break;
 

@@ -373,9 +373,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ethertype(type, tvb, offset, pinfo, tree, btbnep_tree,
                     hf_btbnep_type, 0, 0);
        } else {
-            next_tvb = tvb_new_subset(tvb, offset,
-                    tvb_length_remaining(tvb, offset),
-                    tvb_length_remaining(tvb, offset));
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(data_handle, next_tvb, pinfo, tree);
        }
     }

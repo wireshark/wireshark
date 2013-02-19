@@ -968,7 +968,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     /* OK, now dissect as PDCP LTE        */
 
     /* Create tvb that starts at actual PDCP PDU */
-    pdcp_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
+    pdcp_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_pdcp_lte(pdcp_tvb, pinfo, tree);
     return TRUE;
 }

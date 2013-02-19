@@ -93,7 +93,7 @@ dissect_flexnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* Call sub-dissectors here */
 
 	saved_private_data = pinfo->private_data;
-	next_tvb = tvb_new_subset(tvb, FLEXNET_HDRLEN, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, FLEXNET_HDRLEN);
 
 	call_dissector( default_handle , next_tvb, pinfo, parent_tree );
 

@@ -2073,7 +2073,7 @@ dissect_qsig_T_extensionArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 #line 146 "../../asn1/qsig/qsig.cnf"
     tvbuff_t *next_tvb;
 
-    next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (!dissector_try_string(extension_dissector_table, extension_oid, next_tvb, actx->pinfo, tree)) {
         proto_item *item=NULL;
         proto_tree *next_tree=NULL;

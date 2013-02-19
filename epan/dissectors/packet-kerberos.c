@@ -2150,7 +2150,7 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (proto_tree *tree, tvbuff_t *tvb, int offs
     if(!plaintext){
         tvbuff_t *next_tvb;
 
-        next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+        next_tvb=tvb_new_subset_remaining(tvb, offset);
         plaintext=decrypt_krb5_data(tree, actx->pinfo, 1, next_tvb, PA_ENC_TIMESTAMP_etype, NULL);
     }
 
@@ -3529,7 +3529,7 @@ dissect_krb5_decrypt_PRIV (proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx
     if(!plaintext){
         tvbuff_t *next_tvb;
 
-        next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+        next_tvb=tvb_new_subset_remaining(tvb, offset);
         plaintext=decrypt_krb5_data(tree, actx->pinfo, 13, next_tvb, PRIV_etype, NULL);
     }
 
@@ -3677,7 +3677,7 @@ dissect_krb5_decrypt_EncKrbCredPart (proto_tree *tree, tvbuff_t *tvb, int offset
     int length;
     tvbuff_t *next_tvb;
 
-    next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+    next_tvb=tvb_new_subset_remaining(tvb, offset);
 
     length=tvb_length_remaining(tvb, offset);
 
@@ -3834,7 +3834,7 @@ dissect_krb5_decrypt_enc_authorization_data(proto_tree *tree, tvbuff_t *tvb, int
     int length;
     tvbuff_t *next_tvb;
 
-    next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+    next_tvb=tvb_new_subset_remaining(tvb, offset);
 
     length=tvb_length_remaining(tvb, offset);
 
@@ -4029,7 +4029,7 @@ dissect_krb5_decrypt_authenticator_data (proto_tree *tree, tvbuff_t *tvb, int of
     int length;
     tvbuff_t *next_tvb;
 
-    next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+    next_tvb=tvb_new_subset_remaining(tvb, offset);
 
     length=tvb_length_remaining(tvb, offset);
 
@@ -4118,7 +4118,7 @@ dissect_krb5_decrypt_Ticket_data (proto_tree *tree, tvbuff_t *tvb, int offset, a
     int length;
     tvbuff_t *next_tvb;
 
-    next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+    next_tvb=tvb_new_subset_remaining(tvb, offset);
 
     length=tvb_length_remaining(tvb, offset);
 
@@ -4259,7 +4259,7 @@ dissect_krb5_decrypt_AP_REP_data(proto_tree *tree, tvbuff_t *tvb, int offset, as
     if(!plaintext){
         tvbuff_t *next_tvb;
 
-        next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+        next_tvb=tvb_new_subset_remaining(tvb, offset);
         plaintext=decrypt_krb5_data(tree, actx->pinfo, 12, next_tvb, AP_REP_etype, NULL);
     }
 
@@ -4358,7 +4358,7 @@ dissect_krb5_decrypt_KDC_REP_data (proto_tree *tree, tvbuff_t *tvb, int offset, 
     int length;
     tvbuff_t *next_tvb;
 
-    next_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+    next_tvb=tvb_new_subset_remaining(tvb, offset);
 
     length=tvb_length_remaining(tvb, offset);
 
@@ -5433,9 +5433,7 @@ static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     tvbuff_t *auth_tvb;
 
-    auth_tvb = tvb_new_subset(
-        tvb, offset, tvb_length_remaining(tvb, offset),
-        tvb_reported_length_remaining(tvb, offset));
+    auth_tvb = tvb_new_subset_remaining(tvb, offset);
 
     dissect_kerberos_main(auth_tvb, pinfo, tree, FALSE, NULL);
 

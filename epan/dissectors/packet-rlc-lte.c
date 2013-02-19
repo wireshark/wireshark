@@ -1918,7 +1918,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (global_rlc_lte_call_rrc_for_ccch) {
-        tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+        tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
         volatile dissector_handle_t protocol_handle = 0;
 
         switch (p_rlc_lte_info->channelType) {
@@ -2689,7 +2689,7 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     /* OK, now dissect as RLC LTE         */
 
     /* Create tvb that starts at actual RLC PDU */
-    rlc_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
+    rlc_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_rlc_lte(rlc_tvb, pinfo, tree);
     return TRUE;
 }

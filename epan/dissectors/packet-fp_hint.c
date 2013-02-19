@@ -528,7 +528,7 @@ static void dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			next_dissector = &data_handle;
 	}
 
-	next_tvb = tvb_new_subset(tvb, hdrlen, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, hdrlen);
 	call_dissector(*next_dissector, next_tvb, pinfo, tree);
 }
 

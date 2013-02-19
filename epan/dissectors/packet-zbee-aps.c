@@ -1573,8 +1573,7 @@ dissect_zbee_aps_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     offset += 8;
 
     /* The remainder is a tunneled APS frame. */
-    tunnel_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset),
-            tvb_reported_length_remaining(tvb, offset));
+    tunnel_tvb = tvb_new_subset_remaining(tvb, offset);
     if (tree) root = proto_tree_get_root(tree);
     call_dissector(zbee_aps_handle, tunnel_tvb, pinfo, root);
     offset = tvb_length(tvb);

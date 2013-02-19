@@ -2076,10 +2076,7 @@ static guint dissect_wimaxasncp_backend(
     {
         tvbuff_t *tlv_tvb;
 
-        tlv_tvb = tvb_new_subset(
-            tvb, offset,
-            tvb_length(tvb) - offset,
-            tvb_length(tvb) - offset);
+        tlv_tvb = tvb_new_subset_remaining(tvb, offset);
 
         offset += dissect_wimaxasncp_tlvs(tlv_tvb, pinfo, tree);
     }

@@ -907,7 +907,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       if (len2 <= 0)
         return offset;
       buffer = (guchar *)tvb_memdup(tvb, offset, len2);
-      epsem_buffer = tvb_new_subset(tvb, offset, -1, -1);
+      epsem_buffer = tvb_new_subset_remaining(tvb, offset);
       if (c1222_decrypt) {
 	if (!decrypt_packet(buffer, len2, FALSE)) {
 #ifdef HAVE_LIBGCRYPT
@@ -923,7 +923,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       break;
     default:
       /* it's not encrypted */
-      epsem_buffer = tvb_new_subset(tvb, offset, -1, -1);
+      epsem_buffer = tvb_new_subset_remaining(tvb, offset);
   }
   /* it's only encrypted if we have an undecrypted payload */
   if (encrypted) {

@@ -4169,9 +4169,7 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	if (next_offset) {
 		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_subset(tvb, next_offset,
-					tvb_length_remaining(tvb, next_offset),
-					tvb_reported_length_remaining(tvb, next_offset));
+		next_tvb = tvb_new_subset_remaining(tvb, next_offset);
 
 		/* next extra info */
 		dissect_smb2_NETWORK_INTERFACE_INFO(next_tvb, pinfo, parent_tree);
@@ -5298,7 +5296,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 
 	if (chain_offset) {
 		tvbuff_t *chain_tvb;
-		chain_tvb = tvb_new_subset(tvb, chain_offset, tvb_length_remaining(tvb, chain_offset), tvb_reported_length_remaining(tvb, chain_offset));
+		chain_tvb = tvb_new_subset_remaining(tvb, chain_offset);
 
 		/* next extra info */
 		dissect_smb2_create_extra_info(chain_tvb, pinfo, parent_tree, si);

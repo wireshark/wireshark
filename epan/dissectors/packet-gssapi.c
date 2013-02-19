@@ -314,7 +314,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if ((tvb_length_remaining(gss_tvb, start_offset)>16) &&
 			   ((tvb_memeql(gss_tvb, start_offset, "\x01\x00\x00\x00", 4) == 0))) {
 				return_offset = call_dissector(ntlmssp_payload_handle,
-							tvb_new_subset(gss_tvb, start_offset, -1, -1),
+							tvb_new_subset_remaining(gss_tvb, start_offset),
 							pinfo, subtree);
 				pinfo->gssapi_data_encrypted = TRUE;
 				goto done;
@@ -323,12 +323,12 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   ((tvb_memeql(gss_tvb, start_offset, "\x01\x00\x00\x00", 4) == 0))) {
 				if( is_verifier ) {
 					return_offset = call_dissector(ntlmssp_verf_handle,
-									tvb_new_subset(gss_tvb, start_offset, -1, -1),
+									tvb_new_subset_remaining(gss_tvb, start_offset),
 									pinfo, subtree);
 				}
 				else if( pinfo->gssapi_encrypted_tvb ) {
 					return_offset = call_dissector(ntlmssp_data_only_handle,
-									tvb_new_subset(pinfo->gssapi_encrypted_tvb, 0, -1, -1),
+									tvb_new_subset_remaining(pinfo->gssapi_encrypted_tvb, 0),
 									pinfo, subtree);
 					pinfo->gssapi_data_encrypted = TRUE;
 				}

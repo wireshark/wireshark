@@ -406,7 +406,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             channel_type = proto_tree_add_uint(fach_tree, hf_mac_channel, tvb, 0, 0, MAC_CCCH);
             PROTO_ITEM_SET_GENERATED(channel_type);
             /* CCCH over FACH is always octet aligned */
-            next_tvb = tvb_new_subset(tvb, 1, tvb_length_remaining(tvb, 1), -1);
+            next_tvb = tvb_new_subset_remaining(tvb, 1);
             call_dissector(rlc_ccch_handle, next_tvb, pinfo, tree);
             break;
         case TCTF_DCCH_DTCH_FACH_FDD:
@@ -448,7 +448,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             channel_type = proto_tree_add_uint(fach_tree, hf_mac_channel, tvb, 0, 0, MAC_CTCH);
             PROTO_ITEM_SET_GENERATED(channel_type);
             /* CTCH over FACH is always octet aligned */
-            next_tvb = tvb_new_subset(tvb, 1, tvb_length_remaining(tvb, 1), -1);
+            next_tvb = tvb_new_subset_remaining(tvb, 1);
             call_dissector(rlc_ctch_handle, next_tvb, pinfo, tree);
             break;
         /* july 5: Added support for BCCH*/

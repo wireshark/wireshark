@@ -1990,7 +1990,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offsetof(struct ipcomp, comp_cpi), 2,
 			g_ntohs(ipcomp.comp_cpi));
 
-    data = tvb_new_subset(tvb, sizeof(struct ipcomp), -1, -1);
+    data = tvb_new_subset_remaining(tvb, sizeof(struct ipcomp));
     call_dissector(data_handle, data, pinfo, ipcomp_tree);
 
     /*

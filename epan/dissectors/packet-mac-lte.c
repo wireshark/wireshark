@@ -1291,7 +1291,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     /* OK, now dissect as MAC LTE         */
 
     /* Create tvb that starts at actual MAC PDU */
-    mac_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
+    mac_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_mac_lte(mac_tvb, pinfo, tree);
 
     return TRUE;
@@ -1791,7 +1791,7 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (global_mac_lte_attempt_rrc_decode) {
         /* Attempt to decode payload using LTE RRC dissector */
-        tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+        tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
 
         /* Get appropriate dissector handle */
         dissector_handle_t protocol_handle = 0;
@@ -1836,7 +1836,7 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (global_mac_lte_attempt_rrc_decode) {
 
         /* Attempt to decode payload using LTE RRC dissector */
-        tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+        tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
 
         /* Get appropriate dissector handle */
         dissector_handle_t protocol_handle = find_dissector("lte_rrc.pcch");

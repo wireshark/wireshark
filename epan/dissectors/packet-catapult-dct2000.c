@@ -826,7 +826,7 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
 
         /* Call UMTS RLC dissector */
         if (rlc_umts_handle != 0) {
-            rlc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+            rlc_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector_only(rlc_umts_handle, rlc_tvb, pinfo, tree, NULL);
         }
     }
@@ -1025,7 +1025,7 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
 
     /* Send to RRC dissector, if got here, have sub-dissector and some data left */
     if ((protocol_handle != NULL) && (tvb_length_remaining(tvb, offset) > 0)) {
-        rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+        rrc_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree, NULL);
     }
 }
@@ -1283,7 +1283,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
             /* Should be at data tag now    */
 
             /* Call PDCP LTE dissector */
-            pdcp_lte_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+            pdcp_lte_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector_only(pdcp_lte_handle, pdcp_lte_tvb, pinfo, tree, NULL);
 
             break;
@@ -2823,7 +2823,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Try appropriate dissector, if one has been selected */
     if (protocol_handle != 0) {
         /* Dissect the remainder of the frame using chosen protocol handle */
-        next_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
         sub_dissector_result = call_dissector_only(protocol_handle, next_tvb, pinfo, tree, NULL);
     }
 

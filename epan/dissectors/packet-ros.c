@@ -261,7 +261,7 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 {
 	tvbuff_t *next_tvb;
 
-	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	if(!ros_try_string(oid, next_tvb, pinfo, tree) &&
            !dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree)){

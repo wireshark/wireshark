@@ -2530,7 +2530,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     switch (opcode) {
     case EIGRP_OPC_IPXSAP:
         call_dissector(ipxsap_handle,
-                       tvb_new_subset(tvb, EIGRP_HEADER_LENGTH, -1, -1), pinfo,
+                       tvb_new_subset_remaining(tvb, EIGRP_HEADER_LENGTH), pinfo,
                        eigrp_tree);
         break;
 

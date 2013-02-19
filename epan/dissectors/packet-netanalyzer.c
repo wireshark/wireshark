@@ -315,7 +315,7 @@ dissect_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (dissect_netanalyzer_common(tvb, pinfo, tree))
     {
       /* hand off to eth dissector with the new tvb subset */
-      next_tvb = tvb_new_subset(tvb, 4, tvb_length(tvb)-4, tvb_reported_length(tvb)-4);
+      next_tvb = tvb_new_subset_remaining(tvb, 4);
       call_dissector(eth_dissector_handle, next_tvb, pinfo, tree);
     }
   }
@@ -350,7 +350,7 @@ dissect_netanalyzer_transparent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
        * use data dissector instead */
       ti = proto_tree_add_text(tree, tvb, 4, tvb_length(tvb)-4, "Raw packet data");
       transparent_payload_tree = proto_item_add_subtree(ti, ett_netanalyzer_transparent);
-      next_tvb = tvb_new_subset(tvb, 4, tvb_length(tvb)-4, tvb_reported_length(tvb)-4);
+      next_tvb = tvb_new_subset_remaining(tvb, 4);
       call_dissector(data_dissector_handle, next_tvb, pinfo, transparent_payload_tree);
 
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");

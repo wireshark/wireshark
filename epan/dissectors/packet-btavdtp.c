@@ -1039,10 +1039,10 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         get_sep_type(pinfo->fd->num, cid_type_data->sep->seid));
 
                 if (cid_type_data->sep->media_type == MEDIA_TYPE_AUDIO) {
-                    next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
+                    next_tvb = tvb_new_subset_remaining(tvb, offset);
                     call_dissector_with_data(bta2dp_handle, next_tvb, pinfo, tree, &cid_type_data->sep->codec);
                 } else if (cid_type_data->sep->media_type == MEDIA_TYPE_VIDEO) {
-                    next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
+                    next_tvb = tvb_new_subset_remaining(tvb, offset);
                     call_dissector_with_data(btvdp_handle, next_tvb, pinfo, tree, &cid_type_data->sep->codec);
                 } else {
                     ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);

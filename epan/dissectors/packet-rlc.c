@@ -2689,7 +2689,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* OK, now dissect as RLC             */
 
     /* Create tvb that starts at actual RLC PDU */
-    rlc_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
+    rlc_tvb = tvb_new_subset_remaining(tvb, offset);
     switch (channelType) {
         case UMTS_CHANNEL_TYPE_UNSPECIFIED:
             /* Call relevant dissector according to RLC mode */

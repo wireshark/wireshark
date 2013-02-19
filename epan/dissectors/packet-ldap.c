@@ -3930,7 +3930,7 @@ one_more_pdu:
      * same blob
      */
     if(tvb_length_remaining(tvb, offset)>=6){
-        tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), -1);
+        tvb = tvb_new_subset_remaining(tvb, offset);
 	offset = 0;
 
         goto one_more_pdu;

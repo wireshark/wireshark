@@ -149,7 +149,7 @@ dissect_jmirror(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	offset += SESSION_ID_SZ;
 
 	/* Create a buffer pointer for the next dissector */
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	/* Call the next dissector based on the heurstics and return the number of bytes dissected */
 	return MIRROR_HDR_SZ + call_dissector(dissector_handle, next_tvb, pinfo, tree);

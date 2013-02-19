@@ -119,7 +119,7 @@ dissect_hsr_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(hsr_tree, hf_type,
                         tvb, HSR_TOTAL_LENGTH,2, ENC_BIG_ENDIAN);
 
-    next_tvb = tvb_new_subset (tvb, HSR_TOTAL_LENGTH + 2, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, HSR_TOTAL_LENGTH + 2);
 
     etype = tvb_get_ntohs(tvb, HSR_TOTAL_LENGTH);
 

@@ -13546,9 +13546,7 @@ dissect_sfsi_request(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		blob_tree = proto_item_add_subtree(blob_item,
 						   ett_smb_secblob);
 
-		blob_tvb = tvb_new_subset(tvb, offset,
-					  tvb_length_remaining(tvb,offset),
-					  tvb_length_remaining(tvb,offset));
+		blob_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (tvb_strneql(blob_tvb, 0, "NTLMSSP", 7) == 0) {
 			call_dissector(ntlmssp_handle, blob_tvb, pinfo, blob_tree);
@@ -13604,9 +13602,7 @@ dissect_sfsi_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		blob_tree = proto_item_add_subtree(blob_item,
 						   ett_smb_secblob);
 
-		blob_tvb = tvb_new_subset(tvb, offset,
-					  tvb_length_remaining(tvb,offset),
-					  tvb_length_remaining(tvb,offset));
+		blob_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		if (tvb_strneql(blob_tvb, 0, "NTLMSSP", 7) == 0) {
 			call_dissector(ntlmssp_handle, blob_tvb, pinfo, blob_tree);

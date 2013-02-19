@@ -516,7 +516,7 @@ dissect_dsmcc_ddb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_dsmcc_ddb_block_number, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	sub_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	sub_tvb = tvb_new_subset_remaining(tvb, offset);
 	call_dissector(data_handle, sub_tvb, pinfo, top_tree);
 }
 

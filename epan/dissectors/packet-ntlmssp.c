@@ -2527,9 +2527,7 @@ wrap_dissect_ntlmssp_payload_only(tvbuff_t *tvb, tvbuff_t *auth_tvb _U_,
 {
   tvbuff_t *data_tvb;
 
-  data_tvb = tvb_new_subset(
-    tvb, offset, tvb_length_remaining(tvb, offset),
-    tvb_length_remaining(tvb, offset));
+  data_tvb = tvb_new_subset_remaining(tvb, offset);
   dissect_ntlmssp_payload_only(data_tvb, pinfo, NULL, NULL);
   return pinfo->gssapi_decrypted_tvb;
 }
@@ -2678,9 +2676,7 @@ wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
   tvbuff_t *auth_tvb;
 
-  auth_tvb = tvb_new_subset(
-    tvb, offset, tvb_length_remaining(tvb, offset),
-    tvb_length_remaining(tvb, offset));
+  auth_tvb = tvb_new_subset_remaining(tvb, offset);
 
   dissect_ntlmssp(auth_tvb, pinfo, tree);
 
@@ -2693,9 +2689,7 @@ wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
   tvbuff_t *auth_tvb;
 
-  auth_tvb = tvb_new_subset(
-    tvb, offset, tvb_length_remaining(tvb, offset),
-    tvb_length_remaining(tvb, offset));
+  auth_tvb = tvb_new_subset_remaining(tvb, offset);
   return dissect_ntlmssp_verf(auth_tvb, pinfo, tree, NULL);
 }
 
