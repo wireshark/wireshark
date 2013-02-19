@@ -105,7 +105,7 @@ tvb_init(tvbuff_t *tvb, const tvbuff_type type)
 }
 
 
-tvbuff_t *
+static tvbuff_t *
 tvb_new(const tvbuff_type type)
 {
 	tvbuff_t *tvb;
