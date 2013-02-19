@@ -35,7 +35,8 @@ ASN_FILE_LIST = \
 	Closed-User-Group-Service-Operations.asn \
 	Conference-Add-On-Operations.asn \
 	Diversion-Operations.asn \
-	MCID-Operations.asn
+	MCID-Operations.asn \
+	User-To-User-Signalling-Operations.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -49,7 +50,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b
+A2W_FLAGS= -b -k
 
 EXTRA_CNF =
 

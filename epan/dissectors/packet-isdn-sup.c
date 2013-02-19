@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-isdn-sup.c                                                          */
-/* ../../tools/asn2wrs.py -b -k -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn Freephone-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn */
+/* ../../tools/asn2wrs.py -b -k -p isdn-sup -c ./isdn-sup.cnf -s ./packet-isdn-sup-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Basic-Service-Elements.asn Embedded-Q931-Types.asn General-Errors.asn Advice-of-Charge-Operations.asn Closed-User-Group-Service-Operations.asn Conference-Add-On-Operations.asn Diversion-Operations.asn MCID-Operations.asn User-To-User-Signalling-Operations.asn */
 
 /* Input file: packet-isdn-sup-template.c */
 
@@ -48,7 +48,6 @@
 
 /*--- Included file: packet-isdn-sup-val.h ---*/
 #line 1 "../../asn1/isdn-sup/packet-isdn-sup-val.h"
-#define fPHOID                         "0.4.0.210.1"
 
 /*--- End of included file: packet-isdn-sup-val.h ---*/
 #line 41 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
@@ -108,7 +107,6 @@ static const value_string isdn_sup_str_operation[] = {
   {  18, "divertingLegInformation1" },
   {  15, "divertingLegInformation2" },
   {  19, "divertingLegInformation3" },
-  { fPHOID".1", "callFPH" },
   {   3, "mCIDRequest" },
   {   1, "userUserService" },
 
@@ -194,7 +192,6 @@ static int hf_isdn_sup_CallRerouteingArg_PDU = -1;  /* CallRerouteingArg */
 static int hf_isdn_sup_DivertingLegInformation1Arg_PDU = -1;  /* DivertingLegInformation1Arg */
 static int hf_isdn_sup_DivertingLegInformation2Arg_PDU = -1;  /* DivertingLegInformation2Arg */
 static int hf_isdn_sup_DivertingLegInformation3Arg_PDU = -1;  /* DivertingLegInformation3Arg */
-static int hf_isdn_sup_CalledFreephoneNrArg_PDU = -1;  /* CalledFreephoneNrArg */
 static int hf_isdn_sup_UserUserServiceArg_PDU = -1;  /* UserUserServiceArg */
 static int hf_isdn_sup_presentationAllowedAddress = -1;  /* AddressScreened */
 static int hf_isdn_sup_presentationRestricted = -1;  /* NULL */
@@ -2101,24 +2098,6 @@ dissect_isdn_sup_DivertingLegInformation3Arg(gboolean implicit_tag _U_, tvbuff_t
 }
 
 
-
-static int
-dissect_isdn_sup_CalledFreephoneNr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_isdn_sup_PartyNumber(implicit_tag, tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-
-static int
-dissect_isdn_sup_CalledFreephoneNrArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_isdn_sup_CalledFreephoneNr(implicit_tag, tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
 static const value_string isdn_sup_Service_vals[] = {
   {   1, "service1" },
   {   2, "service2" },
@@ -2378,13 +2357,6 @@ static int dissect_DivertingLegInformation3Arg_PDU(tvbuff_t *tvb _U_, packet_inf
   offset = dissect_isdn_sup_DivertingLegInformation3Arg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_DivertingLegInformation3Arg_PDU);
   return offset;
 }
-static int dissect_CalledFreephoneNrArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  offset = dissect_isdn_sup_CalledFreephoneNrArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_isdn_sup_CalledFreephoneNrArg_PDU);
-  return offset;
-}
 static int dissect_UserUserServiceArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2428,7 +2400,6 @@ static const isdn_sup_op_t isdn_sup_op_tab[] = {
   /* divertingLegInformation1 */ {  18, dissect_DivertingLegInformation1Arg_PDU, NULL },
   /* divertingLegInformation2 */ {  15, dissect_DivertingLegInformation2Arg_PDU, NULL },
   /* divertingLegInformation3 */ {  19, dissect_DivertingLegInformation3Arg_PDU, NULL },
-  /* callFPH                  */ { fPHOID".1", dissect_CalledFreephoneNrArg_PDU, NULL },
   /* mCIDRequest              */ {   3, NULL, NULL },
   /* userUserService          */ {   1, dissect_UserUserServiceArg_PDU, NULL },
 
@@ -2816,10 +2787,6 @@ void proto_register_isdn_sup(void) {
     { &hf_isdn_sup_DivertingLegInformation3Arg_PDU,
       { "DivertingLegInformation3Arg", "isdn-sup.DivertingLegInformation3Arg",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_isdn_sup_CalledFreephoneNrArg_PDU,
-      { "CalledFreephoneNrArg", "isdn-sup.CalledFreephoneNrArg",
-        FT_UINT32, BASE_DEC, VALS(isdn_sup_PartyNumber_vals), 0,
         NULL, HFILL }},
     { &hf_isdn_sup_UserUserServiceArg_PDU,
       { "UserUserServiceArg", "isdn-sup.UserUserServiceArg",
