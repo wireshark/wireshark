@@ -2082,6 +2082,12 @@ prefs_register_modules(void)
                        "The type of update to fetch",
                        (gint*)(void*)(&prefs.gui_update_channel), gui_update_channel, FALSE);
 
+    prefs_register_uint_preference(gui_module, "update.interval",
+                                   "How often to check for software updates",
+                                   "How often to check for software updates in seconds",
+                                   10,
+                                   &prefs.gui_update_interval);
+
     prefs_register_string_preference(gui_module, "window_title", "Custom window title",
         "Custom window title. (Appended to existing titles.)", (const char**)(&prefs.gui_window_title));
 
