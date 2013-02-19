@@ -21,7 +21,7 @@ IMPORTS		OPERATION, ERROR
 				{ccitt identified-organization etsi (0) 196 general-errors (2)}
 			PartyNumber
 			FROM Addressing-Data-Elements
-				{ccitt identified-organization etsi (0) 196 addressing-data-elements (6)};
+				{itu-t(0) identified-organization(4) 196 addressing-data-elements (6)};
 
 	chargingRequest OPERATION ::= {
 			ARGUMENT ChargingRequestArg
