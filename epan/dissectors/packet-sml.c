@@ -73,8 +73,7 @@ Short description of the SML protocol on the SML Wireshark Wiki page:  http://wi
 #define UNSIGNED16		0x63
 
 #define LIST_6_ELEMENTS		0x76
-#define ZERO			0x00
-#define MSB             0x80
+#define MSB			0x80
 
 static guint tcp_port_pref = TCP_PORT_SML;
 static guint udp_port_pref = UDP_PORT_SML;
@@ -395,7 +394,7 @@ static void sml_value(tvbuff_t *tvb,proto_tree *insert_tree,guint *offset, guint
 
 	if (tvb_get_guint8(tvb, *offset) != OPTIONAL){
 		value_tree = proto_item_add_subtree (value, ett_sml_value);
-		if ((tvb_get_guint8(tvb, *offset) & 0x80) == MSB || (tvb_get_guint8(tvb, *offset) & 0xF0) == ZERO){
+		if ((tvb_get_guint8(tvb, *offset) & 0x80) == MSB || (tvb_get_guint8(tvb, *offset) & 0xF0) == 0){
 			proto_tree_add_text (value_tree, tvb, *offset, *length, "Length: %d %s", *data, plurality(*data, "octet", "octets"));
 			*offset+= *length;
 		}
@@ -2259,7 +2258,7 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 	}
 
 	if (tvb_get_ntoh40(tvb, end_offset-8) != ESC_SEQ_END && pinfo->can_desegment){
-		if (tvb_get_guint8(tvb, end_offset-1) != ZERO){
+		if (tvb_get_guint8(tvb, end_offset-1) != 0){
 			pinfo->desegment_offset = start_offset;
 			pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 			return;
@@ -2490,7 +2489,7 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 			}
 
 			/*Message END*/
-			if (tvb_get_guint8 (tvb, *offset) == ZERO){
+			if (tvb_get_guint8 (tvb, *offset) == 0){
 				proto_tree_add_item (mainlist_list, hf_sml_endOfSmlMsg, tvb, *offset, 1, ENC_BIG_ENDIAN);
 				*offset+=1;
 			}
@@ -2507,7 +2506,7 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 				if (check == LIST_6_ELEMENTS){
 					close1 = FALSE;
 				}
-				else if (check == 0x1b || check == ZERO){
+				else if (check == 0x1b || check == 0){
 					close1 = TRUE;
 				}
 			}
@@ -2521,11 +2520,11 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 		}
 
 		/*Padding*/
-		if (check == ZERO){
+		if (check == 0){
 			length = 1;
 			*offset+=1;
 
-			while (tvb_get_guint8(tvb, *offset) == ZERO){
+			while (tvb_get_guint8(tvb, *offset) == 0){
 				length++;
 				*offset+=1;
 			}
