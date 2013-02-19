@@ -109,6 +109,7 @@
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
+#include "ui/software_update.h"
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
 
@@ -3215,6 +3216,8 @@ main(int argc, char *argv[])
   gtk_iface_mon_start();
 #endif
 
+  software_update_init();
+  
   /* we'll enter the GTK loop now and hand the control over to GTK ... */
   gtk_main();
   /* ... back from GTK, we're going down now! */
@@ -3237,6 +3240,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_GTKOSXAPPLICATION
   g_object_unref(theApp);
 #endif
+
+  software_update_cleanup();
 
   /* Shutdown windows sockets */
   WSACleanup();

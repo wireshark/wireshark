@@ -151,6 +151,11 @@ static enum_val_t gui_layout_content[] = {
 		{NULL, NULL, -1}
 	};
 
+static enum_val_t gui_update_channel[] = {
+		{"DEVELOPMENT", "DEVELOPMENT", UPDATE_CHANNEL_DEVELOPMENT},
+		{"STABLE", "STABLE", UPDATE_CHANNEL_STABLE},
+		{NULL, NULL, -1}
+	};
 /*
  * List of all modules with preference settings.
  */
@@ -2067,6 +2072,16 @@ prefs_register_modules(void)
     prefs_register_string_preference(gui_module, "webbrowser", "The path to the webbrowser",
         "The path to the webbrowser (Ex: mozilla)", (const char**)(&prefs.gui_webbrowser));
 
+    prefs_register_bool_preference(gui_module, "update.enabled",
+                                   "Check for updates",
+                                   "Check for updates (Windows only)",
+                                   &prefs.gui_update_enabled);
+
+    prefs_register_enum_preference(gui_module, "update.channel",
+                       "Update channel",
+                       "The type of update to fetch",
+                       (gint*)(void*)(&prefs.gui_update_channel), gui_version_placement_type, FALSE);
+
     prefs_register_string_preference(gui_module, "window_title", "Custom window title",
         "Custom window title. (Appended to existing titles.)", (const char**)(&prefs.gui_window_title));
 
@@ -2641,6 +2656,9 @@ pre_init_prefs(void)
   prefs.gui_ask_unsaved            = TRUE;
   prefs.gui_find_wrap              = TRUE;
   prefs.gui_use_pref_save          = FALSE;
+  prefs.gui_update_enabled         = TRUE;
+  prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
+  prefs.gui_update_interval        = 60*60*24; /* Seconds */
   /* This can be g_freed, so it must be g_mallocated. */
   prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
   /* This can be g_freed, so it must be g_mallocated. */

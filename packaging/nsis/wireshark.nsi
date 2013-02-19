@@ -342,6 +342,9 @@ File "${STAGING_DIR}\libsmi-2.dll"
 !ifdef GEOIP_DIR
 File "${STAGING_DIR}\libGeoIP-1.dll"
 !endif
+!ifdef WINSPARKLE_DIR
+File "${STAGING_DIR}\WinSparkle.dll"
+!endif
 File "${STAGING_DIR}\COPYING.txt"
 File "${STAGING_DIR}\NEWS.txt"
 File "${STAGING_DIR}\README.txt"

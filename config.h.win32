@@ -222,6 +222,9 @@
 /* Define if GeoIP supports IPv6 (GeoIP 1.4.5 and later) */
 @HAVE_GEOIP_V6@
 
+/* Define to enable WinSparkle software updates */
+@HAVE_SOFTWARE_UPDATE@
+
 /* Define for IPv6 */
 @INET6@
 

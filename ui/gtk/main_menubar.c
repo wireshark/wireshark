@@ -57,6 +57,7 @@
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
+#include "ui/software_update.h"
 #include "ui/ui_util.h"
 #include "ui/utf8_entities.h"
 
@@ -926,6 +927,14 @@ help_menu_SampleCaptures_cb(GtkAction *action _U_, gpointer user_data _U_)
     topic_menu_cb( NULL/* widget_U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_SAMPLE_FILES));
 }
 
+#ifdef HAVE_SOFTWARE_UPDATE
+static void
+check_for_updates_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+    software_update_check();
+}
+#endif /* HAVE_SOFTWARE_UPDATE */
+
 static const char *ui_desc_menubar =
 "<ui>\n"
 "  <menubar name ='Menubar'>\n"
@@ -1307,6 +1316,10 @@ static const char *ui_desc_menubar =
 "      <separator/>\n"
 "      <menuitem name='Wiki' action='/Help/Wiki'/>\n"
 "      <menuitem name='SampleCaptures' action='/Help/SampleCaptures'/>\n"
+#ifdef HAVE_SOFTWARE_UPDATE
+"      <separator/>\n"
+"      <menuitem name='CheckForUpdates' action='/Help/CheckForUpdates'/>\n"
+#endif /* HAVE_SOFTWARE_UPDATE */
 "      <separator/>\n"
 "      <menuitem name='AboutWireshark' action='/Help/AboutWireshark'/>\n"
 "    </menu>\n"
@@ -1754,10 +1767,13 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Help/Website",               GTK_STOCK_HOME,                 "Website",              NULL,                           NULL,               G_CALLBACK(help_menu_Website_cb) },
    { "/Help/FAQs",                  NULL,                           "FAQ's",                NULL,                           NULL,               G_CALLBACK(help_menu_faq_cb) },
-   { "/Help/ASK",             NULL,                           "Ask (Q&A)",            NULL,                           NULL,               G_CALLBACK(help_menu_ask_cb) },
+   { "/Help/ASK",                   NULL,                           "Ask (Q&A)",            NULL,                           NULL,               G_CALLBACK(help_menu_ask_cb) },
    { "/Help/Downloads",             NULL,                           "Downloads",            NULL,                           NULL,               G_CALLBACK(help_menu_Downloads_cb) },
    { "/Help/Wiki",                  WIRESHARK_STOCK_WIKI,           "Wiki",                 NULL,                           NULL,               G_CALLBACK(help_menu_Wiki_cb) },
    { "/Help/SampleCaptures",        NULL,                           "Sample Captures",      NULL,                           NULL,               G_CALLBACK(help_menu_SampleCaptures_cb) },
+#ifdef HAVE_SOFTWARE_UPDATE
+   { "/Help/CheckForUpdates",       NULL,                           "Check for Updates...", NULL,                           NULL,               G_CALLBACK(check_for_updates_cb) },
+#endif /* HAVE_SOFTWARE_UPDATE */
    { "/Help/AboutWireshark",        WIRESHARK_STOCK_ABOUT,          "_About Wireshark",     NULL,                           NULL,               G_CALLBACK(about_wireshark_cb) },
 };
 

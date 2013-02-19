@@ -119,6 +119,13 @@ typedef enum {
     pref_current
 } pref_source_t;
 
+/* 
+ * Update channel.
+ */
+typedef enum {
+    UPDATE_CHANNEL_DEVELOPMENT,
+    UPDATE_CHANNEL_STABLE
+} software_update_channel_e;
 
 typedef struct _e_prefs {
   gint          pr_format;
@@ -183,6 +190,9 @@ typedef struct _e_prefs {
   guint        tap_update_interval;
   gboolean     display_hidden_proto_items;
   gpointer     filter_expressions;	/* Actually points to &head */
+  gboolean     gui_update_enabled;
+  software_update_channel_e gui_update_channel;
+  gint         gui_update_interval;
 } e_prefs;
 
 WS_VAR_IMPORT e_prefs prefs;
