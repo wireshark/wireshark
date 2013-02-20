@@ -618,6 +618,28 @@ getenv_utf8(const char *varname)
 /** Create or open a "Wireshark is running" mutex.
  */
 #define WIRESHARK_IS_RUNNING_UUID "9CA78EEA-EA4D-4490-9240-FC01FCEF464B"
+
+static SECURITY_ATTRIBUTES *sec_attributes_;
+
 void create_app_running_mutex() {
-      CreateMutex(NULL, FALSE, _T("Wireshark-is-running-{") _T(WIRESHARK_IS_RUNNING_UUID) _T("}"));
+      SECURITY_ATTRIBUTES *sa = NULL;
+      
+      if (!sec_attributes_) sec_attributes_ = g_new0(SECURITY_ATTRIBUTES, 1);
+      
+      sec_attributes_->nLength = sizeof(SECURITY_ATTRIBUTES);
+      sec_attributes_->lpSecurityDescriptor = g_new0(SECURITY_DESCRIPTOR, 1);
+      sec_attributes_->bInheritHandle = TRUE;
+      if (InitializeSecurityDescriptor(sec_attributes_->lpSecurityDescriptor, SECURITY_DESCRIPTOR_REVISION)) {
+	    if (SetSecurityDescriptorDacl(sec_attributes_->lpSecurityDescriptor, TRUE, NULL, FALSE)) {
+	          sa = sec_attributes_;
+	    }
+      }
+      
+      if (!sa) {
+	    g_free(sec_attributes_->lpSecurityDescriptor);
+	    g_free(sec_attributes_);
+	    sec_attributes_ = NULL;
+      }
+      CreateMutex(sa, FALSE, _T("Wireshark-is-running-{") _T(WIRESHARK_IS_RUNNING_UUID) _T("}"));
+      CreateMutex(sa, FALSE, _T("Global\\Wireshark-is-running-{") _T(WIRESHARK_IS_RUNNING_UUID) _T("}"));
 }
