@@ -528,7 +528,10 @@ int main(int argc, char *argv[])
     int                  status;
 
     //initialize language !
+
+#ifdef _WIN32
     create_app_running_mutex();
+#endif
 
     QString locale = QLocale::system().name();
 
