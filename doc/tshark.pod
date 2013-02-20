@@ -947,6 +947,11 @@ and IPv6 addresses are dumped by default.
 Addresses are collected from a number of sources, including standard "hosts"
 files and captured traffic.
 
+=item B<-z> http,stat,
+
+Calculate the HTTP statistics distribution. Displayed values are
+the HTTP status codes and the HTTP request methods.
+
 =item B<-z> icmp,srt[,I<filter>]
 
 Compute total ICMP echo requests, replies, loss, and percent loss, as well as
