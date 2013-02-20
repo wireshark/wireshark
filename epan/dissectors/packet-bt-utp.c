@@ -162,33 +162,32 @@ get_utp_version(tvbuff_t *tvb) {
 
   /* Simple heuristics inspired by code from utp.cpp */
 
-  len = tvb_reported_length(tvb);
+  len = tvb_length(tvb);
 
-  if (len < MIN(V0_FIXED_HDR_SIZE, V1_FIXED_HDR_SIZE)) {
+  /* Version 1? */
+  if (len < V1_FIXED_HDR_SIZE) {
     return -1;
   }
 
   v1_ver_type = tvb_get_guint8(tvb, 0);
-  v1_ext      = tvb_get_guint8(tvb, 1);
-
-  v0_flags    = tvb_get_guint8(tvb, 18);
-  v0_ext      = tvb_get_guint8(tvb, 17);
-
-  if (((v1_ver_type & 0x0f) == 1)             &&
-      ((v1_ver_type>>4)     < ST_NUM_STATES) &&
-      (v1_ext               < EXT_NUM_EXT)) {
-    if (len < V1_FIXED_HDR_SIZE)
-      return -1;
+  v1_ext = tvb_get_guint8(tvb, 1);
+  if (((v1_ver_type & 0x0f) == 1) && ((v1_ver_type>>4) < ST_NUM_STATES) &&
+      (v1_ext < EXT_NUM_EXT)) {
     return 1;
   }
-  else if ((v0_flags < ST_NUM_STATES) ||
-           (v0_ext   < EXT_NUM_EXT)) {
-    if (len < V0_FIXED_HDR_SIZE)
-      return -1;
+
+  /* Version 0? */
+  if (len < V0_FIXED_HDR_SIZE) {
+    return -1;
+  }
+
+  v0_flags = tvb_get_guint8(tvb, 18);
+  v0_ext = tvb_get_guint8(tvb, 17);
+  if ((v0_flags < ST_NUM_STATES) || (v0_ext < EXT_NUM_EXT)) {
     return 0;
   }
-  else
-    return -1;
+
+  return -1;
 }
 
 static int
