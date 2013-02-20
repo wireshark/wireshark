@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.9.0">
+<!ENTITY WiresharkCurrentVersion "1.9.1">
 
 ]>
 
@@ -61,6 +61,12 @@ Wireshark Info
       since version 1.8:
 
       <itemizedlist>
+
+        <listitem>
+          <para>
+            Wireshark on 32- and 64-bit Windows supports automatic updates.
+          </para>
+        </listitem>
 
         <listitem>
           <para>
