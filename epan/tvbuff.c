@@ -521,6 +521,43 @@ tvb_new_subset(tvbuff_t *backing, const gint backing_offset, const gint backing_
 }
 
 tvbuff_t *
+tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint backing_length)
+{
+	gint	  captured_length;
+	tvbuff_t *tvb;
+	guint	  subset_tvb_offset;
+	guint	  subset_tvb_length;
+
+	DISSECTOR_ASSERT(backing && backing->initialized);
+
+	THROW_ON(backing_length < 0, ReportedBoundsError);
+
+	/*
+	 * Give the next dissector only captured_length bytes.
+	 */
+	captured_length = tvb_length_remaining(tvb, backing_offset);
+	THROW_ON(captured_length < 0, BoundsError);
+	if (captured_length > backing_length)
+		captured_length = backing_length;
+
+	check_offset_length(backing->length, backing->reported_length, backing_offset, captured_length,
+			    &subset_tvb_offset,
+			    &subset_tvb_length);
+
+	tvb = tvb_new_with_subset(subset_tvb_offset, subset_tvb_length);
+
+	tvb_set_subset_no_exceptions(tvb, backing, backing_length);
+
+	/*
+	 * The top-level data source of this tvbuff is the top-level
+	 * data source of its parent.
+	 */
+	tvb->ds_tvb = backing->ds_tvb;
+
+	return tvb;
+}
+
+tvbuff_t *
 tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
 {
 	tvbuff_t *tvb;

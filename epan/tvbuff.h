@@ -181,6 +181,12 @@ extern tvbuff_t* tvb_new_real_data(const guint8* data, const guint length,
 extern tvbuff_t* tvb_new_subset(tvbuff_t* backing,
 		const gint backing_offset, const gint backing_length, const gint reported_length);
 
+/** Similar to tvb_new_subset() but with captured length calculated
+ * to fit within min(reported length, backing_length).
+ * Can throw ReportedBoundsError. */
+extern tvbuff_t* tvb_new_subset_length(tvbuff_t *backing,
+		const gint backing_offset, const gint backing_length);
+
 /** Similar to tvb_new_subset() but with backing_length and reported_length set to -1.
  * Can throw ReportedBoundsError. */
 extern tvbuff_t* tvb_new_subset_remaining(tvbuff_t* backing,

@@ -1183,6 +1183,7 @@ tvb_new_composite
 tvb_new_octet_aligned
 tvb_new_real_data
 tvb_new_subset
+tvb_new_subset_length
 tvb_new_subset_remaining
 tvb_offset_exists
 tvb_offset_from_real_beginning
