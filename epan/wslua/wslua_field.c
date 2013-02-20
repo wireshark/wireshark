@@ -163,19 +163,52 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
 }
 
 WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
-	/* The string representation of the field */
-	FieldInfo fi = checkFieldInfo(L,1);
-	if (fi) {
-		if (fi->value.ftype->val_to_string_repr) {
-			gchar* repr = fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
-			if (repr)
-				lua_pushstring(L,repr);
-			else
-				luaL_error(L,"field cannot be represented as string because it may contain invalid characters");
-		} else
-			luaL_error(L,"field has no string representation");
-	}
-	return 1;
+    /* The string representation of the field */
+    FieldInfo fi = checkFieldInfo(L,1);
+    if (fi) {
+        if (fi->value.ftype->val_to_string_repr) {
+            gchar* repr = fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
+            if (repr)
+                lua_pushstring(L,repr);
+            else
+                lua_pushstring(L,"(unknown)");
+        } else if (fi->hfinfo->type == FT_NONE) {
+            lua_pushstring(L, "(none)");
+        } else {
+            lua_pushstring(L,"(n/a)");
+        }
+    }
+
+    return luaL_error(L,"Missing FieldInfo object");
+}
+
+static int FieldInfo_display(lua_State* L) {
+    /* The display string of this field as seen in GUI */
+    FieldInfo fi = checkFieldInfo(L,1);
+    gchar         label_str[ITEM_LABEL_LENGTH+1];
+    gchar        *label_ptr;
+    gchar        *value_ptr;
+
+    if (!fi) return 0;
+
+    if (!fi->rep) {
+        label_ptr = label_str;
+        proto_item_fill_label(fi, label_str);
+    } else 
+        label_ptr = fi->rep->representation;
+
+    if (!label_ptr) return 0;
+
+    value_ptr = strstr(label_ptr, ": ");
+    if (!value_ptr) {
+        /* just use whatever's there */
+        lua_pushstring(L, label_ptr);
+    } else {
+        value_ptr += 2;  /* get past the ': ' */
+        lua_pushstring(L, value_ptr);
+    }
+
+    return 1;
 }
 
 static int FieldInfo_get_range(lua_State* L) {
@@ -222,6 +255,8 @@ static const luaL_Reg FieldInfo_get[] = {
     {"len", FieldInfo__len},
 	/* WSLUA_ATTRIBUTE FieldInfo_offset RO The offset of this field */
     {"offset", FieldInfo__unm},
+    /* WSLUA_ATTRIBUTE FieldInfo_display RO The string display of this field as seen in GUI */
+    {"display", FieldInfo_display},
     { NULL, NULL }
 };
 
