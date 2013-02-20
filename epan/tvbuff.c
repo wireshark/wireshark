@@ -235,18 +235,6 @@ tvb_set_real_data_no_exceptions(tvbuff_t *tvb, const guint8* data, const guint l
 	tvb->initialized     = TRUE;
 }
 
-void
-tvb_set_real_data(tvbuff_t *tvb, const guint8* data, const guint length, const gint reported_length)
-{
-	DISSECTOR_ASSERT(tvb);
-	DISSECTOR_ASSERT(tvb->type == TVBUFF_REAL_DATA);
-	DISSECTOR_ASSERT(!tvb->initialized);
-
-	THROW_ON(reported_length < -1, ReportedBoundsError);
-
-	tvb_set_real_data_no_exceptions(tvb, data, length, reported_length);
-}
-
 tvbuff_t *
 tvb_new_real_data(const guint8* data, const guint length, const gint reported_length)
 {
@@ -508,23 +496,6 @@ tvb_set_subset_no_exceptions(tvbuff_t *tvb, tvbuff_t *backing, const gint report
 	if (backing->real_data != NULL) {
 		tvb->real_data = backing->real_data + tvb->tvbuffs.subset.offset;
 	}
-}
-
-void
-tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
-	       const gint backing_offset, const gint backing_length, const gint reported_length)
-{
-	DISSECTOR_ASSERT(tvb);
-	DISSECTOR_ASSERT(tvb->type == TVBUFF_SUBSET);
-	DISSECTOR_ASSERT(!tvb->initialized);
-
-	THROW_ON(reported_length < -1, ReportedBoundsError);
-
-	check_offset_length(backing->length, backing->reported_length, backing_offset, backing_length,
-			&tvb->tvbuffs.subset.offset,
-			&tvb->tvbuffs.subset.length);
-
-	tvb_set_subset_no_exceptions(tvb, backing, reported_length);
 }
 
 tvbuff_t *

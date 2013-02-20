@@ -156,34 +156,27 @@ extern void tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child);
 extern tvbuff_t* tvb_new_child_real_data(tvbuff_t* parent, const guint8* data, const guint length,
     const gint reported_length);
 
-/** Sets parameters for TVBUFF_REAL_DATA. Can throw ReportedBoundsError. */
-extern void tvb_set_real_data(tvbuff_t*, const guint8* data, const guint length,
-    const gint reported_length);
-
-/** Combination of tvb_new() and tvb_set_real_data(). Can throw ReportedBoundsError.
+/** Create a tvbuff backed by existing data. Can throw ReportedBoundsError.
  * Normally, a callback to free the data should be registered using tvb_set_free_cb();
  * when this tvbuff is freed, then your callback will be called, and at that time
  * you can free your original data. */
 extern tvbuff_t* tvb_new_real_data(const guint8* data, const guint length,
     const gint reported_length);
 
-/** Define the subset of the backing buffer to use.
+/** Create a tvbuff that's a subset of another tvbuff.
  *
- * 'backing_offset' can be negative, to indicate bytes from
- * the end of the backing buffer.
+ * 'backing_offset', if positive, is the offset from the beginning of
+ * the backing tvbuff at which the new tvbuff's data begins, and, if
+ * negative, is the offset from the end of the backing tvbuff at which
+ * the new tvbuff's data begins.
  *
- * 'backing_length' can be 0, although the usefulness of the buffer would
- * be rather limited.
- *
- * 'backing_length' of -1 means "to the end of the backing buffer"
+ * 'backing_length' is the length of the data to include in the new
+ * tvbuff, starting with the byte at 'backing_offset"; if -1, it
+ * means "to the end of the backing tvbuff".  It can be 0, although
+ * the usefulness of the buffer would be rather limited.
  *
  * Will throw BoundsError if 'backing_offset'/'length'
  * is beyond the bounds of the backing tvbuff.
- * Can throw ReportedBoundsError. */
-extern void tvb_set_subset(tvbuff_t* tvb, tvbuff_t* backing,
-		const gint backing_offset, const gint backing_length, const gint reported_length);
-
-/** Combination of tvb_new() and tvb_set_subset()
  * Can throw ReportedBoundsError. */
 extern tvbuff_t* tvb_new_subset(tvbuff_t* backing,
 		const gint backing_offset, const gint backing_length, const gint reported_length);
