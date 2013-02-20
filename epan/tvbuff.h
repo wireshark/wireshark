@@ -196,8 +196,7 @@ extern void tvb_composite_append(tvbuff_t* tvb, tvbuff_t* member);
 /** Prepend to the list of tvbuffs that make up this composite tvbuff */
 extern void tvb_composite_prepend(tvbuff_t* tvb, tvbuff_t* member);
 
-/** Helper function that calls tvb_new(TVBUFF_COMPOSITE).
- * Provided only to maintain symmetry with other constructors */
+/** Create an empty composite tvbuff. */
 extern tvbuff_t* tvb_new_composite(void);
 
 /** Mark a composite tvbuff as initialized. No further appends or prepends
