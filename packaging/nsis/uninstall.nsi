@@ -61,60 +61,68 @@ FunctionEnd
 
 Var EXTENSION
 Function un.Disassociate
-	Push $R0
+    Push $R0
 !insertmacro PushFileExtensions
 
-	Pop $EXTENSION
-	${DoUntil} $EXTENSION == ${FILE_EXTENSION_MARKER}
-		ReadRegStr $R0 HKCR $EXTENSION ""
-		StrCmp $R0 ${WIRESHARK_ASSOC} un.Disassociate.doDeregister
-		Goto un.Disassociate.end
+    Pop $EXTENSION
+    ${DoUntil} $EXTENSION == ${FILE_EXTENSION_MARKER}
+        ReadRegStr $R0 HKCR $EXTENSION ""
+        StrCmp $R0 ${WIRESHARK_ASSOC} un.Disassociate.doDeregister
+        Goto un.Disassociate.end
 un.Disassociate.doDeregister:
-		; The extension is associated with Wireshark so, we must destroy this!
-		DeleteRegKey HKCR $EXTENSION
-		DetailPrint "Deregistered file type: $EXTENSION"
+        ; The extension is associated with Wireshark so, we must destroy this!
+        DeleteRegKey HKCR $EXTENSION
+        DetailPrint "Deregistered file type: $EXTENSION"
 un.Disassociate.end:
-		Pop $EXTENSION
-	${Loop}
+        Pop $EXTENSION
+    ${Loop}
 
-	Pop $R0
+    Pop $R0
 FunctionEnd
 
 Section "-Required"
 SectionEnd
 
+!define EXECUTABLE_MARKER "EXECUTABLE_MARKER"
+Var EXECUTABLE
+
 Section "Uninstall" un.SecUinstall
 ;-------------------------------------------
-
 ;
 ; UnInstall for every user
 ;
 SectionIn 1 2
 SetShellVarContext all
 
-Delete "$INSTDIR\rawshark.exe"
-IfErrors 0 NoRawsharkErrorMsg
-	MessageBox MB_OK "Please note: rawshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if rawshark.exe removed
-	Abort "Please note: rawshark.exe could not be removed, it's probably in use! Abort uninstall process!"
-NoRawsharkErrorMsg:
+!insertmacro IsWiresharkRunning
 
-Delete "$INSTDIR\tshark.exe"
-IfErrors 0 NoTSharkErrorMsg
-	MessageBox MB_OK "Please note: tshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if tshark.exe removed
-	Abort "Please note: tshark.exe could not be removed, it's probably in use! Abort uninstall process!"
-NoTSharkErrorMsg:
+Push "${EXECUTABLE_MARKER}"
+Push "dumpcap"
+Push "${PROGRAM_NAME}"
+Push "tshark"
+Push "qtshark"
+Push "editcap"
+Push "text2pcap"
+Push "mergecap"
+Push "reordercap"
+Push "capinfos"
+Push "rawshark"
 
-Delete "$INSTDIR\Qtshark.exe"
-IfErrors 0 NoQtSharkErrorMsg
-	MessageBox MB_OK "Please note: qtshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if qtshark.exe removed
-	Abort "Please note: qtshark.exe could not be removed, it's probably in use! Abort uninstall process!"
-NoQtSharkErrorMsg:
+Pop $EXECUTABLE
+${DoUntil} $EXECUTABLE == ${EXECUTABLE_MARKER}
 
-Delete "$INSTDIR\${PROGRAM_NAME}.exe"
-IfErrors 0 NoWiresharkErrorMsg
-	MessageBox MB_OK "Please note: ${PROGRAM_NAME}.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if ${PROGRAM_NAME}.exe removed
-	Abort "Please note: ${PROGRAM_NAME}.exe could not be removed, it's probably in use! Abort uninstall process!"
-NoWiresharkErrorMsg:
+    ; IsWiresharkRunning should make sure everything is closed down so we *shouldn't* run
+    ; into any problems here.
+    Delete "$INSTDIR\$EXECUTABLE.exe"
+    IfErrors 0 deletionSuccess
+        MessageBox MB_OK "$EXECUTABLE.exe could not be removed. Is it in use?" IDOK 0 ;skipped if rawshark.exe removed
+        Abort "$EXECUTABLE.exe could not be removed. Aborting the uninstall process."
+
+deletionSuccess:
+    Pop $EXTENSION
+
+${Loop}
+
 
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}"
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\${PROGRAM_NAME}"
@@ -277,9 +285,22 @@ NoFinalErrorMsg:
 SectionEnd
 
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all ${PROGRAM_NAME} components."
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous ${PROGRAM_NAME} versions)."
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecWinPcap} "Call WinPcap's uninstall program."
+    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all ${PROGRAM_NAME} components."
+    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous ${PROGRAM_NAME} versions)."
+    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
+    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
+    !insertmacro MUI_DESCRIPTION_TEXT ${un.SecWinPcap} "Call WinPcap's uninstall program."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
+
+;
+; Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+;
+; Local variables:
+; c-basic-offset: 4
+; tab-width: 8
+; indent-tabs-mode: nil
+; End:
+;
+; vi: set shiftwidth=4 tabstop=8 expandtab:
+; :indentSize=4:tabSize=8:noTabs=true:
+;
