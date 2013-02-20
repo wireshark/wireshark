@@ -1387,7 +1387,6 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                     break;
                 case SERVICE_GET_LBA_STATUS:
                     proto_tree_add_item (tree, hf_scsi_sbc_get_lba_status_data_length, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    block_len = tvb_get_ntohl (tvb, offset);
                     offset += 4;
 
                     /* reserved */
