@@ -857,7 +857,7 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   length  = tvb_get_ntohs(tvb, offset+6);
 
-  hart_item = proto_tree_add_item(tree, proto_hartip, tvb, 0, length, ENC_NA );
+  hart_item = proto_tree_add_item(tree, proto_hartip, tvb, 0, length, ENC_NA);
   hartip_tree = proto_item_add_subtree(hart_item, ett_hartip);
 
   ti = proto_tree_add_text(hartip_tree, tvb, offset, HARTIP_HEADER_LENGTH, "HART_IP Header");
@@ -904,6 +904,8 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree_add_item(hdr_tree, hf_hartip_hdr_msg_length, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
+  if (length < HARTIP_HEADER_LENGTH)
+    return tvb_reported_length(tvb);
   bodylen = length - HARTIP_HEADER_LENGTH;
 
   /* add body elements. */
