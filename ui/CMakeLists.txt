@@ -34,6 +34,7 @@ set(COMMON_UI_SRC
 	profile.c
 	recent.c
 	ssl_key_export.c
+	software_update.c
 	text_import.c
 	time_shift.c
 	util.c
