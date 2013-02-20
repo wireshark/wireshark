@@ -1525,10 +1525,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
 
     if(ior_val_len>0) {
 
-      /* Combination of tvb_new() and tvb_set_real_data().
-         Can throw ReportedBoundsError.
-
-         XXX - can it throw an exception in this case?  If so, we
+      /* XXX - can this throw an exception in this case?  If so, we
          need to catch it and clean up, but we really shouldn't allow
          it - or "get_CDR_octet()", or "decode_IOR()" - to throw an
          exception. */
