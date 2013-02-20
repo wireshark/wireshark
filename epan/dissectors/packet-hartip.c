@@ -901,7 +901,7 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       msg_id_str, msg_type_str, transaction_id);
   col_set_fence(pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item(hdr_tree, hf_hartip_hdr_msg_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(hdr_tree, hf_hartip_hdr_msg_length, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   bodylen = length - HARTIP_HEADER_LENGTH;
