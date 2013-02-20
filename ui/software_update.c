@@ -94,7 +94,7 @@ static const char *get_appcast_update_url(software_update_channel_e chan) {
  */
 void
 software_update_init(void) {
-    const char *update_url = get_appcast_update_url(UPDATE_CHANNEL_DEVELOPMENT);
+    const char *update_url = get_appcast_update_url(prefs.gui_update_channel);
     
     win_sparkle_set_appcast_url(update_url);
     win_sparkle_set_automatic_check_for_updates(prefs.gui_update_enabled ? 1 : 0);
