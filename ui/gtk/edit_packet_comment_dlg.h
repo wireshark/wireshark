@@ -26,7 +26,7 @@
 #define __EDIT_PACKET_COMMENTS_H__
 
 void edit_packet_comment_dlg (GtkAction *action, gpointer data);
-void edit_capture_dlg_launch (void);
-void edit_capture_comment_dlg_hide(void);
+void edit_capture_comment_dlg_launch (void);
+void edit_capture_comment_dlg_hide (void);
 
 #endif /* __EDIT_PACKET_COMMENTS_H__ */

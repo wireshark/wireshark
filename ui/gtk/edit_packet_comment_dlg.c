@@ -177,7 +177,7 @@ edit_capture_comment_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 }
 
 void
-edit_capture_dlg_launch (void)
+edit_capture_comment_dlg_launch (void)
 {
 
   GtkWidget *vbox;
