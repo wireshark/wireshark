@@ -1599,9 +1599,7 @@ static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	tvbuff_t *auth_tvb;
 
-	auth_tvb = tvb_new_subset(
-		tvb, offset, tvb_length_remaining(tvb, offset),
-		tvb_reported_length_remaining(tvb, offset));
+	auth_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	dissect_kerberos_main(auth_tvb, pinfo, tree, FALSE, NULL);
 
