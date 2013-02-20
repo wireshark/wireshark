@@ -226,15 +226,6 @@ tvb_set_child_real_data_tvbuff(tvbuff_t *parent, tvbuff_t *child)
 	add_to_chain(parent, child);
 }
 
-static void
-tvb_set_real_data_no_exceptions(tvbuff_t *tvb, const guint8* data, const guint length, const gint reported_length)
-{
-	tvb->real_data       = data;
-	tvb->length          = length;
-	tvb->reported_length = reported_length;
-	tvb->initialized     = TRUE;
-}
-
 tvbuff_t *
 tvb_new_real_data(const guint8* data, const guint length, const gint reported_length)
 {
@@ -244,7 +235,10 @@ tvb_new_real_data(const guint8* data, const guint length, const gint reported_le
 
 	tvb = tvb_new(TVBUFF_REAL_DATA);
 
-	tvb_set_real_data_no_exceptions(tvb, data, length, reported_length);
+	tvb->real_data       = data;
+	tvb->length          = length;
+	tvb->reported_length = reported_length;
+	tvb->initialized     = TRUE;
 
 	/*
 	 * This is the top-level real tvbuff for this data source,
