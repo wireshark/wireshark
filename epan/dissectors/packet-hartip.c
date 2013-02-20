@@ -893,6 +893,8 @@ dissect_hartip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     msg_id_str   = val_to_str(hdr.message_id, hartip_message_id_values, "Unknown message %d");
     msg_type_str = val_to_str(hdr.message_type, hartip_message_type_values,
       "Unknown message type %d");
+    if (hdr.length < HARTIP_HEADER_LENGTH)
+        return;
     bodylen      = hdr.length - HARTIP_HEADER_LENGTH;
 
     /* Setup statistics for tap. */
