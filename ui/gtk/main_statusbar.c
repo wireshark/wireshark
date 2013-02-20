@@ -675,6 +675,8 @@ status_capture_comment_new(void)
 static void
 status_capture_comment_hide(void)
 {
+    edit_capture_comment_dlg_hide();
+
     /* reset capture coment info indicator */
     gtk_widget_hide(capture_comment);
     gtk_widget_hide(capture_comment_none);
