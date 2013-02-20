@@ -210,6 +210,17 @@ Function .onInit
     ${EndIf}
   !endif
 
+; See if Wireshark is running
+; http://nsis.sourceforge.net/Check_whether_your_application_is_running
+checkRunning:
+System::Call 'kernel32::OpenMutex(i 0x100000, b 0, t "${PROGRAM_NAME}-is-running-{9CA78EEA-EA4D-4490-9240-FC01FCEF464B}") i .R0'
+  IntCmp $R0 0 notRunning
+  System::Call 'kernel32::CloseHandle(i $R0)'
+  ; You'd better go catch it.
+  MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "${PROGRAM_NAME} or one is associated programs is running. Please close it first" /SD IDCANCEL IDRETRY checkRunning
+  Quit
+notRunning:
+
   ; Copied from http://nsis.sourceforge.net/Auto-uninstall_old_before_installing_new
   ReadRegStr $OLD_UNINSTALLER HKLM \
     "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" \

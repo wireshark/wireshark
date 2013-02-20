@@ -528,6 +528,7 @@ int main(int argc, char *argv[])
     int                  status;
 
     //initialize language !
+    create_app_running_mutex();
 
     QString locale = QLocale::system().name();
 

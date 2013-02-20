@@ -2224,6 +2224,7 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
+  create_app_running_mutex();
 #endif /* _WIN32 */
 
   /*
@@ -3217,7 +3218,7 @@ main(int argc, char *argv[])
 #endif
 
   software_update_init();
-  
+
   /* we'll enter the GTK loop now and hand the control over to GTK ... */
   gtk_main();
   /* ... back from GTK, we're going down now! */

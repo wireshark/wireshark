@@ -4177,9 +4177,8 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
-#endif /* _WIN32 */
+    create_app_running_mutex();
 
-#ifdef _WIN32
     /*
      * Initialize our DLL search path. MUST be called before LoadLibrary
      * or g_module_open.

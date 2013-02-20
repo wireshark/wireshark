@@ -614,3 +614,10 @@ getenv_utf8(const char *varname)
 
 	return envvar;
 }
+
+/** Create or open a "Wireshark is running" mutex.
+ */
+#define WIRESHARK_IS_RUNNING_UUID "9CA78EEA-EA4D-4490-9240-FC01FCEF464B"
+void create_app_running_mutex() {
+      CreateMutex(NULL, FALSE, _T("Wireshark-is-running-{") _T(WIRESHARK_IS_RUNNING_UUID) _T("}"));
+}

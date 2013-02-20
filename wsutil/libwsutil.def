@@ -52,6 +52,7 @@ crc32_mpeg2_seed
 crc_drm
 
 ; file_util.c
+create_app_running_mutex
 getenv_utf8
 ws_stdio_fopen
 ws_stdio_freopen

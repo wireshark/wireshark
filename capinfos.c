@@ -155,7 +155,7 @@ static gboolean cap_file_hashes = TRUE;     /* Calculate file hashes */
 #ifdef USE_GOPTION
 static gboolean cap_help = FALSE;
 static gboolean table_report = FALSE;
- 
+
 static GOptionEntry general_entries[] =
 {
 /* General */
@@ -490,7 +490,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
   }
   if (cap_packet_size)    printf     ("Average packet size: %.2f bytes\n",        cf_info->packet_size);
   if (cf_info->times_known) {
-    if (cap_packet_rate) 
+    if (cap_packet_rate)
                           print_value("Average packet rate: ", 2, " packets/sec", cf_info->packet_rate);
   }
 #ifdef HAVE_LIBGCRYPT
@@ -1022,6 +1022,7 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
+  create_app_running_mutex();
 #endif /* _WIN32 */
 
   /*
@@ -1044,7 +1045,7 @@ main(int argc, char *argv[])
   /* Process the options */
 #ifdef USE_GOPTION
   ctx = g_option_context_new(" <infile> ... - print information about capture file(s)");
-  general_grp = g_option_group_new("gen", "General infos:", 
+  general_grp = g_option_group_new("gen", "General infos:",
 				"Show general options", NULL, NULL);
   size_grp = g_option_group_new("size", "Size infos:",
 			       "Show size options", NULL, NULL);
