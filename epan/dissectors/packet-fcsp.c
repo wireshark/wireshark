@@ -205,6 +205,13 @@ static void dissect_fcsp_dhchap_auth_param(tvbuff_t *tvb, proto_tree *tree,
                 }
                 break;
             default:
+                /* If we don't recognize the auth_param_tag and the param_len
+                 * is 0 then just return to prevent an infinite loop. See
+                 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8359
+                 */
+                if (param_len == 0) {
+                    return;
+                }
                 break;
             }
 
