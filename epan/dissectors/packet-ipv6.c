@@ -2546,7 +2546,7 @@ proto_register_ipv6(void)
 
     { &hf_ipv6_reassembled_data,
       { "Reassembled IPv6 data", "ipv6.reassembled.data",
-                                FT_UINT32, BASE_DEC, NULL, 0x0,
+                                FT_BYTES, BASE_NONE, NULL, 0x0,
                                 "The reassembled payload", HFILL }},
     /* RPL Routing Header */
     { &hf_ipv6_routing_hdr_rpl_cmprI,
