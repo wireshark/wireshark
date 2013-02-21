@@ -330,6 +330,7 @@ DISSECTOR_SRC = \
 	packet-bthfp.c		\
 	packet-bthid.c		\
 	packet-btl2cap.c	\
+	packet-btmcap.c		\
 	packet-btobex.c		\
 	packet-btrfcomm.c	\
 	packet-btsap.c		\

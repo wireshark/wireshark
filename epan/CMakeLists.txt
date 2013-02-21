@@ -411,6 +411,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bthfp.c
 	dissectors/packet-bthid.c
 	dissectors/packet-btl2cap.c
+	dissectors/packet-btmcap.c
 	dissectors/packet-btobex.c
 	dissectors/packet-btrfcomm.c
 	dissectors/packet-btsap.c
