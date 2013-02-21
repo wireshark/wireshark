@@ -1,6 +1,9 @@
 /* wsgcrypt.h
  *
  * Wrapper around libgcrypt's include file gcrypt.h.
+ * For libgcrypt 1.5.0, including gcrypt.h directly brings up lots of
+ * compiler warnings about deprecated definitions.
+ * Try to work around these warnings to ensure a clean build with -Werror.
  *
  * $Id$
  *
@@ -28,7 +31,38 @@
 
 #ifdef HAVE_LIBGCRYPT
 
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+#define _GCC_VERSION (__GNUC__*100 + __GNUC_MINOR__*10)
+#else
+#define _GCC_VERSION 0
+#endif
+
+/* check the gcc version
+   pragma GCC diagnostic error/warning was introduced in gcc 4.2.0
+   pragma GCC diagnostic push/pop was introduced in gcc 4.6.0 */
+
+#if _GCC_VERSION<420
+
+/* no gcc or gcc version<4.2.0: we can't do anything */
 #include <gcrypt.h>
+
+#elif _GCC_VERSION<460
+
+/* gcc version is between 4.2.0 and 4.6.0:
+   diagnostic warning/error is supported, diagnostic push/pop is not supported */
+#pragma GCC diagnostic warning "-Wdeprecated-declarations"
+#include <gcrypt.h>
+#pragma GCC diagnostic error "-Wdeprecated-declarations"
+
+#else
+
+/* gcc version is >= 4.6.0: we can use push/pop */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic warning "-Wdeprecated-declarations"
+#include <gcrypt.h>
+#pragma GCC diagnostic pop
+
+#endif /* _GCC_VERSION */
 
 #endif /* HAVE_LIBGRYPT */
 
