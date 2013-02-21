@@ -1560,7 +1560,7 @@ proto_register_capwap_control(void)
 		{ &hf_capwap_header_hlen,
 		{ "Header Length",	"capwap.header.length",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Length of the CAPWAP transport header in 4-byte words (similar to IP header length) ", HFILL }},
+			"Length of the CAPWAP transport header in 4-byte words (similar to IP header length)", HFILL }},
 		{ &hf_capwap_header_rid,
 		{ "Radio ID",	"capwap.header.rid",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
