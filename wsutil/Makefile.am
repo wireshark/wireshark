@@ -114,7 +114,8 @@ EXTRA_DIST =		\
 	file_util.h 	\
 	libwsutil.def	\
 	unicode-utils.c	\
-	unicode-utils.h
+	unicode-utils.h \
+	wsgcrypt.h
 
 CLEANFILES = \
 	libwsutil.a	\
