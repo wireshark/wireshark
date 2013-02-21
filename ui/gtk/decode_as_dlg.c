@@ -2021,6 +2021,7 @@ decode_add_notebook (GtkWidget *format_hb)
         gint               page_l2cap_psm = -1;
         gint               page_rfcomm_channel = -1;
         gint               page_rfcomm_service = -1;
+        gint               page_avctp_service  = -1;
         header_field_info  *hfinfo;
         GPtrArray          *ga;
         guint              i;
@@ -2028,6 +2029,7 @@ decode_add_notebook (GtkWidget *format_hb)
         const gchar        *cid = NULL;
         const gchar        *psm = NULL;
         const gchar        *channel = NULL;
+        const gchar        *pid = NULL;
         gboolean           have_rfcomm = FALSE;
 
         ga = proto_all_finfos(cfile.edt->tree);
@@ -2042,6 +2044,8 @@ decode_add_notebook (GtkWidget *format_hb)
                  psm = get_node_field_value(v, cfile.edt);
             } else if (g_strcmp0(hfinfo->abbrev, "btrfcomm.channel") == 0) {
                 channel = get_node_field_value(v, cfile.edt);
+            } else if (g_strcmp0(hfinfo->abbrev, "btavctp.pid") == 0) {
+                pid = get_node_field_value(v, cfile.edt);
             }
 
             if (have_rfcomm == FALSE && g_str_has_prefix(hfinfo->abbrev, "btrfcommm")) {
@@ -2081,12 +2085,20 @@ decode_add_notebook (GtkWidget *format_hb)
             page_rfcomm_service = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
         }
 
+        page = decode_add_bluetooth_page("AVCTP SERVICE", "btavctp.service", pid);
+        if (page != NULL) {
+            label = gtk_label_new("AVCTP SERVICE");
+            page_avctp_service = gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+        }
+
         page = NULL;
 
         /* Notebook must be visible for set_page to work. */
         gtk_widget_show_all(notebook);
 
-        if (channel)
+        if (pid)
+            gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_avctp_service);
+        else if (channel)
             gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_rfcomm_channel);
         else if (psm)
             gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_l2cap_psm);
@@ -2094,7 +2106,7 @@ decode_add_notebook (GtkWidget *format_hb)
             gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_l2cap_cid);
         else if (have_rfcomm)
             gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_rfcomm_service);
-         else
+        else
             gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), page_l2cap_service);
    } else {
         /* Select the last added page (selects first by default) */

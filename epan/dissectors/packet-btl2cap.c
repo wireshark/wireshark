@@ -172,6 +172,7 @@ typedef struct _psm_data_t {
     guint32       first_dcid_frame;
     guint16       psm;
     gboolean      local_service;
+    guint32       disconnect_in_frame;
     config_data_t in;
     config_data_t out;
 } psm_data_t;
@@ -509,6 +510,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
         psm_data->interface_id = k_interface_id;
         psm_data->adapter_id   = k_adapter_id;
         psm_data->chandle      = k_chandle;
+        psm_data->disconnect_in_frame = G_MAXUINT32;
 
         key[0].length = 1;
         key[0].key    = &k_interface_id;
@@ -529,7 +531,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 }
 
 static int
-dissect_movechanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_movechanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint16 icid;
     guint8  ctrl_id;
@@ -686,7 +688,7 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 
 
 static int
-dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length)
+dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 length)
 {
     psm_data_t        *psm_data;
     config_data_t     *config_data;
@@ -742,7 +744,8 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
-                psm_data->dcid == (dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000))) {
+                psm_data->dcid == cid &&
+                psm_data->disconnect_in_frame > pinfo->fd->num) {
             if (pinfo->p2p_dir == P2P_DIR_RECV)
                 config_data = &(psm_data->out);
             else
@@ -758,7 +761,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 
 
 static int
-dissect_inforequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_inforequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint16 info_type;
 
@@ -771,7 +774,7 @@ dissect_inforequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 }
 
 static int
-dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint16     info_type, result;
 
@@ -867,7 +870,7 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 }
 
 static int
-dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length)
+dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 length)
 {
     psm_data_t        *psm_data;
     config_data_t     *config_data;
@@ -929,7 +932,8 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
-                psm_data->scid == (scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000))) {
+                psm_data->scid == cid &&
+                psm_data->disconnect_in_frame > pinfo->fd->num) {
             if (pinfo->p2p_dir == P2P_DIR_RECV)
                 config_data = &(psm_data->out);
             else
@@ -1050,7 +1054,7 @@ dissect_chanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 }
 
 static int
-dissect_movechanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_movechanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint16 icid, result;
 
@@ -1069,7 +1073,7 @@ dissect_movechanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 }
 
 static int
-dissect_movechanconfirmation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_movechanconfirmation(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint16 icid, result;
 
@@ -1088,7 +1092,7 @@ dissect_movechanconfirmation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 }
 
 static int
-dissect_movechanconfirmationresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_movechanconfirmationresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint16 icid;
 
@@ -1101,7 +1105,7 @@ dissect_movechanconfirmationresponse(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 static int
-dissect_connparamrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_connparamrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *item;
     guint16 max_interval, slave_latency;
@@ -1129,7 +1133,7 @@ dissect_connparamrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 }
 
 static int
-dissect_connparamresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_connparamresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint16 result;
 
@@ -1144,9 +1148,10 @@ dissect_connparamresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 }
 
 static int
-dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint16 scid, dcid;
+    guint16 scid;
+    guint16 dcid;
 
     dcid = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1157,6 +1162,84 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (SCID: 0x%04x, DCID: 0x%04x)", scid, dcid);
+
+    if (!pinfo->fd->flags.visited) {
+        psm_data_t        *psm_data;
+        emem_tree_key_t    key[6];
+        guint32            k_interface_id;
+        guint32            k_adapter_id;
+        guint32            k_chandle;
+        guint32            k_cid;
+        guint32            k_frame_number;
+        guint32            interface_id;
+        guint32            adapter_id;
+        guint32            chandle;
+        guint32            key_scid;
+        guint32            key_dcid;
+        bthci_acl_data_t  *acl_data = (bthci_acl_data_t *) pinfo->private_data;
+
+        interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
+        adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
+        chandle      = (acl_data) ? acl_data->chandle : 0;
+        key_dcid     = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
+        key_scid     = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
+
+        k_interface_id = interface_id;
+        k_adapter_id   = adapter_id;
+        k_chandle      = chandle;
+        k_cid          = key_dcid;
+        k_frame_number = pinfo->fd->num;
+
+        key[0].length = 1;
+        key[0].key    = &k_interface_id;
+        key[1].length = 1;
+        key[1].key    = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key    = &k_chandle;
+        key[3].length = 1;
+        key[3].key    = &k_cid;
+        key[4].length = 1;
+        key[4].key    = &k_frame_number;
+        key[5].length = 0;
+        key[5].key    = NULL;
+
+        psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+        if (psm_data && psm_data->interface_id == interface_id &&
+                psm_data->adapter_id == adapter_id &&
+                psm_data->chandle == chandle &&
+                psm_data->dcid == key_dcid &&
+                psm_data->disconnect_in_frame == G_MAXUINT32) {
+            psm_data->disconnect_in_frame = pinfo->fd->num;
+        }
+
+        k_interface_id = interface_id;
+        k_adapter_id   = adapter_id;
+        k_chandle      = chandle;
+        k_cid          = key_scid;
+        k_frame_number = pinfo->fd->num;
+
+        key[0].length = 1;
+        key[0].key    = &k_interface_id;
+        key[1].length = 1;
+        key[1].key    = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key    = &k_chandle;
+        key[3].length = 1;
+        key[3].key    = &k_cid;
+        key[4].length = 1;
+        key[4].key    = &k_frame_number;
+        key[5].length = 0;
+        key[5].key    = NULL;
+
+        psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+        if (psm_data && psm_data->interface_id == interface_id &&
+                psm_data->adapter_id == adapter_id &&
+                psm_data->chandle == chandle &&
+                psm_data->scid == key_scid &&
+                psm_data->disconnect_in_frame == G_MAXUINT32) {
+            psm_data->disconnect_in_frame = pinfo->fd->num;
+        }
+    }
 
     return offset;
 }
@@ -1815,7 +1898,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
                 (psm_data->scid == key_cid ||
-                psm_data->dcid == key_cid)) {
+                psm_data->dcid == key_cid) &&
+                psm_data->disconnect_in_frame > pinfo->fd->num) {
 
             if ((psm_data->scid == key_cid) &&
                     psm_data->first_scid_frame == 0) {

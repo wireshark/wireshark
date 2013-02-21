@@ -987,7 +987,7 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 static int
-dissect_bthci_evt_conn_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_conn_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1112,7 +1112,7 @@ dissect_bthci_evt_lmp_features(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 }
 
 static int
-dissect_bthci_evt_pin_code_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_pin_code_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1120,7 +1120,7 @@ dissect_bthci_evt_pin_code_request(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 static int
-dissect_bthci_evt_link_key_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_link_key_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1128,7 +1128,7 @@ dissect_bthci_evt_link_key_request(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 static int
-dissect_bthci_evt_link_key_notification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_link_key_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1142,7 +1142,7 @@ dissect_bthci_evt_link_key_notification(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-dissect_bthci_evt_return_link_keys(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_return_link_keys(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint8 evt_num_keys;
 
@@ -1298,7 +1298,7 @@ dissect_bthci_evt_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
-dissect_bthci_evt_role_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_role_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -1321,7 +1321,7 @@ dissect_bthci_evt_hardware_error(tvbuff_t *tvb, int offset, packet_info *pinfo _
 }
 
 static int
-dissect_bthci_evt_loopback_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_loopback_command(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *next_tvb;
 
@@ -1482,7 +1482,7 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 static int
-dissect_bthci_evt_page_scan_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_page_scan_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1493,7 +1493,7 @@ dissect_bthci_evt_page_scan_mode_change(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-dissect_bthci_evt_page_scan_repetition_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_page_scan_repetition_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1716,7 +1716,7 @@ dissect_bthci_evt_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_bthci_evt_io_capability_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_io_capability_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1724,7 +1724,7 @@ dissect_bthci_evt_io_capability_request(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-dissect_bthci_evt_io_capability_response(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_io_capability_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1741,7 +1741,7 @@ dissect_bthci_evt_io_capability_response(tvbuff_t *tvb, int offset, packet_info 
 }
 
 static int
-dissect_bthci_evt_user_confirmation_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_user_confirmation_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1752,7 +1752,7 @@ dissect_bthci_evt_user_confirmation_request(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-dissect_bthci_evt_user_passkey_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_user_passkey_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1760,7 +1760,7 @@ dissect_bthci_evt_user_passkey_request(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 static int
-dissect_bthci_evt_remote_oob_data_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_remote_oob_data_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1768,7 +1768,7 @@ dissect_bthci_evt_remote_oob_data_request(tvbuff_t *tvb, int offset, packet_info
 }
 
 static int
-dissect_bthci_evt_simple_pairing_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_simple_pairing_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
@@ -1779,7 +1779,7 @@ dissect_bthci_evt_simple_pairing_complete(tvbuff_t *tvb, int offset, packet_info
 }
 
 static int
-dissect_bthci_evt_user_passkey_notification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_user_passkey_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1790,7 +1790,7 @@ dissect_bthci_evt_user_passkey_notification(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-dissect_bthci_evt_keypress_notification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_keypress_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1801,7 +1801,7 @@ dissect_bthci_evt_keypress_notification(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-dissect_bthci_evt_remote_host_sup_feat_notification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_remote_host_sup_feat_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
@@ -1812,7 +1812,7 @@ dissect_bthci_evt_remote_host_sup_feat_notification(tvbuff_t *tvb, int offset, p
 }
 
 static int
-dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *item;
     guint8 subevent_code;
@@ -3113,7 +3113,7 @@ dissect_bthci_evt_encryption_change(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 static int
-dissect_bthci_evt_read_remote_ext_features_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_read_remote_ext_features_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint8 page_number;
 
@@ -3142,7 +3142,7 @@ dissect_bthci_evt_read_remote_ext_features_complete(tvbuff_t *tvb, int offset, p
 }
 
 static int
-dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *item;
 
@@ -3305,7 +3305,7 @@ dissect_bthci_evt_link_supervision_timeout_changed(tvbuff_t *tvb, int offset, pa
 }
 
 static int
-dissect_bthci_evt_inq_result(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_inq_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint8 num, evt_num_responses;
 

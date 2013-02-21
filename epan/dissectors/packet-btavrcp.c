@@ -290,6 +290,7 @@ typedef struct _timing_info {
     guint32   psm;
     guint32   opcode;
     guint32   op;
+    guint32   op_arg;
     } timing_info_t;
 
 static const value_string packet_type_vals[] = {
@@ -916,13 +917,14 @@ dissect_item_folder(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 static gint
 dissect_passthrough(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                    gint offset, gboolean is_command)
+                    gint offset, gboolean is_command, guint32 *op)
 {
     guint operation;
     guint state;
 
     proto_tree_add_item(tree, hf_btavrcp_passthrough_state, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_btavrcp_passthrough_operation, tvb, offset, 1, ENC_BIG_ENDIAN);
+    *op = tvb_get_guint8(tvb, offset);
     operation = tvb_get_guint8(tvb, offset) & 0x7F;
     state = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
     offset += 1;
@@ -989,7 +991,7 @@ dissect_subunit(tvbuff_t *tvb, proto_tree *tree, gint offset, gboolean is_comman
 
 static gint
 dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                         gint offset, guint ctype, guint32 *op,
+                         gint offset, guint ctype, guint32 *op, guint32 *op_arg,
                          gboolean is_command)
 {
     guint pdu_id;
@@ -1012,6 +1014,8 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     btavctp_data_t  *avctp_data;
 
     avctp_data = (btavctp_data_t *) pinfo->private_data;
+
+    *op_arg = 0;
 
     interface_id = avctp_data->interface_id;
     adapter_id   = avctp_data->adapter_id;
@@ -1256,7 +1260,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 proto_tree_add_item(tree, hf_btavrcp_capability, tvb, offset, 1, ENC_BIG_ENDIAN);
                 capability = tvb_get_guint8(tvb, offset);
-                *op |= capability << 8;
+                *op_arg = capability;
                 col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)",
                         val_to_str_const(capability, capability_vals, "unknown"));
                 offset += 1;
@@ -1267,7 +1271,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 proto_tree_add_item(tree, hf_btavrcp_capability, tvb, offset, 1, ENC_BIG_ENDIAN);
                 capability = tvb_get_guint8(tvb, offset);
-                *op |= capability << 8;
+                *op_arg = capability;
                 offset += 1;
                 proto_tree_add_item(tree, hf_btavrcp_capability_count, tvb, offset, 1, ENC_BIG_ENDIAN);
                 capability_count = tvb_get_guint8(tvb, offset);
@@ -1528,7 +1532,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         case PDU_REGISTER_NOTIFICATION:
             event_id = tvb_get_guint8(tvb, offset);
-            *op |= event_id << 8;
+            *op_arg = event_id;
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
                     val_to_str_const(event_id, notification_vals, "Unknown Event ID"));
 
@@ -2098,18 +2102,20 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint             offset = 0;
     guint32          opcode;
     guint32          op     = 0;
+    guint32          op_arg = 0;
     guint            ctype;
     guint            response_time;
     guint            max_response_time;
     guint            is_command;
     timing_info_t   *timing_info;
-    emem_tree_key_t  key[8];
+    emem_tree_key_t  key[9];
     guint32          k_interface_id;
     guint32          k_adapter_id;
     guint32          k_chandle;
     guint32          k_psm;
     guint32          k_opcode;
     guint32          k_op;
+    guint32          k_op_arg;
     guint32          k_frame_number;
     guint32         interface_id;
     guint32         adapter_id;
@@ -2152,7 +2158,10 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     chandle      = avctp_data->chandle;
     psm          = avctp_data->psm;
 
-    if (avctp_data->psm == BTL2CAP_PSM_AVCTP_CTRL) {
+    if (avctp_data->psm == BTL2CAP_PSM_AVCTP_BRWS) {
+        col_append_str(pinfo->cinfo, COL_INFO, "Browsing");
+        offset = dissect_browsing(tvb, pinfo, btavrcp_tree, offset, is_command);
+    } else {
         proto_tree_add_item(btavrcp_tree, hf_btavrcp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(btavrcp_tree, hf_btavrcp_ctype, tvb, offset, 1, ENC_BIG_ENDIAN);
         ctype = tvb_get_guint8(tvb, offset) & 0x0F;
@@ -2170,7 +2179,8 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         switch(opcode) {
             case OPCODE_PASSTHROUGH:
-                offset = dissect_passthrough(tvb, pinfo, btavrcp_tree, offset, is_command);
+                offset = dissect_passthrough(tvb, pinfo, btavrcp_tree, offset,
+                        is_command, &op);
                 break;
             case OPCODE_UNIT:
                 offset = dissect_unit(tvb, btavrcp_tree, offset, is_command);
@@ -2179,7 +2189,8 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset = dissect_subunit(tvb, btavrcp_tree, offset, is_command);
                 break;
             case OPCODE_VENDOR_DEPENDANT:
-                offset = dissect_vendor_dependant(tvb, pinfo, btavrcp_tree, offset, ctype, &op, is_command);
+                offset = dissect_vendor_dependant(tvb, pinfo, btavrcp_tree,
+                        offset, ctype, &op, &op_arg, is_command);
                 break;
         };
 
@@ -2189,6 +2200,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         k_psm          = psm;
         k_opcode       = opcode;
         k_op           = op;
+        k_op_arg       = (ctype == 0x0a) ? G_MAXUINT32 : op_arg;
         k_frame_number = pinfo->fd->num;
 
         key[0].length = 1;
@@ -2204,9 +2216,11 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[5].length = 1;
         key[5].key = &k_op;
         key[6].length = 1;
-        key[6].key = &k_frame_number;
-        key[7].length = 0;
-        key[7].key = NULL;
+        key[6].key = &k_op_arg;
+        key[7].length = 1;
+        key[7].key = &k_frame_number;
+        key[8].length = 0;
+        key[8].key = NULL;
 
         if (pinfo->fd->flags.visited == 0) {
             if (is_command) {
@@ -2233,6 +2247,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 timing_info->psm          = psm;
                 timing_info->opcode       = opcode;
                 timing_info->op           = op;
+                timing_info->op_arg       = op_arg;
                 timing_info->used         = 0;
 
                 se_tree_insert32_array(timing, key, timing_info);
@@ -2244,6 +2259,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         timing_info->psm == psm &&
                         timing_info->opcode == opcode &&
                         timing_info->op == op &&
+                        ((ctype == 0x0a) ? 1 : (timing_info->op_arg == op_arg)) &&
                         timing_info->used == 0) {
                     timing_info->response_frame_number = pinfo->fd->num;
                     timing_info->response_timestamp = pinfo->fd->abs_ts;
@@ -2257,6 +2273,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             k_psm          = psm;
             k_opcode       = opcode;
             k_op           = op;
+            k_op_arg       = (ctype == 0x0a) ? G_MAXUINT32 : op_arg;
             k_frame_number = pinfo->fd->num;
 
             key[0].length = 1;
@@ -2272,9 +2289,12 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             key[5].length = 1;
             key[5].key = &k_op;
             key[6].length = 1;
-            key[6].key = &k_frame_number;
-            key[7].length = 0;
-            key[7].key = NULL;
+            key[6].key = &k_op_arg;
+            key[7].length = 1;
+            key[7].key = &k_frame_number;
+            key[8].length = 0;
+            key[8].key = NULL;
+
         }
 
         timing_info = se_tree_lookup32_array_le(timing, key);
@@ -2283,7 +2303,8 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 timing_info->chandle == chandle &&
                 timing_info->psm == psm &&
                 timing_info->opcode == opcode &&
-                timing_info->op == op) {
+                timing_info->op == op &&
+                ((ctype == 0x0a) ? 1 : (timing_info->op_arg == op_arg))) {
 
             if (timing_info->command_timestamp.nsecs > timing_info->response_timestamp.nsecs) {
                 response_time = timing_info->response_timestamp.nsecs + (1000000000 - timing_info->command_timestamp.nsecs);
@@ -2318,9 +2339,6 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         }
 
-    } else {
-        col_append_str(pinfo->cinfo, COL_INFO, "Browsing");
-        offset = dissect_browsing(tvb, pinfo, btavrcp_tree, offset, is_command);
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -2369,7 +2387,7 @@ proto_register_btavrcp(void)
             NULL, HFILL }
         },
         { &hf_btavrcp_passthrough_state,
-            { "RFA",                             "btavrcp.passthrough.state",
+            { "State",                           "btavrcp.passthrough.state",
             FT_UINT8, BASE_HEX, VALS(passthrough_state_vals), 0x80,
             NULL, HFILL }
         },
@@ -3118,6 +3136,18 @@ proto_register_btavrcp(void)
     prefs_register_static_text_preference(module, "avrcp.version",
             "Bluetooth Profile AVRCP version: 1.5",
             "Version of profile supported by this dissector.");
+}
+
+void
+proto_reg_handoff_btavrcp(void)
+{
+    dissector_handle_t btavrcp_handle;
+
+    btavrcp_handle = find_dissector("btavrcp");
+
+    dissector_add_uint("btavctp.service", BTSDP_AVRCP_TG_SERVICE_UUID, btavrcp_handle);
+    dissector_add_uint("btavctp.service", BTSDP_AVRCP_CT_SERVICE_UUID, btavrcp_handle);
+    dissector_add_uint("btavctp.service", BTSDP_AVRCP_SERVICE_UUID, btavrcp_handle);
 }
 
 

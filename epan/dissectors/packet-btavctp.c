@@ -51,7 +51,8 @@ static int hf_btavctp_number_of_packets         = -1;
 
 static gint ett_btavctp             = -1;
 
-static dissector_handle_t btavrcp_handle = NULL;
+static dissector_table_t avctp_service_dissector_table;
+
 static dissector_handle_t data_handle    = NULL;
 
 typedef struct _fragment_t {
@@ -187,10 +188,10 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* reassembling */
     next_tvb = tvb_new_subset(tvb, offset, length, length);
     if (packet_type == PACKET_TYPE_SINGLE) {
-        if (pid == BTSDP_AVRCP_SERVICE_UUID && btavrcp_handle != NULL)
-            call_dissector(btavrcp_handle, next_tvb, pinfo, tree);
-        else
+        if (!dissector_try_uint(avctp_service_dissector_table, pid, next_tvb, pinfo, tree)) {
             call_dissector(data_handle, next_tvb, pinfo, tree);
+        }
+
     } else {
         emem_tree_key_t key[6];
         guint32         k_interface_id;
@@ -377,9 +378,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 next_tvb = tvb_new_child_real_data(tvb, reassembled, length, length);
                 add_new_data_source(pinfo, next_tvb, "Reassembled AVCTP");
 
-                if (fragments->pid == BTSDP_AVRCP_SERVICE_UUID && btavrcp_handle != NULL) {
-                    call_dissector(btavrcp_handle, next_tvb, pinfo, tree);
-                } else {
+                if (!dissector_try_uint(avctp_service_dissector_table, fragments->pid, next_tvb, pinfo, tree)) {
                     call_dissector(data_handle, next_tvb, pinfo, tree);
                 }
             }
@@ -442,6 +441,8 @@ proto_register_btavctp(void)
 
     reassembling = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavctp reassembling");
 
+    avctp_service_dissector_table = register_dissector_table("btavctp.service", "AVCTP Service", FT_UINT16, BASE_HEX);
+
     proto_btavctp = proto_register_protocol("Bluetooth AVCTP Protocol", "AVCTP", "btavctp");
     register_dissector("btavctp", dissect_btavctp, proto_btavctp);
 
@@ -461,7 +462,6 @@ proto_reg_handoff_btavctp(void)
     dissector_handle_t btavctp_handle;
 
     btavctp_handle = find_dissector("btavctp");
-    btavrcp_handle = find_dissector("btavrcp");
     data_handle    = find_dissector("data");
 
     dissector_add_uint("btl2cap.service", BTSDP_AVCTP_PROTOCOL_UUID, btavctp_handle);

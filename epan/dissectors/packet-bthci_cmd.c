@@ -1174,7 +1174,7 @@ dissect_bthci_cmd_cod(int type, tvbuff_t *tvb, int offset, packet_info *pinfo _U
 }
 
 static int 
-dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 size)
+dissect_bthci_eir_ad_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 size)
 {
     guint8 length, type, data_size = size;
     guint16 i, j;
@@ -1335,7 +1335,7 @@ dissect_bthci_cmd_flow_spec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 }
 
 static int
-dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 cmd_ocf)
+dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 cmd_ocf)
 {
     proto_item *item;
     guint32     clock_value;
@@ -1673,7 +1673,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 }
 
 static int
-dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 cmd_ocf)
+dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 cmd_ocf)
 {
     proto_item *item;
     guint16     timeout;
@@ -1816,7 +1816,7 @@ return offset;
 }
 
 static int
-dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree *tree, guint16 cmd_ocf)
 {
     proto_item *item;
@@ -2431,7 +2431,7 @@ return offset;
 }
 
 static void
-dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 cmd_ocf)
+dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 cmd_ocf)
 {
     proto_item *item;
 
