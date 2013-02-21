@@ -115,11 +115,11 @@ ${DoUntil} $EXECUTABLE == ${EXECUTABLE_MARKER}
     ; into any problems here.
     Delete "$INSTDIR\$EXECUTABLE.exe"
     IfErrors 0 deletionSuccess
-        MessageBox MB_OK "$EXECUTABLE.exe could not be removed. Is it in use?" IDOK 0 ;skipped if rawshark.exe removed
+        MessageBox MB_OK "$EXECUTABLE.exe could not be removed. Is it in use?" IDOK 0
         Abort "$EXECUTABLE.exe could not be removed. Aborting the uninstall process."
 
 deletionSuccess:
-    Pop $EXTENSION
+    Pop $EXECUTABLE
 
 ${Loop}
 
