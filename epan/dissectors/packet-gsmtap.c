@@ -1,7 +1,7 @@
 /* packet-gsmtap.c
  * Routines for GSMTAP captures
  *
- * (C) 2008-2012 by Harald Welte <laforge@gnumonks.org>
+ * (C) 2008-2013 by Harald Welte <laforge@gnumonks.org>
  * (C) 2011 by Holger Hans Peter Freyther
  *
  * $Id$
@@ -49,6 +49,7 @@
 #include <epan/prefs.h>
 
 #include "packet-tetra.h"
+#include "packet-rrc.h"
 
 /* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
 /* The following types and definitions are imported from libosmocore,
@@ -73,6 +74,8 @@
 #define GSMTAP_TYPE_GB_LLC			0x08 /* GPRS Gb interface: LLC */
 #define GSMTAP_TYPE_GB_SNDCP		0x09 /* GPRS Gb interface: SNDCP */
 #define GSMTAP_TYPE_GMR1_UM				0x0a	/* GMR-1 L2 packets */
+#define GSMTAP_TYPE_UMTS_RLC_MAC	0x0b
+#define GSMTAP_TYPE_UMTS_RRC		0x0c
 
 /* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
 #define GSMTAP_BURST_UNKNOWN		0x00
@@ -153,7 +156,6 @@
 #define GSMTAP_GMR1_TCH6			0x14
 #define GSMTAP_GMR1_TCH9			0x18
 
-
 #define GSMTAP_ARFCN_F_PCS			0x8000
 #define GSMTAP_ARFCN_F_UPLINK		0x4000
 #define GSMTAP_ARFCN_MASK			0x3fff
@@ -228,11 +230,82 @@ enum {
 	GSMTAP_SUB_GMR1_CCCH,
 	GSMTAP_SUB_GMR1_LAPSAT,
 	GSMTAP_SUB_GMR1_RACH,
+	/* UMTS */
+	GSMTAP_SUB_UMTS_RLC_MAC,
+	GSMTAP_SUB_UMTS_RRC,
 
 	GSMTAP_SUB_MAX
 };
 
+enum {
+	GSMTAP_RRC_SUB_DL_DCCH_Message = 0,
+	GSMTAP_RRC_SUB_UL_DCCH_Message,
+	GSMTAP_RRC_SUB_DL_CCCH_Message,
+	GSMTAP_RRC_SUB_UL_CCCH_Message,
+	GSMTAP_RRC_SUB_PCCH_Message,
+	GSMTAP_RRC_SUB_DL_SHCCH_Message,
+	GSMTAP_RRC_SUB_UL_SHCCH_Message,
+	GSMTAP_RRC_SUB_BCCH_FACH_Message,
+	GSMTAP_RRC_SUB_BCCH_BCH_Message,
+	GSMTAP_RRC_SUB_MCCH_Message,
+	GSMTAP_RRC_SUB_MSCH_Message,
+	GSMTAP_RRC_SUB_HandoverToUTRANCommand,
+	GSMTAP_RRC_SUB_InterRATHandoverInfo,
+	GSMTAP_RRC_SUB_SystemInformation_BCH,
+	GSMTAP_RRC_SUB_System_Information_Container,
+	GSMTAP_RRC_SUB_UE_RadioAccessCapabilityInfo,
+	GSMTAP_RRC_SUB_MasterInformationBlock,
+	GSMTAP_RRC_SUB_SysInfoType1,
+	GSMTAP_RRC_SUB_SysInfoType2,
+	GSMTAP_RRC_SUB_SysInfoType3,
+	GSMTAP_RRC_SUB_SysInfoType4,
+	GSMTAP_RRC_SUB_SysInfoType5,
+	GSMTAP_RRC_SUB_SysInfoType5bis,
+	GSMTAP_RRC_SUB_SysInfoType6,
+	GSMTAP_RRC_SUB_SysInfoType7,
+	GSMTAP_RRC_SUB_SysInfoType8,
+	GSMTAP_RRC_SUB_SysInfoType9,
+	GSMTAP_RRC_SUB_SysInfoType10,
+	GSMTAP_RRC_SUB_SysInfoType11,
+	GSMTAP_RRC_SUB_SysInfoType11bis,
+	GSMTAP_RRC_SUB_SysInfoType12,
+	GSMTAP_RRC_SUB_SysInfoType13,
+	GSMTAP_RRC_SUB_SysInfoType13_1,
+	GSMTAP_RRC_SUB_SysInfoType13_2,
+	GSMTAP_RRC_SUB_SysInfoType13_3,
+	GSMTAP_RRC_SUB_SysInfoType13_4,
+	GSMTAP_RRC_SUB_SysInfoType14,
+	GSMTAP_RRC_SUB_SysInfoType15,
+	GSMTAP_RRC_SUB_SysInfoType15bis,
+	GSMTAP_RRC_SUB_SysInfoType15_1,
+	GSMTAP_RRC_SUB_SysInfoType15_1bis,
+	GSMTAP_RRC_SUB_SysInfoType15_2,
+	GSMTAP_RRC_SUB_SysInfoType15_2bis,
+	GSMTAP_RRC_SUB_SysInfoType15_2ter,
+	GSMTAP_RRC_SUB_SysInfoType15_3,
+	GSMTAP_RRC_SUB_SysInfoType15_3bis,
+	GSMTAP_RRC_SUB_SysInfoType15_4,
+	GSMTAP_RRC_SUB_SysInfoType15_5,
+	GSMTAP_RRC_SUB_SysInfoType15_6,
+	GSMTAP_RRC_SUB_SysInfoType15_7,
+	GSMTAP_RRC_SUB_SysInfoType15_8,
+	GSMTAP_RRC_SUB_SysInfoType16,
+	GSMTAP_RRC_SUB_SysInfoType17,
+	GSMTAP_RRC_SUB_SysInfoType18,
+	GSMTAP_RRC_SUB_SysInfoType19,
+	GSMTAP_RRC_SUB_SysInfoType20,
+	GSMTAP_RRC_SUB_SysInfoType21,
+	GSMTAP_RRC_SUB_SysInfoType22,
+	GSMTAP_RRC_SUB_SysInfoTypeSB1,
+	GSMTAP_RRC_SUB_SysInfoTypeSB2,
+	GSMTAP_RRC_SUB_ToTargetRNC_Container,
+	GSMTAP_RRC_SUB_TargetRNC_ToSourceRNC_Container,
+
+	GSMTAP_RRC_SUB_MAX
+};
+
 static dissector_handle_t sub_handles[GSMTAP_SUB_MAX];
+static dissector_handle_t rrc_sub_handles[GSMTAP_RRC_SUB_MAX];
 
 static dissector_table_t gsmtap_dissector_table;
 
@@ -350,6 +423,8 @@ static const value_string gsmtap_types[] = {
 	{ GSMTAP_TTPE_TETRA_I1_BURST, "TETRA V+D burst"},
 	{ GSMTAP_TYPE_WMX_BURST,"WiMAX burst" },
 	{ GSMTAP_TYPE_GMR1_UM, "GMR-1 air interfeace (MES-MS<->GTS)" },
+	{ GSMTAP_TYPE_UMTS_RLC_MAC,	"UMTS RLC/MAC" },
+	{ GSMTAP_TYPE_UMTS_RRC,		"UMTS RRC" },
 	{ 0,			NULL },
 };
 
@@ -396,7 +471,7 @@ handle_tetra(int channel _U_, tvbuff_t *payload_tvb _U_, packet_info *pinfo _U_,
 static void
 dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int sub_handle, len, offset = 0;
+	int sub_handle, rrc_sub_handle, len, offset = 0;
 	proto_item *ti;
 	proto_tree *gsmtap_tree = NULL;
 	tvbuff_t *payload_tvb, *l1h_tvb = NULL;
@@ -523,6 +598,15 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	switch (type) {
+	case GSMTAP_TYPE_UMTS_RRC:
+		sub_handle = GSMTAP_SUB_UMTS_RRC;
+		rrc_sub_handle = sub_type;
+		/* make entry in the Protocol column on summary display.
+		 * Normally, the RRC dissector would be doing this, but
+		 * we are bypassing dissect_rrc() and directly call a
+		 * sub-dissector */
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
+		break;
 	case GSMTAP_TYPE_UM:
 		if (l1h_tvb)
 			dissect_sacch_l1h(l1h_tvb, tree);
@@ -628,7 +712,11 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		sub_handle = GSMTAP_SUB_DATA;
 		break;
 	}
-	call_dissector(sub_handles[sub_handle], payload_tvb, pinfo, tree);
+	if (sub_handle == GSMTAP_SUB_UMTS_RRC)
+		call_dissector(rrc_sub_handles[rrc_sub_handle], payload_tvb,
+			       pinfo, tree);
+	else
+		call_dissector(sub_handles[sub_handle], payload_tvb, pinfo, tree);
 }
 
 static const true_false_string sacch_l1h_fpc_mode_vals = {
@@ -715,6 +803,71 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_GMR1_CCCH] = find_dissector("gmr1_ccch");
 	sub_handles[GSMTAP_SUB_GMR1_LAPSAT] = find_dissector("lapsat");
 	sub_handles[GSMTAP_SUB_GMR1_RACH] = find_dissector("gmr1_rach");
+	sub_handles[GSMTAP_SUB_UMTS_RRC] = find_dissector("rrc");
+
+	rrc_sub_handles[GSMTAP_RRC_SUB_DL_DCCH_Message] = find_dissector("rrc.dl.dcch");
+	rrc_sub_handles[GSMTAP_RRC_SUB_UL_DCCH_Message] = find_dissector("rrc.ul.dcch");
+	rrc_sub_handles[GSMTAP_RRC_SUB_DL_CCCH_Message] = find_dissector("rrc.dl.ccch");
+	rrc_sub_handles[GSMTAP_RRC_SUB_UL_CCCH_Message] = find_dissector("rrc.ul.ccch");
+	rrc_sub_handles[GSMTAP_RRC_SUB_PCCH_Message] = find_dissector("rrc.pcch");
+	rrc_sub_handles[GSMTAP_RRC_SUB_DL_SHCCH_Message] = find_dissector("rrc.dl.shcch");
+	rrc_sub_handles[GSMTAP_RRC_SUB_UL_SHCCH_Message] = find_dissector("rrc.ul.shcch");
+	rrc_sub_handles[GSMTAP_RRC_SUB_BCCH_FACH_Message] = find_dissector("rrc.bcch.fach");
+	rrc_sub_handles[GSMTAP_RRC_SUB_BCCH_BCH_Message] = find_dissector("rrc.bcch.bch");
+	rrc_sub_handles[GSMTAP_RRC_SUB_MCCH_Message] = find_dissector("rrc.mcch");
+	rrc_sub_handles[GSMTAP_RRC_SUB_MSCH_Message] = find_dissector("rrc.msch");
+	rrc_sub_handles[GSMTAP_RRC_SUB_HandoverToUTRANCommand] = find_dissector("rrc.irat.ho_to_utran_cmd");
+	rrc_sub_handles[GSMTAP_RRC_SUB_InterRATHandoverInfo] = find_dissector("rrc.irat.irat_ho_info");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SystemInformation_BCH] = find_dissector("rrc.sysinfo");
+	rrc_sub_handles[GSMTAP_RRC_SUB_System_Information_Container] = find_dissector("rrc.sysinfo.cont");
+	rrc_sub_handles[GSMTAP_RRC_SUB_UE_RadioAccessCapabilityInfo] = find_dissector("rrc.ue_radio_access_cap_info");
+	rrc_sub_handles[GSMTAP_RRC_SUB_MasterInformationBlock] = find_dissector("rrc.si.mib");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType1] = find_dissector("rrc.si.sib1");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType2] = find_dissector("rrc.si.sib2");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType3] = find_dissector("rrc.si.sib3");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType4] = find_dissector("rrc.si.sib4");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType5] = find_dissector("rrc.si.sib5");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType5bis] = find_dissector("rrc.si.sib5bis");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType6] = find_dissector("rrc.si.sib6");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType7] = find_dissector("rrc.si.sib7");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType8] = find_dissector("rrc.si.sib8");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType9] = find_dissector("rrc.si.sib9");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType10] = find_dissector("rrc.si.sib10");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType11] = find_dissector("rrc.si.sib11");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType11bis] = find_dissector("rrc.si.sib11bis");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType12] = find_dissector("rrc.si.sib12");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType13] = find_dissector("rrc.si.sib13");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType13_1] = find_dissector("rrc.si.sib13-1");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType13_2] = find_dissector("rrc.si.sib13-2");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType13_3] = find_dissector("rrc.si.sib13-3");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType13_4] = find_dissector("rrc.si.sib13-4");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType14] = find_dissector("rrc.si.sib14");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15] = find_dissector("rrc.si.sib15");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15bis] = find_dissector("rrc.si.sib15bis");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_1] = find_dissector("rrc.si.sib15-1");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_1bis] = find_dissector("rrc.si.sib15-1bis");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_2] = find_dissector("rrc.si.sib15-2");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_2bis] = find_dissector("rrc.si.sib15-2bis");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_2ter] = find_dissector("rrc.si.sib15-2ter");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_3] = find_dissector("rrc.si.sib15-3");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_3bis] = find_dissector("rrc.si.sib15-3bis");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_4] = find_dissector("rrc.si.sib15-4");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_5] = find_dissector("rrc.si.sib15-5");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_6] = find_dissector("rrc.si.sib15-6");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_7] = find_dissector("rrc.si.sib15-7");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType15_8] = find_dissector("rrc.si.sib15-8");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType16] = find_dissector("rrc.si.sib16");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType17] = find_dissector("rrc.si.sib17");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType18] = find_dissector("rrc.si.sib18");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType19] = find_dissector("rrc.si.sib19");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType20] = find_dissector("rrc.si.sib20");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType21] = find_dissector("rrc.si.sib21");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoType22] = find_dissector("rrc.si.sib22");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoTypeSB1] = find_dissector("rrc.si.sb1");
+	rrc_sub_handles[GSMTAP_RRC_SUB_SysInfoTypeSB2] = find_dissector("rrc.si.sb2");
+	rrc_sub_handles[GSMTAP_RRC_SUB_ToTargetRNC_Container] = find_dissector("rrc.s_to_trnc_cont");
+	rrc_sub_handles[GSMTAP_RRC_SUB_TargetRNC_ToSourceRNC_Container] = find_dissector("rrc.t_to_srnc_cont");
+
 	gsmtap_handle = create_dissector_handle(dissect_gsmtap, proto_gsmtap);
 	dissector_add_uint("udp.port", GSMTAP_UDP_PORT, gsmtap_handle);
 }
