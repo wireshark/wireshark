@@ -27,7 +27,7 @@
 #ifdef HAVE_LIBGCRYPT
 #include <string.h>
 /* Use libgcrypt for cipher libraries. */
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 #include "eax.h"
 
 typedef struct {

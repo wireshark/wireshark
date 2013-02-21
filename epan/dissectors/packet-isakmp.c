@@ -59,7 +59,7 @@
 #include <epan/expert.h>
 
 #ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 #include <epan/strutil.h>
 #include <epan/uat.h>
 #endif

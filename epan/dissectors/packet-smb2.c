@@ -49,7 +49,7 @@
 #include <glib.h>
 /* Use libgcrypt for cipher libraries. */
 #ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
 static char smb_header_label[] = "SMB2 Header";

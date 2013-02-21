@@ -78,7 +78,7 @@
 
 /* Use libgcrypt for cipher libraries. */
 #ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
 #include "packet-ieee802154.h"

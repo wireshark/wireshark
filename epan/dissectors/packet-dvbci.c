@@ -48,7 +48,7 @@
 #include "packet-ber.h"
 
 #ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 #endif
 
 

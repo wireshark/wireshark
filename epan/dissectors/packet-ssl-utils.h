@@ -33,7 +33,7 @@
 #include <epan/emem.h>
 
 #ifdef HAVE_LIBGNUTLS
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 #include <gnutls/x509.h>
 #include <gnutls/pkcs12.h>
 

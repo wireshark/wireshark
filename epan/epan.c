@@ -28,7 +28,7 @@
 #endif
 
 #ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
 #ifdef HAVE_LIBGNUTLS

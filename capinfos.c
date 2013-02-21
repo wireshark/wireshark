@@ -82,7 +82,7 @@
 #include <wsutil/privileges.h>
 
 #ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 #include <wsutil/file_util.h>
 #endif
 

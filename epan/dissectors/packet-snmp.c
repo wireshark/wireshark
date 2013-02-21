@@ -87,7 +87,7 @@
 
 
 #ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 #endif
 
 /* Take a pointer that may be null and return a pointer that's not null

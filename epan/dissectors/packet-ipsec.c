@@ -88,7 +88,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 /* If you want to be able to decrypt or Check Authentication of ESP packets you MUST define this : */
 #ifdef HAVE_LIBGCRYPT
 #include <epan/uat.h>
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
 

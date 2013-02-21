@@ -50,7 +50,7 @@
 #endif
 
 #ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 
 /* md5 /sha abstraction layer */
 #define SHA_CTX                     gcry_md_hd_t

@@ -54,7 +54,7 @@
 #endif
 
 #ifdef HAVE_LIBGCRYPT
-#include <gcrypt.h>
+#include <wsutil/wsgcrypt.h>
 #endif
 
 #define PNAME  "PKCS#12: Personal Information Exchange"
