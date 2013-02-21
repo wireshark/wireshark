@@ -4993,7 +4993,6 @@ fUnsigned64 (tvbuff_t *tvb, guint offset, guint32 lvt, guint64 *val)
 
     if (lvt && (lvt <= 8)) {
         valid = TRUE;
-        data = tvb_get_guint8(tvb, offset);
         for (i = 0; i < lvt; i++) {
             data = tvb_get_guint8(tvb, offset+i);
             value = (value << 8) + data;
@@ -5864,7 +5863,6 @@ fCOVSubscription (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt); /* show context open */
                 offset  = fRecipientProcess (tvb, pinfo, subtree, offset);
                 offset += fTagHeaderTree (tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);  /* show context close */
-                subtree = tree; /* done with this level - return to previous tree */
             break;
         case 1: /* MonitoredPropertyReference */
                 tt = proto_tree_add_text(tree, tvb, offset, 1, "Monitored Property Reference");
@@ -5872,7 +5870,6 @@ fCOVSubscription (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fBACnetObjectPropertyReference (tvb, pinfo, subtree, offset);
                 offset += fTagHeaderTree (tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
-                subtree = tree;
             break;
         case 2: /* IssueConfirmedNotifications - boolean */
             offset = fBooleanTag (tvb, pinfo, tree, offset, "Issue Confirmed Notifications: ");
@@ -7176,7 +7173,6 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     guint       vendor_identifier = 0;
     guint       service_number = 0;
 
-    lastoffset = offset;
     len = fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     fUnsigned32(tvb, offset+len, lvt, &vendor_identifier);
     if (col_get_writable(pinfo->cinfo))
@@ -8526,7 +8522,6 @@ fConfirmedEventNotificationRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tre
         lastoffset = offset;
         fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
         if (tag_is_closing(tag_info)) {
-            lastoffset = offset;
             break;
         }
 
@@ -9166,7 +9161,6 @@ fWritePropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
         /* quit loop if we spot a closing tag */
         if (tag_is_closing(tag_info)) {
-            subtree = tree;
             break;
         }
 
@@ -10800,7 +10794,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
     if (!fragment)
-        offset = do_the_dissection(tvb,pinfo,bacapp_tree);
+        do_the_dissection(tvb,pinfo,bacapp_tree);
     else
         fStartConfirmed(tvb, pinfo, bacapp_tree, offset, ack, &svc, &tt);
             /* not resetting the offset so the remaining can be done */
