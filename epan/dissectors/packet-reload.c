@@ -1455,9 +1455,9 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 {
   proto_item *ti_icecandidates;
   proto_tree *icecandidates_tree;
-  guint16     icecandidates_offset = 0;
-  guint16     icecandidates_length;
-  guint16     local_offset         = 0;
+  guint32     icecandidates_offset = 0;
+  guint32     icecandidates_length;
+  guint32     local_offset         = 0;
   int         nCandidates          = 0;
 
   icecandidates_length = tvb_get_ntohs(tvb, offset);
@@ -1560,7 +1560,7 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     }
     /* Ice extensions */
     {
-      guint16 iceextensions_offset = 0;
+      guint32 iceextensions_offset = 0;
       proto_item *ti_iceextension, *ti_extensions;
       proto_tree *iceextension_tree,*extensions_tree;
       guint16 iceextension_name_length;
@@ -2235,7 +2235,7 @@ dissect_kinddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   proto_tree_add_item(kinddata_tree, hf_reload_generation_counter, tvb, offset+local_offset, 8, ENC_BIG_ENDIAN);
   local_offset += 8;
   {
-    guint32 values_offset = 0;
+    gint32 values_offset = 0;
     guint32 values_increment;
     proto_item *ti_values;
     proto_tree *values_tree;
@@ -2251,7 +2251,7 @@ dissect_kinddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
     proto_tree_add_uint(values_tree, hf_reload_length_uint32, tvb, offset +local_offset, 4, values_length);
     local_offset += 4;
 
-    while (values_offset < values_length) {
+    while (values_offset >= 0 && (guint32)values_offset < values_length) {
       values_increment = dissect_storeddata(tvb, pinfo, values_tree, offset+local_offset+values_offset, values_length - values_offset, kind, meta);
       if (values_increment == 0) {
         break;
@@ -2270,7 +2270,7 @@ static int dissect_nodeid_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
   guint16     list_length;
   guint16     local_offset   = 0;
-  guint16     list_offset    = 0;
+  gint32      list_offset    = 0;
   guint16     list_increment = 0;
   int         nNodeIds       = 0;
   proto_item *ti_local;
@@ -2288,7 +2288,7 @@ static int dissect_nodeid_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   local_tree =  proto_item_add_subtree(ti_local, ett_reload_nodeid_list);
 
   local_offset += dissect_length(tvb, local_tree, offset, length_size);
-  while (list_offset < list_length) {
+  while (list_offset >= 0 && list_offset < list_length) {
     dissect_nodeid(-1, tvb, pinfo, local_tree, offset+local_offset+list_offset,list_length-list_offset);
     list_increment = reload_nodeid_length;
     if (list_increment <= 0) break;
@@ -2337,7 +2337,7 @@ dissect_storeans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   proto_tree *local_tree, *kind_responses_tree;
   guint16     local_offset          = 0;
   guint16     kind_responses_length;
-  guint16     kind_responses_offset = 0;
+  gint32      kind_responses_offset = 0;
   int         nKindResponses        = 0;
 
   ti_local = proto_tree_add_item(tree, hf_reload_storeans, tvb, offset, length, ENC_NA);
@@ -2349,7 +2349,7 @@ dissect_storeans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
 
   proto_tree_add_item(kind_responses_tree, hf_reload_length_uint16, tvb, offset, 2, ENC_BIG_ENDIAN);
   local_offset += 2;
-  while (kind_responses_offset < kind_responses_length) {
+  while (kind_responses_offset >=0 && kind_responses_offset < kind_responses_length) {
     int local_increment = dissect_storekindresponse(tvb, pinfo, kind_responses_tree, offset+local_offset+kind_responses_offset, kind_responses_length-kind_responses_offset);
     if (local_increment <= 0) break;
     kind_responses_offset += local_increment;
@@ -2405,7 +2405,7 @@ dissect_storereq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
 
 
   {
-    guint32     kind_data_offset = 0;
+    gint32      kind_data_offset = 0;
     guint32     kind_data_increment;
     proto_item *ti_kind_data;
     proto_tree *kind_data_tree;
@@ -2417,7 +2417,7 @@ dissect_storereq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
     proto_tree_add_item(kind_data_tree, hf_reload_length_uint32, tvb, offset + local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
 
-    while (kind_data_offset < kind_data_length) {
+    while (kind_data_offset >= 0 && (guint32)kind_data_offset < kind_data_length) {
       kind_data_increment = dissect_kinddata(tvb, pinfo, kind_data_tree, offset+local_offset+kind_data_offset, kind_data_length - kind_data_offset, FALSE);
       if (kind_data_increment == 0) {
         break;
@@ -2482,7 +2482,7 @@ dissect_storeddataspecifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
       proto_item *ti_indices;
       proto_tree *indices_tree;
-      guint16     indices_offset = 0;
+      gint32      indices_offset = 0;
       guint16     indices_length = tvb_get_ntohs(tvb, offset+local_offset);
       int         nIndices       = 0;
       ti_indices = proto_tree_add_item(storeddataspecifier_tree, hf_reload_storeddataspecifier_indices,
@@ -2491,7 +2491,7 @@ dissect_storeddataspecifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       indices_tree =  proto_item_add_subtree(ti_indices, ett_reload_storeddataspecifier_indices);
       proto_tree_add_item(indices_tree, hf_reload_length_uint16, tvb, offset+local_offset, 2, ENC_BIG_ENDIAN);
       local_offset += 2;
-      while (indices_offset < indices_length) {
+      while (indices_offset >= 0 && indices_offset < indices_length) {
         indices_offset += dissect_arrayrange(tvb, indices_tree, offset + local_offset + indices_offset);
         nIndices++;
       }
@@ -2503,12 +2503,12 @@ dissect_storeddataspecifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
       proto_item *ti_keys;
       proto_tree *keys_tree;
-      guint16     keys_offset = 0;
+      gint32      keys_offset = 0;
       guint16     keys_length = tvb_get_ntohs(tvb, offset+local_offset);
       int         nKeys       = 0;
       ti_keys = proto_tree_add_item(tree, hf_reload_storeddataspecifier_keys, tvb, offset+local_offset, 2+keys_length, ENC_NA);
       keys_tree =  proto_item_add_subtree(ti_keys, ett_reload_storeddataspecifier_keys);
-      while (keys_offset < keys_length) {
+      while (keys_offset >= 0 && keys_offset < keys_length) {
         guint32 local_increment;
         local_increment = dissect_opaque(tvb, pinfo, keys_tree, hf_reload_dictionarykey, offset, 2, keys_length-keys_offset);
         if (local_increment == 0) break;
@@ -2537,7 +2537,7 @@ dissect_fetchreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   proto_tree *specifiers_tree;
   guint16     resourceid_length;
   guint16     specifiers_length;
-  guint16     specifiers_offset = 0;
+  gint32      specifiers_offset = 0;
   int         nSpecifiers       = 0;
   guint16     local_offset      = 0;
   guint16     local_length      = 0;
@@ -2568,7 +2568,7 @@ dissect_fetchreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   proto_tree_add_item(specifiers_tree, hf_reload_length_uint16, tvb, offset+local_offset, 2, ENC_BIG_ENDIAN);
   local_offset += 2;
 
-  while (specifiers_offset < specifiers_length) {
+  while (specifiers_offset >= 0 && specifiers_offset < specifiers_length) {
     guint32 specifiers_increment;
     specifiers_increment = dissect_storeddataspecifier(tvb, pinfo, specifiers_tree, offset+local_offset+specifiers_offset, specifiers_length-specifiers_offset);
     if (specifiers_increment == 0) {
@@ -2794,9 +2794,9 @@ static int dissect_findans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   proto_tree_add_uint(local_tree, hf_reload_length_uint16, tvb, offset, 2, results_length);
 
   {
-    guint16 results_offset = 0;
+    gint32  results_offset = 0;
     int nResults           = 0;
-    while (results_offset < results_length) {
+    while (results_offset >= 0 && results_offset < results_length) {
       proto_item *ti_findkinddata;
       proto_tree *findkinddata_tree;
       guint16     findkinddata_length;
@@ -3085,14 +3085,14 @@ static int dissect_diagnosticinfo(tvbuff_t *tvb, proto_tree *tree, guint16 offse
   {
     proto_item *ti_instances;
     proto_tree *instances_tree;
-    guint16     instances_offset = 0;
+    gint32      instances_offset = 0;
     int         nElements        = 0;
 
     ti_instances = proto_tree_add_item(local_tree, hf_reload_diagnosticinfo_instances_stored,\
                                        tvb, offset+local_offset, length, ENC_NA);
     instances_tree = proto_item_add_subtree(ti_instances, ett_reload_diagnosticinfo_instances_stored);
     proto_item_append_text(ti_instances, "[%d]", length);
-    while (instances_offset < length) {
+    while (instances_offset >= 0 && instances_offset < length) {
       proto_item *ti_instances_per_kindid;
       proto_tree *instances_per_kindid_tree;
       kind_t     *kind;
@@ -3121,7 +3121,7 @@ static int dissect_diagnosticinfo(tvbuff_t *tvb, proto_tree *tree, guint16 offse
   {
     proto_item *ti_messages;
     proto_tree *messages_tree;
-    guint16     messages_offset = 0;
+    gint32      messages_offset = 0;
     int         nElements       = 0;
 
     ti_messages = proto_tree_add_item(local_tree, hf_reload_diagnosticinfo_messages_sent_rcvd,
@@ -3129,7 +3129,7 @@ static int dissect_diagnosticinfo(tvbuff_t *tvb, proto_tree *tree, guint16 offse
     messages_tree = proto_item_add_subtree(ti_messages, ett_reload_diagnosticinfo_messages_sent_rcvd);
     proto_item_append_text(ti_messages, "[%d]", length);
 
-    while (messages_offset < length) {
+    while (messages_offset >= 0 && messages_offset < length) {
       proto_item *ti_sent_rcvd;
       proto_tree *sent_rcvd_tree;
       guint16     message_code;
@@ -3216,7 +3216,7 @@ static int dissect_diagnosticresponse(int anchor, tvbuff_t *tvb, packet_info *pi
   {
     proto_item *ti_diagnostics;
     proto_tree *diagnostics_tree;
-    guint16     diagnostics_offset = 0;
+    gint32      diagnostics_offset = 0;
     guint32     diagnostics_length = 0;
     int         nDiagnostics       = 0;
 
@@ -3230,7 +3230,7 @@ static int dissect_diagnosticresponse(int anchor, tvbuff_t *tvb, packet_info *pi
     proto_item_append_text(ti_diagnostics, " (DiagnosticInfo<%d>)",diagnostics_length);
     proto_tree_add_item(diagnostics_tree, hf_reload_length_uint32, tvb, offset+local_offset, 4, ENC_BIG_ENDIAN);
     local_offset += 4;
-    while (diagnostics_offset<diagnostics_length) {
+    while (diagnostics_offset >= 0 && (guint32)diagnostics_offset<diagnostics_length) {
       int local_increment = dissect_diagnosticinfo(tvb, diagnostics_tree, offset+local_offset+diagnostics_offset, diagnostics_length-diagnostics_offset);
       if (local_increment <= 0) break;
       diagnostics_offset += local_increment;
@@ -3341,7 +3341,7 @@ static int dissect_probereq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   {
     int probe_offset = 0;
     int nInfos       = 0;
-    while (probe_offset < info_list_length) {
+    while (probe_offset >= 0 && probe_offset < info_list_length) {
       proto_tree_add_item(requested_info_tree, hf_reload_probe_information_type,
                           tvb, offset + 1 + probe_offset, 1, ENC_BIG_ENDIAN);
       probe_offset += 1;
@@ -3374,7 +3374,7 @@ static int dissect_probeans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int probe_offset = 0;
     int probe_increment;
     int nInfos       = 0;
-    while (probe_offset < info_list_length) {
+    while (probe_offset >= 0 && probe_offset < info_list_length) {
       probe_increment = dissect_probe_information(tvb, pinfo, infos_tree, offset + 2 + probe_offset, info_list_length - probe_offset);
       if (probe_increment <= 0) {
         break;
@@ -3832,7 +3832,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
     proto_tree *extensions_tree;
     proto_item *ti_extensions;
     proto_tree *extension_tree;
-    guint16 extension_offset = 0;
+    gint32 extension_offset = 0;
     int nExtensions = 0;
 
     ti_extensions =
@@ -3840,7 +3840,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
     extensions_tree = proto_item_add_subtree(ti_extensions, ett_reload_message_extensions);
     proto_tree_add_item(extensions_tree, hf_reload_length_uint32, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    while (extension_offset < extensions_length) {
+    while (extension_offset >= 0 && (guint32)extension_offset < extensions_length) {
       guint16 type;
       proto_item *ti_extension;
       guint32 extension_content_length = tvb_get_ntohl(tvb, offset + extension_offset + 3);
@@ -4096,14 +4096,14 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (options_length > 0) {
-    guint16     local_offset = 0;
+    gint32      local_offset = 0;
     proto_item *ti_options;
     proto_tree *options_tree;
     int         nOptions     = 0;
 
     ti_options = proto_tree_add_item(reload_forwarding_tree, hf_reload_forwarding_options, tvb, offset+local_offset, options_length, ENC_NA);
     options_tree = proto_item_add_subtree(ti_options, ett_reload_forwarding_options);
-    while (local_offset < options_length) {
+    while (local_offset >=0 && local_offset < options_length) {
       int local_increment;
       local_increment = dissect_forwardingoption(tvb, pinfo, options_tree, offset+local_offset, options_length-local_offset);
       if (0 >= local_increment) break;
@@ -4288,9 +4288,9 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* certificates */
 
     {
-      guint16 certificate_offset = 0;
+      gint32 certificate_offset = 0;
       int nCertificates = 0;
-      while (certificate_offset < certificates_length) {
+      while (certificate_offset >= 0 && certificate_offset < certificates_length) {
         proto_item *ti_genericcertificate;
         proto_tree *genericcertificate_tree;
         guint16 certificate_length;
