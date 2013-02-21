@@ -387,6 +387,7 @@ IntCmp $0 3010 redistReboot redistNoReboot
 redistReboot:
 SetRebootFlag true
 redistNoReboot:
+Delete "$INSTDIR\vcredist_${TARGET_MACHINE}.exe"
 !else
 !ifdef MSVCR_DLL
 ; msvcr*.dll (MSVC V7 or V7.1) - simply copy the dll file
