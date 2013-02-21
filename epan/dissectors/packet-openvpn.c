@@ -224,7 +224,7 @@ dissect_openvpn_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* read opcode and write to info column */
   openvpn_opcode = tvb_get_bits8(tvb, offset*8, 5);
   col_append_fstr(pinfo->cinfo, COL_INFO, "MessageType: %s",
-                  val_to_str(openvpn_opcode, openvpn_message_types, "Unknown Messagetype"));
+                  val_to_str_const(openvpn_opcode, openvpn_message_types, "Unknown Messagetype"));
 
 
   openvpn_keyid = tvb_get_bits8(tvb, offset*8 + 5, 3);

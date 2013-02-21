@@ -264,7 +264,7 @@ geoip_db_name(guint dbnum) {
 
     gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
     if (gi) {
-        return (val_to_str(gi->databaseType, geoip_type_name_vals, "Unknown database"));
+        return (val_to_str_const(gi->databaseType, geoip_type_name_vals, "Unknown database"));
     }
     return "Invalid database";
 }

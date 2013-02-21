@@ -480,8 +480,8 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
         media_type = tvb_get_guint8(tvb, offset + 1) >> 4;
         type = (tvb_get_guint8(tvb, offset + 1) & 0x08) >> 3;
         sep_item = proto_tree_add_text(tree, tvb, offset, 2, "ACP SEP [%u - %s %s] item %u/%u",
-                seid, val_to_str(media_type, media_type_vals, "unknown"),
-                val_to_str(type, sep_type_vals, "unknown"), i_sep, items);
+                seid, val_to_str_const(media_type, media_type_vals, "unknown"),
+                val_to_str_const(type, sep_type_vals, "unknown"), i_sep, items);
         sep_tree = proto_item_add_subtree(sep_item, ett_btavdtp_sep);
 
         proto_tree_add_item(sep_tree, hf_btavdtp_sep_seid , tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -710,7 +710,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
     while (tvb_length_remaining(tvb, offset)) {
         service_category = tvb_get_guint8(tvb, offset);
         losc = tvb_get_guint8(tvb, offset + 1);
-        service_item = proto_tree_add_text(capabilities_tree, tvb, offset, 2 + losc, "Service: %s", val_to_str(service_category, service_category_vals, "RFD"));
+        service_item = proto_tree_add_text(capabilities_tree, tvb, offset, 2 + losc, "Service: %s", val_to_str_const(service_category, service_category_vals, "RFD"));
         service_tree = proto_item_add_subtree(service_item, ett_btavdtp_service);
 
         proto_tree_add_item(service_tree, hf_btavdtp_service_category, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -728,7 +728,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
             case SERVICE_CATEGORY_RECOVERY:
                 recovery_type = tvb_get_guint8(tvb, offset);
                 pitem = proto_tree_add_item(service_tree, hf_btavdtp_recovery_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_item_append_text(pitem, " (%s)", val_to_str(recovery_type, recovery_type_vals, "RFD"));
+                proto_item_append_text(pitem, " (%s)", val_to_str_const(recovery_type, recovery_type_vals, "RFD"));
                 offset += 1;
                 losc -= 1;
 
@@ -1092,12 +1092,12 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     signal_id   = tvb_get_guint8(tvb, offset) & AVDTP_SIGNAL_ID_MASK;
     proto_item_append_text(signal_item, "%s (%s)",
-            val_to_str(signal_id, signal_id_vals, "Unknown signal"),
-            val_to_str(message_type, message_type_vals, "Unknown message type"));
+            val_to_str_const(signal_id, signal_id_vals, "Unknown signal"),
+            val_to_str_const(message_type, message_type_vals, "Unknown message type"));
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s - %s",
-                    val_to_str(message_type, message_type_vals, "Unknown message type"),
-                    val_to_str(signal_id, signal_id_vals, "Unknown signal"));
+                    val_to_str_const(message_type, message_type_vals, "Unknown message type"),
+                    val_to_str_const(signal_id, signal_id_vals, "Unknown signal"));
 
     offset += 1;
     if (message_type != MESSAGE_TYPE_GENERAL_REJECT) switch (signal_id) {

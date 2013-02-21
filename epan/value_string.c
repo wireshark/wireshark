@@ -423,7 +423,7 @@ decode_enumerated_bitfield(const guint32 val, const guint32 mask, const int widt
   char *p;
 
   p = decode_bitfield_value(buf, val, mask, width);
-  g_snprintf(p, (gulong) (1024-(p-buf)), fmt, val_to_str(val & mask, tab, "Unknown"));
+  g_snprintf(p, (gulong) (1024-(p-buf)), fmt, val_to_str_const(val & mask, tab, "Unknown"));
   return buf;
 }
 
@@ -444,7 +444,7 @@ decode_enumerated_bitfield_shifted(const guint32 val, const guint32 mask, const 
     shift++;
 
   p = decode_bitfield_value(buf, val, mask, width);
-  g_snprintf(p, (gulong) (1024-(p-buf)), fmt, val_to_str((val & mask) >> shift, tab, "Unknown"));
+  g_snprintf(p, (gulong) (1024-(p-buf)), fmt, val_to_str_const((val & mask) >> shift, tab, "Unknown"));
   return buf;
 }
 

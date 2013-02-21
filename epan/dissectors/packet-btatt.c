@@ -286,7 +286,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     opcode = tvb_get_guint8(tvb, 0);
     offset++;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(opcode, opcode_vals, "<unknown>"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(opcode, opcode_vals, "<unknown>"));
 
     switch (opcode) {
     case 0x01: /* Error Response */
@@ -294,7 +294,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset++;
         proto_tree_add_item(st, hf_btatt_handle_in_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " - %s, Handle: 0x%04x",
-                        val_to_str(tvb_get_guint8(tvb, offset+2), error_vals, "<unknown>"),
+                        val_to_str_const(tvb_get_guint8(tvb, offset+2), error_vals, "<unknown>"),
                         tvb_get_letohs(tvb, offset));
         offset += 2;
         proto_tree_add_item(st, hf_btatt_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -518,7 +518,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x18: /* Execute Write Request */
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                        val_to_str(tvb_get_guint8(tvb, offset), flags_vals, "<unknown>"));
+                        val_to_str_const(tvb_get_guint8(tvb, offset), flags_vals, "<unknown>"));
         proto_tree_add_item(st, hf_btatt_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
         break;

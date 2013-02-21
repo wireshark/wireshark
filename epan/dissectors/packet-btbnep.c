@@ -154,7 +154,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     control_type = tvb_get_guint8(tvb, offset);
     offset += 1;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str(control_type, control_type_vals,  "Unknown type"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(control_type, control_type_vals,  "Unknown type"));
 
     switch(control_type) {
         case 0x00: /* Command Not Understood */
@@ -162,7 +162,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             unknown_control_type = tvb_get_guint8(tvb, offset);
             offset += 1;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - Unknown(%s)", val_to_str(unknown_control_type, control_type_vals,  "Unknown type"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - Unknown(%s)", val_to_str_const(unknown_control_type, control_type_vals,  "Unknown type"));
 
             break;
         case 0x01: /* Setup Connection Request */
@@ -189,7 +189,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             response_message = tvb_get_ntohs(tvb, offset);
             offset += 2;
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                    val_to_str(response_message, setup_connection_response_message_vals,  "Unknown response message"));
+                    val_to_str_const(response_message, setup_connection_response_message_vals,  "Unknown response message"));
             break;
         case 0x03: /* Filter Net Type Set */
             proto_tree_add_item(tree, hf_btbnep_list_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -209,7 +209,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             response_message = tvb_get_ntohs(tvb, offset);
             offset += 2;
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                    val_to_str(response_message, filter_net_type_response_message_vals,  "Unknown response message"));
+                    val_to_str_const(response_message, filter_net_type_response_message_vals,  "Unknown response message"));
             break;
         case 0x05: /*Filter Multi Addr Set*/
             proto_tree_add_item(tree, hf_btbnep_list_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -229,7 +229,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             response_message = tvb_get_ntohs(tvb, offset);
             offset += 2;
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                    val_to_str(response_message, filter_multi_addr_response_message_vals,  "Unknown response message"));
+                    val_to_str_const(response_message, filter_multi_addr_response_message_vals,  "Unknown response message"));
             break;
 
     };
@@ -316,7 +316,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     bnep_type = bnep_type & 0x7F;
     offset += 1;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(bnep_type, bnep_type_vals,  "Unknown type"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(bnep_type, bnep_type_vals,  "Unknown type"));
     if (extension_flag) col_append_fstr(pinfo->cinfo, COL_INFO, "+E");
 
     if (bnep_type == BNEP_TYPE_GENERAL_ETHERNET || bnep_type == BNEP_TYPE_COMPRESSED_ETHERNET_DESTINATION_ONLY) {
@@ -356,7 +356,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         type = tvb_get_ntohs(tvb, offset);
         if (!top_dissect) {
             proto_tree_add_item(btbnep_tree, hf_btbnep_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - Type: %s", val_to_str(type, etype_vals, "unknown"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - Type: %s", val_to_str_const(type, etype_vals, "unknown"));
         }
         offset += 2;
     } else {

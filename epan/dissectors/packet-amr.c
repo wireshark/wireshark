@@ -438,7 +438,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
     amr_tree = proto_item_add_subtree(ti, ett_amr);
 
     proto_tree_add_text(amr_tree, tvb, offset, -1, "Payload decoded as %s",
-                val_to_str(amr_encoding_type, amr_encoding_type_value, "Unknown value - Error"));
+                val_to_str_const(amr_encoding_type, amr_encoding_type_value, "Unknown value - Error"));
 
     switch (amr_encoding_type) {
     case 0: /* RFC 3267 Byte aligned */

@@ -450,7 +450,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti, *hidden_item;
 
 #ifdef DEBUG_CAMELSRT
-  dbg(10,"\n %s #%u\n", val_to_str(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
+  dbg(10,"\n %s #%u\n", val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
 #endif
 
   /* look only for matching request, if matching conversation is available. */
@@ -547,7 +547,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
       ti = proto_tree_add_uint_format(tree, hf_camelsrt_RequestFrame, tvb, 0, 0,
 				      p_camelsrt_call->category[srt_type].rsp_num,
 				      "Linked response %s in frame %u",
-				      val_to_str(srt_type, camelSRTtype_naming, "Unk"),
+				      val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),
 				      p_camelsrt_call->category[srt_type].rsp_num);
       PROTO_ITEM_SET_GENERATED(ti);
     } /* frame valid */
@@ -571,7 +571,7 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti, *hidden_item;
 
 #ifdef DEBUG_CAMELSRT
-  dbg(10,"\n %s #%u\n", val_to_str(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
+  dbg(10,"\n %s #%u\n", val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
 #endif
   camelsrt_call_key.SessionIdKey = p_camelsrt_info->tcap_session_id;
   /* look only for matching request, if matching conversation is available. */
@@ -648,7 +648,7 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 	ti = proto_tree_add_uint_format(tree, hf_camelsrt_ResponseFrame, tvb, 0, 0,
 					p_camelsrt_call->category[srt_type].req_num,
 					"Linked request %s in frame %u",
-					val_to_str(srt_type, camelSRTtype_naming, "Unk"),
+					val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),
 					p_camelsrt_call->category[srt_type].req_num);
 	PROTO_ITEM_SET_GENERATED(ti);
       }

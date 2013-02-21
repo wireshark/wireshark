@@ -408,7 +408,7 @@ dissect_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
     proto_tree_add_item(tree, hf_bthid_protocol_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     protocol_code = tvb_get_guint8(tvb, offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str(protocol_code, protocol_code_vals, "unknown type"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(protocol_code, protocol_code_vals, "unknown type"));
     offset += 1;
 
 
@@ -716,17 +716,17 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     parameter = transaction_type & 0x0F;
     transaction_type = transaction_type >> 4;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(transaction_type, transaction_type_vals, "Unknown TransactionType"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(transaction_type, transaction_type_vals, "Unknown TransactionType"));
 
     switch(transaction_type) {
         case 0x00: /* HANDSHAKE */
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_result_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - Result Code: %s", val_to_str(parameter, result_code_vals, "reserved"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - Result Code: %s", val_to_str_const(parameter, result_code_vals, "reserved"));
             break;
         case 0x01: /* HID_CONTROL */
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_control_operation, tvb, offset, 1, ENC_BIG_ENDIAN);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - Control Operation: %s", val_to_str(parameter, control_operation_vals, "reserved"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - Control Operation: %s", val_to_str_const(parameter, control_operation_vals, "reserved"));
             offset += 1;
             break;
         case 0x04: /* GET_REPORT */
@@ -735,8 +735,8 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_report_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             col_append_fstr(pinfo->cinfo, COL_INFO, " - Size: %s, Report Type: %s",
-                            val_to_str(parameter >> 3 , size_vals, "reserved"),
-                            val_to_str(parameter & 0x03, report_type_vals, "reserved"));
+                            val_to_str_const(parameter >> 3 , size_vals, "reserved"),
+                            val_to_str_const(parameter & 0x03, report_type_vals, "reserved"));
 
             if (tvb_length_remaining(tvb, offset) >= 1) {
                 proto_tree_add_item(bthid_tree, hf_bthid_report_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -754,7 +754,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 1;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " - Report Type: %s",
-                            val_to_str(parameter & 0x03, report_type_vals, "reserved"));
+                            val_to_str_const(parameter & 0x03, report_type_vals, "reserved"));
 
             /* playload */
             proto_tree_add_item(bthid_tree, hf_bthid_data, tvb, offset, -1, ENC_BIG_ENDIAN);
@@ -769,7 +769,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 1;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " - Protocol: %s",
-                            val_to_str(protocol, protocol_vals, "reserved"));
+                            val_to_str_const(protocol, protocol_vals, "reserved"));
 
             break;
         case 0x07: /* SET_PROTOCOL */
@@ -778,7 +778,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 1;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " - Protocol: %s",
-                            val_to_str(parameter & 0x01, protocol_vals, "reserved"));
+                            val_to_str_const(parameter & 0x01, protocol_vals, "reserved"));
             break;
         case 0x08: /* GET_IDLE */
         case 0x09: /* SET_IDLE */
@@ -796,7 +796,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_reserved_32, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_report_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str(parameter, report_type_vals, "reserved"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(parameter, report_type_vals, "reserved"));
 
             /* playload */
             offset = dissect_hid_data(tvb, pinfo,  bthid_tree, offset, parameter & 0x03);

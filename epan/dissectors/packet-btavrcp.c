@@ -624,7 +624,7 @@ dissect_attribute_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (attribute_id == 0x01) col_append_fstr(pinfo->cinfo, COL_INFO, " - Title: \"%s\"", value);
 
-        entry_item = proto_tree_add_text(ptree, tvb, offset, 4 + 2 + 2 + value_length, "Attribute [%21s]: %s", val_to_str(attribute_id, attribute_id_vals, "Unknown"), value);
+        entry_item = proto_tree_add_text(ptree, tvb, offset, 4 + 2 + 2 + value_length, "Attribute [%21s]: %s", val_to_str_const(attribute_id, attribute_id_vals, "Unknown"), value);
         entry_tree = proto_item_add_subtree(entry_item, ett_btavrcp_attribute_entry);
 
         proto_tree_add_item(entry_tree, hf_btavrcp_attribute, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -931,8 +931,8 @@ dissect_passthrough(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s (%s)",
-                    val_to_str(operation, passthrough_operation_vals, "Unknown opcode"),
-                    val_to_str(state, passthrough_state_vals, "unknown"));
+                    val_to_str_const(operation, passthrough_operation_vals, "Unknown opcode"),
+                    val_to_str_const(state, passthrough_state_vals, "unknown"));
     return offset;
 }
 
@@ -1012,7 +1012,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (company_id != COMPANY_BT_SIG) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                val_to_str(pdu_id, NULL, "Unknown PDU ID"));
+                val_to_str_const(pdu_id, NULL, "Unknown PDU ID"));
     }
 
     proto_tree_add_item(tree, hf_btavrcp_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1028,7 +1028,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return offset;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-            val_to_str(pdu_id, pdu_id_vals, "Unknown PDU ID"));
+            val_to_str_const(pdu_id, pdu_id_vals, "Unknown PDU ID"));
 
     if (parameter_length == 0) return offset;
 
@@ -1180,7 +1180,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " - Status: %s",
-                val_to_str(status, status_vals, "Unknown status"));
+                val_to_str_const(status, status_vals, "Unknown status"));
     } else switch(pdu_id) {
         case PDU_GET_CAPABILITIES:
             if (is_command)  {
@@ -1190,7 +1190,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 capability = tvb_get_guint8(tvb, offset);
                 *op |= capability << 8;
                 col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)",
-                        val_to_str(capability, capability_vals, "unknown"));
+                        val_to_str_const(capability, capability_vals, "unknown"));
                 offset += 1;
             } else {
                 guint capability;
@@ -1216,7 +1216,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) - Count: %u",
-                        val_to_str(capability, capability_vals, "unknown"), capability_count);
+                        val_to_str_const(capability, capability_vals, "unknown"), capability_count);
             }
             break;
         case PDU_LIST_PLAYER_APPLICATION_SETTING_ATTRIBUTES:
@@ -1404,7 +1404,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_btavrcp_battery_status, tvb, offset, 1, ENC_BIG_ENDIAN);
                 battery_status = tvb_get_guint8(tvb, offset);
                 offset += 1;
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - Battery: %s", val_to_str(battery_status, battery_status_vals, "unknown"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - Battery: %s", val_to_str_const(battery_status, battery_status_vals, "unknown"));
             } else {
                 /* non */
             }
@@ -1455,14 +1455,14 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 1;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " PlayStatus: %s, SongPosition: %ums, SongLength: %ums",
-                        val_to_str(play_status, play_status_vals, "unknown"), song_length, song_position);
+                        val_to_str_const(play_status, play_status_vals, "unknown"), song_length, song_position);
             }
             break;
         case PDU_REGISTER_NOTIFICATION:
             event_id = tvb_get_guint8(tvb, offset);
             *op |= event_id << 8;
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                    val_to_str(event_id, notification_vals, "Unknown Event ID"));
+                    val_to_str_const(event_id, notification_vals, "Unknown Event ID"));
 
             if (is_command)  {
                 proto_tree_add_item(tree, hf_btavrcp_event_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1491,7 +1491,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_tree_add_item(tree, hf_btavrcp_play_status, tvb, offset, 1, ENC_BIG_ENDIAN);
                         play_status = tvb_get_guint8(tvb, offset);
                         offset += 1;
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " - PlayStatus: %s", val_to_str(play_status, play_status_vals, "unknown"));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " - PlayStatus: %s", val_to_str_const(play_status, play_status_vals, "unknown"));
                         break;
                     case EVENT_TRACK_CHANGED:
                         pitem = proto_tree_add_item(tree, hf_btavrcp_identifier, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1528,13 +1528,13 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_tree_add_item(tree, hf_btavrcp_battery_status, tvb, offset, 1, ENC_BIG_ENDIAN);
                         battery_status = tvb_get_guint8(tvb, offset);
                         offset += 1;
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " - Battery: %s", val_to_str(battery_status, battery_status_vals, "unknown"));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " - Battery: %s", val_to_str_const(battery_status, battery_status_vals, "unknown"));
                         break;
                     case EVENT_SYSTEM_STATUS_CHANGED:
                         proto_tree_add_item(tree, hf_btavrcp_system_status, tvb, offset, 1, ENC_BIG_ENDIAN);
                         system_status = tvb_get_guint8(tvb, offset);
                         offset += 1;
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " - SystemStatus: %s", val_to_str(system_status, system_status_vals, "unknown"));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " - SystemStatus: %s", val_to_str_const(system_status, system_status_vals, "unknown"));
                         break;
                     case EVENT_PLAYER_APPLICATION_SETTING_CHANGED:
                         proto_tree_add_item(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1595,7 +1595,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_btavrcp_bt_continuing_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                 continuing_op = tvb_get_guint8(tvb, offset) | (company_id << 8);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                        val_to_str(tvb_get_guint8(tvb, offset), pdu_id_vals, "Unknown opcode"));
+                        val_to_str_const(tvb_get_guint8(tvb, offset), pdu_id_vals, "Unknown opcode"));
                 offset += 1;
 
                 if (pinfo->fd->flags.visited == 0) {
@@ -1632,7 +1632,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_btavrcp_bt_continuing_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                 continuing_op = tvb_get_guint8(tvb, offset) | (company_id << 8);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                        val_to_str(tvb_get_guint8(tvb, offset), pdu_id_vals, "Unknown opcode"));
+                        val_to_str_const(tvb_get_guint8(tvb, offset), pdu_id_vals, "Unknown opcode"));
                 offset += 1;
 
                 if (pinfo->fd->flags.visited == 0) {
@@ -1706,7 +1706,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 1;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Status: %s",
-                        val_to_str(status, status_vals, "Unknown status"));
+                        val_to_str_const(status, status_vals, "Unknown status"));
             }
             break;
         case PDU_PLAY_ITEM:
@@ -1726,7 +1726,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 2;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
-                        val_to_str(scope, scope_vals, "unknown"), uid, uid_counter);
+                        val_to_str_const(scope, scope_vals, "unknown"), uid, uid_counter);
             } else {
                 guint status;
 
@@ -1734,7 +1734,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 status = tvb_get_guint8(tvb, offset);
                 offset += 1;
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Status: %s",
-                        val_to_str(status, status_vals, "Unknown status"));
+                        val_to_str_const(status, status_vals, "Unknown status"));
             }
             break;
         case PDU_ADD_TO_NOW_PLAYING:
@@ -1754,7 +1754,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 2;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
-                        val_to_str(scope, scope_vals, "unknown"), uid, uid_counter);
+                        val_to_str_const(scope, scope_vals, "unknown"), uid, uid_counter);
             } else {
                 guint status;
 
@@ -1762,7 +1762,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 status = tvb_get_guint8(tvb, offset);
                 offset += 1;
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Status: %s",
-                        val_to_str(status, status_vals, "Unknown status"));
+                        val_to_str_const(status, status_vals, "Unknown status"));
             }
             break;
     };
@@ -1794,11 +1794,11 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                val_to_str(status, status_vals, "Unknown status"));
+                val_to_str_const(status, status_vals, "Unknown status"));
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                    val_to_str(pdu_id, browsing_pdu_id_vals, "Unknown opcode"));
+                    val_to_str_const(pdu_id, browsing_pdu_id_vals, "Unknown opcode"));
 
     if (is_command || status == STATUS_OK) switch(pdu_id) {
         case PDU_SET_BROWSED_PLAYER:
@@ -1866,7 +1866,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset = dissect_attribute_id_list(tvb, tree, offset, attribute_count);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, StartItem: 0x%04x, EndItem: 0x%04x",
-                        val_to_str(scope, scope_vals, "unknown"), start_item, end_item);
+                        val_to_str_const(scope, scope_vals, "unknown"), start_item, end_item);
             } else {
                 guint number_of_items;
                 guint uid_counter;
@@ -1921,7 +1921,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 8;
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Direction: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
-                        val_to_str(direction, direction_vals, "unknown"), uid, uid_counter);
+                        val_to_str_const(direction, direction_vals, "unknown"), uid, uid_counter);
             } else {
                 guint number_of_items;
 
@@ -1952,7 +1952,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 number_of_attributes = tvb_get_guint8(tvb, offset);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
-                        val_to_str(scope, scope_vals, "unknown"), uid, uid_counter);
+                        val_to_str_const(scope, scope_vals, "unknown"), uid, uid_counter);
 
                 if (number_of_attributes == 0) proto_item_append_text(pitem, " (All Supported Attributes)");
                 offset += 1;
@@ -2056,8 +2056,8 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 1;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-                        val_to_str(opcode, opcode_vals, "Unknown opcode"),
-                        val_to_str(ctype, ctype_vals, "Unknown ctype"));
+                        val_to_str_const(opcode, opcode_vals, "Unknown opcode"),
+                        val_to_str_const(ctype, ctype_vals, "Unknown ctype"));
 
         switch(opcode) {
             case OPCODE_PASSTHROUGH:

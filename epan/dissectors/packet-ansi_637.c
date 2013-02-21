@@ -818,7 +818,7 @@ tele_param_pri_ind(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    str=val_to_str((oct&0xc0)>>6, tele_param_pri_ind_strings, "Unknown");
+    str=val_to_str_const((oct&0xc0)>>6, tele_param_pri_ind_strings, "Unknown");
 
     other_decode_bitfield_value(ansi_637_bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(tree, tvb, offset, 1,
