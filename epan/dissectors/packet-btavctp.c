@@ -60,6 +60,10 @@ typedef struct _fragment_t {
 } fragment_t;
 
 typedef struct _fragments_t {
+    guint32      interface_id;
+    guint32      adapter_id;
+    guint32      chandle;
+    guint32      psm;
     guint32      count;
     guint32      number_of_packets;
     guint32      pid;
@@ -165,8 +169,11 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     avctp_data = ep_alloc(sizeof(btavctp_data_t));
-    avctp_data->cr = cr;
-    avctp_data->psm = l2cap_data->psm;
+    avctp_data->cr           = cr;
+    avctp_data->interface_id = l2cap_data->interface_id;
+    avctp_data->adapter_id   = l2cap_data->adapter_id;
+    avctp_data->chandle      = l2cap_data->chandle;
+    avctp_data->psm          = l2cap_data->psm;
 
     save_private_data = pinfo->private_data;
     pinfo->private_data = avctp_data;
@@ -185,8 +192,43 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else
             call_dissector(data_handle, next_tvb, pinfo, tree);
     } else {
+        emem_tree_key_t key[6];
+        guint32         k_interface_id;
+        guint32         k_adapter_id;
+        guint32         k_chandle;
+        guint32         k_psm;
+        guint32         k_frame_number;
+        guint32         interface_id;
+        guint32         adapter_id;
+        guint32         chandle;
+        guint32         psm;
+
+        interface_id = l2cap_data->interface_id;
+        adapter_id   = l2cap_data->adapter_id;
+        chandle      = l2cap_data->chandle;
+        psm          = l2cap_data->psm;
+
+        k_interface_id = interface_id;
+        k_adapter_id   = adapter_id;
+        k_chandle      = chandle;
+        k_psm          = psm;
+        k_frame_number = pinfo->fd->num;
+
+        key[0].length = 1;
+        key[0].key = &k_interface_id;
+        key[1].length = 1;
+        key[1].key = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key = &k_chandle;
+        key[3].length = 1;
+        key[3].key = &k_psm;
+        key[4].length = 1;
+        key[4].key = &k_frame_number;
+        key[5].length = 0;
+        key[5].key = NULL;
+
         if (packet_type == PACKET_TYPE_START) {
-            if(!pinfo->fd->flags.visited){
+            if (!pinfo->fd->flags.visited) {
                 fragment = se_alloc(sizeof(fragment_t));
                 fragment->length = length;
                 fragment->data = se_alloc(fragment->length);
@@ -200,29 +242,66 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 fragments->fragment = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btavctp fragments");
                 se_tree_insert32(fragments->fragment, fragments->count, fragment);
 
-                se_tree_insert32(reassembling, pinfo->fd->num, fragments);
+                fragments->interface_id = interface_id;
+                fragments->adapter_id   = adapter_id;
+                fragments->chandle      = chandle;
+                fragments->psm          = psm;
+
+                se_tree_insert32_array(reassembling, key, fragments);
 
             } else {
-                    fragments = se_tree_lookup32_le(reassembling, pinfo->fd->num);
+                fragments = se_tree_lookup32_array_le(reassembling, key);
+                if (!(fragments && fragments->interface_id == interface_id &&
+                        fragments->adapter_id == adapter_id &&
+                        fragments->chandle == chandle &&
+                        fragments->psm == psm))
+                    fragments = NULL;
             }
 
             call_dissector(data_handle, next_tvb, pinfo, tree);
 
         } else if (packet_type == PACKET_TYPE_CONTINUE) {
-            if(!pinfo->fd->flags.visited) {
-                if (fragments != NULL) {
-                    fragment = se_alloc(sizeof(fragment_t));
-                    fragment->length = length;
-                    fragment->data = se_alloc(fragment->length);
-                    tvb_memcpy(tvb, fragment->data, offset, fragment->length);
+            fragments = se_tree_lookup32_array_le(reassembling, key);
+            if (!(fragments && fragments->interface_id == interface_id &&
+                    fragments->adapter_id == adapter_id &&
+                    fragments->chandle == chandle &&
+                    fragments->psm == psm))
+                fragments = NULL;
 
-                    fragments->count++;
-                    se_tree_insert32(fragments->fragment, fragments->count, fragment);
+            if (!pinfo->fd->flags.visited && fragments != NULL) {
+                fragment = se_alloc(sizeof(fragment_t));
+                fragment->length = length;
+                fragment->data = se_alloc(fragment->length);
+                tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
-                    se_tree_insert32(reassembling, pinfo->fd->num, fragments);
-                }
-            } else {
-                    fragments = se_tree_lookup32_le(reassembling, pinfo->fd->num);
+                fragments->count++;
+                se_tree_insert32(fragments->fragment, fragments->count, fragment);
+
+                fragments->interface_id = interface_id;
+                fragments->adapter_id   = adapter_id;
+                fragments->chandle      = chandle;
+                fragments->psm          = psm;
+
+                k_interface_id = interface_id;
+                k_adapter_id   = adapter_id;
+                k_chandle      = chandle;
+                k_psm          = psm;
+                k_frame_number = pinfo->fd->num;
+
+                key[0].length = 1;
+                key[0].key = &k_interface_id;
+                key[1].length = 1;
+                key[1].key = &k_adapter_id;
+                key[2].length = 1;
+                key[2].key = &k_chandle;
+                key[3].length = 1;
+                key[3].key = &k_psm;
+                key[4].length = 1;
+                key[4].key = &k_frame_number;
+                key[5].length = 0;
+                key[5].key = NULL;
+
+                se_tree_insert32_array(reassembling, key, fragments);
             }
 
             call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -231,21 +310,47 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             guint    i_length = 0;
             guint8   *reassembled;
 
-            if(!pinfo->fd->flags.visited){
+            fragments = se_tree_lookup32_array_le(reassembling, key);
+            if (!(fragments && fragments->interface_id == interface_id &&
+                    fragments->adapter_id == adapter_id &&
+                    fragments->chandle == chandle &&
+                    fragments->psm == psm))
+                fragments = NULL;
 
-                if (fragments != NULL) {
-                    fragment = se_alloc(sizeof(fragment_t));
-                    fragment->length = length;
-                    fragment->data = se_alloc(fragment->length);
-                    tvb_memcpy(tvb, fragment->data, offset, fragment->length);
+            if (!pinfo->fd->flags.visited && fragments != NULL) {
+                fragment = se_alloc(sizeof(fragment_t));
+                fragment->length = length;
+                fragment->data = se_alloc(fragment->length);
+                tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
-                    fragments->count++;
-                    se_tree_insert32(fragments->fragment, fragments->count, fragment);
+                fragments->count++;
+                se_tree_insert32(fragments->fragment, fragments->count, fragment);
 
-                    se_tree_insert32(reassembling, pinfo->fd->num, fragments);
-                }
-            } else {
-                fragments = se_tree_lookup32_le(reassembling, pinfo->fd->num);
+                fragments->interface_id = interface_id;
+                fragments->adapter_id   = adapter_id;
+                fragments->chandle      = chandle;
+                fragments->psm          = psm;
+
+                key[0].length = 1;
+                key[0].key = &k_interface_id;
+                key[1].length = 1;
+                key[1].key = &k_adapter_id;
+                key[2].length = 1;
+                key[2].key = &k_chandle;
+                key[3].length = 1;
+                key[3].key = &k_psm;
+                key[4].length = 1;
+                key[4].key = &k_frame_number;
+                key[5].length = 0;
+                key[5].key = NULL;
+
+                k_interface_id = interface_id;
+                k_adapter_id   = adapter_id;
+                k_chandle      = chandle;
+                k_psm          = psm;
+                k_frame_number = pinfo->fd->num;
+
+                se_tree_insert32_array(reassembling, key, fragments);
             }
 
             length = 0;

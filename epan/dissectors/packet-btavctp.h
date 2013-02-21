@@ -28,8 +28,11 @@
 #define __PACKET_BTAVCTP_H__
 
 typedef struct _btavctp_data_t {
-    guint8          cr;
-    guint16         psm;
+    guint32   interface_id;
+    guint32   adapter_id;
+    guint16   chandle;  /* only low 12 bits used */
+    guint16   psm;
+    guint8    cr;
 } btavctp_data_t;
 
 #endif

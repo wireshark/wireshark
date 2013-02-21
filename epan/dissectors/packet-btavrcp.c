@@ -262,7 +262,11 @@ static emem_tree_t *timing       = NULL;
 typedef struct _fragment {
     guint        start_frame_number;
     guint        end_frame_number;
-    guint        op;
+    guint32      interface_id;
+    guint32      adapter_id;
+    guint32      chandle;
+    guint32      psm;
+    guint32      op;
     guint        state;
     guint32      count;
     emem_tree_t  *fragments;
@@ -280,8 +284,12 @@ typedef struct _timing_info {
     nstime_t  response_timestamp;
     guint     max_response_time;
     guint     used;
-    guint     opcode;
-    guint     op;
+    guint32   interface_id;
+    guint32   adapter_id;
+    guint32   chandle;
+    guint32   psm;
+    guint32   opcode;
+    guint32   op;
     } timing_info_t;
 
 static const value_string packet_type_vals[] = {
@@ -981,7 +989,7 @@ dissect_subunit(tvbuff_t *tvb, proto_tree *tree, gint offset, gboolean is_comman
 
 static gint
 dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                         gint offset, guint ctype, guint *op,
+                         gint offset, guint ctype, guint32 *op,
                          gboolean is_command)
 {
     guint pdu_id;
@@ -990,6 +998,25 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint packet_type;
     guint parameter_length;
     guint length;
+    emem_tree_key_t  key[7];
+    guint32          k_interface_id;
+    guint32          k_adapter_id;
+    guint32          k_chandle;
+    guint32          k_psm;
+    guint32          k_op;
+    guint32          k_frame_number;
+    guint32          interface_id;
+    guint32          adapter_id;
+    guint32          chandle;
+    guint32          psm;
+    btavctp_data_t  *avctp_data;
+
+    avctp_data = (btavctp_data_t *) pinfo->private_data;
+
+    interface_id = avctp_data->interface_id;
+    adapter_id   = avctp_data->adapter_id;
+    chandle      = avctp_data->chandle;
+    psm          = avctp_data->psm;
 
     proto_tree_add_item(tree, hf_btavrcp_company_id, tvb, offset, 3, ENC_BIG_ENDIAN);
     company_id = tvb_get_ntoh24(tvb, offset);
@@ -1037,17 +1064,17 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (pinfo->fd->flags.visited == 0) {
             fragment_t       *fragment;
             data_fragment_t  *data_fragment;
-            emem_tree_key_t  key[3];
-            guint32          f_op;
-            guint32          f_frame_number;
 
-            f_op = pdu_id | (company_id << 8);
-            f_frame_number = pinfo->fd->num;
+            k_interface_id = interface_id;
+            k_adapter_id   = adapter_id;
+            k_chandle      = chandle;
+            k_psm          = psm;
+            k_op = pdu_id | (company_id << 8);
+            k_frame_number = pinfo->fd->num;
 
             fragment = se_alloc(sizeof(fragment_t));
             fragment->start_frame_number = pinfo->fd->num;
             fragment->end_frame_number = 0;
-            fragment->op = pdu_id | (company_id << 8);
             fragment->state = 0;
 
             fragment->count = 1;
@@ -1061,11 +1088,25 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             se_tree_insert32(fragment->fragments, fragment->count, data_fragment);
 
             key[0].length = 1;
-            key[0].key = &f_op;
+            key[0].key = &k_interface_id;
             key[1].length = 1;
-            key[1].key = &f_frame_number;
-            key[2].length = 0;
-            key[2].key = NULL;
+            key[1].key = &k_adapter_id;
+            key[2].length = 1;
+            key[2].key = &k_chandle;
+            key[3].length = 1;
+            key[3].key = &k_psm;
+            key[4].length = 1;
+            key[4].key = &k_op;
+            key[5].length = 1;
+            key[5].key = &k_frame_number;
+            key[6].length = 0;
+            key[6].key = NULL;
+
+            fragment->interface_id = interface_id;
+            fragment->adapter_id   = adapter_id;
+            fragment->chandle      = chandle;
+            fragment->psm          = psm;
+            fragment->op           = pdu_id | (company_id << 8);
 
             se_tree_insert32_array(reassembling, key, fragment);
         }
@@ -1076,22 +1117,36 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (pinfo->fd->flags.visited == 0) {
             fragment_t       *fragment;
             data_fragment_t  *data_fragment;
-            emem_tree_key_t  key[3];
-            guint32          f_op;
-            guint32          f_frame_number;
 
-            f_op = pdu_id | (company_id << 8);
-            f_frame_number = pinfo->fd->num;
+            k_interface_id = interface_id;
+            k_adapter_id   = adapter_id;
+            k_chandle      = chandle;
+            k_psm          = psm;
+            k_op = pdu_id | (company_id << 8);
+            k_frame_number = pinfo->fd->num;
 
             key[0].length = 1;
-            key[0].key = &f_op;
+            key[0].key = &k_interface_id;
             key[1].length = 1;
-            key[1].key = &f_frame_number;
-            key[2].length = 0;
-            key[2].key = NULL;
+            key[1].key = &k_adapter_id;
+            key[2].length = 1;
+            key[2].key = &k_chandle;
+            key[3].length = 1;
+            key[3].key = &k_psm;
+            key[4].length = 1;
+            key[4].key = &k_op;
+            key[5].length = 1;
+            key[5].key = &k_frame_number;
+            key[6].length = 0;
+            key[6].key = NULL;
 
             fragment = se_tree_lookup32_array_le(reassembling, key);
-            if (fragment && fragment->op == (pdu_id | (company_id << 8)) && fragment->state == 1) {
+            if (fragment && fragment->interface_id == interface_id &&
+                    fragment->adapter_id == adapter_id &&
+                    fragment->chandle == chandle &&
+                    fragment->psm == psm &&
+                    fragment->op == (pdu_id | (company_id << 8)) &&
+                    fragment->state == 1) {
                 fragment->count += 1;
                 fragment->state = 0;
 
@@ -1108,9 +1163,6 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else if (packet_type == PACKET_TYPE_END) {
         fragment_t       *fragment;
         data_fragment_t  *data_fragment;
-        emem_tree_key_t  key[3];
-        guint32          f_op;
-        guint32          f_frame_number;
         guint            i_frame;
         tvbuff_t         *next_tvb;
         guint            i_length = 0;
@@ -1118,18 +1170,34 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " [end]");
 
-        f_op = pdu_id | (company_id << 8);
-        f_frame_number = pinfo->fd->num;
+        k_interface_id = interface_id;
+        k_adapter_id   = adapter_id;
+        k_chandle      = chandle;
+        k_psm          = psm;
+        k_op = pdu_id | (company_id << 8);
+        k_frame_number = pinfo->fd->num;
 
         key[0].length = 1;
-        key[0].key = &f_op;
+        key[0].key = &k_interface_id;
         key[1].length = 1;
-        key[1].key = &f_frame_number;
-        key[2].length = 0;
-        key[2].key = NULL;
+        key[1].key = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key = &k_chandle;
+        key[3].length = 1;
+        key[3].key = &k_psm;
+        key[4].length = 1;
+        key[4].key = &k_op;
+        key[5].length = 1;
+        key[5].key = &k_frame_number;
+        key[6].length = 0;
+        key[6].key = NULL;
 
         fragment = se_tree_lookup32_array_le(reassembling, key);
-        if (fragment && fragment->op == (pdu_id | (company_id << 8))) {
+        if (fragment && fragment->interface_id == interface_id &&
+                    fragment->adapter_id == adapter_id &&
+                    fragment->chandle == chandle &&
+                    fragment->psm == psm &&
+                    fragment->op == (pdu_id | (company_id << 8))) {
             if (fragment->state == 1 && pinfo->fd->flags.visited == 0) {
                 fragment->end_frame_number = pinfo->fd->num;
                 fragment->count += 1;
@@ -1600,22 +1668,36 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 if (pinfo->fd->flags.visited == 0) {
                     fragment_t      *fragment;
-                    emem_tree_key_t  key[3];
-                    guint32          f_op;
-                    guint32          f_frame_number;
 
-                    f_op = continuing_op;
-                    f_frame_number = pinfo->fd->num;
+                    k_interface_id = interface_id;
+                    k_adapter_id   = adapter_id;
+                    k_chandle      = chandle;
+                    k_psm          = psm;
+                    k_op           = continuing_op;
+                    k_frame_number = pinfo->fd->num;
 
                     key[0].length = 1;
-                    key[0].key = &f_op;
+                    key[0].key = &k_interface_id;
                     key[1].length = 1;
-                    key[1].key = &f_frame_number;
-                    key[2].length = 0;
-                    key[2].key = NULL;
+                    key[1].key = &k_adapter_id;
+                    key[2].length = 1;
+                    key[2].key = &k_chandle;
+                    key[3].length = 1;
+                    key[3].key = &k_psm;
+                    key[4].length = 1;
+                    key[4].key = &k_op;
+                    key[5].length = 1;
+                    key[5].key = &k_frame_number;
+                    key[6].length = 0;
+                    key[6].key = NULL;
 
                     fragment = se_tree_lookup32_array_le(reassembling, key);
-                    if (fragment && fragment->op == continuing_op && fragment->state == 0) {
+                    if (fragment && fragment->interface_id == interface_id &&
+                            fragment->adapter_id == adapter_id &&
+                            fragment->chandle == chandle &&
+                            fragment->psm == psm &&
+                            fragment->op == continuing_op &&
+                            fragment->state == 0) {
                         fragment->state = 1;
                     }
                 }
@@ -1637,22 +1719,36 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 if (pinfo->fd->flags.visited == 0) {
                     fragment_t       *fragment;
-                    emem_tree_key_t  key[3];
-                    guint32          f_op;
-                    guint32          f_frame_number;
 
-                    f_op = continuing_op;
-                    f_frame_number = pinfo->fd->num;
+                    k_interface_id = interface_id;
+                    k_adapter_id   = adapter_id;
+                    k_chandle      = chandle;
+                    k_psm          = psm;
+                    k_op           = continuing_op;
+                    k_frame_number = pinfo->fd->num;
 
                     key[0].length = 1;
-                    key[0].key = &f_op;
+                    key[0].key = &k_interface_id;
                     key[1].length = 1;
-                    key[1].key = &f_frame_number;
-                    key[2].length = 0;
-                    key[2].key = NULL;
+                    key[1].key = &k_adapter_id;
+                    key[2].length = 1;
+                    key[2].key = &k_chandle;
+                    key[3].length = 1;
+                    key[3].key = &k_psm;
+                    key[4].length = 1;
+                    key[4].key = &k_op;
+                    key[5].length = 1;
+                    key[5].key = &k_frame_number;
+                    key[6].length = 0;
+                    key[6].key = NULL;
 
                     fragment = se_tree_lookup32_array_le(reassembling, key);
-                    if (fragment && fragment->op == continuing_op && fragment->state == 0) {
+                    if (fragment && fragment->interface_id == interface_id &&
+                            fragment->adapter_id == adapter_id &&
+                            fragment->chandle == chandle &&
+                            fragment->psm == psm &&
+                            fragment->op == continuing_op &&
+                            fragment->state == 0) {
                         fragment->state = 3;
                     }
                 }
@@ -2000,17 +2096,25 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree      *btavrcp_tree;
     proto_item      *pitem  = NULL;
     gint             offset = 0;
-    guint            opcode;
-    guint            op     = 0;
+    guint32          opcode;
+    guint32          op     = 0;
     guint            ctype;
     guint            response_time;
     guint            max_response_time;
     guint            is_command;
     timing_info_t   *timing_info;
-    emem_tree_key_t  t_key[4];
-    guint32          t_opcode;
-    guint32          t_op;
-    guint32          t_frame_number;
+    emem_tree_key_t  key[8];
+    guint32          k_interface_id;
+    guint32          k_adapter_id;
+    guint32          k_chandle;
+    guint32          k_psm;
+    guint32          k_opcode;
+    guint32          k_op;
+    guint32          k_frame_number;
+    guint32         interface_id;
+    guint32         adapter_id;
+    guint32         chandle;
+    guint32         psm;
     btavctp_data_t  *avctp_data;
 
     avctp_data = (btavctp_data_t *) pinfo->private_data;
@@ -2043,6 +2147,11 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     is_command = !avctp_data->cr;
 
+    interface_id = avctp_data->interface_id;
+    adapter_id   = avctp_data->adapter_id;
+    chandle      = avctp_data->chandle;
+    psm          = avctp_data->psm;
+
     if (avctp_data->psm == BTL2CAP_PSM_AVCTP_CTRL) {
         proto_tree_add_item(btavrcp_tree, hf_btavrcp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(btavrcp_tree, hf_btavrcp_ctype, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2074,18 +2183,30 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
         };
 
-        t_opcode = opcode;
-        t_op = op;
-        t_frame_number = pinfo->fd->num;
+        k_interface_id = interface_id;
+        k_adapter_id   = adapter_id;
+        k_chandle      = chandle;
+        k_psm          = psm;
+        k_opcode       = opcode;
+        k_op           = op;
+        k_frame_number = pinfo->fd->num;
 
-        t_key[0].length = 1;
-        t_key[0].key = &t_opcode;
-        t_key[1].length = 1;
-        t_key[1].key = &t_op;
-        t_key[2].length = 1;
-        t_key[2].key = &t_frame_number;
-        t_key[3].length = 0;
-        t_key[3].key = NULL;
+        key[0].length = 1;
+        key[0].key = &k_interface_id;
+        key[1].length = 1;
+        key[1].key = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key = &k_chandle;
+        key[3].length = 1;
+        key[3].key = &k_psm;
+        key[4].length = 1;
+        key[4].key = &k_opcode;
+        key[5].length = 1;
+        key[5].key = &k_op;
+        key[6].length = 1;
+        key[6].key = &k_frame_number;
+        key[7].length = 0;
+        key[7].key = NULL;
 
         if (pinfo->fd->flags.visited == 0) {
             if (is_command) {
@@ -2106,35 +2227,73 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 timing_info->response_timestamp.nsecs = 0;
                 timing_info->max_response_time = max_response_time;
 
-                timing_info->opcode = opcode;
-                timing_info->op = op;
-                timing_info->used = 0;
+                timing_info->interface_id = interface_id;
+                timing_info->adapter_id   = adapter_id;
+                timing_info->chandle      = chandle;
+                timing_info->psm          = psm;
+                timing_info->opcode       = opcode;
+                timing_info->op           = op;
+                timing_info->used         = 0;
 
-                se_tree_insert32_array(timing, t_key, timing_info);
+                se_tree_insert32_array(timing, key, timing_info);
             } else {
-                timing_info = se_tree_lookup32_array_le(timing, t_key);
-                if (timing_info && timing_info->opcode == opcode && timing_info->op == op && timing_info->used == 0) {
+                timing_info = se_tree_lookup32_array_le(timing, key);
+                if (timing_info && timing_info->interface_id == interface_id &&
+                        timing_info->adapter_id == adapter_id &&
+                        timing_info->chandle == chandle &&
+                        timing_info->psm == psm &&
+                        timing_info->opcode == opcode &&
+                        timing_info->op == op &&
+                        timing_info->used == 0) {
                     timing_info->response_frame_number = pinfo->fd->num;
                     timing_info->response_timestamp = pinfo->fd->abs_ts;
                     timing_info->used = 1;
                 }
             }
 
-            t_key[0].length = 1;
-            t_key[0].key = &t_opcode;
-            t_key[1].length = 1;
-            t_key[1].key = &t_op;
-            t_key[2].length = 1;
-            t_key[2].key = &t_frame_number;
-            t_key[3].length = 0;
-            t_key[3].key = NULL;
+            k_interface_id = interface_id;
+            k_adapter_id   = adapter_id;
+            k_chandle      = chandle;
+            k_psm          = psm;
+            k_opcode       = opcode;
+            k_op           = op;
+            k_frame_number = pinfo->fd->num;
+
+            key[0].length = 1;
+            key[0].key = &k_interface_id;
+            key[1].length = 1;
+            key[1].key = &k_adapter_id;
+            key[2].length = 1;
+            key[2].key = &k_chandle;
+            key[3].length = 1;
+            key[3].key = &k_psm;
+            key[4].length = 1;
+            key[4].key = &k_opcode;
+            key[5].length = 1;
+            key[5].key = &k_op;
+            key[6].length = 1;
+            key[6].key = &k_frame_number;
+            key[7].length = 0;
+            key[7].key = NULL;
         }
 
-        timing_info = se_tree_lookup32_array_le(timing, t_key);
-        if (timing_info && timing_info->opcode == opcode && timing_info->op == op) {
-            response_time = timing_info->response_timestamp.nsecs - timing_info->command_timestamp.nsecs;
-            response_time /= 1000000;
-            response_time += ((guint)timing_info->response_timestamp.secs - (guint)timing_info->command_timestamp.secs) / 1000;
+        timing_info = se_tree_lookup32_array_le(timing, key);
+        if (timing_info && timing_info->interface_id == interface_id &&
+                timing_info->adapter_id == adapter_id &&
+                timing_info->chandle == chandle &&
+                timing_info->psm == psm &&
+                timing_info->opcode == opcode &&
+                timing_info->op == op) {
+
+            if (timing_info->command_timestamp.nsecs > timing_info->response_timestamp.nsecs) {
+                response_time = timing_info->response_timestamp.nsecs + (1000000000 - timing_info->command_timestamp.nsecs);
+                response_time /= 1000000;
+                response_time += ((guint)timing_info->response_timestamp.secs - 1 - (guint)timing_info->command_timestamp.secs) / 1000;
+            } else {
+                response_time = timing_info->response_timestamp.nsecs - timing_info->command_timestamp.nsecs;
+                response_time /= 1000000;
+                response_time += ((guint)timing_info->response_timestamp.secs - (guint)timing_info->command_timestamp.secs) / 1000;
+            }
 
             if (timing_info->response_frame_number == 0) {
                 response_time = UINT_MAX;
