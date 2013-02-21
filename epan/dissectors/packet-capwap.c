@@ -30,6 +30,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/expert.h>
 
 #include <epan/sminmpec.h>
 
@@ -1195,8 +1196,8 @@ dissect_capwap_control_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, gu
 static int
 dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offset, packet_info *pinfo, guint8 *payload_type, guint8 *payload_wbid, gboolean *fragment_is, gboolean *fragment_more, guint32 *fragment_id, guint32 *fragment_offset)
 {
-	guint plen = 0;
-	proto_item *ti, *ti_flag;
+	guint plen = 0, hlen = 0;
+	proto_item *ti, *ti_flag, *ti_len;
 	proto_tree *capwap_header_tree;
 	proto_tree *capwap_header_flags_tree;
 	guint flags = 0;
@@ -1205,11 +1206,13 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 
 	/* RFC 5415  HLEN:  A 5-bit field containing the length of the CAPWAP transport header in 4-byte words */
 	/* As we display the preamble separately reduce the length by 1 */ 
-	ti = proto_tree_add_item(capwap_control_tree, hf_capwap_header, tvb, offset+plen, ((tvb_get_bits8(tvb, (offset+plen)*8, 5))*4)-1, ENC_NA);
+	hlen = tvb_get_bits8(tvb, (offset+plen)*8, 5)*4-1;
+	ti = proto_tree_add_item(capwap_control_tree, hf_capwap_header, tvb, offset+plen, hlen, ENC_NA);
 	capwap_header_tree = proto_item_add_subtree(ti, ett_capwap);
 
 	/* Header Length : 5 Bits */
-	proto_tree_add_uint(capwap_header_tree, hf_capwap_header_hlen, tvb, offset+plen, 1, tvb_get_bits8(tvb, (offset+plen)*8, 5));
+	ti_len = proto_tree_add_uint(capwap_header_tree, hf_capwap_header_hlen, tvb, offset+plen, 1, tvb_get_bits8(tvb, (offset+plen)*8, 5));
+	proto_item_append_text(ti_len, " (%d)",hlen+1);
 	/* Radio ID : 5 Bits */
 	proto_tree_add_uint(capwap_header_tree, hf_capwap_header_rid, tvb, offset+plen, 1, tvb_get_bits8(tvb, (offset+plen)*8+5, 5));
 
@@ -1306,7 +1309,11 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 			plen += align;
 		}
 	}
-	return plen;
+	if ((plen != hlen) && global_capwap_draft_8_cisco == 0)
+	{
+		expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_WARN, "Wrong calculate length (%d) =! header length (%d) ! (May be try to use Cisco Wireless Controller Support Preference ?)", plen, hlen);
+	}
+	return hlen;
 }
 
 /* Returns the number of bytes consumed by this option. */
@@ -1553,7 +1560,7 @@ proto_register_capwap_control(void)
 		{ &hf_capwap_header_hlen,
 		{ "Header Length",	"capwap.header.length",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+			"Length of the CAPWAP transport header in 4-byte words (similar to IP header length) ", HFILL }},
 		{ &hf_capwap_header_rid,
 		{ "Radio ID",	"capwap.header.rid",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
