@@ -2987,7 +2987,7 @@ static int dissect_diagnosticrequest(int anchor, tvbuff_t *tvb, packet_info *pin
   if (local_length>0) {
     proto_item *ti_extensions;
     proto_tree *extensions_tree;
-    guint16     extensions_offset = 0;
+    guint32     extensions_offset = 0;
     guint32     extensions_length = 0;
     int         nExtensions       = 0;
 
