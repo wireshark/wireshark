@@ -2284,7 +2284,7 @@ capture_if_details_open_win(char *iface)
 
     wpcap_packet_close(adapter);
 
-    label = gtk_label_new("Note: the accuracy of all of these values relies only on the network card driver!");
+    label = gtk_label_new("Some drivers may not provide accurate values.");
     gtk_box_pack_start(GTK_BOX(main_vb), label, FALSE /*expand*/, FALSE /*fill*/, 0 /*padding*/);
 
     /* Button row. */
@@ -2336,9 +2336,9 @@ capture_if_details_open(char *iface)
         /* couldn't even get the packet.dll version, must be a very old one or just not existing -> give up */
         /* (this seems to be the case for 2.3 beta and all previous releases) */
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-            "%sCouldn't obtain WinPcap packet.dll version!%s"
-            "\n\nThe WinPcap packet.dll is not installed or the version you use seems to be very old!"
-            "\n\nPlease update/install WinPcap.",
+            "%sCouldn't obtain WinPcap packet.dll version.%s"
+            "\n\nThe WinPcap packet.dll is not installed or the version you use seems to be very old."
+            "\n\nPlease update or install WinPcap.",
             simple_dialog_primary_start(), simple_dialog_primary_end());
         return;
     }
@@ -2368,10 +2368,9 @@ capture_if_details_open(char *iface)
     if (!version_ok) {
         /* packet.dll version not known to us, warn user but try to continue */
         dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK | ESD_BTN_CANCEL,
-            "%sUnknown WinPcap version might crash or fail!%s"
-            "\n\nThe WinPcap packet.dll version \"%s\" is unknown if it supports required functions!"
-            "\n\nOnly WinPcap versions 3.0 and 3.1 are known to work with this feature."
-            "\n\nCrashes or unexpected behaviour might occur, you have been warned!"
+            "%sUnknown WinPcap version.%s"
+            "\n\nThe WinPcap packet.dll version \"%s\" is unknown. It may not"
+            "\nprovide functions that we need and might even crash."
             "\n\nContinue anyway?",
             simple_dialog_primary_start(), simple_dialog_primary_end(), version);
         simple_dialog_set_cb(dialog, capture_if_details_open_answered_cb, iface);

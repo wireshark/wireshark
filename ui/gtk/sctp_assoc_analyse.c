@@ -979,7 +979,7 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 	if (frame_matched != 1) {
 		epan_dissect_cleanup(&edt);
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Please choose an SCTP packet!");
+		    "Please choose an SCTP packet.");
 		return;
 	}
 
@@ -1026,7 +1026,7 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 
 	}
 	if (!frame_found)
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Assoc not found!");
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Assoc not found.");
 }
 
 void

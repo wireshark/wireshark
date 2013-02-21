@@ -737,7 +737,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
     }
     else /* Should never happen!!! */
     {
-        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Unknown error in the key \"Type\" field!");
+        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Unknown error in the key \"Type\" field.");
     }
 
     g_string_free(new_type_string,TRUE);
@@ -926,7 +926,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
     }
     else /* Should never happen!!! */
     {
-        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Unknown error in the key \"Type\" field!");
+        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Unknown error in the key \"Type\" field.");
     }
 
     g_string_free(new_type_string,TRUE);
@@ -1695,7 +1695,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     }
     else
     {
-        interface_name_lb = gtk_label_new("No airpcap interface found!");
+        interface_name_lb = gtk_label_new("Couldn't find an airpcap interface.");
         gtk_widget_set_sensitive(main_box,FALSE);
     }
 

@@ -639,7 +639,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
     bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
     if (bv == NULL) {
         /* shouldn't happen */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window.");
         return;
     }
 
@@ -718,7 +718,7 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 
 #if 0 /* Not req'd: GtkFileChooserWidget currently being used won't return with a Null filename */
     if (!file ||! *file) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please enter a filename!");
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please enter a filename.");
         g_free(file);
         return TRUE;
     }
@@ -738,7 +738,7 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
     bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
     if (bv == NULL) {
         /* shouldn't happen */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window.");
         g_free(file);
         return TRUE;
     }
@@ -751,7 +751,7 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 
     if (data_p == NULL || start == -1 || start > end) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "No data selected to save!");
+                      "No data selected to save.");
         g_free(file);
         return TRUE;
     }
@@ -805,7 +805,7 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
     if (bv == NULL) {
         /* shouldn't happen */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window.");
         return;
     }
     start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
@@ -813,7 +813,7 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     data_p = get_byte_view_data_and_length(bv, &len);
 
     if (data_p == NULL || start == -1 || start > end) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No data selected to save!");
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No data selected to save.");
         return;
     }
 

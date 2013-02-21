@@ -2264,7 +2264,7 @@ main(int argc, char *argv[])
 
     if (airpcap_if_list == NULL || g_list_length(airpcap_if_list) == 0){
       if (err == CANT_GET_AIRPCAP_INTERFACE_LIST && err_str != NULL) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Failed to open Airpcap Adapters!");
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", "Failed to open Airpcap Adapters.");
         g_free(err_str);
       }
       airpcap_if_active = NULL;

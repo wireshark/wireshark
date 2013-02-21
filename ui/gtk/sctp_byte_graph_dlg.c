@@ -115,8 +115,8 @@ static GtkWidget *zoomout_bt;
 
 static void draw_sack_graph(struct sctp_udata *u_data)
 {
-	GdkRGBA red_color =    {1.0, 0.0, 0.0, 1.0}; 
-	GdkRGBA green_color =  {0.0, 1.0, 0.0, 1.0}; 
+	GdkRGBA red_color =    {1.0, 0.0, 0.0, 1.0};
+	GdkRGBA green_color =  {0.0, 1.0, 0.0, 1.0};
 	gint diff;
 	GPtrArray *array = NULL;
 	guint32 i, size = 0, start=0, end;
@@ -186,7 +186,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 				LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5,
 				u_data->io->surface_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)+0.5);
 				cairo_stroke(cr);
-				cairo_destroy(cr);			
+				cairo_destroy(cr);
 			if (more == TRUE)
 			{
 #if GTK_CHECK_VERSION(2,22,0)
@@ -377,7 +377,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	cairo_line_to(cr, u_data->io->surface_width - RIGHT_BORDER + u_data->io->offset - 5.5, u_data->io->surface_height - BOTTOM_BORDER + 5.5);
 	cairo_stroke(cr);
 	cairo_destroy(cr);
-	
+
 	u_data->io->axis_width = u_data->io->surface_width - LEFT_BORDER - RIGHT_BORDER - u_data->io->offset;
 
 	if(u_data->io->tmp_width>0){
@@ -863,7 +863,7 @@ on_zoomin_bt (GtkWidget *widget _U_, struct sctp_udata *u_data)
 	}
 	else
 	{
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please draw a rectangle around the area you want to zoom in!");
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please draw a rectangle around the area you want to zoom in.");
 	}
 }
 

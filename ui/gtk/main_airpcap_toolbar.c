@@ -117,7 +117,7 @@ airpcap_toolbar_encryption_cb(GtkWidget *entry _U_, gpointer user_data _U_)
       }
     }
   } else {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No active AirPcap Adapter selected!");
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No active AirPcap Adapter selected.");
     return;
   }
 
@@ -136,14 +136,18 @@ airpcap_toolbar_encryption_cb(GtkWidget *entry _U_, gpointer user_data _U_)
           airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
           /* Save configuration for the curr_if */
           if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+              "Unable to save configuration."
+              "\nIn order to store the configuration in the registry you"
+              "\nhave to close all other AirPcap-based applications and"
+              "\nhave Administrator privileges.");
           }
           airpcap_if_close(ad);
         }
       }
     }
   } else {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "AirPcap Adapter Error!");
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "AirPcap Adapter Error.");
     return;
   }
 }

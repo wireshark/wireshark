@@ -272,7 +272,7 @@ fileset_init_table(GtkWidget *parent_vb)
 
     gtk_window_set_title(GTK_WINDOW(fs_w), "Wireshark: 0 Files in Set");
 
-    gtk_label_set_text(GTK_LABEL(fs_dir_lb), "No capture file loaded!");
+    gtk_label_set_text(GTK_LABEL(fs_dir_lb), "No capture file loaded.");
 
     row++;
 }

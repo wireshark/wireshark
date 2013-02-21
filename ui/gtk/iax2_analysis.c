@@ -2728,18 +2728,18 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC) ||
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save in a file: Unsupported codec!");
+			"Can't save in a file: Unsupported codec.");
 		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_LENGTH) ||
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_LENGTH))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save in a file: Wrong length of captured packets!");
+			"Can't save in a file: Wrong length of captured packets.");
 		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME) ||
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_SHORT_FRAME))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save in a file: Not all data in all packets was captured!");
+			"Can't save in a file: Not all data in all packets was captured.");
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save in a file: File I/O problem!");
+			"Can't save in a file: File I/O problem.");
 		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
@@ -2748,16 +2748,16 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both))))) {
 		if (user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save forward direction in a file: Unsupported codec!");
+			"Can't save forward direction in a file: Unsupported codec.");
 		else if (user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_LENGTH)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save forward direction in a file: Wrong length of captured packets!");
+			"Can't save forward direction in a file: Wrong length of captured packets.");
 		else if (user_data->forward.saveinfo.error_type == TAP_RTP_SHORT_FRAME)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save forward direction in a file: Not all data in all packets was captured!");
+			"Can't save forward direction in a file: Not all data in all packets was captured.");
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save forward direction in a file: File I/O problem!");
+			"Can't save forward direction in a file: File I/O problem.");
 		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
@@ -2766,19 +2766,19 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 		(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (both))))) {
 		if (user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save reversed direction in a file: Unsupported codec!");
+			"Can't save reversed direction in a file: Unsupported codec.");
 		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_LENGTH)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save reversed direction in a file: Wrong length of captured packets!");
+			"Can't save reversed direction in a file: Wrong length of captured packets.");
 		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_SHORT_FRAME)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save reversed direction in a file: Not all data in all packets was captured!");
+			"Can't save reversed direction in a file: Not all data in all packets was captured.");
 		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_NO_DATA)
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save reversed direction in a file: No IAX2 data!");
+			"Can't save reversed direction in a file: No IAX2 data.");
 		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Can't save reversed direction in a file: File I/O problem!");
+			"Can't save reversed direction in a file: File I/O problem.");
 		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
@@ -2855,7 +2855,7 @@ static gboolean save_voice_as_ok_cb(GtkWidget *w _U_, gpointer fc)
 	if (!copy_file(g_dest, channels, format, user_data)) {
 		/* XXX - report the error type! */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"An error occurred while saving voice in a file!");
+			"An error occurred while saving voice in a file.");
 		g_free(g_dest);
 		return TRUE; /* we're done */
 	}
@@ -3500,7 +3500,7 @@ process_node(proto_node *ptree_node, header_field_info *hfinformation,
 		hfssrc = proto_registrar_get_byname(proto_field);
 		if (hfssrc == NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "Bad field name!");
+				      "Bad field name.");
 			return FALSE;
 			}
 		for (ptree_node = ptree_node->first_child;
@@ -3544,14 +3544,14 @@ get_int_value_from_proto_tree(proto_tree *protocol_tree,
 	hfinformation = proto_registrar_get_byname(proto_name);
 	if (hfinformation == NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Bad proto!");
+			      "Bad proto.");
 		return FALSE;
 		}
 
 	ptree_node = ((proto_node *)protocol_tree)->first_child;
 	if (!ptree_node) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "No info!");
+			      "No info.");
 		return FALSE;
 		}
 	return process_node(ptree_node, hfinformation, proto_field, p_result);
@@ -3722,14 +3722,14 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	if (frame_matched != 1) {
 		epan_dissect_cleanup(&edt);
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "You didn't choose a IAX2 packet!");
+		    "Please select an IAX2 packet.");
 		return;
 	}
 #if 0
 	/* check if it is Voice or MiniPacket */
 	if (!get_int_value_from_proto_tree(edt->tree, "iax2", "iax2.call", &ptype)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Please select a Voice packet!");
+		    "Please select a Voice packet.");
 		return;
 	}
 #endif
@@ -3737,7 +3737,7 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	/* check if it is part of a Call */
 	if (edt.pi.circuit_id == 0) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Please select a Call packet!");
+		    "Please select a Call packet.");
 		return;
 	}
 

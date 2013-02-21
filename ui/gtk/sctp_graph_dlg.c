@@ -338,7 +338,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 	guint8 type;
 	guint32 tsnumber, j;
 	gint xvalue, yvalue;
-	GdkRGBA red_color =    {1.0, 0.0, 0.0, 1.0}; 
+	GdkRGBA red_color =    {1.0, 0.0, 0.0, 1.0};
 	GdkRGBA green_color =  {0.0, 1.0, 0.0, 1.0};
 	GdkRGBA blue_color  =  {0.0, 0.0, 1.0, 1.0};
 	struct nr_sack_chunk_header *nr_sack_header;
@@ -1252,7 +1252,7 @@ on_zoomin_bt (GtkWidget *widget _U_, gpointer user_data)
 	}
 	else
 	{
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please draw a rectangle around the area you want to zoom in!");
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please draw a rectangle around the area you want to zoom in.");
 	}
 }
 

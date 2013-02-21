@@ -110,7 +110,7 @@ savesslkeys_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 
     if (ssl_session_key_count() < 1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "No SSL Session Keys to export!");
+                      "No SSL Session Keys to export.");
         g_free(file);
         return TRUE;
     }
@@ -172,7 +172,7 @@ savesslkeys_cb(GtkWidget * w _U_, gpointer data _U_)
     /* don't show up the dialog, if no data has to be saved */
     if (keylist_len==0) {
         /* shouldn't happen as the menu item should have been greyed out */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "There are no SSL Session Keys to save!");
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "There are no SSL Session Keys to save.");
         return;
     }
 

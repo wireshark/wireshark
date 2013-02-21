@@ -298,5 +298,5 @@ void sctp_error_dlg_show(sctp_assoc_info_t* assoc)
 	}
 	else
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "No errors found!");
+		    "No errors found.");
 }
