@@ -28,7 +28,7 @@
  * - draft-ietf-p2psip-sip-06
  * - draft-ietf-p2psip-service-discovery-03
  * - draft-ietf-p2psip-self-tuning-04
- * - draft-ietf-p2psip-diagnostics-06
+ * - draft-ietf-p2psip-diagnostics-10
  * - draft-zong-p2psip-drr-01
  */
 
@@ -2927,7 +2927,7 @@ static int dissect_dmflag(tvbuff_t *tvb, proto_tree *tree, guint16 offset) {
   guint       i;
   guint32     bit_offset = offset<<3;
 
-  ti_local = proto_tree_add_item(tree, hf_reload_dmflags, tvb, offset, 64, ENC_BIG_ENDIAN);
+  ti_local = proto_tree_add_item(tree, hf_reload_dmflags, tvb, offset, 8, ENC_BIG_ENDIAN);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_dmflags);
 
   for (i=0; i<(sizeof(reload_dmflag_items)/sizeof(gint *)); i++) {
@@ -2975,11 +2975,11 @@ static int dissect_diagnosticrequest(int anchor, tvbuff_t *tvb, packet_info *pin
   proto_tree_add_item(local_tree, hf_reload_diagnosticrequest_timestampinitiated, tvb,
                       offset+local_offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
   local_offset += 8;
+  local_offset += dissect_dmflag(tvb, local_tree, offset+local_offset);
   local_length = tvb_get_ntohl(tvb, offset+local_offset);
   proto_tree_add_item(local_tree, hf_reload_length_uint32, tvb, offset+local_offset, 4, ENC_BIG_ENDIAN);
   local_offset += 4;
 
-  local_offset += dissect_dmflag(tvb, local_tree, offset+local_offset);
   if (local_offset+local_length > length) {
     expert_add_info_format(pinfo, ti_local, PI_PROTOCOL, PI_ERROR, "Truncated DiagnosticRequest");
     local_length = length-local_offset;
@@ -5841,9 +5841,11 @@ proto_register_reload(void)
     &ett_reload_kindid_list,
     &ett_reload_redirserviceproviderdata,
     &ett_reload_redirserviceprovider,
+    &ett_reload_self_tuning_data,
     &ett_reload_findreq,
     &ett_reload_dmflags,
     &ett_reload_diagnosticextension,
+    &ett_reload_diagnosticrequest,
     &ett_reload_diagnosticrequest_extensions,
     &ett_reload_pathtrackreq,
     &ett_reload_diagnosticinfo,
