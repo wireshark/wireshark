@@ -2995,7 +2995,7 @@ static int hf_ieee80211_amsdu_msdu_header_text = -1;
 /* ************************************************************************* */
 /*                       Tagged value format fields                          */
 /* ************************************************************************* */
-static int hf_ieee80211_tagged_parameters = -1;  /* Fixed payload item */
+static int hf_ieee80211_tagged_parameters = -1;  /* Tagged payload item */
 static int hf_ieee80211_tag = -1;
 static int hf_ieee80211_tag_number = -1;
 static int hf_ieee80211_tag_length = -1;
@@ -4489,14 +4489,8 @@ get_tagged_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size
 {
   proto_item *tagged_fields;
 
-  tagged_fields = proto_tree_add_uint_format (tree, hf_ieee80211_tagged_parameters,
-    tvb,
-    start,
-    2,
-    size,
-    "Tagged parameters (%d bytes)",
-    size);
-  proto_item_set_len(tagged_fields, size);
+  tagged_fields = proto_tree_add_item(tree, hf_ieee80211_tagged_parameters, tvb, start, -1, ENC_NA);
+  proto_item_append_text(tagged_fields, " (%d bytes)",size);
 
   return proto_item_add_subtree (tagged_fields, ett_tagged_parameters);
 }
@@ -13643,7 +13637,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tagged_parameters,
      {"Tagged parameters", "wlan_mgt.tagged.all",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_NONE, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ssid,
