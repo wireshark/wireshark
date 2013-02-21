@@ -332,6 +332,12 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 fragments->chandle      = chandle;
                 fragments->psm          = psm;
 
+                k_interface_id = interface_id;
+                k_adapter_id   = adapter_id;
+                k_chandle      = chandle;
+                k_psm          = psm;
+                k_frame_number = pinfo->fd->num;
+
                 key[0].length = 1;
                 key[0].key = &k_interface_id;
                 key[1].length = 1;
@@ -344,12 +350,6 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 key[4].key = &k_frame_number;
                 key[5].length = 0;
                 key[5].key = NULL;
-
-                k_interface_id = interface_id;
-                k_adapter_id   = adapter_id;
-                k_chandle      = chandle;
-                k_psm          = psm;
-                k_frame_number = pinfo->fd->num;
 
                 se_tree_insert32_array(reassembling, key, fragments);
             }
