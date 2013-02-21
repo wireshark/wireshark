@@ -1621,58 +1621,58 @@ fDeviceObjectReference (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
  *      list-of-alarm-values             [2] SEQUENCE OF BACnetLifeSafetyState,
  *      mode-property-reference          [3] BACnetDeviceObjectPropertyReference
  *      },
- *  extended		           [9] SEQUENCE {
- *      vendor-id			 [0] Unsigned16,
- *      extended-event-type		 [1] Unsigned,
- *      parameters			 [2] SEQUENCE OF CHOICE {
- *	    null	NULL,
- *	    real	REAL,
- *	    integer	Unsigned,
- *	    boolean	BOOLEAN,
- *	    double	Double,
- *	    octet	OCTET STRING,
- *	    bitstring	BIT STRING,
- *	    enum	ENUMERATED,
- *	    reference	[0] BACnetDeviceObjectPropertyReference
- *	    }
+ *  extended                        [9] SEQUENCE {
+ *      vendor-id                        [0] Unsigned16,
+ *      extended-event-type              [1] Unsigned,
+ *      parameters                       [2] SEQUENCE OF CHOICE {
+ *          null        NULL,
+ *          real        REAL,
+ *          integer     Unsigned,
+ *          boolean     BOOLEAN,
+ *          double      Double,
+ *          octet       OCTET STRING,
+ *          bitstring   BIT STRING,
+ *          enum        ENUMERATED,
+ *          reference   [0] BACnetDeviceObjectPropertyReference
+ *          }
  *      },
  *  buffer-ready                    [10] SEQUENCE {
  *      notification-threshold           [0] Unsigned,
  *      previous-notification-count      [1] Unsigned32
  *      },
- * unsigned-range		    [11] SEQUENCE {
+ * unsigned-range                   [11] SEQUENCE {
  *      time-delay                       [0] Unsigned,
  *      low-limit                        [1] Unsigned,
  *      high-limit                       [2] Unsigned,
- *	}
+ *      }
  * -- context tag 12 is reserved for future addenda
- * access-event			    [13] SEQUENCE {
- *	list-of-access-events		 [0] SEQUENCE OF BACnetAccessEvent,
- *	access-event-time-reference	 [1] BACnetDeviceObjectPropertyReference
- *	}
- * double-out-of-range		    [14] SEQUENCE {
+ * access-event                     [13] SEQUENCE {
+ *      list-of-access-events            [0] SEQUENCE OF BACnetAccessEvent,
+ *      access-event-time-reference      [1] BACnetDeviceObjectPropertyReference
+ *      }
+ * double-out-of-range              [14] SEQUENCE {
  *      time-delay                       [0] Unsigned,
  *      low-limit                        [1] Double,
  *      high-limit                       [2] Double,
  *      deadband                         [3] Double
  *  }
- *  signed-out-of-range		    [15] SEQUENCE {
+ *  signed-out-of-range             [15] SEQUENCE {
  *      time-delay                       [0] Unsigned,
  *      low-limit                        [1] INTEGER,
  *      high-limit                       [2] INTEGER,
  *      deadband                         [3] Unsigned
  *  }
- *  unsigned-out-of-range	    [16] SEQUENCE {
+ *  unsigned-out-of-range           [16] SEQUENCE {
  *      time-delay                       [0] Unsigned,
  *      low-limit                        [1] Unsigned,
  *      high-limit                       [2] Unsigned,
  *      deadband                         [3] Unsigned
  *   }
- *  change-of-characterstring	    [17] SEQUENCE {
+ *  change-of-characterstring       [17] SEQUENCE {
  *      time-delay                       [0] Unsigned,
  *      list-of-alarm-values             [1] SEQUENCE OF CharacterString,
  *   }
- *  change-of-status-flags	    [18] SEQUENCE {
+ *  change-of-status-flags          [18] SEQUENCE {
  *      time-delay                       [0] Unsigned,
  *      selected-flags                   [1] BACnetStatusFlags
  *   }
@@ -1781,16 +1781,16 @@ fLogMultipleRecord (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
  *      vendor-id            [0] Unsigned16,
  *      extended-event-type  [1] Unsigned,
  *      parameters           [2] SEQUENCE OF CHOICE {
- *	    null		NULL,
- *	    real		REAL,
- *	    integer		Unsigned,
- *	    boolean		BOOLEAN,
- *	    double		Double,
- *	    octet		OCTET STRING,
- *	    bitstring		BIT STRING,
- *	    enum		ENUMERATED,
- *	    propertyValue	[0] BACnetDeviceObjectPropertyValue
- *	    }
+ *          null                NULL,
+ *          real                REAL,
+ *          integer             Unsigned,
+ *          boolean             BOOLEAN,
+ *          double              Double,
+ *          octet               OCTET STRING,
+ *          bitstring           BIT STRING,
+ *          enum                ENUMERATED,
+ *          propertyValue       [0] BACnetDeviceObjectPropertyValue
+ *          }
  *      },
  *  buffer-ready [10]    SEQUENCE {
  *      buffer-property      [0] BACnetDeviceObjectPropertyReference,
@@ -1804,7 +1804,7 @@ fLogMultipleRecord (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
  *      },
  * -- context tag 12 is reserved for future addenda
  *  access-event [13]    SEQUENCE {
- *      access-event	      [0] BACnetAccessEvent,
+ *      access-event          [0] BACnetAccessEvent,
  *      status-flags          [1] BACnetStatusFlags,
  *      access-event-tag      [2] Unsigned,
  *      access-event-time     [3] BACnetTimeStamp,
@@ -1836,7 +1836,7 @@ fLogMultipleRecord (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
  *      },
  *  change-of-status-flags [18]    SEQUENCE {
  *      present-value        [0] ABSTRACT-SYNTAX.&Type OPTIONAL,
- *				-- depends on referenced property
+ *                              -- depends on referenced property
  *      referenced-flags     [1] BACnetStatusFlags
  *      },
  * }
@@ -7771,7 +7771,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
             if (offset == lastoffset) break;     /* nothing happened, exit loop */
         }
         break;
-	/* 12 reserved */
+        /* 12 reserved */
     case 13: /* access-event */
         break;
     case 14: /* double-out-of-range */
@@ -7797,7 +7797,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
             }
             if (offset == lastoffset) break;     /* nothing happened, exit loop */
         }
-        break;	
+        break;
     case 15: /* signed-out-of-range */
         while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
             lastoffset = offset;
@@ -7821,7 +7821,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
             }
             if (offset == lastoffset) break;     /* nothing happened, exit loop */
         }
-        break;	
+        break;
     case 16: /* unsigned-out-of-range */
         while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
             lastoffset = offset;
@@ -7845,11 +7845,11 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
             }
             if (offset == lastoffset) break;     /* nothing happened, exit loop */
         }
-        break;	
+        break;
     case 17: /* change-of-characterstring */
-        break;	
+        break;
     case 18: /* change-of-status-flags */
-        break;	
+        break;
         /* todo: add new parameters here ... */
     default:
         offset = fAbstractSyntaxNType(tvb, pinfo, subtree, offset);
@@ -8169,7 +8169,7 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
             lastoffset = offset;
             switch (fTagNo(tvb, offset)) {
             case 0:
-		/* TODO: [0] SEQUENCE OF BACnetAccessEvent */
+                /* TODO: [0] SEQUENCE OF BACnetAccessEvent */
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
                     lastoffset = offset;
@@ -8186,7 +8186,7 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fDeviceObjectPropertyReference (tvb,pinfo,subtree,offset);
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
-                break;		
+                break;
             default:
                 break;
             }
@@ -8212,7 +8212,7 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
                 break;
             }
         }
-        break;	
+        break;
     case 15: /* signed-out-of-range */
         while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
             lastoffset = offset;
@@ -8233,7 +8233,7 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
                 break;
             }
         }
-        break;	
+        break;
     case 16: /* unsigned-out-of-range */
         while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
             lastoffset = offset;
@@ -8254,7 +8254,7 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
                 break;
             }
         }
-        break;	
+        break;
     case 17: /* change-of-characterstring */
         while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
             lastoffset = offset;
@@ -8270,7 +8270,7 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
                     if (tag_is_closing(tag_info)) {
                         break;
                     }
-		    offset  = fCharacterString(tvb, pinfo, tree, offset, "alarm value: ");
+                    offset  = fCharacterString(tvb, pinfo, tree, offset, "alarm value: ");
                 }
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 break;
@@ -8278,7 +8278,7 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
                 break;
             }
         }
-        break;	
+        break;
     case 18: /* change-of-status-flags */
         while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
             lastoffset = offset;
@@ -8289,12 +8289,12 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
             case 1:
                 offset = fBitStringTagVS (tvb, pinfo, subtree, offset,
                     "selected flags: ", BACnetStatusFlags);
-                break;		
+                break;
             default:
                 break;
             }
         }
-        break;	
+        break;
         /* todo: add new event-parameter cases here */
     default:
         break;
@@ -11130,3 +11130,16 @@ proto_reg_handoff_bacapp(void)
 {
     data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
