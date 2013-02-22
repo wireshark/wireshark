@@ -1420,12 +1420,10 @@ proto_register_xmpp(void) {
 
 void
 proto_reg_handoff_xmpp(void) {
-    static dissector_handle_t xmpp_handle;
+    dissector_handle_t xmpp_handle;
 
     ssl_handle = find_dissector("ssl");
-
     xml_handle  = find_dissector("xml");
-
     xmpp_handle = find_dissector("xmpp");
 
     dissector_add_uint("tcp.port", XMPP_PORT, xmpp_handle);

@@ -1995,7 +1995,7 @@ void proto_register_wreth(void)
 
 void proto_reg_handoff_wreth(void)
 {
-    static dissector_handle_t wreth_handle;
+    dissector_handle_t wreth_handle;
 
     wreth_handle = create_dissector_handle(dissect_wreth, wreth_proto);
     dissector_add_uint("ethertype", WRETH_PORT, wreth_handle);

@@ -4747,7 +4747,8 @@ void proto_register_mih(void)
 /*dissector handoff*/
 void proto_reg_handoff_mih(void)
 { 
-        static dissector_handle_t mih_handle;
+        dissector_handle_t mih_handle;
+
         mih_handle = create_dissector_handle(dissect_mih, proto_mih);
         /*Layer 3 handle*/
         dissector_add_uint("udp.port", MIH_PORT, mih_handle);
