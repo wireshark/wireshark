@@ -3531,7 +3531,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pin
                                 tvb, off, len, str);
                         val_str = ep_strdup_printf("; text=%s", str);
                         proto_item_append_string(ti, val_str);
-                        off += len;
+                        /*off += len;*/
                     }
                 }
             }
@@ -5246,7 +5246,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
                 }
                 /* XXX - offset is no longer used after this point */
-                offset += count+headersLength+1;
+                /* offset += count+headersLength+1;*/
             }
             /* WSP_PDU_REPLY data - First check whether a subdissector exists
              * for the content type */
@@ -5325,7 +5325,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
                 }
                 /* XXX - offset is no longer used after this point */
-                offset += headersLength;
+                /*offset += headersLength;*/
             }
             /* WSP_PDU_PUSH data - First check whether a subdissector exists
              * for the content type */

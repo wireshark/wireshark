@@ -578,18 +578,48 @@ enum fixed_field {
 #define TAG_FAST_BSS_TRANSITION       55  /* IEEE Std 802.11r-2008 */
 #define TAG_TIMEOUT_INTERVAL          56  /* IEEE Std 802.11r-2008 */
 #define TAG_RIC_DATA                  57  /* IEEE Std 802.11r-2008 */
-/* 58 ??? */
+#define TAG_DSE_REG_LOCATION          58
 #define TAG_SUPPORTED_REGULATORY_CLASSES            59 /* IEEE Std 802.11w-2009 */
 #define TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT    60 /* IEEE Std 802.11w-2009 */
 #define TAG_HT_INFO                   61  /* IEEE Stc 802.11n/D2.0 */
 #define TAG_SECONDARY_CHANNEL_OFFSET  62  /* IEEE Stc 802.11n/D1.10/D2.0 */
+#define TAG_BSS_AVG_ACCESS_DELAY      63
+#define TAG_ANTENNA                   64
+#define TAG_RSNI                      65
+#define TAG_MEASURE_PILOT_TRANS       66
+#define TAG_BSS_AVB_ADM_CAPACITY      67
+#define TAG_BSS_ACCESS_DELAY          68
 #define TAG_TIME_ADV                  69  /* IEEE Std 802.11p-2010 */
+#define TAG_RM_ENABLED_CAPABILITY     70
+#define TAG_MULTIPLE_BSSID            71
 #define TAG_20_40_BSS_CO_EX           72  /* IEEE P802.11n/D6.0 */
 #define TAG_20_40_BSS_INTOL_CH_REP    73  /* IEEE P802.11n/D6.0 */
 #define TAG_OVERLAP_BSS_SCAN_PAR      74  /* IEEE P802.11n/D6.0 */
 #define TAG_RIC_DESCRIPTOR            75  /* IEEE Std 802.11r-2008 */
 #define TAG_MMIE                      76  /* IEEE Std 802.11w-2009 */
-#define TAG_TIME_ZONE                 98  /* IEEE STd 802.11v-2011 */
+#define TAG_EVENT_REQUEST             78
+#define TAG_EVENT_REPORT              79
+#define TAG_DIAGNOSTIC_REQUEST        80
+#define TAG_DIAGNOSTIC_REPORT         81
+#define TAG_LOCATION_PARAMETERS       82
+#define TAG_NO_BSSID_CAPABILITY       83
+#define TAG_SSID_LIST                 84
+#define TAG_MULTIPLE_BSSID_INDEX      85
+#define TAG_FMS_DESCRIPTOR            86
+#define TAG_FMS_REQUEST               87
+#define TAG_FMS_RESPONSE              88
+#define TAG_QOS_TRAFFIC_CAPABILITY    89
+#define TAG_BSS_MAX_IDLE_PERIOD       90
+#define TAG_TFS_REQUEST               91
+#define TAG_TFS_RESPONSE              92
+#define TAG_WMM_SLEEP_MODE            93
+#define TAG_TIM_BROADCAST_REQUEST     94
+#define TAG_TIM_BROADCAST_RESPONSE    95
+#define TAG_COLLOCATED_INTER_REPORT   96
+#define TAG_CHANNEL_USAGE             97
+#define TAG_TIME_ZONE                 98  /* IEEE Std 802.11v-2011 */
+#define TAG_DMS_REQUEST               99
+#define TAG_DMS_RESPONSE             100
 #define TAG_LINK_IDENTIFIER          101  /* IEEE Std 802.11z-2010 */
 #define TAG_WAKEUP_SCHEDULE          102  /* IEEE Std 802.11z-2010 */
 #define TAG_CHANNEL_SWITCH_TIMING    104  /* IEEE Std 802.11z-2010 */
@@ -603,7 +633,17 @@ enum fixed_field {
 #define TAG_EMERGENCY_ALERT_ID       112  /* IEEE Std 802.11u-2011 */
 #define TAG_MESH_CONFIGURATION       113  /* IEEE Std 802.11s-2011 */
 #define TAG_MESH_ID                  114  /* IEEE Std 802.11s-2011 */
+#define TAG_MESH_LINK_METRIC_REPORT  115
+#define TAG_CONGESTION_NOTIFICATION  116
 #define TAG_MESH_PEERING_MGMT        117  /* IEEE Std 802.11s-2011 */
+#define TAG_MESH_CHANNEL_SWITCH      118
+#define TAG_MESH_AWAKE_WINDOW        119
+#define TAG_BEACON_TIMING            120
+#define TAG_MCCAOP_SETUP_REQUEST     121
+#define TAG_MCCAOP_SETUP_REPLY       122
+#define TAG_MCCAOP_ADVERTISSEMENT    123
+#define TAG_MCCAOP_TEARDOWN          124
+#define TAG_GANN                     125
 #define TAG_RANN                     126  /* IEEE Std 802.11s-2011 */
 #define TAG_EXTENDED_CAPABILITIES    127  /* IEEE Stc 802.11n/D1.10/D2.0 */
 #define TAG_AGERE_PROPRIETARY        128
@@ -612,9 +652,16 @@ enum fixed_field {
 #define TAG_MESH_PERR                132  /* IEEE Std 802.11s-2011 */
 #define TAG_CISCO_CCX1_CKIP          133  /* Cisco Compatible eXtensions */
 #define TAG_CISCO_UNKNOWN_88         136  /* Cisco Compatible eXtensions? */
+#define TAG_PXU                      137
+#define TAG_PXUC                     138
+#define TAG_AUTH_MESH_PEERING_EXCH   139
+#define TAG_MIC                      140
+#define TAG_DESTINATION_URI          141
+#define TAG_U_APSD_COEX              142
 #define TAG_CISCO_UNKNOWN_95         149  /* Cisco Compatible eXtensions */
 #define TAG_CISCO_UNKNOWN_96         150  /* Cisco Compatible eXtensions */
 #define TAG_SYMBOL_PROPRIETARY       173
+#define TAG_MCCAOP_ADVERTISSEMENT_OV 174
 #define TAG_VHT_CAPABILITY           191  /* IEEE Stc 802.11ac/D3.1 */
 #define TAG_VHT_OPERATION            192  /* IEEE Stc 802.11ac/D3.1 */
 #define TAG_VENDOR_SPECIFIC_IE       221
@@ -662,17 +709,48 @@ static const value_string tag_num_vals[] = {
   { TAG_FAST_BSS_TRANSITION,                  "Fast BSS Transition" },
   { TAG_TIMEOUT_INTERVAL,                     "Timeout Interval" },
   { TAG_RIC_DATA,                             "RIC Data" },
+  { TAG_DSE_REG_LOCATION,                     "DSE Registered Location" },
   { TAG_SUPPORTED_REGULATORY_CLASSES,         "Supported Regulatory Classes" },
   { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement" },
   { TAG_HT_INFO,                              "HT Information (802.11n D1.10)" },
   { TAG_SECONDARY_CHANNEL_OFFSET,             "Secondary Channel Offset (802.11n D1.10)" },
+  { TAG_BSS_AVG_ACCESS_DELAY,                 "BSS Average Acces Delay" },
+  { TAG_ANTENNA,                              "Antenna" },
+  { TAG_RSNI,                                 "RSNI" },
+  { TAG_MEASURE_PILOT_TRANS,                  "Measurement Pilot Transmission" },
+  { TAG_BSS_AVB_ADM_CAPACITY,                 "BSS Available Admission Capacity" },
+  { TAG_BSS_ACCESS_DELAY,                     "BSS Acess Delay" },
   { TAG_TIME_ADV,                             "Time Advertisement" },
+  { TAG_RM_ENABLED_CAPABILITY,                "RM Enabled Capabilites" },
+  { TAG_MULTIPLE_BSSID,                       "Multiple BSSID" },
   { TAG_20_40_BSS_CO_EX,                      "20/40 BSS Coexistence" },
   { TAG_20_40_BSS_INTOL_CH_REP,               "20/40 BSS Intolerant Channel Report" },   /* IEEE P802.11n/D6.0 */
   { TAG_OVERLAP_BSS_SCAN_PAR,                 "Overlapping BSS Scan Parameters" },       /* IEEE P802.11n/D6.0 */
   { TAG_RIC_DESCRIPTOR,                       "RIC Descriptor" },
   { TAG_MMIE,                                 "Management MIC" },
+  { TAG_EVENT_REQUEST,                        "Event Request" },
+  { TAG_EVENT_REPORT,                         "Event Report" },
+  { TAG_DIAGNOSTIC_REQUEST,                   "Diagnostic Request" },
+  { TAG_DIAGNOSTIC_REPORT,                    "Diagnostic Report" },
+  { TAG_LOCATION_PARAMETERS,                  "Location Parameters" },
+  { TAG_NO_BSSID_CAPABILITY,                  "Non Transmitted BSSID Capability" },
+  { TAG_SSID_LIST,                            "SSID List" },
+  { TAG_MULTIPLE_BSSID_INDEX,                 "Multiple BSSID Index" },
+  { TAG_FMS_DESCRIPTOR,                       "FMS Descriptor" },
+  { TAG_FMS_REQUEST,                          "FMS Request" },
+  { TAG_FMS_RESPONSE,                         "FMS Response" },
+  { TAG_QOS_TRAFFIC_CAPABILITY,               "QoS Traffic Capability" },
+  { TAG_BSS_MAX_IDLE_PERIOD,                  "BSS Max Idle Period" },
+  { TAG_TFS_REQUEST,                          "TFS Request" },
+  { TAG_TFS_RESPONSE,                         "TFS Response" },
+  { TAG_WMM_SLEEP_MODE,                       "WMM Sleep Mode" },
+  { TAG_TIM_BROADCAST_REQUEST,                "TIM Broadcast Request" },
+  { TAG_TIM_BROADCAST_RESPONSE,               "TIM Broadcast Response" },
+  { TAG_COLLOCATED_INTER_REPORT,              "Collocated Interference Report" },
+  { TAG_CHANNEL_USAGE,                        "Channel Usage" },
   { TAG_TIME_ZONE,                            "Time Zone" },
+  { TAG_DMS_REQUEST,                          "DMS Request" },
+  { TAG_DMS_RESPONSE,                         "DMS Response" },
   { TAG_LINK_IDENTIFIER,                      "Link Identifier" },
   { TAG_WAKEUP_SCHEDULE,                      "Wakeup Schedule" },
   { TAG_CHANNEL_SWITCH_TIMING,                "Channel Switch Timing" },
@@ -686,7 +764,17 @@ static const value_string tag_num_vals[] = {
   { TAG_EMERGENCY_ALERT_ID,                   "Emergency Alert Identifier" },
   { TAG_MESH_CONFIGURATION,                   "Mesh Configuration" },
   { TAG_MESH_ID,                              "Mesh ID" },
+  { TAG_MESH_LINK_METRIC_REPORT,              "Mesh Link Metric Report" },
+  { TAG_CONGESTION_NOTIFICATION,              "Congestion Notification" },
   { TAG_MESH_PEERING_MGMT,                    "Mesh Peering Management" },
+  { TAG_MESH_CHANNEL_SWITCH,                  "Mesh Channel Switch Parameters" },
+  { TAG_MESH_AWAKE_WINDOW,                    "Mesh Awake Windows" },
+  { TAG_BEACON_TIMING,                        "Beacon Timing" },
+  { TAG_MCCAOP_SETUP_REQUEST,                 "MCCAOP Setup Request" },
+  { TAG_MCCAOP_SETUP_REPLY,                   "MCCAOP SETUP Reply" },
+  { TAG_MCCAOP_ADVERTISSEMENT,                "MCCAOP Advertissement" },
+  { TAG_MCCAOP_TEARDOWN,                      "MCCAOP Teardown" },
+  { TAG_GANN,                                 "Gate Announcemen" },
   { TAG_RANN,                                 "Root Announcement" },
   { TAG_EXTENDED_CAPABILITIES,                "Extended Capabilities" },
   { TAG_AGERE_PROPRIETARY,                    "Agere Proprietary" },
@@ -695,9 +783,16 @@ static const value_string tag_num_vals[] = {
   { TAG_MESH_PERR,                            "Path Error" },
   { TAG_CISCO_CCX1_CKIP,                      "Cisco CCX1 CKIP + Device Name" },
   { TAG_CISCO_UNKNOWN_88,                     "Cisco Unknown 88" },
+  { TAG_PXU,                                  "Proxy Update" },
+  { TAG_PXUC,                                 "Proxy Update Confirmation"},
+  { TAG_AUTH_MESH_PEERING_EXCH,               "Auhenticated Mesh Perring Exchange" },
+  { TAG_MIC,                                  "MIC (Message Integrity Code)" },
+  { TAG_DESTINATION_URI,                      "Destination URI" },
+  { TAG_U_APSD_COEX,                          "U-APSD Coexistence" },
   { TAG_CISCO_UNKNOWN_95,                     "Cisco Unknown 95" },
   { TAG_CISCO_UNKNOWN_96,                     "Cisco Unknown 96" },
   { TAG_SYMBOL_PROPRIETARY,                   "Symbol Proprietary" },
+  { TAG_MCCAOP_ADVERTISSEMENT_OV,             "MCCAOP Advertissement Overviw" },
   { TAG_VHT_CAPABILITY,                       "VHT Capabilities (IEEE Stc 802.11ac/D3.1)" },
   { TAG_VHT_OPERATION,                        "VHT Operation (IEEE Stc 802.11ac/D3.1)" },
   { TAG_VENDOR_SPECIFIC_IE,                   "Vendor Specific" },
