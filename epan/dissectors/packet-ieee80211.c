@@ -3096,10 +3096,10 @@ static int hf_ieee80211_ff_cf_del_blk_ack = -1;
 static int hf_ieee80211_ff_cf_imm_blk_ack = -1;
 
 /* ************************************************************************* */
-/*                       A-MSDU fields                                             */
+/*                       A-MSDU fields                                       */
 /* ************************************************************************* */
-static int hf_ieee80211_amsdu_msdu_header_text = -1;
-
+static int hf_ieee80211_amsdu_subframe = -1;
+static int hf_ieee80211_amsdu_length = -1;
 
 /* ************************************************************************* */
 /*                       Tagged value format fields                          */
@@ -12961,16 +12961,15 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
           msdu_length = tvb_get_ntohs (next_tvb, msdu_offset+12);
 
-          parent_item = proto_tree_add_uint_format(mpdu_tree, hf_ieee80211_amsdu_msdu_header_text, next_tvb,
-                            msdu_offset, roundup2(msdu_offset+14+msdu_length, 4),
-                            i, "A-MSDU Subframe #%u", i);
+          parent_item = proto_tree_add_item(mpdu_tree, hf_ieee80211_amsdu_subframe, next_tvb,
+                            msdu_offset, roundup2(msdu_offset+14+msdu_length, 4), ENC_NA);
+          proto_item_append_text(parent_item, " #%u", i);
           subframe_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_subframe_tree);
           i += 1;
 
           proto_tree_add_item(subframe_tree, hf_ieee80211_addr_da, next_tvb, msdu_offset, 6, ENC_NA);
           proto_tree_add_item(subframe_tree, hf_ieee80211_addr_sa, next_tvb, msdu_offset+6, 6, ENC_NA);
-          proto_tree_add_uint_format(subframe_tree, hf_ieee80211_mcsset_highest_data_rate, next_tvb, msdu_offset+12, 2,
-          msdu_length, "MSDU length: 0x%04X", msdu_length);
+          proto_tree_add_item(subframe_tree, hf_ieee80211_amsdu_length, next_tvb, msdu_offset+12, 2, ENC_NA);
 
           msdu_offset += 14;
           msdu_tvb = tvb_new_subset(next_tvb, msdu_offset, msdu_length, -1);
@@ -18454,9 +18453,14 @@ proto_register_ieee80211 (void)
   };
 
   static hf_register_info aggregate_fields[] = {
-    {&hf_ieee80211_amsdu_msdu_header_text,
-     {"MAC Service Data Unit (MSDU)", "wlan_aggregate.msduheader",
-      FT_UINT16, BASE_DEC, 0, 0x0000,
+    {&hf_ieee80211_amsdu_subframe,
+     {"A-MSDU Subframe", "wlan_aggregate.a_mdsu.subframe",
+      FT_NONE, BASE_NONE, NULL, 0x0,
+      "Aggregate MAC Service Data Unit (MSDU) Subframe", HFILL }},
+
+    {&hf_ieee80211_amsdu_length,
+     {"A-MSDU Length", "wlan_aggregate.a_mdsu.length",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }}
   };
 
