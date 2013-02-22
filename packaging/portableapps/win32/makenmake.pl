@@ -17,7 +17,9 @@ COPY	= xcopy
 MOVE    = mv
 MKDIR	= mkdir
 COPY_FLAGS	= /d /y 
-
+!IF EXIST("$(TOPDIR)\wireshark-qt-release\qtshark.exe")
+QT_DIR="$(TOPDIR)\wireshark-qt-release" \
+!ENDIF
 distribution:
 };
 

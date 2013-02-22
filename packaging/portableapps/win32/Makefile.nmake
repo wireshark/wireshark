@@ -26,6 +26,9 @@ COPY_FLAGS	= /d /y
 !IFNDEF WIN32_SETUP_OPT
 WIN32_SETUP_OPT=--download
 !ENDIF
+!IF EXIST("..\..\wireshark-qt-release\qtshark.exe")
+QT_DIR="..\..\wireshark-qt-release" 
+!ENDIF
 
 UPX_FLAGS = -q
 
@@ -105,6 +108,7 @@ WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/
 	$(MAKENSIS) \
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
+	/DQT_DIR=$(QT_DIR) \
 	/DEXTRA_PLUGINS="$(WIRESHARK_LIB_DIR)\$(NSIS_PLUGINS)" \
 	Installer.nsi
 
