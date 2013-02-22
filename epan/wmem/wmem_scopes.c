@@ -64,7 +64,7 @@ wmem_packet_scope(void)
     g_assert(packet_scope);
     g_assert(in_packet_scope);
 
-    return epan_scope;
+    return packet_scope;
 }
 
 void
@@ -95,7 +95,7 @@ wmem_file_scope(void)
     g_assert(file_scope);
     g_assert(in_file_scope);
 
-    return epan_scope;
+    return file_scope;
 }
 
 void
