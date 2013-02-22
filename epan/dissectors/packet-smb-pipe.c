@@ -3282,7 +3282,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	gboolean result=0;
 	gboolean save_fragmented;
 	guint reported_len;
-	guint32 hash_key;
+
 	fragment_data *fd_head;
 	tvbuff_t *new_tvb;
     proto_item *frag_tree_item;
@@ -3314,28 +3314,6 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 
 	/* below this line, we know we are doing reassembly */
-
-	/*
-	 * We have to keep track of reassemblies by FID, because
-	 * we could have more than one pipe operation in a frame
-	 * with NetBIOS-over-TCP.
-	 *
-	 * We also have to keep track of them by direction, as
-	 * we might have reassemblies in progress in both directions.
-	 *
-	 * We do that by combining the FID and the direction and
-	 * using that as the reassembly ID.
-	 *
-	 * The direction is indicated by the SMB request/reply flag - data
-	 * from client to server is carried in requests, data from server
-	 * to client is carried in replies.
-	 *
-	 * We know that the FID is only 16 bits long, so we put the
-	 * direction in bit 17.
-	 */
-	hash_key = fid;
-	if (smb_priv->request)
-		hash_key |= 0x10000;
 
 	/* this is a new packet, see if we are already reassembling this
 	   pdu and if not, check if the dissector wants us
