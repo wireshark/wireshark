@@ -157,6 +157,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-pkixproxy.c \
 	packet-pkixqualified.c \
 	packet-pkixtsp.c \
+	packet-pres.c		\
 	packet-q932.c \
 	packet-q932-ros.c \
 	packet-qsig.c \
@@ -929,7 +930,6 @@ DISSECTOR_SRC = \
 	packet-ppp.c		\
 	packet-pppoe.c		\
 	packet-pptp.c		\
-	packet-pres.c		\
 	packet-prp.c		\
 	packet-ptp.c		\
 	packet-pvfs2.c		\
