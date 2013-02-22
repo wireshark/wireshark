@@ -2569,6 +2569,20 @@ static const value_string ieee80211_tag_secondary_channel_offset_flags[] = {
   {0x00, NULL}
 };
 
+#define BSS_BITMASK_UP0   0x0001
+#define BSS_BITMASK_UP1   0x0002
+#define BSS_BITMASK_UP2   0x0004
+#define BSS_BITMASK_UP3   0x0008
+#define BSS_BITMASK_UP4   0x0010
+#define BSS_BITMASK_UP5   0x0020
+#define BSS_BITMASK_UP6   0x0040
+#define BSS_BITMASK_UP7   0x0080
+#define BSS_BITMASK_AC0   0x0100
+#define BSS_BITMASK_AC1   0x0200
+#define BSS_BITMASK_AC2   0x0400
+#define BSS_BITMASK_AC3   0x0800
+#define BSS_BITMASK_RSV   0xF000
+
 static const value_string ieee80211_tag_ext_channel_switch_announcement_switch_mode_flags[] = {
   {0x00, "Frames may be transmitted before the channel switch has been completed"},
   {0x01, "No more frames are to be transmitted until the channel switch has been completed"},
@@ -3283,6 +3297,33 @@ static int hf_ieee80211_tag_ap_channel_report_channel_list = -1;
 
 static int hf_ieee80211_tag_secondary_channel_offset = -1;
 
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up0 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up1 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up2 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up3 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up4 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up5 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up6 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up7 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac0 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac1 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac2 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac3 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_rsv = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_up0 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_up1 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_up2 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_up3 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_up4 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_up5 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_up6 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_up7 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_ac0 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_ac1 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_ac2 = -1;
+static int hf_ieee80211_tag_bss_avb_adm_cap_ac3 = -1;
+
 static int hf_ieee80211_tag_power_constraint_local = -1;
 
 static int hf_ieee80211_tag_power_capability_min = -1;
@@ -3938,6 +3979,7 @@ static gint ett_tag_measure_report_type_tree = -1;
 static gint ett_tag_measure_report_basic_map_tree = -1;
 static gint ett_tag_measure_report_rpi_tree = -1;
 static gint ett_tag_measure_report_frame_tree = -1;
+static gint ett_tag_bss_bitmask_tree = -1;
 static gint ett_tag_dfs_map_tree = -1;
 static gint ett_tag_erp_info_tree = -1;
 static gint ett_tag_ex_cap = -1;
@@ -8610,6 +8652,101 @@ dissect_secondary_channel_offset_ie(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
+bss_available_admission_capacity_ie(tvbuff_t *tvb, packet_info *pinfo,
+                                    proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len)
+{
+  proto_item *ti;
+  proto_tree *btree;
+  guint16 bitmask;
+  if (tag_len > 4) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "BSS Available Admission Capacity length %u wrong, must > = 4", tag_len);
+    return offset;
+  }
+
+  ti = proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask, tvb,
+                      offset, 2, ENC_LITTLE_ENDIAN);
+  btree = proto_item_add_subtree(ti, ett_tag_bss_bitmask_tree);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up0, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up4, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up6, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up7, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac0, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(btree, hf_ieee80211_tag_bss_avb_adm_cap_bitmask_rsv, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  bitmask = tvb_get_letohs(tvb, offset);
+  offset += 2;
+
+  if(bitmask & BSS_BITMASK_UP0)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_up0, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  if(bitmask & BSS_BITMASK_UP1)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_up1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  if(bitmask & BSS_BITMASK_UP2)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_up2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  if(bitmask & BSS_BITMASK_UP3)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_up3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  if(bitmask & BSS_BITMASK_UP4)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_up4, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  if(bitmask & BSS_BITMASK_UP5)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_up5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  if(bitmask & BSS_BITMASK_UP6)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_up6, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  if(bitmask & BSS_BITMASK_UP7)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_up7, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  if(bitmask & BSS_BITMASK_AC0)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_ac0, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  if(bitmask & BSS_BITMASK_AC1)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_ac1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  if(bitmask & BSS_BITMASK_AC2)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_ac2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  if(bitmask & BSS_BITMASK_AC3)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_bss_avb_adm_cap_ac3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+  return offset;
+}
+
+static int
 dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                          guint32 tag_len, proto_item *ti_len, gboolean vs)
 {
@@ -10722,6 +10859,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_SECONDARY_CHANNEL_OFFSET:
       dissect_secondary_channel_offset_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
+      break;
+
+    case TAG_BSS_AVB_ADM_CAPACITY:
+      bss_available_admission_capacity_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
       break;
 
     case TAG_TIME_ADV:
@@ -16228,6 +16369,111 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, VALS(ieee80211_tag_secondary_channel_offset_flags), 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask,
+     {"Available Admission Capacity Bitmask", "wlan_mgt.bss_avb_adm_cap.bitmask",
+      FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up0,
+     {"UP0 (bit0)", "wlan_mgt.bss_avb_adm_cap.bitmask.up0",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_UP0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up1,
+     {"UP1 (bit1)", "wlan_mgt.bss_avb_adm_cap.bitmask.up1",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_UP1,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up2,
+     {"UP2 (bit2)", "wlan_mgt.bss_avb_adm_cap.bitmask.up2",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_UP2,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up3,
+     {"UP3 (bit3)", "wlan_mgt.bss_avb_adm_cap.bitmask.up3",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_UP3,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up4,
+     {"UP4 (bit4)", "wlan_mgt.bss_avb_adm_cap.bitmask.up4",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_UP4,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up5,
+     {"UP5 (bit5)", "wlan_mgt.bss_avb_adm_cap.bitmask.up5",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_UP5,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up6,
+     {"UP0 (bit6)", "wlan_mgt.bss_avb_adm_cap.bitmask.up6",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_UP6,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up7,
+     {"UP7 (bit7)", "wlan_mgt.bss_avb_adm_cap.bitmask.up7",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_UP7,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac0,
+     {"AC0 (bit8)", "wlan_mgt.bss_avb_adm_cap.bitmask.ac0",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_AC0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac1,
+     {"AC1 (bit9)", "wlan_mgt.bss_avb_adm_cap.bitmask.AC1",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_AC1,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac2,
+     {"AC2 (bit10)", "wlan_mgt.bss_avb_adm_cap.bitmask.ac2",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_AC2,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_ac3,
+     {"AC3 (bit11)", "wlan_mgt.bss_avb_adm_cap.bitmask.ac3",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_AC3,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_rsv,
+     {"Reserved", "wlan_mgt.bss_avb_adm_cap.bitmask.rsv",
+      FT_UINT16, BASE_HEX, NULL, BSS_BITMASK_RSV,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_up0,
+     {"UP0", "wlan_mgt.bss_avb_adm_cap.up0",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_up1,
+     {"UP1", "wlan_mgt.bss_avb_adm_cap.up1",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_up2,
+     {"UP2", "wlan_mgt.bss_avb_adm_cap.up2",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_up3,
+     {"UP3", "wlan_mgt.bss_avb_adm_cap.up3",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_up4,
+     {"UP4", "wlan_mgt.bss_avb_adm_cap.up4",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_up5,
+     {"UP5", "wlan_mgt.bss_avb_adm_cap.up5",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_up6,
+     {"UP6", "wlan_mgt.bss_avb_adm_cap.up6",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_up7,
+     {"UP7", "wlan_mgt.bss_avb_adm_cap.up7",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_ac0,
+     {"AC0", "wlan_mgt.bss_avb_adm_cap.ac0",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_ac1,
+     {"AC1", "wlan_mgt.bss_avb_adm_cap.ac1",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_ac2,
+     {"AC2", "wlan_mgt.bss_avb_adm_cap.ac2",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avb_adm_cap_ac3,
+     {"AC3", "wlan_mgt.bss_avb_adm_cap.ac3",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tag_power_constraint_local,
      {"Local Power Constraint", "wlan_mgt.powercon.local",
       FT_UINT8, BASE_DEC, NULL, 0,
@@ -18304,6 +18550,7 @@ proto_register_ieee80211 (void)
     &ett_tag_neighbor_report_bssid_info_tree,
     &ett_tag_neighbor_report_bssid_info_capability_tree,
     &ett_tag_neighbor_report_sub_tag_tree,
+    &ett_tag_bss_bitmask_tree,
     &ett_ampduparam_tree,
     &ett_mcsset_tree,
     &ett_mcsbit_tree,
