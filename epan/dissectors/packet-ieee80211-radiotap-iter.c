@@ -16,6 +16,8 @@
  * See COPYING for more details.
  */
 
+#include "config.h"
+
 #include <stddef.h>
 #include <errno.h>
 #include <glib.h>
