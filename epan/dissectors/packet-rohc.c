@@ -397,10 +397,24 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     }
 
     if(!rohc_cid_context){
-        /* No context info, not much we can do */
-        proto_item_append_text(p_rohc_info->last_created_item, " (type %d)", (feedback_data_len==1) ? 1 : 2);
-        proto_tree_add_text(tree, tvb, offset, feedback_data_len, "profile-specific information[Profile not known]");
-        return;
+        if (p_rohc_info == pinfo->private_data) {
+            /* Reuse info coming from private data */
+            rohc_cid_context = ep_new(rohc_cid_context_t);
+            /*rohc_cid_context->d_mode;*/
+            /*rohc_cid_context->rnd;*/
+            /*rohc_cid_context->udp_checkum_present;*/
+            rohc_cid_context->profile = p_rohc_info->profile;
+            rohc_cid_context->mode = p_rohc_info->mode;
+            rohc_cid_context->rohc_ip_version = p_rohc_info->rohc_ip_version;
+            rohc_cid_context->large_cid_present = p_rohc_info->large_cid_present;
+            rohc_cid_context->prev_ir_frame_number = -1;
+            rohc_cid_context->ir_frame_number = -1;
+        } else {
+            /* No context info, not much we can do */
+            proto_item_append_text(p_rohc_info->last_created_item, " (type %d)", (feedback_data_len==1) ? 1 : 2);
+            proto_tree_add_text(tree, tvb, offset, feedback_data_len, "profile-specific information[Profile not known]");
+            return;
+        }
     }
 
     if(feedback_data_len==1){
