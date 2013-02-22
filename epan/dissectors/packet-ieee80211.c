@@ -3095,6 +3095,7 @@ static int hf_ieee80211_tag = -1;
 static int hf_ieee80211_tag_number = -1;
 static int hf_ieee80211_tag_length = -1;
 static int hf_ieee80211_tag_interpretation = -1;
+static int hf_ieee80211_tag_data = -1;
 static int hf_ieee80211_tag_oui = -1;
 static int hf_ieee80211_tag_ssid = -1;
 static int hf_ieee80211_tag_supp_rates = -1;
@@ -9537,7 +9538,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
   char          print_buff[SHORT_STR];
   proto_tree   *orig_tree = tree;
   proto_item   *ti        = NULL;
-  proto_item   *ti_len;
+  proto_item   *ti_len, *ti_tag ;
   int           tag_end;
 
   tag_no  = tvb_get_guint8(tvb, offset);
@@ -9549,9 +9550,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     tree = proto_item_add_subtree(ti, ett_80211_mgt_ie);
 
-    proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, ENC_BIG_ENDIAN);
-
   }
+
+  ti_tag = proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+
   ti_len = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, 1, tag_len);
 
   switch (tag_no) {
@@ -11096,9 +11098,12 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       break;
     }
     default:
-      tvb_ensure_bytes_exist (tvb, offset + 2, tag_len);
-      proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 1 + 1,
-          tag_len, "Not interpreted");
+      proto_tree_add_item(tree, hf_ieee80211_tag_data, tvb, offset + 1 + 1, tag_len, ENC_NA);
+      expert_add_info_format(pinfo, ti_tag, PI_UNDECODED, PI_NOTE,
+                             "Dissector for 802.11 IE Tag"
+                             " (%s) code not implemented, Contact"
+                             " Wireshark developers if you want this supported", val_to_str_ext(tag_no,
+                                            &tag_num_vals_ext, "(%d)"));
       proto_item_append_text(ti, ": Tag %u Len %u", tag_no, tag_len);
       break;
   }
@@ -14948,6 +14953,11 @@ proto_register_ieee80211 (void)
      {"Tag interpretation", "wlan_mgt.tag.interpretation",
       FT_STRING, BASE_NONE, NULL, 0,
       "Interpretation of tag", HFILL }},
+
+    {&hf_ieee80211_tag_data,
+     {"Tag Data", "wlan_mgt.tag.data",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "Data Interpretation of tag", HFILL }},
 
     {&hf_ieee80211_tag_oui,
      {"OUI", "wlan_mgt.tag.oui",
