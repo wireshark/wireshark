@@ -465,7 +465,7 @@ dissect_multiple_certificate(tvbuff_t * tvb, guint offset, proto_tree *tree)
     offset += dissect_certificate(tvb, offset, multicert_tree, "1 ");
     proto_tree_add_item(multicert_tree, hf_wai_ver_res, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    offset += dissect_certificate(tvb, offset, multicert_tree, "2 ");
+    dissect_certificate(tvb, offset, multicert_tree, "2 ");
 
     return length + 3;
 }
@@ -593,7 +593,7 @@ dissect_signature(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *co
 
     offset += dissect_identity(tvb, offset, ss_tree, NULL);
     offset += dissect_signature_algorithm(tvb, offset, ss_tree);
-    offset += dissect_signature_value(tvb, offset, ss_tree);
+    dissect_signature_value(tvb, offset, ss_tree);
 
     return length + 3;
 }
