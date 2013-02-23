@@ -117,6 +117,7 @@ static const value_string iso7816_cla_sm[] = {
 #define INS_VRFY           0x20
 #define INS_MANAGE_CHANNEL 0x70
 #define INS_EXT_AUTH       0x82
+#define INS_GET_CHALLENGE  0x84
 #define INS_SELECT_FILE    0xA4
 #define INS_READ_BIN       0xB0
 #define INS_READ_REC       0xB2
@@ -138,6 +139,7 @@ static const value_string iso7816_ins[] = {
     { INS_VRFY,           "Verify" },
     { INS_MANAGE_CHANNEL, "Manage channel" },
     { INS_EXT_AUTH,       "External authenticate" },
+    { INS_GET_CHALLENGE,  "Get challenge" },
     { INS_SELECT_FILE,    "Select file" },
     { INS_READ_BIN,       "Read binary" },
     { INS_READ_REC,       "Read records" },
