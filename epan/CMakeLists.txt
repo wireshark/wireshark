@@ -1541,6 +1541,7 @@ add_library(epan ${LINK_MODE_LIB}
 	${LIBWIRESHARK_ASM_FILES}
 )
 set_target_properties(epan PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(epan PROPERTIES VERSION "0.0.0" SOVERSION 0)
 
 # By default the name for a library with target name epan will be libepan,
 # but Ethereal is now named Wireshark

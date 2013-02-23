@@ -107,6 +107,7 @@ add_library(wiretap ${LINK_MODE_LIB}
 	${WIRETAP_FILES}
 )
 set_target_properties(wiretap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(wiretap PROPERTIES VERSION "0.0.0" SOVERSION 0)
 
 target_link_libraries(wiretap ${wiretap_LIBS})
 
