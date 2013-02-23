@@ -3092,6 +3092,7 @@ static int hf_ieee80211_ff_short_slot_time = -1;
 static int hf_ieee80211_ff_dsss_ofdm = -1;
 static int hf_ieee80211_ff_cf_spec_man = -1;
 static int hf_ieee80211_ff_cf_apsd = -1;
+static int hf_ieee80211_ff_radio_measurement = -1;
 static int hf_ieee80211_ff_cf_del_blk_ack = -1;
 static int hf_ieee80211_ff_cf_imm_blk_ack = -1;
 
@@ -5569,6 +5570,8 @@ add_ff_cap_info(proto_tree *tree, tvbuff_t *tvb, int offset)
   proto_tree_add_item(cap_tree, hf_ieee80211_ff_short_slot_time, tvb, offset,
                       2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_apsd, tvb, offset, 2,
+                      ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_ff_radio_measurement, tvb, offset, 2,
                       ENC_LITTLE_ENDIAN);
   proto_tree_add_item(cap_tree, hf_ieee80211_ff_dsss_ofdm, tvb, offset, 2,
                       ENC_LITTLE_ENDIAN);
@@ -14391,6 +14394,11 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_cf_apsd,
      {"Automatic Power Save Delivery", "wlan_mgt.fixed.capabilities.apsd",
       FT_BOOLEAN, 16, TFS (&cf_apsd_flags), 0x0800,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_radio_measurement,
+     {"Radio Measurement", "wlan_mgt.fixed.capabilities.radio_measurement",
+      FT_BOOLEAN, 16, NULL, 0x1000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_dsss_ofdm,
