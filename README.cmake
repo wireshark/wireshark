@@ -82,6 +82,7 @@ All the executables now build from clean source on:
 * 64bit FedoraXXX
 * 32bit Ubuntu 9.04
 * 32bit Ubuntu 10.04
+* 64bit Debian Wheezy
 
 What needs to be done?
 ======================
