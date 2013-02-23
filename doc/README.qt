@@ -25,7 +25,7 @@ There are several ways of building qtshark:
    crazy that hasn't yet been sorted and folded.  (Autotools + Boring Old
    Make, without using QMake at all, might actually be simpler:
 
-	http://www.mail-archive.com/automake@gnu.org/msg11149.html
+    http://www.mail-archive.com/automake@gnu.org/msg11149.html
 
 2) Using cmake:
    set BUILD_qtshark to ON (default: OFF) in CmakeOptions.txt (may be set
@@ -98,19 +98,19 @@ XXX: (WMeier): I've not had too much satisfaction using the "native Windows debu
 - [Create and] Switch to a working dir to be used for .obj files, etc for Wireshark-qt compilation
 
 - Use qmake to create Windows Makefile (based upon info in ui\qt\QtShark.pro and config.pri)
-    qmake -o Makefile.nmake ...\ui\qt\QtShark.pro
+    qmake -o Makefile.nmake ..\..\ui\qt\QtShark.pro
                                   ;; (Only needs to be run once;
                                   ;; nmake -f Makefile.nmake  will redo qmake if any
                                   ;; dependendencies (e.g., QtShark.pro) change.
 
 - Compile & Build
-    nmake -f Makefile.nmake       ;; Wireshark.exe + all DLL's will be in <working-dir>\wireshark-qt
+    nmake -f Makefile.nmake       ;; qtshark.exe + all DLL's will be in <working-dir>\wireshark-qt-debug
 - Run:
-    <working-dir>\wireshark
+    <working-dir>\wireshark-qt-debug
 
 - Debug (with Visual Studio debugger)
     Start Visual Studio;
-    File ! Open ! Project/Solution  ! .../<working-dir>/wireshark-qt/wireshark.exe
+    File ! Open ! Project/Solution  ! .../<working-dir>/wireshark-qt-debug/qtshark.exe
     (Using  Solution Explorer ! Properties ! Environment to
      add PATH=C:\Qt\4.8.0\bin;%PATH% will pobably be required).
     ... Debug in the usual manner
