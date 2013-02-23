@@ -4610,10 +4610,8 @@ get_fixed_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size)
 {
   proto_item *fixed_fields;
 
-  fixed_fields =
-    proto_tree_add_uint_format (tree, hf_ieee80211_fixed_parameters, tvb, start,
-        size, size, "Fixed parameters (%d bytes)",
-        size);
+  fixed_fields = proto_tree_add_item (tree, hf_ieee80211_fixed_parameters, tvb, start, size, ENC_NA);
+  proto_item_append_text(fixed_fields, " (%d bytes)",size);
 
   return proto_item_add_subtree (fixed_fields, ett_fixed_parameters);
 }
@@ -13872,7 +13870,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_fixed_parameters,
      {"Fixed parameters", "wlan_mgt.fixed.all",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_NONE, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tagged_parameters,
