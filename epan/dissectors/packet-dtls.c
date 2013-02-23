@@ -44,7 +44,7 @@
  *  - activate correct Mac calculation when openssl will be corrected
  *    (or if an other implementation works),
  *    corrected code is ready and commented in packet-ssl-utils.h file.
- *  - add missings things (desegmentation, reordering... that aren't present in actual OpenSSL implementation)
+ *  - add missing things (desegmentation, reordering... that aren't present in actual OpenSSL implementation)
  */
 
 #include "config.h"
@@ -435,9 +435,9 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ssl_debug_printf("dissect_dtls server %s:%d\n",
                      ep_address_to_str(&dummy.addr),dummy.port);
 
-    /* try to retrive private key for this service. Do it now 'cause pinfo
+    /* try to retrieve private key for this service. Do it now 'cause pinfo
      * is not always available
-     * Note that with HAVE_LIBGNUTLS undefined private_key is allways 0
+     * Note that with HAVE_LIBGNUTLS undefined private_key is always 0
      * and thus decryption never engaged*/
     private_key = g_hash_table_lookup(dtls_key_hash, &dummy);
     if (!private_key) {
@@ -869,7 +869,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
         ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
                             dtls_decrypted_data_avail, offset);
 
-      /* try to retrive and use decrypted alert record, if any. */
+      /* try to retrieve and use decrypted alert record, if any. */
       decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
       if (decrypted) {
         dissect_dtls_alert(decrypted, pinfo, dtls_record_tree, 0,
@@ -886,7 +886,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       tvbuff_t* decrypted;
       decrypted = 0;
       /* try to decrypt handshake record, if possible. Store decrypted
-       * record for later usage. The offset is used as 'key' to itentify
+       * record for later usage. The offset is used as 'key' to identify
        * this record into the packet (we can have multiple handshake records
        * in the same frame) */
       if (ssl && decrypt_dtls_record(tvb, pinfo, offset,
@@ -894,7 +894,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
         ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
                             dtls_decrypted_data_avail, offset);
 
-      /* try to retrive and use decrypted handshake record, if any. */
+      /* try to retrieve and use decrypted handshake record, if any. */
       decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
       if (decrypted) {
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
@@ -911,7 +911,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       decrypt_dtls_record(tvb, pinfo, offset,
                           record_length, content_type, ssl, TRUE);
 
-    /* show on info colum what we are decoding */
+    /* show on info column what we are decoding */
     col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
 
     if (!dtls_record_tree)
@@ -974,7 +974,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
                           dtls_decrypted_data_avail, offset);
 
-    /* try to retrive and use decrypted alert record, if any. */
+    /* try to retrieve and use decrypted alert record, if any. */
     decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
     if (decrypted) {
       dissect_dtls_heartbeat(decrypted, pinfo, dtls_record_tree, 0,
@@ -997,7 +997,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   return offset;
 }
 
-/* dissects the change cipher spec procotol, filling in the tree */
+/* dissects the change cipher spec protocol, filling in the tree */
 static void
 dissect_dtls_change_cipher_spec(tvbuff_t *tvb,
                                 proto_tree *tree, guint32 offset,
@@ -1415,7 +1415,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
               }
 
-              /* go with ssl key processessing; encrypted_pre_master
+              /* go with ssl key processing; encrypted_pre_master
                * will be used for master secret store*/
               ret = ssl_decrypt_pre_master_secret(ssl, &encrypted_pre_master, ssl->private_key);
               if (ret < 0) {
@@ -1583,7 +1583,7 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
       if (from_server && (session_id_length == ssl->session_id.data_len) &&
           (tvb_memeql(tvb, offset, ssl->session_id.data, session_id_length) == 0))
       {
-        /* clinet/server id match: try to restore a previous cached session*/
+        /* client/server id match: try to restore a previous cached session*/
         ssl_restore_session(ssl, dtls_session_hash);
       }
       else {
@@ -1850,7 +1850,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
         ssl_debug_printf("dissect_dtls_hnd_srv_hello found cipher %X, state %X\n",
                          ssl->cipher, ssl->state);
 
-        /* if we have restored a session now we can have enought material
+        /* if we have restored a session now we can have enough material
          * to build session key, check it out*/
         if ((ssl->state &
              (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET)) !=
