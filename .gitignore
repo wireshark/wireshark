@@ -15,6 +15,8 @@
 *_lex.h
 epan/declare_wslua.h
 epan/dissectors/dcerpc/idl2wrs
+epan/dissectors/mesa
+epan/dissectors/xcbproto
 epan/dissectors/packet-ncp2222.c
 epan/dissectors/register-cache.pkl
 epan/dissectors/register.c
@@ -124,6 +126,7 @@ qtshark
 /ui/qt/qrc_*.cxx
 /ui/qt/ui_*.h
 /ui/qt/console.lua
+/wireshark-qt*
 
 # Misc #
 ########
