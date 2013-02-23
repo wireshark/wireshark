@@ -82,7 +82,7 @@ struct _output_fields {
     gchar aggregator;
     GPtrArray* fields;
     GHashTable* field_indicies;
-    emem_strbuf_t** field_values;
+    GPtrArray** field_values;
     gchar quote;
     gboolean includes_col_fields;
 };
@@ -780,6 +780,12 @@ write_carrays_finale(FILE *fh _U_)
  * Find the data source for a specified field, and return a pointer
  * to the data in it. Returns NULL if the data is out of bounds.
  */
+/* XXX: What am I missing ?
+ *      Why bother searching for fi->ds_tvb for the matching tvb
+ *       in the data_source list ?
+ *      IOW: Why not just use fi->ds_tvb for the arg to tvb_get_ptr() ?
+ */
+
 static const guint8 *
 get_field_data(GSList *src_list, field_info *fi)
 {
@@ -1348,14 +1354,20 @@ void output_fields_free(output_fields_t* fields)
 {
     g_assert(fields);
 
-    if(NULL != fields->field_indicies) {
-        /* Keys are stored in fields->fields, values are
-         * integers.
-         */
-        g_hash_table_destroy(fields->field_indicies);
-    }
     if(NULL != fields->fields) {
         gsize i;
+
+        if(NULL != fields->field_indicies) {
+            /* Keys are stored in fields->fields, values are
+             * integers.
+             */
+            g_hash_table_destroy(fields->field_indicies);
+        }
+
+        if (NULL != fields->field_values) {
+            g_free(fields->field_values);
+        }
+
         for(i = 0; i < fields->fields->len; ++i) {
             gchar* field = (gchar *)g_ptr_array_index(fields->fields,i);
             g_free(field);
@@ -1520,6 +1532,7 @@ void write_fields_preamble(output_fields_t* fields, FILE *fh)
 
     g_assert(fields);
     g_assert(fh);
+    g_assert(fields->fields);
 
     if(!fields->print_header) {
         return;
@@ -1537,21 +1550,47 @@ void write_fields_preamble(output_fields_t* fields, FILE *fh)
 
 static void format_field_values(output_fields_t* fields, gpointer field_index, const gchar* value)
 {
-    if(NULL != value && '\0' != *value) {
-        guint actual_index;
-        actual_index = GPOINTER_TO_UINT(field_index);
-        /* Unwrap change made to disambiguiate zero / null */
-        if (fields->field_values[actual_index - 1] == NULL ) {
-            fields->field_values[actual_index - 1] = ep_strbuf_new(value);
-        } else if (fields->occurrence == 'l' ) {
-            /* print only the value of the last occurrence of the field */
-            ep_strbuf_printf(fields->field_values[actual_index - 1],"%s",value);
-        } else if (fields->occurrence == 'a' ) {
-            /* print the value of all accurrences of the field */
-            ep_strbuf_append_printf(fields->field_values[actual_index - 1],
-                "%c%s",fields->aggregator,value);
-        }
+    guint indx;
+    GPtrArray* fv_p;
+
+    if (NULL == value || '\0' == *value)
+        return;
+
+    /* Unwrap change made to disambiguiate zero / null */
+    indx = GPOINTER_TO_UINT(field_index) - 1;
+
+    if (fields->field_values[indx] == NULL) {
+        fields->field_values[indx] = g_ptr_array_new();
     }
+
+    /* Essentially: fieldvalues[indx] is a 'GPtrArray *' with each array entry */
+    /*  pointing to a string which is (part of) the final output string.       */
+
+    fv_p = fields->field_values[indx];
+
+    switch (fields->occurrence) {
+    case 'f':
+        /* print the value of only the first occurrence of the field */
+        if (g_ptr_array_len(fv_p) != 0)
+            return;
+        break;
+    case 'l':
+        /* print the value of only the last occurrence of the field */
+        g_ptr_array_set_size(fv_p, 0);
+        break;
+    case 'a':
+        /* print the value of all accurrences of the field */
+        /* If not the first, add the 'aggregator' */
+        if (g_ptr_array_len(fv_p) > 0) {
+            g_ptr_array_add(fv_p, (gpointer)ep_strdup_printf("%c",fields->aggregator));
+        }
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    g_ptr_array_add(fv_p, (gpointer)value);
 }
 
 static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
@@ -1569,7 +1608,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     field_index = g_hash_table_lookup(call_data->fields->field_indicies, fi->hfinfo->abbrev);
     if(NULL != field_index) {
         format_field_values(call_data->fields, field_index,
-                            get_node_field_value(fi, call_data->edt) /* ep_alloced string */
+                            get_node_field_value(fi, call_data->edt) /* static or ep_alloc'd string */
                             );
     }
 
@@ -1590,6 +1629,7 @@ void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, colum
     write_field_data_t data;
 
     g_assert(fields);
+    g_assert(fields->fields);
     g_assert(edt);
     g_assert(fh);
 
@@ -1611,8 +1651,14 @@ void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, colum
         }
     }
 
-    /* Buffer to store values for this packet */
-    fields->field_values = ep_alloc_array0(emem_strbuf_t*, fields->fields->len);
+    /* Array buffer to store values for this packet              */
+    /*  Allocate an array for the 'GPtrarray *' the first time   */
+    /*   ths function is invoked for a file;                     */
+    /*  Any and all 'GPtrArray *' are freed (after use) each     */
+    /*   time (each packet) this function is invoked for a flle. */
+    /* XXX: ToDo: use packet-scope'd memory & (if/when implemented) wmem ptr_array */
+    if (NULL == fields->field_values)
+        fields->field_values = g_new0(GPtrArray*, fields->fields->len);  /* free'd in output_fields_free() */
 
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
                                 &data);
@@ -1634,13 +1680,22 @@ void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, colum
             fputc(fields->separator, fh);
         }
         if(NULL != fields->field_values[i]) {
+            GPtrArray *fv_p;
+            gsize j;
+            fv_p = fields->field_values[i];
             if(fields->quote != '\0') {
                 fputc(fields->quote, fh);
             }
-            fputs(fields->field_values[i]->str, fh);
+
+            /* Output the array of (partial) field values */
+            for (j = 0; j < g_ptr_array_len(fv_p); j++ ) {
+                fputs((gchar *)g_ptr_array_index(fv_p, j), fh);
+            }
             if(fields->quote != '\0') {
                 fputc(fields->quote, fh);
             }
+            g_ptr_array_free(fv_p, TRUE);  /* get ready for the next packet */
+            fields->field_values[i] = NULL;
         }
     }
 }
