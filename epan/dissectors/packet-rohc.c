@@ -153,6 +153,7 @@ static int ett_rohc_dynamic_ipv4 = -1;
 static int ett_rohc_dynamic_udp = -1;
 static int ett_rohc_dynamic_rtp = -1;
 static int ett_rohc_compressed_list = -1;
+static int ett_rohc_packet = -1;
 
 typedef struct _rohc_cid_context_t
 {
@@ -268,6 +269,8 @@ static int
 dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 pkt_type, rohc_cid_context_t *rohc_cid_context)
 {
     guint8 sn;
+    proto_item *ti;
+    proto_tree *pkt_tree;
 
     switch(rohc_cid_context->mode){
         case RELIABLE_BIDIRECTIONAL: /* R-mode */
@@ -281,8 +284,10 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 *   +===+===+===+===+===+===+===+===+
                 */
                 col_set_str(pinfo->cinfo, COL_INFO, "R-0");
+                ti = proto_tree_add_text(tree, tvb, offset, 1, "R-0 packet");
+                pkt_tree = proto_item_add_subtree(ti, ett_rohc_packet);
                 sn = tvb_get_bits8(tvb,(offset<<3)+2, 6);
-                proto_tree_add_bits_item(tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
                 offset++;
                 /* Show SN in info column */
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
@@ -297,10 +302,12 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 *   +---+---+---+---+---+---+---+---+
                 */
                 col_set_str(pinfo->cinfo, COL_INFO, "R-0-CRC");
+                ti = proto_tree_add_text(tree, tvb, offset, 2, "R-0-CRC packet");
+                pkt_tree = proto_item_add_subtree(ti, ett_rohc_packet);
                 sn = tvb_get_bits8(tvb,(offset<<3)+2, 7);
-                proto_tree_add_bits_item(tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 7, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 7, ENC_BIG_ENDIAN);
                 offset++;
-                proto_tree_add_bits_item(tree, hf_rohc_r_0_crc, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(pkt_tree, hf_rohc_r_0_crc, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
                 offset++;
                 /* Show SN in info column */
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
@@ -317,11 +324,12 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 *   +===+===+===+===+===+===+===+===+
                 */
             col_set_str(pinfo->cinfo, COL_INFO, "UO-0");
+            ti = proto_tree_add_text(tree, tvb, offset, 1, "UO-0 packet");
+            pkt_tree = proto_item_add_subtree(ti, ett_rohc_packet);
             sn = tvb_get_bits8(tvb,(offset<<3)+1, 4);
-            proto_tree_add_bits_item(tree, hf_rohc_comp_sn, tvb, (offset<<3)+1, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_bits_item(tree, hf_rohc_r_0_crc, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(pkt_tree, hf_rohc_comp_sn, tvb, (offset<<3)+1, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(pkt_tree, hf_rohc_r_0_crc, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
             offset++;
-
             /* Show SN in info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
             break;
@@ -1304,8 +1312,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     tvbuff_t           *next_tvb;
     rohc_cid_context_t *rohc_cid_context = NULL;
 
-    /* This function is potentially called from both dissect_rohc and dissect_pdcp_lte
-     * The cid value must have been dissected and valid
+    /* The cid value must have been dissected and valid
      * offset must point to the IR octet  see below ( | 1   1   1   1   1   1   0 | D |  )
      * TODO: CRC validation
      */
@@ -1419,18 +1426,21 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     switch(profile){
         case ROHC_PROFILE_UNCOMPRESSED:
-            /*
-            offset = dissect_rohc_ir_rtp_udp_profile_static(tvb, ir_tree, pinfo, offset, d, cid, profile, rohc_cid_context);
-            */
-               next_tvb = tvb_new_subset_remaining(tvb, offset);
-            if ( (oct&0xf0) == 0x60 ) {
-                call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+            if (tvb_length_remaining(tvb, offset)) {
+                oct = tvb_get_guint8(tvb, offset);
+                if ( (oct&0xf0) == 0x60 ) {
+                    next_tvb = tvb_new_subset_remaining(tvb, offset);
+                    call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+                    offset += tvb_length_remaining(tvb, offset);
+                }
+                else if ( (oct&0xf0) == 0x40 ) {
+                    next_tvb = tvb_new_subset_remaining(tvb, offset);
+                    call_dissector(ip_handle, next_tvb, pinfo, tree);
+                    offset += tvb_length_remaining(tvb, offset);
+                }
+                col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC <");
+                col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
             }
-            else {
-                call_dissector(ip_handle, next_tvb, pinfo, tree);
-            }
-            col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC <");
-              col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
             break;
         case ROHC_PROFILE_RTP:
             offset = dissect_rohc_ir_rtp_udp_profile_static(tvb, ir_tree, pinfo, offset, d, profile, rohc_cid_context);
@@ -1732,7 +1742,7 @@ start_over:
             }else{
                 /* Read Large CID here */
                 get_self_describing_var_len_val(tvb, sub_tree, offset, hf_rohc_large_cid, &val_len);
-                /* feedback_data_len - "lenght of large CID" */
+                /* feedback_data_len - "length of large CID" */
                 feedback_data_len = feedback_data_len - val_len;
             }
 
@@ -1770,11 +1780,13 @@ start_over:
         offset = dissect_rohc_ir_packet(tvb, rohc_tree, pinfo, offset, cid, is_add_cid, p_rohc_info);
         if(offset == -1){
             /* Could not parse header */
+            pinfo->private_data = save_private_data;
             return;
         }
         /*proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");*/
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
+        pinfo->private_data = save_private_data;
         return;
     }
     if((oct&0xff) == 0xf8){
@@ -1782,11 +1794,13 @@ start_over:
         offset = dissect_rohc_ir_dyn_packet(tvb, rohc_tree, pinfo, offset, cid, is_add_cid, p_rohc_info);
         if(offset == -1){
             /* Could not parse header */
+            pinfo->private_data = save_private_data;
             return;
         }
         /*proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");*/
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
+        pinfo->private_data = save_private_data;
         return;
     }
 
@@ -1816,17 +1830,39 @@ start_over:
     }
 
     /* Call IP for uncompressed*/
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (((oct&0xf0)==0x40) && (rohc_cid_context->profile==ROHC_PROFILE_UNCOMPRESSED)) {
-       call_dissector(ip_handle, next_tvb, pinfo, tree);
-    }
-    else if (((oct&0xf0)==0x60) && (rohc_cid_context->profile==0)) {
-       call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+    if (rohc_cid_context->profile==ROHC_PROFILE_UNCOMPRESSED) {
+        if (rohc_cid_context->large_cid_present) {
+            guint8 *data;
+            gint len;
+            get_self_describing_var_len_val(tvb, rohc_tree, offset+1, hf_rohc_large_cid, &val_len);
+            len = tvb_length_remaining(tvb, offset) - val_len;
+            data = ep_alloc(len);
+            tvb_memcpy(tvb, data, offset, 1);
+            tvb_memcpy(tvb, &data[1], offset+1+val_len, len-1);
+            next_tvb = tvb_new_child_real_data(tvb, data, len, len);
+            add_new_data_source(pinfo, next_tvb, "Payload");
+        }
+        else {
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+        }
+        if ((oct&0xf0)==0x40) {
+            call_dissector(ip_handle, next_tvb, pinfo, tree);
+        }
+        else if ((oct&0xf0)==0x60) {
+            call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+        }
+        else {
+            call_dissector(data_handle, next_tvb, pinfo, tree);
+        }
+        col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC <");
+        col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
     }
     else if((oct&0x80)==0x00){
         /* XXX Only for RTP profile? */
         /* 5.7.1. Packet type 0: UO-0, R-0, R-0-CRC */
-        dissect_rohc_pkt_type_0(tvb, pinfo, rohc_tree, offset, oct, rohc_cid_context);
+        offset = dissect_rohc_pkt_type_0(tvb, pinfo, rohc_tree, offset, oct, rohc_cid_context);
+        payload_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree, NULL);
     }else if ((oct&0xc0)==0x80){
         col_set_str(pinfo->cinfo, COL_INFO, "Packet type 1");
     }else if ((oct&0xe0)==0xc0){
@@ -1904,13 +1940,13 @@ proto_register_rohc(void)
             },
             { &hf_rohc_ir_packet,
               { "IR packet","rohc.ir_packet",
-                FT_UINT8, BASE_DEC, NULL, 0xfe,
+                FT_UINT8, BASE_HEX, NULL, 0xfe,
                 NULL , HFILL
               }
             },
             { &hf_rohc_ir_dyn_packet,
               { "IR-DYN packet","rohc.ir_dyn_packet",
-                FT_UINT8, BASE_DEC, NULL, 0xff,
+                FT_UINT8, BASE_HEX, NULL, 0xff,
                 NULL , HFILL
               }
             },
@@ -2107,7 +2143,7 @@ proto_register_rohc(void)
               }
             },
             { &hf_rohc_rtp_id,
-              { "Identification","rohc.rtp.rtp.id",
+              { "Identification","rohc.rtp.id",
                 FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL , HFILL
               }
@@ -2379,7 +2415,8 @@ proto_register_rohc(void)
         &ett_rohc_dynamic_ipv4,
         &ett_rohc_dynamic_udp,
         &ett_rohc_dynamic_rtp,
-        &ett_rohc_compressed_list
+        &ett_rohc_compressed_list,
+        &ett_rohc_packet
     };
 
     /* Register the protocol name and description */
