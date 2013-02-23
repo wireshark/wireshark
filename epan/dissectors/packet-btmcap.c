@@ -230,7 +230,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
         /* isResponse */
 
-        pitem = proto_tree_add_item(main_tree, hf_btmcap_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(main_tree, hf_btmcap_response_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         response_code = tvb_get_guint8(tvb, offset);
         offset += 1;
 
