@@ -658,8 +658,9 @@ wmem_block_gc(void *private_data)
 
         if (!chunk->used && chunk->last) {
             /* if the first chunk is also the last, and is unused, then
-             * the block as a whole is entirely unused, so return it to the
-             * OS */
+             * the block as a whole is entirely unused, so remove it from the
+             * free list and return it to the OS */
+            wmem_block_remove_from_free_list(allocator, chunk);
             g_free(chunk);
         }
         else {
