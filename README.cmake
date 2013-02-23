@@ -34,6 +34,7 @@ How to do out of tree build (Unix/Linux):
 4) cd build
 5) cmake ../<Name_of_WS_source_dir>
 6) make
+6) (as root) umask 0022 && make install
 
 Note 1:
 in step 5), you may override the defaults for features:
@@ -47,6 +48,11 @@ Note 2:
 Note 3:
   After running cmake, you can always run "make help" to see
   a list of all possible make targets.
+
+Note 4:
+  Cmake honors user umask for creating directories as of now:
+  http://public.kitware.com/Bug/view.php?id=9620
+  To get predictable results please set umask explicitly.
 
 Why cmake?
 ==========
@@ -83,9 +89,7 @@ What needs to be done?
 - Add asn1 autogen target (assigned: krj)
 - Add back platform specific objects.
 - Fix places in the cmake files marked as todo.
-- Add back (working) install target.
-  Currently, directories are created with user umask.
-  Also the guides are not installed.
+- Guides are not installed.
 - Build source package (using CPack).
 - Build rpm package (using CPack).
 - Build dpkg package (using CPack).
