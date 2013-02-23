@@ -165,26 +165,28 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
 WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
     /* The string representation of the field */
     FieldInfo fi = checkFieldInfo(L,1);
-    if (fi) {
-        if (fi->value.ftype->val_to_string_repr) {
-            gchar* repr = fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
-            if (repr) {
-                lua_pushstring(L,repr);
-            }
-            else {
-                lua_pushstring(L,"(unknown)");
-            }
-        }
-        else if (fi->hfinfo->type == FT_NONE) {
-            lua_pushstring(L, "(none)");
-        }
-        else {
-            lua_pushstring(L,"(n/a)");
-        }
-        return 1;
+
+    if (!fi) {
+        return luaL_error(L,"Missing FieldInfo object");
     }
 
-    return luaL_error(L,"Missing FieldInfo object");
+    if (fi->value.ftype->val_to_string_repr) {
+        gchar* repr = fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
+        if (repr) {
+            lua_pushstring(L,repr);
+        }
+        else {
+            lua_pushstring(L,"(unknown)");
+        }
+    }
+    else if (fi->hfinfo->type == FT_NONE) {
+        lua_pushstring(L, "(none)");
+    }
+    else {
+        lua_pushstring(L,"(n/a)");
+    }
+
+    return 1;
 }
 
 static int FieldInfo_display(lua_State* L) {
