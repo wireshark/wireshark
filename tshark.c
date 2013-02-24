@@ -2943,7 +2943,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
              filter, so, if we're writing to a capture file, write
              this packet out. */
           if (pdh != NULL) {
-            if (!wtap_dump(pdh, &cf->phdr, wtap_buf_ptr(cf->wth), &err)) {
+            if (!wtap_dump(pdh, &cf->phdr, cf->pd, &err)) {
               /* Error writing to a capture file */
               switch (err) {
 
