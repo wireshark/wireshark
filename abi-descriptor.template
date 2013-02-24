@@ -9,7 +9,7 @@
 <libs>
     {RELPATH}/.libs
 </libs>
-<include_paths>INCLUDE_DIRS
+<include_paths>@INCLUDE_DIRS@
 </include_paths>
 <gcc_options>
     -D_U_="__attribute((unused))"

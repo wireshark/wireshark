@@ -48,4 +48,4 @@ am__v_SED_0 = @echo "  SED     " $@;
 # abi-compliance-checker descriptor
 INCLUDE_DIRS = $(subst -I,NEWLINE,$(filter -I%, $(CFLAGS) -I$(abs_top_srcdir) -I$(abs_srcdir)))
 abi-descriptor.xml: ../abi-descriptor.template
-	$(AM_V_SED)sed "s|INCLUDE_DIRS|$(INCLUDE_DIRS)|g;s/NEWLINE/\n    /g" $< > $@
+	$(AM_V_SED)sed "s|@INCLUDE_DIRS@|$(INCLUDE_DIRS)|g;s/NEWLINE/\n    /g" $< > $@

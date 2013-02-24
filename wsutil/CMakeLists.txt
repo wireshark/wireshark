@@ -63,6 +63,13 @@ add_library(wsutil ${LINK_MODE_LIB}
 set_target_properties(wsutil PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(wsutil PROPERTIES VERSION "0.0.0" SOVERSION 0)
 
+# discover and substitute list of include directories for ABI compatibility
+# checks
+get_directory_property(INCLUDE_DIRS INCLUDE_DIRECTORIES)
+list(REMOVE_DUPLICATES INCLUDE_DIRS)
+string(REGEX REPLACE ";" "\n" INCLUDE_DIRS "${INCLUDE_DIRS}")
+configure_file(../abi-descriptor.template abi-descriptor.xml)
+
 target_link_libraries(wsutil ${wsutil_LIBS})
 
 if(NOT ${ENABLE_STATIC})

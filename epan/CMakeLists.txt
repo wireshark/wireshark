@@ -1543,6 +1543,13 @@ add_library(epan ${LINK_MODE_LIB}
 set_target_properties(epan PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(epan PROPERTIES VERSION "0.0.0" SOVERSION 0)
 
+# discover and substitute list of include directories for ABI compatibility
+# checks
+get_directory_property(INCLUDE_DIRS INCLUDE_DIRECTORIES)
+list(REMOVE_DUPLICATES INCLUDE_DIRS)
+string(REGEX REPLACE ";" "\n" INCLUDE_DIRS "${INCLUDE_DIRS}")
+configure_file(../abi-descriptor.template abi-descriptor.xml)
+
 # By default the name for a library with target name epan will be libepan,
 # but Ethereal is now named Wireshark
 SET_TARGET_PROPERTIES(epan PROPERTIES OUTPUT_NAME "wireshark")
