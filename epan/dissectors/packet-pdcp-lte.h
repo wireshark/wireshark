@@ -82,7 +82,7 @@ typedef struct pdcp_lte_info
     gboolean           large_cid_present;
     enum rohc_mode     mode;
     gboolean           rnd;
-    gboolean           udp_checkum_present;
+    gboolean           udp_checksum_present;
     unsigned short     profile;
 
     guint8             is_retx;

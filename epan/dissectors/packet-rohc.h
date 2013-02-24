@@ -56,7 +56,7 @@ typedef struct rohc_info
     gboolean           large_cid_present;
     enum rohc_mode     mode;
     gboolean           rnd;
-    gboolean           udp_checkum_present;
+    gboolean           udp_checksum_present;
     guint16            profile; 
     proto_item         *last_created_item;
 } rohc_info;

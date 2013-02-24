@@ -746,7 +746,7 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
 
         /* UDP Checksum */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_rohc_udp_checksum_present, tvb, 0, 0,
-                                 p_pdcp_info->udp_checkum_present);
+                                 p_pdcp_info->udp_checksum_present);
         PROTO_ITEM_SET_GENERATED(ti);
 
         /* ROHC profile */
@@ -936,7 +936,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                 offset++;
                 break;
             case PDCP_LTE_ROHC_UDP_CHECKSUM_PRES_TAG:
-                p_pdcp_lte_info->udp_checkum_present = tvb_get_guint8(tvb, offset);
+                p_pdcp_lte_info->udp_checksum_present = tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
             case PDCP_LTE_ROHC_PROFILE_TAG:
@@ -1376,15 +1376,15 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* RoHC settings */
     p_rohc_info = ep_new(rohc_info);
 
-    p_rohc_info->rohc_compression    = p_pdcp_info->rohc_compression;
-    p_rohc_info->rohc_ip_version     = p_pdcp_info->rohc_ip_version;
-    p_rohc_info->cid_inclusion_info  = p_pdcp_info->cid_inclusion_info;
-    p_rohc_info->large_cid_present   = p_pdcp_info->large_cid_present;
-    p_rohc_info->mode                = p_pdcp_info->mode;
-    p_rohc_info->rnd                 = p_pdcp_info->rnd;
-    p_rohc_info->udp_checkum_present = p_pdcp_info->udp_checkum_present;
-    p_rohc_info->profile             = p_pdcp_info->profile;
-    p_rohc_info->last_created_item   = NULL;
+    p_rohc_info->rohc_compression     = p_pdcp_info->rohc_compression;
+    p_rohc_info->rohc_ip_version      = p_pdcp_info->rohc_ip_version;
+    p_rohc_info->cid_inclusion_info   = p_pdcp_info->cid_inclusion_info;
+    p_rohc_info->large_cid_present    = p_pdcp_info->large_cid_present;
+    p_rohc_info->mode                 = p_pdcp_info->mode;
+    p_rohc_info->rnd                  = p_pdcp_info->rnd;
+    p_rohc_info->udp_checksum_present = p_pdcp_info->udp_checksum_present;
+    p_rohc_info->profile              = p_pdcp_info->profile;
+    p_rohc_info->last_created_item    = NULL;
 
     pinfo->private_data = p_rohc_info;
 

@@ -1890,7 +1890,7 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
     p_pdcp_lte_info->large_cid_present = outhdr_values[i++];
     p_pdcp_lte_info->mode = outhdr_values[i++];
     p_pdcp_lte_info->rnd = outhdr_values[i++];
-    p_pdcp_lte_info->udp_checkum_present = outhdr_values[i++];
+    p_pdcp_lte_info->udp_checksum_present = outhdr_values[i++];
     p_pdcp_lte_info->profile = outhdr_values[i];
 
     /* Remaining 2 (fixed) fields are ah_length and gre_checksum */
