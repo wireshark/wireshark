@@ -1553,7 +1553,7 @@ add_24R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
                 offset++;
             } else {
                 --offset;
-                intval = UcpHandleInt(hf_ucp_parm_NMESS);
+                UcpHandleInt(hf_ucp_parm_NMESS);
             }
         }
         tap_rec->result = 0;
