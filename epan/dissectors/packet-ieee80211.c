@@ -1578,50 +1578,6 @@ static const true_false_string cf_privacy_flags = {
   "AP/STA cannot support WEP"
 };
 
-static const true_false_string cf_preamble_flags = {
-  "Short preamble allowed",
-  "Short preamble not allowed"
-};
-
-static const true_false_string cf_pbcc_flags = {
-  "PBCC modulation allowed",
-  "PBCC modulation not allowed"
-};
-
-static const true_false_string cf_agility_flags = {
-  "Channel agility in use",
-  "Channel agility not in use"
-};
-
-static const true_false_string short_slot_time_flags = {
-  "Short slot time in use",
-  "Short slot time not in use"
-};
-
-static const true_false_string dsss_ofdm_flags = {
-  "DSSS-OFDM modulation allowed",
-  "DSSS-OFDM modulation not allowed"
-};
-
-static const true_false_string cf_spec_man_flags = {
-  "dot11SpectrumManagementRequired TRUE",
-  "dot11SpectrumManagementRequired FALSE"
-};
-
-static const true_false_string cf_apsd_flags = {
-  "apsd implemented",
-  "apsd not implemented"
-};
-
-static const true_false_string cf_del_blk_ack_flags = {
-  "delayed block ack implemented",
-  "delayed block ack not implemented"
-};
-
-static const true_false_string cf_imm_blk_ack_flags = {
-  "immediate block ack implemented",
-  "immediate block ack not implemented"
-};
 static const true_false_string cf_ibss_flags = {
   "Transmitter belongs to an IBSS",
   "Transmitter belongs to a BSS"
@@ -14348,7 +14304,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_cf_ibss,
      {"IBSS status", "wlan_mgt.fixed.capabilities.ibss",
-      FT_BOOLEAN, 16, TFS (&cf_ibss_flags), 0x0002,
+      FT_BOOLEAN, 16, TFS(&cf_ibss_flags), 0x0002,
       "IBSS participation", HFILL }},
 
     {&hf_ieee80211_ff_cf_sta_poll,
@@ -14363,57 +14319,57 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_cf_privacy,
      {"Privacy", "wlan_mgt.fixed.capabilities.privacy",
-      FT_BOOLEAN, 16, TFS (&cf_privacy_flags), 0x0010,
+      FT_BOOLEAN, 16, TFS(&cf_privacy_flags), 0x0010,
       "WEP support", HFILL }},
 
     {&hf_ieee80211_ff_cf_preamble,
      {"Short Preamble", "wlan_mgt.fixed.capabilities.preamble",
-      FT_BOOLEAN, 16, TFS (&cf_preamble_flags), 0x0020,
+      FT_BOOLEAN, 16, TFS(&tfs_allowed_not_allowed), 0x0020,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_cf_pbcc,
      {"PBCC", "wlan_mgt.fixed.capabilities.pbcc",
-      FT_BOOLEAN, 16, TFS (&cf_pbcc_flags), 0x0040,
+      FT_BOOLEAN, 16, TFS(&tfs_allowed_not_allowed), 0x0040,
       "PBCC Modulation", HFILL }},
 
     {&hf_ieee80211_ff_cf_agility,
      {"Channel Agility", "wlan_mgt.fixed.capabilities.agility",
-      FT_BOOLEAN, 16, TFS (&cf_agility_flags), 0x0080,
+      FT_BOOLEAN, 16, TFS(&tfs_inuse_not_inuse), 0x0080,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_cf_spec_man,
      {"Spectrum Management", "wlan_mgt.fixed.capabilities.spec_man",
-      FT_BOOLEAN, 16, TFS (&cf_spec_man_flags), 0x0100,
+      FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x0100,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_short_slot_time,
      {"Short Slot Time", "wlan_mgt.fixed.capabilities.short_slot_time",
-      FT_BOOLEAN, 16, TFS (&short_slot_time_flags), 0x0400,
+      FT_BOOLEAN, 16, TFS(&tfs_inuse_not_inuse), 0x0400,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_cf_apsd,
      {"Automatic Power Save Delivery", "wlan_mgt.fixed.capabilities.apsd",
-      FT_BOOLEAN, 16, TFS (&cf_apsd_flags), 0x0800,
+      FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x0800,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_radio_measurement,
      {"Radio Measurement", "wlan_mgt.fixed.capabilities.radio_measurement",
-      FT_BOOLEAN, 16, NULL, 0x1000,
+      FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x1000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_dsss_ofdm,
      {"DSSS-OFDM", "wlan_mgt.fixed.capabilities.dsss_ofdm",
-      FT_BOOLEAN, 16, TFS (&dsss_ofdm_flags), 0x2000,
+      FT_BOOLEAN, 16,  TFS(&tfs_allowed_not_allowed), 0x2000,
       "DSSS-OFDM Modulation", HFILL }},
 
     {&hf_ieee80211_ff_cf_del_blk_ack,
      {"Delayed Block Ack", "wlan_mgt.fixed.capabilities.del_blk_ack",
-      FT_BOOLEAN, 16, TFS (&cf_del_blk_ack_flags), 0x4000,
+      FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x4000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_cf_imm_blk_ack,
      {"Immediate Block Ack", "wlan_mgt.fixed.capabilities.imm_blk_ack",
-      FT_BOOLEAN, 16, TFS (&cf_imm_blk_ack_flags), 0x8000,
+      FT_BOOLEAN, 16, TFS(&tfs_implemented_not_implemented), 0x8000,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_auth_seq,
