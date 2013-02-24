@@ -2775,7 +2775,7 @@ proto_register_rohc(void)
             },
             { &hf_rohc_t,
               { "T bit","rohc.t",
-                FT_UINT8, BASE_NONE, NULL, 0x0,
+                FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL , HFILL
               }
             },
