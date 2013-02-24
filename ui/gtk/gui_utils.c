@@ -372,7 +372,7 @@ window_get_geometry(GtkWidget         *widget,
                           &geom->height);
 #endif
     state = gdk_window_get_state(widget_window);
-    geom->maximized = (state == GDK_WINDOW_STATE_MAXIMIZED);
+    geom->maximized = ((state & GDK_WINDOW_STATE_MAXIMIZED) != 0);
 }
 
 
