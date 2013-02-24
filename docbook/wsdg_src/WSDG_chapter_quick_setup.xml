@@ -20,7 +20,8 @@
   <section id="ChSetupWin32">
     <title>Win32: Step-by-Step Guide</title>
     <para>A quick setup guide for Win32 with recommended
-    configuration.</para>
+    configuration. This guide also describes how to build 64-bit
+    versions.</para>
     <warning>
       <title>Warning!</title>
       <para>
@@ -264,7 +265,7 @@
               <listitem>
                 <para><varname>PROGRAM_FILES</varname> : Where your programs reside,
                 usually just keep the default: <filename>C:\Program Files</filename>
-                <superscript>2</superscript></para>
+                <superscript>1</superscript></para>
               </listitem>
               <listitem>
                 <para><varname>MSVC_VARIANT</varname> : Make sure the variant for
@@ -280,21 +281,21 @@
 <![CDATA[MSVC_VARIANT=MSVC2010]]>
                 </programlisting>
                 and comment it out, by prefixing a hash (#).
-                <superscript>1</superscript></para>
+                <superscript>2</superscript></para>
               </listitem>
             </orderedlist>
           </para>
         </listitem>
       </orderedlist>
-      <superscript>1</superscript>Compiler dependent: This step
-      depends on the compiler you are using. For compilers other than
-      Visual C++ 2010, see the table at
-      <xref linkend="ChToolsMSChain" />.</para>
-      <para>
-      <superscript>2</superscript>International Windows might use
+      <superscript>1</superscript>International Windows might use
       different values here, e.g. a German version uses
       <filename>C:\Programme</filename> - take this also in account where
       <filename>C:\Program Files</filename> appears elsewhere.</para>
+      <para>
+      <superscript>2</superscript>Compiler dependent: This step
+      depends on the compiler you are using. For compilers other than
+      Visual C++ 2010, see the table at
+      <xref linkend="ChToolsMSChain" />.</para>
     </section>
     <section id="ChSetupPrepareCommandCom">
       <title>Prepare cmd.exe</title>
@@ -314,39 +315,44 @@
         <listitem>
           <para>set environment variables for Visual C++ 2010 Express
           Edition:<superscript>1,2</superscript></para>
-          <itemizedlist>
-            <listitem>
-              <para>if you are building on a 32-bit machine, to build 32-bit
-              binaries call
-              <command>C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat</command>
-              and to build 64-bit binaries call
-              <command>C:\Program Files\Microsoft Visual Studio 10.0\VC\Vcvarsall.bat x86_amd64</command></para>
-            </listitem>
-            <listitem>
-              <para>if you are building on a 64-bit machine, to build 32-bit
-              binaries call
-              <command>C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat</command>
-              and to build 64-bit binaries call
-              <command>C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Vcvarsall.bat amd64</command></para>
-            </listitem>
-          </itemizedlist>
+	  <para>to build 32-bit binaries call
+	  <command>"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /Release /x86</command>
+	  and to build 64-bit binaries call
+	  <command>"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /Release /x64</command></para>
+	  <para>If your version of the compiler does not have <filename>SetEnv.Cmd</filename>, you
+	  may need to use <filename>vcvarsall.bat</filename> or <filename>vcvars32.bat</filename>
+	  which do much the same thing as <filename>SetEnv.cmd</filename>.</para>
+	  <para>
+	  For example, on some 64-bit installations, one would build a 32-bit version
+	  by invoking 
+	  <command>C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat</command>
+	  and one would build a 64-bit version using the command
+	  <command>C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Vcvarsall.bat amd64</command>
+	  Consult your compiler's documentation to learn which version applies to your installation.</para>
+        </listitem>
+        <listitem>
+	  <para>set environment variable to select target platform</para>
+	  <para>to build 32-bit binaries execute
+	  <command>set WIRESHARK_TARGET_PLATFORM=win32</command>
+	  and to build 64-bit binaries execute
+	  <command>set WIRESHARK_TARGET_PLATFORM=win64</command></para>
         </listitem>
         <listitem>
           <para><command>cd C:\wireshark</command> to jump into the source
           directory</para>
         </listitem>
       </orderedlist>
-      <superscript>1</superscript>Compiler dependent: This step
-      depends on the compiler variant used, for other variants than
-      the recommended Visual C++ 2010 Express Edition see the table
-      at
-      <xref linkend="ChToolsMSChain" />!</para>
-      <para>
-      <superscript>2</superscript>International Windows might use
+      <superscript>1</superscript>International Windows might use
       different values here, e.g. a German version uses
       <filename>C:\Programme</filename> - take this also in account where
       <filename>C:\Program Files</filename> appears elsewhere. Note: You need
       to repeat steps 1 - 4 each time you open a new cmd.exe!</para>
+      <para><superscript>2</superscript>Compiler dependent: This step
+      depends on the compiler variant used, for other variants than
+      the recommended Visual C++ 2010 Express Edition see the table
+      at
+      <xref linkend="ChToolsMSChain" />!</para>
+
       <para>Wireshark development depends on several additional
       environment variables, particularly <varname>PATH</varname>.
       You can use a batch script to fill these in, along with the Visual
@@ -354,14 +360,37 @@
 
         <programlisting>
 <![CDATA[@echo off
+
+if "%1" == "" goto x86
+if /i %1 == x86       goto x86
+if /i %1 == x64      goto x64
+goto usage
+
+:usage
+echo Error in script usage. The correct usage is:
+echo     %0 [option]
+echo where [option] is: x86 ^| x64 
+echo:
+echo For example:
+echo     %0 x86
+goto :eof
+
+:x64
 echo Adding things to the path...
-set PATH=%PATH%;.
 set PATH=%PATH%;c:\cygwin\bin
+set WIRESHARK_TARGET_PLATFORM=win64
+call "c:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /Release /x64
+title Command Prompt (VC++ 2010 x64)
+goto :eof
 
-echo Setting up Visual Studio environment...
-call "c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat"
+:x86
+echo Adding things to the path...
+set PATH=%PATH%;c:\cygwin\bin
+set WIRESHARK_TARGET_PLATFORM=win32
+call "c:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /Release /x86
+title Command Prompt (VC++ 2010 -x86)
+goto :eof]]>
 
-title Command Prompt (VC++ 2010)]]>
         </programlisting>
       </para>
     </section>
@@ -387,25 +416,25 @@ title Command Prompt (VC++ 2010)]]>
       <para>
         <programlisting>
 <![CDATA[Checking for required applications:
-        cl: /cygdrive/c/Programme/Microsoft Visual Studio 8/VC/BIN/cl
-        link: /cygdrive/c/Programme/Microsoft Visual Studio 8/VC/BIN/link
-        nmake: /cygdrive/c/Programme/Microsoft Visual Studio 8/VC/BIN/nmake
+        cl: /cygdrive/c/Program Files (x86)/Microsoft Visual Studio 10.0/VC/Bin/amd64/cl
+        link: /cygdrive/c/Program Files (x86)/Microsoft Visual Studio 10.0/VC/Bin/amd64/link
+        nmake: /cygdrive/c/Program Files (x86)/Microsoft Visual Studio 10.0/VC/Bin/amd64/nmake
         bash: /usr/bin/bash
         bison: /usr/bin/bison
         flex: /usr/bin/flex
         env: /usr/bin/env
         grep: /usr/bin/grep
         /usr/bin/find: /usr/bin/find
+        peflags: /usr/bin/peflags
         perl: /usr/bin/perl
-        env: /usr/bin/env
-        C:/python27/python.exe: /cygdrive/c/python27/python.exe
+        C:\Python27\python.exe: /cygdrive/c/Python27/python.exe
         sed: /usr/bin/sed
         unzip: /usr/bin/unzip
         wget: /usr/bin/wget]]>
         </programlisting>
       </para>
       <para>If you have problems with all the first three items (cl, link, nmake),
-      check if you called <literal>vcvars32/vcvarsall/SetEnv</literal>
+      check that you called <command>SetEnv.Cmd</command>
       as mentioned in
       <xref linkend="ChSetupPrepareCommandCom" /> (which will "fix"
       your <varname>PATH</varname> settings). However, the exact text will be slightly
@@ -418,6 +447,9 @@ title Command Prompt (VC++ 2010)]]>
       change your <varname>PATH</varname> environment setting or simply rename the
       <filename>link.exe</filename> in Cygwin. If you rename it, make sure to remember
       that a Cygwin update may provide a new version of it.</para>
+      <para>Make sure that the other tools found are the Cygwin versions.  Some build
+      problems have been caused by incompatible versions of <command>grep</command> and
+      <command>unzip</command>.</para>
     </section>
     <section>
       <title>Install Libraries</title>
@@ -437,6 +469,12 @@ title Command Prompt (VC++ 2010)]]>
           <xref linkend="ChToolsWget"/>.</para>
         </listitem>
       </orderedlist>
+      <para>Note that 32-bit versions of the software require 32-bit versions of the 
+      libraries and that 64-bit versions require 64-bit libraries.  The build process
+      creates independent directories for each as needed.  See 
+      <xref linkend="ChSetupPrepareCommandCom" /> for how to use 
+      <command>SetEnv.Cmd</command> and <varname>WIRESHARK_TARGET_PLATFORM</varname>
+      to select either a 32- or 64-bit build.</para>
     </section>
     <section>
       <title>Distclean Sources</title>
@@ -508,15 +546,24 @@ title Command Prompt (VC++ 2010)]]>
           <ulink url="http://nsis.sourceforge.net">
           Download</ulink> and install NSIS</para>
           <para>You may check the <varname>MAKENSIS</varname> setting in the file
-          <filename>config.nmake</filename> of the Wireshark sources.</para>
+          <filename>config.nmake</filename> of the Wireshark sources.  Note that the
+	  32-bit version of NSIS will work for both 32-bit and 64-bit versions of
+	  Wireshark.</para>
         </listitem>
         <listitem>
-          <para><filename>vcredist_x86.exe</filename> :
+          <para>Runtime redistributable: to build a 32-bit version you will need 
+	  <filename>vcredist_x86.exe</filename> :
           <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=8328">
           Download</ulink> the C-Runtime redistributable for Visual
           C++ 2010 Express Edition SP1 (<filename>vcredist_x86.exe</filename>)
           and copy it into <filename>C:\wireshark-win32-libs</filename>
-          <superscript>1</superscript>
+          <superscript>1</superscript></para>
+	  <para>To build a 64-bit version, you will need 
+	  <filename>vcredist_x64.exe</filename> : 
+	  <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=13523">
+	  Download</ulink> the 64-bit redistributable for Visual C++ 2010 Express 
+	  Edition SP1 (<filename>vcredist_x64.exe</filename>) and copy it into 
+	  <filename>C:\Wireshark-win64-libs</filename><superscript>1</superscript>
           </para>
         </listitem>
         <listitem>
