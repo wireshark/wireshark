@@ -125,7 +125,6 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
 
 		switch (tag) {
 		case TZSP_HDR_PAD:
-			length = 0;
 			break;
 
 		case TZSP_HDR_END:
