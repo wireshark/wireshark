@@ -1599,25 +1599,26 @@ static const true_false_string ieee80211_qos_amsdu_present_flag = {
 };
 
 static const value_string sta_cf_pollable[] = {
-  {0x00,   "Station is not CF-Pollable"},
-  {0x02,   "Station is CF-Pollable, "
-             "not requesting to be placed on the  CF-polling list"},
-  {0x01,   "Station is CF-Pollable, "
-             "requesting to be placed on the CF-polling list"},
-  {0x03,   "Station is CF-Pollable, requesting never to be polled"},
-  {0x0200, "QSTA requesting association in QBSS"},
+  {0x00, "Station is not CF-Pollable"},
+  {0x02, "Station is CF-Pollable, not requesting to be placed on the  CF-polling list"},
+  {0x01, "Station is CF-Pollable, requesting to be placed on the CF-polling list"},
+  {0x03, "Station is CF-Pollable, requesting never to be polled"},
+  {0x80, "QSTA requesting association in QBSS"},
+  {0x81, "Reserved"},
+  {0x82, "Reserved"},
+  {0x83, "Reserved"},
   {0, NULL}
 };
 
 static const value_string ap_cf_pollable[] = {
-  {0x0000, "No point coordinator at AP"},
-  {0x0002, "Point coordinator at AP for delivery only (no polling)"},
-  {0x0001, "Point coordinator at AP for delivery and polling"},
-  {0x0003, "Reserved"},
-  {0x0200, "QAP (HC) does not use CFP for delivery of unicast data type frames"},
-  {0x0202, "QAP (HC) uses CFP for delivery, but does not send CF-Polls to non-QoS STAs"},
-  {0x0201, "QAP (HC) uses CFP for delivery, and sends CF-Polls to non-QoS STAs"},
-  {0x0203, "Reserved"},
+  {0x00, "No point coordinator at AP"},
+  {0x02, "Point coordinator at AP for delivery only (no polling)"},
+  {0x01, "Point coordinator at AP for delivery and polling"},
+  {0x03, "Reserved"},
+  {0x80, "QAP (HC) does not use CFP for delivery of unicast data type frames"},
+  {0x82, "QAP (HC) uses CFP for delivery, but does not send CF-Polls to non-QoS STAs"},
+  {0x81, "QAP (HC) uses CFP for delivery, and sends CF-Polls to non-QoS STAs"},
+  {0x83, "Reserved"},
   {0, NULL}
 };
 
