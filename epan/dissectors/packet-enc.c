@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
+#include <epan/aftypes.h>
 #include "packet-enc.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
@@ -48,9 +49,6 @@ struct enchdr {
   guint32 flags;
 };
 #define BSD_ENC_HDRLEN    sizeof(struct enchdr)
-
-# define BSD_ENC_INET    2
-# define BSD_ENC_INET6   24
 
 # define BSD_ENC_M_CONF          0x0400  /* payload encrypted */
 # define BSD_ENC_M_AUTH          0x0800  /* payload authenticated */
@@ -80,11 +78,11 @@ capture_enc(const guchar *pd, int len, packet_counts *ld)
   af = pntohl(pd + offsetof(struct enchdr, af));
   switch (af) {
 
-  case BSD_ENC_INET:
+  case BSD_AF_INET:
     capture_ip(pd, BSD_ENC_HDRLEN, len, ld);
     break;
 
-  case BSD_ENC_INET6:
+  case BSD_AF_INET6_BSD:
     capture_ipv6(pd, BSD_ENC_HDRLEN, len, ld);
     break;
 
@@ -95,8 +93,8 @@ capture_enc(const guchar *pd, int len, packet_counts *ld)
 }
 
 static const value_string af_vals[] = {
-  { BSD_ENC_INET,  "IPv4" },
-  { BSD_ENC_INET6, "IPv6" },
+  { BSD_AF_INET,  "IPv4" },
+  { BSD_AF_INET6_BSD, "IPv6" },
   { 0, NULL }
 };
 
@@ -148,11 +146,11 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (ench.af) {
 
-  case BSD_ENC_INET:
+  case BSD_AF_INET:
     call_dissector(ip_handle, next_tvb, pinfo, tree);
     break;
 
-  case BSD_ENC_INET6:
+  case BSD_AF_INET6_BSD:
     call_dissector(ipv6_handle, next_tvb, pinfo, tree);
     break;
 

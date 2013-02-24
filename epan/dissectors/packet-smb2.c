@@ -36,6 +36,7 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/aftypes.h>
 
 #include "packet-smb2.h"
 #include "packet-dcerpc.h"
@@ -4057,10 +4058,10 @@ dissect_windows_sockaddr_storage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	family = tvb_get_letohs(tvb, offset);
 	switch (family) {
-	case 2: /* AF_INET */
+	case WINSOCK_AF_INET:
 		dissect_windows_sockaddr_in(tvb, pinfo, parent_tree, offset, len);
 		return;
-	case 23: /* AF_INET6 */
+	case WINSOCK_AF_INET6:
 		dissect_windows_sockaddr_in6(tvb, pinfo, parent_tree, offset, len);
 		return;
 	}
