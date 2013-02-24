@@ -393,19 +393,14 @@ check_offset_length(const guint tvb_length_val, const guint tvb_reported_length_
 }
 
 static tvbuff_t *
-tvb_new_with_subset(const guint subset_tvb_offset, const guint subset_tvb_length)
+tvb_new_with_subset(tvbuff_t *backing, const gint reported_length,
+    const guint subset_tvb_offset, const guint subset_tvb_length)
 {
 	tvbuff_t *tvb = tvb_new(TVBUFF_SUBSET);
 
 	tvb->tvbuffs.subset.offset = subset_tvb_offset;
 	tvb->tvbuffs.subset.length = subset_tvb_length;
 
-	return tvb;
-}
-
-static void
-tvb_set_subset_no_exceptions(tvbuff_t *tvb, tvbuff_t *backing, const gint reported_length)
-{
 	tvb->tvbuffs.subset.tvb	     = backing;
 	tvb->length		     = tvb->tvbuffs.subset.length;
 
@@ -423,6 +418,8 @@ tvb_set_subset_no_exceptions(tvbuff_t *tvb, tvbuff_t *backing, const gint report
 	if (backing->real_data != NULL) {
 		tvb->real_data = backing->real_data + tvb->tvbuffs.subset.offset;
 	}
+
+	return tvb;
 }
 
 tvbuff_t *
@@ -440,9 +437,8 @@ tvb_new_subset(tvbuff_t *backing, const gint backing_offset, const gint backing_
 			    &subset_tvb_offset,
 			    &subset_tvb_length);
 
-	tvb = tvb_new_with_subset(subset_tvb_offset, subset_tvb_length);
-
-	tvb_set_subset_no_exceptions(tvb, backing, reported_length);
+	tvb = tvb_new_with_subset(backing, reported_length,
+	    subset_tvb_offset, subset_tvb_length);
 
 	/*
 	 * The top-level data source of this tvbuff is the top-level
@@ -477,9 +473,8 @@ tvb_new_subset_length(tvbuff_t *backing, const gint backing_offset, const gint b
 			    &subset_tvb_offset,
 			    &subset_tvb_length);
 
-	tvb = tvb_new_with_subset(subset_tvb_offset, subset_tvb_length);
-
-	tvb_set_subset_no_exceptions(tvb, backing, backing_length);
+	tvb = tvb_new_with_subset(backing, backing_length,
+	    subset_tvb_offset, subset_tvb_length);
 
 	/*
 	 * The top-level data source of this tvbuff is the top-level
@@ -501,9 +496,8 @@ tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
 			    &subset_tvb_offset,
 			    &subset_tvb_length);
 
-	tvb = tvb_new_with_subset(subset_tvb_offset, subset_tvb_length);
-
-	tvb_set_subset_no_exceptions(tvb, backing, -1 /* reported_length */);
+	tvb = tvb_new_with_subset(backing, -1 /* reported_length */,
+	    subset_tvb_offset, subset_tvb_length);
 
 	/*
 	 * The top-level data source of this tvbuff is the top-level
