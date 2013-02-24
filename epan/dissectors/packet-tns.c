@@ -492,7 +492,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree_add_item(connect_tree, hf_tns_trace_cid, tvb,
 				offset, 8, ENC_BIG_ENDIAN);
 		}
-		offset += 8;
+		/* offset += 8;*/
 	}
 
 	if ( connect_tree && cd_len > 0)
@@ -609,7 +609,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		dissect_tns_connect_flag(tvb, offset, cflag_tree);
 
 	}
-	offset += 1;
+	/* offset += 1; */
 
 	if ( accept_tree && accept_len > 0)
 	{
@@ -767,7 +767,7 @@ static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree_add_item(marker_tree, hf_tns_marker_data_byte, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 	}
-	offset += 1;
+	/*offset += 1;*/
 
 	return;
 }
