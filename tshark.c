@@ -2672,14 +2672,15 @@ process_packet_first_pass(capture_file *cf,
 
   if (passed) {
     frame_data_set_after_dissect(&fdlocal, &cum_bytes);
-    prev_dis_frame = fdlocal;
-    prev_dis = &prev_dis_frame;
-    frame_data_sequence_add(cf->frames, &fdlocal);
+    prev_cap = prev_dis = frame_data_sequence_add(cf->frames, &fdlocal);
     cf->count++;
+  } else {
+    /* TODO, bug #8160 */
+    /*
+    prev_cap_frame = fdlocal;
+    prev_cap = &prev_cap_frame;
+     */
   }
-
-  prev_cap_frame = fdlocal;
-  prev_cap = &prev_cap_frame;
 
   if (do_dissection)
     epan_dissect_cleanup(&edt);
@@ -3199,8 +3200,6 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
 
   if (passed) {
     frame_data_set_after_dissect(&fdata, &cum_bytes);
-    prev_dis_frame = fdata;
-    prev_dis = &prev_dis_frame;
 
     /* Process this packet. */
     if (print_packet_info) {
@@ -3239,6 +3238,10 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
         exit(2);
       }
     }
+
+    /* this must be set after print_packet() [bug #8160] */
+    prev_dis_frame = fdata;
+    prev_dis = &prev_dis_frame;
   }
 
   prev_cap_frame = fdata;
