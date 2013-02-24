@@ -327,7 +327,7 @@ static void dissect_DTR(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	offset +=2;
 
 	proto_tree_add_item(tree, hf_tnef_attribute_date_day_of_week, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset +=2;
+	/*offset +=2;*/
 }
 
 
