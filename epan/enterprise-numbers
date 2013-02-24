@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2013-02-17)
+(last updated 2013-02-24)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -4572,7 +4572,7 @@ Decimal
 1139
   EMC Corp
     Rene Fontaine
-      fontaine_rene&emc.com
+      rene.fontaine&emc.com
 1140
   University of West England
     Tom Johnson
@@ -72236,8 +72236,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       Patrick.Snelders&inno.com
 18171
   Torchbox Ltd
-    Nick Burch
-      nick&torchbox.com
+    Tom Dyson
+      sysadmin&torchbox.com
 18172
   Ludwig Schneider it-consulting
     Stefan Pfetzing
@@ -87104,7 +87104,7 @@ Information Security of Pr
     Amir Hajjam
       iana&newel.net
 21887
-  Funkwerk Information Technologies Kiel GmbH
+  Funkwerk AG, Traffic & Control Communication, Kiel (previous was 'Funkwerk Information Technologies Kiel GmbH')
     Ruediger Hinze
       ruediger.hinze&funkwerk-it.com
 21888
@@ -155179,7 +155179,7 @@ Decentralization / Helenic Public Administra
     Laurent Ollagnier
       laurent.ollagnier&dunordausud.fr
 38899
-  National Institute Of Weather And Atmopheric Research
+  National Institute Of Weather And Atmospheric Research
     Gabriella Turek
       g.turek&niwa.co.nz
 38900
@@ -164766,6 +164766,178 @@ Decentralization / Helenic Public Administra
   Andalusia Group
     Shaaban Refay
       Shaaban.aly&andalusiagroup.net
+41296
+  EGATE Networks Inc.
+    Gary Giesen
+      ggiesen&egate.net
+41297
+  Nextech Co.,Ltd
+    Tatsumi Ueda
+      t-ueda&nextech.co.jp
+41298
+  BRGFrauengasse
+    Stefan  Hagmann
+      webmaster&bgbaden-frauen.ac.at
+41299
+  Infodom d.o.o.
+    Damir Kus
+      infodom-sw&infodom.hr
+41300
+  Deganius
+    Christof Thalhofer
+      info&deganius.de
+41301
+  CSF Scientific Computing Core
+    Andras Aszodi
+      andras.aszodi&csf.ac.at
+41302
+  Unified Technology Ltd
+    Phil Robinson
+      philrobinson&unified-technology.co.uk
+41303
+  Six Degrees Managed Data Ltd
+    Timothy Arnold
+      timothy.arnold&6dg.co.uk
+41304
+  QiNet SRL
+    Marco Poet
+      marco.poet&qinet.it
+41305
+  Schoch-IT UG
+    Steffen Schoch
+      steffen.schoch&schochit.de
+41306
+  Columbus College of Art & Design
+    Jeremiah Shifflet
+      Licensing&ccad.edu
+41307
+  LDS Technology Group
+    DeYung Le
+      deyung&ldstg.com
+41308
+  ALCO  Aircraft
+    John Hemphill
+      jhemphill&alco.aero
+41309
+  Inter Dimensional Space Port
+    HRH James Rook
+      royaladmin&inter-dimensional-space-port.net
+41310
+  dwApi, Ltd.
+    Dennis Warner
+      dennislv&gmail.com
+41311
+  Missouri Western State University
+    Fred Nesslage
+      nesslage&missouriwestern.edu
+41312
+  Netscreens LTD.
+    Itay Pollak
+      itay.p&netscreens.tv
+41313
+  OLTRI LLC
+    Dmitry Kuzmin
+      dmitry.kuzmin&oltri.ru
+41314
+  A.E.Q. Aplicaciones Electrónicas Quasar
+    Miguel Sancho
+      msancho&aeq.es
+41315
+  Recording Enterprise Solution (R.E.S.)
+    Mr. Gabriele Bovo
+      gbovo&resnet.it
+41316
+  Velocimetrics Ltd
+    Bill Nokes
+      bill.nokes&velocimetrics.com
+41317
+  DAC Beachcroft LLP
+    Tom Bowyer
+      tbowyer&dacbeachcroft.com
+41318
+  Adaptavist
+    Gerrard Geldenhuis
+      ggeldenhuis&adaptavist.com
+41319
+  Netbuilder S.r.l.
+    Andrea Soracchi
+      info&netbuilder.it
+41320
+  Diagnosoft
+    Donel Tani
+      donel.tani&diagnosoft.com
+41321
+  Commsky Technologies Corporation
+    John Zhu
+      jzhu&commsky.com
+41322
+  Time-O-Matic, Inc.
+    Carl Roth
+      carl.roth&timeomatic.com
+41323
+  Reid Hospital & Health Care Services
+    Tim Love
+      Tim.Love&ReidHospital.org
+41324
+  Centre de services partagés du Québec
+    Guy Painchaud
+      guy.painchaud&cspq.gouv.qc.ca
+41325
+  Uber Technologies, Inc.
+    Jeremy Grosser
+      jeremy&uber.com
+41326
+  Dangerous Linux
+    Douglas Danger Manley
+      doug.manley&gmail.com
+41327
+  Radiology.io, Inc
+    Cody Ebberson
+      cody&radiology.io
+41328
+  blackned GmbH
+    Fred Schulz
+      fschulz&blackned.de
+41329
+  Soncatec Oy
+    Tuomas Harju
+      tuomas.harju&soncatec.com
+41330
+  Eurotoll
+    Alexis de Warren
+      alexis.dewarren&eurotoll.fr
+41331
+  NxtGrid Ltd
+    Ioannis Vlachos
+      info&nxtgrid.com
+41332
+  Fourth Watch Business Continuity Services LC
+    Lawrence D Landis
+      ldl&linux.com
+41333
+  ShenZhen Great Electronic Technology Co., LTD
+    John Xie
+      xie&greatele.com
+41334
+  Feldhaus - Uhlenbrock Sicherheit &Technik GmbH 
+    Franz Josef Feldhaus
+      feldhaus&feldhaus-uhlenbrock.de
+41335
+  AMPEG GmbH
+    Peter Graf
+      info&ampeg.de
+41336
+  UEL - Universidade Estadual de Londrina
+    Fernando Favero
+      favero&uel.br
+41337
+  WingSystem Rst. inc.
+    Takashi Kurashima
+      kurashima&wing21.co.jp
+41338
+  Imagination Team
+    Larry Stein
+      larry.stein&imaginationteam.net
 
 
 End of Document
