@@ -12,13 +12,13 @@ function acc () {
 	# compare only dumped ABI descriptions first, then fall back to full comparison
 	# if no difference is found
 	if abi-compliance-checker -l $LIBNAME \
-		-d1 $V1_PATH/$DIR/.libs/$LIBNAME.abi.tar.gz \
-		-d2 $V2_PATH/$DIR/.libs/$LIBNAME.abi.tar.gz ; then
+		-d1 $V1_PATH/$DIR/$REL_DUMP_PATH/$LIBNAME.abi.tar.gz \
+		-d2 $V2_PATH/$DIR/$REL_DUMP_PATH/$LIBNAME.abi.tar.gz ; then
 		abi-compliance-checker -l $LIBNAME \
 			-d1 $V1_PATH/$DIR/abi-descriptor.xml -relpath1 $V1_PATH/$DIR \
-			-v1 `ls  $V1_PATH/$DIR/.libs/$LIBNAME.so.?.?.?|sed 's/.*\.so\.//'` \
+			-v1 `ls  $V1_PATH/$DIR/$REL_LIB_PATH/$LIBNAME.so.?.?.?|sed 's/.*\.so\.//'` \
 			-d2 $V2_PATH/$DIR/abi-descriptor.xml -relpath2 $V2_PATH/$DIR \
-			-v2 `ls  $V2_PATH/$DIR/.libs/$LIBNAME.so.?.?.?|sed 's/.*\.so\.//'` \
+			-v2 `ls  $V2_PATH/$DIR/$REL_LIB_PATH/$LIBNAME.so.?.?.?|sed 's/.*\.so\.//'` \
 			-check-implementation
 	fi
 }
@@ -26,9 +26,17 @@ function acc () {
 V1_PATH=$1
 V2_PATH=$2
 
-# both working copies has to be build first
-#make -C $V1_PATH all dumpabi
-#make -C $V2_PATH all dumpabi
+# both working copies have to be built first with autotools or with cmake
+# make -C $V1_PATH all dumpabi
+# make -C $V2_PATH all dumpabi
+
+if test -d $V1_PATH/lib; then
+	REL_LIB_PATH=../lib
+	REL_DUMP_PATH=.
+else
+	REL_LIB_PATH=.libs
+	REL_DUMP_PATH=.libs
+fi
 
 acc libwiretap wiretap $V1_PATH $V2_PATH
 RET=$?
