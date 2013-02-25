@@ -601,6 +601,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case GSMTAP_TYPE_UMTS_RRC:
 		sub_handle = GSMTAP_SUB_UMTS_RRC;
 		rrc_sub_handle = sub_type;
+		if (rrc_sub_handle >= GSMTAP_RRC_SUB_MAX) {
+			sub_handle = GSMTAP_SUB_DATA;
+		}
 		/* make entry in the Protocol column on summary display.
 		 * Normally, the RRC dissector would be doing this, but
 		 * we are bypassing dissect_rrc() and directly call a
