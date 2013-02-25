@@ -9224,21 +9224,37 @@ ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
                    guint32 tag_len, tvbuff_t *tvb, int offset)
 {
   /* 7.3.2.1 SSID element (0) */
-  guint8 *ssid; /* The SSID may consist of arbitrary bytes */
+  gchar *ssid; /* The SSID may consist of arbitrary bytes */
+  const gchar *ssid_end;
+  gint ssid_len = tag_len;
 
   if (beacon_padding != 0) /* padding bug */
     return offset;
 
-  if (tag_len > MAX_SSID_LEN) {
+  if (ssid_len > MAX_SSID_LEN) {
     expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
                            "SSID length (%u) greater than maximum (%u)",
-                           tag_len, MAX_SSID_LEN);
+                           ssid_len, MAX_SSID_LEN);
+    ssid_len = MAX_SSID_LEN;
   }
 
-  ssid = tvb_get_ephemeral_string(tvb, offset + 2, tag_len);
-  AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, tag_len);
-  proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
-                      ENC_ASCII|ENC_NA);
+  ssid = tvb_get_ephemeral_string(tvb, offset + 2, ssid_len);
+  if (ssid_len == (gint)tag_len) {
+    AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, ssid_len);
+  }
+  g_utf8_validate(ssid, ssid_len, &ssid_end);
+  ssid[ssid_end - ssid] = '\0';
+  if ((gint)(ssid_end - ssid) == ssid_len) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
+                        ENC_ASCII|ENC_NA);
+  } else {
+    emem_strbuf_t *ssid_sb = ep_strbuf_new(ssid);
+    ep_strbuf_append(ssid_sb, " [truncated]");
+    proto_tree_add_string_format_value(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
+                        ssid, "%s", ssid_sb->str);
+    ssid = ssid_sb->str;
+  }
+
   if (tag_len > 0) {
     proto_item_append_text(ti, ": %s", ssid);
 
