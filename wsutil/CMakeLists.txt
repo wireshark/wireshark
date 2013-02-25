@@ -88,7 +88,7 @@ add_custom_command(OUTPUT libwsutil.abi.tar.gz
 		|| cat logs/libwsutil/[0-9]*/log.txt
 	COMMAND cp abi_dumps/libwsutil/libwsutil_* libwsutil.abi.tar.gz
 	COMMAND rm -rf abi-check-headers/* abi_dumps
-	DEPENDS ../config.h ${HEADERS} wsutil)
+	DEPENDS ${HEADERS} wsutil)
 add_custom_target(dumpabi-libwsutil DEPENDS libwsutil.abi.tar.gz)
 
 target_link_libraries(wsutil ${wsutil_LIBS})

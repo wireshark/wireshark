@@ -134,7 +134,7 @@ add_custom_command(OUTPUT libwiretap.abi.tar.gz
 		|| cat logs/libwiretap/[0-9]*/log.txt
 	COMMAND cp abi_dumps/libwiretap/libwiretap_* libwiretap.abi.tar.gz
 	COMMAND rm -rf abi-check-headers/* abi_dumps
-	DEPENDS ../config.h ${HEADERS} wiretap)
+	DEPENDS ${HEADERS} wiretap)
 add_custom_target(dumpabi-libwiretap DEPENDS libwiretap.abi.tar.gz)
 
 target_link_libraries(wiretap ${wiretap_LIBS})

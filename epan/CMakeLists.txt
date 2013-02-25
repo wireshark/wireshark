@@ -1594,7 +1594,7 @@ add_custom_command(OUTPUT libwireshark.abi.tar.gz
 		abi-check-headers/epan/* abi-check-headers/crypt/*
 		abi-check-headers/dfilter/* abi-check-headers/dissectors/*
 		abi-check-headers/ftypes/* abi-check-headers/wmem/*
-	DEPENDS ../config.h ${EPAN_HEADERS}
+	DEPENDS ${EPAN_HEADERS}
 		${CRYPT_HEADERS} ${DFILTER_HEADERS} ${D_HEADERS}
 		${FTYPES_HEADERS} ${WMEM_HEADERS} epan)
 add_custom_target(dumpabi-libwireshark DEPENDS libwireshark.abi.tar.gz)
