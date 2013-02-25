@@ -408,6 +408,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bthci_cmd.c
 	dissectors/packet-bthci_evt.c
 	dissectors/packet-bthci_sco.c
+	dissectors/packet-bthcrp.c
 	dissectors/packet-bthfp.c
 	dissectors/packet-bthid.c
 	dissectors/packet-btl2cap.c

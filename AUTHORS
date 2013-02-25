@@ -3480,6 +3480,7 @@ Michal Labedzki		<michal.labedzki[at]tieto.com> {
 	Bluetooth AVRCP dissector
 	Bluetooth HCI USB transport dissector
 	Bluetooth MCAP dissector
+	Bluetooth HCRP dissector
 }
 
 Wido Kelling		<kellingwido[At]aol.com> {
