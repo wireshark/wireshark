@@ -92,8 +92,11 @@ What needs to be done?
 - Fix places in the cmake files marked as todo.
 - Guides are not installed.
 - Build source package (using CPack).
+  This is obsolete if we decide to release VCS snapshots instead
 - Build rpm package (using CPack).
 - Build dpkg package (using CPack).
+  This is obsolete, we should call CMake from debian/rules instead, using dh
+  (rbalint)
 - Add back checkAPI target.
 - Test and add support for other platforms (BSDs, OSX,
   Solaris, Win32, Win64, ...)
