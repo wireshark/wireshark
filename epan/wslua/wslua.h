@@ -420,6 +420,7 @@ extern int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 
 extern void proto_register_lua(void);
 extern GString* lua_register_all_taps(void);
+extern void wslua_prime_dfilter(epan_dissect_t *edt);
 extern void lua_prime_all_fields(proto_tree* tree);
 
 extern int Proto_commit(lua_State* L);
