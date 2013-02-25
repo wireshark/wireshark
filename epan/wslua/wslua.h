@@ -299,48 +299,46 @@ typedef int dummy##C
 
 #ifdef HAVE_LUA
 
-#if LUA_VERSION_NUM >= 502
 #define WSLUA_REGISTER_CLASS(C) { \
-    int lib_idx, meta_idx; \
-	lua_createtable(L, 0, 0); \
-    lib_idx = lua_gettop(L); \
-	luaL_newmetatable(L, #C); \
-    meta_idx = lua_gettop(L); \
-	luaL_setfuncs(L, C ## _meta, 0); \
-	luaL_newlib(L, C ## _methods); \
-	lua_setfield(L, meta_idx, "__index"); \
-	luaL_newlib(L, C ## _meta); \
-	lua_setfield(L, meta_idx, "__metatable"); \
-	lua_setmetatable(L, lib_idx); \
-	lua_setglobal(L, #C); \
+    /* check for existing class table in global */ \
+    lua_getglobal (L, #C); \
+    if (!lua_isnil (L, -1)) { \
+        fprintf(stderr, "ERROR: Attempt to register class '%s' which already exists in global Lua table\n", #C); \
+        exit(1); \
+    } \
+    lua_pop (L, 1); \
+    /* create new class method table and 'register' the class methods into it */ \
+    lua_newtable (L); \
+    wslua_setfuncs (L, C ## _methods, 0); \
+    /* create a new metatable and register metamethods into it */ \
+    luaL_newmetatable (L, #C); \
+    wslua_setfuncs (L, C ## _meta, 0); \
+    /* push a copy of the class methods table, and set it to be the metatable's __index field */ \
+    lua_pushvalue (L, -2); \
+    lua_setfield (L, -2, "__index"); \
+    /* push a copy of the class methods table, and set it to be the metatable's __metatable field, to hide metatable */ \
+    lua_pushvalue (L, -2); \
+    lua_setfield (L, -2, "__metatable"); \
+    /* pop the metatable */ \
+    lua_pop (L, 1); \
+    /* set the class methods table as the global class table */ \
+    lua_setglobal (L, #C); \
 }
 
 #define WSLUA_REGISTER_META(C) { \
+    /* check for existing metatable in registry */ \
+    luaL_getmetatable(L, #C); \
+    if (!lua_isnil (L, -1)) { \
+        fprintf(stderr, "ERROR: Attempt to register metatable '%s' which already exists in Lua registry\n", #C); \
+        exit(1); \
+    } \
+    lua_pop (L, 1); \
+    /* create a new metatable and register metamethods into it */ \
     luaL_newmetatable (L, #C); \
-    luaL_setfuncs (L, C ## _meta, 0); \
-    lua_pop(L,1); \
+    wslua_setfuncs (L, C ## _meta, 0); \
+    /* pop the metatable */ \
+    lua_pop(L, 1); \
 }
-
-#else
-#define WSLUA_REGISTER_CLASS(C) { \
-    luaL_register (L, #C, C ## _methods); \
-    luaL_newmetatable (L, #C); \
-    luaL_register (L, NULL, C ## _meta); \
-    lua_pushliteral(L, "__index"); \
-    lua_pushvalue(L, -3); \
-    lua_rawset(L, -3); \
-    lua_pushliteral(L, "__metatable"); \
-    lua_pushvalue(L, -3); \
-    lua_rawset(L, -3); \
-    lua_pop(L, 2); \
-}
-
-#define WSLUA_REGISTER_META(C) { \
-    luaL_newmetatable (L, #C); \
-    luaL_register (L, NULL, C ## _meta); \
-    lua_pop(L,1); \
-}
-#endif
 
 #define WSLUA_INIT(L) \
     luaL_openlibs(L); \
@@ -417,6 +415,7 @@ extern lua_State* wslua_state(void);
 
 extern gboolean wslua_optbool(lua_State* L, int n, gboolean def);
 extern const gchar* lua_shiftstring(lua_State* L,int idx);
+extern void wslua_setfuncs(lua_State *L, const luaL_Reg *l, int nup);
 extern int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
 
 extern void proto_register_lua(void);

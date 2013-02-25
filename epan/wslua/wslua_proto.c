@@ -1478,9 +1478,6 @@ int Proto_register(lua_State* L) {
 
 	lua_pushcfunction(L, Proto_new);
 	lua_setglobal(L, "Proto");
-	
-    Pref_register(L);
-    Prefs_register(L);
 
     return 1;
 }
