@@ -332,10 +332,10 @@ typedef struct
 
 struct MobileId     /* Mobile id, -> TMSI, IMEI or IMSI */
 {
-  guint8 Length:8;
-  guint8 IdType:3;
-  guint8 OddEven:1;
-  guint8 Dig1:4;
+  guint8 Length;
+  guint8 IdType;
+  guint8 OddEven;
+  guint8 Dig1;
   union
   {
     unsigned char TMSI[TMSI_LEN];
