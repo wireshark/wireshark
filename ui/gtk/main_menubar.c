@@ -4010,14 +4010,14 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data)
 
 /* Recently used capture files submenu:
  * Submenu containing the recently used capture files.
- * The capture filenames are always kept with the absolute path, to be independant
+ * The capture filenames are always kept with the absolute path to be independent
  * of the current path.
  * They are only stored inside the labels of the submenu (no separate list). */
 
 #define MENU_RECENT_FILES_PATH "/Menubar/FileMenu/OpenRecent"
 #define MENU_RECENT_FILES_KEY "Recent File Name"
 
-/* Add a file name to the top of the list, if its allrady present remove it first */
+/* Add a file name to the top of the list; if it's already present remove it first */
 static GList *
 remove_present_file_name(GList *recent_files_list, const gchar *cf_name)
 {
@@ -4255,7 +4255,7 @@ add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
     g_list_free(cfg_list);
 }
 
-/* Open a file by it's name
+/* Open a file by its name
    (Beware: will not ask to close existing capture file!) */
 void
 menu_open_filename(gchar *cf_name)

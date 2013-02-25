@@ -3316,7 +3316,7 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			} else if(pi->key_val == 23) {
 				/* User pressed the soft key 3 */
 				/* Cancel on cs2k so clear buffer */
-				/* On mcs its config which will clear the buffer too */
+				/* On mcs it's config which will clear the buffer too */
 				tmp_unistim_info->key_buffer = g_strdup("\n");
 
 				/* User pressed something, set labels*/

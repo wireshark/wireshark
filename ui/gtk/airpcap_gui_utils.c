@@ -90,7 +90,7 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
     airpcap_toolbar_keys_button = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
 
     /* The current interface is an airpcap interface */
-    if(if_info != NULL)
+    if (if_info != NULL)
     {
         gtk_widget_set_sensitive(wireless_tb,TRUE);
         gtk_widget_set_sensitive(airpcap_toolbar_label,TRUE);
@@ -108,7 +108,7 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 
         /*decryption check box*/
         g_signal_handlers_block_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, wireless_tb);
-        if(if_info->DecryptionOn == AIRPCAP_DECRYPTION_ON)
+        if (if_info->DecryptionOn == AIRPCAP_DECRYPTION_ON)
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),TRUE);
         else
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),FALSE);
@@ -119,10 +119,10 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
         g_free(if_label_text);
 
         change_airpcap_settings = FALSE;
-        if (if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
+        if (if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0) {
             guint i = 0;
 
-            for (; i<if_info->numSupportedChannels; i++){
+            for (; i<if_info->numSupportedChannels; i++) {
                 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(toolbar_channel_cb), ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
             }
         }
@@ -184,7 +184,7 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
     airpcap_toolbar_keys_button = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
 
     /* The current interface is an airpcap interface */
-    if(if_info != NULL)
+    if (if_info != NULL)
     {
           gtk_widget_set_sensitive(wireless_tb,TRUE);
           gtk_widget_set_sensitive(airpcap_toolbar_label,TRUE);
@@ -203,7 +203,7 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
 
           /*decription check box*/
           g_signal_handlers_block_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, wireless_tb);
-          if(if_info->DecryptionOn == AIRPCAP_DECRYPTION_ON)
+          if (if_info->DecryptionOn == AIRPCAP_DECRYPTION_ON)
               gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),TRUE);
           else
               gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),FALSE);
@@ -214,10 +214,10 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
           g_free(if_label_text);
 
           change_airpcap_settings = FALSE;
-          if (if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
+          if (if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0) {
               guint i = 0;
 
-              for (; i<if_info->numSupportedChannels; i++){
+              for (; i<if_info->numSupportedChannels; i++) {
                   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(toolbar_channel_cb), ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
               }
           }
@@ -269,12 +269,12 @@ airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, g
 void
 airpcap_fill_key_list(GtkListStore *key_list_store)
 {
-    const gchar*   s = NULL;
-    unsigned int i,n;
+    const gchar*       s = NULL;
+    unsigned int       i,n;
     airpcap_if_info_t* fake_if_info;
-    GList*         wireshark_key_list=NULL;
-    decryption_key_t* curr_key = NULL;
-    GtkTreeIter    iter;
+    GList*             wireshark_key_list = NULL;
+    decryption_key_t*  curr_key           = NULL;
+    GtkTreeIter        iter;
 
     fake_if_info = airpcap_driver_fake_if_info_new();
 
@@ -286,7 +286,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
     {
         curr_key = (decryption_key_t*)g_list_nth_data(wireshark_key_list,i);
 
-        if(curr_key->type == AIRPDCAP_KEY_TYPE_WEP)
+        if (curr_key->type == AIRPDCAP_KEY_TYPE_WEP)
         {
             gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
                 KL_COL_TYPE, AIRPCAP_WEP_KEY_STRING,
@@ -294,9 +294,9 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
                 KL_COL_SSID, "",
                 -1);
         }
-        else if(curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
+        else if (curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
         {
-            if(curr_key->ssid != NULL)
+            if (curr_key->ssid != NULL)
                 s = format_uri(curr_key->ssid, ":");
             else
                 s = "";
@@ -308,7 +308,7 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
                 -1);
 
         }
-        else if(curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
+        else if (curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
         {
             gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
                 KL_COL_TYPE, AIRPCAP_WPA_BIN_KEY_STRING,
@@ -329,15 +329,15 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
 AirpcapValidationType
 airpcap_get_validation_type(const gchar* name)
 {
-    if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_ALL,name)))
+    if (!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_ALL,name)))
     {
         return AIRPCAP_VT_ACCEPT_EVERYTHING;
     }
-    else if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRECT,name)))
+    else if (!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRECT,name)))
     {
         return AIRPCAP_VT_ACCEPT_CORRECT_FRAMES;
     }
-    else if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT,name)))
+    else if (!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT,name)))
     {
         return AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES;
     }
@@ -351,19 +351,19 @@ airpcap_get_validation_type(const gchar* name)
 const gchar*
 airpcap_get_validation_name(AirpcapValidationType vt)
 {
-    if(vt == AIRPCAP_VT_ACCEPT_EVERYTHING)
+    if (vt == AIRPCAP_VT_ACCEPT_EVERYTHING)
     {
         return AIRPCAP_VALIDATION_TYPE_NAME_ALL;
     }
-    else if(vt == AIRPCAP_VT_ACCEPT_CORRECT_FRAMES)
+    else if (vt == AIRPCAP_VT_ACCEPT_CORRECT_FRAMES)
     {
         return AIRPCAP_VALIDATION_TYPE_NAME_CORRECT;
     }
-    else if(vt == AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES)
+    else if (vt == AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES)
     {
         return AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT;
     }
-    else if(vt == AIRPCAP_VT_UNKNOWN)
+    else if (vt == AIRPCAP_VT_UNKNOWN)
     {
         return AIRPCAP_VALIDATION_TYPE_NAME_UNKNOWN;
     }
@@ -396,11 +396,11 @@ airpcap_get_validation_combo_entry(AirpcapValidationType vt)
 AirpcapLinkType
 airpcap_get_link_type(const gchar* name)
 {
-    if(!(g_ascii_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_ONLY,name))){
+    if (!(g_ascii_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_ONLY,name))) {
         return AIRPCAP_LT_802_11;
-    }else if(!(g_ascii_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO,name))){
+    }else if (!(g_ascii_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO,name))) {
         return AIRPCAP_LT_802_11_PLUS_RADIO;
-    }else if(!(g_ascii_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI,name))){
+    }else if (!(g_ascii_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI,name))) {
         return AIRPCAP_LT_802_11_PLUS_PPI;
     }else{
         return AIRPCAP_LT_UNKNOWN;
@@ -414,13 +414,13 @@ airpcap_get_link_type(const gchar* name)
 const gchar*
 airpcap_get_link_name(AirpcapLinkType lt)
 {
-    if(lt == AIRPCAP_LT_802_11){
+    if (lt == AIRPCAP_LT_802_11) {
         return AIRPCAP_LINK_TYPE_NAME_802_11_ONLY;
-    }else if(lt == AIRPCAP_LT_802_11_PLUS_RADIO){
+    }else if (lt == AIRPCAP_LT_802_11_PLUS_RADIO) {
         return AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO;
-    }else if(lt == AIRPCAP_LT_802_11_PLUS_PPI){
+    }else if (lt == AIRPCAP_LT_802_11_PLUS_PPI) {
         return AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI;
-    }else if(lt == AIRPCAP_LT_UNKNOWN){
+    }else if (lt == AIRPCAP_LT_UNKNOWN) {
         return AIRPCAP_LINK_TYPE_NAME_UNKNOWN;
     }
     return NULL;
@@ -471,10 +471,10 @@ airpcap_update_frequency_and_offset(airpcap_if_info_t* if_info)
     PAirpcapHandle ad;
     gboolean return_value = FALSE;
 
-    if (if_info != NULL){
+    if (if_info != NULL) {
         ad = airpcap_if_open(if_info->name, ebuf);
 
-        if(ad != NULL) {
+        if (ad != NULL) {
             return_value = airpcap_if_set_device_channel_ex(ad,if_info->channelInfo);
             airpcap_if_close(ad);
         }
@@ -524,9 +524,9 @@ airpcap_channel_changed_noset_cb(GtkWidget *channel_cb, gpointer channel_offset_
 
 static int
 airpcap_get_selected_channel_offset(GtkWidget *channel_offset_cb) {
-    int offset;
+    int    offset;
     gchar *off_str;
-    int retval = 0;
+    int    retval = 0;
 
 
     if (channel_offset_cb == NULL || !gtk_widget_get_sensitive(channel_offset_cb)) {
@@ -557,7 +557,7 @@ airpcap_channel_offset_changed_cb(GtkWidget *channel_offset_cb, gpointer data _U
     airpcap_if_selected->channelInfo.ExtChannel = airpcap_get_selected_channel_offset(channel_offset_cb);
     airpcap_if_selected->saved = FALSE;
     change_airpcap_settings = TRUE;
-    if (!airpcap_update_frequency_and_offset(airpcap_if_selected)){
+    if (!airpcap_update_frequency_and_offset(airpcap_if_selected)) {
         simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,
                       "Unable to set extension channel %d",
                       airpcap_if_selected->channelInfo.ExtChannel);
@@ -571,11 +571,11 @@ airpcap_channel_offset_changed_cb(GtkWidget *channel_offset_cb, gpointer data _U
 void
 airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint chan_freq, GtkWidget *channel_offset_cb, gboolean set)
 {
-    gint current_offset;
-    gint new_offset;
+    gint  current_offset;
+    gint  new_offset;
     guint i;
-    gint active_idx = 0;
-    gint idx_count = -1;
+    gint  active_idx = 0;
+    gint  idx_count  = -1;
 
     if (!if_info || airpcap_if_is_any(if_info) || if_info->pSupportedChannels == NULL || if_info->numSupportedChannels < 1) {
         gtk_widget_set_sensitive(GTK_WIDGET(channel_offset_cb),FALSE);
@@ -614,7 +614,7 @@ airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint chan_freq,
             if (new_offset == 0) {
                 active_idx = idx_count;
             }
-            if ((if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_HIGH)){
+            if ((if_info->pSupportedChannels[i].Flags & FLAG_CAN_BE_HIGH)) {
                 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(channel_offset_cb), "+1");
                 idx_count++;
                 if (new_offset == 1) {
@@ -632,7 +632,7 @@ airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint chan_freq,
         change_airpcap_settings = TRUE;
 
         if_info->channelInfo.ExtChannel = new_offset;
-        if (!airpcap_update_frequency_and_offset(if_info)){
+        if (!airpcap_update_frequency_and_offset(if_info)) {
             simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Adapter failed to be set with the following settings: Frequency - %d   Extension Channel - %d", if_info->channelInfo.Frequency, if_info->channelInfo.ExtChannel);
         }
     }
@@ -648,7 +648,7 @@ airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint chan_freq,
 int
 airpcap_if_is_any(airpcap_if_info_t* if_info)
 {
-    if(g_ascii_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)==0)
+    if (g_ascii_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)==0)
         return 1;
     else
         return 0;
@@ -660,7 +660,7 @@ airpcap_if_is_any(airpcap_if_info_t* if_info)
 void
 airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info)
 {
-    if(!if_info || airpcap_if_is_any(if_info) || !airpcap_if_selected)
+    if (!if_info || airpcap_if_is_any(if_info) || !airpcap_if_selected)
     {
         gtk_combo_box_set_active(GTK_COMBO_BOX(channel_cb), -1);
         change_airpcap_settings = FALSE;
@@ -672,9 +672,9 @@ airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info)
             gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(channel_cb), 0);
         }
 
-        if (if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
+        if (if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0) {
             guint i;
-            for (i = 0; i<(if_info->numSupportedChannels); i++){
+            for (i = 0; i<(if_info->numSupportedChannels); i++) {
                 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(channel_cb), ieee80211_mhz_to_str(airpcap_if_selected->pSupportedChannels[i].Frequency));
             }
         }
@@ -691,8 +691,8 @@ airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info)
 static void
 airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_info_t *fake_if_info)
 {
-    GtkTreePath *path;
-    GtkTreeIter iter;
+    GtkTreePath  *path;
+    GtkTreeIter   iter;
     GtkTreeModel *model = GTK_TREE_MODEL(key_list_store);
 
     /* airpcap stuff */
@@ -707,7 +707,7 @@ airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_in
     gchar *row_type, *row_key; /* SSID not needed for AirPcap */
     size_t key_len;
 
-    if(fake_if_info == NULL)
+    if (fake_if_info == NULL)
         return;
 
     keys_in_list = gtk_tree_model_iter_n_children(model, NULL);
@@ -737,11 +737,11 @@ airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_in
                            KL_COL_KEY, &row_key,
                            -1);
 
-        if(g_ascii_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
+        if (g_ascii_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
             KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WEP;
-        else if(g_ascii_strcasecmp(row_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
+        else if (g_ascii_strcasecmp(row_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
             KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WPA_PWD;
-        else if(g_ascii_strcasecmp(row_type,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
+        else if (g_ascii_strcasecmp(row_type,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
             KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WPA_PMK;
 
         /* Retrieve the Item corresponding to the i-th key */
@@ -750,8 +750,8 @@ airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_in
         KeysCollection->Keys[i].KeyLen = (guint) key_len / 2;
         memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
 
-        /* Key must be saved in adifferent way, depending on its type... */
-        if(KeysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WEP)
+        /* Key must be saved in a different way, depending on its type... */
+        if (KeysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WEP)
         {
             for(j = 0 ; j < key_len; j += 2)
             {
@@ -769,7 +769,7 @@ airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_in
     /*
      * Free the old adapter key collection!
      */
-    if(fake_if_info->keysCollection != NULL)
+    if (fake_if_info->keysCollection != NULL)
         g_free(fake_if_info->keysCollection);
 
     /*
@@ -791,13 +791,13 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
     GtkTreeModel *model = GTK_TREE_MODEL(key_list_store);
     gboolean items_left;
     gint if_n = 0;
-    gint i = 0;
+    gint i    = 0;
     airpcap_if_info_t* curr_if = NULL;
     airpcap_if_info_t* fake_info_if = NULL;
-    GList* key_list=NULL;
+    GList* key_list = NULL;
 
     char* tmp_type = NULL;
-    char* tmp_key = NULL;
+    char* tmp_key  = NULL;
     char* tmp_ssid = NULL;
 
     decryption_key_t* tmp_dk=NULL;
@@ -817,7 +817,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
                            KL_COL_SSID, &tmp_ssid,
                            -1);
 
-        if(g_ascii_strcasecmp(tmp_type, AIRPCAP_WEP_KEY_STRING) == 0)
+        if (g_ascii_strcasecmp(tmp_type, AIRPCAP_WEP_KEY_STRING) == 0)
         {
             tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
             tmp_dk->key = g_string_new(tmp_key);
@@ -826,7 +826,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
             tmp_dk->bits = (guint) tmp_dk->key->len * 4;
             key_list = g_list_append(key_list,tmp_dk);
         }
-        else if(g_ascii_strcasecmp(tmp_type, AIRPCAP_WPA_PWD_KEY_STRING) == 0)
+        else if (g_ascii_strcasecmp(tmp_type, AIRPCAP_WPA_PWD_KEY_STRING) == 0)
         {
             tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
             tmp_dk->key = g_string_new(tmp_key);
@@ -836,7 +836,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
             tmp_dk->bits = 256;
             key_list = g_list_append(key_list,tmp_dk);
         }
-        else if(g_ascii_strcasecmp(tmp_type, AIRPCAP_WPA_BIN_KEY_STRING) == 0)
+        else if (g_ascii_strcasecmp(tmp_type, AIRPCAP_WPA_BIN_KEY_STRING) == 0)
         {
             tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
             tmp_dk->key = g_string_new(tmp_key);
@@ -855,7 +855,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
     /*
      * Save the key list for driver.
      */
-    if( (if_list == NULL) || (info_if == NULL) ) return;
+    if ( (if_list == NULL) || (info_if == NULL) ) return;
 
     fake_info_if = airpcap_driver_fake_if_info_new();
 
@@ -870,7 +870,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
     {
         curr_if = (airpcap_if_info_t*)g_list_nth_data(if_list,i);
 
-        if(curr_if != NULL)
+        if (curr_if != NULL)
         {
             /* XXX - Set an empty collection */
             airpcap_if_clear_decryption_settings(curr_if);
@@ -896,10 +896,10 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
 gboolean
 airpcap_check_decryption_keys(GList* if_list)
 {
-    gint if_n = 0;
-    gint i = 0;
+    gint if_n            = 0;
+    gint i               = 0;
     gint n_adapters_keys = 0;
-    gint n_driver_keys = 0;
+    gint n_driver_keys   = 0;
     airpcap_if_info_t* curr_if = NULL;
 
     GList* wireshark_key_list;
@@ -913,7 +913,7 @@ airpcap_check_decryption_keys(GList* if_list)
      * If no AirPcap interface is found, return TRUE, so Wireshark
      * will use HIS OWN keys.
      */
-    if(if_list == NULL)
+    if (if_list == NULL)
         return TRUE;
 
     if_n = g_list_length(if_list);
@@ -935,10 +935,10 @@ airpcap_check_decryption_keys(GList* if_list)
         adapters_keys_equals &= key_lists_are_equal(wireshark_key_list,curr_adapter_key_list);
     }
 
-    if(n_adapters_keys != 0) /* If for some reason at least one specific key has been found */
+    if (n_adapters_keys != 0) /* If for some reason at least one specific key has been found */
         equals &= adapters_keys_equals;        /* */
 
-    if(n_driver_keys == 0) /* No keys set in any of the AirPcap adapters... */
+    if (n_driver_keys == 0) /* No keys set in any of the AirPcap adapters... */
         return TRUE; /* Use Wireshark keys and set them ad default for airpcap devices */
 
     return equals;
@@ -960,9 +960,9 @@ void
 airpcap_load_decryption_keys(GList* if_list)
 {
     gint if_n = 0;
-    gint i = 0;
+    gint i    = 0;
 
-    if(if_list == NULL) return;
+    if (if_list == NULL) return;
 
     if_n = g_list_length(if_list);
 
@@ -980,11 +980,11 @@ void
 airpcap_save_decryption_keys(GList* key_list, GList* adapters_list)
 {
     gint if_n = 0;
-    gint i = 0;
+    gint i    = 0;
     airpcap_if_info_t* curr_if = NULL;
     GList* empty_key_list = NULL;
 
-    if( (key_list == NULL) || (adapters_list == NULL)) return;
+    if ( (key_list == NULL) || (adapters_list == NULL)) return;
 
     if_n = g_list_length(adapters_list);
 
@@ -1023,7 +1023,7 @@ airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en)
                 *fcs_lb,
                 *advanced_bt;
 
-    if(w == NULL)
+    if (w == NULL)
         return;
 
     toolbar_tb = w;
@@ -1038,21 +1038,21 @@ airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en)
     advanced_bt         = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
 
 
-    if(if_description_lb != NULL)
+    if (if_description_lb != NULL)
         gtk_widget_set_sensitive(if_description_lb,en);
-    if(channel_lb != NULL)
+    if (channel_lb != NULL)
         gtk_widget_set_sensitive(channel_lb,en);
-    if(toolbar_channel_cb != NULL)
+    if (toolbar_channel_cb != NULL)
         gtk_widget_set_sensitive(toolbar_channel_cb,en);
-    if(channel_offset_cb != NULL)
+    if (channel_offset_cb != NULL)
         gtk_widget_set_sensitive(channel_offset_cb,en);
-    if(channel_offset_lb != NULL)
+    if (channel_offset_lb != NULL)
         gtk_widget_set_sensitive(channel_offset_lb,en);
-    if(fcs_lb != NULL)
+    if (fcs_lb != NULL)
         gtk_widget_set_sensitive(fcs_lb,en);
-    if(fcs_cb != NULL)
+    if (fcs_cb != NULL)
         gtk_widget_set_sensitive(fcs_cb,en);
-    if(advanced_bt != NULL)
+    if (advanced_bt != NULL)
         gtk_widget_set_sensitive(advanced_bt,en);
 
     return;

@@ -546,7 +546,7 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
   cts.page++;
 
-  /* select the main GUI page as the default page and expand it's children */
+  /* select the main GUI page as the default page and expand its children */
   gtk_tree_selection_select_iter(selection, &gui_iter);
   /* (expand will only take effect, when at least one child exists) */
   gtk_tree_view_expand_all(GTK_TREE_VIEW(cts.tree));

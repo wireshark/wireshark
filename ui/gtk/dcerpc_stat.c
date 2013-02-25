@@ -134,7 +134,7 @@ dcerpcstat_packet(void *rs_arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		return FALSE;
 	}
 	if(ri->call_data->opnum >= rs->num_procedures){
-		/* don't handle this since its outside of known table */
+		/* don't handle this since it's outside of known table */
 		return FALSE;
 	}
 

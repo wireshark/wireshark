@@ -327,10 +327,10 @@ extern void main_colorize_changed(gboolean packet_list_colorize);
  */
 extern gboolean main_do_quit(void);
 
-/** Rearrange the main window widgets, user changed it's preferences. */
+/** Rearrange the main window widgets, user changed its preferences. */
 extern void main_widgets_rearrange(void);
 
-/** Show or hide the main window widgets, user changed it's preferences. */
+/** Show or hide the main window widgets, user changed its preferences. */
 extern void main_widgets_show_or_hide(void);
 
 /* Update main window items based on whether we have a packet history. */

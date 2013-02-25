@@ -527,7 +527,7 @@ range_entry_in_event(GtkWidget *widget _U_, GdkEventFocus *event _U_, gpointer u
   /* needs to do when the default button was pressed. This is difficult as we currently */
   /* don't have a concept to call the hosting dialog this way. */
 
-  /* XXX - As we might want to put the whole range thing in it's own dialog, this would be */
+  /* XXX - As we might want to put the whole range thing in its own dialog, this would be */
   /* a much easier task than it would be today as we could simply close our own dialog. */
 }
 

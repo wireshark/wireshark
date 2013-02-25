@@ -104,7 +104,7 @@
 extern GtkWidget *dlg_window_new(const gchar *title);
 
 /** Create a configuration dialog box window that belongs to Wireshark's
- * main window and add the name of the current profile name to it's title bar
+ * main window and add the name of the current profile name to its title bar
  * If you want to create a window, use window_new() instead.
  * See window_new() for general window usage.
  *

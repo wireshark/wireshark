@@ -384,7 +384,7 @@ toolbar_new(void)
     toolbar_item(color_display_button, main_tb,
 	GTK_STOCK_SELECT_COLOR, "Edit coloring rules...", color_display_cb, NULL);
 
-    /* the preference button uses it's own Stock icon label "Prefs", as "Preferences" is too long */
+    /* the preference button uses its own Stock icon label "Prefs", as "Preferences" is too long */
     toolbar_item(prefs_button, main_tb,
 	GTK_STOCK_PREFERENCES, "Edit preferences...", prefs_cb, NULL);
 

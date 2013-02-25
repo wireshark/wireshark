@@ -1089,7 +1089,7 @@ statusbar_capture_callback(gint event, capture_options *capture_opts,
         break;
     case(capture_cb_capture_stopping):
         /* Beware: this state won't be called, if the capture child
-         * closes the capturing on it's own! */
+         * closes the capturing on its own! */
         break;
     case(capture_cb_capture_failed):
         statusbar_capture_failed_cb(capture_opts);

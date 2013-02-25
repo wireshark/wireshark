@@ -116,7 +116,7 @@ extern gchar *file_selection_run(GtkWidget *fs);
 extern gboolean file_target_unwritable_ui(GtkWidget *chooser_w, char *cf_name);
 #endif
 
-/** The function file_selection_browse() will g_object_set_data() itself on it's parent window.
+/** The function file_selection_browse() will g_object_set_data() itself on its parent window.
  *  When destroying the parent window, it can close the corresponding file selection. */
 #define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
 

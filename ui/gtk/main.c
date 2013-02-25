@@ -402,7 +402,7 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
         /* convert selected field to protocol abbreviation */
         /* XXX - could this conversion be simplified? */
         field_id = cfile.finfo_selected->hfinfo->id;
-        /* if the selected field isn't a protocol, get it's parent */
+        /* if the selected field isn't a protocol, get its parent */
         if(!proto_registrar_is_protocol(field_id)) {
             field_id = proto_registrar_get_parent(cfile.finfo_selected->hfinfo->id);
         }
@@ -480,7 +480,7 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
         /* convert selected field to protocol abbreviation */
         /* XXX - could this conversion be simplified? */
         field_id = cfile.finfo_selected->hfinfo->id;
-        /* if the selected field isn't a protocol, get it's parent */
+        /* if the selected field isn't a protocol, get its parent */
         if(!proto_registrar_is_protocol(field_id)) {
             field_id = proto_registrar_get_parent(cfile.finfo_selected->hfinfo->id);
         }
@@ -1347,7 +1347,7 @@ resolv_update_cb(gpointer data _U_)
 }
 
 
-/* Set main_window_name and it's icon title to the capture filename */
+/* Set main_window_name and its icon title to the capture filename */
 static void
 set_display_filename(capture_file *cf)
 {
@@ -1911,7 +1911,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
     case(capture_cb_capture_stopping):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
         /* Beware: this state won't be called, if the capture child
-         * closes the capturing on it's own! */
+         * closes the capturing on its own! */
 #ifdef HAVE_GTKOSXAPPLICATION
         theApp = g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
         gtkosx_application_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));

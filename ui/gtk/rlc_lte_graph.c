@@ -2242,7 +2242,7 @@ static gboolean motion_notify_event(GtkWidget *widget _U_, GdkEventMotion *event
         }
     }
     else {
-        /* Update the cross if its being shown */
+        /* Update the cross if it's being shown */
         if (g->cross.erase_needed)
             cross_erase(g);
         if (g->cross.draw) {

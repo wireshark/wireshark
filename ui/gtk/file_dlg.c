@@ -158,7 +158,7 @@ file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
         new_filename = g_strdup(filename);
     }
 
-    /* this function is very pedantic about it's filename parameter */
+    /* this function is very pedantic about its filename parameter */
     /* no trailing '\' allowed, unless a win32 root dir "D:\" */
     ret = gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs), new_filename);
     g_free(new_filename);

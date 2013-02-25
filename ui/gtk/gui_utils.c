@@ -456,7 +456,7 @@ window_destroy(GtkWidget *win)
 
 #if 0
 /* Do we need this one ? */
-/* convert an xpm to a GtkWidget, using the window settings from it's parent */
+/* convert an xpm to a GtkWidget, using the window settings from its parent */
 /* (be sure that the parent window is already being displayed) */
 GtkWidget *
 xpm_to_widget_from_parent(GtkWidget   *parent,
