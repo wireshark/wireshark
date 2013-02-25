@@ -130,6 +130,9 @@ static dissector_table_t ip_dissector_table;
 /* Encryption algorithm defined in RFC 2144 */
 #define IPSEC_ENCRYPT_CAST5_CBC 7
 
+/* Encryption algorithm defined in RFC 4106 */
+#define IPSEC_ENCRYPT_AES_GCM 8
+
 /* Authentication algorithms defined in RFC 4305 */
 #define IPSEC_AUTH_NULL 0
 #define IPSEC_AUTH_HMAC_SHA1_96 1
@@ -1524,6 +1527,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         break;
 
                     case IPSEC_ENCRYPT_AES_CTR :
+                    case IPSEC_ENCRYPT_AES_GCM :
                         /* RFC 3686 says :
                         AES supports three key sizes: 128 bits, 192 bits,
                         and 256 bits.  The default key size is 128 bits,
@@ -1565,7 +1569,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 break;
 
                             default:
-                                fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm AES-CTR : Bad Keylen (%i Bits)\n",
+                                fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm AES-CTR / AES-GCM : Bad Keylen (%i Bits)\n",
                                     esp_crypt_key_len * 8);
                                 decrypt_ok = FALSE;
                             }
@@ -1715,6 +1719,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     memcpy(ctr_block, esp_crypt_key + esp_crypt_key_len - 4, 4);
                                     memcpy(ctr_block + 4, encrypted_data, 8);
                                     ctr_block[15] = 1;
+                                    if (esp_crypt_algo == IPSEC_ENCRYPT_AES_GCM)
+                                      ctr_block[15]++;
                                     err = gcry_cipher_setctr (cypher_hd, ctr_block, 16);
                                     if (!err)
                                     {
@@ -2080,6 +2086,7 @@ proto_register_ipsec(void)
     { IPSEC_ENCRYPT_CAST5_CBC, "CAST5-CBC [RFC2144]" },
     { IPSEC_ENCRYPT_BLOWFISH_CBC, "BLOWFISH-CBC [RFC2451]" },
     { IPSEC_ENCRYPT_TWOFISH_CBC, "TWOFISH-CBC" },
+    { IPSEC_ENCRYPT_AES_GCM, "AES-GCM [RFC4106]" },
     { 0x00, NULL }
   };
 
