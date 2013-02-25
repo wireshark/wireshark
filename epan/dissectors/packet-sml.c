@@ -125,7 +125,7 @@ static int hf_sml_secIndex = -1;
 static int hf_sml_attentionNo = -1;
 static int hf_sml_attentionMsg = -1;
 static int hf_sml_withRawdata = -1;
-static int hf_sml_beginnTime = -1;
+static int hf_sml_beginTime = -1;
 static int hf_sml_endTime = -1;
 static int hf_sml_object_list_Entry = -1;
 static int hf_sml_actTime = -1;
@@ -237,10 +237,10 @@ static const range_string attentionValues[]={
 	{0xFE0F, 0xFE0F, "datatype not supported"},
 	{0xFE10, 0xFE10, "optional element not supported"},
 	{0xFE11, 0xFE11, "no entry in requested profile"},
-	{0xFE12, 0xFE12, "end limit before beginn limit"},
+	{0xFE12, 0xFE12, "end limit before begin limit"},
 	{0xFE13, 0xFE13, "no entry in requested area"},
 	{0xFE14, 0xFE14, "SML file without close"},
-	{0xFE15, 0xFE15, "busy, response canot be sent"},
+	{0xFE15, 0xFE15, "busy, response cannot be sent"},
 	{0,0, NULL}
 };
 
@@ -304,7 +304,7 @@ static gint ett_sml_signature = -1;
 static gint ett_sml_attentionNo = -1;
 static gint ett_sml_attentionMsg = -1;
 static gint ett_sml_withRawdata = -1;
-static gint ett_sml_beginnTime = -1;
+static gint ett_sml_beginTime = -1;
 static gint ett_sml_endTime = -1;
 static gint ett_sml_object_list = -1;
 static gint ett_sml_object_list_Entry = -1;
@@ -940,7 +940,7 @@ static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *
 
 	/*signature_pA_R1_R4*/
 	get_length(tvb, offset, &data, &length);
-	signature_pA_R1_R4= proto_tree_add_text (TupelEntry_list, tvb, *offset, length+data, "signatur_pa_R1_R4");
+	signature_pA_R1_R4= proto_tree_add_text (TupelEntry_list, tvb, *offset, length+data, "signature_pa_R1_R4");
 	signature_pA_R1_R4_tree = proto_item_add_subtree(signature_pA_R1_R4, ett_sml_signature_pA_R1_R4);
 	proto_tree_add_text (signature_pA_R1_R4_tree, tvb, *offset, length, "Length: %d %s", data ,plurality(data, "octet", "octets"));
 	*offset+=length;
@@ -1297,7 +1297,7 @@ static void decode_PublicOpenRes (tvbuff_t *tvb, proto_tree *messagebodytree_lis
 static gboolean decode_GetProfile_List_Pack_Req (tvbuff_t *tvb, packet_info *pinfo, proto_tree *messagebodytree_list, guint *offset){
 	proto_item *withRawdata = NULL;
 	proto_item *SML_time = NULL;
-	proto_item *beginnTime = NULL;
+	proto_item *beginTime = NULL;
 	proto_item *treepath = NULL;
 	proto_item *object_list = NULL;
 	proto_item *endTime = NULL;
@@ -1305,7 +1305,7 @@ static gboolean decode_GetProfile_List_Pack_Req (tvbuff_t *tvb, packet_info *pin
 
 	proto_tree *withRawdata_tree = NULL;
 	proto_tree *SML_time_tree = NULL;
-	proto_tree *beginnTime_tree = NULL;
+	proto_tree *beginTime_tree = NULL;
 	proto_tree *treepath_list = NULL;
 	proto_tree *object_list_list = NULL;
 	proto_tree *endTime_tree = NULL;
@@ -1340,28 +1340,28 @@ static gboolean decode_GetProfile_List_Pack_Req (tvbuff_t *tvb, packet_info *pin
 	else
 		*offset+=1;
 
-	/*beginnTime OPTIONAL*/
+	/*beginTime OPTIONAL*/
 	get_length(tvb, offset, &data, &length);
 
 	if (data == 0){
-		proto_tree_add_text (messagebodytree_list, tvb, *offset, length + data, "beginnTime: NOT SET");
+		proto_tree_add_text (messagebodytree_list, tvb, *offset, length + data, "beginTime: NOT SET");
 		*offset+=1;
 	}
 	else {
 		/*SML TIME*/
-		SML_time = proto_tree_add_text (messagebodytree_list, tvb, *offset, -1, "beginnTime");
+		SML_time = proto_tree_add_text (messagebodytree_list, tvb, *offset, -1, "beginTime");
 		SML_time_tree = proto_item_add_subtree (SML_time, ett_sml_time);
 		*offset+=1;
 
 		sml_time_type(tvb, SML_time_tree, offset);
 
-		/*beginnTime*/
+		/*beginTime*/
 		get_length(tvb, offset, &data, &length);
-		beginnTime = proto_tree_add_text (SML_time_tree, tvb, *offset, length + data, "beginnTime");
-		beginnTime_tree = proto_item_add_subtree (beginnTime, ett_sml_beginnTime);
-		proto_tree_add_item (beginnTime_tree, hf_sml_datatype, tvb, *offset, 1, ENC_NA);
+		beginTime = proto_tree_add_text (SML_time_tree, tvb, *offset, length + data, "beginTime");
+		beginTime_tree = proto_item_add_subtree (beginTime, ett_sml_beginTime);
+		proto_tree_add_item (beginTime_tree, hf_sml_datatype, tvb, *offset, 1, ENC_NA);
 		*offset+=1;
-		proto_tree_add_item(beginnTime_tree, hf_sml_beginnTime, tvb, *offset, data, ENC_BIG_ENDIAN);
+		proto_tree_add_item(beginTime_tree, hf_sml_beginTime, tvb, *offset, data, ENC_BIG_ENDIAN);
 		*offset+=data;
 		proto_item_set_end(SML_time,tvb,*offset);
 	}
@@ -1384,7 +1384,7 @@ static gboolean decode_GetProfile_List_Pack_Req (tvbuff_t *tvb, packet_info *pin
 		/*endTime*/
 		get_length(tvb, offset, &data, &length);
 		endTime = proto_tree_add_text (SML_time_tree, tvb, *offset, length + data, "endTime");
-		endTime_tree = proto_item_add_subtree (endTime, ett_sml_beginnTime);
+		endTime_tree = proto_item_add_subtree (endTime, ett_sml_beginTime);
 		proto_tree_add_item (endTime_tree, hf_sml_datatype, tvb, *offset, 1, ENC_NA);
 		*offset+=1;
 		proto_tree_add_item(endTime_tree, hf_sml_endTime, tvb, *offset, data, ENC_BIG_ENDIAN);
@@ -1626,7 +1626,7 @@ static gboolean decode_GetProfilePackRes(tvbuff_t *tvb, packet_info *pinfo, prot
 			/*value*/
 			sml_value(tvb, value_List_Entry_list, offset, &data, &length);
 
-			/*value Siganture*/
+			/*value Signature*/
 			field_valueSignature(tvb, value_List_Entry_list, offset, &data, &length);
 
 			proto_item_set_end(value_List_Entry, tvb, *offset);
@@ -2061,13 +2061,13 @@ static gboolean decode_GetProcParameterRes(tvbuff_t *tvb, packet_info *pinfo, pr
 	}
 	proto_item_set_end(treepath, tvb, *offset);
 
-	/*prameterTree*/
+	/*parameterTree*/
 	get_length(tvb, offset, &data, &length);
-	parameterTree = proto_tree_add_text(messagebodytree_list, tvb, *offset, -1, "prameterTree with %d %s", length+data, plurality(length+data, "element", "elements"));
+	parameterTree = proto_tree_add_text(messagebodytree_list, tvb, *offset, -1, "parameterTree with %d %s", length+data, plurality(length+data, "element", "elements"));
 	parameterTree_list = proto_item_add_subtree(parameterTree, ett_sml_parameterTree);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format(pinfo, parameterTree, PI_PROTOCOL, PI_ERROR, "invalid count of elements in prameterTree");
+		expert_add_info_format(pinfo, parameterTree, PI_PROTOCOL, PI_ERROR, "invalid count of elements in parameterTree");
 		return TRUE;
 	}
 
@@ -2122,13 +2122,13 @@ static gboolean decode_SetProcParameterReq(tvbuff_t *tvb, packet_info *pinfo,pro
 	}
 	proto_item_set_end(treepath, tvb, *offset);
 
-	/*prameterTree*/
+	/*parameterTree*/
 	get_length(tvb, offset, &data, &length);
-	parameterTree = proto_tree_add_text(messagebodytree_list, tvb, *offset, -1, "prameterTree with %d %s", length+data, plurality(length+data, "element", "elements"));
+	parameterTree = proto_tree_add_text(messagebodytree_list, tvb, *offset, -1, "parameterTree with %d %s", length+data, plurality(length+data, "element", "elements"));
 	parameterTree_list = proto_item_add_subtree(parameterTree, ett_sml_parameterTree);
 
 	if ((tvb_get_guint8(tvb,*offset) & 0xF0) != LONG_LIST && (tvb_get_guint8(tvb,*offset) & 0xF0) != SHORT_LIST){
-		expert_add_info_format(pinfo, parameterTree, PI_PROTOCOL, PI_ERROR, "invalid count of elements in prameterTree");
+		expert_add_info_format(pinfo, parameterTree, PI_PROTOCOL, PI_ERROR, "invalid count of elements in parameterTree");
 		return TRUE;
 	}
 
@@ -2359,7 +2359,7 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 			proto_tree_add_item (messagebody_tree, hf_sml_MessageBody, tvb, *offset, 2, ENC_BIG_ENDIAN);
 			*offset+=2;
 
-			/*MessageBody Liste*/
+			/*MessageBody List*/
 			get_length(tvb, offset, &data, &length);
 			messagebodytree = proto_tree_add_text (sublist_list, tvb, *offset, -1, "List with %d %s", length+data, plurality(length+data, "element", "elements"));
 			messagebodytree_list = proto_item_add_subtree (messagebodytree, ett_sml_mblist);
@@ -2478,7 +2478,7 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 					proto_tree_add_text (crc16_tree, tvb, *offset, 0, "[CRC Okay]");
 				}
 				else {
-					/*(little to big endian convert) to disply in correct order*/
+					/*(little to big endian convert) to display in correct order*/
 					crc_check = ((crc_check >> 8) & 0xFF) + ((crc_check << 8 & 0xFF00));
 					proto_tree_add_text (crc16_tree, tvb, *offset, 0, "[CRC Bad 0x%X]", crc_check);
 					expert_add_info_format(pinfo, crc16, PI_CHECKSUM, PI_WARN, "CRC error");
@@ -2534,7 +2534,7 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 			*offset+=length;
 		}
 
-		/*Escape Ende*/
+		/*Escape End*/
 		if(tvb_get_ntoh40(tvb, *offset) != ESC_SEQ_END){
 			expert_add_info_format(pinfo, NULL, PI_PROTOCOL, PI_ERROR, "escapesequence error");
 			return;
@@ -2560,7 +2560,7 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 				proto_tree_add_text (msgend_tree, tvb, *offset, 0, "[CRC Okay]");
 			}
 			else{
-				/*(little to big endian convert) to disply in correct order*/
+				/*(little to big endian convert) to display in correct order*/
 				crc_check = ((crc_check >> 8) & 0xFF) + ((crc_check << 8) & 0xFF00);
 				proto_tree_add_text (msgend_tree, tvb, *offset, 0, "[CRC Bad 0x%X]", crc_check);
 				expert_add_info_format(pinfo, msgend, PI_CHECKSUM, PI_WARN, "CRC error (messages not reassembled ?)");
@@ -2693,8 +2693,8 @@ void proto_register_sml (void) {
 			{ "attentionMsg", "sml.attentionmsg", FT_STRING, BASE_NONE, NULL, 0x0 , NULL, HFILL }},
 		{ &hf_sml_withRawdata,
 			{ "withRawdata", "sml.withrawdata", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(bools), 0x0 , NULL, HFILL }},
-		{ &hf_sml_beginnTime,
-			{ "beginnTime", "sml.beginntime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sml_beginTime,
+			{ "beginTime", "sml.begintime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_endTime,
 			{ "endTime", "sml.endtime", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sml_actTime,
@@ -2806,7 +2806,7 @@ void proto_register_sml (void) {
 		&ett_sml_attentionNo,
 		&ett_sml_attentionMsg,
 		&ett_sml_withRawdata,
-		&ett_sml_beginnTime,
+		&ett_sml_beginTime,
 		&ett_sml_endTime,
 		&ett_sml_object_list,
 		&ett_sml_object_list_Entry,
