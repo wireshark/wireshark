@@ -662,7 +662,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       tr = proto_item_add_subtree(ti, ett_trailer);
 
-      ti = proto_tree_add_item(hdr, hf_beep_cmd, tvb, offset, 3, ENC_NA|ENC_ASCII);
+      proto_tree_add_item(hdr, hf_beep_cmd, tvb, offset, 3, ENC_NA|ENC_ASCII);
     }
 
     offset += 3;
