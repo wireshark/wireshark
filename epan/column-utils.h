@@ -117,6 +117,15 @@ extern gint	check_col(column_info *cinfo, const gint col);
  */
 extern void	col_set_fence(column_info *cinfo, const gint col);
 
+/** Gets the text of a column element.
+ *
+ * @param cinfo the current packet row
+ * @param col the column to use, e.g. COL_INFO
+ *
+ * @return the text string
+ */
+extern const gchar *col_get_text(column_info *cinfo, const gint col);
+
 /** Clears the text of a column element.
  *
  * @param cinfo the current packet row

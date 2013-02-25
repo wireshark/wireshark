@@ -604,17 +604,21 @@ static const gchar*  col_id_to_name(gint id) {
 
 WSLUA_METAMETHOD Column__tostring(lua_State *L) {
     Column c = checkColumn(L,1);
-    const gchar* name;
+    const gchar* text;
 
-    if (!(c)) {
-        return 0;
+    if (!c) {
+        lua_pushstring(L,"(nil)");
+    }
+    else if (!c->cinfo) {
+        text = col_id_to_name(c->col);
+        lua_pushfstring(L, "(%s)", text ? text : "unknown");
+    }
+    else {
+        text = col_get_text(c->cinfo, c->col);
+        lua_pushstring(L, text ? text : "(nil)");
     }
 
-    /* XXX: should return the column's text ! */
-    name = col_id_to_name(c->col);
-    lua_pushstring(L,name ? name : "Unknown Column");
-
-    WSLUA_RETURN(1); /* A string representing the column */
+    WSLUA_RETURN(1); /* The column's string text (in parenthesis if not available) */
 }
 
 static int Column__gc(lua_State* L) {
@@ -691,12 +695,24 @@ WSLUA_METHOD Column_prepend(lua_State *L) {
     return 0;
 }
 
+WSLUA_METHOD Column_fence(lua_State *L) {
+        /* Sets Column text fence, to prevent overwriting */
+    Column c = checkColumn(L,1);
+
+    if (c && c->cinfo)
+        col_set_fence(c->cinfo, c->col);
+
+    return 0;
+}  
+
+
 WSLUA_METHODS Column_methods[] = {
     WSLUA_CLASS_FNREG(Column,clear),
     WSLUA_CLASS_FNREG(Column,set),
     WSLUA_CLASS_FNREG(Column,append),
     WSLUA_CLASS_FNREG(Column,prepend),
     WSLUA_CLASS_FNREG_ALIAS(Column,preppend,prepend),
+    WSLUA_CLASS_FNREG(Column,fence),
     {0,0}
 };
 

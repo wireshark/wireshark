@@ -165,6 +165,26 @@ col_set_fence(column_info *cinfo, const gint el)
   }
 }
 
+/* Gets the text of a column */
+const gchar *
+col_get_text(column_info *cinfo, const gint el)
+{
+  int i;
+  const gchar* text = NULL;
+
+  if (!(cinfo && (cinfo)->col_first[el] >= 0)) {
+    return NULL;
+  }
+
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
+    if (cinfo->fmt_matx[i][el]) {
+      text = (cinfo->col_data[i]);
+    }
+  }
+  return text;
+}
+
+
 /* Use this to clear out a column, especially if you're going to be
    appending to it later; at least on some platforms, it's more
    efficient than using "col_add_str()" with a null string, and
