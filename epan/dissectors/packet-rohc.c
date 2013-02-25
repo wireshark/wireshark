@@ -72,7 +72,9 @@ static int hf_rohc_opt_type = -1;
 static int hf_rohc_opt_len = -1;
 static int hf_rohc_crc = -1;
 static int hf_rohc_opt_sn = -1;
-static int hf_rohc_feedback_option_clock = -1;
+static int hf_rohc_opt_clock = -1;
+static int hf_rohc_opt_jitter = -1;
+static int hf_rohc_opt_loss = -1;
 static int hf_rohc_profile = -1;
 static int hf_rohc_d_bit = -1;
 static int hf_rohc_ip_version = -1;
@@ -935,45 +937,49 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
                         col_append_fstr(pinfo->cinfo, COL_INFO, "CRC=%u ", oct);
                         break;
                     case 2:
-                        /* REJECT: TODO */
-                        proto_tree_add_text(tree, tvb, offset, feedback_data_len, "Option data[Not dissected yet]");
+                        /* REJECT */
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "Reject ");
                         break;
                     case 3:
-                        /* SN-Not-Valid: TODO */
-                        proto_tree_add_text(tree, tvb, offset, feedback_data_len, "Option data[Not dissected yet]");
+                        /* SN-Not-Valid */
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "SN-Not-Valid ");
                         break;
                     case 4:
                         /* SN */
                         proto_tree_add_item(rohc_feedback_tree, hf_rohc_opt_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
                         oct = tvb_get_guint8(tvb, offset);
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " SN=%u ", oct);
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "SN=%u ", oct);
                         break;
                     case 5:
                         /* Clock */
                         if (rohc_cid_context->profile == ROHC_PROFILE_RTP) {
-                            proto_tree_add_item(tree, hf_rohc_feedback_option_clock, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(rohc_feedback_tree, hf_rohc_opt_clock, tvb, offset, 1, ENC_BIG_ENDIAN);
                             oct = tvb_get_guint8(tvb, offset);
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " Clock=%u ", oct);
+                            col_append_fstr(pinfo->cinfo, COL_INFO, "Clock=%u ", oct);
                         } else {
                             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                                    "CLOCK option should not be used for UDP");
                         }
                         break;
                     case 6:
-                        /* Jitter: TODO */
+                        /* Jitter */
                         if (rohc_cid_context->profile == ROHC_PROFILE_RTP) {
-                            proto_tree_add_text(tree, tvb, offset, feedback_data_len, "Option data[Not dissected yet]");
+                            proto_tree_add_item(rohc_feedback_tree, hf_rohc_opt_jitter, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            oct = tvb_get_guint8(tvb, offset);
+                            col_append_fstr(pinfo->cinfo, COL_INFO, "Jitter=%u ", oct);
                         }else {
                             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                                    "JITTER option should not be used for UDP");
                         }
                         break;
                     case 7:
-                        /* Loss: TODO */
-                        proto_tree_add_text(tree, tvb, offset, feedback_data_len, "Option data[Not dissected yet]");
+                        /* Loss */
+                        proto_tree_add_item(rohc_feedback_tree, hf_rohc_opt_loss, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        oct = tvb_get_guint8(tvb, offset);
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "Loss=%u ", oct);
                         break;
                     default:
-                        proto_tree_add_text(tree, tvb, offset, feedback_data_len, "Unknown Option data");
+                        proto_tree_add_text(rohc_feedback_tree, tvb, offset, opt_len, "Unknown Option data");
                         break;
                 }
                 feedback_data_len = feedback_data_len - opt_len;
@@ -2426,7 +2432,7 @@ proto_register_rohc(void)
               }
             },
             { &hf_rohc_sn,
-              { "SN(lsb)","rohc.sn",
+              { "SN","rohc.sn",
                 FT_UINT16, BASE_HEX_DEC, NULL, 0x0fff,
                 NULL , HFILL
               }
@@ -2464,13 +2470,25 @@ proto_register_rohc(void)
             { &hf_rohc_opt_sn,
               { "SN","rohc.opt.sn",
                 FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
-                NULL , HFILL
+                "Feedback Option SN", HFILL
               }
             },
-            { &hf_rohc_feedback_option_clock,
-              { "Clock", "rohc.feedback-option-clock",
+            { &hf_rohc_opt_clock,
+              { "Clock", "rohc.opt.clock",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Feedback Option Clock", HFILL
+              }
+            },
+            { &hf_rohc_opt_jitter,
+              { "Max Jitter", "rohc.opt.jitter",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Feedback Option Jitter", HFILL
+              }
+            },
+            { &hf_rohc_opt_loss,
+              { "Longest loss event (packets)", "rohc.opt.loss",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Feedback Option Loss", HFILL
               }
             },
             { &hf_rohc_profile,
