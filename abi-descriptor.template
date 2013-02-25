@@ -7,7 +7,7 @@
     {RELPATH}/abi-check-headers
 </headers>
 <libs>
-    {RELPATH}/.libs
+    @LIBRARY_OUTPUT_PATH@
 </libs>
 <include_paths>@INCLUDE_DIRS@
 </include_paths>

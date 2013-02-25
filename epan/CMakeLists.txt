@@ -1541,8 +1541,13 @@ add_library(epan ${LINK_MODE_LIB}
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
 )
+
+add_dependencies(epan svnversion)
+
+set(FULL_SO_VERSION "0.0.0")
+
 set_target_properties(epan PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-set_target_properties(epan PROPERTIES VERSION "0.0.0" SOVERSION 0)
+set_target_properties(epan PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
 
 # discover and substitute list of include directories for ABI compatibility
 # checks
@@ -1550,6 +1555,49 @@ get_directory_property(INCLUDE_DIRS INCLUDE_DIRECTORIES)
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
 string(REGEX REPLACE ";" "\n" INCLUDE_DIRS "${INCLUDE_DIRS}")
 configure_file(../abi-descriptor.template abi-descriptor.xml)
+
+# ABI compliance checker can be obtained from
+# http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
+# Checked using version 1.21.12
+file(GLOB EPAN_HEADERS *.h)
+file(GLOB CRYPT_HEADERS crypt/*.h)
+file(GLOB DFILTER_HEADERS dfilter/*.h ../tools/lemon/cppmagic.h)
+file(GLOB D_HEADERS dissectors/*.h)
+file(GLOB FTYPES_HEADERS ftypes/*.h)
+file(GLOB WMEM_HEADERS wmem/*.h)
+file(MAKE_DIRECTORY abi-check-headers abi-check-headers/epan
+		abi-check-headers/crypt abi-check-headers/dfilter
+		abi-check-headers/dissectors abi-check-headers/ftypes
+		abi-check-headers/wmem)
+file(MAKE_DIRECTORY abi-check-headers/epan)
+
+file(COPY ../color.h ../register.h DESTINATION abi-check-headers)
+file(COPY ${EPAN_HEADERS} DESTINATION abi-check-headers/epan)
+file(COPY ${CRYPT_HEADERS} DESTINATION abi-check-headers/crypt)
+file(COPY ${DFILTER_HEADERS} DESTINATION abi-check-headers/dfilter)
+file(COPY ${D_HEADERS} DESTINATION abi-check-headers/dissectors)
+file(COPY ${FTYPES_HEADERS} DESTINATION abi-check-headers/ftypes)
+file(COPY ${WMEM_HEADERS} DESTINATION abi-check-headers/wmem)
+
+add_custom_command(OUTPUT libwireshark.abi.tar.gz
+	COMMAND cp ../config.h abi-check-headers
+	COMMAND rm abi-check-headers/dissectors/x11-extension-implementation.h
+		abi-check-headers/dissectors/packet-rtps2.h
+		abi-check-headers/dissectors/x11-glx-render-enum.h
+		abi-check-headers/dissectors/x11-register-info.h
+		abi-check-headers/dissectors/packet-idmp.h
+	COMMAND abi-compliance-checker -l libwireshark -v1 ${FULL_SO_VERSION}
+		-relpath ${CMAKE_CURRENT_BINARY_DIR} -dump-abi abi-descriptor.xml
+		|| cat logs/libwireshark/[0-9]*/log.txt
+	COMMAND cp abi_dumps/libwireshark/libwireshark_* libwireshark.abi.tar.gz
+	COMMAND rm -rf abi_dumps abi-check-headers/config.h
+		abi-check-headers/epan/* abi-check-headers/crypt/*
+		abi-check-headers/dfilter/* abi-check-headers/dissectors/*
+		abi-check-headers/ftypes/* abi-check-headers/wmem/*
+	DEPENDS ../config.h ${EPAN_HEADERS}
+		${CRYPT_HEADERS} ${DFILTER_HEADERS} ${D_HEADERS}
+		${FTYPES_HEADERS} ${WMEM_HEADERS} epan)
+add_custom_target(dumpabi-libwireshark DEPENDS libwireshark.abi.tar.gz)
 
 # By default the name for a library with target name epan will be libepan,
 # but Ethereal is now named Wireshark

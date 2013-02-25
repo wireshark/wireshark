@@ -1135,9 +1135,9 @@ clean-local:
 	rm -rf $(top_stagedir)
 
 dumpabi:
-	$(MAKE) -C wiretap dumpabi
-	$(MAKE) -C epan dumpabi
-	$(MAKE) -C wsutil dumpabi
+	$(MAKE) -C wiretap dumpabi-libwiretap
+	$(MAKE) -C epan dumpabi-libwireshark
+	$(MAKE) -C wsutil dumpabi-libwsutil
 
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl -build \

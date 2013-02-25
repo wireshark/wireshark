@@ -313,7 +313,7 @@ endif		# HAVE_DOXYGEN
 # ABI compliance checker can be obtained from
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
 # Checked using version 1.21.12
-dumpabi: all abi-descriptor.xml
+dumpabi-libwireshark: all abi-descriptor.xml
 	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz
 	mkdir abi-check-headers
 	cp ../color.h ../config.h ../register.h abi-check-headers/

@@ -60,8 +60,11 @@ set(wsutil_LIBS
 add_library(wsutil ${LINK_MODE_LIB}
   ${WSUTIL_FILES}
 )
+
+set(FULL_SO_VERSION "0.0.0")
+
 set_target_properties(wsutil PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-set_target_properties(wsutil PROPERTIES VERSION "0.0.0" SOVERSION 0)
+set_target_properties(wsutil PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
 
 # discover and substitute list of include directories for ABI compatibility
 # checks
@@ -69,6 +72,24 @@ get_directory_property(INCLUDE_DIRS INCLUDE_DIRECTORIES)
 list(REMOVE_DUPLICATES INCLUDE_DIRS)
 string(REGEX REPLACE ";" "\n" INCLUDE_DIRS "${INCLUDE_DIRS}")
 configure_file(../abi-descriptor.template abi-descriptor.xml)
+
+# ABI compliance checker can be obtained from
+# http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
+# Checked using version 1.21.12
+file(GLOB HEADERS *.h)
+file(MAKE_DIRECTORY abi-check-headers)
+
+file(COPY ${HEADERS} DESTINATION abi-check-headers)
+
+add_custom_command(OUTPUT libwsutil.abi.tar.gz
+	COMMAND cp ../config.h abi-check-headers/
+	COMMAND abi-compliance-checker -l libwsutil -v1 ${FULL_SO_VERSION}
+		-relpath ${CMAKE_CURRENT_BINARY_DIR} -dump-abi abi-descriptor.xml
+		|| cat logs/libwsutil/[0-9]*/log.txt
+	COMMAND cp abi_dumps/libwsutil/libwsutil_* libwsutil.abi.tar.gz
+	COMMAND rm -rf abi-check-headers/* abi_dumps
+	DEPENDS ../config.h ${HEADERS} wsutil)
+add_custom_target(dumpabi-libwsutil DEPENDS libwsutil.abi.tar.gz)
 
 target_link_libraries(wsutil ${wsutil_LIBS})
 
