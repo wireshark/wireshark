@@ -310,9 +310,16 @@ typedef int dummy##C
     /* create new class method table and 'register' the class methods into it */ \
     lua_newtable (L); \
     wslua_setfuncs (L, C ## _methods, 0); \
+    /* add a method-table field named '__typeof' = the class name, this is used by the typeof() Lua func */ \
+    lua_pushstring(L, #C); \
+    lua_setfield(L, -2, "__typeof"); \
     /* create a new metatable and register metamethods into it */ \
     luaL_newmetatable (L, #C); \
     wslua_setfuncs (L, C ## _meta, 0); \
+    /* add the '__gc' metamethod with a C-function named Class__gc */ \
+    /* this will force ALL wslua classes to have a Class__gc function defined, which is good */ \
+    lua_pushcfunction(L, C ## __gc); \
+    lua_setfield(L, -2, "__gc"); \
     /* push a copy of the class methods table, and set it to be the metatable's __index field */ \
     lua_pushvalue (L, -2); \
     lua_setfield (L, -2, "__index"); \
@@ -336,6 +343,13 @@ typedef int dummy##C
     /* create a new metatable and register metamethods into it */ \
     luaL_newmetatable (L, #C); \
     wslua_setfuncs (L, C ## _meta, 0); \
+    /* add a metatable field named '__typeof' = the class name, this is used by the typeof() Lua func */ \
+    lua_pushstring(L, #C); \
+    lua_setfield(L, -2, "__typeof"); \
+     /* add the '__gc' metamethod with a C-function named Class__gc */ \
+    /* this will force ALL wslua classes to have a Class__gc function defined, which is good */ \
+    lua_pushcfunction(L, C ## __gc); \
+    lua_setfield(L, -2, "__gc"); \
     /* pop the metatable */ \
     lua_pop(L, 1); \
 }

@@ -333,6 +333,10 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
     }
 }
 
+static int FieldInfo__gc(lua_State* L _U_) {
+    /* do NOT free FieldInfo */
+    return 0;
+}
 
 static const luaL_Reg FieldInfo_meta[] = {
     {"__tostring", FieldInfo__tostring},
@@ -353,10 +357,14 @@ int FieldInfo_register(lua_State* L) {
 
 
 WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
-    /* Obtain all fields from the current tree */
-    GPtrArray* found;
-    int items_found = 0;
-    guint i;
+	/* Obtain all fields from the current tree.  Note this only gets whatever fields the underlying
+     * dissectors have filled in for this packet at this time - there may be fields applicable to
+     * the packet that simply aren't being filled in because at this time they're not needed for anything.
+     * So this function only gets what the C-side code has currently populated, not the full list.
+     */
+	GPtrArray* found;
+	int items_found = 0;
+	guint i;
 
     if (! lua_tree || ! lua_tree->tree ) {
         WSLUA_ERROR(wslua_all_field_infos,"Cannot be called outside a listener or dissector");
@@ -508,8 +516,8 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
     WSLUA_RETURN(items_found); /* All the values of this field */
 }
 
-WSLUA_METAMETHOD Field_tostring(lua_State* L) {
-    /* Obtain a srting with the field name */
+WSLUA_METAMETHOD Field__tostring(lua_State* L) {
+	/* Obtain a string with the field name */
     Field f = checkField(L,1);
 
     if ( !(f && *f) ) {
@@ -526,13 +534,18 @@ WSLUA_METAMETHOD Field_tostring(lua_State* L) {
     return 1;
 }
 
+static int Field__gc(lua_State* L _U_) {
+    /* do NOT free Field */
+    return 0;
+}
+
 static const luaL_Reg Field_methods[] = {
     {"new", Field_new},
     { NULL, NULL }
 };
 
 static const luaL_Reg Field_meta[] = {
-    {"__tostring", Field_tostring},
+    {"__tostring", Field__tostring},
     {"__call", Field__call},
     { NULL, NULL }
 };

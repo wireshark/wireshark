@@ -209,7 +209,8 @@ WSLUA_CONSTRUCTOR Pref_statictext(lua_State* L) {
     return new_pref(L,PREF_STATIC_TEXT);
 }
 
-static int Pref_gc(lua_State* L) {
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
+static int Pref__gc(lua_State* L) {
     Pref pref = checkPref(L,1);
 
     if (pref && ! pref->name) {
@@ -234,7 +235,6 @@ WSLUA_METHODS Pref_methods[] = {
 };
 
 WSLUA_META Pref_meta[] = {
-    {"__gc",   Pref_gc},
     {0,0}
 };
 
@@ -389,6 +389,12 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
     } while (( prefs_p = prefs_p->next ));
 
     WSLUA_ARG_ERROR(Prefs__index,NAME,"no preference named like this");
+}
+
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
+static int Prefs__gc(lua_State* L _U_) {
+    /* do NOT free Prefs, it's never free'd */
+    return 0;
 }
 
 WSLUA_META Prefs_meta[] = {
@@ -1101,7 +1107,7 @@ WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     return 1;
 }
 
-static int ProtoField_gc(lua_State* L) {
+static int ProtoField__gc(lua_State* L) {
     ProtoField f = checkProtoField(L,1);
 
     /*
@@ -1158,7 +1164,6 @@ static const luaL_Reg ProtoField_methods[] = {
 
 static const luaL_Reg ProtoField_meta[] = {
     {"__tostring", ProtoField__tostring },
-    {"__gc", ProtoField_gc },
     { NULL, NULL }
 };
 
@@ -1397,7 +1402,8 @@ typedef struct {
 } proto_actions_t;
 
 static const proto_actions_t proto_actions[] = {
-    /* WSLUA_ATTRIBUTE Proto_dissector RW The protocol's dissector, a function you define */
+    /* WSLUA_ATTRIBUTE Proto_dissector RW The protocol's dissector, a function you define. 
+       The called dissector function will be given three arguments of (1) a Tvb object, (2) a Pinfo object, and (3) a TreeItem object. */
     {"dissector",Proto_get_dissector, Proto_set_dissector},
 
     /* WSLUA_ATTRIBUTE Proto_fields RO The Fields Table of this dissector */
@@ -1406,7 +1412,8 @@ static const proto_actions_t proto_actions[] = {
     /* WSLUA_ATTRIBUTE Proto_prefs RO The preferences of this dissector */
     {"prefs",Proto_get_prefs,NULL},
 
-    /* WSLUA_ATTRIBUTE Proto_init WO The init routine of this dissector, a function you define */
+    /* WSLUA_ATTRIBUTE Proto_init WO The init routine of this dissector, a function you define.
+       The called init function is passed no arguments. */
     {"init",NULL,Proto_set_init},
 
     /* WSLUA_ATTRIBUTE Proto_name RO The name given to this dissector */
@@ -1459,6 +1466,12 @@ static int Proto_newindex(lua_State* L) {
     }
 
     luaL_error(L,"A protocol doesn't have a `%s' attribute",name);
+    return 0;
+}
+
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
+static int Proto__gc(lua_State* L _U_) {
+    /* do NOT free Proto, it's never free'd */
     return 0;
 }
 
@@ -1567,11 +1580,18 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
     return 0;
 }
 
-WSLUA_METAMETHOD Dissector_tostring(lua_State* L) {
+WSLUA_METAMETHOD Dissector__tostring(lua_State* L) {
+    /* Gets the Dissector's protocol short name */
     Dissector d = checkDissector(L,1);
     if (!d) return 0;
     lua_pushstring(L,dissector_handle_get_short_name(d));
-    return 1;
+    WSLUA_RETURN(1); /* A string of the protocol's short name */
+}
+
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
+static int Dissector__gc(lua_State* L _U_) {
+    /* do NOT free Dissector */
+    return 0;
 }
 
 static const luaL_Reg Dissector_methods[] = {
@@ -1581,7 +1601,7 @@ static const luaL_Reg Dissector_methods[] = {
 };
 
 static const luaL_Reg Dissector_meta[] = {
-    {"__tostring", Dissector_tostring},
+    {"__tostring", Dissector__tostring},
     { NULL, NULL }
 };
 
@@ -1725,10 +1745,10 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
     type = get_dissector_table_selector_type(dt->name);
 
     if (type == FT_STRING) {
-        gchar* pattern = g_strdup(luaL_checkstring(L,2));
+        gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_remove_PATTERN));
         dissector_delete_string(dt->name, pattern,handle);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        int port = luaL_checkint(L, 2);
+        int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_remove_PATTERN);
         dissector_delete_uint(dt->name, port, handle);
     }
 
@@ -1744,9 +1764,9 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
 #define WSLUA_ARG_DissectorTable_try_PINFO 4 /* The packet info */
 #define WSLUA_ARG_DissectorTable_try_TREE 5 /* The tree on which to add the protocol items */
     DissectorTable dt = checkDissectorTable(L,1);
-    Tvb tvb = checkTvb(L,3);
-    Pinfo pinfo = checkPinfo(L,4);
-    TreeItem ti = checkTreeItem(L,5);
+    Tvb tvb = checkTvb(L,WSLUA_ARG_DissectorTable_try_TVB);
+    Pinfo pinfo = checkPinfo(L,WSLUA_ARG_DissectorTable_try_PINFO);
+    TreeItem ti = checkTreeItem(L,WSLUA_ARG_DissectorTable_try_TREE);
     ftenum_t type;
     gboolean handled = FALSE;
     const gchar *volatile error = NULL;
@@ -1758,7 +1778,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
     TRY {
 
         if (type == FT_STRING) {
-            const gchar* pattern = luaL_checkstring(L,2);
+            const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_try_PATTERN);
 
             if (!pattern)
                 handled = TRUE;
@@ -1767,7 +1787,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
                 handled = TRUE;
 
         } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-            int port = luaL_checkint(L, 2);
+            int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_try_PATTERN);
 
             if (dissector_try_uint(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
                 handled = TRUE;
@@ -1824,9 +1844,9 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
     }
 }
 
-WSLUA_METAMETHOD DissectorTable_tostring(lua_State* L) {
-/**/
-    /* XXX It would be nice to iterate and print which dissectors it has */
+/* XXX It would be nice to iterate and print which dissectors it has */
+WSLUA_METAMETHOD DissectorTable__tostring(lua_State* L) {
+    /* Gets some debug information about the DissectorTable */
     DissectorTable dt = checkDissectorTable(L,1);
     GString* s;
     ftenum_t type;
@@ -1857,7 +1877,13 @@ WSLUA_METAMETHOD DissectorTable_tostring(lua_State* L) {
 
     lua_pushstring(L,s->str);
     g_string_free(s,TRUE);
-    return 1;
+    WSLUA_RETURN(1); /* A string of debug information about the DissectorTable */
+}
+
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
+static int DissectorTable__gc(lua_State* L _U_) {
+    /* do NOT free DissectorTable */
+    return 0;
 }
 
 static const luaL_Reg DissectorTable_methods[] = {
@@ -1871,7 +1897,7 @@ static const luaL_Reg DissectorTable_methods[] = {
 };
 
 static const luaL_Reg DissectorTable_meta[] = {
-    {"__tostring", DissectorTable_tostring},
+    {"__tostring", DissectorTable__tostring},
     { NULL, NULL }
 };
 

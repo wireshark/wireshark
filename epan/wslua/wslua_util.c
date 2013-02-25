@@ -368,7 +368,8 @@ WSLUA_METHOD Dir_close(lua_State* L) {
 	return 0;
 }
 
-static int wslua_Dir__gc(lua_State* L) {
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
+static int Dir__gc(lua_State* L) {
 	Dir dir = checkDir(L,1);
 
 	if (dir->dir) {
@@ -392,7 +393,6 @@ static const luaL_Reg Dir_methods[] = {
 
 static const luaL_Reg Dir_meta[] = {
     {"__call", Dir__call},
-    {"__gc", wslua_Dir__gc},
     { NULL, NULL }
 };
 
@@ -409,8 +409,7 @@ typedef struct _statcmd_t {
 	int func_ref;
 } statcmd_t;
 
-static int statcmd_init_cb_error_handler(lua_State* L) {
-	(void)L;
+static int statcmd_init_cb_error_handler(lua_State* L _U_) {
 	return 0;
 }
 

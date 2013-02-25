@@ -49,7 +49,7 @@ CLEAR_OUTSTANDING(TreeItem, expired, TRUE)
 
 WSLUA_CLASS_DEFINE(TreeItem,NOP,NOP);
 /* TreeItems represent information in the packet-details pane.
-   A root TreeItem is passed to dissectors as first argument. */
+   A root TreeItem is passed to dissectors as the third argument. */
 
 WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     /*
@@ -407,7 +407,8 @@ WSLUA_METHOD TreeItem_set_len(lua_State *L) {
     return 0;
 }
 
-static int TreeItem_gc(lua_State* L) {
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
+static int TreeItem__gc(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
     if (!ti) return 0;
     if (!ti->expired)
@@ -432,7 +433,6 @@ static const luaL_Reg TreeItem_methods[] = {
 };
 
 static const luaL_Reg TreeItem_meta[] = {
-    {"__gc", TreeItem_gc},
     { NULL, NULL }
 };
 

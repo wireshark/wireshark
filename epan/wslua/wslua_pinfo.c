@@ -273,6 +273,7 @@ static int NSTime__newindex(lua_State* L) {
     return 0;
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int NSTime__gc(lua_State* L) {
     NSTime nstime = checkNSTime(L,1);
 
@@ -292,7 +293,6 @@ WSLUA_META NSTime_meta[] = {
     {"__eq", NSTime__eq},
     {"__le", NSTime__le},
     {"__lt", NSTime__lt},
-    {"__gc", NSTime__gc},
     { NULL, NULL}
 };
 
@@ -461,6 +461,7 @@ WSLUA_METAMETHOD Address__tostring(lua_State* L) {
     WSLUA_RETURN(1); /* The string representing the address. */
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Address__gc(lua_State* L) {
     Address addr = checkAddress(L,1);
 
@@ -512,7 +513,6 @@ WSLUA_METAMETHOD Address__lt(lua_State* L) { /* Compares two Addresses */
 }
 
 WSLUA_META Address_meta[] = {
-    {"__gc", Address__gc },
     {"__tostring", Address__tostring },
     {"__eq",Address__eq},
     {"__le",Address__le},
@@ -621,6 +621,7 @@ WSLUA_METAMETHOD Column__tostring(lua_State *L) {
     WSLUA_RETURN(1); /* The column's string text (in parenthesis if not available) */
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS */
 static int Column__gc(lua_State* L) {
     Column col = checkColumn(L,1);
 
@@ -719,7 +720,6 @@ WSLUA_METHODS Column_methods[] = {
 
 WSLUA_META Column_meta[] = {
     {"__tostring", Column__tostring },
-    {"__gc", Column__gc },
     {0,0}
 };
 
@@ -743,6 +743,10 @@ WSLUA_METAMETHOD Columns__tostring(lua_State *L) {
     /* The string "Columns", no real use, just for debugging purposes. */
 }
 
+/* 
+ * To document this is very odd - it won't make sense to a person reading the
+ * API docs to see this metamethod as a method, but oh well.
+ */
 WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
 	/* Sets the text of a specific column */
 #define WSLUA_ARG_Columns__newindex_COLUMN 2 /* The name of the column to set */
@@ -809,7 +813,8 @@ WSLUA_METAMETHOD Columns_index(lua_State *L) {
     return 0;
 }
 
-static int Columns_gc(lua_State* L) {
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_META */
+static int Columns__gc(lua_State* L) {
     Columns cols = checkColumns(L,1);
 
     if (!cols) return 0;
@@ -828,7 +833,6 @@ static const luaL_Reg Columns_meta[] = {
     {"__tostring", Columns__tostring },
     {"__newindex", Columns__newindex },
     {"__index",  Columns_index},
-    {"__gc",  Columns_gc},
     { NULL, NULL }
 };
 
@@ -924,6 +928,7 @@ static int PrivateTable__newindex(lua_State* L) {
     return 1;
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int PrivateTable__gc(lua_State* L) {
     PrivateTable priv = checkPrivateTable(L,1);
 
@@ -945,7 +950,6 @@ WSLUA_META PrivateTable_meta[] = {
     {"__index", PrivateTable__index},
     {"__newindex", PrivateTable__newindex},
     {"__tostring", PrivateTable__tostring},
-    {"__gc", PrivateTable__gc},
     { NULL, NULL}
 };
 
@@ -1435,7 +1439,8 @@ static int Pinfo_setindex(lua_State* L) {
     return method(L,pinfo->ws_pinfo,param_type);
 }
 
-static int Pinfo_gc(lua_State* L) {
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
+static int Pinfo__gc(lua_State* L) {
     Pinfo pinfo = checkPinfo(L,1);
 
     if (!pinfo) return 0;
@@ -1453,7 +1458,6 @@ static const luaL_Reg Pinfo_meta[] = {
     {"__index", Pinfo_index},
     {"__newindex",Pinfo_setindex},
     {"__tostring", Pinfo_tostring},
-    {"__gc", Pinfo_gc},
     { NULL, NULL }
 };
 

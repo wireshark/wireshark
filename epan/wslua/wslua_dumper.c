@@ -146,6 +146,12 @@ static int PseudoHeader_nettl(lua_State* L) { luaL_error(L,"not implemented"); r
 static int PseudoHeader_k12(lua_State* L) { luaL_error(L,"not implemented"); return 0; }
 #endif
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
+static int PseudoHeader__gc(lua_State* L _U_) {
+    /* do NOT free PseudoHeader */
+    return 0;
+}
+
 WSLUA_METHODS PseudoHeader_methods[] = {
     WSLUA_CLASS_FNREG(PseudoHeader,mtp2),
     WSLUA_CLASS_FNREG(PseudoHeader,atm),
@@ -396,6 +402,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     return 0;
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Dumper__gc(lua_State* L) {
     Dumper* dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
     int err;
@@ -427,7 +434,6 @@ WSLUA_METHODS Dumper_methods[] = {
 };
 
 WSLUA_META Dumper_meta[] = {
-    {"__gc", Dumper__gc},
     {0, 0}
 };
 

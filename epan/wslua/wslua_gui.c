@@ -369,6 +369,7 @@ static int ProgDlg__tostring(lua_State* L) {
     return 0;
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int ProgDlg__gc(lua_State* L) {
     ProgDlg pd = checkProgDlg(L,1);
 
@@ -396,7 +397,6 @@ WSLUA_METHODS ProgDlg_methods[] = {
 
 WSLUA_META ProgDlg_meta[] = {
     {"__tostring", ProgDlg__tostring},
-    {"__gc", ProgDlg__gc},
     {0, 0}
 };
 
@@ -578,6 +578,7 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window *
     WSLUA_RETURN(1); /* The TextWindow's text. */
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int TextWindow__gc(lua_State* L) {
     TextWindow tw = checkTextWindow(L,1);
 
@@ -710,7 +711,6 @@ WSLUA_METHODS TextWindow_methods[] = {
 
 WSLUA_META TextWindow_meta[] = {
     {"__tostring", TextWindow_get_text},
-    {"__gc", TextWindow__gc},
     {0, 0}
 };
 

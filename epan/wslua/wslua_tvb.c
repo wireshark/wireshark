@@ -79,7 +79,8 @@ WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) { /* Creates a ByteArray Object */
     WSLUA_RETURN(1); /* The new ByteArray object. */
 }
 
-static int ByteArray_gc(lua_State* L) {
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
+static int ByteArray__gc(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
 
     if (!ba) return 0;
@@ -300,7 +301,6 @@ static const luaL_Reg ByteArray_methods[] = {
 
 static const luaL_Reg ByteArray_meta[] = {
     {"__tostring", ByteArray_tostring},
-    {"__gc",       ByteArray_gc},
     {"__concat", ByteArray__concat},
     {"__call",ByteArray_subset},
     { NULL, NULL }
@@ -472,6 +472,7 @@ WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
     WSLUA_RETURN(1); /* The string. */
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Tvb__gc(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
 
@@ -633,7 +634,6 @@ static const luaL_Reg Tvb_methods[] = {
 static const luaL_Reg Tvb_meta[] = {
     {"__call", Tvb_range},
     {"__tostring", Tvb__tostring},
-    {"__gc", Tvb__gc},
     { NULL, NULL }
 };
 
@@ -1262,6 +1262,7 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
     return 0;
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int TvbRange__gc(lua_State* L) {
     TvbRange tvbr = checkTvbRange(L,1);
 
@@ -1349,7 +1350,6 @@ static const luaL_Reg TvbRange_meta[] = {
     {"__tostring", TvbRange__tostring},
     {"__concat", wslua__concat},
     {"__call", TvbRange_range},
-    {"__gc", TvbRange__gc},
     { NULL, NULL }
 };
 
@@ -1376,6 +1376,7 @@ WSLUA_METAMETHOD Int64__tostring(lua_State* L) {
     return 1;
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Int64__gc(lua_State* L) {
     Int64 num = checkInt64(L,1);
 
@@ -1393,7 +1394,6 @@ static const luaL_Reg Int64_methods[] = {
 static const luaL_Reg Int64_meta[] = {
     {"__tostring", Int64__tostring},
     {"__concat", wslua__concat},
-    {"__gc", Int64__gc},
     { NULL, NULL }
 };
 
@@ -1412,6 +1412,7 @@ WSLUA_METAMETHOD UInt64__tostring(lua_State* L) {
     return 1;
 }
 
+/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int UInt64__gc(lua_State* L) {
     UInt64 num = checkUInt64(L,1);
 
@@ -1429,7 +1430,6 @@ static const luaL_Reg UInt64_methods[] = {
 static const luaL_Reg UInt64_meta[] = {
     {"__tostring", UInt64__tostring},
     {"__concat", wslua__concat},
-    {"__gc", UInt64__gc},
     { NULL, NULL }
 };
 
