@@ -1,0 +1,456 @@
+README.wslua
+
+This is a HOWTO for adding support for new Lua hooks/functions/abilities in
+Wireshark.   If you see any errors or have any improvements, submit patches -
+free software is a community effort....
+
+This is NOT a guide for how to write Lua plugins - that's documented already
+on the Wireshark webpages.
+
+Contributors to this README:
+Hadriel Kaplan <hadrielk[AT]yahoo.com>
+
+==============================================================================
+
+Overview:
+
+The way WireShark exposes functions for Lua is generally based on a
+callback/event model, letting Lua plugins register their custom Lua functions
+into event callbacks.  C-based "objects" are exposed as Lua tables with
+typical Lua USERDATA pointer dispatching, plain C-functions are registered as
+such in Lua, and C-based enums/variables are registered into Lua as table
+key=value (usually... though rarely they're registered as array indexed
+values).  All of that is very typical for appplications that expose things
+into a Lua scripting environment.
+
+The details that make it a little different are (1) the process by which the
+code is bound/registered into Lua, and (2) the documentation generator.
+WireShark uses C-macros liberally, both for the usual reasons as well as for
+the binding generator and documentation generator scripts.  The macros are
+described within this document.
+
+The API documentation is auto-generated from a Perl script called 'make-
+wsluarm.pl', which searches C-files for the known macros and generates
+appropriate HTML documentation from them.  This includes using the C-comments
+after the macros for the document info.
+
+Likewise, another Perl script called 'make-reg.pl' generates the C-files
+'register_wslua.c' and 'declare_wslua.h', based on the C-macros it searches
+for in existing source files.  The code this Perl script auto-generates is
+what actually registers some classes/functions into Lua - you don't have to
+write your own registration functions to get your new functions/classes into
+Lua tables. (you can do so, however)
+
+Both of the perl scripts above are given the C-source files to search through
+by the make process, generated from the lists in CMakeLists.txt.  Naturally if
+you add new source files, you need to add them to the list in CMakeLists.txt.
+
+Another Perl script is used as well, called 'make-init-lua.pl', which
+generates the init.lua script.  A large part of it deals with exposing #define
+values into the Lua global table, or sub-tables.  Unfortunately not all of
+them are put in sub-tables, which means the global Lua table is quite polluted
+now.  If you add new ones in here, please think of putting them in a subtable,
+as they are for wtap, ftypes, and base.  For example, there are several put in
+as 'PI_' prefixed names, such as 'PI_SEVERITY_MASK = 15728640'.  The fact they
+all have a common 'PI_' prefix should be an indicator they can be put in a
+table named PI, or PacketInfo.  Just because C-code doesn't have namespaces,
+doesn't mean Lua can't.
+
+
+Due to those documentation and registration scripts, you MUST follow some very
+specific conventions in the functions you write to expose C-side code to Lua,
+as described in this document.
+
+Naming conventions/rules:
+
+Class/object names must be UpperCamelCase, no numbers/underscores.
+Function and method names must be lower_underscore_case, no numbers.
+Constants/enums must be ALLCAPS, and can have numbers.
+
+The above rules are more than merely conventions - the Perl scripts which
+auto-generate stuff use regex patterns that require the naming syntax to be
+followed.
+
+==============================================================================
+
+Some implementation details:
+
+Creating new C-classes for Lua:
+
+Explaining the Lua class/object model and how it's bound to C-code functions
+and data types is beyond the scope of this document; if you don't already know
+how that works, I suggest you start reading lua-users.org's wiki, and
+lua.org's free reference manual.  Wireshark generally uses the typical binding
+model: 'registering' class methods and metamethods, pushing objects into Lua
+by applying the class' metatable to the USERDATA, etc.  This latter part is
+mostly handled for you by the C-macro's created by WSLUA_CLASS_DEFINE, such as
+push/check, described later in this document.  Registering the class requires
+you to write some code: a WSLUA_METHODS table, a WSLUA_META table, and a
+registration function.  The WSLUA_METHODS table is an array of luaL_Reg
+structs, which map a string name that will be the function's name in Lua, to a
+C-function pointer which is the C-function to be invoked by Lua when the user
+calls the name.  Some of the existing classes define this array of structs
+explicitly using strings and function names, but really you should use the
+WSLUA_CLASS_FNREG macro for each entry instead.  The WSLUA_META table follows
+the same behavior, but make sure your C-function names use two underscores
+instead of one.  There is no WSLUA_CLASS_FNREG equivalent for WSLUA_META at
+the time of this writing.  Once you've created the appropriate array tables,
+define a registration function named 'ClassName_register', where 'ClassName'
+is your class name, the same one used in WSLUA_CLASS_DEFINE.  The make-reg.pl
+Perl script will search your file for WSLUA_CLASS_DEFINE, and it generates a
+register_wslua.c which will call your ClassName_register function during
+Wireshark intiialization.  Inside your ClassName_register function, use either
+the WSLUA_REGISTER_CLASS or the WSLUA_REGISTER_META macros with the class name
+as the argument.  That will automatically register the methods/meta tables
+into Lua.  Use WSLUA_REGISTER_CLASS if your class has methods and optionally
+metamethods, or use WSLUA_REGISTER_META if it only has metamethods - do not
+use both.  Note that your class does not need to have a WSLUA_METHODS or
+WSLUA_META table.  Also, you should read the 'Memory management model' section
+later in this document.
+
+Class member variable accessors (getters/setters):
+
+The current implementation does not follow a single/common class-variable
+accessor model for the Lua API: some class member values are
+populated/retrieved when a table field accessor is used that triggers the
+__index metamethod, and others are accessed through explicit getter/setter
+method functions.  In other words from a Lua code perspective some class
+object variables are retrieves as 'foo = myObj.var', while others are done as
+'foo = myObj.getVar()'.  From the C-side code perspective, some classes
+register no real method functions but just have a C-function handle the
+__index/__newindex metamethods to dispatch to C-functions for the given class
+table's field name (and they use the WSLUA_ATTRIBUTE documentation model
+because of it).  For example the FieldInfo class in wslua_field.c does this.
+Other classes provide access to member variable through getter/setter method
+functions (and thus use the WSLUA_METHOD model).  For example the TvbRange
+class in wslua_tvb.c does this.  Using the latter model of having a
+getter/setter method function allows one to pass multiple arguments, whereas
+the former __index/__newindex metamethod model does not.  Both models are
+fairly common in Lua APIs, although having a mixture of both in the same API
+probably isn't.  There is even a third model in use: pre-loading the member
+fields of the class table with the values, instead of waiting for the Lua
+script to access a particular one to retrieve it; for exmaple the Listener tap
+extractors table is pre-populated (see files 'wslua_listener.c' and 'taps'
+which through the make-taps.pl perl script creates 'taps_wslua.c').  The
+downside of that approach is the performance impact, filling fields the Lua
+script may never access.  Lastly, the Field, FieldInfo, and Tvb's ByteArray
+type each provide a __call metamethod as an accessor - I strongly suggest you
+do NOT do that, as it's not a common model and will confuse people since it
+doesn't follow the model of the other classes in Wireshark.
+
+Callback function registration:
+
+For some callbacks, there are register_* Lua global functions, which take a
+user-defined Lua function name as the argument - the one to be hooked into
+that event.  Unlike in most Lua APIs, there's a unique register_foo() function
+for each event type, instead of a single register() with the event as an
+argument.  For example there's a register_postdissector() function.  In some
+cases the Lua functions are invoked based on a pre-defined function-name model
+instead of explicit register_foo(), whereby a C-object looks for a defined
+member variable in the Registry that repesents a Lua function created by the
+plugin.  This would be the case if the Lua plugin had defined a pre-defined
+member key of its object's table in Lua, for that purpose.  For example if the
+Lua plugin sets the 'reset' member of the Listener object table to a function,
+then Wireshark creates a Registry entry for that Lua function, and executes
+that Lua function when the Listener resets. (see the example Listener Lua
+script in the online docs) That model is only useful if the object can only be
+owned by one plugin so only one function is ever hooked, obviously, and thus
+only if it's created by the Lua plugin (e.g., Listener.new()).
+
+Creating new Listener tap types:
+
+The Listener object is one of the more complicated ones.  When the Lua script
+creates a Listener (using Listener.new()), the code creates and returns a tap
+object.  The type of tap is based on the passed-in argument to Listener.new(),
+and it creates a Lua table of the tap member variables.  That happens in
+taps_wslua.c, which is an auto-generated file from make-taps.pl.  That Perl
+script reads from a file called 'taps', which identifies every struct name
+(and associated enum name) that should be exposed as a tap type.  The Perl
+script then generates the taps_wslua.c to push those whenever the Listener
+calls for a tap; and it also generates a taps.tx file documenting them all.
+So to add a new type, add the info to the taps file (or uncomment an existing
+one), and make sure every member of the tap struct you're exposing is of a
+type that make-taps.pl has in its Perl %types and %comments associative
+arrays.
+
+Note on Lua versions:
+
+Wireshark supports both Lua 5.1 and 5.2, which are defined as LUA_VERSION_NUM
+values 501 and 502 respectively.  When exposing things into Lua, make sure to
+use ifdef wrappers for things which changed between the versions of Lua.  See
+this for details: http://www.lua.org/manual/5.2/manual.html#8.3
+
+==============================================================================
+
+Defined Macros for Lua-API C-files:
+
+WSLUA_MODULE - this isn't actually used in real C-code, but rather only
+appears in C-comments at the top of .c files.  That's because it's purely used
+for documentation, and it makes a new section in the API documentation.
+
+For example, this appears near the top of the wslua_gui.c file:
+
+    /* WSLUA_MODULE Gui GUI support */
+
+That makes the API documentation have a section titled 'GUI support' (it's
+currently section 11.7 in the API docs).  It does NOT mean there's any Lua
+table named 'Gui' (in fact there isn't).  It's just for documentation.
+If you look at the documentation, you'll see there is 'ProgDlg', 'TextWindow',
+etc. in that 'GUI support' section.  That's because both ProgDlg and
+TextWindow are defined in that same wslua_gui.c file using the
+'WSLUA_CLASS_DEFINE' macro. (see description of that later)  make-wsluarm.pl
+created those in the same documentation section because they're in the same c
+file as that WSLUA_MODULE comment.  You'll also note the documentation
+includes a sub-section for 'Non Method Functions', which it auto-generated
+from anything with a 'WSLUA_FUNCTION' macro (as opposed to class member
+functions, which use the 'WSLUA_METHOD' and 'WSLUA_CONSTRUCTOR' macros).
+
+WSLUA_ATTRIBUTE - this is another documentation-only "macro", only used within
+comments.  It makes the API docs generate documentation for a member variable
+of a class, i.e. a key of a Lua table that is not called as a function in Lua,
+but rather just retrieved or set.  The 'WSLUA_ATTRIBUTE' token is followed by
+a 'RO', 'WO', or 'RW' token, for Read-Only, Write-Only, or Read-Write. (ie,
+whether the variable can be retrieved, written to, or both)  This read/write
+mode indication does not appear to be actually used for documentation
+currently, however.  After that comes the name of the attribute, which must be
+the class name followed by the specific attribute name. 
+
+Example:
+
+    /* WSLUA_ATTRIBUTE Pinfo_rel_ts RO Number of seconds passed since beginning of capture */
+
+
+
+WSLUA_FUNCTION - this is used for any global Lua function (functions put into
+the global table) you want to expose, but not for object-style methods (that's
+the 'WSLUA_METHOD' macro), nor static functions within an object (that's
+WSLUA_CONSTRUCTOR).  Unlike many of the macros here, the function name must
+begin with 'wslua_'.  Everything after that prefix will be the name of the
+function in Lua.  You can ONLY use lower-case letters and the underscore
+character in this function name.  For example 'WSLUA_FUNCTION
+wslua_get_foo(lua_State* L)' will become a Lua function named 'get_foo'.
+Documentation for it will also be automatically generated, as it is for the
+other macros.  Although from a Lua perspective it is a global function (not in
+any class' table), the documentation will append it to the documentation page
+of the module/file its source code is in, in a "Non Method Functions" section.
+Descriptive text about the function must be located after the '{' and optional
+whitespace, within a '\*' '*\' comment block on one line.
+
+Example:
+
+    WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks whether the GUI facility is enabled. */
+        lua_pushboolean(L,GPOINTER_TO_INT(ops && ops->add_button));
+        WSLUA_RETURN(1); /* A boolean: true if it is enabled, false if it isn't. */
+    }
+
+WSLUA_CLASS_DEFINE - this is used to define/create a new Lua class type (i.e.,
+table with methods).  A Class name must begin with an uppercase letter,
+followed by any upper or lower case letters but not underscores; in other
+words, UpperCamelCase without numbers.  The macro is expanded to create a
+bunch of helper functions - see wslua.h.  Documentation for it will also be
+automatically generated, as it is for the other macros.
+
+Example: 
+
+    WSLUA_CLASS_DEFINE(ProgDlg,NOP,NOP); /* Manages a progress bar dialog. */
+
+WSLUA_CONSTRUCTOR - this is used to define a function of a class that is a
+static function rather than a per-object method; i.e., from a Lua perspective
+the function is called as 'myObj.func()' instead of 'myObj:func()'.  From a
+C-code perspective the code generated by make-reg.pl does not treat this
+differently than a WSLUA_METHOD, the only real difference being that the code
+you write within the function won't be checking the object instance as the
+first passed-in argument on the Lua-API stack.  But from a documentation
+perspective this macro correctly documents the usage using a '.' period rather
+than ':' colon.  This can also be used within comments, but then it's
+'_WSLUA_CONSTRUCTOR_'.  The name of the function must use the Class name
+first, followed by underscore, and then the specific lower_underscore name
+that will end up being the name of the function in Lua.
+
+Example:
+
+    WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {
+        /* Obtains a dissector reference by name */
+    #define WSLUA_ARG_Dissector_get_NAME 1 /* The name of the dissector */
+        const gchar* name = luaL_checkstring(L,WSLUA_ARG_Dissector_get_NAME);
+        Dissector d;
+
+        if (!name)
+            WSLUA_ARG_ERROR(Dissector_get,NAME,"must be a string");
+
+        if ((d = find_dissector(name))) {
+            pushDissector(L, d);
+            WSLUA_RETURN(1); /* The Dissector reference */
+        } else
+            WSLUA_ARG_ERROR(Dissector_get,NAME,"No such dissector");
+    }
+
+
+WSLUA_METHOD - this is used for object-style class method definitions.  The
+documentation will use the colon syntax, and it will be called as
+'myObj:func()' in Lua, so your function needs to check the first argument of
+the stack for the object pointer.  Two helper functions are automatically made
+for this purpose, from the macro expansion of WSLUA_CLASS_DEFINE, of the
+signatures 'MyObj toMyObj(lua_State* L, int idx)' and 'MyObj
+checkMyObj(lua_State* L, int idx)'.  They do the same thing, but the former
+generates a Lua Error on failure, while the latter does not.
+
+Example:
+
+    WSLUA_METHOD Listener_remove(lua_State* L) {
+        /* Removes a tap listener */
+        Listener tap = checkListener(L,1);
+        if (!tap) return 0;
+        remove_tap_listener(tap);
+        return 0;
+    }
+
+
+WSLUA_METAMETHOD - this is used for defining object metamethods (ie, Lua
+metatable functions).  The documentation will describe these as well, although
+currently it doesn't specify they're metamethods but rather makes them appear
+as regular object methods.  The name of it must be the class name followed by
+*two* underscores, or else it will not appear in the documentation.
+
+Example:
+
+    WSLUA_METAMETHOD NSTime__eq(lua_State* L) { /* Compares two NSTimes */
+        NSTime time1 = checkNSTime(L,1);
+        NSTime time2 = checkNSTime(L,2);
+        gboolean result = FALSE;
+
+        if (!time1 || !time2)
+          WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
+
+        if (nstime_cmp(time1, time2) == 0)
+            result = TRUE;
+
+        lua_pushboolean(L,result);
+
+        return 1;
+    }
+
+
+WSLUA_ARG_ - the prefix used in a #define statement, for a required
+function/method argument (ie, one without a default value).  It is defined to
+an integer representing the index slot number of the Lua stack it will be at,
+when calling the appropriate lua_check/lua_opt routine to get it from the
+stack.  The make_wsluarm.pl Perl script will generate API documentation with
+this argument name for the function/method, removing the 'WSLUA_ARG_' prefix.
+The name following the 'WSLUA_ARG_' prefix must be the same name as the
+function it's an argument for, followed by an underscore and then an ALLCAPS
+argument name (including numbers is ok).  Although this last part is in
+ALLCAPS, it is documented in lowercase.  The argument name itself is
+meaningless since it does not exist in Lua or C code.
+
+Example: see the example in WSLUA_CONSTRUCTOR above, where
+WSLUA_ARG_Dissector_get_NAME is used.
+
+
+WSLUA_OPTARG_ - the prefix used in a #define statement, for an optional
+function/method argument (ie, one with a default value).  It is defined to an
+integer representing the index slot number of the Lua stack it will be at,
+when calling the appropriate lua_check/lua_opt routine to get it from the
+stack.  The make_wsluarm.pl Perl script will generate API documentation with
+this argument name for the function/method, removing the 'WSLUA_OPTARG_'
+prefix.  The rules for the name of the argument after the prefix are the same
+as for 'WSLUA_ARG_' above.
+
+Example:
+
+    #define WSLUA_OPTARG_Dumper_new_FILETYPE 2 /* The type of the file to be created */
+
+
+WSLUA_MOREARGS - a documentation-only macro used to document that more
+arguments are expected/supported.  This is useful when the number of
+argumeents is not fixed, i.e., a vararg model.  The macro is followed by the
+name of the function it's an argument for (without the 'wslua_' prefix if the
+function is a WSLUA_FUNCTION type), and then followed by descriptive text.
+
+Example:
+
+    WSLUA_FUNCTION wslua_critical( lua_State* L ) { /* Will add a log entry with critical severity*/
+    /* WSLUA_MOREARGS critical objects to be printed    */
+        wslua_log(L,G_LOG_LEVEL_CRITICAL);
+        return 0;
+    }
+
+
+WSLUA_RETURN - a macro with parentheses containing the number of return
+values, meaning the number of items pushed back to Lua.  Lua supports mutliple
+return values, although Wireshark usually just returns 0 or 1 value.  The
+argument can be an integer or a variable of the integer, and is not actually
+documented.  The API documentation will use the comments after this macro for
+the return description.  This macro can also be within comments, but is then
+'_WSLUA_RETURNS_'.
+
+Example:
+
+    WSLUA_RETURN(1); /* The ethernet pseudoheader */
+
+
+WSLUA_ERROR - this C macro takes arguments, and expands to call luaL_error()
+using them, and returns 0.  The arguments it takes is the full function name
+and a string describing the error.  For documentation, it uses the string
+arguement and displays it with the function it's associated to.
+
+Example:
+    if (!wtap_dump_can_write_encap(filetype, encap))
+        WSLUA_ERROR(Dumper_new,"Not every filetype handles every encap");
+
+
+WSLUA_ARG_ERROR - this is a pure C macro and does not generate any
+documentation.  It is used for errors in type/value of function/method
+arguments.
+
+Example: see the example in thr WSLUA_CONSTRUCTOR above.
+
+
+==============================================================================
+
+Memory management model:
+
+Lua uses a garbage collection model, which for all intents and purposes can
+collect garbage at any time once an item is no longer referenced by something
+in Lua.  When C-malloc'ed values are pushed into Lua, the Lua library has to
+let you decide whether to try to free them or not.  This is done through the
+'__gc' metamethod, so every Wireshark class created by WSLUA_CLASS_DEFINE must
+implement a metamethod function to handle this.  The name of the function must
+be 'ClassName__gc', where 'ClassName' is the same name as the class.  Even if
+you decide to do nothing, you still have to define the function or it will
+fail to compile - as of this writing, which changed it to do so, in order to
+make the programmer think about it and not forget.
+
+The thing to think about is the lifetime of the object/value.  If C-code
+controls/manages the object after pushing it into Lua, then C-code MUST NOT
+free it until it knows Lua has garbage collected it, which is only known by
+the __gc metamethod being invoked.  Otherwise you run the risk of the Lua
+script trying to use it later, which will dereference a pointer to something
+that has been free'd, and crash.  There are known ways to avoid this, but
+those ways are not currently used in Wireshark's Lua API implementation;
+except Tvb and TvbRange do implement a simple model of reference counting to
+protect against this.
+
+If possible/reasonable, the best model is to malloc the object when you push
+it into Lua, usually in a class function (not method) named 'new', and then
+free it in the __gc metamethod.  But if that's not reasonable, then the next
+best model is to have a boolean member of the class called something like
+'expired', which is set to true if the C-code decides it is dead/no-longer-
+useful, and then have every Lua-to-C accessor method for that class type check
+that boolean before trying to use it, and have the __gc metamethod set
+expired=true or free it if it's already expired by C-side code; and vice-versa
+for the C-side code.
+
+In some cases the class is exposed with a specific method to free/remove it,
+typically called 'remove'; the Listener class does this, for example.  When
+the Lua script calls myListener:remove(), the C-code for that class method
+free's the Listener that was malloc'ed previously in Listener.new().  The
+Listener__gc() metamethod does not do anything, since it's hopefully already
+been free'd.  The downside with this approach is if the script never calls
+remove(), then it leaks memory; and if the script ever tries to use the
+Listener userdata object after it called remove(), then Wireshark crashes.  Of
+course either case would be a Lua script programming error, and easily
+fixable, so it's not a huge deal.
+
+==============================================================================
+
