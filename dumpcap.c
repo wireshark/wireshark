@@ -4289,7 +4289,7 @@ main(int argc, char *argv[])
     }
 
     /* The default_log_handler will use stdout, which makes trouble in   */
-    /* capture child mode, as it uses stdout for it's sync_pipe.         */
+    /* capture child mode, as it uses stdout for its sync_pipe.          */
     /* So: the filtering is done in the console_log_handler and not here.*/
     /* We set the log handlers right up front to make sure that any log  */
     /* messages when running as child will be sent back to the parent    */
