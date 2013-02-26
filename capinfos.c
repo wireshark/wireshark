@@ -520,7 +520,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
       if (machine_readable) {
 	print_value("", 2, " bytes/sec",   cf_info->data_rate);
       } else {
-	size_string = format_size(cf_info->data_rate, format_size_unit_bytes_s);
+	size_string = format_size((gint64)cf_info->data_rate, format_size_unit_bytes_s);
 	printf ("%s\n", size_string);
 	g_free(size_string);
       }
@@ -530,7 +530,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
       if (machine_readable) {
         print_value("", 2, " bits/sec",    cf_info->data_rate*8);
       } else {
-	size_string = format_size(cf_info->data_rate*8, format_size_unit_bits_s);
+	size_string = format_size((gint64)(cf_info->data_rate*8), format_size_unit_bits_s);
 	printf ("%s\n", size_string);
 	g_free(size_string);
       }
@@ -543,7 +543,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
       if (machine_readable) {
 	print_value("", 2, " packets/sec", cf_info->packet_rate);
       } else {
-	size_string = format_size(cf_info->packet_rate, format_size_unit_none);
+	size_string = format_size((gint64)cf_info->packet_rate, format_size_unit_none);
 	printf ("%spackets/sec\n", size_string);
 	g_free(size_string);
       }
