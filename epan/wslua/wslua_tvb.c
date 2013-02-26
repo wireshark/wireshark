@@ -316,14 +316,14 @@ int ByteArray_register(lua_State* L) {
  * Tvb & TvbRange
  *
  * a Tvb represents a tvbuff_t in Lua.
- * a TvbRange represents a range in a tvb (tvb,offset,length) it's main purpose is to do bounds checking,
+ * a TvbRange represents a range in a tvb (tvb,offset,length) its main purpose is to do bounds checking,
  *            it helps too simplifing argument passing to Tree. In wireshark terms this is worthless nothing
  *            not already done by the TVB itself. In lua's terms is necessary to avoid abusing TRY{}CATCH(){}
  *            via preemptive bounds checking.
  *
  * These lua objects refers to structures in wireshak that are freed independently from Lua's garbage collector.
  * To avoid using a pointer from Lua to Wireshark's that is already freed, we maintain a list of the pointers with
- * a marker that track's it's expiry.
+ * a marker that track's its expiry.
  *
  * All pointers are marked as expired when the dissection of the current frame is finished or when the garbage
  * collector tries to free the object referring to the pointer, whichever comes first.

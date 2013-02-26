@@ -360,7 +360,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
     lua_newtable (L);
     lua_dissectors_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
-    /* set running_superuser variable to it's propper value */
+    /* set running_superuser variable to its proper value */
     WSLUA_REG_GLOBAL_BOOL(L,"running_superuser",started_with_special_privs());
 
     /* special constant used by PDU reassembly handling */

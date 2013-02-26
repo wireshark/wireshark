@@ -325,7 +325,7 @@ Ideally, it would be best to maintain an expanding list of SA keys. Perhaps we c
 that they apply to.  Then, whenever we need to decrypt a packet, we can determine which key to use based on whether
 it is broadcast or unicast and within what packet number range it falls.
 
-Either that, or store two versions of encrypted packets - the orginal packet and it's successfully
+Either that, or store two versions of encrypted packets - the orginal packet and its successfully
 decrypted version.  Then Wireshark wouldn't have to decrypt packets on the fly if they were already successfully decrypted.
 
 */
@@ -429,7 +429,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     sa->validKey = TRUE;
     sa->wpa.key_ver = key_version;
 
-    /* Since this is a GTK and it's size is only 32 bytes (vs. the 64 byte size of a PTK), we fake it and put it in at a 32-byte offset so the  */
+    /* Since this is a GTK and its size is only 32 bytes (vs. the 64 byte size of a PTK), we fake it and put it in at a 32-byte offset so the  */
     /* AirPDcapRsnaMng() function will extract the right piece of the GTK for decryption. (The first 16 bytes of the GTK are used for decryption.) */
     memset(sa->wpa.ptk, 0, sizeof(sa->wpa.ptk));
     memcpy(sa->wpa.ptk+32, szEncryptedKey, key_len);

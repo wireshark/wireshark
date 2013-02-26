@@ -3394,7 +3394,7 @@ RemoveOpenRights		= bitfield8("remove_open_rights", "Remove Open Rights", [
 	bf_boolean8(0x40, "remove_open_rights_write_thru", "Write Through"),
 ])
 RenameFlag			= bitfield8("rename_flag", "Rename Flag", [
-	bf_boolean8(0x01, "rename_flag_ren", "Rename to Myself allows file to be renamed to it's original name"),
+	bf_boolean8(0x01, "rename_flag_ren", "Rename to Myself allows file to be renamed to its original name"),
 	bf_boolean8(0x02, "rename_flag_comp", "Compatibility allows files that are marked read only to be opened with read/write access"),
 	bf_boolean8(0x04, "rename_flag_no", "Name Only renames only the specified name space entry name"),
 ])

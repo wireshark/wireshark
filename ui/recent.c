@@ -157,7 +157,7 @@ write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
  * the window name is the key, and the geometry struct is the value */
 static GHashTable *window_geom_hash = NULL;
 
-/* save the window and it's current geometry into the geometry hashtable */
+/* save the window and its current geometry into the geometry hashtable */
 void
 window_geom_save(const gchar *name, window_geometry_t *geom)
 {
