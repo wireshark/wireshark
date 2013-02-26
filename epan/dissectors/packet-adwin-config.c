@@ -449,7 +449,7 @@ dissect_adwin_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	     || pinfo->destport == ADWIN_CONFIGURATION_PORT))
 		return 0;
 
-	if (pinfo->ipproto != IP_PROTO_UDP && pinfo->ipproto != IP_PROTO_TCP)
+	if ((pinfo->ipproto != IP_PROTO_UDP) && (pinfo->ipproto != IP_PROTO_TCP))
 		return 0;
 
 	if (! (is_adwin_mac_or_broadcast(pinfo->dl_src) || is_adwin_mac_or_broadcast(pinfo->dl_dst)))
@@ -760,11 +760,6 @@ proto_register_adwin_config(void)
 void
 proto_reg_handoff_adwin_config(void)
 {
-	static int adwin_config_prefs_initialized = FALSE;
-
-	if ( ! adwin_config_prefs_initialized ) {
-		heur_dissector_add("udp", dissect_adwin_config, proto_adwin_config);
-		heur_dissector_add("tcp", dissect_adwin_config, proto_adwin_config);
-		adwin_config_prefs_initialized = TRUE;
-	}
+	heur_dissector_add("udp", dissect_adwin_config, proto_adwin_config);
+	heur_dissector_add("tcp", dissect_adwin_config, proto_adwin_config);
 }
