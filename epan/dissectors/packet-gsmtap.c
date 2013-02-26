@@ -471,7 +471,7 @@ handle_tetra(int channel _U_, tvbuff_t *payload_tvb _U_, packet_info *pinfo _U_,
 static void
 dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int sub_handle, rrc_sub_handle, len, offset = 0;
+	int sub_handle, rrc_sub_handle = 0, len, offset = 0;
 	proto_item *ti;
 	proto_tree *gsmtap_tree = NULL;
 	tvbuff_t *payload_tvb, *l1h_tvb = NULL;
