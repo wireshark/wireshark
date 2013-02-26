@@ -715,7 +715,7 @@ register_preference(module_t *module, const char *name, const char *title,
         g_error("Preference %s has already been registered", name);
 
     if ((type != PREF_OBSOLETE) &&
-        /* Don't compare if its a subtree */
+        /* Don't compare if it's a subtree */
         (module->name != NULL)) {
         /*
          * Make sure the preference name doesn't begin with the
@@ -4322,7 +4322,7 @@ write_pref(gpointer data, gpointer user_data)
     if (pref->type != PREF_CUSTOM || pref->custom_cbs.type_name_cb() != NULL) {
         /*
          * The prefix will either be the module name or the parent
-         * name if its a subtree
+         * name if it's a subtree
          */
         const char *name_prefix = (arg->module->name != NULL) ? arg->module->name : arg->module->parent->name;
         char *type_desc, *pref_text;
@@ -4442,7 +4442,7 @@ write_prefs(char **pf_path_return)
         "# changed from their default value.\n", pf);
 
   /*
-   * For "backwards compatibility" the GUI module is written first as its
+   * For "backwards compatibility" the GUI module is written first as it's
    * at the top of the file.  This is followed by all modules that can't
    * fit into the preferences read/write API.  Finally the remaining modules
    * are written in alphabetical order (including of course the protocol preferences)

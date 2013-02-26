@@ -446,7 +446,7 @@ stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,gpointer),
 /* creates a stat_tree node
 *    name: the name of the stats_tree node
 *    parent_name: the name of the ALREADY REGISTERED parent
-*    with_hash: whether or not it should keep a hash with it's children names
+*    with_hash: whether or not it should keep a hash with its children names
 *    as_named_node: whether or not it has to be registered in the root namespace
 */
 static stat_node*

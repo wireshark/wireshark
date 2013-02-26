@@ -42,7 +42,7 @@ static emem_tree_t *guid_to_name_tree = NULL;
 
 
 #ifdef _WIN32
-/* try to resolve an DCE/RPC interface name to it's name using the Windows registry entries */
+/* try to resolve an DCE/RPC interface name to its name using the Windows registry entries */
 /* XXX - might be better to fill all interfaces into our database at startup instead of searching each time */
 int
 ResolveWin32UUID(e_guid_t if_id, char *uuid_name, int uuid_name_max_len)

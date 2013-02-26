@@ -740,7 +740,7 @@ extern proto_tree* proto_tree_get_root(proto_tree *tree);
 
 /** Move an existing item behind another existing item.
  @param tree the tree to which both items belong
- @param fixed_item the item which keeps it's position
+ @param fixed_item the item which keeps its position
  @param item_to_move the item which will be moved */
 extern void proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_to_move);
 
@@ -1646,9 +1646,9 @@ proto_mark_private(const int proto_id);
 extern gboolean
 proto_is_private(const int proto_id);
 
-/** This is the type of function can be registered to get called whenever
-    a given field was not found but a its prefix is matched
-	it can be used to procrastinate the hf array registration
+/** This type of function can be registered to get called whenever
+    a given field was not found but a its prefix is matched;
+    It can be used to procrastinate the hf array registration.
    @param match  what's being matched */
 typedef void (*prefix_initializer_t)(const char* match);
 
@@ -1775,7 +1775,7 @@ extern const char *proto_get_protocol_long_name(const protocol_t *protocol);
  @return TRUE if decoding is enabled, FALSE if not */
 extern gboolean proto_is_protocol_enabled(const protocol_t *protocol);
 
-/** Get a protocol's filter name by it's item number.
+/** Get a protocol's filter name by its item number.
  @param proto_id protocol id (0-indexed)
  @return its filter name. */
 extern const char *proto_get_protocol_filter_name(const int proto_id);

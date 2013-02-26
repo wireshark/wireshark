@@ -113,7 +113,7 @@ extern int stats_tree_create_node(stats_tree *st,
 				  int parent_id,
 				  gboolean with_children);
 
-/* creates a node using it's parent's tree name */
+/* creates a node using its parent's tree name */
 extern int stats_tree_create_node_by_pname(stats_tree *st,
 					   const gchar *name,
 					   const gchar *parent_name,
