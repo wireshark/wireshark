@@ -3780,14 +3780,14 @@ proto_register_skinny(void)
     { &hf_skinny_hookFlashDetectMode,
       { "Hook flash mode", "skinny.hookFlashDetectMode",
         FT_UINT32, BASE_DEC, VALS(skinny_hookFlashDetectModes), 0x0,
-        "Which method to use to detect that a hook flash has occured",
+        "Which method to use to detect that a hook flash has occurred",
         HFILL }
     },
 
     { &hf_skinny_detectInterval,
       { "HF Detect Interval", "skinny.detectInterval",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "The number of milliseconds that determines a hook flash has occured",
+        "The number of milliseconds that determines a hook flash has occurred",
         HFILL }
     },
 

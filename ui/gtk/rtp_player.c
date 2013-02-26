@@ -215,7 +215,7 @@ typedef struct _rtp_channel_info {
 /* defines a RTP packet */
 typedef struct _rtp_packet {
 	struct _rtp_info *info;	/* the RTP dissected info */
-	double arrive_offset;	/* arrive offset time since the begining of the stream in ms */
+	double arrive_offset;	/* arrive offset time since the beginning of the stream in ms */
 	guint8* payload_data;
 } rtp_packet_t;
 
@@ -974,7 +974,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 		cairo_fill (cr);
 
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, rci->surface, idx/MULT, 0); 
+		cairo_set_source_surface (cr, rci->surface, idx/MULT, 0);
 #else
 		gdk_cairo_set_source_pixmap (cr, rci->pixmap,idx/MULT, 0);
 #endif
@@ -1358,7 +1358,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 		} else if (status == S_SILENCE) {
 			draw_color_p = &white_color;
 		} else {
-			draw_color_p = &black_color;				
+			draw_color_p = &black_color;
 		}
 
 		/* if silence added by Wireshark, graphically show it with letter to indicate why */
@@ -1506,7 +1506,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 			} else if (status == S_SILENCE) {
 				draw_color_p = &white_color;
 			} else {
-				draw_color_p = &black_color;				
+				draw_color_p = &black_color;
 			}
 
 			/* if silence added by Wireshark, graphically show it with letter to indicate why */
@@ -1599,7 +1599,7 @@ static gboolean expose_event_channels(GtkWidget *widget, GdkEventExpose *event, 
 	if (gtk_widget_is_drawable(widget)){
 		cr = gdk_cairo_create (gtk_widget_get_window(widget));
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, rci->surface, 0, 0); 
+		cairo_set_source_surface (cr, rci->surface, 0, 0);
 #else
 		gdk_cairo_set_source_pixmap (cr, rci->pixmap, event->area.x, event->area.y);
 #endif

@@ -429,7 +429,7 @@ dissect_bssap_data_param(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 
-    /* No sub-dissection occured, treat it as raw data */
+    /* No sub-dissection occurred, treat it as raw data */
     call_dissector(data_handle, tvb, pinfo, bssap_tree);
 }
 

@@ -1002,7 +1002,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 	/* Set uri start offset in case this was called directly */
 	uri_offsets->uri_start = current_offset;
 
-	/* Check if it's realy a sip uri ( it might be a tel uri, parse that?) */
+	/* Check if it's really a sip uri ( it might be a tel uri, parse that?) */
 	tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ':');
 	if (tvb_strneql(tvb, current_offset, "sip", 3) != 0)
 		return -1;
@@ -3074,7 +3074,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	}
 
 	/* We've finished writing to the info col for this SIP message
-	 * Set fence in case there is more than one (SIP)message in the frame 
+	 * Set fence in case there is more than one (SIP)message in the frame
 	 */
 	col_append_str(pinfo->cinfo, COL_INFO, " | ");
 	col_set_fence(pinfo->cinfo, COL_INFO);

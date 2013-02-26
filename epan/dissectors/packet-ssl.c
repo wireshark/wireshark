@@ -1732,7 +1732,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
              */
         }
 
-        /* show on info colum what we are decoding */
+        /* show on info column what we are decoding */
         col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
 
         /* we need dissector information when the selected packet is shown.
@@ -2161,7 +2161,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
                         /* get encrypted data, on tls1 we have to skip two bytes
                          * (it's the encrypted len and should be equal to record len - 2)
-                         * in case of rsa1024 that would be 128 + 2 = 130; for psk not neccessary
+                         * in case of rsa1024 that would be 128 + 2 = 130; for psk not necessary
                          */
                         if (ssl->cipher_suite.kex==KEX_RSA && (ssl->version == SSL_VER_TLS||ssl->version == SSL_VER_TLSv1DOT1||ssl->version == SSL_VER_TLSv1DOT2))
                         {

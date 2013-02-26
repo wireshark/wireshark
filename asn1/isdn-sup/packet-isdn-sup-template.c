@@ -1,5 +1,5 @@
 /* packet-isdn-sup-template.c
- * Routines for ETSI Integrated Services Digital Network (ISDN) 
+ * Routines for ETSI Integrated Services Digital Network (ISDN)
  * supplementary services
  * Copyright 2013, Anders Broman <anders.broman@ericsson.com>
  *
@@ -104,7 +104,7 @@ static const isdn_sup_err_t isdn_sup_err_tab[] = {
 static const isdn_sup_op_t *get_op(gint32 opcode) {
   int i;
 
-  /* search from the end to get the last occurence if the operation is redefined in some newer specification */
+  /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
   for (i = array_length(isdn_sup_op_tab) - 1; i >= 0; i--)
     if (isdn_sup_op_tab[i].opcode == opcode)
       return &isdn_sup_op_tab[i];
@@ -114,7 +114,7 @@ static const isdn_sup_op_t *get_op(gint32 opcode) {
 static const isdn_sup_err_t *get_err(gint32 errcode) {
   int i;
 
-  /* search from the end to get the last occurence if the operation is redefined in some newer specification */
+  /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
   for (i = array_length(isdn_sup_err_tab) - 1; i >= 0; i--)
     if (isdn_sup_err_tab[i].errcode == errcode)
       return &isdn_sup_err_tab[i];
@@ -303,7 +303,7 @@ void proto_register_isdn_sup(void) {
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
 	},
-    { &hf_isdn_sup_operation, 
+    { &hf_isdn_sup_operation,
 	  { "Operation", "isdn_sup.operation",
         FT_UINT8, BASE_DEC, VALS(isdn_sup_str_operation), 0x0,
         NULL, HFILL }

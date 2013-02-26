@@ -12352,7 +12352,7 @@ static const qsig_err_t qsig_err_tab[] = {
 static const qsig_op_t *get_op(gint32 opcode) {
   int i;
 
-  /* search from the end to get the last occurence if the operation is redefined in some newer specification */
+  /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
   for (i = array_length(qsig_op_tab) - 1; i >= 0; i--)
     if (qsig_op_tab[i].opcode == opcode)
       return &qsig_op_tab[i];
@@ -12368,7 +12368,7 @@ static gint32 get_service(gint32 opcode) {
 static const qsig_err_t *get_err(gint32 errcode) {
   int i;
 
-  /* search from the end to get the last occurence if the operation is redefined in some newer specification */
+  /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
   for (i = array_length(qsig_err_tab) - 1; i >= 0; i--)
     if (qsig_err_tab[i].errcode == errcode)
       return &qsig_err_tab[i];

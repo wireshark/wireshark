@@ -41,7 +41,7 @@
  * There are some other related PROFINET protocols (e.g. PN-DCP, which is
  * handling addressing topics).
  *
- * Please note: the PROFINET CBA protocol is independant of the PN-IO protocol!
+ * Please note: the PROFINET CBA protocol is independent of the PN-IO protocol!
  */
 
 

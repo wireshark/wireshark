@@ -297,7 +297,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     ws_gtk_grid_attach_extended(GTK_GRID(grid), occurrence_lb, 2, 1, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
     gtk_widget_set_sensitive(occurrence_lb, FALSE);
     gtk_widget_set_tooltip_text(occurrence_lb,
-                          "Field occurence to use. "
+                          "Field occurrence to use. "
                           "0=all (default), 1=first, 2=second, ..., -1=last.");
     gtk_widget_show(occurrence_lb);
 
@@ -313,7 +313,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     ws_gtk_grid_attach_extended(GTK_GRID(grid), occurrence_te, 3, 1, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
     gtk_widget_set_sensitive(occurrence_te, FALSE);
     gtk_widget_set_tooltip_text(occurrence_te,
-                          "Field occurence to use. "
+                          "Field occurrence to use. "
                           "0=all (default), 1=first, 2=second, ..., -1=last.");
     gtk_widget_show(occurrence_te);
 

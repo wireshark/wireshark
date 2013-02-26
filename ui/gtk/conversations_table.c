@@ -2130,7 +2130,7 @@ draw_ct_table_data(conversations_table *ct)
                     -1);
         }
         else {
-            /* Only changable entries */
+            /* Only changeable entries */
             gtk_list_store_set (store, &conversation->iter,
                   PACKETS_COLUMN,  conversation->tx_frames+conversation->rx_frames,
                   BYTES_COLUMN,    conversation->tx_bytes+conversation->rx_bytes,

@@ -54,7 +54,7 @@
 ** type 96 is dynamic and may refer to other protocols. As Pro-MPEG FEC must
 ** function in the absence of a control channel, and because this data is
 ** likely to be transmitted within closed networks, no automatic mechanism
-** exists for specifying the existance of Pro-MPEG FEC on payload type 96.
+** exists for specifying the existence of Pro-MPEG FEC on payload type 96.
 ** This dissector is thus disabled by default. Dissection of this protocol
 ** may be enabled from the 2dparityfec panel under Preferences->Protocols.
 **

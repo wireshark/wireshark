@@ -120,7 +120,7 @@ static gint ett_v5ua_layer3       = -1;
 #define DRAFT           0x2
 	/* Version of IUA */
 static int iua_version = RFC;
-    /* Variables neccessary for dissection of draft messages */
+    /* Variables necessary for dissection of draft messages */
 static int msg_class   = -1;
 static int msg_type    = -1;
 static int msg_length  = -1;

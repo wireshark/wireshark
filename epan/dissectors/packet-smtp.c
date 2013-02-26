@@ -442,7 +442,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*
          * The order of these is important ... We want to avoid
          * cases where there is a CRLF at the end of a packet and a
-         * .CRLF at the begining of the same packet.
+         * .CRLF at the beginning of the same packet.
          */
         if ((session_state->crlf_seen && tvb_strneql(tvb, loffset, ".\r\n", 3) == 0) ||
             tvb_strneql(tvb, loffset, "\r\n.\r\n", 5) == 0)

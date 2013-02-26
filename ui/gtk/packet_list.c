@@ -394,14 +394,14 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), occurrence_lb, 0, 3, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(occurrence_lb), 1.0f, 0.5f);
 	gtk_widget_set_tooltip_text (occurrence_lb,
-			      "Field occurence to use. "
+			      "Field occurrence to use. "
 			      "0=all (default), 1=first, 2=second, ..., -1=last.");
 
 	occurrence_te = gtk_entry_new();
 	gtk_entry_set_max_length (GTK_ENTRY(occurrence_te), 4);
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), occurrence_te, 1, 3, 1, 1);
 	gtk_widget_set_tooltip_text (occurrence_te,
-			      "Field occurence to use. "
+			      "Field occurrence to use. "
 			      "0=all (default), 1=first, 2=second, ..., -1=last.");
 
 	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);

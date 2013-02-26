@@ -65,12 +65,12 @@ typedef struct umts_mac_info
 {
     gboolean ctmux[MAX_MAC_FRAMES];
     guint8 content[MAX_MAC_FRAMES];
-    guint8 lchid[MAX_MAC_FRAMES];       /*Makes displaying logical channel alot easier*/
-    guint8 macdflow_id[MAX_MAC_FRAMES]; /*Makes displaying logical channel alot easier*/
+    guint8 lchid[MAX_MAC_FRAMES];       /*Makes displaying logical channel a lot easier*/
+    guint8 macdflow_id[MAX_MAC_FRAMES]; /*Makes displaying logical channel a lot easier*/
 
     gboolean fake_chid[MAX_MAC_FRAMES]; /*Indicate if the child ID is faked or not*/
     guint pdu_len;                      /*Length of MAC PDU, same for all PDUs in one FP frame*/
-    guint8 trchid[MAX_MAC_FRAMES];      /*Makes displaying logical channel alot easier*/
+    guint8 trchid[MAX_MAC_FRAMES];      /*Makes displaying logical channel a lot easier*/
 } umts_mac_info;
 
 typedef struct

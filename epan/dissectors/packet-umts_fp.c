@@ -3480,7 +3480,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 * Dissect and CONFIGURE hsdsch_common channel.
 *
 * This will dissect hsdsch common channels of type 2, so this is
-* very similar to regular type two (ehs) the diffrence being how
+* very similar to regular type two (ehs) the difference being how
 * the configuration is done. NOTE: VERY EXPERIMENTAL.
 *
 * @param tvb

@@ -7298,7 +7298,7 @@ void proto_register_infiniband(void)
         { &hf_infiniband_PortCounters_ExcessiveBufferOverrunErrors, {
                 "ExcessiveBufferOverrunErrors", "infiniband.portcounters.excessivebufferoverrunerrors",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
-                "The number of times that OverrunErrors consecutive flow control update periods occured",
+                "The number of times that OverrunErrors consecutive flow control update periods occurred",
                 HFILL}
         },
         { &hf_infiniband_PortCounters_VL15Dropped, {

@@ -169,7 +169,7 @@ gboolean cf_read_frame(capture_file *cf, frame_data *fdata);
  * @param cf the capture file to be read from
  * @param fname the filename to be read from
  * @param is_tempfile is this a temporary file?
- * @param err the error code, if an error had occured
+ * @param err the error code, if an error had occurred
  * @return one of cf_status_t
  */
 cf_status_t cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
@@ -179,7 +179,7 @@ cf_status_t cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempf
  *
  * @param cf the capture file to be read from
  * @param to_read the number of packets to read
- * @param err the error code, if an error had occured
+ * @param err the error code, if an error had occurred
  * @return one of cf_read_status_t
  */
 cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read, int *err);
@@ -195,7 +195,7 @@ void cf_fake_continue_tail(capture_file *cf);
  * Finish reading from "end" of a capture file.
  *
  * @param cf the capture file to be read from
- * @param err the error code, if an error had occured
+ * @param err the error code, if an error had occurred
  * @return one of cf_read_status_t
  */
 cf_read_status_t cf_finish_tail(capture_file *cf, int *err);
@@ -318,7 +318,7 @@ void cf_set_drops_known(capture_file *cf, gboolean drops_known);
  * Set the number of packet drops while capturing.
  *
  * @param cf the capture file
- * @param drops the number of packet drops occured while capturing
+ * @param drops the number of packet drops occurred while capturing
  */
 void cf_set_drops(capture_file *cf, guint32 drops);
 
@@ -334,7 +334,7 @@ gboolean cf_get_drops_known(capture_file *cf);
  * Get the number of packet drops while capturing.
  *
  * @param cf the capture file
- * @return the number of packet drops occured while capturing
+ * @return the number of packet drops occurred while capturing
  */
 guint32 cf_get_drops(capture_file *cf);
 

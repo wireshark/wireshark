@@ -312,57 +312,57 @@ extern gchar *create_user_window_title(const gchar *caption);
 extern void set_window_title(GtkWidget *win, const gchar *caption);
 
 /** Renders a float with two decimals precission, called from gtk_tree_view_column_set_cell_data_func().
- * the user data must be the colum number.
+ * the user data must be the column number.
  * Present floats with two decimals
  *
  * @param column A GtkTreeColumn
  * @param renderer The GtkCellRenderer that is being rendered by tree_column
  * @param model The GtkTreeModel being rendered
  * @param iter A GtkTreeIter of the current row rendered
- * @param user_data must be the colum number to fetch the data from
+ * @param user_data must be the column number to fetch the data from
  */
 void float_data_func (GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 
 /** Renders a unsinged integer as a hexadecimal value, called from gtk_tree_view_column_set_cell_data_func()
- * The user data must be the colum number.
+ * The user data must be the column number.
  * Present value as hexadecimal.
  * @param column A GtkTreeColumn
  * @param renderer The GtkCellRenderer that is being rendered by tree_column
  * @param model The GtkTreeModel being rendered
  * @param iter A GtkTreeIter of the current row rendered
- * @param user_data must be the colum number to fetch the data from
+ * @param user_data must be the column number to fetch the data from
  */
 void present_as_hex_func (GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 
 /** Renders an unsigned 64 bits integer with space as thousand separator, called from gtk_tree_view_column_set_cell_data_func()
- * The user data must be the colum number.
+ * The user data must be the column number.
  * Present value as hexadecimal.
  * @param column A GtkTreeColumn
  * @param renderer The GtkCellRenderer that is being rendered by tree_column
  * @param model The GtkTreeModel being rendered
  * @param iter A GtkTreeIter of the current row rendered
- * @param user_data must be the colum number to fetch the data from
+ * @param user_data must be the column number to fetch the data from
  */
 void u64_data_func (GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 
 /** This function can be called from gtk_tree_view_column_set_cell_data_func()
- * the user data must be the colum number.
+ * the user data must be the column number.
  * Present value as hexadecimal.
  * @param column A GtkTreeColumn
  * @param renderer The GtkCellRenderer that is being rendered by tree_column
  * @param model The GtkTreeModel being rendered
  * @param iter A GtkTreeIter of the current row rendered
- * @param user_data must be the colum number to fetch the data from
+ * @param user_data must be the column number to fetch the data from
  */
 void str_ptr_data_func(GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 
 /** This function can be called from gtk_tree_sortable_set_sort_func()
- * the user data must be the colum number.
+ * the user data must be the column number.
  * Used together with str_ptr_data_func to sort the corresponding column.
  * @param model The GtkTreeModel the comparison is within
  * @param a A GtkTreeIter in model
  * @param b Another GtkTreeIter in model
- * @param user_data must be the colum number to fetch the data from
+ * @param user_data must be the column number to fetch the data from
  */
 
 gint str_ptr_sort_func(GtkTreeModel *model,

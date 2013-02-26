@@ -2248,7 +2248,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
       if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree, NULL)) {
         return;
       }
-      /* No sub-dissection occured, treat it as raw data */
+      /* No sub-dissection occurred, treat it as raw data */
       call_dissector(data_handle, data_tvb, pinfo, tree);
     }
   }

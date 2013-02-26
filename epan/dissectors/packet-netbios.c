@@ -154,7 +154,7 @@ static const value_string nb_name_type_vals[] = {
 	{0x00,	"Workstation/Redirector"},
 	{0x01,	"Browser"},
 	{0x02,	"Workstation/Redirector"},
-		/* not sure what 0x02 is, I'm seeing alot of them however */
+		/* not sure what 0x02 is, I'm seeing a lot of them however */
 		/* i'm seeing them with workstation/redirection host
 			announcements */
 	{0x03,	"Messenger service/Main name"},

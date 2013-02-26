@@ -3199,7 +3199,7 @@ proto_register_slow_protocols(void)
         { &hf_oampdu_flags_dying_gasp,
           { "Dying Gasp",        "slow.oam.flags.dyingGasp",
             FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_DYING_GASP,
-            "An unrecoverable local failure occured. True = 1, False = 0", HFILL }},
+            "An unrecoverable local failure occurred. True = 1, False = 0", HFILL }},
 
         { &hf_oampdu_flags_critical_event,
           { "Critical Event",        "slow.oam.flags.criticalEvent",

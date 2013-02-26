@@ -1066,7 +1066,7 @@ dissect_dcom_HRESULT_item(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 }
 
 
-/* dissect hresult field of a usual DCOM call (seperate method, because often used) */
+/* dissect hresult field of a usual DCOM call (separate method, because often used) */
 int
 dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep,

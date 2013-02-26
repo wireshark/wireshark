@@ -2330,7 +2330,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
   }
 
 
-  /* save begin or end if neccessary */
+  /* save begin or end if necessary */
   if (b_bit && !e_bit) {
     beginend = g_malloc (sizeof (sctp_frag_be));
     beginend->fragment = fragment;
@@ -2581,7 +2581,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
 
   /* now copy all fragments */
   if (begin->fragment->tsn > end->fragment->tsn) {
-    /* a tsn restart has occured */
+    /* a tsn restart has occurred */
     for (frag_i = first_frag;
          frag_i;
          frag_i = frag_i->next) {

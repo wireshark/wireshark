@@ -352,7 +352,7 @@ static void add_hsdsch_bind(packet_info *pinfo, proto_tree * tree){
 		return;
 	}
 
-	/* Set port to zero use that as an indication of wether we have data or not */
+	/* Set port to zero use that as an indication of whether we have data or not */
 	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 	for (i = 0; i < maxNrOfMACdFlows; i++) {
 		if (nbap_hsdsch_channel_info[i].crnc_port != 0){
@@ -429,14 +429,14 @@ static void nbap_init(void){
                        NULL,      /* data pointer, optional */
                        NULL,      /* function to free the memory allocated for the key used when removing the entry */
                        g_free);
-                       
-                       
+
+
                            /*Initialize structure for muxed flow indication*/
     edch_flow_port_map = g_tree_new_full(nbap_key_cmp,
                        NULL,      /* data pointer, optional */
                        NULL,      /* function to free the memory allocated for the key used when removing the entry */
                        g_free);
-                       
+
     for (i = 0; i < 15; i++) {
 		lchId_type_table[i+1] = *lch_contents[i];
 	}

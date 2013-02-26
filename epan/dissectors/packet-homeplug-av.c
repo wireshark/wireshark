@@ -942,7 +942,7 @@ static const value_string homeplug_av_wr_rd_mod_cnf_status_vals[] = {
 
 static const value_string homeplug_av_wr_mod_ind_status_vals[] = {
    { 0x00, "Successful module update" },
-   { 0x10, "Update occured but not successful" },
+   { 0x10, "Update occurred but not successful" },
    { 0, NULL }
 };
 

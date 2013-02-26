@@ -599,7 +599,7 @@ is_sbus_pdu(tvbuff_t *tvb)
               return FALSE;
        }
 
-       /* the length must be >= 8 bytes to accomodate the header,
+       /* the length must be >= 8 bytes to accommodate the header,
           it also must be <65536 to fit inside a udp packet
        */
        length=tvb_get_ntohl(tvb, 0);

@@ -600,7 +600,7 @@ static TvbRange new_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len
 
 WSLUA_METHOD Tvb_range(lua_State* L) {
 	/* Creates a tvbr from this Tvb. This is used also as the Tvb:__call() metamethod. */
-#define WSLUA_OPTARG_Tvb_range_OFFSET 2 /* The offset (in octets) from the begining of the Tvb. Defaults to 0. */
+#define WSLUA_OPTARG_Tvb_range_OFFSET 2 /* The offset (in octets) from the beginning of the Tvb. Defaults to 0. */
 #define WSLUA_OPTARG_Tvb_range_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the Tvb. */
 
     Tvb tvb = checkTvb(L,1);
@@ -1193,7 +1193,7 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 
 WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
 	/* Get a bitfield from a TvbRange. */
-#define WSLUA_OPTARG_TvbRange_bitfield_POSITION 2 /* The bit offset from the begining of the TvbRange. Defaults to 0. */
+#define WSLUA_OPTARG_TvbRange_bitfield_POSITION 2 /* The bit offset from the beginning of the TvbRange. Defaults to 0. */
 #define WSLUA_OPTARG_TvbRange_bitfield_LENGTH 3 /* The length (in bits) of the field. Defaults to 1. */
 
     TvbRange tvbr = checkTvbRange(L,1);
@@ -1233,13 +1233,13 @@ WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
 
 WSLUA_METHOD TvbRange_range(lua_State* L) {
 	/* Creates a sub-TvbRange from this TvbRange. This is used also as the TvbRange:__call() metamethod. */
-#define WSLUA_OPTARG_TvbRange_range_OFFSET 2 /* The offset (in octets) from the begining of the TvbRange. Defaults to 0. */
+#define WSLUA_OPTARG_TvbRange_range_OFFSET 2 /* The offset (in octets) from the beginning of the TvbRange. Defaults to 0. */
 #define WSLUA_OPTARG_TvbRange_range_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the TvbRange. */
 
     TvbRange tvbr = checkTvbRange(L,1);
     int offset = luaL_optint(L,WSLUA_OPTARG_TvbRange_range_OFFSET,0);
     int len;
-    
+
     if (!(tvbr && tvbr->tvb)) return 0;
 
     len = luaL_optint(L,WSLUA_OPTARG_TvbRange_range_LENGTH,tvbr->len-offset);

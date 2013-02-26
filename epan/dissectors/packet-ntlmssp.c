@@ -2091,7 +2091,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
       /* We setup a temporary buffer so we can re-encrypt the payload after
          decryption.  This is to update the opposite peer's RC4 state
          it's useful when we have only one key for both conversation
-         in case of KEY_EXCH we have independant key so this is not needed*/
+         in case of KEY_EXCH we have independent key so this is not needed*/
       if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags)) {
         guint8 *peer_block;
         peer_block = ep_memdup(packet_ntlmssp_info->decrypted_payload, encrypted_block_length);
@@ -2330,7 +2330,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
       /* We setup a temporary buffer so we can re-encrypt the payload after
          decryption.  This is to update the opposite peer's RC4 state
          This is not needed when we just have EXTENDED SECURITY because the signature is not crypted
-         and it's also not needed when we have key exchange because server and client have independant keys */
+         and it's also not needed when we have key exchange because server and client have independent keys */
       if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags) && !(NTLMSSP_NEGOTIATE_EXTENDED_SECURITY & conv_ntlmssp_info->flags)) {
         peer_block = ep_memdup(packet_ntlmssp_info->verifier, encrypted_block_length);
         crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);

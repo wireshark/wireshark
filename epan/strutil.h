@@ -220,7 +220,7 @@ guint8 * convert_string_to_hex(const char *string, size_t *nbytes);
  */
 char * convert_string_case(const char *string, gboolean case_insensitive);
 
-/** Finds the first occurence of string 'needle' in string 'haystack'.
+/** Finds the first occurrence of string 'needle' in string 'haystack'.
  *  The matching is done in a case insensitive manner.
  *
  * @param haystack The string possibly containing the substring
@@ -256,7 +256,7 @@ gchar* ws_strdup_escape_char (const gchar *str, const gchar chr);
  *
  * @param str The string to be copied
  * @param char The character to be escaped
- * @return A copy of the string with every occurence of double 'chr' in
+ * @return A copy of the string with every occurrence of double 'chr' in
  * the original string being copied as a single 'chr'.
  */
 gchar* ws_strdup_unescape_char (const gchar *str, const gchar chr);
@@ -273,7 +273,7 @@ gchar* ws_strdup_unescape_char (const gchar *str, const gchar chr);
 gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_val);
 
 /**
- * g_strcmp0 appears first in GLIB 2.16, define it locally for earlier versions. 
+ * g_strcmp0 appears first in GLIB 2.16, define it locally for earlier versions.
  */
 
 #if !GLIB_CHECK_VERSION(2,16,0)

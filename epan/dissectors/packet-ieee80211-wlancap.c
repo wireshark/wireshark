@@ -303,7 +303,7 @@ packets are lost due to unreliable transport, rather than a frame never
 being received to begin with.
 
 4.15 drops
-This is a counter of the number of known frame drops that occured.  This
+This is a counter of the number of known frame drops that occurred.  This
 is particularly useful when the system or hardware cannot keep up with
 the sniffer load.
 

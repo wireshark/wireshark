@@ -108,7 +108,7 @@ typedef struct {
 	/* quality descriptor-bits  */
 	gboolean BL;  /* Blocked (1) */
 	gboolean SB;  /* Substituted (1) */
-	gboolean NT;  /* Topical (0) / Not topical (1) [Topical <=> if most recent update was succesful] */
+	gboolean NT;  /* Topical (0) / Not topical (1) [Topical <=> if most recent update was successful] */
 	gboolean IV;  /* Invalid (1) */
 	/* from separat quality descriptor  */
 	gboolean OV;  /* Overflow (1) */
@@ -563,11 +563,11 @@ static void get_SIQ( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_t
 
   value->ON = siq & 0x01;
   value->OFF = !(value->ON);
-  value->BL = siq & 0x10;  /* Blocked (1)                                       */
-  value->SB = siq & 0x20;  /* Substituted (1)                                   */
-  value->NT = siq & 0x40;  /* Topical (0) / Not topical (1)                     */
-                           /* [Topical <=> if most recent update was succesful] */
-  value->IV = siq & 0x80;  /* Invalid (1)                                       */
+  value->BL = siq & 0x10;  /* Blocked (1)                                        */
+  value->SB = siq & 0x20;  /* Substituted (1)                                    */
+  value->NT = siq & 0x40;  /* Topical (0) / Not topical (1)                      */
+                           /* [Topical <=> if most recent update was successful] */
+  value->IV = siq & 0x80;  /* Invalid (1)                                        */
   if( iec104_header_tree != NULL )
   {
     proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Value: %s - Status: %s, %s, %s, %s",
@@ -610,11 +610,11 @@ static void get_DIQ( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_t
   default:
     break;
   }
-  value->BL = diq & 0x10;  /* Blocked (1)                                       */
-  value->SB = diq & 0x20;  /* Substituted (1)                                   */
-  value->NT = diq & 0x40;  /* Topical (0) / Not topical (1)                     */
-                           /* [Topical <=> if most recent update was succesful] */
-  value->IV = diq & 0x80;  /* Invalid (1)                                       */
+  value->BL = diq & 0x10;  /* Blocked (1)                                        */
+  value->SB = diq & 0x20;  /* Substituted (1)                                    */
+  value->NT = diq & 0x40;  /* Topical (0) / Not topical (1)                      */
+                           /* [Topical <=> if most recent update was successful] */
+  value->IV = diq & 0x80;  /* Invalid (1)                                        */
 
   if( iec104_header_tree != NULL )
   {
@@ -637,12 +637,12 @@ static void get_QDS( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_t
   /* --------  QDS quality description */
   qds = tvb_get_guint8(tvb, *offset);
 
-  value->OV = qds & 0x01;  /* Overflow (1)                                      */
-  value->BL = qds & 0x10;  /* Blocked (1)                                       */
-  value->SB = qds & 0x20;  /* Substituted (1)                                   */
-  value->NT = qds & 0x40;  /* Topical (0) / Not topical (1)                     */
-                           /* [Topical <=> if most recent update was succesful] */
-  value->IV = qds & 0x80;  /* Invalid (1)                                       */
+  value->OV = qds & 0x01;  /* Overflow (1)                                       */
+  value->BL = qds & 0x10;  /* Blocked (1)                                        */
+  value->SB = qds & 0x20;  /* Substituted (1)                                    */
+  value->NT = qds & 0x40;  /* Topical (0) / Not topical (1)                      */
+                           /* [Topical <=> if most recent update was successful] */
+  value->IV = qds & 0x80;  /* Invalid (1)                                        */
   if( iec104_header_tree != NULL )
   {
     proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Status: %s, %s, %s, %s, %s",

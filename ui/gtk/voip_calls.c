@@ -670,7 +670,7 @@ static void RTP_packet_draw(void *prs _U_)
 			conv_num = gai->conv_num;
 			/* if we get the setup frame number, then get the time position to graph the RTP arrow */
 			if (rtp_listinfo->setup_frame_number == gai->fd->num) {
-				/* look again from the begining because there are cases where the Setup frame is after the RTP */
+				/* look again from the beginning because there are cases where the Setup frame is after the RTP */
 				voip_calls_graph_list = g_list_first(the_tapinfo_struct.graph_analysis->list);
 				item = 0;
 				while(voip_calls_graph_list) {
@@ -2345,7 +2345,7 @@ static void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
 
 	g_free(*dialedDigits);
 	g_free(tmpStr);
-	
+
 	*dialedDigits = resultStr;
 
 	return;

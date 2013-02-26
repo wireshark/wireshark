@@ -1277,7 +1277,7 @@ get_default_col_size(GtkWidget   *view,
 
 /*
  * This function can be called from gtk_tree_view_column_set_cell_data_func()
- * the user data must be the colum number.
+ * the user data must be the column number.
  * Present floats with two decimals
  */
 void
@@ -1312,7 +1312,7 @@ float_data_func(GtkTreeViewColumn *column _U_,
 
 /*
  * This function can be called from gtk_tree_view_column_set_cell_data_func()
- * the user data must be the colum number.
+ * the user data must be the column number.
  * Present value as hexadecimal.
  */
 void

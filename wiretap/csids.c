@@ -63,7 +63,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
 {
   /* There is no file header. There is only a header for each packet
    * so we read a packet header and compare the caplen with iplen. They
-   * should always be equal except with the wierd byteswap version.
+   * should always be equal except with the weird byteswap version.
    *
    * THIS IS BROKEN-- anytime the caplen is 0x0101 or 0x0202 up to 0x0505
    * this will byteswap it. I need to fix this. XXX --mlh

@@ -120,7 +120,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     /* There are only heuristics for timestamps, the port stamp can be any value */
     if ( vssmonitoring_use_heuristics ) {
 
-      /* The timestamp will be based on the uptime untill the TAP is completely booted,
+      /* The timestamp will be based on the uptime until the TAP is completely booted,
        * this takes about 60s, but use 1 hour to be sure
        */
       if (vssmonitoring_time.secs > 3600) {

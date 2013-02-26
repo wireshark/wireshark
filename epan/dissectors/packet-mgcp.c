@@ -2137,7 +2137,7 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_
 
 	maxoffset = (tvb_current_len - 1) + offset;
 
-	/* Loop around until we either find a line begining with a carriage return
+	/* Loop around until we either find a line beginning with a carriage return
 	   or newline character or until we hit the end of the tvbuff. */
 	do
 	{

@@ -699,10 +699,10 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 	struct mysql_frame_data  *mysql_frame_data_p;
 
-	/* get conversation, create if neccessary*/
+	/* get conversation, create if necessary*/
 	conversation= find_or_create_conversation(pinfo);
 
-	/* get associated state information, create if neccessary */
+	/* get associated state information, create if necessary */
 	conn_data= conversation_get_proto_data(conversation, proto_mysql);
 	if (!conn_data) {
 		conn_data= se_alloc(sizeof(mysql_conn_data_t));

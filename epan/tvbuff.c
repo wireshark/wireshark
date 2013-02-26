@@ -1867,7 +1867,7 @@ tvb_get_bits(tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits, const
 	return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
-/* Find first occurence of needle in tvbuff, starting at offset. Searches
+/* Find first occurrence of needle in tvbuff, starting at offset. Searches
  * at most maxlength number of bytes; if maxlength is -1, searches to
  * end of tvbuff.
  * Returns the offset of the found needle, or -1 if not found.
@@ -1932,7 +1932,7 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 	return -1;
 }
 
-/* Find first occurence of any of the needles in tvbuff, starting at offset.
+/* Find first occurrence of any of the needles in tvbuff, starting at offset.
  * Searches at most maxlength number of bytes; if maxlength is -1, searches
  * to end of tvbuff.
  * Returns the offset of the found needle, or -1 if not found.

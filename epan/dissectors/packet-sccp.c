@@ -2343,7 +2343,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return;
   }
 
-  /* No sub-dissection occured, treat it as raw data */
+  /* No sub-dissection occurred, treat it as raw data */
   call_dissector(data_handle, tvb, pinfo, tree);
 
 }

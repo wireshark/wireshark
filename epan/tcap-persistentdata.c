@@ -1078,11 +1078,11 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* check if we have to create a new record or not */
 	/* if last request has been responded (response number is known)
 	   and this request appears after last response (has bigger frame number)
-	   and last request occured after the timeout for repetition,
+	   and last request occurred after the timeout for repetition,
 	   or
 	   if last request hasn't been responded (so number unknown)
 	   and this request appears after last request (has bigger frame number)
-	   and this request occured after the timeout for message lost */
+	   and this request occurred after the timeout for message lost */
 	if ( ( p_tcaphash_begincall->context->last_frame != 0
 	       && pinfo->fd->num > p_tcaphash_begincall->context->first_frame
 	       && (guint) pinfo->fd->abs_ts.secs > (guint)(p_tcaphash_begincall->context->begin_time.secs + gtcap_RepetitionTimeout)
@@ -1592,11 +1592,11 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* check if we have to create a new record or not */
 	/* if last request has been responded (response number in known)
 	   and this request appears after last response (has bigger frame number)
-	   and last request occured after the timeout for repetition,
+	   and last request occurred after the timeout for repetition,
 	   or
 	   if last request hasn't been responded (so number unknown)
 	   and this request appears after last request (has bigger frame number)
-	   and this request occured after the timeout for message lost */
+	   and this request occurred after the timeout for message lost */
 	if ( ( p_tcaphash_ansicall->context->last_frame != 0
 	       && pinfo->fd->num > p_tcaphash_ansicall->context->first_frame
 	       && (guint) pinfo->fd->abs_ts.secs > (guint)(p_tcaphash_ansicall->context->begin_time.secs + gtcap_RepetitionTimeout)

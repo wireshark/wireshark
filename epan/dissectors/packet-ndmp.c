@@ -3245,7 +3245,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 
-		/* If fragmentation is neccessary */
+		/* If fragmentation is necessary */
 		if (do_frag)
 		{
 			pinfo->fragmented = TRUE;

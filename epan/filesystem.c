@@ -1710,7 +1710,7 @@ file_exists(const char *fname)
      * but it *is* set to zero if stat() returns without an error,
      * so this is working, but maybe not quite the way expected. ULFL
      */
-    file_stat.st_ino = 1;   /* this will make things work if an error occured */
+    file_stat.st_ino = 1;   /* this will make things work if an error occurred */
     ws_stat64(fname, &file_stat);
     if (file_stat.st_ino == 0) {
         return TRUE;

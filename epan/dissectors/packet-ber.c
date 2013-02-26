@@ -4044,7 +4044,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n", name);
             }
         }
     } else {
-        /* the tvb length should be correct now nope we could be comming from an implicit choice or sequence, thus we
+        /* the tvb length should be correct now nope we could be coming from an implicit choice or sequence, thus we
         read the items we match and return the length*/
         lenx = tvb_length_remaining(tvb, offset);
         end_offset = offset + lenx;
@@ -4281,7 +4281,7 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n", name);
             }
         }
     } else {
-        /* the tvb length should be correct now nope we could be comming from an implicit choice or sequence, thus we
+        /* the tvb length should be correct now nope we could be coming from an implicit choice or sequence, thus we
         read the items we match and return the length*/
         lenx = tvb_length_remaining(tvb, offset);
         end_offset = offset + lenx;

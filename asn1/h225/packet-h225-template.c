@@ -407,10 +407,10 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 						{
 							/* if last request has been responded
 							   and this request appears after last response (has bigger frame number)
-							   and last request occured more than 300 seconds ago,
+							   and last request occurred more than 300 seconds ago,
 							   or if last request hasn't been responded
 							   and this request appears after last request (has bigger frame number)
-							   and last request occured more than 1800 seconds ago,
+							   and last request occurred more than 1800 seconds ago,
 							   we decide that we have a new request */
 							/* Append new ras call to list */
 							h225ras_call = append_h225ras_call(h225ras_call, pinfo, &pi->guid, msg_category);

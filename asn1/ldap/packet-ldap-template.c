@@ -29,7 +29,7 @@
  * it handles only the commands of version 2, but any additional characteristics of the ver3 command are supported.
  * It's also missing extensible search filters.
  *
- * There should probably be alot more error checking, I simply assume that if we have a full packet, it will be a complete
+ * There should probably be a lot more error checking, I simply assume that if we have a full packet, it will be a complete
  * and correct packet.
  *
  * AFAIK, it will handle all messages used by the OpenLDAP 1.2.9 server and libraries which was my goal. I do plan to add
@@ -2250,7 +2250,7 @@ void proto_register_ldap(void) {
 
   module_t *ldap_module;
   uat_t *attributes_uat;
-  
+
   /* Register protocol */
   proto_ldap = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */

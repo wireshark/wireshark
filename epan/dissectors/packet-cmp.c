@@ -1634,7 +1634,7 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 		}
 		/* arbitrary limit: assume a CMP over TCP pdu is never >10000 bytes
 		 * in size.
-		 * It is definitely at least 1 byte to accomodate the flags byte
+		 * It is definitely at least 1 byte to accommodate the flags byte
 		 */
 		if((pdu_len<=0)||(pdu_len>10000)){
 			return 0;

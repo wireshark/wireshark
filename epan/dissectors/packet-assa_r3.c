@@ -511,7 +511,7 @@ typedef enum
   EVENT_PANICACTIVE,          /*  48 - Access denied because lock is in panic mode */
   EVENT_PASSAGEACTIVE,        /*  49 - Access denied because lock is in passage mode */
   EVENT_PASSAGEINACTIVE,      /*  50 - Access denied because lock is not in passage mode */
-  EVENT_BADACCESSMODE,        /*  51 - Access denied because access mode is wierd */
+  EVENT_BADACCESSMODE,        /*  51 - Access denied because access mode is weird */
   EVENT_CLOCKERR,             /*  52 - Error reading RTC */
   EVENT_REMOTEUNLOCK,         /*  53 - Remote unlock */
   EVENT_TZHAUDISABLED,        /*  54 - Time zone, exceptions, and auto-unlock functionality disabled */

@@ -57,7 +57,7 @@
  *   embedded, so the only additional storage cost is two pointers: one to the
  *   head of this list and one to the priority divider of the list (explained
  *   in more detail later). See the wmem_block_free_t structure.
- * 
+ *
  * Alloc is implemented very similarly to before. The first chunk in the free
  * list is checked. If it has enough space, it is used (potentially splitting
  * the chunk in two - the allocated part and the remaining free space). If it
@@ -517,7 +517,7 @@ wmem_block_alloc(void *private_data, const size_t size)
     wmem_block_chunk_t     *chunk;
 
     /* We can't allocate more than will fit in a block (less our header),
-     * which is an aweful lot. */
+     * which is an awful lot. */
     g_assert(size < WMEM_BLOCK_SIZE - sizeof(wmem_block_chunk_t));
 
     if (allocator->free_list_head == NULL) {

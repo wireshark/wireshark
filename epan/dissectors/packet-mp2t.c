@@ -688,7 +688,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 	}
 
 
-	/* The begining of a new packet is present */
+	/* The beginning of a new packet is present */
 	if (pusi_flag) {
 
 		if (pointer > remaining_len) {

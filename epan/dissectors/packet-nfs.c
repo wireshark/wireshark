@@ -6989,7 +6989,7 @@ dissect_nfs4_security_label(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_fattr4_security_label_lfs, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_fattr4_security_label_pi, offset);
-	offset = dissect_nfs_utf8string(tvb, offset, tree, 
+	offset = dissect_nfs_utf8string(tvb, offset, tree,
 		hf_nfs_fattr4_security_label_context, NULL);
 
 	return offset;
@@ -7336,7 +7336,7 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						break;
 
 					case FATTR4_SECURITY_LABEL:
-						attr_vals_offset = dissect_nfs4_security_label(tvb, 
+						attr_vals_offset = dissect_nfs4_security_label(tvb,
 							attr_newftree, attr_vals_offset);
 						break;
 					default:
@@ -10625,7 +10625,7 @@ void reg_callback(int cbprog)
 	/*
 	 * Register the procedure tables.  The version should be 4,
 	 * but some Linux kernels set this field to 1.  "Temporarily",
-	 * accomodate these servers.
+	 * accommodate these servers.
 	 */
 	rpc_init_proc_table(cbprog, 1, nfs_cb_proc, hf_nfs_cb_procedure);
 	rpc_init_proc_table(cbprog, 4, nfs_cb_proc, hf_nfs_cb_procedure);

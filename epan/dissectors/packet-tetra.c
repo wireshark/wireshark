@@ -10530,7 +10530,7 @@ void proto_register_tetra (void)
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_tetra_type2_existance,
-      { "type2-existance", "tetra.type2_existance",
+      { "type2-existence", "tetra.type2_existence",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_tetra_type3_identifier,

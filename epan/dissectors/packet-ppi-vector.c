@@ -737,7 +737,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
     }
    /*
     * vchars is another field that we want to pre-process simillar to vflags and for the same reasons.
-    * we perform seperate length checks depending on if vector_flags is present (which would precede vector_chars)
+    * we perform separate length checks depending on if vector_flags is present (which would precede vector_chars)
     */
     if      ( ( (present & PPI_VECTOR_MASK_VFLAGS)) && (present & PPI_VECTOR_MASK_VCHARS) && length_remaining >= 8)
             chars =  tvb_get_letohl(tvb, offset + 4);

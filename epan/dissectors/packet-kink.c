@@ -325,7 +325,7 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   guint payload_length;
   guint16 krb_ap_req_length;
   time_t timer;                  /* For showing utc */
-  int start_payload_offset = 0;  /* Keep begining of payload offset */
+  int start_payload_offset = 0;  /* Keep beginning of payload offset */
 
   start_payload_offset = offset;
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
@@ -387,7 +387,7 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   guint payload_length;
   guint16 krb_ap_rep_length;
   time_t timer;
-  int start_payload_offset = 0; /* Keep begining of payload offset */
+  int start_payload_offset = 0; /* Keep beginning of payload offset */
 
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
   start_payload_offset = offset;
@@ -448,7 +448,7 @@ dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
   guint8 reserved;
   guint payload_length;
   guint16 krb_error_length;
-  int start_payload_offset = 0; /* Keep the begining of the payload offset  */
+  int start_payload_offset = 0; /* Keep the beginning of the payload offset  */
 
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
   start_payload_offset = offset;
@@ -502,7 +502,7 @@ dissect_payload_kink_tgt_req(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   guint8 reserved;
   guint payload_length;
   guint16 realm_name_length;
-  int start_payload_offset = 0; /* Keep the begining of the payload offset  */
+  int start_payload_offset = 0; /* Keep the beginning of the payload offset  */
 
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
   realm_name_length = tvb_get_ntohs(tvb, offset + TO_REALM_NAME_LENGTH);
@@ -549,7 +549,7 @@ dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   guint payload_length;
   guint princ_name_length;
   guint16 tgt_length;
-  int start_payload_offset = 0; /* Keep the begining of the payload offset  */
+  int start_payload_offset = 0; /* Keep the beginning of the payload offset  */
 
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
   start_payload_offset = offset;
@@ -613,7 +613,7 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   guint8 inner_next_pload;
   guint8 qm, qmmaj, qmmin;
   guint16 reserved2;
-  int start_payload_offset = 0;      /* Keep the begining of the payload offset */
+  int start_payload_offset = 0;      /* Keep the beginning of the payload offset */
   tvbuff_t *isakmp_tvb;
 
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
@@ -695,7 +695,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   guint8 inner_next_pload;
   guint32 reserved2;
   guint16 inner_payload_length;
-  int start_payload_offset = 0;    /* Keep the begining of the payload offset */
+  int start_payload_offset = 0;    /* Keep the beginning of the payload offset */
 
   payload_length = tvb_get_ntohs(tvb,offset + TO_PAYLOAD_LENGTH);
   start_payload_offset = offset;
@@ -800,7 +800,7 @@ dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_
   guint8 reserved;
   guint16 payload_length;
   guint32 error_code;
-  int start_payload_offset = 0; /* Keep the begining of the payload offset */
+  int start_payload_offset = 0; /* Keep the beginning of the payload offset */
   const char *char_error_code[] = {
     "KINK_OK",
     "KINK_PROTOERR",
@@ -872,7 +872,7 @@ dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, 
   guint8 next_payload;
   guint payload_length;
   guint8 reserved;
-  int start_payload_offset = 0;   /* Keep the begining of the payload offset */
+  int start_payload_offset = 0;   /* Keep the beginning of the payload offset */
 
   start_payload_offset = offset;
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);

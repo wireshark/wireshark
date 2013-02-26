@@ -627,7 +627,7 @@ gboolean AirpcapSetDriverDecryptionState(PAirpcapHandle AdapterHandle, AirpcapDe
   \brief Tells if this open instance is configured to perform the decryption of the incoming frames with the <b>global driver</b> set of keys.
   \param AdapterHandle Handle to the adapter.
   \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref PAirpcapDecryptionState for details.
-  \return TRUE if the operation is succesful. FALSE otherwise.
+  \return TRUE if the operation is successful. FALSE otherwise.
 
   The global decryption keys can be configured with the \ref AirpcapSetDriverKeys() function.
   \note By default, the driver is configured with \ref AIRPCAP_DECRYPTION_ON.

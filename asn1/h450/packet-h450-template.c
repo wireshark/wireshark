@@ -78,7 +78,7 @@ typedef struct _h450_op_t {
 
 static const h450_op_t h450_op_tab[] = {
 #include "packet-h450-table11.c"
-};                                 
+};
 
 typedef struct _h450_err_t {
   gint32 errcode;
@@ -87,12 +87,12 @@ typedef struct _h450_err_t {
 
 static const h450_err_t h450_err_tab[] = {
 #include "packet-h450-table21.c"
-};                                 
+};
 
 static const h450_op_t *get_op(gint32 opcode) {
   int i;
 
-  /* search from the end to get the last occurence if the operation is redefined in some newer specification */
+  /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
   for (i = array_length(h450_op_tab) - 1; i >= 0; i--)
     if (h450_op_tab[i].opcode == opcode)
       return &h450_op_tab[i];
@@ -102,7 +102,7 @@ static const h450_op_t *get_op(gint32 opcode) {
 static const h450_err_t *get_err(gint32 errcode) {
   int i;
 
-  /* search from the end to get the last occurence if the operation is redefined in some newer specification */
+  /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
   for (i = array_length(h450_err_tab) - 1; i >= 0; i--)
     if (h450_err_tab[i].errcode == errcode)
       return &h450_err_tab[i];
@@ -110,7 +110,7 @@ static const h450_err_t *get_err(gint32 errcode) {
 }
 
 /*--- dissect_h450_arg ------------------------------------------------------*/
-static int   
+static int
 dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   proto_item *hidden_item;
   int offset;
@@ -123,13 +123,13 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   rctx = get_rose_ctx(pinfo->private_data);
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 1)  /* invoke */
-    return offset; 
+    return offset;
   if (rctx->d.code != 0)  /* local */
-    return offset; 
+    return offset;
   opcode = rctx->d.code_local;
   op_ptr = get_op(opcode);
   if (!op_ptr)
-    return offset; 
+    return offset;
 
   hidden_item = proto_tree_add_uint(tree, hf_h450_operation, tvb, 0, 0, opcode);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -142,7 +142,7 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
   if (op_ptr->arg_pdu && (tvb_length_remaining(tvb, offset) > 0))
     offset = op_ptr->arg_pdu(tvb, pinfo, tree, NULL);
-  else 
+  else
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED ARGUMENT TYPE (H.450)");
       offset += tvb_length_remaining(tvb, offset);
@@ -152,7 +152,7 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 }
 
 /*--- dissect_h450_res ------------------------------------------------------*/
-static int   
+static int
 dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   proto_item *hidden_item;
   int offset;
@@ -165,13 +165,13 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   rctx = get_rose_ctx(pinfo->private_data);
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 2)  /* returnResult */
-    return offset; 
+    return offset;
   if (rctx->d.code != 0)  /* local */
-    return offset; 
+    return offset;
   opcode = rctx->d.code_local;
   op_ptr = get_op(opcode);
   if (!op_ptr)
-    return offset; 
+    return offset;
 
   hidden_item = proto_tree_add_uint(tree, hf_h450_operation, tvb, 0, 0, opcode);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -184,7 +184,7 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
   if (op_ptr->res_pdu && (tvb_length_remaining(tvb, offset) > 0))
     offset = op_ptr->res_pdu(tvb, pinfo, tree, NULL);
-  else 
+  else
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED RESULT TYPE (H.450)");
       offset += tvb_length_remaining(tvb, offset);
@@ -194,7 +194,7 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 }
 
 /*--- dissect_h450_err ------------------------------------------------------*/
-static int   
+static int
 dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
   proto_item *hidden_item;
   int offset;
@@ -207,13 +207,13 @@ dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   rctx = get_rose_ctx(pinfo->private_data);
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 3)  /* returnError */
-    return offset; 
+    return offset;
   if (rctx->d.code != 0)  /* local */
-    return offset; 
+    return offset;
   errcode = rctx->d.code_local;
   err_ptr = get_err(errcode);
   if (!err_ptr)
-    return offset; 
+    return offset;
 
   hidden_item = proto_tree_add_uint(tree, hf_h450_error, tvb, 0, 0, errcode);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -226,7 +226,7 @@ dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
   if (err_ptr->err_pdu && (tvb_length_remaining(tvb, offset) > 0))
     offset = err_ptr->err_pdu(tvb, pinfo, tree, NULL);
-  else 
+  else
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (H.450)");
       offset += tvb_length_remaining(tvb, offset);
@@ -261,16 +261,16 @@ void proto_register_h450(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_h450, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
- 
+
   rose_ctx_init(&h450_rose_ctx);
 
   /* Register dissector tables */
   h450_rose_ctx.arg_global_dissector_table = register_dissector_table("h450.ros.global.arg", "H.450 Operation Argument (global opcode)", FT_STRING, BASE_NONE);
   h450_rose_ctx.res_global_dissector_table = register_dissector_table("h450.ros.global.res", "H.450 Operation Result (global opcode)", FT_STRING, BASE_NONE);
-  h450_rose_ctx.arg_local_dissector_table = register_dissector_table("h450.ros.local.arg", "H.450 Operation Argument (local opcode)", FT_UINT32, BASE_HEX); 
-  h450_rose_ctx.res_local_dissector_table = register_dissector_table("h450.ros.local.res", "H.450 Operation Result (local opcode)", FT_UINT32, BASE_HEX); 
+  h450_rose_ctx.arg_local_dissector_table = register_dissector_table("h450.ros.local.arg", "H.450 Operation Argument (local opcode)", FT_UINT32, BASE_HEX);
+  h450_rose_ctx.res_local_dissector_table = register_dissector_table("h450.ros.local.res", "H.450 Operation Result (local opcode)", FT_UINT32, BASE_HEX);
   h450_rose_ctx.err_global_dissector_table = register_dissector_table("h450.ros.global.err", "H.450 Error (global opcode)", FT_STRING, BASE_NONE);
-  h450_rose_ctx.err_local_dissector_table = register_dissector_table("h450.ros.local.err", "H.450 Error (local opcode)", FT_UINT32, BASE_HEX); 
+  h450_rose_ctx.err_local_dissector_table = register_dissector_table("h450.ros.local.err", "H.450 Error (local opcode)", FT_UINT32, BASE_HEX);
 
 }
 

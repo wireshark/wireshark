@@ -4682,7 +4682,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              *  - reply to initial connection
              *  - errorreply (a request generated an error)
              *  - requestreply (reply to a request)
-             *  - event (some event occured)
+             *  - event (some event occurred)
              */
             if (g_hash_table_lookup(state->seqtable,
                                     GINT_TO_POINTER(state->sequencenumber)) == (int *)INITIAL_CONN

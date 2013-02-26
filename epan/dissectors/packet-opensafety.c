@@ -917,7 +917,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
     } else {
 
         /* Either the SSDO msg is a response, then data is sent by the server and only in uploads,
-         * or the message is a request, then data is comming from the client and payload data is
+         * or the message is a request, then data is coming from the client and payload data is
          * sent in downloads */
         if ( ( isResponse && (sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED ||
                     sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_EXPEDITED ||

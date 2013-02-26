@@ -2381,7 +2381,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 
 	if	(format == SAVE_AU_FORMAT) /* au format */
 	{
-		/* First we write the .au header. XXX Hope this is endian independant */
+		/* First we write the .au header. XXX Hope this is endian independent */
 		/* the magic word 0x2e736e64 == .snd */
 		/* XXX: Should we be checking for write errors below ? */
 		phtonl(pd, 0x2e736e64);

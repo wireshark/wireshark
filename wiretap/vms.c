@@ -68,17 +68,17 @@
 
    Example UCX$TRACE output data:
 
-    UCX INTERnet trace RCV packet seq # = 1 at 14-MAY-2003 11:32:10.93 
+    UCX INTERnet trace RCV packet seq # = 1 at 14-MAY-2003 11:32:10.93
 
-   IP Version = 4,  IHL = 5,  TOS = 00,   Total Length = 583 = ^x0247 
-   IP Identifier  = ^x702E,  Flags (0=0,DF=0,MF=0),  
-         Fragment Offset = 0 = ^x0000,   Calculated Offset = 0 = ^x0000 
-   IP TTL = 128 = ^x80,  Protocol = 17 = ^x11,  Header Checksum = ^x70EC 
-   IP Source Address      = 10.20.4.159 
-   IP Destination Address = 10.20.4.255 
+   IP Version = 4,  IHL = 5,  TOS = 00,   Total Length = 583 = ^x0247
+   IP Identifier  = ^x702E,  Flags (0=0,DF=0,MF=0),
+         Fragment Offset = 0 = ^x0000,   Calculated Offset = 0 = ^x0000
+   IP TTL = 128 = ^x80,  Protocol = 17 = ^x11,  Header Checksum = ^x70EC
+   IP Source Address      = 10.20.4.159
+   IP Destination Address = 10.20.4.255
 
-   UDP Source Port = 138,   UDP Destination Port = 138 
-   UDP Header and Datagram Length = 563 = ^x0233,   Checksum = ^xB913 
+   UDP Source Port = 138,   UDP Destination Port = 138
+   UDP Header and Datagram Length = 563 = ^x0233,   Checksum = ^xB913
 
    9F04140A   70EC1180   0000702E   47020045    0000    E..G.p.....p....
    B1B80E11 | B9133302   8A008A00 | FF04140A    0010    .........3......
@@ -161,7 +161,7 @@ static long vms_seek_next_packet(wtap *wth, int *err, gchar **err_info)
 {
     long cur_off;
     char buf[VMS_LINE_LENGTH];
-  
+
     while (1) {
         cur_off = file_tell(wth->fh);
         if (cur_off == -1) {
@@ -192,7 +192,7 @@ static long vms_seek_next_packet(wtap *wth, int *err, gchar **err_info)
  * if we get an I/O error, "*err" will be set to a non-zero value and
  * "*err_info will be set to null or an additional error string.
  *
- * Leaves file handle at begining of line that contains the VMS Magic
+ * Leaves file handle at beginning of line that contains the VMS Magic
  * identifier.
  */
 static gboolean vms_check_file_type(wtap *wth, int *err, gchar **err_info)
@@ -200,9 +200,9 @@ static gboolean vms_check_file_type(wtap *wth, int *err, gchar **err_info)
     char buf[VMS_LINE_LENGTH];
     guint reclen, line;
     gint64 mpos;
-  
+
     buf[VMS_LINE_LENGTH-1] = '\0';
-  
+
     for (line = 0; line < VMS_HEADER_LINES_TO_CHECK; line++) {
         mpos = file_tell(wth->fh);
         if (mpos == -1) {
@@ -215,14 +215,14 @@ static gboolean vms_check_file_type(wtap *wth, int *err, gchar **err_info)
             *err = file_error(wth->fh, err_info);
             return FALSE;
         }
-      
+
         reclen = (guint) strlen(buf);
         if (reclen < strlen(VMS_HDR_MAGIC_STR1) ||
-            reclen < strlen(VMS_HDR_MAGIC_STR2) || 
+            reclen < strlen(VMS_HDR_MAGIC_STR2) ||
             reclen < strlen(VMS_HDR_MAGIC_STR3)) {
             continue;
         }
-      
+
         if (strstr(buf, VMS_HDR_MAGIC_STR1) ||
             strstr(buf, VMS_HDR_MAGIC_STR2) ||
             strstr(buf, VMS_HDR_MAGIC_STR3)) {
@@ -376,7 +376,7 @@ parse_vms_rec_hdr(FILE_T fh, struct wtap_pkthdr *phdr, int *err, gchar **err_inf
 	    /* Find text in line starting with "packet ". */
 
 	    /* First look for the Format 1 type sequencing */
-	    num_items_scanned = sscanf(p,  
+	    num_items_scanned = sscanf(p,
 		  		       "packet %9d at %2d-%3s-%4d %2d:%2d:%2d.%9d",
 			  	       &pktnum, &tm.tm_mday, mon,
 				       &tm.tm_year, &tm.tm_hour,

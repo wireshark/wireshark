@@ -1199,7 +1199,7 @@ static void graph_pixmap_draw(struct graph *g)
 #endif
 
     /* N.B. This makes drawing circles take half the time of the default setting.
-       Changing from the default fill rule didn't make any noticable difference
+       Changing from the default fill rule didn't make any noticeable difference
        though */
     cairo_set_tolerance(cr_elements, 1.0);
 
@@ -2663,7 +2663,7 @@ static void rlc_lte_make_elmtlist(struct graph *g)
             else {
                 e0->elment_color_p = &g->style.seq_resegmented_color;
             }
-            
+
             e0->p.ellipse.dim.width = DATA_BLOB_SIZE;
             e0->p.ellipse.dim.height = DATA_BLOB_SIZE;
             e0->p.ellipse.dim.x = x;
