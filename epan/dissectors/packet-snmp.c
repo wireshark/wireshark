@@ -113,15 +113,14 @@ static int proto_smux = -1;
 
 static gboolean display_oid = TRUE;
 static gboolean snmp_var_in_tree = TRUE;
-#ifdef HAVE_LIBGCRYPT
-static gint snmp_decryption_algo = 0;
-#endif
 
 static gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 static gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 
 static tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t*, tvbuff_t*, gchar const**);
-static tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t*, tvbuff_t*, gchar const**);
+static tvbuff_t* snmp_usm_priv_aes128(snmp_usm_params_t*, tvbuff_t*, gchar const**);
+static tvbuff_t* snmp_usm_priv_aes192(snmp_usm_params_t*, tvbuff_t*, gchar const**);
+static tvbuff_t* snmp_usm_priv_aes256(snmp_usm_params_t*, tvbuff_t*, gchar const**);
 
 
 static void snmp_usm_password_to_key_md5(const guint8 *password, guint passwordlen, const guint8 *engineID, guint engineLength, guint8 *key);
@@ -138,21 +137,24 @@ static const value_string auth_types[] = {
 };
 static snmp_usm_auth_model_t* auth_models[] = {&model_md5,&model_sha1};
 
+#define PRIV_DES     0
+#define PRIV_AES128  1
+#define PRIV_AES192  2
+#define PRIV_AES256  3
 
 static const value_string priv_types[] = {
-	{0,"DES"},
-	{1,"AES"},
-	{0,NULL}
+	{ PRIV_DES,    "DES" },
+	{ PRIV_AES128, "AES" },
+	{ PRIV_AES192, "AES192" },
+	{ PRIV_AES256, "AES256" },
+	{ 0, NULL}
 };
-static snmp_usm_decoder_t priv_protos[] = {snmp_usm_priv_des, snmp_usm_priv_aes};
-
-#ifdef HAVE_LIBGCRYPT
-static const enum_val_t snmp_decryption_algo_type[] = {
-  { "aes"   , "AES",    0 },
-  { "aes256", "AES256", 1 },
-  { NULL, NULL, 0 }
+static snmp_usm_decoder_t priv_protos[] = {
+	snmp_usm_priv_des,
+	snmp_usm_priv_aes128,
+	snmp_usm_priv_aes192,
+	snmp_usm_priv_aes256
 };
-#endif
 
 static snmp_ue_assoc_t* ueas = NULL;
 static guint num_ueas = 0;
@@ -304,7 +306,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 230 "../../asn1/snmp/packet-snmp-template.c"
+#line 232 "../../asn1/snmp/packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -347,7 +349,7 @@ static gint ett_snmp_SimpleOpen_U = -1;
 static gint ett_snmp_RReqPDU_U = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 249 "../../asn1/snmp/packet-snmp-template.c"
+#line 251 "../../asn1/snmp/packet-snmp-template.c"
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -1228,13 +1230,50 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 				    n->engine.len,
 				    n->user.authKey.data);
 
-	n->user.privKey.data = (guint8 *)se_alloc(key_size);
-	n->user.privKey.len = key_size;
-	n->user.authModel->pass2key(n->user.privPassword.data,
-				    n->user.privPassword.len,
-				    n->engine.data,
-				    n->engine.len,
-				    n->user.privKey.data);
+	if (n->priv_proto == PRIV_AES128 || n->priv_proto == PRIV_AES192 || n->priv_proto == PRIV_AES256) {
+		guint need_key_len = 
+			(n->priv_proto == PRIV_AES128) ? 16 :
+			(n->priv_proto == PRIV_AES192) ? 24 :
+			(n->priv_proto == PRIV_AES256) ? 32 :
+			0;
+
+		guint key_len = key_size;
+
+		while (key_len < need_key_len)
+			key_len += key_size;
+
+		n->user.privKey.data = (guint8 *)se_alloc(key_len);
+		n->user.privKey.len  = need_key_len;
+
+		n->user.authModel->pass2key(n->user.privPassword.data,
+					    n->user.privPassword.len,
+					    n->engine.data,
+					    n->engine.len,
+					    n->user.privKey.data);
+
+		key_len = key_size;
+
+		/* extend key if needed */
+		while (key_len < need_key_len) {
+			n->user.authModel->pass2key(
+				n->user.privKey.data,
+				key_len,
+				n->engine.data,
+				n->engine.len,
+				n->user.privKey.data + key_len);
+
+			key_len += key_size;
+		}
+
+	} else {
+		n->user.privKey.data = (guint8 *)se_alloc(key_size);
+		n->user.privKey.len = key_size;
+		n->user.authModel->pass2key(n->user.privPassword.data,
+					    n->user.privPassword.len,
+					    n->engine.data,
+					    n->engine.len,
+					    n->user.privKey.data);
+	}
 }
 
 static snmp_ue_assoc_t*
@@ -1553,16 +1592,16 @@ on_gcry_error:
 #endif
 }
 
-static tvbuff_t*
-snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error _U_)
-{
 #ifdef HAVE_LIBGCRYPT
+static tvbuff_t*
+snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, gchar const** error, int algo)
+{
 	gcry_error_t err;
 	gcry_cipher_hd_t hd = NULL;
-    int gcry_algo = GCRY_CIPHER_AES;
 
 	guint8* cleartext;
-	guint8* aes_key = p->user_assoc->user.privKey.data; /* first 16 bytes */
+	guint8* aes_key = p->user_assoc->user.privKey.data;
+	int aes_key_len = p->user_assoc->user.privKey.len;
 	guint8 iv[16];
 	gint priv_len;
 	gint cryptgrm_len;
@@ -1595,23 +1634,13 @@ snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 
 	cleartext = (guint8*)ep_alloc(cryptgrm_len);
 
-    switch(snmp_decryption_algo)
-    {
-    case 0:
-        gcry_algo = GCRY_CIPHER_AES;
-        break;
-    case 1:
-        gcry_algo = GCRY_CIPHER_AES256;
-        break;
-    }
-
-	err = gcry_cipher_open(&hd, gcry_algo, GCRY_CIPHER_MODE_CFB, 0);
+	err = gcry_cipher_open(&hd, algo, GCRY_CIPHER_MODE_CFB, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
 
 	err = gcry_cipher_setiv(hd, iv, 16);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
 
-	err = gcry_cipher_setkey(hd,aes_key,16);
+	err = gcry_cipher_setkey(hd,aes_key,aes_key_len);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
 
 	err = gcry_cipher_decrypt(hd, cleartext, cryptgrm_len, cryptgrm, cryptgrm_len);
@@ -1627,12 +1656,41 @@ on_gcry_error:
 	*error = (void*)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
+}
+#endif
+
+static tvbuff_t*
+snmp_usm_priv_aes128(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error)
+{
+#ifdef HAVE_LIBGCRYPT
+	return snmp_usm_priv_aes_common(p, encryptedData, error, GCRY_CIPHER_AES);
 #else
 	*error = "libgcrypt not present, cannot decrypt";
 	return NULL;
 #endif
 }
 
+static tvbuff_t*
+snmp_usm_priv_aes192(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error)
+{
+#ifdef HAVE_LIBGCRYPT
+	return snmp_usm_priv_aes_common(p, encryptedData, error, GCRY_CIPHER_AES192);
+#else
+	*error = "libgcrypt not present, cannot decrypt";
+	return NULL;
+#endif
+}
+
+static tvbuff_t*
+snmp_usm_priv_aes256(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error)
+{
+#ifdef HAVE_LIBGCRYPT
+	return snmp_usm_priv_aes_common(p, encryptedData, error, GCRY_CIPHER_AES256);
+#else
+	*error = "libgcrypt not present, cannot decrypt";
+	return NULL;
+#endif
+}
 
 gboolean
 check_ScopedPdu(tvbuff_t* tvb)
@@ -2793,7 +2851,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1573 "../../asn1/snmp/packet-snmp-template.c"
+#line 1631 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3708,7 +3766,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2223 "../../asn1/snmp/packet-snmp-template.c"
+#line 2281 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3748,7 +3806,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2239 "../../asn1/snmp/packet-snmp-template.c"
+#line 2297 "../../asn1/snmp/packet-snmp-template.c"
   };
   module_t *snmp_module;
 
@@ -3836,15 +3894,6 @@ void proto_register_snmp(void) {
 				"Enterprise Specific Trap Types",
 				"Table of enterprise specific-trap type descriptions",
 				specific_traps_uat);
-
-#ifdef HAVE_LIBGCRYPT
-  prefs_register_enum_preference(snmp_module, "decrypt",
-                                 "Decryption algorithm",
-                                 "Decryption algorithm",
-                                 &snmp_decryption_algo,
-                                 snmp_decryption_algo_type,
-                                 FALSE);
-#endif
 
 #ifdef HAVE_LIBSMI
   prefs_register_static_text_preference(snmp_module, "info_mibs",
