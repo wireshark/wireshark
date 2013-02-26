@@ -80,9 +80,9 @@ gboolean isdigit_string(guchar *string);
 typedef enum {
     format_size_unit_none    = 0,       /**< No unit will be appended. You must supply your own. */
     format_size_unit_bytes   = 1,       /**< "bytes" for un-prefixed sizes, "B" otherwise. */
-    /* XXX Do we use bytes/s anywhere? */
     format_size_unit_bits    = 2,       /**< "bits" for un-prefixed sizes, "b" otherwise. */
     format_size_unit_bits_s  = 3,       /**< "bits/s" for un-prefixed sizes, "bps" otherwise. */
+    format_size_unit_bytes_s = 4,       /**< "bytes/s" for un-prefixed sizes, "Bps" otherwise. */
     format_size_prefix_si    = 0 << 8,  /**< SI (power of 1000) prefixes will be used. */
     format_size_prefix_iec   = 1 << 8   /**< IEC (power of 1024) prefixes will be used. */
     /* XXX format_size_prefix_default_for_this_particular_os ? */

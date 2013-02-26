@@ -80,6 +80,7 @@
 #include <epan/report_err.h>
 #include "wtap.h"
 #include <wsutil/privileges.h>
+#include <wsutil/str_util.h>
 
 #ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
@@ -116,6 +117,7 @@ static gboolean long_report = TRUE;         /* By default generate long report  
 static gchar table_report_header = TRUE;    /* Generate column header by default     */
 static gchar field_separator = '\t';        /* Use TAB as field separator by default */
 static gchar quote_char = '\0';             /* Do NOT quote fields by default        */
+static gboolean machine_readable = FALSE;   /* Display machine-readable numbers      */
 
 /*
  * capinfos has the ability to report on a number of
@@ -219,6 +221,8 @@ static GOptionEntry output_format_entries[] =
     "generate long report (default)", NULL },
   { "Table", 'T', 0, G_OPTION_ARG_NONE, &table_report,
     "generate table report", NULL },
+  { "machine-readable", 'M', 0, G_OPTION_ARG_NONE, &machine_readable,
+    "display machine-readable (unabbreviated) values in long reports", NULL },
   { NULL,'\0',0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 };
 
@@ -443,6 +447,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
   const gchar           *file_type_string, *file_encap_string;
   time_t                start_time_t;
   time_t                stop_time_t;
+  gchar                 *size_string;
 
   /* Build printable strings for various stats */
   file_type_string = wtap_file_type_string(cf_info->file_type);
@@ -473,25 +478,76 @@ print_stats(const gchar *filename, capture_info *cf_info)
                           printf     ("Packet size limit:   inferred: %u bytes - %u bytes (range)\n",
                                       cf_info->snaplen_min_inferred, cf_info->snaplen_max_inferred);
   }
-  if (cap_packet_count)   printf     ("Number of packets:   %u\n", cf_info->packet_count);
-  if (cap_file_size)      printf     ("File size:           %" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
-  if (cap_data_size)      printf     ("Data size:           %" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
+  if (cap_packet_count) {
+    printf     ("Number of packets:   ");
+    if (machine_readable) {
+      printf ("%u\n", cf_info->packet_count);
+    } else {
+      size_string = format_size(cf_info->packet_count, format_size_unit_none);
+      printf ("%s\n", size_string);
+      g_free(size_string);
+    }
+  }
+  if (cap_file_size) {
+    printf     ("File size:           ");
+    if (machine_readable) {
+      printf     ("%" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
+    } else {
+      size_string = format_size(cf_info->filesize, format_size_unit_bytes);
+      printf ("%s\n", size_string);
+      g_free(size_string);
+    }
+  }
+  if (cap_data_size) {
+    printf     ("Data size:           ");
+    if (machine_readable) {
+      printf     ("%" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
+    } else {
+      size_string = format_size(cf_info->packet_bytes, format_size_unit_bytes);
+      printf ("%s\n", size_string);
+      g_free(size_string);
+    }
+  }
   if (cf_info->times_known) {
-    if (cap_duration)
+    if (cap_duration) /* XXX - shorten to hh:mm:ss */
                           print_value("Capture duration:    ", 0, " seconds",   cf_info->duration);
     if (cap_start_time)
                           printf     ("Start time:          %s", time_string(start_time_t, cf_info, TRUE));
     if (cap_end_time)
                           printf     ("End time:            %s", time_string(stop_time_t, cf_info, TRUE));
-    if (cap_data_rate_byte)
-                          print_value("Data byte rate:      ", 2, " bytes/sec",   cf_info->data_rate);
-    if (cap_data_rate_bit)
-                          print_value("Data bit rate:       ", 2, " bits/sec",    cf_info->data_rate*8);
+    if (cap_data_rate_byte) {
+                          printf     ("Data byte rate:      ");
+      if (machine_readable) {
+	print_value("", 2, " bytes/sec",   cf_info->data_rate);
+      } else {
+	size_string = format_size(cf_info->data_rate, format_size_unit_bytes_s);
+	printf ("%s\n", size_string);
+	g_free(size_string);
+      }
+    }
+    if (cap_data_rate_bit) {
+                          printf     ("Data bit rate:       ");
+      if (machine_readable) {
+        print_value("", 2, " bits/sec",    cf_info->data_rate*8);
+      } else {
+	size_string = format_size(cf_info->data_rate*8, format_size_unit_bits_s);
+	printf ("%s\n", size_string);
+	g_free(size_string);
+      }
+    }
   }
   if (cap_packet_size)    printf     ("Average packet size: %.2f bytes\n",        cf_info->packet_size);
   if (cf_info->times_known) {
-    if (cap_packet_rate)
-                          print_value("Average packet rate: ", 2, " packets/sec", cf_info->packet_rate);
+    if (cap_packet_rate) {
+                          printf     ("Average packet rate: ");
+      if (machine_readable) {
+	print_value("", 2, " packets/sec", cf_info->packet_rate);
+      } else {
+	size_string = format_size(cf_info->packet_rate, format_size_unit_none);
+	printf ("%spackets/sec\n", size_string);
+	g_free(size_string);
+      }
+    }
   }
 #ifdef HAVE_LIBGCRYPT
   if (cap_file_hashes) {
@@ -948,6 +1004,7 @@ usage(gboolean is_error)
   fprintf(output, "Output format:\n");
   fprintf(output, "  -L generate long report (default)\n");
   fprintf(output, "  -T generate table report\n");
+  fprintf(output, "  -M display machine-readable values in long reports\n");
   fprintf(output, "\n");
   fprintf(output, "Table report options:\n");
   fprintf(output, "  -R generate header record (default)\n");
@@ -1091,7 +1148,7 @@ main(int argc, char *argv[])
   g_option_context_free(ctx);
 
 #endif /* USE_GOPTION */
-  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "dluaeyizvhxoCALTRrSNqQBmb")) !=-1) {
+  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "dluaeyizvhxoCALTMRrSNqQBmb")) !=-1) {
 
     switch (opt) {
 
@@ -1190,6 +1247,10 @@ main(int argc, char *argv[])
 
     case 'T':
       long_report = FALSE;
+      break;
+
+    case 'M':
+      machine_readable = TRUE;
       break;
 
     case 'R':

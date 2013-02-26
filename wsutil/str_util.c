@@ -131,6 +131,9 @@ gchar *format_size(gint64 size, format_size_flags_e flags) {
 		case format_size_unit_bits_s:
 			g_string_append(human_str, is_small ? "bits/s" : "bps");
 			break;
+		case format_size_unit_bytes_s:
+			g_string_append(human_str, is_small ? "bytes/s" : "Bps");
+			break;
 		default:
 			g_assert_not_reached();
 	}

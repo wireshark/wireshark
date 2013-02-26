@@ -83,6 +83,13 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Capinfos now prints human-readable statistics with SI suffixes
+	    by default.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
