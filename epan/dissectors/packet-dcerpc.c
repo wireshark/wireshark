@@ -5174,7 +5174,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (hdr.rpc_ver != 4)
         return FALSE;
 
-    /* Type must be <= 19 or its not DCE/RPC */
+    /* Type must be <= 19 or it's not DCE/RPC */
     hdr.ptype = tvb_get_guint8(tvb, offset++);
     if (hdr.ptype > 19)
         return FALSE;

@@ -2049,7 +2049,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case TIPCv1:
 			msg_type = tvb_get_guint8(tipc_tvb, offset + 20)>>4;
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%u) ", val_to_str_const(user, tipc_user_values, "unknown"), user);
-			/* Set msg type in info col and find out if its a data hdr or not */
+			/* Set msg type in info col and find out if it's a data hdr or not */
 			datatype_hdr = tipc_v1_set_col_msgtype(pinfo, user, msg_type);
 			if (datatype_hdr) {
 				/* Data type header */
@@ -2079,7 +2079,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Set msg type in info col */
 			tipc_v2_set_info_col(tvb, pinfo, user, msg_type, hdr_size);
 
-			/* find out if its a data hdr or not */
+			/* find out if it's a data hdr or not */
 			switch (user) {
 				case TIPCv2_DATA_LOW:
 				case TIPCv2_DATA_NORMAL:

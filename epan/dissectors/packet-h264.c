@@ -661,7 +661,7 @@ more_rbsp_data(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_, gint
 
     /* XXX might not be the best way of doing things but:
      * Serch from the end of the tvb for the first '1' bit
-     * assuming that its's the RTBSP stop bit
+     * assuming that it's the RTBSP stop bit
      */
 
     /* Set offset to the byte we are treating */

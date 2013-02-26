@@ -104,7 +104,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * This is ISIS - Either incoming with ethernet FCS
 			 * and CLNP - passed to the eth dissector or in case
-			 * of outgoing its pure ISIS and the linecard attaches
+			 * of outgoing it's pure ISIS and the linecard attaches
 			 * the ethernet and CLNP headers ...
 			 *
 			 */

@@ -458,7 +458,7 @@ static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/*
 	 * Check to see whether we're really dealing with AC trace by looking
 	 * for a valid "source" and fixed len for CAS, and the direction for ISDN.
-	 * This isn't infallible, but its cheap and it's better than nothing.
+	 * This isn't infallible, but it's cheap and it's better than nothing.
 	 */
 	actrace_protocol = is_actrace(tvb, 0);
 	if (actrace_protocol != NOT_ACTRACE)

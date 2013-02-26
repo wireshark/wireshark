@@ -814,7 +814,7 @@ calc_skips(gint32 curr, gint32 prev)
 	int res = 0;
 
 	/* Only count the missing TS frames in between prev and curr.
-	 * The "prev" frame CC number seen is confirmed received, its
+	 * The "prev" frame CC number seen is confirmed received, it's
 	 * the next frames CC counter which is the first known missing
 	 * TS frame
 	 */

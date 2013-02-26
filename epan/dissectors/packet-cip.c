@@ -3338,7 +3338,7 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
    /* Create a sub tree for the epath */
    path_tree = proto_item_add_subtree( epath_item, ett_path );
 
-   /* can't populate req_data unless its there */
+   /* can't populate req_data unless it's there */
    if (req_data != NULL)
    {
       req_data->iClass = (guint32)-1;
@@ -6178,7 +6178,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
          preq_info->dissector = NULL;
       dissector = NULL;
 
-      /* The class ID should already be extracted if its available */
+      /* The class ID should already be extracted if it's available */
       if (path_info.iClass != 0xFFFFFFFF)
       {
          dissector = dissector_get_uint_handle( subdissector_class_table, path_info.iClass);

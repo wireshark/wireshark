@@ -2987,7 +2987,7 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
                         tvb, offset+1, 1, ENC_BIG_ENDIAN);
     AMQP_INCREMENT(offset, 2, length);
     /*
-     * Session header is 2 bytes; one that tells it's 1 byte long, then
+     * Session header is 2 bytes; one that tells that it's 1 byte long, then
      * the byte itself. Bit 0 is sync.
      */
     flag1 = tvb_get_guint8(tvb, offset);
@@ -3174,7 +3174,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
                         tvb, offset+1, 1, ENC_BIG_ENDIAN);
     AMQP_INCREMENT(offset, 2, length);
     /*
-     * Session header is 2 bytes; one that tells it's 1 byte long, then
+     * Session header is 2 bytes; one that tells that it's 1 byte long, then
      * the byte itself. Bit 0 is sync.
      */
     flag1 = tvb_get_guint8(tvb, offset);
@@ -3523,7 +3523,7 @@ dissect_amqp_0_10_tx(tvbuff_t *tvb,
                         tvb, offset+1, 1, ENC_BIG_ENDIAN);
     AMQP_INCREMENT(offset, 2, length);
     /*
-     * Session header is 2 bytes; one that tells it's 1 byte long, then
+     * Session header is 2 bytes; one that tells that it's 1 byte long, then
      * the byte itself. Bit 0 is sync.
      */
     flag1 = tvb_get_guint8(tvb, offset);
@@ -3564,7 +3564,7 @@ dissect_amqp_0_10_dtx(tvbuff_t *tvb,
                         tvb, offset+1, 1, ENC_BIG_ENDIAN);
     AMQP_INCREMENT(offset, 2, length);
     /*
-     * Session header is 2 bytes; one that tells it's 1 byte long, then
+     * Session header is 2 bytes; one that tells that it's 1 byte long, then
      * the byte itself. Bit 0 is sync.
      */
     flag1 = tvb_get_guint8(tvb, offset);
@@ -3762,7 +3762,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
                         tvb, offset+1, 1, ENC_BIG_ENDIAN);
     AMQP_INCREMENT(offset, 2, length);
     /*
-     * Session header is 2 bytes; one that tells it's 1 byte long, then
+     * Session header is 2 bytes; one that tells that it's 1 byte long, then
      * the byte itself. Bit 0 is sync.
      */
     flag1 = tvb_get_guint8(tvb, offset);
@@ -4028,7 +4028,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
                         tvb, offset+1, 1, ENC_BIG_ENDIAN);
     AMQP_INCREMENT(offset, 2, length);
     /*
-     * Session header is 2 bytes; one that tells it's 1 byte long, then
+     * Session header is 2 bytes; one that tells that it's 1 byte long, then
      * the byte itself. Bit 0 is sync.
      */
     flag1 = tvb_get_guint8(tvb, offset);
@@ -4186,7 +4186,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
                         tvb, offset+1, 1, ENC_BIG_ENDIAN);
     AMQP_INCREMENT(offset, 2, length);
     /*
-     * Session header is 2 bytes; one that tells it's 1 byte long, then
+     * Session header is 2 bytes; one that tells that it's 1 byte long, then
      * the byte itself. Bit 0 is sync.
      */
     flag1 = tvb_get_guint8(tvb, offset);
@@ -4524,7 +4524,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
                         tvb, offset+1, 1, ENC_BIG_ENDIAN);
     AMQP_INCREMENT(offset, 2, length);
     /*
-     * Session header is 2 bytes; one that tells it's 1 byte long, then
+     * Session header is 2 bytes; one that tells that it's 1 byte long, then
      * the byte itself. Bit 0 is sync.
      */
     flag1 = tvb_get_guint8(tvb, offset);

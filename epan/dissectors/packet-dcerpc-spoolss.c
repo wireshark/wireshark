@@ -447,7 +447,7 @@ dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (b) {
 
 		/* I'm not sure about this.  Putting the buffer into
-		   it's own tvb makes sense and the dissection code is
+		   its own tvb makes sense and the dissection code is
 		   much clearer, but the data is a proper subset of
 		   the actual tvb.  Not adding the new data source
 		   makes the hex display confusing as it switches

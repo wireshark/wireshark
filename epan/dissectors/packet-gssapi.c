@@ -244,7 +244,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gss_tvb=tvb;
 
 
-		/* First of all, if its the first time we see this packet
+		/* First of all, if it's the first time we see this packet
 		 * then check whether we are in the middle of reassembly or not
 		 */
 		if( (!pinfo->fd->flags.visited)

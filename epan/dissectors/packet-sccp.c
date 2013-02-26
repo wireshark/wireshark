@@ -1890,7 +1890,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       offset += ADDRESS_SSN_LENGTH;
 
       /* Get the dissector handle of the dissector registered for this ssn
-       * And print it's name.
+       * And print its name.
        */
       ssn_dissector = dissector_get_uint_handle(sccp_ssn_dissector_table, ssn);
 

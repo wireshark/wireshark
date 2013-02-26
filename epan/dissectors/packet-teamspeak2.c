@@ -425,7 +425,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree_add_item(ts2_tree, hf_ts2_fragmentnumber, tvb, 18, 2, ENC_LITTLE_ENDIAN);
 	ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, tvb, 20, tvb_get_letohl(tvb, 20));
 
-	/* Reassemble the packet if its fragmented */
+	/* Reassemble the packet if it's fragmented */
 	new_tvb = NULL;
 	if(frag->fragmented)
 	{
@@ -807,7 +807,7 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 				break;
 			case TS2C_ACK:
-				/* Ignore the type for ACK, its always zero and clashes with CELP_5_1 */
+				/* Ignore the type for ACK, it's always zero and clashes with CELP_5_1 */
 
 				proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, ENC_LITTLE_ENDIAN);
 				break;

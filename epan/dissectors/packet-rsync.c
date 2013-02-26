@@ -181,7 +181,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* there are two cases - file list, or authentication */
         tvb_get_nstringz0(tvb, offset, sizeof(auth_string), auth_string);
 	if (0 == strncmp("@RSYNCD:", auth_string, 8)) {
-	  /* matches, so we assume its an authentication message */
+	  /* matches, so we assume it's an authentication message */
 	  /* needs to handle the AUTHREQD case, but doesn't - FIXME */
 	  proto_tree_add_item(rsync_tree, hf_rsync_rsyncdok_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
 

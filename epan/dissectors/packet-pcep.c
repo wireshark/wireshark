@@ -1260,7 +1260,7 @@ dissect_pcep_open_obj (proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2,
     SID = tvb_get_guint8(tvb, offset2+3);
     proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, "SID: %u", SID);
 
-    /*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
+    /*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
     offset2 += OPEN_OBJ_MIN_LEN;
     obj_length -= OBJ_HDR_LEN+OPEN_OBJ_MIN_LEN;
     dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_open);
@@ -1312,7 +1312,7 @@ dissect_pcep_rp_obj(proto_tree *pcep_object_tree,
 	requested_id_number = tvb_get_ntohl(tvb, offset2+4);
 	proto_tree_add_text(pcep_object_tree, tvb, offset2+4, 4, "Requested ID Number: 0x%08x", requested_id_number);
 
-	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
+	/*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
 	offset2 += RP_OBJ_MIN_LEN;
 	obj_length -= OBJ_HDR_LEN+RP_OBJ_MIN_LEN;
 	dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_request_parameters);
@@ -1351,7 +1351,7 @@ dissect_pcep_no_path_obj(proto_tree *pcep_object_tree,
 	reserved = tvb_get_guint8(tvb, offset2+3);
 	proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, "Reserved: 0x%02x", reserved);
 
-	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
+	/*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
 	offset2 += NO_PATH_OBJ_MIN_LEN;
 	obj_length -= OBJ_HDR_LEN+NO_PATH_OBJ_MIN_LEN;
 	dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_no_path);
@@ -1638,7 +1638,7 @@ dissect_pcep_lspa_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, 
 	reserved = tvb_get_guint8(tvb, offset2+15);
 	proto_tree_add_text(pcep_object_tree, tvb, offset2+15, 1, "Reserved: 0x%02x", reserved);
 
-	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
+	/*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
 	offset2 += LSPA_OBJ_MIN_LEN;
 	obj_length -= OBJ_HDR_LEN+LSPA_OBJ_MIN_LEN;
 	dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_lspa);
@@ -1797,7 +1797,7 @@ dissect_pcep_notification_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int o
 	nv = tvb_get_guint8(tvb, offset2+3);
 	proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, "Notification Value: 0x%02x", nv);
 
-	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
+	/*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
 	offset2 += NOTIFICATION_OBJ_MIN_LEN;
 	obj_length -= OBJ_HDR_LEN+NOTIFICATION_OBJ_MIN_LEN;
 	dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_notification);
@@ -1888,7 +1888,7 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2,
 	}
 	proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, "Error-Value: %s (%u)", err_str, error_value);
 
-	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
+	/*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
 	offset2 += ERROR_OBJ_MIN_LEN;
 	obj_length -= OBJ_HDR_LEN+ERROR_OBJ_MIN_LEN;
 	dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_error);
@@ -1956,7 +1956,7 @@ dissect_pcep_close_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2,
 	reason = tvb_get_guint8(tvb, offset2+3);
 	proto_tree_add_text(pcep_object_tree, tvb, offset2+3, 1, "Reason: %s (%u)", val_to_str_const(reason, pcep_close_reason_obj_vals, "Unknown"), reason);
 
-	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
+	/*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
 	offset2 += CLOSE_OBJ_MIN_LEN;
 	obj_length -= OBJ_HDR_LEN+CLOSE_OBJ_MIN_LEN;
 	dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_load_balancing);

@@ -229,7 +229,7 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
    to show you display/filter/plot/add-custom-columns on these fields, so should
    be added if available.
    The format is to have the tag, followed by the value (there is no length field,
-   its implicit from the tag) */
+   it's implicit from the tag) */
 
 #define MAC_LTE_RNTI_TAG            0x02
 /* 2 bytes, network order */

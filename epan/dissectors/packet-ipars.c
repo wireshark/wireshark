@@ -75,11 +75,11 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
     if (tvb_length_remaining(tvb, offset) >= 1) ia = tvb_get_guint8(tvb, offset + 0);
     if (tvb_length_remaining(tvb, offset) >= 2) ta = tvb_get_guint8(tvb, offset + 1);
 
-    if (ia == 0x83 || ia == 0x43 || ia == GA) { /* if its an FPGA or 'corresponsdance code' 'go ahead'... */
+    if (ia == 0x83 || ia == 0x43 || ia == GA) { /* if it's an FPGA or 'corresponsdance code' 'go ahead'... */
         if (tvb_length_remaining(tvb, offset) > 2) { /* if the msg is long, it must have been a 'poll' */
             if (check_col(pinfo->cinfo, COL_INFO))
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Poll IA: %2.2X", ta);
-        } else { /* if its short, then it was a 'no traffic' response */
+        } else { /* if it's short, then it was a 'no traffic' response */
             if (tvb_length_remaining(tvb, offset) >= 2 ) {
                 if (check_col(pinfo->cinfo, COL_INFO))
                     col_add_fstr(pinfo->cinfo, COL_INFO, "GoAhead NextIA (0x%2.2X)", ta);
@@ -88,7 +88,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
                     col_set_str(pinfo->cinfo, COL_INFO, "GoAhead NextIA");
             }
         }
-    } else { /* if its not a 'go ahead'... it must be some kind of data message */
+    } else { /* if it's not a 'go ahead'... it must be some kind of data message */
         ia &= 0x3f;
         ta &= 0x3f;
         if (ta == 0x20) {

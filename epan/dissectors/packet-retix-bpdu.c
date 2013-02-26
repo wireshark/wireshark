@@ -46,7 +46,7 @@ static int hf_retix_bpdu_max_age = -1;
 static int hf_retix_bpdu_hello_time = -1;
 static int hf_retix_bpdu_forward_delay = -1;
 
-/* I don't have the spec's for this protcol so its been reverse engineered
+/* I don't have the spec's for this protcol so it's been reverse engineered
  * It seems quite like 802.1D
  * It looks like the protocol version is specified in the ethernet trailer
  * In the single packet I have the trailer is

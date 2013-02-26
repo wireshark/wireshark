@@ -1868,7 +1868,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
         return;
     }
 
-    /* Is it in the rx window? This test will catch if its ahead, but we don't
+    /* Is it in the rx window? This test will catch if it's ahead, but we don't
        really know what the back of the tx window is... */
     if (((1024 + p_channel_status->previousSequenceNumber+1 - ack_sn) % 1024) > 512) {
 

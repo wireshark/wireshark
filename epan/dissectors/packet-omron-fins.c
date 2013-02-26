@@ -11,7 +11,7 @@
  * Reference for OMRON-FINS W227_E1_02_FINS_Command_Reference_Manual
  * Hopefully google will find it for you.
  *
- * Special thanks to the guys who wrote the README.developer its great.
+ * Special thanks to the guys who wrote the README.developer: it's great.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

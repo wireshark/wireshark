@@ -815,7 +815,7 @@ static const guint GIOP_MAJOR =  1;
 static const guint GIOP_MINOR =  2;
 
 /* 1 Mb  Used as a sanity check to ensure correct endian of message size field */
-#define GIOP_MAX_MESSAGE_SIZE             1024*1000  
+#define GIOP_MAX_MESSAGE_SIZE             1024*1000
 
 
 static const value_string reply_status_types[] = {
@@ -2131,10 +2131,10 @@ static void set_new_alignment(int *offset, int delta, int  alignment) {
 /*
  * For a given data type, given by a TypeCode gets the associated data
  * and displays it in the relevant tree.
- */ 
+ */
 
-static void dissect_data_for_typecode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
-                                      proto_item *item, gint *offset, 
+static void dissect_data_for_typecode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                      proto_item *item, gint *offset,
                                       gboolean stream_is_big_endian, guint32 boundary,
                                       MessageHeader * header, guint32 data_type ) {
 
@@ -2920,7 +2920,7 @@ guint32 get_CDR_enum(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, 
  * or <4,0> ?
  *
  */
-void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **seq, 
+void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **seq,
                    gint *offset, guint32 digits, gint32 scale) {
 
   guint8 sign;                  /* 0x0c is positive, 0x0d is negative */
@@ -3021,7 +3021,7 @@ void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, gchar **
       (*seq)[sindex] = '-';
       break;
     default:
-      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, 
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
           "Unknown sign value in fixed type %u", sign);
       (*seq)[sindex] = '*';     /* flag as sign unknown */
       break;
@@ -3326,8 +3326,8 @@ guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offset, gboolean s
  * It returns a guint32 representing a TCKind value.
  */
 
-guint32 get_CDR_typeCode(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, 
-                         gint *offset, gboolean stream_is_big_endian, 
+guint32 get_CDR_typeCode(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
+                         gint *offset, gboolean stream_is_big_endian,
                          int boundary, MessageHeader * header ) {
   guint32 val;
 
@@ -3715,7 +3715,7 @@ dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tr
 
       get_CDR_octet_seq(tvb, &object_key, offset, len);
 
-      proto_tree_add_string(tree, hf_giop_target_address_key_addr, tvb, *offset - len, 
+      proto_tree_add_string(tree, hf_giop_target_address_key_addr, tvb, *offset - len,
                             len, make_printable_string( object_key, len ));
 
       if (object_key_len) {
@@ -3822,7 +3822,7 @@ static void decode_UnknownServiceContext(tvbuff_t *tvb, packet_info *pinfo, prot
   get_CDR_octet_seq(tvb, &context_data, offset, context_data_len);
 
   /* Make a printable string */
-  proto_tree_add_string(tree, hf_giop_context_data, tvb, *offset - context_data_len , 
+  proto_tree_add_string(tree, hf_giop_context_data, tvb, *offset - context_data_len ,
                           context_data_len, make_printable_string( context_data, context_data_len));
 }
 
@@ -3986,7 +3986,7 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
     {
       header->exception_id = tvb_get_ephemeral_stringz(tvb,offset, &sequence_length);
 
-      proto_tree_add_string(tree, hf_giop_exception_id, tvb, offset, 
+      proto_tree_add_string(tree, hf_giop_exception_id, tvb, offset,
                             sequence_length, header->exception_id);
       offset += sequence_length;
     }
@@ -4361,7 +4361,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   if( len > 0)
   {
     get_CDR_octet_seq(tvb, &requesting_principal, &offset, len);
-    proto_tree_add_string(request_tree, hf_giop_req_principal, tvb, offset - len, len, 
+    proto_tree_add_string(request_tree, hf_giop_req_principal, tvb, offset - len, len,
                           make_printable_string(requesting_principal, len));
   }
 
@@ -4680,7 +4680,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
   header_tree = proto_item_add_subtree (ti, ett_giop_header);
   proto_tree_add_item(header_tree, hf_giop_message_magic, tvb, 0, 4, ENC_NA|ENC_ASCII);
 
-  version_item = proto_tree_add_text (header_tree, tvb, 4, 2, 
+  version_item = proto_tree_add_text (header_tree, tvb, 4, 2,
                      "Version: %u.%u", header.GIOP_version.major, header.GIOP_version.minor);
   header_version_tree = proto_item_add_subtree (version_item, ett_giop_header_version);
   proto_tree_add_item(header_version_tree, hf_giop_message_major_version, tvb, 4, 1, ENC_NA);
@@ -4741,14 +4741,14 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "GIOP %u.%u %s, s=%u",
                 header.GIOP_version.major, header.GIOP_version.minor,
-                val_to_str(header.message_type, giop_message_types, "Unknown message type (0x%02x)"), 
+                val_to_str(header.message_type, giop_message_types, "Unknown message type (0x%02x)"),
                 message_size);
 
   ti = proto_tree_add_uint(header_tree, hf_giop_message_size, tvb, 8, 4, message_size);
   if (message_size > GIOP_MAX_MESSAGE_SIZE)
   {
-      expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, 
-            "Message size %u is too big, perhaps its an endian issue?", message_size);
+      expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+            "Message size %u is too big, perhaps it's an endian issue?", message_size);
       return;
   }
 
@@ -5638,7 +5638,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   }
 
   /*
-   * Now see if if its v1.1 or 1.2, as they can contain
+   * Now see if if it's v1.1 or 1.2, as they can contain
    * extra sequence of IOP::TaggedComponents
    *
    */
@@ -5707,7 +5707,7 @@ static void decode_SystemExceptionReplyBody (tvbuff_t *tvb, proto_tree *tree, gi
   proto_tree_add_uint(tree, hf_giop_exception_len, tvb, *offset-4, 4, length);
 
   if (length > 0)
-    proto_tree_add_string(tree, hf_giop_exception_id, tvb, 
+    proto_tree_add_string(tree, hf_giop_exception_id, tvb,
                           *offset - length, length, buf);
 
   minor_code_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);

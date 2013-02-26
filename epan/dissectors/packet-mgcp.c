@@ -346,7 +346,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	/*
 	 * Check to see whether we're really dealing with MGCP by looking
 	 * for a valid MGCP verb or response code.  This isn't infallible,
-	 * but its cheap and its better than nothing.
+	 * but it's cheap and it's better than nothing.
 	 */
 	if (is_mgcp_verb(tvb,0,tvb_len, &verb_name) || is_mgcp_rspcode(tvb,0,tvb_len))
 	{
@@ -501,7 +501,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/*
 	 * Check to see whether we're really dealing with MGCP by looking
 	 * for a valid MGCP verb or response code.  This isn't infallible,
-	 * but its cheap and its better than nothing.
+	 * but it's cheap and it's better than nothing.
 	 */
 	if (is_mgcp_verb(tvb,0,tvb_len,&verb_name) || is_mgcp_rspcode(tvb,0,tvb_len))
 	{

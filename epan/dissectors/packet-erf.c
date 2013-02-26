@@ -769,7 +769,7 @@ channelised_fill_vc_id_string(emem_strbuf_t* out_string, sdh_g707_format_t* in_f
   }
   if ( ! is_printed )
   {
-    /* Not printed . possibly its a ocXc packet with (0,0,0...) */
+    /* Not printed . possibly it's a ocXc packet with (0,0,0...) */
     for ( i =0; i < in_fmt->m_vc_size - 2; i++)
     {
       ep_strbuf_append_printf(out_string, "%s0",

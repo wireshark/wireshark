@@ -3315,22 +3315,22 @@ void proto_register_catapult_dct2000(void)
     prefs_register_obsolete_preference(catapult_dct2000_module, "board_ports_only");
 
     /* Determines whether for not-handled protocols we should try to parse it if:
-       - it looks like its embedded in an ipprim message, AND
+       - it looks like it's embedded in an ipprim message, AND
        - the DCT2000 protocol name can be matched to a Wireshark dissector name */
     prefs_register_bool_preference(catapult_dct2000_module, "ipprim_heuristic",
                                    "Use IP Primitive heuristic",
-                                   "If a payload looks like its embedded in an "
+                                   "If a payload looks like it's embedded in an "
                                    "IP primitive message, and there is a Wireshark "
                                    "dissector matching the DCT2000 protocol name, "
                                    "try parsing the payload using that dissector",
                                    &catapult_dct2000_try_ipprim_heuristic);
 
     /* Determines whether for not-handled protocols we should try to parse it if:
-       - it looks like its embedded in an sctpprim message, AND
+       - it looks like it's embedded in an sctpprim message, AND
        - the DCT2000 protocol name can be matched to a Wireshark dissector name */
     prefs_register_bool_preference(catapult_dct2000_module, "sctpprim_heuristic",
                                    "Use SCTP Primitive heuristic",
-                                   "If a payload looks like its embedded in an "
+                                   "If a payload looks like it's embedded in an "
                                    "SCTP primitive message, and there is a Wireshark "
                                    "dissector matching the DCT2000 protocol name, "
                                    "try parsing the payload using that dissector",

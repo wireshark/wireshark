@@ -649,7 +649,7 @@ static int
 dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
-    /* Make sure there's at least enough data to determine its a Modbus TCP packet */
+    /* Make sure there's at least enough data to determine it's a Modbus TCP packet */
     if (!tvb_bytes_exist(tvb, 0, 8))
         return 0;
 
@@ -675,7 +675,7 @@ static int
 dissect_mbrtu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
-    /* Make sure there's at least enough data to determine its a Modbus packet */
+    /* Make sure there's at least enough data to determine it's a Modbus packet */
     if (!tvb_bytes_exist(tvb, 0, 8))
         return 0;
 

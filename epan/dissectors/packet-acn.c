@@ -1860,7 +1860,7 @@ ltos(guint8 level, gchar *string, guint8 base, gchar leading_char, guint8 min_ch
   /* now reverse (and correct) the order */
   g_strreverse(string);
 
-  /* add a space at the end (ok its at the start but it will be at the end)*/
+  /* add a space at the end (ok it's at the start but it will be at the end)*/
   string[i++] = ' ';
   string[i] = '\0';
   return(string + i);

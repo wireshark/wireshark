@@ -4208,7 +4208,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conv=find_or_create_conversation(pinfo);
     tcpd=get_tcp_conversation_data(conv,pinfo);
 
-    /* If this is a SYN packet, then check if it's seq-nr is different
+    /* If this is a SYN packet, then check if its seq-nr is different
      * from the base_seq of the retrieved conversation. If this is the
      * case, create a new conversation with the same addresses and ports
      * and set the TA_PORTS_REUSED flag. If the seq-nr is the same as

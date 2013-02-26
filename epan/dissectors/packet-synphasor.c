@@ -138,7 +138,7 @@ typedef struct {
 /* holds the information for an analog value */
 typedef struct {
 	char	name[CHNAM_LEN + 1];
-	guint32 conv; /* conversation factor, user defined scaling (so its pretty useless) */
+	guint32 conv; /* conversation factor, user defined scaling (so it's pretty useless) */
 } analog_info;
 
 /* holds information required to dissect a single PMU block in a data frame */

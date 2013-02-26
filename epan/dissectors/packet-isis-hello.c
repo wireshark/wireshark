@@ -923,7 +923,7 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
  *
  * Description:
  *	Take apart a IS neighbor packet.  A neighbor is n 6 byte packets.
- *	(they tend to be an 802.3 MAC address, but its not required).
+ *	(they tend to be an 802.3 MAC address, but it's not required).
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data

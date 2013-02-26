@@ -371,7 +371,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   body_tvb = tvb_new_subset(message_tvb, 8, body_length, reported_body_length);
   call_dissector(fc_handle, body_tvb, pinfo, tree);
 
-  /* add more info, now that FC added it's */
+  /* add more info, now that FC added its */
   proto_item_append_text(cpfi_item, direction_and_port_string, left, arrow, right);
   col_prepend_fstr(pinfo->cinfo, COL_INFO, direction_and_port_string, left, arrow, right);
 

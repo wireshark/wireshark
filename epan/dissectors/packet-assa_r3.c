@@ -893,7 +893,7 @@ typedef enum
   /*
    *  These should not be exposed to the user
    */
-  RESPONSETYPE_NOREPLY,               /* 51 - Do not send a reply, subroutine is posting it's own */
+  RESPONSETYPE_NOREPLY,               /* 51 - Do not send a reply, subroutine is posting its own */
   RESPONSETYPE_TAKEABREAK,            /* 52 - Intermediate return result, when log searches taking too long */
   RESPONSETYPE_DPACBLOCKS,            /* 53 - PWM lock, battery powered, DPAC takes priority */
   RESPONSETYPE_ACKNAKTIMEOUT,         /* 54 - Added for console.c, not used in lock firmware */

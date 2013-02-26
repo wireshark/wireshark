@@ -276,7 +276,7 @@
  *
  * With the addition of SAF the VRID space has been divided into two
  * segments 0x0000-0x7fff is for EIGRP and vNets, 0x8000-0xffff is
- * for saf and it's associated vNets.
+ * for saf and its associated vNets.
  */
 #define EIGRP_VRID_MASK         0x8001
 #define EIGRP_VRID_AF_BASE      0x0000
@@ -1956,7 +1956,7 @@ dissect_eigrp_multi_topology_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
     proto_tree_add_item(tree, hf_eigrp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* now its all about the family */
+    /* now it's all about the family */
     afi = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_eigrp_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -2136,9 +2136,9 @@ dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limi
  *
  * @par
  * Dissect the Metric Attributes which (optionally) are part of the wide-metric
- * route TLV.  Some of the attributes which effect the metric is controlled by
+ * route TLV.  Some of the attributes which effect the metric are controlled by
  * K6 which is now part of the Parameter TLV.  Also, eh extended community TLV is
- * no longer used, as its now append to the route
+ * no longer used, as it's now appended to the route
  */
 static int
 dissect_eigrp_wide_metric_attr (proto_tree *tree, tvbuff_t *tvb,
@@ -2363,7 +2363,7 @@ dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
     proto_tree_add_item(tree, hf_eigrp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /* now its all about the family */
+    /* now it's all about the family */
     afi = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_eigrp_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -2538,7 +2538,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
             tlv = tvb_get_ntohs(tvb, offset);
 
-            /* its a rose by the wrong name... */
+            /* it's a rose by the wrong name... */
             if (tlv == EIGRP_TLV_MTR_TIDLIST) {
                 tlv = EIGRP_TLV_PEER_TIDLIST;
             }

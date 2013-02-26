@@ -71,7 +71,7 @@ static gint ett_gd_mgmt = -1;
 static gint ett_gd_brick = -1;
 static gint ett_gd_friend = -1;
 
-/* the UUID is the same as a GlusterFS GFID, except its encoded per byte */
+/* the UUID is the same as a GlusterFS GFID, except it's encoded per byte */
 static int
 gluster_gd_mgmt_dissect_uuid(tvbuff_t *tvb, proto_tree *tree, int hfindex,
 								int offset)

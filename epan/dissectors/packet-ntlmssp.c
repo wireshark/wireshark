@@ -2090,7 +2090,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
       /*printnchar(packet_ntlmssp_info->decrypted_payload, encrypted_block_length, "data: ", "\n");*/
       /* We setup a temporary buffer so we can re-encrypt the payload after
          decryption.  This is to update the opposite peer's RC4 state
-         it's usefull when we have only one key for both conversation
+         it's useful when we have only one key for both conversation
          in case of KEY_EXCH we have independant key so this is not needed*/
       if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags)) {
         guint8 *peer_block;

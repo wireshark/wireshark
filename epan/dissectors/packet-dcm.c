@@ -418,7 +418,7 @@ typedef struct dcm_open_tag {
 
        The same PDV can close an open tag from a previous PDV at the beginning
        and at the same have time open a new tag at the end. The closing part at the beginning
-       does not have it's own persistent data.
+       does not have its own persistent data.
 
        Do not overwrite the values, once defined, to save some memory.
 
@@ -4522,7 +4522,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
        is not set.
 
        Using process_reassembled_data(), all data will be in the last PDV, and all
-       it's predecessor will zero data.
+       its predecessors will zero data.
     */
 
     dicom_eo_t		*eo_info = NULL;
@@ -6855,7 +6855,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	by someone else.
 
 	Since tcp packets are now assembled well by wireshark (in conjunction with the dissectors)
-	we will only see properly aligned PDUs, at the beginning of the buffer, else its not DICOM
+	we will only see properly aligned PDUs, at the beginning of the buffer, else it's not DICOM
 	traffic.
 
 	Therefore do the byte checking as early as possible

@@ -3018,7 +3018,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							                             (line_end_offset-value_offset)));
 						break;
 					default :
-						/* Default case is to assume its an FT_STRING field */
+						/* Default case is to assume it's an FT_STRING field */
 						if(hdr_tree) {
 							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,

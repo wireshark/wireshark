@@ -119,7 +119,7 @@ void set_rlc_lte_drb_pdcp_seqnum_length(guint16 ueid, guint8 drbid, guint8 userp
 
 /* Conditional field. This field is mandatory in case of RLC Unacknowledged mode.
    The format is to have the tag, followed by the value (there is no length field,
-   its implicit from the tag). The allowed values are defined above. */
+   it's implicit from the tag). The allowed values are defined above. */
 
 #define RLC_LTE_UM_SN_LENGTH_TAG    0x02
 /* 1 byte */
@@ -128,7 +128,7 @@ void set_rlc_lte_drb_pdcp_seqnum_length(guint16 ueid, guint8 drbid, guint8 userp
    to show you display/filter/plot/add-custom-columns on these fields, so should
    be added if available.
    The format is to have the tag, followed by the value (there is no length field,
-   its implicit from the tag) */
+   it's implicit from the tag) */
 
 #define RLC_LTE_DIRECTION_TAG       0x03
 /* 1 byte */

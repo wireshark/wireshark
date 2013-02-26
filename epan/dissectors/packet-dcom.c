@@ -24,7 +24,7 @@
 
 /* A few words about DCOM:
  *
- * DCOM uses DCERPC as it's underlying "transport" protocol.
+ * DCOM uses DCERPC as its underlying "transport" protocol.
  *
  * The DCOM dissectors are called by DCERPC request and response calls.
  * DCOM uses a small header after the DCERPC calls.

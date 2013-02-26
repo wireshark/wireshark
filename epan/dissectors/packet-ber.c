@@ -2243,7 +2243,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n", name, co
         offset = eoffset;
         if (!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
             /* if we stripped the tag and length we should also strip the EOC is ind_len
-             * Unless its a zero length field (len = 2)
+             * Unless it's a zero length field (len = 2)
              */
             if ((ind_field == 1) && (len > 2))
             {
@@ -2615,7 +2615,7 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) subdissector ate %d bytes\n", name
         seq++;
         if (!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
             /* if we stripped the tag and length we should also strip the EOC is ind_len
-             * Unless its a zero length field (len = 2)
+             * Unless it's a zero length field (len = 2)
              */
             if ((ind_field == 1) && (len > 2))
             {

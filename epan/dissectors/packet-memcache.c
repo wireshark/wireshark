@@ -873,7 +873,7 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
   memcache_tree = proto_item_add_subtree (memcache_item, ett_memcache);
 
   /* Process the packet data. The first line is expected to be a
-   * header. If its not a header then we don't dissect.
+   * header. If it's not a header then we don't dissect.
    * At this point, we already know if it is a request or a
    * response.
    */
@@ -1538,7 +1538,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += (int) (next_token - line);
     line = next_token;
 
-    /* check if its expiration or noreply */
+    /* check if it's expiration or noreply */
     tokenlen = get_token_len (line, lineend, &next_token);
     if (tokenlen == 0) {
       return offset; /* neither expiration nor noreply; CRLF */
@@ -1609,7 +1609,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
 
   case OP_FLUSH:
-    /* check if its expiration or noreply */
+    /* check if it's expiration or noreply */
     tokenlen = get_token_len (line, lineend, &next_token);
     if (tokenlen == 0) {
       return offset; /* neither expiration nor noreply; CRLF */

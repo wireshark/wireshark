@@ -704,7 +704,7 @@ dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 static gboolean dissect_mojito_heuristic (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	/*
-	  Test the overall length to make sure its at least 61 bytes (the header)
+	  Test the overall length to make sure it's at least 61 bytes (the header)
 	  Test to make sure that it's of type 44 (mojito)
 	  Test to make sure that the length field is there and correct
 	  (tvb_get_letohl(tvb, 20) + 23) == tvb_length(tvb)

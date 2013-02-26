@@ -104,7 +104,7 @@ gboolean rlc_is_ciphered(packet_info * pinfo);
    to show you display/filter/plot/add-custom-columns on these fields, so should
    be added if available.
    The format is to have the tag, followed by the value (there is no length field,
-   its implicit from the tag) */
+   it's implicit from the tag) */
 
 #define DIRECTION_UPLINK 0
 #define DIRECTION_DOWNLINK 1

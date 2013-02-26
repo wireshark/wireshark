@@ -1284,7 +1284,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
     }
     else {
-        /* Show that its a no-header PDU */
+        /* Show that it's a no-header PDU */
         write_pdu_label_and_info(root_ti, pinfo, " No-Header ");
     }
 
