@@ -4015,7 +4015,7 @@ static void
 	length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
 	/* It might still be a packet containing a SASL security layer
-	* but its just that we never saw the BIND packet.
+	* but it's just that we never saw the BIND packet.
 	* check if it looks like it could be a SASL blob here
 	* and in that case just assume it is GSS-SPNEGO
 	*/

@@ -418,7 +418,7 @@ static const value_string base_package_name_vals[] = {
 };
 
 /*
- * This table consist of PackageName + EventName and its's corresponding string
+ * This table consist of PackageName + EventName and its corresponding string
  *
  */
 static const value_string base_event_name_vals[] = {
@@ -484,7 +484,7 @@ static const value_string base_event_name_vals[] = {
 };
 
 /*
- * This table consist of PackageName + SignalName and its's corresponding string
+ * This table consist of PackageName + SignalName and its corresponding string
  */
 static const value_string base_signal_name_vals[] = {
     {   0x00000000, "Media stream properties H.248.1 Annex C" },

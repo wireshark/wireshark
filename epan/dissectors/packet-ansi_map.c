@@ -1200,7 +1200,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
     if (pinfo->private_data != NULL){
         p_private_tcap=(struct ansi_tcap_private_t *)pinfo->private_data;
         if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
-            /* Only do this once XXX I hope its the right thing to do */
+            /* Only do this once XXX I hope it's the right thing to do */
             /* The hash string needs to contain src and dest to distiguish differnt flows */
             switch(ansi_map_response_matching_type){
                 case ANSI_MAP_TID_ONLY:
