@@ -233,7 +233,7 @@ extern AVP* extract_avp_by_name(AVPL* avpl, gchar* name);
 extern gchar* avpl_to_str(AVPL* avpl);
 extern gchar* avpl_to_dotstr(AVPL*);
 
-/* deletes an avp list  and eventually it's contents */
+/* deletes an avp list  and eventually its contents */
 extern void delete_avpl(AVPL* avpl, gboolean avps_too);
 
 /*
@@ -266,7 +266,7 @@ extern AVPL* extract_last_avpl(LoAL* loal);
 /* it will get the next avp list from a LoAL, using cookie to keep state */
 extern AVPL* get_next_avpl(LoAL* loal,void** cookie);
 
-/* deletes a loal and eventually it's contents */
+/* deletes a loal and eventually its contents */
 extern void delete_loal(LoAL* loal, gboolean avpls_too, gboolean avps_too);
 
 

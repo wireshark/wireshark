@@ -792,7 +792,7 @@ dissect_ICBALogicalDevice_get_ACCO_resp(tvbuff_t *tvb, int offset,
 
     ldev = cba_ldev_find(pinfo, pinfo->net_src.data, &info->call_data->object_uuid);
 
-    /* "crosslink" interface and it's object */
+    /* "crosslink" interface and its object */
     if (ldev != NULL && acco_interf != NULL) {
         cba_ldev_link_acco(pinfo, ldev, acco_interf);
     }

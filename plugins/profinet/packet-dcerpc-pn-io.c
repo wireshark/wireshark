@@ -32,7 +32,7 @@
  * (ethernet type 0x8892) protocols.
  *
  * The context manager (CM) part is handling context information
- * (like establishing, ...) and is using DCE-RPC as it's underlying
+ * (like establishing, ...) and is using DCE-RPC as its underlying
  * protocol.
  *
  * The actual cyclic data transfer and acyclic notification uses the

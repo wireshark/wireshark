@@ -459,7 +459,7 @@ void
 cba_pdev_link(packet_info *pinfo _U_, cba_pdev_t *pdev, dcom_interface_t *pdev_interf)
 {
 
-    /* "crosslink" pdev interface and it's object */
+    /* "crosslink" pdev interface and its object */
     pdev->object = pdev_interf->parent;
     pdev_interf->private_data = pdev;
     if (pdev_interf->parent) {
@@ -472,7 +472,7 @@ void
 cba_ldev_link(packet_info *pinfo _U_, cba_ldev_t *ldev, dcom_interface_t *ldev_interf)
 {
 
-    /* "crosslink" interface and it's object */
+    /* "crosslink" interface and its object */
     ldev->ldev_object = ldev_interf->parent;
     ldev_interf->private_data = ldev;
     if (ldev_interf->parent) {
@@ -485,7 +485,7 @@ void
 cba_ldev_link_acco(packet_info *pinfo _U_, cba_ldev_t *ldev, dcom_interface_t *acco_interf)
 {
 
-    /* "crosslink" interface and it's object */
+    /* "crosslink" interface and its object */
     ldev->acco_object = acco_interf->parent;
     acco_interf->private_data = ldev;
     if (acco_interf->parent) {
@@ -1250,7 +1250,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
                        hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
 
-    /* find the consumer ldev by it's name */
+    /* find the consumer ldev by its name */
     cons_ldev = cba_acco_add(pinfo, szCons);
 
     offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
@@ -1266,7 +1266,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
             "Server_Connect: consumer interface invalid");
     }
 
-    /* "crosslink" consumer interface and it's object */
+    /* "crosslink" consumer interface and its object */
     if (cons_interf != NULL && cons_ldev != NULL) {
         cba_ldev_link_acco(pinfo, cons_ldev, cons_interf);
     }
@@ -1403,7 +1403,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
                        hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
 
-    /* find the consumer ldev by it's name */
+    /* find the consumer ldev by its name */
     cons_ldev = cba_acco_add(pinfo, szCons);
 
     offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
@@ -1426,7 +1426,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
         cons_interf = NULL;
     }
 
-    /* "crosslink" consumer interface and it's object */
+    /* "crosslink" consumer interface and its object */
     if (cons_interf != NULL && cons_ldev != NULL) {
         cba_ldev_link_acco(pinfo, cons_ldev, cons_interf);
     }
@@ -1832,7 +1832,7 @@ dissect_ICBAAccoServer_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
         hf_cba_acco_conn_consumer, szStr, u32MaxStr);
 
-    /* find the consumer ldev by it's name */
+    /* find the consumer ldev by its name */
     cons_ldev = cba_acco_add(pinfo, szStr);
 
     if (prov_ldev != NULL && cons_ldev != NULL) {
@@ -1905,7 +1905,7 @@ dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
         hf_cba_acco_conn_consumer, szStr, u32MaxStr);
 
-    /* find the consumer ldev by it's name */
+    /* find the consumer ldev by its name */
     cons_ldev = cba_acco_add(pinfo, szStr);
 
     if (prov_ldev != NULL && cons_ldev != NULL) {
@@ -2124,7 +2124,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
                        hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
 
-    /* find the consumer ldev by it's name */
+    /* find the consumer ldev by its name */
     cons_ldev = cba_acco_add(pinfo, szCons);
 
     offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
@@ -2138,7 +2138,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
             "ServerSRT_ConnectCR: consumer interface invalid");
     }
 
-    /* "crosslink" consumer interface and it's object */
+    /* "crosslink" consumer interface and its object */
     if (cons_interf != NULL && cons_ldev != NULL) {
         cba_ldev_link_acco(pinfo, cons_ldev, cons_interf);
     }
