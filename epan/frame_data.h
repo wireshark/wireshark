@@ -49,13 +49,13 @@ typedef struct _frame_data {
   GSList      *pfd;          /**< Per frame proto data */
   guint32      num;          /**< Frame number */
   guint32      interface_id; /**< identifier of the interface. */
+  guint32      pack_flags;   /**< Packet Flags */
   guint32      pkt_len;      /**< Packet length */
   guint32      cap_len;      /**< Amount actually captured */
   guint32      cum_bytes;    /**< Cumulative bytes into the capture */
   gint64       file_off;     /**< File offset */
   guint16      subnum;       /**< subframe number, for protocols that require this */
   gint16       lnk_t;        /**< Per-packet encapsulation/data-link type */
-  guint32      pack_flags;   /**< Packet Flags */
   struct {
     unsigned int passed_dfilter : 1; /**< 1 = display, 0 = no display */
     unsigned int dependent_of_displayed : 1; /**< 1 if a displayed frame depends on this frame */
