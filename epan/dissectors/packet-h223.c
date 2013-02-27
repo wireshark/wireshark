@@ -35,7 +35,7 @@
 #include <epan/reassemble.h>
 #include <epan/golay.h>
 #include <epan/iax2_codec_type.h>
-#include <epan/dissectors/packet-frame.h>
+#include <epan/show_exception.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-h245.h>
 
@@ -1257,26 +1257,28 @@ dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset,
     next_tvb = tvb_new_subset(tvb, start_offset, offset-start_offset,
                               offset-start_offset);
 
-
-    /* we catch boundserrors on the pdu so that errors on an
-     * individual pdu don't screw up the whole of the rest of the
-     * stream */
+    /*
+     * Dissect the PDU.
+     *
+     * If it gets an error that means there's no point in dissecting
+     * any more PDUs, rethrow the exception in question.
+     *
+     * If it gets any other error, report it and continue, as that
+     * means that PDU got an error, but that doesn't mean we should
+     * stop dissecting PDUs within this frame or chunk of reassembled
+     * data.
+     */
     pd_save = pinfo->private_data;
     TRY {
         dissect_mux_pdu( next_tvb, pinfo, start_offset, h223_tree, call_info);
     }
-
-    CATCH2(BoundsError,ReportedBoundsError) {
+    CATCH_NONFATAL_ERRORS {
         /*  Restore the private_data structure in case one of the
          *  called dissectors modified it (and, due to the exception,
          *  was unable to restore it).
          */
         pinfo->private_data = pd_save;
-
-        col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
-        proto_tree_add_protocol_format(h223_tree, proto_malformed,
-                                       tvb, 0, 0, "[Malformed Packet: %s]",
-                                       pinfo->current_proto);
+        show_exception(tvb, pinfo, h223_tree, EXCEPT_CODE, GET_MESSAGE);
     }
 
     ENDTRY;

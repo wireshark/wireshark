@@ -474,7 +474,7 @@ static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len)
         is_802_2 = FALSE;
     }
   }
-  CATCH2(BoundsError, ReportedBoundsError) {
+  CATCH_BOUNDS_ERRORS {
         ; /* do nothing */
 
   }

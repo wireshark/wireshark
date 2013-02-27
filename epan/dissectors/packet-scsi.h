@@ -290,9 +290,6 @@ extern value_string_ext scsi_asc_val_ext;
 			THROW(ScsiBoundsError);				\
 		}							\
 	    }								\
-	CATCH_ALL {							\
-		RETHROW;						\
-	}								\
 	ENDTRY;								\
     }
 

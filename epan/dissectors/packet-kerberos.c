@@ -906,7 +906,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
             id_offset = get_ber_identifier(encr_tvb, CONFOUNDER_PLUS_CHECKSUM, &cls, &pc, &tag);
             offset = get_ber_length(encr_tvb, id_offset, &item_len, &ind);
         }
-        CATCH (BoundsError) {
+        CATCH_BOUNDS_ERRORS {
             tvb_free(encr_tvb);
             do_continue = TRUE;
         }
@@ -4777,7 +4777,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     TRY {
         offset=dissect_ber_old_choice(&asn1_ctx, kerberos_tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
-    } CATCH_ALL {
+    } CATCH_BOUNDS_ERRORS {
         pinfo->private_data=saved_private_data;
         RETHROW;
     } ENDTRY;

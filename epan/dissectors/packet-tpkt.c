@@ -30,13 +30,16 @@
 
 #include "config.h"
 
+#include <ctype.h>
+
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <epan/prefs.h>
+#include <epan/show_exception.h>
 
 #include "packet-tpkt.h"
-#include "packet-frame.h"
-#include <epan/prefs.h>
-#include <ctype.h>
+
 /* TPKT header fields             */
 static int proto_tpkt          = -1;
 static protocol_t *proto_tpkt_ptr;
@@ -323,31 +326,28 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*
          * Call the subdissector.
          *
-         * Catch the ReportedBoundsError exception; if this
-         * particular message happens to get a ReportedBoundsError
-         * exception, that doesn't mean that we should stop
-         * dissecting TPKT messages within this frame or chunk
-         * of reassembled data.
+         * If it gets an error that means there's no point in
+         * dissecting any more TPKT messages, rethrow the
+         * exception in question.
          *
-         * If it gets a BoundsError, we can stop, as there's nothing
-         * more to see, so we just re-throw it.
+         * If it gets any other error, report it and continue, as that
+         * means that TPKT message got an error, but that doesn't mean
+         * we should stop dissecting TPKT messages within this frame
+         * or chunk of reassembled data.
          */
 	pd_save = pinfo->private_data;
         TRY {
             call_dissector(subdissector_handle, next_tvb, pinfo,
                 tree);
         }
-        CATCH(BoundsError) {
-            RETHROW;
-        }
-        CATCH(ReportedBoundsError) {
+        CATCH_NONFATAL_ERRORS {
 	    /*  Restore the private_data structure in case one of the
 	     *  called dissectors modified it (and, due to the exception,
 	     *  was unable to restore it).
 	     */
 	    pinfo->private_data = pd_save;
 
-            show_reported_bounds_error(tvb, pinfo, tree);
+            show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         }
         ENDTRY;
 
@@ -539,31 +539,29 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/*
 		 * Call the subdissector.
 		 *
-		 * Catch the ReportedBoundsError exception; if this
-		 * particular message happens to get a ReportedBoundsError
-		 * exception, that doesn't mean that we should stop
-		 * dissecting TPKT messages within this frame or chunk
-		 * of reassembled data.
+		 * If it gets an error that means there's no point in
+		 * dissecting any more TPKT messages, rethrow the
+		 * exception in question.
 		 *
-		 * If it gets a BoundsError, we can stop, as there's nothing
-		 * more to see, so we just re-throw it.
+		 * If it gets any other error, report it and continue,
+		 * as that means that TPKT message got an error, but
+		 * that doesn't mean we should stop dissecting TPKT
+		 * messages within this frame or chunk of reassembled
+		 * data.
 		 */
 		pd_save = pinfo->private_data;
 		TRY {
 			call_dissector(subdissector_handle, next_tvb, pinfo,
 			    tree);
 		}
-		CATCH(BoundsError) {
-			RETHROW;
-		}
-		CATCH(ReportedBoundsError) {
+		CATCH_NONFATAL_ERRORS {
 			/*  Restore the private_data structure in case one of the
 			 *  called dissectors modified it (and, due to the exception,
 			 *  was unable to restore it).
 			 */
 			pinfo->private_data = pd_save;
 
-			show_reported_bounds_error(tvb, pinfo, tree);
+			show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 		}
 		ENDTRY;
 

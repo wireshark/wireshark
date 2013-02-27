@@ -27,9 +27,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/show_exception.h>
 #include "packet-ieee8023.h"
 #include "packet-eth.h"
-#include "packet-frame.h"
 
 static dissector_handle_t ipx_handle;
 static dissector_handle_t llc_handle;
@@ -43,7 +43,7 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
 {
   proto_item		*length_it;
   tvbuff_t		*volatile next_tvb = NULL;
-  tvbuff_t		*volatile trailer_tvb = NULL;
+  tvbuff_t		*trailer_tvb = NULL;
   const char		*saved_proto;
   gint			captured_length, reported_length;
   void			*pd_save;
@@ -74,20 +74,6 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
   if (captured_length > length)
     captured_length = length;
   next_tvb = tvb_new_subset(tvb, offset_after_length, captured_length, length);
-  TRY {
-    trailer_tvb = tvb_new_subset_remaining(tvb, offset_after_length + length);
-  }
-  CATCH2(BoundsError, ReportedBoundsError) {
-    /* The packet has exactly "length" bytes worth of captured data
-       left in it, so the "tvb_new_subset()" creating "trailer_tvb"
-       threw an exception.
-
-       This means that all the data in the frame is within the length
-       value (assuming our offset isn't past the end of the tvb), so
-       we give all the data to the next protocol and have no trailer. */
-    trailer_tvb = NULL;
-  }
-  ENDTRY;
 
   /* Dissect the payload either as IPX or as an LLC frame.
      Catch BoundsError and ReportedBoundsError, so that if the
@@ -109,30 +95,32 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
         call_dissector(ccsds_handle, next_tvb, pinfo, tree);
     }
   }
-  CATCH(BoundsError) {
-   /* Somebody threw BoundsError, which means that dissecting the payload
-      found that the packet was cut off by a snapshot length before the
-      end of the payload.  The trailer comes after the payload, so *all*
-      of the trailer is cut off - don't bother adding the trailer, just
-      rethrow the exception so it gets reported. */
-   RETHROW;
-  }
-  CATCH_ALL {
-    /* Well, somebody threw an exception other than BoundsError.
-       Show the exception, and then drive on to show the trailer,
-       restoring the protocol value that was in effect before we
-       called the subdissector. */
+  CATCH_NONFATAL_ERRORS {
+    /* Somebody threw an exception that means that there was a problem
+       dissecting the payload; that means that a dissector was found,
+       so we don't need to dissect the payload as data or update the
+       protocol or info columns.
 
-    /*  Restore the private_data structure in case one of the
-     *  called dissectors modified it (and, due to the exception,
-     *  was unable to restore it).
-     */
+       Just show the exception and then drive on to show the trailer,
+       after noting that a dissector was found and restoring the
+       protocol value that was in effect before we called the subdissector. */
     pinfo->private_data = pd_save;
 
     show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-    pinfo->current_proto = saved_proto;
   }
   ENDTRY;
+
+  /* Restore the protocol value, so that any exception thrown by
+     tvb_new_subset_remaining() refers to the protocol for which
+     this is a trailer, and restore the private_data structure in
+     case one of the called dissectors modified it. */
+  pinfo->private_data = pd_save;
+  pinfo->current_proto = saved_proto;
+
+  /* Construct a tvbuff for the trailer; if the trailer is past the
+     end of the captured data, this will throw a BoundsError, which
+     is what we want, as it'll report that the packet was cut short. */
+  trailer_tvb = tvb_new_subset_remaining(tvb, offset_after_length + length);
 
   add_ethernet_trailer(pinfo, tree, fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
 }

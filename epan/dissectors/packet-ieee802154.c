@@ -75,6 +75,7 @@
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
+#include <epan/show_exception.h>
 
 /* Use libgcrypt for cipher libraries. */
 #ifdef HAVE_LIBGCRYPT
@@ -82,7 +83,6 @@
 #endif /* HAVE_LIBGCRYPT */
 
 #include "packet-ieee802154.h"
-#include "packet-frame.h"   /* For Exception Handling */
 #include "packet-sll.h"
 
 /* Dissection Options for dissect_ieee802154_common */

@@ -36,8 +36,6 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-tcp.h>
 
-#include "packet-frame.h"
-
 /*differents types of objects*/
 #define PCEP_OPEN_OBJ			1
 #define PCEP_RP_OBJ			2
@@ -2614,10 +2612,6 @@ dissect_pcep_msg_tree(tvbuff_t *tvb, proto_tree *tree, guint tree_mode, packet_i
 	hidden_item = proto_tree_add_boolean(pcep_header_tree, pcep_filter[PCEPF_MSG + message_type], tvb, offset+1, 1, 1);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	break;
-
-    default:
-	proto_tree_add_protocol_format(pcep_header_tree, proto_malformed, tvb, offset+1, 1, "Invalid message type: %u", message_type);
-	return;
     }
 
     offset = 4;

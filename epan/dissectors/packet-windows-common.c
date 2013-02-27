@@ -2411,6 +2411,11 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	  while(num_aces-- && !missing_data && !bad_ace) {
 		pre_ace_offset = offset;
 
+		/*
+		 * These are at an offset later in the packet; don't
+		 * fail if we can't fetch them, just note the problem
+		 * and dissect the stuff before it.
+		 */
 		TRY {
 		  offset = dissect_nt_v2_ace(tvb, offset, pinfo, tree, drep, ami);
 		  if (pre_ace_offset == offset) {
@@ -2421,8 +2426,13 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		  }
 		}
 
-		CATCH2(BoundsError, ReportedBoundsError) {
-			proto_tree_add_text(tree, tvb, offset, 0, "ACE Extends beyond end of captured or reassembled buffer");
+		CATCH(BoundsError) {
+			proto_tree_add_text(tree, tvb, offset, 0, "ACE Extends beyond end of captured data");
+			missing_data = TRUE;
+		}
+
+		CATCH(ReportedBoundsError) {
+			proto_tree_add_text(tree, tvb, offset, 0, "ACE Extends beyond end of reassembled data");
 			missing_data = TRUE;
 		}
 
@@ -2681,8 +2691,12 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	        end_offset = offset;
 	    }
 
-	    CATCH2(BoundsError, ReportedBoundsError) {
-	      proto_tree_add_text(tree, tvb, item_offset, 0, "Owner SID beyond end of captured or reassembled buffer");
+	    CATCH(BoundsError) {
+	      proto_tree_add_text(tree, tvb, item_offset, 0, "Owner SID beyond end of captured data");
+	    }
+
+	    CATCH(ReportedBoundsError) {
+	      proto_tree_add_text(tree, tvb, item_offset, 0, "Owner SID beyond end of reassembled data");
 	    }
 
 	    ENDTRY;
@@ -2703,8 +2717,12 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	        end_offset = offset;
 	    }
 
-	    CATCH2(BoundsError, ReportedBoundsError) {
-	      proto_tree_add_text(tree, tvb, item_offset, 0, "Group SID beyond end of captured or reassembled buffer");
+	    CATCH(BoundsError) {
+	      proto_tree_add_text(tree, tvb, item_offset, 0, "Group SID beyond end of captured data");
+	    }
+
+	    CATCH(ReportedBoundsError) {
+	      proto_tree_add_text(tree, tvb, item_offset, 0, "Group SID beyond end of reassembled data");
 	    }
 
 	    ENDTRY;

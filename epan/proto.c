@@ -46,6 +46,7 @@
 #include "column-utils.h"
 #include "to_str.h"
 #include "expert.h"
+#include "show_exception.h"
 
 #include "wspython/wspy_register.h"
 
@@ -369,6 +370,9 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	   converting wireshark to new-style proto_tree. These fields
 	   are merely strings on the GUI tree; they are not filterable */
 	proto_register_field_array(-1, hf, array_length(hf));
+
+	/* Register the pseudo-protocols used for exceptions. */
+	register_show_exception();
 
 	/* Have each built-in dissector register its protocols, fields,
 	   dissector tables, and dissectors to be called through a

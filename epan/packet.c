@@ -400,9 +400,6 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 			g_assert_not_reached();
 		}
 	}
-	CATCH(OutOfMemoryError) {
-		RETHROW;
-	}
 	ENDTRY;
 
 	EP_CHECK_CANARY(("after dissecting frame %d",fd->num));
@@ -656,9 +653,6 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 		* the entire tvbuff was dissected.
 		*/
 		ret = tvb_length(tvb);
-	}
-	CATCH(OutOfMemoryError) {
-		RETHROW;
 	}
 	ENDTRY;
 

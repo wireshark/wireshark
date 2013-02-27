@@ -1,6 +1,6 @@
-/* packet-frame.h
+/* show_exception.h
  *
- * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
+ * Routines to put exception information into the protocol tree
  *
  * $Id$
  *
@@ -24,23 +24,25 @@
  */
 
 /*
- * Routine used to register frame end routine.  The routine should only
- * be registred when the dissector is used in the frame, not in the
- * proto_register_XXX function.
+ * "Protocol" used for "malformed frame" errors (other than
+ * ReportedBoundsError exceptions).
  */
-void
-register_frame_end_routine(packet_info *pinfo, void (*func)(void));
+extern int proto_malformed;
 
 /*
- * The frame dissector and the PPI dissector both use this
+ * Called to register the pseudo-protocols used for exceptions.
  */
-extern dissector_table_t wtap_encap_dissector_table;
+void register_show_exception(void);
 
-/* following variables are exported from libwireshark.dll.
- * Thus we need a special declaration.
+/*
+ * Routine used to add an indication of an arbitrary exception to the tree.
  */
-WS_VAR_IMPORT int proto_frame;
-WS_VAR_IMPORT int hf_frame_arrival_time;
-WS_VAR_IMPORT int hf_frame_number;
-WS_VAR_IMPORT int hf_frame_len;
-WS_VAR_IMPORT int hf_frame_capture_len;
+void show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    unsigned long exception, const char *exception_message);
+
+/*
+ * Routine used to add an indication of a ReportedBoundsError exception
+ * to the tree.
+ */
+void
+show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

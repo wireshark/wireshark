@@ -95,6 +95,40 @@
 **/
 #define OutOfMemoryError	6
 
+/*
+ * Catch errors that, if you're calling a subdissector and catching
+ * exceptions from the subdissector, and possibly dissecting more
+ * stuff after the subdissector returns or fails, mean it makes
+ * sense to continue dissecting:
+ *
+ * BoundsError indicates a configuration problem; there's no point in
+ * trying to dissect any more data, as there's no more data to dissect.
+ *
+ * OutOfMemoryError indicates what its name suggests; there's no point
+ * in trying to dissect any more data, as you're probably not going to
+ * have any more memory to use when dissecting them.
+ *
+ * Other errors indicate that there's some sort of problem with
+ * the packet; you should continue dissecting data, as it might
+ * be OK, and, even if it's not, you should report its problem
+ * separately.
+ */
+#define CATCH_NONFATAL_ERRORS \
+	CATCH2(ReportedBoundsError, ScsiBoundsError)
+
+/*
+ * Catch all bounds-checking errors.
+ */
+#define CATCH_BOUNDS_ERRORS \
+	CATCH3(BoundsError, ReportedBoundsError, ScsiBoundsError)
+
+/*
+ * Catch all bounds-checking errors, and catch dissector bugs.
+ * Should only be used at the top level, so that dissector bugs
+ * go all the way to the top level and get reported immediately.
+ */
+#define CATCH_BOUNDS_AND_DISSECTOR_ERRORS \
+	CATCH4(BoundsError, ReportedBoundsError, ScsiBoundsError, DissectorError)
 
 /* Usage:
  *
@@ -110,6 +144,10 @@
  * 	code;
  * }
  *
+ * CATCH_END_OF_DATA_ERROR {
+ *	code;
+ * }
+ *
  * CATCH_ALL {
  * 	code;
  * }
@@ -120,8 +158,8 @@
  *
  * ENDTRY;
  *
- * ********* Never use 'goto' or 'return' inside the TRY, CATCH, CATCH_ALL,
- * ********* or FINALLY blocks. Execution must proceed through ENDTRY before
+ * ********* Never use 'goto' or 'return' inside the TRY, CATCH*, or
+ * ********* FINALLY blocks. Execution must proceed through ENDTRY before
  * ********* branching out.
  *
  * This is really something like:
@@ -183,11 +221,11 @@
  * and except_state is used to keep track of where we are.
  */
 #define EXCEPT_CAUGHT   1 /* exception has been caught, no need to rethrow at
-                           * END_TRY */
+                           * ENDTRY */
 
 #define EXCEPT_RETHROWN 2 /* the exception was rethrown from a CATCH
                            * block. Don't reenter the CATCH blocks, but do
-                           * execute FINALLY and rethrow at END_TRY */
+                           * execute FINALLY and rethrow at ENDTRY */
 
 #define EXCEPT_FINALLY  4 /* we've entered the FINALLY block - don't allow
                            * RETHROW, and don't reenter FINALLY if a
@@ -220,21 +258,39 @@
  * it's a one-liner.
  */
 #define CATCH(x) \
-	if (except_state == 0 && exc != 0 && exc->except_id.except_code == (x) && \
-	    (except_state |= EXCEPT_CAUGHT))                                      \
+	if (except_state == 0 && exc != 0 && \
+	    exc->except_id.except_code == (x) && \
+	    (except_state |= EXCEPT_CAUGHT)) \
 		/* user's code goes here */
 
 #define CATCH2(x,y) \
 	if (except_state == 0 && exc != 0 && \
-	    (exc->except_id.except_code == (x) || exc->except_id.except_code == (y)) && \
-	    (except_state|=EXCEPT_CAUGHT))                                             \
+	    (exc->except_id.except_code == (x) || \
+	     exc->except_id.except_code == (y)) && \
+	    (except_state|=EXCEPT_CAUGHT)) \
+		/* user's code goes here */
+
+#define CATCH3(x,y,z) \
+	if (except_state == 0 && exc != 0 && \
+	    (exc->except_id.except_code == (x) || \
+	     exc->except_id.except_code == (y) || \
+	     exc->except_id.except_code == (z)) && \
+	    (except_state|=EXCEPT_CAUGHT)) \
+		/* user's code goes here */
+
+#define CATCH4(w,x,y,z) \
+	if (except_state == 0 && exc != 0 && \
+	    (exc->except_id.except_code == (w) || \
+	     exc->except_id.except_code == (x) || \
+	     exc->except_id.except_code == (y) || \
+	     exc->except_id.except_code == (z)) && \
+	    (except_state|=EXCEPT_CAUGHT)) \
 		/* user's code goes here */
 
 #define CATCH_ALL \
 	if (except_state == 0 && exc != 0 && \
-	    (except_state|=EXCEPT_CAUGHT))                                             \
+	    (except_state|=EXCEPT_CAUGHT)) \
 		/* user's code goes here */
-
 
 #define FINALLY \
 	if( !(except_state & EXCEPT_FINALLY) && (except_state|=EXCEPT_FINALLY)) \

@@ -29,8 +29,8 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/show_exception.h>
 
-#include "packet-frame.h"
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 
@@ -504,11 +504,9 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     bad_message:
         ;
 
-    } CATCH(BoundsError) {
-      RETHROW;
-    } CATCH(ReportedBoundsError) {
+    } CATCH_NONFATAL_ERRORS {
       done = TRUE;
-      show_reported_bounds_error(tvb, pinfo, tree);
+      show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
     } ENDTRY;
   }
 

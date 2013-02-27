@@ -43,7 +43,6 @@ static lua_State* L = NULL;
 packet_info* lua_pinfo;
 struct _wslua_treeitem* lua_tree;
 tvbuff_t* lua_tvb;
-int lua_malformed;
 int lua_dissectors_table_ref;
 
 dissector_handle_t lua_data_handle;
@@ -435,7 +434,6 @@ int wslua_init(register_cb cb, gpointer client_data) {
     lua_tvb = NULL;
 
     lua_data_handle = find_dissector("data");
-    lua_malformed = proto_get_id_by_filter_name("malformed");
 
     Proto_commit(L);
 

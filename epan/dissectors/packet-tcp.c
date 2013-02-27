@@ -36,13 +36,14 @@
 #include <epan/follow.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
-#include "packet-tcp.h"
-#include "packet-frame.h"
+#include <epan/show_exception.h>
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/slab.h>
 #include <epan/expert.h>
+
+#include "packet-tcp.h"
 
 static int tcp_tap = -1;
 
@@ -2299,15 +2300,6 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*
          * Construct a tvbuff containing the amount of the payload we have
          * available.  Make its reported length the amount of data in the PDU.
-         *
-         * XXX - if reassembly isn't enabled. the subdissector will throw a
-         * BoundsError exception, rather than a ReportedBoundsError exception.
-         * We really want a tvbuff where the length is "length", the reported
-         * length is "plen", and the "if the snapshot length were infinite"
-         * length is the minimum of the reported length of the tvbuff handed
-         * to us and "plen", with a new type of exception thrown if the offset
-         * is within the reported length but beyond that third length, with
-         * that exception getting the "Unreassembled Packet" error.
          */
         length = length_remaining;
         if (length > plen)
@@ -2317,28 +2309,26 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*
          * Dissect the PDU.
          *
-         * Catch the ReportedBoundsError exception; if this particular message
-         * happens to get a ReportedBoundsError exception, that doesn't mean
-         * that we should stop dissecting PDUs within this frame or chunk of
-         * reassembled data.
+         * If it gets an error that means there's no point in
+         * dissecting any more PDUs, rethrow the exception in
+         * question.
          *
-         * If it gets a BoundsError, we can stop, as there's nothing more to
-         * see, so we just re-throw it.
+         * If it gets any other error, report it and continue, as that
+         * means that PDU got an error, but that doesn't mean we should
+         * stop dissecting PDUs within this frame or chunk of reassembled
+         * data.
          */
         pd_save = pinfo->private_data;
         TRY {
             (*dissect_pdu)(next_tvb, pinfo, tree);
         }
-        CATCH(BoundsError) {
-            RETHROW;
-        }
-        CATCH(ReportedBoundsError) {
+        CATCH_NONFATAL_ERRORS {
             /*  Restore the private_data structure in case one of the
              *  called dissectors modified it (and, due to the exception,
              *  was unable to restore it).
              */
             pinfo->private_data = pd_save;
-            show_reported_bounds_error(tvb, pinfo, tree);
+            show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         }
         ENDTRY;
 

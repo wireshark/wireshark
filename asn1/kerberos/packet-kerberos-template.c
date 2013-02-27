@@ -1432,7 +1432,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     TRY {
 	offset=dissect_kerberos_Applications(FALSE, tvb, 0, &asn1_ctx , tree, /* hf_index */ -1);
-    } CATCH_ALL {
+    } CATCH_BOUNDS_ERRORS {
 	pinfo->private_data=saved_private_data;
 	RETHROW;
     } ENDTRY;

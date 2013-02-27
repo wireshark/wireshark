@@ -59,13 +59,14 @@
 #include <epan/tap.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
-#include "packet-sctp.h"
 #include <epan/sctpppids.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
-#include <packet-frame.h>
+#include <epan/show_exception.h>
 #include <wsutil/crc32.h>
 #include <epan/adler32.h>
+
+#include "packet-sctp.h"
 
 #define LT(x, y) ((gint32)((x) - (y)) < 0)
 
@@ -2866,28 +2867,25 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
     void *pd_save;
     volatile gboolean retval = FALSE;
 
-    /*
-     *  If this chunk (which might be a fragment) happens to get a
-     *  ReportedBoundsError exception, don't stop dissecting chunks within this
-     *  frame.
-     *
-     *  If it gets a BoundsError, we can stop, as there's nothing more to
-     *  see, so we just re-throw it.
-     */
     pd_save = pinfo->private_data;
     TRY {
       retval = dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
     }
-    CATCH(BoundsError) {
-      RETHROW;
-    }
-    CATCH(ReportedBoundsError) {
-      /*  Restore the private_data structure in case one of the
-       *  called dissectors modified it (and, due to the exception,
-       *  was unable to restore it).
+    CATCH_NONFATAL_ERRORS {
+      /*
+       * Somebody threw an exception that means that there was a problem
+       * dissecting the payload; that means that a dissector was found,
+       * so we don't need to dissect the payload as data or update the
+       * protocol or info columns.
+       *
+       * Just show the exception and then continue dissecting chunks.
+       *
+       * Restore the private_data structure in case one of the
+       * called dissectors modified it (and, due to the exception,
+       * was unable to restore it).
        */
       pinfo->private_data = pd_save;
-      show_reported_bounds_error(payload_tvb, pinfo, tree);
+      show_exception(payload_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
     }
     ENDTRY;
 

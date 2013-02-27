@@ -1007,9 +1007,6 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	if (ti)
 		proto_item_append_text(ti, ", %d msg%s", i, (i>1)?"s":empty);
     }
-    CATCH(BoundsError) {
-	    RETHROW;
-    }
     CATCH(ReportedBoundsError) {
   	    col_append_fstr(pinfo->cinfo, COL_INFO, "[%d+1 msg%s]", i, (i>0)?"s":empty);
 	    if (ti)

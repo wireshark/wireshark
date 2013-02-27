@@ -12985,7 +12985,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
            packet starts with 0x00 0x00 and, if so, treat it as an OLPC
            frame. */
       encap_type = ENCAP_802_2;
-      TRY {
+      if (tvb_bytes_exist(next_tvb, 0, 2)) {
         octet1 = tvb_get_guint8(next_tvb, 0);
         octet2 = tvb_get_guint8(next_tvb, 1);
         if ((octet1 != 0xaa) || (octet2 != 0xaa)) {
@@ -13000,11 +13000,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           }
         }
       }
-      CATCH2(BoundsError, ReportedBoundsError) {
-      ; /* do nothing */
-
-      }
-      ENDTRY;
 
       switch (encap_type) {
 

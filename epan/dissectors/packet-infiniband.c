@@ -35,7 +35,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
-#include <epan/dissectors/packet-frame.h>
+#include <epan/show_exception.h>
 #include "packet-infiniband.h"
 
 #define PROTO_TAG_INFINIBAND    "Infiniband"
@@ -2520,40 +2520,21 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 dissector_found = dissector_try_uint(ethertype_dissector_table,
                                      etype, next_tvb, pinfo, top_tree);
             }
-            CATCH(BoundsError) {
-                /* Somebody threw BoundsError, which means that:
+            CATCH_NONFATAL_ERRORS {
+                /* Somebody threw an exception that means that there
+                   was a problem dissecting the payload; that means
+                   that a dissector was found, so we don't need to
+                   dissect the payload as data or update the protocol
+                   or info columns.
 
-                1) a dissector was found, so we don't need to
-                dissect the payload as data or update the
-                protocol or info columns;
+                   Just show the exception and then drive on to show
+                   the trailer, after noting that a dissector was found
+                   and restoring the protocol value that was in effect
+                   before we called the subdissector.
 
-                2) dissecting the payload found that the packet was
-                cut off by a snapshot length before the end of
-                the payload.  The trailer comes after the payload,
-                so *all* of the trailer is cut off, and we'll
-                just get another BoundsError if we add the trailer.
-
-                Therefore, we just rethrow the exception so it gets
-                reported; we don't dissect the trailer or do anything
-                else. */
-                RETHROW;
-            }
-            CATCH(OutOfMemoryError) {
-                RETHROW;
-            }
-            CATCH_ALL {
-                /* Somebody threw an exception other than BoundsError, which
-                   means that a dissector was found, so we don't need to
-                   dissect the payload as data or update the protocol or info
-                   columns.  We just show the exception and then drive on
-                   to show the trailer, after noting that a dissector was
-                   found and restoring the protocol value that was in effect
-                   before we called the subdissector. */
-
-                /*  Restore the private_data structure in case one of the
-                 *  called dissectors modified it (and, due to the exception,
-                 *  was unable to restore it).
-                 */
+                   Restore the private_data structure in case one of the
+                   called dissectors modified it (and, due to the exception,
+                   was unable to restore it). */
                 pinfo->private_data = pd_save;
 
                 show_exception(next_tvb, pinfo, top_tree, EXCEPT_CODE, GET_MESSAGE);

@@ -94,11 +94,8 @@ if (!next_tvb)
 TRY {
 %(DEFAULT_BODY)s
 }
-CATCH(BoundsError) {
-  RETHROW;
-}
-CATCH(ReportedBoundsError) {
-  show_reported_bounds_error(tvb, actx->pinfo, tree);
+CATCH_NONFATAL_ERRORS {
+  show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 }
 ENDTRY;
 

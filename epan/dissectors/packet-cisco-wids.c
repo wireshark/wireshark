@@ -52,6 +52,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/show_exception.h>
 
 static guint global_udp_port = 0;
 
@@ -108,11 +109,8 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		pd_save = pinfo->private_data;
 		TRY {
 			call_dissector(ieee80211_handle, wlan_tvb, pinfo, tree);
-		} CATCH2(BoundsError, ReportedBoundsError) {
-
-			expert_add_info_format(pinfo, NULL,
-				PI_MALFORMED, PI_ERROR,
-				"Malformed or short IEEE80211 subpacket");
+		} CATCH_BOUNDS_ERRORS {
+			show_exception(wlan_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 
 			/*  Restore the private_data structure in case one of the
 			 *  called dissectors modified it (and, due to the exception,
@@ -120,9 +118,6 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			pinfo->private_data = pd_save;
 
-			col_append_str(pinfo->cinfo, COL_INFO,
-				" [Malformed or short IEEE80211 subpacket] " );
-			col_set_fence(pinfo->cinfo, COL_INFO);
 #if 0
 	wlan_tvb = tvb_new_subset(tvb, offset, capturelen, capturelen);
 			/* FIXME: Why does this throw an exception? */

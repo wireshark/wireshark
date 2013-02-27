@@ -48,6 +48,7 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
+#include <epan/show_exception.h>
 
 /* protocol handles */
 static int proto_wassp = -1;
@@ -781,13 +782,8 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	/* Continue after SNMP dissection errors */
 	TRY {
 		call_dissector(snmp_handle, snmp_tvb, pinfo, wassp_tree);
-	} CATCH2(BoundsError, ReportedBoundsError) {
-		expert_add_info_format(pinfo, NULL,
-			PI_MALFORMED, PI_ERROR,
-			"Malformed or short SNMP subpacket");
-
-		col_append_str(pinfo->cinfo, COL_INFO,
-				" [Malformed or short SNMP subpacket] " );
+	} CATCH_NONFATAL_ERRORS {
+		show_exception(snmp_tvb, pinfo, wassp_tree, EXCEPT_CODE, GET_MESSAGE);
 	} ENDTRY;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -813,13 +809,8 @@ dissect_ieee80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	/* Continue after IEEE 802.11 dissection errors */
 	TRY {
 		call_dissector(ieee80211_handle, ieee80211_tvb, pinfo, wassp_tree);
-	} CATCH2(BoundsError, ReportedBoundsError) {
-		expert_add_info_format(pinfo, NULL,
-			PI_MALFORMED, PI_ERROR,
-			"Malformed or short IEEE 802.11 subpacket");
-
-		col_append_str(pinfo->cinfo, COL_INFO,
-				" [Malformed or short IEEE 802.11 subpacket] " );
+	} CATCH_NONFATAL_ERRORS {
+		show_exception(ieee80211_tvb, pinfo, wassp_tree, EXCEPT_CODE, GET_MESSAGE);
 	} ENDTRY;
 
 	if (check_col(pinfo->cinfo, COL_INFO))

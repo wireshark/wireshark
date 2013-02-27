@@ -1273,11 +1273,8 @@ static const value_string zero_is_none_vals[] = {
             func(next_tvb, pinfo, tree, sep, state, byte_order);      \
       }                                                               \
                                                                       \
-      CATCH(BoundsError) {                                            \
-            RETHROW;                                                  \
-      }                                                               \
-      CATCH(ReportedBoundsError) {                                    \
-            show_reported_bounds_error(next_tvb, pinfo, tree);        \
+      CATCH_NONFATAL_ERRORS {                                         \
+            show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE); \
       }                                                               \
       ENDTRY;                                                         \
                                                                       \
@@ -4536,11 +4533,8 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
                             state, byte_order);
                   }
             }
-            CATCH(BoundsError) {
-                  RETHROW;
-            }
-            CATCH(ReportedBoundsError) {
-                  show_reported_bounds_error(tvb, pinfo, tree);
+            CATCH_NONFATAL_ERRORS {
+                  show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
             }
             ENDTRY;
 

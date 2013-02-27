@@ -34,17 +34,18 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
-#include "packet-rpc.h"
-#include "packet-frame.h"
-#include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/dissectors/rpc_defrag.h>
-#include "packet-nfs.h"
 #include <epan/tap.h>
 #include <epan/strutil.h>
 #include <epan/garrayfix.h>
 #include <epan/emem.h>
+#include <epan/show_exception.h>
+
+#include "packet-rpc.h"
+#include "packet-tcp.h"
+#include <epan/dissectors/rpc_defrag.h>
+#include "packet-nfs.h"
 
 /*
  * See:
@@ -3062,17 +3063,6 @@ call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
 	volatile gboolean rpc_succeeded;
 	void *pd_save;
 
-	/*
-	 * Catch the ReportedBoundsError exception; if
-	 * this particular message happens to get a
-	 * ReportedBoundsError exception, that doesn't
-	 * mean that we should stop dissecting RPC
-	 * messages within this frame or chunk of
-	 * reassembled data.
-	 *
-	 * If it gets a BoundsError, we can stop, as there's
-	 * nothing more to see, so we just re-throw it.
-	 */
 	saved_proto = pinfo->current_proto;
 	rpc_succeeded = FALSE;
 	pd_save = pinfo->private_data;
@@ -3080,11 +3070,17 @@ call_message_dissector(tvbuff_t *tvb, tvbuff_t *rec_tvb, packet_info *pinfo,
 		rpc_succeeded = (*dissector)(rec_tvb, pinfo, tree,
 		    frag_tvb, ipfd_head, TRUE, rpc_rm, first_pdu);
 	}
-	CATCH(BoundsError) {
-		RETHROW;
-	}
-	CATCH(ReportedBoundsError) {
-		show_reported_bounds_error(tvb, pinfo, tree);
+	CATCH_NONFATAL_ERRORS {
+		/*
+		 * Somebody threw an exception that means that there
+		 * was a problem dissecting the payload; that means
+		 * that a dissector was found, so we don't need to
+		 * dissect the payload as data or update the protocol
+		 * or info columns.
+		 *
+		 * Just show the exception and then continue dissecting.
+		 */
+		show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 		pinfo->current_proto = saved_proto;
 
 		/*  Restore the private_data structure in case one of the

@@ -31,12 +31,13 @@
 
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/prefs.h>
+#include <epan/strutil.h>
+#include <epan/show_exception.h>
+
 #include "packet-dns.h"
 #include "packet-netbios.h"
 #include "packet-tcp.h"
-#include "packet-frame.h"
-#include <epan/prefs.h>
-#include <epan/strutil.h>
 
 static int proto_nbns = -1;
 static int hf_nbns_flags = -1;
@@ -1605,30 +1606,29 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
         next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
 
         /*
-         * Catch the ReportedBoundsError exception; if this
-         * particular message happens to get a ReportedBoundsError
-         * exception, that doesn't mean that we should stop
-         * dissecting NetBIOS messages within this frame or chunk
-         * of reassembled data.
+         * Dissect the message.
          *
-         * If it gets a BoundsError, we can stop, as there's nothing
-         * more to see, so we just re-throw it.
+         * If it gets an error that means there's no point in
+         * dissecting any more PDUs, rethrow the exception in
+         * question.
+         *
+         * If it gets any other error, report it and continue, as that
+         * means that PDU got an error, but that doesn't mean we should
+         * stop dissecting PDUs within this frame or chunk of reassembled
+         * data.
          */
         saved_proto = pinfo->current_proto;
         pd_save = pinfo->private_data;
         TRY {
 	    dissect_netbios_payload(next_tvb, pinfo, tree);
         }
-        CATCH(BoundsError) {
-	    RETHROW;
-        }
-        CATCH(ReportedBoundsError) {
+        CATCH_NONFATAL_ERRORS {
 	    /*  Restore the private_data structure in case one of the
 	     *  called dissectors modified it (and, due to the exception,
 	     *  was unable to restore it).
 	     */
 	    pinfo->private_data = pd_save;
-	    show_reported_bounds_error(tvb, pinfo, tree);
+            show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 	    pinfo->current_proto = saved_proto;
         }
         ENDTRY;

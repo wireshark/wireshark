@@ -111,7 +111,6 @@
 
 #include "packet-rsvp.h"
 #include "packet-ip.h"
-#include "packet-frame.h"
 #include "packet-diffserv-mpls-common.h"
 #include "packet-osi.h"
 
@@ -6292,11 +6291,6 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                       offset+1, 1, 1);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
         break;
-
-    default:
-        proto_tree_add_protocol_format(rsvp_header_tree, proto_malformed, tvb, offset+1, 1,
-                                       "Invalid message type: %u", message_type);
-        return;
     }
 
     cksum = tvb_get_ntohs(tvb, offset+2);

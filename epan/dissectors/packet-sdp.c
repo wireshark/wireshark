@@ -59,11 +59,11 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
+#include <epan/rtp_pt.h>
+#include <epan/show_exception.h>
 
 #include "packet-sdp.h"
-#include "packet-frame.h"
 #include "packet-rtp.h"
-#include <epan/rtp_pt.h>
 
 #include "packet-rtcp.h"
 #include "packet-t38.h"
@@ -1063,11 +1063,8 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
         TRY {
           dissect_h264_nal_unit(data_tvb, pinfo, tree);
         }
-        CATCH(BoundsError) {
-          RETHROW;
-        }
-        CATCH(ReportedBoundsError) {
-          show_reported_bounds_error(tvb, pinfo, tree);
+        CATCH_NONFATAL_ERRORS {
+          show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         }
         ENDTRY;
         if (comma_offset != -1) {

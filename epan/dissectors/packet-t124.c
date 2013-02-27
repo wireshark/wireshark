@@ -2973,7 +2973,7 @@ dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
    */
   TRY {
     (void) dissect_per_sequence(tvb, 0, &asn1_ctx, NULL, -1, -1, t124Heur_sequence);
-  } CATCH2(BoundsError, ReportedBoundsError) {
+  } CATCH_BOUNDS_ERRORS {
     failed = TRUE;
   } ENDTRY;
 

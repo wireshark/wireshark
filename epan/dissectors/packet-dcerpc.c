@@ -45,7 +45,7 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
-#include <epan/dissectors/packet-frame.h>
+#include <epan/show_exception.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcerpc-nt.h>
 
@@ -2587,9 +2587,17 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
                                             plurality(remaining, "", "s"));
 
                     }
-                } CATCH(BoundsError) {
-                    RETHROW;
-                } CATCH_ALL {
+                } CATCH_NONFATAL_ERRORS {
+                    /*
+                     * Somebody threw an exception that means that there
+                     * was a problem dissecting the payload; that means
+                     * that a dissector was found, so we don't need to
+                     * dissect the payload as data or update the protocol
+                     * or info columns.
+                     *
+                     * Just show the exception and then drive on to show
+                     * the authentication padding.
+                     */
                     show_exception(stub_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
                 } ENDTRY;
             }
@@ -2644,13 +2652,14 @@ dissect_dcerpc_verifier(tvbuff_t *tvb, packet_info *pinfo,
         if ((auth_fns = get_auth_subdissector_fns(auth_info->auth_level,
                                                   auth_info->auth_type))) {
             /*
-             * Catch all exceptions, so that even if the verifier is bad
-             * or we don't have all of it, we still show the stub data.
+             * Catch all bounds-error exceptions, so that even if the
+             * verifier is bad or we don't have all of it, we still
+             * show the stub data.
              */
             TRY {
                 dissect_auth_verf(auth_tvb, pinfo, dcerpc_tree, auth_fns,
                                   hdr, auth_info);
-            } CATCH_ALL {
+            } CATCH_BOUNDS_ERRORS {
                 show_exception(auth_tvb, pinfo, dcerpc_tree, EXCEPT_CODE, GET_MESSAGE);
             } ENDTRY;
         } else {
@@ -2753,7 +2762,7 @@ dissect_dcerpc_cn_auth(tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
                    include auth padding, since when NTLMSSP encryption is used, the
                    padding is actually inside the encrypted stub */
                 auth_info->auth_size = hdr->auth_len + 8;
-            } CATCH_ALL {
+            } CATCH_BOUNDS_ERRORS {
                 show_exception(tvb, pinfo, dcerpc_tree, EXCEPT_CODE, GET_MESSAGE);
             } ENDTRY;
         }
@@ -4592,25 +4601,24 @@ dissect_dcerpc_cn_bs_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * processing them.
      */
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
-        /*
-         * Catch ReportedBoundsError, so that even if the stub data is bad,
-         * we don't abort the full DCE RPC dissection - there might be more
-         * than one DCE RPC PDU in the data being dissected.
-         *
-         * If we get BoundsError, it means the frame was cut short by a
-         * snapshot length, so there's nothing more to dissect; just
-         * re-throw that exception.
-         */
         TRY {
             pdu_len = 0;
             if (dissect_dcerpc_cn(tvb, offset, pinfo, tree,
                                   dcerpc_cn_desegment, &pdu_len)) {
                 dcerpc_pdus++;
             }
-        } CATCH(BoundsError) {
-            RETHROW;
-        } CATCH(ReportedBoundsError) {
-            show_reported_bounds_error(tvb, pinfo, tree);
+        } CATCH_NONFATAL_ERRORS {
+            /*
+             * Somebody threw an exception that means that there
+             * was a problem dissecting the payload; that means
+             * that a dissector was found, so we don't need to
+             * dissect the payload as data or update the protocol
+             * or info columns.
+             *
+             * Just show the exception and then continue dissecting
+             * PDUs.
+             */
+            show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
             /*
              * Presumably it looked enough like a DCE RPC PDU that we
              * dissected enough of it to throw an exception.

@@ -30,17 +30,17 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/etypes.h>
+#include <epan/ppptypes.h>
+#include <epan/show_exception.h>
 #include "packet-bpq.h"
 #include "packet-eth.h"
-#include "packet-frame.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-ipx.h"
 #include "packet-vlan.h"
 #include "packet-ieee8021ah.h"
 #include "packet-vines.h"
-#include <epan/etypes.h>
-#include <epan/ppptypes.h>
 
 static dissector_table_t ethertype_dissector_table;
 
@@ -276,34 +276,16 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		dissector_found = dissector_try_uint(ethertype_dissector_table,
 						     etype, next_tvb, pinfo, tree);
 	}
-	CATCH(BoundsError) {
-		/* Somebody threw BoundsError, which means that:
+	CATCH_NONFATAL_ERRORS {
+		/* Somebody threw an exception that means that there
+		   was a problem dissecting the payload; that means
+		   that a dissector was found, so we don't need to
+		   dissect the payload as data or update the protocol
+		   or info columns.
 
-		   1) a dissector was found, so we don't need to
-		   dissect the payload as data or update the
-		   protocol or info columns;
-
-		   2) dissecting the payload found that the packet was
-		   cut off by a snapshot length before the end of
-		   the payload.  The trailer comes after the payload,
-		   so *all* of the trailer is cut off, and we'll
-		   just get another BoundsError if we add the trailer.
-
-		   Therefore, we just rethrow the exception so it gets
-		   reported; we don't dissect the trailer or do anything
-		   else. */
-		RETHROW;
-	}
-	CATCH(OutOfMemoryError) {
-		RETHROW;
-	}
-	CATCH_ALL {
-		/* Somebody threw an exception other than BoundsError, which
-		   means that a dissector was found, so we don't need to
-		   dissect the payload as data or update the protocol or info
-		   columns.  We just show the exception and then drive on
-		   to show the trailer, after noting that a dissector was
-		   found and restoring the protocol value that was in effect
+		   Just show the exception and then drive on to show
+		   the trailer, after noting that a dissector was found
+		   and restoring the protocol value that was in effect
 		   before we called the subdissector. */
 		show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 

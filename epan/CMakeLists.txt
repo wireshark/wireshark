@@ -1440,6 +1440,7 @@ set(LIBWIRESHARK_FILES
 	reedsolomon.c
 	report_err.c
 	req_resp_hdrs.c
+	show_exception.c
 	sigcomp_state_hdlr.c
 	sigcomp-udvm.c
 	sminmpec.c

@@ -104,7 +104,7 @@
 #include <epan/emem.h>
 #include <epan/oids.h>
 #include <epan/strutil.h>
-#include <epan/dissectors/packet-frame.h>
+#include <epan/show_exception.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-windows-common.h>
 #include <epan/dissectors/packet-dcerpc.h>

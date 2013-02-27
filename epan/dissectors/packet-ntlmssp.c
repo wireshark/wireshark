@@ -35,20 +35,20 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-
-#include "packet-windows-common.h"
-#include "packet-smb-common.h"
-#include "packet-frame.h"
 #include <epan/asn1.h>
-#include "packet-kerberos.h"
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
+#include <epan/show_exception.h>
 #include <epan/crypt/rc4.h>
 #include <epan/crypt/md4.h>
 #include <epan/crypt/md5.h>
 #include <epan/crypt/des.h>
+
+#include "packet-windows-common.h"
+#include "packet-smb-common.h"
+#include "packet-kerberos.h"
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include <wsutil/crc32.h>
@@ -1989,15 +1989,13 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     /* let's try to hook ourselves here */
 
     offset += 12;
-  } CATCH(BoundsError) {
-    RETHROW;
-  } CATCH(ReportedBoundsError) {
+  } CATCH_NONFATAL_ERRORS {
     /*  Restore the private_data structure in case one of the
      *  called dissectors modified it (and, due to the exception,
      *  was unable to restore it).
      */
     pinfo->private_data = pd_save;
-    show_reported_bounds_error(tvb, pinfo, tree);
+    show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   } ENDTRY;
 
   return offset;
@@ -2189,15 +2187,13 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                            "Unrecognized NTLMSSP Message");
       break;
     }
-  } CATCH(BoundsError) {
-    RETHROW;
-  } CATCH(ReportedBoundsError) {
+  } CATCH_NONFATAL_ERRORS {
     /*  Restore the private_data structure in case one of the
      *  called dissectors modified it (and, due to the exception,
      *  was unable to restore it).
      */
     pinfo->private_data = pd_save;
-    show_reported_bounds_error(tvb, pinfo, tree);
+    show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   } ENDTRY;
 
   tap_queue_packet(ntlmssp_tap, pinfo, ntlmssph);
@@ -2432,15 +2428,13 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
     decrypt_data_payload (tvb, offset, encrypted_block_length, pinfo, ntlmssp_tree, NULL);
     /* let's try to hook ourselves here */
 
-  } CATCH(BoundsError) {
-    RETHROW;
-  } CATCH(ReportedBoundsError) {
+  } CATCH_NONFATAL_ERRORS {
     /*  Restore the private_data structure in case one of the
      *  called dissectors modified it (and, due to the exception,
      *  was unable to restore it).
      */
     pinfo->private_data = pd_save;
-    show_reported_bounds_error(tvb, pinfo, tree);
+    show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   } ENDTRY;
 
   return offset;
@@ -2507,15 +2501,13 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     offset += 12;
     offset += encrypted_block_length;
-  } CATCH(BoundsError) {
-    RETHROW;
-  } CATCH(ReportedBoundsError) {
+  } CATCH_NONFATAL_ERRORS {
     /*  Restore the private_data structure in case one of the
      *  called dissectors modified it (and, due to the exception,
      *  was unable to restore it).
      */
     pinfo->private_data = pd_save;
-    show_reported_bounds_error(tvb, pinfo, tree);
+    show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
   } ENDTRY;
 
   return offset;

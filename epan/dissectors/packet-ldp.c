@@ -45,8 +45,8 @@
 #include <epan/afn.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
+#include <epan/show_exception.h>
 
-#include "packet-frame.h"
 #include "packet-diffserv-mpls-common.h"
 #include "packet-ldp.h"
 
@@ -3046,30 +3046,26 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         /*
          * Dissect the LDP packet.
          *
-         * Catch the ReportedBoundsError exception; if this
-         * particular message happens to get a ReportedBoundsError
-         * exception, that doesn't mean that we should stop
-         * dissecting LDP messages within this frame or chunk of
-         * reassembled data.
+         * If it gets an error that means there's no point in
+         * dissecting any more PDUs, rethrow the exception in
+         * question.
          *
-         * If it gets a BoundsError, we can stop, as there's nothing
-         * more to see, so we just re-throw it.
+         * If it gets any other error, report it and continue, as that
+         * means that PDU got an error, but that doesn't mean we should
+         * stop dissecting PDUs within this frame or chunk of reassembled
+         * data.
          */
         pd_save = pinfo->private_data;
         TRY {
             dissect_ldp_pdu(next_tvb, pinfo, tree);
         }
-        CATCH(BoundsError) {
-            RETHROW;
-        }
-        CATCH(ReportedBoundsError) {
+        CATCH_NONFATAL_ERRORS {
             /*  Restore the private_data structure in case one of the
              *  called dissectors modified it (and, due to the exception,
              *  was unable to restore it).
              */
             pinfo->private_data = pd_save;
-
-            show_reported_bounds_error(tvb, pinfo, tree);
+            show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         }
         ENDTRY;
 

@@ -31,17 +31,17 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-
-#include <epan/dissectors/packet-dcerpc.h>
-#include <epan/dissectors/packet-gssapi.h>
-#include <epan/dissectors/packet-frame.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
-#include "packet-ber.h"
 #include <epan/to_str.h>
+#include <epan/show_exception.h>
+
+#include <epan/dissectors/packet-ber.h>
+#include <epan/dissectors/packet-dcerpc.h>
+#include <epan/dissectors/packet-gssapi.h>
 
 static int proto_gssapi = -1;
 
@@ -496,15 +496,25 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	 done:
 		;
-	} CATCH(BoundsError) {
-		RETHROW;
-	} CATCH(ReportedBoundsError) {
-		/*  Restore the private_data structure in case one of the
-		 *  called dissectors modified it (and, due to the exception,
-		 *  was unable to restore it).
+	} CATCH_NONFATAL_ERRORS {
+		/*
+		 * Somebody threw an exception that means that there
+		 * was a problem dissecting the payload; that means
+		 * that a dissector was found, so we don't need to
+		 * dissect the payload as data or update the protocol
+		 * or info columns.
+		 *
+		 * Just show the exception and then drive on to show
+		 * the trailer, after noting that a dissector was found
+		 * and restoring the protocol value that was in effect
+		 * before we called the subdissector.
+		 *
+		 * Restore the private_data structure in case one of the
+		 * called dissectors modified it (and, due to the exception,
+		 * was unable to restore it).
 		 */
 		pinfo->private_data = pd_save;
-		show_reported_bounds_error(gss_tvb, pinfo, tree);
+		show_exception(gss_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 	} ENDTRY;
 
 	proto_item_set_len(item, return_offset);

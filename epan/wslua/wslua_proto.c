@@ -33,6 +33,8 @@
 
 #include "wslua.h"
 
+#include <epan/show_exception.h>
+
 WSLUA_CLASS_DEFINE(Pref,NOP,NOP); /* A preference of a Protocol. */
 
 static range_t* get_range(lua_State *L, int idx_r, int idx_m)
@@ -1570,8 +1572,8 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
     TRY {
         call_dissector(d, tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
         /* XXX Are we sure about this??? is this the right/only thing to catch */
-    } CATCH(ReportedBoundsError) {
-        proto_tree_add_protocol_format(lua_tree->tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
+    } CATCH_NONFATAL_ERRORS {
+        show_exception(tvb->ws_tvb, pinfo->ws_pinfo, ti->tree, EXCEPT_CODE, GET_MESSAGE);
         error = "Malformed frame";
     } ENDTRY;
 
@@ -1800,8 +1802,8 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
             call_dissector(lua_data_handle,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
 
         /* XXX Are we sure about this??? is this the right/only thing to catch */
-    } CATCH(ReportedBoundsError) {
-        proto_tree_add_protocol_format(lua_tree->tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
+    } CATCH_NONFATAL_ERRORS {
+        show_exception(tvb->ws_tvb, pinfo->ws_pinfo, ti->tree, EXCEPT_CODE, GET_MESSAGE);
         error = "Malformed frame";
     } ENDTRY;
 

@@ -76,6 +76,7 @@ LIBWIRESHARK_SRC = 		\
 	reedsolomon.c		\
 	report_err.c		\
 	req_resp_hdrs.c		\
+	show_exception.c	\
 	sigcomp_state_hdlr.c	\
 	sigcomp-udvm.c		\
 	sminmpec.c		\
@@ -221,6 +222,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	req_resp_hdrs.h		\
 	rtp_pt.h		\
 	sctpppids.h		\
+	show_exception.h	\
 	sigcomp_state_hdlr.h	\
 	sigcomp-udvm.h		\
 	slab.h			\

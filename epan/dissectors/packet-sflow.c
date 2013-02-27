@@ -839,7 +839,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 
-    CATCH2(BoundsError, ReportedBoundsError) {
+    CATCH_BOUNDS_ERRORS {
         /*  Restore the private_data structure in case one of the
          *  called dissectors modified it (and, due to the exception,
          *  was unable to restore it).

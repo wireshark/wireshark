@@ -26,11 +26,12 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/etypes.h>
+#include <epan/show_exception.h>
+
 #include "packet-isl.h"
 #include "packet-eth.h"
 #include "packet-tr.h"
-#include "packet-frame.h"
-#include <epan/etypes.h>
 
 /*
  * See
@@ -194,7 +195,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
       payload_tvb = tvb_new_subset(tvb, 14, length, length);
       trailer_tvb = tvb_new_subset_remaining(tvb, 14 + length);
     }
-    CATCH2(BoundsError, ReportedBoundsError) {
+    CATCH_BOUNDS_ERRORS {
       /* Either:
 
 	  the packet doesn't have "length" bytes worth of
@@ -206,7 +207,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
          or
 
 	  the packet has exactly "length" bytes worth of
-	  captured data left in it, so the "tvb_new_subset()"
+	  captured data left in it, so the "tvb_new_subset_remaining()"
 	  creating "trailer_tvb" threw an exception.
 
          In either case, this means that all the data in the frame
@@ -275,24 +276,18 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
         /* Frames encapsulated in ISL include an FCS. */
         call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
       }
-      CATCH(BoundsError) {
-       /* Somebody threw BoundsError, which means that dissecting the payload
-          found that the packet was cut off by a snapshot length before the
-          end of the payload.  The trailer comes after the payload, so *all*
-          of the trailer is cut off - don't bother adding the trailer, just
-          rethrow the exception so it gets reported. */
-       RETHROW;
-      }
-      CATCH_ALL {
-        /* Well, somebody threw an exception other than BoundsError.
+      CATCH_NONFATAL_ERRORS {
+        /* Somebody threw an exception that indicates a problem with
+           the payload, but doesn't indicate anything that would
+           keep us from dissecting the trailer.
+
            Show the exception, and then drive on to show the trailer,
            restoring the protocol value that was in effect before we
-           called the subdissector. */
+           called the subdissector.
 
-	/*  Restore the private_data structure in case one of the
-	 *  called dissectors modified it (and, due to the exception,
-	 *  was unable to restore it).
-	 */
+	   Restore the private_data structure in case one of the
+	   called dissectors modified it (and, due to the exception,
+	   was unable to restore it). */
 	pinfo->private_data = pd_save;
 
         show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);

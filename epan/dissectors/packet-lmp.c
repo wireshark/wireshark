@@ -49,14 +49,14 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <prefs.h>
+#include <epan/prefs.h>
 #include <epan/in_cksum.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
+#include <show_exception.h>
 
 #include "packet-ip.h"
 #include "packet-rsvp.h"
-#include "packet-frame.h"
 
 static int proto_lmp = -1;
 
