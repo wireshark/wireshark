@@ -334,11 +334,15 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
 #.FN_BODY SM-DeliveryFailureCause
 	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+  guint8 oct;
 %(DEFAULT_BODY)s
 
-        if (!actx->value_ptr)
-                return offset;
-        dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
+  if (!actx->value_ptr)
+    return offset;
+  /* Detailed diagnostic information contains either a SMS-SUBMIT-REPORT or a SMS-DELIVERY-REPORT */
+  oct = tvb_get_guint8((tvbuff_t*)actx->value_ptr, 0);
+  actx->pinfo->p2p_dir = ((oct & 0x03) == 0) ? P2P_DIR_RECV : P2P_DIR_SENT; 
+  dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
 
 #.FN_BODY ForwardSM-Arg
 
