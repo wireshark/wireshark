@@ -134,6 +134,7 @@ else
 fi
 
 AC_PATH_PROG(PYTHON, python)
+AC_PATH_PROG(DESKTOP_FILE_INSTALL, desktop-file-install)
 
 AC_SUBST(PERL)
 AC_SUBST(LEX)
@@ -142,6 +143,7 @@ AC_SUBST(POD2HTML)
 AC_SUBST(PYTHON)
 AC_SUBST(XSLTPROC)
 AC_SUBST(XMLLINT)
+AC_SUBST(DESKTOP_FILE_INSTALL)
 
 #
 # Set "ac_supports_gcc_flags" if the compiler is known to support GCC-style
