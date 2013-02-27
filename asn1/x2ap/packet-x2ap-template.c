@@ -39,7 +39,6 @@
 
 #include "packet-per.h"
 #include "packet-e212.h"
-#include "packet-frame.h"
 #include "packet-lte-rrc.h"
 
 #ifdef _MSC_VER

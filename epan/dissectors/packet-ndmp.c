@@ -42,7 +42,6 @@
 #include "packet-ndmp.h"
 #include "packet-tcp.h"
 #include "packet-scsi.h"
-#include "packet-frame.h"
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/dissectors/rpc_defrag.h>

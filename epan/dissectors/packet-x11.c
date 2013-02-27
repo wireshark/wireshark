@@ -63,7 +63,6 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 
-#include "packet-frame.h"
 
 #include "packet-x11-keysymdef.h"
 #include "packet-x11.h"

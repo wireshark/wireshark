@@ -30,7 +30,6 @@
 #include <epan/packet.h>
 
 #include "packet-tpkt.h"
-#include "packet-frame.h"
 #include <epan/conversation.h>
 #include <epan/emem.h>
 

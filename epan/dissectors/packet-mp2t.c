@@ -32,7 +32,6 @@
 #include <epan/packet.h>
 
 #include <epan/rtp_pt.h>
-#include "packet-frame.h"
 
 #include <epan/emem.h>
 #include <epan/conversation.h>
