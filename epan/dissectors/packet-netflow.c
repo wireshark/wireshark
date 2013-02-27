@@ -3386,7 +3386,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case 162: /*  flowDurationMicroseconds */
             msec_delta = tvb_get_ntohl(tvb, offset);
             ts_delta.secs = msec_delta / 1000000;
-            ts_delta.nsecs = (msec_delta % 1000000) * 1000000;
+            ts_delta.nsecs = (msec_delta % 1000000) * 1000;
             ti = proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
                                      offset, length, &ts_delta);
             break;
