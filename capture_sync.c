@@ -461,7 +461,8 @@ sync_pipe_start(capture_options *capture_opts) {
         }
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        if (interface_opts.buffer_size != 1) {
+		/* In pcap-linux.c: by default request 2M for the ring buffer */
+        if (interface_opts.buffer_size != 2) {
             argv = sync_pipe_add_arg(argv, &argc, "-B");
             g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d", interface_opts.buffer_size);
             argv = sync_pipe_add_arg(argv, &argc, buffer_size);

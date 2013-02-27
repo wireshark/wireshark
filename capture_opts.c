@@ -70,7 +70,7 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->default_options.linktype        = -1;
   capture_opts->default_options.promisc_mode    = TRUE;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  capture_opts->default_options.buffer_size     = 1;                /* 1 MB */
+  capture_opts->default_options.buffer_size     = 2;                /* 2 MB, In pcap-linux.c: by default request 2M for the ring buffer */
 #endif
   capture_opts->default_options.monitor_mode    = FALSE;
 #ifdef HAVE_PCAP_REMOTE
