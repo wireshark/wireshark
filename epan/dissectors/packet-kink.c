@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
 #include "packet-isakmp.h"
@@ -46,9 +47,21 @@ static int hf_kink_length = -1;
 static int hf_kink_transactionId = -1;
 static int hf_kink_checkSumLength = -1;
 static int hf_kink_A = -1;
-static int hf_kink_reserved = -1;
+static int hf_kink_reserved8 = -1;
+static int hf_kink_reserved15 = -1;
+static int hf_kink_reserved16 = -1;
+static int hf_kink_reserved24 = -1;
 static int hf_kink_checkSum = -1;
 static int hf_kink_next_payload = -1;
+static int hf_kink_payload_length = -1;
+static int hf_kink_epoch = -1;
+static int hf_kink_inner_next_pload = -1;
+static int hf_kink_realm_name_length = -1;
+static int hf_kink_realm_name = -1;
+static int hf_kink_princ_name_length = -1;
+static int hf_kink_princ_name = -1;
+static int hf_kink_tgt_length = -1;
+static int hf_kink_tgt = -1;
 
 /* Argument for making the subtree */
 static gint ett_kink = -1;
@@ -186,9 +199,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
   guint chsumlen;
   guint8 next_payload;
   guint8 value_a_and_front_reserved;
-  guint16 value_a_and_reserved;
   guint8 value_a;
-  guint16 value_reserved;
   int offset=0;
 
   type = tvb_get_guint8(tvb,offset);
@@ -258,9 +269,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
   /* The reserved field is 15bit.
    * The logical product of 2octet value and 0x7fff is performed.
    */
-  value_a_and_reserved = tvb_get_ntohs(tvb, offset);
-  value_reserved = value_a_and_reserved & SECOND_FIFTEEN_BIT;
-  proto_tree_add_uint(kink_tree, hf_kink_reserved, tvb, offset, 2, value_reserved);
+  proto_tree_add_item(kink_tree, hf_kink_reserved15, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   proto_tree_add_item(kink_tree, hf_kink_checkSum, tvb, offset, chsumlen, ENC_NA);
@@ -321,10 +330,8 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_tree *payload_kink_ap_req_tree;
   proto_item *ti;
   guint8 next_payload;
-  guint8 reserved;
   guint payload_length;
   guint16 krb_ap_req_length;
-  time_t timer;                  /* For showing utc */
   int start_payload_offset = 0;  /* Keep beginning of payload offset */
 
   start_payload_offset = offset;
@@ -338,22 +345,17 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_tree_add_uint(payload_kink_ap_req_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
-  reserved = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(payload_kink_ap_req_tree, tvb, offset, 1, "RESERVED: %u", reserved);
+  proto_tree_add_item(payload_kink_ap_req_tree, hf_kink_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset ++;
 
+  ti = proto_tree_add_uint(payload_kink_ap_req_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length <= PAYLOAD_HEADER){
-    proto_tree_add_text(payload_kink_ap_req_tree, tvb, offset, 2, "This Payload Length is too small.: %u", payload_length);
-  }
-  else{
-    proto_tree_add_text(payload_kink_ap_req_tree, tvb, offset, 2, "Payload Length: %u", payload_length);
+    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is too small");
   }
   offset += 2;
 
   /* Show time as UTC, not local time. */
-  timer = tvb_get_ntohl(tvb, offset);
-  proto_tree_add_text(payload_kink_ap_req_tree, tvb, offset, 4, "EPOCH: %s",
-                      abs_time_secs_to_str(timer, ABSOLUTE_TIME_UTC, TRUE));
+  proto_tree_add_item(payload_kink_ap_req_tree, hf_kink_epoch, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   if(payload_length > PAYLOAD_HEADER){
@@ -383,10 +385,8 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_tree *payload_kink_ap_rep_tree;
   proto_item *ti;
   guint8 next_payload;
-  guint8 reserved;
   guint payload_length;
   guint16 krb_ap_rep_length;
-  time_t timer;
   int start_payload_offset = 0; /* Keep beginning of payload offset */
 
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
@@ -400,22 +400,17 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_tree_add_uint(payload_kink_ap_rep_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
-  reserved = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(payload_kink_ap_rep_tree, tvb, offset, 1, "RESERVED: %u", reserved);
+  proto_tree_add_item(payload_kink_ap_rep_tree, hf_kink_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset ++;
 
+  ti = proto_tree_add_uint(payload_kink_ap_rep_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length <= PAYLOAD_HEADER){
-    proto_tree_add_text(payload_kink_ap_rep_tree, tvb, offset, 2, "This Payload Length is too small.: %u", payload_length);
-  }
-  else{
-    proto_tree_add_text(payload_kink_ap_rep_tree, tvb, offset, 2, "Payload Length: %u", payload_length);
+    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is too small");
   }
   offset += 2;
 
   /* Show time as UTC, not local time. */
-  timer = tvb_get_ntohl(tvb, offset);
-  proto_tree_add_text(payload_kink_ap_rep_tree, tvb, offset, 4, "EPOCH: %s",
-                      abs_time_secs_to_str(timer, ABSOLUTE_TIME_UTC, TRUE));
+  proto_tree_add_item(payload_kink_ap_rep_tree, hf_kink_epoch, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   if(payload_length > PAYLOAD_HEADER){
@@ -445,7 +440,6 @@ dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
   proto_tree *payload_kink_krb_error_tree;
   proto_item *ti;
   guint8 next_payload;
-  guint8 reserved;
   guint payload_length;
   guint16 krb_error_length;
   int start_payload_offset = 0; /* Keep the beginning of the payload offset  */
@@ -461,15 +455,14 @@ dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
   proto_tree_add_uint(payload_kink_krb_error_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
-  reserved = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(payload_kink_krb_error_tree, tvb, offset, 1, "RESERVED: %u", reserved);
+  proto_tree_add_item(payload_kink_krb_error_tree, hf_kink_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset ++;
 
+  ti = proto_tree_add_uint(payload_kink_krb_error_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length <= KINK_KRB_ERROR_HEADER){
-    proto_tree_add_text(payload_kink_krb_error_tree, tvb, offset, 2, "This Payload Length is too small.: %u", payload_length);
+    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is too small");
   }
-  else{
-    proto_tree_add_text(payload_kink_krb_error_tree, tvb, offset, 2, "Payload Length: %u", payload_length);
+  else {
     offset += 2;
   }
 
@@ -499,7 +492,6 @@ dissect_payload_kink_tgt_req(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_tree *payload_kink_tgt_req_tree;
   proto_item *ti;
   guint8 next_payload;
-  guint8 reserved;
   guint payload_length;
   guint16 realm_name_length;
   int start_payload_offset = 0; /* Keep the beginning of the payload offset  */
@@ -516,18 +508,16 @@ dissect_payload_kink_tgt_req(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_tree_add_uint(payload_kink_tgt_req_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
-  reserved = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(payload_kink_tgt_req_tree, tvb, offset, 1, "RESERVED: %u", reserved);
+  proto_tree_add_item(payload_kink_tgt_req_tree, hf_kink_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset ++;
 
-  proto_tree_add_text(payload_kink_tgt_req_tree, tvb, offset, 2, "Payload Length: %u", payload_length);
+  proto_tree_add_uint(payload_kink_tgt_req_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   offset += 2;
 
-  proto_tree_add_text(payload_kink_tgt_req_tree, tvb, offset, 2, "RealmNameLength: %u", realm_name_length);
+  proto_tree_add_uint(payload_kink_tgt_req_tree, hf_kink_realm_name_length, tvb, offset, 2, realm_name_length);
   offset += 2;
 
-  proto_tree_add_text(payload_kink_tgt_req_tree, tvb, offset, realm_name_length, "RealmName: %s",
-                      tvb_format_text(tvb, offset, realm_name_length));
+  proto_tree_add_item(payload_kink_tgt_req_tree, hf_kink_realm_name, tvb, offset, realm_name_length, ENC_NA|ENC_ASCII);
 
   /* This part consider the padding. Payload_length don't contain the padding. */
   if(payload_length % PADDING != 0){
@@ -545,7 +535,6 @@ dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_tree *payload_kink_tgt_rep_tree;
   proto_item *ti;
   guint8 next_payload;
-  guint8 reserved;
   guint payload_length;
   guint princ_name_length;
   guint16 tgt_length;
@@ -562,18 +551,17 @@ dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_tree_add_uint(payload_kink_tgt_rep_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
-  reserved = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(payload_kink_tgt_rep_tree, tvb, offset, 1, "RESERVED: %u", reserved);
+  proto_tree_add_item(payload_kink_tgt_rep_tree, hf_kink_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset ++;
 
-  proto_tree_add_text(payload_kink_tgt_rep_tree, tvb, offset, 2, "Payload Length: %u", payload_length);
+  proto_tree_add_uint(payload_kink_tgt_rep_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   offset += 2;
 
   princ_name_length = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_text(payload_kink_tgt_rep_tree, tvb, offset, 2, "PrincNameLength: %u", princ_name_length);
+  proto_tree_add_uint(payload_kink_tgt_rep_tree, hf_kink_princ_name_length, tvb, offset, 2, princ_name_length);
   offset += 2;
 
-  proto_tree_add_text(payload_kink_tgt_rep_tree, tvb, offset, princ_name_length, "PrincName: %s", tvb_format_text(tvb, offset, princ_name_length));
+  proto_tree_add_item(payload_kink_tgt_rep_tree, hf_kink_princ_name, tvb, offset, princ_name_length, ENC_NA|ENC_ASCII);
 
   /* This part consider the padding. Princ_name_length don't contain the padding. */
   if((princ_name_length + FRONT_TGT_REP_HEADER) % PADDING != 0){
@@ -583,12 +571,11 @@ dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
     offset += princ_name_length;
   }
 
-  tgt_length = tvb_get_ntohs(tvb,offset);
-
-  proto_tree_add_text(payload_kink_tgt_rep_tree, tvb, offset, 2, "TGTlength: %u", tgt_length);
+  tgt_length = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_uint(payload_kink_tgt_rep_tree, hf_kink_tgt_length, tvb, offset, 2, tgt_length);
   offset += 2;
 
-  proto_tree_add_text(payload_kink_tgt_rep_tree, tvb, offset, tgt_length, "TGT: %s", tvb_format_text(tvb, offset, tgt_length));
+  proto_tree_add_item(payload_kink_tgt_rep_tree, hf_kink_tgt, tvb, offset, tgt_length, ENC_NA|ENC_ASCII);
   offset += tgt_length;
 
   /* This part consider the padding. Payload_length don't contain the padding. */
@@ -607,12 +594,10 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_tree *payload_kink_isakmp_tree;
   proto_item *ti;
   guint8 next_payload;
-  guint8 reserved;
   guint payload_length,isakmp_length;
   int length, reported_length;
   guint8 inner_next_pload;
   guint8 qm, qmmaj, qmmin;
-  guint16 reserved2;
   int start_payload_offset = 0;      /* Keep the beginning of the payload offset */
   tvbuff_t *isakmp_tvb;
 
@@ -627,20 +612,17 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_tree_add_uint(payload_kink_isakmp_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
-  reserved = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(payload_kink_isakmp_tree, tvb, offset, 1, "RESERVED: %u", reserved);
+  proto_tree_add_item(payload_kink_isakmp_tree, hf_kink_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset ++;
 
+  ti = proto_tree_add_uint(payload_kink_isakmp_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length <= PAYLOAD_HEADER){
-    proto_tree_add_text(payload_kink_isakmp_tree, tvb, offset, 2, "This Payload Length is too small.: %u", payload_length);
-  }
-  else{
-    proto_tree_add_text(payload_kink_isakmp_tree, tvb, offset, 2, "Payload Length: %u", payload_length);
+    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is too small");
   }
   offset += 2;
 
   inner_next_pload = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(payload_kink_isakmp_tree, tvb, offset, 1, "InnerNextPload: %u", inner_next_pload);
+  proto_tree_add_uint(payload_kink_isakmp_tree, hf_kink_inner_next_pload, tvb, offset, 1, inner_next_pload);
   offset += 1;
 
   /* The qmmaj is first half 4bit field of the octet. Therefore, the logical product
@@ -655,8 +637,7 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_tree_add_text(payload_kink_isakmp_tree, tvb, offset, 1, "QMVersion: %u.%u", qmmaj, qmmin);
   offset += 1;
 
-  reserved2 = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_text(payload_kink_isakmp_tree, tvb, offset, 2, "RESERVED: %u", reserved2);
+  proto_tree_add_item(payload_kink_isakmp_tree, hf_kink_reserved16, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   if(payload_length > PAYLOAD_HEADER){
@@ -687,13 +668,11 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_tree *payload_kink_encrypt_tree;
   proto_item *ti;
   guint8 next_payload;
-  guint8 reserved;
   guint payload_length;
 #ifdef HAVE_KERBEROS
   gint encrypt_length;
 #endif
   guint8 inner_next_pload;
-  guint32 reserved2;
   guint16 inner_payload_length;
   int start_payload_offset = 0;    /* Keep the beginning of the payload offset */
 
@@ -711,15 +690,12 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_tree_add_uint(payload_kink_encrypt_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
-  reserved = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, 1, "RESERVED: %u", reserved);
+  proto_tree_add_item(payload_kink_encrypt_tree, hf_kink_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset ++;
 
+  ti = proto_tree_add_uint(payload_kink_encrypt_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length <= PAYLOAD_HEADER){
-    proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, 2, "This Payload Length is too small.: %u", payload_length);
-  }
-  else{
-    proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, 2, "Payload Length: %u", payload_length);
+    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is too small");
   }
   offset += 2;
 
@@ -742,11 +718,10 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   }
   else{
     inner_next_pload = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, 1, "InnerNextPload: %u", inner_next_pload);
+    proto_tree_add_uint(payload_kink_encrypt_tree, hf_kink_inner_next_pload, tvb, offset, 1, inner_next_pload);
     offset += 1;
 
-    reserved2 = 65536*tvb_get_guint8(tvb, offset) + 256*tvb_get_guint8(tvb, offset+1) + tvb_get_guint8(tvb, offset+2);
-    proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, 3, "RESERVED: %u", reserved2);
+    proto_tree_add_item(payload_kink_encrypt_tree, hf_kink_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     if(payload_length > PAYLOAD_HEADER){
@@ -774,7 +749,6 @@ dissect_decrypt_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
   proto_item *ti;
   int offset=0;
   guint8 next_payload;
-  guint32 reserved;
 
   ti = proto_tree_add_text(tree, tvb, offset, payload_length, "decrypted data");
   decrypt_kink_encrypt_tree = proto_item_add_subtree(ti, ett_decrypt_kink_encrypt);
@@ -784,8 +758,7 @@ dissect_decrypt_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
   proto_tree_add_uint(decrypt_kink_encrypt_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
-  reserved = 65536*tvb_get_guint8(tvb, offset) + 256*tvb_get_guint8(tvb, offset+1) + tvb_get_guint8(tvb, offset+2);
-  proto_tree_add_text(decrypt_kink_encrypt_tree, tvb, offset, 3, "RESERVED: %u", reserved);
+  proto_tree_add_item(decrypt_kink_encrypt_tree, hf_kink_reserved24, tvb, offset, 3, ENC_BIG_ENDIAN);
   offset += 3;
 
   control_payload(pinfo, tvb, offset, next_payload, decrypt_kink_encrypt_tree);
@@ -797,7 +770,6 @@ dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_
   proto_tree *payload_kink_error_tree;
   proto_item *ti;
   guint8 next_payload;
-  guint8 reserved;
   guint16 payload_length;
   guint32 error_code;
   int start_payload_offset = 0; /* Keep the beginning of the payload offset */
@@ -822,15 +794,12 @@ dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_
   proto_tree_add_uint(payload_kink_error_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
-  reserved = tvb_get_guint8(tvb,offset);
-  proto_tree_add_text(payload_kink_error_tree, tvb, offset, 1, "RESERVED: %u", reserved);
+  proto_tree_add_item(payload_kink_error_tree, hf_kink_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset ++;
 
+  ti = proto_tree_add_uint(payload_kink_error_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   if(payload_length != KINK_ERROR_LENGTH){
-    proto_tree_add_text(payload_kink_error_tree, tvb, offset, 2, "This Payload Length is mismatch.: %u", payload_length);
-  }
-  else{
-    proto_tree_add_text(payload_kink_error_tree, tvb, offset, 2, "Payload Length: %u", payload_length);
+    expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "This Payload Length is mismatch");
   }
   offset += 2;
 
@@ -871,7 +840,6 @@ dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, 
   proto_item *ti;
   guint8 next_payload;
   guint payload_length;
-  guint8 reserved;
   int start_payload_offset = 0;   /* Keep the beginning of the payload offset */
 
   start_payload_offset = offset;
@@ -885,11 +853,10 @@ dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, 
   proto_tree_add_uint(payload_kink_not_defined_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
-  reserved = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(payload_kink_not_defined_tree, tvb, offset, 1, "RESERVED: %u", reserved);
+  proto_tree_add_item(payload_kink_not_defined_tree, hf_kink_reserved8, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset ++;
 
-  proto_tree_add_text(payload_kink_not_defined_tree, tvb, offset, 2, "Payload Length: %u", payload_length);
+  proto_tree_add_uint(payload_kink_not_defined_tree, hf_kink_payload_length, tvb, offset, 2, payload_length);
   offset += 2;
 
   /* This part consider the padding. Payload_length don't contain the padding. */
@@ -929,9 +896,21 @@ proto_register_kink(void) {
       { "A",       "kink.A",
         FT_UINT8,       BASE_DEC,       VALS(kink_A_vals),      0x0,
         "the A of kink", HFILL }},
-    { &hf_kink_reserved,
+    { &hf_kink_reserved8,
       { "Reserved",       "kink.reserved",
-        FT_UINT16,      BASE_DEC,       NULL,   0x0,
+        FT_UINT8,      BASE_DEC,       NULL,   0x0,
+        "the reserved of kink", HFILL }},
+    { &hf_kink_reserved15,
+      { "Reserved",       "kink.reserved",
+        FT_UINT16,      BASE_DEC,       NULL,   SECOND_FIFTEEN_BIT,
+        "the reserved of kink", HFILL }},
+    { &hf_kink_reserved16,
+      { "Reserved",       "kink.reserved",
+        FT_UINT16,      BASE_DEC,       NULL,   0,
+        "the reserved of kink", HFILL }},
+    { &hf_kink_reserved24,
+      { "Reserved",       "kink.reserved",
+        FT_UINT24,      BASE_DEC,       NULL,   0,
         "the reserved of kink", HFILL }},
     { &hf_kink_checkSum,
       { "Checksum",       "kink.checkSum",
@@ -940,8 +919,43 @@ proto_register_kink(void) {
     { &hf_kink_next_payload,
       { "Next Payload",       "kink.nextPayload",
         FT_UINT8,       BASE_DEC,       VALS(kink_next_payload),        0x0,
-        "the next payload of kink", HFILL }}
-
+        "the next payload of kink", HFILL }},
+    { &hf_kink_payload_length,
+      { "Payload Length",       "kink.payloadLength",
+        FT_UINT8,       BASE_DEC,       NULL,        0x0,
+        NULL, HFILL }},
+    { &hf_kink_epoch,
+      { "EPOCH",       "kink.epoch",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,       NULL,        0x0,
+        NULL, HFILL }},
+    { &hf_kink_inner_next_pload,
+      { "InnerNextPload",       "kink.innerNextPload",
+        FT_UINT8,       BASE_DEC,       NULL,        0x0,
+        NULL, HFILL }},
+    { &hf_kink_realm_name_length,
+      { "RealmNameLength",       "kink.realmNameLength",
+        FT_UINT16,      BASE_DEC,       NULL,   0,
+        NULL, HFILL }},
+    { &hf_kink_realm_name,
+      { "RealmName",       "kink.realmName",
+        FT_STRING,      BASE_NONE,       NULL,   0,
+        NULL, HFILL }},
+    { &hf_kink_princ_name_length,
+      { "PrincNameLength",       "kink.princNameLength",
+        FT_UINT16,      BASE_DEC,       NULL,   0,
+        NULL, HFILL }},
+    { &hf_kink_princ_name,
+      { "PrincName",       "kink.princName",
+        FT_STRING,      BASE_NONE,       NULL,   0,
+        NULL, HFILL }},
+    { &hf_kink_tgt_length,
+      { "TGT Length",       "kink.tgtLength",
+        FT_UINT16,      BASE_DEC,       NULL,   0,
+        NULL, HFILL }},
+    { &hf_kink_tgt,
+      { "TGT",       "kink.tgt",
+        FT_STRING,      BASE_NONE,       NULL,   0,
+        NULL, HFILL }},
   };
 
   /* Argument for making the subtree. */
