@@ -115,10 +115,10 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     if (tree) { /* we are being asked for details */
         fmtp_tree = proto_item_add_subtree(ti, ett_fmtp);
-        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_version,  tvb, 0, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_reserved, tvb, 1, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_length,   tvb, 2, 2, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_type,     tvb, 4, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_version,  tvb, 0, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_reserved, tvb, 1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_length,   tvb, 2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_type,     tvb, 4, 1, ENC_BIG_ENDIAN);
 
         next_tvb = tvb_new_subset_remaining(tvb, FMTP_HEADER_LEN);
         call_dissector(data_handle, next_tvb, pinfo, fmtp_tree);
