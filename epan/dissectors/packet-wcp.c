@@ -102,11 +102,11 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
-#include "packet-frame.h"
 #include <epan/circuit.h>
 #include <epan/emem.h>
 #include <epan/etypes.h>
 #include <epan/nlpid.h>
+#include <epan/expert.h>
 
 #define MAX_WIN_BUF_LEN 0x7fff		/* storage size for decompressed data */
 #define MAX_WCP_BUF_LEN 2048		/* storage size for decompressed data */
@@ -154,6 +154,7 @@ static int hf_wcp_hist_size = -1;
 static int hf_wcp_ppc = -1;
 static int hf_wcp_pib = -1;
 
+static int hf_wcp_compressed_data = -1;
 static int hf_wcp_comp_bits = -1;
 /* static int hf_wcp_comp_marker = -1; */
 static int hf_wcp_short_len = -1;
@@ -163,6 +164,7 @@ static int hf_wcp_long_run = -1;
 static int hf_wcp_offset = -1;
 
 static gint ett_wcp = -1;
+static gint ett_wcp_comp_data = -1;
 static gint ett_wcp_field = -1;
 
 static dissector_handle_t fr_uncompressed_handle;
@@ -375,8 +377,6 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		next_tvb = wcp_uncompress( tvb, wcp_header_len, pinfo, wcp_tree);
 
 		if ( !next_tvb){
-			proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
-                             		"[Malformed Frame: Bad WCP compressed data]" );
 			return;
 		}
 	}
@@ -422,8 +422,6 @@ static guint8 *decompressed_entry( guint8 *src, guint8 *dst, int *len, guint8 * 
 	while( data_cnt--){
 		*dst = *src;
 		if ( ++(*len) >MAX_WCP_BUF_LEN){
-			printf("decomp failed, len = %d\n",  *len);
-
 			return NULL;	/* end of buffer error */
 		}
 		if ( dst++ == buf_end)
@@ -470,82 +468,93 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 
 /* do the packet data uncompression and load it into the dst buffer */
 
-	proto_tree	*sub_tree;
-	proto_item	*ti;
+	proto_tree	*cd_tree, *sub_tree;
+	proto_item	*cd_item, *ti;
 
-	int len=0, i = -1;
+	int len, i;
 	int cnt = tvb_reported_length( src_tvb)-1;	/* don't include check byte */
 
 	guint8 *dst, *src, *buf_start, *buf_end, comp_flag_bits = 0;
 	guint8 src_buf[ MAX_WCP_BUF_LEN];
-	tvbuff_t *volatile tvb = 0;
+	tvbuff_t *tvb;
 	wcp_window_t *buf_ptr = 0;
-	wcp_pdata_t *volatile pdata_ptr;
-	volatile gboolean bounds_error = FALSE;
+	wcp_pdata_t *pdata_ptr;
 
 	buf_ptr = get_wcp_window_ptr( pinfo);
 
 	buf_start = buf_ptr->buffer;
 	buf_end = buf_start + MAX_WIN_BUF_LEN;
 
+	cd_item = proto_tree_add_item(tree, hf_wcp_compressed_data,
+	    src_tvb, offset, cnt - offset, ENC_NA);
+	cd_tree = proto_item_add_subtree(cd_item, ett_wcp_comp_data);
 	if (cnt - offset > MAX_WCP_BUF_LEN) {
-		if (tree)
-			proto_tree_add_text( tree, src_tvb, offset, -1,
-				"Compressed data exceeds maximum buffer length (%d > %d)",
-				cnt - offset, MAX_WCP_BUF_LEN);
+		expert_add_info_format(pinfo, cd_item, PI_MALFORMED, PI_ERROR,
+			"Compressed data exceeds maximum buffer length (%d > %d)",
+			cnt - offset, MAX_WCP_BUF_LEN);
 		return NULL;
 	}
 
 	src = tvb_memcpy(src_tvb, src_buf, offset, cnt - offset);
 	dst = buf_ptr->buf_cur;
+	len = 0;
+	i = -1;
 
-	while( offset++ < cnt){
+	while( offset < cnt){
 
 		if ( --i >= 0){
 			if ( comp_flag_bits & 0x80){	/* if this is a compressed entry */
 
 				if ( !pinfo->fd->flags.visited){	/* if first pass */
 					dst = decompressed_entry( src, dst, &len, buf_start, buf_end);
+					if (dst == NULL){
+						expert_add_info_format(pinfo, cd_item, PI_MALFORMED, PI_ERROR,
+							"Uncompressed data exceeds maximum buffer length (%d > %d)",
+							len, MAX_WCP_BUF_LEN);
+						return NULL;
+					}
 				}
 				if ((*src & 0xf0) == 0x10){
 					if ( tree) {
-						ti = proto_tree_add_item( tree, hf_wcp_long_run, src_tvb,
-							 offset-1, 3, ENC_NA);
+						ti = proto_tree_add_item( cd_tree, hf_wcp_long_run, src_tvb,
+							 offset, 3, ENC_NA);
 						sub_tree = proto_item_add_subtree(ti, ett_wcp_field);
 						proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
-							 offset-1, 2, pntohs(src));
+							 offset, 2, pntohs(src));
 
 						proto_tree_add_item( sub_tree, hf_wcp_long_len, src_tvb,
-							 offset+1, 1, ENC_BIG_ENDIAN);
+							 offset+2, 1, ENC_BIG_ENDIAN);
 					}
 					src += 3;
-					offset += 2;
+					offset += 3;
 				}else{
 					if ( tree) {
-						ti = proto_tree_add_item( tree, hf_wcp_short_run, src_tvb,
-							 offset - 1, 2, ENC_NA);
+						ti = proto_tree_add_item( cd_tree, hf_wcp_short_run, src_tvb,
+							 offset, 2, ENC_NA);
 						sub_tree = proto_item_add_subtree(ti, ett_wcp_field);
 						proto_tree_add_uint( sub_tree, hf_wcp_short_len, src_tvb,
-							 offset-1, 1, *src);
+							 offset, 1, *src);
 						proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
-							 offset-1, 2, pntohs(src));
+							 offset, 2, pntohs(src));
 					}
 					src += 2;
-					offset += 1;
+					offset += 2;
 				}
 			}else {
+				if ( ++len >MAX_WCP_BUF_LEN){
+					expert_add_info_format(pinfo, cd_item, PI_MALFORMED, PI_ERROR,
+						"Uncompressed data exceeds maximum buffer length (%d > %d)",
+						len, MAX_WCP_BUF_LEN);
+					return NULL;
+				}
+
 				if ( !pinfo->fd->flags.visited){	/* if first pass */
 					*dst = *src;
 					if ( dst++ == buf_end)
 						dst = buf_start;
 				}
 				++src;
-				++len;
-
-			}
-
-			if ( len >MAX_WCP_BUF_LEN){
-				return NULL;
+				++offset;
 			}
 
 			comp_flag_bits <<= 1;
@@ -553,9 +562,10 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 		}else {	/* compressed data flag */
 
 			comp_flag_bits = *src++;
-			if (tree)
-				proto_tree_add_uint( tree, hf_wcp_comp_bits,  src_tvb, offset-1, 1,
+			if (cd_tree)
+				proto_tree_add_uint(cd_tree, hf_wcp_comp_bits,  src_tvb, offset, 1,
 					comp_flag_bits);
+			offset++;
 
 			i = 8;
 		}
@@ -565,8 +575,10 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 					/* get uncompressed data */
 		pdata_ptr = p_get_proto_data( pinfo->fd, proto_wcp);
 
-		if ( !pdata_ptr)	/* exit if no data */
+		if ( !pdata_ptr) {	/* exit if no data */
+			REPORT_DISSECTOR_BUG("Can't find uncompressed data");
 			return NULL;
+		}
 		len = pdata_ptr->len;
 	} else {
 
@@ -580,19 +592,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 		buf_ptr->buf_cur = dst;
 	}
 
-
-        TRY {
-                tvb = tvb_new_child_real_data(src_tvb,  pdata_ptr->buffer, pdata_ptr->len, pdata_ptr->len);
-        }
-        CATCH(BoundsError) {
-		DISSECTOR_ASSERT_NOT_REACHED();
-        }
-        CATCH(ReportedBoundsError) {
-		bounds_error = TRUE;
-        }
-        ENDTRY;
-
-	if (bounds_error) return NULL;
+	tvb = tvb_new_child_real_data(src_tvb,  pdata_ptr->buffer, pdata_ptr->len, pdata_ptr->len);
 
 	/* Add new data to the data source list */
 	add_new_data_source( pinfo, tvb, "Uncompressed WCP");
@@ -661,6 +661,9 @@ proto_register_wcp(void)
 	{ &hf_wcp_pib,
 	  { "PIB", "wcp.pib", FT_UINT8, BASE_DEC, NULL, 0,
 	  	NULL, HFILL }},
+	{ &hf_wcp_compressed_data,
+	  { "Compressed Data", "wcp.compressed_data", FT_NONE, BASE_NONE, NULL, 0,
+	  	"Raw compressed data", HFILL }},
 	{ &hf_wcp_comp_bits,
 	  { "Compress Flag", "wcp.flag", FT_UINT8, BASE_HEX, NULL, 0,
 	  	"Compressed byte flag", HFILL }},
@@ -690,6 +693,7 @@ proto_register_wcp(void)
 
     static gint *ett[] = {
         &ett_wcp,
+        &ett_wcp_comp_data,
 	&ett_wcp_field,
     };
 
