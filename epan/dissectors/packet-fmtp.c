@@ -115,10 +115,10 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     if (tree) { /* we are being asked for details */
         fmtp_tree = proto_item_add_subtree(ti, ett_fmtp);
-        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_version,  tvb, 0, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_reserved, tvb, 1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_version,  tvb, 0, 1, ENC_NA);
+        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_reserved, tvb, 1, 1, ENC_NA);
         proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_length,   tvb, 2, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_type,     tvb, 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_type,     tvb, 4, 1, ENC_NA);
 
         next_tvb = tvb_new_subset_remaining(tvb, FMTP_HEADER_LEN);
         call_dissector(data_handle, next_tvb, pinfo, fmtp_tree);
@@ -203,4 +203,17 @@ proto_reg_handoff_fmtp(void)
     heur_dissector_add("tcp", dissect_fmtp, proto_fmtp);
     data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
 
