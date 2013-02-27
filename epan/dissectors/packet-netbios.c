@@ -116,6 +116,12 @@ static int hf_netb_fragment_too_long_fragment = -1;
 static int hf_netb_fragment_error = -1;
 static int hf_netb_fragment_count = -1;
 static int hf_netb_reassembled_length = -1;
+static int hf_netb_middle_flags = -1;
+static int hf_netb_data_only_flags = -1;
+static int hf_netb_add_ses_confirm_flags = -1;
+static int hf_netb_add_session_init_flags = -1;
+static int hf_netb_datagram_mac = -1;
+static int hf_netb_datagram_bcast_mac = -1;
 
 static gint ett_netb = -1;
 static gint ett_netb_name = -1;
@@ -371,19 +377,17 @@ static void netbios_data_first_middle_flags( tvbuff_t *tvb, proto_tree *tree, in
 {
 	proto_tree *field_tree;
 	proto_item *tf;
-	guint flags = tvb_get_guint8( tvb, offset);
 
 		/* decode the flag field for Data First Middle packet*/
 
-	tf = proto_tree_add_text(tree, tvb, offset, 1,
-			"Flags: 0x%02x", flags);
+	tf = proto_tree_add_item(tree, hf_netb_middle_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
-	proto_tree_add_boolean( field_tree, hf_netb_ack, tvb, offset, 1, flags);
+	proto_tree_add_item( field_tree, hf_netb_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_boolean( field_tree, hf_netb_ack_expected, tvb, offset, 1, flags);
+	proto_tree_add_item( field_tree, hf_netb_ack_expected, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_boolean( field_tree, hf_netb_recv_cont_req, tvb, offset, 1, flags);
+	proto_tree_add_item( field_tree, hf_netb_recv_cont_req, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void netbios_data_only_flags( tvbuff_t *tvb, proto_tree *tree,
@@ -391,19 +395,17 @@ static void netbios_data_only_flags( tvbuff_t *tvb, proto_tree *tree,
 {
 	proto_tree *field_tree;
 	proto_item *tf;
-	guint flags = tvb_get_guint8( tvb, offset);
 
 		/* decode the flag field for Data Only Last packet*/
 
-	tf = proto_tree_add_text(tree, tvb, offset, 1,
-			"Flags: 0x%02x", flags);
+	tf = proto_tree_add_item(tree, hf_netb_data_only_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
-	proto_tree_add_boolean( field_tree, hf_netb_ack, tvb, offset, 1, flags);
+	proto_tree_add_item( field_tree, hf_netb_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_boolean( field_tree, hf_netb_ack_with_data, tvb, offset, 1, flags);
+	proto_tree_add_item( field_tree, hf_netb_ack_with_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_boolean( field_tree, hf_netb_ack_expected, tvb, offset, 1, flags);
+	proto_tree_add_item( field_tree, hf_netb_ack_expected, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 }
 
 
@@ -413,16 +415,14 @@ static void netbios_add_ses_confirm_flags( tvbuff_t *tvb, proto_tree *tree,
 {
 	proto_tree *field_tree;
 	proto_item *tf;
-	guint flags = tvb_get_guint8( tvb, offset);
 
-		/* decode the flag field for Session Confirm packet */
-	tf = proto_tree_add_text(tree, tvb, offset, 1,
-			"Flags: 0x%02x", flags);
+	/* decode the flag field for Session Confirm packet */
+	tf = proto_tree_add_item(tree, hf_netb_add_ses_confirm_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	field_tree = proto_item_add_subtree( tf, ett_netb_flags);
 
-	proto_tree_add_boolean( field_tree, hf_netb_send_no_ack, tvb, offset, 1, flags);
+	proto_tree_add_item( field_tree, hf_netb_send_no_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_boolean( field_tree, hf_netb_version, tvb, offset, 1, flags);
+	proto_tree_add_item( field_tree, hf_netb_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 }
 
 
@@ -431,19 +431,16 @@ static void netbios_add_session_init_flags( tvbuff_t *tvb, proto_tree *tree,
 {
 	proto_tree *field_tree;
 	proto_item *tf;
-	guint flags = tvb_get_guint8( tvb, offset);
 		/* decode the flag field for Session Init packet */
 
-	tf = proto_tree_add_text(tree, tvb, offset, 1,
-			"Flags: 0x%02x", flags);
+	tf = proto_tree_add_item(tree, hf_netb_add_session_init_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
-	proto_tree_add_boolean( field_tree, hf_netb_send_no_ack, tvb, offset, 1, flags);
+	proto_tree_add_item( field_tree, hf_netb_send_no_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_uint( field_tree, hf_netb_largest_frame, tvb, offset, 1,
-		flags);
+	proto_tree_add_item( field_tree, hf_netb_largest_frame, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_boolean( field_tree, hf_netb_version, tvb, offset, 1, flags);
+	proto_tree_add_item( field_tree, hf_netb_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 }
 
 
@@ -682,9 +679,8 @@ dissect_netb_datagram( tvbuff_t *tvb, int offset, proto_tree *tree)
 	   by a MAC address.... */
 
 	if (tvb_memeql(tvb, offset + NB_SENDER_NAME, zeroes, 10) == 0) {
-		proto_tree_add_text( tree, tvb, offset + NB_SENDER_NAME + 10, 6,
-		    "Sender's MAC Address: %s",
-		    tvb_ether_to_str(tvb, offset + NB_SENDER_NAME + 10));
+		proto_tree_add_item(tree, hf_netb_datagram_mac,
+							tvb, offset + NB_SENDER_NAME + 10, 6, ENC_NA );
 	} else {
 		netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 		    tree);
@@ -701,9 +697,8 @@ dissect_netb_datagram_bcast( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	/* We assume the same weirdness can happen here.... */
 	if (tvb_memeql(tvb, offset + NB_SENDER_NAME, zeroes, 10) == 0) {
-		proto_tree_add_text( tree, tvb, offset + NB_SENDER_NAME + 10, 6,
-		    "Sender's Node Address: %s",
-		    tvb_ether_to_str(tvb, offset + NB_SENDER_NAME + 10));
+		proto_tree_add_item(tree, hf_netb_datagram_bcast_mac,
+							tvb, offset + NB_SENDER_NAME + 10, 6, ENC_NA );
 	} else {
 		netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 		    tree);
@@ -1414,6 +1409,30 @@ void proto_register_netbios(void)
 		{ &hf_netb_reassembled_length,
 		{"Reassembled NetBIOS length",	"netbios.reassembled.length", FT_UINT32, BASE_DEC,
 			NULL, 0x0, "The total length of the reassembled payload", HFILL }},
+
+		{ &hf_netb_middle_flags,
+		{"Flags",	"netbios.middle_flags", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_netb_data_only_flags,
+		{"Flags",	"netbios.data_only_flags", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_netb_add_ses_confirm_flags,
+		{"Flags",	"netbios.add_ses_confirm_flags", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_netb_add_session_init_flags,
+		{"Flags",	"netbios.add_session_init_flags", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_netb_datagram_mac,
+		{"Sender's MAC Address",	"netbios.datagram_mac", FT_ETHER, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_netb_datagram_bcast_mac,
+		{"Sender's Node Address",	"netbios.datagram_bcast_mac", FT_ETHER, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
 	};
 	module_t *netbios_module;
 
