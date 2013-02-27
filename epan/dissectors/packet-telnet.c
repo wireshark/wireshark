@@ -8,8 +8,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Copied from packet-pop.c
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -36,6 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
@@ -43,6 +42,8 @@
 #include "packet-tn5250.h"
 
 static int proto_telnet = -1;
+static int hf_telnet_cmd = -1;
+static int hf_telnet_subcmd = -1;
 static int hf_telnet_auth_cmd = -1;
 static int hf_telnet_auth_name = -1;
 static int hf_telnet_auth_type = -1;
@@ -52,12 +53,35 @@ static int hf_telnet_auth_mod_cred_fwd = -1;
 static int hf_telnet_auth_mod_enc = -1;
 static int hf_telnet_auth_krb5_type = -1;
 
+static int hf_telnet_string_subopt_value = -1;
+static int hf_telnet_naws_subopt_width = -1;
+static int hf_telnet_naws_subopt_height = -1;
+static int hf_telnet_outmark_subopt_cmd = -1;
+static int hf_telnet_outmark_subopt_banner = -1;
+static int hf_telnet_comport_subopt_signature = -1;
+static int hf_telnet_comport_subopt_baud_rate = -1;
+static int hf_telnet_comport_subopt_data_size = -1;
+static int hf_telnet_comport_subopt_parity = -1;
+static int hf_telnet_comport_subopt_stop = -1;
+static int hf_telnet_comport_subopt_control = -1;
+static int hf_telnet_comport_subopt_purge = -1;
+static int hf_telnet_rfc_subopt_cmd = -1;
+
 static int hf_telnet_enc_cmd = -1;
 static int hf_telnet_enc_type = -1;
 
 static int hf_telnet_data = -1;
 
+static int hf_tn3270_subopt = -1;
+static int hf_tn3270_connect = -1;
+static int hf_tn3270_is = -1;
+static int hf_tn3270_request_string = -1;
+static int hf_tn3270_reason = -1;
+static int hf_tn3270_request = -1;
+static int hf_tn3270_regime_subopt_value = -1;
+
 static gint ett_telnet = -1;
+static gint ett_telnet_cmd = -1;
 static gint ett_telnet_subopt = -1;
 static gint ett_status_subopt = -1;
 static gint ett_rcte_subopt = -1;
@@ -125,6 +149,28 @@ static dissector_handle_t tn5250_handle;
 #define TN_EOF   236
 #define TN_ARE     1
 
+static const value_string cmd_vals[] = {
+  { TN_EOF,    "End of File" },
+  { TN_SUSP,   "Suspend Current Process" },
+  { TN_ABORT,  "Abort Process" },
+  { TN_EOR,    "End of Record" },
+  { TN_SE,     "Suboption End" },
+  { TN_NOP,    "No Operation" },
+  { TN_DM,     "Data Mark" },
+  { TN_BRK,    "Break" },
+  { TN_IP,     "Interrupt Process" },
+  { TN_AO,     "Abort Output" },
+  { TN_AYT,    "Are You There?" },
+  { TN_EC,     "Escape Character" },
+  { TN_EL,     "Erase Line" },
+  { TN_GA,     "Go Ahead" },
+  { TN_DONT,   "Don't" },
+  { TN_DO,     "Do" },
+  { TN_WONT,   "Won't" },
+  { TN_WILL,   "Will" },
+  { TN_SB,     "Suboption" },
+  { 0, NULL }
+};
 
 typedef enum {
   NO_LENGTH,            /* option has no data, hence no length */
@@ -138,7 +184,7 @@ typedef struct tn_opt {
   gint            *subtree_index; /* pointer to subtree index for option */
   tn_opt_len_type  len_type;      /* type of option length field */
   int              optlen;        /* value length should be (minimum if VARIABLE) */
-  void  (*dissect)(packet_info *pinfo, const char *, tvbuff_t *, int, int, proto_tree *);
+  void  (*dissect)(packet_info *pinfo, const char *, tvbuff_t *, int, int, proto_tree *, proto_item*);
                                   /* routine to dissect option */
 } tn_opt;
 
@@ -183,8 +229,8 @@ check_for_tn3270(packet_info *pinfo _U_, const char *optname, const char *termin
 }
 
 static void
-dissect_string_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb, int offset, int len,
-                      proto_tree *tree)
+dissect_string_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, int offset, int len,
+                      proto_tree *tree, proto_item *item)
 {
   guint8 cmd;
 
@@ -196,8 +242,7 @@ dissect_string_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb
     offset++;
     len--;
     if (len > 0) {
-      proto_tree_add_text(tree, tvb, offset, len, "Value: %s",
-                          tvb_format_text(tvb, offset, len));
+      proto_tree_add_item(tree, hf_telnet_string_subopt_value, tvb, offset, len, ENC_NA|ENC_ASCII);
     }
     check_for_tn3270(pinfo, optname, tvb_format_text(tvb, offset, len));
     break;
@@ -211,8 +256,9 @@ dissect_string_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb
     break;
 
   default:
-    proto_tree_add_text(tree, tvb, offset, 1, "Invalid %s subcommand %u",
-                        optname, cmd);
+    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Invalid %s subcommand %u",
+                            optname, cmd);
+
     offset++;
     len--;
     if (len > 0)
@@ -222,8 +268,8 @@ dissect_string_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb
 }
 
 static void
-dissect_tn3270_regime_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                       int len, proto_tree *tree)
+dissect_tn3270_regime_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset,
+                       int len, proto_tree *tree, proto_item *item)
 {
 #define TN3270_REGIME_ARE          0x01
 #define TN3270_REGIME_IS           0x00
@@ -241,13 +287,12 @@ dissect_tn3270_regime_subopt(packet_info *pinfo _U_, const char *optname _U_, tv
       } else {
         proto_tree_add_text(tree, tvb, offset, 1, "IS");
       }
-      proto_tree_add_text(tree, tvb, offset + 1, len - 1, "%s",
-                          tvb_format_text(tvb, offset + 1, len - 1));
+      proto_tree_add_item(tree, hf_tn3270_regime_subopt_value, tvb, offset + 1, len - 1, ENC_NA|ENC_ASCII);
       offset += len;
       len -= len;
       return;
     default:
-      proto_tree_add_text(tree, tvb, offset, 1, "Bogus value: %u", cmd);
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Bogus value: %u", cmd);
       break;
     }
     offset++;
@@ -281,9 +326,43 @@ dissect_tn3270_regime_subopt(packet_info *pinfo _U_, const char *optname _U_, tv
 #define TN3270_SCS_CTL_CODES      0x03
 #define TN3270_SYSREQ             0x04
 
+static const value_string tn3270_subopt_vals[] = {
+  { TN3270_ASSOCIATE,   "ASSOCIATE" },
+  { TN3270_CONNECT,     "CONNECT" },
+  { TN3270_DEVICE_TYPE, "DEVICE-TYPE" },
+  { TN3270_FUNCTIONS,   "FUNCTIONS" },
+  { TN3270_IS,          "IS" },
+  { TN3270_REASON,      "REASON" },
+  { TN3270_REJECT,      "REJECT" },
+  { TN3270_REQUEST,     "REQUEST" },
+  { TN3270_SEND,        "SEND" },
+  { 0, NULL }
+};
+
+static const value_string tn3270_reason_vals[] = {
+  { TN3270_CONN_PARTNER,    "CONN-PARTNER" },
+  { TN3270_DEVICE_IN_USE,   "DEVICE-IN-USE" },
+  { TN3270_INV_ASSOCIATE,   "INV-ASSOCIATE" },
+  { TN3270_INV_DEVICE_NAME, "INV-DEVICE-NAME" },
+  { TN3270_INV_DEVICE_TYPE, "INV-DEVICE-TYPE" },
+  { TN3270_TYPE_NAME_ERROR, "TYPE-NAME-ERROR" },
+  { TN3270_UNKNOWN_ERROR,   "UNKNOWN-ERROR" },
+  { TN3270_UNSUPPORTED_REQ, "UNSUPPORTED-REQ" },
+  { 0, NULL }
+};
+
+static const value_string tn3270_request_vals[] = {
+  { TN3270_BIND_IMAGE,      "BIND-IMAGE" },
+  { TN3270_DATA_STREAM_CTL, "DATA-STREAM-CTL" },
+  { TN3270_RESPONSES,       "RESPONSES" },
+  { TN3270_SCS_CTL_CODES,   "SCS-CTL-CODES" },
+  { TN3270_SYSREQ,          "SYSREQ" },
+  { 0, NULL }
+};
+
 static void
 dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                       int len, proto_tree *tree)
+                       int len, proto_tree *tree, proto_item *item)
 {
 
   guint8 cmd;
@@ -294,25 +373,14 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
 
   while (len > 0) {
     cmd = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item( tree, hf_tn3270_subopt, tvb, offset, 1, ENC_NA );
     switch (cmd) {
-      case TN3270_ASSOCIATE:
-            proto_tree_add_text(tree, tvb, offset, 1, "ASSOCIATE");
-            break;
       case TN3270_CONNECT:
-            proto_tree_add_text(tree, tvb, offset, 1, "CONNECT");
-            proto_tree_add_text(tree, tvb, offset + 1, len, "%s",
-                                tvb_format_text(tvb, offset + 1, len - 1));
+            proto_tree_add_item( tree, hf_tn3270_connect, tvb, offset + 1, len, ENC_NA|ENC_ASCII );
             offset += (len - 1);
             len -= (len - 1);
             break;
-      case TN3270_DEVICE_TYPE:
-            proto_tree_add_text(tree, tvb, offset, 1, "DEVICE-TYPE");
-            break;
-      case TN3270_FUNCTIONS:
-            proto_tree_add_text(tree, tvb, offset, 1, "FUNCTIONS");
-            break;
       case TN3270_IS:
-            proto_tree_add_text(tree, tvb, offset, 1, "IS");
             device_type = tvb_get_guint8(tvb, offset-1);
             if (device_type == TN3270_DEVICE_TYPE) {
                 /* If there is a terminal type to display, then it will be followed by CONNECT */
@@ -320,8 +388,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
                 if (connect_offset != -1) {
                   datalen = connect_offset - (offset + 1);
                   if (datalen > 0) {
-                    proto_tree_add_text(tree, tvb, offset + 1, datalen, "%s",
-                                        tvb_format_text(tvb, offset + 1, datalen));
+                    proto_tree_add_item( tree, hf_tn3270_is, tvb, offset + 1, datalen, ENC_NA|ENC_ASCII );
                     check_tn3270_model(pinfo, tvb_format_text(tvb, offset + 1, datalen));
                     offset += datalen;
                     len -= datalen;
@@ -330,86 +397,28 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
             }
             break;
       case TN3270_REASON:
-            proto_tree_add_text(tree, tvb, offset, 1, "REASON");
             offset++;
             len--;
-            rsn = tvb_get_guint8(tvb, offset);
-            switch (rsn) {
-              case TN3270_CONN_PARTNER:
-                    proto_tree_add_text(tree, tvb, offset, 1, "CONN-PARTNER");
-                    break;
-              case TN3270_DEVICE_IN_USE:
-                    proto_tree_add_text(tree, tvb, offset, 1, "DEVICE-IN-USE");
-                    break;
-              case TN3270_INV_ASSOCIATE:
-                    proto_tree_add_text(tree, tvb, offset, 1, "INV-ASSOCIATE");
-                    break;
-              case TN3270_INV_DEVICE_NAME:
-                    proto_tree_add_text(tree, tvb, offset, 1, "INV-DEVICE-NAME");
-                    break;
-              case TN3270_INV_DEVICE_TYPE:
-                    proto_tree_add_text(tree, tvb, offset, 1, "INV-DEVICE-TYPE");
-                    break;
-              case TN3270_TYPE_NAME_ERROR:
-                    proto_tree_add_text(tree, tvb, offset, 1, "TYPE-NAME-ERROR");
-                    break;
-              case TN3270_UNKNOWN_ERROR:
-                    proto_tree_add_text(tree, tvb, offset, 1, "UNKNOWN-ERROR");
-                    break;
-              case TN3270_UNSUPPORTED_REQ:
-                    proto_tree_add_text(tree, tvb, offset, 1, "UNSUPPORTED-REQ");
-                    break;
-              default:
-                    proto_tree_add_text(tree, tvb, offset, 1, "Bogus value: %u", rsn);
-                    break;
-            }
-            break;
-      case TN3270_REJECT:
-            proto_tree_add_text(tree, tvb, offset, 1, "REJECT");
+            proto_tree_add_item( tree, hf_tn3270_reason, tvb, offset, 1, ENC_NA );
             break;
       case TN3270_REQUEST:
             add_tn3270_conversation(pinfo, 1, 0);
-            proto_tree_add_text(tree, tvb, offset, 1, "REQUEST");
             device_type = tvb_get_guint8(tvb, offset-1);
             if (device_type == TN3270_DEVICE_TYPE) {
-              proto_tree_add_text(tree, tvb, offset + 1, len, "%s",
-                                  tvb_format_text(tvb, offset + 1, len - 1));
+              proto_tree_add_item( tree, hf_tn3270_request_string, tvb, offset + 1, len-1, ENC_NA|ENC_ASCII );
               offset += (len - 1);
               len -= (len - 1);
             }else if (device_type == TN3270_FUNCTIONS) {
-              int fn = 0;
-              while (len > 0 && fn < 5) {
+              while (len > 0) {
                 rsn = tvb_get_guint8(tvb, offset);
-                switch (rsn) {
-                  case TN3270_BIND_IMAGE:
-                        proto_tree_add_text(tree, tvb, offset, 1, "BIND-IMAGE");
-                        break;
-                  case TN3270_DATA_STREAM_CTL:
-                        proto_tree_add_text(tree, tvb, offset, 1, "DATA-STREAM-CTL");
-                        break;
-                  case TN3270_RESPONSES:
-                        proto_tree_add_text(tree, tvb, offset, 1, "RESPONSES");
-                        break;
-                  case TN3270_SCS_CTL_CODES:
-                        proto_tree_add_text(tree, tvb, offset, 1, "SCS-CTL-CODES");
-                        break;
-                  case TN3270_SYSREQ:
-                        proto_tree_add_text(tree, tvb, offset, 1, "SYSREQ");
-                        break;
-                  default:
-                        fn = 5;
-                        break;
-                }
+                proto_tree_add_item( tree, hf_tn3270_request, tvb, offset, 1, ENC_NA );
+                if (match_strval(rsn, tn3270_request_vals) == NULL)
+                    break;
+
                 offset++;
                 len--;
               }
             }
-            break;
-      case TN3270_SEND:
-            proto_tree_add_text(tree, tvb, offset, 1, "SEND");
-            break;
-      default:
-            proto_tree_add_text(tree, tvb, offset, 1, "Bogus value: %u", cmd);
             break;
     }
     offset++;
@@ -418,49 +427,26 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
 
 }
 
+static const value_string telnet_outmark_subopt_cmd_vals[] = {
+  { 6,   "ACK" },
+  { 21,  "NAK" },
+  { 'D', "Default" },
+  { 'T', "Top" },
+  { 'B', "Bottom" },
+  { 'L', "Left" },
+  { 'R', "Right" },
+  { 0, NULL }
+};
+
 static void
 dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                       int len, proto_tree *tree)
+                       int len, proto_tree *tree, proto_item *item)
 {
-  guint8 cmd;
   int    gs_offset, datalen;
 
   while (len > 0) {
-    cmd = tvb_get_guint8(tvb, offset);
-    switch (cmd) {
+    proto_tree_add_item(tree, hf_telnet_outmark_subopt_cmd, tvb, offset, 1, ENC_NA);
 
-    case 6:     /* ACK */
-      proto_tree_add_text(tree, tvb, offset, 1, "ACK");
-      break;
-
-    case 21:    /* NAK */
-      proto_tree_add_text(tree, tvb, offset, 1, "NAK");
-      break;
-
-    case 'D':
-      proto_tree_add_text(tree, tvb, offset, 1, "Default");
-      break;
-
-    case 'T':
-      proto_tree_add_text(tree, tvb, offset, 1, "Top");
-      break;
-
-    case 'B':
-      proto_tree_add_text(tree, tvb, offset, 1, "Bottom");
-      break;
-
-    case 'L':
-      proto_tree_add_text(tree, tvb, offset, 1, "Left");
-      break;
-
-    case 'R':
-      proto_tree_add_text(tree, tvb, offset, 1, "Right");
-      break;
-
-    default:
-      proto_tree_add_text(tree, tvb, offset, 1, "Bogus value: %u", cmd);
-      break;
-    }
     offset++;
     len--;
 
@@ -472,8 +458,7 @@ dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
     }
     datalen = gs_offset - offset;
     if (datalen > 0) {
-      proto_tree_add_text(tree, tvb, offset, datalen, "Banner: %s",
-                          tvb_format_text(tvb, offset, datalen));
+      proto_tree_add_item(tree, hf_telnet_outmark_subopt_banner, tvb, offset, datalen, ENC_NA|ENC_ASCII);
       offset += datalen;
       len -= datalen;
     }
@@ -481,8 +466,8 @@ dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
 }
 
 static void
-dissect_htstops_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb, int offset, int len,
-                       proto_tree *tree)
+dissect_htstops_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, int offset, int len,
+                       proto_tree *tree, proto_item *item)
 {
   guint8 cmd;
   guint8 tabval;
@@ -503,8 +488,8 @@ dissect_htstops_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
     break;
 
   default:
-    proto_tree_add_text(tree, tvb, offset, 1, "Invalid %s subcommand %u",
-                        optname, cmd);
+    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Invalid %s subcommand %u",
+                                optname, cmd);
     offset++;
     len--;
     if (len > 0)
@@ -547,13 +532,11 @@ dissect_htstops_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
 
 static void
 dissect_naws_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                    int len _U_, proto_tree *tree)
+                    int len _U_, proto_tree *tree, proto_item *item _U_)
 {
-  proto_tree_add_text(tree, tvb, offset, 2, "Width: %u",
-                      tvb_get_ntohs(tvb, offset));
+  proto_tree_add_item(tree, hf_telnet_naws_subopt_width, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_text(tree, tvb, offset, 2, "Height: %u",
-                      tvb_get_ntohs(tvb, offset));
+  proto_tree_add_item(tree, hf_telnet_naws_subopt_height, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
 
 /* BEGIN RFC-2217 (COM Port Control) Definitions */
@@ -575,8 +558,8 @@ dissect_naws_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *t
 /* END RFC-2217 (COM Port Control) Definitions */
 
 static void
-dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb, int offset, int len,
-                       proto_tree *tree)
+dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, int offset, int len,
+                       proto_tree *tree, proto_item *item)
 {
   static const char *datasizes[] = {
     "Request",
@@ -661,14 +644,14 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
   cmd = (isservercmd) ? (cmd - 100) : cmd;
   source = (isservercmd) ? "Server" : "Client";
   switch (cmd) {
-
   case TNCOMPORT_SIGNATURE:
     len--;
     if (len == 0) {
       proto_tree_add_text(tree, tvb, offset, 1, "%s Requests Signature",source);
     } else {
       guint8 *sig = tvb_get_ephemeral_string(tvb, offset + 1, len);
-      proto_tree_add_text(tree, tvb, offset, 1 + len, "%s Signature: %s",source, sig);
+      proto_tree_add_string_format_value(tree, hf_telnet_comport_subopt_signature, tvb, offset, 1 + len, sig, 
+                                         "%s Signature: %s",source, sig);
     }
     break;
 
@@ -677,12 +660,12 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
     if (len >= 4) {
       guint32 baud = tvb_get_ntohl(tvb, offset+1);
       if (baud == 0) {
-        proto_tree_add_text(tree, tvb, offset, 5, "%s Requests Baud Rate",source);
+        proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_baud_rate, tvb, offset, 5, 0, "%s Requests Baud Rate",source);
       } else {
-        proto_tree_add_text(tree, tvb, offset, 5, "%s Baud Rate: %d",source,baud);
+        proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_baud_rate, tvb, offset, 5, baud, "%s Baud Rate: %d",source,baud);
       }
     } else {
-      proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Baud Rate Packet>",source);
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "%s <Invalid Baud Rate Packet>",source);
     }
     break;
 
@@ -691,9 +674,10 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
     if (len >= 1) {
       guint8 datasize = tvb_get_guint8(tvb, offset+1);
       const char *ds = (datasize > 8) ? "<invalid>" : datasizes[datasize];
-      proto_tree_add_text(tree, tvb, offset, 2, "%s Data Size: %s",source,ds);
+      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_data_size, tvb, offset, 2, datasize, 
+                                       "%s Data Size: %s",source,ds);
     } else {
-      proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Data Size Packet>",source);
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "%s <Invalid Data Size Packet>",source);
     }
     break;
 
@@ -702,20 +686,21 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
     if (len >= 1) {
       guint8 parity = tvb_get_guint8(tvb, offset+1);
       const char *pr = (parity > 5) ? "<invalid>" : parities[parity];
-      proto_tree_add_text(tree, tvb, offset, 2, "%s Parity: %s",source,pr);
+      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_parity, tvb, offset, 2, parity, 
+                                       "%s Parity: %s",source,pr);
     } else {
-      proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Parity Packet>",source);
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "%s <Invalid Parity Packet>",source);
     }
     break;
-
   case TNCOMPORT_SETSTOPSIZE:
     len--;
     if (len >= 1) {
       guint8 stop = tvb_get_guint8(tvb, offset+1);
       const char *st = (stop > 3) ? "<invalid>" : stops[stop];
-      proto_tree_add_text(tree, tvb, offset, 2, "%s Stop: %s",source,st);
+      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_stop, tvb, offset, 2, stop, 
+                                       "%s Stop: %s",source,st);
     } else {
-      proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Stop Packet>",source);
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "%s <Invalid Stop Packet>",source);
     }
     break;
 
@@ -724,9 +709,10 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
     if (len >= 1) {
       guint8 crt = tvb_get_guint8(tvb, offset+1);
       const char *c = (crt > 19) ? "Control: <invalid>" : control[crt];
-      proto_tree_add_text(tree, tvb, offset, 2, "%s %s",source,c);
+      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_control, tvb, offset, 2, crt, 
+                                       "%s Stop: %s",source,c);
     } else {
-      proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Control Packet>",source);
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "%s <Invalid Control Packet>",source);
     }
     break;
 
@@ -756,7 +742,7 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
     } else {
       const char *print_pattern = (cmd == TNCOMPORT_SETLINESTATEMASK) ?
         "%s <Invalid Linestate Mask>" : "%s <Invalid Linestate Packet>";
-      proto_tree_add_text(tree, tvb, offset, 1 + len, print_pattern, source);
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, print_pattern, source);
     }
     break;
 
@@ -786,7 +772,7 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
     } else {
       const char *print_pattern = (cmd == TNCOMPORT_SETMODEMSTATEMASK) ?
         "%s <Invalid Modemstate Mask>" : "%s <Invalid Modemstate Packet>";
-      proto_tree_add_text(tree, tvb, offset, 1 + len, print_pattern, source);
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, print_pattern, source);
     }
     break;
 
@@ -805,15 +791,15 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
     if (len >= 1) {
       guint8 purge = tvb_get_guint8(tvb, offset+1);
       const char *p = (purge > 3) ? "<Purge invalid>" : purges[purge];
-      proto_tree_add_text(tree, tvb, offset, 2, "%s %s",source,p);
+      proto_tree_add_uint_format_value(tree, hf_telnet_comport_subopt_purge, tvb, offset, 2, purge, 
+                                       "%s %s",source,p);
     } else {
-      proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Purge Packet>",source);
+      expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "%s <Invalid Purge Packet>",source);
     }
     break;
 
   default:
-    proto_tree_add_text(tree, tvb, offset, 1, "Invalid %s subcommand %u",
-                        optname, cmd);
+    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Invalid %s subcommand %u", optname, cmd);
     offset++;
     len--;
     if (len > 0)
@@ -833,13 +819,9 @@ static const value_string rfc_opt_vals[] = {
 
 static void
 dissect_rfc_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                   int len _U_, proto_tree *tree)
+                   int len _U_, proto_tree *tree, proto_item *item _U_)
 {
-  guint8 cmd;
-
-  cmd = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 2, "%s",
-                      val_to_str(cmd, rfc_opt_vals, "Unknown (%u)"));
+  proto_tree_add_item(tree, hf_telnet_rfc_subopt_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 #define TN_ENC_IS               0
@@ -1030,6 +1012,7 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 {
   tvbuff_t *krb5_tvb;
   guint8    krb5_cmd;
+  proto_item* ti;
 
   dissect_authentication_type_pair(pinfo, tvb, offset, tree);
   offset+=2;
@@ -1037,7 +1020,7 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 
 
   krb5_cmd=tvb_get_guint8(tvb, offset);
-  proto_tree_add_uint(tree, hf_telnet_auth_krb5_type, tvb, offset, 1, krb5_cmd);
+  ti = proto_tree_add_uint(tree, hf_telnet_auth_krb5_type, tvb, offset, 1, krb5_cmd);
   offset++;
   len--;
 
@@ -1049,8 +1032,8 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
       if(krb5_tvb)
         dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
       else
-        proto_tree_add_text(tree, tvb, offset, len, "Kerberos blob (too long to dissect - length %u > %u",
-                            len, MAX_KRB5_BLOB_LEN);
+        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_NOTE, "Kerberos blob (too long to dissect - length %u > %u",
+                               len, MAX_KRB5_BLOB_LEN);                            
     }
   }
 
@@ -1088,7 +1071,8 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 }
 
 static void
-dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len, proto_tree *tree)
+dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len, 
+                              proto_tree *tree, proto_item *item)
 {
   guint8  acmd;
 
@@ -1128,7 +1112,8 @@ static void dissect_encryption_type(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static void
-dissect_encryption_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset, int len, proto_tree *tree)
+dissect_encryption_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len,
+                          proto_tree *tree, proto_item *item)
 {
   guint8 ecmd, key_first_octet;
 
@@ -1189,7 +1174,7 @@ dissect_encryption_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuf
     break;
 
   default:
-    proto_tree_add_text(tree, tvb, offset, len, "Unknown command");
+    expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Unknown command");
   }
 }
 
@@ -1515,18 +1500,16 @@ static tn_opt options[] = {
 #define NOPTIONS array_length(options)
 
 static int
-telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
+telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *option_item, tvbuff_t *tvb, int start_offset)
 {
-  proto_tree *ti, *option_tree;
   int         offset = start_offset;
   guint8      opt_byte;
   int         subneg_len;
   const char *opt;
-  gint        ett    = ett_telnet_subopt;
   int         iac_offset;
   guint       len;
   tvbuff_t   *unescaped_tvb;
-  void      (*dissect)(packet_info *, const char *, tvbuff_t *, int, int, proto_tree *);
+  void      (*dissect)(packet_info *, const char *, tvbuff_t *, int, int, proto_tree *, proto_item*);
   gint        cur_offset;
   gboolean    iac_found;
 
@@ -1545,8 +1528,6 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
     dissect = NULL;
   } else {
     opt = options[opt_byte].name;
-    if (options[opt_byte].subtree_index != NULL)
-      ett = *(options[opt_byte].subtree_index);
     dissect = options[opt_byte].dissect;
   }
   offset++;
@@ -1581,9 +1562,6 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
 
   subneg_len = offset - start_offset;
 
-  ti = proto_tree_add_text(telnet_tree, tvb, start_offset, subneg_len,
-                           "Suboption Begin: %s", opt);
-  option_tree = proto_item_add_subtree(ti, ett);
   start_offset += 3;    /* skip IAC, SB, and option code */
   subneg_len -= 3;
 
@@ -1596,15 +1574,13 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
 
       case NO_LENGTH:
         /* There isn't supposed to *be* sub-option negotiation for this. */
-        proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
-                            "Bogus suboption data");
+        expert_add_info_format(pinfo, option_item, PI_PROTOCOL, PI_WARN, "Bogus suboption data");
         return offset;
 
       case FIXED_LENGTH:
         /* Make sure the length is what it's supposed to be. */
         if (subneg_len - iac_data != options[opt_byte].optlen) {
-          proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
-                              "Suboption parameter length is %d, should be %d",
+          expert_add_info_format(pinfo, option_item, PI_PROTOCOL, PI_WARN, "Suboption parameter length is %d, should be %d",
                               subneg_len, options[opt_byte].optlen);
           return offset;
         }
@@ -1613,8 +1589,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
       case VARIABLE_LENGTH:
         /* Make sure the length is greater than the minimum. */
         if (subneg_len - iac_data < options[opt_byte].optlen) {
-          proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
-                              "Suboption parameter length is %d, should be at least %d",
+          expert_add_info_format(pinfo, option_item, PI_PROTOCOL, PI_WARN, "Suboption parameter length is %d, should be at least %d",
                               subneg_len, options[opt_byte].optlen);
           return offset;
         }
@@ -1625,9 +1600,9 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
       if (iac_data > 0) {
         /* Data is escaped, we have to unescape it. */
         unescaped_tvb = unescape_and_tvbuffify_telnet_option(pinfo, tvb, start_offset, subneg_len);
-        (*dissect)(pinfo, opt, unescaped_tvb, 0, subneg_len - iac_data, option_tree);
+        (*dissect)(pinfo, opt, unescaped_tvb, 0, subneg_len - iac_data, option_tree, option_item);
       } else {
-        (*dissect)(pinfo, opt, tvb, start_offset, subneg_len, option_tree);
+        (*dissect)(pinfo, opt, tvb, start_offset, subneg_len, option_tree, option_item);
       }
     } else {
       /* We don't have a dissector for them; just show them as data. */
@@ -1645,25 +1620,28 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
   return offset;
 }
 
-static int
-telnet_will_wont_do_dont(proto_tree *telnet_tree, tvbuff_t *tvb,
-                         int start_offset, const char *type)
+static void
+telnet_suboption_name(proto_tree *tree, tvbuff_t *tvb, int* offset, gchar** optname, 
+                      proto_tree **opt_tree, proto_item **opt_item, const char *type)
 {
-  int         offset = start_offset;
   guint8      opt_byte;
   const char *opt;
+  gint        ett = ett_telnet_subopt;
 
-  offset += 2;  /* skip IAC and WILL,WONT,DO,DONT} */
-  opt_byte = tvb_get_guint8(tvb, offset);
-  if (opt_byte >= NOPTIONS)
+  opt_byte = tvb_get_guint8(tvb, *offset);
+  if (opt_byte >= NOPTIONS) {
     opt = "<unknown option>";
-  else
+  }
+  else {
     opt = options[opt_byte].name;
-  offset++;
+    if (options[opt_byte].subtree_index != NULL)
+      ett = *(options[opt_byte].subtree_index);
+  }
+  *opt_item = proto_tree_add_uint_format_value(tree, hf_telnet_subcmd, tvb, *offset, 1, opt_byte, "%s", opt);
+  *opt_tree = proto_item_add_subtree(*opt_item, ett);
 
-  proto_tree_add_text(telnet_tree, tvb, start_offset, 3,
-                      "Command: %s %s", type, opt);
-  return offset;
+  (*offset)++;
+  (*optname) = ep_strdup_printf("%s %s", type, opt);
 }
 
 static int
@@ -1671,111 +1649,51 @@ telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int s
 {
   int    offset = start_offset;
   guchar optcode;
+  gchar* optname;
+  proto_item *cmd_item, *subopt_item = NULL;
+  proto_tree *cmd_tree, *subopt_tree = NULL;
 
   offset += 1;  /* skip IAC */
   optcode = tvb_get_guint8(tvb, offset);
+ 
+  cmd_item = proto_tree_add_text(telnet_tree, tvb, start_offset, 2, "Command header");
+  cmd_tree = proto_item_add_subtree(cmd_item, ett_telnet_cmd);
+  proto_tree_add_item(cmd_tree, hf_telnet_cmd, tvb, offset, 1, ENC_NA);
   offset++;
+
   switch(optcode) {
-
-  case TN_EOF:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: End of File");
-    break;
-
-  case TN_SUSP:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Suspend Current Process");
-    break;
-
-  case TN_ABORT:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Abort Process");
-    break;
-
-  case TN_EOR:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: End of Record");
-    break;
-
-  case TN_SE:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Suboption End");
-    break;
-
-  case TN_NOP:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: No Operation");
-    break;
-
-  case TN_DM:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Data Mark");
-    break;
-
-  case TN_BRK:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Break");
-    break;
-
-  case TN_IP:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Interrupt Process");
-    break;
-
-  case TN_AO:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Abort Output");
-    break;
-
-  case TN_AYT:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Are You There?");
-    break;
-
-  case TN_EC:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Escape Character");
-    break;
-
-  case TN_EL:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Erase Line");
-    break;
-
-  case TN_GA:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Go Ahead");
-    break;
-
-  case TN_SB:
-    offset = telnet_sub_option(pinfo, telnet_tree, tvb, start_offset);
-    break;
-
   case TN_WILL:
-    offset = telnet_will_wont_do_dont(telnet_tree, tvb, start_offset,
-                                      "Will");
+    telnet_suboption_name(cmd_tree, tvb, &offset, &optname, &subopt_tree, &subopt_item, "Will");
     break;
 
   case TN_WONT:
-    offset = telnet_will_wont_do_dont(telnet_tree, tvb, start_offset,
-                                      "Won't");
+    telnet_suboption_name(cmd_tree, tvb, &offset, &optname, &subopt_tree, &subopt_item, "Won't");
     break;
 
   case TN_DO:
-    offset = telnet_will_wont_do_dont(telnet_tree, tvb, start_offset,
-                                      "Do");
+    telnet_suboption_name(cmd_tree, tvb, &offset, &optname, &subopt_tree, &subopt_item, "Do");
     break;
 
   case TN_DONT:
-    offset = telnet_will_wont_do_dont(telnet_tree, tvb, start_offset,
-                                      "Don't");
+    telnet_suboption_name(cmd_tree, tvb, &offset, &optname, &subopt_tree, &subopt_item, "Don't");
+    break;
+
+  case TN_SB:
+    telnet_suboption_name(cmd_tree, tvb, &offset, &optname, &subopt_tree, &subopt_item, "Suboption");
     break;
 
   default:
-    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
-                        "Command: Unknown (0x%02x)", optcode);
+    optname = (gchar*)val_to_str_const(optcode, cmd_vals, "<unknown option>");
     break;
   }
+
+  proto_item_set_text(cmd_item, optname);
+
+  if (optcode == TN_SB) {
+    offset = telnet_sub_option(pinfo, subopt_tree, subopt_item, tvb, start_offset);
+  }
+
+  proto_item_set_len(cmd_item, offset-start_offset);
 
   return offset;
 }
@@ -1923,6 +1841,14 @@ void
 proto_register_telnet(void)
 {
   static hf_register_info hf[] = {
+    { &hf_telnet_cmd,
+      { "Command", "telnet.cmd", FT_UINT8, BASE_DEC,
+        VALS(cmd_vals), 0, NULL, HFILL }
+    },
+    { &hf_telnet_subcmd,
+      { "Subcommand", "telnet.subcmd", FT_UINT8, BASE_DEC,
+        NULL, 0, NULL, HFILL }
+    },
     { &hf_telnet_auth_name,
       { "Name", "telnet.auth.name", FT_STRING, BASE_NONE,
         NULL, 0, "Name of user being authenticated", HFILL }
@@ -1955,6 +1881,58 @@ proto_register_telnet(void)
       { "Command", "telnet.auth.krb5.cmd", FT_UINT8, BASE_DEC,
         VALS(auth_krb5_types), 0, "Krb5 Authentication sub-command", HFILL }
     },
+    { &hf_telnet_string_subopt_value,
+      { "Value", "telnet.string_subopt.value", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_naws_subopt_width,
+      { "Width", "telnet.naws_subopt.width", FT_UINT16, BASE_DEC,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_naws_subopt_height,
+      { "Height", "telnet.naws_subopt.height", FT_UINT16, BASE_DEC,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_outmark_subopt_cmd,
+      { "Command", "telnet.outmark_subopt.cmd", FT_UINT8, BASE_DEC,
+        VALS(telnet_outmark_subopt_cmd_vals), 0, NULL, HFILL }
+    },
+    { &hf_telnet_outmark_subopt_banner,
+      { "Banner", "telnet.outmark_subopt.banner", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_comport_subopt_signature,
+      { "Signature", "telnet.comport_subopt.signature", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_comport_subopt_baud_rate,
+      { "Baud Rate", "telnet.comport_subopt.baud_rate", FT_UINT32, BASE_DEC,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_comport_subopt_data_size,
+      { "Data Size", "telnet.comport_subopt.data_size", FT_UINT8, BASE_DEC,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_comport_subopt_parity,
+      { "Parity", "telnet.comport_subopt.parity", FT_UINT8, BASE_DEC,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_comport_subopt_stop,
+      { "Stop Bits", "telnet.comport_subopt.stop", FT_UINT8, BASE_DEC,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_comport_subopt_control,
+      { "Control", "telnet.comport_subopt.control", FT_UINT8, BASE_DEC,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_comport_subopt_purge,
+      { "Purge", "telnet.comport_subopt.purge", FT_UINT8, BASE_DEC,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_rfc_subopt_cmd,
+      { "Command", "telnet.rfc_subopt.cmd", FT_UINT8, BASE_DEC,
+        VALS(rfc_opt_vals), 0, NULL, HFILL }
+    },
     { &hf_telnet_enc_cmd,
       { "Enc Cmd", "telnet.enc.cmd", FT_UINT8, BASE_DEC,
         VALS(enc_cmd_vals), 0, "Encryption command", HFILL }
@@ -1967,9 +1945,38 @@ proto_register_telnet(void)
       { "Data", "telnet.data", FT_STRING, BASE_NONE,
         NULL, 0, NULL, HFILL }
     },
+    { &hf_tn3270_subopt,
+      { "Suboption", "telnet.tn3270.subopt", FT_UINT8, BASE_DEC,
+        VALS(tn3270_subopt_vals), 0, NULL, HFILL }
+    },
+    { &hf_tn3270_connect,
+      { "Connect", "telnet.tn3270.connect", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_tn3270_is,
+      { "Is", "telnet.tn3270.is", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_tn3270_request_string,
+      { "Request", "telnet.tn3270.request_string", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_tn3270_reason,
+      { "Reason", "telnet.tn3270.reason", FT_UINT8, BASE_DEC,
+        VALS(tn3270_reason_vals), 0, NULL, HFILL }
+    },
+    { &hf_tn3270_request,
+      { "Request", "telnet.tn3270.request", FT_UINT8, BASE_DEC,
+        VALS(tn3270_request_vals), 0, NULL, HFILL }
+    },
+    { &hf_tn3270_regime_subopt_value,
+      { "Value", "telnet.tn3270.regime_subopt.value", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
   };
   static gint *ett[] = {
     &ett_telnet,
+    &ett_telnet_cmd,
     &ett_telnet_subopt,
     &ett_status_subopt,
     &ett_rcte_subopt,
