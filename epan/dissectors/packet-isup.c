@@ -3002,6 +3002,15 @@ static int hf_japan_isup_activation_id = -1;
 static int hf_japan_isup_op_cls = -1;
 static int hf_japan_isup_op_type = -1;
 static int hf_japan_isup_charging_party_type = -1;
+static int hf_japan_isup_utp = -1;
+static int hf_japan_isup_crci1 = -1;
+static int hf_japan_isup_crci2 = -1;
+static int hf_japan_isup_crci1_len = -1;
+static int hf_japan_isup_iu = -1;
+static int hf_japan_isup_dcr = -1;
+static int hf_japan_isup_ecr = -1;
+static int hf_japan_isup_ncr = -1;
+static int hf_japan_isup_scr = -1;
 static int hf_japan_isup_collecting_metod = -1;
 static int hf_japan_isup_tariff_rate_pres = -1;
 
@@ -8039,6 +8048,107 @@ dissect_japan_chg_inf_type_acr(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
     proto_tree_add_item(parameter_tree, hf_japan_isup_tariff_rate_pres, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
+
+
+static const value_string japan_isup_utp_values[] = {
+  { 0,   "Spare" },
+  { 0xfc,   "100 yen" },
+  { 0xfd,   "10 yen" },
+  { 0xfe,   "No indication" },
+  { 0xff,   "Spare" },
+  { 0,   NULL}
+};
+
+static const value_string japan_isup_crci1_values[] = {
+  { 0,   "Spare" },
+  { 0x7c,   "Public (Payphone)" },
+  { 0x7d,   "Ordinary" },
+  { 0x7e,   "No flexible charge rate information" },
+  { 0x7f,   "Spare" },
+  { 0,   NULL}
+};
+
+static void
+dissect_japan_chg_inf_type_crt(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)
+{
+    int offset = 0;
+    guint8 ext_ind;
+    guint8 len;
+    int parameter_length;
+
+    parameter_length = tvb_length_remaining(parameter_tvb, offset);
+
+
+    /* Unit per Time Period (UTP) */
+    proto_tree_add_item(parameter_tree, hf_japan_isup_utp, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* Charge rate information category 1 (CRIC 1) */
+    ext_ind = tvb_get_guint8(parameter_tvb, offset)>>7;
+    proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_japan_isup_crci1, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    if (!ext_ind) {
+        len = tvb_get_guint8(parameter_tvb, offset);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_crci1_len, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* Initial units (IU) IA5 coded in two octets */
+        proto_tree_add_item(parameter_tree, hf_japan_isup_iu, parameter_tvb, offset, 2, ENC_NA|ENC_ASCII);
+        offset+=2;
+        /* Daytime Charge rate (DCR) (Octets A, B, C) IA5 coded in three octets */
+        proto_tree_add_item(parameter_tree, hf_japan_isup_dcr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+        offset+=3;
+        if(len>5){
+            /* Evening Charge rate (ECR) (Octets B, E, F) IA5 coded in three octets */
+            proto_tree_add_item(parameter_tree, hf_japan_isup_ecr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+            offset+=3;
+        }
+        if(len>8){
+            /* Nighttime Charge rate (NCR) (Octet G,H,I) IA5 coded in three octets */
+            proto_tree_add_item(parameter_tree, hf_japan_isup_ncr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+            offset+=3;
+        }
+        if(len>11){
+            /* Spare charge rate (SCR) (Octets J,K,L) IA5 coded in three octets */
+            proto_tree_add_item(parameter_tree, hf_japan_isup_scr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+            offset+=3;
+        }
+    }
+    if(parameter_length>offset){
+        /* Charge rate information category 2 (CRIC 2) */
+        ext_ind = tvb_get_guint8(parameter_tvb, offset)>>7;
+        proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(parameter_tree, hf_japan_isup_crci2, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        if (!ext_ind) {
+            len = tvb_get_guint8(parameter_tvb, offset);
+            proto_tree_add_item(parameter_tree, hf_japan_isup_crci1_len, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            /* Initial units (IU) IA5 coded in two octets */
+            proto_tree_add_item(parameter_tree, hf_japan_isup_iu, parameter_tvb, offset, 2, ENC_NA|ENC_ASCII);
+            offset+=2;
+            /* Daytime Charge rate (DCR) (Octets A, B, C) IA5 coded in three octets */
+            proto_tree_add_item(parameter_tree, hf_japan_isup_dcr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+            offset+=3;
+            if(len>5){
+                /* Evening Charge rate (ECR) (Octets B, E, F) IA5 coded in three octets */
+                proto_tree_add_item(parameter_tree, hf_japan_isup_ecr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+                offset+=3;
+            }
+            if(len>8){
+                /* Nighttime Charge rate (NCR) (Octet G,H,I) IA5 coded in three octets */
+                proto_tree_add_item(parameter_tree, hf_japan_isup_ncr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+                offset+=3;
+            }
+            if(len>11){
+                /* Spare charge rate (SCR) (Octets J,K,L) IA5 coded in three octets */
+                proto_tree_add_item(parameter_tree, hf_japan_isup_scr, parameter_tvb, offset, 3, ENC_NA|ENC_ASCII);
+                offset+=3;
+            }
+        }
+    }
+
+}
 /* END Japan ISUP */
 
 /* ------------------------------------------------------------------
@@ -9771,6 +9881,10 @@ dissect_japan_chg_inf(tvbuff_t *message_tvb, proto_tree *isup_tree)
   case 3:
 	  /* Advanced Charge Rate Transfer (TDS service) */
 	  dissect_japan_chg_inf_type_acr(parameter_tvb, parameter_tree, parameter_item);
+	  break;
+  case 254:
+	  /* Charge rate transfer (flexible charging) */
+	  dissect_japan_chg_inf_type_crt(parameter_tvb, parameter_tree, parameter_item);
 	  break;
   default:
       proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "Charge information data, not dissected yet");
@@ -11906,12 +12020,57 @@ proto_register_isup(void)
       FT_UINT8, BASE_DEC, VALS(japan_isup_charging_party_type_values), 0x70,
       NULL, HFILL }},
 
-     { &hf_japan_isup_collecting_metod,
+     { &hf_japan_isup_utp,
+      {"Unit per Time Period (UTP)", "isup.japan.utp",
+      FT_UINT8, BASE_DEC, VALS(japan_isup_utp_values), 0x0,
+      NULL, HFILL }},
+
+     { &hf_japan_isup_crci1,
+      {"Charge rate information category 1 (CRIC 1)", "isup.japan.crci1",
+      FT_UINT8, BASE_DEC, VALS(japan_isup_crci1_values), 0x7f,
+      NULL, HFILL }},
+
+     { &hf_japan_isup_crci2,
+      {"Charge rate information category 2 (CRIC 2)", "isup.japan.crci2",
+      FT_UINT8, BASE_DEC, VALS(japan_isup_crci1_values), 0x7f,
+      NULL, HFILL }},
+
+	 { &hf_japan_isup_crci1_len,
+      {"Length",  "isup.japan.crci1_len",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }},
+
+	 { &hf_japan_isup_iu,
+      {"Initial units (IU)",  "isup.japan.iu",
+       FT_STRING, BASE_NONE, NULL, 0x0,
+       NULL, HFILL }},
+
+	 { &hf_japan_isup_dcr,
+      {"Daytime Charge rate (DCR)",  "isup.japan.dcr",
+       FT_STRING, BASE_NONE, NULL, 0x0,
+       NULL, HFILL }},
+
+	 { &hf_japan_isup_ecr,
+      {"Evening Charge rate (ECR)",  "isup.japan.ecr",
+       FT_STRING, BASE_NONE, NULL, 0x0,
+       NULL, HFILL }},
+
+	 { &hf_japan_isup_ncr,
+      {"Nighttime Charge rate (NCR)",  "isup.japan.ncr",
+       FT_STRING, BASE_NONE, NULL, 0x0,
+       NULL, HFILL }},
+
+	 { &hf_japan_isup_scr,
+      {"Spare charge rate (SCR)",  "isup.japan.scr",
+       FT_STRING, BASE_NONE, NULL, 0x0,
+       NULL, HFILL }},
+
+	{ &hf_japan_isup_collecting_metod,
       {"Charging party type", "isup.japan.collecting_metod",
       FT_UINT8, BASE_DEC, VALS(japan_isup_collecting_metod_values), 0x0f,
       NULL, HFILL }},
 
-	{ &hf_japan_isup_tariff_rate_pres,
+	 { &hf_japan_isup_tariff_rate_pres,
       {"Tariff rate presentation", "isup.japan.tariff_rate_pres",
       FT_UINT8, BASE_DEC, VALS(japan_isup_tariff_rate_pres_values), 0x7f,
       NULL, HFILL }},
