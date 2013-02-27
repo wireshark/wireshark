@@ -362,7 +362,7 @@ static const value_string tn3270_request_vals[] = {
 
 static void
 dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                       int len, proto_tree *tree, proto_item *item)
+                       int len, proto_tree *tree, proto_item *item _U_)
 {
 
   guint8 cmd;
@@ -440,7 +440,7 @@ static const value_string telnet_outmark_subopt_cmd_vals[] = {
 
 static void
 dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
-                       int len, proto_tree *tree, proto_item *item)
+                       int len, proto_tree *tree, proto_item *item _U_)
 {
   int    gs_offset, datalen;
 
@@ -1072,7 +1072,7 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 
 static void
 dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len, 
-                              proto_tree *tree, proto_item *item)
+                              proto_tree *tree, proto_item *item _U_)
 {
   guint8  acmd;
 
@@ -1687,7 +1687,7 @@ telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int s
     break;
   }
 
-  proto_item_set_text(cmd_item, optname);
+  proto_item_set_text(cmd_item, "%s", optname);
 
   if (optcode == TN_SB) {
     offset = telnet_sub_option(pinfo, subopt_tree, subopt_item, tvb, start_offset);
