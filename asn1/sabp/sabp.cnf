@@ -9,7 +9,6 @@ ALIGNED
 #.END
 
 #.NO_EMIT
-TBCD-STRING
 
 #.PDU_NEW
 SABP-PDU
@@ -214,4 +213,5 @@ Error-Indication                       N sabp.proc.imsg id-Error-Indication
 %(DEFAULT_BODY)s
 	if (!parameter_tvb)
 		return offset;
-        dissect_umts_cell_broadcast_message(parameter_tvb, actx->pinfo, proto_tree_get_root(tree));
+    dissect_sabp_cb_data(parameter_tvb, actx->pinfo, tree);
+#    dissect_umts_cell_broadcast_message(parameter_tvb, actx->pinfo, proto_tree_get_root(tree));

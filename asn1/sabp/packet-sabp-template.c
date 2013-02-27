@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Ref: 3GPP TS 25.419 version  V9.0.0 (2009-12)
  */
@@ -52,6 +52,9 @@
 static int proto_sabp = -1;
 
 static int hf_sabp_no_of_pages = -1;
+static int hf_sabp_cb_inf_len = -1;
+static int hf_sabp_cb_msg_inf_page = -1;
+static int hf_sabp_cbs_page_content = -1;
 #include "packet-sabp-hf.c"
 
 /* Initialize the subtree pointers */
@@ -61,6 +64,8 @@ static int ett_sabp_cbs_data_coding = -1;
 static int ett_sabp_bcast_msg = -1;
 static int ett_sabp_cbs_serial_number = -1;
 static int ett_sabp_cbs_new_serial_number = -1;
+static int ett_sabp_cbs_page = -1;
+static int ett_sabp_cbs_page_content = -1;
 
 #include "packet-sabp-ett.c"
 
@@ -85,6 +90,7 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 #include "packet-sabp-fn.c"
 
@@ -111,6 +117,57 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   return (dissector_try_uint(sabp_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+}
+
+
+/* 3GPP TS 23.041 version 11.4.0
+ * 9.4.2.2.5 CB Data
+ */
+static void
+dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *item, *cbs_page_item;
+	proto_tree *subtree;
+	tvbuff_t *page_tvb, *unpacked_tvb;
+	int offset = 0;
+	int n;
+	guint8 nr_pages, len, cb_inf_msg_len;
+
+
+	/* Octet 1 Number-of-Pages */
+	nr_pages = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_sabp_no_of_pages, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	/*  
+	 * NOTE: n equal to or less than 15
+	 */
+	if(nr_pages > 15){
+		/* Error */
+		return;
+	}
+	for (n = 0; n < nr_pages; n++) {
+		item = proto_tree_add_text(tree, tvb, offset, 83, "CB page %u data",  n+1);
+		subtree = proto_item_add_subtree(item, ett_sabp_cbs_page);
+		/* octet 2 - 83 CBS-Message-Information-Page 1  */
+		cbs_page_item = proto_tree_add_item(subtree, hf_sabp_cb_msg_inf_page, tvb, offset, 82, ENC_BIG_ENDIAN);
+		cb_inf_msg_len = tvb_get_guint8(tvb,offset+82);
+		page_tvb = tvb_new_subset(tvb, offset, cb_inf_msg_len, cb_inf_msg_len);
+		unpacked_tvb = dissect_cbs_data(sms_encoding, page_tvb, subtree, pinfo, 0);
+		len = tvb_length(unpacked_tvb);
+		if (unpacked_tvb != NULL){
+			if (tree != NULL){
+				proto_tree *cbs_page_subtree = proto_item_add_subtree(cbs_page_item, ett_sabp_cbs_page_content);
+				proto_tree_add_string(cbs_page_subtree, hf_sabp_cbs_page_content, unpacked_tvb, 0, len, tvb_get_ephemeral_string(unpacked_tvb, 0, len));
+			}
+		}
+
+		offset = offset+82;
+		/* 84 CBS-Message-Information-Length 1 */
+		proto_tree_add_item(subtree, hf_sabp_cb_inf_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+	}
+
+	
 }
 
 static guint
@@ -175,6 +232,18 @@ void proto_register_sabp(void) {
       { "Number-of-Pages", "sabp.no_of_pages",
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_sabp_cb_msg_inf_page,
+      { "CBS-Message-Information-Page", "sabp.cb_msg_inf_page",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sabp_cbs_page_content,
+      { "CBS Page Content", "sabp.cb_page_content",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sabp_cb_inf_len,
+      { "CBS-Message-Information-Length", "sabp.cb_inf_len",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
 
 #include "packet-sabp-hfarr.c"
   };
@@ -187,6 +256,8 @@ void proto_register_sabp(void) {
 		  &ett_sabp_bcast_msg,
           &ett_sabp_cbs_serial_number,
           &ett_sabp_cbs_new_serial_number,
+		  &ett_sabp_cbs_page,
+		  &ett_sabp_cbs_page_content,
 #include "packet-sabp-ettarr.c"
   };
 

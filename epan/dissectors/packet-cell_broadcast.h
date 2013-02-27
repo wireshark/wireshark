@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifndef PACKET_CELL_BROADCAST_H
@@ -55,5 +55,10 @@ void dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint16 offset);
  * @param tree
  */
 guint16 dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/**
+ * Dissects CB Data
+ */
+tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 offset);
 
 #endif /* PACKET_CELL_BROADCAST_H */
