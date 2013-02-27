@@ -2,6 +2,8 @@
 # $Id$
 # @configure_input@
 
+%global prefix /usr
+
 # Set these to 1 if you want to ensure your package inclues support for them:
 %global with_adns 0
 %global with_lua  1
@@ -90,6 +92,7 @@ BuildRequires:  gtk2-devel >= @GTK2_MIN_VERSION@
 Requires:	wireshark = %{version}-%{release}
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme
+BuildRequires:	desktop-file-utils
 %if %{with_portaudio}
 BuildRequires:	portaudio-devel
 Requires:	portaudio
@@ -120,7 +123,8 @@ Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
 %setup -q -n %{name}-%{version}
 
 %configure \
-   --libdir=%{_libdir} \
+  --prefix=%{prefix} \
+  --libdir=%{_libdir} \
   --with-gnu-ld \
 %if %{with_adns}
   --with-adns \
@@ -142,6 +146,9 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 make DESTDIR=$RPM_BUILD_ROOT install_desktop_files
+# Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
+# require this (at least if desktop-file-install was not used to install it).
+desktop-file-validate %{buildroot}/%{_datadir}/applications/wireshark.desktop
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -163,19 +170,19 @@ touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
 
 %postun gnome
 update-desktop-database &> /dev/null ||:
-update-mime-database %{_datadir}/mime &> /dev/null || :
+update-mime-database /usr/share/mime &> /dev/null || :
 if [ $1 -eq 0 ] ; then
-	touch --no-create %{_datadir}/icons/gnome &>/dev/null
-	gtk-update-icon-cache %{_datadir}/icons/gnome &>/dev/null || :
+	touch --no-create /usr/share/icons/gnome &>/dev/null
+	gtk-update-icon-cache /usr/share/icons/gnome &>/dev/null || :
 
-	touch --no-create %{_datadir}/icons/hicolor &>/dev/null
-	gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+	touch --no-create /usr/share/icons/hicolor &>/dev/null
+	gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 fi
 
 # Is this really needed?
 %posttrans
-gtk-update-icon-cache %{_datadir}/icons/gnome &>/dev/null || :
-gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+gtk-update-icon-cache /usr/share/icons/gnome &>/dev/null || :
+gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 
 
 %files
@@ -224,10 +231,10 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %files gnome
 %defattr(-,root,root)
-%{_datadir}/applications/wireshark.desktop
-%{_datadir}/icons/hicolor/*/apps/*
-%{_datadir}/icons/gnome/*/mimetypes/*
-%{_datadir}/mime/packages/wireshark.xml
+/usr/share/applications/wireshark.desktop
+/usr/share/icons/hicolor/*/apps/*
+/usr/share/icons/gnome/*/mimetypes/*
+/usr/share/mime/packages/wireshark.xml
 %{_bindir}/wireshark
 %{_mandir}/man1/wireshark.*
 
