@@ -1639,6 +1639,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     vci |= octet << 4;
     octet = tvb_get_guint8(tvb, 3);
     vci |= octet >> 4;
+    pt = (octet >> 1) & 0x7;
     proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 1, 3, vci);
     proto_tree_add_item(atm_tree, hf_atm_payload_type, tvb, 3, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(atm_tree, hf_atm_cell_loss_priority, tvb, 3, 1, ENC_BIG_ENDIAN);
