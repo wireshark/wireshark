@@ -49,9 +49,32 @@ static int proto_aal1 = -1;
 static int proto_aal3_4 = -1;
 static int proto_oamaal = -1;
 
+static int hf_atm_le_client_client = -1;
+static int hf_atm_lan_destination_tag = -1;
+static int hf_atm_lan_destination_mac = -1;
+static int hf_atm_le_control_tlv_type = -1;
+static int hf_atm_le_control_tlv_length = -1;
 static int hf_atm_lan_destination_route_desc = -1;
 static int hf_atm_lan_destination_lan_id = -1;
 static int hf_atm_lan_destination_bridge_num = -1;
+static int hf_atm_source_atm = -1;
+static int hf_atm_target_atm = -1;
+static int hf_atm_le_configure_join_frame_lan_type = -1;
+static int hf_atm_le_configure_join_frame_max_frame_size = -1;
+static int hf_atm_le_configure_join_frame_num_tlvs = -1;
+static int hf_atm_le_configure_join_frame_elan_name_size = -1;
+static int hf_atm_le_configure_join_frame_elan_name = -1;
+static int hf_atm_le_registration_frame_num_tlvs = -1;
+static int hf_atm_le_arp_frame_num_tlvs = -1;
+static int hf_atm_le_verify_frame_num_tlvs = -1;
+static int hf_atm_le_control_marker = -1;
+static int hf_atm_le_control_protocol = -1;
+static int hf_atm_le_control_version = -1;
+static int hf_atm_le_control_opcode = -1;
+static int hf_atm_le_control_status = -1;
+static int hf_atm_le_control_transaction_id = -1;
+static int hf_atm_le_control_requester_lecid = -1;
+static int hf_atm_le_control_flags = -1;
 static int hf_atm_le_control_flag_v2_capable = -1;
 static int hf_atm_le_control_flag_selective_multicast = -1;
 static int hf_atm_le_control_flag_v2_required = -1;
@@ -59,6 +82,37 @@ static int hf_atm_le_control_flag_proxy = -1;
 static int hf_atm_le_control_flag_exclude_explorer_frames = -1;
 static int hf_atm_le_control_flag_address = -1;
 static int hf_atm_le_control_topology_change = -1;
+static int hf_atm_traffic_type = -1;
+static int hf_atm_traffic_vcmx = -1;
+static int hf_atm_traffic_lane = -1;
+static int hf_atm_traffic_ipsilon = -1;
+static int hf_atm_cells = -1;
+static int hf_atm_aal5_uu = -1;
+static int hf_atm_aal5_cpi = -1;
+static int hf_atm_aal5_len = -1;
+static int hf_atm_aal5_crc = -1;
+static int hf_atm_payload_type = -1;
+static int hf_atm_cell_loss_priority = -1;
+static int hf_atm_header_error_check = -1;
+static int hf_atm_channel = -1;
+static int hf_atm_aa1_csi = -1;
+static int hf_atm_aa1_seq_count = -1;
+static int hf_atm_aa1_crc = -1;
+static int hf_atm_aa1_parity = -1;
+static int hf_atm_aa1_payload = -1;
+static int hf_atm_aal3_4_seg_type = -1;
+static int hf_atm_aal3_4_seq_num = -1;
+static int hf_atm_aal3_4_multiplex_id = -1;
+static int hf_atm_aal3_4_information = -1;
+static int hf_atm_aal3_4_length_indicator = -1;
+static int hf_atm_aal3_4_crc = -1;
+static int hf_atm_aal_oamcell_type = -1;
+static int hf_atm_aal_oamcell_type_fm = -1;
+static int hf_atm_aal_oamcell_type_pm = -1;
+static int hf_atm_aal_oamcell_type_ad = -1;
+static int hf_atm_aal_oamcell_type_ft = -1;
+static int hf_atm_aal_oamcell_func_spec = -1;
+static int hf_atm_aal_oamcell_crc = -1;
 
 static gint ett_atm = -1;
 static gint ett_atm_lane = -1;
@@ -192,7 +246,15 @@ static const value_string le_control_frame_size_vals[] = {
   { 0,    NULL }
 };
 
+static const value_string atm_channel_vals[] = {
+  { 0, "DTE->DCE" },
+  { 1, "DCE->DTE" },
+  { 0,    NULL }
+};
+
 static const true_false_string tfs_remote_local = { "Remote", "Local" };
+static const true_false_string tfs_low_high_priority = { "Low priority", "High priority" };
+
 
 static void
 dissect_le_client(tvbuff_t *tvb, proto_tree *tree)
@@ -204,8 +266,7 @@ dissect_le_client(tvbuff_t *tvb, proto_tree *tree)
     ti = proto_tree_add_protocol_format(tree, proto_atm_lane, tvb, 0, 2, "ATM LANE");
     lane_tree = proto_item_add_subtree(ti, ett_atm_lane);
 
-    proto_tree_add_text(lane_tree, tvb, 0, 2, "LE Client: 0x%04X",
-                        tvb_get_ntohs(tvb, 0));
+    proto_tree_add_item(lane_tree, hf_atm_le_client_client, tvb, 0, 2, ENC_BIG_ENDIAN );
   }
 }
 
@@ -221,16 +282,13 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
                            type);
   dest_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest);
   tag = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_text(dest_tree, tvb, offset, 2, "Tag: %s",
-                      val_to_str(tag, le_control_landest_tag_vals,
-                                 "Unknown (0x%04X)"));
+  proto_tree_add_item(dest_tree, hf_atm_lan_destination_tag, tvb, offset, 2, ENC_BIG_ENDIAN );
   offset += 2;
 
   switch (tag) {
 
   case TAG_MAC_ADDRESS:
-    proto_tree_add_text(dest_tree, tvb, offset, 6, "MAC address: %s",
-                        tvb_ether_to_str(tvb, offset));
+    proto_tree_add_item(dest_tree, hf_atm_lan_destination_mac, tvb, offset, 6, ENC_NA);
     break;
 
   case TAG_ROUTE_DESCRIPTOR:
@@ -312,9 +370,8 @@ dissect_le_control_tlvs(tvbuff_t *tvb, int offset, guint num_tlvs,
     ttlv = proto_tree_add_text(tree, tvb, offset, 5+tlv_length, "TLV type: %s",
                                val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
     tlv_tree = proto_item_add_subtree(ttlv, ett_atm_lane_lc_tlv);
-    proto_tree_add_text(tlv_tree, tvb, offset, 4, "TLV Type: %s",
-                        val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
-    proto_tree_add_text(tlv_tree, tvb, offset+4, 1, "TLV Length: %u", tlv_length);
+    proto_tree_add_item(tlv_tree, hf_atm_le_control_tlv_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_atm_le_control_tlv_length, tvb, offset+4, 1, ENC_BIG_ENDIAN);
     offset += 5+tlv_length;
     num_tlvs--;
   }
@@ -332,37 +389,30 @@ dissect_le_configure_join_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   dissect_lan_destination(tvb, offset, "Target", tree);
   offset += 8;
 
-  proto_tree_add_text(tree, tvb, offset, 20, "Source ATM Address: %s",
-                      tvb_bytes_to_str(tvb, offset, 20));
+  proto_tree_add_item(tree, hf_atm_source_atm, tvb, offset, 20, ENC_NA);
   offset += 20;
 
-  proto_tree_add_text(tree, tvb, offset, 1, "LAN type: %s",
-                      val_to_str(tvb_get_guint8(tvb, offset), le_control_lan_type_vals,
-                                 "Unknown (0x%02X)"));
+  proto_tree_add_item(tree, hf_atm_le_configure_join_frame_lan_type, tvb, offset, 1, ENC_NA);
   offset += 1;
 
-  proto_tree_add_text(tree, tvb, offset, 1, "Maximum frame size: %s",
-                      val_to_str(tvb_get_guint8(tvb, offset), le_control_frame_size_vals,
-                                 "Unknown (0x%02X)"));
+  proto_tree_add_item(tree, hf_atm_le_configure_join_frame_max_frame_size, tvb, offset, 1, ENC_NA);
   offset += 1;
 
   num_tlvs = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 1, "Number of TLVs: %u", num_tlvs);
+  proto_tree_add_item(tree, hf_atm_le_configure_join_frame_num_tlvs, tvb, offset, 1, ENC_NA);
   offset += 1;
 
   name_size = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 1, "ELAN name size: %u", name_size);
+  proto_tree_add_item(tree, hf_atm_le_configure_join_frame_elan_name_size, tvb, offset, 1, ENC_NA);
   offset += 1;
 
-  proto_tree_add_text(tree, tvb, offset, 20, "Target ATM Address: %s",
-                      tvb_bytes_to_str(tvb, offset, 20));
+  proto_tree_add_item(tree, hf_atm_target_atm, tvb, offset, 20, ENC_NA);
   offset += 20;
 
   if (name_size > 32)
     name_size = 32;
   if (name_size != 0) {
-    proto_tree_add_text(tree, tvb, offset, name_size, "ELAN name: %s",
-                        tvb_bytes_to_str(tvb, offset, name_size));
+    proto_tree_add_item(tree, hf_atm_le_configure_join_frame_elan_name, tvb, offset, name_size, ENC_NA);
   }
   offset += 32;
 
@@ -380,15 +430,14 @@ dissect_le_registration_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   dissect_lan_destination(tvb, offset, "Target", tree);
   offset += 8;
 
-  proto_tree_add_text(tree, tvb, offset, 20, "Source ATM Address: %s",
-                      tvb_bytes_to_str(tvb, offset, 20));
+  proto_tree_add_item(tree, hf_atm_source_atm, tvb, offset, 20, ENC_NA);
   offset += 20;
 
   /* Reserved */
   offset += 2;
 
   num_tlvs = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 1, "Number of TLVs: %u", num_tlvs);
+  proto_tree_add_item(tree, hf_atm_le_registration_frame_num_tlvs, tvb, offset, 1, ENC_NA);
   offset += 1;
 
   /* Reserved */
@@ -408,22 +457,20 @@ dissect_le_arp_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   dissect_lan_destination(tvb, offset, "Target", tree);
   offset += 8;
 
-  proto_tree_add_text(tree, tvb, offset, 20, "Source ATM Address: %s",
-                      tvb_bytes_to_str(tvb, offset, 20));
+  proto_tree_add_item(tree, hf_atm_source_atm, tvb, offset, 20, ENC_NA);
   offset += 20;
 
   /* Reserved */
   offset += 2;
 
   num_tlvs = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 1, "Number of TLVs: %u", num_tlvs);
+  proto_tree_add_item(tree, hf_atm_le_arp_frame_num_tlvs, tvb, offset, 1, ENC_NA);
   offset += 1;
 
   /* Reserved */
   offset += 1;
 
-  proto_tree_add_text(tree, tvb, offset, 20, "Target ATM Address: %s",
-                      tvb_bytes_to_str(tvb, offset, 20));
+  proto_tree_add_item(tree, hf_atm_target_atm, tvb, offset, 20, ENC_NA);
   offset += 20;
 
   /* Reserved */
@@ -441,14 +488,13 @@ dissect_le_verify_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   offset += 38;
 
   num_tlvs = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 1, "Number of TLVs: %u", num_tlvs);
+  proto_tree_add_item(tree, hf_atm_le_verify_frame_num_tlvs, tvb, offset, 1, ENC_NA);
   offset += 1;
 
   /* Reserved */
   offset += 1;
 
-  proto_tree_add_text(tree, tvb, offset, 20, "Target ATM Address: %s",
-                      tvb_bytes_to_str(tvb, offset, 20));
+  proto_tree_add_item(tree, hf_atm_target_atm, tvb, offset, 20, ENC_NA);
   offset += 20;
 
   /* Reserved */
@@ -466,15 +512,13 @@ dissect_le_flush_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   dissect_lan_destination(tvb, offset, "Target", tree);
   offset += 8;
 
-  proto_tree_add_text(tree, tvb, offset, 20, "Source ATM Address: %s",
-                      tvb_bytes_to_str(tvb, offset, 20));
+  proto_tree_add_item(tree, hf_atm_source_atm, tvb, offset, 20, ENC_NA);
   offset += 20;
 
   /* Reserved */
   offset += 4;
 
-  proto_tree_add_text(tree, tvb, offset, 20, "Target ATM Address: %s",
-                      tvb_bytes_to_str(tvb, offset, 20));
+  proto_tree_add_item(tree, hf_atm_target_atm, tvb, offset, 20, ENC_NA);
   offset += 20;
 
   /* Reserved */
@@ -492,7 +536,6 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *tf;
   proto_tree *flags_tree;
   guint16     opcode;
-  guint16     flags;
 
   col_set_str(pinfo->cinfo, COL_INFO, "LE Control");
 
@@ -500,20 +543,18 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_protocol_format(tree, proto_atm_lane, tvb, offset, 108, "ATM LANE");
     lane_tree = proto_item_add_subtree(ti, ett_atm_lane);
 
-    proto_tree_add_text(lane_tree, tvb, offset, 2, "Marker: 0x%04X",
-                        tvb_get_ntohs(tvb, offset));
+    proto_tree_add_item(lane_tree, hf_atm_le_control_marker, tvb, offset, 2, ENC_BIG_ENDIAN );
   }
   offset += 2;
 
   if (tree) {
-    proto_tree_add_text(lane_tree, tvb, offset, 1, "Protocol: 0x%02X",
-                        tvb_get_guint8(tvb, offset));
+    proto_tree_add_item(lane_tree, hf_atm_le_control_protocol, tvb, offset, 1, ENC_BIG_ENDIAN );
+
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_text(lane_tree, tvb, offset, 1, "Version: 0x%02X",
-                        tvb_get_guint8(tvb, offset));
+    proto_tree_add_item(lane_tree, hf_atm_le_control_version, tvb, offset, 1, ENC_BIG_ENDIAN );
   }
   offset += 1;
 
@@ -523,9 +564,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              "Unknown opcode (0x%04X)"));
 
   if (tree) {
-    proto_tree_add_text(lane_tree, tvb, offset, 2, "Opcode: %s",
-                        val_to_str(opcode, le_control_opcode_vals,
-                                   "Unknown (0x%04X)"));
+    proto_tree_add_item(lane_tree, hf_atm_le_control_opcode, tvb, offset, 2, ENC_BIG_ENDIAN );
   }
   offset += 2;
 
@@ -537,23 +576,17 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     if (opcode & 0x0100) {
       /* Response; decode status. */
-      proto_tree_add_text(lane_tree, tvb, offset, 2, "Status: %s",
-                          val_to_str(tvb_get_ntohs(tvb, offset), le_control_status_vals,
-                                     "Unknown (0x%04X)"));
+      proto_tree_add_item(lane_tree, hf_atm_le_control_status, tvb, offset, 2, ENC_BIG_ENDIAN );
     }
     offset += 2;
 
-    proto_tree_add_text(lane_tree, tvb, offset, 4, "Transaction ID: 0x%08X",
-                        tvb_get_ntohl(tvb, offset));
+    proto_tree_add_item(lane_tree, hf_atm_le_control_transaction_id, tvb, offset, 4, ENC_BIG_ENDIAN );
     offset += 4;
 
-    proto_tree_add_text(lane_tree, tvb, offset, 2, "Requester LECID: 0x%04X",
-                        tvb_get_ntohs(tvb, offset));
+    proto_tree_add_item(lane_tree, hf_atm_le_control_requester_lecid, tvb, offset, 2, ENC_BIG_ENDIAN );
     offset += 2;
 
-    flags = tvb_get_ntohs(tvb, offset);
-    tf = proto_tree_add_text(lane_tree, tvb, offset, 2, "Flags: 0x%04X",
-                             flags);
+    tf = proto_tree_add_item(lane_tree, hf_atm_le_control_flags, tvb, offset, 2, ENC_BIG_ENDIAN );
     flags_tree = proto_item_add_subtree(tf, ett_atm_lane_lc_flags);
 
     switch (opcode) {
@@ -936,27 +969,20 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * from the pseudo-header.
    */
   if (pinfo->pseudo_header->atm.aal == AAL_5) {
-    proto_tree_add_text(atm_tree, tvb, 0, 0, "Traffic type: %s",
-                        val_to_str(pinfo->pseudo_header->atm.type, aal5_hltype_vals,
-                                   "Unknown AAL5 traffic type (%u)"));
+    proto_tree_add_uint(atm_tree, hf_atm_traffic_type, tvb, 0, 0, pinfo->pseudo_header->atm.type);
+
     switch (pinfo->pseudo_header->atm.type) {
 
     case TRAF_VCMX:
-      proto_tree_add_text(atm_tree, tvb, 0, 0, "VC multiplexed traffic type: %s",
-                          val_to_str(pinfo->pseudo_header->atm.subtype,
-                                     vcmx_type_vals, "Unknown VCMX traffic type (%u)"));
+      proto_tree_add_uint(atm_tree, hf_atm_traffic_vcmx, tvb, 0, 0, pinfo->pseudo_header->atm.subtype);
       break;
 
     case TRAF_LANE:
-      proto_tree_add_text(atm_tree, tvb, 0, 0, "LANE traffic type: %s",
-                          val_to_str(pinfo->pseudo_header->atm.subtype,
-                                     lane_type_vals, "Unknown LANE traffic type (%u)"));
+      proto_tree_add_uint(atm_tree, hf_atm_traffic_lane, tvb, 0, 0, pinfo->pseudo_header->atm.subtype);
       break;
 
     case TRAF_IPSILON:
-      proto_tree_add_text(atm_tree, tvb, 0, 0, "Ipsilon traffic type: %s",
-                          val_to_str(pinfo->pseudo_header->atm.subtype,
-                                     ipsilon_type_vals, "Unknown Ipsilon traffic type (%u)"));
+      proto_tree_add_uint(atm_tree, hf_atm_traffic_ipsilon, tvb, 0, 0, pinfo->pseudo_header->atm.subtype);
       break;
     }
   }
@@ -990,16 +1016,11 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        * have the AAL5 trailer information.
        */
       if (tree) {
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
-                            pinfo->pseudo_header->atm.cells);
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 UU: 0x%02x",
-                            pinfo->pseudo_header->atm.aal5t_u2u >> 8);
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 CPI: 0x%02x",
-                            pinfo->pseudo_header->atm.aal5t_u2u & 0xFF);
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 len: %u",
-                            pinfo->pseudo_header->atm.aal5t_len);
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "AAL5 CRC: 0x%08X",
-                            pinfo->pseudo_header->atm.aal5t_chksum);
+        proto_tree_add_uint(atm_tree, hf_atm_cells, tvb, 0, 0, pinfo->pseudo_header->atm.cells);
+        proto_tree_add_uint(atm_tree, hf_atm_aal5_uu, tvb, 0, 0, pinfo->pseudo_header->atm.aal5t_u2u >> 8);
+        proto_tree_add_uint(atm_tree, hf_atm_aal5_cpi, tvb, 0, 0, pinfo->pseudo_header->atm.aal5t_u2u & 0xFF);
+        proto_tree_add_uint(atm_tree, hf_atm_aal5_len, tvb, 0, 0, pinfo->pseudo_header->atm.aal5t_len);
+        proto_tree_add_uint(atm_tree, hf_atm_aal5_crc, tvb, 0, 0, pinfo->pseudo_header->atm.aal5t_chksum);
       }
     }
   } else {
@@ -1015,8 +1036,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        * Reported length is a multiple of 48, so we can presumably
        * divide it by 48 to get the number of cells.
        */
-      proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
-                          reported_length/48);
+      proto_tree_add_uint(atm_tree, hf_atm_cells, tvb, 0, 0, reported_length/48);
     }
     if ((pinfo->pseudo_header->atm.aal == AAL_5 ||
          pinfo->pseudo_header->atm.aal == AAL_SIGNALLING) &&
@@ -1055,22 +1075,22 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         if (pad_length <= 47) {
           if (tree) {
+            proto_item *ti;
+
             if (pad_length > 0) {
               proto_tree_add_text(atm_tree, tvb, aal5_length, pad_length,
                                   "Padding");
             }
-            proto_tree_add_text(atm_tree, tvb, length - 8, 1, "AAL5 UU: 0x%02x",
-                                tvb_get_guint8(tvb, length - 8));
-            proto_tree_add_text(atm_tree, tvb, length - 7, 1, "AAL5 CPI: 0x%02x",
-                                tvb_get_guint8(tvb, length - 7));
-            proto_tree_add_text(atm_tree, tvb, length - 6, 2, "AAL5 len: %u",
-                                aal5_length);
+
+            proto_tree_add_item(atm_tree, hf_atm_aal5_uu, tvb, length - 8, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(atm_tree, hf_atm_aal5_cpi, tvb, length - 7, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(atm_tree, hf_atm_aal5_len, tvb, length - 6, 2, ENC_BIG_ENDIAN);
+
             crc = tvb_get_ntohl(tvb, length - 4);
             calc_crc = update_crc(0xFFFFFFFF, tvb_get_ptr(tvb, 0, length),
                                   length);
-            proto_tree_add_text(atm_tree, tvb, length - 4, 4,
-                                "AAL5 CRC: 0x%08X (%s)", crc,
-                                (calc_crc == 0xC704DD7B) ? "correct" : "incorrect");
+            ti = proto_tree_add_uint(atm_tree, hf_atm_aal5_crc, tvb, length - 4, 4, crc);
+            proto_item_append_text(ti, (calc_crc == 0xC704DD7B) ? "correct" : "incorrect");
           }
           next_tvb = tvb_new_subset(tvb, 0, aal5_length, aal5_length);
         }
@@ -1557,15 +1577,10 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int         offset;
   proto_tree *aal_tree;
   proto_item *ti;
-  guint8      octet;
+  guint8      octet, pt;
   int         err;
-  guint16     vpi;
-  guint16     vci;
-  guint8      pt;
-  guint16     aal3_4_hdr, aal3_4_trlr;
-  guint16     oam_crc;
+  guint16     vpi, vci, aal3_4_hdr, crc10;
   gint        length;
-  guint16     crc10;
   tvbuff_t   *next_tvb;
   const pwatm_private_data_t *pwpd = pinfo->private_data;
 
@@ -1625,19 +1640,14 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     octet = tvb_get_guint8(tvb, 3);
     vci |= octet >> 4;
     proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 1, 3, vci);
-    pt = (octet >> 1) & 0x7;
-    proto_tree_add_text(atm_tree, tvb, 3, 1, "Payload Type: %s",
-                        val_to_str(pt, atm_pt_vals, "Unknown (%u)"));
-    proto_tree_add_text(atm_tree, tvb, 3, 1, "Cell Loss Priority: %s",
-                        (octet & 0x01) ? "Low priority" : "High priority");
+    proto_tree_add_item(atm_tree, hf_atm_payload_type, tvb, 3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(atm_tree, hf_atm_cell_loss_priority, tvb, 3, 1, ENC_BIG_ENDIAN);
 
     if (!crc_stripped) {
       /*
        * FF: parse the Header Error Check (HEC).
        */
-      ti = proto_tree_add_text(atm_tree, tvb, 4, 1,
-                               "Header Error Check: 0x%02x",
-                               tvb_get_guint8(tvb, 4));
+      ti = proto_tree_add_item(atm_tree, hf_atm_header_error_check, tvb, 4, 1, ENC_BIG_ENDIAN);
       err = get_header_err(tvb_get_ptr(tvb, 0, 5));
       if (err == NO_ERROR_DETECTED)
         proto_item_append_text(ti, " (correct)");
@@ -1685,18 +1695,16 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, ENC_NA);
     aal_tree = proto_item_add_subtree(ti, ett_aal1);
     octet = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(aal_tree, tvb, offset, 1, "CSI: %u", octet >> 7);
-    proto_tree_add_text(aal_tree, tvb, offset, 1, "Sequence Count: %u",
-                        (octet >> 4) & 0x7);
+
+    proto_tree_add_item(aal_tree, hf_atm_aa1_csi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(aal_tree, hf_atm_aa1_seq_count, tvb, offset, 1, ENC_BIG_ENDIAN);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Sequence count = %u",
                  (octet >> 4) & 0x7);
-    proto_tree_add_text(aal_tree, tvb, offset, 1, "CRC: 0x%x",
-                        (octet >> 1) & 0x7);
-    proto_tree_add_text(aal_tree, tvb, offset, 1, "Parity: %u",
-                        octet & 0x1);
+    proto_tree_add_item(aal_tree, hf_atm_aa1_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(aal_tree, hf_atm_aa1_parity, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_text(aal_tree, tvb, offset, 47, "Payload");
+    proto_tree_add_item(aal_tree, hf_atm_aa1_payload, tvb, offset, 47, ENC_NA);
     break;
 
   case AAL_3_4:
@@ -1711,26 +1719,21 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s, sequence number = %u",
                  val_to_str(aal3_4_hdr >> 14, st_vals, "Unknown (%u)"),
                  (aal3_4_hdr >> 10) & 0xF);
-    proto_tree_add_text(aal_tree, tvb, offset, 2, "Segment Type: %s",
-                        val_to_str(aal3_4_hdr >> 14, st_vals, "Unknown (%u)"));
-    proto_tree_add_text(aal_tree, tvb, offset, 2, "Sequence Number: %u",
-                        (aal3_4_hdr >> 10) & 0xF);
-    proto_tree_add_text(aal_tree, tvb, offset, 2, "Multiplex ID: %u",
-                        aal3_4_hdr & 0x3FF);
+    proto_tree_add_item(aal_tree, hf_atm_aal3_4_seg_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(aal_tree, hf_atm_aal3_4_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(aal_tree, hf_atm_aal3_4_multiplex_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+
     length = tvb_length_remaining(tvb, offset);
     crc10 = update_crc10_by_bytes(0, tvb_get_ptr(tvb, offset, length),
                                   length);
     offset += 2;
 
-    proto_tree_add_text(aal_tree, tvb, offset, 44, "Information");
+    proto_tree_add_item(aal_tree, hf_atm_aal3_4_information, tvb, offset, 44, ENC_NA);
     offset += 44;
 
-    aal3_4_trlr = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_text(aal_tree, tvb, offset, 2, "Length Indicator: %u",
-                        (aal3_4_trlr >> 10) & 0x3F);
-    proto_tree_add_text(aal_tree, tvb, offset, 2, "CRC: 0x%03x (%s)",
-                        aal3_4_trlr & 0x3FF,
-                        (crc10 == 0) ? "correct" : "incorrect");
+    proto_tree_add_item(aal_tree, hf_atm_aal3_4_length_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(aal_tree, hf_atm_aal3_4_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_item_append_text(ti, " (%s)", (crc10 == 0) ? "correct" : "incorrect");
     break;
 
   case AAL_OAMCELL:
@@ -1747,28 +1750,24 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
                    val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
     }
-    proto_tree_add_text(aal_tree, tvb, offset, 1, "OAM Type: %s",
-                        val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
+
+    proto_tree_add_item(aal_tree, hf_atm_aal_oamcell_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     switch (octet >> 4) {
 
     case OAM_TYPE_FM:
-      proto_tree_add_text(aal_tree, tvb, offset, 1, "Function Type: %s",
-                          val_to_str(octet & 0x0F, ft_fm_vals, "Unknown (%u)"));
+      proto_tree_add_item(aal_tree, hf_atm_aal_oamcell_type_fm, tvb, offset, 1, ENC_BIG_ENDIAN);
       break;
 
     case OAM_TYPE_PM:
-      proto_tree_add_text(aal_tree, tvb, offset, 1, "Function Type: %s",
-                          val_to_str(octet & 0x0F, ft_pm_vals, "Unknown (%u)"));
+      proto_tree_add_item(aal_tree, hf_atm_aal_oamcell_type_pm, tvb, offset, 1, ENC_BIG_ENDIAN);
       break;
 
     case OAM_TYPE_AD:
-      proto_tree_add_text(aal_tree, tvb, offset, 1, "Function Type: %s",
-                          val_to_str(octet & 0x0F, ft_ad_vals, "Unknown (%u)"));
+      proto_tree_add_item(aal_tree, hf_atm_aal_oamcell_type_ad, tvb, offset, 1, ENC_BIG_ENDIAN);
       break;
 
     default:
-      proto_tree_add_text(aal_tree, tvb, offset, 1, "Function Type: %u",
-                          octet & 0x0F);
+      proto_tree_add_item(aal_tree, hf_atm_aal_oamcell_type_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
       break;
     }
     length = tvb_length_remaining(tvb, offset);
@@ -1776,13 +1775,11 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                   length);
     offset += 1;
 
-    proto_tree_add_text(aal_tree, tvb, offset, 45, "Function-specific information");
+    proto_tree_add_item(aal_tree, hf_atm_aal_oamcell_func_spec, tvb, offset, 45, ENC_NA);
     offset += 45;
 
-    oam_crc = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_text(aal_tree, tvb, offset, 2, "CRC-10: 0x%03x (%s)",
-                        oam_crc & 0x3FF,
-                        (crc10 == 0) ? "correct" : "incorrect");
+    ti = proto_tree_add_item(aal_tree, hf_atm_aal_oamcell_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_item_append_text(ti, " (%s)", (crc10 == 0) ? "correct" : "incorrect");
     break;
 
   default:
@@ -1840,24 +1837,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
 
     if (!pseudowire_mode) {
-      switch (pinfo->pseudo_header->atm.channel) {
-
-      case 0:
-        /* Traffic from DTE to DCE. */
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DTE->DCE");
-        break;
-
-      case 1:
-        /* Traffic from DCE to DTE. */
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: DCE->DTE");
-        break;
-
-      default:
-        /* Sniffers shouldn't provide anything other than 0 or 1. */
-        proto_tree_add_text(atm_tree, tvb, 0, 0, "Channel: %u",
-                            pinfo->pseudo_header->atm.channel);
-        break;
-      }
+      proto_tree_add_uint(tree, hf_atm_channel, tvb, 0, 0, pinfo->pseudo_header->atm.channel);
     }
 
     proto_tree_add_uint_format_value(atm_tree, hf_atm_aal, tvb, 0, 0,
@@ -1934,6 +1914,21 @@ proto_register_atm(void)
       { "CID",          "atm.cid", FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_atm_le_client_client,
+      { "LE Client", "atm.le_client.client", FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_lan_destination_tag,
+      { "Tag", "atm.lan_destination.tag", FT_UINT16, BASE_HEX, VALS(le_control_landest_tag_vals), 0x0,
+        NULL, HFILL }},
+    { &hf_atm_lan_destination_mac,
+      { "MAC address", "atm.lan_destination.mac", FT_ETHER, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_control_tlv_type,
+      { "TLV Type", "atm.le_control.tlv_type", FT_UINT32, BASE_HEX, VALS(le_tlv_type_vals), 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_control_tlv_length,
+      { "TLV Length", "atm.le_control.tlv_length", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_atm_lan_destination_route_desc,
       { "Route descriptor", "atm.lan_destination.route_desc", FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
@@ -1942,6 +1937,60 @@ proto_register_atm(void)
         NULL, HFILL }},
     { &hf_atm_lan_destination_bridge_num,
       { "Bridge number", "atm.lan_destination.bridge_num", FT_UINT16, BASE_DEC, NULL, 0x000F,
+        NULL, HFILL }},
+    { &hf_atm_source_atm,
+      { "Source ATM address", "atm.source_atm", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_target_atm,
+      { "Target ATM address", "atm.target_atm", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_configure_join_frame_lan_type,
+      { "LAN type", "atm.le_configure_join_frame.lan_type", FT_UINT8, BASE_HEX, VALS(le_control_lan_type_vals), 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_configure_join_frame_max_frame_size,
+      { "Maximum frame size", "atm.le_configure_join_frame.max_frame_size", FT_UINT8, BASE_HEX, VALS(le_control_frame_size_vals), 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_configure_join_frame_num_tlvs,
+      { "Number of TLVs", "atm.le_configure_join_frame.num_tlvs", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_configure_join_frame_elan_name_size,
+      { "ELAN name size", "atm.le_configure_join_frame.elan_name_size", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_registration_frame_num_tlvs,
+      { "Number of TLVs", "atm.le_registration_frame.num_tlvs", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_arp_frame_num_tlvs,
+      { "Number of TLVs", "atm.le_arp_frame.num_tlvs", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_verify_frame_num_tlvs,
+      { "Number of TLVs", "atm.le_verify_frame.num_tlvs", FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_configure_join_frame_elan_name,
+      { "ELAN name", "atm.le_configure_join_frame.elan_name", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_control_marker,
+      { "Marker", "atm.le_control.marker", FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_control_protocol,
+      { "Protocol", "atm.le_control.protocol", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_control_version,
+      { "Version", "atm.le_control.version", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_control_opcode,
+      { "Opcode", "atm.le_control.opcode", FT_UINT16, BASE_HEX, VALS(le_control_opcode_vals), 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_control_status,
+      { "Status", "atm.le_control.status", FT_UINT16, BASE_HEX, VALS(le_control_status_vals), 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_control_transaction_id,
+      { "Transaction ID", "atm.le_control.transaction_id", FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_control_requester_lecid,
+      { "Requester LECID", "atm.le_control.requester_lecid", FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_le_control_flags,
+      { "Flags", "atm.le_control.flag", FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
     { &hf_atm_le_control_flag_v2_capable,
       { "V2 capable", "atm.le_control.flag.v2_capable", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0002,
@@ -1963,7 +2012,100 @@ proto_register_atm(void)
         NULL, HFILL }},
     { &hf_atm_le_control_topology_change,
       { "Topology change", "atm.le_control.flag.topology_change", FT_BOOLEAN, 16, TFS(&tfs_remote_local), 0x0100,
-        NULL, HFILL }}
+        NULL, HFILL }},
+    { &hf_atm_traffic_type,
+      { "Traffic type", "atm.traffic_type", FT_UINT8, BASE_DEC, VALS(aal5_hltype_vals), 0x0,
+        NULL, HFILL }},
+    { &hf_atm_traffic_vcmx,
+      { "VC multiplexed traffic type", "atm.traffic.vcmx", FT_UINT8, BASE_DEC, VALS(vcmx_type_vals), 0x0,
+        NULL, HFILL }},
+    { &hf_atm_traffic_lane,
+      { "LANE traffic type", "atm.traffic.lane", FT_UINT8, BASE_DEC, VALS(lane_type_vals), 0x0,
+        NULL, HFILL }},
+    { &hf_atm_traffic_ipsilon,
+      { "Ipsilon traffic type", "atm.traffic.ipsilon", FT_UINT8, BASE_DEC, VALS(ipsilon_type_vals), 0x0,
+        NULL, HFILL }},
+    { &hf_atm_cells,
+      { "Cells", "atm.cells", FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_aal5_uu,
+      { "AAL5 UU", "atm.hf_atm.aal5t_uu", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_aal5_cpi,
+      { "AAL5 UU", "atm.hf_atm.aal5t_cpi", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_aal5_len,
+      { "AAL5 len", "atm.aal5t_len", FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_aal5_crc,
+      { "AAL5 CRC", "atm.aal5t_crc", FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_payload_type,
+      { "Payload Type", "atm.payload_type", FT_UINT8, BASE_DEC, NULL, 0x0E,
+        NULL, HFILL }},
+    { &hf_atm_cell_loss_priority,
+      { "Cell Loss Priority", "atm.cell_loss_priority", FT_BOOLEAN, 8, TFS(&tfs_low_high_priority), 0x01,
+        NULL, HFILL }},
+    { &hf_atm_header_error_check,
+      { "Header Error Check", "atm.header_error_check", FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }},
+    { &hf_atm_channel,
+      { "Channel", "atm.channel", FT_UINT16, BASE_DEC, VALS(atm_channel_vals), 0,
+        NULL, HFILL }},
+    { &hf_atm_aa1_csi,
+      { "CSI", "atm.aa1.csi", FT_UINT8, BASE_DEC, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_atm_aa1_seq_count,
+      { "Sequence Count", "atm.aa1.seq_count", FT_UINT8, BASE_DEC, NULL, 0x70,
+        NULL, HFILL }},
+    { &hf_atm_aa1_crc,
+      { "CRC", "atm.aa1.crc", FT_UINT8, BASE_DEC, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_atm_aa1_parity,
+      { "Parity", "atm.aa1.parity", FT_UINT8, BASE_DEC, NULL, 0x07,
+        NULL, HFILL }},
+    { &hf_atm_aa1_payload,
+      { "Payload", "atm.aa1.payload", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_aal3_4_seg_type,
+      { "Segment Type", "atm.aal3_4.seg_type", FT_UINT16, BASE_DEC, VALS(st_vals), 0xC000,
+        NULL, HFILL }},
+    { &hf_atm_aal3_4_seq_num,
+      { "Sequence Number", "atm.aal3_4.seq_num", FT_UINT16, BASE_DEC, NULL, 0x3C00,
+        NULL, HFILL }},
+    { &hf_atm_aal3_4_multiplex_id,
+      { "Multiplex ID", "atm.aal3_4.multiplex_id", FT_UINT16, BASE_DEC, NULL, 0x03FF,
+        NULL, HFILL }},
+    { &hf_atm_aal3_4_information,
+      { "Information", "atm.aal3_4.information", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_aal3_4_length_indicator,
+      { "Length Indicator", "atm.aal3_4.length_indicator", FT_UINT16, BASE_DEC, VALS(st_vals), 0xFC00,
+        NULL, HFILL }},
+    { &hf_atm_aal3_4_crc,
+      { "CRC", "atm.aal3_4.crc", FT_UINT16, BASE_DEC, NULL, 0x03FF,
+        NULL, HFILL }},
+    { &hf_atm_aal_oamcell_type,
+      { "OAM Type", "atm.aal_oamcell.type", FT_UINT8, BASE_DEC, VALS(oam_type_vals), 0xF0,
+        NULL, HFILL }},
+    { &hf_atm_aal_oamcell_type_fm,
+      { "Function Type", "atm.aal_oamcell.type.fm", FT_UINT8, BASE_DEC, VALS(ft_fm_vals), 0x0F,
+        NULL, HFILL }},
+    { &hf_atm_aal_oamcell_type_pm,
+      { "Function Type", "atm.aal_oamcell.type.pm", FT_UINT8, BASE_DEC, VALS(ft_pm_vals), 0x0F,
+        NULL, HFILL }},
+    { &hf_atm_aal_oamcell_type_ad,
+      { "Function Type", "atm.aal_oamcell.type.ad", FT_UINT8, BASE_DEC, VALS(ft_ad_vals), 0x0F,
+        NULL, HFILL }},
+    { &hf_atm_aal_oamcell_type_ft,
+      { "Function Type", "atm.aal_oamcell.type.ft", FT_UINT8, BASE_DEC, NULL, 0x0F,
+        NULL, HFILL }},
+    { &hf_atm_aal_oamcell_func_spec,
+      { "Function-specific information", "atm.aal_oamcell.func_spec", FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_atm_aal_oamcell_crc,
+      { "CRC-10", "atm.aal_oamcell.crc", FT_UINT16, BASE_HEX, NULL, 0x3FF,
+        NULL, HFILL }},
   };
 
   static gint *ett[] = {
