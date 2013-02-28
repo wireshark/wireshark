@@ -592,6 +592,7 @@ static const struct {
 };
 #define NUM_PCAP_ENCAPS (sizeof pcap_to_wtap_map / sizeof pcap_to_wtap_map[0])
 
+WS_DLL_PUBLIC
 int
 wtap_pcap_encap_to_wtap_encap(int encap)
 {
@@ -604,6 +605,7 @@ wtap_pcap_encap_to_wtap_encap(int encap)
 	return WTAP_ENCAP_UNKNOWN;
 }
 
+WS_DLL_PUBLIC
 int
 wtap_wtap_encap_to_pcap_encap(int encap)
 {
@@ -660,6 +662,7 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 	return -1;
 }
 
+WS_DLL_PUBLIC
 gboolean
 wtap_encap_requires_phdr(int encap) {
 	if (
