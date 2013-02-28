@@ -667,7 +667,7 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
     if (iscdb) {
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
-        if (cdata) {
+        if (cdata && cdata->itlq) {
             cdata->itlq->alloc_len = tvb_get_ntohs(tvb, offset + 6);
         }
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
@@ -690,7 +690,7 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             NULL
         };
 
-        TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len);
+        TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, (cdata && cdata->itlq) ? cdata->itlq->alloc_len : 0);
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb, 0, 2, ENC_BIG_ENDIAN);
 
         proto_tree_add_bitmask(tree, tvb, offset + 2, hf_scsi_mmc_disk_flags,
