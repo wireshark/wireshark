@@ -86,7 +86,8 @@ WIRESHARK_COMMON_INCLUDES =	\
 	timestats.h		\
 	tap-megaco-common.h	\
 	tap-rtp-common.h	\
-	version_info.h
+	version_info.h		\
+	ws_symbol_export.h
 
 # sources common for wireshark and tshark, but not rawshark;
 # these are for programs that capture traffic by running dumpcap
