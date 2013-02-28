@@ -107,15 +107,15 @@ gchar *format_size(gint64 size, format_size_flags_e flags) {
 	}
 
         if (size / power / power / power / power >= 10) {
-		g_string_printf(human_str, "%" G_GINT64_MODIFIER "d %s", size / power / power / power / power, prefix[pfx_off]);
+		g_string_printf(human_str, "%'" G_GINT64_MODIFIER "d %s", size / power / power / power / power, prefix[pfx_off]);
 	} else if (size / power / power / power >= 10) {
-		g_string_printf(human_str, "%" G_GINT64_MODIFIER "d %s", size / power / power / power, prefix[pfx_off+1]);
+		g_string_printf(human_str, "%'" G_GINT64_MODIFIER "d %s", size / power / power / power, prefix[pfx_off+1]);
 	} else if (size / power / power >= 10) {
-		g_string_printf(human_str, "%" G_GINT64_MODIFIER "d %s", size / power / power, prefix[pfx_off+2]);
+		g_string_printf(human_str, "%'" G_GINT64_MODIFIER "d %s", size / power / power, prefix[pfx_off+2]);
 	} else if (size / power >= 10) {
-		g_string_printf(human_str, "%" G_GINT64_MODIFIER "d %s", size / power, prefix[pfx_off+3]);
+		g_string_printf(human_str, "%'" G_GINT64_MODIFIER "d %s", size / power, prefix[pfx_off+3]);
         } else {
-		g_string_printf(human_str, "%" G_GINT64_MODIFIER "d ", size);
+		g_string_printf(human_str, "%'" G_GINT64_MODIFIER "d ", size);
 		is_small = TRUE;
 	}
 

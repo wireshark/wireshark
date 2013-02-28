@@ -62,6 +62,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <locale.h>
 #include <errno.h>
 
 #ifdef HAVE_UNISTD_H
@@ -1297,6 +1298,9 @@ main(int argc, char *argv[])
     }
   }
 
+  /* Set the C-language locale to the native environment. */
+  setlocale(LC_ALL, "");
+
   if ((argc - optind) < 1) {
     usage(TRUE);
     exit(1);
@@ -1372,5 +1376,6 @@ main(int argc, char *argv[])
         exit(status);
     }
   }
+
   return overall_error_status;
 }
