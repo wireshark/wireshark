@@ -667,8 +667,7 @@ destroy_edit_dialog_cb(gpointer filter_arg, gpointer dummy _U_)
 {
   color_filter_t *colorf = (color_filter_t *)filter_arg;
 
-  if (colorf->edit_dialog != NULL)
-    window_destroy(colorf->edit_dialog);
+  color_edit_dlg_destroy(colorf->color_edit_dlg_info);
 }
 
 /* Called when the dialog box is being destroyed; destroy any edit
@@ -803,7 +802,7 @@ create_new_color_filter(GtkButton *button, const char *filter)
   select_row(color_filters, 0);
 
   /* open the edit dialog */
-  edit_color_filter_dialog(color_filters, TRUE /* is a new filter */);
+  color_edit_dlg(color_filters, TRUE /* is a new filter */);
 
   gtk_widget_grab_focus(color_filters);
 }
@@ -825,7 +824,7 @@ color_edit_cb(GtkButton *button, gpointer user_data _U_)
 
   color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
   g_assert(color_dlg_row_selected != -1);
-  edit_color_filter_dialog(color_filters, FALSE /* is not a new filter */);
+  color_edit_dlg(color_filters, FALSE /* is not a new filter */);
 }
 
 /* User double-clicked on the coloring rule */
@@ -834,7 +833,7 @@ color_filters_button_cb(GtkWidget *list, GdkEventButton *event,
                           gpointer data _U_)
 {
   if (event->type == GDK_2BUTTON_PRESS) {
-    edit_color_filter_dialog(list, FALSE);
+    color_edit_dlg(list, FALSE);
   }
 
   return FALSE;
@@ -896,8 +895,7 @@ color_delete_single(gint row, GtkWidget *color_filters)
   color_dlg_num_of_filters--;
 
   /* Destroy any "Edit color filter" dialog boxes editing it. */
-  if (colorf->edit_dialog != NULL)
-    window_destroy(colorf->edit_dialog);
+  color_edit_dlg_destroy(colorf->color_edit_dlg_info);
 
   /* Delete the color filter from the list of color filters. */
   color_filter_edit_list = g_slist_remove(color_filter_edit_list, colorf);
@@ -1061,3 +1059,16 @@ color_cancel_cb(GtkWidget *widget _U_, gpointer user_data _U_)
   /* Destroy the dialog box. */
   window_destroy(colorize_win);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

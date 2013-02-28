@@ -78,15 +78,15 @@ color_filter_new(const gchar *name,          /* The name of the filter to create
 {
     color_filter_t *colorf;
 
-    colorf = (color_filter_t *)g_malloc(sizeof (color_filter_t));
-    colorf->filter_name = g_strdup(name);
-    colorf->filter_text = g_strdup(filter_string);
-    colorf->bg_color = *bg_color;
-    colorf->fg_color = *fg_color;
-    colorf->disabled = disabled;
-    colorf->c_colorfilter = NULL;
-    colorf->edit_dialog = NULL;
-    colorf->selected = FALSE;
+    colorf                      = (color_filter_t *)g_malloc(sizeof (color_filter_t));
+    colorf->filter_name         = g_strdup(name);
+    colorf->filter_text         = g_strdup(filter_string);
+    colorf->bg_color            = *bg_color;
+    colorf->fg_color            = *fg_color;
+    colorf->disabled            = disabled;
+    colorf->c_colorfilter       = NULL;
+    colorf->color_edit_dlg_info = NULL;
+    colorf->selected            = FALSE;
     return colorf;
 }
 
@@ -249,15 +249,15 @@ color_filter_clone(color_filter_t *colorf)
 {
     color_filter_t *new_colorf;
 
-    new_colorf = (color_filter_t *)g_malloc(sizeof (color_filter_t));
-    new_colorf->filter_name = g_strdup(colorf->filter_name);
-    new_colorf->filter_text = g_strdup(colorf->filter_text);
-    new_colorf->bg_color = colorf->bg_color;
-    new_colorf->fg_color = colorf->fg_color;
-    new_colorf->disabled = colorf->disabled;
-    new_colorf->c_colorfilter = NULL;
-    new_colorf->edit_dialog = NULL;
-    new_colorf->selected = FALSE;
+    new_colorf                      = (color_filter_t *)g_malloc(sizeof (color_filter_t));
+    new_colorf->filter_name         = g_strdup(colorf->filter_name);
+    new_colorf->filter_text         = g_strdup(colorf->filter_text);
+    new_colorf->bg_color            = colorf->bg_color;
+    new_colorf->fg_color            = colorf->fg_color;
+    new_colorf->disabled            = colorf->disabled;
+    new_colorf->c_colorfilter       = NULL;
+    new_colorf->color_edit_dlg_info = NULL;
+    new_colorf->selected            = FALSE;
 
     return new_colorf;
 }

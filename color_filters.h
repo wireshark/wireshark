@@ -35,19 +35,18 @@ extern "C" {
 
 /* Data for a color filter. */
 typedef struct _color_filter {
-    gchar     *filter_name;   /* name of the filter */
-    gchar     *filter_text;   /* text of the filter expression */
-    color_t    bg_color;      /* background color for packets that match */
-    color_t    fg_color;      /* foreground color for packets that match */
-    gboolean   disabled;      /* set if the filter is disabled */
-    gboolean   selected;      /* set if the filter is selected in the color dialog box */
+    gchar     *filter_name;         /* name of the filter */
+    gchar     *filter_text;         /* text of the filter expression */
+    color_t    bg_color;            /* background color for packets that match */
+    color_t    fg_color;            /* foreground color for packets that match */
+    gboolean   disabled;            /* set if the filter is disabled */
+    gboolean   selected;            /* set if the filter is selected in the color dialog box */
 
-    /* only used inside of color_filters.c */
-    dfilter_t *c_colorfilter; /* compiled filter expression */
+                                    /* only used inside of color_filters.c */
+    dfilter_t *c_colorfilter;       /* compiled filter expression */
 
-    /* only used outside of color_filters.c (beside init) */
-    void      *edit_dialog;   /* if filter is being edited, dialog
-                               * box for it */
+                                    /* only used outside of color_filters.c (beside init) */
+    void      *color_edit_dlg_info; /* if filter is being edited, ptr to req'd info */
 } color_filter_t;
 
 
@@ -199,3 +198,16 @@ void color_filter_list_delete(GSList **cfl);
 #endif /* __cplusplus */
 
 #endif
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
