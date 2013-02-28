@@ -868,9 +868,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef HAVE_AIRPCAP
   /* LOAD AIRPCAP INTERFACES */
 
-  decryption_cb = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-  update_decryption_mode_list(decryption_cb);
-
   /* If no airpcap interface is present, gray everything */
   if (airpcap_if_active == NULL) {
     if (airpcap_if_list == NULL) {
@@ -878,13 +875,19 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       airpcap_enable_toolbar_widgets(wireless_tb,FALSE);
     } else {
       /* default adapter is not airpcap... or is airpcap but is not found*/
-      if (airpcap_if_active)
+      if (airpcap_if_active){
+        /* XXX can never happen? */
         airpcap_set_toolbar_stop_capture(airpcap_if_active);
+	  }
       airpcap_enable_toolbar_widgets(wireless_tb,FALSE);
     }
   }
-  if (airpcap_if_active)
+  if (airpcap_if_active){
+    decryption_cb = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+    /* XXXX update_decryption_mode_list() trigers a rescan, should only be done if the mode is changed */
+    update_decryption_mode_list(decryption_cb);
     airpcap_set_toolbar_start_capture(airpcap_if_active);
+  }
 #endif
 
   cap_if_w = dlg_window_new("Wireshark: Capture Interfaces");  /* transient_for top_level */
