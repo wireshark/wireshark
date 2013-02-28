@@ -163,7 +163,7 @@ color_edit_dlg(GtkWidget *color_filters,
   color_edit_dlg_info_t *cedi;
   color_filter_t        *colorf;
 
-  GtkWidget    *color_edit_dlg;
+  GtkWidget    *color_edit_window;
   GtkWidget    *dialog_vbox;
   GtkWidget    *filter_fr;
   GtkWidget    *filter_fr_vbox;
@@ -206,15 +206,15 @@ color_edit_dlg(GtkWidget *color_filters,
   }
 
   /* dialog window */
-  color_edit_dlg = dlg_conf_window_new ("Wireshark: Edit Color Filter");
-  gtk_window_set_default_size(GTK_WINDOW(color_edit_dlg), 500, -1);
-  /* XXX: set color_edit_dlg as 'modal' to prevent simultaneously opening
+  color_edit_window = dlg_conf_window_new ("Wireshark: Edit Color Filter");
+  gtk_window_set_default_size(GTK_WINDOW(color_edit_window), 500, -1);
+  /* XXX: set color_edit_window as 'modal' to prevent simultaneously opening
    * dialog windows for different filters ? is 'transient for' also needed ?
    */
 
   dialog_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width  (GTK_CONTAINER (dialog_vbox), 5);
-  gtk_container_add (GTK_CONTAINER (color_edit_dlg), dialog_vbox);
+  gtk_container_add (GTK_CONTAINER (color_edit_window), dialog_vbox);
 
   /* Filter frame */
   filter_fr = gtk_frame_new("Filter");
@@ -266,7 +266,7 @@ color_edit_dlg(GtkWidget *color_filters,
   g_signal_connect(filt_text_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
   g_object_set_data(G_OBJECT(filter_string_hbox), E_FILT_AUTOCOMP_PTR_KEY, NULL);
   g_signal_connect(filt_text_entry, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
-  g_signal_connect(color_edit_dlg, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
+  g_signal_connect(color_edit_window, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
   gtk_entry_set_text(GTK_ENTRY(filt_text_entry), colorf->filter_text);
 
   gtk_box_pack_start (GTK_BOX (filter_string_hbox), filt_text_entry, TRUE, TRUE, 0);
@@ -329,7 +329,7 @@ color_edit_dlg(GtkWidget *color_filters,
   edit_color_filter_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   gtk_widget_set_tooltip_text(edit_color_filter_cancel, "Reject filter color change");
   /* escape will select cancel */
-  window_set_cancel_button(color_edit_dlg, edit_color_filter_cancel, window_cancel_button_cb);
+  window_set_cancel_button(color_edit_window, edit_color_filter_cancel, window_cancel_button_cb);
 
   /** Ok **/
   edit_color_filter_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
@@ -341,12 +341,12 @@ color_edit_dlg(GtkWidget *color_filters,
 
   cedi->color_filters   = color_filters;
   cedi->colorf          = colorf;
-  cedi->color_edit_dlg  = color_edit_dlg;
+  cedi->color_edit_dlg  = color_edit_window;
   cedi->filt_name_entry = filt_name_entry;
   cedi->filt_text_entry = filt_text_entry;
   cedi->disabled_cb     = disabled_cb;
 
-  g_signal_connect(color_edit_dlg, "destroy", G_CALLBACK(color_edit_dlg_destroy_cb), cedi);
+  g_signal_connect(color_edit_window, "destroy", G_CALLBACK(color_edit_dlg_destroy_cb), cedi);
 
   g_signal_connect(edit_color_filter_ok, "clicked", G_CALLBACK(color_edit_dlg_ok_cb), cedi);
 
@@ -355,10 +355,10 @@ color_edit_dlg(GtkWidget *color_filters,
                      G_CALLBACK(color_edit_dlg_cancel_cb), cedi);
   }
 
-  g_signal_connect(color_edit_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(color_edit_window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
-  gtk_widget_show_all(color_edit_dlg);
-  window_present(color_edit_dlg);
+  gtk_widget_show_all(color_edit_window);
+  window_present(color_edit_window);
 }
 
 
