@@ -2,8 +2,6 @@
 # $Id$
 # @configure_input@
 
-%global prefix /usr
-
 # Set these to 1 if you want to ensure your package inclues support for them:
 %global with_adns 0
 %global with_lua  1
@@ -122,9 +120,11 @@ Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
 %prep
 %setup -q -n %{name}-%{version}
 
+# Don't specify the prefix here: %configure is a macro which expands to set
+# the prefix and everything else too.  If you need to change the prefix
+# set _prefix (note the underscore) either in this file or on rpmbuild's
+# command-line.
 %configure \
-  --prefix=%{prefix} \
-  --libdir=%{_libdir} \
   --with-gnu-ld \
 %if %{with_adns}
   --with-adns \
@@ -148,7 +148,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 make DESTDIR=$RPM_BUILD_ROOT install_desktop_files
 # Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
 # require this (at least if desktop-file-install was not used to install it).
-desktop-file-validate %{buildroot}/%{_datadir}/applications/wireshark.desktop
+desktop-file-validate %{buildroot}/usr/share/applications/wireshark.desktop
 
 %clean
 rm -rf $RPM_BUILD_ROOT

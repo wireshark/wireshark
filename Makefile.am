@@ -1054,9 +1054,9 @@ rpm-package: dist
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.bz2 ; \
 		cd .. ; \
-		rpmbuild --define "_topdir `cd . && pwd`" --clean -ba SPECS/wireshark.spec && \
-			echo "Package successfully built in `pwd`/RPMS." ; \
-		rm -f SOURCES/$(distdir).tar.bz2 $(distdir).tar.bz2; \
+		rpmbuild --define "_topdir `cd . && pwd`" --define "_prefix $(prefix)" --clean -ba SPECS/wireshark.spec && \
+			echo "Package successfully built in `pwd`/RPMS." && \
+			rm -f SOURCES/$(distdir).tar.bz2 $(distdir).tar.bz2 ; \
 	else \
 		echo "Error: RPM executable and/or source directory not found." ; \
 		false; \
