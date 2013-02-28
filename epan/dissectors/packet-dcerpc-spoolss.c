@@ -5090,24 +5090,11 @@ dissect_spoolss_doc_info_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, guint8 *drep)
 {
 	dcerpc_info *di = pinfo->private_data;
-	guint32 info_level = 1;	/* XXX */
 
 	if (di->conformant_run)
 		return offset;
 
-	switch(info_level) {
-	case 1:
-		offset = dissect_spoolss_doc_info_1(
-			tvb, offset, pinfo, tree, drep);
-		break;
-	default:
-		proto_tree_add_text(
-			tree, tvb, offset, 0,
-			"[Unknown documentinfo level %d]", info_level);
-		break;
-	}
-
-	return offset;
+	return dissect_spoolss_doc_info_1(tvb, offset, pinfo, tree, drep);
 }
 
 /*
