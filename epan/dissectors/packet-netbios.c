@@ -83,11 +83,6 @@ static int hf_netb_hdr_len = -1;
 static int hf_netb_xmit_corrl = -1;
 static int hf_netb_resp_corrl = -1;
 static int hf_netb_call_name_type = -1;
-static int hf_netb_ack = -1;
-static int hf_netb_ack_with_data = -1;
-static int hf_netb_ack_expected = -1;
-static int hf_netb_recv_cont_req = -1;
-static int hf_netb_send_no_ack = -1;
 static int hf_netb_version = -1;
 static int hf_netbios_no_receive_flags = -1;
 static int hf_netbios_no_receive_flags_send_no_ack = -1;
@@ -102,11 +97,18 @@ static int hf_netb_termination_indicator = -1;
 static int hf_netb_num_data_bytes_accepted = -1;
 static int hf_netb_local_ses_no = -1;
 static int hf_netb_remote_ses_no = -1;
-/* static int hf_netb_data1 = -1; */
+static int hf_netb_flags = -1;
+static int hf_netb_flags_send_no_ack = -1;
+static int hf_netb_flags_ack = -1;
+static int hf_netb_flags_ack_with_data = -1;
+static int hf_netb_flags_ack_expected = -1;
+static int hf_netb_flags_recv_cont_req = -1;
 static int hf_netb_data2 = -1;
 static int hf_netb_data2_frame = -1;
 static int hf_netb_data2_user = -1;
 static int hf_netb_data2_status = -1;
+static int hf_netb_datagram_mac = -1;
+static int hf_netb_datagram_bcast_mac = -1;
 static int hf_netb_fragments = -1;
 static int hf_netb_fragment = -1;
 static int hf_netb_fragment_overlap = -1;
@@ -116,12 +118,6 @@ static int hf_netb_fragment_too_long_fragment = -1;
 static int hf_netb_fragment_error = -1;
 static int hf_netb_fragment_count = -1;
 static int hf_netb_reassembled_length = -1;
-static int hf_netb_middle_flags = -1;
-static int hf_netb_data_only_flags = -1;
-static int hf_netb_add_ses_confirm_flags = -1;
-static int hf_netb_add_session_init_flags = -1;
-static int hf_netb_datagram_mac = -1;
-static int hf_netb_datagram_bcast_mac = -1;
 
 static gint ett_netb = -1;
 static gint ett_netb_name = -1;
@@ -201,7 +197,7 @@ static gboolean netbios_defragment = TRUE;
 
 /* See
 
-	http://www.s390.ibm.com/bookmgr-cgi/bookmgr.cmd/BOOKS/BK8P7001/CCONTENTS
+	http://publibz.boulder.ibm.com/cgi-bin/bookmgr_OS390/BOOKS/BK8P7001/CCONTENTS
 
    and
 
@@ -380,14 +376,14 @@ static void netbios_data_first_middle_flags( tvbuff_t *tvb, proto_tree *tree, in
 
 		/* decode the flag field for Data First Middle packet*/
 
-	tf = proto_tree_add_item(tree, hf_netb_middle_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	tf = proto_tree_add_item(tree, hf_netb_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
-	proto_tree_add_item( field_tree, hf_netb_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item( field_tree, hf_netb_flags_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_item( field_tree, hf_netb_ack_expected, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item( field_tree, hf_netb_flags_ack_expected, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_item( field_tree, hf_netb_recv_cont_req, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item( field_tree, hf_netb_flags_recv_cont_req, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void netbios_data_only_flags( tvbuff_t *tvb, proto_tree *tree,
@@ -398,14 +394,14 @@ static void netbios_data_only_flags( tvbuff_t *tvb, proto_tree *tree,
 
 		/* decode the flag field for Data Only Last packet*/
 
-	tf = proto_tree_add_item(tree, hf_netb_data_only_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	tf = proto_tree_add_item(tree, hf_netb_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
-	proto_tree_add_item( field_tree, hf_netb_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item( field_tree, hf_netb_flags_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_item( field_tree, hf_netb_ack_with_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item( field_tree, hf_netb_flags_ack_with_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_item( field_tree, hf_netb_ack_expected, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item( field_tree, hf_netb_flags_ack_expected, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 }
 
 
@@ -417,10 +413,10 @@ static void netbios_add_ses_confirm_flags( tvbuff_t *tvb, proto_tree *tree,
 	proto_item *tf;
 
 	/* decode the flag field for Session Confirm packet */
-	tf = proto_tree_add_item(tree, hf_netb_add_ses_confirm_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	tf = proto_tree_add_item(tree, hf_netb_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	field_tree = proto_item_add_subtree( tf, ett_netb_flags);
 
-	proto_tree_add_item( field_tree, hf_netb_send_no_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item( field_tree, hf_netb_flags_send_no_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
 	proto_tree_add_item( field_tree, hf_netb_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 }
@@ -433,10 +429,10 @@ static void netbios_add_session_init_flags( tvbuff_t *tvb, proto_tree *tree,
 	proto_item *tf;
 		/* decode the flag field for Session Init packet */
 
-	tf = proto_tree_add_item(tree, hf_netb_add_session_init_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	tf = proto_tree_add_item(tree, hf_netb_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
-	proto_tree_add_item( field_tree, hf_netb_send_no_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item( field_tree, hf_netb_flags_send_no_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
 	proto_tree_add_item( field_tree, hf_netb_largest_frame, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
@@ -1255,52 +1251,32 @@ void proto_register_netbios(void)
 
 	static hf_register_info hf_netb[] = {
 		{ &hf_netb_cmd,
-		{ "Command", "netbios.command", FT_UINT8, BASE_HEX, VALS(cmd_vals), 0x0,
-			NULL, HFILL }},
+		{ "Command", "netbios.command", FT_UINT8, BASE_HEX,
+			VALS(cmd_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_netb_hdr_len,
-		{ "Header Length", "netbios.hdr_len", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		{ "Header Length", "netbios.hdr_len", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_xmit_corrl,
-		{ "Transmit Correlator", "netbios.xmit_corrl", FT_UINT16, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+		{ "Transmit Correlator", "netbios.xmit_corrl", FT_UINT16, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_resp_corrl,
-		{ "Response Correlator", "netbios.resp_corrl", FT_UINT16, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+		{ "Response Correlator", "netbios.resp_corrl", FT_UINT16, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_call_name_type,
-		{ "Caller's Name Type", "netbios.call_name_type", FT_UINT8, BASE_HEX, VALS(name_types), 0x0,
-			NULL, HFILL }},
+		{ "Caller's Name Type", "netbios.call_name_type", FT_UINT8, BASE_HEX,
+			VALS(name_types), 0x0, NULL, HFILL }},
 
 		{ &hf_netb_nb_name_type,
-		{ "NetBIOS Name Type", "netbios.nb_name_type", FT_UINT8, BASE_HEX, VALS(nb_name_type_vals), 0x0,
-			NULL, HFILL }},
+		{ "NetBIOS Name Type", "netbios.nb_name_type", FT_UINT8, BASE_HEX,
+			VALS(nb_name_type_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_netb_nb_name,
-		{ "NetBIOS Name", "netbios.nb_name", FT_STRING, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
-
-		{ &hf_netb_ack,
-		{ "Acknowledge", "netbios.ack", FT_BOOLEAN, 8, TFS( &tfs_set_notset), 0x08,
-			NULL, HFILL }},
-
-		{ &hf_netb_ack_with_data,
-		{ "Acknowledge with data", "netbios.ack_with_data", FT_BOOLEAN, 8, TFS( &flags_allowed), 0x04,
-			NULL, HFILL }},
-
-		{ &hf_netb_ack_expected,
-		{ "Acknowledge expected", "netbios.ack_expected", FT_BOOLEAN,  8,
-			TFS( &tfs_yes_no), 0x02, NULL, HFILL }},
-
-		{ &hf_netb_recv_cont_req,
-		{ "RECEIVE_CONTINUE requested", "netbios.recv_cont_req", FT_BOOLEAN,  8,
-			TFS( &tfs_yes_no), 0x01, NULL, HFILL }},
-
-		{ &hf_netb_send_no_ack,
-		{ "Handle SEND.NO.ACK", "netbios.send_no_ack", FT_BOOLEAN,  8,
-			TFS( &tfs_yes_no), 0x80, NULL, HFILL }},
+		{ "NetBIOS Name", "netbios.nb_name", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_version,
 		{ "NetBIOS Version", "netbios.version", FT_BOOLEAN,  8,
@@ -1315,50 +1291,68 @@ void proto_register_netbios(void)
 			TFS( &tfs_no_yes), 0x02, NULL, HFILL }},
 
 		{ &hf_netb_largest_frame,
-		{ "Largest Frame", "netbios.largest_frame", FT_UINT8, BASE_DEC, VALS(max_frame_size_vals), 0x0E,
-			NULL, HFILL }},
+		{ "Largest Frame", "netbios.largest_frame", FT_UINT8, BASE_DEC,
+			VALS(max_frame_size_vals), 0x0E, NULL, HFILL }},
 
 		{ &hf_netb_status_buffer_len,
-		{ "Length of status buffer", "netbios.status_buffer_len", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		{ "Length of status buffer", "netbios.status_buffer_len", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_status,
-		{ "Status", "netbios.status", FT_UINT8, BASE_DEC, VALS(status_vals), 0x0,
-			NULL, HFILL }},
+		{ "Status", "netbios.status", FT_UINT8, BASE_DEC,
+			VALS(status_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_netb_name_type,
-		{ "Name type", "netbios.name_type", FT_UINT16, BASE_DEC, VALS(name_types), 0x0,
-			NULL, HFILL }},
+		{ "Name type", "netbios.name_type", FT_UINT16, BASE_DEC,
+			VALS(name_types), 0x0, NULL, HFILL }},
 
 		{ &hf_netb_max_data_recv_size,
-		{ "Maximum data receive size", "netbios.max_data_recv_size", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		{ "Maximum data receive size", "netbios.max_data_recv_size", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_termination_indicator,
-		{ "Termination indicator", "netbios.termination_indicator", FT_UINT16, BASE_HEX, VALS(termination_indicator_vals), 0x0,
-			NULL, HFILL }},
+		{ "Termination indicator", "netbios.termination_indicator", FT_UINT16, BASE_HEX,
+			VALS(termination_indicator_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_netb_num_data_bytes_accepted,
-		{ "Number of data bytes accepted", "netbios.num_data_bytes_accepted", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		{ "Number of data bytes accepted", "netbios.num_data_bytes_accepted", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_local_ses_no,
-		{ "Local Session No.", "netbios.local_session", FT_UINT8, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+		{ "Local Session No.", "netbios.local_session", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_remote_ses_no,
-		{ "Remote Session No.", "netbios.remote_session", FT_UINT8, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+		{ "Remote Session No.", "netbios.remote_session", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
 
-#if 0
-		{ &hf_netb_data1,
-		{ "DATA1 value", "netbios.data1", FT_UINT8, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
-#endif
+		{ &hf_netb_flags,
+		{ "Flags", "netbios.flags", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_netb_flags_send_no_ack,
+		{ "Handle SEND.NO.ACK", "netbios.flags.send_no_ack", FT_BOOLEAN,  8,
+			TFS( &tfs_yes_no), 0x80, NULL, HFILL }},
+
+		{ &hf_netb_flags_ack,
+		{ "Acknowledge", "netbios.flags.ack", FT_BOOLEAN, 8,
+			TFS( &tfs_set_notset), 0x08, NULL, HFILL }},
+
+		{ &hf_netb_flags_ack_with_data,
+		{ "Acknowledge with data", "netbios.flags.ack_with_data", FT_BOOLEAN, 8,
+			TFS( &flags_allowed), 0x04, NULL, HFILL }},
+
+		{ &hf_netb_flags_ack_expected,
+		{ "Acknowledge expected", "netbios.flags.ack_expected", FT_BOOLEAN,  8,
+			TFS( &tfs_yes_no), 0x02, NULL, HFILL }},
+
+		{ &hf_netb_flags_recv_cont_req,
+		{ "RECEIVE_CONTINUE requested", "netbios.flags.recv_cont_req", FT_BOOLEAN,  8,
+			TFS( &tfs_yes_no), 0x01, NULL, HFILL }},
 
 		{ &hf_netb_data2,
-		{ "DATA2 value", "netbios.data2", FT_UINT16, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }},
+		{ "DATA2 value", "netbios.data2", FT_UINT16, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_data2_frame,
 		{ "Data length exceeds maximum frame size", "netbios.data2.frame", FT_BOOLEAN, 16,
@@ -1369,8 +1363,16 @@ void proto_register_netbios(void)
 			TFS(&tfs_yes_no), 0x4000, NULL, HFILL }},
 
 		{ &hf_netb_data2_status,
-		{ "Status data length", "netbios.data2.status", FT_UINT16, BASE_DEC, NULL, 0x3FFF,
-			NULL, HFILL }},
+		{ "Status data length", "netbios.data2.status", FT_UINT16, BASE_DEC,
+			NULL, 0x3FFF, NULL, HFILL }},
+
+		{ &hf_netb_datagram_mac,
+		{ "Sender's MAC Address", "netbios.datagram_mac", FT_ETHER, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_netb_datagram_bcast_mac,
+		{ "Sender's Node Address",	"netbios.datagram_bcast_mac", FT_ETHER, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_fragment_overlap,
 		{ "Fragment overlap",	"netbios.fragment.overlap", FT_BOOLEAN, BASE_NONE,
@@ -1391,11 +1393,11 @@ void proto_register_netbios(void)
 			NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
 
 		{ &hf_netb_fragment_error,
-		{"Defragmentation error",	"netbios.fragment.error", FT_FRAMENUM, BASE_NONE,
+		{ "Defragmentation error",	"netbios.fragment.error", FT_FRAMENUM, BASE_NONE,
 			NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 
 		{ &hf_netb_fragment_count,
-		{"Fragment count",	"netbios.fragment.count", FT_UINT32, BASE_DEC,
+		{ "Fragment count",	"netbios.fragment.count", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_fragment,
@@ -1409,30 +1411,6 @@ void proto_register_netbios(void)
 		{ &hf_netb_reassembled_length,
 		{"Reassembled NetBIOS length",	"netbios.reassembled.length", FT_UINT32, BASE_DEC,
 			NULL, 0x0, "The total length of the reassembled payload", HFILL }},
-
-		{ &hf_netb_middle_flags,
-		{"Flags",	"netbios.middle_flags", FT_UINT8, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }},
-
-		{ &hf_netb_data_only_flags,
-		{"Flags",	"netbios.data_only_flags", FT_UINT8, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }},
-
-		{ &hf_netb_add_ses_confirm_flags,
-		{"Flags",	"netbios.add_ses_confirm_flags", FT_UINT8, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }},
-
-		{ &hf_netb_add_session_init_flags,
-		{"Flags",	"netbios.add_session_init_flags", FT_UINT8, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }},
-
-		{ &hf_netb_datagram_mac,
-		{"Sender's MAC Address",	"netbios.datagram_mac", FT_ETHER, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
-
-		{ &hf_netb_datagram_bcast_mac,
-		{"Sender's Node Address",	"netbios.datagram_bcast_mac", FT_ETHER, BASE_NONE,
-			NULL, 0x0, NULL, HFILL }},
 	};
 	module_t *netbios_module;
 
