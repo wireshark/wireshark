@@ -186,7 +186,6 @@ static void init_open_routines(void) {
 	open_routines = (wtap_open_routine_t*)(void *)open_routines_arr->data;
 }
 
-WS_DLL_PUBLIC
 void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_magic) {
 	init_open_routines();
 
@@ -224,7 +223,6 @@ void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_m
    so that it can do sequential I/O to a capture file that's being
    written to as new packets arrive independently of random I/O done
    to display protocol trees for packets when they're selected. */
-WS_DLL_PUBLIC
 wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			gboolean do_random)
 {
@@ -438,7 +436,6 @@ success:
  * reopens the random stream.
  */
 gboolean
-WS_DLL_PUBLIC
 wtap_fdreopen(wtap *wth, const char *filename, int *err)
 {
 	ws_statb64 statb;
@@ -767,7 +764,6 @@ static void init_file_types(void) {
 	dump_open_table = (const struct file_type_info*)(void *)dump_open_table_arr->data;
 }
 
-WS_DLL_PUBLIC
 int wtap_register_file_type(const struct file_type_info* fi) {
 	init_file_types();
 
@@ -778,7 +774,6 @@ int wtap_register_file_type(const struct file_type_info* fi) {
 	return wtap_num_file_types++;
 }
 
-WS_DLL_PUBLIC
 int wtap_get_num_file_types(void)
 {
 	return wtap_num_file_types;
@@ -790,7 +785,6 @@ int wtap_get_num_file_types(void)
  * there's only one type, it's that type, otherwise it's
  * WTAP_ENCAP_PER_PACKET.
  */
-WS_DLL_PUBLIC
 int
 wtap_dump_file_encap_type(const GArray *file_encaps)
 {
@@ -808,7 +802,6 @@ wtap_dump_file_encap_type(const GArray *file_encaps)
  * Return TRUE if a capture with a given GArray of WTAP_ENCAP_ types
  * can be written in a specified format, and FALSE if it can't.
  */
-WS_DLL_PUBLIC
 gboolean
 wtap_dump_can_write_encaps(int ft, const GArray *file_encaps)
 {
@@ -849,7 +842,6 @@ wtap_dump_can_write_encaps(int ft, const GArray *file_encaps)
  * to save a file of a given type with a given GArray of WTAP_ENCAP_
  * types.
  */
-WS_DLL_PUBLIC
 GArray *
 wtap_get_savable_file_types(int file_type, const GArray *file_encaps)
 {
@@ -918,7 +910,6 @@ wtap_get_savable_file_types(int file_type, const GArray *file_encaps)
 }
 
 /* Name that should be somewhat descriptive. */
-WS_DLL_PUBLIC
 const char *wtap_file_type_string(int filetype)
 {
 	if (filetype < 0 || filetype >= wtap_num_file_types) {
@@ -930,7 +921,6 @@ const char *wtap_file_type_string(int filetype)
 }
 
 /* Name to use in, say, a command-line flag specifying the type. */
-WS_DLL_PUBLIC
 const char *wtap_file_type_short_string(int filetype)
 {
 	if (filetype < 0 || filetype >= wtap_num_file_types)
@@ -940,7 +930,6 @@ const char *wtap_file_type_short_string(int filetype)
 }
 
 /* Translate a short name to a capture file type. */
-WS_DLL_PUBLIC
 int wtap_short_string_to_file_type(const char *short_name)
 {
 	int filetype;
@@ -986,7 +975,6 @@ static GSList *add_extensions(GSList *extensions, const gchar *extension,
 
    All strings in the list are allocated with g_malloc() and must be freed
    with g_free(). */
-WS_DLL_PUBLIC
 GSList *wtap_get_file_extensions_list(int filetype, gboolean include_compressed)
 {
 	gchar **extensions_set, **extensionp;
@@ -1053,7 +1041,6 @@ GSList *wtap_get_file_extensions_list(int filetype, gboolean include_compressed)
 /*
  * Free a list returned by wtap_file_extensions_list().
  */
-WS_DLL_PUBLIC
 void wtap_free_file_extensions_list(GSList *extensions)
 {
 	GSList *extension;
@@ -1067,7 +1054,6 @@ void wtap_free_file_extensions_list(GSList *extensions)
 
 /* Return the default file extension to use with the specified file type;
    that's just the extension, without any ".". */
-WS_DLL_PUBLIC
 const char *wtap_default_file_extension(int filetype)
 {
 	if (filetype < 0 || filetype >= wtap_num_file_types)
@@ -1076,7 +1062,6 @@ const char *wtap_default_file_extension(int filetype)
 		return dump_open_table[filetype].default_file_extension;
 }
 
-WS_DLL_PUBLIC
 gboolean wtap_dump_can_open(int filetype)
 {
 	if (filetype < 0 || filetype >= wtap_num_file_types
@@ -1086,7 +1071,6 @@ gboolean wtap_dump_can_open(int filetype)
 	return TRUE;
 }
 
-WS_DLL_PUBLIC
 gboolean wtap_dump_can_write_encap(int filetype, int encap)
 {
 	if (filetype < 0 || filetype >= wtap_num_file_types
@@ -1100,7 +1084,6 @@ gboolean wtap_dump_can_write_encap(int filetype, int encap)
 }
 
 #ifdef HAVE_LIBZ
-WS_DLL_PUBLIC
 gboolean wtap_dump_can_compress(int filetype)
 {
 	/*
@@ -1115,14 +1098,12 @@ gboolean wtap_dump_can_compress(int filetype)
 	return TRUE;
 }
 #else
-WS_DLL_PUBLIC
 gboolean wtap_dump_can_compress(int filetype _U_)
 {
 	return FALSE;
 }
 #endif
 
-WS_DLL_LOCAL
 gboolean wtap_dump_has_name_resolution(int filetype)
 {
 	if (filetype < 0 || filetype >= wtap_num_file_types
@@ -1141,7 +1122,6 @@ static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
 static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
 static int wtap_dump_file_close(wtap_dumper *wdh);
 
-WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 				int snaplen, gboolean compressed, int *err)
 {
@@ -1191,7 +1171,6 @@ wtap_dump_init_dumper(int filetype, int encap, int snaplen, gboolean compressed,
 	return wdh;
 }
 
-WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 				int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
 {
@@ -1251,14 +1230,12 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 	return wdh;
 }
 
-WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 				gboolean compressed, int *err)
 {
 	return wtap_dump_fdopen_ng(fd, filetype, encap, snaplen, compressed, NULL, NULL, err);
 }
 
-WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_fdopen_ng(int fd, int filetype, int encap, int snaplen,
 				gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
 {
@@ -1386,14 +1363,12 @@ static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, gboolean c
 	return TRUE;	/* success! */
 }
 
-WS_DLL_PUBLIC
 gboolean wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		   const guint8 *pd, int *err)
 {
 	return (wdh->subtype_write)(wdh, phdr, pd, err);
 }
 
-WS_DLL_PUBLIC
 void wtap_dump_flush(wtap_dumper *wdh)
 {
 #ifdef HAVE_LIBZ
@@ -1406,7 +1381,6 @@ void wtap_dump_flush(wtap_dumper *wdh)
 	}
 }
 
-WS_DLL_PUBLIC
 gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 {
 	gboolean ret = TRUE;
@@ -1439,19 +1413,16 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 	return ret;
 }
 
-WS_DLL_PUBLIC
 gint64 wtap_get_bytes_dumped(wtap_dumper *wdh)
 {
 	return wdh->bytes_dumped;
 }
 
-WS_DLL_PUBLIC
 void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped)
 {
 	wdh->bytes_dumped = bytes_dumped;
 }
 
-WS_DLL_PUBLIC
 gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, struct addrinfo *addrinfo_list)
 {
 	if (!wdh || wdh->file_type < 0 || wdh->file_type >= wtap_num_file_types
@@ -1496,7 +1467,6 @@ static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
 #endif
 
 /* internally writing raw bytes (compressed or not) */
-WS_DLL_LOCAL
 gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
 		     int *err)
 {

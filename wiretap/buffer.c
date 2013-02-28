@@ -30,7 +30,6 @@
 #include "buffer.h"
 
 /* Initializes a buffer with a certain amount of allocated space */
-WS_DLL_PUBLIC
 void buffer_init(Buffer* buffer, gsize space)
 {
 	buffer->data = (guint8*)g_malloc(space);
@@ -40,7 +39,6 @@ void buffer_init(Buffer* buffer, gsize space)
 }
 
 /* Frees the memory used by a buffer, and the buffer struct */
-WS_DLL_PUBLIC
 void buffer_free(Buffer* buffer)
 {
 	g_free(buffer->data);
@@ -50,7 +48,6 @@ void buffer_free(Buffer* buffer)
 	so that another routine can copy directly into the buffer space. After
 	doing that, the routine will also want to run
 	buffer_increase_length(). */
-WS_DLL_PUBLIC
 void buffer_assure_space(Buffer* buffer, gsize space)
 {
 	gsize available_at_end = buffer->allocated - buffer->first_free;
@@ -88,7 +85,6 @@ void buffer_assure_space(Buffer* buffer, gsize space)
 	buffer->data = (guint8*)g_realloc(buffer->data, buffer->allocated);
 }
 
-WS_DLL_PUBLIC
 void buffer_append(Buffer* buffer, guint8 *from, gsize bytes)
 {
 	buffer_assure_space(buffer, bytes);
@@ -96,7 +92,6 @@ void buffer_append(Buffer* buffer, guint8 *from, gsize bytes)
 	buffer->first_free += bytes;
 }
 
-WS_DLL_PUBLIC
 void buffer_remove_start(Buffer* buffer, gsize bytes)
 {
 	if (buffer->start + bytes > buffer->first_free) {

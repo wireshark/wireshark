@@ -47,7 +47,6 @@
  * Return the size of the file, as reported by the OS.
  * (gint64, in case that's 64 bits.)
  */
-WS_DLL_PUBLIC
 gint64
 wtap_file_size(wtap *wth, int *err)
 {
@@ -62,7 +61,6 @@ wtap_file_size(wtap *wth, int *err)
 /*
  * Do an fstat on the file.
  */
-WS_DLL_PUBLIC
 int
 wtap_fstat(wtap *wth, ws_statb64 *statb, int *err)
 {
@@ -72,42 +70,36 @@ wtap_fstat(wtap *wth, ws_statb64 *statb, int *err)
 	return 0;
 }
 
-WS_DLL_PUBLIC
 int
 wtap_file_type(wtap *wth)
 {
 	return wth->file_type;
 }
 
-WS_DLL_PUBLIC
 gboolean
 wtap_iscompressed(wtap *wth)
 {
 	return file_iscompressed((wth->fh == NULL) ? wth->random_fh : wth->fh);
 }
 
-WS_DLL_PUBLIC
 guint
 wtap_snapshot_length(wtap *wth)
 {
 	return wth->snapshot_length;
 }
 
-WS_DLL_PUBLIC
 int
 wtap_file_encap(wtap *wth)
 {
 	return wth->file_encap;
 }
 
-WS_DLL_PUBLIC
 int
 wtap_file_tsprecision(wtap *wth)
 {
 	return wth->tsprecision;
 }
 
-WS_DLL_PUBLIC
 wtapng_section_t *
 wtap_file_get_shb_info(wtap *wth)
 {
@@ -127,7 +119,6 @@ wtap_file_get_shb_info(wtap *wth)
 	return shb_hdr;
 }
 
-WS_DLL_PUBLIC
 void
 wtap_write_shb_comment(wtap *wth, gchar *comment)
 {
@@ -136,7 +127,6 @@ wtap_write_shb_comment(wtap *wth, gchar *comment)
 
 }
 
-WS_DLL_PUBLIC
 wtapng_iface_descriptions_t *
 wtap_file_get_idb_info(wtap *wth)
 {
@@ -627,14 +617,12 @@ static void wtap_init_encap_types(void) {
 	encap_table = (void*)encap_table_arr->data;
 }
 
-WS_DLL_PUBLIC
 int wtap_get_num_encap_types(void) {
 	wtap_init_encap_types();
 	return wtap_num_encap_types;
 }
 
 
-WS_DLL_PUBLIC
 int wtap_register_encap_type(const char* name, const char* short_name) {
 	struct encap_type_info e;
 	wtap_init_encap_types();
@@ -651,7 +639,6 @@ int wtap_register_encap_type(const char* name, const char* short_name) {
 
 
 /* Name that should be somewhat descriptive. */
-WS_DLL_PUBLIC
 const char *
 wtap_encap_string(int encap)
 {
@@ -664,7 +651,6 @@ wtap_encap_string(int encap)
 }
 
 /* Name to use in, say, a command-line flag specifying the type. */
-WS_DLL_PUBLIC
 const char *
 wtap_encap_short_string(int encap)
 {
@@ -677,7 +663,6 @@ wtap_encap_short_string(int encap)
 }
 
 /* Translate a short name to a capture file type. */
-WS_DLL_PUBLIC
 int
 wtap_short_string_to_encap(const char *short_name)
 {
@@ -717,7 +702,6 @@ static const char *wtap_errlist[] = {
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
 
-WS_DLL_PUBLIC
 const char *
 wtap_strerror(int err)
 {
@@ -745,7 +729,6 @@ wtap_strerror(int err)
 
    Instead, if the subtype has a "sequential close" function, we call it,
    to free up stuff used only by the sequential side. */
-WS_DLL_PUBLIC
 void
 wtap_sequential_close(wtap *wth)
 {
@@ -776,7 +759,6 @@ g_fast_seek_item_free(gpointer data, gpointer user_data _U_)
  * we need to rename a file that we have open or if we need to rename on
  * top of a file we have open.
  */
-WS_DLL_PUBLIC
 void
 wtap_fdclose(wtap *wth)
 {
@@ -786,7 +768,6 @@ wtap_fdclose(wtap *wth)
 		file_fdclose(wth->random_fh);
 }
 
-WS_DLL_PUBLIC
 void
 wtap_close(wtap *wth)
 {
@@ -845,26 +826,22 @@ wtap_close(wtap *wth)
 	g_free(wth);
 }
 
-WS_DLL_PUBLIC
 void
 wtap_cleareof(wtap *wth) {
 	/* Reset EOF */
 	file_clearerr(wth->fh);
 }
 
-WS_DLL_PUBLIC
 void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4) {
 	if (wth)
 		wth->add_new_ipv4 = add_new_ipv4;
 }
 
-WS_DLL_PUBLIC
 void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6) {
 	if (wth)
 		wth->add_new_ipv6 = add_new_ipv6;
 }
 
-WS_DLL_PUBLIC
 gboolean
 wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
@@ -915,28 +892,24 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
  * Return an approximation of the amount of data we've read sequentially
  * from the file so far.  (gint64, in case that's 64 bits.)
  */
-WS_DLL_PUBLIC
 gint64
 wtap_read_so_far(wtap *wth)
 {
 	return file_tell_raw(wth->fh);
 }
 
-WS_DLL_PUBLIC
 struct wtap_pkthdr *
 wtap_phdr(wtap *wth)
 {
 	return &wth->phdr;
 }
 
-WS_DLL_PUBLIC
 guint8 *
 wtap_buf_ptr(wtap *wth)
 {
 	return buffer_start_ptr(wth->frame_buffer);
 }
 
-WS_DLL_PUBLIC
 gboolean
 wtap_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, guint8 *pd, int len,
