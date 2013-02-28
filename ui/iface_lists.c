@@ -247,7 +247,7 @@ scan_local_interfaces(void)
         device.snaplen      = global_capture_opts.default_options.snaplen;
         device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        device.buffer = 1;
+        device.buffer = 2;
 #endif
 
         if (global_capture_opts.ifaces->len > 0) {
