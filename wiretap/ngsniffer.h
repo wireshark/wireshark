@@ -26,8 +26,11 @@
 #include <glib.h>
 #include <wtap.h>
 
+WS_DLL_LOCAL
 int ngsniffer_open(wtap *wth, int *err, gchar **err_info);
+WS_DLL_LOCAL
 gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err);
+WS_DLL_LOCAL
 int ngsniffer_dump_can_write_encap(int encap);
 
 #endif

@@ -26,11 +26,17 @@
 #include <glib.h>
 #include <wtap.h>
 
+WS_DLL_LOCAL
 int k12_open(wtap *wth, int *err, gchar **err_info);
+WS_DLL_LOCAL
 int k12_dump_can_write_encap(int encap);
+WS_DLL_LOCAL
 gboolean k12_dump_open(wtap_dumper *wdh, int *err);
+WS_DLL_LOCAL
 int k12text_open(wtap *wth, int *err, gchar **err_info _U_);
+WS_DLL_LOCAL
 int k12text_dump_can_write_encap(int encap);
+WS_DLL_LOCAL
 gboolean k12text_dump_open(wtap_dumper *wdh, int *err);
 
 #endif

@@ -601,6 +601,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "SCTP", "sctp" },
 };
 
+WS_DLL_LOCAL
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
 static GArray* encap_table_arr = NULL;
 static const struct encap_type_info* encap_table = NULL;

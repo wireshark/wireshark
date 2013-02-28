@@ -26,9 +26,13 @@
 #include <glib.h>
 #include <wtap.h>
 
+WS_DLL_LOCAL
 int netmon_open(wtap *wth, int *err, gchar **err_info);
+WS_DLL_LOCAL
 gboolean netmon_dump_open(wtap_dumper *wdh, int *err);
+WS_DLL_LOCAL
 int netmon_dump_can_write_encap_1_x(int encap);
+WS_DLL_LOCAL
 int netmon_dump_can_write_encap_2_x(int encap);
 
 #endif

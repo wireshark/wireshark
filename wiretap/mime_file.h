@@ -26,6 +26,7 @@
 #include <glib.h>
 #include <wtap.h>
 
+WS_DLL_LOCAL
 int mime_file_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

@@ -128,8 +128,11 @@
 
 #define NETTL_HDR_PDU_MASK              0x30000000
 
+WS_DLL_LOCAL
 int nettl_open(wtap *wth, int *err, gchar **err_info);
+WS_DLL_LOCAL
 gboolean nettl_dump_open(wtap_dumper *wdh, int *err);
+WS_DLL_LOCAL
 int nettl_dump_can_write_encap(int encap);
 
 #endif

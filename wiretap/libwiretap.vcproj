@@ -61,7 +61,7 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			Filter="cpp;c;cc;cxx;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
@@ -433,10 +433,6 @@
 		</File>
 		<File
 			RelativePath=".\runlex.sh"
-			>
-		</File>
-		<File
-			RelativePath=".\wtap.def"
 			>
 		</File>
 	</Files>

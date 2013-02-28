@@ -27,6 +27,7 @@
 #include <glib.h>
 #include <wtap.h>
 
+WS_DLL_LOCAL
 int iptrace_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

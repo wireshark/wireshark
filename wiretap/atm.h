@@ -23,6 +23,7 @@
 #ifndef __ATM_H__
 #define __ATM_H__
 #include <glib.h>
+#include "ws_symbol_export.h"
 
 /*
  * Routines to use with ATM capture file types that don't include information
@@ -30,10 +31,12 @@
  * that information).
  */
 
+WS_DLL_LOCAL
 extern void
 atm_guess_traffic_type(const guint8 *pd, guint32 len,
     union wtap_pseudo_header *pseudo_header);
 
+WS_DLL_LOCAL
 extern void
 atm_guess_lane_type(const guint8 *pd, guint32 len,
     union wtap_pseudo_header *pseudo_header);

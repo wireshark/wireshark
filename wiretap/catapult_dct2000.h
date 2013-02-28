@@ -24,8 +24,13 @@
 #define __W_CAT_DCT2K_H__
 
 #include <glib.h>
+#include "ws_symbol_export.h"
+
+WS_DLL_LOCAL
 int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info);
+WS_DLL_LOCAL
 gboolean catapult_dct2000_dump_open(wtap_dumper *wdh, int *err);
+WS_DLL_LOCAL
 int catapult_dct2000_dump_can_write_encap(int encap);
 
 #define DCT2000_ENCAP_UNHANDLED 0

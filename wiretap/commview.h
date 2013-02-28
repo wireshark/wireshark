@@ -25,9 +25,13 @@
 #ifndef __COMMVIEW_H__
 #define __COMMVIEW_H__
 #include <glib.h>
+#include "ws_symbol_export.h"
 
+WS_DLL_LOCAL
 int commview_open(wtap *wth, int *err, gchar **err_info _U_);
+WS_DLL_LOCAL
 int commview_dump_can_write_encap(int encap);
+WS_DLL_LOCAL
 gboolean commview_dump_open(wtap_dumper *wdh, int *err);
 
 #endif /* __COMMVIEW_H__ */

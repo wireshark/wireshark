@@ -31,6 +31,7 @@
 #endif
 
 #include <glib.h>
+#include "ws_symbol_export.h"
 
 typedef struct {
   time_t start_time;
@@ -50,15 +51,19 @@ extern const gchar *ascend_parse_error;
 extern struct ascend_phdr *pseudo_header;
 
 /* Here we provide interfaces to make our scanner act and look like lex */
+WS_DLL_LOCAL
 int ascendlex(void);
 
+WS_DLL_LOCAL
 void init_parse_ascend(void);
+WS_DLL_LOCAL
 void ascend_init_lexer(FILE_T fh);
 typedef enum {
     PARSED_RECORD,
     PARSED_NONRECORD,
     PARSE_FAILED
 } parse_t;
+WS_DLL_LOCAL
 parse_t parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
 		ascend_pkthdr *hdr, gint64 *start_of_data);
 

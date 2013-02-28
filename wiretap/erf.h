@@ -40,6 +40,7 @@
 
 #include <glib.h>
 #include <wiretap/wtap.h>
+#include "ws_symbol_export.h"
 
 /* Record type defines */
 #define ERF_TYPE_LEGACY             0
@@ -104,10 +105,14 @@ union erf_subhdr {
 #define RECORDS_FOR_ERF_CHECK 20
 #define FCS_BITS	32
 
+WS_DLL_LOCAL
 int erf_open(wtap *wth, int *err, gchar **err_info);
+WS_DLL_LOCAL
 int erf_dump_can_write_encap(int encap);
+WS_DLL_LOCAL
 int erf_dump_open(wtap_dumper *wdh, int *err);
 
+WS_DLL_LOCAL
 int erf_populate_interfaces(wtap *wth);
 
 #endif /* __W_ERF_H__ */

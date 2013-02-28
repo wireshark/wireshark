@@ -29,6 +29,7 @@
 #include <glib.h>
 #include <wtap.h>
 
+WS_DLL_LOCAL
 int packetlogger_open(wtap *wth, int *err, gchar **err_info _U_);
 
 #endif /* __PACKETLOGGER_H__ */

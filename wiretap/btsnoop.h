@@ -23,10 +23,15 @@
 #ifndef __W_BTSNOOP_H__
 #define __W_BTSNOOP_H__
 #include <glib.h>
+#include "ws_symbol_export.h"
 
+WS_DLL_LOCAL
 int btsnoop_open(wtap *wth, int *err, gchar **err_info);
+WS_DLL_LOCAL
 gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, int *err);
+WS_DLL_LOCAL
 gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err);
+WS_DLL_LOCAL
 int btsnoop_dump_can_write_encap(int encap);
 
 #endif

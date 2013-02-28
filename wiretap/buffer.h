@@ -23,7 +23,9 @@
 
 #ifndef __W_BUFFER_H__
 #define __W_BUFFER_H__
+
 #include <glib.h>
+#include "ws_symbol_export.h"
 
 #define SOME_FUNCTIONS_ARE_DEFINES
 
@@ -34,10 +36,15 @@ typedef struct Buffer {
 	gsize	first_free;
 } Buffer;
 
+WS_DLL_PUBLIC
 void buffer_init(Buffer* buffer, gsize space);
+WS_DLL_PUBLIC
 void buffer_free(Buffer* buffer);
+WS_DLL_PUBLIC
 void buffer_assure_space(Buffer* buffer, gsize space);
+WS_DLL_PUBLIC
 void buffer_append(Buffer* buffer, guint8 *from, gsize bytes);
+WS_DLL_PUBLIC
 void buffer_remove_start(Buffer* buffer, gsize bytes);
 
 #ifdef SOME_FUNCTIONS_ARE_DEFINES

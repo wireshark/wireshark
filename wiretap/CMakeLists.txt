@@ -109,6 +109,10 @@ add_library(wiretap ${LINK_MODE_LIB}
 
 set(FULL_SO_VERSION "0.0.0")
 
+set_target_properties(wiretap PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
+if(DEFINED COMPILE_HIDE_SYMBOLS)
+       set_target_properties(wiretap PROPERTIES COMPILE_FLAGS ${COMPILE_HIDE_SYMBOLS})
+endif()
 set_target_properties(wiretap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(wiretap PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
 
@@ -125,7 +129,7 @@ configure_file(../abi-descriptor.template abi-descriptor.xml)
 file(GLOB HEADERS *.h)
 file(MAKE_DIRECTORY abi-check-headers)
 
-file(COPY ${HEADERS} DESTINATION abi-check-headers)
+file(COPY ${HEADERS} ../ws_symbol_export.h DESTINATION abi-check-headers)
 
 add_custom_command(OUTPUT libwiretap.abi.tar.gz
 	COMMAND cp ../config.h abi-check-headers/

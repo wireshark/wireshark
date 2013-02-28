@@ -23,7 +23,9 @@
 #ifndef __W_PEEKTAGGED_H__
 #define __W_PEEKTAGGED_H__
 #include <glib.h>
+#include "ws_symbol_export.h"
 
+WS_DLL_LOCAL
 int peektagged_open(wtap *wth, int *err, gchar **err_info);
 
 #endif
