@@ -38,6 +38,10 @@
 #include "packet-fcp.h"
 #include "packet-fcels.h"
 
+typedef struct _fcp_proto_data_t {
+    guint16 lun;
+} fcp_proto_data_t;
+
 /* Initialize the protocol and registered fields */
 static int proto_fcp = -1;
 static int hf_fcp_multilun = -1;
@@ -393,6 +397,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     int          tvb_len, tvb_rlen;
     fcp_request_data_t *request_data = NULL;
     proto_item  *hidden_item;
+    fcp_proto_data_t *proto_data;
 
     /* Determine the length of the FCP part of the packet */
     flags = tvb_get_guint8(tvb, offset+10);
@@ -425,8 +430,11 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     if (fchdr->itlq)
         fchdr->itlq->lun = lun;
 
-    if (!pinfo->fd->flags.visited)
-        p_add_proto_data(pinfo->fd, proto_fcp, (void*)lun);
+    if (!pinfo->fd->flags.visited) {
+        proto_data = se_alloc(sizeof(fcp_proto_data_t));
+        proto_data->lun = lun;
+        p_add_proto_data(pinfo->fd, proto_fcp, proto_data);
+    }
 
     request_data = (fcp_request_data_t*)se_tree_lookup32(fcp_conv_data->luns, lun);
     if (!request_data) {
@@ -665,9 +673,10 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fc_hdr          *fchdr;
     guint8           r_ctl;
     conversation_t  *fc_conv;
-    fcp_conv_data_t *fcp_conv_data;
+    fcp_conv_data_t *fcp_conv_data = NULL;
     fcp_request_data_t *request_data = NULL;
     gboolean         els;
+    fcp_proto_data_t *proto_data;
 
     fchdr = (fc_hdr *)pinfo->private_data;
 
@@ -697,22 +706,24 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      pinfo->ptype, pinfo->srcport,
                      pinfo->destport, 0);
     if (fc_conv != NULL) {
-
         fcp_conv_data = conversation_get_proto_data(fc_conv, proto_fcp);
-        if (!fcp_conv_data) {
-            fcp_conv_data = se_alloc(sizeof(fcp_conv_data_t));
-            fcp_conv_data->luns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "FCP Luns");
-            conversation_add_proto_data(fc_conv, proto_fcp, fcp_conv_data);
-        }
+    }
+    if (!fcp_conv_data) {
+        fcp_conv_data = se_alloc(sizeof(fcp_conv_data_t));
+        fcp_conv_data->luns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "FCP Luns");
+        conversation_add_proto_data(fc_conv, proto_fcp, fcp_conv_data);
     }
 
     /* Lun is only populated by FCP_IU_CMD, and subsequent packets assume the same lun.
        The only way that consistently works is to save the lun on the first pass when packets
        are guaranteed to be parsed consecutively */
     if (!pinfo->fd->flags.visited) {
-        p_add_proto_data(pinfo->fd, proto_fcp, (void*)fchdr->itlq->lun);
+        proto_data = se_alloc(sizeof(fcp_proto_data_t));
+        proto_data->lun = fchdr->itlq->lun;
+        p_add_proto_data(pinfo->fd, proto_fcp, proto_data);
     } else {
-        fchdr->itlq->lun = (guint16)p_get_proto_data(pinfo->fd, proto_fcp);
+        proto_data = p_get_proto_data(pinfo->fd, proto_fcp);
+        fchdr->itlq->lun = proto_data->lun;
     }
 
     if ((r_ctl != FCP_IU_CMD) && (r_ctl != FCP_IU_UNSOL_CTL)) {
