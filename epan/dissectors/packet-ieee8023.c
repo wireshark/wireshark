@@ -76,10 +76,10 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
   next_tvb = tvb_new_subset(tvb, offset_after_length, captured_length, length);
 
   /* Dissect the payload either as IPX or as an LLC frame.
-     Catch BoundsError and ReportedBoundsError, so that if the
-     reported length of "next_tvb" was reduced by some dissector
-     before an exception was thrown, we can still put in an item
-     for the trailer. */
+     Catch non-fatal exceptions, so that if the reported length
+     of "next_tvb" was reduced by some dissector before an
+     exception was thrown, we can still put in an item for
+     the trailer. */
   saved_proto = pinfo->current_proto;
   pd_save = pinfo->private_data;
   TRY {
