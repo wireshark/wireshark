@@ -7959,24 +7959,17 @@ static const value_string japan_isup_chg_info_type_value[] = {
   { 0,   NULL}
 };
 
-static void
+static guint16
 dissect_japan_chg_inf_type(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+	guint16 chg_inf_type;
 
+	chg_inf_type = tvb_get_guint8(parameter_tvb, 0);
 	proto_tree_add_item(parameter_tree, hf_japan_isup_charge_info_type, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 
 	proto_item_set_text(parameter_item, "Charge information type");
 
-}
-
-static void
-dissect_japan_chg_inf_param(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{
-
-	proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "Charge information data");
-
-	proto_item_set_text(parameter_item, "Charge information");
-
+	return chg_inf_type;
 }
 
 static const value_string japan_isup_sig_elem_type_values[] = {
@@ -8147,8 +8140,31 @@ dissect_japan_chg_inf_type_crt(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
             }
         }
     }
+}
+
+
+static void
+dissect_japan_chg_inf_param(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item, guint16 chg_inf_type)
+{
+
+    switch(chg_inf_type){
+    case 3:
+        /* Advanced Charge Rate Transfer (TDS service) */
+        dissect_japan_chg_inf_type_acr(parameter_tvb, parameter_tree, parameter_item);
+        break;
+    case 254:
+        /* Charge rate transfer (flexible charging) */
+        dissect_japan_chg_inf_type_crt(parameter_tvb, parameter_tree, parameter_item);
+        break;
+    default:
+        proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "Charge information data, not dissected yet");
+        break;
+    }
+
+    proto_item_set_text(parameter_item, "Charge information");
 
 }
+
 /* END Japan ISUP */
 
 /* ------------------------------------------------------------------
@@ -8162,6 +8178,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
   guint       parameter_type, parameter_length, actual_length;
   tvbuff_t   *parameter_tvb;
   guint8      octet;
+  guint16     chg_inf_type = 0xffff;
 
   /* Dissect all optional parameters while end of message isn't reached */
   parameter_type = 0xFF; /* Start-initializiation since parameter_type is used for while-condition */
@@ -8489,10 +8506,10 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
                     dissect_japan_isup_contractor_number(parameter_tvb, parameter_tree, parameter_item);
                     break;
                 case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF_TYPE: /* FA */
-                    dissect_japan_chg_inf_type(parameter_tvb, parameter_tree, parameter_item);
+                    chg_inf_type = dissect_japan_chg_inf_type(parameter_tvb, parameter_tree, parameter_item);
                     break;
                 case JAPAN_ISUP_PARAM_TYPE_CHARGE_INF:
-                    dissect_japan_chg_inf_param(parameter_tvb, parameter_tree, parameter_item);
+                    dissect_japan_chg_inf_param(parameter_tvb, parameter_tree, parameter_item, chg_inf_type);
                     break;
                 case JAPAN_ISUP_PARAM_TYPE_CHARGE_AREA_INFO:
                     dissect_japan_isup_charge_area_info(parameter_tvb, parameter_tree, parameter_item);
