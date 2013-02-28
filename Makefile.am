@@ -1048,7 +1048,7 @@ solaris-package: svr4-package
 
 rpm_topdir=`cd $(top_builddir) && pwd`/packaging/rpm
 rpm-package: dist
-	if test x$(HAVE_RPM) = xyes ; then \
+	@if test x$(HAVE_RPM) = xyes ; then \
 		cd $(rpm_topdir) ; \
 		mkdir -p BUILD RPMS SOURCES SRPMS; \
 		cd SOURCES ; \
@@ -1056,7 +1056,7 @@ rpm-package: dist
 		cd .. ; \
 		rpmbuild --define "_topdir `cd . && pwd`" --clean -ba SPECS/wireshark.spec && \
 			echo "Package successfully built in `pwd`/RPMS." ; \
-		rm -f SOURCES/$(distdir).tar.bz2; \
+		rm -f SOURCES/$(distdir).tar.bz2 $(distdir).tar.bz2; \
 	else \
 		echo "Error: RPM executable and/or source directory not found." ; \
 		false; \
