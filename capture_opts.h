@@ -270,6 +270,9 @@ capture_opts_trim_iface(capture_options *capture_opts, const char *capture_devic
 extern void
 collect_ifaces(capture_options *capture_opts);
 
+/* Default capture buffer size in Mbytes. */
+#define DEFAULT_CAPTURE_BUFFER_SIZE 2
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

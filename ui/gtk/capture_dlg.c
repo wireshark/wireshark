@@ -2590,7 +2590,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   device.snaplen = 65535;
   device.cfilter = NULL;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  device.buffer = 2;
+  device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
 
   model = gtk_tree_view_get_model(view);
@@ -3370,7 +3370,7 @@ add_pipe_cb(gpointer w _U_)
     device.last_packets = 0;
     device.links        = NULL;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    device.buffer       = 2;
+    device.buffer       = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
     device.active_dlt   = -1;
     device.locked       = FALSE;
