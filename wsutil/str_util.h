@@ -25,6 +25,8 @@
 #ifndef __STR_UTIL_H__
 #define __STR_UTIL_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -44,6 +46,7 @@ extern "C" {
  * @param str The string to be lower-cased.
  * @return    ptr to the string
  */
+WS_DLL_PUBLIC
 gchar *ascii_strdown_inplace(gchar *str);
 
 /** Convert all lower-case ASCII letters to their ASCII upper-case
@@ -61,6 +64,7 @@ gchar *ascii_strdown_inplace(gchar *str);
  * @param str The string to be upper-cased.
  * @return    ptr to the string
  */
+WS_DLL_PUBLIC
 gchar *ascii_strup_inplace(gchar *str);
 
 /** Check if an entire string consists of printable characters
@@ -68,6 +72,7 @@ gchar *ascii_strup_inplace(gchar *str);
  * @param str The string to be checked
  * @return    TRUE if the entire string is printable, otherwise FALSE
  */
+WS_DLL_PUBLIC
 gboolean isprint_string(const gchar *string);
 
 /** Check if an entire string consists of digits
@@ -75,6 +80,7 @@ gboolean isprint_string(const gchar *string);
  * @param str The string to be checked
  * @return    TRUE if the entire string is digits, otherwise FALSE
  */
+WS_DLL_PUBLIC
 gboolean isdigit_string(guchar *string);
 
 typedef enum {
@@ -102,6 +108,7 @@ extern format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_
  * SI vs IEC, etc). Unit and prefix flags may be ORed together.
  * @return A newly-allocated string representing the value.
  */
+WS_DLL_PUBLIC
 gchar *format_size(gint64 size, format_size_flags_e flags);
 
 

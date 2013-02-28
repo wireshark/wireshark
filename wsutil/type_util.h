@@ -25,6 +25,7 @@
 #ifndef __TYPE_UTIL_H__
 #define __TYPE_UTIL_H__
 
+#include "ws_symbol_export.h"
 
 /*
  * guint64 to gdouble conversions taken from gstutils.h of GStreamer project
@@ -40,7 +41,9 @@
  *
  */
 
+WS_DLL_PUBLIC
 guint64         type_util_gdouble_to_guint64(gdouble value);
+WS_DLL_PUBLIC
 gdouble         type_util_guint64_to_gdouble(guint64 value);
 
 #ifdef _WIN32

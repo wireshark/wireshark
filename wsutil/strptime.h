@@ -24,9 +24,12 @@
 #ifndef __STRPTIME_H__
 #define __STRPTIME_H__
 
+#include "ws_symbol_export.h"
+
 /*
  * Version of "strptime()", for the benefit of OSes that don't have it.
  */
+WS_DLL_PUBLIC
 extern char *strptime(const char *, const char *, struct tm *);
 
 #endif

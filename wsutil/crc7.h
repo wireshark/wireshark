@@ -38,6 +38,8 @@
 #ifndef __CRC7__H__
 #define __CRC7__H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,6 +69,7 @@ static inline guint8 crc7init(void)
  * \param data_len Number of bytes in the \a data buffer.
  * \return         The updated crc value.
  *****************************************************************************/
+WS_DLL_PUBLIC
 extern guint8 crc7update(guint8 crc, const unsigned char *data, int data_len);
 
 

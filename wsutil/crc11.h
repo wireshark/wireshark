@@ -2,6 +2,8 @@
 
 #include <glib.h>
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -19,6 +21,7 @@ extern "C" {
  *    ReflectOut   = False
  *    Algorithm    = table-driven
  *****************************************************************************/
+WS_DLL_PUBLIC
 guint16 crc11_307_noreflect_noxor(const guint8 *data, guint64 data_len);
 
 #ifdef __cplusplus

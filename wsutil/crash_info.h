@@ -25,10 +25,13 @@
 #ifndef __CRASH_INFO_H__
 #define __CRASH_INFO_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+WS_DLL_PUBLIC
 extern void ws_add_crash_info(const char *fmt, ...)
     G_GNUC_PRINTF(1,2);
 

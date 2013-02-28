@@ -27,6 +27,8 @@
 #ifndef __CRC16_H__
 #define __CRC16_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -44,12 +46,14 @@ extern "C" {
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return The CRC16 CCITT checksum. */
+WS_DLL_PUBLIC
 extern guint16 crc16_ccitt(const guint8 *buf, guint len);
 
 /** Compute CRC16 X.25 CCITT checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return The CRC16 X.25 CCITT checksum. */
+WS_DLL_PUBLIC
 extern guint16 crc16_x25_ccitt(const guint8 *buf, guint len);
 
 /** Compute CRC16 CCITT checksum of a buffer of data.  If computing the
@@ -59,6 +63,7 @@ extern guint16 crc16_x25_ccitt(const guint8 *buf, guint len);
  @param len The number of bytes to include in the computation.
  @param seed The seed to use.
  @return The CRC16 CCITT checksum (using the given seed). */
+WS_DLL_PUBLIC
 extern guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 seed);
 
 /** Calculates a CRC16 checksum for the given buffer with the polynom
@@ -68,6 +73,7 @@ extern guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 seed);
  * @param seed The seed to use.
  * @return the CRC16 checksum for the buffer
  */
+WS_DLL_PUBLIC
 extern guint16 crc16_0x5935(const guint8 *buf, guint32 len, guint16 seed);
 
 #ifdef __cplusplus

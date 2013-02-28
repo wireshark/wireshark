@@ -519,6 +519,18 @@ if test "x$CC" != "xclang" ; then
   AC_WIRESHARK_GCC_CFLAGS_CHECK(-fexcess-precision=fast)
 fi
 
+CFLAGS_before_fvhidden=$CFLAGS
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-fvisibility=hidden)
+if test "x$CLFAGS" != "x$CFLAGS_before_fvhidden"
+then
+	# Restore CFLAGS
+	CFLAGS=$CFLAGS_before_fvhidden
+	AC_DEFINE(COMPILE_HIDE_SYMBOLS, "-fvisibility=hidden", [Compiler will hide symbols not exported explicitly using -fvisibility=hidden])
+else
+	AC_DEFINE(COMPILE_HIDE_SYMBOLS, "", [Compiler will export all symbols from shared libraries])
+fi
+AC_SUBST(COMPILE_HIDE_SYMBOLS)
+
 AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 ###AC_WIRESHARK_LDFLAGS_CHECK([-Wl,-M])
 ###AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--cref])

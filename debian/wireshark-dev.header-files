@@ -1,6 +1,7 @@
 color.h
 config.h
 register.h
+ws_symbol_export.h
 epan/*.h
 epan/crypt/*.h
 epan/dfilter/*.h

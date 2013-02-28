@@ -24,6 +24,8 @@
 # define _GETOPT_H 1
 #endif
 
+#include "ws_symbol_export.h"
+
 /* If __GNU_LIBRARY__ is not already defined, either we are being used
    standalone, or this is the first header included in the source file.
    If we are being used with glibc, we need to include <features.h>, but
@@ -56,7 +58,7 @@ extern "C" {
    Also, when `ordering' is RETURN_IN_ORDER,
    each non-option ARGV-element is returned here.  */
 
-WS_VAR_IMPORT char *optarg;
+WS_DLL_PUBLIC char *optarg;
 
 /* Index in ARGV of the next element to be scanned.
    This is used for communication to and from the caller
@@ -70,16 +72,16 @@ WS_VAR_IMPORT char *optarg;
    Otherwise, `optind' communicates from one call to the next
    how much of ARGV has been scanned so far.  */
 
-WS_VAR_IMPORT int optind;
+WS_DLL_PUBLIC int optind;
 
 /* Callers store zero here to inhibit the error message `getopt' prints
    for unrecognized options.  */
 
-WS_VAR_IMPORT int opterr;
+WS_DLL_PUBLIC int opterr;
 
 /* Set to an option character which was unrecognized.  */
 
-WS_VAR_IMPORT int optopt;
+WS_DLL_PUBLIC int optopt;
 
 #ifndef __need_getopt
 /* Describe the long-named options requested by the application.
@@ -149,6 +151,7 @@ struct option
 /* Many other libraries have conflicting prototypes for getopt, with
    differences in the consts, in stdlib.h.  To avoid compilation
    errors, only prototype getopt for the GNU C library.  */
+WS_DLL_PUBLIC
 extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
        __THROW;
 
@@ -168,6 +171,7 @@ extern int __posix_getopt (int ___argc, char *const *___argv,
 #  endif
 # endif
 #else /* not __GNU_LIBRARY__ */
+WS_DLL_PUBLIC
 extern int getopt (int ___argc, char *const *___argv,
 		   const char *__shortopts);
 #endif /* __GNU_LIBRARY__ */

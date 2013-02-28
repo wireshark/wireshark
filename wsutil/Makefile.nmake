@@ -13,7 +13,7 @@ include Makefile.common
 
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	/I. /I.. $(GLIB_CFLAGS) \
-	/I$(PCAP_DIR)\include
+	/I$(PCAP_DIR)\include -DWS_BUILD_DLL
 
 .c.obj::
    $(CC) $(CFLAGS) -Fd.\ -c $<
@@ -34,10 +34,10 @@ OBJECTS = file_util.obj		\
 libwsutil.lib: libwsutil.dll
 libwsutil.exp: libwsutil.dll
 
-libwsutil.dll : $(OBJECTS) libwsutil.def ..\image\libwsutil.res
+libwsutil.dll : $(OBJECTS) ..\image\libwsutil.res
 	$(link) $(dlllflags) $(conlibsdll) shell32.lib \
 		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
-		/DEF:libwsutil.def /OUT:libwsutil.dll \
+		/OUT:libwsutil.dll \
 		/IMPLIB:libwsutil.lib \
 		..\image\libwsutil.res \
 		$(OBJECTS) $(libwsutil_LIBS)

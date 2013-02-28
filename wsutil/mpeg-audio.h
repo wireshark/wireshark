@@ -25,6 +25,8 @@
 #ifndef MPA_H
 #define MPA_H 1
 
+#include "ws_symbol_export.h"
+
 struct mpa {
 	unsigned int emphasis   :2;
 	unsigned int original   :1;
@@ -71,11 +73,17 @@ struct mpa {
 	(mpa)->emphasis   = MPA_UNMARSHAL_EMPHASIS(n);   \
 	} while (0)
 
+WS_DLL_PUBLIC
 int mpa_version(const struct mpa *);
+WS_DLL_PUBLIC
 int mpa_layer(const struct mpa *);
+WS_DLL_PUBLIC
 unsigned int mpa_samples(const struct mpa *);
+WS_DLL_PUBLIC
 unsigned int mpa_bitrate(const struct mpa *);
+WS_DLL_PUBLIC
 unsigned int mpa_frequency(const struct mpa *);
+WS_DLL_PUBLIC
 unsigned int mpa_padding(const struct mpa *);
 
 #define MPA_DATA_BYTES(mpa) (mpa_bitrate(mpa) * mpa_samples(mpa) \

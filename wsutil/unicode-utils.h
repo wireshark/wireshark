@@ -25,6 +25,8 @@
 #ifndef __UNICODEUTIL_H__
 #define __UNICODEUTIL_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef _WIN32
 
 #include "config.h"
@@ -45,6 +47,7 @@
  * @return The string converted to UTF-16.  If utf8str is NULL, returns
  * NULL.  The return value should NOT be freed by the caller.
  */
+WS_DLL_PUBLIC
 wchar_t * utf_8to16(const char *utf8str);
 
 /** Create a UTF-16 string (in place) according to the format string.
@@ -53,6 +56,7 @@ wchar_t * utf_8to16(const char *utf8str);
  * @param utf16buf_len The size of the 'utf16buf' parameter
  * @param fmt A standard g_printf() format string
  */
+WS_DLL_PUBLIC
 void utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ...);
 
 /** Given a UTF-16 string, convert it to UTF-8.  This is meant to be used
@@ -62,6 +66,7 @@ void utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ..
  * @return The string converted to UTF-8.  If utf16str is NULL, returns
  * NULL.  The return value should NOT be freed by the caller.
  */
+WS_DLL_PUBLIC
 gchar * utf_16to8(const wchar_t *utf16str);
 
 /** Convert the program argument list from UTF-16 to UTF-8 and
@@ -73,6 +78,7 @@ gchar * utf_16to8(const wchar_t *utf16str);
  * @param argv The argument values (vector). You should simply pass
  * the second argument from main().
  */
+WS_DLL_PUBLIC
 void arg_list_utf_16to8(int argc, char *argv[]);
 
 

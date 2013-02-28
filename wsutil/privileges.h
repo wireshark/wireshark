@@ -25,6 +25,8 @@
 #ifndef __PRIVILEGES_H__
 #define __PRIVILEGES_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -33,6 +35,7 @@ extern "C" {
  * Called when the program starts, to enable security features and save
  * whatever credential information we'll need later.
  */
+WS_DLL_PUBLIC
 extern void init_process_policies(void);
 
 /**
@@ -41,6 +44,7 @@ extern void init_process_policies(void);
  * @return TRUE if the program was started with special privileges,
  * FALSE otherwise.
  */
+WS_DLL_PUBLIC
 extern gboolean started_with_special_privs(void);
 
 /**
@@ -49,12 +53,14 @@ extern gboolean started_with_special_privs(void);
  * @return TRUE if the program is running with special privileges,
  * FALSE otherwise.
  */
+WS_DLL_PUBLIC
 extern gboolean running_with_special_privs(void);
 
 /**
  * Permanently relinquish special privileges. get_credential_info()
  * MUST be called before calling this.
  */
+WS_DLL_PUBLIC
 extern void relinquish_special_privs_perm(void);
 
 /**
@@ -62,6 +68,7 @@ extern void relinquish_special_privs_perm(void);
  * @return A freshly g_alloc()ed string containing the username,
  * or "UNKNOWN" on failure.
  */
+WS_DLL_PUBLIC
 extern gchar *get_cur_username(void);
 
 /**
@@ -69,6 +76,7 @@ extern gchar *get_cur_username(void);
  * @return A freshly g_alloc()ed string containing the group,
  * or "UNKNOWN" on failure.
  */
+WS_DLL_PUBLIC
 extern gchar *get_cur_groupname(void);
 
 #ifdef _WIN32
@@ -77,6 +85,7 @@ extern gchar *get_cur_groupname(void);
  * @return TRUE if npf.sys is running, FALSE if it's not or if there was
  * an error checking its status.
  */
+WS_DLL_PUBLIC
 extern gboolean npf_sys_is_running();
 #endif
 

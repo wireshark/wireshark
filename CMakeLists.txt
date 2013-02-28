@@ -126,7 +126,6 @@ set(WIRESHARK_C_FLAGS
 	-Wcast-align
 	-Wformat-security
 	-fexcess-precision=fast
-	# -fvisibility=hidden
 )
 
 set(WIRESHARK_C_ONLY_FLAGS
@@ -214,6 +213,14 @@ foreach(THIS_FLAG ${WIRESHARK_C_ONLY_FLAGS})
 	math(EXPR C "${C} + 1")
 endforeach()
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS}\nCXX-Flags: ${CMAKE_CXX_FLAGS}")
+
+check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
+if((FVHIDDEN))
+	set(COMPILE_HIDE_SYMBOLS -fvisibility=hidden)
+else() # TODO add alternate compiler flags for hiding symbols
+	message(WARNING "Hiding shared library symbols is not supported by the compiler."
+		" All shared library symbols will be exported.")
+endif()
 
 if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_GCC_CHECKS)
 	check_c_compiler_flag(-Werror WERROR)

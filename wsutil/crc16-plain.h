@@ -20,6 +20,8 @@
 #ifndef __CRC____PLAIN_H__
 #define __CRC____PLAIN_H__
 
+#include "ws_symbol_export.h"
+
 #include <glib.h>
 #include <stdlib.h>
 
@@ -66,6 +68,7 @@ static inline crc16_plain_t crc16_plain_init(void)
  * \param data_len Number of bytes in the \a data buffer.
  * \return         The updated crc value.
  *****************************************************************************/
+WS_DLL_PUBLIC
 crc16_plain_t crc16_plain_update(crc16_plain_t crc, const unsigned char *data, size_t data_len);
 
 /**
@@ -97,6 +100,7 @@ static inline crc16_plain_t crc16_plain_finalize(crc16_plain_t crc)
  * \param data_len Number of bytes in the \a data buffer.
  * \return         The crc value.
  *****************************************************************************/
+WS_DLL_PUBLIC
 guint16 crc16_8005_noreflect_noxor(const guint8 *data, guint64 data_len);
 
 

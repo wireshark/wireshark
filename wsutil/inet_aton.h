@@ -28,7 +28,10 @@
 #ifndef __INET_ATON_H__
 #define __INET_ATON_H__
 
+#include "ws_symbol_export.h"
+
 struct in_addr;
+WS_DLL_PUBLIC
 extern int inet_aton(const char* cp_arg, struct in_addr *addr);
 
 #endif

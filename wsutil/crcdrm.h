@@ -26,6 +26,10 @@
 #ifndef __CRCDRM_H__
 #define __CRCDRM_H__
 
+
+#include "ws_symbol_export.h"
+
+WS_DLL_PUBLIC
 unsigned long crc_drm(const char *data, size_t bytesize,
 	unsigned short num_crc_bits, unsigned long crc_gen, int invert);
 
