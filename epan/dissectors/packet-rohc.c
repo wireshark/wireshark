@@ -2181,6 +2181,7 @@ start_over:
                 get_self_describing_var_len_val(tvb, sub_tree, offset, hf_rohc_large_cid, &val_len);
                 /* feedback_data_len - "length of large CID" */
                 feedback_data_len = feedback_data_len - val_len;
+                offset += val_len;
             }
 
             /* Dissect feedback */
