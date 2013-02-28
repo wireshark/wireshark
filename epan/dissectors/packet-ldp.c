@@ -1549,7 +1549,7 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, packet_info *pinfo, guint offset, 
         if ( gtsm_flag_buffer & 0x8000 ) {
             expert_add_info_format(pinfo, gtsm_flag_item, PI_PROTOCOL, PI_WARN,"ERROR - Both GTSM and Target Flag are enabled.");
         } else {
-            expert_add_info_format(pinfo, gtsm_flag_item, PI_PROTOCOL, PI_CHAT,"GTSM is supported by the source"); 	
+            expert_add_info_format(pinfo, gtsm_flag_item, PI_PROTOCOL, PI_CHAT,"GTSM is supported by the source");
         }
     } else {
         if ( gtsm_flag_buffer & 0x8000 ) {
@@ -2625,19 +2625,9 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(msg_tree, hf_ldp_msg_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(msg_tree, hf_ldp_msg_id, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         if(extra){
-            int hf_tmp;
-
-            switch(type){
-            case LDP_VENDOR_PRIVATE_START:
-                hf_tmp=hf_ldp_msg_vendor_id;
-                break;
-            case LDP_EXPERIMENTAL_MESSAGE_START:
-                hf_tmp=hf_ldp_msg_experiment_id;
-                break;
-            default:
-                hf_tmp = 0;
-            }
-            proto_tree_add_item(msg_tree, hf_tmp, tvb, offset+8, extra, ENC_BIG_ENDIAN);
+            proto_tree_add_item(msg_tree, (type == LDP_VENDOR_PRIVATE_START) ?
+                hf_ldp_msg_vendor_id : hf_ldp_msg_experiment_id, tvb, offset+8,
+                extra, ENC_BIG_ENDIAN);
         }
     }
 
