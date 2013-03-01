@@ -1071,9 +1071,6 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case 0x0002:
                 dissect_type02_message(dplay_data, tvb, offset);
                 break;
-            case 0x0004:
-                /* We should not get here. */
-                break;
             case 0x0005:
                 dissect_type05_message(dplay_data, tvb, offset);
                 break;
