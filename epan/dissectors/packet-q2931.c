@@ -968,8 +968,6 @@ l2_done:
 				offset += 3;
 				len -= 3;
 
-				if (len < 2)
-					return;
 				pid = tvb_get_ntohs(tvb, offset);
 				switch (organization_code) {
 
