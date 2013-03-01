@@ -2165,7 +2165,7 @@ to follow the previous rule.");
           int i;
           rp->ruleline = psp->tokenlineno;
           rp->rhs = (struct symbol**)&rp[1];
-          rp->rhsalias = (char**)&(rp->rhs[psp->nrhs]);
+          rp->rhsalias = (const char**)&(rp->rhs[psp->nrhs]);
           for(i=0; i<psp->nrhs; i++){
             rp->rhs[i] = psp->rhs[i];
             rp->rhsalias[i] = psp->alias[i];
@@ -4325,7 +4325,7 @@ typedef struct s_x1node {
   const char *data;        /* The data */
   struct s_x1node *next;   /* Next entry with the same hash */
   struct s_x1node **from;  /* Previous link */
-} x1node;ode;
+} x1node;
 
 /* There is only one instance of the array, which is the following */
 static struct s_x1 *x1a;
