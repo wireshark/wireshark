@@ -320,7 +320,7 @@ static const value_string proto_id_vals[] = {
 static int
 epm_dissect_tower_data (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-                             guint8 *drep)
+                             guint8 *drep _U_)
 {
     guint16 num_floors, i;
     dcerpc_info *di;
