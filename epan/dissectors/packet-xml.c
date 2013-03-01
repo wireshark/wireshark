@@ -190,7 +190,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         g_ptr_array_free(stack, TRUE);
 
     stack = g_ptr_array_new();
-    current_frame                 = ep_alloc(sizeof(xml_frame_t));
+    current_frame                 = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
     current_frame->type           = XML_FRAME_ROOT;
     current_frame->name           = NULL;
     current_frame->name_orig_case = NULL;
@@ -204,7 +204,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     root_ns = NULL;
 
     if (pinfo->match_string)
-        root_ns = g_hash_table_lookup(media_types, pinfo->match_string);
+        root_ns = (xml_ns_t *)g_hash_table_lookup(media_types, pinfo->match_string);
 
     if (! root_ns ) {
         root_ns = &xml_ns;
@@ -302,8 +302,8 @@ xml_frame_t *xml_get_cdata(xml_frame_t *frame)
 
 static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok)
 {
-    GPtrArray   *stack         = tvbparse_data;
-    xml_frame_t *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray   *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
     int          hfid;
     gboolean     is_cdata      = FALSE;
     proto_item  *pi;
@@ -324,7 +324,7 @@ static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbpar
                         tvb_format_text(tok->tvb, tok->offset, tok->len));
 
     if (is_cdata) {
-        new_frame                 = ep_alloc(sizeof(xml_frame_t));
+        new_frame                 = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
         new_frame->type           = XML_FRAME_CDATA;
         new_frame->name           = NULL;
         new_frame->name_orig_case = NULL;
@@ -340,13 +340,13 @@ static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 
 static void before_xmpli(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok)
 {
-    GPtrArray       *stack         = tvbparse_data;
-    xml_frame_t     *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray       *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t     *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
     proto_item      *pi;
     proto_tree      *pt;
     tvbparse_elem_t *name_tok      = tok->sub->next;
     gchar           *name          = tvb_get_ephemeral_string(name_tok->tvb, name_tok->offset, name_tok->len);
-    xml_ns_t        *ns            = g_hash_table_lookup(xmpli_names, name);
+    xml_ns_t        *ns            = (xml_ns_t *)g_hash_table_lookup(xmpli_names, name);
     xml_frame_t     *new_frame;
 
     int  hf_tag;
@@ -367,7 +367,7 @@ static void before_xmpli(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 
     pt = proto_item_add_subtree(pi, ett);
 
-    new_frame                 = ep_alloc(sizeof(xml_frame_t));
+    new_frame                 = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
     new_frame->type           = XML_FRAME_XMPLI;
     new_frame->name           = name;
     new_frame->name_orig_case = name;
@@ -385,8 +385,8 @@ static void before_xmpli(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 
 static void after_xmlpi(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok)
 {
-    GPtrArray   *stack         = tvbparse_data;
-    xml_frame_t *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray   *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
 
     proto_tree_add_text(current_frame->tree,
                            tok->tvb, tok->offset, tok->len, "%s",
@@ -402,8 +402,8 @@ static void after_xmlpi(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 
 static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok)
 {
-    GPtrArray       *stack         = tvbparse_data;
-    xml_frame_t     *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray       *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t     *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
     tvbparse_elem_t *name_tok      = tok->sub->next;
     gchar           *root_name;
     gchar           *name          = NULL, *name_orig_case = NULL;
@@ -421,10 +421,10 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
         name           = (gchar *)tvb_get_ephemeral_string(leaf_tok->tvb, leaf_tok->offset, leaf_tok->len);
         name_orig_case = name;
 
-        nameroot_ns = g_hash_table_lookup(xml_ns.elements, root_name);
+        nameroot_ns = (xml_ns_t *)g_hash_table_lookup(xml_ns.elements, root_name);
 
         if(nameroot_ns) {
-            ns = g_hash_table_lookup(nameroot_ns->elements, name);
+            ns = (xml_ns_t *)g_hash_table_lookup(nameroot_ns->elements, name);
             if (!ns) {
                 ns = &unknown_ns;
             }
@@ -438,10 +438,10 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
         ascii_strdown_inplace(name);
 
         if(current_frame->ns) {
-            ns = g_hash_table_lookup(current_frame->ns->elements, name);
+            ns = (xml_ns_t *)g_hash_table_lookup(current_frame->ns->elements, name);
 
             if (!ns) {
-                if (! ( ns = g_hash_table_lookup(root_ns->elements, name) ) ) {
+                if (! ( ns = (xml_ns_t *)g_hash_table_lookup(root_ns->elements, name) ) ) {
                     ns = &unknown_ns;
                 }
             }
@@ -457,7 +457,7 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
 
     pt = proto_item_add_subtree(pi, ns->ett);
 
-    new_frame = ep_alloc(sizeof(xml_frame_t));
+    new_frame = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
     new_frame->type           = XML_FRAME_TAG;
     new_frame->name           = name;
     new_frame->name_orig_case = name_orig_case;
@@ -475,16 +475,16 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
 
 static void after_open_tag(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok _U_)
 {
-    GPtrArray   *stack         = tvbparse_data;
-    xml_frame_t *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray   *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
 
     proto_item_append_text(current_frame->last_item, ">");
 }
 
 static void after_closed_tag(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok)
 {
-    GPtrArray   *stack         = tvbparse_data;
-    xml_frame_t *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray   *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
 
     proto_item_append_text(current_frame->last_item, "/>");
 
@@ -497,8 +497,8 @@ static void after_closed_tag(void *tvbparse_data, const void *wanted_data _U_, t
 
 static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok)
 {
-    GPtrArray   *stack         = tvbparse_data;
-    xml_frame_t *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray   *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
 
     proto_item_set_len(current_frame->item, (tok->offset - current_frame->start_offset) + tok->len);
 
@@ -515,8 +515,8 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 
 static void before_dtd_doctype(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok)
 {
-    GPtrArray       *stack         = tvbparse_data;
-    xml_frame_t     *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray       *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t     *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
     xml_frame_t     *new_frame;
     tvbparse_elem_t *name_tok      = tok->sub->next->next->next->sub->sub;
     proto_tree      *dtd_item      = proto_tree_add_item(current_frame->tree, hf_doctype,
@@ -525,7 +525,7 @@ static void before_dtd_doctype(void *tvbparse_data, const void *wanted_data _U_,
 
     proto_item_set_text(dtd_item, "%s", tvb_format_text(tok->tvb, tok->offset, tok->len));
 
-    new_frame = ep_alloc(sizeof(xml_frame_t));
+    new_frame = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
     new_frame->type           = XML_FRAME_DTD_DOCTYPE;
     new_frame->name           = (gchar *)tvb_get_ephemeral_string(name_tok->tvb,
                                                                   name_tok->offset,
@@ -544,8 +544,8 @@ static void before_dtd_doctype(void *tvbparse_data, const void *wanted_data _U_,
 
 static void pop_stack(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok _U_)
 {
-    GPtrArray   *stack         = tvbparse_data;
-    xml_frame_t *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray   *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
 
     if (stack->len > 1) {
         g_ptr_array_remove_index_fast(stack, stack->len - 1);
@@ -557,8 +557,8 @@ static void pop_stack(void *tvbparse_data, const void *wanted_data _U_, tvbparse
 
 static void after_dtd_close(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok)
 {
-    GPtrArray   *stack         = tvbparse_data;
-    xml_frame_t *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray   *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
 
     proto_tree_add_text(current_frame->tree, tok->tvb, tok->offset, tok->len, "%s",
                         tvb_format_text(tok->tvb, tok->offset, tok->len));
@@ -576,11 +576,11 @@ static void get_attrib_value(void *tvbparse_data _U_, const void *wanted_data _U
 
 static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok)
 {
-    GPtrArray       *stack         = tvbparse_data;
-    xml_frame_t     *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray       *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t     *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
     gchar           *name, *name_orig_case;
     tvbparse_elem_t *value;
-    tvbparse_elem_t *value_part    = tok->sub->next->next->data;
+    tvbparse_elem_t *value_part    = (tvbparse_elem_t *)tok->sub->next->next->data;
     int             *hfidp;
     int              hfid;
     proto_item      *pi;
@@ -590,7 +590,7 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     name_orig_case = ep_strdup(name);
     ascii_strdown_inplace(name);
 
-    if(current_frame->ns && (hfidp = g_hash_table_lookup(current_frame->ns->attributes, name) )) {
+    if(current_frame->ns && (hfidp = (int *)g_hash_table_lookup(current_frame->ns->attributes, name) )) {
         hfid  = *hfidp;
         value = value_part;
     } else {
@@ -603,7 +603,7 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 
     current_frame->last_item = pi;
 
-    new_frame = ep_alloc(sizeof(xml_frame_t));
+    new_frame = (xml_frame_t *)ep_alloc(sizeof(xml_frame_t));
     new_frame->type           = XML_FRAME_ATTRIB;
     new_frame->name           = name;
     new_frame->name_orig_case = name_orig_case;
@@ -620,8 +620,8 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 
 static void unrecognized_token(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok _U_)
 {
-    GPtrArray   *stack         = tvbparse_data;
-    xml_frame_t *current_frame = g_ptr_array_index(stack, stack->len - 1);
+    GPtrArray   *stack         = (GPtrArray *)tvbparse_data;
+    xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
 
     proto_tree_add_text(current_frame->tree, tok->tvb, tok->offset, tok->len, "[ ERROR: Unrecognized text ]");
 
@@ -773,7 +773,7 @@ static void init_xml_parser(void)
 
 static xml_ns_t *xml_new_namespace(GHashTable *hash, const gchar *name, ...)
 {
-    xml_ns_t *ns = g_malloc(sizeof(xml_ns_t));
+    xml_ns_t *ns = (xml_ns_t *)g_malloc(sizeof(xml_ns_t));
     va_list   ap;
     gchar    *attr_name;
 
@@ -787,7 +787,7 @@ static xml_ns_t *xml_new_namespace(GHashTable *hash, const gchar *name, ...)
     va_start(ap, name);
 
     while(( attr_name = va_arg(ap, gchar *) )) {
-        int *hfp = g_malloc(sizeof(int));
+        int *hfp = (int *)g_malloc(sizeof(int));
         *hfp = -1;
         g_hash_table_insert(ns->attributes, g_strdup(attr_name), hfp);
     };
@@ -824,7 +824,7 @@ static void add_xml_field(GArray *hfs, int *p_id, const gchar *name, const gchar
 
 static void add_xml_attribute_names(gpointer k, gpointer v, gpointer p)
 {
-    struct _attr_reg_data *d = p;
+    struct _attr_reg_data *d = (struct _attr_reg_data *)p;
     gchar *basename = g_strdup_printf("%s.%s", d->basename, (gchar *)k);
 
     add_xml_field(d->hf, (int*) v, (gchar *)k, basename);
@@ -833,7 +833,7 @@ static void add_xml_attribute_names(gpointer k, gpointer v, gpointer p)
 
 static void add_xmlpi_namespace(gpointer k _U_, gpointer v, gpointer p)
 {
-    xml_ns_t *ns       = v;
+    xml_ns_t *ns       = (xml_ns_t *)v;
     gchar    *basename = g_strdup_printf("%s.%s", (gchar *)p, ns->name);
     gint     *ett_p    = &(ns->ett);
     struct _attr_reg_data d;
@@ -859,7 +859,7 @@ static void destroy_dtd_data(dtd_build_data_t *dtd_data)
     g_string_free(dtd_data->error, TRUE);
 
     while(dtd_data->elements->len) {
-        dtd_named_list_t *nl = g_ptr_array_remove_index_fast(dtd_data->elements, 0);
+        dtd_named_list_t *nl = (dtd_named_list_t *)g_ptr_array_remove_index_fast(dtd_data->elements, 0);
         g_ptr_array_free(nl->list, TRUE);
         g_free(nl);
     }
@@ -867,7 +867,7 @@ static void destroy_dtd_data(dtd_build_data_t *dtd_data)
     g_ptr_array_free(dtd_data->elements, TRUE);
 
     while(dtd_data->attributes->len) {
-        dtd_named_list_t *nl = g_ptr_array_remove_index_fast(dtd_data->attributes, 0);
+        dtd_named_list_t *nl = (dtd_named_list_t *)g_ptr_array_remove_index_fast(dtd_data->attributes, 0);
         g_ptr_array_free(nl->list, TRUE);
         g_free(nl);
     }
@@ -879,9 +879,9 @@ static void destroy_dtd_data(dtd_build_data_t *dtd_data)
 
 static void copy_attrib_item(gpointer k, gpointer v _U_, gpointer p)
 {
-    gchar      *key   = g_strdup(k);
-    int        *value = g_malloc(sizeof(int));
-    GHashTable *dst   = p;
+    gchar      *key   = (gchar *)g_strdup((const gchar *)k);
+    int        *value = (int *)g_malloc(sizeof(int));
+    GHashTable *dst   = (GHashTable *)p;
 
     *value = -1;
     g_hash_table_insert(dst, key, value);
@@ -899,7 +899,7 @@ static GHashTable *copy_attributes_hash(GHashTable *src)
 
 static xml_ns_t *duplicate_element(xml_ns_t *orig)
 {
-    xml_ns_t *new_item = g_malloc(sizeof(xml_ns_t));
+    xml_ns_t *new_item = (xml_ns_t *)g_malloc(sizeof(xml_ns_t));
     guint     i;
 
     new_item->name          = g_strdup(orig->name);
@@ -947,7 +947,7 @@ static xml_ns_t *make_xml_hier(gchar      *elem_name,
                                GArray     *etts,
                                char       *proto_name)
 {
-    xml_ns_t *new;
+    xml_ns_t *fresh;
     xml_ns_t *orig;
     gchar    *fqn;
     gint     *ett_p;
@@ -959,7 +959,7 @@ static xml_ns_t *make_xml_hier(gchar      *elem_name,
         return NULL;
     }
 
-    if (! ( orig = g_hash_table_lookup(elements, elem_name) )) {
+    if (! ( orig = (xml_ns_t *)g_hash_table_lookup(elements, elem_name) )) {
         g_string_append_printf(error, "element '%s' is not defined\n", elem_name);
         return NULL;
     }
@@ -976,22 +976,22 @@ static xml_ns_t *make_xml_hier(gchar      *elem_name,
 
     fqn = fully_qualified_name(hier, elem_name, proto_name);
 
-    new = duplicate_element(orig);
-    new->fqn = fqn;
+    fresh = duplicate_element(orig);
+    fresh->fqn = fqn;
 
-    add_xml_field(hfs, &(new->hf_tag), g_strdup(elem_name), fqn);
-    add_xml_field(hfs, &(new->hf_cdata), g_strdup(elem_name), fqn);
+    add_xml_field(hfs, &(fresh->hf_tag), g_strdup(elem_name), fqn);
+    add_xml_field(hfs, &(fresh->hf_cdata), g_strdup(elem_name), fqn);
 
-    ett_p = &new->ett;
+    ett_p = &fresh->ett;
     g_array_append_val(etts, ett_p);
 
     d.basename = fqn;
     d.hf = hfs;
 
-    g_hash_table_foreach(new->attributes, add_xml_attribute_names, &d);
+    g_hash_table_foreach(fresh->attributes, add_xml_attribute_names, &d);
 
-    while(new->element_names->len) {
-        gchar *child_name = g_ptr_array_remove_index(new->element_names, 0);
+    while(fresh->element_names->len) {
+        gchar *child_name = (gchar *)g_ptr_array_remove_index(fresh->element_names, 0);
         xml_ns_t *child_element = NULL;
 
         g_ptr_array_add(hier, elem_name);
@@ -999,13 +999,13 @@ static xml_ns_t *make_xml_hier(gchar      *elem_name,
         g_ptr_array_remove_index_fast(hier, hier->len - 1);
 
         if (child_element) {
-            g_hash_table_insert(new->elements, child_element->name, child_element);
+            g_hash_table_insert(fresh->elements, child_element->name, child_element);
         }
     }
 
-    g_ptr_array_free(new->element_names, TRUE);
-    new->element_names = NULL;
-    return new;
+    g_ptr_array_free(fresh->element_names, TRUE);
+    fresh->element_names = NULL;
+    return fresh;
 }
 
 static gboolean free_both(gpointer k, gpointer v, gpointer p _U_)
@@ -1017,7 +1017,7 @@ static gboolean free_both(gpointer k, gpointer v, gpointer p _U_)
 
 static gboolean free_elements(gpointer k _U_, gpointer v, gpointer p _U_)
 {
-    xml_ns_t *e = v;
+    xml_ns_t *e = (xml_ns_t *)v;
 
     g_free(e->name);
     g_hash_table_foreach_remove(e->attributes, free_both, NULL);
@@ -1047,8 +1047,8 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
 
     /* we first populate elements with the those coming from the parser */
     while(dtd_data->elements->len) {
-        dtd_named_list_t *nl      = g_ptr_array_remove_index(dtd_data->elements, 0);
-        xml_ns_t         *element = g_malloc(sizeof(xml_ns_t));
+        dtd_named_list_t *nl      = (dtd_named_list_t *)g_ptr_array_remove_index(dtd_data->elements, 0);
+        xml_ns_t         *element = (xml_ns_t *)g_malloc(sizeof(xml_ns_t));
 
         /* we will use the first element found as root in case no other one was given. */
         if (root_name == NULL)
@@ -1075,13 +1075,13 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
 
     /* then we add the attributes to its relative elements */
     while(dtd_data->attributes->len) {
-        dtd_named_list_t *nl      = g_ptr_array_remove_index(dtd_data->attributes, 0);
-        xml_ns_t         *element = g_hash_table_lookup(elements, nl->name);
+        dtd_named_list_t *nl      = (dtd_named_list_t *)g_ptr_array_remove_index(dtd_data->attributes, 0);
+        xml_ns_t         *element = (xml_ns_t *)g_hash_table_lookup(elements, nl->name);
 
         if (element) {
             while(nl->list->len) {
-                gchar *name = g_ptr_array_remove_index(nl->list, 0);
-                int   *id_p = g_malloc(sizeof(int));
+                gchar *name = (gchar *)g_ptr_array_remove_index(nl->list, 0);
+                int   *id_p = (int *)g_malloc(sizeof(int));
 
                 *id_p = -1;
                 g_hash_table_insert(element->attributes, name, id_p);
@@ -1123,7 +1123,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
     }
 
     /* the root element of the dtd's namespace */
-    root_element = g_malloc(sizeof(xml_ns_t));
+    root_element = (xml_ns_t *)g_malloc(sizeof(xml_ns_t));
     root_element->name          = g_strdup(root_name);
     root_element->fqn           = dtd_data->proto_name ? g_strdup(dtd_data->proto_name) : root_element->name;
     root_element->hf_tag        = -1;
@@ -1144,7 +1144,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
 
         g_hash_table_insert(root_element->elements, (gpointer)root_element->name, root_element);
 
-        orig_root = g_hash_table_lookup(elements, root_name);
+        orig_root = (xml_ns_t *)g_hash_table_lookup(elements, root_name);
 
         /* if the root element was defined copy its attrlist to the child */
         if(orig_root) {
@@ -1163,12 +1163,12 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         g_ptr_array_add(hier, root_name);
 
         while(root_element->element_names->len) {
-            curr_name = g_ptr_array_remove_index(root_element->element_names, 0);
+            curr_name = (gchar *)g_ptr_array_remove_index(root_element->element_names, 0);
 
             if( ! g_hash_table_lookup(root_element->elements, curr_name) ) {
-                xml_ns_t *new = make_xml_hier(curr_name, root_element, elements, hier, errors,
+                xml_ns_t *fresh = make_xml_hier(curr_name, root_element, elements, hier, errors,
                                               hfs, etts, dtd_data->proto_name);
-                g_hash_table_insert(root_element->elements, (gpointer)new->name, new);
+                g_hash_table_insert(root_element->elements, (gpointer)fresh->name, fresh);
             }
 
             g_free(curr_name);
@@ -1181,28 +1181,28 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
         root_element->attributes = g_hash_table_new(g_str_hash, g_str_equal);
 
         while(root_element->element_names->len) {
-            xml_ns_t *new;
+            xml_ns_t *fresh;
             gint *ett_p;
             struct _attr_reg_data d;
 
-            curr_name = g_ptr_array_remove_index(root_element->element_names, 0);
-            new       = duplicate_element(g_hash_table_lookup(elements, curr_name));
-            new->fqn  = fully_qualified_name(hier, curr_name, root_name);
+            curr_name = (gchar *)g_ptr_array_remove_index(root_element->element_names, 0);
+            fresh       = duplicate_element((xml_ns_t *)g_hash_table_lookup(elements, curr_name));
+            fresh->fqn  = fully_qualified_name(hier, curr_name, root_name);
 
-            add_xml_field(hfs, &(new->hf_tag), curr_name, new->fqn);
-            add_xml_field(hfs, &(new->hf_cdata), curr_name, new->fqn);
+            add_xml_field(hfs, &(fresh->hf_tag), curr_name, fresh->fqn);
+            add_xml_field(hfs, &(fresh->hf_cdata), curr_name, fresh->fqn);
 
-            d.basename = new->fqn;
+            d.basename = fresh->fqn;
             d.hf = hfs;
 
-            g_hash_table_foreach(new->attributes, add_xml_attribute_names, &d);
+            g_hash_table_foreach(fresh->attributes, add_xml_attribute_names, &d);
 
-            ett_p = &new->ett;
+            ett_p = &fresh->ett;
             g_array_append_val(etts, ett_p);
 
-            g_ptr_array_free(new->element_names, TRUE);
+            g_ptr_array_free(fresh->element_names, TRUE);
 
-            g_hash_table_insert(root_element->elements, (gpointer)new->name, new);
+            g_hash_table_insert(root_element->elements, (gpointer)fresh->name, fresh);
         }
     }
 
@@ -1268,7 +1268,7 @@ static void init_xml_names(void)
     const gchar  *filename;
     gchar        *dirname;
 
-    GError **dummy = g_malloc(sizeof(GError *));
+    GError **dummy = (GError **)g_malloc(sizeof(GError *));
     *dummy = NULL;
 
     xmpli_names = g_hash_table_new(g_str_hash, g_str_equal);
