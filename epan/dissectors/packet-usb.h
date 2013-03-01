@@ -77,6 +77,7 @@ typedef struct _usb_trans_info_t {
 struct _usb_conv_info_t {
     guint16 interfaceClass;		/* class for this conversation */
     guint16 interfaceSubclass;	/* Most recent interface descriptor subclass */
+    guint8  interfaceNum;       /* Most recent interface number */
     emem_tree_t *transactions;
     usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
     void *class_data;	/* private class/id decode data */
@@ -173,6 +174,8 @@ typedef struct _usb_data_t {
 #define ENDPOINT_TYPE_ISOCHRONOUS       1
 #define ENDPOINT_TYPE_BULK              2
 #define ENDPOINT_TYPE_INTERRUPT         3
+
+usb_conv_info_t *get_usb_iface_conv_info(packet_info *pinfo, guint8 interface_num);
 
 void dissect_usb_descriptor_header(proto_tree *tree, tvbuff_t *tvb, int offset);
 void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset);

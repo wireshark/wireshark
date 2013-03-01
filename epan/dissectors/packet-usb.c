@@ -863,6 +863,23 @@ get_usb_conversation(packet_info *pinfo,
     return conversation;
 }
 
+/* Fetch or create usb_conv_info for a specified interface. */
+usb_conv_info_t *
+get_usb_iface_conv_info(packet_info *pinfo, guint8 interface_num)
+{
+    conversation_t *conversation;
+    guint32 if_port;
+
+    if_port = htolel(INTERFACE_PORT | interface_num);
+
+    if (pinfo->srcport == NO_ENDPOINT) {
+        conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, pinfo->srcport, if_port);
+    } else {
+        conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, if_port, pinfo->destport);
+    }
+
+    return get_usb_conv_info(conversation);
+}
 
 
 /* SETUP dissectors */
@@ -1259,6 +1276,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     /* bInterfaceNumber */
     interface_num = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_usb_bInterfaceNumber, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    usb_conv_info->interfaceNum = interface_num;
     offset += 1;
 
     /* bAlternateSetting */
@@ -1279,19 +1297,11 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     proto_item_append_text(item, " (%u.%u): class %s", interface_num, alt_setting, class_str);
 
     if (!pinfo->fd->flags.visited && (alt_setting == 0)) {
-        conversation_t *conversation;
-        guint32 if_port;
-
-        usb_trans_info->interface_info = se_alloc0(sizeof(usb_conv_info_t));
+        /* Register conversation for this interface in case CONTROL messages are sent to it */
+        usb_trans_info->interface_info = get_usb_iface_conv_info(pinfo, interface_num);
         usb_trans_info->interface_info->interfaceClass = tvb_get_guint8(tvb, offset);
         /* save the subclass so we can access it later in class-specific descriptors */
         usb_trans_info->interface_info->interfaceSubclass = tvb_get_guint8(tvb, offset+1);
-        usb_trans_info->interface_info->transactions = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
-
-        /* Register conversation for this interface in case CONTROL messages are sent to it */
-        if_port = htolel(INTERFACE_PORT | interface_num);
-        conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, if_port, pinfo->destport);
-        conversation_add_proto_data(conversation, proto_usb, usb_trans_info->interface_info);
     }
     offset += 1;
 
@@ -2541,10 +2551,8 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 case RQT_SETUP_TYPE_CLASS:
                     /* Make sure we have the proper conversation */
                     if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
-                        guint16 interface_num = usb_trans_info->setup.wIndex & 0xff;
-                        guint32 if_port = htolel(INTERFACE_PORT | interface_num);
-                        conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, pinfo->srcport, if_port);
-                        usb_conv_info = get_usb_conv_info(conversation);
+                        guint8 interface_num = usb_trans_info->setup.wIndex & 0xff;
+                        usb_conv_info = get_usb_iface_conv_info(pinfo, interface_num);
                         usb_conv_info->usb_trans_info = usb_trans_info;
                         pinfo->usb_conv_info = usb_conv_info;
                     } else if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
@@ -2627,9 +2635,8 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             if (usb_trans_info) {
                 if (USB_TYPE(usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_CLASS) {
                     if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
-                        guint32 if_port = htolel(INTERFACE_PORT | (usb_trans_info->setup.wIndex & 0xff));
-                        conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, if_port, pinfo->destport);
-                        usb_conv_info = get_usb_conv_info(conversation);
+                        guint8 interface_num = usb_trans_info->setup.wIndex & 0xff;
+                        usb_conv_info = get_usb_iface_conv_info(pinfo, interface_num);
                         usb_conv_info->usb_trans_info = usb_trans_info;
                         pinfo->usb_conv_info = usb_conv_info;
                     } else if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
