@@ -724,6 +724,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-homeplug.c
 	dissectors/packet-hp-erm.c
 	dissectors/packet-hpext.c
+	dissectors/packet-hpfeeds.c
 	dissectors/packet-hpsw.c
 	dissectors/packet-hpteam.c
 	dissectors/packet-hsr-prp-supervision.c

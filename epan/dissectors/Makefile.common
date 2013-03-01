@@ -645,6 +645,7 @@ DISSECTOR_SRC = \
 	packet-homeplug.c	\
 	packet-hp-erm.c		\
 	packet-hpext.c		\
+	packet-hpfeeds.c        \
 	packet-hpsw.c		\
 	packet-hpteam.c		\
 	packet-hsr-prp-supervision.c	\
