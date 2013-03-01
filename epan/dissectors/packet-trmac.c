@@ -396,7 +396,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 				    "Subvector length is != 6 and != 8");
 				break;
 			}
-			if (sv_length == 4) {
+			if (sv_length == 6) {
 				proto_tree_add_text(sv_tree, tvb, svoff+2, sv_length-2,
 					"Group Address: %08X", tvb_get_ntohl(tvb, svoff+2) );
 				proto_item_append_text(sv_item,
