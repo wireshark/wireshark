@@ -220,7 +220,7 @@ capture_step_stdin() {
 		test_step_failed "Exit status of $DUT: $RETURNVALUE"
 		return
 	fi
-        
+
         if [ -n "$CONSOLE_LOG_ARGS" ] ; then
             grep "Wireshark is up and ready to go" ./testout.txt > /dev/null 2>&1
             if [ $? -ne 0 ]; then
@@ -354,10 +354,10 @@ capture_step_read_filter() {
 
 # capture with a snapshot length
 capture_step_snapshot() {
-        if [ $SKIP_CAPTURE -ne 0 ] ; then
-                test_step_skipped
-                return
-        fi
+	if [ $SKIP_CAPTURE -ne 0 ] ; then
+		test_step_skipped
+		return
+	fi
 
 	traffic_gen_ping
 
