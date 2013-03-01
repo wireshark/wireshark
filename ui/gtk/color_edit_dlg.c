@@ -110,7 +110,7 @@ struct _color_selection_dlg_info_t {
   color_selection_type_t  color_selection_type; /* FG/BG */
   color_filter_t         *colorf;
   color_t                *color;                /* ptr to FG or BG color struct in colorf */
-  gchar                  *color_selection_type_text;
+  const gchar            *color_selection_type_text;
   GtkWidget              *filt_name_entry;
 };
 typedef struct _color_selection_dlg_info_t color_selection_dlg_info_t;
@@ -127,9 +127,9 @@ filter_expr_cb(GtkWidget *w _U_, gpointer filter_te)
 static void
 colorize_filter_new(GtkWidget              *colorize_hbox,
                     color_selection_type_t  color_selection_type,
-                    gchar                  *t1, /* "Foreground" */
-                    gchar                  *t2, /* "Foreground Color..." */
-                    gchar                  *t3, /* "Select foreground color for data display" */
+              const gchar                  *t1, /* "Foreground" */
+              const gchar                  *t2, /* "Foreground Color..." */
+              const gchar                  *t3, /* "Select foreground color for data display" */
                     color_filter_t         *colorf,
                     color_t                *color,
                     GtkWidget              *filt_name_entry)
