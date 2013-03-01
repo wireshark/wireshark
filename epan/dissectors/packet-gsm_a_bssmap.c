@@ -2119,9 +2119,7 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
             be_cell_id_aux(tvb, subtree, pinfo, curr_offset, len - (curr_offset - offset), add_string, string_len, disc);
 
         if (add_string && add_string[0] != '\0')
-        {
-            proto_item_append_text(item, "%s", add_string ? add_string : "");
-        }
+            proto_item_append_text(item, "%s", add_string);
 
         proto_item_set_len(item, consumed);
 
