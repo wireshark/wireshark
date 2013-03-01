@@ -45,7 +45,7 @@ typedef enum {
 
 typedef struct {
 	int pw_cell_number;
-	pwc_packet_properties_t props;
+	int props;
 	gint packet_size;
 	pwatm_mode_t mode;
 	pwatm_submode_t submode;

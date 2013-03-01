@@ -290,7 +290,7 @@ col_append_pw_info(packet_info * pinfo
 
 	DISSECTOR_ASSERT(pinfo != NULL);
 
-	pd = pinfo->private_data;
+	pd = (pwatm_private_data_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(pd != NULL);
 
 	if (pd->props & PWC_ANYOF_CW_BAD)
@@ -387,7 +387,7 @@ dissect_payload_and_padding(
 	pwatm_private_data_t * pd;
 
 	DISSECTOR_ASSERT(NULL != pinfo);
-	pd = pinfo->private_data;
+	pd = (pwatm_private_data_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(NULL != pd);
 
 	for(dissected = 0, pd->pw_cell_number = 0;
@@ -1168,7 +1168,7 @@ static void
 dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
 	pwatm_private_data_t* pd;
-	pd = pinfo->private_data;
+	pd = (pwatm_private_data_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(pd != NULL);
 
 	/*
@@ -1363,7 +1363,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 	gboolean               is_enough_data;
 	int                    dissect_size;
 
-	pd = pinfo->private_data;
+	pd = (pwatm_private_data_t *)pinfo->private_data;
 	DISSECTOR_ASSERT (NULL != pd);
 	pd->vpi	     = pd->vci = pd->pti = -1;
 	pd->cwb3.clp = pd->cwb3.m = pd->cwb3.v = pd->cwb3.rsv = pd->cwb3.u = pd->cwb3.e = -1;
@@ -1637,7 +1637,7 @@ dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data
 		item = proto_tree_add_item(tree, proto_cell, tvb, 0, dissect_size, ENC_NA);
 		{
 			pwatm_private_data_t * pd;
-			pd = pinfo->private_data;
+			pd = (pwatm_private_data_t *)pinfo->private_data;
 			if (NULL != pd)
 			{
 				proto_item_append_text(item, " [%.3d]", pd->pw_cell_number);
