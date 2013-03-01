@@ -98,7 +98,7 @@ enum e_assoc {
     UNK
 };
 struct symbol {
-  char *name;        /* Name of the symbol */
+  const char *name;        /* Name of the symbol */
   int index;               /* Index number for this symbol */
   enum symbol_type type;   /* Symbols are all either TERMINALS or NTs */
   struct rule *rule;       /* Linked list of rules of this (if an NT) */
@@ -125,14 +125,14 @@ struct symbol {
 ** structure.  */
 struct rule {
   struct symbol *lhs;      /* Left-hand side of the rule */
-  char *lhsalias;          /* Alias for the LHS (NULL if none) */
+  const char *lhsalias;    /* Alias for the LHS (NULL if none) */
   int lhsStart;            /* True if left-hand side is the start symbol */
   int ruleline;            /* Line number for the rule */
   int nrhs;                /* Number of RHS symbols */
   struct symbol **rhs;     /* The RHS symbols */
-  char **rhsalias;         /* An alias for each RHS symbol (NULL if none) */
+  const char **rhsalias;   /* An alias for each RHS symbol (NULL if none) */
   int line;                /* Line number at which code begins */
-  char *code;              /* The code executed when this rule is reduced */
+  const char *code;        /* The code executed when this rule is reduced */
   struct symbol *precsym;  /* Precedence symbol for this rule */
   int index;               /* An index number for this rule */
   Boolean canReduce;       /* True if this rule is ever reduced */
@@ -343,18 +343,18 @@ int SetUnion(char *A,char *B);    /* A <- A U B, thru element N */
 
 /* Routines for handling a strings */
 
-char *Strsafe(const char *);
+const char *Strsafe(const char *);
 
 void Strsafe_init(void);
-int Strsafe_insert(char *);
-char *Strsafe_find(const char *);
+int Strsafe_insert(const char *);
+const char *Strsafe_find(const char *);
 
 /* Routines for handling symbols of the grammar */
 
 struct symbol *Symbol_new(const char *x);
 int Symbolcmpp(const void *, const void *);
 void Symbol_init(void);
-int Symbol_insert(struct symbol *, char *);
+int Symbol_insert(struct symbol *, const char *);
 struct symbol *Symbol_find(const char *);
 struct symbol *Symbol_Nth(int);
 int Symbol_count(void);
@@ -2014,12 +2014,12 @@ struct pstate {
   enum e_state state;        /* The state of the parser */
   struct symbol *fallback;   /* The fallback token */
   struct symbol *lhs;        /* Left-hand side of current rule */
-  char *lhsalias;            /* Alias for the LHS */
+  const char *lhsalias;      /* Alias for the LHS */
   int nrhs;                  /* Number of right-hand side symbols seen */
   struct symbol *rhs[MAXRHS];  /* RHS symbols */
-  char *alias[MAXRHS];       /* Aliases for each RHS symbol (or NULL) */
+  const char *alias[MAXRHS]; /* Aliases for each RHS symbol (or NULL) */
   struct rule *prevrule;     /* Previous rule parsed */
-  char *declkeyword;         /* Keyword of a declaration */
+  const char *declkeyword;   /* Keyword of a declaration */
   char **declargslot;        /* Where the declaration argument should be put */
   int insertLineMacro;       /* Add #line before declaration insert */
   int *decllinenoslot;       /* Where to write declaration line number */
@@ -2029,10 +2029,11 @@ struct pstate {
   struct rule *lastrule;     /* Pointer to the most recently parsed rule */
 };
 
+
 /* Parse a single token */
 static void parseonetoken(struct pstate *psp)
 {
-  char *x;
+  const char *x;
   x = Strsafe(psp->tokenstart);     /* Save the token permanently */
 #if 0
   printf("%s:%d: Token=[%s] state=%d\n",psp->filename,psp->tokenlineno,
@@ -2386,8 +2387,8 @@ to follow the previous rule.");
       break;
     case WAITING_FOR_DECL_ARG:
       if( (x[0]=='{' || x[0]=='\"' || safe_isalnum(x[0])) ){
-        const char *zOld;
-        char *zNew, *zBuf, *z;
+        const char *zOld, *zNew;
+        char *zBuf, *z;
         int nOld, n, nLine, nNew, nBack;
 		int addLineMacro;
         char zLine[50];
@@ -3346,7 +3347,8 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
   }
 
   append_str(0,0,0,0);
-  for(cp=rp->code; *cp; cp++){
+  /* This const cast is wrong but harmless, if we're careful. */
+  for(cp=(char *)rp->code; *cp; cp++){
     if( safe_isalpha(*cp) && (cp==rp->code || (!safe_isalnum(cp[-1]) && cp[-1]!='_')) ){
       char saved;
       for(xp= &cp[1]; safe_isalnum(*xp) || *xp=='_'; xp++);
@@ -4288,14 +4290,16 @@ PRIVATE int strhash(const char *x)
 ** keep strings in a table so that the same string is not in more
 ** than one place.
 */
-char *Strsafe(const char *y)
+const char *Strsafe(const char *y)
 {
-  char *z;
+  const char *z;
+  char *cpy;
 
   if( y==0 ) return 0;
   z = Strsafe_find(y);
-  if( z==0 && (z=(char *)malloc( strlen(y)+1 ))!=0 ){
-    strcpy(z,y);
+  if( z==0 && (cpy=(char *)malloc( strlen(y)+1 ))!=0 ){
+    strcpy(cpy,y);
+    z = cpy;
     Strsafe_insert(z);
   }
   MemoryCheck(z);
@@ -4318,10 +4322,10 @@ struct s_x1 {
 ** in an associative array of type "x1".
 */
 typedef struct s_x1node {
-  char *data;                  /* The data */
+  const char *data;        /* The data */
   struct s_x1node *next;   /* Next entry with the same hash */
   struct s_x1node **from;  /* Previous link */
-} x1node;
+} x1node;ode;
 
 /* There is only one instance of the array, which is the following */
 static struct s_x1 *x1a;
@@ -4347,7 +4351,7 @@ void Strsafe_init(void){
 }
 /* Insert a new record into the array.  Return TRUE if successful.
 ** Prior data with the same key is NOT overwritten */
-int Strsafe_insert(char *data)
+int Strsafe_insert(const char *data)
 {
   x1node *np;
   int h;
@@ -4403,7 +4407,7 @@ int Strsafe_insert(char *data)
 
 /* Return a pointer to data assigned to the given key.  Return NULL
 ** if no such key. */
-char *Strsafe_find(const char *key)
+const char *Strsafe_find(const char *key)
 {
   int h;
   x1node *np;
@@ -4481,8 +4485,8 @@ struct s_x2 {
 ** in an associative array of type "x2".
 */
 typedef struct s_x2node {
-  struct symbol *data;                  /* The data */
-  char *key;                   /* The key */
+  struct symbol *data;     /* The data */
+  const char *key;         /* The key */
   struct s_x2node *next;   /* Next entry with the same hash */
   struct s_x2node **from;  /* Previous link */
 } x2node;
@@ -4511,7 +4515,7 @@ void Symbol_init(void){
 }
 /* Insert a new record into the array.  Return TRUE if successful.
 ** Prior data with the same key is NOT overwritten */
-int Symbol_insert(struct symbol *data, char *key)
+int Symbol_insert(struct symbol *data, const char *key)
 {
   x2node *np;
   int h;
