@@ -56,7 +56,7 @@
 
 #ifndef __WIN32__
 #   if defined(_WIN32) || defined(WIN32)
-#	define __WIN32__
+#   define __WIN32__
 #   endif
 #endif
 
@@ -86,23 +86,25 @@ typedef enum {LEMON_FALSE=0, LEMON_TRUE} Boolean;
 
 /* Symbols (terminals and nonterminals) of the grammar are stored
 ** in the following: */
-struct symbol {
-  char *name;              /* Name of the symbol */
-  int index;               /* Index number for this symbol */
-  enum {
-    TERMINAL,
-    NONTERMINAL,
-	MULTITERMINAL
-  } type;                  /* Symbols are all either TERMINALS or NTs */
-  struct rule *rule;       /* Linked list of rules of this (if an NT) */
-  struct symbol *fallback; /* fallback token in case this token doesn't parse */
-  int prec;                /* Precedence if defined (-1 otherwise) */
-  enum e_assoc {
+enum symbol_type {
+  TERMINAL,
+  NONTERMINAL,
+  MULTITERMINAL
+};
+enum e_assoc {
     LEFT,
     RIGHT,
     NONE,
     UNK
-  } assoc;                 /* Associativity if precedence is defined */
+};
+struct symbol {
+  char *name;        /* Name of the symbol */
+  int index;               /* Index number for this symbol */
+  enum symbol_type type;   /* Symbols are all either TERMINALS or NTs */
+  struct rule *rule;       /* Linked list of rules of this (if an NT) */
+  struct symbol *fallback; /* fallback token in case this token doesn't parse */
+  int prec;                /* Precedence if defined (-1 otherwise) */
+  enum e_assoc assoc;      /* Associativity if precedence is defined */
   char *firstset;          /* First-set for all rules of this symbol */
   Boolean lambda;          /* True if NT and can generate an empty string */
   int useCnt;              /* Number of times used */
@@ -143,6 +145,10 @@ struct rule {
 ** Configurations also contain a follow-set which is a list of terminal
 ** symbols which are allowed to immediately follow the end of the rule.
 ** Every configuration is recorded as an instance of the following: */
+enum cfgstatus {
+  COMPLETE,
+  INCOMPLETE
+};
 struct config {
   struct rule *rp;         /* The rule upon which the configuration is based */
   int dot;                 /* The parse point */
@@ -150,29 +156,28 @@ struct config {
   struct plink *fplp;      /* Follow-set forward propagation links */
   struct plink *bplp;      /* Follow-set backwards propagation links */
   struct state *stp;       /* Pointer to state which contains this */
-  enum {
-    COMPLETE,              /* The status is used during followset and */
-    INCOMPLETE             /*    shift computations */
-  } status;
+  enum cfgstatus status;   /* used during followset and shift computations */
   struct config *next;     /* Next configuration in the state */
   struct config *bp;       /* The next basis configuration */
+};
+
+enum e_action {
+  SHIFT,
+  ACCEPT,
+  REDUCE,
+  ERROR,
+  SSCONFLICT,              /* A shift/shift conflict */
+  SRCONFLICT,              /* Was a reduce, but part of a conflict */
+  RRCONFLICT,              /* Was a reduce, but part of a conflict */
+  SH_RESOLVED,             /* Was a shift.  Precedence resolved conflict */
+  RD_RESOLVED,             /* Was reduce.  Precedence resolved conflict */
+  NOT_USED                 /* Deleted by compression */
 };
 
 /* Every shift or reduce operation is stored as one of the following */
 struct action {
   struct symbol *sp;       /* The look-ahead symbol */
-  enum e_action {
-    SHIFT,
-    ACCEPT,
-    REDUCE,
-    ERROR,
-    SSCONFLICT,              /* A shift/shift conflict */
-    SRCONFLICT,              /* Was a reduce, but part of a conflict */
-    RRCONFLICT,              /* Was a reduce, but part of a conflict */
-    SH_RESOLVED,             /* Was a shift.  Precedence resolved conflict */
-    RD_RESOLVED,             /* Was reduce.  Precedence resolved conflict */
-    NOT_USED                 /* Deleted by compression */
-  } type;
+  enum e_action type;
   union {
     struct state *stp;     /* The new state, if a shift */
     struct rule *rp;       /* The rule, if a reduce */
@@ -378,7 +383,7 @@ void Configtable_clear(int(*)(struct config *));
 /* Allocate a new parser action */
 static struct action *Action_new(void){
   static struct action *freelist = NULL;
-  struct action *new;
+  struct action *newaction;
 
   if( freelist==NULL ){
     int i;
@@ -391,9 +396,9 @@ static struct action *Action_new(void){
     for(i=0; i<amt-1; i++) freelist[i].next = &freelist[i+1];
     freelist[amt-1].next = 0;
   }
-  new = freelist;
+  newaction = freelist;
   freelist = freelist->next;
-  return new;
+  return newaction;
 }
 
 /* Compare two actions for sorting purposes.  Return negative, zero, or
@@ -424,16 +429,16 @@ struct action *Action_sort(struct action *ap)
 static void Action_add(struct action **app, enum e_action type, struct symbol *sp,
     void *arg)
 {
-  struct action *new;
-  new = Action_new();
-  new->next = *app;
-  *app = new;
-  new->type = type;
-  new->sp = sp;
+  struct action *newaction;
+  newaction = Action_new();
+  newaction->next = *app;
+  *app = newaction;
+  newaction->type = type;
+  newaction->sp = sp;
   if( type==SHIFT ){
-    new->x.stp = (struct state *)arg;
+    newaction->x.stp = (struct state *)arg;
   }else{
-    new->x.rp = (struct rule *)arg;
+    newaction->x.rp = (struct rule *)arg;
   }
 }
 /********************** New code to implement the "acttab" module ***********/
@@ -472,7 +477,7 @@ struct acttab {
 
 /* Allocate a new acttab structure */
 static acttab *acttab_alloc(void){
-  acttab *p = malloc( sizeof(*p) );
+  acttab *p = (acttab *) malloc( sizeof(*p) );
   if( p==0 ){
     fprintf(stderr,"Unable to allocate memory for a new acttab.");
     exit(1);
@@ -824,7 +829,7 @@ PRIVATE void buildshifts(
 {
   struct config *cfp;  /* For looping thru the config closure of "stp" */
   struct config *bcfp; /* For the inner loop on config closure of "stp" */
-  struct config *new;  /* */
+  struct config *newcfg;  /* */
   struct symbol *sp;   /* Symbol following the dot in configuration "cfp" */
   struct symbol *bsp;  /* Symbol following the dot in configuration "bcfp" */
   struct state *newstp; /* A pointer to a successor state */
@@ -849,8 +854,8 @@ PRIVATE void buildshifts(
       bsp = bcfp->rp->rhs[bcfp->dot];           /* Get symbol after dot */
       if( !same_symbol(bsp,sp) ) continue;      /* Must be same as for "cfp" */
       bcfp->status = COMPLETE;                  /* Mark this config as used */
-      new = Configlist_addbasis(bcfp->rp,bcfp->dot+1);
-      Plink_add(&new->bplp,bcfp);
+      newcfg = Configlist_addbasis(bcfp->rp,bcfp->dot+1);
+      Plink_add(&newcfg->bplp,bcfp);
     }
 
     /* Get a pointer to the state described by the basis configuration set
@@ -1103,7 +1108,7 @@ static struct config **basisend = NULL;     /* End of list of basis configs */
 
 /* Return a pointer to a new configuration */
 PRIVATE struct config *newconfig(void){
-  struct config *new;
+  struct config *newcfg;
   if( freelist==0 ){
     int i;
     int amt = 3;
@@ -1115,9 +1120,9 @@ PRIVATE struct config *newconfig(void){
     for(i=0; i<amt-1; i++) freelist[i].next = &freelist[i+1];
     freelist[amt-1].next = 0;
   }
-  new = freelist;
+  newcfg = freelist;
   freelist = freelist->next;
-  return new;
+  return newcfg;
 }
 
 /* The configuration "old" is no longer used */
@@ -1399,13 +1404,13 @@ make_basename(char* fullname)
 #endif
 
 	if (!cp) {
-		new_string = malloc( strlen(fullname) + 1 );
+		new_string = (char *) malloc( strlen(fullname) + 1 );
 		strcpy(new_string, fullname);
 	}
 	else {
 		/* skip the slash */
 		cp++;
-		new_string = malloc( strlen(cp) + 1 );
+		new_string = (char *) malloc( strlen(cp) + 1 );
 		strcpy(new_string, cp);
 	}
 
@@ -1421,13 +1426,13 @@ static char **azDefine = 0;  /* Name of the -D macros */
 static void handle_D_option(char *z){
   char **paz;
   nDefine++;
-  azDefine = realloc(azDefine, sizeof(azDefine[0])*nDefine);
+  azDefine = (char **) realloc(azDefine, sizeof(azDefine[0])*nDefine);
   if( azDefine==0 ){
     fprintf(stderr,"out of memory\n");
     exit(1);
   }
   paz = &azDefine[nDefine-1];
-  *paz = malloc( strlen(z)+1 );
+  *paz = (char *) malloc( strlen(z)+1 );
   if( *paz==0 ){
     fprintf(stderr,"out of memory\n");
     exit(1);
@@ -1976,7 +1981,29 @@ void optprint(void){
 /*
 ** Input file parser for the LEMON parser generator.
 */
-
+/* The state of the parser */
+enum e_state {
+  INITIALIZE,
+  WAITING_FOR_DECL_OR_RULE,
+  WAITING_FOR_DECL_KEYWORD,
+  WAITING_FOR_DECL_ARG,
+  WAITING_FOR_PRECEDENCE_SYMBOL,
+  WAITING_FOR_ARROW,
+  IN_RHS,
+  LHS_ALIAS_1,
+  LHS_ALIAS_2,
+  LHS_ALIAS_3,
+  RHS_ALIAS_1,
+  RHS_ALIAS_2,
+  PRECEDENCE_MARK_1,
+  PRECEDENCE_MARK_2,
+  RESYNC_AFTER_RULE_ERROR,
+  RESYNC_AFTER_DECL_ERROR,
+  WAITING_FOR_DESTRUCTOR_SYMBOL,
+  WAITING_FOR_DATATYPE_SYMBOL,
+  WAITING_FOR_FALLBACK_ID,
+  WAITING_FOR_WILDCARD_ID
+};
 /* The state of the parser */
 struct pstate {
   char *filename;       /* Name of the input file */
@@ -1984,28 +2011,7 @@ struct pstate {
   int errorcnt;         /* Number of errors so far */
   char *tokenstart;     /* Text of current token */
   struct lemon *gp;     /* Global state vector */
-  enum e_state {
-    INITIALIZE,
-    WAITING_FOR_DECL_OR_RULE,
-    WAITING_FOR_DECL_KEYWORD,
-    WAITING_FOR_DECL_ARG,
-    WAITING_FOR_PRECEDENCE_SYMBOL,
-    WAITING_FOR_ARROW,
-    IN_RHS,
-    LHS_ALIAS_1,
-    LHS_ALIAS_2,
-    LHS_ALIAS_3,
-    RHS_ALIAS_1,
-    RHS_ALIAS_2,
-    PRECEDENCE_MARK_1,
-    PRECEDENCE_MARK_2,
-    RESYNC_AFTER_RULE_ERROR,
-    RESYNC_AFTER_DECL_ERROR,
-    WAITING_FOR_DESTRUCTOR_SYMBOL,
-    WAITING_FOR_DATATYPE_SYMBOL,
-    WAITING_FOR_FALLBACK_ID,
-	WAITING_FOR_WILDCARD_ID
-  } state;                   /* The state of the parser */
+  enum e_state state;        /* The state of the parser */
   struct symbol *fallback;   /* The fallback token */
   struct symbol *lhs;        /* Left-hand side of current rule */
   char *lhsalias;            /* Alias for the LHS */
@@ -2715,7 +2721,7 @@ static struct plink *plink_freelist = 0;
 
 /* Allocate a new plink */
 struct plink *Plink_new(void){
-  struct plink *new;
+  struct plink *newlink;
 
   if( plink_freelist==0 ){
     int i;
@@ -2729,19 +2735,19 @@ struct plink *Plink_new(void){
     for(i=0; i<amt-1; i++) plink_freelist[i].next = &plink_freelist[i+1];
     plink_freelist[amt-1].next = 0;
   }
-  new = plink_freelist;
+  newlink = plink_freelist;
   plink_freelist = plink_freelist->next;
-  return new;
+  return newlink;
 }
 
 /* Add a plink to a plink list */
 void Plink_add(struct plink **plpp, struct config *cfp)
 {
-  struct plink *new;
-  new = Plink_new();
-  new->next = *plpp;
-  *plpp = new;
-  new->cfp = cfp;
+  struct plink *newlink;
+  newlink = Plink_new();
+  newlink->next = *plpp;
+  *plpp = newlink;
+  newlink->cfp = cfp;
 }
 
 /* Transfer every plink on the list "from" to the list "to" */
@@ -2782,7 +2788,7 @@ PRIVATE char *file_makename(char *pattern, const char *suffix)
   char *name;
   char *cp;
 
-  name = malloc( strlen(pattern) + strlen(suffix) + 5 );
+  name = (char*)malloc( strlen(pattern) + strlen(suffix) + 5 );
   if( name==0 ){
     fprintf(stderr,"Can't allocate space for a filename.\n");
     exit(1);
@@ -3744,7 +3750,7 @@ void ReportTable(
   */
 
   /* Compute the actions on all states and count them up */
-  ax = calloc(lemp->nstate*2, sizeof(ax[0]));
+  ax = (struct axset *) calloc(lemp->nstate*2, sizeof(ax[0]));
   if( ax==NULL ){
     fprintf(stderr,"malloc failed\n");
     exit(1);
@@ -4288,7 +4294,7 @@ char *Strsafe(const char *y)
 
   if( y==0 ) return 0;
   z = Strsafe_find(y);
-  if( z==0 && (z=malloc( strlen(y)+1 ))!=0 ){
+  if( z==0 && (z=(char *)malloc( strlen(y)+1 ))!=0 ){
     strcpy(z,y);
     Strsafe_insert(z);
   }
@@ -4651,10 +4657,10 @@ PRIVATE int statehash(struct config *a)
 /* Allocate a new state structure */
 struct state *State_new(void)
 {
-  struct state *new;
-  new = (struct state *)calloc(1, sizeof(struct state) );
-  MemoryCheck(new);
-  return new;
+  struct state *newstate;
+  newstate = (struct state *)calloc(1, sizeof(struct state) );
+  MemoryCheck(newstate);
+  return newstate;
 }
 
 /* There is one instance of the following structure for each
