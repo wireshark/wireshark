@@ -37,17 +37,17 @@
 
 # coloring the output
 if [ $USE_COLOR -eq 1 ] ; then
-        color_reset="tput sgr0"
-        color_green='[32;40m'
-        color_red='[31;40m'
-        color_yellow='[33;40m'
-        color_blue='[36;40m'
+	color_reset="tput sgr0"
+	color_green='[32;40m'
+	color_red='[31;40m'
+	color_yellow='[33;40m'
+	color_blue='[36;40m'
 else
-        color_reset="true"
-        color_green=''
-        color_red=''
-        color_yellow=''
-        color_blue=''
+	color_reset="true"
+	color_green=''
+	color_red=''
+	color_yellow=''
+	color_blue=''
 fi
 
 # runtime flags
@@ -198,7 +198,6 @@ test_suite_add() {
 		echo "  Suite: $1 (${TEST_STEPS[TEST_NESTING_LEVEL+1]} subitems)"
 		$color_reset
 	fi
-
 }
 
 
@@ -336,13 +335,15 @@ test_step_output_print() {
 	done
 }
 
-# Editor modelines
 #
-# Local Variables:
-# sh-basic-offset: 8
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
 # tab-width: 8
 # indent-tabs-mode: t
 # End:
 #
-# ex: set shiftwidth=8 tabstop=8 noexpandtab:
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
 # :indentSize=8:tabSize=8:noTabs=false:
+#

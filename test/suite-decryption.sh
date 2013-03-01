@@ -51,7 +51,7 @@ UAT_FILES="
 
 TEST_KEYS_DIR="$PWD/keys/"
 if [ "$WS_SYSTEM" == "Windows" ] ; then
-    TEST_KEYS_DIR="`cygpath -w $TEST_KEYS_DIR`"
+	TEST_KEYS_DIR="`cygpath -w $TEST_KEYS_DIR`"
 fi
 
 #TS_ARGS="-Tfields -e frame.number -e frame.time_epoch -e frame.time_delta"
@@ -163,13 +163,16 @@ decryption_suite() {
 	test_suite_add "TShark decryption" tshark_decryption_suite
 }
 
-# Editor modelines
 #
-# Local Variables:
-# sh-basic-offset: 8
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
 # tab-width: 8
 # indent-tabs-mode: t
 # End:
 #
-# ex: set shiftwidth=8 tabstop=8 noexpandtab:
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
 # :indentSize=8:tabSize=8:noTabs=false:
+#
+

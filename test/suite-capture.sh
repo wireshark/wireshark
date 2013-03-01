@@ -35,9 +35,9 @@ capture_test_output_print() {
 	wait
 	for f in "$@"; do
 		if [[ -f "$f" ]]; then
-		printf " --> $f\n"
-		cat "$f"
-                printf "\n"
+			printf " --> $f\n"
+			cat "$f"
+			printf "\n"
 		fi
 	done
 }
@@ -113,7 +113,7 @@ capture_step_10packets() {
 		test_step_ok
 	else
 		echo
-                $TSHARK -ta -r ./testout.pcap >> ./testout2.txt
+		$TSHARK -ta -r ./testout.pcap >> ./testout2.txt
 		capture_test_output_print ./testout_ping.txt ./testout.txt ./testout2.txt
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
@@ -124,10 +124,10 @@ capture_step_10packets() {
 
 # capture exactly 10 packets using "-w -" (piping to stdout)
 capture_step_10packets_stdout() {
-        if [ $SKIP_CAPTURE -ne 0 ] ; then
-                test_step_skipped
-                return
-        fi
+	if [ $SKIP_CAPTURE -ne 0 ] ; then
+		test_step_skipped
+		return
+	fi
 
 	traffic_gen_ping
 
@@ -203,16 +203,16 @@ capture_step_fifo() {
 
 # capture packets via a fifo
 capture_step_stdin() {
-        CONSOLE_LOG_ARGS=""
-        if [ "$DUT" == "$WIRESHARK_CMD" -a "$WS_SYSTEM" == "Windows" ] ; then
-            CONSOLE_LOG_ARGS="-o console.log.level:127"
-        fi
+	CONSOLE_LOG_ARGS=""
+	if [ "$DUT" == "$WIRESHARK_CMD" -a "$WS_SYSTEM" == "Windows" ] ; then
+		CONSOLE_LOG_ARGS="-o console.log.level:127"
+	fi
 
 	(cat "${CAPTURE_DIR}dhcp.pcap"; sleep 1; tail -c +25 "${CAPTURE_DIR}dhcp.pcap") | \
 	$DUT -i - $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
-                $CONSOLE_LOG_ARGS \
+		$CONSOLE_LOG_ARGS \
 		> ./testout.txt 2> ./testerr.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -221,22 +221,22 @@ capture_step_stdin() {
 		return
 	fi
 
-        if [ -n "$CONSOLE_LOG_ARGS" ] ; then
-            grep "Wireshark is up and ready to go" ./testout.txt > /dev/null 2>&1
-            if [ $? -ne 0 ]; then
-                test_step_failed "No startup message!"
-            fi
+	if [ -n "$CONSOLE_LOG_ARGS" ] ; then
+		grep "Wireshark is up and ready to go" ./testout.txt > /dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			test_step_failed "No startup message!"
+		fi
 
-            grep "Capture started" ./testerr.txt > /dev/null 2>&1
-            if [ $? -ne 0 ]; then
-                test_step_failed "No capture started message!"
-            fi
+		grep "Capture started" ./testerr.txt > /dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			test_step_failed "No capture started message!"
+		fi
 
-            grep "Capture stopped" ./testerr.txt > /dev/null 2>&1
-            if [ $? -ne 0 ]; then
-                test_step_failed "No capture stopped message!"
-            fi
-        fi
+		grep "Capture stopped" ./testerr.txt > /dev/null 2>&1
+		if [ $? -ne 0 ]; then
+			test_step_failed "No capture stopped message!"
+		fi
+	fi
 
 	# we should have an output file now
 	if [ ! -f "./testout.pcap" ]; then
@@ -258,10 +258,10 @@ capture_step_stdin() {
 
 # capture exactly 2 times 10 packets (multiple files)
 capture_step_2multi_10packets() {
-        if [ $SKIP_CAPTURE -ne 0 ] ; then
-                test_step_skipped
-                return
-        fi
+	if [ $SKIP_CAPTURE -ne 0 ] ; then
+		test_step_skipped
+		return
+	fi
 
 	traffic_gen_ping
 
@@ -305,10 +305,10 @@ capture_step_2multi_10packets() {
 
 # capture with a very unlikely read filter, packets must be zero afterwards
 capture_step_read_filter() {
-        if [ $SKIP_CAPTURE -ne 0 ] ; then
-                test_step_skipped
-                return
-        fi
+	if [ $SKIP_CAPTURE -ne 0 ] ; then
+		test_step_skipped
+		return
+	fi
 
 	traffic_gen_ping
 
@@ -470,3 +470,17 @@ capture_suite() {
 	test_suite_add "TShark capture" tshark_capture_suite
 	test_suite_add "Wireshark capture" wireshark_capture_suite
 }
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#
+

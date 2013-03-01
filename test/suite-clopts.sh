@@ -57,7 +57,7 @@ test_single_char_options()
 clopts_suite_dumpcap_invalid_chars() {
 	for index in C E F G H J K N O Q R T U V W X Y e j l o x z
 	do
-	  test_step_add "Invalid dumpcap parameter -$index, exit status must be $EXIT_COMMAND_LINE" "test_single_char_options $DUMPCAP $index $EXIT_COMMAND_LINE"
+		test_step_add "Invalid dumpcap parameter -$index, exit status must be $EXIT_COMMAND_LINE" "test_single_char_options $DUMPCAP $index $EXIT_COMMAND_LINE"
 	done
 }
 
@@ -67,7 +67,7 @@ clopts_suite_dumpcap_invalid_chars() {
 clopts_suite_dumpcap_valid_chars() {
 	for index in h v
 	do
-	  test_step_add "Valid dumpcap parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $DUMPCAP $index $EXIT_OK"
+		test_step_add "Valid dumpcap parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $DUMPCAP $index $EXIT_OK"
 	done
 }
 
@@ -76,20 +76,20 @@ clopts_suite_dumpcap_valid_chars() {
 clopts_suite_dumpcap_interface_chars() {
 	for index in D L
 	do
-          if [ "$SKIP_CAPTURE" -eq 0 ] ; then
-	    test_step_add "Valid dumpcap parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $DUMPCAP $index $EXIT_OK"
-          else
-	    test_step_add "Invalid permissions for dumpcap parameter -$index, exit status must be $EXIT_ERROR" "test_single_char_options $DUMPCAP $index $EXIT_ERROR"
-          fi
-        done
+		if [ "$SKIP_CAPTURE" -eq 0 ] ; then
+			test_step_add "Valid dumpcap parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $DUMPCAP $index $EXIT_OK"
+		else
+			test_step_add "Invalid permissions for dumpcap parameter -$index, exit status must be $EXIT_ERROR" "test_single_char_options $DUMPCAP $index $EXIT_ERROR"
+		fi
+	done
 }
 
 # check exit status and grep output string of an invalid capture filter
 clopts_step_dumpcap_invalid_capfilter() {
-        if [ "$WS_SYSTEM" != "Windows" ] ; then
-                test_step_skipped
-                return
-        fi
+	if [ "$WS_SYSTEM" != "Windows" ] ; then
+		test_step_skipped
+		return
+	fi
 
 	$DUMPCAP -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
 	RETURNVALUE=$?
@@ -175,7 +175,7 @@ clopts_step_nonexisting_file() {
 clopts_suite_tshark_invalid_chars() {
 	for index in A B C E F H J K M N O R T U W X Y Z a b c d e f i j k m o r s t u w y z
 	do
-	  test_step_add "Invalid TShark parameter -$index, exit status must be $EXIT_COMMAND_LINE" "test_single_char_options $TSHARK $index $EXIT_COMMAND_LINE"
+		test_step_add "Invalid TShark parameter -$index, exit status must be $EXIT_COMMAND_LINE" "test_single_char_options $TSHARK $index $EXIT_COMMAND_LINE"
 	done
 }
 
@@ -184,7 +184,7 @@ clopts_suite_tshark_invalid_chars() {
 clopts_suite_tshark_valid_chars() {
 	for index in G h v
 	do
-	  test_step_add "Valid TShark parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $TSHARK $index $EXIT_OK"
+		test_step_add "Valid TShark parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $TSHARK $index $EXIT_OK"
 	done
 }
 
@@ -193,22 +193,22 @@ clopts_suite_tshark_valid_chars() {
 clopts_suite_tshark_interface_chars() {
 	for index in D L
 	do
-          if [ "$SKIP_CAPTURE" -eq 0 ] ; then
-	    test_step_add "Valid TShark parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $TSHARK $index $EXIT_OK"
-          else
-	    test_step_add "Invalid permissions for TShark parameter -$index, exit status must be $EXIT_ERROR" "test_single_char_options $TSHARK $index $EXIT_ERROR"
-          fi
-        done
+		if [ "$SKIP_CAPTURE" -eq 0 ] ; then
+			test_step_add "Valid TShark parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $TSHARK $index $EXIT_OK"
+		else
+			test_step_add "Invalid permissions for TShark parameter -$index, exit status must be $EXIT_ERROR" "test_single_char_options $TSHARK $index $EXIT_ERROR"
+		fi
+	done
 }
 
 # S V l n p q x
 
 # check exit status and grep output string of an invalid capture filter
 clopts_step_tshark_invalid_capfilter() {
-        if [ "$WS_SYSTEM" != "Windows" ] ; then
-                test_step_skipped
-                return
-        fi
+	if [ "$WS_SYSTEM" != "Windows" ] ; then
+		test_step_skipped
+		return
+	fi
 
 	$TSHARK -f 'jkghg' -w './testout.pcap' > ./testout.txt 2>&1
 	RETURNVALUE=$?
@@ -265,10 +265,10 @@ clopts_step_tshark_invalid_interfaces_index() {
 # check exit status and grep output string of an invalid capture filter
 # XXX - how to efficiently test the *invalid* flags?
 clopts_step_valid_name_resolving() {
-        if [ "$WS_SYSTEM" != "Windows" ] ; then
-                test_step_skipped
-                return
-        fi
+	if [ "$WS_SYSTEM" != "Windows" ] ; then
+		test_step_skipped
+		return
+	fi
 
 	$TSHARK -N mntC -a duration:1 > ./testout.txt 2>&1
 	RETURNVALUE=$?
@@ -317,9 +317,16 @@ clopt_suite() {
 	#test_remark_add "Options currently unchecked: S, V, l, n, p, q and x"
 }
 
-## Emacs
-## Local Variables:
-## tab-width: 8
-## indent-tabs-mode: t
-## sh-basic-offset: 8
-## End:
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#
+

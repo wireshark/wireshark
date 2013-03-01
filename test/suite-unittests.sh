@@ -37,9 +37,9 @@ unittests_step_test() {
 		return
 	fi
 
-    # if we're on windows, we have to copy the test exe to the wireshark-gtk2
-    # dir before we can use them.
-    # {Note that 'INSTALL_DIR' must be a Windows Pathname)
+	# if we're on windows, we have to copy the test exe to the wireshark-gtk2
+	# dir before we can use them.
+	# {Note that 'INSTALL_DIR' must be a Windows Pathname)
 	if [ "$WS_SYSTEM" == "Windows" ] ; then
 		(cd `dirname $DUT` && $MAKE `basename $DUT`_install INSTALL_DIR='wireshark-gtk2\') > testout.txt 2>&1
 		if [ $? -ne 0 ]; then
@@ -89,3 +89,15 @@ unittests_suite() {
 	test_step_add "reassemble_test" unittests_step_reassemble_test
 	test_step_add "tvbtest" unittests_step_tvbtest
 }
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#

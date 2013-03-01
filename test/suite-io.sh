@@ -159,3 +159,15 @@ io_suite() {
 	#test_suite_add "Wireshark file I/O" wireshark_io_suite
 	#test_suite_add "Dumpcap file I/O" dumpcap_io_suite
 }
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#

@@ -153,14 +153,15 @@ fileformats_suite() {
 	#test_suite_add "Wireshark file format" wireshark_ff_suite
 	#test_suite_add "Editcap file format" editcap_ff_suite
 }
-
-# Editor modelines
 #
-# Local Variables:
-# sh-basic-offset: 8
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
 # tab-width: 8
 # indent-tabs-mode: t
 # End:
 #
-# ex: set shiftwidth=8 tabstop=8 noexpandtab:
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
 # :indentSize=8:tabSize=8:noTabs=false:
+#
