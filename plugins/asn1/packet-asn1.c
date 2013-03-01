@@ -298,7 +298,7 @@ static const char *tbl_types_asn1[] = {
 		       /* 19 */ "INVALID entry",
 };
 /* conversion from snacc type to appropriate wireshark type */
-static guint tbl_types_wireshark[] = {
+static enum ftenum tbl_types_wireshark[] = {
 		       /*  0 */	FT_BOOLEAN,	/* TBL_BOOLEAN */
 		       /*  1 */	FT_UINT32,	/* TBL_INTEGER */
 		       /*  2 */	FT_UINT32,	/* TBL_BITSTRING */
@@ -378,7 +378,7 @@ typedef struct _PDUinfo PDUinfo;
 struct _PDUinfo {
 	guint type;
 	const char *name;
-	const char *typename;
+	const char *asn1typename;
 	const char *fullname;
 	guchar tclass;
 	guint tag;
@@ -413,7 +413,7 @@ typedef struct _PDUprops PDUprops;
 struct _PDUprops {
 	guint type;	/* value from enum TBLTypeId */
 	const char *name;
-	const char *typename;
+	const char *asn1typename;
 	const char *fullname;
 	guint flags;
 	gpointer data;
@@ -428,7 +428,7 @@ struct _PDUprops {
 #define OUT_FLAG_noname	     0x10
 #define OUT_FLAG_constructed 0x20
 
-static PDUprops *getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons);
+static PDUprops *getPDUprops(PDUprops *out, guint offset, guint cls, guint tag, guint cons);
 static const char *getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value);
 
 static const char empty[] = "";		/* address of the empt string, avoids many tests for NULL */
@@ -585,7 +585,7 @@ showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always 
 	const char *endstr = empty;
 
 	if (len == 0) {
-		str = g_malloc(1);
+		str = (char *)g_malloc(1);
 		str[0] = 0;
 	} else {
 		for (i=0; i<len; i++) {
@@ -597,7 +597,7 @@ showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always 
 			endstr = "...."; /* this is 5 bytes !! */
 		}
 		if (dohex) {
-			str = g_malloc(len*2 + 5);
+			str = (char *)g_malloc(len*2 + 5);
 			idx = 0;
 			for (i=0; i<len; i++) {
 				idx += g_snprintf(&str[idx], len*2 - idx, "%2.2X", octets[i]);
@@ -605,7 +605,7 @@ showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always 
 			g_snprintf(&str[idx], len*2 + 5 - idx, "%s", endstr);
 		} else {
 			if (len <= hexlen) { /* show both hex and ascii, assume hexlen < MAX_OTSLEN */
-				str = g_malloc(len*3+2);
+				str = (char *)g_malloc(len*3+2);
 				idx = 0;
 				for (i=0; i<len; i++) {
 					idx += g_snprintf(&str[idx], len*3 - idx, "%2.2X", octets[i]);
@@ -613,7 +613,7 @@ showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always 
 				g_snprintf(&str[idx], len*3+2 - idx, " %s", octets);
 			} else {
 				/* g_strdup_printf("%*s%s", len, octets, endstr) does not work ?? */
-				str = g_malloc(len+5);
+				str = (char *)g_malloc(len+5);
 				g_snprintf(str, len*3+5, " %s%s", octets, endstr);
 			}
 		}
@@ -627,7 +627,7 @@ g_strcmp(gconstpointer a, gconstpointer b)
 {
 	if (a == 0) a = empty;
 	if (b == 0) b = empty;
-	return strcmp(a, b);
+	return strcmp((const char *)a, (const char *)b);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -788,7 +788,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   PDUreset(pcount, 0);		/* arguments are just for debugging */
   getPDUprops(&props, boffset, cls, tag, con);
   name = props.name;
-  tname = props.typename;
+  tname = props.asn1typename;
 
   len = checklength(len, def, cls, tag, lenstr, sizeof(lenstr));
 
@@ -871,7 +871,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    PDUreset(pcount, i+1);
 	    getPDUprops(&props, boffset, cls, tag, con);
 	    name = props.name;
-	    tname = props.typename;
+	    tname = props.asn1typename;
 
 	    if (!def)
 		    len = tvb_length_remaining(tvb, offset);
@@ -1073,7 +1073,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 
 	  getPDUprops(&props, boffset, cls, tag, con);
 	  name = props.name;
-	  tname = props.typename;
+	  tname = props.asn1typename;
 	  if (asn1_full)
 		  name = &props.fullname[pabbrev_pdu_len];	/* no abbrev.pduname */
 	  if (asn1_debug) {	/* show both names */
@@ -1114,7 +1114,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 	  if (level >= MAX_NEST) { /* nesting too deep..., handle as general octet string */
 		cls = BER_CLASS_UNI;
 		tag = BER_UNI_TAG_GeneralString;
-		oname = g_malloc(strlen(name) + 32);
+		oname = (char *)g_malloc(strlen(name) + 32);
 		g_snprintf(oname, (gulong)(strlen(name) + 32), "%s ** nesting cut off **", name);
 		name = oname;
 	  }
@@ -2384,7 +2384,7 @@ get_asn1_oid(guint want_tag, guint offset)
 		if ((con == ASN1_PRI) && (tag == want_tag))	{
 			if (def) {
 				asn1_oid_value_decode(&asn1, len, &oid, &con);
-				oid = g_realloc(oid, con + sizeof(guint)); /* prepend the length */
+				oid = (subid_t *)g_realloc(oid, con + sizeof(guint)); /* prepend the length */
 				memmove(&oid[1], oid, con*sizeof(guint));
 				oid[0] = con;
 				return oid;
@@ -2416,7 +2416,7 @@ get_asn1_string(guint want_tag, guint offset)
 		if ((con == ASN1_PRI) && (tag == want_tag))	{
 			if (def) {
 				asn1_string_value_decode(&asn1, len, &octets);
-				octets = g_realloc(octets, len+1); /* need space for sentinel */
+				octets = (guchar *)g_realloc(octets, len+1); /* need space for sentinel */
 				octets[len] = 0;
 				return octets;
 			} else
@@ -2495,7 +2495,7 @@ constructed(guint offset)
 static void
 define_constraint(GNode *p, GNode *q)
 {
-	TBLRange *range = g_malloc(sizeof(TBLRange));
+	TBLRange *range = (TBLRange *)g_malloc(sizeof(TBLRange));
 	g_node_append_data(q, range);
 
 	range->type = TBLTYPE_Range;
@@ -2522,7 +2522,7 @@ define_constraint(GNode *p, GNode *q)
 static void
 define_namednumber(GNode *p, GNode *q)
 {
-	TBLNamedNumber *num = g_malloc(sizeof(TBLNamedNumber));
+	TBLNamedNumber *num = (TBLNamedNumber *)g_malloc(sizeof(TBLNamedNumber));
 	g_node_append_data(q, num);
 
 	num->type = TBLTYPE_NamedNumber;
@@ -2548,7 +2548,7 @@ define_namednumber(GNode *p, GNode *q)
 static void
 define_typeref(GNode *p, GNode *q)
 {
-	TBLTypeRef *ref = g_malloc(sizeof(TBLTypeRef));
+	TBLTypeRef *ref = (TBLTypeRef *)g_malloc(sizeof(TBLTypeRef));
 	g_node_append_data(q, ref);
 
 	ref->type = TBLTYPE_TypeRef;
@@ -2574,7 +2574,7 @@ define_typeref(GNode *p, GNode *q)
 static void
 define_tag(GNode *p, GNode *q)
 {
-	TBLTag *type = g_malloc(sizeof(TBLTag));
+	TBLTag *type = (TBLTag *)g_malloc(sizeof(TBLTag));
 	g_node_append_data(q, type);
 
 	type->type = TBLTYPE_Tag;
@@ -2602,7 +2602,7 @@ static void
 define_type(GNode *p, GNode *q)
 {
 	GNode *r;
-	TBLType *type = g_malloc(sizeof(TBLType));
+	TBLType *type = (TBLType *)g_malloc(sizeof(TBLType));
 
 	GNode *t = g_node_append_data(q, type);
 
@@ -2681,7 +2681,7 @@ define_type(GNode *p, GNode *q)
 static void
 define_typedef(GNode *p, GNode *q)
 {
-	TBLTypeDef *type_def = g_malloc(sizeof(TBLTypeDef));
+	TBLTypeDef *type_def = (TBLTypeDef *)g_malloc(sizeof(TBLTypeDef));
 
 	GNode *t = g_node_append_data(q, type_def);
 
@@ -2718,7 +2718,7 @@ define_typedef(GNode *p, GNode *q)
 static void
 define_module(GNode *p, GNode *q)
 {
-	TBLModule *module = g_malloc(sizeof(TBLModule));
+	TBLModule *module = (TBLModule *)g_malloc(sizeof(TBLModule));
 
 	GNode *m = g_node_append_data(q, module);
 
@@ -2806,7 +2806,7 @@ is_named(GNode *node, gpointer data)
 	if (num->value >= n->max) { /* need larger array */
 		oldmax = n->max;
 		n->max = num->value + ALLOC_INCR;
-		n->info = g_realloc(n->info, n->max * sizeof(TypeRef));
+		n->info = (TypeRef *)g_realloc(n->info, n->max * sizeof(TypeRef));
 		memset(&n->info[oldmax], 0, (n->max - oldmax) * sizeof(TypeRef));
 	}
 	if (num->value > n->used)  /* track max used value, there may be holes... */
@@ -2832,7 +2832,7 @@ index_typedef(GNode *node, gpointer data)
 	if (d->typeDefId >= n->max) { /* need larger array */
 		oldmax = n->max;
 		n->max = d->typeDefId + ALLOC_INCR;
-		n->info = g_realloc(n->info, n->max * sizeof(TypeRef));
+		n->info = (TypeRef *)g_realloc(n->info, n->max * sizeof(TypeRef));
 		memset(&n->info[oldmax], 0, (n->max - oldmax) * sizeof(TypeRef));
 	}
 	if (d->typeDefId > n->used)  /* track max used value, there may be holes... */
@@ -2944,7 +2944,7 @@ get_values(void)		/* collect values from ASN.1 tree */
 		if (sd.here) {
 			nd.max = 8;
 			nd.used = 0;
-			nd.info = g_malloc0(nd.max * sizeof(TypeRef));
+			nd.info = (TypeRef *)g_malloc0(nd.max * sizeof(TypeRef));
 			g_node_traverse(sd.here, G_PRE_ORDER, G_TRAVERSE_ALL, -1, is_named,
 						(gpointer)&nd);
 			if (asn1_verbose) g_message("tbltypenames: max=%d, info=%p", nd.max, (void *)nd.info);
@@ -2969,7 +2969,7 @@ get_values(void)		/* collect values from ASN.1 tree */
 	/* build table with typedef names */
 	nd.max = 8;
 	nd.used = 0;
-	nd.info = g_malloc0(nd.max * sizeof(TypeRef));
+	nd.info = (TypeRef *)g_malloc0(nd.max * sizeof(TypeRef));
 	g_node_traverse(data_nodes, G_PRE_ORDER, G_TRAVERSE_ALL, -1, index_typedef, (gpointer)&nd);
 	if (asn1_verbose) g_message("tbltypedefs: max=%d, info=%p", nd.max, (void *)nd.info);
 
@@ -3166,7 +3166,7 @@ read_asn1_type_table(const char *filename)
 	}
 	if (asn1_verbose) g_message("reading %d bytes from %s", size, filename);
 
-	data = g_malloc(size);
+	data = (guchar *)g_malloc(size);
 	if (fread(data, size, 1, f) < 1) {
 		g_warning("error reading %s, %s", filename, g_strerror(errno));
 	}
@@ -3183,8 +3183,8 @@ read_asn1_type_table(const char *filename)
 		g_message("logging to file %s", asn1_logfile);
 
 		if (mylogh == 0) {
-			mylogh = g_log_set_handler (NULL, G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL
-						    | G_LOG_FLAG_RECURSION, my_log_handler, NULL);
+			mylogh = g_log_set_handler (NULL, (GLogLevelFlags)(G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL
+						    | G_LOG_FLAG_RECURSION), my_log_handler, NULL);
 		}
 	}
 
@@ -3325,7 +3325,7 @@ tbl_typeref(gint n, GNode *pdu, GNode *tree, guint fullindex)
 
 	if (asn1_verbose)
 		g_message("%*sinclude typedef %d %s %s [%p:%s, tag %c%d]", n*2, empty, p->typenum,
-			  p->name, p->typename, (void *)p, TBLTYPE(p->type), tag_class[p->tclass], p->tag);
+			  p->name, p->asn1typename, (void *)p, TBLTYPE(p->type), tag_class[p->tclass], p->tag);
 
 	switch(p->type) {
 	case TBL_BITSTRING:
@@ -3342,14 +3342,14 @@ tbl_typeref(gint n, GNode *pdu, GNode *tree, guint fullindex)
 
 		if (asn1_verbose)
 			g_message("regtype1: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
-				  p->mytype, p->typenum, p->basetype, p->flags, p->typename,
+				  p->mytype, p->typenum, p->basetype, p->flags, p->asn1typename,
 				  p->name, p->fullname,
 				  tbl_types_wireshark_txt[p->type], p->value_id);
 		p1 = p;
 		nvals = 0;
 		while((q = g_node_next_sibling(q))) {
 			CHECKTYPE(q, TBLTYPE_NamedNumber);
-			p = g_malloc0(sizeof(PDUinfo));
+			p = (PDUinfo *)g_malloc0(sizeof(PDUinfo));
 			nvals++;
 			p->type = TBL_ENUMERATED;
 			p->name = (((TBLNamedNumber *)q->data)->name);
@@ -3360,7 +3360,7 @@ tbl_typeref(gint n, GNode *pdu, GNode *tree, guint fullindex)
 		}
 
 		/* list all enum values in the field structure for matching */
-		p1->value_hf.hfinfo.strings = v = g_malloc0((nvals+1) * sizeof(value_string));
+		p1->value_hf.hfinfo.strings = v = (value_string *)g_malloc0((nvals+1) * sizeof(value_string));
 		q = g_node_first_child(pdu);
 		nvals = 0;
 		while(q) {
@@ -3385,7 +3385,7 @@ tbl_typeref(gint n, GNode *pdu, GNode *tree, guint fullindex)
 
 			if (asn1_verbose)
 				g_message("regtype2: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
-					  p->mytype, p->typenum, p->basetype, p->flags, p->typename,
+					  p->mytype, p->typenum, p->basetype, p->flags, p->asn1typename,
 					  p->name, p->fullname,
 					  tbl_types_wireshark_txt[p->type], p->value_id);
 		}
@@ -3402,7 +3402,7 @@ tbl_typeref(gint n, GNode *pdu, GNode *tree, guint fullindex)
 
 			if (asn1_verbose)
 				g_message("regtype3: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
-					  p->mytype, p->typenum, p->basetype, p->flags, p->typename,
+					  p->mytype, p->typenum, p->basetype, p->flags, p->asn1typename,
 					  p->name, p->fullname,
 					  tbl_types_wireshark_txt[p->type], p->value_id);
 		}
@@ -3448,11 +3448,11 @@ tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sourc
                 if (((TBLTag *)list->data)->type == TBLTYPE_Type) {
 			CHECKTYPE(list, TBLTYPE_Type);
 
-			p = g_malloc0(sizeof(PDUinfo));
+			p = (PDUinfo *)g_malloc0(sizeof(PDUinfo));
 			pdu = g_node_append_data(pdu1, p);
 
 			p->type = ((TBLType *)list->data)->typeId;
-			p->typename = tbl_types_asn1[p->type]; /* the default type */
+			p->asn1typename = tbl_types_asn1[p->type]; /* the default type */
 			p->typenum = -1;
 			p->mytype = -1;
 			p->basetype = ((PDUinfo *)pdu1->data)->typenum;
@@ -3461,7 +3461,7 @@ tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sourc
 			p->flags |= (((TBLType *)list->data)->optional ? PDU_OPTIONAL : 0);
 
 			if (((TBLType *)list->data)->fieldName == 0) { /* no name assigned */
-				/* assign an anonymous name [XXX refer to parent typename...] */
+				/* assign an anonymous name [XXX refer to parent asn1typename...] */
 				((TBLType *)list->data)->fieldName =
 							g_strdup_printf("anon%d", anonCount++);
 			}
@@ -3491,7 +3491,7 @@ tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sourc
 				if (asn1_verbose)
 					g_message("register: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
 						  p->mytype, p->typenum, p->basetype, p->flags,
-						  p->typename, p->name, p->fullname,
+						  p->asn1typename, p->name, p->fullname,
 						  tbl_types_wireshark_txt[p->type], p->value_id);
 			}
 
@@ -3527,7 +3527,7 @@ tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sourc
 			p1 = p;
 			while((q = g_node_next_sibling(q))) {
 				CHECKTYPE(q, TBLTYPE_NamedNumber);
-				p = g_malloc0(sizeof(PDUinfo));
+				p = (PDUinfo *)g_malloc0(sizeof(PDUinfo));
 				nvals++;
 				p->type = TBL_ENUMERATED;
 				p->name = (gchar *)(((TBLNamedNumber *)q->data)->name);
@@ -3538,7 +3538,7 @@ tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sourc
 			}
 
 			/* list all enum values in the field structure for matching */
-			p1->value_hf.hfinfo.strings = v = g_malloc0((nvals+1) * sizeof(value_string));
+			p1->value_hf.hfinfo.strings = v = (value_string *)g_malloc0((nvals+1) * sizeof(value_string));
 			q = g_node_first_child(pdu);
 			nvals = 0;
 			while(q) {
@@ -3595,7 +3595,7 @@ tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sourc
 			tr = &typeDef_names[i];
 			if (asn1_verbose)
 				g_message("%*s*type#%d %s, %p", n*2, empty, i, tr->name, (void *)tr->pdu);
-			p->typename = tr->name;
+			p->asn1typename = tr->name;
 
 			if (tr->defclass == CLASSREF) {
 				if (tr->pdu == 0)
@@ -3637,7 +3637,7 @@ tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sourc
 
 		if (asn1_verbose)
 			g_message("%*sinclude type %s %s [%p:%s, tag %c%d]",
-				  n*2, empty, p->name, p->typename, (void *)p, TBLTYPE(p->type),
+				  n*2, empty, p->name, p->asn1typename, (void *)p, TBLTYPE(p->type),
 				  tag_class[p->tclass], p->tag);
 
 		if (p->value_id == -1) { /* not registered before, do it now */
@@ -3647,7 +3647,7 @@ tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sourc
 
 			if (asn1_verbose)
 				g_message("regist-2: %3d %3d [%3d] F%2.2x (%s)%s %s %s -> id=%d",
-					  p->mytype, p->typenum, p->basetype, p->flags, p->typename,
+					  p->mytype, p->typenum, p->basetype, p->flags, p->asn1typename,
 					  p->name, p->fullname,
 					  tbl_types_wireshark_txt[p->type], p->value_id);
 			}
@@ -3666,7 +3666,7 @@ PDUtext(char *txt, gulong txt_size, PDUinfo *info) /* say everything we know abo
 	if (info) {
 		tt = TBLTYPE(info->type);
 		nn = info->name;
-		tn = info->typename;
+		tn = info->asn1typename;
 		fn = info->fullname;
 		if (info->flags & PDU_NAMEDNUM)
 			idx += g_snprintf(&txt[idx], txt_size - idx, "name: %2d %s", info->tag, nn);
@@ -3688,7 +3688,7 @@ PDUtext(char *txt, gulong txt_size, PDUinfo *info) /* say everything we know abo
 				rinfo = (PDUinfo *)((GNode *)(info->reference))->data;
 				tt = TBLTYPE(rinfo->type);
 				nn = rinfo->name;
-				tn = rinfo->typename;
+				tn = rinfo->asn1typename;
 				fn = rinfo->fullname;
 				idx += g_snprintf(&txt[idx], txt_size - idx, ", reference to %s (%s)%s [%s]", tt, tn, nn, fn);
 				if (rinfo->flags & PDU_TYPEDEF)
@@ -3772,9 +3772,9 @@ build_pdu_tree(const char *pduname)
 
 	/* initialize the PDU tree, hand craft the root entry */
 
-	info = g_malloc0(sizeof(PDUinfo));
+	info = (PDUinfo *)g_malloc0(sizeof(PDUinfo));
 	info->name = pduname;
-	info->typename = pduname;
+	info->asn1typename = pduname;
 	info->type = TBL_SEQUENCEOF;
 	info->fullname = g_strdup_printf("%s.%s", pabbrev, pduname);
 	info->flags = PDUinfo_initflags = 0;
@@ -3818,9 +3818,9 @@ build_pdu_tree(const char *pduname)
 				g_message("******** Define type %d, %s", i, tr->name);
 
 			/* .... do definition ..... */
-			info = g_malloc0(sizeof(PDUinfo));
+			info = (PDUinfo *)g_malloc0(sizeof(PDUinfo));
 			info->name = tr->name;
-			info->typename = tr->name;
+			info->asn1typename = tr->name;
 			info->tclass = tr->defclass;
 			info->tag = tr->deftag;
 			info->type = TBL_TYPEREF;
@@ -4402,17 +4402,17 @@ gettype(GNode *node) {
 	return ((PDUinfo *)node->data)->type & TBL_TYPEmask;
 }
 
-static gpointer
+static PDUinfo *
 getinfo(GNode *node) {
 	if (node == NULL)
 		THROW(ReportedBoundsError);
 
-	return node->data;
+	return (PDUinfo *)node->data;
 }
 
 #define NEXT	      {pos.node = g_node_next_sibling(pos.node);pos.type=0;}
 #define CHILD	      {pos.node = g_node_first_child(pos.node);pos.type=0;}
-#define MATCH	      (info && (class == info->tclass) && (tag == info->tag))
+#define MATCH	      (info && (cls == info->tclass) && (tag == info->tag))
 #define ISOPTIONAL    (info && (info->flags & PDU_OPTIONAL))
 #define ISIMPLICIT    (info && (info->flags & PDU_IMPLICIT))
 #define ISREFERENCE   (info && (info->flags & PDU_REFERENCE))
@@ -4510,7 +4510,7 @@ showrefNode(GNode *node, int n)
 		info = (PDUinfo *)(node->data);
 		type = TBLTYPE(info->type);
 		name = info->name;
-		tname = info->typename;
+		tname = info->asn1typename;
 		ref  = info->reference;
 		cls = info->tclass;
 		tag = info->tag;
@@ -4581,7 +4581,7 @@ PDUreset(int count, int count2)
 }
 
 static GNode *			/* find GNode for a choice element, 0 if none */
-makechoice(GNode *p, guint class, guint tag)
+makechoice(GNode *p, guint cls, guint tag)
 {
 	GNode *q;
 	PDUinfo *info;
@@ -4594,9 +4594,9 @@ makechoice(GNode *p, guint class, guint tag)
 
 		if (info->type == TBL_CHOICE) {
 			if (asn1_verbose)
-				g_message("    using sub choice (%s)%s", info->typename, info->name);
+				g_message("    using sub choice (%s)%s", info->asn1typename, info->name);
 
-			q = makechoice(p, class, tag);
+			q = makechoice(p, cls, tag);
 			if (q) { /* found it */
 				p = q;
 				info = ((PDUinfo *)p->data);
@@ -4605,17 +4605,17 @@ makechoice(GNode *p, guint class, guint tag)
 
 		} else {
 			if (asn1_verbose)
-				g_message("    have %c%d, found %c%d, %s", tag_class[class], tag,
+				g_message("    have %c%d, found %c%d, %s", tag_class[cls], tag,
 					    tag_class[info->tclass], info->tag, info->name);
 
-			if ((class == info->tclass) && (tag == info->tag))
+			if ((cls == info->tclass) && (tag == info->tag))
 				break;	/* found it */
 		}
 
 		p = g_node_next_sibling(p);
 	}
 	if (asn1_verbose) {
-		if (p) g_message("    OK, '%s:(%s)%s' chosen", tbl_types[info->type], info->typename,
+		if (p) g_message("    OK, '%s:(%s)%s' chosen", tbl_types[info->type], info->asn1typename,
 				 info->name);
 		else   g_message("    ...no matching choice...");
 	}
@@ -4624,7 +4624,7 @@ makechoice(GNode *p, guint class, guint tag)
 
 		/* offset is for debugging only, a reference to output on screen */
 static PDUprops *
-getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
+getPDUprops(PDUprops *out, guint offset, guint cls, guint tag, guint cons)
 {
 	statestack pos, pos2, save_pos;
 	PDUinfo *info;
@@ -4642,7 +4642,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 	/* a very simple, too simple??, way to handle constructed entities */
 	if ((PDUstatec > 0) && (pos.type & TBL_CONSTRUCTED)) {
 	       		/* unexpectedly constructed, return same info as last time */
-		g_snprintf(posstr, sizeof(posstr), "==off=%d %c%d%c", offset, tag_class[class], tag, cons?'c':'p');
+		g_snprintf(posstr, sizeof(posstr), "==off=%d %c%d%c", offset, tag_class[cls], tag, cons?'c':'p');
 		showstack(&pos, posstr, 3);
 		pos.offset = offset;
 		pos.type &= ~TBL_CONSTRUCTED; /* remove the flag */
@@ -4651,7 +4651,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 		*out = constructed_save;
 		if (asn1_verbose)
 			g_message("  return for constructed %s (%s)%s",
-				  TBLTYPE(out->type), out->typename, out->name);
+				  TBLTYPE(out->type), out->asn1typename, out->name);
 		return out;
 	}
 
@@ -4659,7 +4659,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 
 	out->type = 0;
 	out->name = 0;
-	out->typename = "*error*";
+	out->asn1typename = "*error*";
 	out->fullname = 0;
 	out->flags = 0;
 	out->data = 0;
@@ -4680,13 +4680,13 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 		PDUerrcount++;
 		return out;
 	}
-	g_snprintf(posstr, sizeof(posstr), "==off=%d %c%d%c", offset, tag_class[class], tag, cons?'c':'p');
+	g_snprintf(posstr, sizeof(posstr), "==off=%d %c%d%c", offset, tag_class[cls], tag, cons?'c':'p');
 
 	showstack(&pos, posstr, 3);
 
 	ret = noname;
 
-	if (class == ASN1_EOI) { /* end of this input sequence */
+	if (cls == ASN1_EOI) { /* end of this input sequence */
 
 		if (pos.type & TBL_REFERENCE_pop) { /* reference finished, return to caller */
 			if (asn1_verbose) g_message("    EOI: reference pop");
@@ -4738,12 +4738,12 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 	} else {
 		/* EOC is only present for indefinite length sequences, etc. end of sequence is always
 		 * indicated by the synthetic EOI call. */
-		if ((class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_EOC)) { /* explicit EOC never has a name */
+		if ((cls == BER_CLASS_UNI) && (tag == BER_UNI_TAG_EOC)) { /* explicit EOC never has a name */
 			PUSHNODE(pos); /* restore stack */
 			ret = "explicit-EOC";
 			if (asn1_verbose) g_message("  return '%s', ignore", ret);
 			out->name = ret;
-			out->typename = "ASN1";
+			out->asn1typename = "ASN1";
 			return out;
 		}
 
@@ -4784,7 +4784,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				 * or NEXT for end of repeated sequence.
 				 * use the tag to make a descision */
 				if (asn1_verbose) g_message("    seqof: first got %c%d, found %c%d",
-							tag_class[class], tag,
+							tag_class[cls], tag,
 							tag_class[info->tclass], info->tag);
 				if ( MATCH ) {
 					/* This is the start of repeating */
@@ -4792,7 +4792,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 					ret = getname(pos.node);
 					if (asn1_verbose) g_message("  return for repeat '%s'", ret);
 					out->type = (pos.type & TBL_TYPEmask);
-					out->typename = info->typename;
+					out->asn1typename = info->asn1typename;
 					out->name = ret;
 					out->value_id = info->value_id;
 					out->type_id = info->type_id;
@@ -4812,7 +4812,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 						info = getinfo(pos.node);	/* needed for MATCH to look ahead */
 						if (asn1_verbose)
 						    g_message("    seqof: child: got %c%d, found %c%d",
-							      tag_class[class], tag,
+							      tag_class[cls], tag,
 							      tag_class[info->tclass], info->tag);
 					}
 					if (pos2.type & TBL_CHOICE_repeat) {
@@ -4894,7 +4894,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				if (asn1_verbose)
 					g_message("    choice [push], %c%d, %s",
 						  tag_class[info->tclass], info->tag, getname(pos.node));
-				pos.node = makechoice(pos.node, class, tag);
+				pos.node = makechoice(pos.node, cls, tag);
 				if (pos.node == NULL) {
 					pos = POPSTATE;
 					out->flags |= OUT_FLAG_noname;
@@ -4951,7 +4951,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 		if (ISOPTIONAL) { /* must check the tag */
 			while(! MATCH) {   /* check optional here again...? */
 				if (asn1_verbose && info)
-					g_message("    got %c%d, found %c%d", tag_class[class], tag,
+					g_message("    got %c%d, found %c%d", tag_class[cls], tag,
 							tag_class[info->tclass], info->tag);
 				NEXT;
 				if (pos.node == NULL) {
@@ -4998,7 +4998,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 					g_message("    immediate choice [push], %c%d, %s",
 						  tag_class[info->tclass], info->tag, getname(pos.node));
 				if (pos.node) {
-					pos.node = makechoice(pos.node, class, tag);
+					pos.node = makechoice(pos.node, cls, tag);
 				}
 				if (pos.node == NULL) {
 					pos = POPSTATE;
@@ -5027,7 +5027,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 					out->type = (pos.type & TBL_TYPEmask);
 					out->name = ret;
 					if (info) {
-						out->typename = info->typename;
+						out->asn1typename = info->asn1typename;
 						out->fullname = info->fullname;
 						out->value_id = info->value_id;
 						out->type_id = info->type_id;
@@ -5056,7 +5056,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 
 		/* must follow references now */
 		if (pos.type == TBL_TYPEREF && info) {
-			out->typename = info->typename;
+			out->asn1typename = info->asn1typename;
 			out->type_id = info->typenum;
 			out->flags |= OUT_FLAG_typename;
 			pos2 = pos;
@@ -5074,7 +5074,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				}
 				if (asn1_verbose && info)
 					g_message("  indirect typeref to %s:%s, %s [%c%d]",
-						  TBLTYPE(pos.type), info->typename, tmp,
+						  TBLTYPE(pos.type), info->asn1typename, tmp,
 						  tag_class[info->tclass], info->tag );
 			} else {
 				out->fullname = info->fullname;
@@ -5164,7 +5164,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 	}
 
 	if (info && ((out->flags & OUT_FLAG_typename) == 0)) {
-		out->typename = info->typename;
+		out->asn1typename = info->asn1typename;
 		out->type_id = info->typenum;
 	}
 
