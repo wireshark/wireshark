@@ -802,7 +802,7 @@ create_new_color_filter(GtkButton *button, const char *filter)
   select_row(color_filters, 0);
 
   /* open the edit dialog */
-  color_edit_dlg(color_filters, TRUE /* is a new filter */);
+  color_edit_dlg_new(color_filters, TRUE /* is a new filter */);
 
   gtk_widget_grab_focus(color_filters);
 }
@@ -824,7 +824,7 @@ color_edit_cb(GtkButton *button, gpointer user_data _U_)
 
   color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
   g_assert(color_dlg_row_selected != -1);
-  color_edit_dlg(color_filters, FALSE /* is not a new filter */);
+  color_edit_dlg_new(color_filters, FALSE /* is not a new filter */);
 }
 
 /* User double-clicked on the coloring rule */
@@ -833,7 +833,7 @@ color_filters_button_cb(GtkWidget *list, GdkEventButton *event,
                           gpointer data _U_)
 {
   if (event->type == GDK_2BUTTON_PRESS) {
-    color_edit_dlg(list, FALSE);
+    color_edit_dlg_new(list, FALSE);
   }
 
   return FALSE;

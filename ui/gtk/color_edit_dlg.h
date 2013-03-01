@@ -36,8 +36,8 @@ typedef struct _color_edit_dlg_info_t color_edit_dlg_info_t;
 
 /* new color filter edit dialog */
 extern void
-color_edit_dlg(GtkWidget *color_filters,
-               gboolean is_new_filter);
+color_edit_dlg_new(GtkWidget *color_filters,
+                   gboolean is_new_filter);
 
 #if 1 /* doesn't really belong here */
 /* edit dialog wants to destroy itself */
