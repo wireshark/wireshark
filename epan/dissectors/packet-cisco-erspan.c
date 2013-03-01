@@ -126,7 +126,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *erspan_tree = NULL;
 	tvbuff_t *eth_tvb;
 	guint32 offset = 0;
-	guint16 version = 0;
+	guint16 version;
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
         col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
@@ -145,8 +145,9 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
+
+	version = tvb_get_ntohs(tvb, offset) >> 12;
 	if (tree) {
-		version = tvb_get_ntohs(tvb, offset) >> 12;
 		ti_ver = proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
 		if ((version != 1) && (version != 2 )) {
