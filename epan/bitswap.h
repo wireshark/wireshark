@@ -25,11 +25,13 @@
 #ifndef __BITSWAP_H__
 #define __BITSWAP_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-extern guint8 swaptab[256];
+WS_DLL_PUBLIC guint8 swaptab[256];
 
 #define BIT_SWAP(b)	(swaptab[b])
 

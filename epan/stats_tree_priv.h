@@ -27,6 +27,7 @@
 #define  __STATS_TREE_PRIV_H
 
 #include "stats_tree.h"
+#include "ws_symbol_export.h"
 
 #define INDENT_MAX 32
 #define NUM_BUF_SIZE 32
@@ -150,7 +151,7 @@ struct _stats_tree_cfg {
 };
 
 /* guess what, this is it! */
-extern void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,gpointer),
+WS_DLL_PUBLIC void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,gpointer),
 				    void (*setup_node_pr)(stat_node*),
 				    void (*free_node_pr)(stat_node*),
 				    void (*draw_node)(stat_node*),
@@ -161,51 +162,51 @@ extern void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,
 				    void (*reset_tree)(stats_tree*),
 				    void *data);
 
-extern stats_tree *stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter);
+WS_DLL_PUBLIC stats_tree *stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter);
 
 /** callback for taps */
-extern int  stats_tree_packet(void*, packet_info*, epan_dissect_t*, const void *);
+WS_DLL_PUBLIC int  stats_tree_packet(void*, packet_info*, epan_dissect_t*, const void *);
 
 /** callback for reset */
-extern void stats_tree_reset(void *p_st);
+WS_DLL_PUBLIC void stats_tree_reset(void *p_st);
 
 /** callback for clear */
-extern void stats_tree_reinit(void *p_st);
+WS_DLL_PUBLIC void stats_tree_reinit(void *p_st);
 
 /* callback for destoy */
-extern void stats_tree_free(stats_tree *st);
+WS_DLL_PUBLIC void stats_tree_free(stats_tree *st);
 
 /** given an optarg splits the abbr part
    and returns a newly allocated buffer containing it */
-extern gchar *stats_tree_get_abbr(const gchar *optarg);
+WS_DLL_PUBLIC gchar *stats_tree_get_abbr(const gchar *optarg);
 
 /** obtains a stats tree from the registry given its abbr */
-extern stats_tree_cfg *stats_tree_get_cfg_by_abbr(gchar *abbr);
+WS_DLL_PUBLIC stats_tree_cfg *stats_tree_get_cfg_by_abbr(gchar *abbr);
 
 /** obtains a stats tree list from the registry 
     caller should free returned list with  g_list_free() */
-extern GList *stats_tree_get_cfg_list(void);
+WS_DLL_PUBLIC GList *stats_tree_get_cfg_list(void);
 
 /** extracts node data as strings from a stat_node into
    the buffers given by value, rate and precent
    if NULL they are ignored */
-extern void stats_tree_get_strs_from_node(const stat_node *node,
+WS_DLL_PUBLIC void stats_tree_get_strs_from_node(const stat_node *node,
 					  gchar *value,
 					  gchar *rate,
 					  gchar *percent);
 
 /** populates the given GString with a tree representation of a branch given by node,
    using indent spaces as indentation */
-extern void stats_tree_branch_to_str(const stat_node *node,
+WS_DLL_PUBLIC void stats_tree_branch_to_str(const stat_node *node,
 				     GString *s,
 				     guint indent);
 
 /** used to calcuate the size of the indentation and the longest string */
-extern guint stats_tree_branch_max_namelen(const stat_node *node, guint indent);
+WS_DLL_PUBLIC guint stats_tree_branch_max_namelen(const stat_node *node, guint indent);
 
 /** a text representation of a node,
    if buffer is NULL returns a newly allocated string */
-extern gchar *stats_tree_node_to_str(const stat_node *node,
+WS_DLL_PUBLIC gchar *stats_tree_node_to_str(const stat_node *node,
 				     gchar *buffer, guint len);
 
 #endif /* __STATS_TREE_PRIV_H */

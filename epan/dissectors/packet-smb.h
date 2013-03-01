@@ -26,15 +26,17 @@
 #ifndef __PACKET_SMB_H__
 #define __PACKET_SMB_H__
 
+#include "ws_symbol_export.h"
 
-WS_VAR_IMPORT gboolean sid_name_snooping;
+
+WS_DLL_PUBLIC gboolean sid_name_snooping;
 
 /* SMB command codes, from the SNIA CIFS spec. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT value_string_ext smb_cmd_vals_ext;
-WS_VAR_IMPORT value_string_ext trans2_cmd_vals_ext;
-WS_VAR_IMPORT value_string_ext nt_cmd_vals_ext;
+WS_DLL_PUBLIC value_string_ext smb_cmd_vals_ext;
+WS_DLL_PUBLIC value_string_ext trans2_cmd_vals_ext;
+WS_DLL_PUBLIC value_string_ext nt_cmd_vals_ext;
 
 
 #define SMB_COM_CREATE_DIRECTORY		0x00
@@ -194,7 +196,7 @@ typedef struct _smb_eo_t {
 } smb_eo_t;
 
 /* Strings that describes the SMB object type */
-WS_VAR_IMPORT const value_string smb_fid_types[];
+WS_DLL_PUBLIC const value_string smb_fid_types[];
 
 /* the information we need to keep around for NT transatcion commands */
 typedef struct {

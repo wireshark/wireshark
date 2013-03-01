@@ -32,6 +32,7 @@
 #include "emem.h"
 #include "proto.h"
 #include "to_str.h"
+#include "strutil.h"
 
 /*
  * If a user _does_ pass in a too-small buffer, this is probably

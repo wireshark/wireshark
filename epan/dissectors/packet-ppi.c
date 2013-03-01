@@ -61,6 +61,7 @@
 #include "packet-frame.h"
 #include "packet-eth.h"
 #include "packet-ieee80211.h"
+#include "packet-ppi.h"
 
 /*
  * Per-Packet Information (PPI) header.

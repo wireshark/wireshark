@@ -33,7 +33,7 @@
 #include <epan/tvbuff.h>
 #include <epan/tvbparse.h>
 #include <epan/emem.h>
-
+#include "ws_symbol_export.h"
 
 typedef struct _tpg_parser_data_t {
     ep_stack_t stack;
@@ -62,10 +62,10 @@ extern tpg_parser_data_t* tpg_start(proto_tree* root_tree,
 #define TPG_UINT_HEX(i) strtoul(tvb_get_ephemeral_string((i)->tvb,(i)->offset,(i)->len),NULL,16)
 #define TPG_TVB(i) tvb_new_subset((i)->tvb,(i)->offset,(i)->len,(i)->len)
 
-extern guint32 tpg_ipv4(tvbparse_elem_t*);
+WS_DLL_PUBLIC guint32 tpg_ipv4(tvbparse_elem_t*);
 #define TPG_IPV4(i) tpg_ipv4((i))
 
-extern guint8* tpg_ipv6(tvbparse_elem_t*);
+WS_DLL_PUBLIC guint8* tpg_ipv6(tvbparse_elem_t*);
 #define TPG_IPV6(i) tpg_ipv6((i))
 
 #define TPG_PUSH(tpg,pi,ett) ep_stack_push(((tpg_parser_data_t*)(tpg))->stack,proto_item_add_subtree((pi),(ett)))

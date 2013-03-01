@@ -26,6 +26,8 @@
 #ifndef __PACKET_IP_H__
 #define __PACKET_IP_H__
 
+#include "ws_symbol_export.h"
+
 typedef struct _ws_ip
 {
     guint8  ip_v_hl; /* combines ip_v and ip_hl */
@@ -44,6 +46,6 @@ void capture_ip(const guchar *, int, int, packet_counts *);
 guint16 ip_checksum(const guint8 *ptr, int len);
 
 /* Export the DSCP extended value-string table for other protocols */
-WS_VAR_IMPORT value_string_ext dscp_vals_ext;
+WS_DLL_PUBLIC value_string_ext dscp_vals_ext;
 
 #endif

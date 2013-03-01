@@ -25,10 +25,12 @@
 #ifndef __PACKET_SCSI_OSD_H_
 #define __PACKET_SCSI_OSD_H_
 
+#include "ws_symbol_export.h"
+
 #define SCSI_OSD_OPCODE			0x7f
 
 extern int hf_scsi_osd_opcode;
 extern scsi_cdb_table_t scsi_osd_table[256];
-WS_VAR_IMPORT const value_string scsi_osd_vals[];
+WS_DLL_PUBLIC const value_string scsi_osd_vals[];
 
 #endif

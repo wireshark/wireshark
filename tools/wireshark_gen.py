@@ -1960,7 +1960,7 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */"""
     template_plugin_register = """
 #if 0
 
-G_MODULE_EXPORT void
+WS_DLL_PUBLIC_NOEXTERN void
 plugin_register(void)
 {
    if (proto_@dissector_name@ == -1) {
@@ -1968,7 +1968,7 @@ plugin_register(void)
    }
 }
 
-G_MODULE_EXPORT void
+WS_DLL_PUBLIC_NOEXTERN void
 plugin_reg_handoff(void){
    proto_register_handoff_giop_@dissector_name@();
 }
@@ -2356,6 +2356,10 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
 #include <epan/expert.h>
+
+/* plugins are DLLs */
+#define WS_BUILD_DLL
+#include "ws_symbol_export.h"
 
 #ifdef _MSC_VER
 /* disable warning: "unreference local variable" */

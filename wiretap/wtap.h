@@ -1156,7 +1156,6 @@ gboolean wtap_dump_can_write_encaps(int ft, const GArray *file_encaps);
 
 WS_DLL_PUBLIC
 gboolean wtap_dump_can_compress(int filetype);
-WS_DLL_LOCAL
 gboolean wtap_dump_has_name_resolution(int filetype);
 
 WS_DLL_PUBLIC

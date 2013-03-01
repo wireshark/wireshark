@@ -4,7 +4,7 @@
 
 # $Id$
 
-#.EXPORTS ONLY_VALS WS_VAR
+#.EXPORTS ONLY_VALS WS_DLL
 Type-of-msg/t30-indicator
 Type-of-msg/t30-data
 #.END

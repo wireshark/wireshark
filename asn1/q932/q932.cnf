@@ -15,11 +15,11 @@ NetworkProtocolProfile
 # Addressing-Data-Elements
 PresentedAddressScreened
 PresentedAddressUnscreened
-PresentedNumberScreened
-PresentedNumberUnscreened
+PresentedNumberScreened WS_DLL
+PresentedNumberUnscreened WS_DLL
 Address
-PartyNumber
-PartySubaddress
+PartyNumber WS_DLL
+PartySubaddress WS_DLL
 ScreeningIndicator
 PresentationAllowedIndicator
 

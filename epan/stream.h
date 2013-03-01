@@ -29,6 +29,7 @@
 #define STREAM_H
 
 #include <epan/tvbuff.h>
+#include "ws_symbol_export.h"
 
 struct _fragment_items;
 
@@ -67,14 +68,14 @@ struct conversation;
 
 /* initialise a new stream. Call this when you first identify a distinct
  * stream. The circit pointer is just used as a key to look up the stream. */
-extern stream_t *stream_new_circ ( const struct circuit *circuit, int p2p_dir );
+WS_DLL_PUBLIC stream_t *stream_new_circ ( const struct circuit *circuit, int p2p_dir );
 extern stream_t *stream_new_conv ( const struct conversation *conv, int p2p_dir );
 
 /* retrieve a previously-created stream.
  *
  * Returns null if no matching stream was found.
  */
-extern stream_t *find_stream_circ ( const struct circuit *circuit, int p2p_dir );
+WS_DLL_PUBLIC stream_t *find_stream_circ ( const struct circuit *circuit, int p2p_dir );
 extern stream_t *find_stream_conv ( const struct conversation *conv, int p2p_dir );
 
 
@@ -85,7 +86,7 @@ extern stream_t *find_stream_conv ( const struct conversation *conv, int p2p_dir
    to this frame, but the idea is that you use the number of the frame being
    disassembled, and the byte-offset within that frame.
 */
-extern stream_pdu_fragment_t *stream_find_frag( stream_t *stream, guint32 framenum, guint32 offset );
+WS_DLL_PUBLIC stream_pdu_fragment_t *stream_find_frag( stream_t *stream, guint32 framenum, guint32 offset );
 
 /* add a new fragment to the fragment tables for the stream. The framenum and
  * offset are keys allowing future access with stream_find_frag(), tvb is the
@@ -100,7 +101,7 @@ extern stream_pdu_fragment_t *stream_find_frag( stream_t *stream, guint32 framen
  * This essentially means that you can only add fragments on the first pass
  * through the stream.
  */
-extern stream_pdu_fragment_t *stream_add_frag( stream_t *stream, guint32 framenum, guint32 offset,
+WS_DLL_PUBLIC stream_pdu_fragment_t *stream_add_frag( stream_t *stream, guint32 framenum, guint32 offset,
 					tvbuff_t *tvb, packet_info *pinfo, gboolean more_frags );
 
 /* Get the length of a fragment previously found by stream_find_frag().
@@ -121,7 +122,7 @@ extern struct _fragment_data *stream_get_frag_data( const stream_pdu_fragment_t 
  * reassembled data, otherwise just put a "reassembled in" item into the
  * protocol tree.
  */
-extern tvbuff_t *stream_process_reassembled(
+WS_DLL_PUBLIC tvbuff_t *stream_process_reassembled(
     tvbuff_t *tvb, int offset, packet_info *pinfo,
     const char *name, const stream_pdu_fragment_t *frag,
     const struct _fragment_items *fit,

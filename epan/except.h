@@ -36,6 +36,7 @@
 #include <setjmp.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "ws_symbol_export.h"
 
 #define XCEPT_GROUP_ANY	0
 #define XCEPT_CODE_ANY	0
@@ -86,26 +87,26 @@ struct except_stacknode {
 /* private functions made external so they can be used in macros */
 extern void except_setup_clean(struct except_stacknode *,
 	struct except_cleanup *, void (*)(void *), void *);
-extern void except_setup_try(struct except_stacknode *,
+WS_DLL_PUBLIC void except_setup_try(struct except_stacknode *,
 	struct except_catch *, const except_id_t [], size_t);
-extern struct except_stacknode *except_pop(void);
+WS_DLL_PUBLIC struct except_stacknode *except_pop(void);
 
 /* public interface functions */
-extern int except_init(void);
-extern void except_deinit(void);
-extern WS_MSVC_NORETURN void except_rethrow(except_t *) G_GNUC_NORETURN;
-extern WS_MSVC_NORETURN void except_throw(long, long, const char *) G_GNUC_NORETURN;
-extern WS_MSVC_NORETURN void except_throwd(long, long, const char *, void *) G_GNUC_NORETURN;
-extern WS_MSVC_NORETURN void except_throwf(long, long, const char *, ...) G_GNUC_NORETURN;
-extern void (*except_unhandled_catcher(void (*)(except_t *)))(except_t *);
+WS_DLL_PUBLIC int except_init(void);
+WS_DLL_PUBLIC void except_deinit(void);
+WS_DLL_PUBLIC WS_MSVC_NORETURN void except_rethrow(except_t *) G_GNUC_NORETURN;
+WS_DLL_PUBLIC WS_MSVC_NORETURN void except_throw(long, long, const char *) G_GNUC_NORETURN;
+WS_DLL_PUBLIC WS_MSVC_NORETURN void except_throwd(long, long, const char *, void *) G_GNUC_NORETURN;
+WS_DLL_PUBLIC WS_MSVC_NORETURN void except_throwf(long, long, const char *, ...) G_GNUC_NORETURN;
+WS_DLL_PUBLIC void (*except_unhandled_catcher(void (*)(except_t *)))(except_t *);
 extern unsigned long except_code(except_t *);
 extern unsigned long except_group(except_t *);
 extern const char *except_message(except_t *);
 extern void *except_data(except_t *);
-extern void *except_take_data(except_t *);
-extern void except_set_allocator(void *(*)(size_t), void (*)(void *));
-extern void *except_alloc(size_t);
-extern void except_free(void *);
+WS_DLL_PUBLIC void *except_take_data(except_t *);
+WS_DLL_PUBLIC void except_set_allocator(void *(*)(size_t), void (*)(void *));
+WS_DLL_PUBLIC void *except_alloc(size_t);
+WS_DLL_PUBLIC void except_free(void *);
 
 #define except_code(E) ((E)->except_id.except_code)
 #define except_group(E) ((E)->except_id.except_group)

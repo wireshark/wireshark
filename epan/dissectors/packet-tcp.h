@@ -24,6 +24,8 @@
 #ifndef __PACKET_TCP_H__
 #define __PACKET_TCP_H__
 
+#include "ws_symbol_export.h"
+
 #ifndef __CONVERSATION_H__
 #include <epan/conversation.h>
 #endif
@@ -101,7 +103,7 @@ struct tcpinfo {
  *
  * "dissect_pdu()" is the routine to dissect a PDU.
  */
-extern void
+WS_DLL_PUBLIC void
 tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 gboolean proto_desegment, guint fixed_len,
 		 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int),

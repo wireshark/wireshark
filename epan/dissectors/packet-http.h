@@ -25,8 +25,11 @@
 #define __PACKET_HTTP_H__
 
 #include <epan/packet.h>
+#include "ws_symbol_export.h"
 
+WS_DLL_PUBLIC
 void http_dissector_add(guint32 port, dissector_handle_t handle);
+WS_DLL_PUBLIC
 void http_port_add(guint32 port);
 
 /* Used for HTTP statistics */

@@ -25,12 +25,14 @@
 #define __BASE64_H__
 
 #include <epan/tvbuff.h>
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /* In-place decoding of a base64 string. Resulting string is NULL terminated */
+WS_DLL_PUBLIC
 size_t epan_base64_decode(char *s);
 
 extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);

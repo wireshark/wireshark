@@ -25,6 +25,8 @@
 #ifndef __TIMESTAMP_H__
 #define __TIMESTAMP_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -76,14 +78,14 @@ typedef enum {
 	TS_SECONDS_NOT_SET
 } ts_seconds_type;
 
-extern ts_type timestamp_get_type(void);
-extern void timestamp_set_type(ts_type);
+WS_DLL_PUBLIC ts_type timestamp_get_type(void);
+WS_DLL_PUBLIC void timestamp_set_type(ts_type);
 
-extern int timestamp_get_precision(void);
-extern void timestamp_set_precision(int tsp);
+WS_DLL_PUBLIC int timestamp_get_precision(void);
+WS_DLL_PUBLIC void timestamp_set_precision(int tsp);
 
-extern ts_seconds_type timestamp_get_seconds_type(void);
-extern void timestamp_set_seconds_type(ts_seconds_type);
+WS_DLL_PUBLIC ts_seconds_type timestamp_get_seconds_type(void);
+WS_DLL_PUBLIC void timestamp_set_seconds_type(ts_seconds_type);
 
 #ifdef __cplusplus
 }

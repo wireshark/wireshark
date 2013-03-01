@@ -9,7 +9,7 @@ ServiceAdministration		x509if
 
 #.EXPORTS
 AccessPoint
-AccessPointInformation
+AccessPointInformation EXTERN WS_DLL
 ContinuationReference
 Exclusions
 MasterAndShadowAccessPoints 

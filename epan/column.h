@@ -25,6 +25,8 @@
 #ifndef __COLUMN_H__
 #define __COLUMN_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -38,26 +40,46 @@ typedef struct _fmt_data {
   gboolean resolved;       /* if TRUE, show a more human-readable name */
 } fmt_data;
 
+WS_DLL_PUBLIC
 const gchar         *col_format_to_string(const gint);
+WS_DLL_PUBLIC
 const gchar         *col_format_desc(const gint);
+WS_DLL_PUBLIC
 gint                 get_column_format(const gint);
+WS_DLL_PUBLIC
 void                 set_column_format(const gint, const gint);
+WS_DLL_PUBLIC
 void                 get_column_format_matches(gboolean *, const gint);
+WS_DLL_PUBLIC
 gint                 get_column_format_from_str(const gchar *);
+WS_DLL_PUBLIC
 gchar               *get_column_title(const gint);
+WS_DLL_PUBLIC
 void                 set_column_title(const gint, const gchar *);
+WS_DLL_PUBLIC
 gboolean             get_column_visible(const gint);
+WS_DLL_PUBLIC
 void                 set_column_visible(const gint, gboolean);
+WS_DLL_PUBLIC
 gboolean             get_column_resolved(const gint);
+WS_DLL_PUBLIC
 void                 set_column_resolved(const gint, gboolean);
+WS_DLL_PUBLIC
 const gchar         *get_column_custom_field(const gint);
+WS_DLL_PUBLIC
 void                 set_column_custom_field(const gint, const char *);
+WS_DLL_PUBLIC
 gint                 get_column_custom_occurrence(const gint);
+WS_DLL_PUBLIC
 void                 set_column_custom_occurrence(const gint, const gint);
+WS_DLL_PUBLIC
 const gchar         *get_column_width_string(const gint, const gint);
+WS_DLL_PUBLIC
 const char          *get_column_longest_string(const gint);
+WS_DLL_PUBLIC
 gint                 get_column_char_width(const gint format);
 
+WS_DLL_PUBLIC
 void
 build_column_format_array(column_info *cinfo, const gint num_cols, const gboolean reset_fences);
 

@@ -30,6 +30,7 @@
 #ifndef __PACKET_WSP_H__
 #define __PACKET_WSP_H__
 
+#include "ws_symbol_export.h"
 
 /* These reason codes are used in the WTP dissector as the WTP user is
  * assumed to be WSP */
@@ -40,8 +41,8 @@ extern value_string_ext vals_wsp_reason_codes_ext;
  * without having to duplicate it. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT value_string_ext wsp_vals_pdu_type_ext;
-WS_VAR_IMPORT value_string_ext wsp_vals_status_ext;
+WS_DLL_PUBLIC value_string_ext wsp_vals_pdu_type_ext;
+WS_DLL_PUBLIC value_string_ext wsp_vals_status_ext;
 /*
  * exported functionality
  */

@@ -22,6 +22,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 -include Custom.make
+
 SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	asn1 \
 	docsis \

@@ -27,6 +27,7 @@
 #define __PACKET_FC_H_
 
 #include "packet-scsi.h"
+#include "ws_symbol_export.h"
 
 /* R_CTL upper bits creates a classification tree */
 #define FC_RCTL_DEV_DATA       0x00
@@ -62,7 +63,7 @@
  * without having to duplicate it. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT const value_string fc_fc4_val[];
+WS_DLL_PUBLIC const value_string fc_fc4_val[];
 
 /* DF_CTL bits */
 #define FC_DFCTL_DH         0x03   /* Device_Header type bits: */

@@ -31,8 +31,7 @@
 extern "C" {
 #endif
 
-WS_DLL_PUBLIC
-extern void ws_add_crash_info(const char *fmt, ...)
+WS_DLL_PUBLIC void ws_add_crash_info(const char *fmt, ...)
     G_GNUC_PRINTF(1,2);
 
 #ifdef __cplusplus

@@ -24,6 +24,8 @@
 #ifndef __PACKET_XML_H__
 #define __PACKET_XML_H__
 
+#include "ws_symbol_export.h"
+
 typedef struct _xml_ns_t {
     /* the name of this namespace */
 	gchar* name;
@@ -78,8 +80,11 @@ typedef struct _xml_frame_t {
 	int start_offset;
 } xml_frame_t;
 
+WS_DLL_PUBLIC
 xml_frame_t *xml_get_tag(xml_frame_t *frame, const gchar *name);
+WS_DLL_PUBLIC
 xml_frame_t *xml_get_attrib(xml_frame_t *frame, const gchar *name);
+WS_DLL_PUBLIC
 xml_frame_t *xml_get_cdata(xml_frame_t *frame);
 
 #endif /* __PACKET_XML_H__ */

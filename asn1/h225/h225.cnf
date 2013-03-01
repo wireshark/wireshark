@@ -13,7 +13,7 @@
 #.IMPORT ../h245/h245-exp.cnf
 
 #----------------------------------------------------------------------------------------
-#.EXPORTS  ONLY_VALS WS_VAR NO_PROT_PREFIX
+#.EXPORTS  ONLY_VALS WS_DLL NO_PROT_PREFIX
 H323-UU-PDU/h323-message-body
 FacilityReason
 GatekeeperRejectReason
@@ -28,7 +28,7 @@ LocationRejectReason
 RegistrationRejectReason
 
 #.MODULE_EXPORTS
-RasMessage  WS_VAR
+RasMessage  EXTERN WS_DLL
 NonStandardParameter
 PublicTypeOfNumber
 PrivateTypeOfNumber
@@ -59,7 +59,7 @@ EndpointType
 SupportedProtocols
 GatekeeperIdentifier
 ServiceControlSession
-ReleaseCompleteReason  WS_VAR
+ReleaseCompleteReason  EXTERN WS_DLL
 ExtendedAliasAddress_PDU
 #.END
 

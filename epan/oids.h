@@ -29,6 +29,8 @@
 
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
+#include "ws_symbol_export.h"
+
 /**
  *@file
  */
@@ -106,11 +108,11 @@ typedef struct _oid_info_t {
 } oid_info_t;
 
 /** init funcion called from epan.h */
-extern void oids_init(void);
+WS_DLL_PUBLIC void oids_init(void);
 extern void oid_pref_init(module_t *nameres);
 
 /** init funcion called from epan.h */
-extern void oids_cleanup(void);
+WS_DLL_PUBLIC void oids_cleanup(void);
 
 /*
  * The objects returned by all these functions are all allocated with a
@@ -129,39 +131,43 @@ extern void oids_cleanup(void);
  */
 
 /* return length of encoded buffer */
+WS_DLL_PUBLIC
 guint oid_subid2encoded(guint len, guint32* subids, guint8** encoded_p);
+WS_DLL_PUBLIC
 guint oid_string2encoded(const gchar *oid_str, guint8** encoded_p);
 
 /* return length of subid array */
+WS_DLL_PUBLIC
 guint oid_encoded2subid(const guint8 *oid, gint len, guint32** subids_p);
+WS_DLL_PUBLIC
 guint oid_string2subid(const gchar *oid_str, guint32** subids_p);
 
-extern const gchar* oid_encoded2string(const guint8* encoded, guint len);
-extern const gchar* oid_subid2string(guint32 *subids, guint len);
+WS_DLL_PUBLIC const gchar* oid_encoded2string(const guint8* encoded, guint len);
+WS_DLL_PUBLIC const gchar* oid_subid2string(guint32 *subids, guint len);
 
 /* these return a formated string as human readable as posible */
-extern const gchar *oid_resolved(guint len, guint32 *subids);
-extern const gchar *oid_resolved_from_encoded(const guint8 *oid, gint len);
-extern const gchar *oid_resolved_from_string(const gchar *oid_str);
+WS_DLL_PUBLIC const gchar *oid_resolved(guint len, guint32 *subids);
+WS_DLL_PUBLIC const gchar *oid_resolved_from_encoded(const guint8 *oid, gint len);
+WS_DLL_PUBLIC const gchar *oid_resolved_from_string(const gchar *oid_str);
 
 /* these yield two formated strings one resolved and one numeric */
-extern void oid_both(guint oid_len, guint32 *subids, char** resolved_p, char** numeric_p);
-extern void oid_both_from_encoded(const guint8 *oid, gint oid_len, char** resolved_p, char** numeric_p);
-extern void oid_both_from_string(const gchar *oid_str, char** resolved_p, char** numeric_p);
+WS_DLL_PUBLIC void oid_both(guint oid_len, guint32 *subids, char** resolved_p, char** numeric_p);
+WS_DLL_PUBLIC void oid_both_from_encoded(const guint8 *oid, gint oid_len, char** resolved_p, char** numeric_p);
+WS_DLL_PUBLIC void oid_both_from_string(const gchar *oid_str, char** resolved_p, char** numeric_p);
 
 /*
  * These return the info for the best match.
  *  *matched_p will be set to the number of nodes used by the returned oid
  *  *left_p will be set to the number of remaining unresolved subids
  */
-extern oid_info_t* oid_get(guint oid_len, guint32 *subids, guint* matched_p, guint* left_p);
-extern oid_info_t* oid_get_from_encoded(const guint8 *oid, gint oid_len, guint32 **subids, guint* matched, guint* left);
-extern oid_info_t* oid_get_from_string(const gchar *oid_str, guint32 **subids, guint* matched, guint* left);
+WS_DLL_PUBLIC oid_info_t* oid_get(guint oid_len, guint32 *subids, guint* matched_p, guint* left_p);
+WS_DLL_PUBLIC oid_info_t* oid_get_from_encoded(const guint8 *oid, gint oid_len, guint32 **subids, guint* matched, guint* left);
+WS_DLL_PUBLIC oid_info_t* oid_get_from_string(const gchar *oid_str, guint32 **subids, guint* matched, guint* left);
 
 /* these are used to add oids to the collection */
-extern void oid_add(const char* name, guint oid_len, guint32 *subids);
-extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_len);
-extern void oid_add_from_string(const char* name, const gchar *oid_str);
+WS_DLL_PUBLIC void oid_add(const char* name, guint oid_len, guint32 *subids);
+WS_DLL_PUBLIC void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_len);
+WS_DLL_PUBLIC void oid_add_from_string(const char* name, const gchar *oid_str);
 
 /**
  * Fetch the default MIB/PIB path
@@ -169,7 +175,7 @@ extern void oid_add_from_string(const char* name, const gchar *oid_str);
  * @return A string containing the default MIB/PIB path.  It must be
  * g_free()d by the caller.
  */
-extern gchar *oid_get_default_mib_path(void);
+WS_DLL_PUBLIC gchar *oid_get_default_mib_path(void);
 
 /* macros for legacy oid functions */
 #define oid_resolv_cleanup() ((void)0)

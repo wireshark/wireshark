@@ -24,6 +24,9 @@
 #ifndef _DFILTER_MACRO_H
 #define _DFILTER_MACRO_H
 
+#include "ws_symbol_export.h"
+
+
 #define DFILTER_MACRO_FILENAME "dfilter_macros"
 
 
@@ -39,6 +42,7 @@ typedef struct _dfilter_macro_t {
 
 /* loop over the macros list */
 typedef void (*dfilter_macro_cb_t)(dfilter_macro_t*, void*);
+WS_DLL_PUBLIC
 void dfilter_macro_foreach(dfilter_macro_cb_t, void*);
 
 /* save dfilter macros to a file */
@@ -52,8 +56,10 @@ const gchar* dfilter_macro_apply(const gchar* text, const gchar** error);
 
 void dfilter_macro_init(void);
 
+WS_DLL_PUBLIC
 void dfilter_macro_get_uat(void**);
 
+WS_DLL_PUBLIC
 void dfilter_macro_build_ftv_cache(void* tree_root);
 
 #endif /* _DFILTER_MACRO_H */

@@ -46,12 +46,12 @@ ext_value_string_t;
  * without having to duplicate it. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT const ext_value_string_t *ansi_a_bsmap_strings;
-WS_VAR_IMPORT const ext_value_string_t *ansi_a_dtap_strings;
-WS_VAR_IMPORT const ext_value_string_t ansi_a_ios501_bsmap_strings[];
-WS_VAR_IMPORT const ext_value_string_t ansi_a_ios501_dtap_strings[];
-WS_VAR_IMPORT const ext_value_string_t ansi_a_ios401_bsmap_strings[];
-WS_VAR_IMPORT const ext_value_string_t ansi_a_ios401_dtap_strings[];
+WS_DLL_PUBLIC const ext_value_string_t *ansi_a_bsmap_strings;
+WS_DLL_PUBLIC const ext_value_string_t *ansi_a_dtap_strings;
+WS_DLL_PUBLIC const ext_value_string_t ansi_a_ios501_bsmap_strings[];
+WS_DLL_PUBLIC const ext_value_string_t ansi_a_ios501_dtap_strings[];
+WS_DLL_PUBLIC const ext_value_string_t ansi_a_ios401_bsmap_strings[];
+WS_DLL_PUBLIC const ext_value_string_t ansi_a_ios401_dtap_strings[];
 
 #define	A_VARIANT_IS634		4
 #define	A_VARIANT_TSB80		5
@@ -61,13 +61,13 @@ WS_VAR_IMPORT const ext_value_string_t ansi_a_ios401_dtap_strings[];
 #define	A_VARIANT_IOS401	9
 #define	A_VARIANT_IOS501	10
 
-WS_VAR_IMPORT gint a_global_variant;
+WS_DLL_PUBLIC gint a_global_variant;
 
 /*
  * allows ANSI MAP to use this for IS-880 enhancements
  * based on the 'ansi_a_ios401_elem_1_strings/ansi_a_ios501_elem_1_strings'
  */
-WS_VAR_IMPORT const ext_value_string_t *ansi_a_elem_1_strings;
+WS_DLL_PUBLIC const ext_value_string_t *ansi_a_elem_1_strings;
 
 /*
  * maximum number of strings that are allowed

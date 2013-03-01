@@ -29,21 +29,23 @@
 #ifndef _EX_OPT_H
 #define _EX_OPT_H
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /* will be called by main each time a -X option is found */
-extern gboolean ex_opt_add(const gchar* optarg);
+WS_DLL_PUBLIC gboolean ex_opt_add(const gchar* optarg);
 
 /* yields the number of arguments of a given key obviously returns 0 if there aren't */
-extern gint ex_opt_count(const gchar* key);
+WS_DLL_PUBLIC gint ex_opt_count(const gchar* key);
 
 /* fetches the nth argument of a given key returns NULL if there isn't */
-extern const gchar* ex_opt_get_nth(const gchar* key, guint index);
+WS_DLL_PUBLIC const gchar* ex_opt_get_nth(const gchar* key, guint index);
 
 /* extracts the next value of a given key */
-extern const gchar* ex_opt_get_next(const gchar* key);
+WS_DLL_PUBLIC const gchar* ex_opt_get_next(const gchar* key);
 
 #ifdef __cplusplus
 }

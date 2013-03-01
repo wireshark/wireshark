@@ -33,6 +33,7 @@ extern "C" {
 #include <gmodule.h>
 
 #include "packet.h"
+#include "ws_symbol_export.h"
 
 typedef struct _plugin {
     GModule	*handle;          /* handle returned by g_module_open */
@@ -46,13 +47,13 @@ typedef struct _plugin {
     struct _plugin *next;         /* forward link */
 } plugin;
 
-WS_VAR_IMPORT plugin *plugin_list;
+WS_DLL_PUBLIC plugin *plugin_list;
 
 extern void init_plugins(void);
 extern void register_all_plugin_registrations(void);
 extern void register_all_plugin_handoffs(void);
-extern void register_all_plugin_tap_listeners(void);
-extern void plugins_dump_all(void);
+WS_DLL_PUBLIC void register_all_plugin_tap_listeners(void);
+WS_DLL_PUBLIC void plugins_dump_all(void);
 
 typedef struct _wslua_plugin {
     gchar       *name;            /**< plugin name */
@@ -61,7 +62,7 @@ typedef struct _wslua_plugin {
     struct _wslua_plugin *next;
 } wslua_plugin;
 
-WS_VAR_IMPORT wslua_plugin *wslua_plugin_list;
+WS_DLL_PUBLIC wslua_plugin *wslua_plugin_list;
 
 #ifdef __cplusplus
 }

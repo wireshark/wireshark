@@ -29,6 +29,8 @@
 #ifndef __PACKET_SCSI_SSC_H_
 #define __PACKET_SCSI_SSC_H_
 
+#include "ws_symbol_export.h"
+
 /* SSC Commands */
 #define SCSI_SSC_REWIND                         0x01
 #define SCSI_SSC_FORMAT_MEDIUM                  0x04
@@ -57,6 +59,6 @@
 
 extern int hf_scsi_ssc_opcode;
 extern scsi_cdb_table_t scsi_ssc_table[256];
-WS_VAR_IMPORT const value_string scsi_ssc_vals[];
+WS_DLL_PUBLIC const value_string scsi_ssc_vals[];
 
 #endif

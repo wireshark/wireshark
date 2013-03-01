@@ -13,7 +13,7 @@ CauseRadioNetwork
 ProcedureCode
 ProtocolIE-ID
 
-#.EXPORTS ONLY_VALS WS_VAR
+#.EXPORTS ONLY_VALS WS_DLL
 CauseRadioNetwork
 CauseTransport
 CauseNas

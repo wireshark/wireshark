@@ -67,6 +67,7 @@
 
 #include <epan/tvbuff.h>
 #include <glib.h>
+#include "ws_symbol_export.h"
 
 typedef struct _tvbparse_elem_t tvbparse_elem_t;
 typedef struct _tvbparse_wanted_t tvbparse_wanted_t;
@@ -190,6 +191,7 @@ struct _tvbparse_elem_t {
  * When looked for it returns a simple element one character long if the char
  * at the current offset matches one of the the needles.
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_char(const int id,
 								 const gchar* needles,
 								 const void* private_data,
@@ -202,6 +204,7 @@ tvbparse_wanted_t* tvbparse_char(const int id,
  * When looked for it returns a simple element one character long if the char
  * at the current offset does not match one of the the needles.
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_not_char(const int id,
 									 const gchar* needle,
 									 const void* private_data,
@@ -216,6 +219,7 @@ tvbparse_wanted_t* tvbparse_not_char(const int id,
  * An element will be returned if at least min_len chars are given (1 if it's 0)
  * It will get at most max_len chars or as much as it can if max_len is 0.
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_chars(const int id,
 								  const guint min_len,
 								  const guint max_len,
@@ -233,6 +237,7 @@ tvbparse_wanted_t* tvbparse_chars(const int id,
  * An element will be returned if at least min_len chars are given (1 if it's 0)
  * It will get at most max_len chars or as much as it can if max_len is 0.
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_not_chars(const int id,
 									  const guint min_len,
 									  const guint max_len,
@@ -247,6 +252,7 @@ tvbparse_wanted_t* tvbparse_not_chars(const int id,
  * When looked for it returns a simple element if we have the given string at
  * the current offset
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_string(const int id,
 								   const gchar* string,
 								   const void* private_data,
@@ -259,6 +265,7 @@ tvbparse_wanted_t* tvbparse_string(const int id,
  * When looked for it returns a simple element if we have a matching string at
  * the current offset
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_casestring(const int id,
 									   const gchar* str,
 									   const void* data,
@@ -281,6 +288,7 @@ tvbparse_wanted_t* tvbparse_casestring(const int id,
  * op_mode values determine how the terminating element and the current offset
  * of the parser are handled
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_until(const int id,
 								  const void* private_data,
 								  tvbparse_action_t before_cb,
@@ -297,6 +305,7 @@ tvbparse_wanted_t* tvbparse_until(const int id,
  * The list of candidates is terminated with a NULL
  *
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_set_oneof(const int id,
 									  const void* private_data,
 									  tvbparse_action_t before_cb,
@@ -306,6 +315,7 @@ tvbparse_wanted_t* tvbparse_set_oneof(const int id,
 /*
  * hashed
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_hashed(const int id,
 								   const void* data,
 								   tvbparse_action_t before_cb,
@@ -314,6 +324,7 @@ tvbparse_wanted_t* tvbparse_hashed(const int id,
 								   tvbparse_wanted_t* other,
 								   ...);
 
+WS_DLL_PUBLIC
 void tvbparse_hashed_add(tvbparse_wanted_t* w, ...);
 
 /*
@@ -326,6 +337,7 @@ void tvbparse_hashed_add(tvbparse_wanted_t* w, ...);
  * The list of candidates is terminated with a NULL.
  *
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_set_seq(const int id,
 									const void* private_data,
 									tvbparse_action_t before_cb,
@@ -340,6 +352,7 @@ tvbparse_wanted_t* tvbparse_set_seq(const int id,
  * a composed element is returned.
  *
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_some(const int id,
 								 const guint min,
 								 const guint max,
@@ -358,6 +371,7 @@ tvbparse_wanted_t* tvbparse_some(const int id,
  * this is a pointer to a pointer to a wanted element (that might have not
  * been initialized yet) so that recursive structures
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_handle(tvbparse_wanted_t** handle);
 
 #if 0
@@ -401,6 +415,7 @@ tvbparse_wanted_t* tvbparse_ft_numcmp(int id,
  *
  *  C strings are matched with tvbparse_quoted(-1,NULL,NULL,NULL,"\"","\\")
  */
+WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_quoted(const int id,
 								   const void* data,
 								   tvbparse_action_t before_cb,
@@ -412,6 +427,7 @@ tvbparse_wanted_t* tvbparse_quoted(const int id,
  * a helper callback for quoted strings that will shrink the token to contain
  * only the string andnot the quotes
  */
+WS_DLL_PUBLIC
 void tvbparse_shrink_token_cb(void* tvbparse_data,
 							  const void* wanted_data,
 							  tvbparse_elem_t* tok);
@@ -426,6 +442,7 @@ void tvbparse_shrink_token_cb(void* tvbparse_data,
  * private_data: will be passed to the action callbacks
  * ignore: a wanted token type to be ignored (the associated cb WILL be called when it matches)
  */
+WS_DLL_PUBLIC
 tvbparse_t* tvbparse_init(tvbuff_t* tvb,
 						  const int offset,
 						  int len,
@@ -433,8 +450,10 @@ tvbparse_t* tvbparse_init(tvbuff_t* tvb,
 						  const tvbparse_wanted_t* ignore);
 
 /* reset the parser */
+WS_DLL_PUBLIC
 gboolean tvbparse_reset(tvbparse_t* tt, const int offset, int len);
 
+WS_DLL_PUBLIC
 guint tvbparse_curr_offset(tvbparse_t* tt);
 guint tvbparse_len_left(tvbparse_t* tt);
 
@@ -446,6 +465,7 @@ guint tvbparse_len_left(tvbparse_t* tt);
  * is a match.
  * The parser will be left in its original state and no callbacks will be called.
  */
+WS_DLL_PUBLIC
 gboolean tvbparse_peek(tvbparse_t* tt,
 					   const tvbparse_wanted_t* wanted);
 
@@ -455,6 +475,7 @@ gboolean tvbparse_peek(tvbparse_t* tt,
  * if there is a match it will set the offset of the current parser after
  * the end of the token
  */
+WS_DLL_PUBLIC
 tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 							  const tvbparse_wanted_t* wanted);
 
@@ -463,10 +484,12 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
  * current offset.
  * This function is slow.
  */
+WS_DLL_PUBLIC
 tvbparse_elem_t* tvbparse_find(tvbparse_t* tt,
 							   const tvbparse_wanted_t* wanted);
 
 
+WS_DLL_PUBLIC
 void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr);
 
 #endif

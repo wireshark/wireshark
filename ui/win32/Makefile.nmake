@@ -9,7 +9,7 @@ include ..\..\Makefile.nmake.inc
 ############### no need to modify below this line #########
 
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
-	-D_NEED_VAR_IMPORT_ /Zm800 \
+	/Zm800 \
 	/I../.. /I../../wiretap $(GTK_CFLAGS) $(GNUTLS_CFLAGS) \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP\lbl \

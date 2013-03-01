@@ -27,8 +27,9 @@
 #ifndef __PACKET_BSSGP_H__
 #define __PACKET_BSSGP_H__
 
+#include "ws_symbol_export.h"
 
-WS_VAR_IMPORT value_string_ext bssgp_cause_vals_ext;
+WS_DLL_PUBLIC value_string_ext bssgp_cause_vals_ext;
 
 void bssgp_suspend_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 guint16 de_bssgp_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);

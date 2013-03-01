@@ -386,6 +386,7 @@ gboolean krb_decrypt = FALSE;
 /* keytab filename */
 static const char *keytab_filename = "";
 
+WS_DLL_PUBLIC
 void read_keytab_file(const char *);
 
 void
@@ -416,8 +417,9 @@ read_keytab_file_from_preferences(void)
 
 #elif defined(_WIN32)
 
-/*  Dummy version to allow us to put this function in libwireshark.def--even
- *  on systems without KERBEROS.
+/*
+ * Dummy version to allow us to export this function -- even
+ * on systems without KERBEROS.
  */
 void
 read_keytab_file_from_preferences(void)

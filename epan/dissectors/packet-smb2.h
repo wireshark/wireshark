@@ -28,7 +28,7 @@
 /* SMB2 command codes. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT value_string_ext smb2_cmd_vals_ext;
+WS_DLL_PUBLIC value_string_ext smb2_cmd_vals_ext;
 
 /* Structure to keep track of information specific to a single
  * SMB2 transaction. Here we store things we need to remember between

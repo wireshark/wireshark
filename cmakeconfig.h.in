@@ -372,10 +372,6 @@
    first (like Motorola and SPARC, unlike Intel and VAX). */
 #cmakedefine WORDS_BIGENDIAN 1
 
-/* Define as the string to precede external variable declarations in
-   dynamically-linked libraries */
-#define WS_VAR_IMPORT @WS_VAR_IMPORT@
-
 /* Define WS_MSVC_NORETURN appropriately for declarations of routines that
    never return (just like Charlie on the MTA).
 

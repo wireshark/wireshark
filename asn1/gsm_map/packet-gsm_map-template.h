@@ -26,6 +26,8 @@
 #ifndef PACKET_GSM_MAP_H
 #define PACKET_GSM_MAP_H
 
+#include "ws_symbol_export.h"
+
 /* Defines for the GSM MAP taps */
 #define	GSM_MAP_MAX_NUM_OPR_CODES	256
 
@@ -43,7 +45,7 @@ typedef struct _gsm_map_tap_rec_t {
 #define SMS_ENCODING_7BIT_LANG	4
 #define SMS_ENCODING_UCS2_LANG	5
 
-WS_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
+WS_DLL_PUBLIC const value_string gsm_map_opr_code_strings[];
 const char* unpack_digits(tvbuff_t *tvb, int offset);
 
 extern const value_string ssCode_vals[];

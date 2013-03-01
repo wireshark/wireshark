@@ -26,6 +26,8 @@
 #ifndef __IPPROTO_H__
 #define __IPPROTO_H__
 
+#include "ws_symbol_export.h"
+
 /*
  * IP protocol numbers.
  * http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xml
@@ -194,6 +196,6 @@
 #define IP_PROTO_NCS_HEARTBEAT  224     /* Novell NCS Heartbeat - http://support.novell.com/cgi-bin/search/searchtid.cgi?/10071158.htm */
 
 extern value_string_ext ipproto_val_ext;
-extern const char *ipprotostr(const int proto);
+WS_DLL_PUBLIC const char *ipprotostr(const int proto);
 
 #endif /* ipproto.h */

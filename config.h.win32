@@ -52,7 +52,6 @@
 @HAVE_PCAP_DATALINK_NAME_TO_VAL@
 @HAVE_PCAP_DATALINK_VAL_TO_NAME@
 @HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION@
-@HAVE_LIBWIRESHARKDLL@
 
 @HAVE_PCAP_LIST_DATALINKS@
 @HAVE_PCAP_FREE_DATALINKS@
@@ -75,15 +74,6 @@
 
 @PCAP_NG_DEFAULT@
 @WANT_PACKET_EDITOR@
-
-/* define macro for importing variables from an dll
- * it depends on HAVE_LIBWIRESHARKDLL and _NEED_VAR_IMPORT_
- */
-#if defined (_NEED_VAR_IMPORT_) && defined (HAVE_LIBWIRESHARKDLL)
-#  define WS_VAR_IMPORT __declspec(dllimport) extern
-#else
-#  define WS_VAR_IMPORT extern
-#endif
 
 /*
  * Define WS_MSVC_NORETURN appropriately for declarations of routines that

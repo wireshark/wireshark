@@ -26,6 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "ws_symbol_export.h"
+
 /*
  * Check whether this could be a TPKT-encapsulated PDU.
  * Returns -1 if it's not, and the PDU length from the TPKT header
@@ -37,12 +39,12 @@
  */
 static const int TEXT_LAYER_LENGTH   = 9;
 
-extern int is_tpkt(tvbuff_t *tvb, int min_len);
+WS_DLL_PUBLIC int is_tpkt(tvbuff_t *tvb, int min_len);
 
 /*
  * Dissect TPKT-encapsulated data in a TCP stream.
  */
-extern void dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo,
+WS_DLL_PUBLIC void dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, gboolean desegment,
     dissector_handle_t subdissector_handle);
 

@@ -25,9 +25,10 @@
 #ifndef __PACKET_DCERPC_DCOM_H
 #define __PACKET_DCERPC_DCOM_H
 
+#include "ws_symbol_export.h"
 
-WS_VAR_IMPORT const value_string dcom_hresult_vals[];
-WS_VAR_IMPORT const value_string dcom_variant_type_vals[];
+WS_DLL_PUBLIC const value_string dcom_hresult_vals[];
+WS_DLL_PUBLIC const value_string dcom_variant_type_vals[];
 extern const value_string dcom_protseq_vals[];
 
 extern int hf_dcom_iid;
@@ -39,7 +40,7 @@ extern int hf_dcom_ipid;
 extern GHashTable *dcom_uuids;
 
 /* preferences */
-extern gboolean dcom_prefs_display_unmarshalling_details;
+WS_DLL_PUBLIC gboolean dcom_prefs_display_unmarshalling_details;
 
 
 typedef struct dcom_machine_s {
@@ -79,8 +80,8 @@ typedef struct dcom_marshaler_s {
     dcom_dissect_fn_t routine;
 } dcom_marshaler_t;
 
-extern dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uuid_t *iid, guint64 oxid, guint64 oid, e_uuid_t *ipid);
-extern dcom_interface_t *dcom_interface_find(packet_info *pinfo, const guint8 *ip, e_uuid_t *ipid);
+WS_DLL_PUBLIC dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uuid_t *iid, guint64 oxid, guint64 oid, e_uuid_t *ipid);
+WS_DLL_PUBLIC dcom_interface_t *dcom_interface_find(packet_info *pinfo, const guint8 *ip, e_uuid_t *ipid);
 extern void dcom_interface_dump(void);
 
 extern int dcom_register_rountine(dcom_dissect_fn_t routine, e_uuid_t* uuid);
@@ -89,10 +90,10 @@ extern void dcom_register_common_routines_(void);
 extern dcom_dissect_fn_t dcom_get_rountine_by_uuid(const e_uuid_t* uuid);
 
 /* the essential DCOM this and that, starting every call */
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_this(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_that(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
@@ -125,21 +126,21 @@ dissect_dcom_indexed_WORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
 					 int hfindex, guint16 * pu16WORD, int field_index);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_indexed_DWORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
 					 int hfindex, guint32 * pu32DWORD, int field_index);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 * pu32hresult);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_HRESULT_item(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
 					 guint32 * pu32HResult, int field_index, proto_item **item);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
 					 guint32 * pu32hresult, int field_index);
@@ -153,21 +154,21 @@ typedef void (*sa_callback_t) (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep,
                        guint32 u32VarType, guint32 u32ArraySize);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						proto_tree *tree, guint8 *drep, int hfindex _U_, sa_callback_t sacb);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_LPWSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep, int hfindex,
 					   gchar *psz_buffer, guint32 u32max_buffer);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep, int hfindex,
 					   gchar *pszStr, guint32 u32MaxStr, int field_index);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep, int hfindex,
 					   gchar *psz_buffer, guint32 u32max_buffer);
@@ -184,28 +185,28 @@ extern int
 dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep, int hfindex, dcom_interface_t **interf);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_MInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep, int hfindex, dcom_interface_t **interf);
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_PMInterfacePointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep, int hfindex, dcom_interface_t **interf);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_VARTYPE(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep,
 	guint16 *pu16Vartype);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 					 proto_tree *tree, guint8 *drep, int hfindex);
 
 /* dcom "dcerpc internal" unmarshalling */
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_dcerpc_array_size(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep, guint32 *pu32array_size);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_dcerpc_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep, guint32 *pu32pointer);
 
@@ -221,11 +222,11 @@ dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
 
 /* very simple parameter-profiles dissectors (for very simple requests ;-) */
 /* request: no parameters */
-extern int 
+WS_DLL_PUBLIC int 
 dissect_dcom_simple_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 /* response: only HRESULT */
-extern int 
+WS_DLL_PUBLIC int 
 dissect_dcom_simple_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 

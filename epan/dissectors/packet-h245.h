@@ -33,6 +33,9 @@
 
 #ifndef PACKET_H245_H
 #define PACKET_H245_H
+
+#include "ws_symbol_export.h"
+
 typedef enum _h245_msg_type {
 	H245_TermCapSet,
 	H245_TermCapSetAck,
@@ -124,10 +127,10 @@ struct _h223_mux_element {
 #include <epan/dissectors/packet-per.h>
 
 typedef void (*h223_set_mc_handle_t) ( packet_info* pinfo, guint8 mc, h223_mux_element* me );
-extern void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle );
+WS_DLL_PUBLIC void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle );
 
 typedef void (*h223_add_lc_handle_t) ( packet_info* pinfo, guint16 lc, h223_lc_params* params );
-extern void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
+WS_DLL_PUBLIC void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
 
 
 /*--- Included file: packet-h245-exp.h ---*/
@@ -138,7 +141,7 @@ extern const value_string h245_TransportAddress_vals[];
 extern const value_string h245_UnicastAddress_vals[];
 extern const value_string h245_MulticastAddress_vals[];
 int dissect_h245_Capability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-int dissect_h245_H223Capability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+WS_DLL_PUBLIC int dissect_h245_H223Capability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_h245_QOSCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_h245_DataProtocolCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_h245_T38FaxProfile(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -149,7 +152,7 @@ int dissect_h245_UnicastAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 int dissect_h245_MulticastAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-h245-exp.h ---*/
-#line 125 "../../asn1/h245/packet-h245-template.h"
+#line 128 "../../asn1/h245/packet-h245-template.h"
 void dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
 
 

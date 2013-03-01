@@ -26,6 +26,8 @@
 #ifndef __EAP_H__
 #define __EAP_H__
 
+#include "ws_symbol_export.h"
+
 /* http://www.iana.org/assignments/eap-numbers */
 #define EAP_REQUEST     1
 #define EAP_RESPONSE    2
@@ -34,7 +36,7 @@
 #define EAP_INITIATE    5 /* [RFC5296] */
 #define EAP_FINISH      6 /* [RFC5296] */
 
-WS_VAR_IMPORT const value_string eap_code_vals[];
+WS_DLL_PUBLIC const value_string eap_code_vals[];
 
 #define EAP_TYPE_ID          1
 #define EAP_TYPE_NOTIFY      2
@@ -51,7 +53,7 @@ WS_VAR_IMPORT const value_string eap_code_vals[];
 #define EAP_TYPE_AKA_PRIME  50
 #define EAP_TYPE_EXT       254
 
-WS_VAR_IMPORT value_string_ext eap_type_vals_ext;
+WS_DLL_PUBLIC value_string_ext eap_type_vals_ext;
 
 #define SIM_START 10
 #define SIM_CHALLENGE 11
@@ -59,7 +61,7 @@ WS_VAR_IMPORT value_string_ext eap_type_vals_ext;
 #define SIM_RE_AUTHENTICATION 13
 #define SIM_CLIENT_ERROR 14
 
-WS_VAR_IMPORT const value_string eap_sim_subtype_vals[];
+WS_DLL_PUBLIC const value_string eap_sim_subtype_vals[];
 
 #define AKA_CHALLENGE 1
 #define AKA_AUTHENTICATION_REJECT 2
@@ -69,7 +71,7 @@ WS_VAR_IMPORT const value_string eap_sim_subtype_vals[];
 #define AKA_REAUTHENTICATION 13
 #define AKA_CLIENT_ERROR 14
 
-WS_VAR_IMPORT const value_string eap_aka_subtype_vals[];
+WS_DLL_PUBLIC const value_string eap_aka_subtype_vals[];
 
 #define MS_CHAP_V2_CHALLENGE 1
 #define MS_CHAP_V2_RESPONSE 2
@@ -77,6 +79,6 @@ WS_VAR_IMPORT const value_string eap_aka_subtype_vals[];
 #define MS_CHAP_V2_FAILURE 4
 #define MS_CHAP_V2_CHANGE_PASSWORD 7
 
-WS_VAR_IMPORT const value_string eap_ms_chap_v2_opcode_vals[];
+WS_DLL_PUBLIC const value_string eap_ms_chap_v2_opcode_vals[];
 
 #endif

@@ -28,6 +28,7 @@
 #include <epan/column_info.h>
 #include <epan/tvbuff.h>
 #include <epan/nstime.h>
+#include "ws_symbol_export.h"
 
 #define PINFO_FD_NUM(pinfo)       ((pinfo)->fd->num)
 #define PINFO_FD_VISITED(pinfo)   ((pinfo)->fd->flags.visited)
@@ -89,16 +90,16 @@ typedef struct {
 
 /* Utility routines used by packet*.c */
 
-extern void p_add_proto_data(frame_data *fd, int proto, void *proto_data);
-extern void *p_get_proto_data(frame_data *fd, int proto);
-extern void p_remove_proto_data(frame_data *fd, int proto);
+WS_DLL_PUBLIC void p_add_proto_data(frame_data *fd, int proto, void *proto_data);
+WS_DLL_PUBLIC void *p_get_proto_data(frame_data *fd, int proto);
+void p_remove_proto_data(frame_data *fd, int proto);
 
 /** compare two frame_datas */
-extern gint frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field);
+WS_DLL_PUBLIC gint frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field);
 
-extern void frame_data_cleanup(frame_data *fdata);
+WS_DLL_PUBLIC void frame_data_cleanup(frame_data *fdata);
 
-extern void frame_data_init(frame_data *fdata, guint32 num,
+WS_DLL_PUBLIC void frame_data_init(frame_data *fdata, guint32 num,
                 const struct wtap_pkthdr *phdr, gint64 offset,
                 guint32 cum_bytes);
 
@@ -107,13 +108,13 @@ extern void frame_delta_abs_time(const frame_data *fdata,
 /**
  * Sets the frame data struct values before dissection.
  */
-extern void frame_data_set_before_dissect(frame_data *fdata,
+WS_DLL_PUBLIC void frame_data_set_before_dissect(frame_data *fdata,
                 nstime_t *elapsed_time,
                 nstime_t *first_ts,
                 const frame_data *prev_dis,
                 const frame_data *prev_cap);
 
-extern void frame_data_set_after_dissect(frame_data *fdata,
+WS_DLL_PUBLIC void frame_data_set_after_dissect(frame_data *fdata,
                 guint32 *cum_bytes);
 
 #endif  /* __FRAME_DATA__ */

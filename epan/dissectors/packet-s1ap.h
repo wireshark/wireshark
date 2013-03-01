@@ -36,11 +36,11 @@
 
 /*--- Included file: packet-s1ap-exp.h ---*/
 #line 1 "../../asn1/s1ap/packet-s1ap-exp.h"
-WS_VAR_IMPORT const value_string s1ap_CauseMisc_vals[];
-WS_VAR_IMPORT const value_string s1ap_CauseProtocol_vals[];
-WS_VAR_IMPORT const value_string s1ap_CauseRadioNetwork_vals[];
-WS_VAR_IMPORT const value_string s1ap_CauseTransport_vals[];
-WS_VAR_IMPORT const value_string s1ap_CauseNas_vals[];
+WS_DLL_PUBLIC const value_string s1ap_CauseMisc_vals[];
+WS_DLL_PUBLIC const value_string s1ap_CauseProtocol_vals[];
+WS_DLL_PUBLIC const value_string s1ap_CauseRadioNetwork_vals[];
+WS_DLL_PUBLIC const value_string s1ap_CauseTransport_vals[];
+WS_DLL_PUBLIC const value_string s1ap_CauseNas_vals[];
 extern const value_string s1ap_SONtransferRequestContainer_vals[];
 extern const value_string s1ap_SONtransferResponseContainer_vals[];
 int dissect_s1ap_Global_ENB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

@@ -24,6 +24,8 @@
 #ifndef __PACKET_LLC_H__
 #define __PACKET_LLC_H__
 
+#include "ws_symbol_export.h"
+
 void capture_llc(const guchar *, int, int, packet_counts *);
 
 extern const value_string sap_vals[];
@@ -36,6 +38,7 @@ void dissect_snap(tvbuff_t *, int, packet_info *, proto_tree *,
 /*
  * Add an entry for a new OUI.
  */
+WS_DLL_PUBLIC
 void llc_add_oui(guint32, const char *, const char *, hf_register_info *);
 
 /*

@@ -30,6 +30,8 @@
 #ifndef _UAT_H_
 #define _UAT_H_
 
+#include "ws_symbol_export.h"
+
 /*
  * uat mantains a dynamically allocated table accessible to the user
  * via a file and/or gui tables.
@@ -247,6 +249,7 @@ typedef struct _uat_field_t {
  *
  * @return A freshly-allocated and populated uat_t struct.
  */
+WS_DLL_PUBLIC
 uat_t* uat_new(const char* name,
 			   size_t size,
 			   const char* filename,
@@ -268,6 +271,7 @@ uat_t* uat_new(const char* name,
  *
  * @return TRUE on success, FALSE on failure.
  */
+WS_DLL_PUBLIC
 gboolean uat_load(uat_t* uat_in, const char** err);
 
 /** Create or update a single uat entry using a string.
@@ -298,23 +302,31 @@ uat_t *uat_find(gchar *name);
  */
 void* uat_dup(uat_t*, guint* len_p); /* to be freed */
 void* uat_se_dup(uat_t*, guint* len_p);
+WS_DLL_PUBLIC
 uat_t* uat_get_table_by_name(const char* name);
 
 /*
  * Some common uat_fld_chk_cbs
  */
+WS_DLL_PUBLIC
 gboolean uat_fld_chk_str(void*, const char*, unsigned, const void*, const void*, const char** err);
 gboolean uat_fld_chk_oid(void*, const char*, unsigned, const void*, const void*, const char** err);
+WS_DLL_PUBLIC
 gboolean uat_fld_chk_proto(void*, const char*, unsigned, const void*, const void*, const char** err);
+WS_DLL_PUBLIC
 gboolean uat_fld_chk_num_dec(void*, const char*, unsigned, const void*, const void*, const char** err);
+WS_DLL_PUBLIC
 gboolean uat_fld_chk_num_hex(void*, const char*, unsigned, const void*, const void*, const char** err);
+WS_DLL_PUBLIC
 gboolean uat_fld_chk_enum(void*, const char*, unsigned, const void*, const void*, const char**);
+WS_DLL_PUBLIC
 gboolean uat_fld_chk_range(void*, const char*, unsigned, const void*, const void*, const char**);
 
 #define CHK_STR_IS_DECL(what) \
 gboolean uat_fld_chk_str_ ## what (void*, const char*, unsigned, const void*, const void*, const char**)
 
 typedef void (*uat_cb_t)(void* uat,void* user_data);
+WS_DLL_PUBLIC
 void uat_foreach_table(uat_cb_t cb,void* user_data);
 void uat_unload_all(void);
 
@@ -324,10 +336,15 @@ char* uat_unesc(const char* si, guint in_len, guint* len_p);
 char* uat_esc(const char* buf, guint len);
 
 /* Some strings entirely made of ... already declared */
+WS_DLL_PUBLIC
 CHK_STR_IS_DECL(isprint);
+WS_DLL_PUBLIC
 CHK_STR_IS_DECL(isalpha);
+WS_DLL_PUBLIC
 CHK_STR_IS_DECL(isalnum);
+WS_DLL_PUBLIC
 CHK_STR_IS_DECL(isdigit);
+WS_DLL_PUBLIC
 CHK_STR_IS_DECL(isxdigit);
 
 #define CHK_STR_IS_DEF(what) \

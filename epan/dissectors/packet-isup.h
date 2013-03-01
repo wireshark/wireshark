@@ -27,6 +27,8 @@
 #ifndef PACKET_ISUP_H
 #define PACKET_ISUP_H
 
+#include "ws_symbol_export.h"
+
 #define ISUP_MAX_NUM_MESSAGE_TYPES  256
 
 typedef struct _isup_tap_rec_t {
@@ -43,8 +45,8 @@ typedef struct _isup_tap_rec_t {
  * without having to duplicate it. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT value_string_ext isup_message_type_value_acro_ext;
-WS_VAR_IMPORT value_string_ext q850_cause_code_vals_ext;
+WS_DLL_PUBLIC value_string_ext isup_message_type_value_acro_ext;
+WS_DLL_PUBLIC value_string_ext q850_cause_code_vals_ext;
 /*
  * Export some definitions and value_string tables for other dissectors
  */
@@ -165,16 +167,21 @@ extern value_string_ext isup_transmission_medium_requirement_value_ext;
 extern value_string_ext bearer_network_connection_characteristics_vals_ext;
 extern value_string_ext x213_afi_value_ext;
 
-WS_VAR_IMPORT value_string_ext isup_calling_partys_category_value_ext;
+WS_DLL_PUBLIC value_string_ext isup_calling_partys_category_value_ext;
 /*
  * Export dissection of some parameters
  */
 void dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter_tree);
+WS_DLL_PUBLIC
 void dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
+WS_DLL_PUBLIC
 void dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
 void dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
+WS_DLL_PUBLIC
 void dissect_isup_redirection_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
+WS_DLL_PUBLIC
 void dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
+WS_DLL_PUBLIC
 void dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
 
 void dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);

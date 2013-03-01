@@ -24,12 +24,15 @@
 #ifndef __PACKET_FDDI_H__
 #define __PACKET_FDDI_H__
 
+#include "ws_symbol_export.h"
+
 typedef struct _fddi_hdr {
 	guint8  fc;
 	address dst;
 	address src;
 } fddi_hdr;
 
+WS_DLL_PUBLIC
 void capture_fddi(const guchar *, int, packet_counts *);
 
 #endif

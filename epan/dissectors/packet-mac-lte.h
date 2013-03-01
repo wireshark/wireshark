@@ -48,6 +48,8 @@
  * SUCH DAMAGE
  */
 
+#include "ws_symbol_export.h"
+
 /* radioType */
 #define FDD_RADIO 1
 #define TDD_RADIO 2
@@ -266,7 +268,9 @@ void set_mac_lte_channel_mapping(guint16 ueid, guint8 lcid,
 
 /* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
    isn't available) to get/set per-packet data */
+WS_DLL_PUBLIC
 mac_lte_info *get_mac_lte_proto_data(packet_info *pinfo);
+WS_DLL_PUBLIC
 void set_mac_lte_proto_data(packet_info *pinfo, mac_lte_info *p_mac_lte_info);
 
 /* Function to attempt to populate p_mac_lte_info using framing definition above */

@@ -36,6 +36,7 @@
 
 #include <epan/address.h>
 #include <epan/tvbuff.h>
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,7 +58,7 @@ typedef struct _e_addr_resolve {
 /*
  * Flag controlling what names to resolve.
  */
-WS_VAR_IMPORT e_addr_resolve gbl_resolv_flags;
+WS_DLL_PUBLIC e_addr_resolve gbl_resolv_flags;
 
 /* global variables */
 
@@ -72,13 +73,13 @@ extern gchar *g_pipxnets_path;
  * get_udp_port() returns the port name corresponding to that UDP port,
  * or the port number as a string if not found.
  */
-extern gchar *get_udp_port(guint port);
+WS_DLL_PUBLIC gchar *get_udp_port(guint port);
 
 /*
  * get_tcp_port() returns the port name corresponding to that TCP port,
  * or the port number as a string if not found.
  */
-extern gchar *get_tcp_port(guint port);
+WS_DLL_PUBLIC gchar *get_tcp_port(guint port);
 
 /*
  * get_dccp_port() returns the port name corresponding to that DCCP port,
@@ -90,7 +91,7 @@ extern gchar *get_dccp_port(guint port);
  * get_sctp_port() returns the port name corresponding to that SCTP port,
  * or the port number as a string if not found.
  */
-extern gchar *get_sctp_port(guint port);
+WS_DLL_PUBLIC gchar *get_sctp_port(guint port);
 
 /* get_addr_name takes as input an "address", as defined in address.h */
 /* it returns a string that contains: */
@@ -101,6 +102,7 @@ extern gchar *get_sctp_port(guint port);
 /*    which should be a string representation for the answer -e.g. "10.10.10.10" for IPv4 */
 /*    address 10.10.10.10 */
 
+WS_DLL_PUBLIC
 const gchar *get_addr_name(const address *addr);
 const gchar *se_get_addr_name(const address *addr);
 
@@ -130,25 +132,25 @@ extern void host_name_lookup_init(void);
  * @return True if any new objects have been resolved since the previous
  * call. This can be used to trigger a display update, e.g. in Wireshark.
  */
-extern gboolean host_name_lookup_process(void);
+WS_DLL_PUBLIC gboolean host_name_lookup_process(void);
 
 /* host_name_lookup_cleanup cleans up an ADNS socket if we're using ADNS */
 extern void host_name_lookup_cleanup(void);
 
 /* get_hostname returns the host name or "%d.%d.%d.%d" if not found */
-extern const gchar *get_hostname(const guint addr);
+WS_DLL_PUBLIC const gchar *get_hostname(const guint addr);
 
 /* get_hostname6 returns the host name, or numeric addr if not found */
 struct e_in6_addr;
-extern const gchar* get_hostname6(const struct e_in6_addr *ad);
+WS_DLL_PUBLIC const gchar* get_hostname6(const struct e_in6_addr *ad);
 
 /* get_ether_name returns the logical name if found in ethers files else
    "<vendor>_%02x:%02x:%02x" if the vendor code is known else
    "%02x:%02x:%02x:%02x:%02x:%02x" */
-extern gchar *get_ether_name(const guint8 *addr);
+WS_DLL_PUBLIC gchar *get_ether_name(const guint8 *addr);
 
 /* get_ether_name returns the logical name if found in ethers files else NULL */
-extern gchar *get_ether_name_if_known(const guint8 *addr);
+gchar *get_ether_name_if_known(const guint8 *addr);
 
 /*
  * Given a sequence of 3 octets containing an OID, get_manuf_name()
@@ -160,7 +162,7 @@ extern const gchar *get_manuf_name(const guint8 *addr);
  * Given a sequence of 3 octets containing an OID, get_manuf_name_if_known()
  * returns the vendor name, or NULL if not known.
  */
-extern const gchar *get_manuf_name_if_known(const guint8 *addr);
+WS_DLL_PUBLIC const gchar *get_manuf_name_if_known(const guint8 *addr);
 
 /*
  * Given an integer containing a 24-bit OID, uint_get_manuf_name()
@@ -179,14 +181,14 @@ extern const gchar *uint_get_manuf_name_if_known(const guint oid);
  * tvb_get_manuf_name() returns the vendor name, or "%02x:%02x:%02x"
  * if not known.
  */
-extern const gchar *tvb_get_manuf_name(tvbuff_t *tvb, gint offset);
+WS_DLL_PUBLIC const gchar *tvb_get_manuf_name(tvbuff_t *tvb, gint offset);
 
 /*
  * Given a tvbuff and an offset in that tvbuff for a 3-octet OID,
  * tvb_get_manuf_name_if_known() returns the vendor name, or NULL
  * if not known.
  */
-extern const gchar *tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset);
+WS_DLL_PUBLIC const gchar *tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset);
 
 /* get_eui64_name returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known
    "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x" */
@@ -209,10 +211,10 @@ extern guint8 *get_ether_addr(const gchar *name);
 guint32 get_ipxnet_addr(const gchar *name, gboolean *known);
 
 /* adds a hostname/IPv4 in the hash table */
-extern void add_ipv4_name(const guint addr, const gchar *name);
+WS_DLL_PUBLIC void add_ipv4_name(const guint addr, const gchar *name);
 
 /* adds a hostname/IPv6 in the hash table */
-extern void add_ipv6_name(const struct e_in6_addr *addr, const gchar *name);
+WS_DLL_PUBLIC void add_ipv6_name(const struct e_in6_addr *addr, const gchar *name);
 
 /** Add an additional "hosts" file for IPv4 and IPv6 name resolution.
  *
@@ -223,10 +225,10 @@ extern void add_ipv6_name(const struct e_in6_addr *addr, const gchar *name);
  *
  * @return TRUE if the hosts file can be read.
  */
-extern gboolean add_hosts_file (const char *hosts_file);
+WS_DLL_PUBLIC gboolean add_hosts_file (const char *hosts_file);
 
 /* adds a hostname in the hash table */
-extern gboolean add_ip_name_from_string (const char *addr, const char *name);
+WS_DLL_PUBLIC gboolean add_ip_name_from_string (const char *addr, const char *name);
 
 /** Get a list of host name to address mappings we know about.
  *
@@ -254,7 +256,7 @@ extern gboolean add_ip_name_from_string (const char *addr, const char *name);
  *
  * @return The first element in our list of known addresses. May be NULL.
  */
-extern struct addrinfo *get_addrinfo_list(void);
+WS_DLL_PUBLIC struct addrinfo *get_addrinfo_list(void);
 
 /* add ethernet address / name corresponding to IP address  */
 extern void add_ether_byip(const guint ip, const guint8 *eth);
@@ -270,6 +272,7 @@ extern void add_ether_byip(const guint ip, const guint8 *eth);
  * @param[out] addrp The numeric IPv4 address in network byte order.
  * @return TRUE on success, FALSE on failure, timeout.
  */
+WS_DLL_PUBLIC
 gboolean get_host_ipaddr(const char *host, guint32 *addrp);
 
 /** Translates a string representing a hostname or colon-hex IPv6 address
@@ -283,6 +286,7 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp);
  * @param[out] addrp The numeric IPv6 address in network byte order.
  * @return TRUE on success, FALSE on failure or timeout.
  */
+WS_DLL_PUBLIC
 gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp);
 
 /*
@@ -290,6 +294,7 @@ gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp);
  * Return "ip6" if it is IPv6, "ip" otherwise (including the case
  * that we don't know)
  */
+WS_DLL_PUBLIC
 const char* host_ip_af(const char *host);
 
 #ifdef __cplusplus

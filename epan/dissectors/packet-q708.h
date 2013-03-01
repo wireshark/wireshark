@@ -26,6 +26,9 @@
 #ifndef __PACKET_Q708_H__
 #define __PACKET_Q708_H__
 
+#include "ws_symbol_export.h"
+
+WS_DLL_PUBLIC
 void analyze_q708_ispc(tvbuff_t *tvb, proto_tree *tree, int offset, int length, guint16 ispc);
 
 #endif /* __PACKET_Q708_H__ */

@@ -25,6 +25,8 @@
 #ifndef __CONVERSATION_H__
 #define __CONVERSATION_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -102,7 +104,7 @@ extern void conversation_init(void);
  * and/or port 2 value are not given and any value is acceptable
  * when searching for this conversation.
  */
-extern conversation_t *conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2,
+WS_DLL_PUBLIC conversation_t *conversation_new(const guint32 setup_frame, const address *addr1, const address *addr2,
     const port_type ptype, const guint32 port1, const guint32 port2, const guint options);
 
 /**
@@ -141,7 +143,7 @@ extern conversation_t *conversation_new(const guint32 setup_frame, const address
  *
  *	otherwise, we found no matching conversation, and return NULL.
  */
-extern conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
+WS_DLL_PUBLIC conversation_t *find_conversation(const guint32 frame_num, const address *addr_a, const address *addr_b,
     const port_type ptype, const guint32 port_a, const guint32 port_b, const guint options);
 
 /**  A helper function that calls find_conversation() and, if a conversation is
@@ -150,14 +152,14 @@ extern conversation_t *find_conversation(const guint32 frame_num, const address 
  *  No options are used, though we could extend this API to include an options
  *  parameter.
  */
-extern conversation_t *find_or_create_conversation(packet_info *pinfo);
+WS_DLL_PUBLIC conversation_t *find_or_create_conversation(packet_info *pinfo);
 
-extern void conversation_add_proto_data(conversation_t *conv, const int proto,
+WS_DLL_PUBLIC void conversation_add_proto_data(conversation_t *conv, const int proto,
     void *proto_data);
-extern void *conversation_get_proto_data(const conversation_t *conv, const int proto);
-extern void conversation_delete_proto_data(conversation_t *conv, const int proto);
+WS_DLL_PUBLIC void *conversation_get_proto_data(const conversation_t *conv, const int proto);
+WS_DLL_PUBLIC void conversation_delete_proto_data(conversation_t *conv, const int proto);
 
-extern void conversation_set_dissector(conversation_t *conversation,
+WS_DLL_PUBLIC void conversation_set_dissector(conversation_t *conversation,
     const dissector_handle_t handle);
 /**
  * Given two address/port pairs for a packet, search for a matching

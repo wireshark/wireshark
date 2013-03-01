@@ -27,31 +27,31 @@
 #ifndef __PACKET_DCERPC_DCOM_DISPATCH_H
 #define __PACKET_DCERPC_DCOM_DISPATCH_H
 
-extern int
+WS_DLL_PUBLIC int
 dissect_IDispatch_GetTypeInfoCount_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_IDispatch_GetTypeInfo_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_IDispatch_GetTypeInfo_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_IDispatch_GetIDsOfNames_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_IDispatch_GetIDsOfNames_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_IDispatch_Invoke_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 

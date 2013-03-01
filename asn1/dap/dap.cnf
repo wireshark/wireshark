@@ -110,7 +110,7 @@ Abandoned
 SearchControlOptions 
 SecurityError
 SecurityProblem
-SecurityParameters
+SecurityParameters EXTERN WS_DLL
 ServiceControlOptions
 AbandonFailedError
 UpdateError

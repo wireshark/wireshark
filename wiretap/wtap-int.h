@@ -113,14 +113,12 @@ struct wtap_dumper {
     GArray                  *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
 };
 
-WS_DLL_LOCAL
 gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
     size_t bufsize, int *err);
 extern gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err);
 extern gint64 wtap_dump_file_tell(wtap_dumper *wdh);
 
 
-WS_DLL_LOCAL
 extern gint wtap_num_file_types;
 
 /* Macros to byte-swap 64-bit, 32-bit and 16-bit quantities. */
@@ -366,7 +364,6 @@ extern gint wtap_num_file_types;
 #endif
 
 /*** get GSList of all compressed file extensions ***/
-WS_DLL_LOCAL
 GSList *wtap_get_compressed_file_extensions(void);
 
 #endif /* __WTAP_INT_H__ */

@@ -32,6 +32,7 @@
 #define _UAT_INT_H_
 
 #include "uat.h"
+#include "ws_symbol_export.h"
 
 typedef struct _uat_fld_rep_t uat_fld_rep_t;
 typedef struct _uat_rep_t uat_rep_t;
@@ -75,16 +76,21 @@ void uat_init(void);
 
 void uat_reset(void);
 
+WS_DLL_PUBLIC
 void* uat_add_record(uat_t*, const void* orig_rec_ptr);
 
+WS_DLL_PUBLIC
 void uat_swap(uat_t*, guint idx_a, guint idx_b);
 
+WS_DLL_PUBLIC
 void uat_remove_record_idx(uat_t*, guint rec_idx);
 
 void uat_destroy(uat_t*);
 
+WS_DLL_PUBLIC
 void uat_clear(uat_t*);
 
+WS_DLL_PUBLIC
 gboolean uat_save(uat_t* , char** );
 
 void uat_load_all(void);

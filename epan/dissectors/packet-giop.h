@@ -28,6 +28,8 @@
 #ifndef PACKET_GIOP_H
 #define PACKET_GIOP_H
 
+#include "ws_symbol_export.h"
+
 /*
  * Useful visible data/structs
  */
@@ -119,7 +121,7 @@ extern gboolean dissect_giop(tvbuff_t *, packet_info *, proto_tree *); /* new in
  * This is for heuristic dissection
  */
 
-extern void register_giop_user(giop_sub_dissector_t *sub, const gchar *name,
+WS_DLL_PUBLIC void register_giop_user(giop_sub_dissector_t *sub, const gchar *name,
     int sub_proto);
 
 /*
@@ -135,7 +137,7 @@ extern void delete_giop_user(giop_sub_dissector_t *sub, gchar *name);
  * This is for explicit dissection.
  */
 
-extern void register_giop_user_module(giop_sub_dissector_t *sub, const gchar *name,
+WS_DLL_PUBLIC void register_giop_user_module(giop_sub_dissector_t *sub, const gchar *name,
     const gchar *module, int sub_proto);
 
 /*
@@ -170,7 +172,7 @@ extern void delete_giop_user_module(giop_sub_dissector_t *sub, gchar *name,
  * Data is added to tree directly if present.
  */
 
-extern void get_CDR_any(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item,
+WS_DLL_PUBLIC void get_CDR_any(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item,
                         gint *offset, gboolean stream_is_big_endian, 
                         int boundary, MessageHeader * header);
 
@@ -182,7 +184,7 @@ extern void get_CDR_any(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
  * has been processed.
  */
 
-extern gboolean get_CDR_boolean(tvbuff_t *tvb, int *offset);
+WS_DLL_PUBLIC gboolean get_CDR_boolean(tvbuff_t *tvb, int *offset);
 
 
 /* Copy a 1 octet sequence from the tvbuff
@@ -192,7 +194,7 @@ extern gboolean get_CDR_boolean(tvbuff_t *tvb, int *offset);
  * has been processed.
  */
 
-extern guint8 get_CDR_char(tvbuff_t *tvb, int *offset);
+WS_DLL_PUBLIC guint8 get_CDR_char(tvbuff_t *tvb, int *offset);
 
 
 
@@ -208,7 +210,7 @@ extern guint8 get_CDR_char(tvbuff_t *tvb, int *offset);
  * have been processed.
  */
 
-extern gdouble get_CDR_double(tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC gdouble get_CDR_double(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
@@ -223,7 +225,7 @@ extern gdouble get_CDR_double(tvbuff_t *tvb, int *offset,
  * Enum values are encoded as unsigned long.
  */
 
-extern guint32 get_CDR_enum(tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC guint32 get_CDR_enum(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
@@ -258,7 +260,7 @@ extern guint32 get_CDR_enum(tvbuff_t *tvb, int *offset,
  *
  */
 
-extern void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, 
+WS_DLL_PUBLIC void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, 
                           gchar **seq, gint *offset, guint32 digits, gint32 scale);
 
 
@@ -274,7 +276,7 @@ extern void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_item *item,
  * have been processed.
  */
 
-extern gfloat get_CDR_float(tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC gfloat get_CDR_float(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
@@ -282,7 +284,7 @@ extern gfloat get_CDR_float(tvbuff_t *tvb, int *offset,
  * Decode an Interface type, and display it on the tree.
  */
 
-extern void get_CDR_interface(tvbuff_t *tvb, packet_info *pinfo,
+WS_DLL_PUBLIC void get_CDR_interface(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, int *offset, gboolean stream_is_big_endian, int boundary);
 
 
@@ -295,7 +297,7 @@ extern void get_CDR_interface(tvbuff_t *tvb, packet_info *pinfo,
  * have been processed.
  */
 
-extern gint32 get_CDR_long(tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC gint32 get_CDR_long(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
@@ -311,13 +313,13 @@ extern gint32 get_CDR_long(tvbuff_t *tvb, int *offset,
 
 #ifdef G_HAVE_GLONG_DOUBLE
 
-extern glong_double get_CDR_long_double(tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC glong_double get_CDR_long_double(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 #else
 
 /* FIX -- Cast long double to gdouble until I figure this out -- FS*/
 
-extern gdouble get_CDR_long_double(tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC gdouble get_CDR_long_double(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 #endif
@@ -332,14 +334,14 @@ extern gdouble get_CDR_long_double(tvbuff_t *tvb, int *offset,
  * have been processed.
  */
 
-extern gint64 get_CDR_long_long(tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC gint64 get_CDR_long_long(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 /*
  * Decode an Object type, and display it on the tree.
  */
 
-extern void get_CDR_object(tvbuff_t *tvb, packet_info *pinfo,
+WS_DLL_PUBLIC void get_CDR_object(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, int *offset, gboolean stream_is_big_endian, int boundary);
 
 
@@ -350,7 +352,7 @@ extern void get_CDR_object(tvbuff_t *tvb, packet_info *pinfo,
  * has been processed.
  */
 
-extern guint8 get_CDR_octet(tvbuff_t *tvb, int *offset);
+WS_DLL_PUBLIC guint8 get_CDR_octet(tvbuff_t *tvb, int *offset);
 
 
 /* Copy a sequence of octets from the tvbuff.
@@ -359,7 +361,7 @@ extern guint8 get_CDR_octet(tvbuff_t *tvb, int *offset);
  * This function also increments offset by len.
  */
 
-extern void get_CDR_octet_seq(tvbuff_t *tvb, const gchar **seq, int *offset, guint32 len);
+WS_DLL_PUBLIC void get_CDR_octet_seq(tvbuff_t *tvb, const gchar **seq, int *offset, guint32 len);
 
 /* Copy a 2 octet sequence from the tvbuff
  * which represents a signed short value, and convert
@@ -370,7 +372,7 @@ extern void get_CDR_octet_seq(tvbuff_t *tvb, const gchar **seq, int *offset, gui
  * have been processed.
  */
 
-extern gint16 get_CDR_short(tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC gint16 get_CDR_short(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
@@ -396,7 +398,7 @@ extern void giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *offset,
  *
  */
 
-extern guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offset,
+WS_DLL_PUBLIC guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
@@ -411,7 +413,7 @@ extern guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offset,
  * It returns a guint32 representing a TCKind value.
  */
 
-extern guint32 get_CDR_typeCode(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gint *offset,
+WS_DLL_PUBLIC guint32 get_CDR_typeCode(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gint *offset,
     gboolean stream_is_big_endian, int boundary, MessageHeader * header );
 
 /* Copy a 4 octet sequence from the tvbuff
@@ -423,7 +425,7 @@ extern guint32 get_CDR_typeCode(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
  * have been processed.
  */
 
-extern guint32 get_CDR_ulong(tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC guint32 get_CDR_ulong(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
@@ -436,7 +438,7 @@ extern guint32 get_CDR_ulong(tvbuff_t *tvb, int *offset,
  * have been processed.
  */
 
-extern guint64 get_CDR_ulong_long(tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC guint64 get_CDR_ulong_long(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 /* Copy a 2 octet sequence from the tvbuff
@@ -448,7 +450,7 @@ extern guint64 get_CDR_ulong_long(tvbuff_t *tvb, int *offset,
  * have been processed.
  */
 
-extern guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset,
+WS_DLL_PUBLIC guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
@@ -482,7 +484,7 @@ extern guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset,
  * Wchar is not supported for GIOP 1.0.
  */
 
-extern gint get_CDR_wchar(tvbuff_t *tvb, const gchar **seq, int *offset,
+WS_DLL_PUBLIC gint get_CDR_wchar(tvbuff_t *tvb, const gchar **seq, int *offset,
     MessageHeader * header);
 
 
@@ -505,7 +507,7 @@ extern gint get_CDR_wchar(tvbuff_t *tvb, const gchar **seq, int *offset,
  * Wstring is not supported for GIOP 1.0.
  */
 
-extern guint32 get_CDR_wstring(tvbuff_t *tvb, const gchar **seq, int *offset,
+WS_DLL_PUBLIC guint32 get_CDR_wstring(tvbuff_t *tvb, const gchar **seq, int *offset,
     gboolean stream_is_big_endian, int boundary, MessageHeader * header);
 
 
@@ -520,7 +522,7 @@ extern guint32 get_CDR_wstring(tvbuff_t *tvb, const gchar **seq, int *offset,
 
 /* Determine the byte order from the GIOP MessageHeader */
 
-extern gboolean is_big_endian (MessageHeader * header);
+WS_DLL_PUBLIC gboolean is_big_endian (MessageHeader * header);
 
 /*
  * get_encap_info() for any encapsulation  (eg:sequences)
@@ -528,7 +530,7 @@ extern gboolean is_big_endian (MessageHeader * header);
  * and *offset, and returns the sequence length.
  */
 
-extern guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
+WS_DLL_PUBLIC guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
 			   gboolean old_stream_is_big_endian, guint32 old_boundary,
 			   gboolean *new_stream_is_big_endian_ptr, guint32 *new_boundary_ptr );
 
@@ -540,7 +542,7 @@ extern guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
  * the initial sequence.
  */
 
-extern gchar * make_printable_string (const gchar *in, guint32 len);
+WS_DLL_PUBLIC gchar * make_printable_string (const gchar *in, guint32 len);
 
 /*
  * Enums for TCkind

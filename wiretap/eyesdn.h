@@ -28,7 +28,6 @@
 #include <wtap.h>
 #include "ws_symbol_export.h"
 
-WS_DLL_LOCAL
 int eyesdn_open(wtap *wth, int *err, gchar **err_info);
 
 enum EyeSDN_TYPES {
@@ -43,9 +42,7 @@ enum EyeSDN_TYPES {
     EYESDN_ENCAP_V5_EF
 };
 
-WS_DLL_LOCAL
 gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err);
-WS_DLL_LOCAL
 int eyesdn_dump_can_write_encap(int encap);
 
 #endif

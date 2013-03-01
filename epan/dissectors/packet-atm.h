@@ -24,6 +24,9 @@
 #ifndef __PACKET_ATM_H__
 #define __PACKET_ATM_H__
 
+#include "ws_symbol_export.h"
+
+WS_DLL_PUBLIC
 void capture_atm(const union wtap_pseudo_header *, const guchar *, int,
     packet_counts *);
 

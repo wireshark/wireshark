@@ -31,21 +31,17 @@
 #include <wtap.h>
 #include "ws_symbol_export.h"
 
-WS_DLL_LOCAL
 extern int pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
     guint packet_size, gboolean check_packet_size, struct wtap_pkthdr *phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 
-WS_DLL_LOCAL
 extern void pcap_read_post_process(int file_type, int wtap_encap,
     union wtap_pseudo_header *pseudo_header,
     guint8 *pd, guint packet_size, gboolean bytes_swapped, int fcs_len);
 
-WS_DLL_LOCAL
 extern int pcap_get_phdr_size(int encap,
     const union wtap_pseudo_header *pseudo_header);
 
-WS_DLL_LOCAL
 extern gboolean pcap_write_phdr(wtap_dumper *wdh, int wtap_encap,
     const union wtap_pseudo_header *pseudo_header, int *err);
 

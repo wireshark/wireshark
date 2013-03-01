@@ -24,6 +24,9 @@
 #ifndef __PACKET_FR_H__
 #define __PACKET_FR_H__
 
+#include "ws_symbol_export.h"
+
+WS_DLL_PUBLIC
 void capture_fr(const guchar *, int, int, packet_counts *);
 
 #endif

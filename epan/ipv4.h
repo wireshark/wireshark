@@ -30,6 +30,8 @@
 #define __IPV4_H__
 
 #include <glib.h>
+#include "ws_symbol_export.h"
+
 
 typedef struct {
 	guint32	addr;	/* stored in host order */
@@ -46,6 +48,7 @@ void ipv4_addr_set_host_order_addr(ipv4_addr *ipv4, const guint32 new_addr);
 void ipv4_addr_set_net_order_addr(ipv4_addr *ipv4, const guint32 new_addr);
 void ipv4_addr_set_netmask_bits(ipv4_addr *ipv4, const guint new_nmask_bits);
 
+WS_DLL_PUBLIC
 guint32 ipv4_get_net_order_addr(ipv4_addr *ipv4);
 guint32 ipv4_get_host_order_addr(ipv4_addr *ipv4);
 

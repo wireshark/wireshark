@@ -19,7 +19,7 @@ GENERATED_CFLAGS=\
 	$(LUA_CFLAGS) $(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
 	$(PYTHON_CFLAGS) $(SMI_CFLAGS) $(GEOIP_CFLAGS)
 
-CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS) -DWS_BUILD_DLL
 
 !IFDEF LUA_DIR
 WSLUA_LIB=wslua\wslua.lib
@@ -86,12 +86,12 @@ all: crypt ftypes dfilter wmem $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors libwiresh
 libwireshark.lib: libwireshark.dll
 libwireshark.exp: libwireshark.dll
 
-libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def crypt ftypes dfilter wmem $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
                  crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem/wmem.lib dissectors\dissectors.lib $(WSLUA_LIB) $(WSPYTHON_LIB) ..\image\libwireshark.res
 	@echo Linking libwireshark.dll
 	$(link) $(dlllflags) $(conlibsdll) shell32.lib \
 		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
-		/DEF:libwireshark.def /OUT:libwireshark.dll \
+		/OUT:libwireshark.dll \
 		/IMPLIB:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
 		$(libwireshark_LIBS) ..\image\libwireshark.res \
 		dissectors\register.obj \

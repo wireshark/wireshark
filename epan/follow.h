@@ -28,12 +28,13 @@
 #define __FOLLOW_H__
 
 #include <epan/packet.h>
+#include "ws_symbol_export.h"
 
 #define MAX_IPADDR_LEN	16
 
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
-WS_VAR_IMPORT gboolean empty_tcp_stream;
-WS_VAR_IMPORT gboolean incomplete_tcp_stream;
+WS_DLL_PUBLIC gboolean empty_tcp_stream;
+WS_DLL_PUBLIC gboolean incomplete_tcp_stream;
 
 typedef struct _tcp_stream_chunk {
   guint8      src_addr[MAX_IPADDR_LEN];
@@ -41,11 +42,15 @@ typedef struct _tcp_stream_chunk {
   guint32     dlen;
 } tcp_stream_chunk;
 
+WS_DLL_PUBLIC
 char* build_follow_filter( packet_info * );
+WS_DLL_PUBLIC
 gboolean follow_tcp_addr( const address *, guint, const address *, guint );
+WS_DLL_PUBLIC
 gboolean follow_tcp_index( guint32 );
 void reassemble_tcp( guint32, guint32, guint32, guint32, const char*, guint32,
                      int, address *, address *, guint, guint );
+WS_DLL_PUBLIC
 void  reset_tcp_reassembly( void );
 
 typedef struct {
@@ -55,6 +60,7 @@ typedef struct {
 	gboolean        is_ipv6;
 } follow_stats_t;
 
+WS_DLL_PUBLIC
 void follow_stats(follow_stats_t* stats);
 
 #endif

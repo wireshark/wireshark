@@ -27,12 +27,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "ws_symbol_export.h"
+
+WS_DLL_PUBLIC
 void capture_ieee80211 (const guchar *, int, int, packet_counts *);
 void capture_ieee80211_datapad (const guchar *, int, int, packet_counts *);
 void capture_ieee80211_fixed (const guchar *, int, int, packet_counts *);
 void capture_ieee80211_ht (const guchar *, int, int, packet_counts *);
 
+WS_DLL_PUBLIC
 void capture_prism(const guchar *, int, int, packet_counts *);
+WS_DLL_PUBLIC
 void capture_wlancap(const guchar *, int, int, packet_counts *);
 
 void ieee_80211_add_tagged_parameters (tvbuff_t * tvb, int offset,

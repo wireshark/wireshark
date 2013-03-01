@@ -41,11 +41,9 @@
 #define inet_ntop ws_inet_ntop
 #endif
 
-WS_DLL_PUBLIC
-extern int inet_pton(int af, const char *src, void *dst);
+WS_DLL_PUBLIC int inet_pton(int af, const char *src, void *dst);
 #ifndef HAVE_INET_NTOP_PROTO
-WS_DLL_PUBLIC
-extern const char *inet_ntop(int af, const void *src, char *dst,
+WS_DLL_PUBLIC const char *inet_ntop(int af, const void *src, char *dst,
     size_t size);
 #endif
 

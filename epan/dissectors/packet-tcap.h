@@ -34,6 +34,9 @@
 
 #ifndef PACKET_tcap_H
 #define PACKET_tcap_H
+
+#include "ws_symbol_export.h"
+
 /* TCAP component type */
 #define TCAP_COMP_INVOKE	0xa1
 #define TCAP_COMP_RRL		0xa2
@@ -85,10 +88,10 @@ extern dissector_handle_t get_itu_tcap_subdissector(guint32 ssn);
 dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn);
 
 extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
-extern void add_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
+WS_DLL_PUBLIC void add_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
 
 extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
-extern void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
+WS_DLL_PUBLIC void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
 
 extern void call_tcap_dissector(dissector_handle_t, tvbuff_t*, packet_info*, proto_tree*);
 
@@ -101,6 +104,6 @@ int dissect_tcap_UniDialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 int dissect_tcap_DialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-tcap-exp.h ---*/
-#line 88 "../../asn1/tcap/packet-tcap-template.h"
+#line 91 "../../asn1/tcap/packet-tcap-template.h"
 
 #endif  /* PACKET_tcap_H */

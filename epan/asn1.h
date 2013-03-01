@@ -26,6 +26,8 @@
 #ifndef __ASN1_H__
 #define __ASN1_H__
 
+#include "ws_symbol_export.h"
+
 typedef enum {
   ASN1_ENC_BER,  /* X.690 - BER, CER, DER */
   ASN1_ENC_PER,  /* X.691 - PER */
@@ -173,7 +175,7 @@ typedef struct _rose_ctx_t {
   void *private_data;
 } rose_ctx_t;
 
-extern void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
+WS_DLL_PUBLIC void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
 extern gboolean asn1_ctx_check_signature(asn1_ctx_t *actx);
 extern void asn1_ctx_clean_external(asn1_ctx_t *actx);
 extern void asn1_ctx_clean_epdv(asn1_ctx_t *actx);
@@ -187,12 +189,12 @@ extern void asn1_param_push_integer(asn1_ctx_t *actx, gint32 value);
 extern gboolean asn1_param_get_boolean(asn1_ctx_t *actx, const gchar *name);
 extern gint32 asn1_param_get_integer(asn1_ctx_t *actx, const gchar *name);
 
-extern void rose_ctx_init(rose_ctx_t *rctx);
+WS_DLL_PUBLIC void rose_ctx_init(rose_ctx_t *rctx);
 extern gboolean rose_ctx_check_signature(rose_ctx_t *rctx);
-extern void rose_ctx_clean_data(rose_ctx_t *rctx);
+WS_DLL_PUBLIC void rose_ctx_clean_data(rose_ctx_t *rctx);
 
-extern asn1_ctx_t *get_asn1_ctx(void *ptr);
-extern rose_ctx_t *get_rose_ctx(void *ptr);
+WS_DLL_PUBLIC asn1_ctx_t *get_asn1_ctx(void *ptr);
+WS_DLL_PUBLIC rose_ctx_t *get_rose_ctx(void *ptr);
 
 extern double asn1_get_real(const guint8 *real_ptr, gint real_len);
 

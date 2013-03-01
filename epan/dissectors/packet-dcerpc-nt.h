@@ -26,6 +26,8 @@
 #ifndef __PACKET_DCERPC_NT_H
 #define __PACKET_DCERPC_NT_H
 
+#include "ws_symbol_export.h"
+
 /*
  * Platform ID values, used by several dissectors.
  */

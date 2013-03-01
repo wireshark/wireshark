@@ -504,7 +504,7 @@ class Ctx:
 EF_TYPE    = 0x0001
 EF_VALS    = 0x0002
 EF_ENUM    = 0x0004
-EF_WS_VAR  = 0x0010
+EF_WS_DLL  = 0x0010 #  exported from shared library
 EF_EXTERN  = 0x0020
 EF_NO_PROT = 0x0040
 EF_NO_TYPE = 0x0080
@@ -1625,8 +1625,8 @@ class EthCtx:
         fx.write(self.eth_type[t]['val'].eth_type_enum(t, self))
       if (self.eth_type[t]['export'] & EF_VALS) and self.eth_type[t]['val'].eth_has_vals():
         if not self.eth_type[t]['export'] & EF_TABLE:
-          if self.eth_type[t]['export'] & EF_WS_VAR:
-            fx.write("WS_VAR_IMPORT ")
+          if self.eth_type[t]['export'] & EF_WS_DLL:
+            fx.write("WS_DLL_PUBLIC ")
           else:
             fx.write("extern ")
           fx.write("const value_string %s[];\n" % (self.eth_vals_nm(t)))
@@ -1635,7 +1635,10 @@ class EthCtx:
     for t in self.eth_export_ord:  # functions
       if (self.eth_type[t]['export'] & EF_TYPE):
         if self.eth_type[t]['export'] & EF_EXTERN:
-          fx.write("extern ")
+          if self.eth_type[t]['export'] & EF_WS_DLL:
+            fx.write("WS_DLL_PUBLIC ")
+          else:
+            fx.write("extern ")
         fx.write(self.eth_type_fn_h(t))
     for f in self.eth_hfpdu_ord:  # PDUs
       if (self.eth_hf[f]['pdu'] and self.eth_hf[f]['pdu']['export']):
@@ -2390,7 +2393,7 @@ class EthCnf:
             if (par[i] == 'ONLY_ENUM'):   default_flags &= ~(EF_TYPE|EF_VALS); default_flags |= EF_ENUM
             elif (par[i] == 'WITH_ENUM'): default_flags |= EF_ENUM
             elif (par[i] == 'VALS_WITH_TABLE'):  default_flags |= EF_TABLE
-            elif (par[i] == 'WS_VAR'):    default_flags |= EF_WS_VAR
+            elif (par[i] == 'WS_DLL'):    default_flags |= EF_WS_DLL
             elif (par[i] == 'EXTERN'):    default_flags |= EF_EXTERN
             elif (par[i] == 'NO_PROT_PREFIX'): default_flags |= EF_NO_PROT
             else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
@@ -2526,7 +2529,7 @@ class EthCnf:
           if (par[i] == 'ONLY_ENUM'):        flags &= ~(EF_TYPE|EF_VALS); flags |= EF_ENUM
           elif (par[i] == 'WITH_ENUM'):      flags |= EF_ENUM
           elif (par[i] == 'VALS_WITH_TABLE'):  flags |= EF_TABLE
-          elif (par[i] == 'WS_VAR'):         flags |= EF_WS_VAR
+          elif (par[i] == 'WS_DLL'):         flags |= EF_WS_DLL
           elif (par[i] == 'EXTERN'):         flags |= EF_EXTERN
           elif (par[i] == 'NO_PROT_PREFIX'): flags |= EF_NO_PROT
           else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)

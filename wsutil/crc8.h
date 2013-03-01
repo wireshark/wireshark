@@ -41,8 +41,7 @@ extern "C" {
  * @param seed The seed to use.
  * @return the CRC8 checksum for the buffer
  */
-WS_DLL_PUBLIC
-extern guint8 crc8_0x2F(guint8 *buf, guint32 len, guint8 seed);
+WS_DLL_PUBLIC guint8 crc8_0x2F(guint8 *buf, guint32 len, guint8 seed);
 
 #ifdef __cplusplus
 }

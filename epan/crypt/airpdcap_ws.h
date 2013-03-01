@@ -38,12 +38,13 @@
 #define	_AIRPDCAP_WS_H
 
 #include "airpdcap_system.h"
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-WS_VAR_IMPORT AIRPDCAP_CONTEXT airpdcap_ctx;
+WS_DLL_PUBLIC AIRPDCAP_CONTEXT airpdcap_ctx;
 
 #ifdef __cplusplus
 }

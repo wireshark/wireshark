@@ -25,6 +25,8 @@
 #ifndef __FILTER_EXPRESSIONS_H__
 #define __FILTER_EXPRESSIONS_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -41,8 +43,9 @@ struct filter_expression {
 	struct filter_expression *next;
 };
 
-WS_VAR_IMPORT struct filter_expression **pfilter_expression_head;
+WS_DLL_PUBLIC struct filter_expression **pfilter_expression_head;
 
+WS_DLL_PUBLIC
 struct filter_expression *filter_expression_new(const gchar *label,
     const gchar *expr, const gboolean enabled);
 

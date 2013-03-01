@@ -27,6 +27,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "ws_symbol_export.h"
+
 /* Info to save in RTCP conversation / packet-info.
    Note that this structure applies to the destination end of
    an RTP session */
@@ -56,12 +58,14 @@ struct _rtcp_conversation_info
 
 
 /* Add an RTCP conversation with the given details */
+WS_DLL_PUBLIC
 void rtcp_add_address(packet_info *pinfo,
                       address *addr, int port,
                       int other_port,
                       const gchar *setup_method, guint32 setup_frame_number);
 
 /* Add an SRTP conversation with the given details */
+WS_DLL_PUBLIC
 void srtcp_add_address(packet_info *pinfo,
                       address *addr, int port,
                       int other_port,

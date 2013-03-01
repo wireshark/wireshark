@@ -26,6 +26,8 @@
 #ifndef __GUID_UTILS_H__
 #define __GUID_UTILS_H__
 
+#include "ws_symbol_export.h"
+
 #define GUID_LEN	16
 
 /* Note: this might be larger than GUID_LEN, so don't overlay data in packets
@@ -38,17 +40,17 @@ typedef struct _e_guid_t {
 } e_guid_t;
 
 
-extern void guids_init(void);
+WS_DLL_PUBLIC void guids_init(void);
 
 /* add a GUID */
-extern void guids_add_guid(e_guid_t *guid, const gchar *name);
+WS_DLL_PUBLIC void guids_add_guid(e_guid_t *guid, const gchar *name);
 
 /* try to get registered name for this GUID */
-extern const gchar *guids_get_guid_name(e_guid_t *guid);
+WS_DLL_PUBLIC const gchar *guids_get_guid_name(e_guid_t *guid);
 
 /* resolve GUID to name (or if unknown to hex string) */
 /* (if you need hex string only, use guid_to_str instead) */
-extern const gchar* guids_resolve_guid_to_str(e_guid_t *guid);
+WS_DLL_PUBLIC const gchar* guids_resolve_guid_to_str(e_guid_t *guid);
 
 /* add a UUID (dcerpc_init_uuid() will call this too) */
 #define guids_add_uuid(uuid, name) guids_add_guid((e_guid_t *) (uuid), (name))

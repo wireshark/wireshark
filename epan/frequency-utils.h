@@ -25,6 +25,8 @@
 #ifndef __FREQUENCY_UTILS_H__
 #define __FREQUENCY_UTILS_H__
 
+#include "ws_symbol_export.h"
+
 /** @file
  * Frequency and channel conversion utilities.
  */
@@ -34,6 +36,7 @@
  * @param freq Frequency in MHz.
  * @return The equivalent channel or -1 if no match is found.
  */
+WS_DLL_PUBLIC
 gint
 ieee80211_mhz_to_chan(guint freq);
 
@@ -43,6 +46,7 @@ ieee80211_mhz_to_chan(guint freq);
  * @param is_bg TRUE if the channel is a b/g channel, FALSE otherwise.
  * @return The equivalent frequency or 0 if no match is found.
  */
+WS_DLL_PUBLIC
 guint
 ieee80211_chan_to_mhz(gint chan, gboolean is_bg);
 
@@ -51,6 +55,7 @@ ieee80211_chan_to_mhz(gint chan, gboolean is_bg);
  * @param freq Frequench in MHz.
  * @return A string showing the frequency, channel number, and type.  The string must be freed with g_free() after use.
  */
+WS_DLL_PUBLIC
 gchar*
 ieee80211_mhz_to_str(guint freq);
 

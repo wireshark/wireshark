@@ -24,6 +24,9 @@
 #ifndef __PACKET_I2C_H__
 #define __PACKET_I2C_H__
 
+#include "ws_symbol_export.h"
+
+WS_DLL_PUBLIC
 void capture_i2c(union wtap_pseudo_header *, packet_counts *);
 
 #endif

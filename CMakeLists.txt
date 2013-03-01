@@ -216,7 +216,7 @@ message(STATUS "C-Flags: ${CMAKE_C_FLAGS}\nCXX-Flags: ${CMAKE_CXX_FLAGS}")
 
 check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
 if((FVHIDDEN))
-	set(COMPILE_HIDE_SYMBOLS -fvisibility=hidden)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 else() # TODO add alternate compiler flags for hiding symbols
 	message(WARNING "Hiding shared library symbols is not supported by the compiler."
 		" All shared library symbols will be exported.")
@@ -517,14 +517,8 @@ if(ENABLE_PCAP_NG_DEFAULT)
 endif()
 
 #Platform specific
-if(UNIX)
-	if(CMAKE_COMPILER_IS_GNUCC)
-		# set(WS_VAR_IMPORT "__attribute__((visibility(\"default\")))" )
-		set(WS_VAR_IMPORT "extern")
-	else()
-		set(WS_VAR_IMPORT "extern")
-	endif()
-endif()
+#if(UNIX)
+#endif()
 
 if(APPLE)
 	#
@@ -538,8 +532,6 @@ if(APPLE)
 endif()
 
 if(WIN32)
-	add_definitions(-D_NEED_VAR_IMPORT_)
-	set(WS_VAR_IMPORT "__declspec(dllimport) extern")
 	set(WS_MSVC_NORETURN "__declspec(noreturn)")
 
 	# Disable deprecation

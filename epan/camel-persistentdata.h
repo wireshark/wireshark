@@ -32,6 +32,7 @@
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-camel.h>
 #include <epan/tcap-persistentdata.h>
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,7 +57,7 @@ extern "C" {
 
 #define CAMELSRT_SMS_INITIALDP 9
 
-WS_VAR_IMPORT const value_string  camelSRTtype_naming[];
+WS_DLL_PUBLIC const value_string  camelSRTtype_naming[];
 
 /** If we have a request message and its response,
    (eg: ApplyCharging, ApplyChargingReport)
@@ -134,7 +135,7 @@ void camelsrt_call_matching(tvbuff_t *tvb,
 			    proto_tree *tree,
 			    struct camelsrt_info_t * p_camel_info);
 
-WS_VAR_IMPORT gboolean gcamel_StatSRT;
+WS_DLL_PUBLIC gboolean gcamel_StatSRT;
 
 #ifdef __cplusplus
 }

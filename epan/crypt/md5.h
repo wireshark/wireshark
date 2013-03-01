@@ -25,6 +25,8 @@
 #ifndef __MD5_H__ /**@todo Should this be _CRYPT_MD5_H__ ?*/
 #define __MD5_H__
 
+#include "ws_symbol_export.h"
+
 /**
  * @file md5.h
  * @brief MD5 Functions
@@ -49,6 +51,7 @@ typedef struct md5_state_s
 /** Initialize the algorithm. 
  *  @param pms		MD5 context.
  */
+WS_DLL_PUBLIC
 void md5_init(md5_state_t *pms);
 
 /** Append a string to the message. 
@@ -56,6 +59,7 @@ void md5_init(md5_state_t *pms);
  *  @param data		Data.
  *  @param nbytes	Length of data.
  */
+WS_DLL_PUBLIC
 void md5_append( md5_state_t *pms, 
 			     const guint8 *data, size_t nbytes);
 
@@ -63,6 +67,7 @@ void md5_append( md5_state_t *pms,
  *  @param pms		MD5 context.
  *  @param digest	16 byte digest.
  */
+WS_DLL_PUBLIC
 void md5_finish(md5_state_t *pms, guint8 digest[16]);
 
 typedef struct md5_hmac_state_s
@@ -79,6 +84,7 @@ void md5_hmac_append(md5_hmac_state_t *hctx,
 
 void md5_hmac_finish(md5_hmac_state_t *hctx, guint8 digest[16]);
 
+WS_DLL_PUBLIC
 void md5_hmac(const guint8* text, size_t text_len, const guint8* key,
               size_t key_len, guint8 digest[16]);
 

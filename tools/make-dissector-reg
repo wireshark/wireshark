@@ -42,13 +42,16 @@ then
 #include <gmodule.h>
 
 #include "moduleinfo.h"
+/* plugins are DLLs */
+#define WS_BUILD_DLL
+#include "ws_symbol_export.h"
 
 #ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = VERSION;
+WS_DLL_PUBLIC_NOEXTERN const gchar version[] = VERSION;
 
 /* Start the functions we need for the plugin stuff */
 
-G_MODULE_EXPORT void
+WS_DLL_PUBLIC_NOEXTERN void
 plugin_register (void)
 {
 EOF
@@ -116,7 +119,7 @@ echo '}' >>${outfile}-tmp
 if [ "$registertype" = plugin ]
 then
 	cat <<"EOF" >>${outfile}-tmp
-G_MODULE_EXPORT void
+WS_DLL_PUBLIC_NOEXTERN void
 plugin_reg_handoff(void)
 {
 EOF

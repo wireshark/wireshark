@@ -1115,9 +1115,9 @@ static void register_foo_stat_trees(void) {
         foo_stats_tree_packet, foo_stats_tree_init, NULL);
 }
 
-G_MODULE_EXPORT const gchar version[] = "0.0";
+WS_DLL_PUBLIC_NOEXTERN const gchar version[] = "0.0";
 
-G_MODULE_EXPORT void plugin_register_tap_listener(void)
+WS_DLL_PUBLIC_NOEXTERN void plugin_register_tap_listener(void)
 {
     register_foo_stat_trees();
 }

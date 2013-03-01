@@ -40,14 +40,17 @@
 #define WS_DLL_PUBLIC
     #endif /* __GNUC__ */
   #endif /* WS_BUILD_DLL */
+  #define WS_DLL_PUBLIC_NOEXTERN WS_DLL_PUBLIC
   #define WS_DLL_LOCAL
 #else
   #if __GNUC__ >= 4
-#define WS_DLL_PUBLIC __attribute__ ((visibility ("default")))
+#define WS_DLL_PUBLIC __attribute__ ((visibility ("default"))) extern
+#define WS_DLL_PUBLIC_NOEXTERN __attribute__ ((visibility ("default")))
 #define WS_DLL_LOCAL  __attribute__ ((visibility ("hidden")))
   #else /* ! __GNUC__ >= 4 */
     #define WS_DLL_PUBLIC
-    #define WS_DLL_LOCAL
+    #define WS_DLL_PUBLIC_NOEXTERN
+    #define WS_DLL_LOCAL extern
   #endif /* __GNUC__ >= 4 */
 #endif
 

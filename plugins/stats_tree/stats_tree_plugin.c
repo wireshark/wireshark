@@ -28,13 +28,17 @@
 
 #include <gmodule.h>
 
+/* plugins are DLLs */
+#define WS_BUILD_DLL
+#include "ws_symbol_export.h"
+
 #include <epan/stats_tree.h>
 
 #include "pinfo_stats_tree.h"
 
-G_MODULE_EXPORT const gchar version[] = "0.0.1";
+WS_DLL_PUBLIC_NOEXTERN const gchar version[] = "0.0.1";
 
-G_MODULE_EXPORT void plugin_register_tap_listener(void)
+WS_DLL_PUBLIC_NOEXTERN void plugin_register_tap_listener(void)
 {
 	register_pinfo_stat_trees();
 }

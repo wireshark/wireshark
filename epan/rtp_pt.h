@@ -26,6 +26,7 @@
 #define __RTP_PT_H__
 
 #include <epan/value_string.h>
+#include "ws_symbol_export.h"
 
 /*
  * RTP Payload types
@@ -98,7 +99,7 @@
 #define PT_UNDF_126		126
 #define PT_UNDF_127		127
 
-WS_VAR_IMPORT value_string_ext rtp_payload_type_vals_ext;
-WS_VAR_IMPORT value_string_ext rtp_payload_type_short_vals_ext;
+WS_DLL_PUBLIC value_string_ext rtp_payload_type_vals_ext;
+WS_DLL_PUBLIC value_string_ext rtp_payload_type_short_vals_ext;
 
 #endif

@@ -25,6 +25,8 @@
 #ifndef __SMINMPEC_H__
 #define __SMINMPEC_H__
 
+#include "ws_symbol_export.h"
+
 /*
  * These are SMI Network Management Private Enterprise Codes for
  * organizations; see
@@ -84,6 +86,6 @@
 /* Greater than 32,767 need to be tagged unsigned. */
 #define VENDOR_NTOP                 35632u
 
-WS_VAR_IMPORT value_string_ext sminmpec_values_ext;
+WS_DLL_PUBLIC value_string_ext sminmpec_values_ext;
 
 #endif /* __SMINMPEC_H__ */

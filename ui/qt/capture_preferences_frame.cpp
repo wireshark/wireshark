@@ -32,6 +32,7 @@
 
 #include "capture_ui_utils.h"
 
+#include <cstdio>
 #include <epan/prefs-int.h>
 
 CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :

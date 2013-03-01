@@ -27,6 +27,9 @@
 #ifndef __PACKET_AX25_H__
 #define __PACKET_AX25_H__
 
+#include "ws_symbol_export.h"
+
+WS_DLL_PUBLIC
 void capture_ax25(const guchar *, int, int, packet_counts *);
 
 #endif

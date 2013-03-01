@@ -26,16 +26,19 @@
 #ifndef _PACKET_SMB_SID_SNOOPING_H_
 #define _PACKET_SMB_SID_SNOOPING_H_
 
+#include "ws_symbol_export.h"
+
 /* With MSVC and a libwireshark.dll, we need a 
  * special declaration for sid_name_table.
  */
-WS_VAR_IMPORT GHashTable *sid_name_table;
+WS_DLL_PUBLIC GHashTable *sid_name_table;
 
 typedef struct _sid_name {
 	char *sid;
 	char *name;
 } sid_name;
 
+WS_DLL_PUBLIC
 char *find_sid_name(char *sid);
 
 #endif

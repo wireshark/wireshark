@@ -30,6 +30,7 @@
 #include "column_info.h"
 #include "packet_info.h"
 #include <epan/epan.h>
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,14 +45,14 @@ extern "C" {
  *
  * Internal, don't use this in dissectors!
  */
-extern void	col_setup(column_info *cinfo, const gint num_cols);
+WS_DLL_PUBLIC void	col_setup(column_info *cinfo, const gint num_cols);
 
 /** Cleanup all the data structures for constructing column data;
  * undoes the alocations that col_setup() does.
  *
  * Internal, don't use this in dissectors!
  */
-extern void	col_cleanup(column_info *cinfo);
+WS_DLL_PUBLIC void	col_cleanup(column_info *cinfo);
 
 /** Initialize the data structures for constructing column data.
  *
@@ -63,13 +64,13 @@ extern void	col_init(column_info *cinfo);
  *
  * Internal, don't use this in dissectors!
  */
-extern void col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const gint col, gboolean const fill_col_exprs);
+WS_DLL_PUBLIC void col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const gint col, gboolean const fill_col_exprs);
 
 /** Fill in all columns of the given packet.
  *
  * Internal, don't use this in dissectors!
  */
-extern void	col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
+WS_DLL_PUBLIC void	col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
 
 /** Fill in columns if we got an error reading the packet.
  * We set most columns to "???", and set the Info column to an error
@@ -77,7 +78,7 @@ extern void	col_fill_in(packet_info *pinfo, const gboolean fill_col_exprs, const
  *
  * Internal, don't use this in dissectors!
  */
-extern void	col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
+WS_DLL_PUBLIC void	col_fill_in_error(column_info *cinfo, frame_data *fdata, const gboolean fill_col_exprs, const gboolean fill_fd_colums);
 
 /* Utility routines used by packet*.c */
 
@@ -86,14 +87,14 @@ extern void	col_fill_in_error(column_info *cinfo, frame_data *fdata, const gbool
  * @param cinfo the current packet row
  * @return TRUE if it's writable, FALSE if not
  */
-extern gboolean	col_get_writable(column_info *cinfo);
+WS_DLL_PUBLIC gboolean	col_get_writable(column_info *cinfo);
 
 /** Set the columns writable.
  *
  * @param cinfo the current packet row
  * @param writable TRUE if it's writable, FALSE if not
  */
-extern void	col_set_writable(column_info *cinfo, const gboolean writable);
+WS_DLL_PUBLIC void	col_set_writable(column_info *cinfo, const gboolean writable);
 
 /** 
  * Checks if the given column can be filled with data.
@@ -104,7 +105,7 @@ extern void	col_set_writable(column_info *cinfo, const gboolean writable);
  * @deprecated Not needed in new code the check is done in 
  * in the column function calls.
  */
-extern gint	check_col(column_info *cinfo, const gint col);
+WS_DLL_PUBLIC gint	check_col(column_info *cinfo, const gint col);
 
 /** Sets a fence for the current column content,
  * so this content won't be affected by further col_... function calls.
@@ -115,7 +116,7 @@ extern gint	check_col(column_info *cinfo, const gint col);
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
  */
-extern void	col_set_fence(column_info *cinfo, const gint col);
+WS_DLL_PUBLIC void	col_set_fence(column_info *cinfo, const gint col);
 
 /** Gets the text of a column element.
  *
@@ -131,7 +132,7 @@ extern const gchar *col_get_text(column_info *cinfo, const gint col);
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
  */
-extern void	col_clear(column_info *cinfo, const gint col);
+WS_DLL_PUBLIC void	col_clear(column_info *cinfo, const gint col);
 
 /** Set (replace) the text of a column element, the text won't be copied.
  *
@@ -141,7 +142,7 @@ extern void	col_clear(column_info *cinfo, const gint col);
  * @param col the column to use, e.g. COL_INFO
  * @param str the string to set
  */
-extern void	col_set_str(column_info *cinfo, const gint col, const gchar * str);
+WS_DLL_PUBLIC void	col_set_str(column_info *cinfo, const gint col, const gchar * str);
 
 /** Add (replace) the text of a column element, the text will be copied.
  *
@@ -149,7 +150,7 @@ extern void	col_set_str(column_info *cinfo, const gint col, const gchar * str);
  * @param col the column to use, e.g. COL_INFO
  * @param str the string to add
  */
-extern void	col_add_str(column_info *cinfo, const gint col, const gchar *str);
+WS_DLL_PUBLIC void	col_add_str(column_info *cinfo, const gint col, const gchar *str);
 
 /** Add (replace) the text of a column element, the text will be formatted and copied.
  *
@@ -160,20 +161,24 @@ extern void	col_add_str(column_info *cinfo, const gint col, const gchar *str);
  * @param format the format string
  * @param ... the variable number of parameters
  */
-extern void	col_add_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
+WS_DLL_PUBLIC void	col_add_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
     G_GNUC_PRINTF(3, 4);
 
 /** For internal Wireshark use only.  Not to be called from dissectors. */
 void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo);
 
 /** For internal Wireshark use only.  Not to be called from dissectors. */
+WS_DLL_PUBLIC
 void col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo);
 
 /** For internal Wireshark use only.  Not to be called from dissectors. */
+WS_DLL_PUBLIC
 gboolean have_custom_cols(column_info *cinfo);
 /** For internal Wireshark use only.  Not to be called from dissectors. */
+WS_DLL_PUBLIC
 gboolean col_has_time_fmt(column_info *cinfo, const gint col);
 /** For internal Wireshark use only.  Not to be called from dissectors. */
+WS_DLL_PUBLIC
 gboolean col_based_on_frame_data(column_info *cinfo, const gint col);
 
 /** Append the given text to a column element, the text will be copied.
@@ -182,7 +187,7 @@ gboolean col_based_on_frame_data(column_info *cinfo, const gint col);
  * @param col the column to use, e.g. COL_INFO
  * @param str the string to append
  */
-extern void	col_append_str(column_info *cinfo, const gint col, const gchar *str);
+WS_DLL_PUBLIC void	col_append_str(column_info *cinfo, const gint col, const gchar *str);
 
 /** Append the given text to a column element, the text will be formatted and copied.
  *
@@ -193,7 +198,7 @@ extern void	col_append_str(column_info *cinfo, const gint col, const gchar *str)
  * @param format the format string
  * @param ... the variable number of parameters
  */
-extern void	col_append_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
+WS_DLL_PUBLIC void	col_append_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
     G_GNUC_PRINTF(3, 4);
 
 /** Prepend the given text to a column element, the text will be formatted and copied.
@@ -203,7 +208,7 @@ extern void	col_append_fstr(column_info *cinfo, const gint col, const gchar *for
  * @param format the format string
  * @param ... the variable number of parameters
  */
-extern void	col_prepend_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
+WS_DLL_PUBLIC void	col_prepend_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
     G_GNUC_PRINTF(3, 4);
 
 /**Prepend the given text to a column element, the text will be formatted and copied.
@@ -214,7 +219,7 @@ extern void	col_prepend_fstr(column_info *cinfo, const gint col, const gchar *fo
  * there is already a fence created. This function will create a fence in case
  * it does not yet exist.
  */
-extern void	col_prepend_fence_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
+WS_DLL_PUBLIC void	col_prepend_fence_fstr(column_info *cinfo, const gint col, const gchar *format, ...)
     G_GNUC_PRINTF(3, 4);
 
 /** Append the given text (prepended by a separator) to a column element.
@@ -226,7 +231,7 @@ extern void	col_prepend_fence_fstr(column_info *cinfo, const gint col, const gch
  * @param sep the separator string or NULL for default: ", "
  * @param str the string to append
  */
-extern void	col_append_sep_str(column_info *cinfo, const gint col, const gchar *sep,
+WS_DLL_PUBLIC void	col_append_sep_str(column_info *cinfo, const gint col, const gchar *sep,
 		const gchar *str);
 
 /** Append the given text (prepended by a separator) to a column element.
@@ -239,7 +244,7 @@ extern void	col_append_sep_str(column_info *cinfo, const gint col, const gchar *
  * @param format the format string
  * @param ... the variable number of parameters
  */
-extern void	col_append_sep_fstr(column_info *cinfo, const gint col, const gchar *sep,
+WS_DLL_PUBLIC void	col_append_sep_fstr(column_info *cinfo, const gint col, const gchar *sep,
 		const gchar *format, ...)
     G_GNUC_PRINTF(4, 5);
 
@@ -254,10 +259,10 @@ extern void	col_append_sep_fstr(column_info *cinfo, const gint col, const gchar 
  * @param fieldname	the fieldname to use for creating a filter (when
  *			  applying/preparing/copying as filter)
  */
-extern void 	col_set_time(column_info *cinfo, const int col,
+WS_DLL_PUBLIC void 	col_set_time(column_info *cinfo, const int col,
 			const nstime_t *ts, const char *fieldname);
 
-extern void set_fd_time(frame_data *fd, gchar *buf);
+WS_DLL_PUBLIC void set_fd_time(frame_data *fd, gchar *buf);
 
 #ifdef __cplusplus
 }

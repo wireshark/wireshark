@@ -26,6 +26,8 @@
 #ifndef __IP_OPTS_H__
 #define __IP_OPTS_H__
 
+#include "ws_symbol_export.h"
+
 /** @file
  */
 
@@ -65,7 +67,7 @@ extern void dissect_ip_tcp_options(tvbuff_t *, int, guint,
 #define QS_RATE_REQUEST     0
 #define QS_RATE_REPORT      8
 
-WS_VAR_IMPORT const value_string qs_func_vals[];
-WS_VAR_IMPORT value_string_ext qs_rate_vals_ext;
+WS_DLL_PUBLIC const value_string qs_func_vals[];
+WS_DLL_PUBLIC value_string_ext qs_rate_vals_ext;
 
 #endif

@@ -44,6 +44,7 @@
 #include <epan/dissectors/packet-isup.h>
 
 #include <epan/sctpppids.h>
+#include "ws_symbol_export.h"
 
 typedef struct _gcp_hf_ett_t {
     struct {
@@ -186,8 +187,8 @@ typedef struct _gcp_ctx_t {
     gcp_terms_t terms;
 } gcp_ctx_t;
 
-WS_VAR_IMPORT const value_string gcp_cmd_type[];
-WS_VAR_IMPORT const value_string gcp_term_types[];
+WS_DLL_PUBLIC const value_string gcp_cmd_type[];
+WS_DLL_PUBLIC const value_string gcp_term_types[];
 
 extern void gcp_init(void);
 extern gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean persistent);

@@ -25,11 +25,8 @@
 #include <glib.h>
 #include <wtap.h>
 
-WS_DLL_LOCAL
 int network_instruments_open(wtap *wth, int *err, gchar **err_info);
-WS_DLL_LOCAL
 int network_instruments_dump_can_write_encap(int encap);
-WS_DLL_LOCAL
 gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err);
 
 /*

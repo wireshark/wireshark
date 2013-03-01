@@ -102,11 +102,8 @@ struct pcaprec_nokia_hdr {
 	guint8 stuff[4];	/* mysterious stuff */
 };
 
-WS_DLL_LOCAL
 int libpcap_open(wtap *wth, int *err, gchar **err_info);
-WS_DLL_LOCAL
 gboolean libpcap_dump_open(wtap_dumper *wdh, int *err);
-WS_DLL_LOCAL
 int libpcap_dump_can_write_encap(int encap);
 
 #endif

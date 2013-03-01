@@ -24,6 +24,9 @@
 #ifndef __PACKET_AP1394_H__
 #define __PACKET_AP1394_H__
 
+#include "ws_symbol_export.h"
+
+WS_DLL_PUBLIC
 void capture_ap1394(const guchar *, int, int, packet_counts *);
 
 #endif

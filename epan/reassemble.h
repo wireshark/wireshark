@@ -29,6 +29,8 @@
 #ifndef REASSEMBLE_H
 #define REASSEMBLE_H
 
+#include "ws_symbol_export.h"
+
 /* only in fd_head: packet is defragmented */
 #define FD_DEFRAGMENTED		0x0001
 
@@ -109,14 +111,14 @@ typedef void *(*fragment_key_copier)(const void *key);
  *       else: just remove any entries;
  * destroy: remove entries and destroy table;
  */
-extern void fragment_table_init(GHashTable **fragment_table);
+WS_DLL_PUBLIC void fragment_table_init(GHashTable **fragment_table);
 extern void fragment_table_destroy(GHashTable **fragment_table);
-extern void dcerpc_fragment_table_init(GHashTable **fragment_table);
+WS_DLL_PUBLIC void dcerpc_fragment_table_init(GHashTable **fragment_table);
 
 /*
  * Initialize a reassembled-packet table.
  */
-extern void reassembled_table_init(GHashTable **reassembled_table);
+WS_DLL_PUBLIC void reassembled_table_init(GHashTable **reassembled_table);
 
 /*
  * This function adds a new fragment to the fragment hash table.
@@ -129,10 +131,10 @@ extern void reassembled_table_init(GHashTable **reassembled_table);
  * Returns a pointer to the head of the fragment data list if we have all the
  * fragments, NULL otherwise.
  */
-extern fragment_data *fragment_add(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
+WS_DLL_PUBLIC fragment_data *fragment_add(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
     const guint32 id, GHashTable *fragment_table, const guint32 frag_offset,
     guint32 const frag_data_len, const gboolean more_frags);
-extern fragment_data *fragment_add_multiple_ok(tvbuff_t *tvb, const int offset,
+WS_DLL_PUBLIC fragment_data *fragment_add_multiple_ok(tvbuff_t *tvb, const int offset,
     const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
     const guint32 frag_offset, const guint32 frag_data_len, const gboolean more_frags);
 
@@ -144,7 +146,7 @@ extern fragment_data *fragment_add_multiple_ok(tvbuff_t *tvb, const int offset,
  * to the table of reassembled fragments, and return a pointer to the
  * head of the fragment list.
  */
-extern fragment_data *fragment_add_check(tvbuff_t *tvb, const int offset,
+WS_DLL_PUBLIC fragment_data *fragment_add_check(tvbuff_t *tvb, const int offset,
     const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
     GHashTable *reassembled_table, const guint32 frag_offset,
     const guint32 frag_data_len, const gboolean more_frags);
@@ -182,7 +184,7 @@ extern fragment_data *fragment_add_check(tvbuff_t *tvb, const int offset,
  * "key_copier" is called to copy the key to a more appropriate store before
  * inserting a new entry to the hash.
  */
-extern fragment_data *
+fragment_data *
 fragment_add_seq_key(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
                      void *key, fragment_key_copier key_copier,
                      GHashTable *fragment_table, guint32 frag_number,
@@ -190,13 +192,13 @@ fragment_add_seq_key(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
                      const guint32 flags);
 
 /* a wrapper for fragment_add_seq_key - uses a key of source, dest and id */
-extern fragment_data *fragment_add_seq(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
+WS_DLL_PUBLIC fragment_data *fragment_add_seq(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
     const guint32 id, GHashTable *fragment_table, const guint32 frag_number,
     const guint32 frag_data_len, const gboolean more_frags);
 
 /* another wrapper for fragment_add_seq_key - uses a key of source, dest, id
  * and act_id */
-extern fragment_data *
+WS_DLL_PUBLIC fragment_data *
 fragment_add_dcerpc_dg(tvbuff_t *tvb, const int offset, const packet_info *pinfo, const guint32 id,
 	void *act_id,
 	GHashTable *fragment_table, const guint32 frag_number,
@@ -210,14 +212,14 @@ fragment_add_dcerpc_dg(tvbuff_t *tvb, const int offset, const packet_info *pinfo
  * to the table of reassembled fragments, and return a pointer to the
  * head of the fragment list.
  */
-extern fragment_data *
+WS_DLL_PUBLIC fragment_data *
 fragment_add_seq_check(tvbuff_t *tvb, const int offset,
 		       const packet_info *pinfo, const guint32 id,
 		       GHashTable *fragment_table,
 		       GHashTable *reassembled_table, const guint32 frag_number,
 		       const guint32 frag_data_len, const gboolean more_frags);
 
-extern fragment_data *
+WS_DLL_PUBLIC fragment_data *
 fragment_add_seq_802_11(tvbuff_t *tvb, const int offset,
 			const packet_info *pinfo, const guint32 id,
 			GHashTable *fragment_table,
@@ -225,7 +227,7 @@ fragment_add_seq_802_11(tvbuff_t *tvb, const int offset,
 			const guint32 frag_number, const guint32 frag_data_len,
 			const gboolean more_frags);
 
-extern fragment_data *
+WS_DLL_PUBLIC fragment_data *
 fragment_add_seq_next(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
 		      const guint32 id, GHashTable *fragment_table,
 		      GHashTable *reassembled_table,
@@ -235,7 +237,7 @@ extern void
 fragment_start_seq_check(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
 			 const guint32 tot_len);
 
-extern fragment_data *
+WS_DLL_PUBLIC fragment_data *
 fragment_end_seq_next(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
 		      GHashTable *reassembled_table);
 /* to specify how much to reassemble, for fragmentation where last fragment can not be
@@ -245,12 +247,12 @@ fragment_end_seq_next(const packet_info *pinfo, const guint32 id, GHashTable *fr
  * actually means we want to defragment 3 blocks, block 0, 1 and 2.
  *
  */
-extern void
+WS_DLL_PUBLIC void
 fragment_set_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table,
 		     const guint32 tot_len);
 
 /* to resad whatever totlen previously set */
-extern guint32
+WS_DLL_PUBLIC guint32
 fragment_get_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table);
 
 /*
@@ -261,21 +263,21 @@ fragment_get_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fra
  * a fh will be extended (increase the already stored data). After calling this function,
  * and if FD_DEFRAGMENTED is set, the reassembly process will be continued.
  */
-extern void
+WS_DLL_PUBLIC void
 fragment_set_partial_reassembly(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table);
 
 /* This function is used to check if there is partial or completed reassembly state
  * matching this packet. I.e. Are there reassembly going on or not for this packet?
  */
-extern fragment_data *
+WS_DLL_PUBLIC fragment_data *
 fragment_get(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table);
 
 /* The same for the reassemble table */
 /* id *must* be the frame number for this to work! */
-extern fragment_data *
+fragment_data *
 fragment_get_reassembled(const guint32 id, GHashTable *reassembled_table);
 
-extern fragment_data *
+WS_DLL_PUBLIC fragment_data *
 fragment_get_reassembled_id(const packet_info *pinfo, const guint32 id, GHashTable *reassembled_table);
 
 /* This will free up all resources and delete reassembly state for this PDU.
@@ -286,7 +288,7 @@ fragment_get_reassembled_id(const packet_info *pinfo, const guint32 id, GHashTab
  * So, if you call fragment_delete and it returns non-NULL, YOU are responsible to
  * g_free() that buffer.
  */
-extern unsigned char *
+WS_DLL_PUBLIC unsigned char *
 fragment_delete(const packet_info *pinfo, const guint32 id, GHashTable *fragment_table);
 
 /* This struct holds references to all the tree and field handles used when
@@ -314,16 +316,16 @@ typedef struct _fragment_items {
     const char *tag;
 } fragment_items;
 
-extern tvbuff_t *
+WS_DLL_PUBLIC tvbuff_t *
 process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
     const char *name, fragment_data *fd_head, const fragment_items *fit,
     gboolean *update_col_infop, proto_tree *tree);
 
-extern gboolean
+WS_DLL_PUBLIC gboolean
 show_fragment_tree(fragment_data *ipfd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi);
 
-extern gboolean
+WS_DLL_PUBLIC gboolean
 show_fragment_seq_tree(fragment_data *ipfd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi);
 

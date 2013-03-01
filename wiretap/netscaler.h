@@ -95,14 +95,10 @@
 #define NSPR_HEADER_VERSION203 0x23
 #define NSPR_HEADER_VERSION204 0x24
 #define NSPR_HEADER_VERSION205 0x25
-WS_DLL_LOCAL
 int nstrace_open(wtap *wth, int *err, gchar **err_info);
-WS_DLL_LOCAL
 int nstrace_10_dump_can_write_encap(int encap);
-WS_DLL_LOCAL
 int nstrace_20_dump_can_write_encap(int encap);
 
-WS_DLL_LOCAL
 gboolean nstrace_dump_open(wtap_dumper *wdh, int *err);
 
 

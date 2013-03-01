@@ -23,6 +23,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "ws_symbol_export.h"
+
 /*
  * Routine used to register frame end routine.  The routine should only
  * be registred when the dissector is used in the frame, not in the
@@ -39,8 +41,8 @@ extern dissector_table_t wtap_encap_dissector_table;
 /* following variables are exported from libwireshark.dll.
  * Thus we need a special declaration.
  */
-WS_VAR_IMPORT int proto_frame;
-WS_VAR_IMPORT int hf_frame_arrival_time;
-WS_VAR_IMPORT int hf_frame_number;
-WS_VAR_IMPORT int hf_frame_len;
-WS_VAR_IMPORT int hf_frame_capture_len;
+WS_DLL_PUBLIC int proto_frame;
+WS_DLL_PUBLIC int hf_frame_arrival_time;
+WS_DLL_PUBLIC int hf_frame_number;
+WS_DLL_PUBLIC int hf_frame_len;
+WS_DLL_PUBLIC int hf_frame_capture_len;

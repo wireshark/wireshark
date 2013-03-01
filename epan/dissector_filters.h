@@ -25,6 +25,7 @@
 #ifndef __DISSECTOR_FILTERS_H__
 #define __DISSECTOR_FILTERS_H__
 
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +42,7 @@ typedef const gchar* (*build_filter_string_func)(packet_info *pinfo);
 
 
 /** register a dissector filter */
-extern void register_dissector_filter(const char *name, is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string);
+WS_DLL_PUBLIC void register_dissector_filter(const char *name, is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string);
 
 
 
@@ -53,7 +54,7 @@ typedef struct dissector_filter_s {
     build_filter_string_func    build_filter_string;
 } dissector_filter_t;
 
-WS_VAR_IMPORT GList *dissector_filter_list;
+WS_DLL_PUBLIC GList *dissector_filter_list;
 
 #ifdef __cplusplus
 }

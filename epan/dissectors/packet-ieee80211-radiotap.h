@@ -25,6 +25,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef __PACKET_IEEE80211_RADIOTAP_H__
+#define __PACKET_IEEE80211_RADIOTAP_H__
+
+#include "ws_symbol_export.h"
+
+WS_DLL_PUBLIC
 void capture_radiotap(const guchar *pd, int offset, int len, packet_counts *ld);
 void proto_register_radiotap(void);
 void proto_reg_handoff_radiotap(void);
@@ -38,3 +44,5 @@ struct _radiotap_info {
   guint32 flags;
   guint64 tsft;
 };
+
+#endif

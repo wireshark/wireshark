@@ -37,6 +37,7 @@ void register_show_exception(void);
 /*
  * Routine used to add an indication of an arbitrary exception to the tree.
  */
+WS_DLL_PUBLIC
 void show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned long exception, const char *exception_message);
 

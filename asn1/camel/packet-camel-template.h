@@ -34,6 +34,8 @@
 #ifndef PACKET_CAMEL_H
 #define PACKET_CAMEL_H
 
+#include "ws_symbol_export.h"
+
 void proto_reg_handoff_camel(void);
 void proto_register_camel(void);
 
@@ -41,7 +43,7 @@ void proto_register_camel(void);
 #define	camel_MAX_NUM_OPR_CODES	256
 
 
-WS_VAR_IMPORT const value_string camel_opr_code_strings[];
+WS_DLL_PUBLIC const value_string camel_opr_code_strings[];
 /* #include "packet-camel-exp.h"*/
 
 #endif  /* PACKET_camel_H */

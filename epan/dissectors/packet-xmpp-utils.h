@@ -26,6 +26,8 @@
 #ifndef XMPP_UTILS_H
 #define XMPP_UTILS_H
 
+#include "ws_symbol_export.h"
+
 #define xmpp_elem_cdata(elem) \
 elem->data?elem->data->value:""
 

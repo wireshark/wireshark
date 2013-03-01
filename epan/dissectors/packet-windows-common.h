@@ -25,6 +25,8 @@
 #ifndef __PACKET_WINDOWS_COMMON_H__
 #define __PACKET_WINDOWS_COMMON_H__
 
+#include "ws_symbol_export.h"
+
 /* Win32 errors.
  * These defines specify the WERR error codes often encountered in ms DCE/RPC
  * interfaces (those that do not return NT status that is)
@@ -201,6 +203,7 @@ extern const value_string NT_errors[];
 
 extern const value_string ms_country_codes[];
 
+WS_DLL_PUBLIC
 int dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date);
 
 
@@ -221,6 +224,7 @@ typedef struct _sid_strings {
  * field, it will just pass a FT_STRING hf field here
  */
 
+WS_DLL_PUBLIC
 int dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
 		   const char *name, char **sid_str, int hf_sid);
 

@@ -80,7 +80,7 @@ EraseCC-EntryArg
 EraseCC-EntryRes
 Ext-BasicServiceCode
 Ext-ForwOptions
-Ext-GeographicalInformation
+Ext-GeographicalInformation EXTERN WS_DLL
 Ext-NoRepCondTime
 Ext-QoS-Subscribed
 Ext2-QoS-Subscribed
@@ -90,16 +90,16 @@ ExternalSignalInfo
 ForwardingOptions
 GeographicalInformation
 GetPasswordArg
-GlobalCellId
+GlobalCellId EXTERN WS_DLL
 GPRSChargingID
 GPRSMSClass
 GSMMAPLocalErrorcode
 GSN-Address
 IMEI
-IMSI
+IMSI EXTERN WS_DLL
 InterrogateSS-Res
-ISDN-AddressString
-ISDN-AddressString_PDU
+ISDN-AddressString EXTERN WS_DLL
+ISDN-AddressString_PDU EXTERN WS_DLL
 ISDN-SubaddressString
 LAIFixedLength
 LCSClientExternalID

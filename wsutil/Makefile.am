@@ -54,7 +54,7 @@ include ../Makefile.am.inc
 
 include Makefile.common
 
-AM_CFLAGS =-DWS_BUILD_DLL @COMPILE_HIDE_SYMBOLS@
+AM_CFLAGS =-DWS_BUILD_DLL
 
 if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS += -Werror

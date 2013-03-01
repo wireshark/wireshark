@@ -31,12 +31,10 @@
  * that information).
  */
 
-WS_DLL_LOCAL
 extern void
 atm_guess_traffic_type(const guint8 *pd, guint32 len,
     union wtap_pseudo_header *pseudo_header);
 
-WS_DLL_LOCAL
 extern void
 atm_guess_lane_type(const guint8 *pd, guint32 len,
     union wtap_pseudo_header *pseudo_header);

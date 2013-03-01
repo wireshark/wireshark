@@ -46,21 +46,18 @@ extern "C" {
 
 /** Lookup the crc value in the crc32_ccitt_table
  @param pos Position in the table. */
-WS_DLL_PUBLIC
-extern guint32 crc32_ccitt_table_lookup (guchar pos);
+WS_DLL_PUBLIC guint32 crc32_ccitt_table_lookup (guchar pos);
 
 /** Lookup the crc value in the crc32c_table
  @param pos Position in the table. */
-WS_DLL_PUBLIC
-extern guint32 crc32c_table_lookup (guchar pos);
+WS_DLL_PUBLIC guint32 crc32c_table_lookup (guchar pos);
 
 /** Compute CRC32C checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @param crc The preload value for the CRC32C computation.
  @return The CRC32C checksum. */
-WS_DLL_PUBLIC
-extern guint32 crc32c_calculate(const void *buf, int len, guint32 crc);
+WS_DLL_PUBLIC guint32 crc32c_calculate(const void *buf, int len, guint32 crc);
 
 /** Compute CRC32C checksum of a buffer of data without swapping seed crc
  or completed checksum
@@ -68,15 +65,13 @@ extern guint32 crc32c_calculate(const void *buf, int len, guint32 crc);
  @param len The number of bytes to include in the computation.
  @param crc The preload value for the CRC32C computation.
  @return The CRC32C checksum. */
-WS_DLL_PUBLIC
-extern guint32 crc32c_calculate_no_swap(const void *buf, int len, guint32 crc);
+WS_DLL_PUBLIC guint32 crc32c_calculate_no_swap(const void *buf, int len, guint32 crc);
 
 /** Compute CRC32 CCITT checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return The CRC32 CCITT checksum. */
-WS_DLL_PUBLIC
-extern guint32 crc32_ccitt(const guint8 *buf, guint len);
+WS_DLL_PUBLIC guint32 crc32_ccitt(const guint8 *buf, guint len);
 
 /** Compute CRC32 CCITT checksum of a buffer of data.  If computing the
  *  checksum over multiple buffers and you want to feed the partial CRC32
@@ -85,16 +80,14 @@ extern guint32 crc32_ccitt(const guint8 *buf, guint len);
  @param len The number of bytes to include in the computation.
  @param seed The seed to use.
  @return The CRC32 CCITT checksum (using the given seed). */
-WS_DLL_PUBLIC
-extern guint32 crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed);
+WS_DLL_PUBLIC guint32 crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed);
 
 /** Compute MPEG-2 CRC32 checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @param seed The seed to use.
  @return The CRC32 MPEG-2 checksum (using the given seed). */
-WS_DLL_PUBLIC
-extern guint32 crc32_mpeg2_seed(const guint8 *buf, guint len, guint32 seed);
+WS_DLL_PUBLIC guint32 crc32_mpeg2_seed(const guint8 *buf, guint len, guint32 seed);
 
 WS_DLL_PUBLIC int AirPDcapWepDecrypt(
 	const guchar *seed,

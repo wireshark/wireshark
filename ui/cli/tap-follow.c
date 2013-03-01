@@ -28,6 +28,7 @@
  */
 
 #include "config.h"
+#include "ws_symbol_export.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -53,7 +54,7 @@
 #include <epan/dissectors/packet-ssl-utils.h>
 #endif
 
-WS_VAR_IMPORT FILE *data_out_file;
+WS_DLL_PUBLIC FILE *data_out_file;
 
 typedef enum
 {

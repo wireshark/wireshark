@@ -65,13 +65,14 @@
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/follow_stream.h"
+#include "ws_symbol_export.h"
 
 #ifdef HAVE_LIBZ
 #include <zlib.h>
 #endif
 
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
-WS_VAR_IMPORT FILE *data_out_file;
+WS_DLL_PUBLIC FILE *data_out_file;
 
 static void
 follow_redraw(gpointer data, gpointer user_data _U_)

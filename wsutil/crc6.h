@@ -27,7 +27,6 @@
 
 #include "ws_symbol_export.h"
 
-WS_DLL_PUBLIC
-extern guint16 update_crc6_by_bytes(guint16 crc6, guint8 byte1, guint8 byte2);
+WS_DLL_PUBLIC guint16 update_crc6_by_bytes(guint16 crc6, guint8 byte1, guint8 byte2);
 
 #endif /* __CRC6_H__ */

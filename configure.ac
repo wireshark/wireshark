@@ -521,15 +521,11 @@ fi
 
 CFLAGS_before_fvhidden=$CFLAGS
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-fvisibility=hidden)
-if test "x$CLFAGS" != "x$CFLAGS_before_fvhidden"
+if test "x$CLFAGS" = "x$CFLAGS_before_fvhidden"
 then
-	# Restore CFLAGS
-	CFLAGS=$CFLAGS_before_fvhidden
-	AC_DEFINE(COMPILE_HIDE_SYMBOLS, "-fvisibility=hidden", [Compiler will hide symbols not exported explicitly using -fvisibility=hidden])
-else
-	AC_DEFINE(COMPILE_HIDE_SYMBOLS, "", [Compiler will export all symbols from shared libraries])
+	# TODO add other ways of hiding symbols
+	AC_MSG_WARN(Compiler will export all symbols from shared libraries)
 fi
-AC_SUBST(COMPILE_HIDE_SYMBOLS)
 
 AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 ###AC_WIRESHARK_LDFLAGS_CHECK([-Wl,-M])
@@ -1977,12 +1973,6 @@ else
 fi
 AM_CONDITIONAL(HAVE_LIBPY, test x$want_python != xno)
 AC_SUBST(pythondir)
-
-#
-# Define WS_VAR_IMPORT appropriately for declarations of external
-# variables exported from dynamically-linked libraries.
-#
-AC_DEFINE(WS_VAR_IMPORT, extern, [Define as the string to precede external variable declarations in dynamically-linked libraries])
 
 #
 # Define WS_MSVC_NORETURN appropriately for declarations of routines that

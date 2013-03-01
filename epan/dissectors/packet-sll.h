@@ -24,6 +24,8 @@
 #ifndef __PACKET_SLL_H__
 #define __PACKET_SLL_H__
 
+#include "ws_symbol_export.h"
+
 /*
  * The LINUX_SLL_ values for "sll_protocol".
  */
@@ -35,6 +37,7 @@
 #define LINUX_SLL_P_IRDA_LAP	0x0017	/* IrDA Link Access Protocol */
 #define LINUX_SLL_P_IEEE802154	0x00f6	/* 802.15.4 on monitor inteface */
 
+WS_DLL_PUBLIC
 void capture_sll(const guchar *, int, packet_counts *);
 
 #endif

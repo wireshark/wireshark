@@ -33,6 +33,8 @@
 #ifndef __REPORT_ERR_H__
 #define __REPORT_ERR_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -49,7 +51,7 @@ extern void init_report_err(
 /*
  * Report a general error.
  */
-extern void report_failure(const char *msg_format, ...);
+WS_DLL_PUBLIC void report_failure(const char *msg_format, ...);
 
 /*
  * Report an error when trying to open a file.
@@ -57,20 +59,20 @@ extern void report_failure(const char *msg_format, ...);
  * UNIX-style errnos, so this can be used for open failures not from
  * Wiretap as long as the failure code is just an errno.
  */
-extern void report_open_failure(const char *filename, int err,
+WS_DLL_PUBLIC void report_open_failure(const char *filename, int err,
     gboolean for_writing);
 
 /*
  * Report an error when trying to read a file.
  * "err" is assumed to be a UNIX-style errno.
  */
-extern void report_read_failure(const char *filename, int err);
+WS_DLL_PUBLIC void report_read_failure(const char *filename, int err);
 
 /*
  * Report an error when trying to write a file.
  * "err" is assumed to be a UNIX-style errno.
  */
-extern void report_write_failure(const char *filename, int err);
+WS_DLL_PUBLIC void report_write_failure(const char *filename, int err);
 
 #ifdef __cplusplus
 }

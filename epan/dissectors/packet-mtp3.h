@@ -23,6 +23,8 @@
 #ifndef __PACKET_MTP3_H_
 #define __PACKET_MTP3_H_
 
+#include "ws_symbol_export.h"
+
 typedef enum {
   ITU_STANDARD  = 1,
   ANSI_STANDARD = 2,
@@ -34,7 +36,7 @@ typedef enum {
 extern gint mtp3_standard;
 extern gboolean mtp3_heuristic_standard;
 
-WS_VAR_IMPORT const value_string mtp3_standard_vals[];
+WS_DLL_PUBLIC const value_string mtp3_standard_vals[];
 
 typedef enum {
   MTP3_ADDR_FMT_DEC	= 1,
@@ -74,7 +76,7 @@ typedef struct _mtp3_tap_rec_t {
 #define JAPAN_PC_LENGTH   2
 #define JAPAN_PC_MASK     0xffff
 
-extern void     mtp3_addr_to_str_buf(const mtp3_addr_pc_t *addr_pc_p, gchar *buf, int buf_len);
+WS_DLL_PUBLIC void     mtp3_addr_to_str_buf(const mtp3_addr_pc_t *addr_pc_p, gchar *buf, int buf_len);
 extern void     mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len);
 extern gchar*   mtp3_pc_to_str(const guint32 pc);
 extern gboolean mtp3_pc_structured(void);
@@ -98,7 +100,7 @@ extern void dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset,
  * without having to duplicate it. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT const value_string mtp3_service_indicator_code_short_vals[];
+WS_DLL_PUBLIC const value_string mtp3_service_indicator_code_short_vals[];
 
 #define MTP_SI_SNM	0x0
 #define MTP_SI_MTN	0x1
@@ -124,6 +126,6 @@ WS_VAR_IMPORT const value_string mtp3_service_indicator_code_short_vals[];
 #define MTP3_NI_INT1 0x1
 #define MTP3_NI_NAT0 0x2
 #define MTP3_NI_NAT1 0x3
-WS_VAR_IMPORT const value_string mtp3_network_indicator_vals[];
+WS_DLL_PUBLIC const value_string mtp3_network_indicator_vals[];
 
 #endif

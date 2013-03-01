@@ -220,6 +220,8 @@ printf("added key in %u    keytype:%d len:%d\n",pinfo->fd->num, keytype, keyleng
 
 static krb5_context krb5_ctx;
 
+
+WS_DLL_PUBLIC
 void
 read_keytab_file(const char *filename)
 {
@@ -357,6 +359,7 @@ printf("woohoo decrypted keytype:%d in frame:%u\n", ek->keytype, pinfo->fd->num)
 #elif defined(HAVE_HEIMDAL_KERBEROS)
 static krb5_context krb5_ctx;
 
+WS_DLL_PUBLIC
 void
 read_keytab_file(const char *filename)
 {
@@ -551,6 +554,7 @@ clear_keytab(void) {
 	service_key_list = NULL;
 }
 
+WS_DLL_PUBLIC
 static void
 read_keytab_file(const char *service_key_file)
 {

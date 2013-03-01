@@ -26,12 +26,15 @@
 #ifndef __EMEM_H__
 #define __EMEM_H__
 
+#include "ws_symbol_export.h"
+
 /** @file
  */
 /**  Initialize all the memory allocation pools described below.
  *  This function must be called once when *shark initialize to set up the
  *  required structures.
  */
+WS_DLL_PUBLIC
 void emem_init(void);
 
 /* Functions for handling memory allocation and garbage collection with
@@ -47,27 +50,35 @@ void emem_init(void);
  */
 
 /** Allocate memory with a packet lifetime scope */
+WS_DLL_PUBLIC
 void *ep_alloc(size_t size) G_GNUC_MALLOC;
 #define ep_new(type) ((type*)ep_alloc(sizeof(type)))
 
 /** Allocate memory with a packet lifetime scope and fill it with zeros*/
+WS_DLL_PUBLIC
 void* ep_alloc0(size_t size) G_GNUC_MALLOC;
 #define ep_new0(type) ((type*)ep_alloc0(sizeof(type)))
 
 /** Duplicate a string with a packet lifetime scope */
+WS_DLL_PUBLIC
 gchar* ep_strdup(const gchar* src) G_GNUC_MALLOC;
 
 /** Duplicate at most n characters of a string with a packet lifetime scope */
+WS_DLL_PUBLIC
 gchar* ep_strndup(const gchar* src, size_t len) G_GNUC_MALLOC;
 
 /** Duplicate a buffer with a packet lifetime scope */
+WS_DLL_PUBLIC
 void* ep_memdup(const void* src, size_t len) G_GNUC_MALLOC;
 
 /** Create a formatted string with a packet lifetime scope */
+WS_DLL_PUBLIC
 gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap) G_GNUC_MALLOC;
+WS_DLL_PUBLIC
 gchar* ep_strdup_printf(const gchar* fmt, ...)
      G_GNUC_MALLOC G_GNUC_PRINTF(1, 2);
 
+WS_DLL_PUBLIC
 gchar *ep_strconcat(const gchar *string, ...) G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
 
 /** allocates with a packet lifetime scope an array of type made of num elements */
@@ -85,6 +96,7 @@ gchar *ep_strconcat(const gchar *string, ...) G_GNUC_MALLOC G_GNUC_NULL_TERMINAT
  *
  * The vector and all the strings are allocated with packet lifetime scope
  */
+WS_DLL_PUBLIC
 gchar** ep_strsplit(const gchar* string, const gchar* delimiter, int max_tokens);
 
 /** release all memory allocated in the previous packet dissection */
@@ -104,16 +116,19 @@ struct _ep_stack_frame_t {
 /**
  * creates an empty stack with a packet lifetime scope
  */
+WS_DLL_PUBLIC
 ep_stack_t ep_stack_new(void) G_GNUC_MALLOC;
 
 /**
  * pushes item into stack, returns item
  */
+WS_DLL_PUBLIC
 void* ep_stack_push(ep_stack_t stack, void* item);
 
 /**
  * pops an item from the stack
  */
+WS_DLL_PUBLIC
 void* ep_stack_pop(ep_stack_t stack);
 
 /**
@@ -134,24 +149,31 @@ void* ep_stack_pop(ep_stack_t stack);
  */
 
 /** Allocate memory with a capture lifetime scope */
+WS_DLL_PUBLIC
 void *se_alloc(size_t size) G_GNUC_MALLOC;
 #define se_new(type) ((type*)se_alloc(sizeof(type)))
 
 /** Allocate memory with a capture lifetime scope and fill it with zeros*/
+WS_DLL_PUBLIC
 void* se_alloc0(size_t size) G_GNUC_MALLOC;
 #define se_new0(type) ((type*)se_alloc0(sizeof(type)))
 
 /** Duplicate a string with a capture lifetime scope */
+WS_DLL_PUBLIC
 gchar* se_strdup(const gchar* src) G_GNUC_MALLOC;
 
 /** Duplicate at most n characters of a string with a capture lifetime scope */
+WS_DLL_PUBLIC
 gchar* se_strndup(const gchar* src, size_t len) G_GNUC_MALLOC;
 
 /** Duplicate a buffer with a capture lifetime scope */
+WS_DLL_PUBLIC
 void* se_memdup(const void* src, size_t len) G_GNUC_MALLOC;
 
 /* Create a formatted string with a capture lifetime scope */
+WS_DLL_PUBLIC
 gchar* se_strdup_vprintf(const gchar* fmt, va_list ap) G_GNUC_MALLOC;
+WS_DLL_PUBLIC
 gchar* se_strdup_printf(const gchar* fmt, ...)
      G_GNUC_MALLOC G_GNUC_PRINTF(1, 2);
 
@@ -191,11 +213,15 @@ struct ws_memory_slab {
 	void *freed;
 };
 
+WS_DLL_PUBLIC
 void *sl_alloc(struct ws_memory_slab *mem_chunk);
+WS_DLL_PUBLIC
 void *sl_alloc0(struct ws_memory_slab *mem_chunk);
+WS_DLL_PUBLIC
 void sl_free(struct ws_memory_slab *mem_chunk, gpointer ptr);
 
 /** release all memory allocated */
+WS_DLL_PUBLIC
 void sl_free_all(struct ws_memory_slab *mem_chunk);
 
 /**************************************************************
@@ -241,6 +267,7 @@ typedef struct _emem_tree_t {
  *
  * type is : EMEM_TREE_TYPE_RED_BLACK for a standard red/black tree.
  */
+WS_DLL_PUBLIC
 emem_tree_t *se_tree_create(int type, const char *name) G_GNUC_MALLOC;
 
 /** This function is similar to the se_tree_create() call but with the
@@ -252,6 +279,7 @@ emem_tree_t *se_tree_create(int type, const char *name) G_GNUC_MALLOC;
  * another structure that is also se allocated so that when the structure is
  * released, the tree will be completely released as well.
  */
+WS_DLL_PUBLIC
 emem_tree_t *se_tree_create_non_persistent(int type, const char *name) G_GNUC_MALLOC;
 
 /** se_tree_insert32
@@ -304,6 +332,7 @@ emem_tree_t *se_tree_create_non_persistent(int type, const char *name) G_GNUC_MA
  * ******************************************************************* */
 /* These trees have PErmanent allocation scope and will never be released
  */
+WS_DLL_PUBLIC
 emem_tree_t *pe_tree_create(int type, const char *name) G_GNUC_MALLOC;
 #define pe_tree_insert32 emem_tree_insert32
 #define pe_tree_lookup32 emem_tree_lookup32
@@ -325,11 +354,13 @@ emem_tree_t *pe_tree_create(int type, const char *name) G_GNUC_MALLOC;
  * so that it will be released at the same time as the tree itself is
  * destroyed.
  */
+WS_DLL_PUBLIC
 void emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data);
 
 /** This function will look up a node in the tree indexed by a guint32 integer
  * value.
  */
+WS_DLL_PUBLIC
 void *emem_tree_lookup32(emem_tree_t *se_tree, guint32 key);
 
 /** This function will look up a node in the tree indexed by a guint32 integer
@@ -338,6 +369,7 @@ void *emem_tree_lookup32(emem_tree_t *se_tree, guint32 key);
  * equal to or smaller than the search key, or NULL if no such key was
  * found.
  */
+WS_DLL_PUBLIC
 void *emem_tree_lookup32_le(emem_tree_t *se_tree, guint32 key);
 
 typedef struct _emem_tree_key_t {
@@ -376,11 +408,13 @@ typedef struct _emem_tree_key_t {
  *			fhkey[1].key=nns->fh;
  *			fhkey[2].length=0;
  */
+WS_DLL_PUBLIC
 void emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data);
 
 /** This function will look up a node in the tree indexed by a sequence of
  * guint32 integer values.
  */
+WS_DLL_PUBLIC
 void *emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key);
 
 /** This function will look up a node in the tree indexed by a
@@ -391,20 +425,24 @@ void *emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key);
  * Note:  The key returned will be "less" in key order.  The usefullness
  * of the returned node must be verified prior to use.
  */
+WS_DLL_PUBLIC
 void *emem_tree_lookup32_array_le(emem_tree_t *se_tree, emem_tree_key_t *key);
 
 /** case insensitive strings as keys */
 #define EMEM_TREE_STRING_NOCASE			0x00000001
 /** Insert a new value under a string key */
+WS_DLL_PUBLIC
 void emem_tree_insert_string(emem_tree_t* h, const gchar* k, void* v, guint32 flags);
 
 /** Lookup the value under a string key */
+WS_DLL_PUBLIC
 void* emem_tree_lookup_string(emem_tree_t* h, const gchar* k, guint32 flags);
 
 
 /** traverse a tree. if the callback returns TRUE the traversal will end */
 typedef gboolean (*tree_foreach_func)(void *value, void *userdata);
 
+WS_DLL_PUBLIC
 gboolean emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, void *user_data);
 
 
@@ -433,6 +471,7 @@ typedef struct _emem_strbuf_t {
  *
  * @return A newly-allocated string buffer.
  */
+WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_new(const gchar *init) G_GNUC_MALLOC;
 
 /**
@@ -443,6 +482,7 @@ emem_strbuf_t *ep_strbuf_new(const gchar *init) G_GNUC_MALLOC;
  *
  * @return A newly-allocated string buffer.
  */
+WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_new_label(const gchar *init) G_GNUC_MALLOC;
 
 /**
@@ -456,6 +496,7 @@ emem_strbuf_t *ep_strbuf_new_label(const gchar *init) G_GNUC_MALLOC;
  *
  * @return A newly-allocated string buffer. str will be empty.
  */
+WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len) G_GNUC_MALLOC;
 
 /**
@@ -465,6 +506,7 @@ emem_strbuf_t *ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len) G_GNUC_
  * @param format A printf-style string format.
  * @param ap The list of arguments to append.
  */
+WS_DLL_PUBLIC
 void ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap);
 
 /**
@@ -473,6 +515,7 @@ void ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_lis
  * @param strbuf The ep_strbuf-allocated string buffer to set to.
  * @param format A printf-style string format.
  */
+WS_DLL_PUBLIC
 void ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
      G_GNUC_PRINTF(2, 3);
 
@@ -482,6 +525,7 @@ void ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
  * @param strbuf The ep_strbuf-allocated string buffer to append to.
  * @param format A printf-style string format.
  */
+WS_DLL_PUBLIC
 void ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
     G_GNUC_PRINTF(2, 3);
 
@@ -493,6 +537,7 @@ void ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
  *
  * @return strbuf
  */
+WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str);
 
 /**
@@ -503,6 +548,7 @@ emem_strbuf_t *ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str);
  *
  * @return strbuf
  */
+WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c);
 
 /**
@@ -513,6 +559,7 @@ emem_strbuf_t *ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c);
  *
  * @return strbuf
  */
+WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_append_unichar(emem_strbuf_t *strbuf, const gunichar c);
 
 /**
@@ -523,6 +570,7 @@ emem_strbuf_t *ep_strbuf_append_unichar(emem_strbuf_t *strbuf, const gunichar c)
  *
  * @return strbuf
  */
+WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len);
 
 /**

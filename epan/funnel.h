@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include "../stat_menu.h"
+#include "ws_symbol_export.h"
 
 typedef struct _funnel_progress_window_t funnel_progress_window_t ;
 typedef struct _funnel_text_window_t funnel_text_window_t ;
@@ -92,10 +93,10 @@ typedef struct _funnel_ops_t {
     void (*destroy_progress_window)(funnel_progress_window_t*);
 } funnel_ops_t;
 
-extern const funnel_ops_t* funnel_get_funnel_ops(void);
-extern void funnel_set_funnel_ops(const funnel_ops_t*);
+WS_DLL_PUBLIC const funnel_ops_t* funnel_get_funnel_ops(void);
+WS_DLL_PUBLIC void funnel_set_funnel_ops(const funnel_ops_t*);
 
-extern void funnel_register_menu(const char *name,
+WS_DLL_PUBLIC void funnel_register_menu(const char *name,
                                  register_stat_group_t group,
                                  void (*callback)(gpointer),
                                  gpointer callback_data,
@@ -107,7 +108,7 @@ typedef void (*funnel_registration_cb_t)(const char *name,
                                          gpointer callback_data,
                                          gboolean retap);
 
-extern void funnel_register_all_menus(funnel_registration_cb_t r_cb);
+WS_DLL_PUBLIC void funnel_register_all_menus(funnel_registration_cb_t r_cb);
 
 extern void initialize_funnel_ops(void);
 

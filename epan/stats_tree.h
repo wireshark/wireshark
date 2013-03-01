@@ -32,6 +32,7 @@
 #include <epan/tap.h>
 #include "../stat_menu.h"
 #include "../register.h"
+#include "ws_symbol_export.h"
 
 #define STAT_TREE_ROOT "root"
 
@@ -58,7 +59,7 @@ typedef void  (*stat_tree_cleanup_cb)(stats_tree*);
  * init: tree initialization callback
  * cleanup: cleanup callback
  */
-extern void stats_tree_register(const gchar *tapname,
+WS_DLL_PUBLIC void stats_tree_register(const gchar *tapname,
 				const gchar *abbr,
 				const gchar *name,
 				guint flags,
@@ -74,7 +75,7 @@ extern void stats_tree_register(const gchar *tapname,
  * init: tree initialization callback
  * cleanup: cleanup callback
  */
-extern void stats_tree_register_plugin(const gchar *tapname,
+WS_DLL_PUBLIC void stats_tree_register_plugin(const gchar *tapname,
 				const gchar *abbr,
 				const gchar *name,
 				guint flags,
@@ -91,7 +92,7 @@ extern void stats_tree_register_plugin(const gchar *tapname,
  * cleanup: cleanup callback
  * stat_group: the group this stat belongs to
  */
-extern void stats_tree_register_with_group(const gchar *tapname,
+WS_DLL_PUBLIC void stats_tree_register_with_group(const gchar *tapname,
 				const gchar *abbr,
 				const gchar *name,
 				guint flags,
@@ -100,7 +101,7 @@ extern void stats_tree_register_with_group(const gchar *tapname,
 				stat_tree_cleanup_cb cleanup,
 				register_stat_group_t stat_group);
 
-extern int stats_tree_parent_id_by_name(stats_tree *st, const gchar *parent_name);
+WS_DLL_PUBLIC int stats_tree_parent_id_by_name(stats_tree *st, const gchar *parent_name);
 
 /* Creates a node in the tree (to be used in the in init_cb)
 * st: the stats_tree in which to create it
@@ -108,13 +109,13 @@ extern int stats_tree_parent_id_by_name(stats_tree *st, const gchar *parent_name
 * parent_name: the name of the parent_node (NULL for root)
 * with_children: TRUE if this node will have "dynamically created" children
 */
-extern int stats_tree_create_node(stats_tree *st,
+WS_DLL_PUBLIC int stats_tree_create_node(stats_tree *st,
 				  const gchar *name,
 				  int parent_id,
 				  gboolean with_children);
 
 /* creates a node using its parent's tree name */
-extern int stats_tree_create_node_by_pname(stats_tree *st,
+WS_DLL_PUBLIC int stats_tree_create_node_by_pname(stats_tree *st,
 					   const gchar *name,
 					   const gchar *parent_name,
 					   gboolean with_children);
@@ -124,24 +125,24 @@ extern int stats_tree_create_node_by_pname(stats_tree *st,
  stats_tree_create_range_node(st,name,parent,
 			      "-99","100-199","200-299","300-399","400-", NULL);
 */
-extern int stats_tree_create_range_node(stats_tree *st,
+WS_DLL_PUBLIC int stats_tree_create_range_node(stats_tree *st,
 					const gchar *name,
 					int parent_id,
 					...);
 
-extern int stats_tree_create_range_node_string(stats_tree *st,
+WS_DLL_PUBLIC int stats_tree_create_range_node_string(stats_tree *st,
 					const gchar *name,
 					int parent_id,
 					int num_str_ranges,
 					gchar** str_ranges);
 
-extern int stats_tree_range_node_with_pname(stats_tree *st,
+WS_DLL_PUBLIC int stats_tree_range_node_with_pname(stats_tree *st,
 					    const gchar *name,
 					    const gchar *parent_name,
 					    ...);
 
 /* increases by one the ranged node and the sub node to whose range the value belongs */
-extern int stats_tree_tick_range(stats_tree *st,
+WS_DLL_PUBLIC int stats_tree_tick_range(stats_tree *st,
 				 const gchar *name,
 				 int parent_id,
 				 int value_in_range);
@@ -150,15 +151,15 @@ extern int stats_tree_tick_range(stats_tree *st,
      stats_tree_tick_range((st),(name),stats_tree_parent_id_by_name((st),(parent_name),(value_in_range))
 
 /* */
-extern int stats_tree_create_pivot(stats_tree *st,
+WS_DLL_PUBLIC int stats_tree_create_pivot(stats_tree *st,
 				   const gchar *name,
 				   int parent_id);
 
-extern int stats_tree_create_pivot_by_pname(stats_tree *st,
+WS_DLL_PUBLIC int stats_tree_create_pivot_by_pname(stats_tree *st,
 					    const gchar *name,
 					    const gchar *parent_name);
 
-extern int stats_tree_tick_pivot(stats_tree *st,
+WS_DLL_PUBLIC int stats_tree_tick_pivot(stats_tree *st,
 				 int pivot_id,
 				 const gchar *pivot_value);
 
@@ -169,7 +170,7 @@ extern int stats_tree_tick_pivot(stats_tree *st,
  * with_children=TRUE to indicate that the created node will be a parent
  */
 typedef enum _manip_node_mode { MN_INCREASE, MN_SET } manip_node_mode;
-extern int stats_tree_manip_node(manip_node_mode mode,
+WS_DLL_PUBLIC int stats_tree_manip_node(manip_node_mode mode,
 				 stats_tree *st,
 				 const gchar *name,
 				 int parent_id,

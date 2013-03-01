@@ -26,6 +26,7 @@
 #define __CIRCUIT_H__
 
 #include "packet.h"		/* for circuit dissector type */
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,7 +66,7 @@ extern void circuit_init(void);
  * Given a circuit type and circuit ID for a packet, create a new circuit
  * to contain packets for that circuit.
  */
-extern circuit_t *circuit_new(circuit_type ctype, guint32 circuit_id,
+WS_DLL_PUBLIC circuit_t *circuit_new(circuit_type ctype, guint32 circuit_id,
     guint32 first_frame);
 
 /**
@@ -73,7 +74,7 @@ extern circuit_t *circuit_new(circuit_type ctype, guint32 circuit_id,
  * that type and ID whose range of frames includes that frame number.
  * Returns NULL if not found.
  */
-extern circuit_t *find_circuit(circuit_type ctype, guint32 circuit_id,
+WS_DLL_PUBLIC circuit_t *find_circuit(circuit_type ctype, guint32 circuit_id,
     guint32 frame);
 
 /**
@@ -82,10 +83,10 @@ extern circuit_t *find_circuit(circuit_type ctype, guint32 circuit_id,
  */
 extern void close_circuit(circuit_t *circuit, guint32 last_frame);
 
-extern void circuit_add_proto_data(circuit_t *conv, int proto,
+WS_DLL_PUBLIC void circuit_add_proto_data(circuit_t *conv, int proto,
     void *proto_data);
-extern void *circuit_get_proto_data(circuit_t *conv, int proto);
-extern void circuit_delete_proto_data(circuit_t *conv, int proto);
+WS_DLL_PUBLIC void *circuit_get_proto_data(circuit_t *conv, int proto);
+void circuit_delete_proto_data(circuit_t *conv, int proto);
 
 extern void circuit_set_dissector(circuit_t *circuit,
     dissector_handle_t handle);

@@ -25,6 +25,8 @@
 #ifndef __STRUTIL_H__
 #define __STRUTIL_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -66,6 +68,7 @@ int        get_token_len(const guchar *linep, const guchar *lineend,
  *
  * @see tvb_format_text()
  */
+WS_DLL_PUBLIC
 gchar*     format_text(const guchar *line, size_t len);
 
 /**
@@ -89,6 +92,7 @@ gchar*     format_text_wsp(const guchar *line, size_t len);
  *
  * @see bytes_to_str_punct()
  */
+WS_DLL_PUBLIC
 gchar*     bytes_to_str(const guint8 *bd, int bd_len);
 
 /** Turn an array of bytes into a string showing the bytes in hex,
@@ -101,6 +105,7 @@ gchar*     bytes_to_str(const guint8 *bd, int bd_len);
  *
  * @see bytes_to_str()
  */
+WS_DLL_PUBLIC
 gchar*     bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct);
 
 /** Turn a string of hex digits with optional separators (defined by
@@ -113,6 +118,7 @@ gchar*     bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct);
  *        bytes.
  * @return True if the string was converted successfully
  */
+WS_DLL_PUBLIC
 gboolean   hex_str_to_bytes(const char *hex_str, GByteArray *bytes,
     gboolean force_separators);
 
@@ -124,6 +130,7 @@ gboolean   hex_str_to_bytes(const char *hex_str, GByteArray *bytes,
  * @return True if the string was converted successfully
  * @see format_uri()
  */
+WS_DLL_PUBLIC
 gboolean   uri_str_to_bytes(const char *uri_str, GByteArray *bytes);
 
 /** Turn a byte array into an RFC 3986 percent-encoded string.
@@ -139,6 +146,7 @@ gboolean   uri_str_to_bytes(const char *uri_str, GByteArray *bytes);
  *       with the % character itself are always reserved.
  * @see uri_str_to_bytes(),  format_text(), isprint()
  */
+WS_DLL_PUBLIC
 const gchar* format_uri(const GByteArray *bytes, const gchar *reserved_chars);
 
 /** Turn a OID string representation (dot notation) into a byte array.
@@ -158,6 +166,7 @@ gboolean   oid_str_to_bytes(const char *oid_str, GByteArray *bytes);
  *
  * @todo - Should this be in strutil.c?
  */
+WS_DLL_PUBLIC
 GByteArray *byte_array_dup(GByteArray *ba);
 
 /**
@@ -171,6 +180,7 @@ GByteArray *byte_array_dup(GByteArray *ba);
  *
  * @todo - Should this be in strutil.c?
  */
+WS_DLL_PUBLIC
 gboolean byte_array_equal(GByteArray *ba1, GByteArray *ba2);
 
 
@@ -180,6 +190,7 @@ gboolean byte_array_equal(GByteArray *ba1, GByteArray *ba2);
  * @param unescaped The unescaped string
  * @return An XML-escaped representation of the input string
  */
+WS_DLL_PUBLIC
 gchar*     xml_escape(const gchar *unescaped);
 
 /**
@@ -208,6 +219,7 @@ const guint8 * epan_memmem(const guint8 *haystack, guint haystack_len,
  * @return A pointer to a buffer containing the converted raw bytes.  This
  *         buffer must be g_free()d by the caller.
  */
+WS_DLL_PUBLIC
 guint8 * convert_string_to_hex(const char *string, size_t *nbytes);
 
 /** Prep a string for case-sensitive vs case-insensitive searching.
@@ -218,6 +230,7 @@ guint8 * convert_string_to_hex(const char *string, size_t *nbytes);
  * an uppercased version if not.  In either case the string must be g_free()d
  * by the caller.
  */
+WS_DLL_PUBLIC
 char * convert_string_case(const char *string, gboolean case_insensitive);
 
 /** Finds the first occurrence of string 'needle' in string 'haystack'.
@@ -228,6 +241,7 @@ char * convert_string_case(const char *string, gboolean case_insensitive);
  * @return A pointer into 'haystack' where 'needle' is first found.
  *   Otherwise it returns NULL.
  */
+WS_DLL_PUBLIC
 char * epan_strcasestr(const char *haystack, const char *needle);
 
 /** Guarantee a non-null string.
@@ -235,9 +249,12 @@ char * epan_strcasestr(const char *haystack, const char *needle);
  * @param string The string to check
  * @return A pointer 'string' if it's non-null, otherwise "[NULL]".
  */
+WS_DLL_PUBLIC
 const char * string_or_null(const char *string);
 
+WS_DLL_PUBLIC
 int escape_string_len(const char *string);
+WS_DLL_PUBLIC
 char * escape_string(char *dst, const char *string);
 
 
@@ -250,6 +267,7 @@ void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
  * @return A copy of the string with every original 'chr' being
  * transformed into double 'chr'.
  */
+WS_DLL_PUBLIC
 gchar* ws_strdup_escape_char (const gchar *str, const gchar chr);
 
 /** Copy a string, unescaping the 'chr' characters in it
@@ -259,6 +277,7 @@ gchar* ws_strdup_escape_char (const gchar *str, const gchar chr);
  * @return A copy of the string with every occurrence of double 'chr' in
  * the original string being copied as a single 'chr'.
  */
+WS_DLL_PUBLIC
 gchar* ws_strdup_unescape_char (const gchar *str, const gchar chr);
 
 /** Replace values in a string
@@ -270,6 +289,7 @@ gchar* ws_strdup_unescape_char (const gchar *str, const gchar chr);
  * @return A newly-allocated version of str with replacement values or
  * NULL on failure.
  */
+WS_DLL_PUBLIC
 gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_val);
 
 /**

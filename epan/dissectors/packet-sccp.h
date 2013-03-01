@@ -25,6 +25,8 @@
 #ifndef __PACKET_SCCP_H 
 #define __PACKET_SCCP_H
 
+#include "ws_symbol_export.h"
+
 #define SCCP_MSG_TYPE_CR    0x01
 #define SCCP_MSG_TYPE_CC    0x02
 #define SCCP_MSG_TYPE_CREF  0x03
@@ -46,15 +48,15 @@
 #define SCCP_MSG_TYPE_LUDT  0x13
 #define SCCP_MSG_TYPE_LUDTS 0x14
 
-WS_VAR_IMPORT const value_string sccp_message_type_acro_values[];
-WS_VAR_IMPORT const value_string sccp_release_cause_values[];
-WS_VAR_IMPORT const value_string sccp_return_cause_values[];
-WS_VAR_IMPORT const value_string sccp_reset_cause_values[];
-WS_VAR_IMPORT const value_string sccp_error_cause_values[];
-WS_VAR_IMPORT const value_string sccp_refusal_cause_values[];
+WS_DLL_PUBLIC const value_string sccp_message_type_acro_values[];
+WS_DLL_PUBLIC const value_string sccp_release_cause_values[];
+WS_DLL_PUBLIC const value_string sccp_return_cause_values[];
+WS_DLL_PUBLIC const value_string sccp_reset_cause_values[];
+WS_DLL_PUBLIC const value_string sccp_error_cause_values[];
+WS_DLL_PUBLIC const value_string sccp_refusal_cause_values[];
 
 /* from packet-sua.c */
-WS_VAR_IMPORT const value_string sua_co_class_type_acro_values[];
+WS_DLL_PUBLIC const value_string sua_co_class_type_acro_values[];
 
 typedef enum _sccp_payload_t {
     SCCP_PLOAD_NONE,
@@ -112,6 +114,6 @@ extern gboolean looks_like_valid_sccp(guint32 frame_num, tvbuff_t *tvb, guint8 m
 #define GT_EVEN_SIGNAL_MASK  0xf0
 #define GT_EVEN_SIGNAL_SHIFT 4
 #define GT_MAX_SIGNALS (32*7)	/* it's a bit big, but it allows for adding a lot of "(spare)" and "Unknown" values (7 chars) if there are errors - e.g. ANSI vs ITU wrongly selected */
-WS_VAR_IMPORT const value_string sccp_address_signal_values[];
+WS_DLL_PUBLIC const value_string sccp_address_signal_values[];
 
 #endif

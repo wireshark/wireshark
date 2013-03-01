@@ -24,6 +24,9 @@
 #ifndef __PACKET_ARCNET_H__
 #define __PACKET_ARCNET_H__
 
+#include "ws_symbol_export.h"
+
+WS_DLL_PUBLIC
 void capture_arcnet (const guchar *, int, packet_counts *, gboolean, gboolean);
 
 #endif

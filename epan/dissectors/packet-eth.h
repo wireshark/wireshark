@@ -24,12 +24,15 @@
 #ifndef __PACKET_ETH_H__
 #define __PACKET_ETH_H__
 
+#include "ws_symbol_export.h"
+
 typedef struct _eth_hdr {
 	address dst;
 	address src;
 	guint16 type;
 } eth_hdr;
 
+WS_DLL_PUBLIC
 void capture_eth(const guchar *, int, int, packet_counts *);
 
 void add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,

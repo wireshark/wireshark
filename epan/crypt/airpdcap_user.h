@@ -41,6 +41,8 @@
 /*	File includes																					*/
 /*																										*/
 #include "airpdcap_interop.h"
+#include "ws_symbol_export.h"
+
 /*																										*/
 /*																										*/
 /******************************************************************************/
@@ -216,6 +218,7 @@ typedef struct _AIRPDCAP_KEYS_COLLECTION {
  *   success, or NULL on failure.
  * @see get_key_string()
  */
+WS_DLL_PUBLIC
 decryption_key_t*
 parse_key_string(gchar* key_string, guint8 key_type);
 
@@ -226,6 +229,7 @@ parse_key_string(gchar* key_string, guint8 key_type);
  * @return A g_malloc()ed string representation of the key
  * @see parse_key_string()
  */
+WS_DLL_PUBLIC
 gchar*
 get_key_string(decryption_key_t* dk);
 

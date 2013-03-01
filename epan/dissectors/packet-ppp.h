@@ -24,9 +24,12 @@
 #ifndef __PACKET_PPP_H__
 #define __PACKET_PPP_H__
 
+#include "ws_symbol_export.h"
+
 /* PPP options */
 extern gboolean ppp_vj_decomp;/* FALSE = No VJ header decompression,
                                  TRUE  = Decompress VJ */
+WS_DLL_PUBLIC
 void capture_ppp_hdlc(const guchar *, int, int, packet_counts *);
 
 tvbuff_t *decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset);

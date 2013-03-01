@@ -11,7 +11,7 @@ include ..\..\Makefile.nmake.inc
 # We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
 GENERATED_CFLAGS=\
 	$(STANDARD_CFLAGS) \
-	-D_NEED_VAR_IMPORT_ /Zm800 \
+	/Zm800 \
 	/I../.. /I../../wiretap $(GLIB_CFLAGS) $(GNUTLS_CFLAGS) \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP\lbl \

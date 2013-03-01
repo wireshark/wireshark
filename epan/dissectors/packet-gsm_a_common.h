@@ -52,6 +52,7 @@
 #define __PACKET_GSM_A_COMMON_H__
 
 #include "packet-sccp.h"
+#include "ws_symbol_export.h"
 
 /* PROTOTYPES/FORWARDS */
 typedef guint16 (*elem_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
@@ -348,17 +349,17 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 /*
  * Type Length Value (TLV) element dissector
  */
-extern guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+WS_DLL_PUBLIC guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
 
 /*
  * Type Extendable Length Value (TLVE) element dissector
  */
-extern guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
 
 /*
  * Type Length Value (TLV-E) element dissector
  */
-extern guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
 
 /*
  * Type Value (TV) element dissector
@@ -366,7 +367,7 @@ extern guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
  * Length cannot be used in these functions, big problem if a element dissector
  * is not defined for these.
  */
-extern guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
+WS_DLL_PUBLIC guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
 
 /*
  * Type Value (TV) element dissector
@@ -375,22 +376,22 @@ extern guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
  * Length cannot be used in these functions, big problem if a element dissector
  * is not defined for these.
  */
-extern guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
+WS_DLL_PUBLIC guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
 
 /*
  * Type (T) element dissector
  */
-extern guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
+WS_DLL_PUBLIC guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
 
 /*
  * Length Value (LV) element dissector
  */
-extern guint16 elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+WS_DLL_PUBLIC guint16 elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
 
 /*
  * Length Value (LV-E) element dissector
  */
-extern guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
 
 /*
  * Value (V) element dissector
@@ -398,7 +399,7 @@ extern guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gi
  * Length cannot be used in these functions, big problem if a element dissector
  * is not defined for these.
  */
-extern guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
+WS_DLL_PUBLIC guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, const gchar *name_add);
 
 /*
  * Short Value (V_SHORT) element dissector
@@ -406,7 +407,7 @@ extern guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint 
  * nibble used in this functions to indicate left or right nibble of the octet 
  * This is expected to be used right nibble first, as the tables of 24.008.
  */
-extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, guint32 nibble);
+WS_DLL_PUBLIC guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, guint32 nibble);
 
 
 /* XXX: Most (if not all) the functions which make use of the following macros have the variables 'consumed',
@@ -660,8 +661,11 @@ guint16 be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 guint16 be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 be_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
+WS_DLL_PUBLIC
 guint16 de_lai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
@@ -673,38 +677,60 @@ guint16 de_cn_common_gsm_map_nas_sys_info(tvbuff_t *tvb, proto_tree *tree, packe
 guint16 de_cs_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_ps_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_serv_cat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_time_zone(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_gmm_voice_domain_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
 guint16 de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
  
 
+WS_DLL_PUBLIC
 guint16 de_rr_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_rr_ch_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_rr_chnl_needed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
+WS_DLL_PUBLIC
 guint16 de_rej_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+WS_DLL_PUBLIC
 guint16 de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 
@@ -728,17 +754,17 @@ void rp_data_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
  * without having to duplicate it. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT const value_string gsm_a_bssmap_msg_strings[];
-WS_VAR_IMPORT const value_string gsm_a_dtap_msg_mm_strings[];
-WS_VAR_IMPORT const value_string gsm_a_dtap_msg_rr_strings[];
-WS_VAR_IMPORT const value_string gsm_a_dtap_msg_cc_strings[];
-WS_VAR_IMPORT const value_string gsm_a_dtap_msg_gmm_strings[];
-WS_VAR_IMPORT const value_string gsm_a_dtap_msg_sms_strings[];
-WS_VAR_IMPORT const value_string gsm_a_dtap_msg_sm_strings[];
-WS_VAR_IMPORT const value_string gsm_a_dtap_msg_ss_strings[];
-WS_VAR_IMPORT const value_string gsm_a_dtap_msg_tp_strings[];
-WS_VAR_IMPORT const value_string gsm_a_rr_short_pd_msg_strings[];
-WS_VAR_IMPORT const gchar *gsm_a_pd_str[];
+WS_DLL_PUBLIC const value_string gsm_a_bssmap_msg_strings[];
+WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_mm_strings[];
+WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_rr_strings[];
+WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_cc_strings[];
+WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_gmm_strings[];
+WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_sms_strings[];
+WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_sm_strings[];
+WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_ss_strings[];
+WS_DLL_PUBLIC const value_string gsm_a_dtap_msg_tp_strings[];
+WS_DLL_PUBLIC const value_string gsm_a_rr_short_pd_msg_strings[];
+WS_DLL_PUBLIC const gchar *gsm_a_pd_str[];
 
 extern const value_string gsm_a_sm_qos_del_of_err_sdu_vals[];
 extern const value_string gsm_a_sm_qos_traffic_cls_vals[];

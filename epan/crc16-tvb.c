@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <epan/tvbuff.h>
 #include <wsutil/crc16.h>
+#include <epan/crc16-tvb.h>
 #include <wsutil/crc16-plain.h>
 
 

@@ -24,6 +24,8 @@
 #ifndef __PACKET_TR_H__
 #define __PACKET_TR_H__
 
+#include "ws_symbol_export.h"
+
 typedef struct _tr_hdr {
 	guint8 ac;
 	guint8 fc;
@@ -31,6 +33,7 @@ typedef struct _tr_hdr {
 	address src;
 } tr_hdr;
 
+WS_DLL_PUBLIC
 void capture_tr(const guchar *, int, int, packet_counts *);
 
 #endif

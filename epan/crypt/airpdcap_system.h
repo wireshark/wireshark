@@ -42,6 +42,7 @@
 
 #include "airpdcap_interop.h"
 #include "airpdcap_user.h"
+#include "ws_symbol_export.h"
 
 /************************************************************************/
 /*	Constant definitions						*/
@@ -316,6 +317,7 @@ INT AirPDcapSetLastSSID(
  * This function is not thread-safe when used in parallel with context
  * management functions and the packet process function on the same context.
  */
+WS_DLL_PUBLIC
 INT AirPDcapInitContext(
         PAIRPDCAP_CONTEXT ctx)
 	;
@@ -332,6 +334,7 @@ INT AirPDcapInitContext(
  * management functions and the packet process function on the same
  * context.
  */
+WS_DLL_PUBLIC
 INT AirPDcapDestroyContext(
 	PAIRPDCAP_CONTEXT ctx)
 	;

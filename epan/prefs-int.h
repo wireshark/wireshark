@@ -27,6 +27,7 @@
 #define __PREFS_INT_H__
 
 #include <stdio.h>
+#include "ws_symbol_export.h"
 
 /**
  *@file
@@ -63,7 +64,7 @@ typedef struct {
  * Module used for protocol preferences.
  * With MSVC and a libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT module_t *protocols_module;
+WS_DLL_PUBLIC module_t *protocols_module;
 
 typedef void (*pref_custom_free_cb) (pref_t* pref);
 typedef void (*pref_custom_reset_cb) (pref_t* pref);
@@ -170,6 +171,7 @@ typedef prefs_set_pref_e (*pref_set_pair_cb) (gchar *key, const gchar *value, vo
 /** read the preferences file (or similiar) and call the callback
  * function to set each key/value pair found
  */
+WS_DLL_PUBLIC
 int
 read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct, void *private_data);
 

@@ -26,6 +26,8 @@
 #ifndef __REQ_RESP_HDRS_H__
 #define __REQ_RESP_HDRS_H__
 
+#include "ws_symbol_export.h"
+
 /**
  * Optionally do reassembly of the request/response line, headers, and body.
  *
@@ -36,7 +38,7 @@
  *  @param desegment_body   Do desegmenation on body.
  *  @return TRUE if desegmentation is complete otherwise FALSE
  */
-extern gboolean
+WS_DLL_PUBLIC gboolean
 req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const  int offset, packet_info *pinfo,
     const gboolean desegment_headers, const gboolean desegment_body);
 

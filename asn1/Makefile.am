@@ -39,6 +39,7 @@ SUBDIRS = 		\
 	crmf		\
 	cms		\
 	dap		\
+	dsp		\
 	dop		\
 	disp		\
 	dsp		\

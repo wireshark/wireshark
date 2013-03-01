@@ -32,11 +32,8 @@
 #include <wtap.h>
 #include "ws_symbol_export.h"
 
-WS_DLL_LOCAL
 int visual_open(wtap *wth, int *err, gchar **err_info);
-WS_DLL_LOCAL
 gboolean visual_dump_open(wtap_dumper *wdh, int *err);
-WS_DLL_LOCAL
 int visual_dump_can_write_encap(int encap);
 
 #endif

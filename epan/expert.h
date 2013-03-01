@@ -30,6 +30,7 @@
 #include <epan/packet_info.h>
 #include <epan/proto.h>
 #include "value_string.h"
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,13 +46,13 @@ typedef struct expert_info_s {
 	proto_item *pitem;
 } expert_info_t;
 
-WS_VAR_IMPORT const value_string expert_severity_vals[];
-WS_VAR_IMPORT const value_string expert_group_vals[];
+WS_DLL_PUBLIC const value_string expert_severity_vals[];
+WS_DLL_PUBLIC const value_string expert_group_vals[];
 
 /* "proto_expert" is exported from libwireshark.dll.
  * Thus we need a special declaration.
  */
-WS_VAR_IMPORT int proto_expert;
+WS_DLL_PUBLIC int proto_expert;
 
 extern void
 expert_init(void);
@@ -59,7 +60,7 @@ expert_init(void);
 extern void
 expert_cleanup(void);
 
-extern int
+WS_DLL_PUBLIC int
 expert_get_highest_severity(void);
 
 /** Add an expert info.
@@ -71,7 +72,7 @@ expert_get_highest_severity(void);
  @param severity The expert severity (like PI_WARN - see: proto.h)
  @param format Printf-style format string for additional arguments
  */
-extern void
+WS_DLL_PUBLIC void
 expert_add_info_format(packet_info *pinfo, proto_item *pi, int group,
 	int severity, const char *format, ...)
 	G_GNUC_PRINTF(5, 6);
@@ -86,7 +87,7 @@ expert_add_info_format(packet_info *pinfo, proto_item *pi, int group,
  @param severity The expert severity (like PI_WARN - see: proto.h)
   */
 
-extern void
+WS_DLL_PUBLIC void
 expert_add_undecoded_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length, const int severity);
 #ifdef __cplusplus
 }

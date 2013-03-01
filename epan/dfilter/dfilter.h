@@ -24,6 +24,7 @@
 #define DFILTER_H
 
 #include <glib.h>
+#include "ws_symbol_export.h"
 
 /* Passed back to user */
 typedef struct _dfilter_t dfilter_t;
@@ -57,11 +58,13 @@ dfilter_cleanup(void);
  *
  * Returns TRUE on success, FALSE on failure.
  */
+WS_DLL_PUBLIC
 gboolean
 dfilter_compile(const gchar *text, dfilter_t **dfp);
 
 /* Frees all memory used by dfilter, and frees
  * the dfilter itself. */
+WS_DLL_PUBLIC
 void
 dfilter_free(dfilter_t *df);
 
@@ -71,10 +74,11 @@ dfilter_free(dfilter_t *df);
  * libwireshark.dll, we need a special declaration.
  */
 
-WS_VAR_IMPORT const gchar *dfilter_error_msg;
+WS_DLL_PUBLIC const gchar *dfilter_error_msg;
 
 
 /* Apply compiled dfilter */
+WS_DLL_PUBLIC
 gboolean
 dfilter_apply_edt(dfilter_t *df, epan_dissect_t* edt);
 
@@ -86,10 +90,12 @@ dfilter_apply(dfilter_t *df, proto_tree *tree);
 void
 dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree);
 
+WS_DLL_PUBLIC
 GPtrArray *
 dfilter_deprecated_tokens(dfilter_t *df);
 
 /* Print bytecode of dfilter to stdout */
+WS_DLL_PUBLIC
 void
 dfilter_dump(dfilter_t *df);
 

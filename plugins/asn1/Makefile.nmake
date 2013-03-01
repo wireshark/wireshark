@@ -22,7 +22,7 @@ LDFLAGS = $(PLUGIN_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK
 LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib ..\..\wsutil\libwsutil.lib
-CFLAGS=/D_NEED_VAR_IMPORT_ $(CFLAGS)
+CFLAGS=$(CFLAGS)
 
 OBJECTS = $(C_FILES:.c=.obj) $(CPP_FILES:.cpp=.obj) plugin.obj
 

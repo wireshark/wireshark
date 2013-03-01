@@ -64,9 +64,6 @@ add_library(wsutil ${LINK_MODE_LIB}
 set(FULL_SO_VERSION "0.0.0")
 
 set_target_properties(wsutil PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
-if(DEFINED COMPILE_HIDE_SYMBOLS)
-	set_target_properties(wsutil PROPERTIES COMPILE_FLAGS ${COMPILE_HIDE_SYMBOLS})
-endif()
 set_target_properties(wsutil PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(wsutil PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
 

@@ -26,6 +26,7 @@
 #define __VALUE_STRING_H__
 
 #include <glib.h>
+#include "ws_symbol_export.h"
 
 /* Struct for the val_to_str, match_strval_idx, and match_strval functions */
 
@@ -55,21 +56,21 @@ typedef struct _range_string {
    Returns the associated string ptr, and sets "*idx" to the index in
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
-extern const gchar* match_strval_idx(const guint32 val, const value_string *vs, gint *idx);
+WS_DLL_PUBLIC const gchar* match_strval_idx(const guint32 val, const value_string *vs, gint *idx);
 
 /* Like match_strval_idx(), but doesn't return the index. */
-extern const gchar* match_strval(const guint32 val, const value_string *vs);
+WS_DLL_PUBLIC const gchar* match_strval(const guint32 val, const value_string *vs);
 
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-extern const gchar* val_to_str(const guint32 val, const value_string *vs, const char *fmt);
+WS_DLL_PUBLIC const gchar* val_to_str(const guint32 val, const value_string *vs, const char *fmt);
 
 
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Returns 'unknown_str', on failure. */
-extern const gchar* val_to_str_const(const guint32 val, const value_string *vs, const char *unknown_str);
+WS_DLL_PUBLIC const gchar* val_to_str_const(const guint32 val, const value_string *vs, const char *unknown_str);
 
 /* Tries to match val against each element in the string_string array vs.
    Returns the associated string ptr, and sets "*idx" to the index in
@@ -83,7 +84,7 @@ extern const gchar* match_strstr(const gchar *val, const string_string *vs);
 /* Tries to match val against each element in the string_string array vs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-extern const gchar* str_to_str(const gchar *val, const string_string *vs, const char *fmt);
+WS_DLL_PUBLIC const gchar* str_to_str(const gchar *val, const string_string *vs, const char *fmt);
 
 /* --------------------------------------------------------------------*/
 /* value_string_ext functions
@@ -136,7 +137,7 @@ gboolean value_string_ext_validate(const value_string_ext *vse);
 const gchar *value_string_ext_match_type_str(const value_string_ext *vse);
 /* --- --- */
 
-extern const value_string *_match_strval_ext_init(const guint32 val, const value_string_ext *vse);
+WS_DLL_PUBLIC const value_string *_match_strval_ext_init(const guint32 val, const value_string_ext *vse);
 #define VALUE_STRING_EXT_INIT(x) { _match_strval_ext_init, 0, array_length(x)-1, x, #x }
 
 /* Create a value_string_ext given a ptr to a value_string array and the total number of entries. */
@@ -148,35 +149,37 @@ extern value_string_ext *value_string_ext_new(value_string *vs, guint vs_tot_num
  *  or linear) determined at rutime during the initial access); (see _match_strval_ext_init)
  * Returns the associated string ptr on a match or NULL on failure.
  */
-extern const gchar* match_strval_ext(const guint32 val, const value_string_ext *vse);
+WS_DLL_PUBLIC const gchar* match_strval_ext(const guint32 val, const value_string_ext *vse);
 
 /* Tries to match val against each element in the value_string array vs.
  *  Returns the associated string ptr, and sets "*idx" to the index in
  *  that table, on a match, and returns NULL, and sets "*idx" to -1,
  *  on failure.
  */
-extern const gchar* match_strval_idx_ext(const guint32 val, value_string_ext *vse, gint *idx);
+const gchar* match_strval_idx_ext(const guint32 val, value_string_ext *vse, gint *idx);
 
-/* Similar to match_strval_ext except that on failure
+/*
+ Similar to match_strval_ext except that on failure
  * Formats val with fmt, and returns the resulting string
  */
-extern const gchar* val_to_str_ext(const guint32 val, const value_string_ext *vs, const char *fmt);
+WS_DLL_PUBLIC const gchar* val_to_str_ext(const guint32 val, const value_string_ext *vs, const char *fmt);
 
-/* Similar to match_strval_ext except that on failure
+/*
+ Similar to match_strval_ext except that on failure
  *  Returns 'unknown_str'
  */
-extern const gchar* val_to_str_ext_const(const guint32 val, const value_string_ext *vs, const char *unknown_str);
+WS_DLL_PUBLIC const gchar* val_to_str_ext_const(const guint32 val, const value_string_ext *vs, const char *unknown_str);
 
 /* ---- ---- */
 
 /* Generate a string describing an enumerated bitfield (an N-bit field
    with various specific values having particular names). */
-extern const char *decode_enumerated_bitfield(const guint32 val, const guint32 mask,
+WS_DLL_PUBLIC const char *decode_enumerated_bitfield(const guint32 val, const guint32 mask,
   const int width, const value_string *tab, const char *fmt);
 
 /* Generate a string describing an enumerated bitfield (an N-bit field
    with various specific values having particular names). */
-extern const char *decode_enumerated_bitfield_shifted(const guint32 val, const guint32 mask,
+WS_DLL_PUBLIC const char *decode_enumerated_bitfield_shifted(const guint32 val, const guint32 mask,
   const int width, const value_string *tab, const char *fmt);
 
 
@@ -185,15 +188,15 @@ extern const char *decode_enumerated_bitfield_shifted(const guint32 val, const g
 /* Tries to match val against each range in the range_string array rs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-extern const gchar* rval_to_str(const guint32 val, const range_string *rs, const char *fmt);
+WS_DLL_PUBLIC const gchar* rval_to_str(const guint32 val, const range_string *rs, const char *fmt);
 
 /* Tries to match val against each range in the range_string array rs.
    Returns the associated string ptr, and sets "*idx" to the index in
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
-extern const gchar *match_strrval_idx(const guint32 val, const range_string *rs, gint *idx);
+WS_DLL_PUBLIC const gchar *match_strrval_idx(const guint32 val, const range_string *rs, gint *idx);
 
 /* Like match_strrval_idx(), but doesn't return the index. */
-extern const gchar *match_strrval(const guint32 val, const range_string *rs);
+WS_DLL_PUBLIC const gchar *match_strrval(const guint32 val, const range_string *rs);
 
 #endif /* __VALUE_STRING_H__ */

@@ -25,6 +25,8 @@
 #ifndef __CRC32_TVB_H__
 #define __CRC32_TVB_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -33,14 +35,14 @@ extern "C" {
  @param tvb The tv buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return The CRC32 CCITT checksum. */
-extern guint32 crc32_ccitt_tvb(tvbuff_t *tvb, guint len);
+WS_DLL_PUBLIC guint32 crc32_ccitt_tvb(tvbuff_t *tvb, guint len);
 
 /** Compute CRC32 CCITT checksum of a tv buffer.
  @param tvb The tv buffer containing the data.
  @param offset The offset into the tv buffer.
  @param len The number of bytes to include in the computation.
  @return The CRC32 CCITT checksum. */
-extern guint32 crc32_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint len);
+WS_DLL_PUBLIC guint32 crc32_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint len);
 
 /** Compute CRC32 CCITT checksum of a tv buffer.  If computing the
  *  checksum over multiple tv buffers and you want to feed the partial CRC32
@@ -49,7 +51,7 @@ extern guint32 crc32_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint len);
  @param len The number of bytes to include in the computation.
  @param seed The seed to use.
  @return The CRC32 CCITT checksum (using the given seed). */
-extern guint32 crc32_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed);
+WS_DLL_PUBLIC guint32 crc32_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed);
 
 /** Compute CRC32 CCITT checksum of a tv buffer.  If computing the
  *  checksum over multiple tv buffers and you want to feed the partial CRC32
@@ -59,35 +61,35 @@ extern guint32 crc32_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed);
  @param len The number of bytes to include in the computation.
  @param seed The seed to use.
  @return The CRC32 CCITT checksum (using the given seed). */
-extern guint32 crc32_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset,
+WS_DLL_PUBLIC guint32 crc32_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset,
                                            guint len, guint32 seed);
 
 /** Compute IEEE 802.x CRC32 checksum of a tv buffer.
  @param tvb The tv buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return The IEEE 802.x CRC32 checksum. */
-extern guint32 crc32_802_tvb(tvbuff_t *tvb, guint len);
+WS_DLL_PUBLIC guint32 crc32_802_tvb(tvbuff_t *tvb, guint len);
 
 
 /** Compute MPEG-2 CRC32 checksum of a tv buffer.
  @param tvb The tv buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return The MPEG-2 CRC32 checksum. */
-extern guint32 crc32_mpeg2_tvb(tvbuff_t *tvb, guint len);
+WS_DLL_PUBLIC guint32 crc32_mpeg2_tvb(tvbuff_t *tvb, guint len);
 
 /** Compute MPEG-2 CRC32 checksum of a tv buffer.
  @param tvb The tv buffer containing the data.
  @param offset The offset into the tv buffer.
  @param len The number of bytes to include in the computation.
  @return The MPEG-2 CRC32 checksum. */
-extern guint32 crc32_mpeg2_tvb_offset(tvbuff_t *tvb, guint offset, guint len);
+WS_DLL_PUBLIC guint32 crc32_mpeg2_tvb_offset(tvbuff_t *tvb, guint offset, guint len);
 
 /** Compute MPEG-2 CRC32 checksum of a buffer of data.
  @param tvb The tv buffer containing the data.
  @param len The number of bytes to include in the computation.
  @param seed The seed to use.
  @return The CRC32 MPEG-2 checksum (using the given seed). */
-extern guint32 crc32_mpeg2_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed);
+WS_DLL_PUBLIC guint32 crc32_mpeg2_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed);
 
 /** Compute MPEG-2 CRC32 checksum of a buffer of data.
  @param tvb The tv buffer containing the data.
@@ -95,7 +97,7 @@ extern guint32 crc32_mpeg2_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed);
  @param len The number of bytes to include in the computation.
  @param seed The seed to use.
  @return The CRC32 MPEG-2 checksum (using the given seed). */
-extern guint32 crc32_mpeg2_tvb_offset_seed(tvbuff_t *tvb, guint offset,
+WS_DLL_PUBLIC guint32 crc32_mpeg2_tvb_offset_seed(tvbuff_t *tvb, guint offset,
                                            guint len, guint32 seed);
 #ifdef __cplusplus
 }

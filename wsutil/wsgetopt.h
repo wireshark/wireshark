@@ -151,8 +151,7 @@ struct option
 /* Many other libraries have conflicting prototypes for getopt, with
    differences in the consts, in stdlib.h.  To avoid compilation
    errors, only prototype getopt for the GNU C library.  */
-WS_DLL_PUBLIC
-extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
+WS_DLL_PUBLIC int getopt (int ___argc, char *const *___argv, const char *__shortopts)
        __THROW;
 
 # if defined __need_getopt && defined __USE_POSIX2 \
@@ -171,8 +170,7 @@ extern int __posix_getopt (int ___argc, char *const *___argv,
 #  endif
 # endif
 #else /* not __GNU_LIBRARY__ */
-WS_DLL_PUBLIC
-extern int getopt (int ___argc, char *const *___argv,
+WS_DLL_PUBLIC int getopt (int ___argc, char *const *___argv,
 		   const char *__shortopts);
 #endif /* __GNU_LIBRARY__ */
 

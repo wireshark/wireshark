@@ -32,6 +32,8 @@
 #ifndef __NEXT_TVB_H__
 #define __NEXT_TVB_H__
 
+#include "ws_symbol_export.h"
+
 typedef enum {
   NTVB_HANDLE,
   NTVB_UINT,
@@ -59,10 +61,10 @@ typedef struct {
   int count;
 } next_tvb_list_t;
 
-extern void next_tvb_init(next_tvb_list_t *list);
-extern void next_tvb_add_handle(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle);
-extern void next_tvb_add_uint(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, guint32 uint_val);
-extern void next_tvb_add_string(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, const gchar *string);
-extern void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle, dissector_handle_t data_handle);
+WS_DLL_PUBLIC void next_tvb_init(next_tvb_list_t *list);
+WS_DLL_PUBLIC void next_tvb_add_handle(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle);
+WS_DLL_PUBLIC void next_tvb_add_uint(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, guint32 uint_val);
+WS_DLL_PUBLIC void next_tvb_add_string(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, const gchar *string);
+WS_DLL_PUBLIC void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle, dissector_handle_t data_handle);
 
 #endif /* __NEXT_TVB_H__ */

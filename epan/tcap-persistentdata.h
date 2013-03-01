@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-tcap.h>
+#include "ws_symbol_export.h"
+
 /** @file
  * lists and hash tables used in wireshark's tcap dissector
  * for calculation of delays in tcap-calls
@@ -170,6 +172,6 @@ struct tcaphash_context_t * tcapsrt_call_matching(tvbuff_t *tvb,
 						  proto_tree *tree,
 						  struct tcapsrt_info_t * p_tcap_info);
 
-WS_VAR_IMPORT gboolean gtcap_StatSRT;
+WS_DLL_PUBLIC gboolean gtcap_StatSRT;
 
 #endif /* __tcapsrt_HASH__*/

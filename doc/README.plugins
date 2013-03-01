@@ -287,7 +287,7 @@ stips the parts outlined below:
     o Removed the definition:
 
         #ifndef ENABLE_STATIC
-        G_MODULE_EXPORT gchar version[] = VERSION;
+        WS_DLL_PUBLIC_NOEXTERN gchar version[] = VERSION;
         #endif
 
     o Move relevant code from the blocks and delete these functions:

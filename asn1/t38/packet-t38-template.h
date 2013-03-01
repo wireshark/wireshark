@@ -25,6 +25,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "ws_symbol_export.h"
+
 #define MAX_T38_DATA_ITEMS 4
 #define MAX_T38_DESC 128
 
@@ -72,6 +74,7 @@ typedef struct _t38_conv
 } t38_conv;
 
 /* Add an T38 conversation with the given details */
+WS_DLL_PUBLIC
 void t38_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,

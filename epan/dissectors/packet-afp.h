@@ -125,7 +125,7 @@ struct aspinfo {
 /*
  * value_string table for AFP command codes.
  */
-WS_VAR_IMPORT value_string_ext CommandCode_vals_ext;
+WS_DLL_PUBLIC value_string_ext CommandCode_vals_ext;
 
 /*
  * Value from table matching requests and responses; also passed to AFP

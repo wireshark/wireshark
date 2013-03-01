@@ -38,6 +38,7 @@
 #include <gnutls/pkcs12.h>
 
 #include <epan/conversation.h>
+#include "ws_symbol_export.h"
 
 /* #define SSL_FAST 1 */
 #define SSL_DECRYPT_DEBUG
@@ -411,7 +412,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd);
 
 /** Deallocate the memory used for specified key
  @param key pointer to the key to be freed */
-extern void
+void
 ssl_free_key(Ssl_private_key_t* key);
 
 /* Find private key in associations */

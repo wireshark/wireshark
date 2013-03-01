@@ -27,6 +27,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "ws_symbol_export.h"
+
 struct _rtp_info {
 	unsigned int  info_version;
 	gboolean      info_padding_set;
@@ -122,6 +124,7 @@ typedef struct {
 } encoding_name_and_rate_t;
 
 /* Add an RTP conversation with the given details */
+WS_DLL_PUBLIC
 void rtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
@@ -131,6 +134,7 @@ void rtp_add_address(packet_info *pinfo,
                      GHashTable *rtp_dyn_payload);
 
 /* Add an SRTP conversation with the given details */
+WS_DLL_PUBLIC
 void srtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
@@ -141,5 +145,6 @@ void srtp_add_address(packet_info *pinfo,
                      struct srtp_info *srtp_info);
 
 /* Free and destroy the dyn_payload hash table */
+WS_DLL_PUBLIC
 void rtp_free_hash_dyn_payload(GHashTable *rtp_dyn_payload);
 

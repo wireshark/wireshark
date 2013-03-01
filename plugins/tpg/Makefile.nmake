@@ -20,7 +20,7 @@ LDFLAGS = $(PLUGIN_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK
 LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
-CFLAGS=/D_NEED_VAR_IMPORT_ $(CFLAGS)
+CFLAGS=$(CFLAGS)
 
 OBJECTS=packet-mate.obj\
 		mate_setup.obj\

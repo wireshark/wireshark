@@ -28,6 +28,7 @@
 #include <time.h>
 
 #include <wiretap/wtap.h>
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,25 +47,25 @@ typedef struct {
 /* functions */
 
 /** set the given nstime_t to zero */
-extern void nstime_set_zero(nstime_t *nstime);
+WS_DLL_PUBLIC void nstime_set_zero(nstime_t *nstime);
 
 /** is the given nstime_t currently zero? */
-extern gboolean nstime_is_zero(nstime_t *nstime);
+WS_DLL_PUBLIC gboolean nstime_is_zero(nstime_t *nstime);
 
 /** set the given nstime_t to (0,maxint) to mark it as "unset"
  * That way we can find the first frame even when a timestamp
  * is zero (fix for bug 1056)
  */
-extern void nstime_set_unset(nstime_t *nstime);
+WS_DLL_PUBLIC void nstime_set_unset(nstime_t *nstime);
 
 /* is the given nstime_t currently (0,maxint)? */
-extern gboolean nstime_is_unset(nstime_t *nstime);
+WS_DLL_PUBLIC gboolean nstime_is_unset(nstime_t *nstime);
 
 /** duplicate the current time
  *
  * a = b
  */
-extern void nstime_copy(nstime_t *a, const nstime_t *b);
+WS_DLL_PUBLIC void nstime_copy(nstime_t *a, const nstime_t *b);
 
 /** calculate the delta between two times (can be negative!)
  *
@@ -73,7 +74,7 @@ extern void nstime_copy(nstime_t *a, const nstime_t *b);
  * Note that it is acceptable for two or more of the arguments to point at the
  * same structure.
  */
-extern void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a );
+WS_DLL_PUBLIC void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a );
 
 /** calculate the sum of two times
  *
@@ -82,7 +83,7 @@ extern void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
  * Note that it is acceptable for two or more of the arguments to point at the
  * same structure.
  */
-extern void nstime_sum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
+WS_DLL_PUBLIC void nstime_sum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
 
 /** sum += a */
 #define nstime_add(sum, a) nstime_sum(sum, sum, a)
@@ -96,16 +97,16 @@ extern void nstime_sum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
  * a = b : 0
  * a < b : < 0
  */
-extern int nstime_cmp (const nstime_t *a, const nstime_t *b );
+WS_DLL_PUBLIC int nstime_cmp (const nstime_t *a, const nstime_t *b );
 
 /** converts nstime to double, time base is milli seconds */
-extern double nstime_to_msec(const nstime_t *nstime);
+WS_DLL_PUBLIC double nstime_to_msec(const nstime_t *nstime);
 
 /** converts nstime to double, time base is seconds */
-extern double nstime_to_sec(const nstime_t *nstime);
+WS_DLL_PUBLIC double nstime_to_sec(const nstime_t *nstime);
 
 /** converts wtap_nstime to double, time base is seconds */
-extern double wtap_nstime_to_sec(const struct wtap_nstime *nstime);
+WS_DLL_PUBLIC double wtap_nstime_to_sec(const struct wtap_nstime *nstime);
 
 #ifdef __cplusplus
 }

@@ -25,5 +25,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-WS_VAR_IMPORT const value_string t30_facsimile_control_field_vals[];
-WS_VAR_IMPORT const value_string t30_facsimile_control_field_vals_short[];
+#include "ws_symbol_export.h"
+
+WS_DLL_PUBLIC const value_string t30_facsimile_control_field_vals[];
+WS_DLL_PUBLIC const value_string t30_facsimile_control_field_vals_short[];

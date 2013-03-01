@@ -1548,6 +1548,7 @@ add_dependencies(epan svnversion)
 
 set(FULL_SO_VERSION "0.0.0")
 
+set_target_properties(epan PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
 set_target_properties(epan PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(epan PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
 
@@ -1573,7 +1574,7 @@ file(MAKE_DIRECTORY abi-check-headers abi-check-headers/epan
 		abi-check-headers/wmem)
 file(MAKE_DIRECTORY abi-check-headers/epan)
 
-file(COPY ../color.h ../register.h DESTINATION abi-check-headers)
+file(COPY ../color.h ../register.h ../ws_symbol_export.h DESTINATION abi-check-headers)
 file(COPY ${EPAN_HEADERS} DESTINATION abi-check-headers/epan)
 file(COPY ${CRYPT_HEADERS} DESTINATION abi-check-headers/crypt)
 file(COPY ${DFILTER_HEADERS} DESTINATION abi-check-headers/dfilter)

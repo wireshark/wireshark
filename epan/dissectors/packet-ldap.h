@@ -35,6 +35,7 @@
 #define __PACKET_LDAP_H__
 
 # include <epan/packet.h>  /* for dissector_*_t types */
+#include "ws_symbol_export.h"
 
 /*
  * These are all APPLICATION types; the value is the type tag.
@@ -111,6 +112,7 @@ typedef struct ldap_call_response {
 void register_ldap_name_dissector_handle(const char *attr_type, dissector_handle_t dissector);
 void register_ldap_name_dissector(const char *attr_type, dissector_t dissector, int proto);
 
+WS_DLL_PUBLIC
 int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int max_len, gboolean prepend_dot _U_);
 
 /*#include "packet-ldap-exp.h" */

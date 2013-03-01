@@ -29,7 +29,6 @@
 
 #define TNEF_SIGNATURE 0x223E9F78
 
-WS_DLL_LOCAL
 int tnef_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

@@ -26,6 +26,8 @@
 #ifndef __XDLC_H__
 #define __XDLC_H__
 
+#include "ws_symbol_export.h"
+
 /** @file
  * Define *DLC frame types, and routine to dissect the control field of
  * a *DLC frame.
@@ -137,12 +139,12 @@ extern int get_xdlc_control(const guchar *pd, int offset, gboolean is_extended);
 /**
  * Check whether the control field of the packet looks valid.
  */
-extern gboolean check_xdlc_control(tvbuff_t *tvb, int offset,
+WS_DLL_PUBLIC gboolean check_xdlc_control(tvbuff_t *tvb, int offset,
   const value_string *u_modifier_short_vals_cmd,
   const value_string *u_modifier_short_vals_resp, gboolean is_response,
   gboolean is_extended _U_);
 
-extern int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
+WS_DLL_PUBLIC int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
   const xdlc_cf_items *cf_items_nonext, const xdlc_cf_items *cf_items_ext,
   const value_string *u_modifier_short_vals_cmd,

@@ -29,6 +29,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include "ws_symbol_export.h"
 
 #define RPC_CALL 0
 #define RPC_REPLY 1
@@ -140,18 +141,19 @@ typedef struct _vsff {
 
 extern const value_string rpc_auth_flavor[];
 
-extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
+WS_DLL_PUBLIC void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
     int procedure_hf);
-extern void rpc_init_prog(int proto, guint32 prog, int ett);
-extern const char *rpc_prog_name(guint32 prog);
-extern const char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
-extern int rpc_prog_hf(guint32 prog, guint32 vers);
+WS_DLL_PUBLIC void rpc_init_prog(int proto, guint32 prog, int ett);
+WS_DLL_PUBLIC const char *rpc_prog_name(guint32 prog);
+WS_DLL_PUBLIC const char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
+WS_DLL_PUBLIC int rpc_prog_hf(guint32 prog, guint32 vers);
 
-extern unsigned int rpc_roundup(unsigned int a);
-extern int dissect_rpc_bool(tvbuff_t *tvb,
+WS_DLL_PUBLIC unsigned int rpc_roundup(unsigned int a);
+WS_DLL_PUBLIC int dissect_rpc_bool(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
-extern int dissect_rpc_string(tvbuff_t *tvb,
+WS_DLL_PUBLIC int dissect_rpc_string(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset, const char **string_buffer_ret);
+WS_DLL_PUBLIC
 int dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
     proto_tree *tree,
     packet_info *pinfo,
@@ -159,25 +161,25 @@ int dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
     gboolean fixed_length, guint32 length,
     gboolean string_data, const char **string_buffer_ret,
     dissect_function_t *dissect_it);
-extern int dissect_rpc_data(tvbuff_t *tvb,
+WS_DLL_PUBLIC int dissect_rpc_data(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
-extern int dissect_rpc_bytes(tvbuff_t *tvb,
+WS_DLL_PUBLIC int dissect_rpc_bytes(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset, guint32 length,
 	gboolean string_data, const char **string_buffer_ret);
-extern int dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo,
+WS_DLL_PUBLIC int dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, dissect_function_t *rpc_list_dissector);
-extern int dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo,
+WS_DLL_PUBLIC int dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, dissect_function_t *rpc_array_dissector,
 	int hfindex);
-extern int dissect_rpc_uint32(tvbuff_t *tvb,
+WS_DLL_PUBLIC int dissect_rpc_uint32(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
-extern int dissect_rpc_uint64(tvbuff_t *tvb,
+WS_DLL_PUBLIC int dissect_rpc_uint64(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
 
-extern int dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo,
+WS_DLL_PUBLIC int dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, int args_id, guint32 prog, guint32 vers,
 	guint32 proc);
-extern int dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo,
+WS_DLL_PUBLIC int dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, int result_id, int prog_id, int vers_id,
 	int proc_id);
 
@@ -197,7 +199,7 @@ typedef struct _rpc_prog_info_value {
 /* rpc_progs is also used in tap. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT GHashTable *rpc_progs;
+WS_DLL_PUBLIC GHashTable *rpc_progs;
 
 typedef struct _rpc_proc_info_key {
 	guint32	prog;
@@ -214,7 +216,7 @@ typedef struct _rpc_proc_info_value {
 /* rpc_procs is also used in tap. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT GHashTable *rpc_procs;
+WS_DLL_PUBLIC GHashTable *rpc_procs;
 
 #endif /* packet-rpc.h */
 

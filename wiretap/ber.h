@@ -25,7 +25,6 @@
 #include <glib.h>
 #include "ws_symbol_export.h"
 
-WS_DLL_LOCAL
 int ber_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

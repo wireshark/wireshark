@@ -29,6 +29,7 @@
 
 #include <epan/ipv6-utils.h>
 #include <epan/prefs.h>
+#include "ws_symbol_export.h"
 
 /* Fake databases to make lat/lon values available */
 /* XXX - find a better way to interface */
@@ -46,7 +47,7 @@ extern void geoip_db_pref_init(module_t *nameres);
  *
  * @return The number GeoIP databases successfully loaded
  */
-extern guint geoip_db_num_dbs(void);
+WS_DLL_PUBLIC guint geoip_db_num_dbs(void);
 
 /**
  * Fetch the name of a database
@@ -54,7 +55,7 @@ extern guint geoip_db_num_dbs(void);
  * @param dbnum Database index
  * @return The database name or "Invalid database"
  */
-extern const gchar *geoip_db_name(guint dbnum);
+WS_DLL_PUBLIC const gchar *geoip_db_name(guint dbnum);
 
 /**
  * Fetch the database type. Types are enumerated in GeoIPDBTypes in GeoIP.h.
@@ -62,7 +63,7 @@ extern const gchar *geoip_db_name(guint dbnum);
  * @param dbnum Database index
  * @return The database type or -1
  */
-extern int geoip_db_type(guint dbnum);
+WS_DLL_PUBLIC int geoip_db_type(guint dbnum);
 
 /**
  * Look up an IPv4 address in a database
@@ -72,7 +73,7 @@ extern int geoip_db_type(guint dbnum);
  * @param not_found The string to return if the lookup fails. May be NULL.
  * @return The database entry if found, else not_found
  */
-extern const char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found);
+WS_DLL_PUBLIC const char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found);
 
 /**
  * Look up an IPv6 address in a database
@@ -82,13 +83,13 @@ extern const char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *n
  * @param not_found The string to return if the lookup fails. May be NULL.
  * @return The database entry if found, else not_found
  */
-extern const char *geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found);
+WS_DLL_PUBLIC const char *geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found);
 
 /**
  * Get all configured paths
  *
  * @return String with all paths separated by a path separator
  */
-extern gchar *geoip_db_get_paths(void);
+WS_DLL_PUBLIC gchar *geoip_db_get_paths(void);
 
 #endif /* __GEOIP_DB_H__ */
