@@ -899,7 +899,7 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         /* Server version string */
         proto_tree_add_string(tree, hf_msmms_command_tool_version, tvb,
                               offset, tool_version_length*2,
-                              format_text((guchar*)tool_version, MIN(strlen(tool_version), tool_version_length)));
+                              format_text((guchar*)tool_version, tool_version_length));
     }
     offset += (tool_version_length*2);
 
