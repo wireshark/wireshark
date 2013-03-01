@@ -16,7 +16,7 @@
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
- * This program is distributed in t/he hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -46,14 +46,14 @@ typedef struct
 	gint32   length;         /* length of TLV value field */
 } tlv_info_t;
 
-gint   init_tlv_info(tlv_info_t *this, tvbuff_t *tvb, gint offset);
-gint   valid_tlv_info(tlv_info_t *this);
-gint   get_tlv_type(tlv_info_t *this);
-gint   get_tlv_length_type(tlv_info_t *this);
-gint   get_tlv_size_of_length(tlv_info_t *this);
-gint   get_tlv_value_offset(tlv_info_t *this);
-gint32 get_tlv_length(tlv_info_t *this);
-proto_tree *add_tlv_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, gboolean little_endian);
-proto_tree *add_protocol_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, const char *format, ...);
+gint   init_tlv_info(tlv_info_t *info, tvbuff_t *tvb, gint offset);
+gint   valid_tlv_info(tlv_info_t *info);
+gint   get_tlv_type(tlv_info_t *info);
+gint   get_tlv_length_type(tlv_info_t *info);
+gint   get_tlv_size_of_length(tlv_info_t *info);
+gint   get_tlv_value_offset(tlv_info_t *info);
+gint32 get_tlv_length(tlv_info_t *info);
+proto_tree *add_tlv_subtree(tlv_info_t *info, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, gboolean little_endian);
+proto_tree *add_protocol_subtree(tlv_info_t *info, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, const char *format, ...);
 
 #endif /* WIMAX_TLV_H */
