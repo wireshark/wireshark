@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
@@ -811,6 +812,7 @@ static void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, pro
 static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 guint offset)
 {
+    proto_item *ti;
     guint32 server_version_length;
     guint32 tool_version_length;
     guint32 download_update_player_length;
@@ -839,23 +841,39 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     /* Length of server version */
     server_version_length = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(tree, hf_msmms_command_server_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_msmms_command_server_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
+    if (server_version_length > (guint) tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid string length");
+        server_version_length = 0;
+    }
 
     /* Length of tool version */
     tool_version_length = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(tree, hf_msmms_command_tool_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_msmms_command_tool_version_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
+    if (tool_version_length > (guint) tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid string length");
+        tool_version_length = 0;
+    }
 
     /* Length of download update player URL */
     download_update_player_length = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(tree, hf_msmms_command_update_url_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_msmms_command_update_url_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
+    if (download_update_player_length > (guint) tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid string length");
+        download_update_player_length = 0;
+    }
 
     /* Length of password encryption type */
     password_encryption_type_length = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(tree, hf_msmms_command_password_type_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_msmms_command_password_type_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
+    if (password_encryption_type_length > (guint) tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Invalid string length");
+        password_encryption_type_length = 0;
+    }
 
     /* Server version string */
     if (server_version_length > 1)
