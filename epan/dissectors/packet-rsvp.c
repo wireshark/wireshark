@@ -3852,9 +3852,7 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                             "n=%d, "
                             "freq=%.2fTHz",
                             /* grid */
-                            grid == 1 ? "DWDM" :
-                            grid == 2 ? "CWDM" :
-                            "unknown",
+                            "DWDM",
                             /* channel spacing */
                             cs == 1 ? "100GHz" :
                             cs == 2 ? "50GHz" :
@@ -3870,9 +3868,7 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                                "channel spacing=%s, "
                                "n=%d, "
                                "freq=%.2fTHz",
-                               grid == 1 ? "DWDM" :
-                               grid == 2 ? "CWDM" :
-                               "unknown",
+                               "DWDM",
                                cs == 1 ? "100GHz" :
                                cs == 2 ? "50GHz" :
                                cs == 3 ? "25GHz" :
@@ -3890,9 +3886,7 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                             "n=%d, "
                             "wavelength=%unm",
                             /* grid */
-                            grid == 1 ? "DWDM" :
-                            grid == 2 ? "CWDM" :
-                            "unknown",
+                            "CWDM",
                             /* channel spacing */
                             cs == 1 ? "20nm" :
                             "unknown",
@@ -3905,9 +3899,7 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                                "channel spacing=%s, "
                                "n=%d, "
                                "wavelength=%unm",
-                               grid == 1 ? "DWDM" :
-                               grid == 2 ? "CWDM" :
-                               "unknown",
+                               "CWDM",
                                cs == 1 ? "20nm" :
                                "unknown",
                                n,
