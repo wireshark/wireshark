@@ -29,13 +29,13 @@
     #ifdef __GNUC__
 #define WS_DLL_PUBLIC __attribute__ ((dllexport))
     #else /* ! __GNUC__ */
-#define WS_DLL_PUBLIC __declspec(dllexport) // Note: actually gcc seems to also support this syntax.
+#define WS_DLL_PUBLIC __declspec(dllexport) /* Note: actually gcc seems to also support this syntax. */
     #endif /* __GNUC__ */
   #else
     #ifdef __GNUC__
 #define WS_DLL_PUBLIC __attribute__ ((dllimport))
     #elif ! (defined ENABLE_STATIC) /* ! __GNUC__ */
-#define WS_DLL_PUBLIC __declspec(dllimport) // Note: actually gcc seems to also support this syntax.
+#define WS_DLL_PUBLIC __declspec(dllimport) /* Note: actually gcc seems to also support this syntax. */
     #else /* ! __GNUC__  && ENABLE_STATIC */
 #define WS_DLL_PUBLIC
     #endif /* __GNUC__ */
