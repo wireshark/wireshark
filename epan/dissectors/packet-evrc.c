@@ -230,8 +230,6 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
     g_tree = tree;
     memset(speech_data_len, 0, sizeof(speech_data_len));
 
-    if (NULL == tree) return;
-
     len = tvb_reported_length(tvb);
 
     item = proto_tree_add_item(tree, proto_evrc, tvb, 0, -1, ENC_NA);
