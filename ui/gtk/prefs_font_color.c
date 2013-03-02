@@ -69,6 +69,7 @@ static void update_font(PangoFontDescription *, GtkWidget *, GtkWidget *);
 static void update_text_color(GtkWidget *, gpointer);
 static void update_current_color(GtkWidget *, gpointer);
 
+static GdkColor tcolors_orig[MAX_IDX];
 static GdkColor tcolors[MAX_IDX], *curcolor = NULL;
 
 /* Set to FALSE initially; set to TRUE if the user ever hits "OK" on
@@ -92,24 +93,28 @@ static const char *font_pangrams[] = {
 GtkWidget *
 font_color_prefs_show(void)
 {
-  GtkWidget *main_vb, *main_grid, *label, *combo_box;
-  GtkWidget *font_sample, *color_sample, *colorsel;
-  int        i;
-  const gchar     *mt[] = {
-	  "Marked packet foreground",	/* MFG_IDX 0*/
-	  "Marked packet background",	/* MBG_IDX 1*/
-	  "Ignored packet foreground",	/* IFG_IDX 2*/
-	  "Ignored packet background",	/* IBG_IDX 3*/
-	  "Stream client foreground",	/* CFG_IDX 4*/
-	  "Stream client background",	/* CBG_IDX 5*/
-	  "Stream server foreground",	/* SFG_IDX 6*/
-	  "Stream server background"	/* SBG_IDX 7*/
+  GtkWidget     *main_vb, *main_grid, *label, *combo_box;
+  GtkWidget     *font_sample, *color_sample, *colorsel;
+  const gchar   *mt[] = {
+    "Marked packet foreground",  /* MFG_IDX 0*/
+    "Marked packet background",  /* MBG_IDX 1*/
+    "Ignored packet foreground", /* IFG_IDX 2*/
+    "Ignored packet background", /* IBG_IDX 3*/
+    "Stream client foreground",  /* CFG_IDX 4*/
+    "Stream client background",  /* CBG_IDX 5*/
+    "Stream server foreground",  /* SFG_IDX 6*/
+    "Stream server background"   /* SBG_IDX 7*/
   };
-  int mcount = sizeof(mt) / sizeof (gchar *);
+  int            mcount = sizeof(mt) / sizeof (gchar *);
   GtkTextBuffer *buf;
   GtkTextIter    iter;
-  GRand         *rand_state = g_rand_new();
+  GRand         *rand_state     = g_rand_new();
   GString       *preview_string = g_string_new("");
+  int            i;
+
+#define GRID_FONT_ROW      0
+#define GRID_COLOR_ROW     3
+#define GRID_COLOR_SEL_ROW 8
 
   /* The font hasn't been changed yet. */
   font_changed = FALSE;
@@ -122,6 +127,10 @@ font_color_prefs_show(void)
   color_t_to_gdkcolor(&tcolors[CBG_IDX], &prefs.st_client_bg);
   color_t_to_gdkcolor(&tcolors[SFG_IDX], &prefs.st_server_fg);
   color_t_to_gdkcolor(&tcolors[SBG_IDX], &prefs.st_server_bg);
+
+  for (i=0; i<MAX_IDX; i++) {
+    tcolors_orig[i] = tcolors[i];
+  }
 
   curcolor = &tcolors[CFG_IDX];
 
@@ -137,16 +146,19 @@ font_color_prefs_show(void)
 
   label = gtk_label_new("Main window font:");
   gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), label, 0, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0,0);
+  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), label,
+                              0, GRID_FONT_ROW, 1, 1,
+                              GTK_EXPAND|GTK_FILL, 0, 0, 0);
   gtk_widget_show(label);
 
   font_button = gtk_font_button_new_with_font(prefs.gui_gtk2_font_name);
   gtk_font_button_set_title(GTK_FONT_BUTTON(font_button), "Wireshark: Font");
-  ws_gtk_grid_attach(GTK_GRID(main_grid), font_button, 1, 0, 1, 1);
+  ws_gtk_grid_attach(GTK_GRID(main_grid), font_button,
+                     1, GRID_FONT_ROW, 1, 1);
   gtk_widget_show(font_button);
 
   g_string_printf(preview_string, " %s 0123456789",
-		  font_pangrams[g_rand_int_range(rand_state, 0, NUM_FONT_PANGRAMS)]);
+                  font_pangrams[g_rand_int_range(rand_state, 0, NUM_FONT_PANGRAMS)]);
 
   font_sample = gtk_text_view_new();
   gtk_text_view_set_editable(GTK_TEXT_VIEW(font_sample), FALSE);
@@ -154,7 +166,9 @@ font_color_prefs_show(void)
   gtk_text_buffer_get_start_iter(buf, &iter);
   srand((unsigned int) time(NULL));
   gtk_text_buffer_insert(buf, &iter, preview_string->str, -1);
-  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), font_sample, 2, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0,0);
+  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), font_sample,
+                              2, GRID_FONT_ROW, 1, 1,
+                              GTK_EXPAND|GTK_FILL, 0, 0, 0);
   g_signal_connect(font_button, "font-set", G_CALLBACK(select_font), NULL);
   gtk_widget_show(font_sample);
 
@@ -163,7 +177,9 @@ font_color_prefs_show(void)
 
   label = gtk_label_new("Colors:");
   gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
-  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), label, 0, 1, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0,0);
+  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), label,
+                              0, GRID_COLOR_ROW, 1, 1,
+                              GTK_EXPAND|GTK_FILL, 0, 0,0);
   gtk_widget_show(label);
 
   /* We have to create this now, and configure it below. */
@@ -171,11 +187,12 @@ font_color_prefs_show(void)
 
   combo_box = gtk_combo_box_text_new();
   for (i = 0; i < mcount; i++){
-	   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), mt[i]);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), mt[i]);
   }
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), CFG_IDX);
   g_signal_connect(combo_box, "changed", G_CALLBACK(update_current_color), colorsel);
-  ws_gtk_grid_attach(GTK_GRID(main_grid), combo_box, 1, 1, 1, 1);
+  ws_gtk_grid_attach(GTK_GRID(main_grid), combo_box,
+                     1, GRID_COLOR_ROW, 1, 1);
 
   gtk_widget_show(combo_box);
 
@@ -184,49 +201,57 @@ font_color_prefs_show(void)
   gtk_text_view_set_editable(GTK_TEXT_VIEW(color_sample), FALSE);
   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(color_sample));
   gtk_text_buffer_get_start_iter(buf, &iter);
+
   gtk_text_buffer_create_tag(buf, "marked",
                              "foreground-gdk", &tcolors[MFG_IDX],
-                             "background-gdk", &tcolors[MBG_IDX], NULL);
+                             "background-gdk", &tcolors[MBG_IDX],
+                             NULL);
   gtk_text_buffer_create_tag(buf, "ignored",
                              "foreground-gdk", &tcolors[IFG_IDX],
-                             "background-gdk", &tcolors[IBG_IDX], NULL);
+                             "background-gdk", &tcolors[IBG_IDX],
+                             NULL);
   gtk_text_buffer_create_tag(buf, "client",
                              "foreground-gdk", &tcolors[CFG_IDX],
-                             "background-gdk", &tcolors[CBG_IDX], NULL);
+                             "background-gdk", &tcolors[CBG_IDX],
+                             NULL);
   gtk_text_buffer_create_tag(buf, "server",
                              "foreground-gdk", &tcolors[SFG_IDX],
-                             "background-gdk", &tcolors[SBG_IDX], NULL);
-  gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_MARKED_TEXT, -1,
+                             "background-gdk", &tcolors[SBG_IDX],
+                             NULL);
+
+  gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_MARKED_TEXT,  -1,
                                            "marked", NULL);
   gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_IGNORED_TEXT, -1,
                                            "ignored", NULL);
-  gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_CLIENT_TEXT, -1,
+  gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_CLIENT_TEXT,  -1,
                                            "client", NULL);
-  gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_SERVER_TEXT, -1,
+  gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_SERVER_TEXT,  -1,
                                            "server", NULL);
-  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), color_sample, 2, 1, 1, 2, GTK_EXPAND|GTK_FILL, 0, 0,0);
+  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), color_sample,
+                              2, GRID_COLOR_ROW, 1, 2,
+                              GTK_EXPAND|GTK_FILL, 0, 0,0);
   gtk_widget_show(color_sample);
 
-  gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel),
-                                        curcolor);
-  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), colorsel, 1, 3, 2, 1,
+  gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(colorsel), curcolor);
+  ws_gtk_grid_attach_extended(GTK_GRID(main_grid), colorsel,
+                              1, GRID_COLOR_SEL_ROW, 2, 1,
                               GTK_FILL|GTK_EXPAND, 0, 0, 0);
 
-
   g_object_set_data(G_OBJECT(combo_box), COLOR_SAMPLE_KEY, color_sample);
-  g_object_set_data(G_OBJECT(colorsel), COLOR_SAMPLE_KEY, color_sample);
+  g_object_set_data(G_OBJECT(colorsel),  COLOR_SAMPLE_KEY, color_sample);
   g_signal_connect(colorsel, "color-changed", G_CALLBACK(update_text_color), NULL);
   gtk_widget_show(colorsel);
 
   g_rand_free(rand_state);
   gtk_widget_show(main_vb);
-  return(main_vb);
+  return main_vb;
 }
 
 static void
 update_font(PangoFontDescription *font, GtkWidget *font_sample _U_, GtkWidget *color_sample _U_) {
 
-  if (!font_sample || !color_sample) return;
+  if (!font_sample || !color_sample)
+    return;
 
 #if GTK_CHECK_VERSION(3,0,0)
   gtk_widget_override_font(font_sample, font);
@@ -243,7 +268,8 @@ font_fetch(void)
 {
   gchar   *font_name;
 
-  if (!font_button) return FALSE;
+  if (!font_button)
+    return FALSE;
 
   font_name = g_strdup(gtk_font_button_get_font_name(
     GTK_FONT_BUTTON(font_button)));
@@ -274,7 +300,8 @@ select_font(GtkWidget *w, gpointer data _U_)
   GtkWidget *color_sample = g_object_get_data(G_OBJECT(w), COLOR_SAMPLE_KEY);
   const gchar *font_name;
 
-  if (!font_sample || !color_sample) return;
+  if (!font_sample || !color_sample)
+    return;
 
   font_name = gtk_font_button_get_font_name(GTK_FONT_BUTTON(w));
   if (font_name) {
@@ -285,39 +312,53 @@ select_font(GtkWidget *w, gpointer data _U_)
 
 static void
 update_text_color(GtkWidget *w, gpointer data _U_) {
-  GtkTextView *sample = g_object_get_data(G_OBJECT(w), COLOR_SAMPLE_KEY);
+  GtkTextView   *sample = g_object_get_data(G_OBJECT(w), COLOR_SAMPLE_KEY);
   GtkTextBuffer *buf;
   GtkTextTag    *tag;
 
-  gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(w), curcolor);
+  gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(w), curcolor);  /* update tcolors[xx] */
 
   buf = gtk_text_view_get_buffer(sample);
+
   tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), "marked");
-  g_object_set(tag, "foreground-gdk", &tcolors[MFG_IDX], "background-gdk",
-               &tcolors[MBG_IDX], NULL);
+  g_object_set(tag,
+               "foreground-gdk", &tcolors[MFG_IDX],
+               "background-gdk", &tcolors[MBG_IDX],
+               NULL);
+
   tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), "ignored");
-  g_object_set(tag, "foreground-gdk", &tcolors[IFG_IDX], "background-gdk",
-               &tcolors[IBG_IDX], NULL);
+  g_object_set(tag,
+               "foreground-gdk", &tcolors[IFG_IDX],
+               "background-gdk", &tcolors[IBG_IDX],
+               NULL);
+
   tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), "client");
-  g_object_set(tag, "foreground-gdk", &tcolors[CFG_IDX], "background-gdk",
-               &tcolors[CBG_IDX], NULL);
+  g_object_set(tag,
+               "foreground-gdk", &tcolors[CFG_IDX],
+               "background-gdk", &tcolors[CBG_IDX],
+               NULL);
+
   tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), "server");
-  g_object_set(tag, "foreground-gdk", &tcolors[SFG_IDX], "background-gdk",
-               &tcolors[SBG_IDX], NULL);
+  g_object_set(tag,
+               "foreground-gdk", &tcolors[SFG_IDX],
+               "background-gdk", &tcolors[SBG_IDX],
+               NULL);
 }
 
+/* ComboBox selection changed (marked/ignored/... forground/background) */
 static void
 update_current_color(GtkWidget *combo_box, gpointer data)
 {
-  GtkColorSelection *colorsel = data;
+  GtkColorSelection *colorsel = (GtkColorSelection *)data;
+  GtkTextView *color_sample   = (GtkTextView *)g_object_get_data(G_OBJECT(combo_box), COLOR_SAMPLE_KEY);
   int i;
-  GtkTextView *color_sample = g_object_get_data(G_OBJECT(combo_box), COLOR_SAMPLE_KEY);
   GtkTextIter iter;
 
-  i = gtk_combo_box_get_active (GTK_COMBO_BOX(combo_box));
+  i = gtk_combo_box_get_active(GTK_COMBO_BOX(combo_box));
   curcolor = &tcolors[i];
 
-  gtk_color_selection_set_current_color(colorsel, curcolor);
+  gtk_color_selection_set_previous_color(colorsel, &tcolors_orig[i]);
+  gtk_color_selection_set_current_color(colorsel, curcolor);  /* triggers "color-changed" callback */
 
   gtk_text_buffer_get_start_iter(gtk_text_view_get_buffer(color_sample), &iter);
   gtk_text_iter_set_line(&iter, i/2);
@@ -327,14 +368,14 @@ update_current_color(GtkWidget *combo_box, gpointer data)
 void
 font_color_prefs_fetch(GtkWidget *w _U_)
 {
-  gdkcolor_to_color_t(&prefs.gui_marked_fg, &tcolors[MFG_IDX]);
-  gdkcolor_to_color_t(&prefs.gui_marked_bg, &tcolors[MBG_IDX]);
+  gdkcolor_to_color_t(&prefs.gui_marked_fg,  &tcolors[MFG_IDX]);
+  gdkcolor_to_color_t(&prefs.gui_marked_bg,  &tcolors[MBG_IDX]);
   gdkcolor_to_color_t(&prefs.gui_ignored_fg, &tcolors[IFG_IDX]);
   gdkcolor_to_color_t(&prefs.gui_ignored_bg, &tcolors[IBG_IDX]);
-  gdkcolor_to_color_t(&prefs.st_client_fg, &tcolors[CFG_IDX]);
-  gdkcolor_to_color_t(&prefs.st_client_bg, &tcolors[CBG_IDX]);
-  gdkcolor_to_color_t(&prefs.st_server_fg, &tcolors[SFG_IDX]);
-  gdkcolor_to_color_t(&prefs.st_server_bg, &tcolors[SBG_IDX]);
+  gdkcolor_to_color_t(&prefs.st_client_fg,   &tcolors[CFG_IDX]);
+  gdkcolor_to_color_t(&prefs.st_client_bg,   &tcolors[CBG_IDX]);
+  gdkcolor_to_color_t(&prefs.st_server_fg,   &tcolors[SFG_IDX]);
+  gdkcolor_to_color_t(&prefs.st_server_bg,   &tcolors[SBG_IDX]);
 
   /*
    * XXX - we need to have a way to fetch the preferences into
@@ -369,10 +410,10 @@ font_color_prefs_apply(GtkWidget *w _U_, gboolean redissect)
 
     case FA_FONT_NOT_AVAILABLE:
       /* We assume this means that the specified size
-	 isn't available. */
+         isn't available. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	"That font isn't available at the specified zoom level;\n"
-	"turning zooming off.");
+        "That font isn't available at the specified zoom level;\n"
+        "turning zooming off.");
       recent.gui_zoom_level = 0;
       break;
     }
@@ -396,3 +437,16 @@ font_color_prefs_destroy(GtkWidget *w _U_)
   }
   font_button = NULL;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
