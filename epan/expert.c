@@ -47,31 +47,6 @@ static int hf_expert_msg      = -1;
 static int hf_expert_group    = -1;
 static int hf_expert_severity = -1;
 
-const value_string expert_group_vals[] = {
-	{ PI_CHECKSUM,          "Checksum" },
-	{ PI_SEQUENCE,          "Sequence" },
-	{ PI_RESPONSE_CODE,     "Response" },
-	{ PI_REQUEST_CODE,      "Request" },
-	{ PI_UNDECODED,         "Undecoded" },
-	{ PI_REASSEMBLE,        "Reassemble" },
-	{ PI_MALFORMED,         "Malformed" },
-	{ PI_DEBUG,             "Debug" },
-	{ PI_PROTOCOL,          "Protocol" },
-	{ PI_SECURITY,          "Security" },
-	{ PI_COMMENTS_GROUP,    "Comment" },
-	{ 0, NULL }
-};
-
-const value_string expert_severity_vals[] = {
-	{ PI_ERROR,             "Error" },
-	{ PI_WARN,              "Warn" },
-	{ PI_NOTE,              "Note" },
-	{ PI_CHAT,              "Chat" },
-	{ PI_COMMENT,           "Comment" },
-	{ 0,                    "Ok" },
-	{ 0, NULL }
-};
-
 void
 expert_init(void)
 {

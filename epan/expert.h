@@ -46,8 +46,30 @@ typedef struct expert_info_s {
 	proto_item *pitem;
 } expert_info_t;
 
-WS_DLL_PUBLIC const value_string expert_severity_vals[];
-WS_DLL_PUBLIC const value_string expert_group_vals[];
+static const value_string expert_group_vals[] = {
+        { PI_CHECKSUM,          "Checksum" },
+        { PI_SEQUENCE,          "Sequence" },
+        { PI_RESPONSE_CODE,     "Response" },
+        { PI_REQUEST_CODE,      "Request" },
+        { PI_UNDECODED,         "Undecoded" },
+        { PI_REASSEMBLE,        "Reassemble" },
+        { PI_MALFORMED,         "Malformed" },
+        { PI_DEBUG,             "Debug" },
+        { PI_PROTOCOL,          "Protocol" },
+        { PI_SECURITY,          "Security" },
+        { PI_COMMENTS_GROUP,    "Comment" },
+        { 0, NULL }
+};
+
+static const value_string expert_severity_vals[] = {
+        { PI_ERROR,             "Error" },
+        { PI_WARN,              "Warn" },
+        { PI_NOTE,              "Note" },
+        { PI_CHAT,              "Chat" },
+        { PI_COMMENT,           "Comment" },
+        { 0,                    "Ok" },
+        { 0, NULL }
+};
 
 /* "proto_expert" is exported from libwireshark.dll.
  * Thus we need a special declaration.
