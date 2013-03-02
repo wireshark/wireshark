@@ -303,7 +303,7 @@ static GTree  * counter_map;    /*Saves the countervalues at first pass through,
 static guint
 rlc_channel_hash(gconstpointer key)
 {
-    const struct rlc_channel *ch = key;
+    const struct rlc_channel *ch = (const struct rlc_channel *)key;
 
     if (ch->urnti)
         return ch->urnti | ch->rbid | ch->mode;
@@ -314,7 +314,7 @@ rlc_channel_hash(gconstpointer key)
 static gboolean
 rlc_channel_equal(gconstpointer a, gconstpointer b)
 {
-    const struct rlc_channel *x = a, *y = b;
+    const struct rlc_channel *x = (const struct rlc_channel *)a, *y = (const struct rlc_channel *)b;
 
     if (x->urnti || y->urnti)
         return x->urnti == y->urnti &&
@@ -339,8 +339,8 @@ rlc_channel_assign(struct rlc_channel *ch, enum rlc_mode mode, packet_info *pinf
     fp_info         *fpinf;
 
     atm = &pinfo->pseudo_header->atm;
-    fpinf = p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
+    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
     if (!fpinf || !rlcinf) return -1;
 
     if (rlcinf->urnti[fpinf->cur_tb]) {
@@ -368,7 +368,7 @@ rlc_channel_create(enum rlc_mode mode, packet_info *pinfo)
     struct rlc_channel *ch;
     int rv;
 
-    ch = g_malloc0(sizeof(struct rlc_channel));
+    ch = (struct rlc_channel *)g_malloc0(sizeof(struct rlc_channel));
     rv = rlc_channel_assign(ch, mode, pinfo);
 
     if (rv != 0) {
@@ -392,14 +392,15 @@ rlc_channel_delete(gpointer data)
 static guint
 rlc_frag_hash(gconstpointer key)
 {
-    const struct rlc_frag *frag = key;
+    const struct rlc_frag *frag = (const struct rlc_frag *)key;
     return (frag->frame_num << 12) | frag->seq;
 }
 
 static gboolean
 rlc_frag_equal(gconstpointer a, gconstpointer b)
 {
-    const struct rlc_frag *x = a, *y = b;
+    const struct rlc_frag *x = (const struct rlc_frag *)a; 
+    const struct rlc_frag *y = (const struct rlc_frag *)b;
 
     return rlc_channel_equal(&x->ch, &y->ch) &&
         x->seq == y->seq &&
@@ -412,14 +413,14 @@ rlc_sdu_create(void)
 {
     struct rlc_sdu *sdu;
 
-    sdu = se_alloc0(sizeof(struct rlc_sdu));
+    sdu = (struct rlc_sdu *)se_alloc0(sizeof(struct rlc_sdu));
     return sdu;
 }
 
 static void
 rlc_frag_delete(gpointer data)
 {
-    struct rlc_frag *frag = data;
+    struct rlc_frag *frag = (struct rlc_frag *)data;
 
     if (frag->data) {
         g_free(frag->data);
@@ -430,7 +431,7 @@ rlc_frag_delete(gpointer data)
 static void
 rlc_sdu_frags_delete(gpointer data)
 {
-    struct rlc_sdu  *sdu = data;
+    struct rlc_sdu  *sdu = (struct rlc_sdu *)data;
     struct rlc_frag *frag;
 
     frag = sdu->frags;
@@ -462,7 +463,7 @@ rlc_frag_assign_data(struct rlc_frag *frag, tvbuff_t *tvb,
              guint16 offset, guint16 length)
 {
     frag->len  = length;
-    frag->data = g_malloc(length);
+    frag->data = (guint8 *)g_malloc(length);
     tvb_memcpy(tvb, frag->data, offset, length);
     return 0;
 }
@@ -473,7 +474,7 @@ rlc_frag_create(tvbuff_t *tvb, enum rlc_mode mode, packet_info *pinfo,
 {
     struct rlc_frag *frag;
 
-    frag = se_alloc0(sizeof(struct rlc_frag));
+    frag = (struct rlc_frag *)se_alloc0(sizeof(struct rlc_frag));
     rlc_frag_assign(frag, mode, pinfo, seq, li);
     rlc_frag_assign_data(frag, tvb, offset, length);
 
@@ -483,7 +484,7 @@ rlc_frag_create(tvbuff_t *tvb, enum rlc_mode mode, packet_info *pinfo,
 static int
 rlc_cmp_seq(gconstpointer a, gconstpointer b)
 {
-    const struct rlc_seq *_a = a, *_b = b;
+    const struct rlc_seq *_a = (const struct rlc_seq *)a, *_b = (const struct rlc_seq *)b;
 
     return  _a->seq < _b->seq ? -1 :
             _a->seq > _b->seq ?  1 :
@@ -512,7 +513,7 @@ special_cmp(gconstpointer a, gconstpointer b)
 static void
 free_sequence_table_entry_data(gpointer data)
 {
-    struct rlc_seqlist *list = data;
+    struct rlc_seqlist *list = (struct rlc_seqlist *)data;
     if (list->list != NULL) {
         g_list_free(list->list);
         list->list = NULL;   /* for good measure */
@@ -831,7 +832,7 @@ reassemble_data(struct rlc_channel *ch, struct rlc_sdu *sdu, struct rlc_frag *fr
     else
         sdu->reassembled_in = sdu->last;
 
-    sdu->data = se_alloc(sdu->len);
+    sdu->data = (guint8 *)se_alloc(sdu->len);
     temp = sdu->frags;
     while (temp && ((offs + temp->len) <= sdu->len)) {
         memcpy(sdu->data + offs, temp->data, temp->len);
@@ -870,11 +871,11 @@ get_frags(packet_info * pinfo, struct rlc_channel * ch_lookup)
     struct rlc_frag ** frags = NULL;
     /* Look for already created frags table */
     if (g_hash_table_lookup_extended(fragment_table, ch_lookup, NULL, &value)) {
-        frags = value;
+        frags = (struct rlc_frag **)value;
     } else if (pinfo != NULL) {
         struct rlc_channel *ch;
         ch = rlc_channel_create(ch_lookup->mode, pinfo);
-        frags = se_alloc0(sizeof(struct rlc_frag *) * 4096);
+        frags = (struct rlc_frag **)se_alloc0(sizeof(struct rlc_frag *) * 4096);
         g_hash_table_insert(fragment_table, ch, frags);
     } else {
         return NULL;
@@ -888,7 +889,7 @@ get_endlist(packet_info * pinfo, struct rlc_channel * ch_lookup)
     struct rlc_seqlist * endlist = NULL;
     /* If there already exists a frag table for this channel use that one. */
     if (g_hash_table_lookup_extended(endpoints, ch_lookup, NULL, &value)) {
-        endlist = value;
+        endlist = (struct rlc_seqlist *)value;
     } else if (pinfo != NULL) { /* Else create a new one. */
         struct rlc_channel * ch;
 
@@ -987,8 +988,8 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
     /* look for an already assembled SDU */
     if (g_hash_table_lookup_extended(reassembled_table, &frag_lookup, &orig_key, &value)) {
         /* this fragment is already reassembled somewhere */
-        frag = orig_key;
-        sdu = value;
+        frag = (struct rlc_frag *)orig_key;
+        sdu = (struct rlc_sdu *)value;
         if (tree) {
             /* mark the fragment, if reassembly happened somewhere else */
             if (frag->seq != sdu->reassembled_in->seq ||
@@ -1181,7 +1182,7 @@ get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
         &orig_frag, &orig_sdu))
         return NULL;
 
-    sdu = orig_sdu;
+    sdu = (struct rlc_sdu *)orig_sdu;
     if (!sdu || !sdu->data)
         return NULL;
 
@@ -1223,10 +1224,10 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
     struct rlc_seq      seq_item, *seq_new;
 
     rlc_channel_assign(&lookup.ch, mode, pinfo);
-    list = g_hash_table_lookup(sequence_table, &lookup.ch);
+    list = (struct rlc_seqlist *)g_hash_table_lookup(sequence_table, &lookup.ch);
     if (!list) {
         /* we see this channel for the first time */
-        list = se_alloc0(sizeof(*list));
+        list = (struct rlc_seqlist *)se_alloc0(sizeof(*list));
         rlc_channel_assign(&list->ch, mode, pinfo);
         g_hash_table_insert(sequence_table, &list->ch, list);
     }
@@ -1237,7 +1238,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
     /* Window size is at most 4095 so we remove packets further away than that */
     element = g_list_first(list->list);
     if (element) {
-        seq_new = element->data;
+        seq_new = (struct rlc_seq *)element->data;
         /* Add 4096 because %-operation for negative values in C is not equal to mathematical modulus */
         if (MIN((seq_new->seq-seq+4096)%4096, (seq-seq_new->seq+4096)%4096) >= 1028) {
             list->list = g_list_remove_link(list->list, element);
@@ -1246,7 +1247,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
 
     element = g_list_find_custom(list->list, &seq_item, rlc_cmp_seq);
     if (element) {
-        seq_new = element->data;
+        seq_new = (struct rlc_seq *)element->data;
         if (seq_new->frame_num != seq_item.frame_num) {
             nstime_t delta;
             nstime_delta(&delta, &pinfo->fd->abs_ts, &seq_new->arrival);
@@ -1259,7 +1260,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
         }
         return FALSE; /* we revisit the seq that was already seen */
     }
-    seq_new = se_alloc0(sizeof(struct rlc_seq));
+    seq_new = (struct rlc_seq *)se_alloc0(sizeof(struct rlc_seq));
     *seq_new = seq_item;
     seq_new->arrival = pinfo->fd->abs_ts;
     list->list = g_list_append(list->list, seq_new); /* insert in order of arrival */
@@ -1307,10 +1308,10 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
     if (msgtype != RRC_MESSAGE_TYPE_INVALID) {
         struct rrc_info *rrcinf;
         fp_info *fpinf;
-        fpinf = p_get_proto_data(pinfo->fd, proto_fp);
-        rrcinf = p_get_proto_data(pinfo->fd, proto_rrc);
+        fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+        rrcinf = (rrc_info *)p_get_proto_data(pinfo->fd, proto_rrc);
         if (!rrcinf) {
-            rrcinf = se_alloc0(sizeof(struct rrc_info));
+            rrcinf = (rrc_info *)se_alloc0(sizeof(struct rrc_info));
             p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
         }
         rrcinf->msgtype[fpinf->cur_tb] = msgtype;
@@ -1473,7 +1474,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
     }
 
     /*Ciphering info singled in RRC by securitymodecommands */
-    c_inf =  g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)fpinf->com_context_id));
+    c_inf =  (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER((gint)fpinf->com_context_id));
 
     /*TODO: This doesnt really work for all packets..*/
     /*Check if we have ciphering info and that this frame is ciphered*/
@@ -1504,7 +1505,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
             if(!tree){
                 /*Preserve counter value for next dissection round*/
                 guint32 * ciph;
-                ciph = g_malloc(sizeof(guint32)*2);
+                ciph = (guint32 *)g_malloc(sizeof(guint32)*2);
                 ciph[0] = ps_counter[rlcinf->rbid[pos]][0];
                 ciph[1] = ps_counter[rlcinf->rbid[pos]][1];
                 g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->fd->num), ciph);
@@ -1544,7 +1545,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
 
             if(!tree){/*Preserve counter for second packet analysis run*/
                 guint32 * ciph;
-                ciph = g_malloc(sizeof(guint32)*2);
+                ciph = (guint32 *)g_malloc(sizeof(guint32)*2);
                 ciph[0] = ps_counter[rlcinf->rbid[pos]][0];
                 ciph[1] = ps_counter[rlcinf->rbid[pos]][1];
                 g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->fd->num+1), ciph);
@@ -1574,8 +1575,8 @@ dissect_rlc_tm(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     fp_info       *fpinf;
     rlc_info      *rlcinf;
 
-    fpinf = p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
+    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
 
     if (tree) {
         if (fpinf && rlcinf) {
@@ -1830,8 +1831,8 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     next_byte = tvb_get_guint8(tvb, offs++);
     seq = next_byte >> 1;
 
-    fpinf = p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
+    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
 
     if (tree) {
         if (fpinf && rlcinf) {
@@ -1989,7 +1990,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                 col_append_str(pinfo->cinfo, COL_INFO, " BITMAP=(");
 
                 bitmap_tree = proto_item_add_subtree(ti, ett_rlc_bitmap);
-                buff = ep_alloc(BUFF_SIZE);
+                buff = (gchar *)ep_alloc(BUFF_SIZE);
                 for (i=0; i<len; i++) {
                     bits = tvb_get_bits8(tvb, bit_offset, 8);
                     for (l=0, j=0; l<8; l++) {
@@ -2245,8 +2246,8 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
     proto_item    *truncated_ti;
     guint64        polling;
 
-    fpinf = p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
+    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
 
     next_byte = tvb_get_guint8(tvb, offs++);
     dc = next_byte >> 7;
@@ -2383,7 +2384,7 @@ dissect_rlc_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi = p_get_proto_data(pinfo->fd, proto_fp);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
     if (!fpi) return; /* dissection failure */
 
     if (tree) {
@@ -2404,7 +2405,7 @@ dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi = p_get_proto_data(pinfo->fd, proto_fp);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
     if (!fpi) return; /* dissection failure */
 
     if (tree) {
@@ -2434,7 +2435,7 @@ dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi = p_get_proto_data(pinfo->fd, proto_fp);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
     if (!fpi) return; /* dissection failure */
 
     if (tree) {
@@ -2459,8 +2460,8 @@ dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi = p_get_proto_data(pinfo->fd, proto_fp);
-    rlci = p_get_proto_data(pinfo->fd, proto_rlc);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
 
     if (!fpi || !rlci){
         ti = proto_tree_add_text(tree, tvb, 0, -1,
@@ -2499,8 +2500,8 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi  = p_get_proto_data(pinfo->fd, proto_fp);
-    rlci = p_get_proto_data(pinfo->fd, proto_rlc);
+    fpi  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
 
     if (!fpi || !rlci) {
         ti = proto_tree_add_text(tree, tvb, 0, -1,
@@ -2541,8 +2542,8 @@ dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    fpi = p_get_proto_data(pinfo->fd, proto_fp);
-    rlci = p_get_proto_data(pinfo->fd, proto_rlc);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
 
     if (!fpi || !rlci) return;
 
@@ -2611,17 +2612,17 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset += (gint)strlen(RLC_START_STRING);
 
     /* If redissecting, use previous info struct (if available) */
-    fpi = p_get_proto_data(pinfo->fd, proto_fp);
+    fpi = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
     if (fpi == NULL) {
         /* Allocate new info struct for this frame */
-        fpi = se_alloc0(sizeof(fp_info));
+        fpi = (fp_info *)se_alloc0(sizeof(fp_info));
     } else {
         fpInfoAlreadySet = TRUE;
     }
-    rlci = p_get_proto_data(pinfo->fd, proto_rlc);
+    rlci = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
     if (rlci == NULL) {
         /* Allocate new info struct for this frame */
-        rlci = se_alloc0(sizeof(rlc_info));
+        rlci = (rlc_info *)se_alloc0(sizeof(rlc_info));
     } else {
         rlcInfoAlreadySet = TRUE;
     }
@@ -2747,8 +2748,8 @@ rlc_is_ciphered(packet_info * pinfo){
         return global_rlc_ciphered;
     }
 
-    fpinf = p_get_proto_data(pinfo->fd, proto_fp);
-    rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
+    fpinf = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
 
     return ((rlcinf && fpinf && (rlcinf->ciphered[fpinf->cur_tb] == TRUE) && (rlcinf->deciphered[fpinf->cur_tb] == FALSE))
             || global_rlc_ciphered);

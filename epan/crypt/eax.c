@@ -153,7 +153,7 @@ static void dCMAC(guint8 *pK, guint8 *ws, const guint8 *pN, guint16 SizeN, const
     if (SizeT & 0xf)  {
 	worksize += 0x10 - (worksize & 0xf);
     }
-    work = g_malloc(worksize);
+    work = (guint8 *)g_malloc(worksize);
     if (work == NULL) {
 	return;
     }
