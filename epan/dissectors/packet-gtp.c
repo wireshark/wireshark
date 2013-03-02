@@ -5195,7 +5195,7 @@ decode_gtp_utran_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
     offset = offset + 1;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    proto_tree_add_item(ext_tree, hf_gtp_utran_field, tvb, offset, length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_utran_field, tvb, offset, length, ENC_NA);
 
     return 3 + length;
 
@@ -5269,7 +5269,7 @@ decode_gtp_hdr_list(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     for (i = 0; i < length; i++) {
         hdr = tvb_get_guint8(tvb, offset + 2 + i);
 
-        proto_tree_add_text(ext_tree_hdr_list, tvb, offset + 2 + i, 1, "No. %u --> Extension Header Type value : %s (%u)", i + 1,
+        proto_tree_add_text(ext_tree_hdr_list, tvb, offset + 2 + i, 1, "No. %u --> Extension Header Type value : %s (0x%02x)", i + 1,
                             val_to_str_const(hdr, next_extension_header_fieldvals, "Unknown Extension Header Type"), hdr);
     }
 
@@ -7984,6 +7984,10 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                     tf = proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr, tvb, offset, 4, next_hdr);
                     ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
 
+                    ext_hdr_length = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
+                    offset++;
+
                     if(next_hdr == GTP_EXT_HDR_PDCP_SN) {
                         /* PDCP PDU
                          * 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
@@ -7998,12 +8002,9 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                          * Wireshark Note: TS 29.060 does not define bit 5-6 as spare, so no check is possible unless a preference is used.
                          */
                         /* First byte is length (should be 1) */
-                        ext_hdr_length = tvb_get_guint8(tvb, offset);
                         if (ext_hdr_length != 1) {
                             expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
                         }
-                        proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
-                        offset++;
 
                         ext_hdr_pdcpsn = tvb_get_ntohs(tvb, offset);
                         if (ext_hdr_pdcpsn & 0x700) {
@@ -8011,14 +8012,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         }
                         proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
-                        
-                        /* Last is next_hdr */
-                        next_hdr = tvb_get_guint8(tvb, offset);
-                        item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        offset++;
-                        if (next_hdr) {
-                            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
-                        }
                     }
                     else if ( next_hdr == GTP_EXT_HDR_UDP_PORT) {
                         /* UDP Port
@@ -8026,24 +8019,20 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                          * "This extension header may be transmitted in Error Indication messages to provide the UDP Source Port of the G-PDU
                          * that triggered the Error Indication. It is 4 octets long, and therefore the Length field has value 1"
                          */
-                        ext_hdr_length = tvb_get_guint8(tvb, offset);
                         if (ext_hdr_length != 1) {
                             expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the UDP Port Extension header should be 1.");
                         }
-                        proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
-                        offset++;
 
                         /* UDP Port of source */ 
-                        proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
-    
-                        /* Last is next_hdr */
-                        next_hdr = tvb_get_guint8(tvb, offset);
-                        item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
-                        offset++;
-                        if (next_hdr) {
-                            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
-                        }
+                    }
+                    /* Last is next_hdr */
+                    next_hdr = tvb_get_guint8(tvb, offset);
+                    item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset++;
+                    if (next_hdr) {
+                        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
                     }
                 }
             }
