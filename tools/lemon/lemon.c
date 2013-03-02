@@ -75,7 +75,7 @@ extern int access();
 #define MAXRHS 1000
 #endif
 
-static char *msort(char *, char **, int (*)(const void *, const void *));
+static char *msort(char*,char**,int(*)(const char*,const char*));
 
 /********** From the file "struct.h" *************************************/
 /*
