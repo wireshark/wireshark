@@ -2066,10 +2066,10 @@ static void parseonetoken(struct pstate *psp)
       }else if( x[0]=='{' ){
         if( psp->prevrule==0 ){
           ErrorMsg(psp->filename,psp->tokenlineno,
-"There is no prior rule opon which to attach the code \
+"There is no prior rule upon which to attach the code \
 fragment which begins on this line.");
           psp->errorcnt++;
-	}else if( psp->prevrule->code!=0 ){
+        }else if( psp->prevrule->code!=0 ){
           ErrorMsg(psp->filename,psp->tokenlineno,
 "Code fragment beginning on this line is not the first \
 to follow the previous rule.");
@@ -2077,7 +2077,7 @@ to follow the previous rule.");
         }else{
           psp->prevrule->line = psp->tokenlineno;
           psp->prevrule->code = &x[1];
-	}
+        }
       }else if( x[0]=='[' ){
         psp->state = PRECEDENCE_MARK_1;
       }else{
@@ -2170,7 +2170,7 @@ to follow the previous rule.");
             "Can't allocate enough memory for this rule.");
           psp->errorcnt++;
           psp->prevrule = 0;
-	}else{
+        }else{
           int i;
           rp->ruleline = psp->tokenlineno;
           rp->rhs = (struct symbol**)&rp[1];
@@ -2178,7 +2178,7 @@ to follow the previous rule.");
           for(i=0; i<psp->nrhs; i++){
             rp->rhs[i] = psp->rhs[i];
             rp->rhsalias[i] = psp->alias[i];
-	  }
+          }
           rp->lhs = psp->lhs;
           rp->lhsalias = psp->lhsalias;
           rp->nrhs = psp->nrhs;
@@ -2190,12 +2190,12 @@ to follow the previous rule.");
           rp->next = 0;
           if( psp->firstrule==0 ){
             psp->firstrule = psp->lastrule = rp;
-	  }else{
+          }else{
             psp->lastrule->next = rp;
             psp->lastrule = rp;
-	  }
+          }
           psp->prevrule = rp;
-	}
+       }
         psp->state = WAITING_FOR_DECL_OR_RULE;
       }else if( safe_isalpha(x[0]) ){
         if( psp->nrhs>=MAXRHS ){
@@ -2204,28 +2204,28 @@ to follow the previous rule.");
             x);
           psp->errorcnt++;
           psp->state = RESYNC_AFTER_RULE_ERROR;
-	}else{
+    }else{
           psp->rhs[psp->nrhs] = Symbol_new(x);
           psp->alias[psp->nrhs] = 0;
           psp->nrhs++;
-	}
+    }
       }else if( (x[0]=='|' || x[0]=='/') && psp->nrhs>0 ){
         struct symbol *msp = psp->rhs[psp->nrhs-1];
         if( msp->type!=MULTITERMINAL ){
           struct symbol *origsp = msp;
           msp = (struct symbol *) calloc(1,sizeof(*msp));
-	  if (msp == NULL) {
-	     fprintf(stderr, "Unable to allocate enough memory for MSP, exiting...\n");
-	     exit(1);
-	  }
+      if (msp == NULL) {
+         fprintf(stderr, "Unable to allocate enough memory for MSP, exiting...\n");
+         exit(1);
+      }
           memset(msp, 0, sizeof(*msp));
           msp->type = MULTITERMINAL;
           msp->nsubsym = 1;
           msp->subsym = (struct symbol **) calloc(1,sizeof(struct symbol*));
-	  if (msp->subsym == NULL) {
-	     fprintf(stderr, "Unable to allocate enough memory for MSP->subsym, exiting...\n");
-	     exit(1);
-	  }
+      if (msp->subsym == NULL) {
+         fprintf(stderr, "Unable to allocate enough memory for MSP->subsym, exiting...\n");
+         exit(1);
+      }
           msp->subsym[0] = origsp;
           msp->name = origsp->name;
           psp->rhs[psp->nrhs-1] = msp;
@@ -2273,46 +2273,46 @@ to follow the previous rule.");
       if( safe_isalpha(x[0]) ){
         psp->declkeyword = x;
         psp->declargslot = 0;
-		psp->decllinenoslot = 0;
+        psp->decllinenoslot = 0;
         psp->insertLineMacro = 1;
         psp->state = WAITING_FOR_DECL_ARG;
         if( strcmp(x,"name")==0 ){
           psp->declargslot = &(psp->gp->name);
-		  psp->insertLineMacro = 0;
-	}else if( strcmp(x,"include")==0 ){
+          psp->insertLineMacro = 0;
+        }else if( strcmp(x,"include")==0 ){
           psp->declargslot = &(psp->gp->include);
-	}else if( strcmp(x,"code")==0 ){
+        }else if( strcmp(x,"code")==0 ){
           psp->declargslot = &(psp->gp->extracode);
-	}else if( strcmp(x,"token_destructor")==0 ){
+        }else if( strcmp(x,"token_destructor")==0 ){
           psp->declargslot = &psp->gp->tokendest;
-	}else if( strcmp(x,"default_destructor")==0 ){
+        }else if( strcmp(x,"default_destructor")==0 ){
           psp->declargslot = &psp->gp->vardest;
-	}else if( strcmp(x,"token_prefix")==0 ){
+        }else if( strcmp(x,"token_prefix")==0 ){
           psp->declargslot = &psp->gp->tokenprefix;
-		  psp->insertLineMacro = 0;
-	}else if( strcmp(x,"syntax_error")==0 ){
+          psp->insertLineMacro = 0;
+        }else if( strcmp(x,"syntax_error")==0 ){
           psp->declargslot = &(psp->gp->error);
-	}else if( strcmp(x,"parse_accept")==0 ){
+        }else if( strcmp(x,"parse_accept")==0 ){
           psp->declargslot = &(psp->gp->accept);
-	}else if( strcmp(x,"parse_failure")==0 ){
+        }else if( strcmp(x,"parse_failure")==0 ){
           psp->declargslot = &(psp->gp->failure);
-	}else if( strcmp(x,"stack_overflow")==0 ){
+        }else if( strcmp(x,"stack_overflow")==0 ){
           psp->declargslot = &(psp->gp->overflow);
         }else if( strcmp(x,"extra_argument")==0 ){
           psp->declargslot = &(psp->gp->arg);
-		  psp->insertLineMacro = 0;
+          psp->insertLineMacro = 0;
         }else if( strcmp(x,"token_type")==0 ){
           psp->declargslot = &(psp->gp->tokentype);
-		  psp->insertLineMacro = 0;
+          psp->insertLineMacro = 0;
         }else if( strcmp(x,"default_type")==0 ){
           psp->declargslot = &(psp->gp->vartype);
-		  psp->insertLineMacro = 0;
+          psp->insertLineMacro = 0;
         }else if( strcmp(x,"stack_size")==0 ){
           psp->declargslot = &(psp->gp->stacksize);
-		  psp->insertLineMacro = 0;
+          psp->insertLineMacro = 0;
         }else if( strcmp(x,"start_symbol")==0 ){
           psp->declargslot = &(psp->gp->start);
-		  psp->insertLineMacro = 0;
+          psp->insertLineMacro = 0;
         }else if( strcmp(x,"left")==0 ){
           psp->preccounter++;
           psp->declassoc = LEFT;
@@ -2325,9 +2325,9 @@ to follow the previous rule.");
           psp->preccounter++;
           psp->declassoc = NONE;
           psp->state = WAITING_FOR_PRECEDENCE_SYMBOL;
-	}else if( strcmp(x,"destructor")==0 ){
+        }else if( strcmp(x,"destructor")==0 ){
           psp->state = WAITING_FOR_DESTRUCTOR_SYMBOL;
-	}else if( strcmp(x,"type")==0 ){
+        }else if( strcmp(x,"type")==0 ){
           psp->state = WAITING_FOR_DATATYPE_SYMBOL;
        }else if( strcmp(x,"fallback")==0 ){
           psp->fallback = 0;
@@ -2339,7 +2339,7 @@ to follow the previous rule.");
             "Unknown declaration keyword: \"%%%s\".",x);
           psp->errorcnt++;
           psp->state = RESYNC_AFTER_DECL_ERROR;
-	}
+    }
       }else{
         ErrorMsg(psp->filename,psp->tokenlineno,
           "Illegal declaration keyword: \"%s\".",x);
@@ -2356,8 +2356,8 @@ to follow the previous rule.");
       }else{
         struct symbol *sp = Symbol_new(x);
         psp->declargslot = &sp->destructor;
-		psp->decllinenoslot = &sp->destLineno;
-		psp->insertLineMacro = 1;
+        psp->decllinenoslot = &sp->destLineno;
+        psp->insertLineMacro = 1;
         psp->state = WAITING_FOR_DECL_ARG;
       }
       break;
@@ -2370,7 +2370,7 @@ to follow the previous rule.");
       }else{
         struct symbol *sp = Symbol_new(x);
         psp->declargslot = &sp->datatype;
-		psp->insertLineMacro = 0;
+        psp->insertLineMacro = 0;
         psp->state = WAITING_FOR_DECL_ARG;
       }
       break;
@@ -2384,10 +2384,10 @@ to follow the previous rule.");
           ErrorMsg(psp->filename,psp->tokenlineno,
             "Symbol \"%s\" has already be given a precedence.",x);
           psp->errorcnt++;
-	}else{
+        }else{
           sp->prec = psp->preccounter;
           sp->assoc = psp->declassoc;
-	}
+        }
       }else{
         ErrorMsg(psp->filename,psp->tokenlineno,
           "Can't assign a precedence to \"%s\".",x);
@@ -2399,7 +2399,7 @@ to follow the previous rule.");
         const char *zOld, *zNew;
         char *zBuf, *z;
         int nOld, n, nLine, nNew, nBack;
-		int addLineMacro;
+        int addLineMacro;
         char zLine[50];
         zNew = x;
         if( zNew[0]=='"' || zNew[0]=='{' ) zNew++;
@@ -2674,12 +2674,12 @@ void Parse(struct lemon *gp)
             if( c=='\n' ) lineno++;
             prevc = c;
             cp++;
-	  }
-	}else if( c=='/' && cp[1]=='/' ){  /* Skip C++ style comments too */
+      }
+    }else if( c=='/' && cp[1]=='/' ){  /* Skip C++ style comments too */
           cp = &cp[2];
           while( (c= *cp)!=0 && c!='\n' ) cp++;
           if( c ) lineno++;
-	}else if( c=='\'' || c=='\"' ){    /* String a character literals */
+    }else if( c=='\'' || c=='\"' ){    /* String a character literals */
           char startchar, prevc;
           startchar = c;
           prevc = 0;
@@ -2687,7 +2687,7 @@ void Parse(struct lemon *gp)
             if( c=='\n' ) lineno++;
             if( prevc=='\\' ) prevc = 0;
             else              prevc = c;
-	  }
+      }
 	}
       }
       if( c==0 ){
@@ -3167,9 +3167,9 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
 	    sprintf(buf,"%s.lt",lemp->filename);
 	  }
 	  if( access(buf,004)==0 ){
-	    tpltname = strdup(buf);
+	    tpltname = buf;
 	  }else if( access(templatename,004)==0 ){
-	    tpltname = strdup(templatename);
+	    tpltname = templatename;
 	  }else{
 	    tpltname = pathsearch(lemp->argv0,templatename,0);
 	  }
