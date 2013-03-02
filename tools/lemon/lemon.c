@@ -2207,7 +2207,7 @@ to follow the previous rule.");
         struct symbol *msp = psp->rhs[psp->nrhs-1];
         if( msp->type!=MULTITERMINAL ){
           struct symbol *origsp = msp;
-          msp = calloc(1,sizeof(*msp));
+          msp = (struct symbol *) calloc(1,sizeof(*msp));
 	  if (msp == NULL) {
 	     fprintf(stderr, "Unable to allocate enough memory for MSP, exiting...\n");
 	     exit(1);
@@ -2215,7 +2215,7 @@ to follow the previous rule.");
           memset(msp, 0, sizeof(*msp));
           msp->type = MULTITERMINAL;
           msp->nsubsym = 1;
-          msp->subsym = calloc(1,sizeof(struct symbol*));
+          msp->subsym = (struct symbol **) calloc(1,sizeof(struct symbol*));
 	  if (msp->subsym == NULL) {
 	     fprintf(stderr, "Unable to allocate enough memory for MSP->subsym, exiting...\n");
 	     exit(1);
@@ -2225,7 +2225,7 @@ to follow the previous rule.");
           psp->rhs[psp->nrhs-1] = msp;
         }
         msp->nsubsym++;
-        msp->subsym = realloc(msp->subsym, sizeof(struct symbol*)*msp->nsubsym);
+        msp->subsym = (struct symbol **) realloc(msp->subsym, sizeof(struct symbol*)*msp->nsubsym);
         msp->subsym[msp->nsubsym-1] = Symbol_new(&x[1]);
         if( safe_islower(x[1]) || safe_islower(msp->subsym[0]->name[0]) ){
           ErrorMsg(psp->filename,psp->tokenlineno,
@@ -2415,7 +2415,7 @@ to follow the previous rule.");
           nLine = (int) strlen(zLine);
           n += nLine + (int) strlen(psp->filename) + nBack;
         }
-        *psp->declargslot = zBuf = realloc(*psp->declargslot, n);
+        *psp->declargslot = zBuf = (char *) realloc(*psp->declargslot, n);
         zBuf += nOld;
         if( addLineMacro ){
           if( nOld && zBuf[-1]!='\n' ){
@@ -2833,7 +2833,7 @@ PRIVATE FILE *file_open(struct lemon *lemp, const char *suffix, const char *mode
   name = file_makename_using_basename(lemp, suffix);
 
   if ( lemp->outdirname != NULL ) {
-	  lemp->outname = malloc( strlen(lemp->outdirname) + strlen(name) + 2);
+	  lemp->outname = (char*)malloc( strlen(lemp->outdirname) + strlen(name) + 2);
 	  if ( lemp->outname == 0 ) {
 		  fprintf(stderr, "Can't allocate space for dir/filename");
 		  exit(1);
@@ -3146,6 +3146,7 @@ PRIVATE void tplt_xfer(const char *name, FILE *in, FILE *out, int *lineno)
 PRIVATE FILE *tplt_open(struct lemon *lemp)
 {
   static char templatename[] = "lempar.c";
+  char buf[1000];
   FILE *in;
   char *tpltname = NULL;
   char *cp;
@@ -3153,10 +3154,7 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
   if (lemp->templatename) {
 	  tpltname = strdup(lemp->templatename);
   } else {
-	  char* buf;
-
 	  cp = strrchr(lemp->filename,'.');
-	  buf = malloc(1000);
 	  if( cp ){
 	    sprintf(buf,"%.*s.lt",(int)(cp - lemp->filename),lemp->filename);
 	  }else{
@@ -3310,7 +3308,7 @@ PRIVATE char *append_str(const char *zText, int n, int p1, int p2){
     zTextLen = n;
   if( zTextLen+sizeof(zInt)*2+used >= alloced ){
     alloced = zTextLen + sizeof(zInt)*2 + used + 200;
-    z = realloc(z,  alloced);
+    z = (char *) realloc(z,  alloced);
   }
   if( z==0 ) return NULL;
   while( zTextLen-- != 0 ){
@@ -3345,8 +3343,9 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
   lhsused = 0;
 
   if (!rp->code) {
-	  rp->code = strdup("\n");
-	  rp->line = rp->ruleline;
+    static char newlinestr[2] = { '\n', '\0' };
+    rp->code = newlinestr;
+    rp->line = rp->ruleline;
   }
 
   append_str(0,0,0,0);
@@ -4626,9 +4625,10 @@ struct symbol **Symbol_arrayof(void)
 }
 
 /* Compare two configurations */
-int Configcmp(const void *a_arg, const void *b_arg)
+int Configcmp(const char *_a,const char *_b)
 {
-  const struct config *a = a_arg, *b = b_arg;
+  const struct config *a = (struct config *) _a;
+  const struct config *b = (struct config *) _b;
   int x;
   x = a->rp->index - b->rp->index;
   if( x==0 ) x = a->dot - b->dot;
@@ -4869,7 +4869,7 @@ int Configtable_insert(struct config *data)
   h = ph & (x4a->size-1);
   np = x4a->ht[h];
   while( np ){
-    if( Configcmp(np->data,data)==0 ){
+    if( Configcmp((const char *) np->data,(const char *) data)==0 ){
       /* An existing entry with the same key is found. */
       /* Fail because overwrite is not allows. */
       return 0;
@@ -4923,7 +4923,7 @@ struct config *Configtable_find(struct config *key)
   h = confighash(key) & (x4a->size-1);
   np = x4a->ht[h];
   while( np ){
-    if( Configcmp(np->data,key)==0 ) break;
+    if( Configcmp((const char *) np->data,(const char *) key)==0 ) break;
     np = np->next;
   }
   return np ? np->data : 0;
