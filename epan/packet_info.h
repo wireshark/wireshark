@@ -28,7 +28,6 @@
 #include "frame_data.h"
 #include "tvbuff.h"
 #include "address.h"
-#include "wmem/wmem_core.h"
 
 /* Also defined in wiretap/wtap.h */
 #define P2P_DIR_UNKNOWN	-1
@@ -214,7 +213,7 @@ typedef struct _packet_info {
 
   GSList *frame_end_routines;
 
-  wmem_allocator_t *pool;      /**< Memory pool scoped to the pinfo struct */
+  struct _wmem_allocator_t *pool;      /**< Memory pool scoped to the pinfo struct */
 } packet_info;
 
 /**< For old code that hasn't yet been changed. */
