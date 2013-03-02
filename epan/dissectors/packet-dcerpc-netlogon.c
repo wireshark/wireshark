@@ -453,7 +453,6 @@ typedef struct _netlogon_auth_vars {
     guint64 confounder;
     guint8 private_type;
     gboolean can_decrypt;
-    void* private_data;
     char* client_name;
     int start;
     int next_start;
