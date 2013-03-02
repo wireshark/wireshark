@@ -96,12 +96,12 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   }
 
 #.FN_BODY Extension/extnValue
-  gint8 class;
+  gint8 ber_class;
   gboolean pc, ind;
   gint32 tag;
   guint32 len;
   /* skip past the T and L  */
-  offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+  offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
   offset=call_ber_oid_callback(extension_id, tvb, offset, actx->pinfo, tree);
 

@@ -1639,7 +1639,7 @@ static int
 dissect_p1_GlobalDomainIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 1087 "../../asn1/p1/p1.cnf"
 	
-	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	oraddress = (char *)ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = tree;
 
 	  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
@@ -2126,7 +2126,7 @@ static const ber_sequence_t BuiltInDomainDefinedAttribute_sequence[] = {
 static int
 dissect_p1_BuiltInDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 1050 "../../asn1/p1/p1.cnf"
-        ddatype = ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
+        ddatype = (char *)ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    BuiltInDomainDefinedAttribute_sequence, hf_index, ett_p1_BuiltInDomainDefinedAttribute);
@@ -2281,7 +2281,7 @@ int
 dissect_p1_ORName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 1068 "../../asn1/p1/p1.cnf"
 	
-	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	oraddress = (char *)ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = NULL;
 	doing_address = TRUE;
 
@@ -5716,7 +5716,7 @@ int
 dissect_p1_ORAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 1055 "../../asn1/p1/p1.cnf"
 	
-	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	oraddress = (char *)ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	doing_address = TRUE;
 	address_item = NULL;
 
@@ -7089,7 +7089,7 @@ static const ber_sequence_t TeletexDomainDefinedAttribute_sequence[] = {
 static int
 dissect_p1_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 941 "../../asn1/p1/p1.cnf"
-        ddatype = ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
+        ddatype = (char *)ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TeletexDomainDefinedAttribute_sequence, hf_index, ett_p1_TeletexDomainDefinedAttribute);

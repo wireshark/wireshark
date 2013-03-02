@@ -297,14 +297,14 @@ void t38_add_address(packet_info *pinfo,
         /*
          * Check if the conversation has data associated with it.
          */
-        p_conversation_data = conversation_get_proto_data(p_conversation, proto_t38);
+        p_conversation_data = (t38_conv*)conversation_get_proto_data(p_conversation, proto_t38);
 
         /*
          * If not, add a new data item.
          */
         if ( ! p_conversation_data ) {
                 /* Create conversation data */
-                p_conversation_data = se_alloc(sizeof(t38_conv));
+                p_conversation_data = se_new(t38_conv);
 
                 conversation_add_proto_data(p_conversation, proto_t38, p_conversation_data);
         }
@@ -348,7 +348,7 @@ force_reassemble_seq(packet_info *pinfo, guint32 id,
 	key.dst = pinfo->dst;
 	key.id  = id;
 
-	fd_head = g_hash_table_lookup(fragment_table, &key);
+	fd_head = (fragment_data *)g_hash_table_lookup(fragment_table, &key);
 
 	/* have we already seen this frame ?*/
 	if (pinfo->fd->flags.visited) {
@@ -389,7 +389,7 @@ force_reassemble_seq(packet_info *pinfo, guint32 id,
 	  }
 	  last_fd=fd_i;
 	}
-	fd_head->data = g_malloc(size);
+	fd_head->data = (char *)g_malloc(size);
 	fd_head->len = size;		/* record size for caller	*/
 
 	/* add all data fragments */
@@ -1010,7 +1010,7 @@ init_t38_info_conv(packet_info *pinfo)
 	p_t38_conv = NULL;
 
 	/* Use existing packet info if available */
-	 p_t38_packet_conv = p_get_proto_data(pinfo->fd, proto_t38);
+	 p_t38_packet_conv = (t38_conv *)p_get_proto_data(pinfo->fd, proto_t38);
 
 
 	/* find the conversation used for Reassemble and Setup Info */
@@ -1028,11 +1028,11 @@ init_t38_info_conv(packet_info *pinfo)
 	}
 
 	if (!p_t38_packet_conv) {
-		p_t38_conv = conversation_get_proto_data(p_conv, proto_t38);
+		p_t38_conv = (t38_conv *)conversation_get_proto_data(p_conv, proto_t38);
 
 		/* create the conversation if it doen't exist */
 		if (!p_t38_conv) {
-			p_t38_conv = se_alloc(sizeof(t38_conv));
+			p_t38_conv = se_new(t38_conv);
 			p_t38_conv->setup_method[0] = '\0';
 			p_t38_conv->setup_frame_number = 0;
 
@@ -1060,7 +1060,7 @@ init_t38_info_conv(packet_info *pinfo)
 		}
 
 		/* copy the t38 conversation info to the packet t38 conversation */
-		p_t38_packet_conv = se_alloc(sizeof(t38_conv));
+		p_t38_packet_conv = se_new(t38_conv);
 		g_strlcpy(p_t38_packet_conv->setup_method, p_t38_conv->setup_method, MAX_T38_SETUP_METHOD_SIZE);
 		p_t38_packet_conv->setup_frame_number = p_t38_conv->setup_frame_number;
 

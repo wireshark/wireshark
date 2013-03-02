@@ -55,7 +55,7 @@ static dissector_handle_t t125_handle;
 
 
 typedef struct _x224_conv_info_t {
-	guint8	class;
+	guint8	klass;
 } x224_conv_info_t;
 
 
@@ -124,7 +124,7 @@ dissect_x224_cr(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 static int
 dissect_x224_cc(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, x224_conv_info_t *x224_info)
 {
-	guint8 class;
+	guint8 klass;
 
 	/*DST-REF */
 	proto_tree_add_item(tree, hf_x224_dst_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -135,9 +135,9 @@ dissect_x224_cc(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	offset+=2;
 
 	/* class options */
-	class = tvb_get_guint8(tvb, offset);
+	klass = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_x224_class, tvb, offset, 1, ENC_BIG_ENDIAN);
-	x224_info->class = class;
+	x224_info->klass = klass;
 	offset+=1;
 
 	return offset;
@@ -149,7 +149,7 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	proto_item *item = NULL;
 	tvbuff_t *next_tvb;
 
-	switch (x224_info->class >>4) {
+	switch (x224_info->klass >>4) {
 	case 2:
 	case 3:
 	case 4:
@@ -159,7 +159,7 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 		break;
 	}
 
-	item = proto_tree_add_uint(tree, hf_x224_class, tvb, 0, 0, x224_info->class);
+	item = proto_tree_add_uint(tree, hf_x224_class, tvb, 0, 0, x224_info->klass);
 	PROTO_ITEM_SET_GENERATED(item);
 
 
@@ -221,13 +221,13 @@ dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 	/*
 	 * Do we already have a state structure for this conv
 	 */
-	x224_info = conversation_get_proto_data(conversation, proto_x224);
+	x224_info = (x224_conv_info_t *)conversation_get_proto_data(conversation, proto_x224);
 	if (!x224_info) {
 		/* No.  Attach that information to the conversation, and add
 		 * it to the list of information structures.
 		 */
-		x224_info = se_alloc(sizeof(x224_conv_info_t));
-		x224_info->class=0;
+		x224_info = se_new(x224_conv_info_t);
+		x224_info->klass=0;
 
 		conversation_add_proto_data(conversation, proto_x224, x224_info);
        }

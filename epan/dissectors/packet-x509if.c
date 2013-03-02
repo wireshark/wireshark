@@ -666,7 +666,7 @@ dissect_x509if_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb 
 #line 408 "../../asn1/x509if/x509if.cnf"
 
 	ava_hf_index = hf_index;
-	last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+	last_ava = (char *)ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
 	register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -746,7 +746,7 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
     if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
-      last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+      last_ava = (char *)ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
       register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
       g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s", name, fmt);
@@ -800,7 +800,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
       /* we have a format */
 
       if (!last_ava) {
-        last_ava = ep_alloc(MAX_AVA_STR_LEN);
+        last_ava = (char *)ep_alloc(MAX_AVA_STR_LEN);
       }
 
       if(!(name = oid_resolved_from_string(object_identifier_id)))
@@ -911,7 +911,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
 
   rdn_one_value = FALSE;
   top_of_rdn = tree;
-  last_rdn = ep_alloc(MAX_DN_STR_LEN); *last_rdn = '\0';
+  last_rdn = (char *)ep_alloc(MAX_DN_STR_LEN); *last_rdn = '\0';
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
     offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
@@ -924,7 +924,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
   /* now append this to the DN */
   if (last_dn) {
     if(*last_dn) {
-      temp_dn = ep_alloc(MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
+      temp_dn = (char *)ep_alloc(MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
       g_snprintf(temp_dn, MAX_DN_STR_LEN, "%s,%s", last_rdn, last_dn);
       last_dn[0] = '\0';
       g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
@@ -972,7 +972,7 @@ dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   const char *fmt; 
 
   dn_one_rdn = FALSE; /* reset */
-  last_dn = ep_alloc(MAX_DN_STR_LEN); *last_dn = '\0';
+  last_dn = (char *)ep_alloc(MAX_DN_STR_LEN); *last_dn = '\0';
   top_of_dn = NULL;
   register_frame_end_routine (actx->pinfo, x509if_frame_end);
 

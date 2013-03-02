@@ -1627,14 +1627,14 @@ dissect_x509sat_SyntaxGeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_x509sat_GUID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 394 "../../asn1/x509sat/x509sat.cnf"
-  gint8 class;
+  gint8 ber_class;
   gboolean pc;
   gint32 tag;
   guint32 len;
   e_guid_t uuid;
 
   if(!implicit_tag){
-    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
     offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
   } else {
     gint32 remaining=tvb_length_remaining(tvb, offset);

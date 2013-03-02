@@ -360,14 +360,14 @@ int PBE_decrypt_data(const char *object_identifier_id_param, tvbuff_t *encrypted
 	}
 
 	/* allocate buffers */
-	key = ep_alloc(keylen);
+	key = (char *)ep_alloc(keylen);
 
 	if(!generate_key_or_iv(1 /*LEY */, salt, iteration_count, password, keylen, key))
 		return FALSE;
 
 	if(ivlen) {
 
-		iv = ep_alloc(ivlen);
+		iv = (char *)ep_alloc(ivlen);
 
 		if(!generate_key_or_iv(2 /* IV */, salt, iteration_count, password, ivlen, iv))
 			return FALSE;
@@ -393,7 +393,7 @@ int PBE_decrypt_data(const char *object_identifier_id_param, tvbuff_t *encrypted
 	}
 
 	datalen = tvb_length(encrypted_tvb);
-	clear_data = g_malloc(datalen);
+	clear_data = (char *)g_malloc(datalen);
 
 	err = gcry_cipher_decrypt (cipher, clear_data, datalen, tvb_get_ephemeral_string(encrypted_tvb, 0, datalen), datalen);
 	if (gcry_err_code (err)) {

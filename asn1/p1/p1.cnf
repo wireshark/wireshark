@@ -938,7 +938,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 
 #.FN_BODY TeletexDomainDefinedAttribute
-        ddatype = ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
+        ddatype = (char *)ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
 
 	%(DEFAULT_BODY)s
 
@@ -1047,13 +1047,13 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	}
 	
 #.FN_BODY BuiltInDomainDefinedAttribute
-        ddatype = ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
+        ddatype = (char *)ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
 
 	%(DEFAULT_BODY)s
 
 #.FN_BODY ORAddress
 	
-	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	oraddress = (char *)ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	doing_address = TRUE;
 	address_item = NULL;
 
@@ -1066,7 +1066,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 #.FN_BODY ORName
 	
-	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	oraddress = (char *)ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = NULL;
 	doing_address = TRUE;
 
@@ -1085,7 +1085,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 #.FN_BODY GlobalDomainIdentifier
 	
-	oraddress = ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
+	oraddress = (char *)ep_alloc(MAX_ORA_STR_LEN); oraddress[0] = '\0';	
 	address_item = tree;
 
 	%(DEFAULT_BODY)s

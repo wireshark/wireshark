@@ -391,14 +391,14 @@ XDayOf/fifth				fifth_dayof
 #.END
 
 #.FN_BODY GUID
-  gint8 class;
+  gint8 ber_class;
   gboolean pc;
   gint32 tag;
   guint32 len;
   e_guid_t uuid;
 
   if(!implicit_tag){
-    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
     offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
   } else {
     gint32 remaining=tvb_length_remaining(tvb, offset);
