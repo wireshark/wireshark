@@ -363,7 +363,7 @@ struct symbol **Symbol_arrayof(void);
 
 /* Routines to manage the state table */
 
-int Configcmp(const void *, const void *);
+int Configcmp(const char *, const char *);
 struct state *State_new(void);
 void State_init(void);
 int State_insert(struct state *, struct config *);
