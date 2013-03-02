@@ -3173,7 +3173,6 @@ PRIVATE FILE *tplt_open(struct lemon *lemp)
 	  }else{
 	    tpltname = pathsearch(lemp->argv0,templatename,0);
 	  }
-	  free(buf);
   }
   if( tpltname==0 ){
     fprintf(stderr,"Can't find the parser driver template file \"%s\".\n",
