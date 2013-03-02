@@ -1637,9 +1637,9 @@ int main(int argc _U_, char **argv)
 **   The "next" pointers for elements in the lists a and b are
 **   changed.
 */
-static char *merge(char *a, char *b, int (*cmp)(const void *, const void *),
-    int offset)
-{
+static char *merge( char *a, char *b, int (*cmp)(const char*,const char*),
+  int offset
+){
   char *ptr, *head;
 
   if( a==0 ){
@@ -1647,7 +1647,7 @@ static char *merge(char *a, char *b, int (*cmp)(const void *, const void *),
   }else if( b==0 ){
     head = a;
   }else{
-    if( (*cmp)(a,b)<0 ){
+    if( (*cmp)(a,b)<=0 ){
       ptr = a;
       a = NEXT(a);
     }else{
@@ -1656,7 +1656,7 @@ static char *merge(char *a, char *b, int (*cmp)(const void *, const void *),
     }
     head = ptr;
     while( a && b ){
-      if( (*cmp)(a,b)<0 ){
+      if( (*cmp)(a,b)<=0 ){
         NEXT(ptr) = a;
         ptr = a;
         a = NEXT(a);
@@ -1686,14 +1686,13 @@ static char *merge(char *a, char *b, int (*cmp)(const void *, const void *),
 **   The "next" pointers for elements in list are changed.
 */
 #define LISTSIZE 30
-static char *msort(char *list, char **next, int (*cmp)(const char*,const char*)
-)
+static char *msort(char *list, char **next, int (*cmp)(const char*,const char*))
 {
-  int offset;
+  unsigned long offset;
   char *ep;
   char *set[LISTSIZE];
   int i;
-  offset = (int) ((char *)next - (char *)list);
+  offset = (unsigned long)next - (unsigned long)list;
   for(i=0; i<LISTSIZE; i++) set[i] = 0;
   while( list ){
     ep = list;
@@ -1706,7 +1705,7 @@ static char *msort(char *list, char **next, int (*cmp)(const char*,const char*)
     set[i] = ep;
   }
   ep = 0;
-  for(i=0; i<LISTSIZE; i++) if( set[i] ) ep = merge(ep,set[i],cmp,offset);
+  for(i=0; i<LISTSIZE; i++) if( set[i] ) ep = merge(set[i],ep,cmp,offset);
   return ep;
 }
 /************************ From the file "option.c" **************************/
