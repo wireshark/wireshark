@@ -590,12 +590,11 @@ dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	dcerpc_info *di = NULL;
 	guint8 len;
 	const char *dn;
 	int dn_len = 0;
 	guint16 bc;
-	di=pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -621,8 +620,7 @@ static guint16 node_record_count;
 static int
 dnsserver_dissect_element_DNS_RPC_NODE_RecordCount(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = NULL;
-	di=pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -633,8 +631,7 @@ dnsserver_dissect_element_DNS_RPC_NODE_RecordCount(tvbuff_t *tvb _U_, int offset
 static int
 dnsserver_dissect_element_DNS_RPC_NODE_records(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = NULL;
-	di=pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -3155,7 +3152,7 @@ dnsserver_dissect_element_DnssrvEnumRecords2_record_buffer_(tvbuff_t *tvb _U_, i
 	guint32 size;
 	int start_offset = offset;
 	tvbuff_t *subtvb;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run)return offset;
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_dnsserver_DnssrvEnumRecords2_record_buffer, &size);
 	proto_tree_add_text(tree, tvb, start_offset, offset, "Subcontext size: %d", size);

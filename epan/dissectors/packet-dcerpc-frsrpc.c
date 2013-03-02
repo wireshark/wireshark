@@ -648,7 +648,7 @@ static int frsrpc_dissect_element_FrsStartPromotionParent_parent_guid__(tvbuff_t
 static int
 frsrpc_dissect_element_CommPktChangeOrderCommand_file_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int conformant = di->conformant_run;
 	if (!conformant) {
 		guint32 soffset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_frsrpc_CommPktChangeOrderCommand_file_name, 0);
@@ -666,7 +666,7 @@ frsrpc_dissect_struct_CommPktChunk(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	const char *s = NULL;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 	old_offset = offset;
 	if (parent_tree) {
@@ -718,7 +718,7 @@ frsrpc_dissect_struct_frsrpc_CommPktChunkCtr(tvbuff_t *tvb, int offset, packet_i
 {
 	guint32 nb_chunk = 0;
 	guint32 remaining = tvb_length_remaining(tvb, offset);
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int align_status = di->no_align;
 	if (remaining > 0) {
 		proto_item *item = proto_tree_add_item(tree, hf_index, tvb, offset, -1, TRUE);
@@ -742,7 +742,7 @@ frsrpc_dissect_struct_frsrpc_CommPktChunkCtr(tvbuff_t *tvb, int offset, packet_i
 static int
 frsrpc_dissect_element_CommPktChunkGuidName_guid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -768,7 +768,7 @@ frsrpc_dissect_element_CommPktChunkGuidName_guid_(tvbuff_t *tvb _U_, int offset 
 static int
 frsrpc_dissect_element_CommPktChunkGuidName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -844,7 +844,7 @@ frsrpc_dissect_struct_CommPktGSVN(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -1723,7 +1723,7 @@ frsrpc_dissect_struct_CommPktChangeOrderCommand(tvbuff_t *tvb _U_, int offset _U
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -1895,7 +1895,7 @@ frsrpc_dissect_struct_CommPktDataExtensionChecksum(tvbuff_t *tvb _U_, int offset
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -1978,7 +1978,7 @@ frsrpc_dissect_struct_CommPktDataExtensionRetryTimeout(tvbuff_t *tvb _U_, int of
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -2094,7 +2094,7 @@ frsrpc_dissect_struct_CommPktCoRecordExtensionWin2k(tvbuff_t *tvb _U_, int offse
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -2219,7 +2219,7 @@ frsrpc_dissect_struct_CommPktChangeOrderRecordExtension(tvbuff_t *tvb _U_, int o
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -2404,7 +2404,7 @@ frsrpc_dissect_element_CommPktChunkData_connection(tvbuff_t *tvb _U_, int offset
 static int
 frsrpc_dissect_element_CommPktChunkData_join_guid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -2438,7 +2438,7 @@ frsrpc_dissect_element_CommPktChunkData_last_join_time(tvbuff_t *tvb _U_, int of
 static int
 frsrpc_dissect_element_CommPktChunkData_vvector(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -2464,7 +2464,7 @@ frsrpc_dissect_element_CommPktChunkData_vvector_(tvbuff_t *tvb _U_, int offset _
 static int
 frsrpc_dissect_element_CommPktChunkData_join_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -2490,7 +2490,7 @@ frsrpc_dissect_element_CommPktChunkData_join_time_(tvbuff_t *tvb _U_, int offset
 static int
 frsrpc_dissect_element_CommPktChunkData_replica_version_guid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -2556,7 +2556,7 @@ frsrpc_dissect_element_CommPktChunkData_file_offset(tvbuff_t *tvb _U_, int offse
 static int
 frsrpc_dissect_element_CommPktChunkData_gvsn(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -2582,7 +2582,7 @@ frsrpc_dissect_element_CommPktChunkData_gvsn_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 frsrpc_dissect_element_CommPktChunkData_co_guid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -2616,7 +2616,7 @@ frsrpc_dissect_element_CommPktChunkData_co_sequnence_number(tvbuff_t *tvb _U_, i
 static int
 frsrpc_dissect_element_CommPktChunkData_remote_co(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -2642,7 +2642,7 @@ frsrpc_dissect_element_CommPktChunkData_remote_co_(tvbuff_t *tvb _U_, int offset
 static int
 frsrpc_dissect_element_CommPktChunkData_co_ext_win2k(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -2814,7 +2814,7 @@ frsrpc_dissect_element_CommPktChunk_type(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 frsrpc_dissect_element_CommPktChunk_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, guint1632 *type)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -2962,7 +2962,7 @@ frsrpc_dissect_element_FrsSendCommPktReq_ctr(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 frsrpc_dissect_element_FrsSendCommPktReq_ctr_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -3006,7 +3006,7 @@ frsrpc_dissect_struct_FrsSendCommPktReq(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -3396,7 +3396,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_connection_guid(tvbuff_t *tvb _U_
 static int
 frsrpc_dissect_element_FrsStartPromotionParent_connection_guid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -3430,7 +3430,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_partner_guid(tvbuff_t *tvb _U_, i
 static int
 frsrpc_dissect_element_FrsStartPromotionParent_partner_guid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;
@@ -3464,7 +3464,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_parent_guid(tvbuff_t *tvb _U_, in
 static int
 frsrpc_dissect_element_FrsStartPromotionParent_parent_guid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int conformant = di->conformant_run;
 	tvbuff_t *subtvb;

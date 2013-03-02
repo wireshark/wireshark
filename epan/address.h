@@ -151,7 +151,7 @@ typedef struct _address {
 	(to)->type = (from)->type; \
 	(to)->len = (from)->len; \
 	(to)->hf = (from)->hf; \
-	COPY_ADDRESS_data = g_malloc((from)->len); \
+	COPY_ADDRESS_data = (guint8 *)g_malloc((from)->len); \
 	memcpy(COPY_ADDRESS_data, (from)->data, (from)->len); \
 	(to)->data = COPY_ADDRESS_data; \
 	}
@@ -181,7 +181,7 @@ typedef struct _address {
 #define ADD_ADDRESS_TO_HASH(hash_val, addr) { \
 	const guint8 *ADD_ADDRESS_TO_HASH_data; \
 	int ADD_ADDRESS_TO_HASH_index; \
-	ADD_ADDRESS_TO_HASH_data = (addr)->data; \
+	ADD_ADDRESS_TO_HASH_data = (const guint8 *)(addr)->data; \
 	for (ADD_ADDRESS_TO_HASH_index = 0; \
 	     ADD_ADDRESS_TO_HASH_index < (addr)->len; \
 	     ADD_ADDRESS_TO_HASH_index++) \

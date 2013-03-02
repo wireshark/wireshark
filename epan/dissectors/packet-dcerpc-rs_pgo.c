@@ -135,7 +135,7 @@ dissect_error_status_t (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   const char *st_str;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -179,7 +179,7 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
   guint32 string_size;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -243,7 +243,7 @@ dissect_sec_rgy_pgo_flags_t (tvbuff_t * tvb, int offset,
     typedef bitset  sec_rgy_pgo_flags_t;
 */
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -344,7 +344,7 @@ dissect_rs_cache_data_t (tvbuff_t * tvb, int offset,
   e_uuid_t uuid1;
 
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -400,7 +400,7 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
   guint32 string_size;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -462,7 +462,7 @@ dissect_sec_rgy_domain_t (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   guint32 domain_t;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -514,7 +514,7 @@ dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
   e_uuid_t id;
   guint32 unix_num, quota;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -579,7 +579,7 @@ dissect_sec_rgy_cursor_t (tvbuff_t * tvb, int offset,
   e_uuid_t source;
   guint32 handle, valid;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -637,7 +637,7 @@ dissect_rs_pgo_query_t (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   guint8 query_t;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -703,7 +703,7 @@ dissect_rs_pgo_id_key_t (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   e_uuid_t id;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -754,7 +754,7 @@ dissect_rs_pgo_result_t (tvbuff_t * tvb, int offset,
   int old_offset = offset;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -800,7 +800,7 @@ r
   dcerpc_info *di;
   guint32 rs_pgo_unix_num_key_t;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -870,7 +870,7 @@ dissect_rs_pgo_query_key_t (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   guint16 query_t;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -946,7 +946,7 @@ dissect_rs_pgo_query_result_t (tvbuff_t * tvb, int offset,
      } rs_pgo_query_result_t;
    */
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -992,7 +992,7 @@ rs_pgo_dissect_add_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1022,7 +1022,7 @@ rs_pgo_dissect_add_resp (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   gint         buff_remain;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1056,7 +1056,7 @@ rs_pgo_dissect_delete_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1080,7 +1080,7 @@ rs_pgo_dissect_delete_resp (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   gint         buff_remain;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1116,7 +1116,7 @@ rs_pgo_dissect_replace_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1144,7 +1144,7 @@ rs_pgo_dissect_replace_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1177,7 +1177,7 @@ rs_pgo_dissect_add_member_rqst (tvbuff_t * tvb, int offset,
 
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1206,7 +1206,7 @@ rs_pgo_dissect_rename_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1232,7 +1232,7 @@ rs_pgo_dissect_rename_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1263,7 +1263,7 @@ rs_pgo_dissect_add_member_resp (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   gint         buff_remain;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1300,7 +1300,7 @@ rs_pgo_dissect_delete_member_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1332,7 +1332,7 @@ rs_pgo_dissect_get_members_rqst (tvbuff_t * tvb, int offset,
   guint32 max_members;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1369,7 +1369,7 @@ rs_pgo_dissect_key_transfer_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1399,7 +1399,7 @@ rs_pgo_dissect_key_transfer_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1435,7 +1435,7 @@ rs_pgo_dissect_is_member_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1470,7 +1470,7 @@ rs_pgo_dissect_is_member_rqst (tvbuff_t * tvb, int offset,
 */
 
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1496,7 +1496,7 @@ rs_pgo_dissect_get_rqst (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   guint32 allow_aliases;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1541,7 +1541,7 @@ rs_pgo_dissect_get_resp (tvbuff_t * tvb, int offset,
 
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1578,7 +1578,7 @@ rs_pgo_dissect_delete_member_resp (tvbuff_t * tvb, int offset,
 
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;

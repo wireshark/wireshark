@@ -100,7 +100,7 @@ epm_dissect_pointer_IF_ID(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
                                  di->hf_index, NULL);
     offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
@@ -117,7 +117,7 @@ epm_dissect_pointer_UUID(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, drep,
                                  di->hf_index, NULL);
     return offset;
@@ -163,7 +163,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
     dcerpc_info *di;
     const char *str;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         return offset;
     }
@@ -325,7 +325,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
     const char *uuid_name;
     guint8   u8little_endian = DREP_LITTLE_ENDIAN;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         return offset;
     }
@@ -482,7 +482,7 @@ epm_dissect_tower (tvbuff_t *tvb, int offset,
     guint3264 len;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         return offset;
     }

@@ -184,7 +184,7 @@ dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 			      dcerpc_callback_fnct_t *callback,
 			      void *callback_args)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint16 len, size;
 
 	/* Structure starts with short, but is aligned for pointer */
@@ -270,7 +270,7 @@ dissect_ndr_counted_string_ptr(tvbuff_t *tvb, int offset,
 			       packet_info *pinfo, proto_tree *tree,
 			       guint8 *drep)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 
 	return dissect_ndr_counted_string_helper(
 		tvb, offset, pinfo, tree, drep, di->hf_index, 0, FALSE);
@@ -289,7 +289,7 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 				  dcerpc_callback_fnct_t *callback,
 				  void *callback_args)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	proto_item *item;
 	proto_tree *subtree;
 	guint16 len, size;
@@ -399,7 +399,7 @@ dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
 				  dcerpc_callback_fnct_t *callback,
 				  void *callback_args)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	proto_item *item;
 	proto_tree *subtree;
 	guint16 len, size;
@@ -475,7 +475,7 @@ dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 	header_field_info *hf_info;
 
@@ -517,9 +517,7 @@ dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep _U_, int hf_index)
 {
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
+	dcerpc_info *di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -619,7 +617,7 @@ static pol_value *find_pol_handle(e_ctx_hnd *policy_hnd, guint32 frame,
 	pol_value *pol;
 
 	memcpy(&key.policy_hnd, policy_hnd, sizeof(key.policy_hnd));
-	if ((*valuep = g_hash_table_lookup(pol_hash, &key))) {
+	if ((*valuep = (pol_hash_value *)g_hash_table_lookup(pol_hash, &key))) {
 		/*
 		 * Look for the first value such that both:
 		 *
@@ -667,10 +665,10 @@ static void add_pol_handle(e_ctx_hnd *policy_hnd, guint32 frame,
 		 * and put the hash value in the policy handle hash
 		 * table.
 		 */
-		value = se_alloc(sizeof(pol_hash_value));
+		value = (pol_hash_value *)se_alloc(sizeof(pol_hash_value));
 		value->list = pol;
 		pol->next = NULL;
-		key = se_alloc(sizeof(pol_hash_key));
+		key = (pol_hash_key *)se_alloc(sizeof(pol_hash_key));
 		memcpy(&key->policy_hnd, policy_hnd, sizeof(key->policy_hnd));
 		g_hash_table_insert(pol_hash, key, value);
 	} else {
@@ -767,7 +765,7 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 
 	/* Create a new value */
 
-	pol = se_alloc(sizeof(pol_value));
+	pol = (pol_value *)se_alloc(sizeof(pol_value));
 
 	pol->open_frame = is_open ? pinfo->fd->num : 0;
 	pol->close_frame = is_close ? pinfo->fd->num : 0;
@@ -849,7 +847,7 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 
 	/* Create a new value */
 
-	pol = se_alloc(sizeof(pol_value));
+	pol = (pol_value *)se_alloc(sizeof(pol_value));
 
 	pol->open_frame = 0;
 	pol->close_frame = 0;
@@ -1005,9 +1003,7 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	guint32 open_frame = 0, close_frame = 0;
 	char *name;
 	int old_offset = offset;
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
+	dcerpc_info *di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/*
 		 * just a run to handle conformant arrays, no scalars to
@@ -1124,9 +1120,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      guint32 param)
 {
 	e_ctx_hnd policy_hnd;
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
+	dcerpc_info *di=(dcerpc_info *)pinfo->private_data;
 
 	offset=dissect_nt_hnd(tvb, offset, pinfo,
 		      tree, drep, hfindex,
@@ -1147,7 +1141,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		dcerpc_call_value *dcv;
 
 		dcv = (dcerpc_call_value *)di->call_data;
-		pol_name = dcv->private_data;
+		pol_name = (const char *)dcv->private_data;
 		if(!pol_name){
 			pol_name="<...>";
 		}
@@ -1163,7 +1157,7 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		dcv = (dcerpc_call_value *)di->call_data;
 		if(!dcv->pol){
-			dcv->pol=se_memdup(&policy_hnd, sizeof(e_ctx_hnd));
+			dcv->pol=(e_ctx_hnd *)se_memdup(&policy_hnd, sizeof(e_ctx_hnd));
 		}
 	}
 
@@ -1215,9 +1209,7 @@ dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		   proto_tree *tree, guint8 *drep,
 		   int hfindex, int length, const guint8 **pdata)
 {
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
+	dcerpc_info *di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/* just a run to handle conformant arrays, no scalars to dissect */
 		return offset;
@@ -1250,9 +1242,7 @@ dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		    proto_tree *tree, guint8 *drep,
 		    int hfindex, int length)
 {
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
+	dcerpc_info *di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/* just a run to handle conformant arrays, no scalars to dissect */
 		return offset;
@@ -1471,7 +1461,7 @@ dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 	offset=dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	if(dcv && dcv->private_data){
-		char *s=dcv->private_data;
+		char *s=(char *)dcv->private_data;
 		proto_item *item=(proto_item *)tree;
 
 		if ((options & CB_STR_COL_INFO)&&(!di->conformant_run)) {
@@ -1745,7 +1735,7 @@ dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
 	guint32 count;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset=offset;
 
 	if(parent_tree){

@@ -453,7 +453,7 @@ typedef struct _netlogon_auth_vars {
     guint64 confounder;
     guint8 private_type;
     gboolean can_decrypt;
-    void* private;
+    void* private_data;
     char* client_name;
     int start;
     int next_start;
@@ -617,7 +617,7 @@ netlogon_dissect_EXTRA_FLAGS(tvbuff_t *tvb, int offset,
     proto_tree *tree = NULL;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -650,7 +650,7 @@ dissect_ndr_lm_nt_hash_cb(tvbuff_t *tvb, int offset,
                           dcerpc_callback_fnct_t *callback,
                           void *callback_args)
 {
-    dcerpc_info *di = pinfo->private_data;
+    dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
     guint16 len, size;
 
     /* Structure starts with short, but is aligned for longs */
@@ -713,7 +713,7 @@ netlogon_dissect_USER_ACCOUNT_CONTROL(tvbuff_t *tvb, int offset,
     proto_tree *tree = NULL;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -804,7 +804,7 @@ netlogon_dissect_VALIDATION_UAS_INFO(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -908,7 +908,7 @@ netlogon_dissect_LOGOFF_UAS_INFO(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -1058,7 +1058,7 @@ netlogon_dissect_LM_OWF_PASSWORD(tvbuff_t *tvb, int offset,
     proto_tree *tree=NULL;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect.*/
         return offset;
@@ -1091,7 +1091,7 @@ netlogon_dissect_NT_OWF_PASSWORD(tvbuff_t *tvb, int offset,
     proto_tree *tree=NULL;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect.*/
         return offset;
@@ -1147,7 +1147,7 @@ netlogon_dissect_CHALLENGE(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect.*/
         return offset;
@@ -1366,7 +1366,7 @@ netlogon_dissect_CREDENTIAL(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect.*/
         return offset;
@@ -1394,7 +1394,7 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
     dcerpc_info *di;
     nstime_t ts;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -1441,7 +1441,7 @@ netlogon_dissect_GROUP_MEMBERSHIP_ATTRIBUTES(tvbuff_t *tvb, int offset,
     proto_tree *tree = NULL;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -1518,7 +1518,7 @@ netlogon_dissect_USER_SESSION_KEY(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect.*/
         return offset;
@@ -1550,7 +1550,7 @@ netlogon_dissect_USER_FLAGS(tvbuff_t *tvb, int offset,
     proto_tree *tree = NULL;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -2086,7 +2086,7 @@ netlogon_dissect_PAC(tvbuff_t *tvb, int offset,
     dcerpc_info *di;
     guint32 pac_size;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         return offset;
     }
@@ -2109,7 +2109,7 @@ netlogon_dissect_AUTH(tvbuff_t *tvb, int offset,
     dcerpc_info *di;
     guint32 auth_size;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         return offset;
     }
@@ -2503,14 +2503,14 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     /*int oldoffset = offset;*/
     netlogon_auth_vars *vars;
     netlogon_auth_vars *existing_vars;
-    netlogon_auth_key *key = se_alloc(sizeof(netlogon_auth_key));
+    netlogon_auth_key *key = (netlogon_auth_key *)se_alloc(sizeof(netlogon_auth_key));
     guint8 tab[8] = { 0,0,0,0,0,0,0,0};
     dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
     dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
     /* As we are not always keeping this it could be more intelligent to g_malloc it
        and if we decide to keep it then transform it into se_alloc */
-    vars = se_alloc(sizeof(netlogon_auth_vars));
+    vars = (netlogon_auth_vars *)se_alloc(sizeof(netlogon_auth_vars));
     offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset, pinfo, tree, drep);
     offset = dissect_ndr_pointer_cb(
         tvb, offset, pinfo, tree, drep,
@@ -2520,7 +2520,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         GINT_TO_POINTER(CB_STR_COL_INFO |CB_STR_SAVE | 1));
 
     debugprintf("1)Len %d offset %d txt %s\n",(int) strlen(dcv->private_data),offset,(char*)dcv->private_data);
-    vars->client_name = se_strdup(dcv->private_data);
+    vars->client_name = se_strdup((const guint8 *)dcv->private_data);
     debugprintf("2)Len %d offset %d txt %s\n",(int) strlen(dcv->private_data),offset,vars->client_name);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
@@ -2533,7 +2533,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 
     generate_hash_key(pinfo,0,key,NULL);
     existing_vars = NULL;
-    existing_vars = g_hash_table_lookup(netlogon_auths, key);
+    existing_vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, key);
     if (!existing_vars) {
         debugprintf("Adding initial vars with this start packet = %d\n",vars->start);
         g_hash_table_insert(netlogon_auths, key, vars);
@@ -2586,7 +2586,7 @@ netlogon_dissect_netrserverreqchallenge_reply(tvbuff_t *tvb, int offset,
     guint64 server_challenge;
 
     generate_hash_key(pinfo,1,&key,NULL);
-    vars = g_hash_table_lookup(netlogon_auths,(gconstpointer*) &key);
+    vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths,(gconstpointer*) &key);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
                                    hf_server_challenge, &server_challenge);
@@ -2693,7 +2693,7 @@ netlogon_dissect_ENCRYPTED_LM_OWF_PASSWORD(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect.*/
         return offset;
@@ -2822,7 +2822,7 @@ netlogon_dissect_SENSITIVE_DATA(tvbuff_t *tvb, int offset,
     dcerpc_info *di;
     guint32 data_len;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -3189,7 +3189,7 @@ netlogon_dissect_DELTA_RENAME(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
 
     offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
                                         di->hf_index, 0);
@@ -3792,7 +3792,7 @@ netlogon_dissect_CIPHER_VALUE_DATA(tvbuff_t *tvb, int offset,
     dcerpc_info *di;
     guint32 data_len;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -4462,7 +4462,7 @@ netlogon_dissect_UAS_INFO_0(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -5212,7 +5212,7 @@ netlogon_dissect_DOMAIN_TRUST_FLAGS(tvbuff_t *tvb, int offset,
     proto_tree *tree = NULL;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -5283,7 +5283,7 @@ netlogon_dissect_DOMAIN_TRUST_ATTRIBS(tvbuff_t *tvb, int offset,
     proto_tree *tree = NULL;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -5413,7 +5413,7 @@ netlogon_dissect_GET_DCNAME_REQUEST_FLAGS(tvbuff_t *tvb, int offset,
     proto_tree *tree = NULL;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -5543,7 +5543,7 @@ netlogon_dissect_DC_FLAGS(tvbuff_t *tvb, int offset,
     proto_tree *tree = NULL;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
@@ -5597,7 +5597,7 @@ netlogon_dissect_pointer_long(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  di->hf_index, NULL);
     return offset;
@@ -5611,7 +5611,7 @@ netlogon_dissect_pointer_char(tvbuff_t *tvb, int offset,
 {
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep,
                                di->hf_index, NULL);
     return offset;
@@ -5722,7 +5722,7 @@ dissect_ndr_trust_extension(tvbuff_t *tvb, int offset,
     guint32 len,max;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         return offset;
     }
@@ -5759,7 +5759,7 @@ netlogon_dissect_BLOB_array(tvbuff_t *tvb, int offset,
     guint32 len;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         return offset;
     }
@@ -5779,7 +5779,7 @@ dissect_ndr_ulongs_as_counted_string(tvbuff_t *tvb, int offset,
                                      packet_info *pinfo, proto_tree *tree,
                                      guint8 *drep, int hf_index)
 {
-    dcerpc_info *di = pinfo->private_data;
+    dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
     guint16 len, size;
     gboolean add_subtree = TRUE; /* Manage room for evolution*/
     proto_item *item;
@@ -5931,7 +5931,7 @@ netlogon_dissect_LSA_POLICY_INFO(tvbuff_t *tvb _U_, int offset,
     guint32 len;
     dcerpc_info *di;
 
-    di=pinfo->private_data;
+    di=(dcerpc_info *)pinfo->private_data;
     if(di->conformant_run){
         return offset;
     }

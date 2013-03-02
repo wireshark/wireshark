@@ -45,7 +45,7 @@ dissect_ndr_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -64,7 +64,7 @@ PIDL_dissect_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_info *di;
     guint8       val;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -80,20 +80,20 @@ PIDL_dissect_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = ep_alloc(64);
+        valstr = (char *)ep_alloc(64);
         valstr[0]=0;
 
         switch (hf_info->display) {
         case BASE_DEC:
             if (hf_info->strings) {
-                g_snprintf(valstr, 64, "%s(%d)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+                g_snprintf(valstr, 64, "%s(%d)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 g_snprintf(valstr, 64, "%d", val);
             }
             break;
         case BASE_HEX:
             if (hf_info->strings) {
-                g_snprintf(valstr, 64, "%s(0x%02x)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+                g_snprintf(valstr, 64, "%s(0x%02x)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 g_snprintf(valstr, 64, "0x%02x", val);
             }
@@ -118,7 +118,7 @@ dissect_ndr_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -140,7 +140,7 @@ PIDL_dissect_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_info *di;
     guint16      val;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -159,20 +159,20 @@ PIDL_dissect_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = ep_alloc(64);
+        valstr = (char *)ep_alloc(64);
         valstr[0]=0;
 
         switch (hf_info->display) {
         case BASE_DEC:
             if (hf_info->strings) {
-                g_snprintf(valstr, 64, "%s(%d)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+                g_snprintf(valstr, 64, "%s(%d)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 g_snprintf(valstr, 64, "%d", val);
             }
             break;
         case BASE_HEX:
             if (hf_info->strings) {
-                g_snprintf(valstr, 64, "%s(0x%04x)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+                g_snprintf(valstr, 64, "%s(0x%04x)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 g_snprintf(valstr, 64, "0x%04x", val);
             }
@@ -196,7 +196,7 @@ dissect_ndr_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -220,7 +220,7 @@ dissect_ndr_uint3264(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
 
     if (di->call_data->flags & DCERPC_IS_NDR64) {
         return dissect_ndr_uint64(tvb, offset, pinfo, tree, drep, hfindex, pdata);
@@ -244,7 +244,7 @@ dissect_ndr_uint1632(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
 
     if (di->call_data->flags & DCERPC_IS_NDR64) {
         return dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hfindex, pdata);
@@ -266,7 +266,7 @@ PIDL_dissect_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_info *di;
     guint32      val;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -285,20 +285,20 @@ PIDL_dissect_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = ep_alloc(64);
+        valstr = (char *)ep_alloc(64);
         valstr[0]=0;
 
         switch (hf_info->display) {
         case BASE_DEC:
             if (hf_info->strings) {
-                g_snprintf(valstr, 64, "%s(%d)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+                g_snprintf(valstr, 64, "%s(%d)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 g_snprintf(valstr, 64, "%d", val);
             }
             break;
         case BASE_HEX:
             if (hf_info->strings) {
-                g_snprintf(valstr, 64, "%s(0x%08x)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+                g_snprintf(valstr, 64, "%s(0x%08x)",val_to_str(val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 g_snprintf(valstr, 64, "0x%08x", val);
             }
@@ -327,7 +327,7 @@ dissect_ndr_duint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -350,7 +350,7 @@ dissect_ndr_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -374,7 +374,7 @@ PIDL_dissect_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_info *di;
     guint64      val;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -392,20 +392,20 @@ PIDL_dissect_uint64(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         hf_info = proto_registrar_get_nth(hfindex);
 
-        valstr = ep_alloc(64);
+        valstr = (char *)ep_alloc(64);
         valstr[0]=0;
 
         switch (hf_info->display) {
         case BASE_DEC:
             if (hf_info->strings) {
-                g_snprintf(valstr, 64, "%s(%" G_GINT64_MODIFIER "u)",val_to_str( (guint32) val, hf_info->strings, "Unknown:%u"), val);
+                g_snprintf(valstr, 64, "%s(%" G_GINT64_MODIFIER "u)",val_to_str( (guint32) val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 g_snprintf(valstr, 64, "%" G_GINT64_MODIFIER "u", val);
             }
             break;
         case BASE_HEX:
             if (hf_info->strings) {
-                g_snprintf(valstr, 64, "%s(0x%" G_GINT64_MODIFIER "x)",val_to_str( (guint32) val, hf_info->strings, "Unknown:%u"), val);
+                g_snprintf(valstr, 64, "%s(0x%" G_GINT64_MODIFIER "x)",val_to_str( (guint32) val, (const value_string *)hf_info->strings, "Unknown:%u"), val);
             } else {
                 g_snprintf(valstr, 64, "0x%" G_GINT64_MODIFIER "x", val);
             }
@@ -430,7 +430,7 @@ dissect_ndr_float(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_info *di;
 
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -452,7 +452,7 @@ dissect_ndr_double(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_info *di;
 
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -473,7 +473,7 @@ dissect_ndr_time_t(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -494,7 +494,7 @@ dissect_ndr_uuid_t(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
     dcerpc_info *di;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;
@@ -525,7 +525,7 @@ dissect_ndr_ctx_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     static e_ctx_hnd ctx_hnd;
     dcerpc_info *di;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         /* just a run to handle conformant arrays, no scalars to dissect */
         return offset;

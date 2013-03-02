@@ -117,7 +117,7 @@ dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di;
 
-	di=pinfo->private_data;
+	di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, NULL);

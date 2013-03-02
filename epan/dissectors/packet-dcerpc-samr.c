@@ -2142,7 +2142,7 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	dcerpc_call_value *dcv = NULL;
 	guint32 type=0;
 	struct access_mask_info *ami=NULL;
-	di=pinfo->private_data;
+	di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -2183,7 +2183,7 @@ cnf_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 {
 	guint64 len;
 	dcerpc_info *di;
-	di=pinfo->private_data;
+	di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -2257,7 +2257,7 @@ samr_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -2630,7 +2630,7 @@ samr_dissect_struct_SamEntry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -2700,7 +2700,7 @@ samr_dissect_struct_SamArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -2939,7 +2939,7 @@ samr_dissect_struct_DomInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -3080,7 +3080,7 @@ samr_dissect_struct_DomGeneralInformation(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -3143,7 +3143,7 @@ samr_dissect_struct_DomInfo3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -3186,7 +3186,7 @@ samr_dissect_struct_DomOEMInformation(tvbuff_t *tvb _U_, int offset _U_, packet_
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -3229,7 +3229,7 @@ samr_dissect_struct_DomInfo5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -3272,7 +3272,7 @@ samr_dissect_struct_DomInfo6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -3315,7 +3315,7 @@ samr_dissect_struct_DomInfo7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -3367,7 +3367,7 @@ samr_dissect_struct_DomInfo8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -3412,7 +3412,7 @@ samr_dissect_struct_DomInfo9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -3482,7 +3482,7 @@ samr_dissect_struct_DomGeneralInformation2(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -3549,7 +3549,7 @@ samr_dissect_struct_DomInfo12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -3614,7 +3614,7 @@ samr_dissect_struct_DomInfo13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -3869,7 +3869,7 @@ samr_dissect_struct_Ids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -4035,7 +4035,7 @@ samr_dissect_struct_GroupInfoAll(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -4084,7 +4084,7 @@ samr_dissect_struct_GroupInfoAttributes(tvbuff_t *tvb _U_, int offset _U_, packe
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -4127,7 +4127,7 @@ samr_dissect_struct_GroupInfoDescription(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -4335,7 +4335,7 @@ samr_dissect_struct_RidTypeArray(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -4400,7 +4400,7 @@ samr_dissect_struct_AliasInfoAll(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -4611,7 +4611,7 @@ samr_dissect_struct_UserInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -4689,7 +4689,7 @@ samr_dissect_struct_UserInfo2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -4763,7 +4763,7 @@ samr_dissect_struct_LogonHours(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -4961,7 +4961,7 @@ samr_dissect_struct_UserInfo3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -5038,7 +5038,7 @@ samr_dissect_struct_UserInfo4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -5234,7 +5234,7 @@ samr_dissect_struct_UserInfo5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -5320,7 +5320,7 @@ samr_dissect_struct_UserInfo6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -5365,7 +5365,7 @@ samr_dissect_struct_UserInfo7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -5408,7 +5408,7 @@ samr_dissect_struct_UserInfo8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -5451,7 +5451,7 @@ samr_dissect_struct_UserInfo9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -5503,7 +5503,7 @@ samr_dissect_struct_UserInfo10(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -5548,7 +5548,7 @@ samr_dissect_struct_UserInfo11(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -5591,7 +5591,7 @@ samr_dissect_struct_UserInfo12(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -5634,7 +5634,7 @@ samr_dissect_struct_UserInfo13(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -5677,7 +5677,7 @@ samr_dissect_struct_UserInfo14(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -5720,7 +5720,7 @@ samr_dissect_struct_UserInfo16(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -5763,7 +5763,7 @@ samr_dissect_struct_UserInfo17(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -5934,7 +5934,7 @@ samr_dissect_struct_UserInfo20(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -6591,7 +6591,7 @@ samr_dissect_struct_UserInfo21(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -6756,7 +6756,7 @@ samr_dissect_struct_UserInfo23(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -6905,7 +6905,7 @@ samr_dissect_struct_UserInfo25(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -7333,7 +7333,7 @@ samr_dissect_struct_RidWithAttribute(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -7403,7 +7403,7 @@ samr_dissect_struct_RidWithAttributeArray(tvbuff_t *tvb _U_, int offset _U_, pac
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -7493,7 +7493,7 @@ samr_dissect_struct_DispEntryGeneral(tvbuff_t *tvb _U_, int offset _U_, packet_i
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -7571,7 +7571,7 @@ samr_dissect_struct_DispInfoGeneral(tvbuff_t *tvb _U_, int offset _U_, packet_in
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -7652,7 +7652,7 @@ samr_dissect_struct_DispEntryFull(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -7728,7 +7728,7 @@ samr_dissect_struct_DispInfoFull(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -7809,7 +7809,7 @@ samr_dissect_struct_DispEntryFullGroup(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -7885,7 +7885,7 @@ samr_dissect_struct_DispInfoFullGroups(tvbuff_t *tvb _U_, int offset _U_, packet
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -7939,7 +7939,7 @@ samr_dissect_struct_DispEntryAscii(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -8009,7 +8009,7 @@ samr_dissect_struct_DispInfoAscii(tvbuff_t *tvb _U_, int offset _U_, packet_info
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -8178,7 +8178,7 @@ samr_dissect_struct_PwInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -8262,7 +8262,7 @@ samr_dissect_struct_ChangeReject(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -8318,7 +8318,7 @@ samr_dissect_struct_ConnectInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -8563,7 +8563,7 @@ samr_dissect_struct_ValidationBlob(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_5_BYTES;
@@ -8678,7 +8678,7 @@ samr_dissect_struct_ValidatePasswordInfo(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -8742,7 +8742,7 @@ samr_dissect_struct_ValidatePasswordRepCtr(tvbuff_t *tvb _U_, int offset _U_, pa
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -8898,7 +8898,7 @@ samr_dissect_struct_ValidatePasswordReq3(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -8987,7 +8987,7 @@ samr_dissect_struct_ValidatePasswordReq2(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;
@@ -9047,7 +9047,7 @@ samr_dissect_struct_ValidatePasswordReq1(tvbuff_t *tvb _U_, int offset _U_, pack
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	int old_offset;
 
 	ALIGN_TO_8_BYTES;

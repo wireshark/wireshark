@@ -421,7 +421,7 @@ static int
 dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, guint8 *drep)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	BUFFER *b = (BUFFER *)di->private_data;
 	proto_item *item;
 	guint32 size;
@@ -470,7 +470,7 @@ static int
 dissect_spoolss_buffer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		       proto_tree *tree, guint8 *drep, BUFFER *b)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 
 	if (b)
 		memset(b, 0, sizeof(BUFFER));
@@ -489,7 +489,7 @@ static int
 dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, guint8 *drep)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 buffer_len, len;
 	gchar *s;
 	proto_item *item = NULL;
@@ -816,7 +816,7 @@ SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 				    hf_printerdata_type, &type);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		const char *data = dcv->se_data ? dcv->se_data : "????";
+		const char *data = (const char *)(dcv->se_data ? dcv->se_data : "????");
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", data);
 	}
@@ -1538,7 +1538,7 @@ static int
 dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree *tree, guint8 *drep)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	proto_item *item;
 	proto_tree *subtree;
 	guint16 driver_extra;
@@ -2489,7 +2489,7 @@ dissect_PRINTER_DATATYPE(tvbuff_t *tvb, int offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    guint8 *drep _U_)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 
 	if (di->conformant_run)
 		return offset;
@@ -2567,7 +2567,7 @@ dissect_USER_LEVEL_CTR(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	proto_item *item;
 	proto_tree *subtree;
 	guint32 level;
@@ -2621,7 +2621,7 @@ SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Printer name", hf_printername, cb_wstr_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
-	name = dcv->private_data;
+	name = (char *)dcv->private_data;
 
 	/* OpenPrinterEx() stores the key/value in se_data */
 	if(!pinfo->fd->flags.visited){
@@ -2638,7 +2638,7 @@ SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_DEVMODE_CTR(tvb, offset, pinfo, tree, drep);
 
-	name=dcv->se_data;
+	name=(char *)dcv->se_data;
 	if (name) {
 		if (name[0] == '\\' && name[1] == '\\')
 			name += 2;
@@ -2808,7 +2808,7 @@ static int
 dissect_NOTIFY_OPTION_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree *tree, guint8 *drep)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 count, i;
 	guint16 type;
@@ -2943,7 +2943,7 @@ dissect_NOTIFY_OPTIONS_ARRAY_CTR(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 guint8 *drep)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 
 	if (di->conformant_run)
 		return offset;
@@ -5089,7 +5089,7 @@ static int
 dissect_spoolss_doc_info_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, guint8 *drep)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 
 	if (di->conformant_run)
 		return offset;
@@ -6363,7 +6363,7 @@ static int
 dissect_NOTIFY_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    proto_tree *tree, guint8 *drep)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 count;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -6606,7 +6606,7 @@ static int
 dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree *tree, guint8 *drep)
 {
-	dcerpc_info *di = pinfo->private_data;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	guint32 size;
 	int end_offset;
 

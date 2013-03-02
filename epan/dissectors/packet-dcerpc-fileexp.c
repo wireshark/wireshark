@@ -338,7 +338,7 @@ dissect_afsFid (tvbuff_t * tvb, int offset,
   guint32 volume_low, unique, vnode, inode;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -406,7 +406,7 @@ dissect_afsConnParams (tvbuff_t * tvb, int offset,
   guint32 mask, Values[20];
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -565,7 +565,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
   const guint8 *namestring;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -624,7 +624,7 @@ dissect_afsNetAddr (tvbuff_t * tvb, int offset,
   int i;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -712,7 +712,7 @@ dissect_afsNetData (tvbuff_t * tvb, int offset,
   int old_offset = offset;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -755,7 +755,7 @@ dissect_afsTaggedPath (tvbuff_t * tvb, int offset,
   const guint8 *tp_chars;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -806,7 +806,7 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
   e_uuid_t uuid1, defaultcell;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -870,7 +870,7 @@ dissect_afsErrorStatus (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   const char *st_str;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -920,7 +920,7 @@ dissect_afsRecordLock (tvbuff_t * tvb, int offset,
     l_end_pos_ext;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1006,7 +1006,7 @@ dissect_afsstorestatus (tvbuff_t * tvb, int offset,
   e_uuid_t typeuuid;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1188,7 +1188,7 @@ dissect_afstoken (tvbuff_t * tvb, int offset,
     beginrange, endrange, beginrangeext, endrangeext, type;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1334,7 +1334,7 @@ dissect_afstaggedname (tvbuff_t * tvb, int offset,
   const guint8 *tn_string;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1389,7 +1389,7 @@ dissect_afsfidtaggedname (tvbuff_t * tvb, int offset,
   int old_offset = offset;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1425,7 +1425,7 @@ dissect_minvvp (tvbuff_t * tvb, int offset,
   guint32 minvvp_high, minvvp_low;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1470,7 +1470,7 @@ dissect_afsuuid (tvbuff_t * tvb, int offset,
   int old_offset = offset;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1508,7 +1508,7 @@ dissect_offsetp (tvbuff_t * tvb, int offset,
   guint32 offsetp_high, offsetp_low;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1552,7 +1552,7 @@ dissect_returntokenidp (tvbuff_t * tvb, int offset,
   guint32 returntokenidp_high, returntokenidp_low;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1603,7 +1603,7 @@ dissect_volsync (tvbuff_t * tvb, int offset,
     vvspare2;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1670,7 +1670,7 @@ dissect_afsFlags (tvbuff_t * tvb, int offset,
   guint32 flags;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1828,7 +1828,7 @@ dissect_fetchstatus (tvbuff_t * tvb, int offset,
   e_uuid_t typeuuid, objectuuid;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1991,7 +1991,7 @@ dissect_afsReturnDesc (tvbuff_t * tvb, int offset,
   guint32 tokenid_high, tokenid_low, type_high, type_low;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2047,7 +2047,7 @@ dissect_afsReturns (tvbuff_t * tvb, int offset,
      cheat and pretend it is */
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2073,7 +2073,7 @@ dissect_afsbundled_stat (tvbuff_t * tvb, int offset,
   int old_offset = offset;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2146,7 +2146,7 @@ fileexp_dissect_removefile_rqst (tvbuff_t * tvb, int offset,
 
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2191,7 +2191,7 @@ fileexp_dissect_storedata_rqst (tvbuff_t * tvb, int offset,
   guint32 position_high, position_low, length;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2251,7 +2251,7 @@ fileexp_dissect_gettoken_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2291,7 +2291,7 @@ fileexp_dissect_gettoken_resp (tvbuff_t * tvb, int offset,
 {
 
   dcerpc_info *di;
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2332,7 +2332,7 @@ fileexp_dissect_lookuproot_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2368,7 +2368,7 @@ fileexp_dissect_fetchdata_rqst (tvbuff_t * tvb, int offset,
   guint32 position_high, position_low, length;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2418,7 +2418,7 @@ fileexp_dissect_fetchacl_rqst (tvbuff_t * tvb, int offset,
   guint32 acltype;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2464,7 +2464,7 @@ fileexp_dissect_fetchstatus_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2497,7 +2497,7 @@ fileexp_dissect_storeacl_rqst (tvbuff_t * tvb, int offset,
   guint32 acltype;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2545,7 +2545,7 @@ fileexp_dissect_storestatus_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2584,7 +2584,7 @@ fileexp_dissect_createfile_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2627,7 +2627,7 @@ fileexp_dissect_rename_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2684,7 +2684,7 @@ fileexp_dissect_symlink_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2733,7 +2733,7 @@ fileexp_dissect_readdir_rqst (tvbuff_t * tvb, int offset,
   guint32 size;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2775,7 +2775,7 @@ fileexp_dissect_makedir_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2817,7 +2817,7 @@ fileexp_dissect_removedir_rqst (tvbuff_t * tvb, int offset,
   guint32 returntokenidp_high, returntokenidp_low;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2863,7 +2863,7 @@ fileexp_dissect_lookup_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2898,7 +2898,7 @@ fileexp_dissect_lookup_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -2943,7 +2943,7 @@ fileexp_dissect_makemountpoint_rqst (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   guint16 type;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3007,7 +3007,7 @@ fileexp_dissect_setcontext_rqst (tvbuff_t * tvb, int offset,
 
   guint32 epochtime, clientsizesattrs, parm7;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3059,7 +3059,7 @@ fileexp_dissect_setcontext_resp (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
 
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3076,7 +3076,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3115,7 +3115,7 @@ static int
   dcerpc_info *di;
   guint32 pipe_t_size;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3144,7 +3144,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3177,7 +3177,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3210,7 +3210,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3239,7 +3239,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3268,7 +3268,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3297,7 +3297,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3333,7 +3333,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3376,7 +3376,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3426,7 +3426,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3467,7 +3467,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3500,7 +3500,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3544,7 +3544,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3585,7 +3585,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3625,7 +3625,7 @@ static int
   guint32 nextoffsetp_high, nextoffsetp_low;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3668,7 +3668,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3686,7 +3686,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3715,7 +3715,7 @@ static int
   guint32 secondsp, usecondsp, syncdistance, syncdispersion;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3756,7 +3756,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3774,7 +3774,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3806,7 +3806,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3839,7 +3839,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3859,7 +3859,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3881,7 +3881,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3906,7 +3906,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3931,7 +3931,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3968,7 +3968,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -3985,7 +3985,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -4007,7 +4007,7 @@ static int
   guint32 cellidp_high, cellidp_low, numvols, spare1, spare2;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -4054,7 +4054,7 @@ static int
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -4076,7 +4076,7 @@ static int
   guint32 spare4;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -4101,7 +4101,7 @@ static int
   guint32 numexecfids, spare1, spare2;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -4138,7 +4138,7 @@ static int
   guint32 offsetp_high, offsetp_low, size;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -4185,7 +4185,7 @@ static int
 
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;

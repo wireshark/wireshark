@@ -455,7 +455,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
   const guint8 *namestring;
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -981,7 +981,7 @@ fldb_dissect_getcellinfo_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1004,7 +1004,7 @@ fldb_dissect_getentrybyname_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1033,7 +1033,7 @@ fldb_dissect_getentrybyname_resp (tvbuff_t * tvb, int offset,
    */
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1052,7 +1052,7 @@ fldb_dissect_getsiteinfo_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1090,7 +1090,7 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
   guint32 creationquota, creationuses, deletedflag, spare2, spare3, spare4,
     spare5;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1186,7 +1186,7 @@ fldb_dissect_listentry_rqst (tvbuff_t * tvb, int offset,
 
   guint32 var1, previous_index;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1226,7 +1226,7 @@ fldb_dissect_listentry_resp (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   guint32 count, next_index;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1258,7 +1258,7 @@ fldb_dissect_setlock_rqst (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   guint32 fsid_high, fsid_low, voltype, voloper;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1293,7 +1293,7 @@ fldb_dissect_setlock_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1312,7 +1312,7 @@ fldb_dissect_deleteentry_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1338,7 +1338,7 @@ fldb_dissect_deleteentry_rqst (tvbuff_t * tvb, int offset,
 
   guint32 fsid_high, fsid_low, voltype, voloper;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1375,7 +1375,7 @@ fldb_dissect_createentry_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1393,7 +1393,7 @@ fldb_dissect_createentry_rqst (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1414,7 +1414,7 @@ fldb_dissect_getentrybyid_rqst (tvbuff_t * tvb, int offset,
 
   guint32 volid_high, volid_low, voltype;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1457,7 +1457,7 @@ fldb_dissect_getnewvolumeids_rqst (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   guint32 numwanted;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1484,7 +1484,7 @@ fldb_dissect_getentrybyid_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1502,7 +1502,7 @@ fldb_dissect_releaselock_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1523,7 +1523,7 @@ fldb_dissect_releaselock_rqst (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   guint32 fsid_high, fsid_low, voltype, voloper;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1557,7 +1557,7 @@ fldb_dissect_replaceentry_resp (tvbuff_t * tvb, int offset,
 {
   dcerpc_info *di;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1578,7 +1578,7 @@ fldb_dissect_getnextserversbyid_resp (tvbuff_t * tvb, int offset,
 
   guint32 nextstartp, flagsp;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;
@@ -1621,7 +1621,7 @@ fldb_dissect_replaceentry_rqst (tvbuff_t * tvb, int offset,
   dcerpc_info *di;
   guint32 fsid_high, fsid_low, voltype;
 
-  di = pinfo->private_data;
+  di = (dcerpc_info *)pinfo->private_data;
   if (di->conformant_run)
     {
       return offset;

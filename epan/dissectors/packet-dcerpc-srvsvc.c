@@ -2078,8 +2078,7 @@ static int
 srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint32 len;
-	dcerpc_info *di;
-	di=pinfo->private_data;
+	dcerpc_info *di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -2119,8 +2118,7 @@ srvsvc_dissect_element_NetShareInfo502_sd_(tvbuff_t *tvb, int offset, packet_inf
 static int
 srvsvc_dissect_ServerType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	dcerpc_info *di;
-	di=pinfo->private_data;
+	dcerpc_info *di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
@@ -2142,8 +2140,7 @@ srvsvc_dissect_element_NetSrvInfo102_server_type(tvbuff_t *tvb, int offset, pack
 static int
 srvsvc_dissect_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep _U_)
 {
-	dcerpc_info *di;
-	di=pinfo->private_data;
+	dcerpc_info *di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;

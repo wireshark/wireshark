@@ -55,7 +55,7 @@ dissect_browser_long_pointer(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di;
 
-	di=pinfo->private_data;
+	di=(dcerpc_info *)pinfo->private_data;
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      di->hf_index, NULL);
 	return offset;
@@ -94,7 +94,7 @@ dissect_browser_TYPE_4_data(tvbuff_t *tvb, int offset,
 	dcerpc_info *di;
 	int old_offset = offset;
 
-	di=pinfo->private_data;
+	di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
@@ -143,7 +143,7 @@ dissect_browser_TYPE_3_data(tvbuff_t *tvb, int offset,
 	dcerpc_info *di;
 	int old_offset = offset;
 
-	di=pinfo->private_data;
+	di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
@@ -749,7 +749,7 @@ dissect_browser_TYPE_9_data(tvbuff_t *tvb, int offset,
 	dcerpc_info *di;
 	int old_offset = offset;
 
-	di=pinfo->private_data;
+	di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
@@ -941,7 +941,7 @@ dissect_browser_TYPE_12_data(tvbuff_t *tvb, int offset,
 	dcerpc_info *di;
 	int old_offset = offset;
 
-	di=pinfo->private_data;
+	di=(dcerpc_info *)pinfo->private_data;
 	if(di->conformant_run){
 		/* this call is to make wireshark eat the array header for the conformant run */
 		offset =dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, NULL);
