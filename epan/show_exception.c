@@ -109,6 +109,23 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		        dissector_error_nomsg : exception_message);
 		break;
 
+	case ReassemblyError:
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+		    "[Reassembly error, protocol %s: %s]",
+		    pinfo->current_proto,
+		    exception_message == NULL ?
+		        dissector_error_nomsg : exception_message);
+		item = proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
+		    "[Reassembly error, protocol %s: %s]",
+		    pinfo->current_proto,
+		    exception_message == NULL ?
+		        dissector_error_nomsg : exception_message);
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+		    "%s",
+		    exception_message == NULL ?
+		        dissector_error_nomsg : exception_message);
+		break;
+
 	default:
 		/* XXX - we want to know, if an unknown exception passed until here, don't we? */
 		g_assert_not_reached();
