@@ -521,12 +521,10 @@ fi
 
 CFLAGS_before_fvhidden=$CFLAGS
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-fvisibility=hidden)
-if test "x$CLFAGS" = "x$CFLAGS_before_fvhidden" ; then
-	AC_WIRESHARK_GCC_CFLAGS_CHECK(-xldscope=hidden)
+if test "x$CLFAGS" = "x$CFLAGS_before_fvhidden"
+then
 	# TODO add other ways of hiding symbols
-	if test "x$CLFAGS" = "x$CFLAGS_before_fvhidden" ; then
-		AC_MSG_WARN(Compiler will export all symbols from shared libraries)
-	fi
+	AC_MSG_WARN(Compiler will export all symbols from shared libraries)
 fi
 
 AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
