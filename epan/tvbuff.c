@@ -547,7 +547,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 	}
 
 	DISSECTOR_ASSERT(datalen>0);
-	buf = ep_alloc0(datalen);
+	buf = (guint8 *)ep_alloc0(datalen);
 
 	/* if at least one trailing byte is available, we must use the content
  	* of that byte for the last shift (i.e. tvb_get_ptr() must use datalen + 1
@@ -650,7 +650,7 @@ tvb_composite_finalize(tvbuff_t *tvb)
 
 	for (slist = composite->tvbs; slist != NULL; slist = slist->next) {
 		DISSECTOR_ASSERT((guint) i < num_members);
-		member_tvb = slist->data;
+		member_tvb = (tvbuff_t *)slist->data;
 		composite->start_offsets[i] = tvb->length;
 		tvb->length += member_tvb->length;
 		tvb->reported_length += member_tvb->reported_length;
@@ -855,7 +855,7 @@ offset_from_real_beginning(const tvbuff_t *tvb, const guint counter)
 			member = tvb->tvbuffs.subset.tvb;
 			return offset_from_real_beginning(member, counter + tvb->tvbuffs.subset.offset);
 		case TVBUFF_COMPOSITE:
-			member = tvb->tvbuffs.composite.tvbs->data;
+			member = (tvbuff_t *)tvb->tvbuffs.composite.tvbs->data;
 			return offset_from_real_beginning(member, counter);
 	}
 
@@ -888,7 +888,7 @@ composite_ensure_contiguous_no_exception(tvbuff_t *tvb, const guint abs_offset, 
 	for (i = 0; i < num_members; i++) {
 		if (abs_offset <= composite->end_offsets[i]) {
 			slist = g_slist_nth(composite->tvbs, i);
-			member_tvb = slist->data;
+			member_tvb = (tvbuff_t *)slist->data;
 			break;
 		}
 	}
@@ -905,7 +905,7 @@ composite_ensure_contiguous_no_exception(tvbuff_t *tvb, const guint abs_offset, 
 		return ensure_contiguous_no_exception(member_tvb, member_offset, member_length, NULL);
 	}
 	else {
-		tvb->real_data = tvb_memdup(tvb, 0, -1);
+		tvb->real_data = (guint8 *)tvb_memdup(tvb, 0, -1);
 		return tvb->real_data + abs_offset;
 	}
 
@@ -1035,7 +1035,7 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_len
 	for (i = 0; i < num_members; i++) {
 		if (abs_offset <= composite->end_offsets[i]) {
 			slist = g_slist_nth(composite->tvbs, i);
-			member_tvb = slist->data;
+			member_tvb = (tvbuff_t *)slist->data;
 			break;
 		}
 	}
@@ -1110,7 +1110,7 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 					abs_length);
 
 		case TVBUFF_COMPOSITE:
-			return composite_memcpy(tvb, target, offset, length);
+			return composite_memcpy(tvb, (guint8 *)target, offset, length);
 	}
 
 	DISSECTOR_ASSERT_NOT_REACHED();
@@ -1752,7 +1752,7 @@ ep_tvb_get_bits(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, gboolean lsb0)
 	}
 
 	no_of_bytes = (no_of_bits >> 3) + ((no_of_bits & 0x7) != 0);	/* ceil(no_of_bits / 8.0) */
-	buf         = ep_alloc(no_of_bytes);
+	buf         = (guint8 *)ep_alloc(no_of_bytes);
 	tvb_get_bits_buf(tvb, bit_offset, no_of_bits, buf, lsb0);
 	return buf;
 }
@@ -1905,7 +1905,7 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 
 	/* If we have real data, perform our search now. */
 	if (tvb->real_data) {
-		result = memchr(tvb->real_data + abs_offset, needle, limit);
+		result = (const guint8 *)memchr(tvb->real_data + abs_offset, needle, limit);
 		if (result == NULL) {
 			return -1;
 		}
@@ -2178,7 +2178,7 @@ tvb_fake_unicode(tvbuff_t *tvb, int offset, const int len, const gboolean little
 
 	/* We know we won't throw an exception, so we don't have to worry
 	   about leaking this buffer. */
-	buffer = g_malloc(len + 1);
+	buffer = (char *)g_malloc(len + 1);
 
 	for (i = 0; i < len; i++) {
 		character = little_endian ? tvb_get_letohs(tvb, offset)
@@ -2214,7 +2214,7 @@ tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, const int len, const 
 
 	/* We know we won't throw an exception, so we don't have to worry
 	   about leaking this buffer. */
-	buffer = ep_alloc(len + 1);
+	buffer = (char *)ep_alloc(len + 1);
 
 	for (i = 0; i < len; i++) {
 		character = little_endian ? tvb_get_letohs(tvb, offset)
@@ -2332,7 +2332,7 @@ tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length)
 	tvb_ensure_bytes_exist(tvb, offset, length);
 
 	ptr    = ensure_contiguous(tvb, offset, length);
-	strbuf = g_malloc(length + 1);
+	strbuf = (guint8 *)g_malloc(length + 1);
 	if (length != 0) {
 		memcpy(strbuf, ptr, length);
 	}
@@ -2451,7 +2451,7 @@ tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
 		 * XXX - multiple "dialects" of EBCDIC?
 		 */
 		tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
-		strbuf = ep_alloc(length + 1);
+		strbuf = (guint8 *)ep_alloc(length + 1);
 		if (length != 0) {
 			ptr = ensure_contiguous(tvb, offset, length);
 			memcpy(strbuf, ptr, length);
@@ -2469,7 +2469,7 @@ tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
 	guint8       *strbuf;
 
 	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
-	strbuf = ep_alloc(length + 1);
+	strbuf = (guint8 *)ep_alloc(length + 1);
 	tvb_memcpy(tvb, strbuf, offset, length);
 	strbuf[length] = '\0';
 	return strbuf;
@@ -2539,7 +2539,7 @@ tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length)
 	tvb_ensure_bytes_exist(tvb, offset, length);
 
 	ptr    = ensure_contiguous(tvb, offset, length);
-	strbuf = se_alloc(length + 1);
+	strbuf = (guint8 *)se_alloc(length + 1);
 	if (length != 0) {
 		memcpy(strbuf, ptr, length);
 	}
@@ -2563,7 +2563,7 @@ tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint
 	guint8 *strptr;
 
 	size   = tvb_strsize(tvb, offset);
-	strptr = g_malloc(size);
+	strptr = (guint8 *)g_malloc(size);
 	tvb_memcpy(tvb, strptr, offset, size);
 	if ((encoding & ENC_CHARENCODING_MASK) == ENC_EBCDIC)
 		EBCDIC_to_ASCII(strptr, size);
@@ -2679,7 +2679,7 @@ tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, c
 		 * XXX - multiple "dialects" of EBCDIC?
 		 */
 		size = tvb_strsize(tvb, offset);
-		strptr = ep_alloc(size);
+		strptr = (guint8 *)ep_alloc(size);
 		tvb_memcpy(tvb, strptr, offset, size);
 		EBCDIC_to_ASCII(strptr, size);
 		if (lengthp)
@@ -2697,7 +2697,7 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 	guint8 *strptr;
 
 	size   = tvb_strsize(tvb, offset);
-	strptr = ep_alloc(size);
+	strptr = (guint8 *)ep_alloc(size);
 	tvb_memcpy(tvb, strptr, offset, size);
 	if (lengthp)
 		*lengthp = size;
@@ -2767,7 +2767,7 @@ tvb_get_seasonal_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 	guint8 *strptr;
 
 	size   = tvb_strsize(tvb, offset);
-	strptr = se_alloc(size);
+	strptr = (guint8 *)se_alloc(size);
 	tvb_memcpy(tvb, strptr, offset, size);
 	if (lengthp)
 		*lengthp = size;
@@ -3268,7 +3268,7 @@ tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_
 	} else {
 		length = offset + len;
 	}
-	digit_str = ep_alloc((length - offset)*2+1);
+	digit_str = (char *)ep_alloc((length - offset)*2+1);
 
 	while (t_offset < length) {
 
@@ -3374,7 +3374,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 		return NULL;
 	}
 
-	compr = tvb_memdup(tvb, offset, comprlen);
+	compr = (guint8 *)tvb_memdup(tvb, offset, comprlen);
 
 	if (!compr)
 		return NULL;
@@ -3396,7 +3396,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 	strm->next_in   = next;
 	strm->avail_in  = comprlen;
 
-	strmbuf         = g_malloc0(bufsiz);
+	strmbuf         = (Bytef *)g_malloc0(bufsiz);
 	strm->next_out  = strmbuf;
 	strm->avail_out = bufsiz;
 
@@ -3433,11 +3433,11 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 				 * when uncompr is NULL logic below doesn't create tvb
 				 * which is later interpreted as decompression failed.
 				 */
-				uncompr = (bytes_pass || err != Z_STREAM_END) ?
+				uncompr = (guint8 *)((bytes_pass || err != Z_STREAM_END) ?
 						g_memdup(strmbuf, bytes_pass) :
-						g_strdup("");
+						g_strdup(""));
 			} else {
-				guint8 *new_data = g_malloc0(bytes_out + bytes_pass);
+				guint8 *new_data = (guint8 *)g_malloc0(bytes_out + bytes_pass);
 
 				memcpy(new_data, uncompr, bytes_out);
 				memcpy(new_data + bytes_out, strmbuf, bytes_pass);

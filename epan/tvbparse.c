@@ -92,7 +92,7 @@ static tvbparse_elem_t* new_tok(tvbparse_t* tt,
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_NEWTOK) g_warning("new_tok: id=%i offset=%u len=%u",id,offset,len);
 #endif
 
-    tok = ep_alloc(sizeof(tvbparse_elem_t));
+    tok = (tvbparse_elem_t *)ep_alloc(sizeof(tvbparse_elem_t));
 
     tok->tvb = tt->tvb;
     tok->id = id;
@@ -166,7 +166,7 @@ tvbparse_wanted_t* tvbparse_char(const int id,
                                  const void* data,
                                  tvbparse_action_t before_cb,
                                  tvbparse_action_t after_cb) {
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
 
     w->condition = cond_char;
     w->id = id;
@@ -227,7 +227,7 @@ tvbparse_wanted_t* tvbparse_chars(const int id,
                                   const void* data,
                                   tvbparse_action_t before_cb,
                                   tvbparse_action_t after_cb) {
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
 
     w->condition = cond_chars;
     w->id = id;
@@ -279,7 +279,7 @@ tvbparse_wanted_t* tvbparse_not_char(const int id,
                                      const void* data,
                                      tvbparse_action_t before_cb,
                                      tvbparse_action_t after_cb) {
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
 
     w->condition = cond_not_char;
     w->id = id;
@@ -341,7 +341,7 @@ tvbparse_wanted_t* tvbparse_not_chars(const int id,
                                       const void* data,
                                       tvbparse_action_t before_cb,
                                       tvbparse_action_t after_cb){
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
 
     w->condition = cond_not_chars;
     w->id = id;
@@ -382,7 +382,7 @@ tvbparse_wanted_t* tvbparse_string(const int id,
                                    const void* data,
                                    tvbparse_action_t before_cb,
                                    tvbparse_action_t after_cb) {
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
 
     w->condition = cond_string;
     w->id = id;
@@ -421,7 +421,7 @@ tvbparse_wanted_t* tvbparse_casestring(const int id,
                                        const void* data,
                                        tvbparse_action_t before_cb,
                                        tvbparse_action_t after_cb) {
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
 
     w->condition = cond_casestring;
     w->id = id;
@@ -444,18 +444,18 @@ static int cond_one_of(tvbparse_t* tt, const int offset, const tvbparse_wanted_t
         return -1;
 
     for(i=0; i < wanted->control.elems->len; i++) {
-        tvbparse_wanted_t* w = g_ptr_array_index(wanted->control.elems,i);
-        tvbparse_elem_t* new = NULL;
+        tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_ptr_array_index(wanted->control.elems,i);
+        tvbparse_elem_t* new_elem = NULL;
         int curr_len;
 
         if ( offset + w->len > tt->end_offset )
             continue;
 
-        curr_len = w->condition(tt, offset, w,  &new);
+        curr_len = w->condition(tt, offset, w,  &new_elem);
 
         if (curr_len >= 0) {
-            *tok = new_tok(tt, wanted->id, new->offset, new->len, wanted);
-            (*tok)->sub = new;
+            *tok = new_tok(tt, wanted->id, new_elem->offset, new_elem->len, wanted);
+            (*tok)->sub = new_elem;
 #ifdef TVBPARSE_DEBUG
             if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_ONEOF) g_warning("cond_one_of: GOT len=%i",curr_len);
 #endif
@@ -471,7 +471,7 @@ tvbparse_wanted_t* tvbparse_set_oneof(const int id,
                                       tvbparse_action_t before_cb,
                                       tvbparse_action_t after_cb,
                                       ...) {
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
     tvbparse_t* el;
     va_list ap;
 
@@ -520,7 +520,7 @@ static int cond_hash(tvbparse_t* tt, const int offset, const tvbparse_wanted_t* 
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_HASH) g_warning("cond_hash: got key='%s'",key);
 #endif
 
-    if ((value_wanted = g_hash_table_lookup(wanted->control.hash.table,key))) {
+    if ((value_wanted = (tvbparse_wanted_t *)g_hash_table_lookup(wanted->control.hash.table,key))) {
         value_len = value_wanted->condition(tt, offset + key_len, value_wanted,  &value_elem);
     } else if (wanted->control.hash.other) {
         value_len = wanted->control.hash.other->condition(tt, offset+key_len, wanted->control.hash.other,  &value_elem);
@@ -551,7 +551,7 @@ tvbparse_wanted_t* tvbparse_hashed(const int id,
                                    tvbparse_wanted_t* key,
                                    tvbparse_wanted_t* other,
                                    ...) {
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
     gchar* name;
     tvbparse_wanted_t* el;
     va_list ap;
@@ -605,24 +605,24 @@ static int cond_seq(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted
 #endif
 
     for(i=0; i < wanted->control.elems->len; i++) {
-        tvbparse_wanted_t* w = g_ptr_array_index(wanted->control.elems,i);
-        tvbparse_elem_t* new = NULL;
+        tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_ptr_array_index(wanted->control.elems,i);
+        tvbparse_elem_t* new_elem = NULL;
 
         if ( offset + w->len > tt->end_offset )
             return -1;
 
 
-        len = w->condition(tt, offset, w, &new);
+        len = w->condition(tt, offset, w, &new_elem);
 
         if (len >= 0) {
             if (ret_tok) {
-                ret_tok->len = (new->offset - ret_tok->offset) + new->len;
-                ret_tok->sub->last->next = new;
-                ret_tok->sub->last = new;
+                ret_tok->len = (new_elem->offset - ret_tok->offset) + new_elem->len;
+                ret_tok->sub->last->next = new_elem;
+                ret_tok->sub->last = new_elem;
             } else {
-                ret_tok = new_tok(tt, wanted->id, new->offset, new->len, wanted);
-                ret_tok->sub = new;
-                new->last = new;
+                ret_tok = new_tok(tt, wanted->id, new_elem->offset, new_elem->len, wanted);
+                ret_tok->sub = new_elem;
+                new_elem->last = new_elem;
             }
         } else {
             return -1;
@@ -647,7 +647,7 @@ tvbparse_wanted_t* tvbparse_set_seq(const int id,
                                     tvbparse_action_t before_cb,
                                     tvbparse_action_t after_cb,
                                     ...) {
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
     tvbparse_wanted_t*  el = NULL;
     va_list ap;
 
@@ -684,27 +684,27 @@ static int cond_some(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wante
     }
 
     while (got_so_far < wanted->max) {
-        tvbparse_elem_t* new = NULL;
+        tvbparse_elem_t* new_elem = NULL;
         int consumed;
 
         if ( offset > tt->end_offset )
             return -1;
 
-        consumed = wanted->control.subelem->condition(tt, offset, wanted->control.subelem, &new);
+        consumed = wanted->control.subelem->condition(tt, offset, wanted->control.subelem, &new_elem);
 
         if(consumed >= 0) {
             if (ret_tok) {
-                ret_tok->len = (new->offset - ret_tok->offset) + new->len;
+                ret_tok->len = (new_elem->offset - ret_tok->offset) + new_elem->len;
 
                 if (ret_tok->sub) {
-                    ret_tok->sub->last->next = new;
-                    ret_tok->sub->last = new;
+                    ret_tok->sub->last->next = new_elem;
+                    ret_tok->sub->last = new_elem;
                 } else {
-                    ret_tok->sub = new;
+                    ret_tok->sub = new_elem;
                 }
             } else {
-                ret_tok = new_tok(tt, wanted->id, new->offset, new->len, wanted);
-                ret_tok->sub = new;
+                ret_tok = new_tok(tt, wanted->id, new_elem->offset, new_elem->len, wanted);
+                ret_tok->sub = new_elem;
             }
         } else {
             break;
@@ -737,7 +737,7 @@ tvbparse_wanted_t* tvbparse_some(const int id,
                                  tvbparse_action_t after_cb,
                                  const tvbparse_wanted_t* el) {
 
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
 
     g_assert(from <= to);
 
@@ -755,7 +755,7 @@ tvbparse_wanted_t* tvbparse_some(const int id,
 
 
 static int cond_until(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
-    tvbparse_elem_t* new = NULL;
+    tvbparse_elem_t* new_elem = NULL;
     int len = 0;
     int target_offset = offset;
 #ifdef TVBPARSE_DEBUG
@@ -766,34 +766,34 @@ static int cond_until(tvbparse_t* tt, const int offset, const tvbparse_wanted_t 
         return -1;
 
     do {
-        len = wanted->control.until.subelem->condition(tt, target_offset++, wanted->control.until.subelem,  &new);
+        len = wanted->control.until.subelem->condition(tt, target_offset++, wanted->control.until.subelem,  &new_elem);
     } while(len < 0  && target_offset+1 < tt->end_offset);
 
     if (len >= 0) {
 
-        new->id = wanted->id;
-        new->next = NULL;
-        new->last = NULL;
-        new->wanted = wanted;
-        new->offset = offset;
+        new_elem->id = wanted->id;
+        new_elem->next = NULL;
+        new_elem->last = NULL;
+        new_elem->wanted = wanted;
+        new_elem->offset = offset;
 
-        (*tok) = new;
+        (*tok) = new_elem;
 
         switch (wanted->control.until.mode) {
             case TP_UNTIL_INCLUDE:
-                new->len = target_offset - offset - 1 + len;
+                new_elem->len = target_offset - offset - 1 + len;
 #ifdef TVBPARSE_DEBUG
                 if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_UNTIL) g_warning("cond_until: GOT len=%i",target_offset - offset -1 + len);
 #endif
                 return target_offset - offset -1 + len;
             case TP_UNTIL_SPEND:
-                new->len = target_offset - offset - 1;
+                new_elem->len = target_offset - offset - 1;
 #ifdef TVBPARSE_DEBUG
                 if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_UNTIL) g_warning("cond_until: GOT len=%i",target_offset - offset -1 + len);
 #endif
                 return target_offset - offset - 1 + len;
             case TP_UNTIL_LEAVE:
-                new->len = target_offset - offset - 1;
+                new_elem->len = target_offset - offset - 1;
 #ifdef TVBPARSE_DEBUG
                 if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_UNTIL) g_warning("cond_until: GOT len=%i",target_offset - offset -1);
 #endif
@@ -814,7 +814,7 @@ tvbparse_wanted_t* tvbparse_until(const int id,
                                   tvbparse_action_t after_cb,
                                   const tvbparse_wanted_t* el,
                                   until_mode_t until_mode) {
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
 
     w->condition = cond_until;
     w->control.until.mode = until_mode;
@@ -839,7 +839,7 @@ static int cond_handle(tvbparse_t* tt, const int offset, const tvbparse_wanted_t
 }
 
 tvbparse_wanted_t* tvbparse_handle(tvbparse_wanted_t** handle) {
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
 
     w->condition = cond_handle;
     w->control.handle = handle;
@@ -860,7 +860,7 @@ tvbparse_wanted_t* tvbparse_end_of_buffer(const int id,
                                           const void* data,
                                           tvbparse_action_t before_cb,
                                           tvbparse_action_t after_cb) {
-    tvbparse_wanted_t* w = g_malloc0(sizeof(tvbparse_wanted_t));
+    tvbparse_wanted_t* w = (tvbparse_wanted_t *)g_malloc0(sizeof(tvbparse_wanted_t));
 
     w->id = id;
     w->condition = cond_end;
@@ -1210,7 +1210,7 @@ tvbparse_t* tvbparse_init(tvbuff_t* tvb,
                           int len,
                           void* data,
                           const tvbparse_wanted_t* ignore) {
-    tvbparse_t* tt = ep_alloc(sizeof(tvbparse_t));
+    tvbparse_t* tt = (tvbparse_t *)ep_alloc(sizeof(tvbparse_t));
 
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_TT) g_warning("tvbparse_init: offset=%i len=%i",offset,len);
@@ -1274,7 +1274,7 @@ static void execute_callbacks(tvbparse_t* tt, tvbparse_elem_t* curr) {
         curr = curr->next;
 
         while( !curr && ep_stack_peek(stack) ) {
-            curr = ep_stack_pop(stack);
+            curr = (tvbparse_elem_t *)ep_stack_pop(stack);
 #ifdef TVBPARSE_DEBUG
             if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_CB) g_warning("execute_callbacks: AFTER: id=%i offset=%i len=%i",curr->id,curr->offset,curr->len);
 #endif
@@ -1392,7 +1392,7 @@ struct _elem_tree_stack_frame {
 
 void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr) {
     ep_stack_t stack = ep_stack_new();
-    struct _elem_tree_stack_frame* frame = ep_alloc(sizeof(struct _elem_tree_stack_frame));
+    struct _elem_tree_stack_frame* frame = (struct _elem_tree_stack_frame *)ep_alloc(sizeof(struct _elem_tree_stack_frame));
     proto_item* pi;
     frame->tree = tree;
     frame->elem = curr;
@@ -1403,7 +1403,7 @@ void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr) {
         if(curr->sub) {
             frame->elem = curr;
             ep_stack_push(stack,frame);
-            frame = ep_alloc(sizeof(struct _elem_tree_stack_frame));
+            frame = (struct _elem_tree_stack_frame *)ep_alloc(sizeof(struct _elem_tree_stack_frame));
             frame->tree = proto_item_add_subtree(pi,0);
             curr = curr->sub;
             continue;
@@ -1412,7 +1412,7 @@ void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr) {
         curr = curr->next;
 
         while( !curr && ep_stack_peek(stack) ) {
-            frame = ep_stack_pop(stack);
+            frame = (struct _elem_tree_stack_frame *)ep_stack_pop(stack);
             curr = frame->elem->next;
         }
 
