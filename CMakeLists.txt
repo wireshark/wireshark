@@ -218,8 +218,13 @@ check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
 if((FVHIDDEN))
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 else() # TODO add alternate compiler flags for hiding symbols
-	message(WARNING "Hiding shared library symbols is not supported by the compiler."
+	check_c_compiler_flag(-xldscope=hidden FVHIDDEN)
+	if((FVHIDDEN))
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+	else()
+		message(WARNING "Hiding shared library symbols is not supported by the compiler."
 		" All shared library symbols will be exported.")
+	endif()
 endif()
 
 if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_GCC_CHECKS)

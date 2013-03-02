@@ -24,7 +24,7 @@
 #define SYMBOL_EXPORT_H
 
 /* Originally copied from GCC Wiki at http://gcc.gnu.org/wiki/Visibility */
-#if defined _WIN32 || defined __CYGWIN__
+#if defined _WIN32 || defined __CYGWIN__ || defined __SUNPRO_C || defined__SUNPRO_CC
   #ifdef WS_BUILD_DLL
     #ifdef __GNUC__
 #define WS_DLL_PUBLIC __attribute__ ((dllexport))
