@@ -406,9 +406,10 @@ static struct action *Action_new(void){
 ** positive if the first action is less than, equal to, or greater than
 ** the first
 */
-static int actioncmp(const void *ap1_arg, const void *ap2_arg)
-{
-  const struct action *ap1 = ap1_arg, *ap2 = ap2_arg;
+static int actioncmp(
+  struct action *ap1,
+  struct action *ap2
+){
   int rc;
   rc = ap1->sp->index - ap2->sp->index;
   if( rc==0 ){
@@ -417,13 +418,18 @@ static int actioncmp(const void *ap1_arg, const void *ap2_arg)
   if( rc==0 && ap1->type==REDUCE ){
     rc = ap1->x.rp->index - ap2->x.rp->index;
   }
+  if( rc==0 ){
+    rc = (int) (ap2 - ap1);
+  }
   return rc;
 }
 
 /* Sort parser actions */
-struct action *Action_sort(struct action *ap)
-{
-  ap = (struct action *)msort((char *)ap,(char **)&ap->next,actioncmp);
+static struct action *Action_sort(
+  struct action *ap
+){
+  ap = (struct action *)msort((char *)ap,(char **)&ap->next,
+                              (int(*)(const char*,const char*))actioncmp);
   return ap;
 }
 
@@ -1243,11 +1249,11 @@ void Configlist_closure(struct lemon *lemp)
               SetAdd(newcfp->fws, xsp->subsym[k]->index);
             }
             break;
-	  }else{
+          }else{
             SetUnion(newcfp->fws,xsp->firstset);
             if( xsp->lambda==LEMON_FALSE ) break;
-	  }
-	}
+          }
+        }
         if( i==rp->nrhs ) Plink_add(&cfp->fplp,newcfp);
       }
     }
@@ -1778,9 +1784,9 @@ static int handleflags(int i, FILE *err)
   }else if( op[j].type==OPT_FLAG ){
     *((int*)op[j].arg) = v;
   }else if( op[j].type==OPT_FFLAG ){
-    ((opt_func_int_t*)(op[j].arg))(v);
+    (*(void(*)(int))(op[j].arg))(v);
   }else if( op[j].type==OPT_FSTR ){
-    ((opt_func_string_t*)(op[j].arg))(&argv[i][2]);
+    (*(void(*)(char *))(op[j].arg))(&argv[i][2]);
   }else{
     if( err ){
       fprintf(err,"%smissing argument on switch.\n",emsg);
@@ -1861,19 +1867,19 @@ static int handleswitch(int i, FILE *err)
         *(double*)(op[j].arg) = dv;
         break;
       case OPT_FDBL:
-        ((opt_func_double_t*)(op[j].arg))(dv);
+        (*(void(*)(double))(op[j].arg))(dv);
         break;
       case OPT_INT:
         *(int*)(op[j].arg) = (int)lv;
         break;
       case OPT_FINT:
-        ((opt_func_int_t*)(op[j].arg))((int)lv);
+        (*(void(*)(int))(op[j].arg))((int)lv);
         break;
       case OPT_STR:
         *(char**)(op[j].arg) = sv;
         break;
       case OPT_FSTR:
-        ((opt_func_string_t*)(op[j].arg))(sv);
+        (*(void(*)(char *))(op[j].arg))(sv);
         break;
     }
   }
