@@ -54,7 +54,7 @@ while getopts ":2b:C:lnrtTwcev" OPTCHAR ; do
            COMMAND_ARGS="-E 0.02"
            # We don't care about the output of editcap
            COMMAND_ARGS2="/dev/null" ;;
-        v) VERBOSE="-v --num-callers=256" ;;
+        v) VERBOSE="--num-callers=256" ;;
         *) printf "Unknown option -$OPTARG!\n"
            exit ;;
     esac
