@@ -42,6 +42,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
+#include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-rrc.h"
 #include "packet-gsm_a_common.h"
@@ -157,7 +158,7 @@ typedef enum _RAT_Type_enum {
 } RAT_Type_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 62 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 63 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -1051,11 +1052,12 @@ static int hf_lte_rrc_sai_InterFreqList_r11 = -1;  /* MBMS_SAI_InterFreqList_r11
 static int hf_lte_rrc_MBMS_SAI_List_r11_item = -1;  /* MBMS_SAI_r11 */
 static int hf_lte_rrc_MBMS_SAI_InterFreqList_r11_item = -1;  /* MBMS_SAI_InterFreq_r11 */
 static int hf_lte_rrc_sai_List_r11 = -1;          /* MBMS_SAI_List_r11 */
-static int hf_lte_rrc_timeInfo_r11 = -1;          /* T_timeInfo_r11 */
-static int hf_lte_rrc_timeInfoUTC_r11 = -1;       /* T_timeInfoUTC_r11 */
-static int hf_lte_rrc_dayLightSavingTime_r11 = -1;  /* T_dayLightSavingTime_r11 */
-static int hf_lte_rrc_leapSeconds_r11 = -1;       /* T_leapSeconds_r11 */
-static int hf_lte_rrc_localTimeOffset_r11 = -1;   /* INTEGER_M63_64 */
+static int hf_lte_rrc_timeInfo = -1;              /* T_timeInfo */
+static int hf_lte_rrc_timeInfoGPS = -1;           /* T_timeInfoGPS */
+static int hf_lte_rrc_timeInfoUTC = -1;           /* T_timeInfoUTC */
+static int hf_lte_rrc_dayLightSavingTime = -1;    /* T_dayLightSavingTime */
+static int hf_lte_rrc_leapSeconds = -1;           /* T_leapSeconds */
+static int hf_lte_rrc_localTimeOffset = -1;       /* INTEGER_M63_64 */
 static int hf_lte_rrc_antennaPortsCount = -1;     /* T_antennaPortsCount */
 static int hf_lte_rrc_transmissionMode = -1;      /* T_transmissionMode */
 static int hf_lte_rrc_codebookSubsetRestriction = -1;  /* T_codebookSubsetRestriction */
@@ -2232,7 +2234,7 @@ static int hf_lte_rrc_CandidateCellInfoList_r10_item = -1;  /* CandidateCellInfo
 static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */ 
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 67 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 68 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -2869,7 +2871,7 @@ static gint ett_lte_rrc_MBMS_SAI_List_r11 = -1;
 static gint ett_lte_rrc_MBMS_SAI_InterFreqList_r11 = -1;
 static gint ett_lte_rrc_MBMS_SAI_InterFreq_r11 = -1;
 static gint ett_lte_rrc_SystemInformationBlockType16_r11 = -1;
-static gint ett_lte_rrc_T_timeInfo_r11 = -1;
+static gint ett_lte_rrc_T_timeInfo = -1;
 static gint ett_lte_rrc_AntennaInfoCommon = -1;
 static gint ett_lte_rrc_AntennaInfoDedicated = -1;
 static gint ett_lte_rrc_T_codebookSubsetRestriction = -1;
@@ -3390,7 +3392,7 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 185 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 186 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -8017,7 +8019,7 @@ dissect_lte_rrc_T_synchronousSystemTime(tvbuff_t *tvb _U_, int offset _U_, asn1_
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
     bits = tvb_get_bits64(sync_system_time_tvb, 0, 39, ENC_BIG_ENDIAN);
-    ts.secs = (time_t)(bits/100) + 315964800; /* CDMA2000 epoch is 00:00:00 (midnight) UTC on 1980-01-06 */
+    ts.secs = (time_t)(bits/100) + 315964800; /* CDMA2000 epoch is 00:00 (midnight) UTC on 1980-01-06 */
     ts.nsecs = (int)(bits%100)*10000000;
     proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
     proto_tree_add_text(subtree, sync_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
@@ -8042,7 +8044,7 @@ dissect_lte_rrc_T_asynchronousSystemTime(tvbuff_t *tvb _U_, int offset _U_, asn1
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
     bits = tvb_get_bits64(async_system_time_tvb, 0, 49, ENC_BIG_ENDIAN);
-    ts.secs = (time_t)((bits*8)/1228800) + 315964800; /* CDMA2000 epoch is 00:00:00 (midnight) UTC on 1980-01-06 */
+    ts.secs = (time_t)((bits*8)/1228800) + 315964800; /* CDMA2000 epoch is 00:00 (midnight) UTC on 1980-01-06 */
     ts.nsecs = (int)(((bits%153600)*8*1000000000)/1228800);
     proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "CDMA  time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
     proto_tree_add_text(subtree, async_system_time_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
@@ -9558,23 +9560,24 @@ dissect_lte_rrc_SystemInformationBlockType15_r11(tvbuff_t *tvb _U_, int offset _
 
 
 static int
-dissect_lte_rrc_T_timeInfoUTC_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint64 timeInfo;
-  proto_tree *subtree;
-  nstime_t ts;
-  guint32 old_offset = offset;
-  offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            0U, G_GINT64_CONSTANT(549755813887U), &timeInfo, FALSE);
+dissect_lte_rrc_T_timeInfoGPS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *time_info_gps_tvb = NULL;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     39, 39, FALSE, &time_info_gps_tvb);
 
 
 
-  subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
-  ts.secs = (time_t)(timeInfo/100)-2208988800; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */ 
-  ts.nsecs = (int)(timeInfo%100)*10000000;
-  proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
-                      "UTC   time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
-  proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
-                      "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
+  if (time_info_gps_tvb) {
+    guint64 bits;
+    nstime_t ts;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
+    bits = tvb_get_bits64(time_info_gps_tvb, 0, 39, ENC_BIG_ENDIAN);
+    ts.secs = (time_t)(bits/100) + 315964800; /* GPS epoch is 00:00 (midnight) UTC on 1980-01-06 */
+    ts.nsecs = (int)(bits%100)*10000000;
+    proto_tree_add_text(subtree, time_info_gps_tvb, 0, -1, "GPS   time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
+    proto_tree_add_text(subtree, time_info_gps_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
+  }
 
   return offset;
 }
@@ -9582,7 +9585,54 @@ dissect_lte_rrc_T_timeInfoUTC_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static int
-dissect_lte_rrc_T_dayLightSavingTime_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_timeInfoUTC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *time_info_utc_tvb = NULL;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     39, 39, FALSE, &time_info_utc_tvb);
+
+
+
+  if (time_info_utc_tvb) {
+    guint64 bits;
+    nstime_t ts;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
+    bits = tvb_get_bits64(time_info_utc_tvb, 0, 39, ENC_BIG_ENDIAN);
+    ts.secs = (time_t)(bits/100);
+    ts.nsecs = (int)(bits%100)*10000000;
+    proto_tree_add_text(subtree, time_info_utc_tvb, 0, -1, "UTC   time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
+    proto_tree_add_text(subtree, time_info_utc_tvb, 0, -1, "Local time: %s", abs_time_to_str(&ts, ABSOLUTE_TIME_LOCAL, TRUE));
+  }
+
+  return offset;
+}
+
+
+static const value_string lte_rrc_T_timeInfo_vals[] = {
+  {   0, "timeInfoGPS" },
+  {   1, "timeInfoUTC" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_timeInfo_choice[] = {
+  {   0, &hf_lte_rrc_timeInfoGPS , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_timeInfoGPS },
+  {   1, &hf_lte_rrc_timeInfoUTC , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_T_timeInfoUTC },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_lte_rrc_T_timeInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_lte_rrc_T_timeInfo, T_timeInfo_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_dayLightSavingTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *daylight_saving_time_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      2, 2, FALSE, &daylight_saving_time_tvb);
@@ -9599,7 +9649,7 @@ dissect_lte_rrc_T_dayLightSavingTime_r11(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
 static int
-dissect_lte_rrc_T_leapSeconds_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_leapSeconds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -127, 128U, NULL, FALSE);
 
@@ -9620,26 +9670,11 @@ dissect_lte_rrc_INTEGER_M63_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
-static const per_sequence_t T_timeInfo_r11_sequence[] = {
-  { &hf_lte_rrc_timeInfoUTC_r11, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_timeInfoUTC_r11 },
-  { &hf_lte_rrc_dayLightSavingTime_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_dayLightSavingTime_r11 },
-  { &hf_lte_rrc_leapSeconds_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_leapSeconds_r11 },
-  { &hf_lte_rrc_localTimeOffset_r11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_M63_64 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_lte_rrc_T_timeInfo_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_lte_rrc_T_timeInfo_r11, T_timeInfo_r11_sequence);
-
-  return offset;
-}
-
-
 static const per_sequence_t SystemInformationBlockType16_r11_sequence[] = {
-  { &hf_lte_rrc_timeInfo_r11, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_timeInfo_r11 },
-  { &hf_lte_rrc_lateNonCriticalExtension, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
+  { &hf_lte_rrc_timeInfo    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_timeInfo },
+  { &hf_lte_rrc_dayLightSavingTime, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_dayLightSavingTime },
+  { &hf_lte_rrc_leapSeconds , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_leapSeconds },
+  { &hf_lte_rrc_localTimeOffset, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_INTEGER_M63_64 },
   { NULL, 0, 0, NULL }
 };
 
@@ -33014,7 +33049,7 @@ static int dissect_MBMSInterestIndication_r11_PDU(tvbuff_t *tvb _U_, packet_info
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 1939 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1940 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -36707,24 +36742,28 @@ void proto_register_lte_rrc(void) {
       { "sai-List-r11", "lte-rrc.sai_List_r11",
         FT_UINT32, BASE_DEC, NULL, 0,
         "MBMS_SAI_List_r11", HFILL }},
-    { &hf_lte_rrc_timeInfo_r11,
-      { "timeInfo-r11", "lte-rrc.timeInfo_r11",
-        FT_NONE, BASE_NONE, NULL, 0,
+    { &hf_lte_rrc_timeInfo,
+      { "timeInfo", "lte-rrc.timeInfo",
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_timeInfo_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_timeInfoUTC_r11,
-      { "timeInfoUTC-r11", "lte-rrc.timeInfoUTC_r11",
-        FT_UINT64, BASE_DEC, NULL, 0,
+    { &hf_lte_rrc_timeInfoGPS,
+      { "timeInfoGPS", "lte-rrc.timeInfoGPS",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_dayLightSavingTime_r11,
-      { "dayLightSavingTime-r11", "lte-rrc.dayLightSavingTime_r11",
+    { &hf_lte_rrc_timeInfoUTC,
+      { "timeInfoUTC", "lte-rrc.timeInfoUTC",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_dayLightSavingTime,
+      { "dayLightSavingTime", "lte-rrc.dayLightSavingTime",
         FT_UINT8, BASE_DEC, VALS(lte_rrc_daylightSavingTime_vals), 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_leapSeconds_r11,
-      { "leapSeconds-r11", "lte-rrc.leapSeconds_r11",
+    { &hf_lte_rrc_leapSeconds,
+      { "leapSeconds", "lte-rrc.leapSeconds",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_localTimeOffset_r11,
-      { "localTimeOffset-r11", "lte-rrc.localTimeOffset_r11",
+    { &hf_lte_rrc_localTimeOffset,
+      { "localTimeOffset", "lte-rrc.localTimeOffset",
         FT_INT32, BASE_CUSTOM, &lte_rrc_localTimeOffset_fmt, 0,
         "INTEGER_M63_64", HFILL }},
     { &hf_lte_rrc_antennaPortsCount,
@@ -41421,7 +41460,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2085 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2086 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -42395,7 +42434,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_MBMS_SAI_InterFreqList_r11,
     &ett_lte_rrc_MBMS_SAI_InterFreq_r11,
     &ett_lte_rrc_SystemInformationBlockType16_r11,
-    &ett_lte_rrc_T_timeInfo_r11,
+    &ett_lte_rrc_T_timeInfo,
     &ett_lte_rrc_AntennaInfoCommon,
     &ett_lte_rrc_AntennaInfoDedicated,
     &ett_lte_rrc_T_codebookSubsetRestriction,
@@ -42916,7 +42955,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2540 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2541 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -42969,7 +43008,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2577 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2578 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }
