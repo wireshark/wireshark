@@ -326,6 +326,8 @@ rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) epan ui image\rawshark
 # XXX: This makefile does not properly handle doing a 'nmake ... capinfos.exe' directly since some of the .objs
 #      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
 # Linking with setargv.obj enables "wildcard expansion" of command-line arguments
+capinfos.obj	:
+	$(CC) $(CFLAGS) -DWS_BUILD_DLL -Fd.\ -c capinfos.c
 capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
@@ -337,6 +339,8 @@ capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsutil\libwsutil.lib w
 
 # XXX: This makefile does not properly handle doing a 'nmake ... editcap.exe' directly since some of the .objs
 #      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
+editcap.obj	:
+	$(CC) $(CFLAGS) -DWS_BUILD_DLL -Fd.\ -c editcap.c
 editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
@@ -521,7 +525,8 @@ text2pcap.obj mergecap.obj capinfos.obj editcap.obj reordercap.obj version_info.
 clean-local:
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
  		$(EXECUTABLES) *.pdb *.sbr *.exe.manifest \
-		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
+		capinfos.obj capinfos.exp editcap.obj editcap.exp \
+		mergecap.obj text2pcap.obj \
 		reordercap.obj nio-ie5.obj update.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c $(LIBS_CHECK) \

@@ -17,9 +17,10 @@ GENERATED_CFLAGS=\
 	/I. /I.. /I../wiretap $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) $(C_ARES_CFLAGS) $(ADNS_CFLAGS) \
 	$(LUA_CFLAGS) $(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
-	$(PYTHON_CFLAGS) $(SMI_CFLAGS) $(GEOIP_CFLAGS)
+	$(PYTHON_CFLAGS) $(SMI_CFLAGS) $(GEOIP_CFLAGS) \
+	-DWS_BUILD_DLL
 
-CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS) -DWS_BUILD_DLL
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 !IFDEF LUA_DIR
 WSLUA_LIB=wslua\wslua.lib
@@ -349,7 +350,7 @@ radius_dict.obj : radius_dict.c
 
 uat_load_lex.h: uat_load.c
 uat_load.obj : uat_load.c
-	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
+	$(CC) $(CFLAGS) -Fd.\ -c $?
 
 LEMON=..\tools\lemon
 
