@@ -1639,8 +1639,8 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     vci |= octet << 4;
     octet = tvb_get_guint8(tvb, 3);
     vci |= octet >> 4;
-    pt = (octet >> 1) & 0x7;
     proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 1, 3, vci);
+    pt = (octet >> 1) & 0x7;
     proto_tree_add_item(atm_tree, hf_atm_payload_type, tvb, 3, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(atm_tree, hf_atm_cell_loss_priority, tvb, 3, 1, ENC_BIG_ENDIAN);
 
@@ -1838,7 +1838,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
 
     if (!pseudowire_mode) {
-      proto_tree_add_uint(tree, hf_atm_channel, tvb, 0, 0, pinfo->pseudo_header->atm.channel);
+      proto_tree_add_uint(atm_tree, hf_atm_channel, tvb, 0, 0, pinfo->pseudo_header->atm.channel);
     }
 
     proto_tree_add_uint_format_value(atm_tree, hf_atm_aal, tvb, 0, 0,
@@ -2033,7 +2033,7 @@ proto_register_atm(void)
       { "AAL5 UU", "atm.hf_atm.aal5t_uu", FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
     { &hf_atm_aal5_cpi,
-      { "AAL5 UU", "atm.hf_atm.aal5t_cpi", FT_UINT8, BASE_HEX, NULL, 0x0,
+      { "AAL5 CPI", "atm.hf_atm.aal5t_cpi", FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
     { &hf_atm_aal5_len,
       { "AAL5 len", "atm.aal5t_len", FT_UINT16, BASE_DEC, NULL, 0x0,
