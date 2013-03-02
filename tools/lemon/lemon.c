@@ -1686,7 +1686,8 @@ static char *merge(char *a, char *b, int (*cmp)(const void *, const void *),
 **   The "next" pointers for elements in list are changed.
 */
 #define LISTSIZE 30
-char *msort(char *list, char **next, int (*cmp)(const void *, const void *))
+static char *msort(char *list, char **next, int (*cmp)(const char*,const char*)
+)
 {
   int offset;
   char *ep;
