@@ -38,12 +38,15 @@ struct _wmem_slab_t;
 
 typedef struct _wmem_slab_t wmem_slab_t;
 
+WS_DLL_PUBLIC
 void *
 wmem_slab_alloc(wmem_slab_t *slab);
 
+WS_DLL_PUBLIC
 void
 wmem_slab_free(wmem_slab_t *slab, void *object);
 
+WS_DLL_PUBLIC
 wmem_slab_t *
 wmem_slab_new(wmem_allocator_t *allocator, const size_t chunk_size);
 

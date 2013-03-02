@@ -27,6 +27,7 @@
 #define __WMEM_CORE_H__
 
 #include <string.h>
+#include <ws_symbol_export.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,37 +43,47 @@ struct _wmem_allocator_t;
 
 typedef struct _wmem_allocator_t wmem_allocator_t;
 
+WS_DLL_PUBLIC
 void *
 wmem_alloc(wmem_allocator_t *allocator, const size_t size);
 #define wmem_new(allocator, type) \
     ((type*)wmem_alloc((allocator), sizeof(type)))
 
+WS_DLL_PUBLIC
 void *
 wmem_alloc0(wmem_allocator_t *allocator, const size_t size);
 #define wmem_new0(allocator, type) \
     ((type*)wmem_alloc0((allocator), sizeof(type)))
 
+WS_DLL_PUBLIC
 void
 wmem_free(wmem_allocator_t *allocator, void *ptr);
 
+WS_DLL_PUBLIC
 void *
 wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size);
 
+WS_DLL_PUBLIC
 void
 wmem_free_all(wmem_allocator_t *allocator);
 
+WS_DLL_PUBLIC
 void
 wmem_gc(wmem_allocator_t *allocator);
 
+WS_DLL_PUBLIC
 void
 wmem_destroy_allocator(wmem_allocator_t *allocator);
 
+WS_DLL_PUBLIC
 wmem_allocator_t *
 wmem_allocator_new(const wmem_allocator_type_t type);
 
+WS_DLL_LOCAL
 void
 wmem_init(void);
 
+WS_DLL_LOCAL
 void
 wmem_cleanup(void);
 
