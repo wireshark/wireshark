@@ -432,8 +432,6 @@ gen_protocol(FILE *f, npl_protocol_t *p)
 static void
 gen_struct(FILE *f, npl_struct_t *s)
 {
-	const char *tree_var;
-
 	if (!s->id) {
 		static unsigned int _id = 0;
 		char id[32];
@@ -668,7 +666,22 @@ int main(int argc, char **argv) {
 
 		gen_proto_register(out);
 		gen_proto_handoff(out);
+
+		fclose(out);
 	}
 	fclose(f);
 	return 0;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
