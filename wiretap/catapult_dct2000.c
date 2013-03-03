@@ -464,7 +464,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
             line_prefix_info = g_new(line_prefix_info_t,1);
 
             /* Create and use buffer for contents before time */
-            line_prefix_info->before_time = g_malloc(before_time_offset+1);
+            line_prefix_info->before_time = (gchar *)g_malloc(before_time_offset+1);
             memcpy(line_prefix_info->before_time, linebuff, before_time_offset);
             line_prefix_info->before_time[before_time_offset] = '\0';
 
@@ -478,13 +478,13 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
             }
             else {
                 /* Allocate & write buffer for line between timestamp and data */
-                line_prefix_info->after_time = g_malloc(dollar_offset - after_time_offset);
+                line_prefix_info->after_time = (gchar *)g_malloc(dollar_offset - after_time_offset);
                 memcpy(line_prefix_info->after_time, linebuff+after_time_offset, dollar_offset - after_time_offset);
                 line_prefix_info->after_time[dollar_offset - after_time_offset-1] = '\0';
             }
 
             /* Add packet entry into table */
-            pkey = g_malloc(sizeof(*pkey));
+            pkey = (gint64 *)g_malloc(sizeof(*pkey));
             *pkey = this_offset;
             g_hash_table_insert(file_externals->packet_prefix_table, pkey, line_prefix_info);
 
@@ -1378,7 +1378,7 @@ write_stub_header(guint8 *frame_buffer, char *timestamp_string,
     stub_offset += (int)(length + 1);
 
     /* Protocol variant number (as string) */
-    length = g_strlcpy((void*)&frame_buffer[stub_offset], variant_name, MAX_VARIANT_DIGITS+1);
+    length = g_strlcpy((gchar*)&frame_buffer[stub_offset], variant_name, MAX_VARIANT_DIGITS+1);
     stub_offset += (int)(length + 1);
 
     /* Outhdr */

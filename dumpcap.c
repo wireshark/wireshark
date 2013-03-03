@@ -226,6 +226,18 @@ typedef enum {
     INITFILTER_OTHER_ERROR
 } initfilter_status_t;
 
+typedef enum {
+    STATE_EXPECT_REC_HDR,
+    STATE_READ_REC_HDR,
+    STATE_EXPECT_DATA,
+    STATE_READ_DATA
+} cap_pipe_state_t;
+typedef enum { 
+    PIPOK, 
+    PIPEOF, 
+    PIPERR, 
+    PIPNEXIST 
+} cap_pipe_err_t;
 typedef struct _pcap_options {
     guint32                      received;
     guint32                      dropped;
@@ -258,13 +270,9 @@ typedef struct _pcap_options {
     size_t                       cap_pipe_bytes_to_read; /**< Used by cap_pipe_dispatch */
     size_t                       cap_pipe_bytes_read;    /**< Used by cap_pipe_dispatch */
 #endif
-    enum {
-        STATE_EXPECT_REC_HDR,
-        STATE_READ_REC_HDR,
-        STATE_EXPECT_DATA,
-        STATE_READ_DATA
-    } cap_pipe_state;
-    enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } cap_pipe_err;
+    cap_pipe_state_t cap_pipe_state;
+    cap_pipe_err_t cap_pipe_err;
+
 #if defined(_WIN32)
     GMutex                      *cap_pipe_read_mtx;
     GAsyncQueue                 *cap_pipe_pending_q, *cap_pipe_done_q;
@@ -1128,7 +1136,7 @@ get_if_capabilities(const char *devicename, gboolean monitor_mode
     /*
      * Allocate the interface capabilities structure.
      */
-    caps = g_malloc(sizeof *caps);
+    caps = (if_capabilities_t *)g_malloc(sizeof *caps);
 
     /*
      * WinPcap 4.1.2, and possibly earlier versions, have a bug
@@ -2592,7 +2600,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #endif
         pcap_opts->cap_pipe_bytes_to_read = 0;
         pcap_opts->cap_pipe_bytes_read = 0;
-        pcap_opts->cap_pipe_state = 0;
+        pcap_opts->cap_pipe_state = STATE_EXPECT_REC_HDR;
         pcap_opts->cap_pipe_err = PIPOK;
 #ifdef _WIN32
 #if GLIB_CHECK_VERSION(2,31,0)
@@ -3583,14 +3591,14 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #if GLIB_CHECK_VERSION(2,31,18)
 
             g_async_queue_lock(pcap_queue);
-            queue_element = g_async_queue_timeout_pop_unlocked(pcap_queue, WRITER_THREAD_TIMEOUT);
+            queue_element = (pcap_queue_element *)g_async_queue_timeout_pop_unlocked(pcap_queue, WRITER_THREAD_TIMEOUT);
 #else
             GTimeVal write_thread_time;
 
             g_get_current_time(&write_thread_time);
             g_time_val_add(&write_thread_time, WRITER_THREAD_TIMEOUT);
             g_async_queue_lock(pcap_queue);
-            queue_element = g_async_queue_timed_pop_unlocked(pcap_queue, &write_thread_time);
+            queue_element = (pcap_queue_element *)g_async_queue_timed_pop_unlocked(pcap_queue, &write_thread_time);
 #endif
             if (queue_element) {
                 pcap_queue_bytes -= queue_element->phdr.caplen;
@@ -3714,7 +3722,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         }
         while (1) {
             g_async_queue_lock(pcap_queue);
-            queue_element = g_async_queue_try_pop_unlocked(pcap_queue);
+            queue_element = (pcap_queue_element *)g_async_queue_try_pop_unlocked(pcap_queue);
             if (queue_element) {
                 pcap_queue_bytes -= queue_element->phdr.caplen;
                 pcap_queue_packets -= 1;
@@ -4296,13 +4304,15 @@ main(int argc, char *argv[])
     /* with the correct format.                                          */
 
     log_flags =
+        (GLogLevelFlags)(
         G_LOG_LEVEL_ERROR|
         G_LOG_LEVEL_CRITICAL|
         G_LOG_LEVEL_WARNING|
         G_LOG_LEVEL_MESSAGE|
         G_LOG_LEVEL_INFO|
         G_LOG_LEVEL_DEBUG|
-        G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
+        G_LOG_FLAG_FATAL|
+        G_LOG_FLAG_RECURSION);
 
     g_log_set_handler(NULL,
                       log_flags,

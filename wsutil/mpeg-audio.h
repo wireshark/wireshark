@@ -33,7 +33,7 @@ struct mpa {
 	unsigned int copyright  :1;
 	unsigned int modeext    :2;
 	unsigned int mode       :2;
-	unsigned int private    :1;
+	unsigned int priv       :1;
 	unsigned int padding    :1;
 	unsigned int frequency  :2;
 	unsigned int bitrate    :4;
@@ -65,7 +65,7 @@ struct mpa {
 	(mpa)->bitrate    = MPA_UNMARSHAL_BITRATE(n);    \
 	(mpa)->frequency  = MPA_UNMARSHAL_FREQUENCY(n);  \
 	(mpa)->padding    = MPA_UNMARSHAL_PADDING(n);    \
-	(mpa)->private    = MPA_UNMARSHAL_PRIVATE(n);    \
+	(mpa)->priv       = MPA_UNMARSHAL_PRIVATE(n);    \
 	(mpa)->mode       = MPA_UNMARSHAL_MODE(n);       \
 	(mpa)->modeext    = MPA_UNMARSHAL_MODEEXT(n);    \
 	(mpa)->copyright  = MPA_UNMARSHAL_COPYRIGHT(n);  \
