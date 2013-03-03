@@ -6266,7 +6266,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
     /* BlockversionLow:  0 */
     if (u8BlockVersionLow == 0) {
     while (u16NumberOfARs--) {
-            ar_item = proto_tree_add_item(tree, hf_pn_io_ar_data, tvb, offset, 0, ENC_BIG_ENDIAN);
+            ar_item = proto_tree_add_item(tree, hf_pn_io_ar_data, tvb, offset, 0, ENC_NA);
             ar_tree = proto_item_add_subtree(ar_item, ett_pn_io_ar_data);
             u32ARDataStart = offset;
             offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
