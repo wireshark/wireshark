@@ -304,8 +304,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		*/
 		if (tree) {
 			i1 = tvb_get_ntohl(tvb, offset+2);
-			proto_tree_add_uint_format_value(tree, hf_slimp3_uptime, tvb, offset+2, 4, i1, 
-				"Uptime: %u sec (%u ticks)", i1/625000, i1);
+			proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_uptime, tvb, offset+2, 4, i1, 
+				"%u sec (%u ticks)", i1/625000, i1);
 
 			proto_tree_add_item(slimp3_tree, hf_slimp3_code_id, tvb, offset+6, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(slimp3_tree, hf_slimp3_code_bits, tvb, offset+7, 1, ENC_BIG_ENDIAN);
@@ -345,7 +345,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					in_str = FALSE;
 					lcd_strlen = 0;
 					proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
-							"Delay (%d ms)", tvb_get_guint8(tvb, offset + i1 + 1));
+							"Delay (%u ms)", tvb_get_guint8(tvb, offset + i1 + 1));
 					i1 += 2;
 					break;
 				case 3:
@@ -439,13 +439,13 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	case SLIMP3_HELLO:
 		if (tree) {
 			if (to_server) {
-				guint8 fw_ver = 0;
+				guint8 fw_ver;
 				/* Hello response; client->server */
 				proto_tree_add_text(slimp3_tree, tvb, offset, 1, "Hello Response (Client --> Server)");
 				proto_tree_add_item(slimp3_tree, hf_slimp3_device_id, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 				fw_ver = tvb_get_guint8(tvb, offset+2);
-				proto_tree_add_uint_format_value(tree, hf_slimp3_fw_rev, tvb, offset+2, 1, fw_ver, 
-									"Firmware Revision: %d.%d (0x%0x)", fw_ver>>4, fw_ver & 0xf, fw_ver);
+				proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_fw_rev, tvb, offset+2, 1, fw_ver, 
+									"%u.%u (0x%0x)", fw_ver>>4, fw_ver & 0xf, fw_ver);
 			} else {
 				/* Hello request; server->client */
 				proto_tree_add_text(slimp3_tree, tvb, offset, 1, "Hello Request (Server --> Client)");
@@ -469,7 +469,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	case SLIMP3_DATA_REQ:
 		proto_tree_add_item(slimp3_tree, hf_slimp3_data_req_offset, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Offset: %d bytes",
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Offset: %u bytes",
 					tvb_get_ntohs(tvb, offset+2)*2);
 		break;
 
@@ -485,7 +485,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		*  [18..]    MPEG data
 		*/
 		if (old_protocol) {
-			guint16 offset_buffer;
+			guint offset_buffer;
 			proto_tree_add_text(slimp3_tree, tvb, offset, -1,
 					"Length: %d bytes",
 					tvb_reported_length_remaining(tvb, offset+18));
@@ -493,12 +493,12 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			proto_tree_add_uint(slimp3_tree, hf_slimp3_data_offset, tvb, offset+2, 2, offset_buffer);
 
 			col_append_fstr(pinfo->cinfo, COL_INFO,
-				", Length: %d bytes, Offset: %d bytes.",
+				", Length: %d bytes, Offset: %u bytes.",
 				tvb_reported_length_remaining(tvb, offset+18),
 				offset_buffer);
 		}
 		else {
-			guint16 write_pointer;
+			guint write_pointer;
 			proto_tree_add_item(slimp3_tree, hf_slimp3_data_command, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_text(slimp3_tree, tvb, offset, -1,
 					"Length: %d bytes",
@@ -508,7 +508,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			proto_tree_add_item(slimp3_tree, hf_slimp3_data_sequence, tvb, offset+10, 2, ENC_BIG_ENDIAN);
 
 			col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %s, %d bytes at %d, Sequence: %d",
+				", %s, %d bytes at %u, Sequence: %u",
 				val_to_str(tvb_get_guint8(tvb, offset+1),
 					   slimp3_mpg_control, "Unknown (0x%0x)"),
 				tvb_reported_length_remaining(tvb, offset+18),
@@ -522,9 +522,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		guint8 fw_ver;
 		proto_tree_add_item(slimp3_tree, hf_slimp3_device_id, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		fw_ver = tvb_get_guint8(tvb, offset+2);
-		proto_tree_add_uint_format_value(tree, hf_slimp3_fw_rev, tvb, offset+2, 1, fw_ver, 
-							"Firmware Revision: %d.%d (0x%0x)", fw_ver>>4, fw_ver & 0xf, fw_ver);
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Device ID: %d. Firmware: %d.%d",
+		proto_tree_add_uint_format_value(slimp3_tree, hf_slimp3_fw_rev, tvb, offset+2, 1, fw_ver, 
+							"%u.%u (0x%0x)", fw_ver>>4, fw_ver & 0xf, fw_ver);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Device ID: %u. Firmware: %u.%u",
 						tvb_get_guint8(tvb, offset+1), fw_ver>>4, fw_ver & 0xf);
 		}
 		break;
@@ -535,7 +535,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			proto_tree_add_item(slimp3_tree, hf_slimp3_disc_rsp_server_port, tvb, offset+6, 2, ENC_BIG_ENDIAN);
 		}
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Server Address: %s. Server Port: %d",
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Server Address: %s. Server Port: %u",
 					tvb_ip_to_str(tvb, offset+2),
 					tvb_get_ntohs(tvb, offset + 6));
 		break;
@@ -551,16 +551,16 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 		*  [12..17]  client MAC address (v1.3 and later)
 		*/
 		if (tree) {
-			guint16 pointer;
+			guint pointer;
 
 			pointer = tvb_get_ntohs(tvb, offset+6) * 2;
 			proto_tree_add_uint(slimp3_tree, hf_slimp3_data_ack_write_pointer, tvb, offset+6, 2, pointer);
 			pointer = tvb_get_ntohs(tvb, offset+8) * 2;
 			proto_tree_add_uint(slimp3_tree, hf_slimp3_data_ack_read_pointer, tvb, offset+8, 2, pointer);
-			proto_tree_add_uint(slimp3_tree, hf_slimp3_data_ack_sequence, tvb, offset+10, 2, pointer);
+			proto_tree_add_item(slimp3_tree, hf_slimp3_data_ack_sequence, tvb, offset+10, 2, ENC_BIG_ENDIAN);
 		}
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Sequence: %d",
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Sequence: %u",
 					tvb_get_ntohs(tvb, offset+10));
 		break;
 
