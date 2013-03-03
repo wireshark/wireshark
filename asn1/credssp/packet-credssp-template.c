@@ -83,7 +83,7 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 {
   asn1_ctx_t asn1_ctx;
   int offset = 0;
-  gint8 class;
+  gint8 ber_class;
   gboolean pc;
   gint32 tag;
   guint32 length;
@@ -92,14 +92,14 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   /* Look for SEQUENCE, CONTEXT 0, and INTEGER 2 */  
   if(tvb_length(tvb) > 7) {
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag); 
-    if((class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_SEQUENCE) && (pc == TRUE)) {
+    offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag); 
+    if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_SEQUENCE) && (pc == TRUE)) {
       offset = get_ber_length(tvb, offset, NULL, NULL);
-      offset = get_ber_identifier(tvb, offset, &class, &pc, &tag); 
-      if((class == BER_CLASS_CON) && (tag == 0)) {
+      offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag); 
+      if((ber_class == BER_CLASS_CON) && (tag == 0)) {
 	offset = get_ber_length(tvb, offset, NULL, NULL);
-	offset = get_ber_identifier(tvb, offset, &class, &pc, &tag); 
-	if((class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_INTEGER)) {
+	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag); 
+	if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_INTEGER)) {
 	  offset = get_ber_length(tvb, offset, &length, NULL);
 	  if((length == 1) && (tvb_get_guint8(tvb, offset) == 2)) {
 	    dissect_credssp(tvb, pinfo, parent_tree);

@@ -401,8 +401,8 @@ fp_info       *fpinf ;
 
 %(DEFAULT_BODY)s
 
-  fpinf = p_get_proto_data(actx->pinfo->fd, proto_fp);
-  if(fpinf && ((c_inf = g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) != NULL) ){
+  fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp);
+  if(fpinf && ((c_inf = (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) != NULL) ){
     c_inf->setup_frame = actx->pinfo->fd->num;
   }
 
@@ -715,13 +715,13 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
         num_chans_per_flow[flowd]++;
 
         if(num_chans_per_flow[flowd] > 1 ){
-            rrcinf = p_get_proto_data(actx->pinfo->fd, proto_rrc);
+            rrcinf = (rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc);
             if((rrcinf == NULL) || (rrcinf->hrnti[actx->pinfo->fd->subnum] == 0)){
                 expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_NOTE, "Did not detect any H-RNTI");
             }
             else{
                 /*If it doesnt exists, insert it*/
-                if( (cur_val=g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
+                if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
 
                     flowd_p = (guint*)g_malloc0(sizeof(gint));
                     *flowd_p = (1<<flowd);    /*Set the bit to mark it as true*/
@@ -751,13 +751,13 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
 
         if(num_chans_per_flow[flowd] > 1 ){
-            rrcinf = p_get_proto_data(actx->pinfo->fd, proto_rrc);
+            rrcinf = (rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc);
             if((rrcinf == NULL) || (rrcinf->hrnti[actx->pinfo->fd->subnum] == 0)){
                 expert_add_info_format(actx->pinfo, actx->created_item, PI_SEQUENCE, PI_NOTE, "Did not detect any H-RNTI");
             }
             else{
                 /*If it doesnt exists, insert it*/
-                if( (cur_val=g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
+                if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
 
                     flowd_p = (guint*)g_malloc0(sizeof(gint));
                     *flowd_p = (1<<flowd);    /* Set the bit to mark it as true*/
@@ -782,9 +782,9 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 %(DEFAULT_BODY)s
 
 #.FN_FTR H-RNTI
-  rrcinf = p_get_proto_data(actx->pinfo->fd, proto_rrc);
+  rrcinf = (struct rrc_info *)p_get_proto_data(actx->pinfo->fd, proto_rrc);
   if (!rrcinf) {
-    rrcinf = se_alloc0(sizeof(struct rrc_info));
+    rrcinf = se_new0(struct rrc_info);
     p_add_proto_data(actx->pinfo->fd, proto_rrc, rrcinf);
   }
   rrcinf->hrnti[actx->pinfo->fd->subnum] = tvb_get_ntohs(hrnti_tvb, 0);
@@ -799,7 +799,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 %(DEFAULT_BODY)s
 
   /*We base this map on communication context from fp*/
-    fpinf = p_get_proto_data(actx->pinfo->fd, proto_fp);
+    fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp);
 
   /*If no info found, skip all this*/
   if(fpinf == NULL){
@@ -815,8 +815,8 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
     case RRC_NAS_SYS_INFO_PS:
 
       /*Find the entry for the communication context (taken from FP)*/
-      if( (c_inf = g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) == NULL ){
-        c_inf = g_malloc0(sizeof(rrc_ciphering_info));
+      if( (c_inf =(rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) == NULL ){
+        c_inf = g_new0(rrc_ciphering_info,1);
 
         /*Initiate tree with START_PS values.*/
         if(!c_inf->start_ps)
@@ -832,7 +832,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
         }
 
         /*Retrieve and store the value*/
-        start = g_malloc(sizeof(guint32));
+        start = g_new(guint32,1);
                 *start = tvb_get_bits32(start_val,0,20,ENC_BIG_ENDIAN);
                 if(c_inf && c_inf->start_ps)
                 /*Insert the value based on current frame num since this might vary over time*/
@@ -850,7 +850,8 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   rrc_ciphering_info * c_inf;
 
 
-  fpinf = p_get_proto_data(actx->pinfo->fd, proto_fp);
+  
+  fpinf = (fp_info *)p_get_proto_data(actx->pinfo->fd, proto_fp);
 
 %(DEFAULT_BODY)s
 
@@ -859,7 +860,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
     return offset;
   }
   /*This should not happen*/
-  if( (c_inf = g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) == NULL ){
+  if( (c_inf = (rrc_ciphering_info *)g_tree_lookup(rrc_ciph_inf, GINT_TO_POINTER(fpinf->com_context_id))) == NULL ){
     return offset;
   }
   /*Set the ciphering activation frame information*/
