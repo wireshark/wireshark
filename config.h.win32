@@ -110,6 +110,9 @@
 /* Define if you have the <netinet/in.h> header file.  */
 /* #define HAVE_NETINET_IN_H 1 */
 
+/* Define if your printf() function supports thousands grouping. */
+/* #undef HAVE_GLIB_PRINTF_GROUPING */
+
 /* Define if you have the <snmp/snmp.h> header file.  */
 /* #undef HAVE_SNMP_SNMP_H */
 

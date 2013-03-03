@@ -92,6 +92,12 @@ isdigit_string(guchar *str)
 #define FORMAT_SIZE_UNIT_MASK 0x00ff
 #define FORMAT_SIZE_PFX_MASK 0xff00
 
+#ifdef HAVE_GLIB_PRINTF_GROUPING
+#define GROUP_FLAG "'"
+#else
+#define GROUP_FLAG ""
+#endif
+
 /* Given a size, return its value in a human-readable format */
 gchar *format_size(gint64 size, format_size_flags_e flags) {
 	GString *human_str = g_string_new("");
@@ -107,15 +113,15 @@ gchar *format_size(gint64 size, format_size_flags_e flags) {
 	}
 
         if (size / power / power / power / power >= 10) {
-		g_string_printf(human_str, "%" G_GINT64_MODIFIER "d %s", size / power / power / power / power, prefix[pfx_off]);
+		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d %s", size / power / power / power / power, prefix[pfx_off]);
 	} else if (size / power / power / power >= 10) {
-		g_string_printf(human_str, "%" G_GINT64_MODIFIER "d %s", size / power / power / power, prefix[pfx_off+1]);
+		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d %s", size / power / power / power, prefix[pfx_off+1]);
 	} else if (size / power / power >= 10) {
-		g_string_printf(human_str, "%" G_GINT64_MODIFIER "d %s", size / power / power, prefix[pfx_off+2]);
+		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d %s", size / power / power, prefix[pfx_off+2]);
 	} else if (size / power >= 10) {
-		g_string_printf(human_str, "%" G_GINT64_MODIFIER "d %s", size / power, prefix[pfx_off+3]);
+		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d %s", size / power, prefix[pfx_off+3]);
         } else {
-		g_string_printf(human_str, "%" G_GINT64_MODIFIER "d ", size);
+		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d ", size);
 		is_small = TRUE;
 	}
 
