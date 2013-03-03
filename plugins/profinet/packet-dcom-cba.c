@@ -585,7 +585,7 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_resp(tvbuff_t *tvb, int offset,
 {
     guint32           u32HResult;
     dcerpc_info      *info      = (dcerpc_info *) pinfo->private_data;
-    gchar            *ldev_name = info->call_data->private_data;
+    gchar            *ldev_name = (gchar *)info->call_data->private_data;
     dcom_interface_t *pdev_interf;
     dcom_interface_t *ldev_interf;
     cba_pdev_t       *pdev;
@@ -600,9 +600,9 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_resp(tvbuff_t *tvb, int offset,
     if (ldev_name != NULL && ldev_interf != NULL) {
         /* XXX - this is a hack to create a pdev interface */
         /* as I currently don't understand the objref process for a root interface! */
-        pdev_interf = dcom_interface_new(pinfo, pinfo->net_dst.data, &uuid_ICBAPhysicalDevice, 0, 0, &info->call_data->object_uuid);
+        pdev_interf = dcom_interface_new(pinfo, (const guint8 *)pinfo->net_dst.data, &uuid_ICBAPhysicalDevice, 0, 0, &info->call_data->object_uuid);
         if (pdev_interf != NULL) {
-            pdev = cba_pdev_add(pinfo, pinfo->net_dst.data);
+            pdev = cba_pdev_add(pinfo, (const guint8 *)pinfo->net_dst.data);
             cba_pdev_link(pinfo, pdev, pdev_interf);
 
             ldev = cba_ldev_add(pinfo, pdev, ldev_name);

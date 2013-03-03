@@ -441,7 +441,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             }
             if (!bMoreFollows) /* last fragment */
             {
-                pdu_frag = g_hash_table_lookup(reasembled_frag_table, GUINT_TO_POINTER(pinfo->fd->num));
+                pdu_frag = (fragment_data *)g_hash_table_lookup(reasembled_frag_table, GUINT_TO_POINTER(pinfo->fd->num));
                 if (pdu_frag)    /* found a matching frag dissect it */
                 {
                     guint16   type;
