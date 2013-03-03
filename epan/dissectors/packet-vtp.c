@@ -27,6 +27,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 /*
  * See
@@ -72,9 +73,9 @@ static gint ett_vtp_tlv = -1;
 static gint ett_vtp_pruning = -1;
 
 static int
-dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree);
+dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 static void
-dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
+dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
     proto_tree *tree, proto_item *ti, guint8 type);
 
 #define SUMMARY_ADVERT		0x01
@@ -141,145 +142,143 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VTP");
 	set_vtp_info_col(tvb, pinfo);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_vtp, tvb, offset, -1,
-		    ENC_NA);
-		vtp_tree = proto_item_add_subtree(ti, ett_vtp);
+	ti = proto_tree_add_item(tree, proto_vtp, tvb, offset, -1,
+		ENC_NA);
+	vtp_tree = proto_item_add_subtree(ti, ett_vtp);
 
-		proto_tree_add_item(vtp_tree, hf_vtp_version, tvb, offset, 1,
-		    ENC_BIG_ENDIAN);
+	proto_tree_add_item(vtp_tree, hf_vtp_version, tvb, offset, 1,
+		ENC_BIG_ENDIAN);
+	offset += 1;
+
+	code = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(vtp_tree, hf_vtp_code, tvb, offset, 1,
+		code);
+	offset += 1;
+
+	switch (code) {
+
+	case SUMMARY_ADVERT:
+		proto_tree_add_item(vtp_tree, hf_vtp_followers, tvb, offset,
+			1, ENC_BIG_ENDIAN);
 		offset += 1;
 
-		code = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(vtp_tree, hf_vtp_code, tvb, offset, 1,
-		    code);
+		md_len = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
+			1, md_len);
 		offset += 1;
 
-		switch (code) {
+		proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
+			32, ENC_ASCII|ENC_NA);
+		offset += 32;
 
-		case SUMMARY_ADVERT:
-			proto_tree_add_item(vtp_tree, hf_vtp_followers, tvb, offset,
-			    1, ENC_BIG_ENDIAN);
-			offset += 1;
+		proto_tree_add_item(vtp_tree, hf_vtp_conf_rev_num, tvb,
+			offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
 
-			md_len = tvb_get_guint8(tvb, offset);
-			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
-			    1, md_len);
-			offset += 1;
+		proto_tree_add_item(vtp_tree, hf_vtp_upd_id, tvb,
+			offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
 
-			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
-			    32, ENC_ASCII|ENC_NA);
-			offset += 32;
+		upd_timestamp = tvb_get_ptr(tvb, offset, 12);
+		proto_tree_add_string_format(vtp_tree, hf_vtp_upd_ts, tvb,
+			offset, 12, (gchar*)upd_timestamp,
+			"Update Timestamp: %.2s-%.2s-%.2s %.2s:%.2s:%.2s",
+			&upd_timestamp[0], &upd_timestamp[2], &upd_timestamp[4],
+			&upd_timestamp[6], &upd_timestamp[8], &upd_timestamp[10]);
+		offset += 12;
 
-			proto_tree_add_item(vtp_tree, hf_vtp_conf_rev_num, tvb,
-			    offset, 4, ENC_BIG_ENDIAN);
-			offset += 4;
+		proto_tree_add_item(vtp_tree, hf_vtp_md5_digest, tvb,
+			offset, 16, ENC_NA);
+		break;
 
-			proto_tree_add_item(vtp_tree, hf_vtp_upd_id, tvb,
-			    offset, 4, ENC_BIG_ENDIAN);
-			offset += 4;
+	case SUBSET_ADVERT:
+		proto_tree_add_item(vtp_tree, hf_vtp_seq_num, tvb, offset,
+			1, ENC_BIG_ENDIAN);
+		offset += 1;
 
-			upd_timestamp = tvb_get_ptr(tvb, offset, 12);
-			proto_tree_add_string_format(vtp_tree, hf_vtp_upd_ts, tvb,
-			    offset, 12, (gchar*)upd_timestamp,
-			    "Update Timestamp: %.2s-%.2s-%.2s %.2s:%.2s:%.2s",
-			    &upd_timestamp[0], &upd_timestamp[2], &upd_timestamp[4],
-			    &upd_timestamp[6], &upd_timestamp[8], &upd_timestamp[10]);
-			offset += 12;
+		md_len = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
+			1, md_len);
+		offset += 1;
 
-			proto_tree_add_item(vtp_tree, hf_vtp_md5_digest, tvb,
-			    offset, 16, ENC_NA);
-			break;
+		proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
+			32, ENC_ASCII|ENC_NA);
+		offset += 32;
 
-		case SUBSET_ADVERT:
-			proto_tree_add_item(vtp_tree, hf_vtp_seq_num, tvb, offset,
-			    1, ENC_BIG_ENDIAN);
-			offset += 1;
+		proto_tree_add_item(vtp_tree, hf_vtp_conf_rev_num, tvb,
+			offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
 
-			md_len = tvb_get_guint8(tvb, offset);
-			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
-			    1, md_len);
-			offset += 1;
-
-			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
-			    32, ENC_ASCII|ENC_NA);
-			offset += 32;
-
-			proto_tree_add_item(vtp_tree, hf_vtp_conf_rev_num, tvb,
-			    offset, 4, ENC_BIG_ENDIAN);
-			offset += 4;
-
-			while (tvb_reported_length_remaining(tvb, offset) > 0) {
-				vlan_info_len =
-				    dissect_vlan_info(tvb, offset, vtp_tree);
-				if (vlan_info_len < 0)
-					break;
-				offset += vlan_info_len;
-			}
-			break;
-
-		case ADVERT_REQUEST:
-			offset += 1;	/* skip reserved field */
-
-			md_len = tvb_get_guint8(tvb, offset);
-			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
-			    1, md_len);
-			offset += 1;
-
-			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
-			    32, ENC_ASCII|ENC_NA);
-			offset += 32;
-
-			proto_tree_add_item(vtp_tree, hf_vtp_start_value, tvb,
-			    offset, 2, ENC_BIG_ENDIAN);
-			break;
-
-		case JOIN_MSG:
-			offset += 1;	/* skip reserved/unused field */
-
-			md_len = tvb_get_guint8(tvb, offset);
-			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
-			    1, md_len);
-			offset += 1;
-
-			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
-			    32, ENC_ASCII|ENC_NA);
-			offset += 32;
-
-			proto_tree_add_item(vtp_tree, hf_vtp_pruning_first_vid, tvb, offset,
-			    2, ENC_BIG_ENDIAN);
-			pruning_vlan_id = tvb_get_ntohs(tvb, offset);
-			offset += 2;
-
-			proto_tree_add_item(vtp_tree, hf_vtp_pruning_last_vid, tvb, offset,
-			    2, ENC_BIG_ENDIAN);
-			offset += 2;
-
-			ti = proto_tree_add_text (vtp_tree, tvb, offset, -1,
-			    "Advertised active (i.e. not pruned) VLANs");
-			vtp_pruning_tree = proto_item_add_subtree(ti, ett_vtp_pruning);
-
-			while (tvb_reported_length_remaining(tvb, offset) > 0) {
-			    guint8 vlan_usage_bitmap;
-			    int shift;
-
-			    vlan_usage_bitmap = tvb_get_guint8(tvb, offset);
-
-			    for (shift = 0; shift < 8; shift++) {
-				if (vlan_usage_bitmap & (1<<7)) {
-				    proto_tree_add_uint(vtp_pruning_tree, hf_vtp_pruning_active_vid,
-					tvb, offset, 1, pruning_vlan_id);
-				}
-
-				pruning_vlan_id += 1;
-				vlan_usage_bitmap <<= 1;
-			    }
-
-			    offset += 1;
-			}
-
-			break;
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
+			vlan_info_len =
+				dissect_vlan_info(tvb, pinfo, offset, vtp_tree);
+			if (vlan_info_len < 0)
+				break;
+			offset += vlan_info_len;
 		}
+		break;
+
+	case ADVERT_REQUEST:
+		offset += 1;	/* skip reserved field */
+
+		md_len = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
+			1, md_len);
+		offset += 1;
+
+		proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
+			32, ENC_ASCII|ENC_NA);
+		offset += 32;
+
+		proto_tree_add_item(vtp_tree, hf_vtp_start_value, tvb,
+			offset, 2, ENC_BIG_ENDIAN);
+		break;
+
+	case JOIN_MSG:
+		offset += 1;	/* skip reserved/unused field */
+
+		md_len = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
+			1, md_len);
+		offset += 1;
+
+		proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
+			32, ENC_ASCII|ENC_NA);
+		offset += 32;
+
+		proto_tree_add_item(vtp_tree, hf_vtp_pruning_first_vid, tvb, offset,
+			2, ENC_BIG_ENDIAN);
+		pruning_vlan_id = tvb_get_ntohs(tvb, offset);
+		offset += 2;
+
+		proto_tree_add_item(vtp_tree, hf_vtp_pruning_last_vid, tvb, offset,
+			2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		ti = proto_tree_add_text (vtp_tree, tvb, offset, -1,
+			"Advertised active (i.e. not pruned) VLANs");
+		vtp_pruning_tree = proto_item_add_subtree(ti, ett_vtp_pruning);
+
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
+			guint8 vlan_usage_bitmap;
+			int shift;
+
+			vlan_usage_bitmap = tvb_get_guint8(tvb, offset);
+
+			for (shift = 0; shift < 8; shift++) {
+			if (vlan_usage_bitmap & (1<<7)) {
+				proto_tree_add_uint(vtp_pruning_tree, hf_vtp_pruning_active_vid,
+				tvb, offset, 1, pruning_vlan_id);
+			}
+
+			pruning_vlan_id += 1;
+			vlan_usage_bitmap <<= 1;
+			}
+
+			offset += 1;
+		}
+
+		break;
 	}
 }
 
@@ -320,7 +319,7 @@ static const value_string vlan_tlv_type_vals[] = {
 };
 
 static int
-dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_vlan_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *vlan_info_tree;
@@ -417,7 +416,7 @@ dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 		offset += 2;
 		vlan_info_left -= 2;
 		if (length > 0) {
-			dissect_vlan_info_tlv(tvb, offset, length*2, tlv_tree,
+			dissect_vlan_info_tlv(tvb, pinfo, offset, length*2, tlv_tree,
 			    ti, type);
 		}
 		offset += length*2;
@@ -453,7 +452,7 @@ static const value_string backup_crf_mode_vals[] = {
 };
 
 static void
-dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
+dissect_vlan_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
     proto_tree *tree, proto_item *ti, guint8 type)
 {
 	switch (type) {
@@ -467,12 +466,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 			    "Source-Routing Ring Number: 0x%04x",
 			    tvb_get_ntohs(tvb, offset));
 		} else {
-			proto_item_set_text(ti,
-			    "Source-Routing Ring Number: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Source-Routing Ring Number: Bad length %u",
-			    length);
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Source-Routing Ring Number: Bad length %u", length);
 		}
 		break;
 
@@ -485,12 +479,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 			    "Source-Routing Bridge Number: 0x%04x",
 			    tvb_get_ntohs(tvb, offset));
 		} else {
-			proto_item_set_text(ti,
-			    "Source-Routing Bridge Number: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Source-Routing Bridge Number: Bad length %u",
-			    length);
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Source-Routing Bridge Number: Bad length %u", length);
 		}
 		break;
 
@@ -505,12 +494,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 			    val_to_str(tvb_get_ntohs(tvb, offset), stp_type_vals,
 			      "Unknown (0x%04x)"));
 		} else {
-			proto_item_set_text(ti,
-			    "Spanning-Tree Protocol Type: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Spanning-Tree Protocol Type: Bad length %u",
-			    length);
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Spanning-Tree Protocol Type: Bad length %u", length);
 		}
 		break;
 
@@ -523,12 +507,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 			    "Parent VLAN: 0x%04x",
 			    tvb_get_ntohs(tvb, offset));
 		} else {
-			proto_item_set_text(ti,
-			    "Parent VLAN: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Parent VLAN: Bad length %u",
-			    length);
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Parent VLAN: Bad length %u", length);
 		}
 		break;
 
@@ -541,12 +520,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 			    "Translationally Bridged VLANs: 0x%04x",
 			    tvb_get_ntohs(tvb, offset));
 		} else {
-			proto_item_set_text(ti,
-			    "Translationally Bridged VLANs: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Translationally Bridged VLANs: Bad length %u",
-			    length);
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Translationally Bridged VLANs: Bad length %u", length);
 		}
 		break;
 
@@ -561,12 +535,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 			    val_to_str(tvb_get_ntohs(tvb, offset), pruning_vals,
 			      "Unknown (0x%04x)"));
 		} else {
-			proto_item_set_text(ti,
-			    "Pruning: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Pruning: Bad length %u",
-			    length);
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Pruning: Bad length %u", length);
 		}
 		break;
 
@@ -581,12 +550,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 			    val_to_str(tvb_get_ntohs(tvb, offset), bridge_type_vals,
 			      "Unknown (0x%04x)"));
 		} else {
-			proto_item_set_text(ti,
-			    "Bridge Type: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Bridge Type: Bad length %u",
-			    length);
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Bridge Type: Bad length %u", length);
 		}
 		break;
 
@@ -599,12 +563,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 			    "Max ARE Hop Count: %u",
 			    tvb_get_ntohs(tvb, offset));
 		} else {
-			proto_item_set_text(ti,
-			    "Max ARE Hop Count: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Max ARE Hop Count: Bad length %u",
-			    length);
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Max ARE Hop Count: Bad length %u", length);
 		}
 		break;
 
@@ -617,12 +576,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 			    "Max STE Hop Count: %u",
 			    tvb_get_ntohs(tvb, offset));
 		} else {
-			proto_item_set_text(ti,
-			    "Max STE Hop Count: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Max STE Hop Count: Bad length %u",
-			    length);
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Max STE Hop Count: Bad length %u", length);
 		}
 		break;
 
@@ -637,12 +591,7 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 			    val_to_str(tvb_get_ntohs(tvb, offset), backup_crf_mode_vals,
 			      "Unknown (0x%04x)"));
 		} else {
-			proto_item_set_text(ti,
-			    "Backup CRF Mode: Bad length %u",
-			    length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Backup CRF Mode: Bad length %u",
-			    length);
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Backup CRF Mode: Bad length %u", length);
 		}
 		break;
 
