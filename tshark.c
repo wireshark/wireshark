@@ -2675,6 +2675,9 @@ process_packet_first_pass(capture_file *cf,
     prev_cap = prev_dis = frame_data_sequence_add(cf->frames, &fdlocal);
     cf->count++;
   } else {
+    /* if we don't add it to the frame_data_sequence, clean it up right now
+     * to avoid leaks */
+    frame_data_cleanup(&fdlocal);
     /* TODO, bug #8160 */
     /*
     prev_cap_frame = fdlocal;
