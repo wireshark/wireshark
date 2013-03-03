@@ -685,8 +685,9 @@ static void dissect_msproxy_request(tvbuff_t *tvb,
 
 	if ( tree)
 		proto_tree_add_uint_format( tree, hf_msproxy_cmd, tvb, offset, 2,
-			cmd, "Command: 0x%02x (%s)", cmd,
-			get_msproxy_cmd_name( cmd, FROM_CLIENT));
+			cmd, "Command: %s (0x%02x)",
+			get_msproxy_cmd_name( cmd, FROM_CLIENT),
+			cmd);
 
 	offset += 2;
 
