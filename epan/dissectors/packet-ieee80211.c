@@ -719,7 +719,7 @@ static const value_string tag_num_vals[] = {
   { TAG_RSNI,                                 "RSNI" },
   { TAG_MEASURE_PILOT_TRANS,                  "Measurement Pilot Transmission" },
   { TAG_BSS_AVB_ADM_CAPACITY,                 "BSS Available Admission Capacity" },
-  { TAG_BSS_ACCESS_DELAY,                     "BSS Acess Delay" },
+  { TAG_BSS_ACCESS_DELAY,                     "BSS Access Delay" },
   { TAG_TIME_ADV,                             "Time Advertisement" },
   { TAG_RM_ENABLED_CAPABILITY,                "RM Enabled Capabilites" },
   { TAG_MULTIPLE_BSSID,                       "Multiple BSSID" },
@@ -5814,7 +5814,7 @@ static guint
 add_ff_country_str(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_country_str, tvb, offset, 3,
-                      ENC_ASCII);
+                      ENC_ASCII|ENC_NA);
   return 3;
 }
 
@@ -8035,7 +8035,7 @@ dissect_vht_operation_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   }
 
   /* 3 byte VHT Operation Info*/
-  op_item = proto_tree_add_item(tree, hf_ieee80211_vht_op, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+  op_item = proto_tree_add_item(tree, hf_ieee80211_vht_op, tvb, offset, 3, ENC_NA);
   op_tree = proto_item_add_subtree(op_item, ett_vht_op_tree);
   proto_tree_add_item(op_tree, hf_ieee80211_vht_op_channel_width, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(op_tree, hf_ieee80211_vht_op_channel_center0, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
