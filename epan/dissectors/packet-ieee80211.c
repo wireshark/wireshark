@@ -3282,6 +3282,11 @@ static int hf_ieee80211_tag_bss_avb_adm_cap_ac1 = -1;
 static int hf_ieee80211_tag_bss_avb_adm_cap_ac2 = -1;
 static int hf_ieee80211_tag_bss_avb_adm_cap_ac3 = -1;
 
+static int hf_ieee80211_tag_bss_avg_ac_access_delay_be = -1;
+static int hf_ieee80211_tag_bss_avg_ac_access_delay_bk = -1;
+static int hf_ieee80211_tag_bss_avg_ac_access_delay_vi = -1;
+static int hf_ieee80211_tag_bss_avg_ac_access_delay_vo = -1;
+
 static int hf_ieee80211_tag_power_constraint_local = -1;
 
 static int hf_ieee80211_tag_power_capability_min = -1;
@@ -8875,6 +8880,33 @@ dissect_bss_available_admission_capacity_ie(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
+dissect_bss_ac_access_delay_ie(tvbuff_t *tvb, packet_info *pinfo,
+                                    proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len)
+{
+
+  if (tag_len == 4) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "BSS AC Access Delay length %u wrong, must = 4", tag_len);
+    return offset;
+  }
+
+  /* TODO: Display the scaled representation of the average 
+    medium access delay (a big (precalculed) value_string ?)
+    See 8.4.2.46 BSS AC Access Delay element ... */
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_bss_avg_ac_access_delay_be, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(tree, hf_ieee80211_tag_bss_avg_ac_access_delay_bk, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(tree, hf_ieee80211_tag_bss_avg_ac_access_delay_vi, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(tree, hf_ieee80211_tag_bss_avg_ac_access_delay_vo, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  return offset;
+}
+
+static int
 dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                          guint32 tag_len, proto_item *ti_len, gboolean vs)
 {
@@ -10926,6 +10958,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_BSS_AVB_ADM_CAPACITY:
       dissect_bss_available_admission_capacity_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
+      break;
+
+    case TAG_BSS_AC_ACCESS_DELAY: /* BSS AC Access Delay (68) */
+      dissect_bss_ac_access_delay_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
       break;
 
     case TAG_TIME_ADV:
@@ -16533,6 +16569,23 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tag_bss_avb_adm_cap_ac3,
      {"AC3", "wlan_mgt.bss_avb_adm_cap.ac3",
       FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_bss_avg_ac_access_delay_be,
+     {"AC Average Access Delay for Best Effort", "wlan_mgt.bss_avg_ac_access_delay.be",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avg_ac_access_delay_bk,
+     {"AC Average Access Delay for Best Background", "wlan_mgt.bss_avg_ac_access_delay.bk",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avg_ac_access_delay_vi,
+     {"AC Average Access Delay for Video", "wlan_mgt.bss_avg_ac_access_delay_vi",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+    {&hf_ieee80211_tag_bss_avg_ac_access_delay_vo,
+     {"AC Average Access Delay for Voice", "wlan_mgt.bss_avg_ac_access_delay_vo",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_power_constraint_local,
