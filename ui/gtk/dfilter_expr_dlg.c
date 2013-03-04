@@ -1072,8 +1072,13 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
                    "changed", G_CALLBACK(relation_list_sel_cb), NULL);
     l_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(value_list));
     gtk_tree_selection_set_mode(l_sel, GTK_SELECTION_SINGLE);
+#if ! GTK_CHECK_VERSION(3,8,0)
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(value_list_scrolled_win),
                                           value_list);
+#else
+    gtk_container_add(GTK_CONTAINER(value_list_scrolled_win),
+                                          value_list);
+#endif
     /* This remains hidden until an enumerated field is selected */
 
     /*

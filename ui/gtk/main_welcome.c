@@ -185,8 +185,11 @@ scroll_box_dynamic_add(GtkWidget *parent_box)
         /* move child_box from parent_box into scrolled window */
         g_object_ref(child_box);
         gtk_container_remove(GTK_CONTAINER(parent_box), child_box);
-        gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollw),
-                                              child_box);
+#if ! GTK_CHECK_VERSION(3,8,0)
+        gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollw), child_box);
+#else
+        gtk_container_add(GTK_CONTAINER(scrollw), child_box);
+#endif
         gtk_widget_show_all(scrollw);
     }
 
@@ -1401,8 +1404,11 @@ welcome_new(void)
     /* the end */
     gtk_widget_show_all(welcome_eb);
 
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(welcome_scrollw),
-                                          welcome_eb);
+#if ! GTK_CHECK_VERSION(3,8,0)
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(welcome_scrollw), welcome_eb);
+#else
+    gtk_container_add(GTK_CONTAINER(welcome_scrollw), welcome_eb);
+#endif
     gtk_widget_show_all(welcome_scrollw);
 
 #if GLIB_CHECK_VERSION(2,31,0)

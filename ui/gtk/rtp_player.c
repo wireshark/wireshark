@@ -2361,7 +2361,11 @@ rtp_player_dlg_create(void)
 
 	channels_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_set_border_width (GTK_CONTAINER (channels_vb), 2);
-	gtk_scrolled_window_add_with_viewport((GtkScrolledWindow *) main_scrolled_window, channels_vb);
+#if ! GTK_CHECK_VERSION(3,8,0)
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW (main_scrolled_window), channels_vb);
+#else
+	gtk_container_add((GTK_CONTAINER (main_scrolled_window), channels_vb);
+#endif
 
 	timestamp_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gtk_box_pack_start(GTK_BOX(main_vb), timestamp_hb, FALSE, FALSE, 0);

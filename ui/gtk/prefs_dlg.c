@@ -294,7 +294,11 @@ prefs_nb_page_add(GtkWidget *notebook, const gchar *title _U_, GtkWidget *page, 
   frame = gtk_frame_new(NULL);
   gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
   gtk_container_set_border_width(GTK_CONTAINER(frame), DLG_OUTER_MARGIN);
+#if ! GTK_CHECK_VERSION(3,8,0)
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sw), frame);
+#else
+  gtk_container_add(GTK_CONTAINER(sw), frame);
+#endif
   gtk_widget_show(frame);
 
   if (page) {
@@ -393,7 +397,11 @@ module_prefs_show(module_t *module, gpointer user_data)
   frame = gtk_frame_new(NULL);
   gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
   gtk_container_set_border_width(GTK_CONTAINER(frame), DLG_OUTER_MARGIN);
+#if ! GTK_CHECK_VERSION(3,8,0)
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), frame);
+#else
+  gtk_container_add(GTK_CONTAINER(main_sw), frame);
+#endif
   g_object_set_data(G_OBJECT(main_sw), E_PAGESW_FRAME_KEY, frame);
 
   /* Main vertical box */

@@ -240,7 +240,11 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Container for each row of widgets */
   main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
+#if ! GTK_CHECK_VERSION(3,8,0)
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window), main_vb);
+#else
+  gtk_container_add(GTK_CONTAINER(scrolled_window), main_vb);
+#endif
 
   /* grid */
   grid = ws_gtk_grid_new();

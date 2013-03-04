@@ -668,7 +668,11 @@ capture_if_refresh_if_list(void)
 
   if_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(if_vb), 5);
+#if ! GTK_CHECK_VERSION(3,8,0)
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(cap_if_sw), if_vb);
+#else
+  gtk_container_add(GTK_CONTAINER(cap_if_sw), if_vb);
+#endif
 
   if_grid = ws_gtk_grid_new();
   ws_gtk_grid_set_row_spacing(GTK_GRID(if_grid), 3);

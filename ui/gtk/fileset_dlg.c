@@ -304,7 +304,11 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
 
     /* add a dummy container, so we can replace the table later */
     fs_grid_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+#if ! GTK_CHECK_VERSION(3,8,0)
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(fs_sw), fs_grid_vb);
+#else
+    gtk_container_add(GTK_CONTAINER(fs_sw), fs_grid_vb);
+#endif
 
     fs_dir_lb = gtk_label_new("");
     gtk_box_pack_start(GTK_BOX(main_vb), fs_dir_lb, FALSE, FALSE, 0);
