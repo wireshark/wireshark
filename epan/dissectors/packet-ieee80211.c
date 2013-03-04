@@ -588,7 +588,7 @@ enum fixed_field {
 #define TAG_RSNI                      65
 #define TAG_MEASURE_PILOT_TRANS       66
 #define TAG_BSS_AVB_ADM_CAPACITY      67
-#define TAG_BSS_ACCESS_DELAY          68
+#define TAG_BSS_AC_ACCESS_DELAY       68
 #define TAG_TIME_ADV                  69  /* IEEE Std 802.11p-2010 */
 #define TAG_RM_ENABLED_CAPABILITY     70
 #define TAG_MULTIPLE_BSSID            71
@@ -714,12 +714,12 @@ static const value_string tag_num_vals[] = {
   { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement" },
   { TAG_HT_INFO,                              "HT Information (802.11n D1.10)" },
   { TAG_SECONDARY_CHANNEL_OFFSET,             "Secondary Channel Offset (802.11n D1.10)" },
-  { TAG_BSS_AVG_ACCESS_DELAY,                 "BSS Average Acces Delay" },
+  { TAG_BSS_AVG_ACCESS_DELAY,                 "BSS Average Access Delay" },
   { TAG_ANTENNA,                              "Antenna" },
   { TAG_RSNI,                                 "RSNI" },
   { TAG_MEASURE_PILOT_TRANS,                  "Measurement Pilot Transmission" },
   { TAG_BSS_AVB_ADM_CAPACITY,                 "BSS Available Admission Capacity" },
-  { TAG_BSS_ACCESS_DELAY,                     "BSS Access Delay" },
+  { TAG_BSS_AC_ACCESS_DELAY,                  "BSS Access Delay" },
   { TAG_TIME_ADV,                             "Time Advertisement" },
   { TAG_RM_ENABLED_CAPABILITY,                "RM Enabled Capabilites" },
   { TAG_MULTIPLE_BSSID,                       "Multiple BSSID" },
