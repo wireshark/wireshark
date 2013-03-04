@@ -66,7 +66,7 @@ static int ett_rua = -1;
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
-static guint global_sctp_port = SCTP_PORT_RUA;
+static guint global_sctp_port = SCTP_PORT_RUA
 
 /* Dissector tables */
 static dissector_table_t rua_ies_dissector_table;

@@ -124,7 +124,7 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
 
 #.FN_BODY NegTokenInit/mechListMIC
 
-  gint8 class;
+  gint8 ber_class;
   gboolean pc;
   gint32 tag;
   tvbuff_t *mechListMIC_tvb;
@@ -136,8 +136,8 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
    *
    * Peek at the header, and then decide which it is we're seeing.
    */
-  get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  if (class == BER_CLASS_UNI && pc && tag == BER_UNI_TAG_SEQUENCE) {
+  get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+  if (ber_class == BER_CLASS_UNI && pc && tag == BER_UNI_TAG_SEQUENCE) {
     /*
      * It's a sequence.
      */

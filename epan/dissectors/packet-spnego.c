@@ -269,7 +269,7 @@ static int
 dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 126 "../../asn1/spnego/spnego.cnf"
 
-  gint8 class;
+  gint8 ber_class;
   gboolean pc;
   gint32 tag;
   tvbuff_t *mechListMIC_tvb;
@@ -281,8 +281,8 @@ dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *t
    *
    * Peek at the header, and then decide which it is we're seeing.
    */
-  get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  if (class == BER_CLASS_UNI && pc && tag == BER_UNI_TAG_SEQUENCE) {
+  get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+  if (ber_class == BER_CLASS_UNI && pc && tag == BER_UNI_TAG_SEQUENCE) {
     /*
      * It's a sequence.
      */
@@ -659,7 +659,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 token_id;
 	const char *oid;
 	tvbuff_t *krb5_tvb;
-	gint8 class;
+	gint8 ber_class;
 	gboolean pc, ind = 0;
 	gint32 tag;
 	guint32 len;
@@ -701,12 +701,12 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Get the first header ...
 	 */
-	get_ber_identifier(tvb, offset, &class, &pc, &tag);
-	if (class == BER_CLASS_APP && pc) {
+	get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
+	if (ber_class == BER_CLASS_APP && pc) {
 	    /*
 	     * [APPLICATION <tag>]
 	     */
-	    offset = dissect_ber_identifier(pinfo, subtree, tvb, offset, &class, &pc, &tag);
+	    offset = dissect_ber_identifier(pinfo, subtree, tvb, offset, &ber_class, &pc, &tag);
 	    offset = dissect_ber_length(pinfo, subtree, tvb, offset, &len, &ind);
 
 	    switch (tag) {
@@ -739,7 +739,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    default:
 		proto_tree_add_text(subtree, tvb, offset, 0,
 			"Unknown header (class=%d, pc=%d, tag=%d)",
-			class, pc, tag);
+			ber_class, pc, tag);
 		goto done;
 	    }
 	} else {
@@ -820,14 +820,14 @@ arcfour_mic_key(void *key_data, size_t key_size, int key_type,
                 L40, 14,
                 key_data,
                 key_size,
-	    	k5_data);
+	            k5_data);
 	memset(&k5_data[7], 0xAB, 9);
     } else {
 	md5_hmac(
                 T, 4,
                 key_data,
                 key_size,
-	    	k5_data);
+	            k5_data);
     }
 
     md5_hmac(
@@ -1073,12 +1073,12 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 	/* XXX we should only do this for first time, then store somewhere */
 	/* XXX We also need to re-read the keytab when the preference changes */
 
-	cryptocopy=ep_alloc(length);
+	cryptocopy=(guint8 *)ep_alloc(length);
 	if(output_message_buffer){
 		g_free(output_message_buffer);
 		output_message_buffer=NULL;
 	}
-	output_message_buffer=g_malloc(length);
+	output_message_buffer=(guint8 *)g_malloc(length);
 
 	for(ek=enc_key_list;ek;ek=ek->next){
 		/* shortcircuit and bail out if enctypes are not matching */
@@ -1133,7 +1133,7 @@ rrc_rotate(void *data, int len, guint16 rrc, int unrotate)
 	if (rrc <= sizeof(buf)) {
 		tmp = buf;
 	} else {
-		tmp = g_malloc(rrc);
+		tmp = (unsigned char *)g_malloc(rrc);
 		if (tmp == NULL)
 			return -1;
 	}
@@ -1183,7 +1183,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
 
 	datalen = tvb_length(checksum_tvb) + tvb_length(encrypted_tvb);
 
-	rotated = g_malloc(datalen);
+	rotated = (guint8 *)g_malloc(datalen);
 
 	tvb_memcpy(checksum_tvb, rotated,
 		   0, tvb_length(checksum_tvb));
@@ -1207,7 +1207,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
 	if (output) {
 		guint8 *outdata;
 
-		outdata = g_memdup(output, tvb_length(encrypted_tvb));
+		outdata = (guint8 *)g_memdup(output, tvb_length(encrypted_tvb));
 		g_free(output);
 
 		pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(encrypted_tvb,
@@ -1754,7 +1754,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * It has to be per-frame as there can be more than one GSS-API
 	 * negotiation in a conversation.
 	 */
-	next_level_value = p_get_proto_data(pinfo->fd, proto_spnego);
+	next_level_value = (gssapi_oid_value *)p_get_proto_data(pinfo->fd, proto_spnego);
 	if (!next_level_value && !pinfo->fd->flags.visited) {
 	    /*
 	     * No handle attached to this frame, but it's the first
@@ -1767,7 +1767,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					     pinfo->destport, 0);
 
 	    if (conversation) {
-		next_level_value = conversation_get_proto_data(conversation,
+		next_level_value = (gssapi_oid_value *)conversation_get_proto_data(conversation,
 							       proto_spnego);
 		if (next_level_value)
 		    p_add_proto_data(pinfo->fd, proto_spnego, next_level_value);

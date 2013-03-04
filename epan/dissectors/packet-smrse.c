@@ -156,7 +156,7 @@ dissect_smrse_T_octet_format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 21 "../../asn1/smrse/smrse.cnf"
 	char *strp,tmpstr[21];
 	guint32 i, start_offset;
-	gint8 class;
+	gint8 ber_class;
 	gboolean pc, ind;
 	gint32 tag;
 	guint32 len;
@@ -165,7 +165,7 @@ dissect_smrse_T_octet_format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 	start_offset=offset;
 
 	/* skip the tag and length */
-	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
 	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
 	if(len>10){
 		len=10;

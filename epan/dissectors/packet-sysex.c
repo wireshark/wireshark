@@ -947,11 +947,11 @@ dissect_digitech_procedure(guint8 procedure, const gint offset,
     digitech_conv_data_t *conv_data;
 
     conversation = find_or_create_conversation(pinfo);
-    conv_data = conversation_get_proto_data(conversation, proto_sysex);
+    conv_data = (digitech_conv_data_t *)conversation_get_proto_data(conversation, proto_sysex);
 
     if (conv_data == NULL)
     {
-        conv_data = se_alloc(sizeof(digitech_conv_data_t));
+        conv_data = se_new(digitech_conv_data_t);
         conv_data->protocol_version = 1; /* Default to version 1 */
     }
 
