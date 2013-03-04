@@ -2364,7 +2364,7 @@ rtp_player_dlg_create(void)
 #if ! GTK_CHECK_VERSION(3,8,0)
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW (main_scrolled_window), channels_vb);
 #else
-	gtk_container_add((GTK_CONTAINER (main_scrolled_window), channels_vb);
+	gtk_container_add(GTK_CONTAINER (main_scrolled_window), channels_vb);
 #endif
 
 	timestamp_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
