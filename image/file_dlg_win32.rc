@@ -8,7 +8,7 @@ FONT 8, "MS Shell Dlg"
 {
     // Filter button/entry
     // PUSHBUTTON "Filter:", EWFD_FILTER_BTN, 7, 4, 35, 14
-    LTEXT "Display filter:", EWFD_FILTER_LBL, 67, 2, 49, 14
+    LTEXT "Read filter:", EWFD_FILTER_LBL, 67, 2, 49, 14
     CONTROL    "",        EWFD_FILTER_EDIT, RICHEDIT_CLASS, ES_AUTOHSCROLL, 112, 0, 88, 12, WS_EX_CLIENTEDGE
 
     CHECKBOX "MAC name resolution", EWFD_MAC_NR_CB, 67, 30, 100, 8,  BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP
