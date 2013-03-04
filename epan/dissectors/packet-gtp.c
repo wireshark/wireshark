@@ -38,9 +38,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * Ref: 3GPP TS 29.060
- * http://www.3gpp.org/ftp/Specs/html-info/29060.htm
- * GTP' 3GPP TS 32.295
+ *
+ * GTP v0: 3GPP TS 09.60
+ *
+ *	http://www.3gpp.org/ftp/Specs/html-info/0960.htm
+ *
+ * GTP v1: 3GPP TS 29.060
+ *
+ *	http://www.3gpp.org/ftp/Specs/html-info/29060.htm
+ *
+ * GTP': 3GPP TS 32.295
+ *
+ *	http://www.3gpp.org/ftp/Specs/html-info/32295.htm
  */
 
 #include "config.h"
@@ -354,17 +363,22 @@ static const value_string pt_types[] = {
 #define GTP_SNN_MASK        0x01
 #define GTP_PN_MASK         0x01
 
-#define GTP_EXT_HDR_PDCP_SN  0xC0
-#define GTP_EXT_HDR_UDP_PORT 0x40
+#define GTP_EXT_HDR_NO_MORE_EXT_HDRS         0x00
+#define GTP_EXT_HDR_MBMS_SUPPORT_IND         0x01
+#define GTP_EXT_HDR_MS_INFO_CHG_REP_SUPP_IND 0x02
+#define GTP_EXT_HDR_UDP_PORT                 0x40
+#define GTP_EXT_HDR_PDCP_SN                  0xC0
+#define GTP_EXT_HDR_SUSPEND_REQ              0xC1
+#define GTP_EXT_HDR_SUSPEND_RESP             0xC2
 
 static const value_string next_extension_header_fieldvals[] = {
-    {   0, "No more extension headers"},
-    {   1, "MBMS support indication"},
-    {   2, "MS Info Change Reporting support indication"},
+    {GTP_EXT_HDR_NO_MORE_EXT_HDRS, "No more extension headers"},
+    {GTP_EXT_HDR_MBMS_SUPPORT_IND, "MBMS support indication"},
+    {GTP_EXT_HDR_MS_INFO_CHG_REP_SUPP_IND, "MS Info Change Reporting support indication"},
     {GTP_EXT_HDR_UDP_PORT, "UDP Port number"},
     {GTP_EXT_HDR_PDCP_SN, "PDCP PDU number"},
-    {0xc1, "Suspend Request"},
-    {0xc2, "Suspend Response"},
+    {GTP_EXT_HDR_SUSPEND_REQ, "Suspend Request"},
+    {GTP_EXT_HDR_SUSPEND_RESP, "Suspend Response"},
     {0, NULL}
 };
 
@@ -7791,14 +7805,14 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
     gtp_hdr_t       *gtp_hdr = NULL;
     proto_tree      *gtp_tree = NULL, *ext_tree;
-    proto_item      *ti = NULL, *tf, *item;
-    int              i, offset = 0, length, gtp_prime, checked_field, mandatory;
+    proto_item      *ti = NULL, *tf, *length_item, *ext_hdr_len_item;
+    int              i, offset = 0, checked_field, mandatory;
+    gboolean         gtp_prime;
     int              seq_no           = 0;
     int              flow_label       = 0;
     guint8           pdu_no, next_hdr = 0;
     guint8           ext_hdr_val;
-    guint8           noOfExtHdrs      = 0;
-    guint8           ext_hdr_length;
+    guint            ext_hdr_length;
     guint16          ext_hdr_pdcpsn;
     gchar           *tid_str;
     tvbuff_t        *next_tvb;
@@ -7847,23 +7861,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     pd_save = pinfo->private_data;
     pinfo->private_data = gtp_info;
     
-    tvb_memcpy(tvb, (guint8 *) gtp_hdr, 0, 4); /* Does NOT include TEID */
-    offset = 4;
-    /* This is better than memcpy? At least it's clear.
-     * But memcpy is faster?
-     */
+    gtp_hdr->flags = tvb_get_guint8(tvb, offset);
 
-    /*gtp_hdr->flags = tvb_get_guint8(tvb, offset++);
-    gtp_hdr->message = tvb_get_guint8(tvb, offset++);
-    gtp_hdr->length = tvb_get_letohs(tvb, offset); 
-
-    offset += 2; */
-    
     if (!(gtp_hdr->flags & 0x10)){
-
-        gtp_prime = 1;
-	}else{
-        gtp_prime = 0;
+        gtp_prime = TRUE;
+    }else{
+        gtp_prime = FALSE;
     }
 
     switch ((gtp_hdr->flags >> 5) & 0x07) {
@@ -7877,25 +7880,20 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             gtp_version = 1;
             break;
     }
-    gtp_hdr->length = g_ntohs(gtp_hdr->length);
-
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr->message, &gtp_message_type_ext, "Unknown"));
-
     if (tree) {
         proto_tree *flags_tree;
         ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, ENC_NA);
         gtp_tree = proto_item_add_subtree(ti, ett_gtp);
 
-        tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, 0, 1, gtp_hdr->flags);
+        tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, offset, 1, gtp_hdr->flags);
         flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
-
-        if(gtp_prime == 1) {
+        if(gtp_prime) {
             /* Octet  8    7    6    5    4    3    2    1
              * 1      Version   | PT| Spare '1 1 1 '| ' 0/1 '
              */
-            proto_tree_add_uint(flags_tree, hf_gtp_prime_flags_ver, tvb, 0, 1, gtp_hdr->flags);
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr->flags);
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr->flags);
+            proto_tree_add_uint(flags_tree, hf_gtp_prime_flags_ver, tvb, offset, 1, gtp_hdr->flags);
+            proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, offset, 1, gtp_hdr->flags);
+            proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, offset, 1, gtp_hdr->flags);
             /* Bit 1 of octet 1 is not used in GTP' (except in v0), and it is marked '0'
              * in the GTP' header. It is in use in GTP' v0 and distinguishes the used header-length.
              * In the case of GTP' v0, this bit being marked one (1) indicates the usage of the 6
@@ -7904,37 +7902,58 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
              * this does not suggest the use of the 20-octet header, rather a shorter 6-octet header.
              */
             if(gtp_version == 0) {
-                proto_tree_add_item(flags_tree, hf_gtp_flags_hdr_length, tvb, 0, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(flags_tree, hf_gtp_flags_hdr_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
         } else {
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr->flags);
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr->flags);
+            proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, offset, 1, gtp_hdr->flags);
+            proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, offset, 1, gtp_hdr->flags);
             if(gtp_version == 0) {
-                proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr->flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_snn, tvb, 0, 1, gtp_hdr->flags);
+                proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, offset, 1, gtp_hdr->flags);
+                proto_tree_add_boolean(flags_tree, hf_gtp_flags_snn, tvb, offset, 1, gtp_hdr->flags);
             } else {
-                proto_tree_add_uint(flags_tree, hf_gtp_flags_spare2, tvb, 0, 1, gtp_hdr->flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_e, tvb, 0, 1, gtp_hdr->flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_s, tvb, 0, 1, gtp_hdr->flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_pn, tvb, 0, 1, gtp_hdr->flags);
+                proto_tree_add_uint(flags_tree, hf_gtp_flags_spare2, tvb, offset, 1, gtp_hdr->flags);
+                proto_tree_add_boolean(flags_tree, hf_gtp_flags_e, tvb, offset, 1, gtp_hdr->flags);
+                proto_tree_add_boolean(flags_tree, hf_gtp_flags_s, tvb, offset, 1, gtp_hdr->flags);
+                proto_tree_add_boolean(flags_tree, hf_gtp_flags_pn, tvb, offset, 1, gtp_hdr->flags);
             }
         }
-
-        proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, 1, 1, gtp_hdr->message);
-
-        proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr->length);
     }
+    offset++;
 
-    /*offset = 4; */
+    gtp_hdr->message = tvb_get_guint8(tvb, offset);
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr->message, &gtp_message_type_ext, "Unknown"));
+    if (tree) {
+        proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, offset, 1, gtp_hdr->message);
+    }
+    offset++;
 
+    gtp_hdr->length = tvb_get_ntohs(tvb, offset); 
+    if (tree) {
+        length_item = proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr->length);
+    }
+    offset += 2;
+    
     if (gtp_prime) {
         seq_no = tvb_get_ntohs(tvb, offset);
         proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
         offset += 2;
-        /* If GTP' version is 0 and bit 1 is 0 20 bytes header is used, step past it */
+        /* If GTP' version is 0 and bit 1 is 0 20 bytes header is used, dissect it */
         if( (gtp_version == 0) && ((gtp_hdr->flags & 0x01) == 0) ) {
-            offset = GTPv0_HDR_LENGTH;
+            /* XXX - is this just like GTPv0? */
+            flow_label = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(gtp_tree, hf_gtp_flow_label, tvb, offset, 2, flow_label);
+            offset += 2;
+
+            pdu_no = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(gtp_tree, hf_gtp_sndcp_number, tvb, offset, 1, pdu_no);
+            offset += 4;
+
+            tid_str = id_to_str(tvb, offset);
+            proto_tree_add_string(gtp_tree, hf_gtp_tid, tvb, offset, 8, tid_str);
+            offset += 8;
         }
+
+        set_actual_length(tvb, offset + gtp_hdr->length);
     } else {
         switch (gtp_version) {
         case 0:
@@ -7953,88 +7972,134 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             tid_str = id_to_str(tvb, offset);
             proto_tree_add_string(gtp_tree, hf_gtp_tid, tvb, offset, 8, tid_str);
             offset += 8;
+
+            set_actual_length(tvb, offset + gtp_hdr->length);
+
             break;
         case 1:
             gtp_hdr->teid = tvb_get_ntohl(tvb, offset);
             proto_tree_add_item(gtp_tree, hf_gtp_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
-            /* Are sequence number/N-PDU Number/extension header present? */
-            if (gtp_hdr->flags & 0x07) {
-                seq_no = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+            set_actual_length(tvb, offset + gtp_hdr->length);
+
+            /* Are sequence number/N-PDU Number/extension header present?
+	       See NOTE 5 of Figure 2 of 3GPP TS 29.060 version 4.3.0
+	       Release 4 - the Sequence Number, N-PDU Number, and
+	       Next Extension Header fields are present if any of
+	       GTP_E_MASK, GTP_S_MASK, or GTP_PN_MASK are set. */
+            if (gtp_hdr->flags & (GTP_E_MASK|GTP_S_MASK|GTP_PN_MASK)) {
+                /* Those fields are only *interpreted* if the
+                   particular flag for the field is set. */
+            	if (gtp_hdr->flags & GTP_S_MASK) {
+                    seq_no = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+                }
                 offset += 2;
 
-                pdu_no = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
-                offset++;
-
-                next_hdr = tvb_get_guint8(tvb, offset);
-
-                /* Don't add extension header, we'll add a subtree for that */
-                /* proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr); */
-
-                offset++;
-                
-                /* TODO:Need to change to while to support multiple extension headers */
-                if (next_hdr) {
-
-                    noOfExtHdrs++;
-
-                    tf = proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr, tvb, offset, 4, next_hdr);
-                    ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
-
-                    ext_hdr_length = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
-                    offset++;
-
-                    if(next_hdr == GTP_EXT_HDR_PDCP_SN) {
-                        /* PDCP PDU
-                         * 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
-                         *
-                         * "This extension header is transmitted, for example in UTRAN, at SRNS relocation time,
-                         * to provide the PDCP sequence number of not yet acknowledged N-PDUs. It is 4 octets long,
-                         *  and therefore the Length field has value 1.
-                         *
-                         *  When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare.
-                         *  The meaning of the spare bits shall be set to zero.
-                         *
-                         * Wireshark Note: TS 29.060 does not define bit 5-6 as spare, so no check is possible unless a preference is used.
-                         */
-                        /* First byte is length (should be 1) */
-                        if (ext_hdr_length != 1) {
-                            expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
-                        }
-
-                        ext_hdr_pdcpsn = tvb_get_ntohs(tvb, offset);
-                        if (ext_hdr_pdcpsn & 0x700) {
-                            expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_NOTE, "3GPP TS 29.281 v9.0.0: When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare. The meaning of the spare bits shall be set to zero.");
-                        }
-                        proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
-                        offset += 2;
-                    }
-                    else if ( next_hdr == GTP_EXT_HDR_UDP_PORT) {
-                        /* UDP Port
-                         * 3GPP 29.281 v9.0.0, 5.2.2.1 UDP Port
-                         * "This extension header may be transmitted in Error Indication messages to provide the UDP Source Port of the G-PDU
-                         * that triggered the Error Indication. It is 4 octets long, and therefore the Length field has value 1"
-                         */
-                        if (ext_hdr_length != 1) {
-                            expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the UDP Port Extension header should be 1.");
-                        }
-
-                        /* UDP Port of source */ 
-                        proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-                        offset += 2;
-                    }
-                    /* Last is next_hdr */
-                    next_hdr = tvb_get_guint8(tvb, offset);
-                    item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
-                    if (next_hdr) {
-                        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
-                    }
+            	if (gtp_hdr->flags & GTP_PN_MASK) {
+                    pdu_no = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
                 }
+                offset++;
+
+                if (gtp_hdr->flags & GTP_E_MASK) {
+                    next_hdr = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
+                    offset++;
+                    while (next_hdr != 0) {
+                        ext_hdr_length = tvb_get_guint8(tvb, offset);
+                        tf = proto_tree_add_item(gtp_tree, hf_gtp_ext_hdr, tvb, offset, ext_hdr_length*4, ENC_NA);
+                        ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
+                        ext_hdr_len_item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
+                        if (ext_hdr_length == 0) {
+                            expert_add_info_format(pinfo, ext_hdr_len_item, PI_MALFORMED,
+                                                   PI_ERROR,
+                                                   "Extension header length is zero");
+                            return;
+                        }
+                        offset++;
+                
+                        switch (next_hdr) {
+
+                        case GTP_EXT_HDR_MBMS_SUPPORT_IND:
+                            /* MBMS support indication */
+                            proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MBMS support indication header ---]");
+                            break;
+
+                        case GTP_EXT_HDR_MS_INFO_CHG_REP_SUPP_IND:
+                            /* MS Info Change Reporting support indication */
+                            proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MS Info Change Reporting support indication header ---]");
+                            break;
+
+                        case GTP_EXT_HDR_PDCP_SN:
+                            /* PDCP PDU
+                             * 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
+                             *
+                             * "This extension header is transmitted, for
+                             * example in UTRAN, at SRNS relocation time,
+                             * to provide the PDCP sequence number of not
+                             * yet acknowledged N-PDUs. It is 4 octets long,
+                             * and therefore the Length field has value 1.
+                             *
+                             * When used between two eNBs at the X2 interface
+                             * in E-UTRAN, bits 5-8 of octet 2 are spare.
+                             * The meaning of the spare bits shall be set
+                             * to zero.
+                             *
+                             * Wireshark Note: TS 29.060 does not define bit
+                             * 5-6 as spare, so no check is possible unless
+                             * a preference is used.
+                             */
+                            /* First byte is length (should be 1) */
+                            if (ext_hdr_length == 1) {
+                                ext_hdr_pdcpsn = tvb_get_ntohs(tvb, offset);
+                                if (ext_hdr_pdcpsn & 0x700) {
+                                    expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_NOTE, "3GPP TS 29.281 v9.0.0: When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare. The meaning of the spare bits shall be set to zero.");
+                                }
+                                proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            } else {
+                                expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
+                            }
+                            break;
+
+                        case GTP_EXT_HDR_UDP_PORT:
+                            /* UDP Port
+                             * 3GPP 29.281 v9.0.0, 5.2.2.1 UDP Port
+                             * "This extension header may be transmitted in
+                             * Error Indication messages to provide the UDP
+                             * Source Port of the G-PDU that triggered the
+                             * Error Indication. It is 4 octets long, and
+                             * therefore the Length field has value 1"
+                             */
+                            if (ext_hdr_length == 1) {
+                                /* UDP Port of source */ 
+                                proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            } else {
+                            	/* Bad length */
+                                expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the UDP Port Extension header should be 1.");
+                            }
+                            break;
+
+                        case GTP_EXT_HDR_SUSPEND_REQ:
+                            /* Suspend Request */
+                            break;
+
+                        case GTP_EXT_HDR_SUSPEND_RESP:
+                            /* Suspend Response */
+                            break;
+
+                        default:
+                            break;
+                        }
+                        offset += ext_hdr_length*4 - 2;
+
+                        next_hdr = tvb_get_guint8(tvb, offset);
+                        proto_tree_add_uint(ext_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
+                        offset++;
+                    }
+                } else
+                    offset++;
             }
             break;
         default:
@@ -8043,63 +8108,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
 
     if (gtp_hdr->message != GTP_MSG_TPDU) {
-        /* TODO: This code should be cleaned up to handle more than one
-         * header and possibly display the header content */
-        if (next_hdr) {
-            switch (next_hdr) {
-            case 1:
-                /* MBMS support indication */
-                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MBMS support indication header ---]");
-                offset += 3;
-                break;
-            case 2:
-                /* MS Info Change Reporting support indication */
-                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MS Info Change Reporting support indication header ---]");
-                offset += 3;
-                break;
-            case GTP_EXT_HDR_UDP_PORT:
-                /* UDP Port */
-                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- UDP Port number header ---]");
-                offset += 3;
-                break;
-            case GTP_EXT_HDR_PDCP_SN:
-                /* PDCP PDU number */
-                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- PDCP PDU number header ---]");
-                offset += 3;
-                break;
-            case 0xc1:
-                /* Suspend Request */
-                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Request header ---]");
-                offset += 3;
-                break;
-            case 0xc2:
-                /* Suspend Response */
-                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Response header ---]");
-                offset += 3;
-                break;
-            default:
-                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Unknown extension header ---]");
-                offset += 3;
-                break;
-            }
-            next_hdr = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
-            offset++;
-        }
-        /* proto_tree_add_text(gtp_tree, tvb, 0, 0, "[--- end of GTP header, beginning of extension headers ---]");*/
-        length = tvb_length(tvb);
+    	/* Dissect IEs */
         mandatory = 0;      /* check order of GTP fields against ETSI */
-        for (;;) {
-            if (offset >= length)
-                break;
-            if (next_hdr) {
-                ext_hdr_val = next_hdr;
-                next_hdr = 0;
-            } else
-                ext_hdr_val = tvb_get_guint8(tvb, offset);
-
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            ext_hdr_val = tvb_get_guint8(tvb, offset);
             if (g_gtp_etsi_order) {
-                checked_field = check_field_presence(gtp_hdr->message, ext_hdr_val, (int *) &mandatory);
+                checked_field = check_field_presence(gtp_hdr->message, ext_hdr_val, &mandatory);
                 switch (checked_field) {
                 case -2:
                     proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] message not found");
@@ -8132,76 +8146,46 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             }
         }
     }
-    proto_item_set_len (ti, offset);
+    proto_item_set_end (ti, tvb, offset);
 
     if ((gtp_hdr->message == GTP_MSG_TPDU) && g_gtp_tpdu) {
+        if(tvb_reported_length_remaining(tvb, offset) > 0){
+            proto_tree_add_text(tree, tvb, offset, -1, "T-PDU Data %u bytes", tvb_reported_length_remaining(tvb, offset));
 
-        if (gtp_prime)
-            offset = 6;
-        else if (gtp_version == 1) {
-            if (gtp_hdr->flags & 0x07) {
-                offset = 11;
-                if (tvb_get_guint8(tvb, offset) == 0)
-                    offset++;
-            } else
-                offset = 8;
-        } else
-            offset = 20;
+            sub_proto = tvb_get_guint8(tvb, offset);
 
-        if(gtp_hdr->length > offset){
-            proto_tree_add_text(tree, tvb, offset, gtp_hdr->length, "T-PDU Data %u bytes", gtp_hdr->length);
-        }
-        /* Can only handle one extension header type... */
-        if (noOfExtHdrs != 0) offset+= 1 + noOfExtHdrs*4;
+            if ((sub_proto >= 0x45) && (sub_proto <= 0x4e)) {
+                /* this is most likely an IPv4 packet
+                * we can exclude 0x40 - 0x44 because the minimum header size is 20 octets
+                * 0x4f is excluded because PPP protocol type "IPv6 header compression"
+                * with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */
 
-        sub_proto = tvb_get_guint8(tvb, offset);
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                call_dissector(ip_handle, next_tvb, pinfo, tree);
 
-        if ((sub_proto >= 0x45) && (sub_proto <= 0x4e)) {
-            /* this is most likely an IPv4 packet
-            * we can exclude 0x40 - 0x44 because the minimum header size is 20 octets
-            * 0x4f is excluded because PPP protocol type "IPv6 header compression"
-            * with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */
+            } else if ((sub_proto & 0xf0) == 0x60) {
+                /* this is most likely an IPv6 packet */
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+            } else {
+                /* this seems to be a PPP packet */
 
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(ip_handle, next_tvb, pinfo, tree);
+                if (sub_proto == 0xff) {
+                    /* this might be an address field, even it shouldn't be here */
+                    control_field = tvb_get_guint8(tvb, offset + 1);
+                    if (control_field == 0x03)
+                        /* now we are pretty sure that address and control field are mistakenly inserted -> ignore it for PPP dissection */
+                        acfield_len = 2;
+                }
 
-        } else if ((sub_proto & 0xf0) == 0x60) {
-            /* this is most likely an IPv6 packet */
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-        } else {
-            /* this seems to be a PPP packet */
-
-            if (sub_proto == 0xff) {
-                /* this might be an address field, even it shouldn't be here */
-                control_field = tvb_get_guint8(tvb, offset + 1);
-                if (control_field == 0x03)
-                    /* now we are pretty sure that address and control field are mistakenly inserted -> ignore it for PPP dissection */
-                    acfield_len = 2;
+                next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
+                call_dissector(ppp_handle, next_tvb, pinfo, tree);
             }
-
-            next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
-            call_dissector(ppp_handle, next_tvb, pinfo, tree);
         }
 
         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
             col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
     }
-#if 0
-    else {
-        if (gtp_prime)
-            offset = 6;
-        else if (gtp_version == 1) {
-            if (gtp_hdr->flags & 0x07) {
-                offset = 11;
-                if (tvb_get_guint8(tvb, offset) == 0)
-                    offset++;
-            } else
-                offset = 8;
-        } else
-            offset = 20;
-    }
-#endif
     
     pinfo->private_data = pd_save;
     tap_queue_packet(gtpv1_tap,pinfo, gtp_hdr);
@@ -8372,7 +8356,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_ext_hdr,
          { "Extension header", "gtp.ext_hdr",
-           FT_UINT8, BASE_HEX, VALS(next_extension_header_fieldvals), 0,
+           FT_NONE, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_ext_hdr_next,
