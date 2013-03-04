@@ -45,12 +45,15 @@ typedef enum {
 	TOKEN_STRUCT,
 	TOKEN_PRIVATE_STRUCT,
 	TOKEN_CONST,
+	TOKEN_PROTOCOL,
 
 	TOKEN_WHILE,
 
-	TOKEN_SWITCH,
 	TOKEN_DYNAMIC_SWITCH,
+	TOKEN_SWITCH,
+	TOKEN_TABLE,
 	TOKEN_CASE,
+	TOKEN_DEFAULT,
 
 	TOKEN_ID,
 	TOKEN_STR,
@@ -64,6 +67,9 @@ typedef enum {
 	TOKEN_RBRACKET,
 	TOKEN_LCURLY,
 	TOKEN_RCURLY,
+
+	TOKEN_ANDAND,
+	TOKEN_OROR,
 
 	TOKEN_EQUAL,
 	TOKEN_NOTEQUAL,
@@ -100,6 +106,14 @@ typedef enum {
 	TOKEN_LESS,
 	TOKEN_GREATER,
 
+	TOKEN_NUMBER,
+	TOKEN_UNSIGNED_NUMBER,
+	TOKEN_DECIMAL,
+	TOKEN_TIME,
+	TOKEN_BYTE_ORDER,
+	TOKEN_DISPLAY_FORMAT,
+	TOKEN_SIZE
+
 } token_type_t;
 
 %}
@@ -121,12 +135,23 @@ struct return TOKEN_STRUCT;
 _struct return TOKEN_PRIVATE_STRUCT;
 
 const return TOKEN_CONST;
+protocol return TOKEN_PROTOCOL;
 
 while return TOKEN_WHILE;
 
-switch return TOKEN_SWITCH;
 DynamicSwitch return TOKEN_DYNAMIC_SWITCH;
+switch return TOKEN_SWITCH;
+table return TOKEN_TABLE;
 case return TOKEN_CASE;
+default return TOKEN_DEFAULT;
+
+Number return TOKEN_NUMBER;
+UnsignedNumber return TOKEN_UNSIGNED_NUMBER;
+Decimal return TOKEN_DECIMAL;
+Time return TOKEN_TIME;
+ByteOrder return TOKEN_BYTE_ORDER;
+DisplayFormat return TOKEN_DISPLAY_FORMAT;
+Size return TOKEN_SIZE;
 
 "(" return TOKEN_LPAREN;
 ")" return TOKEN_RPAREN;
@@ -134,6 +159,9 @@ case return TOKEN_CASE;
 "]" return TOKEN_RBRACKET;
 "{" return TOKEN_LCURLY;
 "}" return TOKEN_RCURLY;
+
+and  return TOKEN_ANDAND;
+or   return TOKEN_OROR;
 
 "==" return TOKEN_EQUAL;
 "!=" return TOKEN_NOTEQUAL;
@@ -275,9 +303,9 @@ static const char *token_name(token_type_t tok) {
 	return buf;
 }
 
-static void next_token(void) {
-	token = yylex();
-}
+static void next_token(void) { token = yylex(); }
+
+static inline int is_token(token_type_t tok) { return (token == tok); }
 
 static void _strange(int line) {
 	fprintf(stdout, "?!?!? %s:%d got: %d (%s) @%s:%d\n", __FILE__, line, token, yytext, yyfilename, yylineno);
@@ -299,10 +327,25 @@ static void _accept(token_type_t tok, int line) {
 }
 #define accept(tok) _accept(tok, __LINE__)
 
+static int is_id(void) {
+	/* Some NPL files use keyword as ID (sucks...) */
+	return
+		is_token(TOKEN_PROTOCOL) ||
+		is_token(TOKEN_SIZE) ||
+		is_token(TOKEN_DEFAULT) ||
+		is_token(TOKEN_NUMBER) ||
+		is_token(TOKEN_DECIMAL) ||
+		is_token(TOKEN_TIME) ||
+		is_token(TOKEN_BYTE_ORDER) ||
+		is_token(TOKEN_OROR) || is_token(TOKEN_ANDAND) ||
+		is_token(TOKEN_STRUCT) || is_token(TOKEN_TABLE) ||
+		is_token(TOKEN_ID);
+}
+
 static char *_accept_id(int line) {
 	char *id;
 
-	if (token != TOKEN_ID) {
+	if (!is_id()) {
 		fprintf(stdout, "%s:%d got: %d (%s) expected %s @%s:%d\n", __FILE__, line, token, yytext, token_name(TOKEN_ID), yyfilename, yylineno);
 		abort();
 	}
@@ -412,75 +455,12 @@ static char *_accept_str(int line) {
 }
 #define accept_str() _accept_str(__LINE__)
 
-static inline int is_token(token_type_t tok) { return (token == tok); }
-
 static int is_token_accept(token_type_t tok) {
 	if (is_token(tok)) {
 		next_token();
 		return 1;
 	}
 	return 0;
-}
-
-/* Some NPL files use keyword as ID (sucks...) */
-static int is_keyword(const char *str) {
-	if (is_token(TOKEN_ID) && yytext)
-		return (strcasecmp(yytext, str) == 0);
-	return 0;
-}
-
-static int is_keyword_accept(const char *str) {
-	if (is_keyword(str)) {
-		next_token();
-		return 1;
-	}
-	return 0;
-}
-
-static int is_default(void) {
-	return is_keyword("default");
-}
-
-static void accept_default(void) {
-	if (!is_default())
-		nomatch();
-	next_token();
-}
-
-static int is_protocol(void) {
-	return is_keyword("protocol");
-}
-
-static void accept_protocol(void) {
-	if (!is_protocol())
-		nomatch();
-	next_token();
-}
-
-static int is_table(void) {
-	return is_keyword("table");
-}
-
-static void accept_table(void) {
-	if (!is_table())
-		nomatch();
-	next_token();
-}
-
-static int is_oror(void) {
-	return is_keyword("or");
-}
-
-static int is_oror_accept(void) {
-	if (is_oror()) {
-		next_token();
-		return 1;
-	}
-	return 0;
-}
-
-static int is_andand_accept(void) {
-	return is_keyword_accept("and");
 }
 
 static int is_params(void) { return is_token(TOKEN_LPAREN); }
@@ -510,7 +490,7 @@ static npl_expression_t g_e;
 static void
 parse_primary(npl_expression_t *expr)
 {
-	if (is_token(TOKEN_ID)) {
+	if (is_id()) {
 		expr->type = EXPRESSION_ID;
 		expr->id.id = accept_id();
 		return;
@@ -577,7 +557,7 @@ parse_expression1(npl_expression_t *expr)
 			expr->call.fn = fun;
 			expr->type = EXPRESSION_CALL;
 
-		} else if (is_token(TOKEN_DOLLAR) || is_token(TOKEN_LBRACKET)) { /* $arr[field1, field2, ...], arr[10] */
+		} else if (is_token(TOKEN_DOLLAR) || is_token(TOKEN_LBRACKET)) { /* arr$[field1, field2, ...], arr[10] */
 			npl_expression_t *base = xdup(npl_expression_t, expr);
 			npl_expression_t *idx;
 			int aa;
@@ -843,7 +823,7 @@ parse_expression11(npl_expression_t *expr)
 again:
 	op = 
 		(is_token_accept(TOKEN_LOGIC_AND)) ? OP2_LOGIC_AND :
-		(is_andand_accept()) ? OP2_LOGIC_AND : 
+		(is_token_accept(TOKEN_ANDAND)) ? OP2_LOGIC_AND : 
 		OP2_INVALID;
 
 	if (op != OP2_INVALID) {
@@ -869,7 +849,7 @@ parse_expression12(npl_expression_t *expr)
 again:
 	op = 
 		(is_token_accept(TOKEN_LOGIC_OR)) ? OP2_LOGIC_OR :
-		(is_oror_accept()) ? OP2_LOGIC_OR : 
+		(is_token_accept(TOKEN_OROR)) ? OP2_LOGIC_OR : 
 		OP2_INVALID;
 
 	if (op != OP2_INVALID) {
@@ -986,15 +966,14 @@ parse_switch_body(npl_switch_t *sw)
 		parse_expression(&cur->e);
 		accept(TOKEN_COLON);
 
-		if (!is_token(TOKEN_CASE) && !is_default()) {
+		if (!is_token(TOKEN_CASE) && !is_token(TOKEN_DEFAULT)) {
 			cur->st = xparse_statement();
 			is_token_accept(TOKEN_SEMICOLON);
 		}
 	}
 	*ptr = NULL;
 
-	if (is_default()) {
-		accept_default();
+	if (is_token_accept(TOKEN_DEFAULT)) {
 		accept(TOKEN_COLON);
 		sw->default_st = xparse_statement();
 	}
@@ -1034,10 +1013,10 @@ static void parse_table(npl_table_t *);
 static int is_statement(void) {
 	return 
 		is_token(TOKEN_WHILE) ||
-		is_table() || 
+		is_token(TOKEN_TABLE) || 
 		is_token(TOKEN_STRUCT) || is_token(TOKEN_PRIVATE_STRUCT) ||
 		is_token(TOKEN_SWITCH) || is_token(TOKEN_DYNAMIC_SWITCH) ||
-		is_token(TOKEN_ID) || is_attribute() ||
+		is_id() || is_attribute() ||
 #if 1
 		is_token(TOKEN_SEMICOLON) ||
 #endif
@@ -1045,6 +1024,7 @@ static int is_statement(void) {
 		;
 }
 
+/* Statements = { Statement } ; */
 static struct _npl_statements *
 xparse_statements(void)
 {
@@ -1069,7 +1049,7 @@ parse_while(npl_statement_t *st)
 {
 	accept(TOKEN_WHILE);
 
-	if (is_token(TOKEN_ID))
+	if (is_id())
 		st->w.id = accept_id();
 
 	accept(TOKEN_LBRACKET);
@@ -1082,6 +1062,9 @@ parse_while(npl_statement_t *st)
 	is_token_accept(TOKEN_SEMICOLON);
 }
 
+static int is_formatting(void) { return is_token(TOKEN_ASSIGN); }
+
+/* Formatting = "=", Expression ; */
 static npl_expression_t *
 xparse_formatting(void)
 {
@@ -1111,7 +1094,7 @@ parse_statement(npl_statement_t *st)
 		return;
 	}
 
-	if (is_table()) {
+	if (is_token(TOKEN_TABLE)) {
 		parse_table(&st->t.data);
 		st->type = STATEMENT_TABLE;
 		return;
@@ -1163,7 +1146,7 @@ parse_statement(npl_statement_t *st)
 		accept(TOKEN_RBRACKET);
 	}
 
-	if (is_token(TOKEN_ASSIGN))
+	if (is_formatting())
 		st->f.format = xparse_formatting();
 
 	if (is_token_accept(TOKEN_LCURLY)) {
@@ -1176,16 +1159,17 @@ parse_statement(npl_statement_t *st)
 	accept(TOKEN_SEMICOLON);
 }
 
+/* Protocol = "protocol", ID, [Params], [Formatting], "{", Statements, "}", ";" ; */
 static void
 parse_protocol(npl_protocol_t *p)
 {
-	accept_protocol();
+	accept(TOKEN_PROTOCOL);
 	p->id = accept_id();
 
 	if (is_params())
 		parse_params(&p->params);
 
-	if (is_token(TOKEN_ASSIGN))
+	if (is_formatting())
 		p->format = xparse_formatting();
 
 	accept(TOKEN_LCURLY);
@@ -1204,7 +1188,7 @@ parse_struct(npl_struct_t *s, int statement)
 	else
 		nomatch();
 
-	if (is_token(TOKEN_ID))
+	if (is_id())
 		s->id = accept_id();
 
 	if (is_params())
@@ -1217,7 +1201,7 @@ parse_struct(npl_struct_t *s, int statement)
 		}
 	}
 
-	if (is_token(TOKEN_ASSIGN))
+	if (is_formatting())
 		s->format = xparse_formatting();
 
 	accept(TOKEN_LCURLY);
@@ -1229,11 +1213,11 @@ parse_struct(npl_struct_t *s, int statement)
 /* Table = "table", ID, [Params], "{", "switch", [ "(", Expr, ")" ], {TableCase}, [DefaultCase], "}", ";" ;
 
    DefaultCase = "default", ":", Expression", ";" ;
-  */
+ */
 static void
 parse_table(npl_table_t *t)
 {
-	accept_table();
+	accept(TOKEN_TABLE);
 	t->id = accept_id();
 	if (is_params())
 		parse_params(&t->params);
@@ -1272,8 +1256,7 @@ parse_table(npl_table_t *t)
 		}
 		*ptr = NULL;
 
-		if (is_default()) {
-			accept_default();
+		if (is_token_accept(TOKEN_DEFAULT)) {
 			accept(TOKEN_COLON);
 			t->default_expr = xparse_expression();
 			accept(TOKEN_SEMICOLON);
@@ -1289,10 +1272,10 @@ static int
 is_type(void)
 {
 	return
-		is_keyword("Decimal") ||
-		is_keyword("Number") ||
-		is_keyword("Time") ||
-		is_keyword("UnsignedNumber");
+		is_token(TOKEN_DECIMAL) ||
+		is_token(TOKEN_NUMBER) ||
+		is_token(TOKEN_TIME) ||
+		is_token(TOKEN_UNSIGNED_NUMBER);
 }
 
 /* Type = BasicType, ID, [Params], "{", {TypeAttr}, "}" ;
@@ -1306,32 +1289,31 @@ is_type(void)
 static void
 parse_type(npl_type_t *t)
 {
-	if (is_keyword_accept("Decimal"))
+	if (is_token_accept(TOKEN_DECIMAL))
 		t->type = FIELD_DECIMAL;
-	else if (is_keyword_accept("Number"))
+	else if (is_token_accept(TOKEN_NUMBER))
 		t->type = FIELD_NUMBER;
-	else if (is_keyword_accept("Time"))
+	else if (is_token_accept(TOKEN_TIME))
 		t->type = FIELD_TIME;
-	else if (is_keyword_accept("UnsignedNumber"))
+	else if (is_token_accept(TOKEN_UNSIGNED_NUMBER))
 		t->type = FIELD_UNSIGNED_NUMBER;
 	else
 		nomatch();
 
 	t->name = accept_id();
-
+	/* printf("%s: %s\n", yyfilename, t->name); */
 	if (is_params())
 		parse_params(&t->params);
-
 	accept(TOKEN_LCURLY);
 
 	while (!is_token(TOKEN_RCURLY)) {
 		npl_expression_t **ptr;
 
-		if (is_keyword_accept("ByteOrder"))
+		if (is_token_accept(TOKEN_BYTE_ORDER))
 			ptr = &t->byte_order;
-		else if (is_keyword_accept("DisplayFormat"))
+		else if (is_token_accept(TOKEN_DISPLAY_FORMAT))
 			ptr = &t->display_format;
-		else if (is_keyword_accept("Size"))
+		else if (is_token_accept(TOKEN_SIZE))
 			ptr = &t->size;
 		else
 			nomatch();
@@ -1381,7 +1363,7 @@ parse_decl(npl_decl_t *d)
 		d->type = DECL_STRUCT;
 		parse_struct(&d->s.data, 0);
 
-	} else if (is_table()) {
+	} else if (is_token(TOKEN_TABLE)) {
 		d->type = DECL_TABLE;
 		parse_table(&d->t.data);
 
@@ -1389,7 +1371,7 @@ parse_decl(npl_decl_t *d)
 		d->type = DECL_CONST;
 		parse_const(&d->c.data);
 
-	} else if (is_protocol()) {
+	} else if (is_token(TOKEN_PROTOCOL)) {
 		d->type = DECL_PROTOCOL;
 		parse_protocol(&d->p.data);
 
@@ -1406,7 +1388,7 @@ parse_decl(npl_decl_t *d)
 		nomatch();
 }
 
-/* NPL = { DECL } ; */
+/* NPL = { Declaration } ; */
 static void
 parse_npl(npl_code_t *code)
 {
