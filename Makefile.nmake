@@ -327,7 +327,7 @@ rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) epan ui image\rawshark
 #      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
 # Linking with setargv.obj enables "wildcard expansion" of command-line arguments
 capinfos.obj	:
-	$(CC) $(CFLAGS) -DWS_BUILD_DLL -Fd.\ -c capinfos.c
+	$(CC) $(CFLAGS) -Fd.\ -c capinfos.c
 capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
@@ -340,7 +340,7 @@ capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) wsutil\libwsutil.lib w
 # XXX: This makefile does not properly handle doing a 'nmake ... editcap.exe' directly since some of the .objs
 #      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
 editcap.obj	:
-	$(CC) $(CFLAGS) -DWS_BUILD_DLL -Fd.\ -c editcap.c
+	$(CC) $(CFLAGS) -Fd.\ -c editcap.c
 editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
