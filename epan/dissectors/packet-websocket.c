@@ -126,7 +126,7 @@ tvb_unmasked(tvbuff_t *tvb, const guint offset, guint payload_length, const guin
   const guint8 *data_mask;
   guint unmasked_length = payload_length > MAX_UNMASKED_LEN ? MAX_UNMASKED_LEN : payload_length;
 
-  data_unmask = g_malloc(unmasked_length);
+  data_unmask = (gchar *)g_malloc(unmasked_length);
   data_mask = tvb_get_ptr(tvb, offset, unmasked_length);
   /* Unmasked(XOR) Data... */
   for(i=0; i < unmasked_length; i++){

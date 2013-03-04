@@ -1287,7 +1287,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
 static sccp_assoc_info_t *
 new_assoc(guint32 calling, guint32 called)
 {
-  sccp_assoc_info_t *a = se_alloc0(sizeof(sccp_assoc_info_t));
+  sccp_assoc_info_t *a = se_new0(sccp_assoc_info_t);
 
   a->id            = next_assoc_id++;
   a->calling_dpc   = calling;
@@ -1336,7 +1336,7 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
       {0, NULL}
     };
 
-    if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! PINFO_FD_VISITED(pinfo) ) {
+    if (! ( assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs,bw_key) ) && ! PINFO_FD_VISITED(pinfo) ) {
       assoc = new_assoc(opck, dpck);
       se_tree_insert32_array(assocs, bw_key, assoc);
       assoc->has_bw_key = TRUE;
@@ -1355,11 +1355,11 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
       {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
     };
 
-    if ( ( assoc = se_tree_lookup32_array(assocs, bw_key) ) ) {
+    if ( ( assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs, bw_key) ) ) {
       goto got_assoc;
     }
 
-    if ( (assoc = se_tree_lookup32_array(assocs, fw_key) ) ) {
+    if ( (assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs, fw_key) ) ) {
       goto got_assoc;
     }
 
@@ -1389,11 +1389,11 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
     emem_tree_key_t fw_key[] = {
       {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
     };
-    if ( ( assoc = se_tree_lookup32_array(assocs, bw_key) ) ) {
+    if ( ( assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs, bw_key) ) ) {
       goto got_assoc_rlc;
     }
 
-    if ( (assoc = se_tree_lookup32_array(assocs, fw_key) ) ) {
+    if ( (assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs, fw_key) ) ) {
       goto got_assoc_rlc;
     }
 
@@ -1420,7 +1420,7 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
       {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
     };
 
-    assoc = se_tree_lookup32_array(assocs, key);
+    assoc = (sccp_assoc_info_t *)se_tree_lookup32_array(assocs, key);
 
     if (assoc) {
       if (assoc->calling_dpc == dpck) {
@@ -1545,7 +1545,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *digits_tree;
   char *gt_digits;
 
-  gt_digits = ep_alloc0(GT_MAX_SIGNALS+1);
+  gt_digits = (char *)ep_alloc0(GT_MAX_SIGNALS+1);
 
   while (offset < length) {
     odd_signal = tvb_get_guint8(tvb, offset) & GT_ODD_SIGNAL_MASK;
@@ -2662,7 +2662,7 @@ dissect_sccp_optional_parameters(tvbuff_t *tvb, packet_info *pinfo,
 static sccp_msg_info_t *
 new_ud_msg(packet_info *pinfo, guint32 msg_type _U_)
 {
-  sccp_msg_info_t *m = ep_alloc0(sizeof(sccp_msg_info_t));
+  sccp_msg_info_t *m = ep_new0(sccp_msg_info_t);
   m->framenum = PINFO_FD_NUM(pinfo);
   m->data.ud.calling_gt = NULL;
   m->data.ud.called_gt = NULL;
@@ -3415,7 +3415,7 @@ static struct _sccp_ul {
 static void
 sccp_users_update_cb(void *r, const char **err _U_)
 {
-  sccp_user_t *u = r;
+  sccp_user_t *u = (sccp_user_t *)r;
   struct _sccp_ul *c;
 
   for (c=user_list; c->handlep; c++) {
@@ -3433,8 +3433,8 @@ sccp_users_update_cb(void *r, const char **err _U_)
 static void *
 sccp_users_copy_cb(void *n, const void *o, size_t siz _U_)
 {
-  const sccp_user_t *u = o;
-  sccp_user_t *un = n;
+  const sccp_user_t *u = (const sccp_user_t *)o;
+  sccp_user_t *un = (sccp_user_t *)n;
 
   un->ni        = u->ni;
   un->user      = u->user;
@@ -3452,7 +3452,7 @@ sccp_users_copy_cb(void *n, const void *o, size_t siz _U_)
 static void
 sccp_users_free_cb(void *r)
 {
-  sccp_user_t *u = r;
+  sccp_user_t *u = (sccp_user_t *)r;
   if (u->called_pc) g_free(u->called_pc);
   if (u->called_ssn) g_free(u->called_ssn);
 }

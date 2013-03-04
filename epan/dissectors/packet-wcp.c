@@ -450,9 +450,9 @@ wcp_window_t *get_wcp_window_ptr( packet_info *pinfo){
 		circuit = circuit_new( pinfo->ctype, pinfo->circuit_id,
 		    pinfo->fd->num);
 	}
-	wcp_circuit_data = circuit_get_proto_data(circuit, proto_wcp);
+	wcp_circuit_data = (wcp_circuit_data_t *)circuit_get_proto_data(circuit, proto_wcp);
 	if ( !wcp_circuit_data){
-		wcp_circuit_data = se_alloc(sizeof(wcp_circuit_data_t));
+		wcp_circuit_data = se_new(wcp_circuit_data_t);
 		wcp_circuit_data->recv.buf_cur = wcp_circuit_data->recv.buffer;
 		wcp_circuit_data->send.buf_cur = wcp_circuit_data->send.buffer;
 		circuit_add_proto_data(circuit, proto_wcp, wcp_circuit_data);
@@ -495,7 +495,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 		return NULL;
 	}
 
-	src = tvb_memcpy(src_tvb, src_buf, offset, cnt - offset);
+	src = (guint8 *)tvb_memcpy(src_tvb, src_buf, offset, cnt - offset);
 	dst = buf_ptr->buf_cur;
 	len = 0;
 	i = -1;
@@ -573,7 +573,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 
 	if ( pinfo->fd->flags.visited){	/* if not first pass */
 					/* get uncompressed data */
-		pdata_ptr = p_get_proto_data( pinfo->fd, proto_wcp);
+		pdata_ptr = (wcp_pdata_t *)p_get_proto_data( pinfo->fd, proto_wcp);
 
 		if ( !pdata_ptr) {	/* exit if no data */
 			REPORT_DISSECTOR_BUG("Can't find uncompressed data");
@@ -583,7 +583,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	} else {
 
 	/* save the new data as per packet data */
-		pdata_ptr = se_alloc(sizeof(wcp_pdata_t));
+		pdata_ptr = se_new(wcp_pdata_t);
 		memcpy( &pdata_ptr->buffer, buf_ptr->buf_cur,  len);
 		pdata_ptr->len = len;
 
