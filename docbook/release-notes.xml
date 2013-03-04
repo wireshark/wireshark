@@ -108,14 +108,13 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-14.html">wnpa-sec-2013-14</ulink>
           </para>
           <para>
-	    .
-            <!-- Fixed in trunk: r? -->
-            <!-- Fixed in trunk-1.8: r?  -->
-            <!-- Fixed in trunk-1.6: r? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=X">Bug
-            X</ulink>)
+	    The MPLS Echo dissector could go into an infinite loop. Discovered by Laurent Butti.
+            <!-- Fixed in trunk: r46391 -->
+            <!-- Fixed in trunk-1.8: r48074 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8039">Bug
+            8039</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
+          <para>Versions affected: 1.8.0 to 1.8.5.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
           </para>

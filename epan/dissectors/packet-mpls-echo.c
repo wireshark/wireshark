@@ -937,20 +937,24 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
         proto_tree_add_item(tree, hf_mpls_echo_tlv_dd_map_subtlv_len, tvb,
                             offset + 14, 2, ENC_BIG_ENDIAN);
 
-	/* Get the Sub-tlv Type and Length */
-	subtlv_type = tvb_get_ntohs(tvb, offset + 16);
-	subtlv_length = tvb_get_ntohs(tvb, offset + 18);
+	rem    -= 16;
+	offset += 16;
 
-	rem -= 20;
-	offset += 20;
-	if (rem < subtlv_length){
-		proto_tree_add_text(tree, tvb, offset, rem,
-			"Error processing TLV: Sub-tlv length is %d and reminder is %u",
-			subtlv_length, rem);
-		return;
-	}
+	while (rem > 4) {
+		/* Get the Sub-tlv Type and Length */
 
-	while(rem > 4) {
+		subtlv_type   = tvb_get_ntohs(tvb, offset);
+		subtlv_length = tvb_get_ntohs(tvb, offset+2);
+		rem -= 4;
+		offset += 4;
+
+		if (rem < subtlv_length){
+			proto_tree_add_text(tree, tvb, offset, rem,
+				"Error processing TLV: Sub-tlv length is %d and reminder is %u",
+				subtlv_length, rem);
+			return;
+		}
+
 
 		switch(subtlv_type) {
 		case TLV_FEC_MULTIPATH_DATA:
