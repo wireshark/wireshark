@@ -2083,7 +2083,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_widget_set_name (decryption_mode_lb, "decryption_mode_lb");
     gtk_widget_show (decryption_mode_lb);
     ws_gtk_grid_attach_extended (GTK_GRID (decryption_mode_grid), decryption_mode_lb, 1,
-                      2, 0, 1, (GtkAttachOptions) (GTK_FILL),
+                      0, 1, 1, (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_misc_set_alignment (GTK_MISC (decryption_mode_lb), 0, 0.5f);
 
@@ -2092,7 +2092,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_widget_set_name (decryption_mode_cb, "decryption_mode_cb");
     gtk_widget_show (decryption_mode_cb);
     ws_gtk_grid_attach_extended (GTK_GRID (decryption_mode_grid), decryption_mode_cb, 0,
-                      1, 0, 1, (GtkAttachOptions) (0), (GtkAttachOptions) (0),
+                      0, 1, 1, (GtkAttachOptions) (0), (GtkAttachOptions) (0),
                       0, 0);
     gtk_widget_set_size_request (decryption_mode_cb, 83, -1);
 
