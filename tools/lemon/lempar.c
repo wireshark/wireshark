@@ -23,9 +23,8 @@
 */
 /* First off, code is included that follows the "include" declaration
 ** in the input grammar file. */
-%%
 #include <stdio.h>
-#include <string.h>
+%%
 /* Next is all token values, in a form suitable for use by makeheaders.
 ** This section will be null unless lemon is run with the -m switch.
 */
@@ -83,7 +82,19 @@
 
 /* The yyzerominor constant is used to initialize instances of
 ** YYMINORTYPE objects to zero. */
-static const YYMINORTYPE yyzerominor;
+static const YYMINORTYPE yyzerominor = { 0 };
+
+/* Define the yytestcase() macro to be a no-op if is not already defined
+** otherwise.
+**
+** Applications can choose to define yytestcase() in the %include section
+** to a macro that can assist in verifying code coverage.  For production
+** code the yytestcase() macro should be turned off.  But it is useful
+** for testing.
+*/
+#ifndef yytestcase
+# define yytestcase(X)
+#endif
 
 /* Next are the tables used to determine what action to take based on the
 ** current state and lookahead token.  These tables are used to implement
@@ -327,15 +338,14 @@ static void yy_destructor(YYCODETYPE yymajor, YYMINORTYPE *yypminor){
 */
 static int yy_pop_parser_stack(yyParser *pParser){
   YYCODETYPE yymajor;
-  yyStackEntry *yytos;
+  yyStackEntry *yytos = &pParser->yystack[pParser->yyidx];;
 
   if( pParser->yyidx<0 ) return 0;
-  yytos = &pParser->yystack[pParser->yyidx];
 #ifndef NDEBUG
   if( yyTraceFILE ){
     fprintf(yyTraceFILE,"%sPopping %s\n",
       yyTracePrompt,
-     yyTokenName[yytos->major]);
+      yyTokenName[yytos->major]);
   }
 #endif
   yymajor = yytos->major;
@@ -357,8 +367,8 @@ static int yy_pop_parser_stack(yyParser *pParser){
 ** </ul>
 */
 void ParseFree(
-  void *p,                 /* The parser to be deleted */
-  void (*freeProc)(void*)  /* Function used to reclaim memory */
+  void *p,                    /* The parser to be deleted */
+  void (*freeProc)(void*)     /* Function used to reclaim memory */
 ){
   yyParser *pParser = (yyParser*)p;
   if( pParser==0 ) return;
@@ -366,7 +376,7 @@ void ParseFree(
 #if YYSTACKDEPTH<=0
   free(pParser->yystack);
 #endif
-  (*freeProc)(pParser);
+  (*freeProc)((void*)pParser);
 }
 
 /*
@@ -402,7 +412,7 @@ static int yy_find_shift_action(
   if( i<0 || i>=YY_SZ_ACTTAB || yy_lookahead[i]!=iLookAhead ){
     if( iLookAhead>0 ){
 #ifdef YYFALLBACK
-      int iFallback;            /* Fallback token */
+      YYCODETYPE iFallback;            /* Fallback token */
       if( iLookAhead<sizeof(yyFallback)/sizeof(yyFallback[0])
              && (iFallback = yyFallback[iLookAhead])!=0 ){
 #ifndef NDEBUG
@@ -415,18 +425,18 @@ static int yy_find_shift_action(
       }
 #endif
 #ifdef YYWILDCARD
-	  {
-      int j = i - iLookAhead + YYWILDCARD;
-      if( j>=0 && j<YY_SZ_ACTTAB && yy_lookahead[j]==YYWILDCARD ){
+      {
+        int j = i - iLookAhead + YYWILDCARD;
+        if( j>=0 && j<YY_SZ_ACTTAB && yy_lookahead[j]==YYWILDCARD ){
 #ifndef NDEBUG
-        if( yyTraceFILE ){
-          fprintf(yyTraceFILE, "%sWILDCARD %s => %s\n",
-             yyTracePrompt, yyTokenName[iLookAhead], yyTokenName[YYWILDCARD]);
-        }
+          if( yyTraceFILE ){
+            fprintf(yyTraceFILE, "%sWILDCARD %s => %s\n",
+               yyTracePrompt, yyTokenName[iLookAhead], yyTokenName[YYWILDCARD]);
+          }
 #endif /* NDEBUG */
-        return yy_action[j];
+          return yy_action[j];
+        }
       }
-	  }
 #endif /* YYWILDCARD */
     }
     return yy_default[stateno];
@@ -704,7 +714,7 @@ void Parse(
   int yyact;            /* The parser action. */
   int yyendofinput;     /* True if we are at the end of input */
 #ifdef YYERRORSYMBOL
-   int yyerrorhit = 0;   /* True if yymajor has invoked an error */
+  int yyerrorhit = 0;   /* True if yymajor has invoked an error */
 #endif
   yyParser *yypParser;  /* The parser */
 
@@ -715,7 +725,7 @@ void Parse(
     if( yypParser->yystksz <=0 ){
       /*memset(&yyminorunion, 0, sizeof(yyminorunion));*/
       yyminorunion = yyzerominor;
-       yyStackOverflow(yypParser, &yyminorunion);
+      yyStackOverflow(yypParser, &yyminorunion);
       return;
     }
 #endif
@@ -737,10 +747,10 @@ void Parse(
   do{
     yyact = yy_find_shift_action(yypParser,(YYCODETYPE)yymajor);
     if( yyact<YYNSTATE ){
-	  assert( !yyendofinput );  /* Impossible to shift the $ token */
+      assert( !yyendofinput );  /* Impossible to shift the $ token */
       yy_shift(yypParser,yyact,yymajor,&yyminorunion);
       yypParser->yyerrcnt--;
-	  yymajor = YYNOCODE;
+      yymajor = YYNOCODE;
     }else if( yyact < YYNSTATE + YYNRULE ){
       yy_reduce(yypParser,yyact-YYNSTATE);
     }else{
@@ -793,7 +803,7 @@ void Parse(
           (yyact = yy_find_reduce_action(
                         yypParser->yystack[yypParser->yyidx].stateno,
                         YYERRORSYMBOL)) >= YYNSTATE
-		  ){
+          ){
           yy_pop_parser_stack(yypParser);
         }
         if( yypParser->yyidx < 0 || yymajor==0 ){
