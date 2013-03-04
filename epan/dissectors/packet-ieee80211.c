@@ -3255,6 +3255,8 @@ static int hf_ieee80211_tag_ap_channel_report_channel_list = -1;
 
 static int hf_ieee80211_tag_secondary_channel_offset = -1;
 
+static int hf_ieee80211_tag_bss_ap_avg_access_delay = -1;
+
 static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask = -1;
 static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up0 = -1;
 static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up1 = -1;
@@ -8785,6 +8787,25 @@ dissect_secondary_channel_offset_ie(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
+dissect_bss_avg_access_delay_ie(tvbuff_t *tvb, packet_info *pinfo,
+                                    proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len)
+{
+
+  if (tag_len != 1) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "BSS Average Access Delay length %u wrong, must be = 1", tag_len);
+    return offset;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_bss_ap_avg_access_delay, tvb,
+                      offset, 1, ENC_LITTLE_ENDIAN);
+
+  offset += 1;
+
+  return offset;
+}
+
+static int
 dissect_bss_available_admission_capacity_ie(tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len)
 {
@@ -10954,6 +10975,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_SECONDARY_CHANNEL_OFFSET:
       dissect_secondary_channel_offset_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
+      break;
+
+    case TAG_BSS_AVG_ACCESS_DELAY: /* BSS Average Access Delay element (63) */
+      dissect_bss_avg_access_delay_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
       break;
 
     case TAG_BSS_AVB_ADM_CAPACITY:
@@ -16464,6 +16489,11 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tag_secondary_channel_offset,
      {"Secondary Channel Offset", "wlan_mgt.secchanoffset",
       FT_UINT8, BASE_HEX, VALS(ieee80211_tag_secondary_channel_offset_flags), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_bss_ap_avg_access_delay,
+     {"AP Average Access Delay", "wlan_mgt.bss_ap_avg_access_delay",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask,
