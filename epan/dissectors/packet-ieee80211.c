@@ -7561,7 +7561,6 @@ dissect_vendor_ie_atheros(proto_item *item _U_, proto_tree *ietree,
   guint8      subtype;
   guint8      version;
   proto_item *cap_item;
-  proto_item *ti;
 
   if (tag_len <= 3) {
         expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 6", tag_len+3); /* Add length of OUI to tag_length */
@@ -7652,8 +7651,7 @@ dissect_vendor_ie_atheros(proto_item *item _U_, proto_tree *ietree,
     }
   }
   if (tag_len > 0) {
-   ti = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_data, tvb, offset, tag_len, ENC_NA);
-   expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)");
+    proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_data, tvb, offset, tag_len, ENC_NA);
   }
 }
 
