@@ -3259,6 +3259,8 @@ static int hf_ieee80211_tag_bss_ap_avg_access_delay = -1;
 
 static int hf_ieee80211_tag_antenna_id = -1;
 
+static int hf_ieee80211_tag_rsni = -1;
+
 static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask = -1;
 static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up0 = -1;
 static int hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up1 = -1;
@@ -7009,6 +7011,15 @@ rsn_gmcs_base_custom(gchar *result, guint32 gmcs)
              val_to_str(gmcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d"));
 }
 
+static void
+rsni_base_custom(gchar *result, guint32 rsni)
+{
+   double temp_double;
+
+   temp_double = (double)rsni;
+   g_snprintf(result, ITEM_LABEL_LENGTH, "%f dB", (temp_double / 2));
+}
+
 /* WPA / WME */
 static const value_string ieee802111_wfa_ie_type_vals[] = {
   { 1, "WPA Information Element" },
@@ -8819,6 +8830,25 @@ dissect_antenna_ie(tvbuff_t *tvb, packet_info *pinfo,
   }
 
   proto_tree_add_item(tree, hf_ieee80211_tag_antenna_id, tvb,
+                      offset, 1, ENC_LITTLE_ENDIAN);
+
+  offset += 1;
+
+  return offset;
+}
+
+static int
+dissect_rsni_ie(tvbuff_t *tvb, packet_info *pinfo,
+                                    proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len)
+{
+
+  if (tag_len != 1) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "RSNI length %u wrong, must be = 1", tag_len);
+    return offset;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_rsni, tvb,
                       offset, 1, ENC_LITTLE_ENDIAN);
 
   offset += 1;
@@ -11004,6 +11034,10 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
     case TAG_ANTENNA: /* Antenna element (64) */
       dissect_antenna_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
+      break;
+
+    case TAG_RSNI: /* RSNI element (65) */
+      dissect_rsni_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
       break;
 
     case TAG_BSS_AVB_ADM_CAPACITY:
@@ -16524,6 +16558,11 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tag_antenna_id,
      {"Antenna ID", "wlan_mgt.antenna.id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsni,
+     {"RSNI", "wlan_mgt.rsni",
+      FT_UINT8, BASE_CUSTOM, rsni_base_custom, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask,
