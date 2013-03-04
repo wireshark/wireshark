@@ -2323,6 +2323,10 @@ protocol or field labels to the proto_tree:
         little_endian);
 
     proto_item *
+    proto_tree_add_bitmask_len(tree, tvb, start, len, header, ett, fields,
+        little_endian);
+
+    proto_item *
     proto_tree_add_bitmask_text(tree, tvb, offset, len, name, fallback,
         ett, fields, little_endian, flags);
 
@@ -2707,22 +2711,20 @@ proto_tree_add_split_bits_crumb()
 ---------------------------------
 Helper function for the above, to add text for each crumb as it is encountered.
 
-proto_tree_add_bitmask() and proto_tree_add_bitmask_text()
-----------------------------------------------------------
-This function provides an easy to use and convenient helper function
-to manage many types of common bitmasks that occur in protocols.
+proto_tree_add_bitmask() et al.
+-------------------------------
+These functions provide easy to use and convenient dissection of many types of common
+bitmasks into individual fields.
 
-This function will dissect a 1/2/3/4 byte large bitmask into its individual
-fields.
 header is an integer type and must be of type FT_[U]INT{8|16|24|32} and
-represents the entire width of the bitmask.
+represents the entire dissectable width of the bitmask.
 
 'header' and 'ett' are the hf fields and ett field respectively to create an
-expansion that covers the 1-4 bytes of the bitmask.
+expansion that covers the bytes of the bitmask.
 
 'fields' is a NULL terminated array of pointers to hf fields representing
 the individual subfields of the bitmask. These fields must either be integers
-of the same byte width as 'header' or of the type FT_BOOLEAN.
+(usually of the same byte width as 'header') or of the type FT_BOOLEAN.
 Each of the entries in 'fields' will be dissected as an item under the
 'header' expansion and also IF the field is a boolean and IF it is set to 1,
 then the name of that boolean field will be printed on the 'header' expansion
@@ -2783,6 +2785,29 @@ There are the following flags defined:
 The proto_tree_add_bitmask() behavior can be obtained by providing
 both 'name' and 'fallback' arguments as NULL, and a flags of
 (BMT_NO_FALSE|BMT_NO_TFS).
+
+The proto_tree_add_bitmask_len() function is intended for protocols where
+bitmask length is permitted to vary, so a length is specified explicitly
+along with the bitmask value. USB Video "bmControl" and "bControlSize" 
+fields follow this pattern. The primary intent of this is "forward 
+compatibility," enabling an interpreter coded for version M of a structure
+to comprehend fields in version N of the structure, where N > M and
+bControlSize increases from version M to version N.
+
+proto_tree_add_bitmask_len() is an extended version of proto_tree_add_bitmask()
+that uses an explicitly specified (rather than inferred) length to control
+dissection. Because of this, it may encounter two cases that 
+proto_tree_add_bitmask() and proto_tree_add_bitmask_text() may not:
+- A length that exceeds that of the 'header' and bitmask subfields.
+  In this case the least-significant bytes of the bitmask are dissected. 
+  An expert warning is generated in this case, because the dissection code
+  likely needs to be updated for a new revision of the protocol.
+- A length that is shorter than that of the 'header' and bitmask subfields.
+  In this case, subfields whose data is fully present are dissected,
+  and other subfields are not. No warning is generated in this case,
+  because the dissection code is likely for a later revision of the protocol
+  than the packet it was called to interpret.
+  
 
 PROTO_ITEM_SET_GENERATED()
 --------------------------

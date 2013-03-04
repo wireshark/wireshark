@@ -7235,6 +7235,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			    gboolean first)
 {
 	guint32            value = 0;
+	guint32            available_bits = 0;
 	guint32            tmpval;
 	proto_tree        *tree  = NULL;
 	header_field_info *hf;
@@ -7243,18 +7244,22 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 	switch (len) {
 		case 1:
 			value = tvb_get_guint8(tvb, offset);
+			available_bits = 0xFF;
 			break;
 		case 2:
 			value = encoding ? tvb_get_letohs(tvb, offset) :
 			tvb_get_ntohs(tvb, offset);
+			available_bits = 0xFFFF;
 			break;
 		case 3:
 			value = encoding ? tvb_get_letoh24(tvb, offset) :
 			tvb_get_ntoh24(tvb, offset);
+			available_bits = 0xFFFFFF;
 			break;
 		case 4:
 			value = encoding ? tvb_get_letohl(tvb, offset) :
 			tvb_get_ntohl(tvb, offset);
+			available_bits = 0xFFFFFFFF;
 			break;
 		default:
 			g_assert_not_reached();
@@ -7262,13 +7267,22 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 
 	tree = proto_item_add_subtree(item, ett);
 	while (*fields) {
+		guint32 present_bits;
+		hf = proto_registrar_get_nth(**fields);
+		DISSECTOR_ASSERT(hf->bitmask != 0);
+
+		/* Skip fields that aren't fully present */
+		present_bits = available_bits & hf->bitmask;
+		if (present_bits != hf->bitmask) {
+			fields++;
+			continue;
+		}
+
 		proto_tree_add_item(tree, **fields, tvb, offset, len, encoding);
 		if (flags & BMT_NO_APPEND) {
 			fields++;
 			continue;
 		}
-		hf = proto_registrar_get_nth(**fields);
-		DISSECTOR_ASSERT(hf->bitmask != 0);
 		tmpval = (value & hf->bitmask) >> hf->bitshift;
 
 		switch (hf->type) {
@@ -7280,8 +7294,6 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 		case FT_UINT24:
 		case FT_INT32:
 		case FT_UINT32:
-			DISSECTOR_ASSERT(len == ftype_length(hf->type));
-
 			if (hf->display == BASE_CUSTOM) {
 				gchar lbl[ITEM_LABEL_LENGTH];
 				custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hf->strings;
@@ -7321,8 +7333,6 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 
 			break;
 		case FT_BOOLEAN:
-			DISSECTOR_ASSERT(len * 8 == hf->display);
-
 			if (hf->strings && !(flags & BMT_NO_TFS)) {
 				/* If we have true/false strings, emit full - otherwise messages
 				   might look weird */
@@ -7388,6 +7398,65 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 		item = proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, encoding);
 		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, encoding,
 					    BMT_NO_INT|BMT_NO_TFS, FALSE);
+	}
+
+	return item;
+}
+
+/* The same as proto_tree_add_bitmask(), but using a caller-supplied length.
+ * This is intended to support bitmask fields whose lengths can vary, perhaps
+ * as the underlying standard evolves over time.
+ * With this API there is the possibility of being called to display more or
+ * less data than the dissector was coded to support.
+ * In such cases, it is assumed that bitmasks are extended on the MSb end.
+ * Thus when presented with "too much" or "too little" data, MSbits will be
+ * ignored or MSfields sacrificed.
+ *
+ * Only fields for which all defined bits are available are displayed.
+ */
+proto_item *
+proto_tree_add_bitmask_len(proto_tree *parent_tree, tvbuff_t *tvb,
+		       const guint offset,  const guint len, const int hf_hdr,
+		       const gint ett, const int **fields,
+		       const guint encoding)
+{
+	proto_item        *item = NULL;
+	header_field_info *hf;
+
+	hf = proto_registrar_get_nth(hf_hdr);
+	DISSECTOR_ASSERT(IS_FT_INT(hf->type) || IS_FT_UINT(hf->type));
+
+	if (parent_tree) {
+		guint   decodable_len;
+		guint   decodable_offset;
+		guint32 decodable_value;
+
+		decodable_offset = offset;
+		decodable_len = MIN(len, (guint) ftype_length(hf->type));
+
+		/* If we are ftype_length-limited,
+		 * make sure we decode as many LSBs as possible.
+		 */
+		if (encoding == ENC_BIG_ENDIAN) {
+			decodable_offset += (len - decodable_len);
+		}
+
+		decodable_value = get_uint_value(parent_tree, tvb, decodable_offset,
+						 decodable_len, encoding);
+
+		/* The root item covers all the bytes even if we can't decode them all */
+		item = proto_tree_add_uint(parent_tree, hf_hdr, tvb, offset, len,
+					   decodable_value);
+
+		if (decodable_len < len) {
+			/* Dissector likely requires updating for new protocol revision */
+			expert_add_info_format(NULL, item, PI_UNDECODED, PI_WARN,
+					       "Only least-significant %d of %d bytes decoded",
+					       decodable_len, len);
+		}
+
+		proto_item_add_bitmask_tree(item, tvb, decodable_offset, decodable_len,
+					    ett, fields, encoding, BMT_NO_INT|BMT_NO_TFS, FALSE);
 	}
 
 	return item;
