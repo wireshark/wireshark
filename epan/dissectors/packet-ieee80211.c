@@ -8610,15 +8610,15 @@ dissect_secondary_channel_offset_ie(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static int
-bss_available_admission_capacity_ie(tvbuff_t *tvb, packet_info *pinfo,
+dissect_bss_available_admission_capacity_ie(tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len)
 {
   proto_item *ti;
   proto_tree *btree;
   guint16 bitmask;
-  if (tag_len > 4) {
+  if (tag_len < 2) {
     expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
-                           "BSS Available Admission Capacity length %u wrong, must > = 4", tag_len);
+                           "BSS Available Admission Capacity length %u wrong, must > = 2", tag_len);
     return offset;
   }
 
@@ -10836,7 +10836,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       break;
 
     case TAG_BSS_AVB_ADM_CAPACITY:
-      bss_available_admission_capacity_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
+      dissect_bss_available_admission_capacity_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
       break;
 
     case TAG_TIME_ADV:
