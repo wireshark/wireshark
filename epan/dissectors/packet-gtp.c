@@ -7805,7 +7805,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
     gtp_hdr_t       *gtp_hdr = NULL;
     proto_tree      *gtp_tree = NULL, *ext_tree;
-    proto_item      *ti = NULL, *tf, *length_item, *ext_hdr_len_item;
+    proto_item      *ti = NULL, *tf, *ext_hdr_len_item;
     int              i, offset = 0, checked_field, mandatory;
     gboolean         gtp_prime;
     int              seq_no           = 0;
@@ -7929,7 +7929,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     gtp_hdr->length = tvb_get_ntohs(tvb, offset); 
     if (tree) {
-        length_item = proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr->length);
+        proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr->length);
     }
     offset += 2;
     
