@@ -3392,7 +3392,28 @@ static int hf_ieee80211_tag_extended_capabilities_b1 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b2 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b3 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b4 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b5 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b6 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b7 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b8 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b9 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b10 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b11 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b12 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b13 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b14 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b15 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b16 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b17 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b18 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b19 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b20 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b21 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b22 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b23 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b24 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b25 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b26 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b27 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b28 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b29 = -1;
@@ -3401,12 +3422,20 @@ static int hf_ieee80211_tag_extended_capabilities_b31 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b32 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b33 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b34 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b35 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b36 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b37 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b38 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b39 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b40 = -1;
 static int hf_ieee80211_tag_extended_capabilities_serv_int_granularity = -1;
+static int hf_ieee80211_tag_extended_capabilities_b44 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b45 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b46 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b47 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b48 = -1;
+static int hf_ieee80211_tag_extended_capabilities_o7 = -1;
+static int hf_ieee80211_tag_extended_capabilities_o8 = -1;
 
 static int hf_ieee80211_tag_cisco_ccx1_unknown = -1;
 static int hf_ieee80211_tag_cisco_ccx1_name = -1;
@@ -3940,7 +3969,14 @@ static gint ett_tag_measure_report_frame_tree = -1;
 static gint ett_tag_bss_bitmask_tree = -1;
 static gint ett_tag_dfs_map_tree = -1;
 static gint ett_tag_erp_info_tree = -1;
-static gint ett_tag_ex_cap = -1;
+static gint ett_tag_ex_cap1 = -1;
+static gint ett_tag_ex_cap2 = -1;
+static gint ett_tag_ex_cap3 = -1;
+static gint ett_tag_ex_cap4 = -1;
+static gint ett_tag_ex_cap5 = -1;
+static gint ett_tag_ex_cap6 = -1;
+static gint ett_tag_ex_cap7 = -1;
+static gint ett_tag_ex_cap8 = -1;
 
 static gint ett_tag_supported_channels = -1;
 
@@ -7893,7 +7929,143 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
   return offset;
 }
+static int
+dissect_extended_capabilities_ie(packet_info *pinfo, proto_tree *tree,
+                         proto_item *ti, proto_item *ti_len,
+                         guint32 tag_len, tvbuff_t *tvb,
+                         int offset, int tag_end)
+{
+  proto_item *ti_ex_cap;
+  proto_tree *ex_cap_tree;
 
+  if (tag_len < 1)
+  {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be greater than 0", tag_len);
+    return offset;
+  }
+  proto_item_append_text(ti, " (%d octets)", tag_len);
+
+  /* Extended Capability octet 1 */
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 1)");
+  ex_cap_tree = proto_item_add_subtree (ti_ex_cap, ett_tag_ex_cap1);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b0, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b1, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b2, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b3, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b4, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b5, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b6, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b7, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /* Extended Capability octet 2 */
+  if (offset >= tag_end) {
+    return offset;
+  }
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 2)");
+  ex_cap_tree = proto_item_add_subtree (ti_ex_cap, ett_tag_ex_cap2);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b8, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b9, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b10, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b11, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b12, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b13, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b14, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b15, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /* Extended Capability octet 3 */
+  if (offset >= tag_end) {
+    return offset;
+  }
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 3)");
+  ex_cap_tree = proto_item_add_subtree (ti_ex_cap, ett_tag_ex_cap3);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b16, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b17, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b18, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b19, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b20, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b21, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b22, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b23, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /* Extended Capability octet 4 */
+  if (offset >= tag_end) {
+    return offset;
+  }
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 4)");
+  ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap4);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b24, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b25, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b26, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b27, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b28, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b29, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b30, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b31, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /* Extended Capability octet 5 */
+  if (offset >= tag_end) {
+    return offset;
+  }
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 5)");
+  ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap5);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b32, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b33, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b34, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b35, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b36, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b37, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b38, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b39, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /* Extended Capability octet 6 */
+  if (offset >= tag_end) {
+    return offset;
+  }
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 6)");
+  ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap6);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b40, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_serv_int_granularity, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b44, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b45, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b46, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b47, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+
+  /* Extended Capability octet 7 */
+  if (offset >= tag_end) {
+    return offset;
+  }
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 7)");
+  ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap7);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b48, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_o7, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /* Extended Capability octet 8 */
+  if (offset >= tag_end) {
+    return offset;
+  }
+  ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
+  proto_item_append_text(ti_ex_cap, " (octet 8)");
+  ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap8);
+  proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_o8, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  return offset;
+}
 static int
 dissect_vht_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
@@ -10608,86 +10780,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       break;
 
     case TAG_EXTENDED_CAPABILITIES: /* 7.3.2.27 Extended Capabilities information element (127) */
-    {
-      proto_item *ti_ex_cap;
-      proto_tree *ex_cap_tree;
-
-      if (tag_len < 1)
-      {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be greater than 0", tag_len);
-        break;
-      }
-      offset += 2;
-
-      /* Extended Capability octet 0 */
-      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
-      proto_item_append_text(ti_ex_cap, " (octet 0)");
-      ex_cap_tree = proto_item_add_subtree (ti_ex_cap, ett_tag_ex_cap);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b0, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b1, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b2, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b3, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b4, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b6, tvb, offset, 1, ENC_NA);
-      offset += 1;
-
-      /* Extended Capability octet 1 */
-      if (offset >= tag_end) {
-        break;
-      }
-      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
-      proto_item_append_text(ti_ex_cap, " (octet 1)");
-      offset += 1;
-
-      /* Extended Capability octet 2 */
-      if (offset >= tag_end) {
-        break;
-      }
-      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
-      proto_item_append_text(ti_ex_cap, " (octet 2)");
-      offset += 1;
-
-      /* Extended Capability octet 3 */
-      if (offset >= tag_end) {
-        break;
-      }
-      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
-      proto_item_append_text(ti_ex_cap, " (octet 3)");
-      ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b27, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b28, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b29, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b30, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b31, tvb, offset, 1, ENC_NA);
-      offset += 1;
-
-      /* Extended Capability octet 4 */
-      if (offset >= tag_end) {
-        break;
-      }
-      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
-      proto_item_append_text(ti_ex_cap, " (octet 4)");
-      ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b32, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b33, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b34, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b36, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b37, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b38, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b39, tvb, offset, 1, ENC_NA);
-      offset += 1;
-
-      /* Extended Capability octet 5 */
-      if (offset >= tag_end) {
-        break;
-      }
-      ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
-      proto_item_append_text(ti_ex_cap, " (octet 5)");
-      ex_cap_tree = proto_item_add_subtree(ti_ex_cap, ett_tag_ex_cap);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_b40, tvb, offset, 1, ENC_NA);
-      proto_tree_add_item(ex_cap_tree, hf_ieee80211_tag_extended_capabilities_serv_int_granularity, tvb, offset, 1, ENC_NA);
-      offset += 1;
-
+      dissect_extended_capabilities_ie(pinfo, tree, ti, ti_len, tag_len, tvb, offset+2, tag_end);
       break;
 
     case TAG_CISCO_CCX1_CKIP: /* Cisco CCX1 CKIP + Device Name (133) */
@@ -11033,7 +11126,6 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         break;
       }
       break;
-    }
 
     case TAG_INTERWORKING:
       dissect_interworking(pinfo, tree, ti, tvb, offset);
@@ -16957,119 +17049,274 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, NULL, 0xF8,
       NULL, HFILL  }},
 
-    /* Table 7-35a-Capabilities field */
+    /* Table 8-103-Capabilities field */
     {&hf_ieee80211_tag_extended_capabilities,
      {"Extended Capabilities", "wlan_mgt.extcap",
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
     /* P802.11n/D6.0 */
-    /* Extended Capability octet 0 */
+    /* Extended Capability octet 1 */
     {&hf_ieee80211_tag_extended_capabilities_b0,
-     {"20/40 BSS Coexistence Management Support", "wlan_mgt.extcap.infoexchange.b0",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0001,
+     {"20/40 BSS Coexistence Management Support", "wlan_mgt.extcap.b0",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
       "HT Information Exchange Support", HFILL }},
 
     /* P802.11p/D4.0 */
     {&hf_ieee80211_tag_extended_capabilities_b1,
-     {"On-demand beacon", "wlan_mgt.extcap.infoexchange.b1",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0002,
+     {"On-demand beacon", "wlan_mgt.extcap.b1",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b2,
-     {"Extended Channel Switching", "wlan_mgt.extcap.infoexchange.b2",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0004,
+     {"Extended Channel Switching", "wlan_mgt.extcap.b2",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b3,
-     {"WAVE indication", "wlan_mgt.extcap.infoexchange.b3",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0008,
+     {"WAVE indication", "wlan_mgt.extcap.b3",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
       NULL, HFILL }},
     /*End: P802.11p/D4.0 */
 
     {&hf_ieee80211_tag_extended_capabilities_b4,
-     {"PSMP Capability", "wlan_mgt.extcap.infoexchange.b4",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0010,
+     {"PSMP Capability", "wlan_mgt.extcap.b4",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
       NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b5,
+     {"Reserved", "wlan_mgt.extcap.b5",
+      FT_UINT8, BASE_HEX, NULL, 0x20,
+      "Must be zero", HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b6,
-     {"S-PSMP Support", "wlan_mgt.extcap.infoexchange.b6",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0040,
+     {"S-PSMP Support", "wlan_mgt.extcap.b6",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_extended_capabilities_b7,
+     {"Event", "wlan_mgt.extcap.b7",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+      NULL, HFILL }},
+
+
+    /* Extended Capability octet 2 */
+    {&hf_ieee80211_tag_extended_capabilities_b8,
+     {"Diagnostics", "wlan_mgt.extcap.b8",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b9,
+     {"Multicast Diagnostics", "wlan_mgt.extcap.b9",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b10,
+     {"Location Tracking", "wlan_mgt.extcap.b10",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b11,
+     {"FMS", "wlan_mgt.extcap.b11",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b12,
+     {"Proxy ARP Service", "wlan_mgt.extcap.b12",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b13,
+     {"Collocated Interference Reporting", "wlan_mgt.extcap.b13",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b14,
+     {"Civic Location", "wlan_mgt.extcap.b14",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b15,
+     {"Geospatial Location", "wlan_mgt.extcap.b15",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+      NULL, HFILL }},
+
+
     /* Extended Capability octet 3 */
+    {&hf_ieee80211_tag_extended_capabilities_b16,
+     {"TFS", "wlan_mgt.extcap.b16",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b17,
+     {"WNM-Sleep Mode", "wlan_mgt.extcap.b17",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b18,
+     {"TIM Broadcast", "wlan_mgt.extcap.b18",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b19,
+     {"BSS Transition", "wlan_mgt.extcap.b19",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b20,
+     {"QoS Traffic Capability", "wlan_mgt.extcap.b20",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b21,
+     {"AC Station Count", "wlan_mgt.extcap.b21",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b22,
+     {"Multiple BSSID", "wlan_mgt.extcap.b22",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b23,
+     {"Timing Measurement", "wlan_mgt.extcap.b23",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+      NULL, HFILL }},
+
+
+    /* Extended Capability octet 4 */
+    {&hf_ieee80211_tag_extended_capabilities_b24,
+     {"Channel Usage", "wlan_mgt.extcap.b24",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b25,
+     {"SSID List", "wlan_mgt.extcap.b25",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b26,
+     {"DMS", "wlan_mgt.extcap.b26",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tag_extended_capabilities_b27,
-     {"UTC TSF Offset", "wlan_mgt.extcap.infoexchange.b27",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0008,
+     {"UTC TSF Offset", "wlan_mgt.extcap.b27",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b28,
-     {"Peer U-APSD Buffer STA Support", "wlan_mgt.extcap.infoexchange.b28",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0010,
+     {"Peer U-APSD Buffer STA Support", "wlan_mgt.extcap.b28",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b29,
-     {"TDLS Peer PSM Support", "wlan_mgt.extcap.infoexchange.b29",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0020,
+     {"TDLS Peer PSM Support", "wlan_mgt.extcap.b29",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b30,
-     {"TDLS channel switching", "wlan_mgt.extcap.infoexchange.b30",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0040,
+     {"TDLS channel switching", "wlan_mgt.extcap.b30",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b31,
-     {"Interworking", "wlan_mgt.extcap.infoexchange.b31",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0080,
+     {"Interworking", "wlan_mgt.extcap.b31",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
       NULL, HFILL }},
 
-    /* Extended Capability octet 4 */
+
+    /* Extended Capability octet 5 */
     {&hf_ieee80211_tag_extended_capabilities_b32,
-     {"QoS Map", "wlan_mgt.extcap.infoexchange.b32",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0001,
+     {"QoS Map", "wlan_mgt.extcap.b32",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b33,
-     {"EBR", "wlan_mgt.extcap.infoexchange.b33",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0002,
+     {"EBR", "wlan_mgt.extcap.b33",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b34,
-     {"SSPN Interface", "wlan_mgt.extcap.infoexchange.b34",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0004,
+     {"SSPN Interface", "wlan_mgt.extcap.b34",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_extended_capabilities_b35,
+     {"Reserved", "wlan_mgt.extcap.b35",
+      FT_UINT8, BASE_HEX, NULL, 0x08,
+      "Must be zero", HFILL }},
+
     {&hf_ieee80211_tag_extended_capabilities_b36,
-     {"MSGCF Capability", "wlan_mgt.extcap.infoexchange.b36",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0010,
+     {"MSGCF Capability", "wlan_mgt.extcap.b36",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b37,
-     {"TDLS support", "wlan_mgt.extcap.infoexchange.b37",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0020,
+     {"TDLS support", "wlan_mgt.extcap.b37",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b38,
-     {"TDLS Prohibited", "wlan_mgt.extcap.infoexchange.b38",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0040,
+     {"TDLS Prohibited", "wlan_mgt.extcap.b38",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b39,
-     {"TDLS Channel Switching Prohibited", "wlan_mgt.extcap.infoexchange.b39",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0080,
+     {"TDLS Channel Switching Prohibited", "wlan_mgt.extcap.b39",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
       NULL, HFILL }},
 
-    /* Extended Capability octet 5 */
+
+    /* Extended Capability octet 6 */
     {&hf_ieee80211_tag_extended_capabilities_b40,
-     {"Reject Unadmitted Frame", "wlan_mgt.extcap.infoexchange.b40",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0001,
+     {"Reject Unadmitted Frame", "wlan_mgt.extcap.b40",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_serv_int_granularity,
      {"Service Interval Granularity",
-      "wlan_mgt.extcap.infoexchange.serv_int_granularity",
-      FT_UINT8, BASE_DEC, VALS(service_interval_granularity_vals), 0x000e,
+      "wlan_mgt.extcap.serv_int_granularity",
+      FT_UINT8, BASE_DEC, VALS(service_interval_granularity_vals), 0x0e,
       NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b44,
+     {"Identifier Location", "wlan_mgt.extcap.b44",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b45,
+     {"U-APSD Coexistence", "wlan_mgt.extcap.b45",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b46,
+     {"WNM-Notification", "wlan_mgt.extcap.b46",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b47,
+     {"Reserved", "wlan_mgt.extcap.b47",
+      FT_UINT8, BASE_HEX, NULL, 0x80,
+      "Must be zero", HFILL }},
+
+    /* Extended Capability octet 7 */
+    {&hf_ieee80211_tag_extended_capabilities_b48,
+     {"UTF-8 SSID", "wlan_mgt.extcap.b48",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+      "The SSID in this BSS is interpreted using UTF-8 encoding", HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_o7,
+     {"Reserved", "wlan_mgt.extcap.o7",
+      FT_UINT8, BASE_HEX, NULL, 0xfe,
+      "Must be zero", HFILL }},
+
+    /* Extended Capability octet 8 */
+
+    {&hf_ieee80211_tag_extended_capabilities_o8,
+     {"Reserved", "wlan_mgt.extcap.o8",
+      FT_UINT8, BASE_HEX, NULL, 0xff,
+      "Must be zero", HFILL }},
 
     {&hf_ieee80211_tag_cisco_ccx1_unknown,
      {"Unknown", "wlan_mgt.cisco.ccx1.unknown",
@@ -18523,7 +18770,14 @@ proto_register_ieee80211 (void)
     &ett_tag_measure_report_frame_tree,
     &ett_tag_dfs_map_tree,
     &ett_tag_erp_info_tree,
-    &ett_tag_ex_cap,
+    &ett_tag_ex_cap1,
+    &ett_tag_ex_cap2,
+    &ett_tag_ex_cap3,
+    &ett_tag_ex_cap4,
+    &ett_tag_ex_cap5,
+    &ett_tag_ex_cap6,
+    &ett_tag_ex_cap7,
+    &ett_tag_ex_cap8,
     &ett_tag_supported_channels,
     &ett_tag_neighbor_report_bssid_info_tree,
     &ett_tag_neighbor_report_bssid_info_capability_tree,
