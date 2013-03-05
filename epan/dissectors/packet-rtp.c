@@ -1450,6 +1450,9 @@ dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
 		rtp_info->info_padding_count = padding_count;
 
+		if (!pinfo->flags.in_error_pkt)
+			tap_queue_packet(rtp_tap, pinfo, rtp_info);
+
 		if (data_len > 0) {
 			/*
 			 * There's data left over when you take out
@@ -1494,15 +1497,17 @@ dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * No padding.
 		 */
+		rtp_info->info_payload_offset = offset;
+		rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
+
+		if (!pinfo->flags.in_error_pkt)
+			tap_queue_packet(rtp_tap, pinfo, rtp_info);
+
 		dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
 				  tvb_length_remaining( tvb, offset ),
 				  tvb_reported_length_remaining( tvb, offset ),
 				  payload_type );
-		rtp_info->info_payload_offset = offset;
-		rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
 	}
-	if (!pinfo->flags.in_error_pkt)
-		tap_queue_packet(rtp_tap, pinfo, rtp_info);
 }
 
 

@@ -291,6 +291,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          data combined via ssl_desegment_app_data not visible via &quot;Follow SSL Stream&quot; only decrypted ssl data tabs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6434">Bug
+          6434</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Maximum value of 802.11-2012 Duration field should be 32767.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8056">Bug
           8056</ulink>)
@@ -330,6 +336,12 @@ Wireshark Info
           WMM TSPEC Element Parsing is not done is wrong due to a wrong switch case number.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8320">Bug
           8320</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Incorrect RTP statistics (Lost Packets indication not ok).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8321">Bug
+          8321</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -376,9 +388,11 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+ACN,
 AMQP,
 ASN.1 PER,
 BACnet,
+CIMD,
 CSN.1,
 DOCSIS TLVs,
 FMP/NOTIFY,
@@ -390,9 +404,11 @@ LTE RRC,
 Mount,
 MPLS Echo,
 RSL,
+RTP,
 RTPS,
 RTPS2,
 SABP,
+SSL,
 TCP
 
     </para>
