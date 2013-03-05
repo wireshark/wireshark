@@ -455,23 +455,14 @@ dlg_window_new(const gchar *title)
     win = window_new(GTK_WINDOW_TOPLEVEL, title);
 
     /*
-     * XXX - if we're running in the capture child process, we can't easily
-     * make this window transient for the main process's window.  We just
-     * punt here.
-     *
-     * Perhaps the child process should only capture packets, write them to
-     * a file, and somehow notify the parent process and let *it* do all
-     * the GUI work.  If we can do that efficiently (so that we don't drop
-     * more packets), perhaps we can also do so even when we're *not* doing
-     * an "Update list of packets in real time" capture.  That'd let the
-     * child process run set-UID on platforms where you need that in order
-     * to capture, and might also simplify the job of having the GUI main
-     * loop wait both for user input and packet arrival.
-     */
-    /*
      * On Windows, making the dialogs transient to top_level behaves strangely.
      * It is not possible any more to bring the top level window to front easily.
      * So we don't do this on Windows.
+     *
+     * XXX: Note well: This means that *on Windows* any code which creates a
+     *      window using dlg_window_new() and then calls
+     *      gtk_widget_destroy_with_parent() will *not* get the desired effect
+     *      since the dialog window actually has has no parent.
      */
 #ifndef _WIN32
     if (top_level) {
