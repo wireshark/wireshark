@@ -2733,7 +2733,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						{
 							proto_tree_add_item(rack_tree, hf_sip_rack_cseq_method, tvb,
 							                    value_offset + sub_value_offset,
-							                    (int)linelen-sub_value_offset, ENC_ASCII|ENC_NA);
+							                    (int)value_len-sub_value_offset, ENC_ASCII|ENC_NA);
 						}
 
 						break;

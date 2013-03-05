@@ -336,6 +336,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          HTTP application/json-rpc should be decoded/shown as application/json.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7939">Bug
+          7939</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Maximum value of 802.11-2012 Duration field should be 32767.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8056">Bug
           8056</ulink>)
@@ -407,6 +413,24 @@ Wireshark Info
           8345</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Decoding of GSM MAP SMS Diagnostics.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8378">Bug
+          8378</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Incorrect packet length displayed for Flight Message Transfer Protocol (FMTP).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8407">Bug
+          8407</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Netflow dissector flowDurationMicroseconds nanosecond conversion wrong.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8410">Bug
+          8410</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -442,19 +466,24 @@ CSN.1,
 DOCSIS TLVs,
 FCSP,
 FMP/NOTIFY,
+FMTP,
+GSM MAP SMS,
 HART/IP,
 IEEE 802.11,
 IEEE 802.15.4,
+JSON,
 Linux SLL,
 LTE RRC,
 Mount,
 MPLS Echo,
+Netflow,
 RELOAD,
 RSL,
 RTP,
 RTPS,
 RTPS2,
 SABP,
+SIP,
 SSL,
 TCP
 

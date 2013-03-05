@@ -6855,7 +6855,7 @@ static guint32 get_keytab_as_list(md4_pass **p_pass_list,const char* ntlm_pass _
         str_to_unicode(ntlm_pass,ntlm_pass_unicode);
         crypt_md4(ntlm_pass_hash.md4,ntlm_pass_unicode,password_len*2);
         printnbyte(ntlm_pass_hash.md4,16,"Hash of the NT pass: ","\n");
-        add_ntlm = 0;
+        add_ntlm = 1;
     }
 
     *p_pass_list = (md4_pass *)ep_alloc(nb_pass*sizeof(md4_pass));
