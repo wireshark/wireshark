@@ -6528,6 +6528,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
+		col_set_fence(pinfo->cinfo, COL_INFO);
 	}
 
 	oct_1_item =
