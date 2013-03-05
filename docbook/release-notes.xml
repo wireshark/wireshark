@@ -255,6 +255,45 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-21.html">wnpa-sec-2013-21</ulink>
           </para>
           <para>
+	    The RELOAD dissector could go into an infinite loop. Discovered by Even Jensen.
+            <!-- Fixed in trunk: r47805, r47808 -->
+            <!-- Fixed in trunk-1.8: r48107  -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8364">Bug
+            8364</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.5.</para>
+          <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-22.html">wnpa-sec-2013-22</ulink>
+          </para>
+          <para>
+	    .
+            <!-- Fixed in trunk: r? -->
+            <!-- Fixed in trunk-1.8: r?  -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=X">Bug
+            X</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
+          <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-22.html">wnpa-sec-2013-22</ulink>
+          </para>
+          <para>
 	    .
             <!-- Fixed in trunk: r? -->
             <!-- Fixed in trunk-1.8: r?  -->
@@ -410,6 +449,7 @@ Linux SLL,
 LTE RRC,
 Mount,
 MPLS Echo,
+RELOAD,
 RSL,
 RTP,
 RTPS,
