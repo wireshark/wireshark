@@ -2017,7 +2017,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
   guint32 tk_id;
   guint16 tk_size;
   unsigned int i;
-  char    indent_string[40];
+  char*   indent_string;
   gint    retVal;
   char    type_name[40];
 
@@ -2030,7 +2030,8 @@ static gint rtps_util_add_typecode(proto_tree *tree,
      */
 
   /* Calc indent string */
-  memset(indent_string, ' ', 40);
+  indent_string = ep_alloc((indent_level*2)+1);
+  memset(indent_string, ' ', indent_level*2);
   indent_string[indent_level*2] = '\0';
 
   /* Gets TK ID */

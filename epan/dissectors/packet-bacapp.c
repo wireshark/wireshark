@@ -6464,9 +6464,14 @@ fAbstractSyntaxNType (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
             break;
         case 19:  /* controlled-variable-reference */
         case 60:  /* manipulated-variable-reference */
-        case 109: /* Setpoint-Reference */
         case 132: /* log-device-object-property */
             offset = fDeviceObjectPropertyReference (tvb, pinfo, tree, offset);
+            break;
+        case 109: /* Setpoint-Reference */
+            /* setpoint-Reference is actually BACnetSetpointReference which is a SEQ of [0] */
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+            offset = fBACnetObjectPropertyReference (tvb, pinfo, tree, offset);
+            offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 123:   /* weekly-schedule -- accessed as a BACnetARRAY */
             if (object_type < 128) {

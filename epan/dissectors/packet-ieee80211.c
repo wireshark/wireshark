@@ -5944,11 +5944,11 @@ dissect_vendor_ie_wpawme(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 
       subtype = tvb_get_guint8(tvb, offset);
       proto_item_append_text(tree, ": %s", val_to_str(subtype, ieee802111_wfa_ie_wme_type, "Unknown %d" ));
       offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_version, tvb, offset, 1, ENC_NA);
+      offset += 1;
       switch(subtype){
         case 0: /* WME Information Element */
         {
-          proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_version, tvb, offset, 1, ENC_NA);
-          offset += 1;
           /* WME QoS Info Field */
           offset = dissect_qos_info(tree, tvb, offset, ftype);
           break;
@@ -5956,8 +5956,6 @@ dissect_vendor_ie_wpawme(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 
         case 1: /* WME Parameter Element */
         {
           int i;
-          proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_version, tvb, offset, 1, ENC_NA);
-          offset += 1;
           /* WME QoS Info Field */
           offset = dissect_qos_info(tree, tvb, offset, ftype);
           proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wme_reserved, tvb, offset, 1, ENC_NA);
@@ -6001,7 +5999,7 @@ dissect_vendor_ie_wpawme(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 
           }
           break;
         }
-        case 3:   /* WME TSPEC Element */
+        case 2:   /* WME TSPEC Element */
         {
 
             proto_item *tsinfo_item;
@@ -7471,6 +7469,28 @@ dissect_frame_control(proto_tree * tree, tvbuff_t * tvb, gboolean wlan_broken_fc
     flags);
   proto_tree_add_boolean (flag_tree, hf_ieee80211_fc_order, tvb, wlan_broken_fc?offset:offset+1, 1,
     flags);
+}
+
+static void
+dissect_durid(proto_tree *hdr_tree, tvbuff_t *tvb, guint16 fts, gint offset)
+{
+  guint16 durid = tvb_get_letohs(tvb, offset);
+
+  if (durid < 0x8000) {
+    proto_tree_add_uint_format_value(hdr_tree, hf_ieee80211_did_duration, tvb,
+      offset, 2, durid, "%u microseconds", durid);
+  } else if (((durid & 0xC000) == 0xC000) &&
+             ((durid & 0x3FFF) > 0) && ((durid & 0x3FFF) <= 2007) &&
+             (fts == CTRL_PS_POLL)) {
+    proto_tree_add_item(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, offset,
+      ENC_LITTLE_ENDIAN);
+  } else if (durid == 0x8000) {
+    proto_tree_add_uint_format(hdr_tree, hf_ieee80211_did_duration, tvb,
+      offset, 2, durid, "Duration/ID: %u", durid);
+  } else {
+    proto_tree_add_uint_format(hdr_tree, hf_ieee80211_did_duration, tvb,
+      offset, 2, durid, "Duration/ID: %u (reserved)", durid & 0x3FFF);
+  }
 }
 
 static void
@@ -10032,7 +10052,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   if (datapad)
     hdr_len = roundup2(hdr_len, 4);
 
-  /* Add the FC to the current tree */
+  /* Add the FC and duration/id to the current tree */
   if (tree)
     {
       ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
@@ -10040,12 +10060,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
 
       dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0);
-
-      if (frame_type_subtype == CTRL_PS_POLL)
-        proto_tree_add_item(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
-      else
-        proto_tree_add_uint (hdr_tree, hf_ieee80211_did_duration, tvb, 2, 2,
-            tvb_get_letohs (tvb, 2));
+      dissect_durid(hdr_tree, tvb, frame_type_subtype, 2);
     }
 
   /*
@@ -12180,7 +12195,7 @@ proto_register_ieee80211 (void)
       "Association-ID field", HFILL }},
 
     {&hf_ieee80211_did_duration,
-     {"Duration", "wlan.duration", FT_UINT16, BASE_DEC, NULL, 0,
+     {"Duration", "wlan.duration", FT_UINT16, BASE_DEC, NULL, 0x7FFF,
       "Duration field", HFILL }},
 
     {&hf_ieee80211_addr_da,

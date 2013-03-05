@@ -125,12 +125,12 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-15.html">wnpa-sec-2013-15</ulink>
           </para>
           <para>
-	    .
-            <!-- Fixed in trunk: r? -->
-            <!-- Fixed in trunk-1.8: r?  -->
-            <!-- Fixed in trunk-1.6: r? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=X">Bug
-            X</ulink>)
+	    The RTPS and RTPS2 dissectors could crash. Discovered by Alyssa Milburn.
+            <!-- Fixed in trunk: r47658 -->
+            <!-- Fixed in trunk-1.8: r48076  -->
+            <!-- Fixed in trunk-1.6: r48077 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8332">Bug
+            8332</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
           <para>
@@ -232,6 +232,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Maximum value of 802.11-2012 Duration field should be 32767.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8056">Bug
+          8056</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Display Filter Macros crash.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8073">Bug
           8073</ulink>)
@@ -247,6 +253,30 @@ Wireshark Info
           R-click filters add ! in front of field when choosing &quot;apply as filter&gt;selected&quot;.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8297">Bug
           8297</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          BACnet - Loop Object - Setpoint-Reference property does not decode correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8306">Bug
+          8306</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          WMM TSPEC Element Parsing is not done is wrong due to a wrong switch case number.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8320">Bug
+          8320</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Registering ieee802154 dissector for IEEE802.15.4 frames inside Linux SLL frames.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8325">Bug
+          8325</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Version Field is skipped while parsing WMM_TSPEC causing wrong dissecting (1 byte offset missing) of all fields in the TSPEC.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8330">Bug
+          8330</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -276,12 +306,19 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 ASN.1 PER,
+BACnet,
 CSN.1,
 DOCSIS TLVs,
 FMP/NOTIFY,
 HART/IP,
+IEEE 802.11,
+IEEE 802.15.4,
+Linux SLL,
 LTE RRC,
+MPLS Echo,
 RSL,
+RTPS,
+RTPS2,
 SABP,
 TCP
 
