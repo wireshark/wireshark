@@ -1127,11 +1127,15 @@ Index: file.h
 	<para>
 	The RPM is built using rpmbuild (http://www.rpm.org/), which comes as standard on many flavours of Linux, including
 	Red Hat and Fedora. The process creates a clean build environment in <filename>packaging/rpm/BUILD</filename> every
-	time the RPM is built. The settings controlling the build are in <filename>packaging/rpm/SPECS/wireshark.spec.in</filename>. After editing the settings in this file, <filename>./configure</filename> must be run again in the wireshark directory to generate the actual specification script.
+	time the RPM is built. The settings controlling the build are in <filename>packaging/rpm/SPECS/wireshark.spec.in</filename>.
+	After editing the settings in this file, <filename>./configure</filename> must be run again in the wireshark directory to
+	generate the actual specification script.
 	</para>
 	<warning><title>Warn!</title><para>
 	The SPEC file contains settings for the <filename>configure</filename> used to set the RPM build environment. These are
-	completely independent of any settings passed to the usual Wireshark <filename>./configure</filename>.</para></warning>
+	completely independent of any settings passed to the usual Wireshark <filename>./configure</filename>.  The exception to
+	this rule is that the prefix given to <filename>configure</filename> (<userinput>--prefix</userinput>) is passed to
+	rpmbuild.</para></warning>
 	<para>
 	In the wireshark directory, type:
 	</para>
@@ -1139,12 +1143,15 @@ Index: file.h
 	<prompt>$</prompt> <userinput>make rpm-package</userinput>
 	</para>
 	<para>
-	to build the RPM. Once it is done, there will be a message stating where the built RPM can be found.
+	to build the RPM and source RPM. Once it is done, there will be a message stating where the built RPM can be found.
 	</para>
 	<tip><title>Tip!</title>
-	<para>
-	Because this does a clean build, as well as constructing the package, this can take quite a long time.
-	</para>
+	<para>Because this does a clean build, as well as constructing the package, this can take quite a long time.</para>
+	</tip>
+	<tip><title>Tip!</title>
+	<para>Building the RPM requires building a source distribution which itself requires the Qt development tools
+	<filename>uic</filename> and <filename>moc</filename>.  These can usually be obtained by installing the
+	<filename>qt-devel</filename> package.</para>
 	</tip>
 	</section>
 
