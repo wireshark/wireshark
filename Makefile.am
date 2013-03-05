@@ -1086,21 +1086,6 @@ rpm-package: dist
 		false; \
 	fi
 
-srpm-package: dist
-	if test x$(HAVE_RPM) = xyes ; then \
-		cd $(rpm_topdir) ; \
-		mkdir -p BUILD SRPMS SOURCES ; \
-		cd SOURCES ; \
-		ln -s ../../../$(distdir).tar.bz2 ; \
-		ln -s ../../../wireshark.desktop ; \
-		ln -s ../../../image/wsicon64.png wireshark.png ; \
-		cd .. ; \
-		rpmbuild --define "_topdir `cd . && pwd`" -bs SPECS/wireshark.spec && \
-			echo "Package successfully built in `pwd`/SRPMS." ; \
-	else \
-		echo "Error: RPM executable and/or source directory not found." ; \
-	fi
-
 debian-package: debian/rules
 	@if test x$(HAVE_DPKG_BUILDPACKAGE) = xyes ; then \
 		dpkg-buildpackage -rfakeroot -us -uc ; \
