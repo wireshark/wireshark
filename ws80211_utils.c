@@ -684,7 +684,7 @@ int ws80211_get_iface_info(const char *name _U_, struct ws80211_iface_info *ifac
 
 void ws80211_free_interfaces(GArray *interfaces _U_)
 {
-};
+}
 
 int ws80211_frequency_to_channel(int freq _U_)
 {

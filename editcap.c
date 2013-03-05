@@ -168,7 +168,7 @@ static gchar *
 abs_time_to_str_with_sec_resolution(const struct wtap_nstime *abs_time)
 {
     struct tm *tmp;
-    gchar *buf = g_malloc(16);
+    gchar *buf = (gchar *)g_malloc(16);
 
 #if (defined _WIN32) && (_MSC_VER < 1500)
     /* calling localtime() on MSVC 2005 with huge values causes it to crash */
@@ -785,7 +785,7 @@ list_capture_types(void) {
     struct string_elem *captypes;
     GSList *list = NULL;
 
-    captypes = g_malloc(sizeof(struct string_elem) * WTAP_NUM_FILE_TYPES);
+    captypes = g_new(struct string_elem,WTAP_NUM_FILE_TYPES);
     fprintf(stderr, "editcap: The available capture file types for the \"-F\" flag are:\n");
     for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
       if (wtap_dump_can_open(i)) {

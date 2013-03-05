@@ -59,7 +59,7 @@ static int camelcounter_packet(void *phs,
 			       const void *phi)
 {
   struct camelcounter_t * p_counter =(struct camelcounter_t *)phs;
-  const struct camelsrt_info_t * pi=phi;
+  const struct camelsrt_info_t * pi=(const struct camelsrt_info_t *)phi;
   if (pi->opcode != 255)
     p_counter->camel_msg[pi->opcode]++;
 
@@ -90,7 +90,7 @@ static void camelcounter_init(const char *optarg, void* userdata _U_)
   struct camelcounter_t *p_camelcounter;
   GString *error_string;
 
-  p_camelcounter = g_malloc(sizeof(struct camelcounter_t));
+  p_camelcounter = g_new(struct camelcounter_t,1);
   if(!strncmp(optarg,"camel,counter,",13)){
     p_camelcounter->filter=g_strdup(optarg+13);
   } else {

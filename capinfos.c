@@ -816,7 +816,7 @@ process_cap_file(wtap *wth, const char *filename)
   gboolean		know_order = FALSE;
   order_t		order = IN_ORDER;
 
-  cf_info.encap_counts = g_malloc0(WTAP_NUM_ENCAP_TYPES * sizeof(int));
+  cf_info.encap_counts = g_new0(int,WTAP_NUM_ENCAP_TYPES);
 
   /* Tally up data that we need to parse through the file to find */
   while (wtap_read(wth, &err, &err_info, &data_offset))  {

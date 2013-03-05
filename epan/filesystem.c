@@ -1818,7 +1818,7 @@ copy_file_binary_mode(const char *from_filename, const char *to_filename)
     }
 
 #define FS_READ_SIZE 65536
-    pd = g_malloc(FS_READ_SIZE);
+    pd = (guint8 *)g_malloc(FS_READ_SIZE);
     while ((nread = ws_read(from_fd, pd, FS_READ_SIZE)) > 0) {
         nwritten = ws_write(to_fd, pd, nread);
         if (nwritten < nread) {

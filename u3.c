@@ -57,7 +57,7 @@ static char *pid_file = NULL;
 static char *u3devicepath = (char*)-1;
 static gchar *newpath = NULL;
 
-static const char *u3_change_path(const char *path, const char *old, const char *new);
+static const char *u3_change_path(const char *path, const char *old, const char *new_u3devicepath);
 
 gboolean u3_active(void)
 {
@@ -124,7 +124,7 @@ void u3_register_pid(void)
     pid = getpid();
 
     pf_size = (int) strlen(u3hostexecpath) + 32;
-    pid_file = g_malloc(pf_size);
+    pid_file = (char *)g_malloc(pf_size);
 
     g_snprintf(pid_file, pf_size, "%s\\%d.pid", u3hostexecpath, pid);
 
@@ -164,7 +164,7 @@ const char *u3_contract_device_path(char *path)
   return u3_change_path(path, NULL, U3_DEVICE_PATH_VAR);
 }
 
-static const char *u3_change_path(const char *path, const char *old, const char *new)
+static const char *u3_change_path(const char *path, const char *old, const char *new_u3devicepath)
 {
 
   if(u3devicepath == (char*)-1) {
@@ -178,8 +178,8 @@ static const char *u3_change_path(const char *path, const char *old, const char 
       ("U3_DEVICE_PATH");
   }
 
-  if(new == NULL)
-    new = u3devicepath;
+  if(new_u3devicepath == NULL)
+    new_u3devicepath = u3devicepath;
   if(old == NULL)
     old = u3devicepath;
 
@@ -190,7 +190,7 @@ static const char *u3_change_path(const char *path, const char *old, const char 
 
   if((path != NULL) && (u3devicepath != NULL) && (strncmp(path, old, strlen(old)) == 0)) {
 
-    newpath = g_strconcat(new, path + strlen(old), NULL);
+    newpath = g_strconcat(new_u3devicepath, path + strlen(old), NULL);
 
     return newpath;
 

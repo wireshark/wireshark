@@ -69,7 +69,7 @@ static int camelsrt_packet(void *phs,
 			   const void *phi)
 {
   struct camelsrt_t *hs=(struct camelsrt_t *)phs;
-  const struct camelsrt_info_t * pi=phi;
+  const struct camelsrt_info_t * pi=(const struct camelsrt_info_t *)phi;
   int i;
 
   for (i=0; i<NB_CAMELSRT_CATEGORY; i++) {
@@ -204,7 +204,7 @@ static void camelsrt_init(const char *optarg, void* userdata _U_)
   struct camelsrt_t *p_camelsrt;
   GString *error_string;
 
-  p_camelsrt = g_malloc(sizeof(struct camelsrt_t));
+  p_camelsrt = g_new(struct camelsrt_t,1);
   if(!strncmp(optarg,"camel,srt,",9)){
     p_camelsrt->filter=g_strdup(optarg+9);
   } else {

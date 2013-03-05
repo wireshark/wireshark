@@ -109,8 +109,8 @@ comparestat_reset(void *dummy _U_)
 static int
 comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
 {
-	comparestat_t *cs=arg;
-	const ws_ip *ci=arg2;
+	comparestat_t *cs=(comparestat_t *)arg;
+	const ws_ip *ci=(const ws_ip *)arg2;
 	frame_info *fInfo;
 	vec_t cksum_vec[3];
 	guint16 computed_cksum=0;
@@ -167,7 +167,7 @@ call_foreach_count_ip_id(gpointer value, gpointer arg)
 	pinfo->fd=(frame_data*)ep_alloc(sizeof(frame_data));
 	pinfo->fd->num = fInfo->num;
 
-	fInfoTemp=se_tree_lookup32(cs->ip_id_tree, fInfo->id);
+	fInfoTemp=(frame_info *)se_tree_lookup32(cs->ip_id_tree, fInfo->id);
 	if(fInfoTemp==NULL){
 		/* Detect ongoing package loss */
 		if((cs->last_hit==FALSE)&&(cs->start_ongoing_hits>compare_start)&&(cs->stop_ongoing_hits<compare_stop)){
@@ -239,7 +239,7 @@ call_foreach_new_order(gpointer value, gpointer arg)
 	frame_info *fInfo=(frame_info*)value, *fInfoTemp;
 
 	/* overwrite Info column for new ordering */
-	fInfoTemp=se_tree_lookup32(cs->nr_tree, fInfo->id);
+	fInfoTemp=(frame_info *)se_tree_lookup32(cs->nr_tree, fInfo->id);
 	if(fInfoTemp==NULL){
 		if(TTL_method==FALSE){
 			if((ADDRESSES_EQUAL(&cs->eth_dst, &fInfo->dl_dst)) || (ADDRESSES_EQUAL(&cs->eth_src, &fInfo->dl_dst))){
@@ -314,7 +314,7 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 	}
 
 	if((fInfo->num==tot_packet_amount)&&(cs->stop_packet_nr_first==G_MAXINT32)&&(cs->start_packet_nr_first!=G_MAXINT32)){
-		fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->start_packet_nr_first);
+		fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->start_packet_nr_first);
 		if(fInfoTemp==NULL){
 			printf("ERROR: start number not set correctly\n");
 			return FALSE;
@@ -329,10 +329,10 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 			if(cs->stop_packet_nr_first>cs->start_packet_nr_second){
 				cs->stop_packet_nr_first=cs->start_packet_nr_second-1;
 			}
-			fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+			fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
 			while((fInfoTemp!=NULL)?fmod(!fInfoTemp->zebra_time.nsecs, 2):TRUE){
 				cs->stop_packet_nr_first--;
-				fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+				fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
 			}
 		} else {
 			/*this only happens if we have too many MAC's or TTL*/
@@ -340,10 +340,10 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 			if(cs->stop_packet_nr_first>tot_packet_amount-cs->first_file_amount){
 				cs->stop_packet_nr_first=tot_packet_amount-cs->first_file_amount;
 			}
-			fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+			fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
 			while((fInfoTemp!=NULL)?fmod(fInfoTemp->zebra_time.nsecs, 2):TRUE){
 				cs->stop_packet_nr_first--;
-				fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+				fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
 			}
 		}
 		/* set second stop location */
@@ -441,7 +441,7 @@ call_foreach_print_ip_tree(gpointer value, gpointer user_data)
 static void
 comparestat_draw(void *prs)
 {
-	comparestat_t *cs=prs;
+	comparestat_t *cs=(comparestat_t *)prs;
 	GString *filter_str = g_string_new("");
 	const gchar *statis_string;
 	guint32 first_file_amount, second_file_amount;
@@ -529,7 +529,7 @@ comparestat_init(const char *optarg, void* userdata _U_)
 	TTL_method=ttl;
 	ON_method=order;
 
-	cs=g_malloc(sizeof(comparestat_t));
+	cs=g_new(comparestat_t,1);
 	nstime_set_unset(&cs->current_time);
 	cs->ip_ttl_list=g_array_new(FALSE, FALSE, sizeof(guint8));
 	cs->last_hit=FALSE;

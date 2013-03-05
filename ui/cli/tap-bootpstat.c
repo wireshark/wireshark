@@ -76,23 +76,23 @@ dhcp_draw_message_type(gchar *key _U_, dhcp_message_type_t *data, gchar * format
 static void
 dhcpstat_reset(void *psp)
 {
-	dhcpstat_t *sp=psp;
+	dhcpstat_t *sp=(dhcpstat_t *)psp;
 	g_hash_table_foreach( sp->hash, (GHFunc)dhcp_reset_hash, NULL);
 }
 static int
 dhcpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
-	dhcpstat_t *sp=psp;
-	const bootp_info_value_t value=pri;
+	dhcpstat_t *sp=(dhcpstat_t *)psp;
+	const bootp_info_value_t value=(const bootp_info_value_t)pri;
 	dhcp_message_type_t *sc;
 
 	if (sp==NULL)
 		return 0;
-	sc = g_hash_table_lookup(
+	sc = (dhcp_message_type_t *)g_hash_table_lookup(
 			sp->hash,
 			value);
 	if (!sc) {
-		sc = g_malloc( sizeof(dhcp_message_type_t) );
+		sc = g_new(dhcp_message_type_t,1);
 		sc -> packets = 1;
 		sc -> name = value;
 		sc -> sp = sp;
@@ -111,7 +111,7 @@ dhcpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 static void
 dhcpstat_draw(void *psp)
 {
-	dhcpstat_t *sp=psp;
+	dhcpstat_t *sp=(dhcpstat_t *)psp;
 
 	printf("\n");
 	printf("===================================================================\n");
@@ -146,7 +146,7 @@ dhcpstat_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	sp = g_malloc( sizeof(dhcpstat_t) );
+	sp = g_new(dhcpstat_t,1);
 	sp->hash = g_hash_table_new( g_str_hash, g_str_equal);
 	if(filter){
 		sp->filter=g_strdup(filter);

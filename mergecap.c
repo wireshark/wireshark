@@ -159,7 +159,7 @@ list_capture_types(void) {
   struct string_elem *captypes;
   GSList *list = NULL;
 
-  captypes = g_malloc(sizeof(struct string_elem) * WTAP_NUM_FILE_TYPES);
+  captypes = g_new(struct string_elem,WTAP_NUM_FILE_TYPES);
 
   fprintf(stderr, "mergecap: The available capture file types for the \"-F\" flag are:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
@@ -180,7 +180,7 @@ list_encap_types(void) {
     struct string_elem *encaps;
     GSList *list = NULL;
 
-    encaps = g_malloc(sizeof(struct string_elem) * WTAP_NUM_ENCAP_TYPES);
+    encaps = g_new(struct string_elem,WTAP_NUM_ENCAP_TYPES);
     fprintf(stderr, "mergecap: The available encapsulation types for the \"-T\" flag are:\n");
     for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
         encaps[i].sstr = wtap_encap_short_string(i);
