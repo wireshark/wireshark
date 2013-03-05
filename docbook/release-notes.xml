@@ -36,15 +36,15 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-10.html">wnpa-sec-2013-10</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-15.html">wnpa-sec-2013-15</ulink>
           </para>
           <para>
-	    .
-            <!-- Fixed in trunk: r? -->
-            <!-- Fixed in trunk-1.8: r?  -->
-            <!-- Fixed in trunk-1.6: r? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=X">Bug
-            ></ulink>)
+	    The RTPS and RTPS2 dissectors could crash. Discovered by Alyssa Milburn.
+            <!-- Fixed in trunk: r47658 -->
+            <!-- Fixed in trunk-1.8: r48076  -->
+            <!-- Fixed in trunk-1.6: r48077 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8332">Bug
+            8332</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
           <para>
