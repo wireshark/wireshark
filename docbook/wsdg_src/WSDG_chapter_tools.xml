@@ -121,7 +121,7 @@
     <section id="ChToolsGCC">
       <title>gcc (GNU compiler collection)</title>
       <warning>
-        <title>Win32: Warn!</title>
+        <title>Win32: Warning!</title>
         <para>Using Cygwin gcc to compile Wireshark is "EXPERT
         ONLY" and therefore NOT recommended. If you really want to
         try it anyway, see:
@@ -252,7 +252,7 @@ PARTICULAR PURPOSE.]]>
       <para>
         The official Wireshark 1.8.x releases are compiled using
         Microsoft Visual C++ 2010 SP1.
-        The official 1.2, 1.4, and 1.6 releases are and were compiled using        
+        The official 1.2, 1.4, and 1.6 releases are and were compiled using
         Microsoft Visual C++ 2008 SP1.
         Other past releases, including the 1.0 branch,
         were compiled using Microsoft Visual C++ 6.0. Using the release
