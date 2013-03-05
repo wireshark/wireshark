@@ -3314,16 +3314,8 @@ de_bssgp_redir_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 static guint16
 de_bssgp_unconfim_send_state_var(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
-    guint16 state_var;
-
-    curr_offset = offset;
-    state_var = tvb_get_ntohs(tvb, curr_offset);
-
-    proto_tree_add_item(tree, hf_bssgp_unconfim_send_state_var, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-    curr_offset += 2;
-
-    return(curr_offset-offset);
+    proto_tree_add_item(tree, hf_bssgp_unconfim_send_state_var, tvb, offset, 2, ENC_BIG_ENDIAN);
+    return 2;
 }
 
 const value_string bssgp_elem_strings[] = {
