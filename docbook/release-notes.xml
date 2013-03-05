@@ -238,6 +238,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Voice RTP player crash if player is closed while playing.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8065">Bug
+          8065</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Display Filter Macros crash.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8073">Bug
           8073</ulink>)
@@ -277,6 +283,12 @@ Wireshark Info
           Version Field is skipped while parsing WMM_TSPEC causing wrong dissecting (1 byte offset missing) of all fields in the TSPEC.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8330">Bug
           8330</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [BACnet] UCS-2 strings longer than 127 characters do not decode correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8331">Bug
+          8331</ulink>)
         </para></listitem>
 
       </itemizedlist>
