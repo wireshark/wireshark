@@ -149,7 +149,6 @@ static int hf_gtp_map_cause = -1;
 static int hf_gtp_message_type = -1;
 static int hf_gtp_ms_reason = -1;
 static int hf_gtp_ms_valid = -1;
-static int hf_gtp_next = -1;
 static int hf_gtp_npdu_number = -1;
 static int hf_gtp_node_ipv4 = -1;
 static int hf_gtp_node_ipv6 = -1;
@@ -8005,7 +8004,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
                 if (gtp_hdr->flags & GTP_E_MASK) {
                     next_hdr = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
+                    proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
                     offset++;
                     while (next_hdr != 0) {
                         ext_hdr_length = tvb_get_guint8(tvb, offset);
@@ -8021,16 +8020,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         offset++;
                 
                         switch (next_hdr) {
-
-                        case GTP_EXT_HDR_MBMS_SUPPORT_IND:
-                            /* MBMS support indication */
-                            proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MBMS support indication header ---]");
-                            break;
-
-                        case GTP_EXT_HDR_MS_INFO_CHG_REP_SUPP_IND:
-                            /* MS Info Change Reporting support indication */
-                            proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MS Info Change Reporting support indication header ---]");
-                            break;
 
                         case GTP_EXT_HDR_PDCP_SN:
                             /* PDCP PDU
@@ -8095,7 +8084,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         offset += ext_hdr_length*4 - 2;
 
                         next_hdr = tvb_get_guint8(tvb, offset);
-                        proto_tree_add_uint(ext_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
+                        proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
                         offset++;
                     }
                 } else
@@ -8360,7 +8349,7 @@ proto_register_gtp(void)
            NULL, HFILL}
         },
         {&hf_gtp_ext_hdr_next,
-         { "Next extension header", "gtp.ext_hdr.next",
+         { "Next extension header type", "gtp.ext_hdr.next",
            FT_UINT8, BASE_HEX, VALS(next_extension_header_fieldvals), 0,
            NULL, HFILL}
         },
@@ -8493,12 +8482,6 @@ proto_register_gtp(void)
          { "MS validated", "gtp.ms_valid",
            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
-        },
-        {&hf_gtp_next,
-         { "Next extension header type", "gtp.next",
-           FT_UINT8, BASE_HEX, VALS(next_extension_header_fieldvals), 0,
-           NULL,
-           HFILL}
         },
         {&hf_gtp_node_ipv4,
          { "Node address IPv4", "gtp.node_ipv4",
