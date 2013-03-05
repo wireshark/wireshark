@@ -5607,7 +5607,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 proto_minor;
     guint16 length;
     guint32 struct_length;
-    int offset;
+    guint offset;
     emem_strbuf_t *strbuf;
 
 #if 0  /* XXX: Not currently used ?? */
@@ -5728,6 +5728,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 struct_length = tvb_get_ntohl(tvb, offset);
                 AMQP_INCREMENT(offset, 4, length);
                 THROW_ON((offset + struct_length > length), ReportedBoundsError);
+            THROW_ON((offset + struct_length < offset), ReportedBoundsError);
 
                 ti = proto_tree_add_item(amqp_tree,
                                          hf_amqp_0_10_undissected_struct32,
