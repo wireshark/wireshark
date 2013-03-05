@@ -174,6 +174,26 @@ Wireshark Info
 	  -->
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-23.html">wnpa-sec-2013-23</ulink>
+          </para>
+          <para>
+	    .
+            <!-- Fixed in trunk: r? -->
+            <!-- Fixed in trunk-1.8: r?  -->
+            <!-- Fixed in trunk-1.6: r? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=X">Bug
+            X</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
+          <!--
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+	  -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -223,8 +243,10 @@ There are no new protocols in this release.
 ACN,
 AMQP,
 CIMD,
+DOCSIS TLVs,
 DTLS,
 FCSP,
+FMP/NOTIFY,
 Mount,
 RTPS,
 RTPS2
