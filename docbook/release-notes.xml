@@ -197,8 +197,8 @@ Wireshark Info
           <para>
 	    The ACN dissector could attempt to divide by zero. Discovered by Alyssa Milburn.
             <!-- Fixed in trunk: r47692 -->
-            <!-- Fixed in trunk-1.8: r? -->
-            <!-- Fixed in trunk-1.6: r? -->
+            <!-- Fixed in trunk-1.8: r48092 -->
+            <!-- Fixed in trunk-1.6: r48094 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=X">Bug
             X</ulink>)
           </para>
@@ -215,10 +215,10 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-19.html">wnpa-sec-2013-19</ulink>
           </para>
           <para>
-	    .
-            <!-- Fixed in trunk: r? -->
-            <!-- Fixed in trunk-1.8: r?  -->
-            <!-- Fixed in trunk-1.6: r? -->
+	    The CIMD dissector could crash. Discovered by Moshe Kaplan.
+            <!-- Fixed in trunk: r47708 -->
+            <!-- Fixed in trunk-1.8: r48098  -->
+            <!-- Fixed in trunk-1.6: r48099 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=X">Bug
             X</ulink>)
           </para>

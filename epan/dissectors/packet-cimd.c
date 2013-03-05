@@ -376,9 +376,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
   proto_item *param_item;
   proto_tree *param_tree;
 
-  gchar* payloadText;
-  gchar* tmpBuffer          = (gchar*)ep_alloc(1024);
-  gchar* tmpBuffer1         = (gchar*)ep_alloc(1024);
+  gchar *payloadText, *tmpBuffer, *tmpBuffer1;
   int    loop,i,poz, bufPoz = 0, bufPoz1 = 0, size, size1, resch;
   gint   g_offset, g_size;
   gchar  token[4];
@@ -410,6 +408,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
 
   payloadText = tvb_format_text(tvb, g_offset, g_size);
   size = (int)strlen(payloadText);
+  tmpBuffer = (gchar*)ep_alloc(size+1);
   for (loop = 0; loop < size; loop++)
   {
     if (payloadText[loop] == '_')
@@ -455,6 +454,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
   tmpBuffer[bufPoz] = '\0';
 
   size1 = (int)strlen(tmpBuffer);
+  tmpBuffer1 = (gchar*)ep_alloc(size1+1);
   for (loop=0; loop<size1; loop++)
   {
     ch = tmpBuffer[loop];
