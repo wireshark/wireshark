@@ -28,7 +28,7 @@
 #include "drange.h"
 
 STTYPE_ACCESSOR_PROTOTYPE(header_field_info*, range, hfinfo)
-STTYPE_ACCESSOR_PROTOTYPE(drange*, range, drange)
+STTYPE_ACCESSOR_PROTOTYPE(drange_t*, range, drange)
 
 /* Set a range */
 void

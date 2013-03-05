@@ -34,9 +34,9 @@
 #include "sttype-range.h"
 
 typedef struct {
-	guint32			magic;
+	guint32				magic;
 	header_field_info	*hfinfo;
-	drange			*drange;
+	drange_t			*drange;
 } range_t;
 
 #define RANGE_MAGIC	0xec0990ce
@@ -60,10 +60,10 @@ range_new(gpointer junk)
 static gpointer
 range_dup(gconstpointer data)
 {
-	const range_t *org = data;
+	const range_t *org = (const range_t *)data;
 	range_t       *range;
 
-	range = range_new(NULL);
+	range = (range_t *)range_new(NULL);
 	range->hfinfo = org->hfinfo;
 	range->drange = drange_dup(org->drange);
 
@@ -116,7 +116,7 @@ sttype_range_set1(stnode_t *node, stnode_t *field, drange_node *rn)
 }
 
 STTYPE_ACCESSOR(header_field_info*, range, hfinfo, RANGE_MAGIC)
-STTYPE_ACCESSOR(drange*, range, drange, RANGE_MAGIC)
+STTYPE_ACCESSOR(drange_t*, range, drange, RANGE_MAGIC)
 
 
 void

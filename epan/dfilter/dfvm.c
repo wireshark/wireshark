@@ -390,7 +390,7 @@ free_register_overhead(dfilter_t* df)
  * to make a new list of fvalue_t's (which are ranges, or byte-slices),
  * and puts the new list into a new register. */
 static void
-mk_range(dfilter_t *df, int from_reg, int to_reg, drange *d_range)
+mk_range(dfilter_t *df, int from_reg, int to_reg, drange_t *d_range)
 {
 	GList		*from_list, *to_list;
 	fvalue_t	*old_fv, *new_fv;

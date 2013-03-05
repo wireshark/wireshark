@@ -198,7 +198,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 	/* TRUE/FALSE *always* exist for FT_BOOLEAN. */
 	if (hfinfo->type == FT_BOOLEAN) {
 		if (hfinfo->strings) {
-			tf = (true_false_string *)hfinfo->strings;
+			tf = (const true_false_string *)hfinfo->strings;
 		}
 
 		if (g_ascii_strcasecmp(s, tf->true_string) == 0) {

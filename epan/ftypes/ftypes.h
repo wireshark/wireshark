@@ -386,7 +386,7 @@ guint
 fvalue_length(fvalue_t *fv);
 
 fvalue_t*
-fvalue_slice(fvalue_t *fv, drange *dr);
+fvalue_slice(fvalue_t *fv, drange_t *dr);
 
 #ifdef __cplusplus
 }

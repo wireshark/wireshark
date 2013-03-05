@@ -53,10 +53,10 @@ test_new(gpointer junk)
 static gpointer
 test_dup(gconstpointer data)
 {
-	const test_t *org = data;
+	const test_t *org = (const test_t *)data;
 	test_t		 *test;
 
-	test = test_new(NULL);
+	test = (test_t *)test_new(NULL);
 	test->op   = org->op;
 	test->val1 = stnode_dup(org->val1);
 	test->val2 = stnode_dup(org->val1);

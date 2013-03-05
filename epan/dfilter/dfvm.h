@@ -47,7 +47,7 @@ typedef struct {
 	union {
 		fvalue_t		*fvalue;
 		guint32			numeric;
-		drange			*drange;
+		drange_t		*drange;
 		header_field_info	*hfinfo;
         df_func_def_t   *funcdef;
 	} value;

@@ -57,7 +57,7 @@ typedef struct _drange {
   gint total_length;
   gint min_start_offset;
   gint max_start_offset;
-} drange;
+} drange_t;
 
 /* drange_node constructor */
 drange_node* drange_node_new(void);
@@ -81,24 +81,24 @@ void drange_node_set_end_offset(drange_node* drnode, gint offset);
 void drange_node_set_to_the_end(drange_node* drnode);
 
 /* drange constructor */
-drange* drange_new(void);
-drange* drange_new_from_list(GSList *list);
-drange *drange_dup(drange *org);
+drange_t * drange_new(void);
+drange_t * drange_new_from_list(GSList *list);
+drange_t * drange_dup(drange_t *org);
 
 /* drange destructor, only use this if you used drange_new() to creat
  * the drange
  */
-void drange_free(drange* dr);
+void drange_free(drange_t* dr);
 
 /* drange accessors */
-gboolean drange_has_total_length(drange* dr);
-gint drange_get_total_length(drange* dr);
-gint drange_get_min_start_offset(drange* dr);
-gint drange_get_max_start_offset(drange* dr);
+gboolean drange_has_total_length(drange_t* dr);
+gint drange_get_total_length(drange_t* dr);
+gint drange_get_min_start_offset(drange_t* dr);
+gint drange_get_max_start_offset(drange_t* dr);
 
 /* drange mutators */
-void drange_append_drange_node(drange* dr, drange_node* drnode);
-void drange_prepend_drange_node(drange* dr, drange_node* drnode);
-void drange_foreach_drange_node(drange* dr, GFunc func, gpointer funcdata);
+void drange_append_drange_node(drange_t* dr, drange_node* drnode);
+void drange_prepend_drange_node(drange_t* dr, drange_node* drnode);
+void drange_foreach_drange_node(drange_t* dr, GFunc func, gpointer funcdata);
 
 #endif /* ! __DRANGE_H__ */

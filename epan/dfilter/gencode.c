@@ -70,7 +70,7 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 	/* Keep track of which registers
 	 * were used for which hfinfo's so that we
 	 * can re-use registers. */
-	reg = GPOINTER_TO_UINT(
+	reg = GPOINTER_TO_INT(
 			g_hash_table_lookup(dfw->loaded_fields, hfinfo));
 	if (reg) {
 		/* Reg's are stored in has as reg+1, so
@@ -82,7 +82,7 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 	else {
 		reg = dfw->next_register++;
 		g_hash_table_insert(dfw->loaded_fields,
-			hfinfo, GUINT_TO_POINTER(reg + 1));
+			hfinfo, GINT_TO_POINTER(reg + 1));
 
 		added_new_hfinfo = TRUE;
 	}

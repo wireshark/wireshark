@@ -52,14 +52,14 @@ function_new(gpointer funcdef)
 static gpointer
 function_dup(gconstpointer data)
 {
-	const function_t *org = data;
+	const function_t *org = (const function_t *)data;
 	function_t		 *stfuncrec;
 	GSList *p;
 
-	stfuncrec = function_new(org->funcdef);
+	stfuncrec = (function_t *)function_new(org->funcdef);
 
 	for (p = org->params; p; p = p->next) {
-		const stnode_t *param = p->data;
+		const stnode_t *param = (const stnode_t *)p->data;
 		stfuncrec->params = g_slist_append(stfuncrec->params, stnode_dup(param));
 	}
 	return (gpointer) stfuncrec;
