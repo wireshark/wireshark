@@ -52,6 +52,24 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-16.html">wnpa-sec-2013-16</ulink>
+          </para>
+          <para>
+	    The Mount dissector could crash. Discovered by Alyssa Milburn.
+            <!-- Fixed in trunk: r47672 -->
+            <!-- Fixed in trunk-1.8: r48078 -->
+            <!-- Fixed in trunk-1.6: r48079 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8335">Bug
+            8335</ulink>)
+          </para>
+          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
