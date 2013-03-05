@@ -259,6 +259,7 @@ SectionIn 2
 SetShellVarContext current
 Delete "$APPDATA\${PROGRAM_NAME}\*.*"
 RMDir "$APPDATA\${PROGRAM_NAME}"
+DeleteRegKey HKCU "Software\${PROGRAM_NAME}"
 SectionEnd
 
 ;VAR un.WINPCAP_UNINSTALL
