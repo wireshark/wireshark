@@ -1021,6 +1021,30 @@ patch-bzip2: distdir
 	fi
 	$(am__remove_distdir)
 
+# Install some desktop files (for use with GNOME and/or freedesktop.org-compliant desktops?)
+# No, these do not go into $(datarootdir): the desktop won't look for them there.
+# Yes, that violate's autofoo's principle of relocatability.
+# What we (probably) should do is check `pkg-config --variable=prefix gtk+-2.0` to know where
+# to install this stuff...
+install_desktop_files:
+	mkdir -p $(DESTDIR)/usr/share/{icons/gnome/{16x16,32x32,48x48,256x256}/mimetypes,mime/packages,applications}
+	install -m 644 -T wireshark-mime-package.xml $(DESTDIR)/usr/share/mime/packages/wireshark.xml
+	if test x$(DESKTOP_FILE_INSTALL) != x ; then \
+		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)/usr/share/applications wireshark.desktop; \
+	else \
+		install -m 644 -T wireshark.desktop $(DESTDIR)/usr/share/applications/wireshark.desktop; \
+	fi
+	mkdir -p $(DESTDIR)/usr/share/icons/hicolor/{16x16,32x32,48x48,64x64,256x256}/apps
+	install -m 644 image/wsicon16.png  $(DESTDIR)/usr/share/icons/hicolor/16x16/apps/wireshark.png
+	install -m 644 image/wsicon32.png  $(DESTDIR)/usr/share/icons/hicolor/32x32/apps/wireshark.png
+	install -m 644 image/wsicon48.png  $(DESTDIR)/usr/share/icons/hicolor/48x48/apps/wireshark.png
+	install -m 644 image/wsicon64.png  $(DESTDIR)/usr/share/icons/hicolor/64x64/apps/wireshark.png
+	install -m 644 image/wsicon256.png $(DESTDIR)/usr/share/icons/hicolor/256x256/apps/wireshark.png
+	install -m 644 -T image/WiresharkDoc-16.png  $(DESTDIR)/usr/share/icons/gnome/16x16/mimetypes/application-wireshark-doc.png
+	install -m 644 -T image/WiresharkDoc-32.png  $(DESTDIR)/usr/share/icons/gnome/32x32/mimetypes/application-wireshark-doc.png
+	install -m 644 -T image/WiresharkDoc-48.png  $(DESTDIR)/usr/share/icons/gnome/48x48/mimetypes/application-wireshark-doc.png
+	install -m 644 -T image/WiresharkDoc-256.png $(DESTDIR)/usr/share/icons/gnome/256x256/mimetypes/application-wireshark-doc.png
+	@echo "Don't forget to run \"update-desktop-database\" and \"update-mime-database /usr/share/mime\""
 
 # Used by svr4-package and osx-package
 # We load top_stagedir with an explicit path so that libtool doesn't freak.
@@ -1061,31 +1085,6 @@ rpm-package: dist
 		echo "Error: RPM executable and/or source directory not found." ; \
 		false; \
 	fi
-
-# Install some desktop files (for use with GNOME and/or freedesktop.org-compliant desktops?)
-# No, these do not go into $(datarootdir): the desktop won't look for them there.
-# Yes, that violate's autofoo's principle of relocatability.
-# What we (probably) should do is check `pkg-config --variable=prefix gtk+-2.0` to know where
-# to install this stuff...
-install_desktop_files:
-	mkdir -p $(DESTDIR)/usr/share/{icons/gnome/{16x16,32x32,48x48,256x256}/mimetypes,mime/packages,applications}
-	install -m 644 -T wireshark-mime-package.xml $(DESTDIR)/usr/share/mime/packages/wireshark.xml
-	if test x$(DESKTOP_FILE_INSTALL) != x ; then \
-		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)/usr/share/applications wireshark.desktop; \
-	else \
-		install -m 644 -T wireshark.desktop $(DESTDIR)/usr/share/applications/wireshark.desktop; \
-	fi
-	mkdir -p $(DESTDIR)/usr/share/icons/hicolor/{16x16,32x32,48x48,64x64,256x256}/apps
-	install -m 644 image/wsicon16.png  $(DESTDIR)/usr/share/icons/hicolor/16x16/apps/wireshark.png
-	install -m 644 image/wsicon32.png  $(DESTDIR)/usr/share/icons/hicolor/32x32/apps/wireshark.png
-	install -m 644 image/wsicon48.png  $(DESTDIR)/usr/share/icons/hicolor/48x48/apps/wireshark.png
-	install -m 644 image/wsicon64.png  $(DESTDIR)/usr/share/icons/hicolor/64x64/apps/wireshark.png
-	install -m 644 image/wsicon256.png $(DESTDIR)/usr/share/icons/hicolor/256x256/apps/wireshark.png
-	install -m 644 -T image/WiresharkDoc-16.png  $(DESTDIR)/usr/share/icons/gnome/16x16/mimetypes/application-wireshark-doc.png
-	install -m 644 -T image/WiresharkDoc-32.png  $(DESTDIR)/usr/share/icons/gnome/32x32/mimetypes/application-wireshark-doc.png
-	install -m 644 -T image/WiresharkDoc-48.png  $(DESTDIR)/usr/share/icons/gnome/48x48/mimetypes/application-wireshark-doc.png
-	install -m 644 -T image/WiresharkDoc-256.png $(DESTDIR)/usr/share/icons/gnome/256x256/mimetypes/application-wireshark-doc.png
-	@echo "Don't forget to run \"update-desktop-database\" and \"update-mime-database /usr/share/mime\""
 
 srpm-package: dist
 	if test x$(HAVE_RPM) = xyes ; then \
