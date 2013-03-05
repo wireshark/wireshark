@@ -5461,7 +5461,7 @@ static void dissect_PAD(tvbuff_t *tvb,
                 gint offset,
                 guint8 flags,
                 gboolean little_endian,
-                int octets_to_next_header,
+                int octets_to_next_header _U_,
                 proto_tree *tree) {
   proto_item* item;
   /* 0...2...........7...............15.............23...............31
