@@ -64,6 +64,7 @@ static void
 dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree		*lapb_tree, *ti;
+    guint16		control;
     int			is_response;
     guint8		byte0;
     tvbuff_t		*next_tvb;
@@ -137,12 +138,12 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else
         lapb_tree = NULL;
 
-    dissect_xdlc_control(tvb, 1, pinfo, lapb_tree, hf_lapb_control,
+    control = dissect_xdlc_control(tvb, 1, pinfo, lapb_tree, hf_lapb_control,
 	    ett_lapb_control, &lapb_cf_items, NULL, NULL, NULL,
 	    is_response, FALSE, FALSE);
 
-    /* not end of frame ==> X.25 */
-    if (tvb_reported_length(tvb) > 2) {
+    /* information frame ==> X.25 */
+    if (XDLC_IS_INFORMATION(control)) {
 	next_tvb = tvb_new_subset_remaining(tvb, 2);
 	switch (pinfo->p2p_dir) {
 
