@@ -52,8 +52,8 @@
 /* GCompareFunc style comparison function for _rtp_stream_info */
 gint rtp_stream_info_cmp(gconstpointer aa, gconstpointer bb)
 {
-	const struct _rtp_stream_info* a = aa;
-	const struct _rtp_stream_info* b = bb;
+	const struct _rtp_stream_info* a = (const struct _rtp_stream_info*)aa;
+	const struct _rtp_stream_info* b = (const struct _rtp_stream_info*)bb;
 
 	if (a==b)
 		return 0;
@@ -97,7 +97,7 @@ void rtpstream_reset(rtpstream_tapinfo_t *tapinfo)
 
 void rtpstream_reset_cb(void *arg)
 {
-	rtpstream_reset(arg);
+	rtpstream_reset((rtpstream_tapinfo_t *)arg);
 }
 
 /*
@@ -186,8 +186,8 @@ void rtp_write_sample(rtp_sample_t* sample, FILE* file)
 /* whenever a RTP packet is seen by the tap listener */
 int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2)
 {
-	rtpstream_tapinfo_t *tapinfo = arg;
-	const struct _rtp_info *rtpinfo = arg2;
+	rtpstream_tapinfo_t *tapinfo = (rtpstream_tapinfo_t *)arg;
+	const struct _rtp_info *rtpinfo = (const struct _rtp_info *)arg2;
 	rtp_stream_info_t tmp_strinfo;
 	rtp_stream_info_t *strinfo = NULL;
 	GList* list;
@@ -255,13 +255,13 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			tmp_strinfo.rtp_stats.reg_pt = PT_UNDEFINED;
 
 			/* Get the Setup frame number who set this RTP stream */
-			p_conv_data = p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name("rtp"));
+			p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name("rtp"));
 			if (p_conv_data)
 				tmp_strinfo.setup_frame_number = p_conv_data->frame_number;
 			else
 				tmp_strinfo.setup_frame_number = 0xFFFFFFFF;
 
-			strinfo = g_malloc(sizeof(rtp_stream_info_t));
+			strinfo = g_new(rtp_stream_info_t,1);
 			*strinfo = tmp_strinfo;  /* memberwise copy of struct */
 			tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
 		}

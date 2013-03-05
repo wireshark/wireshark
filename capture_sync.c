@@ -129,7 +129,7 @@ sync_pipe_add_arg(const char **args, int *argc, const char *arg)
        pointers, *not* counting the NULL pointer at the end, so we have
        to add 2 in order to get the new size of the array, including the
        new pointer and the terminating NULL pointer. */
-    args = g_realloc( (gpointer) args, (*argc + 2) * sizeof (char *));
+    args = (const char **)g_realloc( (gpointer) args, (*argc + 2) * sizeof (char *));
 
     /* Stuff the pointer into the penultimate element of the array, which
        is the one at the index specified by "*argc". */
@@ -302,7 +302,7 @@ init_pipe_args(int *argc) {
     /* Allocate the string pointer array with enough space for the
        terminating NULL pointer. */
     *argc = 0;
-    argv = g_malloc(sizeof (char *));
+    argv = (const char **)g_malloc(sizeof (char *));
     *argv = NULL;
 
     /* take Wireshark's absolute program path and replace "Wireshark" with "dumpcap" */
@@ -611,7 +611,7 @@ sync_pipe_start(capture_options *capture_opts) {
         /* Couldn't create the pipe between parent and child. */
         report_failure("Couldn't create sync pipe: %s", g_strerror(errno));
         for (i = 0; i < argc; i++) {
-            g_free( (gpointer) argv[i]);
+            g_free( (gconstpointer) argv[i]);
         }
         g_free(argv);
         return FALSE;
@@ -624,7 +624,7 @@ sync_pipe_start(capture_options *capture_opts) {
          */
         dup2(sync_pipe[PIPE_WRITE], 2);
         ws_close(sync_pipe[PIPE_READ]);
-        execv(argv[0], (gpointer)argv);
+        execv(argv[0], (char * const*)argv);
         g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
                    argv[0], g_strerror(errno));
         sync_pipe_errmsg_to_parent(2, errmsg, "");
@@ -820,7 +820,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
         /* Couldn't create the message pipe between parent and child. */
         *msg = g_strdup_printf("Couldn't create sync pipe: %s", g_strerror(errno));
         for (i = 0; argv[i] != NULL; i++) {
-            g_free( (gpointer) argv[i]);
+            g_free( (gconstpointer) argv[i]);
         }
         g_free(argv);
         return -1;
@@ -833,7 +833,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
         ws_close(sync_pipe[PIPE_READ]);
         ws_close(sync_pipe[PIPE_WRITE]);
         for (i = 0; argv[i] != NULL; i++) {
-            g_free( (gpointer) argv[i]);
+            g_free( (gconstpointer) argv[i]);
         }
         g_free(argv);
         return -1;
@@ -850,7 +850,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
         dup2(sync_pipe[PIPE_WRITE], 2);
         ws_close(sync_pipe[PIPE_READ]);
         ws_close(sync_pipe[PIPE_WRITE]);
-        execv(argv[0], (gpointer)argv);
+        execv(argv[0], (char * const*)argv);
         g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
                    argv[0], g_strerror(errno));
         sync_pipe_errmsg_to_parent(2, errmsg, "");

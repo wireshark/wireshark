@@ -157,7 +157,7 @@ capture_interface_list(int *err, char **err_str)
             continue;
         }
 
-        if_info = g_malloc0(sizeof(if_info_t));
+        if_info = g_new0(if_info_t,1);
         if_info->name = g_strdup(name);
         if (strlen(if_parts[1]) > 0)
             if_info->vendor_description = g_strdup(if_parts[1]);
@@ -165,7 +165,7 @@ capture_interface_list(int *err, char **err_str)
             if_info->friendly_name = g_strdup(if_parts[2]);
         addr_parts = g_strsplit(if_parts[3], ",", 0);
         for (j = 0; addr_parts[j] != NULL; j++) {
-            if_addr = g_malloc0(sizeof(if_addr_t));
+            if_addr = g_new0(if_addr_t,1);
             if (inet_pton(AF_INET, addr_parts[j], &if_addr->addr.ip4_addr)) {
                 if_addr->ifat_type = IF_AT_IPv4;
             } else if (inet_pton(AF_INET6, addr_parts[j],
@@ -252,7 +252,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     /*
      * Allocate the interface capabilities structure.
      */
-    caps = g_malloc(sizeof *caps);
+    caps = (if_capabilities_t *)g_malloc(sizeof *caps);
     switch (*raw_list[0]) {
 
     case '0':
@@ -284,7 +284,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
             continue;
         }
 
-        data_link_info = g_malloc(sizeof (data_link_info_t));
+        data_link_info = g_new(data_link_info_t,1);
         data_link_info->dlt = (int) strtol(lt_parts[0], NULL, 10);
         data_link_info->name = g_strdup(lt_parts[1]);
         if (strcmp(lt_parts[2], "(not supported)") != 0)

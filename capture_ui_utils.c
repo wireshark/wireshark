@@ -92,7 +92,7 @@ capture_dev_user_descr_find(const gchar *if_name)
     /* Allocate enough space to return the string,
        which runs from p2 to p, plus a terminating
        '\0'. */
-    descr = g_malloc(p - p2 + 1);
+    descr = (char *)g_malloc(p - p2 + 1);
     memcpy(descr, p2, p - p2);
     descr[p - p2] = '\0';
     return descr;
@@ -178,7 +178,7 @@ get_interface_descriptive_name(const char *if_name)
     if (if_list != NULL) {
       if_entry = if_list;
       do {
-        if_info = if_entry->data;
+        if_info = (if_info_t *)if_entry->data;
         if (strcmp(if_info->name, if_name) == 0) {
           if (if_info->friendly_name != NULL) {
               /* We have a "friendly name"; return a copy of that
@@ -218,7 +218,7 @@ search_info(GList *if_list, gchar *if_name)
 
 
   for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-    if_info = if_entry->data;
+    if_info = (if_info_t *)if_entry->data;
 
     if(strcmp(if_name, if_info->name) == 0) {
       return if_info;
@@ -275,7 +275,7 @@ build_capture_combo_list(GList *if_list, gboolean do_hide)
     /* Scan through the list and build a list of strings to display. */
     for (if_entry = if_list; if_entry != NULL;
          if_entry = g_list_next(if_entry)) {
-      if_info = if_entry->data;
+      if_info = (if_info_t *)if_entry->data;
 
       /* Is this interface hidden and, if so, should we include it
          anyway? */
