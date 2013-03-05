@@ -95,6 +95,15 @@
 **/
 #define OutOfMemoryError	6
 
+/**
+    The reassembly state machine was passed a bad fragment offset,
+    or other similar issues. We used to use DissectorError in these
+    cases, but they're not necessarily the dissector's fault - if the packet
+    contains a bad fragment offset, the dissector shouldn't have to figure
+    that out by itself since that's what the reassembly machine is for.
+**/
+#define ReassemblyError         7
+
 
 /* Usage:
  *
@@ -230,6 +239,16 @@
 	    (except_state|=EXCEPT_CAUGHT))                                             \
 		/* user's code goes here */
 
+#define CATCH5(v,w,x,y,z) \
+	if (except_state == 0 && exc != 0 && \
+	    (exc->except_id.except_code == (v) || \
+	     exc->except_id.except_code == (w) || \
+	     exc->except_id.except_code == (x) || \
+	     exc->except_id.except_code == (y) || \
+	     exc->except_id.except_code == (z)) && \
+	    (except_state|=EXCEPT_CAUGHT)) \
+		/* user's code goes here */
+
 #define CATCH_ALL \
 	if (except_state == 0 && exc != 0 && \
 	    (except_state|=EXCEPT_CAUGHT))                                             \
@@ -250,6 +269,11 @@
 
 #define THROW_MESSAGE(x, y) \
 	except_throw(XCEPT_GROUP_WIRESHARK, (x), (y))
+
+#define THROW_MESSAGE_ON(cond, x, y) G_STMT_START { \
+	if ((cond)) \
+		except_throw(XCEPT_GROUP_WIRESHARK, (x), (y)); \
+} G_STMT_END
 
 #define GET_MESSAGE			except_message(exc)
 

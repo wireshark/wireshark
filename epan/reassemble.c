@@ -546,7 +546,7 @@ fragment_set_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fra
 		while (fd) {
 			if (fd->offset > max_offset) {
 				max_offset = fd->offset;
-				DISSECTOR_ASSERT(max_offset <= tot_len);
+				THROW_MESSAGE_ON(max_offset > tot_len, ReassemblyError, "Bad total reassembly block count");
 			}
 			fd = fd->next;
 		}
@@ -555,14 +555,14 @@ fragment_set_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fra
 		while (fd) {
 			if (fd->offset + fd->len > max_offset) {
 				max_offset = fd->offset + fd->len;
-				DISSECTOR_ASSERT(max_offset <= tot_len);
+				THROW_MESSAGE_ON(max_offset > tot_len, ReassemblyError, "Bad total reassembly length");
 			}
 			fd = fd->next;
 		}
 	}
 
 	if (fd_head->flags & FD_DEFRAGMENTED) {
-		DISSECTOR_ASSERT(max_offset == tot_len);
+		THROW_MESSAGE_ON(max_offset != tot_len, ReassemblyError, "Defragmented complete but total length not satisfied");
 	}
 
 	/* We got this far so the value is sane. */
@@ -717,24 +717,23 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	fragment_data *fd_i;
 	guint32 max, dfpos;
 	unsigned char *old_data;
+	const char *error = NULL;
 
 	/* create new fd describing this fragment */
 	fd = g_slice_new(fragment_data);
 	fd->next = NULL;
 	fd->flags = 0;
 	fd->frame = pinfo->fd->num;
-	if (fd->frame > fd_head->frame)
-		fd_head->frame = fd->frame;
 	fd->offset = frag_offset;
 	fd->len  = frag_data_len;
 	fd->data = NULL;
 
-	/*
-	 * If it was already defragmented and this new fragment goes beyond
-	 * data limits, set flag in already empty fds & point old fds to malloc'ed data.
-	 */
-	if(fd_head->flags & FD_DEFRAGMENTED && (frag_offset+frag_data_len) >= fd_head->datalen &&
-		fd_head->flags & FD_PARTIAL_REASSEMBLY){
+	/* If it was already defragmented and this new fragment goes beyond the
+	 * old data limits... */
+	if(fd_head->flags & FD_DEFRAGMENTED && (frag_offset+frag_data_len) >= fd_head->datalen) {
+		/* If we've been requested to continue reassembly, set flag in
+		 * already empty fds & point old fds to malloc'ed data. */
+		if (fd_head->flags & FD_PARTIAL_REASSEMBLY) {
 		for(fd_i=fd_head->next; fd_i; fd_i=fd_i->next){
 			if( !fd_i->data ) {
 				fd_i->data = fd_head->data + fd_i->offset;
@@ -747,6 +746,22 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 		fd_head->datalen=0;
 		fd_head->reassembled_in=0;
 	}
+		else {
+			/* Otherwise, bail out since we have no idea what to do
+			 * with this fragment (and if we keep going we'll run
+			 * past the end of a buffer sooner or later).
+			 *
+			 * XXX: Is ReportedBoundsError the right thing to throw?
+			 */
+			g_slice_free(fragment_data, fd);
+			THROW(ReportedBoundsError);
+		}
+	}
+
+	/* Do this after we may have bailed out (above) so that we don't leave
+	 * fd_head->frame in a bad state if we do */
+	if (fd->frame > fd_head->frame)
+		fd_head->frame = fd->frame;
 
 	if (!more_frags) {
 		/*
@@ -880,19 +895,13 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 
 			if ( fd_i->offset+fd_i->len > dfpos ) {
 				if (fd_i->offset+fd_i->len > max)
-					g_warning("Reassemble error in frame %u: offset %u + len %u > max %u",
-						pinfo->fd->num, fd_i->offset,
-						fd_i->len, max);
+					error = "offset + len > max";
 				else if (dfpos < fd_i->offset)
-					g_warning("Reassemble error in frame %u: dfpos %u < offset %u",
-						pinfo->fd->num, dfpos, fd_i->offset);
+					error = "dfpos < offset";
 				else if (dfpos-fd_i->offset > fd_i->len)
-					g_warning("Reassemble error in frame %u: dfpos %u - offset %u > len %u",
-						pinfo->fd->num, dfpos, fd_i->offset,
-						fd_i->len);
+					error = "dfpos - offset > len";
 				else if (!fd_head->data)
-					g_warning("Reassemble error in frame %u: no data",
-						pinfo->fd->num);
+					error = "no data";
 				else {
 					if (fd_i->offset < dfpos) {
 						fd_i->flags    |= FD_OVERLAP;
@@ -910,10 +919,9 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 						fd_i->len-(dfpos-fd_i->offset));
 				}
 			} else {
-				if (fd_i->offset + fd_i->len < fd_i->offset) /* Integer overflow? */
-					g_warning("Reassemble error in frame %u: offset %u + len %u < offset",
-						pinfo->fd->num, fd_i->offset,
-						fd_i->len);
+				if (fd_i->offset + fd_i->len < fd_i->offset) { /* Integer overflow? */
+					error = "offset + len < offset";
+				}
 			}
 			if( fd_i->flags & FD_NOT_MALLOCED )
 				fd_i->flags &= ~FD_NOT_MALLOCED;
@@ -930,6 +938,11 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 		   allows us to skip any trailing fragments */
 	fd_head->flags |= FD_DEFRAGMENTED;
 	fd_head->reassembled_in=pinfo->fd->num;
+
+	/* we don't throw until here to avoid leaking old_data and others */
+        if (error) {
+		THROW_MESSAGE(ReassemblyError, error);
+	}
 
 	return TRUE;
 }
