@@ -1,4 +1,4 @@
-Wireshark 1.8.5 Release Notes
+Wireshark 1.8.6 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,151 +14,179 @@ What's New
 
    The following vulnerabilities have been fixed.
 
-     o wnpa-sec-2013-01
+     o wnpa-sec-2013-10
 
-       Infinite and large loops in the Bluetooth HCI, CSN.1, DCP-ETSI
-       DOCSIS CM-STAUS, IEEE 802.3 Slow Protocols, MPLS, R3, RTPS,
-       SDP, and SIP dissectors. Reported by Laurent Butti. (Bugs
-       8036, 8037, 8038, 8040, 8041, 8042, 8043, 8198, 8199, 8222)
+       The TCP dissector could crash. (Bug 8274)
 
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+       Versions affected: 1.8.0 to 1.8.5.
 
-       GENERIC-MAP-NOMATCH
+       CVE-2013-2475
 
-     o wnpa-sec-2013-02
+     o wnpa-sec-2013-11
 
-       The CLNP dissector could crash. Discovered independently by
-       Laurent Butti and the Wireshark development team. (Bug 7871)
+       The HART/IP dissectory could go into an infinite loop. (Bug
+       8360)
 
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+       Versions affected: 1.8.0 to 1.8.5.
 
-       GENERIC-MAP-NOMATCH
+       CVE-2013-2476
 
-     o wnpa-sec-2013-03
+     o wnpa-sec-2013-12
 
-       The DTN dissector could crash. (Bug 7945)
+       The CSN.1 dissector could crash. Discovered by Laurent Butti.
+       (Bug 8383)
 
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+       Versions affected: 1.8.0 to 1.8.5.
 
-       GENERIC-MAP-NOMATCH
+       CVE-2013-2477
 
-     o wnpa-sec-2013-04
+     o wnpa-sec-2013-13
 
-       The MS-MMC dissector (and possibly others) could crash. (Bug
-       8112)
+       The MS-MMS dissector could crash. Discovered by Laurent Butti.
+       (Bug 8382)
 
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
 
-       GENERIC-MAP-NOMATCH
+       CVE-2013-2478
 
-     o wnpa-sec-2013-05
+     o wnpa-sec-2013-14
+
+       The MPLS Echo dissector could go into an infinite loop.
+       Discovered by Laurent Butti. (Bug 8039)
+
+       Versions affected: 1.8.0 to 1.8.5.
+
+       CVE-2013-2479
+
+     o wnpa-sec-2013-15
+
+       The RTPS and RTPS2 dissectors could crash. Discovered by
+       Alyssa Milburn. (Bug 8332)
+
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+
+       CVE-2013-2480
+
+     o wnpa-sec-2013-16
+
+       The Mount dissector could crash. Discovered by Alyssa Milburn.
+       (Bug 8335)
+
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+
+       CVE-2013-2481
+
+     o wnpa-sec-2013-17
+
+       The AMPQ dissector could go into an infinite loop. Discovered
+       by Moshe Kaplan. (Bug 8337)
+
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+
+       CVE-2013-2482
+
+     o wnpa-sec-2013-18
+
+       The ACN dissector could attempt to divide by zero. Discovered
+       by Alyssa Milburn. (Bug 8340)
+
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+
+       CVE-2013-2483
+
+     o wnpa-sec-2013-19
+
+       The CIMD dissector could crash. Discovered by Moshe Kaplan.
+       (Bug 8346)
+
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+
+       CVE-2013-2484
+
+     o wnpa-sec-2013-20
+
+       The FCSP dissector could go into an infinite loop. Discovered
+       by Moshe Kaplan. (Bug 8359)
+
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+
+       CVE-2013-2485
+
+     o wnpa-sec-2013-21
+
+       The RELOAD dissector could go into an infinite loop.
+       Discovered by Even Jensen. (Bug 8364)
+
+       Versions affected: 1.8.0 to 1.8.5.
+
+       CVE-2013-2486
+
+       CVE-2013-2487
+
+     o wnpa-sec-2013-22
 
        The DTLS dissector could crash. Discovered by Laurent Butti.
-       (Bug 8111)
+       (Bug 8380)
 
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
 
-       GENERIC-MAP-NOMATCH
-
-     o wnpa-sec-2013-06
-
-       The ROHC dissector could crash. (Bug 7679)
-
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
-
-       GENERIC-MAP-NOMATCH
-
-     o wnpa-sec-2013-07
-
-       The DCP-ETSI dissector could corrupt memory. Discovered by
-       Laurent Butti. (Bug 8213)
-
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
-
-       GENERIC-MAP-NOMATCH
-
-     o wnpa-sec-2013-08
-
-       The Wireshark dissection engine could crash. Discovered by
-       Laurent Butti. (Bug 8197)
-
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
-
-       GENERIC-MAP-NOMATCH
-
-     o wnpa-sec-2013-09
-
-       The NTLMSSP dissector could overflow a buffer. Discovered by
-       Ulf Härnhammar. (Bug X)
-
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
-
-       GENERIC-MAP-NOMATCH
+       CVE-2013-2488
 
    The following bugs have been fixed:
 
-     o SNMPv3 Engine ID registration. (Bug 2426)
+     o Lua pinfo.cols.protocol not holding value in postdissector.
+       (Bug 6020)
 
-     o Wrong decoding of gtp.target identification. (Bug 3974)
+     o data combined via ssl_desegment_app_data not visible via
+       "Follow SSL Stream" only decrypted ssl data tabs. (Bug 6434)
 
-     o Reassemble.c leaks memory for GLIB > 2.8. (Bug 4141)
+     o HTTP application/json-rpc should be decoded/shown as
+       application/json. (Bug 7939)
 
-     o Wireshark crashes when starting due to out-of-date plugin left
-       behind from earlier installation. (Bug 7401)
+     o Maximum value of 802.11-2012 Duration field should be 32767.
+       (Bug 8056)
 
-     o Failed to dissect TLS handshake packets. (Bug 7435)
+     o Voice RTP player crash if player is closed while playing. (Bug
+       8065)
 
-     o ISUP dissector problem with empty Generic Number. (Bug 7632)
+     o Display Filter Macros crash. (Bug 8073)
 
-     o Illegal character is used in temporary capture file name. (Bug
-       7877)
+     o RRC RadioBearerSetup message decoding issue. (Bug 8290)
 
-     o Lua code crashes wireshark after update to 1.8.3. (Bug 7976)
+     o R-click filters add ! in front of field when choosing "apply
+       as filter>selected". (Bug 8297)
 
-     o Timestamp info is not saved correctly when writing DOS Sniffer
-       files. (Bug 7998)
+     o BACnet - Loop Object - Setpoint-Reference property does not
+       decode correctly. (Bug 8306)
 
-     o 1.8.3 Wireshark User's Guide version is 1.6. (Bug 8009)
+     o WMM TSPEC Element Parsing is not done is wrong due to a wrong
+       switch case number. (Bug 8320)
 
-     o Core dumped when the file is closed. (Bug 8022)
+     o Incorrect RTP statistics (Lost Packets indication not ok).
+       (Bug 8321)
 
-     o LPP is misspelled in APDU parameter in
-       e-CIDMeasurementInitiation request for LPPA message. (Bug
-       8023)
+     o Registering ieee802154 dissector for IEEE802.15.4 frames
+       inside Linux SLL frames. (Bug 8325)
 
-     o Wrong packet bytes are selected for ISUP CUG binary code. (Bug
-       8035)
+     o Version Field is skipped while parsing WMM_TSPEC causing wrong
+       dissecting (1 byte offset missing) of all fields in the TSPEC.
+       (Bug 8330)
 
-     o Decodes FCoE Group Multicast MAC address as Broadcom MAC
-       address. (Bug 8046)
+     o [BACnet] UCS-2 strings longer than 127 characters do not
+       decode correctly. (Bug 8331)
 
-     o The SSL dissector stops decrypting the SSL conversation with
-       Malformed Packet:SSL error messages. (Bug 8075)
+     o Malformed IEEE80211 frame triggers DISSECTOR_ASSERT. (Bug
+       8345)
 
-     o Unable to Save/Apply [Unistim Port] in Preferences. (Bug 8078)
+     o Decoding of GSM MAP SMS Diagnostics. (Bug 8378)
 
-     o Some Information Elements in GTPv2 are not dissected
-       correctly. (Bug 8079)
+     o Incorrect packet length displayed for Flight Message Transfer
+       Protocol (FMTP). (Bug 8407)
 
-     o Wrong bytes highlighted with "Find Packet...". (Bug 8085)
+     o Netflow dissector flowDurationMicroseconds nanosecond
+       conversion wrong. (Bug 8410)
 
-     o 3GPP ULI AVP. SAI is not correctly decoded. (Bug 8098)
-
-     o Wireshark does not show "Start and End Time" information for
-       Cisco Netflow/IPFIX with type 154 to 157. (Bug 8105)
-
-     o GPRS Tunnel Protocoll GTP Version 1 does not decode DAF flag
-       in Common Flags IE. (Bug 8193)
-
-     o Wrong parcing of ULI of gtpv2 messages - errors in SAC, RAC &
-       ECI. (Bug 8208)
-
-     o Version Number in EtherIP dissector. (Bug 8211)
-
-     o Warn Dissector bug, protocol JXTA. (Bug 8212)
-
-     o Electromagnetic Emission Parser parses field Event Id as
-       Entity Id. (Bug 8227)
+     o BE (3) AC is wrongly named as "Video" in (qos_acs). (Bug 8432)
 
   New and Updated Features
 
@@ -170,15 +198,14 @@ What's New
 
   Updated Protocol Support
 
-   ANSI IS-637-A, ASN.1 PER, AX.25, Bluetooth HCI, CLNP, CSN.1,
-   DCP-ETSI, DIAMETER, DIS PDU, DOCSIS CM-STATUS, DTLS, DTN, EtherIP,
-   Fibre Channel, GPRS, GTP, GTPv2, HomePlug AV, IEEE 802.3 Slow,
-   IEEE 802.15.4, ISUP, JXTA, LAPD, LPPa, MPLS, MS-MMC, NAS-EPS,
-   NTLMSSP, ROHC, RSL, RTPS, SDP, SIP, SNMP, SSL
+   ACN, AMQP, ASN.1 PER, BACnet, CIMD, CSN.1, DOCSIS TLVs, DTLS,
+   FCSP, FMP/NOTIFY, FMTP, GSM MAP SMS, HART/IP, IEEE 802.11, IEEE
+   802.15.4, JSON, Linux SLL, LTE RRC, Mount, MPLS Echo, Netflow,
+   RELOAD, RSL, RTP, RTPS, RTPS2, SABP, SIP, SSL, TCP
 
   New and Updated Capture File Support
 
-   DOS Sniffer
+   .
 
 Getting Wireshark
 
