@@ -62,8 +62,8 @@ gsm_a_stat_packet(
     epan_dissect_t		*edt _U_,
     const void			*data)
 {
-    gsm_a_stat_t		*stat_p = tapdata;
-    const gsm_a_tap_rec_t	*tap_p = data;
+    gsm_a_stat_t		*stat_p = (gsm_a_stat_t *)tapdata;
+    const gsm_a_tap_rec_t	*tap_p = (gsm_a_tap_rec_t *)data;
 
     switch (tap_p->pdu_type)
     {
@@ -134,7 +134,7 @@ static void
 gsm_a_stat_draw(
     void		*tapdata)
 {
-    gsm_a_stat_t	*stat_p = tapdata;
+    gsm_a_stat_t	*stat_p = (gsm_a_stat_t *)tapdata;
     guint8		i;
 
 
@@ -320,7 +320,7 @@ gsm_a_stat_init(const char *optarg _U_,void* userdata _U_)
     gsm_a_stat_t	*stat_p;
     GString		*err_p;
 
-    stat_p = g_malloc(sizeof(gsm_a_stat_t));
+    stat_p = g_new(gsm_a_stat_t,1);
 
     memset(stat_p, 0, sizeof(gsm_a_stat_t));
 

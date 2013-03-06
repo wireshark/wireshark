@@ -120,8 +120,8 @@ http_init_hash( httpstat_t *sp)
 
 	for (i=0 ; vals_status_code[i].strptr ; i++ )
 	{
-		gint *key = g_malloc (sizeof(gint));
-		http_response_code_t *sc = g_malloc (sizeof(http_response_code_t));
+		gint *key = g_new (gint,1);
+		http_response_code_t *sc = g_new (http_response_code_t,1);
 		*key = vals_status_code[i].value;
 		sc->packets=0;
 		sc->response_code =  *key;
@@ -177,7 +177,7 @@ http_reset_hash_requests(gchar *key _U_ , http_request_methode_t *data, gpointer
 static void
 httpstat_reset(void *psp  )
 {
-	httpstat_t *sp=psp;
+	httpstat_t *sp=(httpstat_t *)psp;
 
 	g_hash_table_foreach( sp->hash_responses, (GHFunc)http_reset_hash_responses, NULL);
 	g_hash_table_foreach( sp->hash_requests, (GHFunc)http_reset_hash_requests, NULL);
@@ -187,17 +187,17 @@ httpstat_reset(void *psp  )
 static int
 httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
-	const http_info_value_t *value=pri;
+	const http_info_value_t *value=(const http_info_value_t *)pri;
 	httpstat_t *sp=(httpstat_t *) psp;
 
 	/* We are only interested in reply packets with a status code */
 	/* Request or reply packets ? */
 	if (value->response_code!=0) {
-		guint *key=g_malloc( sizeof(guint) );
+		guint *key=g_new(guint,1);
 		http_response_code_t *sc;
 
 		*key=value->response_code;
-		sc =  g_hash_table_lookup(
+		sc = (http_response_code_t *)g_hash_table_lookup(
 				sp->hash_responses,
 				key);
 		if (sc==NULL){
@@ -223,7 +223,7 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 			else{
 				*key=599;
 			}
-			sc =  g_hash_table_lookup(
+			sc = (http_response_code_t *)g_hash_table_lookup(
 				sp->hash_responses,
 				key);
 			if (sc==NULL)
@@ -234,11 +234,11 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 	else if (value->request_method){
 		http_request_methode_t *sc;
 
-		sc =  g_hash_table_lookup(
+		sc = (http_request_methode_t *)g_hash_table_lookup(
 				sp->hash_requests,
 				value->request_method);
 		if (sc==NULL){
-			sc=g_malloc( sizeof(http_request_methode_t) );
+			sc=g_new(http_request_methode_t,1);
 			sc->response=g_strdup( value->request_method );
 			sc->packets=1;
 			sc->sp = sp;
@@ -256,7 +256,7 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 static void
 httpstat_draw(void *psp  )
 {
-	httpstat_t *sp=psp;
+	httpstat_t *sp=(httpstat_t *)psp;
 	printf("\n");
 	printf("===================================================================\n");
 	if (! sp->filter[0])
@@ -290,7 +290,7 @@ gtk_httpstat_init(const char *optarg,void* userdata _U_)
 		filter=NULL;
 	}
 
-	sp = g_malloc( sizeof(httpstat_t) );
+	sp = g_new(httpstat_t,1);
 	if(filter){
 		sp->filter=g_strdup(filter);
 	} else {

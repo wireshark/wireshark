@@ -59,7 +59,7 @@ typedef struct _rpcstat_t {
 static int
 dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
-	const dcerpc_info *ri=pri;
+	const dcerpc_info *ri=(const dcerpc_info *)pri;
 	rpcstat_t *rs=prs;
 	nstime_t delta;
 	rpc_procedure_t *rp;
@@ -141,7 +141,7 @@ dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 static void
 dcerpcstat_draw(void *prs)
 {
-	rpcstat_t *rs=prs;
+	rpcstat_t *rs=(rpcstat_t *)prs;
 	guint32 i;
 	guint64 td;
 	printf("\n");
@@ -232,7 +232,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 	}
 	ver = major;
 
-	rs=g_malloc(sizeof(rpcstat_t));
+	rs=g_new(rpcstat_t,1);
 	rs->prog=dcerpc_get_proto_name(&uuid, ver);
 	if(!rs->prog){
 		g_free(rs);
@@ -255,7 +255,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 		}
 	}
 	rs->num_procedures=max_procs+1;
-	rs->procedures=g_malloc(sizeof(rpc_procedure_t)*(rs->num_procedures+1));
+	rs->procedures=(rpc_procedure_t *)g_malloc(sizeof(rpc_procedure_t)*(rs->num_procedures+1));
 	for(i=0;i<rs->num_procedures;i++){
 		int j;
 		rs->procedures[i].proc="unknown";

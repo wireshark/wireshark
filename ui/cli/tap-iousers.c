@@ -94,7 +94,7 @@ iousers_process_name_packet_with_conv_id(
 	}
 
 	if(!iui){
-		iui=g_malloc(sizeof(io_users_item_t));
+		iui=g_new(io_users_item_t,1);
 		iui->next=iu->items;
 		iu->items=iui;
 		iui->name1=g_strdup(name1);
@@ -149,7 +149,7 @@ iousers_process_address_packet(io_users_t *iu, const address *src, const address
 	}
 
 	if(!iui){
-		iui=g_malloc(sizeof(io_users_item_t));
+		iui=g_new(io_users_item_t,1);
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
@@ -183,8 +183,8 @@ iousers_process_address_packet(io_users_t *iu, const address *src, const address
 static int
 iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vudph)
 {
-	io_users_t *iu=arg;
-	const e_udphdr *udph=vudph;
+	io_users_t *iu=(io_users_t *)arg;
+	const e_udphdr *udph=(const e_udphdr *)vudph;
 	char name1[256],name2[256];
 	int direction=0;
 
@@ -215,8 +215,8 @@ iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 static int
 iousers_sctp_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vsctp)
 {
-	io_users_t *iu=arg;
-	const struct _sctp_info* sctph = vsctp;
+	io_users_t *iu=(io_users_t *)arg;
+	const struct _sctp_info* sctph = (const struct _sctp_info*)vsctp;
 	char name1[256],name2[256], s_sport[10], s_dport[10];
 	int direction=0;
 
@@ -246,8 +246,8 @@ iousers_sctp_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 static int
 iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vtcph)
 {
-	io_users_t *iu=arg;
-	const struct tcpheader *tcph=vtcph;
+	io_users_t *iu=(io_users_t *)arg;
+	const struct tcpheader *tcph=(const struct tcpheader *)vtcph;
 	char name1[256],name2[256];
 	int direction=0;
 
@@ -278,8 +278,8 @@ iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 static int
 iousers_ip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	io_users_t *iu=arg;
-	const ws_ip *iph=vip;
+	io_users_t *iu=(io_users_t *)arg;
+	const ws_ip *iph=(const ws_ip *)vip;
 
 	iousers_process_address_packet(iu, &iph->ip_src, &iph->ip_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
@@ -289,8 +289,8 @@ iousers_ip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 static int
 iousers_ipv6_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	io_users_t *iu=arg;
-	const struct ip6_hdr *ip6h=vip;
+	io_users_t *iu=(io_users_t *)arg;
+	const struct ip6_hdr *ip6h=(const struct ip6_hdr *)vip;
 	address src, dst;
 
 	/* Addresses aren't implemented as 'address' type in struct ip6_hdr */
@@ -307,8 +307,8 @@ iousers_ipv6_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 static int
 iousers_ipx_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vipx)
 {
-	io_users_t *iu=arg;
-	const ipxhdr_t *ipxh=vipx;
+	io_users_t *iu=(io_users_t *)arg;
+	const ipxhdr_t *ipxh=(const ipxhdr_t *)vipx;
 
 	iousers_process_address_packet(iu, &ipxh->ipx_src, &ipxh->ipx_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
@@ -318,8 +318,8 @@ iousers_ipx_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 static int
 iousers_fc_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vfc)
 {
-	io_users_t *iu=arg;
-	const fc_hdr *fchdr=vfc;
+	io_users_t *iu=(io_users_t *)arg;
+	const fc_hdr *fchdr=(const fc_hdr *)vfc;
 
 	iousers_process_address_packet(iu, &fchdr->s_id, &fchdr->d_id, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
@@ -329,8 +329,8 @@ iousers_fc_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 static int
 iousers_eth_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *veth)
 {
-	io_users_t *iu=arg;
-	const eth_hdr *ehdr=veth;
+	io_users_t *iu=(io_users_t *)arg;
+	const eth_hdr *ehdr=(const eth_hdr *)veth;
 
 	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
@@ -340,8 +340,8 @@ iousers_eth_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 static int
 iousers_fddi_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *veth)
 {
-	io_users_t *iu=arg;
-	const fddi_hdr *ehdr=veth;
+	io_users_t *iu=(io_users_t *)arg;
+	const fddi_hdr *ehdr=(const fddi_hdr *)veth;
 
 	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
@@ -351,8 +351,8 @@ iousers_fddi_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 static int
 iousers_tr_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vtr)
 {
-	io_users_t *iu=arg;
-	const tr_hdr *trhdr=vtr;
+	io_users_t *iu=(io_users_t *)arg;
+	const tr_hdr *trhdr=(const tr_hdr *)vtr;
 
 	iousers_process_address_packet(iu, &trhdr->src, &trhdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
@@ -362,7 +362,7 @@ iousers_tr_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 static void
 iousers_draw(void *arg)
 {
-	io_users_t *iu = arg;
+	io_users_t *iu = (io_users_t *)arg;
 	io_users_item_t *iui;
 	guint32 last_frames, max_frames;
 	struct tm * tm_time;
@@ -563,7 +563,7 @@ iousers_init(const char *optarg, void* userdata _U_)
 	}
 
 
-	iu=g_malloc(sizeof(io_users_t));
+	iu=g_new(io_users_t,1);
 	iu->items=NULL;
 	iu->type=tap_type_name;
 	if(filter){

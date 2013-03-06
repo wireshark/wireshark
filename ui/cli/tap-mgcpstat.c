@@ -64,7 +64,7 @@ static int
 mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pmi)
 {
 	mgcpstat_t *ms=(mgcpstat_t *)pms;
-	const mgcp_info_t *mi=pmi;
+	const mgcp_info_t *mi=(const mgcp_info_t *)pmi;
 	nstime_t delta;
 	int ret = 0;
 
@@ -175,7 +175,7 @@ mgcpstat_init(const char *optarg, void* userdata _U_)
 	int i;
 	GString *error_string;
 
-	ms=g_malloc(sizeof(mgcpstat_t));
+	ms=g_new(mgcpstat_t,1);
 	if(!strncmp(optarg,"mgcp,rtd,",9)){
 		ms->filter=g_strdup(optarg+9);
 	} else {

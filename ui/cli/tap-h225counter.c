@@ -89,7 +89,7 @@ static int
 h225counter_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
 	h225counter_t *hs=(h225counter_t *)phs;
-	const h225_packet_info *pi=phi;
+	const h225_packet_info *pi=(const h225_packet_info *)phi;
 
 	switch (pi->msg_type) {
 
@@ -348,7 +348,7 @@ h225counter_init(const char *optarg, void* userdata _U_)
 	h225counter_t *hs;
 	GString *error_string;
 
-	hs = g_malloc(sizeof(h225counter_t));
+	hs = g_new(h225counter_t,1);
 	if(!strncmp(optarg,"h225,counter,",13)){
 		hs->filter=g_strdup(optarg+13);
 	} else {

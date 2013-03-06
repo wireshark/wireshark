@@ -68,7 +68,7 @@ static void
 expert_stat_reset(void *tapdata)
 {
     gint n;
-    expert_tapdata_t *etd = tapdata;
+    expert_tapdata_t *etd = (expert_tapdata_t *)tapdata;
 
     /* Free & reallocate chunk of strings */
     g_string_chunk_free(etd->text);
@@ -86,7 +86,7 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
                    const void *pointer)
 {
     const expert_info_t *ei = (const expert_info_t *)pointer;
-    expert_tapdata_t *data = tapdata;
+    expert_tapdata_t *data = (expert_tapdata_t *)tapdata;
     severity_level_t severity_level;
     expert_entry     tmp_entry;
     expert_entry     *entry;
@@ -235,7 +235,7 @@ static void expert_stat_init(const char *optarg, void *userdata _U_)
 
 
     /* Create top-level struct */
-    hs = g_malloc(sizeof(expert_tapdata_t));
+    hs = g_new(expert_tapdata_t,1);
     memset(hs, 0,  sizeof(expert_tapdata_t));
 
     /* Allocate chunk of strings */

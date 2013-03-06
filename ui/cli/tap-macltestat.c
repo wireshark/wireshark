@@ -168,7 +168,7 @@ static mac_lte_ep_t* alloc_mac_lte_ep(const struct mac_lte_tap_info *si, packet_
         return NULL;
     }
 
-    if (!(ep = g_malloc(sizeof(mac_lte_ep_t)))) {
+    if (!(ep = g_new(mac_lte_ep_t,1))) {
         return NULL;
     }
 
@@ -518,7 +518,7 @@ static void mac_lte_stat_init(const char *optarg, void *userdata _U_)
     }
 
     /* Create struct */
-    hs = g_malloc0(sizeof(mac_lte_stat_t));
+    hs = g_new0(mac_lte_stat_t,1);
     hs->ep_list = NULL;
 
     error_string = register_tap_listener("mac-lte", hs,

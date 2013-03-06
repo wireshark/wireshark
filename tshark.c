@@ -211,7 +211,7 @@ list_capture_types(void) {
   struct string_elem *captypes;
   GSList             *list = NULL;
 
-  captypes = g_malloc(sizeof(struct string_elem) * WTAP_NUM_FILE_TYPES);
+  captypes = g_new(struct string_elem, WTAP_NUM_FILE_TYPES);
 
   fprintf(stderr, "tshark: The available capture file types for the \"-F\" flag are:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
@@ -2418,7 +2418,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
   int           err;
   gchar        *err_info;
   gint64        data_offset;
-  capture_file *cf = capture_opts->cf;
+  capture_file *cf = (capture_file *)capture_opts->cf;
   gboolean      filtering_tap_listeners;
   guint         tap_flags;
 
@@ -3294,11 +3294,11 @@ get_line_buf(size_t len)
     ;
   if (line_bufp == NULL) {
     line_buf_len = new_line_buf_len;
-    line_bufp = g_malloc(line_buf_len + 1);
+    line_bufp = (char *)g_malloc(line_buf_len + 1);
   } else {
     if (new_line_buf_len > line_buf_len) {
       line_buf_len = new_line_buf_len;
-      line_bufp = g_realloc(line_bufp, line_buf_len + 1);
+      line_bufp = (char *)g_realloc(line_bufp, line_buf_len + 1);
     }
   }
   return line_bufp;

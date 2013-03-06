@@ -46,7 +46,7 @@ struct _funnel_text_window_t {
 static GPtrArray* text_windows = NULL;
 
 static funnel_text_window_t* new_text_window(const gchar* title) {
-    funnel_text_window_t* tw = g_malloc(sizeof(funnel_text_window_t));
+    funnel_text_window_t* tw = g_new(funnel_text_window_t,1);
     tw->title = g_strdup(title);
     tw->text = g_string_new("");
     
@@ -131,7 +131,7 @@ void funnel_dump_all_text_windows(void) {
     if (!text_windows) return;
     
     for ( i = 0 ; i < text_windows->len; i++) {
-        funnel_text_window_t*  tw = g_ptr_array_index(text_windows,i);
+        funnel_text_window_t*  tw = (funnel_text_window_t*)g_ptr_array_index(text_windows,i);
         printf("\n========================== %s "
                "==========================\n%s\n",tw->title,tw->text->str);
         

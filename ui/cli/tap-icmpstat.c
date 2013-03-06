@@ -67,7 +67,7 @@ typedef struct _icmpstat_t {
 static void
 icmpstat_reset(void *tapdata)
 {
-    icmpstat_t *icmpstat = tapdata;
+    icmpstat_t *icmpstat = (icmpstat_t *)tapdata;
 
     g_slist_free(icmpstat->rt_list);
     memset(icmpstat, 0, sizeof(icmpstat_t));
@@ -115,8 +115,8 @@ static gint compare_doubles(gconstpointer a, gconstpointer b)
 static int
 icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *data)
 {
-    icmpstat_t *icmpstat = tapdata;
-    const icmp_transaction_t *trans = data;
+    icmpstat_t *icmpstat = (icmpstat_t *)tapdata;
+    const icmp_transaction_t *trans = (const icmp_transaction_t *)data;
     double resp_time, *rt;
 
     if (trans == NULL)
@@ -124,7 +124,7 @@ icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 
     if (trans->resp_frame) {
         resp_time = nstime_to_msec(&trans->resp_time);
-        rt = g_malloc(sizeof(double));
+        rt = g_new(double,1);
         if (rt == NULL)
             return 0;
         *rt = resp_time;
@@ -222,7 +222,7 @@ static void compute_stats(icmpstat_t *icmpstat, double *mean, double *med, doubl
 static void
 icmpstat_draw(void *tapdata)
 {
-    icmpstat_t *icmpstat = tapdata;
+    icmpstat_t *icmpstat = (icmpstat_t *)tapdata;
     unsigned int lost;
     double mean, sdev, med;
 
@@ -269,7 +269,7 @@ icmpstat_init(const char *optarg, void* userdata _U_)
     if (strstr(optarg, "icmp,srt,"))
         filter = optarg + strlen("icmp,srt,");
 
-    icmpstat = g_try_malloc(sizeof(icmpstat_t));
+    icmpstat = (icmpstat_t *)g_try_malloc(sizeof(icmpstat_t));
     if (icmpstat == NULL) {
         fprintf(stderr, "tshark: g_try_malloc() fatal error.\n");
         exit(1);

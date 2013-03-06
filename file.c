@@ -155,7 +155,7 @@ cf_callback_invoke(int event, gpointer data)
   g_assert(cb_item != NULL);
 
   while (cb_item != NULL) {
-    cb = cb_item->data;
+    cb = (cf_callback_data_t *)cb_item->data;
     cb->cb_fct(event, data, cb->user_data);
     cb_item = g_list_next(cb_item);
   }
@@ -167,7 +167,7 @@ cf_callback_add(cf_callback_t func, gpointer user_data)
 {
   cf_callback_data_t *cb;
 
-  cb = g_malloc(sizeof(cf_callback_data_t));
+  cb = g_new(cf_callback_data_t,1);
   cb->cb_fct = func;
   cb->user_data = user_data;
 
@@ -181,7 +181,7 @@ cf_callback_remove(cf_callback_t func)
   GList              *cb_item = cf_callbacks;
 
   while (cb_item != NULL) {
-    cb = cb_item->data;
+    cb = (cf_callback_data_t *)cb_item->data;
     if (cb->cb_fct == func) {
       cf_callbacks = g_list_remove(cf_callbacks, cb);
       g_free(cb);
@@ -2265,7 +2265,7 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
              struct wtap_pkthdr *phdr, const guint8 *pd,
              void *argsp)
 {
-  retap_callback_args_t *args = argsp;
+  retap_callback_args_t *args = (retap_callback_args_t *)argsp;
   epan_dissect_t         edt;
 
   epan_dissect_init(&edt, args->construct_protocol_tree, FALSE);
@@ -2343,7 +2343,7 @@ print_packet(capture_file *cf, frame_data *fdata,
              struct wtap_pkthdr *phdr, const guint8 *pd,
              void *argsp)
 {
-  print_callback_args_t *args = argsp;
+  print_callback_args_t *args = (print_callback_args_t *)argsp;
   epan_dissect_t  edt;
   int             i;
   char           *cp;
@@ -2406,7 +2406,7 @@ print_packet(capture_file *cf, frame_data *fdata,
       if (line_len > args->line_buf_len) {
         cp_off = (int) (cp - args->line_buf);
         args->line_buf_len = 2 * line_len;
-        args->line_buf = g_realloc(args->line_buf, args->line_buf_len + 1);
+        args->line_buf = (char *)g_realloc(args->line_buf, args->line_buf_len + 1);
         cp = args->line_buf + cp_off;
       }
 
@@ -2521,7 +2521,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
   if (print_args->print_summary) {
     /* We're printing packet summaries.  Allocate the header line buffer
        and get the column widths. */
-    callback_args.header_line_buf = g_malloc(callback_args.header_line_buf_len + 1);
+    callback_args.header_line_buf = (char *)g_malloc(callback_args.header_line_buf_len + 1);
 
     /* Find the number of visible columns and the last visible column */
     for (i = 0; i < prefs.num_cols; i++) {
@@ -2580,7 +2580,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
       if (line_len > callback_args.header_line_buf_len) {
         cp_off = (int) (cp - callback_args.header_line_buf);
         callback_args.header_line_buf_len = 2 * line_len;
-        callback_args.header_line_buf = g_realloc(callback_args.header_line_buf,
+        callback_args.header_line_buf = (char *)g_realloc(callback_args.header_line_buf,
                                                   callback_args.header_line_buf_len + 1);
         cp = callback_args.header_line_buf + cp_off;
       }
@@ -2601,7 +2601,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
     /* Now start out the main line buffer with the same length as the
        header line buffer. */
     callback_args.line_buf_len = callback_args.header_line_buf_len;
-    callback_args.line_buf = g_malloc(callback_args.line_buf_len + 1);
+    callback_args.line_buf = (char *)g_malloc(callback_args.line_buf_len + 1);
   } /* if (print_summary) */
 
   /* Iterate through the list of packets, printing the packets we were
@@ -2962,7 +2962,7 @@ cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree,  match_data *md
 static match_result
 match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  match_data     *mdata = criterion;
+  match_data     *mdata = (match_data *)criterion;
   epan_dissect_t  edt;
 
   /* Load the frame's data. */
@@ -3057,7 +3057,7 @@ cf_find_packet_summary_line(capture_file *cf, const char *string,
 static match_result
 match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  match_data     *mdata      = criterion;
+  match_data     *mdata      = (match_data *)criterion;
   const gchar    *string     = mdata->string;
   size_t          string_len = mdata->string_len;
   epan_dissect_t  edt;
@@ -3156,7 +3156,7 @@ cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size,
 static match_result
 match_narrow_and_wide(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  cbs_t        *info       = criterion;
+  cbs_t        *info       = (cbs_t *)criterion;
   const guint8 *ascii_text = info->data;
   size_t        textlen    = info->data_len;
   match_result  result;
@@ -3202,7 +3202,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata, void *criterion)
 static match_result
 match_narrow(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  cbs_t        *info       = criterion;
+  cbs_t        *info       = (cbs_t *)criterion;
   const guint8 *ascii_text = info->data;
   size_t        textlen    = info->data_len;
   match_result  result;
@@ -3247,7 +3247,7 @@ match_narrow(capture_file *cf, frame_data *fdata, void *criterion)
 static match_result
 match_wide(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  cbs_t        *info       = criterion;
+  cbs_t        *info       = (cbs_t *)criterion;
   const guint8 *ascii_text = info->data;
   size_t        textlen    = info->data_len;
   match_result  result;
@@ -3292,7 +3292,7 @@ match_wide(capture_file *cf, frame_data *fdata, void *criterion)
 static match_result
 match_binary(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  cbs_t        *info        = criterion;
+  cbs_t        *info        = (cbs_t *)criterion;
   const guint8 *binary_data = info->data;
   size_t        datalen     = info->data_len;
   match_result  result;
@@ -3365,7 +3365,7 @@ cf_find_packet_dfilter_string(capture_file *cf, const char *filter,
 static match_result
 match_dfilter(capture_file *cf, frame_data *fdata, void *criterion)
 {
-  dfilter_t      *sfcode = criterion;
+  dfilter_t      *sfcode = (dfilter_t *)criterion;
   epan_dissect_t  edt;
   match_result    result;
 
@@ -3897,7 +3897,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
             struct wtap_pkthdr *phdr, const guint8 *pd,
             void *argsp)
 {
-  save_callback_args_t *args = argsp;
+  save_callback_args_t *args = (save_callback_args_t *)argsp;
   struct wtap_pkthdr    hdr;
   int           err;
   gchar        *display_basename;

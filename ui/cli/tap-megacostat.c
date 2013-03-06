@@ -93,7 +93,7 @@ megacostat_init(const char *optarg, void* userdata _U_)
 		exit(1);
 	}
 
-	ms=g_malloc(sizeof(megacostat_t));
+	ms=g_new(megacostat_t,1);
 	if(!strncmp(optarg,"megaco,rtd,",11)){
 		ms->filter=g_strdup(optarg+11);
 	} else {

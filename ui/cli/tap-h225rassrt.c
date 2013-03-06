@@ -112,7 +112,7 @@ static int
 h225rassrt_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
 {
 	h225rassrt_t *hs=(h225rassrt_t *)phs;
-	const h225_packet_info *pi=phi;
+	const h225_packet_info *pi=(const h225_packet_info *)phi;
 
 	ras_type rasmsg_type = RAS_OTHER;
 	ras_category rascategory = RAS_OTHERS;
@@ -210,7 +210,7 @@ h225rassrt_init(const char *optarg, void* userdata _U_)
 	h225rassrt_t *hs;
 	GString *error_string;
 
-	hs = g_malloc(sizeof(h225rassrt_t));
+	hs = g_new(h225rassrt_t,1);
 	if(!strncmp(optarg,"h225,srt,",9)){
 		hs->filter=g_strdup(optarg+9);
 	} else {

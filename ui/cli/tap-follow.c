@@ -291,7 +291,7 @@ followAlloc(
 {
   follow_t *    fp;
 
-  fp = g_malloc0(sizeof *fp);
+  fp = (follow_t *)g_malloc0(sizeof *fp);
 
   fp->type = type;
   SET_ADDRESS(&fp->addr[0], AT_NONE, 0, fp->addrBuf[0]);
@@ -317,8 +317,8 @@ followUdpPacket(
   const void *          datap
   )
 {
-  follow_t *            fp      = contextp;
-  const tvbuff_t *      tvbp    = datap;
+  follow_t *            fp      = (follow_t *)contextp;
+  const tvbuff_t *      tvbp    = (const tvbuff_t *)datap;
   tcp_stream_chunk      sc;
   size_t                size;
 
@@ -352,8 +352,8 @@ followSslPacket(
   const void *          datap
   )
 {
-  follow_t *            fp      = contextp;
-  SslPacketInfo *       spip    = p_get_proto_data(pip->fd, GPOINTER_TO_INT(datap));
+  follow_t *            fp      = (follow_t *)contextp;
+  SslPacketInfo *       spip    = (SslPacketInfo *)p_get_proto_data(pip->fd, GPOINTER_TO_INT(datap));
   SslDataInfo *         sdip;
   gint                  length;
   tcp_stream_chunk      sc;
@@ -494,7 +494,7 @@ followDraw(
   static const char     seperator[] =
     "===================================================================\n";
 
-  follow_t *            fp      = contextp;
+  follow_t *            fp      = (follow_t *)contextp;
   tcp_stream_chunk      sc;
   int                   node;
   const address *       addr[2];

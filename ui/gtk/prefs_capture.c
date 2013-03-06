@@ -145,7 +145,7 @@ capture_prefs_show(void)
 	if (combo_list != NULL) {
 		GList *combo_entry;
 		for (combo_entry = combo_list; combo_entry != NULL; combo_entry = g_list_next(combo_entry)) {
-				 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(if_cbxe), combo_entry->data);
+				 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(if_cbxe), (const gchar *)combo_entry->data);
 		}
 	}
 	if (prefs.capture_device) {
@@ -295,7 +295,7 @@ capture_prefs_destroy(GtkWidget *w)
 
 	/* Is there an interface descriptions dialog associated with this
 	   Preferences dialog? */
-	dlg = g_object_get_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY);
+	dlg = (GtkWidget *)g_object_get_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY);
 
 	if (dlg != NULL) {
 		/* Yes.  Destroy it. */
@@ -304,7 +304,7 @@ capture_prefs_destroy(GtkWidget *w)
 
 	/* Is there an column descriptions dialog associated with this
 	   Preferences dialog? */
-	dlg = g_object_get_data(G_OBJECT(caller), COLOPTS_DIALOG_PTR_KEY);
+	dlg = (GtkWidget *)g_object_get_data(G_OBJECT(caller), COLOPTS_DIALOG_PTR_KEY);
 
 	if (dlg != NULL) {
 		/* Yes.  Destroy it. */
@@ -352,7 +352,7 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	/* Has an edit dialog box already been opened for that top-level
 	   widget? */
-	colopts_edit_dlg = g_object_get_data(G_OBJECT(caller), COLOPTS_DIALOG_PTR_KEY);
+	colopts_edit_dlg = (GtkWidget *)g_object_get_data(G_OBJECT(caller), COLOPTS_DIALOG_PTR_KEY);
 	if (colopts_edit_dlg != NULL) {
 		/* Yes.  Just re-activate that dialog box. */
 		reactivate_window(colopts_edit_dlg);
@@ -507,15 +507,15 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
-	ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+	ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
 	gtk_widget_set_tooltip_text(ok_bt, "Save changes and exit dialog");
 	g_signal_connect(ok_bt, "clicked", G_CALLBACK(colopts_edit_ok_cb), colopts_edit_dlg);
 
-	cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
 	gtk_widget_set_tooltip_text(cancel_bt, "Cancel and exit dialog");
 	window_set_cancel_button(colopts_edit_dlg, cancel_bt, window_cancel_button_cb);
 
-	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+	help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb),
 	                 (gpointer)HELP_CAPTURE_INTERFACE_OPTIONS_DIALOG);
 	gtk_widget_set_tooltip_text (help_bt, "Show topic specific help");
@@ -560,7 +560,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	/* Has an edit dialog box already been opened for that top-level
 	   widget? */
-	ifopts_edit_dlg = g_object_get_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY);
+	ifopts_edit_dlg = (GtkWidget *)g_object_get_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY);
 	if (ifopts_edit_dlg != NULL) {
 		/* Yes.  Just re-activate that dialog box. */
 		reactivate_window(ifopts_edit_dlg);
@@ -820,15 +820,15 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
-	ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+	ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
 	gtk_widget_set_tooltip_text(ok_bt, "Save changes and exit dialog");
 	g_signal_connect(ok_bt, "clicked", G_CALLBACK(ifopts_edit_ok_cb), ifopts_edit_dlg);
 
-	cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
 	gtk_widget_set_tooltip_text(cancel_bt, "Cancel and exit dialog");
         window_set_cancel_button(ifopts_edit_dlg, cancel_bt, window_cancel_button_cb);
 
-	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+	help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb),
 			 (gpointer)HELP_CAPTURE_INTERFACE_OPTIONS_DIALOG);
 	gtk_widget_set_tooltip_text (help_bt, "Show topic specific help");
@@ -932,7 +932,7 @@ colopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 	/* Get the widget that requested that we be popped up, if any.
 	   (It should arrange to destroy us if it's destroyed, so
 	   that we don't get a pointer to a non-existent window here.) */
-	caller = g_object_get_data(G_OBJECT(win), COLOPTS_CALLER_PTR_KEY);
+	caller = (GtkWidget *)g_object_get_data(G_OBJECT(win), COLOPTS_CALLER_PTR_KEY);
 
 	if (caller != NULL) {
 		/* Tell it we no longer exist. */
@@ -948,7 +948,7 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 	/* Get the widget that requested that we be popped up, if any.
 	   (It should arrange to destroy us if it's destroyed, so
 	   that we don't get a pointer to a non-existent window here.) */
-	caller = g_object_get_data(G_OBJECT(win), IFOPTS_CALLER_PTR_KEY);
+	caller = (GtkWidget *)g_object_get_data(G_OBJECT(win), IFOPTS_CALLER_PTR_KEY);
 
 	if (caller != NULL) {
 		/* Tell it we no longer exist. */
@@ -971,7 +971,7 @@ ifopts_description_to_val (const char *if_name, gboolean monitor_mode,
 			for (lt_entry = g_list_next(caps->data_link_types);
 			    lt_entry != NULL;
 			    lt_entry = g_list_next(lt_entry)) {
-				data_link_info_t *dli_p = lt_entry->data;
+				data_link_info_t *dli_p = (data_link_info_t *)lt_entry->data;
 				if (dli_p->description) {
 					if (strcmp(dli_p->description, descr) == 0) {
 						dlt = dli_p->dlt;
@@ -1059,7 +1059,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 			GList *lt_entry;
 			for (lt_entry = caps->data_link_types; lt_entry != NULL;
 			    lt_entry = g_list_next(lt_entry)) {
-				data_link_info_t *dli_p = lt_entry->data;
+				data_link_info_t *dli_p = (data_link_info_t *)lt_entry->data;
 				text = (dli_p->description != NULL) ? dli_p->description : dli_p->name;
 				if (strcmp(linktype, text) == 0) {
 					selected = num_linktypes;
@@ -1183,7 +1183,7 @@ ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 			GList *lt_entry;
 			for (lt_entry = caps->data_link_types; lt_entry != NULL;
 			    lt_entry = g_list_next(lt_entry)) {
-				data_link_info_t *dli_p = lt_entry->data;
+				data_link_info_t *dli_p = (data_link_info_t *)lt_entry->data;
 				text = (dli_p->description != NULL) ? dli_p->description : dli_p->name;
 				 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(if_linktype_cb), text);
 				num_linktypes++;
@@ -1373,7 +1373,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 			GList  *lt_entry;
 			for (lt_entry = caps->data_link_types; lt_entry != NULL;
 			    lt_entry = g_list_next(lt_entry)) {
-				data_link_info_t *dli_p = lt_entry->data;
+				data_link_info_t *dli_p = (data_link_info_t *)lt_entry->data;
 				/* If we have no previous link-layer header type we use the first one */
 				if (linktype == -1 || linktype == dli_p->dlt) {
 					if (dli_p->description) {
@@ -1523,7 +1523,7 @@ ifopts_write_new_monitor_mode(void)
 	gchar		*new_monitor_mode;
 
 	/* new preferences "monitor mode" interfaces string */
-	new_monitor_mode = g_malloc0(MAX_VAL_LEN);
+	new_monitor_mode = (gchar*)g_malloc0(MAX_VAL_LEN);
 
 	/* get "monitor mode" flag text for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
@@ -1578,7 +1578,7 @@ ifopts_write_new_linklayer(void)
 	gchar		*new_linklayer;
 
 	/* new preferences interfaces link-layer string */
-	new_linklayer = g_malloc0(MAX_VAL_LEN);
+	new_linklayer = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 	/* get link-layer for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
@@ -1636,7 +1636,7 @@ ifopts_write_new_descr(void)
 	gchar		*new_descr;
 
 	/* new preferences interfaces description string */
-	new_descr = g_malloc0(MAX_VAL_LEN);
+	new_descr = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 	/* get description for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
@@ -1693,7 +1693,7 @@ ifopts_write_new_hide(void)
 	gchar		*new_hide;
 
 	/* new preferences "hidden" interfaces string */
-	new_hide = g_malloc0(MAX_VAL_LEN);
+	new_hide = (gchar *)g_malloc0(MAX_VAL_LEN);
 
 	/* get "hide" flag text for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
