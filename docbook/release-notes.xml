@@ -260,6 +260,12 @@ Wireshark Info
           8331</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Netflow dissector flowDurationMicroseconds nanosecond conversion wrong.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8410">Bug
+          8410</ulink>)
+        </para></listitem>
+
      </itemizedlist>
 
     </para>
@@ -297,8 +303,10 @@ FMP/NOTIFY,
 IEEE 802.11,
 JSON,
 Mount,
+Netflow,
 RTPS,
 RTPS2,
+SIP,
 SSL
 
     </para>
