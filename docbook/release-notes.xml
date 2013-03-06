@@ -46,11 +46,9 @@ Wireshark Info
             8274</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5.</para>
-	  <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2475">CVE-2013-2475</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -65,11 +63,9 @@ Wireshark Info
             8360</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5.</para>
-	  <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2476">CVE-2013-2476</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -84,11 +80,9 @@ Wireshark Info
             8383</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5.</para>
-	  <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2477">CVE-2013-2477</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -104,11 +98,9 @@ Wireshark Info
             8382</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-	  <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2478">CVE-2013-2478</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -123,11 +115,9 @@ Wireshark Info
             8039</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5.</para>
-	  <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2479">CVE-2013-2479</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -143,11 +133,9 @@ Wireshark Info
             8332</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-	  <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2480">CVE-2013-2480</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -163,11 +151,9 @@ Wireshark Info
             8335</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-	  <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2481">CVE-2013-2481</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -183,11 +169,9 @@ Wireshark Info
             8337</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-	  <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2482">CVE-2013-2482</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -203,11 +187,9 @@ Wireshark Info
             8340</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-	  <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2483">CVE-2013-2483</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -223,11 +205,9 @@ Wireshark Info
             8346</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-	  <!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2484">CVE-2013-2484</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -243,11 +223,9 @@ Wireshark Info
             8359</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-          <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2485">CVE-2013-2485</ulink>
           </para>
-	  -->
         </listitem>
 
         <listitem>
@@ -262,11 +240,12 @@ Wireshark Info
             8364</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5.</para>
-          <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2486">CVE-2013-2486</ulink>
           </para>
-	  -->
+	  <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2487">CVE-2013-2487</ulink>
+          </para>
         </listitem>
 
         <listitem>
@@ -282,11 +261,9 @@ Wireshark Info
             8380</ulink>)
           </para>
           <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-          <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2488">CVE-2013-2488</ulink>
           </para>
-	  -->
         </listitem>
 
       </itemizedlist>
@@ -415,6 +392,12 @@ Wireshark Info
           Netflow dissector flowDurationMicroseconds nanosecond conversion wrong.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8410">Bug
           8410</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          BE (3) AC is wrongly named as &quot;Video&quot; in (qos_acs).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8432">Bug
+          8432</ulink>)
         </para></listitem>
 
       </itemizedlist>
