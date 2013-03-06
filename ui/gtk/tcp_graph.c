@@ -906,10 +906,10 @@ static void control_panel_create(struct graph *g)
     bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_CLOSE, NULL);
         gtk_box_pack_start(GTK_BOX(top_vb), bbox, FALSE, FALSE, 5);
 
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(callback_create_help), g);
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(toplevel, close_bt, NULL);
     g_signal_connect(close_bt, "clicked",      G_CALLBACK(callback_close), g);
 
@@ -1064,7 +1064,7 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
     gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(toplevel, close_bt, window_cancel_button_cb);
 
     g_signal_connect(toplevel, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
@@ -1827,7 +1827,7 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
                         tcphdr->th_sport, tcphdr->th_dport,
                         ts->direction))
     {
-        struct segment *segment = g_malloc(sizeof(struct segment));
+        struct segment *segment = (struct segment *)g_malloc(sizeof(struct segment));
         segment->next      = NULL;
         segment->num       = pinfo->fd->num;
         segment->rel_secs  = (guint32)pinfo->fd->rel_ts.secs;
@@ -1917,7 +1917,7 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 {
     int       n;
     gboolean  is_unique = TRUE;
-    th_t     *th        = pct;
+    th_t     *th        = (th_t *)pct;
     const struct tcpheader *header = (const struct tcpheader *)vip;
 
     /* Check new header details against any/all stored ones */
@@ -1939,7 +1939,7 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
     if (is_unique && (th->num_hdrs < MAX_SUPPORTED_TCP_HEADERS)) {
         /* Need to take a deep copy of the tap struct, it may not be valid
            to read after this function returns? */
-        th->tcphdrs[th->num_hdrs] = g_malloc(sizeof(struct tcpheader));
+        th->tcphdrs[th->num_hdrs] = (struct tcpheader *)g_malloc(sizeof(struct tcpheader));
         *(th->tcphdrs[th->num_hdrs]) = *header;
         COPY_ADDRESS(&th->tcphdrs[th->num_hdrs]->ip_src, &header->ip_src);
         COPY_ADDRESS(&th->tcphdrs[th->num_hdrs]->ip_dst, &header->ip_dst);
@@ -3146,7 +3146,7 @@ static void magnify_draw(struct graph *g)
 
 static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
     struct {
         double x, y;
     } zoom;
@@ -3572,7 +3572,7 @@ static void do_key_motion_right(struct graph *g, int step)
 
 static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
 
     debug(DBS_FENTRY) puts("button_press_event()");
 
@@ -3621,7 +3621,7 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
 
 static gboolean motion_notify_event(GtkWidget *widget _U_, GdkEventMotion *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
     int x, y;
     GdkModifierType state;
 
@@ -3690,7 +3690,7 @@ static gboolean motion_notify_event(GtkWidget *widget _U_, GdkEventMotion *event
 
 static gboolean button_release_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
 
     debug(DBS_FENTRY) puts("button_release_event()");
 
@@ -3729,7 +3729,7 @@ static gboolean button_release_event(GtkWidget *widget _U_, GdkEventButton *even
 
 static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
     int step;
 
     debug(DBS_FENTRY) puts("key_press_event()");
@@ -3810,7 +3810,7 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
 
 static gboolean key_release_event(GtkWidget *widget _U_, GdkEventKey *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
 
     debug(DBS_FENTRY) puts("key_release_event()");
 
@@ -3824,7 +3824,7 @@ static gboolean key_release_event(GtkWidget *widget _U_, GdkEventKey *event, gpo
 
 static gboolean leave_notify_event(GtkWidget *widget _U_, GdkEventCrossing *event _U_, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
 
     if (g->cross.erase_needed)
         cross_erase(g);
@@ -3834,7 +3834,7 @@ static gboolean leave_notify_event(GtkWidget *widget _U_, GdkEventCrossing *even
 
 static gboolean enter_notify_event(GtkWidget *widget, GdkEventCrossing *event _U_, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
 
     graph_pixmap_display(g);
     if (g->cross.draw) {
@@ -4650,7 +4650,7 @@ static struct unack *rtt_get_new_unack(double time_val, unsigned int seqno)
     return u;
 }
 
-static void rtt_put_unack_on_list(struct unack **l, struct unack *new)
+static void rtt_put_unack_on_list(struct unack **l, struct unack *new_unack)
 {
     struct unack *u, *list = *l;
 
@@ -4659,9 +4659,9 @@ static void rtt_put_unack_on_list(struct unack **l, struct unack *new)
             break;
     }
     if (u)
-        u->next = new;
+        u->next = new_unack;
     else
-        *l = new;
+        *l = new_unack;
 }
 
 static void rtt_delete_unack_from_list(struct unack **l, struct unack *dead)

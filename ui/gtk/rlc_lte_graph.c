@@ -576,7 +576,7 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
     gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(toplevel, close_bt, window_cancel_button_cb);
 
     g_signal_connect(toplevel, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
@@ -733,7 +733,7 @@ tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, co
                         rlchdr->ueid,  rlchdr->channelType,  rlchdr->channelId,  rlchdr->rlcMode,  rlchdr->direction,
                         rlchdr->isControlPDU)) {
 
-        struct segment *segment = g_malloc(sizeof(struct segment));
+        struct segment *segment = (struct segment *)g_malloc(sizeof(struct segment));
 
         /* It matches.  Add to end of segment list */
         segment->next = NULL;
@@ -832,7 +832,7 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
 {
     int       n;
     gboolean  is_unique = TRUE;
-    th_t     *th        = pct;
+    th_t     *th        = (th_t *)pct;
     const rlc_lte_tap_info *header = (const rlc_lte_tap_info*)vip;
 
     /* Check new header details against any/all stored ones */
@@ -852,7 +852,7 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
         /* Copy the tap stuct in as next header */
         /* Need to take a deep copy of the tap struct, it may not be valid
            to read after this function returns? */
-        th->rlchdrs[th->num_hdrs] = g_malloc(sizeof(rlc_lte_tap_info));
+        th->rlchdrs[th->num_hdrs] = g_new(rlc_lte_tap_info,1);
         *(th->rlchdrs[th->num_hdrs]) = *header;
 
         /* Store in direction of data though... */
@@ -1836,7 +1836,7 @@ static int ellipse_detect_collision(struct element *e, int x, int y)
 
 static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
     struct zoom new_zoom;
     int cur_g_width, cur_g_height;
     int cur_wp_width, cur_wp_height;
@@ -1892,7 +1892,7 @@ static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event,
 static gboolean
 draw_event(GtkWidget *widget _U_, cairo_t *cr, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
 
     debug(DBS_FENTRY) puts("draw_event()");
 
@@ -1916,7 +1916,7 @@ draw_event(GtkWidget *widget _U_, cairo_t *cr, gpointer user_data)
 #else
 static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
     cairo_t *cr;
 
     debug(DBS_FENTRY) puts("expose_event()");
@@ -2141,7 +2141,7 @@ static void do_key_motion_right(struct graph *g, int step)
 
 static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
 
     debug(DBS_FENTRY) puts("button_press_event()");
 
@@ -2162,7 +2162,7 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
 
 static gboolean button_release_event(GtkWidget *widget _U_, GdkEventButton *event _U_, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
 
     /* Turn off grab if right button released */
     if (event->button == MOUSE_BUTTON_RIGHT) {
@@ -2174,7 +2174,7 @@ static gboolean button_release_event(GtkWidget *widget _U_, GdkEventButton *even
 
 static gboolean motion_notify_event(GtkWidget *widget _U_, GdkEventMotion *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
     int x, y;
     GdkModifierType state;
 
@@ -2229,7 +2229,7 @@ static gboolean motion_notify_event(GtkWidget *widget _U_, GdkEventMotion *event
 
 static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpointer user_data)
 {
-    struct graph *g = user_data;
+    struct graph *g = (struct graph *)user_data;
     int step;
 
     debug(DBS_FENTRY) puts("key_press_event()");
