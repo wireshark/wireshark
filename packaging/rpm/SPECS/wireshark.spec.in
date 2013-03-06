@@ -4,6 +4,7 @@
 
 # Set these to 1 if you want to ensure your package inclues support for them:
 %global with_adns 0
+%global with_c_ares 1
 %global with_lua  1
 %global with_portaudio 0
 
@@ -48,6 +49,10 @@ Requires:	libpcap
 BuildRequires:	zlib-devel
 Requires:	zlib
 
+%if %{with_c_ares}
+BuildRequires:	c-ares-devel
+Requires:	c-ares
+%endif
 %if %{with_adns}
 BuildRequires:	adns-devel
 Requires:	adns
@@ -64,8 +69,6 @@ Requires:	lua
 #BuildRequires:	libselinux
 #BuildRequires:	gnutls-devel
 #BuildRequires:	libcap-devel
-#BuildRequires:	c-ares-devel
-#Requires:	c-ares
 
 %if %{use_wireshark_group}
 Requires(pre):	shadow-utils
@@ -126,6 +129,9 @@ Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
 # command-line.
 %configure \
   --with-gnu-ld \
+%if %{with_c_ares}
+  --with-c-ares \
+%endif
 %if %{with_adns}
   --with-adns \
 %endif
@@ -285,4 +291,3 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 
 * Sun Nov 15 1998 FastJack <fastjack@i-s-o.net>
 - created .spec file
-
