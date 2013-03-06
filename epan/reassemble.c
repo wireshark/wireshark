@@ -750,11 +750,9 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 			/* Otherwise, bail out since we have no idea what to do
 			 * with this fragment (and if we keep going we'll run
 			 * past the end of a buffer sooner or later).
-			 *
-			 * XXX: Is ReportedBoundsError the right thing to throw?
 			 */
 			g_slice_free(fragment_data, fd);
-			THROW(ReportedBoundsError);
+			THROW(ReassemblyError);
 		}
 	}
 
