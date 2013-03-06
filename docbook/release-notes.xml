@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.6.14">
+<!ENTITY WiresharkCurrentVersion "1.6.15">
 
 ]>
 
@@ -36,182 +36,22 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-32.html">wnpa-sec-2012-32</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-23.html">wnpa-sec-2013-23</ulink>
           </para>
           <para>
-	    The sFlow dissector could go into an infinite loop.
-            <!-- Fixed in trunk: r45324 -->
-            <!-- Fixed in trunk-1.8: r45578 -->
-            <!-- Fixed in trunk-1.6: r48115 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7789">Bug
-            7789</ulink>)
+	    .
+            <!-- Fixed in trunk: r -->
+            <!-- Fixed in trunk-1.8: r -->
+            <!-- Fixed in trunk-1.6: r -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=x">Bug
+            x</ulink>)
           </para>
-          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.13.</para>
+          <para>Versions affected: 1.8.0 to 1.8.6, 1.6.0 to 1.6.14.</para>
+	  <!--
 	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-6054">CVE-2012-6054</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=GENERIC-MAP-NOMATCH">GENERIC-MAP-NOMATCH</ulink>
           </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-33.html">wnpa-sec-2012-33</ulink>
-          </para>
-          <para>
-	    The SCTP dissector could go into an infinite loop.
-            <!-- Fixed in trunk: r45355 -->
-            <!-- Fixed in trunk-1.8: r45578 -->
-            <!-- Fixed in trunk-1.6: r48117 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7802">Bug
-            7802</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.13.</para>
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-6056">CVE-2012-6056</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-13.html">wnpa-sec-2013-13</ulink>
-          </para>
-          <para>
-	    The MS-MMS dissector could crash. Discovered by Laurent Butti.
-            <!-- Fixed in trunk: r47979 -->
-            <!-- Fixed in trunk-1.8: r47981  -->
-            <!-- Fixed in trunk-1.6: r47982 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8382">Bug
-            8382</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2478">CVE-2013-2478</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-15.html">wnpa-sec-2013-15</ulink>
-          </para>
-          <para>
-	    The RTPS and RTPS2 dissectors could crash. Discovered by Alyssa Milburn.
-            <!-- Fixed in trunk: r47658 -->
-            <!-- Fixed in trunk-1.8: r48076  -->
-            <!-- Fixed in trunk-1.6: r48077 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8332">Bug
-            8332</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2480">CVE-2013-2480</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-16.html">wnpa-sec-2013-16</ulink>
-          </para>
-          <para>
-	    The Mount dissector could crash. Discovered by Alyssa Milburn.
-            <!-- Fixed in trunk: r47672 -->
-            <!-- Fixed in trunk-1.8: r48078 -->
-            <!-- Fixed in trunk-1.6: r48079 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8335">Bug
-            8335</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2481">CVE-2013-2481</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-17.html">wnpa-sec-2013-17</ulink>
-          </para>
-          <para>
-	    The AMPQ dissector could go into an infinite loop. Discovered by Moshe Kaplan.
-            <!-- Fixed in trunk: r47681 -->
-            <!-- Fixed in trunk-1.8: r48090 -->
-            <!-- Fixed in trunk-1.6: r48091 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8337">Bug
-            8337</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2482">CVE-2013-2482</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-18.html">wnpa-sec-2013-18</ulink>
-          </para>
-          <para>
-	    The ACN dissector could attempt to divide by zero. Discovered by Alyssa Milburn.
-            <!-- Fixed in trunk: r47692 -->
-            <!-- Fixed in trunk-1.8: r48092 -->
-            <!-- Fixed in trunk-1.6: r48094 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8340">Bug
-            8340</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2483">CVE-2013-2483</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-19.html">wnpa-sec-2013-19</ulink>
-          </para>
-          <para>
-	    The CIMD dissector could crash. Discovered by Moshe Kaplan.
-            <!-- Fixed in trunk: r47708 -->
-            <!-- Fixed in trunk-1.8: r48098  -->
-            <!-- Fixed in trunk-1.6: r48099 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8346">Bug
-            8346</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2484">CVE-2013-2484</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-20.html">wnpa-sec-2013-20</ulink>
-          </para>
-          <para>
-	    The FCSP dissector could go into an infinite loop. Discovered by Moshe Kaplan.
-            <!-- Fixed in trunk: r47775 -->
-            <!-- Fixed in trunk-1.8: r48101 -->
-            <!-- Fixed in trunk-1.6: r48102 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8359">Bug
-            8359</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2485">CVE-2013-2485</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2013-22.html">wnpa-sec-2013-22</ulink>
-          </para>
-          <para>
-	    The DTLS dissector could crash. Discovered by Laurent Butti.
-            <!-- Fixed in trunk: r48010, r48011 -->
-            <!-- Fixed in trunk-1.8: r48112 -->
-            <!-- Fixed in trunk-1.6: r48113 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8380">Bug
-            8380</ulink>)
-          </para>
-          <para>Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.</para>
-	  <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2488">CVE-2013-2488</ulink>
-          </para>
+	  -->
         </listitem>
 
       </itemizedlist>
@@ -234,47 +74,6 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          Lua pinfo.cols.protocol not holding value in postdissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6020">Bug
-          6020</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Data combined via ssl_desegment_app_data not visible via &quot;Follow SSL Stream&quot; only decrypted ssl data tabs.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6434">Bug
-          6434</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          HTTP application/json-rpc should be decoded/shown as application/json.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7939">Bug
-          7939</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          WMM TSPEC Element Parsing is not done is wrong due to a wrong switch case number.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8320">Bug
-          8320</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          [BACnet] UCS-2 strings longer than 127 characters do not decode correctly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8331">Bug
-          8331</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Netflow dissector flowDurationMicroseconds nanosecond conversion wrong.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8410">Bug
-          8410</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          BE (3) AC is wrongly named as &quot;Video&quot; in (qos_acs).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8432">Bug
-          8432</ulink>)
-        </para></listitem>
 
      </itemizedlist>
 
@@ -302,23 +101,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-ACN,
-AMQP,
-BACnet,
-CIMD,
-DOCSIS TLVs,
-DTLS,
-FCSP,
-FMP/NOTIFY,
-IEEE 802.11,
-JSON,
-Mount,
-MS-MMS,
-Netflow,
-RTPS,
-RTPS2,
-SIP,
-SSL
+.
 
     </para>
     </section>
