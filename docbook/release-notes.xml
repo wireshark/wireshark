@@ -230,6 +230,18 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          WMM TSPEC Element Parsing is not done is wrong due to a wrong switch case number.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8320">Bug
+          8320</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [BACnet] UCS-2 strings longer than 127 characters do not decode correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8331">Bug
+          8331</ulink>)
+        </para></listitem>
+
      </itemizedlist>
 
     </para>
@@ -258,11 +270,13 @@ There are no new protocols in this release.
 
 ACN,
 AMQP,
+BACnet,
 CIMD,
 DOCSIS TLVs,
 DTLS,
 FCSP,
 FMP/NOTIFY,
+IEEE 802.11,
 Mount,
 RTPS,
 RTPS2
