@@ -7799,9 +7799,10 @@ decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
     return tvb_length_remaining(tvb, offset);
 }
 
-static void
+static int
 dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
+    guint8           octet;
     gtp_hdr_t       *gtp_hdr = NULL;
     proto_tree      *gtp_tree = NULL, *ext_tree;
     proto_item      *ti = NULL, *tf, *ext_hdr_len_item;
@@ -7822,6 +7823,22 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     conversation_t  *conversation;
     gtp_conv_info_t *gtp_info;
     void*            pd_save;
+
+    /* Do we have enough bytes for the version and message type? */
+    if (!tvb_bytes_exist(tvb, 0, 2)) {
+        /* No - reject the packet. */
+        return 0;
+    }
+    octet = tvb_get_guint8(tvb, 0);
+    if (((octet >> 5) & 0x07) > 2) {
+        /* Version > 2; reject the packet */
+        return 0;
+    }
+    octet = tvb_get_guint8(tvb, 1);
+    if (octet == GTP_MSG_UNKNOWN || match_strval(octet, gtp_message_type) == NULL) {
+        /* Unknown message type; reject the packet */
+        return 0;
+    }
 
     /* Setting everything to 0, so that the TEID is 0 for GTP version 0
      * The magic number should perhaps be replaced.
@@ -8015,7 +8032,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                             expert_add_info_format(pinfo, ext_hdr_len_item, PI_MALFORMED,
                                                    PI_ERROR,
                                                    "Extension header length is zero");
-                            return;
+                            return tvb_length(tvb);
                         }
                         offset++;
                 
@@ -8178,38 +8195,49 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     
     pinfo->private_data = pd_save;
     tap_queue_packet(gtpv1_tap,pinfo, gtp_hdr);
+
+    return tvb_length(tvb);
 }
 
-static void
-dissect_gtpprim(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_gtpprim(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
+                void *private_data _U_)
 {
-    dissect_gtp_common(tvb, pinfo, tree);
+    return dissect_gtp_common(tvb, pinfo, tree);
 }
 
-static void
-dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
+            void *private_data _U_)
 {
     guint8 version;
+
+    /*
+     * Do we have enough data to check the first byte?
+     */
+    if (!tvb_bytes_exist(tvb, 0, 1)) {
+        /* No. */
+        return 0;
+    }
+
     /*
      * If this is GTPv2-C call the gtpv2 dissector if present
      * Should this be moved to after the conversation stuff to retain that functionality for GTPv2 ???
      */
     version = tvb_get_guint8(tvb,0)>>5;
+    if (version > 2) {
+        /* Unknown version - reject the packet */
+    	return 0;
+    }
     if (version == 2) {
         /* GTPv2-C 3GPP TS 29.274 */
         if (gtpv2_handle) {
             call_dissector(gtpv2_handle, tvb, pinfo, tree);
-            return;
+            return tvb_length(tvb);
         }
     }
-    if(version > 2) {
-        proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version,
-                            val_to_str_const(version, ver_types, "Unknown"));
-        return;
-    }
 
-    dissect_gtp_common(tvb, pinfo, tree);
-
+    return dissect_gtp_common(tvb, pinfo, tree);
 }
 
 static void
@@ -9268,8 +9296,8 @@ proto_register_gtp(void)
      */
     prefs_register_bool_preference(gtp_module, "dissect_gtp_over_tcp", "Dissect GTP over TCP", "Dissect GTP over TCP", &g_gtp_over_tcp);
 
-    register_dissector("gtp", dissect_gtp, proto_gtp);
-    register_dissector("gtpprim", dissect_gtpprim, proto_gtp);
+    new_register_dissector("gtp", dissect_gtp, proto_gtp);
+    new_register_dissector("gtpprim", dissect_gtpprim, proto_gtp);
 
     gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP PRIVATE EXT", FT_UINT16, BASE_DEC);
     gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP DATA RECORD TYPE", FT_UINT16, BASE_DEC);
