@@ -917,7 +917,7 @@ static const char *qos_acs[8] = {
   "Best Effort",
   "Background",
   "Background",
-  "Video",
+  "Best Effort",
   "Video",
   "Video",
   "Voice",
