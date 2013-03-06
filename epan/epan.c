@@ -211,6 +211,9 @@ void
 epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
         const guint8* data, frame_data *fd, column_info *cinfo)
 {
+#ifdef HAVE_LUA
+	wslua_prime_dfilter(edt); /* done before entering wmem scope */
+#endif
 	dissect_packet(edt, pseudo_header, data, fd, cinfo);
 }
 

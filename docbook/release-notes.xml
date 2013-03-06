@@ -310,6 +310,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Lua pinfo.cols.protocol not holding value in postdissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6020">Bug
+          6020</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           data combined via ssl_desegment_app_data not visible via &quot;Follow SSL Stream&quot; only decrypted ssl data tabs.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6434">Bug
           6434</ulink>)
