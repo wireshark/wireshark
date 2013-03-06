@@ -797,8 +797,15 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 	else
 		#
 		# The user specified no directory in which liblua resides,
-		# so just add "-llua -lliblua" to the used libs.
+		# we try to find out the lua version by looking at pathnames
+		# and we just add "-llua -lliblua" to the used libs.
 		#
+		AC_MSG_CHECKING(Lua version)
+		for i in 5.0 5.1 5.2
+		do
+			[[ -d "/usr/include/lua$i" ]] && lua_ver=$i 
+		done
+		AC_MSG_RESULT(Lua ${lua_ver})
 		wireshark_save_CPPFLAGS="$CPPFLAGS"
 		wireshark_save_LDFLAGS="$LDFLAGS"
 		wireshark_save_LIBS="$LIBS"
