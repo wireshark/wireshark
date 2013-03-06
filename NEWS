@@ -1,4 +1,4 @@
-Wireshark 1.6.13 Release Notes
+Wireshark 1.6.14 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,108 +14,115 @@ What's New
 
    The following vulnerability has been fixed.
 
-     o wnpa-sec-2013-01
+     o wnpa-sec-2012-32
 
-       Infinite and large loops in the Bluetooth HCI, CSN.1, DCP-ETSI
-       DOCSIS CM-STAUS, IEEE 802.3 Slow Protocols, MPLS, R3, RTPS,
-       SDP, and SIP dissectors. Reported by Laurent Butti. (Bugs
-       8036, 8037, 8038, 8040, 8041, 8042, 8043, 8198, 8199, 8222)
+       The sFlow dissector could go into an infinite loop. (Bug 7789)
 
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.13.
 
-       GENERIC-MAP-NOMATCH
+       CVE-2012-6054
 
-     o wnpa-sec-2013-02
+     o wnpa-sec-2012-33
 
-       The CLNP dissector could crash. Discovered independently by
-       Laurent Butti and the Wireshark development team. (Bug 7871)
+       The SCTP dissector could go into an infinite loop. (Bug 7802)
 
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+       Versions affected: 1.8.0 to 1.8.3, 1.6.0 to 1.6.13.
 
-       GENERIC-MAP-NOMATCH
+       CVE-2012-6056
 
-     o wnpa-sec-2013-03
+     o wnpa-sec-2013-13
 
-       The DTN dissector could crash. (Bug 7945)
+       The MS-MMS dissector could crash. Discovered by Laurent Butti.
+       (Bug 8382)
 
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
 
-       GENERIC-MAP-NOMATCH
+       CVE-2013-2478
 
-     o wnpa-sec-2013-04
+     o wnpa-sec-2013-15
 
-       The MS-MMC dissector (and possibly others) could crash. (Bug
-       8112)
+       The RTPS and RTPS2 dissectors could crash. Discovered by
+       Alyssa Milburn. (Bug 8332)
 
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
 
-       GENERIC-MAP-NOMATCH
+       CVE-2013-2480
 
-     o wnpa-sec-2013-05
+     o wnpa-sec-2013-16
+
+       The Mount dissector could crash. Discovered by Alyssa Milburn.
+       (Bug 8335)
+
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+
+       CVE-2013-2481
+
+     o wnpa-sec-2013-17
+
+       The AMPQ dissector could go into an infinite loop. Discovered
+       by Moshe Kaplan. (Bug 8337)
+
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+
+       CVE-2013-2482
+
+     o wnpa-sec-2013-18
+
+       The ACN dissector could attempt to divide by zero. Discovered
+       by Alyssa Milburn. (Bug 8340)
+
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+
+       CVE-2013-2483
+
+     o wnpa-sec-2013-19
+
+       The CIMD dissector could crash. Discovered by Moshe Kaplan.
+       (Bug 8346)
+
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+
+       CVE-2013-2484
+
+     o wnpa-sec-2013-20
+
+       The FCSP dissector could go into an infinite loop. Discovered
+       by Moshe Kaplan. (Bug 8359)
+
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
+
+       CVE-2013-2485
+
+     o wnpa-sec-2013-22
 
        The DTLS dissector could crash. Discovered by Laurent Butti.
-       (Bug 8111)
+       (Bug 8380)
 
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
+       Versions affected: 1.8.0 to 1.8.5, 1.6.0 to 1.6.13.
 
-       GENERIC-MAP-NOMATCH
-
-     o wnpa-sec-2013-07
-
-       The DCP-ETSI dissector could corrupt memory. Discovered by
-       Laurent Butti. (Bug 8213)
-
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
-
-       GENERIC-MAP-NOMATCH
-
-     o wnpa-sec-2013-08
-
-       The Wireshark dissection engine could crash. Discovered by
-       Laurent Butti. (Bug 8197)
-
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
-
-       GENERIC-MAP-NOMATCH
-
-     o wnpa-sec-2013-09
-
-       The NTLMSSP dissector could overflow a buffer. Discovered by
-       Ulf Härnhammar. (Bug X)
-
-       Versions affected: 1.8.0 to 1.8.4, 1.6.0 to 1.6.12.
-
-       GENERIC-MAP-NOMATCH
+       CVE-2013-2488
 
    The following bugs have been fixed:
 
-     o The HTTP dissector does not reassemble headers when the first
-       TCP segment does not contain a full header line.
+     o Lua pinfo.cols.protocol not holding value in postdissector.
+       (Bug 6020)
 
-     o SNMPv3 Engine ID registration. (Bug 2426)
+     o Data combined via ssl_desegment_app_data not visible via
+       "Follow SSL Stream" only decrypted ssl data tabs. (Bug 6434)
 
-     o Illegal character is used in temporary capture file name. (Bug
-       7877)
+     o HTTP application/json-rpc should be decoded/shown as
+       application/json. (Bug 7939)
 
-     o Core dumped when the file is closed. (Bug 8022)
+     o WMM TSPEC Element Parsing is not done is wrong due to a wrong
+       switch case number. (Bug 8320)
 
-     o Wrong packet bytes are selected for ISUP CUG binary code. (Bug
-       8035)
+     o [BACnet] UCS-2 strings longer than 127 characters do not
+       decode correctly. (Bug 8331)
 
-     o Decodes FCoE Group Multicast MAC address as Broadcom MAC
-       address. (Bug 8046)
+     o Netflow dissector flowDurationMicroseconds nanosecond
+       conversion wrong. (Bug 8410)
 
-     o The SSL dissector stops decrypting the SSL conversation with
-       Malformed Packet:SSL error messages. (Bug 8075)
-
-     o Wrong bytes highlighted with "Find Packet...". (Bug 8085)
-
-     o 3GPP ULI AVP. SAI is not correctly decoded. (Bug 8098)
-
-     o Warn Dissector bug, protocol JXTA. (Bug 8212)
-
-     o Electromagnetic Emission Parser parses field Event Id as
-       Entity Id. (Bug 8227)
+     o BE (3) AC is wrongly named as "Video" in (qos_acs). (Bug 8432)
 
   New and Updated Features
 
@@ -127,9 +134,8 @@ What's New
 
   Updated Protocol Support
 
-   Bluetooth HCI, CLNP, DCP-ETSI, DIS PDU, DOCSIS CM-STATUS, DTLS,
-   DTN, Fibre Channel, GTPv2, ISUP, JXTA, MPLS, MS-MMC, NTLMSSP, R3,
-   RTPS, SNMP
+   ACN, AMQP, BACnet, CIMD, DOCSIS TLVs, DTLS, FCSP, FMP/NOTIFY, IEEE
+   802.11, JSON, Mount, MS-MMS, Netflow, RTPS, RTPS2, SIP, SSL
 
   New and Updated Capture File Support
 
