@@ -666,7 +666,7 @@ capture_if_refresh_if_list(void)
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(cap_if_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_box_pack_start(GTK_BOX(cap_if_top_vb), cap_if_sw, TRUE, TRUE, 0);
 
-  if_vb = gtk_alignment_new(0.0, 0.0, 1.0, 0.0);
+  if_vb = gtk_alignment_new(0.0F, 0.0F, 1.0F, 0.0F);
   gtk_container_set_border_width(GTK_CONTAINER(if_vb), 5);
 #if ! GTK_CHECK_VERSION(3,8,0)
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(cap_if_sw), if_vb);
