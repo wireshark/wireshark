@@ -264,22 +264,24 @@ EXTRA_DIST =				\
 	doc.vcproj			\
 	make-authors-format.pl		\
 	make-authors-short.pl		\
-	perlnoutf.pl			\
-	capinfos.pod			\
 	dfilter2pod.pl			\
+	perlnoutf.pl			\
+	asn2deb.pod			\
+	capinfos.pod			\
 	dftest.pod			\
 	dumpcap.pod			\
 	editcap.pod			\
 	eproto2sgml			\
+	idl2deb.pod			\
 	idl2wrs.pod			\
 	mergecap.pod			\
 	randpkt.pod			\
 	randpkt.txt			\
 	rawshark.pod			\
 	reordercap.pod			\
-	sgml.doc.template		\
 	text2pcap.pod			\
 	tshark.pod			\
 	wireshark-filter.pod    	\
+	sgml.doc.template		\
 	wireshark.pod.template
 
