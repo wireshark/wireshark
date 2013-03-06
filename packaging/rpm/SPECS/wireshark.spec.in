@@ -245,6 +245,9 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %{_mandir}/man1/wireshark.*
 
 %changelog
+* Thu Mar  6 2013 Gerald Combs
+- Enable c-ares by default
+
 * Mon Feb  6 2013 Jeff Morriss
 - Overhaul to make this file more useful/up to date.  Many changes are based
   on Fedora's .spec file.  Changes include:
