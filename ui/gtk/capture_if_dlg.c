@@ -666,7 +666,7 @@ capture_if_refresh_if_list(void)
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(cap_if_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_box_pack_start(GTK_BOX(cap_if_top_vb), cap_if_sw, TRUE, TRUE, 0);
 
-  if_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+  if_vb = gtk_alignment_new(0.0, 0.0, 1.0, 0.0);
   gtk_container_set_border_width(GTK_CONTAINER(if_vb), 5);
 #if ! GTK_CHECK_VERSION(3,8,0)
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(cap_if_sw), if_vb);
@@ -677,7 +677,7 @@ capture_if_refresh_if_list(void)
   if_grid = ws_gtk_grid_new();
   ws_gtk_grid_set_row_spacing(GTK_GRID(if_grid), 3);
   ws_gtk_grid_set_column_spacing(GTK_GRID(if_grid), 3);
-  gtk_box_pack_start(GTK_BOX(if_vb), if_grid, FALSE, FALSE, 0);
+  gtk_container_add(GTK_CONTAINER(if_vb), if_grid);
 
   /* This is the icon column, used to display which kind of interface we have */
   if_lb = gtk_label_new("");
@@ -815,9 +815,13 @@ capture_if_refresh_if_list(void)
     if (row <= 20) {
         /* Lets add up 20 rows of interfaces, otherwise the window may become too high */
 #ifdef _WIN32
+      gtk_widget_show(GTK_WIDGET(data.details_bt));
       gtk_widget_get_preferred_size(GTK_WIDGET(data.details_bt), &requisition, NULL);
+      gtk_widget_hide(GTK_WIDGET(data.details_bt));
 #else
+      gtk_widget_show(GTK_WIDGET(data.choose_bt));
       gtk_widget_get_preferred_size(GTK_WIDGET(data.choose_bt), &requisition, NULL);
+      gtk_widget_hide(GTK_WIDGET(data.choose_bt));
 #endif
       height += requisition.height;
     }
@@ -894,7 +898,13 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 #endif
 
-  cap_if_w = dlg_window_new("Wireshark: Capture Interfaces");  /* transient_for top_level */
+  cap_if_w = dlg_window_new("Wireshark: Capture Interfaces");  /* transient_for top_level  */
+  /* XXX: Note that on Windows the following is effectively a no-op; See dlg_window_new(). */
+  /*      This means, on Windows, if the top_level Wireshark window is destroyed when      */
+  /*      the capture_interfaces dialog window is open, that the dumpcap process will not  */
+  /*      be stopped since the destroy callback for the capture_interfaces dialog window   */
+  /*      will not be called.                                                              */
+  /*      ToDo: Fix this !                                                                 */
   gtk_window_set_destroy_with_parent (GTK_WINDOW(cap_if_w), TRUE);
 
   cap_if_top_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
