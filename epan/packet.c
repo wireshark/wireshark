@@ -186,7 +186,7 @@ cleanup_dissection(void)
 
 	/* Initialize the expert infos */
 	expert_cleanup();
-	
+
 	wmem_leave_file_scope();
 
 	/*
@@ -243,7 +243,10 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 const char*
 get_data_source_name(const struct data_source *src)
 {
-	return ep_strdup_printf("%s (%u bytes)", src->name, tvb_length(src->tvb));
+	guint length = tvb_length(src->tvb);
+
+	return ep_strdup_printf("%s (%u byte%s)", src->name, length,
+				plurality(length, "", "s"));
 }
 
 tvbuff_t *
