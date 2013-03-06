@@ -117,13 +117,13 @@ AM_V_POD2HTML = $(am__v_POD2HTML_@AM_V@)
 am__v_POD2HTML_ = $(am__v_POD2HTML_@AM_DEFAULT_V@)
 am__v_POD2HTML_0 = @echo "  POD2HTML" $@;
 
-%.1: %.pod ../config.h
+%.1: $(srcdir)/%.pod ../config.h
 	$(AM_V_POD2MAN)$(POD2MAN)                       \
 	--center="The Wireshark Network Analyzer"       \
 	--release=$(VERSION)                            \
 	$< > $@
 
-%.html: %.pod ../config.h
+%.html: $(srcdir)/%.pod ../config.h
 	$(AM_V_POD2HTML)$(POD2HTML)                             \
 	--title="The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css			\
