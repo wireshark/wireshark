@@ -1089,15 +1089,12 @@ else
 	# Don't use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0($GLIB_MIN_VERSION, , AC_MSG_ERROR(GLib $GLIB_MIN_VERSION or later distribution not found.), gthread gmodule)
 
+	CPPFLAGS="-DGDK_PIXBUF_DISABLE_DEPRECATED $CPPFLAGS"
+	CPPFLAGS="-DGDK_DISABLE_DEPRECATED $CPPFLAGS"
+	CPPFLAGS="-DGTK_DISABLE_DEPRECATED $CPPFLAGS"
 	CPPFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $CPPFLAGS"
-	## Define GTK_DISABLE_DEPRECATED only if GTK lt 3.2
-	## GTK 3.2 deprecates GtkVBox & GtkHBox which are currently used extensively by Wireshark.
-	if test $gtk_config_major_version -eq 2 -o $gtk_config_minor_version -lt 2; then
-		CPPFLAGS="-DGTK_DISABLE_DEPRECATED $CPPFLAGS"
-	fi
-	# CPPFLAGS="-DGDK_DISABLE_DEPRECATED $CPPFLAGS"
-	if test $gtk_config_major_version -eq 2 -a $gtk_config_minor_version -ge 20; then
-		# Enable GSEAL when building with GTK > 2.20 and < 3.0
+	if test ! \( $gtk_config_major_version -eq 2 -a $gtk_config_minor_version -lt 20 \) ; then
+		# Enable GSEAL when building with GTK > 2.20
 		# (Versions prior to 2.22 lacked some necessary accessors.)
 		CPPFLAGS="-DGSEAL_ENABLE $CPPFLAGS"
 	fi
