@@ -39,6 +39,7 @@
 #include "recent_file_status.h"
 
 #include "ui/capture_globals.h"
+#include "ui/software_update.h"
 
 #ifdef _WIN32
 #  include "ui/win32/console_win32.h"
@@ -533,6 +534,11 @@ void WiresharkApplication::clearRecentItems() {
     emit updateRecentItemStatus(NULL, 0, false);
 }
 
+void WiresharkApplication::cleanup()
+{
+    software_update_cleanup();
+}
+
 void WiresharkApplication::itemStatusFinished(const QString &filename, qint64 size, bool accessible) {
     recent_item_status *ri;
     RecentFileStatus *rf_status = qobject_cast<RecentFileStatus *>(QObject::sender());;
@@ -583,6 +589,8 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     recent_timer_ = new QTimer(this);
     connect(recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
     recent_timer_->start(2000);
+
+    connect(this, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
 }
 
 void WiresharkApplication::registerUpdate(register_action_e action, const char *message)
@@ -610,13 +618,14 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
 }
 
 void WiresharkApplication::allSystemsGo()
-{
+{    
     initialized_ = true;
     emit appInitialized();
     while (pending_open_files_.length() > 0) {
         emit openCaptureFile(pending_open_files_.front());
         pending_open_files_.pop_front();
     }
+    software_update_init();
 }
 
 e_prefs * WiresharkApplication::readConfigurationFiles(char **gdp_path, char **dp_path)

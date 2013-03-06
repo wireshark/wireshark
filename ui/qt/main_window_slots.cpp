@@ -62,6 +62,10 @@
 #include "ui/preference_utils.h"
 #include "ui/ssl_key_export.h"
 
+#ifdef HAVE_SOFTWARE_UPDATE
+#include "ui/software_update.h"
+#endif
+
 #include "capture_file_dialog.h"
 #include "export_object_dialog.h"
 #include "time_shift_dialog.h"
@@ -1613,6 +1617,13 @@ void MainWindow::on_actionHelpSampleCaptures_triggered() {
 
     wsApp->helpTopicAction(ONLINEPAGE_SAMPLE_FILES);
 }
+
+#ifdef HAVE_SOFTWARE_UPDATE
+void MainWindow::on_actionHelpCheckForUpdates_triggered()
+{
+    software_update_check();
+}
+#endif
 
 void MainWindow::on_actionGoGoToPacket_triggered() {
     if (packet_list_->model()->rowCount() < 1) {

@@ -623,11 +623,11 @@ int main(int argc, char *argv[])
 
 // xxx qtshark
 #ifdef _WIN32
-  /* Load wpcap if possible. Do this before collecting the run-time version information */
-  load_wpcap();
+    /* Load wpcap if possible. Do this before collecting the run-time version information */
+    load_wpcap();
 
-  /* ... and also load the packet.dll from wpcap */
-  wpcap_packet_load();
+    /* ... and also load the packet.dll from wpcap */
+    wpcap_packet_load();
 
 #ifdef HAVE_AIRPCAP
     /* Load the airpcap.dll.  This must also be done before collecting
@@ -789,7 +789,7 @@ int main(int argc, char *argv[])
     }
 
 #ifdef HAVE_LIBPCAP
-  capture_callback_add(main_capture_callback, NULL);
+    capture_callback_add(main_capture_callback, NULL);
 #endif
     cf_callback_add(main_cf_callback, NULL);
 

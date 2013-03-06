@@ -330,7 +330,8 @@ win32 {
         $${guilibsdll} $${HHC_LIBS} \
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
         -L.. -llibui \
-        -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0
+        -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0 \
+        -L$${WINSPARKLE_DIR} -lWinSparkle
 
     !isEmpty(MSVCR_DLL) {
         EXTRA_BINFILES += \"$${MSVCR_DLL}\"
@@ -357,6 +358,7 @@ win32 {
         $${GNUTLS_DIR}/bin/libintl-8.dll $${SMI_DIR}/bin/libsmi-2.dll \
         $${LUA_DIR}/lua5.1.dll \
         $${GEOIP_DIR}/bin/libGeoIP-1.dll \
+        $${WINSPARKLE_DIR}/WinSparkle.dll \
         ../../colorfilters ../../dfilters ../../cfilters
 
     wireshark_use_kfw {
@@ -395,7 +397,7 @@ TRANSLATIONS = \
 
 ICON = ../../packaging/macosx/Resources/Wireshark.icns
 
-RC_FILE = qtshark.rc
+RC_FILE = ../../image/wireshark.rc
 
 # http://lists.trolltech.com/qt-interest/2008-01/thread00516-0.html
 # http://www.freehackers.org/thomas/2009/03/10/fixing-qmake-missing-rule-for-ts-qm/

@@ -263,6 +263,11 @@ private slots:
     void on_actionHelpDownloads_triggered();
     void on_actionHelpWiki_triggered();
     void on_actionHelpSampleCaptures_triggered();
+
+#ifdef HAVE_SOFTWARE_UPDATE
+    void on_actionHelpCheckForUpdates_triggered();
+#endif
+
     void on_goToCancel_clicked();
     void on_goToGo_clicked();
     void on_goToLineEdit_returnPressed();
