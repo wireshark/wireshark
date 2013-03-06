@@ -1,0 +1,219 @@
+#!/usr/bin/env python
+
+# asn2deb - quick hack by W. Borgert <debacle@debian.org> to create
+# Debian GNU/Linux packages from ASN.1 files for Wireshark.
+# Copyright 2004, W. Borgert
+
+# ASN.1 module for Wireshark, use of snacc type table:
+# Copyright 2003, Matthijs Melchior <matthijs.melchior@xs4all.nl>
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.com>
+# Copyright 1998 Gerald Combs
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+import getopt, os, string, sys, time
+
+scriptinfo = """asn2deb version 2004-02-17
+Copyright 2004, W. Borgert
+Free software, released under the terms of the GPL."""
+
+options = {'asn':      None,
+           'dbopts':   "",
+           'email':    "invalid@invalid.invalid",
+           'help':     0,
+           'name':     "No Name",
+           'preserve': 0,
+           'version':  0}
+
+def bootstrap():
+    """Generate Makefile.in and configure script."""
+    os.system("aclocal-1.7")
+    os.system("autoconf")
+    os.system("automake-1.7 --add-missing --copy --foreign")
+
+def create_file(filename, content, mode = None):
+    """Create a file with given content."""
+    global options
+    if options['preserve'] and os.path.isfile(filename):
+        return
+    f = open(filename, 'w')
+    f.write(content)
+    f.close()
+    if mode:
+        os.chmod(filename, mode)
+
+def create_files(version, deb, email, asn, name, iso, rfc):
+    """Create all files for the .deb build process."""
+    base = asn.lower()[:-5]
+    create_file("Makefile.am", """#
+
+BUILT_SOURCES = %s.tt
+asn1ttdir = $(datadir)/wireshark/asn1
+asn1tt_DATA = %s.tt
+
+%s.tt: """  % ((base,) * 3) + asn + """
+	snacc -u /usr/include/snacc/asn1/asn-useful.asn1 -T $@ $<
+""")
+
+    create_file("configure.ac", """AC_INIT(%s, 1.0)
+AM_INIT_AUTOMAKE
+AM_MAINTAINER_MODE
+AC_PROG_INSTALL
+SNACC=\"`type -p snacc`\"
+AC_SUBST(SNACC)
+dnl WIRESHARK_VERSION=\"%s\"
+dnl plugindir=\"$prefix/share/wireshark/asn.1\"
+dnl AC_SUBST(plugindir)
+AC_OUTPUT([Makefile])
+""" % (base, version))
+
+    if not os.path.isdir("debian"):
+        os.mkdir("debian")
+
+    create_file("debian/rules", """#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/autotools.mk
+
+PREFIX=`pwd`/debian/wireshark-asn1-%s
+
+binary-post-install/wireshark-asn1-%s::
+	rm -f $(PREFIX)/usr/lib/wireshark/plugins/%s/*.a
+""" % (base, base, version), 0755)
+
+    create_file("debian/control", """Source: wireshark-asn1-%s
+Section: net
+Priority: optional
+Maintainer: %s <%s>
+Standards-Version: 3.6.1.0
+Build-Depends: snacc, autotools-dev, debhelper, cdbs
+
+Package: wireshark-asn1-%s
+Architecture: all
+Depends: wireshark (= %s)
+Description: ASN.1/BER dissector for %s
+ This package provides a type table for decoding BER (Basic Encoding
+ Rules) data over TCP or UDP, described by an ASN.1 (Abstract Syntax
+ Notation 1) file '%s.asn1'.
+""" % (base, name, email, base, deb, base, base))
+
+    create_file("debian/changelog",
+            """wireshark-asn1-%s (0.0.1-1) unstable; urgency=low
+
+  * Automatically created package.
+
+ -- %s <%s>  %s
+""" % (base, name, email, rfc + "\n    (" + iso + ")"))
+
+    create_file("debian/copyright",
+            """This package has been created automatically be asn2deb on
+%s for Debian GNU/Linux.
+
+Wireshark: http://www.wireshark.com/
+
+Copyright:
+
+GPL, as evidenced by existence of GPL license file \"COPYING\".
+(the GNU GPL may be viewed on Debian systems in
+/usr/share/common-licenses/GPL)
+""" % (iso))
+
+def get_wrs_version():
+    """Detect version of wireshark-dev package."""
+    deb = os.popen(
+        "dpkg-query -W --showformat='${Version}' wireshark-dev").read()
+    debv = string.find(deb, "-")
+    if debv == -1: debv = len(deb)
+    version = deb[string.find(deb, ":")+1:debv]
+    return version, deb
+
+def get_time():
+    """Detect current time and return ISO and RFC time string."""
+    currenttime = time.gmtime()
+    return time.strftime("%Y-%m-%d %H:%M:%S +0000", currenttime), \
+           time.strftime("%a, %d %b %Y %H:%M:%S +0000", currenttime)
+
+def main():
+    global options
+    process_opts(sys.argv)
+    iso, rfc = get_time()
+    version, deb = get_wrs_version()
+    create_files(version, deb,
+                 options['email'], options['asn'], options['name'],
+                 iso, rfc)
+    bootstrap()
+    os.system("dpkg-buildpackage " + options['dbopts'])
+
+def process_opts(argv):
+    """Process command line options."""
+    global options
+    try:
+        opts, args = getopt.getopt(argv[1:], "a:d:e:hn:pv",
+                                   ["asn=",
+                                    "dbopts=",
+                                    "email=",
+                                    "help",
+                                    "name=",
+                                    "preserve",
+                                    "version"])
+    except getopt.GetoptError:
+        usage(argv[0])
+        sys.exit(1)
+    for o, a in opts:
+        if o in ("-a", "--asn"):
+            options['asn'] = a
+        if o in ("-d", "--dbopts"):
+            options['dbopts'] = a
+        if o in ("-e", "--email"):
+            options['email'] = a
+        if o in ("-h", "--help"):
+            options['help'] = 1
+        if o in ("-n", "--name"):
+            options['name'] = a
+        if o in ("-p", "--preserve"):
+            options['preserve'] = 1
+        if o in ("-v", "--version"):
+            options['version'] = 1
+    if options['help']:
+        usage(argv[0])
+        sys.exit(0)
+    if options['version']:
+        print scriptinfo
+        sys.exit(0)
+    if not options['asn']:
+        print "mandatory ASN.1 file parameter missing"
+        sys.exit(1)
+    if not os.access(options['asn'], os.R_OK):
+        print "ASN.1 file not accessible"
+        sys.exit(1)
+
+def usage(name):
+    """Print usage help."""
+    print "Usage: " + name + " <parameters>\n" + \
+          "Parameters are\n" + \
+          "  --asn      -a asn1file, ASN.1 file to use (mandatory)\n" + \
+          "  --dbopts   -d opts,     options for dpkg-buildpackage\n" + \
+          "  --email    -e address,  use e-mail address\n" + \
+          "  --help     -h,          print help and exit\n" + \
+          "  --name     -n name,     use user name\n" + \
+          "  --preserve -p,          do not overwrite files\n" + \
+          "  --version  -v,          print version and exit\n" + \
+          "Example:\n" + \
+          name + " -e me@foo.net -a bar.asn1 -n \"My Name\" " + \
+          "-d \"-rfakeroot -uc -us\""
+if __name__ == '__main__':
+    main()

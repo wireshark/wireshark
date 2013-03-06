@@ -79,7 +79,7 @@ man_MANS =
 # Build these in case a developer wants to read them and for the Debian
 # development package.
 # (The former arguably should be in noinst_MANS but it didn't work for me.)
-noinst_DATA = idl2wrs.1 idl2wrs.html
+noinst_DATA = asn2deb.1 asn2deb.html idl2deb.1 idl2deb.html idl2wrs.1 idl2wrs.html
 
 pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
@@ -116,6 +116,20 @@ am__v_POD2MAN_0 = @echo "  POD2MAN " $@;
 AM_V_POD2HTML = $(am__v_POD2HTML_@AM_V@)
 am__v_POD2HTML_ = $(am__v_POD2HTML_@AM_DEFAULT_V@)
 am__v_POD2HTML_0 = @echo "  POD2HTML" $@;
+
+%.1: %.pod ../config.h
+	$(AM_V_POD2MAN)$(POD2MAN)                       \
+	--center="The Wireshark Network Analyzer"       \
+	--release=$(VERSION)                            \
+	$< > $@
+
+%.html: %.pod ../config.h
+	$(AM_V_POD2HTML)$(POD2HTML)                             \
+	--title="The Wireshark Network Analyzer $(VERSION)"	\
+	--css=$(top_srcdir)/docbook/ws.css			\
+	--noindex						\
+	$< > $@
+
 
 wireshark.1: wireshark.pod ../config.h
 	$(AM_V_POD2MAN)$(POD2MAN)			\
@@ -301,6 +315,10 @@ CLEANFILES =		\
 	dumpcap.html	\
 	editcap.1	\
 	editcap.html	\
+	asn2deb.1	\
+	asn2deb.html	\
+	idl2deb.1	\
+	idl2deb.html	\
 	idl2wrs.1	\
 	idl2wrs.html	\
 	mergecap.1	\

@@ -75,7 +75,7 @@ install: build
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	mkdir -p $(CURDIR)/debian/tmp/usr/share/applications/
 	cp debian/wireshark.desktop $(CURDIR)/debian/tmp/usr/share/applications/
-	cp tools/idl2wrs $(CURDIR)/debian/tmp/usr/bin/
+	cp tools/asn2deb tools/idl2deb tools/idl2wrs $(CURDIR)/debian/tmp/usr/bin/
 	#cp debian/wireshark-root.desktop $(CURDIR)/debian/tmp/usr/share/applications/
 	mkdir -p $(CURDIR)/debian/tmp/usr/share/pixmaps/
 	cp image/hi48-app-wireshark.png $(CURDIR)/debian/tmp/usr/share/pixmaps/
@@ -93,8 +93,9 @@ install: build
 		cp --parents $$F $(CURDIR)/debian/tmp/usr/include/wireshark; \
 	done
 	-rm -rf $(CURDIR)/debian/tmp/usr/man
+	mkdir -p $(CURDIR)/debian/tmp/usr/man
 	dh_installman
-	cp doc/idl2wrs.1 $(CURDIR)/debian/tmp/usr/man
+	cp doc/asn2deb.1 doc/idl2deb.1 doc/idl2wrs.1 $(CURDIR)/debian/tmp/usr/man
 
 	dh_movefiles
 	dh_pysupport

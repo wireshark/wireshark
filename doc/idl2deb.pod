@@ -1,0 +1,74 @@
+
+=head1 NAME
+
+idl2deb - create a Debian package for CORBA monitoring from IDL
+
+=head1 SYNOPSIS
+
+B<idl2deb> [B<-d >I<opts>] [B<--dbopts=>I<opts>] [B<-e >I<address>] [B<--email=>I<address>] [-i I<idlfile>]
+[--idl=I<idlfile>] [B<-h>] [B<--help>] [B<-n >I<name>] [B<--name=>I<name>] [B<-p>] [B<--preserve>] [B<-v>] [B<--version>]
+
+
+=head1 DESCRIPTION
+
+This manual page documents briefly the B<idl2deb> command. B<idl2deb>
+takes an CORBA IDL file as input and creates a Debian package from it. The
+package contains a loadable module for the wireshark network analyser.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-d>I<opts> B<--dbopts=>I<opts>
+
+options for dpkg-buildpackage.
+
+=item B<-e >I<address> B<--email=>I<address>
+
+use e-mail address.
+
+=item B<-i >I<idlfile> B<--idl=>I<idlfile>
+
+IDL file to use (mandatory)
+
+=item B<-h> B<--help>
+
+print help and exit.
+
+=item B<-n >I<name> B<--name=>I<name>
+
+use user name.
+
+=item B<-p> B<--preserve>
+
+do not overwrite files.
+
+=item B<-v> B<--version>
+
+print version and exit.
+
+=back
+
+=head1 EXAMPLES
+
+/usr/bin/idl2deb -e me@foo.net -i bar.idl \-n "My Name" -d "-rfakeroot -uc -us"-d "-rfakeroot -uc -us"
+
+=head1 SEE ALSO
+
+A lot of tools are used, which you have to B<apt-get install>: wireshark-dev, python, cdbs, autotools-dev, debhelper, dpkg-dev.
+
+=head1 COPYING
+
+This manual page was written by W. Borgert debacle@debian.org
+for Debian GNU/Linux (but may be used by others). Permission is granted
+to copy, distribute and/or modify this document under the terms of the
+GNU General Public License, Version 2 or any later version published by
+the Free Software Foundation.
+
+=head1 AUTHOR
+
+B<W. Borgert> Author. 
+
+=head1 COPYRIGHT
+
+Copyright (C) 2003, 2005 W. Borger

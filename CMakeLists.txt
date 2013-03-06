@@ -700,6 +700,8 @@ set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/dftest.html
 	${CMAKE_BINARY_DIR}/dumpcap.html
 	${CMAKE_BINARY_DIR}/editcap.html
+	${CMAKE_BINARY_DIR}/asn2deb.html
+	${CMAKE_BINARY_DIR}/idl2deb.html
 	${CMAKE_BINARY_DIR}/idl2wrs.html
 	ipmap.html
 	manuf
@@ -1059,6 +1061,8 @@ pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/capinfos 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dftest 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dumpcap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/editcap 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/asn2deb 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/idl2deb 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/idl2wrs 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/mergecap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/randpkt 1 )
@@ -1077,6 +1081,8 @@ add_custom_target(
 		dftest.html
 		dumpcap.html
 		editcap.html
+		asn2deb.html
+		idl2deb.html
 		idl2wrs.html
 		mergecap.html
 		randpkt.html
