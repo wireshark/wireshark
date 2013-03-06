@@ -335,6 +335,20 @@ WSLUA_CLASS_DEFINE(Field,NOP,NOP);
  */
 
 static GPtrArray* wanted_fields = NULL;
+static dfilter_t* wslua_dfilter = NULL;
+
+/* We use a fake dfilter for Lua field extractors, so that 
+ * epan_dissect_run() will populate the fields.  This won't happen
+ * if the passed-in edt->tree is NULL, which it will be if the 
+ * proto_tree isn't created by epan_dissect_init().  But that's by
+ * design - if shark doesn't pass in a proto_tree, it's probably for
+ * a good reason and we shouldn't override that. (right?)
+ */
+void wslua_prime_dfilter(epan_dissect_t *edt) {
+    if (wslua_dfilter && edt && edt->tree) {
+        dfilter_prime_proto_tree(wslua_dfilter, edt->tree);
+    }
+}
 
 /*
  * field extractor registartion is tricky, In order to allow
@@ -385,6 +399,9 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
         if (error) {
             report_failure("while registering lua_fake_tap:\n%s",error->str);
             g_string_free(error,TRUE);
+        }
+        else if (!dfilter_compile(fake_tap_filter->str, &wslua_dfilter)) {
+            report_failure("while compiling dfilter for wslua: '%s'", fake_tap_filter->str);
         }
     }
 

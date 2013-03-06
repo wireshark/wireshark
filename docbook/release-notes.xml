@@ -231,6 +231,24 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Lua pinfo.cols.protocol not holding value in postdissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6020">Bug
+          6020</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Data combined via ssl_desegment_app_data not visible via &quot;Follow SSL Stream&quot; only decrypted ssl data tabs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6434">Bug
+          6434</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          HTTP application/json-rpc should be decoded/shown as application/json.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7939">Bug
+          7939</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           WMM TSPEC Element Parsing is not done is wrong due to a wrong switch case number.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8320">Bug
           8320</ulink>)
@@ -277,9 +295,11 @@ DTLS,
 FCSP,
 FMP/NOTIFY,
 IEEE 802.11,
+JSON,
 Mount,
 RTPS,
-RTPS2
+RTPS2,
+SSL
 
     </para>
     </section>

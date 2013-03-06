@@ -435,6 +435,8 @@ proto_reg_handoff_json(void)
 	json_handle = find_dissector("json");
 
 	dissector_add_string("media_type", "application/json", json_handle); /* RFC 4627 */
+	dissector_add_string("media_type", "application/json-rpc", json_handle); /* JSON-RPC over HTTP */
+	dissector_add_string("media_type", "application/jsonrequest", json_handle); /* JSON-RPC over HTTP */
 
 	text_lines_handle = find_dissector("data-text-lines");
 }
