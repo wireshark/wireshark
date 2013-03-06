@@ -252,9 +252,6 @@ struct graph {
     struct style_rlc_lte style;
 };
 
-#if !GTK_CHECK_VERSION(3,0,0)
-static GdkGC *xor_gc = NULL;
-#endif
 static int refnum = 0;
 
 #define debug(section) if (debugging & section)
@@ -467,9 +464,6 @@ static void create_drawing_area(struct graph *g)
 {
 #if GTK_CHECK_VERSION(3,0,0)
     GtkStyleContext *context;
-#else
-    GdkColormap *colormap;
-    GdkColor color;
 #endif
     char *display_name;
     char window_title[WINDOW_TITLE_LENGTH];
@@ -540,26 +534,6 @@ static void create_drawing_area(struct graph *g)
 #else
     g->font = gtk_widget_get_style(g->drawing_area)->font_desc;
 
-    colormap = gtk_widget_get_colormap(GTK_WIDGET(g->drawing_area));
-    if (!xor_gc) {
-        xor_gc = gdk_gc_new(gtk_widget_get_window(g->drawing_area));
-        gdk_gc_set_function(xor_gc, GDK_XOR);
-        if (!gdk_color_parse("gray15", &color)) {
-            /*
-             * XXX - do more than just warn.
-             */
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                "Could not parse color gray15.");
-        }
-        if (!gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE)) {
-            /*
-             * XXX - do more than just warn.
-             */
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                "Could not allocate color gray15.");
-        }
-        gdk_gc_set_foreground(xor_gc, &color);
-    }
 #endif
 
     g_signal_connect(g->drawing_area, "configure_event", G_CALLBACK(configure_event), g);
