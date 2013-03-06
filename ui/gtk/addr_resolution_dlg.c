@@ -206,6 +206,7 @@ addres_resolution_to_texbuff(GtkTextBuffer *buffer)
 		if (inet_ntop(AF_INET6, sa6->sin6_addr.s6_addr, addr_str, ADDRSTRLEN)) {
 			tab_count = (HOSTNAME_POS - (int)strlen(addr_str)) / 8;
 			g_snprintf(string_buff, ADDRESS_STR_MAX, "%s", addr_str);
+			gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 			for (i = 0; i < tab_count; i++){
 				g_snprintf(string_buff, ADDRESS_STR_MAX, "\t");
 				gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
