@@ -45,7 +45,7 @@ static int
 afpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
 	afpstat_t *ss=(afpstat_t *)pss;
-	const afp_request_val *request_val=prv;
+	const afp_request_val *request_val=(const afp_request_val *)prv;
 	nstime_t t, deltat;
 	timestat_t *sp=NULL;
 
@@ -119,7 +119,7 @@ afpstat_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	ss=g_malloc(sizeof(afpstat_t));
+	ss=g_new(afpstat_t,1);
 	if(filter){
 		ss->filter=g_strdup(filter);
 	} else {

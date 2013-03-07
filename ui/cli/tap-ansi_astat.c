@@ -54,8 +54,8 @@ ansi_a_stat_packet(
     epan_dissect_t		*edt _U_,
     const void			*data)
 {
-    ansi_a_stat_t		*stat_p = tapdata;
-    const ansi_a_tap_rec_t	*tap_p = data;
+    ansi_a_stat_t		*stat_p = (ansi_a_stat_t *)tapdata;
+    const ansi_a_tap_rec_t	*tap_p = (const ansi_a_tap_rec_t *)data;
 
 
     switch (tap_p->pdu_type)

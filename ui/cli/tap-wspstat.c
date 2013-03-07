@@ -76,7 +76,7 @@ wsp_free_hash_table( gpointer key, gpointer value, gpointer user_data _U_ )
 static void
 wspstat_reset(void *psp)
 {
-	wspstat_t *sp=psp;
+	wspstat_t *sp=(wspstat_t *)psp;
 	guint32 i;
 
 	for(i=1;i<=sp->num_pdus;i++)
@@ -125,20 +125,20 @@ index2pdut(gint pdut)
 static int
 wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
-	wspstat_t *sp=psp;
-	const wsp_info_value_t *value=pri;
+	wspstat_t *sp=(wspstat_t *)psp;
+	const wsp_info_value_t *value=(const wsp_info_value_t *)pri;
 	gint idx = pdut2index(value->pdut);
 	int retour=0;
 
 	if (value->status_code != 0) {
-		gint *key=g_malloc( sizeof(gint) );
+		gint *key=g_new(gint,1);
 		wsp_status_code_t *sc;
 		*key=value->status_code ;
 		sc = g_hash_table_lookup(
 				sp->hash,
 				key);
 		if (!sc) {
-			sc = g_malloc( sizeof(wsp_status_code_t) );
+			sc = g_new(wsp_status_code_t,1);
 			sc -> packets = 1;
 			sc -> name = NULL;
 			g_hash_table_insert(
@@ -175,7 +175,7 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 static void
 wspstat_draw(void *psp)
 {
-	wspstat_t *sp=psp;
+	wspstat_t *sp=(wspstat_t *)psp;
 	guint32 i;
 
 	printf("\n");
@@ -223,14 +223,14 @@ wspstat_init(const char *optarg, void* userdata _U_)
 	}
 
 
-	sp = g_malloc( sizeof(wspstat_t) );
+	sp = g_new(wspstat_t,1);
 	sp->hash = g_hash_table_new( g_int_hash, g_int_equal);
 	wsp_vals_status_p = VALUE_STRING_EXT_VS_P(&wsp_vals_status_ext);
 	for (i=0 ; wsp_vals_status_p[i].strptr ; i++ )
 	{
 		gint *key;
-		sc=g_malloc( sizeof(wsp_status_code_t) );
-		key=g_malloc( sizeof(gint) );
+		sc=g_new(wsp_status_code_t,1);
+		key=g_new(gint,1);
 		sc->packets=0;
 		sc->name=wsp_vals_status_p[i].strptr;
 		*key=wsp_vals_status_p[i].value;
@@ -240,7 +240,7 @@ wspstat_init(const char *optarg, void* userdata _U_)
 				sc);
 	}
 	sp->num_pdus = 16;
-	sp->pdu_stats=g_malloc( (sp->num_pdus+1) * sizeof( wsp_pdu_t) );
+	sp->pdu_stats=g_new(wsp_pdu_t,(sp->num_pdus+1));
 	if(filter){
 		sp->filter=g_strdup(filter);
 	} else {

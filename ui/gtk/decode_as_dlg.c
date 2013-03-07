@@ -201,7 +201,7 @@ decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
 {
     dissector_delete_item_t *item;
 
-    item = g_malloc(sizeof(dissector_delete_item_t));
+    item = g_new(dissector_delete_item_t,1);
     item->ddi_table_name = table_name;
     item->ddi_selector_type = selector_type;
     switch (selector_type) {
@@ -215,7 +215,7 @@ decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
 
     case FT_STRING:
     case FT_STRINGZ:
-        item->ddi_selector.sel_string = key;
+        item->ddi_selector.sel_string = (char *)key;
         break;
 
     default:
@@ -453,17 +453,17 @@ decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
     gchar        string1[20];
     da_entry_t *entry;
 
-    entry = g_malloc(sizeof(da_entry_t));
+    entry = g_new(da_entry_t,1);
 
     g_assert(user_data);
     g_assert(value);
 
-    current = dtbl_entry_get_handle(value);
+    current = (dissector_handle_t)dtbl_entry_get_handle(value);
     if (current == NULL)
         current_proto_name = "(none)";
     else
         current_proto_name = dissector_handle_get_short_name(current);
-    initial = dtbl_entry_get_initial_handle(value);
+    initial = (dissector_handle_t)dtbl_entry_get_initial_handle(value);
     if (initial == NULL)
         initial_proto_name = "(none)";
     else
@@ -515,7 +515,7 @@ decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
 
     case FT_STRING:
     case FT_STRINGZ:
-        selector_name = key;
+        selector_name = (gchar *)key;
         break;
 
     default:
@@ -549,7 +549,7 @@ decode_clear_all(gboolean redissect)
     dissector_all_tables_foreach_changed(decode_build_reset_list, NULL);
 
     for (tmp = dissector_reset_list; tmp; tmp = g_slist_next(tmp)) {
-        item = tmp->data;
+        item = (dissector_delete_item_t *)tmp->data;
         switch (item->ddi_selector_type) {
 
         case FT_UINT8:
@@ -784,16 +784,16 @@ decode_show_cb (GtkWidget *w _U_, gpointer user_data _U_)
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+    ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     g_signal_connect(ok_bt, "clicked", G_CALLBACK(decode_show_ok_cb), decode_show_w);
 
-    clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
+    clear_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
     g_signal_connect(clear_bt, "clicked", G_CALLBACK(decode_show_clear_cb), decode_show_w);
 
-    save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
+    save_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
     g_signal_connect(save_bt, "clicked", G_CALLBACK(decode_show_save_cb), decode_show_w);
 
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt =(GtkWidget *) g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DECODE_AS_SHOW_DIALOG);
 
     /* set ok as default, this button won't change anything */
@@ -863,7 +863,7 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
     } else {
         dissector_change_uint(table_name, selector, handle);
     }
-    selector_type = g_malloc(sizeof(guint));
+    selector_type = g_new(guint,1);
     *selector_type = selector;
     decode_build_reset_list(g_strdup(table_name), FT_UINT32, selector_type, NULL, NULL);
     g_free(abbrev);
@@ -937,17 +937,17 @@ decode_simple (GtkWidget *notebook_pg)
     gchar *table_name;
     guint value;
 
-    list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
+    list = (GtkWidget *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
         gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
 
 #ifdef DEBUG
-    string = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
+    string = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
     decode_debug(GTK_TREE_VIEW(list), string);
 #endif
 
-    table_name = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
-    value = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_VALUE));
+    table_name = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
+    value = GPOINTER_TO_UINT((gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_VALUE));
     decode_change_one_dissector(table_name, value, list);
 }
 
@@ -973,21 +973,21 @@ decode_transport(GtkWidget *notebook_pg)
     gchar *string;
 #endif
 
-    list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
+    list = (GtkWidget *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
         gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
 
-    combo_box = g_object_get_data(G_OBJECT(notebook_pg), E_COMBO_BOX_SRCDST);
+    combo_box = (GtkWidget *)g_object_get_data(G_OBJECT(notebook_pg), E_COMBO_BOX_SRCDST);
     if (!ws_combo_box_get_active_pointer(GTK_COMBO_BOX(combo_box), &ptr))
         g_assert_not_reached();  /* Programming error if no active item in combo_box */
     requested_srcdst = GPOINTER_TO_INT(ptr);
 
 #ifdef DEBUG
-    string = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
+    string = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
     decode_debug(GTK_TREE_VIEW(list), string);
 #endif
 
-    table_name = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
+    table_name = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
     if (requested_srcdst >= E_DECODE_PPID) {
         if (requested_srcdst == E_DECODE_PPID)
             ppid = 0;
@@ -1050,7 +1050,7 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     func(notebook_pg);
 
     /* Now destroy the "Decode As" dialog. */
-    notebook_pg = g_object_get_data(G_OBJECT(parent_w), E_PAGE_DCERPC);
+    notebook_pg = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_PAGE_DCERPC);
     if(notebook_pg) {
         binding = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_BINDING);
     }
@@ -1083,7 +1083,7 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
     gint page_num;
 
     /* Call the right routine for the page that was currently in front. */
-    notebook =  g_object_get_data(G_OBJECT(parent_w), E_NOTEBOOK);
+    notebook =  (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_NOTEBOOK);
     page_num = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
     notebook_pg = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), page_num);
 
@@ -1109,7 +1109,7 @@ decode_close_cb (GtkWidget *close_bt _U_, gpointer parent_w)
     void *binding = NULL;
 
 
-    notebook_pg = g_object_get_data(G_OBJECT(parent_w), E_PAGE_DCERPC);
+    notebook_pg = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_PAGE_DCERPC);
     if(notebook_pg) {
         binding = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_BINDING);
     }
@@ -1202,7 +1202,7 @@ decode_update_action (GtkWidget *w _U_, gpointer user_data)
     requested_action = GPOINTER_TO_INT(user_data);
     enable = (requested_action == E_DECODE_YES);
     for (tmp = decode_dimmable; tmp; tmp = g_slist_next(tmp)) {
-        gtk_widget_set_sensitive(tmp->data, enable);
+        gtk_widget_set_sensitive((GtkWidget *)tmp->data, enable);
     }
 }
 
@@ -1338,7 +1338,7 @@ lookup_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
               gpointer user_data)
 {
     dissector_handle_t handle;
-    struct handle_lookup_info *hli = user_data;
+    struct handle_lookup_info *hli = (struct handle_lookup_info *)user_data;
 
     gtk_tree_model_get(model, iter, E_LIST_S_TABLE+1, &handle, -1);
     if (hli->handle == handle) {
@@ -1382,9 +1382,9 @@ decode_add_to_list (const gchar *table_name, const gchar *proto_name, gpointer v
     g_assert(user_data);
     g_assert(value);
 
-    list = user_data;
+    list = (GtkTreeView *)user_data;
 
-    hli.handle = value;
+    hli.handle = (dissector_handle_t)value;
     hli.found = FALSE;
     store = GTK_LIST_STORE(gtk_tree_view_get_model(list));
     gtk_tree_model_foreach(GTK_TREE_MODEL(store), lookup_handle, &hli);
@@ -1409,7 +1409,7 @@ decode_proto_add_to_list (const gchar *table_name, gpointer value, gpointer user
     dissector_handle_t handle;
 
 
-    handle = value;
+    handle = (dissector_handle_t)value;
     proto_name = dissector_handle_get_short_name(handle);
 
     i = dissector_handle_get_protocol_index(handle);
@@ -1668,7 +1668,7 @@ decode_sctp_list_menu_start(GtkWidget **list_p, GtkWidget **scrolled_win_p)
     GtkTreeViewColumn *tc;
     GtkTreeSortable   *sortable;
 
-    sctp_store = g_object_get_data(G_OBJECT(decode_w), "sctp_data");
+    sctp_store = (GtkListStore *)g_object_get_data(G_OBJECT(decode_w), "sctp_data");
     list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(sctp_store)));
     g_object_unref(G_OBJECT(sctp_store));
     sortable = GTK_TREE_SORTABLE(sctp_store);
@@ -1702,7 +1702,7 @@ decode_sctp_update_ppid_combo_box(GtkWidget *w _U_, GtkWidget *page)
     guint      number_of_ppid;
     GtkListStore *sctp_store;
 
-    sctp_combo_box = g_object_get_data(G_OBJECT(page), E_COMBO_BOX_SRCDST);
+    sctp_combo_box = (GtkWidget *)g_object_get_data(G_OBJECT(page), E_COMBO_BOX_SRCDST);
     ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box));
 
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++) {
@@ -1719,7 +1719,7 @@ decode_sctp_update_ppid_combo_box(GtkWidget *w _U_, GtkWidget *page)
 
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gpointer)"sctp.ppi");
 
-    sctp_store = g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
+    sctp_store = (GtkListStore *)g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
     gtk_list_store_clear(sctp_store);
     decode_sctp_list_menu_start(&list, &scrolled_window);
     dissector_table_foreach_handle("sctp.ppi", decode_proto_add_to_list, list);
@@ -1735,7 +1735,7 @@ decode_sctp_update_srcdst_combo_box(GtkWidget *w _U_, GtkWidget *page)
     gchar      tmp[100];
     GtkListStore *sctp_store;
 
-    sctp_combo_box = g_object_get_data(G_OBJECT(page), E_COMBO_BOX_SRCDST);
+    sctp_combo_box = (GtkWidget *)g_object_get_data(G_OBJECT(page), E_COMBO_BOX_SRCDST);
     ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box));
 
     g_snprintf(tmp, sizeof(tmp), "source (%u)", cfile.edt->pi.srcport);
@@ -1834,16 +1834,16 @@ decode_bluetooth(GtkWidget *notebook_pg)
     gchar               *abbrev;
     guint               *value_type;
 
-    list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
+    list = (GtkWidget *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
         gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
 
 #ifdef DEBUG
-    string = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
+    string = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
     decode_debug(GTK_TREE_VIEW(list), string);
 #endif
 
-    table_name = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
+    table_name = (gchar *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
     if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
@@ -1863,7 +1863,7 @@ decode_bluetooth(GtkWidget *notebook_pg)
         dissector_change_uint(table_name, value, handle);
     }
 
-    value_type = g_malloc(sizeof(guint));
+    value_type = g_new(guint,1);
     *value_type = value;
 
     decode_build_reset_list(g_strdup(table_name), FT_UINT32, value_type, NULL, NULL);
@@ -1892,7 +1892,7 @@ decode_add_bluetooth_page(const gchar *prompt, const gchar *table_name, const ch
     label = gtk_label_new(prompt);
     gtk_box_pack_start(GTK_BOX(page), label, FALSE, FALSE, 0);
 
-    value_entry = g_hash_table_lookup(value_entry_table, table_name);
+    value_entry = (GtkWidget *)g_hash_table_lookup(value_entry_table, table_name);
     if (!value_entry) {
         value_entry = gtk_entry_new();
         g_hash_table_insert(value_entry_table, (gchar *) table_name, value_entry);
@@ -2035,7 +2035,7 @@ decode_add_notebook (GtkWidget *format_hb)
         ga = proto_all_finfos(cfile.edt->tree);
 
         for (i = 0; i < ga->len; i += 1) {
-            v = g_ptr_array_index (ga, i);
+            v = (field_info *)g_ptr_array_index (ga, i);
             hfinfo =  v->hfinfo;
 
             if (g_strcmp0(hfinfo->abbrev, "btl2cap.cid") == 0) {
@@ -2181,20 +2181,20 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+    ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     g_signal_connect(ok_bt, "clicked", G_CALLBACK(decode_ok_cb), decode_w);
 	gtk_widget_set_tooltip_text(ok_bt, "Apply current setting, close dialog and redissect packets.");
 
-    apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
+    apply_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
     g_signal_connect(apply_bt, "clicked", G_CALLBACK(decode_apply_cb), decode_w);
 	gtk_widget_set_tooltip_text(apply_bt, "Apply current setting, redissect packets and keep dialog open.");
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(decode_w, close_bt, NULL);
     g_signal_connect(close_bt, "clicked", G_CALLBACK(decode_close_cb), decode_w);
 	gtk_widget_set_tooltip_text(close_bt, "Close the dialog, don't redissect packets.");
 
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DECODE_AS_DIALOG);
 
     gtk_widget_grab_default(ok_bt);
