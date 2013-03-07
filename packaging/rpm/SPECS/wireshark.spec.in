@@ -35,10 +35,14 @@ URL:		http://www.wireshark.org/
 BuildRoot:	/tmp/wireshark-%{PACKAGE_VERSION}-root
 Packager:	Gerald Combs <gerald[AT]wireshark.org>
 # Some distributions create a wireshark-devel package; get rid of it
-Obsoletes:      wireshark-devel
+Obsoletes:	wireshark-devel
 
-BuildRequires:  autoconf >= @AC_MIN_VERSION@
-BuildRequires:	flex, bison
+BuildRequires:	autoconf >= @AC_MIN_VERSION@
+BuildRequires:	automake
+BuildRequires:	libtool
+BuildRequires:	gcc
+BuildRequires:	flex
+BuildRequires:	bison
 BuildRequires:	python
 BuildRequires:	perl
 
@@ -50,8 +54,16 @@ BuildRequires:	zlib-devel
 Requires:	zlib
 
 %if %{with_c_ares}
+%if 0%{?suse_version}
+# SuSE uses these package names (yes 2!):
+BuildRequires:	libcares-devel
+Requires:	libcares2
+%else
+# ... while Redhat uses this one:
+# (What other RPM-based distros do will have to be determined...)
 BuildRequires:	c-ares-devel
 Requires:	c-ares
+%endif
 %endif
 %if %{with_adns}
 BuildRequires:	adns-devel
@@ -71,12 +83,24 @@ Requires:	lua
 #BuildRequires:	libcap-devel
 
 %if %{use_wireshark_group}
+%if 0%{?suse_version}
+# SuSE's groupadd is in this package:
+Requires(pre):	pwdutils
+%else
+# ... while Redhat's is in this one:
 Requires(pre):	shadow-utils
+%endif
 %endif
 Requires(post):	desktop-file-utils
 
 %if %{setcap_dumpcap}
-BuildRequires: rpm-build >= 4.7.0
+%if 0%{?suse_version}
+# SuSE's rpmbuild is in this package:
+BuildRequires:	rpm >= 4.7.0
+%else
+# ... while Redhat's is in this one:
+BuildRequires:	rpm-build >= 4.7.0
+%endif
 %endif
 
 
@@ -85,10 +109,10 @@ Summary:	Gnome desktop integration for wireshark
 Group:		Applications/Internet
 %if %{with_gtk3}
 Requires:	gtk3 >= @GTK3_MIN_VERSION@
-BuildRequires:  gtk3-devel >= @GTK3_MIN_VERSION@
+BuildRequires:	gtk3-devel >= @GTK3_MIN_VERSION@
 %else
 Requires:	gtk2 >= @GTK2_MIN_VERSION@
-BuildRequires:  gtk2-devel >= @GTK2_MIN_VERSION@
+BuildRequires:	gtk2-devel >= @GTK2_MIN_VERSION@
 %endif
 Requires:	wireshark = %{version}-%{release}
 Requires:	xdg-utils
@@ -123,7 +147,7 @@ Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
 %prep
 %setup -q -n %{name}-%{version}
 
-# Don't specify the prefix here: %configure is a macro which expands to set
+# Don't specify the prefix here: configure is a macro which expands to set
 # the prefix and everything else too.  If you need to change the prefix
 # set _prefix (note the underscore) either in this file or on rpmbuild's
 # command-line.
@@ -245,6 +269,10 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %{_mandir}/man1/wireshark.*
 
 %changelog
+* Thu Mar  6 2013 Jeff Morriss
+- List more build dependencies.
+- Update to work on SuSE too: some of their package names are different.
+
 * Thu Mar  6 2013 Gerald Combs
 - Enable c-ares by default
 
