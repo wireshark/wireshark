@@ -211,6 +211,7 @@ static void
 dissect_read_response(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int offset)
 {
   int len = 0;
+  guint32 chunksize;
 
   /* 4 bytes = data length */
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_datalength, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -233,9 +234,12 @@ dissect_read_response(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int offset)
   offset += 4;
 
   /* if there is a crc checksum it is 8* the length of the data * checksum size / chunksize */
+  chunksize = tvb_get_ntohl(tvb, CHUNKSIZE_START);
+  if (chunksize == 0)   /* let's not divide by zero */
+    return;
   if (tvb_get_guint8(tvb, 2) == CRC) {
     len = (int)(CRC_SIZE * tvb_get_ntohl(tvb, offset - 4) *
-      tvb_get_ntohl(tvb, offset - 8) / tvb_get_ntohl(tvb, CHUNKSIZE_START));
+      tvb_get_ntohl(tvb, offset - 8) / chunksize);
   }
 
   /* the rest of bytes (usually 4) = crc32 code */
