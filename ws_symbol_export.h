@@ -20,6 +20,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/** Reset symbol export behavior.
+ * If you {un}define WS_BUILD_DLL on the fly you'll have to define this
+ * as well.
+ */
+#ifdef RESET_SYMBOL_EXPORT
+
+#ifdef SYMBOL_EXPORT_H
+#undef SYMBOL_EXPORT_H
+#endif
+
+#ifdef WS_DLL_PUBLIC
+#undef WS_DLL_PUBLIC
+#endif
+
+#ifdef WS_DLL_PUBLIC_NOEXTERN
+#undef WS_DLL_PUBLIC_NOEXTERN
+#endif
+
+#ifdef WS_DLL_LOCAL
+#undef WS_DLL_LOCAL
+#endif
+
+#endif /* RESET_SYMBOL_EXPORT */
+
 #ifndef SYMBOL_EXPORT_H
 #define SYMBOL_EXPORT_H
 
