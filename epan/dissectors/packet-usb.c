@@ -827,8 +827,11 @@ get_usb_conv_info(conversation_t *conversation)
     if (!usb_conv_info) {
         /* no not yet so create some */
         usb_conv_info = se_alloc0(sizeof(usb_conv_info_t));
-        usb_conv_info->interfaceClass = IF_CLASS_UNKNOWN;
+        usb_conv_info->interfaceClass    = IF_CLASS_UNKNOWN;
         usb_conv_info->interfaceSubclass = IF_SUBCLASS_UNKNOWN;
+        usb_conv_info->interfaceProtocol = IF_PROTOCOL_UNKNOWN;
+        usb_conv_info->deviceVendor      = DEV_VENDOR_UNKNOWN;
+        usb_conv_info->deviceProduct     = DEV_PRODUCT_UNKNOWN;
         usb_conv_info->transactions = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
 
         conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
@@ -1055,10 +1058,9 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
 
 /* 9.6.1 */
 static int
-dissect_usb_device_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
+dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                               tvbuff_t *tvb, int offset,
                               usb_trans_info_t *usb_trans_info _U_,
-                              usb_conv_info_t  *usb_conv_info _U_,
                               guint bus_id, guint device_address)
 {
     proto_item      *item       = NULL;
@@ -1070,11 +1072,14 @@ dissect_usb_device_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     guint16          vendor_id;
     guint32          product;
     guint16          product_id;
+    usb_conv_info_t  *usb_conv_info;
 
     if (parent_tree) {
         item = proto_tree_add_text(parent_tree, tvb, offset, -1, "DEVICE DESCRIPTOR");
         tree = proto_item_add_subtree(item, ett_descriptor_device);
     }
+
+    usb_conv_info=pinfo->usb_conv_info;
 
     dissect_usb_descriptor_header(tree, tvb, offset);
     offset += 2;
@@ -1107,11 +1112,13 @@ dissect_usb_device_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     /* idVendor */
     proto_tree_add_item(tree, hf_usb_idVendor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     vendor_id = tvb_get_letohs(tvb, offset);
+    usb_conv_info->deviceVendor = vendor_id;
     offset += 2;
 
     /* idProduct */
     nitem = proto_tree_add_item(tree, hf_usb_idProduct, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     product_id = tvb_get_letohs(tvb, offset);
+    usb_conv_info->deviceProduct = product_id;
     product = vendor_id << 16 | product_id;
     proto_item_set_text(nitem, "idProduct: %s (0x%04x)",
             val_to_str_ext_const(product, &ext_usb_products_vals, "Unknown"),
@@ -1300,8 +1307,11 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         /* Register conversation for this interface in case CONTROL messages are sent to it */
         usb_trans_info->interface_info = get_usb_iface_conv_info(pinfo, interface_num);
         usb_trans_info->interface_info->interfaceClass = tvb_get_guint8(tvb, offset);
-        /* save the subclass so we can access it later in class-specific descriptors */
+        /* save information useful to class-specific dissectors */ 
         usb_trans_info->interface_info->interfaceSubclass = tvb_get_guint8(tvb, offset+1);
+        usb_trans_info->interface_info->interfaceProtocol = tvb_get_guint8(tvb, offset+2);
+        usb_trans_info->interface_info->deviceVendor      = usb_conv_info->deviceVendor;
+        usb_trans_info->interface_info->deviceProduct     = usb_conv_info->deviceProduct;
     }
     offset += 1;
 
@@ -1313,6 +1323,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 
     /* bInterfaceProtocol */
     proto_tree_add_item(tree, hf_usb_bInterfaceProtocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    usb_conv_info->interfaceProtocol = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     /* iInterface */
@@ -1566,6 +1577,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
 
     usb_conv_info->interfaceClass    = IF_CLASS_UNKNOWN;
     usb_conv_info->interfaceSubclass = IF_SUBCLASS_UNKNOWN;
+    usb_conv_info->interfaceProtocol = IF_PROTOCOL_UNKNOWN;
 
     if (parent_tree) {
         item = proto_tree_add_text(parent_tree, tvb, offset, -1, "CONFIGURATION DESCRIPTOR");
@@ -1683,6 +1695,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
      */
     usb_conv_info->interfaceClass    = IF_CLASS_UNKNOWN;
     usb_conv_info->interfaceSubclass = IF_SUBCLASS_UNKNOWN;
+    usb_conv_info->interfaceProtocol = IF_PROTOCOL_UNKNOWN;
 
     return offset;
 }
@@ -1734,7 +1747,7 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
     }
     switch(usb_trans_info->u.get_descriptor.type) {
     case USB_DT_DEVICE:
-        offset = dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info, bus_id, device_address);
+        offset = dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_trans_info, bus_id, device_address);
         break;
     case USB_DT_CONFIG:
         offset = dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
