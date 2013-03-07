@@ -1255,7 +1255,7 @@ insert_new_rows(GList *list)
     device.pmode = global_capture_opts.default_options.promisc_mode;
     device.has_snaplen = global_capture_opts.default_options.has_snaplen;
     device.snap_pref = TRUE;
-    if ((device.snaplen = capture_dev_user_snaplen_find(if_string->name)) == -1) {
+    if ((device.snaplen = capture_dev_user_snaplen_find(if_string)) == -1) {
       device.snaplen = global_capture_opts.default_options.snaplen;
     }
     device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
