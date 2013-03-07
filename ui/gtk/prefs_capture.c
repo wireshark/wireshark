@@ -1133,8 +1133,10 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	/* display the interface name from current interfaces selection */
 	gtk_label_set_text(GTK_LABEL(if_name_lb), desc);
 
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 	/* display the buffer size from current interfaces selection */
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON (if_buffersize_cb), buffersize);
+#endif
 
 	/* display the snap length from current interfaces selection */
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON (if_snaplen_cb), snaplen);
@@ -1593,10 +1595,12 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 		free_if_capabilities(caps);
 	}
 
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 	buffersize = capture_dev_user_buffersize_find(if_info->name);
 	if (buffersize == -1) {
 		buffersize = DEFAULT_CAPTURE_BUFFER_SIZE;
 	}
+#endif
 
 	snaplen = capture_dev_user_snaplen_find(if_info->name);
 	hassnap = capture_dev_user_hassnap_find(if_info->name);
