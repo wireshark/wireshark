@@ -437,8 +437,6 @@ proto_hier_create_popup_menu(void)
 
 }
 
-#define MAX_DLG_HEIGHT 450
-#define DEF_DLG_WIDTH  700
 static void
 create_tree(GtkWidget *container, ph_stats_t *ps)
 {
@@ -532,13 +530,15 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     /* Fill in the data. */
     fill_in_tree(tree, ps);
 
-    gtk_widget_set_size_request(tree, DEF_DLG_WIDTH, MAX_DLG_HEIGHT);
     gtk_tree_view_expand_all(tree_view);
 
     proto_hier_create_popup_menu ();
 
     gtk_container_add(GTK_CONTAINER(sw), tree);
 }
+
+#define MAX_DLG_HEIGHT 450
+#define DEF_DLG_WIDTH  920
 
 void
 proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
@@ -558,6 +558,7 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 
     dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Protocol Hierarchy Statistics");
+    gtk_window_set_default_size(GTK_WINDOW(dlg), DEF_DLG_WIDTH, MAX_DLG_HEIGHT);
 
     vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
