@@ -5458,7 +5458,7 @@ create_and_fill_model(GtkTreeView *view)
   gint          buffer;
 #endif
   gint          snaplen;
-  gboolean      hassnap, has_snaplen;
+  gboolean      hassnap;
 
 #if defined(HAVE_PCAP_CREATE)
   store = gtk_list_store_new (9, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING);
@@ -5485,23 +5485,18 @@ create_and_fill_model(GtkTreeView *view)
         }
       }
       hassnap = capture_dev_user_hassnap_find(device.name);
-      snaplen = device.snaplen;
-      has_snaplen = device.has_snaplen;
-      if (!device.snap_pref) {
-        if (has_snaplen) {
+      snaplen = capture_dev_user_snaplen_find(device.name);
+      if((snaplen>0)&&(hassnap>0)){
+          /* Default snap lenght set in preferences */
+          device.snaplen = snaplen;
+          device.has_snaplen = TRUE;
+		  global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+		  g_array_insert_val(global_capture_opts.all_ifaces, i, device);
           snaplen_string = g_strdup_printf("%d", device.snaplen);
-        } else {
+      }else if (device.has_snaplen) {
+          snaplen_string = g_strdup_printf("%d", device.snaplen);
+      }else{
           snaplen_string = g_strdup("default");
-        }
-      } else if ((hassnap == -1 || !hassnap)) {
-        snaplen_string = g_strdup("default");
-      } else {
-        snaplen = capture_dev_user_snaplen_find(device.name);
-        device.snaplen = snaplen;
-        device.has_snaplen = TRUE;
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-        snaplen_string = g_strdup_printf("%d", device.snaplen);
       }
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       buffer = device.buffer;
