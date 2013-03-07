@@ -83,21 +83,21 @@ capture_info_stop(capture_options *capture_opts)
 /* "delete-event" signal callback. Note different signature than "clicked" signal callback */
 static gboolean
 capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data) {
-  capture_info_stop(data);
+  capture_info_stop((capture_options *)data);
   return TRUE;
 }
 
 /* "clicked" signal callback */
 static void
 capture_info_stop_clicked_cb(GtkButton *w _U_, gpointer data) {
-  capture_info_stop(data);
+  capture_info_stop((capture_options *)data);
 }
 
 static gboolean
 capture_info_ui_update_cb(gpointer data)
 {
-  capture_info      *cinfo = data;
-  capture_info_ui_t *info  = cinfo->ui;
+  capture_info      *cinfo = (capture_info *)data;
+  capture_info_ui_t *info  = (capture_info_ui_t *)cinfo->ui;
 
   if (!info) /* ...which might happen on slow displays? */
     return TRUE;
@@ -123,7 +123,7 @@ capture_options *capture_opts)
   gchar             *descr;
   GString           *str;
 
-  info = g_malloc0(sizeof(capture_info_ui_t));
+  info = g_new0(capture_info_ui_t,1);
   info->counts[0].title      = "Total";
   info->counts[0].value_ptr  = &(cinfo->counts->total);
   info->counts[1].title      = "SCTP";
@@ -295,12 +295,12 @@ capture_options *capture_opts)
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 3);
   gtk_widget_show(bbox);
 
-  stop_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_STOP);
+  stop_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_STOP);
   window_set_cancel_button(info->cap_w, stop_bt, NULL);
   g_signal_connect(stop_bt, "clicked", G_CALLBACK(capture_info_stop_clicked_cb), capture_opts);
   g_signal_connect(info->cap_w, "delete_event", G_CALLBACK(capture_info_delete_cb), capture_opts);
 
-  ci_help = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  ci_help = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   gtk_widget_set_tooltip_text(ci_help, "Get help about this dialog");
   g_signal_connect(ci_help, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_INFO_DIALOG);
 
@@ -324,7 +324,7 @@ capture_info    *cinfo)
 {
   unsigned int      i;
   gchar             label_str[64];
-  capture_info_ui_t *info = cinfo->ui;
+  capture_info_ui_t *info = (capture_info_ui_t *)cinfo->ui;
 
   if (!info) /* ...which might happen on slow displays? */
     return;
@@ -359,7 +359,7 @@ capture_info    *cinfo)
 void capture_info_ui_destroy(
 capture_info    *cinfo)
 {
-  capture_info_ui_t *info = cinfo->ui;
+  capture_info_ui_t *info = (capture_info_ui_t *)cinfo->ui;
 
   if (!info) /* ...which probably shouldn't happen */
     return;
