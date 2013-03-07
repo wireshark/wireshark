@@ -606,7 +606,8 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
   /* printer grid */
   printer_grid = ws_gtk_grid_new();
-  gtk_box_pack_start(GTK_BOX(printer_vb), printer_grid, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(printer_vb), printer_grid, FALSE, FALSE, 0);
+
   ws_gtk_grid_set_row_spacing(GTK_GRID(printer_grid), 5);
   ws_gtk_grid_set_column_spacing(GTK_GRID(printer_grid), 5);
   gtk_widget_show(printer_grid);
@@ -617,7 +618,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   if (args->to_file)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dest_cb), TRUE);
   gtk_widget_set_tooltip_text(dest_cb, "Output to file instead of printer");
-  ws_gtk_grid_attach_defaults(GTK_GRID(printer_grid), dest_cb, 0, 0, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(printer_grid), dest_cb, 0, 0, 1, 1, 0, 0, 0, 0);
   if(action == output_action_print)
     gtk_widget_show(dest_cb);
 
@@ -626,7 +627,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   g_object_set_data(G_OBJECT(dest_cb), PRINT_FILE_TE_KEY, file_te);
   gtk_widget_set_tooltip_text(file_te, "Enter Output filename");
   gtk_entry_set_text(GTK_ENTRY(file_te), args->file);
-  ws_gtk_grid_attach_defaults(GTK_GRID(printer_grid), file_te, 1, 0, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(printer_grid), file_te, 1, 0, 1, 1, GTK_EXPAND|GTK_FILL, 0, 0, 0);
   gtk_widget_set_sensitive(file_te, args->to_file);
   gtk_widget_show(file_te);
   if (args->to_file)
@@ -637,7 +638,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   g_object_set_data(G_OBJECT(dest_cb), PRINT_FILE_BT_KEY, file_bt);
   g_object_set_data(G_OBJECT(file_bt), PRINT_TE_PTR_KEY, file_te);
   gtk_widget_set_tooltip_text(file_bt, "Browse output filename in filesystem");
-  ws_gtk_grid_attach_defaults(GTK_GRID(printer_grid), file_bt, 2, 0, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(printer_grid), file_bt, 2, 0, 1, 1, 0, 0, 0, 0);
   gtk_widget_set_sensitive(file_bt, args->to_file);
   gtk_widget_show(file_bt);
 
@@ -646,7 +647,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   cmd_lb = gtk_label_new("Print command:");
   g_object_set_data(G_OBJECT(dest_cb), PRINT_CMD_LB_KEY, cmd_lb);
   gtk_misc_set_alignment(GTK_MISC(cmd_lb), 1.0f, 0.5f);
-  ws_gtk_grid_attach_defaults(GTK_GRID(printer_grid), cmd_lb, 0, 1, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(printer_grid), cmd_lb, 0, 1, 1, 1, 0, 0, 0, 0);
   gtk_widget_set_sensitive(cmd_lb, !args->to_file);
   if(action == output_action_print)
     gtk_widget_show(cmd_lb);
@@ -655,7 +656,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   g_object_set_data(G_OBJECT(dest_cb), PRINT_CMD_TE_KEY, cmd_te);
   gtk_widget_set_tooltip_text(cmd_te, "Enter print command");
   gtk_entry_set_text(GTK_ENTRY(cmd_te), args->cmd);
-  ws_gtk_grid_attach_defaults(GTK_GRID(printer_grid), cmd_te, 1, 1, 1, 1);
+  ws_gtk_grid_attach_extended(GTK_GRID(printer_grid), cmd_te, 1, 1, 1, 1, 0, 0, 0, 0);
   gtk_widget_set_sensitive(cmd_te, !args->to_file);
   if(action == output_action_print)
     gtk_widget_show(cmd_te);
@@ -725,12 +726,12 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
   details_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(details_vb), 0);
-  gtk_box_pack_start(GTK_BOX(details_hb), details_vb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(details_hb), details_vb, FALSE, FALSE, 10);
   gtk_widget_show(details_vb);
 
   details_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(details_vb), 0);
-  gtk_box_pack_start(GTK_BOX(details_hb), details_vb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(details_hb), details_vb, FALSE, FALSE, 0);
   gtk_widget_show(details_vb);
 
   /* "All collapsed"/"As displayed"/"All Expanded" radio buttons */
