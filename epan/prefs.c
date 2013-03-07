@@ -2180,6 +2180,14 @@ prefs_register_modules(void)
         "By default, capture in monitor mode on interface? (Ex: eth0,eth3,...)",
         (const char**)(&prefs.capture_devices_monitor_mode));
 
+    prefs_register_string_preference(capture_module, "devices_buffersize", "Interface buffer size",
+        "Interface buffer size (Ex: en0(1),en1(143),...)",
+        (const char**)(&prefs.capture_devices_buffersize));
+
+    prefs_register_string_preference(capture_module, "devices_snaplen", "Interface snap length",
+        "Interface snap length (Ex: en0(65535),en1(1430),...)",
+        (const char**)(&prefs.capture_devices_snaplen));
+
     prefs_register_bool_preference(capture_module, "prom_mode", "Capture in promiscuous mode",
         "Capture in promiscuous mode?", &prefs.capture_prom_mode);
 

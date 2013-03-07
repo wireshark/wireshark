@@ -47,6 +47,21 @@ char *capture_dev_user_descr_find(const gchar *if_name);
  */
 gint capture_dev_user_linktype_find(const gchar *if_name);
 
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+/**
+ * Find user-specified buffer size that matches interface
+ * name, if any.
+ */
+gint capture_dev_user_buffersize_find(const gchar *if_name);
+#endif
+
+/**
+ * Find user-specified snap length that matches interface
+ * name, if any.
+ */
+gint capture_dev_user_snaplen_find(const gchar *if_name);
+gboolean capture_dev_user_hassnap_find(const gchar *if_name);
+
 /** Return as descriptive a name for an interface as we can get.
  * If the user has specified a comment, use that.  Otherwise,
  * if capture_interface_list() supplies a description, use that,

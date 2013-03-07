@@ -69,6 +69,10 @@ static GtkWidget *cur_list, *if_dev_lb, *if_name_lb, *if_linktype_lb, *if_linkty
 #ifdef HAVE_PCAP_CREATE
 static GtkWidget *if_monitor_lb, *if_monitor_cb;
 #endif
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+static GtkWidget *if_buffersize_lb, *if_buffersize_cb;
+#endif
+static GtkWidget *if_snaplen_lb, *if_snaplen_cb, *if_snaplen_tg;
 static GtkTreeSelection *if_selection;	/* current interface row selected */
 static int num_linktypes;
 static gboolean interfaces_info_nochange;  /* TRUE to ignore Interface Options Properties */
@@ -84,6 +88,11 @@ static void ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 static void ifopts_edit_linktype_changed_cb(GtkComboBox *ed, gpointer udata);
 static void ifopts_edit_descr_changed_cb(GtkEditable *ed, gpointer udata);
 static void ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata);
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+static void ifopts_edit_buffersize_changed_cb(GtkSpinButton *ed, gpointer udata);
+#endif
+static void ifopts_edit_snaplen_changed_cb(GtkSpinButton *ed, gpointer udata);
+static void ifopts_edit_hassnap_changed_cb(GtkToggleButton *tbt, gpointer udata);
 static void ifopts_options_add(GtkListStore *list_store, if_info_t *if_info);
 static void ifopts_options_free(gchar *text[]);
 static void ifopts_if_liststore_add(void);
@@ -91,6 +100,8 @@ static void ifopts_if_liststore_add(void);
 static void ifopts_write_new_monitor_mode(void);
 #endif
 static void ifopts_write_new_linklayer(void);
+static void ifopts_write_new_buffersize(void);
+static void ifopts_write_new_snaplen(void);
 static void ifopts_write_new_descr(void);
 static void ifopts_write_new_hide(void);
 
@@ -322,6 +333,11 @@ enum
 #ifdef HAVE_PCAP_CREATE
 	DEF_MONITOR_MODE_COLUMN,
 #endif
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+	BUF_COLUMN,
+#endif
+	HASSNAP_COLUMN,
+	SNAPLEN_COLUMN,
 	DEF_LINK_LAYER_COLUMN,
 	COMMENT_COLUMN,
 	HIDE_COLUMN,
@@ -553,7 +569,10 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	GtkCellRenderer   *renderer;
 	GtkTreeView       *list_view;
 	GtkTreeSelection  *selection;
-
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+	GtkAdjustment     *buffer_size_adj;
+#endif
+	GtkAdjustment     *snaplen_adj;
 	int row = 0;
 
 	GtkWidget   *caller   = gtk_widget_get_toplevel(w);
@@ -596,6 +615,11 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 #ifdef HAVE_PCAP_CREATE
 					G_TYPE_BOOLEAN,	/* Monitor mode		*/
 #endif
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+					G_TYPE_INT,			/* Buffer size				*/
+#endif
+					G_TYPE_BOOLEAN,	/* Has snap length		*/
+					G_TYPE_INT,			/* Snap length				*/
 					G_TYPE_STRING,	/* Default link-layer		*/
 					G_TYPE_STRING,	/* Comment			*/
 					G_TYPE_BOOLEAN,	/* Hide?			*/
@@ -652,6 +676,37 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* Add the column to the view. */
 	gtk_tree_view_append_column (list_view, column);
 #endif
+
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+	renderer = gtk_cell_renderer_spin_new ();
+	buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new(DEFAULT_CAPTURE_BUFFER_SIZE, 1, 65535, 1.0, 10.0, 0.0);
+	g_object_set(G_OBJECT(renderer), "adjustment", buffer_size_adj, NULL);
+	column = gtk_tree_view_column_new_with_attributes ("Default buffer size", renderer,
+							   "text", BUF_COLUMN,
+							   NULL);
+
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	/* Add the column to the view. */
+	gtk_tree_view_append_column (list_view, column);
+#endif
+  renderer = gtk_cell_renderer_toggle_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Has snap length mode", renderer,
+							   "active", HASSNAP_COLUMN,
+							   NULL);
+	gtk_tree_view_column_set_resizable(column, FALSE);
+	/*gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);*/
+	renderer = gtk_cell_renderer_spin_new ();
+	snaplen_adj = (GtkAdjustment *) gtk_adjustment_new(WTAP_MAX_PACKET_SIZE, 1, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
+	g_object_set(G_OBJECT(renderer), "adjustment", snaplen_adj, NULL);
+	column = gtk_tree_view_column_new_with_attributes ("Default snap length", renderer,
+							   "text", SNAPLEN_COLUMN,
+							   NULL);
+
+	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	/* Add the column to the view. */
+	gtk_tree_view_append_column (list_view, column);
 
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Default link-layer", renderer,
@@ -767,8 +822,40 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 			cur_list);
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_monitor_cb, 1, row, 1, 1);
 	gtk_widget_show(if_monitor_cb);
-        row++;
+	row++;
 #endif
+
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+	if_buffersize_lb = gtk_label_new("Default buffer size:");
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_buffersize_lb, 0, row, 1, 1);
+	gtk_misc_set_alignment(GTK_MISC(if_buffersize_lb), 1.0f, 0.5f);
+	gtk_widget_show(if_buffersize_lb);
+	buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new(DEFAULT_CAPTURE_BUFFER_SIZE, 1, 65535, 1.0, 10.0, 0.0);
+	if_buffersize_cb = gtk_spin_button_new (buffer_size_adj, 0, 0);
+	g_signal_connect(if_buffersize_cb, "value-changed", G_CALLBACK(ifopts_edit_buffersize_changed_cb),
+			cur_list);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_buffersize_cb, 1, row, 1, 1);
+	gtk_widget_show(if_buffersize_cb);
+	row++;
+#endif
+
+	if_snaplen_lb = gtk_label_new("Limit each packet to:");
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_snaplen_lb, 0, row, 1, 1);
+	gtk_misc_set_alignment(GTK_MISC(if_snaplen_lb), 1.0f, 0.5f);
+	gtk_widget_show(if_snaplen_lb);
+	if_snaplen_tg = gtk_check_button_new();
+	g_signal_connect(if_snaplen_tg, "toggled", G_CALLBACK(ifopts_edit_hassnap_changed_cb),
+			cur_list);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_snaplen_tg, 2, row, 1, 1);
+	gtk_widget_show(if_snaplen_tg);
+	snaplen_adj = (GtkAdjustment *) gtk_adjustment_new(65535, 1, 65535, 1.0, 10.0, 0.0);
+	if_snaplen_cb = gtk_spin_button_new (snaplen_adj, 0, 0);
+	g_signal_connect(if_snaplen_cb, "value-changed", G_CALLBACK(ifopts_edit_snaplen_changed_cb),
+			cur_list);
+	gtk_spin_button_set_numeric(GTK_SPIN_BUTTON (if_snaplen_cb), TRUE);
+	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_snaplen_cb, 1, row, 1, 1);
+	gtk_widget_show(if_snaplen_cb);
+	row++;
 
 	if_linktype_lb = gtk_label_new("Default link-layer header type:");
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_linktype_lb, 0, row, 1, 1);
@@ -913,7 +1000,15 @@ ifopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 
 		/* create/write new "hidden" interfaces string */
 		ifopts_write_new_hide();
-	}
+
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+		/* create/write new "buffersize" interfaces string */
+		ifopts_write_new_buffersize();
+#endif
+
+		/* create/write new "snaplen" interfaces string */
+		ifopts_write_new_snaplen();
+}
 
 	/* Update everything that shows an interface list that includes
 	   local interfaces. */
@@ -1004,7 +1099,11 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 #ifdef HAVE_PCAP_CREATE
 	gboolean            monitor_mode;
 #endif
-	gboolean            hide, hide_enabled = TRUE;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+	gint                buffersize;
+#endif
+	gint                snaplen;
+	gboolean            hide, hide_enabled = TRUE, hassnap = FALSE;
 	if_capabilities_t  *caps;
 	gint                selected = 0;
 
@@ -1018,6 +1117,11 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 #ifdef HAVE_PCAP_CREATE
 			   DEF_MONITOR_MODE_COLUMN,   &monitor_mode,
 #endif
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+			   BUF_COLUMN,                &buffersize,
+#endif
+			   HASSNAP_COLUMN,            &hassnap,
+			   SNAPLEN_COLUMN,            &snaplen,
 			   DEF_LINK_LAYER_COLUMN,     &linktype,
 			   COMMENT_COLUMN,            &comment,
 			   HIDE_COLUMN,               &hide,
@@ -1028,6 +1132,14 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 
 	/* display the interface name from current interfaces selection */
 	gtk_label_set_text(GTK_LABEL(if_name_lb), desc);
+
+	/* display the buffer size from current interfaces selection */
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON (if_buffersize_cb), buffersize);
+
+	/* display the snap length from current interfaces selection */
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON (if_snaplen_cb), snaplen);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_snaplen_tg), hassnap);
+	gtk_widget_set_sensitive(GTK_WIDGET(if_snaplen_cb), hassnap);
 
 	/* Ignore "changed" callbacks while we update the Properties widgets */
 	interfaces_info_nochange = TRUE;
@@ -1257,6 +1369,95 @@ ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 	}
 }
 
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+/*
+ * Buffer size entry changed callback; update list_store for currently selected interface.
+ */
+static void
+ifopts_edit_buffersize_changed_cb(GtkSpinButton *sb, gpointer udata)
+{
+	gint          buffersize;
+	GtkTreeModel *list_model;
+	GtkTreeIter   list_iter;
+	GtkListStore *list_store;
+
+	if (if_selection == NULL)  /* XXX: Cannot be NULL ?? */
+		return;
+
+	if (!gtk_tree_selection_get_selected (if_selection, &list_model, &list_iter)){
+		return;
+	}
+
+
+	/* get current description text and set value in list_store for currently selected interface */
+	buffersize = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(sb));
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); /* Get store */
+	gtk_list_store_set  (list_store, &list_iter,
+				     BUF_COLUMN, buffersize,
+				     -1);
+}
+#endif
+
+/*
+ * Snap length entry changed callback; update list_store for currently selected interface.
+ */
+static void
+ifopts_edit_snaplen_changed_cb(GtkSpinButton *sb _U_, gpointer udata _U_)
+{
+	gint          snaplen;
+	gboolean      hassnap;
+	GtkTreeModel *list_model;
+	GtkTreeIter   list_iter;
+	GtkListStore *list_store;
+
+	if (if_selection == NULL)  /* XXX: Cannot be NULL ?? */
+		return;
+
+	if (!gtk_tree_selection_get_selected (if_selection, &list_model, &list_iter)){
+		return;
+	}
+
+
+	/* get current description text and set value in list_store for currently selected interface */
+	snaplen = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(sb));
+	if (snaplen != WTAP_MAX_PACKET_SIZE) {
+		hassnap = TRUE;
+	} else {
+		hassnap = FALSE;
+	}
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); 
+	gtk_list_store_set  (list_store, &list_iter,
+				     SNAPLEN_COLUMN, snaplen,
+				     HASSNAP_COLUMN, hassnap,
+				     -1);
+}
+
+/*
+ * Checkbutton for the Snap length changed callback; update list_store for currently selected interface.
+ */
+static void
+ifopts_edit_hassnap_changed_cb(GtkToggleButton *tbt, gpointer udata)
+{
+	gboolean      hassnap;
+	GtkTreeModel *list_model;
+	GtkTreeIter   list_iter;
+	GtkListStore *list_store;
+
+	if (if_selection == NULL)  /* XXX: Cannot be NULL ?? */
+		return;
+
+	if (!gtk_tree_selection_get_selected (if_selection, &list_model, &list_iter)){
+		return;
+	}
+	hassnap = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tbt));
+	
+	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); 
+	gtk_list_store_set  (list_store, &list_iter,
+				     HASSNAP_COLUMN, hassnap,
+				     -1);
+	gtk_widget_set_sensitive(GTK_WIDGET(if_snaplen_cb), hassnap);
+}
+
 /*
  * Comment text entry changed callback; update list_store for currently selected interface.
  */
@@ -1345,7 +1546,11 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	gboolean monitor_mode;
 #endif
 	gint     linktype;
-	gboolean hide;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+	gint buffersize;
+#endif
+	gint snaplen;
+	gboolean hide, hassnap = TRUE;
 	GtkTreeIter  iter;
 
 	/* set device name text */
@@ -1387,6 +1592,20 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 		}
 		free_if_capabilities(caps);
 	}
+
+	buffersize = capture_dev_user_buffersize_find(if_info->name);
+	if (buffersize == -1) {
+		buffersize = DEFAULT_CAPTURE_BUFFER_SIZE;
+	}
+
+	snaplen = capture_dev_user_snaplen_find(if_info->name);
+	hassnap = capture_dev_user_hassnap_find(if_info->name);
+	if (!hassnap || hassnap == -1) {
+		snaplen = WTAP_MAX_PACKET_SIZE;
+		hassnap = FALSE;
+	}
+
+
 	/* if we have no link-layer */
 	if (text[2] == NULL)
 		text[2] = g_strdup("");
@@ -1451,6 +1670,11 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 #ifdef HAVE_PCAP_CREATE
 			     DEF_MONITOR_MODE_COLUMN, monitor_mode,
 #endif
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+			     BUF_COLUMN,              buffersize,
+#endif
+			     HASSNAP_COLUMN,          hassnap,
+			     SNAPLEN_COLUMN,          snaplen,
 			     DEF_LINK_LAYER_COLUMN,   text[2],
 			     COMMENT_COLUMN,          text[3],
 			     HIDE_COLUMN,             hide,
@@ -1615,6 +1839,123 @@ ifopts_write_new_linklayer(void)
 		/* write new link-layer string to preferences */
 		g_free(prefs.capture_devices_linktypes);
 		prefs.capture_devices_linktypes = new_linklayer;
+	}
+}
+
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+/*
+ * Create/write new interfaces buffer size string based on current CList.
+ * Put it into the preferences value.
+ */
+static void
+ifopts_write_new_buffersize(void)
+{
+	GtkListStore	*store;
+	GtkTreeIter	 iter;
+	GtkTreeModel 	*model;
+
+	gboolean	 more_items = TRUE, first_if = TRUE;  /* flag to check if first in list */
+	gchar		*ifnm;
+	gint		 buffersize;
+	gchar		*tmp_buffersize;
+	gchar		*new_buffersize;
+
+	/* new preferences interfaces buffer size string */
+	new_buffersize = g_malloc0(MAX_VAL_LEN);
+
+	/* get buffer size for each row (interface) */
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
+	store = GTK_LIST_STORE(model);
+	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+
+		while (more_items) {
+			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
+					   DEVICE_COLUMN, &ifnm,
+					   BUF_COLUMN,    &buffersize,
+					   -1);
+			if (buffersize == -1){
+				more_items = gtk_tree_model_iter_next (model,&iter);
+				continue;
+			}
+
+			if (first_if != TRUE) {
+				g_strlcat (new_buffersize, ",", MAX_VAL_LEN);
+			}
+			/*
+			 * create/cat interface buffersize to new string
+			 * (leave space for parens, comma and terminator)
+			 */
+			tmp_buffersize = g_strdup_printf("%s(%d)", ifnm, buffersize);
+			g_strlcat(new_buffersize, tmp_buffersize, MAX_VAL_LEN);
+			g_free(tmp_buffersize);
+			g_free(ifnm);
+			/* set first-in-list flag to false */
+			first_if = FALSE;
+			more_items = gtk_tree_model_iter_next (model,&iter);
+		}
+
+		/* write new buffersize string to preferences */
+		g_free(prefs.capture_devices_buffersize);
+		prefs.capture_devices_buffersize = new_buffersize;
+	}
+}
+#endif
+
+/*
+ * Create/write new interfaces buffer size string based on current CList.
+ * Put it into the preferences value.
+ */
+static void
+ifopts_write_new_snaplen(void)
+{
+	GtkListStore	*store;
+	GtkTreeIter	 iter;
+	GtkTreeModel 	*model;
+
+	gboolean	 more_items = TRUE, first_if = TRUE;  /* flag to check if first in list */
+	gchar		*ifnm;
+	gint		 snaplen;
+	gboolean hassnap;
+	gchar		*tmp_snaplen;
+	gchar		*new_snaplen;
+
+	/* new preferences interfaces snap length string */
+	new_snaplen = g_malloc0(MAX_VAL_LEN);
+
+	/* get snap length for each row (interface) */
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
+	store = GTK_LIST_STORE(model);
+	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+
+		while (more_items) {
+			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
+					   DEVICE_COLUMN, &ifnm,
+					   SNAPLEN_COLUMN,    &snaplen,
+					   HASSNAP_COLUMN,    &hassnap,
+					   -1);
+			if (snaplen == -1){
+				more_items = gtk_tree_model_iter_next (model,&iter);
+				continue;
+			}
+			if (first_if != TRUE) {
+				g_strlcat (new_snaplen, ",", MAX_VAL_LEN);
+			}
+			/*
+			 * create/cat interface snap length to new string
+			 * (leave space for parens, comma and terminator)
+			 */
+			tmp_snaplen = g_strdup_printf("%s:%d(%d)", ifnm, hassnap, (hassnap?snaplen:WTAP_MAX_PACKET_SIZE));
+			g_strlcat(new_snaplen, tmp_snaplen, MAX_VAL_LEN);
+			g_free(tmp_snaplen);
+			g_free(ifnm);
+			/* set first-in-list flag to false */
+			first_if = FALSE;
+			more_items = gtk_tree_model_iter_next (model,&iter);
+		}
+
+		/* write new snap length string to preferences */
+		g_free(prefs.capture_devices_snaplen);
+		prefs.capture_devices_snaplen = new_snaplen;
 	}
 }
 

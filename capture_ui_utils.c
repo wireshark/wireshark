@@ -132,6 +132,98 @@ capture_dev_user_linktype_find(const gchar *if_name)
   return (gint)linktype;
 }
 
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+gint
+capture_dev_user_buffersize_find(const gchar *if_name)
+{
+  gchar *p, *next;
+  gint buffersize;
+
+  if ((prefs.capture_devices_buffersize == NULL) ||
+      (*prefs.capture_devices_buffersize == '\0')) {
+    /* There are no buffersizes defined */
+    return -1;
+  }
+
+  if ((p = strstr(prefs.capture_devices_buffersize, if_name)) == NULL) {
+    /* There are, but there isn't one for this interface. */
+    return -1;
+  }
+
+  p += strlen(if_name) + 1;
+  buffersize = (gint)strtol(p, &next, 10);
+  if (next == p || *next != ')' || buffersize < 0) {
+    /* Syntax error */
+    return -1;
+  }
+  if (buffersize > G_MAXINT) {
+    /* Value doesn't fit in a gint */
+    return -1;
+  }
+
+  return (gint)buffersize;
+}
+#endif
+
+gint
+capture_dev_user_snaplen_find(const gchar *if_name)
+{
+  gchar *p, *next;
+  gint snaplen;
+
+  if ((prefs.capture_devices_snaplen == NULL) ||
+      (*prefs.capture_devices_snaplen == '\0')) {
+    /* There is no snap length defined */
+    return -1;
+  }
+
+  if ((p = strstr(prefs.capture_devices_snaplen, if_name)) == NULL) {
+    /* There are, but there isn't one for this interface. */
+    return -1;
+  }
+
+  p += strlen(if_name) + 3;
+  snaplen = (gint)strtol(p, &next, 10);
+  if (next == p || *next != ')' || snaplen < 0) {
+    /* Syntax error */
+    return -1;
+  }
+  if (snaplen > WTAP_MAX_PACKET_SIZE) {
+    /* Value doesn't fit in a gint */
+    return -1;
+  }
+
+  return (gint)snaplen;
+}
+
+gboolean
+capture_dev_user_hassnap_find(const gchar *if_name)
+{
+  gchar *p, *next;
+  gboolean hassnap;
+
+  if ((prefs.capture_devices_snaplen == NULL) ||
+      (*prefs.capture_devices_snaplen == '\0')) {
+    /* There is no snap length defined */
+    return -1;
+  }
+
+  if ((p = strstr(prefs.capture_devices_snaplen, if_name)) == NULL) {
+    /* There are, but there isn't one for this interface. */
+    return -1;
+  }
+
+  p += strlen(if_name) + 1;
+  hassnap = (gboolean)strtol(p, &next, 10);
+  if (next == p || *next != '(') {
+    /* Syntax error */
+    return -1;
+  }
+
+  return (gboolean)hassnap;
+}
+
+
 /*
  * Return as descriptive a name for an interface as we can get.
  * If the user has specified a comment, use that.  Otherwise,

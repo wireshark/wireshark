@@ -123,6 +123,7 @@ typedef struct interface_tag {
     gint active_dlt;
     gboolean pmode;
     gboolean has_snaplen;
+    gboolean snap_pref;
     guint snaplen;
     gboolean local;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
