@@ -418,7 +418,7 @@ ssl_parse_uat(void)
     /* remove only associations created from key list */
     tmp_stack = ep_stack_new();
     g_tree_foreach(ssl_associations, ssl_assoc_from_key_list, tmp_stack);
-    while ((tmp_assoc = ep_stack_pop(tmp_stack)) != NULL) {
+    while ((tmp_assoc = (SslAssociation *)ep_stack_pop(tmp_stack)) != NULL) {
         ssl_association_remove(ssl_associations, tmp_assoc);
     }
 
@@ -475,8 +475,8 @@ ssl_parse_old_keys(void)
 static gboolean
 ssl_association_info_(gpointer key_ _U_, gpointer value_, gpointer s_)
 {
-    SslAssociation *value = value_;
-    gchar *s = s_;
+    SslAssociation *value = (SslAssociation *)value_;
+    gchar *s = (gchar *)s_;
     const int l = (const int)strlen(s);
     g_snprintf(s+l, SSL_ASSOC_MAX_LEN-l, "'%s' %s %i\n", value->info, value->tcp ? "TCP":"UDP", value->ssl_port);
     return FALSE;
@@ -488,7 +488,7 @@ ssl_association_info_(gpointer key_ _U_, gpointer value_, gpointer s_)
 gchar*
 ssl_association_info(void)
 {
-    gchar *s = ep_alloc0(SSL_ASSOC_MAX_LEN);
+    gchar *s = (gchar *)ep_alloc0(SSL_ASSOC_MAX_LEN);
     g_tree_foreach(ssl_associations, ssl_association_info_, s);
     return s;
 }
@@ -724,9 +724,9 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* PAOLO: manage ssl decryption data */
     /*get a valid ssl session pointer*/
     if (conv_data != NULL)
-        ssl_session = conv_data;
+        ssl_session = (SslDecryptSession *)conv_data;
     else {
-        ssl_session = se_alloc0(sizeof(SslDecryptSession));
+        ssl_session = (SslDecryptSession *)se_alloc0(sizeof(SslDecryptSession));
         ssl_session_init(ssl_session);
         ssl_session->version = SSL_VER_UNKNOWN;
         conversation_add_proto_data(conversation, proto_ssl, ssl_session);
@@ -994,7 +994,7 @@ again:
      * dissection of the desegmented pdu if we'd already seen the end of
      * the pdu).
      */
-    if ((msp = se_tree_lookup32(flow->multisegment_pdus, seq))) {
+    if ((msp = (struct tcp_multisegment_pdu *)se_tree_lookup32(flow->multisegment_pdus, seq))) {
         const char *prefix;
 
         if (msp->first_frame == PINFO_FD_NUM(pinfo)) {
@@ -1010,7 +1010,7 @@ again:
     }
 
     /* Else, find the most previous PDU starting before this sequence number */
-    msp = se_tree_lookup32_le(flow->multisegment_pdus, seq-1);
+    msp = (struct tcp_multisegment_pdu *)se_tree_lookup32_le(flow->multisegment_pdus, seq-1);
     if (msp && msp->seq <= seq && msp->nxtpdu > seq) {
         int len;
 
@@ -2128,7 +2128,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                         psk_len = size > 0 ? size / 2 : 0;
                         pre_master_len = psk_len * 2 + 4;
 
-                        pre_master_secret.data = se_alloc(pre_master_len);
+                        pre_master_secret.data = (guchar *)se_alloc(pre_master_len);
                         pre_master_secret.data_len = pre_master_len;
                         /* 2 bytes psk_len*/
                         pre_master_secret.data[0] = psk_len >> 8;
@@ -2174,7 +2174,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                 break;
                             }
                         }
-                        encrypted_pre_master.data = se_alloc(encrlen);
+                        encrypted_pre_master.data = (guchar *)se_alloc(encrlen);
                         encrypted_pre_master.data_len = encrlen;
                         tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
 
@@ -4539,9 +4539,9 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
     conv_data = conversation_get_proto_data(conversation, proto_ssl);
 
     if (conv_data) {
-        ssl = conv_data;
+        ssl = (SslDecryptSession *)conv_data;
     } else {
-        ssl = se_alloc0(sizeof(SslDecryptSession));
+        ssl = (SslDecryptSession *)se_alloc0(sizeof(SslDecryptSession));
         ssl_session_init(ssl);
         ssl->version = SSL_VER_UNKNOWN;
         conversation_add_proto_data(conversation, proto_ssl, ssl);
@@ -4959,7 +4959,7 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, const guint32 offset,
 static void
 ssldecrypt_free_cb(void *r)
 {
-    ssldecrypt_assoc_t *h = r;
+    ssldecrypt_assoc_t *h = (ssldecrypt_assoc_t *)r;
 
     g_free(h->ipaddr);
     g_free(h->port);
@@ -4979,8 +4979,8 @@ ssldecrypt_update_cb(void *r _U_, const char **err)
 static void*
 ssldecrypt_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
-    const ssldecrypt_assoc_t *o = orig;
-    ssldecrypt_assoc_t       *d = dest;
+    const ssldecrypt_assoc_t *o = (ssldecrypt_assoc_t *)orig;
+    ssldecrypt_assoc_t       *d = (ssldecrypt_assoc_t *)dest;
 
     d->ipaddr    = g_strdup(o->ipaddr);
     d->port      = g_strdup(o->port);
@@ -5748,7 +5748,7 @@ proto_register_ssl(void)
             sizeof(ssldecrypt_assoc_t),
             "ssl_keys",                     /* filename */
             TRUE,                           /* from_profile */
-            (void*) &sslkeylist_uats,       /* data_ptr */
+            (void**) &sslkeylist_uats,      /* data_ptr */
             &nssldecrypt,                   /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
             NULL,                           /* Help section (currently a wiki page) */

@@ -235,7 +235,7 @@ typedef struct _SslCipherSuite {
     gint eff_bits;
     gint dig;
     gint dig_len;
-    gint export;
+    gint export_cipher;
     gint mode;
 } SslCipherSuite;
 

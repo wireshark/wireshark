@@ -1170,7 +1170,7 @@ gint ssl_get_keyex_alg(gint cipher)
 static gint
 ssl_data_alloc(StringInfo* str, size_t len)
 {
-    str->data = g_malloc(len);
+    str->data = (guchar *)g_malloc(len);
     /* the allocator can return a null pointer for a size equal to 0,
      * and that must be allowed */
     if (len > 0 && !str->data)
@@ -1419,7 +1419,7 @@ ssl_private_key_to_str(SSL_PRIVATE_KEY* pk)
     if (!pk) return str;
 #ifndef SSL_FAST
     n = gcry_sexp_sprint(pk, GCRYSEXP_FMT_ADVANCED, NULL, 0);
-    buf = ep_alloc(n);
+    buf = (gchar *)ep_alloc(n);
     /*n = gcry_sexp_sprint(pk, GCRYSEXP_FMT_ADVANCED, buf, n);*/
     str = buf;
 #else /* SSL_FAST */
@@ -1564,7 +1564,7 @@ out:
 static gint
 ssl_data_realloc(StringInfo* str, guint len)
 {
-    str->data = g_realloc(str->data, len);
+    str->data = (guchar *)g_realloc(str->data, len);
     if (!str->data)
         return -1;
     str->data_len = len;
@@ -1934,7 +1934,7 @@ ssl_create_flow(void)
 {
   SslFlow *flow;
 
-  flow = se_alloc(sizeof(SslFlow));
+  flow = (SslFlow *)se_alloc(sizeof(SslFlow));
   flow->byte_seq = 0;
   flow->flags = 0;
   flow->multisegment_pdus = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "ssl_multisegment_pdus");
@@ -1963,7 +1963,7 @@ ssl_create_decompressor(gint compression)
 
     if (compression == 0) return NULL;
     ssl_debug_printf("ssl_create_decompressor: compression method %d\n", compression);
-    decomp = se_alloc(sizeof(SslDecompress));
+    decomp = (SslDecompress *)se_alloc(sizeof(SslDecompress));
     decomp->compression = compression;
     switch (decomp->compression) {
 #ifdef HAVE_LIBZ
@@ -1996,7 +1996,7 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
     SslDecoder *dec;
     gint        ciph;
 
-    dec = se_alloc0(sizeof(SslDecoder));
+    dec = (SslDecoder *)se_alloc0(sizeof(SslDecoder));
     /* Find the SSLeay cipher */
     if(cipher_suite->enc!=ENC_NULL) {
         ssl_debug_printf("ssl_create_decoder CIPHER: %s\n", ciphers[cipher_suite->enc-0x30]);
@@ -2079,7 +2079,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
         needed+=ssl_session->cipher_suite.block*2;
 
     key_block.data_len = needed;
-    key_block.data = g_malloc(needed);
+    key_block.data = (guchar *)g_malloc(needed);
     ssl_debug_printf("ssl_generate_keyring_material sess key generation\n");
     if (prf(ssl_session,&ssl_session->master_secret,"key expansion",
             &ssl_session->server_random,&ssl_session->client_random,
@@ -2101,7 +2101,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
         s_iv=ptr; /*ptr+=ssl_session->cipher_suite.block;*/
     }
 
-    if(ssl_session->cipher_suite.export){
+    if(ssl_session->cipher_suite.export_cipher){
         StringInfo iv_c,iv_s;
         StringInfo key_c,key_s;
         StringInfo k;
@@ -2749,7 +2749,7 @@ ssl_load_key(FILE* fp)
     gint                  ret;
     guint                 bytes;
 
-    Ssl_private_key_t *private_key = g_malloc0(sizeof(Ssl_private_key_t));
+    Ssl_private_key_t *private_key = (Ssl_private_key_t *)g_malloc0(sizeof(Ssl_private_key_t));
 
     /* init private key data*/
     gnutls_x509_privkey_init(&priv_key);
@@ -2770,7 +2770,7 @@ ssl_load_key(FILE* fp)
         g_free(private_key);
         return NULL;
     }
-    key.data = g_malloc(size);
+    key.data = (unsigned char *)g_malloc(size);
     key.size = (int)size;
     bytes = (guint) fread(key.data, 1, key.size, fp);
     if (bytes < key.size) {
@@ -2839,10 +2839,10 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
     gnutls_x509_crt_t     ssl_cert = NULL;
     gnutls_x509_privkey_t ssl_pkey = NULL;
 
-    Ssl_private_key_t *private_key = g_malloc0(sizeof(Ssl_private_key_t));
+    Ssl_private_key_t *private_key = (Ssl_private_key_t *)g_malloc0(sizeof(Ssl_private_key_t));
 
     rest = 4096;
-    data.data = g_malloc(rest);
+    data.data = (unsigned char *)g_malloc(rest);
     data.size = rest;
     p = data.data;
     while ((len = fread(p, 1, rest, fp)) > 0) {
@@ -2850,7 +2850,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
         rest -= (int) len;
         if (!rest) {
             rest = 1024;
-            data.data = g_realloc(data.data, data.size + rest);
+            data.data = (unsigned char *)g_realloc(data.data, data.size + rest);
             p = data.data + data.size;
             data.size += rest;
         }
@@ -3027,13 +3027,13 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
 
 
     ssl_session->private_key = 0;
-    private_key = g_hash_table_lookup(key_hash, &dummy);
+    private_key = (Ssl_private_key_t *)g_hash_table_lookup(key_hash, &dummy);
 
     if (!private_key) {
         ssl_debug_printf("ssl_find_private_key can't find private key for this server! Try it again with universal port 0\n");
 
         dummy.port = 0;
-        private_key = g_hash_table_lookup(key_hash, &dummy);
+        private_key = (Ssl_private_key_t *)g_hash_table_lookup(key_hash, &dummy);
     }
 
     if (!private_key) {
@@ -3044,7 +3044,7 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
         dummy.addr.data = ip_addr_any;
 
         dummy.port = port;
-        private_key = g_hash_table_lookup(key_hash, &dummy);
+        private_key = (Ssl_private_key_t *)g_hash_table_lookup(key_hash, &dummy);
     }
 
     if (!private_key) {
@@ -3263,7 +3263,7 @@ ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, 
 {
 
     SslAssociation* assoc;
-    assoc = g_malloc(sizeof(SslAssociation));
+    assoc = (SslAssociation *)g_malloc(sizeof(SslAssociation));
 
     assoc->tcp = tcp;
     assoc->ssl_port = port;
@@ -3312,7 +3312,7 @@ ssl_association_remove(GTree* associations, SslAssociation *assoc)
 gint
 ssl_association_cmp(gconstpointer a, gconstpointer b)
 {
-    const SslAssociation *assoc_a=a, *assoc_b=b;
+    const SslAssociation *assoc_a=(SslAssociation *)a, *assoc_b=(SslAssociation *)b;
     if (assoc_a->tcp != assoc_b->tcp) return (assoc_a->tcp)?1:-1;
     return assoc_a->ssl_port - assoc_b->ssl_port;
 }
@@ -3325,7 +3325,7 @@ ssl_association_find(GTree * associations, guint port, gboolean tcp)
 
     assoc_tmp.tcp = tcp;
     assoc_tmp.ssl_port = port;
-    ret = g_tree_lookup(associations, &assoc_tmp);
+    ret = (SslAssociation *)g_tree_lookup(associations, &assoc_tmp);
 
     ssl_debug_printf("association_find: %s port %d found %p\n", (tcp)?"TCP":"UDP", port, (void *)ret);
     return ret;
@@ -3361,17 +3361,17 @@ ssl_add_record_info(gint proto, packet_info *pinfo, guchar* data, gint data_len,
     SslRecordInfo* rec;
     SslPacketInfo* pi;
 
-    pi = p_get_proto_data(pinfo->fd, proto);
+    pi = (SslPacketInfo *)p_get_proto_data(pinfo->fd, proto);
     if (!pi)
     {
-        pi = se_alloc0(sizeof(SslPacketInfo));
+        pi = (SslPacketInfo *)se_alloc0(sizeof(SslPacketInfo));
         p_add_proto_data(pinfo->fd, proto, pi);
     }
 
-    real_data = se_alloc(data_len);
+    real_data = (guchar *)se_alloc(data_len);
     memcpy(real_data, data, data_len);
 
-    rec = se_alloc(sizeof(SslRecordInfo));
+    rec = (SslRecordInfo *)se_alloc(sizeof(SslRecordInfo));
     rec->id = record_id;
     rec->real_data = real_data;
     rec->data_len = data_len;
@@ -3387,7 +3387,7 @@ ssl_get_record_info(tvbuff_t *parent_tvb, int proto, packet_info *pinfo, gint re
 {
     SslRecordInfo* rec;
     SslPacketInfo* pi;
-    pi = p_get_proto_data(pinfo->fd, proto);
+    pi = (SslPacketInfo *)p_get_proto_data(pinfo->fd, proto);
 
     if (!pi)
         return NULL;
@@ -3406,14 +3406,14 @@ ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, g
     SslDataInfo   *rec, **prec;
     SslPacketInfo *pi;
 
-    pi = p_get_proto_data(pinfo->fd, proto);
+    pi = (SslPacketInfo *)p_get_proto_data(pinfo->fd, proto);
     if (!pi)
     {
-        pi = se_alloc0(sizeof(SslPacketInfo));
+        pi = (SslPacketInfo *)se_alloc0(sizeof(SslPacketInfo));
         p_add_proto_data(pinfo->fd, proto,pi);
     }
 
-    rec = se_alloc(sizeof(SslDataInfo)+data_len);
+    rec = (SslDataInfo *)se_alloc(sizeof(SslDataInfo)+data_len);
     rec->key = key;
     rec->plain_data.data = (guchar*)(rec + 1);
     memcpy(rec->plain_data.data, data, data_len);
@@ -3441,7 +3441,7 @@ ssl_get_data_info(int proto, packet_info *pinfo, gint key)
 {
     SslDataInfo*   rec;
     SslPacketInfo* pi;
-    pi = p_get_proto_data(pinfo->fd, proto);
+    pi = (SslPacketInfo *)p_get_proto_data(pinfo->fd, proto);
 
     if (!pi) return NULL;
 
@@ -3523,7 +3523,7 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
             return;
         }
 
-        service = g_malloc(sizeof(SslService) + addr_len);
+        service = (SslService *)g_malloc(sizeof(SslService) + addr_len);
         service->addr.type = addr_type[at];
         service->addr.len = addr_len;
         service->addr.data = ((guchar*)service) + sizeof(SslService);
@@ -3542,7 +3542,7 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
         ssl_debug_printf("ssl_init private key file %s successfully loaded.\n", uats->keyfile);
 
         /* if item exists, remove first */
-        tmp_private_key = g_hash_table_lookup(key_hash, service);
+        tmp_private_key = (Ssl_private_key_t *)g_hash_table_lookup(key_hash, service);
         if (tmp_private_key) {
             g_hash_table_remove(key_hash, service);
             ssl_free_key(tmp_private_key);
@@ -3563,8 +3563,8 @@ ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash)
     /* allocate stringinfo chunks for session id and master secret data*/
     StringInfo* session_id;
     StringInfo* master_secret;
-    session_id = se_alloc0(sizeof(StringInfo) + ssl->session_id.data_len);
-    master_secret = se_alloc0(48 + sizeof(StringInfo));
+    session_id = (StringInfo *)se_alloc0(sizeof(StringInfo) + ssl->session_id.data_len);
+    master_secret = (StringInfo *)se_alloc0(48 + sizeof(StringInfo));
 
     master_secret->data = ((guchar*)master_secret+sizeof(StringInfo));
 
@@ -3584,7 +3584,7 @@ gboolean
 ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash)
 {
     StringInfo* ms;
-    ms = g_hash_table_lookup(session_hash, &ssl->session_id);
+    ms = (StringInfo *)g_hash_table_lookup(session_hash, &ssl->session_id);
 
     if (!ms) {
         ssl_debug_printf("ssl_restore_session can't find stored session\n");
@@ -3628,7 +3628,7 @@ static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
         return FALSE;
 
     out->data_len = (guint)hex_len/2;
-    out->data = se_alloc(out->data_len);
+    out->data = (guchar *)se_alloc(out->data_len);
     for (i = 0; i < out->data_len; i++) {
         guint8 a = from_hex_char(in[i*2]);
         guint8 b = from_hex_char(in[i*2 + 1]);
@@ -4015,7 +4015,7 @@ ssldecrypt_uat_fld_fileopen_chk_cb(void* r _U_, const char* p, guint len _U_, co
 gboolean
 ssldecrypt_uat_fld_password_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, const char ** err)
 {
-    ssldecrypt_assoc_t*  f  = r;
+    ssldecrypt_assoc_t*  f  = (ssldecrypt_assoc_t *)r;
     FILE                *fp = NULL;
 
     if (p && (strlen(p) > 0u)) {

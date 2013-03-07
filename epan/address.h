@@ -170,7 +170,7 @@ typedef struct _address {
 	(to)->type = (from)->type; \
 	(to)->len = (from)->len; \
 	(to)->hf = (from)->hf; \
-	SE_COPY_ADDRESS_data = se_alloc((from)->len); \
+	SE_COPY_ADDRESS_data = (guint8 *)se_alloc((from)->len); \
 	memcpy(SE_COPY_ADDRESS_data, (from)->data, (from)->len); \
 	(to)->data = SE_COPY_ADDRESS_data; \
 	}

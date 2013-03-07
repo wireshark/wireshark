@@ -289,9 +289,9 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	conversation = find_or_create_conversation(pinfo);
 
-	global_data = conversation_get_proto_data(conversation,proto_ssh);
+	global_data = (struct ssh_flow_data *)conversation_get_proto_data(conversation,proto_ssh);
 	if(!global_data ) {
-		global_data = se_alloc0(sizeof(struct ssh_flow_data));
+		global_data = (struct ssh_flow_data *)se_alloc0(sizeof(struct ssh_flow_data));
 		global_data->version=SSH_VERSION_UNKNOWN;
 		global_data->mac_length=-1;
 
@@ -889,7 +889,7 @@ ssh_choose_algo(gchar *client, gchar *server, gchar **result)
 	for (step = client_strings; *step; step++) {
 		GSList *agreed;
 		if ((agreed=g_slist_find_custom(server_list, *step, ssh_gslist_compare_strings))) {
-			*result = se_strdup(agreed->data);
+			*result = se_strdup((const gchar *)agreed->data);
 			break;
 		}
 	}
