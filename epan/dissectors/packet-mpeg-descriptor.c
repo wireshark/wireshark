@@ -2306,7 +2306,9 @@ proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, guint offset, guint8 len,
 				proto_tree_add_text(tree, tvb, offset, len-already_dissected, "Private data");
 			break;
 		default:
-			proto_tree_add_item(tree, hf_mpeg_descr_extension_data, tvb, offset, len, ENC_NA);
+			already_dissected = offset-offset_start;
+			if (already_dissected<len)
+				proto_tree_add_item(tree, hf_mpeg_descr_extension_data, tvb, offset, len-already_dissected, ENC_NA);
 			break;
 	}
 
