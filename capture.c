@@ -86,7 +86,7 @@ capture_callback_invoke(int event, capture_options *capture_opts)
   g_assert(cb_item != NULL);
 
   while(cb_item != NULL) {
-    cb = cb_item->data;
+    cb = (capture_callback_data_t *)cb_item->data;
     cb->cb_fct(event, capture_opts, cb->user_data);
     cb_item = g_list_next(cb_item);
   }
@@ -98,7 +98,7 @@ capture_callback_add(capture_callback_t func, gpointer user_data)
 {
   capture_callback_data_t *cb;
 
-  cb = g_malloc(sizeof(capture_callback_data_t));
+  cb = (capture_callback_data_t *)g_malloc(sizeof(capture_callback_data_t));
   cb->cb_fct = func;
   cb->user_data = user_data;
 
@@ -112,7 +112,7 @@ capture_callback_remove(capture_callback_t func)
   GList *cb_item = capture_callbacks;
 
   while(cb_item != NULL) {
-    cb = cb_item->data;
+    cb = (capture_callback_data_t *)cb_item->data;
     if(cb->cb_fct == func) {
       capture_callbacks = g_list_remove(capture_callbacks, cb);
       g_free(cb);
@@ -165,7 +165,7 @@ capture_start(capture_options *capture_opts)
   } else {
     g_string_append_printf(source, "%u interfaces", capture_opts->ifaces->len);
   }
-  cf_set_tempfile_source(capture_opts->cf, source->str);
+  cf_set_tempfile_source((capture_file *)capture_opts->cf, source->str);
   g_string_free(source, TRUE);
   /* try to start the capture child process */
   ret = sync_pipe_start(capture_opts);
@@ -234,14 +234,14 @@ guint32 drops)
   int err;
 
   /* Capture succeeded; attempt to open the capture file. */
-  if (cf_open(capture_opts->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
+  if (cf_open((capture_file *)capture_opts->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
     /* We're not doing a capture any more, so we don't have a save file. */
     return FALSE;
   }
 
   /* Set the read filter to NULL. */
   /* XXX - this is odd here; try to put it somewhere where it fits better */
-  cf_set_rfcode(capture_opts->cf, NULL);
+  cf_set_rfcode((capture_file *)capture_opts->cf, NULL);
 
   /* Get the packet-drop statistics.
 
@@ -262,7 +262,7 @@ guint32 drops)
      thus not have to set them here - "cf_read()" will get them from
      the file and use them. */
   if (drops_known) {
-    cf_set_drops_known(capture_opts->cf, TRUE);
+    cf_set_drops_known((capture_file *)capture_opts->cf, TRUE);
 
     /* XXX - on some systems, libpcap doesn't bother filling in
        "ps_ifdrop" - it doesn't even set it to zero - so we don't
@@ -272,11 +272,11 @@ guint32 drops)
        several statistics - perhaps including various interface
        error statistics - and would tell us which of them it
        supplies, allowing us to display only the ones it does. */
-    cf_set_drops(capture_opts->cf, drops);
+    cf_set_drops((capture_file *)capture_opts->cf, drops);
   }
 
   /* read in the packet data */
-  switch (cf_read(capture_opts->cf, FALSE)) {
+  switch (cf_read((capture_file *)capture_opts->cf, FALSE)) {
 
   case CF_READ_OK:
   case CF_READ_ERROR:
@@ -293,7 +293,7 @@ guint32 drops)
   }
 
   /* if we didn't capture even a single packet, close the file again */
-  if(cf_get_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {
+  if(cf_get_packet_count((capture_file *)capture_opts->cf) == 0 && !capture_opts->restart) {
     simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
 "%sNo packets captured!%s\n"
 "\n"
@@ -310,8 +310,8 @@ guint32 drops)
 #endif
 "",
     simple_dialog_primary_start(), simple_dialog_primary_end(),
-    (cf_is_tempfile(capture_opts->cf)) ? "temporary " : "");
-    cf_close(capture_opts->cf);
+    (cf_is_tempfile((capture_file *)capture_opts->cf)) ? "temporary " : "");
+    cf_close((capture_file *)capture_opts->cf);
   }
   return TRUE;
 }
@@ -338,19 +338,19 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
     if( ((capture_file *) capture_opts->cf)->state != FILE_CLOSED) {
         if(capture_opts->real_time_mode) {
             capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
-            cf_finish_tail(capture_opts->cf, &err);
-            cf_close(capture_opts->cf);
+            cf_finish_tail((capture_file *)capture_opts->cf, &err);
+            cf_close((capture_file *)capture_opts->cf);
         } else {
             capture_callback_invoke(capture_cb_capture_fixed_finished, capture_opts);
         }
     }
     g_free(capture_opts->save_file);
     is_tempfile = FALSE;
-    cf_set_tempfile(capture_opts->cf, FALSE);
+    cf_set_tempfile((capture_file *)capture_opts->cf, FALSE);
   } else {
     /* we didn't have a save_file before; must be a tempfile */
     is_tempfile = TRUE;
-    cf_set_tempfile(capture_opts->cf, TRUE);
+    cf_set_tempfile((capture_file *)capture_opts->cf, TRUE);
   }
 
   /* save the new filename */
@@ -359,7 +359,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   /* if we are in real-time mode, open the new file now */
   if(capture_opts->real_time_mode) {
     /* Attempt to open the capture file and set up to read from it. */
-    switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
+    switch(cf_start_tail((capture_file *)capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
     case CF_OK:
       break;
     case CF_ERROR:
@@ -400,7 +400,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 
   if(capture_opts->real_time_mode) {
     /* Read from the capture file the number of records the child told us it added. */
-    switch (cf_continue_tail(capture_opts->cf, to_read, &err)) {
+    switch (cf_continue_tail((capture_file *)capture_opts->cf, to_read, &err)) {
 
     case CF_READ_OK:
     case CF_READ_ERROR:
@@ -420,9 +420,9 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
     }
   } else {
     /* increase the capture file packet counter by the number of incoming packets */
-    cf_set_packet_count(capture_opts->cf,
-        cf_get_packet_count(capture_opts->cf) + to_read);
-    cf_fake_continue_tail(capture_opts->cf);
+    cf_set_packet_count((capture_file *)capture_opts->cf,
+        cf_get_packet_count((capture_file *)capture_opts->cf) + to_read);
+    cf_fake_continue_tail((capture_file *)capture_opts->cf);
 
     capture_callback_invoke(capture_cb_capture_fixed_continue, capture_opts);
   }
@@ -447,8 +447,8 @@ capture_input_drops(capture_options *capture_opts, guint32 dropped)
 
   g_assert(capture_opts->state == CAPTURE_RUNNING);
 
-  cf_set_drops_known(capture_opts->cf, TRUE);
-  cf_set_drops(capture_opts->cf, dropped);
+  cf_set_drops_known((capture_file *)capture_opts->cf, TRUE);
+  cf_set_drops((capture_file *)capture_opts->cf, dropped);
 }
 
 
@@ -568,10 +568,10 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
       cf_read_status_t status;
 
       /* Read what remains of the capture file. */
-      status = cf_finish_tail(capture_opts->cf, &err);
+      status = cf_finish_tail((capture_file *)capture_opts->cf, &err);
 
       /* XXX: If -Q (quit-after-cap) then cf->count clr'd below so save it first */
-      packet_count_save = cf_get_packet_count(capture_opts->cf);
+      packet_count_save = cf_get_packet_count((capture_file *)capture_opts->cf);
       /* Tell the GUI we are not doing a capture any more.
          Must be done after the cf_finish_tail(), so file lengths are
          correctly displayed */
@@ -598,8 +598,8 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
 #endif
             "",
             simple_dialog_primary_start(), simple_dialog_primary_end(),
-            cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
-          cf_close(capture_opts->cf);
+            cf_is_tempfile((capture_file *)capture_opts->cf) ? "temporary " : "");
+          cf_close((capture_file *)capture_opts->cf);
         }
         break;
       case CF_READ_ERROR:
@@ -620,8 +620,8 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
 
       /* this is a normal mode capture and if no error happened, read in the capture file data */
       if(capture_opts->save_file != NULL) {
-        capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf),
-          cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
+        capture_input_read_all(capture_opts, cf_is_tempfile((capture_file *)capture_opts->cf),
+          cf_get_drops_known((capture_file *)capture_opts->cf), cf_get_drops((capture_file *)capture_opts->cf));
       }
     }
   }
@@ -633,7 +633,7 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
 
   /* if we couldn't open a capture file, there's nothing more for us to do */
   if(capture_opts->save_file == NULL) {
-    cf_close(capture_opts->cf);
+    cf_close((capture_file *)capture_opts->cf);
     return;
   }
 
@@ -644,7 +644,7 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
     ws_unlink(capture_opts->save_file);
 
     /* if it was a tempfile, throw away the old filename (so it will become a tempfile again) */
-    if(cf_is_tempfile(capture_opts->cf)) {
+    if(cf_is_tempfile((capture_file *)capture_opts->cf)) {
       g_free(capture_opts->save_file);
       capture_opts->save_file = NULL;
     }
@@ -655,7 +655,7 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
     }
 
     /* close the currently loaded capture file */
-    cf_close(capture_opts->cf);
+    cf_close((capture_file *)capture_opts->cf);
 
     capture_start(capture_opts);
   } else {
@@ -694,7 +694,7 @@ capture_stat_start(capture_options *capture_opts) {
    * counts might not always be a good idea.
    */
   if (sync_interface_stats_open(&stat_fd, &fork_child, &msg) == 0) {
-    sc = g_malloc(sizeof(if_stat_cache_t));
+    sc = (if_stat_cache_t *)g_malloc(sizeof(if_stat_cache_t));
     sc->stat_fd = stat_fd;
     sc->fork_child = fork_child;
     sc->cache_list = NULL;
@@ -703,7 +703,7 @@ capture_stat_start(capture_options *capture_opts) {
     for (i = 0; i < capture_opts->all_ifaces->len; i++) {
       device = g_array_index(capture_opts->all_ifaces, interface_t, i);
       if (device.type != IF_PIPE && &(device.if_info)) {
-        sc_item = g_malloc0(sizeof(if_stat_cache_item_t));
+        sc_item = (if_stat_cache_item_t *)g_malloc0(sizeof(if_stat_cache_item_t));
         sc_item->name = g_strdup(device.if_info.name);
         sc->cache_list = g_list_append(sc->cache_list, sc_item);
       }
@@ -733,7 +733,7 @@ capture_stat_cache_update(if_stat_cache_t *sc) {
       continue;
     }
     for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
-      sc_item = sc_entry->data;
+      sc_item = (if_stat_cache_item_t *)sc_entry->data;
       if (strcmp(sc_item->name, stat_parts[0]) == 0) {
         sc_item->ps.ps_recv = (u_int) strtoul(stat_parts[1], NULL, 10);
         sc_item->ps.ps_drop = (u_int) strtoul(stat_parts[2], NULL, 10);
@@ -754,7 +754,7 @@ capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_stat *ps) {
 
   capture_stat_cache_update(sc);
   for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
-    sc_item = sc_entry->data;
+    sc_item = (if_stat_cache_item_t *)sc_entry->data;
     if (strcmp(sc_item->name, ifname) == 0) {
       memcpy(ps, &sc_item->ps, sizeof(struct pcap_stat));
       return TRUE;
@@ -780,7 +780,7 @@ capture_stat_stop(if_stat_cache_t *sc) {
   }
 
   for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
-    sc_item = sc_entry->data;
+    sc_item = (if_stat_cache_item_t *)sc_entry->data;
     g_free(sc_item->name);
     g_free(sc_item);
   }
