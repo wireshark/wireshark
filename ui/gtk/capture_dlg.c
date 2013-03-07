@@ -1255,7 +1255,7 @@ insert_new_rows(GList *list)
     device.pmode = global_capture_opts.default_options.promisc_mode;
     device.has_snaplen = global_capture_opts.default_options.has_snaplen;
     device.snap_pref = TRUE;
-    if ((device.snaplen = capture_dev_user_buffersize_find(if_string)) == -1) {
+    if ((device.snaplen = capture_dev_user_snaplen_find(if_string->name)) == -1) {
       device.snaplen = global_capture_opts.default_options.snaplen;
     }
     device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
@@ -5454,7 +5454,9 @@ create_and_fill_model(GtkTreeView *view)
   guint         i;
   link_row     *linkr = NULL;
   interface_t   device;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   gint          buffer;
+#endif
   gint          snaplen;
   gboolean      hassnap, has_snaplen;
 
@@ -5501,6 +5503,7 @@ create_and_fill_model(GtkTreeView *view)
         g_array_insert_val(global_capture_opts.all_ifaces, i, device);
         snaplen_string = g_strdup_printf("%d", device.snaplen);
       }
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       buffer = device.buffer;
       if (buffer == DEFAULT_CAPTURE_BUFFER_SIZE && capture_dev_user_buffersize_find(device.name) != DEFAULT_CAPTURE_BUFFER_SIZE && capture_dev_user_buffersize_find(device.name) != -1) {
         buffer = capture_dev_user_buffersize_find(device.name);
@@ -5508,6 +5511,7 @@ create_and_fill_model(GtkTreeView *view)
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
         g_array_insert_val(global_capture_opts.all_ifaces, i, device);
       }
+#endif
       gtk_list_store_append (store, &iter);
 #if defined(HAVE_PCAP_CREATE)
       gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname?linkname:"This should not happen",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
