@@ -100,7 +100,9 @@ static void ifopts_if_liststore_add(void);
 static void ifopts_write_new_monitor_mode(void);
 #endif
 static void ifopts_write_new_linklayer(void);
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 static void ifopts_write_new_buffersize(void);
+#endif
 static void ifopts_write_new_snaplen(void);
 static void ifopts_write_new_descr(void);
 static void ifopts_write_new_hide(void);
@@ -1906,7 +1908,7 @@ ifopts_write_new_buffersize(void)
 #endif
 
 /*
- * Create/write new interfaces buffer size string based on current CList.
+ * Create/write new interfaces snap length string based on current CList.
  * Put it into the preferences value.
  */
 static void
