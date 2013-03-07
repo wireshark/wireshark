@@ -73,8 +73,8 @@ rtsp_init_hash( rtspstat_t *sp)
 			
 	for (i=0 ; rtsp_status_code_vals[i].strptr ; i++ )
 	{
-		gint *key = g_malloc (sizeof(gint));
-		rtsp_response_code_t *sc = g_malloc (sizeof(rtsp_response_code_t));
+		gint *key = g_new (gint,1);
+		rtsp_response_code_t *sc = g_new (rtsp_response_code_t,1);
 		*key = rtsp_status_code_vals[i].value;
 		sc->packets=0;
 		sc->response_code =  *key;
@@ -130,7 +130,7 @@ rtsp_reset_hash_requests(gchar *key _U_ , rtsp_request_methode_t *data, gpointer
 static void
 rtspstat_reset(void *psp  )
 {
-	rtspstat_t *sp=psp;
+	rtspstat_t *sp=(rtspstat_t *)psp;
 
 	g_hash_table_foreach( sp->hash_responses, (GHFunc)rtsp_reset_hash_responses, NULL);
 	g_hash_table_foreach( sp->hash_requests, (GHFunc)rtsp_reset_hash_requests, NULL);
@@ -140,17 +140,17 @@ rtspstat_reset(void *psp  )
 static int
 rtspstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
-	const rtsp_info_value_t *value=pri;
+	const rtsp_info_value_t *value=(const rtsp_info_value_t *)pri;
 	rtspstat_t *sp=(rtspstat_t *) psp;
 
 	/* We are only interested in reply packets with a status code */
 	/* Request or reply packets ? */
 	if (value->response_code!=0) {
-		guint *key=g_malloc( sizeof(guint) );
+		guint *key=g_new(guint,1);
 		rtsp_response_code_t *sc;
 
 		*key=value->response_code;
-		sc =  g_hash_table_lookup( 
+		sc =  (rtsp_response_code_t *)g_hash_table_lookup( 
 				sp->hash_responses, 
 				key);
 		if (sc==NULL){
@@ -176,7 +176,7 @@ rtspstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 			else{
 				*key=599;
 			}
-			sc =  g_hash_table_lookup( 
+			sc =  (rtsp_response_code_t *)g_hash_table_lookup( 
 				sp->hash_responses, 
 				key);
 			if (sc==NULL)
@@ -187,11 +187,11 @@ rtspstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 	else if (value->request_method){
 		rtsp_request_methode_t *sc;
 
-		sc =  g_hash_table_lookup( 
+		sc =  (rtsp_request_methode_t *)g_hash_table_lookup( 
 				sp->hash_requests, 
 				value->request_method);
 		if (sc==NULL){
-			sc=g_malloc( sizeof(rtsp_request_methode_t) );
+			sc=g_new(rtsp_request_methode_t,1);
 			sc->response=g_strdup( value->request_method );
 			sc->packets=1;
 			sc->sp = sp;
@@ -209,7 +209,7 @@ rtspstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 static void
 rtspstat_draw(void *psp  )
 {
-	rtspstat_t *sp=psp;
+	rtspstat_t *sp=(rtspstat_t *)psp;
 	printf("\n");
 	printf("===================================================================\n");
 	if (! sp->filter[0])

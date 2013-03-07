@@ -93,13 +93,13 @@ diam_tree_to_csv(proto_node* node, gpointer data)
 	field_info* fi;
 	header_field_info	*hfi;
 	if(!node) {
-		fprintf(stderr,"traverse end: empty node. node='%p' data='%p'\n",node,data);
+		fprintf(stderr,"traverse end: empty node. node='%p' data='%p'\n",(void *)node,(void *)data);
 		return FALSE;
 	}
 	fi=node->finfo;
 	hfi=fi ? fi->hfinfo : NULL;
 	if(!hfi) {
-		fprintf(stderr,"traverse end: hfi not found. node='%p'\n",node);
+		fprintf(stderr,"traverse end: hfi not found. node='%p'\n",(void *)node);
 		return FALSE;
 	}
 	ftype=fi->value.ftype->ftype;
@@ -137,7 +137,7 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	proto_node* node = NULL;
 	header_field_info* hfi=NULL;
 	field_info* finfo=NULL;
-	const diameter_req_ans_pair_t* dp=pdi;
+	const diameter_req_ans_pair_t* dp=(const diameter_req_ans_pair_t*)pdi;
 	diameteravp_t *ds=NULL;
 
 	/* Validate paramerers. */
@@ -224,7 +224,7 @@ diameteravp_init(const char *optarg, void* userdata _U_)
 	GString* filter=NULL;
 	GString* error_string=NULL;
 
-	ds=g_malloc(sizeof(diameteravp_t));
+	ds=g_new(diameteravp_t,1);
 	ds->frame=0;
 	ds->diammsg_toprocess=0;
 	ds->cmd_code=0;

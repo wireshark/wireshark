@@ -51,7 +51,7 @@ static int
 smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
 	smbstat_t *ss=(smbstat_t *)pss;
-	const smb_info_t *si=psi;
+	const smb_info_t *si=(const smb_info_t *)psi;
 	nstime_t t, deltat;
 	timestat_t *sp=NULL;
 
@@ -193,7 +193,7 @@ smbstat_init(const char *optarg,void* userdata _U_)
 		filter=NULL;
 	}
 
-	ss=g_malloc(sizeof(smbstat_t));
+	ss=g_new(smbstat_t,1);
 	if(filter){
 		ss->filter=g_strdup(filter);
 	} else {

@@ -56,13 +56,13 @@ static int already_enabled=0;
 static int
 rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
-	const rpc_call_info_value *ri=pri;
+	const rpc_call_info_value *ri=(const rpc_call_info_value *)pri;
 	nstime_t delta;
 	rpc_program_t *rp=NULL;
 
 	if(!prog_list){
 		/* the list was empty */
-		rp=g_malloc(sizeof(rpc_program_t));
+		rp=g_new(rpc_program_t,1);
 		rp->next=NULL;
 		rp->program=ri->prog;
 		rp->version=ri->vers;
@@ -80,7 +80,7 @@ rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 	} else if( (ri->prog<prog_list->program)
 		||((ri->prog==prog_list->program)&&(ri->vers<prog_list->version))){
 		/* we should be first entry in list */
-		rp=g_malloc(sizeof(rpc_program_t));
+		rp=g_new(rpc_program_t,1);
 		rp->next=prog_list;
 		rp->program=ri->prog;
 		rp->version=ri->vers;
@@ -106,7 +106,7 @@ rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 			|| (  (rp->next->program==ri->prog)
 			    &&(rp->next->version>ri->vers))){
 				rpc_program_t *trp;
-				trp=g_malloc(sizeof(rpc_program_t));
+				trp=g_new(rpc_program_t,1);
 				trp->next=rp->next;
 				trp->program=ri->prog;
 				trp->version=ri->vers;

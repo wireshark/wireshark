@@ -160,8 +160,8 @@ sip_init_hash(sipstat_t *sp)
     /* Add all response codes */
     for (i=0 ; vals_status_code[i].strptr ; i++)
     {
-        gint *key = g_malloc (sizeof(gint));
-        sip_response_code_t *sc = g_malloc (sizeof(sip_response_code_t));
+        gint *key = g_new (gint,1);
+        sip_response_code_t *sc = g_new (sip_response_code_t,1);
         *key = vals_status_code[i].value;
         sc->packets=0;
         sc->response_code =  *key;
@@ -218,7 +218,7 @@ sip_reset_hash_requests(gchar *key _U_ , sip_request_method_t *data, gpointer pt
 static void
 sipstat_reset(void *psp  )
 {
-	sipstat_t *sp=psp;
+	sipstat_t *sp=(sipstat_t *)psp;
 	if (sp) {
 		sp->packets = 0;
 		sp->resent_packets = 0;
@@ -238,7 +238,7 @@ sipstat_reset(void *psp  )
 static int
 sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
-    const sip_info_value_t *value=pri;
+    const sip_info_value_t *value=(const sip_info_value_t *)pri;
     sipstat_t *sp = (sipstat_t *)psp;
 
     /* Total number of packets, including continuation packets */
@@ -277,12 +277,12 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
     if (value->response_code != 0)
     {
         /* Responses */
-        guint *key = g_malloc(sizeof(guint));
+        guint *key = g_new(guint,1);
         sip_response_code_t *sc;
 
         /* Look up response code in hash table */
         *key = value->response_code;
-        sc = g_hash_table_lookup(sp->hash_responses, key);
+        sc = (sip_response_code_t *)g_hash_table_lookup(sp->hash_responses, key);
         if (sc==NULL)
         {
             /* Non-standard status code ; we classify it as others
@@ -321,7 +321,7 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
             }
 
             /* Now look up this fallback code to get its text description */
-            sc = g_hash_table_lookup(sp->hash_responses, key);
+            sc = (sip_response_code_t *)g_hash_table_lookup(sp->hash_responses, key);
             if (sc==NULL)
             {
                 return 0;
@@ -335,11 +335,11 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
         sip_request_method_t *sc;
 
         /* Look up the request method in the table */
-        sc = g_hash_table_lookup(sp->hash_requests, value->request_method);
+        sc = (sip_request_method_t *)g_hash_table_lookup(sp->hash_requests, value->request_method);
         if (sc == NULL)
         {
             /* First of this type. Create structure and initialise */
-            sc=g_malloc(sizeof(sip_request_method_t));
+            sc=g_new(sip_request_method_t,1);
             sc->response = g_strdup(value->request_method);
             sc->packets = 1;
             sc->sp = sp;
@@ -365,7 +365,7 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 static void
 sipstat_draw(void *psp  )
 {
-	sipstat_t *sp=psp;
+	sipstat_t *sp=(sipstat_t *)psp;
 	printf("\n");
 	printf("===================================================================\n");
 	if (sp->filter == NULL)
@@ -398,7 +398,7 @@ sipstat_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	sp = g_malloc( sizeof(sipstat_t) );
+	sp = g_new(sipstat_t,1);
 	if(filter){
 		sp->filter=g_strdup(filter);
 	} else {

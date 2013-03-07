@@ -81,7 +81,7 @@ static int
 radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
 	radiusstat_t *rs=(radiusstat_t *)prs;
-	const radius_info_t *ri=pri;
+	const radius_info_t *ri=(const radius_info_t *)pri;
 	nstime_t delta;
 	int ret = 0;
 
@@ -191,7 +191,7 @@ radiusstat_init(const char *optarg, void* userdata _U_)
 	int i;
 	GString *error_string;
 
-	rs=g_malloc(sizeof(radiusstat_t));
+	rs=g_new(radiusstat_t,1);
 	if(!strncmp(optarg,"radius,rtd,",11)){
 		rs->filter=g_strdup(optarg+11);
 	} else {

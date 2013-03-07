@@ -76,7 +76,7 @@ typedef struct _rpcstat_t {
 static void
 rpcstat_reset(void *prs)
 {
-	rpcstat_t *rs=prs;
+	rpcstat_t *rs=(rpcstat_t *)prs;
 	guint32 i;
 
 	for(i=0;i<rs->num_procedures;i++){
@@ -121,8 +121,8 @@ rpcstat_reset(void *prs)
 static int
 rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
-	rpcstat_t *rs=prs;
-	const rpc_call_info_value *ri=pri;
+	rpcstat_t *rs=(rpcstat_t *)prs;
+	const rpc_call_info_value *ri=(const rpc_call_info_value *)pri;
 	nstime_t delta;
 	rpc_procedure_t *rp;
 
@@ -193,7 +193,7 @@ rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 static void
 rpcstat_draw(void *prs)
 {
-	rpcstat_t *rs=prs;
+	rpcstat_t *rs=(rpcstat_t *)prs;
 	guint32 i;
 	guint64 td;
 	printf("\n");
@@ -281,7 +281,7 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 		exit(1);
 	}
 
-	rs=g_malloc(sizeof(rpcstat_t));
+	rs=g_new(rpcstat_t,1);
 	rs->prog=rpc_prog_name(program);
 	rs->program=program;
 	rs->version=version;
@@ -303,7 +303,7 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 
 
 	rs->num_procedures=rpc_max_proc+1;
-	rs->procedures=g_malloc(sizeof(rpc_procedure_t)*(rs->num_procedures+1));
+	rs->procedures=g_new(rpc_procedure_t,rs->num_procedures+1);
 	for(i=0;i<rs->num_procedures;i++){
 		rs->procedures[i].proc=rpc_proc_name(program, version, i);
 		rs->procedures[i].num=0;

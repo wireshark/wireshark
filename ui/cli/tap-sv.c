@@ -39,7 +39,7 @@ static int
 sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
 	int i;
-	const sv_frame_data * sv_data = pri;
+	const sv_frame_data * sv_data = (const sv_frame_data *)pri;
 
 	printf("%f %u ", nstime_to_sec(&pinfo->fd->rel_ts), sv_data->smpCnt);
 

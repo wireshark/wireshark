@@ -1368,7 +1368,7 @@ iostat_init(const char *optarg, void* userdata _U_)
             if(pos==str){
                 register_io_tap(io, i, NULL);
             } else if (pos==NULL) {
-                str = (char*) g_strstrip((gchar*)str);
+                str = (const char*) g_strstrip((gchar*)str);
                 filter = g_strdup((gchar*) str);
                 if (*filter)
                     register_io_tap(io, i, filter);

@@ -45,7 +45,7 @@ typedef struct _pci_t {
 static int
 protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
-	pci_t *rs=prs;
+	pci_t *rs=(pci_t *)prs;
 	GPtrArray *gp;
 	guint i;
 	char *str;
@@ -70,7 +70,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 	}
 
 	for(i=0;i<gp->len;i++){
-		str=proto_construct_match_selected_string(gp->pdata[i], NULL);
+		str=(char *)proto_construct_match_selected_string(gp->pdata[i], NULL);
 		if(str){
 			col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",str);
 		}
@@ -107,10 +107,10 @@ protocolinfo_init(const char *optarg, void* userdata _U_)
 		exit(1);
 	}
 
-	rs=g_malloc(sizeof(pci_t));
+	rs=g_new(pci_t,1);
 	rs->hf_index=hfi->id;
 	if((field-filter)>1){
-		rs->filter=g_malloc(field-filter);
+		rs->filter=(char *)g_malloc(field-filter);
 		g_strlcpy(rs->filter,filter,(field-filter));
 	} else {
 		rs->filter=NULL;

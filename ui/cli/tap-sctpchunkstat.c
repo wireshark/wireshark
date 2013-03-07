@@ -107,7 +107,7 @@ alloc_sctp_ep(const struct _sctp_info *si)
 	if(!si)
 		return NULL;
 
-	if (!(ep = g_malloc(sizeof(sctp_ep_t))))
+	if (!(ep = g_new(sctp_ep_t,1)))
 		return NULL;
 
 	COPY_ADDRESS(&ep->src,&si->ip_src);

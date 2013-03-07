@@ -64,7 +64,7 @@ typedef struct _scsistat_t {
 static void
 scsistat_reset(void *prs)
 {
-	scsistat_t *rs=prs;
+	scsistat_t *rs=(scsistat_t *)prs;
 	guint32 i;
 
 	for(i=0; i < MAX_PROCEDURES; i++) {
@@ -81,8 +81,8 @@ scsistat_reset(void *prs)
 static int
 scsistat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
 {
-	scsistat_t *rs = prs;
-	const scsi_task_data_t *ri = pri;
+	scsistat_t *rs = (scsistat_t *)prs;
+	const scsi_task_data_t *ri = (const scsi_task_data_t *)pri;
 	nstime_t delta;
 	scsi_procedure_t *rp;
 
@@ -137,7 +137,7 @@ scsistat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 static void
 scsistat_draw(void *prs)
 {
-	scsistat_t *rs=prs;
+	scsistat_t *rs=(scsistat_t *)prs;
 	guint32 i;
 	guint64 td;
 
@@ -189,7 +189,7 @@ scsistat_init(const char *optarg, void* userdata _U_)
 	}
 
 	scsi_program=program;
-	rs=g_malloc(sizeof(scsistat_t));
+	rs=g_new(scsistat_t,1);
 	if(filter) {
 		rs->filter=g_strdup(filter);
 	} else {
@@ -225,7 +225,7 @@ scsistat_init(const char *optarg, void* userdata _U_)
 			rs->cdbnames=scsi_sbc_vals;
 			break;
 	}
-	rs->procedures=g_malloc(sizeof(scsi_procedure_t)*MAX_PROCEDURES);
+	rs->procedures=g_new(scsi_procedure_t,MAX_PROCEDURES);
 	for(i=0; i < MAX_PROCEDURES; i++) {
 		rs->procedures[i].proc=val_to_str(i, rs->cdbnames, "Unknown-0x%02x");
 		rs->procedures[i].num=0;

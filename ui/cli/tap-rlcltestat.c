@@ -136,7 +136,7 @@ static rlc_lte_ep_t* alloc_rlc_lte_ep(const struct rlc_lte_tap_info *si, packet_
         return NULL;
     }
 
-    if (!(ep = g_malloc(sizeof(rlc_lte_ep_t)))) {
+    if (!(ep = g_new(rlc_lte_ep_t,1))) {
         return NULL;
     }
 
@@ -379,7 +379,7 @@ static void rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     }
 
     /* Create top-level struct */
-    hs = g_malloc0(sizeof(rlc_lte_stat_t));
+    hs = g_new0(rlc_lte_stat_t,1);
     hs->ep_list = NULL;
 
 
