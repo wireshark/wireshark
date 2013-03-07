@@ -1248,14 +1248,14 @@ insert_new_rows(GList *list)
       device.display_name = g_strdup(if_string);
     }
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    if ((device.buffer = capture_dev_user_buffersize_find(if_string->name)) == -1) {
+    if ((device.buffer = capture_dev_user_buffersize_find(if_string)) == -1) {
       device.buffer = global_capture_opts.default_options.buffer_size;
     }
 #endif
     device.pmode = global_capture_opts.default_options.promisc_mode;
     device.has_snaplen = global_capture_opts.default_options.has_snaplen;
     device.snap_pref = TRUE;
-    if ((device.snaplen = capture_dev_user_buffersize_find(if_string->name)) == -1) {
+    if ((device.snaplen = capture_dev_user_buffersize_find(if_string)) == -1) {
       device.snaplen = global_capture_opts.default_options.snaplen;
     }
     device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
