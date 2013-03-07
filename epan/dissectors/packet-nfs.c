@@ -892,22 +892,22 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 
 	fhlen=nfs_fh->len/4;
 	/* align the file handle data */
-	fhdata=g_memdup(nfs_fh->fh, fhlen*4);
+	fhdata=(guint32 *)g_memdup(nfs_fh->fh, fhlen*4);
 	fhkey[0].length=1;
 	fhkey[0].key=&fhlen;
 	fhkey[1].length=fhlen;
 	fhkey[1].key=fhdata;
 	fhkey[2].length=0;
 
-	new_nfs_fh=se_tree_lookup32_array(nfs_file_handles, &fhkey[0]);
+	new_nfs_fh=(nfs_fhandle_data_t *)se_tree_lookup32_array(nfs_file_handles, &fhkey[0]);
 	if(new_nfs_fh){
 		g_free(fhdata);
 		return new_nfs_fh;
 	}
 
-	new_nfs_fh=se_alloc(sizeof(nfs_fhandle_data_t));
+	new_nfs_fh=(nfs_fhandle_data_t *)se_alloc(sizeof(nfs_fhandle_data_t));
 	new_nfs_fh->len=nfs_fh->len;
-	new_nfs_fh->fh=se_alloc(sizeof(guint32)*(nfs_fh->len/4));
+	new_nfs_fh->fh=(const unsigned char *)se_alloc(sizeof(guint32)*(nfs_fh->len/4));
 	memcpy((void *)new_nfs_fh->fh, nfs_fh->fh, nfs_fh->len);
 	fhlen=nfs_fh->len/4;
 	fhkey[0].length=1;
@@ -1031,14 +1031,14 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 		}
 	}
 
-	nns=se_alloc(sizeof(nfs_name_snoop_t));
+	nns=(nfs_name_snoop_t *)se_alloc(sizeof(nfs_name_snoop_t));
 
 	nns->fh_length=0;
 	nns->fh=NULL;
 
 	if(parent_len){
 		nns->parent_len=parent_len;
-		nns->parent=tvb_memdup(tvb, parent_offset, parent_len);
+		nns->parent=(unsigned char *)tvb_memdup(tvb, parent_offset, parent_len);
 	} else {
 		nns->parent_len=0;
 		nns->parent=NULL;
@@ -1049,7 +1049,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 		nns->name=g_strdup(name);
 	} else {
 		nns->name_len=name_len;
-		nns->name=g_malloc(name_len+1);
+		nns->name=(char *)g_malloc(name_len+1);
 		memcpy(nns->name, ptr, name_len);
 	}
 	nns->name[nns->name_len]=0;
@@ -1058,7 +1058,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 	nns->full_name=NULL;
 
 	/* remove any old entry for this */
-	old_nns=g_hash_table_lookup(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
+	old_nns=(nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	if(old_nns){
 		/* if we haven't seen the reply yet, then there are no
 		   matched entries for it, thus we can dealloc the arrays*/
@@ -1085,7 +1085,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	nfs_name_snoop_key_t *key;
 
 	/* find which request we correspond to */
-	nns=g_hash_table_lookup(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
+	nns=(nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	if(!nns){
 		/* oops couldnt find matching request, bail out */
 		return;
@@ -1097,18 +1097,18 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	}
 
 	/* oki, we have a new entry */
-	fh=tvb_memdup(tvb, fh_offset, fh_length);
+	fh=(unsigned char *)tvb_memdup(tvb, fh_offset, fh_length);
 	nns->fh=fh;
 	nns->fh_length=fh_length;
 
-	key=se_alloc(sizeof(nfs_name_snoop_key_t));
+	key=(nfs_name_snoop_key_t *)se_alloc(sizeof(nfs_name_snoop_key_t));
 	key->key=0;
 	key->fh_length=nns->fh_length;
 	key->fh=nns->fh;
 
 	/* already have something matched for this fh, remove it from
 	   the table */
-	old_nns=g_hash_table_lookup(nfs_name_snoop_matched, key);
+	old_nns=(nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_matched, key);
 	if(old_nns){
 		g_hash_table_remove(nfs_name_snoop_matched, key);
 	}
@@ -1132,7 +1132,7 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, char **name, char **pos)
 	(*len) += nns->name_len;
 
 	if(nns->parent==NULL){
-		*name = g_malloc((*len)+1);
+		*name = (char *)g_malloc((*len)+1);
 		*pos = *name;
 
 		*pos += g_snprintf(*pos, (*len)+1, "%s", nns->name);
@@ -1144,7 +1144,7 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, char **name, char **pos)
 	key.fh_length=nns->parent_len;
 	key.fh=nns->parent;
 
-	parent_nns=g_hash_table_lookup(nfs_name_snoop_matched, &key);
+	parent_nns=(nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_matched, &key);
 
 	if(parent_nns){
 		nfs_full_name_snoop(parent_nns, len, name, pos);
@@ -1171,7 +1171,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		key.fh_length=fh_length;
 		key.fh=(const unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_length);
 
-		nns=g_hash_table_lookup(nfs_name_snoop_matched, &key);
+		nns=(nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_matched, &key);
 		if(nns){
 			guint32 fhlen;
 			guint32 *fhdata;
@@ -1179,7 +1179,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 			fhlen=nns->fh_length;
 			/* align it */
-			fhdata=g_memdup(nns->fh, fhlen);
+			fhdata=(guint32 *)g_memdup(nns->fh, fhlen);
 			fhkey[0].length=1;
 			fhkey[0].key=&fhlen;
 			fhkey[1].length=fhlen/4;
@@ -1209,14 +1209,14 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 		fhlen=fh_length;
 		/* align it */
-		fhdata=tvb_memdup(tvb, fh_offset, fh_length);
+		fhdata=(guint32 *)tvb_memdup(tvb, fh_offset, fh_length);
 		fhkey[0].length=1;
 		fhkey[0].key=&fhlen;
 		fhkey[1].length=fhlen/4;
 		fhkey[1].key=fhdata;
 		fhkey[2].length=0;
 
-		nns=se_tree_lookup32_array(nfs_name_snoop_known, &fhkey[0]);
+		nns=(nfs_name_snoop_t *)se_tree_lookup32_array(nfs_name_snoop_known, &fhkey[0]);
 		g_free(fhdata);
 	}
 
@@ -1662,7 +1662,7 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 		guint32 inum = tvb_get_ntohl(tvb, offset + 12);
 		guint32 generation = tvb_get_letohl(tvb, offset + 16);
 		guint32 fsid = tvb_get_letohl(tvb, offset + 20);
-		guint32 export = tvb_get_letohl(tvb, offset + 24);
+		guint32 nfsexport = tvb_get_letohl(tvb, offset + 24);
 		guint32 export_snapgen = tvb_get_letohl(tvb, offset + 28);
 
 		proto_item *item;
@@ -1673,7 +1673,7 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 				    " METADATA" };
 		guint16 bit = sizeof(strings) / sizeof(strings[0]);
 
-		flag_string=ep_alloc(512);
+		flag_string=(char *)ep_alloc(512);
 		flag_string[0]=0;
 		while (bit--) {
 			if (flags & (1<<bit)) {
@@ -1705,10 +1705,10 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 		proto_tree_add_uint(subtree, hf_nfs_fh_fsid, tvb,
 					   offset + 20, 4, fsid);
 		item = proto_tree_add_text(tree, tvb, offset + 24, 8,
-					   "export (inode %u)", export);
+					   "export (inode %u)", nfsexport);
 		subtree = proto_item_add_subtree(item, ett_nfs_fh_export);
 		proto_tree_add_uint(subtree, hf_nfs_fh_export_fileid,
-					   tvb, offset + 24, 4, export);
+					   tvb, offset + 24, 4, nfsexport);
 		proto_tree_add_uint(subtree,
 					   hf_nfs_fh_export_generation,
 					   tvb, offset + 28, 3,
@@ -1767,7 +1767,7 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 	guint16 bit = sizeof(strings) / sizeof(strings[0]);
 	proto_tree *flag_tree = NULL;
 
-	flag_string=ep_alloc(512);
+	flag_string=(char *)ep_alloc(512);
 	flag_string[0]=0;
 
 	if(tree){
@@ -2443,7 +2443,7 @@ dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, int frame)
 {
 	nfs_fhandle_data_t *nfd;
 
-	nfd=se_tree_lookup32(nfs_fhandle_frame_table, frame);
+	nfd=(nfs_fhandle_data_t *)se_tree_lookup32(nfs_fhandle_frame_table, frame);
 	if(nfd && nfd->len){
 		tvbuff_t *tvb;
 		tvb = tvb_new_real_data(nfd->fh, nfd->len, nfd->len);
@@ -2720,7 +2720,7 @@ dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 	/* are we snooping fh to filenames ?*/
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
-		rpc_call_info_value *civ=pinfo->private_data;
+		rpc_call_info_value *civ=(rpc_call_info_value *)pinfo->private_data;
 
 		/* NFS v2 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
 		if( (civ->prog==100003)
@@ -3059,7 +3059,7 @@ dissect_diropargs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	/* are we snooping fh to filenames ?*/
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
 		/* v2 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
-		rpc_call_info_value *civ=pinfo->private_data;
+		rpc_call_info_value *civ=(rpc_call_info_value *)pinfo->private_data;
 
 		if( (civ->prog==100003)
 		  &&(civ->vers==2)
@@ -3869,7 +3869,7 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 	/* are we snooping fh to filenames ?*/
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
-		rpc_call_info_value *civ=pinfo->private_data;
+		rpc_call_info_value *civ=(rpc_call_info_value *)pinfo->private_data;
 
 		/* NFS v3 LOOKUP, CREATE, MKDIR, READDIRPLUS
 			calls might give us a mapping*/
@@ -4571,7 +4571,7 @@ dissect_diropargs3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* are we snooping fh to filenames ?*/
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
 		/* v3 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
-		rpc_call_info_value *civ=pinfo->private_data;
+		rpc_call_info_value *civ=(rpc_call_info_value *)pinfo->private_data;
 
 		if( (civ->prog==100003)
 		  &&(civ->vers==3)
@@ -4965,8 +4965,8 @@ dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* 
 	proto_item* ditem = NULL;
 
 	/* Retrieve the access mask from the call */
-	civ = pinfo->private_data;
-	acc_req = civ->private_data;
+	civ = (rpc_call_info_value *)pinfo->private_data;
+	acc_req = (guint32 *)civ->private_data;
 	/* Should never happen because ONC-RPC requires the call in order to dissect the reply. */
 	if (acc_req==NULL) {
 		/* XXX, when nfsv4 return offset+8? */
@@ -5028,8 +5028,8 @@ dissect_nfs3_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 	/* Get access mask to check and save it for comparison to the access reply. */
 	amask = tvb_get_ntohl(tvb, offset);
-	acc_request = se_memdup( &amask, sizeof(guint32));
-	civ = pinfo->private_data;
+	acc_request = (guint32 *)se_memdup( &amask, sizeof(guint32));
+	civ = (rpc_call_info_value *)pinfo->private_data;
 	civ->private_data = acc_request;
 
 	/* Append filehandle to Info column and main tree header */
@@ -5799,7 +5799,7 @@ dissect_entryplus3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* are we snooping fh to filenames ?*/
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
-		rpc_call_info_value *civ=pinfo->private_data;
+		rpc_call_info_value *civ=(rpc_call_info_value *)pinfo->private_data;
 		/* v3 READDIRPLUS replies will give us a mapping */
 		if( (civ->prog==100003)
 		  &&(civ->vers==3)
@@ -7026,7 +7026,7 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	attr_vals_offset = offset + 4 + bitmap_len * 4;
 
 	if(bitmap_len)
-		bitmap = ep_alloc(bitmap_len * sizeof(guint32));
+		bitmap = (guint32 *)ep_alloc(bitmap_len * sizeof(guint32));
 
 	for (i = 0; i < bitmap_len; i++)
 	{
@@ -7818,7 +7818,7 @@ dissect_nfs_open_claim4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (open_claim_type4==CLAIM_NULL) {
 		dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, name);
 		if (nfs_file_name_snooping) {
-			rpc_call_info_value *civ=pinfo->private_data;
+			rpc_call_info_value *civ=(rpc_call_info_value *)pinfo->private_data;
 
 			name_offset=offset+4;
 			name_len=tvb_get_ntohl(tvb, offset);
@@ -8329,7 +8329,7 @@ dissect_nfs_state_protect_bitmap4(tvbuff_t *tvb, int offset,
 	newftree = proto_item_add_subtree(fitem, ett_nfs_bitmap4);
 
 	if(bitmap_len)
-		bitmap = ep_alloc(bitmap_len * sizeof(guint32));
+		bitmap = (guint32 *)ep_alloc(bitmap_len * sizeof(guint32));
 
 	for (i = 0; i < bitmap_len; i++) {
 		bitmap[i] = tvb_get_ntohl(tvb, offset);
@@ -9022,7 +9022,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		ops = MAX_NFSV4_OPS;
 	}
 
-	op_summary = g_malloc0(sizeof(nfsv4_operation_summary) * ops);
+	op_summary = (nfsv4_operation_summary *)g_malloc0(sizeof(nfsv4_operation_summary) * ops);
 
 	if (fitem) {
 		ftree = proto_item_add_subtree(fitem, ett_nfs_argop4);
@@ -9078,8 +9078,8 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			/* Get access mask to check and save it for comparison in the reply. */
 			amask = tvb_get_ntohl(tvb, offset);
-			acc_request = se_memdup( &amask, sizeof(guint32));
-			civ = pinfo->private_data;
+			acc_request = (guint32 *)se_memdup( &amask, sizeof(guint32));
+			civ = (rpc_call_info_value *)pinfo->private_data;
 			civ->private_data = acc_request;
 
 			g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x",
@@ -9223,7 +9223,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
 								hf_nfs_component4, &name);
 			if (nfs_file_name_snooping){
-				rpc_call_info_value *civ=pinfo->private_data;
+				rpc_call_info_value *civ=(rpc_call_info_value *)pinfo->private_data;
 				nfs_name_snoop_add_name(civ->xid, tvb,
 										/*name_offset, strlen(name),*/
 										0, 0,
@@ -9683,7 +9683,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		ops = MAX_NFSV4_OPS;
 	}
 
-	op_summary = g_malloc0(sizeof(nfsv4_operation_summary) * ops);
+	op_summary = (nfsv4_operation_summary *)g_malloc0(sizeof(nfsv4_operation_summary) * ops);
 
 	if (fitem) {
 		ftree = proto_item_add_subtree(fitem, ett_nfs_resop4);
