@@ -585,10 +585,9 @@ parse_expression1(npl_expression_t *expr)
 
 		} else if (is_token_accept(TOKEN_DOT)) {
 			npl_expression_t *base = xdup(npl_expression_t, expr);
-			npl_expression_t *field;
+			char *field;
 
-			field = xnew(npl_expression_t);
-			parse_primary(field);
+			field = accept_id();
 
 			expr->type = EXPRESSION_FIELD;
 			expr->fld.base = base;

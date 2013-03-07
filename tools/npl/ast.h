@@ -94,7 +94,7 @@ union {
 		npl_expression_type_t type;	/* EXPRESSION_FIELD */
 
 		struct _npl_expression *base;
-		struct _npl_expression *field;
+		char *field;
 	} fld;
 
 	struct {
