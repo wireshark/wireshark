@@ -7961,7 +7961,7 @@ dissect_extended_capabilities_ie(packet_info *pinfo, proto_tree *tree,
     expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be greater than 0", tag_len);
     return offset;
   }
-  proto_item_append_text(ti, " (%d octets)", tag_len);
+  proto_item_append_text(ti, " (%u octet%s)", tag_len, plurality(tag_len, "", "s"));
 
   /* Extended Capability octet 1 */
   ti_ex_cap = proto_tree_add_item(tree, hf_ieee80211_tag_extended_capabilities, tvb, offset, 1, ENC_NA);
@@ -11427,7 +11427,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
                              " (%s) code not implemented, Contact"
                              " Wireshark developers if you want this supported", val_to_str_ext(tag_no,
                                             &tag_num_vals_ext, "(%d)"));
-      proto_item_append_text(ti, ": Tag %u Len %u", tag_no, tag_len);
+      proto_item_append_text(ti, ": Undecoded");
       break;
   }
   if (offset < tag_end) {
