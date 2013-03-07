@@ -2223,6 +2223,11 @@ proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, gu
 /* 0x7F Extension Descriptor */
 static int hf_mpeg_descr_extension_tag_extension = -1;
 static int hf_mpeg_descr_extension_data = -1;
+/* Supplementary Audio (Sub-)Descriptor */
+static int hf_mpeg_descr_extension_supp_audio_mix_type = -1;
+static int hf_mpeg_descr_extension_supp_audio_ed_cla = -1;
+static int hf_mpeg_descr_extension_supp_audio_lang_code_present = -1;
+static int hf_mpeg_descr_extension_supp_audio_lang_code = -1;
 
 #define EXT_TAG_IMG_ICON      0x00
 #define EXT_TAG_CPCM_DLV      0x01
@@ -2250,19 +2255,61 @@ static const value_string mpeg_descr_extension_tag_extension_vals[] = {
 	{ EXT_TAG_TRGT_REG,      "Target Region Descriptor" },
 	{ EXT_TAG_TRGT_REG_NAME, "Target Region Name Descriptor" },
 	{ EXT_TAG_SVC_RELOC,     "Service Relocated Descriptor" },
-
 	{ 0x0, NULL }
 };
 static value_string_ext mpeg_descr_extension_tag_extension_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_extension_tag_extension_vals);
 
+static const value_string supp_audio_mix_type_vals[] = {
+	{ 0x00, "Audio stream is a supplementary stream" },
+	{ 0x01, "Audio stream is a complete and independent stream" },
+	{ 0x0, NULL }
+};
+
+/* if we wanted to distinguish between reserved and user defined,
+   we'd have to convert this into a range string */
+static const value_string supp_audio_ed_cla[] = {
+	{ 0x00, "Main audio" },
+	{ 0x01, "Audio description for the visually impaired" },
+	{ 0x02, "Clean audio for the hearing impaired" },
+	{ 0x03, "Spoken subtitles for the visually impaired" },
+	{ 0x0, NULL }
+};
+
+
 static void
 proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
+	guint     offset_start;
+	guint8    tag_ext;
+	gboolean  lang_code_present;
+	guint     already_dissected;
+
+	offset_start = offset;
+
+	tag_ext = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_mpeg_descr_extension_tag_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	len--;
 
-	proto_tree_add_item(tree, hf_mpeg_descr_extension_data, tvb, offset, len, ENC_NA);
+	switch (tag_ext) {
+		case EXT_TAG_SUPP_AUDIO:
+			proto_tree_add_item(tree, hf_mpeg_descr_extension_supp_audio_mix_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_mpeg_descr_extension_supp_audio_ed_cla, tvb, offset, 1, ENC_BIG_ENDIAN);
+			lang_code_present = ((tvb_get_guint8(tvb, offset) & 0x01) == 0x01);
+			proto_tree_add_item(tree, hf_mpeg_descr_extension_supp_audio_lang_code_present, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset++;
+			if (lang_code_present) {
+				proto_tree_add_item(tree, hf_mpeg_descr_extension_supp_audio_lang_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
+				offset += 3;
+			}
+			already_dissected = offset-offset_start;
+			if (already_dissected<len)
+				proto_tree_add_text(tree, tvb, offset, len-already_dissected, "Private data");
+			break;
+		default:
+			proto_tree_add_item(tree, hf_mpeg_descr_extension_data, tvb, offset, len, ENC_NA);
+			break;
+	}
+
 }
 
 /* 0xA2 Logon Initialize Descriptor */
@@ -3834,6 +3881,27 @@ proto_register_mpeg_descriptor(void)
 		{ &hf_mpeg_descr_extension_data, {
 			"Descriptor Extension Data", "mpeg_descr.ext.data",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		/* Supplementary Audio Descriptor (part of Extension Descriptor) */
+		{ &hf_mpeg_descr_extension_supp_audio_mix_type, {
+			"Mix type", "mpeg_descr.ext.supp_audio.mix_type",
+			FT_UINT8, BASE_HEX, VALS(supp_audio_mix_type_vals), 0x80, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_extension_supp_audio_ed_cla, {
+			"Editorial classification", "mpeg_descr.ext.supp_audio.ed_cla",
+			FT_UINT8, BASE_HEX, VALS(supp_audio_ed_cla), 0x7C, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_extension_supp_audio_lang_code_present, {
+			"Language code present", "mpeg_descr.ext.supp_audio.lang_code_present",
+			FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_extension_supp_audio_lang_code, {
+			"ISO 639 language code", "mpeg_descr.ext.supp_audio.lang_code",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
 		/* 0xA2 Logon Initialize Descriptor */
