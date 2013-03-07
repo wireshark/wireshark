@@ -178,7 +178,7 @@ prefs_init(void)
 static void
 free_pref(gpointer data, gpointer user_data _U_)
 {
-    pref_t *pref = data;
+    pref_t *pref = (pref_t *)data;
 
     switch (pref->type) {
     case PREF_OBSOLETE:
@@ -291,7 +291,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
         return module;
     }
 
-    module = g_malloc(sizeof (module_t));
+    module = g_new(module_t,1);
     module->name = name;
     module->title = title;
     module->description = description;
@@ -522,13 +522,13 @@ prefs_register_stat(const char *name, const char *title,
 module_t *
 prefs_find_module(const char *name)
 {
-    return pe_tree_lookup_string(prefs_modules, name, EMEM_TREE_STRING_NOCASE);
+    return (module_t *)pe_tree_lookup_string(prefs_modules, name, EMEM_TREE_STRING_NOCASE);
 }
 
 static module_t *
 find_subtree(module_t *parent, const char *name)
 {
-    return pe_tree_lookup_string(parent ? parent->submodules : prefs_top_level_modules, name, EMEM_TREE_STRING_NOCASE);
+    return (module_t *)pe_tree_lookup_string(parent ? parent->submodules : prefs_top_level_modules, name, EMEM_TREE_STRING_NOCASE);
 }
 
 /*
@@ -629,7 +629,7 @@ prefs_modules_foreach_submodules(module_t *module, module_cb callback,
 static gboolean
 call_apply_cb(void *value, void *data _U_)
 {
-    module_t *module = value;
+    module_t *module = (module_t *)value;
 
     if (module->obsolete)
         return FALSE;
@@ -680,7 +680,7 @@ register_preference(module_t *module, const char *name, const char *title,
     pref_t *preference;
     const gchar *p;
 
-    preference = g_malloc(sizeof (pref_t));
+    preference = g_new(pref_t,1);
     preference->name = name;
     preference->title = title;
     preference->description = description;
@@ -749,8 +749,8 @@ typedef struct {
 static gint
 preference_match(gconstpointer a, gconstpointer b)
 {
-    const pref_t *pref = a;
-    const char *name = b;
+    const pref_t *pref = (const pref_t *)a;
+    const char *name = (const char *)b;
 
     return strcmp(name, pref->name);
 }
@@ -759,7 +759,7 @@ static gboolean module_find_pref_cb(void *value, void *data)
 {
     find_pref_arg_t* arg = (find_pref_arg_t*)data;
     GList *list_entry;
-    module_t *module = value;
+    module_t *module = (module_t *)value;
 
     if (module == NULL)
         return FALSE;
@@ -1155,7 +1155,7 @@ prefs_pref_foreach(module_t *module, pref_cb callback, gpointer user_data)
     guint ret;
 
     for (elem = g_list_first(module->prefs); elem != NULL; elem = g_list_next(elem)) {
-        pref = elem->data;
+        pref = (pref_t *)elem->data;
         if (pref->type == PREF_OBSOLETE) {
             /*
              * This preference is no longer supported; it's
@@ -1432,8 +1432,8 @@ static void column_format_init_cb(pref_t* pref, GList** value)
 
     pref->default_val.list = NULL;
     for (entry = *pref->varp.list; entry != NULL; entry = g_list_next(entry)) {
-        src_cfmt = entry->data;
-        dest_cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+        src_cfmt = (fmt_data *)entry->data;
+        dest_cfmt = g_new(fmt_data,1);
         dest_cfmt->title = g_strdup(src_cfmt->title);
         dest_cfmt->fmt = src_cfmt->fmt;
         if (src_cfmt->custom_field) {
@@ -1465,8 +1465,8 @@ static void column_format_reset_cb(pref_t* pref)
     *pref->varp.list = NULL;
 
     for (entry = pref->default_val.list; entry != NULL; entry = g_list_next(entry)) {
-        src_cfmt = entry->data;
-        dest_cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+        src_cfmt = (fmt_data *)entry->data;
+        dest_cfmt = g_new(fmt_data,1);
         dest_cfmt->title = g_strdup(src_cfmt->title);
         dest_cfmt->fmt = src_cfmt->fmt;
         if (src_cfmt->custom_field) {
@@ -1536,8 +1536,8 @@ static prefs_set_pref_e column_format_set_cb(pref_t* pref, const gchar* value, g
     *col_num_pref->varp.uint = llen / 2;
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
-      cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
-      cfmt->title    = g_strdup(col_l_elt->data);
+      cfmt           = g_new(fmt_data,1);
+      cfmt->title    = (gchar *)g_strdup(col_l_elt->data);
       col_l_elt      = col_l_elt->next;
       parse_column_format(cfmt, col_l_elt->data);
       cfmt->visible   = prefs_is_column_visible((gchar*)(*hidden_pref->varp.string), cfmt);
@@ -1652,7 +1652,7 @@ static void capture_column_free_cb(pref_t* pref)
     gchar    *col_name;
 
     while (list != NULL) {
-        col_name = list->data;
+        col_name = (gchar *)list->data;
 
         g_free(col_name);
         list = g_list_remove_link(list, list);
@@ -1661,7 +1661,7 @@ static void capture_column_free_cb(pref_t* pref)
 
     list = pref->default_val.list;
     while (list != NULL) {
-        col_name = list->data;
+        col_name = (gchar *)list->data;
 
         g_free(col_name);
         list = g_list_remove_link(list, list);
@@ -1677,7 +1677,7 @@ static void capture_column_reset_cb(pref_t* pref)
 
     /* Clear the list before it's copied */
     while (list_copy != NULL) {
-        col_name = list_copy->data;
+        col_name = (gchar *)list_copy->data;
 
         g_free(col_name);
         list_copy = g_list_remove_link(list_copy, list_copy);
@@ -2383,7 +2383,7 @@ join_string_list(GList *sl)
     cur = first = g_list_first(sl);
     while (cur) {
         item_count++;
-        str = cur->data;
+        str = (gchar *)cur->data;
 
         if (cur != first) {
             g_string_append_c(joined_str, ',');
@@ -2680,7 +2680,7 @@ pre_init_prefs(void)
 
   prefs.col_list = NULL;
   for (i = 0; i < DEF_NUM_COLS; i++) {
-    cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+    cfmt = g_new(fmt_data,1);
     cfmt->title = g_strdup(col_fmt[i * 2]);
     parse_column_format(cfmt, col_fmt[(i * 2) + 1]);
     cfmt->visible = TRUE;
@@ -2804,7 +2804,7 @@ reset_module_prefs(void *value, void *data _U_)
 {
     reset_pref_arg_t arg;
 
-    arg.module = value;
+    arg.module = (module_t *)value;
     g_list_foreach(arg.module->prefs, reset_pref_cb, &arg);
     return FALSE;
 }
@@ -4296,8 +4296,8 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
 static void
 write_pref(gpointer data, gpointer user_data)
 {
-    pref_t *pref = data;
-    write_pref_arg_t *arg = user_data;
+    pref_t *pref = (pref_t *)data;
+    write_pref_arg_t *arg = (write_pref_arg_t *)user_data;
     gchar **desc_lines;
     int i;
 
@@ -4491,7 +4491,7 @@ free_col_info(GList * list)
   fmt_data *cfmt;
 
   while (list != NULL) {
-    cfmt = list->data;
+    cfmt = (fmt_data *)list->data;
 
     g_free(cfmt->title);
     g_free(cfmt->custom_field);

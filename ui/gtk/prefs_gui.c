@@ -339,15 +339,15 @@ void
 gui_prefs_fetch(GtkWidget *w)
 {
 	prefs.gui_geometry_save_position =
-		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_POSITION_KEY));
+		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GEOMETRY_POSITION_KEY));
 	prefs.gui_geometry_save_size =
-		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_SIZE_KEY));
+		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GEOMETRY_SIZE_KEY));
 	prefs.gui_geometry_save_maximized =
-		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_MAXIMIZED_KEY));
+		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GEOMETRY_MAXIMIZED_KEY));
 
 #if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
 	prefs.gui_macosx_style =
-		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), MACOSX_STYLE_KEY));
+		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), MACOSX_STYLE_KEY));
 #endif
 
 #ifdef _WIN32
@@ -355,26 +355,26 @@ gui_prefs_fetch(GtkWidget *w)
 		g_object_get_data(G_OBJECT(w), GUI_CONSOLE_OPEN_KEY), gui_console_open_vals);
 #endif
 	prefs.gui_fileopen_style = fetch_preference_radio_buttons_val(
-		g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_KEY), gui_fileopen_vals);
+		(GtkWidget *)g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_KEY), gui_fileopen_vals);
 
 	g_free(prefs.gui_fileopen_dir);
 	prefs.gui_fileopen_dir = g_strdup(gtk_entry_get_text(
 						  GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_DIR_KEY))));
 
 	prefs.gui_ask_unsaved =
-		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_ASK_UNSAVED_KEY));
+		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GUI_ASK_UNSAVED_KEY));
 
 	prefs.gui_find_wrap =
-		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_FIND_WRAP_KEY));
+		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GUI_FIND_WRAP_KEY));
 
 	prefs.gui_use_pref_save =
-		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_USE_PREF_SAVE_KEY));
+		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GUI_USE_PREF_SAVE_KEY));
 
 	prefs.gui_version_placement =
 		fetch_enum_value(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY), gui_version_placement_vals);
 
 	prefs.gui_auto_scroll_on_expand =
-		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_AUTO_SCROLL_KEY));
+		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GUI_AUTO_SCROLL_KEY));
 
 	if (browser_needs_pref()) {
 		g_free(prefs.gui_webbrowser);
@@ -383,7 +383,7 @@ gui_prefs_fetch(GtkWidget *w)
 	}
 
 	prefs.gui_expert_composite_eyecandy =
-		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_EXPERT_EYECANDY_KEY));
+		gtk_toggle_button_get_active((GtkToggleButton *)g_object_get_data(G_OBJECT(w), GUI_EXPERT_EYECANDY_KEY));
 
 }
 
