@@ -2224,19 +2224,32 @@ proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, gu
 static int hf_mpeg_descr_extension_tag_extension = -1;
 static int hf_mpeg_descr_extension_data = -1;
 
+#define EXT_TAG_IMG_ICON      0x00
+#define EXT_TAG_CPCM_DLV      0x01
+#define EXT_TAG_CP            0x02
+#define EXT_TAG_CP_ID         0x03
+#define EXT_TAG_T2            0x04
+#define EXT_TAG_SH            0x05
+#define EXT_TAG_SUPP_AUDIO    0x06
+#define EXT_TAG_NW_CHANGE     0x07
+#define EXT_TAG_MSG           0x08
+#define EXT_TAG_TRGT_REG      0x09
+#define EXT_TAG_TRGT_REG_NAME 0x0A
+#define EXT_TAG_SVC_RELOC     0x0B
+
 static const value_string mpeg_descr_extension_tag_extension_vals[] = {
-	{ 0x00, "Image Icon Descriptor" },
-	{ 0x01, "CPCM Delivery Dignalling Descriptor" },
-	{ 0x02, "CP Descriptor" },
-	{ 0x03, "CP Identifier Descriptor" },
-	{ 0x04, "T2 Delivery System Descriptor" },
-	{ 0x05, "SH Delivery System Descriptor" },
-	{ 0x06, "Supplementary Audio Descriptor" },
-	{ 0x07, "Network Change Notify Descriptor" },
-	{ 0x08, "Message Descriptor" },
-	{ 0x09, "Target Region Descriptor" },
-	{ 0x0A, "Target Region Name Descriptor" },
-	{ 0x0B, "Service Relocated Descriptor" },
+	{ EXT_TAG_IMG_ICON,      "Image Icon Descriptor" },
+	{ EXT_TAG_CPCM_DLV,      "CPCM Delivery Dignalling Descriptor" },
+	{ EXT_TAG_CP,            "CP Descriptor" },
+	{ EXT_TAG_CP_ID,         "CP Identifier Descriptor" },
+	{ EXT_TAG_T2,            "T2 Delivery System Descriptor" },
+	{ EXT_TAG_SH,            "SH Delivery System Descriptor" },
+	{ EXT_TAG_SUPP_AUDIO,    "Supplementary Audio Descriptor" },
+	{ EXT_TAG_NW_CHANGE,     "Network Change Notify Descriptor" },
+	{ EXT_TAG_MSG,           "Message Descriptor" },
+	{ EXT_TAG_TRGT_REG,      "Target Region Descriptor" },
+	{ EXT_TAG_TRGT_REG_NAME, "Target Region Name Descriptor" },
+	{ EXT_TAG_SVC_RELOC,     "Service Relocated Descriptor" },
 
 	{ 0x0, NULL }
 };
