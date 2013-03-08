@@ -357,6 +357,18 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     last      = chunk->last;
     available = chunk->len;
 
+    if (available < (sizeof(wmem_block_chunk_t) + aligned_size) +
+                    (sizeof(wmem_block_chunk_t) + sizeof(wmem_block_free_t))) {
+        /* If the available space is not enought to store the first part
+         * (header + size) AND the second part (header + free_header) then
+         * simply remove the current chunk from the free list. Do it now before
+         * we start messing with header values and confuse things.
+         *
+         * If we do have room, we reuse the free_header from our current chunk
+         * later on, so we don't have to do a full remove/insert. */
+        wmem_block_remove_from_free_list(allocator, chunk);
+    }
+
     /* set new values for chunk */
     chunk->len  = (guint32) (aligned_size + sizeof(wmem_block_chunk_t));
     chunk->last = FALSE;
@@ -366,7 +378,7 @@ wmem_block_split_free_chunk(wmem_block_allocator_t *allocator,
     extra = WMEM_CHUNK_NEXT(chunk);
     available -= (aligned_size + sizeof(wmem_block_chunk_t));
 
-    if (available > sizeof(wmem_block_chunk_t) + sizeof(wmem_block_free_t)) {
+    if (available >= sizeof(wmem_block_chunk_t) + sizeof(wmem_block_free_t)) {
         /* If the new block has room for the free header (in which case the old
          * bigger one must have as well) then we move the free chunk's address
          * without changing its location in the free list so that for large
@@ -549,6 +561,10 @@ wmem_block_alloc(void *private_data, const size_t size)
 
     /* if our split reduced our size too much, something went wrong */
     g_assert(size <= WMEM_CHUNK_DATA_LEN(chunk));
+
+    /* the resulting chunk should not be in the free list */
+    g_assert(chunk != allocator->free_list_head);
+    g_assert(chunk != allocator->free_insert_point);
 
     /* mark it as used */
     chunk->used = TRUE;
