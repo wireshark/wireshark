@@ -74,6 +74,16 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+	  The Windows installer and uninstaller does a better job of detecting
+	  running executables.
+	</para></listitem>
+
+        <listitem><para>
+          Silent installer and uninstaller not silent.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8451">Bug
+          8451</ulink>)
+        </para></listitem>
 
       </itemizedlist>
 

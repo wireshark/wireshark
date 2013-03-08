@@ -100,3 +100,43 @@ UpdateIcons.quit_${UPDATEICONS_UNIQUE}:
 	Push ".acp"
 	Push ".5vw"
 !macroend
+
+!macro IsWiresharkRunning
+; See if Wireshark is running
+; http://nsis.sourceforge.net/Check_whether_your_application_is_running
+${Do}
+
+    System::Call 'kernel32::OpenMutex(i 0x100000, b 0, t "Global\${PROGRAM_NAME}-is-running-{9CA78EEA-EA4D-4490-9240-FC01FCEF464B}") i .R0'
+        IntCmp $R0 0 checkRunningSession
+        System::Call 'kernel32::CloseHandle(i $R0)'
+        Goto isRunning
+
+checkRunningSession:
+    System::Call 'kernel32::OpenMutex(i 0x100000, b 0, t "${PROGRAM_NAME}-is-running-{9CA78EEA-EA4D-4490-9240-FC01FCEF464B}") i .R0'
+        IntCmp $R0 0 notRunning
+        System::Call 'kernel32::CloseHandle(i $R0)'
+
+isRunning:
+    ; You'd better go catch it.
+    MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "${PROGRAM_NAME} or one is associated programs is running.$\r$\nPlease close it first." /SD IDCANCEL IDRETRY continueChecking
+    Quit
+
+notRunning:
+    ${ExitDo}
+
+continueChecking:
+${Loop}
+!macroend
+
+;
+; Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+;
+; Local variables:
+; c-basic-offset: 4
+; tab-width: 8
+; indent-tabs-mode: nil
+; End:
+;
+; vi: set shiftwidth=4 tabstop=8 expandtab:
+; :indentSize=4:tabSize=8:noTabs=true:
+;

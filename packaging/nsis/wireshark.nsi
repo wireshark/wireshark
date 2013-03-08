@@ -41,7 +41,7 @@ Icon "..\..\image\wiresharkinst.ico"
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of Wireshark.\r\n\r\nBefore starting the installation, make sure Wireshark is not running.\r\n\r\nClick 'Next' to continue."
-;!define MUI_FINISHPAGE_LINK "Install WinPcap to be able to capture packets from a network!"
+;!define MUI_FINISHPAGE_LINK "Install WinPcap to be able to capture packets from a network."
 ;!define MUI_FINISHPAGE_LINK_LOCATION "http://www.winpcap.org"
 
 ; NSIS shows Readme files by opening the Readme file with the default application for
@@ -202,10 +202,12 @@ Function .onInit
   !if ${WIRESHARK_TARGET_PLATFORM} == "win64"
     ; http://forums.winamp.com/printthread.php?s=16ffcdd04a8c8d52bee90c0cae273ac5&threadid=262873
     ${IfNot} ${RunningX64}
-      MessageBox MB_OK "This version of Wireshark only runs on x64 machines.\nTry installing the 32-bit version instead."
+      MessageBox MB_OK "This version of Wireshark only runs on x64 machines.\nTry installing the 32-bit version instead." /SD IDOK
       Abort
     ${EndIf}
   !endif
+
+!insertmacro IsWiresharkRunning
 
   ; Copied from http://nsis.sourceforge.net/Auto-uninstall_old_before_installing_new
   ReadRegStr $OLD_UNINSTALLER HKLM \
@@ -376,14 +378,15 @@ IntCmp $0 3010 redistReboot redistNoReboot
 redistReboot:
 SetRebootFlag true
 redistNoReboot:
+Delete "$INSTDIR\vcredist_${TARGET_MACHINE}.exe"
 !else
 !ifdef MSVCR_DLL
 ; msvcr*.dll (MSVC V7 or V7.1) - simply copy the dll file
-!echo "IF YOU GET AN ERROR HERE, check the MSVC_VARIANT setting in config.nmake: MSVC2005 vs. MSVC2005EE!"
+!echo "IF YOU GET AN ERROR HERE, check the MSVC_VARIANT setting in config.nmake: MSVC2005 vs. MSVC2005EE."
 File "${MSVCR_DLL}"
 !else
 !if ${MSVC_VARIANT} != "MSVC6"
-!error "C-Runtime redistributable for this package not available / not redistributable!"
+!error "C-Runtime redistributable for this package not available / not redistributable."
 !endif
 !endif	; MSVCR_DLL
 !endif	; VCREDIST_EXE
@@ -1074,3 +1077,16 @@ lbl_have_quicklaunchicon:
 lbl_wireshark_notinstalled:
 
 FunctionEnd
+
+;
+; Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+;
+; Local variables:
+; c-basic-offset: 4
+; tab-width: 8
+; indent-tabs-mode: nil
+; End:
+;
+; vi: set shiftwidth=4 tabstop=8 expandtab:
+; :indentSize=4:tabSize=8:noTabs=true:
+;

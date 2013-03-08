@@ -7,7 +7,7 @@
 ; RunningX64 checks if the installer is running on x64.
 ;
 ;   ${If} ${RunningX64}
-;     MessageBox MB_OK "running on x64"
+;     MessageBox MB_OK "running on x64" /SD IDOK
 ;   ${EndIf}
 ;
 ; DisableX64FSRedirection disables file system redirection.

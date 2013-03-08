@@ -83,6 +83,9 @@ FunctionEnd
 Section "-Required"
 SectionEnd
 
+!define EXECUTABLE_MARKER "EXECUTABLE_MARKER"
+Var EXECUTABLE
+
 Section "Uninstall" un.SecUinstall
 ;-------------------------------------------
 
@@ -92,23 +95,34 @@ Section "Uninstall" un.SecUinstall
 SectionIn 1 2
 SetShellVarContext all
 
-Delete "$INSTDIR\rawshark.exe"
-IfErrors 0 NoRawsharkErrorMsg
-	MessageBox MB_OK "Please note: rawshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if rawshark.exe removed
-	Abort "Please note: rawshark.exe could not be removed, it's probably in use! Abort uninstall process!"
-NoRawsharkErrorMsg:
+!insertmacro IsWiresharkRunning
 
-Delete "$INSTDIR\tshark.exe"
-IfErrors 0 NoTSharkErrorMsg
-	MessageBox MB_OK "Please note: tshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if tshark.exe removed
-	Abort "Please note: tshark.exe could not be removed, it's probably in use! Abort uninstall process!"
-NoTSharkErrorMsg:
+Push "${EXECUTABLE_MARKER}"
+Push "dumpcap"
+Push "${PROGRAM_NAME}"
+Push "tshark"
+Push "qtshark"
+Push "editcap"
+Push "text2pcap"
+Push "mergecap"
+Push "reordercap"
+Push "capinfos"
+Push "rawshark"
 
-Delete "$INSTDIR\wireshark.exe"
-IfErrors 0 NoWiresharkErrorMsg
-	MessageBox MB_OK "Please note: wireshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if wireshark.exe removed
-	Abort "Please note: wireshark.exe could not be removed, it's probably in use! Abort uninstall process!"
-NoWiresharkErrorMsg:
+Pop $EXECUTABLE
+${DoUntil} $EXECUTABLE == ${EXECUTABLE_MARKER}
+
+    ; IsWiresharkRunning should make sure everything is closed down so we *shouldn't* run
+    ; into any problems here.
+    Delete "$INSTDIR\$EXECUTABLE.exe"
+    IfErrors 0 deletionSuccess
+        MessageBox MB_OK "$EXECUTABLE.exe could not be removed. Is it in use?" /SD IDOK IDOK 0
+        Abort "$EXECUTABLE.exe could not be removed. Aborting the uninstall process."
+
+deletionSuccess:
+    Pop $EXECUTABLE
+
+${Loop}
 
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark"
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Wireshark"
@@ -251,7 +265,7 @@ Section /o "Un.WinPcap" un.SecWinPcap
 SectionIn 2
 ReadRegStr $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
 ;IfErrors un.lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not installed
-;MessageBox MB_OK "WinPcap $1"
+;MessageBox MB_OK "WinPcap $1" /SD IDOK
 ExecWait '$1' $0
 DetailPrint "WinPcap uninstaller returned $0"
 ;SetRebootFlag true
@@ -263,7 +277,7 @@ Section "-Un.Finally"
 SectionIn 1 2
 ; this test must be done after all other things uninstalled (e.g. Global Settings)
 IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
-    MessageBox MB_OK "Please note: The directory $INSTDIR could not be removed!" IDOK 0 ; skipped if dir doesn't exist
+    MessageBox MB_OK "Unable to remove $INSTDIR." /SD IDOK IDOK 0 ; skipped if dir doesn't exist
 NoFinalErrorMsg:
 SectionEnd
 
@@ -274,3 +288,16 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecWinPcap} "Call WinPcap's uninstall program."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
+
+;
+; Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+;
+; Local variables:
+; c-basic-offset: 4
+; tab-width: 8
+; indent-tabs-mode: nil
+; End:
+;
+; vi: set shiftwidth=4 tabstop=8 expandtab:
+; :indentSize=4:tabSize=8:noTabs=true:
+;

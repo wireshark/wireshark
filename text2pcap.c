@@ -1244,6 +1244,7 @@ parse_options (int argc, char *argv[])
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
+    create_app_running_mutex();
 #endif /* _WIN32 */
 
     /* Scan CLI parameters */

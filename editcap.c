@@ -47,6 +47,7 @@
 #endif
 
 #ifdef _WIN32
+#include <wsutil/file_util.h>
 #include <wsutil/unicode-utils.h>
 #include <process.h>    /* getpid */
 #ifdef HAVE_WINSOCK2_H
@@ -850,6 +851,7 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
+  create_app_running_mutex();
 #endif /* _WIN32 */
 
   /*

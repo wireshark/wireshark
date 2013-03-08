@@ -863,6 +863,7 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
+  create_app_running_mutex();
 #if !GLIB_CHECK_VERSION(2,31,0)
   g_thread_init(NULL);
 #endif
