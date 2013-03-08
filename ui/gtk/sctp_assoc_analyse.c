@@ -269,19 +269,21 @@ update_analyse_dlg(struct sctp_analyse *u_data)
 			GtkListStore *list_store;
 
 			store = (address *)(list->data);
-			if (store->type == AT_IPv4)
-			{
-				g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)(store->data)));
-			}
-			else if (store->type == AT_IPv6)
-			{
-				g_snprintf(field[0], 40, "%s", ip6_to_str((const struct e_in6_addr *)(store->data)));
-			}
-			list_store = GTK_LIST_STORE(
-				gtk_tree_view_get_model(GTK_TREE_VIEW(u_data->analyse_nb->page2->clist))); /* Get store */
+			if (store->type != AT_NONE) {
+				if (store->type == AT_IPv4)
+				{
+					g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)(store->data)));
+				}
+				else if (store->type == AT_IPv6)
+				{
+					g_snprintf(field[0], 40, "%s", ip6_to_str((const struct e_in6_addr *)(store->data)));
+				}
+				list_store = GTK_LIST_STORE(
+					gtk_tree_view_get_model(GTK_TREE_VIEW(u_data->analyse_nb->page2->clist))); /* Get store */
 
-			gtk_list_store_insert_with_values( list_store , NULL, G_MAXINT,
-							   0, field[0], -1);
+				gtk_list_store_insert_with_values( list_store , NULL, G_MAXINT,
+									 0, field[0], -1);
+			}
 			list = g_list_next(list);
 		}
 	}
@@ -349,19 +351,21 @@ update_analyse_dlg(struct sctp_analyse *u_data)
 			GtkListStore *list_store;
 
 			store = (address *)(list->data);
-			if (store->type == AT_IPv4)
-			{
-				g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)(store->data)));
-			}
-			else if (store->type == AT_IPv6)
-			{
-				g_snprintf(field[0], 40, "%s", ip6_to_str((const struct e_in6_addr *)(store->data)));
-			}
-			list_store = GTK_LIST_STORE(
-				gtk_tree_view_get_model(GTK_TREE_VIEW(u_data->analyse_nb->page3->clist))); /* Get store */
+			if (store->type != AT_NONE) {			
+				if (store->type == AT_IPv4)
+				{
+					g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)(store->data)));
+				}
+				else if (store->type == AT_IPv6)
+				{
+					g_snprintf(field[0], 40, "%s", ip6_to_str((const struct e_in6_addr *)(store->data)));
+				}
+				list_store = GTK_LIST_STORE(
+					gtk_tree_view_get_model(GTK_TREE_VIEW(u_data->analyse_nb->page3->clist))); /* Get store */
 
-			gtk_list_store_insert_with_values( list_store , NULL, G_MAXINT,
-							   0, field[0], -1);
+				gtk_list_store_insert_with_values( list_store , NULL, G_MAXINT,
+									 0, field[0], -1);
+			}
 			list = g_list_next(list);
 		}
 	}

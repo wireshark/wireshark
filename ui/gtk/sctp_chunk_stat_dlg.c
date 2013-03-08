@@ -494,6 +494,8 @@ add_to_clist(sctp_addr_chunk* sac)
         g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ip_to_str((const guint8 *)(sac->addr->data)));
     } else if (sac->addr->type == AT_IPv6) {
         g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ip6_to_str((const struct e_in6_addr *)(sac->addr->data)));
+    } else {
+        g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", "NONE");
     }
 
     gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
