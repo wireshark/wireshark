@@ -30,6 +30,10 @@
 #include "wmem_core.h"
 #include "wmem_allocator.h"
 
+#ifdef WMEM_DEBUG
+#include <stdio.h>
+#endif
+
 /* AUTHOR'S NOTE:
  *
  * This turned into one of the most interesting excercises in algorithms I've
@@ -167,6 +171,47 @@ typedef struct _wmem_block_allocator_t {
     wmem_block_chunk_t *free_insert_point;
 } wmem_block_allocator_t;
 
+/* DEBUG */
+#ifdef WMEM_DEBUG
+static void
+wmem_block_debug_free_list(wmem_block_allocator_t *allocator)
+{
+    gboolean            seen_insert_point = FALSE;
+    wmem_block_chunk_t *free_list;
+    wmem_block_free_t  *free_head;
+
+    printf("\nSTART DEBUG FREE LIST\n");
+
+    if (allocator->free_insert_point == NULL) {
+        seen_insert_point = TRUE;
+    }
+
+    free_list = allocator->free_list_head;
+
+    while (free_list) {
+        free_head = WMEM_GET_FREE(free_list);
+
+        if (free_list == allocator->free_insert_point) {
+            seen_insert_point = TRUE;
+        }
+
+        printf("Free chunk at %p (prev: %p; next:%p)\n",
+                free_list, free_head->prev, free_head->next);
+
+        g_assert(free_head->in_free_list);
+
+        free_list = free_head->next;
+    }
+
+    if (!seen_insert_point) {
+        printf("!!Didn't see insert point %p!!\n",
+                allocator->free_insert_point);
+    }
+
+    printf("END DEBUG FREE LIST\n");
+}
+#endif
+
 /* HELPERS */
 
 /* Removes a chunk from the free list. If the chunk is too small to
@@ -236,6 +281,10 @@ wmem_block_add_to_free_list_after(wmem_block_allocator_t *allocator,
         freeChunk->next = allocator->free_list_head;
         freeChunk->prev = NULL;
         allocator->free_list_head = chunk;
+
+        if (freeChunk->next) {
+            WMEM_GET_FREE(freeChunk->next)->prev = chunk;
+        }
     }
     else {
         /* insert after insertPoint */
@@ -243,7 +292,9 @@ wmem_block_add_to_free_list_after(wmem_block_allocator_t *allocator,
         freeChunk->prev = insertPoint;
 
         WMEM_GET_FREE(insertPoint)->next     = chunk;
-        WMEM_GET_FREE(freeChunk->next)->prev = chunk;
+        if (freeChunk->next) {
+            WMEM_GET_FREE(freeChunk->next)->prev = chunk;
+        }
     }
 
     freeChunk->in_free_list = TRUE;
@@ -670,6 +721,10 @@ wmem_block_gc(void *private_data)
      * completely destroying unused blocks. The newly built list is the new
      * block list. */
     tmp = allocator->block_list;
+
+#ifdef WMEM_DEBUG
+    wmem_block_debug_free_list(allocator);
+#endif
 
     while (tmp) {
         chunk = (wmem_block_chunk_t *) tmp->data;
