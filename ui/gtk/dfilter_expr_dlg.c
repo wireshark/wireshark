@@ -96,24 +96,24 @@ static void display_value_fields(header_field_info *hfinfo,
 static void
 field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
 {
-    GtkWidget *window = gtk_widget_get_toplevel(tree);
-    GtkWidget *relation_list = g_object_get_data(G_OBJECT(window),
+    GtkWidget *window                  = (GtkWidget *)gtk_widget_get_toplevel(tree);
+    GtkWidget *relation_list           = (GtkWidget *)g_object_get_data(G_OBJECT(window),
                                                E_DFILTER_EXPR_RELATION_LIST_KEY);
-    GtkWidget *range_label = g_object_get_data(G_OBJECT(window),
+    GtkWidget *range_label             = (GtkWidget *)g_object_get_data(G_OBJECT(window),
                                              E_DFILTER_EXPR_RANGE_LABEL_KEY);
-    GtkWidget *range_entry = g_object_get_data(G_OBJECT(window),
+    GtkWidget *range_entry             = (GtkWidget *)g_object_get_data(G_OBJECT(window),
                                              E_DFILTER_EXPR_RANGE_ENTRY_KEY);
-    GtkWidget *value_label = g_object_get_data(G_OBJECT(window),
+    GtkWidget *value_label             = (GtkWidget *)g_object_get_data(G_OBJECT(window),
                                              E_DFILTER_EXPR_VALUE_LABEL_KEY);
-    GtkWidget *value_entry = g_object_get_data(G_OBJECT(window),
+    GtkWidget *value_entry             = (GtkWidget *)g_object_get_data(G_OBJECT(window),
                                              E_DFILTER_EXPR_VALUE_ENTRY_KEY);
-    GtkWidget *value_list_label = g_object_get_data(G_OBJECT(window),
+    GtkWidget *value_list_label        = (GtkWidget *)g_object_get_data(G_OBJECT(window),
                                              E_DFILTER_EXPR_VALUE_LIST_LABEL_KEY);
-    GtkWidget *value_list = g_object_get_data(G_OBJECT(window),
+    GtkWidget *value_list              = (GtkWidget *)g_object_get_data(G_OBJECT(window),
                                              E_DFILTER_EXPR_VALUE_LIST_KEY);
-    GtkWidget *value_list_scrolled_win = g_object_get_data(G_OBJECT(window),
+    GtkWidget *value_list_scrolled_win = (GtkWidget *)g_object_get_data(G_OBJECT(window),
                                              E_DFILTER_EXPR_VALUE_LIST_SW_KEY);
-    GtkWidget *ok_bt = g_object_get_data(G_OBJECT(window),
+    GtkWidget *ok_bt                   = (GtkWidget *)g_object_get_data(G_OBJECT(window),
                                              E_DFILTER_EXPR_OK_BT_KEY);
     header_field_info *hfinfo, *cur_hfinfo;
     const char *value_type;
@@ -128,7 +128,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
     /*
      * What was the item that was last selected?
      */
-    cur_hfinfo = g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_CURRENT_VAR_KEY);
+    cur_hfinfo = (header_field_info *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_CURRENT_VAR_KEY);
     if (cur_hfinfo == hfinfo) {
         /*
          * It's still selected; no need to change anything.
@@ -171,7 +171,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
          * and "false"; show them in the value list.
          */
         build_boolean_values(value_list_scrolled_win, value_list,
-                             hfinfo->strings);
+                             (const true_false_string *)hfinfo->strings);
         break;
 
     case FT_UINT8:
@@ -190,9 +190,9 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
         if ((hfinfo->strings != NULL) &&
             ! (hfinfo->display & BASE_RANGE_STRING) &&
             ! ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM)) {
-            const value_string *vals = hfinfo->strings;
+            const value_string *vals = (const value_string *)hfinfo->strings;
             if (hfinfo->display & BASE_EXT_STRING)
-                vals = VALUE_STRING_EXT_VS_P((value_string_ext *)vals);
+                vals = VALUE_STRING_EXT_VS_P((const value_string_ext *)vals);
             build_enum_values(value_list_scrolled_win, value_list, vals);
         } else
             gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(value_list))));
@@ -286,21 +286,21 @@ relation_list_sel_cb(GtkTreeSelection *sel, gpointer user_data _U_)
 {
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(gtk_tree_selection_get_tree_view(sel)));
     GtkWidget *range_label =
-        g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_RANGE_LABEL_KEY);
+        (GtkWidget *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_RANGE_LABEL_KEY);
     GtkWidget *range_entry =
-        g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_RANGE_ENTRY_KEY);
+        (GtkWidget *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_RANGE_ENTRY_KEY);
     GtkWidget *value_label =
-        g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_LABEL_KEY);
+        (GtkWidget *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_LABEL_KEY);
     GtkWidget *value_entry =
-        g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_ENTRY_KEY);
+        (GtkWidget *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_ENTRY_KEY);
     GtkWidget *value_list_label =
-        g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_LIST_LABEL_KEY);
+        (GtkWidget *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_LIST_LABEL_KEY);
     GtkWidget *value_list =
-        g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_LIST_KEY);
+        (GtkWidget *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_LIST_KEY);
     GtkWidget *value_list_scrolled_win =
-        g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_LIST_SW_KEY);
+        (GtkWidget *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_LIST_SW_KEY);
     header_field_info *hfinfo =
-        g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_CURRENT_VAR_KEY);
+        (header_field_info *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_CURRENT_VAR_KEY);
     gchar *item_str;
     GtkTreeModel *model;
     GtkTreeIter   iter;
@@ -392,7 +392,7 @@ build_enum_values(GtkWidget *value_list_scrolled_win _U_, GtkWidget *value_list,
      * Build the list.
      */
     while (values->strptr != NULL) {
-        add_value_list_item(value_list, values->strptr, (gpointer) values);
+        add_value_list_item(value_list, values->strptr, (const gpointer) values);
         values++;
     }
 
@@ -508,11 +508,11 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 static void
 value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
 {
-    GtkWidget *value_entry = value_entry_arg;
+    GtkWidget *value_entry = (GtkWidget *)value_entry_arg;
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(gtk_tree_selection_get_tree_view(sel)));
     GtkTreeModel *model;
     GtkTreeIter   iter;
-    header_field_info *hfinfo = g_object_get_data(G_OBJECT(window),
+    header_field_info *hfinfo = (header_field_info *)g_object_get_data(G_OBJECT(window),
                                                 E_DFILTER_EXPR_CURRENT_VAR_KEY);
     const value_string *value = NULL;
     gchar *value_display_string = NULL;
@@ -602,14 +602,14 @@ dfilter_report_bad_value(const char *format, ...)
 static void
 dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 {
-    GtkWidget *filter_te = filter_te_arg;
+    GtkWidget *filter_te = (GtkWidget *)filter_te_arg;
     GtkWidget *window = gtk_widget_get_toplevel(w);
     GtkWidget *relation_list =
-        g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_RELATION_LIST_KEY);
+        (GtkWidget *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_RELATION_LIST_KEY);
     GtkWidget *range_entry =
-        g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_RANGE_ENTRY_KEY);
+        (GtkWidget *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_RANGE_ENTRY_KEY);
     GtkWidget *value_entry =
-        g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_ENTRY_KEY);
+        (GtkWidget *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_VALUE_ENTRY_KEY);
     header_field_info *hfinfo;
     gchar        *item_str;
     gchar        *range_str, *stripped_range_str;
@@ -626,7 +626,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     /*
      * Get the variable to be tested.
      */
-    hfinfo = g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_CURRENT_VAR_KEY);
+    hfinfo = (header_field_info *)g_object_get_data(G_OBJECT(window), E_DFILTER_EXPR_CURRENT_VAR_KEY);
 
     /*
      * Get the relation operator to use.
@@ -1114,11 +1114,11 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_box_pack_start(GTK_BOX(main_vb), list_bb, FALSE, FALSE, 0);
     gtk_container_set_border_width  (GTK_CONTAINER (list_bb), 0);
 
-    ok_bt = g_object_get_data(G_OBJECT(list_bb), GTK_STOCK_OK);
+    ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(list_bb), GTK_STOCK_OK);
     gtk_widget_set_sensitive(ok_bt, FALSE);
     g_signal_connect(ok_bt, "clicked", G_CALLBACK(dfilter_expr_dlg_accept_cb), filter_te);
 
-    cancel_bt = g_object_get_data(G_OBJECT(list_bb), GTK_STOCK_CANCEL);
+    cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(list_bb), GTK_STOCK_CANCEL);
     window_set_cancel_button(window, cancel_bt, NULL);
     g_signal_connect(cancel_bt, "clicked", G_CALLBACK(dfilter_expr_dlg_cancel_cb), window);
 
