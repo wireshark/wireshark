@@ -12567,11 +12567,13 @@ dissect_lte_rrc_T_shortDRX_Cycle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_lte_rrc_T_drxShortCycleTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 timer;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 16U, NULL, FALSE);
+                                                            1U, 16U, &timer, FALSE);
 
-  proto_item_append_text(actx->created_item, " (multiples of shortDRX-Cycle)");
 
+
+  proto_item_append_text(actx->created_item, " shortDRX-Cycle%s", plurality(timer, "", "s"));
 
   return offset;
 }
@@ -12735,11 +12737,13 @@ dissect_lte_rrc_T_phr_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_lte_rrc_T_sr_ProhibitTimer_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 timer;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 7U, NULL, FALSE);
+                                                            0U, 7U, &timer, FALSE);
 
-  proto_item_append_text(actx->created_item, " (number of SR periods)");
 
+
+  proto_item_append_text(actx->created_item, " SR period%s", (timer > 1) ? "s" : "");
 
   return offset;
 }

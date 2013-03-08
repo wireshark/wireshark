@@ -775,13 +775,19 @@ CQI-ReportConfig-r10/nomPDSCH-RS-EPRE-Offset STRINGS=VALS(lte_rrc_nomPDSCH_RS_EP
 #.TYPE_ATTR
 CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPDSCH_RS_EPRE_Offset_vals)
 
-#.FN_BODY MAC-MainConfig/eag_1/sr-ProhibitTimer-r9
+#.FN_BODY MAC-MainConfig/eag_1/sr-ProhibitTimer-r9 VAL_PTR=&timer
+  guint32 timer;
 %(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, " (number of SR periods)");
 
-#.FN_BODY DRX-Config/setup/shortDRX/drxShortCycleTimer
+#.FN_FTR MAC-MainConfig/eag_1/sr-ProhibitTimer-r9
+  proto_item_append_text(actx->created_item, " SR period%s", (timer > 1) ? "s" : "");
+
+#.FN_BODY DRX-Config/setup/shortDRX/drxShortCycleTimer VAL_PTR=&timer
+  guint32 timer;
 %(DEFAULT_BODY)s
-  proto_item_append_text(actx->created_item, " (multiples of shortDRX-Cycle)");
+
+#.FN_FTR DRX-Config/setup/shortDRX/drxShortCycleTimer
+  proto_item_append_text(actx->created_item, " shortDRX-Cycle%s", plurality(timer, "", "s"));
 
 #.FN_BODY PDSCH-ConfigCommon/referenceSignalPower
 %(DEFAULT_BODY)s
