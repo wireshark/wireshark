@@ -354,7 +354,7 @@ ZLIB_DIR=$(WIRESHARK_LIB_DIR)\zlib125
 # If you don't have c-ares, comment this line out, so that C_ARES_DIR
 # isn't defined.
 #
-C_ARES_PKG=1.7.1
+C_ARES_PKG=1.9.1-1
 
 #
 # Optional: the GnuTLS library enables ssl decryption.
@@ -574,7 +574,7 @@ ZLIB_DIR=$(WIRESHARK_LIB_DIR)\zlib125
 # If you don't have c-ares, comment this line out, so that C_ARES_DIR
 # isn't defined.
 #
-C_ARES_PKG=1.7.1
+C_ARES_PKG=1.9.1-1
 
 #
 # Optional: the GnuTLS library enables ssl decryption.
