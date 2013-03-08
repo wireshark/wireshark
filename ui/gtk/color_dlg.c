@@ -141,8 +141,8 @@ color_display_with_filter(char *filter)
 static void
 count_this_select(gpointer filter_arg, gpointer counter_arg)
 {
-  color_filter_t *colorf = filter_arg;
-  int * cnt = counter_arg;
+  color_filter_t *colorf = (color_filter_t *)filter_arg;
+  int * cnt = (int *)counter_arg;
 
   if (colorf->selected)
     (*cnt)++;
@@ -359,18 +359,18 @@ colorize_dialog_new (char *filter)
   button_ok_hbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start (GTK_BOX (dlg_vbox), button_ok_hbox, FALSE, FALSE, 5);
 
-  color_ok = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_OK);
+  color_ok = (GtkWidget *)g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_OK);
   gtk_widget_set_tooltip_text(color_ok, "Apply the color filters to the display and close this dialog");
-  color_apply = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_APPLY);
+  color_apply = (GtkWidget *)g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_APPLY);
   gtk_widget_set_tooltip_text(color_apply, "Apply the color filters to the display and keep this dialog open");
 
-  color_save = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_SAVE);
+  color_save = (GtkWidget *)g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_SAVE);
   gtk_widget_set_tooltip_text(color_save, "Save the color filters permanently and keep this dialog open");
-  color_cancel = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_CANCEL);
+  color_cancel = (GtkWidget *)g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(color_win, color_cancel, color_cancel_cb);
   gtk_widget_set_tooltip_text(color_cancel, "Cancel changes done (since last \"Apply\") and close this dialog");
 
-  color_help = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_HELP);
+  color_help = (GtkWidget *)g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_HELP);
   gtk_widget_set_tooltip_text(color_help, "Get help about this dialog");
   g_signal_connect(color_help, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_COLORING_RULES_DIALOG);
 
@@ -554,7 +554,7 @@ static void remember_this_row (GtkTreeModel *model, GtkTreePath *path, GtkTreeIt
 {
   gint         *path_index;
   color_filter_t *colorf;
-  struct remember_data *data = arg;
+  struct remember_data *data = (struct remember_data *)arg;
 
   gtk_tree_model_get(model, iter, 5, &colorf, -1);
   colorf->selected = TRUE;
@@ -576,14 +576,14 @@ static void remember_this_row (GtkTreeModel *model, GtkTreePath *path, GtkTreeIt
 
   data->count++;
 
-  gtk_tree_view_scroll_to_cell(data->color_filters, path, NULL, FALSE, 0.0f, 0.0f);
+  gtk_tree_view_scroll_to_cell((GtkTreeView *)data->color_filters, path, NULL, FALSE, 0.0f, 0.0f);
 }
 
 /* clear the selection flag of this filter */
 static void
 clear_select_flag(gpointer filter_arg, gpointer arg _U_)
 {
-  color_filter_t *colorf = filter_arg;
+  color_filter_t *colorf = (color_filter_t *)filter_arg;
 
   colorf->selected = FALSE;
 }
@@ -667,7 +667,7 @@ destroy_edit_dialog_cb(gpointer filter_arg, gpointer dummy _U_)
 {
   color_filter_t *colorf = (color_filter_t *)filter_arg;
 
-  color_edit_dlg_destroy(colorf->color_edit_dlg_info);
+  color_edit_dlg_destroy((color_edit_dlg_info_t *)colorf->color_edit_dlg_info);
 }
 
 /* Called when the dialog box is being destroyed; destroy any edit
@@ -707,7 +707,7 @@ select_row(GtkWidget *color_filters, int row)
 static void
 add_filter_to_list(gpointer filter_arg, gpointer list_arg, gboolean prepend)
 {
-  color_filter_t *colorf = filter_arg;
+  color_filter_t *colorf = (color_filter_t *)filter_arg;
     gchar           fg_str[14], bg_str[14];
     GtkListStore   *store;
     GtkTreeIter     iter;
@@ -748,7 +748,7 @@ add_filter_to_list(gpointer filter_arg, gpointer list_arg, gboolean prepend)
 void
 color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
 {
-  GtkWidget        *color_filters = user_data;
+  GtkWidget        *color_filters = (GtkWidget*)user_data;
 
   add_filter_to_list(colorf, color_filters, FALSE);
 
@@ -895,7 +895,7 @@ color_delete_single(gint row, GtkWidget *color_filters)
   color_dlg_num_of_filters--;
 
   /* Destroy any "Edit color filter" dialog boxes editing it. */
-  color_edit_dlg_destroy(colorf->color_edit_dlg_info);
+  color_edit_dlg_destroy((color_edit_dlg_info_t *)colorf->color_edit_dlg_info);
 
   /* Delete the color filter from the list of color filters. */
   color_filter_edit_list = g_slist_remove(color_filter_edit_list, colorf);
@@ -981,7 +981,7 @@ static void color_clear_answered_cb(gpointer dialog _U_, gint btn, gpointer data
 {
   switch(btn) {
   case(ESD_BTN_CLEAR):
-    color_clear_cmd(data);
+    color_clear_cmd((GtkWidget*)data);
     break;
   case(ESD_BTN_CANCEL):
     break;

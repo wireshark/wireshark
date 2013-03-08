@@ -198,7 +198,7 @@ color_edit_dlg_new(GtkWidget *color_filters,
   gtk_tree_model_get(model, &iter, 5, &colorf, -1);
 
   if (colorf->color_edit_dlg_info != NULL) {
-    cedi = colorf->color_edit_dlg_info;
+    cedi = (color_edit_dlg_info_t *)colorf->color_edit_dlg_info;
     g_assert(cedi->color_edit_dlg != NULL);
     /* There's already an edit box open for this filter; reactivate it. */
     reactivate_window(cedi->color_edit_dlg);
@@ -326,13 +326,13 @@ color_edit_dlg_new(GtkWidget *color_filters,
   gtk_container_set_border_width  (GTK_CONTAINER (bbox), 0);
 
   /** Cancel **/
-  edit_color_filter_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  edit_color_filter_cancel = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   gtk_widget_set_tooltip_text(edit_color_filter_cancel, "Reject filter color change");
   /* escape will select cancel */
   window_set_cancel_button(color_edit_dlg, edit_color_filter_cancel, window_cancel_button_cb);
 
   /** Ok **/
-  edit_color_filter_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  edit_color_filter_ok = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   gtk_widget_set_tooltip_text(edit_color_filter_ok, "Accept filter color change");
   gtk_widget_grab_default(edit_color_filter_ok);
 
