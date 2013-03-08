@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V10.4.0 (2011-09)
+-- 3GPP TS 29.002 V11.5.0 (2012-12)
 -- 17.7.8	Common data types
 
 MAP-CommonDataTypes {
@@ -51,6 +51,7 @@ AccessNetworkSignalInfo,
 	E-UTRAN-CGI,
 	TA-Id,
 	RAIdentity,
+	NetworkNodeDiameterAddress,
 
 	-- data types for CAMEL
 	CellGlobalIdOrServiceAreaIdOrLAI, 
@@ -547,6 +548,10 @@ RAIdentity ::= OCTET STRING (SIZE (6))
 -- Routing Area Identity is coded in accordance with 3GPP TS 29.060 [105].
 -- It shall contain the value part defined in 3GPP TS 29.060 only. I.e. the 3GPP TS 29.060
 -- type identifier octet shall not be included.
+
+NetworkNodeDiameterAddress::= SEQUENCE {
+	diameter-Name	[0] DiameterIdentity,
+	diameter-Realm	[1] DiameterIdentity }
 
 -- data types for CAMEL
 

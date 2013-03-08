@@ -1,6 +1,6 @@
 -- $Id$
 -- 17.7.2	Operation and maintenance data types
--- 3GPP TS 29.002 V10.4.0 (2011-09)
+-- 3GPP TS 29.002 V11.5.0 (2012-12)
  
 MAP-OM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
@@ -193,7 +193,23 @@ TraceDepthList ::= SEQUENCE {
 	mme-TraceDepth	[6] TraceDepth	OPTIONAL,
 	sgw-TraceDepth	[7] TraceDepth	OPTIONAL,
 	pgw-TraceDepth	[8] TraceDepth	OPTIONAL,
-	eNB-TraceDepth	[9] TraceDepth	OPTIONAL }
+	eNB-TraceDepth	[9] TraceDepth	OPTIONAL,
+	msc-s-TraceDepthExtension	[10] TraceDepthExtension	OPTIONAL,
+	mgw-TraceDepthExtension	[11] TraceDepthExtension	OPTIONAL,
+	sgsn-TraceDepthExtension	[12] TraceDepthExtension	OPTIONAL,
+	ggsn-TraceDepthExtension	[13] TraceDepthExtension	OPTIONAL,
+	rnc-TraceDepthExtension	[14] TraceDepthExtension	OPTIONAL,
+	bmsc-TraceDepthExtension	[15] TraceDepthExtension	OPTIONAL,
+	mme-TraceDepthExtension	[16] TraceDepthExtension	OPTIONAL,
+	sgw-TraceDepthExtension	[17] TraceDepthExtension	OPTIONAL,
+	pgw-TraceDepthExtension	[18] TraceDepthExtension	OPTIONAL,
+	eNB-TraceDepthExtension	[19] TraceDepthExtension	OPTIONAL }
+
+-- If one of the TraceDepthExtension types is sent, the corresponding TraceDepth type
+-- shall also be sent with the same enumeration value to allow the receiver not supporting
+-- the Extension to fall back to the non extended type.
+-- If one of the TraceDepthExtension types is received and supported, the corresponding
+-- TraceDepth type shall be ignored.
 
 TraceDepth ::= ENUMERATED {
 	minimum (0),
@@ -202,6 +218,15 @@ TraceDepth ::= ENUMERATED {
 	...}
 -- The value medium is applicable only for RNC. For other network elements, if value medium
 -- is received, value minimum shall be applied.
+
+TraceDepthExtension ::= ENUMERATED {
+	minimumWithoutVendorSpecificExtension (0),
+	mediumWithoutVendorSpecificExtension (1),
+	maximumWithoutVendorSpecificExtension (2),
+	...}
+-- The value mediumWithoutVendorSpecificExtension is applicable only for RNC. For other 
+-- network elements, if value mediumWithoutVendorSpecificExtension is received, value
+-- minimumWithoutVendorSpecificExtension shall be applied.
 
 TraceNE-TypeList ::= BIT STRING {
 	msc-s (0),
@@ -385,7 +410,16 @@ TracePropagationList ::= SEQUENCE {
 	mgw-TraceDepth	[9] TraceDepth	OPTIONAL,
 	mgw-InterfaceList	[10] MGW-InterfaceList	OPTIONAL,
 	mgw-EventList	[11] MGW-EventList	OPTIONAL,
-	...}
+	...,
+	rnc-TraceDepthExtension	[12] TraceDepthExtension	OPTIONAL,
+	msc-s-TraceDepthExtension	[13] TraceDepthExtension	OPTIONAL,
+	mgw-TraceDepthExtension	[14] TraceDepthExtension	OPTIONAL
+}
+-- If one of the TraceDepthExtension types is sent, the corresponding TraceDepth type
+-- shall also be sent with the same enumeration value to allow the receiver not supporting
+-- the Extension to fall back to the non extended type.
+-- If one of the TraceDepthExtension types is received and supported, the corresponding
+-- TraceDepth type shall be ignored.
 
 ActivateTraceModeRes ::= SEQUENCE {
 	extensionContainer	[0] ExtensionContainer	OPTIONAL,

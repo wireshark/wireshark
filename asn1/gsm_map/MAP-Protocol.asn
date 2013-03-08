@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V10.4.0 (2011-09)
+-- 3GPP TS 29.002 V11.5.0 (2012-12)
 --17.5	MAP operation and error codes
 MAP-Protocol {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
@@ -18,9 +18,11 @@ joint-iso-itu-t remote-operations(4) informationObjects(5) version1(0)}
 
 	updateLocation,
 	cancelLocation,
+	cancelVcsgLocation,
 	purgeMS,
 	sendIdentification,
 	updateGprsLocation,
+	updateVcsgLocation,
 	prepareHandover,
 	sendEndSignal,
 	processAccessSignalling,
@@ -123,15 +125,17 @@ FROM MAP-LocationServiceOperations {
 
 
 ;
-Supported-MAP-Operations OPERATION ::= {updateLocation | cancelLocation | purgeMS | 
-sendIdentification | updateGprsLocation | prepareHandover | sendEndSignal | 
+Supported-MAP-Operations OPERATION ::= {updateLocation | cancelLocation | cancelVcsgLocation | 
+purgeMS | 
+sendIdentification | updateGprsLocation | updateVcsgLocation | prepareHandover | sendEndSignal | 
 processAccessSignalling | forwardAccessSignalling | prepareSubsequentHandover | 
 sendAuthenticationInfo | authenticationFailureReport | checkIMEI | insertSubscriberData | 
 deleteSubscriberData | reset | forwardCheckSS-Indication | restoreData | provideSubscriberInfo | 
 anyTimeInterrogation | anyTimeSubscriptionInterrogation | anyTimeModification | 
 sendRoutingInfoForGprs | failureReport |noteMsPresentForGprs | noteMM-Event | 
 noteSubscriberDataModified | activateTraceMode | deactivateTraceMode | sendIMSI | 
-sendRoutingInfo | provideRoamingNumber | resumeCallHandling | setReportingState | statusReport | remoteUserFree | ist-Alert | 
+sendRoutingInfo | provideRoamingNumber | resumeCallHandling | setReportingState | statusReport | 
+remoteUserFree | ist-Alert | 
 ist-Command | registerSS | eraseSS | activateSS | deactivateSS | interrogateSS | 
 processUnstructuredSS-Request | unstructuredSS-Request | unstructuredSS-Notify | 
 registerPassword | getPassword | ss-InvocationNotification | registerCC-Entry | eraseCC-Entry | 

@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V10.4.0 (2011-09) 
+-- 3GPP TS 29.002 V11.5.0 (2012-12) 
 -- 17.6.1	Mobile Service Operations
 
 MAP-MobileServiceOperations {
@@ -23,6 +23,10 @@ EXPORTS
 
 	-- gprs location registration operations
 	updateGprsLocation,
+
+	-- vcsg location registration operations
+	updateVcsgLocation,
+	cancelVcsgLocation,
 
 	-- subscriber information enquiry operations
 	provideSubscriberInfo,
@@ -122,6 +126,10 @@ FROM MAP-Errors {
 	SendIdentificationRes, 
 	UpdateGprsLocationArg,
 	UpdateGprsLocationRes,
+	UpdateVcsgLocationArg,
+	UpdateVcsgLocationRes, 
+	CancelVcsgLocationArg,
+	CancelVcsgLocationRes,
 	PrepareHO-Arg,
 	PrepareHO-Res,
 ForwardAccessSignalling-Arg,
@@ -507,5 +515,29 @@ noteMM-Event  OPERATION ::= {				--Timer m
 		unknownSubscriber |
 		mm-EventNotSupported}
 	CODE	local:89 }
+
+-- vcsg location registration operations
+
+updateVcsgLocation  OPERATION ::= {				--Timer m
+	ARGUMENT
+		UpdateVcsgLocationArg
+	RESULT
+		UpdateVcsgLocationRes
+	ERRORS {
+		systemFailure |
+		unexpectedDataValue |
+		unknownSubscriber}
+	CODE	local:53 }
+
+cancelVcsgLocation  OPERATION ::= {				--Timer m
+	ARGUMENT
+		CancelVcsgLocationArg
+	RESULT
+		CancelVcsgLocationRes
+			-- optional
+	ERRORS {
+		dataMissing |
+		unexpectedDataValue}
+	CODE	local:36 }
 
 END

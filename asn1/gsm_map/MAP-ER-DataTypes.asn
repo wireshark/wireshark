@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V10.4.0 (2011-09) 
+-- 3GPP TS V11.5.0 (2012-12) 
 -- 17.7.7	Error data types
 
 MAP-ER-DataTypes {
@@ -62,7 +62,9 @@ SS-NotAvailableParam,
 SS-SubscriptionViolationParam,
 InformationNotAvailableParam,
 TargetCellOutsideGCA-Param,
-OngoingGroupCallParam
+OngoingGroupCallParam,
+PositionMethodFailure-Diagnostic,
+UnauthorizedLCSClient-Diagnostic
 
 ;
 
@@ -75,7 +77,8 @@ FROM MAP-SS-DataTypes {
 	SignalInfo,
 	BasicServiceCode,
 	NetworkResource,
-	AdditionalNetworkResource
+	AdditionalNetworkResource,
+	IMSI
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
@@ -124,7 +127,11 @@ ExtensibleCallBarredParam ::= SEQUENCE {
 	callBarringCause	CallBarringCause	OPTIONAL,
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	... ,
-	unauthorisedMessageOriginator	[1] NULL		OPTIONAL }
+	unauthorisedMessageOriginator	[1] NULL		OPTIONAL,
+	anonymousCallRejection	[2] NULL		OPTIONAL }
+
+-- unauthorisedMessageOriginator and anonymousCallRejection shall be mutually exclusive. 
+
 
 CUG-RejectParam ::= SEQUENCE {
 	cug-RejectCause	CUG-RejectCause	OPTIONAL,
@@ -169,10 +176,13 @@ AbsentSubscriberSM-Param ::= SEQUENCE {
 	-- or for GPRS
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...,
-	additionalAbsentSubscriberDiagnosticSM  	[0] 	AbsentSubscriberDiagnosticSM	OPTIONAL }
+	additionalAbsentSubscriberDiagnosticSM  	[0] 	AbsentSubscriberDiagnosticSM	OPTIONAL,
 	-- if received, additionalAbsentSubscriberDiagnosticSM 
 	-- is for GPRS and absentSubscriberDiagnosticSM is 
 	-- for non-GPRS
+	imsi			[1] IMSI		OPTIONAL}
+	-- when sent from HLR to IP-SM-GW, IMSI shall be present if UNRI is not set 
+	-- to indicate that the absent condition is met for CS and PS but not for IMS.
 
 AbsentSubscriberDiagnosticSM ::= INTEGER (0..255)
 	-- AbsentSubscriberDiagnosticSM values are defined in 3GPP TS 23.040
@@ -203,7 +213,10 @@ DataMissingParam ::= SEQUENCE {
 
 UnexpectedDataParam ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
-	...}
+	...,
+	unexpectedSubscriber [0]	NULL			OPTIONAL}
+-- the unexpectedSubscriber indication in the unexpectedDataValue error shall not be used
+-- for operations that allow the unidentifiedSubscriber error.
 
 FacilityNotSupParam ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
@@ -415,6 +428,5 @@ TargetCellOutsideGCA-Param ::= SEQUENCE {
 OngoingGroupCallParam ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...}
-
 
 END
