@@ -231,7 +231,7 @@ preview_do(GtkWidget *prev, wtap *wth)
   } else {
     g_snprintf(string_buff, PREVIEW_STR_MAX, "%u", packets);
   }
-  label = g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
   gtk_label_set_text(GTK_LABEL(label), string_buff);
 
   /* first packet */
@@ -249,7 +249,7 @@ preview_do(GtkWidget *prev, wtap *wth)
   } else {
     g_snprintf(string_buff, PREVIEW_STR_MAX, "?");
   }
-  label = g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
+  label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
   gtk_label_set_text(GTK_LABEL(label), string_buff);
 
   /* elapsed time */
@@ -1545,7 +1545,7 @@ set_file_type_list(GtkWidget *combo_box, capture_file *cf,
 static void
 file_select_file_type_cb(GtkWidget *w, gpointer parent_arg)
 {
-  GtkWidget *parent = parent_arg;
+  GtkWidget *parent = (GtkWidget *)parent_arg;
   int        new_file_type;
   gpointer   ptr;
   GtkWidget *compressed_cb;

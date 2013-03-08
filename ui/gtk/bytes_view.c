@@ -361,7 +361,7 @@ _pango_runs_build(BytesView *bv, const char *str, int len)
 
 	for (tmp_list = run_list; tmp_list; tmp_list = tmp_list->next) {
 		PangoLayoutRun *run = g_slice_new(PangoLayoutRun);
-		PangoItem *run_item = tmp_list->data;
+		PangoItem *run_item = (PangoItem *)tmp_list->data;
 
 		run->item = run_item;
 
@@ -400,7 +400,7 @@ static int
 xtext_draw_layout_line(cairo_t *cr, gint x, gint y, GSList *runs)
 {
 	while (runs) {
-		PangoLayoutRun *run = runs->data;
+		PangoLayoutRun *run = (PangoLayoutRun *)runs->data;
 
 		cairo_move_to(cr, x, y);
 		pango_cairo_show_glyph_string(cr, run->item->analysis.font, run->glyphs);
@@ -417,7 +417,7 @@ _pango_runs_width(GSList *runs)
 	int width = 0;
 
 	while (runs) {
-		PangoLayoutRun *run = runs->data;
+		PangoLayoutRun *run = (PangoLayoutRun *)runs->data;
 
 		width += _pango_glyph_string_to_pixels(run->glyphs, run->item->analysis.font);
 		runs = runs->next;
@@ -431,7 +431,7 @@ _pango_runs_free(GSList *runs)
 	GSList *list = runs;
 
 	while (list) {
-		PangoLayoutRun *run = list->data;
+		PangoLayoutRun *run = (PangoLayoutRun *)list->data;
 
 		pango_item_free(run->item);
 		pango_glyph_string_free(run->glyphs);
@@ -447,7 +447,7 @@ typedef int bytes_view_line_cb(BytesView *, void *data, int x, int arg1, const c
 static int
 bytes_view_flush_render(BytesView *bv, void *data, int x, int y, const char *str, int len)
 {
-	cairo_t *cr = data;
+	cairo_t *cr = (cairo_t *)data;
 	GSList *line_runs;
 	int str_width;
 
@@ -501,7 +501,7 @@ _pango_runs_find_index(GSList *runs, int x_pos, const char *str)
 	int start_pos = 0;
 
 	while (runs) {
-		PangoLayoutRun *run = runs->data;
+		PangoLayoutRun *run = (PangoLayoutRun *)runs->data;
 		int width;
 
 		width = _pango_glyph_string_to_pixels(run->glyphs, run->item->analysis.font);
@@ -528,7 +528,7 @@ _pango_runs_find_index(GSList *runs, int x_pos, const char *str)
 static int
 bytes_view_flush_pos(BytesView *bv, void *data, int x, int search_x, const char *str, int len)
 {
-	int *pos_x = data;
+	int *pos_x = (int *)data;
 	GSList *line_runs;
 	int line_width;
 
@@ -1371,7 +1371,7 @@ void
 bytes_view_set_data(BytesView *bv, const guint8 *data, int len)
 {
 	g_free(bv->pd);
-	bv->pd = g_memdup(data, len);
+	bv->pd = (guint8 *)g_memdup(data, len);
 	bv->len = len;
 
 	/*

@@ -282,9 +282,6 @@ capture_dlg_prep(gpointer parent_w);
 static GtkTreeModel*
 create_and_fill_model(GtkTreeView *view);
 
-void
-update_visible_columns_menu (void);
-
 static void
 update_options_table(gint indx);
 
@@ -667,11 +664,11 @@ void capture_filter_init(void) {
   cfc_data.state = CFC_PENDING;
 
 #if GLIB_CHECK_VERSION(2,31,0)
-  pcap_compile_mtx = g_malloc(sizeof(GMutex));
+  pcap_compile_mtx = g_new(GMutex,1);
   g_mutex_init(pcap_compile_mtx);
-  cfc_data_cond = g_malloc(sizeof(GCond));
+  cfc_data_cond = g_new(GCond,1);
   g_cond_init(cfc_data_cond);
-  cfc_data_mtx = g_malloc(sizeof(GMutex));
+  cfc_data_mtx = g_new(GMutex,1);
   g_mutex_init(cfc_data_mtx);
   g_thread_new("Capture filter syntax", check_capture_filter_syntax, NULL);
 #else
@@ -2003,7 +2000,7 @@ select_first_entry(void)
   GtkTreeIter       iter;
   GtkTreeSelection *selection;
 
-  view = g_object_get_data(G_OBJECT(compile_bpf_w), E_COMPILE_TREE_VIEW_INTERFACES);
+  view = (GtkWidget *)g_object_get_data(G_OBJECT(compile_bpf_w), E_COMPILE_TREE_VIEW_INTERFACES);
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
   gtk_tree_model_get_iter_first(model, &iter);
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
@@ -2017,7 +2014,7 @@ add_page(gchar *name, gchar *text, gboolean error)
   GtkTreeModel *model;
   GtkTreeIter   iter;
 
-  view = g_object_get_data(G_OBJECT(compile_bpf_w), E_COMPILE_TREE_VIEW_INTERFACES);
+  view = (GtkWidget *)g_object_get_data(G_OBJECT(compile_bpf_w), E_COMPILE_TREE_VIEW_INTERFACES);
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
   gtk_list_store_append (GTK_LIST_STORE(model), &iter);
   if (error) {
@@ -2044,7 +2041,7 @@ compile_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
   {
     gtk_tree_model_get(model, &iter, COMPILE_ERROR, &error, INAME, &name, -1);
     text = (gchar *)g_hash_table_lookup(compile_results, name);
-    textview = g_object_get_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB);
+    textview = (GtkWidget *)g_object_get_data(G_OBJECT(compile_bpf_w), CR_MAIN_NB);
     if (error == 1) {
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textview), TRUE);
     } else {
@@ -2152,7 +2149,7 @@ compile_results_prep(GtkWidget *w _U_, gpointer data _U_)
   bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
   gtk_box_pack_start(GTK_BOX(main_box), bbox, FALSE, FALSE, 0);
 
-  ok_btn = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  ok_btn = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   gtk_widget_grab_focus(ok_btn);
   gtk_widget_grab_default(ok_btn);
   window_set_cancel_button(compile_bpf_w, ok_btn, window_cancel_button_cb);
@@ -2276,7 +2273,7 @@ compile_results_win(gchar *text, gboolean error)
   bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
   gtk_box_pack_start(GTK_BOX(main_box), bbox, FALSE, FALSE, 0);
 
-  ok_btn = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  ok_btn = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   gtk_widget_grab_focus(ok_btn);
   gtk_widget_grab_default(ok_btn);
   window_set_cancel_button(results_w, ok_btn, window_cancel_button_cb);
@@ -2578,7 +2575,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 
   window = (GtkWidget *)userdata;
   caller = gtk_widget_get_toplevel(GTK_WIDGET(window));
-  opt_edit_w = g_object_get_data(G_OBJECT(caller), E_OPT_EDIT_DIALOG_PTR_KEY);
+  opt_edit_w = (GtkWidget *)g_object_get_data(G_OBJECT(caller), E_OPT_EDIT_DIALOG_PTR_KEY);
   if (opt_edit_w != NULL) {
     reactivate_window(opt_edit_w);
     return;
@@ -2966,7 +2963,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
-  ok_but = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  ok_but = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect(ok_but, "clicked", G_CALLBACK(save_options_cb), NULL);
   gtk_widget_set_tooltip_text(ok_but,
     "Accept interface settings.");
@@ -3440,7 +3437,7 @@ add_pipe_cb(gpointer w _U_)
 static void
 pipe_new_bt_clicked_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  GtkWidget    *name_te = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
+  GtkWidget    *name_te = (GtkWidget *)g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
   GtkTreeView  *pipe_l  = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_L_KEY));
   GtkListStore *store;
   GtkTreeIter   iter;
@@ -3464,8 +3461,8 @@ pipe_new_bt_clicked_cb(GtkWidget *w _U_, gpointer data _U_)
 static void
 pipe_del_bt_clicked_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  GtkWidget        *pipe_l  = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_L_KEY);
-  GtkWidget        *name_te = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
+  GtkWidget        *pipe_l  = (GtkWidget *)g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_L_KEY);
+  GtkWidget        *name_te = (GtkWidget *)g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
   GtkTreeSelection *sel;
   GtkTreeModel     *model, *optmodel;
   GtkTreeIter       iter, optiter;
@@ -3518,8 +3515,8 @@ pipe_del_bt_clicked_cb(GtkWidget *w _U_, gpointer data _U_)
 static void
 pipe_name_te_changed_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  GtkWidget        *name_te = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
-  GtkWidget        *pipe_l  = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_L_KEY);
+  GtkWidget        *name_te = (GtkWidget *)g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
+  GtkWidget        *pipe_l  = (GtkWidget *)g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_L_KEY);
   const gchar      *name;
   GtkTreeSelection *sel;
   GtkTreeModel     *model;
@@ -3560,8 +3557,8 @@ pipe_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
  /* GtkWidget    *pipe_l   = GTK_WIDGET(gtk_tree_selection_get_tree_view(sel));*/
   GtkTreeModel *model;
   GtkTreeIter   iter;
-  GtkWidget    *name_te = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
-  GtkWidget    *del_bt  = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_DEL_KEY);
+  GtkWidget    *name_te = (GtkWidget *)g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
+  GtkWidget    *del_bt  = (GtkWidget *)g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_DEL_KEY);
   gchar        *name    = NULL;
 
   if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
@@ -3674,7 +3671,7 @@ apply_local_cb(GtkWidget *win _U_, gpointer *data _U_)
     local_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(interface_management_w), E_CAP_LOCAL_L_KEY));
     model = gtk_tree_view_get_model(local_l);
 
-    new_hide = g_malloc0(MAX_VAL_LEN);
+    new_hide = (gchar*)g_malloc0(MAX_VAL_LEN);
 
     if (gtk_tree_model_get_iter_first (model, &iter)) {
       do {
@@ -4056,11 +4053,11 @@ show_add_interfaces_dialog(void)
   bbox = dlg_button_row_new(GTK_STOCK_SAVE, GTK_STOCK_CLOSE, NULL);
   gtk_box_pack_start(GTK_BOX(temp_page), bbox, TRUE, FALSE, 5);
 
-  add_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
+  add_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
   g_signal_connect(add_bt, "clicked", G_CALLBACK(add_pipe_cb), interface_management_w);
   gtk_widget_set_tooltip_text(GTK_WIDGET(add_bt), "Add pipe to the list of interfaces.");
 
-  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+  cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   g_signal_connect(GTK_WIDGET(cancel_bt), "clicked", G_CALLBACK(cancel_pipe_cb), interface_management_w);
   gtk_widget_set_tooltip_text(GTK_WIDGET(cancel_bt), "Cancel and exit dialog.");
 
@@ -4126,15 +4123,15 @@ show_add_interfaces_dialog(void)
   bbox = dlg_button_row_new(GTK_STOCK_REFRESH, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, NULL);
 
   gtk_box_pack_start(GTK_BOX(temp_page), bbox, TRUE, FALSE, 5);
-  refresh_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_REFRESH);
+  refresh_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_REFRESH);
   g_signal_connect(refresh_bt, "clicked", G_CALLBACK(rescan_local_cb), NULL);
   gtk_widget_set_tooltip_text(GTK_WIDGET(refresh_bt), "Rescan the local interfaces and refresh the list");
 
-  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+  cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   g_signal_connect(GTK_WIDGET(cancel_bt), "clicked", G_CALLBACK(cancel_pipe_cb), interface_management_w);
   gtk_widget_set_tooltip_text(GTK_WIDGET(cancel_bt), "Cancel and exit dialog.");
 
-  apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
+  apply_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
   g_signal_connect(GTK_WIDGET(apply_bt), "clicked", G_CALLBACK(apply_local_cb), NULL);
   gtk_widget_set_tooltip_text(GTK_WIDGET(apply_bt), "Apply the changes to the general list of local interfaces");
 
@@ -4361,7 +4358,7 @@ column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
   GtkWidget   *col  = (GtkWidget *) data;
   GtkTreeView *view;
-  GtkWidget   *menu = g_object_get_data(G_OBJECT(columns_menu_object), PM_COLUMNS_KEY);
+  GtkWidget   *menu = (GtkWidget *)g_object_get_data(G_OBJECT(columns_menu_object), PM_COLUMNS_KEY);
 
   view = (GtkTreeView *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   g_object_set_data(G_OBJECT(view), E_MCAPTURE_COLUMNS_COLUMN_KEY, col);
@@ -4452,7 +4449,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
       g_free(err_str);
 	}
   }else{
-    decryption_cb = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+    decryption_cb = (GtkWidget *)g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
 	/* XXXX update_decryption_mode_list() trigers a rescan, should only be done if the mode is changed */
     update_decryption_mode_list(decryption_cb);
     /* select the first as default (THIS SHOULD BE CHANGED) */
@@ -5628,7 +5625,7 @@ capture_prep_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
   /* Is there a file selection dialog associated with this
      Capture Options dialog? */
-  fs = g_object_get_data(G_OBJECT(cap_open_w), E_FILE_SEL_DIALOG_PTR_KEY);
+  fs = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_FILE_SEL_DIALOG_PTR_KEY);
 
 #ifdef HAVE_PCAP_REMOTE
   if_list = (GList *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY);
