@@ -115,7 +115,7 @@ ${DoUntil} $EXECUTABLE == ${EXECUTABLE_MARKER}
     ; into any problems here.
     Delete "$INSTDIR\$EXECUTABLE.exe"
     IfErrors 0 deletionSuccess
-        MessageBox MB_OK "$EXECUTABLE.exe could not be removed. Is it in use?" IDOK 0
+        MessageBox MB_OK "$EXECUTABLE.exe could not be removed. Is it in use?" /SD IDOK IDOK 0
         Abort "$EXECUTABLE.exe could not be removed. Aborting the uninstall process."
 
 deletionSuccess:
@@ -269,7 +269,7 @@ Section /o "Un.WinPcap" un.SecWinPcap
 SectionIn 2
 ReadRegStr $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
 ;IfErrors un.lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not installed
-;MessageBox MB_OK "WinPcap $1"
+;MessageBox MB_OK "WinPcap $1" /SD IDOK
 ExecWait '$1' $0
 DetailPrint "WinPcap uninstaller returned $0"
 ;SetRebootFlag true
@@ -281,7 +281,7 @@ Section "-Un.Finally"
 SectionIn 1 2
 ; this test must be done after all other things uninstalled (e.g. Global Settings)
 IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
-    MessageBox MB_OK "Please note: The directory $INSTDIR could not be removed!" IDOK 0 ; skipped if dir doesn't exist
+    MessageBox MB_OK "Unable to remove $INSTDIR." /SD IDOK IDOK 0 ; skipped if dir doesn't exist
 NoFinalErrorMsg:
 SectionEnd
 
