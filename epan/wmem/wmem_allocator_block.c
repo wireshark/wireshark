@@ -194,6 +194,7 @@ wmem_block_remove_from_free_list(wmem_block_allocator_t *allocator,
     }
 
     if (freeChunk->prev) {
+        g_assert(WMEM_GET_FREE(freeChunk->prev)->in_free_list);
         WMEM_GET_FREE(freeChunk->prev)->next = freeChunk->next;
     }
     else {
@@ -201,6 +202,7 @@ wmem_block_remove_from_free_list(wmem_block_allocator_t *allocator,
     }
 
     if (freeChunk->next) {
+        g_assert(WMEM_GET_FREE(freeChunk->next)->in_free_list);
         WMEM_GET_FREE(freeChunk->next)->prev = freeChunk->prev;
     }
 
