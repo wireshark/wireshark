@@ -176,9 +176,13 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 make DESTDIR=$RPM_BUILD_ROOT install_desktop_files
+%if 0%{?suse_version}
+%suse_update_desktop_file %{name}
+%else
 # Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
 # require this (at least if desktop-file-install was not used to install it).
 desktop-file-validate %{buildroot}/usr/share/applications/wireshark.desktop
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -194,24 +198,19 @@ getent group wireshark >/dev/null || groupadd -r wireshark
 
 %post gnome
 update-desktop-database &> /dev/null ||:
-update-mime-database %{_datadir}/mime &> /dev/null || :
-touch --no-create %{_datadir}/icons/gnome &>/dev/null || :
-touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
+update-mime-database /usr/share/mime &> /dev/null || :
+touch --no-create /usr/share/icons/hicolor &>/dev/null || :
 
 %postun gnome
 update-desktop-database &> /dev/null ||:
 update-mime-database /usr/share/mime &> /dev/null || :
 if [ $1 -eq 0 ] ; then
-	touch --no-create /usr/share/icons/gnome &>/dev/null
-	gtk-update-icon-cache /usr/share/icons/gnome &>/dev/null || :
-
-	touch --no-create /usr/share/icons/hicolor &>/dev/null
+	touch --no-create /usr/share/icons/hicolor &>/dev/null || :
 	gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 fi
 
 # Is this really needed?
 %posttrans
-gtk-update-icon-cache /usr/share/icons/gnome &>/dev/null || :
 gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 
 
@@ -263,12 +262,17 @@ gtk-update-icon-cache /usr/share/icons/hicolor &>/dev/null || :
 %defattr(-,root,root)
 /usr/share/applications/wireshark.desktop
 /usr/share/icons/hicolor/*/apps/*
-/usr/share/icons/gnome/*/mimetypes/*
+/usr/share/icons/hicolor/*/mimetypes/*
 /usr/share/mime/packages/wireshark.xml
 %{_bindir}/wireshark
 %{_mandir}/man1/wireshark.*
 
 %changelog
+* Fri Mar  8 2013 Jeff Morriss
+- Put all icons in hicolor
+- Use SuSE's desktop-update macro.
+- Actually update MIME database when Wireshark's prefix is not /usr .
+
 * Thu Mar  6 2013 Jeff Morriss
 - List more build dependencies.
 - Update to work on SuSE too: some of their package names are different.
