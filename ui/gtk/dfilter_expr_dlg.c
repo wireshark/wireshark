@@ -96,7 +96,7 @@ static void display_value_fields(header_field_info *hfinfo,
 static void
 field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
 {
-    GtkWidget *window                  = (GtkWidget *)gtk_widget_get_toplevel(tree);
+    GtkWidget *window                  = (GtkWidget *)gtk_widget_get_toplevel((GtkWidget *)tree);
     GtkWidget *relation_list           = (GtkWidget *)g_object_get_data(G_OBJECT(window),
                                                E_DFILTER_EXPR_RELATION_LIST_KEY);
     GtkWidget *range_label             = (GtkWidget *)g_object_get_data(G_OBJECT(window),

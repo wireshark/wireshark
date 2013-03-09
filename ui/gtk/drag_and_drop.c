@@ -231,7 +231,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
       return;
     }
 
-    in_filenames = g_malloc(sizeof(char*) * in_files);
+    in_filenames = (char **)g_malloc(sizeof(char*) * in_files);
 
     /* store the starts of the file entries in a gchar array */
     cf_name = cf_names_freeme;
@@ -324,7 +324,7 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
         /* the data string is not zero terminated -> make a zero terminated "copy" of it */
         sel_data_len = gtk_selection_data_get_length(selection_data);
         sel_data_data = gtk_selection_data_get_data(selection_data);
-        cf_names_freeme = g_malloc(sel_data_len + 1);
+        cf_names_freeme = (gchar *)g_malloc(sel_data_len + 1);
         memcpy(cf_names_freeme, sel_data_data, sel_data_len);
         cf_names_freeme[sel_data_len] = '\0';
 

@@ -125,8 +125,8 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type,
     gchar              *str;
     dissector_tables_tree_info_t *tree_info;
 
-    tree_info = user_data;
-    dtbl_entry = value;
+    tree_info = (dissector_tables_tree_info_t *)user_data;
+    dtbl_entry = (dtbl_entry_t*)value;
     handle = dtbl_entry_get_handle(dtbl_entry);
     proto_name = dissector_handle_get_short_name(handle);
 
@@ -177,8 +177,8 @@ table_name_add_to_list(dissector_tables_tree_info_t  *tree_info,
 static void
 display_heur_dissector_table_entries(gpointer data, gpointer user_data)
 {
-	heur_dtbl_entry_t *dtbl_entry = data;
-	dissector_tables_tree_info_t  *tree_info = user_data;
+	heur_dtbl_entry_t *dtbl_entry = (heur_dtbl_entry_t *)data;
+	dissector_tables_tree_info_t  *tree_info = (dissector_tables_tree_info_t*)user_data;
 	GtkTreeStore       *store;
 
 	if(dtbl_entry->protocol){
@@ -202,8 +202,8 @@ display_heur_dissector_table_names(const char *table_name, gpointer table, gpoin
 	heur_dissector_list_t *list;
 	 
 	tree_info = g_new(dissector_tables_tree_info_t, 1);
-	dis_tbl_trees = w;
-	list = table;
+	dis_tbl_trees = (dissector_tables_trees_t*)w;
+	list = (heur_dissector_list_t *)table;
 
 	table_name_add_to_list(tree_info, dis_tbl_trees->heuristic_tree_wgt, "", table_name);
 
@@ -221,7 +221,7 @@ display_dissector_table_names(const char *table_name, const char *ui_name, gpoin
     ftenum_t                       selector_type = get_dissector_table_selector_type(table_name);
 
     tree_info = g_new(dissector_tables_tree_info_t, 1);
-    dis_tbl_trees = w;
+    dis_tbl_trees = (dissector_tables_trees_t*)w;
 
     switch (selector_type) {
         case FT_UINT8:

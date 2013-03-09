@@ -68,12 +68,12 @@ dlg_button_focus_nth(GtkWidget *hbox, gint focus_item) {
     if (!hbox)
         return;
 
-    button_hbox = g_object_get_data(G_OBJECT(hbox), BUTTON_HBOX_KEY);
+    button_hbox = (GtkWidget *)g_object_get_data(G_OBJECT(hbox), BUTTON_HBOX_KEY);
     children = gtk_container_get_children(GTK_CONTAINER(button_hbox));
 
     while (children) {
         if (cur_item == focus_item) {
-            button = children->data;
+            button = (GtkWidget *)children->data;
             gtk_widget_grab_focus(button);
             gtk_widget_grab_default(button);
             break;
@@ -118,7 +118,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     const gchar *closex        = NULL;
     const gchar *copy          = NULL;
     const gchar *create_stat   = NULL;
-    const gchar *delete        = NULL;
+    const gchar *delete_id     = NULL;
     const gchar *dont_save     = NULL;
     const gchar *filter_stream = NULL;
     const gchar *find          = NULL;
@@ -207,7 +207,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         } else if (strcmp(stock_id, WIRESHARK_STOCK_FILTER_OUT_STREAM) == 0) {
             filter_stream = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_DELETE) == 0) {
-            delete = stock_id;
+            delete_id = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_COPY) == 0) {
             copy = stock_id;
         } else if (strcmp(stock_id, WIRESHARK_STOCK_GRAPH_A_B) == 0) {
@@ -415,7 +415,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
 
     /* beware: sequence of buttons is important! */
     if (ok            != NULL) dlg_button_new(hbox, button_hbox, ok);
-    if (delete        != NULL) dlg_button_new(hbox, button_hbox, delete);
+    if (delete_id     != NULL) dlg_button_new(hbox, button_hbox, delete_id);
     if (jump          != NULL) dlg_button_new(hbox, button_hbox, jump);
     if (find          != NULL) dlg_button_new(hbox, button_hbox, find);
     if (print         != NULL) dlg_button_new(hbox, button_hbox, print);

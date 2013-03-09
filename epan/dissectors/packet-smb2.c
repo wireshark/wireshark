@@ -704,7 +704,7 @@ feed_eo_smb2(tvbuff_t * tvb,packet_info *pinfo,smb2_info_t * si, guint16 dataoff
 	/* Create a new tvb to point to the payload data */
 	data_tvb = tvb_new_subset(tvb, dataoffset, length, length);
 	/* Create the eo_info to pass to the listener */
-	eo_info = ep_alloc(sizeof(smb_eo_t));
+	eo_info = ep_new(smb_eo_t);
 	/* Fill in eo_info */
 	eo_info->smbversion=2;
 	/* cmd == opcode */
@@ -1374,10 +1374,10 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			if (si->saved) { si->saved->policy_hnd = policy_hnd; }
 
 			if (si->conv) {
-				eo_file_info = g_hash_table_lookup(si->conv->files,&policy_hnd);
+				eo_file_info = (smb2_eo_file_info_t *)g_hash_table_lookup(si->conv->files,&policy_hnd);
 				if (!eo_file_info) {
-					eo_file_info = se_alloc(sizeof(smb2_eo_file_info_t));
-					policy_hnd_hashtablekey = se_alloc(sizeof(e_ctx_hnd));
+					eo_file_info = se_new(smb2_eo_file_info_t);
+					policy_hnd_hashtablekey = se_new(e_ctx_hnd);
 					memcpy(policy_hnd_hashtablekey, &policy_hnd, sizeof(e_ctx_hnd));
 					eo_file_info->end_of_file=0;
 					g_hash_table_insert(si->conv->files,policy_hnd_hashtablekey,eo_file_info);
@@ -1414,7 +1414,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		if (!si->eo_file_info) {
 			if (si->saved) { si->saved->policy_hnd = policy_hnd; }
 			if (si->conv) {
-				eo_file_info = g_hash_table_lookup(si->conv->files,&policy_hnd);
+				eo_file_info = (smb2_eo_file_info_t *)g_hash_table_lookup(si->conv->files,&policy_hnd);
 				if (eo_file_info) {
 					si->eo_file_info=eo_file_info;
 				} else { /* XXX This should never happen */
@@ -2461,7 +2461,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			if (ntlmssph && ntlmssph->type == NTLMSSP_AUTH) {
 				static const gint8 zeros[NTLMSSP_KEY_LEN];
 				smb2_sesid_info_t *sesid;
-				sesid = se_alloc(sizeof(smb2_sesid_info_t));
+				sesid = se_new(smb2_sesid_info_t);
 				sesid->sesid = si->sesid;
 				sesid->acct_name = se_strdup(ntlmssph->acct_name);
 				sesid->domain_name = se_strdup(ntlmssph->domain_name);
@@ -2607,11 +2607,11 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		smb2_tid_info_t *tid, tid_key;
 
 		tid_key.tid = si->tid;
-		tid = g_hash_table_lookup(si->session->tids, &tid_key);
+		tid = (smb2_tid_info_t *)g_hash_table_lookup(si->session->tids, &tid_key);
 		if (tid) {
 			g_hash_table_remove(si->session->tids, &tid_key);
 		}
-		tid = se_alloc(sizeof(smb2_tid_info_t));
+		tid = se_new(smb2_tid_info_t);
 		tid->tid = si->tid;
 		tid->name = (char *)si->saved->extra_info;
 		tid->connect_frame = pinfo->fd->num;
@@ -6545,7 +6545,7 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 
 	/* now we need to first lookup the uid session */
 	sesid_key.sesid = sti->sesid;
-	sti->session = g_hash_table_lookup(sti->conv->sesids, &sesid_key);
+	sti->session = (smb2_sesid_info_t *)g_hash_table_lookup(sti->conv->sesids, &sesid_key);
 
 	if (sti->session != NULL && sti->session->auth_frame != (guint32)-1) {
 		item = proto_tree_add_string(sesid_tree, hf_smb2_acct_name, tvb, sesid_offset, 0, sti->session->acct_name);
@@ -6588,7 +6588,7 @@ dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree,
 
 		memcpy(&A_1[1], sti->nonce, 15 - 4);
 
-		plain_data = tvb_memdup(tvb, offset, sti->size);
+		plain_data = (guint8 *)tvb_memdup(tvb, offset, sti->size);
 
 		/* Open the cipher. */
 		if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0)) {
@@ -6711,7 +6711,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 
 	/* now we need to first lookup the uid session */
 	sesid_key.sesid = si->sesid;
-	si->session = g_hash_table_lookup(si->conv->sesids, &sesid_key);
+	si->session = (smb2_sesid_info_t *)g_hash_table_lookup(si->conv->sesids, &sesid_key);
 	if (!si->session) {
 		if (si->opcode != 0x03) return offset;
 
@@ -6719,7 +6719,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 		 * a tree connect, we create a dummy sessison, so we can hang the
 		 * tree data on it
 		 */
-		si->session              = se_alloc(sizeof(smb2_sesid_info_t));
+		si->session              = se_new(smb2_sesid_info_t);
 		si->session->sesid       = si->sesid;
 		si->session->acct_name   = NULL;
 		si->session->domain_name = NULL;
@@ -6987,12 +6987,12 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 			}
 		} else {
 			/* see if we can find this seqnum in the matched table */
-			ssi = g_hash_table_lookup(si->conv->matched, &ssi_key);
+			ssi = (smb2_saved_info_t *)g_hash_table_lookup(si->conv->matched, &ssi_key);
 			/* if we couldnt find it in the matched table, it might still
 			* be in the unmatched table
 			*/
 			if (!ssi) {
-				ssi = g_hash_table_lookup(si->conv->unmatched, &ssi_key);
+				ssi = (smb2_saved_info_t *)g_hash_table_lookup(si->conv->unmatched, &ssi_key);
 			}
 		}
 
@@ -7001,11 +7001,11 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 				/* If needed, create the file entry and save the policy hnd */
 				if (!si->eo_file_info) {
 					if (si->conv) {
-						eo_file_info = g_hash_table_lookup(si->conv->files,&ssi->policy_hnd);
+						eo_file_info = (smb2_eo_file_info_t *)g_hash_table_lookup(si->conv->files,&ssi->policy_hnd);
 						if (!eo_file_info) { /* XXX This should never happen */
 							/* assert(1==0); */
-							eo_file_info = se_alloc(sizeof(smb2_eo_file_info_t));
-							policy_hnd_hashtablekey = se_alloc(sizeof(e_ctx_hnd));
+							eo_file_info = se_new(smb2_eo_file_info_t);
+							policy_hnd_hashtablekey = se_new(e_ctx_hnd);
 							memcpy(policy_hnd_hashtablekey, &ssi->policy_hnd, sizeof(e_ctx_hnd));
 							eo_file_info->end_of_file=0;
 							g_hash_table_insert(si->conv->files,policy_hnd_hashtablekey,eo_file_info);

@@ -62,7 +62,7 @@ decode_ber(GtkWidget *notebook_pg)
     GtkTreeIter        iter;
 
     syntax = NULL;
-    list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
+    list = (GtkWidget *)g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
 
     if (requested_action == E_DECODE_NO)
 	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));

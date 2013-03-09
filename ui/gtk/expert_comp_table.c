@@ -217,7 +217,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
                 return;
             }
         }
-        msg = g_malloc(escape_string_len(procedure->entries[1]));
+        msg = (char *)g_malloc(escape_string_len(procedure->entries[1]));
         escape_string(msg, procedure->entries[1]);
         switch(type){
         case ACTYPE_SELECTED:
@@ -345,7 +345,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 static gboolean
 error_show_popup_menu_cb(void *widg _U_, GdkEvent *event, gpointer user_data)
 {
-    error_equiv_table *err = user_data;
+    error_equiv_table *err = (error_equiv_table *)user_data;
     GdkEventButton *bevent = (GdkEventButton *)event;
 
     if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
