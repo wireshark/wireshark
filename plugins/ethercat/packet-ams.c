@@ -550,7 +550,7 @@ static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                     proto_tree_add_item(ams_adstree, hf_ams_adscbwritelength, tvb, offset, (int)sizeof(guint32), ENC_LITTLE_ENDIAN);
                     offset+=(int)sizeof(guint32);
 
-                    proto_tree_add_item(ams_adstree, hf_ams_adsdata, tvb, offset+16, ams_length-offset, ENC_NA);
+                    proto_tree_add_item(ams_adstree, hf_ams_adsdata, tvb, offset, ams_length-offset, ENC_NA);
                  }
               }
            }
