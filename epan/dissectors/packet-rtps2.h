@@ -57,34 +57,6 @@ extern "C" {
 #endif
 
 
-typedef enum {
-    RTI_CDR_TK_NULL=0,
-    RTI_CDR_TK_SHORT,
-    RTI_CDR_TK_LONG,
-    RTI_CDR_TK_USHORT,
-    RTI_CDR_TK_ULONG,
-    RTI_CDR_TK_FLOAT,
-    RTI_CDR_TK_DOUBLE,
-    RTI_CDR_TK_BOOLEAN,
-    RTI_CDR_TK_CHAR,
-    RTI_CDR_TK_OCTET,
-    RTI_CDR_TK_STRUCT,
-    RTI_CDR_TK_UNION,
-    RTI_CDR_TK_ENUM,
-    RTI_CDR_TK_STRING,
-    RTI_CDR_TK_SEQUENCE,
-    RTI_CDR_TK_ARRAY,
-    RTI_CDR_TK_ALIAS,
-    RTI_CDR_TK_LONGLONG,
-    RTI_CDR_TK_ULONGLONG,
-    RTI_CDR_TK_LONGDOUBLE,
-    RTI_CDR_TK_WCHAR,
-    RTI_CDR_TK_WSTRING,
-    RTI_CDR_TK_VALUE,
-    RTI_CDR_TK_VALUE_PARARM
-} RTICdrTCKind;
-
-
 
 /* Traffic type */
 #define PORT_BASE                       (7400)
@@ -95,8 +67,8 @@ typedef enum {
 
 /* Flags defined in the 'flag' bitmask of a submessage */
 #define FLAG_E                  (0x01)  /* Common to all the submessages */
-#define FLAG_DATA_Q             (0x02)
-#define FLAG_DATA_D             (0x04)
+#define FLAG_DATA_Q_RTPS2       (0x02)
+#define FLAG_DATA_D_RTPS2       (0x04)
 #define FLAG_DATA_H             (0x08)
 #define FLAG_DATA_I             (0x10)
 
@@ -137,56 +109,9 @@ typedef enum {
 
 
 /* The following PIDs are defined since RTPS 1.0 */
-#define PID_PAD                                 (0x0000)
-#define PID_SENTINEL                            (0x0001)
-#define PID_PARTICIPANT_LEASE_DURATION          (0x0002)
-#define PID_TIME_BASED_FILTER                   (0x0004)
-#define PID_TOPIC_NAME                          (0x0005)
-#define PID_OWNERSHIP_STRENGTH                  (0x0006)
-#define PID_TYPE_NAME                           (0x0007)
-#define PID_METATRAFFIC_MULTICAST_IPADDRESS     (0x000b)
-#define PID_DEFAULT_UNICAST_IPADDRESS           (0x000c)
-#define PID_METATRAFFIC_UNICAST_PORT            (0x000d)
-#define PID_DEFAULT_UNICAST_PORT                (0x000e)
-#define PID_MULTICAST_IPADDRESS                 (0x0011)
-#define PID_PROTOCOL_VERSION                    (0x0015)
-#define PID_VENDOR_ID                           (0x0016)
-#define PID_RELIABILITY                         (0x001a)
-#define PID_LIVELINESS                          (0x001b)
-#define PID_DURABILITY                          (0x001d)
-#define PID_DURABILITY_SERVICE                  (0x001e)
-#define PID_OWNERSHIP                           (0x001f)
-#define PID_PRESENTATION                        (0x0021)
-#define PID_DEADLINE                            (0x0023)
-#define PID_DESTINATION_ORDER                   (0x0025)
-#define PID_LATENCY_BUDGET                      (0x0027)
-#define PID_PARTITION                           (0x0029)
-#define PID_LIFESPAN                            (0x002b)
-#define PID_USER_DATA                           (0x002c)
-#define PID_GROUP_DATA                          (0x002d)
-#define PID_TOPIC_DATA                          (0x002e)
-#define PID_UNICAST_LOCATOR                     (0x002f)
-#define PID_MULTICAST_LOCATOR                   (0x0030)
-#define PID_DEFAULT_UNICAST_LOCATOR             (0x0031)
-#define PID_METATRAFFIC_UNICAST_LOCATOR         (0x0032)
-#define PID_METATRAFFIC_MULTICAST_LOCATOR       (0x0033)
-#define PID_PARTICIPANT_MANUAL_LIVELINESS_COUNT (0x0034)
-#define PID_CONTENT_FILTER_PROPERTY             (0x0035)
-#define PID_PROPERTY_LIST_OLD                   (0x0036)        /* For compatibility between 4.2d and 4.2e */
-#define PID_HISTORY                             (0x0040)
-#define PID_RESOURCE_LIMIT                      (0x0041)
-#define PID_EXPECTS_INLINE_QOS                  (0x0043)
-#define PID_PARTICIPANT_BUILTIN_ENDPOINTS       (0x0044)
-#define PID_METATRAFFIC_UNICAST_IPADDRESS       (0x0045)
-#define PID_METATRAFFIC_MULTICAST_PORT          (0x0046)
 #define PID_DEFAULT_MULTICAST_LOCATOR           (0x0048)
 #define PID_TRANSPORT_PRIORITY                  (0x0049)
-#define PID_PARTICIPANT_GUID                    (0x0050)
-#define PID_PARTICIPANT_ENTITY_ID               (0x0051)
-#define PID_GROUP_GUID                          (0x0052)
-#define PID_GROUP_ENTITY_ID                     (0x0053)
 #define PID_CONTENT_FILTER_INFO                 (0x0055)
-#define PID_COHERENT_SET                        (0x0056)
 #define PID_DIRECTED_WRITE                      (0x0057)
 #define PID_BUILTIN_ENDPOINT_SET                (0x0058)
 #define PID_PROPERTY_LIST                       (0x0059)        /* RTI DDS 4.2e and newer */
@@ -202,32 +127,9 @@ typedef enum {
 #define PID_PLUGIN_PROMISCUITY_KIND             (0x8001)
 #define PID_ENTITY_VIRTUAL_GUID                 (0x8002)
 #define PID_SERVICE_KIND                        (0x8003)
-#define PID_TYPECODE                            (0x8004)        /* Was: 0x47 in RTPS 1.2 */
+#define PID_TYPECODE_RTPS2                      (0x8004)        /* Was: 0x47 in RTPS 1.2 */
 #define PID_DISABLE_POSITIVE_ACKS               (0x8005)
 #define PID_LOCATOR_FILTER_LIST                 (0x8006)
-
-
-/* The following QoS are deprecated (used in RTPS 1.0 and older) */
-#define PID_PERSISTENCE                         (0x0003)
-#define PID_TYPE_CHECKSUM                       (0x0008)
-#define PID_TYPE2_NAME                          (0x0009)
-#define PID_TYPE2_CHECKSUM                      (0x000a)
-#define PID_IS_RELIABLE                         (0x000f)
-#define PID_EXPECTS_ACK                         (0x0010)
-#define PID_MANAGER_KEY                         (0x0012)
-#define PID_SEND_QUEUE_SIZE                     (0x0013)
-#define PID_RECV_QUEUE_SIZE                     (0x0018)
-#define PID_VARGAPPS_SEQUENCE_NUMBER_LAST       (0x0017)
-#define PID_RELIABILITY_ENABLED                 (0x0014)
-#define PID_RELIABILITY_OFFERED                 (0x0019)
-#define PID_LIVELINESS_OFFERED                  (0x001c)
-#define PID_OWNERSHIP_OFFERED                   (0x0020)
-#define PID_PRESENTATION_OFFERED                (0x0022)
-#define PID_DEADLINE_OFFERED                    (0x0024)
-#define PID_DESTINATION_ORDER_OFFERED           (0x0026)
-#define PID_LATENCY_BUDGET_OFFERED              (0x0028)
-#define PID_PARTITION_OFFERED                   (0x002a)
-
 
 
 /* appId.appKind possible values */
@@ -311,27 +213,6 @@ typedef enum {
 #define ENCAPSULATION_CDR_LE            (0x0001)
 #define ENCAPSULATION_PL_CDR_BE         (0x0002)
 #define ENCAPSULATION_PL_CDR_LE         (0x0003)
-
-
-/* An invalid IP Address: 
- * Make sure the _STRING macro is bigger than a normal IP
- */
-#define IPADDRESS_INVALID               (0)
-#define IPADDRESS_INVALID_STRING        "ADDRESS_INVALID (0x00000000)"
-
-/* Identifies the value of an invalid port number:
- * Make sure the _STRING macro is bigger than a normal port
- */
-#define PORT_INVALID                    (0)
-#define PORT_INVALID_STRING             "PORT_INVALID"
-
-/* Protocol Vendor Information (guint16) */
-#define RTPS_VENDOR_UNKNOWN             (0x0000)
-#define RTPS_VENDOR_UNKNOWN_STRING      "VENDOR_ID_UNKNOWN (0x0000)"
-#define RTPS_VENDOR_RTI                 (0x0101)
-#define RTPS_VENDOR_RTI_STRING          "Real-Time Innovations, Inc."
-#define RTPS_VENDOR_TOC                 (0x0106)
-#define RTPS_VENDOR_TOC_STRING          "Twin Oaks Computing, Inc."
 
 /* Parameter Liveliness */
 #define LIVELINESS_AUTOMATIC            (0)

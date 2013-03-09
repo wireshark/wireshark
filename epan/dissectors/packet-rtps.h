@@ -59,7 +59,7 @@ extern "C" {
 
 
 typedef enum {
-    RTI_CDR_TK_NULL,
+    RTI_CDR_TK_NULL = 0,
     RTI_CDR_TK_SHORT,
     RTI_CDR_TK_LONG,
     RTI_CDR_TK_USHORT,
@@ -81,7 +81,8 @@ typedef enum {
     RTI_CDR_TK_LONGDOUBLE,
     RTI_CDR_TK_WCHAR,
     RTI_CDR_TK_WSTRING,
-    RTI_CDR_TK_VALUE
+    RTI_CDR_TK_VALUE,
+    RTI_CDR_TK_VALUE_PARARM
 } RTICdrTCKind;
 
 
@@ -146,10 +147,10 @@ typedef enum {
 #define PID_METATRAFFIC_MULTICAST_LOCATOR       (0x33)
 #define PID_PARTICIPANT_MANUAL_LIVELINESS_COUNT (0x34)
 #define PID_CONTENT_FILTER_PROPERTY             (0x35)
-#define PID_PROPERTY_LIST                       (0x36)
+#define PID_PROPERTY_LIST_OLD                   (0x36) /* For compatibility between 4.2d and 4.2e */
 #define PID_HISTORY                             (0x40)
 #define PID_RESOURCE_LIMIT                      (0x41)
-#define PID_DEFAULT_EXPECTS_INLINE_QOS          (0x43)
+#define PID_EXPECTS_INLINE_QOS                  (0x43)
 #define PID_PARTICIPANT_BUILTIN_ENDPOINTS       (0x44)
 #define PID_METATRAFFIC_UNICAST_IPADDRESS       (0x45)
 #define PID_METATRAFFIC_MULTICAST_PORT          (0x46)
@@ -162,14 +163,6 @@ typedef enum {
 #define PID_COHERENT_SET                        (0x56)
 
 /* The following QoS are deprecated */
-#define PID_RELIABILITY_OFFERED                 (0x19)
-#define PID_LIVELINESS_OFFERED                  (0x1c)
-#define PID_OWNERSHIP_OFFERED                   (0x20)
-#define PID_PRESENTATION_OFFERED                (0x22)
-#define PID_DEADLINE_OFFERED                    (0x24)
-#define PID_DESTINATION_ORDER_OFFERED           (0x26)
-#define PID_LATENCY_BUDGET_OFFERED              (0x28)
-#define PID_PARTITION_OFFERED                   (0x2a)
 #define PID_PERSISTENCE                         (0x03)
 #define PID_TYPE_CHECKSUM                       (0x08)
 #define PID_TYPE2_NAME                          (0x09)
@@ -178,9 +171,17 @@ typedef enum {
 #define PID_EXPECTS_ACK                         (0x10)
 #define PID_MANAGER_KEY                         (0x12)
 #define PID_SEND_QUEUE_SIZE                     (0x13)
+#define PID_RELIABILITY_ENABLED                 (0x14)
 #define PID_RECV_QUEUE_SIZE                     (0x18)
 #define PID_VARGAPPS_SEQUENCE_NUMBER_LAST       (0x17)
-#define PID_RELIABILITY_ENABLED                 (0x14)
+#define PID_RELIABILITY_OFFERED                 (0x19)
+#define PID_LIVELINESS_OFFERED                  (0x1c)
+#define PID_OWNERSHIP_OFFERED                   (0x20)
+#define PID_PRESENTATION_OFFERED                (0x22)
+#define PID_DEADLINE_OFFERED                    (0x24)
+#define PID_DESTINATION_ORDER_OFFERED           (0x26)
+#define PID_LATENCY_BUDGET_OFFERED              (0x28)
+#define PID_PARTITION_OFFERED                   (0x2a)
 
 /* appId.appKind possible values */
 #define APPKIND_UNKNOWN                         (0x00)
@@ -246,7 +247,7 @@ typedef enum {
  * Make sure the _STRING macro is bigger than a normal IP
  */
 #define IPADDRESS_INVALID               (0)
-#define IPADDRESS_INVALID_STRING        "ADDRESS_INVALID (0x00000000)"
+#define IPADDRESS_INVALID_STRING        "ADDRESS_INVALID"
 
 /* Identifies the value of an invalid port number:
  * Make sure the _STRING macro is bigger than a normal port
@@ -259,6 +260,9 @@ typedef enum {
 #define RTPS_VENDOR_UNKNOWN_STRING      "VENDOR_ID_UNKNOWN (0x0000)"
 #define RTPS_VENDOR_RTI                 (0x0101)
 #define RTPS_VENDOR_RTI_STRING          "Real-Time Innovations, Inc."
+#define RTPS_VENDOR_TOC                 (0x0106)
+#define RTPS_VENDOR_TOC_STRING          "Twin Oaks Computing, Inc."
+
 
 /* Parameter Liveliness */
 #define LIVELINESS_AUTOMATIC            (0)
@@ -298,10 +302,51 @@ typedef enum {
 #define BY_RECEPTION_TIMESTAMP          (0)
 #define BY_SOURCE_TIMESTAMP             (1)
 
+/* Utilities to add elements to the protocol tree for packet-rtps.h and packet-rtps2.h */
+extern guint16 rtps_util_add_protocol_version(proto_tree *tree, tvbuff_t* tvb, gint offset);
+extern void rtps_util_add_vendor_id(proto_tree *tree, tvbuff_t * tvb, gint offset);
+extern void rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb, gint offset,
+                             gboolean little_endian, const guint8 * label);
+extern int rtps_util_add_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb,
+                                gint offset, const guint8* label, gboolean little_endian);
+extern void rtps_util_add_ipv4_address_t(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb, gint offset,
+                                         gboolean little_endian, int hf_item);
+extern void rtps_util_add_locator_udp_v4(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb,
+                                  gint offset, const guint8 * label, gboolean little_endian);
+extern int rtps_util_add_entity_id(proto_tree *tree, tvbuff_t * tvb, gint offset,
+                            int hf_item, int hf_item_entity_key, int hf_item_entity_kind,
+                            int subtree_entity_id, const char *label, guint32* entity_id_out);
+extern void rtps_util_add_generic_entity_id(proto_tree *, tvbuff_t *,
+                        gint, const char *,
+                        guint8 *, gint);
+extern guint64 rtps_util_add_seq_number(proto_tree *, tvbuff_t *,
+                        gint, int, const char *);
+extern void rtps_util_add_ntp_time(proto_tree *tree, tvbuff_t * tvb, gint offset,
+                                   gboolean little_endian, int hf_time);
+extern gint rtps_util_add_string(proto_tree *, tvbuff_t *,
+                        gint, int, int, const guint8 *, guint8 *, size_t);
+extern void rtps_util_add_port(proto_tree *tree, packet_info *pinfo, tvbuff_t * tvb,
+                        gint offset, gboolean little_endian, int hf_item);
+extern void rtps_util_add_durability_service_qos(proto_tree *tree, tvbuff_t * tvb,
+                                                 gint offset, gboolean little_endian);
+extern void rtps_util_add_liveliness_qos(proto_tree *tree, tvbuff_t * tvb, gint offset,
+                                         gboolean little_endian);
+extern gint rtps_util_add_seq_string(proto_tree *, tvbuff_t *,
+                        gint, int, int, const char *, guint8 *, gint);
+extern void rtps_util_add_seq_octets(proto_tree *tree, packet_info *pinfo, tvbuff_t* tvb,
+                              gint offset, gboolean little_endian, int param_length, int hf_id);
+extern gint rtps_util_add_seq_ulong(proto_tree *tree, tvbuff_t * tvb, gint offset, int hf_item,
+                        gboolean little_endian, int param_length, const char *label);
 
+extern gboolean rtps_is_ping(tvbuff_t *tvb, packet_info *pinfo, gint offset);
 
-
-
+/* Shared submessage dissection */
+extern void dissect_PAD(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags, 
+                        gboolean little_endian, int octects_to_next_header, proto_tree *tree);
+extern void dissect_INFO_SRC(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
+                        gboolean little_endian, int octets_to_next_header, proto_tree *tree);
+extern void dissect_INFO_TS(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
+                        gboolean little_endian, int octets_to_next_header, proto_tree *tree);
 
 
 #ifdef __cplusplus
