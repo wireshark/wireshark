@@ -357,9 +357,9 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             dlg_button_new(hbox, button_hbox, cap_stop);
             return hbox;
         }
-        if (delete && cancel) {
+        if (delete_id && cancel) {
             dlg_button_new(hbox, button_hbox, cancel);
-            dlg_button_new(hbox, button_hbox, delete);
+            dlg_button_new(hbox, button_hbox, delete_id);
             return hbox;
         }
     }
