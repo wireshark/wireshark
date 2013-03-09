@@ -1236,7 +1236,7 @@ gint rtps_util_add_seq_string(proto_tree *tree,  /* Can NOT be NULL */
  * Returns the new updated offset
  */
 gint rtps_util_add_seq_ulong(proto_tree *tree, tvbuff_t * tvb, gint offset, int hf_item,
-                        gboolean little_endian, int param_length, const char *label) {
+                        gboolean little_endian, int param_length _U_, const char *label) {
   guint32 num_elem;
   guint32 i;
   proto_tree *string_tree;
@@ -1250,7 +1250,7 @@ gint rtps_util_add_seq_ulong(proto_tree *tree, tvbuff_t * tvb, gint offset, int 
   string_tree = proto_item_add_subtree(ti, ett_rtps_seq_ulong);
 
   for (i = 0; i < num_elem; ++i) {
-    proto_tree_add_item(tree, hf_item, tvb, offset, 4, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+    proto_tree_add_item(string_tree, hf_item, tvb, offset, 4, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
     offset += 4;
   }
 
