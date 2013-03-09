@@ -263,35 +263,24 @@ static GList *protocols = NULL;
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
-static struct ws_memory_slab field_info_slab =
-	WS_MEMORY_SLAB_INIT(field_info, 128);
-
-#define FIELD_INFO_NEW(fi)					\
-	fi = (field_info *)sl_alloc(&field_info_slab)
-#define FIELD_INFO_FREE(fi)					\
-	sl_free(&field_info_slab, fi)
+#define FIELD_INFO_NEW(fi)  fi = g_slice_new(field_info)
+#define FIELD_INFO_FREE(fi) g_slice_free(field_info, fi)
 
 /* Contains the space for proto_nodes. */
-static struct ws_memory_slab proto_node_slab =
-	WS_MEMORY_SLAB_INIT(proto_node, 128);
-
 #define PROTO_NODE_NEW(node)				\
-	node = (proto_node *)sl_alloc(&proto_node_slab); \
+	node = g_slice_new(proto_node);			\
 	node->first_child = NULL;			\
 	node->last_child = NULL;			\
 	node->next = NULL;
 
 #define PROTO_NODE_FREE(node)				\
-	sl_free(&proto_node_slab, node)
+	g_slice_free(proto_node, node)
 
 /* String space for protocol and field items for the GUI */
-static struct ws_memory_slab item_label_slab =
-	WS_MEMORY_SLAB_INIT(item_label_t, 128);
-
 #define ITEM_LABEL_NEW(il)				\
-	il = (item_label_t *)sl_alloc(&item_label_slab);
+	il = g_slice_new(item_label_t);
 #define ITEM_LABEL_FREE(il)				\
-	sl_free(&item_label_slab, il);
+	g_slice_free(item_label_t, il);
 
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo)						\
 	if((guint)hfindex >= gpa_hfinfo.len && getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG"))	\

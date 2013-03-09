@@ -170,14 +170,6 @@ static emem_pool_t se_packet_mem;
  */
 static gboolean debug_use_memory_scrubber = FALSE;
 
-/*
- * Use g_slices in the slab allocator; enabling this (by putting
- * WIRESHARK_DEBUG_USE_SLICES in the environment) together with
- * exporting G_SLICE=always-malloc makes it easier to debug memory problems
- * in slab-allocated memory.
- */
-static gboolean debug_use_slices = FALSE;
-
 #if defined (_WIN32)
 static SYSTEM_INFO sysinfo;
 static OSVERSIONINFO versinfo;
@@ -355,9 +347,6 @@ emem_init(void)
 
 	if (getenv("WIRESHARK_DEBUG_SCRUB_MEMORY"))
 		debug_use_memory_scrubber  = TRUE;
-
-	if (getenv("WIRESHARK_DEBUG_USE_SLICES"))
-		debug_use_slices  = TRUE;
 
 #if defined (_WIN32)
 	/* Set up our guard page info for Win32 */
@@ -686,28 +675,6 @@ emem_create_chunk(size_t size)
 	return npc;
 }
 
-static void
-emem_destroy_chunk(emem_chunk_t *npc)
-{
-#if defined (_WIN32)
-	VirtualFree(npc->buf, 0, MEM_RELEASE);
-#elif defined(USE_GUARD_PAGES)
-
-	/* we cannot recover from a munmap() failure, but we	*/
-	/* can print an informative error message to stderr	*/
-
-	if (munmap(npc->buf, npc->amount_free_init) != 0)
-		fprintf(stderr, "Warning: Unable to unmap memory chunk which has address %p and size %u\n",
-			npc->buf, npc->amount_free_init);
-#else
-	g_free(npc->buf);
-#endif
-#ifdef SHOW_EMEM_STATS
-	total_no_chunks--;
-#endif
-	g_free(npc);
-}
-
 static emem_chunk_t *
 emem_create_chunk_gp(size_t size)
 {
@@ -903,54 +870,6 @@ se_alloc(size_t size)
 }
 
 void *
-sl_alloc(struct ws_memory_slab *mem_chunk)
-{
-	emem_chunk_t *chunk;
-	void *ptr;
-
-	if (debug_use_slices)
-		return g_slice_alloc0(mem_chunk->item_size);
-
-	if ((mem_chunk->freed != NULL)) {
-		ptr = mem_chunk->freed;
-		memcpy(&mem_chunk->freed, ptr, sizeof(void *));
-		return ptr;
-	}
-
-	if (!(chunk = mem_chunk->chunk_list) || chunk->amount_free < (guint) mem_chunk->item_size) {
-		size_t alloc_size = mem_chunk->item_size * mem_chunk->count;
-
-		/* align to page-size */
-#if defined (_WIN32) || defined(USE_GUARD_PAGES)
-		alloc_size = (alloc_size + (pagesize - 1)) & ~(pagesize - 1);
-#endif
-
-		chunk = emem_create_chunk(alloc_size);	/* NOTE: using version without guard pages! */
-		chunk->next = mem_chunk->chunk_list;
-		mem_chunk->chunk_list = chunk;
-	}
-
-	ptr = chunk->buf + chunk->free_offset;
-	chunk->free_offset += mem_chunk->item_size;
-	chunk->amount_free -= mem_chunk->item_size;
-
-	return ptr;
-}
-
-void
-sl_free(struct ws_memory_slab *mem_chunk, gpointer ptr)
-{
-	if (debug_use_slices) {
-		g_slice_free1(mem_chunk->item_size, ptr);
-	} else
-	/* XXX, abort if ptr not found in emem_verify_pointer_list()? */
-	if (ptr != NULL /* && emem_verify_pointer_list(mem_chunk->chunk_list, ptr) */) {
-		memcpy(ptr, &(mem_chunk->freed), sizeof(void *));
-		mem_chunk->freed = ptr;
-	}
-}
-
-void *
 ep_alloc0(size_t size)
 {
 	return memset(ep_alloc(size),'\0',size);
@@ -960,12 +879,6 @@ void *
 se_alloc0(size_t size)
 {
 	return memset(se_alloc(size),'\0',size);
-}
-
-void *
-sl_alloc0(struct ws_memory_slab *mem_chunk)
-{
-	return memset(sl_alloc(mem_chunk), '\0', mem_chunk->item_size);
 }
 
 static gchar *
@@ -1281,21 +1194,6 @@ se_free_all(void)
 #endif
 
 	emem_free_all(&se_packet_mem);
-}
-
-void
-sl_free_all(struct ws_memory_slab *mem_chunk)
-{
-	emem_chunk_t *chunk_list = mem_chunk->chunk_list;
-
-	mem_chunk->chunk_list = NULL;
-	mem_chunk->freed = NULL;
-	while (chunk_list) {
-		emem_chunk_t *chunk = chunk_list;
-
-		chunk_list = chunk_list->next;
-		emem_destroy_chunk(chunk);
-	}
 }
 
 ep_stack_t

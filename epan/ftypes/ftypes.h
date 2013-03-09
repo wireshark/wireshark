@@ -269,8 +269,6 @@ fvalue_init(fvalue_t *fv, ftenum_t ftype);
 /* Free all memory used by an fvalue_t. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_DLL_PUBLIC struct ws_memory_slab fvalue_t_slab;
-
 
 #define FVALUE_CLEANUP(fv)					\
 	{							\
@@ -284,7 +282,7 @@ WS_DLL_PUBLIC struct ws_memory_slab fvalue_t_slab;
 #define FVALUE_FREE(fv)						\
 	{							\
 		FVALUE_CLEANUP(fv)				\
-		sl_free(&fvalue_t_slab, fv);			\
+		g_slice_free(fvalue_t, fv);			\
 	}
 
 WS_DLL_PUBLIC

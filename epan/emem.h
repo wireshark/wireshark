@@ -201,29 +201,6 @@ struct _emem_chunk_t;
 #define WS_MEM_ALIGN G_MEM_ALIGN
 #endif
 
-/* Macros to initialize ws_memory_slab */
-#define WS_MEMORY_SLAB_INIT(type, count) { ((sizeof(type) + (WS_MEM_ALIGN - 1)) & ~(WS_MEM_ALIGN - 1)), count, NULL, NULL }
-#define WS_MEMORY_SLAB_INIT_UNALIGNED(size, count) { size, count, NULL, NULL }
-
-struct ws_memory_slab {
-	const gint item_size;
-	const gint count;
-
-	struct _emem_chunk_t *chunk_list;
-	void *freed;
-};
-
-WS_DLL_PUBLIC
-void *sl_alloc(struct ws_memory_slab *mem_chunk);
-WS_DLL_PUBLIC
-void *sl_alloc0(struct ws_memory_slab *mem_chunk);
-WS_DLL_PUBLIC
-void sl_free(struct ws_memory_slab *mem_chunk, gpointer ptr);
-
-/** release all memory allocated */
-WS_DLL_PUBLIC
-void sl_free_all(struct ws_memory_slab *mem_chunk);
-
 /**************************************************************
  * binary trees
  **************************************************************/
