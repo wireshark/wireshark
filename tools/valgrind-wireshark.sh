@@ -80,7 +80,6 @@ fi
 export WIRESHARK_DEBUG_EP_NO_CHUNKS=
 export WIRESHARK_DEBUG_SE_NO_CHUNKS=
 export WIRESHARK_DEBUG_WMEM_OVERRIDE=simple
-export WIRESHARK_DEBUG_WMEM_SLAB=
 export G_SLICE=always-malloc # or debug-blocks
 
 libtool --mode=execute valgrind $VERBOSE $LEAK_CHECK $REACHABLE $TRACK_ORIGINS $BIN_DIR/$COMMAND $COMMAND_ARGS $PCAP $COMMAND_ARGS2 > /dev/null

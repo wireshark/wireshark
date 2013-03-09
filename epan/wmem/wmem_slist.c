@@ -27,7 +27,6 @@
 #include <glib.h>
 
 #include "wmem_core.h"
-#include "wmem_slab.h"
 #include "wmem_slist.h"
 
 struct _wmem_slist_frame_t {
@@ -38,7 +37,7 @@ struct _wmem_slist_frame_t {
 struct _wmem_slist_t {
     guint count;
     wmem_slist_frame_t *front;
-    wmem_slab_t *slab;
+    wmem_allocator_t   *allocator;
 };
 
 guint
@@ -94,7 +93,7 @@ wmem_slist_remove(wmem_slist_t *slist, void *data)
 
     *link = frame->next;
     slist->count--;
-    wmem_slab_free(slist->slab, frame);
+    wmem_free(slist->allocator, frame);
 }
 
 void
@@ -102,7 +101,7 @@ wmem_slist_prepend(wmem_slist_t *slist, void *data)
 {
     wmem_slist_frame_t *new;
 
-    new = (wmem_slist_frame_t *) wmem_slab_alloc(slist->slab);
+    new = wmem_new(slist->allocator, wmem_slist_frame_t);
 
     new->data = data;
     new->next = slist->front;
@@ -118,9 +117,9 @@ wmem_slist_new(wmem_allocator_t *allocator)
 
     slist = (wmem_slist_t *) wmem_alloc(allocator, sizeof(wmem_slist_t));
 
-    slist->count = 0;
-    slist->front = NULL;
-    slist->slab  = wmem_slab_new(allocator, sizeof(wmem_slist_frame_t));
+    slist->count     = 0;
+    slist->front     = NULL;
+    slist->allocator = allocator;
 
     return slist;
 }

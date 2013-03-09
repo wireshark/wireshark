@@ -1370,7 +1370,6 @@ set(WMEM_FILES
 	wmem/wmem_allocator_simple.c
 	wmem/wmem_allocator_strict.c
 	wmem/wmem_scopes.c
-	wmem/wmem_slab.c
 	wmem/wmem_slist.c
 	wmem/wmem_stack.c
 	wmem/wmem_strbuf.c

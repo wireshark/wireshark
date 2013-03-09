@@ -28,7 +28,6 @@
 
 #include "wmem_core.h"
 #include "wmem_scopes.h"
-#include "wmem_slab.h"
 #include "wmem_slist.h"
 #include "wmem_stack.h"
 #include "wmem_strbuf.h"
