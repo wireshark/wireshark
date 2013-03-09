@@ -12,7 +12,7 @@ static inline void *xmalloc(size_t s) { void *ptr = malloc(s); if (!ptr) oom_kil
 static inline void *xrealloc(void *p, size_t s) { void *ptr = realloc(p, s); if (!ptr) oom_killer(); return ptr; }
 
 static inline void *xmemdup(void *p, size_t s) { void *ptr = malloc(s); if (!ptr) oom_killer(); return memcpy(ptr, p, s); }
-static inline void *xstrdup(const char *s) { void *ptr = strdup(s); if (!ptr) oom_killer(); return ptr; }
+static inline char *xstrdup(const char *s) { void *ptr = strdup(s); if (!ptr) oom_killer(); return ptr; }
 
 #define xnew(x) (x *) xmalloc(sizeof(x))
 #define xdup(x, y) (x *) xmemdup(y, sizeof(x))

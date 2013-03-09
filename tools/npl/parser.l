@@ -485,7 +485,6 @@ parse_params(npl_params_t *p)
 
 static void parse_expression(npl_expression_t *expr);
 static npl_expression_t *xparse_expression(void);
-static npl_expression_t g_e;
 
 static void
 parse_primary(npl_expression_t *expr)
@@ -531,6 +530,22 @@ parse_primary(npl_expression_t *expr)
 	nomatch();
 }
 
+/* ExpressionList = Expression, { ",", Expression } ; */
+static void
+parse_expression_list(npl_expression_list_t **ptr)
+{
+	do {
+		npl_expression_list_t *cur = xnew(npl_expression_list_t);
+
+		*ptr = cur;
+		ptr = &(cur->next);
+		cur->expr = xparse_expression();
+
+	} while (is_token_accept(TOKEN_COMMA));
+
+	*ptr = NULL;
+}
+
 static void
 parse_expression1(npl_expression_t *expr)
 {
@@ -539,44 +554,33 @@ parse_expression1(npl_expression_t *expr)
 	do {
 		if (is_token_accept(TOKEN_LPAREN)) {	/* foo() */
 			npl_expression_t *fun = xdup(npl_expression_t, expr);
-			struct _npl_expression_list **ptr = &(expr->call.args);
+			npl_expression_list_t *args = NULL;
 
-			if (!is_token(TOKEN_RPAREN)) {
-				do {
-					struct _npl_expression_list *cur = xnew(struct _npl_expression_list);
-
-					*ptr = cur;
-					ptr = &(cur->next);
-					cur->expr = xparse_expression();
-
-				} while (is_token_accept(TOKEN_COMMA));
-			}
-			*ptr = NULL;
-
+			if (!is_token(TOKEN_RPAREN))
+				parse_expression_list(&args);
 			accept(TOKEN_RPAREN);
-			expr->call.fn = fun;
-			expr->type = EXPRESSION_CALL;
 
-		} else if (is_token(TOKEN_DOLLAR) || is_token(TOKEN_LBRACKET)) { /* arr$[field1, field2, ...], arr[10] */
+			expr->type = EXPRESSION_CALL;
+			expr->call.fn = fun;
+			expr->call.args = args;
+
+		} else if (is_token_accept(TOKEN_DOLLAR)) { /* arr$[field1, field2, ...] */
+			npl_expression_t *base = xdup(npl_expression_t, expr);
+			npl_expression_list_t *indexes;
+
+			accept(TOKEN_LBRACKET);
+			parse_expression_list(&indexes);
+			accept(TOKEN_RBRACKET);
+
+			expr->type = EXPRESSION_MULTI_INDEX;
+			expr->aarr.base = base;
+			expr->aarr.indexes = indexes;
+
+		} else if (is_token_accept(TOKEN_LBRACKET)) { /* arr[10] */
 			npl_expression_t *base = xdup(npl_expression_t, expr);
 			npl_expression_t *idx;
-			int aa;
-
-			aa = is_token_accept(TOKEN_DOLLAR);
-			accept(TOKEN_LBRACKET);
 
 			idx = xparse_expression();
-
-			if (aa) {
-				while (is_token_accept(TOKEN_COMMA)) {
-					// XXX ast
-
-					npl_expression_t *idx2;
-
-					idx2 = xparse_expression();
-				}
-			}
-
 			accept(TOKEN_RBRACKET);
 
 			expr->type = EXPRESSION_INDEX;
@@ -921,21 +925,27 @@ static int is_attribute(void) { return is_token(TOKEN_LBRACKET); }
 static void
 parse_attributes(npl_attr_t *attr)
 {
+	npl_expression_list_t **ptr = &attr->expr_list;
+
 	accept(TOKEN_LBRACKET);
 
 	do {
-		parse_expression(&attr->expr);
+		npl_expression_list_t *cur = xnew(npl_expression_list_t);
+
+		*ptr = cur;
+		ptr = &(cur->next);
+		cur->expr = xparse_expression();
 
 		if (is_token_accept(TOKEN_SEMICOLON))
 			{ }
 		else if (is_token_accept(TOKEN_COMMA))
 			{ }
-
 	} 
 	while (!is_token(TOKEN_RBRACKET));
 //	while (is_token_accept(TOKEN_COMMA));
 
 	accept(TOKEN_RBRACKET);
+	*ptr = NULL;
 }
 
 static void parse_statement(npl_statement_t *st);
@@ -1007,8 +1017,6 @@ parse_dynamic_switch(npl_switch_t *sw)
 	is_token_accept(TOKEN_SEMICOLON);
 }
 
-static void parse_table(npl_table_t *);
-
 static int is_statement(void) {
 	return 
 		is_token(TOKEN_WHILE) ||
@@ -1076,6 +1084,7 @@ xparse_formatting(void)
 	return format;
 }
 
+static void parse_table(npl_table_t *);
 static void parse_struct(npl_struct_t *s, int statement);
 
 static void
@@ -1128,12 +1137,12 @@ parse_statement(npl_statement_t *st)
 
 	if (is_token_accept(TOKEN_LPAREN)) {
 		/* XXX, WTF: StringTerm(Property.XMLEncoding, "<", true, false, false) Reason; */
+		npl_expression_list_t *type_params;
 
-		do {
-			/* XXX, ast */
-			parse_expression(&g_e);
-		} while (is_token_accept(TOKEN_COMMA));
+		parse_expression_list(&type_params);
 		accept(TOKEN_RPAREN);
+
+		/* XXX, store type_params in ast */
 	}
 
 	st->f.id = accept_id();
@@ -1375,13 +1384,12 @@ parse_decl(npl_decl_t *d)
 		parse_protocol(&d->p.data);
 
 	} else if (is_type()) {
-		parse_type(&d->ty.data);
 		d->type = DECL_TYPE;
+		parse_type(&d->ty.data);
 
 	} else if (is_token_accept(TOKEN_INCLUDE)) {
-		/* XXX, ast */
-		char *file = accept_str();
-		free(file);
+		d->type = DECL_INCLUDE;
+		d->i.file = accept_str();	/* XXX, it's C-escaped */ /* XXX, unix / vs dos \\  */
 
 	} else
 		nomatch();
@@ -1404,16 +1412,19 @@ parse_npl(npl_code_t *code)
 	*ptr = NULL;
 }
 
-void
+int
 npl_parse_file(npl_code_t *code, FILE *f, const char *filename)
 {
+	int parse_ok = 0;
 	yyfilename = filename;
 	yyin = f;
 
 	next_token();
 	parse_npl(code);
-	code->parse_ok = 1;
+	parse_ok = 1;
 
 	yylex_destroy();
+
+	return parse_ok;
 }
 

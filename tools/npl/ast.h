@@ -53,6 +53,7 @@ typedef enum {
 	EXPRESSION_STR,
 
 	EXPRESSION_INDEX,
+	EXPRESSION_MULTI_INDEX,
 	EXPRESSION_FIELD,
 	EXPRESSION_CALL,
 
@@ -61,6 +62,12 @@ typedef enum {
 	EXPRESSION_COND
 
 } npl_expression_type_t;
+
+typedef struct _npl_expression_list {
+	struct _npl_expression_list *next;
+
+	struct _npl_expression *expr;
+} npl_expression_list_t;
 
 typedef struct _npl_expression {
 union {
@@ -91,6 +98,13 @@ union {
 	} arr;
 
 	struct {
+		npl_expression_type_t type;	/* EXPRESSION_MULTI_INDEX */
+
+		struct _npl_expression *base;
+		npl_expression_list_t *indexes;
+	} aarr;
+
+	struct {
 		npl_expression_type_t type;	/* EXPRESSION_FIELD */
 
 		struct _npl_expression *base;
@@ -118,13 +132,7 @@ union {
 		npl_expression_type_t type;	/* EXPRESSION_CALL */
 
 		struct _npl_expression *fn;
-
-		struct _npl_expression_list {
-			struct _npl_expression_list *next;
-
-			struct _npl_expression *expr;
-
-		} *args;
+		npl_expression_list_t *args;
 
 	} call;
 
@@ -222,7 +230,7 @@ typedef struct _npl_statement {
 		} w;
 
 		struct {
-			npl_statement_type_t type;	/* STATEMTN_TABLE */
+			npl_statement_type_t type;	/* STATEMENT_TABLE */
 
 			npl_table_t data;
 		} t;
@@ -251,7 +259,8 @@ typedef struct _npl_statement {
 			npl_expression_t *format;
 			struct _npl_statements *sts;
 
-			struct hfinfo *hfi; /* set by code gen */
+			/* after 1st pass of code generator */
+			struct hfinfo *hfi;
 		} f;
 
 	};
@@ -292,12 +301,16 @@ typedef struct {
 	npl_expression_t *display_format;
 	npl_expression_t *size;
 
+	/* after 1st pass of code generator */
+	const char *hf_type;
+
 } npl_type_t;
 
 typedef enum {
 	DECL_INVALID = 0,
 
 	DECL_ATTR,
+	DECL_INCLUDE,
 	DECL_STRUCT,
 	DECL_TABLE,
 	DECL_CONST,
@@ -306,8 +319,8 @@ typedef enum {
 
 } npl_decl_type_t;
 
-typedef struct _npl_attr {
-	npl_expression_t expr;
+typedef struct {
+	npl_expression_list_t *expr_list;
 } npl_attr_t;
 
 typedef struct {
@@ -321,6 +334,12 @@ typedef struct {
 
 			npl_attr_t data;
 		} a;
+
+		struct {
+			npl_decl_type_t type;	/* DECL_INCLUDE */
+
+			char *file;
+		} i;
 
 		struct {
 			npl_decl_type_t type;	/* DECL_STRUCT */
@@ -361,7 +380,5 @@ typedef struct {
 		npl_decl_t d;
 
 	} *decls;
-
-	int parse_ok;
 
 } npl_code_t;

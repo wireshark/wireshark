@@ -25,7 +25,7 @@
 #include "ast.h"
 #include "xmem.h"
 
-void npl_parse_file(npl_code_t *code, FILE *f, const char *filename); /* parser.l */
+int npl_parse_file(npl_code_t *code, FILE *f, const char *filename); /* parser.l */
 
 static void gen_expr(FILE *f, npl_expression_t *e);
 static void gen_statements(FILE *f, struct _npl_statements *sts);
@@ -38,6 +38,16 @@ struct hfinfo {
 };
 
 struct hfinfo *hfs;
+
+static void _fail(const char *file, int line, const char *msg) {
+	fprintf(stderr, "!!! %s:%d fail(%s)\n", file, line, msg);
+	abort();
+}
+
+#define fail(msg) _fail(__FILE__, __LINE__, msg)
+
+#define xassert(expr) \
+	do { if (!(expr)) fail("Assertion failed: " #expr); } while(0);
 
 
 static struct hfinfo *
@@ -57,8 +67,9 @@ add_hfi(npl_statement_t *st)
 }
 
 static const char *
-hfi_name(const struct hfinfo *hfi)
+hfi_var(const struct hfinfo *hfi)
 {
+	/* XXX nicer name */
 	static char hf_name[64];
 
 	snprintf(hf_name, sizeof(hf_name), "hf_field_%u", hfi->id);
@@ -66,6 +77,127 @@ hfi_name(const struct hfinfo *hfi)
 	return hf_name;
 }
 
+static const char *
+hfi_name(const struct hfinfo *hfi)
+{
+	return hfi->st->f.id;
+}
+
+static const char *
+hfi_filter(const struct hfinfo *hfi)
+{
+	/* TODO stub */
+	return "";
+}
+
+static const char *
+hfi_type(const struct hfinfo *hfi)
+{
+	/* TODO stub */
+	return "FT_BYTES";
+}
+
+static const char *
+hfi_display(const struct hfinfo *hfi)
+{
+	/* TODO stub */
+	return "BASE_NONE";
+}
+
+static unsigned int
+hfi_mask(const struct hfinfo *hfi)
+{
+	/* TODO stub */
+	return 0;
+}
+
+static int
+expr_to_int(const npl_expression_t *npl, int *val)
+{
+	if (npl->type == EXPRESSION_INT) {
+		*val = npl->num.digit;
+		return 1;
+	}
+	if (npl->type == EXPRESSION_UNARY) {
+		if (!expr_to_int(npl->u.operand, val))
+			return 0;
+
+		switch (npl->u.operator) {
+			case OP1_MINUS:
+				*val = -(*val);
+				return 1;
+			case OP1_NEG:
+				*val = ~(*val);
+				return 1;
+			case OP1_NOT:
+				*val = !(*val);
+				return 1;
+		}
+	}
+	return 0;
+}
+
+static int
+expr_to_str(const npl_expression_t *npl, const char **val)
+{
+	if (npl->type == EXPRESSION_STR) {
+		*val = npl->str.str;
+		return 1;
+	}
+	return 0;
+}
+
+static const char *
+type_to_ft(const npl_type_t *t, int size)
+{
+	switch (t->type) {
+		case FIELD_DECIMAL:
+			if (size == 4)
+				return "FT_FLOAT";
+			if (size == 8)
+				return "FT_DOUBLE";
+
+			fprintf(stderr, "!!! decimal, size: %d\n", size);
+			return NULL;
+				
+		case FIELD_NUMBER:
+			if (size == 1)
+				return "FT_INT8";
+			if (size == 2)
+				return "FT_INT16";
+			if (size == 3)
+				return "FT_INT24";
+			if (size == 4)
+				return "FT_INT32";
+			if (size <= 8)
+				return "FT_INT64";
+
+			fprintf(stderr, "!!! number, size: %d\n", size);
+			return NULL;
+
+		case FIELD_UNSIGNED_NUMBER:
+			if (size == 1)
+				return "FT_UINT8";
+			if (size == 2)
+				return "FT_UINT16";
+			if (size == 3)
+				return "FT_UINT24";
+			if (size == 4)
+				return "FT_UINT32";
+			if (size <= 8)
+				return "FT_UINT64";
+
+			fprintf(stderr, "!!! number, size: %d\n", size);
+			return NULL;
+
+		case FIELD_TIME:
+			/* XXX, FT_ABSOLUTE_TIME or FT_RELATIVE_TIME? */
+			fprintf(stderr, "!!! time, size: %d\n", size);
+			return "FT_ABSOLUTE_TIME";
+	}
+	fprintf(stderr, "!!! not handled, type: %d, size: %d\n", t->type, size);
+	return NULL;
+}
 
 #define gen_fprintf(f, args...)			\
 	do {								\
@@ -160,7 +292,7 @@ gen_expr(FILE *f, npl_expression_t *e)
 
 		case EXPRESSION_CALL:
 		{
-			struct _npl_expression_list *arg;
+			npl_expression_list_t *arg;
 			char *ind = "";
 
 			gen_expr(f, e->call.fn);
@@ -173,12 +305,101 @@ gen_expr(FILE *f, npl_expression_t *e)
 			gen_fprintf(f, ")");
 			return;
 		}
+
+		case EXPRESSION_FIELD:
+			gen_expr(f, e->fld.base);
+			gen_fprintf(f, ".%s ", e->fld.field);
+			return;
 	}
 	fprintf(stderr, "XXXX expr->type: %d\n", e->type);
 }
 
+static int
+gen_table_struct(FILE *f, npl_table_t *t)
+{
+	enum { CANT, VALUE_STRING, STRING_STRING } type;
+	struct npl_table_case *c;
+
+	int all_int = 1;
+	int all_str = 1;
+
+	if (t->params.count || !t->switch_expr || t->default_expr)
+		return 0;
+
+	for (c = t->cases; c; c = c->next) {
+		const char *str;
+		int val;
+
+		if (!c->return_expr || !expr_to_str(c->return_expr, &str))
+			return 0;
+
+		if (all_int && !expr_to_int(&c->e, &val))
+			all_int = 0;
+		if (all_str && !expr_to_str(&c->e, &str))
+			all_str = 0;
+
+		if (!all_int && !all_str)
+			return 0;
+	}
+
+	if (all_int)
+		type = VALUE_STRING;
+	else if (all_str)
+		type = STRING_STRING;
+	else
+		type = CANT;
+
+	/* table can be converted to value_string, generate one */
+	if (f && type == VALUE_STRING) {
+		gen_fprintf(f,
+			"static const value_string %s[] = {\n",
+			t->id);
+
+		for (c = t->cases; c; c = c->next) {
+			const char *str;
+			int val;
+
+			/* checked above, should not fail now */
+			if (!expr_to_str(c->return_expr, &str))
+				fail("expr_to_str(str)");
+			if (!expr_to_int(&c->e, &val))
+				fail("expr_to_int(val)");
+
+			gen_fprintf(f, "\t{ %x, \"%s\" },\n", val, str);
+		}
+		gen_fprintf(f, "\t{ 0, NULL }\n");
+		gen_fprintf(f, "};\n");
+		return 1;
+	}
+
+	/* table can be converted to string_string, generate one */
+	if (f && type == STRING_STRING) {
+		gen_fprintf(f,
+			"static const string_string %s[] = {\n",
+			t->id);
+
+		for (c = t->cases; c; c = c->next) {
+			const char *str;
+			const char *val;
+
+			/* checked above, should not fail now */
+			if (!expr_to_str(c->return_expr, &str))
+				fail("expr_to_str(str)");
+			if (!expr_to_str(&c->e, &val))
+				fail("expr_to_str(val)");
+
+			gen_fprintf(f, "\t{ \"%s\", \"%s\" },\n", val, str);
+		}
+		gen_fprintf(f, "\t{ NULL, NULL }\n");
+		gen_fprintf(f, "};\n");
+		return 1;
+	}
+
+	return 0;
+}
+
 static void
-gen_table(FILE *f, npl_table_t *t)
+gen_table_func(FILE *f, npl_table_t *t)
 {
 	struct npl_table_case *c;
 
@@ -215,8 +436,7 @@ again1:
 
 			if (!c->return_expr) {
 				c = c->next;
-				if (!c)
-					abort();
+				xassert(c != NULL);
 				gen_fprintf(f, "\n");
 				goto again1;
 			} else {
@@ -244,8 +464,7 @@ again2:
 			if (!c->return_expr) {
 				gen_fprintf(f, " || ");
 				c = c->next;
-				if (!c)
-					abort();
+				xassert(c != NULL);
 				goto again2;
 			} else {
 				gen_fprintf(f, ")\n");
@@ -265,6 +484,14 @@ again2:
 		gen_fprintf(f, "\treturn \"\";\n");
 
 	gen_fprintf(f, "}\n");
+}
+
+static void
+gen_table(FILE *f, npl_table_t *t)
+{
+	if (!gen_table_struct(f, t))
+		gen_table_func(f, t);
+
 	gen_fprintf(f, "\n");
 }
 
@@ -297,7 +524,7 @@ gen_statement(FILE *f, npl_statement_t *st)
 
 			if (f) {
 				// XXX, search for st->f.t_id in table.
-				gen_fprintf(f, "\toffset = dissect_%s(tvb, tree, %s, offset);\n", st->f.t_id, hfi_name(st->f.hfi));
+				gen_fprintf(f, "\toffset = dissect_%s(tvb, tree, %s, offset);\n", st->f.t_id, hfi_var(st->f.hfi));
 			}
 			// XXX st->f.bits, st->f.arr, st->f.format, st->f.sts
 			return;
@@ -335,7 +562,6 @@ gen_statement(FILE *f, npl_statement_t *st)
 				gen_fprintf(f, "\t}\n");
 				return;
 			}
-
 
 			if (c) {
 				npl_statement_t *default_st = st->sw.data.default_st;
@@ -413,6 +639,8 @@ gen_protocol(FILE *f, npl_protocol_t *p)
 	gen_fprintf(f, "{\n");
 	gen_fprintf(f, 
 		"\tint offset = 0;\n"
+		"\tproto_tree *tree = NULL;\n"
+		"\tproto_item *ti = NULL;\n"
 		"\n"
 	);
 
@@ -439,8 +667,7 @@ gen_struct(FILE *f, npl_struct_t *s)
 		snprintf(id, sizeof(id), "_noname%u", ++_id);
 		s->id = xstrdup(id);
 
-		if (f != NULL)
-			abort();
+		xassert(f == NULL);
 	}
 
 	if (s->count_expr) {
@@ -498,25 +725,40 @@ gen_struct(FILE *f, npl_struct_t *s)
 static void
 gen_const(FILE *f, npl_const_t *c)
 {
-// TODO
-	fprintf(stderr, "gen_const() TODO\n");
+	// TODO, later don't do #define, only add to id table with given value.
+
+	gen_fprintf(f, "#define %s", c->id);
+	gen_expr(f, &c->expr);
+	gen_fprintf(f, "\n");
 }
 
 static void
 gen_type(FILE *f, npl_type_t *t)
 {
+	int size = -1;
+	int byte_order = -1;
+	const char *hf_type = NULL;
+
 	gen_fprintf(f,
 			"static int\n"
-			"dissect_type_%s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)\n"
+			"dissect_type_%s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hf, int offset)\n"
 			"{\n", t->name);
 
-#if 0
-	npl_params_t params;
+	if (t->params.count) {
+		/* XXX */
+		fprintf(stderr, "XXX, t->params.count\n");
+	}
 
-	npl_expression_t *byte_order;
-	npl_expression_t *display_format;
-	npl_expression_t *size;
-#endif
+	if (t->size && !expr_to_int(t->size, &size))
+		fprintf(stderr, "!!! expr_to_int(size) failed for type: %s\n", t->name);
+
+	if (t->byte_order && !expr_to_int(t->byte_order, &byte_order))
+		fprintf(stderr, "!!! expr_to_int(byte_order) failed for type: %s\n", t->name);
+
+	hf_type = type_to_ft(t, size);
+	/* npl_expression_t *display_format; */
+
+	t->hf_type = hf_type ? hf_type : "FT_BYTES";
 
 	gen_fprintf(f, "\treturn offset;\n");
 	gen_fprintf(f, "}\n");
@@ -526,8 +768,7 @@ gen_type(FILE *f, npl_type_t *t)
 static void
 gen_attr(FILE *f, npl_attr_t *a)
 {
-// TODO
-	fprintf(stderr, "gen_attr() TODO");
+	fprintf(stderr, "gen_attr() TODO\n");
 }
 
 static void
@@ -571,13 +812,11 @@ gen_hf(FILE *f)
 	struct hfinfo *hfi;
 
 	for (hfi = hfs; hfi; hfi = hfi->next)
-		gen_fprintf(f, "static int %s = -1;\n", hfi_name(hfi));
+		gen_fprintf(f, "static int %s = -1;\n", hfi_var(hfi));
 }
 
-static const char proto_name[] = "foo"; /* TODO, hardcoded */
-
 static void
-gen_proto_register(FILE *f)
+gen_proto_register(FILE *f, const char *proto_name)
 {
 	struct hfinfo *hfi;
 
@@ -589,15 +828,14 @@ gen_proto_register(FILE *f)
 	/* hf array */
 	gen_fprintf(f, "\tstatic hf_register_info hf[] = {\n");
 	for (hfi = hfs; hfi; hfi = hfi->next) {
-		npl_statement_t *st = hfi->st;
-
-		gen_fprintf(f, 
+		gen_fprintf(f,
 			"\t\t{ &%s,\n"
 				"\t\t\t{ \"%s\", \"%s\", %s, %s, NULL, 0x%.2x, NULL, HFILL }\n"
-			"\t\t},\n", hfi_name(hfi), st->f.id, "filtr", "typ", "dec", 0x00 );
+			"\t\t},\n", hfi_var(hfi), hfi_name(hfi), hfi_filter(hfi), hfi_type(hfi), hfi_display(hfi), hfi_mask(hfi) );
 	}
 	gen_fprintf(f, "\t}\n\n");
 
+	/* ett array */
 	gen_fprintf(f, "\tstatic gint *ett[] = {\n");
 #if 0
 		&ett_foo,
@@ -615,14 +853,14 @@ gen_proto_register(FILE *f)
 }
 
 static void
-gen_proto_handoff(FILE *f)
+gen_proto_handoff(FILE *f, const char *proto_name)
 {
 	gen_fprintf(f,
 		"void\n"
 		"proto_reg_handoff_%s(void)\n"
-		"{", proto_name);
+		"{\n", proto_name);
 
-	gen_fprintf(f, "dissector_handle_t %s_handle = new_create_dissector_handle(dissect_%s, proto_%s);\n", proto_name, proto_name, proto_name);
+	gen_fprintf(f, "\tdissector_handle_t %s_handle = new_create_dissector_handle(dissect_%s, proto_%s);\n", proto_name, proto_name, proto_name);
 
 #if 0
 	dissector_add_uint("REG", XXX, %s_handle);
@@ -632,10 +870,24 @@ gen_proto_handoff(FILE *f)
 	gen_fprintf(f, "}\n");
 }
 
+static const npl_protocol_t *
+get_protocol(npl_code_t *code)
+{
+	struct _npl_decl_list *decl;
+
+	for (decl = code->decls; decl; decl = decl->next) {
+		/* XXX, for now return first */
+		if (decl->d.type == DECL_PROTOCOL)
+			return &decl->d.p.data;
+	}
+	return NULL;
+}
+
 int main(int argc, char **argv) {
 	FILE *f;
 	npl_code_t code;
-	
+	int parse_ok;
+
 	if (argc != 2) {
 		fprintf(stderr, "usage: %s filename\n", argv[0]);
 		return 1;
@@ -647,25 +899,36 @@ int main(int argc, char **argv) {
 	}
 
 	memset(&code, 0, sizeof(code));
-	printf("%s:\n", argv[1]);
-	npl_parse_file(&code, f, argv[1]);
-
-	if (code.parse_ok) {
+	parse_ok = npl_parse_file(&code, f, argv[1]);
+// parse_ok = 0;
+	if (parse_ok) {
+		const npl_protocol_t *proto = get_protocol(&code);
+		const char *proto_name = (proto) ? proto->id : "noname";
 		FILE *out;
 
 		gen_code(NULL, &code);
 
 		out = fopen("/tmp/npl.c", "w");
 
-		/* TODO declare ett_ */
-		gen_hf(out);
+		/* includes */
+		gen_fprintf(out, "#include \"config.h\"\n");
+		gen_fprintf(out, "#include <glib.h>\n");
+		gen_fprintf(out, "#include <epan/packet.h>\n");
+		gen_fprintf(out, "\n");
 
-		gen_fprintf(out, "\n\n");
+		/* TODO declare forward */
+
+		gen_fprintf(out, "static int proto_%s = -1;\n", proto_name);
+		gen_hf(out);
+		gen_fprintf(out, "\n");
+
+		/* TODO declare ett_ */
+		gen_fprintf(out, "\n");
 
 		gen_code(out, &code);
 
-		gen_proto_register(out);
-		gen_proto_handoff(out);
+		gen_proto_register(out, proto_name);
+		gen_proto_handoff(out, proto_name);
 
 		fclose(out);
 	}
