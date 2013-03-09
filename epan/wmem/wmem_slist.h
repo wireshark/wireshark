@@ -41,24 +41,31 @@ struct _wmem_slist_frame_t;
 typedef struct _wmem_slist_t       wmem_slist_t;
 typedef struct _wmem_slist_frame_t wmem_slist_frame_t;
 
+WS_DLL_PUBLIC
 guint
 wmem_slist_count(const wmem_slist_t *slist);
 
+WS_DLL_PUBLIC
 wmem_slist_frame_t *
 wmem_slist_front(const wmem_slist_t *slist);
 
+WS_DLL_PUBLIC
 wmem_slist_frame_t *
 wmem_slist_frame_next(const wmem_slist_frame_t *frame);
 
+WS_DLL_PUBLIC
 void *
 wmem_slist_frame_data(const wmem_slist_frame_t *frame);
 
+WS_DLL_PUBLIC
 void
 wmem_slist_remove(wmem_slist_t *slist, void *data);
 
+WS_DLL_PUBLIC
 void
 wmem_slist_prepend(wmem_slist_t *slist, void *data);
 
+WS_DLL_PUBLIC
 wmem_slist_t *
 wmem_slist_new(wmem_allocator_t *allocator);
 

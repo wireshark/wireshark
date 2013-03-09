@@ -41,12 +41,15 @@ typedef wmem_slist_t wmem_stack_t;
 
 #define wmem_stack_count(X) wmem_slist_count(X)
 
+WS_DLL_PUBLIC
 void *
 wmem_stack_peek(const wmem_stack_t *stack);
 
+WS_DLL_PUBLIC
 void *
 wmem_stack_pop(wmem_stack_t *stack);
 
+WS_DLL_PUBLIC
 void
 wmem_stack_push(wmem_stack_t *stack, void *data);
 

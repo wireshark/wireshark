@@ -34,15 +34,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+WS_DLL_PUBLIC
 gchar *
 wmem_strdup(wmem_allocator_t *allocator, const gchar *src);
 
+WS_DLL_PUBLIC
 gchar *
 wmem_strndup(wmem_allocator_t *allocator, const gchar *src, const size_t len);
 
+WS_DLL_PUBLIC
 gchar *
 wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...);
 
+WS_DLL_PUBLIC
 gchar *
 wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap);
 

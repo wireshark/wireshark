@@ -34,36 +34,45 @@ extern "C" {
 
 /* Epan Scope */
 
+WS_DLL_PUBLIC
 wmem_allocator_t *
 wmem_epan_scope(void);
 
 /* Packet Scope */
 
+WS_DLL_PUBLIC
 wmem_allocator_t *
 wmem_packet_scope(void);
 
+WS_DLL_LOCAL
 void
 wmem_enter_packet_scope(void);
 
+WS_DLL_LOCAL
 void
 wmem_leave_packet_scope(void);
 
 /* File Scope */
 
+WS_DLL_PUBLIC
 wmem_allocator_t *
 wmem_file_scope(void);
 
+WS_DLL_LOCAL
 void
 wmem_enter_file_scope(void);
 
+WS_DLL_LOCAL
 void
 wmem_leave_file_scope(void);
 
 /* Scope Management */
 
+WS_DLL_LOCAL
 void
 wmem_init_scopes(void);
 
+WS_DLL_LOCAL
 void
 wmem_cleanup_scopes(void);
 

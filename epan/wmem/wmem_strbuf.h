@@ -39,22 +39,28 @@ struct _wmem_strbuf_t;
 
 typedef struct _wmem_strbuf_t wmem_strbuf_t;
 
+WS_DLL_PUBLIC
 wmem_strbuf_t *
 wmem_strbuf_sized_new(wmem_allocator_t *allocator,
                       gsize alloc_len, gsize max_len);
 
+WS_DLL_PUBLIC
 wmem_strbuf_t *
 wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str);
 
+WS_DLL_PUBLIC
 void
 wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str);
 
+WS_DLL_PUBLIC
 void
 wmem_strbuf_append_printf(wmem_strbuf_t *strbuf, const gchar *format, ...);
 
+WS_DLL_PUBLIC
 const gchar *
 wmem_strbuf_get_str(wmem_strbuf_t *strbuf);
 
+WS_DLL_PUBLIC
 gsize
 wmem_strbuf_get_len(wmem_strbuf_t *strbuf);
 
