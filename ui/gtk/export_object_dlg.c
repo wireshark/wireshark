@@ -132,6 +132,26 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	if (eo_protocoldata_reset != NULL) eo_protocoldata_reset();
 }
 
+static gchar *eo_saveable_pathname(gchar *filename) {
+gchar	**splitted_pathname;
+gchar 	*auxstring, *saveable_pathname;
+guint	nparts,i;
+
+	saveable_pathname = NULL;
+	splitted_pathname = g_strsplit_set(filename,"\\",-1);
+	nparts = g_strv_length(splitted_pathname);
+	if (nparts>0) {
+		saveable_pathname=g_strdup(splitted_pathname[0]);
+	}
+	for (i=1;i<nparts;i++) {
+		auxstring = g_strconcat(saveable_pathname,"__",splitted_pathname[i],NULL);
+		g_free(saveable_pathname);
+		saveable_pathname = auxstring;
+	}
+
+	return saveable_pathname;
+}
+
 static void
 eo_save_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 {
@@ -139,6 +159,7 @@ eo_save_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 	export_object_list_t *object_list = arg;
 	export_object_entry_t *entry;
 	gchar *filename = NULL;
+	gchar *auxfilename = NULL;
 
 	entry = g_slist_nth_data(object_list->entries,
 				 object_list->row_selected);
@@ -154,14 +175,18 @@ eo_save_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 	gtk_window_set_transient_for(GTK_WINDOW(save_as_w),
 				     GTK_WINDOW(object_list->dlg));
 
+	auxfilename = eo_saveable_pathname(entry->filename);
+
 	gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_as_w),
-					  entry->filename);
+					  auxfilename);
+
 
 	if(gtk_dialog_run(GTK_DIALOG(save_as_w)) == GTK_RESPONSE_ACCEPT) {
 		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w));
 		eo_save_entry(filename, entry, TRUE);
 	}
 
+	g_free(auxfilename);
 	g_free(filename);
 	window_destroy(save_as_w);
 }
@@ -178,6 +203,7 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 	gboolean all_saved = TRUE;
 	gchar *save_in_path;
 	GString *safe_filename;
+	gchar *auxfilename = NULL;
 	int count = 0;
 
 	save_in_w = file_selection_new("Wireshark: Save All Objects In ...",
@@ -194,10 +220,12 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 			if ((strlen(save_in_path) < MAXFILELEN)) {
 				do {
 					g_free(save_as_fullpath);
-					if (entry->filename)
-						safe_filename = eo_massage_str(entry->filename,
+					if (entry->filename) {
+						auxfilename = eo_saveable_pathname(entry->filename);
+						safe_filename = eo_massage_str(auxfilename,
 							MAXFILELEN - strlen(save_in_path), count);
-					else {
+						g_free(auxfilename);
+					} else {
 						char generic_name[256];
 						const char *ext;
 						ext = ct2ext(entry->content_type);

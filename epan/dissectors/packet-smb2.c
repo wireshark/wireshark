@@ -46,6 +46,7 @@
 #include "packet-smb.h"
 #include "packet-dcerpc-nt.h"
 #include <string.h>
+#include <epan/prefs.h>
 
 #include <glib.h>
 /* Use libgcrypt for cipher libraries. */
@@ -402,6 +403,7 @@ static gint ett_smb2_transform_enc_alg = -1;
 static gint ett_smb2_buffercode = -1;
 
 static int smb2_tap = -1;
+static int smb2_eo_tap = -1;
 
 static dissector_handle_t gssapi_handle  = NULL;
 static dissector_handle_t ntlmssp_handle = NULL;
@@ -516,6 +518,9 @@ static const value_string smb2_find_info_levels[] = {
 	{ SMB2_FIND_ID_FULL_DIRECTORY_INFO,	"SMB2_FIND_ID_FULL_DIRECTORY_INFO" },
 	{ 0, NULL }
 };
+
+/* ExportObject preferences variable */
+gboolean eosmb2_take_name_as_fid = FALSE ;
 
 /* unmatched smb_saved_info structures.
    For unmatched smb_saved_info structures we store the smb_saved_info
@@ -642,6 +647,149 @@ static void smb2_key_derivation(const guint8 *KI _U_, guint32 KI_len _U_,
 #else
 	memset(KO, 0, 16);
 #endif
+}
+
+/* for export-object-smb2 */
+static gchar *policy_hnd_to_file_id(const e_ctx_hnd *hnd) {
+gchar *file_id;
+	file_id = ep_strdup_printf(
+			"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+			hnd->uuid.Data1,
+			hnd->uuid.Data2,
+			hnd->uuid.Data3,
+			hnd->uuid.Data4[0],
+			hnd->uuid.Data4[1],
+			hnd->uuid.Data4[2],
+			hnd->uuid.Data4[3],
+			hnd->uuid.Data4[4],
+			hnd->uuid.Data4[5],
+			hnd->uuid.Data4[6],
+			hnd->uuid.Data4[7]);
+	return file_id;
+}
+static guint smb2_eo_files_hash(gconstpointer k) {
+	return g_str_hash(policy_hnd_to_file_id((const e_ctx_hnd *)k));
+}
+static gint smb2_eo_files_equal(gconstpointer k1, gconstpointer k2) {
+int	are_equal;
+	const e_ctx_hnd *key1 = (const e_ctx_hnd *)k1;
+	const e_ctx_hnd *key2 = (const e_ctx_hnd *)k2;
+
+	are_equal = (key1->uuid.Data1==key2->uuid.Data1 &&
+		key1->uuid.Data2==key2->uuid.Data2 &&
+		key1->uuid.Data3==key2->uuid.Data3 &&
+		key1->uuid.Data4[0]==key2->uuid.Data4[0] &&
+		key1->uuid.Data4[1]==key2->uuid.Data4[1] &&
+		key1->uuid.Data4[2]==key2->uuid.Data4[2] &&
+		key1->uuid.Data4[3]==key2->uuid.Data4[3] &&
+		key1->uuid.Data4[4]==key2->uuid.Data4[4] &&
+		key1->uuid.Data4[5]==key2->uuid.Data4[5] &&
+		key1->uuid.Data4[6]==key2->uuid.Data4[6] &&
+		key1->uuid.Data4[7]==key2->uuid.Data4[7]);
+
+	return are_equal;
+}
+
+static void
+feed_eo_smb2(tvbuff_t * tvb,packet_info *pinfo,smb2_info_t * si, guint16 dataoffset,guint32 length, guint64 file_offset) {
+
+	char       *fid_name = NULL;
+	guint32     open_frame = 0, close_frame = 0;
+	tvbuff_t        *data_tvb = NULL;
+	smb_eo_t        *eo_info;
+	gchar           *file_id;
+	gchar		*auxstring;
+	gchar		**aux_string_v;
+
+	/* Create a new tvb to point to the payload data */
+	data_tvb = tvb_new_subset(tvb, dataoffset, length, length);
+	/* Create the eo_info to pass to the listener */
+	eo_info = ep_alloc(sizeof(smb_eo_t));
+	/* Fill in eo_info */
+	eo_info->smbversion=2;
+	/* cmd == opcode */
+	eo_info->cmd=si->opcode;
+	/* We don't keep track of uid in SMB v2 */
+	eo_info->uid=0;
+
+	/* Try to get file id and filename */
+	file_id=policy_hnd_to_file_id(&si->saved->policy_hnd);
+	dcerpc_fetch_polhnd_data(&si->saved->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num);
+	if (fid_name && g_strcmp0(fid_name,"File: ")!=0) {
+		auxstring=fid_name;
+		/* Remove "File: " from filename */
+		if (g_str_has_prefix(auxstring, "File: ")) {
+			aux_string_v = g_strsplit(auxstring, "File: ", -1);
+			eo_info->filename = ep_strdup_printf("\\%s",aux_string_v[g_strv_length(aux_string_v)-1]);
+			g_strfreev(aux_string_v);
+		} else {
+			if (g_str_has_prefix(auxstring, "\\")) {
+				eo_info->filename = ep_strdup(auxstring);
+			} else {
+				eo_info->filename = ep_strdup_printf("\\%s",auxstring);
+			}
+		}
+	} else {
+		auxstring=ep_strdup_printf("File_Id_%s", file_id);
+		eo_info->filename=auxstring;
+	}
+
+
+
+	if (eosmb2_take_name_as_fid) {
+		eo_info->fid = g_str_hash(eo_info->filename);
+	} else {
+		eo_info->fid = g_str_hash(file_id);
+	}
+
+	/* tid, hostname, tree_id */
+	if (si->tree) {
+		eo_info->tid=si->tree->tid;
+		if (strlen(si->tree->name)>0 && strlen(si->tree->name)<=256) {
+			eo_info->hostname = ep_strdup(si->tree->name);
+		} else {
+			eo_info->hostname = ep_strdup_printf("\\\\%s\\TREEID_%i",tree_ip_str(pinfo,si->opcode),si->tree->tid);
+		}
+	} else {
+		eo_info->tid=0;
+		eo_info->hostname = ep_strdup_printf("\\\\%s\\TREEID_UNKNOWN",tree_ip_str(pinfo,si->opcode));
+	}
+
+	/* packet number */
+	eo_info->pkt_num = pinfo->fd->num;
+
+	/* fid type */
+	if (si->eo_file_info->attr_mask & SMB2_FLAGS_ATTR_DIRECTORY) {
+		eo_info->fid_type=SMB2_FID_TYPE_DIR;
+	} else {
+		if (si->eo_file_info->attr_mask &
+			(SMB2_FLAGS_ATTR_ARCHIVE | SMB2_FLAGS_ATTR_NORMAL |
+			 SMB2_FLAGS_ATTR_HIDDEN | SMB2_FLAGS_ATTR_READONLY |
+			 SMB2_FLAGS_ATTR_SYSTEM) ) {
+			eo_info->fid_type=SMB2_FID_TYPE_FILE;
+		} else {
+			eo_info->fid_type=SMB2_FID_TYPE_OTHER;
+		}
+	}
+
+	/* end_of_file */
+	eo_info->end_of_file=si->eo_file_info->end_of_file;
+
+	/* data offset and chunk length */
+	eo_info->smb_file_offset=file_offset;
+	eo_info->smb_chunk_len=length;
+	/* XXX is this right? */
+	if (length<si->saved->bytes_moved) {
+		si->saved->file_offset=si->saved->file_offset+length;
+		si->saved->bytes_moved=si->saved->bytes_moved-length;
+	}
+
+	/* Payload */
+	eo_info->payload_len = length;
+	eo_info->payload_data = tvb_get_ptr(data_tvb, 0, length);
+
+	tap_queue_packet(smb2_eo_tap, pinfo, eo_info);
+
 }
 
 static int dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, smb2_info_t *si);
@@ -1198,9 +1346,11 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	static dcerpc_call_value  call_data;
 	void       *old_private_data;
 	e_ctx_hnd   policy_hnd;
+	e_ctx_hnd   *policy_hnd_hashtablekey;
 	proto_item *hnd_item   = NULL;
 	char       *fid_name;
 	guint32     open_frame = 0, close_frame = 0;
+	smb2_eo_file_info_t	*eo_file_info;
 
 	di.conformant_run = 0;
 	/* we need di->call_data->flags.NDR64 == 0 */
@@ -1219,6 +1369,21 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			}
 			dcerpc_store_polhnd_name(&policy_hnd, pinfo,
 						  fid_name);
+
+			/* If needed, create the file entry and save the policy hnd */
+			if (si->saved) { si->saved->policy_hnd = policy_hnd; }
+
+			if (si->conv) {
+				eo_file_info = g_hash_table_lookup(si->conv->files,&policy_hnd);
+				if (!eo_file_info) {
+					eo_file_info = se_alloc(sizeof(smb2_eo_file_info_t));
+					policy_hnd_hashtablekey = se_alloc(sizeof(e_ctx_hnd));
+					memcpy(policy_hnd_hashtablekey, &policy_hnd, sizeof(e_ctx_hnd));
+					eo_file_info->end_of_file=0;
+					g_hash_table_insert(si->conv->files,policy_hnd_hashtablekey,eo_file_info);
+				}
+				si->eo_file_info=eo_file_info;
+			}
 		}
 		break;
 	case FID_MODE_CLOSE:
@@ -1234,8 +1399,8 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	pinfo->private_data = old_private_data;
 
 
-	/* put the filename in col_info */
 	if (dcerpc_fetch_polhnd_data(&policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num)) {
+		/* put the filename in col_info */
 		if (fid_name) {
 			if (hnd_item) {
 				proto_item_append_text(hnd_item, " %s", fid_name);
@@ -1243,6 +1408,25 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", fid_name);
 			}
+		}
+
+		/* look for the eo_file_info */
+		if (!si->eo_file_info) {
+			if (si->saved) { si->saved->policy_hnd = policy_hnd; }
+			if (si->conv) {
+				eo_file_info = g_hash_table_lookup(si->conv->files,&policy_hnd);
+				if (eo_file_info) {
+					si->eo_file_info=eo_file_info;
+				} else { /* XXX This should never happen */
+					//assert(1==0);
+					eo_file_info = se_alloc(sizeof(smb2_eo_file_info_t));
+					policy_hnd_hashtablekey = se_alloc(sizeof(e_ctx_hnd));
+					memcpy(policy_hnd_hashtablekey, &policy_hnd, sizeof(e_ctx_hnd));
+					eo_file_info->end_of_file=0;
+					g_hash_table_insert(si->conv->files,policy_hnd_hashtablekey,eo_file_info);
+				}
+			}
+
 		}
 	}
 
@@ -3844,6 +4028,8 @@ dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_
 static int
 dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	guint16 dataoffset = 0;
+	guint32 data_tvb_len;
 	guint32 length;
 	guint64 off;
 	static const int *f_fields[] = {
@@ -3855,6 +4041,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* data offset */
+	dataoffset=tvb_get_letohl(tvb,offset);
 	proto_tree_add_item(tree, hf_smb2_data_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
@@ -3865,6 +4052,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* offset */
 	off = tvb_get_letoh64(tvb, offset);
+	if (si->saved) si->saved->file_offset=off;
 	proto_tree_add_item(tree, hf_smb2_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
@@ -3903,7 +4091,16 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* just ordinary data */
 	proto_tree_add_item(tree, hf_smb2_write_data, tvb, offset, length, ENC_NA);
+
+	data_tvb_len=(guint32)tvb_length_remaining(tvb, offset);
+
 	offset += MIN(length,(guint32)tvb_length_remaining(tvb, offset));
+
+	if (have_tap_listener(smb2_eo_tap) && (data_tvb_len == length)) {
+		if (si->saved && si->eo_file_info) { /* without this data we don't know wich file this belongs to */
+			feed_eo_smb2(tvb,pinfo,si,dataoffset,length,off);
+		}
+	}
 
 	return offset;
 }
@@ -4675,6 +4872,12 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* there is a buffer here   but it is never used (yet) */
 
+	/* Store len and offset */
+	if (si->saved) {
+		si->saved->file_offset=off;
+		si->saved->bytes_moved=len;
+	}
+
 	return offset;
 }
 
@@ -4682,8 +4885,9 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 static int
 dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
+	guint16 dataoffset = 0;
+	guint32 data_tvb_len;
 	guint32 length;
-
 	switch (si->status) {
 	case 0x00000000: break;
 	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
@@ -4693,6 +4897,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* data offset */
+	dataoffset=tvb_get_letohl(tvb,offset);
 	proto_tree_add_item(tree, hf_smb2_data_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
@@ -4719,7 +4924,16 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* data */
 	proto_tree_add_item(tree, hf_smb2_read_data, tvb, offset, length, ENC_NA);
-	offset += MIN(length,(guint32)tvb_length_remaining(tvb, offset));
+
+	data_tvb_len=(guint32)tvb_length_remaining(tvb, offset);
+
+	offset += MIN(length,data_tvb_len);
+
+	if (have_tap_listener(smb2_eo_tap) && (data_tvb_len == length)) {
+		if (si->saved && si->eo_file_info) { /* without this data we don't know wich file this belongs to */
+			feed_eo_smb2(tvb,pinfo,si,dataoffset,length,si->saved->file_offset);
+		}
+	}
 
 	return offset;
 }
@@ -5388,6 +5602,8 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	guint64 end_of_file;
+	guint32	attr_mask;
 	offset_length_buffer_t e_olb;
 	static const int *create_rep_flags_fields[] = {
 		&hf_smb2_create_rep_flags_reparse_point,
@@ -5431,10 +5647,15 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 8;
 
 	/* end of file */
+	end_of_file = tvb_get_letoh64(tvb, offset);
+	if (si->eo_file_info) {
+		si->eo_file_info->end_of_file = tvb_get_letoh64(tvb, offset);
+	}
 	proto_tree_add_item(tree, hf_smb2_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
 	/* File Attributes */
+	attr_mask=tvb_get_letohl(tvb, offset);
 	offset = dissect_file_ext_attr(tvb, tree, offset);
 
 	/* reserved */
@@ -5442,6 +5663,15 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_OPEN);
+
+	/* We save this after dissect_smb2_fid just because it would be
+	possible to have this response without having the mathing request.
+	In that case the entry in the file info hash table has been created
+	in dissect_smb2_fid */
+	if (si->eo_file_info) {
+		si->eo_file_info->end_of_file = end_of_file;
+		si->eo_file_info->attr_mask = attr_mask;
+	}
 
 	/* extrainfo offset */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &e_olb, OLB_O_UINT32_S_UINT32, hf_smb2_extrainfo);
@@ -6557,9 +6787,14 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	smb2_saved_info_t *ssi          = NULL, ssi_key;
 	smb2_info_t       *si;
 	smb2_transform_info_t *sti;
+	char			*fid_name;
+	guint32			open_frame,close_frame;
+	smb2_eo_file_info_t	*eo_file_info;
+	e_ctx_hnd		*policy_hnd_hashtablekey;
 
 	sti = ep_alloc(sizeof(smb2_transform_info_t));
 	si  = ep_alloc(sizeof(smb2_info_t));
+	si->eo_file_info = NULL;
 	si->conv     = NULL;
 	si->saved    = NULL;
 	si->tree     = NULL;
@@ -6587,6 +6822,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 			smb2_saved_info_equal_unmatched);
 		si->conv->sesids = g_hash_table_new(smb2_sesid_info_hash,
 			smb2_sesid_info_equal);
+		si->conv->files = g_hash_table_new(smb2_eo_files_hash,smb2_eo_files_equal);
 
 		conversation_add_proto_data(conversation, proto_smb2, si->conv);
 	}
@@ -6762,6 +6998,24 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		}
 
 		if (ssi) {
+			if (dcerpc_fetch_polhnd_data(&ssi->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->fd->num)) {
+				/* If needed, create the file entry and save the policy hnd */
+				if (!si->eo_file_info) {
+					if (si->conv) {
+						eo_file_info = g_hash_table_lookup(si->conv->files,&ssi->policy_hnd);
+						if (!eo_file_info) { /* XXX This should never happen */
+							/* assert(1==0); */
+							eo_file_info = se_alloc(sizeof(smb2_eo_file_info_t));
+							policy_hnd_hashtablekey = se_alloc(sizeof(e_ctx_hnd));
+							memcpy(policy_hnd_hashtablekey, &ssi->policy_hnd, sizeof(e_ctx_hnd));
+							eo_file_info->end_of_file=0;
+							g_hash_table_insert(si->conv->files,policy_hnd_hashtablekey,eo_file_info);
+						}
+						si->eo_file_info=eo_file_info;
+					}
+				}
+			}
+
 			if (!(si->flags & SMB2_FLAGS_RESPONSE)) {
 				if (ssi->frame_res) {
 					proto_item *tmp_item;
@@ -6855,6 +7109,7 @@ dissect_smb2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 void
 proto_register_smb2(void)
 {
+	module_t *smb2_module;
 	static hf_register_info hf[] = {
 	{ &hf_smb2_cmd,
 		{ "Command", "smb2.cmd", FT_UINT16, BASE_DEC|BASE_EXT_STRING,
@@ -7995,8 +8250,16 @@ proto_register_smb2(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb2, hf, array_length(hf));
 
+	smb2_module = prefs_register_protocol(proto_smb2, NULL);
+	prefs_register_bool_preference(smb2_module, "eosmb2_take_name_as_fid",
+		"Use the full file name as File ID when exporting an SMB2 object",
+		"Whether the export object functionality will take the full path file name as file identifier",
+		&eosmb2_take_name_as_fid);
+
 	register_heur_dissector_list("smb2_heur_subdissectors", &smb2_heur_subdissector_list);
 	smb2_tap = register_tap("smb2");
+	smb2_eo_tap = register_tap("smb_eo"); /* SMB Export Object tap */
+
 }
 
 void

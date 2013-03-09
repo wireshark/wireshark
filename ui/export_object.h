@@ -59,9 +59,9 @@ const char *ct2ext(const char *content_type);
 gboolean eo_dicom_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
         const void *data);
 gboolean eo_http_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
-        const void *data);
+	const void *data);
 gboolean eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
-        const void *data);
+	const void *data);
 
 void eo_smb_cleanup(void);
 
