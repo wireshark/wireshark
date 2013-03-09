@@ -1078,7 +1078,7 @@ lbl_winpcap_installed:
 	; Compare the installed build against the one we have.
 	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion"
 	StrCmp $WINPCAP_VERSION "" lbl_winpcap_do_install ; WinPcap is really old(?) or installed improperly.
-	${VersionCompare} $WINPCAP_VERSION "4.1.0.2001" $1 ; WinPcap 4.1.2
+	${VersionCompare} $WINPCAP_VERSION "4.1.0.2980" $1 ; WinPcap 4.1.3
 	StrCmp $1 "2" lbl_winpcap_do_install
 
 ;lbl_winpcap_dont_install:

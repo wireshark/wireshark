@@ -306,7 +306,8 @@ GTK_INST_VERSION=3.4
 #
 PCAP_DIR=$(WIRESHARK_LIB_DIR)\WPdpack
 # This macro is used by the nsis installer script, by the u3/portable apps and by the setup target.
-PCAP_VERSION=4_1_2
+PCAP_VERSION=4_1_3
+WPD_VERSION=4_1_2
 
 #
 # Optional: WinPcap remote capture support and new API
@@ -526,7 +527,8 @@ GTK_INST_VERSION=3.4
 #
 PCAP_DIR=$(WIRESHARK_LIB_DIR)\WPdpack
 # This macro is used by the nsis installer script, by the u3/portable apps and by the setup target.
-PCAP_VERSION=4_1_2
+PCAP_VERSION=4_1_3
+WPD_VERSION=4_1_2
 
 #
 # Optional: WinPcap remote capture support and new API
