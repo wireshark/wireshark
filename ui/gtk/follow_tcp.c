@@ -168,7 +168,7 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 	}
 
 	/* Set the display filter entry accordingly */
-	filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+	filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
 	filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
 
 	/* needed in follow_filter_out_stream(), is there a better way? */

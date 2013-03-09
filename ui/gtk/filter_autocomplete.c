@@ -185,7 +185,7 @@ autoc_filter_row_activated_cb(GtkTreeView *treeview,
   }
 
   w_main = gtk_widget_get_toplevel(GTK_WIDGET(data));
-  win = g_object_get_data(G_OBJECT(w_main), E_FILT_AUTOCOMP_PTR_KEY);
+  win = (GtkWidget *)g_object_get_data(G_OBJECT(w_main), E_FILT_AUTOCOMP_PTR_KEY);
   if(win != NULL) {
     gtk_widget_destroy(win);
     g_object_set_data(G_OBJECT(w_main), E_FILT_AUTOCOMP_PTR_KEY, NULL);
@@ -199,7 +199,7 @@ filter_te_focus_out_cb(GtkWidget *filter_te _U_,
 {
   GtkWidget *win;
 
-  win = g_object_get_data(G_OBJECT(data), E_FILT_AUTOCOMP_PTR_KEY);
+  win = (GtkWidget *)g_object_get_data(G_OBJECT(data), E_FILT_AUTOCOMP_PTR_KEY);
   if(win != NULL) {
     gtk_widget_destroy(win);
     g_object_set_data(G_OBJECT(data), E_FILT_AUTOCOMP_PTR_KEY, NULL);
@@ -352,7 +352,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
 
   w_toplevel = gtk_widget_get_toplevel(filter_te);
 
-  popup_win = g_object_get_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY);
+  popup_win = (GtkWidget *)g_object_get_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY);
 
   k = event->keyval;
   ckey = event->string[0];
@@ -470,7 +470,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
   }
 
 
-  treeview = g_object_get_data(G_OBJECT(popup_win), E_FILT_AUTOCOMP_TREE_KEY);
+  treeview = (GtkWidget *)g_object_get_data(G_OBJECT(popup_win), E_FILT_AUTOCOMP_TREE_KEY);
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
 
@@ -858,7 +858,7 @@ filter_parent_dlg_key_pressed_cb(GtkWidget *win, GdkEventKey *event, gpointer us
 {
   GtkWidget *popup_win;
 
-  popup_win = g_object_get_data(G_OBJECT(win), E_FILT_AUTOCOMP_PTR_KEY);
+  popup_win = (GtkWidget *)g_object_get_data(G_OBJECT(win), E_FILT_AUTOCOMP_PTR_KEY);
 
   if(popup_win && event->keyval == GDK_Escape) {
     gtk_widget_destroy(popup_win);

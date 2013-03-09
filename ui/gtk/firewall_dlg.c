@@ -277,20 +277,20 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     gtk_box_pack_start(GTK_BOX(vbox), button_hbox, FALSE, FALSE, 0);
 
     /* Create Copy Button */
-    button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_COPY);
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_COPY);
     g_signal_connect(button, "clicked", G_CALLBACK(firewall_copy_cmd_cb), rule_info);
 	gtk_widget_set_tooltip_text(button, "Copy rule to clipboard");
 
     /* Create Save Button */
-    button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_SAVE);
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_SAVE);
     g_signal_connect(button, "clicked", G_CALLBACK(firewall_save_as_cmd_cb), rule_info);
 	gtk_widget_set_tooltip_text(button, "Save the rule as currently displayed");
 
-    button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_CANCEL);
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_CANCEL);
 	gtk_widget_set_tooltip_text(button, "Cancel the dialog");
     window_set_cancel_button(rule_w, button, window_cancel_button_cb);
 
-    button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_HELP);
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_HELP);
     g_signal_connect(button, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_FIREWALL_DIALOG);
 
     /* Tuck away the rule_info object into the window */
@@ -332,7 +332,7 @@ select_product(GtkWidget *w, gpointer data _U_)
     rule_type_t rule_type = RT_NONE;
     gboolean sensitive = FALSE;
 
-    rule_info = g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
+    rule_info =(rule_info_t	*)g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
 
     if (prod >= NUM_PRODS || !rule_info)
         return;
@@ -409,7 +409,7 @@ select_filter(GtkWidget *w, gpointer data _U_)
     rule_info_t	*rule_info;
     gpointer ptr;
 
-    rule_info = g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
+    rule_info = (rule_info_t *)g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
     if (!rule_info)
         return;
 
@@ -646,9 +646,9 @@ static void sf_netsh_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_ty
 static void
 firewall_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
-    rule_info_t	*rule_info;
+    rule_info_t *rule_info;
 
-    rule_info = g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
+    rule_info = (rule_info_t *)g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
 #if 0
     forget_rule_info(rule_info);
 #endif
@@ -659,7 +659,7 @@ firewall_destroy_cb(GtkWidget *w, gpointer data _U_)
 static void
 firewall_copy_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
-    rule_info_t	*rule_info = data;
+    rule_info_t	*rule_info = (rule_info_t *)data;
 
     GtkTextIter start, end;
     GtkTextBuffer *buf;
@@ -681,7 +681,7 @@ static void
 firewall_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
     GtkWidget		*new_win;
-    rule_info_t	*rule_info = data;
+    rule_info_t	*rule_info = (rule_info_t *)data;
 
 #if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
     if (rule_info->firewall_save_as_w != NULL) {
@@ -751,8 +751,8 @@ firewall_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
            directory, and leave the selection box displayed. */
         set_last_open_dir(to_name);
         g_free(to_name);
-        file_selection_set_current_folder(fs, get_last_open_dir());
-        gtk_file_chooser_set_current_name(fs, "");
+        file_selection_set_current_folder((GtkWidget *)fs, get_last_open_dir());
+        gtk_file_chooser_set_current_name((GtkFileChooser *)fs, "");
         return FALSE; /* run the dialog again */
     }
 
@@ -787,7 +787,7 @@ firewall_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 static void
 firewall_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 {
-    rule_info_t	*rule_info = data;
+   rule_info_t	*rule_info = (rule_info_t *)data;
 
     /* Note that we no longer have a dialog box. */
     rule_info->firewall_save_as_w = NULL;

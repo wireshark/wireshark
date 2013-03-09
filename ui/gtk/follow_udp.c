@@ -49,10 +49,10 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
 		      epan_dissect_t *edt _U_, const void *data)
 {
 	follow_record_t *follow_record;
-	follow_info_t *follow_info = tapdata;
+	follow_info_t *follow_info = (follow_info_t *)tapdata;
 	tvbuff_t *next_tvb = (tvbuff_t *)data;
 
-	follow_record = g_malloc(sizeof(follow_record_t));
+	follow_record = g_new(follow_record_t,1);
 
 	follow_record->data = g_byte_array_sized_new(tvb_length(next_tvb));
 	follow_record->data = g_byte_array_append(follow_record->data,
@@ -123,7 +123,7 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
 		}
 
 	/* Set the display filter entry accordingly */
-	filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+	filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
 	filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
 
 	/* needed in follow_filter_out_stream(), is there a better way? */
@@ -267,7 +267,7 @@ follow_read_udp_stream(follow_info_t *follow_info,
 
 
 	for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
-		follow_record = cur->data;
+		follow_record = (follow_record_t *)cur->data;
 		skip = FALSE;
 		if (!follow_record->is_server) {
 			global_pos = &global_client_pos;
@@ -282,7 +282,7 @@ follow_read_udp_stream(follow_info_t *follow_info,
 		}
 
 		if (!skip) {
-			buffer = g_memdup(follow_record->data->data,
+			buffer = (char *)g_memdup(follow_record->data->data,
 					  follow_record->data->len);
 
 			frs_return = follow_show(follow_info, print_line_fcn_p,

@@ -92,7 +92,7 @@ fs_open_entry(fileset_entry *entry)
 static void
 fs_rb_cb(GtkWidget *open_bt, gpointer fs_data)
 {
-    fileset_entry *entry = fs_data;
+    fileset_entry *entry = (fileset_entry *)fs_data;
 
     /* button release should have no effect */
     if (!gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(open_bt) )) {
@@ -319,11 +319,11 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+    close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(fs_w, close_bt, window_cancel_button_cb);
     gtk_widget_set_tooltip_text(close_bt, "Close this window.");
 
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_FILESET_DIALOG);
 
     gtk_widget_grab_default(close_bt);

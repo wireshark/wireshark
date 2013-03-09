@@ -75,13 +75,13 @@ typedef struct {
 static int
 ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl)
 {
-    follow_info_t* follow_info = tapdata;
+    follow_info_t* follow_info = (follow_info_t*)tapdata;
     SslDecryptedRecord* rec;
     SslDataInfo* appl_data;
     gint total_len;
     guchar *p;
     int proto_ssl = GPOINTER_TO_INT(ssl);
-    SslPacketInfo* pi = p_get_proto_data(pinfo->fd, proto_ssl);
+    SslPacketInfo* pi = (SslPacketInfo*)p_get_proto_data(pinfo->fd, proto_ssl);
 
     /* skip packet without decrypted data payload*/
     if (!pi || !pi->appl_data)
@@ -96,7 +96,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     } while (appl_data);
 
     /* compute packet direction */
-    rec = g_malloc(sizeof(SslDecryptedRecord) + total_len);
+    rec = (SslDecryptedRecord*)g_malloc(sizeof(SslDecryptedRecord) + total_len);
 
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
@@ -175,7 +175,7 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
     }
 
     /* Set the display filter entry accordingly */
-	filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+	filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
 	filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
 
     /* needed in follow_filter_out_stream(), is there a better way? */
@@ -315,7 +315,7 @@ follow_read_ssl_stream(follow_info_t *follow_info,
     frs_return_t        frs_return;
 
     for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
-        SslDecryptedRecord* rec = cur->data;
+        SslDecryptedRecord* rec = (SslDecryptedRecord*)cur->data;
 	skip = FALSE;
 	if (!rec->is_server) {
 	    global_pos = &global_client_pos;
@@ -331,7 +331,7 @@ follow_read_ssl_stream(follow_info_t *follow_info,
 
         if (!skip) {
             size_t nchars = rec->data.data_len;
-            gchar *buffer = g_memdup(rec->data.data, (guint) nchars);
+            gchar *buffer = (gchar *)g_memdup(rec->data.data, (guint) nchars);
 
 	    frs_return = follow_show(follow_info, print_line_fcn_p, buffer, nchars,
 				     rec->is_server, arg, global_pos,
