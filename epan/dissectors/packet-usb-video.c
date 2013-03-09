@@ -2119,7 +2119,7 @@ dissect_usb_vid_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                     break;
             }
         }
-        else if (originating_interface == INT_VIDEOCONTROL)
+        else if (originating_interface == INT_VIDEOSTREAMING)
         {
             /* @todo */
         }
