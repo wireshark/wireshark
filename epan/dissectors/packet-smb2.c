@@ -1418,7 +1418,6 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 				if (eo_file_info) {
 					si->eo_file_info=eo_file_info;
 				} else { /* XXX This should never happen */
-					//assert(1==0);
 					eo_file_info = se_alloc(sizeof(smb2_eo_file_info_t));
 					policy_hnd_hashtablekey = se_alloc(sizeof(e_ctx_hnd));
 					memcpy(policy_hnd_hashtablekey, &policy_hnd, sizeof(e_ctx_hnd));
