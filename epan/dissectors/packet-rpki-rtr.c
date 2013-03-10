@@ -128,7 +128,7 @@ int dissect_rpkirtr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
         proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         pdu_type = tvb_get_guint8(tvb, offset);
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown %d"));
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown %d"));
         proto_item_append_text(ti, " (%s)", val_to_str(pdu_type, rtr_pdu_type_vals, "Unknown %d"));
         offset += 1;
 
