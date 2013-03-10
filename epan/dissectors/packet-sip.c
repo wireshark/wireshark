@@ -1603,7 +1603,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	par_name_end_offset = tvb_skip_wsp_return(tvb,par_name_end_offset);
 
 	/* Extract the parameter name */
-	name = tvb_get_ephemeral_string(tvb, start_offset, par_name_end_offset-start_offset+1);
+	name = tvb_get_ephemeral_string(tvb, start_offset, par_name_end_offset-start_offset);
 
 	/* Find end of parameter, it can be a quoted string so check for quoutes too */
 	queried_offset = par_name_end_offset;
