@@ -831,8 +831,8 @@ emem_alloc_glib(size_t size, emem_pool_t *mem)
 	mem->used_list=npc;
 	/* There's no padding/alignment involved (from our point of view) when
 	 * we fetch the memory directly from the system pool, so WYSIWYG */
-	npc->free_offset = npc->free_offset_init = 0;
-	npc->amount_free = npc->amount_free_init = (unsigned int) size;
+	npc->amount_free = npc->free_offset_init = 0;
+	npc->free_offset = npc->amount_free_init = (unsigned int) size;
 
 	return npc->buf;
 }
