@@ -25,6 +25,7 @@ S<[ B<-P> ]>
 S<[ B<-q> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> ]>
+S<[ B<-t> ]>
 S<[ B<-v> ]>
 S<[ B<-w> E<lt>outfileE<gt> ]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
