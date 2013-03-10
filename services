@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2013-03-01
+# 2013-03-07
 # 
 # Expert(s)
 # 
@@ -11451,7 +11451,10 @@ rdmnet-ctrl	5569/tcp	# Management (RDM) controller  [PLASA]                     
 # status notifications
 rdmnet-device	5569/udp	# PLASA E1.33, Remote Device   [PLASA]                                            [Simon_Newton]                                            2012-06-01
 # Management (RDM) messages
-# 5570-5572            Unassigned
+# Known
+# 5570-5572            Unassigned                                                                                                                                                                                                 UNAUTHORIZED
+# USE on Port
+# 5570
 sdmmp	5573/tcp	# SAS Domain Management        [Ron_Zuckerman]                                    [Ron_Zuckerman]                                           2007-08-30
 # Messaging Protocol
 sdmmp	5573/udp	# SAS Domain Management        [Ron_Zuckerman]                                    [Ron_Zuckerman]                                           2007-08-30
@@ -16295,6 +16298,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # groovesquid                    tcp    Groovesquid Democratic Music [www_nsovocal_com]                                 [Ruben_Beltran]                                           2011-10-18                                                                     Defined TXT keys: None
 # Control Protocol
 # growl                                 Growl                                                                                                                                                                                                                    Defined TXT keys: None
+# Image Data Transfer API for
+# gucam-http                     tcp    Wi-Fi Camera Devices over    [Ripplex_Inc]                                      [Hiroshi_Matsuda]                                         2013-03-04                                                                     Defined TXT keys: device-name=<name of camera device>
+# HTTP
 # Defined TXT keys: Varies; Depends on type of service being
 # offered/resolved Although DNS-SD does not recommend or
 # advocate using GUIDs as the primary name of an offered
@@ -18910,6 +18916,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Hiromi_Ohara]                                            Hiromi Ohara                                    mailto:Hiromi.Ohara&fujixerox.co.jp                           2008-06-18
 # [Hiromi_Taki]                                             Hiromi Taki                                     mailto:stg-togo&saint.nm.fujitsu.co.jp
 # [Hiroyasu_Ogata]                                          Hiroyasu Ogata                                  mailto:Ogata.Hiroyasu&exc.epson.co.jp
+# [Hiroshi_Matsuda]                                         Hiroshi Matsuda           Ripplex Inc.          mailto:gucam&ripplex.com                                      2013-03-04
 # [Hiroyuki_Hashimoto]                                      Hiroyuki Hashimoto                              mailto:easymp&exc.epson.co.jp                                 2002-10
 # [Hiroyuki_Kawabuchi]                                      Hiroyuki Kawabuchi                              mailto:buchi&ael.fujitsu.co.jp
 # [Hiroyuki_Takahashi]                                      Hiroyuki Takahashi                              mailto:hiro.takahashi&eng.sun.com
@@ -20855,6 +20862,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Rik_Ditter]                                              Rik Ditter                                      mailto:managers&generationtechnologies.com                    2006-02
 # [Rik_Faith]                                               Rik Faith                                       mailto:faith&cs.unc.edu
 # [Rina_Nethaniel]                                          Rina Nethaniel
+# [Ripplex_Inc]                                                                       Ripplex Inc.          mailto:gucam&ripplex.com                                      2013-03-04
 # [Ritsuto_Sako]                                            Ritsuto Sako                                    mailto:sakou.ritsuto&canon.co.jp                              2009-05-04
 # [Ritu_Bahl]                                               Ritu Bahl                                       mailto:ritub&microsoft.com
 # [Rituparna_Agrawal]                                       Rituparna Agrawal                               mailto:riagrawa&cisco.com                                     2005-09
