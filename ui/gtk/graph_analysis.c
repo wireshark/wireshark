@@ -318,7 +318,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 		return FALSE;
 	}
 
-	time_str       = g_malloc(COL_MAX_LEN);
+	time_str       = (gchar *)g_malloc(COL_MAX_LEN);
 	label_string   = g_string_new("");
 	empty_line     = g_string_new("");
 	separator_line = g_string_new("");
@@ -329,7 +329,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 	list = g_list_first(user_data->graph_info->list);
 	while (list)
 	{
-		gai = list->data;
+		gai = (graph_analysis_item_t *)list->data;
 		list = g_list_next(list);
 
 		if (!gai->display)
@@ -412,7 +412,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 	list = g_list_first(user_data->graph_info->list);
 	while (list)
 	{
-		gai = list->data;
+		gai = (graph_analysis_item_t *)list->data;
 		list = g_list_next(list);
 
 		if (!gai->display)
@@ -533,7 +533,7 @@ static void overwrite_existing_file_cb(gpointer dialog _U_, gint btn, gpointer u
 	switch (btn) {
 	case(ESD_BTN_YES):
 	    /* overwrite the file*/
-	    dialog_graph_dump_to_file(user_data);
+	    dialog_graph_dump_to_file((graph_analysis_data_t *)user_data);
 	    break;
 	case(ESD_BTN_NO):
 	    break;
@@ -547,7 +547,7 @@ static void overwrite_existing_file_cb(gpointer dialog _U_, gint btn, gpointer u
 static gboolean save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data)
 {
 	FILE *file_test;
-	graph_analysis_data_t *user_data_p = user_data;
+	graph_analysis_data_t *user_data_p = (graph_analysis_data_t *)user_data;
 
 	user_data_p->dlg.save_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_to_file_w));
 
@@ -584,7 +584,7 @@ static gboolean save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data)
 	}
 
 	else{
-		if (!dialog_graph_dump_to_file(user_data)) {
+		if (!dialog_graph_dump_to_file((graph_analysis_data_t *)user_data)) {
 			/* Couldn't open the file ?  */
 			g_free(user_data_p->dlg.save_file);
 			return TRUE;
@@ -728,7 +728,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	}
 
 	bg_pixbuf =  gdk_pixbuf_new_from_xpm_data(voip_bg_xpm);
-	time_str = g_malloc(COL_MAX_LEN);
+	time_str = (gchar *)g_malloc(COL_MAX_LEN);
 	user_data->dlg.needs_redraw = FALSE;
 
 	gtk_widget_get_allocation(user_data->dlg.draw_area_time, &draw_area_time_alloc);
@@ -795,7 +795,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	i = 0;
 	while (list)
 	{
-		gai = list->data;
+		gai = (graph_analysis_item_t *)list->data;
 		if (gai->display) {
 			if (current_item>=display_items) break;		/* the item is outside the display */
 			if (i>=first_item) {
@@ -1339,7 +1339,7 @@ static void dialog_graph_redraw(graph_analysis_data_t *user_data)
 /****************************************************************************/
 static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	guint32 item;
 
 	if (event->type != GDK_BUTTON_PRESS) return TRUE;
@@ -1364,7 +1364,7 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
 /****************************************************************************/
 static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 
 	/* if there is nothing selected, just return */
 	if (user_data->dlg.selected_item == 0xFFFFFFFF) return TRUE;
@@ -1399,7 +1399,7 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
 /****************************************************************************/
 static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	GtkAllocation allocation;
 
 	gtk_widget_get_allocation (widget, &allocation);
@@ -1419,7 +1419,7 @@ static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event _U_, gpointer data)
 {
 	GtkAllocation allocation;
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
 
@@ -1443,7 +1443,7 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event _U_, gpoin
 static gboolean
 draw_area_scrolled(GtkAdjustment *adjustment _U_, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area));
 
 
@@ -1454,7 +1454,7 @@ draw_area_scrolled(GtkAdjustment *adjustment _U_, gpointer data)
 /****************************************************************************/
 static gboolean draw_comments(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	GtkAllocation          allocation;
 
 	gtk_widget_get_allocation (widget, &allocation);
@@ -1475,7 +1475,7 @@ static gboolean draw_comments(GtkWidget *widget, cairo_t *cr, gpointer data)
 static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event _U_, gpointer data)
 {
 	GtkAllocation allocation;
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
 	if (gtk_widget_is_drawable(widget)) {
@@ -1498,7 +1498,7 @@ static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event _
 static gboolean
 comments_area_scrolled(GtkAdjustment *adjustment _U_, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area_comments));
 
 
@@ -1527,7 +1527,7 @@ static gboolean draw_time(GtkWidget *widget, cairo_t *cr, gpointer data)
 static gboolean expose_event_time(GtkWidget *widget, GdkEventExpose *event _U_, gpointer data)
 {
 	GtkAllocation          allocation;
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	cairo_t               *cr        = gdk_cairo_create (gtk_widget_get_window(widget));
 
 	if (gtk_widget_is_drawable(widget) ) {
@@ -1549,7 +1549,7 @@ static gboolean expose_event_time(GtkWidget *widget, GdkEventExpose *event _U_, 
 /****************************************************************************/
 static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	GtkAllocation          widget_alloc;
 	cairo_t               *cr;
 
@@ -1601,7 +1601,7 @@ static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_,
 /****************************************************************************/
 static gboolean configure_event_comments(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	GtkAllocation          widget_alloc;
 	cairo_t               *cr;
 
@@ -1653,7 +1653,7 @@ static gboolean configure_event_comments(GtkWidget *widget, GdkEventConfigure *e
 /****************************************************************************/
 static gboolean configure_event_time(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	GtkAllocation          widget_alloc;
 	cairo_t               *cr;
 
@@ -1706,7 +1706,7 @@ static gboolean configure_event_time(GtkWidget *widget, GdkEventConfigure *event
 /****************************************************************************/
 static gboolean pane_callback(GtkWidget *widget _U_, GParamSpec *pspec _U_, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 	GtkAllocation          draw_area_comments_alloc, draw_area_alloc;
 	cairo_t               *cr;
 
@@ -1753,7 +1753,7 @@ static gboolean pane_callback(GtkWidget *widget _U_, GParamSpec *pspec _U_, gpoi
 /****************************************************************************/
 static void v_scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 {
-	graph_analysis_data_t *user_data = data;
+	graph_analysis_data_t *user_data = (graph_analysis_data_t *)data;
 
 	if ((user_data->dlg.first_item+gtk_adjustment_get_page_size(user_data->dlg.v_scrollbar_adjustment)+1 == user_data->num_items)
 	    && (gtk_adjustment_get_value(user_data->dlg.v_scrollbar_adjustment) >= user_data->dlg.first_item ))
@@ -2033,7 +2033,7 @@ static void get_nodes(graph_analysis_data_t *user_data)
 	list = g_list_first(user_data->graph_info->list);
 	while (list)
 	{
-		gai = list->data;
+		gai = (graph_analysis_item_t *)list->data;
 		if (gai->display) {
 			user_data->num_items++;
 			if (!user_data->dlg.inverse) {
@@ -2053,7 +2053,7 @@ graph_analysis_data_t *graph_analysis_init(void)
 {
 	graph_analysis_data_t *user_data;
 	/* init */
-	user_data = g_malloc(sizeof(graph_analysis_data_t));
+	user_data = g_new(graph_analysis_data_t,1);
 
 	/* init user_data */
 	graph_analysis_init_dlg(user_data);

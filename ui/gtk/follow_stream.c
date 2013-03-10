@@ -105,7 +105,7 @@ gboolean
 follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 		       void *arg)
 {
-	GtkWidget *text = arg;
+	GtkWidget *text = (GtkWidget *)arg;
 	GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text));
 	GtkTextIter    iter;
 
@@ -146,7 +146,7 @@ static gboolean
 follow_print_text(char *buffer, size_t nchars, gboolean is_server _U_,
 		  void *arg)
 {
-	print_stream_t *stream = arg;
+	print_stream_t *stream = (print_stream_t *)arg;
 	size_t i;
 	char *str;
 
@@ -160,7 +160,7 @@ follow_print_text(char *buffer, size_t nchars, gboolean is_server _U_,
 	}
 
 	/* convert unterminated char array to a zero terminated string */
-	str = g_malloc(nchars + 1);
+	str = (char *)g_malloc(nchars + 1);
 	memcpy(str, buffer, nchars);
 	str[nchars] = 0;
 	print_line(stream, /*indent*/ 0, str);
@@ -172,7 +172,7 @@ follow_print_text(char *buffer, size_t nchars, gboolean is_server _U_,
 static gboolean
 follow_write_raw(char *buffer, size_t nchars, gboolean is_server _U_, void *arg)
 {
-	FILE *fh = arg;
+	FILE *fh = (FILE *)arg;
 	size_t nwritten;
 
 	nwritten = fwrite(buffer, 1, nchars, fh);
@@ -186,7 +186,7 @@ follow_write_raw(char *buffer, size_t nchars, gboolean is_server _U_, void *arg)
 static void
 follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 {
-	follow_info_t	*follow_info = data;
+	follow_info_t	*follow_info = (follow_info_t *)data;
 
 	/*
 	 * A radio button toggles when it goes on and when it goes
@@ -242,7 +242,7 @@ follow_load_text(follow_info_t *follow_info)
 void
 follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
 {
-	follow_info_t	*follow_info = data;
+	follow_info_t	*follow_info = (follow_info_t *)data;
 
 	/* Lock out user from messing with us. (ie. don't free our data!) */
 	gtk_widget_set_sensitive(follow_info->streamwindow, FALSE);
@@ -263,7 +263,7 @@ follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
 static void
 follow_find_cb(GtkWidget * w _U_, gpointer data)
 {
-	follow_info_t      	*follow_info = data;
+	follow_info_t      	*follow_info = (follow_info_t *)data;
 	GtkWidget		*find_dlg_w, *main_vb, *buttons_row, *find_lb;
 	GtkWidget		*find_hb, *find_text_box, *find_bt, *cancel_bt;
 
@@ -312,8 +312,8 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 	buttons_row = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL,
 					 NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), buttons_row, TRUE, TRUE, 0);
-	find_bt = g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_FIND);
-	cancel_bt = g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_CANCEL);
+	find_bt   = (GtkWidget *)g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_FIND);
+	cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_CANCEL);
 
 	g_signal_connect(find_bt, "clicked", G_CALLBACK(follow_find_button_cb), follow_info);
 	g_object_set_data(G_OBJECT(find_bt), "find_string", find_text_box);
@@ -333,7 +333,7 @@ follow_find_button_cb(GtkWidget * w, gpointer data)
 {
 	gboolean		found;
 	const gchar		*find_string;
-	follow_info_t	*follow_info = data;
+	follow_info_t	*follow_info = (follow_info_t *)data;
 	GtkTextBuffer	*buffer;
 	GtkTextIter		iter, match_start, match_end;
 	GtkTextMark		*last_pos_mark;
@@ -379,7 +379,7 @@ follow_find_button_cb(GtkWidget * w, gpointer data)
 static void
 follow_find_destroy_cb(GtkWidget * win _U_, gpointer data)
 {
-	follow_info_t	*follow_info = data;
+	follow_info_t	*follow_info = (follow_info_t *)data;
 
 	/* Note that we no longer have a dialog box. */
 	follow_info->find_dlg_w = NULL;
@@ -391,7 +391,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 	print_stream_t	*stream;
 	gboolean	 to_file;
 	const char	*print_dest;
-	follow_info_t	*follow_info = data;
+	follow_info_t	*follow_info =(follow_info_t *) data;
 #ifdef _WIN32
 	gboolean         win_printer = FALSE;
 	int              tmp_fd;
@@ -527,7 +527,7 @@ static void
 follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
 	GtkWidget		*new_win;
-	follow_info_t	*follow_info = data;
+	follow_info_t	*follow_info = (follow_info_t *)data;
 
 #if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
 	if (follow_info->follow_save_as_w != NULL) {
@@ -595,12 +595,12 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 		   directory, and leave the selection box displayed. */
 		set_last_open_dir(to_name);
 		g_free(to_name);
-		file_selection_set_current_folder(fs, get_last_open_dir());
-		gtk_file_chooser_set_current_name(fs, "");
+		file_selection_set_current_folder((GtkWidget *)fs, get_last_open_dir());
+		gtk_file_chooser_set_current_name((GtkFileChooser *)fs, "");
 		return FALSE; /* do gtk_dialog_run again */
 	}
 
-	follow_info = g_object_get_data(G_OBJECT(fs), E_FOLLOW_INFO_KEY);
+	follow_info = (follow_info_t *)g_object_get_data(G_OBJECT(fs), E_FOLLOW_INFO_KEY);
 
 	if (follow_info->show_type == SHOW_RAW) {
 		/* Write the data out as raw binary data */
@@ -667,7 +667,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 static void
 follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 {
-	follow_info_t	*follow_info = data;
+	follow_info_t	*follow_info = (follow_info_t *)data;
 
 	/* Note that we no longer have a dialog box. */
 	follow_info->follow_save_as_w = NULL;
@@ -676,7 +676,7 @@ follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 static void
 follow_stream_direction_changed(GtkWidget *w, gpointer data)
 {
-	follow_info_t *follow_info = data;
+	follow_info_t *follow_info = (follow_info_t *)data;
 
 	switch(gtk_combo_box_get_active(GTK_COMBO_BOX(w))) {
 
@@ -885,17 +885,17 @@ follow_stream(const gchar *title, follow_info_t *follow_info,
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 5);
 
 
-	button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_FILTER_OUT_STREAM);
+	button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_FILTER_OUT_STREAM);
 	gtk_widget_set_tooltip_text(button, "Build a display filter which cuts this stream from the capture");
 	g_signal_connect(button, "clicked", G_CALLBACK(follow_filter_out_stream),
 		       follow_info);
 
-	button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(streamwindow, button, window_cancel_button_cb);
 	gtk_widget_set_tooltip_text(button, "Close the dialog and keep the current display filter");
 	gtk_widget_grab_default(button);
 
-	button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+	button = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 	g_signal_connect(button, "clicked", G_CALLBACK(topic_cb),
 			 (gpointer)HELP_FOLLOW_STREAM_DIALOG);
 
@@ -932,7 +932,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	GList *cur;
 	int i;
 
-	follow_info = g_object_get_data(G_OBJECT(w), E_FOLLOW_INFO_KEY);
+	follow_info = (follow_info_t *)g_object_get_data(G_OBJECT(w), E_FOLLOW_INFO_KEY);
 
 	switch(follow_info->follow_type) {
 
@@ -947,7 +947,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	case FOLLOW_UDP :
 		for(cur = follow_info->payload; cur; cur = g_list_next(cur))
 			if(cur->data) {
-				follow_record = cur->data;
+			follow_record = (follow_record_t *)cur->data;
 				if(follow_record->data)
 					g_byte_array_free(follow_record->data,
 							  TRUE);

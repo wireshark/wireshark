@@ -242,7 +242,7 @@ window_present(GtkWidget *win)
     gtk_window_present(GTK_WINDOW(win));
 
     /* do we have a previously saved size and position of this window? */
-    name = g_object_get_data(G_OBJECT(win), WINDOW_GEOM_KEY);
+    name = (const gchar *)g_object_get_data(G_OBJECT(win), WINDOW_GEOM_KEY);
     if(name) {
         if(window_geom_load(name, &geom)) {
             /* XXX - use prefs to select which values to set? */
@@ -444,7 +444,7 @@ window_destroy(GtkWidget *win)
     if(gtk_widget_get_has_window(win) && gtk_widget_get_visible(win)) {
         window_get_geometry(win, &geom);
 
-        name = g_object_get_data(G_OBJECT(win), WINDOW_GEOM_KEY);
+        name = (const gchar *)g_object_get_data(G_OBJECT(win), WINDOW_GEOM_KEY);
         if(name) {
             window_geom_save(name, &geom);
             g_free((gpointer)name);
@@ -656,7 +656,7 @@ pipe_input_cb(GIOChannel   *source _U_,
               GIOCondition  condition _U_,
               gpointer      data)
 {
-    pipe_input_t *pipe_input = data;
+    pipe_input_t *pipe_input = (pipe_input_t *)data;
 
 
     /* avoid reentrancy problems and stack overflow */
@@ -1039,9 +1039,7 @@ static void
 copy_binary_free_cb(GtkClipboard  *clipboard _U_,
                          gpointer  user_data_or_owner)
 {
-    copy_binary_t* copy_data;
-    copy_data = user_data_or_owner;
-    destroy_copy_binary_t(copy_data);
+    destroy_copy_binary_t((copy_binary_t*)user_data_or_owner);
 }
 
 static void
@@ -1052,7 +1050,7 @@ copy_binary_get_cb(GtkClipboard     *clipboard _U_,
 {
     copy_binary_t* copy_data;
 
-    copy_data = user_data_or_owner;
+    copy_data = (copy_binary_t*)user_data_or_owner;
 
     /* Just do a dumb set as binary data */
     gtk_selection_data_set(selection_data, GDK_NONE, 8, copy_data->data, copy_data->len);

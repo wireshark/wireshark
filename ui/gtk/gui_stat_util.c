@@ -76,7 +76,7 @@ create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, cons
 	if (columns <= 0)
 		return NULL;
 
-	types = g_malloc(columns *sizeof(GType));
+	types = (GType *)g_malloc(columns *sizeof(GType));
 	for (i = 0; i < columns; i++)
 		types[i] = headers[i].type;
 

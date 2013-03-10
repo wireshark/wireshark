@@ -56,15 +56,15 @@ man_addr_resolv_ok(GtkWidget *w _U_, gpointer data _U_)
   gchar       *addr;
   gboolean     active, redissect = FALSE;
 
-  addr_cb = g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "address");
-  name_te = g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "name");
+  addr_cb = (GtkWidget *)g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "address");
+  name_te = (GtkWidget *)g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "name");
 
   addr = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(addr_cb));
   name = gtk_entry_get_text(GTK_ENTRY(name_te));
 
   if (strlen(addr) && strlen(name)) {
     if (!add_ip_name_from_string(addr, name)) {
-      GtkWidget *dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      GtkWidget *dialog = (GtkWidget *)simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                                         "Illegal IP address: \"%s\".", addr);
       simple_dialog_set_cb(dialog, man_addr_ill_addr_cb, NULL);
       g_free(addr);
@@ -75,7 +75,7 @@ man_addr_resolv_ok(GtkWidget *w _U_, gpointer data _U_)
   }
   g_free(addr);
 
-  resolv_cb = g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "resolv");
+  resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "resolv");
   active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resolv_cb));
   if (!gbl_resolv_flags.network_name && active) {
     /* Name resolution for Network Layer activated */
@@ -99,9 +99,9 @@ changed_cb(GtkWidget *w _U_, GtkWidget *ok_bt)
   GtkWidget   *addr_cb, *name_cb, *resolv_cb;
   gboolean     active;
 
-  name_cb   = g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "name");
-  addr_cb   = g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "address");
-  resolv_cb = g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "resolv");
+  name_cb   = (GtkWidget *)g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "name");
+  addr_cb   = (GtkWidget *)g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "address");
+  resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(man_addr_resolv_dlg), "resolv");
 
   name   = gtk_entry_get_text(GTK_ENTRY(name_cb));
   addr   = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(addr_cb));
@@ -138,7 +138,7 @@ manual_addr_resolv_dlg(GtkWidget *w _U_, gpointer data)
     GList *addr_entry;
     addr_list = get_ip_address_list_from_packet_list_row(data);
     for (addr_entry = addr_list; addr_entry != NULL; addr_entry = g_list_next(addr_entry)) {
-      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(addr_cb), addr_entry->data);
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(addr_cb), (const gchar *)addr_entry->data);
     }
     gtk_combo_box_set_active(GTK_COMBO_BOX(addr_cb), 0);
   }
@@ -176,10 +176,10 @@ manual_addr_resolv_dlg(GtkWidget *w _U_, gpointer data)
   g_signal_connect(resolv_cb, "toggled", G_CALLBACK(changed_cb), ok_bt);
   dlg_set_activate(name_te, ok_bt);
 
-  close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+  close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(man_addr_resolv_dlg, close_bt, window_cancel_button_cb);
 
-  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_MANUAL_ADDR_RESOLVE_DIALOG);
 
   gtk_widget_grab_default(ok_bt);
