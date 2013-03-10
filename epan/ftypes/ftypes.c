@@ -24,7 +24,6 @@
 
 #include <ftypes-int.h>
 #include <glib.h>
-#include "../slab.h"
 
 #include "ftypes.h"
 

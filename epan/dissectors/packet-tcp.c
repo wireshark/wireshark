@@ -40,7 +40,6 @@
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
-#include <epan/slab.h>
 #include <epan/expert.h>
 
 #include "packet-tcp.h"
@@ -440,16 +439,6 @@ static gboolean tcp_analyze_seq           = TRUE;
 static gboolean tcp_relative_seq          = TRUE;
 static gboolean tcp_track_bytes_in_flight = TRUE;
 static gboolean tcp_calculate_ts          = FALSE;
-
-/* SLAB allocator for tcp_unacked structures
- */
-SLAB_ITEM_TYPE_DEFINE(tcp_unacked_t)
-static SLAB_FREE_LIST_DEFINE(tcp_unacked_t)
-#define TCP_UNACKED_NEW(fi)                 \
-    SLAB_ALLOC(fi, tcp_unacked_t)
-#define TCP_UNACKED_FREE(fi)                    \
-    SLAB_FREE(fi, tcp_unacked_t)
-
 
 #define TCP_A_RETRANSMISSION        0x0001
 #define TCP_A_LOST_PACKET           0x0002
@@ -1129,7 +1118,7 @@ finished_checking_retransmission_type:
     nextseq = seq+seglen;
     if (seglen || flags&(TH_SYN|TH_FIN)) {
         /* add this new sequence number to the fwd list */
-        TCP_UNACKED_NEW(ual);
+        ual = g_slice_new(tcp_unacked_t);
         ual->next=tcpd->fwd->segments;
         tcpd->fwd->segments=ual;
         ual->frame=pinfo->fd->num;
@@ -1223,14 +1212,12 @@ finished_checking_retransmission_type:
 
         if (!prevual) {
             tcpd->rev->segments = tmpual;
-            TCP_UNACKED_FREE(ual);
-            ual = tmpual;
         }
         else{
             prevual->next = tmpual;
-            TCP_UNACKED_FREE(ual);
-            ual = tmpual;
         }
+        g_slice_free(tcp_unacked_t, ual);
+        ual = tmpual;
     }
 
     /* how many bytes of data are there in flight after this frame

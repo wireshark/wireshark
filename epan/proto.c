@@ -38,7 +38,6 @@
 #include "plugins.h"
 #include "proto.h"
 #include "epan_dissect.h"
-#include "slab.h"
 #include "tvbuff.h"
 #include "emem.h"
 #include "charsets.h"
