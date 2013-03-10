@@ -69,7 +69,7 @@ fi
 
 if [ $VALID -eq 0 ]
 then
-    printf "Usage: $0 [-2] [-b bin_dir] [-C config_profile] [-l] [-n] [-r] [-t] [-w] /path/to/file.pcap\n"
+    printf "Usage: $0 [-2] [-b bin_dir] [-c] [-e] [-C config_profile] [-l] [-n] [-r] [-t] [-T] [-w] [-v] /path/to/file.pcap\n"
     exit 1
 fi
 
