@@ -147,8 +147,8 @@ FILE *debug_log;   /* for logging debug messages to  */
 static GAsyncQueue *pcap_queue;
 static gint64 pcap_queue_bytes;
 static gint64 pcap_queue_packets;
-static gint64 pcap_queue_byte_limit = 1024 * 1024;
-static gint64 pcap_queue_packet_limit = 1000;
+static gint64 pcap_queue_byte_limit = 0;
+static gint64 pcap_queue_packet_limit = 0;
 
 static gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Wireshark capture child */
 #ifdef _WIN32
@@ -241,6 +241,7 @@ typedef enum {
 typedef struct _pcap_options {
     guint32                      received;
     guint32                      dropped;
+    guint32                      flushed;
     pcap_t                      *pcap_h;
 #ifdef MUST_DO_SELECT
     int                          pcap_fd;                /**< pcap file descriptor */
@@ -373,7 +374,7 @@ static void WS_MSVC_NORETURN exit_main(int err) G_GNUC_NORETURN;
 
 static void report_new_capture_file(const char *filename);
 static void report_packet_count(unsigned int packet_count);
-static void report_packet_drops(guint32 received, guint32 drops, gchar *name);
+static void report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32 flushed, gchar *name);
 static void report_capture_error(const char *error_msg, const char *secondary_error_msg);
 static void report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg);
 
@@ -499,6 +500,8 @@ print_usage(gboolean print_ver)
     fprintf(output, "  -P                       use libpcap format instead of pcapng\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
+    fprintf(output, "  -N <packet_limit>        maximum number of packets buffered within dumpcap\n");
+    fprintf(output, "  -C <byte_limit>          maximum number of bytes used for buffering packets within dumpcap\n");
     fprintf(output, "  -t                       use a separate thread per interface\n");
     fprintf(output, "  -q                       don't report packet capture counts\n");
     fprintf(output, "  -v                       print version information and exit\n");
@@ -2575,6 +2578,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         }
         pcap_opts->received = 0;
         pcap_opts->dropped = 0;
+        pcap_opts->flushed = 0;
         pcap_opts->pcap_h = NULL;
 #ifdef MUST_DO_SELECT
         pcap_opts->pcap_fd = -1;
@@ -2945,7 +2949,7 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
 
                     if (pcap_stats(pcap_opts->pcap_h, &stats) >= 0) {
                         isb_ifrecv = pcap_opts->received;
-                        isb_ifdrop = stats.ps_drop + pcap_opts->dropped;
+                        isb_ifdrop = stats.ps_drop + pcap_opts->dropped + pcap_opts->flushed;
                    } else {
                         isb_ifrecv = G_MAXUINT64;
                         isb_ifdrop = G_MAXUINT64;
@@ -3842,19 +3846,18 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     /* get packet drop statistics from pcap */
     for (i = 0; i < capture_opts->ifaces->len; i++) {
         guint32 received;
-        guint32 dropped;
+        guint32 pcap_dropped = 0;
 
         pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
         interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
         received = pcap_opts->received;
-        dropped = pcap_opts->dropped;
         if (pcap_opts->pcap_h != NULL) {
             g_assert(!pcap_opts->from_cap_pipe);
             /* Get the capture statistics, so we know how many packets were dropped. */
             if (pcap_stats(pcap_opts->pcap_h, stats) >= 0) {
                 *stats_known = TRUE;
                 /* Let the parent process know. */
-                dropped += stats->ps_drop;
+                pcap_dropped += stats->ps_drop;
             } else {
                 g_snprintf(errmsg, sizeof(errmsg),
                            "Can't get packet-drop statistics: %s",
@@ -3862,7 +3865,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 report_capture_error(errmsg, please_report);
             }
         }
-        report_packet_drops(received, dropped, interface_opts.console_display_name);
+        report_packet_drops(received, pcap_dropped, pcap_opts->dropped, pcap_opts->flushed, interface_opts.console_display_name);
     }
 
     /* close the input file (pcap or capture pipe) */
@@ -3981,7 +3984,7 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
        the "stop capturing" flag, ignore this packet, as we're not
        supposed to be saving any more packets. */
     if (!global_ld.go) {
-        pcap_opts->dropped++;
+        pcap_opts->flushed++;
         return;
     }
 
@@ -4038,7 +4041,7 @@ capture_loop_queue_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
        the "stop capturing" flag, ignore this packet, as we're not
        supposed to be saving any more packets. */
     if (!global_ld.go) {
-        pcap_opts->dropped++;
+        pcap_opts->flushed++;
         return;
     }
 
@@ -4057,8 +4060,8 @@ capture_loop_queue_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
     }
     memcpy(queue_element->pd, pd, phdr->caplen);
     g_async_queue_lock(pcap_queue);
-    if (((pcap_queue_byte_limit > 0) && (pcap_queue_bytes < pcap_queue_byte_limit)) &&
-        ((pcap_queue_packet_limit > 0) && (pcap_queue_packets < pcap_queue_packet_limit))) {
+    if (((pcap_queue_byte_limit == 0) || (pcap_queue_bytes < pcap_queue_byte_limit)) &&
+        ((pcap_queue_packet_limit == 0) || (pcap_queue_packets < pcap_queue_packet_limit))) {
         limit_reached = FALSE;
         g_async_queue_push_unlocked(pcap_queue, queue_element);
         pcap_queue_bytes += phdr->caplen;
@@ -4228,7 +4231,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_d ""
 #endif
 
-#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "k:L" OPTSTRING_m "MnpPq" OPTSTRING_r "Ss:t" OPTSTRING_u "vw:y:Z:"
+#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "C:c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "k:L" OPTSTRING_m "MN:npPq" OPTSTRING_r "Ss:t" OPTSTRING_u "vw:y:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
     if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
@@ -4583,6 +4586,12 @@ main(int argc, char *argv[])
         case 'M':        /* For -D, -L, and -S, print machine-readable output */
             machine_readable = TRUE;
             break;
+        case 'C':
+            pcap_queue_byte_limit = get_positive_int(optarg, "byte_limit");
+            break;
+        case 'N':
+            pcap_queue_packet_limit = get_positive_int(optarg, "packet_limit");
+            break;
         default:
             cmdarg_err("Invalid Option: %s", argv[optind-1]);
             /* FALLTHROUGH */
@@ -4610,6 +4619,15 @@ main(int argc, char *argv[])
         }
     }
 
+    if ((pcap_queue_byte_limit > 0) || (pcap_queue_packet_limit > 0)) {
+        use_threads = TRUE;
+    }
+    if ((pcap_queue_byte_limit == 0) && (pcap_queue_packet_limit == 0)) {
+        /* Use some default if the user hasn't specified some */
+        /* XXX: Are these defaults good enough? */
+        pcap_queue_byte_limit = 1000 * 1000;
+        pcap_queue_packet_limit = 1000;
+    }
     if (arg_error) {
         print_usage(FALSE);
         exit_main(1);
@@ -5016,23 +5034,24 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
 }
 
 static void
-report_packet_drops(guint32 received, guint32 drops, gchar *name)
+report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32 flushed, gchar *name)
 {
     char tmp[SP_DECISIZE+1+1];
+    guint32 total_drops = pcap_drops + drops + flushed;
 
-    g_snprintf(tmp, sizeof(tmp), "%u", drops);
+    g_snprintf(tmp, sizeof(tmp), "%u", total_drops);
 
     if (capture_child) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-            "Packets received/dropped on interface %s: %u/%u",
-            name, received, drops);
+            "Packets received/dropped on interface %s: %u/%u (pcap:%u/dumpcap:%u/flushed:%u)",
+            name, received, total_drops, pcap_drops, drops, flushed);
         /* XXX: Need to provide interface id, changes to consumers required. */
         pipe_write_block(2, SP_DROPS, tmp);
     } else {
         fprintf(stderr,
-            "Packets received/dropped on interface '%s': %u/%u (%.1f%%)\n",
-            name, received, drops,
-            received ? 100.0 * received / (received + drops) : 0.0);
+            "Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u) (%.1f%%)\n",
+            name, received, total_drops, pcap_drops, drops, flushed,
+            received ? 100.0 * received / (received + total_drops) : 0.0);
         /* stderr could be line buffered */
         fflush(stderr);
     }

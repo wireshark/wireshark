@@ -10,6 +10,7 @@ S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
 S<[ B<-b> E<lt>capture ring buffer optionE<gt>] ...>
 S<[ B<-B> E<lt>capture buffer sizeE<gt> ] >
 S<[ B<-c> E<lt>capture packet countE<gt> ]>
+S<[ B<-C> E<lt>byte limitE<gt> ]>
 S<[ B<-d> ]>
 S<[ B<-D> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
@@ -20,6 +21,7 @@ S<[ B<-I> ]>
 S<[ B<-L> ]>
 S<[ B<-M> ]>
 S<[ B<-n> ]>
+S<[ B<-N> E<lt>packet limitE<gt> ]>
 S<[ B<-p> ]>
 S<[ B<-P> ]>
 S<[ B<-q> ]>
@@ -136,6 +138,13 @@ the default capture buffer size is used if provided.
 Set the maximum number of packets to read when capturing live
 data.
 
+=item -C  E<lt>byte limitE<gt>
+
+Limit the amount of memory in bytes used for storing captured packets
+in memory while processing it.
+If used in combination with the B<-N> option, both limits will apply.
+Setting this limit will enable the usage of the separate thread per interface.
+
 =item -d
 
 Dump the code generated for the capture filter in a human-readable form,
@@ -244,6 +253,13 @@ B<TShark>; its format is subject to change from release to release.
 =item -n
 
 Save files as pcap-ng. This is the default.
+
+=item -N  E<lt>packet limitE<gt>
+
+Limit the number of packets used for storing captured packets
+in memory while processing it.
+If used in combination with the B<-C> option, both limits will apply.
+Setting this limit will enable the usage of the separate thread per interface.
 
 =item -p
 
