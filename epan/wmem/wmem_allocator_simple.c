@@ -117,8 +117,8 @@ wmem_simple_allocator_destroy(wmem_allocator_t *allocator)
     private_allocator = (wmem_simple_allocator_t*) allocator->private_data;
 
     g_hash_table_destroy(private_allocator->block_table);
-    g_free(private_allocator);
-    g_free(allocator);
+    g_slice_free(wmem_simple_allocator_t, private_allocator);
+    g_slice_free(wmem_allocator_t, allocator);
 }
 
 wmem_allocator_t *
@@ -127,8 +127,8 @@ wmem_simple_allocator_new(void)
     wmem_allocator_t        *allocator;
     wmem_simple_allocator_t *simple_allocator;
 
-    allocator        = g_new(wmem_allocator_t, 1);
-    simple_allocator = g_new(wmem_simple_allocator_t, 1);
+    allocator        = g_slice_new(wmem_allocator_t);
+    simple_allocator = g_slice_new(wmem_simple_allocator_t);
 
     allocator->private_data = (void*) simple_allocator;
 

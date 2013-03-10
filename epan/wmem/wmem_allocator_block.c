@@ -762,8 +762,8 @@ wmem_block_allocator_destroy(wmem_allocator_t *allocator)
     wmem_block_gc(real_allocator);
 
     /* then just free the allocator structs */
-    g_free(real_allocator);
-    g_free(allocator);
+    g_slice_free(wmem_block_allocator_t, real_allocator);
+    g_slice_free(wmem_allocator_t, allocator);
 }
 
 wmem_allocator_t *
@@ -772,8 +772,8 @@ wmem_block_allocator_new(void)
     wmem_allocator_t       *allocator;
     wmem_block_allocator_t *block_allocator;
 
-    allocator       = g_new(wmem_allocator_t, 1);
-    block_allocator = g_new(wmem_block_allocator_t, 1);
+    allocator       = g_slice_new(wmem_allocator_t);
+    block_allocator = g_slice_new(wmem_block_allocator_t);
 
     allocator->private_data = (void*) block_allocator;
 
