@@ -62,10 +62,10 @@
 static int
 get_natural_int(const char *string, const char *name)
 {
-  int number;
+  long number;
   char *p;
 
-  number = (int) strtol(string, &p, 10);
+  number = strtol(string, &p, 10);
   if (p == string || *p != '\0') {
     fprintf(stderr, "mergecap: The specified %s \"%s\" isn't a decimal number\n",
 	    name, string);
@@ -81,7 +81,7 @@ get_natural_int(const char *string, const char *name)
 	    name, INT_MAX);
     exit(1);
   }
-  return number;
+  return (int)number;
 }
 
 static int
