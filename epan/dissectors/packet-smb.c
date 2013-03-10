@@ -3705,14 +3705,16 @@ dissect_open_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		/* This command is used to create and open a new file or open
 		and truncate an existing file to zero length */
 		fid_info->end_of_file = 0;
-		/* File Type */
-		fattr=fid_info->fsi->file_attributes;
-		/* XXX Volumes considered as directories */
-		isdir = (fattr & SMB_FILE_ATTRIBUTE_DIRECTORY) || (fattr & SMB_FILE_ATTRIBUTE_VOLUME);
-		if (isdir == 0) {
+		if (fid_info->fsi) {
+			/* File Type */
+			fattr=fid_info->fsi->file_attributes;
+			/* XXX Volumes considered as directories */
+			isdir = (fattr & SMB_FILE_ATTRIBUTE_DIRECTORY) || (fattr & SMB_FILE_ATTRIBUTE_VOLUME);
+			if (isdir == 0) {
 				fid_info->type = SMB_FID_TYPE_FILE;
-		} else {
+			} else {
 				fid_info->type = SMB_FID_TYPE_DIR;
+			}
 		}
 	}
 
@@ -3862,14 +3864,16 @@ dissect_create_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		/* This command is used to create and open a new file or open
 		and truncate an existing file to zero length */
 		fid_info->end_of_file = 0;
-		/* File Type */
-		fattr=fid_info->fsi->file_attributes;
-		/* XXX Volumes considered as directories */
-		isdir = (fattr & SMB_FILE_ATTRIBUTE_DIRECTORY) || (fattr & SMB_FILE_ATTRIBUTE_VOLUME);
-		if (isdir == 0) {
-			fid_info->type = SMB_FID_TYPE_FILE;
-		} else {
-			fid_info->type = SMB_FID_TYPE_DIR;
+		if (fid_info->fsi) {
+			/* File Type */
+			fattr=fid_info->fsi->file_attributes;
+			/* XXX Volumes considered as directories */
+			isdir = (fattr & SMB_FILE_ATTRIBUTE_DIRECTORY) || (fattr & SMB_FILE_ATTRIBUTE_VOLUME);
+			if (isdir == 0) {
+				fid_info->type = SMB_FID_TYPE_FILE;
+			} else {
+				fid_info->type = SMB_FID_TYPE_DIR;
+			}
 		}
 	}
 
@@ -21070,3 +21074,16 @@ proto_reg_handoff_smb(void)
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_MESSENGER, smb_handle);
 	dissector_add_uint("spp.socket", IDP_SOCKET_SMB, smb_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
