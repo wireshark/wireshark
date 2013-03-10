@@ -6965,14 +6965,10 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 					/* no we couldnt find it, so just add it then
 					* if was a request we are decoding
 					*/
-					ssi                  = se_alloc(sizeof(smb2_saved_info_t));
-					ssi->class           = 0;
-					ssi->infolevel       = 0;
+					ssi                  = se_alloc0(sizeof(smb2_saved_info_t));
 					ssi->seqnum          = ssi_key.seqnum;
 					ssi->frame_req       = pinfo->fd->num;
-					ssi->frame_res       = 0;
 					ssi->req_time        = pinfo->fd->abs_ts;
-					ssi->extra_info      = NULL;
 					ssi->extra_info_type = SMB2_EI_NONE;
 					g_hash_table_insert(si->conv->unmatched, ssi, ssi);
 				}
@@ -8268,3 +8264,16 @@ proto_reg_handoff_smb2(void)
 	ntlmssp_handle = find_dissector("ntlmssp");
 	heur_dissector_add("netbios", dissect_smb2_heur, proto_smb2);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
