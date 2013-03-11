@@ -622,7 +622,7 @@ guint16 rtps_util_add_protocol_version(proto_tree *tree, /* Can NOT be NULL */
   version = tvb_get_ntohs(tvb, offset);
 
   ti = proto_tree_add_uint_format(tree, hf_rtps_protocol_version, tvb, offset, 2,
-                        version, "Protocol version: %d.%d", 
+                        version, "Protocol version: %d.%d",
                         tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset+1));
   version_tree = proto_item_add_subtree(ti, ett_rtps_proto_version);
 
@@ -751,7 +751,7 @@ void rtps_util_add_ipv4_address_t(proto_tree *tree, packet_info *pinfo, tvbuff_t
   proto_item* ti;
 
   addr = NEXT_guint32(tvb, offset, little_endian);
-  
+
   ti = proto_tree_add_ipv4(tree, hf_item, tvb, offset, 4, addr);
   if (addr == IPADDRESS_INVALID)
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, IPADDRESS_INVALID_STRING);
@@ -875,7 +875,7 @@ int rtps_util_add_entity_id(proto_tree *tree, tvbuff_t * tvb, gint offset,
       /* entityId is not a predefined value, format it */
       ti = proto_tree_add_uint_format(tree, hf_item, tvb, offset, 4, entity_id,
                         "%s: 0x%08x (%s: 0x%06x)",
-                        label, entity_id, 
+                        label, entity_id,
                         val_to_str(entity_kind, entity_kind_vals, "unknown kind (%02x)"),
                         entity_key);
     } else {
@@ -1045,7 +1045,7 @@ void rtps_util_add_ntp_time(proto_tree *tree,
                         gboolean   little_endian,
                         int hf_time) {
 
-  proto_tree_add_item(tree, hf_time, tvb, offset, 8, 
+  proto_tree_add_item(tree, hf_time, tvb, offset, 8,
                       ENC_TIME_NTP|(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN));
 
 }
@@ -3003,7 +3003,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
         ENSURE_LENGTH(8);
 
         /* Dissect filter bitmap */
-        temp_offset = rtps_util_add_seq_ulong(rtps_parameter_tree, tvb, offset, 
+        temp_offset = rtps_util_add_seq_ulong(rtps_parameter_tree, tvb, offset,
                         hf_rtps_filter_bitmap, little_endian, param_length, "filterBitmap");
 
         /* Dissect sequence of FILTER_SIGNATURE */
@@ -3737,14 +3737,14 @@ static void dissect_ACKNACK(tvbuff_t *tvb,
     /* In this case there must be something wrong in the bitmap: there
      * are some extra bytes that we don't know how to decode
      */
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, 
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
                            "Don't know how to decode those extra bytes: %d", octets_to_next_header - offset);
   } else if (offset > original_offset + octets_to_next_header) {
     /* Decoding the bitmap went over the end of this submessage.
      * Enter an item in the protocol tree that spans over the entire
      * submessage.
      */
-    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, 
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
                            "Not enough bytes to decode");
   }
 
@@ -4097,9 +4097,9 @@ void dissect_INFO_SRC(tvbuff_t *tvb,
   /* Use version field to determine what to display */
   version = tvb_get_ntohs(tvb, offset+4);
   if (version < 0x102) {
-    octet_item = proto_tree_add_ipv4(tree, hf_rtps_info_src_ip, tvb, offset, 4, ip);
+    proto_tree_add_ipv4(tree, hf_rtps_info_src_ip, tvb, offset, 4, ip);
   } else {
-    octet_item = proto_tree_add_uint(tree, hf_rtps_info_src_unused, tvb, offset, 4, ip);
+    proto_tree_add_uint(tree, hf_rtps_info_src_unused, tvb, offset, 4, ip);
   }
 
   offset += 4;
@@ -4320,7 +4320,7 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
 static gboolean dissect_rtps(tvbuff_t *tvb,
                         packet_info *pinfo,
                         proto_tree *tree,
-                        void *data _U_) 
+                        void *data _U_)
 {
   proto_item       *ti;
   proto_tree       *rtps_tree, *rtps_submessage_tree;
@@ -4397,7 +4397,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
     submessageId = tvb_get_guint8(tvb, offset);
 
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", 
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
                           val_to_str(submessageId, submessage_id_vals, "Unknown[%02x]"));
 
     /* Creates the subtree 'Submessage: XXXX' */
