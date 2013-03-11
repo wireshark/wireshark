@@ -2206,12 +2206,15 @@ dissect_mip6_opt_vsm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 }
 
 /* 20 Service Selection Mobility Option [RFC5149]  */
+#define MAX_APN_LENGTH		100
+
 static void
 dissect_mip6_opt_ssm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
              guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     int    len;
-    gchar *str;
+	guint8	str[MAX_APN_LENGTH+1];
+	int	curr_len;
 
     /* offset points to tag(opt) */
     offset++;
@@ -2220,10 +2223,34 @@ dissect_mip6_opt_ssm(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 
     len = optlen - MIP6_SSM_SSM_OFF;
 
+    /* 3GPP TS 29.275 version 10.5.0 Release 10, Table 5.1.1.1-2 
+	 * Set to the EPS Access Point Name to which the UE
+	 * attaches the new PDN connection.
+	 * The encoding the APN field follows 3GPP TS 23.003
+	 * [12] subclause 9.1 but excluding the trailing zero byte.
+	 * The content of the APN field shall be the full APN with
+	 * both the APN Network Identifier and default APN
+	 * Operator Identifier being present as specified in 3GPP
+	 * TS 23.003 [12] subclauses 9.1.1 and 9.1.2
+	 * NOTE 4.
+	 * NOTE 4: The APN field is not encoded as a dotted string as commonly used in documentation
+	 */
+
     if (len > 0) {
-        str = tvb_format_text(tvb, offset, len);
-        proto_tree_add_text(opt_tree, tvb, offset, len, "Identifier: %s", str);
-        proto_item_append_text(hdr_item, ": %s", str);
+		/* init buffer and copy it */
+		memset(str, 0, MAX_APN_LENGTH);
+		tvb_memcpy(tvb, str, offset, len<MAX_APN_LENGTH?len:MAX_APN_LENGTH);
+
+		curr_len = 0;
+		while ((curr_len < len) && (curr_len < MAX_APN_LENGTH))
+		{
+			guint step    = str[curr_len];
+			str[curr_len] = '.';
+			curr_len     += step+1;
+		}
+		/* High light bytes including the first lenght byte, excluded from str(str+1) */
+        proto_tree_add_text(opt_tree, tvb, offset, len, "Identifier: %s", str+1);
+        proto_item_append_text(hdr_item, ": %s", str+1);
     }
 }
 
@@ -2543,6 +2570,10 @@ dissect_pmip6_opt_grek(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     offset++;
     proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+
+    proto_tree_add_item(opt_tree, hf_mip6_ipv4dra_reserved, tvb,
+            offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
     proto_tree_add_item(opt_tree, hf_pmip6_gre_key, tvb,
             offset, PMIP6_GREK_ID_LEN, ENC_BIG_ENDIAN);
