@@ -3928,17 +3928,22 @@ show_add_interfaces_dialog(void)
 #endif
 
   interface_management_w = dlg_window_new("Interface Management");  /* transient_for top_level */
+  /* XXX: 'destroy_with_parent' is effectively a no-op on Windows because this
+   *      window is not actualy 'transient_for' the top_level window. (See dlg_window_new()).
+   *      Thus: On Windows destroying the parent window does not destroy this window.
+   *      ToDo: Fix this !
+   */
   gtk_window_set_destroy_with_parent (GTK_WINDOW(interface_management_w), TRUE);
-  gtk_window_set_default_size(GTK_WINDOW(interface_management_w), 600, 200);
+  gtk_window_set_default_size(GTK_WINDOW(interface_management_w), 700, 300);
 
-  vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
+  vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(interface_management_w), vbox);
   gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
   main_nb = gtk_notebook_new();
   gtk_box_pack_start(GTK_BOX(vbox), main_nb, TRUE, TRUE, 0);
 
-  /* Pipes */
+  /* --- Pipes --- */
   temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   tmp = gtk_label_new("Pipes");
   gtk_widget_show(tmp);
@@ -3950,7 +3955,7 @@ show_add_interfaces_dialog(void)
   /* Pipe row */
   pipe_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 20, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(pipe_hb), 5);
-  gtk_box_pack_start(GTK_BOX(temp_page), pipe_hb, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(temp_page), pipe_hb, TRUE, TRUE, 0);
 
   /* Container for each row of widgets */
   pipe_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
@@ -3991,7 +3996,6 @@ show_add_interfaces_dialog(void)
   gtk_widget_show(pipe_fr);
 
   pipe_sc = scrolled_window_new(NULL, NULL);
-  gtk_widget_set_size_request(pipe_sc, FALSE, 120);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(pipe_sc),
                                       GTK_SHADOW_IN);
 
@@ -4051,7 +4055,7 @@ show_add_interfaces_dialog(void)
   g_signal_connect(pipe_bt, "clicked", G_CALLBACK(capture_prep_pipe_cb), pipe_te);
 
   bbox = dlg_button_row_new(GTK_STOCK_SAVE, GTK_STOCK_CLOSE, NULL);
-  gtk_box_pack_start(GTK_BOX(temp_page), bbox, TRUE, FALSE, 5);
+  gtk_box_pack_start(GTK_BOX(temp_page), bbox, FALSE, FALSE, 5);
 
   add_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
   g_signal_connect(add_bt, "clicked", G_CALLBACK(add_pipe_cb), interface_management_w);
@@ -4066,17 +4070,17 @@ show_add_interfaces_dialog(void)
 
   g_object_set_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY,  pipe_te);
 
-  /* Local interfaces */
+  /* --- Local interfaces --- */
   temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   tmp = gtk_label_new("Local Interfaces");
   gtk_widget_show(tmp);
   hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_box_pack_start(GTK_BOX (hbox), tmp, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(hbox), tmp, TRUE, TRUE, 0);
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
   local_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(local_vb), 0);
-  gtk_container_add(GTK_CONTAINER(temp_page), local_vb);
+  gtk_box_pack_start(GTK_BOX(temp_page), local_vb, TRUE, TRUE, 0);
   gtk_widget_show(local_vb);
 
   local_fr = gtk_frame_new("Local Interfaces");
@@ -4084,7 +4088,6 @@ show_add_interfaces_dialog(void)
   gtk_widget_show(local_fr);
 
   local_sc = scrolled_window_new(NULL, NULL);
-  gtk_widget_set_size_request(local_sc, FALSE, 150);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(local_sc),
                                       GTK_SHADOW_IN);
 
@@ -4122,7 +4125,7 @@ show_add_interfaces_dialog(void)
 
   bbox = dlg_button_row_new(GTK_STOCK_REFRESH, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, NULL);
 
-  gtk_box_pack_start(GTK_BOX(temp_page), bbox, TRUE, FALSE, 5);
+  gtk_box_pack_start(GTK_BOX(temp_page), bbox, FALSE, FALSE, 5);
   refresh_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_REFRESH);
   g_signal_connect(refresh_bt, "clicked", G_CALLBACK(rescan_local_cb), NULL);
   gtk_widget_set_tooltip_text(GTK_WIDGET(refresh_bt), "Rescan the local interfaces and refresh the list");
@@ -4140,7 +4143,7 @@ show_add_interfaces_dialog(void)
 
 
 #if defined (HAVE_PCAP_REMOTE)
-  /* remote interfaces */
+  /* --- remote interfaces --- */
   temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   tmp = gtk_label_new("Remote Interfaces");
   gtk_widget_show(tmp);
@@ -4150,7 +4153,7 @@ show_add_interfaces_dialog(void)
 
   remote_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(remote_vb), 0);
-  gtk_container_add(GTK_CONTAINER(temp_page), remote_vb);
+  gtk_box_pack_start(GTK_BOX(temp_page), remote_vb, TRUE, TRUE, 0);
   gtk_widget_show(remote_vb);
 
   remote_fr = gtk_frame_new("Remote Interfaces");
@@ -4158,7 +4161,6 @@ show_add_interfaces_dialog(void)
   gtk_widget_show(remote_fr);
 
   remote_sc = scrolled_window_new(NULL, NULL);
-  gtk_widget_set_size_request(remote_sc, FALSE, 150);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(remote_sc),
                                       GTK_SHADOW_IN);
 
@@ -4202,7 +4204,7 @@ show_add_interfaces_dialog(void)
   fill_remote_list();
 
   bbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
-  gtk_box_pack_start(GTK_BOX(temp_page), bbox, TRUE, FALSE, 5);
+  gtk_box_pack_start(GTK_BOX(temp_page), bbox, FALSE, FALSE, 5);
   gtk_widget_show(bbox);
 
   button_hbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
