@@ -2983,6 +2983,7 @@ static int hf_japan_isup_type_1_add_mobile_serv_inf = -1;
 static int hf_japan_isup_type_2_add_mobile_serv_inf = -1;
 static int hf_japan_isup_type_3_add_mobile_serv_inf = -1;
 static int hf_japan_isup_reason_for_clip_fail = -1;
+static int hf_japan_isup_contractor_number = -1;
 
 static int hf_isup_carrier_info_iec = -1;
 /*static int hf_isup_carrier_info_cat_of_carrier = -1;*/
@@ -7522,6 +7523,7 @@ dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, proto_tree *parame
 {
     int offset = 0;
     int parameter_length;
+	const char *digit_str;
 
     parameter_length = tvb_length_remaining(parameter_tvb, offset);
 
@@ -7532,9 +7534,10 @@ dissect_japan_isup_contractor_number(tvbuff_t *parameter_tvb, proto_tree *parame
     proto_tree_add_item(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_text(parameter_tree, parameter_tvb, offset, parameter_length-offset, "Number not dissected yet");
+	digit_str = tvb_bcd_dig_to_ep_str( parameter_tvb, offset, parameter_length-2, NULL, FALSE);
+	proto_tree_add_string(parameter_tree, hf_japan_isup_contractor_number,  parameter_tvb, offset, parameter_length-offset, digit_str);
 
-    proto_item_set_text(parameter_item, "Contractor Number");
+    proto_item_set_text(parameter_item, "Contractor Number %s",digit_str);
 
 }
 /* ------------------------------------------------------------------
@@ -11923,6 +11926,10 @@ proto_register_isup(void)
        FT_UINT8, BASE_DEC, VALS(jpn_isup_reason_for_clip_fail_vals), 0x0,
        NULL, HFILL }},
 
+    { &hf_japan_isup_contractor_number,
+      {"Contractor Number",  "isup.jpn.contractor_number",
+       FT_STRING, BASE_NONE, NULL, 0x0,
+       NULL, HFILL }},
     /* CHARGE AREA INFORMATION */
 
     { &hf_japan_isup_charge_area_nat_of_info_value,
