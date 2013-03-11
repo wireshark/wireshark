@@ -3906,7 +3906,7 @@ remove_remote_host(GtkWidget *w _U_, gpointer data _U_)
 #endif
 
 static void
-show_add_interfaces_dialog(void)
+show_add_interfaces_dialog(GtkWidget *bt _U_, GtkWidget *parent_win)
 {
   GtkWidget         *vbox, *top_hb;
   GtkWidget         *hbox, *bbox, *list_bb, *edit_fr, *pipe_fr, *pipe_sc, *pipe_l, *props_fr, *props_vb;
@@ -3927,13 +3927,10 @@ show_add_interfaces_dialog(void)
   GtkTreeSelection  *selection;
 #endif
 
-  interface_management_w = dlg_window_new("Interface Management");  /* transient_for top_level */
-  /* XXX: 'destroy_with_parent' is effectively a no-op on Windows because this
-   *      window is not actualy 'transient_for' the top_level window. (See dlg_window_new()).
-   *      Thus: On Windows destroying the parent window does not destroy this window.
-   *      ToDo: Fix this !
-   */
-  gtk_window_set_destroy_with_parent (GTK_WINDOW(interface_management_w), TRUE);
+  interface_management_w = window_new(GTK_WINDOW_TOPLEVEL, "Interface Management");
+  gtk_window_set_transient_for(GTK_WINDOW(interface_management_w), GTK_WINDOW(parent_win));
+  gtk_window_set_destroy_with_parent(GTK_WINDOW(interface_management_w), TRUE);
+
   gtk_window_set_default_size(GTK_WINDOW(interface_management_w), 700, 300);
 
   vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
@@ -4665,7 +4662,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFTYPE_CBX_KEY, iftype_cbx);
 
   gtk_box_pack_start(GTK_BOX(right_vb), iftype_cbx, FALSE, FALSE, 0);
-  g_signal_connect(iftype_cbx, "clicked", G_CALLBACK(show_add_interfaces_dialog), iftype_cbx);
+  g_signal_connect(iftype_cbx, "clicked", G_CALLBACK(show_add_interfaces_dialog), cap_open_w);
   gtk_widget_show(iftype_cbx);
 
   main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
@@ -5060,7 +5057,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   gtk_widget_set_tooltip_text(help_bt,
     "Show help about capturing.");
-  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_OPTIONS_DIALOG);
+  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), GUINT_TO_POINTER(HELP_CAPTURE_OPTIONS_DIALOG));
   gtk_widget_grab_default(ok_bt);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
