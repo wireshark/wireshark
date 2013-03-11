@@ -1574,6 +1574,14 @@ per-file memory is initialized to 0xBADDCAFE when the memory is allocated
 and is reset to 0xDEADBEEF when the memory is freed.  This functionality is
 useful mainly to developers looking for bugs in the way memory is handled.
 
+=item WIRESHARK_DEBUG_WMEM_OVERRIDE
+
+Setting this environment variable forces the wmem framework to use the
+specified allocator backend for *all* allocations, regardless of which
+backend is normally specified by the code. This is mainly useful to developers
+when testing or debugging. See I<README.wmem> in the source distribution for
+details.
+
 =item WIRESHARK_RUN_FROM_BUILD_DIRECTORY
 
 This environment variable causes the plugins and other data files to be loaded
