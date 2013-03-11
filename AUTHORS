@@ -3456,23 +3456,23 @@ Clement Marrast		<clement.marrast[AT]molex.com> {
 	WSE Remote Ethernet protocol
 }
 
-Jacob Nordgren		<jnordgren[at]gmail.com> {
+Jacob Nordgren		<jnordgren[AT]gmail.com> {
 	UMTS FP/MAC/RLC dissection enhancement based on NBAP signaling
 }
 
-Rishie Sharma		<rishie[at]kth.se> {
+Rishie Sharma		<rishie[AT]kth.se> {
 	UMTS FP/MAC/RLC dissection enhancement based on NBAP signaling
 }
 
-Richard Stearn		<richard[at]rns-stearn.demon.co.uk> {
+Richard Stearn		<richard[AT]rns-stearn.demon.co.uk> {
 	AX.25 support
 }
 
-Tobias Rutz		<tobias.rutz[at]work-microwave.de> {
+Tobias Rutz		<tobias.rutz[AT]work-microwave.de> {
 	DVB-S2 Baseband Frame and GSE support
 }
 
-Michal Labedzki		<michal.labedzki[at]tieto.com> {
+Michal Labedzki		<michal.labedzki[AT]tieto.com> {
 	Bluetooth BNEP dissector
 	Bluetooth HID dissector
 	Bluetooth SAP dissector
@@ -3483,7 +3483,7 @@ Michal Labedzki		<michal.labedzki[at]tieto.com> {
 	Bluetooth HCRP dissector
 }
 
-Wido Kelling		<kellingwido[At]aol.com> {
+Wido Kelling		<kellingwido[AT]aol.com> {
 	Profinet: Updated disecction regarding the IEC 61158
 }
 
@@ -3500,9 +3500,14 @@ Manuel Hofer		<manuel[At]mnlhfr.at> {
 	OpenVPN dissector
 }
 
-Gaurav Patwardhan <gspatwar[AT]ncsu.edu> {
+Gaurav Patwardhan	<gspatwar[AT]ncsu.edu> {
 	Support for GTSM Flag as per RFC 6720
 }
+
+Peter Hatina		<phatina[AT]redhat.com> {
+	Gtk3 Wireshark fixes
+}
+
 
 and by:
 
