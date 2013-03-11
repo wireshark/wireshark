@@ -132,7 +132,6 @@ static int hf_tipcv2_port_name_instance = -1;
 static int hf_tipcv2_multicast_lower = -1;
 static int hf_tipcv2_multicast_upper = -1;
 
-static int hf_tipcv2_bcast_seq_gap = -1;
 static int hf_tipcv2_sequence_gap = -1;
 static int hf_tipcv2_next_sent_broadcast = -1;
 static int hf_tipcv2_fragment_number = -1;
@@ -795,7 +794,7 @@ tipc_v1_set_col_msgtype(packet_info *pinfo, guint8 user, guint8 msg_type)
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 w0:|vers |msg usr|hdr sz |n|resrv|            packet size          |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-w1:|m typ|bcstsqgap| sequence gap  |       broadcast ack no        |
+w1:|m typ|      sequence gap       |       broadcast ack no        |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 w2:|        link level ack no      |   broadcast/link level seq no |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -846,7 +845,6 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 		case TIPCv2_BCAST_PROTOCOL:
 			/* W1 */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_bcast_mtype, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
-			/* NO bcstsqgap */
 			/* NO sequence gap */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset = offset + 4;
@@ -969,9 +967,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 		case TIPCv2_LINK_PROTOCOL:
 			/* W1 */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_link_mtype, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
-			/*  Broadcast Sequence Gap: 5 bits. */
-			proto_tree_add_item(tipc_tree, hf_tipcv2_bcast_seq_gap, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
-			/* Sequence Gap:  8 bits. */
+			/* Sequence Gap:  13 bits. */
 			proto_tree_add_item(tipc_tree, hf_tipcv2_sequence_gap, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tipc_tree, hf_tipcv2_broadcast_ack_no, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset = offset + 4;
@@ -2517,7 +2513,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipc_seq_gap,
 			{ "Sequence gap", "tipc.seq_gap",
-				FT_UINT32, BASE_DEC, NULL, 0x0fff0000,
+				FT_UINT32, BASE_DEC, NULL, 0x1fff0000,
 				"TIPC Sequence gap", HFILL }
 		},
 		{ &hf_tipc_nxt_snt_pkg,
@@ -2697,14 +2693,9 @@ proto_register_tipc(void)
 				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
 				"Multicast port name instance upper bound", HFILL }
 		},
-		{ &hf_tipcv2_bcast_seq_gap,
-			{ "Broadcast Sequence Gap", "tipcv2.bcast_seq_gap",
-				FT_UINT32, BASE_DEC, NULL, 0x1F000000,
-				NULL, HFILL }
-		},
 		{ &hf_tipcv2_sequence_gap,
 			{ "Sequence Gap", "tipcv2.seq_gap",
-				FT_UINT32, BASE_DEC, NULL, 0x00FF0000,
+				FT_UINT32, BASE_DEC, NULL, 0x1FFF0000,
 				NULL, HFILL }
 		},
 		{ &hf_tipcv2_next_sent_broadcast,
