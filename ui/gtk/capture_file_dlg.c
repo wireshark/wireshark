@@ -1721,7 +1721,7 @@ gtk_save_as_file(GtkWidget *w _U_, capture_file *cf, GString *file_name, int *fi
 
   /* File type row */
   ft_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_box_pack_start(GTK_BOX(main_vb), ft_hb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), ft_hb, FALSE, FALSE, 0); //
   gtk_widget_show(ft_hb);
 
   ft_lb = gtk_label_new("File type:");
@@ -1739,7 +1739,7 @@ gtk_save_as_file(GtkWidget *w _U_, capture_file *cf, GString *file_name, int *fi
   /* compressed - if the file is currently compressed, and the default
      file type supports compression, turn the checkbox on */
   compressed_cb = gtk_check_button_new_with_label("Compress with gzip");
-  gtk_box_pack_start(GTK_BOX(ft_hb), compressed_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(ft_hb), compressed_cb, FALSE, FALSE, 0); //
   if (cf->iscompressed && wtap_dump_can_compress(default_ft))
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(compressed_cb), TRUE);
   gtk_widget_show(compressed_cb);
@@ -1995,7 +1995,7 @@ gtk_export_specified_packets_file(GtkWidget *w _U_, GString *file_name, int *fil
 
   /* File type row */
   ft_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_box_pack_start(GTK_BOX(main_vb), ft_hb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), ft_hb, FALSE, FALSE, 0); //
 
   gtk_widget_show(ft_hb);
 
@@ -2016,7 +2016,7 @@ gtk_export_specified_packets_file(GtkWidget *w _U_, GString *file_name, int *fil
 
   /* compressed */
   compressed_cb = gtk_check_button_new_with_label("Compress with gzip");
-  gtk_box_pack_start(GTK_BOX(ft_hb), compressed_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(ft_hb), compressed_cb, FALSE, FALSE, 0); //
   gtk_widget_show(compressed_cb);
   g_object_set_data(G_OBJECT(file_export_specified_packets_w), E_COMPRESSED_CB_KEY, compressed_cb);
 
@@ -2213,7 +2213,7 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
   gtk_widget_show(main_vb);
 
   cfglobal_but = gtk_button_new_with_label("Global Color Filter File");
-  gtk_box_pack_start(GTK_BOX(main_vb), cfglobal_but, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), cfglobal_but, FALSE, FALSE, 0); //
   g_signal_connect(cfglobal_but, "clicked",
                    G_CALLBACK(color_global_cb), file_color_import_w);
   gtk_widget_show(cfglobal_but);
@@ -2308,7 +2308,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
   gtk_widget_show(main_vb);
 
   cfselect_cb = gtk_check_button_new_with_label("Export only selected filters");
-  gtk_box_pack_start(GTK_BOX(main_vb), cfselect_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), cfselect_cb, FALSE, FALSE, 0);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cfselect_cb), FALSE);
   g_signal_connect(cfselect_cb, "toggled",
                    G_CALLBACK(color_toggle_selected_cb), NULL);
@@ -2316,7 +2316,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
   color_set_export_selected_sensitive(cfselect_cb);
 
   cfglobal_but = gtk_button_new_with_label("Global Color Filter File");
-  gtk_box_pack_start(GTK_BOX(main_vb), cfglobal_but, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), cfglobal_but, FALSE, FALSE, 0); //
   g_signal_connect(cfglobal_but, "clicked",
                    G_CALLBACK(color_global_cb), file_color_export_w);
   gtk_widget_show(cfglobal_but);
