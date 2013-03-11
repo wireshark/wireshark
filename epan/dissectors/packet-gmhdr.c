@@ -332,13 +332,15 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     return 0;
   extra_trailer = 0;
   if (tvb_get_ntohs(tvb, tvblen-4) != ETHERTYPE_GIGAMON) {
+      if (tvblen < 10){
+          return 0;
+      }
       if (tvb_get_ntohs(tvb, tvblen-8) == ETHERTYPE_GIGAMON) {
           extra_trailer = 4;
       } else {
           return 0;
       }
   }
-
   length  = tvb_get_guint8(tvb, tvblen-extra_trailer-5); /* length of Gigamon header */
   if ((tvblen-extra_trailer-5) != length)
     return 0;
