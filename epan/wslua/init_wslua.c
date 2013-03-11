@@ -255,14 +255,10 @@ static gboolean lua_load_script(const gchar* filename) {
             fclose(file);
             return FALSE;
         default:
-	    report_failure("Lua: unspecified error during execution of %s", filename);
-	    fclose(file);
-	    return FALSE;
+            report_failure("Lua: unknown error during execution of %s: %d",filename,error);
+            fclose(file);
+            return FALSE;
     }
-
-    report_failure("Lua: unknown error during execution of %s: %d",filename,error);
-    fclose(file);
-    return FALSE;
 }
 
 static void basic_logger(const gchar *log_domain _U_,
@@ -353,7 +349,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
 
     /* the init_routines table (accessible by the user) */
     lua_newtable (L);
-	lua_setglobal(L, WSLUA_INIT_ROUTINES);
+    lua_setglobal(L, WSLUA_INIT_ROUTINES);
 
     /* the dissectors table goes in the registry (not accessible) */
     lua_newtable (L);
@@ -441,3 +437,17 @@ int wslua_init(register_cb cb, gpointer client_data) {
 }
 
 lua_State* wslua_state(void) { return L; }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
+
