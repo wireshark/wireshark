@@ -29,3 +29,16 @@ Summary: The only known files that cause some sort of problems (or lost
   - tcp-graph: the crosshairs are not right
   - audiograph doesn't work
 
+----------------------------------------------------------------------
+
+March 11, 2013:
+
+Various Gtk widgets (GtkTable, GtkColorSelection, ...) deprecated in versions
+of Gtk3 newer than Gtk 3.0.0 have been replaced as appropriate.
+
+Wireshark Gtk3 builds with Gtk 3.6.4 without any "deprecated" warnings.
+
+Fixes to handling of 'expand' in GTK3 have been completed.
+(Essentially: When adding a widget to a [V|H]Box, use gtk_box_pack_start()
+ with appropriate args instead of gtk_container_add().
+
