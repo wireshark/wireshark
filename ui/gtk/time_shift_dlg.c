@@ -332,7 +332,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
    */
   bbox = dlg_button_row_new(GTK_STOCK_APPLY, GTK_STOCK_CLOSE, GTK_STOCK_HELP,
     NULL);
-  gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), bbox, TRUE, TRUE, 0);
 
   apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
   g_signal_connect(apply_bt, "clicked", G_CALLBACK(time_shift_apply_cb),

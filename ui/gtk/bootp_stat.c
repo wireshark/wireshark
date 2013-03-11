@@ -205,7 +205,7 @@ dhcpstat_init(const char *opt_arg, void *userdata _U_)
 
 	/* Status Codes frame */
 	message_type_fr = gtk_frame_new("DHCP Message Type");
-	gtk_box_pack_start(GTK_BOX(vbox), message_type_fr, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), message_type_fr, FALSE, FALSE, 0);
 	gtk_widget_show(message_type_fr);
 
 	sp->grid_message_type = ws_gtk_grid_new();

@@ -356,7 +356,7 @@ gtk_wspstat_init(const char *opt_arg, void *userdata _U_)
 
 	/* Status Codes frame */
 	statuscode_fr = gtk_frame_new("Summary of Status Code (wsp.reply.status)");
-	gtk_box_pack_start(GTK_BOX(main_vb), statuscode_fr, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(main_vb), statuscode_fr, FALSE, FALSE, 0);
 
 	sp->grid_status_code = ws_gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(statuscode_fr), sp->grid_status_code);
