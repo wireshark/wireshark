@@ -193,6 +193,10 @@ wmem_block_debug_free_list(wmem_block_allocator_t *allocator)
 
         if (free_list == allocator->free_insert_point) {
             seen_insert_point = TRUE;
+            printf(" * ");
+        }
+        else {
+            printf("   ");
         }
 
         printf("Free chunk at %p (prev: %p; next:%p)\n",
@@ -203,10 +207,7 @@ wmem_block_debug_free_list(wmem_block_allocator_t *allocator)
         free_list = free_head->next;
     }
 
-    if (!seen_insert_point) {
-        printf("!!Didn't see insert point %p!!\n",
-                allocator->free_insert_point);
-    }
+    g_assert(seen_insert_point);
 
     printf("END DEBUG FREE LIST\n");
 }
