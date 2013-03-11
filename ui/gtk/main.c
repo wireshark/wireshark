@@ -334,7 +334,7 @@ match_selected_ptree_cb(gpointer data, MATCH_SELECTED_E action)
     if (cfile.finfo_selected) {
         filter = proto_construct_match_selected_string(cfile.finfo_selected,
                                                        cfile.edt);
-        match_selected_cb_do(g_object_get_data(G_OBJECT(data), E_DFILTER_TE_KEY), action, filter);
+        match_selected_cb_do((GtkWidget *)g_object_get_data(G_OBJECT(data), E_DFILTER_TE_KEY), action, filter);
     }
 }
 
@@ -370,7 +370,7 @@ colorize_selected_ptree_cb(GtkWidget *w _U_, gpointer data _U_, guint8 filt_nr)
 static void selected_ptree_info_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
     gchar *selected_proto_url;
-    gchar *proto_abbrev = data;
+    gchar *proto_abbrev = (gchar *)data;
 
 
     switch(btn) {
@@ -450,7 +450,7 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
 static void selected_ptree_ref_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
     gchar *selected_proto_url;
-    gchar *proto_abbrev = data;
+    gchar *proto_abbrev = (gchar *)data;
 
     switch(btn) {
     case(ESD_BTN_OK):
@@ -632,7 +632,7 @@ match_selected_plist_cb(gpointer data, MATCH_SELECTED_E action)
 {
     match_selected_cb_do(g_object_get_data(G_OBJECT(data), E_DFILTER_TE_KEY),
         action,
-        get_filter_from_packet_list_row_and_column(data));
+        get_filter_from_packet_list_row_and_column((GtkWidget *)data));
 }
 
 /* This function allows users to right click in the details window and copy the text
@@ -743,7 +743,7 @@ reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
     case REFTIME_TOGGLE:
         if (cfile.current_frame) {
             if(recent.gui_time_format != TS_RELATIVE && cfile.current_frame->flags.ref_time==0) {
-                reftime_dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
+                reftime_dialog = (GtkWidget *)simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
                     "%sSwitch to the appropriate Time Display Format?%s\n\n"
                     "Time References don't work well with the currently selected Time Display Format.\n\n"
                     "Do you want to switch to \"Seconds Since Beginning of Capture\" now?",
@@ -1567,7 +1567,7 @@ main_capture_set_main_window_title(capture_options *capture_opts)
     GString *title = g_string_new("");
 
     g_string_append(title, "Capturing ");
-    g_string_append_printf(title, "from %s ", cf_get_tempfile_source(capture_opts->cf));
+    g_string_append_printf(title, "from %s ", cf_get_tempfile_source((capture_file *)capture_opts->cf));
     main_set_window_name(title->str);
     g_string_free(title, TRUE);
 }
@@ -1614,7 +1614,7 @@ main_capture_cb_capture_update_started(capture_options *capture_opts)
 static void
 main_capture_cb_capture_update_finished(capture_options *capture_opts)
 {
-    capture_file *cf = capture_opts->cf;
+    capture_file *cf = (capture_file *)capture_opts->cf;
     static GList *icon_list = NULL;
 
     /* The capture isn't stopping any more - it's stopped. */
@@ -1742,7 +1742,7 @@ main_capture_cb_capture_failed(capture_options *capture_opts _U_)
 static void
 main_cf_cb_packet_selected(gpointer data)
 {
-    capture_file *cf = data;
+    capture_file *cf = (capture_file *)data;
 
     /* Display the GUI protocol tree and packet bytes.
       XXX - why do we dump core if we call "proto_tree_draw()"
@@ -1790,55 +1790,56 @@ main_cf_cb_field_unselected(capture_file *cf)
 static void
 main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 {
+    capture_file *cf = (capture_file *)data;
     switch(event) {
     case(cf_cb_file_opened):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Opened");
-        fileset_file_opened(data);
+        fileset_file_opened(cf);
         break;
     case(cf_cb_file_closing):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
-        main_cf_cb_file_closing(data);
+        main_cf_cb_file_closing(cf);
         break;
     case(cf_cb_file_closed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
-        main_cf_cb_file_closed(data);
+        main_cf_cb_file_closed(cf);
         fileset_file_closed();
         break;
     case(cf_cb_file_read_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read started");
-        main_cf_cb_file_read_started(data);
+        main_cf_cb_file_read_started(cf);
         break;
     case(cf_cb_file_read_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
-        main_cf_cb_file_read_finished(data);
+        main_cf_cb_file_read_finished(cf);
         break;
     case(cf_cb_file_reload_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload started");
-        main_cf_cb_file_read_started(data);
+        main_cf_cb_file_read_started(cf);
         break;
     case(cf_cb_file_reload_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
-        main_cf_cb_file_read_finished(data);
+        main_cf_cb_file_read_finished(cf);
         break;
     case(cf_cb_file_rescan_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Rescan started");
         break;
     case(cf_cb_file_rescan_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Rescan finished");
-        main_cf_cb_file_rescan_finished(data);
+        main_cf_cb_file_rescan_finished(cf);
         break;
     case(cf_cb_file_fast_save_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Fast save finished");
-        main_cf_cb_file_rescan_finished(data);
+        main_cf_cb_file_rescan_finished(cf);
         break;
     case(cf_cb_packet_selected):
-        main_cf_cb_packet_selected(data);
+        main_cf_cb_packet_selected(cf);
         break;
     case(cf_cb_packet_unselected):
-        main_cf_cb_packet_unselected(data);
+        main_cf_cb_packet_unselected(cf);
         break;
     case(cf_cb_field_unselected):
-        main_cf_cb_field_unselected(data);
+        main_cf_cb_field_unselected(cf);
         break;
     case(cf_cb_file_save_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save started");
@@ -3546,7 +3547,7 @@ void main_widgets_rearrange(void) {
 static void
 is_widget_visible(GtkWidget *widget, gpointer data)
 {
-    gboolean *is_visible = data;
+    gboolean *is_visible = ( gboolean *)data;
 
     if (!*is_visible) {
         if (gtk_widget_get_visible(widget))

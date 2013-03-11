@@ -1244,7 +1244,7 @@ switch_to_fixed_col(GtkTreeView *view)
     columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(view));
     list = columns;
     while(columns) {
-        column = columns->data;
+        column = (GtkTreeViewColumn *)columns->data;
         size = gtk_tree_view_column_get_width(column);
         gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_FIXED);
         if (size > gtk_tree_view_column_get_fixed_width(column))
