@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_sst(void);
+void proto_reg_handoff_aim_sst(void);
+
 #define FAMILY_SST    0x0010
 
 

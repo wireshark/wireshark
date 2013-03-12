@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_admin(void);
+void proto_reg_handoff_aim_admin(void);
+
 #define FAMILY_ADMIN      0x0007
 
 #define CONFIRM_STATUS_EMAIL_SENT 		 0x00

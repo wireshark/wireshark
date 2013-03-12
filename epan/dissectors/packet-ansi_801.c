@@ -42,6 +42,8 @@
 
 #include <epan/packet.h>
 
+void proto_register_ansi_801(void);
+void proto_reg_handoff_ansi_801(void);
 
 static const char *ansi_proto_name = "ANSI IS-801 (Location Services (PLD))";
 static const char *ansi_proto_name_short = "IS-801";

@@ -33,8 +33,8 @@
 #include <epan/strutil.h>
 
 /* Forward declarations */
-void proto_register_aacp(void);
-void proto_reg_handoff_aacp(void);
+void proto_register_acap(void);
+void proto_reg_handoff_acap(void);
 
 static int proto_acap = -1;
 static int hf_acap_response = -1;

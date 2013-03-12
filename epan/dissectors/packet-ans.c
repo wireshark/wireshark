@@ -50,6 +50,9 @@
 #include <epan/packet.h>
 #include <etypes.h>
 
+void proto_register_ans(void);
+void proto_reg_handoff_ans(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_ans        = -1;
 

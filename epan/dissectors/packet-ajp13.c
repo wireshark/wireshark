@@ -34,6 +34,8 @@
 #include <epan/conversation.h>
 #include "packet-tcp.h"
 
+void proto_register_ajp13(void);
+void proto_reg_handoff_ajp13(void);
 
 
 /* IMPORTANT IMPLEMENTATION NOTES

@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_userlookup(void);
+void proto_reg_handoff_aim_userlookup(void);
+
 #define FAMILY_USERLOOKUP 0x000A
 
 /* Initialize the protocol and registered fields */

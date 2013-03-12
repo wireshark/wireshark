@@ -41,6 +41,9 @@
 #include "packet-aim.h"
 #include <epan/prefs.h>
 
+void proto_register_aim(void);
+void proto_reg_handoff_aim(void);
+
 #define TCP_PORT_AIM 5190
 
 #define STRIP_TAGS 1
@@ -737,7 +740,7 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 	subtvb = tvb_new_subset_remaining(tvb, offset);
-	aiminfo.tcpinfo = pinfo->private_data;
+	aiminfo.tcpinfo = (struct tcpinfo *)pinfo->private_data;
 	aiminfo.family = family_id;
 	aiminfo.subtype = subtype_id;
 	pd_save = pinfo->private_data;

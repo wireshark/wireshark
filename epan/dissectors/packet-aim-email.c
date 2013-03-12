@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_email(void);
+void proto_reg_handoff_aim_email(void);
+
 #define FAMILY_EMAIL    0x0018
 
 static const aim_subtype aim_fnac_family_email[] = {

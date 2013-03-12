@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_adverts(void);
+void proto_reg_handoff_aim_adverts(void);
+
 #define FAMILY_ADVERTS    0x0005
 
 static const aim_subtype aim_fnac_family_adverts[] = {

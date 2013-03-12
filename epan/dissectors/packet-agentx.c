@@ -34,6 +34,7 @@
 
 static guint global_agentx_tcp_port = 705;
 
+void proto_register_agentx(void);
 void proto_reg_handoff_agentx(void);
 
 

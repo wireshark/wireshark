@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_icq(void);
+void proto_reg_handoff_aim_icq(void);
+
 #define FAMILY_ICQ        0x0015
 
 

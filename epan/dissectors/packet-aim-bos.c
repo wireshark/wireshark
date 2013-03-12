@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_bos(void);
+void proto_reg_handoff_aim_bos(void);
+
 #define FAMILY_BOS        0x0009
 
 /* Family BOS (Misc) */

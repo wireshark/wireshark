@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_popup(void);
+void proto_reg_handoff_aim_popup(void);
+
 /* SNAC families */
 #define FAMILY_POPUP      0x0008
 

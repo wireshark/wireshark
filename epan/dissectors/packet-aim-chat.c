@@ -35,6 +35,9 @@
 #include "packet-tcp.h"
 #include "packet-aim.h"
 
+void proto_register_aim_chat(void);
+void proto_reg_handoff_aim_chat(void);
+
 /* SNAC families */
 #define FAMILY_CHAT       0x000E
 

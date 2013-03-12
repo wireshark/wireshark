@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_chatnav(void);
+void proto_reg_handoff_aim_chatnav(void);
+
 #define FAMILY_CHAT_NAV   0x000D
 
 static const aim_subtype aim_fnac_family_chatnav[] = {

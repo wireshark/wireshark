@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_buddylist(void);
+void proto_reg_handoff_aim_buddylist(void);
+
 #define FAMILY_BUDDYLIST  0x0003
 
 

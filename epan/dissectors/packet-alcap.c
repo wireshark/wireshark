@@ -43,6 +43,9 @@
 #include <epan/dissectors/packet-isup.h>
 #include <epan/expert.h>
 
+void proto_register_alcap(void);
+void proto_reg_handoff_alcap(void);
+
 #define ALCAP_MSG_HEADER_LEN     6
 #define ALCAP_PARM_HEADER_LEN    3
 #define FIELD_NSAP_ADDRESS_LEN  20

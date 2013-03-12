@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_translate(void);
+void proto_reg_handoff_aim_translate(void);
+
 #define FAMILY_TRANSLATE  0x000C
 
 static int proto_aim_translate = -1;

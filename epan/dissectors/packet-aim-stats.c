@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_stats(void);
+void proto_reg_handoff_aim_stats(void);
+
 #define FAMILY_STATS      0x000B
 
 /* Initialize the protocol and registered fields */

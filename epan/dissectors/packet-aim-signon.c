@@ -33,6 +33,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_signon(void);
+void proto_reg_handoff_aim_signon(void);
+
 #define FAMILY_SIGNON     0x0017
 
 

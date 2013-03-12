@@ -37,8 +37,8 @@
 #define NINEPORT 564
 
 /* Forward declarations */
-void proto_register_9p(void);
-void proto_reg_handoff_9p(void);
+void proto_register_9P(void);
+void proto_reg_handoff_9P(void);
 
 /*Message types for 9P */
 /*See man 5 intro on Plan 9 - or;

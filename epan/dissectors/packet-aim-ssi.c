@@ -33,6 +33,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_ssi(void);
+void proto_reg_handoff_aim_ssi(void);
+
 #define FAMILY_SSI        0x0013
 
 

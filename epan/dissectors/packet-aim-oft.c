@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_oft(void);
+void proto_reg_handoff_aim_oft(void);
+
 /* SNAC families */
 #define FAMILY_OFT        0xfffe
 

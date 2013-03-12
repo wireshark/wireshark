@@ -31,6 +31,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_generic(void);
+void proto_reg_handoff_aim_generic(void);
+
 #define STRIP_TAGS 1
 
 /* SNAC families */

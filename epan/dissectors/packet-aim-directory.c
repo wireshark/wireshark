@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_directory(void);
+void proto_reg_handoff_aim_directory(void);
+
 #define FAMILY_DIRECTORY  0x000F
 
 static int proto_aim_directory = -1;

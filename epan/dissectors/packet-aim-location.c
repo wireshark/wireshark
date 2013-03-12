@@ -33,6 +33,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_location(void);
+void proto_reg_handoff_aim_location(void);
+
 /* SNAC families */
 #define FAMILY_LOCATION   0x0002
 

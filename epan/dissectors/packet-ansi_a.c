@@ -50,6 +50,9 @@
 #include "packet-bssap.h"
 #include "packet-ansi_a.h"
 
+void proto_register_ansi_a(void);
+void proto_reg_handoff_ansi_a(void);
+
 /*
  * IOS 4, probably most common
  */
@@ -8318,10 +8321,10 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
             format_assigned &&
             (first_assigned_found == FALSE))
         {
-            key = (gint *) se_alloc(sizeof(gint));
+            key  = se_new(gint);
             *key = rtp_payload_type;
 
-            encoding_name_and_rate = se_alloc(sizeof(encoding_name_and_rate_t));
+            encoding_name_and_rate = se_new(encoding_name_and_rate_t);
             encoding_name_and_rate->encoding_name = se_strdup(mime_type);
             encoding_name_and_rate->sample_rate = sample_rate;
 
@@ -8338,7 +8341,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
             key = (gint *) se_alloc(sizeof(gint));
             *key = rtp_payload_type;
 
-            encoding_name_and_rate = se_alloc(sizeof(encoding_name_and_rate_t));
+            encoding_name_and_rate = se_new(encoding_name_and_rate_t);
             encoding_name_and_rate->encoding_name = se_strdup("telephone-event");
             encoding_name_and_rate->sample_rate = sample_rate;
 

@@ -32,6 +32,9 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_invitation(void);
+void proto_reg_handoff_aim_invitation(void);
+
 #define FAMILY_INVITATION 0x0006
 
 /* Initialize the protocol and registered fields */

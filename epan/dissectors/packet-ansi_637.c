@@ -38,6 +38,9 @@
 
 #include "packet-gsm_sms.h"
 
+void proto_register_ansi_637(void);
+void proto_reg_handoff_ansi_637(void);
+
 static const char *ansi_proto_name_tele = "ANSI IS-637-A (SMS) Teleservice Layer";
 static const char *ansi_proto_name_trans = "ANSI IS-637-A (SMS) Transport Layer";
 static const char *ansi_proto_name_short = "IS-637-A";
@@ -2002,7 +2005,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
 	{
             gchar *ansi_637_add_string;
 
-	    ansi_637_add_string = ep_alloc(1024);
+	    ansi_637_add_string = (gchar *)ep_alloc(1024);
 	    ansi_637_add_string[0] = '\0';
 	    (*param_fcn)(tvb, subtree, len, curr_offset, ansi_637_add_string, 1024);
 
