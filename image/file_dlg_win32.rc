@@ -77,7 +77,7 @@ FONT 8, "MS Shell Dlg"
 {
     // Filter button/entry
     // PUSHBUTTON "Filter:", EWFD_FILTER_BTN, 7, 4, 35, 14
-    LTEXT "Display filter:", EWFD_FILTER_LBL, 67, 2, 49, 14
+    LTEXT "Read filter:", EWFD_FILTER_LBL, 67, 2, 49, 14
     CONTROL    "",        EWFD_FILTER_EDIT, RICHEDIT_CLASS, ES_AUTOHSCROLL, 112, 0, 88, 12, WS_EX_CLIENTEDGE
 
     CONTROL  "Prepend packets to existing file", EWFD_MERGE_PREPEND_BTN, "Button", BS_AUTORADIOBUTTON | WS_GROUP, 67, 30, 120, 8
