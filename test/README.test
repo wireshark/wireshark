@@ -1,10 +1,8 @@
 $Id$
 
-WARNING: these tests are in beta state!
-
 What is it?
 -----------
-This is basically a collection of bash scripts to test the command line options of:
+This is a collection of bash scripts which test the features of:
 
  - Wireshark
  - TShark
