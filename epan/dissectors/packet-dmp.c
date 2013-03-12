@@ -1001,7 +1001,7 @@ static const value_string thales_ipm_id_modifier[] = {
   { 0, NULL }
 };
 
-UAT_VS_DEF(dmp_security_class, nation, dmp_security_class_t, 0, "None")
+UAT_VS_DEF(dmp_security_class, nation, dmp_security_class_t, guint, 0, "None")
 UAT_DEC_CB_DEF(dmp_security_class, sec_class, dmp_security_class_t)
 UAT_CSTRING_CB_DEF(dmp_security_class, name, dmp_security_class_t)
 

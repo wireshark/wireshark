@@ -170,7 +170,7 @@ static void user_free_cb(void* record)
     g_free(u->trailer_proto_name);
 }
 
-UAT_VS_DEF(user_encap, encap, user_encap_t, WTAP_ENCAP_USER0, ENCAP0_STR)
+UAT_VS_DEF(user_encap, encap, user_encap_t, guint, WTAP_ENCAP_USER0, ENCAP0_STR)
 UAT_PROTO_DEF(user_encap, payload_proto, payload_proto, payload_proto_name, user_encap_t)
 UAT_DEC_CB_DEF(user_encap, header_size, user_encap_t)
 UAT_DEC_CB_DEF(user_encap, trailer_size, user_encap_t)

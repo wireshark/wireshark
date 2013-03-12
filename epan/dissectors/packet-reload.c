@@ -760,7 +760,7 @@ static void uat_kindid_record_free_cb(void*r) {
 
 UAT_DEC_CB_DEF(kindidlist_uats,id,kind_t)
 UAT_CSTRING_CB_DEF(kindidlist_uats,name,kind_t)
-UAT_VS_DEF(kindidlist_uats,data_model,kind_t,0,"string")
+UAT_VS_DEF(kindidlist_uats,data_model,kind_t,guint,0,"string")
 
 
 #define MSG_LENGH_OFFSET                16

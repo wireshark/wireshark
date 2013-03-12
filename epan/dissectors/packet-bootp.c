@@ -1199,7 +1199,7 @@ static void uat_bootp_record_free_cb(void*r) {
 
 UAT_DEC_CB_DEF(uat_bootp_records, opt, uat_bootp_record_t)
 UAT_CSTRING_CB_DEF(uat_bootp_records, text, uat_bootp_record_t)
-UAT_VS_DEF(uat_bootp_records, ftype, uat_bootp_record_t, 0, "string")
+UAT_VS_DEF(uat_bootp_records, ftype, uat_bootp_record_t, enum field_type, special, "string")
 
 
 static struct opt_info* bootp_get_opt(unsigned int idx)

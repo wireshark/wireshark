@@ -487,14 +487,14 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
  *  rec_t:
  *        value
  */
-#define UAT_VS_DEF(basename,field_name,rec_t,default_val,default_str) \
+#define UAT_VS_DEF(basename,field_name,rec_t,default_t,default_val,default_str) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* vs, const void* u2 _U_) {\
 	guint i; \
 	char* str = ep_strndup(buf,len); \
 	const char* cstr; ((rec_t*)rec)->field_name = default_val; \
 	for(i=0; ( cstr = ((value_string*)vs)[i].strptr ) ;i++) { \
 		if (g_str_equal(cstr,str)) { \
-			((rec_t*)rec)->field_name = ((value_string*)vs)[i].value; return; } } } \
+			((rec_t*)rec)->field_name = (default_t)((value_string*)vs)[i].value; return; } } } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* vs, const void* u2 _U_) {\
 	guint i; \
 	*out_ptr = ep_strdup(default_str); \

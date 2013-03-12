@@ -181,7 +181,7 @@ static void uat_key_record_free_cb(void*r) {
 }
 
 UAT_CSTRING_CB_DEF(uat_key_records, string, uat_key_record_t)
-UAT_VS_DEF(uat_key_records, byte_order, uat_key_record_t, 0, "Normal")
+UAT_VS_DEF(uat_key_records, byte_order, uat_key_record_t, guint8, 0, "Normal")
 UAT_CSTRING_CB_DEF(uat_key_records, label, uat_key_record_t)
 
 static GSList *zbee_pc_keyring = NULL;

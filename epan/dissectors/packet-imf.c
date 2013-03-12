@@ -330,8 +330,8 @@ header_fields_free_cb(void *r)
 
 UAT_CSTRING_CB_DEF(header_fields, header_name, header_field_t)
 UAT_CSTRING_CB_DEF(header_fields, description, header_field_t)
-UAT_VS_DEF(header_fields, header_format, header_field_t, 0, "Unstructured")
-UAT_VS_DEF(header_fields, add_to_col_info, header_field_t, 0, "No")
+UAT_VS_DEF(header_fields, header_format, header_field_t, guint, 0, "Unstructured")
+UAT_VS_DEF(header_fields, add_to_col_info, header_field_t, guint, 0, "No")
 
 
 /* Define media_type/Content type table */

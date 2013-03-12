@@ -215,7 +215,7 @@ uat_wep_key_record_free_cb(void*r)
     if (key->string) g_free(key->string);
 }
 
-UAT_VS_DEF(uat_wep_key_records, key, uat_wep_key_record_t, 0, STRING_KEY_TYPE_WEP)
+UAT_VS_DEF(uat_wep_key_records, key, uat_wep_key_record_t, guint8, 0, STRING_KEY_TYPE_WEP)
 UAT_CSTRING_CB_DEF(uat_wep_key_records, string, uat_wep_key_record_t)
 
 /* Stuff for the WEP decoder */

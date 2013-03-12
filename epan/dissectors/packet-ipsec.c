@@ -271,13 +271,13 @@ static void uat_esp_sa_record_free_cb(void*r) {
     g_free(rec->authentication_key);
 }
 
-UAT_VS_DEF(uat_esp_sa_records, protocol, uat_esp_sa_record_t, IPSEC_SA_IPV4, "IPv4")
+UAT_VS_DEF(uat_esp_sa_records, protocol, uat_esp_sa_record_t, guint8, IPSEC_SA_IPV4, "IPv4")
 UAT_CSTRING_CB_DEF(uat_esp_sa_records, srcIP, uat_esp_sa_record_t)
 UAT_CSTRING_CB_DEF(uat_esp_sa_records, dstIP, uat_esp_sa_record_t)
 UAT_CSTRING_CB_DEF(uat_esp_sa_records, spi, uat_esp_sa_record_t)
-UAT_VS_DEF(uat_esp_sa_records, encryption_algo, uat_esp_sa_record_t, 0, "FIXX")
+UAT_VS_DEF(uat_esp_sa_records, encryption_algo, uat_esp_sa_record_t, guint8, 0, "FIXX")
 UAT_CSTRING_CB_DEF(uat_esp_sa_records, encryption_key, uat_esp_sa_record_t)
-UAT_VS_DEF(uat_esp_sa_records, authentication_algo, uat_esp_sa_record_t, 0, "FIXX")
+UAT_VS_DEF(uat_esp_sa_records, authentication_algo, uat_esp_sa_record_t, guint8, 0, "FIXX")
 UAT_CSTRING_CB_DEF(uat_esp_sa_records, authentication_key, uat_esp_sa_record_t)
 
 /* Default ESP payload decode to off */

@@ -3461,7 +3461,7 @@ sccp_users_free_cb(void *r)
 UAT_DEC_CB_DEF(sccp_users, ni, sccp_user_t)
 UAT_RANGE_CB_DEF(sccp_users, called_pc,sccp_user_t)
 UAT_RANGE_CB_DEF(sccp_users, called_ssn,sccp_user_t)
-UAT_VS_DEF(sccp_users, user, sccp_user_t, SCCP_USER_DATA, "Data")
+UAT_VS_DEF(sccp_users, user, sccp_user_t, guint, SCCP_USER_DATA, "Data")
 
 /** End SccpUsersTable **/
 

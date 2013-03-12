@@ -2133,8 +2133,8 @@ UAT_LSTRING_CB_DEF(snmp_users,userName,snmp_ue_assoc_t,user.userName.data,user.u
 UAT_LSTRING_CB_DEF(snmp_users,authPassword,snmp_ue_assoc_t,user.authPassword.data,user.authPassword.len)
 UAT_LSTRING_CB_DEF(snmp_users,privPassword,snmp_ue_assoc_t,user.privPassword.data,user.privPassword.len)
 UAT_BUFFER_CB_DEF(snmp_users,engine_id,snmp_ue_assoc_t,engine.data,engine.len)
-UAT_VS_DEF(snmp_users,auth_model,snmp_ue_assoc_t,0,"MD5")
-UAT_VS_DEF(snmp_users,priv_proto,snmp_ue_assoc_t,0,"DES")
+UAT_VS_DEF(snmp_users,auth_model,snmp_ue_assoc_t,guint,0,"MD5")
+UAT_VS_DEF(snmp_users,priv_proto,snmp_ue_assoc_t,guint,0,"DES")
 
 static void *
 snmp_specific_trap_copy_cb(void *dest, const void *orig, size_t len _U_)
