@@ -2138,6 +2138,24 @@ proto_mpeg_descriptor_dissect_ac3(tvbuff_t *tvb, guint offset, guint8 len, proto
 		proto_tree_add_item(tree, hf_mpeg_descr_ac3_additional_info, tvb, offset, end - offset, ENC_NA);
 }
 
+/* 0x6F Application Signalling Descriptor */
+static int hf_mpeg_descr_app_sig_app_type = -1;
+static int hf_mpeg_descr_app_sig_ait_ver = -1;
+
+static void
+proto_mpeg_descriptor_dissect_app_sig(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
+{
+	guint  offset_start;
+
+	offset_start = offset;
+	while (offset-offset_start < len) {
+		proto_tree_add_item(tree, hf_mpeg_descr_app_sig_app_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		proto_tree_add_item(tree, hf_mpeg_descr_app_sig_ait_ver, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset++;
+	}
+}
+
 /* 0x73 Default Authority Descriptor */
 static int hf_mpeg_descr_default_authority_name = -1;
 
@@ -2696,6 +2714,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 			break;
 		case 0x6A: /* AC-3 Descriptor */
 			proto_mpeg_descriptor_dissect_ac3(tvb, offset, len, descriptor_tree);
+			break;
+		case 0x6F: /* Application Signalling Descriptor */
+			proto_mpeg_descriptor_dissect_app_sig(tvb, offset, len, descriptor_tree);
 			break;
 		case 0x73: /* Default Authority Descriptor */
 			proto_mpeg_descriptor_dissect_default_authority(tvb, offset, len, descriptor_tree);
@@ -3838,6 +3859,17 @@ proto_register_mpeg_descriptor(void)
 		{ &hf_mpeg_descr_ac3_additional_info, {
 			"Additional Info", "mpeg_descr.ac3.additional_info",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		/* 0x6F Application Signalling Descriptor */
+		{ &hf_mpeg_descr_app_sig_app_type, {
+			"Application type", "mpeg_descr.app_sig.app_type",
+			FT_UINT16, BASE_HEX, NULL, 0x7FFF, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_app_sig_ait_ver, {
+			"AIT version", "mpeg_descr.app_sig.ait_ver",
+			FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL
 		} },
 
 		/* 0x73 Default Authority Descriptor */
