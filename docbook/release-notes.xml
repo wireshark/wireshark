@@ -62,6 +62,14 @@ Wireshark Info
 
       <itemizedlist>
 
+        <!--
+        <listitem>
+          <para>
+            .
+          </para>
+        </listitem>
+        -->
+
         <listitem>
           <para>
             Wireshark on 32- and 64-bit Windows supports automatic updates.
@@ -70,8 +78,27 @@ Wireshark Info
 
         <listitem>
           <para>
-            The main welcome screen and status bar now display file sizes using
-	    strict SI prefixes instead of old-style binary prefixes.
+            The packet bytes view is faster.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            You can now display a list of resolved host names in "hosts" format
+	    within Wireshark.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The wireless toolbar has been updated.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+	    Wireshark on Linux does a better job of detecting interface addition
+	    and removal.
           </para>
         </listitem>
 
@@ -80,6 +107,13 @@ Wireshark Info
 	    It is now possible to compare two fields in a display filter
 	    (for example: udp.srcport != udp.dstport).  The two fields must
 	    be of the same type for this to work.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The main welcome screen and status bar now display file sizes using
+	    strict SI prefixes instead of old-style binary prefixes.
           </para>
         </listitem>
 
