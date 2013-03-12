@@ -146,7 +146,7 @@ static GHashTable* header_fields_hash = NULL;
 static void
 header_fields_update_cb(void *r, const char **err)
 {
-	header_field_t *rec = r;
+	header_field_t *rec = (header_field_t *)r;
 	char c;
 
 	if (rec->header_name == NULL) {
@@ -175,8 +175,8 @@ header_fields_update_cb(void *r, const char **err)
 static void *
 header_fields_copy_cb(void* n, const void* o, size_t siz _U_)
 {
-    header_field_t* new_rec = n;
-    const header_field_t* old_rec = o;
+    header_field_t* new_rec = (header_field_t*)n;
+    const header_field_t* old_rec = (const header_field_t*)o;
 
     if (old_rec->header_name) {
 	new_rec->header_name = g_strdup(old_rec->header_name);
@@ -196,7 +196,7 @@ header_fields_copy_cb(void* n, const void* o, size_t siz _U_)
 static void
 header_fields_free_cb(void*r)
 {
-    header_field_t* rec = r;
+    header_field_t* rec = (header_field_t*)r;
 
     if (rec->header_name) g_free(rec->header_name);
     if (rec->header_desc) g_free(rec->header_desc);
@@ -391,7 +391,7 @@ http_reqs_stats_tree_init(stats_tree* st)
 static int
 http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p)
 {
-	const http_info_value_t* v = p;
+	const http_info_value_t* v = (const http_info_value_t*)p;
 	int reqs_by_this_host;
 	int reqs_by_this_addr;
 	int resps_by_this_addr;
@@ -449,7 +449,7 @@ http_req_stats_tree_init(stats_tree* st)
 static int
 http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
-	const http_info_value_t* v = p;
+	const http_info_value_t* v = (const http_info_value_t*)p;
 	int reqs_by_this_host;
 
 	if (v->request_method) {
@@ -512,7 +512,7 @@ http_stats_tree_init(stats_tree* st)
 static int
 http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
-	const http_info_value_t* v = p;
+	const http_info_value_t* v = (const http_info_value_t*)p;
 	guint i = v->response_code;
 	int resp_grp;
 	const gchar *resp_str;
@@ -595,10 +595,10 @@ get_http_conversation_data(packet_info *pinfo)
 	/* Retrieve information from conversation
 	 * or add it if it isn't there yet
 	 */
-	conv_data = conversation_get_proto_data(conversation, proto_http);
+	conv_data = (http_conv_t *)conversation_get_proto_data(conversation, proto_http);
 	if(!conv_data) {
 		/* Setup the conversation structure itself */
-		conv_data = wmem_alloc0(wmem_file_scope(), sizeof(http_conv_t));
+		conv_data = (http_conv_t *)wmem_alloc0(wmem_file_scope(), sizeof(http_conv_t));
 
 		conversation_add_proto_data(conversation, proto_http,
 					    conv_data);
@@ -613,7 +613,7 @@ get_http_conversation_data(packet_info *pinfo)
  */
 static http_req_res_t* push_req_res(http_conv_t *conv_data)
 {
-	http_req_res_t *req_res = wmem_alloc0(wmem_file_scope(), sizeof(http_req_res_t));
+	http_req_res_t *req_res = (http_req_res_t *)wmem_alloc0(wmem_file_scope(), sizeof(http_req_res_t));
 	nstime_set_unset(&(req_res->req_ts));
 	req_res->number = ++conv_data->req_res_num;
 
@@ -744,7 +744,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	stat_info = ep_alloc(sizeof(http_info_value_t));
+	stat_info = ep_new(http_info_value_t);
 	stat_info->framenum = pinfo->fd->num;
 	stat_info->response_code = 0;
 	stat_info->request_method = NULL;
@@ -1017,7 +1017,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		proto_item *pi;
-		http_req_res_t *curr = p_get_proto_data(pinfo->fd, proto_http);
+		http_req_res_t *curr = (http_req_res_t *)p_get_proto_data(pinfo->fd, proto_http);
 		http_req_res_t *prev = curr ? curr->prev : NULL;
 		http_req_res_t *next = curr ? curr->next : NULL;
 
@@ -1343,7 +1343,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * an active listener to process it (which happens when
 		 * the export object window is open). */
 		if(have_tap_listener(http_eo_tap)) {
-			eo_info = ep_alloc(sizeof(http_eo_t));
+			eo_info = ep_new(http_eo_t);
 
 			eo_info->hostname = conv_data->http_host;
 			eo_info->filename = conv_data->request_uri;
@@ -1793,8 +1793,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
         /* Dechunk the "chunked response" to a new memory buffer */
 	orig_datalen      = datalen;
-	raw_data	  = g_malloc(datalen);
-	raw_len		  = 0;
+	raw_data	      = (guint8 *)g_malloc(datalen);
+	raw_len		      = 0;
 	chunks_decoded	  = 0;
 	chunked_data_size = 0;
 
@@ -2261,10 +2261,10 @@ header_fields_initialize_cb(void)
 
 	if (num_header_fields) {
 		header_fields_hash = g_hash_table_new(g_str_hash, g_str_equal);
-		hf = g_malloc0(sizeof(hf_register_info) * num_header_fields);
+		hf = g_new0(hf_register_info, num_header_fields);
 
 		for (i = 0; i < num_header_fields; i++) {
-			hf_id = g_malloc(sizeof(gint));
+			hf_id = g_new(gint,1);
 			*hf_id = -1;
 			header_name = g_strdup(header_fields[i].header_name);
 

@@ -1562,7 +1562,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					   matching conversation is available. */
 					mgcp_call_key.transid = mi->transid;
 					mgcp_call_key.conversation = conversation;
-					mgcp_call = g_hash_table_lookup(mgcp_calls, &mgcp_call_key);
+					mgcp_call = (mgcp_call_t *)g_hash_table_lookup(mgcp_calls, &mgcp_call_key);
 					if (mgcp_call)
 					{
 						/* Indicate the frame to which this is a reply. */
@@ -1682,7 +1682,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				mgcp_call_key.conversation = conversation;
 
 				/* Look up the request */
-				mgcp_call = g_hash_table_lookup(mgcp_calls, &mgcp_call_key);
+				mgcp_call = (mgcp_call_t *)g_hash_table_lookup(mgcp_calls, &mgcp_call_key);
 				if (mgcp_call != NULL)
 				{
 					/* We've seen a request with this TRANSID, with the same
@@ -1715,12 +1715,12 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					   frame numbers are 1-origin, so we use 0
 					   to mean "we don't yet know in which frame
 					   the reply for this call appears". */
-					new_mgcp_call_key = se_alloc(sizeof(*new_mgcp_call_key));
-					*new_mgcp_call_key = mgcp_call_key;
-					mgcp_call = se_alloc(sizeof(*mgcp_call));
-					mgcp_call->req_num = pinfo->fd->num;
-					mgcp_call->rsp_num = 0;
-					mgcp_call->transid = mi->transid;
+					new_mgcp_call_key    = (mgcp_call_info_key *)se_alloc(sizeof(*new_mgcp_call_key));
+					*new_mgcp_call_key   = mgcp_call_key;
+					mgcp_call            = (mgcp_call_t *)se_alloc(sizeof(*mgcp_call));
+					mgcp_call->req_num   = pinfo->fd->num;
+					mgcp_call->rsp_num   = 0;
+					mgcp_call->transid   = mi->transid;
 					mgcp_call->responded = FALSE;
 					mgcp_call->req_time=pinfo->fd->abs_ts;
 					g_strlcpy(mgcp_call->code,mi->code,5);

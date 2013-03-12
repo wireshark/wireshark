@@ -208,31 +208,31 @@ build_conversation_filter(int action, gboolean show_dialog)
             switch(pi->profinet_type) {
             case(1):
                 buf = g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
-                    ip_to_str( pi->net_dst.data),
-                    ip_to_str( pi->net_src.data),
-                    ip_to_str( pi->net_src.data),
-                    ip_to_str( pi->net_dst.data));
+                    ip_to_str( (const guint8 *)pi->net_dst.data),
+                    ip_to_str( (const guint8 *)pi->net_src.data),
+                    ip_to_str( (const guint8 *)pi->net_src.data),
+                    ip_to_str( (const guint8 *)pi->net_dst.data));
                 break;
             case(2):
                 buf = g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
-                    ip_to_str( pi->net_src.data),
-                    ip_to_str( pi->net_dst.data),
-                    ip_to_str( pi->net_dst.data),
-                    ip_to_str( pi->net_src.data));
+                    ip_to_str( (const guint8 *)pi->net_src.data),
+                    ip_to_str( (const guint8 *)pi->net_dst.data),
+                    ip_to_str( (const guint8 *)pi->net_dst.data),
+                    ip_to_str( (const guint8 *)pi->net_src.data));
                 break;
             case(3):
                 buf = g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
-                    ip_to_str( pi->net_dst.data),
-                    ip_to_str( pi->net_src.data),
-                    ip_to_str( pi->net_src.data),
-                    ip_to_str( pi->net_dst.data));
+                    ip_to_str( (const guint8 *)pi->net_dst.data),
+                    ip_to_str( (const guint8 *)pi->net_src.data),
+                    ip_to_str( (const guint8 *)pi->net_src.data),
+                    ip_to_str( (const guint8 *)pi->net_dst.data));
                 break;
             case(4):
                 buf = g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
-                    ip_to_str( pi->net_src.data),
-                    ip_to_str( pi->net_dst.data),
-                    ip_to_str( pi->net_dst.data),
-                    ip_to_str( pi->net_src.data));
+                    ip_to_str( (const guint8 *)pi->net_src.data),
+                    ip_to_str( (const guint8 *)pi->net_dst.data),
+                    ip_to_str( (const guint8 *)pi->net_dst.data),
+                    ip_to_str( (const guint8 *)pi->net_src.data));
                 break;
             default:
                 return NULL;
@@ -254,8 +254,8 @@ build_conversation_filter(int action, gboolean show_dialog)
         if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4 ) {
             /* TCP over IPv4 */
             buf = g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-                ip_to_str( pi->net_src.data),
-                ip_to_str( pi->net_dst.data),
+                ip_to_str( (const guint8 *)pi->net_src.data),
+                ip_to_str( (const guint8 *)pi->net_dst.data),
                 pi->srcport, pi->destport );
         } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6 ) {
             /* TCP over IPv6 */
@@ -280,8 +280,8 @@ build_conversation_filter(int action, gboolean show_dialog)
         if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4 ) {
             /* UDP over IPv4 */
             buf = g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
-                ip_to_str( pi->net_src.data),
-                ip_to_str( pi->net_dst.data),
+                ip_to_str( (const guint8 *)pi->net_src.data),
+                ip_to_str( (const guint8 *)pi->net_dst.data),
                 pi->srcport, pi->destport );
         } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6 ) {
             /* UDP over IPv6 */
@@ -306,8 +306,8 @@ build_conversation_filter(int action, gboolean show_dialog)
         if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4 ) {
             /* IPv4 */
             buf = g_strdup_printf("ip.addr eq %s and ip.addr eq %s",
-                ip_to_str( pi->net_src.data),
-                ip_to_str( pi->net_dst.data));
+                ip_to_str( (const guint8 *)pi->net_src.data),
+                ip_to_str( (const guint8 *)pi->net_dst.data));
         } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6 ) {
             /* IPv6 */
             buf = g_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
@@ -333,8 +333,8 @@ build_conversation_filter(int action, gboolean show_dialog)
         if( pi->dl_src.type == AT_ETHER && pi->dl_dst.type == AT_ETHER ) {
             /* Ethernet */
             buf = g_strdup_printf("eth.addr eq %s and eth.addr eq %s",
-                ether_to_str( pi->dl_src.data),
-                ether_to_str( pi->dl_dst.data));
+                ether_to_str( (const guint8 *)pi->dl_src.data),
+                ether_to_str( (const guint8 *)pi->dl_dst.data));
         } else {
             return NULL;
         }
@@ -3195,7 +3195,7 @@ main_menu_new(GtkAccelGroup ** table)
 static void
 menu_dissector_filter_cb(GtkAction *action _U_,  gpointer callback_data)
 {
-    dissector_filter_t      *filter_entry = callback_data;
+    dissector_filter_t      *filter_entry = (dissector_filter_t *)callback_data;
     GtkWidget               *filter_te;
     const char              *buf;
 
@@ -3218,7 +3218,7 @@ menu_dissector_filter_cb(GtkAction *action _U_,  gpointer callback_data)
 static gboolean
 menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpointer callback_data)
 {
-    dissector_filter_t *filter_entry = callback_data;
+    dissector_filter_t *filter_entry = (dissector_filter_t *)callback_data;
 
     /* XXX - this gets the packet_info of the last dissected packet, */
     /* which is not necessarily the last selected packet */
@@ -3256,7 +3256,7 @@ menu_dissector_filter(capture_file *cf)
     /* no items */
     if (!list_entry){
 
-      action = g_object_new (GTK_TYPE_ACTION,
+      action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
                  "name", "filter-list-empty",
                  "label", "No filters",
                  "sensitive", FALSE,
@@ -3276,10 +3276,10 @@ menu_dissector_filter(capture_file *cf)
     }
 
     while (list_entry != NULL) {
-        filter_entry = list_entry->data;
+        filter_entry = (dissector_filter_t *)list_entry->data;
         action_name = g_strdup_printf ("filter-%u", i);
         /*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
-        action = g_object_new (GTK_TYPE_ACTION,
+        action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
                  "name", action_name,
                  "label", filter_entry->name,
                  "sensitive", menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry),
@@ -3320,7 +3320,7 @@ menus_init(void)
         packet_list_heading_action_group = gtk_action_group_new ("PacketListHeadingPopUpMenuActionGroup");
 
         gtk_action_group_add_actions (packet_list_heading_action_group,            /* the action group */
-            (gpointer)packet_list_heading_menu_popup_action_entries,               /* an array of action descriptions */
+            packet_list_heading_menu_popup_action_entries,               /* an array of action descriptions */
             G_N_ELEMENTS(packet_list_heading_menu_popup_action_entries),           /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
@@ -3647,14 +3647,14 @@ void register_lua_menu_bar_menu_items(
 {
     menu_item_t *menu_item_data;
 
-    menu_item_data = g_malloc0(sizeof (menu_item_t));
+    menu_item_data                   = g_new0(menu_item_t,1);
     menu_item_data->gui_path         = gui_path;
     menu_item_data->name             = name;
     menu_item_data->label            = label;
     menu_item_data->stock_id         = stock_id;
     menu_item_data->accelerator      = accelerator;
     menu_item_data->tooltip          = tooltip;
-    menu_item_data->callback         = callback;
+    menu_item_data->callback         = (GCallback)callback;
     menu_item_data->callback_data    = callback_data;
     menu_item_data->enabled          = enabled;
     menu_item_data->selected_packet_enabled = selected_packet_enabled;
@@ -3841,7 +3841,7 @@ make_menu_actions(const char *path, const menu_item_t *menu_item_data)
                 lbl = (char*)tok;
             }
 
-            action = g_object_new (
+            action = (GtkAction *)g_object_new (
                     GTK_TYPE_ACTION,
                     "name", tok,
                     "label", lbl,
@@ -3864,7 +3864,7 @@ make_menu_actions(const char *path, const menu_item_t *menu_item_data)
             lbl = (char*)tok;
         }
 
-        action = g_object_new (
+        action = (GtkAction *)g_object_new (
                 GTK_TYPE_ACTION,
                 "name", tok,
                 "label", lbl,
@@ -3911,7 +3911,7 @@ merge_lua_menu_items(GList *lcl_merge_lua_menu_items_list)
     gchar          *xpath;
 
     while (lcl_merge_lua_menu_items_list != NULL) {
-        menu_item_data = lcl_merge_lua_menu_items_list->data;
+        menu_item_data = (menu_item_t *)lcl_merge_lua_menu_items_list->data;
         xpath = g_strdup_printf("%s/%s", menu_item_data->gui_path, menu_item_data->name);
 
         xml = make_menu_xml(xpath);
@@ -4025,7 +4025,7 @@ remove_present_file_name(GList *recent_files_list, const gchar *cf_name)
     gchar *widget_cf_name;
 
     for (li = g_list_first(recent_files_list); li; li = li->next) {
-        widget_cf_name = li->data;
+        widget_cf_name = (gchar *)li->data;
         if (
 #ifdef _WIN32
             /* do a case insensitive compare on win32 */
@@ -4062,7 +4062,7 @@ recent_changed_cb (GtkUIManager *ui_manager,
   action_groups = gtk_ui_manager_get_action_groups (ui_manager);
   for (l = action_groups; l != NULL; l = l->next)
   {
-      GtkActionGroup *group = l->data;
+      GtkActionGroup *group = (GtkActionGroup *)l->data;
 
       if (strcmp (gtk_action_group_get_name (group), "recent-files-group") == 0){
           /* this unrefs the action group and all of its actions */
@@ -4084,7 +4084,7 @@ recent_clear_cb(GtkAction *action _U_, gpointer user_data _U_)
 
     /* Get the list of recent files, free the list and store the empty list with the widget */
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
-    recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+    recent_files_list = (GList *)g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
     /* Free the name strings ?? */
     g_list_free(recent_files_list);
     recent_files_list = NULL;
@@ -4114,7 +4114,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
     if(!submenu_recent_files){
         g_warning("add_recent_items: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
-    items = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+    items = (GList *)g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
 
     gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
     g_object_set_data (G_OBJECT (ui_manager),
@@ -4123,7 +4123,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
     /* no items */
     if (!items){
 
-      action = g_object_new (GTK_TYPE_ACTION,
+      action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
                  "name", "recent-info-empty",
                  "label", "No recently used files",
                  "sensitive", FALSE,
@@ -4146,10 +4146,10 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
        i < prefs.gui_recent_files_count_max && l != NULL;
        i +=1, l = l->next)
     {
-      gchar *item_name = l->data;
+      gchar *item_name = (gchar *)l->data;
       action_name = g_strdup_printf ("recent-info-%u", i);
 
-      action = g_object_new (GTK_TYPE_ACTION,
+      action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
                  "name", action_name,
                  "label", item_name,
                  "stock_id", WIRESHARK_STOCK_SAVE,
@@ -4183,7 +4183,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
              FALSE);
 
     /* Add a clear Icon */
-    action = g_object_new (GTK_TYPE_ACTION,
+    action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
              "name", "clear-recent-info",
              "label", "Clear the recent files list",
              "stock_id", GTK_STOCK_CLEAR,
@@ -4233,7 +4233,7 @@ add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
         stats_tree_cfg *cfg = (stats_tree_cfg*)iter->data;
         if (cfg->plugin) {
             action_name = g_strdup_printf(MENU_STATISTICS_PATH "/%s", cfg->abbr);
-            action = g_object_new (GTK_TYPE_ACTION,
+            action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
                  "name", action_name,
                  "label", cfg->name,
                  NULL);
@@ -4269,7 +4269,7 @@ menu_open_filename(gchar *cf_name)
     if(!submenu_recent_files){
         g_warning("menu_open_filename: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
-    recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+    recent_files_list = (GList *)g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
     /* XXX: ask user to remove item, it's maybe only a temporary problem */
     /* open and read the capture file (this will close an existing file) */
     if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
@@ -4304,7 +4304,7 @@ menu_open_recent_file_cmd(GtkAction *action)
         cf_read(&cfile, FALSE);
     } else {
         submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
-        recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+        recent_files_list = (GList *)g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
 
         recent_files_list = remove_present_file_name(recent_files_list, cf_name);
         g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
@@ -4347,10 +4347,10 @@ add_menu_recent_capture_file_absolute(const gchar *cf_name)
         g_free(normalized_cf_name);
         return;
     }
-    recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+    recent_files_list = (GList *)g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
     cnt = 1;
     for (li = g_list_first(recent_files_list); li; cnt++) {
-        widget_cf_name = li->data;
+        widget_cf_name = (gchar *)li->data;
 
         /* Find the next element BEFORE we (possibly) free the current one below */
         li = li->next;
@@ -4415,10 +4415,10 @@ menu_recent_file_write_all(FILE *rf)
     if(!submenu_recent_files){
         g_warning("menu_recent_file_write_all: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
-    recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+    recent_files_list = (GList *)g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
     list =  g_list_last(recent_files_list);
     while (list != NULL) {
-        cf_name = list->data;
+        cf_name = (gchar *)list->data;
         if (cf_name) {
             if(u3_active())
                 fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
@@ -4437,7 +4437,7 @@ menu_recent_file_write_all(FILE *rf)
     child = g_list_last(children);
     while (child != NULL) {
         /* get capture filename from the menu item label */
-        cf_name = g_object_get_data(G_OBJECT(child->data), MENU_RECENT_FILES_KEY);
+        cf_name = (gchar *)g_object_get_data(G_OBJECT(child->data), MENU_RECENT_FILES_KEY);
         if (cf_name) {
             if(u3_active())
                 fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
@@ -4967,7 +4967,7 @@ set_menus_for_selected_packet(capture_file *cf)
 
         for (ii = ga->len - 1; ii > 0 ; ii -= 1) {
 
-            v = g_ptr_array_index (ga, ii);
+            v = (field_info *)g_ptr_array_index (ga, ii);
             hfinfo =  v->hfinfo;
 
             if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
@@ -5090,7 +5090,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected && decode_as_ok());
 
     if (properties) {
-        prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_packet_list_menu), "menu_abbrev");
+        prev_abbrev = (char *)g_object_get_data(G_OBJECT(ui_manager_packet_list_menu), "menu_abbrev");
         if (!prev_abbrev || (strcmp(prev_abbrev, abbrev) != 0)) {
           /*No previous protocol or protocol changed - update Protocol Preferences menu*/
             module_t *prefs_module_p = prefs_find_module(abbrev);
@@ -5134,7 +5134,7 @@ set_menus_for_selected_packet(capture_file *cf)
         dissector_filter_t *filter_entry;
         gchar *path;
 
-        filter_entry = list_entry->data;
+        filter_entry = (dissector_filter_t *)list_entry->data;
         path = g_strdup_printf("/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters/filter-%u", i);
 
         set_menu_sensitivity(ui_manager_main_menubar, path,
@@ -5149,8 +5149,8 @@ set_menus_for_selected_packet(capture_file *cf)
 static void
 menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
 {
-    gboolean *value  = data;
-    module_t *module = g_object_get_data (G_OBJECT(w), "module");
+    gboolean *value  = (gboolean *)data;
+    module_t *module = (module_t *)g_object_get_data (G_OBJECT(w), "module");
 
     module->prefs_changed = TRUE;
     *value = !(*value);
@@ -5165,8 +5165,8 @@ menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
 static void
 menu_prefs_change_enum (GtkWidget *w, gpointer data)
 {
-    gint     *value     = data;
-    module_t *module    = g_object_get_data (G_OBJECT(w), "module");
+    gint     *value     = (gint *)data;
+    module_t *module    = (module_t *)g_object_get_data (G_OBJECT(w), "module");
     gint      new_value = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(w), "enumval"));
 
     if (!gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(w)))
@@ -5194,9 +5194,9 @@ menu_prefs_reset(void)
 static void
 menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
 {
-    GtkWidget   *entry     = g_object_get_data (G_OBJECT(w), "entry");
-    module_t    *module    = g_object_get_data (G_OBJECT(w), "module");
-    pref_t      *pref      = g_object_get_data (G_OBJECT(w), "pref");
+    GtkWidget   *entry     = (GtkWidget *)g_object_get_data (G_OBJECT(w), "entry");
+    module_t    *module    = (module_t *)g_object_get_data (G_OBJECT(w), "module");
+    pref_t      *pref      = (pref_t *)g_object_get_data (G_OBJECT(w), "pref");
     const gchar *new_value = gtk_entry_get_text(GTK_ENTRY(entry));
     range_t     *newrange;
     gchar       *p;
@@ -5265,8 +5265,8 @@ menu_prefs_change_cancel (GtkWidget *w _U_, gpointer parent_w)
 static void
 menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 {
-    pref_t    *pref   = data;
-    module_t  *module = g_object_get_data (G_OBJECT(w), "module");
+    pref_t    *pref   = (pref_t *)data;
+    module_t  *module = (module_t *)g_object_get_data (G_OBJECT(w), "module");
     gchar     *value  = NULL;
 
     GtkWidget *win, *main_grid, *main_vb, *bbox, *cancel_bt, *ok_bt;
@@ -5328,7 +5328,7 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
     bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
     gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-    ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+    ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     g_object_set_data (G_OBJECT(ok_bt), "module", module);
     g_object_set_data (G_OBJECT(ok_bt), "entry", entry);
     g_object_set_data (G_OBJECT(ok_bt), "pref", pref);
@@ -5336,7 +5336,7 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 
     dlg_set_activate(entry, ok_bt);
 
-    cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+    cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
     g_signal_connect(cancel_bt, "clicked", G_CALLBACK(menu_prefs_change_cancel), win);
     window_set_cancel_button(win, cancel_bt, NULL);
 
@@ -5351,7 +5351,7 @@ add_protocol_prefs_generic_menu(pref_t *pref, gpointer data, GtkUIManager *ui_me
     GtkWidget        *menu_preferences;
     GtkWidget        *menu_item, *menu_sub_item, *sub_menu;
     GSList           *group  = NULL;
-    module_t         *module = data;
+    module_t         *module = (module_t *)data;
     const enum_val_t *enum_valp;
     gchar            *label  = NULL;
 
@@ -5682,7 +5682,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandSubtrees",
                              cf->finfo_selected->tree_type != -1);
-        prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev");
+        prev_abbrev = (char *)g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev");
         if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
             /* No previous protocol or protocol changed - update Protocol Preferences menu */
             module_t *prefs_module_p = prefs_find_module(abbrev);

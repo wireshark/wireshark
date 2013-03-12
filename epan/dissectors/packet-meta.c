@@ -400,9 +400,9 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             break;
         case META_ID_AAL5PROTO:
             aal5proto    = tvb_get_guint8(tvb, offs);
-            p_sscop_info = p_get_proto_data(pinfo->fd, proto_sscop);
+            p_sscop_info = (sscop_payload_info *)p_get_proto_data(pinfo->fd, proto_sscop);
             if (!p_sscop_info) {
-                p_sscop_info = se_alloc0(sizeof(sscop_payload_info));
+                p_sscop_info = se_new0(sscop_payload_info);
                 p_add_proto_data(pinfo->fd, proto_sscop, p_sscop_info);
             }
             switch (aal5proto) {

@@ -6928,7 +6928,7 @@ dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
   gint    gen_name_length;
   char   *gen_name = NULL;
 
-  gen_name = ep_alloc(MAXGNAME + 1);
+  gen_name = (char *)ep_alloc(MAXGNAME + 1);
   gen_name[0] = '\0';
   gen_name_length = tvb_length(parameter_tvb) - 1;
   indicator = tvb_get_guint8(parameter_tvb, 0);
@@ -10737,7 +10737,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8      itu_isup_variant = ISUP_ITU_STANDARD_VARIANT; /* Default */
 
   if(pinfo->private_data) {
-    content_type_parameter_str = ascii_strdown_inplace(pinfo->private_data);
+    content_type_parameter_str = ascii_strdown_inplace((gchar *)pinfo->private_data);
     if(strstr(content_type_parameter_str,"ansi")) {
       isup_standard = ANSI_STANDARD;
       col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ANSI)");

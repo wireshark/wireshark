@@ -145,7 +145,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	proto_tree *tree = ep_stack_peek(data->stack);
+	proto_tree *tree = (proto_tree *)ep_stack_peek(data->stack);
 	proto_tree *subtree;
 	proto_item *ti;
 
@@ -164,7 +164,7 @@ static void after_object(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 static void before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	proto_tree *tree = ep_stack_peek(data->stack);
+	proto_tree *tree = (proto_tree *)ep_stack_peek(data->stack);
 	proto_tree *subtree;
 	proto_item *ti;
 
@@ -177,7 +177,7 @@ static void before_member(void *tvbparse_data, const void *wanted_data _U_, tvbp
 static void after_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	proto_tree *tree = ep_stack_pop(data->stack);
+	proto_tree *tree = (proto_tree *)ep_stack_pop(data->stack);
 
 	if (tree) {
 		tvbparse_elem_t *key_tok = tok->sub;
@@ -194,7 +194,7 @@ static void after_member(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 static void before_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	proto_tree *tree = ep_stack_peek(data->stack);
+	proto_tree *tree = (proto_tree *)ep_stack_peek(data->stack);
 	proto_tree *subtree;
 	proto_item *ti;
 
@@ -226,7 +226,7 @@ static void after_array(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 
 static char *json_string_unescape(tvbparse_elem_t *tok)
 {
-	char *str = ep_alloc(tok->len - 1);
+	char *str = (char *)ep_alloc(tok->len - 1);
 	int i, j;
 
 	j = 0;
@@ -350,7 +350,7 @@ static char *json_string_unescape(tvbparse_elem_t *tok)
 static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
-	proto_tree *tree = ep_stack_peek(data->stack);
+	proto_tree *tree = (proto_tree *)ep_stack_peek(data->stack);
 	json_token_type_t value_id = JSON_TOKEN_INVALID;
 
 	if (tok->sub)

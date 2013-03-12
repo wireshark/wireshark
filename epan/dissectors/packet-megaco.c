@@ -383,14 +383,14 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if (g_ascii_strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!'){
-        gint8 class;
+        gint8 ber_class;
         gboolean pc;
         gint32 tag;
         dissector_handle_t handle = data_handle;
 
-        get_ber_identifier(tvb, 0, &class, &pc, &tag);
+        get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
 
-        if (class == BER_CLASS_UNI && pc && tag == BER_UNI_TAG_SEQUENCE ) {
+        if (ber_class == BER_CLASS_UNI && pc && tag == BER_UNI_TAG_SEQUENCE ) {
             handle = h248_handle;
         }
 
@@ -1264,7 +1264,7 @@ nextcontext:
                         TermID[0] = 'e';
 
                         term->len = tokenlen;
-                        term->str = (gchar*)(term->buffer = TermID);
+                        term->str = (const gchar*)(term->buffer = TermID);
 
                         gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
 
@@ -1277,7 +1277,7 @@ nextcontext:
                     case '*':
                         wild_term = GCP_WILDCARD_ALL;
                         term->len = 1;
-                        term->buffer = (guint8*)(term->str = "*");
+                        term->buffer = (const guint8*)(term->str = "*");
 
                         gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
 
@@ -1309,7 +1309,7 @@ nextcontext:
                             tokenlen));
 
                         term->len = tokenlen;
-                        term->buffer = (guint8*)(term->str = tvb_format_text(tvb, tvb_offset, tokenlen));
+                        term->buffer = (const guint8*)(term->str = tvb_format_text(tvb, tvb_offset, tokenlen));
 
                         gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
 
@@ -1760,7 +1760,7 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
     if(len<20480){
         int i;
         tvbuff_t *h245_tvb;
-        guint8 *buf = g_malloc(10240);
+        guint8 *buf = (guint8 *)g_malloc(10240);
 
         /* first, skip to where the encoded pdu starts, this is
            the first hex digit after the '=' char.
@@ -1839,7 +1839,7 @@ dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *meg
     if(len<20480){
         int i;
         tvbuff_t *h245_tvb;
-        guint8 *buf = g_malloc(10240);
+        guint8 *buf = (guint8 *)g_malloc(10240);
 
         /* first, skip to where the encoded pdu starts, this is
            the first hex digit after the '=' char.
