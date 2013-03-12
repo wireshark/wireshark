@@ -41,6 +41,8 @@
 /* This is not IANA assigned nor registered */
 #define UDP_PORT_PAPI 8211
 
+void proto_register_aruba_papi(void);
+void proto_reg_handoff_aruba_papi(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_papi = -1;

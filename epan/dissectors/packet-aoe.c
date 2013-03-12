@@ -28,6 +28,9 @@
 #include <epan/conversation.h>
 #include <etypes.h>
 
+void proto_register_aoe(void);
+void proto_reg_handoff_aoe(void);
+
 static int proto_aoe;
 static int hf_aoe_version=-1;
 static int hf_aoe_flags_response=-1;
@@ -193,7 +196,7 @@ ata_cmd_equal_matched(gconstpointer k1, gconstpointer k2)
 static guint
 ata_cmd_hash_unmatched(gconstpointer k)
 {
-  const ata_info_t *key = k;
+  const ata_info_t *key = (const ata_info_t *)k;
 
   return key->tag;
 }
@@ -201,8 +204,8 @@ ata_cmd_hash_unmatched(gconstpointer k)
 static gint
 ata_cmd_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
-  const ata_info_t *key1 = k1;
-  const ata_info_t *key2 = k2;
+  const ata_info_t *key1 = (const ata_info_t *)k1;
+  const ata_info_t *key2 = (const ata_info_t *)k2;
 
   return (key1->tag==key2->tag)&&(key1->conversation==key2->conversation);
 }
@@ -224,7 +227,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
       ata_info_t *tmp_ata_info;
       /* first time we see this request so add a struct for request/response
          matching */
-      ata_info=se_alloc(sizeof(ata_info_t));
+      ata_info=se_new(ata_info_t);
       ata_info->tag=tag;
       ata_info->conversation=conversation;
       ata_info->request_frame=pinfo->fd->num;
@@ -232,7 +235,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
       ata_info->cmd=tvb_get_guint8(tvb, offset+3);
       ata_info->req_time=pinfo->fd->abs_ts;
 
-      tmp_ata_info=g_hash_table_lookup(ata_cmd_unmatched, ata_info);
+      tmp_ata_info=(ata_info_t *)g_hash_table_lookup(ata_cmd_unmatched, ata_info);
       if(tmp_ata_info){
         g_hash_table_remove(ata_cmd_unmatched, tmp_ata_info);
       }
@@ -243,7 +246,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
          a request */
       tmp_ata_info.tag=tag;
       tmp_ata_info.conversation=conversation;
-      ata_info=g_hash_table_lookup(ata_cmd_unmatched, &tmp_ata_info);
+      ata_info=(ata_info_t *)g_hash_table_lookup(ata_cmd_unmatched, &tmp_ata_info);
       /* woo hoo we could, so no need to store this in unmatched any more,
          move both request and response to the matched table */
       if(ata_info){

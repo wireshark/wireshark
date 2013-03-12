@@ -37,6 +37,9 @@
 #include <epan/dissectors/packet-x509af.h>
 
 
+void proto_register_cert(void);
+void proto_reg_handoff_cert(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_cert = -1;
 

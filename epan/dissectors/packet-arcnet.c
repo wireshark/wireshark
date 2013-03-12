@@ -32,6 +32,9 @@
 #include <epan/arcnet_pids.h>
 #include "packet-ip.h"
 
+void proto_register_arcnet(void);
+void proto_reg_handoff_arcnet(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_arcnet = -1;
 static int hf_arcnet_src = -1;

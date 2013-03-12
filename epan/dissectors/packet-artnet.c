@@ -36,6 +36,9 @@
  *	http://www.artisticlicence.com/art-net.pdf
  */
 
+void proto_register_artnet(void);
+void proto_reg_handoff_artnet(void);
+
 /* Define udp_port for ArtNET */
 
 #define UDP_PORT_ARTNET 0x1936

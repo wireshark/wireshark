@@ -50,6 +50,8 @@
  *	(both of the above two are draft-perkins-manet-aodv6-01.txt, which
  *	is from November 2000)
  */
+void proto_register_aodv(void);
+void proto_reg_handoff_aodv(void);
 
 #define INET6_ADDRLEN	16
 #define UDP_PORT_AODV	654

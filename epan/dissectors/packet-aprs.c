@@ -54,6 +54,8 @@
 #define AX25_ADDR_LEN		7  /* length of an AX.25 address */
 #define STRLEN	100
 
+void proto_register_aprs(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_aprs			= -1;
 
@@ -692,23 +694,23 @@ dissect_mic_e(	tvbuff_t    *tvb,
 	proto_tree *mic_e_tree;
 	int	    new_offset;
 	int	    data_len;
-	char	   *info_buffer;
-	char	    latitude[7] = { '?', '?', '?', '?', '.', '?', '?' };
+	char    *info_buffer;
+	char    latitude[7] = { '?', '?', '?', '?', '.', '?', '?' };
 	int	    msg_a;
 	int	    msg_b;
 	int	    msg_c;
-	char	    n_s;
+	char    n_s;
 	int	    long_offset;
-	char	    w_e;
+	char    w_e;
 	int	    cse;
 	int	    spd;
-	guint8	    ssid;
+	guint8  ssid;
 	const mic_e_dst_code_table_s *dst_code_entry;
 
 	data_len    = tvb_length_remaining( tvb, offset );
 	new_offset  = offset + data_len;
 
-	info_buffer = ep_alloc( STRLEN );
+	info_buffer = (char *)ep_alloc( STRLEN );
 
 	msg_a = 0;
 	msg_b = 0;
@@ -851,11 +853,11 @@ dissect_aprs_storm(	tvbuff_t   *tvb,
 		{
 		proto_tree *tc;
 		int	    data_len;
-		char	   *info_buffer;
+		char   *info_buffer;
 		static const char *storm_format = " (%*.*s)";
 
 		data_len = tvb_length_remaining( tvb, offset );
-		info_buffer = ep_alloc( STRLEN );
+		info_buffer = (char *)ep_alloc( STRLEN );
 		g_snprintf( info_buffer, STRLEN, storm_format, data_len, data_len, tvb_get_ptr( tvb, offset, data_len ) );
 		tc = proto_tree_add_string( parent_tree, hf_aprs_storm_idx, tvb, offset, data_len, info_buffer );
 		storm_tree = proto_item_add_subtree( tc, ett_aprs_storm_idx );
@@ -904,7 +906,7 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 	data_len    = tvb_length_remaining( tvb, offset );
 	new_offset  = offset + data_len;
 
-	info_buffer = ep_alloc( STRLEN );
+	info_buffer = (char *)ep_alloc( STRLEN );
 	g_snprintf( info_buffer, STRLEN, weather_format, data_len, data_len, tvb_get_ptr( tvb, offset, data_len ) );
 
 	tc = proto_tree_add_string( parent_tree, hf_aprs_weather_idx, tvb, offset, data_len, info_buffer );
@@ -1063,7 +1065,7 @@ aprs_latitude_compressed( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 		char *info_buffer;
 		int   temp;
 
-		info_buffer = ep_alloc( STRLEN );
+		info_buffer = (char *)ep_alloc( STRLEN );
 
 		temp = ( tvb_get_guint8( tvb, offset + 0 ) - 33 );
 		temp = ( tvb_get_guint8( tvb, offset + 1 ) - 33 ) + ( temp * 91 );
@@ -1084,7 +1086,7 @@ aprs_longitude_compressed( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 		char *info_buffer;
 		int   temp;
 
-		info_buffer = ep_alloc( STRLEN );
+		info_buffer = (char *)ep_alloc( STRLEN );
 
 		temp = ( tvb_get_guint8( tvb, offset + 0 ) - 33 );
 		temp = ( tvb_get_guint8( tvb, offset + 1 ) - 33 ) + ( temp * 91 );

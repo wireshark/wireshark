@@ -32,6 +32,9 @@
 #include "packet-ap1394.h"
 #include <epan/etypes.h>
 
+void proto_register_ap1394(void);
+void proto_reg_handoff_ap1394(void);
+
 static int proto_ap1394 = -1;
 static int hf_ap1394_dst = -1;
 static int hf_ap1394_src = -1;

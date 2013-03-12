@@ -48,6 +48,9 @@
 #define PROTO_SHORT_NAME "ARUBA_ERM"
 #define PROTO_LONG_NAME  "ARUBA encapsulated remote mirroring"
 
+void proto_register_aruba_erm(void);
+void proto_reg_handoff_aruba_erm(void);
+
 static range_t *global_aruba_erm_port_range;
 
 static int  proto_aruba_erm       = -1;

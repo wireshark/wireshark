@@ -34,6 +34,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+void proto_register_ar_drone(void);
+void proto_reg_handoff_ar_drone(void);
+
 static guint ar_drone_port = 0;
 
 /* ************************************************ */

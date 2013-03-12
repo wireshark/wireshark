@@ -34,6 +34,9 @@
 
 #include "packet-tcp.h"
 
+void proto_register_aol(void);
+void proto_reg_handoff_aol(void);
+
 /* AOL's port */
 #define AOL_PORT 5190
 

@@ -34,6 +34,9 @@
 #define ADP_REQUEST 1
 #define ADP_RESPONSE 2
 
+void proto_register_aruba_adp(void);
+void proto_reg_handoff_aruba_adp(void);
+
 static int proto_aruba_adp = -1;
 static gint ett_aruba_adp  = -1;
 
