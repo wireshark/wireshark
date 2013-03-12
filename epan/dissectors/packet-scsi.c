@@ -2466,10 +2466,10 @@ dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo,
                                 1, ENC_BIG_ENDIAN);
         }
 
-        proto_tree_add_item(tree, hf_scsi_alloclen, tvb_v, offset_v+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_alloclen16, tvb_v, offset_v+2, 2, ENC_BIG_ENDIAN);
         /* we need the alloc_len in the response */
         if (cdata) {
-            cdata->itlq->alloc_len = tvb_get_guint8(tvb_v, offset_v+3);
+            cdata->itlq->alloc_len = tvb_get_ntohs(tvb_v, offset_v+2);
         }
         proto_tree_add_bitmask(tree, tvb_v, offset_v+4, hf_scsi_inq_control,
                                ett_scsi_inq_control, inq_control_fields, ENC_BIG_ENDIAN);
