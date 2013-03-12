@@ -4673,7 +4673,7 @@ bacapp_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt
     int instanceid_for_this_src;
     gchar *dststr;
     gchar *srcstr;
-    const bacapp_info_value_t *binfo = p;
+    const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
     srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
     dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);
@@ -4719,7 +4719,7 @@ bacapp_stats_tree_service(stats_tree* st, packet_info* pinfo, epan_dissect_t* ed
     gchar *dststr;
     gchar *srcstr;
 
-    const bacapp_info_value_t *binfo = p;
+    const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
     srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
     dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);
@@ -4757,7 +4757,7 @@ bacapp_stats_tree_objectid(stats_tree* st, packet_info* pinfo, epan_dissect_t* e
 
     gchar *dststr;
     gchar *srcstr;
-    const bacapp_info_value_t *binfo = p;
+    const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
     srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
     dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);
@@ -4795,7 +4795,7 @@ bacapp_stats_tree_instanceid(stats_tree* st, packet_info* pinfo, epan_dissect_t*
 
     gchar *dststr;
     gchar *srcstr;
-    const bacapp_info_value_t *binfo = p;
+    const bacapp_info_value_t *binfo = (const bacapp_info_value_t *)p;
 
     srcstr = ep_strconcat("Src: ", address_to_str(&pinfo->src), NULL);
     dststr = ep_strconcat("Dst: ", address_to_str(&pinfo->dst), NULL);

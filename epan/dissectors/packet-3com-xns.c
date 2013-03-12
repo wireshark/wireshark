@@ -29,6 +29,10 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 
+/* Forward declarations */
+void proto_register_3com_xns(void);
+void proto_reg_handoff_3com_xns(void);
+
 static int proto_3com_xns = -1;
 
 static int hf_3com_xns_type_ethertype = -1;

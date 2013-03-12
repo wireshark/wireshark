@@ -38,6 +38,8 @@
 #define ACTRACE_ISDN 2
 
 
+/* Forward declarations */
+void proto_register_actrace(void);
 void proto_reg_handoff_actrace(void);
 
 

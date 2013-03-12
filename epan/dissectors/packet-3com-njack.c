@@ -58,6 +58,9 @@ Specs:
 #include <epan/packet.h>
 #include <epan/emem.h>
 
+/* Forward declarations */
+void proto_register_njack(void);
+void proto_reg_handoff_njack(void);
 
 /* protocol handles */
 static int proto_njack = -1;

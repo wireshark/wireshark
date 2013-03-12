@@ -36,6 +36,10 @@
 
 #define NINEPORT 564
 
+/* Forward declarations */
+void proto_register_9p(void);
+void proto_reg_handoff_9p(void);
+
 /*Message types for 9P */
 /*See man 5 intro on Plan 9 - or;
 	http://www.cs.bell-labs.com/sys/man/5/INDEX.html

@@ -47,6 +47,10 @@
 #include <epan/prefs.h>
 #include <epan/ipv6-utils.h>
 
+/* Forward declarations */
+void proto_register_acn(void);
+void proto_reg_handoff_acn(void);
+
 /* pdu flags */
 #define ACN_PDU_FLAG_L     0x80
 #define ACN_PDU_FLAG_V     0x40

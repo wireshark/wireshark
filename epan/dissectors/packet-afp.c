@@ -69,6 +69,10 @@ http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/I
   Does that need a preference in case we didn't see the client and server
   negotiate that?
 */
+/* Forward declarations */
+void proto_register_afp(void);
+void proto_reg_handoff_afp(void);
+
 /* from netatalk/include/afp.h */
 #define AFPTRANS_NONE          0
 #define AFPTRANS_DDP          (1 << 0)

@@ -65,6 +65,8 @@
 #define END_BLOCK_DATA      0xFE
 
 
+/* Forward declarations */
+void proto_register_aasp(void);
 void proto_reg_handoff_aasp(void);
 
 /* Initialize the protocol and registered fields */

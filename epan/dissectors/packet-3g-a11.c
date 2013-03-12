@@ -50,6 +50,10 @@
 
 #include "packet-radius.h"
 
+/* Forward declarations */
+void proto_register_a11(void);
+void proto_register_a11(void);
+
 static int registration_request_msg =0;
 
 /* Initialize the protocol and registered fields */

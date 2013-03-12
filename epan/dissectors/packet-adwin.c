@@ -32,6 +32,10 @@
 #include <epan/conversation.h>
 #include <epan/emem.h>
 
+/* Forward declarations */
+void proto_register_adwin(void);
+void proto_reg_handoff_adwin(void);
+
 /* This is registered to a different protocol */
 #define ADWIN_COMM_PORT 6543
 
@@ -1163,8 +1167,6 @@ dissect_adwin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
 	return (tvb_reported_length(tvb));
 }
-
-void proto_reg_handoff_adwin(void);
 
 void
 proto_register_adwin(void)

@@ -31,6 +31,10 @@
 #include <epan/emem.h>
 #include <epan/etypes.h>
 
+/* Forward declarations */
+void proto_register_aarp(void);
+void proto_reg_handoff_aarp(void);
+
 static int proto_aarp = -1;
 static int hf_aarp_hard_type = -1;
 static int hf_aarp_proto_type = -1;

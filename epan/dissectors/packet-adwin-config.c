@@ -33,6 +33,10 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/ipproto.h>
 
+/* Forward declarations */
+void proto_register_adwin_config(void);
+void proto_reg_handoff_adwin_config(void);
+
 /* This is registered to a different protocol */
 #define ADWIN_CONFIGURATION_PORT 7000
 

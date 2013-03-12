@@ -46,6 +46,9 @@
 
 #include "packet-rx.h"
 
+/* Forward declarations */
+void proto_register_afs(void);
+
 #define AFS_PORT_FS     7000
 #define AFS_PORT_CB     7001
 #define AFS_PORT_PROT   7002
@@ -1533,7 +1536,7 @@ afs_init_protocol(void)
 static void
 dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	struct rxinfo *rxinfo = pinfo->private_data;
+	struct rxinfo *rxinfo = (rxinfo *)pinfo->private_data;
 	int reply = 0;
 	conversation_t *conversation;
 	struct afs_request_key request_key, *new_request_key;

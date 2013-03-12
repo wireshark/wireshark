@@ -32,6 +32,10 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
+/* Forward declarations */
+void proto_register_aacp(void);
+void proto_reg_handoff_aacp(void);
+
 static int proto_acap = -1;
 static int hf_acap_response = -1;
 static int hf_acap_request = -1;
