@@ -29,12 +29,25 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
+
 
 /*
  * The information used comes from:
  * RFC6455: The WebSocket Protocol
  * http://www.iana.org/assignments/websocket (last updated 2012-04-12)
  */
+
+void proto_reg_handoff_websocket(void);
+
+dissector_handle_t text_lines_handle;
+dissector_handle_t json_handle;
+
+#define WEBSOCKET_NONE 0
+#define WEBSOCKET_TEXT 1
+#define WEBSOCKET_JSON 2
+
+static gint  pref_text_type             = WEBSOCKET_NONE;
 
 /* Initialize the protocol and registered fields */
 static int proto_websocket = -1;
@@ -187,8 +200,26 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
       ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_text, payload_tvb, offset, payload_length, ENC_UTF_8|ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
     }else{
-      proto_tree_add_item(pl_tree, hf_ws_payload_text, tvb, offset, payload_length, ENC_UTF_8|ENC_NA);
+      const gchar  *saved_match_string = pinfo->match_string;
+      void *save_private_data = pinfo->private_data;
 
+      pinfo->match_string = NULL;
+      pinfo->private_data = NULL;
+      switch(pref_text_type){
+      case WEBSOCKET_TEXT:
+          call_dissector(text_lines_handle, payload_tvb, pinfo, pl_tree);
+          break;
+      case WEBSOCKET_JSON:
+          call_dissector(json_handle, payload_tvb, pinfo, pl_tree);
+          break;
+      case WEBSOCKET_NONE:
+          /* falltrough */
+      default:
+          proto_tree_add_item(pl_tree, hf_ws_payload_text, tvb, offset, payload_length, ENC_UTF_8|ENC_NA);
+          break;
+      }
+      pinfo->match_string = saved_match_string;
+      pinfo->private_data = save_private_data;
     }
     offset += payload_length;
     break;
@@ -533,6 +564,15 @@ proto_register_websocket(void)
     &ett_ws_mask
   };
 
+  static const enum_val_t text_types[] = {
+      {"None",            "No subdissection", WEBSOCKET_NONE},
+      {"Line based text", "Line based text",  WEBSOCKET_TEXT},
+      {"As JSON",         "As json",          WEBSOCKET_JSON},
+      {NULL, NULL, -1}
+  };
+
+  module_t *websocket_module;
+
   proto_websocket = proto_register_protocol("WebSocket",
       "WebSocket", "websocket");
   
@@ -550,9 +590,23 @@ proto_register_websocket(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   new_register_dissector("websocket", dissect_websocket, proto_websocket);
+
+  websocket_module = prefs_register_protocol(proto_websocket, proto_reg_handoff_websocket);
+
+  prefs_register_enum_preference(websocket_module, "text_type",
+        "Dissect websocket text as",
+        "Select dissector for websocket text",
+        &pref_text_type, text_types, WEBSOCKET_NONE);
+
+
 }
 
-
+void
+proto_reg_handoff_websocket(void)
+{
+	text_lines_handle = find_dissector("data-text-lines");
+	json_handle = find_dissector("json");
+}
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
