@@ -557,6 +557,7 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 	return 1;
 }
 
+
 static void
 dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     const char *line)
@@ -2629,6 +2630,35 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+static gboolean
+dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	gint offset = 0, next_offset, linelen;
+	conversation_t  *conversation;
+
+
+	/* Check if we have a line terminated by CRLF
+	 * Return the length of the line (not counting the line terminator at
+	 * the end), or, if we don't find a line terminator:
+	 *
+	 *	if "deseg" is true, return -1;
+	 */
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
+	if((linelen == -1)||(linelen == 8)){
+		return FALSE;
+	}
+
+	/* Check if the line start or ends with the HTTP token */
+	if((tvb_strncaseeql(tvb, linelen-8, "HTTP/1.1", 8) == 0)||(tvb_strncaseeql(tvb, 0, "HTTP/1.1", 8) == 0)){
+		conversation = find_or_create_conversation(pinfo);
+		conversation_set_dissector(conversation,http_handle);
+		dissect_http(tvb, pinfo, tree);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 static void
 dissect_http_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -3106,6 +3136,9 @@ proto_reg_handoff_message_http(void)
 			proto_message_http);
 
 	dissector_add_string("media_type", "message/http", message_http_handle);
+
+	heur_dissector_add("tcp", dissect_http_heur_tcp, proto_http);
+
 
 	reinit_http();
 }
