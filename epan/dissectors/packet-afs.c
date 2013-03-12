@@ -1536,7 +1536,7 @@ afs_init_protocol(void)
 static void
 dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	struct rxinfo *rxinfo = (rxinfo *)pinfo->private_data;
+	struct rxinfo *rxinfo = (struct rxinfo *)pinfo->private_data;
 	int reply = 0;
 	conversation_t *conversation;
 	struct afs_request_key request_key, *new_request_key;
