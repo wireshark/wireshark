@@ -3,7 +3,7 @@
 
 <chapter id="ChapterUserInterface">
   <title>User Interface</title>
-  
+
   <section id="ChUIIntro">
 	<title>Introduction</title>
 	<para>
@@ -21,10 +21,10 @@
 	  Wireshark, GTK 2.x based
 	  </para></listitem>
 	  <listitem><para>
-	  TShark, console based
+	  Wireshark, GTK 3.x based (Wireshark 1.10 and newer)
 	  </para></listitem>
 	  <listitem><para>
-	  Wireshark, GTK 1.x based (was removed with the Wireshark 1.2.0 release)
+	  TShark, console based
 	  </para></listitem>
 	</itemizedlist>
 	There exist other Wireshark frontends, not developed nor
@@ -32,7 +32,7 @@
 	<itemizedlist>
 	  <listitem><para>
 	  Packetyzer (Win32 native interface, written in Delphi and released
-	  under the GPL, see: 
+	  under the GPL, see:
 	  <ulink url="http://www.paglo.com/opensource/packetyzer"/>)
 	  </para></listitem>
 	  <listitem><para>
@@ -44,14 +44,14 @@
 	the GTK specific things.
 	</para>
   </section>
-  
+
 	<section id="ChUIGTK">
 	<title>The GTK library</title>
 	<para>
 	Wireshark is based on the GTK toolkit, see: <ulink url="http://www.gtk.org"/>
 	for details. GTK is designed to hide the details of the underlying GUI in
-	a platform independent way. As this is appreciated for a
-	multiplatform tool, this has some drawbacks, as it will result in a
+	a platform independent way. As GTK is intended to be a
+	multiplatform tool, there are some drawbacks, as the result is a
 	somewhat "non native" look and feel.
 	</para>
 	<para>
@@ -70,88 +70,14 @@
 	long time ago :-)
 	</para>
 	<para>
-	At the time this document is written there are two major GTK versions
+	Currently [2013] there are two major GTK versions
 	available:
 	</para>
-	
-	
-	<section id="ChUIGTK1x">
-	<title>GTK Version 1.x</title>
-	<para>
-	Please note: After the creation of the 1.0 branch further development 
-	removed support for GTK 1.x!
-	</para>
-	<para>
-	GTK 1.x was the first major release. Today there are 1.2.x and 1.3.x
-	versions "in the wild", with only very limited differences in the API.
-	</para>
-	<para>
-	Advantages (compared to GTK 2.x):
-	<itemizedlist>
-	  <listitem><para>
-	  available on a lot of different platforms
-	  </para></listitem>
-	  <listitem><para>
-	  very stable as it's matured for quite a while now
-	  </para></listitem>
-	</itemizedlist>
-	Disadvantages:
-	<itemizedlist>
-	  <listitem><para>
-	  the look and feel is a bit old-fashioned
-	  </para></listitem>
-	  <listitem><para>
-	  not recommended for future developments (last GTK 1.x release in 2004)
-	  </para></listitem>
-	</itemizedlist>
-	GTK 1.x depends on the following libraries:
-	<itemizedlist>
-	  <listitem><para>
-	  GDK (GDK is the abstraction layer
-	  that allows GTK+ to support multiple
-	  windowing systems. GDK provides drawing and window system facilities
-	  on X11, Windows, and the Linux framebuffer device.)
-	  </para></listitem>
-	  <listitem><para>
-	  GLib (A general-purpose utility
-	  library, not specific to graphical user interfaces.
-	  GLib provides many useful data types, macros, type conversions,
-	  string utilities, file utilities, a main loop abstraction, and so on.)
-	  </para></listitem>
-	</itemizedlist>
-	GTK 1.x is working on GLib 1.x (typical for Unix like systems) or 2.x
-	(typical for Win32 like systems).
-	</para>
-	<para>
-	XXX: include Wireshark GTK1 screenshot
-	</para>
-	</section>
 
 
 	<section id="ChUIGTK2x">
 	<title>GTK Version 2.x</title>
 	<para>
-	Advantages (compared to GTK 1.x):
-	<itemizedlist>
-	  <listitem><para>
-	  nice look and feel (compared to version 1.x)
-	  </para></listitem>
-	  <listitem><para>
-	  recommended for future developments
-	  </para></listitem>
-	  <listitem><para>
-	  stable (in productive code for years now)
-	  </para></listitem>
-	</itemizedlist>
-	Disadvantages:
-	<itemizedlist>
-	  <listitem><para>
-	  not available on all platforms (compared to version 1.x)
-	  </para></listitem>
-	  <listitem><para>
-	  more dependencies compared to 1.x, see below
-	  </para></listitem>
-	</itemizedlist>
 	GTK 2.x depends on the following libraries:
 	<itemizedlist>
 	  <listitem><para>
@@ -188,9 +114,23 @@
 	  on X11, Windows, and the Linux framebuffer device.)
 	  </para></listitem>
 	</itemizedlist>
-	XXX: include Wireshark GTK2 screenshot
 	</para>
 	</section>
+
+
+	<section id="ChUIGTK3x">
+	<title>GTK Version 3.x</title>
+	<para>
+	Wireshark (as of version 1.10) has been ported to use the GTK3 library.
+	</para>
+	<para>
+	GTK 3.x depends on the following libraries:
+	</para>
+	<para>
+	(See GTK 2.x)
+	</para>
+	</section>
+
 
 	<section id="ChUIGTKCompat">
 	<title>Compatibility GTK versions</title>
@@ -208,21 +148,21 @@
 	You can find several resources about GTK.
 	</para>
 	<para>
-	First of all, have a look at: <ulink url="http://www.gtk.org"/> as this 
-	will be the first place to look at. If you want to develop GTK related 
-	things for Wireshark, the most important place might be the GTK API 
+	First of all, have a look at: <ulink url="http://www.gtk.org"/> as this
+	will be the first place to look at. If you want to develop GTK related
+	things for Wireshark, the most important place might be the GTK API
 	documentation at: <ulink url="http://library.gnome.org/devel/gtk/stable/"/>.
 	</para>
 	<para>
-	Several mailing lists are available about GTK development, see <ulink 
+	Several mailing lists are available about GTK development, see <ulink
 	url="http://mail.gnome.org/mailman/listinfo"/>, the gtk-app-devel-list
 	may be your friend.
 	</para>
   <para>
-	As it's often done wrong: You should post a mail to *help* the developers 
-	there instead of only complaining. Posting such a thing like "I don't like 
-	your dialog, it looks ugly" won't be of much help. You might think about 
-	what you dislike and describe why you dislike it and provide a suggestion 
+	As it's often done wrong: You should post a mail to *help* the developers
+	there instead of only complaining. Posting such a thing like "I don't like
+	your dialog, it looks ugly" won't be of much help. You might think about
+	what you dislike and describe why you dislike it and provide a suggestion
 	for a better way.
 	</para>
 	</section>
@@ -232,10 +172,10 @@
 	<section id="ChUIGUIDocs">
 	<title>GUI Reference documents</title>
 	<para>
-	Although the GUI development of Wireshark is platform independent, the 
+	Although the GUI development of Wireshark is platform independent, the
 	Wireshark development team tries to
-	follow the GNOME Human Interface Guidelines (HIG) where appropriate. 
-	This is the case, because both GNOME and Wireshark are based on the GTK+ 
+	follow the GNOME Human Interface Guidelines (HIG) where appropriate.
+	This is the case, because both GNOME and Wireshark are based on the GTK+
 	toolkit and the GNOME HIG is excellently written and easy to understand.
 	</para>
 	<para>
@@ -256,7 +196,7 @@
 	</itemizedlist>
 	</para>
 	</section>
-	
+
   <section id="ChUIGTKDialogs">
 	<title>Adding/Extending Dialogs</title>
 	<para>
@@ -307,7 +247,7 @@
 	be shown too.
 	</para>
 	</section>
-	
+
   </section>
 
 </chapter>
