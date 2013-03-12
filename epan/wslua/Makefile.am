@@ -25,7 +25,7 @@ if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS = -Werror
 endif
 
-INCLUDES = -I$(top_srcdir) @LUA_INCLUDES@
+AM_CPPFLAGS = -I$(top_srcdir) @LUA_INCLUDES@
 
 noinst_LTLIBRARIES = libwslua.la
 

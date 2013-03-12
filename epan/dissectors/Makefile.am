@@ -22,7 +22,7 @@
 
 noinst_LTLIBRARIES = libdirtydissectors.la libdissectors.la
 
-INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. \
+AM_CPPFLAGS = -I$(srcdir)/../.. -I$(srcdir)/.. \
 	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 include Makefile.common

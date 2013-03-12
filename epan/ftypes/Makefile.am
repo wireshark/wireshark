@@ -36,7 +36,7 @@ CLEANFILES = \
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
-INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/..
+AM_CPPFLAGS = -I$(srcdir)/../.. -I$(srcdir)/..
 
 libftypes_la_SOURCES = $(NONGENERATED_C_FILES) $(NONGENERATED_HEADER_FILES)
 

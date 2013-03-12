@@ -60,7 +60,7 @@ libwireshark_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
 include Makefile.common
 
-INCLUDES = -I$(srcdir)/.. -I$(srcdir)/$(LEMON) -I$(builddir)/wslua \
+AM_CPPFLAGS = -I$(srcdir)/.. -I$(srcdir)/$(LEMON) -I$(builddir)/wslua \
 	@LUA_INCLUDES@ $(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) \
 	$(LIBSMI_CFLAGS) $(LIBGEOIP_CFLAGS) $(PY_CFLAGS)
 

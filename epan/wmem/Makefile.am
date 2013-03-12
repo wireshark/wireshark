@@ -27,7 +27,9 @@ endif
 
 include Makefile.common
 
-AM_CPPFLAGS = $(LIBWMEM_CFLAGS)
+AM_CPPFLAGS = \
+	-I$(top_srcdir) \
+	$(LIBWMEM_CFLAGS)
 
 noinst_LTLIBRARIES = libwmem.la
 
@@ -40,8 +42,6 @@ DISTCLEANFILES =
 
 MAINTAINERCLEANFILES =	\
 	Makefile.in
-
-INCLUDES = -I$(top_srcdir)
 
 libwmem_la_SOURCES =	\
 	$(LIBWMEM_SRC)	\

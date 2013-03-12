@@ -24,7 +24,7 @@
 
 include $(top_srcdir)/Makefile.am.inc
 
-INCLUDES = -I$(top_srcdir)
+AM_CPPFLAGS = -I$(top_srcdir)
 
 include Makefile.common
 

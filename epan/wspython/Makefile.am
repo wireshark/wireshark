@@ -36,7 +36,7 @@ CLEANFILES = \
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
-INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/..
+AM_CPPFLAGS = -I$(srcdir)/../.. -I$(srcdir)/..
 
 libwspython_la_SOURCES = $(LIBWSPYTHON_SRC) $(LIBWSPYTHON_INCLUDES)
 
