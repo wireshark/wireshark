@@ -904,7 +904,7 @@ DEBUG_ENTRY("dissect_per_set_of");
 
 /* 23 Encoding the object identifier type */
 guint32
-dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
+dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
 {
   guint length;
   const char *str;
