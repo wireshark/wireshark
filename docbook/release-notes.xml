@@ -112,6 +112,14 @@ Wireshark Info
 
         <listitem>
           <para>
+	    Wireshark now calculates HTTP response times and presents the result
+	    in a new field in the HTTP response.  Links from the request's frame
+	    to the response's frame and vice-versa are also added.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
             The main welcome screen and status bar now display file sizes using
 	    strict SI prefixes instead of old-style binary prefixes.
           </para>
