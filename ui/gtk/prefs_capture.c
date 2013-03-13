@@ -143,7 +143,9 @@ capture_prefs_show(void)
 	/* Main grid */
 	main_grid = ws_gtk_grid_new();
 	gtk_box_pack_start(GTK_BOX(capture_window), main_grid, FALSE, FALSE, 0);
+#if GTK_CHECK_VERSION(3,0,0)
 	gtk_widget_set_vexpand(GTK_WIDGET(main_grid), FALSE); /* Ignore VEXPAND requests from children */
+#endif
 	ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 10);
 	ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 15);
 	gtk_widget_show(main_grid);
