@@ -123,7 +123,6 @@ typedef struct interface_tag {
     gint active_dlt;
     gboolean pmode;
     gboolean has_snaplen;
-    gboolean snap_pref;
     guint snaplen;
     gboolean local;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
@@ -233,6 +232,7 @@ typedef struct capture_options_tag {
     uid_t owner;                    /**< owner of the cfile */
     gid_t group;                    /**< group of the cfile */
 #endif
+    gboolean session_started;
 } capture_options;
 
 /* initialize the capture_options with some reasonable values */

@@ -2190,6 +2190,10 @@ prefs_register_modules(void)
         "Interface snap length (Ex: en0(65535),en1(1430),...)",
         (const char**)(&prefs.capture_devices_snaplen));
 
+    prefs_register_string_preference(capture_module, "devices_pmode", "Interface promiscuous mode",
+        "Interface promiscuous mode (Ex: en0(0),en1(1),...)",
+        (const char**)(&prefs.capture_devices_pmode));
+
     prefs_register_bool_preference(capture_module, "prom_mode", "Capture in promiscuous mode",
         "Capture in promiscuous mode?", &prefs.capture_prom_mode);
 

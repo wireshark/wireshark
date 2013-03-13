@@ -1249,9 +1249,10 @@ insert_new_rows(GList *list)
       device.buffer = global_capture_opts.default_options.buffer_size;
     }
 #endif
-    device.pmode = global_capture_opts.default_options.promisc_mode;
+    if ((device.pmode = capture_dev_user_pmode_find(if_string)) == -1) {
+      device.pmode = global_capture_opts.default_options.promisc_mode;
+    }
     device.has_snaplen = global_capture_opts.default_options.has_snaplen;
-    device.snap_pref = TRUE;
     if ((device.snaplen = capture_dev_user_snaplen_find(if_string)) == -1) {
       device.snaplen = global_capture_opts.default_options.snaplen;
     }
@@ -2479,7 +2480,6 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   device.has_snaplen = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb));
   if (device.has_snaplen) {
     if (device.snaplen != (guint)gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb))) {
-      device.snap_pref = FALSE;
     }
     device.snaplen = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
     if (device.snaplen < 1)
@@ -2523,7 +2523,10 @@ adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
   gtk_widget_set_sensitive(GTK_WIDGET(snap_sb),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb)));
   device.has_snaplen = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb));
-  device.snap_pref = FALSE;
+  if (!device.has_snaplen) {
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON (snap_sb), WTAP_MAX_PACKET_SIZE);
+    device.snaplen = WTAP_MAX_PACKET_SIZE;
+  }
   g_array_insert_val(global_capture_opts.all_ifaces, marked_interface, device);
 }
 
@@ -3152,16 +3155,32 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
 }
 
 
+static gboolean get_all_prom_mode(void)
+{
+  interface_options  interface_opts;
+  guint i;
+
+  for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+    if (!interface_opts.promisc_mode) {
+    	return FALSE;
+    }
+  }
+  return TRUE;
+}
+
 static void promisc_mode_callback(GtkToggleButton *button, gpointer d _U_)
 {
   GtkTreeIter        iter;
   GtkTreeView       *if_cb;
   GtkTreeModel      *model;
-  gboolean           enabled = FALSE;
+  gboolean           enabled = FALSE, set;
   interface_t        device;
   interface_options  interface_opts;
   guint              i;
 
+  set = gtk_toggle_button_get_active(button);
+  gtk_toggle_button_set_active(button, (set?FALSE:TRUE));
   if (gtk_toggle_button_get_active(button))
     enabled = TRUE;
 
@@ -4333,11 +4352,9 @@ update_properties_all(void) {
       }
     }
   }
+  promisc_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY_ALL);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_b), promisc_all);
 
-  if (promisc_all) {
-    promisc_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY_ALL);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_b), TRUE);
-  }
   if (capture_all) {
     capture_b = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_KEY_ALL);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(capture_b), TRUE);
@@ -4641,11 +4658,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_sensitive(GTK_WIDGET(all_cb), if_present);
   /* Promiscuous mode row */
   promisc_cb = gtk_check_button_new_with_mnemonic("Capture all in _promiscuous mode");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb),
-                               global_capture_opts.default_options.promisc_mode);
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb)))
-    promisc_mode_callback(GTK_TOGGLE_BUTTON(promisc_cb), NULL);
-  g_signal_connect(promisc_cb, "toggled", G_CALLBACK(promisc_mode_callback), NULL);
+  if (!global_capture_opts.session_started) {
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb), prefs.capture_prom_mode);
+  } else {
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb), get_all_prom_mode());
+  }
+  g_signal_connect(promisc_cb, "button-press-event", G_CALLBACK(promisc_mode_callback), NULL);
 
   gtk_widget_set_tooltip_text(promisc_cb,
     "Usually a network adapter will only capture the traffic sent to its own network address. "
@@ -4654,7 +4672,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     "option individually."
     "See the FAQ for some more details of capturing packets from a switched network.");
   gtk_box_pack_start(GTK_BOX(left_vb), promisc_cb, TRUE, TRUE, 0);
-  gtk_widget_set_sensitive(GTK_WIDGET(promisc_cb), if_present);
 
   iftype_cbx = gtk_button_new_with_label("Manage Interfaces");
   gtk_widget_set_tooltip_text(iftype_cbx, "Add a new interface or pipe to capture from or remove "
@@ -5121,6 +5138,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   window_present(cap_open_w);
 
   cap_open_complete = TRUE;   /* "Capture:Start" is now OK */
+  global_capture_opts.session_started = TRUE;
 }
 
 /* everythings prepared, now it's really time to start the capture */
@@ -5454,7 +5472,7 @@ create_and_fill_model(GtkTreeView *view)
   gint          buffer;
 #endif
   gint          snaplen;
-  gboolean      hassnap;
+  gboolean      hassnap, pmode;
 
 #if defined(HAVE_PCAP_CREATE)
   store = gtk_list_store_new (9, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING);
@@ -5473,6 +5491,9 @@ create_and_fill_model(GtkTreeView *view)
         temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
       }
       linkname = NULL;
+      if(global_capture_opts.session_started == FALSE && capture_dev_user_linktype_find(device.name) != -1) {
+        device.active_dlt = capture_dev_user_linktype_find(device.name);
+      }
       for (list = device.links; list != NULL; list = g_list_next(list)) {
         linkr = (link_row*)(list->data);
         if (linkr->dlt == device.active_dlt) {
@@ -5480,29 +5501,39 @@ create_and_fill_model(GtkTreeView *view)
           break;
         }
       }
-      hassnap = capture_dev_user_hassnap_find(device.name);
-      snaplen = capture_dev_user_snaplen_find(device.name);
-      if((snaplen>0)&&(hassnap>0)){
+      pmode = capture_dev_user_pmode_find(device.name);
+      if (global_capture_opts.session_started == FALSE && pmode != -1) {
+        device.pmode = pmode;
+      }
+      if(global_capture_opts.session_started == FALSE) {
+        hassnap = capture_dev_user_hassnap_find(device.name);
+        snaplen = capture_dev_user_snaplen_find(device.name);
+        if(snaplen != -1 && hassnap != -1) {
           /* Default snap lenght set in preferences */
           device.snaplen = snaplen;
-          device.has_snaplen = TRUE;
-		  global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-		  g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-          snaplen_string = g_strdup_printf("%d", device.snaplen);
-      }else if (device.has_snaplen) {
-          snaplen_string = g_strdup_printf("%d", device.snaplen);
-      }else{
-          snaplen_string = g_strdup("default");
+          device.has_snaplen = hassnap;
+        } else {
+          /* No preferences set yet, use default values */
+          device.snaplen = WTAP_MAX_PACKET_SIZE;
+          device.has_snaplen = FALSE;
+        }
       }
+      if (device.has_snaplen) {
+        snaplen_string = g_strdup_printf("%d", device.snaplen);
+      } else {
+        snaplen_string = g_strdup("default");
+      }
+
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-      buffer = device.buffer;
-      if (buffer == DEFAULT_CAPTURE_BUFFER_SIZE && capture_dev_user_buffersize_find(device.name) != DEFAULT_CAPTURE_BUFFER_SIZE && capture_dev_user_buffersize_find(device.name) != -1) {
+      if (global_capture_opts.session_started == FALSE && capture_dev_user_buffersize_find(device.name) != -1) {
         buffer = capture_dev_user_buffersize_find(device.name);
         device.buffer = buffer;
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-      }
+      } else if (global_capture_opts.session_started == FALSE) {
+        device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
+      } 
 #endif
+      global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+      g_array_insert_val(global_capture_opts.all_ifaces, i, device);
       gtk_list_store_append (store, &iter);
 #if defined(HAVE_PCAP_CREATE)
       gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname?linkname:"This should not happen",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
@@ -5901,7 +5932,8 @@ void
 refresh_local_interface_lists(void)
 {
   /* Reload the local interface list. */
-  scan_local_interfaces();
+  if (global_capture_opts.session_started == FALSE)
+    scan_local_interfaces();
 
   /* If there's an interfaces dialog up, refresh it. */
   if (interfaces_dialog_window_present())

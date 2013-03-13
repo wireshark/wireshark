@@ -242,12 +242,22 @@ scan_local_interfaces(void)
         device.local = TRUE;
         device.if_info = *temp;
         device.last_packets = 0;
-        device.pmode        = global_capture_opts.default_options.promisc_mode;
-        device.has_snaplen  = global_capture_opts.default_options.has_snaplen;
-        device.snaplen      = global_capture_opts.default_options.snaplen;
+        if ((device.pmode = capture_dev_user_pmode_find(if_info->name)) == -1) {
+            device.pmode = global_capture_opts.default_options.promisc_mode;
+        }
+        if ((device.has_snaplen = capture_dev_user_hassnap_find(if_info->name)) == -1) {
+            device.has_snaplen = global_capture_opts.default_options.has_snaplen;
+        }
+        if (capture_dev_user_snaplen_find(if_info->name) == -1) {
+            device.snaplen = global_capture_opts.default_options.snaplen;
+        } else {
+            device.snaplen = (guint)capture_dev_user_snaplen_find(if_info->name);
+        }
         device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
+        if ((device.buffer = capture_dev_user_buffersize_find(if_info->name)) == -1) {
+            device.buffer = global_capture_opts.default_options.buffer_size;
+        }
 #endif
 
         if (global_capture_opts.ifaces->len > 0) {

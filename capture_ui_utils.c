@@ -223,6 +223,31 @@ capture_dev_user_hassnap_find(const gchar *if_name)
   return (gboolean)hassnap;
 }
 
+gboolean
+capture_dev_user_pmode_find(const gchar *if_name)
+{
+  gchar *p, *next;
+  gboolean pmode;
+
+  if ((prefs.capture_devices_pmode == NULL) ||
+      (*prefs.capture_devices_pmode == '\0')) {
+    /* There is no promiscuous mode defined */
+    return -1;
+  }
+
+  if ((p = strstr(prefs.capture_devices_pmode, if_name)) == NULL) {
+    /* There are, but there isn't one for this interface. */
+    return -1;
+  }
+
+  p += strlen(if_name) + 1;
+  pmode = (gboolean)strtol(p, &next, 10);
+  if (next == p || *next != ')') {
+    /* Syntax error */
+    return -1;
+  }
+  return (gboolean)pmode;
+}
 
 /*
  * Return as descriptive a name for an interface as we can get.

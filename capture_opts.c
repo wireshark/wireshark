@@ -127,6 +127,7 @@ capture_opts_init(capture_options *capture_opts, void *cf)
   capture_opts->owner                           = getuid();
   capture_opts->group                           = getgid();
 #endif
+  capture_opts->session_started                 = FALSE;
 }
 
 

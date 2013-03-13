@@ -186,6 +186,7 @@ typedef struct _e_prefs {
   gchar       *capture_devices_buffersize;
 #endif
   gchar       *capture_devices_snaplen;
+  gchar       *capture_devices_pmode;
   gboolean     capture_prom_mode;
   gboolean     capture_pcap_ng;
   gboolean     capture_real_time;

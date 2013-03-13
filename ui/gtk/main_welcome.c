@@ -926,12 +926,11 @@ update_capture_box(void)
     interface_t         device;
     gboolean            changed = FALSE;
 
-    entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
-    gtk_tree_selection_unselect_all(GTK_TREE_SELECTION(entry));
     store = gtk_list_store_new(NUMCOLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
 
     gtk_list_store_clear(store);
     gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
+    entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (!device.hidden) {
