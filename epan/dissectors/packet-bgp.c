@@ -88,17 +88,6 @@
 #define BGP_CAPABILITY    6
 #define BGP_ROUTE_REFRESH_CISCO 0x80
 
-
-/* BGP ROUTE-REFRESH message */
-struct bgp_route_refresh {
-    guint8  bgpr_marker[BGP_MARKER_SIZE];
-    guint16 bgpr_len;
-    guint8  bgpr_type;
-    guint16 bgpr_afi;
-    guint8  bgpr_reserved;
-    guint8  bgpr_safi;
-};
-
 #define BGP_SIZE_OF_PATH_ATTRIBUTE       2
 
 
