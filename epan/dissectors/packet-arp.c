@@ -41,6 +41,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+void proto_register_arp(void);
+void proto_reg_handoff_arp(void);
+
 static int proto_arp = -1;
 static int hf_arp_hard_type = -1;
 static int hf_arp_proto_type = -1;
@@ -398,7 +401,7 @@ atmarpnum_to_str(const guint8 *ad, int ad_tl)
     /*
      * I'm assuming this means it's an ASCII (IA5) string.
      */
-    cur = ep_alloc(MAX_E164_STR_LEN+3+1);
+    cur = (gchar *)ep_alloc(MAX_E164_STR_LEN+3+1);
     if (ad_len > MAX_E164_STR_LEN) {
       /* Can't show it all. */
       memcpy(cur, ad, MAX_E164_STR_LEN);
@@ -607,15 +610,15 @@ address_equal_func(gconstpointer v, gconstpointer v2)
 static guint
 duplicate_result_hash_func(gconstpointer v)
 {
-  duplicate_result_key *key = (duplicate_result_key*)v;
+  const duplicate_result_key *key = (const duplicate_result_key*)v;
   return (key->frame_number + key->ip_address);
 }
 
 static gint
 duplicate_result_equal_func(gconstpointer v, gconstpointer v2)
 {
-  duplicate_result_key *key1 = (duplicate_result_key*)v;
-  duplicate_result_key *key2 = (duplicate_result_key*)v2;
+  const duplicate_result_key *key1 = (const duplicate_result_key*)v;
+  const duplicate_result_key *key2 = (const duplicate_result_key*)v2;
 
   return (memcmp(key1, key2, sizeof(duplicate_result_key)) == 0);
 }
@@ -637,7 +640,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
 
   /* Look up existing result */
   if (pinfo->fd->flags.visited) {
-      result = g_hash_table_lookup(duplicate_result_hash_table,
+      result = (address_hash_value *)g_hash_table_lookup(duplicate_result_hash_table,
                                    &result_key);
   }
   else {
@@ -645,7 +648,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
          store result */
 
       /* Look up current assignment of IP address */
-      value = g_hash_table_lookup(address_hash_table, GUINT_TO_POINTER(ip));
+      value = (address_hash_value *)g_hash_table_lookup(address_hash_table, GUINT_TO_POINTER(ip));
 
       /* If MAC matches table, just update details */
       if (value != NULL)
@@ -661,10 +664,10 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
           else
           {
             /* Create result and store in result table */
-            duplicate_result_key *persistent_key = se_alloc(sizeof(duplicate_result_key));
+            duplicate_result_key *persistent_key = se_new(duplicate_result_key);
             memcpy(persistent_key, &result_key, sizeof(duplicate_result_key));
 
-            result = se_alloc(sizeof(address_hash_value));
+            result = se_new(address_hash_value);
             memcpy(result, value, sizeof(address_hash_value));
 
             g_hash_table_insert(duplicate_result_hash_table, persistent_key, result);
@@ -674,7 +677,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
       else
       {
         /* No existing entry. Prepare one */
-        value = se_alloc(sizeof(struct address_hash_value));
+        value = se_new(struct address_hash_value);
         memcpy(value->mac, mac, 6);
         value->frame_num = pinfo->fd->num;
         value->time_of_entry = pinfo->fd->abs_ts.secs;

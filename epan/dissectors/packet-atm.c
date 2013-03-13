@@ -38,6 +38,9 @@
 #include <epan/prefs.h>
 #include "packet-pw-atm.h"
 
+void proto_register_atm(void);
+void proto_reg_handoff_atm(void);
+
 static int proto_atm = -1;
 static int hf_atm_aal = -1;
 static int hf_atm_vpi = -1;

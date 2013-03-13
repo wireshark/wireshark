@@ -93,7 +93,6 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_aruba_erm(void)
 {
-    void proto_reg_handoff_aruba_erm(void);
 
     static hf_register_info hf[] = {
 

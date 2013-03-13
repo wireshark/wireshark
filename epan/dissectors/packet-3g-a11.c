@@ -52,7 +52,7 @@
 
 /* Forward declarations */
 void proto_register_a11(void);
-void proto_register_a11(void);
+void proto_reg_handoff_a11(void);
 
 static int registration_request_msg =0;
 

@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+void proto_register_atmtcp(void);
 void proto_reg_handoff_atmtcp(void);
 
 static int proto_atmtcp = -1;

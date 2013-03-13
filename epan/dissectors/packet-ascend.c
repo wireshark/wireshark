@@ -26,6 +26,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_ascend(void);
+void proto_reg_handoff_acend(void);
+
 static int proto_ascend  = -1;
 static int hf_link_type  = -1;
 static int hf_session_id = -1;

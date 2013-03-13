@@ -128,6 +128,9 @@
 #define KISS_CMD_MASK           0x0f
 #define KISS_PORT_MASK          0xf0
 
+void proto_register_ax25_kiss(void);
+void proto_reg_handoff_ax25_kiss(void);
+
 /* Dissector handles - all the possibles are listed */
 static dissector_handle_t ax25_handle;
 
@@ -205,7 +208,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	void       *saved_private_data;
 	tvbuff_t   *next_tvb = NULL;
 
-	info_buffer    = ep_alloc( STRLEN );
+	info_buffer    = (char *)ep_alloc( STRLEN );
 	info_buffer[0] = '\0';
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25 KISS" );

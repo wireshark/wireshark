@@ -40,6 +40,9 @@
  *	http://www.dmtf.org/standards/documents/ASF/DSP0136.pdf
  */
 
+void proto_register_asf(void);
+void proto_reg_handoff_asf(void);
+
 #define RMCP_CLASS_ASF 0x06
 
 static int proto_asf = -1;

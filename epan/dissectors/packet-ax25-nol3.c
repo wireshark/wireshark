@@ -57,6 +57,9 @@
 
 #define STRLEN	80
 
+void proto_register_ax25_nol3(void);
+void proto_reg_handoff_ax25_nol3(void);
+
 /* Dissector handles - all the possibles are listed */
 static dissector_handle_t aprs_handle;
 static dissector_handle_t default_handle;
@@ -160,7 +163,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	guint8      dti      = 0;
 	gboolean    dissected;
 
-	info_buffer = ep_alloc( STRLEN );
+	info_buffer = (char *)ep_alloc( STRLEN );
 	info_buffer[0] = '\0';
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25-NoL3");

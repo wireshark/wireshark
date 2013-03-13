@@ -36,6 +36,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_ansi_683(void);
+void proto_reg_handoff_ansi_683(void);
+
 
 static const char *ansi_proto_name = "ANSI IS-683 (OTA (Mobile))";
 static const char *ansi_proto_name_short = "IS-683";

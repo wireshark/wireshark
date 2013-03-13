@@ -45,6 +45,9 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 
+void proto_register_asap(void);
+void proto_reg_handoff_asap(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_asap = -1;
 static int hf_cause_code = -1;

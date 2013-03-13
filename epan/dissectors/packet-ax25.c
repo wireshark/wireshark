@@ -64,6 +64,9 @@
 #define AX25_HEADER_SIZE	15 /* length of src_addr + dst_addr + cntl */
 #define AX25_MAX_DIGIS		 8
 
+void proto_register_ax25(void);
+void proto_reg_handoff_ax25(void);
+
 /* Dissector table */
 static dissector_table_t ax25_dissector_table;
 
@@ -147,7 +150,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	tvbuff_t *next_tvb = NULL;
 
 
-	info_buffer = ep_alloc( STRLEN );
+	info_buffer = (char *)ep_alloc( STRLEN );
 	info_buffer[0] = '\0';
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "AX.25" );

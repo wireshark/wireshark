@@ -69,6 +69,9 @@
             _ofst += (4 - ((_len) % 4)); \
     } while(0)
 
+void proto_register_ancp(void);
+void proto_reg_handoff_ancp(void);
+
 static int hf_ancp_len = -1;
 static int hf_ancp_ver = -1;
 static int hf_ancp_mtype = -1;

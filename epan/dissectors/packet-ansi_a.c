@@ -50,8 +50,6 @@
 #include "packet-bssap.h"
 #include "packet-ansi_a.h"
 
-void proto_register_ansi_a(void);
-void proto_reg_handoff_ansi_a(void);
 
 /*
  * IOS 4, probably most common
@@ -61,6 +59,7 @@ static gint global_a_variant = A_VARIANT_IOS401;
 
 /* PROTOTYPES/FORWARDS */
 
+void proto_register_ansi_a(void);
 void proto_reg_handoff_ansi_a(void);
 
 static const gchar *

@@ -45,6 +45,9 @@
 #include "packet-atalk.h"
 #include "packet-afp.h"
 
+void proto_register_atalk(void);
+void proto_reg_handoff_atalk(void);
+
 /* Tables for reassembly of fragments. */
 static GHashTable *atp_fragment_table = NULL;
 static GHashTable *atp_reassembled_table = NULL;
@@ -818,10 +821,10 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          we have both a request for 1 packet and a request for n packets,
          hopefully most of the time ATP_EOM will be set in the last packet.
       */
-      new_request_key = se_alloc(sizeof(asp_request_key));
+      new_request_key = se_new(asp_request_key);
       *new_request_key = request_key;
 
-      request_val = se_alloc(sizeof(asp_request_val));
+      request_val = se_new(asp_request_val);
       request_val->value = nbe;
 
       g_hash_table_insert(atp_request_hash, new_request_key,request_val);
@@ -1270,7 +1273,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 static struct aspinfo *
 get_transaction(tvbuff_t *tvb, packet_info *pinfo)
 {
-  struct aspinfo  *aspinfo = pinfo->private_data;
+  struct aspinfo  *aspinfo = (struct aspinfo *)pinfo->private_data;
   conversation_t  *conversation;
   asp_request_key  request_key, *new_request_key;
   asp_request_val *request_val;
@@ -1292,10 +1295,10 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo)
   request_val = (asp_request_val *) g_hash_table_lookup(asp_request_hash, &request_key);
   if (!request_val && !aspinfo->reply )  {
     fn = tvb_get_guint8(tvb, 0);
-    new_request_key = se_alloc(sizeof(asp_request_key));
+    new_request_key = se_new(asp_request_key);
     *new_request_key = request_key;
 
-    request_val = se_alloc(sizeof(asp_request_val));
+    request_val = se_new(asp_request_val);
     request_val->value = fn;
 
     g_hash_table_insert(asp_request_hash, new_request_key, request_val);

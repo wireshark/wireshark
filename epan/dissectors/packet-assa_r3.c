@@ -34,6 +34,9 @@
 #include <epan/expert.h>
 #include <epan/dissectors/packet-tcp.h>
 
+void proto_register_r3(void);
+void proto_reg_handoff_r3(void);
+
 #if 0
 /* */
 /*  System limits */
@@ -3455,7 +3458,7 @@ static const guint16 ccitt_16 [256] =
 static guint16
 utilCrcCalculate (const void *ptr, guint16 len, guint16 crc)
 {
-  const guint8 *p = (guint8 *) ptr;
+  const guint8 *p = (const guint8 *) ptr;
 
   while (len--)
     crc = (guint16) ((crc << 8) ^ ccitt_16 [(crc >> 8) ^ *p++]);

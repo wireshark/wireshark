@@ -257,7 +257,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
       }
     }
   } else {
-    ata_info=g_hash_table_lookup(ata_cmd_matched, GUINT_TO_POINTER(pinfo->fd->num));
+    ata_info=(ata_info_t *)g_hash_table_lookup(ata_cmd_matched, GUINT_TO_POINTER(pinfo->fd->num));
   }
 
   if(ata_info){

@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 
+void proto_register_armagetronad(void);
+void proto_reg_handoff_armagetronad(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_armagetronad = -1;
 static int hf_armagetronad_descriptor_id = -1;
@@ -150,7 +153,7 @@ add_message_data(tvbuff_t * tvb, gint offset, gint data_len, proto_tree * tree)
 	if (!tree)
 		return;
 
-	data = tvb_memcpy(tvb, ep_alloc(data_len + 1), offset, data_len);
+	data = (gchar *)tvb_memcpy(tvb, ep_alloc(data_len + 1), offset, data_len);
 	data[data_len] = '\0';
 
 	for (i = 0; i < data_len; i += 2) {

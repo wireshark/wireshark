@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include <ctype.h>
 
+void proto_register_at(void);
+void proto_reg_handoff_at(void);
+
 static int proto_at = -1;
 static int hf_at_command = -1;
 

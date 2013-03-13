@@ -30,6 +30,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_auto_rp(void);
+void proto_reg_handoff_auto_rp(void);
+
 static gint proto_auto_rp = -1;
 static gint ett_auto_rp = -1;
 static gint ett_auto_rp_ver_type = -1;

@@ -37,6 +37,10 @@
 
 #include "packet-aim.h"
 
+void proto_register_aim_messaging(void);
+void proto_reg_handoff_aim_messaging(void);
+
+
 #define FAMILY_MESSAGING  0x0004
 
 
