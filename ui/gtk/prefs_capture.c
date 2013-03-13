@@ -2052,14 +2052,12 @@ ifopts_write_new_pmode(void)
 
 	gboolean	 more_items = TRUE, first_if = TRUE;  /* flag to check if first in list */
 	gchar		*ifnm;
-	gboolean		 pmode, all_pmode, off = FALSE;
+	gboolean	pmode, off = FALSE;
 	gchar		*tmp_pmode;
 	gchar		*new_pmode;
 
 	/* new preferences interfaces promiscuous mode string */
 	new_pmode = g_malloc0(MAX_VAL_LEN);
-	
-	all_pmode = prefs.capture_prom_mode;
 
 	/* get promiscuous mode for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
