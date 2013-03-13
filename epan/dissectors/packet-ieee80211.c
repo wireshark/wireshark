@@ -69,6 +69,8 @@
  * include 8 amendments (802.11a,b,d,e,g,h,i,j) 802.11-1999
  * http://standards.ieee.org/getieee802/download/802.11-2012.pdf
  *
+ * WAPI (IE 68)
+ * http://isotc.iso.org/livelink/livelink/fetch/-8913189/8913214/8913250/8913253/JTC001-N-9880.pdf?nodeid=8500308&vernum=-2
  */
 
 
@@ -588,6 +590,8 @@ enum fixed_field {
 #define TAG_RSNI                      65
 #define TAG_MEASURE_PILOT_TRANS       66
 #define TAG_BSS_AVB_ADM_CAPACITY      67
+#define TAG_IE_68_CONFLICT            68  /* Conflict: WAPI Vs. IEEE */
+#define TAG_WAPI_PARAM_SET            68
 #define TAG_BSS_AC_ACCESS_DELAY       68
 #define TAG_TIME_ADV                  69  /* IEEE Std 802.11p-2010 */
 #define TAG_RM_ENABLED_CAPABILITY     70
@@ -719,7 +723,7 @@ static const value_string tag_num_vals[] = {
   { TAG_RSNI,                                 "RSNI" },
   { TAG_MEASURE_PILOT_TRANS,                  "Measurement Pilot Transmission" },
   { TAG_BSS_AVB_ADM_CAPACITY,                 "BSS Available Admission Capacity" },
-  { TAG_BSS_AC_ACCESS_DELAY,                  "BSS Access Delay" },
+  { TAG_IE_68_CONFLICT,                       "BSS AC Access Delay/WAPI Parameter Set" },
   { TAG_TIME_ADV,                             "Time Advertisement" },
   { TAG_RM_ENABLED_CAPABILITY,                "RM Enabled Capabilites" },
   { TAG_MULTIPLE_BSSID,                       "Multiple BSSID" },
@@ -805,6 +809,7 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(tag_num_vals);
 #define WME_OUI     (const guint8 *) "\x00\x50\xF2"
 #define PRE_11N_OUI (const guint8 *) "\x00\x90\x4c" /* 802.11n pre 1 oui */
 #define WFA_OUI     (const guint8 *) "\x50\x6f\x9a"
+#define WAPI_OUI    (const guint8 *) "\x00\x14\x72"
 
 /* WFA vendor specific subtypes */
 #define WFA_SUBTYPE_P2P 9
@@ -3569,6 +3574,26 @@ static int hf_ieee80211_tag_mmie_keyid = -1;
 static int hf_ieee80211_tag_mmie_ipn = -1;
 static int hf_ieee80211_tag_mmie_mic = -1;
 
+/*WAPI-Specification 7.3.2.25 : WAPI Parameter Set*/
+static int hf_ieee80211_tag_wapi_param_set_version = -1;
+
+static int hf_ieee80211_tag_wapi_param_set_akm_suite_count = -1;
+static int hf_ieee80211_tag_wapi_param_set_akm_suite_oui = -1;
+static int hf_ieee80211_tag_wapi_param_set_akm_suite_type = -1;
+
+static int hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_count = -1;
+static int hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_oui = -1;
+static int hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_type = -1;
+
+static int hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_oui = -1;
+static int hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_type = -1;
+
+static int hf_ieee80211_tag_wapi_param_set_capab = -1;
+static int hf_ieee80211_tag_wapi_param_set_capab_preauth = -1;
+static int hf_ieee80211_tag_wapi_param_set_capab_rsvd = -1;
+static int hf_ieee80211_tag_wapi_param_set_bkid_count = -1;
+static int hf_ieee80211_tag_wapi_param_set_bkid_list = -1;
+
 /* IEEE Std 802.11v-2011 7.3.2.61 */
 static int hf_ieee80211_tag_time_adv_timing_capab = -1;
 static int hf_ieee80211_tag_time_adv_time_value = -1;
@@ -3994,6 +4019,11 @@ static gint ett_tag_supported_channels = -1;
 static gint ett_tag_neighbor_report_bssid_info_tree = -1;
 static gint ett_tag_neighbor_report_bssid_info_capability_tree = -1;
 static gint ett_tag_neighbor_report_sub_tag_tree = -1;
+
+static gint ett_tag_wapi_param_set_akm_tree = -1;
+static gint ett_tag_wapi_param_set_ucast_tree = -1;
+static gint ett_tag_wapi_param_set_mcast_tree = -1;
+static gint ett_tag_wapi_param_set_preauth_tree = -1;
 
 static gint ett_tag_time_adv_tree = -1;
 
@@ -7158,6 +7188,27 @@ wpa_akms_return(guint32 akms)
   return result;
 }
 
+/* For each Field */
+static const value_string ieee80211_wapi_suite_type[] = {
+  {0, "Reserved"},
+  {1, "WAI Certificate Authentication and Key Management"},
+  {2, "WAI Preshared Key Authentication and Key Management"},
+  {0, NULL},
+};
+/* For Summary Tag Information */
+static const value_string ieee80211_wapi_suite_type_short[] = {
+  {0, "Reserved"},
+  {1, "WAI-CERT"},
+  {2, "WAI-PSK"},
+  {0, NULL},
+};
+
+static const value_string ieee80211_wapi_cipher_type[] = {
+  {0, "Reserved"},
+  {1, "WPI-SMS4"},
+  {0, NULL},
+};
+
 static const value_string ieee802111_wfa_ie_wme_type[] = {
   { 0, "Information Element" },
   { 1, "Parameter Element" },
@@ -8653,6 +8704,112 @@ dissect_ht_info_ie_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
   return offset;
 }
 
+
+static int
+dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
+                          proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len,
+                          proto_item *ti, int ftype)
+{
+  /* Parse the WAPI Parameter Set IE Here*/
+  proto_item *item;
+  proto_tree *subtree;
+  guint16 loop_cnt, version  = 1, akm_cnt  = 1, ucast_cnt = 1, bkid_cnt = 1;
+  guint8  akm_suite_type = 0, ucast_cipher_type = 0, mcast_cipher_type = 0;
+
+  version = tvb_get_letohs(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /*MIN: 2 + (2+4)+ (2+4) + 4 + 2 + 0 (BKID CNT and LIST)  =20*/
+  if (tag_len < 20) {
+      expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                "tag_len is  %d, its neither WAPI not BSS-AC-Access-Delay", tag_len);
+    return offset;
+  }
+
+  if (version != 1) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Version of WAPI protocol is %d, must be = 1", version);
+    return offset;
+  }
+
+  /* AKM Suites: list can't be 0*/
+  akm_cnt = tvb_get_letohs(tvb, offset);
+  item = proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_akm_suite_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+  if (akm_cnt != 0) {
+    proto_item_append_text(ti, " : AKM Suite List:");
+    for (loop_cnt = 0; loop_cnt < akm_cnt; loop_cnt++) {
+      subtree = proto_item_add_subtree(item, ett_tag_wapi_param_set_akm_tree);
+      proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_akm_suite_oui, tvb, offset, 3, ENC_NA);
+      offset += 3;
+      akm_suite_type = tvb_get_guint8(tvb,offset);
+      proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_akm_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+      proto_item_append_text(ti, " (%d,%s)", loop_cnt+1,val_to_str(akm_suite_type,
+      ieee80211_wapi_suite_type_short,"Reserved: %d"));
+    }
+    proto_item_append_text(ti, " /");
+  } else {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Number of AKM suites is 0, must be min 1");
+    return offset;
+
+  }
+  /* Unicast Cipher Suites: list can't be 0*/
+  ucast_cnt = tvb_get_letohs(tvb, offset);
+  item = proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_count,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+  if (ucast_cnt != 0) {
+    proto_item_append_text(ti, " Unicast Cipher List:");
+    for (loop_cnt = 0; loop_cnt < ucast_cnt; loop_cnt++) {
+      subtree = proto_item_add_subtree(item, ett_tag_wapi_param_set_ucast_tree);
+      proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_oui, tvb, offset, 3, ENC_NA);
+      offset += 3;
+      ucast_cipher_type = tvb_get_guint8(tvb,offset);
+      proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset += 1;
+      proto_item_append_text(ti, " (%d,%s)", loop_cnt+1, val_to_str(ucast_cipher_type,ieee80211_wapi_cipher_type,"Reserved: %d"));
+    }
+  proto_item_append_text(ti, " /");
+  } else {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Number of Unicast Cipher suites is 0, must be min  1");
+    return offset;
+
+  }
+
+  /* Multicast Cipher Suites*/
+  proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_oui, tvb, offset, 3, ENC_NA);
+  offset += 3;
+  mcast_cipher_type = tvb_get_guint8(tvb,offset);
+  proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+  proto_item_append_text(ti, " Multicast Cipher: %s", val_to_str(mcast_cipher_type,ieee80211_wapi_cipher_type,"Reserved: %d"));
+
+  /* WAPI capability*/
+  item = proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_capab, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  subtree = proto_item_add_subtree(item, ett_tag_wapi_param_set_preauth_tree);
+  proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_capab_preauth, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_capab_rsvd, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+  offset += 2;
+  /* BKID List: The list can be 0
+   * Applicable only for assoc/re-assoc
+   */
+  if (ftype == MGT_ASSOC_REQ || ftype == MGT_REASSOC_REQ ) {
+    bkid_cnt = tvb_get_letohs(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_bkid_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    if (bkid_cnt != 0) {
+      for (loop_cnt = 0; loop_cnt < bkid_cnt; loop_cnt++) {
+        proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_bkid_list, tvb, offset, 16, ENC_NA);
+        offset += 16;
+      }
+    }
+  }
+  return offset;
+}
+
 static const value_string time_adv_timing_capab_vals[] = {
   { 0, "No standardized external time source" },
   { 1, "Timestamp offset based on UTC" },
@@ -9921,12 +10078,13 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
   char          print_buff[SHORT_STR];
   proto_tree   *orig_tree = tree;
   proto_item   *ti        = NULL;
-  proto_item   *ti_len, *ti_tag ;
+  proto_item   *ti_len, *ti_tag;
   int           tag_end;
 
   tag_no  = tvb_get_guint8(tvb, offset);
   tag_len = tvb_get_guint8(tvb, offset + 1);
   tag_end = offset + 2 + tag_len;
+
   if (tree) {
     ti = proto_tree_add_item(orig_tree, hf_ieee80211_tag, tvb, offset, 2 + tag_len , ENC_NA);
     proto_item_append_text(ti, ": %s", val_to_str_ext(tag_no, &tag_num_vals_ext, "Reserved (%d)"));
@@ -11044,8 +11202,13 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       dissect_bss_available_admission_capacity_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
       break;
 
-    case TAG_BSS_AC_ACCESS_DELAY: /* BSS AC Access Delay (68) */
-      dissect_bss_ac_access_delay_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
+    case TAG_IE_68_CONFLICT: /* Conflict: WAPI Vs. IEEE */
+      if (tag_len >= 20) { /* It Might be WAPI*/
+        dissect_wapi_param_set(tvb, pinfo, tree, offset + 2,tag_len, ti_len, ti, ftype);
+      }
+      else { /* BSS AC Access Delay (68) */
+        dissect_bss_ac_access_delay_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
+      }
       break;
 
     case TAG_TIME_ADV:
@@ -18579,6 +18742,77 @@ proto_register_ieee80211 (void)
      {"MIC", "wlan_mgt.mmie.mic",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+    /* WAPI Parameter Set*/
+    {&hf_ieee80211_tag_wapi_param_set_version,
+     {"Version", "wlan_mgt.wapi.version",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_akm_suite_count,
+     {"AKM Suite Count", "wlan_mgt.wapi.akm_suite.count",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_akm_suite_oui,
+     {"AKM Suite OUI", "wlan_mgt.wapi.akm_suite.oui",
+      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_akm_suite_type,
+     {"AKM Suite Type", "wlan_mgt.wapi.akm_suite.type",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_wapi_suite_type) , 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_count,
+     {"Unicast Cipher Suite Count", "wlan_mgt.wapi.unicast_cipher.suite.count",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_oui,
+     {"Unicast Cipher Suite OUI", "wlan_mgt.wapi.unicast_cipher.suite.oui",
+      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_type,
+     {"Unicast Cipher Suite Type", "wlan_mgt.wapi.unicast_cipher.suite.type",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_wapi_cipher_type) , 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_oui,
+     {"Multicast Cipher Suite OUI", "wlan_mgt.wapi.multicast_cipher.suite.oui",
+      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_type,
+     {"Multicast Cipher Suite Type", "wlan_mgt.wapi.multicast_cipher.suite.type",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_wapi_cipher_type) , 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_capab,
+     {"WAPI Capability Info", "wlan_mgt.wapi.capab",
+      FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_capab_preauth,
+     {"Supports Preauthentication?", "wlan_mgt.wapi.capab.preauth",
+      FT_BOOLEAN, 16 , NULL, 0x0001,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_capab_rsvd,
+     {"Reserved", "wlan_mgt.wapi.capab.rsvd",
+      FT_UINT16, BASE_DEC , NULL, 0xFFFE,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_bkid_count,
+     {"No of BKID's", "wlan_mgt.wapi.bkid.count",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_wapi_param_set_bkid_list,
+     {"BKID", "wlan_mgt.wapi.bkid",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
     /* Time Advertisement */
     {&hf_ieee80211_tag_time_adv_timing_capab,
      {"Timing capabilities", "wlan_mgt.time_adv.timing_capab",
@@ -18945,6 +19179,10 @@ proto_register_ieee80211 (void)
     &ett_tsinfo_tree,
     &ett_sched_tree,
     &ett_fcs,
+    &ett_tag_wapi_param_set_akm_tree,
+    &ett_tag_wapi_param_set_ucast_tree,
+    &ett_tag_wapi_param_set_mcast_tree,
+    &ett_tag_wapi_param_set_preauth_tree,
     &ett_tag_time_adv_tree,
     &ett_adv_proto,
     &ett_adv_proto_tuple,
