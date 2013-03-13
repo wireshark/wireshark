@@ -78,7 +78,7 @@ static GtkWidget *if_snaplen_lb, *if_snaplen_cb, *if_snaplen_tg, *if_pmode_lb, *
 static GtkTreeSelection *if_selection;	/* current interface row selected */
 static int num_linktypes;
 static gboolean interfaces_info_nochange;  /* TRUE to ignore Interface Options Properties */
-                                           /*  widgets "changed" callbacks.               */
+					   /*  widgets "changed" callbacks.               */
 
 static void ifopts_edit_cb(GtkWidget *w, gpointer data);
 static void ifopts_edit_ok_cb(GtkWidget *w, gpointer parent_w);
@@ -143,6 +143,7 @@ capture_prefs_show(void)
 	/* Main grid */
 	main_grid = ws_gtk_grid_new();
 	gtk_box_pack_start(GTK_BOX(capture_window), main_grid, FALSE, FALSE, 0);
+	gtk_widget_set_vexpand(GTK_WIDGET(main_grid), FALSE); /* Ignore VEXPAND requests from children */
 	ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 10);
 	ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 15);
 	gtk_widget_show(main_grid);
@@ -285,9 +286,9 @@ capture_prefs_fetch(GtkWidget *w)
 		if_text = NULL;
 	}
 
-    /* Ensure capture device is not NULL */
-    if (if_text == NULL)
-        if_text = g_strdup("");
+	/* Ensure capture device is not NULL */
+	if (if_text == NULL)
+		if_text = g_strdup("");
 	prefs.capture_device = if_text;
 
 	prefs.capture_prom_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb));
@@ -941,7 +942,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
 	gtk_widget_set_tooltip_text(cancel_bt, "Cancel and exit dialog");
-        window_set_cancel_button(ifopts_edit_dlg, cancel_bt, window_cancel_button_cb);
+	window_set_cancel_button(ifopts_edit_dlg, cancel_bt, window_cancel_button_cb);
 
 	help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb),
@@ -951,7 +952,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_grab_default(ok_bt);
 
 	g_signal_connect(ifopts_edit_dlg, "delete_event", G_CALLBACK(window_delete_event_cb),
-                 NULL);
+			 NULL);
 	/* Call a handler when we're destroyed, so we can inform
 	   our caller, if any, that we've been destroyed. */
 	g_signal_connect(ifopts_edit_dlg, "destroy", G_CALLBACK(ifopts_edit_destroy_cb), NULL);
@@ -962,7 +963,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	g_object_set_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY, ifopts_edit_dlg);
 
 	gtk_widget_show(ifopts_edit_dlg); /* triggers ifopts_edit_ifsel_cb() with the  */
-                                          /*  "interfaces" TreeView first row selected */
+					  /*  "interfaces" TreeView first row selected */
 	window_present(ifopts_edit_dlg);
 }
 
@@ -1077,7 +1078,7 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 
 	if (caller != NULL) {
 		/* Tell it we no longer exist. */
-                g_object_set_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY, NULL);
+		g_object_set_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY, NULL);
 	}
 }
 
@@ -1186,13 +1187,13 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	interfaces_info_nochange = TRUE;
 
 	/* display the link-layer header type from current interfaces selection */
-        /*  -- remove old linktype list (if any) from the ComboBox */
+	/*  -- remove old linktype list (if any) from the ComboBox */
 	while (num_linktypes > 0) {
 		num_linktypes--;
 		gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(if_linktype_cb), num_linktypes);
 	}
 
-        /*
+	/*
 	 * -- set the state and sensitivity of the monitor-mode checkbox,
 	 * and build and add to the ComboBox a linktype list, corresponding
 	 * to the interface capabilities of the selected interface
@@ -1302,7 +1303,7 @@ ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 	interfaces_info_nochange = TRUE;
 
 	/* display the link-layer header type from current interfaces selection */
-        /*  -- remove old linktype list (if any) from the ComboBox */
+	/*  -- remove old linktype list (if any) from the ComboBox */
 	while (num_linktypes > 0) {
 		num_linktypes--;
 		gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(if_linktype_cb), num_linktypes);
@@ -1322,7 +1323,7 @@ ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 	caps = capture_get_if_capabilities(if_name, FALSE, NULL);
 #endif
 
-        /*
+	/*
 	 * -- set the sensitivity of the monitor-mode checkbox, and
 	 * build and add to the ComboBox a linktype list for the current
 	 * interfaces selection, based on the interface capabilities
@@ -1690,7 +1691,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 
 	/* add interface descriptions */
 	if ((prefs.capture_devices_descr != NULL) &&
-        (*prefs.capture_devices_descr != '\0')) {
+	    (*prefs.capture_devices_descr != '\0')) {
 		/* create working copy of device descriptions */
 		pr_descr = g_strdup(prefs.capture_devices_descr);
 
@@ -2224,3 +2225,16 @@ prom_mode_cb(GtkToggleButton *tbt, gpointer udata _U_) {
 }
 
 #endif /* HAVE_LIBPCAP */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

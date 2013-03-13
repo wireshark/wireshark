@@ -154,7 +154,7 @@ pref_show(pref_t *pref, gpointer user_data)
     g_strlcat(label_string, ":", label_len);
 
   pref_stash(pref, NULL);
-  
+
   /* Save the current value of the preference, so that we can revert it if
      the user does "Apply" and then "Cancel", and create the control for
      editing the preference. */
@@ -412,6 +412,7 @@ module_prefs_show(module_t *module, gpointer user_data)
   /* Main grid */
   main_grid = ws_gtk_grid_new();
   gtk_box_pack_start(GTK_BOX(main_vb), main_grid, FALSE, FALSE, 0);
+  gtk_widget_set_vexpand(GTK_WIDGET(main_grid), FALSE); /* Ignore VEXPAND requests from children */
   ws_gtk_grid_set_row_spacing(GTK_GRID(main_grid), 10);
   ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 15);
 
