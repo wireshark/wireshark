@@ -2632,8 +2632,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     for (last_message = msg->messages;
          last_message->next;
          last_message = last_message->next);
-
-         last_message->next = message;
+    last_message->next = message;
   }
 
   /* remove begin and end from list */
