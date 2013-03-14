@@ -54,6 +54,7 @@ static int hf_pn532_fw_support = -1;
 static int hf_pn532_14443a_sak = -1;
 static int hf_pn532_14443a_atqa = -1;
 static int hf_pn532_14443a_uid = -1;
+static int hf_pn532_14443a_uid_length = -1;
 static int hf_pn532_14443a_ats = -1;
 static int hf_pn532_14443b_pupi = -1;
 static int hf_pn532_14443b_app_data = -1;
@@ -432,7 +433,10 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
 
             /* Add the SAK/SEL_RES value */
             proto_tree_add_item(pn532_tree, hf_pn532_14443a_sak, tvb, 6, 1, ENC_BIG_ENDIAN);
-
+            
+            /* Add the UID length */
+            proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid_length, tvb, 7, 1, ENC_BIG_ENDIAN);
+            
             /* Add the UID */
             if (tvb_reported_length(tvb) != 14) {
                 proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 7, ENC_BIG_ENDIAN);
@@ -446,9 +450,39 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
             }
             /* Probably MiFare Classic with a 4 byte UID */
             else {
-                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 7, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
             }
 
+        }
+
+        /* Probably an EMV/ISO 14443-A (VISA - 30 bytes payload/MC - 33 bytes payload)
+                 card with a 4 byte UID */
+
+        if (tvb_reported_length(tvb) == 30 || tvb_reported_length(tvb) == 33) {
+
+        /* Check to see if there's a plausible ATQA value (0x0004 for my MC/VISA cards) */
+
+            if ((tvb_get_guint8(tvb, 4) == 0x00 && tvb_get_guint8(tvb, 5) == 0x04)) {
+            
+                /* Add the ATQA/SENS_RES */
+                proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
+                
+                /* Add the SAK/SEL_RES value */
+                proto_tree_add_item(pn532_tree, hf_pn532_14443a_sak, tvb, 6, 1, ENC_BIG_ENDIAN);
+                                        
+                /* Add the UID length */
+                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid_length, tvb, 7, 1, ENC_BIG_ENDIAN);
+                
+                /* Add the UID */
+                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
+                
+                /* ATS length is probably prepended to the ATS data... */
+                
+                /* Pass the ATS value to the Data dissector, since it's too long to handle normally
+                    Don't care about the "status word" at the end, right now */
+                next_tvb = tvb_new_subset_remaining(tvb, 13);
+                call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+            }
         }
 
         /* See if we've got a FeliCa payload with a System Code */
@@ -523,7 +557,7 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
             }
       
         break;
-	
+
     /* Deselect a token */
     case IN_DESELECT_REQ:
         /* Logical target number */
@@ -611,7 +645,7 @@ void proto_register_pn532(void)
         {&hf_pn532_Tg,
          {"Logical Target Number", "pn532.Tg", FT_INT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
-          {&hf_pn532_NbTg,
+        {&hf_pn532_NbTg,
          {"Number of Targets", "pn532.NbTg", FT_INT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
         {&hf_pn532_payload_length,
@@ -637,6 +671,9 @@ void proto_register_pn532(void)
           NULL, 0x0, NULL, HFILL}},
         {&hf_pn532_14443a_uid,
          {"ISO/IEC 14443-A UID", "pn532.iso.14443a.uid", FT_UINT64, BASE_HEX,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_14443a_uid_length,
+         {"ISO/IEC 14443-A UID Length", "pn532.iso.14443a.uid.length", FT_INT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
         {&hf_pn532_14443a_ats,
          {"ISO/IEC 14443-A ATS", "pn532.iso.14443a.ats", FT_UINT64, BASE_HEX,
