@@ -31,6 +31,15 @@
 
 #ifdef HAVE_LIBGCRYPT
 
+#ifdef __CLANG__
+
+#pragma clang diagnostic push
+#pragma clang diagnostic warning "-Wdeprecated-declarations"
+#include <gcrypt.h>
+#pragma clang diagnostic pop
+
+#else
+
 #if defined(__GNUC__) && defined(__GNUC_MINOR__)
 #define _GCC_VERSION (__GNUC__*100 + __GNUC_MINOR__*10)
 #else
@@ -63,6 +72,8 @@
 #pragma GCC diagnostic pop
 
 #endif /* _GCC_VERSION */
+
+#endif /* __CLANG__ */
 
 #endif /* HAVE_LIBGRYPT */
 
