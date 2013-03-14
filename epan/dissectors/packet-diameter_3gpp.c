@@ -108,6 +108,7 @@ static int hf_diameter_3gpp_idr_flags_bit1 = -1;
 static int hf_diameter_3gpp_idr_flags_bit2 = -1;
 static int hf_diameter_3gpp_idr_flags_bit3 = -1;
 static int hf_diameter_3gpp_idr_flags_bit4 = -1;
+static int hf_diameter_3gpp_idr_flags_bit5 = -1;
 static int hf_diameter_3gpp_ipv6addr = -1;
 static int hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer = -1;
 static int hf_diameter_3gpp_udp_port = -1;
@@ -635,8 +636,10 @@ dissect_diameter_3gpp_idr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     item = proto_tree_add_item(tree, hf_diameter_3gpp_idr_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(item, diameter_3gpp_idr_flags_ett);
     bit_offset = 0;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 27, ENC_BIG_ENDIAN);
-    bit_offset+=27;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 26, ENC_BIG_ENDIAN);
+    bit_offset+=26;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_idr_flags_bit5, tvb,  bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_idr_flags_bit4, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_idr_flags_bit3, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -1074,6 +1077,11 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_idr_flags_bit4,
             { "Current Location Request", "diameter.3gpp.idr_flags_bit4",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_idr_flags_bit5,
+            { "Local Time Zone Request", "diameter.3gpp.idr_flags_bit5",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
