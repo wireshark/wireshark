@@ -638,7 +638,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   int               row, height;
   guint             ifs;
   interface_t       device;
-  GString           *if_tool_str = g_string_new("");
   const gchar       *addr_str;
   gchar             *user_descr;
   if_dlg_data_t     data;
@@ -745,7 +744,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   for (ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
     data = g_array_index(gtk_list, if_dlg_data_t, ifs);
-    g_string_assign(if_tool_str, "");
     /* Continue if capture device is hidden */
     if (device.hidden) {
       data.hidden = TRUE;
@@ -772,9 +770,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_misc_set_alignment(GTK_MISC(data.device_lb), 0.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(if_tb), data.device_lb, 2, 4, row, row+1);
 #endif
-    g_string_append(if_tool_str, "Device: ");
-    g_string_append(if_tool_str, device.name);
-    g_string_append(if_tool_str, "\n");
 
     /* description */
     user_descr = capture_dev_user_descr_find(device.name);
@@ -789,23 +784,15 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     }
     gtk_misc_set_alignment(GTK_MISC(data.descr_lb), 0.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(if_tb), data.descr_lb, 4, 5, row, row+1);
-    if (device.if_info.description) {
-      g_string_append(if_tool_str, "Description: ");
-      g_string_append(if_tool_str, device.if_info.description);
-      g_string_append(if_tool_str, "\n");
-    }
 
     /* IP address */
     /* Only one IP address will be shown, start with the first */
-    g_string_append(if_tool_str, "IP: ");
     data.ip_lb = gtk_label_new("");
     addr_str = set_ip_addr_label (device.if_info.addrs, data.ip_lb, 0);
     if (addr_str) {
       gtk_widget_set_sensitive(data.ip_lb, TRUE);
-      g_string_append(if_tool_str, addr_str);
     } else {
       gtk_widget_set_sensitive(data.ip_lb, FALSE);
-      g_string_append(if_tool_str, "none");
     }
     eb = gtk_event_box_new ();
     gtk_container_add(GTK_CONTAINER(eb), data.ip_lb);
@@ -817,7 +804,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       g_signal_connect(eb, "leave-notify-event", G_CALLBACK(ip_label_leave_cb), NULL);
       g_signal_connect(eb, "button-press-event", G_CALLBACK(ip_label_press_cb), device.if_info.addrs);
     }
-    g_string_append(if_tool_str, "\n");
 
     /* packets */
     data.curr_lb = gtk_label_new("-");
@@ -848,8 +834,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       height += requisition.height;
     }
   }
-
-  g_string_free(if_tool_str, TRUE);
 
   /* Button row: close, help, stop, start, and options button */
   bbox = dlg_button_row_new(GTK_STOCK_HELP, WIRESHARK_STOCK_CAPTURE_START, WIRESHARK_STOCK_CAPTURE_OPTIONS, WIRESHARK_STOCK_CAPTURE_STOP, GTK_STOCK_CLOSE, NULL);
