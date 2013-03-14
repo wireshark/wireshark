@@ -76,8 +76,8 @@ UAT_CSTRING_CB_DEF(ess_category_attributes, name, ess_category_attributes_t);
 static void *
 ess_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
-  ess_category_attributes_t *u = dest;
-  const ess_category_attributes_t *o = orig;
+  ess_category_attributes_t *u = (ess_category_attributes_t *)dest;
+  const ess_category_attributes_t *o = (ess_category_attributes_t *)orig;
 
   u->oid  = g_strdup(o->oid);
   u->lacv = o->lacv;
@@ -89,7 +89,7 @@ ess_copy_cb(void *dest, const void *orig, size_t len _U_)
 static void
 ess_free_cb(void *r)
 {
-  ess_category_attributes_t *u = r;
+  ess_category_attributes_t *u = (ess_category_attributes_t *)r;
 
   g_free(u->oid);
   g_free(u->name);
@@ -169,7 +169,7 @@ void proto_register_ess(void) {
                                   sizeof(ess_category_attributes_t),
                                   "ess_category_attributes",
                                   TRUE,
-                                  (void*) &ess_category_attributes,
+                                  (void**) &ess_category_attributes,
                                   &num_ess_category_attributes,
                                   UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                   "ChEssCategoryAttributes",
