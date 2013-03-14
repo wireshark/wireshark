@@ -494,19 +494,19 @@ enum hf_lmp_filter_keys {
 static int hf_lmp_filter[LMPF_MAX];
 
 static int
-lmp_valid_class(int class)
+lmp_valid_class(int lmp_class)
 {
     /* Contiguous classes */
-    if (class > LMP_CLASS_NULL && class <= LMP_LAST_CONTIGUOUS_CLASS)
+    if (lmp_class > LMP_CLASS_NULL && lmp_class <= LMP_LAST_CONTIGUOUS_CLASS)
 	return 1;
 
     /* Noncontiguous classes */
-    if (class == LMP_CLASS_ERROR ||
-        class == LMP_CLASS_TRACE ||
-        class == LMP_CLASS_TRACE_REQ ||
-	class == LMP_CLASS_SERVICE_CONFIG ||
-        class == LMP_CLASS_DA_DCN_ADDRESS ||
-        class == LMP_CLASS_LOCAL_LAD_INFO)
+    if (lmp_class == LMP_CLASS_ERROR ||
+        lmp_class == LMP_CLASS_TRACE ||
+        lmp_class == LMP_CLASS_TRACE_REQ ||
+	lmp_class == LMP_CLASS_SERVICE_CONFIG ||
+        lmp_class == LMP_CLASS_DA_DCN_ADDRESS ||
+        lmp_class == LMP_CLASS_LOCAL_LAD_INFO)
 	return 1;
 
     return 0;
@@ -544,7 +544,7 @@ lmp_msg_to_filter_num(int msg_type)
 
 
 static int
-lmp_class_to_filter_num(int class)
+lmp_class_to_filter_num(int lmp_class)
 {
 
     /*
@@ -552,7 +552,7 @@ lmp_class_to_filter_num(int class)
      * Service Config objects, whose C-Type values are not contiguously assigned,
      * must be handled separately.
      */
-    switch (class) {
+    switch (lmp_class) {
 
     case LMP_CLASS_CCID:
     case LMP_CLASS_NODE_ID:
@@ -568,7 +568,7 @@ lmp_class_to_filter_num(int class)
     case LMP_CLASS_DATA_LINK:
     case LMP_CLASS_CHANNEL_STATUS:
     case LMP_CLASS_CHANNEL_STATUS_REQUEST:
-	return LMPF_OBJECT + class;
+	return LMPF_OBJECT + lmp_class;
 
     case LMP_CLASS_ERROR:
 	return LMPF_CLASS_ERROR;
@@ -627,20 +627,20 @@ enum {
 
 static gint lmp_subtree[NUM_LMP_SUBTREES];
 
-static int lmp_class_to_subtree(int class)
+static int lmp_class_to_subtree(int lmp_class)
 {
-    if (lmp_valid_class(class)) {
-	if (class == LMP_CLASS_SERVICE_CONFIG) {
+    if (lmp_valid_class(lmp_class)) {
+	if (lmp_class == LMP_CLASS_SERVICE_CONFIG) {
 	    return lmp_subtree[LMP_TREE_CLASS_START + LMP_CLASS_SERVICE_CONFIG];
 	}
-	if (class == LMP_CLASS_DA_DCN_ADDRESS) {
+	if (lmp_class == LMP_CLASS_DA_DCN_ADDRESS) {
 	    return lmp_subtree[LMP_TREE_CLASS_START + LMP_CLASS_DA_DCN_ADDRESS];
 	}
-	if (class == LMP_CLASS_LOCAL_LAD_INFO) {
+	if (lmp_class == LMP_CLASS_LOCAL_LAD_INFO) {
 	    return lmp_subtree[LMP_TREE_CLASS_START + LMP_CLASS_LOCAL_LAD_INFO];
 	}
 
-	return lmp_subtree[LMP_TREE_CLASS_START + class];
+	return lmp_subtree[LMP_TREE_CLASS_START + lmp_class];
     }
     return -1;
 }
@@ -758,35 +758,35 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	offset += 8;
 	len = 8;
 	while (len < msg_length) {
-	  guint8 class;
+	  guint8 lmp_class;
 	  guint8 type;
 	  guint8 negotiable;
 	  const char *object_type;
 
 	  obj_length = tvb_get_ntohs(tvb, offset+2);
-	  class = tvb_get_guint8(tvb, offset+1);
+	  lmp_class = tvb_get_guint8(tvb, offset+1);
 	  type = tvb_get_guint8(tvb, offset);
 	  negotiable = (type >> 7); type &= 0x7f;
-	  object_type = val_to_str_const(class, lmp_class_vals, "Unknown");
+	  object_type = val_to_str_const(lmp_class, lmp_class_vals, "Unknown");
 	  hidden_item = proto_tree_add_uint(lmp_tree, hf_lmp_filter[LMPF_OBJECT], tvb,
-				     offset, 1, class);
+				     offset, 1, lmp_class);
 	  PROTO_ITEM_SET_HIDDEN(hidden_item);
-	  if (lmp_valid_class(class)) {
+	  if (lmp_valid_class(lmp_class)) {
 
 	      ti = proto_tree_add_item(lmp_tree,
-				       hf_lmp_filter[lmp_class_to_filter_num(class)],
+				       hf_lmp_filter[lmp_class_to_filter_num(lmp_class)],
 				       tvb, offset, obj_length, ENC_NA);  /* all possibilities are FT_NONE */
 	  } else {
 	      proto_tree_add_protocol_format(lmp_tree, proto_malformed, tvb,
 					     offset+1, 1,
-					     "Invalid class: %u", class);
+					     "Invalid class: %u", lmp_class);
 	      return tvb_length(tvb);
 	  }
-	  lmp_object_tree = proto_item_add_subtree(ti, lmp_class_to_subtree(class));
+	  lmp_object_tree = proto_item_add_subtree(ti, lmp_class_to_subtree(lmp_class));
 
 	  ti2 = proto_tree_add_text(lmp_object_tree, tvb, offset, 4,
 				    "Header. Class %d, C-Type %d, Length %d, %s",
-				    class, type, obj_length,
+				    lmp_class, type, obj_length,
 				    negotiable ? "Negotiable" : "Not Negotiable");
 
 	  lmp_object_header_tree =
@@ -798,13 +798,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			      "Length: %u", obj_length);
 	  proto_tree_add_text(lmp_object_header_tree, tvb, offset+1, 1,
 			      "Object Class: %u - %s",
-			      class, object_type);
+			      lmp_class, object_type);
 	  proto_tree_add_uint(lmp_object_header_tree, hf_lmp_filter[LMPF_VAL_CTYPE],
 			      tvb, offset, 1, type);
 	  offset2 = offset+4;
 	  mylen = obj_length - 4;
 
-	  switch (class) {
+	  switch (lmp_class) {
 
 	  case LMP_CLASS_NULL:
 	      break;
