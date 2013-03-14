@@ -511,6 +511,11 @@ struct _sctp_half_assoc_t {
 };
 
 
+typedef struct _retransmit_t {
+  guint32 framenum;
+  nstime_t ts;
+  struct _retransmit_t *next;
+} retransmit_t;
 
 typedef struct _sctp_tsn_t {
   guint32 tsn;
@@ -522,11 +527,7 @@ typedef struct _sctp_tsn_t {
     guint32 framenum;
     nstime_t ts;
   } ack;
-  struct _retransmit_t {
-    guint32 framenum;
-    nstime_t ts;
-    struct _retransmit_t *next;
-  } *retransmit;
+  retransmit_t *retransmit;
   guint32 retransmit_count;
   struct _sctp_tsn_t *next;
 } sctp_tsn_t;
@@ -535,15 +536,15 @@ typedef struct _sctp_tsn_t {
 static emem_tree_key_t*
 make_address_key(guint32 spt, guint32 dpt, address *addr)
 {
-  emem_tree_key_t *k = ep_alloc(sizeof(emem_tree_key_t)*6);
+  emem_tree_key_t *k = (emem_tree_key_t *)ep_alloc(sizeof(emem_tree_key_t)*6);
 
-  k[0].length = 1;    k[0].key = ep_memdup(&spt,sizeof(spt));
-  k[1].length = 1;    k[1].key = ep_memdup(&dpt,sizeof(dpt));
+  k[0].length = 1;    k[0].key = (guint32*)ep_memdup(&spt,sizeof(spt));
+  k[1].length = 1;    k[1].key = (guint32*)ep_memdup(&dpt,sizeof(dpt));
   k[2].length = 1;    k[2].key = (guint32*)(void *)&(addr->type);
   k[3].length = 1;    k[3].key = (guint32*)(void *)&(addr->len);
 
   k[4].length = ((addr->len/4)+1);
-  k[4].key = ep_alloc0(((addr->len/4)+1)*4);
+  k[4].key = (guint32*)ep_alloc0(((addr->len/4)+1)*4);
   if (addr->len) memcpy(k[4].key, addr->data, addr->len);
 
   k[5].length = 0;    k[5].key = NULL;
@@ -554,11 +555,11 @@ make_address_key(guint32 spt, guint32 dpt, address *addr)
 static emem_tree_key_t *
 make_dir_key(guint32 spt, guint32 dpt, guint32 vtag)
 {
-  emem_tree_key_t *k =  ep_alloc(sizeof(emem_tree_key_t)*4);
+  emem_tree_key_t *k =  (emem_tree_key_t *)ep_alloc(sizeof(emem_tree_key_t)*4);
 
-  k[0].length = 1;    k[0].key = ep_memdup(&spt,sizeof(spt));
-  k[1].length = 1;    k[1].key = ep_memdup(&dpt,sizeof(dpt));
-  k[2].length = 1;    k[2].key = ep_memdup(&vtag,sizeof(vtag));
+  k[0].length = 1;    k[0].key = (guint32*)ep_memdup(&spt,sizeof(spt));
+  k[1].length = 1;    k[1].key = (guint32*)ep_memdup(&dpt,sizeof(dpt));
+  k[2].length = 1;    k[2].key = (guint32*)ep_memdup(&vtag,sizeof(vtag));
   k[3].length = 0;    k[3].key = NULL;
 
   return k;
@@ -581,12 +582,12 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
   /* look for the current half_assoc by spt, dpt and vtag */
 
   k = make_dir_key(spt, dpt, vtag);
-  if (( ha = emem_tree_lookup32_array(dirs_by_ptvtag, k)  )) {
+  if (( ha = (sctp_half_assoc_t *)emem_tree_lookup32_array(dirs_by_ptvtag, k)  )) {
     /* found, if it has been already matched we're done */
     if (ha->peer) return ha;
   } else {
     /* not found, make a new one and add it to the table */
-    ha = se_alloc0(sizeof(sctp_half_assoc_t));
+    ha = se_new0(sctp_half_assoc_t);
     ha->spt = spt;
     ha->dpt = dpt;
     ha->vtag = vtag;
@@ -603,7 +604,7 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
   /* at this point we have an unmatched half, look for its other half using the ports and IP address */
   k = make_address_key(dpt, spt, &(pinfo->dst));
 
-  if (( hb = emem_tree_lookup32_array(dirs_by_ptaddr, k) )) {
+  if (( hb = (sctp_half_assoc_t **)emem_tree_lookup32_array(dirs_by_ptaddr, k) )) {
     /*the table contains a pointer to a pointer to a half */
     if (! *hb) {
       /* if there is no half pointed by this, add the current half to the table */
@@ -616,7 +617,7 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
     }
   } else {
     /* we found no entry in the table: add one (using reversed ports and src addresss) so that it can be matched later */
-    *(hb = se_alloc(sizeof(void*))) = ha;
+    *(hb = (sctp_half_assoc_t **)se_alloc(sizeof(void*))) = ha;
     k = make_address_key(spt, dpt, &(pinfo->src));
     emem_tree_insert32_array(dirs_by_ptaddr, k, hb);
   }
@@ -661,7 +662,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
                              "This TSN was acked prior to this retransmission (reneged ack?).");
     }
   } else if (t->retransmit) {
-    struct _retransmit_t **r;
+    retransmit_t **r;
     nstime_t rto;
     char ds[64];
 
@@ -758,9 +759,9 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
   /* printf("%.3d REL TSN: %p->%p [%u] %u \n",framenum,h,h->peer,tsn,reltsn); */
 
   /* look for this tsn in this half's tsn table */
-  if (! (t = emem_tree_lookup32(h->tsns,reltsn) )) {
+  if (! (t = (sctp_tsn_t *)emem_tree_lookup32(h->tsns,reltsn) )) {
     /* no tsn found, create a new one */
-    t = se_alloc0(sizeof(sctp_tsn_t));
+    t = se_new0(sctp_tsn_t);
     t->tsn = tsn;
 
     t->first_transmit.framenum = framenum;
@@ -772,7 +773,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
   is_retransmission = (t->first_transmit.framenum != framenum);
 
   if ( (! pinfo->fd->flags.visited ) && is_retransmission ) {
-    struct _retransmit_t **r;
+    retransmit_t **r;
     int i;
 
     t->retransmit_count++;
@@ -791,7 +792,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
        *  more than 1 or 2 retransmissions of a TSN?
        *  For now, go with simplicity (of code here).
        */
-      *r = se_alloc0(sizeof(struct _retransmit_t));
+      *r = se_new0(retransmit_t);
       (*r)->framenum = framenum;
       (*r)->ts = pinfo->fd->abs_ts;
     }
@@ -842,7 +843,7 @@ sctp_ack(packet_info *pinfo, tvbuff_t *tvb,  proto_tree *acks_tree,
 
   /* printf("%.6d ACK: %p->%p [%u] \n",framenum,h,h->peer,reltsn); */
 
-  t = se_tree_lookup32(h->peer->tsns,reltsn);
+  t = (sctp_tsn_t *)se_tree_lookup32(h->peer->tsns,reltsn);
 
   if (t) {
     if (! t->ack.framenum) {
@@ -851,7 +852,7 @@ sctp_ack(packet_info *pinfo, tvbuff_t *tvb,  proto_tree *acks_tree,
       t->ack.framenum = framenum;
       t->ack.ts = pinfo->fd->abs_ts;
 
-      if (( t2 = emem_tree_lookup32(h->peer->tsn_acks, framenum) )) {
+      if (( t2 = (sctp_tsn_t *)emem_tree_lookup32(h->peer->tsn_acks, framenum) )) {
         for(;t2->next;t2 = t2->next)
           ;
 
@@ -896,7 +897,7 @@ sctp_ack_block(packet_info *pinfo, sctp_half_assoc_t *h, tvbuff_t *tvb,
   }
 
 
-  if ((t = emem_tree_lookup32(h->peer->tsn_acks, framenum))) {
+  if ((t = (sctp_tsn_t *)emem_tree_lookup32(h->peer->tsn_acks, framenum))) {
     for(;t;t = t->next) {
       guint32 tsn = t->tsn;
 
@@ -2186,8 +2187,8 @@ frag_free_msgs(sctp_frag_msg *msg)
 static gboolean
 free_table_entry(gpointer key, gpointer value, gpointer user_data _U_)
 {
-  sctp_frag_msg *msg = value;
-  frag_key *fkey = key;
+  sctp_frag_msg *msg = (sctp_frag_msg *)value;
+  frag_key *fkey = (frag_key *)key;
 
   frag_free_msgs(msg);
   g_free(fkey);
@@ -2219,7 +2220,7 @@ find_message(guint16 stream_id, guint16 stream_seq_num)
   key.stream_id = stream_id;
   key.stream_seq_num = stream_seq_num;
 
-  return g_hash_table_lookup(frag_table, &key);
+  return (sctp_frag_msg *)g_hash_table_lookup(frag_table, &key);
 }
 
 
@@ -2257,14 +2258,14 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
   msg = find_message(stream_id, stream_seq_num);
 
   if (!msg) {
-    msg = g_malloc (sizeof (sctp_frag_msg));
+    msg = (sctp_frag_msg *)g_malloc (sizeof (sctp_frag_msg));
     msg->begins = NULL;
     msg->ends = NULL;
     msg->fragments = NULL;
     msg->messages = NULL;
     msg->next = NULL;
 
-    key = g_malloc(sizeof (frag_key));
+    key = (frag_key *)g_malloc(sizeof (frag_key));
     key->sport = sctp_info.sport;
     key->dport = sctp_info.dport;
     key->verification_tag = sctp_info.verification_tag;
@@ -2304,12 +2305,12 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     return NULL;
 
   /* create new fragment */
-  fragment = g_malloc (sizeof (sctp_fragment));
+  fragment = (sctp_fragment *)g_malloc (sizeof (sctp_fragment));
   fragment->frame_num = pinfo->fd->num;
   fragment->tsn = tsn;
   fragment->len = tvb_length(tvb);
   fragment->next = NULL;
-  fragment->data = g_malloc (fragment->len);
+  fragment->data = (unsigned char *)g_malloc (fragment->len);
   tvb_memcpy(tvb, fragment->data, 0, fragment->len);
 
   /* add new fragment to linked list. sort ascending by tsn */
@@ -2333,7 +2334,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
 
   /* save begin or end if necessary */
   if (b_bit && !e_bit) {
-    beginend = g_malloc (sizeof (sctp_frag_be));
+    beginend = (sctp_frag_be *)g_malloc (sizeof (sctp_frag_be));
     beginend->fragment = fragment;
     beginend->next = NULL;
 
@@ -2358,7 +2359,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
   }
 
   if (!b_bit && e_bit) {
-    beginend = g_malloc (sizeof (sctp_frag_be));
+    beginend = (sctp_frag_be *)g_malloc (sizeof (sctp_frag_be));
     beginend->fragment = fragment;
     beginend->next = NULL;
 
@@ -2572,12 +2573,12 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
    */
   len += frag_i->len;
 
-  message = se_alloc (sizeof (sctp_complete_msg));
+  message = se_new(sctp_complete_msg);
   message->begin = begin->fragment->tsn;
   message->end = end->fragment->tsn;
   message->reassembled_in = fragment;
   message->len = len;
-  message->data = se_alloc(len);
+  message->data = (unsigned char *)se_alloc(len);
   message->next = NULL;
 
   /* now copy all fragments */
