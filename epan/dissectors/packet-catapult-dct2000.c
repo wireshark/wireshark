@@ -1109,7 +1109,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
     guint8                channelId;
 
     /* Look this up so can update channel info */
-    p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+    p_pdcp_lte_info = (struct pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte);
     if (p_pdcp_lte_info == NULL) {
         /* This really should be set...can't dissect anything without it */
         return;
@@ -1209,7 +1209,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                     /* Logical channel type */
                     proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_channel_type,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
-                    p_pdcp_lte_info->channelType = tvb_get_guint8(tvb, offset++);
+                    p_pdcp_lte_info->channelType = (LogicalChannelType)tvb_get_guint8(tvb, offset++);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                                     val_to_str_const(p_pdcp_lte_info->channelType, rlc_logical_channel_vals,
                                                      "UNKNOWN-CHANNEL"));
@@ -1220,7 +1220,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                             offset++;
 
                             /* Transport channel type */
-                            p_pdcp_lte_info->BCCHTransport = tvb_get_guint8(tvb, offset);
+                            p_pdcp_lte_info->BCCHTransport = (BCCHTransportType)tvb_get_guint8(tvb, offset);
                             proto_tree_add_item(tree, hf_catapult_dct2000_lte_bcch_transport,
                                                 tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset++;
@@ -1443,13 +1443,13 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
     int  calculated_variant;
 
     /* Only need to set info once per session. */
-    struct fp_info *p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
+    struct fp_info *p_fp_info = (struct fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
     if (p_fp_info != NULL) {
         return;
     }
 
     /* Allocate struct */
-    p_fp_info = se_alloc0(sizeof(struct fp_info));
+    p_fp_info = se_new0(struct fp_info);
 
     /* Check that the number of outhdr values looks sensible */
     if (((strcmp(protocol_name, "fpiur_r5") == 0) && (outhdr_values_found != 2)) ||
@@ -1545,7 +1545,7 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
     /* Division type introduced for R7 */
     if ((p_fp_info->release == 7) ||
         (p_fp_info->release == 8)) {
-        p_fp_info->division = outhdr_values[i++];
+        p_fp_info->division = (enum division_type)outhdr_values[i++];
     }
 
     /* HS-DSCH config */
@@ -1642,7 +1642,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboo
 {
     /* Only need to set info once per session. */
     struct fp_info  *p_fp_info;
-    struct rlc_info *p_rlc_info = p_get_proto_data(pinfo->fd, proto_rlc);
+    struct rlc_info *p_rlc_info = (struct rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
 
     if (p_rlc_info != NULL) {
         return;
@@ -1654,8 +1654,8 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboo
     }
 
     /* Allocate structs */
-    p_rlc_info = se_alloc0(sizeof(struct rlc_info));
-    p_fp_info = se_alloc0(sizeof(struct fp_info));
+    p_rlc_info = se_new(struct rlc_info);
+    p_fp_info = se_new(struct fp_info);
 
     /* Fill in struct fields for first (only) PDU in this frame */
 
@@ -1695,7 +1695,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboo
     p_rlc_info->rbid[0] = rbid;
 
     /* li_size */
-    p_rlc_info->li_size[0] = outhdr_values[0];
+    p_rlc_info->li_size[0] = (enum rlc_li_size)outhdr_values[0];
 
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_rlc, p_rlc_info);
@@ -1724,10 +1724,10 @@ static void attach_mac_lte_info(packet_info *pinfo)
     }
 
     /* Allocate & zero struct */
-    p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
+    p_mac_lte_info = se_new0(struct mac_lte_info);
 
     /* Populate the struct from outhdr values */
-    p_mac_lte_info->crcStatusValid = FALSE;  /* not set yet */
+    p_mac_lte_info->crcStatusValid = crc_fail;  /* not set yet */
 
     p_mac_lte_info->radioType = outhdr_values[i++] + 1;
     p_mac_lte_info->rntiType = outhdr_values[i++];
@@ -1751,8 +1751,8 @@ static void attach_mac_lte_info(packet_info *pinfo)
     if (outhdr_values_found == 10) {
         /* CRC only valid for Downlink */
         if (p_mac_lte_info->direction == DIRECTION_DOWNLINK) {
-            p_mac_lte_info->crcStatusValid = TRUE;
-            p_mac_lte_info->detailed_phy_info.dl_info.crc_status = outhdr_values[i++];
+            p_mac_lte_info->crcStatusValid = crc_success;
+            p_mac_lte_info->detailed_phy_info.dl_info.crc_status = (mac_lte_crc_status)outhdr_values[i++];
         }
         else {
             i++;
@@ -1777,8 +1777,8 @@ static void attach_mac_lte_info(packet_info *pinfo)
                 p_mac_lte_info->dl_retx = dl_retx_no;
             }
             p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length = outhdr_values[i++];
-            p_mac_lte_info->crcStatusValid = TRUE;
-            p_mac_lte_info->detailed_phy_info.dl_info.crc_status = outhdr_values[i++];
+            p_mac_lte_info->crcStatusValid = crc_success;
+            p_mac_lte_info->detailed_phy_info.dl_info.crc_status = (mac_lte_crc_status)outhdr_values[i++];
             if (outhdr_values_found > 18) {
                 p_mac_lte_info->detailed_phy_info.dl_info.harq_id = outhdr_values[i++];
                 p_mac_lte_info->detailed_phy_info.dl_info.ndi = outhdr_values[i++];
@@ -1840,13 +1840,13 @@ static void attach_rlc_lte_info(packet_info *pinfo)
     unsigned int         i = 0;
 
     /* Only need to set info once per session. */
-    p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
+    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(pinfo->fd, proto_rlc_lte);
     if (p_rlc_lte_info != NULL) {
         return;
     }
 
     /* Allocate & zero struct */
-    p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
+    p_rlc_lte_info = se_new0(rlc_lte_info);
 
     p_rlc_lte_info->rlcMode = outhdr_values[i++];
     p_rlc_lte_info->direction = outhdr_values[i++];
@@ -1869,16 +1869,16 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
     unsigned int          i = 0;
 
     /* Only need to set info once per session. */
-    p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+    p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte);
     if (p_pdcp_lte_info != NULL) {
         return;
     }
 
     /* Allocate & zero struct */
-    p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
+    p_pdcp_lte_info = se_new0(pdcp_lte_info);
 
     p_pdcp_lte_info->no_header_pdu = outhdr_values[i++];
-    p_pdcp_lte_info->plane = outhdr_values[i++];
+    p_pdcp_lte_info->plane = (enum pdcp_plane)outhdr_values[i++];
     if (p_pdcp_lte_info->plane != USER_PLANE) {
         p_pdcp_lte_info->plane = SIGNALING_PLANE;
     }
@@ -1888,7 +1888,7 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
     p_pdcp_lte_info->rohc_ip_version = outhdr_values[i++];
     p_pdcp_lte_info->cid_inclusion_info = outhdr_values[i++];
     p_pdcp_lte_info->large_cid_present = outhdr_values[i++];
-    p_pdcp_lte_info->mode = outhdr_values[i++];
+    p_pdcp_lte_info->mode = (enum rohc_mode)outhdr_values[i++];
     p_pdcp_lte_info->rnd = outhdr_values[i++];
     p_pdcp_lte_info->udp_checksum_present = outhdr_values[i++];
     p_pdcp_lte_info->profile = outhdr_values[i];
@@ -1932,7 +1932,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             char *hex_string;
             int tty_string_length = tvb_length_remaining(tvb, offset);
             int hex_string_length = 1+(2*tty_string_length)+1;
-            hex_string = ep_alloc(hex_string_length);
+            hex_string = (char *)ep_alloc(hex_string_length);
 
             idx = g_snprintf(hex_string, hex_string_length, "$");
 
@@ -2037,7 +2037,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
     if (p_mac_lte_info == NULL) {
 
         /* Allocate & zero struct */
-        p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
+        p_mac_lte_info = se_new0(mac_lte_info);
 
         /* This indicates to MAC dissector that it has an oob event */
         p_mac_lte_info->length = 0;
