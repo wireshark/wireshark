@@ -101,11 +101,11 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
             {0,NULL}
         };
 
-        if (( m = se_tree_lookup32_array(msgs,key) )) {
+        if (( m = (gcp_msg_t *)se_tree_lookup32_array(msgs,key) )) {
             m->commited = TRUE;
             return m;
         } else {
-            m = se_alloc(sizeof(gcp_msg_t));
+            m = se_new(gcp_msg_t);
             m->framenum = framenum;
             m->time = pinfo->fd->abs_ts;
             m->trxs = NULL;
@@ -174,11 +174,11 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
                 {0,NULL}
             };
 
-            trxmsg = se_alloc(sizeof(gcp_trx_msg_t));
-            t = se_tree_lookup32_array(trxs,key);
+            trxmsg = se_new(gcp_trx_msg_t);
+            t = (gcp_trx_t *)se_tree_lookup32_array(trxs,key);
 
             if (!t) {
-                t = se_alloc(sizeof(gcp_trx_t));
+                t = se_new(gcp_trx_t);
                 t->initial = m;
                 t->id = t_id;
                 t->type = type;
@@ -249,9 +249,9 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
         };
 
         if (m->commited) {
-            if (( context = se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
+            if (( context = (gcp_ctx_t *)se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
                 return context;
-            } if ((context_p = se_tree_lookup32_array(ctxs,ctx_key))) {
+            } if ((context_p = (gcp_ctx_t **)se_tree_lookup32_array(ctxs,ctx_key))) {
                 context = *context_p;
 
                 do {
@@ -264,8 +264,8 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
             }
         } else {
             if (c_id == CHOOSE_CONTEXT) {
-                if (! ( context = se_tree_lookup32_array(ctxs_by_trx,trx_key))) {
-                    context = se_alloc(sizeof(gcp_ctx_t));
+                if (! ( context = (gcp_ctx_t *)se_tree_lookup32_array(ctxs_by_trx,trx_key))) {
+                    context = se_new(gcp_ctx_t);
                     context->initial = m;
                     context->cmds = NULL;
                     context->id = c_id;
@@ -276,11 +276,11 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
                     se_tree_insert32_array(ctxs_by_trx,trx_key,context);
                 }
             } else {
-                if (( context = se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
-                    if (( context_p = se_tree_lookup32_array(ctxs,ctx_key) )) {
+                if (( context = (gcp_ctx_t *)se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
+                    if (( context_p = (gcp_ctx_t **)se_tree_lookup32_array(ctxs,ctx_key) )) {
                         if (context != *context_p) {
                             if(context->id != CHOOSE_CONTEXT) {
-                                context = se_alloc(sizeof(gcp_ctx_t));
+                                context = se_new(gcp_ctx_t);
                             }
                             context->initial = m;
                             context->id = c_id;
@@ -293,14 +293,14 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
                             *context_p = context;
                         }
                     } else {
-                        context_p = se_alloc(sizeof(void*));
+                        context_p = se_new(gcp_ctx_t*);
                         *context_p = context;
                         context->initial = m;
                         context->id = c_id;
                         se_tree_insert32_array(ctxs,ctx_key,context_p);
                     }
-                } else if (! ( context_p = se_tree_lookup32_array(ctxs,ctx_key) )) {
-                    context = se_alloc(sizeof(gcp_ctx_t));
+                } else if (! ( context_p = (gcp_ctx_t**)se_tree_lookup32_array(ctxs,ctx_key) )) {
+                    context = se_new(gcp_ctx_t);
                     context->initial = m;
                     context->id = c_id;
                     context->cmds = NULL;
@@ -308,7 +308,7 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
                     context->terms.next = NULL;
                     context->terms.term = NULL;
 
-                    context_p = se_alloc(sizeof(void*));
+                    context_p = se_new(gcp_ctx_t*);
                     *context_p = context;
                     se_tree_insert32_array(ctxs,ctx_key,context_p);
                 } else {
@@ -351,9 +351,9 @@ gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type
 
             return NULL;
         } else {
-            cmd = se_alloc(sizeof(gcp_cmd_t));
-            cmdtrx = se_alloc(sizeof(gcp_cmd_msg_t));
-            cmdctx = se_alloc(sizeof(gcp_cmd_msg_t));
+            cmd = se_new(gcp_cmd_t);
+            cmdtrx = se_new(gcp_cmd_msg_t);
+            cmdctx = se_new(gcp_cmd_msg_t);
         }
     } else {
         cmd = ep_new(gcp_cmd_t);
@@ -437,9 +437,9 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
             if ( ! ct ) {
 
                 if (wildcard == GCP_WILDCARD_ALL) {
-                    ct = se_alloc(sizeof(gcp_terms_t));
+                    ct = se_new(gcp_terms_t);
                     ct->next = NULL;
-                    ct->term = se_alloc0(sizeof(gcp_term_t));
+                    ct->term = se_new0(gcp_term_t);
 
                     ct->term->start = m;
                     ct->term->str = "*";
@@ -448,7 +448,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
 
                     c->terms.last = c->terms.last->next = ct;
 
-                    ct2 = se_alloc0(sizeof(gcp_terms_t));
+                    ct2 = se_new0(gcp_terms_t);
                     ct2->term = ct->term;
 
                     c->ctx->terms.last->next = ct2;
@@ -460,10 +460,10 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
                         /* XXX not handling more wilcards in one msg */
                         if ( ct->term->buffer == NULL && tr->cmds->cmd->msg == ct->term->start ) {
                             ct->term->str = se_strdup(t->str);
-                            ct->term->buffer = se_memdup(t->buffer,t->len);
+                            ct->term->buffer = (const guint8 *)se_memdup(t->buffer,t->len);
                             ct->term->len = t->len;
 
-                            ct2 = se_alloc0(sizeof(gcp_terms_t));
+                            ct2 = se_new0(gcp_terms_t);
                             ct2->term = ct->term;
 
                             c->terms.last = c->terms.last->next = ct2;
@@ -472,7 +472,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
                         }
 
                         if  ( g_str_equal(ct->term->str,t->str) ) {
-                            ct2 = se_alloc0(sizeof(gcp_terms_t));
+                            ct2 = se_new0(gcp_terms_t);
                             ct2->term = ct->term;
 
                             c->terms.last = c->terms.last->next = ct2;
@@ -481,21 +481,21 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
                         }
                     }
 
-                    ct = se_alloc(sizeof(gcp_terms_t));
+                    ct = se_new(gcp_terms_t);
                     ct->next = NULL;
-                    ct->term = se_alloc0(sizeof(gcp_term_t));
+                    ct->term = se_new0(gcp_term_t);
 
                     ct->term->start = m;
                     ct->term->str = se_strdup(t->str);
-                    ct->term->buffer = se_memdup(t->buffer,t->len);
+                    ct->term->buffer = (const guint8 *)se_memdup(t->buffer,t->len);
                     ct->term->len = t->len;
 
-                    ct2 = se_alloc0(sizeof(gcp_terms_t));
+                    ct2 = se_new0(gcp_terms_t);
                     ct2->term = ct->term;
 
                     c->terms.last = c->terms.last->next = ct2;
 
-                    ct2 = se_alloc0(sizeof(gcp_terms_t));
+                    ct2 = se_new0(gcp_terms_t);
                     ct2->term = ct->term;
 
                     c->ctx->terms.last = c->ctx->terms.last->next = ct2;
@@ -503,7 +503,7 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
                     return ct->term;
                 }
             } else {
-                ct2 = se_alloc0(sizeof(gcp_terms_t));
+                ct2 = se_new0(gcp_terms_t);
                 ct2->term = ct->term;
 
                 c->terms.last = c->terms.last->next = ct2;
