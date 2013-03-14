@@ -54,24 +54,24 @@ static gint ett_dvb_nit = -1;
 static gint ett_dvb_nit_ts = -1;
 
 
-#define DVB_NIT_TID		0x40
-#define DVB_NIT_TID_OTHER	0x41
+#define DVB_NIT_TID             0x40
+#define DVB_NIT_TID_OTHER       0x41
 
-#define DVB_NIT_RESERVED1_MASK				0xC0
-#define DVB_NIT_VERSION_NUMBER_MASK			0x3E
-#define DVB_NIT_CURRENT_NEXT_INDICATOR_MASK		0x01
-#define DVB_NIT_RESERVED2_MASK				0xF000
-#define DVB_NIT_NETWORK_DESCRIPTORS_LENGTH_MASK		0x0FFF
-#define DVB_NIT_RESERVED3_MASK				0xF000
-#define DVB_NIT_TRANSPORT_STREAM_LOOP_LENGTH_MASK	0x0FFF
-#define DVB_NIT_RESERVED4_MASK				0xF000
-#define DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK	0x0FFF
+#define DVB_NIT_RESERVED1_MASK                            0xC0
+#define DVB_NIT_VERSION_NUMBER_MASK                       0x3E
+#define DVB_NIT_CURRENT_NEXT_INDICATOR_MASK               0x01
+#define DVB_NIT_RESERVED2_MASK                          0xF000
+#define DVB_NIT_NETWORK_DESCRIPTORS_LENGTH_MASK         0x0FFF
+#define DVB_NIT_RESERVED3_MASK                          0xF000
+#define DVB_NIT_TRANSPORT_STREAM_LOOP_LENGTH_MASK       0x0FFF
+#define DVB_NIT_RESERVED4_MASK                          0xF000
+#define DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK       0x0FFF
 
 static const value_string dvb_nit_cur_next_vals[] = {
-	{ 0, "Not yet applicable" },
-	{ 1, "Currently applicable" },
+    { 0, "Not yet applicable" },
+    { 1, "Currently applicable" },
 
-	{ 0, NULL }
+    { 0, NULL }
 };
 
 
@@ -79,74 +79,74 @@ static int
 dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
-	guint       offset = 0;
-	guint       ts_desc_len, desc_loop_len, ts_end;
+    guint       offset = 0;
+    guint       ts_desc_len, desc_loop_len, ts_end;
 
-	guint16     tsid;
+    guint16     tsid;
 
-	proto_item *ti;
-	proto_tree *dvb_nit_tree;
-	proto_item *tsi;
-	proto_tree *dvb_nit_ts_tree;
+    proto_item *ti;
+    proto_tree *dvb_nit_tree;
+    proto_item *tsi;
+    proto_tree *dvb_nit_ts_tree;
 
-	col_set_str(pinfo->cinfo, COL_INFO, "Network Information Table (NIT)");
+    col_set_str(pinfo->cinfo, COL_INFO, "Network Information Table (NIT)");
 
-	ti = proto_tree_add_item(tree, proto_dvb_nit, tvb, offset, -1, ENC_NA);
-	dvb_nit_tree = proto_item_add_subtree(ti, ett_dvb_nit);
+    ti = proto_tree_add_item(tree, proto_dvb_nit, tvb, offset, -1, ENC_NA);
+    dvb_nit_tree = proto_item_add_subtree(ti, ett_dvb_nit);
 
-	offset += packet_mpeg_sect_header(tvb, offset, dvb_nit_tree, NULL, NULL);
+    offset += packet_mpeg_sect_header(tvb, offset, dvb_nit_tree, NULL, NULL);
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_network_id,                 tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
+    proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_network_id,                 tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved1,                  tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_version_number,             tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_current_next_indicator,     tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
+    proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved1,                  tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_version_number,             tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_current_next_indicator,     tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_section_number,             tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
+    proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_section_number,             tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_last_section_number,        tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
+    proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_last_section_number,        tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved2,                  tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_network_descriptors_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-	desc_loop_len = tvb_get_ntohs(tvb, offset) & DVB_NIT_NETWORK_DESCRIPTORS_LENGTH_MASK;
-	offset += 2;
+    proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved2,                  tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_network_descriptors_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    desc_loop_len = tvb_get_ntohs(tvb, offset) & DVB_NIT_NETWORK_DESCRIPTORS_LENGTH_MASK;
+    offset += 2;
 
-	offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, desc_loop_len, dvb_nit_tree);
+    offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, desc_loop_len, dvb_nit_tree);
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved3,                    tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_transport_stream_loop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-	ts_end = offset + (tvb_get_ntohs(tvb, offset) & DVB_NIT_TRANSPORT_STREAM_LOOP_LENGTH_MASK);
-	offset += 2;
+    proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved3,                    tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_transport_stream_loop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ts_end = offset + (tvb_get_ntohs(tvb, offset) & DVB_NIT_TRANSPORT_STREAM_LOOP_LENGTH_MASK);
+    offset += 2;
 
-	while (offset < ts_end) {
-		tsid = tvb_get_ntohs(tvb, offset);
-		ts_desc_len = 3 + (tvb_get_ntohs(tvb, offset + 4) & DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK);
+    while (offset < ts_end) {
+        tsid = tvb_get_ntohs(tvb, offset);
+        ts_desc_len = 3 + (tvb_get_ntohs(tvb, offset + 4) & DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK);
 
-		tsi = proto_tree_add_text(dvb_nit_tree, tvb, offset, ts_desc_len, "Stream ID=0x%04hx", tsid);
-		dvb_nit_ts_tree = proto_item_add_subtree(tsi, ett_dvb_nit_ts);
+        tsi = proto_tree_add_text(dvb_nit_tree, tvb, offset, ts_desc_len, "Stream ID=0x%04hx", tsid);
+        dvb_nit_ts_tree = proto_item_add_subtree(tsi, ett_dvb_nit_ts);
 
-		proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
+        proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
 
-		proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_original_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
+        proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_original_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
 
-		proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_reserved4,                    tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_transport_descriptors_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-		desc_loop_len = tvb_get_ntohs(tvb, offset) & DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK;
-		offset += 2;
+        proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_reserved4,                    tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_transport_descriptors_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        desc_loop_len = tvb_get_ntohs(tvb, offset) & DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK;
+        offset += 2;
 
-		offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, desc_loop_len, dvb_nit_ts_tree);
-	}
+        offset += proto_mpeg_descriptor_loop_dissect(tvb, offset, desc_loop_len, dvb_nit_ts_tree);
+    }
 
-	offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_nit_tree, 0, offset);
+    offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_nit_tree, 0, offset);
 
-	proto_item_set_len(ti, offset);
-	return offset;
+    proto_item_set_len(ti, offset);
+    return offset;
 }
 
 
@@ -154,113 +154,114 @@ void
 proto_register_dvb_nit(void)
 {
 
-	static hf_register_info hf[] = {
+    static hf_register_info hf[] = {
 
-		{ &hf_dvb_nit_network_id, {
-			"Network ID", "dvb_nit.sid",
-			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
-		} },
+        { &hf_dvb_nit_network_id, {
+            "Network ID", "dvb_nit.sid",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_reserved1, {
-			"Reserved", "dvb_nit.reserved1",
-			FT_UINT8, BASE_HEX, NULL, DVB_NIT_RESERVED1_MASK, NULL, HFILL
-		} },
+        { &hf_dvb_nit_reserved1, {
+            "Reserved", "dvb_nit.reserved1",
+            FT_UINT8, BASE_HEX, NULL, DVB_NIT_RESERVED1_MASK, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_version_number, {
-			"Version Number", "dvb_nit.version",
-			FT_UINT8, BASE_HEX, NULL, DVB_NIT_VERSION_NUMBER_MASK, NULL, HFILL
-		} },
+        { &hf_dvb_nit_version_number, {
+            "Version Number", "dvb_nit.version",
+            FT_UINT8, BASE_HEX, NULL, DVB_NIT_VERSION_NUMBER_MASK, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_current_next_indicator, {
-			"Current/Next Indicator", "dvb_nit.cur_next_ind",
-			FT_UINT8, BASE_DEC, VALS(dvb_nit_cur_next_vals), DVB_NIT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
-		} },
+        { &hf_dvb_nit_current_next_indicator, {
+            "Current/Next Indicator", "dvb_nit.cur_next_ind",
+            FT_UINT8, BASE_DEC, VALS(dvb_nit_cur_next_vals), DVB_NIT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_section_number, {
-			"Section Number", "dvb_nit.sect_num",
-			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
-		} },
+        { &hf_dvb_nit_section_number, {
+            "Section Number", "dvb_nit.sect_num",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_last_section_number, {
-			"Last Section Number", "dvb_nit.last_sect_num",
-			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
-		} },
+        { &hf_dvb_nit_last_section_number, {
+            "Last Section Number", "dvb_nit.last_sect_num",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_reserved2, {
-			"Reserved", "dvb_nit.reserved2",
-			FT_UINT16, BASE_HEX, NULL, DVB_NIT_RESERVED2_MASK, NULL, HFILL
-		} },
+        { &hf_dvb_nit_reserved2, {
+            "Reserved", "dvb_nit.reserved2",
+            FT_UINT16, BASE_HEX, NULL, DVB_NIT_RESERVED2_MASK, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_network_descriptors_length, {
-			"Network Descriptors Length", "dvb_nit.network_desc_len",
-			FT_UINT16, BASE_DEC, NULL, DVB_NIT_NETWORK_DESCRIPTORS_LENGTH_MASK, NULL, HFILL
-		} },
+        { &hf_dvb_nit_network_descriptors_length, {
+            "Network Descriptors Length", "dvb_nit.network_desc_len",
+            FT_UINT16, BASE_DEC, NULL, DVB_NIT_NETWORK_DESCRIPTORS_LENGTH_MASK, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_reserved3, {
-			"Reserved", "dvb_nit.reserved3",
-			FT_UINT16, BASE_HEX, NULL, DVB_NIT_RESERVED3_MASK, NULL, HFILL
-		} },
+        { &hf_dvb_nit_reserved3, {
+            "Reserved", "dvb_nit.reserved3",
+            FT_UINT16, BASE_HEX, NULL, DVB_NIT_RESERVED3_MASK, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_transport_stream_loop_length, {
-			"Transport Stream Loop Length", "dvb_nit.ts_loop_len",
-			FT_UINT16, BASE_DEC, NULL, DVB_NIT_TRANSPORT_STREAM_LOOP_LENGTH_MASK, NULL, HFILL
-		} },
+        { &hf_dvb_nit_transport_stream_loop_length, {
+            "Transport Stream Loop Length", "dvb_nit.ts_loop_len",
+            FT_UINT16, BASE_DEC, NULL, DVB_NIT_TRANSPORT_STREAM_LOOP_LENGTH_MASK, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_transport_stream_id, {
-			"Transport Stream ID", "dvb_nit.ts.id",
-			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
-		} },
+        { &hf_dvb_nit_transport_stream_id, {
+            "Transport Stream ID", "dvb_nit.ts.id",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_original_network_id, {
-			"Original Network ID", "dvb_nit.ts.original_network_id",
-			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
-		} },
+        { &hf_dvb_nit_original_network_id, {
+            "Original Network ID", "dvb_nit.ts.original_network_id",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_reserved4, {
-			"Reserved", "dvb_nit.ts.reserved",
-			FT_UINT16, BASE_HEX, NULL, DVB_NIT_RESERVED4_MASK, NULL, HFILL
-		} },
+        { &hf_dvb_nit_reserved4, {
+            "Reserved", "dvb_nit.ts.reserved",
+            FT_UINT16, BASE_HEX, NULL, DVB_NIT_RESERVED4_MASK, NULL, HFILL
+        } },
 
-		{ &hf_dvb_nit_transport_descriptors_length, {
-			"Transport Descriptors Length", "dvb_nit.ts.desc_len",
-			FT_UINT16, BASE_DEC, NULL, DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK, NULL, HFILL
-		} },
+        { &hf_dvb_nit_transport_descriptors_length, {
+            "Transport Descriptors Length", "dvb_nit.ts.desc_len",
+            FT_UINT16, BASE_DEC, NULL, DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK, NULL, HFILL
+        } },
 
-	};
+    };
 
-	static gint *ett[] = {
-		&ett_dvb_nit,
-		&ett_dvb_nit_ts
-	};
+    static gint *ett[] = {
+        &ett_dvb_nit,
+        &ett_dvb_nit_ts
+    };
 
-	proto_dvb_nit = proto_register_protocol("DVB Network Information Table", "DVB NIT", "dvb_nit");
+    proto_dvb_nit = proto_register_protocol("DVB Network Information Table", "DVB NIT", "dvb_nit");
 
-	proto_register_field_array(proto_dvb_nit, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_register_field_array(proto_dvb_nit, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("dvb_nit", dissect_dvb_nit, proto_dvb_nit);
+    new_register_dissector("dvb_nit", dissect_dvb_nit, proto_dvb_nit);
 }
 
 
 void proto_reg_handoff_dvb_nit(void)
 {
-	dissector_handle_t dvb_nit_handle;
+    dissector_handle_t dvb_nit_handle;
 
-	dvb_nit_handle = new_create_dissector_handle(dissect_dvb_nit, proto_dvb_nit);
+    dvb_nit_handle = find_dissector("dvb_nit");
 
-	dissector_add_uint("mpeg_sect.tid", DVB_NIT_TID, dvb_nit_handle);
-	dissector_add_uint("mpeg_sect.tid", DVB_NIT_TID_OTHER, dvb_nit_handle);
+    dissector_add_uint("mpeg_sect.tid", DVB_NIT_TID, dvb_nit_handle);
+    dissector_add_uint("mpeg_sect.tid", DVB_NIT_TID_OTHER, dvb_nit_handle);
 }
+
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: t
+ * tab-width: 8
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 noexpandtab:
- * :indentSize=4:tabSize=4:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
