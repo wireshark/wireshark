@@ -91,7 +91,7 @@ typedef struct _wslua_field_t {
     char* abbr;
     char* blob;
     enum ftenum type;
-    base_display_e base;
+    unsigned base;
     const void* vs;
     guint32 mask;
 } wslua_field_t;
@@ -271,7 +271,7 @@ C check##C(lua_State* L, int idx) { \
 C* push##C(lua_State* L, C v) { \
     C* p; \
     luaL_checkstack(L,2,"Unable to grow stack\n"); \
-    p = lua_newuserdata(L,sizeof(C)); *p = v; \
+    p = (C*)lua_newuserdata(L,sizeof(C)); *p = v; \
     luaL_getmetatable(L, #C); lua_setmetatable(L, -2); \
     push_code; \
     return p; \
@@ -288,7 +288,7 @@ gboolean is##C(lua_State* L,int i) { \
 C shift##C(lua_State* L,int i) { \
     C* p; \
     if(!lua_isuserdata(L,i)) return NULL; \
-    p = lua_touserdata(L, i); \
+    p = (C*)lua_touserdata(L, i); \
     lua_getfield(L, LUA_REGISTRYINDEX, #C); \
     if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
     lua_pop(L, 2); \

@@ -107,7 +107,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
     const gchar* label = luaL_optstring(L,1,NULL);
     const gchar* descr = luaL_optstring(L,3,"");
 
-    Pref pref = g_malloc(sizeof(wslua_pref_t));
+    Pref pref = (wslua_pref_t *)g_malloc(sizeof(wslua_pref_t));
     pref->name = NULL;
     pref->label = label ? g_strdup(label) : NULL;
     pref->desc = g_strdup(descr);
@@ -465,7 +465,7 @@ static const gchar* ftenum_to_string(enum ftenum ft) {
 
 struct base_display_string_t {
     const gchar* str;
-    base_display_e base;
+    unsigned base;
 };
 
 static const struct base_display_string_t base_displays[] = {
@@ -487,7 +487,7 @@ static const struct base_display_string_t base_displays[] = {
     {NULL,0}
 };
 
-static const gchar* base_to_string(base_display_e base) {
+static const gchar* base_to_string(unsigned base) {
     const struct base_display_string_t* b;
     for (b=base_displays;b->str;b++) {
         if ( base == b->base)
@@ -496,7 +496,7 @@ static const gchar* base_to_string(base_display_e base) {
     return NULL;
 }
 
-static base_display_e string_to_base(const gchar* str) {
+static unsigned string_to_base(const gchar* str) {
     const struct base_display_string_t* b;
     for (b=base_displays;b->str;b++) {
         if ( g_str_equal(str,b->str))
@@ -611,7 +611,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 #define WSLUA_OPTARG_ProtoField_new_MASK 6 /* The bitmask to be used.  */
 #define WSLUA_OPTARG_ProtoField_new_DESCR 7 /* The description of the field.  */
 
-    ProtoField f = g_malloc(sizeof(wslua_field_t));
+    ProtoField f = (wslua_field_t *)g_malloc(sizeof(wslua_field_t));
     value_string* vs = NULL;
     true_false_string* tfs = NULL;
     const gchar *blob;
@@ -684,7 +684,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     ProtoField f;
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
-    base_display_e base = luaL_optint(L, 3, BASE_DEC);
+    unsigned base = luaL_optint(L, 3, BASE_DEC);
     value_string* vs = (lua_gettop(L) > 3) ? value_string_from_table(L,4) : NULL;
     guint32 mask = luaL_optint(L, 5, 0x0);
     const gchar* blob = luaL_optstring(L,6,NULL);
@@ -854,7 +854,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     ProtoField f;
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
-    base_display_e base = luaL_optint(L, 3, BASE_NONE);
+    unsigned base = luaL_optint(L, 3, BASE_NONE);
     true_false_string* tfs = (lua_gettop(L) > 3) ? true_false_string_from_table(L,4) : NULL;
     int mask = luaL_optint(L, 5, 0x0);
     const gchar* blob = luaL_optstring(L,6,NULL);
@@ -919,7 +919,7 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
     ProtoField f;
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
-    absolute_time_display_e base = luaL_optint(L,3,ABSOLUTE_TIME_LOCAL);
+    unsigned base = luaL_optint(L,3,ABSOLUTE_TIME_LOCAL);
     const gchar* blob = luaL_optstring(L,4,NULL);
 
     if (!abbr || !abbr[0]) {
@@ -1104,7 +1104,7 @@ PROTOFIELD_OTHER(oid,FT_OID)
 WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     /* Returns a string with info about a protofield (for debugging purposes) */
     ProtoField f = checkProtoField(L,1);
-    gchar* s = ep_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",f->hfid,f->name,f->abbr,ftenum_to_string(f->type),base_to_string(f->base),f->vs,f->mask,f->blob);
+    gchar* s = (gchar *)ep_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",f->hfid,f->name,f->abbr,ftenum_to_string(f->type),base_to_string(f->base),f->vs,f->mask,f->blob);
     lua_pushstring(L,s);
     return 1;
 }
@@ -1199,7 +1199,7 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
         if ( proto_id > 0 ) {
             WSLUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
         } else {
-            Proto proto = g_malloc(sizeof(wslua_proto_t));
+            Proto proto = (wslua_proto_t *)g_malloc(sizeof(wslua_proto_t));
             gchar* loname = g_ascii_strdown(name, -1);
             gchar* hiname = g_ascii_strup(name, -1);
 
@@ -1624,10 +1624,10 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 #define WSLUA_OPTARG_DissectorTable_new_UINAME 2 /* The name of the table in the User Interface (defaults to the name given). */
 #define WSLUA_OPTARG_DissectorTable_new_TYPE 3 /* Either ftypes.UINT{8,16,24,32} or ftypes.STRING (defaults to ftypes.UINT32) */
 #define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* Either base.NONE, base.DEC, base.HEX, base.OCT, base.DEC_HEX or base.HEX_DEC (defaults to base.DEC) */
-    gchar* name = (void*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
-    gchar* ui_name = (void*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
-    enum ftenum type = luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
-    base_display_e base = luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_BASE,BASE_DEC);
+    gchar* name = (gchar*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
+    gchar* ui_name = (gchar*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
+    enum ftenum type = (enum ftenum)luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
+    unsigned base = (unsigned)luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_BASE,BASE_DEC);
 
     if(!(name && ui_name)) return 0;
 
@@ -1640,7 +1640,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
         case FT_UINT24:
         case FT_UINT32:
         {
-            DissectorTable dt = g_malloc(sizeof(struct _wslua_distbl_t));
+            DissectorTable dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
 
             name = g_strdup(name);
             ui_name = g_strdup(ui_name);
@@ -1669,7 +1669,7 @@ WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
     table = find_dissector_table(name);
 
     if (table) {
-        DissectorTable dt = g_malloc(sizeof(struct _wslua_distbl_t));
+        DissectorTable dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
         dt->table = table;
         dt->name = g_strdup(name);
 
