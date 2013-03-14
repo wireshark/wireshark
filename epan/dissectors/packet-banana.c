@@ -36,6 +36,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+void proto_register_banana(void);
+void proto_reg_handoff_banana(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_banana = -1;
 static int hf_banana_list = -1;

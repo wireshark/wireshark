@@ -29,6 +29,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_babel(void);
+void proto_reg_handoff_babel(void);
+
 static int proto_babel = -1;
 
 static gint ett_babel = -1;

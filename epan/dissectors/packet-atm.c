@@ -1585,7 +1585,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint16     vpi, vci, aal3_4_hdr, crc10;
   gint        length;
   tvbuff_t   *next_tvb;
-  const pwatm_private_data_t *pwpd = pinfo->private_data;
+  const pwatm_private_data_t *pwpd = (const pwatm_private_data_t *)pinfo->private_data;
 
   if (NULL == pwpd) {
     if (!nni) {
@@ -1672,7 +1672,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   else
   {
     offset = 0; /* For PWs. Header is decoded by PW dissector.*/
-    pwpd = pinfo->private_data;
+    pwpd = (const pwatm_private_data_t *)pinfo->private_data;
 /*  Not used !
     vpi = pwpd->vpi;
 */

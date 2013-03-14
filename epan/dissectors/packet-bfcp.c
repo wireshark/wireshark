@@ -35,6 +35,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+void proto_register_bfcp(void);
+void proto_reg_handoff_bfcp(void);
+
 /* Initialize protocol and registered fields */
 static int proto_bfcp = -1;
 static gboolean  bfcp_enable_heuristic_dissection = FALSE;
@@ -478,8 +481,6 @@ dissect_bfcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	dissect_bfcp(tvb, pinfo, tree);
 	return TRUE;
 }
-
-void proto_reg_handoff_bfcp(void);
 
 void proto_register_bfcp(void)
 {

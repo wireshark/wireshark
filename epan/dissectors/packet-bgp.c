@@ -66,6 +66,9 @@
 #include <epan/expert.h>
 #include <epan/etypes.h>
 
+void proto_register_bgp(void);
+void proto_reg_handoff_bgp(void);
+
 /* #define MAX_STR_LEN 256 */
 
 /* some handy things to know */

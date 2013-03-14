@@ -48,6 +48,9 @@
  */
 #define BITCOIN_HEADER_LENGTH 4+12+4
 
+void proto_register_bitcoin(void);
+void proto_reg_handoff_bitcoin(void);
+
 static int proto_bitcoin = -1;
 
 static gint hf_bitcoin_magic = -1;

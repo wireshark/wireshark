@@ -34,6 +34,9 @@
 
 #include <epan/llcsaps.h>
 
+void proto_register_bacnet(void);
+void proto_reg_handoff_bacnet(void);
+
 static dissector_handle_t bacapp_handle;
 static dissector_handle_t data_handle;
 /* Defined to allow vendor identifier registration of private transfer dissectors */

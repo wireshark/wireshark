@@ -43,6 +43,9 @@
 
 #include "packet-bfd.h"
 
+void proto_register_bfd(void);
+void proto_reg_handoff_bfd(void);
+
 #define UDP_PORT_BFD_1HOP_CONTROL 3784 /* draft-katz-ward-bfd-v4v6-1hop-00.txt */
 #define UDP_PORT_BFD_MULTIHOP_CONTROL 4784 /* draft-ietf-bfd-multihop-05.txt */
 

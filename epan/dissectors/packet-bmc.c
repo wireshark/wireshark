@@ -34,6 +34,8 @@
 #include "packet-cell_broadcast.h"
 #include "packet-gsm_map.h"
 
+void proto_register_bmc(void);
+
 static int dissect_bmc_cbs_message     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_bmc_cbs41_message   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

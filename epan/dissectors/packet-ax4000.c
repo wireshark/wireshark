@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <ipproto.h>
 
+void proto_register_ax4000(void);
+void proto_reg_handoff_ax4000(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_ax4000 = -1;
 static int hf_ax4000_port = -1;

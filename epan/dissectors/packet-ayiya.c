@@ -32,6 +32,9 @@
 #include <epan/ipproto.h>
 #include <epan/strutil.h>
 
+void proto_register_ayiya(void);
+void proto_reg_handoff_ayiya(void);
+
 static dissector_table_t ip_dissector_table;
 
 static int proto_ayiya = -1;

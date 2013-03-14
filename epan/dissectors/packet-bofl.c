@@ -49,6 +49,9 @@
 #define ETHER_TYPE_BOFL 0x8102
 #define BOFL_MIN_LEN    8
 
+void proto_register_bofl(void);
+void proto_reg_handoff_bofl(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_bofl       = -1;
 static int hf_bofl_pdu      = -1;
