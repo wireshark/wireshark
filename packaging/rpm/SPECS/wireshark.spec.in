@@ -118,6 +118,10 @@ Requires:	wireshark = %{version}-%{release}
 Requires:	xdg-utils
 Requires:	hicolor-icon-theme
 BuildRequires:	desktop-file-utils
+%if 0%{?suse_version}
+# Need this for SuSE's suse_update_desktop_file macro
+BuildRequires:	update-desktop-files
+%endif
 %if %{with_portaudio}
 BuildRequires:	portaudio-devel
 Requires:	portaudio
@@ -177,6 +181,9 @@ rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 make DESTDIR=$RPM_BUILD_ROOT install_desktop_files
 %if 0%{?suse_version}
+# SuSE's packaging conventions
+# (http://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
+# require this:
 %suse_update_desktop_file %{name}
 %else
 # Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
