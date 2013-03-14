@@ -595,9 +595,9 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
 {
 	proto_item *pi;
 	proto_tree *tree;
+	guint crc_len;
 	guint8 tid;
 	guint16 sect_len;
-	guint crc_start;
 	guint32 crc, calculated_crc;
 	const char *label;
 	tvbuff_t *sub_tvb;
@@ -624,7 +624,6 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
 	sect_len = tvb_get_ntohs(tvb, offset);
 	sect_len &= DSMCC_LENGTH_MASK;
 	offset += 2;
-	crc_start = offset;
 
 	proto_tree_add_item(tree, hf_dsmcc_table_id_extension, tvb,
 		offset, 2, ENC_BIG_ENDIAN);
@@ -662,24 +661,25 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
 			break;
 	}
 
+	crc_len = 3 + sect_len - 4;	/* Add the header, remove the crc */
 	if (ssi) {
-		crc = tvb_get_ntohl(tvb, crc_start+sect_len-4);
+		crc = tvb_get_ntohl(tvb, crc_len);
 
 		calculated_crc = crc;
 		label = "Unverified";
 		if (dsmcc_sect_check_crc) {
 			label = "Verified";
-			calculated_crc = crc32_mpeg2_tvb_offset(tvb, crc_start, sect_len-4);
+			calculated_crc = crc32_mpeg2_tvb_offset(tvb, 0, crc_len);
 		}
 
 		if (calculated_crc == crc) {
 			proto_tree_add_uint_format( tree, hf_dsmcc_crc, tvb,
-				crc_start+sect_len-4, 4, crc, "CRC: 0x%08x [%s]", crc, label);
+				crc_len, 4, crc, "CRC: 0x%08x [%s]", crc, label);
 		} else {
 			proto_item *msg_error = NULL;
 
 			msg_error = proto_tree_add_uint_format( tree, hf_dsmcc_crc, tvb,
-								crc_start+sect_len-4, 4, crc,
+								crc_len, 4, crc,
 								"CRC: 0x%08x [Failed Verification (Calculated: 0x%08x)]",
 								crc, calculated_crc );
 			PROTO_ITEM_SET_GENERATED(msg_error);
@@ -689,7 +689,7 @@ dissect_dsmcc_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_in, void *d
 	} else {
 		/* TODO: actually check the checksum */
 		proto_tree_add_item(tree, hf_dsmcc_checksum, tvb,
-			crc_start+sect_len-4, 4, ENC_BIG_ENDIAN);
+			crc_len, 4, ENC_BIG_ENDIAN);
 	}
 
 	return TRUE;
