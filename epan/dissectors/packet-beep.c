@@ -41,6 +41,8 @@
 #include <epan/expert.h>
 
 #define TCP_PORT_BEEP 10288
+
+void proto_register_beep(void);
 void proto_reg_handoff_beep(void);
 
 static guint global_beep_tcp_port = TCP_PORT_BEEP;
@@ -777,7 +779,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * info first.
    */
 
-  beep_frame_data = p_get_proto_data(pinfo->fd, proto_beep);
+  beep_frame_data = (struct beep_proto_data *)p_get_proto_data(pinfo->fd, proto_beep);
 
   if (!beep_frame_data) {
 
@@ -792,10 +794,10 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (!request_val) { /* Create one */
 
-        new_request_key = se_alloc(sizeof(struct beep_request_key));
+        new_request_key = (struct beep_request_key *)se_alloc(sizeof(struct beep_request_key));
         new_request_key->conversation = conversation->index;
 
-        request_val = se_alloc(sizeof(struct beep_request_val));
+        request_val = (struct beep_request_val *)se_alloc(sizeof(struct beep_request_val));
         request_val->processed = 0;
         request_val->size = 0;
 
@@ -881,7 +883,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (beep_frame_data == NULL) {
 
-    beep_frame_data = se_alloc(sizeof(struct beep_proto_data));
+    beep_frame_data = (struct beep_proto_data *)se_alloc(sizeof(struct beep_proto_data));
 
     beep_frame_data->pl_left = 0;
     beep_frame_data->pl_size = 0;
