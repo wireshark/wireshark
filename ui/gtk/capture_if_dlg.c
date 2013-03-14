@@ -633,7 +633,6 @@ static void
 capture_if_refresh_if_list(void)
 {
   GtkWidget      *if_vb, *if_grid, *icon, *if_lb, *eb;
-  GString        *if_tool_str = g_string_new("");
   GtkRequisition  requisition;
   int             row = 0, height = 0, curr_height, curr_width;
   guint           ifs;
@@ -707,7 +706,6 @@ capture_if_refresh_if_list(void)
   for (ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
     data = g_array_index(if_array, if_dlg_data_t, ifs);
-    g_string_assign(if_tool_str, "");
     /* Continue if capture device is hidden */
     if (device.hidden) {
       data.hidden = TRUE;
@@ -742,10 +740,6 @@ capture_if_refresh_if_list(void)
     gtk_misc_set_alignment(GTK_MISC(data.device_lb), 0.0f, 0.5f);
     ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.device_lb, 2, row, 2, 1);
 
-    g_string_append(if_tool_str, "Device: ");
-    g_string_append(if_tool_str, device.name);
-    g_string_append(if_tool_str, "\n");
-
     /* description */
     user_descr = capture_dev_user_descr_find(device.name);
     if (user_descr) {
@@ -759,23 +753,15 @@ capture_if_refresh_if_list(void)
     }
     gtk_misc_set_alignment(GTK_MISC(data.descr_lb), 0.0f, 0.5f);
     ws_gtk_grid_attach_defaults(GTK_GRID(if_grid), data.descr_lb, 4, row, 1, 1);
-    if (device.if_info.vendor_description) {
-      g_string_append(if_tool_str, "Description: ");
-      g_string_append(if_tool_str, device.if_info.vendor_description);
-      g_string_append(if_tool_str, "\n");
-    }
 
     /* IP address */
     /* Only one IP address will be shown, start with the first */
-    g_string_append(if_tool_str, "IP: ");
     data.ip_lb = gtk_label_new("");
     addr_str = set_ip_addr_label (device.if_info.addrs, data.ip_lb, 0);
     if (addr_str) {
       gtk_widget_set_sensitive(data.ip_lb, TRUE);
-      g_string_append(if_tool_str, addr_str);
     } else {
       gtk_widget_set_sensitive(data.ip_lb, FALSE);
-      g_string_append(if_tool_str, "none");
     }
     eb = gtk_event_box_new ();
     gtk_container_add(GTK_CONTAINER(eb), data.ip_lb);
@@ -787,7 +773,6 @@ capture_if_refresh_if_list(void)
       g_signal_connect(eb, "leave-notify-event", G_CALLBACK(ip_label_leave_cb), NULL);
       g_signal_connect(eb, "button-press-event", G_CALLBACK(ip_label_press_cb), device.if_info.addrs);
     }
-    g_string_append(if_tool_str, "\n");
 
     /* packets */
     data.curr_lb = gtk_label_new("-");
@@ -845,7 +830,6 @@ capture_if_refresh_if_list(void)
   else
     gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
 
-  g_string_free(if_tool_str, TRUE);
   gtk_widget_show_all(cap_if_w);
 
   /* update the interface list every 1000ms */
