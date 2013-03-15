@@ -102,6 +102,8 @@ EXTRA_DIST = \
 	ftsanity.py					\
 	fuzz-test.sh					\
 	html2text.py					\
+	asn2deb						\
+	idl2deb						\
 	idl2wrs						\
 	indexcap.py					\
 	lex.py						\
