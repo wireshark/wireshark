@@ -133,17 +133,11 @@ else
 	fi
 fi
 
-AC_PATH_PROG(PYTHON, python)
-AC_PATH_PROG(DESKTOP_FILE_INSTALL, desktop-file-install)
-
 AC_SUBST(PERL)
 AC_SUBST(LEX)
 AC_SUBST(POD2MAN)
 AC_SUBST(POD2HTML)
-AC_SUBST(PYTHON)
-AC_SUBST(XSLTPROC)
 AC_SUBST(XMLLINT)
-AC_SUBST(DESKTOP_FILE_INSTALL)
 
 #
 # Set "ac_supports_gcc_flags" if the compiler is known to support GCC-style
@@ -299,43 +293,50 @@ AC_ARG_WITH([gtk3],
 # FIXME: currently the path argument to with-libsmi is being ignored
 AX_LIBSMI
 
-# Check for xsltproc
-AC_PATH_PROG(XSLTPROC, xsltproc)
-AC_CHECK_PROG(HAVE_XSLTPROC, xsltproc, "yes", "no")
-AM_CONDITIONAL(HAVE_XSLTPROC, test x$HAVE_XSLTPROC = xyes)
+#
+# Program paths
+#
 
-# Check for xmllint
-AC_PATH_PROG(XMLLINT, xmllint)
-AC_CHECK_PROG(HAVE_XMLLINT, xmllint, "yes", "no")
-AM_CONDITIONAL(HAVE_XMLLINT, test x$HAVE_XMLLINT = xyes)
+# Check for a2x (convert asciidoc to another format)
+AC_PATH_PROG(A2X, a2x)
+AC_CHECK_PROG(HAVE_A2X, a2x, "yes", "no")
+AM_CONDITIONAL(HAVE_A2X, test x$HAVE_A2X = xyes)
+
+AC_PATH_PROG(DESKTOP_FILE_INSTALL, desktop-file-install)
+
+# Want to control a tape drive? Use mt. Want to convert HTML to text?
+# Uhhhhh... elinks? lynx? w3m? pandoc? html2text?
+AC_PATH_PROG(ELINKS, elinks)
+AC_CHECK_PROG(HAVE_ELINKS, elinks, "yes", "no")
+AM_CONDITIONAL(HAVE_ELINKS, test x$HAVE_ELINKS = xyes)
 
 # Check for fop (translate .fo to e.g. pdf)
 AC_PATH_PROG(FOP, fop)
 AC_CHECK_PROG(HAVE_FOP, fop, "yes", "no")
 AM_CONDITIONAL(HAVE_FOP, test x$HAVE_FOP = xyes)
 
-#
-# Look for something to convert HTML to text (for docbook/)
-#
-AC_PATH_PROG(ELINKS, elinks)
-AC_CHECK_PROG(HAVE_ELINKS, elinks, "yes", "no")
-AM_CONDITIONAL(HAVE_ELINKS, test x$HAVE_ELINKS = xyes)
-
-## links: Fails as used in docbook/Makefile.am
-## (Rather than fixing things we'll just disable the use of links).
-##AC_PATH_PROG(LINKS, links)
-##AC_CHECK_PROG(HAVE_LINKS, links, "yes", "no")
-##AM_CONDITIONAL(HAVE_LINKS, test x$HAVE_LINKS = xyes)
-
+# Check for lynx (html -> text)
 AC_PATH_PROG(LYNX, lynx)
 AC_CHECK_PROG(HAVE_LYNX, lynx, "yes", "no")
 AM_CONDITIONAL(HAVE_LYNX, test x$HAVE_LYNX = xyes)
 
+AC_PATH_PROG(PYTHON, python)
 
-# Check for hhc (html help compiler)
-AC_PATH_PROG(HHC, hhc.exe)
-AC_CHECK_PROG(HAVE_HHC, hhc.exe, "yes", "no")
-AM_CONDITIONAL(HAVE_HHC, test x$HAVE_HHC = xyes)
+# Check for w3m (html -> text)
+AC_PATH_PROG(W3M, w3m)
+AC_CHECK_PROG(HAVE_W3M, w3m, "yes", "no")
+AM_CONDITIONAL(HAVE_W3M, test x$HAVE_W3M = xyes)
+
+# Check for xmllint
+AC_PATH_PROG(XMLLINT, xmllint)
+AC_CHECK_PROG(HAVE_XMLLINT, xmllint, "yes", "no")
+AM_CONDITIONAL(HAVE_XMLLINT, test x$HAVE_XMLLINT = xyes)
+
+# Check for xsltproc
+AC_PATH_PROG(XSLTPROC, xsltproc)
+AC_CHECK_PROG(HAVE_XSLTPROC, xsltproc, "yes", "no")
+AM_CONDITIONAL(HAVE_XSLTPROC, test x$HAVE_XSLTPROC = xyes)
+
 
 # Check for packaging utilities
 # For now, we check to see if the various packaging utilites are in our

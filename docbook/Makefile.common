@@ -207,9 +207,9 @@ WSDG_SOURCE =	\
 	$(WSDG_GRAPHICS)
 
 RELEASE_NOTES_SOURCE = \
-	release-notes.xml	\
+	release-notes.asciidoc	\
 	Makefile.common		\
-	svn_version.xml
+	asciidoc.conf
 
 CLEANFILES =	\
 	*.chm			\
@@ -249,4 +249,3 @@ WSLUA_MODULES = \
 	../epan/wslua/wslua_tree.c \
 	../epan/wslua/wslua_tvb.c \
 	../epan/wslua/wslua_util.c
-
