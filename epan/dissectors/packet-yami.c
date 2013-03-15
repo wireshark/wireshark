@@ -33,9 +33,12 @@
 #include <epan/strutil.h>
 #include <epan/dissectors/packet-tcp.h>
 
+void proto_reg_handoff_yami(void);
+void proto_register_yami(void);
+
 static gboolean yami_desegment = TRUE;
-static guint yami_config_tcp_port = 3000;
-static guint yami_config_udp_port = 5000;
+static guint global_yami_config_tcp_port = 0;
+static guint global_yami_config_udp_port = 0;
 
 static int hf_yami_message_id = -1;
 static int hf_yami_frame_number = -1;
@@ -64,8 +67,6 @@ static int ett_yami_msg_data = -1;
 static int ett_yami_param = -1;
 
 static int proto_yami = -1;
-
-void proto_reg_handoff_yami(void);
 
 #define YAMI_TYPE_BOOLEAN 1
 #define YAMI_TYPE_INTEGER 2
@@ -579,8 +580,8 @@ proto_register_yami(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	yami_module = prefs_register_protocol(proto_yami, proto_reg_handoff_yami);
-	prefs_register_uint_preference(yami_module, "tcp.port", "YAMI TCP Port", "The TCP port on which YAMI messages will be read", 10, &yami_config_tcp_port);
-	prefs_register_uint_preference(yami_module, "udp.port", "YAMI UDP Port", "The UDP port on which YAMI messages will be read", 10, &yami_config_udp_port);
+	prefs_register_uint_preference(yami_module, "tcp.port", "YAMI TCP Port", "The TCP port on which YAMI messages will be read(3000)", 10, &global_yami_config_tcp_port);
+	prefs_register_uint_preference(yami_module, "udp.port", "YAMI UDP Port", "The UDP port on which YAMI messages will be read(5000)", 10, &global_yami_config_udp_port);
 	prefs_register_bool_preference(yami_module, "desegment",
 			"Reassemble YAMI messages spanning multiple TCP segments",
 			"Whether the YAMI dissector should reassemble messages spanning multiple TCP segments."
@@ -591,17 +592,22 @@ proto_register_yami(void)
 void
 proto_reg_handoff_yami(void)
 {
+	static int yami_prefs_initialized = FALSE;
 	static dissector_handle_t yami_handle = NULL;
 	static guint yami_tcp_port, yami_udp_port;
 
-	if (yami_handle) {
+	if(yami_prefs_initialized == FALSE){
+		yami_handle = new_create_dissector_handle(dissect_yami, proto_yami);
+		yami_prefs_initialized = TRUE;
+		yami_tcp_port = global_yami_config_tcp_port;
+		yami_udp_port = global_yami_config_udp_port;
+	}else{
 		dissector_delete_uint("tcp.port", yami_tcp_port, yami_handle);
 		dissector_delete_uint("udp.port", yami_udp_port, yami_handle);
-	} else
-		yami_handle = new_create_dissector_handle(dissect_yami, proto_yami);
+	}
 
-	yami_tcp_port = yami_config_tcp_port;
-	yami_udp_port = yami_config_udp_port;
+	yami_tcp_port = global_yami_config_tcp_port;
+	yami_udp_port = global_yami_config_udp_port;
 
 	dissector_add_uint("tcp.port", yami_tcp_port, yami_handle);
 	dissector_add_uint("udp.port", yami_udp_port, yami_handle);
