@@ -109,7 +109,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 	oid_len--;
 
 	do {
-		oid_info_t* n = emem_tree_lookup32(c->children,subids[i]);
+		oid_info_t* n = (oid_info_t *)emem_tree_lookup32((emem_tree_t *)c->children,subids[i]);
 
 		if(n) {
 			if (i == oid_len) {
@@ -136,7 +136,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 				return n;
 			}
 		} else {
-			n = g_malloc(sizeof(oid_info_t));
+			n = (oid_info_t *)g_malloc(sizeof(oid_info_t));
 			n->subid = subids[i];
 			n->kind = kind;
 			n->children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_children");
@@ -145,7 +145,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 			n->parent = c;
 			n->bits = NULL;
 
-			emem_tree_insert32(c->children,n->subid,n);
+			emem_tree_insert32((emem_tree_t *)c->children,n->subid,n);
 
 			if (i == oid_len) {
 				n->name = g_strdup(name);
@@ -832,7 +832,7 @@ void oids_cleanup(void) {
 }
 
 const char* oid_subid2string(guint32* subids, guint len) {
-	char* s = ep_alloc0(((len)*11)+1);
+	char* s = (char *)ep_alloc0(((len)*11)+1);
 	char* w = s;
 
 	if(!subids)
@@ -891,7 +891,7 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 		return 0;
 	}
 
-	*subids_p = subids = ep_alloc0(sizeof(guint32)*n);
+	*subids_p = subids = (guint32 *)ep_alloc0(sizeof(guint32)*n);
 	subids_overflow = subids + n;
 	do switch(*r) {
 		case '.':
@@ -935,7 +935,7 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 
 	for (i=0; i<oid_len; i++) { if (! (oid_bytes[i] & 0x80 )) n++; }
 
-	*subids_p = subids = ep_alloc(sizeof(guint32)*n);
+	*subids_p = subids = (guint32 *)ep_alloc(sizeof(guint32)*n);
 	subid_overflow = subids+n;
 
 	/* If n is 1 then we found no bytes in the OID with first bit cleared,
@@ -991,7 +991,7 @@ oid_info_t* oid_get(guint len, guint32* subids, guint* matched, guint* left) {
 	}
 
 	for( i=0; i < len; i++) {
-		oid_info_t* next_oid = emem_tree_lookup32(curr_oid->children,subids[i]);
+		oid_info_t* next_oid = (oid_info_t *)emem_tree_lookup32((emem_tree_t *)curr_oid->children,subids[i]);
 		if (next_oid) {
 			curr_oid = next_oid;
 		} else {
@@ -1053,7 +1053,7 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 			subid = subids[i];
 	} while ( i++ < subids_len );
 
-	*bytes_p = b = ep_alloc(bytelen);
+	*bytes_p = b = (guint8 *)ep_alloc(bytelen);
 
 	subid = (subids[0] * 40) + subids[1];
 	i = 2;
@@ -1143,22 +1143,22 @@ const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
 }
 
 extern void oid_both(guint oid_len, guint32 *subids, char** resolved_p, char** numeric_p) {
-	*resolved_p = (void*)oid_resolved(oid_len,subids);
-	*numeric_p = (void*)oid_subid2string(subids,oid_len);
+	*resolved_p = (char *)oid_resolved(oid_len,subids);
+	*numeric_p = (char *)oid_subid2string(subids,oid_len);
 }
 
 extern void oid_both_from_encoded(const guint8 *oid, gint oid_len, char** resolved_p, char** numeric_p) {
 	guint32* subids;
 	guint subids_len = oid_encoded2subid(oid, oid_len, &subids);
-	*resolved_p = (void*)oid_resolved(subids_len,subids);
-	*numeric_p = (void*)oid_subid2string(subids,subids_len);
+	*resolved_p = (char *)oid_resolved(subids_len,subids);
+	*numeric_p = (char *)oid_subid2string(subids,subids_len);
 }
 
 extern void oid_both_from_string(const gchar *oid_str, char** resolved_p, char** numeric_p) {
 	guint32* subids;
 	guint subids_len = oid_string2subid(oid_str, &subids);
-	*resolved_p = (void*)oid_resolved(subids_len,subids);
-	*numeric_p = (void*)oid_subid2string(subids,subids_len);
+	*resolved_p = (char *)oid_resolved(subids_len,subids);
+	*numeric_p = (char *)oid_subid2string(subids,subids_len);
 }
 
 /**
