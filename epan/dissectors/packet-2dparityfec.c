@@ -67,6 +67,7 @@
 #include <epan/prefs.h>
 
 /* forward reference */
+void proto_register_2dparityfec(void);
 void proto_reg_handoff_2dparityfec(void);
 
 static gboolean dissect_fec = FALSE;

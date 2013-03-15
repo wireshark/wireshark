@@ -49,6 +49,9 @@
 
 #define BPQ_HEADER_SIZE	2 /* length of bpq_len */
 
+void proto_register_bpq(void);
+void proto_reg_handoff_bpq(void);
+
 static dissector_handle_t ax25_handle;
 
 static int proto_bpq            = -1;

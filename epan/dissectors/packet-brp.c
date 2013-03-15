@@ -36,6 +36,7 @@
 #include <epan/prefs.h>
 
 /* Forward declaration we need below */
+void proto_register_brp(void);
 void proto_reg_handoff_brp(void);
 
 #define PROTO_TAG_BRP   "BRP"

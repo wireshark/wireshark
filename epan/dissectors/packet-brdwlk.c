@@ -57,6 +57,9 @@
 #define FCM_DELIM_NOEOF         0xF0
 #define FCM_DELIM_EOFJUMBO      0xF1
 
+void proto_register_brdwlk(void);
+void proto_reg_handoff_brdwlk(void);
+
 static const value_string brdwlk_sof_vals[] = {
     {FCM_DELIM_SOFI1, "SOFi1"},
     {FCM_DELIM_SOFI2, "SOFi2"},

@@ -44,6 +44,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 
+void proto_register_bssap(void);
 void proto_reg_handoff_bssap(void);
 
 #define BSSAP 0
@@ -643,7 +644,7 @@ unpack_digits(tvbuff_t *tvb, int offset, dgt_set_t *dgt, gboolean skip_first)
     length = tvb_length(tvb);
     if (length < offset)
         return "";
-    digit_str = ep_alloc((length - offset)*2+1);
+    digit_str = (char *)ep_alloc((length - offset)*2+1);
 
     while (offset < length) {
 
