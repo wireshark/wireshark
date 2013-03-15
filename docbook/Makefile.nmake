@@ -22,6 +22,10 @@ RELEASE_NOTES_SOURCE = $(RELEASE_NOTES_SOURCE) Makefile.nmake
 A2X_HTML_OPTS="--stylesheet=ws.css"
 A2X_TEXT_OPTS=
 
+!ifdef LYNX
+A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
+!endif
+
 # Automatically generate .pdf files from .fo files
 .fo.pdf:
 	$(FOP) $< $@
@@ -211,14 +215,20 @@ release_notes_x: release-notes.html release-notes.txt release-notes-a4.pdf relea
 # create html single page file
 release-notes.html: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - HTML ---
-	$(A2X) --format=xhtml $(A2X_HTML_OPTS) release-notes.asciidoc
+	$(SH) <<
+	PATH=/usr/bin
+	$(A2X) -v --format=xhtml $(A2X_HTML_OPTS) release-notes.asciidoc
+<<
 
 # create txt single page file (through HTML)
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - TXT ---
-	$(A2X) --format=text $(A2X_TEXT_OPTS) \
+	$(SH) <<
+	PATH=/usr/bin
+	$(A2X) -v --format=text $(A2X_TEXT_OPTS) \
 		--xsltproc-opts "--stringparam generate.toc \"article nop\"" \
 		release-notes.asciidoc
+<<
 	mv release-notes.text $@
 
 news: release-notes.txt
@@ -227,18 +237,24 @@ news: release-notes.txt
 # create pdf file, portrait pages on US letter paper
 release-notes-us.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 	@ echo --- RELEASE NOTES - PDF US LETTER PAPER ---
+	$(SH) <<
+	PATH=/usr/bin
 	$(A2X) --format=pdf $(A2X_HTML_OPTS) --fop \
 		--xsltproc-opts "--stringparam paper.type letter --nonet" \
 		--xsl-file=custom_layer_pdf.xsl \
 		release-notes.asciidoc
+<<
 	mv release-notes.pdf $@
 
 # create pdf file, portrait pages on A4 paper
 release-notes-a4.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 	@ echo --- RELEASE NOTES - PDF A4 PAPER ---
+	$(SH) <<
+	PATH=/usr/bin
 	$(A2X) --format=pdf $(A2X_HTML_OPTS) --fop \
 		--xsltproc-opts "--stringparam paper.type A4 --nonet" \
 		--xsl-file=custom_layer_pdf.xsl \
 		release-notes.asciidoc
+<<
 	mv release-notes.pdf $@
 

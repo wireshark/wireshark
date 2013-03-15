@@ -1129,8 +1129,11 @@ XSLTPROC="xsltproc"
 # the XML validator (part of cygwin's libxml2 package)
 XMLLINT="xmllint"
 
-# Asciidoc converter (part of cygwin's asciidoc package)
-A2X="a2x"
+# Asciidoc converter (part of cygwin's asciidoc package). In order to build
+# the release notes you must have the Cygwin asciidoc and lynx packages
+# installed.
+A2X=a2x
+LYNX=lynx
 
 ##############################################################################
 #

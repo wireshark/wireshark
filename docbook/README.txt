@@ -11,10 +11,8 @@ This directory contains the source files needed to build the:
 To build everything, just do 'make' (for Win32: 'nmake -f Makefile.nmake')
 but see the requirements below.
 
-
-The guides are written in Docbook/XML (formerly Docbook/SGML). This format is
-now used by many other documentation projects, e.g. "the Linux Documentation
-Project."
+The guides are written in Docbook/XML (formerly Docbook/SGML). The release
+notes are written in AsciiDoc (http://asciidoc.org/).
 
 To get HTML, PDF or other output formats, conversions are done using XSL
 stylesheets, which provides a flexible way for these conversions.
@@ -23,7 +21,7 @@ By default the Makefile generates HTML in single page and multiple (chunked)
 formats and two PDF's.
 
 Win32 only: The optional output format CHM has to be enabled by setting
-HHC_EXE in ..\config.nmake.
+HHC_EXE in ..\config.nmake. Microsoft has dropped support for HTML Help
 
 
 Settings:
@@ -102,16 +100,21 @@ http://www.oracle.com/technetwork/java/javasebusiness/downloads/java-archive-dow
 then extract the archive, then copy JimiProClasses.zip to FOP's lib dir and
 rename it to jimi-1.0.jar.
 
+AsciiDoc 
+--------
+Text documentation format and conversion suite: http://asciidoc.org/.
+AsciiDoc can use either w3m (default) or Lynx for plain text output.
+We use Lynx for the official release notes.
+
+Lynx
+----
+Text based web browser which can to convert HTML to plain text.
+(Alternative [*nix]: elinks)
+
 Win32 only: HTML help compiler (for .chm generation only)
 ---------------------------------------------------------
 HTML Help Compiler (hhc.exe) from Microsoft:
 http://www.microsoft.com/en-us/download/details.aspx?id=21138
-
-Lynx
-----
-Text based web browser used to convert release_notes.html into plain text
-format.
-(Alternative [*nix]: elinks)
 
 Packages for Win32
 ------------------
