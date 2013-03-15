@@ -316,7 +316,7 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
     char         *pname_ret;
     size_t        idx = 0;
 
-    nbname_buf = ep_alloc(NBNAME_BUF_LEN);
+    nbname_buf = (char *)ep_alloc(NBNAME_BUF_LEN);
     nbname = nbname_buf;
     /* XXX Fix data len */
     name_len = get_dns_name(tvb, offset, 0, nbns_data_offset, &name);
@@ -404,7 +404,7 @@ get_nbns_name_type_class(tvbuff_t *tvb, int offset, int nbns_data_offset,
 {
     int name_len;
     int type;
-    int class;
+    int rr_class;
 
     name_len = get_nbns_name(tvb, offset, nbns_data_offset, name_ret,
                              *name_len_ret, name_type_ret);
@@ -413,10 +413,10 @@ get_nbns_name_type_class(tvbuff_t *tvb, int offset, int nbns_data_offset,
     type = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
-    class = tvb_get_ntohs(tvb, offset);
+    rr_class = tvb_get_ntohs(tvb, offset);
 
     *type_ret = type;
-    *class_ret = class;
+    *class_ret = rr_class;
     *name_len_ret = name_len;
 
     return name_len + 4;
@@ -446,19 +446,19 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
     int         name_len;
     int         name_type;
     int         type;
-    int         class;
+    int         dns_class;
     const char *type_name;
     int         data_offset;
     int         data_start;
     proto_tree *q_tree;
     proto_item *tq;
 
-    name = ep_alloc(MAX_NAME_LEN);
+    name = (char *)ep_alloc(MAX_NAME_LEN);
     data_start = data_offset = offset;
 
     name_len = MAX_NAME_LEN;
     len = get_nbns_name_type_class(tvb, offset, nbns_data_offset, name,
-                                   &name_len, &name_type, &type, &class);
+                                   &name_len, &name_type, &type, &dns_class);
     data_offset += len;
 
     type_name = nbns_type_name(type);
@@ -469,7 +469,7 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
     if (nbns_tree != NULL) {
         tq = proto_tree_add_text(nbns_tree, tvb, offset, len,
                                  "%s: type %s, class %s",  name, type_name,
-                                 dns_class_name(class));
+                                 dns_class_name(dns_class));
         q_tree = proto_item_add_subtree(tq, ett_nbns_qd);
 
         add_name_and_type(q_tree, tvb, offset, name_len, "Name", name,
@@ -480,7 +480,7 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
         offset += 2;
 
         proto_tree_add_text(q_tree, tvb, offset, 2, "Class: %s",
-                            dns_class_name(class));
+                            dns_class_name(dns_class));
         /*offset += 2;*/
     }
 
@@ -510,7 +510,7 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
     if (!nbns_tree)
         return;
 
-    buf = ep_alloc(MAX_BUF_SIZE);
+    buf = (char *)ep_alloc(MAX_BUF_SIZE);
     opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
     g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str_const(opcode, opcode_vals, "Unknown operation"));
     if (flags & F_RESPONSE && !is_wack) {
@@ -610,7 +610,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
     int         name_len;
     int         name_type;
     int         type;
-    int         class;
+    int         dns_class;
     const char *class_name;
     const char *type_name;
     int         cur_offset;
@@ -625,17 +625,17 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
     cur_offset = offset;
 
-    name     = ep_alloc(MAX_NAME_LEN);
-    name_str = ep_alloc(MAX_NAME_LEN);
-    nbname   = ep_alloc(16+4+1); /* 4 for [<last char>] */
+    name     = (char *)ep_alloc(MAX_NAME_LEN);
+    name_str = (char *)ep_alloc(MAX_NAME_LEN);
+    nbname   = (char *)ep_alloc(16+4+1); /* 4 for [<last char>] */
 
     name_len = MAX_NAME_LEN;
     len      = get_nbns_name_type_class(tvb, offset, nbns_data_offset, name,
-                                        &name_len, &name_type, &type, &class);
+                                        &name_len, &name_type, &type, &dns_class);
     cur_offset  += len;
 
     type_name  = nbns_type_name(type);
-    class_name = dns_class_name(class);
+    class_name = dns_class_name(dns_class);
 
     ttl = tvb_get_ntohl(tvb, cur_offset);
     cur_offset  += 4;
@@ -663,7 +663,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
             g_strlcat(name, netbios_name_type_descr(name_type), MAX_NAME_LEN);
             g_strlcat(name, ")", MAX_NAME_LEN);
             rr_tree = add_rr_to_tree(trr, ett_nbns_rr, tvb, offset, name,
-                                 name_len, type_name, dns_class_name(class), ttl, data_len);
+                                 name_len, type_name, dns_class_name(dns_class), ttl, data_len);
         }
         while (data_len > 0) {
             if (opcode == OPCODE_WACK) {
@@ -714,7 +714,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
                                       "%s: type %s, class %s",
                                       name, type_name, class_name);
             rr_tree = add_rr_to_tree(trr, ett_nbns_rr, tvb, offset, name,
-                                     name_len, type_name, dns_class_name(class), ttl, data_len);
+                                     name_len, type_name, dns_class_name(dns_class), ttl, data_len);
         }
 
         if (data_len < 1) {
@@ -1001,7 +1001,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
                                       "%s: type %s, class %s",
                                       name, type_name, class_name);
             rr_tree = add_rr_to_tree(trr, ett_nbns_rr, tvb, offset, name,
-                                     name_len, type_name, dns_class_name(class), ttl, data_len);
+                                     name_len, type_name, dns_class_name(dns_class), ttl, data_len);
             proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
         }
         cur_offset += data_len;
@@ -1234,7 +1234,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int name_type;
     int len;
 
-    name = ep_alloc(MAX_NAME_LEN);
+    name = (char *)ep_alloc(MAX_NAME_LEN);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBDS");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1441,7 +1441,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
     const char   *saved_proto;
     void	 *pd_save;
 
-    name = ep_alloc(MAX_NAME_LEN);
+    name = (char *)ep_alloc(MAX_NAME_LEN);
 
     /* Desegmentation */
     length_remaining = tvb_length_remaining(tvb, offset);
@@ -1641,7 +1641,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    struct tcpinfo *tcpinfo = pinfo->private_data;
+    struct tcpinfo *tcpinfo = (struct tcpinfo *)pinfo->private_data;
     int             offset  = 0;
     int             max_data;
     guint8	    msg_type;

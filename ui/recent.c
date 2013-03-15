@@ -118,7 +118,7 @@ free_col_width_info(recent_settings_t *rs)
   col_width_data *cfmt;
 
   while (rs->col_width_list != NULL) {
-    cfmt = rs->col_width_list->data;
+    cfmt = (col_width_data *)rs->col_width_list->data;
     g_free(cfmt->cfield);
     g_free(cfmt);
     rs->col_width_list = g_list_remove_link(rs->col_width_list, rs->col_width_list);
@@ -131,12 +131,13 @@ free_col_width_info(recent_settings_t *rs)
  *
  * @param key unused
  * @param value the geometry values
- * @param rf recent file handle (FILE)
+ * @param rfh recent file handle (FILE)
  */
 static void
-write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
+write_recent_geom(gpointer key _U_, gpointer value, gpointer rfh)
 {
-    window_geometry_t *geom = value;
+    window_geometry_t *geom = (window_geometry_t *)value;
+    FILE *rf = (FILE *)rfh;
 
     fprintf(rf, "\n# Geometry and maximized state of %s window.\n", geom->key);
     fprintf(rf, "# Decimal integers.\n");
@@ -169,7 +170,7 @@ window_geom_save(const gchar *name, window_geometry_t *geom)
         window_geom_hash = g_hash_table_new(g_str_hash, g_str_equal);
     }
     /* if we have an old one, remove and free it first */
-    work = g_hash_table_lookup(window_geom_hash, name);
+    work = (window_geometry_t *)g_hash_table_lookup(window_geom_hash, name);
     if(work) {
         g_hash_table_remove(window_geom_hash, name);
         g_free(work->key);
@@ -177,7 +178,7 @@ window_geom_save(const gchar *name, window_geometry_t *geom)
     }
 
     /* g_malloc and insert the new one */
-    work = g_malloc(sizeof(*geom));
+    work = (window_geometry_t *)g_malloc(sizeof(window_geometry_t));
     *work = *geom;
     key = g_strdup(name);
     work->key = key;
@@ -196,7 +197,7 @@ window_geom_load(const gchar       *name,
         window_geom_hash = g_hash_table_new(g_str_hash, g_str_equal);
     }
 
-    p = g_hash_table_lookup(window_geom_hash, name);
+    p = (window_geometry_t *)g_hash_table_lookup(window_geom_hash, name);
     if(p) {
         *geom = *p;
         return TRUE;
@@ -731,13 +732,13 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
     }
   } else if (strcmp(key, RECENT_GUI_TIME_FORMAT) == 0) {
     recent.gui_time_format =
-	find_index_from_string_array(value, ts_type_text, TS_RELATIVE);
+	(ts_type)find_index_from_string_array(value, ts_type_text, TS_RELATIVE);
   } else if (strcmp(key, RECENT_GUI_TIME_PRECISION) == 0) {
     recent.gui_time_precision =
 	find_index_from_string_array(value, ts_precision_text, TS_PREC_AUTO);
   } else if (strcmp(key, RECENT_GUI_SECONDS_FORMAT) == 0) {
     recent.gui_seconds_format =
-	find_index_from_string_array(value, ts_seconds_text, TS_SECONDS_DEFAULT);
+	(ts_seconds_type)find_index_from_string_array(value, ts_seconds_text, TS_SECONDS_DEFAULT);
   } else if (strcmp(key, RECENT_GUI_ZOOM_LEVEL) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
@@ -786,15 +787,15 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
       /* Make sure the format isn't empty.  */
-      if (strcmp(col_l_elt->data, "") == 0) {
+      if (strcmp((const char *)col_l_elt->data, "") == 0) {
       	/* It is.  */
         prefs_clear_string_list(col_l);
         return PREFS_SET_SYNTAX_ERR;
       }
 
       /* Check the format.  */
-      if (strncmp(col_l_elt->data, cust_format, cust_format_len) != 0) {
-        if (get_column_format_from_str(col_l_elt->data) == -1) {
+      if (strncmp((const char *)col_l_elt->data, cust_format, cust_format_len) != 0) {
+        if (get_column_format_from_str((const gchar *)col_l_elt->data) == -1) {
           /* It's not a valid column format.  */
           prefs_clear_string_list(col_l);
           return PREFS_SET_SYNTAX_ERR;
@@ -811,7 +812,7 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
     recent.col_width_list = NULL;
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
-      gchar *fmt = g_strdup(col_l_elt->data);
+      gchar *fmt = g_strdup((const gchar *)col_l_elt->data);
       cfmt = (col_width_data *) g_malloc(sizeof(col_width_data));
       if (strncmp(fmt, cust_format, cust_format_len) != 0) {
 	cfmt->cfmt   = get_column_format_from_str(fmt);
@@ -828,7 +829,7 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
       }
 
       col_l_elt      = col_l_elt->next;
-      cfmt->width    = (gint)strtol(col_l_elt->data, &p, 0);
+      cfmt->width    = (gint)strtol((const char *)col_l_elt->data, &p, 0);
       if (p == col_l_elt->data || (*p != '\0' && *p != ':')) {
 	g_free(cfmt->cfield);
 	g_free(cfmt);
