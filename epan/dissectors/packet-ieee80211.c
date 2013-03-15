@@ -143,12 +143,6 @@ static struct _wlan_stats wlan_stats;
  * UAT for WEP decoder
  *-------------------------------------
  */
-/* UAT entry structure. */
-typedef struct {
-    guint8    key;
-    gchar    *string;
-} uat_wep_key_record_t;
-
 static uat_wep_key_record_t *uat_wep_key_records = NULL;
 static uat_t                *wep_uat             = NULL;
 static guint                 num_wepkeys_uat     = 0;

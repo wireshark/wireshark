@@ -40,6 +40,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
+#include <epan/uat-int.h>
+#include <epan/dissectors/packet-ieee80211.h>
 #include <epan/crypt/wep-wpadefs.h>
 #include <epan/crypt/airpdcap_ws.h>
 #include <epan/strutil.h>
@@ -150,40 +152,56 @@ get_wep_key(pref_t *pref, gpointer ud)
     gchar *key_string = NULL;
     guint8 key_type = AIRPDCAP_KEY_TYPE_WEP;
     keys_cb_data_t* user_data;
-
+    uat_t *uat;
+    guint i;
+    const char* err = NULL;
+    uat_wep_key_record_t* wep_keys;
     decryption_key_t* new_key;
 
     /* Retrieve user data info */
     user_data = (keys_cb_data_t*)ud;
 
-    if (g_ascii_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
+    if (g_ascii_strcasecmp(pref->name, "wep_key_table") == 0 && pref->type == PREF_UAT)
     {
-        /* strip out key type */
-        if (g_ascii_strncasecmp(*pref->varp.string, STRING_KEY_TYPE_WEP ":", 4) == 0) {
-            key_string = (gchar*)(*pref->varp.string)+4;
-        }
-        else if (g_ascii_strncasecmp(*pref->varp.string, STRING_KEY_TYPE_WPA_PWD ":", 8) == 0) {
-            key_string = (gchar*)(*pref->varp.string)+8;
-            key_type = AIRPDCAP_KEY_TYPE_WPA_PWD;
-        }
-        else if (g_ascii_strncasecmp(*pref->varp.string, STRING_KEY_TYPE_WPA_PSK ":", 8) == 0) {
-            key_string = (gchar*)(*pref->varp.string)+8;
-            key_type = AIRPDCAP_KEY_TYPE_WPA_PSK;
-        }
-        else {
-            key_type = AIRPDCAP_KEY_TYPE_WEP;
-            key_string = (gchar*)*pref->varp.string;
-        }
-
-        /* Here we have the string describing the key... */
-        new_key = parse_key_string(key_string, key_type);
-
-        if (new_key != NULL)
+        uat = (uat_t *)pref->varp.uat;
+        /* This is just a sanity check.  UAT should be loaded */
+        if (!uat->loaded)
         {
-            /* Key is added only if not null ... */
-            user_data->list = g_list_append(user_data->list,new_key);
-            user_data->number_of_keys++;
-            user_data->current_index++;
+            uat_load(uat, &err);
+            if (err != NULL)
+                return 1;
+        }
+
+        for (i = 0, wep_keys = (uat_wep_key_record_t*)*uat->user_ptr; i < *uat->nrows_p; i++, wep_keys++)
+        {
+            /* strip out key type if present */
+            if (g_ascii_strncasecmp(wep_keys->string, STRING_KEY_TYPE_WEP ":", 4) == 0) {
+                key_type = AIRPDCAP_KEY_TYPE_WEP;
+                key_string = (gchar*)wep_keys->string+4;
+            }
+            else if (g_ascii_strncasecmp(wep_keys->string, STRING_KEY_TYPE_WPA_PWD ":", 8) == 0) {
+                key_string = (gchar*)wep_keys->string+8;
+                key_type = AIRPDCAP_KEY_TYPE_WPA_PWD;
+            }
+            else if (g_ascii_strncasecmp(wep_keys->string, STRING_KEY_TYPE_WPA_PSK ":", 8) == 0) {
+                key_string = (gchar*)wep_keys->string+8;
+                key_type = AIRPDCAP_KEY_TYPE_WPA_PSK;
+            }
+            else {
+                key_type = wep_keys->key;
+                key_string = (gchar*)wep_keys->string;
+            }
+
+            /* Here we have the string describing the key... */
+            new_key = parse_key_string(key_string, key_type);
+
+            if (new_key != NULL)
+            {
+                /* Key is added only if not null ... */
+                user_data->list = g_list_append(user_data->list,new_key);
+                user_data->number_of_keys++;
+                user_data->current_index++;
+            }
         }
     }
     return 0;
@@ -228,48 +246,39 @@ wep_key_is_valid(char* key)
 static guint
 set_wep_key(pref_t *pref, gpointer ud _U_)
 {
-    gchar           *my_string      = NULL;
     keys_cb_data_t*  user_data;
-    gint             wep_key_number = 0;
+    uat_t *uat;
+    gint i;
+    char* err = NULL;
+    uat_wep_key_record_t uat_key;
 
     decryption_key_t* new_key;
 
     /* Retrieve user data info */
     user_data = (keys_cb_data_t*)ud;
 
-    if (g_ascii_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
+    if (g_ascii_strcasecmp(pref->name, "wep_key_table") == 0 && pref->type == PREF_UAT)
     {
-        /* Ok, the pref we're gonna set is a wep_key ... but what number? */
-        sscanf(pref->name,"wep_key%d",&wep_key_number);
+        uat = (uat_t *)pref->varp.uat;
+        /* UAT must be loaded */
+        if (!uat->loaded)
+            return 1;
 
-        if (user_data->current_index < user_data->number_of_keys)
+        /* Free the old records */
+        uat_clear(uat);
+
+        for (i = 0; i < user_data->number_of_keys; i++)
         {
-            if (wep_key_number == (user_data->current_index+1))
-            {
-                /* Retrieve the nth decryption_key_t structure pointer */
-                new_key = (decryption_key_t*)g_list_nth_data(user_data->list,user_data->current_index);
+            new_key = (decryption_key_t*)g_list_nth_data(user_data->list,i);
 
-                /* Free the old key string */
-                g_free((void *)*pref->varp.string);
-
-                /* Create the new string describing the decryption key */
-                my_string = get_key_string(new_key);
-
-                /* Duplicate the string, and assign it to the variable pointer */
-                *pref->varp.string = (void *)g_strdup(my_string);
-
-                /* Free the previously allocated string */
-                g_free(my_string);
-            }
+            uat_key.string = get_key_string(new_key);
+            uat_key.key = new_key->type;
+            uat_add_record(uat, &uat_key);
         }
-        else /* If the number of keys has been reduced somehow, we need to delete all the other keys
-              * (remember that the new ones have been probably overwritten)
-              */
-        {
-            g_free((void *)*pref->varp.string);
-            *pref->varp.string = (void *)g_strdup("");  /* Do not just free memory!!! Put an 'empty' string! */
-        }
-        user_data->current_index++;
+
+        uat_save(uat, &err);
+        if (err != NULL)
+            return 1;
     }
 
     return 0;
