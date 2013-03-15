@@ -202,7 +202,7 @@ free_all_fragments(gpointer key_arg _U_, gpointer value, gpointer user_data _U_)
 	/* g_hash_table_new_full() was used to supply a function
 	 * to free the key and the addresses.
 	 */
-	for (fd_head = value; fd_head != NULL; fd_head = tmp_fd) {
+	for (fd_head = (fragment_data *)value; fd_head != NULL; fd_head = tmp_fd) {
 		tmp_fd=fd_head->next;
 
 		if(fd_head->data && !(fd_head->flags&FD_NOT_MALLOCED))
@@ -240,7 +240,7 @@ free_all_reassembled_fragments(gpointer key_arg, gpointer value,
 	GPtrArray *allocated_fragments = (GPtrArray *) user_data;
 	fragment_data *fd_head;
 
-	for (fd_head = value; fd_head != NULL; fd_head = fd_head->next) {
+	for (fd_head = (fragment_data *)value; fd_head != NULL; fd_head = fd_head->next) {
 		/*
 		 * A reassembled packet is inserted into the
 		 * hash table once for every frame that made
@@ -432,7 +432,7 @@ fragment_delete(const packet_info *pinfo, const guint32 id, GHashTable *fragment
 	key.dst = pinfo->dst;
 	key.id	= id;
 
-	fd_head = g_hash_table_lookup(fragment_table, &key);
+	fd_head = (fragment_data *)g_hash_table_lookup(fragment_table, &key);
 
 	if(fd_head==NULL){
 		/* We do not recognize this as a PDU we have seen before. return */
@@ -470,7 +470,7 @@ fragment_get(const packet_info *pinfo, const guint32 id, GHashTable *fragment_ta
 	key.dst = pinfo->dst;
 	key.id	= id;
 
-	fd_head = g_hash_table_lookup(fragment_table, &key);
+	fd_head = (fragment_data *)g_hash_table_lookup(fragment_table, &key);
 
 	return fd_head;
 }
@@ -485,7 +485,7 @@ fragment_get_reassembled(const guint32 id, GHashTable *reassembled_table)
 	/* create key to search hash with */
 	key.frame = id;
 	key.id = id;
-	fd_head = g_hash_table_lookup(reassembled_table, &key);
+	fd_head = (fragment_data *)g_hash_table_lookup(reassembled_table, &key);
 
 	return fd_head;
 }
@@ -499,7 +499,7 @@ fragment_get_reassembled_id(const packet_info *pinfo, const guint32 id, GHashTab
 	/* create key to search hash with */
 	key.frame = pinfo->fd->num;
 	key.id = id;
-	fd_head = g_hash_table_lookup(reassembled_table, &key);
+	fd_head = (fragment_data *)g_hash_table_lookup(reassembled_table, &key);
 
 	return fd_head;
 }
@@ -532,7 +532,7 @@ fragment_set_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fra
 	key.dst = pinfo->dst;
 	key.id	= id;
 
-	fd_head = g_hash_table_lookup(fragment_table, &key);
+	fd_head = (fragment_data *)g_hash_table_lookup(fragment_table, &key);
 	if (!fd_head)
 		return;
 
@@ -579,7 +579,7 @@ fragment_get_tot_len(const packet_info *pinfo, const guint32 id, GHashTable *fra
 	key.dst = pinfo->dst;
 	key.id	= id;
 
-	fd_head = g_hash_table_lookup(fragment_table, &key);
+	fd_head = (fragment_data *)g_hash_table_lookup(fragment_table, &key);
 
 	if(fd_head){
 		return fd_head->datalen;
@@ -608,7 +608,7 @@ fragment_set_partial_reassembly(const packet_info *pinfo, const guint32 id, GHas
 	key.dst = pinfo->dst;
 	key.id	= id;
 
-	fd_head = g_hash_table_lookup(fragment_table, &key);
+	fd_head = (fragment_data *)g_hash_table_lookup(fragment_table, &key);
 
 	/*
 	 * XXX - why not do all the stuff done early in "fragment_add_work()",
@@ -818,7 +818,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	 * XXX - what if we didn't capture the entire fragment due
 	 * to a too-short snapshot length?
 	 */
-	fd->data = g_malloc(fd->len);
+	fd->data = (unsigned char *)g_malloc(fd->len);
 	tvb_memcpy(tvb, fd->data, offset, fd->len);
 	LINK_FRAG(fd_head,fd);
 
@@ -872,7 +872,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	 */
 	/* store old data just in case */
 	old_data=fd_head->data;
-	fd_head->data = g_malloc(max);
+	fd_head->data = (unsigned char *)g_malloc(max);
 
 	/* add all data fragments */
 	for (dfpos=0,fd_i=fd_head;fd_i;fd_i=fd_i->next) {
@@ -963,7 +963,7 @@ fragment_add_common(tvbuff_t *tvb, const int offset, const packet_info *pinfo, c
 	key.dst = pinfo->dst;
 	key.id	= id;
 
-	fd_head = g_hash_table_lookup(fragment_table, &key);
+	fd_head = (fragment_data *)g_hash_table_lookup(fragment_table, &key);
 
 #if 0
 	/* debug output of associated fragments. */
@@ -1094,7 +1094,7 @@ fragment_add_check(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
 	if (pinfo->fd->flags.visited) {
 		reass_key.frame = pinfo->fd->num;
 		reass_key.id = id;
-		return g_hash_table_lookup(reassembled_table, &reass_key);
+		return (fragment_data *)g_hash_table_lookup(reassembled_table, &reass_key);
 	}
 
 	/* create key to search hash with */
@@ -1130,7 +1130,7 @@ fragment_add_check(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
 		/*
 		 * We found it.
 		 */
-		fd_head = value;
+		fd_head = (fragment_data *)value;
 	}
 
 	/*
@@ -1153,7 +1153,7 @@ fragment_add_check(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
 		 * Remove this from the table of in-progress reassemblies,
 		 * and free up any memory used for it in that table.
 		 */
-		old_key = orig_key;
+		old_key = (fragment_key *)orig_key;
 		fragment_unhash(fragment_table, old_key);
 
 		/*
@@ -1186,7 +1186,7 @@ fragment_defragment_and_free (fragment_data *fd_head, const packet_info *pinfo)
 
 	/* store old data in case the fd_i->data pointers refer to it */
 	old_data=fd_head->data;
-	fd_head->data = g_malloc(size);
+	fd_head->data = (unsigned char *)g_malloc(size);
 	fd_head->len = size;		/* record size for caller	*/
 
 	/* add all data fragments */
@@ -1411,7 +1411,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	 */
 	/* check len, there may be a fragment with 0 len, that is actually the tail */
 	if (fd->len) {
-		fd->data = g_malloc(fd->len);
+		fd->data = (unsigned char *)g_malloc(fd->len);
 		tvb_memcpy(tvb, fd->data, offset, fd->len);
 	}
 	LINK_FRAG(fd_head,fd);
@@ -1519,7 +1519,7 @@ fragment_add_seq_key(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
 					const guint32 flags)
 {
 	fragment_data *fd_head;
-	fd_head = g_hash_table_lookup(fragment_table, key);
+	fd_head = (fragment_data *)g_hash_table_lookup(fragment_table, key);
 
 	/* have we already seen this frame ?*/
 	if (pinfo->fd->flags.visited) {
@@ -1685,7 +1685,7 @@ fragment_add_seq_check_work(tvbuff_t *tvb, const int offset,
 	if (pinfo->fd->flags.visited) {
 		reass_key.frame = pinfo->fd->num;
 		reass_key.id = id;
-		return g_hash_table_lookup(reassembled_table, &reass_key);
+		return (fragment_data *)g_hash_table_lookup(reassembled_table, &reass_key);
 	}
 
 	/* create key to search hash with */
@@ -1793,7 +1793,7 @@ fragment_start_seq_check(const packet_info *pinfo, const guint32 id, GHashTable 
 	key.id	= id;
 
 	/* Check if fragment data exist for this key */
-	fd_head = g_hash_table_lookup(fragment_table, &key);
+	fd_head = (fragment_data *)g_hash_table_lookup(fragment_table, &key);
 
 	if (fd_head == NULL) {
 		/* Create list-head. */
@@ -1809,7 +1809,7 @@ fragment_start_seq_check(const packet_info *pinfo, const guint32 id, GHashTable 
 		 * We're going to use the key to insert the fragment,
 		 * so copy it to a long-term store.
 		 */
-		new_key = fragment_key_copy(&key);
+		new_key = (fragment_key *)fragment_key_copy(&key);
 		g_hash_table_insert(fragment_table, new_key, fd_head);
 	}
 }
@@ -1830,7 +1830,7 @@ fragment_end_seq_next(const packet_info *pinfo, const guint32 id, GHashTable *fr
 	if (pinfo->fd->flags.visited) {
 		reass_key.frame = pinfo->fd->num;
 		reass_key.id = id;
-		return g_hash_table_lookup(reassembled_table, &reass_key);
+		return (fragment_data *)g_hash_table_lookup(reassembled_table, &reass_key);
 	}
 
 	/* create key to search hash with */
@@ -1838,7 +1838,7 @@ fragment_end_seq_next(const packet_info *pinfo, const guint32 id, GHashTable *fr
 	key.dst = pinfo->dst;
 	key.id	= id;
 
-	fd_head = g_hash_table_lookup (fragment_table, &key);
+	fd_head = (fragment_data *)g_hash_table_lookup (fragment_table, &key);
 
 	if (fd_head) {
 		gpointer orig_key;
