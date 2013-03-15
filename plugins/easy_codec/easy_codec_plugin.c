@@ -27,6 +27,10 @@
 #include "config.h"
 
 #include <gmodule.h>
+/* plugins are DLLs */
+#define WS_BUILD_DLL
+#include "ws_symbol_export.h"
+
 #include <epan/codecs.h>
 
 #include "codec-g7231.h"
