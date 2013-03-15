@@ -10,6 +10,7 @@
 ; This unfortunately is unknown to NSIS prior to 2.07 and creates an error.
 ; So if you get an error here, please update to at least NSIS 2.07!
 SetCompressor /SOLID lzma
+SetCompressorDictSize 64 ; MB
 
 InstType "un.Default (keep Personal Settings and WinPcap)"
 InstType "un.All (remove all)"
