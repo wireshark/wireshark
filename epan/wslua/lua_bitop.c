@@ -1,10 +1,8 @@
 /*
-** Lua BitOp -- a bit operations library for Lua 5.1.
+** Lua BitOp -- a bit operations library for Lua 5.1/5.2.
 ** http://bitop.luajit.org/
 **
-** Copyright (C) 2008-2009 Mike Pall. All rights reserved.
-**
-** $Id$
+** Copyright (C) 2008-2012 Mike Pall. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining
 ** a copy of this software and associated documentation files (the
@@ -28,7 +26,7 @@
 ** [ MIT license: http://www.opensource.org/licenses/mit-license.php ]
 */
 
-#define LUA_BITOP_VERSION	"1.0.1"
+#define LUA_BITOP_VERSION	"1.0.2"
 
 #define LUA_LIB
 #include <lua.h>
@@ -60,7 +58,11 @@ static UBits barg(lua_State *L, int idx)
 {
   BitNum bn;
   UBits b;
+#if LUA_VERSION_NUM < 502
   bn.n = lua_tonumber(L, idx);
+#else
+  bn.n = luaL_checknumber(L, idx);
+#endif
 #if defined(LUA_NUMBER_DOUBLE)
   bn.n += 6755399441055744.0;  /* 2^52+2^51 */
 #ifdef SWAPPED_DOUBLE
@@ -80,8 +82,11 @@ static UBits barg(lua_State *L, int idx)
 #else
 #error "Unknown number type, check LUA_NUMBER_* in luaconf.h"
 #endif
-  if (b == 0 && !lua_isnumber(L, idx))
-    luaL_error(L, "bad argument %d (number expected, got %s)", idx, lua_typename(L, lua_type(L, idx)));
+#if LUA_VERSION_NUM < 502
+  if (b == 0 && !lua_isnumber(L, idx)) {
+    luaL_typerror(L, idx, "number");
+  }
+#endif
   return b;
 }
 
@@ -174,14 +179,11 @@ LUALIB_API int luaopen_bit(lua_State *L)
       msg = "arithmetic right-shift broken";
     luaL_error(L, "bit library self-test failed (%s)", msg);
   }
-
-#if LUA_VERSION_NUM >= 502
-  luaL_newlib(L, bit_funcs);
-  lua_setglobal(L, "bit");
-#else
+#if LUA_VERSION_NUM < 502
   luaL_register(L, "bit", bit_funcs);
+#else
+  luaL_newlib(L, bit_funcs);
 #endif
-
   return 1;
 }
 
