@@ -1905,8 +1905,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
        * as not visited, free the GSList referring to the state
        * data (the per-frame data itself was freed by
        * "init_dissection()"), and null out the GSList pointer. */
-      fdata->flags.visited = 0;
-      frame_data_cleanup(fdata);
+      frame_data_reset(fdata);
       frames_count = cf->count;
     }
 
@@ -1963,8 +1962,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
        until it finishes.  Should we just stick them with that? */
     for (; framenum <= frames_count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
-      fdata->flags.visited = 0;
-      frame_data_cleanup(fdata);
+      frame_data_reset(fdata);
     }
   }
 

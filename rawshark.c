@@ -1128,7 +1128,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
     }
 
     epan_dissect_cleanup(&edt);
-    frame_data_cleanup(&fdata);
+    frame_data_destroy(&fdata);
 
     return passed;
 }

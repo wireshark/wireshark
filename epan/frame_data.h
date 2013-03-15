@@ -97,7 +97,9 @@ void p_remove_proto_data(frame_data *fd, int proto);
 /** compare two frame_datas */
 WS_DLL_PUBLIC gint frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field);
 
-WS_DLL_PUBLIC void frame_data_cleanup(frame_data *fdata);
+WS_DLL_PUBLIC void frame_data_reset(frame_data *fdata);
+
+WS_DLL_PUBLIC void frame_data_destroy(frame_data *fdata);
 
 WS_DLL_PUBLIC void frame_data_init(frame_data *fdata, guint32 num,
                 const struct wtap_pkthdr *phdr, gint64 offset,

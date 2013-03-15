@@ -2677,7 +2677,7 @@ process_packet_first_pass(capture_file *cf,
   } else {
     /* if we don't add it to the frame_data_sequence, clean it up right now
      * to avoid leaks */
-    frame_data_cleanup(&fdlocal);
+    frame_data_destroy(&fdlocal);
     /* TODO, bug #8160 */
     /*
     prev_cap_frame = fdlocal;
@@ -3252,7 +3252,7 @@ process_packet(capture_file *cf, gint64 offset, struct wtap_pkthdr *whdr,
 
   if (do_dissection) {
     epan_dissect_cleanup(&edt);
-    frame_data_cleanup(&fdata);
+    frame_data_destroy(&fdata);
   }
   return passed;
 }

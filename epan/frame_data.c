@@ -315,22 +315,39 @@ frame_data_set_after_dissect(frame_data *fdata,
 }
 
 void
-frame_data_cleanup(frame_data *fdata)
+frame_data_reset(frame_data *fdata)
+{
+  fdata->flags.visited = 0;
+
+  if (fdata->pfd) {
+    g_slist_free(fdata->pfd);
+    fdata->pfd = NULL;
+  }
+}
+
+void
+frame_data_destroy(frame_data *fdata)
 {
   if (fdata->pfd) {
     g_slist_free(fdata->pfd);
     fdata->pfd = NULL;
   }
 
-  /* XXX, frame_data_cleanup() is called when redissecting (rescan_packets()),
-   *      which might be triggered by lot of things, like: preferences change,
-   *      setting manual address resolve, etc.. (grep by redissect_packets)
-   *      fdata->opt_comment can be set by user, which we must not discard when redissecting.
-   */
-#if 0
   if (fdata->opt_comment) {
     g_free(fdata->opt_comment);
     fdata->opt_comment = NULL;
   }
-#endif
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

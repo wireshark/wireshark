@@ -279,7 +279,7 @@ free_frame_data_array(void *array, guint count, guint level, gboolean last)
     frame_data *real_array = (frame_data *) array;
 
     for (i=0; i < level_count; i++) {
-      frame_data_cleanup(&real_array[i]);
+      frame_data_destroy(&real_array[i]);
     }
   }
 
