@@ -35,7 +35,7 @@ COMMAND_ARGS2=
 VALID=0
 PCAP=""
 
-while getopts ":2b:C:lnrtTwcev" OPTCHAR ; do
+while getopts ":2b:C:lnrtTwcevW" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
         b) BIN_DIR=$OPTARG ;;
@@ -55,6 +55,9 @@ while getopts ":2b:C:lnrtTwcev" OPTCHAR ; do
            # We don't care about the output of editcap
            COMMAND_ARGS2="/dev/null" ;;
         v) VERBOSE="--num-callers=256" ;;
+        W) COMMAND=wireshark
+           COMMAND_ARGS=""
+           VALID=1 ;;
         *) printf "Unknown option -$OPTARG!\n"
            exit ;;
     esac
