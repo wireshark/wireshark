@@ -52,6 +52,7 @@ static const value_string type_tuple[]=
 	{0, NULL}
 };
 
+void proto_register_cnip(void);
 void proto_reg_handoff_cnip(void);
 
 static gint hf_cnip_len			= -1;

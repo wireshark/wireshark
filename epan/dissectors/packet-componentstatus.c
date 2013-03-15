@@ -45,6 +45,8 @@
 
 #define CSPT_REPORT
 
+void proto_register_componentstatus(void);
+void proto_reg_handoff_componentstatus(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_componentstatusprotocol             = -1;

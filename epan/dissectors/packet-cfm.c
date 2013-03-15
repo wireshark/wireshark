@@ -77,6 +77,9 @@
 #define ORG_SPEC_TLV	0x1F
 #define TEST_TLV        0x20
 
+void proto_register_cfm(void);
+void proto_reg_handoff_cfm(void);
+
 static int proto_cfm = -1;
 
 static const value_string opcodetypenames[] = {

@@ -47,6 +47,8 @@
 #define TYPE_SIGN_SHA256     0x0200
 #define TYPE_ENCR_AES256     0x0210
 
+void proto_register_collectd(void);
+
 typedef struct value_data_s {
 	gchar *host;
 	gint host_off;
@@ -212,7 +214,7 @@ collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
 	const tap_data_t *td;
 	string_counter_t *sc;
 
-	td = user_data;
+	td = (const tap_data_t *)user_data;
 	if (td == NULL)
 		return (-1);
 
@@ -819,7 +821,7 @@ stats_account_string (string_counter_t **ret_list, const gchar *new_value)
 			return (0);
 		}
 
-	entry = ep_alloc0 (sizeof (*entry));
+	entry = (string_counter_t *)ep_alloc0 (sizeof (*entry));
 	entry->string = ep_strdup (new_value);
 	entry->count = 1;
 	entry->next = *ret_list;
