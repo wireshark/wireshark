@@ -11,8 +11,9 @@ used for troubleshooting, analysis, development and education.
 
 The following bugs have been fixed:
 
-//* ws-buglink:5000
-//* cve-idlink:2013-2486
+* ws-buglink:5000[]
+* ws-buglink:6000[Wireshark bug]
+* cve-idlink:2013-2486[]
 
 === New and Updated Features
 
@@ -69,34 +70,34 @@ locations on your system.
 == Known Problems
 
 Dumpcap might not quit if Wireshark or TShark crashes.
-(ws-buglink:1419)
+(ws-buglink:1419[])
 
 The BER dissector might infinitely loop.
-(ws-buglink:1516)
+(ws-buglink:1516[])
 
 Capture filters aren't applied when capturing from named pipes.
 (ws-buglink:1814)
 
 Filtering tshark captures with display filters (-R) no longer works.
-(ws-buglink:2234)
+(ws-buglink:2234[])
 
 The 64-bit Windows installer does not support Kerberos decryption.
 (https://wiki.wireshark.org/Development/Win64[Win64 development page])
 
 Application crash when changing real-time option.
-(ws-buglink:4035)
+(ws-buglink:4035[])
 
 Hex pane display issue after startup.
-(ws-buglink:4056)
+(ws-buglink:4056[])
 
 Packet list rows are oversized.
-(ws-buglink:4357)
+(ws-buglink:4357[])
 
 Summary pane selected frame highlighting not maintained.
-(ws-buglink:4445)
+(ws-buglink:4445[])
 
 Wireshark and TShark will display incorrect delta times in some cases.
-(ws-buglink:4985)
+(ws-buglink:4985[])
 
 == Getting Help
 
