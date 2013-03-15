@@ -41,6 +41,11 @@
  *    http://www.nethelp.no/net/cisco-hdlc.txt
  */
 
+void proto_register_chdlc(void);
+void proto_reg_handoff_chdlc(void);
+void proto_register_slarp(void);
+void proto_reg_handoff_slarp(void);
+
 static int proto_chdlc = -1;
 static int hf_chdlc_addr = -1;
 static int hf_chdlc_proto = -1;

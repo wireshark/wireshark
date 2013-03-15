@@ -34,6 +34,9 @@
 #include "packet-enip.h"
 #include "packet-cipsafety.h"
 
+
+void proto_register_cipsafety(void);
+void proto_reg_handoff_cipsafety(void);
 /* The entry point to the actual disection is: dissect_cipsafety */
 
 /* Protocol handle for CIP Safety */

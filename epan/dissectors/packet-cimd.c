@@ -126,6 +126,8 @@ struct cimd_parameter_t {
   gint          *hf_p;
 };
 
+void proto_register_cimd(void);
+void proto_reg_handoff_cimd(void);
 static void dissect_cimd_parameter(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
 static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
 static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);

@@ -55,6 +55,9 @@
 #define MESSAGE_TYPE_Q_RESET_RESPONSE   9
 #define MESSAGE_TYPE_PDU                0x8000
 
+void proto_register_sm(void);
+void proto_reg_handoff_sm(void);
+
 static const value_string sm_message_type_value[] = {
 	{ MESSAGE_TYPE_START,			"Start Message" },
 	{ MESSAGE_TYPE_STOP,			"Stop Message" },

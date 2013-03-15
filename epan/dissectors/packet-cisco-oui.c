@@ -28,6 +28,8 @@
 #include "packet-llc.h"
 #include <epan/oui.h>
 
+void proto_register_cisco_oui(void);
+
 static int hf_llc_cisco_pid = -1;
 
 /*

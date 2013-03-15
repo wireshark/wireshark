@@ -37,6 +37,9 @@
 #include <epan/nlpid.h>
 #include <epan/ipproto.h>
 
+void proto_register_clnp(void);
+void proto_reg_handoff_clnp(void);
+
 /* protocols and fields */
 
 static int  proto_clnp         = -1;

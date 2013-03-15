@@ -72,6 +72,10 @@
  */
 
 #define BSSGP_SEP ", "
+
+void proto_register_bssgp(void);
+void proto_reg_handoff_bssgp(void);
+
 static int bssgp_decode_nri = 0;
 static guint bssgp_nri_length = 4;
 
@@ -6338,7 +6342,7 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     NULL,    /* NONE */
 };
 
-void get_bssgp_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
+static void get_bssgp_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
     gint            idx;
 

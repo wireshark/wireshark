@@ -32,6 +32,9 @@
 #include <epan/oui.h>
 #include "packet-mstp.h"
 
+void proto_register_cimetrics(void);
+void proto_reg_handoff_cimetrics(void);
+
 /* Probably should be a preference, but here for now */
 #define BACNET_MSTP_SUMMARY_IN_TREE
 

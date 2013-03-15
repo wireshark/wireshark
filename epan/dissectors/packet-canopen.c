@@ -29,6 +29,8 @@
 
 #include <epan/packet.h>
 
+void proto_register_canopen(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_canopen = -1;
 static int hf_canopen_cob_id = -1;

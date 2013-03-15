@@ -35,6 +35,8 @@
 #include <epan/prefs.h>
 #include <expert.h>
 
+void proto_register_coap(void);
+
 static dissector_table_t media_type_dissector_table;
 
 static int proto_coap = -1;

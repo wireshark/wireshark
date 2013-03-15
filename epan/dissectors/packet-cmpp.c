@@ -37,6 +37,9 @@
 #define CMPP_ISMG_LONG_PORT  7930
 #define CMPP_ISMG_SHORT_PORT 9168
 
+void proto_register_cmpp(void);
+void proto_reg_handoff_cmpp(void);
+
 /* Initialize the protocol and registered fields */
 static gint proto_cmpp = -1;
 

@@ -37,7 +37,9 @@
 #include <epan/prefs.h>
 
 /* Forward declaration */
+void proto_register_cigi(void);
 void proto_reg_handoff_cigi(void);
+
 static gboolean packet_is_cigi(tvbuff_t*);
 static void dissect_cigi_pdu(tvbuff_t*, packet_info*, proto_tree*);
 static void cigi_add_tree(tvbuff_t*, proto_tree*);
@@ -2635,14 +2637,14 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Format the Info String */
-    src_str = ip_to_str(pinfo->src.data);
+    src_str = (const char*)ip_to_str(pinfo->src.data);
     if ( !g_ascii_strcasecmp(global_host_ip, src_str) ) {
         src_str = "Host";
     } else if ( !g_ascii_strcasecmp(global_ig_ip, src_str) ) {
         src_str = "IG";
     }
 
-    dest_str = ip_to_str(pinfo->dst.data);
+    dest_str = (const char*)ip_to_str(pinfo->dst.data);
     if ( !g_ascii_strcasecmp(global_host_ip, dest_str) ) {
         dest_str = "Host";
     } else if ( !g_ascii_strcasecmp(global_ig_ip, dest_str) ) {

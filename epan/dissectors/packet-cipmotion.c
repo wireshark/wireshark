@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include "packet-cip.h"
 
+void proto_register_cipmotion(void);
 /* The entry point to the actual disection is: dissect_cipmotion */
 
 /* Protocol handle for CIP Motion */

@@ -29,6 +29,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_clique_rm(void);
+void proto_reg_handoff_clique_rm(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_clique_rm = -1;
 

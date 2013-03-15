@@ -33,6 +33,8 @@
 
 #define TCP_PORT_CAST 4224
 
+void proto_register_cast(void);
+void proto_reg_handoff_cast(void);
 
 /* I will probably need this again when I change things
  * to function pointers, but let me use the existing

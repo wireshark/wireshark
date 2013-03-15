@@ -32,6 +32,9 @@
 #include "packet-clip.h"
 #include "packet-ip.h"
 
+void proto_register_clip(void);
+void proto_reg_handoff_clip(void);
+
 static gint ett_clip = -1;
 
 static dissector_handle_t ip_handle;

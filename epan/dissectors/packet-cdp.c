@@ -50,6 +50,9 @@
  * for some more information on CDP version 2.
  */
 
+void proto_register_cdp(void);
+void proto_reg_handoff_cdp(void);
+
 /* Offsets in TLV structure. */
 #define TLV_TYPE        0
 #define TLV_LENGTH      2
@@ -242,7 +245,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (data_length & 1) {
         guint8 *padded_buffer;
         /* Allocate new buffer */
-        padded_buffer = ep_alloc(data_length+1);
+        padded_buffer = (guint8 *)ep_alloc(data_length+1);
         tvb_memcpy(tvb, padded_buffer, 0, data_length);
         /* Swap bytes in last word */
         padded_buffer[data_length] = padded_buffer[data_length-1];

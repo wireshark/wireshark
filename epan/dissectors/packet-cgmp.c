@@ -35,6 +35,8 @@
  *
  * for some information on CGMP.
  */
+void proto_register_cgmp(void);
+void proto_reg_handoff_cgmp(void);
 
 static int proto_cgmp = -1;
 static int hf_cgmp_version = -1;
