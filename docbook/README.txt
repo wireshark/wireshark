@@ -111,6 +111,10 @@ Lynx
 Text based web browser which can to convert HTML to plain text.
 (Alternative [*nix]: elinks)
 
+dblatex
+-------
+DocBook to LaTeX converter. Required for AsciiDoc PDF conversion on Win32.
+
 Win32 only: HTML help compiler (for .chm generation only)
 ---------------------------------------------------------
 HTML Help Compiler (hhc.exe) from Microsoft:

@@ -239,7 +239,7 @@ release-notes-us.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 	@ echo --- RELEASE NOTES - PDF US LETTER PAPER ---
 	$(SH) <<
 	PATH=/usr/bin
-	$(A2X) --format=pdf $(A2X_HTML_OPTS) --fop \
+	$(A2X) --format=pdf $(A2X_HTML_OPTS) \
 		--xsltproc-opts "--stringparam paper.type letter --nonet" \
 		--xsl-file=custom_layer_pdf.xsl \
 		release-notes.asciidoc
@@ -251,7 +251,7 @@ release-notes-a4.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 	@ echo --- RELEASE NOTES - PDF A4 PAPER ---
 	$(SH) <<
 	PATH=/usr/bin
-	$(A2X) --format=pdf $(A2X_HTML_OPTS) --fop \
+	$(A2X) --format=pdf $(A2X_HTML_OPTS) \
 		--xsltproc-opts "--stringparam paper.type A4 --nonet" \
 		--xsl-file=custom_layer_pdf.xsl \
 		release-notes.asciidoc
