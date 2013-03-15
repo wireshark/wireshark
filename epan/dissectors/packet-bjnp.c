@@ -52,6 +52,9 @@
 #define CMD_GET_ID         0x30
 #define CMD_SCAN_JOB       0x32
 
+void proto_register_bjnp(void);
+void proto_reg_handoff_bjnp(void);
+
 static int proto_bjnp = -1;
 
 static int hf_bjnp_id = -1;

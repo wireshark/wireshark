@@ -54,6 +54,8 @@
 #define CSM_ENCAPS_TYPE_QUERY_RESPONSE       0x04
 #define CSM_ENCAPS_TYPE_INDICATION_RESPONSE  0x05
 
+void proto_register_csm_encaps(void);
+void proto_reg_handoff_csm_encaps(void);
 
 static const value_string opcode_vals[] = {
     { OPCODE_NOOP,           "No Operation" },

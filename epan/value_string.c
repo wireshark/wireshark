@@ -313,6 +313,8 @@ _match_strval_ext_init(const guint32 val, const value_string_ext *a_vse)
     g_assert(vs_p[i].strptr != NULL);
     if ((type == VS_INDEX) && (vs_p[i].value != (i + first_value))) {
       type = VS_BIN_TREE;
+	  g_warning("Extended value string: %s; accessing binary (%u/%u)",
+              vse->_vs_name, prev_value, vs_p[i].value);
     }
     /* XXX: Should check for dups ?? */
     if ((type == VS_BIN_TREE) &&

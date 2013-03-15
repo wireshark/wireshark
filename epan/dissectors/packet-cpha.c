@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 
+void proto_register_chpa(void);
+void proto_reg_handoff_chpa(void);
+
 static int proto_cphap = -1;
 
 static int hf_magic_number = -1;

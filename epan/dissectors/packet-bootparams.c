@@ -36,6 +36,9 @@
 
 #define BOOTPARAMS_PROGRAM 100026
 
+void proto_register_bootparams(void);
+void proto_reg_handoff_bootparams(void);
+
 static int proto_bootparams = -1;
 static int hf_bootparams_procedure_v1 = -1;
 static int hf_bootparams_host = -1;

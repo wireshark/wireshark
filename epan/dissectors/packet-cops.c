@@ -74,6 +74,8 @@
 #define TCP_PORT_PKTCABLE_COPS 2126
 #define TCP_PORT_PKTCABLE_MM_COPS 3918
 
+void proto_register_cops(void);
+
 /* Preference: Variable to hold the tcp port preference */
 static guint global_cops_tcp_port = TCP_PORT_COPS;
 
@@ -838,7 +840,7 @@ typedef struct _COPS_CNV COPS_CNV;
 
 struct _COPS_CNV
 {
-  guint class;
+  guint ber_class;
   guint tag;
   gint  syntax;
   const gchar *name;
@@ -869,7 +871,7 @@ static int cops_tag_cls2syntax ( guint tag, guint cls ) {
     cnv = CopsCnv;
     while (cnv->syntax != -1)
     {
-        if (cnv->tag == tag && cnv->class == cls)
+        if (cnv->tag == tag && cnv->ber_class == cls)
         {
             return *(cnv->hfidp);
         }
@@ -1354,7 +1356,7 @@ static guint redecode_oid(guint32* pprid_subids, guint pprid_subids_len, guint8*
 
     for (i=0; i<encoded_len; i++) { if (! (encoded_subids[i] & 0x80 )) n++; }
 
-    *subids_p = subids = ep_alloc(sizeof(guint32)*(n+pprid_subids_len));
+    *subids_p = subids = (guint32 *)ep_alloc(sizeof(guint32)*(n+pprid_subids_len));
     subid_overflow = subids+n+pprid_subids_len;
     for (i=0;i<pprid_subids_len;i++) subids[i] = pprid_subids[i];
 
@@ -1409,7 +1411,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
             encoid_len = tvb_length_remaining(oid_tvb,0);
             if (encoid_len > 0) {
-                encoid = ep_tvb_memdup(oid_tvb,0,encoid_len);
+                encoid = (guint8*)ep_tvb_memdup(oid_tvb,0,encoid_len);
                 (*pprid_subids_len) = oid_encoded2subid(encoid, encoid_len, pprid_subids);
             }
         }
@@ -1437,7 +1439,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
         /* TODO: check pc, class and tag */
 
-        encoid = ep_tvb_memdup(tvb,offset,encoid_len);
+        encoid = (guint8*)ep_tvb_memdup(tvb,offset,encoid_len);
 
         if (*pprid_subids) {
             /* Never tested this branch */
@@ -1485,7 +1487,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
         if(*oid_info_p) {
             if ((*oid_info_p)->kind == OID_KIND_ROW) {
-                oid_info = emem_tree_lookup32((*oid_info_p)->children,1);
+                oid_info = (oid_info_t *)emem_tree_lookup32((emem_tree_t *)(*oid_info_p)->children,1);
             } else {
                 oid_info = NULL;
             }
@@ -1518,7 +1520,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
                  * -- a lazy lego
                  */
                 hfid = oid_info->value_hfid;
-                oid_info = emem_tree_lookup32((*oid_info_p)->children,oid_info->subid+1);
+                oid_info = (oid_info_t *)emem_tree_lookup32((emem_tree_t *)(*oid_info_p)->children,oid_info->subid+1);
             } else
                 hfid = cops_tag_cls2syntax( ber_tag, ber_class );
             switch (proto_registrar_get_ftype(hfid)) {

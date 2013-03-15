@@ -34,6 +34,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+void proto_register_cosine(void);
+void proto_reg_handoff_cosine(void);
+
 static int proto_cosine = -1;
 static int hf_pro = -1;
 static int hf_off = -1;

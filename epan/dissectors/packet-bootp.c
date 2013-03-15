@@ -125,6 +125,8 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 
+void proto_register_bootp(void);
+void proto_reg_handoff_bootp(void);
 
 static int bootp_dhcp_tap = -1;
 static int proto_bootp = -1;
@@ -4308,7 +4310,7 @@ static void get_opt125_tlv(tvbuff_t *tvb, guint off, guint8 *tlvtype, guint8 *tl
 	/* Length */
 	*tlvlen	 = tvb_get_guint8(tvb, off+1);
 	/* Value */
-	*value = ep_tvb_memdup(tvb, off + 2, *tlvlen);
+	*value = (guint8 *)ep_tvb_memdup(tvb, off + 2, *tlvlen);
 }
 
 static void get_opt60_tlv(tvbuff_t *tvb, guint off, guint8 *tlvtype, guint8 *tlvlen, guint8 **value)
@@ -4348,7 +4350,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 	guint8     *val_other  = NULL;
 	guint       off        = voff;
 
-	asc_val = ep_alloc0(4);
+	asc_val = (guint8*)ep_alloc0(4);
 
 	if (opt125)
 	{

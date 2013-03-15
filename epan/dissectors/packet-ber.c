@@ -84,6 +84,9 @@
  */
 #define BER_MAX_NESTING 500
 
+void proto_register_ber(void);
+void proto_reg_handoff_ber(void);
+
 static gint proto_ber = -1;
 static gint hf_ber_id_class = -1;
 static gint hf_ber_id_pc = -1;
@@ -290,8 +293,8 @@ static const fragment_items octet_string_frag_items = {
 static void *
 oid_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
-    oid_user_t       *u = dest;
-    const oid_user_t *o = orig;
+    oid_user_t       *u = (oid_user_t *)dest;
+    const oid_user_t *o = (const oid_user_t *)orig;
 
     u->oid = g_strdup(o->oid);
     u->name = g_strdup(o->name);
@@ -303,7 +306,7 @@ oid_copy_cb(void *dest, const void *orig, size_t len _U_)
 static void
 oid_free_cb(void *r)
 {
-    oid_user_t *u = r;
+    oid_user_t *u = (oid_user_t *)r;
 
     g_free(u->oid);
     g_free(u->name);
@@ -312,8 +315,8 @@ oid_free_cb(void *r)
 static int
 cmp_value_string(const void *v1, const void *v2)
 {
-    value_string *vs1 = (value_string *)v1;
-    value_string *vs2 = (value_string *)v2;
+    const value_string *vs1 = (const value_string *)v1;
+    const value_string *vs2 = (const value_string *)v2;
 
     return strcmp(vs1->strptr, vs2->strptr);
 }
@@ -430,7 +433,7 @@ ber_decode_as(const gchar *syntax)
 static const gchar *
 get_ber_oid_syntax(const char *oid)
 {
-    return g_hash_table_lookup(syntax_table, oid);
+    return (const char *)g_hash_table_lookup(syntax_table, oid);
 }
 
 void

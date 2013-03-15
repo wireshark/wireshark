@@ -100,6 +100,9 @@
 #define BPDU_FLAGS_PROPOSAL		0x02
 #define BPDU_FLAGS_TC			0x01
 
+void proto_register_bpdu(void);
+void proto_reg_handoff_bpdu(void);
+
 static int proto_bpdu = -1;
 static int hf_bpdu_proto_id = -1;
 static int hf_bpdu_version_id = -1;
@@ -289,7 +292,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (pinfo->dl_dst.type == AT_ETHER) {
     const guint8 *dstaddr;
 
-    dstaddr = pinfo->dl_dst.data;
+    dstaddr = (const guint8 *)pinfo->dl_dst.data;
     if(dstaddr[0] == 0x01 && dstaddr[1] == 0x80 &&
        dstaddr[2] == 0xC2 && dstaddr[3] == 0x00 &&
        dstaddr[4] == 0x00 && ((dstaddr[5] == 0x0D) || ((dstaddr[5] & 0xF0) == 0x20))) {
