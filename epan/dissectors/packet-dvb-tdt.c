@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
+void proto_register_dvb_tdt(void);
+void proto_reg_handoff_dvb_tdt(void);
+
 static int proto_dvb_tdt = -1;
 static int hf_dvb_tdt_utc_time = -1;
 

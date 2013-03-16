@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
+void proto_register_dvb_data_mpe(void);
+void proto_reg_handoff_dvb_data_mpe(void);
+
 static int proto_dvb_data_mpe = -1;
 static int hf_dvb_data_mpe_reserved = -1;
 static int hf_dvb_data_mpe_payload_scrambling_control = -1;

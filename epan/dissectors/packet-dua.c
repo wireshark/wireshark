@@ -37,6 +37,9 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 
+void proto_register_dua(void);
+void proto_reg_handoff_dua(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_dua                = -1;
 static int hf_int_interface_id      = -1;

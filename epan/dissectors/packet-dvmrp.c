@@ -61,6 +61,8 @@
 #include "packet-igmp.h"
 #include "packet-dvmrp.h"
 
+void proto_register_dvmrp(void);
+
 static int proto_dvmrp = -1;
 static int hf_version = -1;
 static int hf_type = -1;

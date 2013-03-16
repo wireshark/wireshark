@@ -32,6 +32,9 @@
 
 #include "packet-mpeg-descriptor.h"
 
+void proto_register_dvb_bat(void);
+void proto_reg_handoff_dvb_bat(void);
+
 static int proto_dvb_bat = -1;
 static int hf_dvb_bat_bouquet_id = -1;
 static int hf_dvb_bat_reserved1 = -1;

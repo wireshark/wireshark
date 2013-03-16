@@ -48,6 +48,9 @@
 
 #define TCP_PORT_DHCPFO 519
 
+void proto_register_dhcpfo(void);
+void proto_reg_handoff_dhcpfo(void);
+
 static guint tcp_port_pref = TCP_PORT_DHCPFO;
 
 /* desegmentation of DHCP failover over TCP */
@@ -874,8 +877,6 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Register the protocol with Wireshark */
-
-void proto_reg_handoff_dhcpfo(void);
 
 void
 proto_register_dhcpfo(void)

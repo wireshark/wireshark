@@ -56,6 +56,9 @@
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
+void proto_register_drda(void);
+void proto_reg_handoff_drda(void);
+
 static int proto_drda = -1;
 static int hf_drda_ddm_length = -1;
 static int hf_drda_ddm_magic = -1;

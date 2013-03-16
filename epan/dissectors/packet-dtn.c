@@ -43,6 +43,7 @@
 #include <epan/expert.h>
 #include "packet-dtn.h"
 
+void proto_register_bundle(void);
 void proto_reg_handoff_bundle(void);
 static int dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *tvb);
 static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset, int payload_length);

@@ -170,6 +170,7 @@
 #define DLM3_RESNAME_MAXLEN     64
 
 /* Forward declaration we need below */
+void proto_register_dlm3(void);
 void proto_reg_handoff_dlm3(void);
 
 

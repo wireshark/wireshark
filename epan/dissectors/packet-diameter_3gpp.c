@@ -41,6 +41,9 @@
 #include "packet-e212.h"
 #include "packet-ntp.h"
 
+void proto_register_diameter_3gpp(void);
+void proto_reg_handoff_diameter_3gpp(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_diameter_3gpp          = -1;
 

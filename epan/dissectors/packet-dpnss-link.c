@@ -33,6 +33,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_dpnss_link(void);
+void proto_reg_handoff_dpnss_link(void);
+
 static dissector_handle_t dpnss_handle; /* DPNSS UI frame dissector */
 #define LINK_HEADER_SIZE 3
 

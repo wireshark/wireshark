@@ -40,6 +40,8 @@
 
 #include <epan/packet.h>
 
+void proto_register_dmx_text(void);
+
 static int proto_dmx_text = -1;
 
 static int hf_dmx_text_page_nr = -1;

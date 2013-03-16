@@ -56,6 +56,7 @@ static const value_string dmx_sc_vals[] = {
 	{ 0, NULL },
 };
 
+void proto_register_dmx(void);
 void proto_reg_handoff_dmx(void);
 
 static int proto_dmx = -1;

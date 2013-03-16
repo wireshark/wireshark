@@ -52,6 +52,7 @@
 /* Encoding type the last 14 bits */
 #define DIS_ENCODING_TYPE(word) ((word) & 0x3FFF)
 
+void proto_register_dis(void);
 
 static gint proto_dis = -1;
 int hf_dis_proto_ver = -1;

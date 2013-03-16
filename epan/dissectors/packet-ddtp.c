@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include "packet-ddtp.h"
 
+void proto_register_ddtp (void);
+void proto_reg_handoff_ddtp (void);
+
 static int proto_ddtp = -1;
 static int hf_ddtp_version = -1;
 static int hf_ddtp_encrypt = -1;

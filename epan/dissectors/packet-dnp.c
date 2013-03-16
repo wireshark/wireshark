@@ -496,6 +496,9 @@
 /* End of Application Layer Data Object Definitions */
 /***************************************************************************/
 
+void proto_register_dnp3(void);
+void proto_reg_handoff_dnp3(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_dnp3 = -1;
 static int hf_dnp3_start = -1;
@@ -2970,7 +2973,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* XXX - check for dl_len <= 5 */
     data_len = dl_len - 5;
-    tmp = g_malloc(data_len);
+    tmp = (guint8 *)g_malloc(data_len);
     tmp_ptr = tmp;
     i = 0;
     data_offset = 1;  /* skip the transport layer byte when assembling chunks */
@@ -3047,10 +3050,10 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (!pinfo->fd->flags.visited && conv_data_ptr == NULL)
         {
           dl_conversation_key_t* new_dl_conversation_key = NULL;
-          new_dl_conversation_key  = se_alloc(sizeof(dl_conversation_key_t));
+          new_dl_conversation_key  = se_new(dl_conversation_key_t);
           *new_dl_conversation_key = dl_conversation_key;
 
-          conv_data_ptr = se_alloc(sizeof(dnp3_conv_t));
+          conv_data_ptr = se_new(dnp3_conv_t);
 
           /*** Increment static global fragment reassembly id ***/
           conv_data_ptr->conv_seq_number = seq_number++;

@@ -37,6 +37,8 @@
 
 #include <epan/packet.h>
 
+void proto_register_dpnss(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_dpnss                        = -1;
 static int hf_dpnss_msg_grp_id                = -1;

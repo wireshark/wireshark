@@ -49,6 +49,9 @@
 #include <epan/expert.h>
 #include <epan/afn.h>
 
+void proto_register_dns(void);
+void proto_reg_handoff_dns(void);
+
 static int proto_dns = -1;
 static int hf_dns_length = -1;
 static int hf_dns_flags = -1;
@@ -3130,9 +3133,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           goto bad_rr;
         }
         if (afamily == 1 && afdpart_len <= 4) {
-          addr_copy = se_alloc0(4);
+          addr_copy = (guint8 *)se_alloc0(4);
         } else if (afamily == 2 && afdpart_len <= 16) {
-          addr_copy = se_alloc0(16);
+          addr_copy = (guint8 *)se_alloc0(16);
         } else {
           goto bad_rr;
         }

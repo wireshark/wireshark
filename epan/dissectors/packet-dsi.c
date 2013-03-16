@@ -64,6 +64,9 @@ http://developer.apple.com/DOCUMENTATION/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
  */
 #define INET6_ADDRLEN  16
 
+void proto_register_dsi(void);
+void proto_reg_handoff_dsi(void);
+
 static int proto_dsi = -1;
 static int hf_dsi_flags = -1;
 static int hf_dsi_command = -1;

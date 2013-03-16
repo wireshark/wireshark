@@ -32,6 +32,9 @@
 
 #include "packet-mpeg-descriptor.h"
 
+void proto_register_dvb_tot(void);
+void proto_reg_handoff_dvb_tot(void);
+
 static int proto_dvb_tot = -1;
 static int hf_dvb_tot_utc_time = -1;
 static int hf_dvb_tot_reserved = -1;

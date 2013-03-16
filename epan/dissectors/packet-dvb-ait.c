@@ -34,6 +34,9 @@
 #include "packet-mpeg-sect.h"
 #include "packet-mpeg-descriptor.h"
 
+void proto_register_dvb_ait(void);
+void proto_reg_handoff_dvb_ait(void);
+
 static int proto_dvb_ait = -1;
 
 static gint ett_dvb_ait       = -1;

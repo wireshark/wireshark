@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include "packet-tcp.h"
 
+void proto_register_dlsw(void);
+void proto_reg_handoff_dlsw(void);
+
 static int proto_dlsw = -1;
 static int hf_dlsw_flow_control_indication = -1;
 static int hf_dlsw_flow_control_ack = -1;

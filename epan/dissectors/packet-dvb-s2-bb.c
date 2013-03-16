@@ -64,6 +64,8 @@ static guint8 crc8_table[256] = {
     0x84, 0x51, 0xFB, 0x2E, 0x7A, 0xAF, 0x05, 0xD0, 0xAD, 0x78, 0xD2, 0x07, 0x53, 0x86, 0x2C, 0xF9
 };
 
+void proto_register_dvb_dvb_s2_modeadapt(void);
+
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 
@@ -543,7 +545,7 @@ static const range_string gse_proto_str[] = {
 #define DVB_S2_GSE_CRC32_LEN            4
 
 /* *** helper functions *** */
-gboolean check_crc8(tvbuff_t *p, guint8 len, guint8 offset, guint8 received_fcs)
+static gboolean check_crc8(tvbuff_t *p, guint8 len, guint8 offset, guint8 received_fcs)
 {
     int    i;
     guint8 crc = 0, tmp;

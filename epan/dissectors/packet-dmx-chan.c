@@ -42,6 +42,8 @@
 #include <epan/emem.h>
 #include <epan/prefs.h>
 
+void proto_register_dmx_chan(void);
+
 static int proto_dmx_chan = -1;
 
 static int hf_dmx_chan_output_dmx_data = -1;

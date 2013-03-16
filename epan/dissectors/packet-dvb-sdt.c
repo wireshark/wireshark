@@ -32,6 +32,9 @@
 
 #include "packet-mpeg-descriptor.h"
 
+void proto_register_dvb_sdt(void);
+void proto_reg_handoff_dvb_sdt(void);
+
 static int proto_dvb_sdt = -1;
 static int hf_dvb_sdt_transport_stream_id = -1;
 static int hf_dvb_sdt_reserved1 = -1;

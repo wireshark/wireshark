@@ -62,6 +62,7 @@ static gboolean distcc_desegment = TRUE;
 
 static guint glb_distcc_tcp_port = TCP_PORT_DISTCC;
 
+void proto_register_distcc(void);
 extern void proto_reg_handoff_distcc(void);
 
 #define CHECK_PDU_LEN(x) \

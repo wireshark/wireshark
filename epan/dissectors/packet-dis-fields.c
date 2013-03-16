@@ -921,7 +921,7 @@ gint parseField_Float(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNo
 
 /* Parse a 4-byte floating-point value, given text label.
  */
-gint parseField_Float_Text(tvbuff_t *tvb, proto_tree *tree, gint offset, gchar *charStr)
+static gint parseField_Float_Text(tvbuff_t *tvb, proto_tree *tree, gint offset, gchar *charStr)
 {
     gfloat floatVal;
 

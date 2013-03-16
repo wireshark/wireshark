@@ -42,6 +42,8 @@
 
 #define DMX_SC_SIP    0xCF
 
+void proto_register_dmx_sip(void);
+
 static int proto_dmx_sip = -1;
 
 static int hf_dmx_sip_byte_count = -1;

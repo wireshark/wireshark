@@ -64,6 +64,8 @@
 #include <epan/uat.h>
 #include <epan/sctpppids.h>
 
+void proto_register_dtls(void);
+
 /* DTLS User Access Table */
 static ssldecrypt_assoc_t *dtlskeylist_uats = NULL;
 static guint ndtlsdecrypt = 0;
@@ -246,7 +248,7 @@ dtls_parse_uat(void)
   /* remove only associations created from key list */
   tmp_stack = ep_stack_new();
   g_tree_foreach(dtls_associations, ssl_assoc_from_key_list, tmp_stack);
-  while ((tmp_assoc = ep_stack_pop(tmp_stack)) != NULL) {
+  while ((tmp_assoc = (SslAssociation *)ep_stack_pop(tmp_stack)) != NULL) {
     ssl_association_remove(dtls_associations, tmp_assoc);
   }
 
@@ -414,11 +416,11 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* manage dtls decryption data */
   /*get a valid ssl session pointer*/
   if (conv_data != NULL)
-    ssl_session = conv_data;
+    ssl_session = (SslDecryptSession *)conv_data;
   else {
     SslService dummy;
 
-    ssl_session = se_alloc0(sizeof(SslDecryptSession));
+    ssl_session = se_new0(SslDecryptSession);
     ssl_session_init(ssl_session);
     ssl_session->version = SSL_VER_UNKNOWN;
     conversation_add_proto_data(conversation, proto_dtls, ssl_session);
@@ -439,7 +441,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * is not always available
      * Note that with HAVE_LIBGNUTLS undefined private_key is always 0
      * and thus decryption never engaged*/
-    private_key = g_hash_table_lookup(dtls_key_hash, &dummy);
+    private_key = (Ssl_private_key_t *)g_hash_table_lookup(dtls_key_hash, &dummy);
     if (!private_key) {
       ssl_debug_printf("dissect_dtls can't find private key for this server!\n");
     }
@@ -623,7 +625,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
       ssl_debug_printf("decrypt_dtls_record: allocating %d bytes"
                        " for decrypt data (old len %d)\n",
                        record_length + 32, dtls_decrypted_data.data_len);
-      dtls_decrypted_data.data = g_realloc(dtls_decrypted_data.data,
+      dtls_decrypted_data.data = (guchar *)g_realloc(dtls_decrypted_data.data,
                                            record_length + 32);
       dtls_decrypted_data.data_len = record_length + 32;
     }
@@ -1406,7 +1408,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 }
               }
 
-              encrypted_pre_master.data = se_alloc(encrlen);
+              encrypted_pre_master.data = (guchar *)se_alloc(encrlen);
               encrypted_pre_master.data_len = encrlen;
               tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
 
@@ -2261,7 +2263,7 @@ looks_like_dtls(tvbuff_t *tvb, guint32 offset)
 static void
 dtlsdecrypt_free_cb(void* r)
 {
-  ssldecrypt_assoc_t* h = r;
+  ssldecrypt_assoc_t* h = (ssldecrypt_assoc_t*)r;
 
   g_free(h->ipaddr);
   g_free(h->port);
@@ -2283,8 +2285,8 @@ dtlsdecrypt_update_cb(void* r _U_, const char** err _U_)
 static void *
 dtlsdecrypt_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
-  const ssldecrypt_assoc_t* o = orig;
-  ssldecrypt_assoc_t*       d = dest;
+  const ssldecrypt_assoc_t* o = (const ssldecrypt_assoc_t*)orig;
+  ssldecrypt_assoc_t*       d = (ssldecrypt_assoc_t*)dest;
 
   d->ipaddr    = g_strdup(o->ipaddr);
   d->port      = g_strdup(o->port);

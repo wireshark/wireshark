@@ -39,6 +39,8 @@
 #include <epan/aftypes.h>
 #include <epan/ipproto.h>
 
+void proto_register_dtpt(void);
+
 static int proto_dtpt = -1;
 
 static int hf_dtpt_version = -1;

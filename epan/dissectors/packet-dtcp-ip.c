@@ -50,6 +50,7 @@ static int proto_dtcp_ip = -1;
 
 static guint pref_tcp_port = 0;
 
+void proto_register_dtcp_ip(void);
 void proto_reg_handoff_dtcp_ip(void);
 
 static gint ett_dtcp_ip = -1;

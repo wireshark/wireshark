@@ -38,6 +38,7 @@
  * It's incomplete, and it appears to be inaccurate in a number of places,
  * but it's all I could find....
  */
+void proto_register_dtp(void);
 
 static int proto_dtp = -1;
 static int hf_dtp_version = -1;
