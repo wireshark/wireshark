@@ -194,7 +194,7 @@ typedef struct property_guids {
 } property_guids_t;
 
 /* Type Serialization Version 1 */
-int
+static int
 dissect_TypeSzCommPrivHdr(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep)
 {
@@ -248,7 +248,7 @@ dissect_dcom_Property_Guid(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_info *di;
     property_guids_t *pg;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     pg = (property_guids_t*)di->private_data;
 
     DISSECTOR_ASSERT(pg->id_idx < MAX_ACTPROP_LIMIT);
@@ -273,7 +273,7 @@ dissect_dcom_Property_Size(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_info *di;
     property_guids_t *pg;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     pg = (property_guids_t*)di->private_data;
 
     DISSECTOR_ASSERT(pg->size_idx < MAX_ACTPROP_LIMIT);
@@ -369,7 +369,7 @@ dissect_dcom_ActivationPropertiesBody(tvbuff_t *tvb, gint offset, packet_info *p
     property_guids_t *pg;
     guint32 i;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     pg = (property_guids_t*)di->private_data;
 
     DISSECTOR_ASSERT(pg->id_idx == pg->size_idx);
@@ -387,7 +387,7 @@ dissect_dcom_ActivationPropertiesBody(tvbuff_t *tvb, gint offset, packet_info *p
     return offset;
 }
 
-int
+static int
 dissect_dcom_ActivationProperties(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree, guint8 *drep, gint size _U_)
 {
@@ -406,11 +406,11 @@ dissect_dcom_ActivationProperties(tvbuff_t *tvb, gint offset, packet_info *pinfo
     offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
             hf_sysact_res, &u32Res);
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->private_data) {
         g_free(di->private_data);
     }
-    di->private_data = g_malloc(sizeof(property_guids_t));
+    di->private_data = g_new(property_guids_t,1);
     memset(di->private_data, 0, sizeof(property_guids_t));
 
     offset = dissect_dcom_ActivationPropertiesCustomerHdr(tvb, offset, pinfo, sub_tree, drep);
@@ -608,7 +608,7 @@ dissect_ActCtxInfo_CltCtx(tvbuff_t *tvb, gint offset,
 {
     dcerpc_info *di;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         return offset;
     }
@@ -671,7 +671,7 @@ dissect_dcom_COSERVERINFO(tvbuff_t *tvb, gint offset,
     proto_tree *sub_tree;
     gint old_offset;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         return offset;
     }
@@ -809,7 +809,7 @@ dissect_dcom_customREMOTE_REQUEST_SCM_INFO(tvbuff_t *tvb, gint offset,
     proto_tree *sub_tree;
     gint old_offset;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         return offset;
     }
@@ -989,7 +989,7 @@ dissect_dcom_OxidBindings(tvbuff_t *tvb, gint offset,
     proto_tree *sub_tree;
     gint old_offset;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         return offset;
     }
@@ -1016,7 +1016,7 @@ dissect_dcom_customREMOTE_REPLY_SCM_INFO(tvbuff_t *tvb, gint offset,
     proto_tree *sub_tree;
     gint old_offset;
 
-    di = pinfo->private_data;
+    di = (dcerpc_info *)pinfo->private_data;
     if (di->conformant_run) {
         return offset;
     }

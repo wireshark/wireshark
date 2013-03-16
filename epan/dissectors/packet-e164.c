@@ -33,6 +33,8 @@
 #include <epan/packet.h>
 #include "packet-e164.h"
 
+void proto_register_e164(void);
+
 const value_string E164_country_code_value[] = {
 	{ 0x00, "Reserved (Assignment of all 0XX codes will be feasible after 31 December 2000. This question is currently under study.)"},
 	{ 0x01, "Americas"},

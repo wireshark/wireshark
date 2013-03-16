@@ -28,6 +28,9 @@
 
 #include <epan/packet.h>
 
+void proto_register_e100(void);
+void proto_reg_handoff_e100(void);
+
 static int proto_e100 = -1;
 
 static dissector_handle_t eth_handle;
