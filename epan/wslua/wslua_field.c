@@ -86,19 +86,19 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 lua_pushnumber(L,(lua_Number)fvalue_get_floating(&(fi->value)));
                 return 1;
         case FT_INT64: {
-                Int64 num = g_malloc(sizeof(gint64));
+                Int64 num = (Int64)g_malloc(sizeof(gint64));
                 *num = fvalue_get_integer64(&(fi->value));
                 pushInt64(L,num);
                 return 1;
             }
         case FT_UINT64: {
-                UInt64 num = g_malloc(sizeof(guint64));
+                UInt64 num = (UInt64)g_malloc(sizeof(guint64));
                 *num = fvalue_get_integer64(&(fi->value));
                 pushUInt64(L,num);
                 return 1;
             }
         case FT_ETHER: {
-                Address eth = g_malloc(sizeof(address));
+                Address eth = (Address)g_malloc(sizeof(address));
                 eth->type = AT_ETHER;
                 eth->len = fi->length;
                 eth->data = tvb_memdup(fi->ds_tvb,fi->start,fi->length);
@@ -106,7 +106,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 return 1;
             }
         case FT_IPv4:{
-                Address ipv4 = g_malloc(sizeof(address));
+                Address ipv4 = (Address)g_malloc(sizeof(address));
                 ipv4->type = AT_IPv4;
                 ipv4->len = fi->length;
                 ipv4->data = tvb_memdup(fi->ds_tvb,fi->start,fi->length);
@@ -114,7 +114,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 return 1;
             }
         case FT_IPv6: {
-                Address ipv6 = g_malloc(sizeof(address));
+                Address ipv6 = (Address)g_malloc(sizeof(address));
                 ipv6->type = AT_IPv6;
                 ipv6->len = fi->length;
                 ipv6->data = tvb_memdup(fi->ds_tvb,fi->start,fi->length);
@@ -122,7 +122,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 return 1;
             }
         case FT_IPXNET:{
-                Address ipx = g_malloc(sizeof(address));
+                Address ipx = (Address)g_malloc(sizeof(address));
                 ipx->type = AT_IPX;
                 ipx->len = fi->length;
                 ipx->data = tvb_memdup(fi->ds_tvb,fi->start,fi->length);
@@ -131,7 +131,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
             }
         case FT_ABSOLUTE_TIME:
         case FT_RELATIVE_TIME: {
-                NSTime nstime = g_malloc(sizeof(nstime_t));
+                NSTime nstime = (NSTime)g_malloc(sizeof(nstime_t));
                 *nstime = *(NSTime)fvalue_get(&(fi->value));
                 pushNSTime(L,nstime);
                 return 1;
@@ -152,7 +152,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
         case FT_PROTOCOL:
         case FT_OID: {
                 ByteArray ba = g_byte_array_new();
-                g_byte_array_append(ba, ep_tvb_memdup(fi->ds_tvb,fi->start,fi->length),fi->length);
+                g_byte_array_append(ba, (const guint8 *)ep_tvb_memdup(fi->ds_tvb,fi->start,fi->length),fi->length);
                 pushByteArray(L,ba);
                 return 1;
             }
@@ -221,8 +221,8 @@ static int FieldInfo_display(lua_State* L) {
 static int FieldInfo_get_range(lua_State* L) {
     /* The TvbRange covering this field */
     FieldInfo fi = checkFieldInfo(L,1);
-    TvbRange r = ep_alloc(sizeof(struct _wslua_tvbrange));
-    r->tvb = ep_alloc(sizeof(struct _wslua_tvb));
+    TvbRange r = ep_new(struct _wslua_tvbrange);
+    r->tvb = ep_new(struct _wslua_tvb);
 
     r->tvb->ws_tvb = fi->ds_tvb;
     r->offset = fi->start;
@@ -374,7 +374,7 @@ WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
 
     if (found) {
         for (i=0; i<found->len; i++) {
-            pushFieldInfo(L,g_ptr_array_index(found,i));
+            pushFieldInfo(L,(FieldInfo)g_ptr_array_index(found,i));
             items_found++;
         }
 
@@ -422,7 +422,7 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
     static gboolean fake_tap = FALSE;
 
     for(i=0; i < wanted_fields->len; i++) {
-        Field f = g_ptr_array_index(wanted_fields,i);
+        Field f = (Field)g_ptr_array_index(wanted_fields,i);
         gchar* name = *((gchar**)f);
 
         *f = proto_registrar_get_byname(name);
@@ -478,7 +478,7 @@ WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
     if (!wanted_fields)
         WSLUA_ERROR(Field_get,"A Field extractor must be defined before Taps or Dissectors get called");
 
-    f = g_malloc(sizeof(void*));
+    f = (Field)g_malloc(sizeof(void*));
     *f = (header_field_info*)g_strdup(name); /* cheating */
 
     g_ptr_array_add(wanted_fields,f);
@@ -507,7 +507,7 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
         guint i;
         if (found) {
             for (i=0; i<found->len; i++) {
-                pushFieldInfo(L,g_ptr_array_index(found,i));
+                pushFieldInfo(L,(FieldInfo)g_ptr_array_index(found,i));
                 items_found++;
             }
         }

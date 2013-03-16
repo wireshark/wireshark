@@ -64,7 +64,7 @@ WSLUA_CONSTRUCTOR PseudoHeader_none(lua_State* L) {
      Creates a "no" pseudoheader.
 
     */
-    PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
+    PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_NONE;
     ph->wph = NULL;
 
@@ -81,9 +81,9 @@ WSLUA_CONSTRUCTOR PseudoHeader_eth(lua_State* L) {
 
 #define WSLUA_OPTARG_PseudoHeader_eth_FCSLEN 1 /* The fcs length */
 
-    PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
+    PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_ETH;
-    ph->wph = g_malloc(sizeof(union wtap_pseudo_header));
+    ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
     ph->wph->eth.fcs_len = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_eth_FCSLEN,-1);
 
     pushPseudoHeader(L,ph);
@@ -103,9 +103,9 @@ WSLUA_CONSTRUCTOR PseudoHeader_atm(lua_State* L) {
 #define WSLUA_OPTARG_PseudoHeader_atm_AAL5U2U 6 /* AAL5 User to User indicator */
 #define WSLUA_OPTARG_PseudoHeader_atm_AAL5LEN 7 /* AAL5 Len */
 
-    PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
+    PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_ATM;
-    ph->wph = g_malloc(sizeof(union wtap_pseudo_header));
+    ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
     ph->wph->atm.aal = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_atm_AAL,5);
     ph->wph->atm.vpi = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_atm_VPI,1);
     ph->wph->atm.vci = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_atm_VCI,1);
@@ -124,9 +124,9 @@ WSLUA_CONSTRUCTOR PseudoHeader_mtp2(lua_State* L) {
 #define WSLUA_OPTARG_PseudoHeader_mtp2_SENT 1 /* True if the packet is sent, False if received. */
 #define WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA 2 /* True if annex A is used  */
 #define WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM 3 /* Link Number */
-    PseudoHeader ph = g_malloc(sizeof(struct lua_pseudo_header));
+    PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_MTP2;
-    ph->wph = g_malloc(sizeof(union wtap_pseudo_header));
+    ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
     ph->wph->mtp2.sent = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_mtp2_SENT,0);
     ph->wph->mtp2.annex_a_used = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA,0);
     ph->wph->mtp2.link_number = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM,0);
@@ -392,7 +392,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     if (lua_pinfo->fd->opt_comment)
         pkthdr.opt_comment = ep_strdup(lua_pinfo->fd->opt_comment);
 
-    data = ep_tvb_memdup(tvb,0,pkthdr.caplen);
+    data = (const guchar *)ep_tvb_memdup(tvb,0,pkthdr.caplen);
 
     if (! wtap_dump(d, &pkthdr, data, &err)) {
         luaL_error(L,"error while dumping: %s",

@@ -292,11 +292,11 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
 		WSLUA_ARG_ERROR(Dir_open,PATHNAME, "must be a directory");
 	}
 
-	dir = g_malloc(sizeof(struct _wslua_dir));
+	dir = (Dir)g_malloc(sizeof(struct _wslua_dir));
 	dir->dir = OPENDIR_OP(dirname_clean);
 	g_free(dirname_clean);
 	dir->ext = extension ? g_strdup(extension) : NULL;
-	dir->dummy = g_malloc(sizeof(GError *));
+	dir->dummy = (GError **)g_malloc(sizeof(GError *));
 	*(dir->dummy) = NULL;
 
 	if (dir->dir == NULL) {
@@ -414,7 +414,7 @@ static int statcmd_init_cb_error_handler(lua_State* L _U_) {
 }
 
 static void statcmd_init(const char *optarg, void* userdata) {
-	statcmd_t* sc = userdata;
+    statcmd_t* sc = (statcmd_t *)userdata;
     lua_State* L = sc->L;
 
     lua_settop(L,0);
@@ -444,7 +444,7 @@ WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {
 #define WSLUA_ARG_register_stat_cmd_arg_ARGUMENT 1 /* Argument */
 #define WSLUA_OPTARG_register_stat_cmd_arg_ACTION 2 /* Action */
 	const char* arg = luaL_checkstring(L,WSLUA_ARG_register_stat_cmd_arg_ARGUMENT);
-	statcmd_t* sc = g_malloc0(sizeof(statcmd_t)); /* XXX leaked */
+	statcmd_t* sc = (statcmd_t *)g_malloc0(sizeof(statcmd_t)); /* XXX leaked */
 
 	sc->L = L;
 	lua_pushvalue(L, WSLUA_OPTARG_register_stat_cmd_arg_ACTION);

@@ -82,7 +82,7 @@ static int tap_packet_cb_error_handler(lua_State* L) {
 
 
 static int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
-    Listener tap = tapdata;
+    Listener tap = (Listener)tapdata;
     int retval = 0;
 
     if (tap->packet_ref == LUA_NOREF) return 0;
@@ -103,7 +103,7 @@ static int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt
 
     lua_pinfo = pinfo;
     lua_tvb = edt->tvb;
-    lua_tree = g_malloc(sizeof(struct _wslua_treeitem));
+    lua_tree = (struct _wslua_treeitem *)g_malloc(sizeof(struct _wslua_treeitem));
     lua_tree->tree = edt->tree;
     lua_tree->item = NULL;
     lua_tree->expired = FALSE;
@@ -139,7 +139,7 @@ static int tap_reset_cb_error_handler(lua_State* L) {
 }
 
 static void lua_tap_reset(void *tapdata) {
-    Listener tap = tapdata;
+    Listener tap = (Listener)tapdata;
 
     if (tap->init_ref == LUA_NOREF) return;
 
@@ -162,7 +162,7 @@ static void lua_tap_reset(void *tapdata) {
 }
 
 static void lua_tap_draw(void *tapdata) {
-    Listener tap = tapdata;
+    Listener tap = (Listener)tapdata;
     const gchar* error;
     if (tap->draw_ref == LUA_NOREF) return;
 
@@ -196,7 +196,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     Listener tap;
     GString* error;
 
-    tap = g_malloc(sizeof(struct _wslua_tap));
+    tap = (Listener)g_malloc(sizeof(struct _wslua_tap));
 
     tap->name = g_strdup(tap_type);
     tap->filter = filter ? g_strdup(filter) : NULL;

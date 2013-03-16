@@ -49,7 +49,7 @@ WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks whether the GUI facil
 }
 
 static void lua_menu_callback(gpointer data) {
-    struct _lua_menu_data* md = data;
+    struct _lua_menu_data* md = (struct _lua_menu_data *)data;
     lua_State* L = md->L;
 
     lua_settop(L,0);
@@ -89,7 +89,7 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
     gboolean retap = FALSE;
-    register_stat_group_t group = (int)luaL_optnumber(L,WSLUA_OPTARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
+    register_stat_group_t group = (register_stat_group_t)luaL_optnumber(L,WSLUA_OPTARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
 
     if ( group > REGISTER_TOOLS_GROUP_UNSORTED)
         WSLUA_OPTARG_ERROR(register_menu,GROUP,"Must be a defined MENU_* (see init.lua)");
@@ -100,7 +100,7 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
     if (!lua_isfunction(L,WSLUA_ARG_register_menu_ACTION))
         WSLUA_ARG_ERROR(register_menu,ACTION,"Must be a function");
 
-    md = g_malloc(sizeof(struct _lua_menu_data));
+    md = (struct _lua_menu_data *)g_malloc(sizeof(struct _lua_menu_data));
     md->L = L;
 
     lua_pushvalue(L, 2);
@@ -131,7 +131,7 @@ static int dlg_cb_error_handler(lua_State* L) {
 }
 
 static void lua_dialog_cb(gchar** user_input, void* data) {
-    struct _dlg_cb_data* dcbd = data;
+    struct _dlg_cb_data* dcbd = (struct _dlg_cb_data *)data;
     int i = 0;
     gchar* input;
     lua_State* L = dcbd->L;
@@ -177,7 +177,7 @@ static int text_win_close_cb_error_handler(lua_State* L) {
 }
 
 static void text_win_close_cb(void* data) {
-    struct _close_cb_data* cbd = data;
+    struct _close_cb_data* cbd = (struct _close_cb_data *)data;
     lua_State* L = cbd->L;
 
     if (cbd->L) { /* close function is set */
@@ -241,7 +241,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     }
 
 
-    dcbd = g_malloc(sizeof(struct _dlg_cb_data));
+    dcbd = (struct _dlg_cb_data *)g_malloc(sizeof(struct _dlg_cb_data));
     dcbd->L = L;
 
     lua_remove(L,1);
@@ -255,7 +255,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     top -= 2;
 
     for (i = 1; i <= top; i++) {
-        gchar* label = (void*)luaL_checkstring(L,i);
+        gchar* label = (gchar *)luaL_checkstring(L,i);
 
         /* XXX leaks labels on error */
         if (! label)
@@ -280,7 +280,7 @@ WSLUA_CLASS_DEFINE(ProgDlg,NOP,NOP); /* Manages a progress bar dialog. */
 WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new TextWindow. */
 #define WSLUA_OPTARG_ProgDlg_new_TITLE 2 /* Title of the new window, defaults to "Progress". */
 #define WSLUA_OPTARG_ProgDlg_new_TASK 3  /* Current task, defaults to "". */
-    ProgDlg pd = g_malloc(sizeof(struct _wslua_progdlg));
+    ProgDlg pd = (ProgDlg)g_malloc(sizeof(struct _wslua_progdlg));
     pd->title = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProgDlg_new_TITLE,"Progress"));
     pd->task = g_strdup(luaL_optstring(L,WSLUA_OPTARG_ProgDlg_new_TASK,""));
     pd->stopped = FALSE;
@@ -429,11 +429,11 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
     }
 
     title = luaL_optstring(L,WSLUA_OPTARG_TextWindow_new_TITLE,"Untitled Window");
-    tw = g_malloc(sizeof(struct _wslua_tw));
+    tw = (struct _wslua_tw *)g_malloc(sizeof(struct _wslua_tw));
     tw->expired = FALSE;
     tw->ws_tw = ops->new_text_window(title);
 
-    default_cbd = g_malloc(sizeof(struct _close_cb_data));
+    default_cbd = (struct _close_cb_data *)g_malloc(sizeof(struct _close_cb_data));
 
     default_cbd->L = NULL;
     default_cbd->func_ref = 0;
@@ -464,7 +464,7 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
     if (! lua_isfunction(L,2))
         WSLUA_ARG_ERROR(TextWindow_at_close,ACTION,"Must be a function");
 
-    cbd = g_malloc(sizeof(struct _close_cb_data));
+    cbd = (struct _close_cb_data *)g_malloc(sizeof(struct _close_cb_data));
 
     cbd->L = L;
     cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -626,7 +626,7 @@ typedef struct _wslua_bt_cb_t {
 } wslua_bt_cb_t;
 
 static gboolean wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
-    wslua_bt_cb_t* cbd = data;
+    wslua_bt_cb_t* cbd = (wslua_bt_cb_t *)data;
     lua_State* L = cbd->L;
     (void) ws_tw; /* ws_tw is unused since we need wslua_tw_ref and it is stored in cbd */
 
@@ -676,8 +676,8 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
     lua_settop(L,3);
 
     if (ops->add_button) {
-        fbt = g_malloc(sizeof(funnel_bt_t));
-        cbd = g_malloc(sizeof(wslua_bt_cb_t));
+        fbt = (funnel_bt_t *)g_malloc(sizeof(funnel_bt_t));
+        cbd = (wslua_bt_cb_t *)g_malloc(sizeof(wslua_bt_cb_t));
 
         fbt->tw = tw->ws_tw;
         fbt->func = wslua_button_callback;

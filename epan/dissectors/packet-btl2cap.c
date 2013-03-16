@@ -462,7 +462,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
         key[5].length = 0;
         key[5].key    = NULL;
 
-        psm_service = se_tree_lookup32_array_le(psm_to_service_table, key);
+        psm_service = (psm_service_t *)se_tree_lookup32_array_le(psm_to_service_table, key);
         if (psm_service && psm_service->interface_id == interface_id &&
                 psm_service->adapter_id == adapter_id &&
                 psm_service->chandle == chandle &&
@@ -494,7 +494,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
         k_cid          = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000);
         k_frame_number = pinfo->fd->num;
 
-        psm_data = se_alloc(sizeof(psm_data_t));
+        psm_data = se_new(psm_data_t);
         psm_data->scid = (scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000));
         psm_data->dcid = 0;
         psm_data->psm  = psm;
@@ -740,7 +740,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
         key[5].length = 0;
         key[5].key    = NULL;
 
-        psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+        psm_data = (psm_data_t *)se_tree_lookup32_array_le(cid_to_psm_table, key);
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
@@ -928,7 +928,7 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
         key[5].length = 0;
         key[5].key    = NULL;
 
-        psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+        psm_data = (psm_data_t *)se_tree_lookup32_array_le(cid_to_psm_table, key);
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
@@ -1012,7 +1012,7 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
         key[5].length = 0;
         key[5].key    = NULL;
 
-        psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+        psm_data = (psm_data_t *)se_tree_lookup32_array_le(cid_to_psm_table, key);
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
@@ -1203,7 +1203,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
         key[5].length = 0;
         key[5].key    = NULL;
 
-        psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+        psm_data = (psm_data_t *)se_tree_lookup32_array_le(cid_to_psm_table, key);
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
@@ -1231,7 +1231,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
         key[5].length = 0;
         key[5].key    = NULL;
 
-        psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+        psm_data = (psm_data_t *)se_tree_lookup32_array_le(cid_to_psm_table, key);
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
@@ -1296,7 +1296,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         key[5].length = 0;
         key[5].key    = NULL;
 
-        psm_service = se_tree_lookup32_array_le(psm_to_service_table, key);
+        psm_service = (psm_service_t *)se_tree_lookup32_array_le(psm_to_service_table, key);
         if (psm_service && psm_service->interface_id == interface_id &&
                 psm_service->adapter_id == adapter_id &&
                 psm_service->chandle == chandle &&
@@ -1403,16 +1403,16 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
 
         if (!pinfo->fd->flags.visited) {
-            mfp              = se_alloc(sizeof(sdu_reassembly_t));
+            mfp              = se_new(sdu_reassembly_t);
             mfp->first_frame = pinfo->fd->num;
             mfp->last_frame  = 0;
             mfp->tot_len     = sdulen;
-            mfp->reassembled = se_alloc(sdulen);
+            mfp->reassembled = (guint8 *)se_alloc(sdulen);
             tvb_memcpy(tvb, mfp->reassembled, offset, sdulen);
             mfp->cur_off     = sdulen;
             se_tree_insert32(config_data->start_fragments, pinfo->fd->num, mfp);
         } else {
-            mfp              = se_tree_lookup32(config_data->start_fragments, pinfo->fd->num);
+            mfp              = (sdu_reassembly_t *)se_tree_lookup32(config_data->start_fragments, pinfo->fd->num);
         }
         if (mfp != NULL && mfp->last_frame) {
             proto_item *item;
@@ -1429,7 +1429,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         length -= 4; /*Control, FCS*/
     }
     if (segment == 0x02 || segment == 0x03) {
-        mfp = se_tree_lookup32_le(config_data->start_fragments, pinfo->fd->num);
+        mfp = (sdu_reassembly_t *)se_tree_lookup32_le(config_data->start_fragments, pinfo->fd->num);
         if (!pinfo->fd->flags.visited) {
             if (mfp != NULL && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off + length)) {
                 tvb_memcpy(tvb, mfp->reassembled + mfp->cur_off, offset, length);
@@ -1497,7 +1497,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             key[5].length = 0;
             key[5].key    = NULL;
 
-            psm_service = se_tree_lookup32_array_le(psm_to_service_table, key);
+            psm_service = (psm_service_t *)se_tree_lookup32_array_le(psm_to_service_table, key);
             if (psm_service && psm_service->interface_id == interface_id &&
                     psm_service->adapter_id == adapter_id &&
                     psm_service->chandle == chandle &&
@@ -1633,7 +1633,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
 
     acl_data = (bthci_acl_data_t *)pinfo->private_data;
-    l2cap_data = ep_alloc(sizeof(btl2cap_data_t));
+    l2cap_data = ep_new(btl2cap_data_t);
 
     l2cap_data->interface_id     = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
     l2cap_data->adapter_id       = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
@@ -1809,7 +1809,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             key[5].length = 0;
             key[5].key    = NULL;
 
-            psm_service = se_tree_lookup32_array_le(psm_to_service_table, key);
+            psm_service = (psm_service_t *)se_tree_lookup32_array_le(psm_to_service_table, key);
             if (!(psm_service && psm_service->interface_id == interface_id &&
                     psm_service->adapter_id == adapter_id &&
                     psm_service->chandle == chandle &&
@@ -1893,7 +1893,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         key[5].length = 0;
         key[5].key    = NULL;
 
-        psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+        psm_data = (psm_data_t *)se_tree_lookup32_array_le(cid_to_psm_table, key);
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
@@ -1985,12 +1985,12 @@ btl2cap_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *ed
         key[5].key    = NULL;
 
 
-        psm_service = se_tree_lookup32_array_le(psm_to_service_table, key);
+        psm_service = (psm_service_t *)se_tree_lookup32_array_le(psm_to_service_table, key);
         if (!(psm_service && psm_service->interface_id == interface_id &&
                 psm_service->adapter_id == adapter_id &&
                 psm_service->chandle == chandle &&
                 psm_service->psm == psm)) {
-            psm_service = se_alloc0(sizeof(psm_service_t));
+            psm_service = se_new0(psm_service_t);
             psm_service->interface_id = interface_id;
             psm_service->adapter_id   = adapter_id;
             psm_service->chandle      = chandle;

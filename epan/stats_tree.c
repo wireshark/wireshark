@@ -222,7 +222,7 @@ reset_stat_node(stat_node *node)
 extern void
 stats_tree_reset(void *p)
 {
-	stats_tree *st = p;
+	stats_tree *st = (stats_tree *)p;
 
 	st->start = -1.0;
 	st->elapsed = 0.0;
@@ -237,7 +237,7 @@ stats_tree_reset(void *p)
 extern void
 stats_tree_reinit(void *p)
 {
-	stats_tree *st = p;
+	stats_tree *st = (stats_tree *)p;
 	stat_node *child;
 	stat_node *next;
 
@@ -263,7 +263,7 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
 		    stat_tree_cleanup_cb cleanup, register_stat_group_t stat_group)
 {
 
-	stats_tree_cfg *cfg = g_malloc( sizeof(stats_tree_cfg) );
+	stats_tree_cfg *cfg = (stats_tree_cfg *)g_malloc( sizeof(stats_tree_cfg) );
 
 	/* at the very least the abbrev and the packet function should be given */
 	g_assert( tapname && abbr && packet );
@@ -328,7 +328,7 @@ stats_tree_register_plugin(const char *tapname, const char *abbr, const char *na
 extern stats_tree*
 stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
 {
-	stats_tree *st = g_malloc(sizeof(stats_tree));
+	stats_tree *st = (stats_tree *)g_malloc(sizeof(stats_tree));
 
 	st->cfg = cfg;
 	st->pr = pr;
@@ -358,7 +358,7 @@ stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
 extern int
 stats_tree_packet(void *p, packet_info *pinfo, epan_dissect_t *edt, const void *pri)
 {
-	stats_tree *st = p;
+	stats_tree *st = (stats_tree *)p;
 	double now = nstime_to_msec(&pinfo->fd->rel_ts);
 
 	if (st->start < 0.0) st->start = now;
@@ -374,7 +374,7 @@ stats_tree_packet(void *p, packet_info *pinfo, epan_dissect_t *edt, const void *
 extern stats_tree_cfg*
 stats_tree_get_cfg_by_abbr(char *abbr)
 {
-	return g_hash_table_lookup(registry,abbr);
+	return (stats_tree_cfg *)g_hash_table_lookup(registry,abbr);
 }
 
 extern GList*
@@ -397,8 +397,8 @@ struct _stats_tree_pres_cbs {
 static void
 setup_tree_presentation(gpointer k _U_, gpointer v, gpointer p)
 {
-	stats_tree_cfg *cfg = v;
-	struct _stats_tree_pres_cbs *d = p;
+	stats_tree_cfg *cfg = (stats_tree_cfg *)v;
+	struct _stats_tree_pres_cbs *d = (struct _stats_tree_pres_cbs *)p;
 
 	cfg->in_use = FALSE;
 	cfg->setup_node_pr = d->setup_node_pr;
@@ -454,7 +454,7 @@ new_stat_node(stats_tree *st, const gchar *name, int parent_id,
 	      gboolean with_hash, gboolean as_parent_node)
 {
 
-	stat_node *node = g_malloc (sizeof(stat_node));
+	stat_node *node = (stat_node *)g_malloc (sizeof(stat_node));
 	stat_node *last_chld = NULL;
 
 	node->counter = 0;
@@ -479,7 +479,7 @@ new_stat_node(stats_tree *st, const gchar *name, int parent_id,
 	}
 
 	if (parent_id >= 0 && parent_id < (int) st->parents->len ) {
-		node->parent = g_ptr_array_index(st->parents,parent_id);
+		node->parent = (stat_node *)g_ptr_array_index(st->parents,parent_id);
 	} else {
 		/* ??? should we set the parent to be root ??? */
 		g_assert_not_reached();
@@ -549,12 +549,12 @@ stats_tree_manip_node(manip_node_mode mode, stats_tree *st, const char *name,
 
 	g_assert( parent_id >= 0 && parent_id < (int) st->parents->len );
 
-	parent = g_ptr_array_index(st->parents,parent_id);
+	parent = (stat_node *)g_ptr_array_index(st->parents,parent_id);
 
 	if( parent->hash ) {
-		node = g_hash_table_lookup(parent->hash,name);
+		node = (stat_node *)g_hash_table_lookup(parent->hash,name);
 	} else {
-		node = g_hash_table_lookup(st->names,name);
+		node = (stat_node *)g_hash_table_lookup(st->names,name);
 	}
 
 	if ( node == NULL )
@@ -628,7 +628,7 @@ get_range(char *rngstr)
           return NULL;
         }
 
-        rng = g_malloc(sizeof(range_pair_t));
+        rng = (range_pair_t *)g_malloc(sizeof(range_pair_t));
 
         /* string == "X-?" */
         if (*(split[0]) != '\0') {
@@ -689,7 +689,7 @@ stats_tree_create_range_node_string(stats_tree *st, const gchar *name,
 extern int
 stats_tree_parent_id_by_name(stats_tree *st, const gchar *parent_name)
 {
-	stat_node *node = g_hash_table_lookup(st->names,parent_name);
+	stat_node *node = (stat_node *)g_hash_table_lookup(st->names,parent_name);
 
 	if (node)
 		return node->id;
@@ -730,15 +730,15 @@ stats_tree_tick_range(stats_tree *st, const gchar *name, int parent_id,
 	gint floor, ceil;
 
 	if (parent_id >= 0 && parent_id < (int) st->parents->len) {
-		parent = g_ptr_array_index(st->parents,parent_id);
+		parent = (stat_node *)g_ptr_array_index(st->parents,parent_id);
 	} else {
 		g_assert_not_reached();
 	}
 
 	if( parent->hash ) {
-		node = g_hash_table_lookup(parent->hash,name);
+		node = (stat_node *)g_hash_table_lookup(parent->hash,name);
 	} else {
-		node = g_hash_table_lookup(st->names,name);
+		node = (stat_node *)g_hash_table_lookup(st->names,name);
 	}
 
 	if ( node == NULL )
@@ -787,7 +787,7 @@ extern int
 stats_tree_tick_pivot(stats_tree *st, int pivot_id, const gchar *pivot_value)
 {
 
-	stat_node *parent = g_ptr_array_index(st->parents,pivot_id);
+	stat_node *parent = (stat_node *)g_ptr_array_index(st->parents,pivot_id);
 
 	parent->counter++;
 	stats_tree_manip_node( MN_INCREASE, st, pivot_value, pivot_id, FALSE, 1);

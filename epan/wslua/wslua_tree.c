@@ -84,8 +84,8 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     tvbr = shiftTvbRange(L,1);
     if (!tvbr) {
         /* No TvbRange specified */
-        tvbr = ep_alloc(sizeof(struct _wslua_tvbrange));
-        tvbr->tvb = ep_alloc(sizeof(struct _wslua_tvb));
+        tvbr = ep_new(struct _wslua_tvbrange);
+        tvbr->tvb = ep_new(struct _wslua_tvb);
         tvbr->tvb->ws_tvb = lua_tvb;
         tvbr->offset = 0;
         tvbr->len = 0;
@@ -115,7 +115,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
         lua_remove(L,1);
     }
 
-    tree_item = g_malloc(sizeof(struct _wslua_treeitem));
+    tree_item = (TreeItem)g_malloc(sizeof(struct _wslua_treeitem));
     tree_item->item = item;
     tree_item->tree = proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett);
     tree_item->expired = FALSE;
@@ -158,8 +158,8 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
     tvbr = shiftTvbRange(L,1);
 
     if (!tvbr) {
-        tvbr = ep_alloc(sizeof(struct _wslua_tvbrange));
-        tvbr->tvb = ep_alloc(sizeof(struct _wslua_tvb));
+        tvbr = ep_new(struct _wslua_tvbrange);
+        tvbr->tvb = ep_new(struct _wslua_tvb);
         tvbr->tvb->ws_tvb = lua_tvb;
         tvbr->offset = 0;
         tvbr->len = 0;
@@ -255,7 +255,7 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
         lua_remove(L,1);
     }
 
-    tree_item = g_malloc(sizeof(struct _wslua_treeitem));
+    tree_item = (TreeItem)g_malloc(sizeof(struct _wslua_treeitem));
     tree_item->item = item;
     tree_item->tree = proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett);
     tree_item->expired = FALSE;

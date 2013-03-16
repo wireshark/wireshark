@@ -151,7 +151,7 @@ WSLUA_METHOD ByteArray_set_size(lua_State* L) {
     if (ba->len >= (guint)siz) { /* truncate */
         g_byte_array_set_size(ba,siz);
     } else { /* fill */
-        padding = g_malloc0(sizeof(guint8)*(siz - ba->len));
+        padding = (guint8 *)g_malloc0(sizeof(guint8)*(siz - ba->len));
         g_byte_array_append(ba,padding,siz - ba->len);
         g_free(padding);
     }
@@ -387,7 +387,7 @@ void clear_outstanding_TvbRange(void) {
 
 
 Tvb* push_Tvb(lua_State* L, tvbuff_t* ws_tvb) {
-    Tvb tvb = g_malloc(sizeof(struct _wslua_tvb));
+    Tvb tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
     tvb->ws_tvb = ws_tvb;
     tvb->expired = FALSE;
     tvb->need_free = FALSE;
@@ -415,9 +415,9 @@ WSLUA_CONSTRUCTOR ByteArray_tvb (lua_State *L) {
         return 0;
     }
 
-    data = g_memdup(ba->data, ba->len);
+    data = (guint8 *)g_memdup(ba->data, ba->len);
 
-    tvb = g_malloc(sizeof(struct _wslua_tvb));
+    tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
     tvb->ws_tvb = tvb_new_real_data(data, ba->len,ba->len);
     tvb->expired = FALSE;
     tvb->need_free = TRUE;
@@ -442,7 +442,7 @@ WSLUA_CONSTRUCTOR TvbRange_tvb (lua_State *L) {
     }
 
     if (tvb_offset_exists(tvbr->tvb->ws_tvb,  tvbr->offset + tvbr->len -1 )) {
-        tvb = g_malloc(sizeof(struct _wslua_tvb));
+        tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
         tvb->expired = FALSE;
         tvb->need_free = FALSE;
         tvb->ws_tvb = tvb_new_subset(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len, tvbr->len);
@@ -587,8 +587,8 @@ static TvbRange new_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len
         return NULL;
     }
 
-    tvbr = g_malloc(sizeof(struct _wslua_tvbrange));
-    tvbr->tvb = g_malloc(sizeof(struct _wslua_tvb));
+    tvbr = (TvbRange)g_malloc(sizeof(struct _wslua_tvbrange));
+    tvbr->tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
     tvbr->tvb->ws_tvb = ws_tvb;
     tvbr->tvb->expired = FALSE;
     tvbr->tvb->need_free = FALSE;
@@ -735,7 +735,7 @@ WSLUA_METHOD TvbRange_uint64(lua_State* L) {
         case 6:
         case 7:
         case 8: {
-            UInt64 num = g_malloc(sizeof(guint64));
+            UInt64 num = (UInt64)g_malloc(sizeof(guint64));
             *num = tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
             pushUInt64(L,num);
             WSLUA_RETURN(1);
@@ -767,7 +767,7 @@ WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
         case 6:
         case 7:
         case 8: {
-            UInt64 num = g_malloc(sizeof(guint64));
+            UInt64 num = (UInt64)g_malloc(sizeof(guint64));
             *num = tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset);
             pushUInt64(L,num);
             WSLUA_RETURN(1);
@@ -862,7 +862,7 @@ WSLUA_METHOD TvbRange_int64(lua_State* L) {
         case 6:
         case 7:
         case 8: {
-            Int64 num = g_malloc(sizeof(gint64));
+            Int64 num = (Int64)g_malloc(sizeof(gint64));
             *num = (gint64)tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
             pushInt64(L,num);
             WSLUA_RETURN(1);
@@ -894,7 +894,7 @@ WSLUA_METHOD TvbRange_le_int64(lua_State* L) {
         case 6:
         case 7:
         case 8: {
-            Int64 num = g_malloc(sizeof(gint64));
+            Int64 num = (Int64)g_malloc(sizeof(gint64));
             *num = (gint64)tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset);
             pushInt64(L,num);
             WSLUA_RETURN(1);
@@ -966,9 +966,9 @@ WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
     if (tvbr->len != 4)
         WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
 
-    addr = g_malloc(sizeof(address));
+    addr = (address *)g_malloc(sizeof(address));
 
-    ip_addr = g_malloc(sizeof(guint32));
+    ip_addr = (guint32 *)g_malloc(sizeof(guint32));
     *ip_addr = tvb_get_ipv4(tvbr->tvb->ws_tvb,tvbr->offset);
 
     SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
@@ -992,9 +992,9 @@ WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
     if (tvbr->len != 4)
         WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
 
-    addr = g_malloc(sizeof(address));
+    addr = (address *)g_malloc(sizeof(address));
 
-    ip_addr = g_malloc(sizeof(guint32));
+    ip_addr = (guint32 *)g_malloc(sizeof(guint32));
     *ip_addr = tvb_get_ipv4(tvbr->tvb->ws_tvb,tvbr->offset);
     *((guint32 *)ip_addr) = GUINT32_SWAP_LE_BE(*((guint32 *)ip_addr));
 
@@ -1021,7 +1021,7 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
 
     addr = g_new(address,1);
 
-    buff = tvb_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
+    buff = (guint8 *)tvb_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
 
     SET_ADDRESS(addr, AT_ETHER, 6, buff);
     pushAddress(L,addr);
@@ -1185,7 +1185,7 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
     }
 
     ba = g_byte_array_new();
-    g_byte_array_append(ba,ep_tvb_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len),tvbr->len);
+    g_byte_array_append(ba,(const guint8 *)ep_tvb_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len),tvbr->len);
 
     pushByteArray(L,ba);
 
@@ -1222,7 +1222,7 @@ WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
         lua_pushnumber(L,tvb_get_bits32(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
         return 1;
     } else if (len <= 64) {
-        UInt64 num = g_malloc(sizeof(guint64));
+        UInt64 num = (UInt64)g_malloc(sizeof(guint64));
         *num = tvb_get_bits64(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE);
         pushUInt64(L,num);
         WSLUA_RETURN(1); /* The bitfield value */

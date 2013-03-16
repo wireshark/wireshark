@@ -68,7 +68,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     lua_pinfo = pinfo;
     lua_tvb = tvb;
 
-    lua_tree = g_malloc(sizeof(struct _wslua_treeitem));
+    lua_tree = (struct _wslua_treeitem *)g_malloc(sizeof(struct _wslua_treeitem));
     lua_tree->tree = tree;
     lua_tree->item = proto_tree_add_text(tree,tvb,0,0,"lua fake item");
     lua_tree->expired = FALSE;
@@ -332,12 +332,13 @@ int wslua_init(register_cb cb, gpointer client_data) {
         (*cb)(RA_LUA_PLUGINS, NULL, client_data);
 
     /* set up the logger */
-    g_log_set_handler(LOG_DOMAIN_LUA, G_LOG_LEVEL_CRITICAL|
+    g_log_set_handler(LOG_DOMAIN_LUA, (GLogLevelFlags)(G_LOG_LEVEL_CRITICAL|
                       G_LOG_LEVEL_WARNING|
                       G_LOG_LEVEL_MESSAGE|
                       G_LOG_LEVEL_INFO|
-                      G_LOG_LEVEL_DEBUG,
-                      ops ? ops->logger : basic_logger, NULL);
+                      G_LOG_LEVEL_DEBUG),
+                      ops ? ops->logger : basic_logger, 
+                      NULL);
 
     if (!L) {
         L = luaL_newstate();

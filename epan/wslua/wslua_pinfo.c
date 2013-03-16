@@ -57,7 +57,7 @@ CLEAR_OUTSTANDING(PrivateTable,expired, TRUE)
 Pinfo* push_Pinfo(lua_State* L, packet_info* ws_pinfo) {
     Pinfo pinfo = NULL;
     if (ws_pinfo) {
-        pinfo = g_malloc(sizeof(struct _wslua_pinfo));
+        pinfo = (Pinfo)g_malloc(sizeof(struct _wslua_pinfo));
         pinfo->ws_pinfo = ws_pinfo;
         pinfo->expired = FALSE;
         g_ptr_array_add(outstanding_Pinfo,pinfo);
@@ -76,7 +76,7 @@ WSLUA_CONSTRUCTOR NSTime_new(lua_State *L) {
 	/* Creates a new NSTime object */
 #define WSLUA_OPTARG_NSTime_new_SECONDS 1 /* Seconds */
 #define WSLUA_OPTARG_NSTime_new_NSECONDS 2 /* Nano seconds */
-    NSTime nstime = g_malloc(sizeof(nstime_t));
+    NSTime nstime = (NSTime)g_malloc(sizeof(nstime_t));
 
     if (!nstime) return 0;
 
@@ -100,7 +100,7 @@ WSLUA_METAMETHOD NSTime__tostring(lua_State* L) {
 WSLUA_METAMETHOD NSTime__add(lua_State* L) { /* Calculates the sum of two NSTimes */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
-    NSTime time3 = g_malloc (sizeof (nstime_t));
+    NSTime time3 = (NSTime)g_malloc (sizeof (nstime_t));
 
     nstime_sum (time3, time1, time2);
     pushNSTime (L, time3);
@@ -111,7 +111,7 @@ WSLUA_METAMETHOD NSTime__add(lua_State* L) { /* Calculates the sum of two NSTime
 WSLUA_METAMETHOD NSTime__sub(lua_State* L) { /* Calculates the diff of two NSTimes */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
-    NSTime time3 = g_malloc (sizeof (nstime_t));
+    NSTime time3 = (NSTime)g_malloc (sizeof (nstime_t));
 
     nstime_delta (time3, time1, time2);
     pushNSTime (L, time3);
@@ -121,7 +121,7 @@ WSLUA_METAMETHOD NSTime__sub(lua_State* L) { /* Calculates the diff of two NSTim
 
 WSLUA_METAMETHOD NSTime__unm(lua_State* L) { /* Calculates the negative NSTime */
     NSTime time1 = checkNSTime(L,1);
-    NSTime time2 = g_malloc (sizeof (nstime_t));
+    NSTime time2 = (NSTime)g_malloc (sizeof (nstime_t));
 
     nstime_set_zero (time2);
     nstime_subtract (time2, time1);
@@ -311,8 +311,8 @@ WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
 	/* Creates an Address Object representing an IP address. */
 
 #define WSLUA_ARG_Address_ip_HOSTNAME 1 /* The address or name of the IP host. */
-    Address addr = g_malloc(sizeof(address));
-    guint32* ip_addr = g_malloc(sizeof(guint32));
+    Address addr = (Address)g_malloc(sizeof(address));
+    guint32* ip_addr = (guint32 *)g_malloc(sizeof(guint32));
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Address_ip_HOSTNAME);
 
     if (! get_host_ipaddr(name, (guint32*)ip_addr)) {
@@ -781,7 +781,7 @@ WSLUA_METAMETHOD Columns_index(lua_State *L) {
     const char* colname = luaL_checkstring(L,2);
 
     if (!cols) {
-        Column c = g_malloc(sizeof(struct _wslua_col_info));
+        Column c = (Column)g_malloc(sizeof(struct _wslua_col_info));
         c->cinfo = NULL;
         c->col = col_name_to_id(colname);
 	c->expired = FALSE;
@@ -800,7 +800,7 @@ WSLUA_METAMETHOD Columns_index(lua_State *L) {
 
     for(cn = colnames; cn->name; cn++) {
         if( g_str_equal(cn->name,colname) ) {
-            Column c = g_malloc(sizeof(struct _wslua_col_info));
+            Column c = (Column)g_malloc(sizeof(struct _wslua_col_info));
             c->cinfo = cols->cinfo;
             c->col = col_name_to_id(colname);
 	    c->expired = FALSE;
@@ -856,7 +856,7 @@ WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
     keys = g_hash_table_get_keys (priv->table);
     key = g_list_first (keys);
     while (key) {
-        key_string = g_string_append (key_string, key->data);
+        key_string = g_string_append (key_string, (const gchar *)key->data);
         key = g_list_next (key);
         if (key) {
             key_string = g_string_append_c (key_string, ',');
@@ -884,7 +884,7 @@ static int PrivateTable__index(lua_State* L) {
         return 0;
     }
 
-    string = g_hash_table_lookup (priv->table, (gpointer) name);
+    string = (const gchar *)g_hash_table_lookup (priv->table, (gpointer) name);
 
     if (string) {
         lua_pushstring(L, string);
@@ -1075,7 +1075,7 @@ static int Pinfo_columns(lua_State *L) {
         return 0;
     }
 
-    cols = g_malloc(sizeof(struct _wslua_cols));
+    cols = (Columns)g_malloc(sizeof(struct _wslua_cols));
     cols->cinfo = pinfo->ws_pinfo->cinfo;
     cols->expired = FALSE;
 
@@ -1108,7 +1108,7 @@ static int Pinfo_private(lua_State *L) {
         is_allocated = TRUE;
     }
 
-    priv = g_malloc(sizeof(struct _wslua_private_table));
+    priv = (PrivateTable)g_malloc(sizeof(struct _wslua_private_table));
     priv->table = pinfo->ws_pinfo->private_table;
     priv->is_allocated = is_allocated;
     priv->expired = FALSE;
@@ -1239,7 +1239,7 @@ static int Pinfo_hi(lua_State *L) {
         return 0;
     }
 
-    addr = g_malloc(sizeof(address));
+    addr = (Address)g_malloc(sizeof(address));
     if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) >= 0) {
         COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
     } else {
@@ -1260,7 +1260,7 @@ static int Pinfo_lo(lua_State *L) {
         return 0;
     }
 
-    addr = g_malloc(sizeof(address));
+    addr = (Address)g_malloc(sizeof(address));
     if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) < 0) {
         COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
     } else {

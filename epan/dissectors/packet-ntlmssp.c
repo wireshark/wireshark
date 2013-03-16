@@ -491,7 +491,7 @@ get_md4pass_list(md4_pass** p_pass_list, const char* nt_password)
     return 0;
   }
   i = 0;
-  *p_pass_list = ep_alloc(nb_pass*sizeof(md4_pass));
+  *p_pass_list = (md4_pass *)ep_alloc(nb_pass*sizeof(md4_pass));
   pass_list = *p_pass_list;
 
   if (memcmp(nt_password_hash, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
@@ -1515,13 +1515,13 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   tvb_memcpy(tvb, tmp, offset, 8); /* challenge */
   /* We can face more than one NTLM exchange over the same couple of IP and ports ...*/
-  conv_ntlmssp_info = conversation_get_proto_data(conversation, proto_ntlmssp);
+  conv_ntlmssp_info = (ntlmssp_info *)conversation_get_proto_data(conversation, proto_ntlmssp);
   /* XXX: The following code is (re)executed every time a particular frame is dissected
    *      (in whatever order). Thus it seems to me that "multiple exchanges" might not be
    *      handled well depending on the order that frames are visited after the initial dissection.
    */
   if (!conv_ntlmssp_info || memcmp(tmp, conv_ntlmssp_info->server_challenge, 8) != 0) {
-    conv_ntlmssp_info = se_alloc(sizeof(ntlmssp_info));
+    conv_ntlmssp_info = se_new(ntlmssp_info);
     /* Insert the flags into the conversation */
     conv_ntlmssp_info->flags = negotiate_flags;
     /* Insert the RC4 state information into the conversation */
@@ -1642,7 +1642,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
    *      - has the AUTHENTICATE message in a second TCP connection;
    *        (The authentication aparently succeeded).
    */
-  conv_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
+  conv_ntlmssp_info = (ntlmssp_info *)p_get_proto_data(pinfo->fd, proto_ntlmssp);
   if (conv_ntlmssp_info == NULL) {
     /*
      * There isn't any.  Is there any from this conversation?  If so,
@@ -1653,9 +1653,9 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
     /*      so we'll have a place to store flags.                        */
     /*      This is a bit brute-force but looks like it will be OK.      */
     conversation = find_or_create_conversation(pinfo);
-    conv_ntlmssp_info = conversation_get_proto_data(conversation, proto_ntlmssp);
+    conv_ntlmssp_info = (ntlmssp_info *)conversation_get_proto_data(conversation, proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
-      conv_ntlmssp_info = se_alloc0(sizeof(ntlmssp_info));
+      conv_ntlmssp_info = se_new0(ntlmssp_info);
       conversation_add_proto_data(conversation, proto_ntlmssp, conv_ntlmssp_info);
     }
     /* XXX: The *conv_ntlmssp_info struct attached to the frame is the
@@ -1849,7 +1849,7 @@ get_sign_key(packet_info *pinfo, int cryptpeer)
   }
   else {
     /* We have a conversation, check for encryption state */
-    conv_ntlmssp_info = conversation_get_proto_data(conversation,
+    conv_ntlmssp_info = (ntlmssp_info *)conversation_get_proto_data(conversation,
                                                     proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
       /* No encryption state tied to the conversation.  Therefore, we
@@ -1889,7 +1889,7 @@ get_encrypted_state(packet_info *pinfo, int cryptpeer)
   }
   else {
     /* We have a conversation, check for encryption state */
-    conv_ntlmssp_info = conversation_get_proto_data(conversation,
+    conv_ntlmssp_info = (ntlmssp_info *)conversation_get_proto_data(conversation,
                                                     proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
       /* No encryption state tied to the conversation.  Therefore, we
@@ -2010,10 +2010,10 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   ntlmssp_packet_info *stored_packet_ntlmssp_info = NULL;
 
   /* Check to see if we already have state for this packet */
-  packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
+  packet_ntlmssp_info = (ntlmssp_packet_info *)p_get_proto_data(pinfo->fd, proto_ntlmssp);
   if (packet_ntlmssp_info == NULL) {
     /* We don't have any packet state, so create one */
-    packet_ntlmssp_info = se_alloc0(sizeof(ntlmssp_packet_info));
+    packet_ntlmssp_info = se_new0(ntlmssp_packet_info);
     p_add_proto_data(pinfo->fd, proto_ntlmssp, packet_ntlmssp_info);
   }
   if (!packet_ntlmssp_info->payload_decrypted) {
@@ -2029,7 +2029,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
       return ;
     }
 
-    conv_ntlmssp_info = conversation_get_proto_data(conversation,
+    conv_ntlmssp_info = (ntlmssp_info *)conversation_get_proto_data(conversation,
                                                     proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
       /* There is no NTLMSSP state tied to the conversation */
@@ -2041,7 +2041,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
       return;
     }
     if (key != NULL) {
-      stored_packet_ntlmssp_info = g_hash_table_lookup(hash_packet, key);
+      stored_packet_ntlmssp_info = (ntlmssp_packet_info *)g_hash_table_lookup(hash_packet, key);
     }
     if (stored_packet_ntlmssp_info != NULL && stored_packet_ntlmssp_info->payload_decrypted == TRUE) {
       /* Mat TBD (stderr, "Found a already decrypted packet\n");*/
@@ -2072,7 +2072,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
       /* Store the decrypted contents in the packet state struct
          (of course at this point, they aren't decrypted yet) */
-      packet_ntlmssp_info->decrypted_payload = tvb_memdup(tvb, offset,
+      packet_ntlmssp_info->decrypted_payload = (guint8 *)tvb_memdup(tvb, offset,
                                                           encrypted_block_length);
       packet_ntlmssp_info->payload_len = encrypted_block_length;
       decrypted_payloads = g_slist_prepend(decrypted_payloads,
@@ -2092,7 +2092,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
          in case of KEY_EXCH we have independent key so this is not needed*/
       if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags)) {
         guint8 *peer_block;
-        peer_block = ep_memdup(packet_ntlmssp_info->decrypted_payload, encrypted_block_length);
+        peer_block = (guint8 *)ep_memdup(packet_ntlmssp_info->decrypted_payload, encrypted_block_length);
         crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
       }
 
@@ -2119,7 +2119,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ntlmssp_header_t     *ntlmssph;
   void                 *pd_save;
 
-  ntlmssph = ep_alloc(sizeof(ntlmssp_header_t));
+  ntlmssph = ep_new(ntlmssp_header_t);
   ntlmssph->type = 0;
   ntlmssph->domain_name = NULL;
   ntlmssph->acct_name = NULL;
@@ -2234,7 +2234,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   int                  sequence            = 0;
   ntlmssp_packet_info *stored_packet_ntlmssp_info = NULL;
 
-  packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
+  packet_ntlmssp_info = (ntlmssp_packet_info *)p_get_proto_data(pinfo->fd, proto_ntlmssp);
   if (packet_ntlmssp_info == NULL) {
     /* We don't have data for this packet */
     return;
@@ -2246,7 +2246,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
     /* There is no conversation, thus no encryption state */
     return;
   }
-  conv_ntlmssp_info = conversation_get_proto_data(conversation,
+  conv_ntlmssp_info = (ntlmssp_info *)conversation_get_proto_data(conversation,
                                                   proto_ntlmssp);
   if (conv_ntlmssp_info == NULL) {
   /* There is no NTLMSSP state tied to the conversation */
@@ -2254,7 +2254,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   }
 
   if (key != NULL) {
-    stored_packet_ntlmssp_info = g_hash_table_lookup(hash_packet, key);
+    stored_packet_ntlmssp_info = (ntlmssp_packet_info *)g_hash_table_lookup(hash_packet, key);
   }
   if (stored_packet_ntlmssp_info != NULL && stored_packet_ntlmssp_info->verifier_decrypted == TRUE) {
       /* Mat TBD fprintf(stderr, "Found a already decrypted packet\n");*/
@@ -2303,7 +2303,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
          * Some analysis need to be done ...
          */
         if (sign_key != NULL) {
-          check_buf = ep_alloc(packet_ntlmssp_info->payload_len+4);
+          check_buf = (guint8 *)ep_alloc(packet_ntlmssp_info->payload_len+4);
           tvb_memcpy(tvb, &sequence, offset+8, 4);
           memcpy(check_buf, &sequence, 4);
           memcpy(check_buf+4, packet_ntlmssp_info->decrypted_payload, packet_ntlmssp_info->payload_len);
@@ -2328,7 +2328,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
          This is not needed when we just have EXTENDED SECURITY because the signature is not crypted
          and it's also not needed when we have key exchange because server and client have independent keys */
       if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags) && !(NTLMSSP_NEGOTIATE_EXTENDED_SECURITY & conv_ntlmssp_info->flags)) {
-        peer_block = ep_memdup(packet_ntlmssp_info->verifier, encrypted_block_length);
+        peer_block = (guint8 *)ep_memdup(packet_ntlmssp_info->verifier, encrypted_block_length);
         crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
       }
 

@@ -425,7 +425,7 @@ static GHashTable *reassembly_report_hash = NULL;
 /* Create a new struct for reassembly */
 static void reassembly_reset(channel_sequence_analysis_status *status)
 {
-    status->reassembly_info = se_alloc0(sizeof(rlc_channel_reassembly_info));
+    status->reassembly_info = se_new0(rlc_channel_reassembly_info);
 }
 
 /* Hide previous one */
@@ -449,7 +449,7 @@ static void reassembly_add_segment(channel_sequence_analysis_status *status,
         return;
     }
 
-    segment_data = se_alloc(length);
+    segment_data = (guint8 *)se_alloc(length);
     /* TODO: is there a better way to do this? */
     memcpy(segment_data, tvb_get_ptr(tvb, offset, length), length);
 
@@ -488,7 +488,7 @@ static tvbuff_t* reassembly_get_reassembled_tvb(rlc_channel_reassembly_info *rea
     for (n=0; n < reassembly_info->number_of_segments; n++) {
         combined_length += reassembly_info->segments[n].length;
     }
-    combined_data = ep_alloc(combined_length);
+    combined_data = (guint8 *)ep_alloc(combined_length);
 
     /* Copy data into contiguous buffer */
     for (n=0; n < reassembly_info->number_of_segments; n++) {
@@ -763,9 +763,9 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
             }
 
             /* Reuse or allocate struct */
-            p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+            p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte);
             if (p_pdcp_lte_info == NULL) {
-                p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
+                p_pdcp_lte_info = se_new0(pdcp_lte_info);
                 /* Store info in packet */
                 p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
             }
@@ -874,8 +874,8 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 /* Equal keys */
 static gint rlc_channel_equal(gconstpointer v, gconstpointer v2)
 {
-    const channel_hash_key* val1 = v;
-    const channel_hash_key* val2 = v2;
+    const channel_hash_key* val1 = (const channel_hash_key *)v;
+    const channel_hash_key* val2 = (const channel_hash_key *)v2;
 
     /* All fields must match */
     /* N.B. Currently fits into one word, so could return (*v == *v2)
@@ -889,7 +889,7 @@ static gint rlc_channel_equal(gconstpointer v, gconstpointer v2)
 /* Compute a hash value for a given key. */
 static guint rlc_channel_hash_func(gconstpointer v)
 {
-    const channel_hash_key* val1 = v;
+    const channel_hash_key* val1 = (const channel_hash_key *)v;
 
     /* TODO: check/reduce multipliers */
     return ((val1->ueId * 1024) + (val1->channelType*64) + (val1->channelId*2) + val1->direction);
@@ -1363,8 +1363,8 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
         createdChannel = TRUE;
 
         /* Allocate a new value and duplicate key contents */
-        p_channel_status = se_alloc0(sizeof(channel_sequence_analysis_status));
-        p_channel_key = se_memdup(&channel_key, sizeof(channel_hash_key));
+        p_channel_status = se_new0(channel_sequence_analysis_status);
+        p_channel_key = (channel_hash_key *)se_memdup(&channel_key, sizeof(channel_hash_key));
 
         /* Set mode */
         p_channel_status->rlcMode = p_rlc_lte_info->rlcMode;
@@ -1374,7 +1374,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
     }
 
     /* Create space for frame state_report */
-    p_report_in_frame = se_alloc0(sizeof(sequence_analysis_report));
+    p_report_in_frame = se_new0(sequence_analysis_report);
 
 
     /* Deal with according to channel mode */
@@ -1762,8 +1762,8 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
     if (p_channel_status == NULL) {
 
         /* Allocate a new key and value */
-        p_channel_key = se_alloc(sizeof(channel_hash_key));
-        p_channel_status = se_alloc0(sizeof(channel_repeated_nack_status));
+        p_channel_key = se_new(channel_hash_key);
+        p_channel_status = se_new0(channel_repeated_nack_status);
 
         /* Copy key contents */
         memcpy(p_channel_key, &channel_key, sizeof(channel_hash_key));
@@ -1795,7 +1795,7 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
 
     if (noOfNACKsRepeated >= 1) {
         /* Create space for frame state_report */
-        p_report_in_frame = se_alloc(sizeof(channel_repeated_nack_report));
+        p_report_in_frame = se_new(channel_repeated_nack_report);
 
         /* Copy in found duplicates */
         for (n=0; n < MIN(tap_info->noOfNACKs, MAX_NACKs); n++) {
@@ -1873,7 +1873,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
     if (((1024 + p_channel_status->previousSequenceNumber+1 - ack_sn) % 1024) > 512) {
 
         /* Set result */
-        p_report_in_frame = se_alloc0(sizeof(sequence_analysis_report));
+        p_report_in_frame = se_new0(sequence_analysis_report);
         p_report_in_frame->state = ACK_Out_of_Window;
         p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
         p_report_in_frame->sequenceExpected = p_channel_status->previousSequenceNumber;
@@ -2619,10 +2619,10 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
 
     /* If redissecting, use previous info struct (if available) */
-    p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
+    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(pinfo->fd, proto_rlc_lte);
     if (p_rlc_lte_info == NULL) {
         /* Allocate new info struct for this frame */
-        p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
+        p_rlc_lte_info = se_new0(struct rlc_lte_info);
         infoAlreadySet = FALSE;
     }
     else {
@@ -2712,7 +2712,7 @@ static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct rlc_lte_info    *p_rlc_lte_info = NULL;
 
     /* Allocate and Zero tap struct */
-    rlc_lte_tap_info *tap_info = ep_alloc0(sizeof(rlc_lte_tap_info));
+    rlc_lte_tap_info *tap_info = ep_new0(rlc_lte_tap_info);
 
     /* Set protocol name */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-LTE");
@@ -2723,7 +2723,7 @@ static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* Look for packet info! */
-    p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
+    p_rlc_lte_info = (rlc_lte_info *)p_get_proto_data(pinfo->fd, proto_rlc_lte);
 
     /* Can't dissect anything without it... */
     if (p_rlc_lte_info == NULL) {
