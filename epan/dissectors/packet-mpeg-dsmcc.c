@@ -535,7 +535,7 @@ dissect_dsmcc_un_download(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	msg_id = tvb_get_ntohs(tvb, offset+2);
 
 	pi = proto_tree_add_text(tree, tvb, 0, -1, "User Network Message - %s",
-			val_to_str(msg_id, dsmcc_dd_message_id_vals, "%s"));
+			val_to_str(msg_id, dsmcc_dd_message_id_vals, "%u"));
 	sub_tree = proto_item_add_subtree(pi, ett_dsmcc_payload);
 
 	switch (msg_id) {
