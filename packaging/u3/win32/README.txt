@@ -3,7 +3,16 @@ $Id$
 U3
 ==
 
-What is U3? See http://en.wikipedia.org/wiki/U3 and http://www.u3.com
+U3 was a portable (installer-less) application technology developed by
+SanDisk and M-Systems. According to
+
+http://kb.sandisk.com/app/answers/detail/a_id/5358/kw/u3
+
+U3 technology reached end of life in 2009. The developer information
+which was hosted at www.u3.com is no longer available.
+
+See also:
+http://en.wikipedia.org/wiki/U3 and http://www.u3.com
 
 U3 Packaging
 ============
